@@ -60,7 +60,7 @@ internal sealed class CeresRidleyBabyScene
                 // update.
                 baby.VerticalVelocity += CeresRidleyArenaDefinitions.BabyFallGravity;
                 baby.Position = baby.Position.WithY(baby.Position.Y.MovedBy(baby.VerticalVelocity));
-                if (CoordinateAxis.Difference(baby.Position.Y.Whole, CeresRidleyArenaDefinitions.BabyFloorY) >= 0)
+                if (baby.Position.Y.Whole >= CeresRidleyArenaDefinitions.BabyFloorY)
                 {
                     baby.Position = baby.Position.WithWholeY(CeresRidleyArenaDefinitions.BabyFloorY);
                     baby.Action = CeresBabyAction.Idle;

@@ -186,9 +186,6 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void SetPosture(RoomEnemyPlace torizo, TorizoPosture posture) =>
         torizo.RequireSpeciesState<TorizoEnemyState>().Posture = posture;
 
-    /// <summary>Clears <paramref name="flags"/>.</summary>
-    private static void ClearBehavior(RoomEnemyPlace torizo, TorizoBehaviorFlags flags) => torizo.RequireSpeciesState<TorizoEnemyState>().Behavior &= ~flags;
-
     /// <summary>Queues <paramref name="sound"/> through the shared enemy queue.</summary>
     private void PlayTorizoSound(SoundEffectId sound)
     {
@@ -272,13 +269,13 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return null;
 
             case TorizoCue.Signal { Kind: TorizoCueKind.BlowUpGut }:
-                TorizoCombat.SetBehavior(torizo, TorizoBehaviorFlags.GutBlownUp);
+                state.GutBlownUp = true;
                 for (int piece = 0; piece < TorizoDeathDefinitions.GutDroolPieces; piece++)
                     Attacks.SpawnBombTorizoLowHealthDrool(torizo);
                 return null;
 
             case TorizoCue.Signal { Kind: TorizoCueKind.MarkFaceBlownUp }:
-                TorizoCombat.SetBehavior(torizo, TorizoBehaviorFlags.FaceBlownUp);
+                state.FaceBlownUp = true;
                 return null;
 
             case TorizoCue.Signal { Kind: TorizoCueKind.MakeVisible }:
@@ -322,7 +319,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 
             case TorizoCue.Choice { Kind: TorizoChoiceKind.LandFacelessOrGolden } choice:
             {
-                if (TorizoBody.HasBehavior(torizo, TorizoBehaviorFlags.FaceBlownUp))
+                if (state.FaceBlownUp)
                     return TorizoAnimations.ContinueWith(choice.Target);
                 // The Bomb variant runs on past both targets.
                 return state.IsGolden ? TorizoAnimations.ContinueWith(choice.Alternate) : null;
@@ -451,7 +448,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return null;
 
             case TorizoCue.Signal { Kind: TorizoCueKind.ClearCaughtSuperMissile }:
-                ClearBehavior(torizo, TorizoBehaviorFlags.CaughtSuperMissile);
+                state.CaughtSuperMissile = false;
                 return null;
 
             case TorizoCue.Signal { Kind: TorizoCueKind.SpawnEgg }:
@@ -459,10 +456,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return null;
 
             case TorizoCue.Replay { Kind: TorizoReplayKind.WhileEggsRemain }:
-                return _projectiles.EnemyProjectiles.Any(projectile =>
-                        projectile.Kind == RoomEnemyProjectileKind.GoldenTorizoEgg)
-                    ? TorizoAnimations.ReplayPhase(continuation)
-                    : null;
+                return state.EggsRemain() ? TorizoAnimations.ReplayPhase(continuation) : null;
 
             case TorizoCue.Signal { Kind: TorizoCueKind.DisableEyeBeamExplosions }:
                 state.EyeBeamExplosionsEnabled = false;
@@ -473,7 +467,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return null;
 
             case TorizoCue.Signal { Kind: TorizoCueKind.UnmarkStunned }:
-                ClearBehavior(torizo, TorizoBehaviorFlags.Stunned);
+                state.Stunned = false;
                 return null;
 
             case TorizoCue.Signal { Kind: TorizoCueKind.PlayEggReleasedSound }:
@@ -520,7 +514,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 
             case TorizoCue.Interrupt { Kind: TorizoInterruptKind.GoldenStaggerWhenStunned } interrupt:
                 if (torizo.Health <= TorizoDecisionDefinitions.GoldenStaggerHealth ||
-                    !TorizoBody.HasBehavior(torizo, TorizoBehaviorFlags.Stunned))
+                    !state.Stunned)
                     return null;
                 state.InterruptedWalk = continuation;
                 return TorizoAnimations.ContinueWith(interrupt.Animation);

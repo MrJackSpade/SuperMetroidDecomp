@@ -108,29 +108,32 @@ internal sealed class CeresRidleyHits
         Position16<RoomPixels> subject,
         Extent16<RoomPixels> subjectRadius)
     {
-        int subjectLeft = CoordinateAxis.Wrap(subject.X - subjectRadius.X);
-        int subjectRight = CoordinateAxis.Wrap(subject.X + subjectRadius.X);
-        int subjectTop = CoordinateAxis.Wrap(subject.Y - subjectRadius.Y);
-        int subjectBottom = CoordinateAxis.Wrap(subject.Y + subjectRadius.Y);
+        // His retreat carries him above his chamber, so both rectangles are measured from the room's origin, where a place
+        // above the chamber lies at a negative height.
+        Offset16<RoomPixels> subjectPlace = RidleyFlight.SignedPlace(subject);
+        int subjectLeft = subjectPlace.X - subjectRadius.X;
+        int subjectRight = subjectPlace.X + subjectRadius.X;
+        int subjectTop = subjectPlace.Y - subjectRadius.Y;
+        int subjectBottom = subjectPlace.Y + subjectRadius.Y;
+        Offset16<RoomPixels> body = RidleyFlight.SignedPlace(place);
         var components =
             RidleyCollision.ComponentsAt(place.Frame);
         foreach (RidleyCollisionComponent component in components)
         {
-            Position16<RoomPixels> componentOrigin = place.Position.Whole + component.Offset;
+            int originX = body.X + component.Offset.X;
+            int originY = body.Y + component.Offset.Y;
             foreach (EnemyHitboxRectangle hitbox in component.Hitboxes)
             {
-                int left = CoordinateAxis.Wrap(componentOrigin.X + hitbox.Left);
-                int top = CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Top);
-                int right = CoordinateAxis.Wrap(componentOrigin.X + hitbox.Right);
-                int bottom = CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Bottom);
+                int left = originX + hitbox.Left;
+                int top = originY + hitbox.Top;
+                int right = originX + hitbox.Right;
+                int bottom = originY + hitbox.Bottom;
 
-                // The rectangle checks use signed comparisons and treat touching
-                // right/bottom edges as non-overlap. Ceres coordinates remain in the low
-                // positive room range, so these integer comparisons are the same result.
-                if (CoordinateAxis.Difference(left, subjectRight) <= 0 &&
-                    CoordinateAxis.Difference(right, subjectLeft) > 0 &&
-                    CoordinateAxis.Difference(top, subjectBottom) <= 0 &&
-                    CoordinateAxis.Difference(bottom, subjectTop) > 0)
+                // Touching right or bottom edges do not overlap.
+                if (left <= subjectRight &&
+                    right > subjectLeft &&
+                    top <= subjectBottom &&
+                    bottom > subjectTop)
                 {
                     return true;
                 }

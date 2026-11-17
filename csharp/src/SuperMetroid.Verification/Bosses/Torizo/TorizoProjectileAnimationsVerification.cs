@@ -47,6 +47,28 @@ internal static class TorizoProjectileAnimationsVerification
         [TorizoProjectileCueKind.ThrowSuperMissile] = TorizoProjectileMotion.SuperMissileThrown,
     };
 
+    /// <summary>
+    /// The behaviours and depth each cue a property OR becomes turns on, as the cartridge's OR operand stores them: the cue
+    /// names what the bits did.
+    /// </summary>
+    private static readonly Dictionary<TorizoProjectileCueKind, (EnemyProjectilePropertyFlags Properties, EnemyProjectileDepth? Depth)> PropertiesSet = new()
+    {
+        [TorizoProjectileCueKind.StopHarmingSamusAndDrawInFront] = (EnemyProjectilePropertyFlags.HarmlessToSamus, EnemyProjectileDepth.InFrontOfSamus),
+        [TorizoProjectileCueKind.PersistOnContactAndDrawInFront] = (EnemyProjectilePropertyFlags.PersistsOnContact, EnemyProjectileDepth.InFrontOfSamus),
+        [TorizoProjectileCueKind.BlockShots] = (EnemyProjectilePropertyFlags.BlocksShots, null),
+    };
+
+    /// <summary>
+    /// The behaviours each cue a property AND becomes turns off, and whether it moves the projectile behind Samus, as the
+    /// cartridge's AND mask clears them.
+    /// </summary>
+    private static readonly Dictionary<TorizoProjectileCueKind, (EnemyProjectilePropertyFlags Properties, bool MovesBehind)> PropertiesCleared = new()
+    {
+        [TorizoProjectileCueKind.DrawBehindSamus] = (EnemyProjectilePropertyFlags.None, true),
+        [TorizoProjectileCueKind.TurnHarmful] = (EnemyProjectilePropertyFlags.HarmlessToSamus, false),
+        [TorizoProjectileCueKind.TurnHarmfulAndStopBlockingShots] = (EnemyProjectilePropertyFlags.HarmlessToSamus | EnemyProjectilePropertyFlags.BlocksShots, false),
+    };
+
     /// <summary>Each native command Torizo's lists use: what it becomes and, for a cue, which cue.</summary>
     private static readonly Dictionary<NativeEnemyProjectileInstruction, TorizoProjectileAnimationsWord> Words = new()
     {
@@ -58,8 +80,8 @@ internal static class TorizoProjectileAnimationsVerification
         [NativeEnemyProjectileInstruction.DecrementTimer_GotoYIfNonZero] = new TorizoProjectileAnimationsWord(ProjectileWord.RepeatWhileCounting, null),
         [NativeEnemyProjectileInstruction.ClearFrameBehavior] = new TorizoProjectileAnimationsWord(ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Exactly(new TorizoProjectileCue.Signal(TorizoProjectileCueKind.StopMoving))),
         [NativeEnemyProjectileInstruction.FrameBehaviorInY] = new TorizoProjectileAnimationsWord(ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Of<TorizoProjectileCue.Signal>("")),
-        [NativeEnemyProjectileInstruction.Properties_OrY] = new TorizoProjectileAnimationsWord(ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Of<TorizoProjectileCue.SetProperties>("")),
-        [NativeEnemyProjectileInstruction.Properties_AndY] = new TorizoProjectileAnimationsWord(ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Of<TorizoProjectileCue.ClearProperties>("")),
+        [NativeEnemyProjectileInstruction.Properties_OrY] = new TorizoProjectileAnimationsWord(ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Of<TorizoProjectileCue.Signal>("", "a cue the property OR names", signal => PropertiesSet.ContainsKey(signal.Kind))),
+        [NativeEnemyProjectileInstruction.Properties_AndY] = new TorizoProjectileAnimationsWord(ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Of<TorizoProjectileCue.Signal>("", "a cue the property AND names", signal => PropertiesCleared.ContainsKey(signal.Kind))),
         [NativeEnemyProjectileInstruction.QueueSoundInY_Lib2_Max6] = new TorizoProjectileAnimationsWord(ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Of<TorizoProjectileCue.PlaySound>("")),
         [NativeEnemyProjectileInstruction.QueueSoundInY_Lib3_Max6] = new TorizoProjectileAnimationsWord(ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Of<TorizoProjectileCue.PlaySound>("")),
         [NativeEnemyProjectileInstruction.QueueSoundInY_Lib2_Max1] = new TorizoProjectileAnimationsWord(ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Of<TorizoProjectileCue.PlaySound>("")),
@@ -188,19 +210,17 @@ internal static class TorizoProjectileAnimationsVerification
                 // Setting a movement routine is the cue that starts the motion that routine stands for.
                 AssertEqual<Enum?>(started, EnemyProjectileMotionAccess.FromWord(Word(0)), $"{at}: movement routine");
                 return;
-            case TorizoProjectileCue.SetProperties setProperties:
-                // The cue's behaviours, encoded by the import's property-word bits, are the OR operand the cartridge stores;
-                // setting the depth bit moves the projectile in front of Samus.
-                AssertEqual(Word(0), unchecked((ushort)(EnemyProjectilePropertyWords.ToNativeWord(setProperties.Properties) |
-                    (setProperties.Depth is { } setDepth ? EnemyProjectilePropertyWords.ToNativeWord(setDepth) : 0))), $"{at}: property bits set");
-                AssertTrue(setProperties.Depth is null or EnemyProjectileDepth.InFrontOfSamus, $"{at}: a property OR can only move the projectile in front of Samus");
+            case TorizoProjectileCue.Signal signal when PropertiesSet.TryGetValue(signal.Kind, out var set):
+                // The behaviours the cue turns on, encoded by the import's property-word bits, are the OR operand the
+                // cartridge stores; setting the depth bit moves the projectile in front of Samus.
+                AssertEqual(Word(0), unchecked((ushort)(EnemyProjectilePropertyWords.ToNativeWord(set.Properties) |
+                    (set.Depth is { } setDepth ? EnemyProjectilePropertyWords.ToNativeWord(setDepth) : 0))), $"{at}: property bits set");
                 return;
-            case TorizoProjectileCue.ClearProperties clearProperties:
-                // The cue's behaviours, encoded by the import's property-word bits, are the bits the cartridge's AND mask clears;
-                // clearing the depth bit moves the projectile behind Samus.
-                AssertEqual(Word(0), unchecked((ushort)~(EnemyProjectilePropertyWords.ToNativeWord(clearProperties.Properties) |
-                    (clearProperties.Depth is not null ? EnemyProjectilePropertyWords.ToNativeWord(EnemyProjectileDepth.InFrontOfSamus) : 0))), $"{at}: property bits kept");
-                AssertTrue(clearProperties.Depth is null or EnemyProjectileDepth.BehindSamus, $"{at}: a property AND can only move the projectile behind Samus");
+            case TorizoProjectileCue.Signal signal when PropertiesCleared.TryGetValue(signal.Kind, out var cleared):
+                // The behaviours the cue turns off, encoded by the import's property-word bits, are the bits the cartridge's
+                // AND mask clears; clearing the depth bit moves the projectile behind Samus.
+                AssertEqual(Word(0), unchecked((ushort)~(EnemyProjectilePropertyWords.ToNativeWord(cleared.Properties) |
+                    (cleared.MovesBehind ? EnemyProjectilePropertyWords.ToNativeWord(EnemyProjectileDepth.InFrontOfSamus) : 0))), $"{at}: property bits kept");
                 return;
             case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.ReplayWhileEyeBeamExplosionsDisabled }:
                 // The replay's operand is the entry of its own run's list, which the oracle checks (CueRules.Replays).

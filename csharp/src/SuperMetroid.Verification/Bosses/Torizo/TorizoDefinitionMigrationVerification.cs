@@ -25,8 +25,6 @@ internal static class TorizoDefinitionMigrationVerification
         AssertEqual(new TorizoPosture(HorizontalDirection.Right, LeadingFoot: HorizontalDirection.Left).TurningAround,
             TorizoParameterFlagWords.PostureOf(0xe123), "posture of an authored word");
         AssertEqual(0x0123, TorizoParameterFlagWords.PostureLowBitsOf(0xe123), "low bits of an authored word");
-        AssertEqual(TorizoBehaviorFlags.CaughtSuperMissile, TorizoParameterFlagWords.BehaviorOf(0x1000), "caught Super Missile bit");
-        AssertEqual(TorizoBehaviorFlags.GutBlownUp | TorizoBehaviorFlags.FaceBlownUp, TorizoParameterFlagWords.BehaviorOf(0xc00f), "blown-up bits");
 
         // The random decisions read the bits the cartridge's masks do, and are taken by exactly the samples the masks
         // leave clear (#1632).

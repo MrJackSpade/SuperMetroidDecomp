@@ -39,9 +39,6 @@ internal sealed class TorizoBody
         }
     }
 
-    /// <summary>Whether Torizo has latched <paramref name="flag"/>.</summary>
-    internal static bool HasBehavior(RoomEnemyPlace torizo, TorizoBehaviorFlags flag) => torizo.RequireSpeciesState<TorizoEnemyState>().Behavior.HasFlag(flag);
-
     /// <summary>Requests the awakening drool variant whose position and speed use wrap-sensitive jitter.</summary>
     internal void SpawnInitialDrool(RoomEnemyPlace torizo) =>
         _attacks.SpawnDrool(torizo, RoomEnemyProjectileKind.TorizoInitialDrool);

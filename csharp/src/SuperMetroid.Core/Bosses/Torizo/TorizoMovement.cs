@@ -43,7 +43,6 @@ internal sealed class TorizoMovement
         {
             // Every Torizo population entry starts it standing, with no behaviour latch set.
             Posture = TorizoPosture.Initial,
-            Behavior = TorizoBehaviorFlags.None,
         };
         torizo.SetSpeciesState(state);
 
@@ -101,7 +100,7 @@ internal sealed class TorizoMovement
 
         // Two of its latches are the death sequence's. Before they are set,
         // health thresholds interrupt the current authored animation with the core/head bursts.
-        if (!TorizoBody.HasBehavior(torizo, TorizoBehaviorFlags.GutBlownUp) &&
+        if (!state.GutBlownUp &&
             torizo.Health < TorizoDecisionDefinitions.GutBlowUpHealth)
         {
             state.InterruptedPlayback = state.BodyPlayback;
@@ -109,7 +108,7 @@ internal sealed class TorizoMovement
             return;
         }
 
-        if (!TorizoBody.HasBehavior(torizo, TorizoBehaviorFlags.FaceBlownUp) &&
+        if (!state.FaceBlownUp &&
             torizo.Health < TorizoDecisionDefinitions.FaceBlowUpHealth)
         {
             // The face's blow-up ends in the faceless turn away from the way Bomb Torizo faces (#2028).
@@ -229,7 +228,7 @@ internal sealed class TorizoMovement
     private static TorizoAnimation TurnTowardSamus(RoomEnemyPlace torizo, TorizoEnemyState state)
     {
         bool facesRight = TorizoFacing.FacesRight(torizo);
-        if (TorizoBody.HasBehavior(torizo, TorizoBehaviorFlags.FaceBlownUp))
+        if (state.FaceBlownUp)
             return facesRight ? TorizoAnimation.FacelessTurningLeft : TorizoAnimation.FacelessTurningRight;
         TorizoInitializationDefinition definition = state.Definition;
         return facesRight ? definition.TurningLeft : definition.TurningRight;

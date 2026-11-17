@@ -32,8 +32,8 @@ internal static class SporeSpawnSwayVerification
             {
                 Movement = SporeSpawnMovement.Moving,
                 MovementCenter = body.Position.Whole,
-                MaximumXRadius = 48,
-                AngleDelta = delta,
+                SwayRadius = new(48),
+                SwayStep = new(RotationAngle.FromSteps(Math.Abs(delta)), delta < 0 ? RotationDirection.Clockwise : RotationDirection.Counterclockwise),
                 Angle = RotationAngle.FromSteps(start),
             };
             state.StalkLinks = [.. SporeSpawnProjectileDefinitions.StalkSegments.Select(segment => enemies.SporeSpawnBehavior.SpawnSporeSpawnStalk(body, segment))];

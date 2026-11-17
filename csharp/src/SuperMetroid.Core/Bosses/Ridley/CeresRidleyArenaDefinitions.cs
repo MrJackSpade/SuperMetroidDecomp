@@ -9,11 +9,14 @@ internal static class CeresRidleyArenaDefinitions
     /// <summary>Where Ceres Ridley stands as he is placed, on his chamber's floor.</summary>
     internal static readonly Position16<RoomPixels> Spawn = new(186, 169);
 
-    /// <summary>The top-left corner of the box his movement keeps him in: the box reaches above the chamber.</summary>
-    internal static readonly Position16<RoomPixels> MovementMinimum = Position16<RoomPixels>.Wrapped(40, -32);
+    /// <summary>
+    /// The top-left corner of the box his movement keeps him in, where it lies from the room's origin: the box reaches
+    /// above the chamber, to a negative height.
+    /// </summary>
+    internal static readonly Offset16<RoomPixels> MovementMinimum = new(40, -32);
 
-    /// <summary>The bottom-right corner of the box his movement keeps him in.</summary>
-    internal static readonly Position16<RoomPixels> MovementMaximum = new(224, 176);
+    /// <summary>The bottom-right corner of the box his movement keeps him in, where it lies from the room's origin.</summary>
+    internal static readonly Offset16<RoomPixels> MovementMaximum = new(224, 176);
 
     /// <summary>The top his movement box rises to as he retreats, so he can leave the chamber upward.</summary>
     internal const int RetreatMovementTop = -192;
@@ -63,8 +66,11 @@ internal static class CeresRidleyArenaDefinitions
     /// </summary>
     internal static readonly Position16<RoomPixels> FakeRetreatPoint = new(192, 128);
 
-    /// <summary>The point above the chamber both his retreats fly toward; his real retreat ends once he is above it.</summary>
-    internal static readonly Position16<RoomPixels> RetreatPoint = Position16<RoomPixels>.Wrapped(192, -128);
+    /// <summary>
+    /// The point above the chamber both his retreats fly toward, where it lies from the room's origin, at a negative
+    /// height; his real retreat ends once he is above it.
+    /// </summary>
+    internal static readonly Offset16<RoomPixels> RetreatPoint = new(192, -128);
 
     /// <summary>The height above which his rising fake retreat lets the Baby fall.</summary>
     internal const int BabyDropLineY = 32;

@@ -1474,7 +1474,7 @@ internal static class LookupStream4Verification
         for (ushort parameter = 0; parameter <= 22; parameter += 2)
         {
             var actual = RidleyExplosionDefinitions.GetPart(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.RidleyExplosionPart(parameter));
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c6ce + parameter)), actual.Lifetime, "stream4 native breakup lifetime");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c6ce + parameter)) + 1, actual.LifetimeUpdates, "stream4 native breakup lifetime, one short of the updates it lasts");
         }
         // The cartridge's tip list is the one its orientation, the direction half a pose on, numbers in sixteenths of a turn.
         for (int direction = 0; direction < 256; direction++)
@@ -1587,7 +1587,7 @@ internal static class LookupStream4Verification
         for (ushort index = 0; index < 4; index++)
         {
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86dcb9 + 2 * index)), CoordinateAxis.Wrap(SporeSpawnProjectileDefinitions.StalkSegments[index].Y), "stream4 original stalk segment spacing");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86dce6 + 2 * index)), SporeSpawnProjectileDefinitions.Emitters[index].X, "stream4 original ceiling emitter spacing");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86dce6 + 2 * index)), SporeSpawnProjectileDefinitions.Emitters[index].Place.X, "stream4 original ceiling emitter spacing");
         }
     }
 

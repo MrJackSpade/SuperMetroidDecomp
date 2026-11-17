@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Corpses;
+
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
@@ -31,8 +33,8 @@ public sealed class NorfairRidleyState : RidleyEncounterState
     /// <summary>How far his arena's reveal, which he holds his roar through, has gone (#2228); it starts at its first step.</summary>
     public NorfairArenaRevealProgress ArenaReveal { get; internal set; }
 
-    /// <summary>Independent swoop phase countdown used by the swoop phases.</summary>
-    public int SwoopPhaseTimer { get; internal set; }
+    /// <summary>The countdown of the swoop phase he flies, apart from his phase timer: each stage of his swoop lasts its own updates.</summary>
+    public BossCountdown SwoopPhaseTimer { get; } = new();
 
     /// <summary>Gets his health band, updated from his health after each of his updates; he starts unhurt.</summary>
     public NorfairRidleyHealthBand HealthBand { get; internal set; } = NorfairRidleyHealthBandDefinitions.Unhurt;
@@ -57,10 +59,15 @@ public sealed class NorfairRidleyState : RidleyEncounterState
     public int HurtMovementClamp { get; internal set; }
     /// <summary>Gets the number of zero-health lunges completed before the authored death transition.</summary>
     public int ZeroHealthLungeCount { get; internal set; }
-    /// <summary>Gets the small-explosion countdown, reloaded to four for one explosion every five updates.</summary>
-    public int DeathExplosionTimer { get; internal set; }
-    /// <summary>Gets the index, zero through nine, cycling through ten authored death-explosion placements.</summary>
-    public int DeathExplosionCount { get; internal set; }
+    /// <summary>The wait before his death's next small explosion, one every five updates.</summary>
+    public BossCountdown DeathExplosionTimer { get; } = new();
+    /// <summary>
+    /// Where his death's next small explosion bursts: each takes the next point of the scatter shared with the Baby
+    /// Metroid's death, the first after the last, starting from the scatter's second point.
+    /// </summary>
+    public ListStep<Offset16<RoomPixels>> NextDeathExplosion { get; internal set; } = FirstDeathExplosion;
+    /// <summary>Where his death's first small explosion bursts: the shared scatter's second point.</summary>
+    internal static ListStep<Offset16<RoomPixels>> FirstDeathExplosion => ListStep<Offset16<RoomPixels>>.At(DeathExplosionScatterDefinitions.Offsets, 1);
     /// <summary>Gets whether his twelve independently moving breakup actors have already been allocated.</summary>
     public bool DeathBreakupSpawned { get; internal set; }
 

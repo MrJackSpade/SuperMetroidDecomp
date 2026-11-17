@@ -33,23 +33,20 @@ internal static class NorfairRidleyMotionDefinitions
     /// <summary>The updates of his hover, on the last of which he chooses his next attack wherever he is.</summary>
     internal const int HoverUpdates = 129;
 
-    /// <summary>The updates his swoop's own timer counts down as he flies to the swoop's start; it stops at zero, and the update after that is the dive's.</summary>
-    internal const int SwoopSetupUpdates = 10;
+    /// <summary>The updates his swoop's dive, aiming down, lasts; on the last he begins his sweep.</summary>
+    internal const int SwoopDiveUpdates = 33;
 
-    /// <summary>The updates his swoop's dive, aiming down, counts down before the update it ends on.</summary>
-    internal const int SwoopDiveUpdates = 32;
+    /// <summary>The updates his swoop's sweep, aiming sideways, lasts; on the last his tail whips and he turns up.</summary>
+    internal const int SwoopSweepUpdates = 21;
 
-    /// <summary>The updates his swoop's sweep, aiming sideways, counts down before the update it ends on, on which his tail whips.</summary>
-    internal const int SwoopSweepUpdates = 20;
+    /// <summary>The updates his swoop's turn up lasts; on the last he begins his climb.</summary>
+    internal const int SwoopTurnUpdates = 17;
 
-    /// <summary>The updates his swoop's turn up counts down before the update it ends on.</summary>
-    internal const int SwoopTurnUpdates = 16;
+    /// <summary>The updates his swoop's climb lasts; on the last he turns toward the half of the arena he is not in.</summary>
+    internal const int SwoopClimbUpdates = 33;
 
-    /// <summary>The updates his swoop's climb counts down before the update it ends on.</summary>
-    internal const int SwoopClimbUpdates = 32;
-
-    /// <summary>The updates his swoop's recovery counts down before the update it ends on, after which he lunges at a grabbable Samus.</summary>
-    internal const int SwoopRecoveryUpdates = 32;
+    /// <summary>The updates his swoop's recovery lasts; on the last he lunges at a grabbable Samus or chooses his next attack.</summary>
+    internal const int SwoopRecoveryUpdates = 33;
 
     /// <summary>The speed his swoop's dive moves toward: four and a half pixels an update.</summary>
     internal static readonly SignedEightEight SwoopDiveSpeed = SignedEightEight.FromParts(4, 128);
@@ -111,8 +108,8 @@ internal static class NorfairRidleyMotionDefinitions
     /// <summary>The updates of his death's explosions, on the last of which he breaks up.</summary>
     internal const int DeathExplosionUpdates = 161;
 
-    /// <summary>The updates between his death's small explosions, less the one each spawns on.</summary>
-    internal const int DeathExplosionInterval = 4;
+    /// <summary>The updates from one of his death's small explosions to the next.</summary>
+    internal const int DeathExplosionIntervalUpdates = 5;
 
     /// <summary>The updates of the wait after his breakup.</summary>
     internal const int BreakupWaitUpdates = 33;

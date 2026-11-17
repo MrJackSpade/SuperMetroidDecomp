@@ -41,7 +41,7 @@ internal sealed class TorizoChoices
         SamusState samus,
         TorizoAnimation target)
     {
-        int distance = CoordinateAxis.Distance(samus.Position.X.Whole, torizo.Position.X.Whole);
+        int distance = Math.Abs(samus.Position.X.Whole - torizo.Position.X.Whole);
         bool isGroundedBall = samus.Pose is
             SamusPoseId.MorphBallGroundRightPose or SamusPoseId.MorphBallMovingRightPose or
             SamusPoseId.MorphBallMovingLeftPose or SamusPoseId.SpringBallGroundRightPose or
@@ -65,7 +65,7 @@ internal sealed class TorizoChoices
         AnimationPlayback<TorizoAnimation> continuation,
         TorizoAnimation target)
     {
-        int distance = CoordinateAxis.Distance(samus.Position.X.Whole, torizo.Position.X.Whole);
+        int distance = Math.Abs(samus.Position.X.Whole - torizo.Position.X.Whole);
         if (!TorizoFacing.FacesSamus(torizo, samus) ||
             distance < TorizoDecisionDefinitions.MediumRangeNearest || distance >= TorizoDecisionDefinitions.MediumRangeFarthest ||
             !TorizoRandomDefinitions.MediumRangeAttack.IsTakenBy(_room.Random.Generate()))
@@ -85,7 +85,7 @@ internal sealed class TorizoChoices
         GameplayAction controllerInput,
         TorizoAnimation target)
     {
-        int distance = CoordinateAxis.Distance(samus.Position.X.Whole, torizo.Position.X.Whole);
+        int distance = Math.Abs(samus.Position.X.Whole - torizo.Position.X.Whole);
         if (distance < TorizoDecisionDefinitions.ForwardLeapDistance || !TorizoFacing.FacesSamus(torizo, samus))
             return null;
         if (state.SamusSpaceJumpFrames <= TorizoDecisionDefinitions.SpaceJumpLeapFrames &&
@@ -107,7 +107,7 @@ internal sealed class TorizoChoices
         SamusState samus,
         TorizoAnimation target)
     {
-        int distance = CoordinateAxis.Distance(samus.Position.X.Whole, torizo.Position.X.Whole);
+        int distance = Math.Abs(samus.Position.X.Whole - torizo.Position.X.Whole);
         if (state.DecisionCounter < TorizoDecisionDefinitions.RepeatedJumpSteps &&
             (distance >= TorizoDecisionDefinitions.CloseInFrontDistance || !TorizoFacing.FacesSamus(torizo, samus)))
         {
@@ -199,7 +199,7 @@ internal sealed class TorizoChoices
         AnimationPlayback<TorizoAnimation> continuation,
         TorizoAnimation target)
     {
-        if (CoordinateAxis.Distance(samus.Position.X.Whole, torizo.Position.X.Whole) >= TorizoDecisionDefinitions.CloseBehindDistance)
+        if (Math.Abs(samus.Position.X.Whole - torizo.Position.X.Whole) >= TorizoDecisionDefinitions.CloseBehindDistance)
             return null;
         if (FacesAwayFromSamus(torizo, samus))
             return null;
@@ -214,7 +214,7 @@ internal sealed class TorizoChoices
         SamusState samus,
         TorizoAnimation target)
     {
-        if (CoordinateAxis.Distance(samus.Position.X.Whole, torizo.Position.X.Whole) >= TorizoDecisionDefinitions.CloseInFrontDistance ||
+        if (Math.Abs(samus.Position.X.Whole - torizo.Position.X.Whole) >= TorizoDecisionDefinitions.CloseInFrontDistance ||
             !TorizoFacing.FacesSamus(torizo, samus))
         {
             return null;
@@ -237,5 +237,5 @@ internal sealed class TorizoChoices
     private static bool FacesAwayFromSamus(
         RoomEnemyPlace torizo,
         SamusState samus) =>
-        TorizoFacing.FacesRight(torizo) == CoordinateAxis.Difference(samus.Position.X.Whole, torizo.Position.X.Whole) < 0;
+        TorizoFacing.FacesRight(torizo) == samus.Position.X.Whole < torizo.Position.X.Whole;
 }

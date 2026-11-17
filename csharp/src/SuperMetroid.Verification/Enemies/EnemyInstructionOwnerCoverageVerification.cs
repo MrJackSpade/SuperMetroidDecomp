@@ -91,8 +91,8 @@ internal static class EnemyInstructionOwnerCoverageVerification
             "every translated instruction-processing enemy runs a typed animation; actual=" +
             string.Join(", ", unresolved.Distinct()));
 
-        // A definition the game reads but never places in a slot has no species (#2010): the Torizo orbs only lend the
-        // drops of a broken orb their chances.
+        // A definition the cartridge holds but never places in a slot has no species (#2010): the Torizo orbs' headers hold
+        // the chances a broken orb's drop rolls, which the orbs name themselves (#2332).
         AssertEqual("BombTorizoOrb, GoldenTorizoOrb", string.Join(", ", withoutSpecies),
             "only the definitions the game never places have no species");
 

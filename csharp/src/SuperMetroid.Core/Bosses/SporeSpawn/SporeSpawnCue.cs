@@ -23,10 +23,10 @@ internal abstract record SporeSpawnCue
     /// <param name="Movement">The main-AI movement a <see cref="SetMovement"/> cue selects.</param>
     internal sealed record SetMovement(SporeSpawnMovement Movement) : SporeSpawnCue;
 
-    /// <summary>Sets the sway's maximum X radius and angle delta.</summary>
-    /// <param name="MaximumXRadius">The sway's horizontal amplitude in room pixels a <see cref="SetMaxXRadiusAndAngleDelta"/> cue sets.</param>
-    /// <param name="AngleDelta">The signed sway step in 256ths of a turn a <see cref="SetMaxXRadiusAndAngleDelta"/> cue sets.</param>
-    internal sealed record SetMaxXRadiusAndAngleDelta(int MaximumXRadius, int AngleDelta) : SporeSpawnCue;
+    /// <summary>Sets how wide he sways and how his sway's phase turns.</summary>
+    /// <param name="Radius">How wide a <see cref="SetSway"/> cue makes him sway.</param>
+    /// <param name="Step">How a <see cref="SetSway"/> cue makes his sway's phase turn each movement update.</param>
+    internal sealed record SetSway(SporeSpawnSwayRadius Radius, SporeSpawnSwayStep Step) : SporeSpawnCue;
 
     /// <summary>Starts or stops spore generation.</summary>
     /// <param name="SporeGenerationSuppressed">Whether a <see cref="SetSporeGeneration"/> cue stops the ceiling spore emitters.</param>

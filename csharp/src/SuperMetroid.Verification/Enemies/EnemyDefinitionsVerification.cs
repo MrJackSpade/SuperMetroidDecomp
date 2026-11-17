@@ -77,8 +77,6 @@ internal static class EnemyDefinitionsVerification
             {
                 EnemyDefinitionId.BabyMetroidCutscene,
                 EnemyDefinitionId.MotherBrainTubes,
-                EnemyDefinitionId.BombTorizoOrb,
-                EnemyDefinitionId.GoldenTorizoOrb,
                 EnemyDefinitionId.CeresGetawayChamberWall,
             }.Order()),
             "all runtime-created enemy headers outside retail room lists are catalogued");

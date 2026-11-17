@@ -106,13 +106,13 @@ internal static class RidleyFullMovieVerification
         body.Position = body.Position.WithWhole(new(212, 200)); state.Flight.FacingDirection = RidleyFacing.Right;
         runtime.Enemies.NorfairRidleyBehavior.RunNorfairRidleyPhase(body, state, runtime.Player.IntroducedSamus, 0, runtime.Room.LevelData ?? throw new InvalidOperationException("The runtime has no loaded room."), runtime.BombProjectiles.PowerBombExplosion);
         AssertEqual(112, state.PhaseTimer.Count, "native swoop setup retains general AI timer");
-        AssertEqual(10, state.SwoopPhaseTimer, "native swoop setup initializes independent countdown");
-        state.Phase = NorfairRidleyPhase.SwoopAimDown; state.SwoopPhaseTimer = 1;
+        state.Phase = NorfairRidleyPhase.SwoopAimDown; state.SwoopPhaseTimer.LastFor(2);
         runtime.Enemies.NorfairRidleyBehavior.RunNorfairRidleyPhase(body, state, runtime.Player.IntroducedSamus, 0, runtime.Room.LevelData, runtime.BombProjectiles.PowerBombExplosion);
-        AssertEqual(0, state.SwoopPhaseTimer, "native swoop decrements its own timer");
+        AssertEqual(NorfairRidleyPhase.SwoopAimDown, state.Phase, "the dive's first of two updates keeps diving");
         AssertEqual(112, state.PhaseTimer.Count, "native swoop countdown retains general timer");
         runtime.Enemies.NorfairRidleyBehavior.RunNorfairRidleyPhase(body, state, runtime.Player.IntroducedSamus, 0, runtime.Room.LevelData, runtime.BombProjectiles.PowerBombExplosion);
-        AssertEqual(20, state.SwoopPhaseTimer, "native next swoop phase installs its own duration");
+        AssertEqual(NorfairRidleyPhase.SwoopAimSideways, state.Phase, "the dive's last update begins the sweep");
+        AssertEqual(NorfairRidleyMotionDefinitions.SwoopSweepUpdates - 1, state.SwoopPhaseTimer.Count, "native next swoop phase installs its own duration");
         AssertEqual(112, state.PhaseTimer.Count, "native phase transition retains general timer");
         Console.WriteLine("Ridley swoop: independent countdown and retained general AI timer pass.");
     }
@@ -602,8 +602,8 @@ internal static class RidleyFullMovieVerification
         RidleyFullMovieCase[] cases = [
             new RidleyFullMovieCase(0x004a, RidleyFacing.Right, false), // Original movie frame 734: already facing inward.
             new RidleyFullMovieCase(0x00c0, RidleyFacing.Right, true), new RidleyFullMovieCase(0x004a, RidleyFacing.Left, true), new RidleyFullMovieCase(0x00c0, RidleyFacing.Left, false),
+            // The arena's centre column: his movement box keeps him between X 64 and 224, inside one screen.
             new RidleyFullMovieCase(0x004a, RidleyFacing.Turning, false), new RidleyFullMovieCase(0x007f, RidleyFacing.Right, false), new RidleyFullMovieCase(0x0080, RidleyFacing.Right, true),
-            new RidleyFullMovieCase(0x014a, RidleyFacing.Right, false), // Native tests the low position byte, not full X >= 128.
         ];
         var pointers = new RidleyNativeInstructionPointers(CartridgeImportSource.Require(
             CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
@@ -624,7 +624,7 @@ internal static class RidleyFullMovieVerification
         NorfairRidleyCombat.TickNorfairRidleyHover(new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()), hoverState);
         AssertEqual(-1, hoverState.PhaseTimer.Count, "native hover counts zero one update past it before selecting next attack");
         AssertEqual(NorfairRidleyPhase.SelectAttack, hoverState.Phase, "negative hover timer exits before movement");
-        Console.WriteLine("Ridley center facing: movie trigger, both sides/directions, mid-turn and native low-byte boundary agree.");
+        Console.WriteLine("Ridley center facing: movie trigger, both sides/directions, mid-turn and the arena's centre column agree.");
     }
 
     /// <summary>Checks pause page and HDMA timing across Ridley's fight.</summary>

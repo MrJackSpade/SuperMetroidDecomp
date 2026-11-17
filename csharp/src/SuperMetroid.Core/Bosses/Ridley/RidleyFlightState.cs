@@ -10,10 +10,10 @@ public sealed class RidleyFlightState
 {
     /// <summary>Makes his body facing <paramref name="facing"/>, kept within <paramref name="minimum"/> and <paramref name="maximum"/>.</summary>
     /// <param name="facing">The way he faces as he is placed.</param>
-    /// <param name="minimum">The movement clamp's minimum whole-pixel corner.</param>
-    /// <param name="maximum">The movement clamp's maximum whole-pixel corner.</param>
+    /// <param name="minimum">The top-left corner of the box his movement keeps him in, where it lies from the room's origin.</param>
+    /// <param name="maximum">The bottom-right corner of the box his movement keeps him in, where it lies from the room's origin.</param>
     /// <param name="wingBeatStep">The step of his wing beat the wings show first.</param>
-    internal RidleyFlightState(RidleyFacing facing, Position16<RoomPixels> minimum, Position16<RoomPixels> maximum, int wingBeatStep)
+    internal RidleyFlightState(RidleyFacing facing, Offset16<RoomPixels> minimum, Offset16<RoomPixels> maximum, int wingBeatStep)
     {
         FacingDirection = facing;
         MovementMinimum = minimum;
@@ -23,10 +23,13 @@ public sealed class RidleyFlightState
 
     /// <summary>Gets which way Ridley faces: left, toward the screen in his intermediate turning pose, or right.</summary>
     public RidleyFacing FacingDirection { get; internal set; }
-    /// <summary>Gets the movement clamp's minimum whole-pixel corner, retaining negative limits wrapped into the coordinate range.</summary>
-    public Position16<RoomPixels> MovementMinimum { get; internal set; }
-    /// <summary>Gets the movement clamp's maximum whole-pixel corner.</summary>
-    public Position16<RoomPixels> MovementMaximum { get; internal set; }
+    /// <summary>
+    /// Gets the top-left corner of the box his movement keeps him in, where it lies from the room's origin: Ceres Ridley's
+    /// box reaches above his chamber, at negative heights.
+    /// </summary>
+    public Offset16<RoomPixels> MovementMinimum { get; internal set; }
+    /// <summary>Gets the bottom-right corner of the box his movement keeps him in, where it lies from the room's origin.</summary>
+    public Offset16<RoomPixels> MovementMaximum { get; internal set; }
     /// <summary>Whether Ridley's movement hit a room boundary, consumed by the swoop.</summary>
     public bool HitRoomBoundary { get; internal set; }
     /// <summary>Gets Ridley's signed 1/256-pixel velocity, each axis held unchanged.</summary>

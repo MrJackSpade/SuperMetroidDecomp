@@ -157,15 +157,26 @@ internal sealed class TorizoAttacks
                 case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.ThrowSuperMissile }:
                     projectile.StartMotion(TorizoProjectileMotion.SuperMissileThrown);
                     return null;
-                case TorizoProjectileCue.SetProperties setProperties:
-                    EnemyProjectileEngine.SetPropertyFlags(projectile, setProperties.Properties);
-                    if (setProperties.Depth is { } setDepth)
-                        projectile.Depth = setDepth;
+                case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.DrawBehindSamus }:
+                    projectile.Depth = EnemyProjectileDepth.BehindSamus;
                     return null;
-                case TorizoProjectileCue.ClearProperties clearProperties:
-                    EnemyProjectileEngine.ClearPropertyFlags(projectile, clearProperties.Properties);
-                    if (clearProperties.Depth is { } clearedDepth)
-                        projectile.Depth = clearedDepth;
+                case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.StopHarmingSamusAndDrawInFront }:
+                    projectile.CanDamageSamus = false;
+                    projectile.Depth = EnemyProjectileDepth.InFrontOfSamus;
+                    return null;
+                case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.PersistOnContactAndDrawInFront }:
+                    projectile.PersistsOnSamusContact = true;
+                    projectile.Depth = EnemyProjectileDepth.InFrontOfSamus;
+                    return null;
+                case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.TurnHarmful }:
+                    projectile.CanDamageSamus = true;
+                    return null;
+                case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.TurnHarmfulAndStopBlockingShots }:
+                    projectile.CanDamageSamus = true;
+                    projectile.BlocksSamusProjectiles = false;
+                    return null;
+                case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.BlockShots }:
+                    projectile.BlocksSamusProjectiles = true;
                     return null;
                 case TorizoProjectileCue.PlaySound playSound:
                     audio.QueueEnemySound(playSound.Sound, playSound.Priority);
@@ -227,8 +238,7 @@ internal sealed class TorizoAttacks
         }
 
         /// <summary>
-        /// Runs the orb's drop step. The cue names two drop definitions, Bomb Torizo's Crateria orb and Golden Torizo's
-        /// orb outside Crateria; the orb's own kind, Bomb or Golden Torizo's, selects between them (#2030).
+        /// Runs the orb's drop step: the orb's own kind, Bomb or Golden Torizo's (#2030), rolls its own drop chances (#2332).
         /// </summary>
         private void RequestTorizoChozoOrbDrop(EnemyProjectile projectile, SamusState samus)
         {
@@ -240,14 +250,11 @@ internal sealed class TorizoAttacks
                     $"Projectile {projectile.Kind} reached the Torizo-orb drop.");
             }
 
-            EnemyDefinitionId definitionId = projectile.Kind == RoomEnemyProjectileKind.GoldenTorizoChozoOrb
-                ? EnemyDefinitionId.GoldenTorizoOrb
-                : EnemyDefinitionId.BombTorizoOrb;
-
-            RoomEnemyDefinition definition = room.Definitions.ReadEnemyDefinition(definitionId);
             deathsAndDrops.SpawnEnemyDropFromChanceTable(
                 projectile.Position.Whole,
-                definition.DropChances,
+                projectile.Kind == RoomEnemyProjectileKind.GoldenTorizoChozoOrb
+                    ? TorizoChozoOrbDefinitions.GoldenTorizoOrbDropChances
+                    : TorizoChozoOrbDefinitions.BombTorizoOrbDropChances,
                 samus);
         }
 
@@ -521,6 +528,7 @@ internal sealed class TorizoAttacks
 
         TorizoEnemyState state = torizo.RequireSpeciesState<TorizoEnemyState>();
         projectile.State = new GoldenTorizoEggState(laidFacing: state.Posture.Facing);
+        state.LaidEggs.Add(projectile);
         InitializeTorizoRandomizedProjectile(
             projectile,
             torizo,
@@ -817,7 +825,7 @@ internal sealed class TorizoAttacks
         bool awayFromSamus)
     {
         TrigonometryAngle bearing = EnemyMath.CalculateBearing(
-            new(CoordinateAxis.Difference(samus.Position.X.Whole, projectile.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, projectile.Position.Y.Whole))).ToMirroredTrigonometryAngle();
+            samus.Position.Whole - projectile.Position.Whole).ToMirroredTrigonometryAngle();
         TrigonometryAngle angle = awayFromSamus ? bearing.InSecondHalfTurn() : bearing.InFirstHalfTurn();
 
         // The up-zero heading: X is its sine, Y its negative cosine. Starting both reads at sine rotates the shot.

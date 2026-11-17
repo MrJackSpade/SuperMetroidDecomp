@@ -234,8 +234,8 @@ public static class GameplayDisplayCapture
                 perspective.Transform.Scroll.X + shake.Foreground.X,
                 perspective.Transform.Scroll.Y + shake.Foreground.Y),
         };
-        // The band's background scroll is signed (#2308), as the ordinary view's is: the latched scroll read as signed plus
-        // the room's shake, unwrapped.
+        // The band's background scroll is a position that goes above and left of its origin (#2308), as the ordinary view's
+        // does: the latched scroll plus the room's shake.
         TurningRoomLowerBand? floor = perspective.Below == BelowPerspectiveFloor.RoomBackground
             ? new(GameplayRenderDefinitions.CeresFloorFirstLine, SignedScroll(scrolls.BackgroundScroll) + shake.Background,
                 latched.Rooms?.Background ?? throw new InvalidOperationException("Ceres Ridley's room shows its background plane below the turning floor."))

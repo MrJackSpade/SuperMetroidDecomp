@@ -434,8 +434,8 @@ public sealed class ScrollBoundaryCamera
     {
         int proposed = Position.X.Whole;
 
-        // The signed comparison of ideal against current: if movement overshot the ideal in signed
-        // wrapped space, snap to it and discard the fractional camera position.
+        // If the camera has moved past its ideal, which way the distance lies deciding it, it snaps to the ideal and
+        // drops its fraction.
         if (CoordinateAxis.Difference(IdealPosition.X, Position.X.Whole) < 0)
         {
             // Overshoot snaps to the ideal position and discards the fractional camera position.

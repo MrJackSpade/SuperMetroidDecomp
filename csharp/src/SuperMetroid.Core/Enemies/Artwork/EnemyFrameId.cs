@@ -718,11 +718,11 @@ public enum EnemyFrameId
     DessgeegaUpsideDownLegsBent,
     /// <summary>Dessgeega: upside down on the ceiling, crouched low.</summary>
     DessgeegaUpsideDownLegsCrouched,
-    /// <summary>The large Sidehopper: on the floor, legs straight.</summary>
+    /// <summary>The large Sidehopper, and the dead Sidehopper before the Baby drains it: on the floor, legs straight.</summary>
     LargeSidehopperLegsStraight,
-    /// <summary>The large Sidehopper: on the floor, legs bent.</summary>
+    /// <summary>The large Sidehopper, and the dead Sidehopper before the Baby drains it: on the floor, legs bent.</summary>
     LargeSidehopperLegsBent,
-    /// <summary>The large Sidehopper: on the floor, crouched low.</summary>
+    /// <summary>The large Sidehopper, and the dead Sidehopper before the Baby drains it: on the floor, crouched low.</summary>
     LargeSidehopperLegsCrouched,
     /// <summary>The large Sidehopper: upside down on the ceiling, legs straight.</summary>
     LargeSidehopperUpsideDownLegsStraight,
@@ -1666,12 +1666,6 @@ public enum EnemyFrameId
     DeadRipperCorpseTilted,
     /// <summary>The dead Skree: its corpse.</summary>
     DeadSkreeCorpse,
-    /// <summary>The dead Sidehopper: legs bent.</summary>
-    DeadSidehopperLegsBent,
-    /// <summary>The dead Sidehopper: crouched low.</summary>
-    DeadSidehopperLegsCrouched,
-    /// <summary>The dead Sidehopper: legs straight.</summary>
-    DeadSidehopperLegsStraight,
     /// <summary>The dead Sidehopper: sprawled flat.</summary>
     DeadSidehopperSprawled,
     /// <summary>The dead Sidehopper: sprawled flat, legs raised.</summary>
@@ -2130,11 +2124,11 @@ public enum EnemyFrameId
     EtecoonLookingRight,
     /// <summary>Etecoon: standing, turning left.</summary>
     EtecoonTurningLeft,
-    /// <summary>Etecoon: running left, stretched out mid stride.</summary>
+    /// <summary>Etecoon, and the escaping Etecoons: running left, stretched out mid stride.</summary>
     EtecoonRunningLeftStretched,
-    /// <summary>Etecoon: running left, bunched up.</summary>
+    /// <summary>Etecoon, and the escaping Etecoons: running left, bunched up.</summary>
     EtecoonRunningLeftBunched,
-    /// <summary>Etecoon: running left, pushing off.</summary>
+    /// <summary>Etecoon, and the escaping Etecoons: running left, pushing off.</summary>
     EtecoonRunningLeftPushingOff,
     /// <summary>Etecoon: leaping left, stretched flat.</summary>
     EtecoonLeapingLeft,
@@ -2160,11 +2154,11 @@ public enum EnemyFrameId
     EtecoonLookingLeft,
     /// <summary>Etecoon: standing, turning right.</summary>
     EtecoonTurningRight,
-    /// <summary>Etecoon: running right, stretched out mid stride.</summary>
+    /// <summary>Etecoon, and the escaping Etecoons: running right, stretched out mid stride.</summary>
     EtecoonRunningRightStretched,
-    /// <summary>Etecoon: running right, bunched up.</summary>
+    /// <summary>Etecoon, and the escaping Etecoons: running right, bunched up.</summary>
     EtecoonRunningRightBunched,
-    /// <summary>Etecoon: running right, pushing off.</summary>
+    /// <summary>Etecoon, and the escaping Etecoons: running right, pushing off.</summary>
     EtecoonRunningRightPushingOff,
     /// <summary>Etecoon: leaping right, stretched flat.</summary>
     EtecoonLeapingRight,
@@ -2188,17 +2182,17 @@ public enum EnemyFrameId
     EtecoonClingingFacingRight,
     /// <summary>Etecoon: standing facing the viewer, arms at its sides.</summary>
     EtecoonFacingViewer,
-    /// <summary>Dachora: running left, its far leg stretched behind.</summary>
+    /// <summary>Dachora, and the escaping Dachora: running left, its far leg stretched behind.</summary>
     DachoraRunningLeftFarLegBack,
-    /// <summary>Dachora: running left, its far leg swinging past.</summary>
+    /// <summary>Dachora, and the escaping Dachora: running left, its far leg swinging past.</summary>
     DachoraRunningLeftFarLegPassing,
-    /// <summary>Dachora: running left, its far leg reaching forward.</summary>
+    /// <summary>Dachora, and the escaping Dachora: running left, its far leg reaching forward.</summary>
     DachoraRunningLeftFarLegReaching,
-    /// <summary>Dachora: running left, its near leg stretched behind.</summary>
+    /// <summary>Dachora, and the escaping Dachora: running left, its near leg stretched behind.</summary>
     DachoraRunningLeftNearLegBack,
-    /// <summary>Dachora: running left, its near leg swinging past.</summary>
+    /// <summary>Dachora, and the escaping Dachora: running left, its near leg swinging past.</summary>
     DachoraRunningLeftNearLegPassing,
-    /// <summary>Dachora: running left, its near leg reaching forward.</summary>
+    /// <summary>Dachora, and the escaping Dachora: running left, its near leg reaching forward.</summary>
     DachoraRunningLeftNearLegReaching,
     /// <summary>Dachora: standing facing left, head up.</summary>
     DachoraStandingFacingLeftHeadUp,
@@ -2216,17 +2210,17 @@ public enum EnemyFrameId
     DachoraStandingFacingLeftEyeShut,
     /// <summary>Dachora: stretched straight up, facing left.</summary>
     DachoraStretchedUpFacingLeft,
-    /// <summary>Dachora: running right, its far leg stretched behind.</summary>
+    /// <summary>Dachora, and the escaping Dachora: running right, its far leg stretched behind.</summary>
     DachoraRunningRightFarLegBack,
-    /// <summary>Dachora: running right, its far leg swinging past.</summary>
+    /// <summary>Dachora, and the escaping Dachora: running right, its far leg swinging past.</summary>
     DachoraRunningRightFarLegPassing,
-    /// <summary>Dachora: running right, its far leg reaching forward.</summary>
+    /// <summary>Dachora, and the escaping Dachora: running right, its far leg reaching forward.</summary>
     DachoraRunningRightFarLegReaching,
-    /// <summary>Dachora: running right, its near leg stretched behind.</summary>
+    /// <summary>Dachora, and the escaping Dachora: running right, its near leg stretched behind.</summary>
     DachoraRunningRightNearLegBack,
-    /// <summary>Dachora: running right, its near leg swinging past.</summary>
+    /// <summary>Dachora, and the escaping Dachora: running right, its near leg swinging past.</summary>
     DachoraRunningRightNearLegPassing,
-    /// <summary>Dachora: running right, its near leg reaching forward.</summary>
+    /// <summary>Dachora, and the escaping Dachora: running right, its near leg reaching forward.</summary>
     DachoraRunningRightNearLegReaching,
     /// <summary>Dachora: standing facing right, head up.</summary>
     DachoraStandingFacingRightHeadUp,
@@ -2246,18 +2240,6 @@ public enum EnemyFrameId
     DachoraCrouchedFacingRight,
     /// <summary>Dachora: stretched straight up, facing right.</summary>
     DachoraStretchedUpFacingRight,
-    /// <summary>The escaping Etecoons: running left, stretched out mid stride.</summary>
-    EscapeEtecoonRunningLeftStretched,
-    /// <summary>The escaping Etecoons: running left, bunched up.</summary>
-    EscapeEtecoonRunningLeftBunched,
-    /// <summary>The escaping Etecoons: running left, pushing off.</summary>
-    EscapeEtecoonRunningLeftPushingOff,
-    /// <summary>The escaping Etecoons: running right, stretched out mid stride.</summary>
-    EscapeEtecoonRunningRightStretched,
-    /// <summary>The escaping Etecoons: running right, bunched up.</summary>
-    EscapeEtecoonRunningRightBunched,
-    /// <summary>The escaping Etecoons: running right, pushing off.</summary>
-    EscapeEtecoonRunningRightPushingOff,
     /// <summary>The escaping Etecoons: standing, looking right.</summary>
     EscapeEtecoonLookingRight,
     /// <summary>The escaping Etecoons: standing, turning left.</summary>
@@ -2266,30 +2248,6 @@ public enum EnemyFrameId
     EscapeEtecoonLookingLeft,
     /// <summary>The escaping Etecoons: standing, turning right.</summary>
     EscapeEtecoonTurningRight,
-    /// <summary>The escaping Dachora: running left, its far leg stretched behind.</summary>
-    EscapeDachoraRunningLeftFarLegBack,
-    /// <summary>The escaping Dachora: running left, its far leg swinging past.</summary>
-    EscapeDachoraRunningLeftFarLegPassing,
-    /// <summary>The escaping Dachora: running left, its far leg reaching forward.</summary>
-    EscapeDachoraRunningLeftFarLegReaching,
-    /// <summary>The escaping Dachora: running left, its near leg stretched behind.</summary>
-    EscapeDachoraRunningLeftNearLegBack,
-    /// <summary>The escaping Dachora: running left, its near leg swinging past.</summary>
-    EscapeDachoraRunningLeftNearLegPassing,
-    /// <summary>The escaping Dachora: running left, its near leg reaching forward.</summary>
-    EscapeDachoraRunningLeftNearLegReaching,
-    /// <summary>The escaping Dachora: running right, its far leg stretched behind.</summary>
-    EscapeDachoraRunningRightFarLegBack,
-    /// <summary>The escaping Dachora: running right, its far leg swinging past.</summary>
-    EscapeDachoraRunningRightFarLegPassing,
-    /// <summary>The escaping Dachora: running right, its far leg reaching forward.</summary>
-    EscapeDachoraRunningRightFarLegReaching,
-    /// <summary>The escaping Dachora: running right, its near leg stretched behind.</summary>
-    EscapeDachoraRunningRightNearLegBack,
-    /// <summary>The escaping Dachora: running right, its near leg swinging past.</summary>
-    EscapeDachoraRunningRightNearLegPassing,
-    /// <summary>The escaping Dachora: running right, its near leg reaching forward.</summary>
-    EscapeDachoraRunningRightNearLegReaching,
     /// <summary>Hibashi: a lone ember.</summary>
     HibashiEmber,
     /// <summary>Hibashi: a column of flame 19 pixels wide and 19 high.</summary>
@@ -2812,7 +2770,7 @@ public enum EnemyFrameId
     DraygonTailFacingRightWhipRecoiling,
     /// <summary>Spore Spawn: hardened to a husk, the picture of SporeSpawnShut, which Samus's touch passes through.</summary>
     SporeSpawnHusk,
-    /// <summary>Spore Spawn: its shell shut.</summary>
+    /// <summary>Spore Spawn: its living shell shut, the husk's picture, which hurts on touch where the husk does not.</summary>
     SporeSpawnShut,
     /// <summary>Spore Spawn: its shell cracked, parted 8 pixels round its core.</summary>
     SporeSpawnCracked,

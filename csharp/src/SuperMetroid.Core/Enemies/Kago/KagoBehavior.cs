@@ -49,11 +49,10 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new KagoEnemyState();
         place.SetSpeciesState(state);
 
-        // Kago's placement already authors its other processing properties. The initializer
+        // Kago's placement already authors its other processing properties. The setup
         // sets only the animating property so the shared enemy animation animates the shell.
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
         state.Playback = EnemyAnimationPlayback.Start(place, KagoAnimations.StartingWith(KagoSegment.Slow));
-        state.HitCounter = place.SpawnSettings<KagoSpawnSettings>().HitCount;
     }
 
     /// <summary>
@@ -71,7 +70,8 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
             place.AnimationClock.StepOnNextUpdate();
         }
 
-        if (--state.HitCounter < 0)
+        // The shell withstands as many shots as its placement names and dies of the next (#2340).
+        if (++state.HitsTaken > place.SpawnSettings<KagoSpawnSettings>().HitCount)
         {
             // Common shot AI can in principle kill the 1600-health shell first. Do not
             // count the same death twice.
@@ -192,19 +192,19 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
             {
                 // A wall ends the rising phase immediately in the game: both X velocity
                 // and the upward component are replaced before selecting the falling animation.
-                projectile.Velocity = new(SignedEightEight.Zero, SignedEightEight.FromParts(1, 0));
+                projectile.Velocity = new(SignedEightEight.Zero, KagoDefinitions.BugFallStartSpeed);
                 BeginKagoBugFall(projectile);
                 return;
             }
 
             if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical))
             {
-                projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.FromParts(1, 0));
+                projectile.Velocity = projectile.Velocity.WithY(KagoDefinitions.BugFallStartSpeed);
                 BeginKagoBugFall(projectile);
                 return;
             }
 
-            projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + KagoBugGravity);
+            projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + KagoDefinitions.BugGravity);
             if (!projectile.Velocity.Y.IsNegative)
                 BeginKagoBugFall(projectile);
         }
@@ -230,7 +230,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             }
 
-            projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + KagoBugGravity);
+            projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + KagoDefinitions.BugGravity);
         }
 
         /// <summary>Animation cue: starts the bug's jump, including its unusual RNG reuse.</summary>
@@ -247,7 +247,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
             RoomEnemyPlace source = projectile.StateOf<KagoBugState>().Source;
             int sourceDelta = CoordinateAxis.Difference(source.Position.X.Whole, projectile.Position.X.Whole);
             bool jumpLeft;
-            if (Math.Abs(sourceDelta) >= KagoBugSourceHomingDistance)
+            if (Math.Abs(sourceDelta) >= KagoDefinitions.BugHomingDistance)
             {
                 // Outside the 48-pixel band the bug always jumps back toward its parent shell.
                 jumpLeft = sourceDelta < 0;
@@ -260,8 +260,8 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
             }
 
             projectile.Velocity = projectile.Velocity.WithX(jumpLeft
-                ? -KagoBugHorizontalSpeed
-                : KagoBugHorizontalSpeed);
+                ? -KagoDefinitions.BugHorizontalSpeed
+                : KagoDefinitions.BugHorizontalSpeed);
             projectile.StartMotion(KagoBugMotion.Jumping);
         }
 
@@ -299,14 +299,6 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         AfterCommon = c => ResolveKagoShotAfterCommon(c.Enemy, c.Enemy.RequireSpeciesState<KagoEnemyState>()),
     };
-    /// <summary>Acceleration added to a bug's vertical velocity each unobstructed airborne frame, 224 256ths of a pixel per update.</summary>
-    private static readonly SignedEightEight KagoBugGravity = SignedEightEight.FromParts(0, 224);
-    /// <summary>Horizontal jump speed, two pixels per update, negated for leftward launches.</summary>
-    private static readonly SignedEightEight KagoBugHorizontalSpeed = SignedEightEight.FromParts(2, 0);
-    /// <summary>Horizontal parent separation that enables the bug to block Samus's projectiles.</summary>
-    private const int KagoBugSourceCollisionEnableDistance = 23;
-    /// <summary>Beyond this parent separation, the next jump homes toward the shell.</summary>
-    private const int KagoBugSourceHomingDistance = 48;
 
     /// <summary>Spawns and initializes a Kago bug.</summary>
     internal bool SpawnKagoBug(RoomEnemyPlace source)
@@ -344,7 +336,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         RoomEnemyPlace source = projectile.StateOf<KagoBugState>().Source;
         int distance = CoordinateAxis.Distance(source.Position.X.Whole, projectile.Position.X.Whole);
-        if (distance >= KagoBugSourceCollisionEnableDistance)
+        if (distance >= KagoDefinitions.BugBlocksShotsDistance)
             projectile.BlocksSamusProjectiles = true;
     }
 

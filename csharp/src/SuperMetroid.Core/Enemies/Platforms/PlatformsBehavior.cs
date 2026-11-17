@@ -30,7 +30,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void ApplyPlatformCue(RoomEnemyPlace place, PlatformCue cue) =>
         SetPlatformHorizontalMovementFromCue(place, cue.Movement);
 
-    /// <summary>Runs the two entry points and common initializer.</summary>
+    /// <summary>Runs the two entry points and common setup.</summary>
     internal static void InitializePlatform(RoomEnemyPlace place)
     {
         bool isSuspensorPlatform = place.DefinitionId == EnemyDefinitionId.SuspensorPlatform;
@@ -136,8 +136,8 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         PlatformEnemyState state,
         RoomLevelData level)
     {
-        // The signed comparison is intentional. Normal platforms stop once they have risen
-        // from their depressed position to one pixel below their original spawn center.
+        // Normal platforms stop once they have risen from their depressed position to one pixel below their original
+        // spawn center, which way the difference lies deciding it.
         if (CoordinateAxis.Difference(place.Position.Y.Whole, state.RestingY) < 0)
         {
             state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
@@ -192,8 +192,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Steps the place along the quadratic speed curve one mark on without crossing its variant-specific cap. The place
-    /// stays within the curve's start through the cap (at most mark 255) and one step can only reach mark 256, so the game's
-    /// signed comparison is an ordinary one.
+    /// stays within the curve's start through the cap (at most mark 255), and one step can only reach mark 256.
     /// </summary>
     internal static void IncrementAndClampPlatformYSpeed(PlatformEnemyState state)
     {

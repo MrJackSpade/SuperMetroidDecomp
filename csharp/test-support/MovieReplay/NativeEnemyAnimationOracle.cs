@@ -275,6 +275,8 @@ internal static class NativeEnemyAnimationOracle
         }
         AnimationPhase<TSegment> phase = animation.Phases[place.Phase];
         NativeEnemyList<TSegment> list = lists[phase.Segment];
+        if (list.Controls.Any(control => control.Kind == NativeEnemyControlKind.WrittenOutRepeat))
+            throw new InvalidOperationException($"{phase.Segment}'s native list writes its run out more than once (#2337): each play stands at its own copy, which the list's beats do not record.");
         if (place.Beat < phase.BeatCount)
             return list.BeatAddresses[phase.FirstBeat + place.Beat];
         return list.Controls.FirstOrDefault(control => control.AfterBeat == phase.FirstBeat + phase.BeatCount)?.Address
@@ -460,6 +462,12 @@ internal static class NativeEnemyAnimationOracle
                     case NativeEnemyControlKind.PoseShownAgain:
                         // A pose its owner may show again and the instruction that decides are a phase of their own.
                         continue;
+                    case NativeEnemyControlKind.WrittenOutRepeat:
+                        // The list's run written out again (#2337) is one more play of the phase that played it whole.
+                        if (phases.Count == 0 || !IsWholeRunOf(lists, phases[^1], segment))
+                            throw new InvalidDataException($"{segment}'s written-out repeat follows no whole run of its list.");
+                        phases[^1] = phases[^1] with { Plays = phases[^1].Plays + 1 };
+                        continue;
                     case NativeEnemyControlKind.Goto:
                     case NativeEnemyControlKind.RunOnIntoNext:
                         TSegment target = control.Target!.Value;
@@ -566,6 +574,8 @@ internal static class NativeEnemyAnimationOracle
         // The last goto the reading followed into a list no segment starts, and the beats read before it: reaching a
         // segment's list with no beat read since is that goto's continuation, its own list's start included.
         (ushort Address, int Beats)? followedGoto = null;
+        // The length of the run a list writes out again straight after itself, once its first copy is read (#2337).
+        int? writtenRun = null;
         ushort cursor = entry;
         while (true)
         {
@@ -585,6 +595,21 @@ internal static class NativeEnemyAnimationOracle
                 // A marker (#2301) occupies no native beat: it stands at the address of what follows it in the list.
                 addresses.Add(cursor);
                 continue;
+            }
+            if (beat == beats.Count && beat > 0 && followedGoto is null
+                && controls.TrueForAll(control => control.Kind == NativeEnemyControlKind.WrittenOutRepeat))
+            {
+                // A list that writes its whole run out again straight after itself (#2337) plays the segment once more: the
+                // words from here repeat the run's word for word.
+                int run = writtenRun ??= unchecked((ushort)(cursor - entry));
+                if (Enumerable.Range(0, run / 2).All(word =>
+                        cartridge.ReadCartridgeWord((int)new SnesAddress(bank, unchecked((ushort)(cursor + 2 * word))))
+                        == cartridge.ReadCartridgeWord((int)new SnesAddress(bank, unchecked((ushort)(entry + 2 * word))))))
+                {
+                    controls.Add(new(NativeEnemyControlKind.WrittenOutRepeat, beat, null, null, cursor));
+                    cursor = unchecked((ushort)(cursor + run));
+                    continue;
+                }
             }
             int address = (int)new SnesAddress(bank, cursor);
             ushort word = cartridge.ReadCartridgeWord(address);
@@ -823,6 +848,12 @@ internal enum NativeEnemyControlKind
     /// the place the list's run splits so that its owner can play that run again.
     /// </summary>
     PoseShownAgain,
+
+    /// <summary>
+    /// Marks a copy of the list's whole run written out again straight after it (#2337): no instruction, only the words of
+    /// the run once more, which the typed animation plays as its segment's next play.
+    /// </summary>
+    WrittenOutRepeat,
 }
 
 /// <summary>One native control instruction of an enemy's list (#1600).</summary>

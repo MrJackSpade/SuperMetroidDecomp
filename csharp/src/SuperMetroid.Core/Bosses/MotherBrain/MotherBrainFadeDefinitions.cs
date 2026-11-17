@@ -24,6 +24,9 @@ public static class MotherBrainFadeDefinitions
     /// <summary>Her detached brain, in the corpse's colours, greying as it becomes her corpse.</summary>
     public static MotherBrainFade CorpseFade { get; } = new("mother-brain-corpse-fade", 8);
 
+    /// <summary>Her room's lights recovering after the Baby's death (#2316); the step after its last ends the cutscene.</summary>
+    public static MotherBrainFade RecoveryLights { get; } = new("mother-brain-recovery-lights", MotherBrainRoomColorDefinitions.RecoveryLightsFrames);
+
     /// <summary>The Baby fading to black as it dies.</summary>
     public static MotherBrainFade BabyFade { get; } = new("mother-brain-baby-fade", BabyMetroidCutsceneColorDefinitions.FadeFrameCount);
 }

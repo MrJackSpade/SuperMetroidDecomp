@@ -34,17 +34,11 @@ public sealed class KiHunterBodyState
     /// </summary>
     public RotationAngle SwoopAngle { get; internal set; }
 
-    /// <summary>The fastest the swoop turns, whose whole steps cap the angular velocity's: two steps an update either way.</summary>
-    public AngularSpeed MaximumAngularVelocity { get; internal set; }
-
     /// <summary>
     /// The swoop's turning speed: none when a swoop begins, accelerated each update with the fraction carrying into the
     /// whole steps, and capped on its whole steps. Its whole steps step the swoop angle.
     /// </summary>
     public AngularSpeed AngularVelocity { get; internal set; }
-
-    /// <summary>The change in the swoop's turning speed each update: an eighth of a step, toward increasing angles for a rightward swoop and decreasing ones for a leftward one.</summary>
-    public AngularSpeed AngularAcceleration { get; internal set; }
 
     /// <summary>The upper patrol boundary's room Y, sixteen pixels above the spawn Y.</summary>
     public int UpperPatrolY { get; internal set; }
@@ -64,8 +58,24 @@ public sealed class KiHunterBodyState
     /// <summary>The whole-pixel swoop ellipse radii: the absolute horizontal separation from Samus and Samus Y minus body Y when a swoop begins.</summary>
     public Extent16<RoomPixels> SwoopRadius { get; internal set; }
 
-    /// <summary>The velocity in pixels per update; positive Y is downward and gravity accumulates through the Y fraction.</summary>
-    public FixedVector<RoomPixels> Velocity { get; internal set; }
+    /// <summary>
+    /// The way the body flies, swoops or hops (#2338), which its flight and landing animations face: a swoop heads the way
+    /// it arcs, and a wall turns it around.
+    /// </summary>
+    public HorizontalDirection Heading { get; internal set; }
+
+    /// <summary>
+    /// How fast the body moves along <see cref="Heading"/>, in whole pixels an update (#2338): a pixel while it flies or
+    /// recovers from a swoop, <see cref="KiHunterMotionDefinitions.GroundJumpHorizontalSpeed"/> while it hops.
+    /// </summary>
+    public int HorizontalSpeed { get; internal set; }
+
+    /// <summary>The horizontal velocity: <see cref="HorizontalSpeed"/> toward <see cref="Heading"/> (#2338).</summary>
+    public SignedSixteenSixteen HorizontalVelocity =>
+        SignedSixteenSixteen.FromWholePixels(Heading == HorizontalDirection.Right ? HorizontalSpeed : -HorizontalSpeed);
+
+    /// <summary>The vertical velocity in pixels per update; positive is downward and gravity accumulates through the fraction.</summary>
+    public SignedSixteenSixteen VerticalVelocity { get; internal set; }
 
     /// <summary>The wingless latch, set by a wingless spawn or by health reaching the wings' detach health.</summary>
     public bool HasLostWings { get; internal set; }

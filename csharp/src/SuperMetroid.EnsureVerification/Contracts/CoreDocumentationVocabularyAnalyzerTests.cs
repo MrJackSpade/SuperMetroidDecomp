@@ -1245,6 +1245,34 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect("class P { string S = \"A per-call input, built for one call and never kept.\"; }");
         Expect("class P { System.Action Callback = () => { }; bool Called; void Calling() { } }");
         Expect(CompatibilityService + "/// <summary>Evidence: sixteen calls precede it.</summary>\n[CompatibilityService(\"calls\")] class Calls { int HoldCalls; }");
+        // The update-call forms that escaped #2292 (#2321): a call picked out with up to four words before it, hyphenated
+        // or joined by a slash; a same-call step; rot calls; and the call as the update's own work.
+        Expect("class P { /// <summary>Choosing an attack waits until the next body AI call.</summary>\nint F => 0; }",
+            "('next body AI call')");
+        Expect("class P { void Run() { // the first post-hit enemy call sees sixteen\n } }", "('first post-hit enemy call')");
+        Expect("class P { /// <summary>Runs another beam/movement call.</summary>\nint F => 0; }", "('another beam/movement call')");
+        Expect("class P { /// <summary>What one Mother Brain active-rainbow body-phase call asks of the room.</summary>\nint F => 0; }",
+            "('one Mother Brain active-rainbow body-phase call')");
+        Expect("class P { /// <summary>Spawns the glow with its same-call pin.</summary>\nint F => 0; }", "('same-call')");
+        Expect("class P { /// <summary>The rows as its rot calls have left them.</summary>\nint F => 0; }", "('rot calls')");
+        Expect("class P { /// <summary>Shows the last image; true on the call after it.</summary>\nint F => 0; }", "('on the call')");
+        Expect("class P { /// <summary>The image the call shows, if it shows one.</summary>\nint F => 0; }", "('the call shows')");
+        Expect("class P { void Run() { // the call that takes it to zero ends the destruction\n } }", "('the call that')");
+        Expect("class P { /// <summary>The call's result.</summary>\nint F => 0; }", "('The call's result')");
+        // The call alone, a call that returns to its caller, a call into another owner with words before it and a
+        // hardware owner are English.
+        Expect("class P { /// <summary>Each row falls before the call returns; the call; the first host call to the queue.</summary>\nint F => 0; }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the first post-hit enemy call; its rot calls.</summary>\n[CompatibilityService(\"rot\")] class Rot { }");
+        // Sound-effect and vulnerability flags or bits (#2321).
+        Expect("class P { /// <summary>Rainbow-beam SFX-playing flag.</summary>\nint F => 0; }", "('SFX-playing flag')");
+        Expect("class P { void Run() { // The Baby's drain writes the shared SFX flag.\n } }", "('SFX flag')");
+        Expect("class P { void Run() { // The vulnerability bit is toggled every update.\n } }", "('vulnerability bit')");
+        // A counter told by the range its storage holds (#2321).
+        Expect("class P { /// <summary>Every second update of the frame counter of 0 through 65535.</summary>\nint F => 0; }",
+            "('counter of 0 through 65535')");
+        // Whether a sound plays, a counter's cadence and a hardware owner are English.
+        Expect("class P { /// <summary>Whether her beam's sound plays; every second update of the frame counter.</summary>\nint F => 0; }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the SFX flag; the frame counter of 0 through 255.</summary>\n[CompatibilityService(\"sfx\")] class Sfx { }");
         // The machine's arithmetic and the original's data told for a value, outside hardware owners and markup (#2292).
         Expect("class P { /// <summary>Gravity applies while the whole pixels, compared as signed, stay below the cap.</summary>\nint F => 0; }",
             "('compared as signed')");
@@ -1302,6 +1330,31 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect("class P { /// <summary>Moves two pixels in her direction; the direction is two pixels away; a speed table; a table of distances; the input transitions.</summary>\nint F => 0; }");
         Expect("class P { /// <summary>The direction one turn on; the direction of one link; directions one full turn holds; direction zero of the rope's turn.</summary>\nint F => 0; }");
         Expect(CompatibilityService + "/// <summary>Evidence: the shot direction is two in the transition table.</summary>\n[CompatibilityService(\"direction\")] class Direction { }");
+        // The original's routines and storage told in boss and enemy prose, outside hardware owners and markup (#2336): an
+        // initializer, a writer, an execution counter, ordinary places and places in ascending order, a value wrapped into
+        // the coordinate range, a branch on a value, a signed compare and the roaring or damaged flag, in prose; and an
+        // execution counter in a declared name.
+        Expect("class P { /// <summary>Runs the Norfair branch of the shared initializer.</summary>\nint F => 0; }", "('initializer')");
+        Expect("class P { void Run() { // The spin-jump initializers cancel the boost.\n } }", "('initializers')");
+        Expect("class P { string S = \"N00b-tube initialiser lost its piece.\"; }", "('initialiser')");
+        Expect("class P { /// <summary>Draws the wings before the common writer emits his body.</summary>\nint F => 0; }", "('writer')");
+        Expect("class P { /// <summary>The body uses the current execution counter.</summary>\nint F => 0; }", "('execution counter')");
+        Expect("class P { /// <summary>Checks Samus's five ordinary projectile places.</summary>\nint F => 0; }",
+            "('ordinary projectile places')");
+        Expect("class P { void Run() { // The check scans the shots' places in ascending order.\n } }", "('places in ascending order')");
+        Expect("class P { /// <summary>The corner, retaining negative limits wrapped into the coordinate range.</summary>\nint F => 0; }",
+            "('wrapped into the coordinate range')");
+        Expect("class P { void Run() { // Ridley's shot reaction branches on area index.\n } }", "('branches on')");
+        Expect("class P { void Run() { // The rainbow step uses a signed compare after adding sixteen.\n } }", "('signed compare')");
+        Expect("class P { /// <summary>Clears the roaring flag.</summary>\nint F => 0; }", "('roaring flag')");
+        Expect("class P { /// <summary>Clears the damaged flag.</summary>\nint F => 0; }", "('damaged flag')");
+        Expect("class P { int MainEnemyExecutionCounter { get; init; } }", "('MainEnemyExecutionCounter')");
+        Expect("class P { void M(int enemyMainExecutionCounter) { } }", "('enemyMainExecutionCounter')");
+        // A C# construct's initializer, a projectile's branch, the update count, the shot places, setup, a roar ending and a
+        // hardware owner are English.
+        Expect("class P { /// <summary>Set before property initializers run; an object initializer; the afterburn's branches; the enemy's setup.</summary>\nint F => 0; }");
+        Expect("class P { /// <summary>The body's update count; Samus's five shot places; his roar ends.</summary>\nint F => 0; int UpdateCount; }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the initializer branches on the execution counter.</summary>\n[CompatibilityService(\"init\")] class Init { int MainEnemyExecutionCounter; }");
         // The original's arithmetic told as a summary, its program structure and its leftover storage, outside hardware
         // owners and markup (#2345).
         Expect("class P { /// <summary>Adds a step: the sample divided by 256, modulo 4.</summary>\nint F => 0; }", "('divided by 256')");

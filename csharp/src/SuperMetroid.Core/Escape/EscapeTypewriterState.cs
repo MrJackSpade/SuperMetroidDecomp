@@ -39,7 +39,7 @@ public sealed class EscapeTypewriterState
     public int MessageLineIndex { get; private set; }
     /// <summary>The next character to type in the current line, from zero, including spaces; resets to zero when the typewriter advances to another line.</summary>
     public int MessageCharacterIndex { get; private set; }
-    /// <summary>Whether the first eligible installed-message call has initialized the character delay; retained when the host rebinds its text or a saved state is restored.</summary>
+    /// <summary>Whether the first update with a message to type has started the character delay; retained when the host rebinds its text or a saved state is restored.</summary>
     public bool MessageStarted { get; private set; }
 
     /// <summary>Reattaches the installed typewriter text when a saved game state is restored.</summary>

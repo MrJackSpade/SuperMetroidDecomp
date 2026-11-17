@@ -37,19 +37,6 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         _places = places;
     }
 
-    /// <summary>The pause at the bottom before the top begins to rise.</summary>
-    private const int KzanRiseWaitFrames = 64;
-    /// <summary>The rise of each rising update: half a pixel upward.</summary>
-    private static readonly SignedSixteenSixteen KzanRisingStep = SignedSixteenSixteen.FromSixteenthsOfPixel(-8);
-    /// <summary>The speed each falling update adds: one sixteenth of a pixel per update.</summary>
-    private static readonly SignedSixteenSixteen KzanFallAcceleration = SignedSixteenSixteen.FromSixteenthsOfPixel(1);
-    /// <summary>The fastest the falling acceleration reaches: four pixels per update.</summary>
-    private static readonly SignedSixteenSixteen KzanMaximumFallingSpeed = SignedSixteenSixteen.FromParts(4, 0);
-
-    /// <summary>The enemy-library landing sound published when the falling top reaches its target.</summary>
-    private static readonly SoundEffectId KzanLandingSound =
-        EnemySoundEffectDefinitions.KzanLandingSoundEffect;
-
     /// <summary>Initializes the top's idle animation, fall speed, fall distance and wait timer from its spawn settings.</summary>
     internal static void InitializeKzanTop(RoomEnemyPlace place)
     {
@@ -154,15 +141,15 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         // The top lands once it reaches its falling target.
         if (!CoordinateAxis.Precedes(place.Position.Y.Whole, state.FallingTargetY))
         {
-            state.RiseWaitTimer = KzanRiseWaitFrames;
+            state.RiseWaitTimer = KzanMotionDefinitions.RiseWait;
             state.Action = KzanAction.WaitingToRise;
             place.Position = place.Position.WithWholeY(state.FallingTargetY);
-            _audio.QueueEnemySound(KzanLandingSound, priority: SoundRequestPriority.Normal);
+            _audio.QueueEnemySound(EnemySoundEffectDefinitions.KzanLandingSoundEffect, priority: SoundRequestPriority.Normal);
         }
 
         CarrySamusWithKzanIfTouchingFromBelow(place, state, samus);
 
-        state.FallingSpeed = SignedSixteenSixteen.Min(state.FallingSpeed + KzanFallAcceleration, KzanMaximumFallingSpeed);
+        state.FallingSpeed = SignedSixteenSixteen.Min(state.FallingSpeed + KzanMotionDefinitions.FallAcceleration, KzanMotionDefinitions.FastestFall);
     }
 
     /// <summary>Counts down the 64-frame landing hold before switching to ascent.</summary>
@@ -181,7 +168,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         state.PreviousY = place.Position.Y.Whole;
 
         // The Kzan rises by exactly half a pixel per update.
-        place.Position = place.Position.WithY(place.Position.Y.MovedBy(KzanRisingStep));
+        place.Position = place.Position.WithY(place.Position.Y.MovedBy(KzanMotionDefinitions.RisingStep));
         if (CoordinateAxis.Precedes(place.Position.Y.Whole, state.RisingTargetY))
         {
             state.Action = KzanAction.WaitingToFall;

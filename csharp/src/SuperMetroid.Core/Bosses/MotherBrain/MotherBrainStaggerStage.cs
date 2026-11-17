@@ -1,0 +1,28 @@
+namespace SuperMetroid.Core.Bosses.MotherBrain;
+
+/// <summary>
+/// One stage of Mother Brain's drained stagger (#2315): one walk forward or back, then a pause. A stage is told by its
+/// own identity, so the stage her rainbow beam runs out at is told from the one after it, which walks alike.
+/// </summary>
+internal sealed class MotherBrainStaggerStage
+{
+    /// <summary>Defines a stage.</summary>
+    /// <param name="speed">How fast she staggers.</param>
+    /// <param name="neckTurn">How far her neck turns each update.</param>
+    /// <param name="pauseUpdates">The updates she pauses once the walk reaches its end.</param>
+    internal MotherBrainStaggerStage(MotherBrainWalkSpeed speed, RotationAngle neckTurn, int pauseUpdates)
+    {
+        Speed = speed;
+        NeckTurn = neckTurn;
+        PauseUpdates = pauseUpdates;
+    }
+
+    /// <summary>How fast she staggers.</summary>
+    internal MotherBrainWalkSpeed Speed { get; }
+
+    /// <summary>How far her neck turns each update.</summary>
+    internal RotationAngle NeckTurn { get; }
+
+    /// <summary>The updates she pauses once the walk reaches its end.</summary>
+    internal int PauseUpdates { get; }
+}

@@ -51,13 +51,16 @@ internal static class KiHunterAcidSpitAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<KiHunterAcidSpitSegment, Animation<KiHunterAcidSpitSegment>> StartingAt { get; } = new Dictionary<KiHunterAcidSpitSegment, Animation<KiHunterAcidSpitSegment>>
     {
-        [P.Left] = new([new(P.Left, 0, 8, 1)], AnimationEnd.Holds),
-        [P.HitFloor] = new([new(P.HitFloor, 0, 7, 1)], AnimationEnd.Holds),
-        [P.Right] = new([new(P.Right, 0, 8, 1)], AnimationEnd.Holds),
+        [P.Left] = new([Whole(P.Left)], AnimationEnd.Holds),
+        [P.HitFloor] = new([Whole(P.HitFloor)], AnimationEnd.Holds),
+        [P.Right] = new([Whole(P.Right)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<KiHunterAcidSpitSegment> StartingWith(KiHunterAcidSpitSegment segment) => StartingAt[segment];
+
+    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
+    private static AnimationPhase<KiHunterAcidSpitSegment> Whole(KiHunterAcidSpitSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, KiHunterAcidSpitCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, KiHunterAcidSpitCue>.Frame(frame, duration);

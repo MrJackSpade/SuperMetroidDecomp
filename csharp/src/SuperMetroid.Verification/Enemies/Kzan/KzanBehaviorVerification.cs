@@ -29,9 +29,9 @@ internal static class KzanBehaviorVerification
         AssertEqual(new AnimationPlayback<KzanSegment>(KzanAnimations.StartingWith(KzanSegment.Idle), AnimationPlace.StartOfAnimation),
             (enemies.Places.InUpdateOrder[0].EntityState<KzanTopEntity, KzanEnemyState>() ?? throw new InvalidOperationException("The Kzan has no state.")).Playback,
             "Kzan initializer animation");
-        // The update that reaches the native sleep yields with the new-frame flag still set, so it reads as shown twice.
+        // The idle pose is a still picture (#2337): it shows once and rests there.
         ushort frame = KzanAnimationsConstants.Spritemaps(KzanSegment.Idle).Single();
-        AssertEqual(EnemyInstructionRunner.ExpectedFrames([frame, frame], [1, 1]),
+        AssertEqual(EnemyInstructionRunner.ExpectedFrames([frame], [1]),
             EnemyInstructionRunner.ShownFrames(place, 4), "Kzan shows its idle frame once and holds it");
         Console.WriteLine("  Kzan behavior: the top shows its idle pose and holds it.");
     }

@@ -34,7 +34,7 @@ internal sealed class CeresFallingTiles
 
     /// <summary>
     /// Spawns the light or dark falling tile the falling-debris room main requests at <paramref name="xPosition"/>. The X
-    /// coordinate and light or dark variant come directly from the room's current random number; this initializer owns
+    /// coordinate and light or dark variant come directly from the room's current random number; this setup owns
     /// only projectile fields. The room main supplies the tile's animation and the graphics it draws in. A spawn that
     /// finds every place held spawns nothing.
     /// </summary>

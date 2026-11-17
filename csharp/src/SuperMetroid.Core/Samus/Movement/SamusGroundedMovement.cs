@@ -249,7 +249,7 @@ public static class SamusGroundedMovement
             roomObjects);
 
         // Cancels the speed boost on every turn frame. This matters even
-        // without the Speed Booster item: the turn initializer folded the numeric extra component but
+        // without the Speed Booster item: the turn setup folded the numeric extra component but
         // deliberately left the running-momentum flag set until this movement. Then the movement
         // cancels that momentum and zeroes the extra run speed, each separately observable.
         speed.CancelRunningMomentum(SamusPoseMetadata.ReadFacingDirection(samus));

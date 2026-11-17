@@ -16,7 +16,7 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
 {
     /// <summary>The room's randomness and the statue room's water surface the particles splash through.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Allocator and initializer for statue, dust, particle, and splash projectiles.</summary>
+    /// <summary>Spawns and sets up the statue, dust, particle and splash projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Earthquake state written by the statue release cue.</summary>
     private readonly RoomEarthquake _earthquake;

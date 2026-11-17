@@ -1,5 +1,4 @@
 ﻿using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Rooms;
 
@@ -24,13 +23,9 @@ internal sealed class MotherBrainEncounterAccess
     internal void RequestMotherBrainObject(Position16<RoomBlocks> block, MotherBrainRoomMutation mutation) =>
         _frameResults.MotherBrainObjects.Add(new RoomObjectSpawnRequest<MotherBrainRoomMutation>(block, mutation));
 
-    /// <summary>Restarts the brain on <paramref name="segment"/>.</summary>
-    internal static void SetMotherBrainBrainAnimation(MotherBrainEnemyState state, MotherBrainHeadSegment segment)
-    {
-        // The brain's place rests on its next beat: the animation's first, entered at once.
-        state.BrainPlayback = new(MotherBrainAnimations.HeadStartingWith(segment), AnimationPlace.StartOf(0));
-        state.BrainFrameTimer = 1;
-    }
+    /// <summary>Starts the brain animation that begins at <paramref name="segment"/>.</summary>
+    internal static void SetMotherBrainBrainAnimation(MotherBrainEnemyState state, MotherBrainHeadSegment segment) =>
+        state.Brain.Start(MotherBrainAnimations.HeadStartingWith(segment));
 
     /// <summary>Requires the active rainbow attack sequence for live phase transitions.</summary>
     internal static MotherBrainRainbowBeamAttackSequence RequireLiveMotherBrainRainbowSequence(

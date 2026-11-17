@@ -41,34 +41,41 @@ internal static class GunshipAnimations
         ],
         [P.BottomEntrancePad] =
         [
-            Show(EnemyFrameId.GunshipEntrancePadShut, 8),
+            Hold(EnemyFrameId.GunshipEntrancePadShut),
         ],
         [P.TopHull] =
         [
-            Show(EnemyFrameId.GunshipTopHull, 1),
+            Hold(EnemyFrameId.GunshipTopHull),
         ],
         [P.BottomHull] =
         [
-            Show(EnemyFrameId.GunshipBottomHull, 1),
+            Hold(EnemyFrameId.GunshipBottomHull),
         ],
     });
 
-    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    /// <summary>
+    /// The animation that starts at each segment an owner can start or restart at (#2337): the shut pad and both hulls are
+    /// still pictures, and the closing pad ends resting shut. The shut pad's animation ends in a loop back to its one picture,
+    /// which the held picture never reaches.
+    /// </summary>
     internal static IReadOnlyDictionary<GunshipSegment, Animation<GunshipSegment>> StartingAt { get; } = new Dictionary<GunshipSegment, Animation<GunshipSegment>>
     {
-        [P.EntrancePadOpening] = new([new(P.EntrancePadOpening, 0, 11, 1)], AnimationEnd.Holds),
-        [P.EntrancePadClosing] = new([new(P.EntrancePadClosing, 0, 8, 1), new(P.BottomEntrancePad, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.BottomEntrancePad] = new([new(P.BottomEntrancePad, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.TopHull] = new([new(P.TopHull, 0, 1, 1)], AnimationEnd.Holds),
-        [P.BottomHull] = new([new(P.BottomHull, 0, 1, 1)], AnimationEnd.Holds),
+        [P.EntrancePadOpening] = new([Whole(P.EntrancePadOpening)], AnimationEnd.Holds),
+        [P.EntrancePadClosing] = new([Whole(P.EntrancePadClosing), Whole(P.BottomEntrancePad)], AnimationEnd.LoopsFrom(1)),
+        [P.BottomEntrancePad] = new([Whole(P.BottomEntrancePad)], AnimationEnd.LoopsFrom(0)),
+        [P.TopHull] = new([Whole(P.TopHull)], AnimationEnd.Holds),
+        [P.BottomHull] = new([Whole(P.BottomHull)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<GunshipSegment> StartingWith(GunshipSegment segment) => StartingAt[segment];
 
+    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
+    private static AnimationPhase<GunshipSegment> Whole(GunshipSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
+
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, NoAnimationCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);
 
-    /// <summary>Shows <paramref name="frame"/> for good: the opened pad rests on it until its owner closes it (#2144).</summary>
+    /// <summary>Shows <paramref name="frame"/> for good (#2144, #2337): the opened pad, the shut pad and the hulls rest on their picture until their owner plays another.</summary>
     private static AnimationBeat<EnemyFrameId, NoAnimationCue> Hold(EnemyFrameId frame) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.HeldFrame(frame);
 }

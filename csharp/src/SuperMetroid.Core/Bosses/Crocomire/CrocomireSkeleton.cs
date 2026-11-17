@@ -273,7 +273,7 @@ internal sealed class CrocomireSkeleton
         (velocity + acceleration.PerUpdate).WithWholePixelsAtMost(acceleration.MaximumWholePixels);
 
     /// <summary>
-    /// Spawns the wall's pieces, bottom piece first, and runs the spike-wall piece initializer on each. Each piece carries
+    /// Spawns the wall's pieces, bottom piece first, and runs the spike-wall piece setup on each. Each piece carries
     /// its place in the wall, zero for the top piece, and stands that many spacings below the wall's top, so the spawn
     /// order runs from the bottom piece up. The melt empties the enemy projectiles just before, so every piece is spawned.
     /// </summary>

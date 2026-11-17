@@ -397,7 +397,7 @@ internal static class LookupStream4Verification
             for (int row = 0; row < 16; row++)
             {
                 ushort[] cgram = BossShadeColours.Lay(BossShadeColours.Filled(0), shades,
-                    eyes ? RidleyShades.EyeFade(row) : RidleyShades.BodyFade(row), BossShadeColours.Sprites);
+                    RidleyShades.Fade((eyes ? RidleyFadeDefinitions.EyeFade : RidleyFadeDefinitions.BodyFade).Images[row]), BossShadeColours.Sprites);
                 for (int color = 0; color < count; color++)
                 {
                     ushort expected = Native(row, color);
@@ -435,13 +435,13 @@ internal static class LookupStream4Verification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         CeresEscape escape = enemies.CeresEscape;
         var ridley = new CeresRidleyState(Position16<RoomPixels>.Zero);
-        escape.Warning.AlarmStep = 15;
+        escape.Warning.AlarmStep = RidleyFadeDefinitions.SelfDestructAlarm.Images[15];
         for (ushort nmi = 0; nmi < 64; nmi++)
         {
             escape.StepAlarm(nmi);
             ushort[] laid = RidleyLaidColours.Of(ridley, escape, [], room, 0x1234);
             int row = nmi / 4;
-            AssertEqual((ushort)row, escape.Warning.AlarmStep, "actual alarm advances only every fourth NMI and wraps");
+            AssertEqual(row, escape.Warning.AlarmStep.Step, "actual alarm advances only every fourth NMI and wraps");
             for (int color = 0; color < 256; color++)
                 AssertEqual(color is >= 97 and <= 99 ? Native(row, color - 97) : (ushort)0x1234, laid[color], "actual gated producer preserves exact row and other CGRAM colors");
         }
@@ -449,7 +449,7 @@ internal static class LookupStream4Verification
         {
             ushort[] cgram = BossShadeColours.Filled(0);
             cgram[96] = 0x1234; cgram[100] = 0x2345;
-            BossShadeColours.Lay(cgram, room, RidleyShades.Alarm(row), BossShadeColours.Room);
+            BossShadeColours.Lay(cgram, room, RidleyShades.Fade(RidleyFadeDefinitions.SelfDestructAlarm.Images[row]), BossShadeColours.Room);
             for (int color = 0; color < 3; color++)
                 AssertEqual(Native(row, color), cgram[97 + color], "actual alarm CGRAM write");
             AssertEqual(0x1234, cgram[96], "alarm preceding CGRAM unchanged");
@@ -1422,7 +1422,6 @@ internal static class LookupStream4Verification
         Suite(nameof(VerifyLookupStream4LightningColors), () => VerifyLookupStream4LightningColors(rom));
         Suite(nameof(VerifyLookupStream4BotwoonColors), () => VerifyLookupStream4BotwoonColors(rom));
         Suite(nameof(VerifyLookupStream4DraygonColors), () => VerifyLookupStream4DraygonColors(rom));
-        Suite(nameof(VerifyLookupStream4RidleyFireballOperands), () => VerifyLookupStream4RidleyFireballOperands());
         Suite(nameof(VerifyLookupStream4GeometryLayout), () => VerifyLookupStream4GeometryLayout(rom));
         Suite(nameof(VerifyLookupStream4PowerBombColors), () => VerifyLookupStream4PowerBombColors(rom));
         Suite(nameof(VerifyLookupStream4SporeAndFly), () => VerifyLookupStream4SporeAndFly(rom));
@@ -1474,7 +1473,7 @@ internal static class LookupStream4Verification
         for (ushort parameter = 0; parameter <= 22; parameter += 2)
         {
             var actual = RidleyExplosionDefinitions.GetPart(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.RidleyExplosionPart(parameter));
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c6ce + parameter)), actual.Lifetime, "stream4 native breakup lifetime");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c6ce + parameter)) + 1, actual.LifetimeUpdates, "stream4 native breakup lifetime, one short of the updates it lasts");
         }
         // The cartridge's tip list is the one its orientation, the direction half a pose on, numbers in sixteenths of a turn.
         for (int direction = 0; direction < 256; direction++)
@@ -1587,7 +1586,7 @@ internal static class LookupStream4Verification
         for (ushort index = 0; index < 4; index++)
         {
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86dcb9 + 2 * index)), CoordinateAxis.Wrap(SporeSpawnProjectileDefinitions.StalkSegments[index].Y), "stream4 original stalk segment spacing");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86dce6 + 2 * index)), SporeSpawnProjectileDefinitions.Emitters[index].X, "stream4 original ceiling emitter spacing");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86dce6 + 2 * index)), SporeSpawnProjectileDefinitions.Emitters[index].Place.X, "stream4 original ceiling emitter spacing");
         }
     }
 
@@ -1646,23 +1645,6 @@ internal static class LookupStream4Verification
             AssertThrows<ArgumentOutOfRangeException>(() => SaveRamLayout.SlotOffset(invalid), "save slot exact domain");
         foreach (ushort invalid in new ushort[] { 8, 255, ushort.MaxValue })
             AssertThrows<InvalidDataException>(() => MaridiaSnailsNativeWords.MaridiaLargeSnailAnimations.Decode(invalid, "Oum animation index"), "Oum animation exact domain");
-    }
-
-    /// <summary>Checks Ridley's fireball frames keep their native operand order.</summary>
-    internal static void VerifyLookupStream4RidleyFireballOperands()
-    {
-        // Ridley's fireball programs are typed (#1287); VerifyRidleyAnimations matches them to the native lists, and
-        // their installed frames keep the native operand addresses in list order.
-        ushort[] operands =
-        [
-            0x9556, 0x955e, 0x9562, 0x9566, 0x956a, 0x956e,
-            0x9578, 0x957c, 0x9580, 0x9584, 0x9588,
-            0x95a4, 0x95aa, 0x95ae, 0x95b2, 0x95b6,
-            0x95d7, 0x95dd, 0x95e1, 0x95e5, 0x95e9,
-            0x960a, 0x9610, 0x9614, 0x9618, 0x961c,
-        ];
-        AssertTrue(operands.SequenceEqual(RidleyFireballAnimations.ProjectileFrames.Select(EnemyProjectileProgramFrameSources.Operand)),
-            "Ridley fireball frames keep the native operand order");
     }
 
     /// <summary>Checks Draygon palette and presentation table boundaries against cartridge layout.</summary>
@@ -1942,7 +1924,7 @@ internal static class LookupStream4Verification
             AssertEqual(hash, selected.ContentIdentity, "Reveal canonical content hash");
             for (int row = 0; row < 15; row++)
             {
-                ushort[] cgram = BossShadeColours.Lay(BossShadeColours.Filled(0x1234), RidleySheetShades.NorfairRoom(selected), RidleyShades.NorfairReveal(row), BossShadeColours.Room);
+                ushort[] cgram = BossShadeColours.Lay(BossShadeColours.Filled(0x1234), RidleySheetShades.NorfairRoom(selected), RidleyShades.Fade(RidleyFadeDefinitions.ArenaReveal.Images[row]), BossShadeColours.Room);
                 for (int color = 0; color < 256; color++)
                     AssertEqual(color is >= 113 and < 127 ? Pack(document.Reveal[row][color - 113]) : (ushort)0x1234,
                         cgram[color], "Every reveal row's full CGRAM copy");

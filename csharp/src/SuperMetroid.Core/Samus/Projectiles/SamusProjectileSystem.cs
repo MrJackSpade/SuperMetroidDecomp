@@ -24,7 +24,7 @@ public sealed class SamusProjectileSystem
     /// <summary>Tracks held charge, flare components, and charge glow state across room transitions.</summary>
     internal BeamChargeState Charge { get; }
 
-    /// <summary>Holds the five ordinary projectile places and the shot count.</summary>
+    /// <summary>Holds the five shot places and the shot count.</summary>
     internal SamusShotPool Pool { get; }
 
     /// <summary>Collects impact-driven earthquake requests from projectile and terrain reactions.</summary>
@@ -335,7 +335,7 @@ public sealed class SamusProjectileSystem
         SamusHudSelectionMode hudMode = SamusHudObservations.SelectionMode(SamusPoseMetadata.ReadMovementType(samus));
         bool preservesJumpCharge = samus.Grapple.Phase == GrapplePhase.Inactive &&
             hudMode == SamusHudSelectionMode.Jump;
-        // The turning HUD step waits for an explicit pose-initializer muzzle handoff.
+        // The turning HUD step waits for an explicit pose-setup muzzle handoff.
         // With no handoff it neither increments charge nor releases it on a Shoot edge.
         bool preservesTurnCharge = hudMode == SamusHudSelectionMode.Turning &&
             samus.PendingTransitionShot is null;

@@ -33,13 +33,13 @@ internal sealed class RidleyFlight
         // The bounds clamp runs the impact only when proposed X is strictly below the
         // left bound, before zeroing X velocity. Vertical speed can meet its threshold
         // even when horizontal motion is slow; the right and vertical clamps do not call it.
-        FixedCoordinate proposedX = place.Position.X.MovedBy(flight.Velocity.X);
-        FixedCoordinate proposedY = place.Position.Y.MovedBy(flight.Velocity.Y);
-        flight.HitRoomBoundary = CoordinateAxis.Difference(proposedX.Whole, flight.MovementMinimum.X) < 0 ||
-            CoordinateAxis.Difference(proposedX.Whole, flight.MovementMaximum.X) >= 0 ||
-            CoordinateAxis.Difference(proposedY.Whole, flight.MovementMinimum.Y) < 0 ||
-            CoordinateAxis.Difference(proposedY.Whole, flight.MovementMaximum.Y) >= 0;
-        if (wallImpact == RidleyWallImpact.CeresWall && CoordinateAxis.Difference(proposedX.Whole, flight.MovementMinimum.X) < 0 &&
+        int proposedX = SignedPlace(place.Position.X.MovedBy(flight.Velocity.X));
+        int proposedY = SignedPlace(place.Position.Y.MovedBy(flight.Velocity.Y));
+        flight.HitRoomBoundary = proposedX < flight.MovementMinimum.X ||
+            proposedX >= flight.MovementMaximum.X ||
+            proposedY < flight.MovementMinimum.Y ||
+            proposedY >= flight.MovementMaximum.Y;
+        if (wallImpact == RidleyWallImpact.CeresWall && proposedX < flight.MovementMinimum.X &&
             SignedEightEight.Max(flight.Velocity.X.Magnitude(), flight.Velocity.Y.Magnitude()) >= RidleyWallImpactDefinitions.MinimumSpeed)
         {
             _earthquake.Start(RidleyWallImpactDefinitions.Earthquake, RidleyWallImpactDefinitions.Duration);
@@ -67,16 +67,29 @@ internal sealed class RidleyFlight
         int minimum,
         int maximum)
     {
-        // Ridley's velocities are signed 1/256-pixel values that the game adds, in 256ths of a pixel, to the
-        // ordinary 1/65536-pixel position's fraction.
+        // Ridley's velocity moves him in 256ths of a pixel.
+        // A bound above the room's top is stored as positions are, continuing from the far end of the coordinate range.
         FixedCoordinate moved = position.MovedBy(velocity);
 
-        if (CoordinateAxis.Difference(moved.Whole, minimum) < 0)
-            return new RidleyAxisMotion(moved.WithWhole(minimum), SignedEightEight.Zero);
-        if (CoordinateAxis.Difference(moved.Whole, maximum) >= 0)
-            return new RidleyAxisMotion(moved.WithWhole(maximum), SignedEightEight.Zero);
+        if (SignedPlace(moved) < minimum)
+            return new RidleyAxisMotion(moved.WithWrappedWhole(minimum), SignedEightEight.Zero);
+        if (SignedPlace(moved) >= maximum)
+            return new RidleyAxisMotion(moved.WithWrappedWhole(maximum), SignedEightEight.Zero);
         return new RidleyAxisMotion(moved, velocity);
     }
+
+    /// <summary>
+    /// Where <paramref name="place"/>'s body lies from the room's origin: Ceres Ridley's retreat carries him above his
+    /// chamber, where he lies at a negative height. Every comparison of a Ridley place against a line or bound reads this.
+    /// </summary>
+    internal static Offset16<RoomPixels> SignedPlace(RoomEnemyPlace place) => SignedPlace(place.Position.Whole);
+
+    /// <summary>Where <paramref name="position"/> lies from the room's origin: one above or left of the room lies at a negative height or column.</summary>
+    internal static Offset16<RoomPixels> SignedPlace(Position16<RoomPixels> position) =>
+        new(CoordinateAxis.AsSigned(position.X), CoordinateAxis.AsSigned(position.Y));
+
+    /// <summary>Where one axis of a moving place lies from the room's origin, negative above or left of the room.</summary>
+    private static int SignedPlace(FixedCoordinate coordinate) => CoordinateAxis.AsSigned(coordinate.Whole);
 
     /// <summary>
     /// Moves Ridley's swoop speed toward <paramref name="targetSpeed"/>, turns his heading by <paramref name="turn"/>
@@ -112,11 +125,14 @@ internal sealed class RidleyFlight
     internal static bool IsWithinRectangle(
         RoomEnemyPlace place,
         Position16<RoomPixels> center,
-        Extent16<RoomPixels> radius) =>
+        Extent16<RoomPixels> radius)
+    {
         // The hover check tests overlap with the actor's rectangle, including its boundary.
         // A center-only test delays flight and attack handoffs until Ridley gets too close.
-        CoordinateAxis.Distance(place.Position.X.Whole, center.X) < CoordinateAxis.Wrap(place.Radius.X + radius.X + 1) &&
-            CoordinateAxis.Distance(place.Position.Y.Whole, center.Y) < CoordinateAxis.Wrap(place.Radius.Y + radius.Y + 1);
+        Offset16<RoomPixels> fromCenter = SignedPlace(place) - SignedPlace(center);
+        return Math.Abs(fromCenter.X) < place.Radius.X + radius.X + 1 &&
+            Math.Abs(fromCenter.Y) < place.Radius.Y + radius.Y + 1;
+    }
 
     /// <summary>Restarts Ridley's body animation and frame timer at a selected segment.</summary>
     internal static void StartAnimation(RidleyFlightState flight, RoomEnemyPlace place, RidleyBodySegment segment) =>

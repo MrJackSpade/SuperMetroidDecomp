@@ -71,7 +71,7 @@ internal sealed class EyeDoorBehavior
 
             default:
                 throw new InvalidOperationException(
-                    $"Eye-door projectile definition {request.Definition} escaped its initializer step.");
+                    $"Eye-door projectile definition {request.Definition} escaped its setup step.");
         }
     }
 

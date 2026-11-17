@@ -3,9 +3,9 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// <summary>Ridley's tail as it is made, and the swings, spacings, reaches and extensions its actions set (#2238).</summary>
 internal static class RidleyTailDefinitions
 {
-    /// <summary>Tail initialization writes this bound independently of facing: sixteen steps clockwise of straight down.</summary>
+    /// <summary>The bound the tail starts with whichever way he faces: sixteen steps clockwise of straight down.</summary>
     internal static RidleyTailAngle InitialMinimumClockwise { get; } = RidleyTailAngle.StraightDown.TurnedClockwise(16);
-    /// <summary>Tail initialization writes this bound before the live tail's action adjusts it: a quarter turn counterclockwise of straight down.</summary>
+    /// <summary>The bound the tail starts with, which the live tail's action then adjusts: a quarter turn counterclockwise of straight down.</summary>
     internal static RidleyTailAngle InitialMaximumCounterClockwise { get; } = RidleyTailAngle.StraightDown.TurnedCounterclockwise(64);
 
     /// <summary>
@@ -36,8 +36,8 @@ internal static class RidleyTailDefinitions
     /// <summary>The swing of the downward stab, slower than its setup: three steps an update.</summary>
     internal static RidleyTailTurn StabSwing { get; } = RidleyTailTurn.OfSteps(3);
     /// <summary>
-    /// The pogo tail's swing as its action sets it up: none. Its activation timer is made at zero and never
-    /// given another value, so both pogo tail setups write zero.
+    /// The pogo tail's swing as its action sets it up: none. Its activation timer starts at zero and is never
+    /// given another value, so both pogo tail setups give it no swing.
     /// </summary>
     internal static RidleyTailTurn PogoSwing => RidleyTailTurn.None;
 

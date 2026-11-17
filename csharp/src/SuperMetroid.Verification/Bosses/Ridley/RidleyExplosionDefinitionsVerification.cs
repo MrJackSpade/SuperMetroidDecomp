@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Bosses;
+using SuperMetroid.Core.Enemies.Corpses;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies;
@@ -41,7 +43,8 @@ internal static class RidleyExplosionDefinitionsVerification
         {
             RidleyExplosionPartDefinition definition =
                 RidleyExplosionDefinitions.GetPart(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.RidleyExplosionPart(parameter));
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c6ce + parameter)), definition.Lifetime,
+            // The cartridge stores the count the lifetime runs below zero from, one short of the updates it lasts.
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c6ce + parameter)) + 1, definition.LifetimeUpdates,
                 $"Ridley breakup lifetime ${parameter:X2}");
         }
 
@@ -99,8 +102,7 @@ internal static class RidleyExplosionDefinitionsVerification
 
         for (int index = 0; index < 10; index++)
         {
-            Offset16<RoomPixels> placement =
-                RidleyExplosionDefinitions.DeathExplosionPlacement(index);
+            Offset16<RoomPixels> placement = DeathExplosionScatterDefinitions.Offsets[index];
             AssertEqual(
                 unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c66e + index * 4))),
                 placement.X,
@@ -115,12 +117,6 @@ internal static class RidleyExplosionDefinitionsVerification
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c670 + index * 4)), CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9cdfe + index * 4)),
                 $"Baby Metroid death explosion {index} Y matches the shared scatter");
         }
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => RidleyExplosionDefinitions.DeathExplosionPlacement(-1),
-            "Ridley death explosion negative index");
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => RidleyExplosionDefinitions.DeathExplosionPlacement(10),
-            "Ridley death explosion index after authored cycle");
 
         Suite(nameof(VerifyRidleyExplosionProductionInitializer), () => VerifyRidleyExplosionProductionInitializer(rom));
         Suite(nameof(VerifyRidleyDeathExplosionProductionSpawns), () => VerifyRidleyDeathExplosionProductionSpawns(rom));
@@ -135,6 +131,8 @@ internal static class RidleyExplosionDefinitionsVerification
     private static void VerifyRidleyDeathExplosionProductionSpawns(
         CartridgeImportAddressSpace rom)
     {
+        // A fresh death, as the cartridge clears its index and steps it before reading, bursts first at the second point.
+        AssertEqual(1, new NorfairRidleyState().NextDeathExplosion.Place, "Ridley's first death explosion takes the scatter's second point");
         for (int selectedIndex = 0; selectedIndex < 10; selectedIndex++)
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
@@ -142,17 +140,17 @@ internal static class RidleyExplosionDefinitionsVerification
 
             RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
             body.Position = body.Position.WithWhole(new(0xfff8, 0x0008));
-            var state = new NorfairRidleyState { DeathExplosionTimer = 0, DeathExplosionCount = (selectedIndex + 9) % 10 };
+            var state = new NorfairRidleyState { DeathExplosionTimer = { Count = 0 }, NextDeathExplosion = ListStep<Offset16<RoomPixels>>.At(DeathExplosionScatterDefinitions.Offsets, selectedIndex) };
 
             spawn(body, state);
 
             EnemyProjectile effect = enemies.Projectiles.EnemyProjectiles.Single(p => p.IsActive);
             short xOffset = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c66e + selectedIndex * 4)));
             short yOffset = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c670 + selectedIndex * 4)));
-            AssertEqual((ushort)selectedIndex, state.DeathExplosionCount,
-                $"Ridley death explosion {selectedIndex} cyclic index");
-            AssertEqual(4, state.DeathExplosionTimer,
-                $"Ridley death explosion {selectedIndex} timer reload");
+            AssertEqual((selectedIndex + 1) % 10, state.NextDeathExplosion.Place,
+                $"Ridley death explosion {selectedIndex} cyclic next point");
+            AssertEqual(4, state.DeathExplosionTimer.Count,
+                $"Ridley death explosion {selectedIndex} waits five updates for the next");
             AssertEqual(unchecked((ushort)(body.Position.X.Whole + xOffset)), effect.Position.X.Whole,
                 $"Ridley death explosion {selectedIndex} production X");
             AssertEqual(unchecked((ushort)(body.Position.Y.Whole + yOffset)), effect.Position.Y.Whole,

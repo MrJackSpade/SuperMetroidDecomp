@@ -142,7 +142,6 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
 
             case NorfairRidleyPhase.SwoopSetup:
                 state.Phase = NorfairRidleyPhase.SwoopMoveToStart;
-                state.SwoopPhaseTimer = NorfairRidleyMotionDefinitions.SwoopSetupUpdates;
                 state.Flight.SwoopAngleAccumulator = RotationAngle.Zero;
                 NorfairRidleyCombat.TickNorfairRidleySwoopMoveToStart(place, state);
                 return;
@@ -199,11 +198,8 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
 
             case NorfairRidleyPhase.SwoopRecover:
                 RidleyFlight.UpdateSwoopVelocity(state.Flight, RidleySwoopTurn.None, RotationAngle.HalfTurn, NorfairRidleyMotionDefinitions.SwoopRecoverySpeed);
-                if (state.SwoopPhaseTimer != 0)
-                {
-                    state.SwoopPhaseTimer--;
+                if (state.SwoopPhaseTimer.StepKeepsRunning())
                     return;
-                }
                 state.Phase = NorfairRidleyCombat.SamusMovementUsesRidleyGrab(samus)
                     ? NorfairRidleyPhase.GrabApproach
                     : NorfairRidleyPhase.SelectAttack;
@@ -363,8 +359,7 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
             situation = RidleyAttackSituation.Ordinary;
         }
 
-        int choice = _room.Random.Next(RidleyRandomDefinitions.AttackChoice);
-        state.Phase = RidleyAttackChoices.Resolve(situation, choice);
+        state.Phase = RidleyAttackChoices.Resolve(situation, _room.Random.Generate());
 
         // The choice runs the chosen phase at once. Retain that same-frame setup
         // so timers, animation changes, and velocity all begin on the selected frame.

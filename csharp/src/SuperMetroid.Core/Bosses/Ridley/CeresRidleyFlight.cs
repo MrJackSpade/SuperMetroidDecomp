@@ -40,11 +40,11 @@ internal sealed class CeresRidleyFlight
     /// </summary>
     internal CeresRidleyState InitializeCeresRidley(RoomEnemyPlace place)
     {
-        // Ceres Ridley's initialization clears the boss's working state, which the fresh encounter below holds, and
-        // disables the minimap, which the room loader does once the enemies are loaded; Ceres has no arena to mark explored.
+        // Ceres Ridley starts with a fresh encounter, below, and the minimap stays off, which the room's load sees to once
+        // the enemies are loaded; Ceres has no arena to mark explored.
         place.CollidesByFrameHitboxes = true;
 
-        // The initializer sets both of Ridley's contact properties: he stops the Plasma Beam and ignores Samus.
+        // He starts with both of his contact properties: he stops the Plasma Beam and ignores Samus.
         place.Contact = place.Contact.With(EnemyContact.BlocksPlasmaBeam);
         place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
         place.Position = place.Position.WithWhole(CeresRidleyArenaDefinitions.Spawn);
@@ -68,9 +68,8 @@ internal sealed class CeresRidleyFlight
     internal static void LiftOff(CeresRidleyState state) => Ensure.NotNull(state).Phase = CeresRidleyPhase.LiftoffAccelerating;
 
     /// <summary>
-    /// Ceres Ridley cuts his fireballing short when Samus has under 30 energy: he stores eight in his phase timer, cutting
-    /// the fireball hover short, and continues in the fireballing's end for the way he faces, which nothing in the
-    /// fireballing turns.
+    /// Ceres Ridley cuts his fireballing short when Samus has under 30 energy: his hover lasts eight more updates, and he
+    /// continues in the fireballing's end for the way he faces, which nothing in the fireballing turns.
     /// </summary>
     /// <param name="state">Ridley's state.</param>
     /// <param name="samus">Samus, whose energy decides the cut.</param>
@@ -90,7 +89,7 @@ internal sealed class CeresRidleyFlight
         // On the update the rise starts slowing, his speed takes both the rise's -16 and the slowing's +20.
         // The rise carries Ridley past line 80, 32 pixels above where the slowing starts, within a few updates.
         state.Flight.Velocity = state.Flight.Velocity.WithY(state.Flight.Velocity.Y + CeresRidleyFlightDefinitions.LiftoffSlowingStep);
-        if (CoordinateAxis.Difference(place.Position.Y.Whole, CeresRidleyArenaDefinitions.HoverLineY) < 0)
+        if (RidleyFlight.SignedPlace(place).Y < CeresRidleyArenaDefinitions.HoverLineY)
         {
             state.Phase = CeresRidleyPhase.Hovering;
             state.FightMode = RidleyFightMode.Fighting;
@@ -144,16 +143,17 @@ internal sealed class CeresRidleyFlight
         SignedEightEight verticalVelocity = state.Flight.Velocity.Y;
         state.Flight.Velocity = state.Flight.Velocity.WithY(SignedEightEight.Max(CeresRidleyFlightDefinitions.FireballMoveMinimumSpeed, verticalVelocity.Magnitude())
             .AlongDirectionOf(verticalVelocity));
-        AccelerateRidleyToward(place, state.Flight, new(place.Position.X.Whole, CeresRidleyArenaDefinitions.FireballMoveTargetY), CeresRidleyFlightDefinitions.HoverDivisor);
+        AccelerateRidleyToward(place, state.Flight, new Position16<RoomPixels>(place.Position.X.Whole, CeresRidleyArenaDefinitions.FireballMoveTargetY), CeresRidleyFlightDefinitions.HoverDivisor);
 
-        if (CoordinateAxis.Difference(place.Position.Y.Whole, CeresRidleyArenaDefinitions.HoverLineY) < 0)
+        int height = RidleyFlight.SignedPlace(place).Y;
+        if (height < CeresRidleyArenaDefinitions.HoverLineY)
         {
             state.HoverCounter++;
             if (state.HoverCounter >= CeresRidleyFlightDefinitions.FireballMoveGiveUp)
                 state.Phase = CeresRidleyPhase.SwoopSetup;
             return;
         }
-        if (CoordinateAxis.Difference(place.Position.Y.Whole, CeresRidleyArenaDefinitions.FireballLineY) >= 0)
+        if (height >= CeresRidleyArenaDefinitions.FireballLineY)
             return;
 
         state.FireballBasePosition = place.Position.Whole;
@@ -187,7 +187,7 @@ internal sealed class CeresRidleyFlight
         CeresRidleyState state,
         SamusState samus)
     {
-        Position16<RoomPixels> target = CoordinateAxis.Difference(samus.Position.Y.Whole, CeresRidleyArenaDefinitions.LungeSamusHighLineY) < 0
+        Position16<RoomPixels> target = samus.Position.Y.Whole < CeresRidleyArenaDefinitions.LungeSamusHighLineY
             ? samus.Position.Whole.WithY(CeresRidleyArenaDefinitions.LungeHighTargetY)
             : samus.Position.Whole - CeresRidleyArenaDefinitions.LungeAboveSamus;
         AccelerateRidleyToward(place, state.Flight, target, CeresRidleyFlightDefinitions.LungeDivisor);
@@ -206,7 +206,7 @@ internal sealed class CeresRidleyFlight
         CeresRidleyState state)
     {
         AccelerateRidleyToward(place, state.Flight, CeresRidleyArenaDefinitions.SwoopStart, CeresRidleyFlightDefinitions.SweepDivisor);
-        if (CoordinateAxis.Difference(place.Position.Y.Whole, CeresRidleyArenaDefinitions.SwoopStartLineY) < 0)
+        if (RidleyFlight.SignedPlace(place).Y < CeresRidleyArenaDefinitions.SwoopStartLineY)
         {
             state.Phase = CeresRidleyPhase.SwoopDescendingAimingDown;
             state.PhaseTimer.LastFor(CeresRidleyFlightDefinitions.SwoopDiveUpdates);
@@ -235,7 +235,7 @@ internal sealed class CeresRidleyFlight
     private static void BeginCeresRidleyRetreat(CeresRidleyState state)
     {
         state.Phase = CeresRidleyPhase.RealRetreatRising;
-        state.Flight.MovementMinimum = state.Flight.MovementMinimum.WithY(CoordinateAxis.Wrap(CeresRidleyArenaDefinitions.RetreatMovementTop));
+        state.Flight.MovementMinimum = state.Flight.MovementMinimum.WithY(CeresRidleyArenaDefinitions.RetreatMovementTop);
     }
 
     /// <summary>Moves the 100-shot retreat toward the Baby retrieval staging point.</summary>
@@ -246,7 +246,7 @@ internal sealed class CeresRidleyFlight
         // Ridley steers toward the fake retreat's point. Only the fake retreat after 100 hits takes the Baby back; the retreat
         // at Samus's low energy leaves without it.
         AccelerateRidleyToward(place, state.Flight, CeresRidleyArenaDefinitions.FakeRetreatPoint, CeresRidleyFlightDefinitions.SweepDivisor);
-        if (CoordinateAxis.Difference(place.Position.X.Whole, CeresRidleyArenaDefinitions.FakeRetreatPoint.X) >= 0)
+        if (RidleyFlight.SignedPlace(place).X >= CeresRidleyArenaDefinitions.FakeRetreatPoint.X)
             state.Phase = CeresRidleyPhase.FakeRetreatRising;
     }
 
@@ -258,9 +258,9 @@ internal sealed class CeresRidleyFlight
         // Ridley rises past Y=32 while the Baby still follows his original hand
         // anchor. Crossing that line starts the Baby's independent fall and the wait
         // before Ridley changes to the retrieval pose.
-        state.Flight.MovementMinimum = state.Flight.MovementMinimum.WithY(CoordinateAxis.Wrap(CeresRidleyArenaDefinitions.RetreatMovementTop));
+        state.Flight.MovementMinimum = state.Flight.MovementMinimum.WithY(CeresRidleyArenaDefinitions.RetreatMovementTop);
         AccelerateRidleyToward(place, state.Flight, CeresRidleyArenaDefinitions.RetreatPoint, CeresRidleyFlightDefinitions.SweepDivisor);
-        if (CoordinateAxis.Difference(place.Position.Y.Whole, CeresRidleyArenaDefinitions.BabyDropLineY) < 0)
+        if (RidleyFlight.SignedPlace(place).Y < CeresRidleyArenaDefinitions.BabyDropLineY)
         {
             state.Baby.Action = CeresBabyAction.Drop;
             state.Phase = CeresRidleyPhase.WaitBeforeRetrievingBaby;
@@ -292,7 +292,7 @@ internal sealed class CeresRidleyFlight
         // The retreat accelerates toward the off-screen point, and the check against the line comes before his
         // movement. Once he is above the retreat point the delay starts, its first update the same update.
         AccelerateRidleyToward(place, state.Flight, CeresRidleyArenaDefinitions.RetreatPoint, CeresRidleyFlightDefinitions.SweepDivisor);
-        if (CoordinateAxis.Difference(place.Position.Y.Whole, CeresRidleyArenaDefinitions.RetreatPoint.Y) < 0)
+        if (RidleyFlight.SignedPlace(place).Y < CeresRidleyArenaDefinitions.RetreatPoint.Y)
         {
             state.Phase = CeresRidleyPhase.RetreatDelay;
             state.PhaseTimer.LastFor(CeresRidleyFlightDefinitions.RetreatDelayUpdates);
@@ -318,6 +318,18 @@ internal sealed class CeresRidleyFlight
         state.Colours.ShowRetreat();
     }
 
+    /// <summary>
+    /// Steers both 1/256-pixel velocity axes toward <paramref name="target"/>, where it lies from the room's origin, which
+    /// may be above the chamber; the target is held as positions are, a place above the chamber at the coordinate range's
+    /// far end.
+    /// </summary>
+    internal static void AccelerateRidleyToward(
+        RoomEnemyPlace place,
+        RidleyFlightState flight,
+        Offset16<RoomPixels> target,
+        int divisor) =>
+        AccelerateRidleyToward(place, flight, Position16<RoomPixels>.Zero + target, divisor);
+
     /// <summary>Steers both 1/256-pixel velocity axes toward a target, raising a step that divides to zero to one.</summary>
     internal static void AccelerateRidleyToward(
         RoomEnemyPlace place,
@@ -329,9 +341,11 @@ internal sealed class CeresRidleyFlight
         // to one, ensuring that even a one-pixel error continues to change velocity.
         divisor = RidleyInertia.Divisor(divisor);
 
+        Position16<RoomPixels> at = place.Position.Whole;
+        Offset16<RoomPixels> fromTarget = at - target;
         flight.Velocity = new EightEightVector<RoomPixels>(
-            AccelerateAxis(flight.Velocity.X, place.Position.X.Whole, target.X, divisor),
-            AccelerateAxis(flight.Velocity.Y, place.Position.Y.Whole, target.Y, divisor));
+            AccelerateAxis(new SeekingVelocityRun(flight.Velocity.X, at.X, target.X), fromTarget.X, divisor),
+            AccelerateAxis(new SeekingVelocityRun(flight.Velocity.Y, at.Y, target.Y), fromTarget.Y, divisor));
     }
 
     /// <summary>
@@ -340,18 +354,16 @@ internal sealed class CeresRidleyFlight
     /// (<see cref="SeekingVelocityRun"/>). The velocity stays within a few thousand units of rest (each update clamps it
     /// to five pixels and a step is at most the arena's width), so the clamps compare signed velocities.
     /// </summary>
-    /// <param name="velocity">The axis velocity.</param>
-    /// <param name="position">Ridley's whole coordinate on the axis, as his position holds it.</param>
-    /// <param name="target">The target's whole coordinate on the axis, as its position holds it.</param>
+    /// <param name="run">The run of steps from the axis velocity toward the target from Ridley's place on the axis.</param>
+    /// <param name="difference">Ridley's displacement from the target on the axis.</param>
     /// <param name="divisor">The inertia divisor, at least one.</param>
-    private static SignedEightEight AccelerateAxis(SignedEightEight velocity, int position, int target, int divisor)
+    private static SignedEightEight AccelerateAxis(SeekingVelocityRun run, int difference, int divisor)
     {
-        int difference = CoordinateAxis.Difference(position, target);
+        SignedEightEight velocity = run.Velocity;
         if (difference == 0)
             return velocity;
         // The distance divided by the inertia, at most 32768; a step that divides to zero is raised to one.
         int step = Math.Max(1, Math.Abs(difference) / divisor);
-        var run = new SeekingVelocityRun(velocity, position, target);
 
         if (difference < 0)
         {

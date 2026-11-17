@@ -77,8 +77,8 @@ internal static class TourianRoomEnemyPopulationDefinitions
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.BlueHopper),
         [
-            new(EnemyDefinitionId.SidehopperTourian, new(248, 97), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Mounting: HopperMounting.Ceiling)),
-            new(EnemyDefinitionId.SidehopperTourian, new(134, 169), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Mounting: HopperMounting.Floor)),
+            new(EnemyDefinitionId.SidehopperTourian, new(248, 97), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Ceiling)),
+            new(EnemyDefinitionId.SidehopperTourian, new(134, 169), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Floor)),
         ], 2),
         new(nameof(RoomEnemyPopulationDefinitions.TourianEscape1),
         [

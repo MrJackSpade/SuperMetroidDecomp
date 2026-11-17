@@ -13,8 +13,10 @@ internal enum NorfairLavaJumperSegment
     /// pictures end.
     /// </summary>
     Jump,
-    /// <summary>A trailing flame flaring, then flickering small and tall, repeating.</summary>
+    /// <summary>
+    /// A trailing flame flaring for an update and vanishing for one, before it flickers; its animation repeats both.
+    /// </summary>
     Follower,
-    /// <summary>A trailing flame flickering small and tall.</summary>
-    FollowerLoop,
+    /// <summary>A trailing flame flickering small and then tall, each picture an update with an update of nothing after it.</summary>
+    FollowerFlickering,
 }

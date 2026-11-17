@@ -1,11 +1,10 @@
 using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>
-/// Torizo's state beyond what every enemy has, kept in named fields rather than in
-/// shared boss values, so no common enemy field takes on a second meaning. The Torizo's entity owns it as its species
-/// state (#2030).
+/// Torizo's state beyond what every enemy has. The Torizo's entity owns it as its species state (#2030).
 /// </summary>
 public sealed class TorizoEnemyState
 {
@@ -18,8 +17,20 @@ public sealed class TorizoEnemyState
     /// <summary>Which way Torizo faces, which foot leads and whether it is turning around (#2237).</summary>
     internal TorizoPosture Posture { get; set; }
 
-    /// <summary>The behaviour latches: a caught Super Missile, a stun, and Bomb Torizo's blown-up face and gut.</summary>
-    internal TorizoBehaviorFlags Behavior { get; set; }
+    /// <summary>Whether Golden Torizo has caught a Super Missile; later shots bypass the catch and stun him.</summary>
+    internal bool CaughtSuperMissile { get; set; }
+
+    /// <summary>
+    /// Whether Golden Torizo is stunned: a Super Missile hit or another family's shot stuns him, his stun-health interrupt
+    /// reads it, and his stun animation's unmark cue clears it.
+    /// </summary>
+    internal bool Stunned { get; set; }
+
+    /// <summary>Whether Bomb Torizo's face is blown up; its faceless animations walk on from here, and its death sets it.</summary>
+    internal bool FaceBlownUp { get; set; }
+
+    /// <summary>Whether Bomb Torizo's gut is blown up, which its first low-health interruption sets, and its death too.</summary>
+    internal bool GutBlownUp { get; set; }
     /// <summary>Whether the owning definition is Golden Torizo, rather than Bomb Torizo; fixed at initialization.</summary>
     public bool IsGolden { get; }
 
@@ -61,6 +72,19 @@ public sealed class TorizoEnemyState
     /// (#1945), so it counts on.
     /// </summary>
     public int DecisionCounter { get; internal set; }
+
+    /// <summary>
+    /// The eggs Golden Torizo has laid that may remain (#2332): its egg-laying run repeats while any of them is still an
+    /// egg. An egg that hatches into nothing or breaks leaves its place, which another projectile may take.
+    /// </summary>
+    internal List<EnemyProjectile> LaidEggs { get; } = [];
+
+    /// <summary>Whether any egg Golden Torizo laid remains; the eggs that have gone are forgotten.</summary>
+    internal bool EggsRemain()
+    {
+        LaidEggs.RemoveAll(egg => egg.Kind != RoomEnemyProjectileKind.GoldenTorizoEgg);
+        return LaidEggs.Count > 0;
+    }
 
     /// <summary>Whether Golden Torizo's eye beams explode on impact; its eye-beam animation enables them.</summary>
     public bool EyeBeamExplosionsEnabled { get; internal set; }

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Grapple;
 
 namespace SuperMetroid.Core.Enemies;
@@ -47,44 +46,6 @@ internal static class RoomEnemyAuxiliaryDefinitionCatalog
         DropChances: null,
         Vulnerability: EnemyVulnerabilityDefinitions.Standard);
 
-    /// <summary>The Chozo orb Bomb Torizo drops.</summary>
-    internal static readonly RoomEnemyDefinition BombTorizoOrb = new(
-        Health: 800,
-        Damage: 8,
-        Radius: new(18, 48),
-        HurtFlashFrames: 8,
-        HurtSoundEffect: EnemySound.ShotTorizo,
-        Boss: AreaBoss.Torizo,
-        GrappleResponse: GrappleEnemyReaction.Cancel,
-        HurtResponse: EnemyHurtResponse.SpeciesOwn,
-        DeathExplosion: EnemyDeathExplosion.Small,
-        PowerBombReaction: null,
-        Touch: null,
-        Shot: null,
-        TouchHitboxScan: EnemyHitboxScan.Scanned,
-        ShotHitboxScan: EnemyHitboxScan.Scanned,
-        DropChances: new EnemyDropChances(116, 20, 65, 54, 0, 0),
-        Vulnerability: EnemyVulnerabilityDefinitions.BombTorizo);
-
-    /// <summary>The Chozo orb Golden Torizo drops.</summary>
-    internal static readonly RoomEnemyDefinition GoldenTorizoOrb = new(
-        Health: 13500,
-        Damage: 160,
-        Radius: new(18, 48),
-        HurtFlashFrames: 8,
-        HurtSoundEffect: EnemySound.ShotTorizo,
-        Boss: AreaBoss.Torizo,
-        GrappleResponse: GrappleEnemyReaction.Cancel,
-        HurtResponse: EnemyHurtResponse.SpeciesOwn,
-        DeathExplosion: EnemyDeathExplosion.Small,
-        PowerBombReaction: null,
-        Touch: null,
-        Shot: null,
-        TouchHitboxScan: EnemyHitboxScan.Scanned,
-        ShotHitboxScan: EnemyHitboxScan.Scanned,
-        DropChances: new EnemyDropChances(30, 30, 50, 60, 85, 0),
-        Vulnerability: EnemyVulnerabilityDefinitions.GoldenTorizo);
-
     /// <summary>
     /// A wall of Ceres Ridley's getaway chamber, which his getaway places (#1989), with the same fields as every Ceres door
     /// and wall.
@@ -107,14 +68,12 @@ internal static class RoomEnemyAuxiliaryDefinitionCatalog
         DropChances: null,
         Vulnerability: null);
 
-    /// <summary>The cutscene actors', Torizo orbs' and getaway chamber walls' definitions, by identity.</summary>
+    /// <summary>The cutscene actors' and getaway chamber walls' definitions, by identity.</summary>
     internal static readonly Dictionary<EnemyDefinitionId, RoomEnemyDefinition> Definitions =
         new Dictionary<EnemyDefinitionId, RoomEnemyDefinition>
     {
         [EnemyDefinitionId.BabyMetroidCutscene] = BabyMetroidCutscene,
         [EnemyDefinitionId.MotherBrainTubes] = MotherBrainTubes,
-        [EnemyDefinitionId.BombTorizoOrb] = BombTorizoOrb,
-        [EnemyDefinitionId.GoldenTorizoOrb] = GoldenTorizoOrb,
         [EnemyDefinitionId.CeresGetawayChamberWall] = CeresGetawayChamberWall,
     };
 

@@ -240,10 +240,10 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 // The body attack throws the Metroid away from Samus at a quarter of their distance an update.
                 StoreMetroidXVelocity(
                     state,
-                    SignedSixteenSixteen.FromSixteenthsOfPixel(4 * CoordinateAxis.Difference(place.Position.X.Whole, samus.Position.X.Whole)));
+                    SignedSixteenSixteen.FromSixteenthsOfPixel(MetroidBehaviorDefinitions.BodyAttackThrowPerDistance * CoordinateAxis.Difference(place.Position.X.Whole, samus.Position.X.Whole)));
                 StoreMetroidYVelocity(
                     state,
-                    SignedSixteenSixteen.FromSixteenthsOfPixel(4 * CoordinateAxis.Difference(place.Position.Y.Whole, targetY)));
+                    SignedSixteenSixteen.FromSixteenthsOfPixel(MetroidBehaviorDefinitions.BodyAttackThrowPerDistance * CoordinateAxis.Difference(place.Position.Y.Whole, targetY)));
                 state.Movement = MetroidMovement.Homing;
                 SetMetroidAnimation(place, state, MetroidSegment.ChasingSamus);
             }
@@ -311,10 +311,10 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // hit it now. It recoils away from that origin at an eighth of its distance from it an update.
         StoreMetroidXVelocity(
             state,
-            SignedSixteenSixteen.FromSixteenthsOfPixel(2 * CoordinateAxis.Difference(place.Position.X.Whole, recoilOrigin.X)));
+            SignedSixteenSixteen.FromSixteenthsOfPixel(MetroidBehaviorDefinitions.ShotRecoilPerDistance * CoordinateAxis.Difference(place.Position.X.Whole, recoilOrigin.X)));
         StoreMetroidYVelocity(
             state,
-            SignedSixteenSixteen.FromSixteenthsOfPixel(2 * CoordinateAxis.Difference(place.Position.Y.Whole, recoilOrigin.Y)));
+            SignedSixteenSixteen.FromSixteenthsOfPixel(MetroidBehaviorDefinitions.ShotRecoilPerDistance * CoordinateAxis.Difference(place.Position.Y.Whole, recoilOrigin.Y)));
         state.Movement = MetroidMovement.Homing;
         SetMetroidAnimation(place, state, MetroidSegment.ChasingSamus);
 

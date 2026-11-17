@@ -10,7 +10,7 @@ internal enum GunshipSegment
     EntrancePadOpening,
     /// <summary>The entrance pad narrowing from wide open until it is shut, then resting shut.</summary>
     EntrancePadClosing,
-    /// <summary>The entrance pad resting shut, repeating.</summary>
+    /// <summary>The entrance pad resting shut, held.</summary>
     BottomEntrancePad,
     /// <summary>The gunship's top hull, held.</summary>
     TopHull,

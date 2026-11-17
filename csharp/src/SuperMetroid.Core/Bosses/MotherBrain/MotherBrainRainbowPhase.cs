@@ -24,7 +24,7 @@ public enum MotherBrainRainbowPhase
     /// <summary>Maintains beam effects and forced wallward movement until Samus reaches the wall, which selects the one-update delay.</summary>
     MoveSamusTowardWall,
 
-    /// <summary>Runs another beam/movement call, runs its one-update delay out, and starts the pinning earthquake before draining setup.</summary>
+    /// <summary>Keeps the beam and the push going for one more update, then shakes the room as Samus is pinned and starts the drain.</summary>
     OneFrameDelay,
 
     /// <summary>Starts the drain and its earthquake and immediately executes the first draining update.</summary>
@@ -33,7 +33,7 @@ public enum MotherBrainRainbowPhase
     /// <summary>Applies beam damage, ammunition drain, forced wall-centering movement, and effects until the drain runs out.</summary>
     DrainingSamus,
 
-    /// <summary>Narrows the beam to an angular width of an eighth of a turn, stops the beam effect, sound and earthquake, releases input, and starts the falling handoff.</summary>
+    /// <summary>Narrows the beam past its narrowest, two steps of a turn, then stops the beam effect, sound and earthquake, gives Samus back her control and lets her fall.</summary>
     FinishFiring,
 
     /// <summary>Puts Samus in her drained pose and movement and takes the first custom falling movement step at once.</summary>
@@ -42,7 +42,7 @@ public enum MotherBrainRainbowPhase
     /// <summary>Advances forced falling until Samus lands.</summary>
     WaitForSamusToLand,
 
-    /// <summary>Lowers the neck targets and starts the pause before the next action.</summary>
+    /// <summary>Starts the pause before the next action.</summary>
     LowerHead,
 
     /// <summary>After the pause runs out, repeats the beam at health 400 or above; otherwise begins the low-health finish-off cutscene.</summary>

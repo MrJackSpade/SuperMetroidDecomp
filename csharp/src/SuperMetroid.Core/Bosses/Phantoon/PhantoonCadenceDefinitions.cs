@@ -32,7 +32,7 @@ internal static class PhantoonCadenceDefinitions
 
     /// <summary>
     /// The updates on which an orbiting flame, past its start delay, draws its orbit one pixel closer: every second update
-    /// of the enemy projectiles' frame counter of 0 through 65535, on its odd place.
+    /// of the enemy projectiles' update count, on its odd updates.
     /// </summary>
     internal static readonly UpdateCadence OrbitClosesEverySecondUpdate = new(2, 1);
 

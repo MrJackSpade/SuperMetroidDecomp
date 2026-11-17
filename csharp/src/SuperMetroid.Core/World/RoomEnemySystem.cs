@@ -896,7 +896,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         {
             // The enemy pass decrements tangible actors' invincibility
             // before checking time freeze. X-ray therefore stops their movement but
-            // not this clock. Remember the entry value: the call that reaches zero
+            // not this clock. Remember the entry value: the update that reaches zero
             // still skips collision, and a new AI-owned timer must not lose a tick.
             bool invincibleAtEntry = place.InvincibilityTimer != 0;
             if (!place.Contact.HasAny(EnemyContact.IgnoresSamus) && invincibleAtEntry)
@@ -971,8 +971,8 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
                         place.FrozenTimer = ThawedFreezeLeftover.Of(hold);
                     }
                     frozen?.RunFrozen();
-                    // The frame clock advances after every selected AI call,
-                    // including frozen AI. Animation gating below remains separate.
+                    // The frame clock advances after every enemy whose AI runs,
+                    // frozen AI included. Animation gating below remains separate.
                     ranActorAi = true;
                 }
                 else if (!ranActorAi)

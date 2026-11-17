@@ -81,17 +81,12 @@ internal sealed class MotherBrainHead
         place.AnimationClock.Show(0);
     }
 
-    /// <summary>Runs the head main/hurt entry and its choice of whether her brain and neck are drawn.</summary>
+    /// <summary>Runs the head main/hurt entry and its brain action's choice of whether her brain and neck are drawn.</summary>
     internal static void RunMotherBrainHeadMain(RoomEnemyPlace head, MotherBrainEnemyState state, SamusState samus)
     {
-
-        // The head main first stops drawing her brain and neck. Only an intentionally invisible head
-        // runs the shared brain action, which draws them again.
+        // The head main first stops drawing her brain and neck; her brain's action then draws them again.
         state.DrawBrain = false;
         state.DrawNeck = false;
-        if (!head.Presence.HasAny(EnemyPresence.Hidden))
-            return;
-
         switch (state.BrainAction)
         {
             case MotherBrainBrainAction.SetupBrainToBeDrawn:
@@ -101,8 +96,7 @@ internal sealed class MotherBrainHead
                 StepMotherBrainNeck(
                     state,
                     samus);
-                Position16<RoomPixels> brainAnchor = state.NeckJoints[MotherBrainNeckJointDefinitions.BrainAnchor];
-                head.Position = head.Position.WithWhole(brainAnchor + MotherBrainNeckJointDefinitions.BrainAboveAnchor);
+                head.Position = head.Position.WithWhole(state.Neck.BrainAnchor.Position + MotherBrainNeckJointDefinitions.BrainAboveAnchor);
                 state.DrawBrain = true;
                 state.DrawNeck = true;
                 return;
@@ -130,8 +124,8 @@ internal sealed class MotherBrainHead
         if (state.SmallPurpleBreathGenerationEnabled && !state.SmallPurpleBreathActive &&
             BossRandomRolls.InLowerHalf(_room.Random.Read()))
             SpawnMotherBrainPurpleBreathSmall(state);
-        // The brain draw advances the brain animation here, after every enemy's AI, and returns out
-        // of the whole draw when the animation is not live.
+        // The brain's animation plays at this draw, after every enemy's AI (MotherBrainBrainAnimation), and the whole draw
+        // ends when the animation is not live.
         if (AdvanceMotherBrainBrain(state, samus) is not EnemyFrameId brainFrame)
             return;
 
@@ -156,14 +150,12 @@ internal sealed class MotherBrainHead
         // last. Equal-priority overlap therefore follows the same drawing precedence.
         int shakeIndex = MotherBrainCadenceDefinitions.NeckShakeStep.Of(head.FlashTimer);
         Offset16<RoomPixels> neckShake = MotherBrainShakeDefinitions.Offsets[shakeIndex];
-        Position16<RoomPixels>[] segments = state.NeckJoints;
-        for (int index = segments.Length - 1; index >= 0; index--)
+        foreach (MotherBrainNeckJoint joint in state.Neck.Joints.Reverse())
         {
-            Position16<RoomPixels> segment = segments[index];
             DrawMotherBrainWorldFrame(
                 sprites,
                 new SpriteSource(SpriteSourceKind.MotherBrainNeck),
-                new MotherBrainWorldFrame(MotherBrainVisualDefinitions.NeckJointFrame, segment + neckShake,
+                new MotherBrainWorldFrame(MotherBrainVisualDefinitions.NeckJointFrame, joint.Position + neckShake,
                     state.Colours.OwnShading),
                 camera,
                 ShownCorpseRows(state));
@@ -240,58 +232,17 @@ internal sealed class MotherBrainHead
             state.UpperNeckMovement = upperMovement;
         }
 
-        MotherBrainNeckKinematics.CalculateGeometry(state.Body.Position.Whole, state.LowerNeckAngle, state.UpperNeckAngle, state.NeckJointDistances)
-            .CopyTo(state.NeckJoints);
+        MotherBrainNeckKinematics.PlaceJoints(state.Neck, state.Body.Position.Whole, state.LowerNeckAngle, state.UpperNeckAngle);
     }
 
     /// <summary>
-    /// Returns the brain frame
-    /// to draw, or null when the brain is not live. With time frozen it only reads the current
-    /// frame. Otherwise a frame holds while its duration minus the timer is not negative
-    /// (the timer counting up); past it, cues run until the next frame, which
-    /// resets the timer to one.
+    /// Plays her brain's animation at her brain's draw (<see cref="MotherBrainBrainAnimation"/>) and returns the picture it
+    /// shows, or null when the brain is not live; its cues act on <paramref name="state"/> and read <paramref name="samus"/>.
     /// </summary>
-    internal EnemyFrameId? AdvanceMotherBrainBrain(MotherBrainEnemyState state, SamusState samus)
-    {
-        if (state.BrainPlayback is not { } playback)
-            return null;
-        AnimationBeat<EnemyFrameId, MotherBrainHeadCue> beat = RestingBeat(playback);
-        if (_frameContext.TimeIsFrozen)
-        {
-            return beat is AnimationBeat<EnemyFrameId, MotherBrainHeadCue>.Frame frozen ? frozen.Shown : throw new InvalidOperationException(
-                $"Mother Brain's frozen brain rests on {beat} at {playback.Place} of its animation, not a frame.");
-        }
-
-        Animation<MotherBrainHeadSegment> animation = playback.Animation;
-        AnimationPlace place = playback.Place;
-        if (beat is AnimationBeat<EnemyFrameId, MotherBrainHeadCue>.Frame show)
-        {
-            if (state.BrainFrameTimer <= show.Duration)
-            {
-                state.BrainFrameTimer++;
-                return show.Shown;
-            }
-            place = place with { Beat = place.Beat + 1 };
-        }
-
-        AnimationShown<MotherBrainHeadSegment, EnemyFrameId> advance = MotherBrainAnimations.HeadSegments.PlayToNextFrame(
-            ref animation, ref place, cue => ApplyMotherBrainHeadCue(state, samus, cue) is { } segment
-                ? new AnimationContinuation<MotherBrainHeadSegment>(MotherBrainAnimations.HeadStartingWith(segment), AnimationPlace.StartOfAnimation)
-                : null);
-        if (advance is not AnimationShown<MotherBrainHeadSegment, EnemyFrameId>.Frame shown)
-            throw new InvalidOperationException($"Mother Brain's brain animations have no {advance} beat.");
-        // The place rests on the frame it shows, so it steps back onto it.
-        state.BrainPlayback = new(animation, place with { Beat = place.Beat - 1 });
-        state.BrainFrameTimer = 1;
-        return shown.Shown;
-    }
-
-    /// <summary>The beat <paramref name="playback"/>'s place rests on: its playing phase's next beat.</summary>
-    private static AnimationBeat<EnemyFrameId, MotherBrainHeadCue> RestingBeat(AnimationPlayback<MotherBrainHeadSegment> playback)
-    {
-        AnimationPhase<MotherBrainHeadSegment> phase = playback.Animation.Phases[playback.Place.Phase];
-        return MotherBrainAnimations.HeadSegments.Beats(phase.Segment)[phase.FirstBeat + playback.Place.Beat];
-    }
+    internal EnemyFrameId? AdvanceMotherBrainBrain(MotherBrainEnemyState state, SamusState samus) =>
+        state.Brain.AdvanceAtDraw(_frameContext.TimeIsFrozen, cue => ApplyMotherBrainHeadCue(state, samus, cue) is { } segment
+            ? new AnimationContinuation<MotherBrainHeadSegment>(MotherBrainAnimations.HeadStartingWith(segment), AnimationPlace.StartOfAnimation)
+            : null);
 
     /// <summary>Carries out one event of a brain animation.</summary>
     /// <returns>The segment whose animation a random hold or drool event continues at; otherwise null.</returns>
@@ -404,8 +355,8 @@ internal sealed class MotherBrainHead
         Position16<RoomPixels> mouth = head.Position.Whole + MotherBrainFightDefinitions.MouthOffset;
         TrigonometryAngle angle = EnemyMath.CalculateBearing(target - mouth).ToTrigonometryAngle().TurnedBy(TrigonometryAngle.QuarterTurn);
 
-        // The clamp performs two signed comparisons within one turn. The
-        // wraparound half, from three quarters of a turn round past zero, maps to the lowest aim; the opposite half maps
+        // The clamp splits the turn in two halves. The
+        // half from three quarters of a turn round past zero maps to the lowest aim; the opposite half maps
         // to the highest. Only the aims between them survive unchanged.
         state.OnionRingsTargetAngle =
             angle >= MotherBrainOnionRingDefinitions.LowestAim && angle < MotherBrainOnionRingDefinitions.HighestAim ? angle
@@ -413,7 +364,7 @@ internal sealed class MotherBrainHead
             : MotherBrainOnionRingDefinitions.LowestAim;
     }
 
-    /// <summary>Runs the bomb's initializer.</summary>
+    /// <summary>Runs the bomb's setup.</summary>
     private void SpawnMotherBrainBomb(
         MotherBrainEnemyState state,
         int afterburnCount)
@@ -437,7 +388,7 @@ internal sealed class MotherBrainHead
     }
 
     /// <summary>
-    /// Runs the head's onion-ring step and the ring's initializer. The shared
+    /// Runs the head's onion-ring step and the ring's setup. The shared
     /// allocator deliberately runs after the twelve room turrets and all lingering drool,
     /// so pool saturation drops the ring when the pool is full.
     /// </summary>
@@ -466,14 +417,14 @@ internal sealed class MotherBrainHead
         MotherBrainProjectiles.PinMotherBrainOnionRingToMouth(ring, state);
     }
 
-    /// <summary>Runs the head's drool step and the drool's initializer.</summary>
+    /// <summary>Runs the head's drool step and the drool's setup.</summary>
     internal void SpawnMotherBrainDrool(MotherBrainEnemyState state)
     {
         if (!state.DroolGenerationEnabled)
             return;
 
-        state.LastDroolMouthPoint = (state.LastDroolMouthPoint + 1) % MotherBrainFightDefinitions.DroolMouthOffsets.Count;
-        Offset16<RoomPixels> mouth = MotherBrainFightDefinitions.DroolMouthOffsets[state.LastDroolMouthPoint];
+        Offset16<RoomPixels> mouth = state.NextDroolMouthPoint.Entry;
+        state.NextDroolMouthPoint = state.NextDroolMouthPoint.NextInCycle;
 
         EnemyProjectile? drool = _projectiles.AllocateEnemyProjectile();
         if (drool is null)
@@ -491,7 +442,7 @@ internal sealed class MotherBrainHead
         MotherBrainProjectiles.MotherBrainProjectileBehavior.HoldMotherBrainDroolAtMouth(drool);
     }
 
-    /// <summary>Runs the head's big purple breath step and the breath's initializer.</summary>
+    /// <summary>Runs the head's big purple breath step and the breath's setup.</summary>
     private void SpawnMotherBrainPurpleBreathBig(MotherBrainEnemyState state)
     {
         EnemyProjectile? breath = _projectiles.AllocateEnemyProjectile();
@@ -509,7 +460,7 @@ internal sealed class MotherBrainHead
         breath.Position = breath.Position.WithWhole(head.Position.Whole + MotherBrainFightDefinitions.BreathOffset);
     }
 
-    /// <summary>Runs the small-breath spawn and the breath's initializer.</summary>
+    /// <summary>Runs the small-breath spawn and the breath's setup.</summary>
     private void SpawnMotherBrainPurpleBreathSmall(MotherBrainEnemyState state)
     {
         EnemyProjectile? breath = _projectiles.AllocateEnemyProjectile();
@@ -528,7 +479,7 @@ internal sealed class MotherBrainHead
         state.SmallPurpleBreathActive = true;
     }
 
-    /// <summary>Runs the rainbow charging projectile's spawn, including the initializer's same-call pin.</summary>
+    /// <summary>Spawns the rainbow beam's charge glow, pinned to her head in the update it spawns.</summary>
     internal void SpawnMotherBrainRainbowChargingProjectile(MotherBrainEnemyState state)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();

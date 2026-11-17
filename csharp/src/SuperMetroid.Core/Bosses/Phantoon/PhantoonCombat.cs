@@ -380,7 +380,7 @@ internal sealed class PhantoonCombat
                 return;
             }
 
-            // The round ends within an update or two of its damage reaching the threshold, so its sum never nears a wrap.
+            // The round ends within an update or two of its damage reaching the threshold.
             state.Round.Damage += damage;
             if (state.Round.Damage >= PhantoonPatternDefinitions.RoundDamageThreshold)
             {

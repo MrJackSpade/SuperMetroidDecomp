@@ -6,7 +6,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
-/// <summary>Draws both Ridleys' tail and wings before the common writer emits his body (#2229).</summary>
+/// <summary>Draws both Ridleys' tail and wings before the common enemy drawing draws his body (#2229).</summary>
 [RoomLifetime]
 internal sealed class RidleyDrawing
 {

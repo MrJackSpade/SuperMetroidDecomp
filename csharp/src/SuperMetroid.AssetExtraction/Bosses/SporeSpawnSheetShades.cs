@@ -38,11 +38,8 @@ internal static class SporeSpawnSheetShades
             shades.Add(SheetShade.Run(SporeSpawnShades.Health(SporeSpawnHealthBandDefinitions.HighestFirst[shown]), BodyRow * LoadedSetColours.RowColours,
                 Frame(colour => colours.ResolveHealth(shown, colour))));
         }
-        for (int step = 0; step < SporeSpawnColorFormat.DeathSpriteFrameCount; step++)
-        {
-            int shown = step;
-            shades.Add(SheetShade.Run(SporeSpawnShades.DeathSprite(shown), BodyRow * LoadedSetColours.RowColours, Frame(colour => colours.ResolveDeathSprite(shown, colour))));
-        }
+        foreach (SporeSpawnDeathFadeStep step in SporeSpawnDeathFadeStep.All)
+            shades.Add(SheetShade.Run(SporeSpawnShades.DeathSprite(step), BodyRow * LoadedSetColours.RowColours, Frame(colour => colours.ResolveDeathSprite(step.Step, colour))));
         return shades;
     }
 
@@ -52,11 +49,10 @@ internal static class SporeSpawnSheetShades
     {
         SporeSpawnColorCatalog colours = Colours(bosses);
         var shades = new List<SheetShade>();
-        for (int step = 0; step < SporeSpawnColorFormat.DeathSceneFrameCount; step++)
+        foreach (SporeSpawnDeathFadeStep step in SporeSpawnDeathFadeStep.All)
         {
-            int shown = step;
-            shades.Add(SheetShade.Run(SporeSpawnShades.DeathLevel(shown), LevelFirstInk, Frame(colour => colours.ResolveDeathLevel(shown, colour))));
-            shades.Add(SheetShade.Run(SporeSpawnShades.DeathBackground(shown), BackgroundFirstInk, Frame(colour => colours.ResolveDeathBackground(shown, colour))));
+            shades.Add(SheetShade.Run(SporeSpawnShades.DeathLevel(step), LevelFirstInk, Frame(colour => colours.ResolveDeathLevel(step.Step, colour))));
+            shades.Add(SheetShade.Run(SporeSpawnShades.DeathBackground(step), BackgroundFirstInk, Frame(colour => colours.ResolveDeathBackground(step.Step, colour))));
         }
         return shades;
     }

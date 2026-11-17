@@ -24,8 +24,11 @@ internal static class SporeSpawnArenaDefinitions
     /// <summary>How far above his body's centre his stalk's last link reaches, in pixels.</summary>
     internal const int StalkBodyGap = 40;
 
-    /// <summary>The horizontal sway width, in pixels either side of his sway's centre, his descent leaves for the fight's first sway.</summary>
-    internal const int DescentSwayRadius = 48;
+    /// <summary>How wide his descent leaves his sway for the fight's first sway.</summary>
+    internal static readonly SporeSpawnSwayRadius DescentSwayRadius = new(48);
+
+    /// <summary>How his sway's phase turns as his descent ends and as his fight starts: one step a movement update, counterclockwise.</summary>
+    internal static readonly SporeSpawnSwayStep SwayStep = new(RotationAngle.FromSteps(1), RotationDirection.Counterclockwise);
 
     /// <summary>The horizontal sway width, in pixels, below which each closing of his shell widens the sway.</summary>
     internal const int WidenedSwayLimit = 40;
@@ -57,8 +60,8 @@ internal static class SporeSpawnArenaDefinitions
     /// <summary>The pixels his descent lowers him each update.</summary>
     internal const int DescentSpeed = 1;
 
-    /// <summary>The angle step his sway takes each update once a hit low on health quickens it, either way.</summary>
-    internal const int FastSwingStep = 2;
+    /// <summary>How far his sway's phase turns each movement update once a hit low on health quickens it, either way.</summary>
+    internal static readonly RotationAngle FastSwayStep = RotationAngle.FromSteps(2);
 
     /// <summary>How far left of and above his body the box his hardening's dust bursts scatter over starts.</summary>
     internal static readonly Offset16<RoomPixels> HardeningDustCentring = new(64, 64);

@@ -56,7 +56,7 @@ internal static class PhantoonReport1196Verification
         var enemies = CreatePhantoonSystem();
         var boss = enemies.BossEncounters.Phantoon;
         (boss ?? throw new InvalidOperationException("Verification requires boss.")).Wave.Amplitude = PhantoonWaveDefinitions.IntroAmplitude;
-        boss.Wave.PhaseStep = 8;
+        boss.Wave.PhaseStep = RotationAngle.FromSteps(8);
         var wave = boss.BodyWave;
         wave.Begin(PhantoonWaveDefinitions.IntroLength);
         wave.Step(boss);
@@ -76,7 +76,7 @@ internal static class PhantoonReport1196Verification
         AssertEqual(0, displayed.Amplitude, "every first-frame death scroll equals native BG2 X");
         boss.Wave.Amplitude = PhantoonWaveDefinitions.IntroAmplitude;
         wave.Step(boss);
-        AssertEqual(14, wave.Phase, "following HDMA pass resumes native phase advancement");
+        AssertEqual(RotationAngle.FromHalfSteps(14), wave.Phase, "following HDMA pass resumes native phase advancement");
         AssertTrue(wave.CurrentWave is { Amplitude: 3072, Period: PhantoonWaveDefinitions.LongPeriod } rebuilt && rebuilt.Phase == new TrigonometryAngle(7),
             "following pass rebuilds the animated death wave from the resumed phase");
         Console.WriteLine("Phantoon death: retained intro data is initialized before setup-only death frame; every displayed line aligns before wave advancement.");

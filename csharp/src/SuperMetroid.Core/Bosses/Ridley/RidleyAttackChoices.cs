@@ -2,25 +2,23 @@ using static SuperMetroid.Core.Bosses.Ridley.NorfairRidleyPhase;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
-/// <summary>Direct action selection from Ridley's eight equally likely attack choices.</summary>
+/// <summary>Which attack Ridley chooses in each situation, by the named chances of the random sample his choice draws.</summary>
 public static class RidleyAttackChoices
 {
     /// <summary>
-    /// The ordinary distribution splits at four and damage boosting at six. The pogo-zone, spin-jumping and zero-health
-    /// situations select a single action.
+    /// Half his ordinary choices pogo and half swoop; three in four of his choices at a damage-boosting Samus lunge at her
+    /// and the rest pogo. The pogo-zone, spin-jumping and zero-health situations always take one attack.
     /// </summary>
-    /// <param name="situation">The mutually exclusive distribution already selected from Ridley's health and Samus's movement and position.</param>
-    /// <param name="choice">An equally likely index from 0 through 7, normally one of Ridley's random draw's eight choices.</param>
-    /// <returns>The AI entry; this lookup does not draw RNG or execute the selected action.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">The choice is outside 0..7, including for a distribution whose entries are identical.</exception>
-    /// <exception cref="ArgumentOutOfRangeException">The situation is not a defined distribution.</exception>
-    public static NorfairRidleyPhase Resolve(RidleyAttackSituation situation, int choice)
+    /// <param name="situation">The situation already chosen from Ridley's health and Samus's movement and position.</param>
+    /// <param name="sample">The random sample his choice draws, 0 through 65535.</param>
+    /// <returns>The phase his attack starts in; choosing it draws no random number and starts nothing.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The situation is not a defined situation.</exception>
+    public static NorfairRidleyPhase Resolve(RidleyAttackSituation situation, int sample)
     {
-        if ((uint)choice >= 8) throw new ArgumentOutOfRangeException(nameof(choice));
         return situation switch
         {
-            RidleyAttackSituation.Ordinary => choice < 4 ? PogoMoveToSide : SwoopSetup,
-            RidleyAttackSituation.DamageBoosting => choice < 6 ? GrabApproach : PogoMoveToSide,
+            RidleyAttackSituation.Ordinary => RidleyRandomDefinitions.OrdinaryAttackPogos.IsTakenBy(sample) ? PogoMoveToSide : SwoopSetup,
+            RidleyAttackSituation.DamageBoosting => RidleyRandomDefinitions.DamageBoostingAttackLunges.IsTakenBy(sample) ? GrabApproach : PogoMoveToSide,
             RidleyAttackSituation.PogoZone => PogoMoveToSide,
             RidleyAttackSituation.SpinJumping => WallSweepSetup,
             RidleyAttackSituation.ZeroHealth => GrabApproach,

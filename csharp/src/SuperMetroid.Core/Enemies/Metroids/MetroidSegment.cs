@@ -7,9 +7,12 @@ namespace SuperMetroid.Core.Enemies.Metroids;
 internal enum MetroidSegment
 {
     /// <summary>
-    /// Its nuclei pulsing from dark to brightest and back four times while it chases Samus, then a cry, repeating.
+    /// Its nuclei pulsing once from dark to brightest and back while it chases Samus; its animation pulses four times
+    /// before each cry.
     /// </summary>
     ChasingSamus,
+    /// <summary>The chasing Metroid's cry, chosen at random, after its four pulses.</summary>
+    ChasingCry,
     /// <summary>
     /// Its nuclei pulsing from dark to brightest and back with the draining sound while it drains Samus, repeating.
     /// </summary>

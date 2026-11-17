@@ -25,8 +25,12 @@ internal static class SporeSpawnProjectileDefinitionsVerification
                 CoordinateAxis.Wrap(SporeSpawnProjectileDefinitions.StalkSegments[index].Y),
                 $"Spore Spawn stalk Y {index}");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86dce6 + index * 2)),
-                SporeSpawnProjectileDefinitions.Emitters[index].X,
+                SporeSpawnProjectileDefinitions.Emitters[index].Place.X,
                 $"Spore Spawn emitter X {index}");
+            // The cartridge mirrors the drift of a spore released in the right half of its screen.
+            AssertEqual(SporeSpawnProjectileDefinitions.Emitters[index].Place.X >= 128 ? HorizontalDirection.Left : HorizontalDirection.Right,
+                SporeSpawnProjectileDefinitions.Emitters[index].Drift,
+                $"Spore Spawn emitter {index}'s spores' first drift");
         }
         // A shot spore's drop rolls the table the cartridge's spore drop names through the header at $A0:DF7F, whose
         // drop-chance word lies 58 bytes in (#2244).
@@ -77,7 +81,7 @@ internal static class SporeSpawnProjectileDefinitionsVerification
             int offset = step * 2;
             spore.Kind = RoomEnemyProjectileKind.SporeSpawnSpore;
             spore.Position = spore.Position.WithWhole(new(0x0200, 0x0200));
-            spore.State = new SporeSpawnSporeState(mirrored: mirrored != 0) { PathStep = step };
+            spore.State = new SporeSpawnSporeState(mirrored != 0 ? HorizontalDirection.Left : HorizontalDirection.Right) { PathStep = step };
             int x = unchecked((sbyte)rom.ReadCartridgeByte(0x86dd6c + offset));
             int y = unchecked((sbyte)rom.ReadCartridgeByte(0x86dd6c + ((offset + 1) & 0xff)));
             move(spore);

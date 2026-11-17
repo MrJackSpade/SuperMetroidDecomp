@@ -34,7 +34,8 @@ internal static class NorfairLavaJumperBehaviorVerification
         // The initializer leaves the population's instruction timer; start the hidden pose on the next update.
         parent.AnimationClock.StepOnNextUpdate();
         ushort hidden = NorfairLavaJumperAnimationsConstants.Spritemaps(NorfairLavaJumperSegment.Hidden).Single();
-        AssertEqual(EnemyInstructionRunner.ExpectedFrames([hidden, hidden], [1, 1]), EnemyInstructionRunner.ShownFrames(parent, 3),
+        // The hidden pose is a still picture (#2337): it shows once and rests there.
+        AssertEqual(EnemyInstructionRunner.ExpectedFrames([hidden], [1]), EnemyInstructionRunner.ShownFrames(parent, 3),
             "lava-jumper hidden pose");
 
         enemies.NorfairLavaJumpingEnemyBehavior.RunNorfairLavaJumpingEnemyMain(parent, parentState);
@@ -58,9 +59,9 @@ internal static class NorfairLavaJumperBehaviorVerification
         AssertEqual(new AnimationPlayback<NorfairLavaJumperSegment>(NorfairLavaJumperAnimations.StartingWith(NorfairLavaJumperSegment.Follower), AnimationPlace.StartOfAnimation), followerState.Playback,
             "real follower initializer starts the follower loop");
         follower.AnimationClock.StepOnNextUpdate();
-        ushort[] startup = NorfairLavaJumperAnimationsConstants.Spritemaps(NorfairLavaJumperSegment.Follower).ToArray();
-        ushort[] loop = NorfairLavaJumperAnimationsConstants.Spritemaps(NorfairLavaJumperSegment.FollowerLoop).ToArray();
-        ushort[] expected = [.. startup, .. loop, startup[0]];
+        // The flare and the flickers after it are one cycle (#2337), which starts over at the flare.
+        ushort[] cycle = NorfairLavaJumperAnimationsConstants.Spritemaps(NorfairLavaJumperSegment.Follower, NorfairLavaJumperSegment.FollowerFlickering).ToArray();
+        ushort[] expected = [.. cycle, cycle[0]];
         AssertEqual(EnemyInstructionRunner.ExpectedFrames(expected, expected.Select(_ => 1)),
             EnemyInstructionRunner.ShownFrames(follower, expected.Length), "follower loop runs once and starts over");
         Console.WriteLine("  Norfair lava jumper behavior: hidden, jump with its finishing cue, and the follower loop run as the cartridge does.");

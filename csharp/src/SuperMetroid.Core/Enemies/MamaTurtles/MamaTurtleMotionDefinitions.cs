@@ -36,6 +36,9 @@ internal static class MamaTurtleMotionDefinitions
     /// <summary>The velocity a hiding baby Samus lands on spins off at, for Samus facing right; facing left mirrors it.</summary>
     internal static Offset16<RoomPixels> BabySpinVelocity { get; } = new(3, 1);
 
+    /// <summary>How fast a baby crawls along its heading, in whole pixels an update (#2338).</summary>
+    internal const int BabyCrawlSpeed = 1;
+
     /// <summary>How many babies crawl on the Mama Turtle's shell; the room lists them right after her.</summary>
     internal const int BabyCount = 4;
 

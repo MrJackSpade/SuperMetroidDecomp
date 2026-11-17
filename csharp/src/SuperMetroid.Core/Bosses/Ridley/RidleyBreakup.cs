@@ -22,7 +22,7 @@ internal static class RidleyBreakup
         tail.Links.Zip(TailLinkParts, (link, linkPart) => linkPart == part ? link : null).OfType<RidleyTailLink>().SingleOrDefault();
 
     /// <summary>
-    /// Selects the tail pose the breakup initializer loads; the tip's comes from the direction it points, turned by the
+    /// Selects the tail pose the breakup setup loads; the tip's comes from the direction it points, turned by the
     /// link before it (<see cref="TailTipBreakupFrames"/>). <paramref name="tailTipDirection"/> is ignored for the first
     /// six segments.
     /// </summary>

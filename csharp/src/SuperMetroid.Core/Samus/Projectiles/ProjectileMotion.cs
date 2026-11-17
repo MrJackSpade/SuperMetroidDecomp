@@ -356,7 +356,7 @@ internal sealed class ProjectileMotion
         link.IsSpent = owner.IsSpent;
         link.Position = link.Position.WithWhole(owner.Position.Whole);
 
-        // The Super Missile link deliberately calls the ordinary muzzle initializer again after copying
+        // The Super Missile link deliberately calls the ordinary muzzle setup again after copying
         // the owner's coordinates. At ignition both positions are equivalent; retaining the
         // call matters for moving/transition poses whose origin tables can change.
         BeamFiring.InitializePosition(samus, link);

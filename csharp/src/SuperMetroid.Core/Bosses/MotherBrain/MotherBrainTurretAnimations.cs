@@ -20,7 +20,7 @@ internal static class MotherBrainTurretAnimations
     ];
 
     /// <summary>
-    /// Every turret segment's beats: each turret and bullet pose by the direction it faces shows its frame for one update; the
+    /// Every turret segment's beats: each turret and bullet pose by the direction it faces holds its frame; the
     /// impact smoke stops flying and shows four eight-update puffs and a 32-update fade, room pictures drawn in
     /// their standard colours (#2260), then deletes itself.
     /// </summary>
@@ -55,10 +55,10 @@ internal static class MotherBrainTurretAnimations
         ],
     }, Poses);
 
-    /// <summary>Each segment's animation, played once: a pose then rests on its frame, and the deleted smoke rests.</summary>
+    /// <summary>Each segment's animation, played once: a pose holds its frame, and the deleted smoke rests.</summary>
     internal static IReadOnlyDictionary<MotherBrainTurretPose, Animation<MotherBrainTurretPose>> StartingAt { get; } =
         Poses.ToDictionary(pose => pose, pose => new Animation<MotherBrainTurretPose>([new(pose, 0, Segments.Beats(pose).Count, 1)], AnimationEnd.Holds));
 
-    /// <summary>Shows a still pose's <paramref name="frame"/> for one update.</summary>
-    private static Beat Still(EnemyProjectileFrameId frame) => new Beat.Frame(frame, 1);
+    /// <summary>Shows a still pose's <paramref name="frame"/> for good (#2318).</summary>
+    private static Beat Still(EnemyProjectileFrameId frame) => new Beat.HeldFrame(frame);
 }

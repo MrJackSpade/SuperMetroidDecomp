@@ -843,9 +843,6 @@ internal static class EnemyFrameCartridgeLocationDefinitions
         [EnemyFrameId.DeadRipperCorpseLevel] = new(0xa9, 0xed9d),
         [EnemyFrameId.DeadRipperCorpseTilted] = new(0xa9, 0xeda9),
         [EnemyFrameId.DeadSkreeCorpse] = new(0xa9, 0xedb5),
-        [EnemyFrameId.DeadSidehopperLegsBent] = new(0xa9, 0xee3c),
-        [EnemyFrameId.DeadSidehopperLegsCrouched] = new(0xa9, 0xee61),
-        [EnemyFrameId.DeadSidehopperLegsStraight] = new(0xa9, 0xee86),
         [EnemyFrameId.DeadSidehopperSprawled] = new(0xa9, 0xed25),
         [EnemyFrameId.DeadSidehopperSprawledLegsUp] = new(0xa9, 0xed4f),
         [EnemyFrameId.MochtroidFloatingWide] = new(0xa3, 0xa9b0),
@@ -1133,28 +1130,10 @@ internal static class EnemyFrameCartridgeLocationDefinitions
         [EnemyFrameId.DachoraStandingFacingRightEyeShut] = new(0xa7, 0xfe92),
         [EnemyFrameId.DachoraCrouchedFacingRight] = new(0xa7, 0xfdd1),
         [EnemyFrameId.DachoraStretchedUpFacingRight] = new(0xa7, 0xfdfb),
-        [EnemyFrameId.EscapeEtecoonRunningLeftStretched] = new(0xb3, 0xe736),
-        [EnemyFrameId.EscapeEtecoonRunningLeftBunched] = new(0xb3, 0xe747),
-        [EnemyFrameId.EscapeEtecoonRunningLeftPushingOff] = new(0xb3, 0xe753),
-        [EnemyFrameId.EscapeEtecoonRunningRightStretched] = new(0xb3, 0xe75f),
-        [EnemyFrameId.EscapeEtecoonRunningRightBunched] = new(0xb3, 0xe770),
-        [EnemyFrameId.EscapeEtecoonRunningRightPushingOff] = new(0xb3, 0xe77c),
         [EnemyFrameId.EscapeEtecoonLookingRight] = new(0xb3, 0xe8b0),
         [EnemyFrameId.EscapeEtecoonTurningLeft] = new(0xb3, 0xe8d5),
         [EnemyFrameId.EscapeEtecoonLookingLeft] = new(0xb3, 0xe91f),
         [EnemyFrameId.EscapeEtecoonTurningRight] = new(0xb3, 0xe8fa),
-        [EnemyFrameId.EscapeDachoraRunningLeftFarLegBack] = new(0xb3, 0xeb1b),
-        [EnemyFrameId.EscapeDachoraRunningLeftFarLegPassing] = new(0xb3, 0xeb4a),
-        [EnemyFrameId.EscapeDachoraRunningLeftFarLegReaching] = new(0xb3, 0xeb79),
-        [EnemyFrameId.EscapeDachoraRunningLeftNearLegBack] = new(0xb3, 0xebb2),
-        [EnemyFrameId.EscapeDachoraRunningLeftNearLegPassing] = new(0xb3, 0xebe1),
-        [EnemyFrameId.EscapeDachoraRunningLeftNearLegReaching] = new(0xb3, 0xec10),
-        [EnemyFrameId.EscapeDachoraRunningRightFarLegBack] = new(0xb3, 0xec49),
-        [EnemyFrameId.EscapeDachoraRunningRightFarLegPassing] = new(0xb3, 0xec78),
-        [EnemyFrameId.EscapeDachoraRunningRightFarLegReaching] = new(0xb3, 0xeca7),
-        [EnemyFrameId.EscapeDachoraRunningRightNearLegBack] = new(0xb3, 0xece0),
-        [EnemyFrameId.EscapeDachoraRunningRightNearLegPassing] = new(0xb3, 0xed0f),
-        [EnemyFrameId.EscapeDachoraRunningRightNearLegReaching] = new(0xb3, 0xed3e),
         [EnemyFrameId.HibashiEmber] = new(0xa6, 0x9082),
         [EnemyFrameId.HibashiFlame19By19] = new(0xa6, 0x9089),
         [EnemyFrameId.HibashiFlame23By26] = new(0xa6, 0x909f),
@@ -1781,8 +1760,11 @@ internal static class EnemyFrameCartridgeLocationDefinitions
     /// the Ki-Hunter's hovering and crouched poses, the Tripper's long jet, the Yard's closed shell, the turtles' shells and
     /// the walking and ninja pirates' ready stances, which their lists show again from records of their own (#2272); and the
     /// suspensor platform's lights, whose bank-$A3 records are byte-identical copies of the Kamer's, and the Chozo statues'
-    /// open hands, whose records the opening hand shows list the same non-overlapping objects in another order (#2307).
-    /// A record in another bank than its frame's own shows that frame as well. The import composes each picture once from <see cref="Locations"/>; tools reading native records find its frame here.
+    /// open hands, whose records the opening hand shows list the same non-overlapping objects in another order (#2307); and
+    /// the escaping Dachora's and Etecoons' strides, whose bank-$B3 records are byte-identical copies of the Dachora's and the
+    /// Etecoon's, and the dead Sidehopper's legs while it lives, whose bank-$A9 records draw the large Sidehopper's legs from
+    /// the large Sidehopper's tiles its room loads after its own (<see cref="EnemyCharacterBaseDefinitions.DrawnFromArtwork"/>,
+    /// #2327). A record in another bank than its frame's own shows that frame as well. The import composes each picture once from <see cref="Locations"/>; tools reading native records find its frame here.
     /// </summary>
     internal static IReadOnlyDictionary<SnesAddress, EnemyFrameId> AlsoStoredAt { get; } = new Dictionary<SnesAddress, EnemyFrameId>
     {
@@ -1865,5 +1847,26 @@ internal static class EnemyFrameCartridgeLocationDefinitions
         [new(0xa3, 0xa045)] = EnemyFrameId.PlatformLightBright,
         [new(0xaa, 0xf0e2)] = EnemyFrameId.ChozoStatueLowerNorfairHandOpen,
         [new(0xaa, 0xe8e7)] = EnemyFrameId.ChozoStatueWreckedShipHandOpen,
+        [new(0xb3, 0xeb1b)] = EnemyFrameId.DachoraRunningLeftFarLegBack,
+        [new(0xb3, 0xeb4a)] = EnemyFrameId.DachoraRunningLeftFarLegPassing,
+        [new(0xb3, 0xeb79)] = EnemyFrameId.DachoraRunningLeftFarLegReaching,
+        [new(0xb3, 0xebb2)] = EnemyFrameId.DachoraRunningLeftNearLegBack,
+        [new(0xb3, 0xebe1)] = EnemyFrameId.DachoraRunningLeftNearLegPassing,
+        [new(0xb3, 0xec10)] = EnemyFrameId.DachoraRunningLeftNearLegReaching,
+        [new(0xb3, 0xe736)] = EnemyFrameId.EtecoonRunningLeftStretched,
+        [new(0xb3, 0xe747)] = EnemyFrameId.EtecoonRunningLeftBunched,
+        [new(0xb3, 0xe753)] = EnemyFrameId.EtecoonRunningLeftPushingOff,
+        [new(0xb3, 0xec49)] = EnemyFrameId.DachoraRunningRightFarLegBack,
+        [new(0xb3, 0xec78)] = EnemyFrameId.DachoraRunningRightFarLegPassing,
+        [new(0xb3, 0xeca7)] = EnemyFrameId.DachoraRunningRightFarLegReaching,
+        [new(0xb3, 0xece0)] = EnemyFrameId.DachoraRunningRightNearLegBack,
+        [new(0xb3, 0xed0f)] = EnemyFrameId.DachoraRunningRightNearLegPassing,
+        [new(0xb3, 0xed3e)] = EnemyFrameId.DachoraRunningRightNearLegReaching,
+        [new(0xb3, 0xe75f)] = EnemyFrameId.EtecoonRunningRightStretched,
+        [new(0xb3, 0xe770)] = EnemyFrameId.EtecoonRunningRightBunched,
+        [new(0xb3, 0xe77c)] = EnemyFrameId.EtecoonRunningRightPushingOff,
+        [new(0xa9, 0xee3c)] = EnemyFrameId.LargeSidehopperLegsBent,
+        [new(0xa9, 0xee61)] = EnemyFrameId.LargeSidehopperLegsCrouched,
+        [new(0xa9, 0xee86)] = EnemyFrameId.LargeSidehopperLegsStraight,
     };
 }

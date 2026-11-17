@@ -62,7 +62,7 @@ public sealed class CeresDepartureState
     }
 
     /// <summary>
-    /// Applies one blackout fade-out call after ordinary gameplay.
+    /// Takes one step of the fade to black after ordinary gameplay.
     /// </summary>
     /// <returns>Whether brightness one went black and completed this timing owner; the departure then saves the checkpoint and starts the next cinematic.</returns>
     /// <exception cref="InvalidOperationException">The blackout-fade phase is not active.</exception>
@@ -71,7 +71,7 @@ public sealed class CeresDepartureState
         if (Phase != CeresDeparturePhase.FadingToBlack)
             throw new InvalidOperationException("Ceres departure fade is not active.");
 
-        // Room main explicitly makes the fade step on every update; the call that reaches black completes the departure.
+        // The fade steps on every update; the step that reaches black completes the departure.
         if (!fade.Darken())
             return false;
 

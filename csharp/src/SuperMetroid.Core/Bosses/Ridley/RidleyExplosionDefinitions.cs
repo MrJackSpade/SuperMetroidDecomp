@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Enemies.Artwork;
 using System.Collections.Frozen;
-using SuperMetroid.Core.Enemies.Corpses;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
@@ -11,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 internal static class RidleyExplosionDefinitions
 {
     /// <summary>
-    /// The breakup initializer draws a fragment's horizontal speed from one random value as the sum of two
+    /// The breakup setup draws a fragment's horizontal speed from one random value as the sum of two
     /// selections: this one, 0 to 3 sixteenths of a pixel per frame, and <see cref="FragmentSpeedWholePixel"/>.
     /// </summary>
     internal static readonly RandomSampleField FragmentSpeedSixteenths = new(4, 2);
@@ -39,24 +38,23 @@ internal static class RidleyExplosionDefinitions
     ];
 
     /// <summary>
-    /// Each part's lifetime, the count its countdown (<see cref="BossCountdown"/>) is loaded with, so the fragment dies on
-    /// the update after that many: tail fragments die eight updates apart from the base, the body parts follow the same
-    /// eight-update progression, and the torso dies last.
+    /// The updates each part lasts, dying on the last: tail fragments die eight updates apart from the base, the body parts
+    /// follow the same eight-update progression, and the torso dies last.
     /// </summary>
-    internal static readonly FrozenDictionary<RidleyExplosionPart, int> Lifetimes = new Dictionary<RidleyExplosionPart, int>
+    internal static readonly FrozenDictionary<RidleyExplosionPart, int> LifetimeUpdates = new Dictionary<RidleyExplosionPart, int>
     {
-        [RidleyExplosionPart.TailBaseSegment] = 72,
-        [RidleyExplosionPart.TailSecondSegment] = 80,
-        [RidleyExplosionPart.TailThirdSegment] = 88,
-        [RidleyExplosionPart.TailFourthSegment] = 96,
-        [RidleyExplosionPart.TailFifthSegment] = 104,
-        [RidleyExplosionPart.TailSixthSegment] = 112,
-        [RidleyExplosionPart.TailTip] = 120,
-        [RidleyExplosionPart.Wings] = 40,
-        [RidleyExplosionPart.Legs] = 48,
-        [RidleyExplosionPart.OpenHeadAndNeck] = 56,
-        [RidleyExplosionPart.Claw] = 64,
-        [RidleyExplosionPart.Torso] = 128,
+        [RidleyExplosionPart.TailBaseSegment] = 73,
+        [RidleyExplosionPart.TailSecondSegment] = 81,
+        [RidleyExplosionPart.TailThirdSegment] = 89,
+        [RidleyExplosionPart.TailFourthSegment] = 97,
+        [RidleyExplosionPart.TailFifthSegment] = 105,
+        [RidleyExplosionPart.TailSixthSegment] = 113,
+        [RidleyExplosionPart.TailTip] = 121,
+        [RidleyExplosionPart.Wings] = 41,
+        [RidleyExplosionPart.Legs] = 49,
+        [RidleyExplosionPart.OpenHeadAndNeck] = 57,
+        [RidleyExplosionPart.Claw] = 65,
+        [RidleyExplosionPart.Torso] = 129,
     }.ToFrozenDictionary();
 
     /// <summary>The tail fragment each link of the tail becomes, from the base to the tip (#2238).</summary>
@@ -68,14 +66,7 @@ internal static class RidleyExplosionDefinitions
     ];
 
     /// <summary>The definition of <paramref name="part"/>.</summary>
-    public static RidleyExplosionPartDefinition GetPart(RidleyExplosionPart part) => new(Lifetimes[part]);
-
-    /// <summary>
-    /// Returns one of the ten body-relative positions the small explosions near Ridley
-    /// consume cyclically (shared with the Baby Metroid death).
-    /// </summary>
-    public static Offset16<RoomPixels> DeathExplosionPlacement(int index) =>
-        DeathExplosionScatter.Offset(index);
+    public static RidleyExplosionPartDefinition GetPart(RidleyExplosionPart part) => new(LifetimeUpdates[part]);
 
     /// <summary>The tail pose each of the first six tail fragments shows.</summary>
     internal static readonly FrozenDictionary<RidleyExplosionPart, EnemyFrameId> TailFrames = new Dictionary<RidleyExplosionPart, EnemyFrameId>
@@ -90,7 +81,7 @@ internal static class RidleyExplosionDefinitions
 
     /// <summary>
     /// The body-relative position while Ridley faces left and the pose each way of each body fragment, loaded by the
-    /// breakup initializer; a right-facing placement mirrors the left-facing one's X.
+    /// breakup setup; a right-facing placement mirrors the left-facing one's X.
     /// </summary>
     internal static readonly FrozenDictionary<RidleyExplosionPart, RidleyExplosionBodyPartDefinition> BodyParts =
         new Dictionary<RidleyExplosionPart, RidleyExplosionBodyPartDefinition>

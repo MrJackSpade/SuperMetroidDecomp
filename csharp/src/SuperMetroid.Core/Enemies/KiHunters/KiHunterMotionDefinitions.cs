@@ -11,8 +11,14 @@ public static class KiHunterMotionDefinitions
 
     /// <summary>Seven eighths of a pixel per frame squared, added by both falling and hopping.</summary>
     public static SignedSixteenSixteen Gravity { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(14);
-    /// <summary>A flying Ki-Hunter's first velocity: a pixel an update left and a pixel an update down.</summary>
-    public static Offset16<RoomPixels> PatrolStartVelocity { get; } = new(-1, 1);
+    /// <summary>The way a flying Ki-Hunter first flies (#2338).</summary>
+    public const HorizontalDirection PatrolStartHeading = HorizontalDirection.Left;
+
+    /// <summary>
+    /// How fast a flying Ki-Hunter flies along its heading, and climbs or descends on its patrol, in whole pixels an update:
+    /// it starts descending at this speed, a swoop sets off and a swoop's recovery flies back at it (#2338).
+    /// </summary>
+    public const int PatrolSpeed = 1;
 
     /// <summary>How far above where it is placed a flying Ki-Hunter's patrol turns back down, in pixels.</summary>
     public const int PatrolRise = 16;
@@ -41,6 +47,41 @@ public static class KiHunterMotionDefinitions
     /// <summary>How far ahead the acid spit jumps as its launch starts, in pixels.</summary>
     public const int AcidLaunchShift = 19;
 
+    /// <summary>The downward velocity a Ki-Hunter that has lost its wings starts falling at: a pixel an update (#2339).</summary>
+    public static SignedSixteenSixteen WinglessFallStartVelocity { get; } = SignedSixteenSixteen.FromWholePixels(1);
+
+    /// <summary>The vertical velocity a Ki-Hunter recovering from a swoop climbs at: a pixel an update upward (#2339).</summary>
+    public static SignedSixteenSixteen SwoopRecoveryVerticalVelocity { get; } = SignedSixteenSixteen.FromWholePixels(-1);
+
+    /// <summary>
+    /// The whole downward speed a hopping Ki-Hunter turns to when it strikes the room above, in pixels an update; its
+    /// fraction is kept (#2339).
+    /// </summary>
+    public const int HopReboundSpeed = 1;
+
+    /// <summary>How long a landed Ki-Hunter waits before it decides whether to spit or hop again, in updates (#2339).</summary>
+    public const int LandingWait = 12;
+
+    /// <summary>How long a Ki-Hunter waits after spitting before it decides again, in updates (#2339).</summary>
+    public const int SpitWait = 24;
+
+    /// <summary>How near Samus must be sideways, in pixels, for a landed Ki-Hunter to spit at her rather than hop (#2339).</summary>
+    public const int SpitRange = 96;
+
+    /// <summary>How fast spat acid flies sideways, three pixels an update, toward the way it was spat (#2339).</summary>
+    public static SignedEightEight AcidHorizontalSpeed { get; } = SignedEightEight.FromParts(3, 0);
+
+    /// <summary>How much faster falling acid falls each update: a sixteenth of a pixel (#2339).</summary>
+    public static SignedEightEight AcidGravity { get; } = SignedEightEight.FromParts(0, 16);
+
+    /// <summary>The fastest acid falls: two pixels an update (#2339).</summary>
+    public static SignedEightEight AcidFastestFall { get; } = SignedEightEight.FromParts(2, 0);
+
+    /// <summary>
+    /// The place along the speed curve, mark one, a slowing detached wing lands on when its next step would take it before
+    /// the curve's start (#2339).
+    /// </summary>
+    internal static QuadraticSpeedCurvePlace SlowestDetachedWingPlace { get; } = QuadraticSpeedCurvePlace.FromMarks(1);
     /// <summary>The falling wings' arc radius, used by detached-wing setup and both arcs.</summary>
     public const int DetachedWingRadius = 48;
 
@@ -52,17 +93,14 @@ public static class KiHunterMotionDefinitions
 
 
 
-    /// <summary>A rightward swoop's angular acceleration: its turning speed grows an eighth of a step each update.</summary>
-    public static AngularSpeed RightSwoopAcceleration { get; } = AngularSpeed.FromSteps(1).DividedBy(8);
+    /// <summary>
+    /// A swoop's angular acceleration (#2338): its turning speed grows an eighth of a step each update, toward increasing
+    /// angles for a rightward swoop and decreasing ones for a leftward one.
+    /// </summary>
+    public static AngularSpeed SwoopAcceleration { get; } = AngularSpeed.FromSteps(1).DividedBy(8);
 
-    /// <summary>A leftward swoop's angular acceleration: its turning speed grows an eighth of a step each update toward decreasing angles.</summary>
-    public static AngularSpeed LeftSwoopAcceleration { get; } = -RightSwoopAcceleration;
-
-    /// <summary>The fastest a rightward swoop turns: its whole steps are held to two steps an update.</summary>
-    public static AngularSpeed RightSwoopMaximumAngularVelocity { get; } = AngularSpeed.FromSteps(2);
-
-    /// <summary>The fastest a leftward swoop turns: its whole steps are held to two steps an update toward decreasing angles.</summary>
-    public static AngularSpeed LeftSwoopMaximumAngularVelocity { get; } = -RightSwoopMaximumAngularVelocity;
+    /// <summary>The fastest a swoop turns, either way: its whole steps are held to two steps an update (#2338).</summary>
+    public static AngularSpeed SwoopMaximumAngularVelocity { get; } = AngularSpeed.FromSteps(2);
 
     /// <summary>
     /// Where a rightward swoop starts: a half turn, the left end of its ellipse at the Ki-Hunter's height, from which its

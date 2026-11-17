@@ -31,7 +31,7 @@ internal sealed class LoadingGamePhases(FrontendSession session)
             StepGameLoadingWait(controllerInput);
             return;
         }
-        // The load branches on what it was routed to load.
+        // The load depends on what it was routed to load.
         switch (session.LoadingRoute)
         {
             case GameDataLoadRoute.SavedCheckpoint:

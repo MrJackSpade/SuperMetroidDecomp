@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
@@ -54,4 +55,20 @@ internal static class EnemyCharacterBaseDefinitions
         [EnemyDefinitionId.PhantoonTentacles] = EnemyDefinitionId.PhantoonBody,
         [EnemyDefinitionId.PhantoonMouth] = EnemyDefinitionId.PhantoonBody,
     };
+
+    /// <summary>
+    /// The frames each enemy draws from artwork its room's graphics set loads for no enemy, with that artwork (#2327): the
+    /// dead Sidehopper, before the Baby drains it, shows the large Sidehopper's legs from the large Sidehopper's tiles Big
+    /// Boy's room loads after the dead Sidehopper's own, so its sheet composes those frames from where those tiles land.
+    /// </summary>
+    internal static IReadOnlyDictionary<EnemyDefinitionId, IReadOnlyDictionary<EnemyFrameId, UnplacedEnemyArtwork>> DrawnFromArtwork { get; } =
+        new Dictionary<EnemyDefinitionId, IReadOnlyDictionary<EnemyFrameId, UnplacedEnemyArtwork>>
+        {
+            [EnemyDefinitionId.CorpseSidehopper] = new Dictionary<EnemyFrameId, UnplacedEnemyArtwork>
+            {
+                [EnemyFrameId.LargeSidehopperLegsBent] = UnplacedEnemyArtwork.DeadSidehopperLivingTiles,
+                [EnemyFrameId.LargeSidehopperLegsCrouched] = UnplacedEnemyArtwork.DeadSidehopperLivingTiles,
+                [EnemyFrameId.LargeSidehopperLegsStraight] = UnplacedEnemyArtwork.DeadSidehopperLivingTiles,
+            },
+        };
 }

@@ -86,18 +86,18 @@ internal static class MotherBrainRoomColorsVerification
         Console.WriteLine("Mother Brain room colors: entry, 14 flash frames, final grey, phase-two and seven recovery-light shades match the cartridge's colours and the production paths that lay them; strict validation passes.");
     }
 
-    /// <summary>Checks the seven recovery-light steps the Baby's cutscene lays, and that a step past the seventh is refused.</summary>
+    /// <summary>Checks the seven recovery-light images the Baby's cutscene lays, and that another fade's image is refused.</summary>
     private static void VerifyMotherBrainRecoveryLights(MotherBrainEnemyState state)
     {
-        for (int frame = 0; frame < MotherBrainRoomColorDefinitions.RecoveryLightsFrames; frame++)
+        foreach (MotherBrainFadeImage lights in MotherBrainFadeDefinitions.RecoveryLights.Images)
         {
-            BabyMetroidCutsceneBehavior.LoadMotherBrainRecoveryLights(state.Colours, frame);
-            AssertEqual(MotherBrainShades.RecoveryLights(MotherBrainRecoveryLights.All[frame]), state.Colours.RoomShading.Shades[^1],
-                $"Mother Brain recovery-light frame {frame} is laid over her room");
+            state.Colours.ShowLightsRecovering(lights);
+            AssertEqual(MotherBrainShades.Fade(lights), state.Colours.RoomShading.Shades[^1],
+                $"Mother Brain recovery-light image {lights.Step} is laid over her room");
         }
-        AssertThrows<InvalidDataException>(
-            () => BabyMetroidCutsceneBehavior.LoadMotherBrainRecoveryLights(state.Colours, MotherBrainRoomColorDefinitions.RecoveryLightsFrames),
-            "a Mother Brain recovery-light frame past the seventh is refused");
+        AssertThrows<ArgumentException>(
+            () => state.Colours.ShowLightsRecovering(MotherBrainFadeDefinitions.BabyFade.Images[0]),
+            "an image of another fade is refused as the room lights' recovery");
     }
 
     /// <summary>Asserts that two lists of the import's shades hold the same shades with the same colours.</summary>
@@ -124,7 +124,7 @@ internal static class MotherBrainRoomColorsVerification
     private static MotherBrainEnemyState StagedState(RoomEnemySystem enemies)
     {
         enemies.Presentation.AttachBossBody(BossBodyPartsConstants.Hidden(BossBodyOwner.MotherBrain));
-        return new(enemies.Places.InUpdateOrder[0], enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle());
+        return new(enemies.Places.InUpdateOrder[0], enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation());
     }
 
     /// <summary>A fresh Mother Brain enemy system over the installed body sheets.</summary>

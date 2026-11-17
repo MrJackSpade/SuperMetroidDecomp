@@ -167,12 +167,12 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             _audio.QueueEnemySound(EnemySound.LiquidDamage, priority: SoundRequestPriority.Normal);
     }
 
-    /// <summary>The body rows the dead Torizo in <paramref name="place"/> shows: its own, as its rot calls have left them (#1539).</summary>
+    /// <summary>The body rows the dead Torizo in <paramref name="place"/> shows: its own, as its rot has left them (#1539).</summary>
     internal static CorpseRotRows ShownDeadTorizoRows(RoomEnemyPlace place) => place.RequireSpeciesState<DeadTorizoEnemyState>().Rows.Shown;
 
     /// <summary>
     /// The sand rows <paramref name="state"/>'s sand heap shows (#1539): only the rows its heap has formed into, as the corpse's
-    /// own rot calls form it. Every fifteenth rot call one more line of sand falls, from the heap's last row up, until
+    /// own rot forms it. Every fifteenth rot update one more line of sand falls, from the heap's last row up, until
     /// fifteen have fallen; the intact corpse has none.
     /// </summary>
     internal static CorpseRotRows ShownSand(DeadTorizoEnemyState state)

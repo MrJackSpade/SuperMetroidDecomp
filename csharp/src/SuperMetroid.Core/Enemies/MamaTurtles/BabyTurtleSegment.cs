@@ -18,9 +18,10 @@ internal enum BabyTurtleSegment
     /// </summary>
     HidingLeft,
     /// <summary>
-    /// A baby turtle's legs coming out of its shell and resting, before and after it has left the shell.
+    /// A baby turtle's legs coming out of its shell and resting, before and after it has left the shell; they face left
+    /// whichever way it crawls (#2337).
     /// </summary>
-    LeaveShellLeft,
+    LeaveShell,
     /// <summary>
     /// A baby turtle crawling right, its legs tucking, reaching, planting and pushing, before it crawls on or turns
     /// around.
@@ -30,8 +31,4 @@ internal enum BabyTurtleSegment
     /// A baby turtle facing right pulling in its legs and hiding in its shell before it comes out again.
     /// </summary>
     HidingRight,
-    /// <summary>
-    /// A baby turtle's legs coming out of its shell and resting, facing left, before and after it has left the shell.
-    /// </summary>
-    LeaveShellRight,
 }

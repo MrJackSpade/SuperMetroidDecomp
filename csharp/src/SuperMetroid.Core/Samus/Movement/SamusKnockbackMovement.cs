@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// humanoid-only damage-boost escape route.
 /// </summary>
 /// <remarks>
-/// This code follows the game's knockback check, knockback movement, jump launch and knockback initializer.
+/// This code follows the game's knockback check, knockback movement, jump launch and knockback setup.
 /// Enemy damage calculation is deliberately not invented here: the hit supplies only the
 /// collision result that enemy collision would have published, namely whether the source lies to
 /// Samus's left or right. Every pose, speed, timer value, and subsequent input
@@ -144,7 +144,7 @@ public static class SamusKnockbackMovement
         else if (glitchBall)
         {
             // A hit on the glitch ball, unlike the ball path, installs the glitch ball's knockback pose, then continues
-            // through the same knockback-start hurt initializer as a humanoid pose.
+            // through the same knockback-start hurt setup as a humanoid pose.
             samus.Pose = facingLeft
                 ? SamusPoseId.GlitchBallKnockbackLeftPose
                 : SamusPoseId.GlitchBallKnockbackRightPose;
@@ -178,7 +178,7 @@ public static class SamusKnockbackMovement
         // grapple swing if that was still running.
         samus.Grapple.ReleasedMovementActive = false;
 
-        // The remainder of the knockback initializer runs for both the humanoid and the ball. A pending bomb
+        // The remainder of the knockback setup runs for both the humanoid and the ball. A pending bomb
         // jump cannot coexist with hurt movement, and shinespark/Screw contact damage is
         // cancelled before the knockback moves her.
         samus.BombJumpRequest = SamusBombJumpRequest.None;
@@ -307,7 +307,7 @@ public static class SamusKnockbackMovement
         }
 
         // Both target families have the same radius. The pose change nevertheless runs
-        // their ordinary initializer: it preserves the live 1/65536-pixel jump velocity,
+        // their ordinary setup: it preserves the live 1/65536-pixel jump velocity,
         // reselects the acceleration mode from extra run speed, and can start a spark from
         // stored shine. The selected target's frame delays start at frame zero.
         samus.Pose = targetPose;

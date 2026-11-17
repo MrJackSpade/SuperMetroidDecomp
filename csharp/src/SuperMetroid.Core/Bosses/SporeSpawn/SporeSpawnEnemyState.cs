@@ -4,8 +4,7 @@ using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
 /// <summary>
-/// Spore Spawn's state beyond what every enemy has: the boss's swing angle, stalk anchor and
-/// death velocity, each named rather than kept in generic enemy values, with their wrapping arithmetic.
+/// Spore Spawn's state beyond what every enemy has: his swing angle, stalk anchor and death velocity.
 /// </summary>
 public sealed class SporeSpawnEnemyState
 {
@@ -40,16 +39,13 @@ public sealed class SporeSpawnEnemyState
     /// shifted phase. The phase wraps around the turn as it advances, which the sway depends on.
     /// </summary>
     public RotationAngle Angle { get; internal set; }
+    /// <summary>How wide he sways: set by his descent and his fight's start, and widened by each closing of his shell.</summary>
+    internal SporeSpawnSwayRadius SwayRadius { get; set; }
     /// <summary>
-    /// Horizontal sway amplitude in room pixels; vertical amplitude is this value minus sixteen. Set to 48 by the
-    /// descent and 64 by the fight-start cue, and widened by eight while below forty, so it stays within 0..64.
+    /// How far and which way his sway's phase turns each movement update: a step from his descent and his fight's start,
+    /// quickened to two low on health, and reversed by the first damaging hit of each opening.
     /// </summary>
-    public int MaximumXRadius { get; internal set; }
-    /// <summary>
-    /// Signed sway step per movement update in 256ths of a turn: one from the animation, doubled to two below 400
-    /// health with its sign kept, and negated by the first damaging hit of an open phase, so it stays within -2..2.
-    /// </summary>
-    public int AngleDelta { get; internal set; }
+    internal SporeSpawnSwayStep SwayStep { get; set; } = SporeSpawnSwayStep.None;
     /// <summary>Whether the ceiling spore emitters are stopped: the animation sets it during protected phases and clears it, and death clears it.</summary>
     public bool SporeGenerationSuppressed { get; internal set; }
     /// <summary>One-hit guard for an open phase: once set, further hits neither reverse the sway nor close the head until the animation clears it.</summary>

@@ -20,8 +20,26 @@ public sealed class BabyTurtleEnemyState
     /// </summary>
     public Position16<RoomPixels> SpawnTopCenter { get; internal set; }
 
-    /// <summary>Signed whole-pixel velocity per update.</summary>
-    public Offset16<RoomPixels> Velocity { get; internal set; }
+    /// <summary>
+    /// The way the baby crawls or spins (#2338): its placement's at first, turned at the end of its crawl, by Samus's
+    /// touch and by a wall it spins into, and Samus's facing when she spins it off.
+    /// </summary>
+    public HorizontalDirection Heading { get; internal set; }
+
+    /// <summary>
+    /// How fast the baby moves along <see cref="Heading"/>, in whole pixels an update (#2338): a pixel as it crawls, and
+    /// a spin's speed from a spin until its crawl next turns it.
+    /// </summary>
+    public int HorizontalSpeed { get; internal set; }
+
+    /// <summary>The downward speed of a spin in whole pixels an update.</summary>
+    public int SpinFallSpeed { get; internal set; }
+
+    /// <summary>
+    /// Signed whole-pixel velocity per update: <see cref="HorizontalSpeed"/> toward <see cref="Heading"/>, and
+    /// <see cref="SpinFallSpeed"/> downward.
+    /// </summary>
+    public Offset16<RoomPixels> Velocity => new(Heading == HorizontalDirection.Right ? HorizontalSpeed : -HorizontalSpeed, SpinFallSpeed);
 
     /// <summary>Gets the phase-specific Baby Turtle countdown.</summary>
     public int ActionTimer { get; internal set; }

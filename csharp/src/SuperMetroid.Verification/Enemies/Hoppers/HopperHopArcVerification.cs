@@ -41,7 +41,6 @@ internal static class HopperHopArcVerification
             {
                 Action = HopperAction.Jumping,
                 Falling = falling,
-                XVelocity = 0,
                 YSpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(start),
                 YSpeedCurvePlaceStep = QuadraticSpeedCurvePlace.FromMarks(step),
             };

@@ -27,10 +27,9 @@ internal static class SporeSpawnAnimations
     private const int DeathBurstWait = 8;
     /// <summary>Each death-colour fade step's dwell.</summary>
     private const int FadeStepDuration = 16;
-    /// <summary>The death colours' fade steps; the husk's colours are the last.</summary>
-    internal const int DeathShadeSteps = 7;
-    /// <summary>The sway's maximum X radius as the fight starts.</summary>
-    private const int FirstMaximumXRadius = 64;
+
+    /// <summary>How wide he sways as the fight starts.</summary>
+    private static readonly SporeSpawnSwayRadius FightSwayRadius = new(64);
 
     /// <summary>The opening poses, closed through fully open; the death shows the second-to-last.</summary>
     private static readonly EnemyFrameId[] OpeningFrames =
@@ -48,7 +47,7 @@ internal static class SporeSpawnAnimations
     {
         [P.InitialDead] =
         [
-            Cue(new SporeSpawnCue.ShowDeathShade(DeathShadeStep: DeathShadeSteps - 1)),
+            Cue(new SporeSpawnCue.ShowDeathShade(DeathShadeStep: SporeSpawnDeathFadeStep.Husk)),
             SelectMovement(SporeSpawnMovement.Idle),
             Show(F.SporeSpawnHusk, 1),
         ],
@@ -60,7 +59,7 @@ internal static class SporeSpawnAnimations
         ],
         [P.FightStarted] =
         [
-            Cue(new SporeSpawnCue.SetMaxXRadiusAndAngleDelta(MaximumXRadius: FirstMaximumXRadius, AngleDelta: 1)),
+            Cue(new SporeSpawnCue.SetSway(Radius: FightSwayRadius, Step: SporeSpawnArenaDefinitions.SwayStep)),
             SelectMovement(SporeSpawnMovement.Moving),
             Show(F.SporeSpawnShut, FirstSway),
         ],
@@ -70,7 +69,7 @@ internal static class SporeSpawnAnimations
             Cue(new SporeSpawnCue.QueueSound(Sound: SporeSpawnSoundDefinitions.Opening)),
             Show(F.SporeSpawnShut, 1),
             .. Enumerable.Range(0, OpeningDurations.Length).Select(pose => Show(OpeningFrames[pose], OpeningDurations[pose])),
-            Cue(new SporeSpawnCue.Signal(K.ClearDamagedFlag)),
+            Cue(new SporeSpawnCue.Signal(K.ReopenToHits)),
             SelectMovement(SporeSpawnMovement.Idle),
         ],
         [P.OpenPulse] =
@@ -116,7 +115,7 @@ internal static class SporeSpawnAnimations
         ],
         [P.DeathFade] =
         [
-            .. Enumerable.Range(0, DeathShadeSteps).SelectMany(step => new[]
+            .. SporeSpawnDeathFadeStep.All.SelectMany(step => new[]
             {
                 Cue(new SporeSpawnCue.ShowDeathShade(DeathShadeStep: step)),
                 Cue(new SporeSpawnCue.Signal(K.SpawnHardeningDust)),

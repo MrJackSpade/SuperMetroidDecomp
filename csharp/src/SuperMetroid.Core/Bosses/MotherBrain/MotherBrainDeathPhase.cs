@@ -3,69 +3,69 @@
 /// <summary>The phases of Mother Brain's final death (#2208): her explosions, fades and corpse, the escape text, timer and door. Its values are arbitrary.</summary>
 public enum MotherBrainDeathPhase
 {
-    /// <summary>Phase-three death/escape: moves to the back of the room.</summary>
+    /// <summary>She walks back, ignoring Samus, to the back of the room.</summary>
     MoveToBackOfRoom,
 
-    /// <summary>Phase-three death/escape: idles while exploding.</summary>
+    /// <summary>She stands at the back of the room while smoky explosions burst over her.</summary>
     IdleWhilstExploding,
 
-    /// <summary>Phase-three death/escape: stumbles to the middle of the room.</summary>
+    /// <summary>She stumbles forward toward the middle of the room.</summary>
     StumbleToMiddleOfRoom,
 
-    /// <summary>Phase-three death/escape: disables the brain's effects.</summary>
+    /// <summary>Her neck, drool and breath stop and her brain comes away from her neck.</summary>
     DisableBrainEffects,
 
-    /// <summary>Phase-three death/escape: sets up the body's fade-out.</summary>
+    /// <summary>Mixed explosions burst before her body fades.</summary>
     SetupBodyFadeOut,
 
-    /// <summary>Phase-three death/escape: fades out the body.</summary>
+    /// <summary>Her flickering body fades to black.</summary>
     FadeOutBody,
 
-    /// <summary>Phase-three death/escape: the final few explosions.</summary>
+    /// <summary>The last mixed explosions burst where her body was.</summary>
     FinalFewExplosions,
 
-    /// <summary>Phase-three death/escape: the brain realizes its decapitation.</summary>
+    /// <summary>She shows herself decapitated and her brain starts to fall.</summary>
     RealizeDecapitation,
 
-    /// <summary>Phase-three death/escape: the brain falls to the ground.</summary>
+    /// <summary>Her brain falls to the floor.</summary>
     BrainFallsToGround,
 
-    /// <summary>Phase-three death/escape: readies her corpse one update at a time.</summary>
+    /// <summary>Her corpse is readied one update at a time.</summary>
     ReadyCorpse,
 
-    /// <summary>Phase-three death/escape: sets up the fade to grey.</summary>
+    /// <summary>She lies still before her corpse greys.</summary>
     SetupFadeToGrey,
 
-    /// <summary>Phase-three death/escape: fades to grey.</summary>
+    /// <summary>Her corpse fades to grey.</summary>
     FadeToGrey,
 
-    /// <summary>Phase-three death/escape: the corpse tips over.</summary>
+    /// <summary>Her corpse tips over.</summary>
     CorpseTipsOver,
 
-    /// <summary>Phase-three death/escape: the corpse rots away.</summary>
+    /// <summary>Her corpse rots away.</summary>
     CorpseRotsAway,
 
-    /// <summary>Phase-three death/escape: waits twenty frames.</summary>
+    /// <summary>The pause before the escape.</summary>
     PauseBeforeEscape,
 
-    /// <summary>Phase-three death/escape: readies the escape timer and message one update at a time.</summary>
+    /// <summary>The escape timer and message are readied one update at a time.</summary>
     ReadyEscapeWarning,
 
-    /// <summary>Phase-three death/escape: starts the escape.</summary>
+    /// <summary>The escape door's explosion is readied, then the escape's music, quake, flashing and text start.</summary>
     StartEscape,
 
-    /// <summary>Phase-three death/escape: spawns the time bomb and sets its subtitle.</summary>
+    /// <summary>The escape text types on, then the Japanese time-bomb subtitle shows.</summary>
     SpawnTimeBombSetSubtitle,
 
-    /// <summary>Phase-three death/escape: types out the Zebes escape text.</summary>
+    /// <summary>The escape text types out.</summary>
     TypeOutZebesEscapeText,
 
-    /// <summary>Phase-three death/escape: the door explodes and the timer starts.</summary>
+    /// <summary>Dust bursts over the escape door, then the escape timer starts.</summary>
     DoorExplodingStartTimer,
 
-    /// <summary>Phase-three death/escape: blows up the escape door.</summary>
+    /// <summary>The escape door blows apart and opens.</summary>
     BlowUpEscapeDoor,
 
-    /// <summary>Phase-three death/escape: keeps the earthquake going.</summary>
+    /// <summary>The escape's earthquake keeps going.</summary>
     KeepEarthquakeGoing,
 }

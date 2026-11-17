@@ -358,7 +358,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
     }
 
-    /// <summary>Runs one rot update and its dust, moving the corpse's own rows as the call moves them (#1539).</summary>
+    /// <summary>Runs one rot update and its dust, moving the corpse's own rows as the update moves them (#1539).</summary>
     private void RunDeadSidehopperRotting(
         RoomEnemyPlace place,
         DeadSidehopperEnemyState state)
@@ -370,7 +370,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
             state.Action = DeadSidehopperAction.WaitForSamusCollision;
     }
 
-    /// <summary>The rows <paramref name="place"/>'s frames show: its corpse's own, as its rot calls have left them (#1539).</summary>
+    /// <summary>The rows <paramref name="place"/>'s frames show: its corpse's own, as its rot has left them (#1539).</summary>
     internal static CorpseRotRows ShownDeadSidehopperRows(RoomEnemyPlace place) => place.RequireSpeciesState<DeadSidehopperEnemyState>().Rows.Shown;
 
     /// <summary>Spawns a completed row's dust at its randomized X offset, and conditionally requests sound.</summary>

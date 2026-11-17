@@ -103,7 +103,7 @@ internal static class NativeEnemyFamilyStateImport
                 phantoon.Round.Damage = words.B;
                 phantoon.Swoop.Velocity = new(new SignedEightEight(words.C), new SignedEightEight(words.D));
                 PhantoonNativeWords.ImportSwoopTarget(phantoon.Swoop, words.E);
-                phantoon.Death.NextExplosion = words.F;
+                phantoon.Death.NextExplosion = SuperMetroid.Core.Bosses.ListStep<PhantoonDeathExplosionDefinition>.At(PhantoonDeathExplosions.Schedule, words.F);
             }
             else if (part == EnemyDefinitionId.PhantoonMouth)
             {
@@ -115,7 +115,7 @@ internal static class NativeEnemyFamilyStateImport
                 phantoon.CasualFlames.Remaining = casualFlames < 0 ? null : casualFlames;
                 phantoon.Wave.Amplitude = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(words.D);
                 phantoon.Wave.AmplitudeShrinking = words.E != 0;
-                phantoon.Wave.PhaseStep = words.F;
+                phantoon.Wave.PhaseStep = RotationAngle.WrappedSteps(words.F);
             }
             else if (part == EnemyDefinitionId.PhantoonBody)
             {
@@ -376,7 +376,7 @@ internal static class NativeEnemyFamilyStateImport
         if (enemy.SpeciesState<MagdolliteOverlayState>() is { } magdolliteOverlay)
         {
             magdolliteOverlay.Action = MagdolliteNativeWords.MagdolliteOverlayActions.Decode(words.F, "recorded MagdolliteOverlayAction");
-            magdolliteOverlay.ThrowsRight = words.B != 0;
+            magdolliteOverlay.ThrowDirection = words.B != 0 ? HorizontalDirection.Right : HorizontalDirection.Left;
         }
         if (enemy.SpeciesState<SbugEnemyState>() is { } sbugRecord)
         {
@@ -448,7 +448,11 @@ internal static class NativeEnemyFamilyStateImport
             if (enemies.Places.InUpdateOrder[SlotIndex(words.B, "Baby Turtle parent offset")].DefinitionId != EnemyDefinitionId.MamaTurtle)
                 throw new InvalidDataException($"Recorded Baby Turtle parent offset ${words.B:X4} does not name a Mama Turtle.");
             babyTurtleRecord.SpawnTopCenter = new(words.C, words.D);
-            babyTurtleRecord.Velocity = new(unchecked((short)words.E), babyTurtleRecord.Velocity.Y);
+            // The record keeps the baby's signed whole-pixel speed (#2338): its sign the way it heads, a still baby's way kept.
+            short babySpeed = unchecked((short)words.E);
+            if (babySpeed != 0)
+                babyTurtleRecord.Heading = babySpeed < 0 ? HorizontalDirection.Left : HorizontalDirection.Right;
+            babyTurtleRecord.HorizontalSpeed = Math.Abs(babySpeed);
         }
         if (enemy.SpeciesState<OwtchEnemyState>() is { } owtchRecord)
         {
@@ -564,8 +568,8 @@ internal static class NativeEnemyFamilyStateImport
         {
             maridiaLargeSnailRecord.Action = MaridiaSnailsNativeWords.MaridiaLargeSnailActions.Decode(words.A, "recorded MaridiaLargeSnailAction");
             maridiaLargeSnailRecord.YSpeedCurvePlace = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(unchecked((short)words.B));
-            maridiaLargeSnailRecord.AttackCooldown = unchecked((short)words.C);
-            maridiaLargeSnailRecord.MovingLeft = words.D != 0;
+            maridiaLargeSnailRecord.AttackCooldown = TrueDuration(words.C);
+            maridiaLargeSnailRecord.Heading = words.D != 0 ? HorizontalDirection.Left : HorizontalDirection.Right;
             maridiaLargeSnailRecord.RemainingBounces = unchecked((short)words.E);
             maridiaLargeSnailRecord.BouncePhase = MaridiaSnailsNativeWords.MaridiaLargeSnailBouncePhases.Decode(words.F, "recorded MaridiaLargeSnailBouncePhase");
         }
@@ -649,9 +653,23 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (enemy.SpeciesState<HopperEnemyState>() is { } hopperRecord)
         {
-            hopperRecord.Action = HoppersNativeWords.HopperActions.Decode(words.A, "recorded HopperAction");
+            (HopperAction hopperAction, HopperHopSize? hopSize, HorizontalDirection? startHeading) =
+                HoppersNativeWords.HopperActions.Decode(words.A, "recorded HopperAction");
+            hopperRecord.Action = hopperAction;
             hopperRecord.YSpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(words.B);
-            hopperRecord.XVelocity = unchecked((short)words.C);
+            // The record keeps the heading as three pixels either way (#2338), none before the first hop; a starting hop's
+            // routine names the heading it takes, which its velocity only gains as the hop starts.
+            hopperRecord.Heading = unchecked((short)words.C) switch
+            {
+                -HopperHopDefinitions.HorizontalSpeed => HorizontalDirection.Left,
+                HopperHopDefinitions.HorizontalSpeed => HorizontalDirection.Right,
+                0 => hopperRecord.Heading,
+                var other => throw new InvalidDataException($"Recorded hopper X velocity {other} is not three pixels either way."),
+            };
+            if (startHeading is { } starts)
+                hopperRecord.Heading = starts;
+            if (hopSize is { } size)
+                hopperRecord.HopSize = size;
             hopperRecord.YSpeedCurvePlaceStep = QuadraticSpeedCurvePlace.FromMarks(words.D);
         }
         if (enemies.PlatformStates[index] is { } platform)
@@ -788,7 +806,7 @@ internal static class NativeEnemyFamilyStateImport
         if (enemies.HibashiStates[index] is { } hibashi)
         {
             hibashi.Action = HibashiNativeWords.HibashiActions.Decode(words.A, "recorded HibashiAction");
-            hibashi.InactiveTimer = unchecked((short)words.B);
+            hibashi.InactiveTimer = TrueDuration(words.B);
             hibashi.ActivityFinished = words.C != 0;
             hibashi.SpawnY = words.D;
         }

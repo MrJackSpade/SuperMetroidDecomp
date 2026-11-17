@@ -17,5 +17,13 @@ internal static class EnemyFrameHitboxWordsAccess
         /// <summary>The bank-local word of the frame an enemy shows, by how it collides, zero before it shows any.</summary>
         internal static ushort Word(EnemyFrameId? frame, bool collidesByFrameHitboxes) => frame is not { } shown ? (ushort)0
             : collidesByFrameHitboxes ? EnemyFrameCartridgeLookupTooling.FrameHitboxWord(shown) : EnemyFrameCartridgeLookupTooling.Word(shown);
+
+        /// <summary>
+        /// The bank-local word of the frame an enemy whose header lives in <paramref name="bank"/> shows, by how it collides,
+        /// zero before it shows any: a frame another bank stores is shown from this bank's record storing it again (#2327).
+        /// </summary>
+        internal static ushort WordIn(byte bank, EnemyFrameId? frame, bool collidesByFrameHitboxes) => frame is not { } shown ? (ushort)0
+            : collidesByFrameHitboxes && shown == EnemyFrameId.Empty ? EnemyFrameCartridgeLookupTooling.EmptyFrameHitboxWord
+            : EnemyFrameCartridgeLookupTooling.WordIn(bank, shown);
     }
 }

@@ -1033,6 +1033,7 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
                     continue;
                 if (expression.Ancestors().Any(node => node is ExpressionSyntax ancestor && sources.Contains(ancestor) || ProjectileProgramFrames.IsTest(node, expression))
                     || InTable(semantic, expression)
+                    || InAnimationSegments(semantic, expression)
                     || KeyNamed(semantic, expression, keyType) is not { } key)
                     continue;
                 if (!table.ContainsKey(key))
@@ -1046,6 +1047,16 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
             }
         }
     }
+
+    /// <summary>
+    /// Whether <paramref name="expression"/> lies in the segments a family's typed animations declare: a frame another
+    /// family's segments show is that family's show, which its own behaviour's walk finds, however many families show the
+    /// frame (#2327); it is no lookup of this behaviour's table.
+    /// </summary>
+    private bool InAnimationSegments(SemanticModel semantic, ExpressionSyntax expression) =>
+        expression.Ancestors().OfType<PropertyDeclarationSyntax>().FirstOrDefault() is { } property
+        && semantic.GetDeclaredSymbol(property) is IPropertySymbol { Type: INamedTypeSymbol type }
+        && SymbolEqualityComparer.Default.Equals(type.OriginalDefinition, model.AnimationSegments);
 
     /// <summary>Whether <paramref name="expression"/> lies in a catalog naming every frame or kind, which shows nothing.</summary>
     private bool InTable(SemanticModel semantic, ExpressionSyntax expression) =>

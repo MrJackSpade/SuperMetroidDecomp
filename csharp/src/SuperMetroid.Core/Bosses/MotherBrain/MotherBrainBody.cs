@@ -79,10 +79,11 @@ internal sealed class MotherBrainBody
         body.Presence = body.Presence.With(EnemyPresence.Hidden);
         body.Shading = EnemyShades.HurtFlashLook;
 
-        // The encounter's setup creates the walk credit and the burst cycle the encounter and its later sequence share.
+        // The encounter's setup creates the walk credit, the burst cycle and the brain animation the encounter and its later
+        // sequence share.
         // The body begins the encounter, which it holds from here and her head joins (#2218).
         MotherBrainEnemyState state = _motherBrainEncounter.Begin(new MotherBrainEnemyState(body, _places.ListedRunAfter(body, count: 1)[0],
-            new MotherBrainWalkCounter(), new MotherBrainBurstCycle())
+            new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation())
         {
             Form = MotherBrainForm.Glass,
             HitboxesEnabled = MotherBrainHitboxParts.Brain,
@@ -236,16 +237,13 @@ internal sealed class MotherBrainBody
 
         if ((enabled & MotherBrainHitboxParts.Neck) != MotherBrainHitboxParts.None)
         {
-            // Tests only middle joints one, two, and three. Joint zero is buried in
-            // the body and joint four is already covered by the separate brain rectangles.
-            Position16<RoomPixels>[] collisionSegments = state.NeckJoints[MotherBrainNeckJointDefinitions.CollisionJoints];
-            foreach (Position16<RoomPixels> segment in collisionSegments)
+            foreach (MotherBrainNeckJoint joint in state.Neck.ExposedJoints)
             {
                 if (ResolveMotherBrainSamusCollisionPart(
                         state,
                         samus,
                         MotherBrainContactPart.Neck,
-                        segment))
+                        joint.Position))
                 {
                     return true;
                 }
@@ -302,7 +300,7 @@ internal sealed class MotherBrainBody
     }
 
     /// <summary>
-    /// Runs the hand beam's charging initializer. The body—not the articulated
+    /// Runs the hand beam's charging setup. The body—not the articulated
     /// head—is the source: its frame puts the hand at its hand offset.
     /// </summary>
     internal void SpawnMotherBrainHandBeamCharging(
@@ -348,15 +346,14 @@ internal sealed class MotherBrainBody
     {
         _earthquake.Start(MotherBrainFightDefinitions.FootstepShake, MotherBrainFightDefinitions.FootstepShakeUpdates);
 
-        // Form three additionally makes the footstep sound. Phase two normally never
-        // reaches that branch, but retaining it here makes the shared gait cue complete.
+        // Only while the Baby drains her does a footstep also make its sound.
         if (state.Form == MotherBrainForm.DrainedByBabyMetroid)
             _motherBrainEncounter.RequestCueSound(RoomSound.MotherBrainFootstep);
     }
 
     /// <summary>
     /// Makes the twelve turret spawns
-    /// the body's initializer requests. Allocation scans the pool from its highest place down, so the first turret takes
+    /// the body's setup requests. Allocation scans the pool from its highest place down, so the first turret takes
     /// the highest place and each later one the next place below.
     /// </summary>
     private void SpawnMotherBrainInitialTurrets(MotherBrainEnemyState state)
@@ -382,8 +379,7 @@ internal sealed class MotherBrainBody
         turret.State = new MotherBrainTurretState(state, definition);
         turret.StartAnimation(new MotherBrainTurretAnimation(MotherBrainTurretPose.Turret(definition.InitialDirection)));
 
-        // The initializer draws the RNG twice, once for each of the turret's waits, and clamps each wait's remainder modulo
-        // 256 upward.
+        // A new turret draws a random number for each of its two waits, its turning wait first.
         _projectileAttacks.Projectile.ResetMotherBrainTurretRotationTimer(turret);
         _projectileAttacks.Projectile.ResetMotherBrainTurretCooldown(turret);
     }

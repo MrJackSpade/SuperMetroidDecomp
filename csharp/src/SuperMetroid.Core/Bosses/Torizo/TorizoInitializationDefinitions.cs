@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 
-/// <summary>Compiled parallel definitions used by the shared Bomb/Golden Torizo initializer.</summary>
+/// <summary>What Bomb and Golden Torizo start with: their starting places, first animations, processing, radii and turns.</summary>
 internal static class TorizoInitializationDefinitions
 {
     /// <summary>

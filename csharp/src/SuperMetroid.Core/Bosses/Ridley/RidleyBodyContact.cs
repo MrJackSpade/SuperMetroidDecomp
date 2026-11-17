@@ -22,15 +22,14 @@ internal sealed class RidleyBodyContact
     }
 
     /// <summary>
-    /// Runs Ridley's hurt flash and the common extended-enemy colour override. Ridley's composite is split between those two
-    /// writers: the ordinary body uses the current execution counter, while the manual tail/wings deliberately test the
-    /// counter after an increment.
+    /// Sets whether Ridley's body and his tail and wings show his hurt flash: his body on its phase of
+    /// <paramref name="bodyUpdateCount"/>, his tail and wings on the phase one update ahead.
     /// </summary>
-    internal static void UpdateHurtFlash(RoomEnemyPlace place, RidleyEncounterState ridley, int enemyMainExecutionCounter)
+    internal static void UpdateHurtFlash(RoomEnemyPlace place, RidleyEncounterState ridley, int bodyUpdateCount)
     {
-        ridley.BodyFlashing = place.FlashTimer != 0 && EnemyDrawPhaseDefinitions.HurtFlashShown.IsSetIn(enemyMainExecutionCounter);
+        ridley.BodyFlashing = place.FlashTimer != 0 && EnemyDrawPhaseDefinitions.HurtFlashShown.IsSetIn(bodyUpdateCount);
         // His drawn parts take the phase one pass ahead of his body's colours.
-        ridley.TailAndWingsFlashing = place.FlashTimer > 1 && EnemyDrawPhaseDefinitions.HurtFlashShown.IsSetIn(enemyMainExecutionCounter + 1);
+        ridley.TailAndWingsFlashing = place.FlashTimer > 1 && EnemyDrawPhaseDefinitions.HurtFlashShown.IsSetIn(bodyUpdateCount + 1);
     }
 
     /// <summary>Tests Samus against Ridley's extended body and applies contact response after invincibility gating.</summary>

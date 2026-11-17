@@ -8,17 +8,19 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// <summary>The collision of Ridley's body: whether it is inside the interaction window, and the components of the body frame it shows.</summary>
 internal static class RidleyCollision
 {
-    /// <summary>Ridley's off-screen test: signed world coordinates and the
-    /// camera-relative origin plus 32 must be inside 320 by 288 pixels.</summary>
+    /// <summary>
+    /// Ridley's off-screen test: he is outside while he lies above or left of the room, or while his place moved by the
+    /// window's margin lies outside the window from the camera.
+    /// </summary>
     internal static bool IsOutsideInteractionWindow(Position16<RoomPixels> position, Position16<RoomPixels> camera)
     {
-        Offset16<ScreenPixels> relative = (position + InteractionWindowMargin).RelativeToCamera(camera);
-        int relativeX = relative.X;
-        int relativeY = relative.Y;
-        return CoordinateAxis.AsSigned(position.X) < 0 || CoordinateAxis.AsSigned(position.Y) < 0 ||
+        Offset16<RoomPixels> place = RidleyFlight.SignedPlace(position);
+        int relativeX = place.X + InteractionWindowMargin.X - camera.X;
+        int relativeY = place.Y + InteractionWindowMargin.Y - camera.Y;
+        return place.X < 0 || place.Y < 0 ||
             relativeX < 0 || relativeY < 0 ||
-            CoordinateAxis.Difference(relativeX, 320) >= 0 ||
-            CoordinateAxis.Difference(relativeY, 288) >= 0;
+            relativeX >= InteractionWindowSize.X ||
+            relativeY >= InteractionWindowSize.Y;
     }
 
     /// <summary>Each body frame's components in authored order: Ridley facing forward, or a side-facing pose's legs, hand, torso and head.</summary>

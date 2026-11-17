@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// <summary>The shape of Crocomire's mouth volley: each shot's gradient and the speed its angle is scaled to.</summary>
 public static class CrocomireProjectileDefinitions
 {
-    /// <summary>The factor each signed component of a shot's angle is scaled by (the shot's initializer quadruples it).</summary>
+    /// <summary>The factor each signed component of a shot's angle is scaled by (the shot's setup quadruples it).</summary>
     public const int VelocityMultiplier = 4;
 
     /// <summary>

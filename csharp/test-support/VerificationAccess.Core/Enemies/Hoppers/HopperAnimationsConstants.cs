@@ -10,6 +10,6 @@ internal static class HopperAnimationsConstants
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params HopperSegment[] programs) =>
         programs.SelectMany(program => HopperAnimations.Segments.Beats(program))
-            .OfType<AnimationBeat<EnemyFrameId, HopperCue>.Frame>()
-            .Select(frame => HopperFrameToolingDefinitions.Spritemap(frame.Shown));
+            .Select(beat => beat.ShownFrame).OfType<EnemyFrameId>()
+            .Select(frame => HopperFrameToolingDefinitions.Spritemap(frame));
 }

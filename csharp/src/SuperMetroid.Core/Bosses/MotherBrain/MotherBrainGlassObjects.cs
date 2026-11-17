@@ -81,7 +81,7 @@ internal sealed class MotherBrainGlassObjects
     internal void SpawnShards(RoomObjectPlace place, IReadOnlyList<MotherBrainGlassShard> shards)
     {
         _sounds.Queue(RoomSound.MotherBrainGlassShatter, Priority: ShatterSoundPriority);
-        // The fragment spawn carries both block coordinates, each below 256.
+        // The shards spawn from the glass's block.
         Position16<RoomBlocks> glassBlock = place.Block;
         foreach (MotherBrainGlassShard shard in shards)
             _motherBrainGlassProjectileRequests.Add(new MotherBrainGlassProjectileRequest(
@@ -90,7 +90,7 @@ internal sealed class MotherBrainGlassObjects
 
     /// <summary>Sets the glass-destroyed event.</summary>
     internal void SetGlassDestroyed() =>
-        (_events ?? throw new InvalidOperationException("Mother Brain glass has no event writer.")).Set(StoryEvent.MotherBrainGlassDestroyed);
+        (_events ?? throw new InvalidOperationException("Mother Brain glass has no story events to mark its breaking in.")).Set(StoryEvent.MotherBrainGlassDestroyed);
 
     /// <summary>The shatter sound's request priority.</summary>
     private static readonly SoundRequestPriority ShatterSoundPriority = SoundRequestPriority.Essential;

@@ -9,8 +9,8 @@ public sealed class PhantoonDeathState
     /// <summary>The dying fades in and out he has completed.</summary>
     public int FadeCycles { get; internal set => field = Ensure.AtLeastZero(value); }
 
-    /// <summary>The next death explosion in the explosion schedule.</summary>
-    public int NextExplosion { get; internal set => field = Ensure.AtLeastZero(value); }
+    /// <summary>The next death explosion in the explosion schedule (#2315).</summary>
+    public ListStep<PhantoonDeathExplosionDefinition> NextExplosion { get; internal set; } = PhantoonDeathExplosions.First;
 
     /// <summary>The passes through the repeating part of the explosion schedule he has completed.</summary>
     public int ExplosionPasses { get; internal set => field = Ensure.AtLeastZero(value); }

@@ -56,6 +56,9 @@ internal static class MagdolliteAnimations
         [
             Cue(new MagdolliteCue.MoveWithPillar(new(0, -1))),
             Show(EnemyFrameId.MagdolliteMoundFacingLeft, 1),
+        ],
+        [P.LeftPillarRaised] =
+        [
             Cue(new MagdolliteCue.Signal(K.ClearAnimationBusy)),
         ],
         [P.LeftEmerge] =
@@ -67,6 +70,9 @@ internal static class MagdolliteAnimations
         [
             Cue(new MagdolliteCue.MoveWithPillar(new(0, 1))),
             Show(EnemyFrameId.MagdolliteMoundFacingLeft, 1),
+        ],
+        [P.LeftSurfacing] =
+        [
             Cue(new MagdolliteCue.Signal(K.SurfaceAndHideParts)),
             Show(EnemyFrameId.MagdolliteSunkFacingLeft, 5),
             Cue(new MagdolliteCue.Move(new(0, -2))),
@@ -118,6 +124,9 @@ internal static class MagdolliteAnimations
         [
             Cue(new MagdolliteCue.MoveWithPillar(new(0, -1))),
             Show(EnemyFrameId.MagdolliteMoundFacingRight, 1),
+        ],
+        [P.RightPillarRaised] =
+        [
             Cue(new MagdolliteCue.Signal(K.ClearAnimationBusy)),
         ],
         [P.RightEmerge] =
@@ -129,6 +138,9 @@ internal static class MagdolliteAnimations
         [
             Cue(new MagdolliteCue.MoveWithPillar(new(0, 1))),
             Show(EnemyFrameId.MagdolliteMoundFacingRight, 1),
+        ],
+        [P.RightSurfacing] =
+        [
             Cue(new MagdolliteCue.Signal(K.SurfaceAndHideParts)),
             Show(EnemyFrameId.MagdolliteSunkFacingRight, 5),
             Cue(new MagdolliteCue.Move(new(0, -2))),
@@ -141,69 +153,85 @@ internal static class MagdolliteAnimations
         ],
         [P.OneSegmentPillar] =
         [
-            Show(EnemyFrameId.MagdolliteOneSegmentPillar, 1),
+            Hold(EnemyFrameId.MagdolliteOneSegmentPillar),
         ],
         [P.TwoSegmentPillar] =
         [
-            Show(EnemyFrameId.MagdolliteTwoSegmentPillar, 1),
+            Hold(EnemyFrameId.MagdolliteTwoSegmentPillar),
         ],
         [P.ThreeSegmentPillar] =
         [
-            Show(EnemyFrameId.MagdolliteThreeSegmentPillar, 1),
+            Hold(EnemyFrameId.MagdolliteThreeSegmentPillar),
         ],
         [P.FourSegmentPillar] =
         [
-            Show(EnemyFrameId.MagdolliteFourSegmentPillar, 1),
+            Hold(EnemyFrameId.MagdolliteFourSegmentPillar),
         ],
         [P.FiveSegmentPillar] =
         [
-            Show(EnemyFrameId.MagdolliteFiveSegmentPillar, 1),
+            Hold(EnemyFrameId.MagdolliteFiveSegmentPillar),
         ],
         [P.SixSegmentPillar] =
         [
-            Show(EnemyFrameId.MagdolliteSixSegmentPillar, 1),
+            Hold(EnemyFrameId.MagdolliteSixSegmentPillar),
         ],
         [P.SevenSegmentPillar] =
         [
-            Show(EnemyFrameId.MagdolliteSevenSegmentPillar, 1),
+            Hold(EnemyFrameId.MagdolliteSevenSegmentPillar),
         ],
         [P.EightSegmentPillar] =
         [
-            Show(EnemyFrameId.MagdolliteEightSegmentPillar, 1),
+            Hold(EnemyFrameId.MagdolliteEightSegmentPillar),
         ],
         [P.PillarCap] =
         [
-            Show(EnemyFrameId.MagdollitePillarCap, 1),
+            Hold(EnemyFrameId.MagdollitePillarCap),
         ],
     });
 
-    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    /// <summary>The pixels the pillar rises or lowers in a submerge or emerge, one a play of its mound's step.</summary>
+    private const int PillarTravel = 24;
+
+    /// <summary>
+    /// The animation that starts at each segment an owner can start or restart at (#2337): a submerge sinks the head and then
+    /// raises the pillar a pixel at a time, an emerge lowers it a pixel at a time and then surfaces the head, and the pillar
+    /// stacks and cap are still pictures.
+    /// </summary>
     internal static IReadOnlyDictionary<MagdolliteSegment, Animation<MagdolliteSegment>> StartingAt { get; } = new Dictionary<MagdolliteSegment, Animation<MagdolliteSegment>>
     {
-        [P.LeftIdle] = new([new(P.LeftIdle, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.LeftThrow] = new([new(P.LeftThrow, 0, 15, 1)], AnimationEnd.Holds),
-        [P.LeftSubmerge] = new([new(P.LeftSubmerge, 0, 9, 1), new(P.LeftRaisePillar, 0, 2, 24), new(P.LeftRaisePillar, 2, 1, 1)], AnimationEnd.Holds),
-        [P.LeftEmerge] = new([new(P.LeftEmerge, 0, 2, 1), new(P.LeftLowerPillar, 0, 2, 24), new(P.LeftLowerPillar, 2, 9, 1)], AnimationEnd.Holds),
-        [P.RightIdle] = new([new(P.RightIdle, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.RightThrow] = new([new(P.RightThrow, 0, 15, 1)], AnimationEnd.Holds),
-        [P.RightSubmerge] = new([new(P.RightSubmerge, 0, 9, 1), new(P.RightRaisePillar, 0, 2, 24), new(P.RightRaisePillar, 2, 1, 1)], AnimationEnd.Holds),
-        [P.RightEmerge] = new([new(P.RightEmerge, 0, 2, 1), new(P.RightLowerPillar, 0, 2, 24), new(P.RightLowerPillar, 2, 9, 1)], AnimationEnd.Holds),
-        [P.OneSegmentPillar] = new([new(P.OneSegmentPillar, 0, 1, 1)], AnimationEnd.Holds),
-        [P.TwoSegmentPillar] = new([new(P.TwoSegmentPillar, 0, 1, 1)], AnimationEnd.Holds),
-        [P.ThreeSegmentPillar] = new([new(P.ThreeSegmentPillar, 0, 1, 1)], AnimationEnd.Holds),
-        [P.FourSegmentPillar] = new([new(P.FourSegmentPillar, 0, 1, 1)], AnimationEnd.Holds),
-        [P.FiveSegmentPillar] = new([new(P.FiveSegmentPillar, 0, 1, 1)], AnimationEnd.Holds),
-        [P.SixSegmentPillar] = new([new(P.SixSegmentPillar, 0, 1, 1)], AnimationEnd.Holds),
-        [P.SevenSegmentPillar] = new([new(P.SevenSegmentPillar, 0, 1, 1)], AnimationEnd.Holds),
-        [P.EightSegmentPillar] = new([new(P.EightSegmentPillar, 0, 1, 1)], AnimationEnd.Holds),
-        [P.PillarCap] = new([new(P.PillarCap, 0, 1, 1)], AnimationEnd.Holds),
+        [P.LeftIdle] = new([Whole(P.LeftIdle)], AnimationEnd.LoopsFrom(0)),
+        [P.LeftThrow] = new([Whole(P.LeftThrow)], AnimationEnd.Holds),
+        [P.LeftSubmerge] = new([Whole(P.LeftSubmerge), Repeated(P.LeftRaisePillar, PillarTravel), Whole(P.LeftPillarRaised)], AnimationEnd.Holds),
+        [P.LeftEmerge] = new([Whole(P.LeftEmerge), Repeated(P.LeftLowerPillar, PillarTravel), Whole(P.LeftSurfacing)], AnimationEnd.Holds),
+        [P.RightIdle] = new([Whole(P.RightIdle)], AnimationEnd.LoopsFrom(0)),
+        [P.RightThrow] = new([Whole(P.RightThrow)], AnimationEnd.Holds),
+        [P.RightSubmerge] = new([Whole(P.RightSubmerge), Repeated(P.RightRaisePillar, PillarTravel), Whole(P.RightPillarRaised)], AnimationEnd.Holds),
+        [P.RightEmerge] = new([Whole(P.RightEmerge), Repeated(P.RightLowerPillar, PillarTravel), Whole(P.RightSurfacing)], AnimationEnd.Holds),
+        [P.OneSegmentPillar] = new([Whole(P.OneSegmentPillar)], AnimationEnd.Holds),
+        [P.TwoSegmentPillar] = new([Whole(P.TwoSegmentPillar)], AnimationEnd.Holds),
+        [P.ThreeSegmentPillar] = new([Whole(P.ThreeSegmentPillar)], AnimationEnd.Holds),
+        [P.FourSegmentPillar] = new([Whole(P.FourSegmentPillar)], AnimationEnd.Holds),
+        [P.FiveSegmentPillar] = new([Whole(P.FiveSegmentPillar)], AnimationEnd.Holds),
+        [P.SixSegmentPillar] = new([Whole(P.SixSegmentPillar)], AnimationEnd.Holds),
+        [P.SevenSegmentPillar] = new([Whole(P.SevenSegmentPillar)], AnimationEnd.Holds),
+        [P.EightSegmentPillar] = new([Whole(P.EightSegmentPillar)], AnimationEnd.Holds),
+        [P.PillarCap] = new([Whole(P.PillarCap)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<MagdolliteSegment> StartingWith(MagdolliteSegment segment) => StartingAt[segment];
 
+    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
+    private static AnimationPhase<MagdolliteSegment> Whole(MagdolliteSegment segment) => Repeated(segment, 1);
+
+    /// <summary><paramref name="plays"/> plays of every beat of <paramref name="segment"/>.</summary>
+    private static AnimationPhase<MagdolliteSegment> Repeated(MagdolliteSegment segment, int plays) => new(segment, 0, Segments.Beats(segment).Count, plays);
+
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, MagdolliteCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, MagdolliteCue>.Frame(frame, duration);
+
+    /// <summary>Shows <paramref name="frame"/> for good (#2337): a still picture rests on it until its owner plays another.</summary>
+    private static AnimationBeat<EnemyFrameId, MagdolliteCue> Hold(EnemyFrameId frame) => new AnimationBeat<EnemyFrameId, MagdolliteCue>.HeldFrame(frame);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
     private static AnimationBeat<EnemyFrameId, MagdolliteCue> Cue(MagdolliteCue cue) => new AnimationBeat<EnemyFrameId, MagdolliteCue>.Event(cue);

@@ -81,7 +81,8 @@ internal static class RidleyMovementTargetsVerification
             place.Position = place.Position.WithWhole(new((ushort)(ushort.MaxValue - raw), (ushort)raw));
             beginCarry(place, state);
             ushort x = carry[Math.Min(raw, 2)];
-            ushort y = unchecked((short)(raw - 320)) < 0 ? (ushort)256 : unchecked((ushort)(raw - 64));
+            // Ridley's arena keeps him between heights 64 and 416, so the carry's height choice compares his height plainly.
+            ushort y = raw < 320 ? (ushort)256 : unchecked((ushort)(raw - 64));
             AssertEqual(x, state.Target.X, "Real carry anchor facing selection");
             AssertEqual(y, state.Target.Y, "Real carry height selection");
             AssertEqual(Expected(place.Position.X.Whole, x, 16), state.Flight.Velocity.X.RawValue, "Carry target drives exact X acceleration");

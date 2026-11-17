@@ -74,7 +74,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         GrowingShutterSpawnSettings settings = place.SpawnSettings<GrowingShutterSpawnSettings>();
 
-        // The initializer selects its first action from the way it grows and what it waits for.
+        // The setup selects its first action from the way it grows and what it waits for.
         VerticalDirection growth = settings.Growth;
         GrowingShutterAction action = settings.Wait switch
         {

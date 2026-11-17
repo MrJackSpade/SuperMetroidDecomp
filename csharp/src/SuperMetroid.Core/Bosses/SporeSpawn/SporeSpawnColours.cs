@@ -13,7 +13,7 @@ internal sealed class SporeSpawnColours : IGameplayShadingSource
     private SporeSpawnHealthBand? health;
 
     /// <summary>The step his death fade has reached, or null before it starts.</summary>
-    private int? death;
+    private SporeSpawnDeathFadeStep? death;
 
     /// <summary>The shading his body and the objects he spawns draw in: his spores' colours with his body's band over them.</summary>
     internal PictureShading Sprites
@@ -31,7 +31,7 @@ internal sealed class SporeSpawnColours : IGameplayShadingSource
     internal void ShowHealth(SporeSpawnHealthBand band) => health = Ensure.NotNull(band);
 
     /// <summary>Shows step <paramref name="step"/> of his death fade over his body and his room.</summary>
-    internal void ShowDeath(int step) => death = step;
+    internal void ShowDeath(SporeSpawnDeathFadeStep step) => death = step;
 
     /// <inheritdoc />
     public void ShadeGameplay(GameplayShadingBuilder frame)

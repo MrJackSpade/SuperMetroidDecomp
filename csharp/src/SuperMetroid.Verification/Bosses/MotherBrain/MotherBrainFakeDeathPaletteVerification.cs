@@ -26,7 +26,7 @@ internal static class MotherBrainFakeDeathPaletteVerification
         {
             var expected = new SnesCgram();
             var enemies = CreateFakeDeathPaletteEnemy();
-            var state = new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0], enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle())
+            var state = new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0], enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation())
             {
                 TubeCollapseStep = MotherBrainTubeCollapseStep.Finished,
                 FakeDeathExplosionTimer = { Count = 100 },

@@ -62,7 +62,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         bool defeated = _room.Services.Bosses.IsDefeated(DefeatedBosses.AreaMiniBoss);
         var state = new BotwoonEnemyState(defeated ? [] : SpawnBotwoonBody(head));
         head.SetSpeciesState(state);
-        // The initializer installs the hidden animation: the head starts hidden in its hole.
+        // The setup installs the hidden animation: the head starts hidden in its hole.
         state.HeadPlayback = EnemyAnimationPlayback.Start(head, BotwoonAnimations.HeadStartingWith(BotwoonHeadAnimationSegment.Hidden));
 
         if (defeated)
@@ -80,7 +80,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         state.TargetHole = BotwoonHole.Left;
         state.HalfHealth = head.Health / BotwoonFightDefinitions.FasterBelowShareOfHealth;
         state.QuarterHealth = head.Health / BotwoonFightDefinitions.FastestBelowShareOfHealth;
-        // The initializer makes the head intangible: it starts hidden in its hole, out of every collision pass.
+        // The setup makes the head intangible: it starts hidden in its hole, out of every collision pass.
         head.Contact = head.Contact.With(EnemyContact.IgnoresSamus);
 
         for (int history = 0; history < state.HeadHistory.Length; history++)

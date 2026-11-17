@@ -4,13 +4,13 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 public static class PhantoonWaveDefinitions
 {
     /// <summary>
-    /// The phase a wave's setup seeds: two before the cycle's start, so the first advance lands two short of twice the
-    /// wave's phase step. Only an advanced phase's position within one <see cref="PhaseCycle"/> is ever read.
+    /// The phase a wave's setup seeds (#2315): a step before a whole turn, so the first advance lands a step short of the
+    /// wave's phase step.
     /// </summary>
-    public const int InitialPhase = -2;
+    public static RotationAngle InitialPhase { get; } = RotationAngle.WrappedSteps(-1);
 
-    /// <summary>The steps a wave's phase advances by each update.</summary>
-    public const int PhaseStep = 8;
+    /// <summary>How far a wave's phase turns each update.</summary>
+    public static RotationAngle PhaseStep { get; } = RotationAngle.FromSteps(8);
 
     /// <summary>
     /// The introduction's wave's amplitude (#1936): it starts at twelve pixels and shrinks back to none, by
@@ -33,14 +33,6 @@ public static class PhantoonWaveDefinitions
     /// <summary>The length of the wave the final death starts.</summary>
     public const PhantoonWaveLength DeathLength = PhantoonWaveLength.Long;
 
-    /// <summary>The phases in one whole cycle of the wave: two for each of the sine's 256 angle steps.</summary>
-    public const int PhaseCycle = 512;
-
-    /// <summary>
-    /// The phases in one of the sine's angle steps, two for each angle; an odd phase,
-    /// which only a restored phase can hold, shows the angle of the even phase below it (#1468).
-    /// </summary>
-    public const int PhasesPerAngleStep = 2;
 
     /// <summary>The screen lines of one whole cycle of the 64-line wave.</summary>
     public const int ShortPeriod = 64;

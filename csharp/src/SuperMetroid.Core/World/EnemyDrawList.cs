@@ -146,7 +146,7 @@ internal sealed class EnemyDrawList
         {
             RoomEnemyPlace place = draw.Place;
             var source = new SpriteSource(SpriteSourceKind.Enemy);
-            // An occupant may draw supplemental sprites before the common writer emits its body (Ridley's tail
+            // An occupant may draw supplemental sprites before the common enemy drawing draws its body (Ridley's tail
             // and wings).
             if (place.Entity is IEnemyDrawHooks drawHooks)
                 drawHooks.DrawBeforeBody(sprites, camera);

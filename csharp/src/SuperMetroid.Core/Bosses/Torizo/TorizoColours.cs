@@ -101,7 +101,7 @@ internal sealed class TorizoColours
     /// <summary>
     /// Takes one step of the fade on <paramref name="counter"/>: while the counter stands at zero through
     /// <see cref="TorizoShadeDefinitions.FadeLastStep"/> the fade takes its next step, and once the counter has passed them
-    /// the call completes the fade and resets the counter, leaving his body in the colouring faded toward and his belly's
+    /// the step completes the fade and resets the counter, leaving his body in the colouring faded toward and his belly's
     /// glow showing its step over it. The counter decides only when the fade completes; how far the colours have come is
     /// the fade's own steps (#2302).
     /// </summary>

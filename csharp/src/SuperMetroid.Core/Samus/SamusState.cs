@@ -34,9 +34,9 @@ public sealed class SamusState
 
     /// <summary>Samus's current pose.</summary>
     /// <remarks>
-    /// An ordinary write also models the pose initializer, publishing the
+    /// An ordinary write also models the pose setup, publishing the
     /// pose's direction and movement type to <see cref="InitializedPose"/>. Only the
-    /// writers that skip that initializer use <see cref="WritePoseWithoutInitialization"/>.
+    /// writes that skip that setup use <see cref="WritePoseWithoutInitialization"/>.
     /// </remarks>
     public SamusPoseId Pose
     {
@@ -53,14 +53,14 @@ public sealed class SamusState
     } = SamusPoseId.FacingRightNormalPose;
 
     /// <summary>
-    /// The pose whose facing and movement type the pose initializer last copied to
+    /// The pose whose facing and movement type the pose setup last copied to
     /// the cached facing and movement type. Movement and camera
     /// tracking read those cached values, not the live pose.
     /// </summary>
     public SamusPoseId InitializedPose { get; private set; } = SamusPoseId.FacingRightNormalPose;
 
     /// <summary>
-    /// Writes the pose as the game does when it skips the pose initializer
+    /// Writes the pose as the game does when it skips the pose setup
     /// (the drained Samus sequences): the previous pose's
     /// direction and movement type stay in force.
     /// </summary>
@@ -363,7 +363,7 @@ public sealed class SamusState
 
     /// <summary>
     /// The shared bomb-spread charge timeout. The game clears this
-    /// timeout in the morphing-transition pose initializer after a
+    /// timeout in the morphing-transition pose setup after a
     /// successful Morph Ball item check, regardless of the humanoid movement family that
     /// selected the transition. Keeping it separate from the beam flare counter prevents a
     /// mid-air morph from accidentally cancelling ordinary arm-cannon charge state.
@@ -380,7 +380,7 @@ public sealed class SamusState
     }
 
     /// <summary>
-    /// The shot a pose transition handed to the next update's weapon firing, or null. A pose initializer can hand one
+    /// The shot a pose transition handed to the next update's weapon firing, or null. A pose setup can hand one
     /// after the current update's weapon firing has already run: a normal jump started on a fresh Shoot press hands
     /// the new pose's direction, and a turn out of a moonwalk hands the moonwalk's. The next update's weapon firing
     /// fires it, and that update then drops it whether or not a shot was fired.
@@ -768,7 +768,7 @@ public sealed class SamusState
     /// A single final-boundary scan therefore misses the floor, expands Samus downward, and
     /// lets her fall through the platform. Each probe uses a separate kinematics copy because
     /// the collision check publishes a distance without moving live Samus.
-    /// The probe carries the pose being installed: the pose initializer writes it to Samus's pose
+    /// The probe carries the pose being installed: the pose setup writes it to Samus's pose
     /// before the larger-radius check, so the elevator pseudo-door's standing-pose gate tests it.
     /// </remarks>
     internal BlockMoveResult ProbeChangedPoseVertical(

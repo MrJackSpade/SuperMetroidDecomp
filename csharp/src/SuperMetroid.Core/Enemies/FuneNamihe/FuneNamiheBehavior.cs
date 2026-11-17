@@ -176,7 +176,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
                 : null);
 
     /// <summary>
-    /// Runs the shared projectile initializer. The fireball flies at the spitter's launch speed in its direction, from its
+    /// Runs the shared projectile setup. The fireball flies at the spitter's launch speed in its direction, from its
     /// mouth (<see cref="FuneNamiheEnemyState.MouthDrop"/>).
     /// </summary>
     internal void SpawnFuneNamiheFireball(

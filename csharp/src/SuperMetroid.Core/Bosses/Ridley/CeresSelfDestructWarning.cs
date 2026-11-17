@@ -17,8 +17,11 @@ public sealed class CeresSelfDestructWarning
     public int TextDelayTimer { get; internal set; }
     /// <summary>Gets the installed warning typewriter state, created after the initial delay; null before then.</summary>
     public EscapeTypewriterState? Typewriter { get; internal set; }
-    /// <summary>Gets the step the warning's sixteen-step alarm shows, zero through fifteen, returning to zero after fifteen.</summary>
-    public int AlarmStep { get; internal set; }
+    /// <summary>
+    /// Gets the image of the warning's cycling alarm it last took (#2316), its first before it takes any; each step takes
+    /// the next, the first after the last.
+    /// </summary>
+    public RidleyFadeImage AlarmStep { get; internal set; } = RidleyFadeDefinitions.SelfDestructAlarm.Images[0];
     /// <summary>
     /// What the warning shows over the arena's foreground (#1555): its EMERGENCY title, the Japanese subtitle and the glyphs
     /// its typewriter has typed, in the order shown, each at its foreground cell; nothing before it shows any.

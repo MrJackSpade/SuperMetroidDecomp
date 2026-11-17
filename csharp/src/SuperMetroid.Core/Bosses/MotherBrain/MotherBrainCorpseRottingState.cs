@@ -16,17 +16,17 @@ public sealed class MotherBrainCorpseRottingState
     /// <summary>The corpse's own rot schedule, from before its first rot update.</summary>
     internal CorpseRotSchedule Schedule { get; } = new(EntryCount);
 
-    /// <summary>The corpse's rows as its rot calls have left them.</summary>
+    /// <summary>The corpse's rows as its rot has left them.</summary>
     private readonly RottingCorpseRows rows = new(EntryCount);
 
-    /// <summary>The corpse's rows as its rot calls so far have left them (#1539).</summary>
+    /// <summary>The corpse's rows as its rot has left them so far (#1539).</summary>
     internal CorpseRotRows Shown => rows.Shown;
 
     /// <summary>Runs one rot update of Mother Brain's corpse.</summary>
     public MotherBrainCorpseRottingStepResult Step(
         Position16<RoomPixels> brainPosition,
         MotherBrainRandomSample randomNumberSeed,
-        int mainEnemyExecutionCounter)
+        int enemyPassCount)
     {
         var dustRequests = new List<MotherBrainCorpseDustRequest>(capacity: 1);
 
@@ -40,7 +40,7 @@ public sealed class MotherBrainCorpseRottingState
                     Position: brainPosition + MotherBrainLateFightDefinitions.CorpseDustFromBrain +
                         new Offset16<RoomPixels>(randomNumberSeed.Read(MotherBrainRandomDefinitions.CorpseDustOffset), 0),
                     Animation: MiscDustAnimation.CorpseDustCloud,
-                    SoundEffectQueued: MotherBrainCadenceDefinitions.CorpseDustSoundEveryEighthEnemyPass.IsDue(mainEnemyExecutionCounter),
+                    SoundEffectQueued: MotherBrainCadenceDefinitions.CorpseDustSoundEveryEighthEnemyPass.IsDue(enemyPassCount),
                     SoundEffect: EnemySound.LiquidDamage));
             });
 

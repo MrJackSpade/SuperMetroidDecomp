@@ -18,7 +18,9 @@ public sealed class KzanEnemyState
     public KzanAction Action { get; internal set; }
 
     /// <summary>
-    /// The top's wait before it falls, in updates: a wait of zero does not run out at once but runs the full countdown.
+    /// Top-position wait in actor updates; decremented with a wrap below zero to 65535, so an initial zero does not expire
+    /// immediately. The wrap is load-bearing (#2340): the Wrecked Ship main shaft's four Kzans, placed before its power
+    /// returns, wait zero, so each waits the 65536 updates of the full wrap before it first falls and between falls.
     /// </summary>
     public WrappingCountdown FallWaitTimer { get; internal set; }
 

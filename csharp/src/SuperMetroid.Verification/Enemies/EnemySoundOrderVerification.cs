@@ -105,8 +105,7 @@ internal static class EnemySoundOrderVerification
         {
             Playback = new(MetroidAnimations.StartingWith(MetroidSegment.ChasingSamus),
                 AnimationSegments<MetroidSegment, EnemyFrameId, MetroidCue>.PlaceOf(MetroidAnimations.StartingWith(MetroidSegment.ChasingSamus),
-                    MetroidSegment.ChasingSamus,
-                    MetroidAnimations.Segments.Beats(MetroidSegment.ChasingSamus).ToList().FindIndex(beat => beat is AnimationBeat<EnemyFrameId, MetroidCue>.Event))),
+                    MetroidSegment.ChasingCry, 0)),
         });
         return enemy;
     }

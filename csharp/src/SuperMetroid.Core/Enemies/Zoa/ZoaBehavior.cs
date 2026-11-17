@@ -44,7 +44,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
         };
         place.SetSpeciesState(state);
 
-        // The initializer starts the left-facing shooting animation directly, leaving the frame timer as the spawn set it,
+        // The setup starts the left-facing shooting animation directly, leaving the frame timer as the spawn set it,
         // so asking for it again at rest starts nothing.
         state.Playback = new(ZoaAnimations.StartingWith(ZoaSegment.FacingLeftShooting), AnimationPlace.StartOfAnimation);
         place.Presence = place.Presence.With(EnemyPresence.Hidden);

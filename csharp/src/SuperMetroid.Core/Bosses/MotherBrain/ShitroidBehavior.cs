@@ -67,9 +67,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // A Shitroid entered with the camera left of the room's start lies dormant; any other waits for the camera.
         bool dormant = CoordinateAxis.AsSigned(cameraX) < 0;
-        var state = new ShitroidEnemyState(dormant ? ShitroidAction.Dormant : ShitroidAction.WaitForCamera)
+        var state = new ShitroidEnemyState(dormant ? ShitroidAction.Dormant : ShitroidAction.WaitForCamera, ShitroidSegment.Normal)
         {
-            Playback = ShitroidAnimations.Starting(ShitroidSegment.Normal),
             Velocity = default,
             ColourDelay = ShitroidFightDefinitions.CalmPulseDelay,
         };
@@ -643,8 +642,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             CoordinateAxis.Difference(recoilOrigin.Position.X.Whole, place.Position.X.Whole),
             CoordinateAxis.Difference(recoilOrigin.Position.Y.Whole, place.Position.Y.Whole)));
         RotationAngle angle = RotationAngle.Zero - sourceAngle;
-        // The recoil strength is a multiple of the damage, capped at its limit; no beam, missile or bomb deals the 8192
-        // damage whose multiple would pass 65535.
+        // The recoil strength is a multiple of the damage, capped at its limit.
         SignedEightEight magnitude = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(Math.Min(ShitroidFightDefinitions.RecoilPerDamage * collisionDamage, ShitroidFightDefinitions.RecoilLimit));
         state.Velocity += new EightEightVector<RoomPixels>(
             EnemyMath.SineSpeed(magnitude, angle.ToTrigonometryAngle()),
@@ -661,8 +659,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Advances the eight-phase membrane colors of the Shitroid in <paramref name="place"/> and paces cries when the
-    /// Zebetites' pulse allows it.
+    /// Advances the eight-phase membrane colors of the Shitroid in <paramref name="place"/> and paces its cries.
     /// </summary>
     internal void StepShitroidMembranePulse(RoomEnemyPlace place, ShitroidEnemyState state)
     {

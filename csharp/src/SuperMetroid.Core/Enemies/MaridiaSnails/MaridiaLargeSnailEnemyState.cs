@@ -15,10 +15,10 @@ public sealed class MaridiaLargeSnailEnemyState
     internal AnimationPlayback<MaridiaLargeSnailSegment> Playback { get; set; }
 
     /// <summary>
-    /// Whether Oum faces left: toward Samus while idle, the way it moves when it attacks, and as it faced then while it
-    /// rolls (#2145). It spawns facing right.
+    /// The way Oum faces: toward Samus while idle, the way it moves when it attacks, and as it faced then while it rolls
+    /// (#2145, #2338). It spawns facing right.
     /// </summary>
-    public bool FacesLeft { get; internal set; }
+    public HorizontalDirection Facing { get; internal set; }
 
     /// <summary>
     /// Whether Oum's roll runs backwards: a roll from idle or after an attack runs forwards, and each wall it meets
@@ -45,8 +45,8 @@ public sealed class MaridiaLargeSnailEnemyState
     /// <summary>Samus is within the strict 24-by-32 proximity window.</summary>
     public bool SamusInPushingRange { get; internal set; }
 
-    /// <summary>Whether Samus is to Oum's left rather than its right.</summary>
-    public bool SamusIsLeft { get; internal set; }
+    /// <summary>The side of Oum Samus is on while she is within its pushing range (#2338); right while she is not.</summary>
+    public HorizontalDirection SamusSide { get; internal set; }
 
     /// <summary>Whole-pixel position captured before this frame's AI.</summary>
     public Position16<RoomPixels> PreviousPosition { get; internal set; }
@@ -69,11 +69,18 @@ public sealed class MaridiaLargeSnailEnemyState
     /// </summary>
     public QuadraticSpeedCurvePlace YSpeedCurvePlace { get; internal set; }
 
-    /// <summary>Attack cooldown, initialized to 128 and expiring when it steps below zero.</summary>
+    /// <summary>
+    /// The rolling updates left before Oum may attack, the one it may first attack on included (#2340): it starts at
+    /// <see cref="MaridiaLargeSnailMotionDefinitions.InitialAttackCooldown"/> and each attack restarts it; once run out it
+    /// stays at zero until Oum attacks.
+    /// </summary>
     public int AttackCooldown { get; internal set; }
 
-    /// <summary>Whether the snail moves left rather than right.</summary>
-    public bool MovingLeft { get; internal set; }
+    /// <summary>
+    /// The way Oum rolls (#2338): toward Samus when it attacks, turned by each wall it meets, and leftward once Samus is
+    /// to its left while it idles.
+    /// </summary>
+    public HorizontalDirection Heading { get; internal set; }
 
     /// <summary>Remaining landing impacts before Oum is settled.</summary>
     public int RemainingBounces { get; internal set; }

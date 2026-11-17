@@ -59,7 +59,7 @@ internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFi
     {
         Position16<RoomPixels> muzzle = Muzzle(ridley, state);
         TrigonometryAngle angle = EnemyMath.CalculateBearing(
-            new(CoordinateAxis.Difference(samus.Position.X.Whole, muzzle.X), CoordinateAxis.Difference(samus.Position.Y.Whole, muzzle.Y))).ToTrigonometryAngle().TurnedBy(TrigonometryAngle.QuarterTurn);
+            samus.Position.Whole - muzzle).ToTrigonometryAngle().TurnedBy(TrigonometryAngle.QuarterTurn);
 
         // Each facing keeps its aim within its own arc; an aim beyond the arc's far end, up to the split, takes that
         // end, and any other aim outside it takes the near end.
@@ -159,7 +159,7 @@ internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFi
             center.StartAnimation(new RidleyFireballAnimation(RidleyFireballSegment.VerticalCenter));
         }
         center.Position = center.Position.WithWhole(position);
-        // The afterburn centre's steps explicitly stop the center; allocation retains prior velocities.
+        // The afterburn's centre starts at rest; a new projectile otherwise keeps the velocity its place last held.
         center.Velocity = EightEightVector<RoomPixels>.Zero;
         center.State = new RidleyAfterburnChainState(remaining);
     }
@@ -213,7 +213,7 @@ internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFi
             source.Velocity);
     }
 
-    /// <summary>Switches a collided branch to its final five-frame animation without clearing its velocity or damage fields.</summary>
+    /// <summary>Switches an afterburn branch that struck something to its final five-frame animation; it keeps moving and still hurts Samus.</summary>
     internal static void BeginAfterburnFinalAnimation(EnemyProjectile projectile)
     {
         projectile.StartAnimation(new RidleyFireballAnimation(RidleyFireballSegment.AfterburnFinal));

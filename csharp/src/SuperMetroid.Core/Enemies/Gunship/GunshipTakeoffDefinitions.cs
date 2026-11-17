@@ -26,6 +26,12 @@ internal static class GunshipTakeoffDefinitions
     /// </summary>
     internal const int RumbleStrengthensFrame = 64;
 
+    /// <summary>How far the rumble shakes Samus and the gunship each update before it strengthens, in pixels (#2339).</summary>
+    internal const int RumbleShake = 1;
+
+    /// <summary>How far the strengthened rumble shakes Samus and the gunship each update, in pixels (#2339).</summary>
+    internal const int StrongRumbleShake = 2;
+
     /// <summary>How far the steady liftoff raises Samus and the gunship each update, in pixels.</summary>
     internal const int SteadyLiftoffRise = 2;
 

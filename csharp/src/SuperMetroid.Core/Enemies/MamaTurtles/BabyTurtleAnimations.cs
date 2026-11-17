@@ -61,7 +61,7 @@ internal static class BabyTurtleAnimations
             Cue(new BabyTurtleCue(K.LeaveShell)),
             Hold(EnemyFrameId.TurtleBabyShellTurned0),
         ],
-        [P.LeaveShellLeft] =
+        [P.LeaveShell] =
         [
             Show(EnemyFrameId.TurtleBabyCrawlingLeftLegsTrailing, 5),
             Show(EnemyFrameId.TurtleBabyCrawlingLeftLegsReturning, 47),
@@ -104,29 +104,24 @@ internal static class BabyTurtleAnimations
             Cue(new BabyTurtleCue(K.LeaveShell)),
             Hold(EnemyFrameId.TurtleBabyShellTurned180),
         ],
-        [P.LeaveShellRight] =
-        [
-            Show(EnemyFrameId.TurtleBabyCrawlingLeftLegsTrailing, 5),
-            Show(EnemyFrameId.TurtleBabyCrawlingLeftLegsReturning, 47),
-            Cue(new BabyTurtleCue(K.LeftShell)),
-            Show(EnemyFrameId.TurtleBabyCrawlingLeftLegsReturning, 47),
-        ],
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<BabyTurtleSegment, Animation<BabyTurtleSegment>> StartingAt { get; } = new Dictionary<BabyTurtleSegment, Animation<BabyTurtleSegment>>
     {
-        [P.CrawlingLeft] = new([new(P.CrawlingLeft, 0, 25, 1)], AnimationEnd.Holds),
-        [P.Spinning] = new([new(P.Spinning, 0, 7, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.HidingLeft] = new([new(P.HidingLeft, 0, 5, 1)], AnimationEnd.Holds),
-        [P.LeaveShellLeft] = new([new(P.LeaveShellLeft, 0, 4, 1)], AnimationEnd.Holds),
-        [P.CrawlingRight] = new([new(P.CrawlingRight, 0, 25, 1)], AnimationEnd.Holds),
-        [P.HidingRight] = new([new(P.HidingRight, 0, 5, 1)], AnimationEnd.Holds),
-        [P.LeaveShellRight] = new([new(P.LeaveShellRight, 0, 4, 1)], AnimationEnd.Holds),
+        [P.CrawlingLeft] = new([Whole(P.CrawlingLeft)], AnimationEnd.Holds),
+        [P.Spinning] = new([Whole(P.Spinning)], AnimationEnd.LoopsFrom(0)),
+        [P.HidingLeft] = new([Whole(P.HidingLeft)], AnimationEnd.Holds),
+        [P.LeaveShell] = new([Whole(P.LeaveShell)], AnimationEnd.Holds),
+        [P.CrawlingRight] = new([Whole(P.CrawlingRight)], AnimationEnd.Holds),
+        [P.HidingRight] = new([Whole(P.HidingRight)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<BabyTurtleSegment> StartingWith(BabyTurtleSegment segment) => StartingAt[segment];
+
+    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
+    private static AnimationPhase<BabyTurtleSegment> Whole(BabyTurtleSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, BabyTurtleCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, BabyTurtleCue>.Frame(frame, duration);

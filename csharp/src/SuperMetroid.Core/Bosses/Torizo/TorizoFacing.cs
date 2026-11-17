@@ -21,6 +21,6 @@ internal static class TorizoFacing
     {
         // The awakening facing check compares the facing with whether the enemy's X minus Samus's is negative, rather
         // than the reverse difference the collision tests take.
-        return FacesRight(torizo) == CoordinateAxis.Difference(torizo.Position.X.Whole, Ensure.NotNull(samus).Position.X.Whole) < 0;
+        return FacesRight(torizo) == torizo.Position.X.Whole < Ensure.NotNull(samus).Position.X.Whole;
     }
 }

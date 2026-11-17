@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>Observable work produced by one shared corpse-rotting processor call.</summary>
+/// <summary>What one update of her corpse's rot produces: whether it still rots, and the dust its fallen rows raise.</summary>
 [IndependentFlag("whether the corpse is still rotting after this step")]
 public readonly record struct MotherBrainCorpseRottingStepResult(
     bool StillRotting,

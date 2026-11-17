@@ -12,7 +12,7 @@ internal static class DeadTorizoCorpseDefinitions
     /// <summary>The lines of sand that fall, one row each, from the heap's last row up.</summary>
     internal const int SandLines = 15;
 
-    /// <summary>The rot calls between one line of sand falling and the next.</summary>
+    /// <summary>The rot updates between one line of sand falling and the next.</summary>
     internal const int RotUpdatesPerSandLine = 15;
 
     /// <summary>The speed the corpse falls at when it starts to rot: eight 256ths of a pixel an update.</summary>

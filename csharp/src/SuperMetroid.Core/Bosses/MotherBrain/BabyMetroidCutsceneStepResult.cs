@@ -1,6 +1,16 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>What one step of the Baby's entrance did: its phase before and after and the requests it made.</summary>
+/// <param name="PhaseBefore">The phase the step ran.</param>
+/// <param name="PhaseAfter">The phase the step left.</param>
+/// <param name="LatchSoundQueued">Whether the Baby latched on and the rainbow drain's sound starts.</param>
+/// <param name="ReleaseDustClouds">The dust clouds the Baby's release bursts, in spawn order.</param>
+/// <param name="AmbientCrySoundQueued">Whether the Baby cries its remorse cry.</param>
+/// <param name="DeathExplosion">The explosion around the dying Baby, if one bursts.</param>
+/// <param name="BabyFadeImage">The image of the Baby's fade to black shown, if one is.</param>
+/// <param name="RecoveryLightsImage">The image of the room lights' recovery shown, if one is (#2316).</param>
+/// <param name="StartedAnimation">The animation the Baby starts on this step, if it starts one (#2319).</param>
+/// <param name="Visibility">Whether the step shows or hides the Baby on its place, or leaves it as it is (#2310).</param>
 [IndependentFlag("independent requests one cutscene step makes")]
 public readonly record struct BabyMetroidCutsceneStepResult(
     BabyMetroidCutscenePhase PhaseBefore,
@@ -10,7 +20,8 @@ public readonly record struct BabyMetroidCutsceneStepResult(
     bool AmbientCrySoundQueued,
     DustExplosionRequest? DeathExplosion,
     MotherBrainFadeImage? BabyFadeImage,
-    int? RecoveryLightsFrame,
+    MotherBrainFadeImage? RecoveryLightsImage,
+    MotherBrainBabySegment? StartedAnimation,
     BabyMetroidVisibilityRequest Visibility)
 {
     /// <summary>The step on which the Baby deletes itself, the last of the cutscene.</summary>

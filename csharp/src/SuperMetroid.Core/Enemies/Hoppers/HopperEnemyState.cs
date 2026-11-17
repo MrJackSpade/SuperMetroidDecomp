@@ -27,8 +27,20 @@ public sealed class HopperEnemyState
             : value;
     }
 
-    /// <summary>Signed whole-pixel horizontal velocity, with no fraction of a pixel: three pixels an update, either way.</summary>
-    public int XVelocity { get; internal set; }
+    /// <summary>
+    /// The way the hopper hops (#2338): toward Samus as each hop starts, and turned around when a hop strikes a wall or,
+    /// moving away from its surface, strikes the room above or below.
+    /// </summary>
+    public HorizontalDirection Heading { get; internal set; }
+
+    /// <summary>The size of the hop being prepared, which the hop-size choice draws (#2338).</summary>
+    internal HopperHopSize HopSize { get; set; }
+
+    /// <summary>
+    /// Whole-pixel horizontal velocity, with no fraction of a pixel: <see cref="HopperHopDefinitions.HorizontalSpeed"/>
+    /// toward <see cref="Heading"/> (#2338).
+    /// </summary>
+    public int XVelocity => Heading == HorizontalDirection.Right ? HopperHopDefinitions.HorizontalSpeed : -HopperHopDefinitions.HorizontalSpeed;
 
     /// <summary>
     /// The step along the speed curve, three marks for small hops or four for big hops, taken back while moving away from
@@ -46,6 +58,6 @@ public sealed class HopperEnemyState
     /// <summary>The kind of hopper its definition is, which selects its animations.</summary>
     public HopperKind Kind { get; internal set; }
 
-    /// <summary>Whether it is mounted on the ceiling rather than the floor.</summary>
-    public bool UpsideDown { get; internal set; }
+    /// <summary>The surface its placement mounts it on, which decides which way is up for its hops (#2338).</summary>
+    internal HopperSurface Surface { get; set; }
 }

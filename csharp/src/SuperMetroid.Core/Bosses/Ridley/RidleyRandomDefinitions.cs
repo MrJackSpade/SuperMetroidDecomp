@@ -18,8 +18,16 @@ internal static class RidleyRandomDefinitions
     /// <summary>The updates the first leg of Norfair Ridley's wall sweep lasts at most beyond its fewest (<see cref="NorfairRidleyMotionDefinitions.WallSweepFirstLegLeastUpdates"/>), 0 through 31.</summary>
     internal static readonly RandomSampleField WallSweepTimer = new(0, 5);
 
-    /// <summary>Which of the eight attacks of its situation Norfair Ridley chooses.</summary>
-    internal static readonly RandomSampleField AttackChoice = new(0, 3);
+    /// <summary>
+    /// Norfair Ridley's ordinary attack starting his pogo rather than his swoop (#2334): half the samples pogo.
+    /// </summary>
+    internal static readonly RandomChance OrdinaryAttackPogos = RandomChance.Lowest(4, new RandomSampleField(0, 3));
+
+    /// <summary>
+    /// Norfair Ridley lunging at a damage-boosting Samus rather than starting his pogo (#2334): three samples in four
+    /// lunge.
+    /// </summary>
+    internal static readonly RandomChance DamageBoostingAttackLunges = RandomChance.Lowest(6, new RandomSampleField(0, 3));
 
     /// <summary>Ceres Ridley's new tail curliness, 0 through 15 added to eight.</summary>
     internal static readonly RandomSampleField TailCurliness = new(0, 4);

@@ -20,7 +20,7 @@ public sealed class DeadTourianCorpseEnemyState
     public DeadTourianCorpsePhase Phase { get; internal set; }
     /// <summary>The corpse's own rot schedule: the fall of each of its pixel rows, 16 for Zoomer and Ripper, 32 for Skree.</summary>
     internal CorpseRotSchedule Rot { get; }
-    /// <summary>The corpse's own pixel rows as its rot calls have left them, which its frames are drawn through (#1539).</summary>
+    /// <summary>The corpse's own pixel rows as its rot has left them, which its frames are drawn through (#1539).</summary>
     internal RottingCorpseRows Rows { get; }
     /// <summary>
     /// Pre-rot AI updates counted after solid Samus collision, from zero; the sixteenth switches to rotting and the corpse
@@ -31,6 +31,6 @@ public sealed class DeadTourianCorpseEnemyState
     /// <summary>The species whose corpse it is.</summary>
     internal DeadTourianCorpseSpecies Species { get; }
 
-    /// <summary>Counts one pre-rot AI call.</summary>
+    /// <summary>Counts one update of the wait before the rot.</summary>
     internal void CountPreRotDelayUpdate() => PreRotDelayCounter++;
 }

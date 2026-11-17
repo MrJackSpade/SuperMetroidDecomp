@@ -349,7 +349,7 @@ internal sealed class CrocomireBridgeCollapse
         state.Death.SkeletonBaringElapsed = 0;
     }
 
-    /// <summary>Picks the next crumbling bridge column and runs the bridge fragment's initializer.</summary>
+    /// <summary>Picks the next crumbling bridge column and runs the bridge fragment's setup.</summary>
     internal void SpawnNextCrocomireBridgeFragment(CrocomireDeathState death)
     {
         int fragment = death.BridgeFragmentsSpawned;

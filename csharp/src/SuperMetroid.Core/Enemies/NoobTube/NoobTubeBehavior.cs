@@ -33,7 +33,7 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Executes the initializer selected by the tube-crack definitions. The request
+    /// Executes the setup selected by the tube-crack definitions. The request
     /// retains the executing room object's block because the projectile spawn reads the current room object
     /// while constructing each actor.
     /// </summary>
@@ -55,7 +55,7 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return;
-        // The tube's pieces draw from the shared sheet in the crack colours the room's crack initializer installs (#1512).
+        // The tube's pieces draw from the shared sheet in the crack colours the room's crack setup installs (#1512).
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, TubePieces, graphics: TubePieceGraphics);
 
         Position16<RoomPixels> place = request.RoomObjectBlock.ToRoomPixels() + piece.Offset;
@@ -85,7 +85,7 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"N00b-tube initializer lost projectile definition {piece.Definition}.");
+                    $"N00b-tube setup lost projectile definition {piece.Definition}.");
         }
     }
 

@@ -128,7 +128,7 @@ internal static class MotherBrainFightDefinitions
 
     /// <summary>The points on her mouth her drool hangs from, from her brain, in the order the drools take them.</summary>
     internal static IReadOnlyList<Offset16<RoomPixels>> DroolMouthOffsets { get; } =
-        [new(6, 20), new(14, 18), new(8, 23), new(10, 19), new(11, 25), new(12, 18)];
+        [new(14, 18), new(8, 23), new(10, 19), new(11, 25), new(12, 18), new(6, 20)];
 
     /// <summary>The updates a hit on her brain flashes it for.</summary>
     internal const int HurtFlash = 13;
@@ -172,8 +172,6 @@ internal static class MotherBrainFightDefinitions
     /// <summary>The updates she reels, taken aback, before regaining her balance as the Baby drains her.</summary>
     internal const int RegainBalanceUpdates = 49;
 
-    /// <summary>The stagger stage at which her rainbow beam runs out as the Baby drains her.</summary>
-    internal const int BeamRunsOutStage = 6;
 
     /// <summary>The updates she waits, crouched, before turning grey.</summary>
     internal const int BeforeGreyUpdates = 65;

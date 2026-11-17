@@ -49,7 +49,7 @@ internal sealed class DraygonTurrets
         SpawnDraygonWallTurret(samus, random);
     }
 
-    /// <summary>Fires a wall turret and runs the wall turret projectile's initializer.</summary>
+    /// <summary>Fires a wall turret and runs the wall turret projectile's setup.</summary>
     internal void SpawnDraygonWallTurret(
         SamusState samus,
         int random)

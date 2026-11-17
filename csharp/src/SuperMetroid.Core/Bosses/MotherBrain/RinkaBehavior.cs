@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Samus;
@@ -66,7 +65,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Sets a Rinka up when the room spawns it.</summary>
     internal void InitializeRinka(RoomEnemyPlace place)
     {
-        var state = new RinkaEnemyState(RinkaAction.WatchForLeavingViewport, place.SpawnSettings<RinkaSpawnSettings>().SharedSpawnPoint);
+        var state = new RinkaEnemyState(RinkaAction.WatchForLeavingViewport, LifeAnimation(place), place.SpawnSettings<RinkaSpawnSettings>().SharedSpawnPoint);
         place.SetSpeciesState(state);
 
         // Every Rinka starts animating and untouchable. Mother Brain's Rinkas also run off-screen and never respawn;
@@ -119,21 +118,18 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         state.DelayTimer.Count = RinkaLifeDefinitions.AimDelay;
         state.Velocity = default;
 
-        if (IsSpecialRinka(place))
+        if (IsSpecialRinka(place) && _rinkaTerminationFlag)
         {
-            if (_rinkaTerminationFlag)
-            {
-                place.Presence = place.Presence.With(EnemyPresence.Deleted);
-                return;
-            }
-            state.Playback = new(RinkaAnimations.StartingWith(RinkaSegment.Special), AnimationPlace.StartOfAnimation);
+            place.Presence = place.Presence.With(EnemyPresence.Deleted);
+            return;
         }
-        else
-        {
-            state.Playback = new(RinkaAnimations.StartingWith(RinkaSegment.Ordinary), AnimationPlace.StartOfAnimation);
-        }
+        state.Playback = RinkaEnemyState.Starting(LifeAnimation(place));
         place.AnimationClock.Restart();
     }
+
+    /// <summary>The animation each of <paramref name="place"/>'s lives starts: a special Rinka's or an ordinary one's.</summary>
+    private static RinkaSegment LifeAnimation(RoomEnemyPlace place) =>
+        IsSpecialRinka(place) ? RinkaSegment.Special : RinkaSegment.Ordinary;
 
     /// <summary>True while a door load still owes a special Rinka its spawn choice.</summary>
     public bool HasDeferredLoaderTimeCameraReads => _deferredRinkaSpawnPlaces.Count != 0;
@@ -403,11 +399,11 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         SetRinkaCamera(frame.Camera);
     }
-    /// <summary>The room-graphics dust animation special Rinka deaths show.</summary>
-    private const MiscDustAnimation RinkaDustAnimationIndex = MiscDustAnimation.SmallExplosion;
-    /// <summary>Allocates the room-graphics small explosion.</summary>
+    /// <summary>The dust a Rinka's special death raises.</summary>
+    private const MiscDustAnimation DeathDust = MiscDustAnimation.SmallExplosion;
+    /// <summary>Raises a Rinka's small death explosion at <paramref name="position"/>.</summary>
     internal void SpawnRinkaDustExplosion(Position16<RoomPixels> position)
-        => _projectiles.SpawnDustOrExplosion(position, RinkaDustAnimationIndex);
+        => _projectiles.SpawnDustOrExplosion(position, DeathDust);
 
     /// <summary>
     /// Removes a dying Rinka in its small death explosion: an ordinary Rinka respawns from its population entry when the

@@ -4,16 +4,22 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// The state of one of Mother Brain's falling tubes. Its setup starts its animation every time, so nothing it holds is
-/// inherited from an earlier occupant of its place (#1476).
+/// The state of one of Mother Brain's falling tubes. Its setup makes it and begins its animation every time, so nothing
+/// it holds is inherited from an earlier occupant of its place (#1476, #2319).
 /// </summary>
 internal sealed class MotherBrainFallingTubeState
 {
     /// <summary>The falling tube's animation and where it stands (#641, #1600).</summary>
-    public AnimationPlayback<MotherBrainTubePiece> Playback { get; internal set; } = MotherBrainTubeAnimations.Starting(default);
+    public AnimationPlayback<MotherBrainTubePiece> Playback { get; internal set; }
 
-    /// <summary>Starts the tube in <paramref name="action"/>.</summary>
-    internal MotherBrainFallingTubeState(MotherBrainTubeAction action) => Action = action;
+    /// <summary>Starts <paramref name="piece"/>'s tube in <paramref name="action"/>, playing its own animation (#2319).</summary>
+    /// <param name="piece">The tube piece, whose animation the tube plays.</param>
+    /// <param name="action">What the tube does first.</param>
+    internal MotherBrainFallingTubeState(MotherBrainTubePiece piece, MotherBrainTubeAction action)
+    {
+        Playback = MotherBrainTubeAnimations.Starting(piece);
+        Action = action;
+    }
 
     /// <summary>The tube action.</summary>
     public MotherBrainTubeAction Action { get; internal set; }

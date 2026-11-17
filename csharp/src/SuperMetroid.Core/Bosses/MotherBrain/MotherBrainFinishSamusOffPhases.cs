@@ -44,10 +44,10 @@ internal sealed class MotherBrainFinishSamusOffPhases
     }
 
     /// <summary>
-    /// Runs the second phase finish samus off body phase. True when it moves to the next body phase and the game runs
-    /// on into it in the same update.
+    /// Attacks Samus with onion rings and bombs until her energy is low enough to finish her off, then stands up. True
+    /// when her next phase runs on in this same update.
     /// </summary>
-    internal bool RunSecondPhaseFinishSamusOff(SamusState samus, RainbowBeamAttackFrame frame)
+    internal bool AttackUntilSamusIsLow(SamusState samus, RainbowBeamAttackFrame frame)
     {
         // The low-energy check asks whether a few more onion rings could put Samus at the encounter's intended
         // low-energy floor. Equality counts as low and changes the body phase; she stands up on the next update.
@@ -82,10 +82,10 @@ internal sealed class MotherBrainFinishSamusOffPhases
     }
 
     /// <summary>
-    /// Runs the second phase finish samus off stand up body phase. True when it moves to the next body phase and the game runs
-    /// on into it in the same update.
+    /// Stands her up, then starts her admiring of the beaten Samus. True when her next phase runs on in this same
+    /// update.
     /// </summary>
-    internal bool RunSecondPhaseFinishSamusOffStandUp()
+    internal bool StandUpToFinishOff()
     {
         // She counts as standing only if she already stood as the update began.
         // Crouched/leaning poses request their matching stand animation and report her not
@@ -101,10 +101,10 @@ internal sealed class MotherBrainFinishSamusOffPhases
     }
 
     /// <summary>
-    /// Runs the second phase finish samus off admire body phase. True when it moves to the next body phase and the game runs
-    /// on into it in the same update.
+    /// Admires the beaten Samus until the wait runs out, then stretches and starts charging the final beam. True when
+    /// her next phase runs on in this same update.
     /// </summary>
-    internal bool RunSecondPhaseFinishSamusOffAdmire()
+    internal bool AdmireSamus()
     {
         // Stand-up falls through here, so the admiration's first update is the update she stands up on.
         if (Encounter.PhaseTimer.StepRunsOut())
@@ -117,10 +117,9 @@ internal sealed class MotherBrainFinishSamusOffPhases
     }
 
     /// <summary>
-    /// Runs the second phase finish samus off charge final beam body phase. True when it moves to the next body phase and the game runs
-    /// on into it in the same update.
+    /// Charges the final beam until the wait runs out. True when her next phase runs on in this same update.
     /// </summary>
-    internal bool RunSecondPhaseFinishSamusOffChargeFinalBeam()
+    internal bool ChargeFinalBeam()
     {
         if (Encounter.PhaseTimer.StepRunsOut())
         {
@@ -132,10 +131,10 @@ internal sealed class MotherBrainFinishSamusOffPhases
     }
 
     /// <summary>
-    /// Readies the Baby Metroid's arrival as Mother Brain finishes Samus off, one update at a time; the last spawns the
-    /// Baby and starts the final beam's wait. Never runs on into the next phase within the same update.
+    /// Readies the Baby's arrival one update at a time; the last update spawns it and starts the final beam's wait.
+    /// True when her next phase runs on in this same update.
     /// </summary>
-    internal bool RunSecondPhaseFinishSamusOffReadyBaby(MotherBrainRainbowBeamStepRequests requests)
+    internal bool BringInBaby(MotherBrainRainbowBeamStepRequests requests)
     {
         // Each update readies one update of the Baby's arrival; the last spawns it on that same update.
         ReadyBabyMetroidArrival();
@@ -151,10 +150,9 @@ internal sealed class MotherBrainFinishSamusOffPhases
     }
 
     /// <summary>
-    /// Runs the second phase finish samus off fire final beam body phase. True when it moves to the next body phase and the game runs
-    /// on into it in the same update.
+    /// Fires the final beam when the wait runs out. True when her next phase runs on in this same update.
     /// </summary>
-    internal bool RunSecondPhaseFinishSamusOffFireFinalBeam(MotherBrainRainbowBeamStepRequests requests)
+    internal bool FireFinalBeam(MotherBrainRainbowBeamStepRequests requests)
     {
         if (Encounter.PhaseTimer.StepRunsOut())
         {
@@ -169,10 +167,9 @@ internal sealed class MotherBrainFinishSamusOffPhases
     }
 
     /// <summary>
-    /// Runs the second phase final rainbow beam holding body phase. True when it moves to the next body phase and the game runs
-    /// on into it in the same update.
+    /// Holds the final beam until the Baby latches onto her. True when her next phase runs on in this same update.
     /// </summary>
-    internal static bool RunSecondPhaseFinalRainbowBeamHolding()
+    internal static bool HoldFinalBeam()
     {
         // The final beam's holding step is empty. Mother Brain remains here
         // until the independently spawned Baby actor overwrites her body phase
@@ -186,13 +183,13 @@ internal sealed class MotherBrainFinishSamusOffPhases
     /// </summary>
     internal bool Run(SamusState samus, RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests) => Encounter.FinishOffPhase switch
     {
-        MotherBrainFinishOffPhase.GetSamusToLowEnergy => RunSecondPhaseFinishSamusOff(samus, frame),
-        MotherBrainFinishOffPhase.StandUp => RunSecondPhaseFinishSamusOffStandUp(),
-        MotherBrainFinishOffPhase.Admire => RunSecondPhaseFinishSamusOffAdmire(),
-        MotherBrainFinishOffPhase.ChargeFinalBeam => RunSecondPhaseFinishSamusOffChargeFinalBeam(),
-        MotherBrainFinishOffPhase.ReadyBaby => RunSecondPhaseFinishSamusOffReadyBaby(requests),
-        MotherBrainFinishOffPhase.FireFinalBeam => RunSecondPhaseFinishSamusOffFireFinalBeam(requests),
-        MotherBrainFinishOffPhase.FinalBeamHolding => RunSecondPhaseFinalRainbowBeamHolding(),
+        MotherBrainFinishOffPhase.GetSamusToLowEnergy => AttackUntilSamusIsLow(samus, frame),
+        MotherBrainFinishOffPhase.StandUp => StandUpToFinishOff(),
+        MotherBrainFinishOffPhase.Admire => AdmireSamus(),
+        MotherBrainFinishOffPhase.ChargeFinalBeam => ChargeFinalBeam(),
+        MotherBrainFinishOffPhase.ReadyBaby => BringInBaby(requests),
+        MotherBrainFinishOffPhase.FireFinalBeam => FireFinalBeam(requests),
+        MotherBrainFinishOffPhase.FinalBeamHolding => HoldFinalBeam(),
         _ => throw new InvalidOperationException($"Undefined {nameof(MotherBrainFinishOffPhase)} {Encounter.FinishOffPhase}."),
     };
 }

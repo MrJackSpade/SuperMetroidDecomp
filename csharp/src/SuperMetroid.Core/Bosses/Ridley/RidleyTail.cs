@@ -110,7 +110,7 @@ internal sealed class RidleyTail
                 // An idle random whip with no request pending aims one whole turn short of a requested one.
                 if (RidleyRandomDefinitions.TailWhips.IsTakenBy(_room.Random.Read()))
                     AimRidleyTailWhip(state, samus, samusProjectiles, turnsBeyond: state.Tail.WhipRequested ? 0 : -1);
-                else if (CoordinateAxis.Distance(samus.Position.X.Whole, place.Position.X.Whole) < RidleyTailDefinitions.WhipRange)
+                else if (Math.Abs(samus.Position.X.Whole - place.Position.X.Whole) < RidleyTailDefinitions.WhipRange)
                     AimRidleyTailWhip(state, samus, samusProjectiles, turnsBeyond: 0);
             }
 
@@ -159,8 +159,8 @@ internal sealed class RidleyTail
             samusProjectiles.Pool.ShotCount.Count,
             samusProjectiles.Shots,
             projectile => projectile.Type.Family is SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile &&
-                CoordinateAxis.Distance(projectile.Position.X.Whole, tip.Position.X) - projectile.Radius.X < RidleyTailDefinitions.MissileWhipReach &&
-                CoordinateAxis.Distance(projectile.Position.Y.Whole, tip.Position.Y) - projectile.Radius.Y < RidleyTailDefinitions.MissileWhipReach);
+                Math.Abs((projectile.Position.Whole - tip.Position).X) - projectile.Radius.X < RidleyTailDefinitions.MissileWhipReach &&
+                Math.Abs((projectile.Position.Whole - tip.Position).Y) - projectile.Radius.Y < RidleyTailDefinitions.MissileWhipReach);
         if (missile is not null)
             aim = missile.Position.Whole;
         TrigonometryAngle targetDirection = EnemyMath.CalculateBearing(aim - root.Position).ToTrigonometryAngle().TurnedBy(TrigonometryAngle.QuarterTurn);
@@ -273,8 +273,8 @@ internal sealed class RidleyTail
         // Each link's offset is its rotated distance in whole pixels, rounded down:
         // a negative fractional pixel rounds toward the more negative whole pixel.
         link.Offset = new Offset16<RoomPixels>(
-            CoordinateAxis.AsSigned(EightEight.Multiply(distanceInPixels, Trigonometry.SignedSine(angle))),
-            CoordinateAxis.AsSigned(EightEight.Multiply(distanceInPixels, Trigonometry.SignedSine(angle.TurnedBy(TrigonometryAngle.QuarterTurn)))));
+            EightEight.Multiply(distanceInPixels, Trigonometry.SignedSine(angle)),
+            EightEight.Multiply(distanceInPixels, Trigonometry.SignedSine(angle.TurnedBy(TrigonometryAngle.QuarterTurn))));
     }
 
     /// <summary>Ends a link's active whip and flips its swing for the next activation.</summary>
@@ -333,8 +333,10 @@ internal sealed class RidleyTail
             !state.MovementAnimationEnabled)
             return false;
         RidleyTailLink tip = state.Tail.Tip;
-        int dx = CoordinateAxis.Distance(samus.Position.X.Whole, tip.Position.X);
-        int dy = CoordinateAxis.Distance(samus.Position.Y.Whole, tip.Position.Y);
+        // Ceres Ridley's retreat carries his tail above his chamber, so the tip is measured by its displacement from Samus.
+        Offset16<RoomPixels> fromTip = samus.Position.Whole - tip.Position;
+        int dx = Math.Abs(fromTip.X);
+        int dy = Math.Abs(fromTip.Y);
         if (dx >= samus.Kinematics.Radius.X + RidleyTailDefinitions.TipTouchReach || dy >= samus.Kinematics.Radius.Y + RidleyTailDefinitions.TipTouchReach)
             return false;
         EnemyCollision.ApplyNormalEnemyTouchDamage(samus, state.Tail.Damage, tip.Position.X);
@@ -413,9 +415,8 @@ internal sealed class RidleyTail
         int radius,
         SamusProjectileSystem projectiles)
     {
-        // The projectile rectangle check scans the five ordinary places in ascending
-        // order. It admits beams, missiles and Super Missiles and rejects bombs, Power Bombs
-        // and shots already converted to explosions.
+        // Samus's shots are checked in shot-place order: beams, missiles and Super Missiles count; bombs, Power Bombs
+        // and shots already exploding do not.
         foreach (SamusProjectile projectile in projectiles.Shots)
         {
             if (!projectile.HasEnemyCollisionPayload)
@@ -423,8 +424,9 @@ internal sealed class RidleyTail
                 continue;
             }
 
-            int xDistance = CoordinateAxis.Distance(projectile.Position.X.Whole, joint.Position.X);
-            int yDistance = CoordinateAxis.Distance(projectile.Position.Y.Whole, joint.Position.Y);
+            Offset16<RoomPixels> fromJoint = projectile.Position.Whole - joint.Position;
+            int xDistance = Math.Abs(fromJoint.X);
+            int yDistance = Math.Abs(fromJoint.Y);
             if (xDistance >= projectile.Radius.X + radius ||
                 yDistance >= projectile.Radius.Y + radius)
             {
@@ -468,7 +470,7 @@ internal sealed class RidleyTail
             TickRidleyTailLink(state.Tail, link);
         if (pointed && !state.Tail.Links.Any(link => link.Active))
             state.Tail.Action = RidleyTailAction.Pogo;
-        // The tail's setup and stab overwrite the result of the shared pointed-tail step.
+        // The tail's setup and stab take precedence over the pointed tail's choice.
         if (action == RidleyTailAction.PogoSetup)
             state.Tail.Action = RidleyTailAction.PointDown;
         else if (action == RidleyTailAction.Stab)
@@ -480,7 +482,7 @@ internal sealed class RidleyTail
     {
         if (state.Tail.Links.All(link => link.Active) &&
             (RidleyRandomDefinitions.TailWhips.IsTakenBy(_room.Random.Read()) ||
-             CoordinateAxis.Distance(samus.Position.X.Whole, place.Position.X.Whole) < RidleyTailDefinitions.WhipRange) &&
+             Math.Abs(samus.Position.X.Whole - place.Position.X.Whole) < RidleyTailDefinitions.WhipRange) &&
             state.Tail.ClockwiseWhipTarget is null && state.Tail.CounterClockwiseWhipTarget is null)
         {
             state.Tail.ClockwiseWhipTarget = RidleyTailDefinitions.PogoWhipAngle;

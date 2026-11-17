@@ -3,7 +3,6 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Animation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Enemies;
@@ -61,10 +60,7 @@ internal static class RinkaInstructionProgramDefinitionsVerification
         rinka.SetSpawnSettings(new RinkaSpawnSettings(special ? RinkaSpawnPoint.FarRightUpper : null));
         rinka.AnimationClock.StepOnNextUpdate();
 
-        var state = new RinkaEnemyState(RinkaAction.WatchForLeavingViewport, special ? RinkaSpawnPoint.FarRightUpper : null)
-        {
-            Playback = new(RinkaAnimations.StartingWith(program), AnimationPlace.StartOfAnimation),
-        };
+        var state = new RinkaEnemyState(RinkaAction.WatchForLeavingViewport, program, special ? RinkaSpawnPoint.FarRightUpper : null);
         enemies.Places.InUpdateOrder[0].SetSpeciesState(state);
 
         object?[] arguments = [rinka, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];

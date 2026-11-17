@@ -149,37 +149,47 @@ internal static class MotherBrainAnimations
     ];
 
     /// <summary>
-    /// The red hand beam: the arm rises, eight charge particles alternate between the particle and the energy
-    /// spark at the hand, the beam fires, and the body holds the standing pose before the next phase.
+    /// The red hand beam: the arm rises, eight charge particles alternate between the particle and the energy spark at the
+    /// hand, each followed by the arm drawn back, and the beam fires; the body holds the standing pose before the next
+    /// phase. The arm drawn back shows twice running before the beam fires: her body shows each new frame of its own on her
+    /// body layer, so the second showing is a frame of its own (#2318).
     /// </summary>
-    private static AnimationBeat<EnemyFrameId, MotherBrainBodyCue>[] HandBeam()
-    {
-        var steps = new List<AnimationBeat<EnemyFrameId, MotherBrainBodyCue>>
-        {
-            Pose(MotherBrainBodyPose.DeathBeam),
-            BodyShow(EnemyFrameId.MotherBrainBodyStanding, 1),
-            BodyShow(EnemyFrameId.MotherBrainBodyHandCurling, 1),
-            BodyShow(EnemyFrameId.MotherBrainBodyArmDrawnBack, 1),
-        };
-        for (int particle = 0; particle < 8; particle++)
-        {
-            steps.Add(BodyCue(particle % 2 == 0
-                ? new MotherBrainBodyCue.SpawnHandDust(new(36, -40), MiscDustAnimation.MotherBrainElbowChargeParticle)
-                : new MotherBrainBodyCue.SpawnHandDust(new(34, -42), MiscDustAnimation.MotherBrainElbowChargeEnergy)));
-            steps.Add(BodyShow(EnemyFrameId.MotherBrainBodyArmDrawnBack, 1));
-        }
-        steps.AddRange(
-        [
-            BodyShow(EnemyFrameId.MotherBrainBodyArmDrawnBack, 1),
-            BodyCue(MotherBrainBodyCue.FireHandBeam),
-            BodyShow(EnemyFrameId.MotherBrainBodyArmFlungOut, 1),
-            BodyShow(EnemyFrameId.MotherBrainBodyArmReturning, 1),
-            BodyShow(EnemyFrameId.MotherBrainBodyStanding, 240),
-            BodyCue(MotherBrainBodyCue.AdvanceHandBeamPhase),
-            Pose(MotherBrainBodyPose.Standing),
-        ]);
-        return [.. steps];
-    }
+    private static AnimationBeat<EnemyFrameId, MotherBrainBodyCue>[] HandBeam() =>
+    [
+        Pose(MotherBrainBodyPose.DeathBeam),
+        BodyShow(EnemyFrameId.MotherBrainBodyStanding, 1),
+        BodyShow(EnemyFrameId.MotherBrainBodyHandCurling, 1),
+        BodyShow(EnemyFrameId.MotherBrainBodyArmDrawnBack, 1),
+        BodyCue(ChargeParticle),
+        BodyShow(EnemyFrameId.MotherBrainBodyArmDrawnBack, 1),
+        BodyCue(ChargeEnergy),
+        BodyShow(EnemyFrameId.MotherBrainBodyArmDrawnBack, 1),
+        BodyCue(ChargeParticle),
+        BodyShow(EnemyFrameId.MotherBrainBodyArmDrawnBack, 1),
+        BodyCue(ChargeEnergy),
+        BodyShow(EnemyFrameId.MotherBrainBodyArmDrawnBack, 1),
+        BodyCue(ChargeParticle),
+        BodyShow(EnemyFrameId.MotherBrainBodyArmDrawnBack, 1),
+        BodyCue(ChargeEnergy),
+        BodyShow(EnemyFrameId.MotherBrainBodyArmDrawnBack, 1),
+        BodyCue(ChargeParticle),
+        BodyShow(EnemyFrameId.MotherBrainBodyArmDrawnBack, 1),
+        BodyCue(ChargeEnergy),
+        BodyShow(EnemyFrameId.MotherBrainBodyArmDrawnBack, 1),
+        BodyShow(EnemyFrameId.MotherBrainBodyArmDrawnBack, 1),
+        BodyCue(MotherBrainBodyCue.FireHandBeam),
+        BodyShow(EnemyFrameId.MotherBrainBodyArmFlungOut, 1),
+        BodyShow(EnemyFrameId.MotherBrainBodyArmReturning, 1),
+        BodyShow(EnemyFrameId.MotherBrainBodyStanding, 240),
+        BodyCue(MotherBrainBodyCue.AdvanceHandBeamPhase),
+        Pose(MotherBrainBodyPose.Standing),
+    ];
+
+    /// <summary>The hand beam's charge particle, at her elbow.</summary>
+    private static MotherBrainBodyCue ChargeParticle => new MotherBrainBodyCue.SpawnHandDust(new(36, -40), MiscDustAnimation.MotherBrainElbowChargeParticle);
+
+    /// <summary>The hand beam's charge energy spark, at her elbow.</summary>
+    private static MotherBrainBodyCue ChargeEnergy => new MotherBrainBodyCue.SpawnHandDust(new(34, -42), MiscDustAnimation.MotherBrainElbowChargeEnergy);
 
     /// <summary>Shows a body frame.</summary>
     private static AnimationBeat<EnemyFrameId, MotherBrainBodyCue> BodyShow(EnemyFrameId frame, int duration) =>
@@ -193,62 +203,147 @@ internal static class MotherBrainAnimations
     private static AnimationBeat<EnemyFrameId, MotherBrainBodyCue> Pose(MotherBrainBodyPose pose) =>
         BodyCue(new MotherBrainBodyCue.SetPose(pose));
 
-    /// <summary>Every brain segment.</summary>
+    /// <summary>
+    /// Every brain segment, as its list shows it (#2318). Her brain shows no new-frame flag to anything, so a picture its
+    /// list shows twice running with nothing between is one frame of both: the Hyper Beam recoil opens her mouth as the
+    /// stretch does without drooling, so its wide and its widest mouth each show as one frame. Her still pictures hold.
+    /// </summary>
     internal static AnimationSegments<H, EnemyFrameId, MotherBrainHeadCue> HeadSegments { get; } = new(
         new Dictionary<H, AnimationBeat<EnemyFrameId, MotherBrainHeadCue>[]>
     {
-        [H.StretchingPhase2] = [.. Stretch(WholeHead, MotherBrainStretchKind.Attack)],
-        [H.StretchingPhase2Loop] = [Show(EnemyFrameId.MotherBrainHeadEyeGlaring, 1)],
-        [H.StretchingPhase3] = [.. Stretch(DamagedHead, MotherBrainStretchKind.Attack)],
-        [H.StretchingPhase3Loop] = [Show(EnemyFrameId.MotherBrainDarkHeadEyeGlaring, 1)],
-        [H.HyperBeamRecoil] = [.. Stretch(DamagedHead, MotherBrainStretchKind.HyperBeamRecoil)],
-        [H.HyperBeamRecoilLoop] = [Show(EnemyFrameId.MotherBrainDarkHeadEyeGlaring, 1)],
-        [H.Initial] = [Show(EnemyFrameId.MotherBrainHeadEyeShut, 4)],
-        [H.Decapitated] = [Show(EnemyFrameId.MotherBrainDarkHeadEyeGlaring, 8), Show(EnemyFrameId.MotherBrainDarkHeadEyeOpen, 4)],
-        [H.DecapitatedLoop] = [Show(EnemyFrameId.MotherBrainDarkHeadEyeShut, 4)],
+        [H.StretchingPhase2] =
+        [
+            Cue(MotherBrainHeadCueKind.ShakeBrain),
+            Show(EnemyFrameId.MotherBrainHeadEyeGlaring, 3),
+            Show(EnemyFrameId.MotherBrainHeadJawDropping, 3),
+            Cue(MotherBrainHeadCueKind.SpawnDrool),
+            Show(EnemyFrameId.MotherBrainHeadJawDropping, 3),
+            Cue(MotherBrainHeadCueKind.SpawnBigPurpleBreath),
+            HeadCue(MotherBrainHeadCue.Sound(MotherBrainSoundDefinitions.Roar)),
+            Cue(MotherBrainHeadCueKind.SpawnDrool),
+            Show(EnemyFrameId.MotherBrainHeadJawDropped, 17),
+            Cue(MotherBrainHeadCueKind.SpawnDrool),
+            Show(EnemyFrameId.MotherBrainHeadJawDropped, 17),
+            Cue(MotherBrainHeadCueKind.SpawnDrool),
+            Show(EnemyFrameId.MotherBrainHeadJawDropped, 33),
+            Show(EnemyFrameId.MotherBrainHeadJawDropping, 5),
+        ],
+        [H.StretchingPhase2Loop] = [Held(EnemyFrameId.MotherBrainHeadEyeGlaring)],
+        [H.StretchingPhase3] =
+        [
+            Cue(MotherBrainHeadCueKind.ShakeBrain),
+            Show(EnemyFrameId.MotherBrainDarkHeadEyeGlaring, 3),
+            Show(EnemyFrameId.MotherBrainDarkHeadJawDropping, 3),
+            Cue(MotherBrainHeadCueKind.SpawnDrool),
+            Show(EnemyFrameId.MotherBrainDarkHeadJawDropping, 3),
+            Cue(MotherBrainHeadCueKind.SpawnBigPurpleBreath),
+            HeadCue(MotherBrainHeadCue.Sound(MotherBrainSoundDefinitions.Roar)),
+            Cue(MotherBrainHeadCueKind.SpawnDrool),
+            Show(EnemyFrameId.MotherBrainDarkHeadJawDropped, 17),
+            Cue(MotherBrainHeadCueKind.SpawnDrool),
+            Show(EnemyFrameId.MotherBrainDarkHeadJawDropped, 17),
+            Cue(MotherBrainHeadCueKind.SpawnDrool),
+            Show(EnemyFrameId.MotherBrainDarkHeadJawDropped, 33),
+            Show(EnemyFrameId.MotherBrainDarkHeadJawDropping, 5),
+        ],
+        [H.StretchingPhase3Loop] = [Held(EnemyFrameId.MotherBrainDarkHeadEyeGlaring)],
+        [H.HyperBeamRecoil] =
+        [
+            Cue(MotherBrainHeadCueKind.ShakeBrain),
+            Show(EnemyFrameId.MotherBrainDarkHeadEyeGlaring, 3),
+            Show(EnemyFrameId.MotherBrainDarkHeadJawDropping, 6),
+            Cue(MotherBrainHeadCueKind.SpawnBigPurpleBreath),
+            HeadCue(MotherBrainHeadCue.Sound(MotherBrainSoundDefinitions.Roar)),
+            Show(EnemyFrameId.MotherBrainDarkHeadJawDropped, 67),
+            Show(EnemyFrameId.MotherBrainDarkHeadJawDropping, 5),
+        ],
+        [H.HyperBeamRecoilLoop] = [Held(EnemyFrameId.MotherBrainDarkHeadEyeGlaring)],
+        [H.Initial] = [Held(EnemyFrameId.MotherBrainHeadEyeShut)],
+        [H.Decapitated] = [Show(EnemyFrameId.MotherBrainDarkHeadEyeGlaring, 9), Show(EnemyFrameId.MotherBrainDarkHeadEyeOpen, 5)],
+        [H.DecapitatedLoop] = [Held(EnemyFrameId.MotherBrainDarkHeadEyeShut)],
         [H.DyingDrool] =
         [
             Cue(MotherBrainHeadCueKind.ShakeBrain),
-            Show(EnemyFrameId.MotherBrainDarkHeadEyeGlaring, 4),
-            Show(EnemyFrameId.MotherBrainDarkHeadJawDropping, 4),
+            Show(EnemyFrameId.MotherBrainDarkHeadEyeGlaring, 5),
+            Show(EnemyFrameId.MotherBrainDarkHeadJawDropping, 5),
             HeadCue(MotherBrainHeadCue.Sound(MotherBrainSoundDefinitions.Roar)),
         ],
         [H.DyingDroolBurst] =
         [
-            Show(EnemyFrameId.MotherBrainDarkHeadJawDropped, 2),
+            Show(EnemyFrameId.MotherBrainDarkHeadJawDropped, 3),
             Cue(MotherBrainHeadCueKind.SpawnDrool),
-            Show(EnemyFrameId.MotherBrainDarkHeadJawDropped, 2),
+            Show(EnemyFrameId.MotherBrainDarkHeadJawDropped, 3),
             Cue(MotherBrainHeadCueKind.SpawnDrool),
-            Show(EnemyFrameId.MotherBrainDarkHeadJawDropped, 2),
+            Show(EnemyFrameId.MotherBrainDarkHeadJawDropped, 3),
             Cue(MotherBrainHeadCueKind.SpawnDrool),
-            Show(EnemyFrameId.MotherBrainDarkHeadJawDropped, 2),
+            Show(EnemyFrameId.MotherBrainDarkHeadJawDropped, 3),
             Cue(MotherBrainHeadCueKind.SpawnDrool),
         ],
         [H.DyingDroolLoop] =
         [
-            Show(EnemyFrameId.MotherBrainDarkHeadJawDropped, 2),
+            Show(EnemyFrameId.MotherBrainDarkHeadJawDropped, 3),
             Cue(MotherBrainHeadCueKind.MaybeDroolAgain),
         ],
-        [H.FiringRainbowBeam] = [Show(EnemyFrameId.MotherBrainHeadEyeGlaring, 1)],
-        [H.NeutralPhase2] = [Show(EnemyFrameId.MotherBrainHeadEyeShut, 4), Show(EnemyFrameId.MotherBrainHeadEyeOpen, 4), Show(EnemyFrameId.MotherBrainHeadEyeGlaring, 8), Show(EnemyFrameId.MotherBrainHeadEyeOpen, 4), Show(EnemyFrameId.MotherBrainHeadEyeShut, 4), Show(EnemyFrameId.MotherBrainHeadEyeOpen, 4)],
+        [H.FiringRainbowBeam] = [Held(EnemyFrameId.MotherBrainHeadEyeGlaring)],
+        [H.NeutralPhase2] = [Show(EnemyFrameId.MotherBrainHeadEyeShut, 5), Show(EnemyFrameId.MotherBrainHeadEyeOpen, 5), Show(EnemyFrameId.MotherBrainHeadEyeGlaring, 9), Show(EnemyFrameId.MotherBrainHeadEyeOpen, 5), Show(EnemyFrameId.MotherBrainHeadEyeShut, 5), Show(EnemyFrameId.MotherBrainHeadEyeOpen, 5)],
         [H.NeutralPhase2Hold] =
         [
-            Show(EnemyFrameId.MotherBrainHeadEyeGlaring, 8),
+            Show(EnemyFrameId.MotherBrainHeadEyeGlaring, 9),
             Cue(MotherBrainHeadCueKind.MaybeHoldNeutralPhase2),
-            Show(EnemyFrameId.MotherBrainHeadEyeOpen, 4),
+            Show(EnemyFrameId.MotherBrainHeadEyeOpen, 5),
         ],
-        [H.NeutralPhase3] = [Show(EnemyFrameId.MotherBrainDarkHeadEyeShut, 4), Show(EnemyFrameId.MotherBrainDarkHeadEyeOpen, 4), Show(EnemyFrameId.MotherBrainDarkHeadEyeGlaring, 8), Show(EnemyFrameId.MotherBrainDarkHeadEyeOpen, 4), Show(EnemyFrameId.MotherBrainDarkHeadEyeShut, 4), Show(EnemyFrameId.MotherBrainDarkHeadEyeOpen, 4)],
+        [H.NeutralPhase3] = [Show(EnemyFrameId.MotherBrainDarkHeadEyeShut, 5), Show(EnemyFrameId.MotherBrainDarkHeadEyeOpen, 5), Show(EnemyFrameId.MotherBrainDarkHeadEyeGlaring, 9), Show(EnemyFrameId.MotherBrainDarkHeadEyeOpen, 5), Show(EnemyFrameId.MotherBrainDarkHeadEyeShut, 5), Show(EnemyFrameId.MotherBrainDarkHeadEyeOpen, 5)],
         [H.NeutralPhase3Hold] =
         [
-            Show(EnemyFrameId.MotherBrainDarkHeadEyeGlaring, 8),
-            Show(EnemyFrameId.MotherBrainDarkHeadEyeOpen, 8),
+            Show(EnemyFrameId.MotherBrainDarkHeadEyeGlaring, 9),
+            Show(EnemyFrameId.MotherBrainDarkHeadEyeOpen, 9),
             Cue(MotherBrainHeadCueKind.MaybeHoldNeutralPhase3),
-            Show(EnemyFrameId.MotherBrainDarkHeadEyeShut, 4),
+            Show(EnemyFrameId.MotherBrainDarkHeadEyeShut, 5),
         ],
-        [H.Corpse] = [Show(EnemyFrameId.MotherBrainDarkHeadEyeShut, 2), Show(EnemyFrameId.MotherBrainDarkHeadEyeOpen, 2), Show(EnemyFrameId.MotherBrainDarkHeadEyeGlaring, 64), Show(EnemyFrameId.MotherBrainHeadCorpseSlumping, 64)],
-        [H.CorpseLoop] = [Show(EnemyFrameId.MotherBrainHeadCorpseSlumped, 2)],
-        [H.FourOnionRingsPhase2] = OnionRingsPhase2(rings: 4),
-        [H.TwoOnionRingsPhase2] = OnionRingsPhase2(rings: 2),
+        [H.Corpse] = [Show(EnemyFrameId.MotherBrainDarkHeadEyeShut, 3), Show(EnemyFrameId.MotherBrainDarkHeadEyeOpen, 3), Show(EnemyFrameId.MotherBrainDarkHeadEyeGlaring, 65), Show(EnemyFrameId.MotherBrainHeadCorpseSlumping, 65)],
+        [H.CorpseLoop] = [Held(EnemyFrameId.MotherBrainHeadCorpseSlumped)],
+        [H.FourOnionRingsPhase2] =
+        [
+            Cue(MotherBrainHeadCueKind.DisableNeckMovement),
+            Show(EnemyFrameId.MotherBrainHeadEyeGlaring, 5),
+            Show(EnemyFrameId.MotherBrainHeadJawDropping, 5),
+            HeadCue(MotherBrainHeadCue.Sound(MotherBrainSoundDefinitions.AttackCry)),
+            Show(EnemyFrameId.MotherBrainHeadJawDropped, 9),
+            Cue(MotherBrainHeadCueKind.AimOnionRingsAtSamus),
+            Cue(MotherBrainHeadCueKind.SpawnOnionRing),
+            HeadCue(MotherBrainHeadCue.Sound(MotherBrainSoundDefinitions.OnionRings)),
+            Show(EnemyFrameId.MotherBrainHeadJawDropped, 4),
+            Cue(MotherBrainHeadCueKind.AimOnionRingsAtSamus),
+            Cue(MotherBrainHeadCueKind.SpawnOnionRing),
+            Show(EnemyFrameId.MotherBrainHeadJawDropped, 4),
+            Cue(MotherBrainHeadCueKind.AimOnionRingsAtSamus),
+            Cue(MotherBrainHeadCueKind.SpawnOnionRing),
+            Show(EnemyFrameId.MotherBrainHeadJawDropped, 4),
+            Cue(MotherBrainHeadCueKind.AimOnionRingsAtSamus),
+            Cue(MotherBrainHeadCueKind.SpawnOnionRing),
+            Show(EnemyFrameId.MotherBrainHeadJawDropped, 17),
+            Show(EnemyFrameId.MotherBrainHeadJawDropping, 5),
+            Show(EnemyFrameId.MotherBrainHeadEyeGlaring, 17),
+            Cue(MotherBrainHeadCueKind.EnableNeckMovement),
+        ],
+        [H.TwoOnionRingsPhase2] =
+        [
+            Cue(MotherBrainHeadCueKind.DisableNeckMovement),
+            Show(EnemyFrameId.MotherBrainHeadEyeGlaring, 5),
+            Show(EnemyFrameId.MotherBrainHeadJawDropping, 5),
+            HeadCue(MotherBrainHeadCue.Sound(MotherBrainSoundDefinitions.AttackCry)),
+            Show(EnemyFrameId.MotherBrainHeadJawDropped, 9),
+            Cue(MotherBrainHeadCueKind.AimOnionRingsAtSamus),
+            Cue(MotherBrainHeadCueKind.SpawnOnionRing),
+            HeadCue(MotherBrainHeadCue.Sound(MotherBrainSoundDefinitions.OnionRings)),
+            Show(EnemyFrameId.MotherBrainHeadJawDropped, 4),
+            Cue(MotherBrainHeadCueKind.AimOnionRingsAtSamus),
+            Cue(MotherBrainHeadCueKind.SpawnOnionRing),
+            Show(EnemyFrameId.MotherBrainHeadJawDropped, 17),
+            Show(EnemyFrameId.MotherBrainHeadJawDropping, 5),
+            Show(EnemyFrameId.MotherBrainHeadEyeGlaring, 17),
+            Cue(MotherBrainHeadCueKind.EnableNeckMovement),
+        ],
         [H.AttackingBabyMetroid] =
         [
             Cue(MotherBrainHeadCueKind.CountBabyMetroidAttack),
@@ -263,44 +358,44 @@ internal static class MotherBrainAnimations
         ],
         [H.FourOnionRingsPhase3] =
         [
-            Show(EnemyFrameId.MotherBrainDarkHeadEyeGlaring, 4),
-            Show(EnemyFrameId.MotherBrainDarkHeadJawDropping, 4),
+            Show(EnemyFrameId.MotherBrainDarkHeadEyeGlaring, 5),
+            Show(EnemyFrameId.MotherBrainDarkHeadJawDropping, 5),
             Cue(MotherBrainHeadCueKind.QueueBabyMetroidAttackSound),
-            Show(EnemyFrameId.MotherBrainDarkHeadJawDropped, 8),
+            Show(EnemyFrameId.MotherBrainDarkHeadJawDropped, 9),
             Cue(MotherBrainHeadCueKind.SpawnOnionRing),
             HeadCue(MotherBrainHeadCue.Sound(MotherBrainSoundDefinitions.OnionRings)),
-            Show(EnemyFrameId.MotherBrainDarkHeadJawDropped, 3),
+            Show(EnemyFrameId.MotherBrainDarkHeadJawDropped, 4),
             Cue(MotherBrainHeadCueKind.SpawnOnionRing),
-            Show(EnemyFrameId.MotherBrainDarkHeadJawDropped, 3),
+            Show(EnemyFrameId.MotherBrainDarkHeadJawDropped, 4),
             Cue(MotherBrainHeadCueKind.SpawnOnionRing),
-            Show(EnemyFrameId.MotherBrainDarkHeadJawDropped, 3),
+            Show(EnemyFrameId.MotherBrainDarkHeadJawDropped, 4),
             Cue(MotherBrainHeadCueKind.SpawnOnionRing),
-            Show(EnemyFrameId.MotherBrainDarkHeadJawDropped, 16),
-            Show(EnemyFrameId.MotherBrainDarkHeadJawDropping, 4),
-            Show(EnemyFrameId.MotherBrainDarkHeadEyeGlaring, 16),
+            Show(EnemyFrameId.MotherBrainDarkHeadJawDropped, 17),
+            Show(EnemyFrameId.MotherBrainDarkHeadJawDropping, 5),
+            Show(EnemyFrameId.MotherBrainDarkHeadEyeGlaring, 17),
             Cue(MotherBrainHeadCueKind.EnableNeckMovement),
         ],
         [H.BombPhase2] = Bomb(WholeHead, afterburns: 7),
         [H.BombPhase3] = Bomb(DamagedHead, afterburns: 1),
         [H.Laser] =
         [
-            Show(EnemyFrameId.MotherBrainHeadEyeOpen, 16),
-            Show(EnemyFrameId.MotherBrainHeadEyeGlaring, 4),
+            Show(EnemyFrameId.MotherBrainHeadEyeOpen, 17),
+            Show(EnemyFrameId.MotherBrainHeadEyeGlaring, 5),
             Cue(MotherBrainHeadCueKind.SpawnLaser),
-            Show(EnemyFrameId.MotherBrainHeadEyeGlaring, 32),
+            Show(EnemyFrameId.MotherBrainHeadEyeGlaring, 33),
             Cue(MotherBrainHeadCueKind.EnableNeckMovement),
         ],
         [H.ChargingRainbowBeam] =
         [
             Cue(MotherBrainHeadCueKind.PrepareRainbowBeamCharge),
-            Show(EnemyFrameId.MotherBrainHeadEyeGlaring, 4),
-            Show(EnemyFrameId.MotherBrainHeadEyeOpen, 4),
-            Show(EnemyFrameId.MotherBrainHeadEyeShut, 2),
+            Show(EnemyFrameId.MotherBrainHeadEyeGlaring, 5),
+            Show(EnemyFrameId.MotherBrainHeadEyeOpen, 5),
+            Show(EnemyFrameId.MotherBrainHeadEyeShut, 3),
         ],
         [H.ChargingRainbowBeamLoop] =
         [
             Cue(MotherBrainHeadCueKind.SpawnRainbowBeamChargeParticle),
-            Show(EnemyFrameId.MotherBrainHeadEyeShut, 30),
+            Show(EnemyFrameId.MotherBrainHeadEyeShut, 31),
         ],
     });
 
@@ -338,76 +433,24 @@ internal static class MotherBrainAnimations
     internal static Animation<H> HeadStartingWith(H segment) => HeadStartingAt[segment];
 
     /// <summary>
-    /// The neck stretch and the Hyper Beam recoil: the brain shakes, <paramref name="head"/>'s mouth opens through its open,
-    /// wide and widest stages, breathing a big purple cloud with the stretch cry, and drools while stretching.
-    /// </summary>
-    private static AnimationBeat<EnemyFrameId, MotherBrainHeadCue>[] Stretch(HeadMouth head, MotherBrainStretchKind kind)
-    {
-        var steps = new List<AnimationBeat<EnemyFrameId, MotherBrainHeadCue>>
-        {
-            Cue(MotherBrainHeadCueKind.ShakeBrain),
-            Show(head.Open, 2),
-            Show(head.Wide, 2),
-        };
-        if (kind == MotherBrainStretchKind.Attack) steps.Add(Cue(MotherBrainHeadCueKind.SpawnDrool));
-        steps.Add(Show(head.Wide, 2));
-        steps.Add(Cue(MotherBrainHeadCueKind.SpawnBigPurpleBreath));
-        steps.Add(HeadCue(MotherBrainHeadCue.Sound(MotherBrainSoundDefinitions.Roar)));
-        foreach (int duration in new[] { 16, 16, 32 })
-        {
-            if (kind == MotherBrainStretchKind.Attack) steps.Add(Cue(MotherBrainHeadCueKind.SpawnDrool));
-            steps.Add(Show(head.Widest, duration));
-        }
-        steps.Add(Show(head.Wide, 4));
-        return [.. steps];
-    }
-
-    /// <summary>A phase-two onion-ring volley of <paramref name="rings"/> rings aimed at Samus.</summary>
-    private static AnimationBeat<EnemyFrameId, MotherBrainHeadCue>[] OnionRingsPhase2(int rings)
-    {
-        var steps = new List<AnimationBeat<EnemyFrameId, MotherBrainHeadCue>>
-        {
-            Cue(MotherBrainHeadCueKind.DisableNeckMovement),
-            Show(EnemyFrameId.MotherBrainHeadEyeGlaring, 4),
-            Show(EnemyFrameId.MotherBrainHeadJawDropping, 4),
-            HeadCue(MotherBrainHeadCue.Sound(MotherBrainSoundDefinitions.AttackCry)),
-            Show(EnemyFrameId.MotherBrainHeadJawDropped, 8),
-        };
-        for (int ring = 0; ring < rings; ring++)
-        {
-            steps.Add(Cue(MotherBrainHeadCueKind.AimOnionRingsAtSamus));
-            steps.Add(Cue(MotherBrainHeadCueKind.SpawnOnionRing));
-            if (ring == 0) steps.Add(HeadCue(MotherBrainHeadCue.Sound(MotherBrainSoundDefinitions.OnionRings)));
-            steps.Add(Show(EnemyFrameId.MotherBrainHeadJawDropped, ring == rings - 1 ? 16 : 3));
-        }
-        steps.AddRange(
-        [
-            Show(EnemyFrameId.MotherBrainHeadJawDropping, 4),
-            Show(EnemyFrameId.MotherBrainHeadEyeGlaring, 16),
-            Cue(MotherBrainHeadCueKind.EnableNeckMovement),
-        ]);
-        return [.. steps];
-    }
-
-    /// <summary>
     /// A bomb lob from <paramref name="head"/>: phase two lobs a seven-afterburn bomb from the whole head, phase three a
     /// one-afterburn bomb from the damaged one.
     /// </summary>
     private static AnimationBeat<EnemyFrameId, MotherBrainHeadCue>[] Bomb(HeadMouth head, int afterburns) =>
     [
-        Show(head.Closed, 4),
-        Show(head.Opening, 4),
-        Show(head.Open, 8),
+        Show(head.Closed, 5),
+        Show(head.Opening, 5),
+        Show(head.Open, 9),
         Cue(MotherBrainHeadCueKind.DisableNeckMovement),
-        Show(head.Open, 4),
-        Show(head.Wide, 4),
+        Show(head.Open, 5),
+        Show(head.Wide, 5),
         HeadCue(MotherBrainHeadCue.Sound(MotherBrainSoundDefinitions.AttackCry)),
-        Show(head.Widest, 8),
+        Show(head.Widest, 9),
         HeadCue(MotherBrainHeadCue.Bomb(afterburns)),
         Cue(MotherBrainHeadCueKind.SpawnBigPurpleBreath),
-        Show(head.Widest, 32),
-        Show(head.Wide, 4),
-        Show(head.Open, 16),
+        Show(head.Widest, 33),
+        Show(head.Wide, 5),
+        Show(head.Open, 17),
         Cue(MotherBrainHeadCueKind.EnableNeckMovement),
     ];
 
@@ -427,9 +470,16 @@ internal static class MotherBrainAnimations
     private static HeadMouth DamagedHead => new(EnemyFrameId.MotherBrainDarkHeadEyeShut, EnemyFrameId.MotherBrainDarkHeadEyeOpen, EnemyFrameId.MotherBrainDarkHeadEyeGlaring,
         EnemyFrameId.MotherBrainDarkHeadJawDropping, EnemyFrameId.MotherBrainDarkHeadJawDropped);
 
-    /// <summary>Shows brain frame <paramref name="frame"/>.</summary>
-    private static AnimationBeat<EnemyFrameId, MotherBrainHeadCue> Show(EnemyFrameId frame, int duration) =>
-        new AnimationBeat<EnemyFrameId, MotherBrainHeadCue>.Frame(frame, duration);
+    /// <summary>
+    /// Shows brain frame <paramref name="frame"/> for <paramref name="updates"/> updates (#2317), the updates it shows at
+    /// her brain's draws.
+    /// </summary>
+    private static AnimationBeat<EnemyFrameId, MotherBrainHeadCue> Show(EnemyFrameId frame, int updates) =>
+        new AnimationBeat<EnemyFrameId, MotherBrainHeadCue>.Frame(frame, updates);
+
+    /// <summary>Shows brain frame <paramref name="frame"/> for good: the still picture her brain rests on (#2318).</summary>
+    private static AnimationBeat<EnemyFrameId, MotherBrainHeadCue> Held(EnemyFrameId frame) =>
+        new AnimationBeat<EnemyFrameId, MotherBrainHeadCue>.HeldFrame(frame);
 
     /// <summary>Raises a brain event that carries no values.</summary>
     private static AnimationBeat<EnemyFrameId, MotherBrainHeadCue> Cue(MotherBrainHeadCueKind kind) =>

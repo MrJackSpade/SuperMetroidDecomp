@@ -12,6 +12,9 @@ internal static class RidleyCollisionDefinitions
     /// <summary>The 32-pixel margin Ridley's interaction check adds on each axis before the camera-relative test.</summary>
     internal static readonly Offset16<RoomPixels> InteractionWindowMargin = new(32, 32);
 
+    /// <summary>The size of the window, from the camera, that Ridley's place moved by the margin must lie inside for him to interact.</summary>
+    internal static readonly Extent16<RoomPixels> InteractionWindowSize = new(320, 288);
+
     /// <summary>Every body rectangle's touch reaction: Ridley's extended-body contact.</summary>
     internal static readonly EnemyReaction BodyTouchReaction = RidleyReactions.FrameHitboxTouch;
 

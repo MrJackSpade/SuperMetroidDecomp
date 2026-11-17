@@ -12,13 +12,18 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 [ArchitectureReview("back-reference", "A part of Phantoon's encounter (#2252): the encounter makes and owns its four parts for the room, and each part's entity reads the encounter it joined at setup through its part, so the two share one lifetime.")]
 public sealed class PhantoonPart
 {
-    /// <summary>Makes <paramref name="phantoon"/>'s part occupying <paramref name="place"/>.</summary>
+    /// <summary>
+    /// Makes <paramref name="phantoon"/>'s part occupying <paramref name="place"/>, playing the animation its setup starts
+    /// (#2319).
+    /// </summary>
     /// <param name="phantoon">The encounter the part is part of.</param>
     /// <param name="place">The place the part occupies.</param>
-    internal PhantoonPart(PhantoonEnemyState phantoon, RoomEnemyPlace place)
+    /// <param name="setupAnimation">The segment the animation the part's setup starts begins with.</param>
+    internal PhantoonPart(PhantoonEnemyState phantoon, RoomEnemyPlace place, PhantoonPartSegment setupAnimation)
     {
         Phantoon = Ensure.NotNull(phantoon);
         Place = Ensure.NotNull(place);
+        Playback = Starting(setupAnimation);
     }
 
     /// <summary>The encounter the part is part of.</summary>
@@ -27,10 +32,8 @@ public sealed class PhantoonPart
     /// <summary>The place the part occupies.</summary>
     public RoomEnemyPlace Place { get; }
 
-    /// <summary>
-    /// The part's animation playback (#641, #1600): the invulnerable body's until the part's setup starts its own.
-    /// </summary>
-    internal AnimationPlayback<PhantoonPartSegment> Playback { get; set; } = Starting(PhantoonPartSegment.InvulnerableBody);
+    /// <summary>The part's animation playback (#641, #1600), begun with the animation its setup starts.</summary>
+    internal AnimationPlayback<PhantoonPartSegment> Playback { get; set; }
 
     /// <summary>The animation starting at <paramref name="segment"/>, before its first play.</summary>
     internal static AnimationPlayback<PhantoonPartSegment> Starting(PhantoonPartSegment segment) =>

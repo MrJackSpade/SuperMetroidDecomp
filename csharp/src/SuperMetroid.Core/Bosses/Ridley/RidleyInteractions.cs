@@ -58,8 +58,8 @@ internal static class RidleyInteractions
             if (!c.UsesFrameHitboxes || c.HitboxShot != RidleyReactions.Shot)
             {
                 throw new InvalidDataException(
-                    $"Lower Norfair Ridley requires extended shot AI " +
-                    $"{RidleyReactions.Shot}; extended={c.UsesFrameHitboxes}, " +
+                    $"Lower Norfair Ridley reacts to shots only through his frames' hit areas and his own reaction " +
+                    $"{RidleyReactions.Shot}; frame hit areas={c.UsesFrameHitboxes}, " +
                     $"selected={c.HitboxShot?.ToString() ?? "(unnamed)"}, frame={c.Enemy.Frame}.");
             }
             return false;
@@ -92,10 +92,10 @@ internal static class RidleyInteractions
             foreach (EnemyHitboxRectangle hitbox in component.Hitboxes)
             {
                 if (!probe.Overlaps(
-                        CoordinateAxis.Wrap(componentOrigin.X + hitbox.Left),
-                        CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Top),
-                        CoordinateAxis.Wrap(componentOrigin.X + hitbox.Right),
-                        CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Bottom)))
+                        componentOrigin.X + hitbox.Left,
+                        componentOrigin.Y + hitbox.Top,
+                        componentOrigin.X + hitbox.Right,
+                        componentOrigin.Y + hitbox.Bottom))
                     continue;
                 reaction = probe.SelectsShot
                     ? RidleyCollisionDefinitions.BodyShotReaction

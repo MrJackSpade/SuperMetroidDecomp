@@ -53,8 +53,8 @@ internal sealed class BeamChargeState
     public ChargedShotGlow ChargedShotGlow { get; internal set; }
 
     /// <summary>
-    /// The charge colour cycle's next step, 0 through 5: each charge glow call shows it and advances it, and the
-    /// sixth call wraps it to zero.
+    /// The charge colour cycle's next step, 0 through 5: each update of the charge glow shows it and advances it, and
+    /// the sixth wraps it to zero.
     /// </summary>
     public int ChargeGlowStep
     {

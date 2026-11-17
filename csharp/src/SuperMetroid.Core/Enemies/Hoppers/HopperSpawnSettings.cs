@@ -1,5 +1,5 @@
 namespace SuperMetroid.Core.Enemies.Hoppers;
 
-/// <summary>Whether a hopper starts on the ceiling (#1472).</summary>
-/// <param name="Mounting">Whether it starts on the floor or the ceiling.</param>
-internal sealed record HopperSpawnSettings(HopperMounting Mounting) : EnemySpawnSettings;
+/// <summary>The surface a hopper's placement mounts it on (#1472, #2338).</summary>
+/// <param name="Surface">The floor or the ceiling.</param>
+internal sealed record HopperSpawnSettings(HopperSurface Surface) : EnemySpawnSettings;

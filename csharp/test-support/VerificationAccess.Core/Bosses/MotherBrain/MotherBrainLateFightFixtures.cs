@@ -18,7 +18,7 @@ internal static class MotherBrainLateFightFixtures
     {
         var body = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>());
         var brain = new RoomEnemyPlace(1, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()) { Health = 3000 };
-        var encounter = new MotherBrainEnemyState(body, brain, new MotherBrainWalkCounter(), bursts) { RainbowPhase = MotherBrainRainbowPhase.StartCharging, DroolGenerationEnabled = true, SmallPurpleBreathGenerationEnabled = true, HitboxesEnabled = MotherBrainHitboxParts.Body | MotherBrainHitboxParts.Brain | MotherBrainHitboxParts.Neck };
+        var encounter = new MotherBrainEnemyState(body, brain, new MotherBrainWalkCounter(), bursts, new MotherBrainBrainAnimation()) { RainbowPhase = MotherBrainRainbowPhase.StartCharging, DroolGenerationEnabled = true, SmallPurpleBreathGenerationEnabled = true, HitboxesEnabled = MotherBrainHitboxParts.Body | MotherBrainHitboxParts.Brain | MotherBrainHitboxParts.Neck };
         return new MotherBrainRainbowBeamAttackSequence(encounter);
     }
 
@@ -28,15 +28,15 @@ internal static class MotherBrainLateFightFixtures
     /// </summary>
     /// <param name="cameraCheckpoint">The session's record of what the beam's push hides from the camera.</param>
     /// <param name="enemyFrameCounter">The enemy frame counter's count.</param>
-    /// <param name="mainEnemyExecutionCounter">The main enemy pass counter's count.</param>
+    /// <param name="enemyPassCount">The main enemy pass counter's count.</param>
     internal static RainbowBeamAttackFrame QuietFrame(
         SuperMetroid.Core.Compatibility.RainbowBeamCameraCheckpoint cameraCheckpoint,
         int enemyFrameCounter,
-        int mainEnemyExecutionCounter) => new()
+        int enemyPassCount) => new()
     {
         CameraCheckpoint = cameraCheckpoint,
         EnemyFrameCounter = enemyFrameCounter,
-        MainEnemyExecutionCounter = mainEnemyExecutionCounter,
+        EnemyPassCount = enemyPassCount,
         PowerBombActive = false,
         RandomNumberSeed = MotherBrainRandomSample.FromGenerator(0),
         NextRandomNumber = new SuperMetroid.Core.Compatibility.SharedRandom().Generate,

@@ -19,7 +19,7 @@ internal static class HopperAnimations
         [
             Cue(new HopperCue.Signal(K.ProcessOffScreen)),
             Cue(new HopperCue.PlaySound(HopperSoundDefinitions.Hop)),
-            Show(EnemyFrameId.SidehopperLegsStraight, 1),
+            Hold(EnemyFrameId.SidehopperLegsStraight),
         ],
         [P.SidehopperFloorLanded] =
         [
@@ -35,7 +35,7 @@ internal static class HopperAnimations
         [
             Cue(new HopperCue.Signal(K.ProcessOffScreen)),
             Cue(new HopperCue.PlaySound(HopperSoundDefinitions.Hop)),
-            Show(EnemyFrameId.SidehopperUpsideDownLegsStraight, 1),
+            Hold(EnemyFrameId.SidehopperUpsideDownLegsStraight),
         ],
         [P.SidehopperCeilingLanded] =
         [
@@ -50,7 +50,7 @@ internal static class HopperAnimations
         [P.DessgeegaFloorJumping] =
         [
             Cue(new HopperCue.Signal(K.ProcessOffScreen)),
-            Show(EnemyFrameId.DessgeegaLegsStraight, 1),
+            Hold(EnemyFrameId.DessgeegaLegsStraight),
         ],
         [P.DessgeegaFloorLanded] =
         [
@@ -64,7 +64,7 @@ internal static class HopperAnimations
         [P.DessgeegaCeilingJumping] =
         [
             Cue(new HopperCue.Signal(K.ProcessOffScreen)),
-            Show(EnemyFrameId.DessgeegaUpsideDownLegsStraight, 1),
+            Hold(EnemyFrameId.DessgeegaUpsideDownLegsStraight),
         ],
         [P.DessgeegaCeilingLanded] =
         [
@@ -79,7 +79,7 @@ internal static class HopperAnimations
         [
             Cue(new HopperCue.Signal(K.ProcessOffScreen)),
             Cue(new HopperCue.PlaySound(HopperSoundDefinitions.Hop)),
-            Show(EnemyFrameId.LargeSidehopperLegsStraight, 1),
+            Hold(EnemyFrameId.LargeSidehopperLegsStraight),
         ],
         [P.LargeSidehopperFloorLanded] =
         [
@@ -95,7 +95,7 @@ internal static class HopperAnimations
         [
             Cue(new HopperCue.Signal(K.ProcessOffScreen)),
             Cue(new HopperCue.PlaySound(HopperSoundDefinitions.Hop)),
-            Show(EnemyFrameId.LargeSidehopperUpsideDownLegsStraight, 1),
+            Hold(EnemyFrameId.LargeSidehopperUpsideDownLegsStraight),
         ],
         [P.LargeSidehopperCeilingLanded] =
         [
@@ -110,7 +110,7 @@ internal static class HopperAnimations
         [P.LargeDessgeegaFloorJumping] =
         [
             Cue(new HopperCue.Signal(K.ProcessOffScreen)),
-            Show(EnemyFrameId.LargeDessgeegaLegsStraight, 1),
+            Hold(EnemyFrameId.LargeDessgeegaLegsStraight),
         ],
         [P.LargeDessgeegaFloorLanded] =
         [
@@ -124,7 +124,7 @@ internal static class HopperAnimations
         [P.LargeDessgeegaCeilingJumping] =
         [
             Cue(new HopperCue.Signal(K.ProcessOffScreen)),
-            Show(EnemyFrameId.LargeDessgeegaUpsideDownLegsStraight, 1),
+            Hold(EnemyFrameId.LargeDessgeegaUpsideDownLegsStraight),
         ],
         [P.LargeDessgeegaCeilingLanded] =
         [
@@ -140,29 +140,35 @@ internal static class HopperAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<HopperSegment, Animation<HopperSegment>> StartingAt { get; } = new Dictionary<HopperSegment, Animation<HopperSegment>>
     {
-        [P.SidehopperFloorJumping] = new([new(P.SidehopperFloorJumping, 0, 3, 1)], AnimationEnd.Holds),
-        [P.SidehopperFloorLanded] = new([new(P.SidehopperFloorLanded, 0, 7, 1)], AnimationEnd.Holds),
-        [P.SidehopperCeilingJumping] = new([new(P.SidehopperCeilingJumping, 0, 3, 1)], AnimationEnd.Holds),
-        [P.SidehopperCeilingLanded] = new([new(P.SidehopperCeilingLanded, 0, 7, 1)], AnimationEnd.Holds),
-        [P.DessgeegaFloorJumping] = new([new(P.DessgeegaFloorJumping, 0, 2, 1)], AnimationEnd.Holds),
-        [P.DessgeegaFloorLanded] = new([new(P.DessgeegaFloorLanded, 0, 6, 1)], AnimationEnd.Holds),
-        [P.DessgeegaCeilingJumping] = new([new(P.DessgeegaCeilingJumping, 0, 2, 1)], AnimationEnd.Holds),
-        [P.DessgeegaCeilingLanded] = new([new(P.DessgeegaCeilingLanded, 0, 6, 1)], AnimationEnd.Holds),
-        [P.LargeSidehopperFloorJumping] = new([new(P.LargeSidehopperFloorJumping, 0, 3, 1)], AnimationEnd.Holds),
-        [P.LargeSidehopperFloorLanded] = new([new(P.LargeSidehopperFloorLanded, 0, 7, 1)], AnimationEnd.Holds),
-        [P.LargeSidehopperCeilingJumping] = new([new(P.LargeSidehopperCeilingJumping, 0, 3, 1)], AnimationEnd.Holds),
-        [P.LargeSidehopperCeilingLanded] = new([new(P.LargeSidehopperCeilingLanded, 0, 7, 1)], AnimationEnd.Holds),
-        [P.LargeDessgeegaFloorJumping] = new([new(P.LargeDessgeegaFloorJumping, 0, 2, 1)], AnimationEnd.Holds),
-        [P.LargeDessgeegaFloorLanded] = new([new(P.LargeDessgeegaFloorLanded, 0, 6, 1)], AnimationEnd.Holds),
-        [P.LargeDessgeegaCeilingJumping] = new([new(P.LargeDessgeegaCeilingJumping, 0, 2, 1)], AnimationEnd.Holds),
-        [P.LargeDessgeegaCeilingLanded] = new([new(P.LargeDessgeegaCeilingLanded, 0, 6, 1)], AnimationEnd.Holds),
+        [P.SidehopperFloorJumping] = new([Whole(P.SidehopperFloorJumping)], AnimationEnd.Holds),
+        [P.SidehopperFloorLanded] = new([Whole(P.SidehopperFloorLanded)], AnimationEnd.Holds),
+        [P.SidehopperCeilingJumping] = new([Whole(P.SidehopperCeilingJumping)], AnimationEnd.Holds),
+        [P.SidehopperCeilingLanded] = new([Whole(P.SidehopperCeilingLanded)], AnimationEnd.Holds),
+        [P.DessgeegaFloorJumping] = new([Whole(P.DessgeegaFloorJumping)], AnimationEnd.Holds),
+        [P.DessgeegaFloorLanded] = new([Whole(P.DessgeegaFloorLanded)], AnimationEnd.Holds),
+        [P.DessgeegaCeilingJumping] = new([Whole(P.DessgeegaCeilingJumping)], AnimationEnd.Holds),
+        [P.DessgeegaCeilingLanded] = new([Whole(P.DessgeegaCeilingLanded)], AnimationEnd.Holds),
+        [P.LargeSidehopperFloorJumping] = new([Whole(P.LargeSidehopperFloorJumping)], AnimationEnd.Holds),
+        [P.LargeSidehopperFloorLanded] = new([Whole(P.LargeSidehopperFloorLanded)], AnimationEnd.Holds),
+        [P.LargeSidehopperCeilingJumping] = new([Whole(P.LargeSidehopperCeilingJumping)], AnimationEnd.Holds),
+        [P.LargeSidehopperCeilingLanded] = new([Whole(P.LargeSidehopperCeilingLanded)], AnimationEnd.Holds),
+        [P.LargeDessgeegaFloorJumping] = new([Whole(P.LargeDessgeegaFloorJumping)], AnimationEnd.Holds),
+        [P.LargeDessgeegaFloorLanded] = new([Whole(P.LargeDessgeegaFloorLanded)], AnimationEnd.Holds),
+        [P.LargeDessgeegaCeilingJumping] = new([Whole(P.LargeDessgeegaCeilingJumping)], AnimationEnd.Holds),
+        [P.LargeDessgeegaCeilingLanded] = new([Whole(P.LargeDessgeegaCeilingLanded)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<HopperSegment> StartingWith(HopperSegment segment) => StartingAt[segment];
 
+    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
+    private static AnimationPhase<HopperSegment> Whole(HopperSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
+
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, HopperCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, HopperCue>.Frame(frame, duration);
+
+    /// <summary>Shows <paramref name="frame"/> for good (#2337): a still picture rests on it until its owner plays another.</summary>
+    private static AnimationBeat<EnemyFrameId, HopperCue> Hold(EnemyFrameId frame) => new AnimationBeat<EnemyFrameId, HopperCue>.HeldFrame(frame);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
     private static AnimationBeat<EnemyFrameId, HopperCue> Cue(HopperCue cue) => new AnimationBeat<EnemyFrameId, HopperCue>.Event(cue);

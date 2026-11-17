@@ -50,7 +50,7 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
         {
             (RoomEnemySystem enemies, RoomEnemyPlace body, _, KiHunterBodyState state, _) =
                 CreatePair();
-            state.Velocity = state.Velocity.WithWholeX(movingRight ? (short)1 : (short)-1);
+            state.Heading = movingRight ? HorizontalDirection.Right : HorizontalDirection.Left;
             Install(body, program);
             RunFrames(enemies, body, 7);
             AssertEqual(program, Playing(state.Playback),
@@ -61,7 +61,7 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
         {
             (RoomEnemySystem enemies, RoomEnemyPlace body, _, KiHunterBodyState state, _) =
                 CreatePair();
-            state.Velocity = state.Velocity.WithWholeX(movingRight ? (short)1 : (short)-1);
+            state.Heading = movingRight ? HorizontalDirection.Right : HorizontalDirection.Left;
             Install(body, program);
             RunFrames(enemies, body, 55);
             KiHunterSegment idle = movingRight
@@ -138,16 +138,16 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
         {
             (RoomEnemySystem enemies, RoomEnemyPlace body, _, KiHunterBodyState state, _) = CreatePair();
             SignedSixteenSixteen acceleration = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel((swoopLeft
-                ? KiHunterMotionDefinitions.LeftSwoopAcceleration
-                : KiHunterMotionDefinitions.RightSwoopAcceleration).FractionsOfStep);
+                ? -KiHunterMotionDefinitions.SwoopAcceleration
+                : KiHunterMotionDefinitions.SwoopAcceleration).FractionsOfStep);
             ushort accelerationWhole = acceleration.UnsignedWholePixels;
             ushort accelerationFraction = acceleration.Fraction;
             ushort cap = swoopLeft ? unchecked((ushort)-2) : (ushort)2;
             ushort angle = swoopLeft ? (ushort)255 : (ushort)128;
             state.Action = KiHunterAction.Swooping;
             state.AngularVelocity = AngularSpeed.Zero;
-            state.AngularAcceleration = AngularSpeed.FromFractionsOfStep(SignedSixteenSixteen.FromParts(unchecked((short)accelerationWhole), accelerationFraction).InTwoFiftySixths);
-            state.MaximumAngularVelocity = AngularSpeed.FromSteps(unchecked((short)cap));
+            // A swoop heading left turns toward decreasing angles (#2338).
+            state.Heading = swoopLeft ? HorizontalDirection.Left : HorizontalDirection.Right;
             state.SwoopAngle = RotationAngle.FromSteps(angle);
             state.AnimationChangeAngle = RotationAngle.FromSteps(swoopLeft ? 240 : 144);
             state.SwoopAnimationChanged = false;

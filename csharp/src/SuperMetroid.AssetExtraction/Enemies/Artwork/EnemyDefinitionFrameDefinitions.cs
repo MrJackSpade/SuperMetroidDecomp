@@ -882,12 +882,12 @@ internal static class EnemyDefinitionFrameDefinitions
     /// <summary>The frames <c>Enemies/Animals/EscapeAnimalsBehavior.cs</c> shows for <c>EtecoonEscape</c>.</summary>
     private static readonly EnemyFrameId[] EtecoonEscapeFrames =
     [
-        EnemyFrameId.EscapeEtecoonRunningLeftStretched,
-        EnemyFrameId.EscapeEtecoonRunningLeftBunched,
-        EnemyFrameId.EscapeEtecoonRunningLeftPushingOff,
-        EnemyFrameId.EscapeEtecoonRunningRightStretched,
-        EnemyFrameId.EscapeEtecoonRunningRightBunched,
-        EnemyFrameId.EscapeEtecoonRunningRightPushingOff,
+        EnemyFrameId.EtecoonRunningLeftStretched,
+        EnemyFrameId.EtecoonRunningLeftBunched,
+        EnemyFrameId.EtecoonRunningLeftPushingOff,
+        EnemyFrameId.EtecoonRunningRightStretched,
+        EnemyFrameId.EtecoonRunningRightBunched,
+        EnemyFrameId.EtecoonRunningRightPushingOff,
         EnemyFrameId.EscapeEtecoonLookingRight,
         EnemyFrameId.EscapeEtecoonTurningLeft,
         EnemyFrameId.EscapeEtecoonLookingLeft,
@@ -897,18 +897,18 @@ internal static class EnemyDefinitionFrameDefinitions
     /// <summary>The frames <c>Enemies/Animals/EscapeAnimalsBehavior.cs</c> shows for <c>DachoraEscape</c>.</summary>
     private static readonly EnemyFrameId[] DachoraEscapeFrames =
     [
-        EnemyFrameId.EscapeDachoraRunningLeftFarLegBack,
-        EnemyFrameId.EscapeDachoraRunningLeftFarLegPassing,
-        EnemyFrameId.EscapeDachoraRunningLeftFarLegReaching,
-        EnemyFrameId.EscapeDachoraRunningLeftNearLegBack,
-        EnemyFrameId.EscapeDachoraRunningLeftNearLegPassing,
-        EnemyFrameId.EscapeDachoraRunningLeftNearLegReaching,
-        EnemyFrameId.EscapeDachoraRunningRightFarLegBack,
-        EnemyFrameId.EscapeDachoraRunningRightFarLegPassing,
-        EnemyFrameId.EscapeDachoraRunningRightFarLegReaching,
-        EnemyFrameId.EscapeDachoraRunningRightNearLegBack,
-        EnemyFrameId.EscapeDachoraRunningRightNearLegPassing,
-        EnemyFrameId.EscapeDachoraRunningRightNearLegReaching,
+        EnemyFrameId.DachoraRunningLeftFarLegBack,
+        EnemyFrameId.DachoraRunningLeftFarLegPassing,
+        EnemyFrameId.DachoraRunningLeftFarLegReaching,
+        EnemyFrameId.DachoraRunningLeftNearLegBack,
+        EnemyFrameId.DachoraRunningLeftNearLegPassing,
+        EnemyFrameId.DachoraRunningLeftNearLegReaching,
+        EnemyFrameId.DachoraRunningRightFarLegBack,
+        EnemyFrameId.DachoraRunningRightFarLegPassing,
+        EnemyFrameId.DachoraRunningRightFarLegReaching,
+        EnemyFrameId.DachoraRunningRightNearLegBack,
+        EnemyFrameId.DachoraRunningRightNearLegPassing,
+        EnemyFrameId.DachoraRunningRightNearLegReaching,
     ];
 
     /// <summary>The frames <c>Enemies/Animals/EtecoonBehavior.cs</c> shows.</summary>
@@ -1090,9 +1090,9 @@ internal static class EnemyDefinitionFrameDefinitions
     /// <summary>The frames <c>Enemies/Corpses/DeadSidehopperBehavior.cs</c> shows.</summary>
     private static readonly EnemyFrameId[] DeadSidehopper =
     [
-        EnemyFrameId.DeadSidehopperLegsBent,
-        EnemyFrameId.DeadSidehopperLegsCrouched,
-        EnemyFrameId.DeadSidehopperLegsStraight,
+        EnemyFrameId.LargeSidehopperLegsStraight,
+        EnemyFrameId.LargeSidehopperLegsBent,
+        EnemyFrameId.LargeSidehopperLegsCrouched,
         EnemyFrameId.DeadSidehopperSprawled,
         EnemyFrameId.DeadSidehopperSprawledLegsUp,
     ];

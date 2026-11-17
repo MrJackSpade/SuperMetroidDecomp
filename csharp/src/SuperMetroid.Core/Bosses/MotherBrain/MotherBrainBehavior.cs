@@ -103,8 +103,8 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         // the fake-death flash begins and later when the main tube stops the loop.
         RunMotherBrainRoomFlash(state);
         RunMotherBrainBodyPhase(state, samus, sharedProjectiles);
-        // Every body phase returns through the common contact tail. The first-phase
-        // phase also has its own authored contact call; retain both sites.
+        // Every body phase ends with her contact with Samus; her first phase also checks contact within its own phase,
+        // so it checks twice.
         MotherBrainBody.ResolveMotherBrainSamusCollision(state, samus);
     }
 

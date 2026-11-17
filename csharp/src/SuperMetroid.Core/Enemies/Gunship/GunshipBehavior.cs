@@ -311,7 +311,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         State(top).BaseY = top.Position.Y.Whole;
         State(top).BobTimer = 1;
         State(top).Bob = GunshipIdleBob.First;
-        samus.Position = samus.Position.WithWrappedWholeX(top.Position.X.Whole + 1);
+        samus.Position = samus.Position.WithWrappedWholeX(top.Position.X.Whole + GunshipMotionDefinitions.LandedSamusRightOfShip);
         samus.WritePreviousXPosition(samus.Position.X.Whole);
         StartGunshipAnimation(pad, GunshipSegment.EntrancePadOpening);
         State(top).PhaseTimer = GunshipBoardingDefinitions.PadMovementDuration;
@@ -413,10 +413,10 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         }
     }
 
-    /// <summary>Decrements the phase timer, treating one and a step past zero as expiry.</summary>
+    /// <summary>Counts the phase timer down: the update that takes it to zero ends the waiting phase (#2340).</summary>
     private static bool TickGunshipPhaseTimer(RoomEnemyPlace top)
     {
-        return --State(top).PhaseTimer <= 0;
+        return --State(top).PhaseTimer == 0;
     }
 
     /// <summary>Lowers Samus into the ship until she is aboard, then closes the pad.</summary>
@@ -500,9 +500,9 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     {
         int rumbleFrame = State(top).RumbleFrame;
         bool strong = rumbleFrame >= GunshipTakeoffDefinitions.RumbleStrengthensFrame;
-        int shake = GunshipTakeoffDefinitions.RumbleShakesDown.IsSetIn(rumbleFrame)
-            ? (strong ? 2 : 1)
-            : (strong ? -2 : -1);
+        // The rumble shakes down and up by turns, one shake each update (#2339).
+        int shakeSize = strong ? GunshipTakeoffDefinitions.StrongRumbleShake : GunshipTakeoffDefinitions.RumbleShake;
+        int shake = GunshipTakeoffDefinitions.RumbleShakesDown.IsSetIn(rumbleFrame) ? shakeSize : -shakeSize;
         samus.Position += new Offset16<RoomPixels>(0, shake);
         PlaceGunshipAroundSamus(top, samus.Position.Y.Whole);
 

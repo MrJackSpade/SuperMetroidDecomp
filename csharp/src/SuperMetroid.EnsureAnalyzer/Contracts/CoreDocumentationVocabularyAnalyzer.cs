@@ -1285,10 +1285,12 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
     /// path; an equipment, state, suit, item, beam, facing, release, turning or liquid bit and an item's own bit (the Screw
     /// Attack bit, both suit bits are equipped); both bits; and this, that, the, its or which bit (Grapple physics reads this
     /// bit). Core names the item equipped, the flag or the state. English stays legal: a bit more, a bit of the way, and a
-    /// hardware owner.
+    /// hardware owner. #2321 adds the sound-effect and vulnerability flags or bits that escaped it (the shared SFX flag,
+    /// the rainbow-beam SFX-playing flag, the vulnerability bit): Core says whether the sound plays or the shot blocks.
     /// </summary>
     private static readonly Regex StateBitProse = new(
-        @"\bmerge[-\s]+paths?\b" +
+        @"\b(?:SFX(?:-playing)?|sound-playing|vulnerability)[-\s]+(?:flags?|bits?)\b" +
+        @"|\bmerge[-\s]+paths?\b" +
         @"|\b(?:equipment|state|suit|item|beam|boss|event|status|collected|enabled|upgrade|pickup|facing|release|turning" +
         @"|liquid|Varia|Gravity|Spazer|Plasma|Morph|Attack|Jump|Draygon-facing)[-\s]+bits?\b" +
         @"|\bboth\s+bits\b|\b(?:this|that|the|its|which)\s+bit\b(?!\s+(?:of|more|less|further|longer)\b)",
@@ -1317,12 +1319,26 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
     /// count, order or cadence, and counted, flashing or approach calls. Core counts updates, frames or steps. English
     /// stays legal: a call into another owner (a call to the queue), one call per room, one host call, an input built for
     /// one call, and calling.
+    /// <para>
+    /// #2321 closes the forms that escaped: a call picked out with up to four words before it, hyphenated or joined by a
+    /// slash (the next body AI call, the first post-hit enemy call, another beam/movement call, one Mother Brain
+    /// active-rainbow body-phase call); a same-call step; rot calls; and the call as the update's own work, on the call
+    /// or the call that shows, gave, applied, ran, runs, asks, completes, reaches or takes something, the call after
+    /// another and the call's result. English stays legal: the call alone and a call that returns to its caller.
+    /// </para>
     /// </summary>
     private static readonly Regex UpdateCallProse = new(
         @"\b(?:" + NumberWord + @"|how\s+many|many|several|few|more|fewer)\s+(?:[\w-]+\s+)?calls\b" +
-        @"|\b" + NumberWord + @"-calls?\b" +
+        @"|\b(?:" + NumberWord + @"|same)-calls?\b" +
         @"|(?<!\b(?:for|in)\s)\b(?:each|every|per|this|that|next|previous|following|same|first|last|second|third|final|one|another)\s+" +
-        @"(?:(?!the\b|host\b)[\w-]+\s+)?call\b(?!\s+to\b)(?!\s+per\s+(?!(?:update|frame)s?\b))" +
+        @"(?:(?!the\b|host\b)[\w/-]+\s+)?call\b(?!\s+to\b)(?!\s+per\s+(?!(?:update|frame)s?\b))" +
+        @"|(?<!\b(?:for|in)\s)\b(?:each|every|this|that|next|previous|following|same|first|last|second|third|final|one|another)\s+" +
+        @"(?:(?!(?:the|a|an|host|is|it|its|and|or|of|to|that|which|does|then|per|for|in|on|at|as|by)\b)[\w/-]+\s+){2,4}call\b" +
+        @"(?!\s+(?:to|into|per)\b)" +
+        @"|\brot\s+calls?\b" +
+        @"|\b(?:on|until)\s+the\s+call\b(?!\s+(?:to|into)\b)" +
+        @"|\bthe\s+call(?:'s|’s)?\s+(?:after|that|which|shows|showed|gave|gives|applied|applies|ran|runs|asks|asked|last" +
+        @"|completes|reaches|takes|result)\b" +
         @"|\bcalls?\s+(?:left|remaining|apart|later|earlier|longer|precedes?)\b|\bcall\s+(?:counts?|counters?|order|cadences?)\b" +
         @"|\b(?:counted|flashing|approach)\s+calls\b",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -1337,9 +1353,12 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
     /// written as a summary (the left edge (-24) minus two, 256 + 108 * 96 = 10624). Core states what the value means:
     /// which way a distance lies, where the camera stops, the room's wrap, the destination. English stays legal: a signed
     /// value, a sum written with spaces (n + 1 updates), a signed list of deltas (+1 for frames 0..5) and a hardware owner.
+    /// #2321 adds a counter told by the range its storage holds (the frame counter of 0 through 65535), which escaped it:
+    /// Core says which updates a cadence picks.
     /// </summary>
     private static readonly Regex MachineReadingProse = new(
-        @"\b(?:compared|compares|read|reads|treated|taken|interpreted|tested)\s+(?:as\s+)?signed\b" +
+        @"\bcounters?\s+of\s+0\s+through\s+(?:255|65535)\b" +
+        @"|\b(?:compared|compares|read|reads|treated|taken|interpreted|tested)\s+(?:as\s+)?signed\b" +
         @"|\b(?:deferred|pending|delayed)\s+(?:copy|copies|writes?)\b|\b(?:suit|shade|normal-colou?r)\s+(?:colou?rs?\s+)?(?:copy|copies)\b" +
         @"|\b(?:odd|even)\s+(?:frames?|updates?)\s+return\b|\breturns?\s+(?:early\s+)?on\s+(?:odd|even)\s+(?:frames?|updates?)\b" +
         @"|\bhard-?coded\b" +
@@ -1411,6 +1430,32 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex CallNameWord = new(@"(?:^|_|(?<=[a-z0-9])(?=[A-Z]))[Cc]alls?(?![a-z])", RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// The original's routines and storage told in boss and enemy prose (#2336), outside hardware owners and markup: an
+    /// initializer (the shared initializer, the spin-jump initializer's priority), a writer (the common writer emits his
+    /// body), an execution counter, ordinary projectile places and places scanned in ascending or descending order, a
+    /// value wrapped into the coordinate range, a branch on a value (the shot reaction branches on area index), a signed
+    /// compare, comparison or branch, and the roaring or damaged flag. Core says what the game does: the enemy's or the
+    /// pose's setup, the common enemy drawing, the update count, Samus's shots, a position off the room's edge, what a
+    /// reaction depends on, which way a distance lies, the roar ending. English stays legal: a C# object, collection,
+    /// field, property, array, static or module initializer, a branch of a projectile, and a hardware owner.
+    /// </summary>
+    private static readonly Regex RoutineNarrationProse = new(
+        @"\binitiali[sz]ers?\b(?<!\b(?:object|collection|field|property|array|static|module)\s+initiali[sz]ers?)" +
+        @"|\bwriters?\b|\bexecution[-\s]+counters?\b" +
+        @"|\bordinary\s+(?:projectile\s+|shot\s+)?places\b|\bplaces\s+in\s+(?:ascending|descending)\s+order\b" +
+        @"|\bwrapped\s+into\s+(?:the|its)\s+[\w-]+\s+range\b" +
+        @"|\bbranch(?:es|ed|ing)?\s+on\b|\bsigned[-\s]+(?:compares?|comparisons?|branch(?:es)?)\b" +
+        @"|\b(?:roaring|damaged)[-\s]+flags?\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// A camel-case word of a declared name that names the original's execution counter (#2336): ExecutionCounter at
+    /// any word boundary (<c>MainEnemyExecutionCounter</c>, <c>enemyMainExecutionCounter</c>). Core names the update
+    /// count it means.
+    /// </summary>
+    private static readonly Regex ExecutionCounterNameWord = new(@"(?:^|_|(?<=[a-z0-9])(?=[A-Z]))[Ee]xecutionCounters?(?![a-z])", RegexOptions.CultureInvariant);
 
     /// <summary>
     /// Fix history told by an adverb of error (#2192), part of the review trail and read in every Core type: incorrectly,
@@ -1680,7 +1725,8 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             return;
         foreach (SyntaxNode node in root.DescendantNodes())
         {
-            if (DeclaredName(node) is { } name && CallNameWord.IsMatch(name.ValueText) && !IsInHardwareOwner(node))
+            if (DeclaredName(node) is { } name &&
+                (CallNameWord.IsMatch(name.ValueText) || ExecutionCounterNameWord.IsMatch(name.ValueText)) && !IsInHardwareOwner(node))
                 context.ReportDiagnostic(Diagnostic.Create(Rule, name.GetLocation(), name.ValueText));
         }
     }
@@ -1884,6 +1930,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : MachineReadingProse.Match(Markup.Replace(text, " ")) is { Success: true } machineReading ? machineReading.Value
             : RetailCursorProse.Match(Markup.Replace(text, " ")) is { Success: true } retailCursor ? retailCursor.Value
             : PoseDataNarrationProse.Match(Markup.Replace(text, " ")) is { Success: true } poseData ? poseData.Value
+            : RoutineNarrationProse.Match(Markup.Replace(text, " ")) is { Success: true } routineNarration ? routineNarration.Value
             : ArithmeticAndStorageSummaryProse.Match(Markup.Replace(text, " ")) is { Success: true } summary ? summary.Value
             : TileCharacterFinding(text, owner) is { } character ? character
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)

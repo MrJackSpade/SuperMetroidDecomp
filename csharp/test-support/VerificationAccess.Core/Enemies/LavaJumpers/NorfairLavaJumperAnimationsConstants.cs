@@ -10,6 +10,6 @@ internal static class NorfairLavaJumperAnimationsConstants
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params NorfairLavaJumperSegment[] programs) =>
         programs.SelectMany(program => NorfairLavaJumperAnimations.Segments.Beats(program))
-            .OfType<AnimationBeat<EnemyFrameId, NorfairLavaJumperCue>.Frame>()
-            .Select(frame => NorfairLavaJumperFrameToolingDefinitions.Spritemap(frame.Shown));
+            .Select(beat => beat.ShownFrame).OfType<EnemyFrameId>()
+            .Select(frame => NorfairLavaJumperFrameToolingDefinitions.Spritemap(frame));
 }

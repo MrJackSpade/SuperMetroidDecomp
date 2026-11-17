@@ -216,11 +216,11 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
         ], 3),
         new(nameof(RoomEnemyPopulationDefinitions.MamaTurtle),
         [
-            new(EnemyDefinitionId.MamaTurtle, new(472, 973), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new TurtleSpawnSettings(Speed: 0)),
-            new(EnemyDefinitionId.BabyTurtle, new(432, 973), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new TurtleSpawnSettings(Speed: -1)),
-            new(EnemyDefinitionId.BabyTurtle, new(472, 973), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new TurtleSpawnSettings(Speed: -1)),
-            new(EnemyDefinitionId.BabyTurtle, new(488, 973), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new TurtleSpawnSettings(Speed: 1)),
-            new(EnemyDefinitionId.BabyTurtle, new(536, 973), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new TurtleSpawnSettings(Speed: 1)),
+            new(EnemyDefinitionId.MamaTurtle, new(472, 973), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
+            new(EnemyDefinitionId.BabyTurtle, new(432, 973), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new BabyTurtleSpawnSettings(Heading: HorizontalDirection.Left)),
+            new(EnemyDefinitionId.BabyTurtle, new(472, 973), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new BabyTurtleSpawnSettings(Heading: HorizontalDirection.Left)),
+            new(EnemyDefinitionId.BabyTurtle, new(488, 973), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new BabyTurtleSpawnSettings(Heading: HorizontalDirection.Right)),
+            new(EnemyDefinitionId.BabyTurtle, new(536, 973), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new BabyTurtleSpawnSettings(Heading: HorizontalDirection.Right)),
         ], 1),
         new(nameof(RoomEnemyPopulationDefinitions.CrabTunnel),
         [

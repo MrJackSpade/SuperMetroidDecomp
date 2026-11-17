@@ -6,20 +6,20 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 internal enum MotherBrainFakeDeathDraw
 {
-    /// <summary>Fill wall.</summary>
+    /// <summary>A column of three solid blocks that fills a gap in the wall.</summary>
     FillWall,
-    /// <summary>Escape door.</summary>
+    /// <summary>The opened escape door.</summary>
     EscapeDoor,
-    /// <summary>Clear ceiling block.</summary>
+    /// <summary>A ceiling block cleared away.</summary>
     ClearCeilingBlock,
-    /// <summary>Clear ceiling tube.</summary>
+    /// <summary>A ceiling tube cleared away.</summary>
     ClearCeilingTube,
-    /// <summary>Clear bottom middle side tube.</summary>
+    /// <summary>A lower middle side tube cleared away.</summary>
     ClearBottomMiddleSideTube,
-    /// <summary>Clear bottom middle tubes.</summary>
+    /// <summary>The lower middle tubes cleared away.</summary>
     ClearBottomMiddleTubes,
-    /// <summary>Clear bottom left tube.</summary>
+    /// <summary>The lower left tube cleared away.</summary>
     ClearBottomLeftTube,
-    /// <summary>Clear bottom right tube.</summary>
+    /// <summary>The lower right tube cleared away.</summary>
     ClearBottomRightTube,
 }

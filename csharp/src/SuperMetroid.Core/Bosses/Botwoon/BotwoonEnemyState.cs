@@ -117,7 +117,7 @@ public sealed class BotwoonEnemyState
     /// <summary>Ring index saved at a head hole crossing so delayed body samples toggle at the same position; null means no crossing remains pending.</summary>
     public int? SavedHoleRingIndex { get; internal set; }
 
-    /// <summary>Starts Botwoon's state with his <paramref name="body"/>, which his initializer spawns.</summary>
+    /// <summary>Starts Botwoon's state with his <paramref name="body"/>, which his setup spawns.</summary>
     /// <param name="body">
     /// His body segments from the tail to the segment behind the head (#2178): all
     /// <see cref="BotwoonFightDefinitions.BodySegments"/> of them, or none for a Botwoon already defeated, who spawns no body.

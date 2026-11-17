@@ -24,7 +24,10 @@ internal static class MetroidAnimationsVerification
                     var instruction = Instructions[word];
                     AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
                     AssertEqual(0, operands.Length, $"{at}: operands");
-                }));
+                }),
+            // The chasing list writes its pulse out four times (#2337), which the typed animation plays as four plays of
+            // one pulse before the cry; the cry only follows them.
+            onlyRunOnInto: new HashSet<MetroidSegment> { MetroidSegment.ChasingCry });
         Console.WriteLine($"  Metroid animations: {Entries.Length} segments ({beats} beats) and {MetroidAnimations.StartingAt.Count} animations match bank $A3.");
     }
 }

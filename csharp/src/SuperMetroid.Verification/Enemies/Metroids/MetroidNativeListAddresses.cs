@@ -17,6 +17,7 @@ internal static class MetroidNativeListAddresses
     internal static readonly NativeProgramEntry<MetroidSegment>[] Entries =
     [
         new NativeProgramEntry<MetroidSegment>(MetroidSegment.ChasingSamus, 0xe9cf),
+        new NativeProgramEntry<MetroidSegment>(MetroidSegment.ChasingCry, 0xea1f),
         new NativeProgramEntry<MetroidSegment>(MetroidSegment.DrainingSamus, 0xea25),
     ];
 

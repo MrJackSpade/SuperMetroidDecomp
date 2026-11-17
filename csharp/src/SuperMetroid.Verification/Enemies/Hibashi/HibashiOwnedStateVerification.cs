@@ -29,7 +29,7 @@ internal static class HibashiOwnedStateVerification
         HibashiEnemyState graphicsState = enemies.HibashiStates[0] ?? throw new InvalidOperationException("The graphics part has no state.");
         AssertTrue(enemies.HibashiCollisionPartStates[0] is null && enemies.HibashiCollisionPartStates[1] is not null && enemies.HibashiStates[1] is null,
             "parameter two selects the collision part, which keeps only its animation");
-        AssertEqual(ushort.MaxValue, graphicsState.InactiveTimerReset, "the reset keeps parameter one's full word");
+        AssertEqual(ushort.MaxValue + EnemyWaitDefinitions.RunOutUpdate, graphicsState.InactiveTimerReset, "the wait keeps parameter one's full word and the update it runs out on");
         AssertEqual(0x0120, graphicsState.SpawnY, "the graphics part keeps its spawn height");
         AssertEqual(HibashiAction.Inactive, graphicsState.Action, "the graphics part starts inactive");
         Console.WriteLine("Hibashi owned state: both parts' parameters and the spawn height match.");

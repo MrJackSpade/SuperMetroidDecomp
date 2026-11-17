@@ -35,10 +35,11 @@ internal static class HibashiDefinitionsVerification
         hitbox.Position = hitbox.Position.WithWholeY(graphics.Position.Y.Whole);
         initialize(hitbox);
 
-        AssertEqual(22, HibashiDefinitions.EruptionSteps.Length, "Hibashi eruption steps");
-        for (int frameIndex = 0; frameIndex < HibashiDefinitions.EruptionSteps.Length; frameIndex++)
+        HibashiEruptionStep[] steps = HibashiAnimationsTooling.EruptionSteps();
+        AssertEqual(22, steps.Length, "Hibashi eruption steps");
+        for (int frameIndex = 0; frameIndex < steps.Length; frameIndex++)
         {
-            HibashiEruptionStep frame = HibashiDefinitions.EruptionSteps[frameIndex];
+            HibashiEruptionStep frame = steps[frameIndex];
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((yOffsetTable + frameIndex * 2)), frame.YOffset,
                 $"Hibashi Y offset {frameIndex}");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((yRadiusTable + frameIndex * 2)), frame.YRadius,

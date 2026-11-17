@@ -52,11 +52,11 @@ internal static class TorizoStateQuantitiesVerification
         AssertEqual(new TorizoPosture(HorizontalDirection.Right, LeadingFoot: HorizontalDirection.Left).TurningAround,
             state.Posture, "the turning cue sets the turn alone");
 
-        state.Behavior = TorizoBehaviorFlags.Stunned | TorizoBehaviorFlags.FaceBlownUp;
+        state.Stunned = true;
         Apply(TorizoCueKind.UnmarkStunned);
-        AssertEqual(TorizoBehaviorFlags.FaceBlownUp, state.Behavior, "clearing the stun keeps the other latches");
+        AssertTrue(!state.Stunned, "the unmark cue clears the stun");
         Apply(TorizoCueKind.MarkFaceBlownUp);
-        AssertEqual(TorizoBehaviorFlags.FaceBlownUp, state.Behavior, "setting a held latch leaves the word unchanged");
+        AssertTrue(state.FaceBlownUp, "the mark cue blows up the face");
 
         Console.WriteLine("Torizo state quantities: decision count, space-jump count wrap, animation lock, posture and behaviour latches pass.");
     }

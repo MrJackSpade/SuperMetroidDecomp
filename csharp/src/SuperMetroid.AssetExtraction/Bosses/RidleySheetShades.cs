@@ -94,11 +94,10 @@ internal static class RidleySheetShades
     {
         Ensure.NotNull(ceres);
         var shades = new List<SheetShade>();
-        for (int step = 0; step < CeresRidleyColorFormat.AlarmStepCount; step++)
+        foreach (RidleyFadeImage alarm in RidleyFadeDefinitions.SelfDestructAlarm.Images)
         {
-            int shown = step;
-            shades.Add(SheetShade.Run(RidleyShades.Alarm(shown), TilesFifth + 1,
-                Colours(CeresRidleyColorFormat.AlarmColorCount, colour => ceres.ResolveAlarm(shown, colour))));
+            shades.Add(SheetShade.Run(RidleyShades.Fade(alarm), TilesFifth + 1,
+                Colours(CeresRidleyColorFormat.AlarmColorCount, colour => ceres.ResolveAlarm(alarm.Step, colour))));
         }
         return shades;
     }
@@ -115,17 +114,15 @@ internal static class RidleySheetShades
             SheetShade.Run(RidleyShades.CeresStart, StartFirstInk, Colours(CeresRidleyColorFormat.StartColorCount, ceres.ResolveStart)),
             SheetShade.Run(RidleyShades.CeresHidden, OwnRow + 1, new RgbColor[Group - 1]),
         };
-        for (int shade = 0; shade < CeresRidleyColorFormat.EyeFadeShadeCount; shade++)
+        foreach (RidleyFadeImage eyes in RidleyFadeDefinitions.EyeFade.Images)
         {
-            int shown = shade;
-            shades.Add(SheetShade.Run(RidleyShades.EyeFade(shown), OwnRow + EyeFirstColour,
-                Colours(CeresRidleyColorFormat.EyeFadeColorCount, colour => ceres.ResolveEyeFade(shown, colour))));
+            shades.Add(SheetShade.Run(RidleyShades.Fade(eyes), OwnRow + EyeFirstColour,
+                Colours(CeresRidleyColorFormat.EyeFadeColorCount, colour => ceres.ResolveEyeFade(eyes.Step, colour))));
         }
-        for (int shade = 0; shade < RidleyShadeDefinitions.BodyFadeShadeCount; shade++)
+        foreach (RidleyFadeImage image in RidleyFadeDefinitions.BodyFade.Images)
         {
-            int shown = shade;
-            RgbColor[] body = Colours(CeresRidleyColorFormat.BodyFadeColorCount, colour => ceres.ResolveBodyFade(shown, colour));
-            shades.Add(new SheetShade(RidleyShades.BodyFade(shown),
+            RgbColor[] body = Colours(CeresRidleyColorFormat.BodyFadeColorCount, colour => ceres.ResolveBodyFade(image.Step, colour));
+            shades.Add(new SheetShade(RidleyShades.Fade(image),
                 [.. Enumerable.Range(ShadowRow + 1, body.Length), .. Enumerable.Range(OwnRow + 1, body.Length)], [.. body, .. body]));
         }
         for (int row = 0; row < CeresRidleyColorFormat.HealthBandCount; row++)
@@ -158,11 +155,10 @@ internal static class RidleySheetShades
             SheetShade.Run(RidleyShades.RetreatRoom, TilesFourth + 1, Colours(CeresRidleyColorFormat.RetreatBgColorCount, ceres.ResolveRetreatBg)),
             SheetShade.Run(RidleyShades.RetreatShared, TilesFirst + 1, Colours(CeresRidleyColorFormat.RetreatSharedColorCount, ceres.ResolveRetreatShared)),
         };
-        for (int step = 0; step < CeresRidleyShadeDefinitions.GetawayZoomStepCount; step++)
+        foreach (RidleyFadeImage zoom in RidleyFadeDefinitions.GetawayFloorZoom.Images)
         {
-            int shown = step;
-            shades.Add(SheetShade.Run(RidleyShades.FloorZoom(shown), TilesFourth + 1,
-                Colours(CeresRidleyColorFormat.GetawayZoomColorCount, colour => floor.Resolve(shown, colour))));
+            shades.Add(SheetShade.Run(RidleyShades.Fade(zoom), TilesFourth + 1,
+                Colours(CeresRidleyColorFormat.GetawayZoomColorCount, colour => floor.Resolve(zoom.Step, colour))));
         }
         return shades;
     }
@@ -172,11 +168,10 @@ internal static class RidleySheetShades
     {
         Ensure.NotNull(norfair);
         var shades = new List<SheetShade> { SheetShade.Run(RidleyShades.NorfairHidden, OwnRow + 1, new RgbColor[Group - 1]) };
-        for (int step = 0; step < NorfairRidleyRevealDefinitions.RevealStepCount; step++)
+        foreach (RidleyFadeImage reveal in RidleyFadeDefinitions.ArenaReveal.Images)
         {
-            int shown = step;
-            shades.Add(SheetShade.Run(RidleyShades.NorfairReveal(shown), OwnRow + 1,
-                Colours(NorfairRidleyColorFormat.RevealColorCount, colour => norfair.ResolveReveal(shown, colour))));
+            shades.Add(SheetShade.Run(RidleyShades.Fade(reveal), OwnRow + 1,
+                Colours(NorfairRidleyColorFormat.RevealColorCount, colour => norfair.ResolveReveal(reveal.Step, colour))));
         }
         return shades;
     }

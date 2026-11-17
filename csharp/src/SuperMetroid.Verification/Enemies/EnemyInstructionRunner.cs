@@ -82,6 +82,38 @@ internal static class EnemyInstructionRunner
         where TEvent : notnull =>
         segments.Beats(segment).OfType<AnimationBeat<TFrame, TEvent>.Frame>().Sum(frame => frame.Duration) + 1;
 
+    /// <summary>
+    /// The frames a looping animation shows (#2337): one pass over its phases, each played as many times as it plays, then
+    /// the first frame of the next pass.
+    /// </summary>
+    internal static string ExpectedAnimationLoop<TSegment, TFrame, TEvent>(AnimationSegments<TSegment, TFrame, TEvent> segments,
+        Animation<TSegment> animation, Func<TFrame, ushort> spritemap)
+        where TSegment : struct, Enum
+        where TFrame : struct
+        where TEvent : notnull
+    {
+        AnimationBeat<TFrame, TEvent>.Frame[] frames = PassFrames(segments, animation);
+        return ExpectedFrames([.. frames.Select(frame => spritemap(frame.Shown)), spritemap(frames[0].Shown)],
+            [.. frames.Select(frame => frame.Duration), frames[0].Duration]);
+    }
+
+    /// <summary>The update count <see cref="ExpectedAnimationLoop"/> covers: one pass plus the first update of the next.</summary>
+    internal static int AnimationLoopUpdates<TSegment, TFrame, TEvent>(AnimationSegments<TSegment, TFrame, TEvent> segments, Animation<TSegment> animation)
+        where TSegment : struct, Enum
+        where TFrame : struct
+        where TEvent : notnull =>
+        PassFrames(segments, animation).Sum(frame => frame.Duration) + 1;
+
+    /// <summary>The timed frames one pass of <paramref name="animation"/> shows, in order, each phase as many times as it plays.</summary>
+    private static AnimationBeat<TFrame, TEvent>.Frame[] PassFrames<TSegment, TFrame, TEvent>(AnimationSegments<TSegment, TFrame, TEvent> segments,
+        Animation<TSegment> animation)
+        where TSegment : struct, Enum
+        where TFrame : struct
+        where TEvent : notnull =>
+        [.. animation.Phases.SelectMany(phase => Enumerable.Repeat(segments.Beats(phase.Segment).Skip(phase.FirstBeat).Take(phase.BeatCount), phase.Plays)
+            .SelectMany(beats => beats))
+            .OfType<AnimationBeat<TFrame, TEvent>.Frame>()];
+
     /// <summary>Accepts a nullable fixture reference at an argument index and reports mismatched runtime types.</summary>
     private static T? Optional<T>(object?[] arguments, int index) where T : class => arguments[index] switch
     {

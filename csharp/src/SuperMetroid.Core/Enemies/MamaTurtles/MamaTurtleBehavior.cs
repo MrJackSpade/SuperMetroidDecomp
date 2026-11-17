@@ -87,7 +87,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             case BabyTurtleCueKind.LoopOrTurnAround:
                 return SelectBabyTurtleCrawlLoop(place, place.RequireSpeciesState<BabyTurtleEnemyState>());
             case BabyTurtleCueKind.LeaveShell:
-                return SelectBabyTurtleLeaveShell(place, place.RequireSpeciesState<BabyTurtleEnemyState>(), samus);
+                return SelectBabyTurtleLeaveShell(place, samus);
             case BabyTurtleCueKind.LeftShell:
                 return FinishBabyTurtleLeavingShell(place, place.RequireSpeciesState<BabyTurtleEnemyState>(), samus);
             case BabyTurtleCueKind.SetSpinningStoppable:
@@ -129,13 +129,12 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new BabyTurtleEnemyState(BabyTurtleAction.CrawlingNotCarryingSamus)
         {
             SpawnTopCenter = new Position16<RoomPixels>(place.Position.X.Whole, place.Position.Y.Whole - place.Radius.Y),
-            Velocity = new Offset16<RoomPixels>(place.SpawnSettings<TurtleSpawnSettings>().Speed, 0),
+            Heading = place.SpawnSettings<BabyTurtleSpawnSettings>().Heading,
+            HorizontalSpeed = MamaTurtleMotionDefinitions.BabyCrawlSpeed,
         };
         place.SetSpeciesState(state);
 
-        state.Playback = EnemyAnimationPlayback.Start(place, BabyTurtleAnimations.StartingWith(place.SpawnSettings<TurtleSpawnSettings>().Speed < 0
-            ? BabyTurtleSegment.CrawlingLeft
-            : BabyTurtleSegment.CrawlingRight));
+        state.Playback = EnemyAnimationPlayback.Start(place, BabyTurtleAnimations.StartingWith(BabyCrawl(state.Heading)));
     }
 
     /// <summary>Runs the Mama Turtle's main behaviour and its actions.</summary>
@@ -476,7 +475,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
                     StartTurtleAnimation(
                         baby,
                         state,
-                        state.Velocity.X < 0
+                        state.Heading == HorizontalDirection.Left
                             ? BabyTurtleSegment.HidingLeft
                             : BabyTurtleSegment.HidingRight);
                 }
@@ -503,9 +502,10 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
                         baby,
                         state,
                         BabyTurtleSegment.Spinning);
-                    bool facingRight = SamusPoseMetadata.ReadFacingDirection(samus) == SamusFacingDirection.Right;
-                    Offset16<RoomPixels> spin = MamaTurtleMotionDefinitions.BabySpinVelocity;
-                    state.Velocity = new Offset16<RoomPixels>(facingRight ? spin.X : -spin.X, spin.Y);
+                    // The baby spins off the way Samus faces (#2338).
+                    state.Heading = SamusPoseMetadata.ReadFacingDirection(samus) == SamusFacingDirection.Right ? HorizontalDirection.Right : HorizontalDirection.Left;
+                    state.HorizontalSpeed = MamaTurtleMotionDefinitions.BabySpinVelocity.X;
+                    state.SpinFallSpeed = MamaTurtleMotionDefinitions.BabySpinVelocity.Y;
                     return;
                 }
                 if (--state.ActionTimer == 0)
@@ -549,7 +549,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level, baby, SignedSixteenSixteen.FromWholePixels(state.Velocity.X)))
         {
-            state.Velocity = state.Velocity.WithX(-state.Velocity.X);
+            state.Heading = state.Heading.Reversed();
             return;
         }
         _terrain.MoveEnemyVertically(level, baby, SignedSixteenSixteen.FromWholePixels(state.Velocity.Y));
@@ -600,11 +600,11 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         int distance = Math.Abs(signedDifference);
         if (distance >= MamaTurtleMotionDefinitions.BabyTravelDistance)
         {
-            state.Velocity = state.Velocity.WithX(signedDifference < 0 ? -1 : 1);
+            // At the end of its crawl the baby crawls back toward where it spawned, at its crawling speed.
+            state.Heading = signedDifference < 0 ? HorizontalDirection.Left : HorizontalDirection.Right;
+            state.HorizontalSpeed = MamaTurtleMotionDefinitions.BabyCrawlSpeed;
         }
-        return state.Velocity.X < 0
-            ? BabyTurtleSegment.CrawlingLeft
-            : BabyTurtleSegment.CrawlingRight;
+        return BabyCrawl(state.Heading);
     }
 
     /// <summary>Animation cue: begin Mama's shell-entry behavior.</summary>
@@ -623,18 +623,12 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         state.ActionTimer = MamaTurtleMotionDefinitions.RiseToHoverDuration;
     }
 
-    /// <summary>Animation cue: branch out of hiding only while ridden; otherwise the hiding animation runs on.</summary>
-    private static BabyTurtleSegment? SelectBabyTurtleLeaveShell(
-        RoomEnemyPlace baby,
-        BabyTurtleEnemyState state,
-        SamusState samus)
-    {
-        if (!EnemyCollision.IsSamusStandingOn(baby, samus))
-            return null;
-        return state.Velocity.X < 0
-            ? BabyTurtleSegment.LeaveShellLeft
-            : BabyTurtleSegment.LeaveShellRight;
-    }
+    /// <summary>
+    /// Animation cue: branch out of hiding only while ridden, whichever way the baby crawls (#2337); otherwise the hiding
+    /// animation runs on.
+    /// </summary>
+    private static BabyTurtleSegment? SelectBabyTurtleLeaveShell(RoomEnemyPlace baby, SamusState samus) =>
+        EnemyCollision.IsSamusStandingOn(baby, samus) ? BabyTurtleSegment.LeaveShell : null;
 
     /// <summary>Animation cue: restore crawling after leaving the shell.</summary>
     private static BabyTurtleSegment FinishBabyTurtleLeavingShell(
@@ -645,9 +639,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Action = EnemyCollision.IsSamusStandingOn(baby, samus)
             ? BabyTurtleAction.CrawlingCarryingSamus
             : BabyTurtleAction.CrawlingNotCarryingSamus;
-        return state.Velocity.X < 0
-            ? BabyTurtleSegment.CrawlingLeft
-            : BabyTurtleSegment.CrawlingRight;
+        return BabyCrawl(state.Heading);
     }
 
     /// <summary>Runs Mama's custom ordinary-touch reaction.</summary>
@@ -674,22 +666,10 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.Action == BabyTurtleAction.CrawlingCarryingSamus)
             return;
 
-        if (state.Velocity.X < 0)
-        {
-            StartTurtleAnimation(
-                baby,
-                state,
-                BabyTurtleSegment.CrawlingRight);
-            state.Velocity = state.Velocity.WithX(1);
-        }
-        else
-        {
-            StartTurtleAnimation(
-                baby,
-                state,
-                BabyTurtleSegment.CrawlingLeft);
-            state.Velocity = state.Velocity.WithX(-1);
-        }
+        // Samus's touch turns the baby around, crawling (#2338).
+        state.Heading = state.Heading.Reversed();
+        state.HorizontalSpeed = MamaTurtleMotionDefinitions.BabyCrawlSpeed;
+        StartTurtleAnimation(baby, state, BabyCrawl(state.Heading));
 
         baby.Position = baby.Position.WithWholeX(CoordinateAxis.Difference(baby.Position.X.Whole, samus.Position.X.Whole) >= 0
             ? samus.Position.X.Whole + samus.Kinematics.Radius.X + baby.Radius.X
@@ -740,16 +720,15 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <exception cref="InvalidOperationException">No Mama Turtle found <paramref name="baby"/> as she was placed.</exception>
     private RoomEnemyPlace MamaOf(RoomEnemyPlace baby) => _mamaOfBaby.Of(baby);
 
-    /// <summary>Selects the left or right crawl animation from the child's signed X velocity.</summary>
+    /// <summary>Starts the crawl animation of the way the child heads.</summary>
     private static void StartBabyTurtleCrawlingAnimation(
         RoomEnemyPlace baby,
         BabyTurtleEnemyState state) =>
-        StartTurtleAnimation(
-            baby,
-            state,
-            state.Velocity.X < 0
-                ? BabyTurtleSegment.CrawlingLeft
-                : BabyTurtleSegment.CrawlingRight);
+        StartTurtleAnimation(baby, state, BabyCrawl(state.Heading));
+
+    /// <summary>The baby's crawl heading <paramref name="heading"/>.</summary>
+    private static BabyTurtleSegment BabyCrawl(HorizontalDirection heading) =>
+        heading == HorizontalDirection.Left ? BabyTurtleSegment.CrawlingLeft : BabyTurtleSegment.CrawlingRight;
 
     /// <summary>Starts a Mama Turtle animation with its frame timer set to one.</summary>
     private static void StartTurtleAnimation(RoomEnemyPlace place, MamaTurtleEnemyState state, MamaTurtleSegment segment)

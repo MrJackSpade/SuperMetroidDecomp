@@ -125,8 +125,8 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         MorphBallEyeEnemyState state,
         SamusState samus)
     {
-        // The opening ends on the update its countdown runs out, including a countdown already at none.
-        if (--state.ActionTimer > 0)
+        // The opening lasts its whole duration: the update that takes the timer to zero opens the eye (#2340).
+        if (--state.ActionTimer != 0)
             return;
 
         _audio.QueueEnemySound(EnemySoundEffectDefinitions.EyeActivationSound, priority: SoundRequestPriority.Normal);
@@ -166,10 +166,10 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         eye.AnimationClock.StepOnNextUpdate();
     }
 
-    /// <summary>Returns to waiting when the closing countdown reaches zero or goes below it.</summary>
+    /// <summary>Returns to waiting on the update the closing's duration runs out (#2340).</summary>
     private static void AdvanceMorphBallEyeDeactivation(MorphBallEyeEnemyState state)
     {
-        if (--state.ActionTimer <= 0)
+        if (--state.ActionTimer == 0)
             state.Action = MorphBallEyeAction.WaitForSamus;
     }
 

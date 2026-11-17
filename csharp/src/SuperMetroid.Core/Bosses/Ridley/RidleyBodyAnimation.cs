@@ -62,15 +62,14 @@ internal sealed class RidleyBodyAnimation
                 flight.Roaring = true;
                 _audio.QueueEnemySound(RidleySoundDefinitions.Roar, priority: SoundRequestPriority.Normal);
                 return null;
-            case RidleyBodyCue.Signal { Kind: RidleyBodyCueKind.ClearRoaringFlag }:
+            case RidleyBodyCue.Signal { Kind: RidleyBodyCueKind.StopRoaring }:
                 flight.Roaring = false;
                 return null;
             case RidleyBodyCue.SetClawHeight setClawHeight:
                 flight.ClawHeight = setClawHeight.Height;
                 return null;
             case RidleyBodyCue.Move move:
-                place.Position = place.Position.WithWrappedWholeX(place.Position.X.Whole + move.Displacement.X);
-                place.Position = place.Position.WithWrappedWholeY(place.Position.Y.Whole + move.Displacement.Y);
+                place.Position += move.Displacement;
                 return null;
             case RidleyBodyCue.Signal { Kind: RidleyBodyCueKind.FaceForward }:
                 flight.FacingDirection = RidleyFacing.Turning;

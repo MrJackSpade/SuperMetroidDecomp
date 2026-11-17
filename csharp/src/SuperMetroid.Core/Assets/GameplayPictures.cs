@@ -13,7 +13,7 @@ public enum GameplayPictures
     Room,
 
     /// <summary>
-    /// The pictures written over the room's layers (#1544): an escape's warning and typed text, each in its writer's own
+    /// The pictures written over the room's layers (#1544): an escape's warning and typed text, each in its own
     /// colours, which no colour effect of the room recolours.
     /// </summary>
     WrittenOverRoom,

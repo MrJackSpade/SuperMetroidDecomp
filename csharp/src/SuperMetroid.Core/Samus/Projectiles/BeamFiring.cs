@@ -160,7 +160,7 @@ internal sealed class BeamFiring
             }
             else if (_combos.TryActivateCombo(samus, sharedProjectiles, out SoundEffectId? comboSound))
             {
-                // The game tries the special beam attack only on the call after charge reaches 120.
+                // The game tries the special beam attack only on the update after charge reaches 120.
                 // Successful activation clears flare animation and restores the suit;
                 // failed family selection leaves charge intact, including its ammo debit.
                 _charge.ClearCount();
@@ -454,7 +454,7 @@ internal sealed class BeamFiring
         if (isSuperMissile)
             projectile.SuperMissileLinkPlace = UnlinkedSuperMissileLink.Place;
 
-        // The producer first calls the generic velocity initializer with base speed zero.
+        // The producer first calls the generic velocity setup with base speed zero.
         // Ignition replaces that zero with one pixel per update during this same frame's input phase;
         // keeping both calls makes the one-frame ignition transition directly inspectable.
         InitializeDirectionalVelocity(samus.ProjectileInheritance, projectile, baseSpeed: SignedEightEight.Zero);

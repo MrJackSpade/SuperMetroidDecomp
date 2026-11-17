@@ -7,8 +7,6 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 /// </summary>
 internal static class DeathExplosionScatterDefinitions
 {
-    /// <summary>The ten authored offsets in the shared Ridley and Baby Metroid scatter list.</summary>
-    internal const int Count = 10;
 
     /// <summary>Authored-order signed pixel offsets from each explosion center.</summary>
     internal static readonly Offset16<RoomPixels>[] Offsets =

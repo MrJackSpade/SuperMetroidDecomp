@@ -91,7 +91,7 @@ public sealed class KraidEnemyState
     /// continuation removes one, and the last removal clears the mouth with the count (#1627).
     /// </summary>
     public int PendingMouthReopens { get; internal set; }
-    /// <summary>Health captured by the living initializer before combat can change it.</summary>
+    /// <summary>Health captured by the living setup before combat can change it.</summary>
     public int InitialHealth { get; internal set; }
     /// <summary><paramref name="eighths"/> eighths of the health Kraid initialized with, one eighth truncated first (#1890).</summary>
     /// <param name="eighths">How many eighths, one through eight.</param>

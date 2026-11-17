@@ -21,7 +21,7 @@ internal static class TorizoProjectileAnimations
         [P.LowHealthExplosion] =
         [
             Cue(new TorizoProjectileCue.Signal(K.StopMoving)),
-            Cue(new TorizoProjectileCue.SetProperties(Properties: EnemyProjectilePropertyFlags.HarmlessToSamus, Depth: EnemyProjectileDepth.InFrontOfSamus)),
+            Cue(new TorizoProjectileCue.Signal(K.StopHarmingSamusAndDrawInFront)),
         ],
         [P.LowHealthExplosionBurst] =
         [
@@ -37,7 +37,7 @@ internal static class TorizoProjectileAnimations
         [P.DeathExplosion] =
         [
             Cue(new TorizoProjectileCue.Signal(K.StopMoving)),
-            Cue(new TorizoProjectileCue.SetProperties(Properties: EnemyProjectilePropertyFlags.HarmlessToSamus, Depth: EnemyProjectileDepth.InFrontOfSamus)),
+            Cue(new TorizoProjectileCue.Signal(K.StopHarmingSamusAndDrawInFront)),
             Cue(new TorizoProjectileCue.Signal(K.MayTurnToSmoke)),
         ],
         [P.DeathExplosionBurst] =
@@ -67,9 +67,9 @@ internal static class TorizoProjectileAnimations
         [P.DroolNoDelay] =
         [
             Cue(new TorizoProjectileCue.Signal(K.StartDroolFall)),
-            Cue(new TorizoProjectileCue.SetProperties(Properties: EnemyProjectilePropertyFlags.HarmlessToSamus, Depth: EnemyProjectileDepth.InFrontOfSamus)),
+            Cue(new TorizoProjectileCue.Signal(K.StopHarmingSamusAndDrawInFront)),
             Show(EnemyProjectileFrameId.TorizoDroolDrop, 5),
-            Cue(new TorizoProjectileCue.ClearProperties(Properties: EnemyProjectilePropertyFlags.None, Depth: EnemyProjectileDepth.BehindSamus)),
+            Cue(new TorizoProjectileCue.Signal(K.DrawBehindSamus)),
         ],
         [P.DroolFalling] = [Hold(EnemyProjectileFrameId.TorizoDroolDrop)],
         [P.DroolWallImpact] =
@@ -108,7 +108,7 @@ internal static class TorizoProjectileAnimations
         [P.ChozoOrbWallImpact] =
         [
             Cue(new TorizoProjectileCue.Signal(K.StopMoving)),
-            Cue(new TorizoProjectileCue.SetProperties(Properties: EnemyProjectilePropertyFlags.PersistsOnContact, Depth: EnemyProjectileDepth.InFrontOfSamus)),
+            Cue(new TorizoProjectileCue.Signal(K.PersistOnContactAndDrawInFront)),
             Show(EnemyProjectileFrameId.TorizoChozoOrbSpark, 4),
             Show(EnemyProjectileFrameId.TorizoChozoOrbFlareBall, 4),
             Show(EnemyProjectileFrameId.TorizoChozoOrbFlareRingCored, 4),
@@ -119,8 +119,8 @@ internal static class TorizoProjectileAnimations
         [P.ChozoOrbFloorImpact] =
         [
             Cue(new TorizoProjectileCue.Signal(K.StopMoving)),
-            Cue(new TorizoProjectileCue.ClearProperties(Properties: EnemyProjectilePropertyFlags.HarmlessToSamus)),
-            Cue(new TorizoProjectileCue.SetProperties(Properties: EnemyProjectilePropertyFlags.PersistsOnContact, Depth: EnemyProjectileDepth.InFrontOfSamus)),
+            Cue(new TorizoProjectileCue.Signal(K.TurnHarmful)),
+            Cue(new TorizoProjectileCue.Signal(K.PersistOnContactAndDrawInFront)),
             Cue(new TorizoProjectileCue.PlaySound(Sound: RoomSound.ProjectileImpact, Priority: SoundRequestPriority.Normal)),
             Show(EnemyProjectileFrameId.TorizoChozoOrbFlameBurst, 4),
             Show(EnemyProjectileFrameId.TorizoChozoOrbFlameDome, 5),
@@ -133,7 +133,7 @@ internal static class TorizoProjectileAnimations
         [P.ChozoOrbShot] =
         [
             Cue(new TorizoProjectileCue.Signal(K.StopMoving)),
-            Cue(new TorizoProjectileCue.SetProperties(Properties: EnemyProjectilePropertyFlags.PersistsOnContact, Depth: EnemyProjectileDepth.InFrontOfSamus)),
+            Cue(new TorizoProjectileCue.Signal(K.PersistOnContactAndDrawInFront)),
             Show(EnemyProjectileFrameId.TorizoChozoOrbSpark, 4),
             Show(EnemyProjectileFrameId.TorizoChozoOrbFlareBall, 4),
             Show(EnemyProjectileFrameId.TorizoChozoOrbFlareRingCored, 4),
@@ -293,8 +293,8 @@ internal static class TorizoProjectileAnimations
         [
             Cue(new TorizoProjectileCue.SetRadius(Radius: new(16, 16))),
             Cue(new TorizoProjectileCue.Signal(K.StopMoving)),
-            Cue(new TorizoProjectileCue.SetProperties(Properties: EnemyProjectilePropertyFlags.PersistsOnContact, Depth: EnemyProjectileDepth.InFrontOfSamus)),
-            Cue(new TorizoProjectileCue.ClearProperties(Properties: EnemyProjectilePropertyFlags.HarmlessToSamus | EnemyProjectilePropertyFlags.BlocksShots)),
+            Cue(new TorizoProjectileCue.Signal(K.PersistOnContactAndDrawInFront)),
+            Cue(new TorizoProjectileCue.Signal(K.TurnHarmfulAndStopBlockingShots)),
             Cue(new TorizoProjectileCue.PlaySound(Sound: EnemySound.SmallExplosion, Priority: SoundRequestPriority.Normal)),
             Show(EnemyProjectileFrameId.GoldenTorizoSuperMissileFireballSmall, 5),
             Show(EnemyProjectileFrameId.GoldenTorizoSuperMissileFireballLarge, 5),
@@ -325,7 +325,7 @@ internal static class TorizoProjectileAnimations
             Cue(new TorizoProjectileCue.PlaySound(Sound: RoomSound.ProjectileImpact, Priority: SoundRequestPriority.Normal)),
             Show(EnemyProjectileFrameId.GoldenTorizoEyeBeamFlameBurst, 4),
             Show(EnemyProjectileFrameId.GoldenTorizoEyeBeamFlameDome, 5),
-            Cue(new TorizoProjectileCue.ClearProperties(Properties: EnemyProjectilePropertyFlags.HarmlessToSamus)),
+            Cue(new TorizoProjectileCue.Signal(K.TurnHarmful)),
             Show(EnemyProjectileFrameId.GoldenTorizoEyeBeamFlameColumnShort, 6),
             Show(EnemyProjectileFrameId.GoldenTorizoEyeBeamFlameColumnTall, 7),
             Show(EnemyProjectileFrameId.GoldenTorizoEyeBeamFlameBurstAboveDome, 8),
@@ -342,8 +342,8 @@ internal static class TorizoProjectileAnimations
         ],
         [P.EggHatch] =
         [
-            Cue(new TorizoProjectileCue.ClearProperties(Properties: EnemyProjectilePropertyFlags.HarmlessToSamus)),
-            Cue(new TorizoProjectileCue.SetProperties(Properties: EnemyProjectilePropertyFlags.BlocksShots)),
+            Cue(new TorizoProjectileCue.Signal(K.TurnHarmful)),
+            Cue(new TorizoProjectileCue.Signal(K.BlockShots)),
             Cue(new TorizoProjectileCue.Signal(K.Hatch)),
         ],
         [P.Deletion] = [Cue(new TorizoProjectileCue.Signal(K.Delete))],

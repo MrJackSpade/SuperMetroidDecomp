@@ -4,6 +4,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Enemies;
 
@@ -45,21 +46,28 @@ internal static class EnemyCompositionResourceChecks
             DisplayFrames = expected.ToDictionary(frame => frame.Name, frame => frame.Name, StringComparer.Ordinal),
         };
         EnemySpritemapCatalog stock = Load(document);
+        // A record that stores another family's picture again shows that frame's composition, stored at the frame's own
+        // record (#2327); the family's own frames are the records it shows that are their frames' own.
+        var own = new HashSet<ushort>();
         foreach (ushort pointer in pointers)
         {
             Require(stock.TryGetDisplay(bank, pointer, out var parts),
                 $"{family} sprite {bank:X2}:{pointer:X4} must load through the production display binding");
-            Require(parts.Length == 1 && parts[0].Offset.X == (pointer & 0x7f),
+            SnesAddress stored = EnemyFrameCartridgeLookup.Of(EnemyFrameCartridgeLookupTooling.TryFrameAt(bank, pointer)
+                ?? throw new InvalidOperationException($"{family} sprite {bank:X2}:{pointer:X4} shows no installed frame."));
+            Require(parts.Length == 1 && parts[0].Offset.X == (stored.Offset & 0x7f),
                 $"{family} sprite {pointer:X4} must retain its selected composition");
+            if (stored.Bank == bank && stored.Offset == pointer)
+                own.Add(pointer);
         }
-        Require(pointers.Count == familyFrameCount,
+        Require(own.Count == familyFrameCount,
             "the selected frame set must match the documented native family");
         int firstFamilyFrame = familyStart ?? previousFrameCount;
         Require(expected.Skip(firstFamilyFrame).Take(familyFrameCount).All(frame =>
-            frame.Bank == bank && pointers.Contains(frame.Pointer)) &&
-            expected.Skip(firstFamilyFrame).Take(familyFrameCount).Select(frame => frame.Pointer).Distinct().Count() == pointers.Count,
+            frame.Bank == bank && own.Contains(frame.Pointer)) &&
+            expected.Skip(firstFamilyFrame).Take(familyFrameCount).Select(frame => frame.Pointer).Distinct().Count() == own.Count,
             "the family's schema append must contain exactly the identified missing identities");
-        Console.WriteLine($"{family} resources: all {pointers.Count} compositions load.");
+        Console.WriteLine($"{family} resources: all {pointers.Count} compositions load, {own.Count} of them the family's own.");
     }
 
     /// <summary>Creates one distinguishable synthetic sprite part for a composition binding.</summary>

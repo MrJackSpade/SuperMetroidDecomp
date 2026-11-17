@@ -327,8 +327,8 @@ level, fallLeft, 0, unchecked((ushort)(frame + 1)), roomObjects: SamusRoomObject
                         Position = new(new(x, 0), new(36, 0)),
                         Radius = new(12, 12),
                     };
-                    BlockMoveResult ltr = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = squareRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, leftToRight, null, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(1), ScanLeftToRight = true });
-                    BlockMoveResult rtl = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = squareRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, rightToLeft, null, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(1), ScanLeftToRight = false });
+                    BlockMoveResult ltr = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = squareRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, leftToRight, null, null, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(1), ScanLeftToRight = true });
+                    BlockMoveResult rtl = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = squareRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, rightToLeft, null, null, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(1), ScanLeftToRight = false });
                     AssertEqual(ltr.Collided, rtl.Collided,
                         $"square slope {shape}/{orientation} X={x} collision scan parity");
                     AssertEqual(ltr.AcceptedDisplacement.RawValue, rtl.AcceptedDisplacement.RawValue,

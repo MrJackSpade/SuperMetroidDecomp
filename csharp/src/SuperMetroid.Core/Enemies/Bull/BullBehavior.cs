@@ -169,17 +169,19 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         return position.MovedBy(displacement);
     }
 
-    /// <summary>Runs the no-damage tail of the Bull's shot reaction.</summary>
+    /// <summary>
+    /// Runs the no-damage tail of the Bull's shot and bomb reactions: the hit kicks it away at <paramref name="kickAngle"/>.
+    /// </summary>
     internal static void ResolveBullImmuneShot(
         RoomEnemyPlace bull,
         BullEnemyState state,
-        SamusProjectileDirection projectileDirection)
+        TrigonometryAngle kickAngle)
     {
         if (state.ShotReactionDisabled)
             return;
 
         state.Playback = EnemyAnimationPlayback.Start(bull, BullAnimations.Shot);
-        state.Angle = BullMotion.ShotAngle(projectileDirection);
+        state.Angle = kickAngle;
         state.Acceleration = BullMovementDefinitions.ShotKickAcceleration;
         state.Speed = BullMovementDefinitions.ShotKickSpeed;
         state.Action = BullAction.Decelerating;
@@ -194,8 +196,8 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
             static (_, cue) => throw new InvalidOperationException($"A cue-free Bull animation raised {cue}."));
 
     /// <summary>
-    /// Applies Bull's immune-hit recoil after common bomb damage handling. Only a hit that leaves the Bull's health alone
-    /// kicks it, so a killed Bull has no reaction.
+    /// Applies Bull's immune-hit recoil after common bomb damage handling: a bomb that leaves the Bull's health alone kicks
+    /// it straight up (<see cref="BullMovementDefinitions.BombKickAngle"/>), so a killed Bull has no reaction.
     /// </summary>
     internal EnemyBombReaction BombReaction { get; } =
         new()
@@ -203,7 +205,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
             AfterCommon = c =>
             {
                 if (c.Enemy.Health == c.HealthBefore)
-                    ResolveBullImmuneShot(c.Enemy, c.Enemy.RequireSpeciesState<BullEnemyState>(), SamusBomb.Direction);
+                    ResolveBullImmuneShot(c.Enemy, c.Enemy.RequireSpeciesState<BullEnemyState>(), BullMovementDefinitions.BombKickAngle);
             },
         };
 
@@ -217,7 +219,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
             AfterCommon = c =>
             {
                 if (c.Froze || c.Enemy.Health == c.HealthBefore)
-                    ResolveBullImmuneShot(c.Enemy, c.Enemy.RequireSpeciesState<BullEnemyState>(), c.ProjectileDirection);
+                    ResolveBullImmuneShot(c.Enemy, c.Enemy.RequireSpeciesState<BullEnemyState>(), BullMotion.ShotAngle(c.ProjectileDirection));
             },
         };
 }

@@ -68,16 +68,7 @@ public sealed class SamusPowerBombExplosionState
     /// Runs one update of the explosion's active stage step.
     /// </summary>
     /// <returns>True only on the frame that cleanup completes.</returns>
-    public bool StepFrame()
-    {
-        bool crystalFlashEnding = Blast.Phase == PowerBombExplosionPhase.CrystalFlashAfterglow;
-        bool cleanedUp = Blast.StepFrame();
-        // Crystal Flash's cleanup releases the lock as well. Crystal Flash's start already released it, but assigning it
-        // again mirrors the cleanup and makes the reset atomic.
-        if (cleanedUp && crystalFlashEnding)
-            IsArmed = false;
-        return cleanedUp;
-    }
+    public bool StepFrame() => Blast.StepFrame();
 
     /// <summary>
     /// Releases the armed flag after cleanup when Crystal Flash did not take ownership.

@@ -73,14 +73,21 @@ public sealed class SamusBombProjectileSystem
 
     /// <summary>
     /// How many bombs Samus has out by the placing count, 0 through the bomb places' count (#1627); kept separately from the
-    /// free-place search. A placement counts one only below the place count, a spread or the Shitroid's drain sets the count
-    /// whole, and a bomb that ends takes one away, staying at zero when the count was already cleared.
+    /// free-place search. A placement counts one only below the place count, a spread sets the count whole, the Baby
+    /// Metroid's drain holds it whole and clears it (<see cref="DrainHoldsBombCount"/>), and a bomb that ends takes one
+    /// away, staying at zero when the count was already cleared.
     /// </summary>
     public int BombCounter
     {
         get;
         internal set => field = Ensure.BetweenInclusive(0, PlaceCount, value);
     }
+
+    /// <summary>Holds the bomb count full for one update of the Baby Metroid's drain (<see cref="DrainHoldsBombCount"/>).</summary>
+    internal void HoldCountForDrain() => BombCounter = DrainHoldsBombCount.Held;
+
+    /// <summary>Clears the bomb count as the Baby Metroid's drain lets Samus go (<see cref="DrainHoldsBombCount"/>).</summary>
+    internal void ReleaseCountAfterDrain() => BombCounter = DrainHoldsBombCount.Released;
 
     /// <summary>
     /// The updates left on the cooldown shared by every Samus projectile, zero or more: every shot, bomb and boss sets it,
@@ -102,13 +109,6 @@ public sealed class SamusBombProjectileSystem
     /// </remarks>
     /// <param name="value">The cooldown's updates, zero or more.</param>
     internal void SetSharedCooldown(int value) => CooldownTimer = value;
-
-    /// <summary>
-    /// Replaces the bomb count from an enemy-owned Samus interaction. Shitroid writes
-    /// five while it drains Samus to suppress projectile allocation, then clears the count
-    /// at the terminal one-energy transition without disturbing the shared cooldown.
-    /// </summary>
-    internal void SetSharedBombCounter(int value) => BombCounter = value;
 
     /// <summary>
     /// Creates one room's bombs, whose sounds join <paramref name="audioRequests"/> (#2057) and whose Power Bomb blasts glow
@@ -548,9 +548,9 @@ public sealed class SamusBombProjectileSystem
     /// <summary>The lowest place no bomb holds.</summary>
     /// <exception cref="InvalidOperationException">
     /// Every place holds a bomb. The placing count admits a bomb only below the place count and counts every bomb until it
-    /// ends; only the Shitroid clears it while bombs may be out, and it does so as it releases a Samus its drain has
-    /// left lying since before any bomb she placed could still be burning. A full set of places therefore means the
-    /// count fell out of step with the bombs, where the game would reuse the last place.
+    /// ends; only the drain's release clears it while bombs may be out (<see cref="DrainHoldsBombCount"/>), and none is
+    /// then. A full set of places therefore means the count fell out of step with the bombs, where the game would reuse
+    /// the last place.
     /// </exception>
     private int FindFreePlace()
     {
@@ -1074,7 +1074,7 @@ public sealed class SamusBombProjectileSystem
         if (!wasActive)
             return;
 
-        // A count the Shitroid's drain cleared while bombs were out stays at zero as they end.
+        // A count the drain's release cleared while bombs were out stays at zero as they end (DrainHoldsBombCount).
         BombCounter = Math.Max(0, BombCounter - 1);
     }
 

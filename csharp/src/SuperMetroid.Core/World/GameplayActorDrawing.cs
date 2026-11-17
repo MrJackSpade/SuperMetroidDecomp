@@ -109,14 +109,13 @@ internal sealed class GameplayActorDrawing
                 // selected special Samus colouring. Ordinary charged shots paint all of Samus's visible colours
                 // white for three updates and restore the suit on the fourth; Hyper shots
                 // step ten complete shades on alternating updates before restore.
-                SamusBeamChargeGlowStep chargeGlow = room.Projectiles.UpdateBeamChargeGlow(
-                    _player.Colours,
-                    _player.Samus,
-                    room.FxOverlay.VisorAnimation);
                 // A restored suit from the beam-charge colour step bypasses the entire special
                 // colour step on glow expiry. In particular, stored shine must not tick
                 // or overwrite the restored suit on this frame.
-                chargeGlowRestoredSuitShade = chargeGlow.Action == SamusBeamChargeGlowAction.RestoredNormalSuit;
+                chargeGlowRestoredSuitShade = room.Projectiles.UpdateBeamChargeGlow(
+                    _player.Colours,
+                    _player.Samus,
+                    room.FxOverlay.VisorAnimation);
 
                 if (!chargeGlowRestoredSuitShade)
                     _player.Samus.HorizontalSpeed.UpdateSpeedBoosterGlow(_player.Colours, new SpeedBoosterGlowFrame { MovementType = SamusPoseMetadata.ReadMovementType(_player.Samus), AnimationOnSpinStart = _player.Samus.AnimationIsOn(SamusAnimationFrames.ScrewAttackSpinStart), AnimationPastScrewAttackSpin = _player.Samus.AnimationHasReached(SamusAnimationFrames.ScrewAttackWallJumpReady), AnimationBeforeWallJumpSpin = !_player.Samus.AnimationHasReached(SamusAnimationFrames.WallJumpOrdinarySpinStart), EquippedItems = _player.Samus.EquippedItems, SuppressActiveSpeedBoosterGlow = _player.Samus.SpecialColouring.Holder != SamusSpecialColouringKind.None, BottomBoundarySubmerged = _player.Samus.LiquidPhysics.IsBottomBoundarySubmerged(_player.Samus) });

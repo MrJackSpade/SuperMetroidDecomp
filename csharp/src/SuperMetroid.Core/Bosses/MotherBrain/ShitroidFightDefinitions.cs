@@ -94,8 +94,6 @@ internal static class ShitroidFightDefinitions
     /// <summary>The shot cooldown its drain holds Samus at.</summary>
     internal const int DrainShotCooldown = 8;
 
-    /// <summary>The bomb count its drain holds Samus at.</summary>
-    internal const int DrainBombCount = 5;
 
     /// <summary>The divisor its drain holds Samus's horizontal speed to.</summary>
     internal const int DrainXSpeedDivisor = 2;

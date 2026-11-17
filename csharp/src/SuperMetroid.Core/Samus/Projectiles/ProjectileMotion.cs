@@ -175,13 +175,6 @@ internal sealed class ProjectileMotion
         }
 
         SamusProjectileDirection direction = shot.Direction;
-        SamusDirectionAccelerations accelerations = SamusProjectileAccelerations.For(direction);
-
-        // The missile's flight first applies the same small directional
-        // acceleration as beams. On the ignition frame the missile's ignition below replaces velocity,
-        // so this addition is intentionally overwritten; subsequent frames retain it.
-        Accelerate(shot, accelerations.Beam);
-
         MissileShotState missile = shot.KindStateAs<MissileShotState>();
         if (missile.Ignition != SamusMissileIgnition.Ignited)
         {
@@ -191,6 +184,9 @@ internal sealed class ProjectileMotion
         }
         else
         {
+            // An ignited missile takes a beam's small directional acceleration and then its own.
+            SamusDirectionAccelerations accelerations = SamusProjectileAccelerations.For(direction);
+            Accelerate(shot, accelerations.Beam);
             Accelerate(shot, accelerations.Missile);
         }
 

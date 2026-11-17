@@ -59,7 +59,7 @@ internal static class MotherBrainLaterContactVerification
         interactive.Add(body);
         foreach (SamusProjectileType type in new[] { SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false), SamusProjectileType.Of(SamusProjectileFamily.Missile) })
         {
-            var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
+            var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
             var shot = shots.Shots[0];
             shot.Type = type; shot.Damage = 100; shot.Direction = SamusProjectileDirection.Right;
             shot.Position = shot.Position.WithWhole(new(128, 128)); shot.Radius = new(4, 4);

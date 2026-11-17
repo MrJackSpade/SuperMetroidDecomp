@@ -629,7 +629,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         Lifecycle = new EnemyLifecycle(Room, Places, ProcessingWindow);
         PopulationLoader = new EnemyPopulationLoader(Room, RoomStatus, Places, Lifecycle);
         RidleyEncounter = new RidleyEncounter(session);
-        Earthquake = new RoomEarthquake();
+        Earthquake = Ensure.NotNull(dependencies.Earthquake);
         PuyoCeilingTurn = compatibility.PuyoCeilingTurn;
         EffectActors = new RoomEffectActors(Presentation, compatibility.EffectActorPlaces, PuyoCeilingTurn);
         Projectiles = new EnemyProjectileEngine(Room, Presentation, EffectActors, Earthquake, Audio);

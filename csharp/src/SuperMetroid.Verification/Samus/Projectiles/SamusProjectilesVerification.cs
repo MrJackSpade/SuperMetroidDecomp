@@ -94,11 +94,11 @@ internal static void VerifySamusPowerBeamProjectiles()
         new MemoryStream(ChargeFlarePlacementExtractor.Extract(bus)));
     var fixtureFrames = ProjectileFrameBindingFile.Load(
         new MemoryStream(ProjectileFrameBindingExtractor.Extract(bus)));
-    SamusProjectileSystem CreateSyntheticProjectiles()
+    SamusProjectileSystem CreateSyntheticProjectiles() => CreateSyntheticProjectilesShaking(new RoomEarthquake());
+    // A Super Missile impact starts the room's earthquake, which the room composes with its shots (#1594).
+    SamusProjectileSystem CreateSyntheticProjectilesShaking(RoomEarthquake earthquake)
     {
-        SamusProjectileSystem created = new(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), InstalledFixtures.SamusArtwork(projectileFrames: fixtureFrames));
-        // A Super Missile impact starts the room's earthquake, so the system is bound to one, as a room load binds it (#1594).
-        created.Earthquakes.BindRoomEarthquake(new RoomEarthquake());
+        SamusProjectileSystem created = new(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), InstalledFixtures.SamusArtwork(projectileFrames: fixtureFrames), earthquake);
         return created;
     }
     SamusBombProjectileSystem CreateSyntheticBombs() => new(GameplayAudioRequests.Standalone(), InstalledFixtures.Maps.PowerBombGlowColors, InstalledFixtures.SamusArtwork(projectileFrames: fixtureFrames));
@@ -247,7 +247,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     var spazerFlickerBombs = CreateSyntheticBombs();
     // The shot shows the installed Spazer compositions, which the Spazer sheet holds (#1513): the synthetic bindings give
     // the Spazer shot's first frame the power beam's composition, which the Spazer sheet does not hold (#1534).
-    var spazerFlickerProjectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: InstalledFixtures.Projectiles.FrameBindings));
+    var spazerFlickerProjectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: InstalledFixtures.Projectiles.FrameBindings), new global::SuperMetroid.Core.Fx.RoomEarthquake());
     spazerFlickerBombs.StepFrame(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, spazerFlickerSamus, 0, 0);
     spazerFlickerProjectiles.StepFrame(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, spazerFlickerSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot }, new(0, 0), spazerFlickerBombs, new SharedGameState(new SharedRandom()));
     ProjectileDrawArtwork spazerArtwork = InstalledFixtures.ProjectileArtwork();
@@ -439,16 +439,10 @@ internal static void VerifySamusPowerBeamProjectiles()
                 // The charge palette step is the palette this call installs.
                 AssertEqual(palette, chargeProjectiles.Charge.ChargeGlowStep,
                     $"{(pseudoScrew ? "pseudo-screw" : "beam-charge")} selects palette ordinal");
-                SamusBeamChargeGlowStep liveChargeStep =
-                    chargeProjectiles.UpdateBeamChargeGlow(liveChargeColours, chargeSamus);
                 // The installed colors are unique per family/suit/palette, so the CGRAM check
                 // below identifies the palette the call selected.
-                AssertEqual(
-                    pseudoScrew
-                        ? SamusBeamChargeGlowAction.PseudoScrewCycle
-                        : SamusBeamChargeGlowAction.ChargeCycle,
-                    liveChargeStep.Action,
-                    $"{(pseudoScrew ? "pseudo-screw" : "beam-charge")} suit {suit} palette {palette} branch");
+                AssertTrue(!chargeProjectiles.UpdateBeamChargeGlow(liveChargeColours, chargeSamus, global::SuperMetroid.Core.Fx.RoomVisorAnimation.Steady),
+                    $"{(pseudoScrew ? "pseudo-screw" : "beam-charge")} suit {suit} palette {palette} restores no suit");
                 for (int color = 0; color < 16; color++)
                 {
                     ushort expectedColor = unchecked((ushort)(
@@ -469,14 +463,12 @@ internal static void VerifySamusPowerBeamProjectiles()
     // pausing and resuming on the second palette.
     chargeSamus.HorizontalSpeed.BodyAttack = SamusBodyAttack.None;
     chargeSamus.EquippedItems = 0;
-    chargeProjectiles.UpdateBeamChargeGlow(liveChargeColours, chargeSamus);
+    chargeProjectiles.UpdateBeamChargeGlow(liveChargeColours, chargeSamus, global::SuperMetroid.Core.Fx.RoomVisorAnimation.Steady);
     AssertEqual(1, chargeProjectiles.Charge.ChargeGlowStep,
         "one live charge-palette call advances to the second step");
     chargeSamus.Grapple.Phase = GrapplePhase.Firing;
-    SamusBeamChargeGlowStep grappleSuppressesCharge =
-        chargeProjectiles.UpdateBeamChargeGlow(liveChargeColours, chargeSamus);
-    AssertEqual(SamusBeamChargeGlowAction.Inactive, grappleSuppressesCharge.Action,
-        "active grapple suppresses charge-body palette");
+    AssertTrue(!chargeProjectiles.UpdateBeamChargeGlow(liveChargeColours, chargeSamus, global::SuperMetroid.Core.Fx.RoomVisorAnimation.Steady),
+        "active grapple suppresses charge-body palette and restores no suit");
     AssertEqual(0, chargeProjectiles.Charge.ChargeGlowStep,
         "active grapple resets the charge-palette step");
     chargeSamus.Grapple.Phase = GrapplePhase.Inactive;
@@ -509,12 +501,11 @@ internal static void VerifySamusPowerBeamProjectiles()
     var chargedGlowColours = new SamusColours();
     for (int call = 0; call < 4; call++)
     {
-        SamusBeamChargeGlowStep paletteStep =
-            chargeProjectiles.UpdateBeamChargeGlow(chargedGlowColours, chargeSamus);
+        bool restoredSuit =
+            chargeProjectiles.UpdateBeamChargeGlow(chargedGlowColours, chargeSamus, global::SuperMetroid.Core.Fx.RoomVisorAnimation.Steady);
         if (call < 3)
         {
-            AssertEqual(SamusBeamChargeGlowAction.OrdinaryWhite, paletteStep.Action,
-                $"ordinary charged glow call {call + 1} selects white branch");
+            AssertTrue(!restoredSuit, $"ordinary charged glow call {call + 1} restores no suit");
             AssertEqual(ChargedShotGlow.Of(ChargedShotGlowKind.ChargedShotFlash, 3 - call), chargeProjectiles.Charge.ChargedShotGlow,
                 $"ordinary charged glow call {call + 1} decrements before branch");
             AssertEqual(SamusShades.ChargedShotGlow, chargedGlowColours.Suit,
@@ -527,8 +518,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         }
         else
         {
-            AssertEqual(SamusBeamChargeGlowAction.RestoredNormalSuit, paletteStep.Action,
-                "ordinary charged glow fourth call restores suit");
+            AssertTrue(restoredSuit, "ordinary charged glow fourth call restores suit");
             // Gravity's unique fixture colors prove the restore selected the Gravity palette.
             for (int color = 0; color < 16; color++)
             {
@@ -672,13 +662,12 @@ internal static void VerifySamusPowerBeamProjectiles()
     {
         PictureShade suitBefore = hyperGlowColours.Suit;
         int hyperStepsBefore = hyperProjectiles.Charge.ChargedShotGlow.RemainingSteps;
-        SamusBeamChargeGlowStep paletteStep =
-            hyperProjectiles.UpdateBeamChargeGlow(hyperGlowColours, hyperSamus);
+        bool glowRestoredSuit =
+            hyperProjectiles.UpdateBeamChargeGlow(hyperGlowColours, hyperSamus, global::SuperMetroid.Core.Fx.RoomVisorAnimation.Steady);
+        AssertEqual(call == 20, glowRestoredSuit, $"Hyper body glow call {call + 1} restores the suit only as it ends");
         if (call < 20 && (call & 1) == 0)
         {
             int palette = call / 2;
-            AssertEqual(SamusBeamChargeGlowAction.HyperShade, paletteStep.Action,
-                $"Hyper body glow call {call + 1} loads palette");
             // The glow's even steps descend from twenty, selecting palettes 0..9 in order.
             AssertEqual(20 - palette * 2, hyperStepsBefore,
                 $"Hyper body glow call {call + 1} uses descending table index");
@@ -691,15 +680,11 @@ internal static void VerifySamusPowerBeamProjectiles()
         }
         else if (call < 20)
         {
-            AssertEqual(SamusBeamChargeGlowAction.HyperHold, paletteStep.Action,
-                $"Hyper body glow call {call + 1} is odd hold");
             AssertEqual(suitBefore, hyperGlowColours.Suit,
                 $"Hyper body glow hold {call + 1} keeps the suit's shade");
         }
         else
         {
-            AssertEqual(SamusBeamChargeGlowAction.RestoredNormalSuit, paletteStep.Action,
-                "Hyper body glow call 21 restores suit");
             AssertEqual(SamusShades.Suit(SamusSuit.Power), hyperGlowColours.Suit,
                 "Hyper body glow restore shows the Power Suit");
             RgbColor[] restoredSuit = hyperGlowColours.ShownSuit(projSources);
@@ -1491,9 +1476,8 @@ internal static void VerifySamusPowerBeamProjectiles()
         SuperMissiles = 3,
     };
     var superBombs = CreateSyntheticBombs();
-    var superProjectiles = CreateSyntheticProjectiles();
     var superEarthquake = new RoomEarthquake();
-    superProjectiles.Earthquakes.BindRoomEarthquake(superEarthquake);
+    var superProjectiles = CreateSyntheticProjectilesShaking(superEarthquake);
     superBombs.StepFrame(new SamusTerrain { Level = wall, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, superSamus, 0, 0);
     SamusProjectileSlotObservation beforeSuper = superProjectiles.ObserveSlots();
     SamusProjectileFrameResult superFired = superProjectiles.StepFrame(new SamusTerrain { Level = wall, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, superSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot }, new(0, 0), superBombs, new SharedGameState(new SharedRandom()));

@@ -417,7 +417,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (samus.Health < ShitroidFightDefinitions.DrainStopHealth)
         {
             samus.SlowdownLevel = 0;
-            sharedProjectiles.SetSharedBombCounter(0);
+            sharedProjectiles.ReleaseCountAfterDrain();
             state.Action = ShitroidAction.BeginPostDrainPause;
             state.Velocity = default;
             SetShitroidAnimation(place, ShitroidSegment.FinishDraining);
@@ -430,7 +430,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         sharedProjectiles.SetSharedCooldown(ShitroidFightDefinitions.DrainShotCooldown);
-        sharedProjectiles.SetSharedBombCounter(ShitroidFightDefinitions.DrainBombCount);
+        sharedProjectiles.HoldCountForDrain();
         samus.SlowdownLevel = ShitroidFightDefinitions.DrainXSpeedDivisor;
         // A speed slowed past zero at the apex reads as below four in the clamp's comparison, so it keeps its value
         // (#1562); the Shitroid sits a pixel right while the speed reads four or more (DrainingShitroidFallShift).

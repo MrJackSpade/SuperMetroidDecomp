@@ -25,6 +25,7 @@ public static class SamusBlockCollision
         RoomLevelData level,
         SamusKinematicsState state,
         SamusState? owner,
+        SamusPoseId? pose,
         SignedSixteenSixteen signedDistance,
         ISamusRoomObjects roomObjects)
     {
@@ -34,7 +35,7 @@ public static class SamusBlockCollision
         // The probe moves as her horizontal step does, with the same square-slope and unsupported-block reactions. A
         // slope's alignment after the scan moves only the probe, but what the probe touches still reacts: a scroll
         // trigger it reaches, through an extension block too, wakes its owner during the wall-jump check.
-        BlockMoveResult result = MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, probe, owner, new HorizontalBlockMove { Displacement = signedDistance, BlockReactionDirection = SamusCollisionDirection.NonDirectionalProbe });
+        BlockMoveResult result = MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, probe, owner, pose, new HorizontalBlockMove { Displacement = signedDistance, BlockReactionDirection = SamusCollisionDirection.NonDirectionalProbe });
         // Submerging sand writes these real motion values even through wall observation.
         state.YSpeed = probe.YSpeed;
         state.YAcceleration = probe.YAcceleration;
@@ -62,8 +63,12 @@ public static class SamusBlockCollision
     /// <param name="terrain">The room terrain the move collides with and reacts to.</param>
     /// <param name="state">Live or probe kinematics whose position, subposition, and collision-related motion values are updated.</param>
     /// <param name="owner">The Samus whose collision reactions (spikes, boost blocks, bomb blocks) act, or null for an ownerless probe.</param>
+    /// <param name="pose">
+    /// The pose Samus moves in, which the elevator's pseudo-doors, the stations and the Chozo statue's hand admit by, or
+    /// null for a probe with no pose, which none of them admits.
+    /// </param>
     /// <param name="move">One horizontal block move: the displacement and which collision side effects it publishes (#633).</param>
-    internal static BlockMoveResult MoveHorizontal(SamusTerrain terrain, SamusKinematicsState state, SamusState? owner, HorizontalBlockMove move)
+    internal static BlockMoveResult MoveHorizontal(SamusTerrain terrain, SamusKinematicsState state, SamusState? owner, SamusPoseId? pose, HorizontalBlockMove move)
     {
         Ensure.NotNull(terrain.Level);
         Ensure.NotNull(state);
@@ -181,7 +186,7 @@ public static class SamusBlockCollision
                         // and clip her as an ordinary solid block does.
                         DoorBlockExit horizontalDoor = terrain.Level.ResolveDoorCollision(
                             block,
-                            state.CollisionPose.ForRoomCollision(),
+                            pose.ForRoomCollision(),
                             publishDoorSideEffects: true);
                         if (horizontalDoor.IsElevatorPseudoDoor)
                         {
@@ -274,7 +279,7 @@ public static class SamusBlockCollision
                                  terrain.Level,
                                  block.At,
                                  block.Behavior,
-                                 state.CollisionPose.ForRoomCollision(),
+                                 pose.ForRoomCollision(),
                                  Axis.Horizontal,
                                  movingPositive: acceptedDisplacement.IsPositive))
                         {
@@ -370,7 +375,12 @@ public static class SamusBlockCollision
     /// Moves Samus vertically against the blocks, scanning them left to right or right to left, then adds the final
     /// fixed-point step to her position when nothing solid stops her.
     /// </summary>
-    internal static BlockMoveResult MoveVertical(SamusTerrain terrain, SamusKinematicsState state, SamusState? owner, VerticalBlockMove move)
+    /// <param name="terrain">The room terrain the move collides with and reacts to.</param>
+    /// <param name="state">Live or probe kinematics whose position, subposition, and collision-related motion values are updated.</param>
+    /// <param name="owner">The Samus whose collision reactions act, or null for an ownerless probe.</param>
+    /// <param name="pose">The pose Samus moves in, which pose-gated block reactions admit by, or null for a probe with no pose.</param>
+    /// <param name="move">One vertical block move: the displacement and which collision side effects it publishes.</param>
+    internal static BlockMoveResult MoveVertical(SamusTerrain terrain, SamusKinematicsState state, SamusState? owner, SamusPoseId? pose, VerticalBlockMove move)
     {
         Ensure.NotNull(terrain.Level);
         Ensure.NotNull(state);
@@ -424,7 +434,7 @@ public static class SamusBlockCollision
             // Only the nonzero terrain entry clears this latch. A solid-enemy
             // stop bypasses that entry, and a zero movement does not clear it either.
             state.PositionAdjustedBySlope = false;
-            VerticalTerrainScan scan = ScanVerticalTerrain(terrain, state, owner, new VerticalTerrainProbe { Displacement = acceptedDisplacement, ScanLeftToRight = move.ScanLeftToRight, CanBreakBombBlocks = move.CanBreakBombBlocks, PublishDoorSideEffects = move.PublishDoorSideEffects, BlockReactionDirection = move.BlockReactionDirection });
+            VerticalTerrainScan scan = ScanVerticalTerrain(terrain, state, owner, pose, new VerticalTerrainProbe { Displacement = acceptedDisplacement, ScanLeftToRight = move.ScanLeftToRight, CanBreakBombBlocks = move.CanBreakBombBlocks, PublishDoorSideEffects = move.PublishDoorSideEffects, BlockReactionDirection = move.BlockReactionDirection });
             acceptedDisplacement = scan.AcceptedDisplacement;
             collided = scan.Collided;
             sandContact = scan.SandContact;
@@ -455,7 +465,7 @@ public static class SamusBlockCollision
     /// (right to left): every block under the leading boundary, each reacting by its collision type.
     /// A zero displacement scans downward from the current bottom boundary.
     /// </summary>
-    private static VerticalTerrainScan ScanVerticalTerrain(SamusTerrain terrain, SamusKinematicsState state, SamusState? owner, VerticalTerrainProbe move)
+    private static VerticalTerrainScan ScanVerticalTerrain(SamusTerrain terrain, SamusKinematicsState state, SamusState? owner, SamusPoseId? pose, VerticalTerrainProbe move)
     {
         SignedSixteenSixteen acceptedDisplacement = move.Displacement;
         bool collided = false;
@@ -539,7 +549,7 @@ public static class SamusBlockCollision
                     // door entry for the frontend game-state loop to consume.
                     DoorBlockExit verticalDoor = terrain.Level.ResolveDoorCollision(
                         block,
-                        state.CollisionPose.ForRoomCollision(),
+                        pose.ForRoomCollision(),
                         move.PublishDoorSideEffects);
                     if (verticalDoor.IsElevatorPseudoDoor)
                     {
@@ -611,8 +621,8 @@ public static class SamusBlockCollision
                     if (owner is { } chozoSamus)
                         terrain.RoomObjects.ChozoStatueHand.NotifyChozoStatueHandCollision(terrain.Level,
                             block.At, chozoSamus,
-                            state.CollisionPose ?? throw new InvalidOperationException(
-                                "The Chozo statue hand's touch needs Samus's sampled collision pose."), movingDown: acceptedDisplacement.IsPositive &&
+                            pose ?? throw new InvalidOperationException(
+                                "The Chozo statue hand's touch needs the pose Samus moves in."), movingDown: acceptedDisplacement.IsPositive &&
                                 (move.BlockReactionDirection ?? SamusCollisionDirection.Down) == SamusCollisionDirection.Down);
                     // The vertical special-solid check shares the speed-block setup
                     // with horizontal collision. Accepted boost contact becomes air
@@ -649,7 +659,7 @@ public static class SamusBlockCollision
                              terrain.Level,
                              block.At,
                              block.Behavior,
-                             state.CollisionPose.ForRoomCollision(),
+                             pose.ForRoomCollision(),
                              Axis.Vertical,
                              movingPositive: acceptedDisplacement.IsPositive))
                     {
@@ -715,6 +725,10 @@ public static class SamusBlockCollision
     /// <param name="level">The room's collision blocks.</param>
     /// <param name="state">A collision probe copy; its position receives the accepted distance.</param>
     /// <param name="owner">The Samus whose collision reactions act, or null for an ownerless probe.</param>
+    /// <param name="pose">
+    /// The pose being installed, which the elevator pseudo-door's standing-pose gate tests: the game writes it to Samus's
+    /// pose before the larger-radius check.
+    /// </param>
     /// <param name="displacement">Signed 1/65536-pixel distance to test; zero tests the current bottom boundary.</param>
     /// <param name="scanLeftToRight">Scan order chosen by the frame counter's parity.</param>
     /// <param name="roomObjects">The room's room-object owner for special and bombable blocks.</param>
@@ -722,13 +736,14 @@ public static class SamusBlockCollision
         RoomLevelData level,
         SamusKinematicsState state,
         SamusState? owner,
+        SamusPoseId pose,
         SignedSixteenSixteen displacement,
         bool scanLeftToRight,
         ISamusRoomObjects roomObjects)
     {
         Ensure.NotNull(level);
         Ensure.NotNull(state);
-        VerticalTerrainScan scan = ScanVerticalTerrain(new SamusTerrain { Level = level, RoomObjects = roomObjects }, state, owner, new VerticalTerrainProbe { Displacement = displacement, ScanLeftToRight = scanLeftToRight, CanBreakBombBlocks = false, PublishDoorSideEffects = true, BlockReactionDirection = SamusCollisionDirection.NonDirectionalProbe });
+        VerticalTerrainScan scan = ScanVerticalTerrain(new SamusTerrain { Level = level, RoomObjects = roomObjects }, state, owner, pose, new VerticalTerrainProbe { Displacement = displacement, ScanLeftToRight = scanLeftToRight, CanBreakBombBlocks = false, PublishDoorSideEffects = true, BlockReactionDirection = SamusCollisionDirection.NonDirectionalProbe });
         state.Position = state.Position.AdvanceY(scan.AcceptedDisplacement);
         return new BlockMoveResult(scan.AcceptedDisplacement, scan.Collided);
     }

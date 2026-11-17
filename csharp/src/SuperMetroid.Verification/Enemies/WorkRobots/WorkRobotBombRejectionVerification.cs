@@ -24,7 +24,7 @@ internal static class WorkRobotBombRejectionVerification
                 definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             enemies.VerificationServices().IsAreaBossDefeated = () => phantoonDefeated;
             var ordinaryProjectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads,
-                new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), InstalledFixtures.SamusArtwork());
+                new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
             foreach ((EnemyDefinitionId robot, bool powered) in new[] { (EnemyDefinitionId.WorkRobot, true), (EnemyDefinitionId.UnpoweredWorkRobot, false) })
             {
                 RoomEnemyPlace place = enemies.Places.InUpdateOrder[powered ? 0 : 1];

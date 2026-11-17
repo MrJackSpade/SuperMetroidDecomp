@@ -395,10 +395,12 @@ internal static class InstalledFixtures
     /// Creates a Samus projectile system with installed frame bindings, bound to an earthquake of its own as a room binds
     /// its projectiles to the room's, so Super Missile impacts have an earthquake to start.
     /// </summary>
-    internal static SamusProjectileSystem CreateProjectileSystem()
+    internal static SamusProjectileSystem CreateProjectileSystem() => CreateProjectileSystem(new RoomEarthquake());
+
+    /// <summary>Creates a Samus projectile system with installed frame bindings whose Super Missile impacts start <paramref name="earthquake"/>.</summary>
+    internal static SamusProjectileSystem CreateProjectileSystem(RoomEarthquake earthquake)
     {
-        var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), SamusOverreads, new SuperMetroid.Core.Compatibility.LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SuperMetroid.Core.Compatibility.SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: Projectiles.FrameBindings));
-        projectiles.Earthquakes.BindRoomEarthquake(new RoomEarthquake());
+        var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), SamusOverreads, new SuperMetroid.Core.Compatibility.LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SuperMetroid.Core.Compatibility.SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: Projectiles.FrameBindings), earthquake);
         return projectiles;
     }
 

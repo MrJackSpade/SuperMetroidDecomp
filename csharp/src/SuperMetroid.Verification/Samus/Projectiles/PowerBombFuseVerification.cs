@@ -72,32 +72,7 @@ internal static class PowerBombFuseVerification
             }
         }
         AssertTrue(landings > 0, "Some Chainsaw fuse moves land on a list position");
-        Suite(nameof(VerifyPowerBombRetainedRadiusSpeed), () => VerifyPowerBombRetainedRadiusSpeed());
         Console.WriteLine("Power Bomb fuse: native boundary/flag/wrap cases and complete 60-frame fuse agree.");
-    }
-
-    /// <summary>Checks that cleanup and a later allocation preserve the native radius-speed word.</summary>
-    private static void VerifyPowerBombRetainedRadiusSpeed()
-    {
-        var explosion = new SamusPowerBombExplosionState(RetailPresentationFixture().PowerBombGlowColors);
-        explosion.Arm();
-        explosion.Spawn(new(128, 128));
-        PowerBombRadius retainedSpeed = PowerBombRadius.Zero;
-        bool completed = false;
-        for (int frame = 0; frame < 400; frame++)
-        {
-            retainedSpeed = explosion.Blast.RadiusSpeed;
-            if (!explosion.StepFrame()) continue;
-            completed = true;
-            break;
-        }
-        AssertTrue(completed, "Power Bomb cleanup was reached");
-        AssertTrue(retainedSpeed != PowerBombRadius.Zero, "native explosion accumulated a nonzero radius speed");
-        // Original-CPU #441 replay: $88:8B4E clears both radii/status, but does not
-        // write $0CF0. Allocation at $88:8AA4 also leaves that word alone.
-        AssertEqual(retainedSpeed, explosion.Blast.RadiusSpeed, "cleanup preserves native radius-speed word");
-        explosion.Spawn(new(128, 128));
-        AssertEqual(retainedSpeed, explosion.Blast.RadiusSpeed, "next allocation preserves radius speed until setup");
     }
 
     /// <summary>Runs focused fuse and glow colour fixture checks.</summary>

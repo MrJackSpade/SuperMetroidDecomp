@@ -504,7 +504,6 @@ internal sealed class SuperMetroidRuntime
         // is where both exist to be connected.
         RoomScope scope = Room.LoadedScope;
         Artwork.BindProjectiles(scope.BombProjectiles);
-        scope.Projectiles.Earthquakes.BindRoomEarthquake(scope.Enemies.Earthquake);
         EnemyRoomEffects.ApplyPendingChozoStatueObjects(scope.RoomObjects, Room.LoadedScope.Enemies);
     }
 

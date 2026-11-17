@@ -60,7 +60,7 @@ internal static class SamusChargeColorsVerification
         };
         // Charge and Hyper-shot steps name shades (#1512); the import resolves them from the installed charge colours.
         var installedSources = InstalledFixtures.SamusShadeSources with { Charge = InstalledFixtures.ImportOf(original).SamusColours.Charge };
-        var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
+        var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
         projectiles.Charge.FlareCounter = 60;
         var samusColours = new SamusColours();
         ushort[] suits = [0, 1, 0x20];
@@ -73,10 +73,8 @@ internal static class SamusChargeColorsVerification
             {
                 // The live charge-palette step is the phase this call applies.
                 int appliedPhase = projectiles.Charge.ChargeGlowStep;
-                var step = projectiles.UpdateBeamChargeGlow(samusColours, samus);
-                AssertEqual(family == 0 ? SamusBeamChargeGlowAction.ChargeCycle :
-                    SamusBeamChargeGlowAction.PseudoScrewCycle, step.Action,
-                    $"installed family {family} suit {suit} phase {phase}");
+                AssertTrue(!projectiles.UpdateBeamChargeGlow(samusColours, samus, global::SuperMetroid.Core.Fx.RoomVisorAnimation.Steady),
+                    $"installed family {family} suit {suit} phase {phase} restores no suit");
                 AssertEqual(phase, appliedPhase,
                     $"installed charge phase {family}/{suit}/{phase}");
                 for (int color = 0; color < SamusChargeColorFormat.ColorsPerPalette; color++)
@@ -92,18 +90,15 @@ internal static class SamusChargeColorsVerification
         {
             PictureShade before = samusColours.Suit;
             int glowStepsBefore = projectiles.Charge.ChargedShotGlow.RemainingSteps;
-            var step = projectiles.UpdateBeamChargeGlow(samusColours, samus);
+            AssertTrue(!projectiles.UpdateBeamChargeGlow(samusColours, samus, global::SuperMetroid.Core.Fx.RoomVisorAnimation.Steady),
+                $"Hyper-shot call {call} restores no suit");
             if ((call & 1) != 0)
             {
-                AssertEqual(SamusBeamChargeGlowAction.HyperHold, step.Action,
-                    $"Hyper-shot call {call} holds");
                 AssertEqual(before, samusColours.Suit,
                     $"Hyper-shot call {call} does not repaint");
                 continue;
             }
             int frame = call / 2;
-            AssertEqual(SamusBeamChargeGlowAction.HyperShade, step.Action,
-                $"Hyper-shot call {call} paints");
             // Even glow steps 20..2 select Hyper palettes 0..9.
             AssertEqual(20 - frame * 2, glowStepsBefore, $"Hyper-shot playback frame {frame}");
             for (int color = 0; color < SamusChargeColorFormat.ColorsPerPalette; color++)
@@ -249,7 +244,7 @@ internal static class SamusChargeColorsVerification
         var guarded = NewChargeColorReadGuard(rom, forbidden);
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FacingRightNormalPose,
             EquippedBeams = SamusBeamFlags.Charge };
-        var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
+        var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
         projectiles.Charge.FlareCounter = 60;
         ushort[] suits = [0, 1, 0x20];
         for (int family = 0; family < 2; family++)
@@ -260,10 +255,8 @@ internal static class SamusChargeColorsVerification
             for (int phase = 0; phase < 6; phase++)
             {
                 int appliedPhase = projectiles.Charge.ChargeGlowStep;
-                var step = projectiles.UpdateBeamChargeGlow(samusColours, samus);
+                AssertTrue(!projectiles.UpdateBeamChargeGlow(samusColours, samus, global::SuperMetroid.Core.Fx.RoomVisorAnimation.Steady), "Native charge cycle restores no suit");
                 AssertEqual(phase, appliedPhase, "Native charge phase order");
-                AssertEqual(family == 0 ? SamusBeamChargeGlowAction.ChargeCycle : SamusBeamChargeGlowAction.PseudoScrewCycle,
-                    step.Action, "Native charge family action");
                 for (int color = 0; color < 16; color++)
                     AssertEqual(expected[family, suit, phase, color], samusColours.ShownSuit(catalogSources)[color], "Guarded runtime charge color");
             }

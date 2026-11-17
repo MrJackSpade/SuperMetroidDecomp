@@ -52,13 +52,6 @@ internal sealed class ProjectileEnemyImpacts
     }
 
     /// <summary>
-    /// The name for impacts whose geometry is specifically an extended
-    /// frame hitbox. The behavior is the same projectile prelude, not a separate fix.
-    /// </summary>
-    public void ApplyFrameHitboxCollisionPrelude(SamusProjectile projectile, bool markCollisionState) =>
-        ApplyEnemyCollisionPrelude(projectile, markCollisionState);
-
-    /// <summary>
     /// Reflects the projectile after an enemy reaction has replaced
     /// the projectile direction. Reflection preserves the projectile family/type and world
     /// position, but reconstructs its damage, direction-specific animation, radii,

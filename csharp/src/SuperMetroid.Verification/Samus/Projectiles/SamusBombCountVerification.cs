@@ -29,15 +29,15 @@ internal static class SamusBombCountVerification
         var terrain = new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled };
 
         SamusBombProjectileSystem range = CreateBombFixture();
-        range.SetSharedBombCounter(SamusBombProjectileSystem.PlaceCount);
+        range.BombCounter = SamusBombProjectileSystem.PlaceCount;
         AssertEqual(SamusBombProjectileSystem.PlaceCount, range.BombCounter, "the count holds every place's bomb");
-        AssertThrows<ArgumentOutOfRangeException>(() => range.SetSharedBombCounter(SamusBombProjectileSystem.PlaceCount + 1),
+        AssertThrows<ArgumentOutOfRangeException>(() => range.BombCounter = SamusBombProjectileSystem.PlaceCount + 1,
             "no more bombs are out than there are places");
-        AssertThrows<ArgumentOutOfRangeException>(() => range.SetSharedBombCounter(-1), "the count is never below zero");
+        AssertThrows<ArgumentOutOfRangeException>(() => range.BombCounter = -1, "the count is never below zero");
 
         // A full count rejects a fresh Shoot edge even with no cooldown running: nothing is placed and the count stays full.
         SamusBombProjectileSystem full = CreateBombFixture();
-        full.SetSharedBombCounter(SamusBombProjectileSystem.PlaceCount);
+        full.HoldCountForDrain();
         full.StepFrame(terrain, MorphedSamus(), GameplayAction.Shoot, GameplayAction.Shoot);
         AssertEqual(SamusBombProjectileSystem.PlaceCount, full.BombCounter, "a full count stays full");
         AssertTrue(full.Bombs.All(bomb => !bomb.IsActive), "a full count places no bomb");
@@ -47,7 +47,7 @@ internal static class SamusBombCountVerification
         SamusState samus = MorphedSamus();
         cleared.StepFrame(terrain, samus, GameplayAction.Shoot, GameplayAction.Shoot);
         AssertEqual(1, cleared.BombCounter, "a placed bomb counts one");
-        cleared.SetSharedBombCounter(0);
+        cleared.ReleaseCountAfterDrain();
         for (int update = 0; update < LongestBombLife && cleared.Bombs[0].IsActive; update++)
         {
             cleared.AudioRequests.BeginRecordedUpdate();
@@ -60,7 +60,7 @@ internal static class SamusBombCountVerification
         SamusBombProjectileSystem inconsistent = CreateBombFixture();
         SamusState spreading = MorphedSamus();
         inconsistent.SpawnBombSpread(spreading);
-        inconsistent.SetSharedBombCounter(0);
+        inconsistent.ReleaseCountAfterDrain();
         AssertThrows<InvalidOperationException>(
             () => inconsistent.StepFrame(terrain, spreading, GameplayAction.Shoot, GameplayAction.Shoot),
             "a bomb admitted with every place held fails instead of reusing the last place");

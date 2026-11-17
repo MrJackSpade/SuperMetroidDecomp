@@ -440,7 +440,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
                 throw new InvalidDataException("Spore Spawn requires its frames' hitboxes.");
             if (c.HitboxShot == EnemyReaction.DudShot)
             {
-                c.Projectiles.EnemyImpacts.ApplyFrameHitboxCollisionPrelude(c.Projectile, c.MarksCollision);
+                c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
                 _projectiles.CreateEnemyProjectileDudShot(c.Projectile);
                 return true;
             }
@@ -452,7 +452,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             if (!SporeSpawnAcceptsProjectile(c.ProjectileType))
             {
                 // The shot has struck the vulnerable core, whose shot reaction rejects it before common damage.
-                c.Projectiles.EnemyImpacts.ApplyFrameHitboxCollisionPrelude(c.Projectile, c.MarksCollision);
+                c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
                 return true;
             }
             return false;

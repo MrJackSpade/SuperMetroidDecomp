@@ -106,7 +106,7 @@ public sealed class SamusCeresRidleyEjectionState
         UnsignedSixteenSixteen baseSpeed = horizontalSpeed.CalculateBaseSpeed(
             SamusPoseMetadata.ReadMovementType(samus));
         var requestedX = SamusHorizontalDisplacement.Toward(PushDirection == CeresRidleyShoveDirection.Left, samus, baseSpeed);
-        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = requestedX.Displacement, CollisionMovementDirection = requestedX.CollisionDirection });
+        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = requestedX.Displacement, CollisionMovementDirection = requestedX.CollisionDirection });
 
         if (horizontal.Collided)
         {
@@ -133,6 +133,6 @@ public sealed class SamusCeresRidleyEjectionState
         // movement, this path adds no extra one-pixel downward bias.
         if (samus.Kinematics.YSpeed.Whole < SamusVerticalMotionDefinitions.CeresRidleyShoveFallingSpeed)
             samus.Kinematics.YSpeed += samus.Kinematics.YAcceleration;
-        SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = samus.Kinematics.YSpeed.AsDisplacement(), ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter) });
+        SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = samus.Kinematics.YSpeed.AsDisplacement(), ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter) });
     }
 }

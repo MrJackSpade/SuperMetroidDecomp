@@ -32,10 +32,10 @@ public sealed class PowerBombBlastTimeline
     public PowerBombRadius ExplosionRadius { get; private set; }
 
     /// <summary>
-    /// The per-frame radius change, deliberately shared by the pre-explosion and explosion phases. Cleanup leaves
-    /// it in place; the next pre-explosion setup replaces it.
+    /// The per-update radius change of the running stage, shared by the pre-explosion and explosion phases: each start
+    /// sets it before any stage reads it, so a finished blast keeps none.
     /// </summary>
-    public PowerBombRadius RadiusSpeed { get; private set; }
+    private PowerBombRadius _radiusSpeed;
 
     /// <summary>
     /// The updates the yellow pre-explosion or the white explosion has run so far (#1927): each shows the oval its
@@ -134,7 +134,7 @@ public sealed class PowerBombBlastTimeline
         IsRunning = true;
         PreExplosionRadius = PowerBombExplosionDefinitions.InitialRadius;
         ExplosionRadius = PowerBombExplosionDefinitions.InitialRadius;
-        RadiusSpeed = PowerBombRadius.Zero;
+        _radiusSpeed = PowerBombRadius.Zero;
         _ovalStageUpdates = 0;
         RenderedOvalRadius = null;
         Phase = PowerBombExplosionPhase.CrystalFlashExplosion;
@@ -164,7 +164,7 @@ public sealed class PowerBombBlastTimeline
         {
             case PowerBombExplosionPhase.PendingPreExplosionSetup:
                 PreExplosionRadius = PowerBombExplosionDefinitions.InitialRadius;
-                RadiusSpeed = PowerBombExplosionDefinitions.InitialPreExplosionSpeed;
+                _radiusSpeed = PowerBombExplosionDefinitions.InitialPreExplosionSpeed;
                 Phase = PowerBombExplosionPhase.PreExplosionWhite;
                 RenderedPhase = PowerBombExplosionPhase.Inactive;
                 return false;
@@ -207,7 +207,7 @@ public sealed class PowerBombBlastTimeline
         IsRunning = false;
         PreExplosionRadius = PowerBombRadius.Zero;
         ExplosionRadius = PowerBombRadius.Zero;
-        RadiusSpeed = PowerBombRadius.Zero;
+        _radiusSpeed = PowerBombRadius.Zero;
         _ovalStageUpdates = 0;
         RenderedOvalRadius = null;
         Phase = PowerBombExplosionPhase.Inactive;
@@ -229,10 +229,10 @@ public sealed class PowerBombBlastTimeline
 
         // The white pre-explosion grows the radius by its speed and slows only while the grown radius is still
         // below the white limit.
-        PreExplosionRadius += RadiusSpeed;
+        PreExplosionRadius += _radiusSpeed;
         if (PreExplosionRadius < PowerBombExplosionDefinitions.PreExplosionWhiteLimit)
         {
-            RadiusSpeed -= PowerBombExplosionDefinitions.PreExplosionSlowing;
+            _radiusSpeed -= PowerBombExplosionDefinitions.PreExplosionSlowing;
             return;
         }
 
@@ -268,13 +268,13 @@ public sealed class PowerBombBlastTimeline
     /// <returns>True with the grown radius when the radius grows.</returns>
     private bool TryGrowRadius(PowerBombRadius radius, out PowerBombRadius grown)
     {
-        if (PowerBombGrowthHold.Holds(radius.WholePixelsGrownBy(RadiusSpeed)))
+        if (PowerBombGrowthHold.Holds(radius.WholePixelsGrownBy(_radiusSpeed)))
         {
             grown = radius;
             return false;
         }
 
-        grown = radius + RadiusSpeed;
+        grown = radius + _radiusSpeed;
         return true;
     }
 
@@ -296,7 +296,7 @@ public sealed class PowerBombBlastTimeline
         if (TryGrowRadius(PreExplosionRadius, out PowerBombRadius nextRadius))
         {
             PreExplosionRadius = nextRadius;
-            RadiusSpeed -= PowerBombExplosionDefinitions.PreExplosionSlowing;
+            _radiusSpeed -= PowerBombExplosionDefinitions.PreExplosionSlowing;
         }
 
         if (!stageEnds)
@@ -305,7 +305,7 @@ public sealed class PowerBombBlastTimeline
         // The yellow step initializes the actual damaging radius before the next frame's
         // yellow explosion update. PreExplosionRadius keeps its own value.
         ExplosionRadius = PowerBombExplosionDefinitions.InitialRadius;
-        RadiusSpeed = PowerBombRadius.Zero;
+        _radiusSpeed = PowerBombRadius.Zero;
         Phase = PowerBombExplosionPhase.ExplosionYellow;
     }
 
@@ -317,10 +317,10 @@ public sealed class PowerBombBlastTimeline
             PowerBombGlowSequence.Explosion,
             ExplosionRadius.GlowColorBand);
 
-        ExplosionRadius += RadiusSpeed;
+        ExplosionRadius += _radiusSpeed;
         if (ExplosionRadius < PowerBombExplosionDefinitions.ExplosionYellowLimit)
         {
-            RadiusSpeed += PowerBombExplosionDefinitions.ExplosionAcceleration;
+            _radiusSpeed += PowerBombExplosionDefinitions.ExplosionAcceleration;
             return;
         }
 
@@ -344,7 +344,7 @@ public sealed class PowerBombBlastTimeline
         if (TryGrowRadius(ExplosionRadius, out PowerBombRadius nextRadius))
         {
             ExplosionRadius = nextRadius;
-            RadiusSpeed += PowerBombExplosionDefinitions.ExplosionAcceleration;
+            _radiusSpeed += PowerBombExplosionDefinitions.ExplosionAcceleration;
         }
 
         if (!stageEnds)
@@ -370,8 +370,7 @@ public sealed class PowerBombBlastTimeline
             IsRunning = false;
             PreExplosionRadius = PowerBombRadius.Zero;
             ExplosionRadius = PowerBombRadius.Zero;
-            // Cleanup does not clear the shared radius growth speed. Retain it
-            // until the next pre-explosion setup, as on the game.
+            _radiusSpeed = PowerBombRadius.Zero;
             _ovalStageUpdates = 0;
             RenderedOvalRadius = null;
             Phase = PowerBombExplosionPhase.Inactive;
@@ -395,10 +394,10 @@ public sealed class PowerBombBlastTimeline
             PowerBombGlowSequence.Explosion,
             ExplosionRadius.GlowColorBand);
 
-        ExplosionRadius += RadiusSpeed;
+        ExplosionRadius += _radiusSpeed;
         if (ExplosionRadius < PowerBombExplosionDefinitions.CrystalFlashRadiusLimit)
         {
-            RadiusSpeed += PowerBombExplosionDefinitions.ExplosionAcceleration;
+            _radiusSpeed += PowerBombExplosionDefinitions.ExplosionAcceleration;
             return;
         }
 
@@ -424,7 +423,7 @@ public sealed class PowerBombBlastTimeline
         IsRunning = false;
         PreExplosionRadius = PowerBombRadius.Zero;
         ExplosionRadius = PowerBombRadius.Zero;
-        RadiusSpeed = PowerBombRadius.Zero;
+        _radiusSpeed = PowerBombRadius.Zero;
         _ovalStageUpdates = 0;
         RenderedOvalRadius = null;
         Phase = PowerBombExplosionPhase.Inactive;

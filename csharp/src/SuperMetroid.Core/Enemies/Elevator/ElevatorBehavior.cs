@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Input;

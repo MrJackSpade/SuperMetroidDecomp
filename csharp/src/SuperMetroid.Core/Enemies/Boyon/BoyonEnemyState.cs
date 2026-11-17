@@ -7,7 +7,7 @@ public sealed class BoyonEnemyState
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<BoyonSegment> Playback { get; set; }
 
-    /// <summary>The multiplier its bounce curve is scaled by, from its spawn settings: one or more (8 to 16 for retail Boyons).</summary>
+    /// <summary>The multiplier its bounce curve is scaled by, from its spawn settings: one or more (8 to 16 for the Boyons the game places).</summary>
     public int SpeedMultiplier
     {
         get;

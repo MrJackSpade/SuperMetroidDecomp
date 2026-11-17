@@ -12,19 +12,13 @@ internal static class MotherBrainPainfulWalkingDefinitions
     /// <summary>Her slow stagger: the neck turns three quarters of a step an update, then she pauses forty-eight updates.</summary>
     private static readonly MotherBrainStaggerStage Slow = new(MotherBrainWalkSpeed.Slow, RotationAngle.FromSteps(0, 192), 48);
 
-    /// <summary>
-    /// Her slowest stagger forward, which her rainbow beam runs out as it begins: the neck turns a quarter of a step an
-    /// update, then she pauses sixty-four updates.
-    /// </summary>
-    private static readonly MotherBrainStaggerStage SlowestForward = new(MotherBrainWalkSpeed.ReallySlow, RotationAngle.FromSteps(0, 64), 64);
-
     /// <summary>Her slowest stagger back, the last.</summary>
     private static readonly MotherBrainStaggerStage SlowestBack = new(MotherBrainWalkSpeed.ReallySlow, RotationAngle.FromSteps(0, 64), 64);
 
     /// <summary>The stage her rainbow beam runs out as she begins: her slowest stagger forward.</summary>
-    internal static MotherBrainStaggerStage BeamRunsOut => SlowestForward;
+    internal static MotherBrainStaggerStage BeamRunsOut { get; } = new(MotherBrainWalkSpeed.ReallySlow, RotationAngle.FromSteps(0, 64), 64);
 
     /// <summary>The stagger's stages in the order she walks them, forward first.</summary>
     internal static IReadOnlyList<MotherBrainStaggerStage> Stages { get; } =
-        [Fastest, Fastest, Middling, Middling, Slow, Slow, SlowestForward, SlowestBack];
+        [Fastest, Fastest, Middling, Middling, Slow, Slow, BeamRunsOut, SlowestBack];
 }

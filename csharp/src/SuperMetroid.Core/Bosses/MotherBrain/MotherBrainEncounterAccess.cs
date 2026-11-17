@@ -1,5 +1,4 @@
 ﻿using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Rooms;
 

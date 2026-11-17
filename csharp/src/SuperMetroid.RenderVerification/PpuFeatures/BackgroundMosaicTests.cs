@@ -39,10 +39,11 @@ internal static class BackgroundMosaicTests
         var memory = FramePaint.FromOamGameplay(vram.Bytes, cgram.Colors, oam, 1, 0);
         // BG1's plane and BG2's loaded tilemap show tile word zero, the pattern, drawn from their pictures (#1403).
         var rooms = RoomBackgroundsFixtures.Uniform(vram.Bytes, cgram.Colors, default);
-        // Every gameplay line scrolls differently on both axes (#1468): a sixteen-sample ramp across and down.
+        // Every gameplay line scrolls differently on both axes (#1468): a sixteen-sample ramp across, three pixels a step, and
+        // one down, a pixel a step.
         System.Collections.Immutable.ImmutableArray<int> ramp = [.. Enumerable.Range(0, 16)];
-        var horizontal = new SampledScrollWave(7, ramp, 3 * 256, 0, 32, 224);
-        var vertical = new SampledScrollWave(65530, ramp, 256, 0, 32, 224);
+        var horizontal = new SampledScrollWave(7, [.. ramp.Select(sample => 3 * sample)], 0, 32, 224);
+        var vertical = new SampledScrollWave(65530, ramp, 0, 32, 224);
         int cases = 0;
         foreach (int size in Enumerable.Range(1, 16))
         foreach (int mode in Enumerable.Range(0, 4))

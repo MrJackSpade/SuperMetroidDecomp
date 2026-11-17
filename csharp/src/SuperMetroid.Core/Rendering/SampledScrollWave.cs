@@ -5,24 +5,20 @@ namespace SuperMetroid.Core.Rendering;
 /// <summary>
 /// A plane rippled along one axis by a periodic waveform given as one period of samples (#1468), as the liquids' and the
 /// heat haze's waves are: every line shows <see cref="BaseScroll"/>, and each line from <see cref="FirstLine"/> up to
-/// <see cref="EndLine"/> is moved by the sample its line reaches times <see cref="Amplitude"/>. The waveform repeats every
+/// <see cref="EndLine"/> is moved by the whole pixels of the sample its line reaches. The waveform repeats every
 /// <see cref="Period"/> lines, one sample a line. The backend's shader evaluates it line by line; nothing keeps a table of
 /// lines.
 /// </summary>
-/// <remarks>
-/// Screen line <c>y</c> reads sample <c>(Phase + y) mod Period</c>; its displacement is that sample times
-/// <see cref="Amplitude"/> in 1/256ths of a pixel, rounded down.
-/// </remarks>
+/// <remarks>Screen line <c>y</c> reads sample <c>(Phase + y) mod Period</c> and is moved by that many pixels.</remarks>
 /// <param name="BaseScroll">
 /// The scroll every line shows before its displacement, any whole number of pixels: the plane repeats along the axis, so
 /// a scroll and the same scroll a whole number of plane lengths on show the same lines.
 /// </param>
-/// <param name="Samples">One period of the waveform, each sample a signed displacement in whole units of the amplitude.</param>
-/// <param name="Amplitude">The displacement of a sample of one, in 1/256ths of a pixel, zero or more.</param>
+/// <param name="Samples">One period of the waveform, each sample a signed displacement in whole pixels.</param>
 /// <param name="Phase">The sample screen line zero reaches, 0 through the period less one.</param>
 /// <param name="FirstLine">The first screen line the wave moves, 0 through the screen's height.</param>
 /// <param name="EndLine">The screen line after the last the wave moves, <paramref name="FirstLine"/> through the screen's height.</param>
-public sealed record SampledScrollWave(int BaseScroll, ImmutableArray<int> Samples, int Amplitude, int Phase, int FirstLine, int EndLine)
+public sealed record SampledScrollWave(int BaseScroll, ImmutableArray<int> Samples, int Phase, int FirstLine, int EndLine)
     : LineScroll
 {
     /// <summary>One period of the waveform, at least one sample.</summary>
@@ -32,13 +28,6 @@ public sealed record SampledScrollWave(int BaseScroll, ImmutableArray<int> Sampl
         get;
         init => field = RequirePeriod(value);
     } = RequirePeriod(Samples);
-
-    /// <summary>The displacement of a sample of one, in 1/256ths of a pixel, zero or more.</summary>
-    public int Amplitude
-    {
-        get;
-        init => field = Ensure.AtLeastZero(value);
-    } = Ensure.AtLeastZero(Amplitude);
 
     /// <summary>The sample screen line zero reaches.</summary>
     public int Phase

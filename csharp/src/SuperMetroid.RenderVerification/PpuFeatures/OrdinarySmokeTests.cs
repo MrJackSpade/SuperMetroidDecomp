@@ -31,9 +31,10 @@ internal static class OrdinarySmokeTests
             Background = null,
             Sky = new SkyPictures(RoomBackgroundsFixtures.SeededSky(random, colors)),
         };
-        // Line scrolls described as shapes (#1468): a falling sixteen-sample ramp across, a rising one down.
-        LineScroll x = new SampledScrollWave(65535, [.. Enumerable.Range(0, 16).Select(i => -i)], 17 * 256, 0, 32, 224);
-        LineScroll y = new SampledScrollWave(511, [.. Enumerable.Range(0, 16)], 3 * 256, 0, 32, 224);
+        // Line scrolls described as shapes (#1468): a falling sixteen-sample ramp across, eight pixels a step, and a rising one
+        // down, three pixels a step.
+        LineScroll x = new SampledScrollWave(65535, [.. Enumerable.Range(0, 16).Select(i => -8 * i)], 0, 32, 224);
+        LineScroll y = new SampledScrollWave(511, [.. Enumerable.Range(0, 16).Select(i => 3 * i)], 0, 32, 224);
         int count = 0;
         foreach (var geometry in new[] { new OrdinarySmokeRunCase(64,32), new OrdinarySmokeRunCase(32,64), new OrdinarySmokeRunCase(64,64) })
         for (int mask = 0; mask < 8; mask++)

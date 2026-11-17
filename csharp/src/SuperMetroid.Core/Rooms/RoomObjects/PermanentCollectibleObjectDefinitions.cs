@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// The permanent-item room objects: one per collectible kind for each of the exposed, Chozo-orb and concealed shot-block
-/// presentations.
+/// The permanent-item room objects: one for each collectible kind some room places in each of the exposed, Chozo-orb and
+/// concealed shot-block presentations (#2354).
 /// </summary>
 internal static class PermanentCollectibleObjectDefinitions
 {
@@ -13,24 +13,7 @@ internal static class PermanentCollectibleObjectDefinitions
         [RoomObjectKind.ExposedMissileTank] = new(InWorldCollectibleKind.MissileTank, CollectiblePresentation.Exposed),
         [RoomObjectKind.ExposedSuperMissileTank] = new(InWorldCollectibleKind.SuperMissileTank, CollectiblePresentation.Exposed),
         [RoomObjectKind.ExposedPowerBombTank] = new(InWorldCollectibleKind.PowerBombTank, CollectiblePresentation.Exposed),
-        [RoomObjectKind.ExposedBombs] = new(InWorldCollectibleKind.Bombs, CollectiblePresentation.Exposed),
-        [RoomObjectKind.ExposedChargeBeam] = new(InWorldCollectibleKind.ChargeBeam, CollectiblePresentation.Exposed),
-        [RoomObjectKind.ExposedIceBeam] = new(InWorldCollectibleKind.IceBeam, CollectiblePresentation.Exposed),
-        [RoomObjectKind.ExposedHiJumpBoots] = new(InWorldCollectibleKind.HiJumpBoots, CollectiblePresentation.Exposed),
-        [RoomObjectKind.ExposedSpeedBooster] = new(InWorldCollectibleKind.SpeedBooster, CollectiblePresentation.Exposed),
-        [RoomObjectKind.ExposedWaveBeam] = new(InWorldCollectibleKind.WaveBeam, CollectiblePresentation.Exposed),
-        [RoomObjectKind.ExposedSpazerBeam] = new(InWorldCollectibleKind.SpazerBeam, CollectiblePresentation.Exposed),
-        [RoomObjectKind.ExposedSpringBall] = new(InWorldCollectibleKind.SpringBall, CollectiblePresentation.Exposed),
-        [RoomObjectKind.ExposedVariaSuit] = new(InWorldCollectibleKind.VariaSuit, CollectiblePresentation.Exposed),
-        [RoomObjectKind.ExposedGravitySuit] = new(InWorldCollectibleKind.GravitySuit, CollectiblePresentation.Exposed),
-        [RoomObjectKind.ExposedXrayScope] = new(InWorldCollectibleKind.XrayScope, CollectiblePresentation.Exposed),
-        [RoomObjectKind.ExposedPlasmaBeam] = new(InWorldCollectibleKind.PlasmaBeam, CollectiblePresentation.Exposed),
-        [RoomObjectKind.ExposedGrappleBeam] = new(InWorldCollectibleKind.GrappleBeam, CollectiblePresentation.Exposed),
-        [RoomObjectKind.ExposedSpaceJump] = new(InWorldCollectibleKind.SpaceJump, CollectiblePresentation.Exposed),
-        [RoomObjectKind.ExposedScrewAttack] = new(InWorldCollectibleKind.ScrewAttack, CollectiblePresentation.Exposed),
         [RoomObjectKind.ExposedMorphBall] = new(InWorldCollectibleKind.MorphBall, CollectiblePresentation.Exposed),
-        [RoomObjectKind.ExposedReserveTank] = new(InWorldCollectibleKind.ReserveTank, CollectiblePresentation.Exposed),
-        [RoomObjectKind.ChozoEnergyTank] = new(InWorldCollectibleKind.EnergyTank, CollectiblePresentation.ChozoOrb),
         [RoomObjectKind.ChozoMissileTank] = new(InWorldCollectibleKind.MissileTank, CollectiblePresentation.ChozoOrb),
         [RoomObjectKind.ChozoSuperMissileTank] = new(InWorldCollectibleKind.SuperMissileTank, CollectiblePresentation.ChozoOrb),
         [RoomObjectKind.ChozoPowerBombTank] = new(InWorldCollectibleKind.PowerBombTank, CollectiblePresentation.ChozoOrb),
@@ -49,28 +32,9 @@ internal static class PermanentCollectibleObjectDefinitions
         [RoomObjectKind.ChozoGrappleBeam] = new(InWorldCollectibleKind.GrappleBeam, CollectiblePresentation.ChozoOrb),
         [RoomObjectKind.ChozoSpaceJump] = new(InWorldCollectibleKind.SpaceJump, CollectiblePresentation.ChozoOrb),
         [RoomObjectKind.ChozoScrewAttack] = new(InWorldCollectibleKind.ScrewAttack, CollectiblePresentation.ChozoOrb),
-        [RoomObjectKind.ChozoMorphBall] = new(InWorldCollectibleKind.MorphBall, CollectiblePresentation.ChozoOrb),
         [RoomObjectKind.ChozoReserveTank] = new(InWorldCollectibleKind.ReserveTank, CollectiblePresentation.ChozoOrb),
         [RoomObjectKind.ShotBlockEnergyTank] = new(InWorldCollectibleKind.EnergyTank, CollectiblePresentation.ShotBlock),
         [RoomObjectKind.ShotBlockMissileTank] = new(InWorldCollectibleKind.MissileTank, CollectiblePresentation.ShotBlock),
         [RoomObjectKind.ShotBlockSuperMissileTank] = new(InWorldCollectibleKind.SuperMissileTank, CollectiblePresentation.ShotBlock),
-        [RoomObjectKind.ShotBlockPowerBombTank] = new(InWorldCollectibleKind.PowerBombTank, CollectiblePresentation.ShotBlock),
-        [RoomObjectKind.ShotBlockBombs] = new(InWorldCollectibleKind.Bombs, CollectiblePresentation.ShotBlock),
-        [RoomObjectKind.ShotBlockChargeBeam] = new(InWorldCollectibleKind.ChargeBeam, CollectiblePresentation.ShotBlock),
-        [RoomObjectKind.ShotBlockIceBeam] = new(InWorldCollectibleKind.IceBeam, CollectiblePresentation.ShotBlock),
-        [RoomObjectKind.ShotBlockHiJumpBoots] = new(InWorldCollectibleKind.HiJumpBoots, CollectiblePresentation.ShotBlock),
-        [RoomObjectKind.ShotBlockSpeedBooster] = new(InWorldCollectibleKind.SpeedBooster, CollectiblePresentation.ShotBlock),
-        [RoomObjectKind.ShotBlockWaveBeam] = new(InWorldCollectibleKind.WaveBeam, CollectiblePresentation.ShotBlock),
-        [RoomObjectKind.ShotBlockSpazerBeam] = new(InWorldCollectibleKind.SpazerBeam, CollectiblePresentation.ShotBlock),
-        [RoomObjectKind.ShotBlockSpringBall] = new(InWorldCollectibleKind.SpringBall, CollectiblePresentation.ShotBlock),
-        [RoomObjectKind.ShotBlockVariaSuit] = new(InWorldCollectibleKind.VariaSuit, CollectiblePresentation.ShotBlock),
-        [RoomObjectKind.ShotBlockGravitySuit] = new(InWorldCollectibleKind.GravitySuit, CollectiblePresentation.ShotBlock),
-        [RoomObjectKind.ShotBlockXrayScope] = new(InWorldCollectibleKind.XrayScope, CollectiblePresentation.ShotBlock),
-        [RoomObjectKind.ShotBlockPlasmaBeam] = new(InWorldCollectibleKind.PlasmaBeam, CollectiblePresentation.ShotBlock),
-        [RoomObjectKind.ShotBlockGrappleBeam] = new(InWorldCollectibleKind.GrappleBeam, CollectiblePresentation.ShotBlock),
-        [RoomObjectKind.ShotBlockSpaceJump] = new(InWorldCollectibleKind.SpaceJump, CollectiblePresentation.ShotBlock),
-        [RoomObjectKind.ShotBlockScrewAttack] = new(InWorldCollectibleKind.ScrewAttack, CollectiblePresentation.ShotBlock),
-        [RoomObjectKind.ShotBlockMorphBall] = new(InWorldCollectibleKind.MorphBall, CollectiblePresentation.ShotBlock),
-        [RoomObjectKind.ShotBlockReserveTank] = new(InWorldCollectibleKind.ReserveTank, CollectiblePresentation.ShotBlock),
     };
 }

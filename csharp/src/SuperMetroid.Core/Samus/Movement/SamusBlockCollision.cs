@@ -219,7 +219,7 @@ public static class SamusBlockCollision
                         {
                             throw new InvalidOperationException(
                                 $"Scroll trigger block {block.Position} has no active scroll room-object owner; " +
-                                $"live=[{string.Join(',', terrain.RoomObjects.Scrolls.Snapshots.Select(scroll => scroll.Block))}].");
+                                $"live=[{string.Join(',', terrain.RoomObjects.Scrolls.TriggerBlocks)}].");
                         }
                         break;
 
@@ -575,7 +575,7 @@ public static class SamusBlockCollision
                     {
                         throw new InvalidOperationException(
                             $"Scroll trigger block {block.Position} has no active scroll room-object owner; " +
-                            $"live=[{string.Join(',', terrain.RoomObjects.Scrolls.Snapshots.Select(scroll => scroll.Block))}].");
+                            $"live=[{string.Join(',', terrain.RoomObjects.Scrolls.TriggerBlocks)}].");
                     }
                     // Scroll wake-up itself lets Samus pass; sand has a separate
                     // collision and contact contract handled above.

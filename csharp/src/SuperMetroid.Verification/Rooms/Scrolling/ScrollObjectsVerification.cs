@@ -30,14 +30,13 @@ internal static class ScrollObjectsVerification
         const int width = 8;
         const int height = 8;
         const ushort population = 0x9000;
-        const ushort scrollProgram = 0x9100;
 
-        SeedRoomScrollObjectCartridge(bus, population, scrollProgram);
+        SeedRoomScrollObjectCartridge(bus, population);
 
         var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new RoomTerrainBlock[width * height], new RoomBlockBehavior[width * height], new RoomBlockAppearance[width * height]), RoomLevelData.NothingBeyondGrid(), []);
         var roomObjects = RoomObjectFixtures.Unbound();
-        RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), 0), RoomObjectPopulationImporter.Read(bus, population, screens: new Extent16<RoomScreens>(2, 2)), RoomObjectServiceFixtures.Uninstalled with { Samus = new FixtureRoomSamus(() => new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
-        AssertEqual(1, roomObjects.Scrolls.Snapshots.Count,
+        RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), 0), RoomObjectPopulationImporter.Read(bus, population), RoomObjectServiceFixtures.Uninstalled with { Samus = new FixtureRoomSamus(() => new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
+        AssertEqual(1, roomObjects.Scrolls.TriggerBlocks.Count,
             "extension setup consumes no persistent PLM slot");
 
         var origin = new Position16<RoomBlocks>(3, 3);
@@ -172,22 +171,28 @@ internal static class ScrollObjectsVerification
     }
 
     /// <summary>
-    /// Seeds the room-scroll PLM population and its scroll program. Six-byte room records are
-    /// copied in their native order: one resident `$B703` trigger whose argument selects
-    /// <paramref name="scrollProgram"/>, then right/left/down/up extensions. Extension setup
-    /// mutates terrain immediately and deletes its temporary slot; only `$B703` remains active.
-    /// `$84:8B55` consumes `(scroll index,value)` byte pairs until a negative index.
+    /// The retail scroll program the fixture's trigger runs (#2355): it opens screen (1, 0) aligned to its top, as the
+    /// Brinstar Reserve Tank room's trigger does.
     /// </summary>
-    static void SeedRoomScrollObjectCartridge(TestAddressSpace bus, ushort population, ushort scrollProgram)
+    private const RoomScrollChange TriggerProgram = RoomScrollChange.BrinstarReserveTankOpensScreen1x0TopAligned;
+
+    /// <summary>
+    /// Seeds the room-scroll PLM population and the retail scroll program its trigger runs. Six-byte room records are
+    /// copied in their native order: one resident `$B703` trigger whose argument selects
+    /// <see cref="TriggerProgram"/> where the cartridge stores it, then right/left/down/up extensions. Extension setup
+    /// mutates terrain immediately and deletes its temporary slot; only `$B703` remains active.
+    /// </summary>
+    static void SeedRoomScrollObjectCartridge(TestAddressSpace bus, ushort population)
     {
+        ushort scrollProgram = RoomScrollProgramNative.Addresses[TriggerProgram];
         bus.WriteBytes(0x8f0000 | population, [
-            0x03, 0xb7, 0x03, 0x03, 0x00, 0x91,
+            0x03, 0xb7, 0x03, 0x03, unchecked((byte)scrollProgram), SuperMetroid.AssetExtraction.Cartridge.LittleEndianBytes.HighByte(scrollProgram),
             0x3b, 0xb6, 0x04, 0x03, 0x00, 0x80,
             0x3f, 0xb6, 0x02, 0x03, 0x00, 0x80,
             0x43, 0xb6, 0x03, 0x04, 0x00, 0x80,
             0x47, 0xb6, 0x03, 0x02, 0x00, 0x80,
             0x00, 0x00,
         ]);
-        bus.WriteBytes(0x8f0000 | scrollProgram, [0x01, 0x01, 0x80]);
+        bus.WriteBytes(0x8f0000 | scrollProgram, RoomObjectScrollChangeDefinitions.Get(scrollProgram).ToArray());
     }
 }

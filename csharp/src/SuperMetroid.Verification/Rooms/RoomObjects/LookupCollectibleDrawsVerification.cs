@@ -84,10 +84,12 @@ internal static class LookupCollectibleDrawsVerification
                         AssertEqual(native.Appearance, pictures!.Image(draw).At(Offset16<RoomBlocks>.Zero), "Collectible installed picture");
                     else
                     {
-                        // A block pair's frame writes its block number as gameplay terrain under the item's own picture (#1538).
+                        // A block pair's frame writes its pair block as gameplay terrain under the item's own picture (#1538),
+                        // stored as the block number the import gives it (#2354).
                         RoomTerrainBlock? pairWord = CollectibleObjectDraws.BlockPairTerrain(RoomObjectDrawIdentity.FrameOf<CollectibleDraw>(draw, "collectible"));
                         AssertTrue(pairWord is not null, "Collectible block-pair terrain");
-                        AssertEqual(native, pairWord!.Value, "Collectible original block-pair terrain");
+                        AssertEqual(ReadCollectibleDrawWord(rom, (ushort)(entry.Pointer + 2)), RoomLevelWordEncoder.Encode(pairWord!.Value),
+                            "Collectible original block-pair terrain");
                     }
 
                 }

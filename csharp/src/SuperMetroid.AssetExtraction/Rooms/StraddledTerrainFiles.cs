@@ -1,6 +1,7 @@
 using System.Text.Json;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Compatibility;
+using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
@@ -18,7 +19,8 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// first stored half (which only its block number decides), and a lead and tail make the terrain the word stored as
 /// that lead followed by that tail decodes to. The halves stay here: the installed file holds the classes of blocks that
 /// share a lead or a tail, by their collision kind, mirroring and block numbers, and the terrain each pair of classes
-/// makes (#1709).
+/// makes (#1709). A block a collectible that shows its own picture writes under it is stored as the number the import
+/// gives it (<see cref="CollectiblePairBlockNumbers"/>), so the file names the block it straddles as (#2354).
 /// </remarks>
 public static class StraddledTerrainFiles
 {
@@ -38,6 +40,14 @@ public static class StraddledTerrainFiles
     /// <summary>Every collision kind by its name.</summary>
     private static readonly Dictionary<string, RoomCollisionType> KindsByName =
         Kinds.ToDictionary(kind => kind.ToString(), StringComparer.Ordinal);
+
+    /// <summary>Every block pair by its name.</summary>
+    private static readonly Dictionary<string, CollectibleBlockPairs.Pair> PairsByName =
+        Enum.GetValues<CollectibleBlockPairs.Pair>().ToDictionary(pair => pair.ToString(), StringComparer.Ordinal);
+
+    /// <summary>Every collectible look by its name.</summary>
+    private static readonly Dictionary<string, CollectibleLook> LooksByName =
+        Enum.GetValues<CollectibleLook>().ToDictionary(look => look.ToString(), StringComparer.Ordinal);
 
     /// <summary>
     /// Decodes the straddled terrain and writes it as JSON. No manifest is written (#1693): the document names its own
@@ -68,7 +78,8 @@ public static class StraddledTerrainFiles
     /// <summary>
     /// The straddled terrain decoded from <see cref="RoomLevelWordCodec"/>: every level word decoded once, its halves
     /// giving its block's lead and tail; the blocks sharing a lead, and the block numbers sharing a tail, listed as
-    /// classes; and every lead and tail decoded as the word they are stored as.
+    /// classes; every lead and tail decoded as the word they are stored as; and each block a collectible that shows its own
+    /// picture writes under it named with the number it is stored as.
     /// </summary>
     /// <exception cref="InvalidOperationException">
     /// The codec does not store every terrain block as exactly one word, the start of a block depends on more than its
@@ -116,16 +127,20 @@ public static class StraddledTerrainFiles
         return new StraddledTerrainDocument(
             StraddledTerrainFormat.Version,
             [.. tailClasses.Select(blocks => new StraddledTerrainDocument.Tail(Runs(blocks)))],
-            leads);
+            leads,
+            [.. CollectiblePairBlock.All.Select(block => new StraddledTerrainDocument.CollectibleBlock(
+                block.Pair.ToString(), block.Look.ToString(), CollectiblePairBlockNumbers.Of(block)))]);
     }
 
     /// <summary>
     /// Builds the straddled terrain from a document, requiring every block number in exactly one tail class, every block
-    /// of every mirroring and collision kind in exactly one lead class, and a straddled block for every lead and tail.
+    /// of every mirroring and collision kind in exactly one lead class, a straddled block for every lead and tail, and
+    /// every block a collectible that shows its own picture writes under it named once, which straddles, in every
+    /// mirroring and collision kind, as the block it names.
     /// </summary>
     /// <exception cref="InvalidDataException">
-    /// The document is incomplete, places a block in two classes, or names a block, mirroring or collision kind the game
-    /// does not have.
+    /// The document is incomplete, places a block in two classes, names a collectible's block twice, or names a block,
+    /// mirroring, collision kind, block pair or look the game does not have.
     /// </exception>
     internal static StraddledTerrain<RoomTerrainBlock> Read(StraddledTerrainDocument document)
     {
@@ -170,6 +185,7 @@ public static class StraddledTerrainFiles
         }
         if (leads.Count != Kinds.Length * Mirrorings.Length * BlockCount)
             throw new InvalidDataException("Straddled-terrain lead classes must hold every block of every mirroring and collision kind.");
+        AddCollectibleBlocks(Require(document.CollectibleBlocks, "collectible blocks"), tailOf, leads, tails);
         try
         {
             return new StraddledTerrain<RoomTerrainBlock>(leads, tails, outcomes);
@@ -178,6 +194,40 @@ public static class StraddledTerrainFiles
         {
             throw new InvalidDataException($"Straddled-terrain file is incomplete: {error.Message}", error);
         }
+    }
+
+    /// <summary>
+    /// Adds each block a collectible that shows its own picture writes under it, in every mirroring and collision kind,
+    /// with the lead and tail of the numbered block it straddles as (#2354).
+    /// </summary>
+    /// <exception cref="InvalidDataException">
+    /// A collectible's block is named twice or not at all, or an entry names a block pair, look or block the game does not have.
+    /// </exception>
+    private static void AddCollectibleBlocks(IReadOnlyList<StraddledTerrainDocument.CollectibleBlock?> entries, int[] tailOf,
+        Dictionary<RoomTerrainBlock, int> leads, Dictionary<RoomTerrainBlock, int> tails)
+    {
+        var named = new HashSet<CollectiblePairBlock>();
+        foreach (StraddledTerrainDocument.CollectibleBlock? entry in entries)
+        {
+            StraddledTerrainDocument.CollectibleBlock block = Require(entry, "collectible block entry");
+            var pairBlock = new CollectiblePairBlock(Named(PairsByName, block.Pair), Named(LooksByName, block.Look));
+            if (!named.Add(pairBlock))
+                throw new InvalidDataException($"Straddled-terrain file names the {pairBlock} twice.");
+            if (block.StraddlesAs is < 0 or >= BlockCount)
+                throw new InvalidDataException($"Straddled-terrain file has the {pairBlock} straddle as block {block.StraddlesAs}, which no block set holds.");
+            foreach (RoomCollisionType kind in Kinds)
+            {
+                foreach (BlockMirroring mirroring in Mirrorings)
+                {
+                    var numbered = new RoomTerrainBlock(RoomLevelWordCodec.AppearanceOf(block.StraddlesAs, mirroring), kind);
+                    var written = new RoomTerrainBlock(RoomBlockAppearance.Of(pairBlock).WithMirroring(mirroring), kind);
+                    leads.Add(written, leads[numbered]);
+                    tails.Add(written, tailOf[block.StraddlesAs]);
+                }
+            }
+        }
+        if (named.Count != CollectiblePairBlock.All.Length)
+            throw new InvalidDataException("Straddled-terrain file must name every block a collectible that shows its own picture writes.");
     }
 
     /// <summary>The runs of consecutive block numbers <paramref name="blocks"/> holds, lowest first.</summary>

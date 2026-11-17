@@ -39,11 +39,9 @@ internal static class RoomDefinitionIntegrationVerification
 
         var expected = CreateRetailRuntimeFixture();
         var actual = CreateRetailRuntimeFixture();
-        InitialViewportResult expectedViewport = InitializePostCeresLanding(expected);
-        InitialViewportResult actualViewport = InitializePostCeresLanding(actual);
+        InitializePostCeresLanding(expected);
+        InitializePostCeresLanding(actual);
 
-        AssertEqual(expectedViewport, actualViewport,
-            "guarded post-Ceres room entry retains initial viewport work");
         AssertEqual(expected.Room.ActiveLoadStation, actual.Room.ActiveLoadStation,
             "guarded post-Ceres room entry retains compiled station placement");
         AssertEqual(expected.Room.ActiveDoor, actual.Room.ActiveDoor,
@@ -101,14 +99,14 @@ internal static class RoomDefinitionIntegrationVerification
     }
 
     /// <summary>Starts the Ceres handoff and enters Landing Site with the timebomb event set.</summary>
-    private static InitialViewportResult InitializePostCeresLanding(
+    private static void InitializePostCeresLanding(
         SuperMetroidRuntime runtime)
     {
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(StoryEvent.ZebesTimebombSet);
-        return runtime.RoomLoader.InitializePostCeresZebesRoom();
+        runtime.RoomLoader.InitializePostCeresZebesRoom();
     }
 
     /// <summary>Collects native bytes owned by compiled load stations, doors, room headers/states, scroll grids, and callbacks.</summary>

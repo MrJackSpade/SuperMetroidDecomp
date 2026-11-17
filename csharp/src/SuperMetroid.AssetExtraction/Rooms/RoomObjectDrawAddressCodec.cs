@@ -124,10 +124,10 @@ internal static class RoomObjectDrawAddressCodec
         int side = eye.Left ? 0 : RoomObjectDrawSourceDefinitions.EyeDoorRightOffset;
         return eye.Part switch
         {
-            EyeDoorDraws.Component.Clear => Offset(RoomObjectDrawSourceDefinitions.EyeDoorMirroredOpeningClear, side),
-            EyeDoorDraws.Component.Eye => Offset(RoomObjectDrawSourceDefinitions.EyeDoorLeftEyeFirst, side + EyeDoorLookNames.TableIndex(eye.Look) * EyeStride),
-            EyeDoorDraws.Component.Middle => Offset(RoomObjectDrawSourceDefinitions.EyeDoorLeftMiddleFirst, side + EyeDoorLookNames.TableIndex(eye.Look) * OneBlockStride),
-            EyeDoorDraws.Component.Bottom => Offset(RoomObjectDrawSourceDefinitions.EyeDoorLeftBottomFirst, side + EyeDoorLookNames.TableIndex(eye.Look) * OneBlockStride),
+            null => Offset(RoomObjectDrawSourceDefinitions.EyeDoorMirroredOpeningClear, side),
+            EyeDoorComponent.Eye => Offset(RoomObjectDrawSourceDefinitions.EyeDoorLeftEyeFirst, side + EyeDoorLookNames.TableIndex(eye.Look) * EyeStride),
+            EyeDoorComponent.Door => Offset(RoomObjectDrawSourceDefinitions.EyeDoorLeftMiddleFirst, side + EyeDoorLookNames.TableIndex(eye.Look) * OneBlockStride),
+            EyeDoorComponent.Bottom => Offset(RoomObjectDrawSourceDefinitions.EyeDoorLeftBottomFirst, side + EyeDoorLookNames.TableIndex(eye.Look) * OneBlockStride),
             _ => throw new InvalidDataException($"Eye-door draw {eye} has no cartridge address."),
         };
     }

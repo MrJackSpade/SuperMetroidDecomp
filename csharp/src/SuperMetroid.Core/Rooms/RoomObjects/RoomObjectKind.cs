@@ -7,8 +7,9 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// the room's update order that holds no identified object.
 /// </summary>
 /// <remarks>
-/// The exposed, Chozo-orb and concealed shot-block items each name one object per <see cref="InWorldCollectibleKind"/>;
-/// doors name one object per colour and facing. A boss's change to its room (a wall, ceiling, bridge, platform, mural
+/// The exposed, Chozo-orb and concealed shot-block items name one object for each <see cref="InWorldCollectibleKind"/>
+/// some room places in that presentation, and doors one for each colour and facing some room places (#2354): a kind no
+/// room population places has no member. A boss's change to its room (a wall, ceiling, bridge, platform, mural
 /// row or tube) has no identity here (#1608), and neither has a gate trigger's shot, the Wrecked Ship treadmill or the
 /// Maridia elevatube, nor does any object a Chozo statue, Tourian, the Wrecked Ship, Shaktool's room, the critters'
 /// escape or an enemy's break of a block spawns carry one (#1622): its spawner places it by what it does, and its typed
@@ -109,12 +110,6 @@ public enum RoomObjectKind
     /// <summary>A red door cap facing right, opened by missiles.</summary>
     RedDoorFacingRight,
 
-    /// <summary>A red door cap facing up, opened by missiles.</summary>
-    RedDoorFacingUp,
-
-    /// <summary>A red door cap facing down, opened by missiles.</summary>
-    RedDoorFacingDown,
-
     /// <summary>
     /// The gate of the first room of the Tourian escape. Samus coming in from Mother Brain's room makes the door closing
     /// close it behind her.
@@ -176,59 +171,8 @@ public enum RoomObjectKind
     /// <summary>A Power Bomb Tank lying in the open.</summary>
     ExposedPowerBombTank,
 
-    /// <summary>The Bombs lying in the open.</summary>
-    ExposedBombs,
-
-    /// <summary>The Charge Beam lying in the open.</summary>
-    ExposedChargeBeam,
-
-    /// <summary>The Ice Beam lying in the open.</summary>
-    ExposedIceBeam,
-
-    /// <summary>The Hi-Jump Boots lying in the open.</summary>
-    ExposedHiJumpBoots,
-
-    /// <summary>The Speed Booster lying in the open.</summary>
-    ExposedSpeedBooster,
-
-    /// <summary>The Wave Beam lying in the open.</summary>
-    ExposedWaveBeam,
-
-    /// <summary>The Spazer lying in the open.</summary>
-    ExposedSpazerBeam,
-
-    /// <summary>The Spring Ball lying in the open.</summary>
-    ExposedSpringBall,
-
-    /// <summary>The Varia Suit lying in the open.</summary>
-    ExposedVariaSuit,
-
-    /// <summary>The Gravity Suit lying in the open.</summary>
-    ExposedGravitySuit,
-
-    /// <summary>The X-Ray Scope lying in the open.</summary>
-    ExposedXrayScope,
-
-    /// <summary>The Plasma Beam lying in the open.</summary>
-    ExposedPlasmaBeam,
-
-    /// <summary>The Grapple Beam lying in the open.</summary>
-    ExposedGrappleBeam,
-
-    /// <summary>The Space Jump lying in the open.</summary>
-    ExposedSpaceJump,
-
-    /// <summary>The Screw Attack lying in the open.</summary>
-    ExposedScrewAttack,
-
     /// <summary>The Morph Ball lying in the open.</summary>
     ExposedMorphBall,
-
-    /// <summary>A Reserve Tank lying in the open.</summary>
-    ExposedReserveTank,
-
-    /// <summary>An Energy Tank held in a Chozo statue's orb.</summary>
-    ChozoEnergyTank,
 
     /// <summary>A Missile Tank held in a Chozo statue's orb.</summary>
     ChozoMissileTank,
@@ -284,9 +228,6 @@ public enum RoomObjectKind
     /// <summary>The Screw Attack held in a Chozo statue's orb.</summary>
     ChozoScrewAttack,
 
-    /// <summary>The Morph Ball held in a Chozo statue's orb.</summary>
-    ChozoMorphBall,
-
     /// <summary>A Reserve Tank held in a Chozo statue's orb.</summary>
     ChozoReserveTank,
 
@@ -298,58 +239,4 @@ public enum RoomObjectKind
 
     /// <summary>A Super Missile Tank hidden in a shot block.</summary>
     ShotBlockSuperMissileTank,
-
-    /// <summary>A Power Bomb Tank hidden in a shot block.</summary>
-    ShotBlockPowerBombTank,
-
-    /// <summary>The Bombs hidden in a shot block.</summary>
-    ShotBlockBombs,
-
-    /// <summary>The Charge Beam hidden in a shot block.</summary>
-    ShotBlockChargeBeam,
-
-    /// <summary>The Ice Beam hidden in a shot block.</summary>
-    ShotBlockIceBeam,
-
-    /// <summary>The Hi-Jump Boots hidden in a shot block.</summary>
-    ShotBlockHiJumpBoots,
-
-    /// <summary>The Speed Booster hidden in a shot block.</summary>
-    ShotBlockSpeedBooster,
-
-    /// <summary>The Wave Beam hidden in a shot block.</summary>
-    ShotBlockWaveBeam,
-
-    /// <summary>The Spazer hidden in a shot block.</summary>
-    ShotBlockSpazerBeam,
-
-    /// <summary>The Spring Ball hidden in a shot block.</summary>
-    ShotBlockSpringBall,
-
-    /// <summary>The Varia Suit hidden in a shot block.</summary>
-    ShotBlockVariaSuit,
-
-    /// <summary>The Gravity Suit hidden in a shot block.</summary>
-    ShotBlockGravitySuit,
-
-    /// <summary>The X-Ray Scope hidden in a shot block.</summary>
-    ShotBlockXrayScope,
-
-    /// <summary>The Plasma Beam hidden in a shot block.</summary>
-    ShotBlockPlasmaBeam,
-
-    /// <summary>The Grapple Beam hidden in a shot block.</summary>
-    ShotBlockGrappleBeam,
-
-    /// <summary>The Space Jump hidden in a shot block.</summary>
-    ShotBlockSpaceJump,
-
-    /// <summary>The Screw Attack hidden in a shot block.</summary>
-    ShotBlockScrewAttack,
-
-    /// <summary>The Morph Ball hidden in a shot block.</summary>
-    ShotBlockMorphBall,
-
-    /// <summary>A Reserve Tank hidden in a shot block.</summary>
-    ShotBlockReserveTank,
 }

@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 public sealed class RoomFloor
 {
     /// <summary>The frame each animated part shows now; a part absent from it shows as the installed floor pictures it.</summary>
-    internal readonly Dictionary<CeresFloorPart, CeresFloorAnimationFrame> shown = [];
+    private readonly Dictionary<CeresFloorPart, CeresFloorAnimationFrame> shown = [];
 
     /// <summary>The floor as composed, until a part shows another frame.</summary>
     private AffineFloor? published;

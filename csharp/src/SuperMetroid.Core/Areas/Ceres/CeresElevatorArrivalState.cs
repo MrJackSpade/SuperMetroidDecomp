@@ -15,9 +15,9 @@ namespace SuperMetroid.Core.Areas.Ceres;
 public sealed class CeresElevatorArrivalState
 {
     /// <summary>The moving pad, which lowers Samus before the platform checks for her landing.</summary>
-    internal readonly CeresElevatorProjectile pad;
+    private readonly CeresElevatorProjectile pad;
     /// <summary>The stationary platform, which waits behind the pad until Samus lands.</summary>
-    internal readonly CeresElevatorProjectile platform;
+    private readonly CeresElevatorProjectile platform;
 
     /// <summary>Starts the pad under Samus, waiting before it moves, and the platform at its fixed height below her.</summary>
     public CeresElevatorArrivalState(SamusState samus)
@@ -55,9 +55,6 @@ public sealed class CeresElevatorArrivalState
             }
             else
             {
-                if (pad.WaitTimer == 1)
-                    pad.WaitTimer = 0;
-
                 // The descent samples the old Samus position for the pad, then increments
                 // Samus. That one-pixel separation is visible throughout the descent.
                 pad.Position = pad.Position.WithY(MovingPadUnder(samus).Y);

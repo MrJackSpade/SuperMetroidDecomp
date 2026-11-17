@@ -17,6 +17,8 @@ internal static class CeresShaftRotationVerification
                 $"shaft hold of native record {record}");
         var carryover = new RoomMainCarryover();
         var state = new CeresElevatorShaftRoomMainState(carryover);
+        // Departure is not allowed, so the elevator trigger never reads where Samus stands.
+        SuperMetroid.Core.Samus.SamusState samus = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateSamus();
         ushort phaseWord = 34, timer = 60;
         int updates = 0;
         // Four full sweeps: compare every held frame as well as every tilt
@@ -29,7 +31,7 @@ internal static class CeresShaftRotationVerification
             int offset = (ushort)(phaseWord * 6);
             if (changed)
                 timer = rom.ReadCartridgeWord(CeresShaftRotationDefinitions.ReferenceAddress + offset);
-            var actual = state.Step(null, elevatorDoorDestroyed: true, allowDeparture: false, carryover);
+            var actual = state.Step(samus, elevatorDoorDestroyed: true, allowDeparture: false, carryover);
             AssertEqual(changed, actual.TiltChanged, "shaft tilt publication frame");
             AssertEqual(timer, state.HoldFramesLeft, "shaft native timer every frame");
             if (changed)

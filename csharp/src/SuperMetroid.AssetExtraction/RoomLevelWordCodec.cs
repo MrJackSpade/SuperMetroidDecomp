@@ -103,12 +103,24 @@ public static class RoomLevelWordCodec
 
     /// <summary>
     /// The block number a level word stores for <paramref name="appearance"/>: its block's, the open-space block for
-    /// nothing, and the fill's block for terrain beyond the room, which the cartridge's level space holds there.
+    /// nothing, the fill's block for terrain beyond the room, which the cartridge's level space holds there, and for a
+    /// collectible's pair block the number the import gives it (<see cref="Rooms.CollectiblePairBlockNumbers"/>, #2354).
     /// </summary>
     /// <param name="appearance">The appearance.</param>
     /// <exception cref="ArgumentOutOfRangeException">The block is past what a level word can name.</exception>
     public static int BlockNumberOf(RoomBlockAppearance appearance) =>
         appearance.ShowsNothing ? NothingBlockNumber
             : appearance.IsBeyondRoom ? Rooms.RoomLevelSpaceDefinitions.PrefillWord & BlockMask
+            : appearance.IsCollectiblePairBlock ? Rooms.CollectiblePairBlockNumbers.Of(appearance.PairBlock)
             : Ensure.BetweenInclusive(0, BlockNumbers - 1, appearance.Block);
+
+    /// <summary>
+    /// The terrain a level word storing <paramref name="terrain"/> decodes to: the terrain itself, but a collectible's pair
+    /// block as the numbered block the word stores for it (#2354), which a level word read from the cartridge decodes to.
+    /// </summary>
+    /// <param name="terrain">The terrain block.</param>
+    internal static RoomTerrainBlock AsStored(RoomTerrainBlock terrain) =>
+        terrain.Appearance.IsCollectiblePairBlock
+            ? new(AppearanceOf(BlockNumberOf(terrain.Appearance), terrain.Appearance.Mirroring), terrain.Collision)
+            : terrain;
 }

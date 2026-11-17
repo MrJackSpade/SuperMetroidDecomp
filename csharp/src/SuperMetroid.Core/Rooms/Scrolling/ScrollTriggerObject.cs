@@ -4,30 +4,17 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Rooms.Scrolling;
 
 /// <summary>
-/// A room's scroll trigger (#1554): a block of special air that, once Samus touches it, applies its ordered scroll-cell
-/// writes on the next room-object update and then rests again, ready for the next touch.
+/// A room's scroll trigger (#1554): a block of special air that, once Samus touches it, applies its room's authored scroll
+/// change on the next room-object update and then rests again, ready for the next touch.
 /// </summary>
-internal sealed class ScrollTriggerObject : RoomObjectBehaviour
+/// <param name="change">The room's authored scroll change.</param>
+internal sealed class ScrollTriggerObject(RoomScrollChange change) : RoomObjectBehaviour
 {
-    /// <summary>Creates a trigger that applies a room's authored scroll change or a constructed room's validated writes.</summary>
-    /// <param name="writes">A constructed room's writes, in order; null when the trigger applies <paramref name="change"/>.</param>
-    /// <param name="change">The room's authored scroll change; null when the trigger applies <paramref name="writes"/>.</param>
-    /// <exception cref="InvalidOperationException">Neither is given.</exception>
-    internal ScrollTriggerObject(IReadOnlyList<ScreenScrollChange>? writes, RoomScrollChange? change)
-    {
-        Change = change;
-        Writes = change.HasValue ? null : writes?.ToArray() ?? throw new InvalidOperationException(
-            "A scroll trigger has neither an authored scroll change nor constructed writes.");
-    }
-
     /// <summary>Whether Samus has touched the trigger since its writes last ran; repeated touches before then change nothing.</summary>
     internal bool Triggered { get; private set; }
 
-    /// <summary>The authored scroll change the trigger applies, independent of later room-argument edits; null for constructed writes.</summary>
-    internal RoomScrollChange? Change { get; }
-
-    /// <summary>A constructed room's validated writes, in order; null when the trigger applies <see cref="Change"/>.</summary>
-    internal IReadOnlyList<ScreenScrollChange>? Writes { get; }
+    /// <summary>The authored scroll change the trigger applies, independent of later room-argument edits.</summary>
+    internal RoomScrollChange Change { get; } = change;
 
     /// <summary>Samus touches the trigger: its writes run on the next room-object update.</summary>
     internal void Touch() => Triggered = true;
@@ -38,12 +25,7 @@ internal sealed class ScrollTriggerObject : RoomObjectBehaviour
         Ensure.NotNull(place);
         if (!Triggered)
             return;
-        RoomScrollGrid scrolls = context.Frame.Scrolls;
-        if (Change is { } change)
-            RoomObjectScrollChanges.Apply(change, scrolls.SetScreen);
-        else
-            foreach (ScreenScrollChange write in Writes ?? throw new InvalidOperationException("A scroll trigger lost its writes."))
-                scrolls.SetScreen(write.Screen, write.State);
+        RoomObjectScrollChanges.Apply(Change, context.Frame.Scrolls.SetScreen);
         Rest(context.Level, place.Block);
     }
 

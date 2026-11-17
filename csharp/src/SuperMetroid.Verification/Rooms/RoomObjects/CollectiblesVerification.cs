@@ -67,28 +67,49 @@ internal static class CollectiblesVerification
         for (int kindIndex = 0; kindIndex < 21; kindIndex++)
         {
             InWorldCollectibleKind kind = (InWorldCollectibleKind)kindIndex;
+            // Each kind lies as some room places it (#2354): in the open where a room places it so, otherwise in a Chozo
+            // statue's orb, which is shot open first.
+            (RoomObjectKind header, PermanentCollectibleObject item) = PermanentCollectibleObjectDefinitions.Items
+                .Where(entry => entry.Value.Kind == kind)
+                .OrderBy(entry => entry.Value.Presentation == CollectiblePresentation.Exposed ? 0 : 1)
+                .First(entry => entry.Value.Presentation is CollectiblePresentation.Exposed or CollectiblePresentation.ChozoOrb);
             // Each kind stands at its own retail item location, numbered from the first of the contiguous run 128 through 152.
             ushort location = unchecked((ushort)(128 + kindIndex));
-            CollectibleFixture fixture = LoadCollectible(bus, header: unchecked((ushort)(0xeed7 + kindIndex * 4)), roomArgument: location, precollected: false);
+            // The Chozo-orb Speed Booster's message starts its room's lava rising, so its room has liquid to rise.
+            RoomFxOverlayState? roomFx = header == RoomObjectKind.ChozoSpeedBooster
+                ? RoomFxOverlayState.ForRoom(RoomFxDefinitions.Suffix(0x8600), null, 0)
+                : null;
+            roomFx?.BindAudioRequests(GameplayAudioRequests.Standalone());
+            CollectibleFixture fixture = LoadCollectible(bus, header: RoomObjectNativeWords.Word(header), roomArgument: location, precollected: false, roomFx: roomFx);
 
             AssertEqual(1, fixture.RoomObjects.CollectibleObjects.Collectibles.Count,
-                $"{kind} exposed header loads through room population");
+                $"{kind} header loads through room population");
             CollectibleObjectSnapshot loaded = fixture.RoomObjects.CollectibleObjects.Collectibles[0];
             AssertEqual(kind, loaded.Kind, $"{kind} header identity");
-            AssertEqual(CollectiblePresentation.Exposed, fixture.RoomObjects.CollectiblePresentations[0],
-                $"{kind} exposed presentation");
+            AssertEqual(item.Presentation, fixture.RoomObjects.CollectiblePresentations[0],
+                $"{kind} presentation");
             if (kind is InWorldCollectibleKind.VariaSuit or InWorldCollectibleKind.GravitySuit)
                 fixture.Samus.BeamCharge.FlareCounter = 60;
 
             fixture.RoomObjects.Step(fixture.Level);
+            if (item.Presentation == CollectiblePresentation.ChozoOrb)
+            {
+                AssertTrue(fixture.RoomObjects.CollectibleObjects.TryNotifyCollectibleProjectileHit(fixture.Block),
+                    $"{kind}'s orb accepts a projectile");
+                StepUntil(
+                    () => fixture.RoomObjects.CollectiblePhases[0] == CollectiblePhase.Visible,
+                    _ => fixture.RoomObjects.Step(fixture.Level),
+                    maximumFrames: 20,
+                    context: $"{kind}'s orb burst");
+            }
             if (kind >= InWorldCollectibleKind.Bombs)
             {
-                // The room's only collectible takes the first block pair, whose first-frame block its first draw writes into
-                // the terrain; BG1 shows the item's own picture's first frame over it (#1538).
+                // The room's only collectible takes the first block pair, whose block under the primary look its first
+                // visible draw writes into the terrain (#2354); BG1 shows the item's own picture's first frame over it (#1538).
                 AssertEqual(
-                    RoomBlockAppearance.Of(0x08e),
+                    RoomBlockAppearance.Of(new CollectiblePairBlock(CollectibleBlockPairs.Pair.First, CollectibleLook.Primary)),
                     fixture.Level.GetCollisionBlockByIndex(fixture.BlockIndex).Terrain.Appearance,
-                    $"{kind} writes the first block pair's first-frame block");
+                    $"{kind} writes the first block pair's primary-look block");
                 AssertEqual(
                     RoomCellPicture.Of(new CollectiblePicture(kind, CollectibleLook.Primary)),
                     fixture.Level.ForegroundPlane.Cells.Cells[fixture.BlockIndex].Picture,
@@ -150,7 +171,7 @@ internal static class CollectiblesVerification
         // A Chozo orb accepts projectile contact, performs its authored burst, then becomes
         // the same visible/touchable item. Acquisition must retain the triggering physical
         // location rather than confusing the projectile type with an item location.
-        CollectibleFixture orb = LoadCollectible(bus, header: unchecked(0xef2b + (int)InWorldCollectibleKind.MorphBall * 4), roomArgument: 79, precollected: false);
+        CollectibleFixture orb = LoadCollectible(bus, header: RoomObjectNativeWords.Word(RoomObjectKind.ChozoBombs), roomArgument: 79, precollected: false);
         orb.RoomObjects.Step(orb.Level);
         var grappleSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         grappleSamus.Position = grappleSamus.Position.WithWhole(new((ushort)((orb.BlockIndex % orb.Level.Size.X) * 16 + 8), (ushort)((orb.BlockIndex / orb.Level.Size.X) * 16 + 8)));
@@ -171,8 +192,8 @@ internal static class CollectiblesVerification
         orb.RoomObjects.Step(orb.Level);
         AssertTrue(orb.System.HasCollectedItemBit(79),
             "Chozo item persists its room argument bit");
-        AssertTrue((orb.Samus.CollectedItems & SamusEquipmentFlags.MorphBall) != 0,
-            "Chozo Morph Ball grants equipment");
+        AssertTrue((orb.Samus.CollectedItems & SamusEquipmentFlags.Bombs) != 0,
+            "Chozo Bombs grant equipment");
 
         AssertEqual(orbItemWord, orb.Level.GetCollisionBlockByIndex(orb.BlockIndex).Terrain,
             "Chozo pickup remains visible throughout message");
@@ -180,7 +201,7 @@ internal static class CollectiblesVerification
         orb.RoomObjects.Step(orb.Level);
         AssertEqual(0, orb.RoomObjects.CollectibleObjects.Collectibles.Count, "Chozo pickup deletes after message");
 
-        CollectibleFixture reopenedOrb = LoadCollectible(bus, header: unchecked(0xef2b + (int)InWorldCollectibleKind.MorphBall * 4), roomArgument: 79, precollected: false);
+        CollectibleFixture reopenedOrb = LoadCollectible(bus, header: RoomObjectNativeWords.Word(RoomObjectKind.ChozoBombs), roomArgument: 79, precollected: false);
         AssertEqual(CollectiblePhase.ChozoOrb, reopenedOrb.RoomObjects.CollectiblePhases[0],
             "an uncollected Chozo item rebuilds its orb on reload");
         AssertTrue(!reopenedOrb.System.HasCollectedItemBit(79),

@@ -16,11 +16,6 @@ internal static class DownwardGateDefinitions
     /// <summary>The sound the gate's movement plays.</summary>
     public static readonly SoundEffectId MovementSound = RoomSound.GateMoving;
 
-    /// <summary>
-    /// The pixels in a room block: the gate room object's block in pixels, and the travel after which the moving gate
-    /// projectile reaches its next block.
-    /// </summary>
-    public const int PixelsPerRoomBlock = 16;
     /// <summary>Positions the closed gate projectile four blocks below its room-object origin.</summary>
     public const int ClosedPositionOffsetPixels = 64;
 }

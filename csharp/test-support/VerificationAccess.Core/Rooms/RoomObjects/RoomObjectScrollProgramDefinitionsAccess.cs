@@ -62,7 +62,7 @@ internal static class RoomObjectScrollProgramDefinitionsAccess
             {
                 foreach (RoomObjectPlacement placement in state.ObjectPopulation.Placements.ToArray())
                 {
-                    if (placement.CompiledScrollChange is not { } change)
+                    if (placement.ScrollChange is not { } change)
                         continue;
                     if (placedIn.TryGetValue(change, out RoomDefinition? earlier) && earlier.Name != room.Name)
                         throw new InvalidDataException($"{change} is placed in both {earlier.Name} and {room.Name}.");

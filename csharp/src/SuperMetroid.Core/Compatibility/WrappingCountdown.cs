@@ -59,7 +59,7 @@ public readonly record struct WrappingCountdown
 
     /// <summary>The countdown's count, 0 through 65535.</summary>
     [IntegerQuantity("the countdown's remaining count")]
-    internal readonly ushort count;
+    private readonly ushort count;
 
     /// <summary>Stores <paramref name="frames"/> exactly; callers use <see cref="Start"/>.</summary>
     private WrappingCountdown(ushort frames) => count = frames;

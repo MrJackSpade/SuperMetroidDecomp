@@ -21,7 +21,7 @@ internal static class RoomObjectDefinitionMigrationVerification
         // The header words are verification's; the identities' own values are arbitrary.
         AssertEqual(0xb63b, RoomObjectNativeWords.Word(RoomObjectKind.RightwardsScrollExtension), "first PLM header word");
         AssertEqual(0xc85a, RoomObjectNativeWords.Word(RoomObjectKind.YellowDoorFacingLeft), "yellow door header word");
-        AssertEqual(0xefcf, RoomObjectNativeWords.Word(RoomObjectKind.ShotBlockReserveTank), "last PLM header word");
+        AssertEqual(0xef87, RoomObjectNativeWords.Word(RoomObjectKind.ShotBlockSuperMissileTank), "last placed PLM header word");
         AssertEqual(RoomObjectKind.EyeDoorFacingRight, RoomObjectNativeWords.Header(0xdb4c), "eye door header decodes");
 
         // Door and item identification by member equals the former range and stride arithmetic.
@@ -32,12 +32,13 @@ internal static class RoomObjectDefinitionMigrationVerification
             && torizo == ColoredDoorOrientation.Right, "Bomb Torizo grey door faces right");
         AssertTrue(GreyDoorObjectsConstants.TryIdentifyGreyDoor(RoomObjectKind.GreyDoorFacingDown, out ColoredDoorOrientation down)
             && down == ColoredDoorOrientation.Down, "grey door facing down");
-        AssertTrue(CollectibleObjects.TryIdentifyPermanentCollectible(RoomObjectKind.ChozoMorphBall, out InWorldCollectibleKind kind, out CollectiblePresentation presentation)
-            && kind == InWorldCollectibleKind.MorphBall && presentation == CollectiblePresentation.ChozoOrb, "Chozo Morph Ball");
-        AssertTrue(CollectibleObjects.TryIdentifyPermanentCollectible(RoomObjectKind.ShotBlockReserveTank, out kind, out presentation)
-            && kind == InWorldCollectibleKind.ReserveTank && presentation == CollectiblePresentation.ShotBlock, "shot-block Reserve Tank");
-        AssertTrue(!CollectibleObjects.TryIdentifyPermanentCollectible(RoomObjectKind.RedDoorFacingUp, out _, out _), "a door is no item");
-        AssertEqual(63, PermanentCollectibleObjectDefinitions.Items.Count, "three presentations of twenty-one items");
+        AssertEqual(new PermanentCollectibleObject(InWorldCollectibleKind.Bombs, CollectiblePresentation.ChozoOrb),
+            PermanentCollectibleObjectDefinitions.Items[RoomObjectKind.ChozoBombs], "Chozo Bombs");
+        AssertEqual(new PermanentCollectibleObject(InWorldCollectibleKind.SuperMissileTank, CollectiblePresentation.ShotBlock),
+            PermanentCollectibleObjectDefinitions.Items[RoomObjectKind.ShotBlockSuperMissileTank], "shot-block Super Missile Tank");
+        AssertTrue(!PermanentCollectibleObjectDefinitions.Items.ContainsKey(RoomObjectKind.RedDoorFacingLeft), "a door is no item");
+        // Only the items some room places in each presentation (#2354): five exposed, nineteen in an orb, three in a shot block.
+        AssertEqual(27, PermanentCollectibleObjectDefinitions.Items.Count, "the items the rooms place");
 
         // The station animations are named by access rule instead of the header's list word plus an offset.
         AssertEqual(StationAnimation.MapIdle, StationAccessRuleDefinitions.Map.Animation, "map station animation");
@@ -49,7 +50,6 @@ internal static class RoomObjectDefinitionMigrationVerification
         AssertEqual(5, DownwardGateDefinitions.GateHeightInBlocks, "gate height");
         AssertEqual(RoomBlockBehaviorCodec.Decode(0x10), DownwardGateDefinitions.ClosedGateBehavior, "closed gate behaviour");
         // The cartridge counts the gate's travel in 256ths of a pixel to $1000; the port counts the same block in pixels.
-        AssertEqual(16, DownwardGateDefinitions.PixelsPerRoomBlock, "gate projectile reaches a block every sixteen pixels");
         AssertEqual(RoomCollisionType.SolidBlock, NoobTubeObjectDefinitions.OriginCollision, "n00b tube origin collision");
         AssertEqual(11, NativeEarthquakeTypes.TypeOf(NoobTubeObjectDefinitions.Earthquake), "n00b tube earthquake type");
         AssertEqual(0x0040, NoobTubeObjectDefinitions.EarthquakeFrames, "n00b tube earthquake length");

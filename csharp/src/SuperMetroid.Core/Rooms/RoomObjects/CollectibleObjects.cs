@@ -197,21 +197,6 @@ internal sealed class CollectibleObjects
         or InWorldCollectibleKind.MissileTank or InWorldCollectibleKind.SuperMissileTank or InWorldCollectibleKind.PowerBombTank);
 
     /// <summary>
-    /// Names the item and presentation of a permanent-item room object; false for every other room object. This public read-only seam
-    /// lets audits inventory room populations without duplicating the permanent-item catalog.
-    /// </summary>
-    public static bool TryIdentifyPermanentCollectible(
-        RoomObjectKind objectKind,
-        out InWorldCollectibleKind kind,
-        out CollectiblePresentation presentation)
-    {
-        bool found = PermanentCollectibleObjectDefinitions.Items.TryGetValue(objectKind, out PermanentCollectibleObject item);
-        kind = item.Kind;
-        presentation = item.Presentation;
-        return found;
-    }
-
-    /// <summary>
     /// Collects <paramref name="item"/>, placed at <paramref name="place"/>: sets persistence and inventory before publishing
     /// the synchronous message and fanfare request.
     /// </summary>

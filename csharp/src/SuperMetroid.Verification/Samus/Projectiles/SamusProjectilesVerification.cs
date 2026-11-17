@@ -1197,13 +1197,13 @@ internal static void VerifySamusPowerBeamProjectiles()
     InstallLandingSiteBlueDoorObjectFixture(bus);
 
     // Room loading runs the shared `$84:C7B1` setup for every colored-door header before
-    // gameplay projectiles can inspect the decompressed collision map. Exercise all three
-    // colors and four orientations so no uncertain header is silently treated as a blue cap.
+    // gameplay projectiles can inspect the decompressed collision map. Exercise every colour and orientation some room
+    // places (#2354) so no uncertain header is silently treated as a blue cap.
     ushort[] coloredDoorHeaders =
     [
         0xc85a, 0xc860, 0xc866, 0xc86c,
         0xc872, 0xc878, 0xc87e, 0xc884,
-        0xc88a, 0xc890, 0xc896, 0xc89c,
+        0xc88a, 0xc890,
     ];
     const ushort coloredDoorPopulation = 0x9000;
     var coloredDoorWords = new RoomTerrainBlock[16 * 16];

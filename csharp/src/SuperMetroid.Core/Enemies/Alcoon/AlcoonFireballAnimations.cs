@@ -26,11 +26,14 @@ internal static class AlcoonFireballAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<AlcoonFireballSegment, Animation<AlcoonFireballSegment>> StartingAt { get; } = new Dictionary<AlcoonFireballSegment, Animation<AlcoonFireballSegment>>
     {
-        [P.Initial] = new([new(P.Initial, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.Initial] = new([Whole(P.Initial)], AnimationEnd.LoopsFrom(0)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<AlcoonFireballSegment> StartingWith(AlcoonFireballSegment segment) => StartingAt[segment];
+
+    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
+    private static AnimationPhase<AlcoonFireballSegment> Whole(AlcoonFireballSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Frame(frame, duration);

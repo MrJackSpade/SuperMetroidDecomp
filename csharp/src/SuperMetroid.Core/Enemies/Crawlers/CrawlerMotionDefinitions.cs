@@ -3,6 +3,9 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 /// <summary>How far a crawler probes ahead of its crawl, how it falls and the speed it lands with (#2279).</summary>
 internal static class CrawlerMotionDefinitions
 {
+    /// <summary>The number of successive missed surface probes at which a crawler stops turning and falls.</summary>
+    internal const int MissedProbesBeforeFalling = 4;
+
     /// <summary>The whole pixels a crawler's wall and surface probes reach past its crawl step, in the way it moves.</summary>
     internal const int ProbeMargin = 1;
 

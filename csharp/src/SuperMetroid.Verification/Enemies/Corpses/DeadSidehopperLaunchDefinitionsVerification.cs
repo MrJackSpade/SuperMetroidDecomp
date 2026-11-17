@@ -26,7 +26,7 @@ internal static class DeadSidehopperLaunchDefinitionsVerification
             ushort vy = CartridgeImportSource.Require(rom).ReadCartridgeWord((EnemyRomTablePointersDeadSidehopper.VerticalVelocityWords + phase * 2));
             AssertEqual(vx, DeadSidehopperLaunchDefinitions.Velocity(phase).X.RawValue, "Native corpse X launch");
             AssertEqual(vy, DeadSidehopperLaunchDefinitions.Velocity(phase).Y.RawValue, "Native corpse Y launch");
-            foreach (int drainStage in new[] { 0, 1 })
+            foreach (SidehopperDrainStage drainStage in new[] { SidehopperDrainStage.Untouched, SidehopperDrainStage.LatchedOn })
             // The pause starts at its true duration and ends on the step that takes it to zero; one at zero ends on its next
             // step. Every count it can hold is swept.
             for (int raw = 0; raw <= DeadSidehopperVictimDefinitions.PostLandingPause; raw++)
@@ -41,7 +41,7 @@ internal static class DeadSidehopperLaunchDefinitionsVerification
                 dispatch(place, state, RoomEnemyFrameFixtures.StandaloneSamus(), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), default);
                 int timer = raw - 1;
                 bool expired = timer <= 0;
-                bool launch = expired && drainStage == 0;
+                bool launch = expired && drainStage == SidehopperDrainStage.Untouched;
                 AssertEqual(timer, state.StateTimer, "Exact delay decrement, ending at zero");
                 AssertEqual(launch ? vx : (ushort)0x1234, state.Velocity.X.RawValue, "Timer and drain gates control X launch");
                 AssertEqual(launch ? vy : (ushort)0x1234, state.Velocity.Y.RawValue, "Timer and drain gates control Y launch");

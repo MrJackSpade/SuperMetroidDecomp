@@ -297,10 +297,10 @@ internal sealed class EnemySheetShades
             case EnemyDefinitionId.FaceBlock:
             {
                 EnemyAuxiliaryColorCatalog auxiliary = inputs.Enemies.AuxiliaryColors ?? throw Missing("face-block glow colours");
-                for (int frame = 0; frame < FaceBlockShades.GlowFrames; frame++)
+                foreach (FaceBlockGlowFrame frame in FaceBlockGlowFrame.All)
                 {
-                    int step = frame;
-                    shades.Add(SheetShade.Run(FaceBlockShades.Glow(step), first + EnemySheetRowDefinitions.GlowFirstColour,
+                    int step = frame.Frame;
+                    shades.Add(SheetShade.Run(FaceBlockShades.Glow(frame), first + EnemySheetRowDefinitions.GlowFirstColour,
                         Frame(4, colour => auxiliary.Resolve(EnemyAuxiliaryPalette.FaceBlock, step, colour))));
                 }
                 break;
@@ -377,10 +377,10 @@ internal sealed class EnemySheetShades
                 // The Shitroid's victim shows the encounter's entry colours before it is drained (#1512).
                 shades.AddRange(SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.Shitroid(inputs.Bosses));
                 EnemyAuxiliaryColorCatalog auxiliary = inputs.Enemies.AuxiliaryColors ?? throw Missing("dead Sidehopper drain colours");
-                for (int drain = 0; drain < TourianCorpseShades.SidehopperDrainSteps; drain++)
+                foreach (SidehopperDrainStage stage in SidehopperDrainStage.Shaded)
                 {
-                    int step = drain;
-                    shades.Add(SheetShade.Run(TourianCorpseShades.SidehopperDrain(step), first + EnemySheetRowDefinitions.SidehopperDrainFirstColour,
+                    int step = stage.ShadeStep;
+                    shades.Add(SheetShade.Run(TourianCorpseShades.SidehopperDrain(stage), first + EnemySheetRowDefinitions.SidehopperDrainFirstColour,
                         Frame(LoadedSetColours.RowColours - EnemySheetRowDefinitions.SidehopperDrainFirstColour,
                             colour => auxiliary.Resolve(EnemyAuxiliaryPalette.DeadSidehopper, step, colour))));
                 }

@@ -177,7 +177,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     private static bool IsBoyonSamusWithinHorizontalRange(RoomEnemyPlace place, SamusState samus)
     {
         int distance = CoordinateAxis.Distance(samus.Position.X.Whole, place.Position.X.Whole);
-        return CoordinateAxis.Precedes(distance, place.SpawnSettings<BoyonSpawnSettings>().TriggerDistance);
+        return distance < place.SpawnSettings<BoyonSpawnSettings>().TriggerDistance;
     }
 
     /// <summary>Starts the idle or bounce animation and restarts its frame and auxiliary timers.</summary>

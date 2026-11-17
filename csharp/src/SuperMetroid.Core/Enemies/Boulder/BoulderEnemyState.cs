@@ -14,11 +14,6 @@ public sealed class BoulderEnemyState
     public BoulderAction Action { get; internal set; }
 
     /// <summary>
-    /// The largest bounce clock: the place past the curve's last mark, which the curve rejects before another increment.
-    /// </summary>
-    internal static readonly QuadraticSpeedCurvePlace LargestBounceSpeedAccumulator = QuadraticSpeedCurvePlace.PastLastMark;
-
-    /// <summary>
     /// The travel acceleration clock along the quadratic speed curve: advanced by 32 or 64 256ths of a mark per update
     /// and capped at mark 80 or 64, so it stays within the start through mark 80; its whole marks select the speed. It
     /// drives horizontal travel while bouncing and rolling, and also the ground-following fall while rolling, so it is
@@ -39,7 +34,7 @@ public sealed class BoulderEnemyState
     public QuadraticSpeedCurvePlace BounceSpeedAccumulator
     {
         get;
-        internal set => field = InRange(value, LargestBounceSpeedAccumulator);
+        internal set => field = InRange(value, BoulderMotionDefinitions.LargestBounceSpeed);
     }
 
     /// <summary><paramref name="value"/>, checked to lie from the curve's start through <paramref name="largest"/>.</summary>

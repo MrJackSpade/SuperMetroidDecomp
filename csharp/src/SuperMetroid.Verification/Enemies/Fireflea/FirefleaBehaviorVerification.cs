@@ -22,46 +22,46 @@ internal static class FirefleaBehaviorVerification
         place.SetSpawnParameter1(EnemyDefinitionId.Fireflea, 0);
         place.SetSpawnParameter2(EnemyDefinitionId.Fireflea, 0);
         FirefleaBehavior.InitializeFireflea(place);
-        AssertEqual(new AnimationPlayback<FirefleaSegment>(FirefleaAnimations.StartingWith(FirefleaSegment.Loop), AnimationPlace.StartOfAnimation), (enemies.Places.InUpdateOrder[0].EntityState<FirefleaEntity, FirefleaEnemyState>() ?? throw new InvalidOperationException("The Fireflea has no state.")).Playback,
+        AssertEqual(new AnimationPlayback<FirefleaSegment>(FirefleaAnimations.StartingWith(FirefleaSegment.BrightestWingbeat), AnimationPlace.StartOfAnimation), (enemies.Places.InUpdateOrder[0].EntityState<FirefleaEntity, FirefleaEnemyState>() ?? throw new InvalidOperationException("The Fireflea has no state.")).Playback,
             "Fireflea initializer animation");
         place.AnimationClock.StepOnNextUpdate();
-        AssertEqual(EnemyInstructionRunner.ExpectedLoop(FirefleaAnimations.Segments, FirefleaSegment.Loop, FirefleaFrameToolingDefinitions.Spritemap),
-            EnemyInstructionRunner.ShownFrames(place, EnemyInstructionRunner.LoopUpdates(FirefleaAnimations.Segments, FirefleaSegment.Loop)),
+        AssertEqual(EnemyInstructionRunner.ExpectedAnimationLoop(FirefleaAnimations.Segments, FirefleaAnimations.StartingWith(FirefleaSegment.BrightestWingbeat), FirefleaFrameToolingDefinitions.Spritemap),
+            EnemyInstructionRunner.ShownFrames(place, EnemyInstructionRunner.AnimationLoopUpdates(FirefleaAnimations.Segments, FirefleaAnimations.StartingWith(FirefleaSegment.BrightestWingbeat))),
             "Fireflea runs its loop and returns through its goto");
         Console.WriteLine("  Fireflea behavior: the initializer starts and runs its loop.");
     }
 
     /// <summary>
-    /// A vertically moving Fireflea spawned four pixels below the room's top edge has radius eight, so its upper extent
-    /// wraps to 65532. The production main AI compares the position with both extents by the wrapped spatial difference:
-    /// at its spawn Y it is inside both and keeps its speed entry; one pixel above the wrapped upper extent (65531), or at
-    /// the lower extent (12), it reverses to the other half of the speed entry.
+    /// A vertically moving Fireflea spawned at row 100 has radius eight, so its extents are rows 92 and 108 (#2369: no
+    /// placement bobs within its radius of the room's top, so the extents are plain rows). The production main AI compares
+    /// the position with both: at its spawn Y it is inside both and keeps moving up; one pixel above the upper extent
+    /// (91), or at the lower extent (108), it turns down.
     /// </summary>
-    internal static void VerifyFirefleaVerticalExtentsWrap()
+    internal static void VerifyFirefleaVerticalExtents()
     {
         var frame = new ClockedEnemyAiFrame(
             RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false },
             new FrameCounters(0));
-        foreach ((ushort y, EnemySpeedSign expectedSpeedSign) in new VerifyFirefleaVerticalExtentsWrapCase[] { new VerifyFirefleaVerticalExtentsWrapCase(4, EnemySpeedSign.Negative), new VerifyFirefleaVerticalExtentsWrapCase(65531, EnemySpeedSign.Positive), new VerifyFirefleaVerticalExtentsWrapCase(12, EnemySpeedSign.Positive) })
+        foreach ((ushort y, VerticalDirection expectedDirection) in new VerifyFirefleaVerticalExtentsCase[] { new(100, VerticalDirection.Up), new(91, VerticalDirection.Down), new(108, VerticalDirection.Down) })
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             place.Bind(EnemyDefinitionId.Fireflea, place.Definition);
             place.SetSpawnParameter1(EnemyDefinitionId.Fireflea, 0);
             place.SetSpawnParameter2(EnemyDefinitionId.Fireflea, 0);
-            place.Position = place.Position.WithWhole(new(128, 4));
+            place.Position = place.Position.WithWhole(new(128, 100));
             FirefleaBehavior.InitializeFireflea(place);
             BobbingFirefleaState state = place.RequireSpeciesState<FirefleaEnemyState>().Flight as BobbingFirefleaState
                 ?? throw new InvalidOperationException("Verification requires a bobbing Fireflea.");
-            AssertEqual(65532, state.MinimumY, "the upper extent wraps past the room's top edge");
-            AssertEqual(12, state.MaximumY, "the lower extent is the spawn Y plus the radius");
+            AssertEqual(92, state.MinimumY, "the upper extent is the spawn Y minus the radius");
+            AssertEqual(108, state.MaximumY, "the lower extent is the spawn Y plus the radius");
             place.Position = place.Position.WithWholeY(y);
 
             FirefleaBehavior.RunFirefleaMainAi(place, frame);
 
-            AssertEqual(expectedSpeedSign, state.SpeedSign, $"Fireflea at Y {y} keeps or reverses its speed");
+            AssertEqual(expectedDirection, state.Direction, $"Fireflea at Y {y} keeps or reverses its way");
         }
-        Console.WriteLine("  Fireflea vertical extents: positions compare with wrapped extents by the wrapped spatial difference.");
+        Console.WriteLine("  Fireflea vertical extents: the Fireflea turns past its upper extent and at its lower one.");
     }
 
     /// <summary>Runs the Fireflea behavior check and program oracle against the local retail cartridge.</summary>
@@ -70,7 +70,7 @@ internal static class FirefleaBehaviorVerification
     {
         CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyFirefleaBehavior), () => VerifyFirefleaBehavior());
-        Suite(nameof(VerifyFirefleaVerticalExtentsWrap), () => VerifyFirefleaVerticalExtentsWrap());
+        Suite(nameof(VerifyFirefleaVerticalExtents), () => VerifyFirefleaVerticalExtents());
         Suite(nameof(FirefleaAnimationsVerification.VerifyFirefleaAnimations), () => FirefleaAnimationsVerification.VerifyFirefleaAnimations(rom));
         return 0;
     }

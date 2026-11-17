@@ -5,6 +5,11 @@ namespace SuperMetroid.Core.Enemies.Boulder;
 /// <summary>How a Boulder falls, bounces, rolls and breaks (#2279).</summary>
 internal static class BoulderMotionDefinitions
 {
+    /// <summary>
+    /// The largest bounce clock: the place past the curve's last mark, which the curve rejects before another increment.
+    /// </summary>
+    internal static readonly QuadraticSpeedCurvePlace LargestBounceSpeed = QuadraticSpeedCurvePlace.PastLastMark;
+
     /// <summary>The bounce clock's place the first rebound starts from: mark 32 of the curve.</summary>
     internal static readonly QuadraticSpeedCurvePlace FirstReboundBounceSpeed = QuadraticSpeedCurvePlace.FromMarks(32);
 

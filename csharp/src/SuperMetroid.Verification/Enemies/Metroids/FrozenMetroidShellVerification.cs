@@ -32,7 +32,7 @@ internal static class FrozenMetroidShellVerification
         // The shell is read by its own draws, apart from the electrical overlay.
         var shell = (state ?? throw new InvalidOperationException("Verification requires state.")).Shell;
         // The shell segment's second beat, the native alternating empty shell frame.
-        var shellBeats = RoomEffectActorAnimations.Segments.Beats(RoomEffectActorSegment.MetroidShell);
+        var shellBeats = RoomEffectActorAnimations.Segments.Beats(RoomEffectActorSegment.Of(RoomEffectActorKind.MetroidShell));
         // The shell plays its first beat out, which brings it onto the second with that beat's whole duration.
         var first = AssertIs<AnimationBeat<RoomEffectActorPicture, NoAnimationCue>.Frame>(shellBeats[0], "first shell beat");
         for (int update = 0; update < first.Duration; update++)

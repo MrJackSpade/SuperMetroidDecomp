@@ -30,6 +30,8 @@ internal sealed class CoreModel
         // The effect actors' animations name their enemy-sheet frames outright (#1817) and start one per kind (#2158); an
         // effect actor's frames reach its spawner's sheet through its kind, as the spawn analysis reads it.
         "RoomEffectActorAnimations",
+        // An effect actor's runs are named by the actor itself (#2369): the segment names every kind and the two cycles.
+        "RoomEffectActorSegment",
         "EnemyFrameNameDefinitions",
     ];
 

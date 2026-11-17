@@ -15,7 +15,9 @@ internal static class FirefleaNativeListAddresses
     /// <summary>Each typed program's native entry point, in authored order.</summary>
     internal static readonly NativeProgramEntry<FirefleaSegment>[] Entries =
     [
-        new NativeProgramEntry<FirefleaSegment>(FirefleaSegment.Loop, 0x8c2f),
+        new NativeProgramEntry<FirefleaSegment>(FirefleaSegment.BrightestWingbeat, 0x8c2f),
+        new NativeProgramEntry<FirefleaSegment>(FirefleaSegment.Dimming, 0x8c4f),
+        new NativeProgramEntry<FirefleaSegment>(FirefleaSegment.Brightening, 0x8caf),
     ];
 
 }

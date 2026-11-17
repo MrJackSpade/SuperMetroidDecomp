@@ -11,20 +11,30 @@ public sealed class EscapeEtecoonEnemyState
     internal AnimationPlayback<EscapeEtecoonSegment> Playback { get; set; }
 
 
-    /// <summary>
-    /// The signed 1/256-pixel horizontal walking velocity in pixels per update the walk moves it by. A wall reverses it
-    /// by negating it.
-    /// </summary>
-    public SignedEightEight Velocity { get; private set; }
+    /// <summary>The way the Etecoon walks (#2369); a wall turns it around.</summary>
+    public HorizontalDirection Direction { get; private set; }
+
+    /// <summary>How far, in 1/256 pixels, the Etecoon walks each update toward its <see cref="Direction"/>.</summary>
+    public SignedEightEight Speed { get; private set; }
+
+    /// <summary>The Etecoon's horizontal velocity: its <see cref="Speed"/> toward its <see cref="Direction"/>.</summary>
+    internal SignedEightEight Velocity => Direction == HorizontalDirection.Left ? Speed.Negated() : Speed;
 
     /// <summary>What the Etecoon is doing.</summary>
     public EscapeEtecoonAction Action { get; private set; }
 
-    /// <summary>Sets the Etecoon walking at <paramref name="velocity"/>, as its setup does once it stays in the room.</summary>
-    internal void StartWalking(SignedEightEight velocity) => Velocity = velocity;
+    /// <summary>
+    /// Sets the Etecoon walking toward <paramref name="direction"/> at <paramref name="speed"/>, as its setup does once it
+    /// stays in the room.
+    /// </summary>
+    internal void StartWalking(HorizontalDirection direction, SignedEightEight speed)
+    {
+        Direction = direction;
+        Speed = speed;
+    }
 
     /// <summary>Reverses the walk, as a wall does.</summary>
-    internal void TurnAround() => Velocity = Velocity.Negated();
+    internal void TurnAround() => Direction = Direction.Reversed();
 
     /// <summary>Starts the Etecoon's escape, as its animation's escape cue does.</summary>
     internal void Escape() => Action = EscapeEtecoonAction.Escaping;

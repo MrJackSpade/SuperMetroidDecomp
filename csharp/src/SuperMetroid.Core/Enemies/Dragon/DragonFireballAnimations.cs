@@ -39,14 +39,17 @@ internal static class DragonFireballAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<DragonFireballSegment, Animation<DragonFireballSegment>> StartingAt { get; } = new Dictionary<DragonFireballSegment, Animation<DragonFireballSegment>>
     {
-        [P.RisingLeft] = new([new(P.RisingLeft, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.RisingRight] = new([new(P.RisingRight, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.FallingLeft] = new([new(P.FallingLeft, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.FallingRight] = new([new(P.FallingRight, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.RisingLeft] = new([Whole(P.RisingLeft)], AnimationEnd.LoopsFrom(0)),
+        [P.RisingRight] = new([Whole(P.RisingRight)], AnimationEnd.LoopsFrom(0)),
+        [P.FallingLeft] = new([Whole(P.FallingLeft)], AnimationEnd.LoopsFrom(0)),
+        [P.FallingRight] = new([Whole(P.FallingRight)], AnimationEnd.LoopsFrom(0)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<DragonFireballSegment> StartingWith(DragonFireballSegment segment) => StartingAt[segment];
+
+    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
+    private static AnimationPhase<DragonFireballSegment> Whole(DragonFireballSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Frame(frame, duration);

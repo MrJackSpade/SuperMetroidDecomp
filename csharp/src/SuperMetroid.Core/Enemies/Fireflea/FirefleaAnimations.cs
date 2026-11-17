@@ -5,7 +5,8 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.Fireflea;
 
 /// <summary>
-/// Fireflea's 52-frame glow loop as a typed animation (#641). Each
+/// Fireflea's glow loop as a typed animation (#641, #2369): two wingbeats at its brightest, one at each glow down to its
+/// dimmest and one at each back up. Each
 /// frame shows a <see cref="EnemyFrameId"/> and no beat raises a cue for its owner.
 /// </summary>
 internal static class FirefleaAnimations
@@ -14,16 +15,15 @@ internal static class FirefleaAnimations
     internal static AnimationSegments<FirefleaSegment, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
         new Dictionary<FirefleaSegment, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
     {
-        [P.Loop] =
+        [P.BrightestWingbeat] =
         [
             Show(EnemyFrameId.FirefleaGlowBrightestWingsUp, 2),
             Show(EnemyFrameId.FirefleaGlowBrightestWingsLevel, 1),
             Show(EnemyFrameId.FirefleaGlowBrightestWingsDown, 2),
             Show(EnemyFrameId.FirefleaGlowBrightestWingsLevel, 1),
-            Show(EnemyFrameId.FirefleaGlowBrightestWingsUp, 2),
-            Show(EnemyFrameId.FirefleaGlowBrightestWingsLevel, 1),
-            Show(EnemyFrameId.FirefleaGlowBrightestWingsDown, 2),
-            Show(EnemyFrameId.FirefleaGlowBrightestWingsLevel, 1),
+        ],
+        [P.Dimming] =
+        [
             Show(EnemyFrameId.FirefleaGlowBrighterWingsUp, 2),
             Show(EnemyFrameId.FirefleaGlowBrighterWingsLevel, 1),
             Show(EnemyFrameId.FirefleaGlowBrighterWingsDown, 2),
@@ -48,6 +48,9 @@ internal static class FirefleaAnimations
             Show(EnemyFrameId.FirefleaGlowDimmestWingsLevel, 1),
             Show(EnemyFrameId.FirefleaGlowDimmestWingsDown, 2),
             Show(EnemyFrameId.FirefleaGlowDimmestWingsLevel, 1),
+        ],
+        [P.Brightening] =
+        [
             Show(EnemyFrameId.FirefleaGlowDimmerWingsUp, 2),
             Show(EnemyFrameId.FirefleaGlowDimmerWingsLevel, 1),
             Show(EnemyFrameId.FirefleaGlowDimmerWingsDown, 2),
@@ -71,14 +74,27 @@ internal static class FirefleaAnimations
         ],
     });
 
-    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    /// <summary>How many times its wings beat at its brightest glow before it dims.</summary>
+    private const int BrightestWingbeats = 2;
+
+    /// <summary>
+    /// The animation that starts at each segment an owner can start or restart at (#2369): its wings beat twice at its
+    /// brightest glow, once at each glow as it dims and once at each as it brightens back, repeating.
+    /// </summary>
     internal static IReadOnlyDictionary<FirefleaSegment, Animation<FirefleaSegment>> StartingAt { get; } = new Dictionary<FirefleaSegment, Animation<FirefleaSegment>>
     {
-        [P.Loop] = new([new(P.Loop, 0, 52, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.BrightestWingbeat] = new([Repeated(P.BrightestWingbeat, BrightestWingbeats), Whole(P.Dimming), Whole(P.Brightening)],
+            AnimationEnd.LoopsFrom(0)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<FirefleaSegment> StartingWith(FirefleaSegment segment) => StartingAt[segment];
+
+    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
+    private static AnimationPhase<FirefleaSegment> Whole(FirefleaSegment segment) => Repeated(segment, 1);
+
+    /// <summary><paramref name="plays"/> plays of every beat of <paramref name="segment"/>.</summary>
+    private static AnimationPhase<FirefleaSegment> Repeated(FirefleaSegment segment, int plays) => new(segment, 0, Segments.Beats(segment).Count, plays);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, NoAnimationCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);

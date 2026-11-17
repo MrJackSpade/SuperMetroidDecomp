@@ -1,5 +1,6 @@
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Evir.Artwork;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -50,8 +51,9 @@ internal static class EvirVisualsVerification
                 definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: stock.Bosses);
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             PrepareEvirBodyLoop(place, loop);
-            AssertEqual(EnemyInstructionRunner.ExpectedLoop(EvirAnimations.Segments, loop, EvirFrameToolingDefinitions.Spritemap),
-                EnemyInstructionRunner.ShownFrames(place, EnemyInstructionRunner.LoopUpdates(EvirAnimations.Segments, loop)),
+            Animation<EvirSegment> animation = EvirAnimations.StartingWith(loop);
+            AssertEqual(EnemyInstructionRunner.ExpectedAnimationLoop(EvirAnimations.Segments, animation, EvirFrameToolingDefinitions.Spritemap),
+                EnemyInstructionRunner.ShownFrames(place, EnemyInstructionRunner.AnimationLoopUpdates(EvirAnimations.Segments, animation)),
                 $"installed Evir {loop} shows its authored poses");
         }
         Console.WriteLine(

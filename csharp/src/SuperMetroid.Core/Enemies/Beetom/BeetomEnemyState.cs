@@ -8,9 +8,6 @@ namespace SuperMetroid.Core.Enemies.Beetom;
 /// </summary>
 public sealed class BeetomEnemyState
 {
-    /// <summary>The furthest place along the quadratic speed curve a falling or flung Beetom accelerates to: mark 64.</summary>
-    internal static readonly QuadraticSpeedCurvePlace MaximumYSpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(64);
-
     /// <summary>
     /// Starts one Beetom, facing the way the previous Beetom in its place last faced, or left for the place's first.
     /// </summary>
@@ -29,7 +26,7 @@ public sealed class BeetomEnemyState
 
     /// <summary>
     /// The current arc's whole-mark place along the quadratic speed curve, from the curve's start to
-    /// <see cref="MaximumYSpeedCurvePlace"/> or the arc's later starting place: rising moves it back by the arc's step and
+    /// <see cref="BeetomMotionDefinitions.MaximumYSpeedCurvePlace"/> or the arc's later starting place: rising moves it back by the arc's step and
     /// restarts it at the curve's start at the apex, falling moves it on up to the maximum, so it never leaves that range.
     /// </summary>
     public QuadraticSpeedCurvePlace YSpeedCurvePlace { get; internal set; }
@@ -80,8 +77,8 @@ public sealed class BeetomEnemyState
         Falling = true;
     }
 
-    /// <summary>One falling update: moves the place on by <paramref name="marks"/> marks, holding at <see cref="MaximumYSpeedCurvePlace"/>.</summary>
+    /// <summary>One falling update: moves the place on by <paramref name="marks"/> marks, holding at <see cref="BeetomMotionDefinitions.MaximumYSpeedCurvePlace"/>.</summary>
     /// <param name="marks">The arc's falling step, one to five marks.</param>
     internal void StepFallingSpeed(int marks) =>
-        YSpeedCurvePlace = QuadraticSpeedCurvePlace.Min(MaximumYSpeedCurvePlace, YSpeedCurvePlace + QuadraticSpeedCurvePlace.FromMarks(marks));
+        YSpeedCurvePlace = QuadraticSpeedCurvePlace.Min(BeetomMotionDefinitions.MaximumYSpeedCurvePlace, YSpeedCurvePlace + QuadraticSpeedCurvePlace.FromMarks(marks));
 }

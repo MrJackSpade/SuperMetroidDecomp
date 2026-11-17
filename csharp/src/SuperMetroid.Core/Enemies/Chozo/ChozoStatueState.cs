@@ -13,8 +13,8 @@ public sealed class ChozoStatueState
     /// </summary>
     public bool AwaitingHand { get; internal set; }
 
-    /// <summary>Whether this is the Wrecked Ship statue rather than Lower Norfair's.</summary>
-    public bool IsWreckedShip { get; internal set; }
+    /// <summary>Which of the two statues this is (#2369), as its placement names it.</summary>
+    public ChozoStatueSite Site { get; internal set; }
 
     /// <summary>Whether Samus has triggered the statue's hand, which its waiting phase wakes on.</summary>
     public bool HandTriggered { get; internal set; }

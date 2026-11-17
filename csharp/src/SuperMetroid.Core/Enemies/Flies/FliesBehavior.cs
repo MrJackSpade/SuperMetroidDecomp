@@ -56,9 +56,9 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             case FlyAction.Retreat:
                 MoveFlyAccordingToVelocities(place, state);
-                if (--state.RetreatTimer <= 0)
+                if (--state.RetreatUpdatesLeft <= 0)
                 {
-                    state.RetreatTimer = FlyMotionDefinitions.AttackCooldown;
+                    state.CooldownUpdatesLeft = FlyMotionDefinitions.AttackCooldown;
                     state.Action = FlyAction.Circling;
                     state.Rotation = RotationDirection.Clockwise;
                 }
@@ -75,9 +75,9 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
         FlyEnemyState state,
         SamusState samus)
     {
-        if (state.RetreatTimer != 0)
+        if (state.CooldownUpdatesLeft != 0)
         {
-            state.RetreatTimer--;
+            state.CooldownUpdatesLeft--;
         }
         else if (CoordinateAxis.Distance(place.Position.X.Whole, samus.Position.X.Whole) <
             FlyMotionDefinitions.AttackHorizontalRange)
@@ -106,6 +106,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
             new(CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, place.Position.Y.Whole))).ToMirroredTrigonometryAngle();
         state.Velocity = DiveVelocity(angle);
         state.TargetY = samus.Position.Y.Whole;
+        state.DiveUpdates = 0;
         state.Action = FlyAction.AttackSamus;
     }
 
@@ -113,7 +114,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void RunFlyAttack(RoomEnemyPlace place, FlyEnemyState state)
     {
         MoveFlyAccordingToVelocities(place, state);
-        state.RetreatTimer++;
+        state.DiveUpdates++;
 
         bool crossedTarget = state.Velocity.Y.IsNegative
             ? place.Position.Y.Whole < state.TargetY
@@ -122,7 +123,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.Velocity = state.Velocity.ReversedY();
-        state.RetreatTimer += FlyMotionDefinitions.RetreatBeyondDive;
+        state.RetreatUpdatesLeft = state.DiveUpdates + FlyMotionDefinitions.RetreatBeyondDive;
         state.Action = FlyAction.Retreat;
     }
 

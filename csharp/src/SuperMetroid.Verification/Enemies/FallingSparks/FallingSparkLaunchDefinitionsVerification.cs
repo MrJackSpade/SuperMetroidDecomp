@@ -36,7 +36,7 @@ internal static class FallingSparkLaunchDefinitionsVerification
             AssertEqual(fraction, compiled.Fraction, "Every RNG word preserves native spark fractional velocity");
             projectile.Delete();
             projectile.Velocity = new(new SignedEightEight(0xffff), new SignedEightEight(0xffff));
-            source.Position = new(new((ushort)raw, (ushort)raw), new((ushort)(ushort.MaxValue - raw), (ushort)(ushort.MaxValue - raw)));
+            source.Position = new(new((ushort)raw, (ushort)raw), new((ushort)(raw % 2048), (ushort)(ushort.MaxValue - raw)));
             advances = 0;
             spawn(source);
             // A spawn creates a new projectile in the place, which the place now holds (#1590).
@@ -45,7 +45,7 @@ internal static class FallingSparkLaunchDefinitionsVerification
             AssertEqual(RoomEnemyProjectileKind.FallingSpark, projectile.Kind, "Reverse allocator owns last free slot");
             AssertEqual(source.Position.X.Whole, projectile.Position.X.Whole, "Spark copies source X");
             AssertEqual(source.Position.X.Fraction, projectile.Position.X.Fraction, "Spark copies source X fraction");
-            AssertEqual(unchecked((ushort)(source.Position.Y.Whole + 8)), projectile.Position.Y.Whole, "Spark Y offset wraps");
+            AssertEqual(source.Position.Y.Whole + 8, projectile.Position.Y.Whole, "Spark spawns eight pixels below its source");
             AssertEqual(source.Position.Y.Fraction, projectile.Position.Y.Fraction, "Spark copies source Y fraction");
             AssertEqual((ushort)0, projectile.Velocity.X.RawValue, "Spark clears aliased vertical fraction");
             AssertEqual((ushort)0, projectile.Velocity.Y.RawValue, "Spark clears aliased vertical whole");

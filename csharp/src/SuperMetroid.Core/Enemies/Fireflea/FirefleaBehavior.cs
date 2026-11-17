@@ -41,7 +41,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
         };
         place.SetSpeciesState(new FirefleaEnemyState(flight)
         {
-            Playback = new(FirefleaAnimations.StartingWith(FirefleaSegment.Loop), AnimationPlace.StartOfAnimation),
+            Playback = new(FirefleaAnimations.StartingWith(FirefleaSegment.BrightestWingbeat), AnimationPlace.StartOfAnimation),
         });
     }
 
@@ -66,13 +66,13 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
         return new BobbingFirefleaState
         {
             Speed = bobbing.Speed,
-            SpeedSign = bobbing.StartSign,
-            MinimumY = CoordinateAxis.Wrap(spawnY - radius),
-            MaximumY = CoordinateAxis.Wrap(spawnY + radius),
+            Direction = bobbing.StartDirection,
+            MinimumY = spawnY - radius,
+            MaximumY = spawnY + radius,
         };
     }
 
-    /// <summary>Runs the Fireflea's main AI, advancing circular angle or wrapped vertical travel.</summary>
+    /// <summary>Runs the Fireflea's main AI, advancing circular angle or vertical travel.</summary>
     private static void RunFirefleaMain(RoomEnemyPlace place, FirefleaEnemyState state)
     {
         switch (state.Flight)
@@ -85,26 +85,17 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
             case BobbingFirefleaState bobbing:
                 place.Position = place.Position.AdvanceY(bobbing.Velocity);
 
-                // The bounds compare as CoordinateAxis.Precedes reads which way a row lies. The Fireflea
-                // overshoots a bound before its speed reverses.
-                bool crossedMinimum = CoordinateAxis.Precedes(place.Position.Y.Whole, bobbing.MinimumY);
-                bool reachedMaximum = !CoordinateAxis.Precedes(place.Position.Y.Whole, bobbing.MaximumY);
+                // The Fireflea overshoots a bound before its way reverses.
+                bool crossedMinimum = place.Position.Y.Whole < bobbing.MinimumY;
+                bool reachedMaximum = place.Position.Y.Whole >= bobbing.MaximumY;
                 if (crossedMinimum || reachedMaximum)
-                    bobbing.SpeedSign = Reversed(bobbing.SpeedSign);
+                    bobbing.Direction = bobbing.Direction.Reversed();
                 return;
 
             default:
                 throw new InvalidOperationException($"Undefined Fireflea flight {state.Flight}.");
         }
     }
-
-    /// <summary>The sign opposite <paramref name="sign"/>.</summary>
-    private static EnemySpeedSign Reversed(EnemySpeedSign sign) => sign switch
-    {
-        EnemySpeedSign.Positive => EnemySpeedSign.Negative,
-        EnemySpeedSign.Negative => EnemySpeedSign.Positive,
-        _ => throw new ArgumentOutOfRangeException(nameof(sign), sign, "Undefined enemy speed sign."),
-    };
 
     /// <summary>
     /// Runs Fireflea touch AI, including its double death. The

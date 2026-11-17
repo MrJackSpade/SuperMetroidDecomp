@@ -110,7 +110,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         state.BobbingSpeed = settings.Speed;
         state.DirectionChangePeriod = settings.DirectionChangePeriod;
         state.MovementTimer = EvirBorrowedFirstHalfCycle.Of(settings.Speed, _places.InUpdateOrder, PlaceLender.Instance) + EnemyWaitDefinitions.RunOutUpdate;
-        state.MovingDown = false;
+        state.BobbingDirection = VerticalDirection.Up;
         state.ShowsSpawnAnimation = true;
     }
 
@@ -171,14 +171,14 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.Spit.FoundState<EvirSpitState>() is not { Action: EvirSpitAction.Regenerating })
             SetEvirBodyFacing(place, state, samus);
 
-        place.Position = place.Position.AdvanceY(state.MovingDown ? state.BobbingSpeed : -state.BobbingSpeed);
+        place.Position = place.Position.AdvanceY(state.BobbingVelocity);
 
         // Every later half of the bobbing lasts the body's whole direction-change period and the update it turns on,
         // however long its first half lasted (EvirBorrowedFirstHalfCycle).
         if (--state.MovementTimer <= 0)
         {
             state.MovementTimer = state.DirectionChangePeriod + EnemyWaitDefinitions.RunOutUpdate;
-            state.MovingDown = !state.MovingDown;
+            state.BobbingDirection = state.BobbingDirection.Reversed();
         }
     }
 
@@ -234,13 +234,13 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         EvirBodyState state,
         SamusState samus)
     {
-        state.Facing = CoordinateAxis.Difference(samus.Position.X.Whole, body.Position.X.Whole) < 0
-            ? EvirFacing.Left
-            : EvirFacing.Right;
+        state.Facing = samus.Position.X.Whole < body.Position.X.Whole
+            ? HorizontalDirection.Left
+            : HorizontalDirection.Right;
         RequestEvirAnimation(
             body,
             state,
-            state.Facing == EvirFacing.Left
+            state.Facing == HorizontalDirection.Left
                 ? EvirSegment.BodyFacingLeft
                 : EvirSegment.BodyFacingRight);
     }
@@ -251,11 +251,11 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyPlace body = state.Body;
         state.Facing = BodyFacingOf(body);
         Offset16<RoomPixels> armsOffset = EvirMotionDefinitions.ArmsFacingRight;
-        arms.Position = arms.Position.WithWhole(body.Position.Whole + (state.Facing == EvirFacing.Left ? armsOffset.MirroredX() : armsOffset));
+        arms.Position = arms.Position.WithWhole(body.Position.Whole + (state.Facing == HorizontalDirection.Left ? armsOffset.MirroredX() : armsOffset));
         RequestEvirAnimation(
             arms,
             state,
-            state.Facing == EvirFacing.Left
+            state.Facing == HorizontalDirection.Left
                 ? EvirSegment.ArmsFacingLeft
                 : EvirSegment.ArmsFacingRight);
     }
@@ -266,7 +266,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyPlace body = state.Body;
         state.Facing = BodyFacingOf(body);
         Offset16<RoomPixels> spitOffset = EvirMotionDefinitions.IdleSpitFacingRight;
-        projectile.Position = projectile.Position.WithWhole(body.Position.Whole + (state.Facing == EvirFacing.Left ? spitOffset.MirroredX() : spitOffset));
+        projectile.Position = projectile.Position.WithWhole(body.Position.Whole + (state.Facing == HorizontalDirection.Left ? spitOffset.MirroredX() : spitOffset));
     }
 
     /// <summary>Launches the spit at Samus along her bearing once she is horizontally within its activation distance of the body.</summary>
@@ -356,15 +356,16 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     /// spawned (#2145).
     /// </summary>
     private static bool EvirBodyFacesRight(EvirSpitState spit) =>
-        spit.Body.FoundState<EvirBodyState>() is { ShowsSpawnAnimation: false, Facing: EvirFacing.Right };
+        spit.Body.FoundState<EvirBodyState>() is { ShowsSpawnAnimation: false, Facing: HorizontalDirection.Right };
 
     /// <summary>
     /// The facing an arms or spit reads from its body in <paramref name="bodyPlace"/>: the living body's own, a deleted
-    /// body's last, or, once a hit has killed the body, left, as its cleared place reads
+    /// body's last, or, once a hit has killed the body, left, as its cleared place reads (the arms and spit see left on
+    /// the final update they still receive)
     /// (<see cref="RoomEnemyPlace.FoundState{T}"/>).
     /// </summary>
-    private static EvirFacing BodyFacingOf(RoomEnemyPlace bodyPlace) =>
-        bodyPlace.FoundState<EvirBodyState>()?.Facing ?? EvirFacing.Left;
+    private static HorizontalDirection BodyFacingOf(RoomEnemyPlace bodyPlace) =>
+        bodyPlace.FoundState<EvirBodyState>()?.Facing ?? HorizontalDirection.Left;
 
     /// <summary>Animation cue: finishes regeneration.</summary>
     private static void FinishEvirRegeneration(EvirSpitState state) => state.Action = EvirSpitAction.Idle;

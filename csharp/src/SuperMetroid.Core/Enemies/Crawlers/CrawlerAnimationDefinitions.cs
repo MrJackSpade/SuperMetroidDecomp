@@ -26,10 +26,5 @@ internal static class CrawlerAnimationDefinitions
             CrawlerSegment.ZeroUpsideLeft,
             CrawlerSegment.ZeroUpsideDown,
             CrawlerSegment.ZeroUpsideUp),
-        [CrawlerAnimationFamily.OrangeZoomer] = new(
-            CrawlerSegment.SpinyCrawlerUpsideRight,
-            CrawlerSegment.SpinyCrawlerUpsideLeft,
-            CrawlerSegment.SpinyCrawlerUpsideDown,
-            CrawlerSegment.SpinyCrawlerUpsideUp),
     };
 }

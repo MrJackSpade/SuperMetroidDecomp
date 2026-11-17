@@ -18,7 +18,7 @@ internal static class ChozoStatueAnimations
         [P.LowerNorfairInitial] =
         [
             Cue(new ChozoStatueCue.Signal(K.AwaitHand)),
-            Show(EnemyFrameId.ChozoStatueLowerNorfairHandsCupped, 1),
+            Hold(EnemyFrameId.ChozoStatueLowerNorfairHandsCupped),
         ],
         [P.LowerNorfairActivated] =
         [
@@ -31,8 +31,7 @@ internal static class ChozoStatueAnimations
             Show(EnemyFrameId.ChozoStatueLowerNorfairHandOutstretched, 48),
             Cue(new ChozoStatueCue.Signal(K.PlayGrabSound)),
             Cue(new ChozoStatueCue.Move(new(HorizontalDirection.Right, ChozoCarryPose.Holding))),
-            Show(EnemyFrameId.ChozoStatueLowerNorfairHandOpen, 64),
-            Show(EnemyFrameId.ChozoStatueLowerNorfairHandOpen, 6),
+            Show(EnemyFrameId.ChozoStatueLowerNorfairHandOpen, 70),
             Show(EnemyFrameId.ChozoStatueLowerNorfairHandOpenEyeGlowing, 8),
             Show(EnemyFrameId.ChozoStatueLowerNorfairFingersCurling, 10),
             Show(EnemyFrameId.ChozoStatueLowerNorfairFingersCurled, 12),
@@ -65,7 +64,7 @@ internal static class ChozoStatueAnimations
         [P.WreckedShipInitial] =
         [
             Cue(new ChozoStatueCue.Signal(K.AwaitHand)),
-            Show(EnemyFrameId.ChozoStatueWreckedShipHandsCupped, 1),
+            Hold(EnemyFrameId.ChozoStatueWreckedShipHandsCupped),
         ],
         [P.WreckedShipActivated] =
         [
@@ -78,8 +77,7 @@ internal static class ChozoStatueAnimations
             Show(EnemyFrameId.ChozoStatueWreckedShipHandOutstretched, 80),
             Cue(new ChozoStatueCue.Signal(K.PlayGrabSound)),
             Cue(new ChozoStatueCue.Move(new(HorizontalDirection.Left, ChozoCarryPose.Holding))),
-            Show(EnemyFrameId.ChozoStatueWreckedShipHandOpen, 128),
-            Show(EnemyFrameId.ChozoStatueWreckedShipHandOpen, 6),
+            Show(EnemyFrameId.ChozoStatueWreckedShipHandOpen, 134),
             Show(EnemyFrameId.ChozoStatueWreckedShipHandOpenEyeGlowing, 8),
             Show(EnemyFrameId.ChozoStatueWreckedShipFingersCurling, 10),
             Show(EnemyFrameId.ChozoStatueWreckedShipFingersCurled, 12),
@@ -193,6 +191,9 @@ internal static class ChozoStatueAnimations
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, ChozoStatueCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, ChozoStatueCue>.Frame(frame, duration);
+
+    /// <summary>Shows <paramref name="frame"/> for good (#2369): a waiting statue rests on its cupped hands until Samus is in them.</summary>
+    private static AnimationBeat<EnemyFrameId, ChozoStatueCue> Hold(EnemyFrameId frame) => new AnimationBeat<EnemyFrameId, ChozoStatueCue>.HeldFrame(frame);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
     private static AnimationBeat<EnemyFrameId, ChozoStatueCue> Cue(ChozoStatueCue cue) => new AnimationBeat<EnemyFrameId, ChozoStatueCue>.Event(cue);

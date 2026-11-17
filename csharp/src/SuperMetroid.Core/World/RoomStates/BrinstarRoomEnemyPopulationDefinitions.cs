@@ -110,10 +110,10 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
         ], 5),
         new(nameof(RoomEnemyPopulationDefinitions.NoobBridge),
         [
-            new(EnemyDefinitionId.Cacatac, new(192, 179), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: CacatacDirection.Left, Mounting: CacatacMounting.Floor, TravelDistance: 64, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(3))),
-            new(EnemyDefinitionId.Cacatac, new(432, 179), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: CacatacDirection.Left, Mounting: CacatacMounting.Floor, TravelDistance: 64, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(3))),
-            new(EnemyDefinitionId.Cacatac, new(1392, 179), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: CacatacDirection.Right, Mounting: CacatacMounting.Floor, TravelDistance: 64, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(3))),
-            new(EnemyDefinitionId.Cacatac, new(976, 179), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: CacatacDirection.Left, Mounting: CacatacMounting.Floor, TravelDistance: 64, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(3))),
+            new(EnemyDefinitionId.Cacatac, new(192, 179), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Left, Start: CacatacStart.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 64, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(3))),
+            new(EnemyDefinitionId.Cacatac, new(432, 179), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Left, Start: CacatacStart.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 64, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(3))),
+            new(EnemyDefinitionId.Cacatac, new(1392, 179), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Right, Start: CacatacStart.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 64, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(3))),
+            new(EnemyDefinitionId.Cacatac, new(976, 179), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Left, Start: CacatacStart.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 64, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(3))),
             new(EnemyDefinitionId.Zeela, new(584, 118), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideDown, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, CrawlSpeed: SignedEightEight.FromTwoHundredFiftySixthsOfPixel(64))),
             new(EnemyDefinitionId.Zeela, new(680, 118), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideDown, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, CrawlSpeed: SignedEightEight.FromTwoHundredFiftySixthsOfPixel(64))),
             new(EnemyDefinitionId.Zeela, new(768, 118), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideDown, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, CrawlSpeed: SignedEightEight.FromTwoHundredFiftySixthsOfPixel(64))),
@@ -195,7 +195,7 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
         [
             new(EnemyDefinitionId.YappingMaw, new(400, 456), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new YappingMawSpawnSettings(ActivationDistance: 48, Attack: VerticalDirection.Up)),
             new(EnemyDefinitionId.YappingMaw, new(128, 456), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new YappingMawSpawnSettings(ActivationDistance: 48, Attack: VerticalDirection.Up)),
-            new(EnemyDefinitionId.Cacatac, new(264, 403), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: CacatacDirection.Left, Mounting: CacatacMounting.Floor, TravelDistance: 16, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(2))),
+            new(EnemyDefinitionId.Cacatac, new(264, 403), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Left, Start: CacatacStart.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 16, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(2))),
         ], 1),
         new(nameof(RoomEnemyPopulationDefinitions.GreenBrinstarSave),
         [
@@ -237,8 +237,8 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Fireflea, new(384, 95), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new FirefleaSpawnSettings(Flight: new FirefleaFlight.Circling(AngularSpeed.FromSteps(-1)), Radius: 24)),
             new(EnemyDefinitionId.Fireflea, new(225, 106), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new FirefleaSpawnSettings(Flight: new FirefleaFlight.Circling(AngularSpeed.FromSteps(1)), Radius: 24)),
             new(EnemyDefinitionId.Fireflea, new(69, 91), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new FirefleaSpawnSettings(Flight: new FirefleaFlight.Circling(AngularSpeed.FromSteps(-1)), Radius: 24)),
-            new(EnemyDefinitionId.Fireflea, new(112, 280), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new FirefleaSpawnSettings(Flight: new FirefleaFlight.Bobbing(SignedSixteenSixteen.FromSixteenthsOfPixel(8), EnemySpeedSign.Negative), Radius: 32)),
-            new(EnemyDefinitionId.Fireflea, new(160, 312), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new FirefleaSpawnSettings(Flight: new FirefleaFlight.Bobbing(SignedSixteenSixteen.FromSixteenthsOfPixel(8), EnemySpeedSign.Negative), Radius: 40)),
+            new(EnemyDefinitionId.Fireflea, new(112, 280), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new FirefleaSpawnSettings(Flight: new FirefleaFlight.Bobbing(SignedSixteenSixteen.FromSixteenthsOfPixel(8), VerticalDirection.Up), Radius: 32)),
+            new(EnemyDefinitionId.Fireflea, new(160, 312), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new FirefleaSpawnSettings(Flight: new FirefleaFlight.Bobbing(SignedSixteenSixteen.FromSixteenthsOfPixel(8), VerticalDirection.Up), Radius: 40)),
         ], 5),
         new(nameof(RoomEnemyPopulationDefinitions.GreenBrinstarBeetoms),
         [
@@ -328,7 +328,7 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
         ], 10),
         new(nameof(RoomEnemyPopulationDefinitions.RedBrinstarFirefleas),
         [
-            new(EnemyDefinitionId.Fireflea, new(1744, 144), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new FirefleaSpawnSettings(Flight: new FirefleaFlight.Bobbing(SignedSixteenSixteen.FromSixteenthsOfPixel(6), EnemySpeedSign.Negative), Radius: 32)),
+            new(EnemyDefinitionId.Fireflea, new(1744, 144), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new FirefleaSpawnSettings(Flight: new FirefleaFlight.Bobbing(SignedSixteenSixteen.FromSixteenthsOfPixel(6), VerticalDirection.Up), Radius: 32)),
             new(EnemyDefinitionId.Fireflea, new(1808, 112), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new FirefleaSpawnSettings(Flight: new FirefleaFlight.Circling(AngularSpeed.FromFractionsOfStep(-384)), Radius: 48)),
             new(EnemyDefinitionId.Fireflea, new(1672, 96), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new FirefleaSpawnSettings(Flight: new FirefleaFlight.Circling(AngularSpeed.FromFractionsOfStep(384)), Radius: 40)),
             new(EnemyDefinitionId.Fireflea, new(1248, 168), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new FirefleaSpawnSettings(Flight: new FirefleaFlight.Circling(AngularSpeed.FromSteps(-1)), Radius: 24)),
@@ -447,8 +447,8 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Zero, new(95, 1928), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, CrawlSpeed: SignedEightEight.FromTwoHundredFiftySixthsOfPixel(64))),
             new(EnemyDefinitionId.Zero, new(23, 1758), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideRight, BlockSide: CrawlerSurfaceOrientation.UpsideDown, CrawlSpeed: SignedEightEight.FromTwoHundredFiftySixthsOfPixel(64))),
             new(EnemyDefinitionId.Zero, new(120, 1679), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideLeft, BlockSide: CrawlerSurfaceOrientation.UpsideDown, CrawlSpeed: SignedEightEight.FromTwoHundredFiftySixthsOfPixel(64))),
-            new(EnemyDefinitionId.Cacatac, new(113, 1139), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: CacatacDirection.Right, Mounting: CacatacMounting.Floor, TravelDistance: 16, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(3))),
-            new(EnemyDefinitionId.Cacatac, new(192, 1283), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: CacatacDirection.Left, Mounting: CacatacMounting.Floor, TravelDistance: 16, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(3))),
+            new(EnemyDefinitionId.Cacatac, new(113, 1139), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Right, Start: CacatacStart.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 16, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(3))),
+            new(EnemyDefinitionId.Cacatac, new(192, 1283), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Left, Start: CacatacStart.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 16, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(3))),
         ], 5),
         new(nameof(RoomEnemyPopulationDefinitions.MiniKraid),
         [

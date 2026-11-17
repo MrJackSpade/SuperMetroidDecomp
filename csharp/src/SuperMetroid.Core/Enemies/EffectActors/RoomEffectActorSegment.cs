@@ -1,57 +1,31 @@
 namespace SuperMetroid.Core.Enemies.EffectActors;
 
 /// <summary>
-/// A run of a room effect actor's animation (#2275): each kind's own run, and the cycles a Metroid's electricity and shell
-/// loop after their first pass. Their beats are <see cref="RoomEffectActorAnimations"/>; its values are arbitrary.
+/// A run of a room effect actor's animation (#2275, #2369): the run each actor starts with, named by the actor itself, and
+/// the cycles a Metroid's electricity and shell loop after their first pass. Its beats are
+/// <see cref="RoomEffectActorAnimations"/>.
 /// </summary>
-internal enum RoomEffectActorSegment
+internal readonly record struct RoomEffectActorSegment
 {
-    /// <summary>A small explosion: a spark swelling into a fireball, a ring and scattering embers.</summary>
-    SmallExplosion,
-    /// <summary>Smoke rising and fading.</summary>
-    Smoke,
-    /// <summary>A dud shot's flash: a dot opening into a ring that thins and fades.</summary>
-    DudShot,
-    /// <summary>A puff of dust rising.</summary>
-    RisingDustPuff,
-    /// <summary>A small puff of smoke rising and fading.</summary>
-    SmokePuff,
-    /// <summary>A big explosion: a fireball opening into a wide ring that fades.</summary>
-    BigExplosion,
-    /// <summary>A big dust cloud's first half: a puff swelling until it billows.</summary>
-    ShortBigDustCloud,
-    /// <summary>A big dust cloud: a puff swelling, billowing, thinning and fading into wisps.</summary>
-    BigDustCloud,
-    /// <summary>Draygon's breath bubbles rising.</summary>
-    DraygonBreathBubbles,
-    /// <summary>A Nuclear Waffle body link turning round, looping, placed by the Nuclear Waffle that owns it.</summary>
-    NuclearWaffleBody,
-    /// <summary>A Nuclear Waffle's explosion bursting to the right.</summary>
-    NuclearWaffleRightExplosion,
-    /// <summary>A Nuclear Waffle's explosion bursting to the left.</summary>
-    NuclearWaffleLeftExplosion,
-    /// <summary>A Nuclear Waffle's splash, which shows beside either explosion.</summary>
-    NuclearWaffleSplash,
-    /// <summary>A falling spark's fading afterimage.</summary>
-    FallingSparkTrail,
-    /// <summary>A Metroid's electricity's first pass.</summary>
-    MetroidElectricity,
+    /// <summary>The run <paramref name="actor"/> starts with.</summary>
+    private RoomEffectActorSegment(RoomEffectActorKind actor) => Actor = actor;
+
+    /// <summary>The actor whose animation the run belongs to.</summary>
+    internal RoomEffectActorKind Actor { get; }
+
+    /// <summary>Whether the run is the cycle the actor loops after its first pass, rather than the run it starts with.</summary>
+    internal bool IsCycle { get; private init; }
+
     /// <summary>A Metroid's electricity's cycle, which loops after its first pass.</summary>
-    MetroidElectricityCycle,
-    /// <summary>A Metroid's shell's first pass.</summary>
-    MetroidShell,
+    internal static RoomEffectActorSegment MetroidElectricityCycle { get; } = new(RoomEffectActorKind.MetroidElectricity) { IsCycle = true };
+
     /// <summary>A Metroid's shell's cycle, which loops after its first pass.</summary>
-    MetroidShellCycle,
-    /// <summary>The base of a Yapping Maw that reaches down, held eight pixels above it.</summary>
-    YappingMawBaseFacingDown,
-    /// <summary>The base of a Yapping Maw that reaches up, held eight pixels below it.</summary>
-    YappingMawBaseFacingUp,
-    /// <summary>An Evir facing left, its legs cycling.</summary>
-    EvirFacingLeft,
-    /// <summary>An Evir facing right, its legs cycling.</summary>
-    EvirFacingRight,
-    /// <summary>Foam rising from Draygon's mouth.</summary>
-    DraygonFoam,
-    /// <summary>The hit burst on an enemy a shot or bomb hurts while it is not frozen.</summary>
-    HitBurst,
+    internal static RoomEffectActorSegment MetroidShellCycle { get; } = new(RoomEffectActorKind.MetroidShell) { IsCycle = true };
+
+    /// <summary>Every run: each actor's own run and the two cycles.</summary>
+    internal static IEnumerable<RoomEffectActorSegment> All =>
+        [.. Enum.GetValues<RoomEffectActorKind>().Select(Of), MetroidElectricityCycle, MetroidShellCycle];
+
+    /// <summary>The run <paramref name="actor"/> starts with: its whole animation, or a Metroid's electricity's or shell's first pass.</summary>
+    internal static RoomEffectActorSegment Of(RoomEffectActorKind actor) => new(actor);
 }

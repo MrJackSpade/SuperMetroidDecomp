@@ -60,7 +60,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
             default:
                 throw new InvalidOperationException($"Undefined {nameof(BoulderStart)} {settings.Start}.");
         }
-        place.Position = place.Position.WithWrappedWholeY(state.InitialPosition.Y - initialYOffset);
+        place.Position = place.Position.WithWholeY(state.InitialPosition.Y - initialYOffset);
 
         int horizontalReach = -settings.TriggerReach;
 
@@ -136,7 +136,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void RunBoulderInitialFall(RoomEnemyPlace place, BoulderEnemyState state)
     {
         AddBoulderVerticalVelocity(place, state.BounceSpeedAccumulator, direction: VerticalDirection.Down);
-        if (CoordinateAxis.Difference(place.Position.Y.Whole, state.InitialPosition.Y) < 0)
+        if (place.Position.Y.Whole < state.InitialPosition.Y)
         {
             state.BounceSpeedAccumulator = AddAndCap(
                 state.BounceSpeedAccumulator,

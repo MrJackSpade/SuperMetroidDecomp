@@ -21,7 +21,7 @@ internal static class CrawlerAnimationDefinitionsVerification
             new InitialTable(CrawlerAnimationFamily.Viola, 0xa3b667),
             new InitialTable(CrawlerAnimationFamily.Sciser, 0xa396db),
             new InitialTable(CrawlerAnimationFamily.Zero, 0xa3992b),
-            new InitialTable(CrawlerAnimationFamily.OrangeZoomer, 0xa3e03b),
+            new InitialTable(CrawlerAnimationFamily.Shared, 0xa3e03b, OrangeZoomer: true),
         ];
         CrawlerSurfaceOrientation[] orientations =
         [
@@ -31,7 +31,7 @@ internal static class CrawlerAnimationDefinitionsVerification
             CrawlerSurfaceOrientation.UpsideUp,
         ];
 
-        foreach ((CrawlerAnimationFamily family, int address) in initialTables)
+        foreach ((CrawlerAnimationFamily family, int address, _) in initialTables)
         for (int orientation = 0; orientation < 4; orientation++)
         {
             // The selector's entry leads into the crawl's list (#2061).
@@ -53,12 +53,12 @@ internal static class CrawlerAnimationDefinitionsVerification
                 $"crawler surface selector column {column} ({family})/{orientation}");
         }
 
-        foreach ((CrawlerAnimationFamily family, _) in initialTables)
+        foreach ((CrawlerAnimationFamily family, _, bool orangeZoomer) in initialTables)
         for (ushort orientation = 0; orientation < 4; orientation++)
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.Bind(family == CrawlerAnimationFamily.OrangeZoomer ? EnemyDefinitionId.OrangeZoomer : EnemyDefinitionId.Zoomer, place.Definition);
+            place.Bind(orangeZoomer ? EnemyDefinitionId.OrangeZoomer : EnemyDefinitionId.Zoomer, place.Definition);
             // The codec decodes the initialization word into the surface the crawler starts on, and the property word's
             // low bits into the side of its block.
             AssertEqual(new CrawlerSpawnSettings(orientations[orientation], orientations[orientation], CrawlSpeed: new SignedEightEight(CrawlerSpeeds.ForParameter(0))),
@@ -72,7 +72,7 @@ internal static class CrawlerAnimationDefinitionsVerification
                 place.SetSpawnSettings(new ViolaSpawnSettings(orientations[orientation], CrawlSpeed: new SignedEightEight(CrawlerSpeeds.ForParameter(0))));
             }
             place.SetSpawnParameter1(family == CrawlerAnimationFamily.Viola ? EnemyDefinitionId.Viola : EnemyDefinitionId.Zoomer, 0);
-            if (family == CrawlerAnimationFamily.OrangeZoomer)
+            if (orangeZoomer)
             {
                 new Action<RoomEnemyPlace>(CrawlersBehavior.InitializeOrangeZoomer)(place);
             }

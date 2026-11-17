@@ -1,14 +1,19 @@
 namespace SuperMetroid.Core.Enemies.Fireflea;
 
 /// <summary>
-/// Fireflea's 52-frame glow loop as a typed animation (#641): one segment per animation a spawn, branch or wake enters, in authored order.
+/// Fireflea's glow loop as a typed animation (#641, #2369): its wingbeat at its brightest glow, which its animation
+/// plays twice, and its wingbeats as it dims and brightens back, in authored order.
 /// Their steps are <see cref="FirefleaAnimations"/>.
 /// </summary>
 internal enum FirefleaSegment
 {
     /// <summary>
-    /// Beating its wings up, level and down while its glow dims from brightest to dimmest and brightens back,
-    /// repeating.
+    /// One beat of its wings, up, level, down and level, at its brightest glow. Its animation beats twice so, dims and
+    /// brightens back, repeating.
     /// </summary>
-    Loop,
+    BrightestWingbeat,
+    /// <summary>One wingbeat at each glow as it dims, from brighter down to its dimmest.</summary>
+    Dimming,
+    /// <summary>One wingbeat at each glow as it brightens back, from dimmer up to brighter.</summary>
+    Brightening,
 }

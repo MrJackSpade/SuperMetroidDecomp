@@ -39,8 +39,6 @@ public sealed class CacatacEnemyState
     /// </summary>
     public int RightPatrolX { get; internal set; }
 
-    /// <summary>
-    /// Whether it hangs from a ceiling or stands on a floor, as its spawn mounting names.
-    /// </summary>
-    public bool UpsideUp { get; internal set; }
+    /// <summary>Whether it hangs from a ceiling or stands on a floor, as its spawn settings name it (#2369).</summary>
+    internal CacatacMounting Mounting { get; set; }
 }

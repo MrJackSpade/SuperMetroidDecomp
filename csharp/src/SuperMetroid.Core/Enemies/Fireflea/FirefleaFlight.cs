@@ -10,8 +10,8 @@ internal abstract record FirefleaFlight
 
     /// <summary>Bobs up and down about where it starts, reversing at either end.</summary>
     /// <param name="Speed">Its speed, in pixels per update.</param>
-    /// <param name="StartSign">Whether it starts moving down, toward increasing Y, or up.</param>
-    internal sealed record Bobbing(SignedSixteenSixteen Speed, EnemySpeedSign StartSign) : FirefleaFlight;
+    /// <param name="StartDirection">The way it starts moving (#2369).</param>
+    internal sealed record Bobbing(SignedSixteenSixteen Speed, VerticalDirection StartDirection) : FirefleaFlight;
 
     /// <summary>Circles about where it starts.</summary>
     /// <param name="TurnPerUpdate">How far, and which way, it turns around its circle each update.</param>

@@ -169833,6 +169833,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Verification.Rendering.SignedBackgroundScrollVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Rendering/SignedBackgroundScrollVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Verification.Rooms.Artwork.CeresRidleyArenaBlocksVerification",
       "kind": "static class",
       "scope": "test",

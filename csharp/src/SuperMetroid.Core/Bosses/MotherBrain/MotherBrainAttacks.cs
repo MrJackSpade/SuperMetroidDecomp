@@ -448,7 +448,7 @@ internal sealed class MotherBrainAttacks
             return;
         if (state.WalkCounter.IsEmpty)
         {
-            state.WalkCounter = MotherBrainWalkCredit.Of(1);
+            state.WalkCounter = MotherBrainWalkCredit.Of(MotherBrainFightDefinitions.SecondPhaseStartingCredit);
             if (state.Body.Position.X.Whole >= MotherBrainFightDefinitions.BackLimitX)
             {
                 MotherBrainEncounterAccess.SetMotherBrainBodyAnimation(state, MotherBrainBodySegment.WalkBackwardFast);
@@ -457,7 +457,7 @@ internal sealed class MotherBrainAttacks
         }
         else
         {
-            state.WalkCounter = state.WalkCounter.AddCredit(6);
+            state.WalkCounter = state.WalkCounter.AddCredit(MotherBrainFightDefinitions.SecondPhaseCreditPerTurn);
             if (!state.WalkCounter.BelowStep)
             {
                 StartMotherBrainForwardWalk(state);

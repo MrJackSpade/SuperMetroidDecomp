@@ -13,6 +13,9 @@ internal static class ShitroidFightDefinitions
     /// <summary>The invisible wall columns its scene raises and clears, in the order they are requested.</summary>
     internal static IReadOnlyList<Position16<RoomBlocks>> WallBlocks { get; } = [new(48, 3), new(31, 3)];
 
+    /// <summary>The screens of the room's row of four its scene closes and opens again: the second and fourth.</summary>
+    internal static IReadOnlyList<Position16<RoomScreens>> ClosingScreens { get; } = [new(1, 0), new(3, 0)];
+
     /// <summary>The updates of its entrance delay, once the camera is held, before it flies in.</summary>
     internal const int EntranceDelayUpdates = 465;
 
@@ -24,6 +27,9 @@ internal static class ShitroidFightDefinitions
 
     /// <summary>Where it latches onto a victim: above the Sidehopper's or Samus's position.</summary>
     internal static readonly Offset16<RoomPixels> LatchOffset = new(0, -32);
+
+    /// <summary>The updates it drains its Sidehopper; on the last the Sidehopper's corpse starts.</summary>
+    internal const int SidehopperDrainUpdates = 320;
 
     /// <summary>The updates it rises after feeding, and after draining Samus.</summary>
     internal const int RiseUpdates = 193;

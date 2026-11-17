@@ -146,21 +146,6 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Sequence of explosion positions used by the fake-death collapse.</summary>
-    internal static readonly Position16<RoomPixels>[] MotherBrainFakeDeathExplosionPositions =
-    [
-        new Position16<RoomPixels>(136, 116),
-        new Position16<RoomPixels>(120, 132),
-        new Position16<RoomPixels>(124, 90),
-        new Position16<RoomPixels>(138, 146),
-        new Position16<RoomPixels>(120, 52),
-        new Position16<RoomPixels>(124, 170),
-        new Position16<RoomPixels>(138, 72),
-        new Position16<RoomPixels>(120, 206),
-    ];
-    /// <summary>Authored smoke puff X offsets cycled while a tube lands.</summary>
-    internal static readonly int[] MotherBrainFallingTubeSmokeXOffsets = [-8, 2, -4, 6];
-
     /// <summary>Runs the phase of her fake death's descent her body is in, after her first phase ends.</summary>
     internal void RunMotherBrainFakeDeath(MotherBrainEnemyState state, SamusState samus)
     {
@@ -204,14 +189,14 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 // The fake-death flash starts the looping room flash, drains the room's acid,
                 // arms the head's independent tube sequence, and clears both fade timers.
                 state.RoomFlashImage = MotherBrainRoomFlashImage.First;
-                state.RoomFlashTimer = 1;
+                state.RoomFlashTimer = MotherBrainRoomFlashDefinitions.FirstImageStartingTicks;
                 _frameResults.MotherBrainAcidChange = MotherBrainRoomFxDefinitions.AcidDrains;
                 state.TubeCollapseStep = MotherBrainTubeCollapseStep.SpawnBottomLeftTube;
                 state.TubeCollapseTimer.LastFor(1);
                 state.DescentPhase = MotherBrainDescentPhase.FadeToGray;
                 state.PhaseTimer.LastFor(1);
                 state.FakeDeathGreying.Restart();
-                Access.RequestMotherBrainObject(new(14, 2), MotherBrainRoomMutation.ClearCeilingBlock);
+                Access.RequestMotherBrainObject(MotherBrainTubeCollapseDefinitions.CeilingBlock.Block, MotherBrainTubeCollapseDefinitions.CeilingBlock.RoomObject);
                 return;
 
             case MotherBrainDescentPhase.FadeToGray:
@@ -240,7 +225,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         // The arena lock is the stationary lock: its input phase places
         // no bombs and fires nothing new while the arena drains.
         samus.Control.LockStationary();
-        _room.Services.RoomScroll.Write(new Position16<RoomScreens>(1, 0), RoomScrollState.Closed);
+        _room.Services.RoomScroll.Write(MotherBrainFightDefinitions.ArenaClosedScreen, RoomScrollState.Closed);
 
         state.DescentPhase = MotherBrainDescentPhase.PauseBeforeMusic;
         state.PhaseTimer.LastFor(MotherBrainWaitDefinitions.BeforeMusicUpdates);
@@ -367,8 +352,4 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                     $"Mother Brain's second-phase fight has no behaviour for phase {state.Phase2FightPhase}.");
         }
     }
-
-    /// <summary>Six authored drool spawn offsets from the brain's center.</summary>
-    internal static readonly Offset16<RoomPixels>[] MotherBrainDroolOffsets =
-        [new(6, 20), new(14, 18), new(8, 23), new(10, 19), new(11, 25), new(12, 18)];
 }

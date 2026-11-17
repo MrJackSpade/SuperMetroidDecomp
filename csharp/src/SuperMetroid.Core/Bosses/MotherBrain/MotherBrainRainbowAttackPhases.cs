@@ -28,15 +28,6 @@ internal sealed class MotherBrainRainbowAttackPhases
     /// </summary>
     public RotationAngle AngularWidth { get; internal set; }
 
-    /// <summary>The beam's starting and narrowest width: two steps.</summary>
-    private static readonly RotationAngle NarrowestWidth = RotationAngle.FromSteps(2);
-
-    /// <summary>The beam's widest width: twelve steps.</summary>
-    private static readonly RotationAngle WidestWidth = RotationAngle.FromSteps(12);
-
-    /// <summary>How far one widening or narrowing changes the width: one and a half steps.</summary>
-    private static readonly RotationAngle WidthStep = RotationAngle.FromSteps(1, 128);
-
     /// <summary>The beam's sound attempts left, zero or more: each continuing beam step makes one until none are left (#2253).</summary>
     public int SoundAttemptsLeft { get; internal set => field = Ensure.AtLeastZero(value); }
 
@@ -57,7 +48,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         Ensure.NotNull(samus);
 
         _state.SetHeadAnimation(MotherBrainHeadSegment.FiringRainbowBeam);
-        AngularWidth = NarrowestWidth;
+        AngularWidth = MotherBrainBeamDefinitions.RainbowNarrowestWidth;
         NextExplosion = 0;
         ExplosionTimer.LastFor(1);
         SoundAttemptsLeft = MotherBrainBeamDefinitions.SoundAttempts;
@@ -94,8 +85,8 @@ internal sealed class MotherBrainRainbowAttackPhases
     /// <summary>Widens the beam by one and a half steps up to twelve and refreshes its angle toward Samus.</summary>
     private void IncreaseWidthAndAim(SamusState samus)
     {
-        RotationAngle widened = AngularWidth + WidthStep;
-        AngularWidth = widened > WidestWidth ? WidestWidth : widened;
+        RotationAngle widened = AngularWidth + MotherBrainBeamDefinitions.RainbowWidthStep;
+        AngularWidth = widened > MotherBrainBeamDefinitions.RainbowWidestWidth ? MotherBrainBeamDefinitions.RainbowWidestWidth : widened;
         AimBeamAtSamus(samus);
     }
 
@@ -375,10 +366,10 @@ internal sealed class MotherBrainRainbowAttackPhases
 
         // The finish narrows first, then compares the result with the narrowest width. Width is pinned only after it
         // crosses below that floor; it never narrows below half a step, so it never passes zero.
-        AngularWidth -= WidthStep;
-        if (AngularWidth < NarrowestWidth)
+        AngularWidth -= MotherBrainBeamDefinitions.RainbowWidthStep;
+        if (AngularWidth < MotherBrainBeamDefinitions.RainbowNarrowestWidth)
         {
-            AngularWidth = NarrowestWidth;
+            AngularWidth = MotherBrainBeamDefinitions.RainbowNarrowestWidth;
             _movement.BeginFallingAfterRainbowBeam();
             BeamActive = false;
             requests.BeamEnded = true;

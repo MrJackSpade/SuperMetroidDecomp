@@ -11,4 +11,7 @@ internal static class MotherBrainRoomFlashDefinitions
 
     /// <summary>The updates each of the flash's fourteen images shows for; only the room flash's own timer counts them.</summary>
     internal const int FlashImageTicks = 2;
+
+    /// <summary>The updates the flash's first image counts as shown as the flash starts, so it shows one update less.</summary>
+    internal const int FirstImageStartingTicks = 1;
 }

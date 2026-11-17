@@ -199,12 +199,6 @@ internal sealed class MotherBrainHead
             { Shading = frame.Shading, RotRows = corpseRows });
     }
 
-    /// <summary>
-    /// The neck turn from which her drool is the dying drool: a neck turning half a step an update or faster drools it, a
-    /// slower one drools the ordinary drool.
-    /// </summary>
-    private static readonly RotationAngle DyingDroolNeckTurn = RotationAngle.FromSteps(0, 128);
-
     /// <summary>Derives the head's current shake offset from the encounter's animation state.</summary>
     private static Offset16<RoomPixels> GetMotherBrainBrainShake(
         MotherBrainEnemyState state,
@@ -478,14 +472,14 @@ internal sealed class MotherBrainHead
         if (!state.DroolGenerationEnabled)
             return;
 
-        state.LastDroolMouthPoint = (state.LastDroolMouthPoint + 1) % MotherBrainBehavior.MotherBrainDroolOffsets.Length;
-        Offset16<RoomPixels> mouth = MotherBrainBehavior.MotherBrainDroolOffsets[state.LastDroolMouthPoint];
+        state.LastDroolMouthPoint = (state.LastDroolMouthPoint + 1) % MotherBrainFightDefinitions.DroolMouthOffsets.Count;
+        Offset16<RoomPixels> mouth = MotherBrainFightDefinitions.DroolMouthOffsets[state.LastDroolMouthPoint];
 
         EnemyProjectile? drool = _projectiles.AllocateEnemyProjectile();
         if (drool is null)
             return;
 
-        RoomEnemyProjectileKind kind = state.NeckTurnPerUpdate < DyingDroolNeckTurn
+        RoomEnemyProjectileKind kind = state.NeckTurnPerUpdate < MotherBrainNeckTurnDefinitions.DyingDrool
             ? RoomEnemyProjectileKind.MotherBrainDrool
             : RoomEnemyProjectileKind.MotherBrainDyingDrool;
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(drool, kind, _projectileAttacks.Projectile, graphics: default);

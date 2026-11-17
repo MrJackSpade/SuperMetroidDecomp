@@ -14,7 +14,7 @@ public sealed class CeresRidleyState : RidleyEncounterState
                 wingBeatStep: RidleyWingDefinitions.CeresFirstBeatStep),
             new RidleyTailState(damage: RidleyTailDefinitions.CeresTipDamage))
     {
-        Baby = new CeresBaby(body + CeresRidleyBabyScene.CeresBabyArmsAnchor);
+        Baby = new CeresBaby(body + CeresRidleyArenaDefinitions.BabyArmsAnchor);
         // Ceres Ridley's tail starts whipping of its own; his swoop alone stops it.
         Tail.IdleWhipEnabled = true;
     }

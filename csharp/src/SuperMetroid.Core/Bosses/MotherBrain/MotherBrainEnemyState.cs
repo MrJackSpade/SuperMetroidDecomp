@@ -353,7 +353,7 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     public bool SmallPurpleBreathActive { get; internal set; }
 
     /// <summary>
-    /// The place in <see cref="MotherBrainBehavior.MotherBrainDroolOffsets"/> of the mouth point the last drool hung from.
+    /// The place in <see cref="MotherBrainFightDefinitions.DroolMouthOffsets"/> of the mouth point the last drool hung from.
     /// Each drool takes the next of the six points, the first after the last, so a fresh encounter's first drool hangs
     /// from the second.
     /// </summary>

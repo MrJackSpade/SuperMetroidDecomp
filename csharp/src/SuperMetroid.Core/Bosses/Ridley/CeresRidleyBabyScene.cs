@@ -35,9 +35,6 @@ internal sealed class CeresRidleyBabyScene
         _ridleyEncounter = ridleyEncounter;
     }
 
-    /// <summary>The gravity the dropped Baby's fall gains each update.</summary>
-    private static readonly SignedEightEight CeresBabyFallGravity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(8);
-
     /// <summary>Keeps the Baby at Ridley's arm anchor, falls independently, then follows the grasp point on retrieval.</summary>
     /// <param name="place">Ridley's body, which carries the Baby.</param>
     /// <param name="baby">The Baby.</param>
@@ -49,7 +46,7 @@ internal sealed class CeresRidleyBabyScene
                 // Before the fake retreat, the Baby remains at Ridley's original left-hand
                 // anchor. This phase is also why the retrieval target begins coherent
                 // even though the Baby is not a separate RoomEnemyPlace.
-                baby.Position = baby.Position.WithWhole(place.Position.Whole + CeresBabyArmsAnchor);
+                baby.Position = baby.Position.WithWhole(place.Position.Whole + CeresRidleyArenaDefinitions.BabyArmsAnchor);
                 return;
 
             case CeresBabyAction.Drop:
@@ -61,7 +58,7 @@ internal sealed class CeresRidleyBabyScene
             case CeresBabyAction.Dropped:
                 // The falling speed only grows from zero and the fall ends at the Baby's floor, so it stays a few pixels an
                 // update.
-                baby.VerticalVelocity += CeresBabyFallGravity;
+                baby.VerticalVelocity += CeresRidleyArenaDefinitions.BabyFallGravity;
                 baby.Position = baby.Position.WithY(baby.Position.Y.MovedBy(baby.VerticalVelocity));
                 if (CoordinateAxis.Difference(baby.Position.Y.Whole, CeresRidleyArenaDefinitions.BabyFloorY) >= 0)
                 {
@@ -73,7 +70,7 @@ internal sealed class CeresRidleyBabyScene
             case CeresBabyAction.CarriedInFeet:
                 // Once the hand rectangles overlap, the Baby follows the grasp point for
                 // the real retreat and disappears with Ridley at the escape handoff.
-                baby.Position = baby.Position.WithWhole(place.Position.Whole + CeresBabyFeetAnchor);
+                baby.Position = baby.Position.WithWhole(place.Position.Whole + CeresRidleyArenaDefinitions.BabyFeetAnchor);
                 return;
 
             case CeresBabyAction.Idle:
@@ -83,12 +80,6 @@ internal sealed class CeresRidleyBabyScene
                 throw new InvalidOperationException($"Undefined {nameof(CeresBabyAction)} {baby.Action}.");
         }
     }
-
-    /// <summary>The Ceres Baby's anchor in Ridley's arms before the fake retreat.</summary>
-    internal static Offset16<RoomPixels> CeresBabyArmsAnchor => new(-16, 22);
-
-    /// <summary>The Ceres Baby's anchor in Ridley's feet once retrieved, also the grasp point the retrieval compares.</summary>
-    internal static Offset16<RoomPixels> CeresBabyFeetAnchor => new(14, 66);
 
     /// <summary>
     /// Replays the direct branch to the Baby and door draw taken while Ridley's movement and

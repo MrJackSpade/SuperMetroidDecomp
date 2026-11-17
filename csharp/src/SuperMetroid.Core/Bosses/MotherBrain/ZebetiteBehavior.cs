@@ -58,11 +58,6 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         _deathsAndDrops = dependencies.DeathsAndDrops;
     }
 
-    /// <summary>Health ceiling applied while an active Zebetite regenerates each update.</summary>
-    private const int ZebetiteMaximumHealth = 1000;
-    /// <summary>The sound a Zebetite makes when a shot hits it.</summary>
-    private static readonly SoundEffectId ZebetiteShotSound = RoomSound.MissileDoorHit;
-
     /// <summary>
     /// The Zebetites' shared pulse (#2259), advanced by every primary Zebetite in the room; it starts at its first frame with
     /// the room. It selects only the pulse the Zebetites show.
@@ -101,7 +96,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Form = definition.Form;
         place.Radius = place.Radius.WithY(definition.HalfHeight);
         // A new barrier shows its form's unhurt picture.
-        state.Picture = HealthPicture(definition.Form, ZebetiteMaximumHealth);
+        state.Picture = HealthPicture(definition.Form, ZebetiteDefinitions.MaximumHealth);
         place.Position = place.Position.WithWholeX(definition.X);
         place.Position = place.Position.WithWholeY(Zebetites.YPosition(definition, state.IsSecondaryHalf));
     }
@@ -164,7 +159,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (place.Health != 0)
         {
-            place.Health = Math.Min(ZebetiteMaximumHealth, place.Health + 1);
+            place.Health = Math.Min(ZebetiteDefinitions.MaximumHealth, place.Health + 1);
             return;
         }
 
@@ -247,7 +242,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Resolves the private tail of a shot on a Zebetite.</summary>
     private void ResolveZebetiteShotAfterCommon(RoomEnemyPlace struck)
     {
-        _audio.QueueEnemySound(ZebetiteShotSound, SoundRequestPriority.Normal);
+        _audio.QueueEnemySound(ZebetiteDefinitions.ShotSound, SoundRequestPriority.Normal);
         RoomEnemyPlace linked = ZebetiteShotShare.Recipient(_places.InUpdateOrder, struck.RequireSpeciesState<ZebetiteEnemyState>().LinkedHalf);
         linked.Health = struck.Health;
         linked.FlashTimer = struck.FlashTimer;

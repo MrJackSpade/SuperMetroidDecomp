@@ -87,6 +87,29 @@ internal static class MotherBrainTubeCollapseDefinitions
     /// <summary>The updates between the smoke puffs of the falling main tube.</summary>
     internal const int SmokeIntervalUpdates = 9;
 
+    /// <summary>How far right of a falling tube each of its smoke puffs shows, in the order they cycle.</summary>
+    internal static IReadOnlyList<int> SmokeXOffsets { get; } = [-8, 2, -4, 6];
+
+    /// <summary>
+    /// Where the explosions about her tank burst as she fakes her death, by place: each explosion takes the place before
+    /// the last, so they burst from the last place back to the first and then again.
+    /// </summary>
+    internal static IReadOnlyList<Position16<RoomPixels>> FakeDeathExplosionPositions { get; } =
+    [
+        new(136, 116),
+        new(120, 132),
+        new(124, 90),
+        new(138, 146),
+        new(120, 52),
+        new(124, 170),
+        new(138, 72),
+        new(120, 206),
+    ];
+
+    /// <summary>The ceiling block her fake death's flash clears above her tank.</summary>
+    internal static readonly RoomObjectSpawnRequest<MotherBrainRoomMutation> CeilingBlock =
+        new(new(14, 2), MotherBrainRoomMutation.ClearCeilingBlock);
+
     /// <summary>The height the falling main tube's smoke puffs show at.</summary>
     internal const int SmokeY = 208;
 }

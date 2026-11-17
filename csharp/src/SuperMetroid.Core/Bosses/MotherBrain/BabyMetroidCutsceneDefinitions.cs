@@ -31,6 +31,18 @@ internal static class BabyMetroidCutsceneDefinitions
     /// <summary>The health the Baby is given at the final charge's start, so the final four-ring volley kills it on its first hit.</summary>
     internal const int FinalVolleyHealth = 79;
 
+    /// <summary>The updates an onion ring's hit flashes the Baby for.</summary>
+    internal const int OnionRingHitFlash = 16;
+
+    /// <summary>How far above Samus the Baby may be, falling as it dies, for her rainbow to start.</summary>
+    internal const int SamusRainbowAboveBaby = 16;
+
+    /// <summary>The longest Samus's rainbow glow is held on each colour as it slows.</summary>
+    internal const int SamusRainbowLongestHold = 10;
+
+    /// <summary>The height the dying Baby's centre must reach before its fade to black starts.</summary>
+    internal const int FadeToBlackLineY = 128;
+
     /// <summary>The updates the fatal blow shakes the Baby.</summary>
     internal const int FatalBlowShakeUpdates = 17;
 

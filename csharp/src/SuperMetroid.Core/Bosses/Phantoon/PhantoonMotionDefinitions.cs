@@ -12,6 +12,9 @@ public static class PhantoonMotionDefinitions
     /// <summary>The horizontal swoop velocity, eight pixels an update, at which the rightward pull stops.</summary>
     public static SignedEightEight SwoopPositiveXLimit { get; } = SignedEightEight.FromPixels(8);
 
+    /// <summary>The speed his figure-eight starts from along its path: one place an update.</summary>
+    public static SignedSixteenSixteen FigureEightStartSpeed { get; } = SignedSixteenSixteen.FromParts(1, 0);
+
     /// <summary>The vertical swoop velocity, six pixels an update, at which the downward pull stops.</summary>
     public static SignedEightEight SwoopPositiveYLimit { get; } = SignedEightEight.FromPixels(6);
 

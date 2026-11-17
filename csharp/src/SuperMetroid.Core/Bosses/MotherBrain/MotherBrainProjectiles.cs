@@ -19,9 +19,6 @@ internal sealed class MotherBrainProjectiles
     private readonly EnemyRoomBinding _room;
     /// <summary>Owns the bombs, glass, beams, turrets, and other encounter projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
-    /// <summary>The medium diagonal foreground shake a hand beam leaving the arena or an onion ring exploding starts.</summary>
-    private static readonly EarthquakeShake ExplosionShake =
-        new(EarthquakeStrength.Medium, EarthquakeDirection.Diagonal, EarthquakeReach.Foreground);
     /// <summary>What Mother Brain's projectile behaviour is constructed with.</summary>
     private readonly MotherBrainProjectileDependencies _behaviorDependencies;
 
@@ -233,9 +230,8 @@ internal sealed class MotherBrainProjectiles
                     projectile.Radius = setRadius.Radius;
                     break;
                 case MotherBrainEffectCue.Signal { Kind: MotherBrainEffectCueKind.DropDrool }:
-                    // After its release starts its fall, the released drool drops twelve pixels before its first
-                    // falling frame.
-                    projectile.Position = projectile.Position.WithWrappedWholeY(projectile.Position.Y.Whole + 12);
+                    // After its release starts its fall, the released drool drops before its first falling frame.
+                    projectile.Position = projectile.Position.WithWrappedWholeY(projectile.Position.Y.Whole + MotherBrainFightDefinitions.DroolReleaseDrop);
                     break;
                 case MotherBrainEffectCue.Signal { Kind: MotherBrainEffectCueKind.EndSmallPurpleBreath }:
                     projectile.StateOf<MotherBrainProjectileState>().MotherBrain.SmallPurpleBreathActive = false;
@@ -406,7 +402,7 @@ internal sealed class MotherBrainProjectiles
 
             // A shard is removed once it leaves the first 256 lines, so it falls at most that far and its speed stays a few
             // pixels an update above its launch speed.
-            shard.Velocity = shard.Velocity.WithY(shard.Velocity.Y + SignedEightEight.FromTwoHundredFiftySixthsOfPixel(32));
+            shard.Velocity = shard.Velocity.WithY(shard.Velocity.Y + MotherBrainGlassShardDefinitions.ShardGravity);
 
             // The condition itself consumes one random value every live shard frame; a successful
             // sparkle consumes two more below. Both of the sample's sparkle checks clear: one sample in four.
@@ -430,8 +426,8 @@ internal sealed class MotherBrainProjectiles
                 graphics: default);
             sparkle.StartAnimation(new MotherBrainGlassAnimation(MotherBrainGlassSegment.Sparkle));
             sparkle.Position = sparkle.Position.WithWhole(new(CoordinateAxis.Wrap(
-                source.Position.X.Whole + dependencies.Room.Random.Next(MotherBrainGlassShardDefinitions.SparkleOffset) - 16), CoordinateAxis.Wrap(
-                source.Position.Y.Whole + dependencies.Room.Random.Next(MotherBrainGlassShardDefinitions.SparkleOffset) - 16)));
+                source.Position.X.Whole + dependencies.Room.Random.Next(MotherBrainGlassShardDefinitions.SparkleOffset) - MotherBrainGlassShardDefinitions.SparkleOffsetCentre), CoordinateAxis.Wrap(
+                source.Position.Y.Whole + dependencies.Room.Random.Next(MotherBrainGlassShardDefinitions.SparkleOffset) - MotherBrainGlassShardDefinitions.SparkleOffsetCentre)));
             sparkle.Graphics = MotherBrainGlassShardDefinitions.Graphics(MotherBrainColours.GlassAndTubes);
         }
 
@@ -476,7 +472,7 @@ internal sealed class MotherBrainProjectiles
                     impact,
                     MiscDustAnimation.BigExplosion);
                 dependencies.Encounter.RequestCueSound(MotherBrainSoundDefinitions.Explosion);
-                dependencies.Earthquake.Start(ExplosionShake, 10);
+                dependencies.Earthquake.Start(MotherBrainFightDefinitions.ProjectileExplosionShake, MotherBrainFightDefinitions.ProjectileExplosionShakeUpdates);
                 return;
             }
 
@@ -563,7 +559,7 @@ internal sealed class MotherBrainProjectiles
             if (signedY < MotherBrainOnionRingDefinitions.ArenaTopY || ring.Position.Y.Whole >= MotherBrainOnionRingDefinitions.ArenaFloorY || signedX < 0 ||
                 screenX < 0 || screenX >= MotherBrainOnionRingDefinitions.ScreenRightEdgeX)
             {
-                dependencies.Earthquake.Start(ExplosionShake, 10);
+                dependencies.Earthquake.Start(MotherBrainFightDefinitions.ProjectileExplosionShake, MotherBrainFightDefinitions.ProjectileExplosionShakeUpdates);
                 ExplodeMotherBrainOnionRing(ring, ring.Position.Whole);
             }
         }

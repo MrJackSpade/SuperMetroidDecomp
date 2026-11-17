@@ -92,9 +92,9 @@ internal sealed class MotherBrainFakeDeath
 
         state.FakeDeathExplosionTimer.LastFor(MotherBrainWaitDefinitions.FakeDeathExplosionIntervalUpdates);
         // The index steps backward through the eight positions, from the first back to the last.
-        state.FakeDeathExplosionIndex = (state.FakeDeathExplosionIndex + MotherBrainBehavior.MotherBrainFakeDeathExplosionPositions.Length - 1) %
-            MotherBrainBehavior.MotherBrainFakeDeathExplosionPositions.Length;
-        Position16<RoomPixels> explosion = MotherBrainBehavior.MotherBrainFakeDeathExplosionPositions[state.FakeDeathExplosionIndex];
+        state.FakeDeathExplosionIndex = (state.FakeDeathExplosionIndex + MotherBrainTubeCollapseDefinitions.FakeDeathExplosionPositions.Count - 1) %
+            MotherBrainTubeCollapseDefinitions.FakeDeathExplosionPositions.Count;
+        Position16<RoomPixels> explosion = MotherBrainTubeCollapseDefinitions.FakeDeathExplosionPositions[state.FakeDeathExplosionIndex];
 
         // The tube dust reads the current random number and never draws a new one. Drawing a new
         // number here would desynchronize every later Rinka and phase-two attack decision.
@@ -367,9 +367,9 @@ internal sealed class MotherBrainFakeDeath
             return;
 
         tubeState.SmokeDelay.LastFor(MotherBrainTubeCollapseDefinitions.SmokeIntervalUpdates);
-        tubeState.SmokePositionIndex = (tubeState.SmokePositionIndex + 1) % MotherBrainBehavior.MotherBrainFallingTubeSmokeXOffsets.Length;
+        tubeState.SmokePositionIndex = (tubeState.SmokePositionIndex + 1) % MotherBrainTubeCollapseDefinitions.SmokeXOffsets.Count;
         _projectiles.SpawnDustOrExplosion(
-            new(CoordinateAxis.Wrap(tube.Position.X.Whole + MotherBrainBehavior.MotherBrainFallingTubeSmokeXOffsets[tubeState.SmokePositionIndex]), MotherBrainTubeCollapseDefinitions.SmokeY),
+            new(CoordinateAxis.Wrap(tube.Position.X.Whole + MotherBrainTubeCollapseDefinitions.SmokeXOffsets[tubeState.SmokePositionIndex]), MotherBrainTubeCollapseDefinitions.SmokeY),
             MiscDustAnimation.SmallDustCloud);
     }
 

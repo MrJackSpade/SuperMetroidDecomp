@@ -10,6 +10,9 @@ internal static class PhantoonArenaDefinitions
     /// <summary>The width and height of his one-screen room, outside which his enraged flames go.</summary>
     internal const int RoomSize = RoomGridConversions.BlocksPerScreen * RoomGridConversions.BlockPixels;
 
+    /// <summary>The middle of his room across: his flame rain starts from the side of it he is on.</summary>
+    internal const int MiddleX = RoomSize / 2;
+
     /// <summary>The point below his body his intro, rage and spiral flames circle, and where a spiral flame starts.</summary>
     internal static readonly Offset16<RoomPixels> FlameCircleCentre = new(0, 16);
 

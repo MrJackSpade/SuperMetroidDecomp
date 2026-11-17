@@ -275,7 +275,7 @@ internal sealed class CeresRidleyFlight
         // two radius-four rectangles centered on the hand and Baby points.
         AccelerateRidleyToward(place, state.Flight, state.Baby.Position.Whole - CeresRidleyArenaDefinitions.RetrievalHandAboveBaby, CeresRidleyFlightDefinitions.RetrievalDivisor);
 
-        Offset16<RoomPixels> fromHand = state.Baby.Position.Whole - (place.Position.Whole + CeresRidleyBabyScene.CeresBabyFeetAnchor);
+        Offset16<RoomPixels> fromHand = state.Baby.Position.Whole - (place.Position.Whole + CeresRidleyArenaDefinitions.BabyFeetAnchor);
         if (Math.Abs(fromHand.X) >= CeresRidleyArenaDefinitions.BabyGraspReach || Math.Abs(fromHand.Y) >= CeresRidleyArenaDefinitions.BabyGraspReach)
         {
             return;

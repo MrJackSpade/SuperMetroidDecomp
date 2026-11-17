@@ -28,4 +28,13 @@ public static class MotherBrainBeamDefinitions
     /// The times the beam's continuing steps queue its sound: one on each of its first seven steps, none after.
     /// </summary>
     public const int SoundAttempts = 7;
+
+    /// <summary>The rainbow beam's starting and narrowest angular width: two steps of a 256-step turn.</summary>
+    public static readonly RotationAngle RainbowNarrowestWidth = RotationAngle.FromSteps(2);
+
+    /// <summary>The rainbow beam's widest angular width: twelve steps.</summary>
+    public static readonly RotationAngle RainbowWidestWidth = RotationAngle.FromSteps(12);
+
+    /// <summary>How far one widening or narrowing of the rainbow beam changes its width: one and a half steps.</summary>
+    public static readonly RotationAngle RainbowWidthStep = RotationAngle.FromSteps(1, 128);
 }

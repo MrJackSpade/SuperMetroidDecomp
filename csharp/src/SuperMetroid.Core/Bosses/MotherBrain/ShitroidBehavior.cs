@@ -310,7 +310,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private void WaitForShitroidCamera(ShitroidEnemyState state, Position16<RoomPixels> camera)
     {
-        if (CoordinateAxis.Difference(camera.X, ShitroidFightDefinitions.ArenaLeftX + 1) >= 0)
+        if (CoordinateAxis.Difference(camera.X, ShitroidFightDefinitions.ArenaLeftX) > 0)
             return;
 
         // Puts the camera at its arena's edge directly, then rescrolls the room's four screens as the wall entrance does: the second
@@ -329,8 +329,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private void SetShitroidScrollPair(RoomScrollState highState)
     {
-        _room.Services.RoomScroll.Write(new Position16<RoomScreens>(1, 0), highState);
-        _room.Services.RoomScroll.Write(new Position16<RoomScreens>(3, 0), highState);
+        foreach (Position16<RoomScreens> screen in ShitroidFightDefinitions.ClosingScreens)
+            _room.Services.RoomScroll.Write(screen, highState);
     }
 
     /// <summary>Requests the two room-column wall objects at the authored Tourian positions.</summary>
@@ -354,10 +354,10 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Action = ShitroidAction.DrainSidehopper;
         state.ColourDelay = ShitroidFightDefinitions.FeedingPulseDelay;
         state.ReactsToSamus = false;
-        state.SidehopperDrainTimer = 320;
+        state.SidehopperDrainTimer = ShitroidFightDefinitions.SidehopperDrainUpdates;
     }
 
-    /// <summary>Shakes above the victim for 320 ticks before activating its corpse sequence.</summary>
+    /// <summary>Shakes above the victim for its drain before activating its corpse sequence.</summary>
     private void DrainShitroidVictim(RoomEnemyPlace place, ShitroidEnemyState state)
     {
         RoomEnemyPlace victim = RequireShitroidVictim(place);

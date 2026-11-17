@@ -155,7 +155,7 @@ internal sealed class MotherBrainAscent
         state.Body.Position = state.Body.Position.WithWhole(MotherBrainFightDefinitions.StandingBodyPosition);
         state.BodyPlacement = MotherBrainBodyPlacement.FollowsBody;
         _motherBrainEncounter.RequestMusic(MusicRequest.SelectTrack(MusicTrack.MotherBrainBattle), MusicQueueDelay.Shortest);
-        _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Diagonal, EarthquakeReach.Foreground), 256);
+        _earthquake.Start(MotherBrainFightDefinitions.RiseShake, MotherBrainFightDefinitions.RiseShakeUpdates);
         state.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Rising;
         state.NeckMovementEnabled = true;
         state.LowerNeckMovement = MotherBrainNeckMovement.Raise;

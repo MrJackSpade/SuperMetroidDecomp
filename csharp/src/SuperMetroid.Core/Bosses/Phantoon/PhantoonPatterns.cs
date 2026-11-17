@@ -53,7 +53,7 @@ internal sealed class PhantoonPatterns
         }
         else
         {
-            state.FigureEight.Speed = SignedSixteenSixteen.FromParts(1, 0);
+            state.FigureEight.Speed = PhantoonMotionDefinitions.FigureEightStartSpeed;
             state.FigureEight.Reversed = false;
             state.FigureEight.PathCursor = 0;
         }
@@ -314,7 +314,7 @@ internal sealed class PhantoonPatterns
         }
         body.Position = body.Position.WithWholeY(PhantoonPathDefinitions.AppearanceY);
         state.FigureEight.Reversed = false;
-        state.FigureEight.Speed = SignedSixteenSixteen.FromParts(1, 0);
+        state.FigureEight.Speed = PhantoonMotionDefinitions.FigureEightStartSpeed;
         state.FlameRainRequested = false;
 
         // The call deliberately starts a pattern phase which is immediately
@@ -425,7 +425,7 @@ internal sealed class PhantoonPatterns
 
         state.Swoop.Requested = false;
         state.Phase = PhantoonPhase.BecomeSolidAfterFlameRain;
-        SpawnPhantoonFlameRain(body, body.Position.X.Whole < 128
+        SpawnPhantoonFlameRain(body, body.Position.X.Whole < PhantoonArenaDefinitions.MiddleX
             ? PhantoonRainPatternDefinitions.FirstRainFromLeftHalf
             : PhantoonRainPatternDefinitions.FirstRainFromRightHalf);
     }
@@ -645,7 +645,7 @@ internal sealed class PhantoonPatterns
         {
             if (state.FigureEight.Reversed)
                 state.FigureEight.PathCursor = state.FigureEight.PathCursor >= PhantoonPathDefinitions.LastPlace ? 0 : state.FigureEight.PathCursor + 1;
-            state.FigureEight.Speed = SignedSixteenSixteen.FromParts(1, 0);
+            state.FigureEight.Speed = PhantoonMotionDefinitions.FigureEightStartSpeed;
             state.FigureEight.Stage = PhantoonFigureEightStage.EasingIn;
             state.FigureEight.Reversed = false;
         }

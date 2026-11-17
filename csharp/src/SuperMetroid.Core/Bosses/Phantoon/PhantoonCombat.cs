@@ -373,7 +373,7 @@ internal sealed class PhantoonCombat
         {
             // A single Super Missile (600 damage) skips ordinary round accumulation
             // and enters the eight-wave rage sequence immediately.
-            if (damage >= PhantoonBehavior.PhantoonDamageThreshold &&
+            if (damage >= PhantoonPatternDefinitions.RoundDamageThreshold &&
                 family == SamusProjectileFamily.SuperMissile)
             {
                 ClosePhantoonAfterDamage(body, state, PhantoonPhase.FadeOutBeforeRage);
@@ -382,7 +382,7 @@ internal sealed class PhantoonCombat
 
             // The round ends within an update or two of its damage reaching the threshold, so its sum never nears a wrap.
             state.Round.Damage += damage;
-            if (state.Round.Damage >= PhantoonBehavior.PhantoonDamageThreshold)
+            if (state.Round.Damage >= PhantoonPatternDefinitions.RoundDamageThreshold)
             {
                 if (swooping)
                     state.PhaseTimer = 1;

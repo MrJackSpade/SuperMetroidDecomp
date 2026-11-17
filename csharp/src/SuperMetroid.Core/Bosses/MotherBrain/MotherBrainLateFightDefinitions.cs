@@ -115,6 +115,12 @@ internal static class MotherBrainLateFightDefinitions
     /// <summary>The updates her grey corpse tips over.</summary>
     internal const int CorpseTipsOverUpdates = 257;
 
+    /// <summary>
+    /// Where each dust cloud of her rotting corpse shows from her brain before its random spread to the right: sixteen
+    /// pixels left of it and sixteen below.
+    /// </summary>
+    internal static readonly Offset16<RoomPixels> CorpseDustFromBrain = new(-16, 16);
+
     /// <summary>The updates of the pause before the escape, once her corpse has rotted away.</summary>
     internal const int BeforeEscapeUpdates = 21;
 

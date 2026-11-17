@@ -6,6 +6,18 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 internal static class BabyMetroidCutsceneFlightDefinitions
 {
+    /// <summary>The half-extent of the rectangle every route and staging target is tested with: four pixels each way.</summary>
+    internal static readonly Extent16<RoomPixels> TargetReach = new(4, 4);
+
+    /// <summary>The half-extent of the rectangle about its latch point on her brain that ends its latch onto her.</summary>
+    internal static readonly Extent16<RoomPixels> BrainLatchReach = new(8, 8);
+
+    /// <summary>How fast it pulls itself onto her brain to drain her, each update: two pixels an update.</summary>
+    internal static readonly SignedEightEight BrainDrainAcceleration = SignedEightEight.FromPixels(2);
+
+    /// <summary>How fast it pulls itself onto Samus to heal her, each update: a sixteenth of a pixel an update.</summary>
+    internal static readonly SignedEightEight SamusLatchAcceleration = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(16);
+
     /// <summary>The whole room pixel the Baby arrives at and waits on before its dash: X 320, Y 96.</summary>
     internal static readonly Position16<RoomPixels> ArrivalPoint = new(320, 96);
 

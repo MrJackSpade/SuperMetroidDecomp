@@ -18,9 +18,6 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 [RoomLifetime]
 internal sealed class MotherBrainBody
 {
-    /// <summary>The speed the hand's beam flies at toward Samus: twelve pixels an update.</summary>
-    private static readonly SignedEightEight HandBeamSpeed = SignedEightEight.FromPixels(12);
-
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     private readonly BossFrameResultBuilder _frameResults;
     /// <summary>Provides room services, pictures, colour state, and effects used by the encounter.</summary>
@@ -333,8 +330,8 @@ internal sealed class MotherBrainBody
             .ToTrigonometryAngle().TurnedBy(TrigonometryAngle.QuarterTurn);
         state.HandBeamNextAngle = angle;
         state.HandBeamNextVelocity = new EightEightVector<RoomPixels>(
-            EnemyMath.SineSpeed(HandBeamSpeed, angle),
-            EnemyMath.SineSpeed(HandBeamSpeed, angle.TurnedBy(TrigonometryAngle.QuarterTurn)));
+            EnemyMath.SineSpeed(MotherBrainHandBeamDefinitions.Speed, angle),
+            EnemyMath.SineSpeed(MotherBrainHandBeamDefinitions.Speed, angle.TurnedBy(TrigonometryAngle.QuarterTurn)));
 
         beam.State = new MotherBrainProjectileState(state);
         beam.StartAnimation(new MotherBrainHandBeamAnimation());
@@ -347,10 +344,10 @@ internal sealed class MotherBrainBody
     private static void MoveMotherBrainBody(MotherBrainEnemyState state, Offset16<RoomPixels> displacement) =>
         state.Body.Position += displacement;
 
-    /// <summary>Shared four-frame earthquake produced by each planted walking frame.</summary>
+    /// <summary>Starts the shake each planted walking frame produces.</summary>
     private void RunMotherBrainFootstep(MotherBrainEnemyState state)
     {
-        _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Vertical, EarthquakeReach.Foreground), 4);
+        _earthquake.Start(MotherBrainFightDefinitions.FootstepShake, MotherBrainFightDefinitions.FootstepShakeUpdates);
 
         // Form three additionally makes the footstep sound. Phase two normally never
         // reaches that branch, but retaining it here makes the shared gait cue complete.

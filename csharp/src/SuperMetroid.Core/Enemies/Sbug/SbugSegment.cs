@@ -6,20 +6,20 @@ namespace SuperMetroid.Core.Enemies.Sbug;
 /// </summary>
 internal enum SbugSegment
 {
-    /// <summary>The right animation.</summary>
+    /// <summary>Facing right, its wings beating up, level, up and down, repeating.</summary>
     Right,
-    /// <summary>The up right animation.</summary>
+    /// <summary>Facing up and right, its wings beating up, level, up and down, repeating.</summary>
     UpRight,
-    /// <summary>The up animation.</summary>
+    /// <summary>Facing up, its wings beating up, level, up and down, repeating.</summary>
     Up,
-    /// <summary>The up left animation.</summary>
+    /// <summary>Facing up and left, its wings beating up, level, up and down, repeating.</summary>
     UpLeft,
-    /// <summary>The left animation.</summary>
+    /// <summary>Facing left, its wings beating up, level, up and down, repeating.</summary>
     Left,
-    /// <summary>The down left animation.</summary>
+    /// <summary>Facing down and left, its wings beating up, level, up and down, repeating.</summary>
     DownLeft,
-    /// <summary>The down animation.</summary>
+    /// <summary>Facing down, its wings beating up, level, up and down, repeating.</summary>
     Down,
-    /// <summary>The down right animation.</summary>
+    /// <summary>Facing down and right, its wings beating up, level, up and down, repeating.</summary>
     DownRight,
 }

@@ -6,12 +6,15 @@ namespace SuperMetroid.Core.Enemies.LavaJumpers;
 /// </summary>
 internal enum NorfairLavaJumperSegment
 {
-    /// <summary>The hidden animation.</summary>
+    /// <summary>Its claws curled down, held while it hides in the lava.</summary>
     Hidden,
-    /// <summary>The jump animation.</summary>
+    /// <summary>
+    /// Leaping from the lava: its claws curled down, spreading, spread flat, raising and folding, before the leap's
+    /// pictures end.
+    /// </summary>
     Jump,
-    /// <summary>The follower animation.</summary>
+    /// <summary>A trailing flame flaring, then flickering small and tall, repeating.</summary>
     Follower,
-    /// <summary>The loop.</summary>
+    /// <summary>A trailing flame flickering small and tall.</summary>
     FollowerLoop,
 }

@@ -6,34 +6,42 @@ namespace SuperMetroid.Core.Enemies.Animals;
 /// </summary>
 internal enum DachoraSegment
 {
-    /// <summary>The running left animation.</summary>
+    /// <summary>Running left, its far and near legs swinging back, passing and reaching in turn, repeating.</summary>
     RunningLeft,
-    /// <summary>The running left fast animation.</summary>
+    /// <summary>Running left with the same stride at a quicker step, repeating.</summary>
     RunningLeftFast,
-    /// <summary>The running left very fast animation.</summary>
+    /// <summary>Running left with the same stride at its quickest, a new pose every update, repeating.</summary>
     RunningLeftVeryFast,
-    /// <summary>The idle left animation.</summary>
+    /// <summary>
+    /// Standing facing left with its head up, then stretching its neck and pecking at the ground twice, repeating.
+    /// </summary>
     IdleLeft,
-    /// <summary>The blink left animation.</summary>
+    /// <summary>
+    /// Standing facing left with its head up, its eye half shutting and shutting three times, repeating.
+    /// </summary>
     BlinkLeft,
-    /// <summary>The echo left animation.</summary>
+    /// <summary>A speed-boost echo trailing the Dachora facing left, held stretched up.</summary>
     EchoLeft,
-    /// <summary>The falling left animation.</summary>
+    /// <summary>Held mid-stride facing left, its near leg passing, while it falls.</summary>
     FallingLeft,
-    /// <summary>The running right animation.</summary>
+    /// <summary>Running right, its far and near legs swinging back, passing and reaching in turn, repeating.</summary>
     RunningRight,
-    /// <summary>The running right fast animation.</summary>
+    /// <summary>Running right with the same stride at a quicker step, repeating.</summary>
     RunningRightFast,
-    /// <summary>The running right very fast animation.</summary>
+    /// <summary>Running right with the same stride at its quickest, a new pose every update, repeating.</summary>
     RunningRightVeryFast,
-    /// <summary>The idle right animation.</summary>
+    /// <summary>
+    /// Standing facing right with its head up, then stretching its neck and pecking at the ground twice, repeating.
+    /// </summary>
     IdleRight,
-    /// <summary>The blink right animation.</summary>
+    /// <summary>
+    /// Standing facing right with its head up, its eye half shutting and shutting three times, repeating.
+    /// </summary>
     BlinkRight,
-    /// <summary>The charge right animation.</summary>
+    /// <summary>Crouched facing right, held while it charges its shinespark.</summary>
     ChargeRight,
-    /// <summary>The echo right animation.</summary>
+    /// <summary>A speed-boost echo trailing the Dachora facing right, held stretched up.</summary>
     EchoRight,
-    /// <summary>The falling right animation.</summary>
+    /// <summary>Held mid-stride facing right, its near leg passing, while it falls.</summary>
     FallingRight,
 }

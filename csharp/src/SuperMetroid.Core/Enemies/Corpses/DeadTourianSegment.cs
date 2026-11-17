@@ -6,13 +6,15 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 /// </summary>
 internal enum DeadTourianSegment
 {
-    /// <summary>The sidehopper hopping animation.</summary>
+    /// <summary>
+    /// The dead Sidehopper bobbing on bent and crouched legs, with a long crouch between, before its hop ends.
+    /// </summary>
     SidehopperHopping,
-    /// <summary>The sidehopper idle animation.</summary>
+    /// <summary>The dead Sidehopper standing on straight legs, held.</summary>
     SidehopperIdle,
-    /// <summary>The sidehopper corpse animation.</summary>
+    /// <summary>The dead Sidehopper sprawled, held.</summary>
     SidehopperCorpse,
-    /// <summary>The sidehopper initially dead animation.</summary>
+    /// <summary>The dead Sidehopper sprawled with its legs up, held, as one already dead lies.</summary>
     SidehopperInitiallyDead,
     /// <summary>The Zoomer corpse lying on its back.</summary>
     ZoomerCorpseOnItsBack,
@@ -22,6 +24,6 @@ internal enum DeadTourianSegment
     RipperCorpseLevel,
     /// <summary>The Ripper corpse lying tilted on a diagonal.</summary>
     RipperCorpseTilted,
-    /// <summary>The Skree corpse.</summary>
+    /// <summary>The dead Skree's corpse, held.</summary>
     SkreeCorpse,
 }

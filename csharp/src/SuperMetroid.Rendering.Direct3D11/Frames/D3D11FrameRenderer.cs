@@ -462,7 +462,8 @@ public sealed class D3D11FrameRenderer : IDisposable
         if (layer.Floor is not { } floor)
             return;
         // Only the band below the floor shows the background; transparent pixels keep the backdrop. The band shows no
-        // foreground.
+        // foreground. Its signed scroll (#2308) goes in the dispatch's sixteen-bit halves: the room's background plane does
+        // not repeat and lies against the scroll's sixteen bits, showing nothing left of or above its origin.
         foreach (GameplayLayer shown in GameplaySceneLayer.Order)
         {
             switch (shown)
@@ -473,7 +474,7 @@ public sealed class D3D11FrameRenderer : IDisposable
                 case GameplayLayer.BackgroundBackPart or GameplayLayer.BackgroundFrontPart:
                     DispatchTile(D3D11TileOperation.Layer, new D3D11TileDispatch
                     {
-                        RoomSource = D3D11RoomSource.Background, Scroll = floor.Scroll.AsPlaneScroll(),
+                        RoomSource = D3D11RoomSource.Background, Scroll = PlaneScroll(floor.Scroll.AsPlaneOffset()),
                         DrawnDepth = PicturePart(shown == GameplayLayer.BackgroundFrontPart), FirstScanline = (uint)floorStart,
                     });
                     break;
@@ -597,8 +598,9 @@ public sealed class D3D11FrameRenderer : IDisposable
     }
 
     /// <summary>
-    /// A pictured plane's or picture grid's signed scroll offset (#1555) in the dispatch's sixteen-bit scroll halves, which
-    /// the shader reads back as signed: the plane does not repeat, so the halves carry the offset, not a wrapped position.
+    /// A signed scroll offset (#1555, #2308) in the dispatch's sixteen-bit scroll halves: a pictured plane or picture grid
+    /// reads them back as signed, and the room's background plane in a turning room's band lies against their sixteen bits.
+    /// Neither repeats, so the halves carry the offset, not a wrapped position.
     /// </summary>
     private static Position16<PlanePixels> PlaneScroll(Offset16<PlanePixels> scroll) =>
         new(unchecked((ushort)scroll.X), unchecked((ushort)scroll.Y));

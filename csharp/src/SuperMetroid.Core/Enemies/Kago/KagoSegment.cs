@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Enemies.Kago;
 /// </summary>
 internal enum KagoSegment
 {
-    /// <summary>The slow animation.</summary>
+    /// <summary>The hive at rest, swelling and swollen, then easing back, slowly, repeating.</summary>
     Slow,
-    /// <summary>The fast animation.</summary>
+    /// <summary>The hive at rest, swelling and swollen, then easing back, quickly after a hit, repeating.</summary>
     Fast,
 }

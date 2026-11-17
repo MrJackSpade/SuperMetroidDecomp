@@ -6,52 +6,94 @@ namespace SuperMetroid.Core.Enemies.WorkRobots;
 /// </summary>
 internal enum WorkRobotSegment
 {
-    /// <summary>The no power neutral animation.</summary>
+    /// <summary>Unpowered and upright, held.</summary>
     NoPowerNeutral,
-    /// <summary>The no power leaning left animation.</summary>
+    /// <summary>Unpowered and tilted left, held.</summary>
     NoPowerLeaningLeft,
-    /// <summary>The no power leaning right animation.</summary>
+    /// <summary>Unpowered and tilted right, held.</summary>
     NoPowerLeaningRight,
-    /// <summary>The initial animation.</summary>
+    /// <summary>Standing facing left with its near foot easing up for a long moment, then walking left.</summary>
     Initial,
-    /// <summary>The facing left walking forwards animation.</summary>
+    /// <summary>Facing left with its near foot easing up as it sets off, then striding left.</summary>
     FacingLeftWalkingForwards,
     /// <summary>The stride walking forwards facing left, looped (#2276).</summary>
     FacingLeftWalkingStride,
-    /// <summary>The facing left hit wall moving forwards animation.</summary>
+    /// <summary>
+    /// Facing left after meeting a wall, backing away two slow strides with their footsteps, watching for ledges, then
+    /// walking right.
+    /// </summary>
     FacingLeftHitWallMovingForwards,
-    /// <summary>The facing left shot Samus ahead animation.</summary>
+    /// <summary>
+    /// Facing left, shot with Samus ahead, backing away two quick strides with their footsteps, then walking right.
+    /// </summary>
     FacingLeftShotSamusAhead,
-    /// <summary>The facing left shot Samus behind animation.</summary>
+    /// <summary>
+    /// Facing left, shot with Samus behind, pressing on two quick strides with their footsteps, then walking left
+    /// again.
+    /// </summary>
     FacingLeftShotSamusBehind,
-    /// <summary>The facing left shot laser down left animation.</summary>
+    /// <summary>
+    /// Facing left, leaning back as it fires its laser down and left, then recoiling and walking left again.
+    /// </summary>
     FacingLeftShotLaserDownLeft,
-    /// <summary>The facing left shot laser left animation.</summary>
+    /// <summary>
+    /// Facing left, leaning back as it fires its laser left and stepping back with a footstep, then recoiling and
+    /// walking left again.
+    /// </summary>
     FacingLeftShotLaserLeft,
-    /// <summary>The facing left shot laser up left animation.</summary>
+    /// <summary>
+    /// Facing left, rising and leaning back as it fires its laser up and left, stepping back with a footstep, then
+    /// recoiling and walking left again.
+    /// </summary>
     FacingLeftShotLaserUpLeft,
-    /// <summary>The facing left laser shot recoil animation.</summary>
+    /// <summary>
+    /// Facing left, pushed back a stride by its laser with a footstep, watching for ledges, then standing upright while
+    /// its laser cools.
+    /// </summary>
     FacingLeftLaserShotRecoil,
-    /// <summary>The approaching fall right animation.</summary>
+    /// <summary>
+    /// Facing right at a drop, leaning back for a long moment, then upright while its laser cools, before walking left.
+    /// </summary>
     ApproachingFallRight,
-    /// <summary>The facing right walking forwards animation.</summary>
+    /// <summary>Facing right leaning back as it sets off, then striding right.</summary>
     FacingRightWalkingForwards,
     /// <summary>The stride walking forwards facing right, looped (#2276).</summary>
     FacingRightWalkingStride,
-    /// <summary>The facing right hit wall moving forwards animation.</summary>
+    /// <summary>
+    /// Facing right after meeting a wall, backing away two slow strides with their footsteps, watching for ledges, then
+    /// walking left.
+    /// </summary>
     FacingRightHitWallMovingForwards,
-    /// <summary>The facing right shot Samus ahead animation.</summary>
+    /// <summary>
+    /// Facing right, shot with Samus ahead, backing away two quick strides with their footsteps, then walking left.
+    /// </summary>
     FacingRightShotSamusAhead,
-    /// <summary>The facing right shot Samus behind animation.</summary>
+    /// <summary>
+    /// Facing right, shot with Samus behind, pressing on two quick strides with their footsteps, then walking right
+    /// again.
+    /// </summary>
     FacingRightShotSamusBehind,
-    /// <summary>The facing right shot laser down right animation.</summary>
+    /// <summary>
+    /// Facing right, leaning back as it fires its laser down and right, then recoiling and walking right again.
+    /// </summary>
     FacingRightShotLaserDownRight,
-    /// <summary>The facing right shot laser right animation.</summary>
+    /// <summary>
+    /// Facing right, leaning back as it fires its laser right and stepping back with a footstep, then recoiling and
+    /// walking right again.
+    /// </summary>
     FacingRightShotLaserRight,
-    /// <summary>The facing right shot laser up right animation.</summary>
+    /// <summary>
+    /// Facing right, rising and leaning back as it fires its laser up and right, stepping back with a footstep, then
+    /// recoiling and walking right again.
+    /// </summary>
     FacingRightShotLaserUpRight,
-    /// <summary>The facing right laser shot recoil animation.</summary>
+    /// <summary>
+    /// Facing right, pushed back a stride by its laser with a footstep, watching for ledges, then standing upright a
+    /// long moment.
+    /// </summary>
     FacingRightLaserShotRecoil,
-    /// <summary>The approaching fall left animation.</summary>
+    /// <summary>
+    /// Facing left at a drop, leaning back for a long moment, then upright while its laser cools, before walking right.
+    /// </summary>
     ApproachingFallLeft,
 }

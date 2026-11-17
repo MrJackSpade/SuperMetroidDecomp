@@ -7,68 +7,88 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// </summary>
 internal enum NinjaSpacePirateSegment
 {
-    /// <summary>The claw attack left animation.</summary>
+    /// <summary>
+    /// Facing left, crouching and raising its claw overhead to throw it twice with the attack sound, then back to its
+    /// stance.
+    /// </summary>
     ClawAttackLeft,
-    /// <summary>The spin jump left animation.</summary>
+    /// <summary>
+    /// Facing left, throwing a claw with the attack sound, then crouching and springing into a spin jump left.
+    /// </summary>
     SpinJumpLeft,
     /// <summary>The left spin jump's spin, its sound replayed each turn, looped.</summary>
     SpinJumpLeftSpinning,
-    /// <summary>The active facing left animation.</summary>
+    /// <summary>Facing left as it becomes active, then in its stance.</summary>
     ActiveFacingLeft,
     /// <summary>The ready stance facing left, looped, each pass signalling the pirate ready to act.</summary>
     ActiveFacingLeftStance,
-    /// <summary>The flinch facing left animation.</summary>
+    /// <summary>Flinching facing left, then back to its stance.</summary>
     FlinchFacingLeft,
-    /// <summary>The divekick left jump animation.</summary>
+    /// <summary>Crouching facing left to leap for a divekick, then flashing as it rises.</summary>
     DivekickLeftJump,
     /// <summary>The left divekick jump's tucked pose, flashing gold, looped.</summary>
     DivekickLeftJumpFlash,
-    /// <summary>The divekick left dive animation.</summary>
+    /// <summary>Diving left in its kick, flashing gold, with the attack sound, held.</summary>
     DivekickLeftDive,
-    /// <summary>The walk to left post animation.</summary>
+    /// <summary>Heading back to its left post, then running there.</summary>
     WalkToLeftPost,
     /// <summary>The run to the left post, looped.</summary>
     RunningToLeftPost,
-    /// <summary>The initial facing left animation.</summary>
+    /// <summary>Facing left where it waits at the start, then looking around.</summary>
     InitialFacingLeft,
     /// <summary>The first pose facing left: looking at the viewer and away, looped.</summary>
     InitialFacingLeftLookingAround,
-    /// <summary>The land facing left animation.</summary>
+    /// <summary>
+    /// Landing facing left in its stance colours: standing, looking at the viewer and turning to face right, then
+    /// holding ready to divekick.
+    /// </summary>
     LandFacingLeft,
     /// <summary>The ready stance after the landing facing left, looped.</summary>
     LandFacingLeftReady,
-    /// <summary>The kick facing left animation.</summary>
+    /// <summary>
+    /// Facing left, chambering and snapping out a long kick with the attack sound, then back to its stance.
+    /// </summary>
     KickFacingLeft,
-    /// <summary>The claw attack right animation.</summary>
+    /// <summary>
+    /// Facing right, crouching and raising its claw overhead to throw it twice with the attack sound, then back to its
+    /// stance.
+    /// </summary>
     ClawAttackRight,
-    /// <summary>The spin jump right animation.</summary>
+    /// <summary>
+    /// Facing right, throwing a claw with the attack sound, then crouching and springing into a spin jump right.
+    /// </summary>
     SpinJumpRight,
     /// <summary>The right spin jump's spin, its sound replayed each turn, looped.</summary>
     SpinJumpRightSpinning,
-    /// <summary>The active facing right animation.</summary>
+    /// <summary>Facing right as it becomes active, then in its stance.</summary>
     ActiveFacingRight,
     /// <summary>The ready stance facing right, looped, each pass signalling the pirate ready to act.</summary>
     ActiveFacingRightStance,
-    /// <summary>The flinch facing right animation.</summary>
+    /// <summary>Flinching facing right, then back to its stance.</summary>
     FlinchFacingRight,
-    /// <summary>The divekick right jump animation.</summary>
+    /// <summary>Crouching facing right to leap for a divekick, then flashing as it rises.</summary>
     DivekickRightJump,
     /// <summary>The right divekick jump's tucked pose, flashing gold, looped.</summary>
     DivekickRightJumpFlash,
-    /// <summary>The divekick right dive animation.</summary>
+    /// <summary>Diving right in its kick, flashing gold, with the attack sound, held.</summary>
     DivekickRightDive,
-    /// <summary>The walk to right post animation.</summary>
+    /// <summary>Heading back to its right post, then running there.</summary>
     WalkToRightPost,
     /// <summary>The run to the right post, looped.</summary>
     RunningToRightPost,
-    /// <summary>The initial facing right animation.</summary>
+    /// <summary>Facing right where it waits at the start, then looking around.</summary>
     InitialFacingRight,
     /// <summary>The first pose facing right: looking at the viewer and away, looped.</summary>
     InitialFacingRightLookingAround,
-    /// <summary>The land facing right animation.</summary>
+    /// <summary>
+    /// Landing facing right in its stance colours: standing, looking at the viewer and turning to face left, then
+    /// holding ready to divekick.
+    /// </summary>
     LandFacingRight,
     /// <summary>The ready stance after the landing facing right, looped.</summary>
     LandFacingRightReady,
-    /// <summary>The kick facing right animation.</summary>
+    /// <summary>
+    /// Facing right, chambering and snapping out a long kick with the attack sound, then back to its stance.
+    /// </summary>
     KickFacingRight,
 }

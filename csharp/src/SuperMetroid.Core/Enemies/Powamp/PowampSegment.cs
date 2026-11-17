@@ -6,16 +6,16 @@ namespace SuperMetroid.Core.Enemies.Powamp;
 /// </summary>
 internal enum PowampSegment
 {
-    /// <summary>The body fast animation.</summary>
+    /// <summary>Its body's tail swinging left, down and right quickly, repeating.</summary>
     BodyFast,
-    /// <summary>The body slow animation.</summary>
+    /// <summary>Its body's tail swinging left, down and right slowly, repeating.</summary>
     BodySlow,
     /// <summary>The balloon inflating from deflated, running on into its inflating from halfway.</summary>
     BalloonInflatingFromDeflated,
     /// <summary>The balloon inflating from halfway to full, where it holds.</summary>
     BalloonInflatingFromHalfway,
-    /// <summary>The balloon start sinking animation.</summary>
+    /// <summary>Its balloon full, then half full as it starts to sink, then small.</summary>
     BalloonStartSinking,
-    /// <summary>The balloon deflated animation.</summary>
+    /// <summary>Its balloon small, held while it sinks.</summary>
     BalloonDeflated,
 }

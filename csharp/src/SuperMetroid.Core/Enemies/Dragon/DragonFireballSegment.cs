@@ -6,12 +6,12 @@ namespace SuperMetroid.Core.Enemies.Dragon;
 /// </summary>
 internal enum DragonFireballSegment
 {
-    /// <summary>The rising left animation.</summary>
+    /// <summary>A fireball rising to the left, flaring and drawing in, repeating.</summary>
     RisingLeft,
-    /// <summary>The rising right animation.</summary>
+    /// <summary>A fireball rising to the right, flaring and drawing in, repeating.</summary>
     RisingRight,
-    /// <summary>The falling left animation.</summary>
+    /// <summary>A fireball falling to the left, flaring and drawing in, repeating.</summary>
     FallingLeft,
-    /// <summary>The falling right animation.</summary>
+    /// <summary>A fireball falling to the right, flaring and drawing in, repeating.</summary>
     FallingRight,
 }

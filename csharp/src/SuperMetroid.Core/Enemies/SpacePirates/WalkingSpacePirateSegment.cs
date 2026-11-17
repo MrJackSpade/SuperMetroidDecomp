@@ -6,24 +6,34 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// </summary>
 internal enum WalkingSpacePirateSegment
 {
-    /// <summary>The flinch facing left animation.</summary>
+    /// <summary>Flinching facing left, then walking left again.</summary>
     FlinchFacingLeft,
-    /// <summary>The flinch facing right animation.</summary>
+    /// <summary>Flinching facing right, then walking right again.</summary>
     FlinchFacingRight,
-    /// <summary>The walking left animation.</summary>
+    /// <summary>Setting off to the left, then striding left, repeating.</summary>
     WalkingLeft,
     /// <summary>The stride walking left, looped.</summary>
     WalkingLeftStride,
-    /// <summary>The fire lasers left animation.</summary>
+    /// <summary>
+    /// Standing facing left, lifting its claws to fire three lasers left, high, middle and low, then lowering them and
+    /// looking around before it walks right.
+    /// </summary>
     FireLasersLeft,
-    /// <summary>The looking facing left animation.</summary>
+    /// <summary>
+    /// Standing facing left, looking at the viewer, away and back, then facing the viewer before it walks right.
+    /// </summary>
     LookingFacingLeft,
-    /// <summary>The walking right animation.</summary>
+    /// <summary>Setting off to the right, then striding right, repeating.</summary>
     WalkingRight,
     /// <summary>The stride walking right, looped.</summary>
     WalkingRightStride,
-    /// <summary>The fire lasers right animation.</summary>
+    /// <summary>
+    /// Standing facing right, lifting its claws to fire three lasers right, high, middle and low, then lowering them
+    /// and looking around before it walks left.
+    /// </summary>
     FireLasersRight,
-    /// <summary>The looking facing right animation.</summary>
+    /// <summary>
+    /// Standing facing right, looking at the viewer, away and back, then facing the viewer before it walks left.
+    /// </summary>
     LookingFacingRight,
 }

@@ -6,6 +6,6 @@ namespace SuperMetroid.Core.Enemies.WreckedShip;
 /// </summary>
 internal enum WreckedShipGhostSegment
 {
-    /// <summary>The floating animation.</summary>
+    /// <summary>Floating, its wisps at rest, curling and stretched, repeating.</summary>
     Floating,
 }

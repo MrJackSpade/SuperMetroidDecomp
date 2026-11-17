@@ -6,14 +6,14 @@ namespace SuperMetroid.Core.Enemies.Gunship;
 /// </summary>
 internal enum GunshipSegment
 {
-    /// <summary>The entrance pad opening animation.</summary>
+    /// <summary>The entrance pad shut, rising, then opening wider and wider until it stands open, held.</summary>
     EntrancePadOpening,
-    /// <summary>The entrance pad closing animation.</summary>
+    /// <summary>The entrance pad narrowing from wide open until it is shut, then resting shut.</summary>
     EntrancePadClosing,
-    /// <summary>The bottom entrance pad animation.</summary>
+    /// <summary>The entrance pad resting shut, repeating.</summary>
     BottomEntrancePad,
-    /// <summary>The top hull animation.</summary>
+    /// <summary>The gunship's top hull, held.</summary>
     TopHull,
-    /// <summary>The bottom hull animation.</summary>
+    /// <summary>The gunship's bottom hull, held.</summary>
     BottomHull,
 }

@@ -40,9 +40,11 @@ public readonly record struct GameplaySceneView(
         camera.WithY(camera.Y + ScreenGeometry.LayerRowsHiddenAboveScreen);
 
     /// <summary>
-    /// The background row the screen's top row shows while the background's camera is at row <paramref name="cameraRow"/>:
-    /// the row below the camera row the screen hides (<see cref="ScreenGeometry.LayerRowsHiddenAboveScreen"/>), for a line
-    /// scroll given in the background's camera rows.
+    /// The background row the screen's top row shows while the background's camera is at the signed row
+    /// <paramref name="cameraRow"/>: the row below the camera row the screen hides
+    /// (<see cref="ScreenGeometry.LayerRowsHiddenAboveScreen"/>), for a line scroll given in the background's camera rows. The
+    /// row is signed, as the view's <see cref="BackgroundScroll"/> is (#2308): a row above the background's origin is
+    /// negative, and the backend repeats each background picture by its own size, so no wrap is taken here.
     /// </summary>
-    public static int LayerRowAtScreenTop(int cameraRow) => CoordinateAxis.Wrap(cameraRow + ScreenGeometry.LayerRowsHiddenAboveScreen);
+    public static int LayerRowAtScreenTop(int cameraRow) => cameraRow + ScreenGeometry.LayerRowsHiddenAboveScreen;
 }

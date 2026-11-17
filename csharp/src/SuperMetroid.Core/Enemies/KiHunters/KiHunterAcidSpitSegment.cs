@@ -6,10 +6,16 @@ namespace SuperMetroid.Core.Enemies.KiHunters;
 /// </summary>
 internal enum KiHunterAcidSpitSegment
 {
-    /// <summary>The left animation.</summary>
+    /// <summary>
+    /// Acid spat left: a droplet stretching to a streak and a blob that spatters as it is launched, then a ball.
+    /// </summary>
     Left,
-    /// <summary>The hit floor animation.</summary>
+    /// <summary>
+    /// The acid splashing where it hit the floor: a mound spreading wide and flat and fading before it vanishes.
+    /// </summary>
     HitFloor,
-    /// <summary>The right animation.</summary>
+    /// <summary>
+    /// Acid spat right: a droplet stretching to a streak and a blob that spatters as it is launched, then a ball.
+    /// </summary>
     Right,
 }

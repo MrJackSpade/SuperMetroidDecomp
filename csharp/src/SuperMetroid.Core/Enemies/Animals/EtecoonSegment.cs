@@ -6,39 +6,41 @@ namespace SuperMetroid.Core.Enemies.Animals;
 /// </summary>
 internal enum EtecoonSegment
 {
-    /// <summary>The look right at Samus and run left animation.</summary>
+    /// <summary>Looking right at Samus for a moment before it runs off left.</summary>
     LookRightAtSamusAndRunLeft,
-    /// <summary>The begin running left animation.</summary>
+    /// <summary>Turning to the left as it starts to run, then running left.</summary>
     BeginRunningLeft,
-    /// <summary>The running left animation.</summary>
+    /// <summary>Running left, stretching, bunching and pushing off, repeating.</summary>
     RunningLeft,
     /// <summary>The wall jump left's leap.</summary>
     WallJumpLeft,
     /// <summary>The spin a wall jump left plays after its leap, for good.</summary>
     JumpingLeft,
-    /// <summary>The hopping facing left animation.</summary>
+    /// <summary>Crouched to hop facing left, held.</summary>
     HoppingFacingLeft,
     /// <summary>The hop facing left, up to its crest and down again, which hitting a ceiling enters at the crest.</summary>
     ContinueHoppingFacingLeft,
-    /// <summary>The wall jump left eligible animation.</summary>
+    /// <summary>Clinging to a wall facing left, held, ready to jump off it.</summary>
     WallJumpLeftEligible,
-    /// <summary>The look left at Samus and run right animation.</summary>
+    /// <summary>Looking left at Samus for a moment before it runs off right.</summary>
     LookLeftAtSamusAndRunRight,
-    /// <summary>The begin running right animation.</summary>
+    /// <summary>Turning to the right as it starts to run, then running right.</summary>
     BeginRunningRight,
-    /// <summary>The running right animation.</summary>
+    /// <summary>Running right, stretching, bunching and pushing off, repeating.</summary>
     RunningRight,
-    /// <summary>The wall jump right animation.</summary>
+    /// <summary>Leaping right off a wall, then spinning as it flies on.</summary>
     WallJumpRight,
-    /// <summary>The jumping right animation.</summary>
+    /// <summary>Spinning a quarter turn at a time as it jumps right, repeating.</summary>
     JumpingRight,
-    /// <summary>The hopping facing right animation.</summary>
+    /// <summary>Crouched to hop facing right, held.</summary>
     HoppingFacingRight,
-    /// <summary>The continue hopping facing right animation.</summary>
+    /// <summary>
+    /// Hopping facing right: raising its arms, flinging them out at the top of the hop and lowering them again.
+    /// </summary>
     ContinueHoppingFacingRight,
-    /// <summary>The wall jump right eligible animation.</summary>
+    /// <summary>Clinging to a wall facing right, held, ready to jump off it.</summary>
     WallJumpRightEligible,
-    /// <summary>The initial animation.</summary>
+    /// <summary>Crouched to hop facing right, the pose it starts in.</summary>
     Initial,
     /// <summary>The flex's six hop poses, which the flex plays four times.</summary>
     Flexing,

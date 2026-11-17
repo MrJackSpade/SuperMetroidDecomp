@@ -6,14 +6,20 @@ namespace SuperMetroid.Core.Enemies.Cacatac;
 /// </summary>
 internal enum CacatacSegment
 {
-    /// <summary>The upside up idle animation.</summary>
+    /// <summary>
+    /// Standing upright on its patrol, its spikes splaying, drawing in, gathering tall and stretching out, repeating.
+    /// </summary>
     UpsideUpIdle,
-    /// <summary>The upside up attack animation.</summary>
+    /// <summary>
+    /// Standing upright, puffing up and firing five spikes in a fan above it with their sound, then idling again.
+    /// </summary>
     UpsideUpAttack,
     /// <summary>The upside-down idle's start: its restore-patrol cue.</summary>
     UpsideDownIdle,
     /// <summary>The upside-down idle's poses.</summary>
     UpsideDownIdlePoses,
-    /// <summary>The upside down attack animation.</summary>
+    /// <summary>
+    /// Hanging upside down, puffing up and firing five spikes in a fan below it with their sound, then idling again.
+    /// </summary>
     UpsideDownAttack,
 }

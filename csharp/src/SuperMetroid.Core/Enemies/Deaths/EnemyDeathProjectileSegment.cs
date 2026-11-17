@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Deaths;
 /// </summary>
 internal enum EnemyDeathProjectileSegment
 {
-    /// <summary>The respawn tail animation.</summary>
+    /// <summary>An unseen pause before the enemy it stands for respawns, after which it is removed.</summary>
     RespawnTail,
     /// <summary>One burst of the big explosion, which its animation repeats.</summary>
     BigExplosion,
@@ -16,20 +16,29 @@ internal enum EnemyDeathProjectileSegment
     FakeKraidExplosion,
     /// <summary>Fake Kraid's explosion becoming its drop once its bursts are done.</summary>
     FakeKraidExplosionEnd,
-    /// <summary>The normal explosion animation.</summary>
+    /// <summary>
+    /// A fireball growing into a flaming ring with the kill sound, then a huge fireball and a wide ring fading out
+    /// before it becomes a drop.
+    /// </summary>
     NormalExplosion,
-    /// <summary>The small explosion animation.</summary>
+    /// <summary>
+    /// A spark growing to a fireball with the kill sound, then a flaming ring, a starburst and embers before it becomes
+    /// a drop.
+    /// </summary>
     SmallExplosion,
-    /// <summary>The small energy animation.</summary>
+    /// <summary>A small energy drop glowing dark, ringed and bright, then scattering, repeating.</summary>
     SmallEnergy,
-    /// <summary>The big energy animation.</summary>
+    /// <summary>A big energy drop glowing bright, ringed and dark, then scattering, repeating.</summary>
     BigEnergy,
-    /// <summary>The missiles animation.</summary>
+    /// <summary>A missile drop flashing, repeating.</summary>
     Missiles,
-    /// <summary>The super missiles animation.</summary>
+    /// <summary>A super missile drop flashing, repeating.</summary>
     SuperMissiles,
-    /// <summary>The power bombs animation.</summary>
+    /// <summary>A power bomb drop fading from bright to dim and flashing, repeating.</summary>
     PowerBombs,
-    /// <summary>The killed by Samus contact animation.</summary>
+    /// <summary>
+    /// A cluster of fireballs, starbursts and embers with the contact-kill sound, four embers then ashes flying apart,
+    /// before it becomes a drop.
+    /// </summary>
     KilledBySamusContact,
 }

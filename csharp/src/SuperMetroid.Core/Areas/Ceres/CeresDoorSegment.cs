@@ -12,23 +12,41 @@ internal enum CeresDoorSegment
     RidleyRoomDoorWait,
     /// <summary>An ordinary door facing right at its start.</summary>
     DoorFacingRight,
-    /// <summary>The open facing right animation.</summary>
+    /// <summary>
+    /// A right-facing door standing open, unseen and passable, telling the room it stands open; an opened door repeats
+    /// it.
+    /// </summary>
     OpenFacingRight,
-    /// <summary>The close facing right animation.</summary>
+    /// <summary>
+    /// A right-facing door turning solid and seen, then sliding shut from open through three quarters, half and a
+    /// quarter open.
+    /// </summary>
     CloseFacingRight,
-    /// <summary>The closed facing right animation.</summary>
+    /// <summary>A right-facing door turning solid and seen again, shut.</summary>
     ClosedFacingRight,
-    /// <summary>The closed facing right wait animation.</summary>
+    /// <summary>
+    /// A right-facing door standing shut and telling the room so, then sounding and sliding open, after which it is
+    /// unseen and passable.
+    /// </summary>
     ClosedFacingRightWait,
     /// <summary>An ordinary door facing left at its start.</summary>
     DoorFacingLeft,
-    /// <summary>The open facing left animation.</summary>
+    /// <summary>
+    /// A left-facing door standing open, unseen and passable, telling the room it stands open; an opened door repeats
+    /// it.
+    /// </summary>
     OpenFacingLeft,
-    /// <summary>The close facing left animation.</summary>
+    /// <summary>
+    /// A left-facing door turning solid and seen, then sliding shut from open through three quarters, half and a
+    /// quarter open.
+    /// </summary>
     CloseFacingLeft,
-    /// <summary>The closed facing left animation.</summary>
+    /// <summary>A left-facing door turning solid and seen again, shut.</summary>
     ClosedFacingLeft,
-    /// <summary>The closed facing left wait animation.</summary>
+    /// <summary>
+    /// A left-facing door standing shut and telling the room so, then sounding and sliding open, after which it is
+    /// unseen and passable.
+    /// </summary>
     ClosedFacingLeftWait,
     /// <summary>The elevator room's blocked door: intangible, standing for good.</summary>
     ElevatorDoor,

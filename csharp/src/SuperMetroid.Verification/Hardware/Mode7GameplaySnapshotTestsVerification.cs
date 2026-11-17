@@ -2,6 +2,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
@@ -64,12 +65,21 @@ internal static class Mode7GameplaySnapshotTestsVerification
         RgbaPixel[] retail = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
         var retained = new DisplayPacket(0, GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
         AssertTrue(retail.SequenceEqual(RenderForComparison(retained)), "retail Ridley capture resolves mixed bands and haze");
+        // The floor band's background scroll is signed (#2308): a background scroll stored three rows above the background's
+        // origin shows as a negative row, moved by the frame's shake, not as a wrapped one.
+        runtime.BackgroundScroll.BackgroundPosition = new Position16<BackgroundPixels>(5, ushort.MaxValue - 2);
+        runtime.BackgroundScroll.CalculateLayerScrolls();
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
+        var aboveOrigin = (TurningRoomLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
+        AssertEqual(new Offset16<BackgroundPixels>(5, -3) + runtime.Display.DisplayedGameplayScrolls.RoomShake.Background,
+            (aboveOrigin.Floor ?? throw new InvalidOperationException("The getaway shows the room's background below its floor.")).Scroll,
+            "the floor band's background scroll above the origin is signed");
         getaway.Active = false; getaway.Zoom = default;
         runtime.Vram.LoadBytes(0, new byte[SnesVram.ByteCount]);
         AssertTrue(retail.SequenceEqual(RenderForComparison(retained)), "Ridley packet survives mode exit and live memory replacement");
         AssertThrows<ArgumentOutOfRangeException>(() => new TurningRoomLayer(default, RoomBackgroundsFixtures.BlankMode7Floor(), ScreenGeometry.ScreenHeightPixels + 1), "the HUD cannot cover more than the screen");
         AssertThrows<ArgumentOutOfRangeException>(() => new TurningRoomLayer(default, RoomBackgroundsFixtures.BlankMode7Floor(), 32,
-            new TurningRoomLowerBand(31, new Position16<BackgroundPixels>(0, 0), RoomBackgroundsFixtures.Blank().Foreground)),
+            new TurningRoomLowerBand(31, Offset16<BackgroundPixels>.Zero, RoomBackgroundsFixtures.Blank().Foreground)),
             "floor cannot overlap HUD");
         Console.WriteLine($"  Mode-7 gameplay snapshots: {samples} scale/scroll layers keep their floor views; the Ridley packet is retained.");
     }

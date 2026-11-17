@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Enemies.Metroids;
 /// </summary>
 internal enum MochtroidSegment
 {
-    /// <summary>The free flight animation.</summary>
+    /// <summary>Floating, its body squeezing and widening slowly, repeating.</summary>
     FreeFlight,
-    /// <summary>The attached animation.</summary>
+    /// <summary>Latched onto Samus, its body squeezing and widening quickly, repeating.</summary>
     Attached,
 }

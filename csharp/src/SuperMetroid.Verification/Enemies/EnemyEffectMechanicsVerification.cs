@@ -99,7 +99,7 @@ internal static class EnemyEffectMechanicsVerification
                     // cartridge's table gives it (#1468, #1514), his body's rows reckoned from his position (#2031).
                     BuildNativeMeltScrolls(nativeScrolls, fixture);
                     for (int line = 0; line < BackgroundLineScrolls.GameplayLines; line++)
-                        AssertEqual(GameplaySceneView.LayerRowAtScreenTop(unchecked((ushort)(nativeScrolls[line] + AreaTop))), (int)ScrollShapeLines.StretchScroll(BossLineScrolls.Of(fixture.Effect.MeltDistortion, RoomCamera), line + ScreenGeometry.GameplayHudHeightPixels),
+                        AssertEqual(unchecked((ushort)GameplaySceneView.LayerRowAtScreenTop(unchecked((ushort)(nativeScrolls[line] + AreaTop)))), ScrollShapeLines.StretchScroll(BossLineScrolls.Of(fixture.Effect.MeltDistortion, RoomCamera), line + ScreenGeometry.GameplayHudHeightPixels),
                             $"melt dissolve call {call} stretch at gameplay line {line}");
                 }
                 AssertEqual(call == calls ? phase.Next() : phase, fixture.Actor.DeathPhase, "exact dissolve phase handoff");

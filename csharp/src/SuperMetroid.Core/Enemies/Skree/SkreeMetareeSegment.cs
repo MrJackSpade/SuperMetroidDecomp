@@ -7,17 +7,17 @@ namespace SuperMetroid.Core.Enemies.Skree;
 /// </summary>
 internal enum SkreeMetareeSegment
 {
-    /// <summary>The metaree idling animation.</summary>
+    /// <summary>A Metaree turning from facing the viewer to edge-on and back, repeating.</summary>
     MetareeIdling,
-    /// <summary>The metaree preparing attack animation.</summary>
+    /// <summary>A Metaree facing the viewer, then flaring its wings, ready to dive.</summary>
     MetareePreparingAttack,
     /// <summary>The metaree diving animation's entry: the cue that has it processed off screen.</summary>
     MetareeDiving,
     /// <summary>The Metaree's diving spin, looped.</summary>
     MetareeDivingSpin,
-    /// <summary>The Skree idling animation.</summary>
+    /// <summary>A Skree turning from facing the viewer to edge-on and back, repeating.</summary>
     SkreeIdling,
-    /// <summary>The Skree preparing attack animation.</summary>
+    /// <summary>A Skree facing the viewer, then flaring its wings, ready to dive.</summary>
     SkreePreparingAttack,
     /// <summary>The Skree diving animation's entry: the cue that has it processed off screen.</summary>
     SkreeDiving,

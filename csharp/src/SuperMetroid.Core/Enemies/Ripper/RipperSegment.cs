@@ -6,12 +6,12 @@ namespace SuperMetroid.Core.Enemies.Ripper;
 /// </summary>
 internal enum RipperSegment
 {
-    /// <summary>The grapple Ripper moving left animation.</summary>
+    /// <summary>A grapple Ripper flying left, its jet flame flickering short, medium and long, repeating.</summary>
     GrappleRipperMovingLeft,
-    /// <summary>The grapple Ripper moving right animation.</summary>
+    /// <summary>A grapple Ripper flying right, its jet flame flickering short, medium and long, repeating.</summary>
     GrappleRipperMovingRight,
-    /// <summary>The Ripper moving right animation.</summary>
+    /// <summary>A Ripper flying right, its eye lit, dark and glinting, repeating.</summary>
     RipperMovingRight,
-    /// <summary>The Ripper moving left animation.</summary>
+    /// <summary>A Ripper flying left, its eye lit, dark and glinting, repeating.</summary>
     RipperMovingLeft,
 }

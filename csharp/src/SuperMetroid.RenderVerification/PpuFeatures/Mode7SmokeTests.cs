@@ -54,7 +54,7 @@ internal static class Mode7SmokeTests
         foreach (double scale in new[] { 1, 0.5, 2, 0 })
         {
             var band = floorStart is { } start
-                ? new TurningRoomLowerBand(start, new Position16<BackgroundPixels>(17, 65535), floorRoom)
+                ? new TurningRoomLowerBand(start, new Offset16<BackgroundPixels>(17, -1), floorRoom)
                 : (TurningRoomLowerBand?)null;
             var layer = new TurningRoomLayer(
                 new FloorView(0.27, scale, new(128, 112), new(-17, 211), FloorOverflowMode.Wrap),

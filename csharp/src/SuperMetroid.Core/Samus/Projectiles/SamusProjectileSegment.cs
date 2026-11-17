@@ -3,290 +3,411 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <summary>The Samus projectiles' animations (#1301): one segment per animation a definition or loop enters.</summary>
 public enum SamusProjectileSegment
 {
-    /// <summary>The Power up facing right animation.</summary>
+    /// <summary>A power beam shot flying straight up, held.</summary>
     PowerUpFacingRight,
-    /// <summary>The Power up right animation.</summary>
+    /// <summary>A power beam shot flying up and right, held.</summary>
     PowerUpRight,
-    /// <summary>The Power right animation.</summary>
+    /// <summary>A power beam shot flying right, held.</summary>
     PowerRight,
-    /// <summary>The Power down right animation.</summary>
+    /// <summary>A power beam shot flying down and right, held.</summary>
     PowerDownRight,
-    /// <summary>The Power down facing right animation.</summary>
+    /// <summary>A power beam shot flying straight down, held.</summary>
     PowerDownFacingRight,
-    /// <summary>The Power down left animation.</summary>
+    /// <summary>A power beam shot flying down and left, held.</summary>
     PowerDownLeft,
-    /// <summary>The Power left animation.</summary>
+    /// <summary>A power beam shot flying left, held.</summary>
     PowerLeft,
-    /// <summary>The Power up left animation.</summary>
+    /// <summary>A power beam shot flying up and left, held.</summary>
     PowerUpLeft,
-    /// <summary>The Wave up facing right animation.</summary>
+    /// <summary>
+    /// A wave beam shot fired straight up: unseen at first, then swinging from side to side as it flies, repeating.
+    /// </summary>
     WaveUpFacingRight,
-    /// <summary>The Wave down facing right animation.</summary>
+    /// <summary>
+    /// A wave beam shot flying straight up or down, swinging from side to side to its peaks and back, repeating.
+    /// </summary>
     WaveDownFacingRight,
-    /// <summary>The Wave up right animation.</summary>
+    /// <summary>
+    /// A wave beam shot flying up and right, swinging across its path to its peaks and back, repeating.
+    /// </summary>
     WaveUpRight,
-    /// <summary>The Wave right animation.</summary>
+    /// <summary>A wave beam shot flying right, swinging across its path to its peaks and back, repeating.</summary>
     WaveRight,
-    /// <summary>The Wave down right animation.</summary>
+    /// <summary>
+    /// A wave beam shot flying down and right, swinging across its path to its peaks and back, repeating.
+    /// </summary>
     WaveDownRight,
-    /// <summary>The Ice up facing right animation.</summary>
+    /// <summary>An ice beam shot flying straight up, glinting as a star and a cross, repeating.</summary>
     IceUpFacingRight,
-    /// <summary>The Spazer up facing right animation.</summary>
+    /// <summary>A Spazer shot flying straight up, its seed parting into its beams, then flying on spread.</summary>
     SpazerUpFacingRight,
     /// <summary>The Spazer up facing right animation's repeating part.</summary>
     SpazerUpFacingRightLoop,
-    /// <summary>The Spazer up right animation.</summary>
+    /// <summary>A Spazer shot flying up and right, its seed parting into its beams, then flying on spread.</summary>
     SpazerUpRight,
     /// <summary>The Spazer up right animation's repeating part.</summary>
     SpazerUpRightLoop,
-    /// <summary>The Spazer right animation.</summary>
+    /// <summary>A Spazer shot flying right, its seed parting into its beams, then flying on spread.</summary>
     SpazerRight,
     /// <summary>The Spazer right animation's repeating part.</summary>
     SpazerRightLoop,
-    /// <summary>The Spazer down right animation.</summary>
+    /// <summary>A Spazer shot flying down and right, its seed parting into its beams, then flying on spread.</summary>
     SpazerDownRight,
     /// <summary>The Spazer down right animation's repeating part.</summary>
     SpazerDownRightLoop,
-    /// <summary>The Spazer down facing right animation.</summary>
+    /// <summary>A Spazer shot flying straight down, its seed parting into its beams, then flying on spread.</summary>
     SpazerDownFacingRight,
     /// <summary>The Spazer down facing right animation's repeating part.</summary>
     SpazerDownFacingRightLoop,
-    /// <summary>The Spazer down left animation.</summary>
+    /// <summary>A Spazer shot flying down and left, its seed parting into its beams, then flying on spread.</summary>
     SpazerDownLeft,
     /// <summary>The Spazer down left animation's repeating part.</summary>
     SpazerDownLeftLoop,
-    /// <summary>The Spazer left animation.</summary>
+    /// <summary>A Spazer shot flying left, its seed parting into its beams, then flying on spread.</summary>
     SpazerLeft,
     /// <summary>The Spazer left animation's repeating part.</summary>
     SpazerLeftLoop,
-    /// <summary>The Spazer up left animation.</summary>
+    /// <summary>A Spazer shot flying up and left, its seed parting into its beams, then flying on spread.</summary>
     SpazerUpLeft,
     /// <summary>The Spazer up left animation's repeating part.</summary>
     SpazerUpLeftLoop,
-    /// <summary>The Spazer Wave up facing right animation.</summary>
+    /// <summary>
+    /// A Spazer and wave shot flying straight up, its beams splitting, spreading wide and closing again, repeating.
+    /// </summary>
     SpazerWaveUpFacingRight,
-    /// <summary>The Spazer Wave up right animation.</summary>
+    /// <summary>
+    /// A Spazer and wave shot flying up and right, its beams splitting, spreading wide and closing again, repeating.
+    /// </summary>
     SpazerWaveUpRight,
-    /// <summary>The Spazer Wave right animation.</summary>
+    /// <summary>
+    /// A Spazer and wave shot flying right, its beams splitting, spreading wide and closing again, repeating.
+    /// </summary>
     SpazerWaveRight,
-    /// <summary>The Spazer Wave down right animation.</summary>
+    /// <summary>
+    /// A Spazer and wave shot flying down and right, its beams splitting, spreading wide and closing again, repeating.
+    /// </summary>
     SpazerWaveDownRight,
-    /// <summary>The Spazer Wave down facing right animation.</summary>
+    /// <summary>
+    /// A Spazer and wave shot flying straight down, its beams splitting, spreading wide and closing again, repeating.
+    /// </summary>
     SpazerWaveDownFacingRight,
-    /// <summary>The Spazer Wave down left animation.</summary>
+    /// <summary>
+    /// A Spazer and wave shot flying down and left, its beams splitting, spreading wide and closing again, repeating.
+    /// </summary>
     SpazerWaveDownLeft,
-    /// <summary>The Spazer Wave left animation.</summary>
+    /// <summary>
+    /// A Spazer and wave shot flying left, its beams splitting, spreading wide and closing again, repeating.
+    /// </summary>
     SpazerWaveLeft,
-    /// <summary>The Spazer Wave up left animation.</summary>
+    /// <summary>
+    /// A Spazer and wave shot flying up and left, its beams splitting, spreading wide and closing again, repeating.
+    /// </summary>
     SpazerWaveUpLeft,
-    /// <summary>The Plasma up facing right animation.</summary>
+    /// <summary>A plasma shot flying straight up, its core first, then at full length.</summary>
     PlasmaUpFacingRight,
     /// <summary>The Plasma up facing right animation's repeating part.</summary>
     PlasmaUpFacingRightLoop,
-    /// <summary>The Plasma up right animation.</summary>
+    /// <summary>A plasma shot flying up and right, its core first, then at full length.</summary>
     PlasmaUpRight,
     /// <summary>The Plasma up right animation's repeating part.</summary>
     PlasmaUpRightLoop,
-    /// <summary>The Plasma right animation.</summary>
+    /// <summary>A plasma shot flying right, its core first, then at full length.</summary>
     PlasmaRight,
     /// <summary>The Plasma right animation's repeating part.</summary>
     PlasmaRightLoop,
-    /// <summary>The Plasma down right animation.</summary>
+    /// <summary>A plasma shot flying down and right, its core first, then at full length.</summary>
     PlasmaDownRight,
     /// <summary>The Plasma down right animation's repeating part.</summary>
     PlasmaDownRightLoop,
-    /// <summary>The Plasma Ice Wave up facing right animation.</summary>
+    /// <summary>
+    /// A plasma, ice and wave shot flying straight up: its core, then its lobes swinging out and back.
+    /// </summary>
     PlasmaIceWaveUpFacingRight,
-    /// <summary>The Plasma Wave up facing right animation.</summary>
+    /// <summary>
+    /// A plasma and wave shot flying straight up, its lobes swinging out to their peak and back, repeating.
+    /// </summary>
     PlasmaWaveUpFacingRight,
-    /// <summary>The Plasma Ice Wave up right animation.</summary>
+    /// <summary>
+    /// A plasma, ice and wave shot flying up and right: its core, then its lobes swinging out and back.
+    /// </summary>
     PlasmaIceWaveUpRight,
-    /// <summary>The Plasma Wave up right animation.</summary>
+    /// <summary>
+    /// A plasma and wave shot flying up and right, its lobes swinging out to their peak and back, repeating.
+    /// </summary>
     PlasmaWaveUpRight,
-    /// <summary>The Plasma Wave right animation.</summary>
+    /// <summary>
+    /// A plasma and wave shot flying right: its core, then its lobes swinging out to their peak and back, repeating.
+    /// </summary>
     PlasmaWaveRight,
     /// <summary>The Plasma Wave right animation's repeating part.</summary>
     PlasmaWaveRightLoop,
-    /// <summary>The Plasma Ice Wave down right animation.</summary>
+    /// <summary>
+    /// A plasma, ice and wave shot flying down and right: its core, then its lobes swinging out and back.
+    /// </summary>
     PlasmaIceWaveDownRight,
-    /// <summary>The Plasma Wave down right animation.</summary>
+    /// <summary>
+    /// A plasma and wave shot flying down and right, its lobes swinging out to their peak and back, repeating.
+    /// </summary>
     PlasmaWaveDownRight,
-    /// <summary>The charged Power up facing right animation.</summary>
+    /// <summary>A charged power beam shot flying straight up, flickering between its two pictures, repeating.</summary>
     ChargedPowerUpFacingRight,
-    /// <summary>The charged Power up right animation.</summary>
+    /// <summary>
+    /// A charged power beam shot flying up and right, flickering between its two pictures, repeating.
+    /// </summary>
     ChargedPowerUpRight,
-    /// <summary>The charged Power right animation.</summary>
+    /// <summary>A charged power beam shot flying right, flickering between its two pictures, repeating.</summary>
     ChargedPowerRight,
-    /// <summary>The charged Power down right animation.</summary>
+    /// <summary>
+    /// A charged power beam shot flying down and right, flickering between its two pictures, repeating.
+    /// </summary>
     ChargedPowerDownRight,
-    /// <summary>The charged Power down facing right animation.</summary>
+    /// <summary>
+    /// A charged power beam shot flying straight down, flickering between its two pictures, repeating.
+    /// </summary>
     ChargedPowerDownFacingRight,
-    /// <summary>The charged Power down left animation.</summary>
+    /// <summary>
+    /// A charged power beam shot flying down and left, flickering between its two pictures, repeating.
+    /// </summary>
     ChargedPowerDownLeft,
-    /// <summary>The charged Power left animation.</summary>
+    /// <summary>A charged power beam shot flying left, flickering between its two pictures, repeating.</summary>
     ChargedPowerLeft,
-    /// <summary>The charged Power up left animation.</summary>
+    /// <summary>A charged power beam shot flying up and left, flickering between its two pictures, repeating.</summary>
     ChargedPowerUpLeft,
-    /// <summary>The charged Wave up facing right animation.</summary>
+    /// <summary>
+    /// A charged wave shot fired straight up: unseen at first, then its lobes swinging out and back, flickering,
+    /// repeating.
+    /// </summary>
     ChargedWaveUpFacingRight,
-    /// <summary>The charged Wave down facing right animation.</summary>
+    /// <summary>
+    /// A charged wave shot flying straight up or down, its lobes swinging out to their peak and back, flickering,
+    /// repeating.
+    /// </summary>
     ChargedWaveDownFacingRight,
-    /// <summary>The charged Wave up right animation.</summary>
+    /// <summary>
+    /// A charged wave shot flying up and right, its lobes swinging out to their peak and back, flickering, repeating.
+    /// </summary>
     ChargedWaveUpRight,
-    /// <summary>The charged Wave right animation.</summary>
+    /// <summary>
+    /// A charged wave shot flying right, its lobes swinging out to their peak and back, flickering, repeating.
+    /// </summary>
     ChargedWaveRight,
-    /// <summary>The charged Wave down right animation.</summary>
+    /// <summary>
+    /// A charged wave shot flying down and right, its lobes swinging out to their peak and back, flickering, repeating.
+    /// </summary>
     ChargedWaveDownRight,
-    /// <summary>The charged Ice up facing right animation.</summary>
+    /// <summary>A charged ice beam shot flying straight up, flickering between a cross and a star, repeating.</summary>
     ChargedIceUpFacingRight,
-    /// <summary>The charged Ice Wave up facing right animation.</summary>
+    /// <summary>
+    /// A charged ice and wave shot fired straight up: unseen at first, then its lobes swinging out and back,
+    /// flickering, repeating.
+    /// </summary>
     ChargedIceWaveUpFacingRight,
-    /// <summary>The charged Ice Wave down facing right animation.</summary>
+    /// <summary>
+    /// A charged ice and wave shot flying straight up or down, its lobes swinging out to their peak and back,
+    /// flickering, repeating.
+    /// </summary>
     ChargedIceWaveDownFacingRight,
-    /// <summary>The charged Ice Wave up right animation.</summary>
+    /// <summary>
+    /// A charged ice and wave shot flying up and right, its lobes swinging out to their peak and back, flickering,
+    /// repeating.
+    /// </summary>
     ChargedIceWaveUpRight,
-    /// <summary>The charged Ice Wave right animation.</summary>
+    /// <summary>
+    /// A charged ice and wave shot flying right, its lobes swinging out to their peak and back, flickering, repeating.
+    /// </summary>
     ChargedIceWaveRight,
-    /// <summary>The charged Ice Wave down right animation.</summary>
+    /// <summary>
+    /// A charged ice and wave shot flying down and right, its lobes swinging out to their peak and back, flickering,
+    /// repeating.
+    /// </summary>
     ChargedIceWaveDownRight,
-    /// <summary>The charged Spazer up facing right animation.</summary>
+    /// <summary>
+    /// A charged Spazer shot flying straight up, flickering as it starts short, grows long and its seed parts, then
+    /// flying on spread.
+    /// </summary>
     ChargedSpazerUpFacingRight,
     /// <summary>The charged Spazer up facing right animation's repeating part.</summary>
     ChargedSpazerUpFacingRightLoop,
-    /// <summary>The charged Spazer up right animation.</summary>
+    /// <summary>
+    /// A charged Spazer shot flying up and right, flickering as it starts short, grows long and its seed parts, then
+    /// flying on spread.
+    /// </summary>
     ChargedSpazerUpRight,
     /// <summary>The charged Spazer up right animation's repeating part.</summary>
     ChargedSpazerUpRightLoop,
-    /// <summary>The charged Spazer right animation.</summary>
+    /// <summary>
+    /// A charged Spazer shot flying right, flickering as it starts short, grows long and its seed parts, then flying on
+    /// spread.
+    /// </summary>
     ChargedSpazerRight,
     /// <summary>The charged Spazer right animation's repeating part.</summary>
     ChargedSpazerRightLoop,
-    /// <summary>The charged Spazer down right animation.</summary>
+    /// <summary>
+    /// A charged Spazer shot flying down and right, flickering as it starts short, grows long and its seed parts, then
+    /// flying on spread.
+    /// </summary>
     ChargedSpazerDownRight,
     /// <summary>The charged Spazer down right animation's repeating part.</summary>
     ChargedSpazerDownRightLoop,
-    /// <summary>The charged Spazer Wave up facing right animation.</summary>
+    /// <summary>
+    /// A charged Spazer and wave shot flying straight up, flickering as it starts short and grows long, then waving.
+    /// </summary>
     ChargedSpazerWaveUpFacingRight,
     /// <summary>The charged Spazer Wave up facing right animation's repeating part.</summary>
     ChargedSpazerWaveUpFacingRightLoop,
-    /// <summary>The charged Spazer Wave up right animation.</summary>
+    /// <summary>
+    /// A charged Spazer and wave shot flying up and right, flickering as it starts short and grows long, then waving.
+    /// </summary>
     ChargedSpazerWaveUpRight,
     /// <summary>The charged Spazer Wave up right animation's repeating part.</summary>
     ChargedSpazerWaveUpRightLoop,
-    /// <summary>The charged Spazer Wave right animation.</summary>
+    /// <summary>
+    /// A charged Spazer and wave shot flying right, flickering as it starts short and grows long, then waving.
+    /// </summary>
     ChargedSpazerWaveRight,
     /// <summary>The charged Spazer Wave right animation's repeating part.</summary>
     ChargedSpazerWaveRightLoop,
-    /// <summary>The charged Spazer Wave down right animation.</summary>
+    /// <summary>
+    /// A charged Spazer and wave shot flying down and right, flickering as it starts short and grows long, then waving.
+    /// </summary>
     ChargedSpazerWaveDownRight,
     /// <summary>The charged Spazer Wave down right animation's repeating part.</summary>
     ChargedSpazerWaveDownRightLoop,
-    /// <summary>The charged Spazer Wave down facing right animation.</summary>
+    /// <summary>
+    /// A charged Spazer and wave shot flying straight down, flickering as it starts short and grows long, then waving.
+    /// </summary>
     ChargedSpazerWaveDownFacingRight,
     /// <summary>The charged Spazer Wave down facing right animation's repeating part.</summary>
     ChargedSpazerWaveDownFacingRightLoop,
-    /// <summary>The charged Spazer Wave down left animation.</summary>
+    /// <summary>
+    /// A charged Spazer and wave shot flying down and left, flickering as it starts short and grows long, then waving.
+    /// </summary>
     ChargedSpazerWaveDownLeft,
     /// <summary>The charged Spazer Wave down left animation's repeating part.</summary>
     ChargedSpazerWaveDownLeftLoop,
-    /// <summary>The charged Spazer Wave left animation.</summary>
+    /// <summary>
+    /// A charged Spazer and wave shot flying left, flickering as it starts short and grows long, then waving.
+    /// </summary>
     ChargedSpazerWaveLeft,
     /// <summary>The charged Spazer Wave left animation's repeating part.</summary>
     ChargedSpazerWaveLeftLoop,
-    /// <summary>The charged Spazer Wave up left animation.</summary>
+    /// <summary>
+    /// A charged Spazer and wave shot flying up and left, flickering as it starts short and grows long, then waving.
+    /// </summary>
     ChargedSpazerWaveUpLeft,
     /// <summary>The charged Spazer Wave up left animation's repeating part.</summary>
     ChargedSpazerWaveUpLeftLoop,
-    /// <summary>The charged Plasma up facing right animation.</summary>
+    /// <summary>
+    /// A charged plasma shot flying straight up, flickering as its core grows short then long, then flying on at full
+    /// length.
+    /// </summary>
     ChargedPlasmaUpFacingRight,
     /// <summary>The charged Plasma up facing right animation's repeating part.</summary>
     ChargedPlasmaUpFacingRightLoop,
-    /// <summary>The charged Plasma up right animation.</summary>
+    /// <summary>
+    /// A charged plasma shot flying up and right, flickering as its core grows short then long, then flying on at full
+    /// length.
+    /// </summary>
     ChargedPlasmaUpRight,
     /// <summary>The charged Plasma up right animation's repeating part.</summary>
     ChargedPlasmaUpRightLoop,
-    /// <summary>The charged Plasma right animation.</summary>
+    /// <summary>
+    /// A charged plasma shot flying right, flickering as its core grows short then long, then flying on at full length.
+    /// </summary>
     ChargedPlasmaRight,
     /// <summary>The charged Plasma right animation's repeating part.</summary>
     ChargedPlasmaRightLoop,
-    /// <summary>The charged Plasma down right animation.</summary>
+    /// <summary>
+    /// A charged plasma shot flying down and right, flickering as its core grows short then long, then flying on at
+    /// full length.
+    /// </summary>
     ChargedPlasmaDownRight,
     /// <summary>The charged Plasma down right animation's repeating part.</summary>
     ChargedPlasmaDownRightLoop,
-    /// <summary>The charged Plasma Wave up facing right animation.</summary>
+    /// <summary>
+    /// A charged plasma and wave shot flying straight up, flickering as its core grows short then long, then waving.
+    /// </summary>
     ChargedPlasmaWaveUpFacingRight,
     /// <summary>The charged Plasma Wave up facing right animation's repeating part.</summary>
     ChargedPlasmaWaveUpFacingRightLoop,
-    /// <summary>The charged Plasma Wave up right animation.</summary>
+    /// <summary>
+    /// A charged plasma and wave shot flying up and right, flickering as its core grows short then long, then waving.
+    /// </summary>
     ChargedPlasmaWaveUpRight,
     /// <summary>The charged Plasma Wave up right animation's repeating part.</summary>
     ChargedPlasmaWaveUpRightLoop,
-    /// <summary>The charged Plasma Wave right animation.</summary>
+    /// <summary>
+    /// A charged plasma and wave shot flying right, flickering as its core grows short then long, then waving.
+    /// </summary>
     ChargedPlasmaWaveRight,
     /// <summary>The charged Plasma Wave right animation's repeating part.</summary>
     ChargedPlasmaWaveRightLoop,
-    /// <summary>The charged Plasma Wave down right animation.</summary>
+    /// <summary>
+    /// A charged plasma and wave shot flying down and right, flickering as its core grows short then long, then waving.
+    /// </summary>
     ChargedPlasmaWaveDownRight,
     /// <summary>The charged Plasma Wave down right animation's repeating part.</summary>
     ChargedPlasmaWaveDownRightLoop,
-    /// <summary>The Missile up facing right animation.</summary>
+    /// <summary>A missile flying straight up, held.</summary>
     MissileUpFacingRight,
-    /// <summary>The Missile up right animation.</summary>
+    /// <summary>A missile flying up and right, held.</summary>
     MissileUpRight,
-    /// <summary>The Missile right animation.</summary>
+    /// <summary>A missile flying right, held.</summary>
     MissileRight,
-    /// <summary>The Missile down right animation.</summary>
+    /// <summary>A missile flying down and right, held.</summary>
     MissileDownRight,
-    /// <summary>The Missile down facing right animation.</summary>
+    /// <summary>A missile flying straight down, held.</summary>
     MissileDownFacingRight,
-    /// <summary>The Missile down left animation.</summary>
+    /// <summary>A missile flying down and left, held.</summary>
     MissileDownLeft,
-    /// <summary>The Missile left animation.</summary>
+    /// <summary>A missile flying left, held.</summary>
     MissileLeft,
-    /// <summary>The Missile up left animation.</summary>
+    /// <summary>A missile flying up and left, held.</summary>
     MissileUpLeft,
-    /// <summary>The Super Missile up facing right animation.</summary>
+    /// <summary>A super missile flying straight up, held.</summary>
     SuperMissileUpFacingRight,
-    /// <summary>The Super Missile up right animation.</summary>
+    /// <summary>A super missile flying up and right, held.</summary>
     SuperMissileUpRight,
-    /// <summary>The Super Missile right animation.</summary>
+    /// <summary>A super missile flying right, held.</summary>
     SuperMissileRight,
-    /// <summary>The Super Missile down right animation.</summary>
+    /// <summary>A super missile flying down and right, held.</summary>
     SuperMissileDownRight,
-    /// <summary>The Super Missile down facing right animation.</summary>
+    /// <summary>A super missile flying straight down, held.</summary>
     SuperMissileDownFacingRight,
-    /// <summary>The Super Missile down left animation.</summary>
+    /// <summary>A super missile flying down and left, held.</summary>
     SuperMissileDownLeft,
-    /// <summary>The Super Missile left animation.</summary>
+    /// <summary>A super missile flying left, held.</summary>
     SuperMissileLeft,
-    /// <summary>The Super Missile up left animation.</summary>
+    /// <summary>A super missile flying up and left, held.</summary>
     SuperMissileUpLeft,
-    /// <summary>The Super Missile link animation.</summary>
+    /// <summary>The unseen part a super missile flies linked with, held.</summary>
     SuperMissileLink,
-    /// <summary>The Power Bomb animation.</summary>
+    /// <summary>A power bomb pulsing bright, dimming and dark, repeating.</summary>
     PowerBomb,
-    /// <summary>The fast Power Bomb animation.</summary>
+    /// <summary>A power bomb pulsing bright, dimming and dark quickly as it nears its blast, repeating.</summary>
     FastPowerBomb,
-    /// <summary>The Bomb animation.</summary>
+    /// <summary>A bomb dark, smouldering, glowing and flashing, repeating.</summary>
     Bomb,
-    /// <summary>The fast Bomb animation.</summary>
+    /// <summary>A bomb dark, smouldering, glowing and flashing quickly as it nears its blast, repeating.</summary>
     FastBomb,
-    /// <summary>The beam explosion animation.</summary>
+    /// <summary>A beam shot's impact: a speck, a glint and a flash ringing out and fading, then gone.</summary>
     BeamExplosion,
-    /// <summary>The Missile explosion animation.</summary>
+    /// <summary>A missile's blast: a spark, a ball, a blast, a flare, a burst and embers, then gone.</summary>
     MissileExplosion,
-    /// <summary>The Bomb explosion animation.</summary>
+    /// <summary>A bomb's blast: an orb sparkling, bursting wide and ringing out, then gone.</summary>
     BombExplosion,
-    /// <summary>The Plasma special attack animation.</summary>
+    /// <summary>The plasma special attack's orbs sparkling, bursting wide and ringing out, repeating.</summary>
     PlasmaSpecialAttack,
-    /// <summary>The Super Missile explosion animation.</summary>
+    /// <summary>A super missile's blast: a ball, a blast and a flare ringing out and fading, then gone.</summary>
     SuperMissileExplosion,
-    /// <summary>The Shinespark echo up facing right animation.</summary>
+    /// <summary>A shinespark echo fired straight up, unseen, repeating.</summary>
     ShinesparkEchoUpFacingRight,
-    /// <summary>The Spazer special attack trail up facing right animation.</summary>
+    /// <summary>
+    /// The Spazer special attack's trail fired straight up, unseen, narrow then wide, then unseen as it flies on.
+    /// </summary>
     SpazerSpecialAttackTrailUpFacingRight,
     /// <summary>The Spazer special attack trail up facing right animation's repeating part.</summary>
     SpazerSpecialAttackTrailUpFacingRightLoop,
-    /// <summary>The Wave special attack animation.</summary>
+    /// <summary>The wave special attack's orb flickering between its two pictures, repeating.</summary>
     WaveSpecialAttack,
 }

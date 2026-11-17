@@ -6,6 +6,6 @@ namespace SuperMetroid.Core.Enemies.Flies;
 /// </summary>
 internal enum FlySegment
 {
-    /// <summary>The flight animation.</summary>
+    /// <summary>Its wings beating, raised out, raised, level and lowered, repeating.</summary>
     Flight,
 }

@@ -12,19 +12,19 @@ internal enum PlatformSegment
     SuspensorPlatformLights,
     /// <summary>The suspensor platform heading right, moving or still: it moves right and plays its loop (#1842).</summary>
     SuspensorPlatformHeadingRight,
-    /// <summary>The Tripper moving left animation.</summary>
+    /// <summary>The Tripper turning to face left as it moves, then hovering facing left.</summary>
     TripperMovingLeft,
     /// <summary>The Tripper hovering facing left, its jet flickering, looped (#2276).</summary>
     TripperHoveringLeft,
-    /// <summary>The Tripper moving right animation.</summary>
+    /// <summary>The Tripper turning to face right as it moves, then hovering facing right.</summary>
     TripperMovingRight,
     /// <summary>The Tripper hovering facing right, its jet flickering, looped (#2276).</summary>
     TripperHoveringRight,
-    /// <summary>The Tripper still moving left animation.</summary>
+    /// <summary>The Tripper facing left as it keeps moving, then thrusting facing left.</summary>
     TripperStillMovingLeft,
     /// <summary>The Tripper thrusting left, its jet flickering, looped (#2276).</summary>
     TripperThrustingLeft,
-    /// <summary>The Tripper still moving right animation.</summary>
+    /// <summary>The Tripper facing right as it keeps moving, then thrusting facing right.</summary>
     TripperStillMovingRight,
     /// <summary>The Tripper thrusting right, its jet flickering, looped (#2276).</summary>
     TripperThrustingRight,

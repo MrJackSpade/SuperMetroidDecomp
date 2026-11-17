@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Enemies.Boulder;
 /// </summary>
 internal enum BoulderSegment
 {
-    /// <summary>The left animation.</summary>
+    /// <summary>Rolling left, turning an eighth of a turn each pose, repeating.</summary>
     Left,
-    /// <summary>The right animation.</summary>
+    /// <summary>Rolling right, turning an eighth of a turn the other way each pose, repeating.</summary>
     Right,
 }

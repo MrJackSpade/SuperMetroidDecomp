@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Bull;
 /// </summary>
 internal enum BullSegment
 {
-    /// <summary>The normal animation.</summary>
+    /// <summary>Its tentacles swaying: upright, tilted, upright and tilted further, repeating.</summary>
     Normal,
     /// <summary>The quick cycle of its poses an immune shot sets off.</summary>
     Shot,

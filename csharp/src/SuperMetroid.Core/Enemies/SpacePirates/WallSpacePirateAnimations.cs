@@ -37,7 +37,7 @@ internal static class WallSpacePirateAnimations
         [
             Cue(new WallSpacePirateCue.BeginOnWall(WallSpacePirateAction.Climbing, HorizontalDirection.Left)),
         ],
-        [P.MovingUpLeftWallLoop] =
+        [P.ClimbingUpLeftWall] =
         [
             Show(EnemyFrameId.WallPirateOnLeftWallLegsHanging, 10),
             Cue(new WallSpacePirateCue.Climb(Wall: HorizontalDirection.Left, ClimbPixels: -3)),
@@ -54,13 +54,16 @@ internal static class WallSpacePirateAnimations
             Show(EnemyFrameId.WallPirateOnLeftWallKneesTucked, 5),
             Cue(new WallSpacePirateCue.Climb(Wall: HorizontalDirection.Left, ClimbPixels: -3)),
             Show(EnemyFrameId.WallPirateOnLeftWallKneesBending, 8),
+        ],
+        [P.ChooseLeftWallClimb] =
+        [
             Cue(new WallSpacePirateCue.ChooseClimb(HorizontalDirection.Left)),
         ],
         [P.MovingDownLeftWall] =
         [
             Cue(new WallSpacePirateCue.BeginOnWall(WallSpacePirateAction.Climbing, HorizontalDirection.Left)),
         ],
-        [P.MovingDownLeftWallLoop] =
+        [P.ClimbingDownLeftWall] =
         [
             Show(EnemyFrameId.WallPirateOnLeftWallLegsHanging, 10),
             Cue(new WallSpacePirateCue.Climb(Wall: HorizontalDirection.Left, ClimbPixels: 3)),
@@ -77,7 +80,6 @@ internal static class WallSpacePirateAnimations
             Show(EnemyFrameId.WallPirateOnLeftWallKneesTucked, 5),
             Cue(new WallSpacePirateCue.Climb(Wall: HorizontalDirection.Left, ClimbPixels: 3)),
             Show(EnemyFrameId.WallPirateOnLeftWallKneesBending, 8),
-            Cue(new WallSpacePirateCue.ChooseClimb(HorizontalDirection.Left)),
         ],
         [P.FireAndJumpRight] =
         [
@@ -101,7 +103,7 @@ internal static class WallSpacePirateAnimations
         [
             Cue(new WallSpacePirateCue.BeginOnWall(WallSpacePirateAction.Climbing, HorizontalDirection.Right)),
         ],
-        [P.MovingDownRightWallLoop] =
+        [P.ClimbingDownRightWall] =
         [
             Show(EnemyFrameId.WallPirateOnRightWallLegsHanging, 10),
             Cue(new WallSpacePirateCue.Climb(Wall: HorizontalDirection.Right, ClimbPixels: 3)),
@@ -118,13 +120,16 @@ internal static class WallSpacePirateAnimations
             Show(EnemyFrameId.WallPirateOnRightWallKneesTucked, 5),
             Cue(new WallSpacePirateCue.Climb(Wall: HorizontalDirection.Right, ClimbPixels: 3)),
             Show(EnemyFrameId.WallPirateOnRightWallKneesBending, 8),
+        ],
+        [P.ChooseRightWallClimb] =
+        [
             Cue(new WallSpacePirateCue.ChooseClimb(HorizontalDirection.Right)),
         ],
         [P.MovingUpRightWall] =
         [
             Cue(new WallSpacePirateCue.BeginOnWall(WallSpacePirateAction.Climbing, HorizontalDirection.Right)),
         ],
-        [P.MovingUpRightWallLoop] =
+        [P.ClimbingUpRightWall] =
         [
             Show(EnemyFrameId.WallPirateOnRightWallLegsHanging, 10),
             Cue(new WallSpacePirateCue.Climb(Wall: HorizontalDirection.Right, ClimbPixels: -3)),
@@ -141,25 +146,37 @@ internal static class WallSpacePirateAnimations
             Show(EnemyFrameId.WallPirateOnRightWallKneesTucked, 5),
             Cue(new WallSpacePirateCue.Climb(Wall: HorizontalDirection.Right, ClimbPixels: -3)),
             Show(EnemyFrameId.WallPirateOnRightWallKneesBending, 8),
-            Cue(new WallSpacePirateCue.ChooseClimb(HorizontalDirection.Right)),
         ],
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<WallSpacePirateSegment, Animation<WallSpacePirateSegment>> StartingAt { get; } = new Dictionary<WallSpacePirateSegment, Animation<WallSpacePirateSegment>>
     {
-        [P.FireAndJumpLeft] = new([new(P.FireAndJumpLeft, 0, 10, 1)], AnimationEnd.Holds),
-        [P.LandedOnLeftWall] = new([new(P.LandedOnLeftWall, 0, 2, 1), new(P.MovingUpLeftWall, 0, 1, 1), new(P.MovingUpLeftWallLoop, 0, 15, 4), new(P.MovingUpLeftWallLoop, 15, 1, 1)], AnimationEnd.Holds),
-        [P.MovingUpLeftWall] = new([new(P.MovingUpLeftWall, 0, 1, 1), new(P.MovingUpLeftWallLoop, 0, 15, 4), new(P.MovingUpLeftWallLoop, 15, 1, 1)], AnimationEnd.Holds),
-        [P.MovingDownLeftWall] = new([new(P.MovingDownLeftWall, 0, 1, 1), new(P.MovingDownLeftWallLoop, 0, 15, 4), new(P.MovingDownLeftWallLoop, 15, 1, 1)], AnimationEnd.Holds),
-        [P.FireAndJumpRight] = new([new(P.FireAndJumpRight, 0, 10, 1)], AnimationEnd.Holds),
-        [P.LandedOnRightWall] = new([new(P.LandedOnRightWall, 0, 2, 1), new(P.MovingDownRightWall, 0, 1, 1), new(P.MovingDownRightWallLoop, 0, 15, 4), new(P.MovingDownRightWallLoop, 15, 1, 1)], AnimationEnd.Holds),
-        [P.MovingDownRightWall] = new([new(P.MovingDownRightWall, 0, 1, 1), new(P.MovingDownRightWallLoop, 0, 15, 4), new(P.MovingDownRightWallLoop, 15, 1, 1)], AnimationEnd.Holds),
-        [P.MovingUpRightWall] = new([new(P.MovingUpRightWall, 0, 1, 1), new(P.MovingUpRightWallLoop, 0, 15, 4), new(P.MovingUpRightWallLoop, 15, 1, 1)], AnimationEnd.Holds),
+        [P.FireAndJumpLeft] = new([Whole(P.FireAndJumpLeft)], AnimationEnd.Holds),
+        [P.LandedOnLeftWall] = new([Whole(P.LandedOnLeftWall), .. Climb(P.MovingUpLeftWall, P.ClimbingUpLeftWall, P.ChooseLeftWallClimb)], AnimationEnd.Holds),
+        [P.MovingUpLeftWall] = new(Climb(P.MovingUpLeftWall, P.ClimbingUpLeftWall, P.ChooseLeftWallClimb), AnimationEnd.Holds),
+        [P.MovingDownLeftWall] = new(Climb(P.MovingDownLeftWall, P.ClimbingDownLeftWall, P.ChooseLeftWallClimb), AnimationEnd.Holds),
+        [P.FireAndJumpRight] = new([Whole(P.FireAndJumpRight)], AnimationEnd.Holds),
+        [P.LandedOnRightWall] = new([Whole(P.LandedOnRightWall), .. Climb(P.MovingDownRightWall, P.ClimbingDownRightWall, P.ChooseRightWallClimb)], AnimationEnd.Holds),
+        [P.MovingDownRightWall] = new(Climb(P.MovingDownRightWall, P.ClimbingDownRightWall, P.ChooseRightWallClimb), AnimationEnd.Holds),
+        [P.MovingUpRightWall] = new(Climb(P.MovingUpRightWall, P.ClimbingUpRightWall, P.ChooseRightWallClimb), AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<WallSpacePirateSegment> StartingWith(WallSpacePirateSegment segment) => StartingAt[segment];
+
+    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
+    private static AnimationPhase<WallSpacePirateSegment> Whole(WallSpacePirateSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
+
+    /// <summary>
+    /// A climb (#2276): its entry cue <paramref name="entry"/>, the climb <paramref name="climb"/> four times, then the
+    /// choice <paramref name="choice"/> of the next.
+    /// </summary>
+    private static AnimationPhase<WallSpacePirateSegment>[] Climb(WallSpacePirateSegment entry, WallSpacePirateSegment climb, WallSpacePirateSegment choice) =>
+        [Whole(entry), new(climb, 0, Segments.Beats(climb).Count, ClimbRepeats), Whole(choice)];
+
+    /// <summary>The times a climb plays before the pirate chooses the next.</summary>
+    private const int ClimbRepeats = 4;
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, WallSpacePirateCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, WallSpacePirateCue>.Frame(frame, duration);

@@ -224,7 +224,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     {
         // The laser initializer queues the laser sound for every successful allocation. The later wall-jump cue
         // independently queues the wall-jump sound; both are observable, distinct requests.
-        if (Walking.SpawnSpacePirateLaser(place, direction == HorizontalDirection.Right, SpacePirateMotionDefinitions.WallLaserMuzzleAbove))
+        if (Walking.SpawnSpacePirateLaser(place, direction, SpacePirateMotionDefinitions.WallLaserMuzzleAbove))
             Walking.RequestSpacePirateSound(EnemySoundEffectDefinitions.WallPirateLaserSound);
     }
 

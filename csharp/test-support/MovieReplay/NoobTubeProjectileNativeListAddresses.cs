@@ -11,31 +11,55 @@ namespace SuperMetroid.TestSupport.MovieReplay;
 /// </summary>
 internal static class NoobTubeProjectileNativeListAddresses
 {
-    /// <summary>Each typed segment's native entry point, in authored order.</summary>
+    /// <summary>
+    /// Each typed segment's native entry point, in authored order; the deletion every list ends with is one segment, read
+    /// at each list's own (#1842, #2276).
+    /// </summary>
     internal static readonly NativeProgramEntry<NoobTubeProjectileSegment>[] Entries =
     [
         new NativeProgramEntry<NoobTubeProjectileSegment>(NoobTubeProjectileSegment.Crack, 0xd3d7),
         new NativeProgramEntry<NoobTubeProjectileSegment>(NoobTubeProjectileSegment.CrackFallen, 0xd46f),
+        new NativeProgramEntry<NoobTubeProjectileSegment>(NoobTubeProjectileSegment.Deletion, 0xd47b),
         new NativeProgramEntry<NoobTubeProjectileSegment>(NoobTubeProjectileSegment.ShardDownOutwardFlying, 0xd481),
+        new NativeProgramEntry<NoobTubeProjectileSegment>(NoobTubeProjectileSegment.ShardDownOutwardFallStart, 0xd48b),
         new NativeProgramEntry<NoobTubeProjectileSegment>(NoobTubeProjectileSegment.ShardDownOutwardFalling, 0xd495),
+        new NativeProgramEntry<NoobTubeProjectileSegment>(NoobTubeProjectileSegment.Deletion, 0xd49f),
         new NativeProgramEntry<NoobTubeProjectileSegment>(NoobTubeProjectileSegment.ShardUpOutwardFlying, 0xd4a5),
+        new NativeProgramEntry<NoobTubeProjectileSegment>(NoobTubeProjectileSegment.ShardUpOutwardFallStart, 0xd4af),
         new NativeProgramEntry<NoobTubeProjectileSegment>(NoobTubeProjectileSegment.ShardUpOutwardFalling, 0xd4b9),
+        new NativeProgramEntry<NoobTubeProjectileSegment>(NoobTubeProjectileSegment.Deletion, 0xd4c3),
         new NativeProgramEntry<NoobTubeProjectileSegment>(NoobTubeProjectileSegment.ShardUpSteepFlying, 0xd4c9),
+        new NativeProgramEntry<NoobTubeProjectileSegment>(NoobTubeProjectileSegment.ShardUpSteepFallStart, 0xd4d3),
         new NativeProgramEntry<NoobTubeProjectileSegment>(NoobTubeProjectileSegment.ShardUpSteepFalling, 0xd4dd),
+        new NativeProgramEntry<NoobTubeProjectileSegment>(NoobTubeProjectileSegment.Deletion, 0xd4e7),
         new NativeProgramEntry<NoobTubeProjectileSegment>(NoobTubeProjectileSegment.ShardUpDiagonalInnerFlying, 0xd4ed),
+        new NativeProgramEntry<NoobTubeProjectileSegment>(NoobTubeProjectileSegment.ShardUpDiagonalInnerFallStart, 0xd4f7),
         new NativeProgramEntry<NoobTubeProjectileSegment>(NoobTubeProjectileSegment.ShardUpDiagonalInnerFalling, 0xd501),
+        new NativeProgramEntry<NoobTubeProjectileSegment>(NoobTubeProjectileSegment.Deletion, 0xd50b),
         new NativeProgramEntry<NoobTubeProjectileSegment>(NoobTubeProjectileSegment.ShardUpDiagonalOuterFlying, 0xd511),
+        new NativeProgramEntry<NoobTubeProjectileSegment>(NoobTubeProjectileSegment.ShardUpDiagonalOuterFallStart, 0xd51b),
         new NativeProgramEntry<NoobTubeProjectileSegment>(NoobTubeProjectileSegment.ShardUpDiagonalOuterFalling, 0xd525),
+        new NativeProgramEntry<NoobTubeProjectileSegment>(NoobTubeProjectileSegment.Deletion, 0xd52f),
         new NativeProgramEntry<NoobTubeProjectileSegment>(NoobTubeProjectileSegment.ShardDownDiagonalFlying, 0xd535),
+        new NativeProgramEntry<NoobTubeProjectileSegment>(NoobTubeProjectileSegment.ShardDownDiagonalFallStart, 0xd53f),
         new NativeProgramEntry<NoobTubeProjectileSegment>(NoobTubeProjectileSegment.ShardDownDiagonalFalling, 0xd549),
+        new NativeProgramEntry<NoobTubeProjectileSegment>(NoobTubeProjectileSegment.Deletion, 0xd553),
         new NativeProgramEntry<NoobTubeProjectileSegment>(NoobTubeProjectileSegment.ShardDownOuterFlying, 0xd559),
+        new NativeProgramEntry<NoobTubeProjectileSegment>(NoobTubeProjectileSegment.ShardDownOuterFallStart, 0xd563),
         new NativeProgramEntry<NoobTubeProjectileSegment>(NoobTubeProjectileSegment.ShardDownOuterFalling, 0xd56d),
+        new NativeProgramEntry<NoobTubeProjectileSegment>(NoobTubeProjectileSegment.Deletion, 0xd577),
         new NativeProgramEntry<NoobTubeProjectileSegment>(NoobTubeProjectileSegment.ShardOutwardFlying, 0xd57d),
+        new NativeProgramEntry<NoobTubeProjectileSegment>(NoobTubeProjectileSegment.ShardOutwardFallStart, 0xd587),
         new NativeProgramEntry<NoobTubeProjectileSegment>(NoobTubeProjectileSegment.ShardOutwardFalling, 0xd591),
+        new NativeProgramEntry<NoobTubeProjectileSegment>(NoobTubeProjectileSegment.Deletion, 0xd59b),
         new NativeProgramEntry<NoobTubeProjectileSegment>(NoobTubeProjectileSegment.ShardUpFlying, 0xd5a1),
+        new NativeProgramEntry<NoobTubeProjectileSegment>(NoobTubeProjectileSegment.ShardUpFallStart, 0xd5a9),
         new NativeProgramEntry<NoobTubeProjectileSegment>(NoobTubeProjectileSegment.ShardUpFalling, 0xd5b3),
+        new NativeProgramEntry<NoobTubeProjectileSegment>(NoobTubeProjectileSegment.Deletion, 0xd5bb),
         new NativeProgramEntry<NoobTubeProjectileSegment>(NoobTubeProjectileSegment.ShardDownInnerFlying, 0xd5c1),
+        new NativeProgramEntry<NoobTubeProjectileSegment>(NoobTubeProjectileSegment.ShardDownInnerFallStart, 0xd5cb),
         new NativeProgramEntry<NoobTubeProjectileSegment>(NoobTubeProjectileSegment.ShardDownInnerFalling, 0xd5d5),
+        new NativeProgramEntry<NoobTubeProjectileSegment>(NoobTubeProjectileSegment.Deletion, 0xd5df),
         new NativeProgramEntry<NoobTubeProjectileSegment>(NoobTubeProjectileSegment.ReleasedAirBubble, 0xd652),
     ];
 
@@ -62,5 +86,19 @@ internal static class NoobTubeProjectileNativeListAddresses
 
     /// <summary>The family's typed programs beside their native lists; each shard's animation is started at its shard entry.</summary>
     internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, NoobTubeProjectileAnimations.Segments, NoobTubeProjectileAnimations.StartingAt, frame => EnemyProjectileProgramFrameSources.Operand(frame.Shown), NoobTubeProjectileCueRules.Rules, reflectedPresentationKey: frame => frame.Mirrored is { } mirrored ? EnemyProjectileProgramFrameSources.Operand(mirrored) : null,
-        countedEntries: [.. ShardEntries.Select(shard => new NativeCountedEntry<NoobTubeProjectileSegment>($"shard {shard.Key}", NoobTubeProjectileAnimations.ShardAnimations[shard.Key], shard.Value))]);
+        countedEntries: [.. ShardEntries.Select(shard => new NativeCountedEntry<NoobTubeProjectileSegment>($"shard {shard.Key}", NoobTubeProjectileAnimations.ShardAnimations[shard.Key], shard.Value))],
+        onlyRunOnInto: new HashSet<NoobTubeProjectileSegment>
+        {
+            NoobTubeProjectileSegment.Deletion,
+            NoobTubeProjectileSegment.ShardDownOutwardFallStart,
+            NoobTubeProjectileSegment.ShardUpOutwardFallStart,
+            NoobTubeProjectileSegment.ShardUpSteepFallStart,
+            NoobTubeProjectileSegment.ShardUpDiagonalInnerFallStart,
+            NoobTubeProjectileSegment.ShardUpDiagonalOuterFallStart,
+            NoobTubeProjectileSegment.ShardDownDiagonalFallStart,
+            NoobTubeProjectileSegment.ShardDownOuterFallStart,
+            NoobTubeProjectileSegment.ShardOutwardFallStart,
+            NoobTubeProjectileSegment.ShardUpFallStart,
+            NoobTubeProjectileSegment.ShardDownInnerFallStart,
+        });
 }

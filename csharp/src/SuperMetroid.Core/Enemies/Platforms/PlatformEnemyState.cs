@@ -31,7 +31,7 @@ public sealed class PlatformEnemyState
     public PlatformVerticalMovement YMovement { get; internal set; }
 
     /// <summary>The patrol direction: initialized from its spawn movement and changed by wall collisions or animation cues.</summary>
-    public PlatformHorizontalMovement XMovement { get; internal set; }
+    public HorizontalDirection XMovement { get; internal set; }
 
     /// <summary>
     /// The art the platform last chose for its vertical movement, or none before its first choice (#2145). Choosing the same

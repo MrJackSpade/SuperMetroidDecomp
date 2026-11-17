@@ -36,10 +36,9 @@ internal static class WaverBehaviorVerification
 
             WaverSegment program = selector;
             ushort[] frames = WaverAnimationsConstants.Spritemaps(program).ToArray();
-            // A one-update frame is still flagged new when the sleep runs on the next update; an eight-update frame's flag
-            // has cleared by then.
+            // A steady pose is held (#2276): it is new only on the update it shows; a spin shows each eight-update frame.
             int duration = frames.Length == 1 ? 1 : 8;
-            ushort[] shown = duration == 1 ? [.. frames, frames[^1]] : frames;
+            ushort[] shown = frames;
             string expected = EnemyInstructionRunner.ExpectedFrames(shown, shown.Select(_ => duration));
             AssertEqual(expected, EnemyInstructionRunner.ShownFrames(place, frames.Length * duration + 2), $"Waver {selector} animation");
             AssertEqual(selector is WaverSegment.SpinningFacingLeft or WaverSegment.SpinningFacingRight, state.SpinFinished, $"Waver {selector} spin-completion cue");

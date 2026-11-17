@@ -16,9 +16,9 @@ internal static class PlatformAnimations
     {
         [P.SuspensorPlatformHeadingLeft] =
         [
-            Cue(new(PlatformHorizontalMovement.Left)),
+            Cue(new(HorizontalDirection.Left)),
         ],
-        [P.SuspensorPlatformLoop] =
+        [P.SuspensorPlatformLights] =
         [
             Show(EnemyFrameId.SuspensorPlatformLightDark, 10),
             Show(EnemyFrameId.SuspensorPlatformLightDim, 10),
@@ -27,13 +27,13 @@ internal static class PlatformAnimations
         ],
         [P.SuspensorPlatformHeadingRight] =
         [
-            Cue(new(PlatformHorizontalMovement.Right)),
+            Cue(new(HorizontalDirection.Right)),
         ],
         [P.TripperMovingLeft] =
         [
-            Cue(new(PlatformHorizontalMovement.Left)),
+            Cue(new(HorizontalDirection.Left)),
         ],
-        [P.TripperMovingLeftLoop] =
+        [P.TripperHoveringLeft] =
         [
             Show(EnemyFrameId.TripperHoveringFacingLeftJetShort, 7),
             Show(EnemyFrameId.TripperHoveringFacingLeftJetLong, 8),
@@ -42,9 +42,9 @@ internal static class PlatformAnimations
         ],
         [P.TripperMovingRight] =
         [
-            Cue(new(PlatformHorizontalMovement.Right)),
+            Cue(new(HorizontalDirection.Right)),
         ],
-        [P.TripperMovingRightLoop] =
+        [P.TripperHoveringRight] =
         [
             Show(EnemyFrameId.TripperHoveringFacingRightJetShort, 7),
             Show(EnemyFrameId.TripperHoveringFacingRightJetLong, 8),
@@ -53,9 +53,9 @@ internal static class PlatformAnimations
         ],
         [P.TripperStillMovingLeft] =
         [
-            Cue(new(PlatformHorizontalMovement.Left)),
+            Cue(new(HorizontalDirection.Left)),
         ],
-        [P.TripperStillMovingLeftLoop] =
+        [P.TripperThrustingLeft] =
         [
             Show(EnemyFrameId.TripperThrustingLeftJetMedium, 7),
             Show(EnemyFrameId.TripperThrustingLeftJetShort, 8),
@@ -64,9 +64,9 @@ internal static class PlatformAnimations
         ],
         [P.TripperStillMovingRight] =
         [
-            Cue(new(PlatformHorizontalMovement.Right)),
+            Cue(new(HorizontalDirection.Right)),
         ],
-        [P.TripperStillMovingRightLoop] =
+        [P.TripperThrustingRight] =
         [
             Show(EnemyFrameId.TripperThrustingRightJetMedium, 7),
             Show(EnemyFrameId.TripperThrustingRightJetShort, 8),
@@ -76,21 +76,24 @@ internal static class PlatformAnimations
     });
 
     /// <summary>
-    /// The animation that starts at each segment an owner can start or restart at; the loops only run on from the
-    /// animations that start them (#2061).
+    /// The animation that starts at each segment an owner can start or restart at: its heading cue, then the lights, hover or
+    /// thrust it loops, which only run on from the animations that start them (#2061, #2276).
     /// </summary>
     internal static IReadOnlyDictionary<PlatformSegment, Animation<PlatformSegment>> StartingAt { get; } = new Dictionary<PlatformSegment, Animation<PlatformSegment>>
     {
-        [P.SuspensorPlatformHeadingLeft] = new([new(P.SuspensorPlatformHeadingLeft, 0, 1, 1), new(P.SuspensorPlatformLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.SuspensorPlatformHeadingRight] = new([new(P.SuspensorPlatformHeadingRight, 0, 1, 1), new(P.SuspensorPlatformLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.TripperMovingLeft] = new([new(P.TripperMovingLeft, 0, 1, 1), new(P.TripperMovingLeftLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.TripperMovingRight] = new([new(P.TripperMovingRight, 0, 1, 1), new(P.TripperMovingRightLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.TripperStillMovingLeft] = new([new(P.TripperStillMovingLeft, 0, 1, 1), new(P.TripperStillMovingLeftLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.TripperStillMovingRight] = new([new(P.TripperStillMovingRight, 0, 1, 1), new(P.TripperStillMovingRightLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.SuspensorPlatformHeadingLeft] = new([Whole(P.SuspensorPlatformHeadingLeft), Whole(P.SuspensorPlatformLights)], AnimationEnd.LoopsFrom(1)),
+        [P.SuspensorPlatformHeadingRight] = new([Whole(P.SuspensorPlatformHeadingRight), Whole(P.SuspensorPlatformLights)], AnimationEnd.LoopsFrom(1)),
+        [P.TripperMovingLeft] = new([Whole(P.TripperMovingLeft), Whole(P.TripperHoveringLeft)], AnimationEnd.LoopsFrom(1)),
+        [P.TripperMovingRight] = new([Whole(P.TripperMovingRight), Whole(P.TripperHoveringRight)], AnimationEnd.LoopsFrom(1)),
+        [P.TripperStillMovingLeft] = new([Whole(P.TripperStillMovingLeft), Whole(P.TripperThrustingLeft)], AnimationEnd.LoopsFrom(1)),
+        [P.TripperStillMovingRight] = new([Whole(P.TripperStillMovingRight), Whole(P.TripperThrustingRight)], AnimationEnd.LoopsFrom(1)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<PlatformSegment> StartingWith(PlatformSegment segment) => StartingAt[segment];
+
+    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
+    private static AnimationPhase<PlatformSegment> Whole(PlatformSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, PlatformCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, PlatformCue>.Frame(frame, duration);

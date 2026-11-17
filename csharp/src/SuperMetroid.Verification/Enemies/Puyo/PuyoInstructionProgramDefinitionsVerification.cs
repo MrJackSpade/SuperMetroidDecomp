@@ -34,7 +34,8 @@ internal static class PuyoInstructionProgramDefinitionsVerification
         {
             Start(place, state, pose);
             ushort frame = PuyoAnimationsConstants.Spritemaps(pose).Single();
-            AssertEqual(EnemyInstructionRunner.ExpectedFrames([frame, frame], [1, 1]), EnemyInstructionRunner.ShownFrames(place, 3), $"Puyo {pose} pose");
+            // A still pose is held (#2276): it is new on the update it shows and stays without showing anew.
+            AssertEqual(EnemyInstructionRunner.ExpectedFrames([frame], [1]), EnemyInstructionRunner.ShownFrames(place, 3), $"Puyo {pose} pose");
         }
         if (artwork is not null)
             foreach (ushort pose in PuyoAnimationsConstants.Spritemaps(Enum.GetValues<PuyoSegment>()).Distinct())

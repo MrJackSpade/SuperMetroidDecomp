@@ -36,6 +36,14 @@ internal static class RoomEffectActorKindsVerification
                     break;
                 AssertEqual(native.Pointer, slot.InstructionPointer, $"room sprite object {kind} record after {update} updates");
                 AssertEqual(native.Spritemap, slot.SpritemapPointer, $"room sprite object {kind} spritemap after {update} updates");
+                if (slot.Holds && !native.Holds)
+                {
+                    // A still picture is held from its spawn (#2276): the native list shows its record once and then holds
+                    // it with go-back-four-bytes, which shows the same record for good.
+                    AssertEqual(RoomEffectActorNativeLists.GoBack4Bytes, RoomEffectActorNativeLists.Word(rom, native.Pointer + 4),
+                        $"room sprite object {kind}'s held record is followed by its hold after {update} updates");
+                    break;
+                }
                 AssertEqual(native.Holds, slot.Holds, $"room sprite object {kind} hold after {update} updates");
                 if (native.Holds)
                     break;

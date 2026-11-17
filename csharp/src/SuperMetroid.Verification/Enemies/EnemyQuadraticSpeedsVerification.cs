@@ -109,7 +109,7 @@ internal static class EnemyQuadraticSpeedsVerification
                 "KiHunter high-byte index and coarse wing orbit speed");
 
         var addMaw = new Action<YappingMawEnemyState>(YappingMawBehavior.AddYappingMawQuadraticSpeed);
-        var maw = new YappingMawEnemyState { Links = [] };
+        var maw = new YappingMawEnemyState { Links = [], RootEffectActor = new(SuperMetroid.Core.Enemies.EffectActors.RoomEffectActorKind.YappingMawBaseFacingUp, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard) };
         int mawAdditions = 0;
         foreach (uint start in new uint[] { 0, 0x0080ff37, 0xffffff37 })
         for (int row = 0; row < QuadraticSpeedCurveDefinitions.MarkCount; row++)

@@ -191,7 +191,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         // the downward move's collision-produced Y subposition survives after Y is restored.
         Position16<RoomPixels> walkingPosition = place.Position.Whole;
         place.Position = place.Position.WithWrappedWholeX(
-            place.Position.X.Whole + (ledge.ProbeSide == HorizontalDirection.Left ? -2 : 2) * place.Radius.X);
+            place.Position.X.Whole + (ledge.ProbeSide == HorizontalDirection.Left ? -WorkRobotMotionDefinitions.LedgeProbeRadii : WorkRobotMotionDefinitions.LedgeProbeRadii) * place.Radius.X);
         bool floorFound = _terrain.MoveEnemyVertically(level, place, WorkRobotMotionDefinitions.LedgeProbeDepth);
         place.Position = place.Position.WithWhole(walkingPosition);
         if (floorFound)

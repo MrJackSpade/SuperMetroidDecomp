@@ -19,16 +19,27 @@ internal static class WallSpacePirateNativeListAddresses
         new NativeProgramEntry<WallSpacePirateSegment>(WallSpacePirateSegment.FireAndJumpLeft, 0xecc0),
         new NativeProgramEntry<WallSpacePirateSegment>(WallSpacePirateSegment.LandedOnLeftWall, 0xece4),
         new NativeProgramEntry<WallSpacePirateSegment>(WallSpacePirateSegment.MovingUpLeftWall, 0xecec),
-        new NativeProgramEntry<WallSpacePirateSegment>(WallSpacePirateSegment.MovingUpLeftWallLoop, 0xecf4),
+        new NativeProgramEntry<WallSpacePirateSegment>(WallSpacePirateSegment.ClimbingUpLeftWall, 0xecf4),
+        new NativeProgramEntry<WallSpacePirateSegment>(WallSpacePirateSegment.ChooseLeftWallClimb, 0xed34),
         new NativeProgramEntry<WallSpacePirateSegment>(WallSpacePirateSegment.MovingDownLeftWall, 0xed36),
-        new NativeProgramEntry<WallSpacePirateSegment>(WallSpacePirateSegment.MovingDownLeftWallLoop, 0xed3e),
+        new NativeProgramEntry<WallSpacePirateSegment>(WallSpacePirateSegment.ClimbingDownLeftWall, 0xed3e),
+        new NativeProgramEntry<WallSpacePirateSegment>(WallSpacePirateSegment.ChooseLeftWallClimb, 0xed7e),
         new NativeProgramEntry<WallSpacePirateSegment>(WallSpacePirateSegment.FireAndJumpRight, 0xed80),
         new NativeProgramEntry<WallSpacePirateSegment>(WallSpacePirateSegment.LandedOnRightWall, 0xeda4),
         new NativeProgramEntry<WallSpacePirateSegment>(WallSpacePirateSegment.MovingDownRightWall, 0xedac),
-        new NativeProgramEntry<WallSpacePirateSegment>(WallSpacePirateSegment.MovingDownRightWallLoop, 0xedb4),
+        new NativeProgramEntry<WallSpacePirateSegment>(WallSpacePirateSegment.ClimbingDownRightWall, 0xedb4),
+        new NativeProgramEntry<WallSpacePirateSegment>(WallSpacePirateSegment.ChooseRightWallClimb, 0xedf4),
         new NativeProgramEntry<WallSpacePirateSegment>(WallSpacePirateSegment.MovingUpRightWall, 0xedf6),
-        new NativeProgramEntry<WallSpacePirateSegment>(WallSpacePirateSegment.MovingUpRightWallLoop, 0xedfe),
+        new NativeProgramEntry<WallSpacePirateSegment>(WallSpacePirateSegment.ClimbingUpRightWall, 0xedfe),
+        new NativeProgramEntry<WallSpacePirateSegment>(WallSpacePirateSegment.ChooseRightWallClimb, 0xee3e),
     ];
+
+    /// <summary>The choices of the next climb, which the climbs only run on into (#2276).</summary>
+    internal static readonly IReadOnlySet<WallSpacePirateSegment> OnlyRunOnInto = new HashSet<WallSpacePirateSegment>
+    {
+        WallSpacePirateSegment.ChooseLeftWallClimb,
+        WallSpacePirateSegment.ChooseRightWallClimb,
+    };
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
     internal static readonly Dictionary<ushort, NativeCueShape<WallSpacePirateCue>> Instructions = new()

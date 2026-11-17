@@ -7,9 +7,9 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 /// <summary>Cartridge values and helpers of <see cref="ShutterAnimations"/> that only verification reads.</summary>
 internal static class ShutterAnimationsConstants
 {
-    /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
+    /// <summary>The spritemaps <paramref name="programs"/> show, shown or held (#2276), in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params ShutterSegment[] programs) =>
         programs.SelectMany(program => ShutterAnimations.Segments.Beats(program))
-            .OfType<AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame>()
-            .Select(frame => ShutterFrameToolingDefinitions.Spritemap(frame.Shown));
+            .Select(beat => beat.ShownFrame).OfType<EnemyFrameId>()
+            .Select(frame => ShutterFrameToolingDefinitions.Spritemap(frame));
 }

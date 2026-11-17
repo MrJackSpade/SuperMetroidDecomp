@@ -9,5 +9,5 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 /// <param name="ActivationWait">The updates a timed shutter waits before it grows; zero for one that waits for Samus.</param>
 /// <param name="GrowthSpeed">How far it grows each update, in pixels.</param>
 internal sealed record GrowingShutterSpawnSettings(
-    GrowingShutterWait Wait, GrowingShutterGrowth Growth, int ActivationDistance, int ActivationWait, SignedSixteenSixteen GrowthSpeed)
+    GrowingShutterWait Wait, VerticalDirection Growth, int ActivationDistance, int ActivationWait, SignedSixteenSixteen GrowthSpeed)
     : EnemySpawnSettings;

@@ -32,8 +32,12 @@ internal static class WorkRobotAnimationsVerification
                     AssertEqual(0, operands.Length, $"{at}: operands");
                 },
                 GoesTo: word => WalkRoutines.TryGetValue(word, out WorkRobotSegment walk) ? NativeEnemyAnimationOracle.EntryOf(Entries, walk) : null),
-            // Each recoil only runs on from the shots that fire its laser (#2166).
-            onlyRunOnInto: new HashSet<WorkRobotSegment> { WorkRobotSegment.FacingLeftLaserShotRecoil, WorkRobotSegment.FacingRightLaserShotRecoil });
+            // Each recoil only runs on from the shots that fire its laser (#2166), each stride from its walk's first step (#2276).
+            onlyRunOnInto: new HashSet<WorkRobotSegment>
+            {
+                WorkRobotSegment.FacingLeftLaserShotRecoil, WorkRobotSegment.FacingRightLaserShotRecoil,
+                WorkRobotSegment.FacingLeftWalkingStride, WorkRobotSegment.FacingRightWalkingStride,
+            });
         Console.WriteLine($"  Work Robot animations: {Entries.Length} segments ({beats} beats) and {WorkRobotAnimations.StartingAt.Count} animations match bank $A8.");
     }
 }

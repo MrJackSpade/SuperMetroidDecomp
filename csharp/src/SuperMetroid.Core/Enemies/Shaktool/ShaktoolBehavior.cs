@@ -264,12 +264,8 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
             place.Position = place.Position.WithWhole(previous);
             ReverseShaktoolChainEndpoints(place);
 
-            // The group's motion flags are set twice. The second call reads the parameter just written
-            // by the first, leaving the reversed-once bit set while clearing the straightening bit.
-            SetShaktoolGroupMotionFlags(place, flags | ShaktoolMotionFlags.ReversedOnce);
-            SetShaktoolGroupMotionFlags(
-                place,
-                state.MotionFlags & ~ShaktoolMotionFlags.Straightening);
+            // The first hit sets the reversed-once bit and clears the straightening bit for the whole chain (#2284).
+            SetShaktoolGroupMotionFlags(place, (flags | ShaktoolMotionFlags.ReversedOnce) & ~ShaktoolMotionFlags.Straightening);
         }
 
         state.ResetOrientation();

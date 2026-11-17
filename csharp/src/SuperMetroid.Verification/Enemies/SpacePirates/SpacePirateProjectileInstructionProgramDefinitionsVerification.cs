@@ -65,7 +65,7 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
             RoomEnemyPlace source = enemies.Places.InUpdateOrder[0];
             source.Position = source.Position.WithWhole(new(128, 96));
             source.SetSpawnParameter1(EnemyDefinitionId.PirateGreyWalking, 0);
-            EnemyProjectile laser = enemies.WalkingSpacePirateBehavior.SpawnPirateMotherBrainLaser(source, new Position16<RoomPixels>(128, 96), movingRight, PirateLaserSpeed.Fast) ?? throw new InvalidOperationException("Verification requires enemies.WalkingSpacePirateBehavior.SpawnPirateMotherBrainLaser(source, new Position16<R....");
+            EnemyProjectile laser = enemies.WalkingSpacePirateBehavior.SpawnPirateMotherBrainLaser(source, new Position16<RoomPixels>(128, 96), movingRight ? HorizontalDirection.Right : HorizontalDirection.Left, PirateLaserSpeed.Fast) ?? throw new InvalidOperationException("Verification requires enemies.WalkingSpacePirateBehavior.SpawnPirateMotherBrainLaser(source, new Position16<R....");
             AssertEqual(program, NativePointer(laser),
                 "real Pirate/Mother Brain laser producer selects its facing program");
             AssertEqual<Enum?>(null, laser.Motion,
@@ -98,7 +98,7 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
             RoomEnemySystem enemies = NewSystem();
             RoomEnemyPlace source = enemies.Places.InUpdateOrder[0];
             source.Position = source.Position.WithWhole(new(128, 96));
-            enemies.NinjaSpacePirateBehavior.SpawnNinjaPirateClaw(source, throwsRight: direction != 0, Offset16<RoomPixels>.Zero);
+            enemies.NinjaSpacePirateBehavior.SpawnNinjaPirateClaw(source, direction != 0 ? HorizontalDirection.Right : HorizontalDirection.Left, Offset16<RoomPixels>.Zero);
             EnemyProjectile claw = enemies.Projectiles.EnemyProjectiles.Single(
                 projectile => projectile.Kind == RoomEnemyProjectileKind.PirateClaw);
             AssertEqual(program, NativePointer(claw),
@@ -115,7 +115,7 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
 
         RoomEnemySystem deleteSystem = NewSystem();
         RoomEnemyPlace deleteSource = deleteSystem.Places.InUpdateOrder[0];
-        deleteSystem.NinjaSpacePirateBehavior.SpawnNinjaPirateClaw(deleteSource, throwsRight: false, Offset16<RoomPixels>.Zero);
+        deleteSystem.NinjaSpacePirateBehavior.SpawnNinjaPirateClaw(deleteSource, HorizontalDirection.Left, Offset16<RoomPixels>.Zero);
         EnemyProjectile deleting = deleteSystem.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.PirateClaw);
         deleting.StartAnimation(EnemyProjectileDeleteAnimation.Instance);

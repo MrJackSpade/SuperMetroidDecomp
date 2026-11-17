@@ -49,7 +49,7 @@ public sealed class PuyoEnemyState
     public bool HoppingAnimationActive { get; internal set; }
 
     /// <summary>The direction of the current hop.</summary>
-    public PuyoDirection Direction { get; internal set; }
+    public HorizontalDirection Direction { get; internal set; }
 
     /// <summary>Selects the curve's downward speeds.</summary>
     public bool Falling { get; internal set; }
@@ -58,7 +58,7 @@ public sealed class PuyoEnemyState
     public bool InvertDirection { get; internal set; }
 
     /// <summary>Opposite direction captured when Puyo strikes a wall or ceiling.</summary>
-    public PuyoDirection InvertedDirection { get; internal set; }
+    public HorizontalDirection InvertedDirection { get; internal set; }
 
     /// <summary>Three-quarter point of the initial vertical speed-curve place.</summary>
     public QuadraticSpeedCurvePlace InitialYSpeedCurvePlaceThreeQuarters { get; internal set; }

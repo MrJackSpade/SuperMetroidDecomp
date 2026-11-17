@@ -7,8 +7,8 @@ public sealed class WaverEnemyState
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<WaverSegment> Playback { get; set; }
 
-    /// <summary>Signed 1/65536-pixel horizontal displacement per update, one and a half pixels either way; a wall negates it.</summary>
-    public SignedSixteenSixteen XVelocity { get; internal set; }
+    /// <summary>Signed 1/65536-pixel horizontal displacement per update: the Waver's speed toward <see cref="Facing"/> (#2278).</summary>
+    public SignedSixteenSixteen XVelocity => Facing == HorizontalDirection.Right ? WaverMotionDefinitions.HorizontalSpeed : -WaverMotionDefinitions.HorizontalSpeed;
 
     /// <summary>The way the Waver faces: its spawn's, turned around by each wall it meets; a spin keeps it (#2145).</summary>
     public HorizontalDirection Facing { get; internal set; }

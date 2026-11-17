@@ -90,23 +90,16 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         PlatformEnemyState state,
         RoomLevelData level)
     {
-        bool movingLeft = state.XMovement switch
-        {
-            PlatformHorizontalMovement.Left => true,
-            PlatformHorizontalMovement.Right => false,
-            _ => throw new InvalidDataException(
-                $"Platform X movement {state.XMovement} is neither left nor right."),
-        };
-        SignedSixteenSixteen displacement = movingLeft ? -state.Speed : state.Speed;
+        SignedSixteenSixteen displacement = state.XMovement == HorizontalDirection.Left ? -state.Speed : state.Speed;
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, place, displacement))
             return;
 
         // A wall collision reverses the horizontal direction and immediately installs the opposite
         // vertically-still animation. The first step of that animation shows the same frame again
         // when the animations run later in this enemy frame.
-        state.XMovement = movingLeft
-            ? PlatformHorizontalMovement.Right
-            : PlatformHorizontalMovement.Left;
+        state.XMovement = state.XMovement == HorizontalDirection.Left
+            ? HorizontalDirection.Right
+            : HorizontalDirection.Left;
         InstallPlatformVerticallyStillForCurrentDirection(place, state);
     }
 
@@ -258,7 +251,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Sets the direction main AI moves the platform, <paramref name="movement"/>, as a movement cue asks.</summary>
     private static void SetPlatformHorizontalMovementFromCue(
         RoomEnemyPlace place,
-        PlatformHorizontalMovement movement)
+        HorizontalDirection movement)
     {
         place.RequireSpeciesState<PlatformEnemyState>().XMovement = movement;
     }
@@ -304,6 +297,6 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>
     /// The frozen Tripper's frame: the left-moving frame while it moves left, the right-moving frame while it moves right.
     /// </summary>
-    private static EnemyFrameId TripperFrozenFrame(PlatformHorizontalMovement direction) =>
-        direction == PlatformHorizontalMovement.Left ? EnemyFrameId.TripperFrozenFacingLeft : EnemyFrameId.TripperFrozenFacingRight;
+    private static EnemyFrameId TripperFrozenFrame(HorizontalDirection direction) =>
+        direction == HorizontalDirection.Left ? EnemyFrameId.TripperFrozenFacingLeft : EnemyFrameId.TripperFrozenFacingRight;
 }

@@ -29,32 +29,32 @@ internal static class WalkingSpacePirateInstructionProgramDefinitionsVerificatio
         Suite(nameof(VerifyProgram), () => VerifyProgram(
             WalkingSpacePirateSegment.WalkingLeft,
             frames: 81,
-            expectedSegment: WalkingSpacePirateSegment.WalkingLeft,
+            expectedSegment: WalkingSpacePirateSegment.WalkingLeftStride,
             expectedHeading: HorizontalDirection.Left));
         Suite(nameof(VerifyProgram), () => VerifyProgram(
             WalkingSpacePirateSegment.WalkingRight,
             frames: 81,
-            expectedSegment: WalkingSpacePirateSegment.WalkingRight,
+            expectedSegment: WalkingSpacePirateSegment.WalkingRightStride,
             expectedHeading: HorizontalDirection.Right));
         Suite(nameof(VerifyProgram), () => VerifyProgram(
             WalkingSpacePirateSegment.FlinchFacingLeft,
             frames: 17,
-            expectedSegment: WalkingSpacePirateSegment.WalkingLeft,
+            expectedSegment: WalkingSpacePirateSegment.WalkingLeftStride,
             expectedHeading: HorizontalDirection.Left));
         Suite(nameof(VerifyProgram), () => VerifyProgram(
             WalkingSpacePirateSegment.FlinchFacingRight,
             frames: 17,
-            expectedSegment: WalkingSpacePirateSegment.WalkingRight,
+            expectedSegment: WalkingSpacePirateSegment.WalkingRightStride,
             expectedHeading: HorizontalDirection.Right));
         Suite(nameof(VerifyProgram), () => VerifyProgram(
             WalkingSpacePirateSegment.LookingFacingLeft,
             frames: 125,
-            expectedSegment: WalkingSpacePirateSegment.WalkingRight,
+            expectedSegment: WalkingSpacePirateSegment.WalkingRightStride,
             expectedHeading: HorizontalDirection.Right));
         Suite(nameof(VerifyProgram), () => VerifyProgram(
             WalkingSpacePirateSegment.LookingFacingRight,
             frames: 125,
-            expectedSegment: WalkingSpacePirateSegment.WalkingLeft,
+            expectedSegment: WalkingSpacePirateSegment.WalkingLeftStride,
             expectedHeading: HorizontalDirection.Left));
         Suite(nameof(VerifyAttack), () => VerifyAttack(movingRight: false));
         Suite(nameof(VerifyAttack), () => VerifyAttack(movingRight: true));
@@ -94,9 +94,9 @@ internal static class WalkingSpacePirateInstructionProgramDefinitionsVerificatio
             state.Playback = new(WalkingSpacePirateAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
             place.AnimationClock.StepOnNextUpdate();
             RunFrames(enemies, place, samus, frames);
-            // The walk loop has shown its first pose and stands before its second: the walk's third beat, after its
-            // direction cue (#2166).
-            AssertEqual(new AnimationPlayback<WalkingSpacePirateSegment>(WalkingSpacePirateAnimations.StartingWith(program), PlaceOf(program, expectedSegment, 2)), state.Playback,
+            // The stride has shown its first pose and stands before its second, after the walk's direction cue (#2166,
+            // #2276).
+            AssertEqual(new AnimationPlayback<WalkingSpacePirateSegment>(WalkingSpacePirateAnimations.StartingWith(program), PlaceOf(program, expectedSegment, 1)), state.Playback,
                 $"walking Pirate program {program} playback");
             AssertEqual(WalkingSpacePirateAction.Walking, state.Action,
                 $"walking Pirate program {program} function");

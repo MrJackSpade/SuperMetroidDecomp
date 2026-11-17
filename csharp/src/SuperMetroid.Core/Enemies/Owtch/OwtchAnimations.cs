@@ -17,6 +17,9 @@ internal static class OwtchAnimations
         [P.MovingLeft] =
         [
             Cue(new(HorizontalDirection.Left)),
+        ],
+        [P.CrawlingLeft] =
+        [
             Show(EnemyFrameId.OwtchCrawlingFeetAtRest, 8),
             Show(EnemyFrameId.OwtchCrawlingFeetShuffling, 8),
             Show(EnemyFrameId.OwtchCrawlingFeetStretched, 8),
@@ -24,6 +27,9 @@ internal static class OwtchAnimations
         [P.MovingRight] =
         [
             Cue(new(HorizontalDirection.Right)),
+        ],
+        [P.CrawlingRight] =
+        [
             Show(EnemyFrameId.OwtchCrawlingFeetStretched, 8),
             Show(EnemyFrameId.OwtchCrawlingFeetShuffling, 8),
             Show(EnemyFrameId.OwtchCrawlingFeetAtRest, 8),
@@ -31,17 +37,20 @@ internal static class OwtchAnimations
     });
 
     /// <summary>
-    /// The animation that starts at each segment an owner can start or restart at; the loops only run on from the
-    /// animations that start them (#2061).
+    /// The animation that starts at each segment an owner can start or restart at: its entry cue once, then its crawl
+    /// looping (#2061, #2276).
     /// </summary>
     internal static IReadOnlyDictionary<OwtchSegment, Animation<OwtchSegment>> StartingAt { get; } = new Dictionary<OwtchSegment, Animation<OwtchSegment>>
     {
-        [P.MovingLeft] = new([new(P.MovingLeft, 0, 1, 1), new(P.MovingLeft, 1, 3, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.MovingRight] = new([new(P.MovingRight, 0, 1, 1), new(P.MovingRight, 1, 3, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.MovingLeft] = new([Whole(P.MovingLeft), Whole(P.CrawlingLeft)], AnimationEnd.LoopsFrom(1)),
+        [P.MovingRight] = new([Whole(P.MovingRight), Whole(P.CrawlingRight)], AnimationEnd.LoopsFrom(1)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<OwtchSegment> StartingWith(OwtchSegment segment) => StartingAt[segment];
+
+    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
+    private static AnimationPhase<OwtchSegment> Whole(OwtchSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, OwtchCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, OwtchCue>.Frame(frame, duration);

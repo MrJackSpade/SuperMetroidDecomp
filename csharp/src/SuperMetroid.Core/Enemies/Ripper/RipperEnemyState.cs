@@ -12,8 +12,11 @@ public sealed class RipperEnemyState
     /// <summary>The Ripper-family typed flying loop (#641), started by setup and restarted at each reversal.</summary>
     internal AnimationPlayback<RipperSegment> Playback { get; set; }
 
-    /// <summary>Signed 1/65536-pixel horizontal velocity per update: the spawn speed rightward, or its negation leftward.</summary>
-    public SignedSixteenSixteen XVelocity { get; internal set; }
+    /// <summary>The way the enemy flies (#2278).</summary>
+    public HorizontalDirection Heading { get; internal set; }
+
+    /// <summary>Signed 1/65536-pixel horizontal velocity per update: the spawn speed toward <see cref="Heading"/>.</summary>
+    public SignedSixteenSixteen XVelocity => Heading == HorizontalDirection.Right ? Speeds.Positive : Speeds.Negative;
 
     /// <summary>The spawn settings' speed, set by initialization and read back when the velocity is loaded.</summary>
     public EnemyLinearSpeed Speeds { get; internal set; }

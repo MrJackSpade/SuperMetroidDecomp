@@ -6,6 +6,6 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 internal static class TripperKamerVisualDefinitionsConstants
 {
     /// <summary>The frozen Tripper's map for the way it moves: $A3:9F14-9F25 chooses the left map for leftward movement and the right map otherwise.</summary>
-    internal static ushort FrozenFrame(PlatformHorizontalMovement direction) =>
-        direction == PlatformHorizontalMovement.Left ? TripperKamerVisualDefinitions.FrozenMovingLeft : TripperKamerVisualDefinitions.FrozenMovingRight;
+    internal static ushort FrozenFrame(HorizontalDirection direction) =>
+        direction == HorizontalDirection.Left ? TripperKamerVisualDefinitions.FrozenMovingLeft : TripperKamerVisualDefinitions.FrozenMovingRight;
 }

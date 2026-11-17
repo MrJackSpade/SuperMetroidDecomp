@@ -42,12 +42,8 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void InitializeWaver(RoomEnemyPlace place)
     {
         HorizontalDirection facing = place.SpawnSettings<WaverSpawnSettings>().Facing;
-        SignedSixteenSixteen signedSpeed = facing == HorizontalDirection.Right
-            ? WaverMotionDefinitions.HorizontalSpeed
-            : -WaverMotionDefinitions.HorizontalSpeed;
         var state = new WaverEnemyState
         {
-            XVelocity = signedSpeed,
             Facing = facing,
             Angle = RotationAngle.Zero,
             SpinFinished = false,
@@ -72,9 +68,7 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
                 place,
                 horizontalDisplacement))
         {
-            // A wall reverses the Waver's horizontal speed exactly, fraction included: ±1.5 pixels a frame.
-            state.XVelocity = -horizontalDisplacement;
-            // A wall turns Waver around and ends any spin.
+            // A wall turns Waver around, reversing its speed exactly, fraction included (±1.5 pixels a frame), and ends any spin.
             state.Facing = state.Facing == HorizontalDirection.Left ? HorizontalDirection.Right : HorizontalDirection.Left;
             SetWaverAnimation(place, state, WaverAnimationChoices.Steady(state.Facing));
         }

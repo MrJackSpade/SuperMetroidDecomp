@@ -33,7 +33,8 @@ internal static class WallSpacePirateAnimationsVerification
                     _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),
                 }, $"{at}: operand {index}");
             },
-            cue => cue is WallSpacePirateCue.ChooseClimb));
+            cue => cue is WallSpacePirateCue.ChooseClimb),
+            onlyRunOnInto: OnlyRunOnInto);
         Console.WriteLine($"  Wall Space Pirate animations: {Entries.Length} segments ({beats} beats) and {WallSpacePirateAnimations.StartingAt.Count} animations match bank $B2.");
     }
 

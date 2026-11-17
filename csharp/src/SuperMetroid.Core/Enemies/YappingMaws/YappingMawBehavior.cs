@@ -91,22 +91,21 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             ActivationDistance = place.SpawnSettings<YappingMawSpawnSettings>().ActivationDistance,
             RetractedDelayTimer = YappingMawAttackDefinitions.RetractedHold,
             Links = [.. bodies.Select(body => new YappingMawLink(body))],
+            // The root's kind follows the Maw's attack direction; the Maw holds the root it spawned.
+            RootEffectActor = _effectActors.SpawnRoomEffectActor(
+                new(place.Position.X.Whole, CoordinateAxis.Wrap(place.Position.Y.Whole + (place.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Down
+                    ? -YappingMawAttackDefinitions.RootDistance
+                    : YappingMawAttackDefinitions.RootDistance))),
+                place.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Down
+                    ? RoomEffectActorKind.YappingMawBaseFacingDown
+                    : RoomEffectActorKind.YappingMawBaseFacingUp,
+                SpriteGraphics.SpawnedBy(place)),
         };
         place.SetSpeciesState(state);
 
         state.Playback = EnemyAnimationPlayback.Start(place, YappingMawAnimations.StartingWith(place.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Down
             ? YappingMawSegment.AttackingDown
             : YappingMawSegment.AttackingUp));
-
-        // The root's kind follows the Maw's attack direction; the Maw holds the root it spawned.
-        state.RootEffectActor = _effectActors.SpawnRoomEffectActor(
-            new(place.Position.X.Whole, CoordinateAxis.Wrap(place.Position.Y.Whole + (place.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Down
-                ? -YappingMawAttackDefinitions.RootDistance
-                : YappingMawAttackDefinitions.RootDistance))),
-            place.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Down
-                ? RoomEffectActorKind.YappingMawBaseFacingDown
-                : RoomEffectActorKind.YappingMawBaseFacingUp,
-            SpriteGraphics.SpawnedBy(place));
     }
 
     /// <summary>Runs the Maw's main behaviour, then places its four links.</summary>
@@ -398,7 +397,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
 
         foreach (YappingMawLink link in state.Links)
             link.Body.Delete();
-        state.RootEffectActor?.End();
+        state.RootEffectActor.End();
         ReleaseSamusFromYappingMaw(state, samus);
     }
 
@@ -423,8 +422,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         foreach (YappingMawLink link in state.Links)
             link.Body.Graphics = link.Body.Graphics.In(shading);
 
-        if (state.RootEffectActor is not null)
-            state.RootEffectActor.Graphics = state.RootEffectActor.Graphics.In(shading);
+        state.RootEffectActor.Graphics = state.RootEffectActor.Graphics.In(shading);
     }
 
     /// <summary>Flashes the frozen colours against the Maw's own colours during the last 89 ticks.</summary>

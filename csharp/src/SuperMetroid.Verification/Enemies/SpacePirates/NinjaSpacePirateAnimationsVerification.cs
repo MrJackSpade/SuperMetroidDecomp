@@ -48,7 +48,8 @@ internal static class NinjaSpacePirateAnimationsVerification
                         }),
                         _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),
                     }, $"{at}: operand {index}");
-                }));
+                }),
+            onlyRunOnInto: OnlyRunOnInto);
         Console.WriteLine($"  Ninja Space Pirate animations: {Entries.Length} segments ({beats} beats) and {NinjaSpacePirateAnimations.StartingAt.Count} animations match bank $B2.");
     }
 }

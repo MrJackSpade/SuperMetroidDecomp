@@ -75,12 +75,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         GrowingShutterSpawnSettings settings = place.SpawnSettings<GrowingShutterSpawnSettings>();
 
         // The initializer selects its first action from the way it grows and what it waits for.
-        VerticalDirection growth = settings.Growth switch
-        {
-            GrowingShutterGrowth.Down => VerticalDirection.Down,
-            GrowingShutterGrowth.Up => VerticalDirection.Up,
-            _ => throw new InvalidOperationException($"Growing shutter growth {settings.Growth} is not a direction."),
-        };
+        VerticalDirection growth = settings.Growth;
         GrowingShutterAction action = settings.Wait switch
         {
             GrowingShutterWait.Timer => growth == VerticalDirection.Up
@@ -427,9 +422,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         state.PrimaryDirection = settings.PrimaryDirection;
         state.ReactionDirection = state.PrimaryDirection;
 
-        EnemyLinearSpeed speeds = new(settings.Speed);
-        state.DownVelocity = speeds.Positive;
-        state.UpVelocity = speeds.Negative;
+        state.Speed = settings.Speed;
 
         state.MovedUpRest = settings.RestAfterMovingUp;
         state.MovedDownRest = settings.RestAfterMovingDown;
@@ -556,7 +549,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         state.PreviousY = place.Position.Y.Whole;
         state.MovingSamus = EnemyCollision.IsSamusStandingOn(place, samus);
-        place.Position = place.Position.AdvanceY(direction == VerticalDirection.Up ? state.UpVelocity : state.DownVelocity);
+        place.Position = place.Position.AdvanceY(state.VelocityToward(direction));
         CarrySamusVertically(place, state, samus);
 
         int beforeEndpoint = direction == VerticalDirection.Up
@@ -564,7 +557,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             : -CoordinateAxis.Difference(state.LowerEndpointY, place.Position.Y.Whole);
         if (beforeEndpoint < 0)
             return;
-        StopVerticalShutter(state, direction == VerticalDirection.Up);
+        StopVerticalShutter(state, direction);
     }
 
     /// <summary>Publishes the shutter's whole-pixel Y delta to Samus's extra displacement.</summary>
@@ -579,17 +572,17 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             CoordinateAxis.Difference(place.Position.Y.Whole, state.PreviousY));
     }
 
-    /// <summary>Enters a timed rest or permanent stop at the upper or lower endpoint.</summary>
-    private static void StopVerticalShutter(VerticalShutterEnemyState state, bool atTop)
+    /// <summary>Enters a timed rest or permanent stop at the endpoint the shutter reached moving toward <paramref name="moved"/>.</summary>
+    private static void StopVerticalShutter(VerticalShutterEnemyState state, VerticalDirection moved)
     {
-        ShutterRest rest = atTop ? state.MovedUpRest : state.MovedDownRest;
+        ShutterRest rest = moved == VerticalDirection.Up ? state.MovedUpRest : state.MovedDownRest;
         if (rest.IsPermanent)
         {
             state.Action = VerticalShutterAction.Still;
             return;
         }
         state.ActionTimer = WrappingCountdown.Start(rest.Updates);
-        state.Action = atTop ? VerticalShutterAction.StoppedAfterMovingUp : VerticalShutterAction.StoppedAfterMovingDown;
+        state.Action = moved == VerticalDirection.Up ? VerticalShutterAction.StoppedAfterMovingUp : VerticalShutterAction.StoppedAfterMovingDown;
     }
 
     /// <summary>

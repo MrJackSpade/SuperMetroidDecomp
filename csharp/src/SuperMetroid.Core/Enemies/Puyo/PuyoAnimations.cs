@@ -37,23 +37,23 @@ internal static class PuyoAnimations
         ],
         [P.TiltedFarRight] =
         [
-            Show(EnemyFrameId.PuyoAirborneClosing, 1),
+            Hold(EnemyFrameId.PuyoAirborneClosing),
         ],
         [P.TiltedRight] =
         [
-            Show(EnemyFrameId.PuyoAirborneHalfClosed, 1),
+            Hold(EnemyFrameId.PuyoAirborneHalfClosed),
         ],
         [P.Upright] =
         [
-            Show(EnemyFrameId.PuyoAirborneSpread, 1),
+            Hold(EnemyFrameId.PuyoAirborneSpread),
         ],
         [P.TiltedLeft] =
         [
-            Show(EnemyFrameId.PuyoAirborneHalfOpen, 1),
+            Hold(EnemyFrameId.PuyoAirborneHalfOpen),
         ],
         [P.TiltedFarLeft] =
         [
-            Show(EnemyFrameId.PuyoAirborneOpening, 1),
+            Hold(EnemyFrameId.PuyoAirborneOpening),
         ],
     });
 
@@ -75,4 +75,7 @@ internal static class PuyoAnimations
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, NoAnimationCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);
+
+    /// <summary>Shows <paramref name="frame"/> for good (#2276): a still picture rests on it until its owner plays another.</summary>
+    private static AnimationBeat<EnemyFrameId, NoAnimationCue> Hold(EnemyFrameId frame) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.HeldFrame(frame);
 }

@@ -26,18 +26,18 @@ internal static class YardInstructionProgramDefinitionsVerification
     {
         RoomEnemySystem enemies = CreateYardInstructionSystem(out RoomEnemyPlace yard);
         YardEnemyState state = enemies.Places.InUpdateOrder[0].EntityState<YardEntity, YardEnemyState>() ?? throw new InvalidOperationException("The Yard has no state.");
-        foreach (YardSegment program in Enum.GetValues<YardSegment>())
+        foreach (YardSegment program in YardAnimations.StartingAt.Keys)
         {
             state.Playback = new(YardAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
             RunYard(yard, 80);
         }
 
         // Hiding: the closed shell shows again however often its update ends (#2180).
-        ushort repeatedPose = YardAnimationsConstants.Spritemaps(YardSegment.HidingUpsideUpMovingLeft).Last();
+        ushort repeatedPose = YardAnimationsConstants.Spritemaps(YardSegment.ShellClosedUpsideUpMovingLeft).First();
         state.Behavior = YardBehavior.Hiding;
         state.Playback = new(YardAnimations.StartingWith(YardSegment.HidingUpsideUpMovingLeft), AnimationPlace.StartOfAnimation);
         RunYard(yard, 20);
-        AssertEqual(YardSegment.HidingUpsideUpMovingLeft, StandsIn(state.Playback), "a hiding Yard stays in its hiding animation");
+        AssertEqual(YardSegment.ShellClosedUpsideUpMovingLeft, StandsIn(state.Playback), "a hiding Yard stays in its closed shell");
         AssertEqual(repeatedPose, yard.SpritemapPointer, "a hiding Yard keeps showing its closed shell");
 
         // Visible, with the fixture's even random draw: the hide runs on into the hidden animation.

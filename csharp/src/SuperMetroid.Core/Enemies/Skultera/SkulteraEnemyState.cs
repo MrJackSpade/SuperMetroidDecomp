@@ -22,11 +22,11 @@ public sealed class SkulteraEnemyState
     /// <summary>The way the Skultera swims, or turns to swim (#2165).</summary>
     public HorizontalDirection Heading { get; internal set; }
 
-    /// <summary>The displacement in 1/65536 room pixels per swimming update to the right: the speed the Skultera spawns with.</summary>
-    public SignedSixteenSixteen RightVelocity { get; internal set; }
+    /// <summary>The speed the Skultera spawns with, 1/65536 room pixels per swimming update (#2278).</summary>
+    public SignedSixteenSixteen Speed { get; internal set; }
 
-    /// <summary>The displacement in 1/65536 room pixels per swimming update to the left: the speed the Skultera spawns with, reversed.</summary>
-    public SignedSixteenSixteen LeftVelocity { get; internal set; }
+    /// <summary>The swimming displacement toward <paramref name="direction"/>: the speed, reversed leftward.</summary>
+    public SignedSixteenSixteen VelocityToward(HorizontalDirection direction) => direction == HorizontalDirection.Left ? -Speed : Speed;
 
     /// <summary>The vertical oscillation's phase; only its whole step is meaningful, and it wraps after a full turn.</summary>
     public RotationAngle Angle { get; internal set; }

@@ -47,10 +47,10 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
             CurrentHop = PuyoHopType.NormalSmall,
             HopType = PuyoHopType.NormalSmall,
             HoppingAnimationActive = false,
-            Direction = PuyoDirection.Right,
+            Direction = HorizontalDirection.Right,
             Falling = false,
             InvertDirection = false,
-            InvertedDirection = PuyoDirection.Right,
+            InvertedDirection = HorizontalDirection.Right,
             InitialYSpeedCurvePlaceThreeQuarters = QuadraticSpeedCurvePlace.Start,
             InitialYSpeedCurvePlaceHalf = QuadraticSpeedCurvePlace.Start,
         };
@@ -109,9 +109,9 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Aim toward Samus unless the preceding terrain collision latched the opposite
         // direction. Equality follows the game's non-negative path and therefore aims right.
-        PuyoDirection direction = CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole) < 0
-            ? PuyoDirection.Left
-            : PuyoDirection.Right;
+        HorizontalDirection direction = CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole) < 0
+            ? HorizontalDirection.Left
+            : HorizontalDirection.Right;
         if (state.InvertDirection)
             direction = state.InvertedDirection;
         state.Direction = direction;
@@ -306,7 +306,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         // and zeroes the subspeed; only the European release uses the fraction. The giant
         // hop's 1.25 therefore moves exactly one pixel per frame either way.
         int whole = Hop(state).XSpeed.WholePixels;
-        if (state.Direction == PuyoDirection.Left)
+        if (state.Direction == HorizontalDirection.Left)
             whole = -whole;
         SignedSixteenSixteen horizontalDisplacement = SignedSixteenSixteen.FromWholePixels(whole);
 
@@ -331,7 +331,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         PuyoSegment segment;
         if (!state.Falling)
         {
-            if (state.Direction == PuyoDirection.Right)
+            if (state.Direction == HorizontalDirection.Right)
             {
                 segment = state.YSpeedCurvePlace >=
                         state.InitialYSpeedCurvePlaceThreeQuarters
@@ -350,7 +350,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
                         : PuyoSegment.Upright;
             }
         }
-        else if (state.Direction == PuyoDirection.Right)
+        else if (state.Direction == HorizontalDirection.Right)
         {
             segment = state.YSpeedCurvePlace < state.InitialYSpeedCurvePlaceHalf
                 ? PuyoSegment.Upright
@@ -371,13 +371,8 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Turns a Puyo to its other direction after a terrain impact.</summary>
-    private static PuyoDirection Opposite(PuyoDirection direction) => direction switch
-    {
-        PuyoDirection.Right => PuyoDirection.Left,
-        PuyoDirection.Left => PuyoDirection.Right,
-        _ => throw new InvalidDataException(
-            $"Puyo direction {direction} is neither of the two directions."),
-    };
+    private static HorizontalDirection Opposite(HorizontalDirection direction) =>
+        direction == HorizontalDirection.Left ? HorizontalDirection.Right : HorizontalDirection.Left;
 
     /// <summary>Starts a selected pose or hop animation with a one-tick frame countdown.</summary>
     private static void SetPuyoAnimation(RoomEnemyPlace place, PuyoEnemyState state, PuyoSegment segment)

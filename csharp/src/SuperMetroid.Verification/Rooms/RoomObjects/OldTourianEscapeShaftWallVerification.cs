@@ -110,11 +110,13 @@ internal static class OldTourianEscapeShaftWallVerification
         AssertEqual((ushort)NativeEnemyProjectileInstruction.DecrementTimer_GotoYIfNonZero, Word(cursor), "the burst then counts down");
         AssertEqual(OldTourianEscapeShaftWallExplosionInstructionProgramToolingDefinitions.Loop, Word(cursor + 2), "the repeat returns to the loop label");
         AssertEqual(8, counted.BeatCount, "the counted burst ends at the count-down, after its six poses");
+        AssertEqual(8, burst.Count, "the burst has eight beats");
+        var deletion = segments.Beats(OldTourianWallExplosionSegment.Deletion);
         AssertEqual((ushort)NativeEnemyProjectileInstruction.Delete, Word(cursor + 4), "the list ends by deleting the explosion");
-        AssertEqual(OldTourianWallExplosionCue.Delete, AssertIs<AnimationBeat<EnemyProjectileFrameId, OldTourianWallExplosionCue>.Event>(burst[8], "the burst raises an event").Raised, "the burst deletes the explosion");
-        AssertEqual(9, burst.Count, "the burst has nine beats");
-        AssertEqual(new AnimationPhase<OldTourianWallExplosionSegment>(OldTourianWallExplosionSegment.Burst, 8, 1, 1), animation.Phases[2],
-            "after its last burst the animation plays the delete");
+        AssertEqual(1, deletion.Count, "the deletion has one beat");
+        AssertEqual(OldTourianWallExplosionCue.Delete, AssertIs<AnimationBeat<EnemyProjectileFrameId, OldTourianWallExplosionCue>.Event>(deletion[0], "the deletion raises an event").Raised, "the deletion deletes the explosion");
+        AssertEqual(new AnimationPhase<OldTourianWallExplosionSegment>(OldTourianWallExplosionSegment.Deletion, 0, 1, 1), animation.Phases[2],
+            "after its last burst the animation plays the deletion");
         AssertEqual(AnimationEnd.Holds, animation.End, "the deleted explosion holds");
     }
 

@@ -35,21 +35,21 @@ internal static class PlatformInstructionProgramDefinitionsVerification
 
         PlatformProgramCase[] cases =
         [
-            new(true, true, PlatformHorizontalMovement.Left,
+            new(true, true, HorizontalDirection.Left,
                 PlatformSegment.SuspensorPlatformHeadingLeft),
-            new(true, true, PlatformHorizontalMovement.Right,
+            new(true, true, HorizontalDirection.Right,
                 PlatformSegment.SuspensorPlatformHeadingRight),
-            new(true, false, PlatformHorizontalMovement.Left,
+            new(true, false, HorizontalDirection.Left,
                 PlatformSegment.SuspensorPlatformHeadingLeft),
-            new(true, false, PlatformHorizontalMovement.Right,
+            new(true, false, HorizontalDirection.Right,
                 PlatformSegment.SuspensorPlatformHeadingRight),
-            new(false, true, PlatformHorizontalMovement.Left,
+            new(false, true, HorizontalDirection.Left,
                 PlatformSegment.TripperMovingLeft),
-            new(false, true, PlatformHorizontalMovement.Right,
+            new(false, true, HorizontalDirection.Right,
                 PlatformSegment.TripperMovingRight),
-            new(false, false, PlatformHorizontalMovement.Left,
+            new(false, false, HorizontalDirection.Left,
                 PlatformSegment.TripperStillMovingLeft),
-            new(false, false, PlatformHorizontalMovement.Right,
+            new(false, false, HorizontalDirection.Right,
                 PlatformSegment.TripperStillMovingRight),
         ];
 
@@ -68,10 +68,10 @@ internal static class PlatformInstructionProgramDefinitionsVerification
 
             PlatformEnemyState state = (enemies.PlatformStates[0] ?? throw new InvalidOperationException("Verification requires enemies.PlatformStates[0]."));
             PlatformSegment expectedInitial = testCase.IsKamer
-                ? testCase.Direction == PlatformHorizontalMovement.Left
+                ? testCase.Direction == HorizontalDirection.Left
                     ? PlatformSegment.SuspensorPlatformHeadingLeft
                     : PlatformSegment.SuspensorPlatformHeadingRight
-                : testCase.Direction == PlatformHorizontalMovement.Left
+                : testCase.Direction == HorizontalDirection.Left
                     ? PlatformSegment.TripperStillMovingLeft
                     : PlatformSegment.TripperStillMovingRight;
             AssertEqual(new AnimationPlayback<PlatformSegment>(PlatformAnimations.StartingWith(expectedInitial), AnimationPlace.StartOfAnimation), state.Playback,
@@ -84,9 +84,9 @@ internal static class PlatformInstructionProgramDefinitionsVerification
 
             // The direction cue runs with the first pose; four more updates show the rest of the four-pose loop and
             // return to the same place in it.
-            state.XMovement = testCase.Direction == PlatformHorizontalMovement.Left
-                ? PlatformHorizontalMovement.Right
-                : PlatformHorizontalMovement.Left;
+            state.XMovement = testCase.Direction == HorizontalDirection.Left
+                ? HorizontalDirection.Right
+                : HorizontalDirection.Left;
             ExecutePlatformProgram(place, callCount: 1);
             AssertEqual(testCase.Direction, state.XMovement, $"platform program {testCase.Program} publishes direction");
             AnimationPlayback<PlatformSegment>? firstPose = state.Playback;
@@ -167,8 +167,8 @@ internal static class PlatformInstructionProgramDefinitionsVerification
         {
             ushort left = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | (isKamer ? (ushort)0x9caa : (ushort)0x9cbe));
             ushort right = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | (isKamer ? (ushort)0x9cb6 : (ushort)0x9cca));
-            foreach (PlatformHorizontalMovement direction in Enum.GetValues<PlatformHorizontalMovement>())
-                AssertEqual(NativeEnemyAnimationOracle.SegmentOf(PlatformNativeListAddresses.Entries, direction == PlatformHorizontalMovement.Left ? left : right),
+            foreach (HorizontalDirection direction in Enum.GetValues<HorizontalDirection>())
+                AssertEqual(NativeEnemyAnimationOracle.SegmentOf(PlatformNativeListAddresses.Entries, direction == HorizontalDirection.Left ? left : right),
                     PlatformAnimationChoices.SelectAnimation(isKamer, Axis.Horizontal, direction),
                     $"platform initial program faces {direction}");
         }
@@ -189,8 +189,8 @@ internal static class PlatformInstructionProgramDefinitionsVerification
                 : (isKamer ? (ushort)0x9eab : (ushort)0x9ea2);
             ushort left = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | leftOperand);
             ushort right = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | rightOperand);
-            foreach (PlatformHorizontalMovement direction in Enum.GetValues<PlatformHorizontalMovement>())
-                AssertEqual(NativeEnemyAnimationOracle.SegmentOf(PlatformNativeListAddresses.Entries, direction == PlatformHorizontalMovement.Left ? left : right),
+            foreach (HorizontalDirection direction in Enum.GetValues<HorizontalDirection>())
+                AssertEqual(NativeEnemyAnimationOracle.SegmentOf(PlatformNativeListAddresses.Entries, direction == HorizontalDirection.Left ? left : right),
                     PlatformAnimationChoices.SelectAnimation(isKamer, moving ? Axis.Vertical : Axis.Horizontal, direction),
                     $"platform animation program uses species, motion and direction {direction}");
         }
@@ -203,8 +203,8 @@ internal static class PlatformInstructionProgramDefinitionsVerification
         ushort right = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | 0x9f1b);
         AssertEqual(left, TripperKamerVisualDefinitions.FrozenMovingLeft, "native frozen-left sprite identity");
         AssertEqual(right, TripperKamerVisualDefinitions.FrozenMovingRight, "native frozen-right sprite identity");
-        foreach (PlatformHorizontalMovement direction in Enum.GetValues<PlatformHorizontalMovement>())
-            AssertEqual(direction == PlatformHorizontalMovement.Left ? left : right,
+        foreach (HorizontalDirection direction in Enum.GetValues<HorizontalDirection>())
+            AssertEqual(direction == HorizontalDirection.Left ? left : right,
                 TripperKamerVisualDefinitionsConstants.FrozenFrame(direction),
                 $"Tripper frozen selection faces {direction}");
         AssertEqual((ushort)2, CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | left), "Tripper frozen-left two-piece map");
@@ -214,7 +214,7 @@ internal static class PlatformInstructionProgramDefinitionsVerification
     internal readonly record struct PlatformProgramCase(
         bool IsKamer,
         bool IsMoving,
-        PlatformHorizontalMovement Direction,
+        HorizontalDirection Direction,
         PlatformSegment Program);
 
     /// <summary>Runs the standalone Tripper and Kamer instruction verification command.</summary>

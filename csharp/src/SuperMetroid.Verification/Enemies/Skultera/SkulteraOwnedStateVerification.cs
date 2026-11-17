@@ -29,8 +29,8 @@ internal static class SkulteraOwnedStateVerification
 
         SignedSixteenSixteen right = EnemyLinearSpeedTable.Speed(speedRecord);
         SignedSixteenSixteen left = -right;
-        AssertEqual(right, state.RightVelocity, "rightward speed");
-        AssertEqual(left, state.LeftVelocity, "leftward speed");
+        AssertEqual(right, state.VelocityToward(HorizontalDirection.Right), "rightward speed");
+        AssertEqual(left, state.VelocityToward(HorizontalDirection.Left), "leftward speed");
         AssertEqual(new VerifySkulteraOwnedStateCase(20, 10), new VerifySkulteraOwnedStateCase(state.Radius, state.AngleDelta), "radius and angle step come from parameter two");
 
         state.Angle = RotationAngle.FromSteps(250);

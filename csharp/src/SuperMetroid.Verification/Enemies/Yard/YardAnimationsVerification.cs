@@ -32,7 +32,8 @@ internal static class YardAnimationsVerification
                     }, $"{at}: operand {index}");
                 },
                 // The closed shell and the routine ending its update are a phase the Yard plays again (#2180).
-                ShowsPoseAgain: word => word == ShellClosedUpdateEndsRoutine));
+                ShowsPoseAgain: word => word == ShellClosedUpdateEndsRoutine),
+            onlyRunOnInto: OnlyRunOnInto);
         Console.WriteLine($"  Yard animations: {Entries.Length} segments ({beats} beats) and {YardAnimations.StartingAt.Count} animations match bank $A3.");
     }
 }

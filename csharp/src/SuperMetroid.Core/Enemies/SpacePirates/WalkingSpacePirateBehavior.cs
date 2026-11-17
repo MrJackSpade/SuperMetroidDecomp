@@ -297,7 +297,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         HorizontalDirection direction,
         int laserHeight)
     {
-        _ = SpawnSpacePirateLaser(source, direction == HorizontalDirection.Right, laserHeight);
+        _ = SpawnSpacePirateLaser(source, direction, laserHeight);
     }
 
     /// <summary>
@@ -307,7 +307,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     /// </summary>
     internal bool SpawnSpacePirateLaser(
         RoomEnemyPlace source,
-        bool movingRight,
+        HorizontalDirection direction,
         int laserHeight)
     {
         EnemyProjectile? projectile = SpawnPirateMotherBrainLaser(
@@ -315,9 +315,9 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             new(
                 CoordinateAxis.Wrap(
                     source.Position.X.Whole +
-                    (movingRight ? SpacePirateMotionDefinitions.WalkingLaserMuzzleAhead : -SpacePirateMotionDefinitions.WalkingLaserMuzzleAhead)),
+                    (direction == HorizontalDirection.Right ? SpacePirateMotionDefinitions.WalkingLaserMuzzleAhead : -SpacePirateMotionDefinitions.WalkingLaserMuzzleAhead)),
                 CoordinateAxis.Wrap(source.Position.Y.Whole - laserHeight)),
-            movingRight,
+            direction,
             LaserSpeedOf(source));
         if (projectile is null)
             return false;
@@ -351,12 +351,12 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     /// </summary>
     /// <param name="source">The enemy firing the laser, whose damage the laser takes.</param>
     /// <param name="muzzle">Where the laser starts.</param>
-    /// <param name="movingRight">Whether the laser travels right.</param>
+    /// <param name="direction">The way the laser travels.</param>
     /// <param name="speed">The laser's speed, which the firing enemy's placement names.</param>
     internal EnemyProjectile? SpawnPirateMotherBrainLaser(
         RoomEnemyPlace source,
         Position16<RoomPixels> muzzle,
-        bool movingRight,
+        HorizontalDirection direction,
         PirateLaserSpeed speed)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
@@ -370,13 +370,13 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             graphics: default);
 
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(muzzle);
-        projectile.StartAnimation(new SpacePirateProjectileAnimation(movingRight
+        projectile.StartAnimation(new SpacePirateProjectileAnimation(direction == HorizontalDirection.Right
             ? SpacePirateProjectileSegment.LaserRight
             : SpacePirateProjectileSegment.LaserLeft));
 
         // The laser holds still through its three two-frame muzzle frames until its animation fires it, running its flight
         // at once.
-        projectile.State = new PirateLaserState(speed == PirateLaserSpeed.Slow);
+        projectile.State = new PirateLaserState(speed);
 
         // The initializer replaces the projectile definition's properties with the enemy's damage and the
         // laser's own property. The laser does not take the Pirate's pictures or colours: it draws from the room's
@@ -394,7 +394,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         Position16<RoomPixels> camera,
         HorizontalDirection direction)
     {
-        int pixels = projectile.StateOf<PirateLaserState>().Slow
+        int pixels = projectile.StateOf<PirateLaserState>().Speed == PirateLaserSpeed.Slow
             ? SpacePirateMotionDefinitions.WalkingSlowLaserStep
             : SpacePirateMotionDefinitions.WalkingFastLaserStep;
         projectile.Position = projectile.Position.WithWholeX(direction == HorizontalDirection.Right

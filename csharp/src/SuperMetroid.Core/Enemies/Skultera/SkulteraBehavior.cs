@@ -51,9 +51,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = new(SkulteraAnimations.StartingWith(startsLeft
             ? SkulteraSegment.SwimmingLeft
             : SkulteraSegment.SwimmingRight), AnimationPlace.StartOfAnimation);
-        EnemyLinearSpeed speeds = new(settings.Speed);
-        state.RightVelocity = speeds.Positive;
-        state.LeftVelocity = speeds.Negative;
+        state.Speed = settings.Speed;
 
         // The wave's step starts positive and becomes negative only when a turn negates it.
         state.Radius = settings.Radius;
@@ -91,15 +89,13 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level,
         HorizontalDirection direction)
     {
-        SignedSixteenSixteen horizontalDisplacement = direction == HorizontalDirection.Left
-            ? state.LeftVelocity
-            : state.RightVelocity;
+        SignedSixteenSixteen horizontalDisplacement = state.VelocityToward(direction);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
                 place,
                 horizontalDisplacement))
         {
-            BeginSkulteraTurn(place, state, currentlyMovingLeft: direction == HorizontalDirection.Left);
+            BeginSkulteraTurn(place, state, direction);
             // A wall turns the Skultera before it bobs: its vertical offset stays the previous update's.
             state.PreviousYOffset = state.CurrentYOffset;
             return;
@@ -110,7 +106,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
         int yDifference = state.CurrentYOffset - state.PreviousYOffset;
         if (_terrain.MoveEnemyVertically(level, place, SignedSixteenSixteen.FromWholePixels(yDifference)))
         {
-            BeginSkulteraTurn(place, state, currentlyMovingLeft: direction == HorizontalDirection.Left);
+            BeginSkulteraTurn(place, state, direction);
         }
         else
         {
@@ -123,15 +119,15 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
         state.PreviousYOffset = state.CurrentYOffset;
     }
 
-    /// <summary>Switches swimming AI to its opposite-facing turn animation after a terrain collision.</summary>
+    /// <summary>Switches swimming AI, swimming toward <paramref name="swimming"/>, to its opposite-facing turn animation after a terrain collision.</summary>
     internal static void BeginSkulteraTurn(
         RoomEnemyPlace place,
         SkulteraEnemyState state,
-        bool currentlyMovingLeft)
+        HorizontalDirection swimming)
     {
         state.Action = SkulteraAction.Turning;
-        state.Heading = currentlyMovingLeft ? HorizontalDirection.Right : HorizontalDirection.Left;
-        state.Playback = EnemyAnimationPlayback.Start(place, SkulteraAnimations.StartingWith(currentlyMovingLeft
+        state.Heading = swimming == HorizontalDirection.Left ? HorizontalDirection.Right : HorizontalDirection.Left;
+        state.Playback = EnemyAnimationPlayback.Start(place, SkulteraAnimations.StartingWith(swimming == HorizontalDirection.Left
             ? SkulteraSegment.TurningRight
             : SkulteraSegment.TurningLeft));
     }

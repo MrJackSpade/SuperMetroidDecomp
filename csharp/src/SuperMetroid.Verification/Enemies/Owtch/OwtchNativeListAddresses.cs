@@ -17,8 +17,13 @@ internal static class OwtchNativeListAddresses
     internal static readonly NativeProgramEntry<OwtchSegment>[] Entries =
     [
         new NativeProgramEntry<OwtchSegment>(OwtchSegment.MovingLeft, 0xa3ab),
+        new NativeProgramEntry<OwtchSegment>(OwtchSegment.CrawlingLeft, 0xa3ad),
         new NativeProgramEntry<OwtchSegment>(OwtchSegment.MovingRight, 0xa3bd),
+        new NativeProgramEntry<OwtchSegment>(OwtchSegment.CrawlingRight, 0xa3bf),
     ];
+
+    /// <summary>The crawls, which the moving animations only run on into after their entry cues (#2276).</summary>
+    internal static readonly IReadOnlySet<OwtchSegment> OnlyRunOnInto = new HashSet<OwtchSegment> { OwtchSegment.CrawlingLeft, OwtchSegment.CrawlingRight };
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
     internal static readonly Dictionary<ushort, OwtchNativeListAddressesInstruction> Instructions = new()

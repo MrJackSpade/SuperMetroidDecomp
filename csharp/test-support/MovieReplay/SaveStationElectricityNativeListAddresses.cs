@@ -14,6 +14,7 @@ internal static class SaveStationElectricityNativeListAddresses
     internal static readonly NativeProgramEntry<SaveStationElectricitySegment>[] Entries =
     [
         new NativeProgramEntry<SaveStationElectricitySegment>(SaveStationElectricitySegment.Cycle, 0xe687),
+        new NativeProgramEntry<SaveStationElectricitySegment>(SaveStationElectricitySegment.Deletion, 0xe6ab),
     ];
 
     /// <summary>The native entry the discharge starts at (#2061): it loads the cycles' count and runs on into the cycle's list.</summary>
@@ -27,5 +28,6 @@ internal static class SaveStationElectricityNativeListAddresses
 
     /// <summary>The family's typed programs beside their native lists.</summary>
     internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, SaveStationElectricityAnimations.Segments, SaveStationElectricityAnimations.StartingAt, (frame => EnemyProjectileProgramFrameSources.Operand(frame)), NativeEnemyProjectileCommonCues.Rules,
-        countedEntries: [new NativeCountedEntry<SaveStationElectricitySegment>("the discharge", SaveStationElectricityAnimations.Discharge, DischargeStart)]);
+        countedEntries: [new NativeCountedEntry<SaveStationElectricitySegment>("the discharge", SaveStationElectricityAnimations.Discharge, DischargeStart)],
+        onlyRunOnInto: new HashSet<SaveStationElectricitySegment> { SaveStationElectricitySegment.Deletion });
 }

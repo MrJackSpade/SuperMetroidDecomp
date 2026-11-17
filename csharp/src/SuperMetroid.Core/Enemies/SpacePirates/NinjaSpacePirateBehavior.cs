@@ -460,7 +460,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     /// <summary>Allocates a claw with the selected throw direction, offset, graphics, and outbound speed.</summary>
     internal void SpawnNinjaPirateClaw(
         RoomEnemyPlace source,
-        bool throwsRight,
+        HorizontalDirection thrown,
         Offset16<RoomPixels> spawnOffset)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
@@ -473,7 +473,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             Claw,
             SpriteGraphics.SpawnedBy(source));
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(source.Position.Whole + spawnOffset);
-        projectile.StartAnimation(new SpacePirateProjectileAnimation(throwsRight
+        projectile.StartAnimation(new SpacePirateProjectileAnimation(thrown == HorizontalDirection.Right
             ? SpacePirateProjectileSegment.ClawRight
             : SpacePirateProjectileSegment.ClawLeft));
         projectile.State = new NinjaPirateClawState(SpacePirateMotionDefinitions.NinjaClawLaunchSpeed);
@@ -486,13 +486,13 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         HorizontalDirection thrown)
     {
         NinjaPirateClawState claw = projectile.StateOf<NinjaPirateClawState>();
-        int direction = thrown == HorizontalDirection.Right ? 1 : -1;
+        int outbound = claw.StepAlongThrow();
 
         // Outbound motion follows the throw direction while decelerating to zero; inbound
         // motion reverses direction and accelerates indefinitely until the claw leaves the view, whose right and
         // bottom edges are already outside. Y advances one pixel on both halves of the flight.
         projectile.Position = projectile.Position.WithWrappedWholeX(projectile.Position.X.Whole +
-            direction * claw.StepAlongThrow());
+            (thrown == HorizontalDirection.Right ? outbound : -outbound));
         projectile.Position = projectile.Position.WithWrappedWholeY(projectile.Position.Y.Whole + 1);
 
         if (!EnemyView.ContainsBeforeFarEdges(projectile.Position.Whole, camera))
@@ -516,7 +516,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
                     "A ninja Space Pirate sound cue carries no sound."));
                 return null;
             case NinjaSpacePirateCue.ThrowClaw throwClaw:
-                SpawnNinjaPirateClaw(place, throwClaw.Throw == HorizontalDirection.Right, throwClaw.Offset);
+                SpawnNinjaPirateClaw(place, throwClaw.Throw, throwClaw.Offset);
                 return null;
             case NinjaSpacePirateCue.Signal { Kind: NinjaSpacePirateCueKind.StartActive }:
                 state.ActiveAnimation = CoordinateAxis.Difference(place.Position.X.Whole, samus.Position.X.Whole) < 0

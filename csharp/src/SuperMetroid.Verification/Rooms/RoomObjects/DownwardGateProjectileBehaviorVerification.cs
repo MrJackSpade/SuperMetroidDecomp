@@ -42,18 +42,18 @@ internal static class DownwardGateProjectileBehaviorVerification
             current = gate.Animation is DownwardGateProjectileAnimation playing
                 ? playing.PlayingSegment
                 : throw new InvalidOperationException("The gate lost its animation.");
-            int stage = gate.StateOf<DownwardGateState>().Stage;
+            DownwardGateProjectileSegment stage = gate.StateOf<DownwardGateState>().Stage;
             gate.StateOf<DownwardGateState>().PixelsSinceBlock = DownwardGateDefinitions.PixelsPerRoomBlock - 1;
             gate.Velocity = gate.Velocity.WithY(new SignedEightEight(256));
             DownwardGateBehavior.RunDownwardGateProjectileMovement(gate);
-            DownwardGateProjectileSegment resumed = DownwardGateProjectileAnimations.Travel[stage + 1];
-            AssertEqual(stage + 1, gate.StateOf<DownwardGateState>().Stage, $"a block's travel takes {current} on to the next stage");
+            DownwardGateProjectileSegment resumed = DownwardGateProjectileAnimations.NextStage[stage];
+            AssertEqual(resumed, gate.StateOf<DownwardGateState>().Stage, $"a block's travel takes {current} on to the stage it names next");
             AssertTrue(gate.Animation is DownwardGateProjectileAnimation next && next.PlayingSegment == resumed, $"a block's travel takes {current} on to {resumed}");
             AssertEqual((ushort)1, gate.FrameHold.RawValue, $"{resumed} wakes on the same pass");
             current = resumed;
             resumes++;
         }
-        AssertEqual(DownwardGateProjectileAnimations.Travel.Count - 1, resumes, "the gate passes every stage of its travel once before it deletes itself");
+        AssertEqual(DownwardGateProjectileAnimations.NextStage.Count, resumes, "the gate passes every stage of its travel once before it deletes itself");
         AssertEqual(0, guard.ForbiddenReadAttempts, "production reads none of the gate's native list bytes");
         Console.WriteLine($"  Downward gate behavior: {resumes} resumed sleeps carry the moving and closed programs to deletion as the native list does.");
     }

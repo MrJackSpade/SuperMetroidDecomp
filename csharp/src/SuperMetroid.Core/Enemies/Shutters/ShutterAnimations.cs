@@ -16,19 +16,19 @@ internal static class ShutterAnimations
     {
         [P.GrowingTenPixels] =
         [
-            Show(EnemyFrameId.ShutterTenPixelsLong, 1),
+            Hold(EnemyFrameId.ShutterTenPixelsLong),
         ],
         [P.GrowingTwentyPixels] =
         [
-            Show(EnemyFrameId.ShutterTwentyPixelsLong, 1),
+            Hold(EnemyFrameId.ShutterTwentyPixelsLong),
         ],
         [P.GrowingThirtyPixels] =
         [
-            Show(EnemyFrameId.ShutterThirtyPixelsLong, 1),
+            Hold(EnemyFrameId.ShutterThirtyPixelsLong),
         ],
         [P.FortyPixels] =
         [
-            Show(EnemyFrameId.ShutterFortyPixelsLong, 1),
+            Hold(EnemyFrameId.ShutterFortyPixelsLong),
         ],
         [P.KamerPlatform] =
         [
@@ -54,4 +54,7 @@ internal static class ShutterAnimations
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, NoAnimationCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);
+
+    /// <summary>Shows <paramref name="frame"/> for good (#2276): a still picture rests on it until its owner plays another.</summary>
+    private static AnimationBeat<EnemyFrameId, NoAnimationCue> Hold(EnemyFrameId frame) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.HeldFrame(frame);
 }

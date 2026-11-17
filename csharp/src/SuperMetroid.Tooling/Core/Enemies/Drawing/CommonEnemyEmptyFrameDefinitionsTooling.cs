@@ -1,6 +1,6 @@
 ﻿namespace SuperMetroid.Core.Enemies.Drawing;
 
-/// <summary>Development-tool members of <see cref="CommonEnemyEmptyFrameDefinitions"/>; never linked by player hosts.</summary>
+/// <summary>Development-tool members of <see cref="CommonEnemyEmptyFrames"/>, the empty frame every enemy family shares; never linked by player hosts.</summary>
 internal static class CommonEnemyEmptyFrameDefinitionsTooling
 {
     /// <summary>Enemy banks carrying the common $804D/$804F/$8059 frame records.</summary>

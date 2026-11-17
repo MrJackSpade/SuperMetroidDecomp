@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Hud.Artwork;
 
-/// <summary>Stable resource names and gameplay-HUD layout identities.</summary>
+/// <summary>The gameplay HUD's layout: its size, its top row, its digits and minimap squares, and its energy tanks.</summary>
 public static class GameplayHudDefinitions
 {
     /// <summary>The HUD's width in pixels: it spans the screen.</summary>

@@ -2,6 +2,7 @@ using System.Collections.Immutable;
 using SuperMetroid.Core.Frontend.FileSelect.Artwork;
 using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.Core.Saves;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
@@ -59,12 +60,12 @@ internal sealed record ShownFileSelectPage(FileSelectPage Page, ImmutableDiction
             yield break;
         }
         yield return new PlacedFrame(FileSelectParts.PatchFrame(FileSelectPatch.Energy), layout.EnergyAnchor);
-        int health = save.Health % FileSelectEnergyTankDefinitions.EnergyPerTank;
+        int health = save.Health % SamusEnergyDefinitions.EnergyPerTank;
         int tens = health / FileSelectFieldDefinitions.DigitBase;
         yield return new PlacedFrame(FileSelectParts.DigitFrame(tens), layout.HealthAnchor);
         yield return new PlacedFrame(FileSelectParts.DigitFrame(health % FileSelectFieldDefinitions.DigitBase), Right(layout.HealthAnchor, 1));
-        int filled = save.Health / FileSelectEnergyTankDefinitions.EnergyPerTank;
-        int tanks = save.MaxHealth / FileSelectEnergyTankDefinitions.EnergyPerTank;
+        int filled = save.Health / SamusEnergyDefinitions.EnergyPerTank;
+        int tanks = save.MaxHealth / SamusEnergyDefinitions.EnergyPerTank;
         // Tanks fill rows of seven left to right, the first row below ENERGY and each later row one tank above the last.
         for (int tank = 0; tank < tanks; tank++)
         {

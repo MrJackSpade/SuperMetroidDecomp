@@ -1201,14 +1201,13 @@ internal static void VerifyCeresRidleyRoomEntry()
         "Ceres EMERGENCY writes only its own words over BG1");
     AssertEqual(CeresSelfDestructPhase.HoldingTitle, enemies.CeresEscape.Warning.Phase,
         "Ceres self-destruct reaches the 128-frame English title hold");
-    AssertEqual(128, enemies.CeresEscape.Warning.TextDelayTimer,
-        "Ceres English warning hold starts at 128");
-
     for (int frame = 0; frame < 127; frame++)
     {
         enemies.StepStandaloneFrame(enemies.StandaloneFrame(openRoom) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
         AssertTrue(!enemies.LastEnemyFrame.CeresEscapeStarted,
             $"Ceres escape does not publish early on hold frame {frame}");
+        AssertEqual(CeresSelfDestructPhase.HoldingTitle, enemies.CeresEscape.Warning.Phase,
+            $"Ceres English warning still holds its title on hold update {frame + 1} of 128");
     }
     enemies.StepStandaloneFrame(enemies.StandaloneFrame(openRoom) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
     AssertTrue(!enemies.LastEnemyFrame.CeresEscapeStarted,

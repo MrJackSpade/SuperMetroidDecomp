@@ -177,9 +177,9 @@ internal static class EnemySpritemapArtworkVerification
         AssertEqual(EnemySpritemapDefinitionsConstants.PreDraygonBreathFrameCount + 9,
             EnemySpritemapDefinitionsConstants.PreRoomEffectActorFrameCount,
             "Draygon breath bubble adds its nine native sprite-object frames");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PreRoomEffectActorFrameCount + 110,
+        AssertEqual(EnemySpritemapDefinitionsConstants.PreRoomEffectActorFrameCount + 109,
             EnemySpritemapDefinitionsConstants.PreYappingMawFrameCount,
-            "remaining room sprite-object programs add 110 distinct visual frames");
+            "remaining room sprite-object programs add 109 distinct visual frames; their empty record shows the shared empty frame");
         AssertEqual(EnemySpritemapDefinitionsConstants.PreYappingMawFrameCount + 24,
             EnemySpritemapDefinitionsConstants.PreKiHunterFrameCount,
             "Yapping Maw adds 24 distinct OAM frames");
@@ -309,9 +309,10 @@ internal static class EnemySpritemapArtworkVerification
             "every installed Yapping Maw frame is shown by a program, and every shown pose is installed");
         AssertEqual(24, installedMawPointers.Count, "Yapping Maw's programs show 24 distinct frames");
         // The hit burst's four frames are Samus's weapon effect, installed with her projectile pictures (#1713).
-        AssertEqual(123, EnemySpritemapDefinitions.Frames.Count(
+        // Their record that draws nothing shows the empty frame every enemy family shares, which installs no picture (#2370).
+        AssertEqual(122, EnemySpritemapDefinitions.Frames.Count(
                 frame => frame.Bank == EnemySpritemapDefinitions.RoomEffectActorBank),
-            "the bank-B4 sprite-object programs the game starts select 123 distinct enemy-sheet visual frames");
+            "the bank-B4 sprite-object programs the game starts select 122 distinct enemy-sheet visual frames");
         HashSet<ushort> installedSpritePointers = EnemySpritemapDefinitions.Frames
             
             .Where(frame => frame.Bank == EnemySpritemapDefinitions.RoomEffectActorBank)
@@ -322,9 +323,9 @@ internal static class EnemySpritemapArtworkVerification
             "the room sprite-object pictures are exactly the spritemaps the native lists show");
         foreach (RoomEffectActorPicture picture in RoomEffectActorVisualDefinitionsConstants.Pictures)
         {
-            bool samusHitBurst = picture.HitBurst is not null;
-            AssertEqual(!samusHitBurst, installedSpritePointers.Contains(RoomEffectActorVisualDefinitionsConstants.Spritemap(picture)),
-                $"room sprite-object picture {picture} has installed enemy art unless it is Samus's hit burst");
+            bool installed = picture.HitBurst is null && !CommonEnemyEmptyFrames.DrawsNothing(picture.RequireEnemyFrame());
+            AssertEqual(installed, installedSpritePointers.Contains(RoomEffectActorVisualDefinitionsConstants.Spritemap(picture)),
+                $"room sprite-object picture {picture} has installed enemy art unless it is Samus's hit burst or the empty frame");
         }
         AssertTrue(FuneNamiheAnimationsConstants.Spritemaps(Enum.GetValues<FuneNamiheSegment>()).ToHashSet().SetEquals(
                 EnemySpritemapDefinitions.Frames.Where(frame => frame.Name.StartsWith("fune_", StringComparison.Ordinal) ||

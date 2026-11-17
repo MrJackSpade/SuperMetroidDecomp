@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Progression;
+
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>The low-energy check and its persistent critical-energy latch.</summary>

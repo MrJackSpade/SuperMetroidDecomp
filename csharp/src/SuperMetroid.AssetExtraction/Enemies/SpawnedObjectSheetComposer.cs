@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.World.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -232,8 +233,8 @@ internal static class SpawnedObjectSheetComposer
         return new SharedSpawnerFrames(spawnersOf);
     }
 
-    /// <summary>The enemy frames the room effect actors of <paramref name="kinds"/> show, each once.</summary>
+    /// <summary>The enemy frames the room effect actors of <paramref name="kinds"/> show, each once; the empty frame draws nothing.</summary>
     private static IEnumerable<EnemyFrameId> EffectActorFrames(IEnumerable<RoomEffectActorKind> kinds) =>
         kinds.SelectMany(kind => RoomEffectActorAnimations.Segments.FramesOf(RoomEffectActorAnimations.StartingWith(kind)))
-            .Select(picture => picture.RequireEnemyFrame()).Distinct().Order();
+            .Select(picture => picture.RequireEnemyFrame()).Where(frame => !CommonEnemyEmptyFrames.DrawsNothing(frame)).Distinct().Order();
 }

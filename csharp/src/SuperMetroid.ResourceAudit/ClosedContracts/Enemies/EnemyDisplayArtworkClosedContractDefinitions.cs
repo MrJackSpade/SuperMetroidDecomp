@@ -38,7 +38,6 @@ internal static class EnemyDisplayArtworkClosedContractDefinitions
              new("csharp/src/SuperMetroid.AssetExtraction/World/Artwork/EnemyExtendedFrameDocumentOrder.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyFrameNameDefinitions.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Enemies/EnemySpritemapParts.cs"),
-             new("csharp/src/SuperMetroid.Core/Enemies/Drawing/CommonEnemyEmptyFrameDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/Drawing/CommonEnemyEmptyFrames.cs")]),
     ];
 }

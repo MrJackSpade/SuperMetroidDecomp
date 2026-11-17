@@ -14,8 +14,8 @@ public static class EnemySheetDefinitions
     /// <summary>The sheet frame showing an enemy frame whole: its installed key (<see cref="EnemyFrameSheetKeys"/>), never its identity's name.</summary>
     public static string FrameName(EnemyFrameId frame) => EnemyFrameSheetKeys.Of(frame);
 
-    /// <summary>The spawned-object sheet frame showing an enemy projectile frame.</summary>
-    internal static string ProjectileFrameName(Projectiles.EnemyProjectileFrameId frame) => $"Projectile.{frame}";
+    /// <summary>The spawned-object sheet frame showing an enemy projectile frame: its installed key (<see cref="Projectiles.EnemyProjectileFrameSheetKeys"/>), never its identity's name.</summary>
+    internal static string ProjectileFrameName(Projectiles.EnemyProjectileFrameId frame) => $"Projectile.{Projectiles.EnemyProjectileFrameSheetKeys.Of(frame)}";
 
     /// <summary>The spawned-object sheet frame showing a room effect-actor frame by the enemy frame it shows (#2004).</summary>
     internal static string EffectActorFrameName(EnemyFrameId frame) => $"EffectActor.{EnemyFrameSheetKeys.Of(frame)}";

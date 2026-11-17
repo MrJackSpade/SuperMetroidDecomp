@@ -1570,10 +1570,10 @@ internal static class LookupStream1Verification
                         break;
                     }
                 }
+                // The typewriter's schedule shows in which update types each character: the oracle's reloaded countdown
+                // is compared through the cell, glyph count, click and image of every update, not as a counter.
                 AssertEqual(done, actual.StepInto(actualVram), "escape text native completion");
                 AssertEqual(destination - tilemapWord, SuperMetroid.Core.Rooms.Backgrounds.TwoScreenTilemapCells.IndexOf(actual.Corner), "escape text native cell");
-                AssertEqual(delay, actual.Delay, "escape text native delay");
-                AssertEqual(timer, actual.DelayTimer, "escape text native countdown");
                 AssertEqual(glyphs, actual.GlyphsWritten, "escape text native glyph count");
                 AssertEqual(click, actual.ClickRequested, "escape text native click order");
                 AssertTrue(expectedVram.ImageEquals(actualVram), "escape text native per-character VRAM");
@@ -1583,7 +1583,7 @@ internal static class LookupStream1Verification
             AssertThrows<ArgumentOutOfRangeException>(() => _ = program.Lines[-1], "escape text negative line");
             AssertThrows<ArgumentOutOfRangeException>(() => _ = program.Lines[original.Length], "escape text next line");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.Get(EscapeTypewriterMessageId.None), "escape text rejects absent program");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.Get((EscapeTypewriterMessageId)(-1)), "escape text rejects absent program");
         Console.WriteLine($"Escape text: five direct native lines, zero stock overrides and {totalFrames} actual native-oracle frames pass.");
     }
 

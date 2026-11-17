@@ -1369,7 +1369,7 @@ internal static class LookupStream4Verification
         }
         GameplayMessagePanelPresentation panels = GameplayMessagePanelPresentation.Load(new MemoryStream(GameplayMessagePanelExtractor.Extract(rom)));
         var panelMessages = new GameplayMessageArtwork(null, panels);
-        AssertThrows<ArgumentOutOfRangeException>(() => GameplayMessageButtonGlyphs.SpecialGlyphByteOffset(GameplayMessageId.None),
+        AssertThrows<ArgumentOutOfRangeException>(() => GameplayMessageButtonGlyphs.SpecialGlyphByteOffset((GameplayMessageId)(-1)),
             "Message button patch rejects no message");
         for (int raw = 0; raw <= byte.MaxValue; raw++)
         {

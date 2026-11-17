@@ -15,10 +15,10 @@ internal enum CeresSelfDestructPhase
     /// <summary>The arena's backgrounds are readied over their duration; the last update draws EMERGENCY and starts the music.</summary>
     ReadyingBackgrounds,
 
-    /// <summary>The EMERGENCY title holds, the alarm colours cycling, until the text delay runs out.</summary>
+    /// <summary>The EMERGENCY title holds, the alarm colours cycling, until its hold runs out.</summary>
     HoldingTitle,
 
-    /// <summary>Japanese text only: the typewriter runs while the subtitle's delay counts down, then the subtitle is drawn.</summary>
+    /// <summary>Japanese text only: the typewriter runs while the subtitle's wait counts down, then the subtitle is drawn.</summary>
     JapaneseSubtitle,
 
     /// <summary>The typewriter types the warning, one step per update, until its message ends.</summary>

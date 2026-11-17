@@ -52,17 +52,18 @@ internal static class EnemyFrameCartridgeLookupTooling
     /// <summary>
     /// The bank-local word bank <paramref name="bank"/> stores <paramref name="frame"/> at: the frame's own record when the
     /// bank holds it, otherwise the one record of the bank that stores its picture again, as the suspensor platform's bank
-    /// stores the Kamer's lights (#2307).
+    /// stores the Kamer's lights (#2307); the empty frame at the bank's own record that draws nothing, as the room effect
+    /// actors' bank has one (#2370), otherwise at the shared empty word.
     /// </summary>
     internal static ushort WordIn(byte bank, EnemyFrameId frame)
     {
+        SnesAddress[] copies = [.. EnemyFrameCartridgeLocationDefinitions.AlsoStoredAt
+            .Where(pair => pair.Key.Bank == bank && pair.Value == frame).Select(pair => pair.Key)];
         if (frame == EnemyFrameId.Empty)
-            return EmptySpritemapWord;
+            return copies.Length == 1 ? copies[0].Offset : EmptySpritemapWord;
         SnesAddress own = EnemyFrameCartridgeLookup.Of(frame);
         if (own.Bank == bank)
             return own.Offset;
-        SnesAddress[] copies = [.. EnemyFrameCartridgeLocationDefinitions.AlsoStoredAt
-            .Where(pair => pair.Key.Bank == bank && pair.Value == frame).Select(pair => pair.Key)];
         return copies.Length == 1
             ? copies[0].Offset
             : throw new InvalidOperationException(

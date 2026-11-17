@@ -1,14 +1,14 @@
 
 namespace SuperMetroid.Core.Enemies.Drawing;
 
-/// <summary>Cartridge values of <see cref="CommonEnemyEmptyFrameDefinitions"/> that only verification reads.</summary>
+/// <summary>Cartridge values of <see cref="CommonEnemyEmptyFrames"/>, the empty frame every enemy family shares, that only verification reads.</summary>
 internal static class CommonEnemyEmptyFrameDefinitionsConstants
 {
     /// <summary>Bank-local one-point hitbox list at $8059.</summary>
     public const ushort PointHitboxList = 0x8059;
 
     /// <summary>Provides the point-hitbox list used to verify the common enemy empty frame representation.</summary>
-    extension(CommonEnemyEmptyFrameDefinitions)
+    extension(CommonEnemyEmptyFrames)
     {
         /// <inheritdoc cref="CommonEnemyEmptyFrameDefinitionsConstants.PointHitboxList"/>
         internal static ushort PointHitboxList => CommonEnemyEmptyFrameDefinitionsConstants.PointHitboxList;

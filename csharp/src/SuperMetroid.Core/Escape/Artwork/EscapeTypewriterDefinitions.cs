@@ -15,8 +15,17 @@ public static class EscapeTypewriterDefinitions
     /// </summary>
     internal static readonly UpdateCadence ClickEverySecondGlyph = new(2, 0);
 
-    /// <summary>The updates from one typed character to the next.</summary>
+    /// <summary>
+    /// The updates the typewriter waits after each character it types once the warning's opening characters are typed, so
+    /// those later characters are typed every third update.
+    /// </summary>
     public const int CharacterDelayFrames = 2;
+
+    /// <summary>
+    /// The characters at the warning's start typed with no wait after them (#2368): the first character is followed by the
+    /// second on the next update, and only then does the character delay take effect.
+    /// </summary>
+    internal const int UndelayedOpeningCharacters = 1;
 
     /// <summary>The Ceres warning's first line.</summary>
     private const string CeresSequenceWarning = "SELF DESTRUCT SEQUENCE";

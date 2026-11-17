@@ -9,22 +9,8 @@ internal sealed class EnemyFrameTable<TFrame> : IEnumerable<KeyValuePair<TFrame,
     /// <summary>The installed frame each family frame shows.</summary>
     private readonly Dictionary<TFrame, EnemyFrameId> _shown = [];
 
-    /// <summary>The family frame that shows each installed frame, when exactly one does.</summary>
-    private readonly Dictionary<EnemyFrameId, TFrame> _showing = [];
-
-    /// <summary>Installed frames more than one family frame shows, which name no single family frame.</summary>
-    private readonly HashSet<EnemyFrameId> _shared = [];
-
     /// <summary>Records that <paramref name="frame"/> shows <paramref name="shown"/>; a frame is recorded once.</summary>
-    internal void Add(TFrame frame, EnemyFrameId shown)
-    {
-        _shown.Add(frame, shown);
-        if (!_shared.Contains(shown) && !_showing.TryAdd(shown, frame))
-        {
-            _showing.Remove(shown);
-            _shared.Add(shown);
-        }
-    }
+    internal void Add(TFrame frame, EnemyFrameId shown) => _shown.Add(frame, shown);
 
     /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
     internal EnemyFrameId Of(TFrame frame) => _shown.TryGetValue(frame, out EnemyFrameId shown)

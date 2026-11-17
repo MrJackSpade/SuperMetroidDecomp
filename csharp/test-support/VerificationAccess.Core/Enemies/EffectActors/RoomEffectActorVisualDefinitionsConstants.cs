@@ -6,7 +6,8 @@ namespace SuperMetroid.Core.Enemies.EffectActors;
 
 /// <summary>
 /// The native bank-$B4 spritemap each room sprite-object picture draws, which only verification reads (#1817): an
-/// enemy-sheet frame's is the record the extraction reads it from, and a hit burst's is the burst's own record.
+/// enemy-sheet frame's is the bank's record of it, the empty frame's the bank's record that draws nothing, and a hit
+/// burst's is the burst's own record.
 /// </summary>
 internal static class RoomEffectActorVisualDefinitionsConstants
 {
@@ -28,10 +29,7 @@ internal static class RoomEffectActorVisualDefinitionsConstants
     {
         if (picture.HitBurst is { } burst)
             return HitBurstSpritemaps[burst];
-        SnesAddress location = EnemyFrameCartridgeLocationDefinitions.Locations[picture.RequireEnemyFrame()];
-        return location.Bank == Bank
-            ? location.Offset
-            : throw new InvalidOperationException($"Room sprite-object picture {picture} is read from bank ${location.Bank:X2}, not ${Bank:X2}.");
+        return EnemyFrameCartridgeLookupTooling.WordIn(Bank, picture.RequireEnemyFrame());
     }
 
     /// <summary>Every picture the room sprite objects' animations show, each once.</summary>

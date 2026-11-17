@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Enemies.Artwork;
-using static SuperMetroid.Core.Enemies.Drawing.CommonEnemyEmptyFrameDefinitions;
 
 namespace SuperMetroid.Core.Enemies.Drawing;
 
@@ -10,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Drawing;
 internal static class CommonEnemyEmptyFrames
 {
     /// <summary>Whether an actor showing <paramref name="frame"/> draws nothing: no frame yet, or the empty frame.</summary>
-    internal static bool DrawsNothing(EnemyFrameId? frame) => frame is not { } shown || EmptyFrames.Contains(shown);
+    internal static bool DrawsNothing(EnemyFrameId? frame) => frame is not { } shown || shown == EnemyFrameId.Empty;
 
     /// <summary>
     /// Whether <paramref name="enemy"/> collides at the single point at its origin: it collides by its frames' hitboxes and

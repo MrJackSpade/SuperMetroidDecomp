@@ -28,8 +28,7 @@ public static class EscapeTypewriterPresentationFile
         if (document.Version != EscapeTypewriterDocumentDefinitions.Version || document.Messages is null)
             throw new InvalidDataException($"Escape typewriter content requires schema version {EscapeTypewriterDocumentDefinitions.Version}.");
 
-        EscapeTypewriterMessageId[] expected = Enum.GetValues<EscapeTypewriterMessageId>()
-            .Where(static id => id != EscapeTypewriterMessageId.None).ToArray();
+        EscapeTypewriterMessageId[] expected = Enum.GetValues<EscapeTypewriterMessageId>();
         if (document.Messages.Count != expected.Length ||
             expected.Any(id => !document.Messages.ContainsKey(id.ToString())))
         {

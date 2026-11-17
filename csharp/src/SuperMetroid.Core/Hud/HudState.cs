@@ -188,11 +188,11 @@ public sealed class HudState
             if (art.Icon(item, held, shade) is { } icon)
                 images.Add(icon);
         }
-        int fullTanks = values.Health / 100;
-        int tankCount = Math.Min(values.MaxHealth / 100, GameplayHudDefinitions.EnergyTankCount);
+        int fullTanks = values.Health / SamusEnergyDefinitions.EnergyPerTank;
+        int tankCount = Math.Min(values.MaxHealth / SamusEnergyDefinitions.EnergyPerTank, GameplayHudDefinitions.EnergyTankCount);
         for (int tank = 0; tank < tankCount; tank++)
             images.Add(art.EnergyTank(tank, tank < fullTanks ? HudEnergyTank.Full : HudEnergyTank.Empty));
-        images.AddRange(art.EnergyCount(values.Health % 100));
+        images.AddRange(art.EnergyCount(values.Health % SamusEnergyDefinitions.EnergyPerTank));
         if (values.MaxMissiles != 0)
             images.AddRange(art.Ammo(HudAmmoCounter.Missiles, values.Missiles));
         if (values.MaxSuperMissiles != 0)

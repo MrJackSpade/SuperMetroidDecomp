@@ -259,32 +259,36 @@ internal sealed class CeresEscape : IGameplayShadingSource
                     // The warning setup also requests the escape music after showing the final static warning picture.
                     _audio.RequestRidleyMusic(MusicRequest.SelectTrack(MusicTrack.Escape));
                     Warning.Phase = CeresSelfDestructPhase.HoldingTitle;
-                    Warning.TextDelayTimer = CeresSelfDestructWarningDefinitions.TitleHoldUpdates;
+                    Warning.PhaseWait.LastFor(CeresSelfDestructWarningDefinitions.TitleHoldUpdates);
                 }
                 return;
 
             case CeresSelfDestructPhase.HoldingTitle:
                 StepAlarm(ridleyFrameCounter);
-                if (--Warning.TextDelayTimer != 0)
+                if (Warning.PhaseWait.StepKeepsRunning())
                     return;
 
                 Warning.Typewriter = new(_bossArtwork.EscapeTypewriterPresentation.Get(EscapeTypewriterMessageId.Ceres));
 
                 // English goes straight to typing the warning; Japanese first runs the subtitle phase.
-                Warning.Phase = _roomStatus.JapaneseText
-                    ? CeresSelfDestructPhase.JapaneseSubtitle
-                    : CeresSelfDestructPhase.TypingWarning;
+                if (_roomStatus.JapaneseText)
+                {
+                    Warning.Phase = CeresSelfDestructPhase.JapaneseSubtitle;
+                    Warning.PhaseWait.LastFor(CeresSelfDestructWarningDefinitions.JapaneseSubtitleWaitUpdates);
+                }
+                else
+                    Warning.Phase = CeresSelfDestructPhase.TypingWarning;
                 return;
 
             case CeresSelfDestructPhase.JapaneseSubtitle:
                 StepAlarm(ridleyFrameCounter);
-                if (--Warning.TextDelayTimer == 0)
+                if (Warning.PhaseWait.StepRunsOut())
                 {
                     Warning.Phase = CeresSelfDestructPhase.TypingWarning;
                     foreach (CeresEscapeWarningPicture page in CeresEscapeWarningPictures.Japanese)
                         ShowWarningPicture(page);
                 }
-                // The typewriter finishing moves the warning one phase on from wherever the delay left it: the
+                // The typewriter finishing moves the warning one phase on from wherever the wait left it: the
                 // subtitle phase to typing, or typing to finishing.
                 if (StepTypewriter())
                 {
@@ -351,7 +355,6 @@ internal sealed class CeresEscape : IGameplayShadingSource
         // The Ceres message types over the room's foreground (#1348), as part of the warning (#1555).
         if (glyph is { } typed)
             Warning.Show(new WrittenPicture(typed.Picture, typed.Corner));
-        Warning.TextDelayTimer = installed.DelayTimer;
         if (installed.ClickRequested)
             _audio.QueueEnemySound(EscapeTypewriterDefinitions.CeresClick, priority: SoundRequestPriority.Low);
         return completed;

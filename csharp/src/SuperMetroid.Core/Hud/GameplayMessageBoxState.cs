@@ -63,8 +63,8 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
     /// <summary>Whether the box currently pauses gameplay and owns the message window.</summary>
     public bool IsActive => Phase != GameplayMessageBoxPhase.Inactive;
 
-    /// <summary>The message the box shows, or <see cref="GameplayMessageId.None"/> while none has begun.</summary>
-    public GameplayMessageId MessageId { get; private set; }
+    /// <summary>The message the box shows; null while none has begun.</summary>
+    public GameplayMessageId? MessageId { get; private set; }
 
     /// <summary>The message box's current step.</summary>
     public GameplayMessageBoxPhase Phase { get; private set; }
@@ -82,8 +82,8 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
     /// What the box shows while a message has begun (#1466): the message, the button its panel names for the configured
     /// shoot or run binding, and the save choice a confirmation highlights; null while no message has begun.
     /// </summary>
-    public ShownMessage? Shown => MessageId == GameplayMessageId.None ? null
-        : new ShownMessage(MessageId, PanelButton(MessageId), IsSaveConfirmation ? ConfirmationSelectionYes : null);
+    public ShownMessage? Shown => MessageId is not { } message ? null
+        : new ShownMessage(message, PanelButton(message), IsSaveConfirmation ? ConfirmationSelectionYes : null);
 
     /// <summary>Current yes/no choice for save confirmation message.</summary>
     public bool ConfirmationSelectionYes { get; private set; } = true;
@@ -118,7 +118,7 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
         ControllerButton controllerRead,
         ControllerBindings bindings)
     {
-        if (!IsOrdinary(messageId))
+        if (!Enum.IsDefined(messageId))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(messageId),
@@ -320,7 +320,7 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
         CompletedConfirmationResult = _gunshipCompletion ? true : _closingConfirmationResult;
         _gunshipCompletion = false;
         _closingConfirmationResult = null;
-        MessageId = GameplayMessageId.None;
+        MessageId = null;
         MinimumDisplayFramesRemaining = 0;
         RadiusPixels = 0;
     }
@@ -336,8 +336,4 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
         GameplayMessagePanelButtonBinding.None => null,
         _ => throw new InvalidDataException($"Unknown gameplay-message panel binding for {messageId}."),
     };
-
-    /// <summary>Whether <paramref name="messageId"/> is an ordinary message box.</summary>
-    internal static bool IsOrdinary(GameplayMessageId messageId) =>
-        messageId != GameplayMessageId.None && Enum.IsDefined(messageId);
 }

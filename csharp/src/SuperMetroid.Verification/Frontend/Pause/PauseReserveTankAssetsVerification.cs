@@ -53,16 +53,16 @@ internal static class PauseReserveTankAssetsVerification
         static IEnumerable<ushort> ReserveSupplySamples(ushort capacity)
         {
             var samples = new SortedSet<ushort>();
-            for (int tank = 0; tank * PauseReserveEnergyDefinitions.EnergyPerTank <= capacity; tank++)
+            for (int tank = 0; tank * SamusEnergyDefinitions.EnergyPerTank <= capacity; tank++)
             {
-                int baseSupply = tank * PauseReserveEnergyDefinitions.EnergyPerTank;
+                int baseSupply = tank * SamusEnergyDefinitions.EnergyPerTank;
                 samples.Add((ushort)baseSupply);
-                for (int step = 0; step * PauseReserveEnergyDefinitions.EnergyPerFillStep < PauseReserveEnergyDefinitions.EnergyPerTank; step++)
+                for (int step = 0; step * PauseReserveEnergyDefinitions.EnergyPerFillStep < SamusEnergyDefinitions.EnergyPerTank; step++)
                 {
                     int start = step * PauseReserveEnergyDefinitions.EnergyPerFillStep;
-                    int end = Math.Min(start + PauseReserveEnergyDefinitions.EnergyPerFillStep, PauseReserveEnergyDefinitions.EnergyPerTank) - 1;
+                    int end = Math.Min(start + PauseReserveEnergyDefinitions.EnergyPerFillStep, SamusEnergyDefinitions.EnergyPerTank) - 1;
                     foreach (int remainder in new[] { start, start + 1, end })
-                        if (remainder is > 0 and < PauseReserveEnergyDefinitions.EnergyPerTank && baseSupply + remainder <= capacity)
+                        if (remainder is > 0 and < SamusEnergyDefinitions.EnergyPerTank && baseSupply + remainder <= capacity)
                             samples.Add((ushort)(baseSupply + remainder));
                 }
             }

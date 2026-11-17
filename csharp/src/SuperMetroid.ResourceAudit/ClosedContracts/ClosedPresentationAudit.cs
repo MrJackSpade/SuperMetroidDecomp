@@ -93,7 +93,7 @@ internal sealed class ClosedPresentationAudit
                         ContractTypeNames.MetadataName(typeof(EnemyExtendedFrameDefinitions)), ContractTypeNames.MetadataName(typeof(EnemyExtendedFrameSequence)),
                         ContractTypeNames.MetadataName(typeof(BossSpriteFrameDefinitions)), ContractTypeNames.MetadataName(typeof(EnemyExtendedFrameDocumentOrder)),
                         ContractTypeNames.MetadataName(typeof(EnemyFrameNameDefinitions)),
-                        ContractTypeNames.MetadataName(typeof(SuperMetroid.Core.Enemies.Drawing.CommonEnemyEmptyFrameDefinitions))];
+                        ContractTypeNames.MetadataName(typeof(SuperMetroid.Core.Enemies.Drawing.CommonEnemyEmptyFrames))];
                 valid = definitions.All(type => compilation.GetTypeByMetadataName(type) is { } dependency &&
                     dependency.DeclaringSyntaxReferences.All(declaration => contract.Sources.Any(source =>
                         source.Path == declaration.SyntaxTree.FilePath)));

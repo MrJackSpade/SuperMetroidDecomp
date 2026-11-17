@@ -1617,26 +1617,26 @@ public enum EnemyProjectileFrameId
     EnemyDeathFourFireballsAmidEmbers,
     /// <summary>An enemy's death: four fireballs amid ash.</summary>
     EnemyDeathFourFireballsAmidAsh,
-    /// <summary>An enemy's death: four glowing embers 62 pixels apart.</summary>
-    EnemyDeathFourEmbersApart62,
-    /// <summary>An enemy's death: four glowing embers 70 pixels apart.</summary>
-    EnemyDeathFourEmbersApart70,
-    /// <summary>An enemy's death: four glowing embers 76 pixels apart.</summary>
-    EnemyDeathFourEmbersApart76,
-    /// <summary>An enemy's death: four glowing embers 80 pixels apart.</summary>
-    EnemyDeathFourEmbersApart80,
-    /// <summary>An enemy's death: four flecks of ash 86 pixels apart.</summary>
-    EnemyDeathFourAshApart86,
-    /// <summary>An enemy's death: four flecks of ash 94 pixels apart.</summary>
-    EnemyDeathFourAshApart94,
-    /// <summary>An enemy's death: four flecks of ash 98 pixels apart.</summary>
-    EnemyDeathFourAshApart98,
-    /// <summary>An enemy's death: four flecks of ash 106 pixels apart.</summary>
-    EnemyDeathFourAshApart106,
-    /// <summary>An enemy's death: four flecks of ash 118 pixels apart.</summary>
-    EnemyDeathFourAshApart118,
-    /// <summary>An enemy's death: four flecks of ash 130 pixels apart.</summary>
-    EnemyDeathFourAshApart130,
+    /// <summary>An enemy's death: four glowing embers flying apart.</summary>
+    EnemyDeathFourEmbersFlyingApart,
+    /// <summary>An enemy's death: four glowing embers spreading further apart.</summary>
+    EnemyDeathFourEmbersSpreading,
+    /// <summary>An enemy's death: four embers cooling as they spread.</summary>
+    EnemyDeathFourEmbersCooling,
+    /// <summary>An enemy's death: four embers dimming at their widest.</summary>
+    EnemyDeathFourEmbersDimming,
+    /// <summary>An enemy's death: four flecks of ash drifting apart.</summary>
+    EnemyDeathFourAshDrifting,
+    /// <summary>An enemy's death: four flecks of ash spreading apart.</summary>
+    EnemyDeathFourAshSpreading,
+    /// <summary>An enemy's death: four flecks of ash sinking as they spread.</summary>
+    EnemyDeathFourAshSinking,
+    /// <summary>An enemy's death: four flecks of ash falling.</summary>
+    EnemyDeathFourAshFalling,
+    /// <summary>An enemy's death: four flecks of ash settling lower.</summary>
+    EnemyDeathFourAshSettling,
+    /// <summary>An enemy's death: four flecks of ash dispersing at their lowest.</summary>
+    EnemyDeathFourAshDispersing,
     /// <summary>A falling spark: an upright cross.</summary>
     FallingSparkUpright,
     /// <summary>A falling spark: a diagonal cross.</summary>

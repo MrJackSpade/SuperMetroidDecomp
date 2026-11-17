@@ -100,7 +100,9 @@ public sealed class GameplayHudPresentation
     /// <summary>Each digit of <paramref name="value"/>'s last <paramref name="count"/> decimal digits and where it is shown.</summary>
     private static IEnumerable<HudDigitPlacement> Digits(int value, Position16<ScreenPixels> anchor, int count)
     {
-        int divisor = count == 3 ? 100 : 10;
+        int divisor = 1;
+        for (int place = 1; place < count; place++)
+            divisor *= GameplayHudDefinitions.Numerals;
         for (int digit = 0; digit < count; digit++)
         {
             yield return new HudDigitPlacement((value / divisor) % GameplayHudDefinitions.Numerals,

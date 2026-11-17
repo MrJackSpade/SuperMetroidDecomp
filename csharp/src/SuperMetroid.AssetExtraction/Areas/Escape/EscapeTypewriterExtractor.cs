@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
@@ -25,10 +26,7 @@ public static class EscapeTypewriterExtractor
         Ensure.NotNull(bus);
         var messages = new Dictionary<string, EscapeTypewriterMessageDocument>(StringComparer.Ordinal);
         foreach (EscapeTypewriterMessageId id in Enum.GetValues<EscapeTypewriterMessageId>())
-        {
-            if (id == EscapeTypewriterMessageId.None) continue;
             messages.Add(id.ToString(), new() { Lines = ReadProgram(bus, id) });
-        }
         using var output = new MemoryStream();
         Write(output, new()
         {
@@ -47,7 +45,6 @@ public static class EscapeTypewriterExtractor
         {
             EscapeTypewriterMessageId.Ceres => (int)EscapeSourceDefinitions.CeresWarningText,
             EscapeTypewriterMessageId.Zebes => (int)EscapeSourceDefinitions.ZebesWarningText,
-            EscapeTypewriterMessageId.None => throw new ArgumentOutOfRangeException(nameof(id), id, "No native escape text source exists."),
             _ => throw new ArgumentOutOfRangeException(nameof(id), id, "No native escape text source exists."),
         };
         if (CartridgeImportSource.Require(bus).ReadCartridgeWord(cursor) != DelayCommand ||
@@ -106,13 +103,17 @@ public static class EscapeTypewriterExtractor
     /// The VRAM word of the tilemap <paramref name="id"/>'s program types over: the Ceres warning types over BG1, the Zebes
     /// warning over BG2.
     /// </summary>
-    private static int TilemapWordOf(EscapeTypewriterMessageId id) => id switch
-    {
-        EscapeTypewriterMessageId.Ceres => GameplayVramLayout.Bg1TilemapWord,
-        EscapeTypewriterMessageId.Zebes => GameplayVramLayout.Bg2TilemapWord,
-        EscapeTypewriterMessageId.None => throw new ArgumentOutOfRangeException(nameof(id), id, "No native escape text source exists."),
-        _ => throw new ArgumentOutOfRangeException(nameof(id), id, "No native escape text source exists."),
-    };
+    private static int TilemapWordOf(EscapeTypewriterMessageId id) => TilemapWords.TryGetValue(id, out int word)
+        ? word
+        : throw new ArgumentOutOfRangeException(nameof(id), id, "No native escape text source exists.");
+
+    /// <summary>The VRAM word of the tilemap each warning's program types over.</summary>
+    private static readonly FrozenDictionary<EscapeTypewriterMessageId, int> TilemapWords =
+        new Dictionary<EscapeTypewriterMessageId, int>
+        {
+            [EscapeTypewriterMessageId.Ceres] = GameplayVramLayout.Bg1TilemapWord,
+            [EscapeTypewriterMessageId.Zebes] = GameplayVramLayout.Bg2TilemapWord,
+        }.ToFrozenDictionary();
 
     /// <summary>Serializes both warning programs and writes their UTF-8 document bytes to the destination.</summary>
     /// <param name="output">Non-null caller-owned writable stream, written at its current position without being disposed.</param>

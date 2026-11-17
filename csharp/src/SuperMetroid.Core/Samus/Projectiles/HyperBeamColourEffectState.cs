@@ -32,16 +32,8 @@ public sealed class HyperBeamColourEffectState
     /// </summary>
     public void Spawn()
     {
-<<<<<<< HEAD
         // Starting the effect clears its colour step and auxiliary timer and sets its timer to one; its setup does
         // nothing more. This state keeps every observable field and delay.
-||||||| 273b556990
-        // Allocation clears the effect's colour step and auxiliary timer, installs timer
-        // one, then calls the object's no-op setup. This specialized state has no
-        // reusable fields to clear, but preserves every observable field and delay.
-=======
-        // The effect starts at its animation's first shade with a hold of one update, and shows nothing yet.
->>>>>>> worktree-agent-a25205e6d337c0739
         IsActive = true;
         FrameHold = 1;
         Place = AnimationPlace.StartOfAnimation;

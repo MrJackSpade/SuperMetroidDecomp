@@ -552,21 +552,10 @@ internal sealed class ProjectileMotion
         SlopeShape slopeShape = block.Behavior.Slope.Shape;
         if (!slopeShape.IsSquare)
         {
-<<<<<<< HEAD
             // Non-square slope collision mirrors the projectile's within-block coordinate before indexing
             // the game table: the behaviour's flips mirror X and Y. A table height at or
             // above the mirrored Y point (`height - y <= 0`, signed) is
             // solid. Values can reach 20 for overhanging shapes, so they are compared whole, never folded into a block's sixteen pixels.
-||||||| 273b556990
-            // Non-square slope collision mirrors the projectile's within-block coordinate before indexing
-            // the game table: the behaviour's flips mirror X and Y. A table height at or
-            // above the mirrored Y point (`height - y <= 0`, signed) is
-            // solid. Values can reach 20 for overhanging shapes, so do not reduce them modulo 16.
-=======
-            // The block's flips mirror the centre's place within the block, and the missile stops when that place lies at
-            // or below the slope's surface. An overhanging shape's surface can lie below the block, where the centre never
-            // reaches it.
->>>>>>> worktree-agent-a25205e6d337c0739
             int xInBlock = RoomGridConversions.OffsetWithinBlock(shot.Position.X.Whole, mirrored: block.Behavior.Slope.FlipsHorizontally);
             int yInBlock = RoomGridConversions.OffsetWithinBlock(shot.Position.Y.Whole, mirrored: block.Behavior.Slope.FlipsVertically);
 

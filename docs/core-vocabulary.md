@@ -497,7 +497,6 @@ room's edge, what a reaction depends on, which way a distance lies, the roar end
 object, collection, field, property, array, static or module initializer), a projectile's branch and setup stay
 English.
 
-<<<<<<< HEAD
 #2345 widens SME6454, outside hardware owners, to more of the original's arithmetic, program structure and storage: a
 value told as divided by, modulo or the remainder of a number (`the sample divided by 256, modulo 4`, `the random number
 modulo 64`, `the result's remainder by eight`); an if/else or else-if chain, a call chain, a leading call, a call the
@@ -508,8 +507,7 @@ makes (`one chance in four`, `taken for half the random numbers`) and what the g
 instruction not to call a method, Ceres, the prologue station, values nothing reads because they are identities, and what
 a previous room hands the next stay English.
 
-||||||| 273b556990
-=======
+
 #2352 widens SME6454, outside hardware owners, to the machine's storage and the original's code told in projectile and
 Samus prose: a position, velocity, speed or fraction overflow (`1/65536-pixel position overflow`); a range named by its
 1/N-pixel storage (`far inside the 1/256-pixel range`); a scan's, target, collision or solid counter (`clears both scan
@@ -522,7 +520,6 @@ game does in that case: a hit with no damage is a dud, the camera scrolls slowly
 starts at its first shade. A room's state choice's branches, a projectile's or an afterburn's branches, an animation that
 branches to another, a sum that overflows and a range in pixels stay English.
 
->>>>>>> worktree-agent-a25205e6d337c0739
 `Tilemap` is matched as the one word the cartridge's sources spell. A room layer named as the destination engine names
 it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as does `MapTiles`; so does
 `SpriteSheet` beside `Spritemap`, and `Scan`, `Scanned` or `FirstLine` beside `Scanline` (#1694). Documentation prose is

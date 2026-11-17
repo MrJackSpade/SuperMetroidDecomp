@@ -1355,7 +1355,6 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect("class P { /// <summary>Set before property initializers run; an object initializer; the afterburn's branches; the enemy's setup.</summary>\nint F => 0; }");
         Expect("class P { /// <summary>The body's update count; Samus's five shot places; his roar ends.</summary>\nint F => 0; int UpdateCount; }");
         Expect(CompatibilityService + "/// <summary>Evidence: the initializer branches on the execution counter.</summary>\n[CompatibilityService(\"init\")] class Init { int MainEnemyExecutionCounter; }");
-<<<<<<< HEAD
         // The original's arithmetic told as a summary, its program structure and its leftover storage, outside hardware
         // owners and markup (#2345).
         Expect("class P { /// <summary>Adds a step: the sample divided by 256, modulo 4.</summary>\nint F => 0; }", "('divided by 256')");
@@ -1376,8 +1375,6 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect("class P { /// <summary>The picture divided into halves; do not call it twice; Ceres, the prologue station; the research station prologue.</summary>\nint F => 0; }");
         Expect("class P { /// <summary>Its values are arbitrary and nothing reads them; the countdown the previous room's main left.</summary>\nint F => 0; }");
         Expect(CompatibilityService + "/// <summary>Evidence: the sample divided by 256, modulo 4, in an if/else chain.</summary>\n[CompatibilityService(\"modulo\")] class Modulo { }");
-||||||| 273b556990
-=======
         // The machine's storage and the repository's checks told for a value, outside hardware owners and markup (#2352): a
         // position's overflow, a range named by its 1/N-pixel storage, scan, target, collision and solid counters, state
         // lying below a clear, allocations that clear and routes that allocate, and a check that runs to confirm a value.
@@ -1420,6 +1417,5 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         // another, a branch alone and a hardware owner are English.
         Expect("class P { /// <summary>One branch of a room's state choice; the branches of the projectile; an afterburn branch; the swing, which branches to its release; a branch.</summary>\nint F => 0; }");
         Expect(CompatibilityService + "/// <summary>Evidence: the wall branch stores the speed; it takes the retreating branch.</summary>\n[CompatibilityService(\"branch\")] class Branch { }");
->>>>>>> worktree-agent-a25205e6d337c0739
     }
 }

@@ -27,34 +27,9 @@ internal sealed class BeamCombos
         _spaceTimeOverwrite = Ensure.NotNull(spaceTimeOverwrite);
     }
     /// <summary>
-<<<<<<< HEAD
     /// Fires the special beam attack: debit the selected beam cost before attempting its family.
     /// This is the allocation boundary; the normal producer must call it only after
     /// charge/input eligibility, and particles run their own behaviours.
-||||||| 273b556990
-    /// The turn the Ice and Plasma special attacks add to every orbiting particle's angle each update: four steps on,
-    /// or four steps back (the turn of a full circle less four) when a left-facing Samus starts the attack; activation
-    /// also stores four steps on for Wave and no turn for Spazer, which never read it. Each particle's angle turns on
-    /// round its circle, so the turn back carries it the opposite way by the same four steps.
-    /// </summary>
-    public TrigonometryAngle OrbitTurnPerUpdate { get; internal set; }
-
-    /// <summary>
-    /// Fires the special beam attack: debit the selected beam cost before attempting its family.
-    /// This is the allocation boundary; the normal producer must call it only after
-    /// charge/input eligibility, and particles run their own behaviours.
-=======
-    /// The turn the Ice and Plasma special attacks add to every orbiting particle's angle each update: four steps on,
-    /// or four steps back (the turn of a full circle less four) when a left-facing Samus starts the attack; activation
-    /// also stores four steps on for Wave and no turn for Spazer, which never read it. Each particle's angle turns on
-    /// round its circle, so the turn back carries it the opposite way by the same four steps.
-    /// </summary>
-    public TrigonometryAngle OrbitTurnPerUpdate { get; internal set; }
-
-    /// <summary>
-    /// Fires the special beam attack of the selected weapon, taking its ammunition first. Firing asks for it once the
-    /// charge and the input allow it; its particles then run on their own.
->>>>>>> worktree-agent-a25205e6d337c0739
     /// </summary>
     internal bool TryActivateCombo(SamusState samus,
         SamusBombProjectileSystem shared, out SoundEffectId? sound)

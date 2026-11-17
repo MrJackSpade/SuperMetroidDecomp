@@ -95,16 +95,12 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// and in declared names, a value compared or read as signed, a deferred write or a suit's colour copy, odd frames that
 /// return, hardcoded data, an offset written with a plus sign, the retail game, a cursor through the original's lists, a
 /// count of bits, position and policy rows and records, and arithmetic written as a summary.
-<<<<<<< HEAD
 /// #2345 adds, outside hardware owners, a value's arithmetic told as a division, remainder or modulo by a number, the
 /// original's program structure (if/else chains, a leading call, a call not made, a no-op, a routine's prologue) and
 /// storage told as left over or never read.
-||||||| 273b556990
-=======
 /// #2352 adds, outside hardware owners, a position's overflow, a range named by its 1/N-pixel storage, scan, target,
 /// collision and solid counters, state lying below a clear, allocations that clear and routes that allocate, a check that
 /// runs to confirm a value, and the original's code branches told in prose.
->>>>>>> worktree-agent-a25205e6d337c0739
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -1987,13 +1983,9 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : RetailCursorProse.Match(Markup.Replace(text, " ")) is { Success: true } retailCursor ? retailCursor.Value
             : PoseDataNarrationProse.Match(Markup.Replace(text, " ")) is { Success: true } poseData ? poseData.Value
             : RoutineNarrationProse.Match(Markup.Replace(text, " ")) is { Success: true } routineNarration ? routineNarration.Value
-<<<<<<< HEAD
             : ArithmeticAndStorageSummaryProse.Match(Markup.Replace(text, " ")) is { Success: true } summary ? summary.Value
-||||||| 273b556990
-=======
             : StorageAndCheckNarrationProse.Match(Markup.Replace(text, " ")) is { Success: true } storageAndCheck ? storageAndCheck.Value
             : BranchNarrationProse.Match(Markup.Replace(text, " ")) is { Success: true } branchNarration ? branchNarration.Value
->>>>>>> worktree-agent-a25205e6d337c0739
             : TileCharacterFinding(text, owner) is { } character ? character
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;

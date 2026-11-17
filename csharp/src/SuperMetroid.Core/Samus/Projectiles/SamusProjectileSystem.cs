@@ -45,13 +45,7 @@ public sealed class SamusProjectileSystem
     /// <summary>Owns the projectile visuals emitted by Shinespark echoes.</summary>
     internal ShinesparkEchoProjectile Shinespark { get; }
 
-<<<<<<< HEAD
     /// <summary>Starts and runs the special beam attacks, whose particles take Samus's first shot places.</summary>
-||||||| 273b556990
-    /// <summary>Advances special beam combinations that share ordinary projectile storage.</summary>
-=======
-    /// <summary>Runs the special beam attacks, whose particles fly in Samus's shot places.</summary>
->>>>>>> worktree-agent-a25205e6d337c0739
     internal BeamCombos Combos { get; }
 
     /// <summary>Plays the shots' animations and draws their pictures.</summary>
@@ -236,79 +230,6 @@ public sealed class SamusProjectileSystem
         Charge.ChargedShotGlow = played;
         if (played.Kind == ChargedShotGlowKind.None)
         {
-<<<<<<< HEAD
-||||||| 273b556990
-            // The flash counts its step down before its zero test. Starting at four therefore produces
-            // white on steps 3, 2, and 1. Step 1 -> 0 takes the restore branch, causing
-            // the outer colour step to restore the complete suit shade on the fourth call.
-            glow = glow.Stepped();
-            if (glow.RemainingSteps == 0)
-            {
-                Charge.ChargedShotGlow = ChargedShotGlow.None;
-                ProjectileAnimation.ShowSuitShade(colours, samus);
-                return new(
-                    SamusBeamChargeGlowAction.RestoredNormalSuit);
-            }
-
-            // Every visible suit colour shows the glow's yellow; the import pre-colours the shade (#1512).
-            Charge.ChargedShotGlow = glow;
-            colours.ShowSuit(SamusShades.ChargedShotGlow);
-
-            return new(
-                SamusBeamChargeGlowAction.OrdinaryWhite);
-        }
-
-        // The Hyper Beam's glow: odd steps are pure hold calls; even steps 20..2 show the Hyper Beam glow's
-        // frames for glow steps 10..1, frames 9..0. Each frame consequently remains visible for exactly two updates.
-        if (glow.RemainingSteps % 2 == 1)
-        {
-            Charge.ChargedShotGlow = glow.Stepped();
-            return new(
-                SamusBeamChargeGlowAction.HyperHold);
-        }
-
-        int glowStep = glow.RemainingSteps / 2;
-        if (glowStep == 0)
-        {
-            // The glow's final update, at step zero, ends it and reports it finished so the outer colour step performs the
-            // suit restore.
-            Charge.ChargedShotGlow = ChargedShotGlow.None;
-=======
-            // The flash counts its step down before testing it. Starting at four, it shows white on steps three, two and
-            // one, and on its fourth update, reaching zero, it restores the suit's whole shade.
-            glow = glow.Stepped();
-            if (glow.RemainingSteps == 0)
-            {
-                Charge.ChargedShotGlow = ChargedShotGlow.None;
-                ProjectileAnimation.ShowSuitShade(colours, samus);
-                return new(
-                    SamusBeamChargeGlowAction.RestoredNormalSuit);
-            }
-
-            // Every visible suit colour shows the glow's yellow; the import pre-colours the shade (#1512).
-            Charge.ChargedShotGlow = glow;
-            colours.ShowSuit(SamusShades.ChargedShotGlow);
-
-            return new(
-                SamusBeamChargeGlowAction.OrdinaryWhite);
-        }
-
-        // The Hyper Beam's glow: an odd step holds the shown frame; even steps 20..2 show the Hyper Beam glow's
-        // frames for glow steps 10..1, frames 9..0. Each frame consequently remains visible for exactly two updates.
-        if (glow.RemainingSteps % 2 == 1)
-        {
-            Charge.ChargedShotGlow = glow.Stepped();
-            return new(
-                SamusBeamChargeGlowAction.HyperHold);
-        }
-
-        int glowStep = glow.RemainingSteps / 2;
-        if (glowStep == 0)
-        {
-            // The glow's final update, at step zero, ends it and reports it finished so the outer colour step performs the
-            // suit restore.
-            Charge.ChargedShotGlow = ChargedShotGlow.None;
->>>>>>> worktree-agent-a25205e6d337c0739
             ProjectileAnimation.ShowSuitShade(colours, samus);
             return true;
         }

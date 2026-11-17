@@ -1083,16 +1083,8 @@ internal sealed class SamusFramePhases
         }
 
         // The drained get-up runs after movement and before animation.
-<<<<<<< HEAD
-        // Mother Brain's two drain setups choose its Up-edge branches; the
+        // Mother Brain's two drain setups choose what a press of Up does in it; the
         // step does nothing in every ordinary gameplay state.
-||||||| 273b556990
-        // Mother Brain's two drain setups choose its Up-edge branches; the
-        // method is a cheap no-op for every ordinary gameplay state.
-=======
-        // Mother Brain's two drain setups choose whether an Up press stands her up; the
-        // method is a cheap no-op for every ordinary gameplay state.
->>>>>>> worktree-agent-a25205e6d337c0739
         if (frame.Mode.Movement != SamusMovementMode.SuitPickup)
             samus.Drained.RunGetUpCheck(samus, _playerActions.NewlyPressed);
 

@@ -364,14 +364,7 @@ public sealed class PowerBombBlastTimeline
             IsRunning = false;
             PreExplosionRadius = PowerBombRadius.Zero;
             ExplosionRadius = PowerBombRadius.Zero;
-<<<<<<< HEAD
             _radiusSpeed = PowerBombRadius.Zero;
-||||||| 273b556990
-            // Cleanup does not clear the shared radius growth speed. Retain it
-            // until the next pre-explosion setup, as on the game.
-=======
-            // The blast's end keeps the radius's growth speed until the next pre-explosion sets it up.
->>>>>>> worktree-agent-a25205e6d337c0739
             _ovalStageUpdates = 0;
             RenderedOvalRadius = null;
             Phase = PowerBombExplosionPhase.Inactive;

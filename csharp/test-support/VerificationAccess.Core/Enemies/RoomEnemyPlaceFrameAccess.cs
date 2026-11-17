@@ -42,7 +42,9 @@ internal static class RoomEnemyPlaceFrameAccess
         internal ushort SpritemapPointer
         {
             // One of Kraid's parts shows a pose, whose record is the first that stores it (#2210).
+            // A slot showing no frame, a free one among them, names no header and shows zero.
             get => self.SpeciesState<KraidPartState>()?.Pose is { } pose ? KraidPartFrameToolingDefinitions.Spritemap(pose)
+                : self.Frame is null ? (ushort)0
                 : EnemyFrameCartridgeLookupTooling.WordIn(self.NativeHeader.Bank, self.Frame, self.CollidesByFrameHitboxes);
             set
             {

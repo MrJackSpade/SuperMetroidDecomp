@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Animation;
-using SuperMetroid.Core.Enemies;
+﻿using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
@@ -12,15 +11,12 @@ internal sealed class KraidEncounterAccess
     private readonly EnemyRoomBinding _room;
     /// <summary>Receives Kraid's sound and music requests.</summary>
     private readonly EnemyAudioQueue _audio;
-    /// <summary>Kraid's eight parts in his room, which name each part's workspace.</summary>
-    private readonly KraidParts _parts;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal KraidEncounterAccess(EnemyRoomBinding room, EnemyAudioQueue audio, KraidParts parts)
+    internal KraidEncounterAccess(EnemyRoomBinding room, EnemyAudioQueue audio)
     {
         _room = room;
         _audio = audio;
-        _parts = parts;
     }
 
     /// <summary>Queues one of Kraid's sounds as Kraid makes it, after the update's earlier requests.</summary>

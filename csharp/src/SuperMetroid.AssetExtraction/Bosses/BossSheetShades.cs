@@ -16,7 +16,6 @@ using SuperMetroid.AssetExtraction.Bosses.Crocomire.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Kraid;
 using SuperMetroid.AssetExtraction.Bosses.Kraid.Artwork;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
-using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.Core.Compatibility;
 

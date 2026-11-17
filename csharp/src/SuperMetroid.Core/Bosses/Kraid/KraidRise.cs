@@ -231,7 +231,7 @@ internal sealed class KraidRise
         }
         state.HeadPlayback = KraidHeadAnimations.RoarAfterEntryFrame;
         state.WalkTargetX = KraidArenaDefinitions.SecondPhaseStartX;
-        RoomEnemyPlace foot = _parts.Foot;
+        _ = _parts.Foot;
         state.FootState.Phase = KraidFootPhase.SecondPhaseWalkToStart;
         state.FootState.StartAnimation(KraidPartSegment.FootWalkingBackward);
     }

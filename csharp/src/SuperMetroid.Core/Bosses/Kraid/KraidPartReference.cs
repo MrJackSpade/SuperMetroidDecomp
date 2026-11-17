@@ -25,7 +25,4 @@ internal sealed class KraidPartReference(string name)
     /// <summary>The enemy that joined as the part.</summary>
     /// <exception cref="InvalidOperationException">The part has not initialized.</exception>
     internal RoomEnemyPlace Place => _joined ?? throw new InvalidOperationException($"Kraid's {name} is reached before it initialized.");
-
-    /// <summary>Whether <paramref name="place"/> is the enemy that joined as the part.</summary>
-    internal bool Holds(RoomEnemyPlace place) => _joined is not null && ReferenceEquals(_joined, place);
 }

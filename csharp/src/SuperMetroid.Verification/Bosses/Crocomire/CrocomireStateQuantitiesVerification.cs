@@ -120,7 +120,7 @@ internal static class CrocomireStateQuantitiesVerification
         (RoomEnemySystem enemies, CrocomireEnemyState state) = NewCrocomire();
         RoomEnemyPlace body = state.Body;
         state.DeathPhase = CrocomireDeathPhase.FirstHopSink;
-        state.VerticalAcceleration = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(acceleration);
+        state.VerticalAcceleration = SignedSixteenSixteen.FromParts(0, acceleration);
         state.VerticalSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(speed);
         // The subposition word's high byte is the carried vertical fraction; the low byte is the cartridge's alone.
         state.VerticalFraction = SignedEightEight.FromParts(0, LittleEndianBytes.HighByte(subposition));
@@ -147,7 +147,7 @@ internal static class CrocomireStateQuantitiesVerification
         (_, CrocomireEnemyState state) = NewCrocomire();
         RoomEnemyPlace body = state.Body;
         state.DeathPhase = CrocomireDeathPhase.FirstHopRise;
-        state.VerticalAcceleration = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(acceleration);
+        state.VerticalAcceleration = SignedSixteenSixteen.FromParts(0, acceleration);
         state.VerticalSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(speed);
         // The subposition word's high byte is the carried vertical fraction; the low byte is the cartridge's alone.
         state.VerticalFraction = SignedEightEight.FromParts(0, LittleEndianBytes.HighByte(subposition));
@@ -170,7 +170,7 @@ internal static class CrocomireStateQuantitiesVerification
     private static void AssertMotionWords(CrocomireEnemyState state, ushort acceleration, ushort speed,
         ushort subposition, ushort y, string at)
     {
-        AssertEqual(acceleration, state.VerticalAcceleration.InTwoHundredFiftySixthsOfPixel, $"{at}: acceleration in 256ths");
+        AssertEqual((int)acceleration, state.VerticalAcceleration.RawValue, $"{at}: acceleration in 65536ths of a pixel an update an update");
         AssertEqual(speed, state.VerticalSpeed.InTwoHundredFiftySixthsOfPixel, $"{at}: speed in 256ths");
         AssertEqual(SignedEightEight.FromParts(0, LittleEndianBytes.HighByte(subposition)), state.VerticalFraction, $"{at}: carried fraction");
         AssertEqual(y, state.Body.Position.Y.Whole, $"{at}: Y");

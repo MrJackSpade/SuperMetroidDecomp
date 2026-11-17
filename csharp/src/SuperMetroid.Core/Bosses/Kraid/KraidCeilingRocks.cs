@@ -14,7 +14,7 @@ public static class KraidCeilingRocks
     /// <summary>The room X at which ceiling rock <paramref name="rock"/> falls.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="rock"/> is not one of the ceiling rocks.</exception>
     public static int X(int rock) =>
-        (uint)rock < (uint)Count
+        rock >= 0 && rock < Count
             ? KraidCeilingRockPositionDefinitions.Xs[rock]
             : throw new ArgumentOutOfRangeException(nameof(rock));
 }

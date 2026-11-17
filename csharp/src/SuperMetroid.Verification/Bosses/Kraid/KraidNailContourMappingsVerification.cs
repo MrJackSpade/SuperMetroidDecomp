@@ -34,17 +34,18 @@ internal static class KraidNailContourMappingsVerification
         ushort Word(int address) => LittleEndianBytes.Word(KraidNailLeftOffsetsRomByte(rom, address), KraidNailLeftOffsetsRomByte(rom, address + 1));
         AssertEqual(4, KraidNailContourDefinitions.LedgeCount, "Nail contour ledge count");
         for (int ledge = 0; ledge < KraidNailContourDefinitions.LedgeCount; ledge++)
-            AssertEqual(Word(ContourRecords + RecordBytes * ledge), KraidNailContour.LeftAt(ledge), "Original nail left word");
+            AssertEqual<int>(unchecked((short)Word(ContourRecords + RecordBytes * ledge)), KraidNailContour.LeftAt(ledge), "Original nail left word, signed");
         AssertThrows<ArgumentOutOfRangeException>(() => KraidNailContour.LeftAt(-1), "Negative nail ledge");
         AssertThrows<ArgumentOutOfRangeException>(() => KraidNailContour.LeftAt(KraidNailContourDefinitions.LedgeCount), "Past nail ledge");
         // Independent original-word walk: a relative Y the walk settles on a ledge for selects that ledge's word, and
-        // one it walks past every ledge for selects no ledge.
-        for (int raw = 0; raw <= ushort.MaxValue; raw++)
+        // one it walks past every ledge for selects no ledge, at every height a nail in Kraid's two-screen room can lie
+        // from his body (#2299).
+        for (int raw = -1024; raw < 1024; raw++)
         {
             int record = NativeRecord(Word, raw);
             int? ledgeLeft = KraidNailContour.LedgeLeftOffset(raw);
             if (record < KraidNailContourDefinitions.LedgeCount)
-                AssertTrue(ledgeLeft == Word(ContourRecords + RecordBytes * record), "Every relative Y on a ledge selects the native left offset");
+                AssertTrue(ledgeLeft == unchecked((short)Word(ContourRecords + RecordBytes * record)), "Every relative Y on a ledge selects the native left offset");
             else
                 AssertTrue(ledgeLeft is null, "Every relative Y past the ledges selects no ledge");
         }
@@ -60,7 +61,7 @@ internal static class KraidNailContourMappingsVerification
         {
             int address = ContourRecords + 2 + RecordBytes * ledge;
             ushort expected = LittleEndianBytes.Word(KraidNailTopBoundariesRomByte(rom, address), KraidNailTopBoundariesRomByte(rom, address + 1));
-            AssertEqual(expected, KraidNailContour.TopAt(ledge), "Original nail top boundary");
+            AssertEqual<int>(unchecked((short)expected), KraidNailContour.TopAt(ledge), "Original nail top boundary, signed");
         }
         AssertThrows<ArgumentOutOfRangeException>(() => KraidNailContour.TopAt(-1), "Negative nail ledge top");
         AssertThrows<ArgumentOutOfRangeException>(() => KraidNailContour.TopAt(KraidNailContourDefinitions.LedgeCount), "Past nail ledge top");

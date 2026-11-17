@@ -114,7 +114,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>The side Samus stands on from Fake Kraid: right only when she stands right of him.</summary>
     private static HorizontalDirection SideOfSamus(RoomEnemyPlace place, SamusState samus) =>
-        CoordinateAxis.Difference(place.Position.X.Whole, samus.Position.X.Whole) < 0
+        place.Position.X.Whole < samus.Position.X.Whole
             ? HorizontalDirection.Right
             : HorizontalDirection.Left;
 

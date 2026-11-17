@@ -16,20 +16,29 @@ internal static class CrocomireBridgeCollapseDefinitions
     /// <summary>The dust clouds the collapsing bridge bursts into, a block apart along it.</summary>
     internal const int CollapseDustCount = 7;
 
-    /// <summary>Starting acceleration of every sink: eight pixels per frame per frame.</summary>
-    internal static readonly SignedEightEight SinkStartingAcceleration = SignedEightEight.FromPixels(8);
+    /// <summary>Starting acceleration of every sink: eight 256ths of a pixel an update an update (#2299).</summary>
+    internal static readonly SignedSixteenSixteen SinkStartingAcceleration = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(8);
 
-    /// <summary>Acceleration the sink adds each frame: three and a half pixels per frame per frame.</summary>
-    internal static readonly SignedEightEight SinkAccelerationIncrement = SignedEightEight.FromParts(3, 128);
+    /// <summary>Acceleration the sink adds each update: three and a half 256ths of a pixel an update an update (#2299).</summary>
+    internal static readonly SignedSixteenSixteen SinkAccelerationIncrement = SignedSixteenSixteen.FromParts(0, 896);
 
-    /// <summary>The sink's acceleration stops growing at forty-eight whole pixels, keeping its fraction.</summary>
-    internal const int MaximumSinkAccelerationWhole = 48;
+    /// <summary>
+    /// The sink's acceleration stops growing at forty-eight 256ths of a pixel an update an update, keeping its part finer
+    /// than a 256th (#2299).
+    /// </summary>
+    internal static readonly SignedSixteenSixteen MaximumSinkAcceleration = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(48);
 
-    /// <summary>The sink's speed stops growing at three whole pixels per frame, keeping its fraction.</summary>
-    internal const int MaximumSinkSpeedWhole = 3;
+    /// <summary>
+    /// The sink's fastest whole pixels an update, three (#2299): a speed past them keeps them and its own fraction
+    /// (<see cref="CrocomireSpeedGain"/>). Each rise starts at this speed.
+    /// </summary>
+    internal static readonly SignedEightEight MaximumSinkSpeed = SignedEightEight.FromPixels(3);
 
-    /// <summary>The rise's acceleration stops growing at thirty-one pixels per frame per frame.</summary>
-    internal static readonly SignedEightEight MaximumRiseAcceleration = SignedEightEight.FromPixels(31);
+    /// <summary>The acceleration the rise adds each update: a 256th of a pixel an update an update (#2299).</summary>
+    internal static readonly SignedSixteenSixteen RiseAccelerationIncrement = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(1);
+
+    /// <summary>The rise's acceleration stops growing at thirty-one 256ths of a pixel an update an update (#2299).</summary>
+    internal static readonly SignedSixteenSixteen MaximumRiseAcceleration = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(31);
 
     /// <summary>The speed a rise keeps when its deceleration would take it below zero: 255/256 pixel per frame.</summary>
     internal static readonly SignedEightEight RiseSpeedAfterStalling = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(255);

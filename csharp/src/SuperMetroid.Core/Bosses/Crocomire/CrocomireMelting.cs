@@ -37,7 +37,7 @@ internal sealed class CrocomireMelting
             tongue.Processing = tongue.Processing.With(EnemyProcessing.Animates | EnemyProcessing.OffScreen);
             tongue.Contact = tongue.Contact.With(EnemyContact.IgnoresSamus);
             tongue.Presence = tongue.Presence.Without(EnemyPresence.Hidden);
-            tongue.Position = tongue.Position.WithWhole(new(state.Body.Position.X.Whole, CoordinateAxis.Wrap(state.Body.Position.Y.Whole + CrocomireMeltingDefinitions.TongueBelowBody)));
+            tongue.Position = tongue.Position.WithWhole(new(state.Body.Position.X.Whole, state.Body.Position.Y.Whole + CrocomireMeltingDefinitions.TongueBelowBody));
         }
 
         ShowCrocomireMeltingImage(CrocomireMeltingIllustration.Flesh);

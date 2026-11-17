@@ -83,7 +83,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
             // The scroll write runs even on the frame that starts bridge collapse.
             // Later death phases retain these zones until the skeleton enters the river.
             _room.Services.RoomScroll.Write(CrocomireCameraDefinitions.BridgeLeftScreen,
-                CoordinateAxis.Difference(samus.Position.X.Whole, CrocomireCameraDefinitions.BridgeVisibleSamusX) >= 0
+                samus.Position.X.Whole >= CrocomireCameraDefinitions.BridgeVisibleSamusX
                     ? RoomScrollState.Closed : RoomScrollState.OpenAlignedToTop);
             _room.Services.RoomScroll.Write(CrocomireCameraDefinitions.BridgeScreen, RoomScrollState.OpenAlignedToTop);
             // The fight's update always finishes by placing his tongue at his body, including the update in which the bridge

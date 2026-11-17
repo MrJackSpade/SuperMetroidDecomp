@@ -28,8 +28,8 @@ internal static class CrocomireBridgeFragmentDefinitions
     /// <summary>The row each fragment starts falling from (#2182).</summary>
     internal const int Y = 187;
 
-    /// <summary>The slowest a fragment starts falling, in 256ths of a pixel an update, to which its random speed adds (#2182).</summary>
-    internal const int SlowestFallTwoFiftySixths = 64;
+    /// <summary>The slowest a fragment starts falling, a quarter of a pixel an update, to which its random speed adds (#2182, #2299).</summary>
+    internal static readonly SignedEightEight SlowestFall = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(64);
 
     /// <summary>Where the <paramref name="fragment"/>th fragment the collapse launches starts.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The collapse launches no such fragment.</exception>

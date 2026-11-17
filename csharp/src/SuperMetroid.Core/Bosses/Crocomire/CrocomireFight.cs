@@ -130,13 +130,12 @@ internal sealed class CrocomireFight
     {
         if (state.DeathPhase != CrocomireDeathPhase.Fighting)
             return;
-        int leftEdge = CoordinateAxis.Wrap(
-            body.Position.X.Whole - body.Radius.X - samus.Kinematics.Radius.X);
-        if (CoordinateAxis.Difference(leftEdge, samus.Position.X.Whole) >= 0)
+        int leftEdge = body.Position.X.Whole - body.Radius.X - samus.Kinematics.Radius.X;
+        if (leftEdge >= samus.Position.X.Whole)
             return;
 
         _collision.ResolveNormalEnemyTouch(body, samus, pseudoScrew);
-        samus.Position = samus.Position.WithWrappedWholeX(leftEdge);
+        samus.Position = samus.Position.WithWholeX(leftEdge);
         samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWhole(CrocomireFightDefinitions.WallPush);
     }
 
@@ -319,7 +318,7 @@ internal sealed class CrocomireFight
 
     /// <summary>Whether the body's left edge lies within the step back's reach right of the camera: the step-back moves' on-screen test.</summary>
     private static bool CrocomireBodyIsOnScreen(RoomEnemyPlace body, int cameraX) =>
-        CoordinateAxis.Difference(body.Position.X.Whole - body.Radius.X - CrocomireFightDefinitions.StepBackScreenReach, cameraX) < 0;
+        body.Position.X.Whole - body.Radius.X - CrocomireFightDefinitions.StepBackScreenReach < cameraX;
 
     /// <summary>
     /// Runs Crocomire's fight AI for the phase his fight is in. Each phase is entered as the animation it plays starts, so
@@ -332,8 +331,7 @@ internal sealed class CrocomireFight
         switch (state.Phase)
         {
             case CrocomirePhase.Dormant:
-                if (CoordinateAxis.Distance(
-                        state.Body.Position.X.Whole, samus.Position.X.Whole) < CrocomireFightDefinitions.WakeDistance)
+                if (Math.Abs(state.Body.Position.X.Whole - samus.Position.X.Whole) < CrocomireFightDefinitions.WakeDistance)
                 {
                     state.Phase = CrocomirePhase.WaitingForFirstDamage;
                     return CrocomireBodySegment.WaitForFirstSecondDamage;
@@ -350,8 +348,7 @@ internal sealed class CrocomireFight
                         return CrocomireBodySegment.StepBack;
                     }
                 }
-                if (CoordinateAxis.Difference(
-                        state.Body.Position.X.Whole, CrocomireFightDefinitions.SpikeWallChargeX) < 0)
+                if (state.Body.Position.X.Whole < CrocomireFightDefinitions.SpikeWallChargeX)
                 {
                     state.Phase = CrocomirePhase.NearSpikeWallCharge;
                     return CrocomireBodySegment.NearSpikeWallCharge;
@@ -395,8 +392,7 @@ internal sealed class CrocomireFight
                 return CrocomireBodySegment.StepForward;
 
             case CrocomirePhase.BackingOffSpikeWall:
-                if (CoordinateAxis.Difference(
-                        state.Body.Position.X.Whole, CrocomireFightDefinitions.SpikeWallChargeX) >= 0)
+                if (state.Body.Position.X.Whole >= CrocomireFightDefinitions.SpikeWallChargeX)
                 {
                     state.Phase = CrocomirePhase.SteppingForward;
                     return CrocomireBodySegment.StepForward;
@@ -480,9 +476,7 @@ internal sealed class CrocomireFight
             graphics: SpriteGraphics.SharedIn(CrocomireColours.ProjectileShading));
         projectile.StartAnimation(new CrocomireProjectileAnimation(CrocomireProjectileSegment.Mouth));
         projectile.Velocity = CrocomireFightDefinitions.SpitVelocity;
-        projectile.Position = projectile.Position.WithWhole(new(
-            CoordinateAxis.Wrap(body.Position.X.Whole + CrocomireFightDefinitions.SpitOffset.X),
-            CoordinateAxis.Wrap(body.Position.Y.Whole + CrocomireFightDefinitions.SpitOffset.Y)));
+        projectile.Position = projectile.Position.WithWhole(body.Position.Whole + CrocomireFightDefinitions.SpitOffset);
         projectile.Position = projectile.Position.WithFractionX(0).WithFractionY(0);
         projectile.State = new CrocomireProjectileState(gradient);
     }

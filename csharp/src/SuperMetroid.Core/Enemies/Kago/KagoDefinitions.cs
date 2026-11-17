@@ -21,8 +21,14 @@ internal static class KagoDefinitions
     /// <summary>How long the quake lasts when a shot strikes a Kago, in updates.</summary>
     internal const int ShotQuakeDuration = 16;
 
-    /// <summary>How much longer than its first wait a new Kago bug waits before it first sounds, in updates.</summary>
-    internal const int FirstSoundDelayPastWait = 4;
+    /// <summary>How many updates after its first hop a new Kago bug first sounds.</summary>
+    internal const int FirstSoundPastFirstHop = 3;
+
+    /// <summary>
+    /// The shortest wait of a Kago bug on the ground, in updates, the one it hops on included: two, to which a random field
+    /// adds more.
+    /// </summary>
+    internal const int ShortestGroundWait = 2;
 
     /// <summary>The random field that adds zero to seven updates to a new Kago bug's first wait.</summary>
     internal static readonly RandomSampleField FirstIdleFrames = new(0, 3);

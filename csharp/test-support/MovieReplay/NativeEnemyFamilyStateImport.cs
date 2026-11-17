@@ -155,7 +155,7 @@ internal static class NativeEnemyFamilyStateImport
         {
             // The bottom hull, listed right after the top, keeps the ship's engine-sound timer in variable D, its
             // rumble frame in E and its escape speed in F.
-            bottomOfShip.EngineSoundTimer = unchecked((short)words.D);
+            bottomOfShip.EngineSoundTimer = ZeroOrBelowDuration(words.D);
             bottomOfShip.RumbleFrame = words.E;
             bottomOfShip.EscapeVelocity = new SignedEightEight(words.F);
         }
@@ -553,7 +553,7 @@ internal static class NativeEnemyFamilyStateImport
         if (enemy.SpeciesState<MetroidEnemyState>() is { } metroidRecord)
         {
             metroidRecord.Velocity = FixedVector<RoomPixels>.FromStoredParts(words.B, words.A, words.D, words.C);
-            metroidRecord.EscapeTimer = unchecked((short)words.E);
+            metroidRecord.EscapeMovesLeft = words.E;
             metroidRecord.Movement = MetroidsNativeWords.Movements.Decode(words.F, "recorded MetroidMovement");
         }
         if (enemy.SpeciesState<FakeKraidEnemyState>() is { } fakeKraidRecord)
@@ -786,8 +786,8 @@ internal static class NativeEnemyFamilyStateImport
         {
             powampBody.YVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.A), words.B);
             powampBody.WiggleIndex = Index(words.C, 11, "Powamp wiggle phase");
-            powampBody.WiggleTimer = unchecked((short)words.D);
-            powampBody.ActionTimer = unchecked((short)words.E);
+            powampBody.WiggleTimer = ZeroOrBelowDuration(words.D);
+            powampBody.ActionTimer = ZeroOrBelowDuration(words.E);
             powampBody.Action = PowampNativeWords.PowampActions.Decode(words.F, "recorded PowampAction");
         }
         if (enemy.DefinitionId == EnemyDefinitionId.MamaTurtle && enemy.SpeciesState<MamaTurtleEnemyState>() is { } mama)
@@ -1058,6 +1058,13 @@ internal static class NativeEnemyFamilyStateImport
     /// </summary>
     /// <param name="word">The recorded countdown, read as signed.</param>
     private static int TrueDuration(ushort word) => Math.Max(0, unchecked((short)word) + 1);
+
+    /// <summary>
+    /// A cartridge countdown that runs out on the step that takes it to zero or below, as the port's true duration
+    /// (#2373): the updates it has left, the one it runs out on included. A count at one or below runs out on the next step.
+    /// </summary>
+    /// <param name="word">The recorded countdown, read as signed.</param>
+    private static int ZeroOrBelowDuration(ushort word) => Math.Max(1, (int)unchecked((short)word));
 
     /// <summary>Decodes a recorded enemy byte offset into the slot it names.</summary>
     /// <param name="word">The recorded byte offset, the start of an enemy record.</param>

@@ -19,10 +19,16 @@ public sealed class PowampBodyState
     /// <summary>The body's phase 0 through 11 in the signed three-pixel wiggle wave; the wiggle is centred where its offset is zero.</summary>
     public int WiggleIndex { get; internal set; }
 
-    /// <summary>The body's AI-update countdown, restarted at five for each horizontal wiggle offset.</summary>
-    public int WiggleTimer { get; internal set; }
+    /// <summary>
+    /// The updates until the body's next wiggle step, the one it steps on included: one when it is placed, so its first
+    /// wiggle update steps, and five after each step.
+    /// </summary>
+    public int WiggleTimer { get; internal set; } = PowampMotionDefinitions.FirstWiggleStepWait;
 
-    /// <summary>The body's countdown, decremented once per relevant main-AI invocation; initialized to 60 for rest, ten for inflation/deflation, or 32 for death, and expires at zero or past it.</summary>
+    /// <summary>
+    /// The updates left of the body's rest, inflation, deflation or death, the one it ends on included: sixty for rest, ten
+    /// for inflation or deflation and thirty-two for death, counted down once per update of the action.
+    /// </summary>
     public int ActionTimer { get; internal set; }
 
     /// <summary>The main-AI behaviour.</summary>

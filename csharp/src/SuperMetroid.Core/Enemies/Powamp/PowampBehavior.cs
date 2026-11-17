@@ -408,7 +408,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         PowampBalloon balloon,
         PowampWiggleStop stop)
     {
-        if (--state.WiggleTimer > 0)
+        if (--state.WiggleTimer != 0)
             return false;
 
         state.WiggleTimer = PowampMotionDefinitions.WiggleStepDuration;
@@ -418,8 +418,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
                 $"Powamp wiggle index {state.WiggleIndex} exceeds the twelve authored wiggle offsets.");
         }
 
-        int x = CoordinateAxis.Wrap(
-            balloon.State.Spawn.X + PowampMotion.WiggleOffset(state.WiggleIndex));
+        int x = balloon.State.Spawn.X + PowampMotion.WiggleOffset(state.WiggleIndex);
         balloon.Place.Position = balloon.Place.Position.WithWholeX(x);
         body.Position = body.Position.WithWholeX(x);
         if (stop == PowampWiggleStop.WhenCentered && IsPowampCentered(state.WiggleIndex))
@@ -436,7 +435,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// shows, its sequence's first pose.
     /// </summary>
     internal static void AlignPowampBalloonY(RoomEnemyPlace body, PowampBalloon balloon) =>
-        balloon.Place.Position = balloon.Place.Position.WithWrappedWholeY(
+        balloon.Place.Position = balloon.Place.Position.WithWholeY(
             body.Position.Y.Whole + PowampMotion.BalloonHeight(balloon.State.Inflation.Pose));
 
     /// <summary>Switches the balloon to its sinking art and begins the deflation timer.</summary>
@@ -447,10 +446,10 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         StartPowampBalloonAnimation(balloon.Place, balloon.State, PowampSegment.BalloonStartSinking);
     }
 
-    /// <summary>Decrements the timer, treating zero and below as elapsed.</summary>
+    /// <summary>Counts one update of the body's action off its timer; true on the update it runs out.</summary>
     private static bool TickPowampTimer(PowampBodyState state)
     {
-        return --state.ActionTimer <= 0;
+        return --state.ActionTimer == 0;
     }
 
     /// <summary>The body's vertical displacement for terrain movement.</summary>

@@ -147,7 +147,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new MagdolliteOverlayState(MagdolliteOverlayAction.WaitingForAttack);
         place.SetSpeciesState(state);
         state.OriginY = place.Position.Y.Whole;
-        state.AttackTimer = WrappingCountdown.Start(0);
+        state.AttackCooldown = MagdolliteMotionDefinitions.AttackPollWait;
         StartMagdolliteAnimation(place, state, MagdolliteSegment.PillarCap);
         place.Position = place.Position.WithWholeY(place.Position.Y.Whole + MagdolliteMotionDefinitions.HiddenDepth);
         place.Presence = place.Presence.With(EnemyPresence.Hidden);
@@ -202,7 +202,8 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Counts down the attack cooldown and runs the tracking overlay's current action.</summary>
     internal void RunMagdolliteOverlay(RoomEnemyPlace place, MagdolliteOverlayState state, SamusState samus)
     {
-        state.AttackTimer = state.AttackTimer.Decrement().Remaining;
+        if (state.AttackCooldown != 0)
+            state.AttackCooldown--;
         switch (state.Action)
         {
             case MagdolliteOverlayAction.WaitingForAttack:
@@ -234,10 +235,10 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
 
         (_, _, RoomEnemyPlace overlay) = RequireMagdolliteComposite(head);
         MagdolliteOverlayState overlayState = overlay.RequireSpeciesState<MagdolliteOverlayState>();
-        if (!overlayState.AttackTimer.IsNegative)
+        if (overlayState.AttackCooldown != 0)
             return;
 
-        overlayState.AttackTimer = WrappingCountdown.Start(0);
+        overlayState.AttackCooldown = MagdolliteMotionDefinitions.AttackPollWait;
         int range = HeadRise(head).Range;
         if (CoordinateAxis.Distance(head.Position.X.Whole, samus.Position.X.Whole) >= range)
             return;
@@ -455,7 +456,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Adds a signed 1/65536-pixel Y velocity, carrying the fraction into the whole, and returns the whole-pixel vertical
-    /// move it made, by the wrapped difference.
+    /// move it made.
     /// </summary>
     private static int AddMagdolliteY(
         RoomEnemyPlace place,
@@ -463,7 +464,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         int before = place.Position.Y.Whole;
         place.Position = place.Position.AdvanceY(velocity);
-        return CoordinateAxis.Difference(place.Position.Y.Whole, before);
+        return place.Position.Y.Whole - before;
     }
 
     /// <summary>Starts <paramref name="segment"/>'s animation only when it differs from the one the part plays (#2145).</summary>
@@ -581,7 +582,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
                 place.Position = place.Position.WithWhole(place.RequireSpeciesState<MagdolliteOverlayState>().ThrowOrigin + shift.Offset);
                 break;
             case MagdolliteCue.Signal { Kind: MagdolliteCueKind.StartCooldown }:
-                place.RequireSpeciesState<MagdolliteOverlayState>().AttackTimer = WrappingCountdown.Start(MagdolliteMotionDefinitions.AttackCooldown);
+                place.RequireSpeciesState<MagdolliteOverlayState>().AttackCooldown = MagdolliteMotionDefinitions.AttackCooldown;
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(MagdolliteCue)} {cue}.");

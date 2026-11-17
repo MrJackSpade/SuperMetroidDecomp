@@ -49,15 +49,16 @@ internal static class MetroidBehaviorDefinitionsVerification
     }
 
     /// <summary>
-    /// Checks every escape count for its move, countdown and homing handoff: the four an escape counts down from its
-    /// duration, and the counts a Metroid frozen through its escape's end goes on with once it thaws.
+    /// Checks every count of moves left for its move, countdown and homing handoff, the four an escape counts down from its
+    /// duration; a frozen escaping Metroid's strain, which spends the moves to none, flashing, and stops there (#2373); and
+    /// that a count outside the escape's four moves is refused.
     /// </summary>
     private static void VerifyMetroidEscapeConsumer()
     {
         // One system serves every timer: the escape step is static and keeps no per-call state.
 
         // An escape starts at its duration and ends on the step that reaches zero.
-        for (int timer = -64; timer <= MetroidBehaviorDefinitions.EscapeDuration; timer++)
+        for (int timer = 1; timer <= MetroidBehaviorDefinitions.EscapeDuration; timer++)
         {
             var place = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>())
             {
@@ -67,7 +68,7 @@ internal static class MetroidBehaviorDefinitionsVerification
                 new RoomEffectActor(RoomEffectActorKind.MetroidElectricity, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard),
                 new RoomEffectActor(RoomEffectActorKind.MetroidShell, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard))
             {
-                EscapeTimer = timer,
+                EscapeMovesLeft = timer,
                 Movement = MetroidMovement.PowerBombEscape,
                 Playback = new(MetroidAnimations.StartingWith(MetroidSegment.DrainingSamus), AnimationPlace.StartOfAnimation),
             };
@@ -79,7 +80,7 @@ internal static class MetroidBehaviorDefinitionsVerification
                 $"production Metroid escape X timer {timer}");
             AssertEqual(unchecked((ushort)(0xffff + expected.Y)), place.Position.Y.Whole,
                 $"production Metroid escape Y timer {timer}");
-            AssertEqual(timer - 1, state.EscapeTimer,
+            AssertEqual(timer - 1, state.EscapeMovesLeft,
                 $"production Metroid escape countdown {timer}");
             AssertEqual(timer == 1 ? MetroidMovement.Homing : MetroidMovement.PowerBombEscape,
                 state.Movement,
@@ -91,6 +92,29 @@ internal static class MetroidBehaviorDefinitionsVerification
                 state.Playback,
                 $"production Metroid escape animation {timer}");
         }
+
+        // A Metroid frozen while it escapes strains its moves away, flashing, and keeps none once they are spent.
+        var frozenPlace = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>());
+        var frozen = new MetroidEnemyState(
+            new RoomEffectActor(RoomEffectActorKind.MetroidElectricity, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard),
+            new RoomEffectActor(RoomEffectActorKind.MetroidShell, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard))
+        {
+            EscapeMovesLeft = 2,
+            Movement = MetroidMovement.Homing,
+        };
+        frozenPlace.SetSpeciesState(frozen);
+        var strain = new List<(int MovesLeft, int Flash)>();
+        for (int update = 0; update < 3; update++)
+        {
+            frozenPlace.FlashTimer = 0;
+            MetroidBehavior.RunMetroidFrozen(frozenPlace);
+            strain.Add((frozen.EscapeMovesLeft, frozenPlace.FlashTimer));
+        }
+        AssertTrue(strain.SequenceEqual([(1, MetroidBehaviorDefinitions.EscapeFlashDuration), (0, MetroidBehaviorDefinitions.EscapeFlashDuration), (0, 0)]),
+            "a frozen escaping Metroid strains its two moves away, flashing, then stays still with none");
+        AssertThrows<ArgumentOutOfRangeException>(() => frozen.EscapeMovesLeft = -1, "an escape never has fewer than no moves left");
+        AssertThrows<ArgumentOutOfRangeException>(() => frozen.EscapeMovesLeft = MetroidBehaviorDefinitions.EscapeDuration + 1,
+            "an escape never has more than its four moves left");
     }
 
     /// <summary>Checks all eight random cry selections through the real instruction interpreter.</summary>

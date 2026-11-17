@@ -169,14 +169,9 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
             StepKagoBugSound(projectile);
             EnableKagoBugShotCollisionWhenSeparated(projectile);
 
-            // The transition occurs only when the counter was already zero on entry. A value
-            // of one therefore decrements to zero and remains idle until the following frame.
             KagoBugState bug = projectile.StateOf<KagoBugState>();
-            if (bug.IdleFrames != 0)
-            {
-                bug.IdleFrames--;
+            if (--bug.GroundWait != 0)
                 return;
-            }
 
             projectile.StartAnimation(new KagoBugProjectileAnimation(KagoBugProjectileSegment.JumpStart));
             projectile.HoldStill();
@@ -268,7 +263,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         /// <summary>Landed-animation cue: returns the bug to idle.</summary>
         private void StartKagoBugIdle(EnemyProjectile projectile)
         {
-            projectile.StateOf<KagoBugState>().IdleFrames = KagoDefinitions.LandedIdleFrames.Of(room.Random.Read()) + 1;
+            projectile.StateOf<KagoBugState>().GroundWait = KagoDefinitions.ShortestGroundWait + KagoDefinitions.LandedIdleFrames.Of(room.Random.Read());
             projectile.StartMotion(KagoBugMotion.Waiting);
         }
 
@@ -317,11 +312,11 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Kago reads the current random number without drawing another. The new bug's fractions of a pixel, flags and
         // state start fresh; its speed is the hand-over its place gives (EnemyProjectileHandOver) until its jump sets it.
-        int initialIdleFrames = KagoDefinitions.FirstIdleFrames.Of(ReadKagoRandomNumber()) + 1;
+        int firstGroundWait = KagoDefinitions.ShortestGroundWait + KagoDefinitions.FirstIdleFrames.Of(ReadKagoRandomNumber());
         projectile.State = new KagoBugState(source)
         {
-            IdleFrames = initialIdleFrames,
-            SoundDelay = initialIdleFrames + KagoDefinitions.FirstSoundDelayPastWait,
+            GroundWait = firstGroundWait,
+            SoundDelay = firstGroundWait + KagoDefinitions.FirstSoundPastFirstHop,
         };
         projectile.StartMotion(KagoBugMotion.Waiting);
         projectile.StartAnimation(new KagoBugProjectileAnimation(KagoBugProjectileSegment.Waiting));

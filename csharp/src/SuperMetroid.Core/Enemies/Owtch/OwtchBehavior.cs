@@ -35,8 +35,8 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
             Behavior = settings.InitialBehavior,
             BurialDepth = 0,
             UndergroundTimer = settings.UndergroundWait,
-            MinimumX = CoordinateAxis.Wrap(place.Position.X.Whole - settings.TravelDistance),
-            MaximumX = CoordinateAxis.Wrap(place.Position.X.Whole + settings.TravelDistance),
+            MinimumX = place.Position.X.Whole - settings.TravelDistance,
+            MaximumX = place.Position.X.Whole + settings.TravelDistance,
         };
         place.SetSpeciesState(state);
         SetOwtchAnimation(place, state, InitialAnimation(settings.InitialBehavior));
@@ -46,7 +46,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.Behavior == OwtchBehaviorState.Underground)
         {
             state.BurialDepth = OwtchMovementDefinitions.MaximumBurialDepth;
-            place.Position = place.Position.WithWrappedWholeY(place.Position.Y.Whole + OwtchMovementDefinitions.MaximumBurialDepth);
+            place.Position = place.Position.WithWholeY(place.Position.Y.Whole + OwtchMovementDefinitions.MaximumBurialDepth);
         }
     }
 
@@ -71,7 +71,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case OwtchBehaviorState.Sinking:
-                place.Position = place.Position.WithWrappedWholeY(place.Position.Y.Whole + 1);
+                place.Position = place.Position.WithWholeY(place.Position.Y.Whole + 1);
                 // Sinking starts from zero, so the depth stays within one through sixteen.
                 state.BurialDepth++;
                 if (state.BurialDepth >= OwtchMovementDefinitions.MaximumBurialDepth)
@@ -82,7 +82,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case OwtchBehaviorState.Rising:
-                place.Position = place.Position.WithWrappedWholeY(place.Position.Y.Whole - 1);
+                place.Position = place.Position.WithWholeY(place.Position.Y.Whole - 1);
                 if (state.RiseOnePixel())
                 {
                     // Surfacing reads the current random number without advancing it.
@@ -125,7 +125,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
         OwtchEnemyState state,
         HorizontalDirection direction)
     {
-        // A fraction past a whole pixel carries into the whole pixels, and the whole pixels wrap around the room.
+        // A fraction past a whole pixel carries into the whole pixels.
         place.Position = place.Position.AdvanceX(direction == HorizontalDirection.Right ? state.Speed : -state.Speed);
 
         if (direction != HorizontalDirection.Right)

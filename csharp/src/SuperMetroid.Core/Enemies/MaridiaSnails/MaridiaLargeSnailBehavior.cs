@@ -307,8 +307,8 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         {
             // Unlike most moving-platform producers, Oum assigns—not adds—the vertical
             // displacement. This preserves the last touching Oum's ownership.
-            samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeY(CoordinateAxis.Difference(
-                place.Position.Y.Whole, state.PreviousPosition.Y));
+            samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeY(
+                place.Position.Y.Whole - state.PreviousPosition.Y);
         }
 
         if (!state.SamusInPushingRange)
@@ -331,7 +331,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         if (!state.SamusInPushingRange)
             return;
 
-        int deltaX = CoordinateAxis.Difference(place.Position.X.Whole, state.PreviousPosition.X);
+        int deltaX = place.Position.X.Whole - state.PreviousPosition.X;
         bool stop;
         if (deltaX == 0)
         {
@@ -513,10 +513,10 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         foreach (EnemyCollisionHitbox hitbox in
                  MaridiaLargeSnailCollisionDefinitions.Frames.Of(enemy.Frame))
         {
-            int left = CoordinateAxis.Wrap(enemy.Position.X.Whole + hitbox.Left);
-            int top = CoordinateAxis.Wrap(enemy.Position.Y.Whole + hitbox.Top);
-            int right = CoordinateAxis.Wrap(enemy.Position.X.Whole + hitbox.Right);
-            int bottom = CoordinateAxis.Wrap(enemy.Position.Y.Whole + hitbox.Bottom);
+            int left = enemy.Position.X.Whole + hitbox.Left;
+            int top = enemy.Position.Y.Whole + hitbox.Top;
+            int right = enemy.Position.X.Whole + hitbox.Right;
+            int bottom = enemy.Position.Y.Whole + hitbox.Bottom;
             if (!probe.Overlaps(left, top, right, bottom))
                 continue;
             reaction = probe.SelectsShot ? hitbox.Shot : hitbox.Touch;

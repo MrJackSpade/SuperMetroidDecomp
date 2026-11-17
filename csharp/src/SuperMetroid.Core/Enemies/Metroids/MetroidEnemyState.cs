@@ -22,8 +22,16 @@ public sealed class MetroidEnemyState
     /// <summary>Signed 1/65536-pixel velocity in pixels per movement update, positive right and down.</summary>
     public FixedVector<RoomPixels> Velocity { get; internal set; }
 
-    /// <summary>Four-frame escape timer and frozen-shake countdown.</summary>
-    public int EscapeTimer { get; internal set; }
+    /// <summary>
+    /// The moves left of the escape a bomb shakes the Metroid loose into, none when it is not escaping: the escape makes
+    /// one an update, and while the Metroid is frozen it spends them straining against the ice, flashing. A freeze always
+    /// turns the Metroid to chase Samus, so one thawed with none left chases rather than escaping on (#2373).
+    /// </summary>
+    public int EscapeMovesLeft
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, MetroidBehaviorDefinitions.EscapeDuration, value);
+    }
 
     /// <summary>The step of the Metroid's movement it is in, one of four; not an AI behaviour.</summary>
     public MetroidMovement Movement { get; internal set; }

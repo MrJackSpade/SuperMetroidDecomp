@@ -42,15 +42,9 @@ public sealed class OwtchEnemyState
     /// <summary>The underground wait countdown.</summary>
     public int UndergroundTimer { get; internal set; }
 
-    /// <summary>
-    /// The left end of the patrol, the spawn X less the travel distance with room-coordinate wraparound. Positions
-    /// compare with it by the wrapped difference.
-    /// </summary>
+    /// <summary>The left end of the patrol: the spawn X less the travel distance.</summary>
     public int MinimumX { get; internal set; }
 
-    /// <summary>
-    /// The right end of the patrol, the spawn X plus the travel distance with room-coordinate wraparound. Positions
-    /// compare with it by the wrapped difference.
-    /// </summary>
+    /// <summary>The right end of the patrol: the spawn X plus the travel distance.</summary>
     public int MaximumX { get; internal set; }
 }

@@ -182,14 +182,14 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         StoreMetroidYVelocity(state, SignedSixteenSixteen.Zero);
     }
 
-    /// <summary>Runs the Metroid's escape from a power bomb, including post-decrement timer semantics.</summary>
+    /// <summary>Makes the escaping Metroid's next move; after its last it chases Samus.</summary>
     internal static void RunMetroidPowerBombEscape(RoomEnemyPlace place, MetroidEnemyState state)
     {
-        place.Position += MetroidReactions.EscapeDisplacement(state.EscapeTimer);
+        place.Position += MetroidReactions.EscapeDisplacement(state.EscapeMovesLeft);
         StoreMetroidXVelocity(state, SignedSixteenSixteen.Zero);
         StoreMetroidYVelocity(state, SignedSixteenSixteen.Zero);
 
-        if (--state.EscapeTimer != 0)
+        if (--state.EscapeMovesLeft != 0)
             return;
 
         state.Movement = MetroidMovement.Homing;
@@ -200,9 +200,9 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void RunMetroidFrozen(RoomEnemyPlace place)
     {
         MetroidEnemyState state = place.RequireSpeciesState<MetroidEnemyState>();
-        if (state.EscapeTimer != 0)
+        if (state.EscapeMovesLeft != 0)
         {
-            state.EscapeTimer--;
+            state.EscapeMovesLeft--;
             place.FlashTimer = MetroidBehaviorDefinitions.EscapeFlashDuration;
         }
 
@@ -340,7 +340,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         MetroidEnemyState state,
         SamusState samus)
     {
-        state.EscapeTimer = MetroidBehaviorDefinitions.EscapeDuration;
+        state.EscapeMovesLeft = MetroidBehaviorDefinitions.EscapeDuration;
         state.Movement = MetroidMovement.PowerBombEscape;
         SetMetroidAnimation(place, state, MetroidSegment.ChasingSamus);
         samus.MetroidAttachmentShade = SamusMetroidAttachmentShade.Inactive;

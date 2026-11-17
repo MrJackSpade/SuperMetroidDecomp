@@ -27,7 +27,7 @@ internal sealed class GunshipState
     /// <summary>The ship's updates until its next idle-bob step.</summary>
     public int BobTimer { get; internal set; }
 
-    /// <summary>The ship's updates until its next engine sound.</summary>
+    /// <summary>The ship's updates until its next engine sound, the one it sounds on included.</summary>
     public int EngineSoundTimer { get; internal set; }
 
     /// <summary>The ship's landed room Y, its top hull's, from which Samus's entry and exit heights are measured.</summary>

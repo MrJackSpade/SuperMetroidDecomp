@@ -64,7 +64,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case PolypAction.Cooldown:
-                if (--state.CooldownTimer <= 0)
+                if (--state.CooldownTimer == 0)
                     state.Action = PolypAction.WaitingForSamus;
                 return;
 
@@ -201,7 +201,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         QuadraticSpeedCurvePlace place,
         EnemySpeedSign sign)
     {
-        // A fraction past a whole pixel carries into the whole pixels, and the whole pixels wrap around the room.
+        // A fraction past a whole pixel carries into the whole pixels.
         SignedSixteenSixteen speed = place.Speed.Toward(sign);
         projectile.Position = projectile.Position.WithY(projectile.Position.Y.MovedBy(speed));
     }

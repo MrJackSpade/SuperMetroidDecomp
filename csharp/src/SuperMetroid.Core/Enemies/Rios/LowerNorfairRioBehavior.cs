@@ -77,10 +77,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
         {
             case LowerNorfairRioAction.WaitForAttackOpportunity:
                 if ((!RioLaunchDefinitions.AttackChanceLowBit.IsSetIn(random) && !RioLaunchDefinitions.AttackChanceHighBit.IsSetIn(random)) ||
-                    !EnemyMath.IsWithinStrictModularDistance(
-                        samus.Position.X.Whole,
-                        place.Position.X.Whole,
-                        RioLaunchDefinitions.LowerNorfairTriggerDistance))
+                    CoordinateAxis.Distance(samus.Position.X.Whole, place.Position.X.Whole) >= RioLaunchDefinitions.LowerNorfairTriggerDistance)
                 {
                     // Unlike upper Norfair Rio, this variant clears the handshake and asks for its attack animation on
                     // every rejected frame; an attack animation already playing does not restart.

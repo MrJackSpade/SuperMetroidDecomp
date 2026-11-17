@@ -103,8 +103,8 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Heading = KiHunterMotionDefinitions.PatrolStartHeading;
         state.HorizontalSpeed = KiHunterMotionDefinitions.PatrolSpeed;
         state.VerticalVelocity = SignedSixteenSixteen.FromWholePixels(KiHunterMotionDefinitions.PatrolSpeed);
-        state.UpperPatrolY = CoordinateAxis.Wrap(body.Position.Y.Whole - KiHunterMotionDefinitions.PatrolRise);
-        state.LowerPatrolY = CoordinateAxis.Wrap(state.UpperPatrolY + KiHunterMotionDefinitions.PatrolDepth);
+        state.UpperPatrolY = body.Position.Y.Whole - KiHunterMotionDefinitions.PatrolRise;
+        state.LowerPatrolY = state.UpperPatrolY + KiHunterMotionDefinitions.PatrolDepth;
         state.SpawnPosition = body.Position.Whole;
 
         // A wingless Ki-Hunter is the permanently ground-bound form. The wing listed after it
@@ -296,9 +296,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         TrigonometryAngle tableAngle = state.SwoopAngle.ToTrigonometryAngle();
-        int targetX = CoordinateAxis.Wrap(
-            state.SwoopTargetX +
-            EnemyMath.CircleCosinePixels(tableAngle, state.SwoopRadius.X));
+        int targetX = state.SwoopTargetX + EnemyMath.CircleCosinePixels(tableAngle, state.SwoopRadius.X);
         SignedSixteenSixteen horizontalDisplacement = SignedSixteenSixteen.FromWholePixels(CoordinateAxis.Difference(targetX, body.Position.X.Whole));
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, body, horizontalDisplacement))
         {
@@ -310,9 +308,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, body);
-        int targetY = CoordinateAxis.Wrap(
-            state.SwoopOriginY +
-            EnemyMath.CircleNegativeSinePixels(tableAngle, state.SwoopRadius.Y));
+        int targetY = state.SwoopOriginY + EnemyMath.CircleNegativeSinePixels(tableAngle, state.SwoopRadius.Y);
         SignedSixteenSixteen verticalDisplacement = SignedSixteenSixteen.FromWholePixels(CoordinateAxis.Difference(targetY, body.Position.Y.Whole));
         if (_terrain.MoveEnemyVertically(level, body, verticalDisplacement))
             StartKiHunterSwoopRecovery(state);
@@ -520,10 +516,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             sign: EnemySpeedSign.Positive));
         int radius = KiHunterMotionDefinitions.DetachedWingRadius;
         TrigonometryAngle trigonometryAngle = state.WingArcAngle.ToTrigonometryAngle();
-        int desiredY = CoordinateAxis.Wrap(
-            state.OrbitCenter.Y +
-            EnemyMath.CircleNegativeSinePixels(trigonometryAngle, radius) -
-            state.FallingArcOffset.Y);
+        int desiredY = state.OrbitCenter.Y + EnemyMath.CircleNegativeSinePixels(trigonometryAngle, radius) - state.FallingArcOffset.Y;
         if (_terrain.MoveEnemyVertically(
                 level,
                 wings,
@@ -535,7 +528,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        wings.Position = wings.Position.WithWrappedWholeX(
+        wings.Position = wings.Position.WithWholeX(
             state.OrbitCenter.X + EnemyMath.CircleCosinePixels(trigonometryAngle, radius) - state.FallingArcOffset.X);
         if (!LiesWithinMiddleHalfTurn(state.WingArcAngle))
         {
@@ -546,9 +539,8 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Runs the private tail after common shot/power-bomb AI. A surviving
-    /// body mirrors freeze/hurt timing into its wing until health reaches the wing's
-    /// detach health; that exact threshold—not an invented constant—starts detachment.
+    /// Runs the Ki-Hunter's own response after the common shot and Power Bomb reactions. A surviving body freezes and
+    /// flashes its wings with it until its health falls to the health at which the wings detach, which starts their fall.
     /// </summary>
     private void ResolveKiHunterShotAfterCommon(RoomEnemyPlace body)
     {
@@ -558,8 +550,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             if (!wingsInPlace)
                 return;
-            // Killing the body deletes its wings outright, stripping processing and every other population flag rather
-            // than merely adding the deleted flag.
+            // Killing the body removes its wings outright: they stop updating and keep none of their placement's properties.
             wings.Contact = EnemyContact.None;
             wings.Processing = EnemyProcessing.None;
             wings.Presence = EnemyPresence.Deleted;
@@ -654,8 +645,8 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Whether a detached wing's arc angle lies from a quarter turn up to three quarters: the game's check that
-    /// the angle plus a quarter turn lies in the second half-turn, which switches the wing from its orbit to its falling arc and back.
+    /// Whether a detached wing's arc angle lies from a quarter turn up to three quarters, the half of the turn in which
+    /// the wing leaves its orbit for its falling arc and the other half in which it returns.
     /// </summary>
     private static bool LiesWithinMiddleHalfTurn(RotationAngle angle) =>
         angle + RotationAngle.QuarterTurn >= RotationAngle.HalfTurn;
@@ -846,10 +837,10 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         projectile.Velocity = projectile.Velocity.WithX(direction == HorizontalDirection.Right
             ? KiHunterMotionDefinitions.AcidHorizontalSpeed
             : -KiHunterMotionDefinitions.AcidHorizontalSpeed);
-        projectile.Position = projectile.Position.WithWrappedWholeX(body.Position.X.Whole +
+        projectile.Position = projectile.Position.WithWholeX(body.Position.X.Whole +
             (direction == HorizontalDirection.Right ? KiHunterMotionDefinitions.AcidSpitReach : -KiHunterMotionDefinitions.AcidSpitReach));
         projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Zero);
-        projectile.Position = projectile.Position.WithWrappedWholeY(body.Position.Y.Whole - KiHunterMotionDefinitions.AcidSpitHeight).WithFractionX(0).WithFractionY(0);
+        projectile.Position = projectile.Position.WithWholeY(body.Position.Y.Whole - KiHunterMotionDefinitions.AcidSpitHeight).WithFractionX(0).WithFractionY(0);
     }
 
     /// <summary>
@@ -860,7 +851,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         HorizontalDirection direction = projectile.StateOf<KiHunterAcidState>().Spat;
         projectile.StartMotion(KiHunterAcidMotion.Falling);
-        projectile.Position = projectile.Position.WithWrappedWholeX(
+        projectile.Position = projectile.Position.WithWholeX(
             projectile.Position.X.Whole + (direction == HorizontalDirection.Right
                 ? KiHunterMotionDefinitions.AcidLaunchShift
                 : -KiHunterMotionDefinitions.AcidLaunchShift));

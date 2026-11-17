@@ -4,18 +4,16 @@ namespace SuperMetroid.Core.Enemies.Gunship;
 internal static class GunshipMotionDefinitions
 {
 
-    /// <summary>The landing brake's signed whole-pixel Y delta for each of its 17 frames: +1 for frames 0..5, zero for 6..10, and -1 for 11..16.</summary>
-    /// <remarks>
-    /// These are explicit six/five/six braking intervals, not a sampled physical acceleration curve. The landing adds the
-    /// signed whole-pixel delta with coordinate wrapping, then advances.
-    /// </remarks>
+    /// <summary>
+    /// How far each of the landing brakes' seventeen updates moves the ship and Samus, in order (<see cref="GunshipLandingBrake"/>):
+    /// down a pixel for six updates, still for five, then up a pixel for six.
+    /// </summary>
     internal static readonly int[] LandingBrakeYDeltas = [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, -1, -1, -1, -1, -1, -1];
 
-    /// <summary>The idle bob's four phases: timer 16 and signed delta +1,-1,-1,+1.</summary>
-    /// <remarks>
-    /// Endpoint phases move down, middle phases move up. The ship's hover counts each phase down and wraps
-    /// from the last phase to the first.
-    /// </remarks>
+    /// <summary>
+    /// The idle bob's four steps in order (<see cref="GunshipIdleBob"/>), each held 16 updates: down a pixel, up, up, then
+    /// down; the last is followed by the first.
+    /// </summary>
     internal static readonly GunshipIdleBobDefinition[] IdleBobs = [new(16, 1), new(16, -1), new(16, -1), new(16, 1)];
 
     /// <summary>Above this Y the descending ship moves 4.5 pixels an update; below it, 2.5.</summary>

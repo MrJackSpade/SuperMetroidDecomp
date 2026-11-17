@@ -22,8 +22,8 @@ internal static class EnemyDropSelectionDefinitions
     ];
 
     /// <summary>
-    /// The random field a drop's chance roll reads: the sample's lowest 256-value field, 0 through 255, drawn again while it is zero, then
-    /// compared with the accumulated drop chances.
+    /// The random choice a drop's chance roll reads, 1 through 255 (a zero is drawn again), compared with the accumulated
+    /// drop chances.
     /// </summary>
     internal static readonly RandomSampleField DropRoll = new(0, 8);
 

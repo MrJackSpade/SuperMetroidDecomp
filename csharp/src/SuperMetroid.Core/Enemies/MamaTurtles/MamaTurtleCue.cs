@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.MamaTurtles;
 
-/// <summary>One cue of the turtles' animations: what it does, with the values it acts on.</summary>
+/// <summary>One cue of the Mama Turtle's animations: what it does, with the values it acts on.</summary>
 internal abstract record MamaTurtleCue
 {
     /// <summary>Closes the hierarchy to the cues declared here.</summary>

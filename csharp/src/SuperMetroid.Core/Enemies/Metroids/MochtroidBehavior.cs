@@ -183,7 +183,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         else
         {
-            // A live Samus contact-damage mode takes common AI's enemy-damage branch. This
+            // Samus's body attack hurts the Mochtroid as it hurts any enemy. This
             // includes Speed Booster, shinespark, Screw Attack, and pseudo-Screw.
             _collision.ResolveNormalEnemyTouch(place, samus, pseudoScrew);
         }

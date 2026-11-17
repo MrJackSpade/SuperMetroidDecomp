@@ -459,7 +459,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         AfterCommon = c => ResolveSporeSpawnShotAfterCommon(c.Enemy),
     };
 
-    /// <summary>Routes vulnerable hitbox touch through common damage while excluding no-op hitboxes.</summary>
+    /// <summary>Routes vulnerable hitbox touch through common damage; a touch on a hitbox that does nothing does nothing.</summary>
     internal void ReactToSporeSpawnTouch(EnemyTouchContext context)
     {
         if (!context.UsesFrameHitboxes)

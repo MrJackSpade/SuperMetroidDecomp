@@ -5,13 +5,13 @@ internal static class CorpseDustDefinitions
 {
     /// <summary>
     /// The random choice that moves a Tourian or Sidehopper corpse's dust cloud one <see cref="SpreadFineStep"/> to the
-    /// right: taken when the sample divided by 2 is odd. With <see cref="SpreadCoarseSteps"/> it spreads the cloud 0-26 pixels, even.
+    /// right: taken for half the random numbers. With <see cref="SpreadCoarseSteps"/> it spreads the cloud 0-26 pixels, even.
     /// </summary>
     internal static readonly RandomSampleField SpreadFineSteps = new(1, 1);
 
     /// <summary>
     /// The random field that moves a Tourian or Sidehopper corpse's dust cloud zero to three
-    /// <see cref="SpreadCoarseStep"/>s to the right: the sample divided by 8, modulo 4.
+    /// <see cref="SpreadCoarseStep"/>s to the right.
     /// </summary>
     internal static readonly RandomSampleField SpreadCoarseSteps = new(3, 2);
 
@@ -27,6 +27,6 @@ internal static class CorpseDustDefinitions
     /// </summary>
     internal static readonly Offset16<RoomPixels> CloudOrigin = new(-14, 16);
 
-    /// <summary>The random field that spreads Dead Torizo's dust clouds 0-31 pixels: the sample modulo 32.</summary>
+    /// <summary>The random field that spreads Dead Torizo's dust clouds 0-31 pixels.</summary>
     internal static readonly RandomSampleField TorizoSpread = new(0, 5);
 }

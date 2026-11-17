@@ -12,7 +12,7 @@ internal static class NorfairLavaJumpDefinitions
         -SignedEightEight.FromParts(5, 1),
     ];
 
-    /// <summary>Which of the four launch velocities a jump uses: the sample divided by 512, modulo 4.</summary>
+    /// <summary>Which of the four launch velocities a jump uses.</summary>
     internal static readonly RandomSampleField LaunchSelector = new(9, 2);
 
     /// <summary>How much the jumper's vertical velocity grows downward after each moving update: 56 256ths of a pixel (#2339).</summary>

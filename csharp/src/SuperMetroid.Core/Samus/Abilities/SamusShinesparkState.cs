@@ -444,8 +444,8 @@ public sealed class SamusShinesparkState
         samus.Kinematics.YDirection = SamusVerticalDirection.None;
         samus.HorizontalSpeed.ExtraRunSpeed = default;
         samus.HorizontalSpeed.SpeedBoostCounter = default;
-        // Ending the shinespark retains this frame's contact damage. The shared frame
-        // prologue clears it before the crash's first frame runs next.
+        // Ending the shinespark keeps this frame's contact damage. The start of the next
+        // update clears it before the crash's first frame runs.
         samus.HurtFlash.Clear();
         bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
         ShinesparkDepartureAngles orbitStart = facingLeft

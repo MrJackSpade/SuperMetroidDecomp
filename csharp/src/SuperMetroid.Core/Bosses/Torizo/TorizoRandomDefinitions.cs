@@ -23,31 +23,31 @@ internal static class TorizoRandomDefinitions
     internal static readonly TorizoRandomDecision ForwardLeap = TorizoRandomDecision.WhenAllClear(
         new RandomSampleField(0, 1), new RandomSampleField(8, 1));
 
-    /// <summary>The initial drool's added fall speed, 0 through 31 256ths of a pixel an update: the selection modulo 32.</summary>
+    /// <summary>The initial drool's added fall speed, 0 through 31 256ths of a pixel an update.</summary>
     internal static readonly RandomSampleField DroolFallJitter = new(0, 5);
 
     /// <summary>
-    /// A turning Torizo's drool angle, any of the 256 steps of a turn: the selection divided by two, within one turn.
+    /// A turning Torizo's drool angle, any of the 256 steps of a turn, as the selection chooses it.
     /// </summary>
     internal static readonly RandomSampleField DroolTurningAngle = new(1, 8);
 
-    /// <summary>A facing Torizo's drool angle spread about its facing angle, 0 through 15: the selection modulo 16.</summary>
+    /// <summary>A facing Torizo's drool angle spread about its facing angle, 0 through 15.</summary>
     internal static readonly RandomSampleField DroolFacingSpread = new(0, 4);
 
     /// <summary>
-    /// Golden Torizo's eye-beam angle spread, 0 through 15 steps (256ths of a turn): the selection divided by two, modulo 16.
+    /// Golden Torizo's eye-beam angle spread, 0 through 15 steps (256ths of a turn).
     /// </summary>
     internal static readonly RandomSampleField EyeBeamSpread = new(1, 4);
 
-    /// <summary>The initial drool's height jitter below Torizo's Y, 0 through 3 pixels: the sample modulo 4.</summary>
+    /// <summary>The initial drool's height jitter below Torizo's Y, 0 through 3 pixels.</summary>
     internal static readonly RandomSampleField InitialDroolYJitter = new(0, 2);
 
-    /// <summary>The initial drool's side jitter to the right of Torizo's X, 0 through 3 pixels: the sample modulo 4.</summary>
+    /// <summary>The initial drool's side jitter to the right of Torizo's X, 0 through 3 pixels.</summary>
     internal static readonly RandomSampleField InitialDroolXJitter = new(0, 2);
 
     /// <summary>
     /// The low-health drool's delay choice, 0 through 7 of the eight choices that repeat the no-delay,
-    /// two-frame and four-frame drool animations: the sample divided by four, modulo 8.
+    /// two-frame and four-frame drool animations.
     /// </summary>
     internal static readonly RandomSampleField LowHealthDroolDelay = new(2, 3);
 

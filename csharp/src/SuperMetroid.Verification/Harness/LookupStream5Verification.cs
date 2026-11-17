@@ -1104,11 +1104,11 @@ internal static class LookupStream5Verification
         var body = owner.Places.InUpdateOrder[1];
         body.SetSpawnSettings(new MorphBallEyeSpawnSettings(HorizontalDirection.Right, MorphBallEyePart.Eye, MorphBallEyeMountSide.Left));
         body.Bind(EnemyDefinitionId.MorphBallEye, body.Definition);
-        new Action<RoomEnemyPlace>(owner.MorphBallEyeBehavior.InitializeMorphBallEyeBody)(body);
+        new Action<RoomEnemyPlace>(MorphBallEyeBehavior.InitializeMorphBallEyeBody)(body);
         (body.SpeciesState<MorphBallEyeEnemyState>() ?? throw new InvalidOperationException("Verification requires the eye body's state.")).IsActivated = true;
         owner.MorphBallEyeBehavior.MorphBallEyeBeam.Body = body;
         owner.MorphBallEyeBehavior.MorphBallEyeBeam.Phase = MorphBallEyeBeamPhase.Full;
-        owner.MorphBallEyeBehavior.MorphBallEyeBeam.ColourStep = 0;
+        owner.MorphBallEyeBehavior.MorphBallEyeBeam.NextColour = MorphBallEyeBeamColour.First;
         Action step = owner.MorphBallEyeBehavior.StepFullMorphBallEyeBeam;
         for (int phase = 0; phase < 16; phase++)
         {
@@ -1119,7 +1119,7 @@ internal static class LookupStream5Verification
             AssertEqual(expected, MorphBallEyeBeamDefinitions.CycleColors[phase], "Native two-channel triangle intensities");
             step();
             AssertEqual(expected, owner.MorphBallEyeBehavior.MorphBallEyeBeam.Color, "Actual beam colour, zero blue intensity included");
-            AssertEqual((ushort)((phase + 1) & 15), owner.MorphBallEyeBehavior.MorphBallEyeBeam.ColourStep, "Actual cycling and wrap after the sixteenth colour");
+            AssertEqual(MorphBallEyeBeamColour.All[(phase + 1) & 15], owner.MorphBallEyeBehavior.MorphBallEyeBeam.NextColour, "Actual cycling and wrap after the sixteenth colour");
         }
         AssertThrows<InvalidDataException>(() => EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.MorphBallEye, PopulationWords.Parameters(0, 0x8004)),
             "the import rejects a mount direction past the four sides");

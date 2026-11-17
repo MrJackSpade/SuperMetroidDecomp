@@ -34,8 +34,7 @@ internal static class EnemyMath
     /// </summary>
     internal static Bearing CalculateBearing(Offset16<RoomPixels> delta)
     {
-        // A signed coordinate difference's magnitude reaches 32,768, which a short cannot hold: the offsets widen to int before their
-        // absolute values are taken, so -32,768 gives 32,768 instead of overflowing.
+        // The distances are taken as whole numbers, so the farthest offset either way keeps its full size.
         int absoluteX = Math.Abs((int)delta.X);
         int absoluteY = Math.Abs((int)delta.Y);
         bool left = delta.X < 0;
@@ -62,16 +61,6 @@ internal static class EnemyMath
     /// </summary>
     internal static FixedCoordinate AddVelocity(FixedCoordinate position, SignedEightEight velocity) =>
         velocity.ToSixteenSixteenDelta().AddTo(position.Whole, position.Fraction);
-
-    /// <summary>
-    /// Implements the shared proximity checks' strict <c>magnitude &lt; limit</c>
-    /// test. Equality is outside, and subtraction wraps past 65535 in world space.
-    /// </summary>
-    internal static bool IsWithinStrictModularDistance(
-        int firstCoordinate,
-        int secondCoordinate,
-        int limit) =>
-        CoordinateAxis.Distance(firstCoordinate, secondCoordinate) < limit;
 
     /// <summary>
     /// The whole pixels of the sine distance of the point <paramref name="radius"/> pixels along <paramref name="angle"/>
@@ -161,20 +150,16 @@ internal static class EnemyMath
     internal static bool SineIsNegative(TrigonometryAngle angle) => angle.TurnedBy(TrigonometryAngle.HalfTurn).IsInSecondHalf;
 
     /// <summary>
-    /// The velocity of <paramref name="wholePixels"/> whole pixels per update, 0 through 127, along
-    /// <paramref name="angle"/>'s sine: the signed sine, which peaks at one pixel per update, times the whole speed. The
-    /// product of a whole speed loses nothing, so it is the sine scaled exactly; the behaviours that read the sine itself
-    /// as a velocity take one pixel.
+    /// The velocity of <paramref name="wholePixels"/> whole pixels per update, none or more, along <paramref name="angle"/>'s
+    /// sine: the signed sine, which peaks at one pixel per update, times the whole speed. The product of a whole speed
+    /// loses nothing, so it is the sine scaled exactly; the behaviours that read the sine itself as a velocity take one
+    /// pixel.
     /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="wholePixels"/> is negative.</exception>
     internal static SignedEightEight SineVelocity(TrigonometryAngle angle, int wholePixels) =>
-        Trigonometry.MultiplySignedSine(SignedEightEight.FromPixels(Ensure.BetweenInclusive(0, FastestSineSpeed, wholePixels)), angle);
-
-    /// <summary>
-    /// The fastest whole speed, in pixels per update, a sine velocity is formed from (#1627): the game multiplies the
-    /// sine by the speed as a signed count of whole pixels, which goes no further, and every enemy's speed lies within it,
-    /// so a faster one is rejected rather than given a product the game never forms.
-    /// </summary>
-    private const int FastestSineSpeed = 127;
+        Trigonometry.MultiplySignedSine(SignedEightEight.FromPixels(wholePixels >= 0
+            ? wholePixels
+            : throw new ArgumentOutOfRangeException(nameof(wholePixels), wholePixels, "A sine velocity's speed is none or more.")), angle);
 
     /// <summary>
     /// The part of <paramref name="speed"/> along <paramref name="angle"/>'s sine, rounding toward zero as the game does

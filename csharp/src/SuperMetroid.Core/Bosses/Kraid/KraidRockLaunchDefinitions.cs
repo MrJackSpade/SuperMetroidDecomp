@@ -19,9 +19,8 @@ public static class KraidRockLaunchDefinitions
     /// random choices. Accepts every sample and never advances RNG.
     /// </summary>
     /// <remarks>
-    /// The rock spit selects a launch category from the sample divided by 2, modulo 8, not a motion
-    /// sample or chronological random-number generator. Preserve the game's
-    /// branch assignment even though each speed has the same one-quarter weight.
+    /// The rock spit picks its launch from one of the random number's eight choices, not from its motion or a fresh
+    /// random number. Each speed keeps the two choices the game gives it, though each has the same one-quarter weight.
     /// </remarks>
     public static SignedEightEight FromRandom(int random) => Speeds[LaunchChoice.Of(random)];
 
@@ -54,7 +53,7 @@ public static class KraidRockLaunchDefinitions
     /// </summary>
     internal static SignedEightEight RockDriftRestart { get; } = SignedEightEight.FromPixels(1);
 
-    /// <summary>The launch choice, one of eight: the sample divided by 2, modulo 8.</summary>
+    /// <summary>The launch choice, one of eight.</summary>
     private static readonly RandomSampleField LaunchChoice = new(1, 3);
 
     /// <summary>The launch speed of each of the eight <see cref="LaunchChoice"/> values, in order.</summary>

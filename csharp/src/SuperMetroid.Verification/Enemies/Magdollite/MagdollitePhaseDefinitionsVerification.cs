@@ -29,7 +29,7 @@ internal static class MagdollitePhaseDefinitionsVerification
         }
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<RoomEnemyPlace, SamusState> initialize = enemies.MagdolliteBehavior.InitializeMagdollite;
+        Action<RoomEnemyPlace, SamusState> initialize = static (place, samus) => place.InitializeAsPlaced(samus);
         Action<RoomEnemyPlace, MagdolliteBodyState, SamusState> rise = enemies.MagdolliteBehavior.RunMagdolliteBodyRising;
         Action<RoomEnemyPlace, MagdolliteBodyState> fall = enemies.MagdolliteBehavior.RunMagdolliteBodyFalling;
         Action<RoomEnemyPlace, MagdolliteOverlayState, SamusState> trackRise = enemies.MagdolliteBehavior.RunMagdolliteOverlayTrackingRise;
@@ -37,9 +37,9 @@ internal static class MagdollitePhaseDefinitionsVerification
         for (int index = 0; index < 3; index++)
         {
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[index];
-            place.Bind(EnemyDefinitionId.Magdollite, place.Definition);
             place.SetSpawnParameter1(EnemyDefinitionId.Magdollite, (ushort)index);
             place.SetSpawnParameter2(EnemyDefinitionId.Magdollite, 0);
+            place.Bind(EnemyDefinitionId.Magdollite, place.Definition);
             place.Position = place.Position.WithWhole(new(0x0200, 0x0300));
             initialize(place, RoomEnemyFrameFixtures.StandaloneSamus());
         }

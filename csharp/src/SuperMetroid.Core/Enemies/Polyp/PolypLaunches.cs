@@ -5,11 +5,11 @@ namespace SuperMetroid.Core.Enemies.Polyp;
 /// <summary>A Polyp's launch and cooldown, chosen by random draws.</summary>
 internal static class PolypLaunches
 {
-    /// <summary>Uses the random number divided by two, modulo 8.</summary>
+    /// <summary>Uses one of the random number's eight choices.</summary>
     internal static int Cooldown(int random) => Cooldowns[CooldownSelector.Of(random)];
 
     /// <summary>
-    /// The place along the quadratic speed curve a rock's rise starts at: the random number divided by two, modulo 16,
+    /// The place along the quadratic speed curve a rock's rise starts at,
     /// selects one of marks 28 through 43.
     /// </summary>
     internal static QuadraticSpeedCurvePlace LaunchPlace(int random) =>

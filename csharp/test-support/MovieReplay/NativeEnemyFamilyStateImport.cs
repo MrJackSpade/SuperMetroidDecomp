@@ -143,10 +143,12 @@ internal static class NativeEnemyFamilyStateImport
             // landing-brake step in the top hull's variables A through E.
             gunshipRecord.PhaseTimer = unchecked((short)words.A);
             gunshipRecord.EngineReadyingElapsed = words.B;
-            gunshipRecord.BobPhase = words.C;
+            gunshipRecord.Bob = GunshipIdleBob.All[words.C];
             gunshipRecord.BobTimer = unchecked((short)words.D);
             gunshipRecord.BaseY = words.E;
-            gunshipRecord.LandingBrakeStep = words.E;
+            // E holds the next landing brake only while the ship brakes; otherwise it holds the base Y.
+            if (words.E < GunshipLandingBrake.All.Count)
+                gunshipRecord.LandingBrake = GunshipLandingBrake.All[words.E];
         }
         if (enemy.DefinitionId == EnemyDefinitionId.ShipBottomEntrance && index > 0 &&
             enemies.Places.InUpdateOrder[index - 1].SpeciesState<GunshipState>() is { } bottomOfShip)
@@ -359,9 +361,9 @@ internal static class NativeEnemyFamilyStateImport
                 yellowPipeBug.Action = PipeBugsNativeWords.YellowPipeBugActions.Decode(words.A, "recorded YellowPipeBugAction");
             }
         }
-        if (enemy.SpeciesState<MagdollitePartState>() is MagdolliteHeadState magdolliteHead)
+        if (enemy.SpeciesState<MagdolliteHeadState>() is { } magdolliteHead)
             magdolliteHead.Action = MagdolliteNativeWords.MagdolliteHeadActions.Decode(words.F, "recorded MagdolliteHeadAction");
-        if (enemy.SpeciesState<MagdollitePartState>() is MagdolliteBodyState magdolliteBody)
+        if (enemy.SpeciesState<MagdolliteBodyState>() is { } magdolliteBody)
         {
             magdolliteBody.Action = MagdolliteNativeWords.MagdolliteBodyActions.Decode(words.F, "recorded MagdolliteBodyAction");
             // The recorded word counts the arm's stages up from its setup, two to a stage.
@@ -371,7 +373,7 @@ internal static class NativeEnemyFamilyStateImport
             magdolliteBody.BodyPhase = stage;
             magdolliteBody.RiseDisplacementY = unchecked((short)words.E);
         }
-        if (enemy.SpeciesState<MagdollitePartState>() is MagdolliteOverlayState magdolliteOverlay)
+        if (enemy.SpeciesState<MagdolliteOverlayState>() is { } magdolliteOverlay)
         {
             magdolliteOverlay.Action = MagdolliteNativeWords.MagdolliteOverlayActions.Decode(words.F, "recorded MagdolliteOverlayAction");
             magdolliteOverlay.ThrowDirection = words.B != 0 ? HorizontalDirection.Right : HorizontalDirection.Left;

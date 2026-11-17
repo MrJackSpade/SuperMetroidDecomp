@@ -59,10 +59,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (state.Action)
         {
             case RioAction.WaitingForSamus:
-                if (!EnemyMath.IsWithinStrictModularDistance(
-                        samus.Position.X.Whole,
-                        place.Position.X.Whole,
-                        RioLaunchDefinitions.RioTriggerDistance))
+                if (CoordinateAxis.Distance(samus.Position.X.Whole, place.Position.X.Whole) >= RioLaunchDefinitions.RioTriggerDistance)
                 {
                     return;
                 }

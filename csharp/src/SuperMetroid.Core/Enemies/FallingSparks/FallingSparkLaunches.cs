@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Enemies.FallingSparks;
 internal static class FallingSparkLaunches
 {
     /// <summary>
-    /// The launch the random number divided by 4, modulo 8, selects: one of the authored launches, or, for the selection past them,
-    /// the drift <paramref name="unauthoredLaunch"/> supplies, which is consulted only then.
+    /// The launch the random number's eight-way choice selects: one of the authored launches, or, for the selection past
+    /// them, the drift <paramref name="unauthoredLaunch"/> supplies, which is consulted only then.
     /// </summary>
     /// <param name="random">The random number the spark takes.</param>
     /// <param name="unauthoredLaunch">Supplies the drift of the selection past the authored launches.</param>

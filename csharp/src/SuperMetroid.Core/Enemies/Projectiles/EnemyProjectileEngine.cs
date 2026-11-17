@@ -141,8 +141,8 @@ internal sealed class EnemyProjectileEngine
                 if (!ShotAndProjectileSquares.Meet(shot.Position.Whole, enemyProjectile.Position.Whole))
                     continue;
 
-                // The collision response only marks non-plasma shots spent. It does not call the
-                // ordinary enemy impact and therefore cannot turn a freshly fired
+                // The collision response only marks non-plasma shots spent. It makes no ordinary
+                // enemy impact and therefore cannot turn a freshly fired
                 // Super Missile (or its invisible link) into an explosion in the producer
                 // frame. Its own frame behaviour consumes the mark on the next projectile pass.
                 if (!shot.Type.HasAnyBeam(SamusBeamFlags.Plasma))
@@ -701,8 +701,7 @@ internal sealed class EnemyProjectileEngine
     }
 
     /// <summary>
-    /// Draws a one-in-four chance: it comes up when the room's next random number divided by 16384
-    /// is three.
+    /// Draws a one-in-four chance from the room's next random number: it comes up for the top quarter of the range.
     /// </summary>
     internal bool TakeOneInFourBranch() =>
         _room.Random.Next(EnemyProjectileRandomBranchDefinitions.OneInFourBranch) == EnemyProjectileRandomBranchDefinitions.OneInFourBranchTaken;

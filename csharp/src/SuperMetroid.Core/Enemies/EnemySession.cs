@@ -65,11 +65,7 @@ public sealed class EnemySession
     /// <summary>Language flag sampled when the Ceres warning-text phase begins and by Mother Brain's alternate escape-text selection.</summary>
     public bool JapaneseText { get; set; }
 
-    /// <summary>
-    /// Enemy-pass random counter read by AI and projectiles, 0 through 65535. Its one advance wraps
-    /// from 65535 back to zero, and every reader takes it modulo a power of two or copies it whole, so a wider store holds exactly
-    /// the counter the game keeps.
-    /// </summary>
+    /// <summary>The count of enemy passes (<see cref="EnemyFrameContext.RandomEnemyCounter"/>), kept from room to room.</summary>
     internal int RandomEnemyCounter { get; set; }
 
     /// <summary>

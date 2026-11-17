@@ -5,12 +5,12 @@ namespace SuperMetroid.Core.Enemies.LavaJumpers;
 /// </summary>
 public enum NorfairLavaJumpingEnemyAction
 {
-    /// <summary>Choose one of four signed 1/256-pixel launch velocities from the current random number, enable offscreen processing, and request the enemy-library jump sound.</summary>
+    /// <summary>Chooses one of four launch speeds from the current random number, keeps updating off screen, and plays the jump sound.</summary>
     BeginJump,
-    /// <summary>Integrate Y and add gravity 56/256 pixel per update squared; once the rise has slowed to four pixels an update the flip animation starts while it is still ascending.</summary>
+    /// <summary>Rises under gravity of 56 256ths of a pixel an update each update; once the rise has slowed to four pixels an update the flip animation starts while it is still ascending.</summary>
     RiseBeforeAnimationSwitch,
-    /// <summary>Continue the signed 1/256-pixel arc until the flip animation's cue signals completion, then clear the handshake and enter final falling.</summary>
+    /// <summary>Keeps to its arc until the flip animation signals its end, then falls back.</summary>
     MoveUntilAnimationSignal,
-    /// <summary>Continue descent until the jumper reaches the bottom block row of a room screen, back in the lava, then restore spawn whole coordinates, start the hidden/rising animation, and disable offscreen processing without clearing subpositions.</summary>
+    /// <summary>Falls until the jumper reaches the bottom block row of a room screen, back in the lava, then returns to where it was placed, keeping its fractions of a pixel, starts its hidden rising animation and stops updating off screen.</summary>
     FallBackIntoLava,
 }

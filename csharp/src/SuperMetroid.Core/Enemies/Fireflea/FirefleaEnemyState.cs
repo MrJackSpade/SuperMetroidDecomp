@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Enemies.Fireflea;
 
 /// <summary>
 /// The state of a Fireflea: its animation and its flight, circling or bobbing, each with only the values that flight
-/// keeps. Setup writes every value its flight reads, so nothing a previous Fireflea in the place left reaches a new one.
+/// keeps. Setup sets every value its flight reads.
 /// </summary>
 public sealed class FirefleaEnemyState
 {

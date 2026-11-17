@@ -129,14 +129,14 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
             MagdollitePart selectedPart)
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            Action<RoomEnemyPlace, SamusState> initialize = enemies.MagdolliteBehavior.InitializeMagdollite;
+            Action<RoomEnemyPlace, SamusState> initialize = static (place, samus) => place.InitializeAsPlaced(samus);
             for (int index = 0; index < 3; index++)
             {
                 RoomEnemyPlace member = enemies.Places.InUpdateOrder[index];
-                member.Bind(EnemyDefinitionId.Magdollite, member.Definition);
-                member.Bind(member.DefinitionId, default(RoomEnemyDefinition));
                 member.SetSpawnParameter1(EnemyDefinitionId.Magdollite, (ushort)index);
                 member.SetSpawnParameter2(EnemyDefinitionId.Magdollite, 0);
+                member.Bind(EnemyDefinitionId.Magdollite, member.Definition);
+                member.Bind(member.DefinitionId, default(RoomEnemyDefinition));
                 member.Position = member.Position.WithWhole(new(0x0080, 0x0080));
                 initialize(member, RoomEnemyFrameFixtures.StandaloneSamus());
             }

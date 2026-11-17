@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Frontend;
 /// <param name="step">One update of the state.</param>
 /// <param name="name">The current status.</param>
 /// <param name="waitingOutDisplayFrame">Whether the state's current step is waiting out a frame of the display, so the next update finishes it; never when omitted.</param>
-/// <param name="audio">The prologue and epilogue audio handling.</param>
+/// <param name="audio">The audio handling before and after each of the state's updates.</param>
 internal sealed class GamePhase(
     SuperMetroidGameState state,
     PhaseRandomStep randomStep,

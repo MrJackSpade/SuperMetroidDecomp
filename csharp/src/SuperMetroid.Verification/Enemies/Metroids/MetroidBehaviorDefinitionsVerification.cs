@@ -21,14 +21,17 @@ internal static class MetroidBehaviorDefinitionsVerification
     /// <summary>Compares source tables and exercises the production escape and cry consumers with those reads forbidden.</summary>
     internal static void VerifyMetroidBehaviorDefinitions(CartridgeImportAddressSpace rom)
     {
-        for (ushort frame = 0; frame < 4; frame++)
+        // The cartridge picks each move by the countdown's two lowest bits; the port lists the moves in the order they
+        // happen, the first with all four left (#2343).
+        for (int movesLeft = 1; movesLeft <= MetroidBehaviorDefinitions.EscapeDuration; movesLeft++)
         {
             Offset16<RoomPixels> actual =
-                MetroidReactions.EscapeDisplacement(frame);
-            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3ea3f + frame * 2))), actual.X,
-                $"Metroid escape X displacement {frame}");
-            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3ea47 + frame * 2))), actual.Y,
-                $"Metroid escape Y displacement {frame}");
+                MetroidReactions.EscapeDisplacement(movesLeft);
+            int entry = movesLeft & 3;
+            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3ea3f + entry * 2))), actual.X,
+                $"Metroid escape X displacement with {movesLeft} moves left");
+            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3ea47 + entry * 2))), actual.Y,
+                $"Metroid escape Y displacement with {movesLeft} moves left");
         }
 
         for (ushort index = 0; index < 8; index++)
@@ -42,16 +45,19 @@ internal static class MetroidBehaviorDefinitionsVerification
         Suite(nameof(VerifyMetroidEscapeConsumer), () => VerifyMetroidEscapeConsumer());
         Suite(nameof(VerifyMetroidCryConsumer), () => VerifyMetroidCryConsumer(rom));
         Console.WriteLine(
-            "Metroid behavior definitions: eight displacement words, eight cry words, all 65,536 escape selectors and all eight production instruction selections pass with source tables forbidden.");
+            "Metroid behavior definitions: eight displacement words, eight cry words, every escape count and all eight production instruction selections pass with source tables forbidden.");
     }
 
-    /// <summary>Checks every ushort escape timer for wrapped displacement, countdown, and homing handoff.</summary>
+    /// <summary>
+    /// Checks every escape count for its move, countdown and homing handoff: the four an escape counts down from its
+    /// duration, and the counts a Metroid frozen through its escape's end goes on with once it thaws.
+    /// </summary>
     private static void VerifyMetroidEscapeConsumer()
     {
         // One system serves every timer: the escape step is static and keeps no per-call state.
 
-        // An escape starts at its duration and ends on the step that reaches zero, so every count from one is swept.
-        for (int timer = 1; timer <= short.MaxValue; timer++)
+        // An escape starts at its duration and ends on the step that reaches zero.
+        for (int timer = -64; timer <= MetroidBehaviorDefinitions.EscapeDuration; timer++)
         {
             var place = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>())
             {
@@ -67,7 +73,7 @@ internal static class MetroidBehaviorDefinitionsVerification
             };
 
             Offset16<RoomPixels> expected =
-                MetroidReactions.EscapeDisplacement((ushort)timer);
+                MetroidReactions.EscapeDisplacement(timer);
             MetroidBehavior.RunMetroidPowerBombEscape(place, state);
             AssertEqual(unchecked((ushort)(1 + expected.X)), place.Position.X.Whole,
                 $"production Metroid escape X timer {timer}");

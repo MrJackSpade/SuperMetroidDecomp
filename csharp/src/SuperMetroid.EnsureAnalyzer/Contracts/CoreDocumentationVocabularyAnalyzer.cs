@@ -95,6 +95,9 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// and in declared names, a value compared or read as signed, a deferred write or a suit's colour copy, odd frames that
 /// return, hardcoded data, an offset written with a plus sign, the retail game, a cursor through the original's lists, a
 /// count of bits, position and policy rows and records, and arithmetic written as a summary.
+/// #2345 adds, outside hardware owners, a value's arithmetic told as a division, remainder or modulo by a number, the
+/// original's program structure (if/else chains, a leading call, a call not made, a no-op, a routine's prologue) and
+/// storage told as left over or never read.
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -1408,6 +1411,24 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         @"|\b(?:transition|input|distance)(?:[-\s]|/{2,3})+tables?\b",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    /// <summary>
+    /// The original's arithmetic, program structure and leftover storage in prose (#2345), outside hardware owners and
+    /// markup: a value told as divided by, modulo or the remainder of a number (the sample divided by 256, modulo 4; the
+    /// random number modulo 64; the result's remainder by eight); an if/else or else-if chain, a call chain, a leading
+    /// call, a call the code does not or never makes, a no-op and a routine's prologue (the bug's update is an if/else-if
+    /// chain, the leading call in the game's reaction, custom shot AI does not call normal shot AI, the prologue requires
+    /// its parent); and storage told as left over or never read (nothing a previous Kzan left reaches a new one, a height
+    /// it republishes, which nothing reads). Core says which of its choices a random number makes and what the game does.
+    /// English stays legal: dividing a picture, an instruction not to call a method, Ceres, the prologue station, values
+    /// nothing reads because they are identities, and what a previous room hands the next.
+    /// </summary>
+    private static readonly Regex ArithmeticAndStorageSummaryProse = new(
+        @"\bdivided\s+by\s+" + NumberWord + @"\b|\bmodulo\s+" + NumberWord + @"\b|\bremainder\s+(?:by|of|after)\s+" + NumberWord + @"\b" +
+        @"|\bif\s*/\s*else(?:[-\s]if)?\b|\belse[-\s]if\b|\b(?:if|condition|branch|call)\s+chains?\b|\bleading\s+calls?\b" +
+        @"|\b(?:does\s+not|doesn't|never)\s+call\b|\bno-op\b|(?<!\bstation\s)\bprologue\b(?!\s+station\b)" +
+        @"|\bnothing\s+(?:a|the)\s+previous\b|\b(?:which|that|but)\s+nothing\s+reads\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex CallNameWord = new(@"(?:^|_|(?<=[a-z0-9])(?=[A-Z]))[Cc]alls?(?![a-z])", RegexOptions.CultureInvariant);
 
     /// <summary>
@@ -1910,6 +1931,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : RetailCursorProse.Match(Markup.Replace(text, " ")) is { Success: true } retailCursor ? retailCursor.Value
             : PoseDataNarrationProse.Match(Markup.Replace(text, " ")) is { Success: true } poseData ? poseData.Value
             : RoutineNarrationProse.Match(Markup.Replace(text, " ")) is { Success: true } routineNarration ? routineNarration.Value
+            : ArithmeticAndStorageSummaryProse.Match(Markup.Replace(text, " ")) is { Success: true } summary ? summary.Value
             : TileCharacterFinding(text, owner) is { } character ? character
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;

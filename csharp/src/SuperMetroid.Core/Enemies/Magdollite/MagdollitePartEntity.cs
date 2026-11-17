@@ -1,20 +1,26 @@
 namespace SuperMetroid.Core.Enemies.Magdollite;
 
-/// <summary>One Magdollite occupant: its own AI, with the shared reactions.</summary>
+/// <summary>
+/// One of a Magdollite's three placed parts (#2342): its head, rising body or tracking overlay, each its own entity with
+/// its own state, sharing the reactions a hit on any part passes to the parts after it.
+/// </summary>
 /// <param name="species">The Magdollite species owner.</param>
-/// <param name="place">The place the enemy occupies.</param>
+/// <param name="place">The place the part occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class MagdolliteEntity(MagdolliteBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemySurroundingsInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
+internal abstract class MagdollitePartEntity(MagdolliteBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(place, common), IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
-    /// <inheritdoc/>
-    public void Initialize(EnemySpawnSurroundings surroundings) => species.RunMagdolliteInitializationAi(Place, surroundings);
+    /// <summary>The Magdollite species owner.</summary>
+    private protected MagdolliteBehavior Species => species;
+
+    /// <summary>The part's state, once the part has been placed.</summary>
+    internal abstract MagdollitePartState? State { get; }
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunMagdolliteMainAi(Place, frame);
+    public abstract void RunMainAi(IEnemyAiFrame frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceMagdolliteTypedAnimation(Place, context);
+    public abstract void AdvanceTypedAnimation(EnemyAnimationCueContext context);
 
     /// <summary>Whether the Magdollite's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
     public override bool ReactsToTouch => LeavesTouchToSpecies || base.ReactsToTouch;
@@ -24,21 +30,21 @@ internal sealed class MagdolliteEntity(MagdolliteBehavior species, RoomEnemyPlac
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (LeavesTouchToSpecies)
-            species.ReactToMagdolliteTouch(context);
+            Species.ReactToMagdolliteTouch(context);
         else
             base.ReactToTouch(context);
     }
 
     /// <summary>The Magdollite's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? species.MagdolliteShotReaction : base.ShotReaction;
+    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? Species.MagdolliteShotReaction : base.ShotReaction;
 
     /// <summary>The Magdollite's own stages around common bomb damage for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
     public override EnemyBombReaction? CommonBombDamageReaction(EnemyBombContext context) =>
-        context.SelectedShot is null ? species.MagdolliteBombReaction : base.CommonBombDamageReaction(context);
+        context.SelectedShot is null ? Species.MagdolliteBombReaction : base.CommonBombDamageReaction(context);
 
     /// <summary>The Magdollite's own Power Bomb reaction where its definition leaves the blast to it, or the shared one.</summary>
-    public override EnemyPowerBombReaction? PowerBombReaction => LeavesPowerBombToSpecies ? species.MagdollitePowerBombReaction : base.PowerBombReaction;
+    public override EnemyPowerBombReaction? PowerBombReaction => LeavesPowerBombToSpecies ? Species.MagdollitePowerBombReaction : base.PowerBombReaction;
 
     /// <summary>The Magdollite's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
     /// <param name="reaction">The reaction the radius path or a hitbox selects; none where the definition leaves shots to the species.</param>

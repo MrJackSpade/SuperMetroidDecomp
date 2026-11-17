@@ -29,7 +29,7 @@ internal static class GunshipLiftoffDust
             RoomEnemyProjectileKind.GunshipLiftoffDustCloud,
             Behavior,
             graphics: default);
-        projectile.Position = projectile.Position.WithWhole(new(CoordinateAxis.Wrap(samus.Position.X.Whole + placement.XOffset), CoordinateAxis.Wrap(samus.Position.Y.Whole + GunshipDustDefinitions.YOffset)));
+        projectile.Position = projectile.Position.WithWhole(new(samus.Position.X.Whole + placement.XOffset, samus.Position.Y.Whole + GunshipDustDefinitions.YOffset));
         projectile.Velocity = new(SignedEightEight.Zero, SignedEightEight.Zero);
         projectile.StartAnimation(new GunshipDustAnimation(placement.Animation));
     }

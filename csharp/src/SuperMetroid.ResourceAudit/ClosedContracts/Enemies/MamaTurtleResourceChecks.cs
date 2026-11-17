@@ -10,7 +10,8 @@ internal static class MamaTurtleResourceChecks
     /// <summary>Checks the frames the Mama/Baby Turtle programs show and their count against the pre-extraction schema boundary.</summary>
     public static void Run() => EnemyCompositionResourceChecks.RunSpritemaps("Mama/Baby Turtle",
         MamaTurtleVisualDefinitions.Bank,
-        MamaTurtleAnimationsTooling.Spritemaps(Enum.GetValues<MamaTurtleSegment>()),
+        MamaTurtleAnimationsTooling.Spritemaps(Enum.GetValues<MamaTurtleSegment>())
+            .Concat(MamaTurtleAnimationsTooling.Spritemaps(Enum.GetValues<BabyTurtleSegment>())),
         MamaTurtleVisualDefinitions.FrameCount,
         EnemySpritemapToolingDefinitions.PreMamaTurtleFrameCount);
 }

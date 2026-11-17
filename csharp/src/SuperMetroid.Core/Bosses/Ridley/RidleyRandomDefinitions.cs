@@ -6,31 +6,30 @@ internal static class RidleyRandomDefinitions
     /// <summary>Whether the resting Ceres baby jumps on silently rather than crying: taken by an odd sample.</summary>
     internal static readonly RandomSampleField CeresBabySilentJump = new(0, 1);
 
-    /// <summary>Ceres Ridley's fireball target jitter, 0 through 7 pixels on the side its sample's sign picks: the sample modulo 8.</summary>
+    /// <summary>Ceres Ridley's fireball target jitter, 0 through 7 pixels on the side its sample's sign picks.</summary>
     internal static readonly RandomSampleField FireballJitter = new(0, 3);
 
-    /// <summary>The updates Norfair Ridley's pogo attack lasts at most beyond its fewest (<see cref="NorfairRidleyMotionDefinitions.PogoLeastUpdates"/>), 0 through 63: the sample modulo 64.</summary>
+    /// <summary>The updates Norfair Ridley's pogo attack lasts at most beyond its fewest (<see cref="NorfairRidleyMotionDefinitions.PogoLeastUpdates"/>), 0 through 63.</summary>
     internal static readonly RandomSampleField PogoTimer = new(0, 6);
 
-    /// <summary>Which of the four pogo launches Norfair Ridley takes: the sample modulo 4.</summary>
+    /// <summary>Which of the four pogo launches Norfair Ridley takes.</summary>
     internal static readonly RandomSampleField PogoChoice = new(0, 2);
 
-    /// <summary>The updates the first leg of Norfair Ridley's wall sweep lasts at most beyond its fewest (<see cref="NorfairRidleyMotionDefinitions.WallSweepFirstLegLeastUpdates"/>), 0 through 31: the sample modulo 32.</summary>
+    /// <summary>The updates the first leg of Norfair Ridley's wall sweep lasts at most beyond its fewest (<see cref="NorfairRidleyMotionDefinitions.WallSweepFirstLegLeastUpdates"/>), 0 through 31.</summary>
     internal static readonly RandomSampleField WallSweepTimer = new(0, 5);
 
     /// <summary>
-    /// Norfair Ridley's ordinary attack starting his pogo rather than his swoop (#2334): the lowest four of the eight values
-    /// of the sample modulo 8, half of them, pogo.
+    /// Norfair Ridley's ordinary attack starting his pogo rather than his swoop (#2334): half the samples pogo.
     /// </summary>
     internal static readonly RandomChance OrdinaryAttackPogos = RandomChance.Lowest(4, new RandomSampleField(0, 3));
 
     /// <summary>
-    /// Norfair Ridley lunging at a damage-boosting Samus rather than starting his pogo (#2334): the lowest six of the eight
-    /// values of the sample modulo 8, three in four, lunge.
+    /// Norfair Ridley lunging at a damage-boosting Samus rather than starting his pogo (#2334): three samples in four
+    /// lunge.
     /// </summary>
     internal static readonly RandomChance DamageBoostingAttackLunges = RandomChance.Lowest(6, new RandomSampleField(0, 3));
 
-    /// <summary>Ceres Ridley's new tail curliness, 0 through 15 added to eight: the sample modulo 16.</summary>
+    /// <summary>Ceres Ridley's new tail curliness, 0 through 15 added to eight.</summary>
     internal static readonly RandomSampleField TailCurliness = new(0, 4);
 
     /// <summary>
@@ -45,8 +44,8 @@ internal static class RidleyRandomDefinitions
     internal static readonly RandomChance TailWhips = RandomChance.Highest(16, new RandomSampleField(0, 8));
 
     /// <summary>
-    /// Ceres Ridley changing his tail's curliness (#1619): only the top one of the 256 values of the sample divided by 256,
-    /// 255, changes it.
+    /// Ceres Ridley changing his tail's curliness (#1619): one random number in 256, from the top of the range, changes
+    /// it.
     /// </summary>
     internal static readonly RandomChance TailCurlinessChanges = RandomChance.Highest(1, new RandomSampleField(8, 8));
 

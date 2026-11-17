@@ -23,8 +23,8 @@ internal sealed record GunshipPieces(RoomEnemyPlace Top, RoomEnemyPlace Bottom, 
     }
 
     /// <summary>
-    /// Shows record <paramref name="record"/> of the lights' glow (#1733) on all three pieces, which draw their lights in the
-    /// colour the glow recolours; each record replaces the one before it. The glow reaches the gunship that started it
+    /// Shows frame <paramref name="record"/> of the lights' glow (#1733) on all three pieces, which draw their lights in
+    /// the colour the glow recolours; each frame replaces the one before it. The glow reaches the gunship that started it
     /// (#1783).
     /// </summary>
     public void ShowGlow(ColourEffectFrame record)

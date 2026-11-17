@@ -497,6 +497,16 @@ room's edge, what a reaction depends on, which way a distance lies, the roar end
 object, collection, field, property, array, static or module initializer), a projectile's branch and setup stay
 English.
 
+#2345 widens SME6454, outside hardware owners, to more of the original's arithmetic, program structure and storage: a
+value told as divided by, modulo or the remainder of a number (`the sample divided by 256, modulo 4`, `the random number
+modulo 64`, `the result's remainder by eight`); an if/else or else-if chain, a call chain, a leading call, a call the
+code does not or never makes, a no-op and a routine's prologue (`the bug's update is an if/else-if chain`, `custom shot
+AI does not call normal shot AI`, `the prologue requires its parent`); and storage told as left over or never read
+(`nothing a previous Kzan left reaches a new one`, `which nothing reads`). Core says which of its choices a random number
+makes (`one chance in four`, `taken for half the random numbers`) and what the game does. Dividing a picture, an
+instruction not to call a method, Ceres, the prologue station, values nothing reads because they are identities, and what
+a previous room hands the next stay English.
+
 `Tilemap` is matched as the one word the cartridge's sources spell. A room layer named as the destination engine names
 it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as does `MapTiles`; so does
 `SpriteSheet` beside `Spritemap`, and `Scan`, `Scanned` or `FirstLine` beside `Scanline` (#1694). Documentation prose is

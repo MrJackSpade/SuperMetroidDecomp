@@ -106,10 +106,8 @@ internal sealed class EnemyCollision
             // Touch collision does not read the invisible property as a collision flag;
             // it suppresses rendering only. Hibashi relies on that distinction: its second
             // place remains invisible while its animation moves a live hitbox.
-            // Both Ridley definitions use a hand-authored extended body plus a separately
-            // solved tail tip. The enemy pass runs its body's collision at this same pre-AI seam;
-            // tail processing checks the tip later. Do not flatten either to the definition's
-            // dummy 8x8 radius here. An actor without a touch reaction is skipped.
+            // Both Ridleys touch Samus with their own body hitboxes and, later in the update, the tail's tip; neither
+            // touches by its definition's radius. An actor without a touch reaction is skipped.
             if (place.Entity is IEnemyContactHooks { OwnsSamusTouch: true } ||
                 place.Presence.HasAny(EnemyPresence.Deleted) ||
                 place.Entity is not IEnemyTouchReaction { ReactsToTouch: true } touch)
@@ -209,10 +207,8 @@ internal sealed class EnemyCollision
 
             foreach (SamusProjectile projectile in projectiles.Shots)
             {
-                // The place still holds the live beam or missile when the enemy's collision
-                // response selects vulnerability. Starting the impact below deliberately
-                // turns the place into an explosion, so retain the incoming type instead of
-                // accidentally asking the vulnerability table about the visual effect.
+                // The enemy's vulnerability answers for the beam or missile that hit it, before the impact below turns the
+                // shot into its explosion.
                 SamusProjectileType projectileType = projectile.Type;
                 int projectileDamage = Ensure.AtLeastZero(projectile.Damage);
                 SamusProjectileDirection projectileDirection = projectile.Direction;
@@ -465,7 +461,7 @@ internal sealed class EnemyCollision
     /// Runs the ordinary-radius half of the enemies' bomb collision.
     /// </summary>
     /// <remarks>
-    /// Normal bombs are not part of the five-shot beam/missile walk above: the bomb pass waits for the shared bomb
+    /// Normal bombs are not among the five beams and missiles tested above: the bomb pass waits for the shared bomb
     /// countdown to reach zero, marks the overlapping bomb as having hit, and runs the enemy's shot reaction with
     /// that bomb selected.
     ///
@@ -1069,20 +1065,26 @@ internal sealed class EnemyCollision
 
     /// <summary>
     /// Whether Samus stands on <paramref name="enemy"/> (#2155): the one test every enemy that carries or supports her
-    /// makes, Kraid's lints, the platforms, the Mama Turtle and her babies, the shutters, Oum and the Work Robots. Her
-    /// centre, reckoned <see cref="EnemyCollisionDefinitions.SamusStandingBias"/> pixels lower, lies above the enemy's
-    /// centre, and their bodies overlap: horizontally strictly, so bodies that only meet side by side do not count, and
-    /// vertically including the pixel where her feet meet the enemy's top. Both distances are across the room's wrapping
-    /// coordinates.
+    /// makes, Kraid's lints, the platforms, the Mama Turtle and her babies, the shutters, Oum and the Work Robots, with
+    /// her centre reckoned <see cref="EnemyCollisionDefinitions.SamusStandingBias"/> pixels lower.
     /// </summary>
-    internal static bool IsSamusStandingOn(RoomEnemyPlace enemy, SamusState samus)
+    internal static bool IsSamusStandingOn(RoomEnemyPlace enemy, SamusState samus) =>
+        IsSamusStandingOn(enemy, samus, EnemyCollisionDefinitions.SamusStandingBias);
+
+    /// <summary>
+    /// Whether Samus stands on <paramref name="enemy"/> with her centre reckoned <paramref name="bias"/> pixels lower
+    /// (#2155, #2342): that centre lies above the enemy's centre, and their bodies overlap: horizontally strictly, so bodies
+    /// that only meet side by side do not count, and vertically including the pixel where her feet meet the enemy's top.
+    /// Both distances are across the room's wrapping coordinates. The Kzan reckons her five pixels lower
+    /// (<see cref="Kzan.KzanMotionDefinitions.SamusStandingBias"/>), every other enemy three.
+    /// </summary>
+    internal static bool IsSamusStandingOn(RoomEnemyPlace enemy, SamusState samus, int bias)
     {
         if (CoordinateAxis.Distance(samus.Position.X.Whole, enemy.Position.X.Whole) >=
             samus.Kinematics.Radius.X + enemy.Radius.X)
             return false;
 
-        int below = CoordinateAxis.Difference(
-            samus.Position.Y.Whole + EnemyCollisionDefinitions.SamusStandingBias, enemy.Position.Y.Whole);
+        int below = CoordinateAxis.Difference(samus.Position.Y.Whole + bias, enemy.Position.Y.Whole);
         return below < 0 && -below <= samus.Kinematics.Radius.Y + enemy.Radius.Y;
     }
 }

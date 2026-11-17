@@ -56,10 +56,10 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
         for (int part = 0; part < parts.Length; part++)
         {
             RoomEnemyPlace member = parts[part];
-            member.Bind(EnemyDefinitionId.Magdollite, member.Definition);
             member.SetSpawnParameter1(EnemyDefinitionId.Magdollite, part);
             member.SetSpawnParameter2(EnemyDefinitionId.Magdollite, 0);
-            enemies.MagdolliteBehavior.InitializeMagdollite(member, RoomEnemyFrameFixtures.StandaloneSamus());
+            member.Bind(EnemyDefinitionId.Magdollite, member.Definition);
+            member.InitializeAsPlaced(RoomEnemyFrameFixtures.StandaloneSamus());
         }
         AssertEqual(PictureShading.Shaded(MagdolliteShades.Glow(0)), enemies.MagdolliteBehavior.Glow,
             "a restarted Magdollite glow shows its first frame");

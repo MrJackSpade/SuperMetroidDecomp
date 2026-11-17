@@ -33,7 +33,7 @@ public sealed class RoomEnemyPlace : ISolidEnemy
     /// The place's ordinal in <see cref="EnemyPlaceOrder"/>, 0 through <see cref="EnemyPlaceOrder.Capacity"/> minus one,
     /// fixed for the place's lifetime: the place's position in allocation and processing order.
     /// </summary>
-    [IntegerQuantity("position of the place in the enemy table")]
+    [IntegerQuantity("place among the room's enemy places")]
     public int Ordinal { get; }
     /// <summary>
     /// The occupant's enemy identity; <see cref="EnemyDefinitionId.None"/> when the place holds no enemy, whether it is

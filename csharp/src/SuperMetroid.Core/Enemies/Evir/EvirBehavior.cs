@@ -275,10 +275,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         EvirSpitState state,
         SamusState samus)
     {
-        if (!EnemyMath.IsWithinStrictModularDistance(
-                samus.Position.X.Whole,
-                state.Body.Position.X.Whole,
-                EvirMotionDefinitions.SpitActivationDistance))
+        if (CoordinateAxis.Distance(samus.Position.X.Whole, state.Body.Position.X.Whole) >= EvirMotionDefinitions.SpitActivationDistance)
         {
             return;
         }

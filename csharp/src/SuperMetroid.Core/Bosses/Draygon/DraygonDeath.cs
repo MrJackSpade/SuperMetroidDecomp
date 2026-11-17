@@ -55,8 +55,8 @@ internal sealed class DraygonDeath
 
         DraygonMovement.MoveDraygonAtAngle(body, BurialDriftAngle(body.Position.Whole), speed: 1);
 
-        if (!EnemyMath.IsWithinStrictModularDistance(body.Position.X.Whole, DraygonArenaDefinitions.DeathTargetX, DraygonArenaDefinitions.BurialPointTolerance) ||
-            !EnemyMath.IsWithinStrictModularDistance(body.Position.Y.Whole, DraygonArenaDefinitions.DeathTargetY, DraygonArenaDefinitions.BurialPointTolerance))
+        if (CoordinateAxis.Distance(body.Position.X.Whole, DraygonArenaDefinitions.DeathTargetX) >= DraygonArenaDefinitions.BurialPointTolerance ||
+            CoordinateAxis.Distance(body.Position.Y.Whole, DraygonArenaDefinitions.DeathTargetY) >= DraygonArenaDefinitions.BurialPointTolerance)
         {
             return;
         }

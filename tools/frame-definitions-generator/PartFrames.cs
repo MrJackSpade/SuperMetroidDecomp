@@ -271,20 +271,6 @@ internal sealed record PartFrameConfiguration(
             [
                 new("CeresDoor", "CeresDoorSpawnSettings", "Facing", ["Right", "Left"]),
             ]),
-        // The Mama Turtle sleeps, leaves and enters her shell and spins; the baby crawls, hides, leaves its shell and spins.
-        new("MamaTurtleBehavior", null, null, "MamaTurtleAnimations", null, [],
-            new Dictionary<string, string[]>(StringComparer.Ordinal)
-            {
-                ["BabyTurtle"] =
-                [
-                    "BabyCrawlingLeft", "BabyCrawlingRight", "BabyHidingLeft", "BabyHidingRight", "BabySpinning", "BabyLeaveShell",
-                ],
-                ["MamaTurtle"] =
-                [
-                    "MamaAsleep", "MamaLeaveShellLeft", "MamaLeaveShellRight", "MamaEnterShellLeft", "MamaEnterShellRight", "MamaSpinning",
-                ],
-            },
-            new Dictionary<string, string[]>(StringComparer.Ordinal), null, null, []),
         // The grapple Ripper and the Ripper run their own pair of moving programs and the jet Ripper plays the grapple Ripper's (#1842);
         // only the grapple Ripper's and jet Ripper's reactions pin their shared frozen frames.
         new("RipperBehavior", null, null, "RipperAnimations", null, [],

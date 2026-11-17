@@ -125,10 +125,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
             case NamiheAction.WaitForSamus:
                 // The row-proximity test takes the modular absolute difference and
                 // uses a strict comparison. Equality at the configured distance stays idle.
-                if (!EnemyMath.IsWithinStrictModularDistance(
-                        samus.Position.Y.Whole,
-                        place.Position.Y.Whole,
-                        state.YProximity))
+                if (CoordinateAxis.Distance(samus.Position.Y.Whole, place.Position.Y.Whole) >= state.YProximity)
                 {
                     return;
                 }

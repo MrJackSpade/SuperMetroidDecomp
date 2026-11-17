@@ -14,6 +14,9 @@ internal static class MagdolliteShades
     /// <summary>The glow's frames, in cycle order.</summary>
     internal const int GlowFrames = 4;
 
-    /// <summary>The shade of glow frame <paramref name="frame"/>.</summary>
+    /// <summary>The shade of glow frame <paramref name="frame"/>, 0 through <see cref="GlowFrames"/> minus one.</summary>
     internal static PictureShade Glow(int frame) => new(GlowEffect, Ensure.BetweenInclusive(0, GlowFrames - 1, frame));
+
+    /// <summary>The shade of <paramref name="glow"/>'s frame.</summary>
+    internal static PictureShade Glow(MagdolliteGlow glow) => Glow(glow.Step);
 }

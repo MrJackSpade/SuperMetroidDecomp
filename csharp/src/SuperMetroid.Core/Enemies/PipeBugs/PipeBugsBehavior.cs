@@ -294,7 +294,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus)
     {
         int triggerWidth = leader.SpawnSettings<NorfairPipeBugSpawnSettings>().TriggerWidth;
-        if (!EnemyMath.IsWithinStrictModularDistance(leader.Position.X.Whole, samus.Position.X.Whole, triggerWidth) ||
+        if (CoordinateAxis.Distance(leader.Position.X.Whole, samus.Position.X.Whole) >= triggerWidth ||
             CoordinateAxis.Difference(leader.Position.Y.Whole, samus.Position.Y.Whole) < 0)
         {
             return;
@@ -439,7 +439,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
             ? deltaX is < 0 and >= -PipeBugDefinitions.YellowTriggerDistance
             : deltaX is >= 0 and < PipeBugDefinitions.YellowTriggerDistance;
         if (!inFront ||
-            !EnemyMath.IsWithinStrictModularDistance(place.Position.Y.Whole, samus.Position.Y.Whole, PipeBugDefinitions.YellowTriggerHeight))
+            CoordinateAxis.Distance(place.Position.Y.Whole, samus.Position.Y.Whole) >= PipeBugDefinitions.YellowTriggerHeight)
         {
             return;
         }

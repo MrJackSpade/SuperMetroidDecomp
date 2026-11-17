@@ -6,8 +6,8 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.MamaTurtles;
 
 /// <summary>
-/// The Mama Turtle's and baby turtles' crawl, spin, shell and dormant animations (#641). Each
-/// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="MamaTurtleCue"/> naming what it does.
+/// The Mama Turtle's dormant, shell and spin animations (#641, #2342). Each frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="MamaTurtleCue"/> naming
+/// what it does.
 /// </summary>
 internal static class MamaTurtleAnimations
 {
@@ -15,45 +15,7 @@ internal static class MamaTurtleAnimations
     internal static AnimationSegments<MamaTurtleSegment, EnemyFrameId, MamaTurtleCue> Segments { get; } = new(
         new Dictionary<MamaTurtleSegment, AnimationBeat<EnemyFrameId, MamaTurtleCue>[]>
     {
-        [P.BabyCrawlingLeft] =
-        [
-            Cue(new MamaTurtleCue.Signal(K.Crawl)),
-            Show(EnemyFrameId.TurtleBabyCrawlingLeftLegsTucked, 10),
-            Show(EnemyFrameId.TurtleBabyCrawlingLeftLegsReaching, 10),
-            Cue(new MamaTurtleCue.Signal(K.Crawl)),
-            Show(EnemyFrameId.TurtleBabyCrawlingLeftLegsPlanted, 10),
-            Show(EnemyFrameId.TurtleBabyCrawlingLeftLegsPushing, 10),
-            Cue(new MamaTurtleCue.Signal(K.Crawl)),
-            Show(EnemyFrameId.TurtleBabyCrawlingLeftLegsTucked, 10),
-            Show(EnemyFrameId.TurtleBabyCrawlingLeftLegsReaching, 10),
-            Cue(new MamaTurtleCue.Signal(K.Crawl)),
-            Show(EnemyFrameId.TurtleBabyCrawlingLeftLegsPlanted, 10),
-            Show(EnemyFrameId.TurtleBabyCrawlingLeftLegsPushing, 10),
-            Cue(new MamaTurtleCue.Signal(K.Crawl)),
-            Show(EnemyFrameId.TurtleBabyCrawlingLeftLegsTucked, 10),
-            Show(EnemyFrameId.TurtleBabyCrawlingLeftLegsReaching, 10),
-            Cue(new MamaTurtleCue.Signal(K.Crawl)),
-            Show(EnemyFrameId.TurtleBabyCrawlingLeftLegsTrailing, 10),
-            Show(EnemyFrameId.TurtleBabyCrawlingLeftLegsLifting, 10),
-            Cue(new MamaTurtleCue.Signal(K.Crawl)),
-            Show(EnemyFrameId.TurtleBabyCrawlingLeftLegsTucked, 10),
-            Show(EnemyFrameId.TurtleBabyCrawlingLeftLegsReturning, 10),
-            Cue(new MamaTurtleCue.Signal(K.Crawl)),
-            Show(EnemyFrameId.TurtleBabyCrawlingLeftLegsTrailing, 10),
-            Show(EnemyFrameId.TurtleBabyCrawlingLeftLegsLifting, 10),
-            Cue(new MamaTurtleCue.Signal(K.LoopOrTurnAround)),
-        ],
-        [P.BabySpinning] =
-        [
-            Show(EnemyFrameId.TurtleBabyShellTurned0, 1),
-            Cue(new MamaTurtleCue.Signal(K.PlaySpinningSound)),
-            Show(EnemyFrameId.TurtleBabyShellTurned0, 4),
-            Show(EnemyFrameId.TurtleBabyShellTurned90, 5),
-            Show(EnemyFrameId.TurtleBabyShellTurned180, 5),
-            Show(EnemyFrameId.TurtleBabyShellTurned270, 5),
-            Cue(new MamaTurtleCue.Signal(K.SetSpinningStoppable)),
-        ],
-        [P.MamaSpinning] =
+        [P.Spinning] =
         [
             Show(EnemyFrameId.TurtleMamaInShellFacingLeft, 1),
             Cue(new MamaTurtleCue.Signal(K.PlaySpinningSound)),
@@ -62,7 +24,7 @@ internal static class MamaTurtleAnimations
             Show(EnemyFrameId.TurtleMamaInShellFacingRight, 5),
             Show(EnemyFrameId.TurtleMamaInShellFacingViewer, 5),
         ],
-        [P.MamaEnterShellLeft] =
+        [P.EnterShellLeft] =
         [
             Show(EnemyFrameId.TurtleMamaOutOfShellFacingLeft, 32),
             Show(EnemyFrameId.TurtleMamaWithdrawingFacingLeft, 5),
@@ -70,19 +32,11 @@ internal static class MamaTurtleAnimations
             Cue(new MamaTurtleCue.RiseToHover(HorizontalDirection.Left)),
             Hold(EnemyFrameId.TurtleMamaInShellFacingLeft),
         ],
-        [P.BabyHidingLeft] =
-        [
-            Show(EnemyFrameId.TurtleBabyCrawlingLeftLegsReturning, 5),
-            Show(EnemyFrameId.TurtleBabyCrawlingLeftLegsTrailing, 5),
-            Show(EnemyFrameId.TurtleBabyShellTurned0, 64),
-            Cue(new MamaTurtleCue.Signal(K.LeaveShell)),
-            Hold(EnemyFrameId.TurtleBabyShellTurned0),
-        ],
-        [P.MamaAsleep] =
+        [P.Asleep] =
         [
             Hold(EnemyFrameId.TurtleMamaInShellFacingLeft),
         ],
-        [P.MamaLeaveShellLeft] =
+        [P.LeaveShellLeft] =
         [
             Show(EnemyFrameId.TurtleMamaInShellFacingLeft, 16),
             Show(EnemyFrameId.TurtleMamaWithdrawnFacingLeft, 5),
@@ -91,42 +45,7 @@ internal static class MamaTurtleAnimations
             Cue(new MamaTurtleCue.Signal(K.EnterShell)),
             Hold(EnemyFrameId.TurtleMamaOutOfShellFacingLeft),
         ],
-        [P.BabyLeaveShell] =
-        [
-            Show(EnemyFrameId.TurtleBabyCrawlingLeftLegsTrailing, 5),
-            Show(EnemyFrameId.TurtleBabyCrawlingLeftLegsReturning, 47),
-            Cue(new MamaTurtleCue.Signal(K.LeftShell)),
-            Show(EnemyFrameId.TurtleBabyCrawlingLeftLegsReturning, 47),
-        ],
-        [P.BabyCrawlingRight] =
-        [
-            Cue(new MamaTurtleCue.Signal(K.Crawl)),
-            Show(EnemyFrameId.TurtleBabyCrawlingRightLegsTucked, 10),
-            Show(EnemyFrameId.TurtleBabyCrawlingRightLegsReaching, 10),
-            Cue(new MamaTurtleCue.Signal(K.Crawl)),
-            Show(EnemyFrameId.TurtleBabyCrawlingRightLegsPlanted, 10),
-            Show(EnemyFrameId.TurtleBabyCrawlingRightLegsPushing, 10),
-            Cue(new MamaTurtleCue.Signal(K.Crawl)),
-            Show(EnemyFrameId.TurtleBabyCrawlingRightLegsTucked, 10),
-            Show(EnemyFrameId.TurtleBabyCrawlingRightLegsReaching, 10),
-            Cue(new MamaTurtleCue.Signal(K.Crawl)),
-            Show(EnemyFrameId.TurtleBabyCrawlingRightLegsPlanted, 10),
-            Show(EnemyFrameId.TurtleBabyCrawlingRightLegsPushing, 10),
-            Cue(new MamaTurtleCue.Signal(K.Crawl)),
-            Show(EnemyFrameId.TurtleBabyCrawlingRightLegsTucked, 10),
-            Show(EnemyFrameId.TurtleBabyCrawlingRightLegsReaching, 10),
-            Cue(new MamaTurtleCue.Signal(K.Crawl)),
-            Show(EnemyFrameId.TurtleBabyCrawlingRightLegsTrailing, 10),
-            Show(EnemyFrameId.TurtleBabyCrawlingRightLegsLifting, 10),
-            Cue(new MamaTurtleCue.Signal(K.Crawl)),
-            Show(EnemyFrameId.TurtleBabyCrawlingRightLegsTucked, 10),
-            Show(EnemyFrameId.TurtleBabyCrawlingRightLegsReturning, 10),
-            Cue(new MamaTurtleCue.Signal(K.Crawl)),
-            Show(EnemyFrameId.TurtleBabyCrawlingRightLegsTrailing, 10),
-            Show(EnemyFrameId.TurtleBabyCrawlingRightLegsLifting, 10),
-            Cue(new MamaTurtleCue.Signal(K.LoopOrTurnAround)),
-        ],
-        [P.MamaEnterShellRight] =
+        [P.EnterShellRight] =
         [
             Show(EnemyFrameId.TurtleMamaOutOfShellFacingRight, 1),
             Show(EnemyFrameId.TurtleMamaWithdrawingFacingRight, 5),
@@ -134,15 +53,7 @@ internal static class MamaTurtleAnimations
             Cue(new MamaTurtleCue.RiseToHover(HorizontalDirection.Right)),
             Hold(EnemyFrameId.TurtleMamaInShellFacingRight),
         ],
-        [P.BabyHidingRight] =
-        [
-            Show(EnemyFrameId.TurtleBabyCrawlingRightLegsReturning, 5),
-            Show(EnemyFrameId.TurtleBabyCrawlingRightLegsTrailing, 5),
-            Show(EnemyFrameId.TurtleBabyShellTurned180, 64),
-            Cue(new MamaTurtleCue.Signal(K.LeaveShell)),
-            Hold(EnemyFrameId.TurtleBabyShellTurned180),
-        ],
-        [P.MamaLeaveShellRight] =
+        [P.LeaveShellRight] =
         [
             Show(EnemyFrameId.TurtleMamaInShellFacingRight, 16),
             Show(EnemyFrameId.TurtleMamaWithdrawnFacingRight, 5),
@@ -156,18 +67,12 @@ internal static class MamaTurtleAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<MamaTurtleSegment, Animation<MamaTurtleSegment>> StartingAt { get; } = new Dictionary<MamaTurtleSegment, Animation<MamaTurtleSegment>>
     {
-        [P.BabyCrawlingLeft] = new([Whole(P.BabyCrawlingLeft)], AnimationEnd.Holds),
-        [P.BabySpinning] = new([Whole(P.BabySpinning)], AnimationEnd.LoopsFrom(0)),
-        [P.MamaSpinning] = new([Whole(P.MamaSpinning)], AnimationEnd.LoopsFrom(0)),
-        [P.MamaEnterShellLeft] = new([Whole(P.MamaEnterShellLeft)], AnimationEnd.Holds),
-        [P.BabyHidingLeft] = new([Whole(P.BabyHidingLeft)], AnimationEnd.Holds),
-        [P.MamaAsleep] = new([Whole(P.MamaAsleep)], AnimationEnd.Holds),
-        [P.MamaLeaveShellLeft] = new([Whole(P.MamaLeaveShellLeft)], AnimationEnd.Holds),
-        [P.BabyLeaveShell] = new([Whole(P.BabyLeaveShell)], AnimationEnd.Holds),
-        [P.BabyCrawlingRight] = new([Whole(P.BabyCrawlingRight)], AnimationEnd.Holds),
-        [P.MamaEnterShellRight] = new([Whole(P.MamaEnterShellRight)], AnimationEnd.Holds),
-        [P.BabyHidingRight] = new([Whole(P.BabyHidingRight)], AnimationEnd.Holds),
-        [P.MamaLeaveShellRight] = new([Whole(P.MamaLeaveShellRight)], AnimationEnd.Holds),
+        [P.Spinning] = new([Whole(P.Spinning)], AnimationEnd.LoopsFrom(0)),
+        [P.EnterShellLeft] = new([Whole(P.EnterShellLeft)], AnimationEnd.Holds),
+        [P.Asleep] = new([Whole(P.Asleep)], AnimationEnd.Holds),
+        [P.LeaveShellLeft] = new([Whole(P.LeaveShellLeft)], AnimationEnd.Holds),
+        [P.EnterShellRight] = new([Whole(P.EnterShellRight)], AnimationEnd.Holds),
+        [P.LeaveShellRight] = new([Whole(P.LeaveShellRight)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

@@ -394,8 +394,8 @@ internal sealed class PhantoonCombat
 
             if (vulnerableWindow)
             {
-                // A vulnerable hit draws a random number the game keeps but nothing reads; the draw itself advances the
-                // shared random sequence.
+                // A vulnerable hit draws a random number whose only effect is to advance the shared random
+                // sequence.
                 _ = _room.Random.Next(PhantoonRandomDefinitions.ShotPattern);
                 state.Round.RearmHurtFlash();
                 if (!state.Swoop.Requested)

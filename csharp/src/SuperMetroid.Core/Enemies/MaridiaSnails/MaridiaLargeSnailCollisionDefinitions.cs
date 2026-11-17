@@ -14,12 +14,12 @@ internal static class MaridiaLargeSnailCollisionDefinitions
     private static readonly EnemyReaction SafeTouch = MaridiaLargeSnailReactions.NonDamagingTouch;
     /// <summary>Reaction for the shot-sensitive portion of an Oum frame.</summary>
     private static readonly EnemyReaction Shot = MaridiaLargeSnailReactions.Shot;
-    /// <summary>No-op reaction on Oum hitboxes that do not react to shots.</summary>
+    /// <summary>The reaction of the Oum hitboxes that do not react to shots: nothing happens.</summary>
     private static readonly EnemyReaction NoShot = EnemyReaction.Ignore;
 
     /// <summary>
-    /// Each of the 30 one-component Oum frames, whose single zero-offset component holds the frame's own hitbox list; the
-    /// rectangles are fitted to the drawings.
+    /// Each of the 30 Oum frames with its own hitboxes, about the Oum's origin; the rectangles are fitted to the
+    /// drawings.
     /// </summary>
     internal static EnemyFrameCollision<EnemyCollisionHitbox> Frames { get; } = new()
     {

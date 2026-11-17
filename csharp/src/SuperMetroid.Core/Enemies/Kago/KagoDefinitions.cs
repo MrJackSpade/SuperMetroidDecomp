@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Enemies.Kago;
 /// <summary>Kago's quake and its bugs' random jump selection, waits and motion.</summary>
 internal static class KagoDefinitions
 {
-    /// <summary>The random field that adds zero to three <see cref="JumpHeightStepPixels"/> to a Kago bug's upward jump speed: the sample divided by 256, modulo 4.</summary>
+    /// <summary>The random field that adds zero to three <see cref="JumpHeightStepPixels"/> to a Kago bug's upward jump speed.</summary>
     internal static readonly RandomSampleField JumpHeightSteps = new(8, 2);
 
     /// <summary>The upward jump speed every bug's jump starts from, in whole pixels per update.</summary>
@@ -13,9 +13,8 @@ internal static class KagoDefinitions
     internal const int JumpHeightStepPixels = 1;
 
     /// <summary>
-    /// The random choice that sends a bug near its shell leftward: the sample divided by 256 being odd, the parity of
-    /// <see cref="JumpHeightSteps"/>'s count, so an odd count of steps sends it left; the game reads it back from the
-    /// chosen jump speed rather than drawing again.
+    /// The random choice that sends a bug near its shell leftward: an odd count of <see cref="JumpHeightSteps"/> sends it
+    /// left, so the jump's height and its way come from one random number rather than two.
     /// </summary>
     internal static readonly RandomSampleField LeftJump = new(8, 1);
 
@@ -25,10 +24,10 @@ internal static class KagoDefinitions
     /// <summary>How much longer than its first wait a new Kago bug waits before it first sounds, in updates.</summary>
     internal const int FirstSoundDelayPastWait = 4;
 
-    /// <summary>The random field that adds zero to seven updates to a new Kago bug's first wait: the sample modulo 8.</summary>
+    /// <summary>The random field that adds zero to seven updates to a new Kago bug's first wait.</summary>
     internal static readonly RandomSampleField FirstIdleFrames = new(0, 3);
 
-    /// <summary>The random field that adds zero to thirty-one updates to a landed Kago bug's wait: the sample modulo 32.</summary>
+    /// <summary>The random field that adds zero to thirty-one updates to a landed Kago bug's wait.</summary>
     internal static readonly RandomSampleField LandedIdleFrames = new(0, 5);
 
     /// <summary>How much faster a bug falls each unobstructed airborne update: 224 256ths of a pixel (#2339).</summary>

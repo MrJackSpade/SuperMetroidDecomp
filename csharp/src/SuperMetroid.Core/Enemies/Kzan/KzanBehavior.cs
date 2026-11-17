@@ -49,11 +49,10 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         // the fastest the fall reaches.
         state.FallingSpeed = place.SpawnSettings<KzanSpawnSettings>().FallSpeed;
 
-        // The spawn settings name the fall distance in pixels and the top wait countdown.
-        // A zero countdown deliberately wraps to -1 on its first decrement rather than
-        // triggering immediately.
+        // The spawn settings name the fall distance in pixels and the top's wait. A wait of zero does not run out at
+        // once: it runs the full countdown (WrappingCountdown).
         int spawnY = place.Position.Y.Whole;
-        state.FallingTargetY = CoordinateAxis.Wrap(spawnY + place.SpawnSettings<KzanSpawnSettings>().FallDistance);
+        state.FallingTargetY = spawnY + place.SpawnSettings<KzanSpawnSettings>().FallDistance;
         state.RisingTargetY = spawnY;
         state.FallWaitTimerResetValue = place.SpawnSettings<KzanSpawnSettings>().FallWait;
         state.FallWaitTimer = WrappingCountdown.Start(state.FallWaitTimerResetValue);
@@ -85,7 +84,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     private void FollowKzanTop(RoomEnemyPlace bottom)
     {
         RoomEnemyPlace top = _tops.Of(bottom);
-        bottom.Position = bottom.Position.WithWhole(new(top.Position.X.Whole, CoordinateAxis.Wrap(top.Position.Y.Whole + KzanMotionDefinitions.BottomBelowTop)));
+        bottom.Position = bottom.Position.WithWhole(new(top.Position.X.Whole, top.Position.Y.Whole + KzanMotionDefinitions.BottomBelowTop));
     }
 
     /// <summary>Runs the top actor through fall wait, accelerated descent, rise wait, and half-pixel ascent.</summary>
@@ -139,8 +138,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         state.PreviousY = place.Position.Y.Whole;
         place.Position = place.Position.AdvanceY(state.FallingSpeed);
 
-        // The comparison checks only whether the wrapped difference is negative, which the spatial difference
-        // keeps: coordinates near the room's edge retain the same game behavior.
+        // The top lands once it reaches its falling target.
         if (!CoordinateAxis.Precedes(place.Position.Y.Whole, state.FallingTargetY))
         {
             state.RiseWaitTimer = KzanMotionDefinitions.RiseWait;
@@ -181,30 +179,6 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Kzan's private copy of the check whether an enemy touches Samus from below. Its only
-    /// difference from the common check is the shifted Y sample (<see cref="KzanMotionDefinitions.TouchSampleDrop"/>). Horizontal
-    /// overlap is strict; vertical tangency is accepted after the shifted center test.
-    /// </summary>
-    private static bool IsKzanTouchingSamusFromBelow(
-        RoomEnemyPlace place,
-        SamusState samus)
-    {
-        int xDistance = CoordinateAxis.Distance(samus.Position.X.Whole, place.Position.X.Whole);
-        if (xDistance >= samus.Kinematics.Radius.X + place.Radius.X)
-            return false;
-
-        int shiftedYDelta = CoordinateAxis.Difference(samus.Position.Y.Whole, place.Position.Y.Whole) + KzanMotionDefinitions.TouchSampleDrop;
-        if (shiftedYDelta >= 0)
-            return false;
-
-        int yDistance = Math.Abs(shiftedYDelta);
-        if (yDistance < samus.Kinematics.Radius.Y)
-            return true;
-
-        return yDistance - samus.Kinematics.Radius.Y <= place.Radius.Y;
-    }
-
-    /// <summary>
     /// Adds only the accepted whole-pixel Kzan delta to Samus's extra Y displacement.
     /// Code deliberately leaves extra Y subdisplacement untouched.
     /// </summary>
@@ -213,7 +187,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         KzanEnemyState state,
         SamusState samus)
     {
-        if (!IsKzanTouchingSamusFromBelow(place, samus))
+        if (!EnemyCollision.IsSamusStandingOn(place, samus, KzanMotionDefinitions.SamusStandingBias))
             return;
 
         samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(0, CoordinateAxis.Difference(place.Position.Y.Whole, state.PreviousY));

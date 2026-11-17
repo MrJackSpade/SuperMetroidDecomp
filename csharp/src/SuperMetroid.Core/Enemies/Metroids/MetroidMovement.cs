@@ -5,12 +5,12 @@ namespace SuperMetroid.Core.Enemies.Metroids;
 /// </summary>
 public enum MetroidMovement
 {
-    /// <summary>Chases Samus: proportional 1/65536-pixel attraction toward Samus's X and eight pixels above her Y, capped at three pixels per update.</summary>
+    /// <summary>Chases Samus: pulled toward her X and eight pixels above her Y, harder the further it is, at no more than three pixels an update.</summary>
     Homing,
-    /// <summary>Latches onto Samus: fixed-step close-range seeking entered on touch before the attachment threshold is reached.</summary>
+    /// <summary>Closes on Samus: seeks her at close range, entered on touch, until it is near enough to latch on.</summary>
     ClosingOnSamus,
-    /// <summary>Holds on to Samus: hard-lock position to Samus's X and Y minus eight pixels, clearing movement velocities.</summary>
+    /// <summary>Holds on to Samus: it stays at her X, eight pixels above her Y, and does not move of its own accord.</summary>
     AttachedToSamus,
-    /// <summary>Bombed off Samus: perform four displacement steps after bomb collision detaches the Metroid, then resume homing.</summary>
+    /// <summary>Shaken off Samus by a Power Bomb: it makes its escape's four moves, then chases her again.</summary>
     PowerBombEscape,
 }

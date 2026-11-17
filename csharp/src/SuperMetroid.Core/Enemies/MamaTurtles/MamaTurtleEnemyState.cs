@@ -13,7 +13,7 @@ public sealed class MamaTurtleEnemyState
     /// <summary>The current Mama Turtle behaviour.</summary>
     public MamaTurtleAction Action { get; internal set; }
 
-    /// <summary>Signed 1/65536-pixel velocity per AI update.</summary>
+    /// <summary>Mama's velocity, in pixels an update.</summary>
     public FixedVector<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>Whether Mama is dormant in her shell; the first touch or shot on one of her babies wakes her.</summary>
@@ -23,8 +23,8 @@ public sealed class MamaTurtleEnemyState
     public int ActionTimer { get; internal set; }
 
     /// <summary>
-    /// Signed 1/65536-pixel horizontal acceleration per hovering update, toward Samus's side when hovering starts; a wall
-    /// reversal negates it with the game's quirk of negating the whole and fraction parts separately.
+    /// Mama's sideways acceleration while she hovers, in pixels an update each update, toward Samus's side when hovering
+    /// starts; a wall turns it round (<see cref="MamaTurtleWallReversal"/>).
     /// </summary>
     public SignedSixteenSixteen XAcceleration { get; internal set; }
 }

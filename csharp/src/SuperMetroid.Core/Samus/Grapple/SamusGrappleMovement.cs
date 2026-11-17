@@ -1018,7 +1018,7 @@ public static class SamusGrappleMovement
 
         bool cancelledConnectedPose = grapple.CancelFromConnectedPose;
         QueueGrappleSound(samus, GrappleBeamDefinitions.Sounds.Stop);
-        // The held route takes the empty no-op, not a connected-pose collision exit.
+        // The held route does nothing here, rather than leave by a connected-pose collision.
         // Draygon, rather than terrain ejection, still owns Samus's coordinates.
         if (!samus.DraygonGrabbed.IsActive)
             SamusBlockCollision.EjectAfterGrapple(level, samus.Kinematics);

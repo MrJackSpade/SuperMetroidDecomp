@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Enemies.FallingSparks;
 /// <summary>The sideways drifts a falling spark can launch with.</summary>
 public static class FallingSparkLaunchDefinitions
 {
-    /// <summary>The random field that chooses a launch: the sample divided by 4, modulo 8.</summary>
+    /// <summary>The random field that chooses a launch.</summary>
     internal static readonly RandomSampleField LaunchSelector = new(2, 3);
 
     /// <summary>

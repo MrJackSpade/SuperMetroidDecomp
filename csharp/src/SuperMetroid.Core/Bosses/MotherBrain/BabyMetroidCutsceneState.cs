@@ -642,7 +642,7 @@ public sealed class BabyMetroidCutsceneState
         MoveAccordingToVelocity();
 
         // After the Baby moves, its hit flash counts down the timer an onion ring's hit sets, and shows the flash colours
-        // while the count, modulo four, is two or three. A hit sets sixteen: the next update shakes the Baby at sixteen,
+        // on the third and fourth update of each four. A hit sets sixteen: the next update shakes the Baby at sixteen,
         // then shows its normal colours at fifteen.
         if (OnionRingHitFlashTimer != 0)
         {

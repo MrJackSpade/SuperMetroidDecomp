@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Fx;
 public static class AtmosphereDrift
 {
     /// <summary>
-    /// The wind a rainy room's load chooses from the shared random number: the number divided by 4, modulo 4, chooses
+    /// The wind a rainy room's load chooses from the shared random number, chooses
     /// one of the four winds, and the rest of the number is ignored.
     /// </summary>
     public static RainWind RainWindChosenBy(int randomNumber) => AtmosphereDriftDefinitions.RainWindChoice.Of(randomNumber) switch

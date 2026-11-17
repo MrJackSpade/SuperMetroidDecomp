@@ -61,7 +61,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
 
     /// <summary>
     /// The elevator setup hands Samus's movement to the elevator on departure. On arrival,
-    /// downward arrivals reinstall it, but upward arrivals retain the lock's no-op.
+    /// downward arrivals hand it back, but on upward arrivals her movement stays locked, doing nothing.
     /// The test reads the travel direction.
     /// </summary>
     public bool ElevatorRunsSamusMovement =>

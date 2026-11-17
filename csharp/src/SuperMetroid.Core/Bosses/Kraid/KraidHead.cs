@@ -56,33 +56,31 @@ internal sealed class KraidHead
     /// </summary>
     internal void UpdateKraidHealthColours(RoomEnemyPlace body, KraidEnemyState state)
     {
-        KraidColourBand band = KraidCadenceDefinitions.HurtColoursShown.IsSetIn(state.HurtFrame)
-            ? KraidColourBand.HurtFlash
-            : KraidColourBand.Health(HealthBand(body, state));
-        state.Colours.ShowBand(band, BandEyes(band), _background.EyeColours.Shaded);
+        if (KraidCadenceDefinitions.HurtColoursShown.IsSetIn(state.HurtFrame))
+        {
+            state.Colours.ShowHurtFlash(_background.EyeColours.Hurt, _background.EyeColours.Shaded);
+        }
+        else
+        {
+            KraidHealthBand band = HealthBand(body, state);
+            state.Colours.ShowBand(band, BandEyes(band), _background.EyeColours.Shaded);
+        }
         PictureShading parts = state.Colours.Parts;
         foreach (RoomEnemyPlace part in _parts.All)
             part.Shading = parts;
     }
 
-    /// <summary>The eye colours of <paramref name="band"/>: a health band's, or the hurt flash's.</summary>
-    internal ReadOnlySpan<RgbColor> BandEyes(KraidColourBand band) => _background.EyeColours.Of(band);
+    /// <summary>The eye colours of health band <paramref name="band"/>.</summary>
+    internal ReadOnlySpan<RgbColor> BandEyes(KraidHealthBand band) => _background.EyeColours.Of(band);
 
     /// <summary>The health band his colours start in, before any update: the band of his health as he initializes.</summary>
-    internal static KraidColourBand InitialBand(RoomEnemyPlace body, KraidEnemyState state) => KraidColourBand.Health(HealthBand(body, state));
+    internal static KraidHealthBand InitialBand(RoomEnemyPlace body, KraidEnemyState state) => HealthBand(body, state);
 
     /// <summary>
-    /// The health band Kraid's colours show: the highest of the eight bands whose threshold his health has reached,
-    /// or the lowest band.
+    /// The health band Kraid's colours show: the highest of the eight bands whose least health, in eighths of the health he
+    /// initialized with, his health has reached, or the lowest band.
     /// </summary>
-    private static int HealthBand(RoomEnemyPlace body, KraidEnemyState state)
-    {
-        // Band n starts at n + 1 eighths of his initial health.
-        int band = KraidHealthThresholdDefinitions.EighthCount - 1;
-        while (band != 0 && body.Health < state.HealthEighths(band + 1))
-            band--;
-        return band;
-    }
+    private static KraidHealthBand HealthBand(RoomEnemyPlace body, KraidEnemyState state) => KraidHealthBand.Of(body.Health, state.InitialHealth);
 
     /// <summary>Restores the small-body thinking state after an attack.</summary>
     internal void SetupKraidFirstPhaseThinking(RoomEnemyPlace body, KraidEnemyState state)
@@ -229,7 +227,7 @@ internal sealed class KraidHead
     internal void UnglowKraidEye(RoomEnemyPlace body, KraidEnemyState state)
     {
         // The eyes' colours, read back, reaching the band's ends the fade and starts the roar (#1512).
-        bool unglowed = state.Colours.UnglowEyes(BandEyes(KraidColourBand.Health(HealthBand(body, state))));
+        bool unglowed = state.Colours.UnglowEyes(BandEyes(HealthBand(body, state)));
         if (unglowed)
         {
             state.BodyState.FightPhase = KraidFightPhase.MouthOpenReaction;

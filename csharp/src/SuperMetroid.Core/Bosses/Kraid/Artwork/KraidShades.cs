@@ -9,10 +9,13 @@ namespace SuperMetroid.Core.Bosses.Kraid.Artwork;
 public static class KraidShades
 {
     /// <summary>
-    /// Kraid's colours for <paramref name="band"/>, a health band or the hurt flash: his body's on the background and his
-    /// sprite parts' (#1512). The shade's step is the band's place among his health colours' groups.
+    /// Kraid's colours for health band <paramref name="band"/>: his body's on the background and his sprite parts' (#1512),
+    /// named by the band (#2297).
     /// </summary>
-    public static PictureShade Health(KraidColourBand band) => new("kraid-health", band.ColourGroup);
+    public static PictureShade Health(KraidHealthBand band) => new($"kraid-health-{Ensure.NotNull(band).Key}", 0);
+
+    /// <summary>His hurt flash's colours, on his body and his sprite parts, which cover his band's (#2297).</summary>
+    public static PictureShade HurtFlash { get; } = new("kraid-hurt-flash", 0);
 
     /// <summary>His body's colours as he dies, with his arm drawn into them.</summary>
     public static PictureShade DeathArm { get; } = new("kraid-death-arm", 0);

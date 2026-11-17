@@ -30,7 +30,7 @@ public static class KraidEyeColourFile
         {
             Version = Version,
             HurtFlash = Levels(eyes.Hurt),
-            HealthBands = [.. Enumerable.Range(0, KraidHealthThresholdDefinitions.EighthCount).Select(band => Levels(eyes.HealthBand(band)))],
+            HealthBands = [.. KraidHealthBandDefinitions.MostHurtFirst.Select(band => Levels(eyes.Of(band)))],
         }, JsonOptions);
 
         static PaletteRgb5[] Levels(ReadOnlySpan<RgbColor> colours)
@@ -55,10 +55,11 @@ public static class KraidEyeColourFile
         KraidEyeColourDocument document = JsonAssetDocument.Read<KraidEyeColourDocument>(json, JsonOptions, "Kraid eye colours");
         if (document.Version != Version)
             throw new InvalidDataException($"Kraid eye colours require version {Version}.");
-        if (document.HealthBands is not { Length: KraidHealthThresholdDefinitions.EighthCount })
-            throw new InvalidDataException($"Kraid eye colours require {KraidHealthThresholdDefinitions.EighthCount} health bands.");
+        IReadOnlyList<KraidHealthBand> bands = KraidHealthBandDefinitions.MostHurtFirst;
+        if (document.HealthBands is not { } healthBands || healthBands.Length != bands.Count)
+            throw new InvalidDataException($"Kraid eye colours require {bands.Count} health bands, most hurt first.");
         return new KraidEyeColours(Compile(document.HurtFlash, "hurt flash"),
-            [.. document.HealthBands.Select((band, index) => Compile(band, $"health band {index}"))]);
+            Enumerable.Range(0, bands.Count).ToDictionary(place => bands[place], place => (IReadOnlyList<RgbColor>)Compile(healthBands[place], $"{bands[place]} health band")));
     }
 
     /// <summary>One eye colour set's colours, one per eye, each channel 0..31.</summary>

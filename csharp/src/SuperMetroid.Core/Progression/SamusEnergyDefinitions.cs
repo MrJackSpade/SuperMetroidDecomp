@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Samus;
+namespace SuperMetroid.Core.Progression;
 
 /// <summary>Samus's energy at the start of a game, the energy a tank holds and the level below which it is critical (#2280, #2368).</summary>
 internal static class SamusEnergyDefinitions

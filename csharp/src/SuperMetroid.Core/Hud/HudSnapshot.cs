@@ -24,8 +24,8 @@ public readonly record struct HudSnapshot(
 
     /// <summary>The HUD a new game starts with, before any item is collected: 99 energy and no equipment.</summary>
     public static HudSnapshot NewGame => new(
-        Health: SuperMetroid.Core.Samus.SamusEnergyDefinitions.StartingEnergy,
-        MaxHealth: SuperMetroid.Core.Samus.SamusEnergyDefinitions.StartingEnergy,
+        Health: SamusEnergyDefinitions.StartingEnergy,
+        MaxHealth: SamusEnergyDefinitions.StartingEnergy,
         Missiles: 0,
         MaxMissiles: 0,
         SuperMissiles: 0,

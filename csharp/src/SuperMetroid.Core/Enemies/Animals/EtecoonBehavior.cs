@@ -49,8 +49,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.InstallSpawnSettings(place.SpawnSettings<EtecoonSpawnSettings>());
         place.SetSpeciesState(state);
 
-        // The setup sets the animating property, which the enemy animation pass reads before it plays the
-        // authored animation, so the Etecoon animates whether or not its population entry set it.
+        // The setup makes the Etecoon animate, whether or not its placement does.
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
         place.Frame = EnemyFrameId.Empty;
         state.Playback = EnemyAnimationPlayback.Start(place, EtecoonAnimations.StartingWith(EtecoonSegment.Initial));
@@ -145,8 +144,8 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         EtecoonEnemyState state,
         SamusState samus)
     {
-        // Destination sprite drawing runs AI while door-transition audio is disabled.
-        // Preserve the initial wake edge and the countdown until Samus's passage ends.
+        // The destination room's Etecoons already update while Samus passes through the door. They neither wake nor
+        // count down until her passage ends.
         if (_doorPassage.IsUnderWay)
             return;
         if (!state.AwaitingSamus)
@@ -597,7 +596,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         StartEtecoonAnimation(place, state, EtecoonSegment.RunningLeft);
     }
 
-    /// <summary>Makes the earthquake's parameter and timer writes that pause an Etecoon.</summary>
+    /// <summary>Pauses an Etecoon and its animation while the earthquake shakes the room.</summary>
     private void PauseEtecoonForEarthquake(RoomEnemyPlace place, EtecoonEnemyState state)
     {
         if (!_earthquake.IsShaking)
@@ -646,14 +645,14 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         return state.ActionTimer == 0;
     }
 
-    /// <summary>Checks strict wrapped horizontal distance from an Etecoon to Samus.</summary>
+    /// <summary>Whether Samus lies less than <paramref name="distance"/> pixels from the Etecoon horizontally, by <see cref="CoordinateAxis.Distance"/>.</summary>
     private static bool EtecoonIsWithinX(
         RoomEnemyPlace place,
         SamusState samus,
         int distance) =>
         CoordinateAxis.Distance(place.Position.X.Whole, samus.Position.X.Whole) < distance;
 
-    /// <summary>Checks strict wrapped vertical distance from an Etecoon to Samus.</summary>
+    /// <summary>Whether Samus lies less than <paramref name="distance"/> pixels from the Etecoon vertically, by <see cref="CoordinateAxis.Distance"/>.</summary>
     private static bool EtecoonIsWithinY(
         RoomEnemyPlace place,
         SamusState samus,
@@ -675,7 +674,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         return deltaX < 0 && !straightAboveOrBelow;
     }
 
-    /// <summary>Restarts an authored Etecoon animation at timer one.</summary>
+    /// <summary>Starts the Etecoon's animation at <paramref name="segment"/>, showing its first frame on the next update.</summary>
     private static void StartEtecoonAnimation(
         RoomEnemyPlace place,
         EtecoonEnemyState state,

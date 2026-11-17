@@ -318,7 +318,7 @@ internal static class SamusGroundedPoseTransitions
                 $"Moonwalk turn/jump {samus.Pose} -> {targetPose} is not one of the game's routes.");
         }
 
-        // Preserve the old muzzle direction before installing turn art. The next input phase
+        // Keep the old muzzle direction before starting the turn's pose. The next input phase
         // uses the handed shot to admit the turning HUD producer and forcibly release charge.
         SamusTransitionShot sourceShot = SamusTransitionShot.FromPose(samus);
         FoldExtraRunSpeedIntoBaseAndStartTurn(samus);
@@ -479,7 +479,7 @@ internal static class SamusGroundedPoseTransitions
             return;
         }
 
-        // Reads the PREVIOUS pose before it installs the final turn art.
+        // Reads the PREVIOUS pose before it starts the final turn's pose.
         // A previous crouching movement selects the crouched turns by aim; every other admitted source selects
         // the standing ones. Both cover Samus's ten aims, but her two straight-down aims belong to
         // the compact straight-down family, which this transition does not handle.

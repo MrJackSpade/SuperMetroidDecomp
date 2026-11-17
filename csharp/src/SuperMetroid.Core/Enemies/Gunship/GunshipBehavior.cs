@@ -175,16 +175,15 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         SamusState samus,
         GameplayAction newlyPressedControllerInput)
     {
-        // The ship decrements its engine-sound timer and reloads the hover sound's interval on one or past zero. The engine
-        // sound is requested before the reload; this periodic producer continues while the ship is idling or bobbing.
+        // The hover sound plays once every interval of updates, in every phase.
         if (--State(top).EngineSoundTimer <= 0)
         {
             _audio.QueueEnemySound(EnemySound.GunshipHover, priority: SoundRequestPriority.Normal);
             State(top).EngineSoundTimer = GunshipHoverSoundDefinitions.Interval;
         }
 
-        // The landed ship continuously performs its four-phase bob before running the phase itself, in every
-        // phase from waiting for the landing entrance through loading the liftoff dust.
+        // The landed ship bobs before running its phase, from waiting for the landing entrance through readying the
+        // engines for takeoff.
         GunshipPhase phase = State(top).Phase;
         if (BobsWhileLanded(phase))
             StepGunshipBob(top);
@@ -276,7 +275,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         // top hull to 1119 before beginning its seventeen-frame landing bounce.
         // The clamp writes only whole positions; subpixels keep this update's sum.
         SignedSixteenSixteen delta = top.Position.Y.Whole < GunshipMotionDefinitions.SlowDescentY ? GunshipMotionDefinitions.FastDescentSpeed : GunshipMotionDefinitions.SlowDescentSpeed;
-        AddGunshipYFixed(samus, top, delta);
+        MoveGunshipAndSamusVertically(samus, top, delta);
         if (top.Position.Y.Whole < GunshipMotionDefinitions.LandedTopY)
             return;
 
@@ -333,8 +332,8 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         _frameResults.Gunship = GunshipFrameEvent.LandingPadClosed;
     }
 
-    /// <summary>Adds the same 1/65536-pixel Y displacement to Samus and all three ship components.</summary>
-    private static void AddGunshipYFixed(SamusState samus, RoomEnemyPlace top, SignedSixteenSixteen delta)
+    /// <summary>Moves Samus and the ship's three pieces down by <paramref name="delta"/> together.</summary>
+    private static void MoveGunshipAndSamusVertically(SamusState samus, RoomEnemyPlace top, SignedSixteenSixteen delta)
     {
         FixedCoordinate samusY = new FixedCoordinate(samus.Position.Y.Whole, samus.Kinematics.Position.Y.Fraction)
             .MovedBy(delta);
@@ -349,8 +348,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
 
     /// <summary>
     /// Whether the landed ship bobs before running <paramref name="phase"/>: every phase from waiting for the
-    /// landing entrance through loading the liftoff dust. The game tests its phase against the range of
-    /// those phases (a range which also contains Idle); firing up the engines is the first phase past it.
+    /// landing entrance through readying the engines, Idle among them; firing up the engines is the first that does not.
     /// </summary>
     private static bool BobsWhileLanded(GunshipPhase phase) => phase is
         GunshipPhase.WaitForLandingEntranceToOpen or GunshipPhase.EjectSamus or GunshipPhase.FinishLanding or
@@ -436,9 +434,8 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     /// <summary>Refills Samus by the ship's refill step or skips directly to escape takeoff after Mother Brain.</summary>
     private void RestoreSamusInGunship(RoomEnemyPlace top, SamusState samus)
     {
-        // The Zebes-timebomb-set event is set by Mother Brain's death sequence. Bypasses every refill
-        // and save-prompt branch here, starts showing the takeoff artwork, and keeps the
-        // already hidden/input-locked Samus rigidly attached to the ship.
+        // Once Mother Brain's death has set the Zebes timebomb, the ship neither refills Samus nor offers to save: it
+        // readies its engines for the escape at once, carrying the hidden Samus with it.
         if (_room.Services.Events.Has(StoryEvent.ZebesTimebombSet))
         {
             State(top).Phase = GunshipPhase.ReadyTakeoffEngines;

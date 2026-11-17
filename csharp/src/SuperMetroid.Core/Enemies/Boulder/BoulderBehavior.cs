@@ -155,8 +155,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         AddBoulderVerticalVelocity(place, state.BounceSpeedAccumulator, direction: VerticalDirection.Up);
 
-        // The game subtracts one mark and checks whether the result is negative, storing zero in place of a
-        // result below zero, so the clock never keeps a value below zero past this update.
+        // Slowing the rebound by one mark past the curve's start ends it: the boulder falls from the curve's start.
         QuadraticSpeedCurvePlace slowed = state.BounceSpeedAccumulator - BoulderMotionDefinitions.BounceSpeedStep;
         if (slowed.IsNegative)
         {
@@ -202,8 +201,8 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        // The falling clock is not capped: its next read selects the following curve mark, and the curve
-        // rejects the place past its last mark before the clock could approach the limit of its range.
+        // The fall's place on the curve is not capped: its next update reads the following mark, and the curve
+        // rejects a place past its last mark.
         state.BounceSpeedAccumulator += BoulderMotionDefinitions.BounceSpeedStep;
         AddBoulderHorizontalVelocity(place, state);
         state.TravelSpeedAccumulator = AddAndCap(
@@ -224,8 +223,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         SignedSixteenSixteen horizontalDisplacement = ReadBoulderHorizontalDisplacement(state);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, place, horizontalDisplacement))
         {
-            // Setting the hidden and deleted properties both hides and deletes the boulder. The inert action is
-            // still written before the next update's processing pass clears it.
+            // The boulder breaks: hidden and gone, it does nothing more.
             place.Presence = place.Presence.With(EnemyPresence.Hidden | EnemyPresence.Deleted);
             state.Action = BoulderAction.Inert;
             _audio.QueueEnemySound(EnemySoundEffectDefinitions.BoulderImpactSound, priority: SoundRequestPriority.Normal);
@@ -247,7 +245,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         state.PreviousY = place.Position.Y;
     }
 
-    /// <summary>Moves the actor horizontally by its signed quadratic travel speed, wrapping within the coordinate range.</summary>
+    /// <summary>Moves the boulder horizontally by its travel speed on the quadratic speed curve, toward its roll.</summary>
     private static void AddBoulderHorizontalVelocity(RoomEnemyPlace place, BoulderEnemyState state) =>
         place.Position = place.Position.WithX(place.Position.X.MovedBy(ReadBoulderHorizontalDisplacement(state)));
 
@@ -255,7 +253,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     private static SignedSixteenSixteen ReadBoulderHorizontalDisplacement(BoulderEnemyState state) =>
         state.TravelSpeedAccumulator.Speed.Toward(state.Roll != BoulderRoll.Right ? EnemySpeedSign.Negative : EnemySpeedSign.Positive);
 
-    /// <summary>Moves the actor vertically by a speed of the quadratic speed curve toward <paramref name="direction"/>, wrapping within the coordinate range.</summary>
+    /// <summary>Moves the boulder vertically by its place's speed on the quadratic speed curve, toward <paramref name="direction"/>.</summary>
     private static void AddBoulderVerticalVelocity(RoomEnemyPlace place, QuadraticSpeedCurvePlace accumulator, VerticalDirection direction)
     {
         SignedSixteenSixteen displacement = accumulator.Speed.Toward(direction == VerticalDirection.Up ? EnemySpeedSign.Negative : EnemySpeedSign.Positive);

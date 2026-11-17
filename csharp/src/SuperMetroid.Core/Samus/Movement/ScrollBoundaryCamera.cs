@@ -115,7 +115,7 @@ public sealed class ScrollBoundaryCamera
         Position = Position.WithFractionsOf(retained);
 
     /// <summary>
-    /// Publishes the modular camera position the door-transition scroll owns.
+    /// Publishes the camera position the door-transition scroll owns, which may lie outside the room.
     /// </summary>
     /// <remarks>
     /// The vertical transitions deliberately begin outside the destination room:
@@ -585,10 +585,9 @@ public sealed class ScrollBoundaryCamera
     private static int NextScreenStart(int pixel) => CoordinateAxis.Wrap(ScreenStart(pixel) + 2 * SamusCameraDefinitions.HalfScreen);
 
     /// <summary>
-    /// Compares only the whole pixels as signed wrapped values, then
-    /// subtracts the complete 1/65536-pixel pair in the selected direction and adds exactly
-    /// one whole pixel. Modular arithmetic keeps the game's noted subpixel corner case, where
-    /// the result can still be less than 1.0.
+    /// The distance the camera moved from <paramref name="previous"/> to <paramref name="current"/>, in whichever
+    /// direction the whole pixels moved (<see cref="CoordinateAxis.Difference"/>), plus one whole pixel. When the whole
+    /// pixels match and the fraction moved back, the sum is less than one pixel.
     /// </summary>
     private static SignedSixteenSixteen CalculateDistanceMovedPlusOne(
         FixedCoordinate previous,

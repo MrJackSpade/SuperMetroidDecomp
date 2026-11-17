@@ -35,10 +35,8 @@ internal sealed class FallingSparksBehavior
         if (projectile is null)
             return;
 
-        // The spark starts as its definition has it: its blank
-        // starting frame, frame behaviour, animation, radii, property flags, damage,
-        // and interaction behavior. Its setup below then sets only the source position,
-        // shared motion values, and random horizontal delta.
+        // The spark starts as its definition has it: blank at first, with its animation, size, damage and the way it
+        // touches Samus. It then appears below its source, still, and drifts sideways by a random launch.
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.FallingSpark,

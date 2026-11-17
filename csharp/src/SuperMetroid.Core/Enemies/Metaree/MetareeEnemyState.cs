@@ -12,7 +12,10 @@ public sealed class MetareeEnemyState
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<SkreeMetareeSegment> Playback { get; set; }
 
-    /// <summary>Reloaded to 21 during flight, then counted down while underground.</summary>
+    /// <summary>
+    /// The updates left of the burrow: <see cref="MetareeMotionDefinitions.BurrowLifetime"/> as the Metaree strikes the
+    /// ground, counted down while it burrows; it is gone on the update the count reaches zero.
+    /// </summary>
     public int BurrowTimer { get; internal set; }
 
     /// <summary>The idle, preparing, diving or burrowing behaviour.</summary>

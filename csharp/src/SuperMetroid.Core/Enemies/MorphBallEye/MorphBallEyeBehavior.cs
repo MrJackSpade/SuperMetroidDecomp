@@ -99,7 +99,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Starts the 32-frame opening animation only inside strict modular X and Y activation ranges.</summary>
+    /// <summary>Starts the eye's opening once Samus is closer than its opening reach on both axes (<see cref="CoordinateAxis.Distance"/>).</summary>
     private static void WaitForSamusNearMorphBallEye(
         RoomEnemyPlace eye,
         MorphBallEyeEnemyState state,
@@ -173,7 +173,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Action = MorphBallEyeAction.WaitForSamus;
     }
 
-    /// <summary>Calculates the game angle from signed wrapped eye-to-Samus displacement.</summary>
+    /// <summary>The eye's bearing to Samus, from her distance on each axis (<see cref="CoordinateAxis.Difference"/>).</summary>
     private static RotationAngle CalculateMorphBallEyeAngle(RoomEnemyPlace eye, SamusState samus) =>
         EnemyMath.CalculateBearing(
             new(CoordinateAxis.Difference(samus.Position.X.Whole, eye.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, eye.Position.Y.Whole))).ToMirroredTrigonometryAngle().ToAngle();

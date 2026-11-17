@@ -8,23 +8,23 @@ namespace SuperMetroid.Core.Enemies.Beetom;
 /// </summary>
 public enum BeetomAction
 {
-    /// <summary>Selects the near or distant decision entry from a strict 96-pixel horizontal proximity check.</summary>
+    /// <summary>Decides between lunging at Samus and its own idling, crawling or hopping by whether she is horizontally closer than 96 pixels.</summary>
     DecideAction,
-    /// <summary>Advances the shared RNG and selects an idle or hop setup, facing right when the choice is odd.</summary>
+    /// <summary>Takes a random number that chooses idling, crawling or hopping, and faces right on an odd number.</summary>
     DecideActionSamusNotInProximity,
-    /// <summary>Loads the idle's wait and enters the stationary countdown on the next gameplay frame.</summary>
+    /// <summary>Starts the idle's wait, which the Beetom counts down standing still from the next update.</summary>
     StartIdling,
-    /// <summary>Installs crawling art for its heading and selects movement without moving on this setup frame.</summary>
+    /// <summary>Starts the crawling animation for its heading and crawls from the next update.</summary>
     StartCrawling,
-    /// <summary>Initializes the rising short hop toward its heading and its art.</summary>
+    /// <summary>Starts the short hop rising toward its heading, with its animation.</summary>
     StartShortHop,
-    /// <summary>Loads the long-hop speed-curve place, clears falling, and installs hop art for its heading.</summary>
+    /// <summary>Starts the long hop rising from its place on the speed curve, with the hop animation for its heading.</summary>
     StartLongHop,
     /// <summary>Aims the rising lunge toward Samus and starts the corresponding hop animation.</summary>
     DecideActionSamusInProximity,
-    /// <summary>Installs attached art on its heading's side before the drain-following behaviour begins.</summary>
+    /// <summary>Starts the clinging animation on its heading's side, then follows Samus as it drains her.</summary>
     StartDraining,
-    /// <summary>Restores crawl art from the crawl direction, clears falling, and selects the straight drop.</summary>
+    /// <summary>Starts the crawling animation for its crawl direction and drops straight down.</summary>
     StartDropping,
     /// <summary>Resets the downward speed-curve place to zero after Samus shakes the Beetom off.</summary>
     StartBeingFlung,

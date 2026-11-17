@@ -3,7 +3,7 @@ using System.Collections.Frozen;
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>
-/// The doors whose passage exchanges explored maps (#1500): the game stores its live explored map as the map of the area
+/// The doors whose passage exchanges explored maps (#1500): the live explored map becomes the map of the area
 /// Samus leaves, then loads the live map from the stored map of the area she enters. They are the doors between areas,
 /// elevators among them, except the escape's door from the Climb down into Tourian's fourth escape room, which leaves the
 /// live map as it is.

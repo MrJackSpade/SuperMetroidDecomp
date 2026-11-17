@@ -8,9 +8,9 @@ public enum SbugAction
 {
     /// <summary>Selects an activation action only when both axis distances are strictly below the spawn radius.</summary>
     WaitForSamus,
-    /// <summary>Spends one AI invocation selecting continuous forward movement.</summary>
+    /// <summary>Starts moving straight ahead from the next update.</summary>
     ActivateMoveForward,
-    /// <summary>Selects alternating side movement without moving on this invocation.</summary>
+    /// <summary>Starts zig-zagging from the next update.</summary>
     ActivateZigZag,
     /// <summary>Resets shared RNG to 11 and selects the collision-aware random-direction chooser.</summary>
     ActivateRandomUntilCollision,

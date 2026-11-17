@@ -36,8 +36,8 @@ internal sealed class GrappleBehavior : IGrappleTargets
             if (xDistance >= enemy.Radius.X + GrappleTargetDefinitions.BeamPointRadius || yDistance >= enemy.Radius.Y + GrappleTargetDefinitions.BeamPointRadius)
                 continue;
 
-            // The collision stores exactly one, rather than combining it with an old
-            // hurt or frozen state. The next enemy pass therefore runs grapple AI.
+            // Grappling replaces any hurt or frozen state the enemy had, so its next update runs its grappled
+            // reaction.
             enemy.AiStates = EnemyAiStates.Grappled;
             GrappleEnemyReaction reaction = enemy.Definition.GrappleResponse ?? throw new InvalidDataException(
                 $"Enemy {enemy.DefinitionId} names no reaction to the grapple beam.");

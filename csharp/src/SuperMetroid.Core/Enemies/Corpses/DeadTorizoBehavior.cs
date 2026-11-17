@@ -182,7 +182,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Draws the sand heap of each corpse still in its place after the enemy queue, in the order they were placed,
+    /// Draws, after the room's enemies, the sand heap of each corpse still in the room, in the order they were placed,
     /// publishing its frame as the encounter's own (#1392), with the rows that corpse's own rot has formed (#1539).
     /// </summary>
     internal void DrawDeadTorizoSandHeap(SpriteFrameBuffer sprites, Position16<RoomPixels> camera)

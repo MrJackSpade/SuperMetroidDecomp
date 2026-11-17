@@ -467,7 +467,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         {
             // The collision marks a non-plasma projectile as having entered an extended hitbox before the
             // selected reaction runs. Normal hits get the equivalent lifecycle transition from TryStartEnemyImpact;
-            // rejected and reflected hits return before that shared path. The plasma-blocking enemy property also
+            // rejected and reflected hits return before that shared path. An enemy that stops the Plasma Beam also
             // forces the mark.
             c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
         }

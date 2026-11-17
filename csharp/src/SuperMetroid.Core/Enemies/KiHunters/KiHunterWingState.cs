@@ -21,8 +21,9 @@ public sealed class KiHunterWingState
     public QuadraticSpeedCurvePlace DetachedSpeedCurvePlace { get; internal set; }
 
     /// <summary>
-    /// The detached wings' arc angle, which wraps over the whole turn: seeded below zero for each arc and turned each
-    /// update by the coarse speed of its place on the speed curve. The arc changes when the angle crosses a quarter turn.
+    /// The detached wings' arc angle around the turn: started at seven eighths of a turn for the orbit and five eighths
+    /// for the falling arc, and turned each update by the coarse speed of its place on the speed curve. The arc changes
+    /// when the angle crosses three quarters of a turn.
     /// </summary>
     public RotationAngle WingArcAngle { get; internal set; }
 

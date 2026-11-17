@@ -182,7 +182,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         StoreMetroidYVelocity(state, SignedSixteenSixteen.Zero);
     }
 
-    /// <summary>Runs the Metroid's escape from a power bomb, including post-decrement timer semantics.</summary>
+    /// <summary>Runs the Metroid's escape from a power bomb: it makes the move for the escape's count, and chases Samus again on the update the count reaches zero.</summary>
     internal static void RunMetroidPowerBombEscape(RoomEnemyPlace place, MetroidEnemyState state)
     {
         place.Position += MetroidReactions.EscapeDisplacement(state.EscapeTimer);

@@ -117,8 +117,8 @@ public static class SamusInsideBlockReactions
             if (conveyor.Condition == ConveyorCarryCondition.OnFootWithPower &&
                 ((area == AreaId.WreckedShip && !areaBossDefeated) || body.YSpeed.Whole != 0))
                 return;
-            // The game checks only whole Y speed: fractional vertical motion does
-            // not suppress carry. This replaces external X displacement, never adds to it.
+            // Only whole pixels of Y speed stop the carry: fractional vertical motion does
+            // not. This replaces external X displacement, never adds to it.
             body.ExtraDisplacement = body.ExtraDisplacement.WithX(SignedSixteenSixteen.FromParts(
                 rightward ? ConveyorBlockDefinitions.RightwardCarry : ConveyorBlockDefinitions.LeftwardCarry, 0));
         }

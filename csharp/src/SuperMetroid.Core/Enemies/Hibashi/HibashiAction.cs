@@ -7,8 +7,8 @@ namespace SuperMetroid.Core.Enemies.Hibashi;
 /// </summary>
 public enum HibashiAction
 {
-    /// <summary>Wait out the flame's inactive wait, then restart the eruption art and enable the following invisible collision part.</summary>
+    /// <summary>Waits out the flame's rest, then starts the eruption animation again and lets its unseen hitbox part touch Samus.</summary>
     Inactive,
-    /// <summary>Let the animation's art and hitbox cues run until the finish flag is set, then reload the population wait and return to inactive.</summary>
+    /// <summary>Lets the eruption animation's cues show the flame and size its hitbox until it finishes, then rests again for its spawn's wait.</summary>
     Active,
 }

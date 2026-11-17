@@ -2,8 +2,8 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Crawlers;
 
 /// <summary>
-/// The state of the Multiviola. The Multiviola recomputes its velocity from the population angle and speed every active frame,
-/// with two deliberately imperfect reflection negations.
+/// The state of the Multiviola. It sets its velocity from its heading and speed each update, and turning a speed left or
+/// up is not that speed's exact opposite (<see cref="MultiviolaLeftOrUpSpeed"/>).
 /// </summary>
 public sealed class MultiviolaEnemyState
 {

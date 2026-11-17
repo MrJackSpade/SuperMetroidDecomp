@@ -22,13 +22,13 @@ public sealed class RipperEnemyState
 
     /// <summary>
     /// grapple Ripper's exclusive left patrol reversal threshold, a room X coordinate in pixels from its spawn settings. The
-    /// patrol compares it by which way the wrapped difference lies.
+    /// patrol compares with it as <see cref="CoordinateAxis.Precedes"/> compares columns.
     /// </summary>
     public int MinimumXPosition { get; internal set; }
 
     /// <summary>
     /// grapple Ripper's inclusive right patrol reversal threshold, a room X coordinate in pixels from its spawn settings. The
-    /// patrol compares it by which way the wrapped difference lies.
+    /// patrol compares with it as <see cref="CoordinateAxis.Precedes"/> compares columns.
     /// </summary>
     public int MaximumXPosition { get; internal set; }
 }

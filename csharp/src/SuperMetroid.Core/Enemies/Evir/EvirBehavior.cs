@@ -173,8 +173,8 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
 
         place.Position = place.Position.AdvanceY(state.MovingDown ? state.BobbingSpeed : -state.BobbingSpeed);
 
-        // Every later half-cycle lasts the whole authored direction-change period and the update it turns on, whatever
-        // first half-cycle initialization's aliasing bug chose.
+        // Every later half of the bobbing lasts the body's whole direction-change period and the update it turns on,
+        // however long its first half lasted (EvirBorrowedFirstHalfCycle).
         if (--state.MovementTimer <= 0)
         {
             state.MovementTimer = state.DirectionChangePeriod + EnemyWaitDefinitions.RunOutUpdate;
@@ -269,7 +269,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         projectile.Position = projectile.Position.WithWhole(body.Position.Whole + (state.Facing == EvirFacing.Left ? spitOffset.MirroredX() : spitOffset));
     }
 
-    /// <summary>Aims at nearby Samus using the angle transform and signed 1/65536-pixel speed tables.</summary>
+    /// <summary>Launches the spit at Samus along her bearing once she is horizontally within its activation distance of the body.</summary>
     private static void TryLaunchEvirProjectile(
         RoomEnemyPlace projectile,
         EvirSpitState state,
@@ -280,8 +280,8 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        // The angle of Samus from the enemy is zero up and runs clockwise. The two angle
-        // transforms below feed the buggy table multipliers and produce signed 1/65536-pixel speed.
+        // Samus's bearing from the spit, zero up and clockwise, aims the spit's speed along the circle
+        // (EnemyMath.CircleSine).
         TrigonometryAngle transformedAngle = EnemyMath.CalculateBearing(
             new(CoordinateAxis.Difference(samus.Position.X.Whole, projectile.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, projectile.Position.Y.Whole))).ToTrigonometryAngle();
         SignedSixteenSixteen x = EnemyMath.CircleCosine(

@@ -419,9 +419,8 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectile projectile,
         RoomLevelData level)
     {
-        // Unlike Ridley's fireball, this definition checks vertical collision first. If
-        // either axis collides, the projectile clears its ID immediately and
-        // never applies horizontal deceleration on that frame.
+        // Unlike Ridley's fireball, Alcoon's fireball moves vertically first. If either move meets a block, the
+        // fireball is gone at once and does not slow horizontally on that update.
         if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical) ||
             EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal))
         {

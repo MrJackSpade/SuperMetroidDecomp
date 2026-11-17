@@ -181,9 +181,8 @@ public static class SamusGrappleSwing
                 probeDistance);
             if (IsSwingCollision(level, samus, point.Block))
             {
-                // The game stores the new beam length, which is the last accepted
-                // length rather than the colliding candidate. It deliberately leaves the
-                // signed delta alive so a held adjustment retries on the following frame.
+                // The beam keeps the last length that fit rather than the colliding candidate. The
+                // length change stays, so a held adjustment tries again on the next update.
                 grapple.RopeLength = currentLength;
                 return;
             }

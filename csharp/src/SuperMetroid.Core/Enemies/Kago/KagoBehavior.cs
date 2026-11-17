@@ -49,8 +49,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new KagoEnemyState();
         place.SetSpeciesState(state);
 
-        // Kago's placement already authors its other processing properties. The setup
-        // sets only the animating property so the shared enemy animation animates the shell.
+        // The setup makes Kago's shell animate; its placement says the rest.
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
         state.Playback = EnemyAnimationPlayback.Start(place, KagoAnimations.StartingWith(KagoSegment.Slow));
     }
@@ -82,9 +81,8 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
             }
         }
 
-        // The game spawns even on the lethal eleventh hit, after requesting Kago's
-        // death animation. Pool exhaustion is silent and therefore does not roll back the
-        // counter, earthquake, or animation transition.
+        // The eleventh, lethal hit still spawns a bug, after Kago's death animation starts. With no place left for the
+        // bug, none spawns, and the hit still counts, shakes the room and changes the animation.
         _ = SpawnKagoBug(place);
     }
 
@@ -254,8 +252,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
             }
             else
             {
-                // Inside that band the game reuses the low jump height bit of the chosen vertical speed
-                // as a direction bit instead of requesting a second random sample.
+                // Inside that band the random number that chose the jump's height also chooses its direction.
                 jumpLeft = KagoDefinitions.LeftJump.IsSetIn(random);
             }
 

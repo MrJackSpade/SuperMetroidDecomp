@@ -62,10 +62,9 @@ public sealed class MaridiaLargeSnailEnemyState
     public MaridiaLargeSnailAction Action { get; internal set; }
 
     /// <summary>
-    /// The bounce arc's place along the quadratic speed curve, stepped by a mark and a half per update. Falling caps it
-    /// at mark 64; an impact removes 16 marks and may leave it below the start, which ends the bounces, and rising
-    /// stores the start once it would go below it. It therefore stays within 3712 256ths of a mark below the start
-    /// through mark 64.
+    /// The bounce arc's place along the quadratic speed curve, stepped a mark and a half each update. Falling holds it at
+    /// mark 64; an impact takes 16 marks off and may leave it below the start, which ends the bounces, and rising holds
+    /// it at the start once it would go below.
     /// </summary>
     public QuadraticSpeedCurvePlace YSpeedCurvePlace { get; internal set; }
 

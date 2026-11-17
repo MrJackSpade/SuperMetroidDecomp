@@ -129,7 +129,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Action = KzanAction.Falling;
     }
 
-    /// <summary>Applies the downward speed, clamps to the target using signed wrapped comparison, carries Samus, and accelerates the fall.</summary>
+    /// <summary>Moves the Kzan down at its speed, landing it at its falling target (<see cref="CoordinateAxis.Precedes"/>), carries Samus, and speeds the fall up.</summary>
     private void RunKzanFalling(
         RoomEnemyPlace place,
         KzanEnemyState state,
@@ -179,8 +179,8 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Adds only the accepted whole-pixel Kzan delta to Samus's extra Y displacement.
-    /// Code deliberately leaves extra Y subdisplacement untouched.
+    /// Carries Samus, standing on the Kzan, by the whole pixels it moved this update; her fraction of a pixel is left
+    /// as it is.
     /// </summary>
     private static void CarrySamusWithKzanIfTouchingFromBelow(
         RoomEnemyPlace place,

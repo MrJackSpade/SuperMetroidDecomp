@@ -45,7 +45,7 @@ public sealed class ChootEnemyState
     /// <summary>The initial room position in whole pixels, restored after the last falling-pattern loop.</summary>
     public Position16<RoomPixels> SpawnPosition { get; internal set; }
 
-    /// <summary>Spawn X and the wrapped whole-pixel spawn Y minus the computed jump height, installed as the position and falling origin at the apex transition.</summary>
+    /// <summary>Spawn X, and spawn Y less the jump height: where the Choot stands at the top of its jump and starts falling from.</summary>
     public Position16<RoomPixels> InitialFallingPosition { get; internal set; }
 
     /// <summary>The whole-pixel base added to each signed falling-pattern offset; initialized at the apex, and its Y advanced by <see cref="FallingPatternYDistance"/> at every loop's end.</summary>

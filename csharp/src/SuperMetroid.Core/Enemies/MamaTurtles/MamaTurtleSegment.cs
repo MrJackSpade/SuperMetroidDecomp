@@ -14,7 +14,7 @@ internal enum MamaTurtleSegment
     /// The Mama Turtle facing left withdrawing into her shell and rising to hover, held in her shell.
     /// </summary>
     EnterShellLeft,
-    /// <summary>The dormant mama's animation.</summary>
+    /// <summary>The Mama Turtle dormant in her shell, facing left, held.</summary>
     Asleep,
     /// <summary>The Mama Turtle facing left coming out of her shell and standing, before she withdraws again.</summary>
     LeaveShellLeft,

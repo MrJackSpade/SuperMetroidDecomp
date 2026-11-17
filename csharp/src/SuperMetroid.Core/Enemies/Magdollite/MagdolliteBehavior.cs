@@ -454,8 +454,8 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Adds a signed 1/65536-pixel Y velocity, carrying the fraction into the whole, and returns the whole-pixel vertical
-    /// move it made, by the wrapped difference.
+    /// Moves the part vertically by <paramref name="velocity"/>, a fraction past a whole pixel carrying into the whole
+    /// pixels, and returns the whole pixels it moved (<see cref="CoordinateAxis.Difference"/>).
     /// </summary>
     private static int AddMagdolliteY(
         RoomEnemyPlace place,

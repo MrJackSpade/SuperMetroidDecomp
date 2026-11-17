@@ -295,8 +295,8 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        TrigonometryAngle tableAngle = state.SwoopAngle.ToTrigonometryAngle();
-        int targetX = state.SwoopTargetX + EnemyMath.CircleCosinePixels(tableAngle, state.SwoopRadius.X);
+        TrigonometryAngle swoopAngle = state.SwoopAngle.ToTrigonometryAngle();
+        int targetX = state.SwoopTargetX + EnemyMath.CircleCosinePixels(swoopAngle, state.SwoopRadius.X);
         SignedSixteenSixteen horizontalDisplacement = SignedSixteenSixteen.FromWholePixels(CoordinateAxis.Difference(targetX, body.Position.X.Whole));
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, body, horizontalDisplacement))
         {
@@ -308,7 +308,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, body);
-        int targetY = state.SwoopOriginY + EnemyMath.CircleNegativeSinePixels(tableAngle, state.SwoopRadius.Y);
+        int targetY = state.SwoopOriginY + EnemyMath.CircleNegativeSinePixels(swoopAngle, state.SwoopRadius.Y);
         SignedSixteenSixteen verticalDisplacement = SignedSixteenSixteen.FromWholePixels(CoordinateAxis.Difference(targetY, body.Position.Y.Whole));
         if (_terrain.MoveEnemyVertically(level, body, verticalDisplacement))
             StartKiHunterSwoopRecovery(state);
@@ -633,7 +633,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal static int DetachedWingCoarseSpeed(QuadraticSpeedCurvePlace place, EnemySpeedSign sign)
     {
-        // The orbit steps by the coarse speed; stepping by the full speed changes the orbit.
+        // The orbit steps by the place's coarse speed on the curve.
         return place.Speed.CoarseToward(sign);
     }
 
@@ -858,8 +858,8 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Moves the falling acid exactly: move/test Y, then X, then add capped 1/256-pixel gravity. A floor
-    /// collision swaps to the splash animation; a wall collision only zeros X speed.
+    /// Moves the falling acid vertically, then horizontally, then speeds its fall up to its cap. Meeting the floor
+    /// splashes it; meeting a wall only stops it moving sideways.
     /// </summary>
     internal static void RunKiHunterAcidMovement(
         EnemyProjectile projectile,

@@ -12,8 +12,8 @@ public sealed class PlatformEnemyState
 
     /// <summary>
     /// The room Y a depressed platform rises back to, one pixel below its population position. Rising stops once the
-    /// platform's whole Y lies above it, measured as the wrapped signed difference, so a height that wrapped past the
-    /// room's top edge stops the platform as the game does.
+    /// platform's whole Y lies above it (<see cref="CoordinateAxis.Precedes"/>), so a height past the room's top edge
+    /// stops the platform too.
     /// </summary>
     public int RestingY { get; internal set; }
 

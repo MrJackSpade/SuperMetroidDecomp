@@ -8,10 +8,10 @@ public enum BullAction
 {
     /// <summary>Waits for the sixteen-update activation countdown to reach zero, reloads it, and selects Samus targeting.</summary>
     MovementDelay,
-    /// <summary>Captures the angle toward Samus, sets acceleration delta 24, and starts accelerating without moving that update.</summary>
+    /// <summary>Takes the heading toward Samus and starts speeding up from the next update, without moving on this one.</summary>
     TargetSamus,
-    /// <summary>Increases speed on configured interval expiries while below the maximum threshold, moves along the captured angle, and checks the 48-unit off-target deceleration.</summary>
+    /// <summary>Speeds up each acceleration interval while below the top speed, flies along the heading, and starts braking once Samus's bearing has turned <see cref="BullMovementDefinitions.OffTargetTurn"/> from it.</summary>
     Accelerating,
-    /// <summary>Moves before reducing speed on interval expiries, then clears speed/acceleration and returns to the movement delay when either magnitude is zero or signed-negative.</summary>
+    /// <summary>Flies, then slows each braking interval; once the speed reaches zero or the braking runs out, the Bull comes to rest and waits out the movement delay again.</summary>
     Decelerating,
 }

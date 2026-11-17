@@ -44,7 +44,7 @@ internal sealed class CeresRidleyFlight
         // the enemies are loaded; Ceres has no arena to mark explored.
         place.CollidesByFrameHitboxes = true;
 
-        // He starts with both of his contact properties: he stops the Plasma Beam and ignores Samus.
+        // He starts stopping the Plasma Beam and ignoring Samus.
         place.Contact = place.Contact.With(EnemyContact.BlocksPlasmaBeam);
         place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
         place.Position = place.Position.WithWhole(CeresRidleyArenaDefinitions.Spawn);

@@ -73,8 +73,8 @@ public static class SamusHurtFlash
             }
         }
 
-        // The game stores the increment before either comparison. The counter starts at one or eight and is
-        // cleared at sixty, so it never leaves 0 through 60.
+        // The count advances before either comparison reads it. It starts at one or eight and clears at
+        // sixty, so it never leaves 0 through 60.
         int counterAfter = samus.HurtFlash.Advance();
 
         if (counterAfter == SamusHurtFlashDefinitions.SoundRecoveryCount)

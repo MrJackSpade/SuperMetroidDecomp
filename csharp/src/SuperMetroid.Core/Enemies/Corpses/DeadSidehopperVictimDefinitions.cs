@@ -27,6 +27,6 @@ internal static class DeadSidehopperVictimDefinitions
     /// <summary>How long the victim rests after landing a hop before its next, in updates: 65, the last the one it hops or drains on.</summary>
     internal const int PostLandingPause = 65;
 
-    /// <summary>The draining calls each stage of the Shitroid's drain lasts on its victim.</summary>
+    /// <summary>The updates each stage of the Shitroid's drain lasts on its victim.</summary>
     internal const int DrainUpdatesPerStage = 8;
 }

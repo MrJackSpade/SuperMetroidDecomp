@@ -46,9 +46,8 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         BoyonSpawnSettings settings = place.SpawnSettings<BoyonSpawnSettings>();
 
-        // Initialization writes the ordinary empty frame before selecting the
-        // idle animation. RoomEnemySystem's load tail intentionally restores the same transient
-        // empty frame; the first processed animation frame installs real art.
+        // The Boyon shows nothing until its idle animation shows its first frame on its first update; the room's
+        // enemy load leaves it showing nothing too.
         place.Frame = EnemyFrameId.Empty;
 
         var state = new BoyonEnemyState

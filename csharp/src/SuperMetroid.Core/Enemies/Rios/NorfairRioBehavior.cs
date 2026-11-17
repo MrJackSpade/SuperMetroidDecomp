@@ -77,8 +77,8 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (state.Action)
         {
             case NorfairRioAction.WaitForAttackOpportunity:
-                // The gate tests two parts of the newly generated random
-                // number, then the strict modular X distance. Failure also consumes a pending
+                // The Rio attacks on three chances in four of the newly generated random number, and only when Samus
+                // is horizontally closer than its trigger distance. Otherwise it also consumes a pending
                 // animation signal and restores the idle animation without starting an attack.
                 if ((!RioLaunchDefinitions.AttackChanceLowBit.IsSetIn(random) && !RioLaunchDefinitions.AttackChanceHighBit.IsSetIn(random)) ||
                     CoordinateAxis.Distance(samus.Position.X.Whole, place.Position.X.Whole) >= RioLaunchDefinitions.NorfairTriggerDistance)

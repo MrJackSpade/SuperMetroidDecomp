@@ -226,7 +226,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
                 horizontalDisplacement);
         }
 
-        // Upward motion slows and falling motion speeds up; the game checks whether it is rising before the addition.
+        // Upward motion slows and falling motion speeds up, by whether the corpse was rising before this update's change.
         SignedEightEight acceleration = state.Velocity.Y.IsNegative
             ? DeadSidehopperLaunchDefinitions.RisingGravity
             : DeadSidehopperLaunchDefinitions.FallingGravity;

@@ -535,7 +535,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         body.InvincibilityTimer = 0;
         body.FlashTimer = 0;
         body.AiStates = EnemyAiStates.None;
-        // The intangible property removes the dead body from the interactive-enemy list.
+        // The dead body stops touching Samus.
         body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
 
         DeleteProjectilesButStalk(state);

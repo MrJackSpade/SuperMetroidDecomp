@@ -100,7 +100,7 @@ internal static class FamilyProjectileStarts
         RoomEnemyProjectileKind.EyeDoorSweat => enemies.EyeDoorBehavior.Sweat,
         RoomEnemyProjectileKind.DustOrExplosion => DustExplosionProjectileBehavior.Instance,
         RoomEnemyProjectileKind.EnemyDeathPickup or RoomEnemyProjectileKind.EnemyDeathExplosion =>
-            enemies.DeathsAndDrops.DeathProjectiles,
+            enemies.DeathsAndDrops.ExplosionsAndPickups,
         RoomEnemyProjectileKind.KagoBug => enemies.KagoBehavior.Bug,
         RoomEnemyProjectileKind.BotwoonBody or RoomEnemyProjectileKind.BotwoonSpit => enemies.BotwoonBehavior.BodyAndSpit,
         RoomEnemyProjectileKind.BombTorizoChozoOrb or RoomEnemyProjectileKind.GoldenTorizoChozoOrb =>
@@ -152,7 +152,7 @@ internal static class FamilyProjectileStarts
         RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep => new ChozoTourianDustAnimation(ChozoTourianDustAnimations.StartingWith(ChozoTourianDustSegment.Footsteps)),
         RoomEnemyProjectileKind.TourianStatueDescentDust => new ChozoTourianDustAnimation(ChozoTourianDustAnimations.TourianDescentDust),
         RoomEnemyProjectileKind.EnemyDeathPickup or RoomEnemyProjectileKind.EnemyDeathExplosion =>
-            new EnemyDeathProjectileAnimation(EnemyDeathProjectileSegment.SmallEnergy),
+            new EnemyDeathAndDropAnimation(EnemyDeathAndDropSegment.SmallEnergy),
         RoomEnemyProjectileKind.CacatacSpike => new CacatacProjectileAnimation(CacatacSpikeDirection.LeftFacingUp),
         RoomEnemyProjectileKind.NuclearWaffleBody => new NuclearWaffleProjectileAnimation(NuclearWaffleProjectileSegment.Initial),
         RoomEnemyProjectileKind.YappingMawBody => new YappingMawBodyProjectileAnimation(YappingMawBodyProjectileSegment.FacingDown),

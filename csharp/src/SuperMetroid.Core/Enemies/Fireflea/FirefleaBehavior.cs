@@ -85,9 +85,8 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
             case BobbingFirefleaState bobbing:
                 place.Position = place.Position.AdvanceY(bobbing.Velocity);
 
-                // The bounds compare by whether the wrapped subtraction is negative, not by ordinary
-                // bounds comparisons. The actor is intentionally allowed to overshoot before its
-                // speed reverses.
+                // The bounds compare as CoordinateAxis.Precedes reads which way a row lies. The Fireflea
+                // overshoots a bound before its speed reverses.
                 bool crossedMinimum = CoordinateAxis.Precedes(place.Position.Y.Whole, bobbing.MinimumY);
                 bool reachedMaximum = !CoordinateAxis.Precedes(place.Position.Y.Whole, bobbing.MaximumY);
                 if (crossedMinimum || reachedMaximum)

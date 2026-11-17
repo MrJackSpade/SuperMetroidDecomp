@@ -192,8 +192,8 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Heading = state.Heading.Reversed();
             if (movingAwayFromSurface)
             {
-                // Rising code treats a wall exactly like a ceiling/floor interruption and
-                // immediately enters the falling half. Falling code only reverses X.
+                // A rising hopper that meets a wall starts falling at once, as at a ceiling; a falling hopper
+                // only reverses.
                 state.Falling = true;
                 return;
             }

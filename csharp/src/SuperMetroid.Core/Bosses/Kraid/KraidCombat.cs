@@ -271,8 +271,7 @@ internal sealed class KraidCombat
     {
         state.BodyState.DeathPhase = KraidDeathPhase.Initialize;
         state.ClearMouthReactions();
-        // The intangible property disables the ordinary touch list while the private death state owns body movement
-        // and breakup effects. The fingernails are left out: they delete themselves once his health reads zero.
+        // His parts stop touching Samus while his death moves his body and breaks him up. The fingernails are left out: they delete themselves once his health reads zero.
         foreach (RoomEnemyPlace part in _parts.AllButNails)
             part.Contact = part.Contact.With(EnemyContact.IgnoresSamus);
     }

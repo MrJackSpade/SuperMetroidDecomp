@@ -104,10 +104,8 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
         samus.CommitPoseHistory();
         SamusPresentation.SetAnimationFrameFromMovementOwner(samus, initialFrame, timer: SamusDeathSequenceDefinitions.InitialFrameHold);
 
-        // The game subtracts the foreground directly from Samus's live position because its death
-        // renderer adds the foreground back before drawing. Retain world coordinates in Samus
-        // for the shared camera/minimap model and capture the mathematically identical
-        // screen-space pair here for the eventual explosion-frame path.
+        // Samus keeps her room position for the camera and the map; the death sequence draws her at her place
+        // on the screen, taken here for the explosion.
         ScreenPosition = samus.Position.Whole.RelativeToCamera(cameraPosition);
 
         PreFlashingTimer = SamusDeathSequenceDefinitions.PreFlashFrameCount;

@@ -103,9 +103,8 @@ internal sealed class EnemyCollision
             if (bodyAttack != SamusBodyAttack.None)
                 samus.InvincibilityTimer = WrappingCountdown.Start(0);
 
-            // Touch collision does not read the invisible property as a collision flag;
-            // it suppresses rendering only. Hibashi relies on that distinction: its second
-            // place remains invisible while its animation moves a live hitbox.
+            // A hidden enemy still touches Samus; hiding only stops it being drawn. Hibashi relies on that: its
+            // hitbox part stays unseen while its animation moves a live hitbox.
             // Both Ridleys touch Samus with their own body hitboxes and, later in the update, the tail's tip; neither
             // touches by its definition's radius. An actor without a touch reaction is skipped.
             if (place.Entity is IEnemyContactHooks { OwnsSamusTouch: true } ||
@@ -187,10 +186,9 @@ internal sealed class EnemyCollision
             if (onlyEnemy is not null && enemy != onlyEnemy)
                 continue;
 
-            // The shot pass likewise admits visually invisible actors, but rejects an enemy that shows no frame or
-            // shows the empty frame while it collides by its radius, and the ignore-Samus-collision property. Keeping
-            // these meanings separate mirrors the list/collision machinery. An actor
-            // without a shot reaction is skipped.
+            // Shots likewise strike hidden enemies, but pass an enemy that shows no frame or shows the empty frame
+            // while it collides by its radius, and one that ignores Samus. An enemy without a shot reaction is
+            // skipped.
             if (enemy.Entity is IEnemyShotAdmission admission && !admission.AdmitsShots() ||
                 CommonEnemyEmptyFrames.ShotsPass(enemy) ||
                 enemy.InvincibilityTimer != 0 ||
@@ -705,9 +703,8 @@ internal sealed class EnemyCollision
         int reactionCount = 0;
         _powerBombRadius.Forget();
 
-        // The blast reaches every place in its own order, independent of the ordinary
-        // active list. That matters while a power bomb reaches off-screen actors and then
-        // sets their process-off-screen property below.
+        // The blast reaches every enemy in its own order, whether or not it is updating; a power bomb reaches
+        // off-screen enemies and keeps them updating off screen, below.
         foreach (RoomEnemyPlace enemy in EnemyPlaceOrder.InBlastOrder(_places.InUpdateOrder))
         {
             // A death inside the previous reaction resizes the horizontal reach for the rest of
@@ -749,7 +746,7 @@ internal sealed class EnemyCollision
                 continue;
             }
 
-            // The common reaction damages the enemy by a Power Bomb's damage; the process-off-screen property follows.
+            // The common reaction damages the enemy by a Power Bomb's damage, and then it keeps updating off screen.
             int damage = vulnerability.DamageFrom(SamusProjectileDamage.Read(SamusProjectileKind.PowerBomb));
             enemy.InvincibilityTimer = EnemyCollisionDefinitions.PowerBombInvincibilityUpdates;
             enemy.FlashTimer = enemy.HurtFlashFrames + EnemyCollisionDefinitions.WeaponHurtFlashExtension;

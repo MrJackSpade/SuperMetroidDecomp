@@ -18,8 +18,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     /// <summary>Initializes the Wrecked Ship ghost.</summary>
     internal static void InitializeWreckedShipGhost(RoomEnemyPlace place)
     {
-        // The setup sets the animating, intangibility and invisibility properties. Here those mean
-        // animation processing, exclusion from Samus interaction, and invisibility.
+        // The ghost starts animating, unseen and untouchable.
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
         place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
         place.Presence = place.Presence.With(EnemyPresence.Hidden);

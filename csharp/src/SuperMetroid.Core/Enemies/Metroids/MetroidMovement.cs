@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Metroids;
 
 /// <summary>
-/// The ordinary Metroid's movement: main AI runs one of its four movement behaviours for the selected member.
+/// The ordinary Metroid's movement: each update it moves in one of these four ways.
 /// </summary>
 public enum MetroidMovement
 {

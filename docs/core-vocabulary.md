@@ -534,6 +534,27 @@ save reads back whole, the room's area decides. A call to something, a call that
 subject (`the producer first calls the setup`), a range alone, a room object's place, a bit more and a handler alone stay
 English.
 
+#2372 widens SME6454, outside hardware owners, to the machine's coordinate arithmetic, storage and calls as enemy prose
+tells them: a wrapped, wraparound or modular distance, difference, subtraction, displacement, position, proximity or
+comparison, with up to three words between (`strict wrapped horizontal distance`, `the wrapped signed difference`, `the
+modular absolute difference`, `modular Y proximity`); a coordinate's wraparound (`with room-coordinate wraparound`); a
+move `wrapping within the coordinate range`; installing or loading art (`installs crawling art`, `installs hop art for
+its heading`); the game storing, checking or subtracting a value (`the game subtracts one mark`); a `completion call` or
+`draining calls`; `table multipliers`; and a value `of 0 through 255`. Core says how far apart two things lie and which
+way, citing `CoordinateAxis`, the encoding owner that states the wrap once; which animation starts; what the game does
+with the value and on which update. A thing wrapped around, a turn's wrap, installed art and loading installed art, a
+table, a multiplier and a range alone stay English.
+
+#2377 widens SME6454, outside hardware owners, to the original's storage and program as enemy, boss and world prose tell
+them: an enemy's presence, contact or processing told as a property, alone or in a list (`the intangibility property`,
+`the animating, intangibility and invisibility properties`, `both of his contact properties`, `the plasma-blocking enemy
+property`, `the hide-drawing property`); a `post-decrement` or `pre-increment`; a `main-AI call` or an `AI invocation`;
+running the code's loop (`Runs the projectile-link loop`); `the handler's` guard; a `signed wrapped` comparison; and a
+`strict modular` range. Core says what the enemy does (it is hidden or gone, ignores Samus, stops the Plasma Beam,
+animates, keeps updating off screen), which update a count runs out on, what a step places and how far apart two things
+lie. A property of a thing, an enemy's other properties, a projectile's property set or mask, a handler alone, an
+animation's loop, a decrement and a call alone stay English.
+
 `Tilemap` is matched as the one word the cartridge's sources spell. A room layer named as the destination engine names
 it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as does `MapTiles`; so does
 `SpriteSheet` beside `Spritemap`, and `Scan`, `Scanned` or `FirstLine` beside `Scanline` (#1694). Documentation prose is

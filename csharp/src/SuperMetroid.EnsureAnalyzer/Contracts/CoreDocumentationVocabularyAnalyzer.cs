@@ -108,6 +108,12 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// handling, places and actor order, initialization parameters, a named storage bit, the save memory's order, a
 /// projectile-backed thing, a coroutine, a chosen handler, a backward scan, a checksum, an
 /// emulator, what the original reads and engine definitions.
+/// #2372 adds, outside hardware owners, enemy prose's wrapped, wraparound or modular distances and differences, a
+/// coordinate's wraparound and a move wrapping within the coordinate range, installing or loading art, the game storing,
+/// checking or subtracting a value, completion and draining calls, table multipliers and a value of 0 through 255.
+/// #2377 adds, outside hardware owners, an enemy's presence, contact or processing told as a stored property, a post- or
+/// pre-decrement, a main-AI call or AI invocation, running the code's loop, the handler's guard, a signed wrapped
+/// comparison and a strict modular range.
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -1590,6 +1596,72 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
+    /// The machine's sixteen-bit coordinate arithmetic told for a distance in enemy prose (#2372), outside hardware owners
+    /// and markup: a wrapped, wraparound or modular distance, difference, subtraction, displacement, position, proximity
+    /// or comparison, with up to three words between (strict wrapped horizontal distance, the wrapped signed difference,
+    /// the modular absolute difference, modular Y proximity, wrapped signed positions); a coordinate's wraparound
+    /// (the spawn Y minus the radius with room-coordinate wraparound); and a move wrapping within the coordinate range.
+    /// Core says how far apart two things lie and which way, and cites <c>CoordinateAxis</c>, the encoding owner that
+    /// states the wrap once. English stays legal: a thing wrapped up or around, a turn's wrap, a distance alone and the
+    /// encoding owner itself.
+    /// </summary>
+    private static readonly Regex WrappedDistanceProse = new(
+        @"\b(?:wrapped|wraparound|modular)\s+(?:[\w-]+\s+){0,3}?(?:distances?|differences?|subtractions?|displacements?|positions?|proximity|comparisons?)\b" +
+        @"|\b(?:room-)?coordinate\s+wraparound\b" +
+        @"|\bwrapping\s+within\s+the\s+(?:[\w-]+\s+)?range\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// The original program's storage and calls told in enemy prose (#2372), outside hardware owners and markup: installing
+    /// or loading art, with up to three words between (installs crawling art, installs hop art for its heading), where
+    /// the program wrote an animation's pictures into a record; the game storing, checking or subtracting a value (the
+    /// game subtracts one mark and checks whether the result is negative); a completion or draining call (including on
+    /// the completion call, the draining calls each stage lasts); table multipliers; and a value of 0 through 255. Core
+    /// says which animation starts, what the game does with the value, which update it happens on, and the value's
+    /// meaning. English stays legal: installed art and loading installed art, which are the installation's content, a
+    /// table, a multiplier and a range alone.
+    /// </summary>
+    private static readonly Regex ArtAndStorageNarrationProse = new(
+        @"\b(?:installs?|installing|loads?|loading)\s+(?!installed\b)(?:[\w-]+\s+){0,3}?art\b" +
+        @"|\bthe\s+game\s+(?:stores|stored|checks|checked|subtracts|subtracted)\b" +
+        @"|\b(?:completion|draining)\s+calls?\b" +
+        @"|\btable\s+multipliers?\b" +
+        @"|\bof\s+0\s+through\s+255\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// An enemy's presence, contact or processing told as one of the original's stored properties in enemy, boss and
+    /// world prose (#2377), outside hardware owners and markup: an intangible, invisible, hidden, deleted, hide-drawing,
+    /// animating, off-screen, ignore-Samus, shot-, plasma- or beam-blocking, persists-on-contact, respawn, contact or solid
+    /// property, alone or in a list (the intangibility property, the animating, intangibility and invisibility properties,
+    /// both of his contact properties, the plasma-blocking enemy property). Core says what the enemy does: it is hidden or
+    /// gone, it ignores Samus, it stops the Plasma Beam, it animates, it keeps updating off screen. English stays legal: a
+    /// property of a thing, an enemy's other properties, a projectile's property set or mask, and a hardware owner.
+    /// </summary>
+    private static readonly Regex FlagPropertyProse = new(
+        @"\b(?:intangib(?:le|ility)|tangib(?:le|ility)|invisib(?:le|ility)|visib(?:le|ility)|hidden|deleted|hide-drawing|animating" +
+        @"|process-off-screen|off-screen|ignore-Samus(?:-collision)?|shot-blocking|plasma-blocking|beam-blocking|persists-on-contact" +
+        @"|respawn|contact|solid)(?:\s+and\s+[\w-]+)?(?:,\s+[\w-]+)*(?:\s+enemy)?\s+propert(?:y|ies)\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// The original program's steps and arithmetic told in enemy prose (#2377), outside hardware owners and markup: a
+    /// post- or pre-decrement or increment (post-decrement timer semantics); a main-AI call or an AI invocation (the
+    /// preceding main-AI call, once per relevant main-AI invocation); running a loop of the code (Runs the projectile-link
+    /// loop); the handler's guard or check (retain the handler's literal guard); a signed wrapped comparison or value; and
+    /// a strict modular range or distance. Core says which update a count runs out on, what each update does, what a step
+    /// places and how far apart two things lie (<c>CoordinateAxis</c>). English stays legal: a handler alone, an
+    /// animation's loop, a decrement or a call alone, and a hardware owner.
+    /// </summary>
+    private static readonly Regex ProgramStepNarrationProse = new(
+        @"\b(?:post|pre)-?(?:de|in)crement\w*\b" +
+        @"|\bmain-AI\s+(?:calls?|invocations?)\b|\bAI\s+invocations?\b" +
+        @"|\bruns\s+the\s+(?:[\w-]+\s+){0,3}?loop\b" +
+        @"|\bthe\s+handler(?:'|’)s\b" +
+        @"|\bsigned\s+wrapped\b|\bstrict\s+modular\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
     /// A camel-case word of a declared name that names the original's execution counter (#2336): ExecutionCounter at
     /// any word boundary (<c>MainEnemyExecutionCounter</c>, <c>enemyMainExecutionCounter</c>). Core names the update
     /// count it means.
@@ -2076,6 +2148,10 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : CountedCallProse.Match(Markup.Replace(text, " ")) is { Success: true } countedCall ? countedCall.Value
             : StoredLayoutProse.Match(Markup.Replace(text, " ")) is { Success: true } storedLayout ? storedLayout.Value
             : OriginalProgramHostProse.Match(Markup.Replace(text, " ")) is { Success: true } originalProgram ? originalProgram.Value
+            : WrappedDistanceProse.Match(Markup.Replace(text, " ")) is { Success: true } wrappedDistance ? wrappedDistance.Value
+            : ArtAndStorageNarrationProse.Match(Markup.Replace(text, " ")) is { Success: true } artAndStorage ? artAndStorage.Value
+            : FlagPropertyProse.Match(Markup.Replace(text, " ")) is { Success: true } flagProperty ? flagProperty.Value
+            : ProgramStepNarrationProse.Match(Markup.Replace(text, " ")) is { Success: true } programStep ? programStep.Value
             : TileCharacterFinding(text, owner) is { } character ? character
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;

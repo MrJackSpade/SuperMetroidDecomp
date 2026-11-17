@@ -71,8 +71,8 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Readies a Dachora body's or echo's place: the animating property both disables Samus collision and admits enemy
-    /// animations, and the population's tangibility property already excludes these actors from collisions.
+    /// Readies a Dachora body's or echo's place to animate; its placement already keeps it from touching Samus or being
+    /// shot.
     /// </summary>
     private static void PrepareDachoraPlace(RoomEnemyPlace place)
     {
@@ -249,8 +249,8 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             SignedSixteenSixteen speed = state.Speed + DachoraMotionDefinitions.Acceleration;
             state.Speed = speed;
 
-            // The game's speed-up jump lands at the matching pose in the faster clone of the
-            // current six-pose run loop: every run plays one six-pose phase, so the animation keeps its place and timing.
+            // Speeding up switches to the faster run at the pose the current run is showing: every run
+            // plays the same six poses, so the animation keeps its place and timing.
             if (speed == DachoraMotionDefinitions.FastRunSpeed || speed == DachoraMotionDefinitions.MaximumSpeed)
                 state.Playback = state.Playback with { Animation = DachoraAnimations.StartingWith(FasterDachoraRun(state.Playback.PlayingSegment)) };
         }
@@ -298,7 +298,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         state.VerticalAcceleration += SamusGravity(samus);
         state.Speed += state.VerticalAcceleration;
 
-        // The cap replaces only the whole pixels, compared by which way their wrapped difference lies; the fraction is kept.
+        // A speed at or past the shinespark's fastest whole pixels is capped to them; the fraction is kept.
         SignedSixteenSixteen speed = state.Speed;
         SignedSixteenSixteen capped = speed.WholePixels >= DachoraMotionDefinitions.ShinesparkMaximumWholeSpeed
             ? speed.WithWholePixels(DachoraMotionDefinitions.ShinesparkMaximumWholeSpeed)
@@ -444,7 +444,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             ? faster
             : throw new InvalidOperationException($"Dachora speed-up from {segment}, which has no faster run.");
 
-    /// <summary>Uses wrapped signed positions and a strict proximity threshold on one axis.</summary>
+    /// <summary>Whether Samus lies less than <paramref name="distance"/> pixels from the Dachora on one axis, by <see cref="CoordinateAxis.Distance"/>.</summary>
     private static bool DachoraWithinAxis(int actor, int samus, int distance) =>
         CoordinateAxis.Distance(actor, samus) < distance;
 

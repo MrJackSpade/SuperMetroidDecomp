@@ -117,14 +117,13 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Starts the Namihe's spit after strict modular Y proximity; the active animation owns the return to idle.</summary>
+    /// <summary>Starts the Namihe's spit once Samus is vertically closer than its proximity; the spitting animation returns it to waiting.</summary>
     internal static void RunNamiheMain(RoomEnemyPlace place, NamiheEnemyState state, SamusState samus)
     {
         switch (state.Action)
         {
             case NamiheAction.WaitForSamus:
-                // The row-proximity test takes the modular absolute difference and
-                // uses a strict comparison. Equality at the configured distance stays idle.
+                // Samus exactly at the proximity distance does not wake the Namihe.
                 if (CoordinateAxis.Distance(samus.Position.Y.Whole, place.Position.Y.Whole) >= state.YProximity)
                 {
                     return;

@@ -94,8 +94,8 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Moves the Cacatac along its patrol by its speed, then the wrapped signed distance to the patrol limit decides the
-    /// turn.
+    /// Moves the Cacatac along its patrol by its speed, then turns it once it reaches or passes the patrol limit
+    /// (<see cref="CoordinateAxis.Precedes"/>).
     /// </summary>
     private static void MoveCacatac(RoomEnemyPlace place, CacatacEnemyState state)
     {

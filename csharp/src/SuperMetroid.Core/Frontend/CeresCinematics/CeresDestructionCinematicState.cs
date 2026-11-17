@@ -413,9 +413,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         // effect that made a sound would fail loudly (#2057).
         ColourEffects.StepScreen();
 
-        // The cinematic's game state increments the shared cinematic frame counter after running the
-        // current phase but before its actors. The pixelation's cadence therefore reads
-        // this pre-increment value on its following update.
+        // The cinematic's update count advances after its phase runs but before its actors. The pixelation's cadence
+        // therefore reads this update's count on its following update.
         cinematicFrameCounter++;
     }
 

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// by its teardown.
 /// </summary>
 /// <remarks>
-/// The game stores these as four separate composable flags: enemy projectiles,
+/// These are four separate suspensions that combine: enemy projectiles,
 /// room objects, block animations, and colour effects.
 /// Automatic Reserve recovery clears only the shared time freeze,
 /// leaving this complete set suspended to create G-Mode.

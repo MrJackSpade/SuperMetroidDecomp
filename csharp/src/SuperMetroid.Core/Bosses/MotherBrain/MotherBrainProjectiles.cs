@@ -735,7 +735,7 @@ internal sealed class MotherBrainProjectiles
             Projectile,
             graphics: default);
 
-        // The shard's launch angle is a random angle of 0 through 255. It selects signed sine/cosine velocities and the
+        // The shard launches at a random angle, any step of the turn. It selects signed sine/cosine velocities and the
         // shard's spin animation.
         var angle = new TrigonometryAngle(MotherBrainGlassShardDefinitions.LaunchAngle.Of(_room.Random.Generate()));
         shard.Velocity = shard.Velocity.WithX(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(Trigonometry.SignedSine(angle)));

@@ -22,6 +22,6 @@ public enum DeadSidehopperAction
     WaitForSamusCollision,
     /// <summary>Increments the retained contact-delay counter to sixteen before starting rotting and rejecting normal interaction.</summary>
     PreRotDelay,
-    /// <summary>Runs the shared staggered pixel-row scheduler and shows the rotted rows, including on the completion call.</summary>
+    /// <summary>Rots the corpse row by row by its <see cref="CorpseRotSchedule"/> and shows the rotted rows, including on the update the rot ends.</summary>
     Rotting,
 }

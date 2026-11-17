@@ -92,7 +92,7 @@ internal sealed class RidleyFlight
 
     /// <summary>
     /// Moves Ridley's swoop speed toward <paramref name="targetSpeed"/>, turns his heading by <paramref name="turn"/>
-    /// toward <paramref name="targetAngle"/>, stopping at it by whether their wrapped difference is negative, and derives
+    /// toward <paramref name="targetAngle"/>, stopping at it once the heading turns past it, and derives
     /// his velocity from the two.
     /// </summary>
     internal static void UpdateSwoopVelocity(

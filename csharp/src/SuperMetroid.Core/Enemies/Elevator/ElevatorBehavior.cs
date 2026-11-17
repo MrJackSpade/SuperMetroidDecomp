@@ -96,8 +96,8 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
     public void ResumeFromPause() => ElevatorFlags = UnpauseDisarmsElevator.ArmingAfterResume(ElevatorJourneyFlag.None);
 
     /// <summary>
-    /// Establishes the globals carried through an elevator door load. The destination
-    /// elevator's setup recognizes the beginning of an arrival and starts at its arrival height.
+    /// Marks the ride as passing through the elevator's door, so the destination elevator's setup sees an arrival
+    /// beginning and starts at its arrival height.
     /// </summary>
     public void PrepareElevatorArrival()
     {

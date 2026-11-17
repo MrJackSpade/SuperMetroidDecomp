@@ -2,8 +2,8 @@ namespace SuperMetroid.Core.Enemies.MorphBallEye;
 
 /// <summary>
 /// A Morph Ball eye's beam mount (#2164), which shares the eye's definition: it shows its mount pose on its side of the
-/// eye, resets the room's beam when it is placed and links the beam to the eye listed right after it. It neither tracks
-/// Samus nor owns the beam, so its main AI does nothing.
+/// eye and resets the room's beam when it is placed. It neither tracks Samus nor owns the beam, which follows the eye
+/// that opens, so its main AI does nothing.
 /// </summary>
 /// <param name="species">The MorphBallEye species owner.</param>
 /// <param name="place">The place the mount occupies.</param>

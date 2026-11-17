@@ -185,7 +185,7 @@ internal sealed class MotherBrainBody
                 return;
             case MotherBrainBodyCue.SpawnHandDust spawnHandDust:
                 _projectiles.SpawnDustOrExplosion(
-                    new(CoordinateAxis.Wrap(state.Body.Position.X.Whole + spawnHandDust.Offset.X), CoordinateAxis.Wrap(state.Body.Position.Y.Whole + spawnHandDust.Offset.Y)),
+                    new(state.Body.Position.X.Whole + spawnHandDust.Offset.X, state.Body.Position.Y.Whole + spawnHandDust.Offset.Y),
                     spawnHandDust.Dust);
                 return;
             case MotherBrainBodyCue.Signal { Kind: MotherBrainBodyCueKind.FireHandBeam }:
@@ -286,12 +286,12 @@ internal sealed class MotherBrainBody
             samus.InvincibilityTimer = WrappingCountdown.Start(EnemyCollisionDefinitions.SamusTouchInvincibilityUpdates);
             samus.KnockbackTimer = EnemyCollisionDefinitions.SamusTouchKnockbackUpdates;
             samus.KnockbackXDirection = KnockbackHorizontalDirection.Right;
-            if (CoordinateAxis.Difference(samus.Position.Y.Whole, MotherBrainFightDefinitions.BodyPushDownAboveY) < 0)
+            if (samus.Position.Y.Whole < MotherBrainFightDefinitions.BodyPushDownAboveY)
                 samus.Kinematics.YDirection = SamusVerticalDirection.Down;
 
             // Only contact to the right of the hurting touch's edge hurts Samus. Contact
             // elsewhere still installs the displacement and timers above without damage.
-            if (CoordinateAxis.AsSigned(state.Body.Position.X.Whole + MotherBrainFightDefinitions.HurtingTouchRightOfBody - samus.Position.X.Whole) < 0)
+            if (state.Body.Position.X.Whole + MotherBrainFightDefinitions.HurtingTouchRightOfBody < samus.Position.X.Whole)
             {
                 // The hurting touch is an ordinary enemy touch: suit-divided damage, the hit's invincibility, and
                 // knockback away from her body.

@@ -290,7 +290,7 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     public int StandingBodyReadyingElapsed
     {
         get;
-        internal set => field = (uint)value < MotherBrainReadyingDefinitions.StandingBodyDuration
+        internal set => field = value is >= 0 and < MotherBrainReadyingDefinitions.StandingBodyDuration
             ? value
             : throw new ArgumentOutOfRangeException(nameof(value), value, "Mother Brain's rise readies her standing body over twelve updates.");
     }

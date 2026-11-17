@@ -168,7 +168,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     /// </summary>
     public void RequestBabyStumbleBackward()
     {
-        int targetX = CoordinateAxis.Wrap(State.BodyPosition.X - 1);
+        int targetX = State.BodyPosition.X - 1;
         State.RequestWalkBackward(targetX, MotherBrainWalkSpeed.ReallyFast);
     }
 

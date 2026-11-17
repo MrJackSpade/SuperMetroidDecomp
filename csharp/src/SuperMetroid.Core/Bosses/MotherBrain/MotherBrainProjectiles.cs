@@ -231,7 +231,7 @@ internal sealed class MotherBrainProjectiles
                     break;
                 case MotherBrainEffectCue.Signal { Kind: MotherBrainEffectCueKind.DropDrool }:
                     // After its release starts its fall, the released drool drops before its first falling frame.
-                    projectile.Position = projectile.Position.WithWrappedWholeY(projectile.Position.Y.Whole + MotherBrainFightDefinitions.DroolReleaseDrop);
+                    projectile.Position = projectile.Position.WithWholeY(projectile.Position.Y.Whole + MotherBrainFightDefinitions.DroolReleaseDrop);
                     break;
                 case MotherBrainEffectCue.Signal { Kind: MotherBrainEffectCueKind.EndSmallPurpleBreath }:
                     projectile.StateOf<MotherBrainProjectileState>().MotherBrain.SmallPurpleBreathActive = false;
@@ -371,7 +371,7 @@ internal sealed class MotherBrainProjectiles
             if (tube.DustPending)
             {
                 dependencies.Projectiles.SpawnDustOrExplosion(
-                    new(projectile.Position.X.Whole, CoordinateAxis.Wrap(projectile.Position.Y.Whole + MotherBrainTubeCollapseDefinitions.CeilingTubeDustBelow)),
+                    new(projectile.Position.X.Whole, projectile.Position.Y.Whole + MotherBrainTubeCollapseDefinitions.CeilingTubeDustBelow),
                     MiscDustAnimation.SmallDustCloud);
                 tube.DustPending = false;
             }
@@ -423,9 +423,11 @@ internal sealed class MotherBrainProjectiles
                 Spawned,
                 graphics: default);
             sparkle.StartAnimation(new MotherBrainGlassAnimation(MotherBrainGlassSegment.Sparkle));
-            sparkle.Position = sparkle.Position.WithWhole(new(CoordinateAxis.Wrap(
-                source.Position.X.Whole + dependencies.Room.Random.Next(MotherBrainGlassShardDefinitions.SparkleOffset) - MotherBrainGlassShardDefinitions.SparkleOffsetCentre), CoordinateAxis.Wrap(
-                source.Position.Y.Whole + dependencies.Room.Random.Next(MotherBrainGlassShardDefinitions.SparkleOffset) - MotherBrainGlassShardDefinitions.SparkleOffsetCentre)));
+            // A shard near the top of the room may sparkle above it, so the sparkle's place is its shard's moved by its
+            // offset, which continues past the room's edge as positions do.
+            int sparkleX = dependencies.Room.Random.Next(MotherBrainGlassShardDefinitions.SparkleOffset) - MotherBrainGlassShardDefinitions.SparkleOffsetCentre;
+            int sparkleY = dependencies.Room.Random.Next(MotherBrainGlassShardDefinitions.SparkleOffset) - MotherBrainGlassShardDefinitions.SparkleOffsetCentre;
+            sparkle.Position = sparkle.Position.WithWhole(source.Position.Whole + new Offset16<RoomPixels>(sparkleX, sparkleY));
             sparkle.Graphics = MotherBrainGlassShardDefinitions.Graphics(MotherBrainColours.GlassAndTubes);
         }
 
@@ -544,17 +546,17 @@ internal sealed class MotherBrainProjectiles
                 SamusSuitDamage.Hurt(samus, MotherBrainAttackDamage.OnionRing);
                 samus.InvincibilityTimer = WrappingCountdown.Start(EnemyCollisionDefinitions.SamusProjectileHitInvincibilityUpdates);
                 samus.KnockbackTimer = EnemyCollisionDefinitions.SamusTouchKnockbackUpdates;
-                samus.KnockbackXDirection = CoordinateAxis.Difference(samus.Position.X.Whole, ringPosition.X) >= 0
+                samus.KnockbackXDirection = samus.Position.X.Whole >= SignedPlace(ring).X
                     ? KnockbackHorizontalDirection.Right
                     : KnockbackHorizontalDirection.Left;
                 ExplodeMotherBrainOnionRing(ring, ringPosition);
                 return;
             }
 
-            int signedY = CoordinateAxis.AsSigned(ring.Position.Y.Whole);
-            int signedX = CoordinateAxis.AsSigned(ring.Position.X.Whole);
-            int screenX = CoordinateAxis.Difference(ring.Position.X.Whole, cameraX);
-            if (signedY < MotherBrainOnionRingDefinitions.ArenaTopY || ring.Position.Y.Whole >= MotherBrainOnionRingDefinitions.ArenaFloorY || signedX < 0 ||
+            // A ring flies on past the room's top and left, where it lies at negative heights and columns.
+            Offset16<RoomPixels> ringPlace = SignedPlace(ring);
+            int screenX = ringPlace.X - cameraX;
+            if (ringPlace.Y < MotherBrainOnionRingDefinitions.ArenaTopY || ringPlace.Y >= MotherBrainOnionRingDefinitions.ArenaFloorY || ringPlace.X < 0 ||
                 screenX < 0 || screenX >= MotherBrainOnionRingDefinitions.ScreenRightEdgeX)
             {
                 dependencies.Earthquake.Start(MotherBrainFightDefinitions.ProjectileExplosionShake, MotherBrainFightDefinitions.ProjectileExplosionShakeUpdates);
@@ -670,11 +672,11 @@ internal sealed class MotherBrainProjectiles
         bomb.Velocity = bomb.Velocity.WithY(bomb.Velocity.Y + acceleration);
         bomb.Position = bomb.Position.Advance(bomb.Velocity.ToSixteenSixteen());
 
-        // Both boundaries check whether the wrapped difference is negative. X reflects without clamping; the floor
+        // A bomb bounces between her and the right wall, well inside the room. X reflects without clamping; the floor
         // clamps Y to its height and resets the two authored bounce velocities.
-        if (CoordinateAxis.Difference(bomb.Position.X.Whole, MotherBrainBombBounceDefinitions.RightWallX) >= 0)
+        if (bomb.Position.X.Whole >= MotherBrainBombBounceDefinitions.RightWallX)
             bomb.Velocity = bomb.Velocity.WithX(bomb.Velocity.X.Negated());
-        if (CoordinateAxis.Difference(bomb.Position.Y.Whole, MotherBrainBombBounceDefinitions.FloorY) < 0)
+        if (bomb.Position.Y.Whole < MotherBrainBombBounceDefinitions.FloorY)
             return false;
 
         bomb.Position = bomb.Position.WithWholeY(MotherBrainBombBounceDefinitions.FloorY);
@@ -699,9 +701,9 @@ internal sealed class MotherBrainProjectiles
         Extent16<RoomPixels> firstRadius,
         Position16<RoomPixels> second,
         Extent16<RoomPixels> secondRadius) =>
-        CoordinateAxis.Distance(first.X, second.X) <
+        Math.Abs(first.X - second.X) <
             firstRadius.X + secondRadius.X &&
-        CoordinateAxis.Distance(first.Y, second.Y) <
+        Math.Abs(first.Y - second.Y) <
             firstRadius.Y + secondRadius.Y;
 
     /// <summary>Keeps the escape subtitle projectile fixed to its screen position.</summary>
@@ -759,15 +761,16 @@ internal sealed class MotherBrainProjectiles
     }
 
     /// <summary>
-    /// Detects when a fired hand beam has crossed the fight arena's bounds
+    /// Detects when a fired hand beam has crossed the fight arena's bounds. A beam that has passed the room's top or left
+    /// lies at a far height or column, past the arena's bottom right, so it is outside as before.
     /// (<see cref="MotherBrainHandBeamDefinitions.ArenaTopLeft"/>, <see cref="MotherBrainHandBeamDefinitions.ArenaBottomRight"/>).
     /// </summary>
     private static bool IsMotherBrainHandBeamOutsideArena(
         EnemyProjectile beam) =>
-        CoordinateAxis.Difference(beam.Position.Y.Whole, MotherBrainHandBeamDefinitions.ArenaTopLeft.Y) < 0 ||
-        CoordinateAxis.Difference(beam.Position.Y.Whole, MotherBrainHandBeamDefinitions.ArenaBottomRight.Y) >= 0 ||
-        CoordinateAxis.Difference(beam.Position.X.Whole, MotherBrainHandBeamDefinitions.ArenaTopLeft.X) < 0 ||
-        CoordinateAxis.Difference(beam.Position.X.Whole, MotherBrainHandBeamDefinitions.ArenaBottomRight.X) >= 0;
+        beam.Position.Y.Whole < MotherBrainHandBeamDefinitions.ArenaTopLeft.Y ||
+        beam.Position.Y.Whole >= MotherBrainHandBeamDefinitions.ArenaBottomRight.Y ||
+        beam.Position.X.Whole < MotherBrainHandBeamDefinitions.ArenaTopLeft.X ||
+        beam.Position.X.Whole >= MotherBrainHandBeamDefinitions.ArenaBottomRight.X;
 
     /// <summary>
     /// Moves the falling drool. The actor uses signed 1/256-pixel velocity, adds its gravity
@@ -782,7 +785,7 @@ internal sealed class MotherBrainProjectiles
         if (drool.Position.Y.Whole < MotherBrainFightDefinitions.DroolFloorY)
             return;
 
-        drool.Position = drool.Position.WithWrappedWholeY(drool.Position.Y.Whole - MotherBrainFightDefinitions.DroolSplashRise);
+        drool.Position = drool.Position.WithWholeY(drool.Position.Y.Whole - MotherBrainFightDefinitions.DroolSplashRise);
         drool.StartAnimation(new MotherBrainEffectAnimation(MotherBrainEffectSegment.DroolHitFloor));
     }
 
@@ -799,19 +802,26 @@ internal sealed class MotherBrainProjectiles
     private static bool MotherBrainOnionRingOverlapsSamus(
         EnemyProjectile ring,
         SamusState samus) =>
-        CoordinateAxis.Distance(ring.Position.X.Whole, samus.Position.X.Whole) <
+        Math.Abs(SignedPlace(ring).X - samus.Position.X.Whole) <
             ring.Radius.X + samus.Kinematics.Radius.X &&
-        CoordinateAxis.Distance(ring.Position.Y.Whole, samus.Position.Y.Whole) <
+        Math.Abs(SignedPlace(ring).Y - samus.Position.Y.Whole) <
             ring.Radius.Y + samus.Kinematics.Radius.Y;
 
     /// <summary>Checks ring contact against the Baby Metroid's current hitbox.</summary>
     private static bool MotherBrainOnionRingOverlapsBaby(
         EnemyProjectile ring,
         BabyMetroidCutsceneState baby) =>
-        CoordinateAxis.Distance(ring.Position.X.Whole, baby.Position.X.Whole) <
+        Math.Abs(SignedPlace(ring).X - baby.SignedPlace.X) <
             ring.Radius.X + BabyMetroidCutsceneState.XHitboxRadius &&
-        CoordinateAxis.Distance(ring.Position.Y.Whole, baby.Position.Y.Whole) <
+        Math.Abs(SignedPlace(ring).Y - baby.SignedPlace.Y) <
             ring.Radius.Y + BabyMetroidCutsceneState.YHitboxRadius;
+
+    /// <summary>
+    /// Where a ring or turret lies from the room's origin: one that has flown or sits above or left of the room lies at a
+    /// negative height or column.
+    /// </summary>
+    private static Offset16<RoomPixels> SignedPlace(EnemyProjectile projectile) =>
+        new(CoordinateAxis.AsSigned(projectile.Position.X.Whole), CoordinateAxis.AsSigned(projectile.Position.Y.Whole));
 
     /// <summary>Turns the turret one direction the way it turns, or back the other way when that leaves its arc.</summary>
     internal static void SelectNextMotherBrainTurretDirection(EnemyProjectile turret)
@@ -835,16 +845,14 @@ internal sealed class MotherBrainProjectiles
         EnemyProjectile turret,
         Position16<RoomPixels> camera)
     {
-        if (CoordinateAxis.AsSigned(turret.Position.Y.Whole) < 0 ||
-            CoordinateAxis.AsSigned(turret.Position.Y.Whole + MotherBrainTurretDefinitions.ViewOffset.Y - camera.Y) < 0 ||
-            CoordinateAxis.Wrap(turret.Position.Y.Whole + MotherBrainTurretDefinitions.ViewOffset.Y - camera.Y) >= EnemyView.Extent)
-        {
+        // A turret may sit above or left of the room's origin, at a negative height or column.
+        Offset16<RoomPixels> place = SignedPlace(turret);
+        int viewY = place.Y + MotherBrainTurretDefinitions.ViewOffset.Y - camera.Y;
+        if (place.Y < 0 || viewY < 0 || viewY >= EnemyView.Extent)
             return false;
-        }
 
-        return CoordinateAxis.AsSigned(turret.Position.X.Whole) >= 0 &&
-            CoordinateAxis.AsSigned(turret.Position.X.Whole + MotherBrainTurretDefinitions.ViewOffset.X - camera.X) >= 0 &&
-            CoordinateAxis.Wrap(turret.Position.X.Whole + MotherBrainTurretDefinitions.ViewOffset.X - camera.X) < MotherBrainTurretDefinitions.ViewWidth;
+        int viewX = place.X + MotherBrainTurretDefinitions.ViewOffset.X - camera.X;
+        return place.X >= 0 && viewX >= 0 && viewX < MotherBrainTurretDefinitions.ViewWidth;
     }
 
     /// <summary>Runs the bullet property flicker, 1/256-pixel movement, and point collision.</summary>

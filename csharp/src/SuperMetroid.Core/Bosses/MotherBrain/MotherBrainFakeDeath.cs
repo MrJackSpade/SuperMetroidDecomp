@@ -332,7 +332,7 @@ internal sealed class MotherBrainFakeDeath
             tube.Presence = tube.Presence.With(EnemyPresence.Hidden);
         // The tube holds the encounter that spawned it (#2218).
         MotherBrainEnemyState state = tube.RequireSpeciesState<MotherBrainEnemyState>();
-        state.Head.Position = state.Head.Position.WithWrappedWholeY(tube.Position.Y.Whole - MotherBrainTubeCollapseDefinitions.HeadAboveMainTube);
+        state.Head.Position = state.Head.Position.WithWholeY(tube.Position.Y.Whole - MotherBrainTubeCollapseDefinitions.HeadAboveMainTube);
         if (state.Head.Position.Y.Whole < MotherBrainFightDefinitions.BrainFloorY)
         {
             SpawnMotherBrainTubeSmoke(tube);
@@ -369,7 +369,7 @@ internal sealed class MotherBrainFakeDeath
         tubeState.SmokeDelay.LastFor(MotherBrainTubeCollapseDefinitions.SmokeIntervalUpdates);
         tubeState.SmokePositionIndex = (tubeState.SmokePositionIndex + 1) % MotherBrainTubeCollapseDefinitions.SmokeXOffsets.Count;
         _projectiles.SpawnDustOrExplosion(
-            new(CoordinateAxis.Wrap(tube.Position.X.Whole + MotherBrainTubeCollapseDefinitions.SmokeXOffsets[tubeState.SmokePositionIndex]), MotherBrainTubeCollapseDefinitions.SmokeY),
+            new(tube.Position.X.Whole + MotherBrainTubeCollapseDefinitions.SmokeXOffsets[tubeState.SmokePositionIndex], MotherBrainTubeCollapseDefinitions.SmokeY),
             MiscDustAnimation.SmallDustCloud);
     }
 
@@ -392,7 +392,7 @@ internal sealed class MotherBrainFakeDeath
         for (int row = drawn; row < drawn + MotherBrainMuralDefinitions.RowsEachUpdate; row++)
         {
             _access.RequestMotherBrainObject(
-                new(MotherBrainMuralDefinitions.Column, CoordinateAxis.Wrap(MotherBrainMuralDefinitions.TopBlockRow + row)),
+                new(MotherBrainMuralDefinitions.Column, MotherBrainMuralDefinitions.TopBlockRow + row),
                 MotherBrainRoomMutation.RevealMuralRow);
         }
         state.MuralRowsDrawn = drawn + MotherBrainMuralDefinitions.RowsEachUpdate;

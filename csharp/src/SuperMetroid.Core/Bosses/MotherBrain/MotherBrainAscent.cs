@@ -172,7 +172,7 @@ internal sealed class MotherBrainAscent
             return;
 
         SpawnMotherBrainAscentDust(state);
-        state.Body.Position = state.Body.Position.WithWrappedWholeY(state.Body.Position.Y.Whole - MotherBrainFightDefinitions.RiseStepPixels);
+        state.Body.Position = state.Body.Position.WithWholeY(state.Body.Position.Y.Whole - MotherBrainFightDefinitions.RiseStepPixels);
         state.BodyPlacement = MotherBrainBodyPlacement.FollowsBody;
         if (state.Body.Position.Y.Whole > MotherBrainFightDefinitions.RisenY)
             return;

@@ -143,10 +143,10 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         // exit records the new whole Y as where Samus was: the camera sees no whole-pixel movement.
         cameraCheckpoint.HideCoarseVerticalMovement(moved.Fraction);
 
-        // The bounds compare Samus's height with the ceiling and the floor around the room's wrap, so a height past
-        // zero lies above the ceiling.
-        bool aboveCeiling = CoordinateAxis.Difference(moved.Whole, MotherBrainRainbowBeamPushDefinitions.Ceiling) < 0;
-        if (aboveCeiling || CoordinateAxis.Difference(moved.Whole, MotherBrainRainbowBeamPushDefinitions.Floor) >= 0)
+        // The push moves her a pixel or two an update between the ceiling and the floor, so she meets either bound long
+        // before the room's top.
+        bool aboveCeiling = moved.Whole < MotherBrainRainbowBeamPushDefinitions.Ceiling;
+        if (aboveCeiling || moved.Whole >= MotherBrainRainbowBeamPushDefinitions.Floor)
         {
             int boundary = aboveCeiling ? MotherBrainRainbowBeamPushDefinitions.Ceiling : MotherBrainRainbowBeamPushDefinitions.Floor;
             samus.Position = samus.Position.WithWholeY(boundary);
@@ -171,7 +171,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         // Every store is hidden from the camera's horizontal record.
         cameraCheckpoint.HideCoarseHorizontalMovement(moved.Fraction);
 
-        if (CoordinateAxis.Difference(moved.Whole, MotherBrainRainbowBeamPushDefinitions.WallX) >= 0)
+        if (moved.Whole >= MotherBrainRainbowBeamPushDefinitions.WallX)
         {
             samus.Position = samus.Position.WithWholeX(MotherBrainRainbowBeamPushDefinitions.WallX);
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0);

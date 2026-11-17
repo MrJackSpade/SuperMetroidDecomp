@@ -70,12 +70,12 @@ internal sealed class MotherBrainAttacks
     private static bool TryWalkMotherBrainBackwardsForHandBeam(
         MotherBrainEnemyState state)
     {
-        int targetMinusBody = CoordinateAxis.Difference(MotherBrainFightDefinitions.BackOfRoomX, state.Body.Position.X.Whole);
+        int targetMinusBody = MotherBrainFightDefinitions.BackOfRoomX - state.Body.Position.X.Whole;
         if (targetMinusBody >= 0)
             return true;
         if (state.Pose != MotherBrainBodyPose.Standing)
             return false;
-        if (CoordinateAxis.Difference(state.Body.Position.X.Whole, MotherBrainFightDefinitions.BackLimitX) < 0)
+        if (state.Body.Position.X.Whole < MotherBrainFightDefinitions.BackLimitX)
             return true;
 
         MotherBrainEncounterAccess.SetMotherBrainBodyAnimation(state, MotherBrainBodySegment.WalkBackwardSlow);
@@ -195,7 +195,7 @@ internal sealed class MotherBrainAttacks
             return;
         }
 
-        int verticalDistance = CoordinateAxis.Distance(state.Head.Position.Y.Whole + MotherBrainFightDefinitions.AttackMeasureBelowHead, samus.Position.Y.Whole);
+        int verticalDistance = Math.Abs(state.Head.Position.Y.Whole + MotherBrainFightDefinitions.AttackMeasureBelowHead - samus.Position.Y.Whole);
         WeightedRandomChoice<MotherBrainSecondPhaseAttack> attacks = verticalDistance < MotherBrainFightDefinitions.NearAttackHeight
             ? MotherBrainRandomDefinitions.NearAttack
             : MotherBrainRandomDefinitions.FarAttack;
@@ -245,7 +245,7 @@ internal sealed class MotherBrainAttacks
         if (!MotherBrainRandomDefinitions.BombWalkStaysPut.IsTakenBy(random))
         {
             int targetX = MotherBrainRandomDefinitions.BombWalkShortRetreat.IsTakenBy(random) ? MotherBrainFightDefinitions.BombWalkShortRetreatX : MotherBrainFightDefinitions.BombWalkLongRetreatX;
-            int targetMinusBody = CoordinateAxis.Difference(targetX, state.Body.Position.X.Whole);
+            int targetMinusBody = targetX - state.Body.Position.X.Whole;
             if (targetMinusBody < 0)
             {
                 state.BodyTargetXPosition = targetX;
@@ -337,12 +337,12 @@ internal sealed class MotherBrainAttacks
         MotherBrainEnemyState state,
         int targetX)
     {
-        int targetMinusBody = CoordinateAxis.Difference(targetX, state.Body.Position.X.Whole);
+        int targetMinusBody = targetX - state.Body.Position.X.Whole;
         if (targetMinusBody >= 0)
             return true;
         if (state.Pose != MotherBrainBodyPose.Standing)
             return false;
-        if (CoordinateAxis.Difference(state.Body.Position.X.Whole, MotherBrainFightDefinitions.BackLimitX) < 0)
+        if (state.Body.Position.X.Whole < MotherBrainFightDefinitions.BackLimitX)
             return true;
 
         MotherBrainEncounterAccess.SetMotherBrainBodyAnimation(state, MotherBrainBodySegment.WalkBackwardMedium);
@@ -394,10 +394,7 @@ internal sealed class MotherBrainAttacks
     {
         RoomEnemyPlace head = state.Head;
 
-        // The comparison reads the wrapped difference as signed. Arena coordinates
-        // never leave the signed range, and a wrapped coordinate keeps the same answer.
-        int headMinusSamus = CoordinateAxis.Difference(head.Position.Y.Whole, samus.Position.Y.Whole);
-        MotherBrainNeckMovement targetMovement = headMinusSamus >= 0
+        MotherBrainNeckMovement targetMovement = head.Position.Y.Whole >= samus.Position.Y.Whole
             ? MotherBrainNeckMovement.Raise
             : MotherBrainNeckMovement.Lower;
         state.LowerNeckMovement = targetMovement;

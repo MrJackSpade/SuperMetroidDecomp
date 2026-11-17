@@ -51,8 +51,7 @@ public sealed class MotherBrainRainbowBeamEffect
         }
         // The cone's edges lie half its whole-step width either side of its direction.
         TrigonometryAngle halfWidth = angularWidth.WholeStep.DividedBy(2).ToTrigonometryAngle();
-        Geometry = new(new(CoordinateAxis.Wrap(head.X + MotherBrainBeamDefinitions.MouthXOffset),
-                CoordinateAxis.Wrap(head.Y + MotherBrainBeamDefinitions.MouthYOffset)),
+        Geometry = new(new(head.X + MotherBrainBeamDefinitions.MouthXOffset, head.Y + MotherBrainBeamDefinitions.MouthYOffset),
             angle.ToTrigonometryAngle() - halfWidth,
             angle.ToTrigonometryAngle() + halfWidth);
     }

@@ -214,7 +214,7 @@ internal sealed class MotherBrainThirdPhaseFight
         Encounter.Phase3FightPhase = MotherBrainPhase3FightPhase.RecoverSetupForFighting;
         Encounter.PhaseTimer.LastFor(MotherBrainLateFightDefinitions.RecoverSetupUpdates);
         _state.RequestWalkBackward(
-            CoordinateAxis.Wrap(_state.BodyPosition.X - MotherBrainLateFightDefinitions.Phase3RetreatPixels),
+            _state.BodyPosition.X - MotherBrainLateFightDefinitions.Phase3RetreatPixels,
             MotherBrainWalkSpeed.ReallyFast);
         return false;
     }

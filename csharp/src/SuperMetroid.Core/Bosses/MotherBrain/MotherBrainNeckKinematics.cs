@@ -54,7 +54,7 @@ internal static class MotherBrainNeckKinematics
                 break;
             }
             case MotherBrainNeckMovement.BobUp: // Bob up to nine sixteenths of a turn unless the brain is already above its highest bob.
-                if (CoordinateAxis.Difference(brainY, MotherBrainNeckJointDefinitions.BobUpHighestBrainY) < 0)
+                if (brainY < MotherBrainNeckJointDefinitions.BobUpHighestBrainY)
                 {
                     lowerMovement = MotherBrainNeckMovement.BobDown;
                 }
@@ -103,7 +103,7 @@ internal static class MotherBrainNeckKinematics
             case MotherBrainNeckMovement.None:
                 break;
             case MotherBrainNeckMovement.BobDown: // Bob down; Samus below the brain forces both halves back upward.
-                if (CoordinateAxis.AsSigned(brainY + MotherBrainNeckJointDefinitions.BobDownSamusBelowBrain - samusY) >= 0)
+                if (brainY + MotherBrainNeckJointDefinitions.BobDownSamusBelowBrain >= samusY)
                 {
                     lowerMovement = MotherBrainNeckMovement.BobUp;
                     upperMovement = MotherBrainNeckMovement.BobUp;

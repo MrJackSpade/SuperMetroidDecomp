@@ -436,7 +436,7 @@ internal sealed class MotherBrainRainbowAttackPhases
                 // Before the finish-off begins, Mother Brain starts one really slow step forward when she is standing
                 // and short of the arena's front limit.
                 _state.RequestWalkForward(
-                    CoordinateAxis.Wrap(_state.BodyPosition.X + MotherBrainLateFightDefinitions.FinishOffStepX), MotherBrainWalkSpeed.ReallySlow);
+                    _state.BodyPosition.X + MotherBrainLateFightDefinitions.FinishOffStepX, MotherBrainWalkSpeed.ReallySlow);
                 _state.BabyArrivalReadyingElapsed = 0;
                 _state.BabyMetroidSpawned = false;
                 Encounter.FinishOffPhase = MotherBrainFinishOffPhase.GetSamusToLowEnergy;

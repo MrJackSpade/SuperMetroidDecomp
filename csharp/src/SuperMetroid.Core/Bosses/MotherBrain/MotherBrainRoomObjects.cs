@@ -22,7 +22,7 @@ internal sealed class MotherBrainRoomObjects(RoomObjectPlaceList places)
         if (request.RoomObject != MotherBrainRoomMutation.RevealMuralRow)
             return Ensure.Listed(Changes, request.RoomObject);
         int row = request.Block.Y - MotherBrainMuralDefinitions.TopBlockRow;
-        if (request.Block.X != MotherBrainMuralDefinitions.Column || (uint)row >= MotherBrainMuralDefinitions.RowCount)
+        if (request.Block.X != MotherBrainMuralDefinitions.Column || row < 0 || row >= MotherBrainMuralDefinitions.RowCount)
             throw new InvalidOperationException($"No row of Mother Brain's mural lies at block ({request.Block.X},{request.Block.Y}).");
         return MuralRowReveals[row];
     }

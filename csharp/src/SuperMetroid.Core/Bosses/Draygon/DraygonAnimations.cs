@@ -6,7 +6,12 @@ using SuperMetroid.Core.Enemies.EffectActors;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
 
-/// <summary>Draygon's typed animations (#641, #1600): each body, eye, tail and arms segment's beats, and the animation starting at each.</summary>
+/// <summary>
+/// Draygon's typed animations (#641, #1600): each body, eye, tail and arms segment's beats, and the animation starting at
+/// each, which plays each of its segments whole (#2296). The idle eye shows its open and narrowing pictures twice in a row
+/// each, and the two showings stay two beats: each raises the eye's new-frame flag, which his body reads to show the eye's
+/// picture on an update the draw pass reaches the eye, so the second showing shows it again where the first was missed.
+/// </summary>
 internal static class DraygonAnimations
 {
     /// <summary>Every body, eye, tail and arms segment's beats.</summary>
@@ -80,8 +85,14 @@ internal static class DraygonAnimations
             Cue(new DraygonCue.SpawnDyingEffect(RoomEffectActorKind.BigDustCloud)),
             Cue(new DraygonCue.SpawnDyingEffect(RoomEffectActorKind.DraygonBreathBubbles)),
             Cue(new DraygonCue.QueueSound(DraygonSoundDefinitions.Explosion)),
+        ],
+        [P.BodyDyingParalysis] =
+        [
             Wait(1),
             Cue(DraygonCue.ParalyseTailAndArms.Instance),
+        ],
+        [P.BodyDyingExplosionLoop] =
+        [
             Wait(16),
             Cue(new DraygonCue.SpawnDyingEffect(RoomEffectActorKind.BigExplosion)),
             Cue(new DraygonCue.SpawnDyingEffect(RoomEffectActorKind.SmallExplosion)),
@@ -137,6 +148,9 @@ internal static class DraygonAnimations
             Show(F.DraygonEyeFacingLeftNarrowing, 4),
             Show(F.DraygonEyeFacingLeftBloodshot, 4),
             Show(F.DraygonEyeFacingLeftClosing, 4),
+        ],
+        [P.EyeFacingLeftDyingStare] =
+        [
             Show(F.DraygonEyeFacingLeftWide, 32),
             Show(F.DraygonEyeFacingLeftHalfOpen, 16),
         ],
@@ -229,6 +243,9 @@ internal static class DraygonAnimations
             Show(F.DraygonTailFacingLeftWhipHangingLong, 4),
             Show(F.DraygonTailFacingLeftWhipRaising, 5),
             Show(F.DraygonTailFacingLeftWhipCocking, 6),
+        ],
+        [P.TailFacingLeftReleaseSamus] =
+        [
             Cue(new DraygonCue.SetBodyPhase(DraygonPhase.ReleaseSamus)),
         ],
         [P.TailFacingLeftWhip] =
@@ -360,6 +377,9 @@ internal static class DraygonAnimations
             Show(F.DraygonEyeFacingRightNarrowing, 4),
             Show(F.DraygonEyeFacingRightBloodshot, 4),
             Show(F.DraygonEyeFacingRightClosing, 4),
+        ],
+        [P.EyeFacingRightDyingStare] =
+        [
             Show(F.DraygonEyeFacingRightWide, 32),
             Show(F.DraygonEyeFacingRightHalfOpen, 16),
         ],
@@ -427,6 +447,9 @@ internal static class DraygonAnimations
             Show(F.DraygonTailFacingRightWhipHangingLong, 4),
             Show(F.DraygonTailFacingRightWhipRaising, 5),
             Show(F.DraygonTailFacingRightWhipCocking, 6),
+        ],
+        [P.TailFacingRightReleaseSamus] =
+        [
             Cue(new DraygonCue.SetBodyPhase(DraygonPhase.ReleaseSamus)),
         ],
         [P.TailFacingRightWhip] =
@@ -480,50 +503,57 @@ internal static class DraygonAnimations
     internal static IReadOnlyDictionary<DraygonSegment, Animation<DraygonSegment>> StartingAt { get; } = new Dictionary<DraygonSegment, Animation<DraygonSegment>>
     {
         [P.Rest] = new([], AnimationEnd.Holds),
-        [P.BodyFacingLeftReset] = new([new(P.BodyFacingLeftReset, 0, 3, 1)], AnimationEnd.Holds),
-        [P.BodyFacingRightReset] = new([new(P.BodyFacingRightReset, 0, 3, 1)], AnimationEnd.Holds),
-        [P.ArmsFacingLeftIdle] = new([new(P.ArmsFacingLeftIdle, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ArmsFacingLeftNearSwoopApex] = new([new(P.ArmsFacingLeftNearSwoopApex, 0, 4, 1)], AnimationEnd.Holds),
-        [P.ArmsFacingLeftGrab] = new([new(P.ArmsFacingLeftGrab, 0, 8, 1)], AnimationEnd.Holds),
-        [P.ArmsFacingLeftDying] = new([new(P.ArmsFacingLeftDying, 0, 4, 1), new(P.BodyDying, 0, 2, 1), new(P.BodyDyingExplosions, 0, 6, 8), new(P.BodyDyingExplosions, 6, 2, 1), new(P.BodyDyingExplosions, 8, 6, 1)], AnimationEnd.LoopsFrom(4)),
-        [P.BodyFacingLeftIdle] = new([new(P.BodyFacingLeftIdle, 0, 2, 1)], AnimationEnd.Holds),
+        [P.BodyFacingLeftReset] = new([Whole(P.BodyFacingLeftReset)], AnimationEnd.Holds),
+        [P.BodyFacingRightReset] = new([Whole(P.BodyFacingRightReset)], AnimationEnd.Holds),
+        [P.ArmsFacingLeftIdle] = new([Whole(P.ArmsFacingLeftIdle)], AnimationEnd.LoopsFrom(0)),
+        [P.ArmsFacingLeftNearSwoopApex] = new([Whole(P.ArmsFacingLeftNearSwoopApex)], AnimationEnd.Holds),
+        [P.ArmsFacingLeftGrab] = new([Whole(P.ArmsFacingLeftGrab)], AnimationEnd.Holds),
+        [P.ArmsFacingLeftDying] = new([Whole(P.ArmsFacingLeftDying), Whole(P.BodyDying), Repeat(P.BodyDyingExplosions, 8), Whole(P.BodyDyingParalysis), Whole(P.BodyDyingExplosionLoop)], AnimationEnd.LoopsFrom(4)),
+        [P.BodyFacingLeftIdle] = new([Whole(P.BodyFacingLeftIdle)], AnimationEnd.Holds),
         [P.Delete] = new([], AnimationEnd.Stops),
-        [P.BodyFacingLeftFireGoop] = new([new(P.BodyFacingLeftFireGoop, 0, 9, 1)], AnimationEnd.Holds),
-        [P.BodyFacingLeftRoar] = new([new(P.BodyFacingLeftRoar, 0, 8, 1)], AnimationEnd.Holds),
-        [P.EyeFacingLeftIdle] = new([new(P.EyeFacingLeftIdle, 0, 13, 1)], AnimationEnd.Holds),
-        [P.EyeFacingLeftDying] = new([new(P.EyeFacingLeftDying, 0, 4, 4), new(P.EyeFacingLeftDying, 4, 2, 1)], AnimationEnd.Holds),
-        [P.EyeFacingLeftDead] = new([new(P.EyeFacingLeftDead, 0, 4, 1)], AnimationEnd.Holds),
-        [P.EyeFacingLeftLookingLeft] = new([new(P.EyeFacingLeftLookingLeft, 0, 1, 1)], AnimationEnd.Holds),
-        [P.EyeFacingLeftLookingRight] = new([new(P.EyeFacingLeftLookingRight, 0, 1, 1)], AnimationEnd.Holds),
-        [P.EyeFacingLeftLookingUp] = new([new(P.EyeFacingLeftLookingUp, 0, 1, 1)], AnimationEnd.Holds),
-        [P.EyeFacingLeftLookingDown] = new([new(P.EyeFacingLeftLookingDown, 0, 1, 1)], AnimationEnd.Holds),
-        [P.TailFacingLeftIdle] = new([new(P.TailFacingLeftIdle, 0, 12, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.TailFacingLeftInitialFakeWhip] = new([new(P.TailFacingLeftInitialFakeWhip, 0, 22, 1), new(P.TailFacingLeftIdle, 0, 12, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.TailFacingLeftFinalWhips] = new([new(P.TailFacingLeftFinalWhips, 0, 24, 4), new(P.TailFacingLeftFinalWhips, 24, 1, 1), new(P.TailFacingLeftIdle, 0, 12, 1)], AnimationEnd.LoopsFrom(2)),
-        [P.TailFacingLeftWhip] = new([new(P.TailFacingLeftWhip, 0, 24, 1), new(P.TailFacingLeftIdle, 0, 12, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.TailFacingLeftFlail] = new([new(P.TailFacingLeftFlail, 0, 15, 1), new(P.TailFacingLeftIdle, 0, 12, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.ArmsFacingRightIdle] = new([new(P.ArmsFacingRightIdle, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ArmsFacingRightNearSwoopApex] = new([new(P.ArmsFacingRightNearSwoopApex, 0, 4, 1)], AnimationEnd.Holds),
-        [P.ArmsFacingRightGrab] = new([new(P.ArmsFacingRightGrab, 0, 8, 1)], AnimationEnd.Holds),
-        [P.ArmsFacingRightDying] = new([new(P.ArmsFacingRightDying, 0, 4, 1), new(P.BodyDying, 0, 2, 1), new(P.BodyDyingExplosions, 0, 6, 8), new(P.BodyDyingExplosions, 6, 2, 1), new(P.BodyDyingExplosions, 8, 6, 1)], AnimationEnd.LoopsFrom(4)),
-        [P.BodyFacingRightIdle] = new([new(P.BodyFacingRightIdle, 0, 2, 1)], AnimationEnd.Holds),
-        [P.BodyFacingRightFireGoop] = new([new(P.BodyFacingRightFireGoop, 0, 9, 1)], AnimationEnd.Holds),
-        [P.BodyFacingRightRoar] = new([new(P.BodyFacingRightRoar, 0, 8, 1)], AnimationEnd.Holds),
-        [P.EyeFacingRightIdle] = new([new(P.EyeFacingRightIdle, 0, 13, 1)], AnimationEnd.Holds),
-        [P.EyeFacingRightDying] = new([new(P.EyeFacingRightDying, 0, 4, 4), new(P.EyeFacingRightDying, 4, 2, 1)], AnimationEnd.Holds),
-        [P.EyeFacingRightDead] = new([new(P.EyeFacingRightDead, 0, 4, 1)], AnimationEnd.Holds),
-        [P.EyeFacingRightLookingRight] = new([new(P.EyeFacingRightLookingRight, 0, 1, 1)], AnimationEnd.Holds),
-        [P.EyeFacingRightLookingLeft] = new([new(P.EyeFacingRightLookingLeft, 0, 1, 1)], AnimationEnd.Holds),
-        [P.EyeFacingRightLookingUp] = new([new(P.EyeFacingRightLookingUp, 0, 1, 1)], AnimationEnd.Holds),
-        [P.EyeFacingRightLookingDown] = new([new(P.EyeFacingRightLookingDown, 0, 1, 1)], AnimationEnd.Holds),
-        [P.TailFacingRightIdle] = new([new(P.TailFacingRightIdle, 0, 12, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.TailFacingRightFinalWhips] = new([new(P.TailFacingRightFinalWhips, 0, 24, 4), new(P.TailFacingRightFinalWhips, 24, 1, 1), new(P.TailFacingRightIdle, 0, 12, 1)], AnimationEnd.LoopsFrom(2)),
-        [P.TailFacingRightWhip] = new([new(P.TailFacingRightWhip, 0, 24, 1), new(P.TailFacingRightIdle, 0, 12, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.TailFacingRightFlail] = new([new(P.TailFacingRightFlail, 0, 15, 1), new(P.TailFacingRightIdle, 0, 12, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.BodyFacingLeftFireGoop] = new([Whole(P.BodyFacingLeftFireGoop)], AnimationEnd.Holds),
+        [P.BodyFacingLeftRoar] = new([Whole(P.BodyFacingLeftRoar)], AnimationEnd.Holds),
+        [P.EyeFacingLeftIdle] = new([Whole(P.EyeFacingLeftIdle)], AnimationEnd.Holds),
+        [P.EyeFacingLeftDying] = new([Repeat(P.EyeFacingLeftDying, 4), Whole(P.EyeFacingLeftDyingStare)], AnimationEnd.Holds),
+        [P.EyeFacingLeftDead] = new([Whole(P.EyeFacingLeftDead)], AnimationEnd.Holds),
+        [P.EyeFacingLeftLookingLeft] = new([Whole(P.EyeFacingLeftLookingLeft)], AnimationEnd.Holds),
+        [P.EyeFacingLeftLookingRight] = new([Whole(P.EyeFacingLeftLookingRight)], AnimationEnd.Holds),
+        [P.EyeFacingLeftLookingUp] = new([Whole(P.EyeFacingLeftLookingUp)], AnimationEnd.Holds),
+        [P.EyeFacingLeftLookingDown] = new([Whole(P.EyeFacingLeftLookingDown)], AnimationEnd.Holds),
+        [P.TailFacingLeftIdle] = new([Whole(P.TailFacingLeftIdle)], AnimationEnd.LoopsFrom(0)),
+        [P.TailFacingLeftInitialFakeWhip] = new([Whole(P.TailFacingLeftInitialFakeWhip), Whole(P.TailFacingLeftIdle)], AnimationEnd.LoopsFrom(1)),
+        [P.TailFacingLeftFinalWhips] = new([Repeat(P.TailFacingLeftFinalWhips, 4), Whole(P.TailFacingLeftReleaseSamus), Whole(P.TailFacingLeftIdle)], AnimationEnd.LoopsFrom(2)),
+        [P.TailFacingLeftWhip] = new([Whole(P.TailFacingLeftWhip), Whole(P.TailFacingLeftIdle)], AnimationEnd.LoopsFrom(1)),
+        [P.TailFacingLeftFlail] = new([Whole(P.TailFacingLeftFlail), Whole(P.TailFacingLeftIdle)], AnimationEnd.LoopsFrom(1)),
+        [P.ArmsFacingRightIdle] = new([Whole(P.ArmsFacingRightIdle)], AnimationEnd.LoopsFrom(0)),
+        [P.ArmsFacingRightNearSwoopApex] = new([Whole(P.ArmsFacingRightNearSwoopApex)], AnimationEnd.Holds),
+        [P.ArmsFacingRightGrab] = new([Whole(P.ArmsFacingRightGrab)], AnimationEnd.Holds),
+        [P.ArmsFacingRightDying] = new([Whole(P.ArmsFacingRightDying), Whole(P.BodyDying), Repeat(P.BodyDyingExplosions, 8), Whole(P.BodyDyingParalysis), Whole(P.BodyDyingExplosionLoop)], AnimationEnd.LoopsFrom(4)),
+        [P.BodyFacingRightIdle] = new([Whole(P.BodyFacingRightIdle)], AnimationEnd.Holds),
+        [P.BodyFacingRightFireGoop] = new([Whole(P.BodyFacingRightFireGoop)], AnimationEnd.Holds),
+        [P.BodyFacingRightRoar] = new([Whole(P.BodyFacingRightRoar)], AnimationEnd.Holds),
+        [P.EyeFacingRightIdle] = new([Whole(P.EyeFacingRightIdle)], AnimationEnd.Holds),
+        [P.EyeFacingRightDying] = new([Repeat(P.EyeFacingRightDying, 4), Whole(P.EyeFacingRightDyingStare)], AnimationEnd.Holds),
+        [P.EyeFacingRightDead] = new([Whole(P.EyeFacingRightDead)], AnimationEnd.Holds),
+        [P.EyeFacingRightLookingRight] = new([Whole(P.EyeFacingRightLookingRight)], AnimationEnd.Holds),
+        [P.EyeFacingRightLookingLeft] = new([Whole(P.EyeFacingRightLookingLeft)], AnimationEnd.Holds),
+        [P.EyeFacingRightLookingUp] = new([Whole(P.EyeFacingRightLookingUp)], AnimationEnd.Holds),
+        [P.EyeFacingRightLookingDown] = new([Whole(P.EyeFacingRightLookingDown)], AnimationEnd.Holds),
+        [P.TailFacingRightIdle] = new([Whole(P.TailFacingRightIdle)], AnimationEnd.LoopsFrom(0)),
+        [P.TailFacingRightFinalWhips] = new([Repeat(P.TailFacingRightFinalWhips, 4), Whole(P.TailFacingRightReleaseSamus), Whole(P.TailFacingRightIdle)], AnimationEnd.LoopsFrom(2)),
+        [P.TailFacingRightWhip] = new([Whole(P.TailFacingRightWhip), Whole(P.TailFacingRightIdle)], AnimationEnd.LoopsFrom(1)),
+        [P.TailFacingRightFlail] = new([Whole(P.TailFacingRightFlail), Whole(P.TailFacingRightIdle)], AnimationEnd.LoopsFrom(1)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<DraygonSegment> StartingWith(DraygonSegment segment) => StartingAt[segment];
+
+    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
+    private static AnimationPhase<DraygonSegment> Whole(DraygonSegment segment) => Repeat(segment, 1);
+
+    /// <summary><paramref name="plays"/> plays of every beat of <paramref name="segment"/> (#2296).</summary>
+    private static AnimationPhase<DraygonSegment> Repeat(DraygonSegment segment, int plays) =>
+        new(segment, 0, Segments.Beats(segment).Count, plays);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, DraygonCue> Show(EnemyFrameId frame, int duration) =>

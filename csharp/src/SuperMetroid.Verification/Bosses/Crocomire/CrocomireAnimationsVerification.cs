@@ -47,9 +47,14 @@ internal static class CrocomireAnimationsVerification
                 word => BodyCallbacks.ContainsKey(word) ? 0 : null,
                 (word, _, cue, at) => AssertEqual(BodyCallbacks[word], cue, $"{at}: cue")));
         // The closed-mouth loop is no animation of its own (#2166): the roar's mouth closing runs on into it, and the
-        // damage wait roars again from it (#2180).
+        // damage wait roars again from it (#2180). Nor are the runs the projectile attack, the closed-mouth Power Bomb
+        // reaction and the spike-wall charge loop on (#2296), which their animations play on into.
         NativeEnemyAnimationOracle.CompareAnimations(lists, WithNativeRoarRunOn(lists),
-            onlyRunOnInto: new HashSet<CrocomireBodySegment> { CrocomireBodySegment.RoarCloseMouthLoop });
+            onlyRunOnInto: new HashSet<CrocomireBodySegment>
+            {
+                CrocomireBodySegment.RoarCloseMouthLoop, CrocomireBodySegment.ProjectileAttackSpitting,
+                CrocomireBodySegment.PowerBombReactionCharge, CrocomireBodySegment.NearSpikeWallChargeSteps,
+            });
         AssertTrue(lists.Values.All(list => list.Controls.All(control =>
                 control.Kind is NativeEnemyControlKind.Goto or NativeEnemyControlKind.Sleep or NativeEnemyControlKind.RunOnIntoNext
                     or NativeEnemyControlKind.LoopStart)),

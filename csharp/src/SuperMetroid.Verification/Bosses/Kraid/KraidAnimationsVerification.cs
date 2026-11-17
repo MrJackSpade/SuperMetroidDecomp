@@ -86,12 +86,30 @@ internal static class KraidAnimationsVerification
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 case NativeEnemyListDefinitions.WordKind.Frame:
+                {
                     var frame = AssertIs<AnimationBeat<KraidPartPose, KraidPartCue>.Frame>(Beat(beat, at), $"{at}: frame");
-                    AssertEqual(word, frame.Duration, $"{at}: duration");
                     AssertEqual<KraidPartPose?>(KraidPartFrameToolingDefinitionsConstants.PoseAt(operand), frame.Shown, $"{at}: the pose its native spritemap stores");
                     addresses.Add(cursor);
                     cursor = unchecked((ushort)(cursor + 4));
+                    // A pose the list shows again straight after, in its own list, past no-operation callbacks only and from
+                    // either of its spritemaps, is one typed frame of both durations (#2296): nothing reads a Kraid part's
+                    // frame timer or new-frame flag between them.
+                    int shown = word;
+                    while (shown < frame.Duration && PartProgramAt(cursor) is null)
+                    {
+                        ushort following = cursor;
+                        while (PartCallbacks.TryGetValue(cartridge.ReadCartridgeWord((PartBankNumber << 16) | following), out KraidPartCue? skipped) && skipped is null)
+                            following = unchecked((ushort)(following + 2));
+                        ushort again = cartridge.ReadCartridgeWord((PartBankNumber << 16) | following);
+                        if (PartProgramAt(following) is not null || NativeEnemyListDefinitions.Classify(again) != NativeEnemyListDefinitions.WordKind.Frame
+                            || KraidPartFrameToolingDefinitionsConstants.PoseAt(cartridge.ReadCartridgeWord(((PartBankNumber << 16) | following) + 2)) != frame.Shown)
+                            break;
+                        shown += again;
+                        cursor = unchecked((ushort)(following + 4));
+                    }
+                    AssertEqual(frame.Duration, shown, $"{at}: duration");
                     continue;
+                }
                 case NativeEnemyListDefinitions.WordKind.GoTo:
                     controls.Add(new(NativeEnemyControlKind.Goto, beat,
                         PartProgramAt(operand) ?? throw new InvalidDataException($"{at}: ${operand:X4} is no segment's native entry."), null, cursor));

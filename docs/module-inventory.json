@@ -114,7 +114,7 @@
     {
       "module": "csharp/src/SuperMetroid.Core/Bosses",
       "role": "production",
-      "files": 977,
+      "files": 980,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Animation",
@@ -154,7 +154,7 @@
     {
       "module": "csharp/src/SuperMetroid.Core/Enemies",
       "role": "production",
-      "files": 1254,
+      "files": 1253,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Animation",
@@ -34890,6 +34890,7 @@
         "SuperMetroid.Core"
       ],
       "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Core/Spatial"
       ]
     },
@@ -34943,6 +34944,9 @@
       "layer": "Simulation",
       "assemblies": [
         "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Compatibility"
       ]
     },
     {
@@ -36307,6 +36311,19 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Bosses/SporeSpawn/SporeSpawnEmitter.cs",
+      "module": "csharp/src/SuperMetroid.Core/Bosses",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Bosses.SporeSpawn",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Spatial"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Bosses/SporeSpawn/SporeSpawnEmitterState.cs",
       "module": "csharp/src/SuperMetroid.Core/Bosses",
       "role": "production",
@@ -36317,7 +36334,8 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core/Compatibility",
-        "csharp/src/SuperMetroid.Core/Enemies"
+        "csharp/src/SuperMetroid.Core/Enemies",
+        "csharp/src/SuperMetroid.Core/Spatial"
       ]
     },
     {
@@ -36525,7 +36543,34 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
-        "csharp/src/SuperMetroid.Core/Enemies"
+        "csharp/src/SuperMetroid.Core/Enemies",
+        "csharp/src/SuperMetroid.Core/Spatial"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Bosses/SporeSpawn/SporeSpawnSwayRadius.cs",
+      "module": "csharp/src/SuperMetroid.Core/Bosses",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Bosses.SporeSpawn",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Spatial"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Bosses/SporeSpawn/SporeSpawnSwayStep.cs",
+      "module": "csharp/src/SuperMetroid.Core/Bosses",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Bosses.SporeSpawn",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Spatial"
       ]
     },
     {
@@ -36958,16 +37003,6 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Bosses/Torizo/TorizoBehaviorFlags.cs",
-      "module": "csharp/src/SuperMetroid.Core/Bosses",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Bosses.Torizo",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ]
-    },
-    {
       "path": "csharp/src/SuperMetroid.Core/Bosses/Torizo/TorizoBellyGlowRequest.cs",
       "module": "csharp/src/SuperMetroid.Core/Bosses",
       "role": "production",
@@ -37068,6 +37103,19 @@
         "csharp/src/SuperMetroid.Core/Rooms",
         "csharp/src/SuperMetroid.Core/Samus",
         "csharp/src/SuperMetroid.Core/Spatial"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Bosses/Torizo/TorizoChozoOrbDefinitions.cs",
+      "module": "csharp/src/SuperMetroid.Core/Bosses",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Bosses.Torizo",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Enemies"
       ]
     },
     {
@@ -37236,6 +37284,7 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.Core/Animation",
         "csharp/src/SuperMetroid.Core/Compatibility",
+        "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Core/Spatial"
       ]
     },
@@ -43244,19 +43293,6 @@
       "layer": "Simulation",
       "assemblies": [
         "SuperMetroid.Core"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Enemies/Corpses/DeathExplosionScatter.cs",
-      "module": "csharp/src/SuperMetroid.Core/Enemies",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Enemies.Corpses",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Spatial"
       ]
     },
     {
@@ -52028,7 +52064,6 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core/Audio",
-        "csharp/src/SuperMetroid.Core/Progression",
         "csharp/src/SuperMetroid.Core/Samus"
       ]
     },

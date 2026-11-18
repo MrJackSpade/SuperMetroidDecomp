@@ -96,7 +96,7 @@ internal static class CoreAccess
         internal ushort FlashbackSamusY => intro.CurrentFlashbackSamus?.Position.Y.Whole ?? 0;
         /// <summary>Hits recorded by the intro's flashback Mother Brain sprite.</summary>
         internal int MotherBrainHitCount =>
-            intro.CurrentFlashbackMotherBrain?.HitCount ?? 0;
+            intro.CurrentFlashbackMotherBrain is { } motherBrain ? PrivateState.Field<IntroMotherBrainSpriteState, int>(motherBrain, "hitCount") : 0;
     }
 
     /// <summary>Observes credits brightness, cinematic frame, and vertical crawl position.</summary>
@@ -105,9 +105,9 @@ internal static class CoreAccess
         /// <summary>Current credits fade brightness, 0 (black) through 15 (full), from the private cinematic state.</summary>
         internal int Brightness => ending.Stage.Brightness;
         /// <summary>Cinematic calls the ending has made so far.</summary>
-        internal int CinematicFrame => ending.Flyaway.CinematicFrame;
+        internal int CinematicFrame => PrivateState.Field<EndingCreditsState, int>(ending, "cinematicFrame");
         /// <summary>Whole-pixel vertical credits scroll position, or zero before credits exist.</summary>
-        internal int CreditsVerticalScroll => ending.InstalledArtwork.CurrentCredits?.ScrolledPixels ?? 0;
+        internal int CreditsVerticalScroll => ending.CreditsRoll.CurrentCredits?.ScrolledPixels ?? 0;
     }
 
     /// <summary>Exposes pause page transition, map scroll, and displayed map cell state.</summary>

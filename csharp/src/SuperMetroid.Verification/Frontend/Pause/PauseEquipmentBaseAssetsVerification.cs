@@ -25,8 +25,8 @@ internal static class PauseEquipmentBaseAssetsVerification
         AssertTrue(BackgroundTileWordBytes.Tiles(nativeBase).SequenceEqual(InstalledFixtures.ImportOf(original).Pause.EquipmentBase.CreateTilemap()),
             "all 1024 equipment base cells match the native tiles");
 
-        var native = new PauseMenuState(new PauseMenuEntry { Audio = AudioQueues.Standalone(), Samus = Samus(), System = new SharedGameState(new SharedRandom()), Area = AreaId.Norfair, RoomMapPosition = new(0, 1), ScreenContent = original, SpriteSheets = MenuSheetFixtures.For(original) });
-        var installed = new PauseMenuState(new PauseMenuEntry { Audio = AudioQueues.Standalone(), Samus = Samus(), System = new SharedGameState(new SharedRandom()), Area = AreaId.Norfair, RoomMapPosition = new(0, 1), ScreenContent = original, SpriteSheets = MenuSheetFixtures.For(original) });
+        var native = new PauseMenuState(new PauseMenuEntry { Audio = AudioQueues.Standalone(), Samus = Samus(), System = new SharedGameState(new SharedRandom()), Area = AreaId.Norfair, RoomMapPosition = new(0, 1), ScreenContent = original, SpriteSheets = MenuSheetFixtures.For(original), GameplayHud = global::SuperMetroid.Core.Hud.ShownHud.Nothing, MapRevealMode = global::SuperMetroid.Core.Map.MapRevealMode.None });
+        var installed = new PauseMenuState(new PauseMenuEntry { Audio = AudioQueues.Standalone(), Samus = Samus(), System = new SharedGameState(new SharedRandom()), Area = AreaId.Norfair, RoomMapPosition = new(0, 1), ScreenContent = original, SpriteSheets = MenuSheetFixtures.For(original), GameplayHud = global::SuperMetroid.Core.Hud.ShownHud.Nothing, MapRevealMode = global::SuperMetroid.Core.Map.MapRevealMode.None });
         int toMap = PausePageTransitionNativeLength + 1;
         for (int frame = 0; frame < toMap + PausePageTransitionNativeLength + 2; frame++)
         {

@@ -53,7 +53,7 @@ internal static class UnpauseReserveBlackoutVerification
 
         // Once gameplay resumes the screen is still black; a pause darkens from there.
         var (pausing, _) = Create();
-        pausing.GameState = SuperMetroidGameState.MainGameplay;
+        pausing.Session.Enter(SuperMetroidGameState.MainGameplay);
         pausing.Session.screenFade.Show(0);
         pausing.Step(0);
         pausing.Step(ControllerButton.Start);

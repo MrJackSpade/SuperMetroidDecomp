@@ -41,7 +41,7 @@ internal static class DoorWaitsForMessageBoxVerification
             .First();
         game.AdoptRuntime(runtime);
         game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;
-        game.GameState = SuperMetroidGameState.MainGameplay;
+        game.Session.Enter(SuperMetroidGameState.MainGameplay);
 
         // The gameplay call's movement published the door; its PLM handler opened the notice.
         PrivateState.Set(runtime.Room.LoadedLevelData, nameof(SuperMetroid.Core.Rooms.LevelData.RoomLevelData.PendingDoorTransition), door);

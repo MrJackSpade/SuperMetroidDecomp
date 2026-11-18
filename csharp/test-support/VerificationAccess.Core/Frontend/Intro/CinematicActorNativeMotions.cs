@@ -115,10 +115,10 @@ internal static class CinematicActorNativeMotions
     internal const ushort RewardSuitlessUpper = 0xf51c;
 
     /// <summary>The reward Samus's body's motions on her jump.</summary>
-    internal static readonly IReadOnlyDictionary<EndingRewardBodyMotion, ushort> RewardBody = new Dictionary<EndingRewardBodyMotion, ushort>
+    internal static readonly IReadOnlyDictionary<EndingRewardJumpMotion, ushort> RewardBody = new Dictionary<EndingRewardJumpMotion, ushort>
     {
-        [EndingRewardBodyMotion.Rising] = 0xf528,
-        [EndingRewardBodyMotion.Falling] = 0xf5dd,
+        [EndingRewardJumpMotion.Rising] = 0xf528,
+        [EndingRewardJumpMotion.Falling] = 0xf5dd,
     };
 
     /// <summary>The suited reward Samus's head's flight.</summary>

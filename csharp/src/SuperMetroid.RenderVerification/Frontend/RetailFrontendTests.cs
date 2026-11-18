@@ -26,7 +26,7 @@ internal static class RetailFrontendTests
         for (int tick = 0; tick < 2500 && !title.FileSelectRequested; tick++)
         {
             bool newPhase = phases.Add(title.Phase);
-            if (newPhase || tick % 17 == 0 || title.Phase == TitleSequencePhase.TitleScreenFadeOut)
+            if (newPhase || tick % 17 == 0 || title.Phase == TitleSequencePhase.TitleScreenFadeOutToFileSelect)
             {
                 var expected = title.Render();
                 var packet = new DisplayPacket((ushort)tick, title.CaptureRenderSnapshot());

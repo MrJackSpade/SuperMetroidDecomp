@@ -32,7 +32,7 @@ namespace SuperMetroid.Core.World;
 /// the places update in and the loss of a spawn into a full room are the room's <see cref="Compatibility.RoomObjectPlaces"/>.
 /// </remarks>
 [RoomLifetime]
-public sealed class RoomObjectSystem : ISamusRoomObjects
+public sealed class RoomObjectSystem : IRoomObjects, ISamusRoomObjects
 {
     /// <summary>Creates collision-triggered block room objects from Samus and projectile reactions.</summary>
     internal BlockReactionObjects BlockReactions { get; }
@@ -248,6 +248,30 @@ public sealed class RoomObjectSystem : ISamusRoomObjects
 
     /// <inheritdoc/>
     void IRoomObjects.DeleteObject(RoomObjectPlace place) => DeleteObject(place);
+
+    /// <inheritdoc/>
+    BlockReactionObjects ISamusRoomObjects.BlockReactions => BlockReactions;
+
+    /// <inheritdoc/>
+    CollectibleObjects ISamusRoomObjects.CollectibleObjects => CollectibleObjects;
+
+    /// <inheritdoc/>
+    StationObjects ISamusRoomObjects.Stations => Stations;
+
+    /// <inheritdoc/>
+    DoorObjects ISamusRoomObjects.DoorObjects => DoorObjects;
+
+    /// <inheritdoc/>
+    GateObjects ISamusRoomObjects.Gates => Gates;
+
+    /// <inheritdoc/>
+    SamusEaterObjects ISamusRoomObjects.SamusEater => SamusEater;
+
+    /// <inheritdoc/>
+    ScrollObjects ISamusRoomObjects.Scrolls => Scrolls;
+
+    /// <inheritdoc/>
+    bool ISamusRoomObjects.EveryPlaceHeld => Places.IsFull;
 
     /// <inheritdoc/>
     ProjectileTriggerObjects ISamusRoomObjects.ProjectileTriggers => ProjectileTriggers;

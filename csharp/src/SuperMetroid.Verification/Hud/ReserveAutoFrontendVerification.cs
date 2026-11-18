@@ -60,7 +60,7 @@ internal static class ReserveAutoFrontendVerification
         // Enter through actual state-eight routing, not by calling recovery.Begin:
         // the zero-health gameplay frame must publish recovery without consuming
         // the first reserve point early or letting Start replace it with pause.
-        game.GameState = SuperMetroidGameState.MainGameplay;
+        game.Session.Enter(SuperMetroidGameState.MainGameplay);
         var entry = game.StepCaptured(ControllerButton.Start);
         AssertEqual(SuperMetroidGameState.ReserveTankRefill, game.GameState,
             "zero-health gameplay routes to automatic reserves before pause admission");
@@ -103,7 +103,7 @@ internal static class ReserveAutoFrontendVerification
         recovery.Begin(samus); runtime.Freeze.GameplayTimeFrozen = true;
         lockedAnimationFrame = samus.AnimationNumber;
         lockedAnimationTimer = samus.AnimationFrameTimer.RawValue;
-        game.GameState = SuperMetroidGameState.ReserveTankRefill;
+        game.Session.Enter(SuperMetroidGameState.ReserveTankRefill);
         for (int frame = 0; frame < 33; frame++)
         {
             // Drain the unrelated host transport between observations. Production

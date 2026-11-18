@@ -15,10 +15,10 @@ internal sealed class AttractDemoSchedule
     /// How many of <see cref="Set"/>'s demonstrations have begun since the set last started from its first; the next
     /// one plays from this place in the set's list.
     /// </summary>
-    internal int ScenesBegun { get; set; }
+    internal int ScenesBegun { get; private set; }
 
     /// <summary>The scripted input frames left in the scene playing.</summary>
-    internal int FramesRemaining { get; set; }
+    internal int FramesRemaining { get; private set; }
 
     /// <summary>The still-frame hold left after the scene's scripted input.</summary>
     internal int HoldFramesRemaining { get; private set; }

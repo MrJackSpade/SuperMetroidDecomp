@@ -31,7 +31,7 @@ internal static class PauseScreenPublicationVerification
         var pause = CreateRetailPauseFixture(new PauseMenuEntry
         { ScreenContent = global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps, SpriteSheets = global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SpriteSheets, Audio = AudioQueues.Standalone(),
             Samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { CollectedBeams = SamusBeamFlags.Charge, EquippedBeams = SamusBeamFlags.Charge },
-            System = new SharedGameState(new SharedRandom()), Area = AreaId.Crateria, RoomMapPosition = new(28, 2),
+            System = new SharedGameState(new SharedRandom()), Area = AreaId.Crateria, RoomMapPosition = new(28, 2), GameplayHud = global::SuperMetroid.Core.Hud.ShownHud.Nothing, MapRevealMode = global::SuperMetroid.Core.Map.MapRevealMode.None
         });
         for (int frame = 0; frame < 4; frame++) pause.Step(0, 0);
         AssertPublished(pause, "map page");

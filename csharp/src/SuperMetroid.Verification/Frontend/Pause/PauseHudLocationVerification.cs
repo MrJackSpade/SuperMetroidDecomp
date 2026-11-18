@@ -34,13 +34,13 @@ internal static class PauseHudLocationVerification
             runtime.RoomLoader.InitializeCeresStartSamus();
             var samus = runtime.Player.IntroducedSamus;
             samus.Position = samus.Position.WithWhole(new(0x200, 0x300));
-            runtime.Hud.UpdateMinimap(runtime.System, new MinimapFrame { Area = AreaId.Crateria, RoomMap = new(28, 2), RoomSize = new(0x90, 0x50), Samus = samus.Position.Whole, FrameCounter = phase, PresentationMap = maps.Get(AreaId.Crateria) });
+            runtime.Hud.UpdateMinimap(runtime.System, new MinimapFrame { Area = AreaId.Crateria, RoomMap = new(28, 2), RoomSize = new(0x90, 0x50), Samus = samus.Position.Whole, FrameCounter = phase, PresentationMap = maps.Get(AreaId.Crateria), MapRevealMode = global::SuperMetroid.Core.Map.MapRevealMode.None });
             ushort center = runtime.Hud.Tiles(runtime.InstalledHudArtwork)[60].PackedWord;
             AssertEqual(phase == 0 ? 0xbc26 : 0xa826, center, "independent native minimap capture");
             AssertEqual(phase == 0 ? 7 : 2, (center >> 10) & 7,
                 "native $90:AB4A blink selects palette seven only in its on phase");
             runtime.FrameBoundary.BeginAcceptedFrame(0);
-            var pause = CreateRetailPauseFixture(new PauseMenuEntry { ScreenContent = global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps, SpriteSheets = global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SpriteSheets, Audio = AudioQueues.Standalone(), Samus = samus, System = runtime.System, Area = AreaId.Crateria, RoomMapPosition = new(28, 2), GameplayHud = runtime.AcceptedHud });
+            var pause = CreateRetailPauseFixture(new PauseMenuEntry { ScreenContent = global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps, SpriteSheets = global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SpriteSheets, Audio = AudioQueues.Standalone(), Samus = samus, System = runtime.System, Area = AreaId.Crateria, RoomMapPosition = new(28, 2), GameplayHud = runtime.AcceptedHud, MapRevealMode = global::SuperMetroid.Core.Map.MapRevealMode.None });
             // The centre tile sits in the HUD's mutable rows, which follow the static top row on BG3.
             const int centerWord = FxOverlayPlaneConstants.Columns + 60;
             // A BG3 cell's palette selects four of the first CGRAM inks; the pause screen loads them from $B6:F000.

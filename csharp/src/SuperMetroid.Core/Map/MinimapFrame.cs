@@ -21,8 +21,8 @@ public sealed record MinimapFrame
     public required int FrameCounter { get; init; }
 
     /// <summary>How much of the area map the minimap reveals.</summary>
-    public MapRevealMode MapRevealMode { get; init; } = MapRevealMode.None;
+    public required MapRevealMode MapRevealMode { get; init; }
 
-    /// <summary>The area map the minimap shows from, or null when none is bound.</summary>
-    public IAreaMapView? PresentationMap { get; init; } = null;
+    /// <summary>The installed area map the minimap shows from.</summary>
+    public required IAreaMapView PresentationMap { get; init; }
 }

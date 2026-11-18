@@ -24,12 +24,6 @@ internal sealed class EndingFlyaway
         _stage = stage;
     }
 
-    /// <summary>
-    /// The cinematic's updates so far. Only its parity and quarter phase are read: the alternating
-    /// atmospheric rotation and the planet turn cadence.
-    /// </summary>
-    internal int CinematicFrame { get; set; }
-
     /// <summary>Where the gunship's shake stands in the current planet-escape leg's authored sequence (#1902).</summary>
     internal EndingShipShakeCursor ShipShake { get; private set; }
 
@@ -102,13 +96,14 @@ internal sealed class EndingFlyaway
     }
 
     /// <summary>Accumulates split planet velocity and turns toward the final gunship text at the exit scale.</summary>
-    internal void StepPlanetEscapeAccelerating()
+    /// <param name="cinematicFrame">The ending's updates so far, whose quarter phase paces the planet's turn.</param>
+    internal void StepPlanetEscapeAccelerating(int cinematicFrame)
     {
         StepFlyawayFade();
         PlanetVelocity -= EndingMotionDefinitions.PlanetAcceleration;
         _stage.FloorPosition = _stage.FloorPosition.WithX(_stage.FloorPosition.X + PlanetVelocity);
         if (_stage.FloorZoom < EndingMotionDefinitions.PlanetTurnStartZoom &&
-            EndingCadenceDefinitions.PlanetTurnEveryFourthUpdate.IsDue(CinematicFrame) &&
+            EndingCadenceDefinitions.PlanetTurnEveryFourthUpdate.IsDue(cinematicFrame) &&
             _stage.FloorAngle != EndingMotionDefinitions.PlanetExitTargetAngle)
         {
             _stage.FloorAngle = _stage.FloorAngle.TurnedBySteps(EndingMotionDefinitions.PlanetExitTurnSteps);

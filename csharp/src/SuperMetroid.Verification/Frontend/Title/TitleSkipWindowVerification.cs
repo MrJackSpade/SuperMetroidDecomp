@@ -93,7 +93,7 @@ internal static class TitleSkipWindowVerification
         List<TitleUpdate> confirming = Trace(at => at == confirm ? ControllerButton.Start : ControllerButton.None,
             _ => false, confirm + 4);
         int fading = confirm + 2;
-        AssertEqual(TitleSequencePhase.TitleScreenFadeOut, confirming[fading].Phase, "the idle title screen's confirmation fades out");
+        AssertEqual(TitleSequencePhase.TitleScreenFadeOutToFileSelect, confirming[fading].Phase, "the idle title screen's confirmation fades out");
         foreach (ControllerButton button in SkipButtons)
         {
             AssertEqual(confirming[fading], StateAfter(at => at == confirm ? ControllerButton.Start : at == fading ? button : ControllerButton.None, fading),
@@ -160,7 +160,7 @@ internal static class TitleSkipWindowVerification
         }
         if (expected.Phase == TitleSequencePhase.TitleScreen && update > titleScreen)
         {
-            AssertEqual(TitleSequencePhase.TitleScreenFadeOut, title.Phase, $"{place} is the idle title screen's confirmation, not the skip");
+            AssertEqual(TitleSequencePhase.TitleScreenFadeOutToFileSelect, title.Phase, $"{place} is the idle title screen's confirmation, not the skip");
             return;
         }
         AssertEqual(expected, Capture(title), $"{place} does not skip");

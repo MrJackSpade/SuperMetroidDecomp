@@ -410,8 +410,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         if (samus.HorizontalSpeed.BodyAttack != SamusBodyAttack.None)
         {
             _collision.ResolveNormalEnemyTouch(place, samus, pseudoScrew);
-            samus.InvincibilityTimer = WrappingCountdown.Start(0);
-            samus.KnockbackTimer = 0;
+            samus.ClearHurtTimers();
             return;
         }
 
@@ -423,8 +422,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!BeetomCadenceDefinitions.DrainDamageEverySixtyFourthUpdate.IsDue(place.FrameCounter))
             return;
         SamusSuitDamage.Hurt(samus, place.Definition.Damage);
-        samus.InvincibilityTimer = WrappingCountdown.Start(0);
-        samus.KnockbackTimer = 0;
+        samus.ClearHurtTimers();
     }
 
     /// <summary>

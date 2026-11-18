@@ -161,7 +161,7 @@ internal static void VerifyHudState()
 
     var mapSystem = new SharedGameState(new SharedRandom());
     mapSystem.SetAreaMapAcquired(0);
-    hud.UpdateMinimap(mapSystem, new MinimapFrame { Area = AreaId.Crateria, RoomMap = new(0x17, 1), RoomSize = new(9 * 16, 5 * 16), Samus = new(0x0440, 0x04bb), FrameCounter = 8, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria) });
+    hud.UpdateMinimap(mapSystem, new MinimapFrame { Area = AreaId.Crateria, RoomMap = new(0x17, 1), RoomSize = new(9 * 16, 5 * 16), Samus = new(0x0440, 0x04bb), FrameCounter = 8, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria), MapRevealMode = global::SuperMetroid.Core.Map.MapRevealMode.None });
     AssertTrue(mapSystem.IsMapTileExplored(AreaId.Crateria, new(27, 5)), "the minimap update explores the Landing Site's absolute tile Samus stands in");
     AssertEqual(SyntheticHudWord(new(25, 4), explored: false), hud.TileWords(hudArtwork)[26], "minimap top-left unvisited map-station tile");
     AssertEqual(SyntheticHudWord(new(27, 5), explored: true), hud.TileWords(hudArtwork)[60], "minimap explored center tile");
@@ -170,14 +170,14 @@ internal static void VerifyHudState()
     // a row below the map's rows explores and shows nothing.
     var wideMapSystem = new SharedGameState(new SharedRandom());
     wideMapSystem.SetAreaMapAcquired(0);
-    hud.UpdateMinimap(wideMapSystem, new MinimapFrame { Area = AreaId.Crateria, RoomMap = new(0x17 + 256, 1), RoomSize = new(9 * 16, 5 * 16), Samus = new(0x0440, 0x04bb), FrameCounter = 8, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria) });
+    hud.UpdateMinimap(wideMapSystem, new MinimapFrame { Area = AreaId.Crateria, RoomMap = new(0x17 + 256, 1), RoomSize = new(9 * 16, 5 * 16), Samus = new(0x0440, 0x04bb), FrameCounter = 8, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria), MapRevealMode = global::SuperMetroid.Core.Map.MapRevealMode.None });
     AssertTrue(wideMapSystem.IsMapTileExplored(AreaId.Crateria, new(27, 5)), "a map column past 255 continues across the area map's columns: it explores the cell Samus stands in");
     var deepMapSystem = new SharedGameState(new SharedRandom());
-    hud.UpdateMinimap(deepMapSystem, new MinimapFrame { Area = AreaId.Crateria, RoomMap = new(0x17, 301), RoomSize = new(9 * 16, 5 * 16), Samus = new(0x0440, 0x04bb), FrameCounter = 8, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria) });
+    hud.UpdateMinimap(deepMapSystem, new MinimapFrame { Area = AreaId.Crateria, RoomMap = new(0x17, 301), RoomSize = new(9 * 16, 5 * 16), Samus = new(0x0440, 0x04bb), FrameCounter = 8, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria), MapRevealMode = global::SuperMetroid.Core.Map.MapRevealMode.None });
     AssertTrue(!deepMapSystem.IsMapTileExplored(AreaId.Crateria, new(27, 5)), "a map row below the area map explores nothing");
 
     var noMapSystem = new SharedGameState(new SharedRandom());
-    hud.UpdateMinimap(noMapSystem, new MinimapFrame { Area = AreaId.Crateria, RoomMap = new(0x17, 1), RoomSize = new(9 * 16, 5 * 16), Samus = new(0x0440, 0x04bb), FrameCounter = 0, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria) });
+    hud.UpdateMinimap(noMapSystem, new MinimapFrame { Area = AreaId.Crateria, RoomMap = new(0x17, 1), RoomSize = new(9 * 16, 5 * 16), Samus = new(0x0440, 0x04bb), FrameCounter = 0, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria), MapRevealMode = global::SuperMetroid.Core.Map.MapRevealMode.None });
     AssertEqual((int)new MapTileWord(SyntheticMapWord(new(27, 5))).ForHud(explored: true).WithLocationBlink().Raw, hud.TileWords(hudArtwork)[60],
         "minimap blinking center palette");
     AssertEqual(0x2c1f, hud.TileWords(hudArtwork)[26], "minimap hides unvisited tile without map station");
@@ -195,10 +195,10 @@ internal static void VerifyHudState()
         ushort savedAbove = ReadFixtureMapWord(bus, aboveTile);
         SeedFixtureMapWord(bus, currentTile, slope);
         SeedFixtureMapWord(bus, aboveTile, 0x0c29);
-        hud.UpdateMinimap(slopeSystem, new MinimapFrame { Area = AreaId.Crateria, RoomMap = new((byte)x, 5), RoomSize = new(16, 16), Samus = new(128, 128), FrameCounter = 8, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria) });
+        hud.UpdateMinimap(slopeSystem, new MinimapFrame { Area = AreaId.Crateria, RoomMap = new((byte)x, 5), RoomSize = new(16, 16), Samus = new(128, 128), FrameCounter = 8, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria), MapRevealMode = global::SuperMetroid.Core.Map.MapRevealMode.None });
         AssertTrue(slopeSystem.IsMapTileExplored(0, new(checked((ushort)x), 4)), "sloped hallway explores its upper corner on either map page");
         AssertEqual(0x2c1f, hud.TileWords(hudArtwork)[28], "upper corner remains blank on native discovery update");
-        hud.UpdateMinimap(slopeSystem, new MinimapFrame { Area = AreaId.Crateria, RoomMap = new((byte)x, 5), RoomSize = new(16, 16), Samus = new(128, 128), FrameCounter = 8, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria) });
+        hud.UpdateMinimap(slopeSystem, new MinimapFrame { Area = AreaId.Crateria, RoomMap = new((byte)x, 5), RoomSize = new(16, 16), Samus = new(128, 128), FrameCounter = 8, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria), MapRevealMode = global::SuperMetroid.Core.Map.MapRevealMode.None });
         AssertEqual(0x2829, hud.TileWords(hudArtwork)[28], "upper corner displays its explored palette on following update");
         SeedFixtureMapWord(bus, currentTile, savedCurrent);
         SeedFixtureMapWord(bus, aboveTile, savedAbove);
@@ -210,7 +210,7 @@ internal static void VerifyHudState()
     Position16<MapTiles> ordinaryTile = new(30, 5);
     ushort ordinarySaved = ReadFixtureMapWord(bus, ordinaryTile);
     SeedFixtureMapWord(bus, ordinaryTile, 0x0c29);
-    hud.UpdateMinimap(ordinaryCornerSystem, new MinimapFrame { Area = AreaId.Crateria, RoomMap = new(30, 5), RoomSize = new(16, 16), Samus = new(128, 128), FrameCounter = 8, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria) });
+    hud.UpdateMinimap(ordinaryCornerSystem, new MinimapFrame { Area = AreaId.Crateria, RoomMap = new(30, 5), RoomSize = new(16, 16), Samus = new(128, 128), FrameCounter = 8, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria), MapRevealMode = global::SuperMetroid.Core.Map.MapRevealMode.None });
     AssertTrue(!ordinaryCornerSystem.IsMapTileExplored(0, new(30, 4)), "ordinary map character does not explore upper corner");
     SeedFixtureMapWord(bus, ordinaryTile, ordinarySaved);
 
@@ -253,7 +253,7 @@ internal static void VerifyHudState()
     ResetFixtureMapStationBitsToSingleTile(bus, new(rightPageNeighborX, rightPageCenterY));
     var rightPageSystem = new SharedGameState(new SharedRandom());
     rightPageSystem.SetAreaMapAcquired(AreaId.Crateria);
-    hud.UpdateMinimap(rightPageSystem, new MinimapFrame { Area = AreaId.Crateria, RoomMap = new(34, 19), RoomSize = new(2 * 16, 16), Samus = new(0x0080, 0x0080), FrameCounter = 8, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria) });
+    hud.UpdateMinimap(rightPageSystem, new MinimapFrame { Area = AreaId.Crateria, RoomMap = new(34, 19), RoomSize = new(2 * 16, 16), Samus = new(0x0080, 0x0080), FrameCounter = 8, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria), MapRevealMode = global::SuperMetroid.Core.Map.MapRevealMode.None });
     AssertTrue(rightPageSystem.IsMapTileExplored(AreaId.Crateria, new(34, rightPageCenterY)), "the right-page minimap update explores its absolute tile");
     AssertEqual(SyntheticHudWord(new(rightPageNeighborX, rightPageCenterY), explored: false), hud.TileWords(hudArtwork)[61],
         "right-page minimap reads the same eastern cell as pause map");

@@ -46,7 +46,7 @@ internal static class XrayGameStateVerification
             samus.Missiles = samus.SuperMissiles = samus.PowerBombs = 0;
             game.AdoptRuntime(runtime);
             game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;
-            game.GameState = SuperMetroidGameState.MainGameplay;
+            game.Session.Enter(SuperMetroidGameState.MainGameplay);
             game.Step(0);
             game.Step(ControllerButton.Select);
             AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "selecting X-ray stays in state eight");
@@ -80,7 +80,7 @@ internal static class XrayGameStateVerification
 
         // State eight still admits the same held-Run input.
         {
-            game.GameState = SuperMetroidGameState.MainGameplay;
+            game.Session.Enter(SuperMetroidGameState.MainGameplay);
             game.Step(runtime.Options.ControllerBindings.Dash);
             AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "the held-Run frame is a state-eight frame");
             AssertTrue(samus.Xray.IsActive, "state eight admits X-ray setup");

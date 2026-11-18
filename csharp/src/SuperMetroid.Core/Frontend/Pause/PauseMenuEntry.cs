@@ -26,10 +26,10 @@ internal sealed record PauseMenuEntry
     public required AudioQueues Audio { get; init; }
 
     /// <summary>The HUD gameplay displayed at its last frame (#1351, #1466), which pause keeps resident.</summary>
-    public ShownHud? GameplayHud { get; init; } = null;
+    public required ShownHud GameplayHud { get; init; }
 
     /// <summary>How much of each area map the map assist shows.</summary>
-    public MapRevealMode MapRevealMode { get; init; } = MapRevealMode.None;
+    public required MapRevealMode MapRevealMode { get; init; }
 
     /// <summary>The installed screen content the pause screens draw their maps and selectors from.</summary>
     public required InstalledScreenContent ScreenContent { get; init; }

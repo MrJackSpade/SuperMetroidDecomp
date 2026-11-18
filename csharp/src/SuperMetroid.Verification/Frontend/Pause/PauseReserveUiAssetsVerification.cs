@@ -22,8 +22,8 @@ internal static class PauseReserveUiAssetsVerification
         var guard = NewPauseReserveUiReadGuard(bus);
 
         var nativeSamus = Samus(); var installedSamus = Samus();
-        var native = new PauseMenuState(new PauseMenuEntry { Audio = AudioQueues.Standalone(), Samus = nativeSamus, System = new SharedGameState(new SharedRandom()), Area = AreaId.Brinstar, RoomMapPosition = new(0, 1), ScreenContent = original, SpriteSheets = MenuSheetFixtures.For(original) });
-        var installed = new PauseMenuState(new PauseMenuEntry { Audio = AudioQueues.Standalone(), Samus = installedSamus, System = new SharedGameState(new SharedRandom()), Area = AreaId.Brinstar, RoomMapPosition = new(0, 1), ScreenContent = original, SpriteSheets = MenuSheetFixtures.For(original) });
+        var native = new PauseMenuState(new PauseMenuEntry { Audio = AudioQueues.Standalone(), Samus = nativeSamus, System = new SharedGameState(new SharedRandom()), Area = AreaId.Brinstar, RoomMapPosition = new(0, 1), ScreenContent = original, SpriteSheets = MenuSheetFixtures.For(original), GameplayHud = global::SuperMetroid.Core.Hud.ShownHud.Nothing, MapRevealMode = global::SuperMetroid.Core.Map.MapRevealMode.None });
+        var installed = new PauseMenuState(new PauseMenuEntry { Audio = AudioQueues.Standalone(), Samus = installedSamus, System = new SharedGameState(new SharedRandom()), Area = AreaId.Brinstar, RoomMapPosition = new(0, 1), ScreenContent = original, SpriteSheets = MenuSheetFixtures.For(original), GameplayHud = global::SuperMetroid.Core.Hud.ShownHud.Nothing, MapRevealMode = global::SuperMetroid.Core.Map.MapRevealMode.None });
         EnterEquipment(native); EnterEquipment(installed);
         for (int frame = 0; frame < 64; frame++)
         {

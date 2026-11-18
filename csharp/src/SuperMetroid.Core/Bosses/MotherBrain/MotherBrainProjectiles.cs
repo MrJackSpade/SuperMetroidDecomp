@@ -541,11 +541,10 @@ internal sealed class MotherBrainProjectiles
             {
                 Position16<RoomPixels> ringPosition = ring.Position.Whole;
                 SamusSuitDamage.Hurt(samus, MotherBrainAttackDamage.OnionRing);
-                samus.InvincibilityTimer = WrappingCountdown.Start(EnemyCollisionDefinitions.SamusProjectileHitInvincibilityUpdates);
-                samus.KnockbackTimer = EnemyCollisionDefinitions.SamusTouchKnockbackUpdates;
-                samus.KnockbackXDirection = samus.Position.X.Whole >= SignedPlace(ring).X
-                    ? KnockbackHorizontalDirection.Right
-                    : KnockbackHorizontalDirection.Left;
+                samus.RequestKnockback(EnemyCollisionDefinitions.SamusProjectileHitInvincibilityUpdates,
+                    EnemyCollisionDefinitions.SamusTouchKnockbackUpdates, samus.Position.X.Whole >= SignedPlace(ring).X
+                        ? KnockbackHorizontalDirection.Right
+                        : KnockbackHorizontalDirection.Left);
                 ExplodeMotherBrainOnionRing(ring, ringPosition);
                 return;
             }

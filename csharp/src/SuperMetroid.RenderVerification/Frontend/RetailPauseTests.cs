@@ -23,7 +23,7 @@ internal static class RetailPauseTests
         {
             Audio = AudioQueues.Standalone(),
             Samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), System = system, Area = AreaId.Crateria, RoomMapPosition = new(0, 1),
-            ScreenContent = InstalledFixtures.Maps, SpriteSheets = InstalledFixtures.SpriteSheets,
+            ScreenContent = InstalledFixtures.Maps, SpriteSheets = InstalledFixtures.SpriteSheets, GameplayHud = global::SuperMetroid.Core.Hud.ShownHud.Nothing, MapRevealMode = global::SuperMetroid.Core.Map.MapRevealMode.None
         });
         void Compare(string page)
         {

@@ -52,7 +52,7 @@ internal static class CrocomirePresentation1193Verification
             samus.Control.Unlock();
             runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(512, 0));
         }
-        game.GameState = SuperMetroidGameState.MainGameplay;
+        game.Session.Enter(SuperMetroidGameState.MainGameplay);
         AssertEqual(RoomMainBehavior.CrocomireRoomShaking, runtime.Room.LoadedRoom.State.MainBehavior,
             "Actual Crocomire room selects native shaking callback");
         if (!spikes)

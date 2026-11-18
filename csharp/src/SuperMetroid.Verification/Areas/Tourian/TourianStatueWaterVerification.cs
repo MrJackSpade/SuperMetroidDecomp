@@ -42,7 +42,7 @@ internal static class TourianStatueWaterVerification
         samus.CommitPoseHistory();
         samus.Control.Unlock();
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(0, 0));
-        game.GameState = SuperMetroidGameState.MainGameplay;
+        game.Session.Enter(SuperMetroidGameState.MainGameplay);
         for (int frame = 0; frame < 3; frame++) game.Step(0);
         AssertEqual(RoomFxType.TourianEntranceStatue, samus.LiquidPhysics.FxType, "Samus retains native special FX identity");
         AssertEqual(0xb0, samus.LiquidPhysics.WaterSurfaceY, "Water physics receives the visible surface");

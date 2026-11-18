@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
@@ -57,7 +58,7 @@ internal static class LookupCeresHazeRampVerification
             foreach (bool dead in new[] { false, true })
             {
                 int flags = ReadVerificationWord(rom, dead ? 0x88de16 : 0x88de11);
-                var captured = GameplayEffectCapture.CaptureCeresHaze(tints, dead, counter);
+                var captured = GameplayEffectCapture.CaptureCeresHaze(tints, dead ? CeresHazeTint.AfterRidleyDies : CeresHazeTint.WhileRidleyLives, new CeresHazeStrength(counter));
                 // The haze is its tint stepped down the gameplay area (#1468): no colour above line 64, one step more
                 // every eight lines up to fifteen, shifted by the fade.
                 AssertEqual(new LineColourSteps(64, 8, 15, counter - 15), captured.Steps, "the haze's bands and fade");

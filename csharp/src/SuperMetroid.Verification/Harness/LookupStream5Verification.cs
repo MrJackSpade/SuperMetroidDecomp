@@ -149,7 +149,8 @@ internal static class LookupStream5Verification
             system.RidleyEncounter.CeresStatus = CeresEscapeStatus.SelfDestructStarted;
             int randomCalls = 0;
             system.VerificationServices().NextRandom = () => (ushort)(++randomCalls % 2 == 0 ? 0x4000 : 0);
-            Action tick = place.ElevatorDoor().Explode;
+            IEnemyAiFrame aiFrame = CeresDoorAiFrame();
+            Action tick = () => place.ElevatorDoor().RunMainAi(aiFrame);
             for (int call = 1; call <= 49; call++)
             {
                 tick();
@@ -325,10 +326,13 @@ internal static class LookupStream5Verification
         var system = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new StandaloneRoomEnemyServices(() => 0), floor: floor);
         var places = (RoomEnemyPlace[])system.Places.InUpdateOrder;
         places[0].BindCeresDoorOrWall(EnemyDefinitionId.CeresElevatorDoor, EnemySpawnSettings.None);
+        // The intact door cycles the glow and platform on each of its updates (#2482).
+        places[0].SetSpeciesState(new CeresElevatorDoorState { Phase = CeresElevatorDoorPhase.Intact });
+        IEnemyAiFrame aiFrame = CeresDoorAiFrame();
         foreach (ushort tick in new ushort[] { 0, 1, 2, 3, 4, 5, 6, 7, 0xfffe, 0xffff, 0 })
         {
             places[0].FrameCounter = tick;
-            places[0].ElevatorDoor().CycleGlowAndPlatform();
+            places[0].ElevatorDoor().RunMainAi(aiFrame);
             AssertEqual(strips[(tick & 2) >> 1], floor.Shown[CeresFloorPart.ElevatorPlatform], "Actual platform phase draws its strip over the floor");
         }
         string identity = SelectedPresentationHash.Create("enemy-ceres-door-v1",content =>
@@ -1803,9 +1807,12 @@ internal static class LookupStream5Verification
             system.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
             RoomEnemyPlace door = system.Places.InUpdateOrder[0];
             door.BindCeresDoorOrWall(EnemyDefinitionId.CeresElevatorDoor, EnemySpawnSettings.None);
+            // The intact door cycles the glow and platform on each of its updates (#2482).
+            door.SetSpeciesState(new CeresElevatorDoorState { Phase = CeresElevatorDoorPhase.Intact });
+            IEnemyAiFrame aiFrame = CeresDoorAiFrame();
             foreach (int counter in Enumerable.Range(0, 64))
             {
-                door.FrameCounter = (ushort)counter; door.ElevatorDoor().CycleGlowAndPlatform();
+                door.FrameCounter = (ushort)counter; door.ElevatorDoor().RunMainAi(aiFrame);
                 int row = (counter & 0x38) >> 3;
                 // The tick names the glow step the room's pictures show, which the import paints from this row (#1512).
                 AssertEqual(row, system.CeresDoorBehavior.ElevatorRoomGlowStep, "Actual native eight-tick row selection");
@@ -1951,6 +1958,11 @@ internal static class LookupStream5Verification
     [VerificationCommand("--lookup-stream5-melting-tilemaps")]
     internal static int LookupStream5MeltingTilemapsCommand()
     {
-     VerifyLookupStream5MeltingTilemaps(); return 0; 
+     VerifyLookupStream5MeltingTilemaps(); return 0;
     }
+
+    /// <summary>An enemy update's frame for the Ceres elevator door's own update, which reads nothing of it.</summary>
+    private static ClockedEnemyAiFrame CeresDoorAiFrame() => new(
+        RoomEnemyFrameFixtures.Standalone(SuperMetroid.Core.Rooms.LevelData.RoomLevelData.CollisionOnly(new(1, 1),
+            [SuperMetroid.Core.Rooms.LevelData.RoomCollisionType.Air]), 0), new FrameCounters(0));
 }

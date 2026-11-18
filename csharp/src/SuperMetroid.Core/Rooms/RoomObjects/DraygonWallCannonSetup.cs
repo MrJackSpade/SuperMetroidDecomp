@@ -11,5 +11,5 @@ internal sealed record DraygonWallCannonSetup(DraygonWallCannon Cannon, DraygonC
     : RoomObjectPlacementSetup
 {
     /// <inheritdoc/>
-    internal override void SetUp(IRoomObjectFamilySetups setups, RoomObjectKind kind) => setups.SetUpDraygonCannon(this);
+    internal override void SetUp(IRoomObjectFamilySetups setups) => setups.SetUpDraygonCannon(this);
 }

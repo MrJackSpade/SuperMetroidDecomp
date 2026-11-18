@@ -96,7 +96,7 @@ internal static class NativeSnapshotImport
             // A door block's behaviour byte is its place in the room's door list, which the installation already resolved
             // to the door it leads through (#2090); writing the byte as a behaviour would clear that door. A native door
             // block where the installed room has none fails loudly at its first touch, as an unresolved door does.
-            if (terrain.Collision == RoomCollisionType.DoorBlock && level.Exits[index] is not null)
+            if (terrain.Collision == RoomCollisionType.DoorBlock && level.ExitGrid[index] is not null)
                 continue;
             level.SetBehavior(block, RoomBlockBehaviorCodec.Decode(runtime.Room.LoadedRoom.Area, memory[NativeSnapshotMemory.Bts + index]));
         }
@@ -135,7 +135,8 @@ internal static class NativeSnapshotImport
                 : effect is ColourEffectId.GreyOutTourianStatueRidley or ColourEffectId.GreyOutTourianStatuePhantoon
                     ? runtime.Enemies.TourianStatueIn(runtime.Room.LoadedScope.TourianStatues?.Room
                         ?? throw new InvalidDataException("The native snapshot greys a sprite statue in a room with no statues."))
-                        .SpriteStatueGreyOut(ColourEffectAnimations.Definition(effect).Colours)
+                        .SpriteStatueGreyOut(SuperMetroid.Core.Areas.Tourian.TourianStatueAnimationDefinitions.Statues.Values.Single(statue => statue.ColourEffect == effect)
+                            .GreyedSprite ?? throw new InvalidDataException($"The native snapshot greys {effect}, no sprite statue's grey-out."))
                     : litTorizo;
             var imported = new RoomColourEffect(effect, resumed.FramesOf, litTorizo, glowingEnemy);
             // The effect's animation goes on from the recorded place, its shown frame holding for the recorded updates (#2488).

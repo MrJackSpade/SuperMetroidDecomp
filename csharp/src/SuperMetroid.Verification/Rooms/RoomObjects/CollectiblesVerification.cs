@@ -69,7 +69,7 @@ internal static class CollectiblesVerification
             InWorldCollectibleKind kind = (InWorldCollectibleKind)kindIndex;
             // Each kind lies as some room places it (#2354): in the open where a room places it so, otherwise in a Chozo
             // statue's orb, which is shot open first.
-            (RoomObjectKind header, PermanentCollectibleObject item) = PermanentCollectibleObjectDefinitions.Items
+            (RoomObjectKind header, PermanentCollectibleObject item) = RoomObjectKindVariants.Items
                 .Where(entry => entry.Value.Kind == kind)
                 .OrderBy(entry => entry.Value.Presentation == CollectiblePresentation.Exposed ? 0 : 1)
                 .First(entry => entry.Value.Presentation is CollectiblePresentation.Exposed or CollectiblePresentation.ChozoOrb);

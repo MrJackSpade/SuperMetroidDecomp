@@ -4,5 +4,5 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 internal sealed record ElevatorPlatformSetup : RoomObjectPlacementSetup
 {
     /// <inheritdoc/>
-    internal override void SetUp(IRoomObjectFamilySetups setups, RoomObjectKind kind) => setups.SetUpElevatorPlatform();
+    internal override void SetUp(IRoomObjectFamilySetups setups) => setups.SetUpElevatorPlatform();
 }

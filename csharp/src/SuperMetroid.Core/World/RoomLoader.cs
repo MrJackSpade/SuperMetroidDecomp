@@ -1167,7 +1167,7 @@ internal sealed class RoomLoader
     internal ActiveRoomGeometry GetActiveRoomGeometry()
     {
         SelectedRoom room = _room.ActiveRoom ?? throw new InvalidOperationException("No room is active.");
-        return new ActiveRoomGeometry(room.Area, room.MapPosition, room.UpScroller, room.DownScroller);
+        return new ActiveRoomGeometry(room.Area, room.MapPosition, room.FallingCameraOffset, room.RisingCameraOffset);
     }
 
     /// <summary>

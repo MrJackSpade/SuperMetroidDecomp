@@ -1,6 +1,9 @@
 namespace SuperMetroid.Core.Rooms.Doors;
 
-/// <summary>The eye door's room-object draws; the animation's facing and component pick each draw.</summary>
+/// <summary>
+/// The eye door's eye's draws, the eye's facing picking each (the body and bottom draw their poses,
+/// <see cref="EyeDoorPartPose"/>).
+/// </summary>
 internal enum EyeDoorObjectFrame
 {
     /// <summary>The closed eye.</summary>
@@ -17,10 +20,4 @@ internal enum EyeDoorObjectFrame
     OpeningClear,
     /// <summary>The blue cap the opening flashes to.</summary>
     BlueCap,
-    /// <summary>The body's or bottom's resting pose, the first of its pulse.</summary>
-    PartResting,
-    /// <summary>The body's or bottom's swelling pose, the middle of its pulse.</summary>
-    PartSwelling,
-    /// <summary>The body's or bottom's swollen pose, the height of its pulse.</summary>
-    PartSwollen,
 }

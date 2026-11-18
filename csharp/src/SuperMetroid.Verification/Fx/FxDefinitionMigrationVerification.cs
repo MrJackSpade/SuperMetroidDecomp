@@ -52,9 +52,9 @@ internal static class FxDefinitionMigrationVerification
         AssertEqual(0x879e84, RoomFxBlockAnimationSources.Of(new AnimatedTileImage(BlockAnimation.HorizontalSpikes, 2)).Value, "third spike picture source");
         AssertEqual(0x879364, RoomFxBlockAnimationSources.Of(new RoomFxAtlasSegment.TourianStatueStrip()).Value, "statue strip source");
         AssertEqual(0x878ec4, AnimatedTileImageSources.Treadmill(3), "fourth treadmill picture source");
-        AssertEqual(0x8798e4, AnimatedTileImageSources.TourianStatue(SuperMetroid.Core.Areas.Tourian.TourianGreyStatues.Draygon, TourianStatueBlockPicture.Released),
+        AssertEqual(0x8798e4, AnimatedTileImageSources.TourianStatue(SuperMetroid.Core.Areas.Tourian.TourianStatue.Draygon, TourianStatueBlockPicture.Released),
             "Draygon released statue picture source");
-        AssertEqual(0x40, RoomFxBlockAnimationPictures.TourianStatuePictureByteCount(SuperMetroid.Core.Areas.Tourian.TourianGreyStatues.Ridley),
+        AssertEqual(0x40, RoomFxBlockAnimationPictures.TourianStatuePictureByteCount(SuperMetroid.Core.Areas.Tourian.TourianStatue.Ridley),
             "Ridley statue picture size");
         BlockAnimation spikes = RoomFxBlockAnimationLoops.Require(BlockAnimation.HorizontalSpikes);
         AssertEqual(new AnimatedTileImage(BlockAnimation.HorizontalSpikes, 1), spikes.Image(3), "the fourth spike step repeats the second picture");

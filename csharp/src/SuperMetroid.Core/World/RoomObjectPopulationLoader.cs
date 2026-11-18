@@ -66,7 +66,7 @@ internal sealed class RoomObjectPopulationLoader
                 Bosses = services.Bosses,
                 Place = place,
                 Families = _families,
-            }), objectKind);
+            }));
         }
     }
 

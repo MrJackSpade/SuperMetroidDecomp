@@ -11,4 +11,9 @@ internal enum GreyDoorPhase
     Opening,
     /// <summary>The cap closes behind Samus, then locks.</summary>
     Closing,
+    /// <summary>
+    /// Bomb Torizo's door, closing behind Samus, is held open two updates at a time until she has Bombs, then closes
+    /// (#2482).
+    /// </summary>
+    HeldOpen,
 }

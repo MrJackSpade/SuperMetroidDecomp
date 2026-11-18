@@ -18,115 +18,115 @@ internal static class EyeDoorObjectDrawDefinitions
 
         new Dictionary<EyeDoorDraws.Draw, IReadOnlyList<RoomCollisionType>>
         {
-            [new EyeDoorDraws.Draw(EyeDoorLook.Clear, Left: true)] =
+            [new EyeDoorDraws.Draw(EyeDoorLook.Clear, EyeDoorOrientation.Left)] =
             [
                 RoomCollisionType.SolidBlock,
                 RoomCollisionType.SolidBlock,
                 RoomCollisionType.SolidBlock,
                 RoomCollisionType.SolidBlock,
             ],
-            [new EyeDoorDraws.Draw(EyeDoorLook.EyeClosed, Left: true)] =
+            [new EyeDoorDraws.Draw(EyeDoorLook.EyeClosed, EyeDoorOrientation.Left)] =
             [
                 RoomCollisionType.SolidBlock,
                 RoomCollisionType.SolidBlock,
             ],
-            [new EyeDoorDraws.Draw(EyeDoorLook.EyeHalfOpen, Left: true)] =
+            [new EyeDoorDraws.Draw(EyeDoorLook.EyeHalfOpen, EyeDoorOrientation.Left)] =
             [
                 RoomCollisionType.SolidBlock,
                 RoomCollisionType.SolidBlock,
             ],
-            [new EyeDoorDraws.Draw(EyeDoorLook.EyeOpen, Left: true)] =
-            [
-                RoomCollisionType.ShootableBlock,
-                RoomCollisionType.VerticalExtension,
-            ],
-            [new EyeDoorDraws.Draw(EyeDoorLook.EyeFlinching, Left: true)] =
-            [
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
-            ],
-            [new EyeDoorDraws.Draw(EyeDoorLook.EyeOpenSolid, Left: true)] =
-            [
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
-            ],
-            [new EyeDoorDraws.Draw(EyeDoorLook.MiddleResting, Left: true)] =
-            [
-                RoomCollisionType.SpikeBlock,
-            ],
-            [new EyeDoorDraws.Draw(EyeDoorLook.MiddleSwelling, Left: true)] =
-            [
-                RoomCollisionType.SpikeBlock,
-            ],
-            [new EyeDoorDraws.Draw(EyeDoorLook.MiddleSwollen, Left: true)] =
-            [
-                RoomCollisionType.SpikeBlock,
-            ],
-            [new EyeDoorDraws.Draw(EyeDoorLook.BottomResting, Left: true)] =
-            [
-                RoomCollisionType.SpikeBlock,
-            ],
-            [new EyeDoorDraws.Draw(EyeDoorLook.BottomSwelling, Left: true)] =
-            [
-                RoomCollisionType.SpikeBlock,
-            ],
-            [new EyeDoorDraws.Draw(EyeDoorLook.BottomSwollen, Left: true)] =
-            [
-                RoomCollisionType.SpikeBlock,
-            ],
-            [new EyeDoorDraws.Draw(EyeDoorLook.Clear, Left: false)] =
-            [
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
-            ],
-            [new EyeDoorDraws.Draw(EyeDoorLook.EyeClosed, Left: false)] =
-            [
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
-            ],
-            [new EyeDoorDraws.Draw(EyeDoorLook.EyeHalfOpen, Left: false)] =
-            [
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
-            ],
-            [new EyeDoorDraws.Draw(EyeDoorLook.EyeOpen, Left: false)] =
+            [new EyeDoorDraws.Draw(EyeDoorLook.EyeOpen, EyeDoorOrientation.Left)] =
             [
                 RoomCollisionType.ShootableBlock,
                 RoomCollisionType.VerticalExtension,
             ],
-            [new EyeDoorDraws.Draw(EyeDoorLook.EyeFlinching, Left: false)] =
+            [new EyeDoorDraws.Draw(EyeDoorLook.EyeFlinching, EyeDoorOrientation.Left)] =
             [
                 RoomCollisionType.SolidBlock,
                 RoomCollisionType.SolidBlock,
             ],
-            [new EyeDoorDraws.Draw(EyeDoorLook.EyeOpenSolid, Left: false)] =
+            [new EyeDoorDraws.Draw(EyeDoorLook.EyeOpenSolid, EyeDoorOrientation.Left)] =
             [
                 RoomCollisionType.SolidBlock,
                 RoomCollisionType.SolidBlock,
             ],
-            [new EyeDoorDraws.Draw(EyeDoorLook.MiddleResting, Left: false)] =
+            [new EyeDoorDraws.Draw(EyeDoorLook.MiddleResting, EyeDoorOrientation.Left)] =
             [
                 RoomCollisionType.SpikeBlock,
             ],
-            [new EyeDoorDraws.Draw(EyeDoorLook.MiddleSwelling, Left: false)] =
+            [new EyeDoorDraws.Draw(EyeDoorLook.MiddleSwelling, EyeDoorOrientation.Left)] =
             [
                 RoomCollisionType.SpikeBlock,
             ],
-            [new EyeDoorDraws.Draw(EyeDoorLook.MiddleSwollen, Left: false)] =
+            [new EyeDoorDraws.Draw(EyeDoorLook.MiddleSwollen, EyeDoorOrientation.Left)] =
             [
                 RoomCollisionType.SpikeBlock,
             ],
-            [new EyeDoorDraws.Draw(EyeDoorLook.BottomResting, Left: false)] =
+            [new EyeDoorDraws.Draw(EyeDoorLook.BottomResting, EyeDoorOrientation.Left)] =
             [
                 RoomCollisionType.SpikeBlock,
             ],
-            [new EyeDoorDraws.Draw(EyeDoorLook.BottomSwelling, Left: false)] =
+            [new EyeDoorDraws.Draw(EyeDoorLook.BottomSwelling, EyeDoorOrientation.Left)] =
             [
                 RoomCollisionType.SpikeBlock,
             ],
-            [new EyeDoorDraws.Draw(EyeDoorLook.BottomSwollen, Left: false)] =
+            [new EyeDoorDraws.Draw(EyeDoorLook.BottomSwollen, EyeDoorOrientation.Left)] =
+            [
+                RoomCollisionType.SpikeBlock,
+            ],
+            [new EyeDoorDraws.Draw(EyeDoorLook.Clear, EyeDoorOrientation.Right)] =
+            [
+                RoomCollisionType.SolidBlock,
+                RoomCollisionType.SolidBlock,
+                RoomCollisionType.SolidBlock,
+                RoomCollisionType.SolidBlock,
+            ],
+            [new EyeDoorDraws.Draw(EyeDoorLook.EyeClosed, EyeDoorOrientation.Right)] =
+            [
+                RoomCollisionType.SolidBlock,
+                RoomCollisionType.SolidBlock,
+            ],
+            [new EyeDoorDraws.Draw(EyeDoorLook.EyeHalfOpen, EyeDoorOrientation.Right)] =
+            [
+                RoomCollisionType.SolidBlock,
+                RoomCollisionType.SolidBlock,
+            ],
+            [new EyeDoorDraws.Draw(EyeDoorLook.EyeOpen, EyeDoorOrientation.Right)] =
+            [
+                RoomCollisionType.ShootableBlock,
+                RoomCollisionType.VerticalExtension,
+            ],
+            [new EyeDoorDraws.Draw(EyeDoorLook.EyeFlinching, EyeDoorOrientation.Right)] =
+            [
+                RoomCollisionType.SolidBlock,
+                RoomCollisionType.SolidBlock,
+            ],
+            [new EyeDoorDraws.Draw(EyeDoorLook.EyeOpenSolid, EyeDoorOrientation.Right)] =
+            [
+                RoomCollisionType.SolidBlock,
+                RoomCollisionType.SolidBlock,
+            ],
+            [new EyeDoorDraws.Draw(EyeDoorLook.MiddleResting, EyeDoorOrientation.Right)] =
+            [
+                RoomCollisionType.SpikeBlock,
+            ],
+            [new EyeDoorDraws.Draw(EyeDoorLook.MiddleSwelling, EyeDoorOrientation.Right)] =
+            [
+                RoomCollisionType.SpikeBlock,
+            ],
+            [new EyeDoorDraws.Draw(EyeDoorLook.MiddleSwollen, EyeDoorOrientation.Right)] =
+            [
+                RoomCollisionType.SpikeBlock,
+            ],
+            [new EyeDoorDraws.Draw(EyeDoorLook.BottomResting, EyeDoorOrientation.Right)] =
+            [
+                RoomCollisionType.SpikeBlock,
+            ],
+            [new EyeDoorDraws.Draw(EyeDoorLook.BottomSwelling, EyeDoorOrientation.Right)] =
+            [
+                RoomCollisionType.SpikeBlock,
+            ],
+            [new EyeDoorDraws.Draw(EyeDoorLook.BottomSwollen, EyeDoorOrientation.Right)] =
             [
                 RoomCollisionType.SpikeBlock,
             ],
@@ -134,9 +134,9 @@ internal static class EyeDoorObjectDrawDefinitions
 
     /// <summary>The left side's opening clear, which shares the right side's clearing artwork.</summary>
     internal static RoomObjectFrameDraw<EyeDoorDraws.Draw> MirroredOpeningClear { get; } =
-        EyeDoorDraws.Family.Of(new EyeDoorDraws.Draw(EyeDoorLook.Clear, Left: true));
+        EyeDoorDraws.Family.Of(new EyeDoorDraws.Draw(EyeDoorLook.Clear, EyeDoorOrientation.Left));
 
     /// <summary>The right side's clearing frame, whose artwork both clears show.</summary>
     internal static RoomObjectFrameDraw<EyeDoorDraws.Draw> SharedClear { get; } =
-        EyeDoorDraws.Family.Of(new EyeDoorDraws.Draw(EyeDoorLook.Clear, Left: false));
+        EyeDoorDraws.Family.Of(new EyeDoorDraws.Draw(EyeDoorLook.Clear, EyeDoorOrientation.Right));
 }

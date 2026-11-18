@@ -111,7 +111,7 @@ internal static class RoomBlockInventoryVerification
     /// <summary>A Zebes or Ceres room state of <paramref name="tileset"/> placing <see cref="PlacedBlock"/>, its terrain one block of <paramref name="terrain"/>, placing <paramref name="headers"/>.</summary>
     private static InventoriedRoomState State(TilesetDefinition tileset, AreaId area, RoomTerrainReaction terrain, params RoomObjectKind[] headers) =>
         new(tileset, area, new HashSet<int> { PlacedBlock }, new HashSet<RoomTerrainReaction> { terrain }, new HashSet<RoomTerrainReaction>(),
-            headers.ToHashSet(), new HashSet<EnemyDefinitionId>(), RoomSetupBehavior.None, RoomMainBehavior.None, RoomTurningFloor.None,
+            headers.ToHashSet(), Array.Empty<RoomObjectPlacementSetup>(), new HashSet<EnemyDefinitionId>(), RoomSetupBehavior.None, RoomMainBehavior.None, RoomTurningFloor.None,
             new HashSet<DoorDefinition>(), null);
 
     /// <summary>
@@ -121,7 +121,7 @@ internal static class RoomBlockInventoryVerification
     /// </summary>
     private static InventoriedRoomState Quiet(TilesetDefinition tileset, params RoomTerrainReaction[] straddledShots) =>
         new(tileset, AreaId.Brinstar, new HashSet<int> { PlacedBlock }, new HashSet<RoomTerrainReaction>(), straddledShots.ToHashSet(),
-            new HashSet<RoomObjectKind>(), new HashSet<EnemyDefinitionId>(), RoomSetupBehavior.None, RoomMainBehavior.None,
+            new HashSet<RoomObjectKind>(), Array.Empty<RoomObjectPlacementSetup>(), new HashSet<EnemyDefinitionId>(), RoomSetupBehavior.None, RoomMainBehavior.None,
             RoomTurningFloor.None, new HashSet<DoorDefinition>(), null);
 
     /// <summary>

@@ -68,7 +68,7 @@ internal sealed class CeresElevatorDoorEntity(CeresDoorBehavior doors, RoomEnemy
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => doors.AdvanceAnimation(Place, context.Samus);
 
     /// <summary>Runs one update of the destruction.</summary>
-    internal void Explode()
+    private void Explode()
     {
         CeresElevatorDoorState state = Place.RequireSpeciesState<CeresElevatorDoorState>();
         if (--state.RumbleUpdatesLeft == 0)
@@ -104,13 +104,13 @@ internal sealed class CeresElevatorDoorEntity(CeresDoorBehavior doors, RoomEnemy
     /// Cycles the elevator room's glow and the room's turning-floor elevator frame by the door's own update count. The glow
     /// and the platform strip are only drawn, so the door clocks them itself.
     /// </summary>
-    internal void CycleGlowAndPlatform()
+    private void CycleGlowAndPlatform()
     {
         int frame = Place.FrameCounter;
 
-        // The elevator platform's animation does not belong to either arrival projectile: the elevator door alternates the
-        // turning floor's platform frames for as long as the room runs, so the landed platform keeps flashing after the
-        // projectiles' touchdown deletes them. The import pictures both strips (#1467).
+        // The elevator platform's animation does not belong to the arrival's pad or platform: the elevator door alternates
+        // the turning floor's platform frames for as long as the room runs, so the landed platform keeps flashing after the
+        // arrival's touchdown ends. The import pictures both strips (#1467).
         floor.Show(CeresFloorAnimation.ElevatorPlatformFrameForPhase(CeresDoorCadenceDefinitions.PlatformPicture.Of(frame)));
 
         // The glow takes its next step every eight updates.

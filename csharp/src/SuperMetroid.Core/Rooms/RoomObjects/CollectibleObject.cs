@@ -42,7 +42,7 @@ internal sealed class CollectibleObject(
     /// </summary>
     public CollectibleBlockPairs.Pair? BlockPair { get; } = blockPair;
     /// <summary>Current reveal, visible, message, empty, or respawn phase.</summary>
-    public CollectiblePhase Phase { get; internal set; } = phase;
+    public CollectiblePhase Phase { get; private set; } = phase;
     /// <summary>
     /// What the item shows playing: an exposed item's looks and a Chozo orb's shell from the item's first update, which
     /// shows their first image; the other phases' images from when each starts.
@@ -50,10 +50,11 @@ internal sealed class CollectibleObject(
     private readonly AnimationPlayer<CollectibleSequence, CollectibleImage, CollectiblePhase> _shown =
         AnimationPlayer<CollectibleSequence, CollectibleImage, CollectiblePhase>.Starting(CollectibleSequenceAnimations.Segments,
             phase == CollectiblePhase.ChozoOrb ? CollectibleSequenceAnimations.OrbPulsing : CollectibleSequenceAnimations.Exposed);
-    /// <summary>Contact or projectile reaction pending for the item's next update.</summary>
-    public bool Triggered { get; internal set; }
-    /// <summary>Distinguishes a previously acquired concealed item during its reveal.</summary>
-    private bool _wasCollectedBeforeReveal;
+    /// <summary>
+    /// Contact or projectile reaction pending for the item's next update: a touch or a shot that reached it, which the item
+    /// takes on that update whatever it is doing, so it is a fact of its own beside its phase.
+    /// </summary>
+    public bool Triggered { get; private set; }
 
     /// <inheritdoc/>
     internal override void Update(RoomObjectPlace place, RoomObjectStepContext context)
@@ -95,7 +96,7 @@ internal sealed class CollectibleObject(
             case CollectiblePhase.ChozoOrb:
                 if (Triggered)
                 {
-                    // Breaking the shell persists nothing; only the unused Chozo blocks record theirs.
+                    // Breaking the shell persists nothing: an orb broken on an earlier visit is whole again.
                     Triggered = false;
                     Phase = CollectiblePhase.ChozoOrbBurst;
                     Show(CollectibleSequenceAnimations.OrbBurst, place, context);
@@ -121,21 +122,21 @@ internal sealed class CollectibleObject(
                 if (!Triggered)
                     return;
                 Triggered = false;
-                _wasCollectedBeforeReveal = Phase == CollectiblePhase.CollectedShotBlock;
-                Phase = CollectiblePhase.ShotBlockReveal;
+                Phase = Phase == CollectiblePhase.CollectedShotBlock ? CollectiblePhase.CollectedShotBlockReveal : CollectiblePhase.ShotBlockReveal;
                 Show(CollectibleSequenceAnimations.ShotBlockReveal, place, context);
                 context.QueueSound(EnemySound.BlockCrumble, SoundRequestPriority.Normal);
+                return;
+
+            case CollectiblePhase.CollectedShotBlockReveal:
+                if (!ShowsOn(place, context))
+                    return;
+                Phase = CollectiblePhase.CollectedShotBlockEmpty;
+                Show(CollectibleSequenceAnimations.CollectedShotBlockEmpty, place, context);
                 return;
 
             case CollectiblePhase.ShotBlockReveal:
                 if (!ShowsOn(place, context))
                     return;
-                if (_wasCollectedBeforeReveal)
-                {
-                    Phase = CollectiblePhase.CollectedShotBlockEmpty;
-                    Show(CollectibleSequenceAnimations.CollectedShotBlockEmpty, place, context);
-                    return;
-                }
                 Phase = CollectiblePhase.ShotBlockVisible;
                 if (Triggered)
                 {
@@ -173,18 +174,37 @@ internal sealed class CollectibleObject(
         }
     }
 
+    /// <summary>A touch or a shot reached the item, which reacts on its next update.</summary>
+    internal void Trigger() => Triggered = true;
+
+    /// <summary>
+    /// The item has been collected: it keeps its block and its place while its pickup message shows, and finishes its
+    /// pickup once the message closes.
+    /// </summary>
+    internal void AwaitMessage()
+    {
+        Triggered = false;
+        Phase = CollectiblePhase.AwaitingMessage;
+    }
+
+    /// <summary>The item's pickup message has closed: the item finishes its pickup within the same room-object update.</summary>
+    internal void ResumeAfterMessage(IRoomObjectDrawing drawing, RoomLevelData level, RoomObjectPlace place)
+    {
+        Phase = CollectiblePhase.ResumeAfterMessage;
+        FinishPickup(drawing, level, place);
+    }
+
     /// <summary>
     /// The pickup message has closed: the item shows its empty block for one update and then leaves, or a shot block's
     /// item leaves its block empty for twenty-two eight-update intervals before it respawns.
     /// </summary>
-    internal void FinishPickup(IRoomObjectDrawing drawing, RoomLevelData level, RoomObjectPlace place)
+    private void FinishPickup(IRoomObjectDrawing drawing, RoomLevelData level, RoomObjectPlace place)
     {
         Ensure.NotNull(drawing);
         Ensure.NotNull(place);
         if (Presentation == CollectiblePresentation.ShotBlock)
         {
             Triggered = false;
-            _wasCollectedBeforeReveal = true;
             Phase = CollectiblePhase.CollectedShotBlockEmpty;
             Show(CollectibleSequenceAnimations.CollectedShotBlockEmpty, drawing, level, place);
             return;

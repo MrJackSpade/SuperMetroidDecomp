@@ -172,8 +172,7 @@ internal static class RoomBlockUploads
         var placed = new HashSet<InWorldCollectibleKind>();
         foreach (RoomObjectPlacement placement in state.ObjectPopulation.Placements.Span)
         {
-            if (PermanentCollectibleObjectDefinitions.Items.TryGetValue(placement.Kind, out PermanentCollectibleObject item)
-                && CollectibleObjects.ShowsOwnPicture(item.Kind))
+            if (placement.Setup is CollectibleSetup { Item: var item } && CollectibleDefinitions.Items[item.Kind].Picture == CollectiblePictureSource.OwnPicture)
                 placed.Add(item.Kind);
         }
         return placed;

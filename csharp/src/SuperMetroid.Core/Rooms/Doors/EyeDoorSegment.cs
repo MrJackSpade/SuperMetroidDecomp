@@ -27,13 +27,4 @@ internal enum EyeDoorSegment
 
     /// <summary>One flash of the destroyed eye: the cleared opening for three updates, then the blue cap for four.</summary>
     OpeningFlash,
-
-    /// <summary>The still body or bottom: its resting pose for eight updates before it looks for Samus again.</summary>
-    Still,
-
-    /// <summary>The left-facing body or bottom pulsing while Samus is near: its poses there and back, eight updates each.</summary>
-    LeftPulse,
-
-    /// <summary>The right-facing body or bottom pulsing while Samus is near: its poses there and back, six updates each.</summary>
-    RightPulse,
 }

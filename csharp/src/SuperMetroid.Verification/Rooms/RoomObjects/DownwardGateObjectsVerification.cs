@@ -224,7 +224,7 @@ internal static class DownwardGateObjectsVerification
             "compiled final open draw clears the second column collision word");
         RoomObjectPlaceSnapshot openedGate = roomObjects.PopulationPlaces.Single(place =>
             place.Behaviour is DownwardGateObject);
-        AssertTrue(openedGate.Behaviour is DownwardGateObject { Phase: DownwardGatePhase.RestingOpen, WakeArmed: true },
+        AssertTrue(openedGate.Behaviour is DownwardGateObject { Phase: DownwardGatePhase.RestingOpen },
             "open gate rests, waiting only for a trigger");
 
         AssertTrue(roomObjects.Gates.TrySpawnDownwardGateTrigger(

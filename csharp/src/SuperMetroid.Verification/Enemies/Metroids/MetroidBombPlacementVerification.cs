@@ -97,7 +97,7 @@ internal static class MetroidBombPlacementVerification
         {
             int index = level.GetBlockIndex(new(checked((ushort)x), checked((ushort)y)));
             // Each block keeps the picture the room shows there, which the tileset's sheet holds (#1676); only its collision changes.
-            level.SetTerrain(index, level.Terrain[index].WithCollision(y >= 10 ? RoomCollisionType.SolidBlock : RoomCollisionType.Air));
+            level.SetTerrain(index, level.TerrainGrid[index].WithCollision(y >= 10 ? RoomCollisionType.SolidBlock : RoomCollisionType.Air));
             level.SetBehavior(index, RoomBlockBehavior.None);
         }
         runtime.InitializeDebugGroundedSamus(128, 100, 10);

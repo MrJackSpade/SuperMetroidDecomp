@@ -100,8 +100,8 @@ internal sealed class CeresSteamBehavior(EnemyRoomBinding room, EnemyCollision c
         if (!context.UsesFrameHitboxes || context.HitboxTouch != CeresSteamReactions.Touch)
         {
             throw new InvalidDataException(
-                $"Ceres steam requires its frame hitboxes' touch reaction {CeresSteamReactions.Touch}; " +
-                $"extended={context.UsesFrameHitboxes}, selected={context.HitboxTouch?.ToString() ?? "(unnamed)"}, " +
+                $"Ceres steam touches through its frames' hitboxes with {CeresSteamReactions.Touch}; " +
+                $"frame hitboxes={context.UsesFrameHitboxes}, touch={context.HitboxTouch?.ToString() ?? "(unnamed)"}, " +
                 $"frame={context.Place.Frame}.");
         }
 

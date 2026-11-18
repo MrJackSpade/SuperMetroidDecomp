@@ -167,13 +167,13 @@ public sealed class TourianStatueSequence
     /// </summary>
     private void SpawnStatueAnimations()
     {
-        Spawn(TourianGreyStatues.Kraid);
-        Spawn(TourianGreyStatues.Phantoon);
-        Spawn(TourianGreyStatues.Draygon);
-        Spawn(TourianGreyStatues.Ridley);
+        Spawn(TourianStatue.Kraid);
+        Spawn(TourianStatue.Phantoon);
+        Spawn(TourianStatue.Draygon);
+        Spawn(TourianStatue.Ridley);
 
         // Resolve each statue's definition and start it at its animation entry.
-        void Spawn(TourianGreyStatues statue)
+        void Spawn(TourianStatue statue)
         {
             if (!TourianStatueAnimationDefinitions.Statues.TryGetValue(statue, out TourianStatueAnimationDefinition? definition))
                 throw new InvalidDataException($"Tourian statue {statue} is not cataloged.");
@@ -221,14 +221,14 @@ public sealed class TourianStatueSequence
             switch (cue.Kind)
             {
                 case TourianStatueBlockCueKind.MarkAnimating:
-                    statue.Animation.Animating |= definition.Statue;
+                    statue.Animation.Animating |= TourianGreyStatueSets.Alone[definition.Statue];
                     return null;
                 case TourianStatueBlockCueKind.MayAlreadyBeGrey:
                     return _system.HasEvent(definition.GreyEvent) ? Start(animations, AlreadyGreyAnimation) : null;
                 case TourianStatueBlockCueKind.MayBeReleased:
                     return _system.HasDefeatedAnyOf(definition.BossArea, definition.DefeatedBosses) ? Start(animations, ReleaseAnimation) : null;
                 case TourianStatueBlockCueKind.ClearAnimating:
-                    statue.Animation.Animating &= ~definition.Statue;
+                    statue.Animation.Animating &= ~TourianGreyStatueSets.Alone[definition.Statue];
                     return null;
                 case TourianStatueBlockCueKind.MayWaitItsTurn:
                     return statue.Animation.ReleaseInProgress ? Start(animations, WaitingAnimation) : null;
@@ -253,7 +253,7 @@ public sealed class TourianStatueSequence
                     return null;
                 case TourianStatueBlockCueKind.FinishRelease:
                     statue.Animation.ReleaseInProgress = false;
-                    statue.Animation.Animating &= ~definition.Statue;
+                    statue.Animation.Animating &= ~TourianGreyStatueSets.Alone[definition.Statue];
                     return null;
                 case TourianStatueBlockCueKind.TurnGrey:
                     _statue.ShowStatueLook(definition.GreyShade);
@@ -268,19 +268,10 @@ public sealed class TourianStatueSequence
         void StartGreyOut(TourianStatueAnimationDefinition definition, ITourianStatueActors statue)
         {
             SamusEquipmentFlags equipped = _player.IntroducedSamus.EquippedItems;
-            switch (definition.GreyOutSite)
-            {
-                case TourianStatueGreyOutSite.RoomBackground:
-                    _roomColourEffects.Start(definition.ColourEffect, equipped);
-                    return;
-                case TourianStatueGreyOutSite.EntranceStatue:
-                    _roomColourEffects.StartShownOn(definition.ColourEffect,
-                        statue.SpriteStatueGreyOut(ColourEffectAnimations.Definition(definition.ColourEffect).Colours), equipped);
-                    return;
-                default:
-                    throw new InvalidOperationException(
-                        $"Tourian statue {definition.Statue} greys out at undefined {nameof(TourianStatueGreyOutSite)} {definition.GreyOutSite}.");
-            }
+            if (definition.GreyedSprite is { } sprite)
+                _roomColourEffects.StartShownOn(definition.ColourEffect, statue.SpriteStatueGreyOut(sprite), equipped);
+            else
+                _roomColourEffects.Start(definition.ColourEffect, equipped);
         }
 
         static AnimationContinuation<TourianStatueBlockSegment> Start(TourianStatueBlockAnimations animations, TourianStatueBlockSegment animation) =>

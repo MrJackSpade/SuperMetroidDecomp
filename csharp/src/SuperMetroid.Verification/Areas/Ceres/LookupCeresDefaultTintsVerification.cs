@@ -30,7 +30,7 @@ internal static class LookupCeresDefaultTintsVerification
             int expected = (channelFlags & channelMask) != 0 ? stopCounter - 1 : 0;
             AssertEqual(expected, component(SceneColourFiles.StockCeresHaze(dead ? CeresHazeColor.Red : CeresHazeColor.Blue)), "Original Ceres default channel/amplitude");
             AssertEqual(expected, component(dead ? SceneColourFiles.StockCeresHazeRed : SceneColourFiles.StockCeresHazeBlue), "Named default tint alias");
-            AssertEqual(expected, component(stock.For(dead)), "Imported default tint channel");
+            AssertEqual(expected, component(stock.For(dead ? SuperMetroid.Core.Fx.CeresHazeTint.AfterRidleyDies : SuperMetroid.Core.Fx.CeresHazeTint.WhileRidleyLives)), "Imported default tint channel");
         }
     }
 

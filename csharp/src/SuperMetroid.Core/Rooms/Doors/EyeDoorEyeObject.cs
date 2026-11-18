@@ -29,7 +29,7 @@ internal sealed class EyeDoorEyeObject(EyeDoorOrientation orientation, PlacedDoo
         Door.IsOpenedForGood(openedForGood);
 
     /// <summary>What the eye is doing.</summary>
-    internal EyeDoorEyePhase Phase { get; private set; } = EyeDoorEyePhase.Closed;
+    internal EyeDoorEyePhase Phase { get; private set; } = EyeDoorEyePhase.Placed;
 
     /// <summary>
     /// The hits counted toward the threshold. It only counts up, by one a hit or straight to the threshold on a Super
@@ -40,16 +40,8 @@ internal sealed class EyeDoorEyeObject(EyeDoorOrientation orientation, PlacedDoo
     /// <summary>Whether a shot at the eye's block reaches it: from its opening until the hit that destroys it.</summary>
     internal bool TakesShots { get; private set; }
 
-    /// <summary>Whether the eye has yet to take its first look at its door.</summary>
-    private bool _placed = true;
-
     /// <summary>The blue cap the eye turns into: the one facing its own side.</summary>
-    private ColoredDoorOrientation CapFacing => Orientation switch
-    {
-        EyeDoorOrientation.Left => ColoredDoorOrientation.Left,
-        EyeDoorOrientation.Right => ColoredDoorOrientation.Right,
-        _ => throw new InvalidOperationException($"Undefined {nameof(EyeDoorOrientation)} {Orientation}."),
-    };
+    private ColoredDoorOrientation CapFacing => EyeDoorDraws.BlueCapFacing(Orientation);
 
     /// <summary>Reacts to what the object waits for, then, unless the reaction took this update, counts its steps down.</summary>
     internal override void Update(RoomObjectPlace place, RoomObjectStepContext context)
@@ -76,7 +68,7 @@ internal sealed class EyeDoorEyeObject(EyeDoorOrientation orientation, PlacedDoo
 
     /// <inheritdoc/>
     private protected override void Show(EyeDoorObjectFrame frame, RoomObjectPlace place, RoomObjectStepContext context) =>
-        context.Draw(place, EyeDoorDraws.Of(Orientation, EyeDoorComponent.Eye, frame));
+        context.Draw(place, EyeDoorDraws.Of(Orientation, frame));
 
     /// <inheritdoc/>
     private protected override void Raise(EyeDoorAction raised, RoomObjectPlace place, RoomObjectStepContext context)
@@ -103,12 +95,10 @@ internal sealed class EyeDoorEyeObject(EyeDoorOrientation orientation, PlacedDoo
     {
         switch (Phase)
         {
+            case EyeDoorEyePhase.Placed:
+                Look(place, context);
+                return;
             case EyeDoorEyePhase.Closed:
-                if (_placed)
-                {
-                    Look(place, context);
-                    return;
-                }
                 if (IsSamusNear(place, context, EyeDoorSequenceDefinitions.WakeReach))
                     Open(place, context);
                 else
@@ -142,13 +132,13 @@ internal sealed class EyeDoorEyeObject(EyeDoorOrientation orientation, PlacedDoo
     /// </summary>
     private void Look(RoomObjectPlace place, RoomObjectStepContext context)
     {
-        _placed = false;
         if (context.RoomObjects.DoorObjects.IsDoorOpened(Door))
         {
             EyeDoorObjects.ConvertEyeToBlueDoor(context.Level, place, Orientation);
             BlueDoorCapObject.TakeOver(place, context, CapFacing, Door);
             return;
         }
+        Phase = EyeDoorEyePhase.Closed;
         Play(EyeDoorSequenceDefinitions.Closed, place, context);
     }
 

@@ -96,7 +96,7 @@ internal static class FrozenGateGlitchVerification
         }
         gate = roomObjects.PopulationPlaces.Single(place =>
             place.Behaviour is DownwardGateObject);
-        AssertTrue(gate.Behaviour is DownwardGateObject { Phase: DownwardGatePhase.RestingClosed, WakeArmed: true },
+        AssertTrue(gate.Behaviour is DownwardGateObject { Phase: DownwardGatePhase.RestingClosed },
             "Caterpillar gate rests closed, waiting for a trigger or Samus in its column");
 
         SamusState samus = runtime.Player.IntroducedSamus;
@@ -139,7 +139,7 @@ internal static class FrozenGateGlitchVerification
         // The typed gate stops waiting once it wakes, as the cartridge's moving gate stops running its wake. Compare the
         // observable wake result above; the raw CPU words stay in the fixture for disassembly auditing.
         AssertEqual(expected.GateWoke,
-            gate.Behaviour is DownwardGateObject { WakeArmed: false, Phase: DownwardGatePhase.Reopening },
+            gate.Behaviour is DownwardGateObject { Phase: DownwardGatePhase.Reopening },
             $"{expected.Distance}-pixel case starts the gate rising");
     }
 

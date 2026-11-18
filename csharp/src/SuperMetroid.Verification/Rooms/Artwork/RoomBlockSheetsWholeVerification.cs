@@ -48,7 +48,7 @@ internal static class RoomBlockSheetsWholeVerification
                 foreach (AppearanceInput input in inputs.Where(input => input is not (AnimationAppearance or KraidBackdropAppearance or EncounterLookAppearance)))
                     failures.Add($"{name}: block {block} depends on {input.Token}, which shows no artwork over a room's blocks");
             }
-            foreach (CollectiblePicture collectible in Enum.GetValues<InWorldCollectibleKind>().Where(CollectibleObjects.ShowsOwnPicture)
+            foreach (CollectiblePicture collectible in Enum.GetValues<InWorldCollectibleKind>().Where(kind => CollectibleDefinitions.Items[kind].Picture == CollectiblePictureSource.OwnPicture)
                 .SelectMany(kind => Enum.GetValues<CollectibleLook>().Select(look => new CollectiblePicture(kind, look))))
             {
                 string picture = RoomBlockPictureNames.OfCollectible(collectible);
@@ -82,8 +82,8 @@ internal static class RoomBlockSheetsWholeVerification
             {
                 foreach (RoomObjectPlacement placement in state.ObjectPopulation.Placements.Span)
                 {
-                    if (!PermanentCollectibleObjectDefinitions.Items.TryGetValue(placement.Kind, out PermanentCollectibleObject item)
-                        || !CollectibleObjects.ShowsOwnPicture(item.Kind))
+                    if (!RoomObjectKindVariants.Items.TryGetValue(placement.Kind, out PermanentCollectibleObject item)
+                        || CollectibleDefinitions.Items[item.Kind].Picture != CollectiblePictureSource.OwnPicture)
                         continue;
                     InWorldCollectibleKind kind = item.Kind;
                     TilesetDefinition tileset = RoomTilesets.Get(state.GraphicsSet);

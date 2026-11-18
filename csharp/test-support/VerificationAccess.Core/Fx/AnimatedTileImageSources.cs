@@ -29,7 +29,7 @@ internal static class AnimatedTileImageSources
         Of(BlockAnimation.WreckedShipTreadmillRightwards.TreadmillImage(frame));
 
     /// <summary>The cartridge address <paramref name="picture"/> of <paramref name="statue"/> starts at in the shared statue strip.</summary>
-    internal static int TourianStatue(TourianGreyStatues statue, TourianStatueBlockPicture picture) =>
+    internal static int TourianStatue(TourianStatue statue, TourianStatueBlockPicture picture) =>
         RoomFxBlockAnimationSourceDefinitions.TourianStatueStrip.AddWithinBank(
             RoomFxBlockAnimationPictures.TourianStatueFirstTile(statue, picture) * TourianStatueTileStripDefinitions.CharacterByteCount).Value;
 

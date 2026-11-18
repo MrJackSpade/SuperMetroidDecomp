@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.World.RoomStates;
 /// The game selects the room's state immediately after reading
 /// the fixed definition. State selection is data-driven and can depend on events, bosses, or
 /// inventory. A new game's Ceres start has none of them, so it takes each room's default state.
-/// <see cref="UpScroller"/> and <see cref="DownScroller"/> are the camera's vertical scroller distances in pixels.
+/// <see cref="FallingCameraOffset"/> and <see cref="RisingCameraOffset"/> are how many pixels above Samus the camera aims its top as she falls and as she rises.
 /// <see cref="UsesIsolatedDoorTransition"/> is the definition's flag that door transitions read: when the
 /// source or destination room sets it, the transition hides the foreground below the HUD and does not keep the colours
 /// of the door, item and block pictures every room shares while the source room fades.
@@ -27,10 +27,10 @@ public sealed record SelectedRoom(RoomDefinition Definition, RoomStateSettings S
     public Extent16<RoomScreens> Size => Definition.Size;
 
     /// <summary>The camera's upward scroller distance in pixels.</summary>
-    public int UpScroller => Definition.UpScroller;
+    public int FallingCameraOffset => Definition.FallingCameraOffset;
 
     /// <summary>The camera's downward scroller distance in pixels.</summary>
-    public int DownScroller => Definition.DownScroller;
+    public int RisingCameraOffset => Definition.RisingCameraOffset;
 
     /// <summary>Whether door transitions into or out of this room hide the foreground and drop the colours of the door, item and block pictures every room shares.</summary>
     public bool UsesIsolatedDoorTransition => Definition.UsesIsolatedDoorTransition;

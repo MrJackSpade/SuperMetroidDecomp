@@ -157,21 +157,21 @@ internal static class DoorObjectNativeProgramOracle
             ushort cursor = ExpectGoto(cartridge, eye.Start, RoomObjectInstruction.GotoIfDoorBitSet, eye.Opened, $"{at} turns blue once opened");
             VerificationAssertions.AssertEqual(eye.Idle, cursor, $"{at} first look falls into its closed eye");
 
-            cursor = CompareEyeSteps(cartridge, eye.Idle, EyeDoorSequenceDefinitions.Closed, orientation, EyeDoorComponent.Eye, $"{at} closed", ref images);
+            cursor = CompareEyeSteps(cartridge, eye.Idle, EyeDoorSequenceDefinitions.Closed, orientation, $"{at} closed", ref images);
             cursor = ExpectNear(cartridge, cursor, EyeDoorSequenceDefinitions.WakeReach, eye.Activate, $"{at} opens once Samus is near");
             _ = ExpectGoto(cartridge, cursor, RoomObjectInstruction.Goto, eye.Idle, $"{at} stays closed otherwise");
 
             cursor = ExpectGoto(cartridge, eye.Activate, RoomObjectInstruction.LinkInstruction, eye.Hit, $"{at} wakes at its hit");
             cursor = ExpectGoto(cartridge, cursor, RoomObjectInstruction.InstallFrameBehavior, DoorsNativeWords.EyeDoorMissileWake, $"{at} takes missiles");
-            cursor = CompareEyeSteps(cartridge, cursor, EyeDoorSequenceDefinitions.Opening, orientation, EyeDoorComponent.Eye, $"{at} opening", ref images);
+            cursor = CompareEyeSteps(cartridge, cursor, EyeDoorSequenceDefinitions.Opening, orientation, $"{at} opening", ref images);
             VerificationAssertions.AssertEqual(eye.Watch, cursor, $"{at} opening falls into its watch");
 
             cursor = ExpectNear(cartridge, eye.Watch, EyeDoorSequenceDefinitions.InFrontReach, eye.Close, $"{at} blinks while Samus is in front");
-            cursor = CompareEyeSteps(cartridge, cursor, EyeDoorSequenceDefinitions.Watching, orientation, EyeDoorComponent.Eye, $"{at} watching", ref images);
+            cursor = CompareEyeSteps(cartridge, cursor, EyeDoorSequenceDefinitions.Watching, orientation, $"{at} watching", ref images);
             cursor = ExpectNear(cartridge, cursor, EyeDoorSequenceDefinitions.WakeReach, eye.Watch, $"{at} watches again while Samus is near");
             _ = ExpectGoto(cartridge, cursor, RoomObjectInstruction.Goto, eye.Idle, $"{at} closes once Samus has left");
 
-            cursor = CompareEyeSteps(cartridge, eye.Close, EyeDoorSequenceDefinitions.Blinking, orientation, EyeDoorComponent.Eye, $"{at} blinking", ref images);
+            cursor = CompareEyeSteps(cartridge, eye.Close, EyeDoorSequenceDefinitions.Blinking, orientation, $"{at} blinking", ref images);
             _ = ExpectGoto(cartridge, cursor, RoomObjectInstruction.Goto, eye.Watch, $"{at} watches after its blink");
 
             VerificationAssertions.AssertEqual(RoomObjectInstruction.QueueSoundLibrary2Maximum6, InstructionAt<RoomObjectInstruction>(cartridge, eye.Hit), $"{at} hit sounds");
@@ -183,7 +183,7 @@ internal static class DoorObjectNativeProgramOracle
             VerificationAssertions.AssertEqual(RoomObjectInstruction.IncrementDoorHitCounterAndGoto, InstructionAt<RoomObjectInstruction>(cartridge, cursor), $"{at} counts its hit");
             VerificationAssertions.AssertEqual(EyeDoorSequenceDefinitions.HitThreshold, (int)ReadOperandByte(cartridge, cursor + 2), $"{at} hit count");
             VerificationAssertions.AssertEqual(eye.Destroyed, Word(cartridge, cursor + 3), $"{at} is destroyed at its count");
-            cursor = CompareEyeSteps(cartridge, unchecked((ushort)(cursor + 5)), EyeDoorSequenceDefinitions.Flinching, orientation, EyeDoorComponent.Eye, $"{at} flinching", ref images);
+            cursor = CompareEyeSteps(cartridge, unchecked((ushort)(cursor + 5)), EyeDoorSequenceDefinitions.Flinching, orientation, $"{at} flinching", ref images);
             _ = ExpectGoto(cartridge, cursor, RoomObjectInstruction.Goto, eye.Watch, $"{at} watches after its flinch");
 
             cursor = Expect(cartridge, eye.Destroyed, RoomObjectInstruction.ClearFrameBehavior, 2, $"{at} destroyed takes no more shots");
@@ -199,7 +199,7 @@ internal static class DoorObjectNativeProgramOracle
             // The typed destroyed eye plays its flash its count of times; the native list counts its replays down.
             VerificationAssertions.AssertEqual(EyeDoorSequenceDefinitions.OpeningFlashes, EyeDoorSequenceDefinitions.Destroyed.Phases.Single().Plays,
                 $"{at} flashes its count of times");
-            cursor = CompareEyeSteps(cartridge, eye.Opening, EyeDoorSequenceDefinitions.Destroyed, orientation, EyeDoorComponent.Eye, $"{at} flash",
+            cursor = CompareEyeSteps(cartridge, eye.Opening, EyeDoorSequenceDefinitions.Destroyed, orientation, $"{at} flash",
                 ref images, onePlay: true);
             cursor = ExpectGoto(cartridge, cursor, RoomObjectInstruction.DecrementTimerAndGoto, eye.Opening, $"{at} flashes again until counted");
             _ = ExpectGoto(cartridge, cursor, RoomObjectInstruction.Goto, blueClosed, $"{at} turns into its closed blue cap");
@@ -207,19 +207,20 @@ internal static class DoorObjectNativeProgramOracle
             cursor = Expect(cartridge, eye.Opened, makeBlue, 2, $"{at} of an opened door moves onto its blue cap");
             _ = ExpectGoto(cartridge, cursor, RoomObjectInstruction.Goto, blueClosed, $"{at} of an opened door turns into its closed blue cap");
 
-            foreach (EyeDoorComponent component in (EyeDoorComponent[])[EyeDoorComponent.Door, EyeDoorComponent.Bottom])
+            foreach (EyeDoorBodyPart bodyPart in Enum.GetValues<EyeDoorBodyPart>())
             {
-                NativeEyeDoorPartLists part = DoorObjectNativeListAddresses.Part(orientation, component);
-                string where = $"{orientation} eye door {component}";
+                var component = new EyeDoorPart(bodyPart, orientation);
+                NativeEyeDoorPartLists part = DoorObjectNativeListAddresses.Part(component);
+                string where = $"{orientation} eye door {bodyPart}";
                 cursor = ExpectGoto(cartridge, part.Start, RoomObjectInstruction.GotoIfDoorBitSet, part.Delete, $"{where} leaves once opened");
                 VerificationAssertions.AssertEqual(part.Idle, cursor, $"{where} first look falls into its still pose");
                 cursor = ExpectNear(cartridge, part.Idle, EyeDoorSequenceDefinitions.PulseReach, part.Activate, $"{where} pulses once Samus is near");
-                cursor = CompareEyeSteps(cartridge, cursor, EyeDoorSequenceDefinitions.Still, orientation, component, $"{where} still", ref images);
+                cursor = CompareEyePartSteps(cartridge, cursor, EyeDoorSequenceDefinitions.Still, component, $"{where} still", ref images);
                 _ = ExpectGoto(cartridge, cursor, RoomObjectInstruction.Goto, part.Idle, $"{where} looks for Samus again");
                 cursor = ExpectGoto(cartridge, part.Activate, RoomObjectInstruction.LinkInstruction, part.Delete, $"{where} wakes at its delete");
                 cursor = ExpectGoto(cartridge, cursor, RoomObjectInstruction.InstallFrameBehavior, DoorsNativeWords.EyeDoorOpenedDoorWake, $"{where} waits for its door");
                 VerificationAssertions.AssertEqual(part.Cycle, cursor, $"{where} falls into its pulse");
-                cursor = CompareEyeSteps(cartridge, part.Cycle, EyeDoorSequenceDefinitions.Pulse[orientation], orientation, component, $"{where} pulse", ref images);
+                cursor = CompareEyePartSteps(cartridge, part.Cycle, EyeDoorSequenceDefinitions.Pulse[orientation], component, $"{where} pulse", ref images);
                 cursor = ExpectNear(cartridge, cursor, EyeDoorSequenceDefinitions.PulseReach, part.Cycle, $"{where} pulses again while Samus is near");
                 _ = ExpectGoto(cartridge, cursor, RoomObjectInstruction.Goto, part.Idle, $"{where} stands still once Samus has left");
                 _ = Expect(cartridge, part.Delete, RoomObjectInstruction.Delete, 2, $"{where} leaves the room");
@@ -291,7 +292,7 @@ internal static class DoorObjectNativeProgramOracle
     /// Adds the native draws compared to <paramref name="images"/>; returns the cursor after the last draw.
     /// </summary>
     private static ushort CompareEyeSteps(IImportCartridgeSource cartridge, ushort cursor, Animation<EyeDoorSegment> animation,
-        EyeDoorOrientation orientation, EyeDoorComponent component, string at, ref int images, bool onePlay = false)
+        EyeDoorOrientation orientation, string at, ref int images, bool onePlay = false)
     {
         // The shot and sweat operands are the byte offsets of the facing's origin and launch pairs ($86:B65B and
         // $86:B6B1), which LookupStream4 ties to the typed facings.
@@ -319,12 +320,31 @@ internal static class DoorObjectNativeProgramOracle
                     cursor = Expect(cartridge, cursor, RoomObjectInstruction.SpawnTwoEyeDoorSmoke, 2, $"{where}: smoke");
                     break;
                 case AnimationBeat<EyeDoorObjectFrame, EyeDoorAction>.Frame frame:
-                    cursor = CompareDraws(cartridge, cursor, RoomObjectDrawAddressCodec.Of(EyeDoorDraws.Of(orientation, component, frame.Shown)),
+                    cursor = CompareDraws(cartridge, cursor, RoomObjectDrawAddressCodec.Of(EyeDoorDraws.Of(orientation, frame.Shown)),
                         frame.Duration, where, ref images);
                     break;
                 default:
                     throw new InvalidOperationException($"{where}: an eye door's animation holds only pictures and its actions.");
             }
+        }
+        return cursor;
+    }
+
+    /// <summary>
+    /// Compares the native timed draws from <paramref name="cursor"/> with one play of an eye door's body's or bottom's
+    /// <paramref name="animation"/>, which raises nothing (#2481); adds the native draws compared to
+    /// <paramref name="images"/> and returns the cursor after the last draw.
+    /// </summary>
+    private static ushort CompareEyePartSteps(IImportCartridgeSource cartridge, ushort cursor, Animation<EyeDoorPartSegment> animation,
+        EyeDoorPart part, string at, ref int images)
+    {
+        IReadOnlyList<AnimationBeat<EyeDoorPartPose, NoAnimationCue>> beats = EyeDoorSequenceDefinitions.PartSegments.PlayedBeats(animation);
+        for (int index = 0; index < beats.Count; index++)
+        {
+            string where = $"{at} beat {index} at $84:{cursor:X4}";
+            if (beats[index] is not AnimationBeat<EyeDoorPartPose, NoAnimationCue>.Frame frame)
+                throw new InvalidOperationException($"{where}: an eye door's body or bottom only draws.");
+            cursor = CompareDraws(cartridge, cursor, RoomObjectDrawAddressCodec.Of(EyeDoorDraws.Of(part, frame.Shown)), frame.Duration, where, ref images);
         }
         return cursor;
     }

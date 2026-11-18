@@ -148,11 +148,9 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IGameplayShadingSource
             case CeresDoorCueKind.LeftDoorStandsClosed:
                 return IsSamusAway(place, samus) ? LeftDoorWaitingAnimation : null;
             case CeresDoorCueKind.RidleyRoomDoorWaits:
-                // The test reads whether the current area's boss is saved
-                // as defeated. Ceres begins with that flag clear, so the door of Ridley's room
-                // loops as a tangible actor during Ridley's fight. Ridley's escape publishes
-                // the boss's defeat together with Ceres's escape status; the next pass then runs on
-                // past the wait and makes the door intangible.
+                // The door of Ridley's room waits while the area's boss is undefeated, as he is when Ceres begins, so it
+                // loops as a tangible actor during Ridley's fight. Ridley's escape records the boss's defeat together with
+                // Ceres's escape status; the next pass then runs on past the wait and makes the door intangible.
                 return Room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss) ? null : RidleyRoomDoorWaitingAnimation;
             case CeresDoorCueKind.ElevatorRoomWallAppears:
                 return Escape.CeresStatus != CeresEscapeStatus.RidleyNotEscaped ? null : ElevatorRoomWallDoorAnimation;

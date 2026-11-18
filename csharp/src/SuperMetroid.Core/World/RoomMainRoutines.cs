@@ -96,7 +96,7 @@ internal sealed class RoomMainRoutines
             ? CeresFallingDebrisSegment.Dark
             : CeresFallingDebrisSegment.Light;
         room.Enemies.CeresFallingTiles.Spawn(
-            CeresFallingDebrisDefinitions.ColumnX[CeresFallingDebrisDefinitions.Column.Of(random)],
+            CeresFallingDebrisDefinitions.ColumnX.Choose(random),
             new CeresFallingDebrisAnimation(look),
             CeresFallingDebrisVisualDefinitions.Graphics);
     }

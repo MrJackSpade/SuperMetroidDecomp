@@ -1259,7 +1259,7 @@ internal static class LookupStream5Verification
     {
         for (int i = 0; i < 8; i++)
         {
-            PhantoonRainPattern placement = PhantoonRainPatternDefinitions.Choices[i];
+            PhantoonRainPattern placement = PhantoonRainPatternDefinitions.LaterRain.Choose(i);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdad + i * 8)), placement.PathPlace, "Native rain figure-eight cursor");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdaf + i * 8)), placement.BodyPosition.X, "Native rain body X");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdb1 + i * 8)), placement.BodyPosition.Y, "Native rain body Y");
@@ -1319,7 +1319,6 @@ internal static class LookupStream5Verification
         AssertThrows<InvalidDataException>(
             () => PhantoonEyeGaze.EyeAnimation((CompassDirection)Enum.GetValues<CompassDirection>().Length),
             "Phantoon eye direction beyond the eight directions");
-        AssertEqual(8, PhantoonRainPatternDefinitions.Choices.Count, "a later rain chooses from the native eight patterns");
         Console.WriteLine("Stream 5 Phantoon: eight native rain columns, eight actual rain populations/gaps and nine eye selectors/eight actual octants pass with native tables forbidden; shot markers have a separately reviewed random-bucket exception.");
     }
 

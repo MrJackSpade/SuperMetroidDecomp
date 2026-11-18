@@ -15,7 +15,7 @@ internal static class PhantoonPatternsVerification
     {
         for (int i = 0; i < 8; i++)
         {
-            PhantoonRainPattern placement = PhantoonRainPatternDefinitions.Choices[i];
+            PhantoonRainPattern placement = PhantoonRainPatternDefinitions.LaterRain.Choose(i);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdad + i * 8)), placement.PathPlace, "Native rain figure-eight cursor");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdaf + i * 8)), placement.BodyPosition.X, "Native rain body X");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdb1 + i * 8)), placement.BodyPosition.Y, "Native rain body Y");

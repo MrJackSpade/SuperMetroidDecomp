@@ -26,4 +26,7 @@ internal static class EnemyOverreadSourceDefinitions
 
     /// <summary>The bytes of one falling-spark launch record: its whole word, then its fractional word.</summary>
     internal const int FallingSparkLaunchBytes = 4;
+
+    /// <summary>The authored records the falling spark's launch table holds, after which its code follows.</summary>
+    internal const int FallingSparkAuthoredLaunches = 7;
 }

@@ -27,6 +27,11 @@ internal static class EnemyDropSelectionDefinitions
     /// </summary>
     internal static readonly RandomSampleField DropRoll = new(0, 8);
 
+    /// <summary>
+    /// Whether a drop's chance roll is drawn again (#2510): taken when <see cref="DropRoll"/> reads zero, one sample in 256.
+    /// </summary>
+    internal static readonly RandomChance DropRollDrawnAgain = RandomChance.Lowest(1, DropRoll);
+
     /// <summary>The whole weight budget the drop chances share, before the enabled major drops take their part.</summary>
     internal const int FullWeightBudget = 255;
 

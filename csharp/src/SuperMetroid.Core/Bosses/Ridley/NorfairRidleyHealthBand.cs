@@ -12,7 +12,7 @@ public sealed class NorfairRidleyHealthBand
     /// <param name="healthBelow">The health below which Ridley is in the band, or null for the band he starts in.</param>
     /// <param name="hoverDivisor">The acceleration divisor of his hover, wall sweep and power-bomb dodge.</param>
     /// <param name="grabDivisor">The acceleration divisor of his lunge at Samus.</param>
-    /// <param name="pogoLaunches">The launch of each of the four pogo speed patterns a bounce draws among.</param>
+    /// <param name="pogoLaunches">The launch of each of the four pogo speed patterns a bounce draws among, slowest first.</param>
     /// <param name="healthShade">The health colouring his belly shows, or null for his own colours.</param>
     internal NorfairRidleyHealthBand(int? healthBelow, int hoverDivisor, int grabDivisor,
         IReadOnlyList<RidleyPogoDefinition> pogoLaunches, RidleyHealthShade? healthShade)
@@ -20,7 +20,7 @@ public sealed class NorfairRidleyHealthBand
         HealthBelow = healthBelow;
         HoverDivisor = hoverDivisor;
         GrabDivisor = grabDivisor;
-        PogoLaunches = pogoLaunches;
+        PogoLaunch = WeightedRandomChoice<RidleyPogoDefinition>.InTurn(RidleyRandomDefinitions.PogoChoice, [.. pogoLaunches]);
         HealthShade = healthShade;
     }
 
@@ -37,10 +37,11 @@ public sealed class NorfairRidleyHealthBand
     public int GrabDivisor { get; }
 
     /// <summary>
-    /// The launch of each of the four pogo speed patterns a bounce draws among, slowest first: each faster pattern adds
-    /// an eighth of a pixel an update sideways.
+    /// The launch a pogo bounce takes (#2510): one of the four pogo speed patterns, which the current random number's
+    /// <see cref="RidleyRandomDefinitions.PogoChoice"/> takes in turn, slowest first; each faster pattern adds an eighth of a
+    /// pixel an update sideways.
     /// </summary>
-    public IReadOnlyList<RidleyPogoDefinition> PogoLaunches { get; }
+    public WeightedRandomChoice<RidleyPogoDefinition> PogoLaunch { get; }
 
     /// <summary>The health colouring his belly shows in this band, or null for his own colours (#2242).</summary>
     public RidleyHealthShade? HealthShade { get; }

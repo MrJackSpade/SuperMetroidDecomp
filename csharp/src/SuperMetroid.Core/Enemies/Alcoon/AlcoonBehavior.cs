@@ -319,8 +319,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private AnimationContinuation<AlcoonSegment> StartAlcoonWalking(AlcoonEnemyState state)
     {
         state.Action = AlcoonAction.WalkingAndFiring;
-        int count = AlcoonWalkDefinitions.WalkCycleCount.Of(_room.Random.Read());
-        state.WalkCyclesBeforeVolley = count == 0 ? AlcoonWalkDefinitions.WalkCyclesForZeroSample : count;
+        state.WalkCyclesBeforeVolley = AlcoonWalkDefinitions.WalkCycles.Choose(_room.Random.Read());
         return new(AlcoonAnimations.StartingWith(FacesLeft(state) ? AlcoonSegment.WalkingLeft : AlcoonSegment.WalkingRight),
             AnimationPlace.StartOfAnimation);
     }

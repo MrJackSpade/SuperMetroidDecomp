@@ -4,13 +4,10 @@ namespace SuperMetroid.Core.Enemies.Alcoon;
 internal static class AlcoonWalkDefinitions
 {
     /// <summary>
-    /// The random field that sets how many walk cycles an Alcoon starting to walk takes before its next volley, a zero
-    /// reading as two cycles.
+    /// How many walk cycles an Alcoon starting to walk takes before its next volley, chosen from four rolls (#2510): a roll
+    /// of one through three takes that many cycles and a roll of none two.
     /// </summary>
-    internal static readonly RandomSampleField WalkCycleCount = new(0, 2);
-
-    /// <summary>The walk cycles an Alcoon takes when <see cref="WalkCycleCount"/> reads zero.</summary>
-    internal const int WalkCyclesForZeroSample = 2;
+    internal static readonly WeightedRandomChoice<int> WalkCycles = WeightedRandomChoice<int>.InTurn(new RandomSampleField(0, 2), 2, 1, 2, 3);
 
     /// <summary>How far an Alcoon walking either way moves each stride: two pixels.</summary>
     internal static SignedSixteenSixteen StrideDistance { get; } = SignedSixteenSixteen.FromWholePixels(2);

@@ -71,17 +71,4 @@ internal static class SamusProjectilePlayback
             throw new InvalidDataException($"Samus projectile animation {selected} does not open with a frame.");
         return SamusProjectileFrameDefinitions.Radius(frame);
     }
-
-    /// <summary>
-    /// The frame a projectile whose animation stands at <paramref name="playback"/> shows: the frame its animation last
-    /// showed, or null before its animation has shown one.
-    /// </summary>
-    internal static SamusProjectileFrameId? ShownFrame(AnimationPlayback<SamusProjectileSegment> playback)
-    {
-        SamusProjectileSegmentBeat at = BeatOf(playback);
-        if (at.Beat == 0)
-            return null;
-        return SamusProjectileAnimations.Segments.Beats(at.Segment)[at.Beat - 1].ShownFrame
-            ?? throw new InvalidOperationException($"Samus projectile segment {at.Segment} continues past a beat that shows no frame.");
-    }
 }

@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Progression;
@@ -11,6 +12,31 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// </summary>
 public sealed class TourianStatueAnimationDefinition
 {
+    /// <summary>
+    /// The installed name of each statue's background animation (#2511), written out so renaming a statue's identity never
+    /// changes a name on disk.
+    /// </summary>
+    private static readonly FrozenDictionary<TourianStatue, string> AnimationKeys =
+        new Dictionary<TourianStatue, string>
+        {
+            [TourianStatue.Phantoon] = "Phantoon statue",
+            [TourianStatue.Ridley] = "Ridley statue",
+            [TourianStatue.Kraid] = "Kraid statue",
+            [TourianStatue.Draygon] = "Draygon statue",
+        }.ToFrozenDictionary();
+
+    /// <summary>
+    /// The installed name of each statue picture's frame (#2511), written out so renaming a picture's identity never changes
+    /// a name on disk.
+    /// </summary>
+    private static readonly FrozenDictionary<TourianStatueBlockPicture, string> PictureKeys =
+        new Dictionary<TourianStatueBlockPicture, string>
+        {
+            [TourianStatueBlockPicture.EyesBright] = "EyesBright",
+            [TourianStatueBlockPicture.EyesDim] = "EyesDim",
+            [TourianStatueBlockPicture.EyesDark] = "EyesDark",
+            [TourianStatueBlockPicture.Released] = "Released",
+        }.ToFrozenDictionary();
 
     /// <summary>Only the statue catalog creates definitions.</summary>
     internal TourianStatueAnimationDefinition()
@@ -21,7 +47,8 @@ public sealed class TourianStatueAnimationDefinition
     public required TourianStatue Statue { get; init; }
 
     /// <summary>The background animation whose frames are the statue's pictures.</summary>
-    public ArtworkAnimation Animation => new($"{Statue} statue");
+    /// <exception cref="ArgumentOutOfRangeException">The statue has no installed name.</exception>
+    public ArtworkAnimation Animation => new(Ensure.Listed(AnimationKeys, Statue));
 
     /// <summary>The event set once this statue has turned grey, and tested to skip straight to the grey picture.</summary>
     public required StoryEvent GreyEvent { get; init; }
@@ -54,5 +81,6 @@ public sealed class TourianStatueAnimationDefinition
     public required PictureShade GreyShade { get; init; }
 
     /// <summary>The frame of the statue's animation that shows <paramref name="picture"/>.</summary>
-    public ArtworkFrame Picture(TourianStatueBlockPicture picture) => new(Animation, $"{picture}");
+    /// <exception cref="ArgumentOutOfRangeException">The picture has no installed name.</exception>
+    public ArtworkFrame Picture(TourianStatueBlockPicture picture) => new(Animation, Ensure.Listed(PictureKeys, picture));
 }

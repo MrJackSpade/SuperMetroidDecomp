@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Assets;
 /// the behaviour selected last.
 /// </summary>
 /// <param name="Name">The animation's name, which its frames' installed pictures are keyed by.</param>
-public readonly record struct ArtworkAnimation(string Name)
+public readonly record struct ArtworkAnimation([InstalledKey] string Name)
 {
     /// <summary>The animation's name.</summary>
     public override string ToString() => Name;

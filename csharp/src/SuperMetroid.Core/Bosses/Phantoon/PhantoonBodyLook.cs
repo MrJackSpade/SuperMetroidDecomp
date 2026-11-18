@@ -47,5 +47,6 @@ public readonly record struct PhantoonBodyLook
 
     /// <summary>The colouring's name in its shades' names.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The colouring is a health colouring that names no band.</exception>
+    [InstalledKey]
     public string Key => Band is { } band ? $"health-{band.Key}" : Ensure.Listed(Keys, Kind);
 }

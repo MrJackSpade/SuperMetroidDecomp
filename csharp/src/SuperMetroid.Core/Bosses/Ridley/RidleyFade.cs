@@ -10,7 +10,7 @@ public sealed class RidleyFade
     /// <summary>Defines a run.</summary>
     /// <param name="key">The name of its installed shades.</param>
     /// <param name="imageCount">The images it holds.</param>
-    internal RidleyFade(string key, int imageCount)
+    internal RidleyFade([InstalledKey] string key, int imageCount)
     {
         Key = Ensure.NotNull(key);
         Images = [.. Enumerable.Range(0, Ensure.BetweenInclusive(1, int.MaxValue, imageCount)).Select(step => new RidleyFadeImage(this, step))];

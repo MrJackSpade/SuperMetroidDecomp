@@ -35,51 +35,6 @@ internal sealed class MotherBrainThirdPhaseDeath
     private readonly MotherBrainBurstCycle _bursts;
 
     /// <summary>
-    /// The updates her death has spent readying her corpse so far, zero through
-    /// <see cref="MotherBrainReadyingDefinitions.CorpseDuration"/>.
-    /// </summary>
-    public int CorpseReadyingElapsed { get; private set; }
-
-    /// <summary>
-    /// The updates her death has spent readying the escape timer and message so far, zero through
-    /// <see cref="MotherBrainReadyingDefinitions.EscapeWarningDuration"/>.
-    /// </summary>
-    public int EscapeWarningReadyingElapsed { get; private set; }
-
-    /// <summary>
-    /// The updates her death has spent readying the escape door's explosion so far, zero through
-    /// <see cref="MotherBrainReadyingDefinitions.ExplodedDoorDuration"/>.
-    /// </summary>
-    public int ExplodedDoorReadyingElapsed { get; private set; }
-
-    /// <summary>Runs one update of readying her corpse, rejecting calls once it is readied.</summary>
-    private void ReadyCorpse()
-    {
-        if (CorpseReadyingElapsed >= MotherBrainReadyingDefinitions.CorpseDuration)
-            throw new InvalidOperationException("Mother Brain's corpse is already readied.");
-
-        CorpseReadyingElapsed++;
-    }
-
-    /// <summary>Runs one update of readying the escape timer and message, rejecting calls once they are readied.</summary>
-    internal void ReadyEscapeWarning()
-    {
-        if (EscapeWarningReadyingElapsed >= MotherBrainReadyingDefinitions.EscapeWarningDuration)
-            throw new InvalidOperationException("The escape timer and message are already readied.");
-
-        EscapeWarningReadyingElapsed++;
-    }
-
-    /// <summary>Runs one update of readying the escape door's explosion, rejecting calls once it is readied.</summary>
-    internal void ReadyExplodedDoor()
-    {
-        if (ExplodedDoorReadyingElapsed >= MotherBrainReadyingDefinitions.ExplodedDoorDuration)
-            throw new InvalidOperationException("The escape door's explosion is already readied.");
-
-        ExplodedDoorReadyingElapsed++;
-    }
-
-    /// <summary>
     /// Emits the death-phase explosions at the timer cadence, consuming one global
     /// random value per projectile so later enemy AI sees the same RNG sequence.
     /// </summary>
@@ -305,8 +260,8 @@ internal sealed class MotherBrainThirdPhaseDeath
         {
             requests.StartEarthquake(MotherBrainDeathDefinitions.BrainLandingEarthquake, MotherBrainLateFightDefinitions.BrainLandingShakeUpdates);
             _state.MoveBrainTo(_state.BrainPosition.WithY(MotherBrainFightDefinitions.BrainFloorY));
-            CorpseReadyingElapsed = 0;
-            Encounter.DeathPhase = MotherBrainDeathPhase.ReadyCorpse;
+            Encounter.DeathPhase = MotherBrainDeathPhase.BrainSettles;
+            Encounter.PhaseTimer.LastFor(MotherBrainLateFightDefinitions.BrainSettlesUpdates);
         }
         else
         {
@@ -316,14 +271,12 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Readies her corpse one update at a time, then starts the wait before it greys. True when her next phase runs on
-    /// in this same update.
+    /// Lets her landed brain settle until the wait runs out, then starts the wait before her corpse greys. True when her
+    /// next phase runs on in this same update.
     /// </summary>
     internal bool SettleCorpse()
     {
-        // Each update readies one update of her corpse; the last moves on to the fade in that same update.
-        ReadyCorpse();
-        if (CorpseReadyingElapsed == MotherBrainReadyingDefinitions.CorpseDuration)
+        if (Encounter.PhaseTimer.StepRunsOut())
         {
             Encounter.DeathPhase = MotherBrainDeathPhase.SetupFadeToGrey;
             Encounter.PhaseTimer.LastFor(MotherBrainLateFightDefinitions.BeforeCorpseGreyUpdates);
@@ -417,39 +370,36 @@ internal sealed class MotherBrainThirdPhaseDeath
             // top-left corner. The parking is gameplay-observable (#2257): the hidden brain still meets Samus's bombs by its
             // radius, its frames' hitboxes being off, so at the corpse a bomb laid during the escape would strike it.
             _state.MoveBrainTo(Position16<RoomPixels>.Zero);
-            Encounter.DeathPhase = MotherBrainDeathPhase.ReadyEscapeWarning;
+            Encounter.DeathPhase = MotherBrainDeathPhase.HoldBeforeEscape;
+            Encounter.PhaseTimer.LastFor(MotherBrainLateFightDefinitions.HoldBeforeEscapeUpdates);
         }
         return false;
     }
 
     /// <summary>
-    /// Readies the escape timer and message one update at a time, then starts the escape. True when her next phase runs
-    /// on in this same update.
+    /// Holds the room, the brain parked, until the wait runs out, then starts the wait for the escape's start, whose first
+    /// update is the hold's last. True when her next phase runs on in this same update.
     /// </summary>
-    internal bool PrepareEscapeWarning()
+    internal bool HoldBeforeEscape()
     {
-        ReadyEscapeWarning();
-        if (EscapeWarningReadyingElapsed == MotherBrainReadyingDefinitions.EscapeWarningDuration)
-        {
-            // The last readying update starts the escape, which readies the first update of the escape door's
-            // explosion in this same update.
-            Encounter.DeathPhase = MotherBrainDeathPhase.StartEscape;
-            return true;
-        }
-        return false;
+        if (!Encounter.PhaseTimer.StepRunsOut())
+            return false;
+
+        Encounter.DeathPhase = MotherBrainDeathPhase.StartEscape;
+        Encounter.PhaseTimer.LastFor(MotherBrainLateFightDefinitions.EscapeStartUpdates);
+        return true;
     }
 
     /// <summary>
-    /// Readies the escape door's explosion one update at a time, then starts the escape's music, earthquake, red
-    /// flashing and text. True when her next phase runs on in this same update.
+    /// Waits for the escape's start, then starts the escape's music, earthquake, red flashing and text. True when her next
+    /// phase runs on in this same update.
     /// </summary>
     internal bool StartEscape(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
     {
-        ReadyExplodedDoor();
-        if (ExplodedDoorReadyingElapsed != MotherBrainReadyingDefinitions.ExplodedDoorDuration)
+        if (!Encounter.PhaseTimer.StepRunsOut())
             return false;
 
-        // The last readying update starts the escape: the escape music, the quake held indefinitely, four colour
+        // The wait's last update starts the escape: the escape music, the quake held indefinitely, four colour
         // effects and the escape text. The door's
         // fragments are pre-coloured in the exploded door's colours, so its colour load is not kept (#1544).
         requests.EscapeMusicTrackQueued = true;        // Eight-frame-delay escape song.
@@ -563,13 +513,13 @@ internal sealed class MotherBrainThirdPhaseDeath
         MotherBrainDeathPhase.FinalFewExplosions => ExplodeAfterBodyFades(frame, requests),
         MotherBrainDeathPhase.RealizeDecapitation => DropBrain(),
         MotherBrainDeathPhase.BrainFallsToGround => FallBrainToFloor(requests),
-        MotherBrainDeathPhase.ReadyCorpse => SettleCorpse(),
+        MotherBrainDeathPhase.BrainSettles => SettleCorpse(),
         MotherBrainDeathPhase.SetupFadeToGrey => WaitBeforeCorpseGreys(),
         MotherBrainDeathPhase.FadeToGrey => GreyCorpse(requests),
         MotherBrainDeathPhase.CorpseTipsOver => TipCorpseOver(),
         MotherBrainDeathPhase.CorpseRotsAway => RotCorpse(frame, requests),
         MotherBrainDeathPhase.PauseBeforeEscape => PauseBeforeEscape(),
-        MotherBrainDeathPhase.ReadyEscapeWarning => PrepareEscapeWarning(),
+        MotherBrainDeathPhase.HoldBeforeEscape => HoldBeforeEscape(),
         MotherBrainDeathPhase.StartEscape => StartEscape(frame, requests),
         MotherBrainDeathPhase.SpawnTimeBombSetSubtitle => ShowTimeBombSubtitle(requests),
         MotherBrainDeathPhase.TypeOutZebesEscapeText => TypeEscapeText(frame),

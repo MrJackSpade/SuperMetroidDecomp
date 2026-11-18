@@ -263,8 +263,8 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             case MotherBrainAscentPhase.PrepareForRising:
                 MotherBrainAscent.PrepareMotherBrainForRising(state);
                 return;
-            case MotherBrainAscentPhase.ReadyStandingBody:
-                MotherBrainAscent.ReadyMotherBrainStandingBody(state);
+            case MotherBrainAscentPhase.WaitBeforePause:
+                MotherBrainAscent.WaitBeforeMotherBrainAscentPause(state);
                 return;
             case MotherBrainAscentPhase.ContinuePausing:
                 MotherBrainAscent.ContinueMotherBrainAscentPause(state);

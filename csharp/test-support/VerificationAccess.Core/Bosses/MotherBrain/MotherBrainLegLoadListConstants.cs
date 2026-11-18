@@ -9,13 +9,15 @@ internal static class MotherBrainLegLoadListConstants
     public const ushort NativeListPointer = 0x8f8f;
     /// <summary>Seven bytes per native size/source/destination record.</summary>
     public const ushort RecordByteCount = 7;
+    /// <summary>The list's twelve records, before its zero terminator.</summary>
+    public const int RecordCount = 12;
 
     /// <summary>Maps a serialized native record pointer to the ascent's page index.</summary>
     public static int IndexOf(ushort pointer)
     {
         int offset = pointer - NativeListPointer;
         if (offset < 0 || offset % RecordByteCount != 0 ||
-            offset / RecordByteCount >= MotherBrainReadyingDefinitions.StandingBodyDuration)
+            offset / RecordByteCount >= RecordCount)
             throw new InvalidDataException(
                 $"Mother Brain leg-loading pointer ${pointer:X4} is outside the twelve-record list.");
         return offset / RecordByteCount;

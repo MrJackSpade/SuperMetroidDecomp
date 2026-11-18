@@ -1178,7 +1178,7 @@ internal static class LookupStream2Verification
         AssertEqual(5, transfers.Length, "Gunship calculated transfer count");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom());
         var place = enemies.Places.InUpdateOrder[0];
-        var part = new GunshipState(GunshipPhase.ReadyTakeoffEngines);
+        var part = new GunshipState(GunshipPhase.WaitForEngines) { PhaseTimer = GunshipTakeoffDefinitions.EngineStartUpdates };
         place.SetSpeciesState(part);
         int enumerated = 0;
         foreach (var transfer in transfers)
@@ -1191,17 +1191,16 @@ internal static class LookupStream2Verification
             AssertEqual(destination, ObjCharacterNativeWords.Of(firstCharacter), "Gunship original destination");
             AssertEqual(InstalledArtworkId.GunshipLiftoffFirstTiles + enumerated, transfer.Asset, "Gunship typed transfer identity");
             AssertEqual(transfers[enumerated], transfer, "Gunship enumeration and indexing agree");
-            enemies.GunshipBehavior.ReadyGunshipTakeoffEngines(place);
-            AssertEqual(enumerated + 1 == GunshipTakeoffDefinitions.EngineReadyingDuration,
+            enemies.GunshipBehavior.WaitForGunshipEngines(place);
+            AssertEqual(enumerated + 1 == GunshipTakeoffDefinitions.EngineStartUpdates,
                 enemies.Presentation.Looks.Shows(GunshipTakeoffDefinitions.TakeoffLook),
-                "the gunship shows its takeoff look from the readying's last update only");
+                "the gunship shows its takeoff look from the wait's last update only");
             enumerated++;
         }
         AssertEqual(5, enumerated, "Gunship enumerates every transfer");
-        AssertEqual(GunshipTakeoffDefinitions.EngineReadyingDuration, enumerated, "the readying lasts one update a native transfer");
-        AssertEqual(0, part.EngineReadyingElapsed, "Gunship completes its readying phase");
+        AssertEqual(GunshipTakeoffDefinitions.EngineStartUpdates, enumerated, "the wait for the engines lasts one update a native transfer");
         AssertEqual(GunshipPhase.FireUpEngines, part.Phase, "Gunship starts engines after fifth transfer");
-        Console.WriteLine("Gunship transfers: all10 native source/destination fields, five typed identities, the readying's duration, takeoff look and phase handoff pass.");
+        Console.WriteLine("Gunship transfers: all10 native source/destination fields, five typed identities, the engines' wait, takeoff look and phase handoff pass.");
     }
     /// <summary>Checks reserve arrow RGB5 colors and the shades the import pre-colours the arrow in (#1512).</summary>
     internal static void VerifyLookupStream2ReserveArrowColors(ISnesAddressSpace rom)

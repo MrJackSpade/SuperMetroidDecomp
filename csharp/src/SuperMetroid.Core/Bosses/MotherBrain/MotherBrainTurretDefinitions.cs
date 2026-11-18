@@ -22,10 +22,10 @@ internal static class MotherBrainTurretDefinitions
     /// <summary>The width, from the camera's left edge, a turret's on-screen test admits.</summary>
     internal const int ViewWidth = 264;
 
-    /// <summary>Minimum random rotation delay the turret's rotation applies.</summary>
+    /// <summary>The fewest updates a turret's random wait before it turns lasts.</summary>
     internal const int MinimumRotationDelay = 32;
 
-    /// <summary>Minimum random firing cooldown the turret's firing applies.</summary>
+    /// <summary>The fewest updates a turret's random wait before it fires lasts.</summary>
     internal const int MinimumFiringCooldown = 128;
 
     /// <summary>

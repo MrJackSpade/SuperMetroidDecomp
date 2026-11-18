@@ -137,9 +137,7 @@ internal sealed class MotherBrainAttacks
                 return;
 
             case MotherBrainAttackPhase.Cooldown:
-                // The cooldown decrements before testing. The attack choice always starts it at
-                // the second phase's attack cooldown; a cooldown of zero would run past zero rather than end the attack.
-                if (--state.AttackCooldown == 0)
+                if (state.AttackCooldown.StepRunsOut())
                     state.AttackPhase = MotherBrainAttackPhase.EndAttack;
                 return;
 
@@ -160,7 +158,7 @@ internal sealed class MotherBrainAttacks
         MotherBrainEnemyState state,
         SamusState samus)
     {
-        state.AttackCooldown = MotherBrainCadenceDefinitions.SecondPhaseAttackCooldown;
+        state.AttackCooldown.LastFor(MotherBrainWaitDefinitions.AttackCooldownUpdates);
         state.AttackPhase = MotherBrainAttackPhase.Cooldown;
 
         int random = _room.Random.Read();

@@ -95,7 +95,7 @@ internal static class NativeSnapshotMotherBrainImport
             tube.RequireSpeciesState<MotherBrainFallingTubeState>().Playback = NativeEnemyAnimationOracle.PlaybackAt(
                 tubes, MotherBrainNativeListAddresses.TubeEntries, MotherBrainTubeAnimations.StartingAt, AnimationScript(tube));
         }
-        state.BrainMainShakeTimer = W(MotherBrainMemory.BrainMainShakeTimer);
+        state.BrainShake.ShakeFor(W(MotherBrainMemory.BrainMainShakeTimer));
         state.DeleteTurretsAndRinkas = W(MotherBrainMemory.DeleteTurretsAndRinkas) != 0;
         state.NextRainbowImage = MotherBrainRainbowImage.All[DecodeNextRainbowFrame(W(MotherBrainMemory.RainbowPaletteIndex))];
         state.DrawNeck = state.BrainAction == MotherBrainBrainAction.SetupBrainAndNeckToBeDrawn;
@@ -113,7 +113,11 @@ internal static class NativeSnapshotMotherBrainImport
             W(MotherBrainMemory.LowerNeckMovementIndex), "Mother Brain lower neck movement index");
         state.UpperNeckMovement = MotherBrainNativeWords.NeckMovements.Decode(
             W(MotherBrainMemory.UpperNeckMovementIndex), "Mother Brain upper neck movement index");
-        state.StandingBodyReadyingElapsed = DecodeLegTilePage(W(MotherBrainMemory.SpriteTileTransferEntry));
+        // While she waits before her pause the cartridge counts the wait by the leg-loading record it has reached, its body
+        // timer already holding the pause; the port's phase timer holds the wait and starts the pause as it runs out (#2469).
+        if (state.Stage == MotherBrainBodyStage.FakeDeathAscent && state.AscentPhase == MotherBrainAscentPhase.WaitBeforePause)
+            PrivateState.Set(state.PhaseTimer, nameof(BossCountdown.Count),
+                MotherBrainWaitDefinitions.BeforePauseUpdates - 1 - DecodeLegTilePage(W(MotherBrainMemory.SpriteTileTransferEntry)));
         // The cartridge counts every fade but her fake death's greying on one word; each fade plays on its own (#2251,
         // #2404). The one her phase runs resumes from the recorded count and phase timer; every other starts over when its
         // phase starts it.
@@ -128,7 +132,8 @@ internal static class NativeSnapshotMotherBrainImport
         state.SmallPurpleBreathActive = W(MotherBrainMemory.SmallPurpleBreathActive) != 0;
         state.WalkCounter = SuperMetroid.Core.Compatibility.MotherBrainWalkCreditConstants.FromNativeWord(W(MotherBrainMemory.WalkCounter));
         state.AttackPhase = MotherBrainNativeWords.AttackPhases.Decode(W(MotherBrainMemory.AttackPhase), "Mother Brain attack phase");
-        state.AttackCooldown = W(MotherBrainMemory.BodyAttackCooldown);
+        // The cooldown's word holds the updates it lasts.
+        PrivateState.Set(state.AttackCooldown, nameof(BossCountdown.Count), W(MotherBrainMemory.BodyAttackCooldown) - 1);
         state.BombCounter = W(MotherBrainMemory.BombCounter);
         state.BodyTargetXPosition = W(MotherBrainMemory.BodyFunctionTimer);
         state.HandBeamPhase = MotherBrainNativeWords.HandBeamPhases.Decode(W(MotherBrainMemory.DeathBeamAttackPhase), "Mother Brain hand-beam phase");

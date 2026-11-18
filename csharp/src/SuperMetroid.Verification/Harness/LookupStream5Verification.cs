@@ -262,7 +262,7 @@ internal static class LookupStream5Verification
             AssertEqual(reversed, state.FigureEight.Reversed, "Direction selection remains independent of duration bucket");
             // A valid unexpired casual-flame hold keeps this fixture specific to
             // the identified closed-eye countdown and its actual expiry producer.
-            state.CasualFlames.Hold = duration + 1;
+            state.CasualFlames.Hold.LastFor(duration + 1);
             for (int elapsed = 1; elapsed <= duration; elapsed++)
             {
                 tick(body, state); totalTicks++;
@@ -277,7 +277,7 @@ internal static class LookupStream5Verification
             AssertEqual(PhantoonPartSegment.EyeOpen, state.EyePart.PlayingProgram(), "Expiration starts exact eye-opening program");
             AssertEqual((ushort)1, eye.AnimationClock.Hold.RawValue, "Eye-opening program executes on next instruction step");
             AssertEqual(false, state.FlameRainRequested, "Opening clears flame-rain trigger");
-            AssertEqual(1, state.CasualFlames.Hold, "Casual hold still advances on every movement call");
+            AssertEqual(0, state.CasualFlames.Hold.Count, "Casual hold still advances on every movement call: its last update is left");
             AssertEqual(1, randomCalls, "Only independent initial direction consumes RNG in this fixture");
             var flames = system.Projectiles.EnemyProjectiles.Where(projectile => projectile.IsActive).ToArray();
             AssertEqual(8, flames.Length, "Exact expiry spawns eight real spiral projectiles");
@@ -1281,7 +1281,7 @@ internal static class LookupStream5Verification
             AssertEqual(false, state.FigureEight.Reversed, "Real rain direction reset");
             AssertEqual(PhantoonPhase.BecomeSolidAfterFlameRain, state.Phase, "Real rain phase handoff");
             AssertEqual(1, calls, "Rain consumes one RNG word");
-            var flames = enemies.Projectiles.EnemyProjectiles.Where(p => p.IsActive).OrderBy(p => p.StateOf<PhantoonRainFlameState>().FallDelay).ToArray();
+            var flames = enemies.Projectiles.EnemyProjectiles.Where(p => p.IsActive).OrderBy(p => p.StateOf<PhantoonRainFlameState>().HangUpdates).ToArray();
             AssertEqual(8, flames.Length, "Actual rain population");
             AssertTrue(flames.All(flame => flame.Position.X.Whole != body.Position.X.Whole), "Calculated rain gap lies at the body X");
             for (int i = 0; i < 8; i++)
@@ -1289,7 +1289,7 @@ internal static class LookupStream5Verification
                 int column = (rom.ReadCartridgeByte(0xa7cfc2 + pattern) + i) % 9;
                 AssertEqual(rom.ReadCartridgeByte(0x8698f7 + column), flames[i].Position.X.Whole, "Actual rain column order with wrap");
                 AssertEqual((ushort)40, flames[i].Position.Y.Whole, "Actual rain ceiling Y");
-                AssertEqual((i + 1) * 8, flames[i].StateOf<PhantoonRainFlameState>().FallDelay, "Actual staggered rain delay");
+                AssertEqual((i + 1) * 8, flames[i].StateOf<PhantoonRainFlameState>().HangUpdates, "Actual staggered rain delay");
             }
         }
 

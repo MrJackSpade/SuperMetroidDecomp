@@ -181,7 +181,7 @@ internal sealed class PhantoonPatterns
     /// <summary>Advances the casual-flame burst while he runs his figure-eight.</summary>
     internal void StepPhantoonCasualFlameSchedule(PhantoonEnemyState state)
     {
-        if (--state.CasualFlames.Hold > 0)
+        if (!state.CasualFlames.Hold.StepRunsOut())
             return;
 
         if (state.CasualFlames.NextFlame is { } flame)
@@ -190,7 +190,7 @@ internal sealed class PhantoonPatterns
             // cooldown starts.
             ListStep<PhantoonCasualFlame>? next = flame.Following;
             state.CasualFlames.NextFlame = next;
-            state.CasualFlames.Hold = next is { } following ? following.Entry.WaitBeforeUpdates : state.CasualFlames.Schedule.Cooldown;
+            state.CasualFlames.Hold.LastFor(next is { } following ? following.Entry.WaitBeforeUpdates : state.CasualFlames.Schedule.Cooldown);
             state.MouthPart.StartAnimation(PhantoonPartSegment.MouthSpawnFlame);
             return;
         }
@@ -199,7 +199,7 @@ internal sealed class PhantoonPatterns
         ListStep<PhantoonCasualFlame> first = ListStep<PhantoonCasualFlame>.FirstOf(burst.Flames);
         state.CasualFlames.Schedule = burst;
         state.CasualFlames.NextFlame = first;
-        state.CasualFlames.Hold = first.Entry.WaitBeforeUpdates;
+        state.CasualFlames.Hold.LastFor(first.Entry.WaitBeforeUpdates);
     }
 
     /// <summary>Starts the spiral-flame pattern around the body.</summary>
@@ -612,16 +612,16 @@ internal sealed class PhantoonPatterns
             state.Colours.CompleteFade();
     }
 
-    /// <summary>Places the rain's delayed flames in rotating room columns, each falling a delay step after the last.</summary>
+    /// <summary>Places the rain's hanging flames in rotating room columns, each falling a hang step after the last.</summary>
     private void SpawnPhantoonFlameRain(RoomEnemyPlace body, PhantoonRainPattern pattern)
     {
         ListStep<int> column = pattern.FirstColumn;
-        int fallDelay = PhantoonArenaDefinitions.RainFallDelayStep;
+        int hangUpdates = PhantoonArenaDefinitions.RainFallDelayStep;
         for (int flame = 0; flame < PhantoonArenaDefinitions.RainFlameCount; flame++)
         {
-            SpawnPhantoonRainFlame(body, column.Entry, fallDelay);
+            SpawnPhantoonRainFlame(body, column.Entry, hangUpdates);
             column = column.NextInCycle;
-            fallDelay += PhantoonArenaDefinitions.RainFallDelayStep;
+            hangUpdates += PhantoonArenaDefinitions.RainFallDelayStep;
         }
     }
 
@@ -708,16 +708,16 @@ internal sealed class PhantoonPatterns
         return true;
     }
 
-    /// <summary>Initializes a rain flame over a room column, falling after a delay.</summary>
+    /// <summary>Initializes a rain flame over a room column, falling after it hangs.</summary>
     /// <param name="body">Phantoon's body.</param>
     /// <param name="columnX">The screen X of the rain column the flame falls in (<see cref="PhantoonFlameSpawns.RainXs"/>).</param>
-    /// <param name="fallDelay">The updates the flame waits before it falls.</param>
-    internal bool SpawnPhantoonRainFlame(RoomEnemyPlace body, int columnX, int fallDelay)
+    /// <param name="hangUpdates">The updates from the flame's first to its fall, the flame hanging on every earlier one.</param>
+    internal bool SpawnPhantoonRainFlame(RoomEnemyPlace body, int columnX, int hangUpdates)
     {
         EnemyProjectile? flame = AllocateDestroyableFlame(body);
         if (flame is null)
             return false;
-        flame.State = new PhantoonRainFlameState(fallDelay);
+        flame.State = new PhantoonRainFlameState(hangUpdates);
         flame.Position = flame.Position.WithWholeX(columnX);
         flame.Position = flame.Position.WithWholeY(PhantoonArenaDefinitions.RainStartY);
         flame.StartMotion(PhantoonFlameMotion.RainFalling);

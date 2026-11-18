@@ -504,9 +504,8 @@ internal sealed class MotherBrainProjectiles
             // The ring stays pinned to the mouth while its attach delay runs out.
             MotherBrainOnionRingState ringState = ring.StateOf<MotherBrainOnionRingState>();
             MotherBrainEnemyState state = ringState.MotherBrain;
-            if (ringState.AttachDelay != 0)
+            if (ringState.MouthWait.StepKeepsRunning())
             {
-                ringState.AttachDelay--;
                 PinMotherBrainOnionRingToMouth(ring, state);
                 return;
             }
@@ -600,16 +599,16 @@ internal sealed class MotherBrainProjectiles
                 return;
             }
 
-            // Each wait counts down and is reloaded when it reaches zero.
+            // Each wait starts again as it runs out.
             MotherBrainTurretState turretState = turret.StateOf<MotherBrainTurretState>();
-            if (--turretState.RotationWait == 0)
+            if (turretState.RotationWait.StepRunsOut())
             {
                 ResetMotherBrainTurretRotationTimer(turret);
                 SelectNextMotherBrainTurretDirection(turret);
                 turret.StartAnimation(new MotherBrainTurretAnimation(MotherBrainTurretPose.Turret(turretState.Direction)));
             }
 
-            if (--turretState.FiringWait == 0)
+            if (turretState.FiringWait.StepRunsOut())
             {
                 ResetMotherBrainTurretCooldown(turret);
                 SpawnMotherBrainTurretBullet(turret);
@@ -620,14 +619,14 @@ internal sealed class MotherBrainProjectiles
         internal void ResetMotherBrainTurretRotationTimer(EnemyProjectile turret)
         {
             int sample = dependencies.Room.Random.Next(MotherBrainRandomDefinitions.TurretRotationWait);
-            turret.StateOf<MotherBrainTurretState>().RotationWait = Math.Max(sample, MotherBrainTurretDefinitions.MinimumRotationDelay);
+            turret.StateOf<MotherBrainTurretState>().RotationWait.LastFor(Math.Max(sample, MotherBrainTurretDefinitions.MinimumRotationDelay));
         }
 
         /// <summary>Restarts the turret's pause between fired bullets.</summary>
         internal void ResetMotherBrainTurretCooldown(EnemyProjectile turret)
         {
             int sample = dependencies.Room.Random.Next(MotherBrainRandomDefinitions.TurretFiringWait);
-            turret.StateOf<MotherBrainTurretState>().FiringWait = Math.Max(sample, MotherBrainTurretDefinitions.MinimumFiringCooldown);
+            turret.StateOf<MotherBrainTurretState>().FiringWait.LastFor(Math.Max(sample, MotherBrainTurretDefinitions.MinimumFiringCooldown));
         }
 
         /// <summary>Runs turret-bullet initialization.</summary>

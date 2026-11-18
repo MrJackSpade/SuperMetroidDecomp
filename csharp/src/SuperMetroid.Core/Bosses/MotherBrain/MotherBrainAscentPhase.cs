@@ -18,11 +18,11 @@ public enum MotherBrainAscentPhase
     /// <summary>Waits out the suspense, then starts the wait before rising and falls into it.</summary>
     PauseForSuspense,
 
-    /// <summary>Starts the floor-clipping effect, starts the hidden head animation, and starts readying her standing body and the pause that follows it.</summary>
+    /// <summary>Starts the floor-clipping effect, starts the hidden head animation, and starts the wait before her pause.</summary>
     PrepareForRising,
 
-    /// <summary>Readies her standing body one update at a time; the update that finishes it is the pause's first.</summary>
-    ReadyStandingBody,
+    /// <summary>Waits out the updates before her pause before rising; the update the wait runs out on is the pause's first.</summary>
+    WaitBeforePause,
 
     /// <summary>Waits out the pause, then stands her hidden body in place and enables her body's, brain's and neck's hitboxes.</summary>
     ContinuePausing,

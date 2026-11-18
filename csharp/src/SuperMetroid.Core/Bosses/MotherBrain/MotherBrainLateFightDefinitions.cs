@@ -109,6 +109,9 @@ internal static class MotherBrainLateFightDefinitions
     /// <summary>The updates the room shakes as her severed brain lands.</summary>
     internal const int BrainLandingShakeUpdates = 20;
 
+    /// <summary>The updates her landed brain settles, from the update after it lands, before she lies still to grey.</summary>
+    internal const int BrainSettlesUpdates = 6;
+
     /// <summary>The updates before her corpse turns grey.</summary>
     internal const int BeforeCorpseGreyUpdates = 33;
 
@@ -123,6 +126,15 @@ internal static class MotherBrainLateFightDefinitions
 
     /// <summary>The updates of the pause before the escape, once her corpse has rotted away.</summary>
     internal const int BeforeEscapeUpdates = 21;
+
+    /// <summary>The updates the room holds, from the update after the brain is parked, before the escape starts.</summary>
+    internal const int HoldBeforeEscapeUpdates = 7;
+
+    /// <summary>
+    /// The updates the escape's start waits, the first being the hold's last, before its music, quake, red flashing and
+    /// text start.
+    /// </summary>
+    internal const int EscapeStartUpdates = 2;
 
     /// <summary>The updates before the escape's subtitle or text starts.</summary>
     internal const int EscapeTextDelayUpdates = 33;

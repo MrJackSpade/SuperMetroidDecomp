@@ -77,11 +77,11 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(art.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), installedBosses: art.Bosses);
             RoomEnemyPlace top = enemies.Places.InUpdateOrder[0];
-            var part = new GunshipState(GunshipPhase.ReadyTakeoffEngines);
+            var part = new GunshipState(GunshipPhase.WaitForEngines) { PhaseTimer = GunshipTakeoffDefinitions.EngineStartUpdates };
             top.SetSpeciesState(part);
-            for (int index = 0; index < GunshipTakeoffDefinitions.EngineReadyingDuration; index++)
-                enemies.GunshipBehavior.ReadyGunshipTakeoffEngines(top);
-            AssertTrue(enemies.Presentation.Looks.Shows(GunshipTakeoffDefinitions.TakeoffLook), "readying the engines shows the takeoff look");
+            for (int index = 0; index < GunshipTakeoffDefinitions.EngineStartUpdates; index++)
+                enemies.GunshipBehavior.WaitForGunshipEngines(top);
+            AssertTrue(enemies.Presentation.Looks.Shows(GunshipTakeoffDefinitions.TakeoffLook), "the engines firing up shows the takeoff look");
             return EncounterArtworkPlacements.Of(enemies.Presentation.Looks, resolver);
         }
     }

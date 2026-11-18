@@ -1036,7 +1036,9 @@ internal static class LookupStream3Verification
             }
         }
         var sequence = MotherBrainLateFightFixtures.NewSequence();
+        // The escape's start begins with its wait, as the hold before the escape starts it (#2469).
         sequence.Encounter.DeathPhase = MotherBrainDeathPhase.StartEscape;
+        sequence.Encounter.PhaseTimer.LastFor(MotherBrainLateFightDefinitions.EscapeStartUpdates);
         var bus = new TestAddressSpace();
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Health = 99 };
         var firstPage = sequence.Step(samus, MotherBrainLateFightFixtures.QuietFrame(new SuperMetroid.Core.Compatibility.RainbowBeamCameraCheckpoint(), 0, 0));
@@ -1082,37 +1084,38 @@ internal static class LookupStream3Verification
         for (int stage = 0; stage < stages.Count; stage++)
         {
             var sequence = MotherBrainLateFightFixtures.NewSequence();
-            sequence.Encounter.Body.Position = sequence.Encounter.Body.Position.WithWholeX(0);
+            // Each stage's walk has reached its end: the forward stages, the first and every other, have overshot the
+            // stagger's front, and the backward ones stand at the room's left.
+            sequence.Encounter.Body.Position = sequence.Encounter.Body.Position.WithWholeX(
+                stage % 2 == 0 ? MotherBrainFightDefinitions.StaggerFrontX + 1 : 0);
             sequence.DrainedByBaby.PainfulWalkingStage = SuperMetroid.Core.Bosses.ListStep<MotherBrainStaggerStage>.At(stages, stage);
             // As the stagger's setup does before each walk: the stage selects its speed.
             sequence.DrainedByBaby.PainfulWalkingSpeed = stages[stage].Speed;
             sequence.DrainedByBaby.StepPainfulWalking();
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa9c049 + 2 * stage), sequence.DrainedByBaby.PainfulWalkingPauseTimer,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa9c049 + 2 * stage) - 1, sequence.DrainedByBaby.PainfulWalkingPause?.Count,
                 "stream 3 real stagger pause after each stage's walk");
         }
     }
 
     /// <summary>
     /// Checks the pages her escape looks copy against the cartridge's lists (#1538): each copy, in list order, holds the
-    /// record's bytes where the record places them, and her death readies the escape warning and the exploded door one
-    /// update a record, refusing an update past the last.
+    /// record's bytes where the record places them, and her death's hold before the escape and the escape's start wait one
+    /// update a record, as the cartridge copied one record an update (#2469).
     /// </summary>
     private static void VerifyStream3EscapeGeometry(ISnesAddressSpace rom)
     {
-        var sequence = MotherBrainLateFightFixtures.NewSequence();
         EncounterArtworkUpload[] Copies(params string[] looks) => [.. looks.SelectMany(look => EncounterLookUploads.Uploads(ComposedEncounter.MotherBrain,
             EncounterLookUploads.IndexOf(ComposedEncounter.MotherBrain, look), InstalledPageResolver))];
         foreach (bool timerList in new[] { true, false })
         {
             int count = timerList ? 7 : 2;
             int start = timerList ? 0xa6c4cb : 0xa9902f;
-            Action ready = timerList ? sequence.ThirdPhaseDeath.ReadyEscapeWarning : sequence.ThirdPhaseDeath.ReadyExplodedDoor;
             EncounterArtworkUpload[] copies = timerList
                 ? Copies(EncounterLookUploads.MotherBrainEscapeTimerLook, EncounterLookUploads.MotherBrainEscapeTextLook)
                 : Copies(EncounterLookUploads.MotherBrainExplodedDoorLook);
             AssertEqual(count, copies.Length, "stream 3 escape looks copy one page a native record");
-            AssertEqual(count, timerList ? MotherBrainReadyingDefinitions.EscapeWarningDuration : MotherBrainReadyingDefinitions.ExplodedDoorDuration,
-                "stream 3 escape readying takes one update a native record");
+            AssertEqual(count, timerList ? MotherBrainLateFightDefinitions.HoldBeforeEscapeUpdates : MotherBrainLateFightDefinitions.EscapeStartUpdates,
+                "stream 3 the escape's wait lasts one update a native record");
             for (int index = 0; index < count; index++)
             {
                 int address = start + index * 7;
@@ -1121,16 +1124,7 @@ internal static class LookupStream3Verification
                 EncounterArtworkUpload shown = copies[index];
                 AssertEqual(nativeTableByte, shown.FirstByte, "stream 3 escape page lands where the native record places it");
                 AssertEqual(nativeSize, shown.Characters.Length, "stream 3 escape page copies the native record's bytes");
-                ready();
-                AssertEqual(index + 1, timerList ? sequence.ThirdPhaseDeath.EscapeWarningReadyingElapsed : sequence.ThirdPhaseDeath.ExplodedDoorReadyingElapsed,
-                    "stream 3 production escape readying advances once");
             }
-            try
-            {
-                ready();
-                throw new InvalidDataException("Completed escape readying unexpectedly readied another update.");
-            }
-            catch (InvalidOperationException) { }
         }
         int timerPages = Enum.GetValues<SuperMetroid.AssetExtraction.Areas.Escape.EscapeTimerTilePage>().Length;
         for (int page = 0; page < EscapeTextSheetFormat.PageCount; page++)

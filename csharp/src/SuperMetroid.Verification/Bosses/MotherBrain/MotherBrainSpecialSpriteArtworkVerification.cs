@@ -86,9 +86,9 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
     }
 
     /// <summary>
-    /// Checks every page her standing body's looks copy, her legs' then her attacks', against the native leg-loading list,
-    /// one an update of the rise's readying: where each lands, its bytes and the produced characters; and that the readying
-    /// completes on the list's last record, as the cartridge's list ends there (#1538).
+    /// Checks every page her standing body's looks copy, her legs' then her attacks', against the native leg-loading list:
+    /// where each lands, its bytes and the produced characters; and that the wait before her pause before rising lasts one
+    /// update a record, as the cartridge copied one record an update, its last update starting the pause (#1538, #2469).
     /// </summary>
     private static void VerifyMotherBrainLegLoadPages(
         ImportEnemyArtwork stock, SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom)
@@ -97,11 +97,16 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
         var resolver = new EnemyTileTransfers(new ImportEnemyArtwork(stock.Enemies, stock.Bosses, InstalledFixtures.AreaArtwork));
         EncounterArtworkUpload[] standing = [.. new[] { EncounterLookUploads.MotherBrainLegsLook, EncounterLookUploads.MotherBrainAttackLook }
             .SelectMany(look => EncounterLookUploads.Uploads(ComposedEncounter.MotherBrain, EncounterLookUploads.IndexOf(ComposedEncounter.MotherBrain, look), resolver))];
-        AssertEqual(MotherBrainReadyingDefinitions.StandingBodyDuration, standing.Length, "her rise readies her standing body one update a page her looks copy");
+        AssertEqual(MotherBrainLegLoadListConstants.RecordCount, standing.Length, "her standing body's looks copy one page a leg-loading record");
+        AssertEqual(MotherBrainLegLoadListConstants.RecordCount, MotherBrainWaitDefinitions.BeforePauseUpdates,
+            "the wait before her pause lasts one update a leg-loading record");
         SnesVram ObjVram(int copied) => ObjCharacterVramImage.Of(EncounterArtworkPlacements.Of(standing.Take(copied)), resolver);
         var state = new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0], enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation());
 
-        for (int page = 0; page < MotherBrainReadyingDefinitions.StandingBodyDuration; page++)
+        // The rise starts the floor's clip and the wait before her pause once its preparation runs out.
+        state.AscentPhase = MotherBrainAscentPhase.PrepareForRising;
+        state.PhaseTimer.LastFor(1);
+        for (int page = 0; page < MotherBrainLegLoadListConstants.RecordCount; page++)
         {
             int record = MotherBrainLegLoadListConstants.NativeListAddress +
                 page * MotherBrainLegLoadListConstants.RecordByteCount;
@@ -110,11 +115,13 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
                 RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), record + 2));
             int nativeDestination = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), record + 5);
 
-            bool completed = MotherBrainAscent.ReadyStandingBodyOnce(state);
-            AssertEqual(page + 1 == MotherBrainReadyingDefinitions.StandingBodyDuration,
-                completed, $"Mother Brain's standing body readying update {page} completion frame");
-            AssertEqual(completed ? 0 : page + 1, state.StandingBodyReadyingElapsed,
-                $"Mother Brain's standing body readying update {page} count, back to the first after the last");
+            if (page == 0)
+                MotherBrainAscent.PrepareMotherBrainForRising(state);
+            else
+                MotherBrainAscent.WaitBeforeMotherBrainAscentPause(state);
+            bool last = page + 1 == MotherBrainLegLoadListConstants.RecordCount;
+            AssertEqual(last ? MotherBrainAscentPhase.ContinuePausing : MotherBrainAscentPhase.WaitBeforePause, state.AscentPhase,
+                $"the wait before her pause runs on update {page} and ends on the record list's last");
             int nativeTableByte = nativeDestination * 2 - ObjectCharactersByte;
             EncounterArtworkUpload shown = standing[page];
             AssertEqual(nativeTableByte, shown.FirstByte,
@@ -126,14 +133,14 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
                 $"Mother Brain leg-loading page {page} characters match cartridge");
         }
         int terminator = MotherBrainLegLoadListConstants.NativeListAddress +
-            MotherBrainReadyingDefinitions.StandingBodyDuration *
+            MotherBrainLegLoadListConstants.RecordCount *
             MotherBrainLegLoadListConstants.RecordByteCount;
         AssertEqual((ushort)0, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), terminator),
             "Mother Brain leg-loading page eleven is followed by native zero terminator");
 
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => state.StandingBodyReadyingElapsed = MotherBrainReadyingDefinitions.StandingBodyDuration,
-            "Mother Brain's rise has no readying update past the twelfth");
+        // The pause's first update is the wait's last, so it has taken its first step of the updates it lasts.
+        AssertEqual(MotherBrainWaitDefinitions.StandingBodyPauseUpdates - 2, state.PhaseTimer.Count,
+            "the pause before she rises takes its first step on the wait's last update");
         AssertThrows<InvalidDataException>(
             () => NativeSnapshotMotherBrainImport.DecodeLegTilePage(unchecked(
                 MotherBrainLegLoadListConstants.NativeListPointer + 1)),

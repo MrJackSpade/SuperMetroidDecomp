@@ -79,10 +79,10 @@ public enum BabyMetroidCutscenePhase
     DeathSequence,
 
     /// <summary>
-    /// Readies Mother Brain's attacks again over <see cref="MotherBrainReadyingDefinitions.AttacksAgainDuration"/> once the
-    /// Baby's body has left the active cutscene.
+    /// Pauses, Samus's rainbow cycling, once the Baby's body has left the active cutscene; the pause's last update is the
+    /// first of letting her rainbow some more.
     /// </summary>
-    ReadyMotherBrainAttacksAgain,
+    PauseAfterFade,
 
     /// <summary>Keeps Samus's restored rainbow colours cycling through the remaining scripted delay.</summary>
     LetSamusRainbowSomeMore,

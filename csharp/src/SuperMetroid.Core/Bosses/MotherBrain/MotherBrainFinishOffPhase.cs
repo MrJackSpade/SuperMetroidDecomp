@@ -12,11 +12,11 @@ public enum MotherBrainFinishOffPhase
     /// <summary>Waits out the admiration pause, starts the stretching head animation, and starts the wait before the final charge.</summary>
     Admire,
 
-    /// <summary>When the wait runs out, installs the charging head animation and immediately begins readying the Baby Metroid's arrival.</summary>
+    /// <summary>When the wait runs out, installs the charging head animation and starts the wait for the Baby Metroid's arrival, whose first update is this one.</summary>
     ChargeFinalBeam,
 
-    /// <summary>Readies the Baby Metroid's arrival one update at a time; the last retracts the head, spawns the baby, and starts the wait before firing.</summary>
-    ReadyBaby,
+    /// <summary>Waits for the Baby Metroid's arrival; the wait's last update retracts the head, spawns the baby, and starts the wait before firing.</summary>
+    BringInBaby,
 
     /// <summary>Waits out the wait before firing, starts the firing head animation, neck extension and its sound, then holds in the next phase.</summary>
     FireFinalBeam,

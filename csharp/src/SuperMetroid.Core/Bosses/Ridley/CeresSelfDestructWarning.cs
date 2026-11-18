@@ -5,18 +5,16 @@ using SuperMetroid.Core.Rooms.Backgrounds;
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
-/// The warning Ceres's self-destruct readies and types once the getaway ends (#2228): its phase, its readying, its phase's
-/// wait, its typewriter, its alarm's step and what it has written over the arena's foreground.
+/// The warning Ceres's self-destruct shows and types once the getaway ends (#2228): its phase, its phase's wait, its
+/// typewriter, its alarm's step and what it has written over the arena's foreground.
 /// </summary>
 public sealed class CeresSelfDestructWarning
 {
     /// <summary>Which step of the warning runs next; the getaway's end starts it.</summary>
     internal CeresSelfDestructPhase Phase { get; set; }
-    /// <summary>Where the warning stands in its current stage of readying, advanced each update (#1406, #1538).</summary>
-    internal CeresEscapeReadying Readying { get; set; }
     /// <summary>
-    /// The wait of the phase that has one (#2368): the EMERGENCY title's hold, then, for Japanese text, the subtitle's wait.
-    /// The typewriter keeps its own schedule.
+    /// The wait of the phase that has one (#2368, #2469): the waits for the escape timer and warning and for the EMERGENCY
+    /// title, the title's hold, then, for Japanese text, the subtitle's wait. The typewriter keeps its own schedule.
     /// </summary>
     public BossCountdown PhaseWait { get; } = new();
     /// <summary>Gets the installed warning typewriter state, created after the initial delay; null before then.</summary>

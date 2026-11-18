@@ -13,8 +13,11 @@ internal static class PhantoonFlameMotionDefinitions
     /// pixels an update upward, so its speed stays below 64 pixels an update.
     /// </summary>
     internal static readonly SignedEightEight FlameGravity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(16);
-    /// <summary>Updates an intro flame circles at its full radius before the circle starts closing.</summary>
-    internal const int IntroCircleDelay = 180;
+    /// <summary>
+    /// The updates from an intro flame's orbit starting to the first on which its circle may close; it circles at its full
+    /// radius on the 180 before.
+    /// </summary>
+    internal const int IntroCircleHoldUpdates = 181;
     /// <summary>The turn an intro flame makes clockwise round the body each update: one step.</summary>
     internal static readonly TrigonometryAngle StartingTurnPerUpdate = new(1);
     /// <summary>The radius, in pixels, an intro flame starts circling at; it closes by one every other update.</summary>

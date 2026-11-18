@@ -39,14 +39,14 @@ internal static class PhantoonCasualFlamesVerification
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             random = (ushort)raw;
-            state.CasualFlames.Hold = 0;
+            state.CasualFlames.Hold.LastFor(1);
             state.CasualFlames.NextFlame = null;
             int before = calls;
             step(mouth);
             int pointer = 0xa70000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7ccfd + (raw & 3) * 2));
             AssertEqual(PhantoonCasualFlameDefinitions.Choices[raw & 3], state.CasualFlames.Schedule, "Actual casual RNG burst selector");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(pointer), FlamesToCome(state), "Actual casual initial remaining count");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + (CartridgeImportSource.Require(rom).ReadCartridgeWord(pointer) + 1) * 2)), state.CasualFlames.Hold, "Actual casual reverse initial timer");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + (CartridgeImportSource.Require(rom).ReadCartridgeWord(pointer) + 1) * 2)) - 1, state.CasualFlames.Hold.Count, "Actual casual reverse initial timer: the wait lasts its updates");
             AssertEqual(before + 1, calls, "Casual selection consumes exactly one RNG call");
         }
         // Trace multiple complete schedules. Native $CFFF branches on zero as well
@@ -55,7 +55,7 @@ internal static class PhantoonCasualFlamesVerification
         {
             random = (ushort)pattern;
             state.CasualFlames.Schedule = PhantoonCasualFlameDefinitions.Choices[pattern];
-            state.CasualFlames.Hold = 0;
+            state.CasualFlames.Hold.LastFor(1);
             state.CasualFlames.NextFlame = null;
             ushort timer = 0, count = 0xffff;
             int pointer = 0xa70000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7ccfd + pattern * 2));
@@ -63,7 +63,7 @@ internal static class PhantoonCasualFlamesVerification
             {
                 // The mouth rests closed before each update; only the casual trigger installs its flame-spitting animation.
                 mouth.RequireSpeciesState<PhantoonPart>().Playback = PhantoonPart.Starting(PhantoonPartSegment.MouthInitial);
-                mouth.AnimationClock.HoldFor(0);
+                mouth.AnimationClock.HoldFor(RestingMouthHold);
                 bool draw = false;
                 timer = WrappingCounter.Decrement(timer).Value;
                 if ((short)timer <= 0)
@@ -86,18 +86,25 @@ internal static class PhantoonCasualFlamesVerification
                     }
                 }
                 step(mouth);
-                AssertEqual(timer, state.CasualFlames.Hold, "Actual casual frame timer");
+                // The cartridge's timer holds the updates the wait lasts, one more than its count.
+                AssertEqual(unchecked((short)timer) - 1, state.CasualFlames.Hold.Count, "Actual casual frame timer");
                 // The cartridge's word holds the count, or a value below zero while no burst is under way, which the
                 // mouth holds as no count (#1627).
                 AssertEqual(unchecked((short)count) < 0 ? null : unchecked((short)count), FlamesToCome(state),
                     "Actual casual frame remaining count");
                 AssertEqual(PhantoonPart.Starting(draw ? PhantoonPartSegment.MouthSpawnFlame : PhantoonPartSegment.MouthInitial), mouth.RequireSpeciesState<PhantoonPart>().Playback,
                     "Exact casual mouth animation trigger frame");
-                AssertEqual(draw ? (ushort)1 : (ushort)0, mouth.AnimationClock.Hold.RawValue, "Exact casual instruction timer reset");
+                AssertEqual(draw ? 1 : RestingMouthHold, mouth.AnimationClock.Hold.RawValue, "Exact casual instruction timer reset, the resting hold kept otherwise");
             }
         }
         Console.WriteLine("Phantoon casual schedules: 30 native words, 65536 RNG selections and 8192 frame-exact mouth transitions match without a bus.");
     }
+
+    /// <summary>
+    /// The hold the resting mouth is given before each update, which only the casual trigger's flame-spitting animation
+    /// replaces: a hold of its own, apart from the one update that animation starts on.
+    /// </summary>
+    private const int RestingMouthHold = 2;
 
     /// <summary>
     /// The flames of the burst still to come, the next among them, as the cartridge counts them; null while no burst is

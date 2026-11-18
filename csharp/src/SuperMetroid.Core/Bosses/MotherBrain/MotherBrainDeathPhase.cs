@@ -30,8 +30,8 @@ public enum MotherBrainDeathPhase
     /// <summary>Her brain falls to the floor.</summary>
     BrainFallsToGround,
 
-    /// <summary>Her corpse is readied one update at a time.</summary>
-    ReadyCorpse,
+    /// <summary>Her landed brain settles, the landing's quake shaking the room.</summary>
+    BrainSettles,
 
     /// <summary>She lies still before her corpse greys.</summary>
     SetupFadeToGrey,
@@ -48,10 +48,10 @@ public enum MotherBrainDeathPhase
     /// <summary>The pause before the escape.</summary>
     PauseBeforeEscape,
 
-    /// <summary>The escape timer and message are readied one update at a time.</summary>
-    ReadyEscapeWarning,
+    /// <summary>The room holds, the brain parked, before the escape starts.</summary>
+    HoldBeforeEscape,
 
-    /// <summary>The escape door's explosion is readied, then the escape's music, quake, flashing and text start.</summary>
+    /// <summary>The escape's start waits, its first update the hold's last, then the escape's music, quake, flashing and text start.</summary>
     StartEscape,
 
     /// <summary>The escape text types on, then the Japanese time-bomb subtitle shows.</summary>

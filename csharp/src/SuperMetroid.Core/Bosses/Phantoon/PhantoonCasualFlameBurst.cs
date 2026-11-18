@@ -12,8 +12,11 @@ public sealed class PhantoonCasualFlameBurst
     /// </summary>
     public PhantoonCasualFlameSchedule Schedule { get; internal set => field = Ensure.NotNull(value); } = PhantoonCasualFlameDefinitions.SteadyFive;
 
-    /// <summary>The updates before the burst's next flame, or before a new burst is chosen once one has ended.</summary>
-    public int Hold { get; internal set; }
+    /// <summary>
+    /// The wait before the burst's next flame, or before a new burst is chosen once one has ended (#2469): the mouth acts on
+    /// the update it runs out on. A fight starts it run out, so its first update chooses a burst.
+    /// </summary>
+    public BossCountdown Hold { get; } = new();
 
     /// <summary>
     /// The burst's flame the mouth spits next; none when no burst is under way, so the next expiry picks a new burst

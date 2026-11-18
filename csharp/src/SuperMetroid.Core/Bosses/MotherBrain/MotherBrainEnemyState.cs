@@ -224,10 +224,11 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     internal AnimationPlayback<MotherBrainBodySegment>? BodyPlayback { get; set; }
 
     /// <summary>
-    /// How many more of her brain's draws shake it, counted down by each draw: the glass event's earthquake loads it, and
-    /// the brain's shake cue, the Hyper Beam recoil and the drained beam's refresh load fifty.
+    /// Her brain's own shake (#2469), counted down at each draw that shows her brain, as her brain's animation plays there:
+    /// the glass event's earthquake starts it for the earthquake's length, and the brain's shake cue, the Hyper Beam recoil
+    /// and the drained beam's refresh for fifty.
     /// </summary>
-    public int BrainMainShakeTimer { get; internal set; }
+    internal MotherBrainShake BrainShake { get; } = new(MotherBrainCadenceDefinitions.BrainShakeStep);
 
     /// <summary>Shared flag that asks Mother Brain Rinkas and turrets to remove themselves.</summary>
     public bool DeleteTurretsAndRinkas { get; internal set; }
@@ -268,19 +269,6 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     public MotherBrainNeckMovement LowerNeckMovement { get; internal set; }
     /// <summary>How the upper neck moves; it moves after the lower neck, so a raise targets the lower neck's newly updated angle.</summary>
     public MotherBrainNeckMovement UpperNeckMovement { get; internal set; }
-
-    /// <summary>
-    /// The updates her rise has spent readying her standing body so far, fewer than
-    /// <see cref="MotherBrainReadyingDefinitions.StandingBodyDuration"/>. Zero both starts the readying and is the resting
-    /// value after its last update, because readying that is not running starts from its first update.
-    /// </summary>
-    public int StandingBodyReadyingElapsed
-    {
-        get;
-        internal set => field = value is >= 0 and < MotherBrainReadyingDefinitions.StandingBodyDuration
-            ? value
-            : throw new ArgumentOutOfRangeException(nameof(value), value, "Mother Brain's rise readies her standing body over twelve updates.");
-    }
 
     /// <summary>True while the floor clips Mother Brain's body as she rises from the fake death.</summary>
     public bool RisingFloorClipActive { get; internal set; }
@@ -361,8 +349,8 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     /// </summary>
     public MotherBrainAttackPhase AttackPhase { get; internal set; }
 
-    /// <summary>The 64-frame attack cooldown the attack's cooldown phase counts down.</summary>
-    public int AttackCooldown { get; internal set; }
+    /// <summary>The cooldown after her second phase chooses an attack, which the attack's cooldown phase runs out.</summary>
+    public BossCountdown AttackCooldown { get; } = new();
 
     /// <summary>
     /// Number of live Mother Brain bombs. Phase two refuses another bomb when this is at

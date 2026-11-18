@@ -83,11 +83,11 @@ public sealed class BabyMetroidCutsceneState
     public int Health { get; internal set; }
 
     /// <summary>
-    /// The Baby's onion-ring hit timer. Mother Brain's onion-ring collision response writes sixteen here; while it is
-    /// nonzero the Baby, held on Samus, shakes double, its shake stepped by the timer, and each update after it moves counts
-    /// it down. The hit's flash plays on its own (<see cref="HurtFlash"/>).
+    /// The Baby's shake when Mother Brain's onion ring strikes it (#2469): a hit starts it for sixteen updates; while it
+    /// shakes the Baby, held on Samus, shows its offset doubled, and each update after the Baby moves counts it down. The
+    /// hit's flash plays on its own (<see cref="HurtFlash"/>).
     /// </summary>
-    public int OnionRingHitShakeTimer { get; private set; }
+    internal MotherBrainShake OnionRingHitShake { get; } = new(MotherBrainCadenceDefinitions.BabyHitShakeStep);
 
     /// <summary>Saved whole-pixel origin used by the fatal-blow shake.</summary>
     public Position16<RoomPixels> FatalBlowOrigin { get; private set; }
@@ -109,12 +109,6 @@ public sealed class BabyMetroidCutsceneState
 
     /// <summary>Where the Baby's first death explosion bursts: the shared scatter's second point.</summary>
     private static ListStep<Offset16<RoomPixels>> FirstDeathExplosion => ListStep<Offset16<RoomPixels>>.FirstOf(DeathExplosionScatterDefinitions.Offsets);
-
-    /// <summary>
-    /// The updates the cutscene has spent readying Mother Brain's attacks again so far, zero through
-    /// <see cref="MotherBrainReadyingDefinitions.AttacksAgainDuration"/>.
-    /// </summary>
-    public int AttacksAgainReadyingElapsed { get; private set; }
 
     /// <summary>How far the room lights' recovery has come (#2316): each update of the final cutscene shows its next image.</summary>
     public MotherBrainFadeProgress RecoveryLights { get; } = new(MotherBrainFadeDefinitions.RecoveryLights);
@@ -142,12 +136,11 @@ public sealed class BabyMetroidCutsceneState
         HurtFlash = null;
         RouteLeg = null;
         Health = BabyMetroidCutsceneDefinitions.ArrivalHealth;
-        OnionRingHitShakeTimer = 0;
+        OnionRingHitShake.Stop();
         FatalBlowOrigin = Position16<RoomPixels>.Zero;
         FadeToBlack.StartAfter(1);
         DeathExplosionTimer.LastFor(1);
         NextDeathExplosion = FirstDeathExplosion;
-        AttacksAgainReadyingElapsed = 0;
         RecoveryLights.StartAfter(1);
         SamusRainbowFraction = RainbowFramePart.None;
         SamusRainbowPhase = BabyMetroidSamusRainbowPhase.Inactive;
@@ -418,10 +411,9 @@ public sealed class BabyMetroidCutsceneState
                 // The Baby's damaged step consumes Mother Brain's one-shot cry flag before inspecting
                 // the hit-flash timer. Sound queuing is returned by the ring system; this
                 // actor owns only the resulting shake and health-to-phase transition.
-                if (OnionRingHitShakeTimer != 0)
+                if (OnionRingHitShake.IsShaking)
                 {
-                    int shakingIndex = MotherBrainCadenceDefinitions.BabyHitShakeStep.Of(OnionRingHitShakeTimer);
-                    Offset16<RoomPixels> shake = MotherBrainShakeDefinitions.Offsets[shakingIndex];
+                    Offset16<RoomPixels> shake = OnionRingHitShake.Offset;
                     Position = Position.WithWhole(samus.Position.Whole + shake + shake + BabyMetroidCutsceneFlightDefinitions.SamusLatchOffset);
                 }
 
@@ -570,11 +562,11 @@ public sealed class BabyMetroidCutsceneState
                 AccelerateDownwardsForDeath();
                 if (StepFadeToBlack(ref babyFadeImage))
                 {
-                    // Completion does not write the Baby's eighth colour. It hides the actor,
-                    // and waits out the pause before it readies Mother Brain's attacks again.
+                    // Completion does not write the Baby's eighth colour. It hides the actor and starts the pause
+                    // before Samus's rainbow runs on.
                     visibility = BabyMetroidVisibilityRequest.Hide;
-                    Phase = BabyMetroidCutscenePhase.ReadyMotherBrainAttacksAgain;
-                    PhaseTimer.LastFor(BabyMetroidCutsceneDefinitions.BeforeReadyingAttacksUpdates);
+                    Phase = BabyMetroidCutscenePhase.PauseAfterFade;
+                    PhaseTimer.LastFor(BabyMetroidCutsceneDefinitions.AfterFadeUpdates);
                 }
                 else
                 {
@@ -586,22 +578,14 @@ public sealed class BabyMetroidCutsceneState
                 }
                 break;
 
-            case BabyMetroidCutscenePhase.ReadyMotherBrainAttacksAgain:
+            case BabyMetroidCutscenePhase.PauseAfterFade:
                 StepSamusRainbowColours(samus, ref samusRainbowActivated);
                 if (PhaseTimer.StepRunsOut())
                 {
-                    if (AttacksAgainReadyingElapsed >= MotherBrainReadyingDefinitions.AttacksAgainDuration)
-                        throw new InvalidOperationException("Mother Brain's attacks are already readied again.");
-
-                    AttacksAgainReadyingElapsed++;
-
-                    if (AttacksAgainReadyingElapsed == MotherBrainReadyingDefinitions.AttacksAgainDuration)
-                    {
-                        // Letting Samus rainbow some more starts in the last readying update, which is its first.
-                        Phase = BabyMetroidCutscenePhase.LetSamusRainbowSomeMore;
-                        PhaseTimer.LastFor(BabyMetroidCutsceneDefinitions.RainbowSomeMoreUpdates);
-                        goto case BabyMetroidCutscenePhase.LetSamusRainbowSomeMore;
-                    }
+                    // Letting Samus rainbow some more starts on the pause's last update, which is its first.
+                    Phase = BabyMetroidCutscenePhase.LetSamusRainbowSomeMore;
+                    PhaseTimer.LastFor(BabyMetroidCutsceneDefinitions.RainbowSomeMoreUpdates);
+                    goto case BabyMetroidCutscenePhase.LetSamusRainbowSomeMore;
                 }
                 break;
 
@@ -643,10 +627,9 @@ public sealed class BabyMetroidCutsceneState
         // zeroes both velocities, so the Baby stays exactly on its target.
         MoveAccordingToVelocity();
 
-        // After the Baby moves, its hit timer counts down and its hit flash plays on: a hit sets the timer to sixteen, so
-        // the next update shakes the Baby at sixteen and shows the flash's first hurt colours.
-        if (OnionRingHitShakeTimer != 0)
-            OnionRingHitShakeTimer--;
+        // After the Baby moves, its hit shake counts down and its hit flash plays on: a hit starts the shake with sixteen
+        // updates left, so the next update shakes the Baby at sixteen and shows the flash's first hurt colours.
+        OnionRingHitShake.Step();
         HurtFlash?.Step();
 
         return new BabyMetroidCutsceneStepResult(
@@ -671,7 +654,7 @@ public sealed class BabyMetroidCutsceneState
         if (healthBefore == 0)
             return;
 
-        OnionRingHitShakeTimer = BabyMetroidCutsceneDefinitions.OnionRingHitShake;
+        OnionRingHitShake.ShakeFor(BabyMetroidCutsceneDefinitions.OnionRingHitShake);
         HurtFlash = BabyMetroidHurtFlashAnimations.Starting();
         Health = Math.Max(0, healthBefore - damage);
     }

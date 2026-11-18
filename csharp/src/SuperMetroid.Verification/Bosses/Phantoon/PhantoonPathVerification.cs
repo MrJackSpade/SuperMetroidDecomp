@@ -21,7 +21,7 @@ internal static class PhantoonPathVerification
         }
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         var body = enemies.Places.InUpdateOrder[0];
-        var eye = enemies.Places.InUpdateOrder[1];
+        _ = enemies.Places.InUpdateOrder[1];
         Action<RoomEnemyPlace, PhantoonFigureEightState> step = PhantoonPatterns.StepPhantoonFigureEight;
         var figureEight = new PhantoonFigureEightState();
         foreach (ushort origin in new ushort[] { 0, 128, 0xffff })

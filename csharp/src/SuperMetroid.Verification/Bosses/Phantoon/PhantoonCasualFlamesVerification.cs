@@ -89,7 +89,7 @@ internal static class PhantoonCasualFlamesVerification
                 AssertEqual(timer, state.CasualFlames.Hold, "Actual casual frame timer");
                 // The cartridge's word holds the count, or a value below zero while no burst is under way, which the
                 // mouth holds as no count (#1627).
-                AssertEqual(unchecked((short)count) < 0 ? null : (int?)unchecked((short)count), FlamesToCome(state),
+                AssertEqual(unchecked((short)count) < 0 ? null : unchecked((short)count), FlamesToCome(state),
                     "Actual casual frame remaining count");
                 AssertEqual(PhantoonPart.Starting(draw ? PhantoonPartSegment.MouthSpawnFlame : PhantoonPartSegment.MouthInitial), mouth.RequireSpeciesState<PhantoonPart>().Playback,
                     "Exact casual mouth animation trigger frame");

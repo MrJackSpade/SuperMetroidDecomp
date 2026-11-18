@@ -1,6 +1,5 @@
 using System.Buffers.Binary;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 namespace SuperMetroid.TestSupport.VerificationOracles;
 

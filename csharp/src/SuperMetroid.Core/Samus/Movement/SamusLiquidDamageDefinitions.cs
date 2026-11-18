@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Compatibility;
-
 namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>Compiled liquid-damage rates from Samus's fixed physics constants.</summary>

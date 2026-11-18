@@ -19,7 +19,7 @@ internal static class SamusAerialPoseTransitions
     internal static void InitializeOrdinaryAerialAcceleration(SamusState samus)
     {
         samus.HorizontalSpeed.AccelerationMode =
-            samus.HorizontalSpeed.ExtraRunSpeed.Whole != 0 || samus.HorizontalSpeed.ExtraRunSpeed.Fraction != 0
+            !samus.HorizontalSpeed.ExtraRunSpeed.IsZero
                 ? SamusAccelerationMode.Decelerating
                 : SamusAccelerationMode.Accelerating;
     }

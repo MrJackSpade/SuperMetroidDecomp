@@ -462,15 +462,16 @@ public static class SamusGrappleMovement
     {
         SamusGrappleState grapple = samus.Grapple;
 
-        // The countdown gives values 29..0 thirty eligible checks. The next update
-        // runs past zero, queues dropped, and deliberately performs no wall probe.
-        grapple.WallJumpTimer--;
-        if (grapple.WallJumpTimer < 0)
+        // The window gives thirty eligible checks. The update that finds none left queues dropped and deliberately
+        // performs no wall probe.
+        if (grapple.WallJumpTimer == 0)
         {
             grapple.Phase = GrapplePhase.Dropped;
             return new GrappleMovementResult(
                 grapple.Phase);
         }
+
+        grapple.WallJumpTimer--;
 
         // Each eligible check first withdraws an earlier launch's enemy shake.
         samus.Kinematics.WithdrawWallJumpLaunchShake();
@@ -837,8 +838,7 @@ public static class SamusGrappleMovement
             return new GrappleMovementResult(grapple.Phase, OwnsMovement: false);
         }
 
-        bool movingVertically =
-            samus.Kinematics.YSpeed.Whole != 0 || samus.Kinematics.YSpeed.Fraction != 0;
+        bool movingVertically = !samus.Kinematics.YSpeed.IsZero;
         GrappleConnectionPolicy policy = movingVertically
             ? GrappleConnectionPolicy.MovingVertically
             : sourceMovementType == SamusMovementType.Crouching

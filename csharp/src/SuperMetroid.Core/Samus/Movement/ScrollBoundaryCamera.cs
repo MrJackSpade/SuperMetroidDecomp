@@ -205,12 +205,12 @@ public sealed class ScrollBoundaryCamera
 
         if (CoordinateAxis.Difference(IdealPosition.X, Position.X.Whole) < 0)
         {
-            Position = Position.WithX((SignedSixteenSixteen.Zero - Speed.X).AddTo(Position.X.Whole, Position.X.Fraction));
+            Position = Position.AdvanceX(-Speed.X);
             HandleScrollingLeft();
         }
         else
         {
-            Position = Position.WithX(Speed.X.AddTo(Position.X.Whole, Position.X.Fraction));
+            Position = Position.AdvanceX(Speed.X);
             HandleScrollingRight();
         }
     }
@@ -280,12 +280,12 @@ public sealed class ScrollBoundaryCamera
 
         if (CoordinateAxis.Difference(IdealPosition.Y, Position.Y.Whole) < 0)
         {
-            Position = Position.WithY((SignedSixteenSixteen.Zero - Speed.Y).AddTo(Position.Y.Whole, Position.Y.Fraction));
+            Position = Position.AdvanceY(-Speed.Y);
             HandleScrollingUp();
         }
         else
         {
-            Position = Position.WithY(Speed.Y.AddTo(Position.Y.Whole, Position.Y.Fraction));
+            Position = Position.AdvanceY(Speed.Y);
             HandleScrollingDown();
         }
     }

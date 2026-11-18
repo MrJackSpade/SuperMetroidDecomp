@@ -162,10 +162,15 @@ public sealed class SamusGrappleState
     public bool SlowScrolling { get; set; }
 
     /// <summary>
-    /// The wall-grab grace counter. Wall-grab release seeds 30, then the grace check performs
-    /// one decrement-and-test wall-jump check per frame until the count passes zero.
+    /// The wall-jump checks the wall-grab release window has left: wall-grab release opens it at
+    /// <see cref="GrappleBeamDefinitions.WallGrab.WallJumpWindowFrames"/>, each update of the window spends one check, and
+    /// the update that finds none left drops Samus.
     /// </summary>
-    public int WallJumpTimer { get; set; }
+    public int WallJumpTimer
+    {
+        get;
+        set => field = Ensure.AtLeastZero(value);
+    }
 
     /// <summary>
     /// Distinguishes a cancel reached from a locked grappling pose from ordinary firing

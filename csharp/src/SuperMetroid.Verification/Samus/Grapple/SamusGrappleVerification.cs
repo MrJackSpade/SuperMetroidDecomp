@@ -1094,7 +1094,7 @@ firingLevel, cancelledSamus, controllerInput: 0, roomObjects: SamusRoomObjectFix
     }
     GrappleMovementResult dropQueued = SamusGrappleMovement.StepAndCommit(new SamusTerrain { Level = specialLevel, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, expiredWallGrabSamus, controllerInput: 0, newlyPressedInput: 0, frameCounter: 0, enemyCollision: GrappleEnemyFixtures.NoEnemy);
     AssertTrue(dropQueued.Phase == GrapplePhase.Dropped,
-        "wall-grab grace underflow queues dropped function");
+        "wall-grab grace window with no checks left queues dropped function");
     GrappleMovementResult dropped = SamusGrappleMovement.StepAndCommit(new SamusTerrain { Level = specialLevel, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, expiredWallGrabSamus, controllerInput: 0, newlyPressedInput: 0, frameCounter: 0, enemyCollision: GrappleEnemyFixtures.NoEnemy);
     AssertTrue(dropped.Phase == GrapplePhase.Inactive && expiredWallGrabSamus.Grapple.Phase == GrapplePhase.Inactive,
         "queued dropped handler clears grapple on following call");

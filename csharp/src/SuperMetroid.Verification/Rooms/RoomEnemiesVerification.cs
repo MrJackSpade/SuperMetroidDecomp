@@ -1000,7 +1000,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     foreach (RidleyTailLink segment in state.Tail.Links)
     {
         segment.Active = true;
-        segment.Stagger = null;
+        segment.StartedNextLink = true;
         segment.SwingDirection = RotationDirection.Clockwise;
         segment.TargetDistance = null;
     }
@@ -1139,10 +1139,10 @@ internal static void VerifyCeresRidleyRoomEntry()
         AssertEqual(CeresRidleyGetawayCurve.ZoomAt(curveIndex), enemies.CeresEscape.Floor.Zoom, "Ceres real getaway zoom publication");
         AssertEqual(unchecked((short)expectedX), enemies.CeresEscape.Floor.Offset.X, "Ceres real getaway horizontal integration");
         AssertEqual(unchecked((short)expectedY), enemies.CeresEscape.Floor.Offset.Y, "Ceres real getaway vertical integration");
-        AssertTrue(!enemies.CeresEscape.Floor.Finished, "Ceres getaway retains all 112 authored motion frames");
+        AssertTrue(enemies.CeresEscape.Floor.Active, "Ceres getaway retains all 112 authored motion frames");
     }
     GetawayFrame();
-    AssertTrue(enemies.CeresEscape.Floor.Finished, "Ceres Ridley consumes the Mode-7 terminator");
+    AssertTrue(!enemies.CeresEscape.Floor.Active, "Ceres Ridley consumes the Mode-7 terminator");
     AssertEqual(CeresEscapeStage.SelfDestruct, enemies.CeresEscape.Stage,
         "Ceres Ridley Mode-7 terminator starts the self-destruct, which runs in Ridley's step");
     AssertEqual(CeresEscapeReadyingStage.None, enemies.CeresEscape.Warning.Readying.Stage,

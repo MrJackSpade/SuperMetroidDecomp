@@ -23,6 +23,18 @@ internal static class EnemyAnimationPlayback
     }
 
     /// <summary>
+    /// Starts <paramref name="animation"/> on <paramref name="place"/> with its first step after <paramref name="updates"/>
+    /// updates, from the animation's start: the frame the place shows holds until then. The species state stores the
+    /// returned playback.
+    /// </summary>
+    internal static AnimationPlayback<TSegment> StartAfter<TSegment>(RoomEnemyPlace place, Animation<TSegment> animation, int updates)
+        where TSegment : struct
+    {
+        Ensure.NotNull(place).AnimationClock.RestartAfter(updates);
+        return new AnimationPlayback<TSegment>(Ensure.NotNull(animation), AnimationPlace.StartOfAnimation);
+    }
+
+    /// <summary>
     /// One typed-animation step of a species whose state holds its playback (#1600): when the place's frame has expired,
     /// plays the state's animation on to its next frame and stores the playback back. <paramref name="react"/> carries out
     /// each event against the state and may continue the play in another animation.

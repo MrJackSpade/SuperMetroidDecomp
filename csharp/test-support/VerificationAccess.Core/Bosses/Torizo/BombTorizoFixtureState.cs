@@ -10,9 +10,9 @@ internal static class BombTorizoFixtureState
     /// <paramref name="parameter1"/> word.
     /// </summary>
     /// <returns>The bound state.</returns>
-    internal static TorizoEnemyState BindTorizoFixtureState(this RoomEnemyPlace torizo, int parameter1, bool isGolden = false)
+    internal static TorizoEnemyState BindTorizoFixtureState(this RoomEnemyPlace torizo, int parameter1, TorizoVariant? variant = null)
     {
-        var state = new TorizoEnemyState(isGolden)
+        var state = new TorizoEnemyState(variant ?? TorizoVariant.Bomb)
         {
             Posture = TorizoParameterFlagWords.PostureOf(parameter1),
         };

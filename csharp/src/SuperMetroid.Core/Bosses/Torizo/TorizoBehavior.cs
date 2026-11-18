@@ -170,7 +170,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         _room.Services.Bosses.SetDefeated(DefeatedBosses.AreaTorizo);
 
         // The two statues roll one chance table over their own arenas.
-        TorizoDropArena arena = state.IsGolden ? TorizoDeathDefinitions.GoldenTorizoArena : TorizoDeathDefinitions.BombTorizoArena;
+        TorizoDropArena arena = state.Variant.DropArena;
         _deathsAndDrops.SpawnEnemyDropScatter(
             TorizoDeathDefinitions.DeathDropChances,
             count: TorizoDeathDefinitions.DeathDrops,
@@ -231,7 +231,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// show their finished pictures of that look.
     /// </summary>
     private void ShowTorizoArtwork(TorizoEnemyState state, TorizoArtworkLook look) =>
-        _presentation.ShowLook(look.Of(state.IsGolden ? EncounterArtwork.GoldenTorizo : EncounterArtwork.BombTorizo));
+        _presentation.ShowLook(look.Of(state.Variant.Artwork));
 
     /// <summary>
     /// Carries out one cue of Bomb or Golden Torizo's body animation, returning where a decision, an interruption or the end
@@ -321,8 +321,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             {
                 if (state.FaceBlownUp)
                     return TorizoAnimations.ContinueWith(choice.Target);
-                // The Bomb variant runs on past both targets.
-                return state.IsGolden ? TorizoAnimations.ContinueWith(choice.Alternate) : null;
+                return state.Variant.WalkOnFromLanding(choice.Alternate);
             }
 
             case TorizoCue.LandIn landIn:
@@ -336,8 +335,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return TorizoAnimations.ContinueWith(TorizoFacing.FacesRight(torizo) ? turn.WhenFacingRight : turn.WhenFacingLeft);
 
             case TorizoCue.Signal { Kind: TorizoCueKind.ResumeWalk }:
-                return TorizoAnimations.ContinueAt(state.InterruptedWalk
-                    ?? throw new InvalidOperationException("A Torizo's attack resumes a walk no attack interrupted."));
+                return TorizoAnimations.ContinueAt(state.InterruptedWalk);
 
             case TorizoCue.Signal { Kind: TorizoCueKind.ResumeInterrupted }:
                 return TorizoAnimations.ContinueAt(state.InterruptedPlayback);

@@ -41,7 +41,7 @@ internal sealed class TorizoBody
 
     /// <summary>Requests the drool he drips as he wakes, its position and fall speed jittered at random.</summary>
     internal void SpawnInitialDrool(RoomEnemyPlace torizo) =>
-        _attacks.SpawnDrool(torizo, RoomEnemyProjectileKind.TorizoInitialDrool);
+        _attacks.SpawnTorizoInitialDrool(torizo);
 
     /// <summary>Installs a body playback; its play resumes on the next frame.</summary>
     internal static void StartTorizoBodyAnimation(RoomEnemyPlace torizo, TorizoEnemyState state, AnimationPlayback<TorizoAnimation> playback)

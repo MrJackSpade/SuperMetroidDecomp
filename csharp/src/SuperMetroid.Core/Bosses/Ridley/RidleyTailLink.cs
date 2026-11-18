@@ -34,15 +34,24 @@ public sealed class RidleyTailLink
     /// <summary>The link nearer the tip, which this link starts swinging, or null for the tip.</summary>
     public RidleyTailLink? Next { get; private set; }
 
-    /// <summary>Gets whether this link is participating in the current wave or whip; deactivation resets its stagger and reverses its swing.</summary>
+    /// <summary>
+    /// Gets whether this link is participating in the current wave or whip; deactivation resets its stagger, readies it to
+    /// start the next link again and reverses its swing.
+    /// </summary>
     public bool Active { get; internal set; }
 
     /// <summary>
-    /// Gets how far the link has swung since it started without yet starting the next link: it grows by the tail's swing
-    /// step until it reaches the ideal link spacing, then has none (null) once the next link has been started, so it
-    /// compares below no spacing (#1413). A link starts with a stagger of seventeen steps.
+    /// Gets whether the link has started the next link swinging its way since it was readied (#1413, #2410): it starts the
+    /// next once its stagger reaches the tail's ideal link spacing, and from then on swings without staggering.
     /// </summary>
-    public RidleyTailTurn? Stagger { get; internal set; }
+    public bool StartedNextLink { get; internal set; }
+
+    /// <summary>
+    /// Gets how far the link has staggered toward starting the next link, while it has not started it: it grows by the
+    /// tail's swing step each update until it reaches the ideal link spacing. A link starts with a stagger of seventeen
+    /// steps.
+    /// </summary>
+    public RidleyTailTurn Stagger { get; internal set; }
 
     /// <summary>Gets which way the link swings: clockwise toward decreasing angles, or counterclockwise.</summary>
     public RotationDirection SwingDirection { get; internal set; } = RotationDirection.Clockwise;

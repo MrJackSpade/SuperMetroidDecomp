@@ -21,10 +21,10 @@ internal abstract class TorizoEntity(TorizoBehavior species, RoomEnemyPlace plac
     public bool IsDefeated => Place.Health == 0;
 
     /// <inheritdoc/>
-    public void Initialize(EnemySpawnSurroundings surroundings) => Species.Movement.RunTorizoInitializationAi(Place, IsGolden, surroundings);
+    public void Initialize(EnemySpawnSurroundings surroundings) => Species.Movement.RunTorizoInitializationAi(Place, Variant, surroundings);
 
-    /// <summary>Whether this is Norfair's Golden Torizo rather than Crateria's Bomb Torizo, which chooses his values (#2301).</summary>
-    protected abstract bool IsGolden { get; }
+    /// <summary>Which Torizo this is, Crateria's Bomb Torizo or Norfair's Golden Torizo, whose values his fight reads (#2301, #2410).</summary>
+    protected abstract TorizoVariant Variant { get; }
 
     /// <inheritdoc/>
     public abstract void RunMainAi(IEnemyAiFrame frame);

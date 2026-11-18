@@ -872,14 +872,7 @@ internal sealed class EnemyCollision
         if (enemy.Frame is null)
             return false;
 
-        var target = new EnemyHitboxProbe(
-            TopLeft: new(
-                CoordinateAxis.Wrap(targetPosition.X - targetRadius.X),
-                CoordinateAxis.Wrap(targetPosition.Y - targetRadius.Y)),
-            BottomRight: new(
-                CoordinateAxis.Wrap(targetPosition.X + targetRadius.X),
-                CoordinateAxis.Wrap(targetPosition.Y + targetRadius.Y)),
-            SelectsShot: contactKind == HitboxContactKind.Shot);
+        EnemyHitboxProbe target = EnemyHitboxProbe.Around(targetPosition, targetRadius, contactKind);
 
         if (CommonEnemyEmptyFrames.CollidesAtOrigin(enemy))
         {

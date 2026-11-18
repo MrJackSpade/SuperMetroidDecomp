@@ -6,7 +6,7 @@ namespace SuperMetroid.Verification.Bosses.Ridley;
 internal static class RidleyTailFixtures
 {
     /// <summary>
-    /// Clears every link of <paramref name="tail"/>: inactive, with no stagger, swinging counterclockwise, at no distance
+    /// Clears every link of <paramref name="tail"/>: inactive, having started the next link, swinging counterclockwise, at no distance
     /// and no target distance, pointing straight down, with no offset, at the room's origin. Each link keeps its lengths.
     /// </summary>
     internal static void BlankLinks(RidleyTailState tail)
@@ -14,7 +14,7 @@ internal static class RidleyTailFixtures
         foreach (RidleyTailLink link in tail.Links)
         {
             link.Active = false;
-            link.Stagger = null;
+            link.StartedNextLink = true;
             link.SwingDirection = RotationDirection.Counterclockwise;
             link.Distance = SignedEightEight.Zero;
             link.TargetDistance = null;

@@ -365,10 +365,10 @@ internal static class RoomEnemySystemAccess
             self.Places.InUpdateOrder.Select(place => place.SpeciesState<TorizoEnemyState>()).OfType<TorizoEnemyState>().SingleOrDefault();
 
         /// <summary>The room's Bomb Torizo's state, or null in a room without one.</summary>
-        internal TorizoEnemyState? BombTorizo => self.Torizo is { IsGolden: false } torizo ? torizo : null;
+        internal TorizoEnemyState? BombTorizo => self.Torizo is { Variant: BombTorizoVariant } torizo ? torizo : null;
 
         /// <summary>The room's Golden Torizo's state, or null in a room without one.</summary>
-        internal TorizoEnemyState? GoldenTorizo => self.Torizo is { IsGolden: true } torizo ? torizo : null;
+        internal TorizoEnemyState? GoldenTorizo => self.Torizo is { Variant: GoldenTorizoVariant } torizo ? torizo : null;
 
         /// <summary>Growing shutter extensions indexed by physical enemy slot.</summary>
         internal IReadOnlyList<GrowingShutterEnemyState?> GrowingShutterStates =>

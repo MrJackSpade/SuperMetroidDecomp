@@ -27,7 +27,7 @@ internal sealed class BombTorizoHandObject(BombTorizoHandObjects owner) : RoomOb
     internal ListStep<BombTorizoHandCrumbleStep>? CrumbleStep { get; private set; }
 
     /// <summary>How long the hand holds before its next step: its first update, then each step's own updates.</summary>
-    private readonly BossCountdown _holdBeforeNextStep = HoldFor(1);
+    private readonly BossCountdown _holdBeforeNextStep = BossCountdown.Lasting(1);
 
     /// <inheritdoc/>
     internal override void Update(RoomObjectPlace place, RoomObjectStepContext context)
@@ -76,13 +76,5 @@ internal sealed class BombTorizoHandObject(BombTorizoHandObjects owner) : RoomOb
             default:
                 throw new InvalidOperationException($"Undefined {nameof(BombTorizoHandPhase)} {Phase}.");
         }
-    }
-
-    /// <summary>A hold that lasts <paramref name="updates"/> updates.</summary>
-    private static BossCountdown HoldFor(int updates)
-    {
-        var hold = new BossCountdown();
-        hold.LastFor(updates);
-        return hold;
     }
 }

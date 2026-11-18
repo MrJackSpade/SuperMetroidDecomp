@@ -160,11 +160,18 @@ public abstract class RoomMainBehavior
         internal override void Compose(RoomScopeConstruction scope) => Ensure.NotNull(scope).ComposeFallingDebrisMain();
     }
 
-    /// <summary>Ceres Ridley's getaway, which his encounter runs.</summary>
+    /// <summary>
+    /// Ceres Ridley's getaway, which his encounter runs over the arena's turning floor, composed only in the state that
+    /// shows the floor; the arena after his escape shows none, and there he never flies the getaway.
+    /// </summary>
     private sealed class CeresRidleyGetawayRoomMain() : RoomMainBehavior(nameof(CeresRidleyGetaway))
     {
         /// <inheritdoc/>
-        internal override void Compose(RoomScopeConstruction scope) => Ensure.NotNull(scope).ComposeRidleyGetawayMain();
+        internal override void Compose(RoomScopeConstruction scope)
+        {
+            if (Ensure.NotNull(scope).Floor is { } floor)
+                scope.ComposeRidleyGetawayMain(floor);
+        }
     }
 
     /// <summary>The Crocomire room's rumble while his death uncovers the hidden wall.</summary>

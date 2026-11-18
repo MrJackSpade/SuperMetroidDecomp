@@ -30,8 +30,8 @@ internal static class TorizoBellyGlowEndVerification
     internal static void VerifyTorizoBellyGlowEnd()
     {
         VerifyTorizoRooms();
-        VerifyGlowEnd(EnemyDefinitionId.BombTorizo, TorizoCueKind.StartBombTorizoFight, ColourEffectId.BombTorizoBelly, isGolden: false);
-        VerifyGlowEnd(EnemyDefinitionId.GoldenTorizo, TorizoCueKind.StartGoldenTorizoFight, ColourEffectId.GoldenTorizoBelly, isGolden: true);
+        VerifyGlowEnd(EnemyDefinitionId.BombTorizo, TorizoCueKind.StartBombTorizoFight, ColourEffectId.BombTorizoBelly, TorizoVariant.Bomb);
+        VerifyGlowEnd(EnemyDefinitionId.GoldenTorizo, TorizoCueKind.StartGoldenTorizoFight, ColourEffectId.GoldenTorizoBelly, TorizoVariant.Golden);
         Console.WriteLine("Torizo belly glow: the Bomb and Golden Torizo rooms hold their Torizo alone in the first place, and each glow ends on the update its Torizo has no health left, as the original's first-place test ends it.");
     }
 
@@ -60,14 +60,14 @@ internal static class TorizoBellyGlowEndVerification
     /// <see cref="Updates"/> updates, its health dropping to one and then to zero, and checks each update against the
     /// original's test: the glow runs until the first update the first place's health reads zero, and ends on it.
     /// </summary>
-    private static void VerifyGlowEnd(EnemyDefinitionId definition, TorizoCueKind fightStart, ColourEffectId glow, bool isGolden)
+    private static void VerifyGlowEnd(EnemyDefinitionId definition, TorizoCueKind fightStart, ColourEffectId glow, TorizoVariant variant)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
             definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace torizo = enemies.Places.InUpdateOrder[0];
         torizo.Bind(definition, RoomEnemyDefinitionLookup.Get(definition));
         torizo.Health = 800;
-        var state = new TorizoEnemyState(isGolden) { Phase = TorizoPhase.Falling };
+        var state = new TorizoEnemyState(variant) { Phase = TorizoPhase.Falling };
         torizo.SetSpeciesState(state);
         enemies.BossFrameResults.Begin();
         AssertTrue(enemies.TorizoBehavior.ApplyTorizoCue(

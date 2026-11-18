@@ -10,18 +10,25 @@ namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 /// </summary>
 public sealed class CeresRidleyGetawayBoostDelays
 {
-    /// <summary>Each wing frame's ten delays, by frame then running frame.</summary>
-    private readonly int[][] wings;
+    /// <summary>The ten delays the raised wings leave behind, by running frame.</summary>
+    private readonly IReadOnlyList<int> leftByWingsRaised;
 
-    /// <summary>Keeps the delays the import pipeline validated, by wing frame then running frame.</summary>
-    internal CeresRidleyGetawayBoostDelays(int[][] wings) => this.wings = wings;
+    /// <summary>The ten delays the lowered wings leave behind, by running frame.</summary>
+    private readonly IReadOnlyList<int> leftByWingsLowered;
+
+    /// <summary>Keeps the delays the import pipeline validated for each wing frame, by running frame.</summary>
+    internal CeresRidleyGetawayBoostDelays(IReadOnlyList<int> leftByWingsRaised, IReadOnlyList<int> leftByWingsLowered)
+    {
+        this.leftByWingsRaised = Ensure.NotNull(leftByWingsRaised);
+        this.leftByWingsLowered = Ensure.NotNull(leftByWingsLowered);
+    }
 
     /// <summary>The ten delays wing frame <paramref name="frame"/> leaves behind, by running frame.</summary>
     /// <exception cref="InvalidDataException"><paramref name="frame"/> is not one of the wing's frames.</exception>
     public IReadOnlyList<int> LeftBy(CeresFloorAnimationFrame frame) => frame switch
     {
-        CeresFloorAnimationFrame.WingsRaised => wings[0],
-        CeresFloorAnimationFrame.WingsLowered => wings[1],
+        CeresFloorAnimationFrame.WingsRaised => leftByWingsRaised,
+        CeresFloorAnimationFrame.WingsLowered => leftByWingsLowered,
         CeresFloorAnimationFrame.BabyVertical or CeresFloorAnimationFrame.BabyRound or CeresFloorAnimationFrame.BabyHorizontal or
             CeresFloorAnimationFrame.ElevatorLight or CeresFloorAnimationFrame.ElevatorDark =>
             throw new InvalidDataException($"The getaway's {frame} floor frame leaves no Speed Booster delays."),

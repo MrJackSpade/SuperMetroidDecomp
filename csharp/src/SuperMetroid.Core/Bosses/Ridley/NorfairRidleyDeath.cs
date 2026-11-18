@@ -46,7 +46,7 @@ internal sealed class NorfairRidleyDeath
         // The hurt timer is left untouched once death owns the fight.
         if (state.FightMode != RidleyFightMode.Dying)
         {
-            state.IntangibilityTimer = RidleyGrabs.ReleaseIntangibilityFrames(SamusPoseMetadata.ReadMovementType(samus));
+            state.ReleaseIntangibility = BossCountdown.Lasting(RidleyGrabs.ReleaseIntangibilityFrames(SamusPoseMetadata.ReadMovementType(samus)));
         }
     }
 
@@ -177,10 +177,6 @@ internal sealed class NorfairRidleyDeath
     /// </summary>
     internal void SpawnNorfairRidleyBreakupActors(RoomEnemyPlace body, NorfairRidleyState state)
     {
-        if (state.DeathBreakupSpawned)
-            return;
-        state.DeathBreakupSpawned = true;
-
         RidleyBreakup.SpawnInBreakupOrder(SpawnPart);
 
         void SpawnPart(RidleyExplosionPart part)

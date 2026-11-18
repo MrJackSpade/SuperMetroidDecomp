@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -39,10 +40,10 @@ internal static class SporeSpawnProjectileDefinitionsVerification
             SporeSpawnProjectileDefinitions.SporeDropChances, "a shot spore's drop chances are the cartridge's");
         // The cartridge keeps the drift as one byte stream, each step's X then its Y, and moves a spore down by its Y byte
         // twice each step.
-        AssertEqual(128, SporeSpawnProjectiles.DriftStepCount, "Spore Spawn drift steps");
-        for (int step = 0; step < SporeSpawnProjectiles.DriftStepCount; step++)
+        AssertEqual(128, SporeSpawnProjectileDefinitions.Drift.Length, "Spore Spawn drift steps");
+        for (int step = 0; step < SporeSpawnProjectileDefinitions.Drift.Length; step++)
         {
-            Offset16<RoomPixels> delta = SporeSpawnProjectiles.DriftAt(step);
+            Offset16<RoomPixels> delta = SporeSpawnProjectileDefinitions.Drift[step];
             AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0x86dd6c + 2 * step)), delta.X,
                 $"Spore Spawn drift X {step}");
             AssertEqual(2 * unchecked((sbyte)rom.ReadCartridgeByte(0x86dd6c + 2 * step + 1)),
@@ -52,7 +53,7 @@ internal static class SporeSpawnProjectileDefinitionsVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemyPlace, ushort> spawnStalk = (stalkBody, stalkIndex) => enemies.SporeSpawnBehavior.SpawnSporeSpawnStalk(stalkBody, SporeSpawnProjectileDefinitions.StalkSegments[stalkIndex]);
         Action<RoomEnemyPlace, ushort> spawnSpawner = (spawnerBody, spawnerIndex) => enemies.SporeSpawnBehavior.SpawnSporeSpawnSpawner(spawnerBody, new SporeSpawnEnemyState(), SporeSpawnProjectileDefinitions.Emitters[spawnerIndex]);
-        Action<EnemyProjectile> move = SporeSpawnBehavior.DriftSpore;
+        Action<EnemyProjectile> move = SporeSpawnSporeBehavior.DriftSpore;
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         body.Position = body.Position.WithWhole(new(0x1234, 0x0200));
         for (ushort index = 0; index < 4; index++)
@@ -82,7 +83,7 @@ internal static class SporeSpawnProjectileDefinitionsVerification
             int offset = step * 2;
             spore.Kind = RoomEnemyProjectileKind.SporeSpawnSpore;
             spore.Position = spore.Position.WithWhole(new(0x0200, 0x0200));
-            spore.State = new SporeSpawnSporeState(mirrored != 0 ? HorizontalDirection.Left : HorizontalDirection.Right) { PathStep = step };
+            spore.State = new SporeSpawnSporeState(mirrored != 0 ? HorizontalDirection.Left : HorizontalDirection.Right) { PathStep = ListStep<Offset16<RoomPixels>>.At(SporeSpawnProjectileDefinitions.Drift, step) };
             int x = unchecked((sbyte)rom.ReadCartridgeByte(0x86dd6c + offset));
             int y = unchecked((sbyte)rom.ReadCartridgeByte(0x86dd6c + ((offset + 1) & 0xff)));
             move(spore);
@@ -90,7 +91,7 @@ internal static class SporeSpawnProjectileDefinitionsVerification
                 spore.Position.X.Whole, $"Spore Spawn production X {offset:X2}/{mirrored}");
             AssertEqual(unchecked((ushort)(0x0200 + y + y)), spore.Position.Y.Whole,
                 $"Spore Spawn production Y {offset:X2}/{mirrored}");
-            AssertEqual((step + 1) % 128, spore.StateOf<SporeSpawnSporeState>().PathStep,
+            AssertEqual((step + 1) % 128, spore.StateOf<SporeSpawnSporeState>().PathStep.Place,
                 $"Spore Spawn production path step {offset:X2}/{mirrored}");
         }
 

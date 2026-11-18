@@ -40,8 +40,11 @@ public sealed class NorfairRidleyState : RidleyEncounterState
     public NorfairRidleyHealthBand HealthBand { get; internal set; } = NorfairRidleyHealthBandDefinitions.Unhurt;
     /// <summary>Gets the grabbed-Samus state controlling claw attachment and release: carrying Samus while Ridley holds her, otherwise released.</summary>
     public RidleyGrabState GrabState { get; internal set; }
-    /// <summary>Gets the countdown keeping the body intangible after a grab release.</summary>
-    public int IntangibilityTimer { get; internal set; }
+    /// <summary>
+    /// The countdown of his body's intangibility after he releases Samus, which lets her touch him again as it runs out;
+    /// null while none runs.
+    /// </summary>
+    public BossCountdown? ReleaseIntangibility { get; internal set; }
     /// <summary>Gets the current movement target's whole-pixel room position.</summary>
     public Position16<RoomPixels> Target { get; internal set; }
     /// <summary>Gets the pogo bounce counter, reset after its two-bounce threshold.</summary>
@@ -63,13 +66,11 @@ public sealed class NorfairRidleyState : RidleyEncounterState
     public BossCountdown DeathExplosionTimer { get; } = new();
     /// <summary>
     /// Where his death's next small explosion bursts: each takes the next point of the scatter shared with the Baby
-    /// Metroid's death, the first after the last, starting from the scatter's second point.
+    /// Metroid's death, the first after the last, starting from the scatter's first.
     /// </summary>
     public ListStep<Offset16<RoomPixels>> NextDeathExplosion { get; internal set; } = FirstDeathExplosion;
-    /// <summary>Where his death's first small explosion bursts: the shared scatter's second point.</summary>
-    internal static ListStep<Offset16<RoomPixels>> FirstDeathExplosion => ListStep<Offset16<RoomPixels>>.At(DeathExplosionScatterDefinitions.Offsets, 1);
-    /// <summary>Gets whether his twelve independently moving breakup actors have already been allocated.</summary>
-    public bool DeathBreakupSpawned { get; internal set; }
+    /// <summary>Where his death's first small explosion bursts: the shared scatter's first point.</summary>
+    internal static ListStep<Offset16<RoomPixels>> FirstDeathExplosion => ListStep<Offset16<RoomPixels>>.FirstOf(DeathExplosionScatterDefinitions.Offsets);
 
     /// <summary>Whether he carries Samus in his claws.</summary>
     internal override bool CarriesSamus => GrabState != RidleyGrabState.Released;

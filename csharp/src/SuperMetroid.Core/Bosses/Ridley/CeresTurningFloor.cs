@@ -11,8 +11,6 @@ public sealed class CeresTurningFloor
 {
     /// <summary>Gets whether the getaway's turning floor currently owns the Ridley and Baby presentation.</summary>
     public bool Active { get; internal set; }
-    /// <summary>Gets whether the getaway's motion has ended, its zoom and drift curves exhausted, and released the floor.</summary>
-    public bool Finished { get; internal set; }
     /// <summary>Gets the update of the getaway the next update flies, from zero, advanced by one each update.</summary>
     public int GetawayUpdate { get; internal set; }
     /// <summary>Gets how far the getaway has turned its floor clockwise, wrapping at a full turn.</summary>

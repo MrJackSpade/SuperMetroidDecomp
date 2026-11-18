@@ -588,7 +588,8 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 Check("Ridley GrabYOffset", unchecked((ushort)ridleyState.GrabOffset.Y), NativeSnapshotMemory.RidleyGrabYOffset);
                 Check("Ridley TailDamage", checked((ushort)ridleyState.Tail.Damage), NativeSnapshotMemory.RidleyTailDamage);
                 Check("Ridley FeetDistanceIndex", checked((ushort)RidleyClawHeightPlaces.ByteOffset(ridleyState.Flight.ClawHeight)), NativeSnapshotMemory.RidleyFeetDistanceIndex);
-                Check("Ridley IntangibilityTimer", checked((ushort)ridleyState.IntangibilityTimer), NativeSnapshotMemory.RidleyIntangibilityTimer);
+                // The cartridge counts the release's intangibility down to zero, one above what the countdown holds, and holds zero while none runs.
+                Check("Ridley IntangibilityTimer", ridleyState.ReleaseIntangibility is { } intangibility ? checked((ushort)(intangibility.Count + 1)) : (ushort)0, NativeSnapshotMemory.RidleyIntangibilityTimer);
                 if (ridleyState.LiftedOff && ridleyState.Phase is NorfairRidleyPhase.SwoopMoveToStart or
                     NorfairRidleyPhase.SwoopAimDown or NorfairRidleyPhase.SwoopAimSideways or
                     NorfairRidleyPhase.SwoopAimUp or NorfairRidleyPhase.SwoopClimb or NorfairRidleyPhase.SwoopRecover)
@@ -605,8 +606,8 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                         int tailAddress = NativeSnapshotMemory.TailSegments + tailIndex * NativeSnapshotMemory.TailSegmentStride;
                         string tailOwner = $"Ridley tail {tailIndex}";
                         Check(tailOwner + " active", segment.Active ? NativeSnapshotMemory.TailSegmentActive : (ushort)0, tailAddress);
-                        // A propagated stagger has no angle in the port (#1413); the cartridge stores -1 there.
-                        Check(tailOwner + " StaggerAngle", segment.Stagger is { } stagger ? checked((ushort)stagger.Steps) : ushort.MaxValue, tailAddress + 2);
+                        // A link that has started the next keeps no stagger in the port (#1413, #2410); the cartridge stores -1 there.
+                        Check(tailOwner + " StaggerAngle", segment.StartedNextLink ? ushort.MaxValue : checked((ushort)segment.Stagger.Steps), tailAddress + 2);
                         Check(tailOwner + " MovementDirection", segment.SwingDirection == RotationDirection.Clockwise ? (ushort)0x8000 : (ushort)0, tailAddress + 4);
                         Check(tailOwner + " Distance", segment.Distance.RawValue, tailAddress + 6);
                         Check(tailOwner + " TargetDistance", RidleyTailNativeWords.TargetDistance(segment.TargetDistance), tailAddress + 8);

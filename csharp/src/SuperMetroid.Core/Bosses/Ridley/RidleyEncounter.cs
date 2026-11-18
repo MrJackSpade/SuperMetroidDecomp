@@ -55,23 +55,12 @@ internal sealed class RidleyEncounter : ICeresEscapeStatus, ICeresRidleyScene
     internal void BeginLowerNorfair() => RidleyPresent = true;
 
     /// <summary>Attaches Ceres Ridley, his body <paramref name="body"/> and his encounter <paramref name="ridley"/>, as he begins it.</summary>
-    /// <exception cref="InvalidDataException">Another enemy of the room has already initialized as Ceres Ridley.</exception>
     internal void BeginCeres(RoomEnemyPlace body, CeresRidleyState ridley)
     {
-        Ensure.NotNull(body);
-        if (CeresRidley is { } attached && !ReferenceEquals(attached.Body, body))
-            throw new InvalidDataException($"Ceres Ridley initializes as enemy {body.Ordinal}, but enemy {attached.Body.Ordinal} already is.");
-        CeresRidley = new CeresRidleyAttachment(body, Ensure.NotNull(ridley));
+        CeresRidley = new CeresRidleyAttachment(Ensure.NotNull(body), Ensure.NotNull(ridley));
         RidleyPresent = true;
     }
 
     /// <inheritdoc/>
-    /// <exception cref="InvalidDataException">Another door of the room has already initialized as the door of Ridley's room.</exception>
-    void ICeresRidleyScene.AttachRoomDoor(RoomEnemyPlace door)
-    {
-        Ensure.NotNull(door);
-        if (CeresRoomDoor is { } attached && !ReferenceEquals(attached, door))
-            throw new InvalidDataException($"Ceres door {door.Ordinal} initializes as the door of Ridley's room, but door {attached.Ordinal} already is.");
-        CeresRoomDoor = door;
-    }
+    void ICeresRidleyScene.AttachRoomDoor(RoomEnemyPlace door) => CeresRoomDoor = Ensure.NotNull(door);
 }

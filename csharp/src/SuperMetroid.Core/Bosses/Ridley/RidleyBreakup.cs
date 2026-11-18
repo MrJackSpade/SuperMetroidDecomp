@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
 using static SuperMetroid.Core.Bosses.Ridley.RidleyExplosionDefinitions;
 
@@ -33,8 +34,8 @@ internal static class RidleyBreakup
     };
 
     /// <summary>
-    /// Selects the tail pose the breakup setup loads; the tip's comes from the direction it points, turned by the
-    /// link before it (<see cref="TailTipBreakupFrames"/>). <paramref name="tailTipDirection"/> is ignored for the first
+    /// Selects the tail pose the breakup setup loads; the tip's is the drawn tip's for the direction it points, turned by
+    /// the link before it (<see cref="RidleySupplementalVisualDefinitions.TailTipFrames"/>). <paramref name="tailTipDirection"/> is ignored for the first
     /// six segments.
     /// </summary>
     public static EnemyFrameId SelectTailFrame(RidleyExplosionPart part, TrigonometryAngle tailTipDirection)
@@ -42,7 +43,7 @@ internal static class RidleyBreakup
         if (TailFrames.TryGetValue(part, out EnemyFrameId frame))
             return frame;
         if (part == RidleyExplosionPart.TailTip)
-            return TailTipBreakupFrames.At(tailTipDirection);
+            return RidleySupplementalVisualDefinitions.TailTipFrames.At(tailTipDirection);
         throw new ArgumentOutOfRangeException(nameof(part), part, "Body fragments show no tail frame.");
     }
 

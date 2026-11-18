@@ -28,4 +28,6 @@ internal static class GoldenTorizoCodeDefinitions
     /// <summary>Every beam, collected and equipped, including simultaneous Spazer and Plasma.</summary>
     internal const SamusBeamFlags Beams = SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer |
         SamusBeamFlags.Plasma | SamusBeamFlags.Charge;
+    /// <summary>The whole loadout and the chord that grants it (#2410).</summary>
+    internal static TorizoSecretCode Code { get; } = new(ControllerChord, Energy, ReserveEnergy, Missiles, SuperMissiles, PowerBombs, Items, Beams);
 }

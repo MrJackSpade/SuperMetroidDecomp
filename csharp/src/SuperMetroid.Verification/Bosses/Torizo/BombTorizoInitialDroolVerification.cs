@@ -40,7 +40,7 @@ internal static class BombTorizoInitialDroolVerification
                 randoms.Enqueue(first);
                 randoms.Enqueue(second);
                 torizo.Position = torizo.Position.WithWhole(new(x, y));
-                enemies.TorizoBehavior.Attacks.SpawnDrool(torizo, RoomEnemyProjectileKind.TorizoInitialDrool);
+                enemies.TorizoBehavior.Attacks.SpawnTorizoInitialDrool(torizo);
                 EnemyProjectile drool = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
 
                 int lifted = Add((first & 3) + y, 0xfffb, 0, out int liftCarry);

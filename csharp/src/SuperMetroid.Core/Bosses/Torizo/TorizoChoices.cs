@@ -135,16 +135,13 @@ internal sealed class TorizoChoices
         SignedSixteenSixteen displacement = SignedSixteenSixteen.FromWholePixels(stepPixels);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, torizo, displacement))
         {
-            state.TurnTimer = 0;
+            state.TurnTowardSamus = null;
             return TorizoAnimations.ContinueWith(TorizoFacing.FacesRight(torizo) ? walker.WallTurnFacingRight : walker.WallTurnFacingLeft);
         }
 
         EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, torizo);
-        if (FacesAwayFromSamus(torizo, samus) &&
-            state.TurnTimer == 0)
-        {
-            state.TurnTimer = walker.TurnDelay;
-        }
+        if (FacesAwayFromSamus(torizo, samus))
+            state.TurnTowardSamus ??= BossCountdown.Lasting(walker.TurnDelay);
         return null;
     }
 

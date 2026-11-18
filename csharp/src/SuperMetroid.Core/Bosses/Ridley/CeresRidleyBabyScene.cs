@@ -187,7 +187,7 @@ internal sealed class CeresRidleyBabyScene
                 // While the baby is falling (its falling flag set) it always cries and
                 // continues. Otherwise it reads the current random number without
                 // drawing a new one; an odd number makes it jump silently.
-                if (ridley.Baby.VerticalVelocity.IsZero && RidleyRandomDefinitions.CeresBabySilentJump.IsSetIn(_room.Random.Read()))
+                if (ridley.Baby.VerticalVelocity.IsZero && RidleyRandomDefinitions.CeresBabySilentJump.IsTakenBy(_room.Random.Read()))
                     return SilentAnimation;
                 _audio.QueueEnemySound(RoomSound.CeresBabyMetroidCry, priority: SoundRequestPriority.Normal);
                 return null;

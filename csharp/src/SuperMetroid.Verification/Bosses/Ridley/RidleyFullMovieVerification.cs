@@ -14,6 +14,7 @@ using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
+using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -476,17 +477,17 @@ internal static class RidleyFullMovieVerification
     internal static void VerifyRidleyScreenGate()
     {
         var body = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()) { Position = FixedPosition<RoomPixels>.FromWhole(new(64, 253))};
-        var state = new NorfairRidleyState { FightMode = RidleyFightMode.Fighting, IntangibilityTimer = 3 };
+        var state = new NorfairRidleyState { FightMode = RidleyFightMode.Fighting, ReleaseIntangibility = BossCountdown.Lasting(3) };
         // Original source 3062/3063: pre-movement Y253 is outside camera Y287.
         RidleyInteractions.UpdateNorfairRidleyIntangibility(body, state, new Position16<RoomPixels>(0, 287));
         AssertTrue(body.Contact.HasAny(EnemyContact.IgnoresSamus), "native above-camera Ridley disables collision");
-        AssertEqual(3, state.IntangibilityTimer, "offscreen return preserves release timer");
+        AssertEqual(2, state.ReleaseIntangibility?.Count, "offscreen return preserves release timer");
         // At the next AI call Y257 is inside. EnemyMain already tested the old
         // collision bit; the cleared gate is consumed by the following update.
         body.Position = body.Position.WithWholeY(257);
         RidleyInteractions.UpdateNorfairRidleyIntangibility(body, state, new Position16<RoomPixels>(0, 287));
         AssertTrue(!body.Contact.HasAny(EnemyContact.IgnoresSamus), "native reentry clears collision gate");
-        AssertEqual(2, state.IntangibilityTimer, "onscreen AI resumes release timer");
+        AssertEqual(1, state.ReleaseIntangibility?.Count, "onscreen AI resumes release timer");
         AssertTrue(RidleyCollision.IsOutsideInteractionWindow(new(64, 254), new(0, 287)), "one pixel above native window");
         AssertTrue(!RidleyCollision.IsOutsideInteractionWindow(new(64, 255), new(0, 287)), "native upper edge is admitted");
         AssertTrue(RidleyCollision.IsOutsideInteractionWindow(new(64, 543), new(0, 287)), "native lower edge is excluded");
@@ -552,13 +553,13 @@ internal static class RidleyFullMovieVerification
         // The check starts every link blank rather than at the tail's initial layout.
         RidleyTailFixtures.BlankLinks(state.Tail);
         var segment = state.Tail.Base;
-        segment.Active = true; segment.Stagger = RidleyTailTurn.OfSteps(2);
+        segment.Active = true; segment.StartedNextLink = false; segment.Stagger = RidleyTailTurn.OfSteps(2);
         segment.Offset = new Offset16<RoomPixels>(7, 11);
         RidleyTail.TickRidleyTailLink(state.Tail, segment);
-        AssertEqual<RidleyTailTurn?>(RidleyTailTurn.OfSteps(4), segment.Stagger, "native stagger advances before returning");
+        AssertEqual(RidleyTailTurn.OfSteps(4), segment.Stagger, "native stagger advances before returning");
         AssertEqual((short)7, segment.Offset.X, "stagger retains X offset");
         AssertEqual((short)11, segment.Offset.Y, "stagger retains Y offset");
-        segment.Stagger = null; segment.Angle = RidleyTailAngle.StraightDown;
+        segment.StartedNextLink = true; segment.Angle = RidleyTailAngle.StraightDown;
         segment.SwingDirection = RotationDirection.Clockwise; segment.Distance = SignedEightEight.FromParts(2, 0);
         RidleyTail.TickRidleyTailLink(state.Tail, segment);
         AssertEqual(RidleyTailAngle.StraightDown.TurnedClockwise(2), segment.Angle, "a clockwise step short of the limit turns by the whole step");
@@ -572,7 +573,7 @@ internal static class RidleyFullMovieVerification
         AssertEqual((short)11, segment.Offset.Y, "stop retains Y offset");
         var child = state.Tail.Shaft[0];
         segment.Active = true;
-        child.Active = true; child.Stagger = null;
+        child.Active = true; child.StartedNextLink = true;
         child.Angle = RidleyTailAngle.StraightDown; child.SwingDirection = RotationDirection.Clockwise; child.Distance = SignedEightEight.FromParts(8, 0);
         RidleyTail.TickRidleyTailLink(state.Tail, child);
         AssertTrue(child.Active, "moving predecessor prevents child deactivation");

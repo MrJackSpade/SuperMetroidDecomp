@@ -38,8 +38,14 @@ public sealed class CeresRidleyState : RidleyEncounterState
     /// </summary>
     public int HitCounter { get; internal set; }
 
-    /// <summary>Gets the hover-cycle counter used to choose the next scripted attack; every attack resets it before it passes 124.</summary>
-    public int HoverCounter { get; internal set; }
+    /// <summary>The wait his hover holds while he is outside the hover box before he attacks anyway, loaded as each hover begins.</summary>
+    public BossCountdown HoverWait { get; } = new();
+
+    /// <summary>
+    /// The wait above the hover line after which his move into his fireball position gives up for a swoop, loaded as he
+    /// chooses his attack.
+    /// </summary>
+    public BossCountdown FireballMoveWait { get; } = new();
 
     /// <summary>Gets the fireball attack's whole-pixel body anchor; firing motion aims at random jitter around this saved position.</summary>
     public Position16<RoomPixels> FireballBasePosition { get; internal set; }

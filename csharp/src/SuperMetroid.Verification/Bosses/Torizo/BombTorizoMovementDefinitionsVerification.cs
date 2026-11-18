@@ -52,7 +52,7 @@ internal static class BombTorizoMovementDefinitionsVerification
                 Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512)),
                 Radius = new(8, 8),
             };
-            var state = new TorizoEnemyState(isGolden: false);
+            var state = new TorizoEnemyState(TorizoVariant.Bomb);
             place.SetSpeciesState(state);
             var next = enemies.TorizoBehavior.Choices.ProcessTorizoWalkStep(place, state, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), level,
                 TorizoWalkerDefinitions.BombTorizo, velocity);

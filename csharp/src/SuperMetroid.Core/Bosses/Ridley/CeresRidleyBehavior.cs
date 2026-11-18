@@ -199,8 +199,7 @@ internal sealed class CeresRidleyBehavior : IRidleyRevealEncounter<CeresRidleySt
                     targetSpeed: CeresRidleyFlightDefinitions.SwoopSpeed);
                 if (state.PhaseTimer.StepRunsOut())
                 {
-                    state.Phase = CeresRidleyPhase.Hovering;
-                    state.HoverCounter = 0;
+                    CeresRidleyFlight.BeginHover(state);
                     state.Tail.IdleWhipEnabled = true;
                 }
                 return true;

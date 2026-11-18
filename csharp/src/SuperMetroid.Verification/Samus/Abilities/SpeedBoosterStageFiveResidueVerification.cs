@@ -51,16 +51,17 @@ internal static class SpeedBoosterStageFiveResidueVerification
         escape.Floor.GetawayUpdate = 1;
 
         // The first NMI advances both: capsule phase one, then wing frame one.
-        escape.RunGetawayRoomMain(null, ceresFloor, 0);
+        var samus = SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus();
+        escape.RunGetawayRoomMain(samus, ceresFloor, 0);
         byte[] expected = NativeQueueImage(bus, CeresFloorAnimationFrame.BabyRound, CeresFloorAnimationFrame.WingsLowered);
         AssertStageFive(cadence, stageFiveQueueOffset, expected, "after the getaway queues wing frame one");
 
         // Four NMIs later only the capsule queues; the wing residue at $0303 is untouched.
-        escape.RunGetawayRoomMain(null, ceresFloor, 4);
+        escape.RunGetawayRoomMain(samus, ceresFloor, 4);
         AssertStageFive(cadence, stageFiveQueueOffset, expected, "after a capsule-only frame");
 
         // Eight NMIs in, capsule phase three (frame one again) and wing frame zero queue together.
-        escape.RunGetawayRoomMain(null, ceresFloor, 8);
+        escape.RunGetawayRoomMain(samus, ceresFloor, 8);
         AssertStageFive(cadence, stageFiveQueueOffset,
             NativeQueueImage(bus, CeresFloorAnimationFrame.BabyRound, CeresFloorAnimationFrame.WingsRaised),
             "after the getaway queues wing frame zero");

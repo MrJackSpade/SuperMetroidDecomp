@@ -39,28 +39,17 @@ internal static class RidleyInteractions
             }
             body.Contact = body.Contact.Without(EnemyContact.IgnoresSamus);
         }
-        if (state.IntangibilityTimer != 0)
+        if (state.ReleaseIntangibility is { } intangibility && intangibility.StepRunsOut())
         {
-            if (--state.IntangibilityTimer == 0)
-                body.Contact = body.Contact.Without(EnemyContact.IgnoresSamus);
+            state.ReleaseIntangibility = null;
+            body.Contact = body.Contact.Without(EnemyContact.IgnoresSamus);
         }
     }
 
-    /// <summary>Requires the extended Ridley hitbox reaction and suppresses generic death on shots.</summary>
+    /// <summary>Suppresses generic death on shots.</summary>
     /// <remarks>Ridley's shot reaction runs the common damage without the hit burst.</remarks>
     internal static EnemyShotReaction RidleyShotReaction { get; } = new()
     {
-        BeforeSuperMissileQuake = (in EnemyShotContext c) =>
-        {
-            if (!c.UsesFrameHitboxes || c.HitboxShot != RidleyReactions.Shot)
-            {
-                throw new InvalidDataException(
-                    $"Lower Norfair Ridley reacts to shots only through his frames' hit areas and his own reaction " +
-                    $"{RidleyReactions.Shot}; frame hit areas={c.UsesFrameHitboxes}, " +
-                    $"selected={c.HitboxShot?.ToString() ?? "(unnamed)"}, frame={c.Enemy.Frame}.");
-            }
-            return false;
-        },
         ExemptFromGenericDeath = true,
         ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
     };
@@ -73,13 +62,22 @@ internal static class RidleyInteractions
     };
 
     /// <summary>
-    /// The reaction of the first hitbox of Ridley's body the probe overlaps, which both Ridley bodies' own entities ask for
-    /// (#2335): true with the reaction, or false when none overlaps.
+    /// The reaction of Ridley's body where the probe overlaps it, which both Ridley bodies' own entities give the shared
+    /// collision (#2335): true with his touch or shot reaction, as the probe selects, or false when none of his body's
+    /// hitboxes overlaps it.
     /// </summary>
     /// <exception cref="InvalidDataException">Ridley's frame has no compiled collision.</exception>
     internal static bool FindRidleyHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
     {
-        reaction = null;
+        reaction = !BodyOverlaps(enemy, probe) ? null
+            : probe.SelectsShot ? RidleyCollisionDefinitions.BodyShotReaction : RidleyCollisionDefinitions.BodyTouchReaction;
+        return reaction is not null;
+    }
+
+    /// <summary>Whether <paramref name="probe"/> overlaps a hitbox of the body frame Ridley shows (#2410).</summary>
+    /// <exception cref="InvalidDataException">Ridley's frame has no compiled collision.</exception>
+    internal static bool BodyOverlaps(RoomEnemyPlace enemy, EnemyHitboxProbe probe)
+    {
         // An installed picture's composition may be edited; touch and shots still meet the hitboxes of the eleven
         // body frames the game defines.
         foreach (RidleyCollisionComponent component in
@@ -88,16 +86,12 @@ internal static class RidleyInteractions
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
             foreach (EnemyHitboxRectangle hitbox in component.Hitboxes)
             {
-                if (!probe.Overlaps(
+                if (probe.Overlaps(
                         componentOrigin.X + hitbox.Left,
                         componentOrigin.Y + hitbox.Top,
                         componentOrigin.X + hitbox.Right,
                         componentOrigin.Y + hitbox.Bottom))
-                    continue;
-                reaction = probe.SelectsShot
-                    ? RidleyCollisionDefinitions.BodyShotReaction
-                    : RidleyCollisionDefinitions.BodyTouchReaction;
-                return true;
+                    return true;
             }
         }
         return false;

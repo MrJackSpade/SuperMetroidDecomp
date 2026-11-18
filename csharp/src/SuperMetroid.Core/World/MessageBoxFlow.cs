@@ -41,9 +41,9 @@ internal sealed class MessageBoxFlow
     /// <summary>Suit transformation to start when its item message returns to the room object.</summary>
     private SamusSuitPickupKind? _pendingSuitPickup;
     /// <summary>Station prompt waiting for the save confirmation's yes/no result.</summary>
-    private StationActivationEvent? _pendingSaveStation;
+    private SaveStationActivation? _pendingSaveStation;
     /// <summary>Station animation to finish after its confirmation message closes.</summary>
-    private StationActivationEvent? _pendingSaveStationCompletion;
+    private SaveStationActivation? _pendingSaveStationCompletion;
 
     /// <summary>Whether a suit transformation waits for its item message to close.</summary>
     internal bool HasPendingSuitPickup => _pendingSuitPickup is not null;
@@ -55,10 +55,10 @@ internal sealed class MessageBoxFlow
     internal void AwaitSuitPickup(SamusSuitPickupKind suit) => _pendingSuitPickup = suit;
 
     /// <summary>Holds a save station until the save confirmation's yes/no answer.</summary>
-    internal void AwaitSaveConfirmation(StationActivationEvent station) => _pendingSaveStation = station;
+    internal void AwaitSaveConfirmation(SaveStationActivation station) => _pendingSaveStation = station;
 
     /// <summary>Holds a save station's animation until its completion message closes.</summary>
-    internal void AwaitSaveCompletion(StationActivationEvent station) => _pendingSaveStationCompletion = station;
+    internal void AwaitSaveCompletion(SaveStationActivation station) => _pendingSaveStationCompletion = station;
     /// <summary>Confirmed area and station identity awaiting the frontend's save to the selected file.</summary>
     private SaveStationPersistenceRequest? _completedSaveStation;
 

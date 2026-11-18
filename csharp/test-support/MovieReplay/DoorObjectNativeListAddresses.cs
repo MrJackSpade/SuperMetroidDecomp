@@ -38,11 +38,11 @@ internal static class DoorObjectNativeListAddresses
     /// <summary>Each grey cap's lists (<c>InstList_PLM_GreyDoorFacing*</c> and <c>InstList_PLM_BombTorizoGreyDoor*</c>).</summary>
     private static readonly IReadOnlyDictionary<GreyDoorVariant, NativeGreyDoorLists> GreyLists = new Dictionary<GreyDoorVariant, NativeGreyDoorLists>
     {
-        [new(ColoredDoorOrientation.Left, BombTorizo: false)] = new(0xbe59, 0xbe70, 0xbe7e, 0xbe84, 0xbe8c, 0xbea8, 0xbead),
-        [new(ColoredDoorOrientation.Right, BombTorizo: false)] = new(0xbec2, 0xbed9, 0xbee7, 0xbeed, 0xbef5, 0xbf11, 0xbf16),
-        [new(ColoredDoorOrientation.Up, BombTorizo: false)] = new(0xbf2b, 0xbf42, 0xbf50, 0xbf56, 0xbf5e, 0xbf7a, 0xbf7f),
-        [new(ColoredDoorOrientation.Down, BombTorizo: false)] = new(0xbf94, 0xbfab, 0xbfb9, 0xbfbf, 0xbfc7, 0xbfe3, 0xbfe8),
-        [new(ColoredDoorOrientation.Right, BombTorizo: true)] = new(0xba4c, 0xba7f, 0xba8d, 0xba93, 0xba9b, 0xbab7, 0xbabc),
+        [new(ColoredDoorOrientation.Left, GreyDoorClosing.AtOnce)] = new(0xbe59, 0xbe70, 0xbe7e, 0xbe84, 0xbe8c, 0xbea8, 0xbead),
+        [new(ColoredDoorOrientation.Right, GreyDoorClosing.AtOnce)] = new(0xbec2, 0xbed9, 0xbee7, 0xbeed, 0xbef5, 0xbf11, 0xbf16),
+        [new(ColoredDoorOrientation.Up, GreyDoorClosing.AtOnce)] = new(0xbf2b, 0xbf42, 0xbf50, 0xbf56, 0xbf5e, 0xbf7a, 0xbf7f),
+        [new(ColoredDoorOrientation.Down, GreyDoorClosing.AtOnce)] = new(0xbf94, 0xbfab, 0xbfb9, 0xbfbf, 0xbfc7, 0xbfe3, 0xbfe8),
+        [new(ColoredDoorOrientation.Right, GreyDoorClosing.AfterBombs)] = new(0xba4c, 0xba7f, 0xba8d, 0xba93, 0xba9b, 0xbab7, 0xbabc),
     };
 
     /// <summary>Mother Brain's escape gate placed shut (<c>InstList_PLM_MotherBrainsRoomEscapeDoor_0</c>).</summary>
@@ -92,8 +92,8 @@ internal static class DoorObjectNativeListAddresses
     {
         if (DoorObjectsConstants.TryIdentifyColoredDoor(header, out ColoredDoorColor color, out ColoredDoorOrientation coloredOrientation))
             return Colored(color, coloredOrientation).Closing;
-        if (GreyDoorObjectsConstants.TryIdentifyGreyDoor(header, out ColoredDoorOrientation greyOrientation))
-            return Grey(new GreyDoorVariant(greyOrientation, header == RoomObjectKind.BombTorizoGreyDoor)).Closing;
+        if (GreyDoorObjectsConstants.TryIdentifyGreyDoor(header, out GreyDoorVariant grey))
+            return Grey(grey).Closing;
         return null;
     }
 }

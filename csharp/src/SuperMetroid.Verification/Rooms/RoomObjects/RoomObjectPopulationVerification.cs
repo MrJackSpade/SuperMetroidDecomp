@@ -192,7 +192,7 @@ internal static class RoomObjectPopulationVerification
             byte blockY = (byte)(1 + definitionIndex / 4);
             var decoded = new RoomObjectPopulation($"$8F:{population:X4}",
             [
-                new RoomObjectPlacement(header,
+                RoomObjectPlacementAccess.Placed(header,
                     new(blockX, blockY), RoomObjectRoomArgumentWords.Decode(header, 0x8000)), // Negative argument always closes.
             ]);
 
@@ -437,7 +437,7 @@ internal static class RoomObjectPopulationVerification
             roomObjects.Step(level, new RoomObjectFrameInputs { Scrolls = SuperMetroid.Core.Rooms.RoomObjects.RoomObjectFixtures.UnreadScrolls(), EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0, CollectedItems = samus.CollectedItems });
         AssertEqual(GreyDoorPhase.Locked, roomObjects.GreyDoorSnapshots.Single().Phase,
             "closing Goto hands the resident actor back to its grey-door family");
-        AssertEqual(initialList, DoorObjectNativeListAddresses.Grey(new GreyDoorVariant(ColoredDoorOrientation.Right, BombTorizo: true)).Waiting,
+        AssertEqual(initialList, DoorObjectNativeListAddresses.Grey(new GreyDoorVariant(ColoredDoorOrientation.Right, GreyDoorClosing.AfterBombs)).Waiting,
             "the locked grey cap's first look stands for the cartridge first list");
         AssertEqual(RoomTerrainBlock.Of(0x0ae, BlockMirroring.Horizontal, RoomCollisionType.ShootableBlock), level.GetCollisionBlock(new(doorX, doorY)).Terrain,
             "re-entry draws the locked grey-door frame in the same handler pass");
@@ -537,7 +537,7 @@ internal static class RoomObjectPopulationVerification
 
         AssertEqual(GreyDoorPhase.Locked, roomObjects.GreyDoorSnapshots.Single().Phase,
             "fall-through at $BE70 returns to the resident grey-door owner");
-        AssertEqual(initialList, DoorObjectNativeListAddresses.Grey(new GreyDoorVariant(ColoredDoorOrientation.Left, BombTorizo: false)).Waiting,
+        AssertEqual(initialList, DoorObjectNativeListAddresses.Grey(new GreyDoorVariant(ColoredDoorOrientation.Left, GreyDoorClosing.AtOnce)).Waiting,
             "the grey door's first look stands for the cartridge first list");
         AssertTrue(roomObjects.PopulationPlaces.Single().Behaviour is GreyDoorObject { Phase: GreyDoorPhase.Locked },
             "the closing runs into the grey door's own first look, which locks it");
@@ -772,10 +772,10 @@ internal static class RoomObjectPopulationVerification
 
         var decoded = new RoomObjectPopulation($"$8F:{population:X4}",
         [
-            new RoomObjectPlacement(RoomObjectKinds.RequirePlaced(RoomObjectKind.GreenDoorFacingRight),
+            RoomObjectPlacementAccess.Placed(RoomObjectKinds.RequirePlaced(RoomObjectKind.GreenDoorFacingRight),
                 new(offRoomX, offRoomY), new LockedDoorArgument(SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(0x27), DoorOpeningPersistence.Persistent))
-            { Site = RoomObjectSite.BeyondTheRoom },
-            new RoomObjectPlacement(RoomObjectKinds.RequirePlaced(RoomObjectKind.GreenDoorFacingLeft),
+            with { Site = RoomObjectSite.BeyondTheRoom },
+            RoomObjectPlacementAccess.Placed(RoomObjectKinds.RequirePlaced(RoomObjectKind.GreenDoorFacingLeft),
                 new(inRoomX, inRoomY), new LockedDoorArgument(SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(0x28), DoorOpeningPersistence.Persistent)),
         ]);
 
@@ -802,8 +802,8 @@ internal static class RoomObjectPopulationVerification
 
         var malformed = new RoomObjectPopulation($"$8F:{malformedPopulation:X4}",
         [
-            new RoomObjectPlacement(RoomObjectKinds.RequirePlaced(RoomObjectKind.ScrollTrigger),
-                new(offRoomX, offRoomY), null) { ScrollChange = RoomScrollChange.BrinstarReserveTankOpensScreen1x0TopAligned, Site = RoomObjectSite.BeyondTheRoom },
+            RoomObjectPlacementAccess.Placed(RoomObjectKinds.RequirePlaced(RoomObjectKind.ScrollTrigger),
+                new(offRoomX, offRoomY), scrollChange: RoomScrollChange.BrinstarReserveTankOpensScreen1x0TopAligned) with { Site = RoomObjectSite.BeyondTheRoom },
         ]);
         AssertThrows<ArgumentOutOfRangeException>(
             () => RoomObjectFixtures.LoadPopulation(RoomObjectFixtures.Unbound(), new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Brinstar), malformed, RoomObjectServiceFixtures.Uninstalled with { Samus = new FixtureRoomSamus(() => new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
@@ -813,7 +813,7 @@ internal static class RoomObjectPopulationVerification
         // block beyond the room is refused, and one decoded beyond the room must lie past the grid.
         var undecoded = new RoomObjectPopulation("undecoded off-room door",
         [
-            new RoomObjectPlacement(RoomObjectKinds.RequirePlaced(RoomObjectKind.GreenDoorFacingRight),
+            RoomObjectPlacementAccess.Placed(RoomObjectKinds.RequirePlaced(RoomObjectKind.GreenDoorFacingRight),
                 new(offRoomX, offRoomY), new LockedDoorArgument(SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(0x27), DoorOpeningPersistence.Persistent)),
         ]);
         AssertThrows<InvalidDataException>(
@@ -1204,12 +1204,12 @@ internal static class RoomObjectPopulationVerification
         AssertTrue(roomObjects.TryNotifyStationTouch(level, new(18, 6), 0x4d),
             "save trigger resolves its same-block parent");
         roomObjects.Step(level);
-        AssertEqual(StationKind.Save, roomObjects.Stations.StationActivationEvents.Single().Kind,
-            "save trigger publishes typed confirmation request");
-        AssertTrue(ReferenceEquals(SuperMetroid.Core.Progression.LoadStationDefinitions.CrocomireSave, roomObjects.Stations.StationActivationEvents.Single().Station),
+        SaveStationActivation saveRequest = roomObjects.Stations.StationActivationEvents.Single() is SaveConfirmationRequested request
+            ? request.Save
+            : throw new InvalidOperationException("The save trigger publishes a save confirmation request.");
+        AssertTrue(ReferenceEquals(SuperMetroid.Core.Progression.LoadStationDefinitions.CrocomireSave, saveRequest.Station),
             "save request carries the load station its room argument names");
 
-        StationActivationEvent saveRequest = roomObjects.Stations.StationActivationEvents.Single();
         samus.Position = samus.Position.WithWholeX(0x0127);
         RoomTerrainBlock[] levelBeforeSave = Enumerable.Range(0, level.Size.X * level.Size.Y)
             .Select(block => level.GetCollisionBlock(new(checked((ushort)(block % level.Size.X)), checked((ushort)(block / level.Size.X)))).Terrain)
@@ -1232,7 +1232,7 @@ internal static class RoomObjectPopulationVerification
             "save activation retains the executing PLM block for bank-$86 electricity");
         Suite(nameof(VerifySaveStationElectricity), () => VerifySaveStationElectricity(bus, level, saveRequest.Block));
 
-        StationActivationEvent completion = default;
+        StationActivationEvent? completion = null;
         bool completionPublished = false;
         int completionFrame = -1;
         int maximumSaveAnimationFrames =
@@ -1253,9 +1253,10 @@ internal static class RoomObjectPopulationVerification
         AssertEqual(SaveStationAnimationDefinitions.SaveAnimationLoops * 8 - 1,
             completionFrame,
             "save animation publishes completion after all 21 alternating native loops");
-        AssertEqual(GameplayMessageId.SaveCompleted, completion.Message,
-            "save animation publishes game-saved message only after its draw loop");
-        roomObjects.Stations.CompleteSaveStation(completion);
+        SaveStationActivation completed = completion is SaveCompleted saved
+            ? saved.Save
+            : throw new InvalidOperationException("The save animation publishes the game-saved message only after its draw loop.");
+        roomObjects.Stations.CompleteSaveStation(completed);
         AssertTrue(!samus.Control.InputLocked, "game-saved message return unlocks Samus");
         AssertTrue(roomObjects.StationSnapshots.Single(station => station.Kind == StationKind.Save)
             .SaveStationLockedOut,

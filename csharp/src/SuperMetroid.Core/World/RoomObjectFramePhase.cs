@@ -115,30 +115,10 @@ internal sealed class RoomObjectFramePhase
             // suit changes defer their visible colour reveal until stage
             // three after the message. Resource tanks and other equipment are
             // consumed directly by the HUD/movement owners.
+            var opening = new RoomObjectMessages(this, samus);
             foreach (CollectiblePickupEvent pickup in roomObjects.CollectibleObjects.CollectiblePickupEvents)
             {
-                if (pickup.Kind is
-                    InWorldCollectibleKind.ChargeBeam or
-                    InWorldCollectibleKind.IceBeam or
-                    InWorldCollectibleKind.WaveBeam or
-                    InWorldCollectibleKind.SpazerBeam or
-                    InWorldCollectibleKind.PlasmaBeam)
-                {
-                    SamusProjectileSystem.ShowBeamShade(_player.Colours, samus.EquippedBeams);
-                }
-                else if (pickup.Kind is
-                         InWorldCollectibleKind.VariaSuit or
-                         InWorldCollectibleKind.GravitySuit)
-                {
-                    if (_messageBoxes.HasPendingSuitPickup || _suitPickup.IsActive)
-                    {
-                        throw new InvalidDataException(
-                            "A second suit pickup attempted to replace an active transformation.");
-                    }
-                    _messageBoxes.AwaitSuitPickup(pickup.Kind == InWorldCollectibleKind.VariaSuit
-                        ? SamusSuitPickupKind.Varia
-                        : SamusSuitPickupKind.Gravity);
-                }
+                pickup.Consequence.Apply(opening);
 
                 if (_messageBox.IsActive)
                 {
@@ -149,44 +129,7 @@ internal sealed class RoomObjectFramePhase
                 BeginMessage(pickup.Message);
             }
             foreach (StationActivationEvent station in roomObjects.Stations.StationActivationEvents)
-            {
-                if (station.Kind == StationKind.Save)
-                {
-                    if (station.Message == GameplayMessageId.SaveConfirmation)
-                    {
-                        if (_messageBoxes.HasPendingSaveStationWork ||
-                            _messageBox.IsActive)
-                        {
-                            throw new InvalidDataException(
-                                "A save station attempted to replace an active room-object message owner.");
-                        }
-                        _messageBoxes.AwaitSaveConfirmation(station);
-                        BeginMessage(GameplayMessageId.SaveConfirmation);
-                        continue;
-                    }
-                    if (station.Message == GameplayMessageId.SaveCompleted)
-                    {
-                        if (_messageBoxes.HasPendingSaveStationWork ||
-                            _messageBox.IsActive)
-                        {
-                            throw new InvalidDataException(
-                                "A completed save station attempted to replace an active message owner.");
-                        }
-                        _messageBoxes.AwaitSaveCompletion(station);
-                        BeginMessage(GameplayMessageId.SaveCompleted);
-                        continue;
-                    }
-                    throw new InvalidDataException(
-                        $"Save station published unexpected message {station.Message}.");
-                }
-                if (_messageBox.IsActive)
-                {
-                    throw new InvalidDataException(
-                        "Multiple room objects attempted to open the synchronous message box " +
-                        "during one room-object step.");
-                }
-                BeginMessage(station.Message);
-            }
+                station.Open(opening);
             foreach (MotherBrainGlassProjectileRequest request in
                      roomObjects.MotherBrainGlass.MotherBrainGlassProjectileRequests)
             {
@@ -197,6 +140,56 @@ internal sealed class RoomObjectFramePhase
             {
                 room.Enemies.RoomObjectSpawns.SpawnBombTorizoStatueBreakingProjectile(request);
             }
+        }
+    }
+
+    /// <summary>
+    /// What one room-object step's pickups and station actions open (#2383): a beam's colours, a suit's transformation, a
+    /// save's confirmation or completion, or a station's completion message, each with the message box it starts.
+    /// </summary>
+    /// <param name="phase">The room-object phase, which owns the message box and its pending work.</param>
+    /// <param name="samus">Samus, whose beams a beam pickup shows.</param>
+    private sealed class RoomObjectMessages(RoomObjectFramePhase phase, SamusState samus)
+        : ICollectiblePickupConsequences, IStationActivationMessages
+    {
+        /// <inheritdoc/>
+        public void ShowEquippedBeamColours() => SamusProjectileSystem.ShowBeamShade(phase._player.Colours, samus.EquippedBeams);
+
+        /// <inheritdoc/>
+        public void AwaitSuitTransformation(SamusSuitPickupKind suit)
+        {
+            if (phase._messageBoxes.HasPendingSuitPickup || phase._suitPickup.IsActive)
+                throw new InvalidDataException("A second suit pickup attempted to replace an active transformation.");
+            phase._messageBoxes.AwaitSuitPickup(suit);
+        }
+
+        /// <inheritdoc/>
+        public void RequestSaveConfirmation(SaveStationActivation save)
+        {
+            if (phase._messageBoxes.HasPendingSaveStationWork || phase._messageBox.IsActive)
+                throw new InvalidDataException("A save station attempted to replace an active room-object message owner.");
+            phase._messageBoxes.AwaitSaveConfirmation(save);
+            phase.BeginMessage(GameplayMessageId.SaveConfirmation);
+        }
+
+        /// <inheritdoc/>
+        public void ShowSaveCompleted(SaveStationActivation save)
+        {
+            if (phase._messageBoxes.HasPendingSaveStationWork || phase._messageBox.IsActive)
+                throw new InvalidDataException("A completed save station attempted to replace an active message owner.");
+            phase._messageBoxes.AwaitSaveCompletion(save);
+            phase.BeginMessage(GameplayMessageId.SaveCompleted);
+        }
+
+        /// <inheritdoc/>
+        public void ShowStationMessage(GameplayMessageId message)
+        {
+            if (phase._messageBox.IsActive)
+            {
+                throw new InvalidDataException(
+                    "Multiple room objects attempted to open the synchronous message box during one room-object step.");
+            }
+            phase.BeginMessage(message);
         }
     }
 }

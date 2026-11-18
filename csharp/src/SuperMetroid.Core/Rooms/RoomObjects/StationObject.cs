@@ -204,12 +204,7 @@ internal sealed class StationObject(
         if (!DrawSaveImage(context.RoomObjects.Drawing, context.Level, place.Block))
         {
             SavePhase = SaveStationPhase.AwaitingCompletionMessageClose;
-            stations.Publish(new StationActivationEvent(
-                StationKind.Save,
-                GameplayMessageId.SaveCompleted,
-                Area,
-                SavedStation(place),
-                place.Block));
+            stations.Publish(new SaveCompleted(SaveActivation(place)));
             return true;
         }
         return true;
@@ -236,49 +231,40 @@ internal sealed class StationObject(
     /// <summary>Applies the map or refill and publishes the station's message.</summary>
     private void Activate(RoomObjectPlace place, StationObjects stations, IRoomSamus samus)
     {
-        GameplayMessageId message = Kind switch
-        {
-            StationKind.Map => GameplayMessageId.MapDataAccessCompleted,
-            StationKind.Energy => GameplayMessageId.EnergyRechargeCompleted,
-            StationKind.Missile => GameplayMessageId.MissileRechargeCompleted,
-            StationKind.Save => GameplayMessageId.SaveConfirmation,
-            _ => throw new InvalidDataException($"Unknown station kind {Kind}."),
-        };
-
+        StationActivationEvent activation;
         switch (Kind)
         {
             case StationKind.Map:
                 stations.System.SetAreaMapAcquired(Area);
                 ShownAnimation = CompletedAnimation;
+                activation = new StationCompleted(GameplayMessageId.MapDataAccessCompleted);
                 break;
             case StationKind.Energy:
                 samus.Health = samus.MaxHealth;
                 ShownAnimation = CompletedAnimation;
+                activation = new StationCompleted(GameplayMessageId.EnergyRechargeCompleted);
                 break;
             case StationKind.Missile:
                 samus.Missiles = samus.MaxMissiles;
                 ShownAnimation = CompletedAnimation;
+                activation = new StationCompleted(GameplayMessageId.MissileRechargeCompleted);
                 break;
             case StationKind.Save:
+                activation = new SaveConfirmationRequested(SaveActivation(place));
                 break;
             default:
-                throw new InvalidOperationException($"Undefined {nameof(StationKind)} {Kind}.");
+                throw new InvalidDataException($"Unknown station kind {Kind}.");
         }
 
         _animationPlace = AnimationPlace.StartOfAnimation;
         _animationTimer = 1;
-        stations.Publish(new StationActivationEvent(
-            Kind,
-            message,
-            Area,
-            SavedAt,
-            place.Block));
+        stations.Publish(activation);
     }
 
-    /// <summary>The load station a save station saves at, which its activation events carry.</summary>
+    /// <summary>The save station's activation: the load station it saves at, its area and its block.</summary>
     /// <exception cref="InvalidDataException">The save station was placed without its load station.</exception>
-    private LoadStation SavedStation(RoomObjectPlace place) => SavedAt
-        ?? throw new InvalidDataException($"Save station at block {place.Block} was placed without its load station.");
+    private SaveStationActivation SaveActivation(RoomObjectPlace place) => new(SavedAt
+        ?? throw new InvalidDataException($"Save station at block {place.Block} was placed without its load station."), Area, place.Block);
 
     /// <summary>Draws the access arm at the access Samus used, in the short or extended pose.</summary>
     private void DrawAccess(RoomObjectStepContext context, StationAccessPose pose)

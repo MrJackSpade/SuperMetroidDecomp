@@ -44,28 +44,29 @@ internal static class CeresHazeVerification
             AssertEqual(immediate ? 15 : 0, haze.Intensity, "Load projects initial/completed fade state");
             if (!immediate)
             {
-                haze.Step(CeresHazeRoomFade.FadeOut);
+                haze.StepWhileRoomFadesOut();
                 haze.Step();
                 AssertEqual(0, haze.Intensity, "Waiting ignores fade-out and absent fade-in");
                 foreach (int expected in entering)
                 {
-                    haze.Step(expected == 0 ? CeresHazeRoomFade.FadeIn : CeresHazeRoomFade.FadeOut);
+                    if (expected == 0) haze.StepWhileRoomFadesIn();
+                    else haze.StepWhileRoomFadesOut();
                     AssertEqual(expected, haze.Intensity, "Native fade-in ignores further transition signals");
                 }
-                haze.Step(CeresHazeRoomFade.FadeOut);
+                haze.StepWhileRoomFadesOut();
                 AssertEqual(15, haze.Intensity, "Counter16 selects holding without writing or consuming fade-out");
             }
-            haze.Step(CeresHazeRoomFade.FadeIn);
+            haze.StepWhileRoomFadesIn();
             AssertEqual(15, haze.Intensity, "Holding ignores fade-in");
-            haze.Step(CeresHazeRoomFade.FadeOut);
+            haze.StepWhileRoomFadesOut();
             AssertEqual(15, haze.Intensity, "Fade-out selection retains previous table for one call");
             foreach (int expected in leaving)
             {
-                haze.Step(CeresHazeRoomFade.FadeIn);
+                haze.StepWhileRoomFadesIn();
                 AssertEqual(expected, haze.Intensity, "Native fade-out writes before decrement");
             }
             haze.Step();
-            haze.Step(CeresHazeRoomFade.FadeIn);
+            haze.StepWhileRoomFadesIn();
             AssertEqual(1, haze.Intensity, "Zero counter retains final table without restarting");
             AssertEqual(dead, haze.IsRed, "Selected channel is room-owned throughout the trace");
             haze = new CeresHazeState(!dead, immediate);

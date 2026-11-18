@@ -47,16 +47,40 @@ public sealed class CeresHazeState
         Intensity = immediateViewport ? CeresHazeDefinitions.FadeSteps - 1 : 0;
     }
 
-    /// <summary>One per-frame haze step. Transition changes do not rewrite the selected channel.</summary>
-    /// <param name="roomFade">
-    /// The door fade: on fade-in a waiting haze starts fading in and shows its first strength on this same update; on
-    /// fade-out a holding haze starts fading out now and shows its first fade-out strength on the following update.
-    /// </param>
-    public void Step(CeresHazeRoomFade roomFade = CeresHazeRoomFade.None)
+    /// <summary>One per-frame haze step while no door fade runs. Transition changes do not rewrite the selected channel.</summary>
+    public void Step() => Step(RoomFade.None);
+
+    /// <summary>
+    /// One haze step while the door's destination fades in: a waiting haze starts fading in and shows its first strength on
+    /// this same update; any other runs its ordinary step.
+    /// </summary>
+    public void StepWhileRoomFadesIn() => Step(RoomFade.FadingIn);
+
+    /// <summary>
+    /// One haze step while the door's source fades out: a holding haze starts fading out now and shows its first fade-out
+    /// strength on the following update; any other runs its ordinary step.
+    /// </summary>
+    public void StepWhileRoomFadesOut() => Step(RoomFade.FadingOut);
+
+    /// <summary>The door fade one haze step sees.</summary>
+    private enum RoomFade
+    {
+        /// <summary>No door fade is running.</summary>
+        None,
+
+        /// <summary>The destination room's colours are fading in.</summary>
+        FadingIn,
+
+        /// <summary>The source room's colours are fading out.</summary>
+        FadingOut,
+    }
+
+    /// <summary>One haze step under <paramref name="roomFade"/>.</summary>
+    private void Step(RoomFade roomFade)
     {
         if (_phase == Phase.Waiting)
         {
-            if (roomFade != CeresHazeRoomFade.FadeIn) return;
+            if (roomFade != RoomFade.FadingIn) return;
             _phase = Phase.FadingIn;
         }
         switch (_phase)
@@ -66,7 +90,7 @@ public sealed class CeresHazeState
                 else Intensity = _counter++;
                 break;
             case Phase.Holding:
-                if (roomFade == CeresHazeRoomFade.FadeOut) _phase = Phase.FadingOut;
+                if (roomFade == RoomFade.FadingOut) _phase = Phase.FadingOut;
                 break;
             case Phase.FadingOut:
                 if (_counter != 0) Intensity = _counter--;

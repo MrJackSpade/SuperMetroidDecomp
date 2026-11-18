@@ -71,14 +71,14 @@ internal sealed class StationObjects
     /// animation frame within the same room-object pass. The declined route still installs the
     /// once-per-room-entry lockout. Returns whether the station is saving.
     /// </summary>
-    public bool ResolveSaveStationConfirmation(StationActivationEvent activation, bool accepted, RoomLevelData level)
+    public bool ResolveSaveStationConfirmation(SaveStationActivation activation, bool accepted, RoomLevelData level)
     {
         Ensure.NotNull(level);
         StationObject station = FindSaveStation(activation);
         if (station.SavePhase != SaveStationPhase.AwaitingConfirmation)
         {
             throw new InvalidOperationException(
-                $"Save station {activation.SaveStation} returned " +
+                $"Save station {activation.Station} returned " +
                 $"confirmation while in {station.SavePhase}.");
         }
 
@@ -102,13 +102,13 @@ internal sealed class StationObjects
     }
 
     /// <summary>Completes the save after the saved-game message has closed.</summary>
-    public void CompleteSaveStation(StationActivationEvent activation)
+    public void CompleteSaveStation(SaveStationActivation activation)
     {
         StationObject station = FindSaveStation(activation);
         if (station.SavePhase != SaveStationPhase.AwaitingCompletionMessageClose)
         {
             throw new InvalidOperationException(
-                $"Save station {activation.SaveStation} completed " +
+                $"Save station {activation.Station} completed " +
                 $"save-completed message while in {station.SavePhase}.");
         }
 
@@ -120,7 +120,7 @@ internal sealed class StationObjects
     }
 
     /// <summary>Requires exactly one resident save station matching a frontend confirmation event.</summary>
-    private StationObject FindSaveStation(StationActivationEvent activation)
+    private StationObject FindSaveStation(SaveStationActivation activation)
     {
         StationObject[] matches = _places.FromLastPlace
             .Where(place => place.Active)
@@ -133,9 +133,9 @@ internal sealed class StationObjects
         {
             1 => matches[0],
             0 => throw new InvalidOperationException(
-                $"Save station {activation.SaveStation} is no longer resident."),
+                $"Save station {activation.Station} is no longer resident."),
             _ => throw new InvalidDataException(
-                $"Multiple resident save stations save at {activation.SaveStation}."),
+                $"Multiple resident save stations save at {activation.Station}."),
         };
     }
 

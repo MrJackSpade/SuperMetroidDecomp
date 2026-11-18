@@ -24,15 +24,15 @@ internal static class DoorObjectKindDefinitions
     };
 
     /// <summary>
-    /// The facing of the door each grey-door definition installs; Bomb Torizo's grey door faces right like the generic
-    /// right-facing one.
+    /// The grey cap each grey-door definition installs: its facing, and whether it is Bomb Torizo's door, which faces right
+    /// like the generic right-facing one and whose closing waits for Bombs.
     /// </summary>
-    internal static IReadOnlyDictionary<RoomObjectKind, ColoredDoorOrientation> GreyDoors { get; } = new Dictionary<RoomObjectKind, ColoredDoorOrientation>
+    internal static IReadOnlyDictionary<RoomObjectKind, GreyDoorVariant> GreyDoors { get; } = new Dictionary<RoomObjectKind, GreyDoorVariant>
     {
-        [RoomObjectKind.BombTorizoGreyDoor] = ColoredDoorOrientation.Right,
-        [RoomObjectKind.GreyDoorFacingRight] = ColoredDoorOrientation.Right,
-        [RoomObjectKind.GreyDoorFacingLeft] = ColoredDoorOrientation.Left,
-        [RoomObjectKind.GreyDoorFacingUp] = ColoredDoorOrientation.Up,
-        [RoomObjectKind.GreyDoorFacingDown] = ColoredDoorOrientation.Down,
+        [RoomObjectKind.BombTorizoGreyDoor] = new(ColoredDoorOrientation.Right, GreyDoorClosing.AfterBombs),
+        [RoomObjectKind.GreyDoorFacingRight] = new(ColoredDoorOrientation.Right, GreyDoorClosing.AtOnce),
+        [RoomObjectKind.GreyDoorFacingLeft] = new(ColoredDoorOrientation.Left, GreyDoorClosing.AtOnce),
+        [RoomObjectKind.GreyDoorFacingUp] = new(ColoredDoorOrientation.Up, GreyDoorClosing.AtOnce),
+        [RoomObjectKind.GreyDoorFacingDown] = new(ColoredDoorOrientation.Down, GreyDoorClosing.AtOnce),
     };
 }

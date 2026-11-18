@@ -104,27 +104,14 @@ internal sealed class DoorTransitionState
         // A door transition carries the one Samus through both rooms.
         SamusState samus = runtime.Player.IntroducedSamus;
 
-        runtime.Room.LoadedScope.CeresHaze?.Step(Phase switch
-        {
-            DoorTransitionPhase.FadeInDestinationRoom => CeresHazeRoomFade.FadeIn,
-            DoorTransitionPhase.FadeOutSourceRoom => CeresHazeRoomFade.FadeOut,
-            DoorTransitionPhase.Inactive => CeresHazeRoomFade.None,
-            DoorTransitionPhase.WaitForSoundQueues => CeresHazeRoomFade.None,
-            DoorTransitionPhase.BeginDoorDisplay => CeresHazeRoomFade.None,
-            DoorTransitionPhase.AlignSourceCamera => CeresHazeRoomFade.None,
-            DoorTransitionPhase.DestinationSetupWait => CeresHazeRoomFade.None,
-            DoorTransitionPhase.MoveToDoorScrollStart => CeresHazeRoomFade.None,
-            DoorTransitionPhase.PlaceSamusInDestination => CeresHazeRoomFade.None,
-            DoorTransitionPhase.LoadDestinationRoom => CeresHazeRoomFade.None,
-            DoorTransitionPhase.WaitForDoorOpeningScroll => CeresHazeRoomFade.None,
-            DoorTransitionPhase.AlignSamusWithDoorway => CeresHazeRoomFade.None,
-            DoorTransitionPhase.StepDestinationBlockAnimations => CeresHazeRoomFade.None,
-            DoorTransitionPhase.WaitForMusicQueue => CeresHazeRoomFade.None,
-            DoorTransitionPhase.FinishDoorOpeningScroll => CeresHazeRoomFade.None,
-            DoorTransitionPhase.DrawFirstDestinationFrame => CeresHazeRoomFade.None,
-            DoorTransitionPhase.Complete => CeresHazeRoomFade.None,
-            _ => throw new InvalidOperationException($"Unknown door transition phase {Phase}."),
-        });
+        // The haze steps before the stage's work: the two fades name their fade, and every other update steps it plainly.
+        CeresHazeState? haze = runtime.Room.LoadedScope.CeresHaze;
+        if (Phase == DoorTransitionPhase.FadeInDestinationRoom)
+            haze?.StepWhileRoomFadesIn();
+        else if (Phase == DoorTransitionPhase.FadeOutSourceRoom)
+            haze?.StepWhileRoomFadesOut();
+        else
+            haze?.Step();
         switch (Phase)
         {
             case DoorTransitionPhase.WaitForSoundQueues:

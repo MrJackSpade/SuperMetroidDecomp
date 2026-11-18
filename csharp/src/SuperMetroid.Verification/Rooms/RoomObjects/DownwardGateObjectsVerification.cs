@@ -298,9 +298,9 @@ internal static class DownwardGateObjectsVerification
         // the guard below prohibits them only while the production runtime sets up slots.
         var population = new RoomObjectPopulation($"$8F:{populationPointer:X4}",
         [
-            new RoomObjectPlacement(RoomObjectKinds.RequirePlaced(RoomObjectKind.DownwardGate),
-                new(gateX, gateY), null),
-            new RoomObjectPlacement(RoomObjectKinds.RequirePlaced(RoomObjectKind.DownwardGateShotBlock),
+            RoomObjectPlacementAccess.Placed(RoomObjectKinds.RequirePlaced(RoomObjectKind.DownwardGate),
+                new(gateX, gateY)),
+            RoomObjectPlacementAccess.Placed(RoomObjectKinds.RequirePlaced(RoomObjectKind.DownwardGateShotBlock),
                 new(gateX, gateY), RoomObjectRoomArgumentWords.Decode(RoomObjectKind.DownwardGateShotBlock, argument)),
         ]);
         SeedDownwardGateProjectileRom(bus);

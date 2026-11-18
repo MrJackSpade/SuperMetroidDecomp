@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Samus.Abilities;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
@@ -215,7 +216,8 @@ internal sealed class CollectibleObjects
 
         var pickup = new CollectiblePickupEvent(
             item.Kind,
-            PickupMessage(item.Kind));
+            PickupMessage(item.Kind),
+            PickupConsequence(item.Kind));
         _collectiblePickupEvents.Add(pickup);
         // The item's cue starts the fanfare as it runs, before its message box opens.
         _sounds.QueuePermanentItemFanfare();
@@ -354,6 +356,21 @@ internal sealed class CollectibleObjects
     };
 
     /// <summary>Selects the message shown synchronously after a permanent pickup.</summary>
+    private static CollectiblePickupConsequence PickupConsequence(InWorldCollectibleKind kind) => kind switch
+    {
+        InWorldCollectibleKind.ChargeBeam or InWorldCollectibleKind.IceBeam or InWorldCollectibleKind.WaveBeam or
+            InWorldCollectibleKind.SpazerBeam or InWorldCollectibleKind.PlasmaBeam => CollectiblePickupConsequence.ShowsEquippedBeams,
+        InWorldCollectibleKind.VariaSuit => CollectiblePickupConsequence.TransformsSuit(SamusSuitPickupKind.Varia),
+        InWorldCollectibleKind.GravitySuit => CollectiblePickupConsequence.TransformsSuit(SamusSuitPickupKind.Gravity),
+        InWorldCollectibleKind.EnergyTank or InWorldCollectibleKind.MissileTank or InWorldCollectibleKind.SuperMissileTank or
+            InWorldCollectibleKind.PowerBombTank or InWorldCollectibleKind.ReserveTank or InWorldCollectibleKind.Bombs or
+            InWorldCollectibleKind.HiJumpBoots or InWorldCollectibleKind.SpeedBooster or InWorldCollectibleKind.SpringBall or
+            InWorldCollectibleKind.XrayScope or InWorldCollectibleKind.GrappleBeam or InWorldCollectibleKind.SpaceJump or
+            InWorldCollectibleKind.ScrewAttack or InWorldCollectibleKind.MorphBall => CollectiblePickupConsequence.Nothing,
+        _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "No permanent item is of this kind."),
+    };
+
+    /// <summary>The message the pickup of <paramref name="kind"/> opens.</summary>
     private static GameplayMessageId PickupMessage(InWorldCollectibleKind kind) => kind switch
     {
         InWorldCollectibleKind.EnergyTank => GameplayMessageId.EnergyTank,

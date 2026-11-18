@@ -17,9 +17,6 @@ internal sealed record RoomObjectSetupContext
     /// <summary>The place the placement took, holding its block.</summary>
     public required RoomObjectPlace Place { get; init; }
 
-    /// <summary>The placement: its argument, the screens a scroll trigger changes and the wall cannon a Draygon cannon controls.</summary>
-    public required RoomObjectPlacement Placement { get; init; }
-
     /// <summary>The room's room-object families whose setups keep state of their own.</summary>
     public required RoomObjectPopulationLoaderDependencies Families { get; init; }
 }

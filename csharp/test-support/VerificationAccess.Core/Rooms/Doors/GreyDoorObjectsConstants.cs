@@ -6,10 +6,10 @@ namespace SuperMetroid.Core.Rooms.Doors;
 internal static class GreyDoorObjectsConstants
 {
     /// <summary>
-    /// Maps the four grey doors and Bomb Torizo's right-facing grey door to their facing, each by its own kind (#1414).
+    /// Maps the four grey doors and Bomb Torizo's right-facing grey door to their cap, each by its own kind (#1414).
     /// </summary>
     internal static bool TryIdentifyGreyDoor(
         RoomObjectKind kind,
-        out ColoredDoorOrientation orientation) =>
-        DoorObjectKindDefinitions.GreyDoors.TryGetValue(kind, out orientation);
+        out GreyDoorVariant variant) =>
+        DoorObjectKindDefinitions.GreyDoors.TryGetValue(kind, out variant);
 }

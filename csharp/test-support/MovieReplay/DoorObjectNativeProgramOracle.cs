@@ -96,10 +96,10 @@ internal static class DoorObjectNativeProgramOracle
         {
             NativeGreyDoorLists lists = DoorObjectNativeListAddresses.Grey(variant);
             ColoredDoorOrientation facing = variant.Orientation;
-            string at = variant.BombTorizo ? "Bomb Torizo's grey cap" : $"grey {facing} cap";
+            string at = variant.Closing == GreyDoorClosing.AfterBombs ? "Bomb Torizo's grey cap" : $"grey {facing} cap";
 
             ushort cursor;
-            if (variant.BombTorizo)
+            if (variant.Closing == GreyDoorClosing.AfterBombs)
             {
                 cursor = CompareSteps(cartridge, lists.Closing, GreyDoorDefinitions.BombTorizoHeldOpen, DoorCapPaint.Grey, facing, $"{at} held open");
                 cursor = ExpectGoto(cartridge, cursor, RoomObjectInstruction.GotoIfSamusHasNoBombs, lists.Closing, $"{at} stays open until Samus has Bombs");

@@ -1,4 +1,3 @@
-using SuperMetroid.Core;
 using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Frontend.Menus;

@@ -45,7 +45,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the Etecoon.</summary>
     internal static void InitializeEtecoon(RoomEnemyPlace place)
     {
-        var state = new EtecoonEnemyState(EtecoonAction.WaitingForSamus);
+        var state = new EtecoonEnemyState(EtecoonAction.Dormant);
         state.InstallSpawnSettings(place.SpawnSettings<EtecoonSpawnSettings>());
         place.SetSpeciesState(state);
 
@@ -53,7 +53,6 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
         place.Frame = EnemyFrameId.Empty;
         state.Playback = EnemyAnimationPlayback.Start(place, EtecoonAnimations.StartingWith(EtecoonSegment.StartingCrouch));
-        state.AwaitingSamus = true;
     }
 
     /// <summary>Runs an Etecoon for one update and its actions.</summary>
@@ -72,8 +71,11 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         switch (state.Action)
         {
-            case EtecoonAction.WaitingForSamus:
-                RunEtecoonWaiting(place, state, samus);
+            case EtecoonAction.Dormant:
+                RunEtecoonDormant(place, state, samus);
+                break;
+            case EtecoonAction.Flexing:
+                RunEtecoonFlexing(place, state);
                 break;
             case EtecoonAction.PreJumpCountdown:
                 RunEtecoonPreJumpCountdown(place, state, samus);
@@ -138,27 +140,16 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Runs the dormant/wake loop.</summary>
-    private void RunEtecoonWaiting(
+    /// <summary>Wakes the dormant Etecoon once Samus comes level with it, starting its flex.</summary>
+    private void RunEtecoonDormant(
         RoomEnemyPlace place,
         EtecoonEnemyState state,
         SamusState samus)
     {
-        // The destination room's Etecoons already update while Samus passes through the door. They neither wake nor
-        // count down until her passage ends.
+        // The destination room's Etecoons already update while Samus passes through the door. They do not wake until her
+        // passage ends.
         if (_doorPassage.IsUnderWay)
             return;
-        if (!state.AwaitingSamus)
-        {
-            if (DecrementEtecoonTimerAndTestExpired(state))
-            {
-                StartEtecoonAnimation(place, state, EtecoonSegment.HoppingFacingLeft);
-                state.Action = EtecoonAction.PreJumpCountdown;
-                state.ActionTimer = EtecoonTimingDefinitions.HopCrouch;
-            }
-            return;
-        }
-
         if (!EtecoonIsWithinY(place, samus, EtecoonRouteDefinitions.ActivationYDistance))
             return;
 
@@ -166,8 +157,22 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             _audio.QueueEnemySound(EnemySoundEffectDefinitions.EtecoonWakeSound, priority: SoundRequestPriority.Essential);
         state.Playback = new(EtecoonAnimations.Flexing, AnimationPlace.StartOfAnimation);
         place.AnimationClock.StepOnNextUpdate();
-        state.AwaitingSamus = false;
+        state.Action = EtecoonAction.Flexing;
         state.ActionTimer = EtecoonTimingDefinitions.FlexDuration;
+    }
+
+    /// <summary>Counts the flex down, then crouches for the Etecoon's first hop.</summary>
+    private void RunEtecoonFlexing(RoomEnemyPlace place, EtecoonEnemyState state)
+    {
+        // A door passage holds the countdown, as it holds the wake.
+        if (_doorPassage.IsUnderWay)
+            return;
+        if (!DecrementEtecoonTimerAndTestExpired(state))
+            return;
+
+        StartEtecoonAnimation(place, state, EtecoonSegment.HoppingFacingLeft);
+        state.Action = EtecoonAction.PreJumpCountdown;
+        state.ActionTimer = EtecoonTimingDefinitions.HopCrouch;
     }
 
     /// <summary>Expires the wake pause, installs the first jump speed, and gates its sound by Samus's X.</summary>

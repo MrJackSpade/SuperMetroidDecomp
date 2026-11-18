@@ -39,10 +39,13 @@ internal static class AnimalsNativeWords
     internal static EscapeEtecoonAction EscapeEtecoonActionAt(ushort word) =>
         EscapeEtecoonActions.Decode(word, "recorded EscapeEtecoonAction");
 
-    /// <summary>The routine word naming each <see cref="EtecoonAction"/>.</summary>
+    /// <summary>
+    /// The routine word naming each <see cref="EtecoonAction"/>. One routine runs both the dormant wait and the flex, which
+    /// the record's countdown tells apart (#2476): it names <see cref="EtecoonAction.Dormant"/>.
+    /// </summary>
     internal static readonly NativeWordIdentities<EtecoonAction> EtecoonActions = new(new Dictionary<EtecoonAction, ushort>
     {
-        [EtecoonAction.WaitingForSamus] = 0xe9af,
+        [EtecoonAction.Dormant] = 0xe9af,
         [EtecoonAction.PreJumpCountdown] = 0xea00,
         [EtecoonAction.InitialJump] = 0xea37,
         [EtecoonAction.FaceSamusPause] = 0xeab5,

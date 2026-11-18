@@ -12,8 +12,20 @@ public enum DragonAction
     /// <summary>Moves the body and cosmetic wing upward one pixel per update.</summary>
     Rising,
 
-    /// <summary>Waits for each attack animation and emits the three-fireball volley.</summary>
+    /// <summary>Plays its attack animation, starting it unless it already plays, until the animation's finishing cue.</summary>
     Attacking,
+
+    /// <summary>
+    /// The attack animation has finished, as its last cue says, and rests on its last pose: the next update spits a
+    /// fireball, then starts over or, after the third, waits to sink.
+    /// </summary>
+    AttackFinished,
+
+    /// <summary>
+    /// Has spat a fireball with shots left: the next update starts the attack animation over, even though it still plays
+    /// it, which spaces the three fireballs by a whole attack animation (#2145).
+    /// </summary>
+    RestartingAttack,
 
     /// <summary>Holds the exposed idle pose (<see cref="DragonTimingDefinitions.WaitBeforeSink"/>) before sinking.</summary>
     WaitToSink,

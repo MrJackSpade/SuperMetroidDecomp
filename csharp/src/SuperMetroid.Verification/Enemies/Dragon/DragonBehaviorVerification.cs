@@ -15,7 +15,7 @@ internal static class DragonBehaviorVerification
     /// <summary>
     /// Each animation started on a Dragon part runs its program: the idle
     /// pose shows once and holds, the wings loop on time, and the attack shows its five poses for 32, 3, 7, 3 and 1
-    /// updates before its cue marks the attack complete for main AI.
+    /// updates before its cue finishes the attack, which main AI answers on the next update (#2476).
     /// </summary>
     internal static void VerifyDragonBehavior()
     {
@@ -44,7 +44,7 @@ internal static class DragonBehaviorVerification
                     break;
             }
             bool attacks = selector is DragonSegment.AttackingFacingLeft or DragonSegment.AttackingFacingRight;
-            AssertEqual(attacks, state is DragonEnemyState { AnimationFinished: true }, $"Dragon {program} attack-completion cue");
+            AssertEqual(attacks, state is DragonEnemyState { Action: DragonAction.AttackFinished }, $"Dragon {program} attack-completion cue");
         }
         Console.WriteLine("  Dragon behavior: both idles, both wing loops and both attacks with their completion cue pass.");
         VerifyDragonsAttackingTogether();
@@ -74,10 +74,9 @@ internal static class DragonBehaviorVerification
         foreach (int bodySlot in new[] { 0, 2 })
         {
             DragonEnemyState body = enemies.DragonStates[bodySlot] ?? throw new InvalidOperationException("Dragon has no state.");
-            body.Action = DragonAction.Attacking;
+            body.Action = DragonAction.AttackFinished;
             body.Facing = HorizontalDirection.Left;
             body.AttackCounter = 3;
-            body.AnimationFinished = true;
             enemies.DragonBehavior.RunDragonAttacking(enemies.Places.InUpdateOrder[bodySlot], body);
         }
         SoundEffectId fireball = EnemySoundEffectDefinitions.DragonFireballSound;
@@ -100,8 +99,9 @@ internal static class DragonBehaviorVerification
         else
             enemies.DragonBehavior.InitializeDragonBody(place);
         DragonPartState state = enemies.DragonPartStates[0] ?? throw new InvalidOperationException("Dragon has no state.");
-        if (state is DragonEnemyState body)
-            body.AnimationFinished = false;
+        // An attack plays while the body attacks, whose finishing cue it answers (#2476).
+        if (state is DragonEnemyState body && selector is DragonSegment.AttackingFacingLeft or DragonSegment.AttackingFacingRight)
+            body.Action = DragonAction.Attacking;
         state.Playback = EnemyAnimationPlayback.Start(place, DragonAnimations.StartingWith(selector));
         return new InstallResult(enemies, place, state);
     }

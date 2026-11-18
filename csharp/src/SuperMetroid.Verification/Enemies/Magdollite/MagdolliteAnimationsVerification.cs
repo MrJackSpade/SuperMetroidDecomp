@@ -39,7 +39,7 @@ internal static class MagdolliteAnimationsVerification
                     };
                     AssertEqual(expected, cue, $"{at}: cue");
                 },
-                Omitted: OmittedInstructions.Contains),
+                Omitted: (word, _) => OmittedInstructions.Contains(word)),
             // The head is free again, or surfaces, only after its pillar's counted rise or descent (#2337), and a throw
             // finishes only after its counted flings (#2439).
             onlyRunOnInto: new HashSet<MagdolliteSegment>

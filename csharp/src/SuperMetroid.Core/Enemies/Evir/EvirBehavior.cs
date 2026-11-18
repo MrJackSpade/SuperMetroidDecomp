@@ -107,8 +107,6 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The body bobs down at its speed and up at the same speed.
         EvirSpawnSettings settings = place.SpawnSettings<EvirSpawnSettings>();
-        state.BobbingSpeed = settings.Speed;
-        state.DirectionChangePeriod = settings.DirectionChangePeriod;
         state.MovementTimer = EvirBorrowedFirstHalfCycle.Of(settings.Speed, _places.InUpdateOrder, PlaceLender.Instance) + EnemyWaitDefinitions.RunOutUpdate;
         state.BobbingDirection = VerticalDirection.Up;
         state.ShowsSpawnAnimation = true;
@@ -169,13 +167,14 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.Spit.FoundState<EvirSpitState>() is not { Action: EvirSpitAction.Regenerating })
             SetEvirBodyFacing(place, state, samus);
 
-        place.Position = place.Position.AdvanceY(state.BobbingVelocity);
+        EvirSpawnSettings settings = place.SpawnSettings<EvirSpawnSettings>();
+        place.Position = place.Position.AdvanceY(state.BobbingVelocity(settings.Speed));
 
         // Every later half of the bobbing lasts the body's whole direction-change period and the update it turns on,
         // however long its first half lasted (EvirBorrowedFirstHalfCycle).
         if (--state.MovementTimer <= 0)
         {
-            state.MovementTimer = state.DirectionChangePeriod + EnemyWaitDefinitions.RunOutUpdate;
+            state.MovementTimer = settings.DirectionChangePeriod + EnemyWaitDefinitions.RunOutUpdate;
             state.BobbingDirection = state.BobbingDirection.Reversed();
         }
     }
@@ -403,6 +402,11 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (actor.FrozenTimer == 0)
             return;
+        // The arms and the spit keep copies of the struck part's freeze rather than reading their body's, as the Ki-Hunter's
+        // wings keep theirs (#2375, #2476): the copies are observable. Each part counts its copied freeze down on its own
+        // turn, and the copy carries no hurt state, so a part's freeze runs out while a hurt body's waits for its flash to
+        // end. A power bomb hits the arms on their own, whose follow-up freezes their spit and the next Evir's body, and
+        // the spit can be shot and frozen by itself.
         firstRelative.FrozenTimer = actor.FrozenTimer;
         firstRelative.AiStates = firstRelative.AiStates | EnemyAiStates.Frozen;
         // The game compares the action of the enemy listed two places on with the moving spit's. In the

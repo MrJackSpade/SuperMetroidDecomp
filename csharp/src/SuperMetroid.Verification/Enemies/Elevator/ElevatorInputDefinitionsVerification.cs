@@ -30,7 +30,7 @@ internal static class ElevatorInputDefinitionsVerification
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             enemies.VerificationServices().IsAreaBossDefeated = () => true;
             Action<RoomEnemyPlace, SamusState> initialize = enemies.ElevatorBehavior.InitializeElevator;
-            Action<RoomEnemyPlace, ElevatorEnemyState, SamusState, GameplayAction,
+            Action<RoomEnemyPlace, SamusState, GameplayAction,
                     SamusProjectileSystem> wait = enemies.ElevatorBehavior.WaitForElevatorDirectionInput;
 
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
@@ -40,18 +40,17 @@ internal static class ElevatorInputDefinitionsVerification
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
             samus.BindBodyFixture(bodyArtwork);
             initialize(place, samus);
-            ElevatorEnemyState elevator = enemies.ElevatorStates[0] ?? throw new InvalidOperationException("Verification requires enemies.ElevatorStates[0].");
-            AssertEqual(travel, elevator.Direction,
+            AssertEqual(travel, place.SpawnSettings<ElevatorSpawnSettings>().Direction,
                 $"elevator parameter {direction} travels {travel}");
 
             GameplayAction opposite = GameplayActionWordCodec.FromJoypadWord(LittleEndianBytes.Word(rom.ReadCartridgeByte(inputTable + (direction == 0 ? 2 : 0)), rom.ReadCartridgeByte(inputTable + (direction == 0 ? 3 : 1))), "native opposite elevator mask");
             ElevatorActorStatus before = enemies.ElevatorBehavior.ElevatorStatus;
             enemies.ElevatorBehavior.PublishElevatorDoorContact();
-            wait(place, elevator, samus, opposite, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateProjectileSystem());
+            wait(place, samus, opposite, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateProjectileSystem());
             AssertEqual(before, enemies.ElevatorBehavior.ElevatorStatus, "opposite elevator direction cannot start departure");
             AssertEqual(0, enemies.Audio.SoundRequests.Count, "opposite elevator input queues no departure sounds");
             enemies.ElevatorBehavior.PublishElevatorDoorContact();
-            wait(place, elevator, samus, native, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateProjectileSystem());
+            wait(place, samus, native, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateProjectileSystem());
             AssertEqual(ElevatorActorStatus.Departing, enemies.ElevatorBehavior.ElevatorStatus,
                 $"elevator departure input {direction}");
             AssertEqual(ElevatorFrameEvent.DepartureStarted, enemies.LastEnemyFrame.Elevator,

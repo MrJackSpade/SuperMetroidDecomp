@@ -28,15 +28,9 @@ public sealed class DragonEnemyState : DragonPartState
     /// <summary>The body's shots left while attacking; initialized to three before the first volley.</summary>
     public int AttackCounter { get; internal set; }
 
-    /// <summary>The body's current behaviour.</summary>
-    public DragonAction Action { get; internal set; }
-
-    /// <summary>Set by the attack animation's finishing cue.</summary>
-    public bool AnimationFinished { get; internal set; }
-
     /// <summary>
-    /// Whether the body plays its attack animation (#2168): set where the attack starts, cleared where its idle pose
-    /// starts. Only the update after a fireball restarts an attack that is already playing.
+    /// The body's current behaviour. The attack's finishing cue moves it from <see cref="DragonAction.Attacking"/> to
+    /// <see cref="DragonAction.AttackFinished"/>, which the next update leaves (#2476).
     /// </summary>
-    internal bool PlaysAttack { get; set; }
+    public DragonAction Action { get; internal set; }
 }

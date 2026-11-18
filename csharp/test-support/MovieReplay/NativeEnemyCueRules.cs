@@ -8,9 +8,10 @@ namespace SuperMetroid.TestSupport.MovieReplay;
 /// list's following bytes, never executed, are not compared; null when no cue does.
 /// </param>
 /// <param name="Omitted">
-/// Whether a native instruction has no event in the typed animations because its only effect is presentation the port
-/// does not keep (#1602) or because it has none (#1803); the oracle reads past it without a beat. Null when the owner
-/// omits none.
+/// Whether a native instruction, with its operands, has no event in the typed animations because its only effect is
+/// presentation the port does not keep (#1602), because it has none (#1803), or because a phase the owner enters says it
+/// (#2476: the Chozo statue's activation installing its idle frame routine); the oracle reads past it without a beat. Null
+/// when the owner omits none.
 /// </param>
 /// <param name="GoesTo">
 /// The native entry an owner routine only goes on to (#2167): a routine that loads the instruction pointer with another
@@ -41,7 +42,7 @@ internal sealed record NativeEnemyCueRules<TCue>(
     Func<ushort, int?> OperandWords,
     Action<ushort, ushort[], TCue, string> CompareCue,
     Func<TCue, bool>? EndsList = null,
-    Func<ushort, bool>? Omitted = null,
+    Func<ushort, IReadOnlyList<ushort>, bool>? Omitted = null,
     Func<ushort, ushort?>? GoesTo = null,
     Func<ushort, bool>? ShowsPoseAgain = null,
     Func<ushort, ushort>? PicturedAt = null,

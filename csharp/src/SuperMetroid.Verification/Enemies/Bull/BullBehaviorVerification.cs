@@ -75,10 +75,10 @@ internal static class BullBehaviorVerification
         BullEnemyState state = slot.RequireSpeciesState<BullEnemyState>();
         SignedEightEight brakingStep = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(24);
 
-        state.MaxSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(2815);
+        SignedEightEight fastestCap = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(2815);
         state.AccelerationDelta = brakingStep;
         int accelerations = 0;
-        while (state.IsBelowMaximumSpeed)
+        while (state.IsBelow(fastestCap))
         {
             state.Accelerate();
             accelerations++;

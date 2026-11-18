@@ -72,19 +72,20 @@ internal static class DragonAnimationDefinitionsVerification
         DragonEnemyState bodyState = enemies.DragonStates[0] ?? throw new InvalidOperationException("Verification requires enemies.DragonStates[0].");
         Animation<DragonSegment> attack = DragonAnimations.StartingWith(DragonSegment.AttackingFacingRight);
         var playedOut = new AnimationPlayback<DragonSegment>(attack, AnimationPlace.HoldingIn(0, attack.Phases[0].BeatCount));
-        bodyState.Action = DragonAction.Attacking;
+        bodyState.Action = DragonAction.AttackFinished;
         bodyState.Facing = HorizontalDirection.Right;
         bodyState.AttackCounter = 3;
-        bodyState.AnimationFinished = true;
         bodyState.Playback = playedOut;
 
         enemies.DragonBehavior.RunDragonAttacking(body, bodyState);
         AssertEqual(2, bodyState.AttackCounter, "the finished attack spits a fireball");
         AssertEqual(playedOut, bodyState.Playback, "the attack rests on its last pose the update it spits");
+        AssertEqual(DragonAction.RestartingAttack, bodyState.Action, "a fireball with shots left restarts the attack next");
 
         enemies.DragonBehavior.RunDragonAttacking(body, bodyState);
         AssertDragonAnimationHandoff(body, bodyState, DragonSegment.AttackingFacingRight, "the attack after a fireball");
         AssertEqual(2, bodyState.AttackCounter, "the restarted attack spits nothing until it finishes again");
+        AssertEqual(DragonAction.Attacking, bodyState.Action, "the restarted attack plays until it finishes");
 
         enemies.DragonBehavior.RunDragonAttacking(body, bodyState);
         AssertEqual(new AnimationPlayback<DragonSegment>(attack, AnimationPlace.StartOfAnimation), bodyState.Playback,

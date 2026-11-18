@@ -52,18 +52,18 @@ internal sealed class PhantoonCombat
     };
 
     /// <summary>
-    /// Phantoon's destroyable flame (#1760): its spawner starts its animation, and a shot one runs its typed shot
-    /// animation, the animation its definition names.
+    /// Phantoon's destroyable flame (#1760): its spawner starts its animation, and a shot one dies, leaves its drop and is
+    /// deleted, the animation its definition names.
     /// </summary>
     internal EnemyProjectileBehavior DestroyableFlame => field ??= new PhantoonFlameBehavior(_room, _audio, _deathsAndDrops,
-        PhantoonFlameMotion.CasualFalling, () => new PhantoonFlameAnimation(PhantoonFlameSegment.DestroyableShot));
+        PhantoonFlameMotion.CasualFalling, () => new PhantoonFlameAnimation(PhantoonFlameSegment.Dying));
 
     /// <summary>
-    /// One of Phantoon's intro flames (#1760): its spawner starts its animation, and a shot one runs the destroyable
-    /// flame's idle animation, the animation its definition names.
+    /// One of Phantoon's intro flames (#1760): its spawner starts its animation, and a shot one burns as the destroyable
+    /// flame idles, the animation its definition names.
     /// </summary>
     internal EnemyProjectileBehavior StartingFlame => field ??= new PhantoonFlameBehavior(_room, _audio, _deathsAndDrops,
-        PhantoonFlameMotion.IntroWaiting, () => new PhantoonFlameAnimation(PhantoonFlameSegment.DestroyableIdle));
+        PhantoonFlameMotion.IntroWaiting, () => new PhantoonFlameAnimation(PhantoonFlameSegment.Burning));
 
     /// <summary>
     /// A Phantoon flame: every flame's motion, from the intro's wait and orbit to the rage and spiral, and the flame
@@ -468,7 +468,7 @@ internal sealed class PhantoonCombat
             return;
 
         flame.StartMotion(PhantoonFlameMotion.CasualBouncing);
-        flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameSegment.CasualBouncing));
+        flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameSegment.Burning));
         flame.FrameHold = WrappingCountdown.Start(1);
         flame.Position = flame.Position.WithWholeY(flame.Position.Y.Whole - PhantoonArenaDefinitions.FlameLandingDrop);
         flame.Velocity = flame.Velocity.WithY(PhantoonArenaDefinitions.CasualRiseSpeed);

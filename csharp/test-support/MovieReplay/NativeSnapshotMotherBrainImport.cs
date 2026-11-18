@@ -44,9 +44,12 @@ internal static class NativeSnapshotMotherBrainImport
         state.BrainAction = MotherBrainNativeListAddresses.NativeBrainActions[W(MotherBrainMemory.BrainFunction)];
         PrivateState.Set(state.PhaseTimer, nameof(BossCountdown.Count), CoordinateAxis.AsSigned(W(MotherBrainMemory.BodyFunctionTimer)));
         ushort flash = W(MotherBrainMemory.RoomPaletteAnimationScript);
-        state.RoomFlashImage = flash == 0 ? null
-            : MotherBrainRoomFlashImage.All[MotherBrainNativeListAddresses.RoomFlashRecords.Single(record => unchecked((ushort)record.Record) == flash).Frame];
-        state.RoomFlashTimer = W(MotherBrainMemory.RoomPaletteFrameHold);
+        // The recorded hold counts the updates the flash's image has shown; the image moves on once the count has reached
+        // its two updates, so it has the updates up to its two and one more left (#2404).
+        state.RoomFlash = flash == 0 ? null
+            : MotherBrainRoomFlashAnimations.ShowingFor(
+                MotherBrainRoomFlashImage.All[MotherBrainNativeListAddresses.RoomFlashRecords.Single(record => unchecked((ushort)record.Record) == flash).Frame],
+                MotherBrainRoomFlashDefinitions.FlashImageTicks - W(MotherBrainMemory.RoomPaletteFrameHold) + 1);
         // The sub-function word is shared: outside the tube collapse it holds the death-explosion interval timer
         // (imported below), so only a collapse routine pointer decodes to a collapse function.
         if (MotherBrainNativeListAddresses.DecodeTubeCollapse(W(MotherBrainMemory.BrainSubFunction)) is { } collapse)
@@ -111,11 +114,11 @@ internal static class NativeSnapshotMotherBrainImport
         state.UpperNeckMovement = MotherBrainNativeWords.NeckMovements.Decode(
             W(MotherBrainMemory.UpperNeckMovementIndex), "Mother Brain upper neck movement index");
         state.StandingBodyReadyingElapsed = DecodeLegTilePage(W(MotherBrainMemory.SpriteTileTransferEntry));
-        // The cartridge counts every fade but her fake death's greying on one word; each fade keeps its own progress
-        // (#2251). The one running continues from the recorded count, and every other restarts before its first step.
-        int transitionSteps = W(MotherBrainMemory.GreyTransitionCounter);
-        foreach (MotherBrainFadeProgress fade in new[] { state.FromFakeDeathGrey, state.DrainedGreying, state.RevivalFromGrey, state.DeathBodyFade, state.CorpseGreying })
-            fade.Steps = transitionSteps;
+        // The cartridge counts every fade but her fake death's greying on one word; each fade plays on its own (#2251,
+        // #2404). The one her phase runs resumes from the recorded count and phase timer; every other starts over when its
+        // phase starts it.
+        if (RunningFade(state) is { } running)
+            ResumeFade(running, W(MotherBrainMemory.GreyTransitionCounter), state.PhaseTimer.Count);
         state.DroolGenerationEnabled = W(MotherBrainMemory.DroolGeneration) != 0;
         // The recorded place is the mouth point the last drool took; the points are listed from the one a fresh encounter's
         // first drool takes, so the next point sits at the recorded place there.
@@ -140,6 +143,40 @@ internal static class NativeSnapshotMotherBrainImport
         state.OnionRingsTargetAngle = new TrigonometryAngle(W(MotherBrainMemory.OnionRingsTargetAngle) & byte.MaxValue);
         if (LateFightStages.Contains(state.Stage))
             ImportNativeMotherBrainRainbowSequence(state, W);
+    }
+
+    /// <summary>The fade her recorded phase runs, which the cartridge's fade count and phase timer describe; null in any other phase.</summary>
+    private static MotherBrainFadeProgress? RunningFade(MotherBrainEnemyState state)
+    {
+        if (state.Stage == MotherBrainBodyStage.FakeDeathAscent && state.AscentPhase == MotherBrainAscentPhase.TransitionFromGray)
+            return state.FromFakeDeathGrey;
+        if (state.Stage == MotherBrainBodyStage.DrainedByBaby && state.DrainedPhase == MotherBrainDrainedPhase.TransitionToGrey)
+            return state.DrainedGreying;
+        if (state.Stage == MotherBrainBodyStage.Reviving && state.RevivalPhase == MotherBrainRevivalPhase.TransitionFromGrey)
+            return state.RevivalFromGrey;
+        if (state.Stage == MotherBrainBodyStage.Dying && state.DeathPhase == MotherBrainDeathPhase.FadeOutBody)
+            return state.DeathBodyFade;
+        if (state.Stage == MotherBrainBodyStage.Dying && state.DeathPhase == MotherBrainDeathPhase.FadeToGrey)
+            return state.CorpseGreying;
+        return null;
+    }
+
+    /// <summary>
+    /// Resumes <paramref name="fade"/> where the cartridge's count of its steps, <paramref name="steps"/>, and its phase
+    /// timer, <paramref name="timer"/>, leave it: the cartridge steps the fade as the timer runs below zero, so the next step
+    /// comes the timer's count and one more updates on, and at once once it has run out. Before its first step the fade
+    /// waits that long for its first image; after it, the image last shown holds that long.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The count is past the fade's last image, which ends its phase.</exception>
+    private static void ResumeFade(MotherBrainFadeProgress fade, int steps, int timer)
+    {
+        int updates = Math.Max(timer + 1, 1);
+        if (steps == 0)
+            fade.StartAfter(updates);
+        else if (steps <= fade.Fade.Images.Count)
+            fade.ShowFor(fade.Fade.Images[steps - 1], updates);
+        else
+            throw new InvalidDataException($"Mother Brain's recorded fade count {steps} is past the last of the {fade.Fade.Images.Count} images of {fade.Fade}, whose phase has ended.");
     }
 
     /// <summary>

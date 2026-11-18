@@ -10,15 +10,17 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 internal static class MotherBrainHandBeamAnimations
 {
+    /// <summary>How many stages the beam plays before it deletes itself.</summary>
+    private const int Stages = 3;
 
     /// <summary>
-    /// Three stages, each spawning the next beam after its first frame and fading over seven frames held 3, 3, 2, 2,
-    /// 1, 1 and 1 updates, then the deletion. The charging beam and every fired beam play it.
+    /// The beam's stage, spawning the next beam after its first frame and fading over seven frames held 3, 3, 2, 2, 1, 1
+    /// and 1 updates, and its deletion.
     /// </summary>
     internal static AnimationSegments<MotherBrainHandBeamSegment, EnemyProjectileFrameId, MotherBrainHandBeamCue> Segments { get; } = new(
         new Dictionary<MotherBrainHandBeamSegment, Beat[]>
         {
-            [MotherBrainHandBeamSegment.Beam] =
+            [MotherBrainHandBeamSegment.Stage] =
             [
                 Show(EnemyProjectileFrameId.MotherBrainHandBeamOrbSmall, 3),
                 new Beat.Event(MotherBrainHandBeamCue.SpawnNextBeam),
@@ -28,32 +30,19 @@ internal static class MotherBrainHandBeamAnimations
                 Show(EnemyProjectileFrameId.MotherBrainHandBeamOrbWhiteCore, 1),
                 Show(EnemyProjectileFrameId.MotherBrainHandBeamOrbYellow, 1),
                 Show(EnemyProjectileFrameId.MotherBrainHandBeamOrbWhite, 1),
-                Show(EnemyProjectileFrameId.MotherBrainHandBeamOrbSmall, 3),
-                new Beat.Event(MotherBrainHandBeamCue.SpawnNextBeam),
-                Show(EnemyProjectileFrameId.MotherBrainHandBeamOrbRed, 3),
-                Show(EnemyProjectileFrameId.MotherBrainHandBeamOrbRedYellowCore, 2),
-                Show(EnemyProjectileFrameId.MotherBrainHandBeamOrbOrange, 2),
-                Show(EnemyProjectileFrameId.MotherBrainHandBeamOrbWhiteCore, 1),
-                Show(EnemyProjectileFrameId.MotherBrainHandBeamOrbYellow, 1),
-                Show(EnemyProjectileFrameId.MotherBrainHandBeamOrbWhite, 1),
-                Show(EnemyProjectileFrameId.MotherBrainHandBeamOrbSmall, 3),
-                new Beat.Event(MotherBrainHandBeamCue.SpawnNextBeam),
-                Show(EnemyProjectileFrameId.MotherBrainHandBeamOrbRed, 3),
-                Show(EnemyProjectileFrameId.MotherBrainHandBeamOrbRedYellowCore, 2),
-                Show(EnemyProjectileFrameId.MotherBrainHandBeamOrbOrange, 2),
-                Show(EnemyProjectileFrameId.MotherBrainHandBeamOrbWhiteCore, 1),
-                Show(EnemyProjectileFrameId.MotherBrainHandBeamOrbYellow, 1),
-                Show(EnemyProjectileFrameId.MotherBrainHandBeamOrbWhite, 1),
-                new Beat.Event(MotherBrainHandBeamCue.Delete),
             ],
+            [MotherBrainHandBeamSegment.Delete] = [new Beat.Event(MotherBrainHandBeamCue.Delete)],
         });
 
-    /// <summary>The beam's animation: its stages and deletion, played once; the deleted beam then rests.</summary>
+    /// <summary>
+    /// The beam's animation: its three stages and its deletion, played once; the deleted beam then rests. The charging beam
+    /// and every fired beam play it.
+    /// </summary>
     internal static IReadOnlyDictionary<MotherBrainHandBeamSegment, Animation<MotherBrainHandBeamSegment>> StartingAt { get; } =
         new Dictionary<MotherBrainHandBeamSegment, Animation<MotherBrainHandBeamSegment>>
         {
-            [MotherBrainHandBeamSegment.Beam] = new(
-                [Segments.Whole(MotherBrainHandBeamSegment.Beam)], AnimationEnd.Holds),
+            [MotherBrainHandBeamSegment.Stage] = new(
+                [Segments.Repeated(MotherBrainHandBeamSegment.Stage, Stages), Segments.Whole(MotherBrainHandBeamSegment.Delete)], AnimationEnd.Holds),
         };
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> passes.</summary>

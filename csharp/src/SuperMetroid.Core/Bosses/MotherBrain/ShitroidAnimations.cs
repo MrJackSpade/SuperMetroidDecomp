@@ -2,68 +2,50 @@ using SuperMetroid.Core.Animation;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>The Shitroid's typed animations (#641, #1600).</summary>
+/// <summary>The Shitroid's typed animations (#641, #1600), its pulses the Baby Metroid's (<see cref="BabyMetroidPulses"/>).</summary>
 internal static class ShitroidAnimations
 {
+    /// <summary>How long each pose of the remorse's calm pulse shows.</summary>
+    private const int RemorseCalmPose = 10;
+
+    /// <summary>How many calm pulses the remorse starts with.</summary>
+    private const int RemorseCalmPulses = 2;
+
     /// <summary>Every Shitroid segment.</summary>
     internal static AnimationSegments<ShitroidSegment, BabyMetroidFrame, ShitroidCue> Segments { get; } = new(
         new Dictionary<ShitroidSegment, AnimationBeat<BabyMetroidFrame, ShitroidCue>[]>
     {
-        [ShitroidSegment.FinishDraining] = [Show(BabyMetroidFrame.WideOpen, 128), Show(BabyMetroidFrame.HalfOpen, 16)],
-        [ShitroidSegment.Normal] = [Show(BabyMetroidFrame.Closed, 16), Show(BabyMetroidFrame.HalfOpen, 16), Show(BabyMetroidFrame.WideOpen, 16), Show(BabyMetroidFrame.HalfOpen, 16)],
-        [ShitroidSegment.LatchedOn] = [Show(BabyMetroidFrame.Closed, 8), Show(BabyMetroidFrame.HalfOpen, 8), Show(BabyMetroidFrame.WideOpen, 5), Show(BabyMetroidFrame.HalfOpen, 2)],
-        [ShitroidSegment.Remorse] = Remorse(),
+        [ShitroidSegment.FinishDraining] =
+        [
+            new AnimationBeat<BabyMetroidFrame, ShitroidCue>.Frame(BabyMetroidFrame.WideOpen, 128),
+            new AnimationBeat<BabyMetroidFrame, ShitroidCue>.Frame(BabyMetroidFrame.HalfOpen, 16),
+        ],
+        [ShitroidSegment.Normal] = BabyMetroidPulses.Calm<ShitroidCue>(),
+        [ShitroidSegment.LatchedOn] = BabyMetroidPulses.Draining<ShitroidCue>(),
+        [ShitroidSegment.Remorse] = BabyMetroidPulses.Pulse<ShitroidCue>(RemorseCalmPose, RemorseCalmPose, RemorseCalmPose, RemorseCalmPose),
+        [ShitroidSegment.RemorseQuickening] =
+        [
+            new AnimationBeat<BabyMetroidFrame, ShitroidCue>.Event(ShitroidCue.MaybeRemorseCry),
+            .. BabyMetroidPulses.Pulse<ShitroidCue>(6, 5, 4, 3),
+            .. BabyMetroidPulses.Pulse<ShitroidCue>(2, 3, 4, 5),
+            .. BabyMetroidPulses.Pulse<ShitroidCue>(6, 7, 8, 9),
+        ],
     });
 
     /// <summary>
-    /// The animation that starts at each segment: the pulses cycle for good, and the end of draining runs on into the
-    /// ordinary pulse.
+    /// The animation that starts at each segment: the pulses cycle for good, the end of draining runs on into the ordinary
+    /// pulse, and the remorse plays its calm pulse twice and quickens (#2250).
     /// </summary>
     internal static IReadOnlyDictionary<ShitroidSegment, Animation<ShitroidSegment>> StartingAt { get; } = new Dictionary<ShitroidSegment, Animation<ShitroidSegment>>
     {
         [ShitroidSegment.FinishDraining] = new([Segments.Whole(ShitroidSegment.FinishDraining), Segments.Whole(ShitroidSegment.Normal)], AnimationEnd.LoopsFrom(1)),
         [ShitroidSegment.Normal] = new([Segments.Whole(ShitroidSegment.Normal)], AnimationEnd.LoopsFrom(0)),
         [ShitroidSegment.LatchedOn] = new([Segments.Whole(ShitroidSegment.LatchedOn)], AnimationEnd.LoopsFrom(0)),
-        [ShitroidSegment.Remorse] = new([Segments.Whole(ShitroidSegment.Remorse)], AnimationEnd.LoopsFrom(0)),
+        [ShitroidSegment.Remorse] = new(
+            [Segments.Repeated(ShitroidSegment.Remorse, RemorseCalmPulses), Segments.Whole(ShitroidSegment.RemorseQuickening)], AnimationEnd.LoopsFrom(0)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>, before its first play.</summary>
     internal static AnimationPlayback<ShitroidSegment> Starting(ShitroidSegment segment) =>
         new(StartingAt[segment], AnimationPlace.StartOfAnimation);
-
-    /// <summary>How long each pose of the remorse's two calm pulses shows.</summary>
-    private const int RemorseCalmPose = 10;
-
-    /// <summary>
-    /// Two pulses at ten updates a pose, the random cry, then three pulses that quicken from six updates a pose to two and
-    /// slow again to nine (#2250).
-    /// </summary>
-    private static AnimationBeat<BabyMetroidFrame, ShitroidCue>[] Remorse() =>
-    [
-        Show(BabyMetroidFrame.Closed, RemorseCalmPose),
-        Show(BabyMetroidFrame.HalfOpen, RemorseCalmPose),
-        Show(BabyMetroidFrame.WideOpen, RemorseCalmPose),
-        Show(BabyMetroidFrame.HalfOpen, RemorseCalmPose),
-        Show(BabyMetroidFrame.Closed, RemorseCalmPose),
-        Show(BabyMetroidFrame.HalfOpen, RemorseCalmPose),
-        Show(BabyMetroidFrame.WideOpen, RemorseCalmPose),
-        Show(BabyMetroidFrame.HalfOpen, RemorseCalmPose),
-        new AnimationBeat<BabyMetroidFrame, ShitroidCue>.Event(ShitroidCue.MaybeRemorseCry),
-        Show(BabyMetroidFrame.Closed, 6),
-        Show(BabyMetroidFrame.HalfOpen, 5),
-        Show(BabyMetroidFrame.WideOpen, 4),
-        Show(BabyMetroidFrame.HalfOpen, 3),
-        Show(BabyMetroidFrame.Closed, 2),
-        Show(BabyMetroidFrame.HalfOpen, 3),
-        Show(BabyMetroidFrame.WideOpen, 4),
-        Show(BabyMetroidFrame.HalfOpen, 5),
-        Show(BabyMetroidFrame.Closed, 6),
-        Show(BabyMetroidFrame.HalfOpen, 7),
-        Show(BabyMetroidFrame.WideOpen, 8),
-        Show(BabyMetroidFrame.HalfOpen, 9),
-    ];
-
-    /// <summary>Shows pose <paramref name="pose"/>.</summary>
-    private static AnimationBeat<BabyMetroidFrame, ShitroidCue> Show(BabyMetroidFrame pose, int duration) =>
-        new AnimationBeat<BabyMetroidFrame, ShitroidCue>.Frame(pose, duration);
 }

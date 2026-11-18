@@ -119,11 +119,11 @@ internal static class ShitroidFightDefinitions
     /// <summary>The strongest recoil a shot gives it, in 256ths of a pixel an update.</summary>
     internal const int RecoilLimit = 240;
 
-    /// <summary>The updates between its membrane's pulses while it is calm, and the delay below which its cry is quick.</summary>
-    internal const int CalmPulseDelay = 10;
+    /// <summary>The updates each phase of its membrane's pulse shows for while it is calm.</summary>
+    internal const int CalmPulsePhaseUpdates = 11;
 
-    /// <summary>The updates between its membrane's pulses while it is latched on and feeding.</summary>
-    internal const int FeedingPulseDelay = 1;
+    /// <summary>The updates each phase of its membrane's pulse shows for while it is latched on and feeding.</summary>
+    internal const int FeedingPulsePhaseUpdates = 2;
 
     /// <summary>The cry pulses that pass between its cries.</summary>
     internal const int PulsesPerCry = 4;

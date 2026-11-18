@@ -363,7 +363,8 @@ internal static class NativeEnemyAnimationOracle
     /// counted entry it is (#2044); otherwise the phase beat at the pointer, or the end of a phase's play where the pointer
     /// rests on the control instruction after it, in the animation starting at that phase's segment when one plays it
     /// there, else the first in authored order that does, the animations started at counted entries after those starting
-    /// at segments.
+    /// at segments. In a list that writes its run out again (#2337, #2405), the pointer at a beat of a copy stands in that
+    /// play of the repeated phase, with the plays from it on left.
     /// </summary>
     /// <param name="lists">Each segment's native list.</param>
     /// <param name="entries">Each segment's native entry.</param>
@@ -394,41 +395,51 @@ internal static class NativeEnemyAnimationOracle
             return new AnimationPlayback<TSegment>(startingAt[started], AnimationPlace.StartOfAnimation);
         if (counted.SingleOrDefault(start => start.Entry.Address == nativePointer) is { } countedStart)
             return new AnimationPlayback<TSegment>(countedStart.Entry.Animation, AnimationPlace.StartOfAnimation);
-        var beats = new List<(NativeEnemySegmentPlace<TSegment> Place, NativeEnemyList<TSegment> List)>();
-        var ends = new List<(NativeEnemySegmentPlace<TSegment> Place, NativeEnemyList<TSegment> List)>();
+        var beats = new List<(NativeEnemySegmentPlace<TSegment> Place, NativeEnemyList<TSegment> List, int PlaysLeft)>();
+        var ends = new List<(NativeEnemySegmentPlace<TSegment> Place, NativeEnemyList<TSegment> List, int PlaysLeft)>();
         foreach (KeyValuePair<TSegment, NativeEnemyList<TSegment>> pair in lists)
         {
             TSegment segment = pair.Key;
             // A segment the cartridge repeats under entries continuing elsewhere (#2376) is searched in each of its lists.
             foreach (NativeEnemyList<TSegment> list in pair.Value.Repeats.Prepend(pair.Value))
             {
+                // Each copy of a run the list writes out again (#2337, #2405) lies its distance from the entry past the
+                // first, which the list's beats record: a play standing in one has the plays from it on left, and the end
+                // after the last copy ends the last play. A list written out once counts no plays.
+                int[] copies = [0, .. list.Controls.Where(control => control.Kind == NativeEnemyControlKind.WrittenOutRepeat)
+                    .Select(control => control.Address - list.Entry)];
                 // Markers (#2301) share the address of what follows them, and a play rests before a marker, never just past
                 // it: the pointer stands at the first of the beats sharing its address, and an end those beats run up to is
                 // theirs.
                 var pastMarkers = new HashSet<int>();
-                for (int beat = 0; beat < list.BeatAddresses.Length; beat++)
+                for (int copy = 0; copy < copies.Length; copy++)
                 {
-                    if (list.BeatAddresses[beat] != nativePointer || (beat > 0 && list.BeatAddresses[beat - 1] == nativePointer))
-                        continue;
-                    beats.Add((new(segment, beat), list));
-                    int past = beat;
-                    while (past < list.BeatAddresses.Length && list.BeatAddresses[past] == nativePointer)
-                        past++;
-                    pastMarkers.Add(past);
+                    int playsLeft = copies.Length > 1 ? copies.Length - copy : 0;
+                    for (int beat = 0; beat < list.BeatAddresses.Length; beat++)
+                    {
+                        if (CopyAddress(list, beat, copies[copy]) != nativePointer || (beat > 0 && CopyAddress(list, beat - 1, copies[copy]) == nativePointer))
+                            continue;
+                        beats.Add((new(segment, beat), list, playsLeft));
+                        int past = beat;
+                        while (past < list.BeatAddresses.Length && CopyAddress(list, past, copies[copy]) == nativePointer)
+                            past++;
+                        pastMarkers.Add(past);
+                    }
                 }
                 // The pointer rests on a list's first control after a beat; a later control at the same beat never holds it.
-                foreach (IGrouping<int, NativeEnemyControl<TSegment>> after in list.Controls.GroupBy(control => control.AfterBeat))
+                foreach (IGrouping<int, NativeEnemyControl<TSegment>> after in list.Controls
+                    .Where(control => control.Kind != NativeEnemyControlKind.WrittenOutRepeat).GroupBy(control => control.AfterBeat))
                 {
                     if (after.First().Address == nativePointer && !pastMarkers.Contains(after.Key)
                         && after.First().Kind is not (NativeEnemyControlKind.RunOnIntoNext or NativeEnemyControlKind.LoopStart or NativeEnemyControlKind.PoseShownAgain))
-                        ends.Add((new(segment, after.Key), list));
+                        ends.Add((new(segment, after.Key), list, copies.Length > 1 ? 1 : 0));
                 }
             }
         }
         if (beats.Count + ends.Count != 1)
             throw new InvalidDataException($"Native {typeof(TSegment).Name} instruction pointer ${nativePointer:X4} matches {beats.Count + ends.Count} typed places.");
         bool atEnd = ends.Count == 1;
-        (NativeEnemySegmentPlace<TSegment> found, NativeEnemyList<TSegment> foundList) = atEnd ? ends[0] : beats[0];
+        (NativeEnemySegmentPlace<TSegment> found, NativeEnemyList<TSegment> foundList, int foundPlaysLeft) = atEnd ? ends[0] : beats[0];
         IEnumerable<TSegment> candidates = startingAt.ContainsKey(found.Segment)
             ? [found.Segment, .. Enum.GetValues<TSegment>().Where(startingAt.ContainsKey)]
             : Enum.GetValues<TSegment>().Where(startingAt.ContainsKey);
@@ -443,14 +454,18 @@ internal static class NativeEnemyAnimationOracle
                 if (!EqualityComparer<TSegment>.Default.Equals(phase.Segment, found.Segment)
                     || !ReferenceEquals(ListPlayedBy(lists, startingAt, animation, index, countedStarts), foundList))
                     continue;
+                // A pointer in a written-out copy stands in the phase playing the list's every copy.
+                if (foundPlaysLeft > 0 && phase.Plays != foundList.Controls.Count(control => control.Kind == NativeEnemyControlKind.WrittenOutRepeat) + 1)
+                    continue;
                 if (!atEnd && found.Beat >= phase.FirstBeat && found.Beat < phase.FirstBeat + phase.BeatCount)
-                    return new AnimationPlayback<TSegment>(animation, new AnimationPlace(index, found.Beat - phase.FirstBeat));
+                    return new AnimationPlayback<TSegment>(animation, new AnimationPlace(index, found.Beat - phase.FirstBeat).WithPlaysLeft(foundPlaysLeft));
                 // A pointer resting on a sleep holds the phase's last frame; one resting on a goto, repeat or stop ends its play.
                 if (atEnd && found.Beat == phase.FirstBeat + phase.BeatCount)
                     return new AnimationPlayback<TSegment>(animation,
-                        foundList.Controls.First(control => control.AfterBeat == found.Beat).Kind == NativeEnemyControlKind.Sleep
+                        foundList.Controls.First(control => control.AfterBeat == found.Beat && control.Kind != NativeEnemyControlKind.WrittenOutRepeat).Kind
+                            == NativeEnemyControlKind.Sleep
                             ? AnimationPlace.HoldingIn(index, phase.BeatCount)
-                            : new AnimationPlace(index, phase.BeatCount));
+                            : new AnimationPlace(index, phase.BeatCount).WithPlaysLeft(foundPlaysLeft));
             }
         }
         throw new InvalidDataException($"Native {typeof(TSegment).Name} instruction pointer ${nativePointer:X4} stands at {found}, which no typed animation plays.");
@@ -476,6 +491,14 @@ internal static class NativeEnemyAnimationOracle
             throw new InvalidDataException($"A native loop counter of {counter} stands outside the {phase.Plays} plays of repeated phase {place.Phase} ({phase.Segment}).");
         return playback with { Place = place.WithPlaysLeft(counter) };
     }
+
+    /// <summary>
+    /// The native address of beat <paramref name="beat"/> of <paramref name="list"/> in the copy of its run lying
+    /// <paramref name="copyOffset"/> bytes past the first (#2405).
+    /// </summary>
+    private static ushort CopyAddress<TSegment>(NativeEnemyList<TSegment> list, int beat, int copyOffset)
+        where TSegment : struct, Enum =>
+        unchecked((ushort)(list.BeatAddresses[beat] + copyOffset));
 
     /// <summary>
     /// The plays the repeated phase <paramref name="playback"/> stands in has left, as a recording's native loop counter

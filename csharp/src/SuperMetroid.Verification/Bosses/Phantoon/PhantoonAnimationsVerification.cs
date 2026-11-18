@@ -151,10 +151,9 @@ internal static class PhantoonAnimationsVerification
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         VerifyFlameProducers();
-        // The dying flame is no animation of its own (#2166): a resting flame and a rain impact run on into it, and their
-        // plays match its native list.
-        AssertTrue(!PhantoonFlameAnimations.StartingAt.ContainsKey(PhantoonFlameSegment.Dying), "no animation starts at the dying flame");
-        foreach ((PhantoonFlameSegment program, ushort entry) in FlameEntries.Where(item => item.Program != PhantoonFlameSegment.Dying))
+        // A resting flame and a rain impact run on into the dying flame's poses (#2166), and their plays match its native
+        // list; the shot flame's animation dies, drops and deletes from its own (#2405).
+        foreach ((PhantoonFlameSegment program, ushort entry) in FlameEntries)
         {
             RoomEnemySystem enemies = NewFlameSystem();
             EnemyProjectile flame = SpawnDestroyable(enemies, SpawnRageFlame, "rage");
@@ -178,7 +177,7 @@ internal static class PhantoonAnimationsVerification
             }
             AssertEqual(drops, enemies.ActiveEnemyDropPickups, $"Phantoon flame {program}: drop requests");
             bool deletes = program is PhantoonFlameSegment.CasualResting or PhantoonFlameSegment.RainImpact
-                or PhantoonFlameSegment.Delete or PhantoonFlameSegment.DestroyableShot;
+                or PhantoonFlameSegment.Delete or PhantoonFlameSegment.Dying;
             AssertEqual(deletes, native.Deleted, $"Phantoon flame {program}: deletion matches the native list");
         }
 
@@ -213,7 +212,7 @@ internal static class PhantoonAnimationsVerification
         RoomEnemySystem casual = NewFlameSystem();
         AssertStarted(SpawnDestroyable(casual, (patterns, phantoon) => patterns.SpawnPhantoonCasualFlame(phantoon.Body), "casual"), PhantoonFlameSegment.CasualFallingKindling, "casual flame");
         RoomEnemySystem rage = NewFlameSystem();
-        AssertStarted(SpawnDestroyable(rage, SpawnRageFlame, "rage"), PhantoonFlameSegment.DestroyableIdle, "rage flame");
+        AssertStarted(SpawnDestroyable(rage, SpawnRageFlame, "rage"), PhantoonFlameSegment.Burning, "rage flame");
     }
 
     /// <summary>Spawns the last flame of an even rage wave, the one the cartridge's first rage parameter starts.</summary>

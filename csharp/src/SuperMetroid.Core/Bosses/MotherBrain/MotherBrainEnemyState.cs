@@ -185,8 +185,8 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     /// </summary>
     public MotherBrainBodyPose Pose { get; internal set; }
 
-    /// <summary>How far her greying at her fake death has come: its eight colourings, then the step that completes it.</summary>
-    public MotherBrainFadeProgress FakeDeathGreying { get; } = new();
+    /// <summary>Her greying at her fake death playing: its eight colourings, each held nine updates, and then it is over.</summary>
+    public MotherBrainFadeProgress FakeDeathGreying { get; } = new(MotherBrainFadeDefinitions.FakeDeathToGrey);
 
     /// <summary>The wait before the next fake-death explosion (<see cref="MotherBrainWaitDefinitions.FakeDeathExplosionIntervalUpdates"/>).</summary>
     public BossCountdown FakeDeathExplosionTimer { get; } = new();
@@ -197,12 +197,10 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     public ListStep<Position16<RoomPixels>> NextFakeDeathExplosion { get; internal set; } = ListStep<Position16<RoomPixels>>.FirstOf(MotherBrainTubeCollapseDefinitions.FakeDeathExplosionPositions);
 
     /// <summary>
-    /// The room flash's current image (#641, #2259), or null while no flash runs. Its timer counts upward, unlike enemy
-    /// animation frame holds, because the room flash's step compares elapsed frames with each duration.
+    /// Her room's flash playing (#641, #2259, #2404): the shared animation player looping its fourteen images, or null while
+    /// no flash runs.
     /// </summary>
-    public MotherBrainRoomFlashImage? RoomFlashImage { get; internal set; }
-    /// <summary>Elapsed-update count for the current room-flash frame, advanced upward by the room flash's step and reset when the frame changes; never above the frame's two-update duration.</summary>
-    public int RoomFlashTimer { get; internal set; }
+    internal AnimationPlayer<MotherBrainRoomFlashSegment, MotherBrainRoomFlashImage, NoAnimationCue>? RoomFlash { get; set; }
 
     /// <summary>Where the tube collapse stands, or null until her fake-death flash starts the collapse.</summary>
     internal MotherBrainTubeCollapseProgress? TubeCollapse { get; set; }
@@ -315,19 +313,19 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     public MotherBrainBurstCycle Bursts { get; }
 
     /// <summary>How far her return from her fake death's grey has come (#2251).</summary>
-    public MotherBrainFadeProgress FromFakeDeathGrey { get; } = new();
+    public MotherBrainFadeProgress FromFakeDeathGrey { get; } = new(MotherBrainFadeDefinitions.FakeDeathFromGrey);
 
     /// <summary>How far her greying as the Baby drains her has come.</summary>
-    public MotherBrainFadeProgress DrainedGreying { get; } = new();
+    public MotherBrainFadeProgress DrainedGreying { get; } = new(MotherBrainFadeDefinitions.DrainToGrey);
 
     /// <summary>How far her revival from that grey has come.</summary>
-    public MotherBrainFadeProgress RevivalFromGrey { get; } = new();
+    public MotherBrainFadeProgress RevivalFromGrey { get; } = new(MotherBrainFadeDefinitions.RevivalFromGrey);
 
     /// <summary>How far her final death's fade of her body has come.</summary>
-    public MotherBrainFadeProgress DeathBodyFade { get; } = new();
+    public MotherBrainFadeProgress DeathBodyFade { get; } = new(MotherBrainFadeDefinitions.DeathBody);
 
     /// <summary>How far her corpse's greying has come.</summary>
-    public MotherBrainFadeProgress CorpseGreying { get; } = new();
+    public MotherBrainFadeProgress CorpseGreying { get; } = new(MotherBrainFadeDefinitions.CorpseFade);
 
     /// <summary>Allows the head animation's mouth-drool generation, enabled during live combat and cleared by low-power/death transitions.</summary>
     public bool DroolGenerationEnabled { get; internal set; }

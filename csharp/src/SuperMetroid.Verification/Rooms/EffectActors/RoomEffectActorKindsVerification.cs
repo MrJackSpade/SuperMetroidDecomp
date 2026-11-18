@@ -37,7 +37,7 @@ internal static class RoomEffectActorKindsVerification
                 if (!native.IsActive)
                     break;
                 AssertEqual(native.Spritemap, slot.SpritemapPointer, $"room sprite object {kind} spritemap after {update} updates");
-                if (slot.Holds && !native.Holds)
+                if (slot.AnimationClock.IsStopped && !native.Holds)
                 {
                     // A still picture: the native list's frame runs out into its hold, showing the same picture.
                     ushort held = native.Spritemap;
@@ -47,7 +47,7 @@ internal static class RoomEffectActorKindsVerification
                         AssertEqual(held, native.Spritemap, $"room sprite object {kind}'s still picture is the one its native list holds");
                     }
                 }
-                AssertEqual(native.Holds, slot.Holds, $"room sprite object {kind} hold after {update} updates");
+                AssertEqual(native.Holds, slot.AnimationClock.IsStopped, $"room sprite object {kind} hold after {update} updates");
                 if (native.Holds)
                     break;
                 AssertEqual(UpdatesBeforeChange(native), slot.FrameHold, $"room sprite object {kind} updates before its picture changes after {update} updates");

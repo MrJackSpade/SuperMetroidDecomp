@@ -38,16 +38,16 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     /// has one glow, not one per block.
     /// </summary>
     private bool _glowStarted;
-    /// <summary>Updates left before the glow steps, restarted at sixteen by each step and by a block waking.</summary>
-    private int _glowStepCountdown;
+
     /// <summary>
-    /// The frame of the glow every face block shows, kept when a block wakes. It starts at the last frame, so the glow's
-    /// first step shows its first.
+    /// The room's glow (#2477): the level every face block shows, kept when a block wakes, and the updates it has left. A
+    /// room starts it on its last step, so the glow's first step shows its first.
     /// </summary>
-    private FaceBlockGlowFrame _glowFrame = FaceBlockGlowFrame.Last;
+    private readonly AnimationPlayer<FaceBlockGlowSegment, FaceBlockGlowLevel, NoAnimationCue> _glow =
+        AnimationPlayer<FaceBlockGlowSegment, FaceBlockGlowLevel, NoAnimationCue>.StartShowing(FaceBlockGlowAnimations.Segments, FaceBlockGlowAnimations.Restarted);
 
     /// <summary>The glow every face block in the room shows once it has started (#1512).</summary>
-    private PictureShading Glow => PictureShading.Shaded(FaceBlockShades.Glow(_glowFrame));
+    private PictureShading Glow => PictureShading.Shaded(FaceBlockShades.Glow(_glow.Showing));
 
     /// <summary>Initializes the Blue Brinstar face block.</summary>
     internal void InitializeBlueBrinstarFaceBlock(RoomEnemyPlace place, SamusState samus)
@@ -65,7 +65,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
         // collects it starts the glow at once.
         if (HasCollectedMorphBall(samus))
             StartGlow(place);
-        _glowStepCountdown = FaceBlockGlowDefinitions.FrameDuration;
+        RestartGlowStep();
 
         // Keeps only the facing its spawn names: main AI wakes the block only for Samus on that side.
         state.Facing = place.SpawnSettings<FaceBlockSpawnSettings>().Facing;
@@ -104,9 +104,12 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
             : BlueBrinstarFaceBlockSegment.SamusRight));
         state.Activated = true;
 
-        // Waking restarts the room's glow countdown at sixteen updates but keeps the glow's frame.
-        _glowStepCountdown = FaceBlockGlowDefinitions.FrameDuration;
+        // Waking restarts the room's glow countdown at sixteen updates but keeps the glow's level.
+        RestartGlowStep();
     }
+
+    /// <summary>Shows the glow's level for a whole step's updates from now, as a block's setup and its waking do.</summary>
+    private void RestartGlowStep() => _glow.HoldShownFrameFor(FaceBlockGlowDefinitions.FrameDuration);
 
     /// <summary>Uses the collected items so unequipping Morph Ball does not put active blocks back to rest.</summary>
     private static bool HasCollectedMorphBall(SamusState samus) =>
@@ -123,19 +126,14 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     }
 
     /// <summary>
-    /// Counts down the room's glow once a block has started it, after the enemies' update; when the frame's time is up
-    /// the glow steps to its next frame on every face block. A door transition pauses it.
+    /// Counts down the room's glow once a block has started it, after the enemies' update; when the step's time is up
+    /// the glow steps to its next level on every face block. A door transition pauses it.
     /// </summary>
     internal void StepGlow()
     {
-        if (!_glowStarted || _doorPassage.IsUnderWay)
+        if (!_glowStarted || _doorPassage.IsUnderWay || _glow.StepToNewFrame() is null)
             return;
 
-        if (--_glowStepCountdown != 0)
-            return;
-
-        _glowStepCountdown = FaceBlockGlowDefinitions.FrameDuration;
-        _glowFrame = _glowFrame.Next;
         PictureShading glow = Glow;
         foreach (RoomEnemyPlace block in _blocks)
             block.Shading = glow;

@@ -439,6 +439,7 @@ internal static class EnemyTrigonometryVerification
         new(nameof(VerifyHibashiDefinitions), () => VerifyHibashiDefinitions(LoadRepositoryRom())),
         new(nameof(BlueBrinstarFaceBlockAnimationsVerification.VerifyBlueBrinstarFaceBlockAnimations), () => BlueBrinstarFaceBlockAnimationsVerification.VerifyBlueBrinstarFaceBlockAnimations(LoadRepositoryRom())),
         new(nameof(BlueBrinstarFaceBlockBehaviorVerification.VerifyBlueBrinstarFaceBlockBehavior), () => BlueBrinstarFaceBlockBehaviorVerification.VerifyBlueBrinstarFaceBlockBehavior()),
+        new(nameof(BlueBrinstarFaceBlockGlowVerification.VerifyBlueBrinstarFaceBlockGlow), () => BlueBrinstarFaceBlockGlowVerification.VerifyBlueBrinstarFaceBlockGlow(LoadRepositoryRom())),
         new(nameof(VerifyFuneNamiheDefinitions), () => VerifyFuneNamiheDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyFuneNamiheInstructionProgramDefinitions), () => VerifyFuneNamiheInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyMiscDustProjectileDefinitions), () => VerifyMiscDustProjectileDefinitions(LoadRepositoryRom())),

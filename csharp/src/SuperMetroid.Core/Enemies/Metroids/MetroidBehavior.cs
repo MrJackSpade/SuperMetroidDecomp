@@ -394,7 +394,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         outerBody.Position = outerBody.Position.WithWhole(metroid.Position.Whole);
         outerBody.Graphics = graphics;
-        outerBody.UpdatesDisabled = false;
+        outerBody.AnimationClock.Resume();
     }
 
     /// <summary>
@@ -404,8 +404,8 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void FreezeMetroidOuterBody(RoomEffectActor outerBody)
     {
         outerBody.Graphics = outerBody.Graphics.In(EnemyShades.FrozenLook);
-        outerBody.UpdatesDisabled = true;
-        // Drawing shows the first frame while animation is disabled.
+        outerBody.AnimationClock.Suspend();
+        // Drawing shows the first frame while its clock is suspended.
         outerBody.RestartAnimation();
     }
 

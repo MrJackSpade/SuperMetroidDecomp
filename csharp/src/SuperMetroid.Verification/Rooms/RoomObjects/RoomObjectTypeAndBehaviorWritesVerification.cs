@@ -120,9 +120,9 @@ internal static class RoomObjectTypeAndBehaviorWritesVerification
         RoomBlockCell[] shown = Shown(level, blocks);
         RoomObjectSystem roomObjects = RoomObjectFixtures.Unbound();
 
-        GateObjects.SetupDownwardGateShotBlock(level, PlaceAt(roomObjects, gate), new GateTriggerArgument(DownwardGateTriggerBehavior.BlueLeft));
+        GateObjects.SetupDownwardGateShotBlock(level, PlaceAt(roomObjects, gate), new GateTriggerArgument(new DownwardGateTrigger(DownwardGateTriggerColor.Blue, HorizontalDirection.Left)));
         AssertBlock(level, trigger, DownwardGateDefinitions.TriggerCollision,
-            RoomBlockBehavior.Reacting(BlockReactionDefinitions.DownwardGateTriggers.ReactionFor(DownwardGateTriggerBehavior.BlueLeft)),
+            RoomBlockBehavior.Reacting(BlockReactionDefinitions.DownwardGateTriggers.ReactionFor(new DownwardGateTrigger(DownwardGateTriggerColor.Blue, HorizontalDirection.Left))),
             "the gate's trigger block");
         AssertShowsWhatItShowed(level, blocks, shown, "the gate's trigger");
     }

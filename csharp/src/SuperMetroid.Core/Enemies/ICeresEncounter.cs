@@ -23,6 +23,6 @@ internal interface ICeresEncounter
     /// <summary>Draws the Baby and door sprite over every enemy, once his animation has started.</summary>
     void DrawCeresRidleyBabyAndDoorOverEnemies(SpriteFrameBuffer sprites, Position16<RoomPixels> camera);
 
-    /// <summary>Runs the getaway room's main step over the arena's turning <paramref name="floor"/>.</summary>
-    void RunCeresRidleyGetawayRoomMain(SamusState samus, RoomFloor floor, int frameCounter);
+    /// <summary>Runs the getaway room's main step over the arena's turning <paramref name="floor"/>, or none in a state that shows none.</summary>
+    void RunCeresRidleyGetawayRoomMain(SamusState samus, RoomFloor? floor, int frameCounter);
 }

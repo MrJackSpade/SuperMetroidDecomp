@@ -108,13 +108,15 @@ internal sealed class CeresEscape : IGameplayShadingSource
     /// step shares the frame in which Ridley's escape handoff publishes <see cref="CeresEscapeStatus.RidleyEscaped"/>.
     /// </summary>
     /// <param name="samus">Samus, whom the getaway's floor carries.</param>
-    /// <param name="floor">The arena's turning floor, whose capsule and wings the getaway animates.</param>
+    /// <param name="floor">The arena's turning floor, whose capsule and wings the getaway animates; null in a state that shows none.</param>
     /// <param name="frameCounter">The game's frame counter, which beats the capsule and the wings.</param>
-    public void RunGetawayRoomMain(SamusState? samus, RoomFloor floor, int frameCounter)
+    /// <exception cref="InvalidDataException">The getaway flies in a room that shows no turning floor.</exception>
+    public void RunGetawayRoomMain(SamusState? samus, RoomFloor? floor, int frameCounter)
     {
         if (Stage != CeresEscapeStage.Getaway)
             return;
-        TickGetawayFloor(samus, floor, frameCounter);
+        TickGetawayFloor(samus, floor ?? throw new InvalidDataException("Ceres Ridley's getaway flies in a room that shows no turning floor."),
+            frameCounter);
     }
 
     /// <summary>

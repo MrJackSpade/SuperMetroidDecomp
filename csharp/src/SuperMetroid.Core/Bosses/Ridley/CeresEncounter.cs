@@ -31,6 +31,6 @@ internal sealed class CeresEncounter(RidleyEncounter encounter, CeresRidleyBehav
         ceresRidley.BabyScene.DrawCeresRidleyBabyAndDoorOverEnemies(sprites, camera);
 
     /// <inheritdoc/>
-    public void RunCeresRidleyGetawayRoomMain(SamusState samus, RoomFloor floor, int frameCounter) =>
+    public void RunCeresRidleyGetawayRoomMain(SamusState samus, RoomFloor? floor, int frameCounter) =>
         escape.RunGetawayRoomMain(samus, floor, frameCounter);
 }

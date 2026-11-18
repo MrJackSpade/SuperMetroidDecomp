@@ -147,9 +147,7 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
         Main = new CeresFallingDebrisMain(new CeresFallingDebrisRoomMainState(_carryover));
 
     /// <summary>Composes Ceres Ridley's arena's main, his getaway (#2287).</summary>
-    /// <exception cref="InvalidDataException">The arena shows no turning floor.</exception>
-    internal void ComposeRidleyGetawayMain() => Main = new CeresRidleyGetawayMain(
-        Floor ?? throw new InvalidDataException("Ceres Ridley's arena shows no turning floor for his getaway."));
+    internal void ComposeRidleyGetawayMain() => Main = new CeresRidleyGetawayMain(Floor);
 
     /// <summary>Composes the Crocomire room's main, the rumble while his death uncovers the hidden wall (#2287).</summary>
     internal void ComposeCrocomireRumbleMain() => Main = new CrocomireRoomShakingMain();

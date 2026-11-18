@@ -34,8 +34,8 @@ public static class RoomEnemyPopulationDefinitions
     /// <summary>The population named <paramref name="name"/>.</summary>
     private static RoomEnemyPopulationDefinition Find(string name) => ByName[name];
 
-    /// <summary>The enemy population shared by the Draygon room once the area's boss is dead and the Mother Brain room once the main area boss is dead.</summary>
-    public static RoomEnemyPopulationDefinition DraygonWhenAreaBossDeadOrMotherBrainWhenMainAreaBossDead { get; } = Find(nameof(DraygonWhenAreaBossDeadOrMotherBrainWhenMainAreaBossDead));
+    /// <summary>The enemy population shared by the Draygon room and the Mother Brain room once each area's boss is dead.</summary>
+    public static RoomEnemyPopulationDefinition DraygonOrMotherBrainWhenAreaBossDead { get; } = Find(nameof(DraygonOrMotherBrainWhenAreaBossDead));
     /// <summary>The enemy population of the East Ocean room.</summary>
     public static RoomEnemyPopulationDefinition EastOcean { get; } = Find(nameof(EastOcean));
     /// <summary>The enemy population of the Crateria Power Bombs room.</summary>

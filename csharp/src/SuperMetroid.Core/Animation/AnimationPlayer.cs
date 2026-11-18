@@ -216,6 +216,18 @@ internal sealed class AnimationPlayer<TSegment, TFrame, TEvent>
     }
 
     /// <summary>
+    /// Runs one update as <see cref="StepToNewFrame(Action{TEvent})"/> does, but the owner's reaction to an event it passes
+    /// may continue the play elsewhere (#2487): in the animation and at the place <paramref name="react"/> returns, at once,
+    /// as a Tourian statue that finds its area's boss dead goes on into its release on the same update.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The animation passes every beat without showing a frame.</exception>
+    internal TFrame? StepToNewFrame(Func<TEvent, AnimationContinuation<TSegment>?> react)
+    {
+        Ensure.NotNull(react);
+        return IsResting || --UpdatesLeft > 0 ? null : PlayOnReacting(react);
+    }
+
+    /// <summary>
     /// Runs one update as <see cref="StepToNewFrame()"/> does, but once the shown frame's updates run out plays on in
     /// <paramref name="animation"/>, of the same segments, going on from where the play stands as
     /// <see cref="AnimationPlayback{TSegment}.GoingOnIn"/> hands it (#2447): an owner sharing its place with another
@@ -305,11 +317,22 @@ internal sealed class AnimationPlayer<TSegment, TFrame, TEvent>
     }
 
     /// <summary>Plays the animation on to its next frame, pause or rest, and returns the frame it shows anew, if any.</summary>
-    private TFrame? PlayOn(Action<TEvent> raise)
+    private TFrame? PlayOn(Action<TEvent> raise) => PlayOnReacting(raised =>
     {
+        raise(raised);
+        return null;
+    });
+
+    /// <summary>
+    /// Plays the animation on to its next frame, pause or rest, going on where <paramref name="react"/> continues it, and
+    /// returns the frame it shows anew, if any.
+    /// </summary>
+    private TFrame? PlayOnReacting(Func<TEvent, AnimationContinuation<TSegment>?> react)
+    {
+        Animation<TSegment> animation = Playback.Animation;
         AnimationPlace place = Playback.Place;
-        AnimationShown<TSegment, TFrame> next = segments.PlayToNextFrame(Playback.Animation, ref place, raise);
-        Playback = Playback with { Place = place };
+        AnimationShown<TSegment, TFrame> next = segments.PlayToNextFrame(ref animation, ref place, react);
+        Playback = new(animation, place);
         switch (next)
         {
             case AnimationShown<TSegment, TFrame>.Frame frame:

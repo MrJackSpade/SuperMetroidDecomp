@@ -3,8 +3,8 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <summary>
 /// The six station-access behaviours, named for their station and side.
 /// Each case selects its retracted/extended arm draws.
-/// Energy and missile stations share access artwork on each side. Other behaviour
-/// values, including the save-floor trigger, are outside this extending domain.
+/// Energy and missile stations share access artwork on each side. The save station's floor
+/// (<see cref="StationAccessBehavior.SaveFloor"/>) moves no arm and has no access draws.
 /// </summary>
 internal static class StationAccessObjectDefinitions
 {

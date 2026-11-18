@@ -768,6 +768,15 @@ carries the spark upward and which way a placement patrols. A speed or a width t
 at the apex`), a count that runs out, whole pixels, a placement alone and a hardware owner, which describes the storage
 it keeps, stay English.
 
+#2487 widens SME6454, outside hardware owners, to the original's tables and calls as room and world prose tells them: a
+collision, pose, turn or controller pose table, spaced or hyphenated (`its own collision tables`, `selected from the pose
+table`, `stale pose-table equipment state`, `the turn tables`, `controller pose tables`); a table's entry named by a
+hyphenated kind (`the table's no-transition entry`); and an invocation of a thing, which counts updates as the
+original's calls (`One invocation of the game's alignment step`). Core says what the game does: the pose's input
+transitions, a landing with no transition, one update's step. A table alone, a collision or a pose alone, the pose's
+input transitions, an entry alone or a table's next entry, a thing invoked and a hardware owner, which describes the
+storage it keeps, stay English.
+
 SME6459 (#2309) reads the summary of every member of a Core `*Segment` enum, one run of an actor's animation, and rejects
 one that only restates the member's name: `The facing left shooting animation.`, `The idle.`, `The loop.`, and (#2465)
 any summary whose words are all the name's, the actor's the enum is named for, articles, possessives or `animation`,

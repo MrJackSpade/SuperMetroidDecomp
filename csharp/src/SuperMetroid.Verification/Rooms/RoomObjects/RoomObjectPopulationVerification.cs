@@ -771,10 +771,10 @@ internal static class RoomObjectPopulationVerification
 
         var decoded = new RoomObjectPopulation($"$8F:{population:X4}",
         [
-            RoomObjectPlacementAccess.Placed(RoomObjectKinds.RequirePlaced(RoomObjectKind.GreenDoorFacingRight),
+            RoomObjectPlacementAccess.Placed(RoomObjectKind.GreenDoorFacingRight,
                 new(offRoomX, offRoomY), new LockedDoorArgument(SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(0x27), DoorOpeningPersistence.Persistent))
             with { Site = RoomObjectSite.BeyondTheRoom },
-            RoomObjectPlacementAccess.Placed(RoomObjectKinds.RequirePlaced(RoomObjectKind.GreenDoorFacingLeft),
+            RoomObjectPlacementAccess.Placed(RoomObjectKind.GreenDoorFacingLeft,
                 new(inRoomX, inRoomY), new LockedDoorArgument(SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(0x28), DoorOpeningPersistence.Persistent)),
         ]);
 
@@ -801,7 +801,7 @@ internal static class RoomObjectPopulationVerification
 
         var malformed = new RoomObjectPopulation($"$8F:{malformedPopulation:X4}",
         [
-            RoomObjectPlacementAccess.Placed(RoomObjectKinds.RequirePlaced(RoomObjectKind.ScrollTrigger),
+            RoomObjectPlacementAccess.Placed(RoomObjectKind.ScrollTrigger,
                 new(offRoomX, offRoomY), scrollChange: RoomScrollChange.BrinstarReserveTankOpensScreen1x0TopAligned) with { Site = RoomObjectSite.BeyondTheRoom },
         ]);
         AssertThrows<ArgumentOutOfRangeException>(
@@ -812,7 +812,7 @@ internal static class RoomObjectPopulationVerification
         // block beyond the room is refused, and one decoded beyond the room must lie past the grid.
         var undecoded = new RoomObjectPopulation("undecoded off-room door",
         [
-            RoomObjectPlacementAccess.Placed(RoomObjectKinds.RequirePlaced(RoomObjectKind.GreenDoorFacingRight),
+            RoomObjectPlacementAccess.Placed(RoomObjectKind.GreenDoorFacingRight,
                 new(offRoomX, offRoomY), new LockedDoorArgument(SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(0x27), DoorOpeningPersistence.Persistent)),
         ]);
         AssertThrows<InvalidDataException>(

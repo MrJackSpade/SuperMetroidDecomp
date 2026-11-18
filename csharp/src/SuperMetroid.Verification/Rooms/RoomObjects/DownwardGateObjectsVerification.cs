@@ -101,7 +101,6 @@ internal static class DownwardGateObjectsVerification
     {
         foreach ((RoomObjectKind header, int source) in new[] { new VerifyDownwardGateHeaderDefinitionsCase(RoomObjectKind.DownwardGate, 0x84c82c), new VerifyDownwardGateHeaderDefinitionsCase(RoomObjectKind.DownwardGateShotBlock, 0x84c838) })
         {
-            AssertEqual(header, RoomObjectKinds.RequirePlaced(header), "Gate compiled-population header");
             AssertEqual(unchecked((ushort)(source - 2)), RoomObjectNativeWords.Word(header), "Gate header word precedes its first-list word");
         }
     }
@@ -300,9 +299,9 @@ internal static class DownwardGateObjectsVerification
         // the guard below prohibits them only while the production runtime sets up slots.
         var population = new RoomObjectPopulation($"$8F:{populationPointer:X4}",
         [
-            RoomObjectPlacementAccess.Placed(RoomObjectKinds.RequirePlaced(RoomObjectKind.DownwardGate),
+            RoomObjectPlacementAccess.Placed(RoomObjectKind.DownwardGate,
                 new(gateX, gateY)),
-            RoomObjectPlacementAccess.Placed(RoomObjectKinds.RequirePlaced(RoomObjectKind.DownwardGateShotBlock),
+            RoomObjectPlacementAccess.Placed(RoomObjectKind.DownwardGateShotBlock,
                 new(gateX, gateY), RoomObjectRoomArgumentWords.Decode(RoomObjectKind.DownwardGateShotBlock, argument)),
         ]);
         SeedDownwardGateProjectileRom(bus);

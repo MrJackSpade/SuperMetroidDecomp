@@ -300,8 +300,7 @@ internal sealed class SamusFramePhases
                 TryBeginXrayFromSelectedHudItem(gameState, samus, room.BombProjectiles))
             {
                 frame.MarkXrayActivated();
-                _player.ProspectiveSamusPose = null;
-                _player.ProspectiveSamusFallbackPose = null;
+                _player.ClearProspectivePoses();
             }
 
             // X-ray's freeze disables enemy room.Projectiles, room objects, block animations,
@@ -360,8 +359,7 @@ internal sealed class SamusFramePhases
         // poses and momentum responses, so nothing pending is committed this frame.
         if (samus.ConsumePendingPoseTransitionCancellation())
         {
-            _player.ProspectiveSamusPose = null;
-            _player.ProspectiveSamusFallbackPose = null;
+            _player.ClearProspectivePoses();
         }
         // Actors' control setups replace the movement phase before it runs in this same update.
         frame.ReplaceMovementMode(SelectedMovementMode(frame, samus));
@@ -383,17 +381,10 @@ internal sealed class SamusFramePhases
     {
         // The normal movement mode runs the movement type's movement before animation. Every admitted pose below has its
         // own direction and mode path, so no pose inherits generic standing or running physics by accident.
-        _player.LastGroundedSamusMovement = null;
-        _player.LastAerialSamusMovement = null;
-        _player.LastMorphBallMovement = null;
-        _player.LastBombJumpMovement = null;
-        _player.LastKnockbackMovement = null;
-        _player.LastShinesparkMovement = null;
-        _player.LastCrystalFlashMovement = null;
         // X-ray publishes its pose-input and beam results above because both run
         // outside the normal movement-type step. Its movement result is the
         // frame `StepMovement` returns below.
-        _player.LastDrainedSamusMovement = null;
+        _player.ClearMovementResults();
 
         frame.SampleGrappleReleasePoseInput(false);
         if (samus.Grapple.ReleasedMovementActive)
@@ -442,8 +433,7 @@ internal sealed class SamusFramePhases
         switch (frame.MovementOwner)
         {
             case SamusMovementOwner.None:
-                _player.ProspectiveSamusPose = null;
-                _player.ProspectiveSamusFallbackPose = null;
+                _player.ClearProspectivePoses();
                 break;
 
             case SamusMovementOwner.Grapple:
@@ -451,8 +441,7 @@ internal sealed class SamusFramePhases
                 // sampled from the pre-grapple pose once connection installs the grapple swing poses.
                 if (!frame.GrappleReleaseAcceptsPoseInput)
                 {
-                    _player.ProspectiveSamusPose = null;
-                    _player.ProspectiveSamusFallbackPose = null;
+                    _player.ClearProspectivePoses();
                 }
                 break;
 
@@ -461,8 +450,7 @@ internal sealed class SamusFramePhases
                 break;
 
             case SamusMovementOwner.Xray:
-                _player.ProspectiveSamusPose = null;
-                _player.ProspectiveSamusFallbackPose = null;
+                _player.ClearProspectivePoses();
                 samus.Xray.StepMovement(samus);
                 break;
 
@@ -475,8 +463,7 @@ internal sealed class SamusFramePhases
                 // mode when the pose is committed.
                 if (samus.CeresRidleyEjection.InitializationPending)
                 {
-                    _player.ProspectiveSamusPose = null;
-                    _player.ProspectiveSamusFallbackPose = null;
+                    _player.ClearProspectivePoses();
                 }
                 else
                 {
@@ -509,8 +496,7 @@ internal sealed class SamusFramePhases
                 // before the bomb jump lets go of her movement, allowing a matched cancellation.
                 if (frame.BombJumpLocksPoseInput)
                 {
-                    _player.ProspectiveSamusPose = null;
-                    _player.ProspectiveSamusFallbackPose = null;
+                    _player.ClearProspectivePoses();
                 }
 
                 // The bomb jump's movement chooses its gravity from the medium Samus is in, water, lava or air, as
@@ -526,8 +512,7 @@ internal sealed class SamusFramePhases
                 break;
 
             case SamusMovementOwner.CrystalFlash:
-                _player.ProspectiveSamusPose = null;
-                _player.ProspectiveSamusFallbackPose = null;
+                _player.ClearProspectivePoses();
                 _player.LastCrystalFlashMovement = samus.CrystalFlash.Step(
                     samus,
                     _clock.Counter);
@@ -543,8 +528,7 @@ internal sealed class SamusFramePhases
                 break;
 
             case SamusMovementOwner.Drained:
-                _player.ProspectiveSamusPose = null;
-                _player.ProspectiveSamusFallbackPose = null;
+                _player.ClearProspectivePoses();
                 if (samus.Drained.Phase == DrainedSamusPhase.Falling)
                 {
                     _player.LastDrainedSamusMovement = samus.Drained.StepFalling(
@@ -573,8 +557,7 @@ internal sealed class SamusFramePhases
                     // The spark publishes an interrupted vertical pose. That
                     // priority beats an ordinary input transition sampled from the shinespark windup poses
                     // earlier in the input phase during the timeout frame.
-                    _player.ProspectiveSamusPose = null;
-                    _player.ProspectiveSamusFallbackPose = null;
+                    _player.ClearProspectivePoses();
                 }
                 break;
 
@@ -1058,8 +1041,7 @@ internal sealed class SamusFramePhases
             bool grappleLockedInPlace = samus.Grapple.Phase == GrapplePhase.ConnectedLocked;
             if (samus.DraygonGrabbed.CheckDraygonEscape(samus, _playerActions.NewlyPressed) || grappleLockedInPlace)
             {
-                _player.ProspectiveSamusPose = null;
-                _player.ProspectiveSamusFallbackPose = null;
+                _player.ClearProspectivePoses();
             }
         }
 

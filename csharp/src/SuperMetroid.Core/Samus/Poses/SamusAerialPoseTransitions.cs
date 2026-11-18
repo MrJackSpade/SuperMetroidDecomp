@@ -222,7 +222,7 @@ internal static class SamusAerialPoseTransitions
         // generic direction before applying the spin-jump setup's live equipment priority. This is
         // observable when both items are equipped: an authored right-to-left Screw Attack pose must remain
         // Screw art, while the same directional intent with Screw unequipped becomes Space
-        // Jump art instead of trusting stale pose-table equipment state.
+        // Jump art instead of keeping the item the selected pose was drawn for.
         SamusPoseId genericTarget = newDirection == SamusFacingDirection.Left ? SamusPoseId.SpinJumpLeftPose : SamusPoseId.SpinJumpRightPose;
         samus.Pose = SelectEquippedSpinPose(samus, genericTarget, start: SpinPoseStart.SkipFirstFrame);
         SamusPoseMetadata.RefreshCollisionRadii(samus);

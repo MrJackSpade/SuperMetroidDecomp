@@ -315,7 +315,7 @@ public static class RoomStateDefinitions
         TourianRoomStateDefinitions.TourianRecharge,
         TourianRoomStateDefinitions.MotherBrainDefault,
         TourianRoomStateDefinitions.MotherBrainWhenMotherBrainGlassDestroyed,
-        TourianRoomStateDefinitions.MotherBrainWhenMainAreaBossDead,
+        TourianRoomStateDefinitions.MotherBrainWhenAreaBossDead,
         TourianRoomStateDefinitions.TourianEyeDoor,
         TourianRoomStateDefinitions.RinkaShaft,
         TourianRoomStateDefinitions.MotherBrainSave,

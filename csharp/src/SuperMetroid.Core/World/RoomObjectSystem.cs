@@ -193,8 +193,8 @@ public sealed class RoomObjectSystem : ISamusRoomObjects
     }
 
     /// <summary>
-    /// The object at <paramref name="place"/> leaves the room, freeing its place; Mother Brain's glass first keeps its hit
-    /// count.
+    /// The object at <paramref name="place"/> leaves the room, freeing its place; when it is Mother Brain's glass, the
+    /// glass's place is first forgotten.
     /// </summary>
     internal void DeleteObject(RoomObjectPlace place)
     {

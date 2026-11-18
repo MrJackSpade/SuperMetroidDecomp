@@ -13,8 +13,6 @@ internal sealed class CeresDestructionActor(
     CeresDestructionActorDefinition definition,
     CinematicActor<CeresAnimation, CinematicSpritePose, CeresCue> sprite) : CeresSceneActor(sprite)
 {
-    /// <summary>What the actor shows.</summary>
-    internal CeresDestructionActorRole Role { get; } = role;
 
     /// <summary>The actor's animation, colouring and motion.</summary>
     internal CeresDestructionActorDefinition Definition { get; } = definition;

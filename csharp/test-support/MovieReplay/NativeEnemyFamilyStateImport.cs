@@ -184,7 +184,7 @@ internal static class NativeEnemyFamilyStateImport
             int lastBurst = words.F < bursts.Count
                 ? words.F
                 : throw new InvalidDataException($"Recorded Ceres elevator door burst place {words.F} is not one of its {bursts.Count}.");
-            elevatorDoorRecord.NextExplosion = ListStep<Offset16<RoomPixels>>.At(bursts, (bursts.Count - lastBurst) % bursts.Count);
+            elevatorDoorRecord.NextExplosion = CyclingSequence<Offset16<RoomPixels>>.At(bursts, (bursts.Count - lastBurst) % bursts.Count);
         }
         else if (enemy.SpeciesState<CeresDoorAnimationState>() is not null && words.A != CeresNativeWords.MainBehaviourWord(enemy))
         {

@@ -170,7 +170,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         PowampHold hold)
     {
         // The ordinary rise changes behaviour and runs the grappled behaviour immediately
-        // on the frame common grapple AI publishes the grappled state.
+        // on the frame the grapple beam takes hold.
         bool grappleAiActive = (body.AiStates & EnemyAiStates.Grappled) != EnemyAiStates.None;
         if (hold != PowampHold.Grappled && grappleAiActive)
         {
@@ -247,7 +247,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         AlignPowampBalloonY(body, balloon);
     }
 
-    /// <summary>Holds the inflated pair while grapple AI is active, deflating on release.</summary>
+    /// <summary>Holds the inflated pair while the grapple beam holds it, deflating on release.</summary>
     private static void RunPowampGrappledResting(
         RoomEnemyPlace body,
         PowampBodyState state,
@@ -524,7 +524,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         AfterCommon = c => ResolvePowampPowerBombAfterCommon(c.Enemy),
     };
 
-    /// <summary>The balloon's Power Bomb reaction: the common damage alone, its body carrying a hit on to it.</summary>
+    /// <summary>The balloon's Power Bomb reaction: the blast's damage alone, its body carrying a hit on to it.</summary>
     internal EnemyPowerBombReaction PowampBalloonPowerBombReaction => field ??= new();
 
     /// <summary>Skips later shots once fatal damage begins and mirrors surviving body presentation to the balloon.</summary>
@@ -536,11 +536,11 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The Powamp's shot reaction for a half that refuses shots while <paramref name="refusesContact"/> says so.</summary>
     private EnemyShotReaction ShotReactionSkipping(Func<RoomEnemyPlace, bool> refusesContact) => new()
     {
-        // Powamp refuses contact as soon as a lethal shot starts its own 32-update death: later shots pass through,
-        // neither spent nor exploding, while the body visibly deflates.
+        // A lethal shot starts the Powamp's 32-update death, during which later shots pass through it, neither spent
+        // nor exploding, while the body visibly deflates; it dies in its own way, not in the usual burst.
         SkipsEnemy = refusesContact,
         ExemptFromGenericDeath = true,
-        // Powamp's shot reaction runs the common damage without the hit burst.
+        // A shot damages a Powamp without the hit burst.
         ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
         AfterCommon = c => ResolvePowampShotAfterCommon(c.Enemy),
     };

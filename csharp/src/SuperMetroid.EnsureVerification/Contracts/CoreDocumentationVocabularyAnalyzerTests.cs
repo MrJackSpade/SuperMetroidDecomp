@@ -1909,6 +1909,32 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         // authored path, a direct hit, a branch alone, markup and a hardware owner are English.
         Expect("class P { /// <summary>The frame shown; the shot's behaviour; Samus returns to the door; a count that wraps; the value kept; a bit of the floor; every authored path; a direct hit; a branch of the room's state choice; <see cref=\"Run\"/>.</summary>\nvoid Run() { } }");
         Expect(CompatibilityService + "/// <summary>Evidence: the shot's frame behaviour stores the wrapped count with a direct write before its early return.</summary>\n[CompatibilityService(\"shot\")] class Shot { }");
+        // The original's program, labels and storage told in enemy prose, outside hardware owners and markup (#2475): an
+        // instruction to preserve something, a flag told as a latch, a graphics part, the tatori family, a routine named as
+        // its AI, a random number's reuse, a beam object, units per turn, a count that would go round and fixed-point.
+        Expect("class P { void Run() { // Main AI resets acceleration first. Preserve that slightly surprising ordering.\n } }", "('Preserve that')");
+        Expect("class P { void Run() { // Idle frames accept no pose and must preserve the older history.\n } }", "('must preserve')");
+        Expect("class P { /// <summary>The swipe-animation latch, cleared on swoop setup.</summary>\nbool F => false; }", "('swipe-animation latch')");
+        Expect("class P { /// <summary>The wingless latch, set by a wingless spawn.</summary>\nbool F => false; }", "('wingless latch')");
+        Expect("class P { /// <summary>Counts down the wait, then resets the sweep and joint-orientation latches.</summary>\nint F => 0; }", "('sweep and joint-orientation latches')");
+        Expect("class P { /// <summary>Neither threshold crossed; every latch returns here.</summary>\nint F => 0; }", "('every latch')");
+        Expect("class P { /// <summary>Attachment latch set on first touch.</summary>\nbool F => false; }", "('Attachment latch')");
+        Expect("class P { void Run() { // Two of its latches are the death sequence's.\n } }", "('its latches')");
+        Expect("class P { /// <summary>A Hibashi's collision part, listed right after its graphics part.</summary>\nint F => 0; }", "('graphics part')");
+        Expect("class P { /// <summary>Connects the tatori family to room terrain.</summary>\nvoid Run() { } }", "('tatori')");
+        Expect("class P { /// <summary>Flashes the Metroid's outer bodies while its custom hurt AI runs.</summary>\nvoid Run() { } }", "('custom hurt AI')");
+        Expect("class P { /// <summary>Routes a bomb: Metroid shot AI ignores bombs while frozen.</summary>\nvoid Run() { } }", "('shot AI')");
+        Expect("class P { /// <summary>Holds the raised body while grapple AI remains active.</summary>\nvoid Run() { } }", "('grapple AI')");
+        Expect("class P { /// <summary>Starts the bug's jump, including its unusual RNG reuse.</summary>\nvoid Run() { } }", "('RNG reuse')");
+        Expect("class P { /// <summary>Samples the random number, matching the bugs' seed reuse.</summary>\nint F => 0; }", "('seed reuse')");
+        Expect("class P { /// <summary>Set once the beam object has initialized.</summary>\nbool F => false; }", "('beam object')");
+        Expect("class P { /// <summary>The eye's aim, measured clockwise from up in 256 units per turn.</summary>\nint F => 0; }", "('units per turn')");
+        Expect("class P { /// <summary>Far short of where the game's count would go round.</summary>\nint F => 0; }", "('would go round')");
+        Expect("class P { /// <summary>Ki-Hunter trigger, fixed-point acceleration and orbit constants.</summary>\nint F => 0; }", "('fixed-point')");
+        // A thing that preserves another, latching onto Samus, the display latch, main AI, a beam, a unit of measure, a
+        // fixed point, markup and a hardware owner are English.
+        Expect("class P { /// <summary>Morph art preserves the charge and art preserve the charge; the Metroid latches onto Samus; a latched Beetom; the frame-end display latch; runs its main AI; the beam widens; in 1/256 pixels; the leg targets a fixed point; <see cref=\"Run\"/>.</summary>\nvoid Run() { } }");
+        Expect(CompatibilityService + "/// <summary>Evidence: its hurt AI keeps the wingless latch in a fixed-point word that would go round.</summary>\n[CompatibilityService(\"latch\")] class Latch { }");
         // The species-owner template on a type that owns no species (#2427), read on the type's own summary; a type that
         // implements or is a species owner's interface owns a species, and an entity's parameter names its owner.
         const string SpeciesOwners = "interface IEnemySpecies { }\ninterface IEnemyEntityFactory { }\n";

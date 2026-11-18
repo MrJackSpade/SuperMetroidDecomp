@@ -361,7 +361,7 @@ public static class SamusMorphBallMovement
 
         // The fall converts the speed that passed zero at the prior apex frame before
         // this frame snapshots displacement. Direction is a separate value;
-        // do not infer it from the sign of the fixed-point magnitude.
+        // the magnitude's sign does not give it.
         if (state.YDirection == SamusVerticalDirection.Up && SamusSpeedMagnitude.HasPassedZero(state.YSpeed.Whole))
         {
             state.YSpeed = default;

@@ -992,8 +992,8 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
                     // Test the clock before decrementing: reaching zero retains frozen
                     // AI for this update. Removing the ice instead thaws the enemy
                     // immediately, leaving the freeze clock at the remainder
-                    // ThawedFreezeLeftover names rather than zero, which matters when hurt
-                    // and frozen AI coexist.
+                    // ThawedFreezeLeftover names rather than zero, which matters when an enemy
+                    // is hurt and frozen at once.
                     place.FlashTimer = 0;
                     bool thaw = place.FrozenTimer == 0 ||
                         (frame.Samus.EquippedBeams & SamusBeamFlags.Ice) == SamusBeamFlags.None;
@@ -1011,7 +1011,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
                     }
                     frozen?.RunFrozen();
                     // The frame clock advances after every enemy whose AI runs,
-                    // frozen AI included. Animation gating below remains separate.
+                    // a frozen enemy's included. Animation gating below remains separate.
                     ranActorAi = true;
                 }
                 else if (!ranActorAi)
@@ -1054,7 +1054,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
             if (!frame.TimeIsFrozen && place.FlashTimer != 0)
             {
                 place.FlashTimer--;
-                // The enemy pass clears the hurt AI once too few flash updates remain, even while another AI state stays
+                // The enemy pass ends the hurt state once too few flash updates remain, even while another AI state stays
                 // set, so a Metroid's own hurt behaviour ends.
                 if (place.FlashTimer < EnemyCollisionDefinitions.HurtStateMinimumFlashUpdates)
                     place.AiStates = place.AiStates & ~EnemyAiStates.Hurt;

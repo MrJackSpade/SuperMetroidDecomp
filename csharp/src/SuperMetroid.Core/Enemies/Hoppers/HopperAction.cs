@@ -10,7 +10,7 @@ public enum HopperAction
     /// <summary>Takes a random number that chooses a small or a big hop by whether it is odd, and hops from the next update.</summary>
     ChooseHopSize,
     /// <summary>
-    /// Installs the chosen hop size's precomputed speed-curve place and its place step (three marks a pass for a small hop,
+    /// Sets the chosen hop size's precomputed speed-curve place and its place step (three marks a pass for a small hop,
     /// four for a big one) before choosing the hop's direction (#2338).
     /// </summary>
     PrepareHop,
@@ -18,11 +18,11 @@ public enum HopperAction
     ChooseDirection,
     /// <summary>Starts the jumping animation and the hop along the chosen heading (#2338).</summary>
     StartHop,
-    /// <summary>Restores the variant's floor or ceiling idle animation and waits for its cue-driven ready flag.</summary>
+    /// <summary>Starts the variant's floor or ceiling landing animation and goes on to wait for the next hop (<see cref="WaitToHop"/>).</summary>
     Landed,
     /// <summary>
-    /// Hops, resolving vertical movement before horizontal movement and landing; a ceiling hopper takes the quadratic speed
-    /// curve's world-Y halves the other way round from a floor hopper.
+    /// Hops, resolving vertical movement before horizontal movement and landing; a ceiling hopper moves along the speed
+    /// curve upside down from a floor hopper, dropping away from its ceiling first and rising back to it.
     /// </summary>
     Jumping,
     /// <summary>Consumes and clears the ready flag published by the idle animation's ready cue, then returns to random hop-size selection.</summary>

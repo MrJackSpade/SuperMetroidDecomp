@@ -732,6 +732,20 @@ Shitroid moves the camera, a hit leaves the mouth's bounds as it left them. A fr
 return to a place, a count that wraps, a value kept, a bit of a thing, an authored path, a direct hit, a branch alone
 and a hardware owner, which describes the program it reproduces, stay English.
 
+#2475 widens SME6454, outside hardware owners, to the original's program, labels and storage as enemy prose tells them:
+a developer's instruction to keep something, read with its capital (`Preserve that ordering`, `Preserve the start`,
+`must preserve the history`); a flag told as a latch (`the swipe-animation latch`, `the wingless latch`, `the sweep and
+joint-orientation latches`, `every latch`, an attachment, reaction, behaviour, mouth or reopen latch, a latch set or
+cleared, `its latches`); a sprite's `graphics part`; the original's name for Mama Turtle (`the tatori family`); the
+original's per-state routines named as their AI (hurt, shot, touch, contact, bomb, frozen or grapple AI, `its custom
+hurt AI`); a random number's or seed's reuse; a `beam object`; an angle's units per turn (`in 256 units per turn`); a
+count that would go round or a counter that goes round; and anything `fixed-point`. Core says what the game does: whether
+the swoop's swipe has started, whether the Ki-Hunter has lost its wings, what a hurt enemy does, which shots and touches
+pass through, that one random number chooses a jump's height and direction, which way an aim turns and how far a thing
+moves, to a fraction of a pixel. A thing that preserves another (`morph art preserves the charge`), latching onto Samus,
+the display latch, an enemy's main AI, a beam alone, a unit of measure alone, a fixed point (`a target at a fixed
+point`) and a hardware owner, which describes the encoding it keeps, stay English.
+
 SME6459 (#2309) reads the summary of every member of a Core `*Segment` enum, one run of an actor's animation, and rejects
 one that only restates the member's name: `The facing left shooting animation.`, `The idle.`, `The loop.`, and (#2465)
 any summary whose words are all the name's, the actor's the enum is named for, articles, possessives or `animation`,

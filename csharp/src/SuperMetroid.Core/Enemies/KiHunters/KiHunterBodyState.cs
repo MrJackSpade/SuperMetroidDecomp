@@ -52,7 +52,7 @@ public sealed class KiHunterBodyState
     /// <summary>The thinking countdown: twelve after landing or twenty-four after acid emission, consumed once the animation selects ground wait.</summary>
     public int WaitTimer { get; internal set; }
 
-    /// <summary>The swipe-animation latch, cleared on swoop setup and set once the angle passes its facing-specific trigger.</summary>
+    /// <summary>Whether the swoop's swipe animation has started: cleared as a swoop is set up, set once the angle passes its facing's trigger.</summary>
     public bool SwoopAnimationChanged { get; internal set; }
 
     /// <summary>The whole-pixel swoop ellipse radii: the absolute horizontal separation from Samus and Samus Y minus body Y when a swoop begins.</summary>
@@ -77,6 +77,6 @@ public sealed class KiHunterBodyState
     /// <summary>The vertical velocity in pixels per update; positive is downward and gravity accumulates through the fraction.</summary>
     public SignedSixteenSixteen VerticalVelocity { get; internal set; }
 
-    /// <summary>The wingless latch, set by a wingless spawn or by health reaching the wings' detach health.</summary>
+    /// <summary>Whether the Ki-Hunter has lost its wings: from a wingless spawn, or once its health falls to the wings' detach health.</summary>
     public bool HasLostWings { get; internal set; }
 }

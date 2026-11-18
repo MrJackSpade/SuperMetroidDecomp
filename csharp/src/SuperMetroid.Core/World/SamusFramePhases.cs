@@ -399,7 +399,7 @@ internal sealed class SamusFramePhases
         if (samus.Grapple.ReleasedMovementActive)
         {
             // The replacement mover does not replace the normal airborne input phase's
-            // input. Preserve its pending aim/turn transition after release cleanup;
+            // input. Its pending aim/turn transition survives release cleanup;
             // the connection/release frames that themselves replace the pose still
             // invalidate a lookup sampled from their previous grapple body.
             frame.SampleGrappleReleasePoseInput(
@@ -505,7 +505,7 @@ internal sealed class SamusFramePhases
                 break;
 
             case SamusMovementOwner.BombJump:
-                // Preserve the retained pose while input is locked; the late rise can restore input
+                // The retained pose stays while input is locked; the late rise can restore input
                 // before the bomb jump lets go of her movement, allowing a matched cancellation.
                 if (frame.BombJumpLocksPoseInput)
                 {
@@ -899,7 +899,7 @@ internal sealed class SamusFramePhases
     }
 
     /// <summary>
-    /// Runs the input phase's head: X-ray's beam object, the frame's camera point, the frame-start captures, the live radius
+    /// Runs the input phase's head: X-ray's beam, the frame's camera point, the frame-start captures, the live radius
     /// refresh, pose-input lookup and the lookup-failure pose.
     /// </summary>
     private void RunInputPhaseHead(SamusControlFrame frame, SamusState samus,

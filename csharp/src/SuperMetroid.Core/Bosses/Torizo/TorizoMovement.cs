@@ -41,7 +41,7 @@ internal sealed class TorizoMovement
     {
         var state = new TorizoEnemyState(variant)
         {
-            // Every Torizo population entry starts it standing, with no behaviour latch set.
+            // Every Torizo placement starts it standing, unstunned and whole, its face and gut not yet blown up.
             Posture = TorizoPosture.Initial,
         };
         torizo.SetSpeciesState(state);
@@ -83,8 +83,8 @@ internal sealed class TorizoMovement
     {
         _body.MaybeSpawnLowHealthDrool(torizo);
 
-        // Two of its latches are the death sequence's. Before they are set,
-        // health thresholds interrupt the current authored animation with the core/head bursts.
+        // Until its gut and face are blown up, which its death also does, health thresholds interrupt the current
+        // authored animation with the core/head bursts.
         if (!state.GutBlownUp &&
             torizo.Health < TorizoDecisionDefinitions.GutBlowUpHealth)
         {

@@ -204,7 +204,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
             case MorphBallEyeBeamPhase.Inactive:
                 return;
             case MorphBallEyeBeamPhase.PendingInitialization:
-                InitializeMorphBallEyeBeamObject();
+                StartMorphBallEyeBeam();
                 return;
             case MorphBallEyeBeamPhase.Widening:
                 WidenMorphBallEyeBeam();
@@ -222,7 +222,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Seeds the beam's colour and zero angular width, then marks its body activated.</summary>
-    private void InitializeMorphBallEyeBeamObject()
+    private void StartMorphBallEyeBeam()
     {
         MorphBallEyeEnemyState state = BeamEyeState();
 

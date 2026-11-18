@@ -28,7 +28,8 @@ public sealed record AudioClipManifest(
     /// sound's policy. Version 6 (#1748) names each song for what it is, where version 5 named its part in its data set,
     /// and names the boss data sets for their content. Version 7 (#2057) holds each sound effect once, rendered from the
     /// shared sounds' samples, where version 6 held one per data set and the sounds a data set could not render, and
-    /// records no note starts.
+    /// records no note starts. Version 8 (#2475) names the Mama Turtle's spin for her, where version 7 named it by the
+    /// original's name for her.
     /// </summary>
-    public const int CurrentFormatVersion = 7;
+    public const int CurrentFormatVersion = 8;
 }

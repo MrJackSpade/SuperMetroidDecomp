@@ -184,7 +184,7 @@ public sealed class KraidEnemyState
         ? PendingMouthReopens - 1
         : throw new InvalidOperationException("Removing a mouth reopen from none breaks Kraid's mouth-reopen order.");
 
-    /// <summary>Clears every mouth latch and the pending reopen count.</summary>
+    /// <summary>Forgets every hit on his mouth and body that would reopen it, and the reopens still pending.</summary>
     internal void ClearMouthReactions()
     {
         ChargedHitThisPass = false;

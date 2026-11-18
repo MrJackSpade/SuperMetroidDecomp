@@ -363,7 +363,7 @@ public static class SamusBlockCollision
 
     /// <summary>
     /// Moves Samus vertically against the blocks, scanning them left to right or right to left, then adds the final
-    /// fixed-point step to her position when nothing solid stops her.
+    /// step to her position, to a fraction of a pixel, when nothing solid stops her.
     /// </summary>
     /// <param name="terrain">The room terrain the move collides with and reacts to.</param>
     /// <param name="state">Live or probe kinematics whose position, to a fraction of a pixel, and collision-related motion values are updated.</param>

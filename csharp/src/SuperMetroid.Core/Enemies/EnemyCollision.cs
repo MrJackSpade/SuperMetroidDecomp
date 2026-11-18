@@ -135,7 +135,7 @@ internal sealed class EnemyCollision
         if (!overlapsSamus)
             return false;
 
-        // On the ordinary radius path a frozen enemy never runs its touch AI, except a place awaiting its enemy's
+        // On the ordinary radius path a frozen enemy never reacts to Samus's touch, except a place awaiting its enemy's
         // respawn. The extended-hitbox path has no such gate.
         if (!usesFrameHitboxes && place.FrozenTimer != 0 &&
             !place.AwaitsRespawn)
@@ -156,7 +156,7 @@ internal sealed class EnemyCollision
     }
 
     /// <summary>
-    /// Runs common normal-enemy shot AI between Samus's shots and the enemy the enemy pass is processing. One
+    /// Lets Samus's shots strike the enemy the enemy pass is processing, as they strike any enemy. One
     /// projectile may resolve per enemy per pass, matching the collision response's exit.
     /// </summary>
     /// <param name="projectiles">Samus's live beams and missiles, whose enemy collisions may consume, reflect, or transition them.</param>
@@ -208,7 +208,7 @@ internal sealed class EnemyCollision
                 continue;
 
             // Bomb, power-bomb, and pseudo-screw actors share the projectiles' places,
-            // but ordinary enemy shot AI never treats them as beams or missiles.
+            // but no ordinary enemy reacts to them as it reacts to beams or missiles.
             // Yard and Metroid are the exceptions: their own responses treat
             // bomb-family impacts as physical kicks or escapes.
             if (!reaction.AdmitsBombFamilies &&

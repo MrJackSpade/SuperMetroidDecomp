@@ -118,7 +118,7 @@ internal static class IntroSamusDemoMovement
 
         // Finishing the transition shifts history for an accepted pose even
         // when deceleration retains the same pose. Idle frames accept no pose and
-        // must preserve the older history used by subsequent movement decisions.
+        // keep the older history that later movement decisions read.
         if (fallback.HasValue)
             samus.CommitPoseHistory();
     }

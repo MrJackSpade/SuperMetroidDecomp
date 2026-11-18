@@ -45,7 +45,7 @@ public sealed class BeetomEnemyState
     internal AnimationPlayback<BeetomSegment> Playback { get; set; }
     /// <summary>Arc phase: false uses the rising speed-curve half; passing the apex switches to the falling half at the curve's start.</summary>
     public bool Falling { get; internal set; }
-    /// <summary>Attachment latch set on first touch and cleared after escape or the common shot reaction; it prevents repeated attachment setup.</summary>
+    /// <summary>Whether the Beetom clings to Samus: from its first touch until it escapes or a shot knocks it off; while it clings, touches do not attach it again.</summary>
     public bool AttachedToSamus { get; internal set; }
     /// <summary>The way the Beetom faces, inherited from the place's previous Beetom; collision reverses it, while the flung state moves opposite this facing.</summary>
     public HorizontalDirection Facing { get; internal set; }

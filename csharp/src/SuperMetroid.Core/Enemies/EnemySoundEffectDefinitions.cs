@@ -87,7 +87,7 @@ internal static class EnemySoundEffectDefinitions
     internal static readonly SoundEffectId LowerNorfairRioReturnSound = EnemySound.HoltzCry;
 
     /// <summary>Enemy-library sound requested by the spinning animation cue.</summary>
-    internal static readonly SoundEffectId MamaTurtleSpinSound = EnemySound.TatoriSpinning;
+    internal static readonly SoundEffectId MamaTurtleSpinSound = EnemySound.MamaTurtleSpinning;
 
     /// <summary>Enemy-library sound requested on Mama's hover collision with a wall.</summary>
     internal static readonly SoundEffectId MamaTurtleWallSound = EnemySound.HeavyClank;

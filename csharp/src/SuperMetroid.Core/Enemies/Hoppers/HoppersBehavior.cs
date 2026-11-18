@@ -165,9 +165,9 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         bool useNegativeSpeed = (state.Surface == HopperSurface.Ceiling) != movingAwayFromSurface;
         SignedSixteenSixteen verticalDisplacement = state.YSpeedCurvePlace.Speed.Toward(useNegativeSpeed ? EnemySpeedSign.Negative : EnemySpeedSign.Positive);
 
-        // Every movement entry resolves Y first. A collision while rising reverses
-        // X and changes to the falling half without performing horizontal motion that frame.
-        // A collision while falling installs Landed and likewise ends the frame immediately.
+        // A hop moves vertically first. A collision while rising reverses the heading and
+        // changes to the falling half without moving horizontally that update; a collision while
+        // falling lands the hopper and likewise ends its update.
         if (_terrain.MoveEnemyVertically(level, place, verticalDisplacement))
         {
             if (movingAwayFromSurface)
@@ -222,7 +222,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
     private static HopperSegment ReadHopperAnimation(HopperEnemyState state, HopperPhase phase) =>
         HopperAnimationChoices.Animation(state.Kind, state.Surface, phase);
 
-    /// <summary>Starts a new animation with a one-tick countdown.</summary>
+    /// <summary>Starts a new animation, its first step playing on the next update.</summary>
     private static void SetHopperAnimation(
         RoomEnemyPlace place,
         HopperEnemyState state,

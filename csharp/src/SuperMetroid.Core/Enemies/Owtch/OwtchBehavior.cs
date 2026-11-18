@@ -105,9 +105,8 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// The walking animation an Owtch starts in for its first behaviour. The game alternates the facing along its order
-    /// of first behaviours, so walking left, buried and rising start facing left, and walking right and sinking start
-    /// facing right.
+    /// The walking animation an Owtch starts in for its first behaviour: walking left, buried and rising start facing
+    /// left, and walking right and sinking start facing right.
     /// </summary>
     /// <exception cref="InvalidDataException"><paramref name="initial"/> is the turn at the left bound, which no placement starts in.</exception>
     private static OwtchSegment InitialAnimation(OwtchBehaviorState initial) => initial switch

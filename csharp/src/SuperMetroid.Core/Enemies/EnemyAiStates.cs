@@ -10,10 +10,10 @@ public enum EnemyAiStates
     /// <summary>No special state: the enemy runs its main AI.</summary>
     None = 0,
 
-    /// <summary>The grapple beam holds the enemy and its grapple AI runs.</summary>
+    /// <summary>The grapple beam holds the enemy, which then moves as the grapple holds it.</summary>
     Grappled = 1 << 0,
 
-    /// <summary>The enemy runs its hurt AI, set when a shot damages it; the hurt AI clears it when the flash ends.</summary>
+    /// <summary>The enemy is hurt: set when a shot damages it and cleared when its hurt flash ends.</summary>
     Hurt = 1 << 1,
 
     /// <summary>

@@ -135,54 +135,60 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         Ensure.NotNull(projectiles);
         Ensure.NotNull(bombs);
-        return KraidShotPassReach.Tested(
+        return KraidShotPassReach.Tested<KraidPassProjectile>(
             projectiles.Pool.ShotCount.Count,
-            [.. projectiles.Shots.Select(KraidPassProjectile.Shot)],
-            KraidPassProjectile.Bomb(bombs.FirstBomb));
+            [.. projectiles.Shots.Select(shot => new KraidPassProjectile.Shot(shot))],
+            new KraidPassProjectile.Bomb(bombs.FirstBomb));
     }
 
-    /// <summary>One projectile one of Kraid's shot passes tests: a shot of Samus's, or her first bomb.</summary>
-    internal sealed class KraidPassProjectile
+    /// <summary>One projectile one of Kraid's shot passes tests (#2400): a shot of Samus's, or her first bomb.</summary>
+    internal abstract record KraidPassProjectile
     {
-        /// <summary>The shot, or null for the bomb.</summary>
-        private readonly SamusProjectile? _shot;
-        /// <summary>The bomb, or null for a shot.</summary>
-        private readonly SamusBomb? _bomb;
-
-        /// <summary>Holds exactly one of a shot and a bomb.</summary>
-        private KraidPassProjectile(SamusProjectile? shot, SamusBomb? bomb)
+        /// <summary>Closes the hierarchy to the shot and the bomb.</summary>
+        private KraidPassProjectile()
         {
-            _shot = shot;
-            _bomb = bomb;
         }
-
-        /// <summary>A shot the passes test.</summary>
-        /// <param name="shot">The projectile in one of Samus's shot places.</param>
-        internal static KraidPassProjectile Shot(SamusProjectile shot) => new(Ensure.NotNull(shot), null);
-
-        /// <summary>The bomb the passes test past the last shot place.</summary>
-        /// <param name="bomb">Samus's first bomb.</param>
-        internal static KraidPassProjectile Bomb(SamusBomb bomb) => new(null, Ensure.NotNull(bomb));
 
         /// <summary>Reads the projectile's position, radius, type and damage.</summary>
-        public KraidCollisionShot Read()
-        {
-            if (_shot is { } shot)
-                return new(shot.Position.Whole, shot.Radius, shot.Type, shot.Damage, IsPlacedBomb: false);
-            if (_bomb is { } bomb)
-                return new(bomb.Position.Whole, bomb.Radius, bomb.Type, bomb.Damage, IsPlacedBomb: !bomb.IsBombSpread);
-            throw new InvalidOperationException("A Kraid pass projectile holds exactly one of a shot and a bomb.");
-        }
+        public abstract KraidCollisionShot Read();
 
         /// <summary>Marks the projectile as having collided with Kraid.</summary>
-        public void MarkCollision()
+        public abstract void MarkCollision();
+
+        /// <summary>A shot the passes test, in one of Samus's shot places.</summary>
+        internal sealed record Shot : KraidPassProjectile
         {
-            if (_shot is { } shot)
-                shot.IsSpent = true;
-            else if (_bomb is { } bomb)
-                bomb.IsSpent = true;
-            else
-                throw new InvalidOperationException("A Kraid pass projectile holds exactly one of a shot and a bomb.");
+            /// <summary>The shot the passes test.</summary>
+            private readonly SamusProjectile _shot;
+
+            /// <summary>Tests <paramref name="shot"/>.</summary>
+            /// <param name="shot">The projectile in one of Samus's shot places.</param>
+            internal Shot(SamusProjectile shot) => _shot = Ensure.NotNull(shot);
+
+            /// <inheritdoc/>
+            public override KraidCollisionShot Read() =>
+                new(_shot.Position.Whole, _shot.Radius, _shot.Type, _shot.Damage, IsPlacedBomb: false);
+
+            /// <inheritdoc/>
+            public override void MarkCollision() => _shot.IsSpent = true;
+        }
+
+        /// <summary>The bomb the passes test past the last shot place: Samus's first bomb.</summary>
+        internal sealed record Bomb : KraidPassProjectile
+        {
+            /// <summary>The bomb the passes test.</summary>
+            private readonly SamusBomb _bomb;
+
+            /// <summary>Tests <paramref name="bomb"/>.</summary>
+            /// <param name="bomb">Samus's first bomb.</param>
+            internal Bomb(SamusBomb bomb) => _bomb = Ensure.NotNull(bomb);
+
+            /// <inheritdoc/>
+            public override KraidCollisionShot Read() =>
+                new(_bomb.Position.Whole, _bomb.Radius, _bomb.Type, _bomb.Damage, IsPlacedBomb: !_bomb.IsBombSpread);
+
+            /// <inheritdoc/>
+            public override void MarkCollision() => _bomb.IsSpent = true;
         }
     }
 

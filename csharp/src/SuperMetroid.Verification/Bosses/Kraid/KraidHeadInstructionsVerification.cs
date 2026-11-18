@@ -118,12 +118,7 @@ internal static class KraidHeadInstructionsVerification
         AssertEqual(
             unchecked(KraidHeadAnimations.EyeGlowEntryDuration - 1),
             state.BodyState.HeadTimer, "Eye glow consumes one timer tick on initialization");
-        state.HurtFrame = 1;
         state.BodyState.HeadTimer = 999;
-        death(state);
-        AssertEqual(999, state.BodyState.HeadTimer,
-            "Active hurt frame delays death timer setup");
-        state.HurtFrame = 0;
         death(state);
         AssertEqual(KraidHeadAnimations.DeathEntryDuration, state.BodyState.HeadTimer,
             "Death initialization installs native timer without ticking");

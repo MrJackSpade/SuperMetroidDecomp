@@ -31,39 +31,39 @@ internal sealed class KraidHead
         _background = background;
     }
 
-    /// <summary>Steps his hurt flash down and shows the colours of his health band or of the flash.</summary>
+    /// <summary>
+    /// Plays his hurt flash on one update and shows the colours it reaches (#2400). Once his health has run out the flash
+    /// is cut short, and his band's colours show on every update.
+    /// </summary>
     internal void RunKraidHurtColours(RoomEnemyPlace body, KraidEnemyState state)
     {
         if (body.Health == 0)
         {
-            state.HurtFrame = 0;
-            UpdateKraidHealthColours(body, state);
+            state.SettleHurtFlash();
+            UpdateKraidHealthColours(body, state, KraidHurtFlashShade.BandColours);
             return;
         }
-        if (state.HurtFrame == 0)
-            return;
-        if (--state.HurtFrameTimer == 0)
-        {
-            state.HurtFrameTimer = KraidArenaDefinitions.HurtFlashStepUpdates;
-            state.StepHurtFrameDown();
-            UpdateKraidHealthColours(body, state);
-        }
+        if (state.HurtFlash.StepToNewFrame() is { } shown)
+            UpdateKraidHealthColours(body, state, shown);
     }
 
     /// <summary>
-    /// Shows Kraid's colours for his current health band, or the hurt flash on an odd hurt frame (#1512): his body and
-    /// every sprite part take the band's shade, and his eyes the band's colours at once.
+    /// Shows Kraid in <paramref name="shown"/>, his hurt colours or his current health band's (#1512): his body and every
+    /// sprite part take the shade, and his eyes its colours at once.
     /// </summary>
-    internal void UpdateKraidHealthColours(RoomEnemyPlace body, KraidEnemyState state)
+    internal void UpdateKraidHealthColours(RoomEnemyPlace body, KraidEnemyState state, KraidHurtFlashShade shown)
     {
-        if (KraidCadenceDefinitions.HurtColoursShown.IsSetIn(state.HurtFrame))
+        switch (shown)
         {
-            state.Colours.ShowHurtFlash(_background.EyeColours.Hurt, _background.EyeColours.Shaded);
-        }
-        else
-        {
-            KraidHealthBand band = HealthBand(body, state);
-            state.Colours.ShowBand(band, BandEyes(band), _background.EyeColours.Shaded);
+            case KraidHurtFlashShade.HurtColours:
+                state.Colours.ShowHurtFlash(_background.EyeColours.Hurt, _background.EyeColours.Shaded);
+                break;
+            case KraidHurtFlashShade.BandColours:
+                KraidHealthBand band = HealthBand(body, state);
+                state.Colours.ShowBand(band, BandEyes(band), _background.EyeColours.Shaded);
+                break;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(KraidHurtFlashShade)} {shown}.");
         }
         PictureShading parts = state.Colours.Parts;
         foreach (RoomEnemyPlace part in _parts.All)
@@ -100,7 +100,7 @@ internal sealed class KraidHead
 
             // The reopen latch and the pending reopen count are set by body/mouth shot handling. Keep
             // the game's order exactly so adding collision cannot change sequencing.
-            if ((state.MouthFlags & KraidMouthFlags.ReopenPending) != KraidMouthFlags.None)
+            if (state.MouthReopenPending)
             {
                 state.RemoveOneMouthReopen();
                 if (state.PendingMouthReopens != 0)
@@ -192,7 +192,7 @@ internal sealed class KraidHead
             return;
         state.BodyState.FightPhase = KraidFightPhase.FirstPhaseThinking;
         state.BodyState.HeadTimer = KraidArenaDefinitions.MouthClosedHeadDelayUpdates;
-        if ((state.MouthFlags & KraidMouthFlags.ReopenPending) != KraidMouthFlags.None)
+        if (state.MouthReopenPending)
         {
             state.RemoveOneMouthReopen();
             if (state.PendingMouthReopens != 0)

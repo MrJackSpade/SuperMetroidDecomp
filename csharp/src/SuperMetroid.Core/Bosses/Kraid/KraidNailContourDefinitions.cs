@@ -7,17 +7,15 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// </remarks>
 internal static class KraidNailContourDefinitions
 {
-    /// <summary>The contour's ledges.</summary>
-    internal const int LedgeCount = 4;
-
     /// <summary>
-    /// Each ledge's left offset: the four ledges advance 24 pixels from -64 to 8.
+    /// The ledges, from his feet up (#2400). Their left offsets advance 24 pixels from -64 to 8; the first three ledges'
+    /// bounds are 56 pixels apart, starting at 16, and the last, his head's, is -128.
     /// </summary>
-    internal static readonly int[] Lefts = [-64, -40, -16, 8];
-
-    /// <summary>
-    /// The comparison boundary paired with each left offset. The first three ledges are 56 pixels apart, starting at 16;
-    /// the final authored head boundary is -128.
-    /// </summary>
-    internal static readonly int[] Tops = [16, -40, -96, -128];
+    internal static IReadOnlyList<KraidNailLedge> Ledges { get; } =
+    [
+        new(Top: 16, Left: -64),
+        new(Top: -40, Left: -40),
+        new(Top: -96, Left: -16),
+        new(Top: -128, Left: 8),
+    ];
 }

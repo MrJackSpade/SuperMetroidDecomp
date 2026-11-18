@@ -30,7 +30,7 @@ internal static class BossAndIntroOverreadDecoding
     private static BossAndIntroOverreadDocument.ContourRecord KraidNailPastLedges(IImportCartridgeSource cartridge)
     {
         int record = BossAndIntroOverreadSourceDefinitions.KraidNailContour +
-            KraidNailContourDefinitions.LedgeCount * BossAndIntroOverreadSourceDefinitions.KraidNailContourRecordBytes;
+            KraidNailContourDefinitions.Ledges.Count * BossAndIntroOverreadSourceDefinitions.KraidNailContourRecordBytes;
         return new BossAndIntroOverreadDocument.ContourRecord(
             CartridgeWordReads.SignedWord(cartridge.ReadCartridgeWord(record)),
             CartridgeWordReads.SignedWord(cartridge.ReadCartridgeWord(record + BossAndIntroOverreadSourceDefinitions.KraidNailContourBoundOffset)));

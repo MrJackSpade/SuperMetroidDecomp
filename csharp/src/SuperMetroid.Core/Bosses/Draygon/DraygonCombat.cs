@@ -118,7 +118,6 @@ internal sealed class DraygonCombat
     /// </remarks>
     private void BeginDraygonDeath(DraygonEnemyState state, SamusState samus)
     {
-        _ = state.Body;
         samus.Grapple.Phase = GrapplePhase.Dropped;
         state.BodyPart.StartAnimation(state.Facing == HorizontalDirection.Right
                 ? DraygonSegment.ArmsFacingRightDying

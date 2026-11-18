@@ -84,14 +84,10 @@ public sealed class KraidBodyState : KraidPartState
         KraidDeathPhase.FadeOut or KraidDeathPhase.ShowBody or KraidDeathPhase.StartSinking;
 
     /// <summary>
-    /// The body's next growth ceiling rock, one of <see cref="KraidCeilingRocks.Count"/> rocks; equal to the count once
-    /// every rock has fallen.
+    /// The next rock his growth knocks from the ceiling (#2400), walked through <see cref="KraidCeilingRockDefinitions.Rocks"/>
+    /// from the first; none once every rock has fallen.
     /// </summary>
-    public int CeilingRock
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, KraidCeilingRocks.Count, value);
-    }
+    public ListStep<KraidCeilingRock>? NextCeilingRock { get; internal set; } = ListStep<KraidCeilingRock>.FirstOf(KraidCeilingRockDefinitions.Rocks);
 
     /// <summary>The updates left in the body's current rising-rock phase; a rock falls at each multiple of its cadence.</summary>
     public int RisingRockTimer { get; internal set; }

@@ -87,12 +87,51 @@ public sealed class TitleSequenceState : IFrontendScreen
     private readonly AnimationPlayer<TitleBabySegment, TitleBabyPose, NoAnimationCue> baby = TitleBabyAnimation.Start();
     /// <summary>The pose of the Baby Metroid's pulse the floor shows.</summary>
     internal TitleBabyPose BabyPose => baby.Showing;
-    /// <summary>Whether the title shows its perspective floor behind its sprites.</summary>
-    private bool floorBackgroundEnabled;
-    /// <summary>Enables the installed gradient during the final title stages.</summary>
-    private bool gradientEnabled;
-    /// <summary>Selects the demo destination after the shared title fade-out.</summary>
-    private bool fadingToDemo;
+    /// <summary>
+    /// Whether the title shows its perspective floor behind its sprites in <paramref name="phase"/>: every step but the
+    /// title cards, whose sprites show alone, also while the skip's fade-out runs alongside a card (#1719).
+    /// </summary>
+    private static bool ShowsFloor(TitleSequencePhase phase) => phase switch
+    {
+        TitleSequencePhase.YearText or
+            TitleSequencePhase.NintendoText or
+            TitleSequencePhase.PresentsText or
+            TitleSequencePhase.MetroidThreeText => false,
+        TitleSequencePhase.LowerPan or
+            TitleSequencePhase.UpperPan or
+            TitleSequencePhase.DownwardPan or
+            TitleSequencePhase.FinalZoom or
+            TitleSequencePhase.TitleLogoFade or
+            TitleSequencePhase.CopyrightFade or
+            TitleSequencePhase.TitleScreenFadeIn or
+            TitleSequencePhase.TitleScreen or
+            TitleSequencePhase.TitleScreenFadeOutToFileSelect or
+            TitleSequencePhase.TitleScreenFadeOutToDemo => true,
+        _ => throw new InvalidOperationException($"Undefined {nameof(TitleSequencePhase)} {phase}."),
+    };
+
+    /// <summary>
+    /// Whether the title shows its installed gradient in <paramref name="phase"/>: from the final zoom on, and on the
+    /// title screen a skip or a demo's return rebuilds.
+    /// </summary>
+    private static bool ShowsGradient(TitleSequencePhase phase) => phase switch
+    {
+        TitleSequencePhase.YearText or
+            TitleSequencePhase.LowerPan or
+            TitleSequencePhase.NintendoText or
+            TitleSequencePhase.UpperPan or
+            TitleSequencePhase.PresentsText or
+            TitleSequencePhase.DownwardPan or
+            TitleSequencePhase.MetroidThreeText => false,
+        TitleSequencePhase.FinalZoom or
+            TitleSequencePhase.TitleLogoFade or
+            TitleSequencePhase.CopyrightFade or
+            TitleSequencePhase.TitleScreenFadeIn or
+            TitleSequencePhase.TitleScreen or
+            TitleSequencePhase.TitleScreenFadeOutToFileSelect or
+            TitleSequencePhase.TitleScreenFadeOutToDemo => true,
+        _ => throw new InvalidOperationException($"Undefined {nameof(TitleSequencePhase)} {phase}."),
+    };
 
     /// <summary>Creates the initial title setup.</summary>
     /// <param name="audio">Receives the opening music and title transitions.</param>
@@ -302,23 +341,24 @@ public sealed class TitleSequenceState : IFrontendScreen
                 // The timeout check wins over confirmation on its final frame.
                 if (--PhaseTimer <= 0)
                 {
-                    fadingToDemo = true;
-                    Phase = TitleSequencePhase.TitleScreenFadeOut;
+                    Phase = TitleSequencePhase.TitleScreenFadeOutToDemo;
                     fade.StepEvery(TitleSequenceDefinitions.Timing.TitleFadeUpdatesPerStep);
                 }
                 else if (confirmPressed)
                 {
-                    Phase = TitleSequencePhase.TitleScreenFadeOut;
+                    Phase = TitleSequencePhase.TitleScreenFadeOutToFileSelect;
                     fade.StepEvery(TitleSequenceDefinitions.Timing.TitleFadeUpdatesPerStep);
                 }
                 break;
 
-            case TitleSequencePhase.TitleScreenFadeOut:
+            case TitleSequencePhase.TitleScreenFadeOutToFileSelect:
                 if (fade.Darken())
-                {
-                    DemoRequested = fadingToDemo;
-                    FileSelectRequested = !fadingToDemo;
-                }
+                    FileSelectRequested = true;
+                break;
+
+            case TitleSequencePhase.TitleScreenFadeOutToDemo:
+                if (fade.Darken())
+                    DemoRequested = true;
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(TitleSequencePhase)} {Phase}.");
@@ -345,7 +385,8 @@ public sealed class TitleSequenceState : IFrontendScreen
             TitleSequencePhase.CopyrightFade or
             TitleSequencePhase.TitleScreenFadeIn or
             TitleSequencePhase.TitleScreen or
-            TitleSequencePhase.TitleScreenFadeOut => false,
+            TitleSequencePhase.TitleScreenFadeOutToFileSelect or
+            TitleSequencePhase.TitleScreenFadeOutToDemo => false,
         _ => throw new InvalidOperationException($"Undefined {nameof(TitleSequencePhase)} {phase}."),
     };
 
@@ -382,13 +423,14 @@ public sealed class TitleSequenceState : IFrontendScreen
     public FloorScene CaptureRenderSnapshot()
     {
         PrepareRenderSprites();
+        bool floorShown = ShowsFloor(Phase);
         return new(new FramePaint(Backdrop, screenSprites.Draws),
-            floorBackgroundEnabled
+            floorShown
                 ? FloorView.Turned(TitleSequenceDefinitions.Scenes.Rotation, Zoom, TitleSequenceDefinitions.Scenes.FloorCentre,
                     panPosition.Whole)
                 : null,
-            Brightness, gradientEnabled ? new ScreenGradientLayer(ResolveTitleGradient()) : null,
-            floorBackgroundEnabled
+            Brightness, ShowsGradient(Phase) ? new ScreenGradientLayer(ResolveTitleGradient()) : null,
+            floorShown
                 ? TitleFloors.Of(spriteSheets, BabyPose).Shaded(FloorShading)
                 : null);
     }
@@ -458,7 +500,8 @@ public sealed class TitleSequenceState : IFrontendScreen
         // The skip's fade-out draws what its running step draws, which never includes the copyright: the copyright first
         // shows in the copyright's hold, which refuses the skip (#1719).
         if (Phase is TitleSequencePhase.CopyrightFade or TitleSequencePhase.TitleScreenFadeIn or
-            TitleSequencePhase.TitleScreen or TitleSequencePhase.TitleScreenFadeOut)
+            TitleSequencePhase.TitleScreen or TitleSequencePhase.TitleScreenFadeOutToFileSelect or
+            TitleSequencePhase.TitleScreenFadeOutToDemo)
         {
             TitleSpriteDrawing.DrawSprite(sheet, TitleSprite.NintendoCopyright, screenSprites,
                 TitleSequenceDefinitions.Sprites.CopyrightOrigin,
@@ -491,27 +534,18 @@ public sealed class TitleSequenceState : IFrontendScreen
         switch (cue)
         {
             case TitleCardCue.StartLowerPan:
-                Phase = TitleSequencePhase.LowerPan;
-                floorBackgroundEnabled = true; // The pan shows the floor beside the sprites.
                 ApplyScene(TitleSequenceDefinitions.Scenes.LowerPan);
                 return;
 
             case TitleCardCue.StartUpperPan:
-                Phase = TitleSequencePhase.UpperPan;
-                floorBackgroundEnabled = true; // The pan shows the floor beside the sprites.
                 ApplyScene(TitleSequenceDefinitions.Scenes.UpperPan);
                 return;
 
             case TitleCardCue.StartDownwardPan:
-                Phase = TitleSequencePhase.DownwardPan;
-                floorBackgroundEnabled = true; // The pan shows the floor beside the sprites.
                 ApplyScene(TitleSequenceDefinitions.Scenes.DownwardPan);
                 return;
 
             case TitleCardCue.StartFinalZoom:
-                Phase = TitleSequencePhase.FinalZoom;
-                gradientEnabled = true;
-                floorBackgroundEnabled = true; // The pan shows the floor beside the sprites.
                 PhaseTimer = 0;
                 ApplyScene(TitleSequenceDefinitions.Scenes.FinalZoom);
                 return;
@@ -535,24 +569,17 @@ public sealed class TitleSequenceState : IFrontendScreen
         ActiveOrigin = definition.Origin;
         ActiveColouring = definition.Colouring;
         panPosition = new(panPosition.X.WithFraction(0), panPosition.Y.WithFraction(0));
-
-        // Initial setup and each of the first three completed pan phases hide the floor,
-        // showing the sprites alone, before the next text actor becomes visible, also while the
-        // skip's fade-out runs alongside the step (#1719).
-        floorBackgroundEnabled = false;
     }
 
     /// <summary>Installs the logo, gradient, copyright colors, and identity turning-floor scene used after a skip.</summary>
     private void EnterImmediateTitleScreen()
     {
-        gradientEnabled = true;
         // Skipping to the title screen shows the Nintendo copyright in its restored colours, a shade from now on (#1512).
         CopyrightRestored = true;
         ActiveCard = null;
         ActiveSprite = TitleSprite.SuperMetroidLogo;
         ActiveOrigin = TitleSequenceDefinitions.Sprites.LogoOrigin;
         ActiveColouring = TitleSequenceDefinitions.Sprites.LogoColouring;
-        floorBackgroundEnabled = true;
         panPosition = new(panPosition.X.WithWholePixels(0), panPosition.Y.WithWholePixels(0));
         Zoom = FloorZoom.OwnSize;
     }
@@ -566,11 +593,10 @@ public sealed class TitleSequenceState : IFrontendScreen
         fade.Show(DisplayBrightness.Full);
     }
 
-    /// <summary>Installs a turning-floor scene's position and zoom while clearing the previous text sprite.</summary>
+    /// <summary>Enters a turning-floor scene's step at its position and zoom while clearing the previous text sprite.</summary>
     private void ApplyScene(TitleFloorSceneDefinition definition)
     {
         Phase = definition.Phase;
-        floorBackgroundEnabled = true;
         Zoom = definition.Zoom;
         panPosition = panPosition.WithWhole(definition.Position);
         ActiveSprite = null;

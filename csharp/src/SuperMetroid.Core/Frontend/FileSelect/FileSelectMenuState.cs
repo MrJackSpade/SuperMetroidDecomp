@@ -163,7 +163,8 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
                 StepMainMenu(pressed);
                 break;
 
-            case FileSelectPhase.FadeOutToDataManagement:
+            case FileSelectPhase.FadeOutToCopy:
+            case FileSelectPhase.FadeOutToClear:
             case FileSelectPhase.FadeOutToMain:
             case FileSelectPhase.FadeInFromDataManagement:
                 StepDataManagementFade();
@@ -217,11 +218,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         sprites.BeginFrame();
         bool mainPage = IsMainPagePhase;
         FileSelectPresentation presentation = screenContent.FileSelect;
-        FileSelectBorder borderName = IsCopyPhase
-            ? FileSelectBorder.Copy
-            : IsClearPhase
-                ? FileSelectBorder.Clear
-                : FileSelectBorder.Main;
+        FileSelectBorder borderName = ShownBorder;
         SpriteSheet sheet = spriteSheets.Get(SpriteSheetId.FileSelect);
         presentation.DrawBorder(sprites, sheet, borderName);
         if (ShouldDrawSelectionMissile)
@@ -262,12 +259,8 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         RefreshShownPage();
     }
 
-    /// <summary>Copy or Clear mode selected on the main page before its fade finishes.</summary>
-    private FileSelectDataMode pendingDataMode;
     /// <summary>Submenu phase entered once the newly built page reaches full brightness.</summary>
     private FileSelectPhase phaseAfterFadeIn;
-    /// <summary>Chooses submenu border and cursor layout during cross-page fade phases.</summary>
-    private bool showDataManagementScreen;
     /// <summary>Selected slot or Exit row in source, destination, and clear menus.</summary>
     private FileSelectItem submenuSelection;
     /// <summary>Source slot retained while choosing a copy destination or confirming a clear.</summary>
@@ -287,16 +280,21 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     /// <summary>Controls whether the main page exposes Copy and Clear navigation.</summary>
     private bool HasAnySave => saveSlots.Values.Any(slot => slot is not null);
 
+    /// <summary>
+    /// The border the shown page draws in: the main page's, or the Copy or Clear border of a data-management page, which the
+    /// pages keep through their fades, the swap between them coming at black.
+    /// </summary>
+    private FileSelectBorder ShownBorder => selectedPage switch
+    {
+        FileSelectPage.MainWithData or FileSelectPage.MainEmpty => FileSelectBorder.Main,
+        FileSelectPage.CopySource or FileSelectPage.CopyDestination or FileSelectPage.CopyConfirm or
+            FileSelectPage.CopyCompleted => FileSelectBorder.Copy,
+        FileSelectPage.ClearSelection or FileSelectPage.ClearConfirm or FileSelectPage.ClearCompleted => FileSelectBorder.Clear,
+        _ => throw new InvalidOperationException($"Undefined {nameof(FileSelectPage)} {selectedPage}."),
+    };
+
     /// <summary>Chooses main-page border, helmets, and missile coordinates, including fades.</summary>
-    private bool IsMainPagePhase => !showDataManagementScreen;
-
-    /// <summary>Chooses the Copy border while its submenu remains visible.</summary>
-    private bool IsCopyPhase =>
-        showDataManagementScreen && pendingDataMode == FileSelectDataMode.Copy;
-
-    /// <summary>Chooses the Clear border while its submenu remains visible.</summary>
-    private bool IsClearPhase =>
-        showDataManagementScreen && pendingDataMode == FileSelectDataMode.Clear;
+    private bool IsMainPagePhase => ShownBorder == FileSelectBorder.Main;
 
     /// <summary>Suppresses cursor animation before the initialized main page begins fading in.</summary>
     private bool IsEntryPhase => Phase is FileSelectPhase.EnterBlankScreen or
@@ -344,8 +342,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
             if (!HasAnySave)
                 throw new InvalidOperationException("Hidden data-management item became selectable.");
             QueueCursorSound();
-            pendingDataMode = SelectedItem == FileSelectItem.Copy ? FileSelectDataMode.Copy : FileSelectDataMode.Clear;
-            Phase = FileSelectPhase.FadeOutToDataManagement;
+            Phase = SelectedItem == FileSelectItem.Copy ? FileSelectPhase.FadeOutToCopy : FileSelectPhase.FadeOutToClear;
             return;
         }
         if (SelectedItem == FileSelectItem.Exit)
@@ -364,21 +361,19 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     /// <summary>Swaps main and data pages only once the screen is black, then enters the saved phase after fade-in.</summary>
     private void StepDataManagementFade()
     {
-        if (Phase is FileSelectPhase.FadeOutToDataManagement or FileSelectPhase.FadeOutToMain)
+        if (Phase is FileSelectPhase.FadeOutToCopy or FileSelectPhase.FadeOutToClear or FileSelectPhase.FadeOutToMain)
         {
             if (!screenFade.Darken())
                 return;
 
-            if (Phase == FileSelectPhase.FadeOutToDataManagement)
+            if (Phase == FileSelectPhase.FadeOutToMain)
             {
-                showDataManagementScreen = true;
-                InitializeDataManagementScreen();
+                ShowMainPage();
+                phaseAfterFadeIn = FileSelectPhase.Main;
             }
             else
             {
-                showDataManagementScreen = false;
-                ShowMainPage();
-                phaseAfterFadeIn = FileSelectPhase.Main;
+                InitializeDataManagementScreen(Phase == FileSelectPhase.FadeOutToCopy ? FileSelectDataMode.Copy : FileSelectDataMode.Clear);
             }
             Phase = FileSelectPhase.FadeInFromDataManagement;
             return;
@@ -388,14 +383,14 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
             Phase = phaseAfterFadeIn;
     }
 
-    /// <summary>Starts Copy or Clear on the first occupied slot and builds the corresponding page.</summary>
-    private void InitializeDataManagementScreen()
+    /// <summary>Starts <paramref name="mode"/> on the first occupied slot and builds its page.</summary>
+    private void InitializeDataManagementScreen(FileSelectDataMode mode)
     {
         submenuSelection = FileSelectItemRows.ForSaveSlot(FindFirstNonemptySlot());
         operationSourceSlot = SaveSlot.A;
         copyTargetSlot = SaveSlot.A;
         confirmationSelection = YesNoChoice.Yes;
-        if (pendingDataMode == FileSelectDataMode.Copy)
+        if (mode == FileSelectDataMode.Copy)
         {
             ShowPage(FileSelectPage.CopySource);
             phaseAfterFadeIn = FileSelectPhase.CopySelectSource;
@@ -439,7 +434,8 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
                 break;
             case FileSelectPhase.FadeIn:
             case FileSelectPhase.Main:
-            case FileSelectPhase.FadeOutToDataManagement:
+            case FileSelectPhase.FadeOutToCopy:
+            case FileSelectPhase.FadeOutToClear:
             case FileSelectPhase.FadeInFromDataManagement:
             case FileSelectPhase.FadeOutToMain:
             case FileSelectPhase.TurnSelectedHelmet:

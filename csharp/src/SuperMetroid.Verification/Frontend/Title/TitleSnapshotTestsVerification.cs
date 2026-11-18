@@ -44,7 +44,7 @@ internal static class TitleSnapshotTestsVerification
             {
                 TitleSequencePhase phase = scene.Phase;
                 bool newPhase = phases.Add(phase);
-                if (newPhase || frame % 17 == 0 || phase == TitleSequencePhase.TitleScreenFadeOut)
+                if (newPhase || frame % 17 == 0 || phase == TitleSequencePhase.TitleScreenFadeOutToFileSelect)
                 {
                     // Compare at phase boundaries and throughout motion, not just black endpoints. The live scene's and the
                     // control's frames are compared with the held packet for the pixels they show, which draws them only when

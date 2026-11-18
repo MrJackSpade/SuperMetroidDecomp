@@ -41,6 +41,12 @@ internal sealed class EndingCreditsRoll
     /// <summary>Final shot-into-camera actor and its drawing state.</summary>
     internal EndingPostShot? CurrentPostShot { get; set; }
 
+    /// <summary>The staff credits' scroll, which exists from the credits' setup on.</summary>
+    internal CreditsScroll? CurrentCredits { get; private set; }
+
+    /// <summary>The final logo's actor, which exists from the end of the white flash on.</summary>
+    internal EndingLogo? CurrentEndingLogo { get; private set; }
+
     /// <summary>Replaces planet actors with the staff scroll, shooting stars and no post-credits text.</summary>
     internal void SetupCredits()
     {
@@ -48,7 +54,7 @@ internal sealed class EndingCreditsRoll
         // The credits' setup stops every colour effect before loading the credits' and rewards' colours.
         _stage.ResetColourEffects();
         _artwork.LoadCreditsAndPostCreditsAssets();
-        _artwork.CurrentCredits = new CreditsScroll();
+        CurrentCredits = new CreditsScroll();
         _artwork.PostCreditsText.Clear();
         sprites.Clear();
         _stage.Fade.Show(DisplayBrightness.Full);
@@ -104,7 +110,7 @@ internal sealed class EndingCreditsRoll
     internal void FadeWhiteFlash() => WhiteFlash.Fade();
 
     /// <summary>The state of the ending logo, which exists while that phase runs.</summary>
-    internal EndingLogo EndingLogo => _artwork.CurrentEndingLogo ??
+    internal EndingLogo EndingLogo => CurrentEndingLogo ??
         throw new InvalidOperationException("The ending logo is not running.");
 
     /// <summary>Restores the shooting colours, clears the copyright, puts the text back at the top and begins the white transition.</summary>
@@ -124,7 +130,7 @@ internal sealed class EndingCreditsRoll
     {
         CurrentRewardJump = null;
         sprites.Clear();
-        _artwork.CurrentEndingLogo = new EndingLogo(_stage,
+        CurrentEndingLogo = new EndingLogo(_stage,
             () => _stage.ColourEffects.StartScreen(EndingLogoDefinitions.LandingColourEffect));
         _stage.Phase = EndingCreditsPhase.PostCreditsLogo;
     }

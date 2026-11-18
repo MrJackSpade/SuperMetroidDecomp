@@ -26,8 +26,8 @@ internal static class PauseEquipmentLabelsVerification
         ];
         foreach (SamusState inventory in inventories)
         {
-            byte[] expected = EquipmentPage(new PauseMenuState(new PauseMenuEntry { Audio = AudioQueues.Standalone(), Samus = Clone(inventory), System = new SharedGameState(new SharedRandom()), Area = AreaId.Crateria, RoomMapPosition = new(0, 1), ScreenContent = original, SpriteSheets = MenuSheetFixtures.For(original) }), original);
-            byte[] actual = EquipmentPage(new PauseMenuState(new PauseMenuEntry { Audio = AudioQueues.Standalone(), Samus = Clone(inventory), System = new SharedGameState(new SharedRandom()), Area = AreaId.Crateria, RoomMapPosition = new(0, 1), ScreenContent = original, SpriteSheets = MenuSheetFixtures.For(original) }), original);
+            byte[] expected = EquipmentPage(new PauseMenuState(new PauseMenuEntry { Audio = AudioQueues.Standalone(), Samus = Clone(inventory), System = new SharedGameState(new SharedRandom()), Area = AreaId.Crateria, RoomMapPosition = new(0, 1), ScreenContent = original, SpriteSheets = MenuSheetFixtures.For(original), GameplayHud = global::SuperMetroid.Core.Hud.ShownHud.Nothing, MapRevealMode = global::SuperMetroid.Core.Map.MapRevealMode.None }), original);
+            byte[] actual = EquipmentPage(new PauseMenuState(new PauseMenuEntry { Audio = AudioQueues.Standalone(), Samus = Clone(inventory), System = new SharedGameState(new SharedRandom()), Area = AreaId.Crateria, RoomMapPosition = new(0, 1), ScreenContent = original, SpriteSheets = MenuSheetFixtures.For(original), GameplayHud = global::SuperMetroid.Core.Hud.ShownHud.Nothing, MapRevealMode = global::SuperMetroid.Core.Map.MapRevealMode.None }), original);
             AssertTrue(expected.SequenceEqual(actual),
                 "installed equipment labels match native tilemap with label ROM sources forbidden");
         }

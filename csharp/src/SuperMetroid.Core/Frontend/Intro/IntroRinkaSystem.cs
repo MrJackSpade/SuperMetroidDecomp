@@ -138,9 +138,8 @@ internal sealed class IntroRinkaSystem
                     return;
                 }
 
-                samus.InvincibilityTimer = WrappingCountdown.Start(IntroRinkaDefinitions.StrikeKnockbackUpdates);
-                samus.KnockbackTimer = IntroRinkaDefinitions.StrikeKnockbackUpdates;
-                samus.KnockbackXDirection = Samus.Movement.KnockbackHorizontalDirection.Right;
+                samus.RequestKnockback(IntroRinkaDefinitions.StrikeKnockbackUpdates, IntroRinkaDefinitions.StrikeKnockbackUpdates,
+                    Samus.Movement.KnockbackHorizontalDirection.Right);
                 sprite.Delete();
                 return;
 

@@ -336,6 +336,13 @@ public sealed class SamusState
     /// </summary>
     public HudItem AutoCancelledItem { get; set; }
 
+    /// <summary>Returns the HUD to the beam, with no item chosen for auto-cancel.</summary>
+    public void SelectBeam()
+    {
+        SelectedHudItem = HudItem.Beam;
+        AutoCancelledItem = HudItem.Beam;
+    }
+
     /// <summary>
     /// The beams she has equipped. Equipping the Hyper Beam in the drain replaces them with Charge, Wave and Plasma and
     /// the Hyper Beam.
@@ -456,6 +463,24 @@ public sealed class SamusState
     /// this counter remains nonzero.
     /// </summary>
     public int KnockbackTimer { get; set; }
+
+    /// <summary>Clears Samus's two own hurt timers: no invincibility is left and no knockback is held.</summary>
+    public void ClearHurtTimers()
+    {
+        InvincibilityTimer = WrappingCountdown.Start(0);
+        KnockbackTimer = 0;
+    }
+
+    /// <summary>
+    /// Publishes a hit's request: Samus is invincible for <paramref name="invincibilityUpdates"/> and her knockback is held
+    /// for <paramref name="knockbackUpdates"/>, moving her <paramref name="direction"/> once she admits it.
+    /// </summary>
+    public void RequestKnockback(int invincibilityUpdates, int knockbackUpdates, Movement.KnockbackHorizontalDirection direction)
+    {
+        InvincibilityTimer = WrappingCountdown.Start(invincibilityUpdates);
+        KnockbackTimer = knockbackUpdates;
+        KnockbackXDirection = direction;
+    }
 
     /// <summary>
     /// Decrements Samus's two own hurt timers.

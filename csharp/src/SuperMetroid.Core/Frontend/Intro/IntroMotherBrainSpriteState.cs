@@ -26,10 +26,10 @@ internal sealed class IntroMotherBrainSpriteState
     /// 128 that starts the page-two animation, after which it is no longer advanced.
     /// </summary>
     private int explodingTimer;
-    /// <summary>Whether explosion timing has entered the page-two animation.</summary>
-    private bool nextPageAnimationStarted;
-    /// <summary>Whether the page-two animation has started the cross-fade, which replaces hit flashing.</summary>
-    private bool crossfadingToNextPage;
+    /// <summary>Missiles her hit test has consumed; the fourth starts the explosion.</summary>
+    private int hitCount;
+    /// <summary>Where she stands, from taking hits through her explosion and page two's crossfade to her deletion.</summary>
+    private IntroMotherBrainPhase phase;
 
     /// <summary>Fixed cinematic screen origin from Mother Brain's definition.</summary>
     public static Offset16<ScreenPixels> Position => IntroMotherBrainDefinitions.MotherBrainOrigin;
@@ -50,11 +50,8 @@ internal sealed class IntroMotherBrainSpriteState
     /// <summary>The pose Mother Brain's animation shows; null before its first frame and after deletion.</summary>
     public CinematicSpritePose? Pose => actor.Shown;
 
-    /// <summary>Number of missiles consumed by Mother Brain's hit test; the fourth starts the explosion.</summary>
-    public int HitCount { get; private set; }
-
     /// <summary>True once the fourth hit switches this actor to its exploding behaviour.</summary>
-    public bool ExplosionStarted { get; private set; }
+    public bool ExplosionStarted => phase != IntroMotherBrainPhase.TakingHits;
 
     /// <summary>The flashback room picture's scroll, shaken vertically while Mother Brain explodes.</summary>
     public Position16<RoomPixels> Background { get; private set; } =
@@ -63,8 +60,8 @@ internal sealed class IntroMotherBrainSpriteState
     /// <summary>True when the exploding behaviour's animation asks for the page the flashback leads into.</summary>
     public bool NextPageRequested { get; private set; }
 
-    /// <summary>Whether the actor still contributes its frame to the cinematic sprites.</summary>
-    public bool IsVisible { get; private set; } = true;
+    /// <summary>Whether the actor still contributes its frame to the cinematic sprites: until page two's crossfade deletes it.</summary>
+    public bool IsVisible => phase != IntroMotherBrainPhase.Deleted;
 
     /// <summary>
     /// Runs the actor's behaviour, which precedes its animation's timer decrement.
@@ -75,17 +72,17 @@ internal sealed class IntroMotherBrainSpriteState
         int cinematicFrameCounter,
         bool crossfadeFinishing)
     {
-        if (crossfadingToNextPage)
+        if (phase is IntroMotherBrainPhase.CrossfadingToNextPage or IntroMotherBrainPhase.Deleted)
         {
             ApplyScreenShake(cinematicFrameCounter);
             // Page two's crossfade reaching its final update deletes this actor and clears Samus's intro display.
             if (crossfadeFinishing)
-                IsVisible = false;
+                phase = IntroMotherBrainPhase.Deleted;
             return;
         }
 
         ApplyHurtFlash();
-        if (!ExplosionStarted || nextPageAnimationStarted)
+        if (phase != IntroMotherBrainPhase.Exploding)
             return;
 
         ApplyScreenShake(cinematicFrameCounter);
@@ -96,7 +93,7 @@ internal sealed class IntroMotherBrainSpriteState
             // The exploding behaviour starts the page-two animation. The shared step below runs its page request and
             // starts the cross-fade during this same cinematic-actor update.
             actor.Start(IntroMotherBrainAnimation.StartingNextPage);
-            nextPageAnimationStarted = true;
+            phase = IntroMotherBrainPhase.StartingNextPage;
         }
     }
 
@@ -131,14 +128,14 @@ internal sealed class IntroMotherBrainSpriteState
     public bool RecordMissileHit()
     {
         hurtFlashTimer = IntroMotherBrainDefinitions.HurtFlashUpdates;
-        HitCount++;
-        if (HitCount != IntroMotherBrainDefinitions.MissileHitsToExplode)
+        hitCount++;
+        if (hitCount != IntroMotherBrainDefinitions.MissileHitsToExplode)
             return false;
 
         // The fourth hit clears the actor timer before selecting the exploding behaviour. The
         // explosion behaviour does not run until the next cinematic-actor frame.
         explodingTimer = 0;
-        ExplosionStarted = true;
+        phase = IntroMotherBrainPhase.Exploding;
         return true;
     }
 
@@ -151,7 +148,7 @@ internal sealed class IntroMotherBrainSpriteState
                 NextPageRequested = true;
                 return;
             case IntroMotherBrainCue.StartCrossFade:
-                crossfadingToNextPage = true;
+                phase = IntroMotherBrainPhase.CrossfadingToNextPage;
                 return;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(IntroMotherBrainCue)} {cue}.");

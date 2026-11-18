@@ -120,7 +120,7 @@ internal static class EndingShootingStarsTests
         // A later logo owner must append stars after its own actors, including after
         // the icon's actor program completes and the final text remains on screen.
         var logo = new EndingLogo(scene.Stage, () => { });
-        scene.InstalledArtwork.CurrentEndingLogo = logo;
+        PrivateState.Set(scene.CreditsRoll, nameof(EndingCreditsRoll.CurrentEndingLogo), logo);
         scene.Stage.Phase = EndingCreditsPhase.PostCreditsLogo;
         PrivateState.Set(logo, nameof(EndingLogo.Completed), true);
         PrivateState.Set(logo, nameof(EndingLogo.CrossfadeStarted), true);

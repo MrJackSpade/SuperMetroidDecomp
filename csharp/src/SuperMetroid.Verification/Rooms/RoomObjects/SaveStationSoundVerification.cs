@@ -47,7 +47,7 @@ internal static class SaveStationSoundVerification
             (ushort)(row * 16 - samus.Kinematics.Radius.Y - 1)));
 
         game.AdoptRuntime(runtime);
-        game.GameState = SuperMetroidGameState.MainGameplay;
+        game.Session.Enter(SuperMetroidGameState.MainGameplay);
         AudioQueues audio = game.Session.audio;
         int messageFrame = -1, soundFrame = -1;
         for (int frame = 0; frame < 900 && soundFrame < 0; frame++)

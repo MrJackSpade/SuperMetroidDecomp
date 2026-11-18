@@ -279,8 +279,7 @@ internal sealed class RoomLoader
         _assists.GrantLoadoutToNewSamus();
         // Loading a save selects the beam again, whatever the save held, so the front-facing load pose shows no
         // weapon's arm cannon.
-        _player.Samus.SelectedHudItem = HudItem.Beam;
-        _player.Samus.AutoCancelledItem = HudItem.Beam;
+        _player.Samus.SelectBeam();
         // The save holds the player's controls and options; loading it restores them.
         _options.ControllerBindings = slot.ControllerBindings;
         _options.MoonwalkEnabled = slot.MoonwalkEnabled;

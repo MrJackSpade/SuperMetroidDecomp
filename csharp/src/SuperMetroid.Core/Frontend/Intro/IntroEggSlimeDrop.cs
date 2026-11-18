@@ -16,8 +16,8 @@ internal sealed class IntroEggSlimeDrop
     /// the puddle height within its curve, whose next step throws.
     /// </summary>
     private int framesFallen;
-    /// <summary>Stops velocity integration when the drop reaches the puddle-animation height.</summary>
-    private bool motionEnabled = true;
+    /// <summary>Whether the drop still flies, or splashes where it reached the puddle-animation height.</summary>
+    private IntroEggSlimeDropPhase phase;
 
     /// <summary>Starts a drop at the confused Baby's position, flying as <paramref name="launch"/> says.</summary>
     public IntroEggSlimeDrop(Offset16<ScreenPixels> babyPosition, IntroEggSlimeLaunch launch)
@@ -39,7 +39,7 @@ internal sealed class IntroEggSlimeDrop
         if (!sprite.IsActive)
             return;
 
-        if (motionEnabled)
+        if (phase == IntroEggSlimeDropPhase.Falling)
         {
             AddVelocity(axis: Axis.Horizontal, launch.Drift);
             AddVelocity(axis: Axis.Vertical, launch.Fall.Speed(framesFallen));
@@ -49,7 +49,7 @@ internal sealed class IntroEggSlimeDrop
                 // Landing changes the animation and stops the drop, freezing the impact point
                 // while the puddle animation plays four ten-frame frames and deletes the actor.
                 sprite.Start(IntroEggEffectAnimation.SlimeImpact);
-                motionEnabled = false;
+                phase = IntroEggSlimeDropPhase.Splashing;
             }
             else
             {

@@ -113,7 +113,7 @@ internal static class PauseMenuVerification
         var system = new SharedGameState(new SharedRandom());
         system.SetAreaMapAcquired(0);
         system.MarkExploredMapTile(0, new(30, 5));
-        var pause = new PauseMenuState(new PauseMenuEntry { Audio = AudioQueues.Standalone(), Samus = samus, System = system, Area = AreaId.Crateria, RoomMapPosition = new(28, 2), GameplayHud = retainedHud, ScreenContent = presentation.Game, SpriteSheets = MenuSheetFixtures.For(presentation) });
+        var pause = new PauseMenuState(new PauseMenuEntry { Audio = AudioQueues.Standalone(), Samus = samus, System = system, Area = AreaId.Crateria, RoomMapPosition = new(28, 2), GameplayHud = retainedHud, ScreenContent = presentation.Game, SpriteSheets = MenuSheetFixtures.For(presentation), MapRevealMode = global::SuperMetroid.Core.Map.MapRevealMode.None });
 
         AssertEqual(PauseScreenMode.Map, pause.ScreenMode, "pause begins on map page");
         AssertEqual(0x0804, pause.ReadReserveSupplyDigit(presentation.Game, 0).Raw,
@@ -201,7 +201,7 @@ internal static class PauseMenuVerification
         // Samus word and must show the Wave beam's colours immediately.
         samus.CollectedBeams = SamusBeamFlags.Wave;
         samus.EquippedBeams = 0;
-        var beamPause = new PauseMenuState(new PauseMenuEntry { Audio = AudioQueues.Standalone(), Samus = samus, System = system, Area = AreaId.Crateria, RoomMapPosition = new(28, 2), GameplayHud = retainedHud, ScreenContent = presentation.Game, SpriteSheets = MenuSheetFixtures.For(presentation) });
+        var beamPause = new PauseMenuState(new PauseMenuEntry { Audio = AudioQueues.Standalone(), Samus = samus, System = system, Area = AreaId.Crateria, RoomMapPosition = new(28, 2), GameplayHud = retainedHud, ScreenContent = presentation.Game, SpriteSheets = MenuSheetFixtures.For(presentation), MapRevealMode = global::SuperMetroid.Core.Map.MapRevealMode.None });
         EnterPauseEquipment(beamPause);
         AssertEqual(PauseEquipmentCategory.Reserves, beamPause.SelectedCategory,
             "Wave-only pause entry selects the reserve mode control while capacity exists");
@@ -221,7 +221,7 @@ internal static class PauseMenuVerification
         // the sampled point. BG2 is also transparent there. The pixel must therefore be
         // backdrop black, proving that `$80:A211`'s $184E fill prevented visible BG3
         // character zero from leaking below the four-row HUD.
-        var blankMapPause = new PauseMenuState(new PauseMenuEntry { Audio = AudioQueues.Standalone(), Samus = samus, System = new SharedGameState(new SharedRandom()), Area = AreaId.Crateria, RoomMapPosition = new(28, 2), GameplayHud = retainedHud, ScreenContent = presentation.Game, SpriteSheets = MenuSheetFixtures.For(presentation) });
+        var blankMapPause = new PauseMenuState(new PauseMenuEntry { Audio = AudioQueues.Standalone(), Samus = samus, System = new SharedGameState(new SharedRandom()), Area = AreaId.Crateria, RoomMapPosition = new(28, 2), GameplayHud = retainedHud, ScreenContent = presentation.Game, SpriteSheets = MenuSheetFixtures.For(presentation), MapRevealMode = global::SuperMetroid.Core.Map.MapRevealMode.None });
         RgbaPixel[] blankMapFrame = blankMapPause.Render();
         AssertEqual(new RgbaPixel(0, 0, 0, 255), blankMapFrame[40 * 256],
             "pause clears unused BG3 rows instead of tiling character zero over empty map space");

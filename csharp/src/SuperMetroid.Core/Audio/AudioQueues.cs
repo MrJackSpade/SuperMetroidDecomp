@@ -213,14 +213,15 @@ public sealed class AudioQueues
     }
 
     /// <summary>
-    /// Silences all three sound libraries by queueing each one's silence request at normal
-    /// priority, in library order.
+    /// Silences all three sound libraries by queueing each one's silence request at <paramref name="priority"/>, in library
+    /// order: pausing asks at normal priority, and the sequences that leave gameplay (the Ceres departure, death, the
+    /// ending's liftoff and the time-up) at essential priority, which no waiting request refuses.
     /// </summary>
-    public void QueueCancelSoundEffects()
+    public void QueueCancelSoundEffects(SoundRequestPriority priority)
     {
-        QueueSound(SamusSound.Silence, priority: SoundRequestPriority.Normal);
-        QueueSound(EnemySound.Silence, priority: SoundRequestPriority.Normal);
-        QueueSound(RoomSound.Silence, priority: SoundRequestPriority.Normal);
+        QueueSound(SamusSound.Silence, priority);
+        QueueSound(EnemySound.Silence, priority);
+        QueueSound(RoomSound.Silence, priority);
     }
 
     /// <summary>Queues <paramref name="request"/> and returns what the queue did with it (see the overload taking the request's parts).</summary>

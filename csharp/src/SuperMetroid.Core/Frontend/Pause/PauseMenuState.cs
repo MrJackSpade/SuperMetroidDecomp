@@ -133,12 +133,9 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // screen binds that artwork and its capture places the pictures.
         screen = new PauseScreen(entry.ScreenContent, entry.SpriteSheets);
         BindSpriteSheets(entry.SpriteSheets);
-        if (entry.GameplayHud is not null)
-        {
-            // Pause shows the HUD gameplay displayed (#1351, #1466) and draws it in its colours, so the energy and
-            // ammo HUD stays over the area it covers instead of the map showing there.
-            screen.ShowHud(entry.GameplayHud);
-        }
+        // Pause shows the HUD gameplay displayed (#1351, #1466) and draws it in its colours, so the energy and ammo HUD
+        // stays over the area it covers instead of the map showing there.
+        screen.ShowHud(entry.GameplayHud);
 
         // Pause setup ends by clearing the effect overlay
         // beneath the HUD. Pause draws

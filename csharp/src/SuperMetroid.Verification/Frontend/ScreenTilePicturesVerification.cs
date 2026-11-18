@@ -255,7 +255,7 @@ internal static class ScreenTilePicturesVerification
         var pause = new PauseMenuState(new PauseMenuEntry
         { Audio = AudioQueues.Standalone(),
             Samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), System = system, Area = AreaId.Crateria, RoomMapPosition = new(0, 1), ScreenContent = maps,
-            SpriteSheets = InstalledFixtures.SpriteSheets,
+            SpriteSheets = InstalledFixtures.SpriteSheets, GameplayHud = global::SuperMetroid.Core.Hud.ShownHud.Nothing, MapRevealMode = global::SuperMetroid.Core.Map.MapRevealMode.None
         });
         int layers = AssertPauseDrawnFromVram(pause, maps, "pause map");
         PauseEquipmentRulesVerification.EnterPauseEquipment(pause);

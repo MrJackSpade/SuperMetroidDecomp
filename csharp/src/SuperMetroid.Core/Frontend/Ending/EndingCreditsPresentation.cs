@@ -19,9 +19,9 @@ internal static class EndingCreditsPresentation
         if (ending.UsesExplosionFinaleDisplay) return ending.CaptureExplosionFinale();
         var layers = new List<DisplayLayer>();
         FramePaint paint = Paint(ending);
-        if (ending.InstalledArtwork.CurrentEndingLogo is not null)
+        if (ending.CreditsRoll.CurrentEndingLogo is not null)
         {
-            bool crossfading = ending.InstalledArtwork.CurrentEndingLogo.CrossfadeStarted;
+            bool crossfading = ending.CreditsRoll.CurrentEndingLogo.CrossfadeStarted;
             if (crossfading)
                 layers.Add(new PicturedPlaneLayer(ending.ScreenPicture(SpriteSheetId.EndingPostCreditsPictures, EndingPictureNames.Logo, EndingScenery.LogoPicture),
                     Offset16<PlanePixels>.Zero));
@@ -170,10 +170,10 @@ internal static class EndingCreditsPresentation
     {
         var sprites = new ScreenSprites();
         sprites.BeginFrame();
-        if (ending.InstalledArtwork.CurrentEndingLogo is not null)
+        if (ending.CreditsRoll.CurrentEndingLogo is not null)
         {
             if (Shows(EndingSpriteLayer.Actors))
-                ending.InstalledArtwork.CurrentEndingLogo.Draw(sprites, Family(CinematicSpriteFamily.EndingLogo));
+                ending.CreditsRoll.CurrentEndingLogo.Draw(sprites, Family(CinematicSpriteFamily.EndingLogo));
         }
         else if (ending.CurrentRewardGesture is not null)
         {

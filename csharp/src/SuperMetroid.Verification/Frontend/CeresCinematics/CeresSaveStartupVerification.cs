@@ -60,7 +60,7 @@ internal static class CeresSaveStartupVerification
         var options = new GameOptionsMenuState(AudioQueues.Standalone(), screenContent: maps, spriteSheets: MenuSheetFixtures.For(maps), controllerBindings: SuperMetroid.Core.Input.ControllerBindings.Default, iconCancelEnabled: false, moonwalkEnabled: false, japaneseText: false);
         options.SkipToPhase(GameOptionsPhase.StartGame);
         game.Session.Show(options);
-        game.Session.LoadingExistingSave = true;
+        game.Session.ContinueSavedGame();
         game.Session.Enter(FileSelectStep.Options);
         byte[] savedBefore = SaveRamCodec.Encode(saves, RetailPresentationFixture());
         game.Step(0);
@@ -121,7 +121,7 @@ internal static class CeresSaveStartupVerification
         var reloadOptions = new GameOptionsMenuState(AudioQueues.Standalone(), screenContent: maps, spriteSheets: MenuSheetFixtures.For(maps), controllerBindings: SuperMetroid.Core.Input.ControllerBindings.Default, iconCancelEnabled: false, moonwalkEnabled: false, japaneseText: false);
         reloadOptions.SkipToPhase(GameOptionsPhase.StartGame);
         reload.Session.Show(reloadOptions);
-        reload.Session.LoadingExistingSave = true;
+        reload.Session.ContinueSavedGame();
         reload.Session.Enter(FileSelectStep.Options);
         reload.Step(0);
         AssertTrue(reload.IsAt(GameDataLoadRoute.SelectedGame),
@@ -150,7 +150,7 @@ internal static class CeresSaveStartupVerification
         var probeOptions = new GameOptionsMenuState(AudioQueues.Standalone(), screenContent: maps, spriteSheets: MenuSheetFixtures.For(maps), controllerBindings: SuperMetroid.Core.Input.ControllerBindings.Default, iconCancelEnabled: false, moonwalkEnabled: false, japaneseText: false);
         probeOptions.SkipToPhase(GameOptionsPhase.StartGame);
         gameOverProbe.Session.Show(probeOptions);
-        gameOverProbe.Session.LoadingExistingSave = true;
+        gameOverProbe.Session.ContinueSavedGame();
         gameOverProbe.Session.Enter(FileSelectStep.Options);
         gameOverProbe.Step(0);
         for (int wait = 0; wait < 256 && gameOverProbe.IsAt(GameDataLoadRoute.SelectedGame); wait++)
@@ -216,7 +216,7 @@ internal static class CeresSaveStartupVerification
         var oldOptions = new GameOptionsMenuState(AudioQueues.Standalone(), screenContent: maps, spriteSheets: MenuSheetFixtures.For(maps), controllerBindings: SuperMetroid.Core.Input.ControllerBindings.Default, iconCancelEnabled: false, moonwalkEnabled: false, japaneseText: false);
         oldOptions.SkipToPhase(GameOptionsPhase.StartGame);
         unmodified.Session.Show(oldOptions);
-        unmodified.Session.LoadingExistingSave = true;
+        unmodified.Session.ContinueSavedGame();
         unmodified.Session.Enter(FileSelectStep.Options);
         unmodified.Step(0);
         AssertTrue(unmodified.IsAt(FileSelectStep.AreaMap),

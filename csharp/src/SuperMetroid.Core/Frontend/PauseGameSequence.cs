@@ -126,7 +126,7 @@ internal sealed class PauseGameSequence(FrontendSession session, GameplayGamePha
         session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
         // Pausing stops every gameplay sound before the pause screen is set up, so no echo, charge, beam or
         // environmental sound plays on under the menu.
-        session.audio.QueueCancelSoundEffects();
+        session.audio.QueueCancelSoundEffects(SoundRequestPriority.Normal);
         SelectedRoom pauseRoom = session.GameplayRuntime.Room.ActiveRoom ??
             throw new InvalidOperationException(
                 "Pause setup requires an active room.");

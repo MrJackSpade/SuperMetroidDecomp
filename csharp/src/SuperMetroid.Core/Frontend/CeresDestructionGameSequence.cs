@@ -85,10 +85,8 @@ internal sealed class CeresDestructionGameSequence(FrontendSession session) : IG
             // fully black, after clearing Samus's HUD selection and hurt timers.
             SamusState lostSamus = session.Runtime?.Player.Samus ?? throw new InvalidOperationException(
                 "Ceres destruction with Samus requires her gameplay state.");
-            lostSamus.SelectedHudItem = HudItem.Beam;
-            lostSamus.AutoCancelledItem = HudItem.Beam;
-            lostSamus.InvincibilityTimer = WrappingCountdown.Start(0);
-            lostSamus.KnockbackTimer = 0;
+            lostSamus.SelectBeam();
+            lostSamus.ClearHurtTimers();
             session.Close<CeresDestructionCinematicState>();
             session.BeginBlackDeathBlackOut();
         }

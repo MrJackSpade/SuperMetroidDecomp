@@ -78,9 +78,7 @@ internal sealed class CeresDepartureGameSequence(FrontendSession session) : IGam
             session.GameplayRuntime.EscapeTimer.Clear();
             // Stop music and silence all three sound libraries.
             session.audio.QueueMusic(MusicRequest.Stop);
-            session.audio.QueueSound(SamusSound.Silence, priority: SoundRequestPriority.Essential);
-            session.audio.QueueSound(EnemySound.Silence, priority: SoundRequestPriority.Essential);
-            session.audio.QueueSound(RoomSound.Silence, priority: SoundRequestPriority.Essential);
+            session.audio.QueueCancelSoundEffects(SoundRequestPriority.Essential);
             session.Show(new CeresDestructionCinematicState(
                 session.audio, session.Artwork.ScreenContent.PowerBombGlowColors,
                 session.Artwork.IntroCinematicArt, session.Artwork.SpriteSheets,

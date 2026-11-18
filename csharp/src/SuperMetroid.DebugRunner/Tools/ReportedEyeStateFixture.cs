@@ -29,7 +29,7 @@ internal static class ReportedEyeStateFixture
         samus.CollectedItems = SamusEquipmentFlags.MorphBall;
         samus.Control.LockOutPlayer();
         samus.Position = samus.Position.WithWhole(new((ushort)(body.Position.X.Whole - 64), (ushort)(body.Position.Y.Whole - 32)));
-        data.Game.GameState = SuperMetroidGameState.MainGameplay;
+        data.Game.Session.Enter(SuperMetroidGameState.MainGameplay);
         for (long frame = 1; frame <= 80; frame++)
         {
             data.Record(0);

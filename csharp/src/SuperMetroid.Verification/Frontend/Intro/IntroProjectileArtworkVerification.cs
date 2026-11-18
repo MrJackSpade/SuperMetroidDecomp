@@ -24,7 +24,7 @@ internal static class IntroProjectileArtworkVerification
         var projectiles = intro.flashbackProjectiles;
         var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
         game.Session.Show(intro);
-        game.GameState = SuperMetroidGameState.IntroCinematic;
+        game.Session.Enter(SuperMetroidGameState.IntroCinematic);
         game.BindArtwork(game.Artwork with { SpriteSheets = InstalledFixtures.SpriteSheets });
         ImageSpriteDraw Shown(IntroCinematicState scene, SpriteSourceKind kind) =>
             scene.PrepareMotherBrainSprites().Draws.OfType<ImageSpriteDraw>().Single(draw => draw.Source.Kind == kind);

@@ -34,7 +34,7 @@ public sealed class RoomObjectPopulation
     /// <param name="placements">Each placement's room-object kind, block coordinates and setup, in authored order.</param>
     internal static RoomObjectPopulation FromPlacements(string name, RoomObjectPlacementDefinition[] placements) =>
         new(name, Ensure.NotNull(placements).Select(placement => new RoomObjectPlacement(
-            RoomObjectKinds.RequirePlaced(placement.Kind), placement.Block, placement.Setup) { Site = placement.Site }));
+            placement.Kind, placement.Block, placement.Setup) { Site = placement.Site }));
 
     /// <summary>Rejects an empty placement.</summary>
     /// <exception cref="InvalidDataException">The placement is malformed.</exception>

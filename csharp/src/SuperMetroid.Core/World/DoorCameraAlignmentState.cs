@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.Doors;
 namespace SuperMetroid.Core.World;
 
 /// <summary>
-/// One invocation of the game's source-camera alignment step while a door transition begins.
+/// One update's step of the camera toward its screen's edge while a door transition begins, in the room Samus leaves.
 /// </summary>
 /// <remarks>
 /// Horizontal doors move the camera's Y toward the nearest screen boundary; vertical doors

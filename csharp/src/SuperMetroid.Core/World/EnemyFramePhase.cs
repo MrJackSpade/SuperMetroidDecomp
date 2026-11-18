@@ -87,8 +87,7 @@ internal sealed class EnemyFramePhase
             // Making Samus face forward clears all pending pose requests after the input phase
             // has sampled this frame's controls, so a held Down does not crouch her forward-facing body on the
             // elevator.
-            _player.ProspectiveSamusPose = null;
-            _player.ProspectiveSamusFallbackPose = null;
+            _player.ClearProspectivePoses();
             // Making Samus face forward ends by showing her suit's colours again, so a cancelled charge leaves no
             // flashing colours behind.
             SuperMetroid.Core.Samus.Colours.SamusSuitShade.Show(_player.Colours, samus.EquippedItems);
@@ -97,8 +96,7 @@ internal sealed class EnemyFramePhase
         {
             // The grab and release discard the transitions the input phase chose for the old pose, including the
             // no-input fallback kept beside the prospective pose.
-            _player.ProspectiveSamusPose = null;
-            _player.ProspectiveSamusFallbackPose = null;
+            _player.ClearProspectivePoses();
         }
         if (!_freeze.TimeIsFrozen && room.Enemies.DisplaySources.MotherBrain is { Head: { } rainbowHead } rainbowBrain)
         {

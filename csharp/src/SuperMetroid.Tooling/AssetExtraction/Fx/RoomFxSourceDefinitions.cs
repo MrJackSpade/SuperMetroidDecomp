@@ -291,6 +291,6 @@ internal static class RoomFxSourceDefinitions
         [0xa182] = RoomFxDefinitions.DeadScientistWhenAreaBossDead,
         [0xa184] = RoomFxDefinitions.CeresRidleyHallwayWhenAreaBossDead,
         [0xa186] = RoomFxDefinitions.CeresRidleyWhenAreaBossDead,
-        [0xa188] = RoomFxDefinitions.MotherBrainWhenMainAreaBossDead,
+        [0xa188] = RoomFxDefinitions.MotherBrainWhenAreaBossDead,
     };
 }

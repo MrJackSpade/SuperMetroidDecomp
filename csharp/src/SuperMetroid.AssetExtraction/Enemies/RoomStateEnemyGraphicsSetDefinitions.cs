@@ -313,7 +313,7 @@ internal static class RoomStateEnemyGraphicsSetDefinitions
         [nameof(TourianRoomStateDefinitions.TourianRecharge)] = RoomEnemyGraphicsSetDefinitions.TourianRecharge,
         [nameof(TourianRoomStateDefinitions.MotherBrainDefault)] = RoomEnemyGraphicsSetDefinitions.MotherBrainBeforeDefeat,
         [nameof(TourianRoomStateDefinitions.MotherBrainWhenMotherBrainGlassDestroyed)] = RoomEnemyGraphicsSetDefinitions.MotherBrainBeforeDefeat,
-        [nameof(TourianRoomStateDefinitions.MotherBrainWhenMainAreaBossDead)] = RoomEnemyGraphicsSetDefinitions.Draygon1MotherBrain2,
+        [nameof(TourianRoomStateDefinitions.MotherBrainWhenAreaBossDead)] = RoomEnemyGraphicsSetDefinitions.Draygon1MotherBrain2,
         [nameof(TourianRoomStateDefinitions.TourianEyeDoor)] = RoomEnemyGraphicsSetDefinitions.TourianEyeDoor,
         [nameof(TourianRoomStateDefinitions.RinkaShaft)] = RoomEnemyGraphicsSetDefinitions.RinkaShaft,
         [nameof(TourianRoomStateDefinitions.MotherBrainSave)] = RoomEnemyGraphicsSetDefinitions.MotherBrainSave,

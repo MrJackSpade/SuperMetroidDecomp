@@ -892,8 +892,8 @@ internal sealed class RoomLoader
         scope.BombProjectiles = bombs;
         scope.Projectiles = projectiles;
 
-        // The room-object loader walks the room's placements once. Each placement takes the highest free place among the
-        // room's room objects before its setup runs, so a room object its setup deletes at once frees that place for the
+        // The room-object loader walks the room's placements once. Each placement takes the first free place in update
+        // order among the room's room objects before its setup runs, so a room object its setup deletes at once frees that place for the
         // next placement, and enemies can observe which room object holds which place. Every room-object family enters
         // through this one loader; an unsupported placement throws, naming it, instead of being skipped.
         // The room's room-object system is built with its bindings, then one set of runtime services

@@ -29,9 +29,9 @@ internal static class RoomObjectPopulationInputBoundaryVerification
     internal static void VerifyObjectPopulationInputBoundary()
     {
         // A scroll trigger applies its compiled scroll change; no room builds another kind of scroll write (#2355).
-        var trigger = RoomObjectPlacementAccess.Placed(RoomObjectKinds.RequirePlaced(RoomObjectKind.ScrollTrigger),
+        var trigger = RoomObjectPlacementAccess.Placed(RoomObjectKind.ScrollTrigger,
             new(3, 3), scrollChange: TriggerChange);
-        var extension = RoomObjectPlacementAccess.Placed(RoomObjectKinds.RequirePlaced(RoomObjectKind.RightwardsScrollExtension),
+        var extension = RoomObjectPlacementAccess.Placed(RoomObjectKind.RightwardsScrollExtension,
             new(4, 3));
         var second = trigger with { Block = new(5, trigger.Block.Y) };
         RoomObjectPlacement[] records = [trigger, extension, second];

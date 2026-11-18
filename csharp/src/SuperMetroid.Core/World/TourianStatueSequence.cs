@@ -71,43 +71,30 @@ public sealed class TourianStatueSequence
         Begin(Ensure.NotNull(roomObjects));
     }
 
-    /// <summary>One spawned statue animation's definition, animation playback, and frame timer.</summary>
+    /// <summary>One spawned statue's definition and its animation, played on the shared animation player (#2487).</summary>
     internal sealed class StatueBlockAnimation
     {
-        /// <summary>Starts the statue of <paramref name="definition"/> at its entry animation.</summary>
+        /// <summary>
+        /// Starts the statue of <paramref name="definition"/> at its entry animation, showing nothing until its first update,
+        /// which plays the entry's events and shows its first picture.
+        /// </summary>
         public StatueBlockAnimation(TourianStatueAnimationDefinition definition)
         {
             Definition = definition;
             Animations = new TourianStatueBlockAnimations(definition.FirstFrameDuration);
-            Playback = new AnimationPlayback<TourianStatueBlockSegment>(Animations.StartingWith(TourianStatueBlockSegment.Entry), AnimationPlace.StartOfAnimation);
+            Player = AnimationPlayer<TourianStatueBlockSegment, TourianStatueBlockPicture, TourianStatueBlockCue>.Starting(
+                Animations.Segments, Animations.StartingWith(TourianStatueBlockSegment.Entry));
         }
 
         /// <summary>The statue's animation and the values its events act on.</summary>
         public TourianStatueAnimationDefinition Definition { get; }
         /// <summary>The statue's typed animations, built once for its first-frame duration.</summary>
         public TourianStatueBlockAnimations Animations { get; }
-        /// <summary>The statue's animation and where it stands in it; null once the animation has ended and the object is deleted.</summary>
-        public AnimationPlayback<TourianStatueBlockSegment>? Playback { get; private set; }
-        /// <summary>Remaining duration of the current statue frame.</summary>
-        public int Timer { get; private set; } = 1;
-
-        /// <summary>Counts a live statue's frame down one tick and reports whether the frame has expired; an ended statue never counts.</summary>
-        internal bool CountDown()
-        {
-            if (Playback is null)
-                return false;
-            return --Timer == 0;
-        }
-
-        /// <summary>Resumes the animation at <paramref name="playback"/> after showing a picture for <paramref name="duration"/> ticks.</summary>
-        internal void Show(AnimationPlayback<TourianStatueBlockSegment> playback, int duration)
-        {
-            Playback = playback;
-            Timer = duration;
-        }
-
-        /// <summary>Ends the animation, deleting the object.</summary>
-        internal void Stop() => Playback = null;
+        /// <summary>
+        /// The statue's animation playing: each picture for its updates, then on to the next; once a release or the
+        /// already-grey finish ends it, it has stopped and counts no more.
+        /// </summary>
+        internal AnimationPlayer<TourianStatueBlockSegment, TourianStatueBlockPicture, TourianStatueBlockCue> Player { get; }
     }
     /// <summary>
     /// The four statue animations in Kraid, Phantoon, Draygon, Ridley order, the order they run in each update and so the
@@ -116,8 +103,12 @@ public sealed class TourianStatueSequence
     private readonly List<StatueBlockAnimation> _statues = [];
     /// <summary>Whether the statues await their releases, hold before lowering, or lower.</summary>
     private TourianStatueDescentPhase _descentPhase = TourianStatueDescentPhase.AwaitingReleases;
-    /// <summary>Updates left in the pre-descent hold while <see cref="_descentPhase"/> is <see cref="TourianStatueDescentPhase.Holding"/>.</summary>
-    private int _holdUpdates;
+    /// <summary>
+    /// Updates the pre-descent hold has left while <see cref="_descentPhase"/> is <see cref="TourianStatueDescentPhase.Holding"/>;
+    /// the update that leaves it none raises the dust. The hold shows no picture, so it is the descent's own count of the
+    /// hold's updates, not an animation.
+    /// </summary>
+    private int _holdUpdatesLeft;
     /// <summary>The statue room's statue offset: minus the whole pixels of its descent (<see cref="TourianStatueRoom.StatueOffset"/>).</summary>
     public int VerticalOffset => Room.StatueOffset;
     /// <summary>Background offset latched at the same frame boundary as the displayed sprite frame.</summary>
@@ -134,7 +125,7 @@ public sealed class TourianStatueSequence
     {
         _statues.Clear();
         _descentPhase = TourianStatueDescentPhase.AwaitingReleases;
-        _holdUpdates = 0;
+        _holdUpdatesLeft = 0;
         Room.Descent = SignedSixteenSixteen.Zero;
         DisplayedVerticalOffset = 0;
         Begin(roomObjects);
@@ -183,34 +174,18 @@ public sealed class TourianStatueSequence
     }
 
     /// <summary>
-    /// Runs the statue animations in spawn order: each live statue counts its frame down and, when it expires,
-    /// plays its typed animation on to the next shown picture, carrying out the animation's events on the way.
+    /// Runs the statue animations in spawn order: each statue still playing counts its picture's updates down and, when
+    /// they run out, plays its typed animation on to the next picture, carrying out the animation's events on the way.
     /// </summary>
     public void StepBlockAnimations()
     {
         if (_assists.Current.TourianStatuesOpen) return;
         foreach (StatueBlockAnimation statueAnimation in _statues)
         {
-            if (!statueAnimation.CountDown() || statueAnimation.Playback is not { } playback) continue;
             TourianStatueAnimationDefinition definition = statueAnimation.Definition;
-            Animation<TourianStatueBlockSegment> animation = playback.Animation;
-            AnimationPlace place = playback.Place;
             TourianStatueBlockAnimations animations = statueAnimation.Animations;
-            AnimationShown<TourianStatueBlockSegment, TourianStatueBlockPicture> shown = animations.Segments.PlayToNextFrame(
-                ref animation, ref place, cue => RunCue(definition, animations, cue));
-            switch (shown)
-            {
-                case AnimationShown<TourianStatueBlockSegment, TourianStatueBlockPicture>.Frame frame:
-                    statueAnimation.Show(new AnimationPlayback<TourianStatueBlockSegment>(animation, place), frame.Duration);
-                    _room.LoadedScope.ArtworkFrames.Select(definition.Picture(frame.Shown));
-                    break;
-                case AnimationShown<TourianStatueBlockSegment, TourianStatueBlockPicture>.Ended:
-                    statueAnimation.Stop();
-                    break;
-                default:
-                    throw new InvalidOperationException(
-                        $"Tourian statue {definition.Statue} animation ended a play with unauthored {shown}.");
-            }
+            if (statueAnimation.Player.StepToNewFrame(cue => RunCue(definition, animations, cue)) is { } picture)
+                _room.LoadedScope.ArtworkFrames.Select(definition.Picture(picture));
         }
 
         // Carries out one event with the statue's values; an event whose condition holds returns the animation the statue starts.
@@ -310,7 +285,7 @@ public sealed class TourianStatueSequence
             _statue.Animation.AllReleased = true;
             if (_statue.Animation.ReleaseInProgress) return;
             _descentPhase = TourianStatueDescentPhase.Holding;
-            _holdUpdates = TourianStatueSequenceDefinitions.DescentDelay;
+            _holdUpdatesLeft = TourianStatueSequenceDefinitions.DescentDelay;
             return;
         }
         _enemies.Earthquake.Sustain(TourianStatueSequenceDefinitions.DescentEarthquake);
@@ -318,8 +293,7 @@ public sealed class TourianStatueSequence
             _system.RandomNumber, _system.EarthquakeSoundDelay);
         if (_descentPhase == TourianStatueDescentPhase.Holding)
         {
-            // The update that takes the hold to zero raises the dust.
-            if (--_holdUpdates <= 0)
+            if (--_holdUpdatesLeft == 0)
             {
                 _statue.SpawnDescentDust();
                 _descentPhase = TourianStatueDescentPhase.Lowering;

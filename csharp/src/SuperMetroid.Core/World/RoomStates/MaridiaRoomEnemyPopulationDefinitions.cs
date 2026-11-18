@@ -482,7 +482,7 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.PirateMagentaWalking, new(888, 432), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, true, new WalkingSpacePirateSpawnSettings(Facing: HorizontalDirection.Right, LaserSpeed: PirateLaserSpeed.Slow, ShotWatch: WalkingSpacePirateShotWatch.FlinchesFromShots, PatrolReach: 40)),
             new(EnemyDefinitionId.Skultera, new(872, 184), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new SkulteraSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(16), StartDirection: HorizontalDirection.Right, Radius: 16, AngleDelta: 2)),
         ], 8),
-        new(nameof(RoomEnemyPopulationDefinitions.DraygonWhenAreaBossDeadOrMotherBrainWhenMainAreaBossDead),
+        new(nameof(RoomEnemyPopulationDefinitions.DraygonOrMotherBrainWhenAreaBossDead),
         [
         ], 191),
     ];

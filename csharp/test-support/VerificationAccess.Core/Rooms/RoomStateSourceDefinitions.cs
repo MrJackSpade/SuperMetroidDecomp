@@ -317,7 +317,7 @@ internal static class RoomStateSourceDefinitions
         [0xdd3b] = TourianRoomStateDefinitions.TourianRecharge,
         [0xdd6e] = TourianRoomStateDefinitions.MotherBrainDefault,
         [0xdd88] = TourianRoomStateDefinitions.MotherBrainWhenMotherBrainGlassDestroyed,
-        [0xdda2] = TourianRoomStateDefinitions.MotherBrainWhenMainAreaBossDead,
+        [0xdda2] = TourianRoomStateDefinitions.MotherBrainWhenAreaBossDead,
         [0xddd1] = TourianRoomStateDefinitions.TourianEyeDoor,
         [0xde00] = TourianRoomStateDefinitions.RinkaShaft,
         [0xde30] = TourianRoomStateDefinitions.MotherBrainSave,

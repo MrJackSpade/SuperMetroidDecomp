@@ -32,11 +32,12 @@ internal static class GoldenTorizoEggHatchVerification
                 ? TorizoProjectileSegment.EggBouncingRight
                 : TorizoProjectileSegment.EggBouncingLeft));
             // The egg has rolled into a wall and turned about; its hatch timer runs out this update.
-            egg.State = new GoldenTorizoEggState(laidFacingRight ? HorizontalDirection.Right : HorizontalDirection.Left)
+            var eggState = new GoldenTorizoEggState(laidFacingRight ? HorizontalDirection.Right : HorizontalDirection.Left)
             {
                 Facing = laidFacingRight ? HorizontalDirection.Left : HorizontalDirection.Right,
-                HatchTimer = { Count = 0 },
             };
+            eggState.HatchTimer.LastFor(1);
+            egg.State = eggState;
 
             TorizoAttacks.BounceEgg(egg, level);
 

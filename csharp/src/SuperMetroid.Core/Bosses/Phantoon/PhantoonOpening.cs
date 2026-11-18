@@ -36,14 +36,16 @@ internal sealed class PhantoonOpening
         if (!PhantoonPresentation.TickPhantoonPhaseTimer(state))
             return;
 
-        _ = SpawnPhantoonStartingFlame(state, PhantoonFlameSpawns.StartingFlameStart(state.StartingFlames.NextFlame));
+        _ = SpawnPhantoonStartingFlame(state, state.StartingFlames.NextFlame.Entry);
         _audio.QueueEnemySound(PhantoonSoundDefinitions.StartingFlame, PhantoonSoundDefinitions.StartingFlamePriority);
         state.PhaseTimer = PhantoonArenaDefinitions.StartingFlameIntervalUpdates;
-        state.StartingFlames.NextFlame++;
-        if (state.StartingFlames.NextFlame < PhantoonFlameSpawns.StartingFlameCount)
+        if (state.StartingFlames.NextFlame.Following is { } next)
+        {
+            state.StartingFlames.NextFlame = next;
             return;
+        }
 
-        state.StartingFlames.NextFlame = 0;
+        state.StartingFlames.NextFlame = PhantoonStartingFlamesState.First;
         state.Round.Damage = 0;
         state.Phase = PhantoonPhase.WaitBeforeActivatingStartingFlames;
         state.PhaseTimer = PhantoonArenaDefinitions.StartingFlamesActivateUpdates;

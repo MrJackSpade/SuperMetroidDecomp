@@ -192,7 +192,7 @@ internal static class LookupStream5Verification
             system.BossArtwork = InstalledFixtures.BossArtwork;
             Action<PhantoonEnemyState> fade = system.PhantoonBehavior.Patterns.RunPhantoonFlameRainFadeOut;
             Action<RoomEnemyPlace, PhantoonEnemyState> tick = system.PhantoonBehavior.Patterns.RunPhantoonHiddenFlameRain;
-            body.Position = body.Position.WithWhole(new(111, 99)); state.FigureEight.PathCursor = 42; state.PhaseTimer = 17;
+            body.Position = body.Position.WithWhole(new(111, 99)); state.FigureEight.PathPlace = PhantoonPath.At(42); state.PhaseTimer = 17;
             state.Phase = PhantoonPhase.FadeOutDuringFlameRain;
             // He fades out of the colouring the fight shows him in (#1512), his health band's.
             state.Colours.Show(PhantoonBodyLook.Health(PhantoonHealthBandDefinitions.BelowEighth));
@@ -213,12 +213,12 @@ internal static class LookupStream5Verification
                     AssertEqual(1, randomCalls, "Next location is not chosen before delay expires");
                     AssertEqual((ushort)111, body.Position.X.Whole, "Hidden wait does not interpolate X");
                     AssertEqual((ushort)99, body.Position.Y.Whole, "Hidden wait does not interpolate Y");
-                    AssertEqual(42, state.FigureEight.PathCursor, "Hidden wait does not advance path cursor");
+                    AssertEqual(42, state.FigureEight.PathPlace.Place, "Hidden wait does not advance path cursor");
                     AssertEqual(0, system.Projectiles.EnemyProjectiles.Count(projectile => projectile.IsActive), "No rain launches before expiry");
                 }
             }
             AssertEqual(2, randomCalls, "Expiration consumes one separate placement RNG word");
-            AssertEqual(ReadVerificationWord(rom, 0xa7cdad + nextPattern * 8), state.FigureEight.PathCursor, "Exact delayed native path cursor");
+            AssertEqual(ReadVerificationWord(rom, 0xa7cdad + nextPattern * 8), state.FigureEight.PathPlace.Place, "Exact delayed native path cursor");
             AssertEqual(ReadVerificationWord(rom, 0xa7cdaf + nextPattern * 8), body.Position.X.Whole, "Exact delayed native X");
             AssertEqual(ReadVerificationWord(rom, 0xa7cdb1 + nextPattern * 8), body.Position.Y.Whole, "Exact delayed native Y");
             AssertEqual(PhantoonPhase.BecomeSolidAfterFlameRain, state.Phase, "Native rain appearance handoff");
@@ -1246,11 +1246,11 @@ internal static class LookupStream5Verification
         for (int i = 0; i < 8; i++)
         {
             PhantoonRainPattern placement = PhantoonRainPatternDefinitions.Choices[i];
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdad + i * 8)), placement.PathCursor, "Native rain figure-eight cursor");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdad + i * 8)), placement.PathPlace, "Native rain figure-eight cursor");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdaf + i * 8)), placement.BodyPosition.X, "Native rain body X");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdb1 + i * 8)), placement.BodyPosition.Y, "Native rain body Y");
             AssertEqual((ushort)0, CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdb3 + i * 8)), "Native unused rain record word");
-            AssertEqual(rom.ReadCartridgeByte(0xa7cfc2 + i), placement.FirstColumn, "Native first rain column");
+            AssertEqual(rom.ReadCartridgeByte(0xa7cfc2 + i), placement.FirstColumn.Place, "Native first rain column");
         }
         for (int high = 0; high < 1; high++)
         for (int pattern = 0; pattern < 8; pattern++)
@@ -1266,7 +1266,7 @@ internal static class LookupStream5Verification
             state.PhaseTimer = 1;
             state.FigureEight.Reversed = true;
             new Action<RoomEnemyPlace, PhantoonEnemyState>(enemies.PhantoonBehavior.Patterns.RunPhantoonHiddenFlameRain)(body, state);
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdad + pattern * 8)), state.FigureEight.PathCursor, "Real rain cursor handoff");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdad + pattern * 8)), state.FigureEight.PathPlace.Place, "Real rain cursor handoff");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdaf + pattern * 8)), body.Position.X.Whole, "Real rain body placement X");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdb1 + pattern * 8)), body.Position.Y.Whole, "Real rain body placement Y");
             AssertEqual(false, state.FigureEight.Reversed, "Real rain direction reset");

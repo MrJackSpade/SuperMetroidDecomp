@@ -36,14 +36,14 @@ internal static class PhantoonFlameSpawnsVerification
         for (int place = 0; place < oddWaveIndices.Length; place++)
             AssertEqual(RageStart(rom, oddWaveIndices[place]), PhantoonFlameSpawns.OddRageWave[place], $"Odd rage wave flame {place}");
         for (int i = 0; i < 9; i++)
-            AssertEqual(rom.ReadCartridgeByte(RainColumnTable + i), PhantoonFlameSpawns.RainX(i), "All native rain columns");
+            AssertEqual(rom.ReadCartridgeByte(RainColumnTable + i), PhantoonFlameSpawns.RainXs[i], "All native rain columns");
         // The cartridge spawns the spiral from direction seven down to zero.
         AssertEqual(8, PhantoonFlameSpawns.SpiralStarts.Count, "Spiral flame count");
         for (int place = 0; place < 8; place++)
             AssertEqual(new TrigonometryAngle(rom.ReadCartridgeByte(SpiralAngleTable + 7 - place)), PhantoonFlameSpawns.SpiralStarts[place], $"Spiral flame {place} start angle");
         // The cartridge starts intro flame n at n eighths of a turn.
         for (int order = 0; order < 8; order++)
-            AssertEqual(new TrigonometryAngle(order * 32), PhantoonFlameSpawns.StartingFlameStart(order), $"Intro flame {order} start angle");
+            AssertEqual(new TrigonometryAngle(order * 32), PhantoonFlameSpawns.StartingFlameStarts[order], $"Intro flame {order} start angle");
 
         var parameters = Enumerable.Range(0, 16).Select(i => (ushort)(0x200 + i))
             .Concat(Enumerable.Range(0, 8).Select(i => (ushort)(0x600 + i)))
@@ -66,7 +66,7 @@ internal static class PhantoonFlameSpawnsVerification
             {
                 PhantoonFlameSpawnType.Casual => patterns.SpawnPhantoonCasualFlame(body),
                 PhantoonFlameSpawnType.Enraged => patterns.SpawnPhantoonRageFlame(phantoon, RageStart(rom, index)),
-                PhantoonFlameSpawnType.Rain => patterns.SpawnPhantoonRainFlame(body, index & 15, (index & 240) >> 1),
+                PhantoonFlameSpawnType.Rain => patterns.SpawnPhantoonRainFlame(body, PhantoonFlameSpawns.RainXs[index & 15], (index & 240) >> 1),
                 PhantoonFlameSpawnType.Spiral => patterns.SpawnPhantoonSpiralFlame(phantoon, new TrigonometryAngle(rom.ReadCartridgeByte(SpiralAngleTable + index))),
                 _ => throw new InvalidOperationException($"Undefined {nameof(PhantoonFlameSpawnType)} {type}."),
             };
@@ -108,8 +108,8 @@ internal static class PhantoonFlameSpawnsVerification
             AssertEqual((ushort)0, flame.Position.X.Fraction, "Actual flame initial fractional X");
             AssertEqual((ushort)0, flame.Position.Y.Fraction, "Actual flame initial fractional Y");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => PhantoonFlameSpawns.StartingFlameStart(8), "Intro flame bounds");
-        AssertThrows<ArgumentOutOfRangeException>(() => PhantoonFlameSpawns.RainX(9), "Rain column bounds");
+        AssertEqual(9, PhantoonFlameSpawns.RainXs.Count, "Rain column count");
+        AssertEqual(8, PhantoonFlameSpawns.StartingFlameStarts.Count, "Intro flame count");
         Console.WriteLine("Phantoon flame spawns: the rage waves, spiral, intro and rain starts equal the cartridge tables, and 507 decoded parameters initialize real flames.");
     }
 

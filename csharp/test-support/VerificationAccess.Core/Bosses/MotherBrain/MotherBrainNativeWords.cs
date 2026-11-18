@@ -210,10 +210,10 @@ internal static class MotherBrainNativeWords
         if (Array.IndexOf(MuralRevealFunctions, word) is var pair and >= 0)
         {
             state.AscentPhase = MotherBrainAscentPhase.DrawMural;
-            state.MuralRowsDrawn = pair * MotherBrainMuralDefinitions.RowsEachUpdate;
+            state.NextMuralRow = ListStep<MotherBrainMuralRow>.At(MotherBrainMuralRow.All, pair * MotherBrainMuralDefinitions.RowsEachUpdate);
             return;
         }
-        state.MuralRowsDrawn = 0;
+        state.NextMuralRow = MotherBrainMuralRow.First;
         if (DescentPhases.TryDecode(word, out MotherBrainDescentPhase descentPhase))
             state.DescentPhase = descentPhase;
         else if (Phase2FightPhases.TryDecode(word, out MotherBrainPhase2FightPhase phase2FightPhase))

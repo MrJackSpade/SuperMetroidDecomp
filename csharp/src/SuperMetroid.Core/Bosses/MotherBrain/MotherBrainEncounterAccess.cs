@@ -21,7 +21,11 @@ internal sealed class MotherBrainEncounterAccess
 
     /// <summary>Requests one of Mother Brain's room mutations at a foreground room block for this pass.</summary>
     internal void RequestMotherBrainObject(Position16<RoomBlocks> block, MotherBrainRoomMutation mutation) =>
-        _frameResults.MotherBrainObjects.Add(new RoomObjectSpawnRequest<MotherBrainRoomMutation>(block, mutation));
+        _frameResults.MotherBrainObjects.Add(new MotherBrainMutationRequest(block, mutation));
+
+    /// <summary>Requests the reveal of <paramref name="row"/> of the mural behind her tank, at the row's own block, for this pass.</summary>
+    internal void RequestMuralRowReveal(MotherBrainMuralRow row) =>
+        _frameResults.MotherBrainObjects.Add(new MotherBrainMuralRowReveal(row));
 
     /// <summary>Starts the brain animation that begins at <paramref name="segment"/>.</summary>
     internal static void SetMotherBrainBrainAnimation(MotherBrainEnemyState state, MotherBrainHeadSegment segment) =>

@@ -13,9 +13,9 @@ public sealed class ZebetiteEnemyState
     /// </summary>
     internal ZebetiteEnemyState(RoomEnemyPlacement population)
     {
-        IsSecondaryHalf = population.SpawnSettingsOf<ZebetiteSpawnSettings>().Half == ZebetiteHalf.Linked;
+        Half = population.SpawnSettingsOf<ZebetiteSpawnSettings>().Half;
         // A primary half first spawns its linked half, which itself waits out the door transition.
-        Action = IsSecondaryHalf ? ZebetiteAction.WaitForDoorTransition : ZebetiteAction.SpawnLinkedHalf;
+        Action = Half == ZebetiteHalf.Linked ? ZebetiteAction.WaitForDoorTransition : ZebetiteAction.SpawnLinkedHalf;
     }
 
     /// <summary>The action this half runs each update, independent of the other half's.</summary>
@@ -48,6 +48,9 @@ public sealed class ZebetiteEnemyState
     /// </summary>
     internal RoomEnemyPlace? LinkedHalf { get; set; }
 
-    /// <summary>Whether this is the linked bottom half; it skips primary colour cycling and dies without advancing the Zebetite count or respawning.</summary>
-    public bool IsSecondaryHalf { get; internal set; }
+    /// <summary>
+    /// Which half this is: the linked bottom half skips the primary's colour cycling and dies without advancing the
+    /// Zebetite count or respawning.
+    /// </summary>
+    internal ZebetiteHalf Half { get; }
 }

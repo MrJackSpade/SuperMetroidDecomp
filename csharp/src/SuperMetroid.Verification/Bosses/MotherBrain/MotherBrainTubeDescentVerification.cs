@@ -15,14 +15,15 @@ internal static class MotherBrainTubeDescentVerification
         var state = new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0], enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation());
         enemies.MotherBrainEncounter.BeginAsSetUp(state, state.Head);
         var tube = enemies.Places.InUpdateOrder[2];
-        tube.SetSpawnParameter1(EnemyDefinitionId.MotherBrainTubes, 8);
-        tube.SetSpawnParameter2(EnemyDefinitionId.MotherBrainTubes, 0);
+        tube.SetSpawnSettings(new MotherBrainTubeSpawnSettings(MotherBrainTubePiece.Main));
         tube.Position = tube.Position.WithWhole(new(128, 128));
         state.Head.Position = state.Head.Position.WithWholeY(72);
         tube.Bind(EnemyDefinitionId.MotherBrainTubes, tube.Definition);
         // The tube holds the encounter that spawned it, as its spawn gives it (#2218).
         tube.SetSpeciesState(state);
         MotherBrainFakeDeath.InitializeMotherBrainFallingTube(tube);
+        // The descent is traced from the update the main tube starts to fall: its wait runs out on its first update.
+        tube.RequireSpeciesState<MotherBrainFallingTubeState>().FallDelay.LastFor(1);
         Action<RoomEnemyPlace> step = enemies.MotherBrainBehavior.FakeDeath.RunMotherBrainFallingTubeMain;
         uint expectedPosition = SixteenSixteenWords.FromWhole(tube.Position.Y.Whole);
         int speed = 0, movingFramesBeforeHide = 0, hiddenFramesBeforeLanding = 0;
@@ -50,7 +51,7 @@ internal static class MotherBrainTubeDescentVerification
             "Trajectory includes continuous descent both before hiding and before landing");
         AssertTrue(tube.Presence.HasAny(EnemyPresence.Deleted), "Landing deletes the main tube");
         AssertEqual(MotherBrainAscentPhase.DrawMural, state.AscentPhase, "Landing starts room rebuild");
-        AssertEqual(0, state.MuralRowsDrawn, "the rebuild starts at the mural's top row");
+        AssertEqual(0, state.NextMuralRow?.Place, "the rebuild starts at the mural's top row");
         AssertEqual(0x20, enemies.Earthquake.RemainingFrames, "Landing retains native earthquake duration");
 
         // #2211: the rebuild draws the mural two rows an update, top to bottom from block row two of column two, then
@@ -62,8 +63,11 @@ internal static class MotherBrainTubeDescentVerification
             enemies.MotherBrainBehavior.FakeDeath.DrawNextMuralRows(state);
         }
         AssertTrue(enemies.BossFrameResults.MotherBrainObjects.SequenceEqual(Enumerable.Range(0, 12).Select(row =>
-                new SuperMetroid.Core.Rooms.RoomObjects.RoomObjectSpawnRequest<MotherBrainRoomMutation>(new(2, 2 + row), MotherBrainRoomMutation.RevealMuralRow))),
-            "the mural's twelve rows are revealed in order, each a block below the last");
+                new MotherBrainMuralRowReveal(new MotherBrainMuralRow(row)))),
+            "the mural's twelve rows are revealed in order");
+        AssertTrue(enemies.BossFrameResults.MotherBrainObjects.Select(request => request.Block).SequenceEqual(Enumerable.Range(0, 12).Select(row =>
+                new Position16<RoomBlocks>(2, 2 + row))),
+            "each of the mural's rows is revealed a block below the last, from block row two of column two");
         AssertEqual(MotherBrainAscentPhase.SetupPhase2Graphics, state.AscentPhase, "the drawn mural hands off to the phase-two graphics");
         Console.WriteLine($"Mother Brain tube descent: {frame + 1} exact trajectory frames, hide threshold and landing passed.");
         return 0;

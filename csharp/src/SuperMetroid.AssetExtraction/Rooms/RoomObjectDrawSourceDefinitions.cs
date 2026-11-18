@@ -173,7 +173,7 @@ internal static class RoomObjectDrawSourceDefinitions
     /// <summary>The address of each <see cref="MotherBrainGlassDraw"/>.</summary>
     internal static IReadOnlyDictionary<MotherBrainGlassDraw, SnesAddress> MotherBrainGlass { get; } = new Dictionary<MotherBrainGlassDraw, SnesAddress>
     {
-        [MotherBrainGlassDraw.Initial] = new(Bank, 0x9717),
+        [MotherBrainGlassDraw.Intact] = new(Bank, 0x9717),
         [MotherBrainGlassDraw.PaneCracked] = new(Bank, 0x971d),
         [MotherBrainGlassDraw.PaneCrackedThrough] = new(Bank, 0x9731),
         [MotherBrainGlassDraw.PaneTransition] = new(Bank, 0x9745),

@@ -68,7 +68,7 @@ internal static class BossRoomObjectNativeListAddresses
 
     /// <summary>
     /// The lists that reveal the mural's rows at $84:AC11..AC58, six bytes each, top row first: the reveal of a row is the
-    /// one <see cref="MotherBrainRoomMutation.RevealMuralRow"/> at the row's block (#2258).
+    /// one <see cref="MotherBrainMuralRowReveal"/> at the row's block (#2258).
     /// </summary>
     internal static IReadOnlyList<ushort> MotherBrainMuralRowEntries { get; } =
         [0xac11, 0xac17, 0xac1d, 0xac23, 0xac29, 0xac2f, 0xac35, 0xac3b, 0xac41, 0xac47, 0xac4d, 0xac53];

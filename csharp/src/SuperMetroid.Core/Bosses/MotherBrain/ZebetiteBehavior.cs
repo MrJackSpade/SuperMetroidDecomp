@@ -98,7 +98,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         // A new barrier shows its form's unhurt picture.
         state.Picture = HealthPicture(definition.Form, ZebetiteDefinitions.MaximumHealth);
         place.Position = place.Position.WithWholeX(definition.X);
-        place.Position = place.Position.WithWholeY(Zebetites.YPosition(definition, state.IsSecondaryHalf));
+        place.Position = place.Position.WithWholeY(Zebetites.YPosition(definition, state.Half));
     }
 
     /// <summary>Runs the main step.</summary>
@@ -163,7 +163,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        if (state.IsSecondaryHalf)
+        if (state.Half == ZebetiteHalf.Linked)
         {
             FinishZebetiteDeath(place);
             return;
@@ -183,7 +183,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal void CycleZebetiteColours(RoomEnemyPlace place)
     {
-        if (_fadeStepCount.IsPastStart || place.RequireSpeciesState<ZebetiteEnemyState>().IsSecondaryHalf)
+        if (_fadeStepCount.IsPastStart || place.RequireSpeciesState<ZebetiteEnemyState>().Half == ZebetiteHalf.Linked)
             return;
 
         ZebetitePulse pulse = SharedPulse.Next;
@@ -223,14 +223,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyPlace spawned = _places.FindFreePlace() ??
             throw new InvalidOperationException("Zebetite progression filled every enemy place.");
 
-        RoomEnemyPlacement population =
-            Zebetites.SpawnPopulation(half);
-        if (population.DefinitionId != EnemyDefinitionId.Zebetite)
-        {
-            throw new InvalidDataException(
-                $"Zebetite {half} population entry names enemy " +
-                $"{population.DefinitionId}.");
-        }
+        RoomEnemyPlacement population = Zebetites.SpawnPopulation(half);
 
         RoomEnemyDefinition definition = _room.Definitions.ReadEnemyDefinition(population.DefinitionId);
         _lifecycle.InitializePlaceFromDefinition(spawned, population, definition);

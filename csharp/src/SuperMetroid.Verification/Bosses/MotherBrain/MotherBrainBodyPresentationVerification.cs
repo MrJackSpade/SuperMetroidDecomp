@@ -73,7 +73,7 @@ internal static class MotherBrainBodyPresentationVerification
         // her body area's corner, 38 pixels left of and 63 above her, so a frame lies there, as far right as the import shifts it.
         Offset16<RoomPixels> area = BossBodySourceDefinitions.AreaFromBoss[BossBodyOwner.MotherBrain];
         AssertEqual(new Offset16<RoomPixels>(-38, -63), area, "her body's area lay 38 pixels left of and 63 above her");
-        foreach (EnemyFrameId pose in MotherBrainBodyVisualDefinitions.BodyPictureFrames)
+        foreach (EnemyFrameId pose in MotherBrainBodyVisualDefinitions.AnimationFrames)
             AssertEqual(Offset16<RoomPixels>.Of(area.X + MotherBrainBodyBg2FrameDefinitions.FramesShiftedRight.GetValueOrDefault(pose), area.Y),
                 baseline.MotherBrainSheet.Frame(pose).Anchor, $"{pose} lies where the import places it against her");
         // Her body's pictures are composed at install (#1466), so missing BG2 art fails there, before anything draws; only the
@@ -187,7 +187,7 @@ internal static class MotherBrainBodyPresentationVerification
         // Her body shows each of her frames whole (#1459, #1515): every word a frame writes shows, and a frame the cartridge
         // writes over another shows that frame elsewhere, so only the written cells are compared. Only the sprite-only
         // initial dummy writes no BG2; every body-layer frame has its authored writes under its installed BG2 name.
-        if (!MotherBrainBodyVisualDefinitions.BodyPictureFrames.Contains(shown))
+        if (!MotherBrainBodyVisualDefinitions.AnimationFrames.Contains(shown))
             return;
         string name = MotherBrainBodyBg2FrameDefinitions.Frames.Single(frame => frame.Frame == shown).Name;
         foreach (EnemyBg2WriteDocument write in authored.Frames[name])

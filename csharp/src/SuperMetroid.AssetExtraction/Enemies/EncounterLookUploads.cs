@@ -247,7 +247,7 @@ internal static class EncounterLookUploads
             case MotherBrainSpriteSheet.Corpse:
                 RoomCharacterAtlas corpse = Bosses(installed).MotherBrainCorpse ?? throw new InvalidDataException(
                     "Installed enemy artwork is missing mother-brain-corpse-tiles.png.");
-                return [.. Enumerable.Range(0, MotherBrainCorpseArtworkDefinitions.RowCount).Select(page => new EncounterArtworkUpload(
+                return [.. Enumerable.Range(0, MotherBrainCorpseSheet.RowCount).Select(page => new EncounterArtworkUpload(
                     MotherBrainCorpseSheet.PageFirstCharacter(page), corpse.Characters.Slice(MotherBrainCorpseSheet.PageOffset(page), MotherBrainCorpseSheet.PageByteCount)))];
             case MotherBrainSpriteSheet.EscapeTimer:
                 return [.. Enum.GetValues<EscapeTimerTilePage>().Select(page => Timer(page, installed))];

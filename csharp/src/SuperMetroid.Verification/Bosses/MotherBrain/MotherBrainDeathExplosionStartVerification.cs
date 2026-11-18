@@ -47,7 +47,7 @@ internal static class MotherBrainDeathExplosionStartVerification
 
         // The door's dust continues the place and the interval the last death burst left.
         sequence.Encounter.DeathPhase = MotherBrainDeathPhase.DoorExplodingStartTimer;
-        sequence.Encounter.PhaseTimer.Count = 32;
+        sequence.Encounter.PhaseTimer.LastFor(33);
         PrivateState.Set(state.Bursts, nameof(MotherBrainBurstCycle.Place), 2);
         PrivateState.Set(state.Bursts, nameof(MotherBrainBurstCycle.Interval), 0);
         var frame = MotherBrainLateFightFixtures.QuietFrame(new SuperMetroid.Core.Compatibility.RainbowBeamCameraCheckpoint(), 0, 0) with { NextRandomNumber = () => 0 };

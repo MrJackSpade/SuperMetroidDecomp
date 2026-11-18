@@ -75,7 +75,8 @@ internal sealed class MotherBrainLateFightState
     }
 
     /// <summary>Walks her body forwards at <paramref name="speed"/>, by the forward target rules.</summary>
-    internal MotherBrainWalkResult RequestWalkForward(int targetX, MotherBrainWalkSpeed speed)
+    /// <returns>Whether she has reached the walk's target or the arena's front limit.</returns>
+    internal bool RequestWalkForward(int targetX, MotherBrainWalkSpeed speed)
     {
         MotherBrainBodySegment segment = speed switch
         {
@@ -90,7 +91,8 @@ internal sealed class MotherBrainLateFightState
     }
 
     /// <summary>Walks her body backwards at <paramref name="speed"/>, by the backward target rules.</summary>
-    internal MotherBrainWalkResult RequestWalkBackward(int targetX, MotherBrainWalkSpeed speed)
+    /// <returns>Whether she has reached the walk's target or the arena's back limit.</returns>
+    internal bool RequestWalkBackward(int targetX, MotherBrainWalkSpeed speed)
     {
         MotherBrainBodySegment segment = speed switch
         {
@@ -110,16 +112,16 @@ internal sealed class MotherBrainLateFightState
     /// ahead of the arena's front limit that also reports the target reached. Only a standing body
     /// inside both limits starts the walk.
     /// </summary>
-    private MotherBrainWalkResult MakeBodyWalkForwards(int targetX, MotherBrainBodySegment segment)
+    private bool MakeBodyWalkForwards(int targetX, MotherBrainBodySegment segment)
     {
         if (BodyPosition.X > targetX)
-            return MotherBrainWalkResult.Reached;
+            return true;
         if (Encounter.Pose != MotherBrainBodyPose.Standing)
-            return MotherBrainWalkResult.Waiting;
+            return false;
         if (BodyPosition.X >= MotherBrainFightDefinitions.FrontLimitX)
-            return MotherBrainWalkResult.Reached;
+            return true;
         SetBodyAnimation(segment);
-        return MotherBrainWalkResult.WalkInstalled;
+        return false;
     }
 
     /// <summary>
@@ -128,16 +130,16 @@ internal sealed class MotherBrainLateFightState
     /// mid-pose then reports it waiting, ahead of the arena's back limit that also reports
     /// the target reached. Only a standing body inside both limits starts the walk.
     /// </summary>
-    private MotherBrainWalkResult MakeBodyWalkBackwards(int targetX, MotherBrainBodySegment segment)
+    private bool MakeBodyWalkBackwards(int targetX, MotherBrainBodySegment segment)
     {
         if (BodyPosition.X <= targetX)
-            return MotherBrainWalkResult.Reached;
+            return true;
         if (Encounter.Pose != MotherBrainBodyPose.Standing)
-            return MotherBrainWalkResult.Waiting;
+            return false;
         if (BodyPosition.X < MotherBrainFightDefinitions.BackLimitX)
-            return MotherBrainWalkResult.Reached;
+            return true;
         SetBodyAnimation(segment);
-        return MotherBrainWalkResult.WalkInstalled;
+        return false;
     }
 
     /// <summary>Takes the posture chance (<see cref="MotherBrainRandomDefinitions.PostureChanges"/>) to toggle a standing or leaning body animation.</summary>

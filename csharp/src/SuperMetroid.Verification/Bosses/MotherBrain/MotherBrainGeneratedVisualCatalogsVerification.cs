@@ -88,7 +88,7 @@ internal static class MotherBrainGeneratedVisualCatalogsVerification
         var pointers = expected.Select(frame => frame.Pointer).ToHashSet();
         for (int pointer = 1; pointer <= ushort.MaxValue; pointer++)
             AssertEqual(pointers.Contains((ushort)pointer),
-                RoomEnemyPlaceFrameAccess.TryFrameAt(0xa9, (ushort)pointer) is { } frame && MotherBrainBodyVisualDefinitions.BodyPictureFrames.Contains(frame),
+                RoomEnemyPlaceFrameAccess.TryFrameAt(0xa9, (ushort)pointer) is { } frame && MotherBrainBodyVisualDefinitions.AnimationFrames.Contains(frame),
                 "Mother Brain exact BG2 domain, without her brain's blank frame");
         byte[] generatedJson = MotherBrainBodyBg2FrameFiles.Extract(rom);
         using var stream = new MemoryStream(generatedJson, writable: false);

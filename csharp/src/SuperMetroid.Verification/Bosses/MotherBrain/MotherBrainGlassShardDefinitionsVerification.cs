@@ -37,7 +37,6 @@ internal static class MotherBrainGlassShardDefinitionsVerification
                 var motherBrain = new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0], enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation());
                 enemies.MotherBrainEncounter.BeginAsSetUp(motherBrain);
                 enemies.MotherBrainBehavior.Projectiles.SpawnMotherBrainGlassProjectile(new(
-                    RoomEnemyProjectileKind.MotherBrainGlassShard,
                     direction,
                     RoomObjectBlock: new(0x20, 0x08)));
 

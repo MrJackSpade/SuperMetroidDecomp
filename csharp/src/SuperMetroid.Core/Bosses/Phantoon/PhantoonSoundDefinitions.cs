@@ -31,7 +31,7 @@ internal static class PhantoonSoundDefinitions
     /// The materialization sounds in the order they are queued: each materialization queues the next, the first again after
     /// the last.
     /// </summary>
-    internal static readonly SoundEffectId[] MaterializationSounds =
+    internal static IReadOnlyList<SoundEffectId> MaterializationSounds { get; } =
     [
         EnemySound.PhantoonAppears1,
         EnemySound.PhantoonAppears2,

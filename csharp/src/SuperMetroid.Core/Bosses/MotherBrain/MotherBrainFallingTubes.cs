@@ -17,6 +17,6 @@ internal static class MotherBrainFallingTubes
             ? EnemyProcessing.Animates | EnemyProcessing.OffScreen
             : EnemyProcessing.Animates;
         return new(EnemyDefinitionId.MotherBrainTubes, position, EnemyContact.SolidToSamus, processing, EnemyPresence.None,
-            CollidesByFrameHitboxes: false, new MotherBrainTubeSpawnSettings(piece, main ? MainFallDelay : 0));
+            CollidesByFrameHitboxes: false, new MotherBrainTubeSpawnSettings(piece));
     }
 }

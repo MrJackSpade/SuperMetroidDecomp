@@ -34,8 +34,15 @@ internal sealed class MotherBrainRainbowAttackPhases
     /// <summary>Rainbow-beam explosion timer.</summary>
     public BossCountdown ExplosionTimer { get; } = new();
 
-    /// <summary>The place of the next beam explosion's offset among the explosion offsets, cycling through them in order.</summary>
-    public int NextExplosion { get; private set; }
+    /// <summary>
+    /// The next beam explosion's offset among <see cref="MotherBrainRainbowBeamAttackSequence.ExplosionOffsets"/>, cycling
+    /// through them in order.
+    /// </summary>
+    public ListStep<Offset16<RoomPixels>> NextExplosion { get; private set; } = FirstExplosion;
+
+    /// <summary>The beam's first explosion offset, which every beam bursts first.</summary>
+    private static ListStep<Offset16<RoomPixels>> FirstExplosion =>
+        ListStep<Offset16<RoomPixels>>.FirstOf(MotherBrainRainbowBeamAttackSequence.ExplosionOffsets);
 
     /// <summary>Whether the rainbow attack has started its beam and not yet ended it.</summary>
     public bool BeamActive { get; internal set; }
@@ -49,7 +56,7 @@ internal sealed class MotherBrainRainbowAttackPhases
 
         _state.SetHeadAnimation(MotherBrainHeadSegment.FiringRainbowBeam);
         AngularWidth = MotherBrainBeamDefinitions.RainbowNarrowestWidth;
-        NextExplosion = 0;
+        NextExplosion = FirstExplosion;
         ExplosionTimer.LastFor(1);
         SoundAttemptsLeft = MotherBrainBeamDefinitions.SoundAttempts;
         _state.RainbowBeamSoundPlaying = false;
@@ -133,8 +140,8 @@ internal sealed class MotherBrainRainbowAttackPhases
             return null;
 
         ExplosionTimer.LastFor(MotherBrainLateFightDefinitions.BeamExplosionIntervalUpdates);
-        Offset16<RoomPixels> offset = MotherBrainRainbowBeamAttackSequence.ExplosionOffsets[NextExplosion];
-        NextExplosion = (NextExplosion + 1) % MotherBrainRainbowBeamAttackSequence.ExplosionOffsets.Length;
+        Offset16<RoomPixels> offset = NextExplosion.Entry;
+        NextExplosion = NextExplosion.NextInCycle;
         return new MotherBrainRainbowExplosionRequest(offset);
     }
 
@@ -219,8 +226,7 @@ internal sealed class MotherBrainRainbowAttackPhases
     /// </summary>
     internal bool BackAwayToCharge()
     {
-        MotherBrainWalkResult retract = _state.RequestWalkBackward(MotherBrainFightDefinitions.BackOfRoomX, MotherBrainWalkSpeed.ReallySlow);
-        if (retract.ReachedTarget)
+        if (_state.RequestWalkBackward(MotherBrainFightDefinitions.BackOfRoomX, MotherBrainWalkSpeed.ReallySlow))
         {
             _state.RetractHead();
             Encounter.RainbowPhase = MotherBrainRainbowPhase.WaitForCharge;

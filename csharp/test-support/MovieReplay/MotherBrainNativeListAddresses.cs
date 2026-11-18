@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.TestSupport.Assertions;
 using SuperMetroid.AssetExtraction.Audio;
@@ -527,29 +528,31 @@ internal static class MotherBrainNativeListAddresses
     /// <summary>The room flash's goto opcode and its target, the flash's first record.</summary>
     internal static readonly RoomFlashGotoValue RoomFlashGoto = new RoomFlashGotoValue(0x9b0f, 0xd046);
 
-    /// <summary>Each native <see cref="MotherBrainTubeCollapseStep"/> routine pointer and the function it decodes to.</summary>
-    internal static readonly Dictionary<ushort, MotherBrainTubeCollapseStep> NativeTubeCollapseSteps = new()
+    /// <summary>
+    /// The native tube-collapse routine pointers in the order they run: each tube's drop then its clear, in the order of
+    /// <see cref="MotherBrainTubeCollapseDefinitions.Drops"/>, and the finished collapse's routine last.
+    /// </summary>
+    internal static readonly ushort[] NativeTubeCollapseRoutines =
+    [
+        0x8949, 0x896e, 0x8983, 0x89a0, 0x89b5, 0x89d2, 0x89e7, 0x89fa, 0x8a0f, 0x8a22,
+        0x8a37, 0x8a54, 0x8a69, 0x8a86, 0x8a9b, 0x8aae, 0x8ac3, 0x8ad6, 0x8ae4,
+    ];
+
+    /// <summary>
+    /// Where the collapse stands when the native routine pointer <paramref name="routine"/> runs next, or null when it is no
+    /// collapse routine: a drop's routine stands at that tube still standing, its clear's at it fallen, and the finished
+    /// collapse's at no tube.
+    /// </summary>
+    internal static MotherBrainTubeCollapseProgress? DecodeTubeCollapse(ushort routine)
     {
-        [0x8949] = MotherBrainTubeCollapseStep.SpawnBottomLeftTube,
-        [0x896e] = MotherBrainTubeCollapseStep.ClearBottomLeftTube,
-        [0x8983] = MotherBrainTubeCollapseStep.SpawnTopRightTube,
-        [0x89a0] = MotherBrainTubeCollapseStep.ClearTopRightTube,
-        [0x89b5] = MotherBrainTubeCollapseStep.SpawnTopLeftTube,
-        [0x89d2] = MotherBrainTubeCollapseStep.ClearTopLeftTube,
-        [0x89e7] = MotherBrainTubeCollapseStep.SpawnBottomRightTube,
-        [0x89fa] = MotherBrainTubeCollapseStep.ClearBottomRightTube,
-        [0x8a0f] = MotherBrainTubeCollapseStep.SpawnBottomMiddleLeftTube,
-        [0x8a22] = MotherBrainTubeCollapseStep.ClearBottomMiddleLeftTube,
-        [0x8a37] = MotherBrainTubeCollapseStep.SpawnTopMiddleLeftTube,
-        [0x8a54] = MotherBrainTubeCollapseStep.ClearTopMiddleLeftTube,
-        [0x8a69] = MotherBrainTubeCollapseStep.SpawnTopMiddleRightTube,
-        [0x8a86] = MotherBrainTubeCollapseStep.ClearTopMiddleRightTube,
-        [0x8a9b] = MotherBrainTubeCollapseStep.SpawnBottomMiddleRightTube,
-        [0x8aae] = MotherBrainTubeCollapseStep.ClearBottomMiddleRightTube,
-        [0x8ac3] = MotherBrainTubeCollapseStep.SpawnMainTube,
-        [0x8ad6] = MotherBrainTubeCollapseStep.ClearBottomMiddleTubes,
-        [0x8ae4] = MotherBrainTubeCollapseStep.Finished,
-    };
+        int step = Array.IndexOf(NativeTubeCollapseRoutines, routine);
+        if (step < 0)
+            return null;
+        return step == NativeTubeCollapseRoutines.Length - 1
+            ? new MotherBrainTubeCollapseProgress(Tube: null, MotherBrainTubeDropStage.Standing)
+            : new MotherBrainTubeCollapseProgress(ListStep<MotherBrainTubeDrop>.At(MotherBrainTubeCollapseDefinitions.Drops, step / 2),
+                step % 2 == 1 ? MotherBrainTubeDropStage.Fallen : MotherBrainTubeDropStage.Standing);
+    }
 
     /// <summary>Each native <see cref="MotherBrainBrainAction"/> routine pointer and the function it decodes to.</summary>
     internal static readonly Dictionary<ushort, MotherBrainBrainAction> NativeBrainActions = new()

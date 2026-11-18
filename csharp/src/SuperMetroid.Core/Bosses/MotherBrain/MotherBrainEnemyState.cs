@@ -165,10 +165,10 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
         new($"Mother Brain's body is in its {Stage} stage, not {stage}.");
 
     /// <summary>
-    /// How many of the mural's rows her fake death's ascent has drawn (#2211): zero when the reveal starts, two more each
-    /// update of <see cref="MotherBrainAscentPhase.DrawMural"/>.
+    /// The mural's row her fake death's ascent reveals next (#2211), from the top row when the reveal starts, two rows on
+    /// each update of <see cref="MotherBrainAscentPhase.DrawMural"/>; none once every row is revealed.
     /// </summary>
-    public int MuralRowsDrawn { get; internal set; }
+    public ListStep<MotherBrainMuralRow>? NextMuralRow { get; internal set; } = MotherBrainMuralRow.First;
     /// <summary>The brain's independent action, selecting its custom head-only or head-and-neck draw setup.</summary>
     public MotherBrainBrainAction BrainAction { get; internal set; }
 
@@ -204,8 +204,8 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     /// <summary>Elapsed-update count for the current room-flash frame, advanced upward by the room flash's step and reset when the frame changes; never above the frame's two-update duration.</summary>
     public int RoomFlashTimer { get; internal set; }
 
-    /// <summary>The brain's tube-collapse step, or null until her fake-death flash starts the collapse.</summary>
-    public MotherBrainTubeCollapseStep? TubeCollapseStep { get; internal set; }
+    /// <summary>Where the tube collapse stands, or null until her fake-death flash starts the collapse.</summary>
+    internal MotherBrainTubeCollapseProgress? TubeCollapse { get; set; }
     /// <summary>Independent countdown used by selected tube spawn stages; a stage moves on as it runs out.</summary>
     public BossCountdown TubeCollapseTimer { get; } = new();
 

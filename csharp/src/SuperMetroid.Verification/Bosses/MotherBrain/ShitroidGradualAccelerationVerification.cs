@@ -139,7 +139,7 @@ internal static class ShitroidGradualAccelerationVerification
             if (flight.Side is { } side)
                 state.DepartureSide = side;
             state.Velocity = velocity;
-            state.StateTimer.Count = 100;
+            state.StateTimer.LastFor(101);
             state.HoverTimer = 4;
             state.HorizontalLockAccumulator = 0;
             shitroid.Position = shitroid.Position.WithWhole(new(700, 150));

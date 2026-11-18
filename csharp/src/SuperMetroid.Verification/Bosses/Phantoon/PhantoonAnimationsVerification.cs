@@ -207,7 +207,7 @@ internal static class PhantoonAnimationsVerification
     private static void VerifyFlameProducers()
     {
         RoomEnemySystem starting = NewFlameSystem();
-        AssertTrue(starting.PhantoonBehavior.Opening.SpawnPhantoonStartingFlame(RequireState(starting), PhantoonFlameSpawns.StartingFlameStart(0)), "the real starting producer allocates a flame");
+        AssertTrue(starting.PhantoonBehavior.Opening.SpawnPhantoonStartingFlame(RequireState(starting), PhantoonFlameSpawns.StartingFlameStarts[0]), "the real starting producer allocates a flame");
         AssertStarted(starting.Projectiles.EnemyProjectiles.Single(item => item.Kind == RoomEnemyProjectileKind.PhantoonStartingFlame),
             PhantoonFlameSegment.StartingFlame, "starting flame");
         RoomEnemySystem casual = NewFlameSystem();

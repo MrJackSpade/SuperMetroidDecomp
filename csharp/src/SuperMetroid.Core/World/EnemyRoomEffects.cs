@@ -168,7 +168,7 @@ internal sealed class EnemyRoomEffects
             site.FxOverlay.ApplyEntry(acidChange);
         }
 
-        foreach (RoomObjectSpawnRequest<MotherBrainRoomMutation> request in requests.MotherBrainObjects)
+        foreach (MotherBrainRoomChangeRequest request in requests.MotherBrainObjects)
             site.RoomObjects.BossRoomMutations.MotherBrainRoom.TrySpawn(site.Level, request);
     }
 

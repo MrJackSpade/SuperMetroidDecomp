@@ -1,8 +1,9 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// The changes Mother Brain's fight and death make to her room: the wall, the escape door, the rows of the mural behind
-/// her tank that the ascent redraws and the tubes the fake death collapses. These are the only spawns her room spawner performs.
+/// The fixed changes Mother Brain's fight and death make to her room: the wall, the escape door and the tubes the fake
+/// death collapses. With the reveals of the mural's rows (<see cref="MotherBrainMuralRowReveal"/>) these are the only spawns
+/// her room spawner performs.
 /// </summary>
 public enum MotherBrainRoomMutation
 {
@@ -10,10 +11,6 @@ public enum MotherBrainRoomMutation
     FillWall,
     /// <summary>Opens the escape door.</summary>
     EscapeDoor,
-    /// <summary>
-    /// Reveals the row of the mural behind her tank that lies at its block (<see cref="MotherBrainMuralDefinitions"/>).
-    /// </summary>
-    RevealMuralRow,
     /// <summary>Clears a ceiling block.</summary>
     ClearCeilingBlock,
     /// <summary>Clears a ceiling tube.</summary>

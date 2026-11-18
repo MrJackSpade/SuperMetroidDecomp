@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
 /// The mural behind Mother Brain's tank (#2211), which her fake death's ascent reveals two rows an update from the top,
-/// each row revealed where it lies (#2258).
+/// each row revealed where it lies (#2258, <see cref="MotherBrainMuralRow"/>).
 /// </summary>
 internal static class MotherBrainMuralDefinitions
 {

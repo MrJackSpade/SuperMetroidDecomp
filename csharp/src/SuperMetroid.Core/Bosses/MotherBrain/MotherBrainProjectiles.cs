@@ -360,7 +360,7 @@ internal sealed class MotherBrainProjectiles
             if (fragmentState.Lifetime.StepKeepsRunning()) return;
             Position16<RoomPixels> dust = fragment.Position.Whole - new Offset16<RoomPixels>(0, MotherBrainDeathDefinitions.DoorDustYOffset);
             fragment.Delete();
-            dependencies.Projectiles.SpawnDustOrExplosion(dust, MotherBrainDeathDefinitions.DoorDustParameter);
+            dependencies.Projectiles.SpawnDustOrExplosion(dust, MotherBrainDeathDefinitions.DoorFragmentDust);
         }
 
         /// <summary>Moves the four falling ceiling-tube pieces.</summary>
@@ -391,9 +391,9 @@ internal sealed class MotherBrainProjectiles
         {
             shard.Position = shard.Position.Advance(shard.Velocity.ToSixteenSixteen());
 
-            // Tests which screen of the room its Y lies on rather than camera visibility. A shard
-            // is deleted as soon as wrapped Y leaves the top screen; X may freely leave the viewport.
-            if (RoomGridConversions.PixelToScreen(shard.Position.Y.Whole) != 0)
+            // A shard is deleted as soon as it falls out of the room's top screen, rather than by camera visibility; X may
+            // freely leave the viewport. It flies at most sixty-four pixels above its emitter, far below the room's top.
+            if (shard.Position.Y.Whole >= MotherBrainGlassShardDefinitions.TopScreenBottomY)
             {
                 shard.Delete();
                 return;
@@ -717,13 +717,6 @@ internal sealed class MotherBrainProjectiles
     /// </summary>
     public void SpawnMotherBrainGlassProjectile(MotherBrainGlassProjectileRequest request)
     {
-        if (request.Kind != RoomEnemyProjectileKind.MotherBrainGlassShard)
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(request),
-                $"Mother Brain glass requested unsupported projectile {request.Kind}.");
-        }
-
         EnemyProjectile? shard = _projectiles.AllocateEnemyProjectile();
         if (shard is null)
             return; // The shard is lost when the room has no place left for an enemy projectile.
@@ -751,9 +744,9 @@ internal sealed class MotherBrainProjectiles
 
         // Position jitter consumes two additional RNG samples in this order. It is not
         // cosmetic randomness: later turret and sparkle behavior observes the advanced seed.
-        shard.Position = shard.Position.WithWrappedWholeX(
+        shard.Position = shard.Position.WithWholeX(
             shard.Position.X.Whole + _room.Random.Next(MotherBrainGlassShardDefinitions.ShardJitter) - MotherBrainGlassShardDefinitions.ShardJitterCentre);
-        shard.Position = shard.Position.WithWrappedWholeY(
+        shard.Position = shard.Position.WithWholeY(
             shard.Position.Y.Whole + _room.Random.Next(MotherBrainGlassShardDefinitions.ShardJitter) - MotherBrainGlassShardDefinitions.ShardJitterCentre);
     }
 

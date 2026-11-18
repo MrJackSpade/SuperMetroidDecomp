@@ -1,11 +1,8 @@
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
-/// <summary>The columns of Phantoon's flame rain and the eye's gaze animations.</summary>
+/// <summary>The damage that ends a round of Phantoon's vulnerable eye or swoop, and the eye's gaze animations.</summary>
 public static class PhantoonPatternDefinitions
 {
-    /// <summary>The rain's columns, which wrap from the last back to the first.</summary>
-    internal const int RainColumnCount = 9;
-
     /// <summary>
     /// The damage that ends a round of his vulnerable eye or swoop: a round's damage reaching it closes his eye, and a
     /// single Super Missile doing as much sends him into his rage.

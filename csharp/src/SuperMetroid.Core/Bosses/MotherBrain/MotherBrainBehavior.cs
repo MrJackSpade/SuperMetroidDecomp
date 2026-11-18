@@ -191,7 +191,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.RoomFlashImage = MotherBrainRoomFlashImage.First;
                 state.RoomFlashTimer = MotherBrainRoomFlashDefinitions.FirstImageStartingTicks;
                 _frameResults.MotherBrainAcidChange = MotherBrainRoomFxDefinitions.AcidDrains;
-                state.TubeCollapseStep = MotherBrainTubeCollapseStep.SpawnBottomLeftTube;
+                state.TubeCollapse = MotherBrainTubeCollapseProgress.Start;
                 state.TubeCollapseTimer.LastFor(1);
                 state.DescentPhase = MotherBrainDescentPhase.FadeToGray;
                 state.PhaseTimer.LastFor(1);

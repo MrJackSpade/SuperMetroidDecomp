@@ -84,13 +84,11 @@ internal sealed class MotherBrainGlassObjects
         // The shards spawn from the glass's block.
         Position16<RoomBlocks> glassBlock = place.Block;
         foreach (MotherBrainGlassShard shard in shards)
-            _motherBrainGlassProjectileRequests.Add(new MotherBrainGlassProjectileRequest(
-                RoomEnemyProjectileKind.MotherBrainGlassShard, shard, glassBlock));
+            _motherBrainGlassProjectileRequests.Add(new MotherBrainGlassProjectileRequest(shard, glassBlock));
     }
 
     /// <summary>Sets the glass-destroyed event.</summary>
-    internal void SetGlassDestroyed() =>
-        (_events ?? throw new InvalidOperationException("Mother Brain glass has no story events to mark its breaking in.")).Set(StoryEvent.MotherBrainGlassDestroyed);
+    internal void SetGlassDestroyed() => _events.Set(StoryEvent.MotherBrainGlassDestroyed);
 
     /// <summary>The shatter sound's request priority.</summary>
     private static readonly SoundRequestPriority ShatterSoundPriority = SoundRequestPriority.Essential;

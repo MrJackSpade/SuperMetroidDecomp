@@ -56,7 +56,7 @@ internal sealed class MotherBrainBodyEntity(MotherBrainBehavior species, RoomEne
 
     /// <inheritdoc/>
     public BossBodyFrame? FindBodyFrame(EnemyFrameId selected) =>
-        MotherBrainBodyVisualDefinitions.BodyPictureFrames.Contains(selected) ? bossArtwork.Body(BossBodyOwner.MotherBrain).Frame(selected) : null;
+        MotherBrainBodyVisualDefinitions.AnimationFrames.Contains(selected) ? bossArtwork.Body(BossBodyOwner.MotherBrain).Frame(selected) : null;
 
     /// <summary>Shots meet the body's frames' hitboxes; its contact uses the definition's radius.</summary>
     public override EnemyCapabilities Capabilities => EnemyCapabilities.ProjectileFrameHitboxes;

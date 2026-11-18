@@ -16,11 +16,11 @@ internal static class PhantoonPatternsVerification
         for (int i = 0; i < 8; i++)
         {
             PhantoonRainPattern placement = PhantoonRainPatternDefinitions.Choices[i];
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdad + i * 8)), placement.PathCursor, "Native rain figure-eight cursor");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdad + i * 8)), placement.PathPlace, "Native rain figure-eight cursor");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdaf + i * 8)), placement.BodyPosition.X, "Native rain body X");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdb1 + i * 8)), placement.BodyPosition.Y, "Native rain body Y");
             AssertEqual((ushort)0, CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdb3 + i * 8)), "Native unused rain record word");
-            AssertEqual(rom.ReadCartridgeByte(0xa7cfc2 + i), placement.FirstColumn, "Native first rain column");
+            AssertEqual(rom.ReadCartridgeByte(0xa7cfc2 + i), placement.FirstColumn.Place, "Native first rain column");
         }
         for (int high = 0; high < 256; high++)
         for (int pattern = 0; pattern < 8; pattern++)
@@ -36,7 +36,7 @@ internal static class PhantoonPatternsVerification
             state.PhaseTimer = 1;
             state.FigureEight.Reversed = true;
             new Action<RoomEnemyPlace, PhantoonEnemyState>(enemies.PhantoonBehavior.Patterns.RunPhantoonHiddenFlameRain)(body, state);
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdad + pattern * 8)), state.FigureEight.PathCursor, "Real rain cursor handoff");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdad + pattern * 8)), state.FigureEight.PathPlace.Place, "Real rain cursor handoff");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdaf + pattern * 8)), body.Position.X.Whole, "Real rain body placement X");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdb1 + pattern * 8)), body.Position.Y.Whole, "Real rain body placement Y");
             AssertEqual(false, state.FigureEight.Reversed, "Real rain direction reset");

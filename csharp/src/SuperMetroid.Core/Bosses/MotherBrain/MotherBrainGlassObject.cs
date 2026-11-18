@@ -35,14 +35,14 @@ internal sealed class MotherBrainGlassObject(MotherBrainGlassObjects owner) : Ro
     /// <summary>The strike on the glass's block its hit count has not yet read, or null for none.</summary>
     internal ResidentObjectProjectileHit? PendingHit { get; private set; }
 
-    /// <summary>The updates left before the glass's next step.</summary>
-    private int _updatesBeforeNextStep = 1;
+    /// <summary>How long the glass holds before its next step: its first update, then each image's own updates.</summary>
+    private readonly BossCountdown _holdBeforeNextStep = HoldFor(1);
 
     /// <inheritdoc/>
     public void Strike(ResidentObjectProjectileHit hit) => PendingHit = hit;
 
     /// <summary>Mother Brain's head shot counts a hit on the glass at once.</summary>
-    internal void CountHeadShot() => Hits = WrappingCounter.IncrementCount(Hits);
+    internal void CountHeadShot() => Hits++;
 
     /// <inheritdoc/>
     internal override void Update(RoomObjectPlace place, RoomObjectStepContext context)
@@ -51,10 +51,10 @@ internal sealed class MotherBrainGlassObject(MotherBrainGlassObjects owner) : Ro
         if (HitCountArmed)
         {
             if (PendingHit?.Family is SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile)
-                Hits = WrappingCounter.IncrementCount(Hits);
+                Hits++;
             PendingHit = null;
         }
-        if (--_updatesBeforeNextStep != 0)
+        if (_holdBeforeNextStep.StepKeepsRunning())
             return;
         switch (Phase)
         {
@@ -117,7 +117,15 @@ internal sealed class MotherBrainGlassObject(MotherBrainGlassObjects owner) : Ro
     private void Show(RoomObjectPlace place, RoomObjectStepContext context, MotherBrainGlassDraw image, int updates, MotherBrainGlassPhase phase)
     {
         context.Draw(place, MotherBrainGlassDraws.Family, image);
-        _updatesBeforeNextStep = updates;
+        _holdBeforeNextStep.LastFor(updates);
         Phase = phase;
+    }
+
+    /// <summary>A hold that lasts <paramref name="updates"/> updates.</summary>
+    private static BossCountdown HoldFor(int updates)
+    {
+        var hold = new BossCountdown();
+        hold.LastFor(updates);
+        return hold;
     }
 }

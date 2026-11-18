@@ -53,7 +53,7 @@ internal sealed class CorpseStaging
     internal static CorpseStaging MotherBrain(ReadOnlySpan<byte> atlas)
     {
         var staged = new CorpseStaging();
-        for (int row = 0; row < MotherBrainCorpseArtworkDefinitions.RowCount; row++)
+        for (int row = 0; row < SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainCorpseSheet.RowCount; row++)
             staged.heap.Copy(atlas, MotherBrainCorpseStaging.InitialCopyOffset(row),
                 row * MotherBrainCorpseStaging.RowBytes, MotherBrainCorpseStaging.InitialCopyLength(row));
         return staged;

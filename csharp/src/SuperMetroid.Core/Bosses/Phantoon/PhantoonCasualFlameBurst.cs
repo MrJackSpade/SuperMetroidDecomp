@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>
 /// The burst of casual flames Phantoon's mouth spits while he runs his figure-eight (#1933): which burst it is, the wait
-/// before the next flame and the flames left in it.
+/// before its next flame and which flame that is.
 /// </summary>
 public sealed class PhantoonCasualFlameBurst
 {
@@ -16,12 +16,8 @@ public sealed class PhantoonCasualFlameBurst
     public int Hold { get; internal set; }
 
     /// <summary>
-    /// The flames left in the burst being spat, zero or more; none when no burst is under way, so the next expiry picks a
-    /// new burst (#1627). A burst that reaches its last flame ends and has none.
+    /// The burst's flame the mouth spits next; none when no burst is under way, so the next expiry picks a new burst
+    /// (#1627). A burst that has spat its last flame ends and has none.
     /// </summary>
-    public int? Remaining
-    {
-        get;
-        internal set => field = value is { } count ? Ensure.AtLeastZero(count) : null;
-    }
+    public ListStep<PhantoonCasualFlame>? NextFlame { get; internal set; }
 }

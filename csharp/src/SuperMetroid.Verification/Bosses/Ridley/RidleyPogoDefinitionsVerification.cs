@@ -54,7 +54,7 @@ internal static class RidleyPogoDefinitionsVerification
             reads = advances = 0;
             state.HealthBand = bands[band];
             state.Flight.Velocity = state.Flight.Velocity.WithX(new SignedEightEight(previous));
-            state.PhaseTimer.Count = 0x1234;
+            state.PhaseTimer.LastFor(0x1235);
             initialize(state);
             var expected = reference[raw & 3, band];
             AssertEqual(0, advances, "Native Ridley pogo initializer must not advance RNG");
@@ -104,7 +104,7 @@ internal static class RidleyPogoDefinitionsVerification
 
             reads = advances = 0;
             state.Phase = NorfairRidleyPhase.PogoMoveToHeight;
-            state.PhaseTimer.Count = 0;
+            state.PhaseTimer.LastFor(1);
             RidleyTailFixtures.BlankLinks(state.Tail);
             attack(place, state, samus);
             AssertEqual(0, advances, "Native Ridley pogo start must not advance RNG");

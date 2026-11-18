@@ -35,13 +35,12 @@ internal static class MotherBrainFakeDeathObjectsVerification
         AssertEqual(20, RoomObjectMotherBrainFakeDeathVisualFiles.Family.Layouts.Count,
             "Mother Brain fake death owns twenty physical draws");
         // Every mutation but a mural row's reveal is spawned at one block; each row's reveal at the row's own block (#2258).
-        var requests = Enum.GetValues<MotherBrainRoomMutation>().Where(mutation => mutation != MotherBrainRoomMutation.RevealMuralRow)
-            .Select(mutation => new RoomObjectSpawnRequest<MotherBrainRoomMutation>(new(5, 3), mutation))
-            .Concat(Enumerable.Range(0, MotherBrainMuralDefinitions.RowCount).Select(row => new RoomObjectSpawnRequest<MotherBrainRoomMutation>(
-                new(MotherBrainMuralDefinitions.Column, MotherBrainMuralDefinitions.TopBlockRow + row), MotherBrainRoomMutation.RevealMuralRow)));
-        foreach (RoomObjectSpawnRequest<MotherBrainRoomMutation> request in requests)
+        var requests = Enum.GetValues<MotherBrainRoomMutation>()
+            .Select(MotherBrainRoomChangeRequest (mutation) => new MotherBrainMutationRequest(new(5, 3), mutation))
+            .Concat(MotherBrainMuralRow.All.Select(row => new MotherBrainMuralRowReveal(row)));
+        foreach (MotherBrainRoomChangeRequest request in requests)
         {
-            TerrainChange change = MotherBrainRoomObjects.Change(request);
+            TerrainChange change = request.Change;
             AssertTrue(MotherBrainFakeDeathDraws.TryGet(change.Frames.Single().Draw, out _),
                 $"Mother Brain mutation {request} draws a compiled layout");
             VerifyMotherBrainFakeDeathMutation(rom, request, change);
@@ -56,7 +55,7 @@ internal static class MotherBrainFakeDeathObjectsVerification
     /// list writes, and its draw-frame lifetime, deletion and source-read guard.
     /// </summary>
     private static void VerifyMotherBrainFakeDeathMutation(CartridgeImportAddressSpace rom,
-        RoomObjectSpawnRequest<MotherBrainRoomMutation> request, TerrainChange change)
+        MotherBrainRoomChangeRequest request, TerrainChange change)
     {
         const int width = 32;
         const int height = 16;

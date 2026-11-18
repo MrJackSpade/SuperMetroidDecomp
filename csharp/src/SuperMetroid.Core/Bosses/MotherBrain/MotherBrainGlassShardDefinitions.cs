@@ -37,6 +37,9 @@ internal static class MotherBrainGlassShardDefinitions
     /// </summary>
     internal const int SparkleOffsetCentre = 16;
 
+    /// <summary>The bottom of the room's top screen, 256 pixels down: a shard that falls to it is removed.</summary>
+    internal const int TopScreenBottomY = 256;
+
     /// <summary>The gravity a falling shard gains each update: an eighth of a pixel an update.</summary>
     internal static readonly SignedEightEight ShardGravity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(32);
 

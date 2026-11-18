@@ -1938,7 +1938,7 @@ internal static class LookupStream4Verification
                 RoomEnemyPlace place = enemies.Places.InUpdateOrder[0]; place.Bind(EnemyDefinitionId.Ridley, place.Definition);
                 new Action<RoomEnemyPlace>(enemies.NorfairRidleyBehavior.Combat.InitializeNorfairRidley)(place);
                 NorfairRidleyState state = enemies.NorfairRidley() ?? throw new InvalidOperationException("Verification requires Lower Norfair Ridley.");
-                state.RevealPhase = RidleyRevealPhase.WaitBeforeLiftoff; state.PhaseTimer.Count = 0;
+                state.RevealPhase = RidleyRevealPhase.WaitBeforeLiftoff; state.PhaseTimer.LastFor(1);
                 RoomFxOverlayState liquid = enemies.RoomFx.FxOverlay;
                 liquid.BindAudioRequests(GameplayAudioRequests.Standalone());
                 // The hold before take-off runs the arena reveal; the reveal's end takes him off (#2229).

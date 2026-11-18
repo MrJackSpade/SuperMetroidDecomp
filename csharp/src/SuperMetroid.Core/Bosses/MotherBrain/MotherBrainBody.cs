@@ -313,10 +313,9 @@ internal sealed class MotherBrainBody
             beam,
             RoomEnemyProjectileKind.MotherBrainHandBeamCharging,
             _projectileAttacks.Projectile,
-            graphics: SpriteGraphics.SharedIn(EnemyShades.HurtFlashLook));
+            graphics: SpriteGraphics.SharedIn(state.Colours.OwnShading));
         beam.Velocity = EightEightVector<RoomPixels>.Zero;
         beam.Position = beam.Position.WithFractionX(0).WithFractionY(0);
-        beam.Graphics = SpriteGraphics.SharedIn(state.Colours.OwnShading);
         beam.Position = beam.Position.WithWhole(state.Body.Position.Whole + MotherBrainFightDefinitions.HandOffset);
 
         state.HandBeamNextPosition = FixedPosition<RoomPixels>.FromWhole(beam.Position.Whole);

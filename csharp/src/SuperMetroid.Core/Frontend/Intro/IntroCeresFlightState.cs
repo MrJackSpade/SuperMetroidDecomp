@@ -300,7 +300,7 @@ internal sealed class IntroCeresFlightState
             CeresAnimations.Scenes,
             definition.Animation)
         {
-            HorizontalLoopWidth = definition.WrapX ? CeresDestructionSceneDefinitions.WorldWidth : null,
+            DriftLoopWidth = definition.DriftsRoundLoop ? CeresDestructionSceneDefinitions.DriftLoopWidth : null,
         };
         return actor;
     }
@@ -383,8 +383,8 @@ internal sealed class IntroCeresFlightState
         foreach ((CeresRearViewActorRole role, CinematicActor<CeresAnimation, CinematicSpritePose, CeresCue> actor) in RearViewActors)
         {
             CeresFlightActorDefinition definition = CeresFlightActors.RearViewActor(role);
-            if (definition.WrapX)
-                actor.TravelLoop(definition.HorizontalDelta);
+            if (definition.DriftsRoundLoop)
+                actor.DriftRoundLoop(definition.HorizontalDelta);
             else
                 actor.Position = actor.Position.WithX(actor.Position.X + definition.HorizontalDelta);
             actor.Step();

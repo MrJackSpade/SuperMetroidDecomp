@@ -30,24 +30,24 @@ internal static class CeresFlightActorDefinitions
         Colouring: CeresSpriteColouring.SpaceObjects,
         InitialVelocity: SignedEightEight.FromPixels(-4),
         HorizontalDelta: SignedSixteenSixteen.Zero,
-        WrapX: false);
+        DriftsRoundLoop: false);
 
     /// <summary>The large asteroids of the Ceres explosion.
-    /// It is coloured in the space objects' colours; its motion adds 1/4 pixel, wrapping X past 511;
+    /// It is coloured in the space objects' colours; it drifts right a quarter pixel each update round the scenes' drift loop;
     /// its animation is the large-asteroid loop. The destruction scene substitutes its own definition and animation.</summary>
     internal static CeresFlightActorDefinition LargeAsteroids =>
         new(CeresAnimation.LargeAsteroid,
             CeresSpriteColouring.SpaceObjects, SignedEightEight.Zero, SignedSixteenSixteen.FromSixteenthsOfPixel(4), true);
 
     /// <summary>The space station under attack.
-    /// It is coloured in the station's colours; its motion adds 1/16 pixel, wrapping X past 511;
+    /// It is coloured in the station's colours; it drifts right a sixteenth of a pixel each update round the scenes' drift loop;
     /// its animation is the station-under-attack loop.</summary>
     internal static CeresFlightActorDefinition StationUnderAttack =>
         new(CeresAnimation.StationUnderAttack,
             CeresSpriteColouring.Station, SignedEightEight.Zero, SignedSixteenSixteen.FromSixteenthsOfPixel(1), true);
 
     /// <summary>The small asteroids around Ceres.
-    /// It is coloured in the space objects' colours; its motion adds 1/32 pixel, wrapping X past 511;
+    /// It is coloured in the space objects' colours; it drifts right a thirty-second of a pixel each update round the scenes' drift loop;
     /// its animation is the small-asteroid loop. Both Ceres scenes share this identity.</summary>
     internal static CeresFlightActorDefinition SmallAsteroids =>
         new(CeresAnimation.SmallAsteroid,
@@ -68,7 +68,6 @@ internal static class CeresFlightActorDefinitions
         HorizontalDelta = VortexHorizontalDelta,
     };
 
-    /// <summary>The drifting motion: an eighth of a pixel leftward, taking from the whole X as the fraction passes zero, with no
-    /// wrap past 511.</summary>
+    /// <summary>The vortex's drift: an eighth of a pixel leftward each update, never coming round the drift loop.</summary>
     private static SignedSixteenSixteen VortexHorizontalDelta { get; } = -SignedSixteenSixteen.FromSixteenthsOfPixel(2);
 }

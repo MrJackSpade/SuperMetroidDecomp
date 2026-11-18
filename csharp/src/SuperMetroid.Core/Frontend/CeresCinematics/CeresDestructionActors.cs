@@ -12,8 +12,8 @@ internal static class CeresDestructionActors
     /// <summary>Selects the definition of the persistent destruction actor that shows <paramref name="role"/>.</summary>
     /// <remarks>
     /// The large asteroids are the rear view's with their own animation, the small asteroids are the rear view's
-    /// unchanged, and the vortex is the rear view's held still: this vortex has no motion, so no horizontal
-    /// movement or wrap. No slide applies to these actors.</remarks>
+    /// unchanged, and the vortex is the rear view's held still: this vortex has no motion, so it neither
+    /// moves nor drifts round the loop. No slide applies to these actors.</remarks>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="role"/> is not a destruction role.</exception>
     public static CeresDestructionActorDefinition InitialActor(CeresDestructionActorRole role) => role switch
     {
@@ -26,7 +26,7 @@ internal static class CeresDestructionActors
         CeresDestructionActorRole.Vortex => RearViewVariant(CeresRearViewActorRole.Vortex) with
         {
             HorizontalDelta = SignedSixteenSixteen.Zero,
-            WrapX = false,
+            DriftsRoundLoop = false,
         },
         _ => throw new ArgumentOutOfRangeException(nameof(role)),
     };
@@ -38,7 +38,7 @@ internal static class CeresDestructionActors
     private static CeresDestructionActorDefinition RearViewVariant(CeresRearViewActorRole role)
     {
         CeresFlightActorDefinition flight = CeresFlightActors.RearViewActor(role);
-        return new(flight.Animation, flight.Colouring, flight.HorizontalDelta, flight.WrapX, null, false);
+        return new(flight.Animation, flight.Colouring, flight.HorizontalDelta, flight.DriftsRoundLoop, null, false);
     }
 
     /// <summary>Selects the definition of the Zebes reveal actor that shows <paramref name="role"/>.</summary>

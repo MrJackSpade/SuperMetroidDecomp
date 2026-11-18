@@ -526,7 +526,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             CeresAnimations.Scenes,
             definition.Animation)
         {
-            HorizontalLoopWidth = definition.WrapX ? CeresDestructionSceneDefinitions.WorldWidth : null,
+            DriftLoopWidth = definition.DriftsRoundLoop ? CeresDestructionSceneDefinitions.DriftLoopWidth : null,
         };
         return actor;
     }
@@ -578,8 +578,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             if (destructionActorRoles.TryGetValue(actor, out CeresDestructionActorRole role))
             {
                 CeresDestructionActorDefinition definition = CeresDestructionActors.InitialActor(role);
-                if (definition.WrapX)
-                    actor.TravelLoop(definition.HorizontalDelta);
+                if (definition.DriftsRoundLoop)
+                    actor.DriftRoundLoop(definition.HorizontalDelta);
             }
             else
                 actor.Position = FleeingWithGunship(actor.Position);

@@ -50,8 +50,12 @@ internal static class CeresDestructionSceneDefinitions
     /// <summary>The floor point, in floor pixels, the following Zebes approach's floor turns about.</summary>
     internal static Offset16<FloorPixels> ZebesFloorCenter => new(56, 24);
 
-    /// <summary>The width, in pixels, of the world the approach's actors wrap around horizontally.</summary>
-    internal const int WorldWidth = 512;
+    /// <summary>
+    /// The width, in pixels, of the loop the Ceres scenes' drifting asteroids and station travel round (#2418): the screen
+    /// and an equally wide stretch of space left of it. An actor that drifts off the screen's right edge comes round to the
+    /// far end of that stretch and drifts back into view across the screen's left edge.
+    /// </summary>
+    internal const int DriftLoopWidth = 512;
 
     /// <summary>The tracks the scene plays.</summary>
     internal static class Music

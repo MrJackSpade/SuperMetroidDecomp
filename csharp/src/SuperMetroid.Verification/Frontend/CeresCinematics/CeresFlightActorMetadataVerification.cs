@@ -59,7 +59,7 @@ internal static class CeresFlightActorMetadataVerification
                         "rear vortex attributes");
                     AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbfcb),
                         (-actor.HorizontalDelta).Fraction, "rear vortex speed magnitude");
-                    AssertTrue(!actor.WrapX, "rear vortex uses signed non-wrapping motion");
+                    AssertTrue(!actor.DriftsRoundLoop, "rear vortex drifts on without coming round the loop");
                     break;
                 case CeresRearViewActorRole.RearStars:
                     PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbeaf), CeresSheetInks.SpriteSet(actor.Colouring),
@@ -68,7 +68,7 @@ internal static class CeresFlightActorMetadataVerification
                         "rear stars initializer routine override: the vortex's drift");
                     AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbfcb),
                         (-actor.HorizontalDelta).Fraction, "rear stars speed magnitude");
-                    AssertTrue(!actor.WrapX, "rear stars use signed non-wrapping motion");
+                    AssertTrue(!actor.DriftsRoundLoop, "rear stars drift on without coming round the loop");
                     break;
                 default:
                     break;
@@ -84,7 +84,7 @@ internal static class CeresFlightActorMetadataVerification
         AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((ActorBank | (frontDefinition + 2))),
             CinematicActorNativeMotions.CeresFrontStars, "front stars preserve the definition's routine, the rush toward Ceres");
         AssertEqual(SignedSixteenSixteen.Zero, front.HorizontalDelta, "front stars have callback-driven acceleration instead of fixed X velocity");
-        AssertEqual(false, front.WrapX, "front stars have no nine-bit wrap");
+        AssertEqual(false, front.DriftsRoundLoop, "front stars do not drift round the loop");
         static void VerifyActor(
             ISnesAddressSpace source,
             CeresFlightActorDefinition actor,
@@ -107,7 +107,7 @@ internal static class CeresFlightActorMetadataVerification
             AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord(fields.DeltaWord), actor.HorizontalDelta.Fraction,
                 $"{name} speed");
             AssertEqual((ushort)0x01ff, CartridgeImportSource.Require(source).ReadCartridgeWord(fields.MaskWord), $"{name} wrap mask");
-            AssertTrue(actor.WrapX, $"{name} uses 512-pixel wrapping motion");
+            AssertTrue(actor.DriftsRoundLoop, $"{name} drifts round the Ceres scenes' loop");
         }
     }
 

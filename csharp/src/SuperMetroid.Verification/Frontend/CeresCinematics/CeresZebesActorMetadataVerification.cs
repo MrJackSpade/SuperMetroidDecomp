@@ -26,7 +26,7 @@ internal static class CeresZebesActorMetadataVerification
             AssertEqual(CinematicActorNativeMotions.ZebesRevealSlide.ContainsKey(role), actor.SlideAcceleration is not null, "the actors that slide away");
             AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(((0x8b0000 | pointer) + 4)), CinematicSpriteNativeListAddresses.Start(actor.Animation), "native reveal program");
             AssertEqual(SignedSixteenSixteen.Zero, actor.HorizontalDelta, "reveal actor has no horizontal motion");
-            AssertEqual(false, actor.WrapX, "reveal actor has no horizontal wrap");
+            AssertEqual(false, actor.DriftsRoundLoop, "reveal actor does not drift round the loop");
             AssertEqual(role == ZebesRevealActorRole.StarsLowerRight, actor.CompletesScene,
                 "only the lower-right stars' native callback at C8F2 loads game");
             PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(retail).ReadCartridgeWord(attributeAddresses[index]), CeresSheetInks.SpriteSet(actor.Colouring),
@@ -76,7 +76,7 @@ internal static class CeresZebesActorMetadataVerification
         PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bc9f3), CeresSheetInks.SpriteSet(subtitle.Colouring),
             "Japanese subtitle attributes");
         AssertTrue(subtitle.SlideAcceleration is null, "the Japanese subtitle cannot slide");
-        AssertTrue(!subtitle.CompletesScene && !subtitle.WrapX && subtitle.HorizontalDelta == SignedSixteenSixteen.Zero,
+        AssertTrue(!subtitle.CompletesScene && !subtitle.DriftsRoundLoop && subtitle.HorizontalDelta == SignedSixteenSixteen.Zero,
             "the Japanese subtitle neither moves nor ends the scene");
 
         // Native lower-right slide callback alone installs the load-game function.

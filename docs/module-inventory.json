@@ -136,7 +136,7 @@
     {
       "module": "csharp/src/SuperMetroid.Core/Compatibility",
       "role": "production",
-      "files": 197,
+      "files": 196,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Assets",
@@ -360,7 +360,7 @@
     {
       "module": "csharp/src/SuperMetroid.Core/Samus",
       "role": "production",
-      "files": 525,
+      "files": 524,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Animation",
@@ -724,7 +724,7 @@
     {
       "module": "csharp/src/SuperMetroid.Verification",
       "role": "verification",
-      "files": 2283,
+      "files": 2282,
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core",
@@ -1032,7 +1032,7 @@
     {
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
-      "files": 1248,
+      "files": 1247,
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core",
@@ -20969,8 +20969,7 @@
         "SuperMetroid.AssetExtraction"
       ],
       "dependsOn": [
-        "csharp/src/SuperMetroid.Core",
-        "csharp/src/SuperMetroid.Core/Samus"
+        "csharp/src/SuperMetroid.Core"
       ]
     },
     {
@@ -39368,20 +39367,6 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Compatibility/MultipliedDeceleration.cs",
-      "module": "csharp/src/SuperMetroid.Core/Compatibility",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Compatibility",
-      "layer": "Foundation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core",
-        "csharp/src/SuperMetroid.Core/Spatial"
       ]
     },
     {
@@ -74714,16 +74699,6 @@
       "module": "csharp/src/SuperMetroid.Core/Samus",
       "role": "production",
       "namespace": "SuperMetroid.Core.Samus",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Samus/Colours/SamusChargeShadeDefinitions.cs",
-      "module": "csharp/src/SuperMetroid.Core/Samus",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Samus.Colours",
       "layer": "Simulation",
       "assemblies": [
         "SuperMetroid.Core"
@@ -129878,22 +129853,6 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Verification/Samus/Movement/MultipliedDecelerationVerification.cs",
-      "module": "csharp/src/SuperMetroid.Verification",
-      "role": "verification",
-      "namespace": "SuperMetroid.Verification.Samus.Movement",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Compatibility",
-        "csharp/src/SuperMetroid.Core/Samus",
-        "csharp/src/SuperMetroid.Core/Spatial",
-        "csharp/test-support/Assertions",
-        "csharp/test-support/VerificationAccess.Core"
-      ]
-    },
-    {
       "path": "csharp/src/SuperMetroid.Verification/Samus/Movement/ReportedShaftMomentumVerification.cs",
       "module": "csharp/src/SuperMetroid.Verification",
       "role": "verification",
@@ -154582,19 +154541,6 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction"
-      ]
-    },
-    {
-      "path": "csharp/test-support/VerificationAccess.Core/Samus/Colours/SamusChargeShadeDefinitionsConstants.cs",
-      "module": "csharp/test-support/VerificationAccess.Core",
-      "role": "verification-support",
-      "namespace": "SuperMetroid.Core.Samus.Colours",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
       ]
     },
     {

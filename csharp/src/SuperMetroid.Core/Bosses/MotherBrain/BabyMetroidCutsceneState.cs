@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Corpses;
@@ -19,6 +20,24 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </remarks>
 public sealed class BabyMetroidCutsceneState
 {
+    /// <summary>Makes the Baby of <paramref name="lateFight"/>, which it holds from here, before the final beam spawns it.</summary>
+    internal BabyMetroidCutsceneState(MotherBrainRainbowBeamAttackSequence lateFight)
+    {
+        LateFight = Ensure.NotNull(lateFight);
+    }
+
+    /// <summary>
+    /// Mother Brain's late fight, which made the Baby (#2471): the Baby's steps move her on, and it reads whether she lies
+    /// as a corpse.
+    /// </summary>
+    internal MotherBrainRainbowBeamAttackSequence LateFight { get; }
+
+    /// <summary>
+    /// The Baby's place in the room's enemy list, or null before the final beam's spawn gives it one: the Baby is an enemy
+    /// of its own, which Mother Brain's onion rings find there, not an effect her body draws.
+    /// </summary>
+    public RoomEnemyPlace? Place { get; private set; }
+
     /// <summary>How far the Baby's hit area reaches to either side of its center: 36 room pixels.</summary>
     public const int XHitboxRadius = 36;
     /// <summary>How far the Baby's hit area reaches above and below its center: 36 room pixels.</summary>
@@ -70,10 +89,10 @@ public sealed class BabyMetroidCutsceneState
     public BossCountdown PhaseTimer { get; } = new();
 
     /// <summary>
-    /// The leg of the ceiling-to-Samus route the Baby is steering along, the route's first once it reaches the ceiling;
-    /// null before then.
+    /// The leg of the ceiling-to-Samus route the Baby steers along once it reaches the ceiling (#2471): the route's first
+    /// until then, which reaching the ceiling starts it on.
     /// </summary>
-    internal BabyMetroidRouteLeg? RouteLeg { get; private set; }
+    internal BabyMetroidRouteLeg RouteLeg { get; private set; } = BabyMetroidRoute.FirstLeg;
 
     /// <summary>
     /// Enemy health. The Baby's enemy definition supplies 3,200; Mother Brain later drains
@@ -139,7 +158,7 @@ public sealed class BabyMetroidCutsceneState
     public void Initialize(FixedPosition<RoomPixels> leftInPlace)
     {
         HurtFlash = null;
-        RouteLeg = null;
+        RouteLeg = BabyMetroidRoute.FirstLeg;
         Health = BabyMetroidCutsceneDefinitions.ArrivalHealth;
         OnionRingHitShakeTimer = 0;
         FatalBlowOrigin = Position16<RoomPixels>.Zero;
@@ -159,6 +178,16 @@ public sealed class BabyMetroidCutsceneState
     }
 
     /// <summary>
+    /// The Baby takes <paramref name="place"/>, which the final beam's spawn gave it, and initializes from the position the
+    /// place still holds from its previous occupant (<see cref="Initialize"/>).
+    /// </summary>
+    internal void Arrive(RoomEnemyPlace place)
+    {
+        Place = Ensure.NotNull(place);
+        Initialize(place.Position);
+    }
+
+    /// <summary>
     /// Runs one update of the Baby's main AI: the phase first, then the unconditional enemy
     /// velocity mover.
     /// Every Baby step reads the coordinates of Mother Brain's head, which the head's AI
@@ -166,14 +195,12 @@ public sealed class BabyMetroidCutsceneState
     /// </summary>
     public BabyMetroidCutsceneStepResult Step(
         SamusState samus,
-        MotherBrainRainbowBeamAttackSequence motherBrain,
         Position16<RoomPixels> head,
         Position16<RoomPixels> cameraPosition,
         int enemyFrameCounter,
         int randomNumber)
     {
         Ensure.NotNull(samus);
-        Ensure.NotNull(motherBrain);
         if (Phase == BabyMetroidCutscenePhase.Inactive)
             throw new InvalidOperationException("The cutscene Baby Metroid has not been initialized.");
 
@@ -268,7 +295,7 @@ public sealed class BabyMetroidCutsceneState
             case BabyMetroidCutscenePhase.SetMotherBrainToStumbleBack:
                 // The drain asks her to stumble back a pixel; standing, she always starts her really-fast backward
                 // walk.
-                motherBrain.RequestBabyStumbleBackward();
+                LateFight.RequestBabyStumbleBackward();
                 Phase = BabyMetroidCutscenePhase.ActivateRainbowBeamAndMotherBrainBody;
                 goto case BabyMetroidCutscenePhase.ActivateRainbowBeamAndMotherBrainBody;
 
@@ -284,7 +311,7 @@ public sealed class BabyMetroidCutsceneState
                     Position = Position.WithWhole(target);
                     startedAnimation = MotherBrainBabySegment.DrainingMotherBrain;
                     Phase = BabyMetroidCutscenePhase.WaitForMotherBrainToTurnToCorpse;
-                    motherBrain.InterruptFinalBeamForBabyDrain();
+                    LateFight.InterruptFinalBeamForBabyDrain();
                     latchSoundQueued = true; // The rainbow-drain sound starts as the Baby latches on.
                 }
                 break;
@@ -294,7 +321,7 @@ public sealed class BabyMetroidCutsceneState
             {
                 int shakingIndex = MotherBrainCadenceDefinitions.BabyShakeStep.Of(enemyFrameCounter);
                 Position = Position.WithWhole(head + MotherBrainShakeDefinitions.Offsets[shakingIndex] + BabyMetroidCutsceneFlightDefinitions.BrainLatchOffset);
-                if (motherBrain.State.Phase2CorpseState != MotherBrainPhase2CorpseState.Living)
+                if (LateFight.State.Phase2CorpseState != MotherBrainPhase2CorpseState.Living)
                 {
                     Phase = BabyMetroidCutscenePhase.StopDraining;
                     PhaseTimer.LastFor(BabyMetroidCutsceneDefinitions.StopDrainingUpdates);
@@ -356,8 +383,7 @@ public sealed class BabyMetroidCutsceneState
                 ambientCrySoundQueued = MotherBrainRandomDefinitions.BabyMetroidCries.IsTakenBy(randomNumber);
 
                 // The route is its authored legs, each steered to its waypoint with its own wrong-way speed.
-                BabyMetroidRouteLeg leg = RouteLeg ?? throw new InvalidOperationException(
-                    "The Baby is moving to Samus without a route leg.");
+                BabyMetroidRouteLeg leg = RouteLeg;
                 Position16<RoomPixels> target = leg.Target;
 
                 GraduallyAccelerateTowardsPoint(
@@ -440,7 +466,7 @@ public sealed class BabyMetroidCutsceneState
                 // Mother Brain's brain is presentation state; the meaningful body change
                 // starts Mother Brain's fast retreat, and the Baby's flight takes its first update in this same
                 // update.
-                motherBrain.PrepareForFinalBabyMetroidAttack();
+                LateFight.PrepareForFinalBabyMetroidAttack();
                 Phase = BabyMetroidCutscenePhase.StareDownMotherBrain;
                 goto case BabyMetroidCutscenePhase.StareDownMotherBrain;
 
@@ -484,7 +510,7 @@ public sealed class BabyMetroidCutsceneState
                 if (CollidesWithRectangle(BabyMetroidCutsceneFlightDefinitions.FinalChargeStart, BabyMetroidCutsceneFlightDefinitions.TargetReach))
                 {
                     Health = BabyMetroidCutsceneDefinitions.FinalVolleyHealth;
-                    motherBrain.ExecuteFinalBabyMetroidAttack();
+                    LateFight.ExecuteFinalBabyMetroidAttack();
                     Phase = BabyMetroidCutscenePhase.InitiateFinalCharge;
                 }
                 break;
@@ -625,7 +651,7 @@ public sealed class BabyMetroidCutsceneState
                 if (!RecoveryLights.IsOver)
                     break;
 
-                motherBrain.BeginPhase3RecoveryFromBabyCutscene();
+                LateFight.BeginPhase3RecoveryFromBabyCutscene();
                 samus.Drained.DisableRainbowAndStartStandingAnimation(samus);
                 samus.Drained.EnableHyperBeam(samus);
                 Phase = BabyMetroidCutscenePhase.Deleted;

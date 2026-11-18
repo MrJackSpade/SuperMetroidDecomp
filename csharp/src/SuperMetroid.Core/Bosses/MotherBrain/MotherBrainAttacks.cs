@@ -27,7 +27,8 @@ internal sealed class MotherBrainAttacks
         switch (state.HandBeamPhase)
         {
             case MotherBrainHandBeamPhase.BackUp:
-                if (!TryWalkMotherBrainBackwardsForHandBeam(state))
+                // She backs up slowly toward the back of the room; the walk's back limit can report her there first.
+                if (!MotherBrainWalks.Backwards(state, MotherBrainFightDefinitions.BackOfRoomX, MotherBrainWalkSpeed.Slow))
                     return;
                 state.LowerNeckMovement = MotherBrainNeckMovement.Raise;
                 state.UpperNeckMovement = MotherBrainNeckMovement.Lower;
@@ -61,25 +62,6 @@ internal sealed class MotherBrainAttacks
                     $"Mother Brain hand-beam phase {state.HandBeamPhase} is " +
                     "outside the four hand-beam phases.");
         }
-    }
-
-    /// <summary>
-    /// Walks Mother Brain backwards toward the back of the room at the slow gait; the walk's limit of her walks can report
-    /// arrival before she reaches it.
-    /// </summary>
-    private static bool TryWalkMotherBrainBackwardsForHandBeam(
-        MotherBrainEnemyState state)
-    {
-        int targetMinusBody = MotherBrainFightDefinitions.BackOfRoomX - state.Body.Position.X.Whole;
-        if (targetMinusBody >= 0)
-            return true;
-        if (state.Pose != MotherBrainBodyPose.Standing)
-            return false;
-        if (state.Body.Position.X.Whole < MotherBrainFightDefinitions.BackLimitX)
-            return true;
-
-        MotherBrainEncounterAccess.SetMotherBrainBodyAnimation(state, MotherBrainBodySegment.WalkBackwardSlow);
-        return false;
     }
 
     /// <summary>Advances the between-attacks delay and chooses when another attack may start.</summary>
@@ -247,7 +229,7 @@ internal sealed class MotherBrainAttacks
             if (targetMinusBody < 0)
             {
                 state.BodyTargetXPosition = targetX;
-                if (!TryWalkMotherBrainBackwards(state, targetX))
+                if (!MotherBrainWalks.Backwards(state, targetX, MotherBrainWalkSpeed.Medium))
                 {
                     state.Phase2FightPhase = MotherBrainPhase2FightPhase.BombWalkingBackwards;
                     return;
@@ -261,7 +243,7 @@ internal sealed class MotherBrainAttacks
     /// <summary>Continues the bomb walk.</summary>
     internal void ContinueMotherBrainBombWalk(MotherBrainEnemyState state)
     {
-        if (TryWalkMotherBrainBackwards(state, state.BodyTargetXPosition))
+        if (MotherBrainWalks.Backwards(state, state.BodyTargetXPosition, MotherBrainWalkSpeed.Medium))
             DecideWhetherMotherBrainCrouchesForBomb(state);
     }
 
@@ -326,26 +308,6 @@ internal sealed class MotherBrainAttacks
     /// <summary>Returns the body and head to their neutral thinking phase after a bomb.</summary>
     private static void FinishMotherBrainBombAttack(MotherBrainEnemyState state) =>
         state.Phase2FightPhase = MotherBrainPhase2FightPhase.Thinking;
-
-    /// <summary>
-    /// Walks Mother Brain backwards toward <paramref name="targetX"/> at the medium gait; the hard floor at X=48 reports
-    /// arrival before a target left of it.
-    /// </summary>
-    private static bool TryWalkMotherBrainBackwards(
-        MotherBrainEnemyState state,
-        int targetX)
-    {
-        int targetMinusBody = targetX - state.Body.Position.X.Whole;
-        if (targetMinusBody >= 0)
-            return true;
-        if (state.Pose != MotherBrainBodyPose.Standing)
-            return false;
-        if (state.Body.Position.X.Whole < MotherBrainFightDefinitions.BackLimitX)
-            return true;
-
-        MotherBrainEncounterAccess.SetMotherBrainBodyAnimation(state, MotherBrainBodySegment.WalkBackwardMedium);
-        return false;
-    }
 
     /// <summary>Whether Mother Brain is crouched; a standing Mother Brain starts crouching slowly.</summary>
     private static bool TryMakeMotherBrainCrouch(MotherBrainEnemyState state)
@@ -481,9 +443,7 @@ internal sealed class MotherBrainAttacks
     /// </summary>
     internal static void StartLiveMotherBrainRainbowBeam(MotherBrainEnemyState state)
     {
-        var sequence = new MotherBrainRainbowBeamAttackSequence(state);
-        sequence.StartAttackCycle();
-        state.RainbowBeamSequence = sequence;
+        state.BeginLateFight().StartAttackCycle();
         state.NextRainbowImage = MotherBrainRainbowImage.First;
     }
 }

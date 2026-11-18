@@ -55,8 +55,6 @@ internal static class ClosedPresentationIndexDefinitions
         ("TourianStatuePalettes", "ResolveEye", "color") => new(0, TourianStatueColorDefinitions.EyeColorCount),
         ("SporeSpawnColorCatalog", "ResolveSpore" or "ResolveHealth", "color") => new(0, SporeSpawnColorFormat.ColorsPerFrame),
         ("SporeSpawnColorCatalog", "ResolveHealth", "frame") => new(0, SporeSpawnColorFormat.HealthFrameCount),
-        ("MotherBrainRainbowBeamColours", "BeamColor", "index") => new(0,
-            MotherBrainRainbowPaletteGeometry.BeamCycleColorCount),
         ("MotherBrainDeathColorCatalog", "BodyColor" or "LegColor", "frame") => new(0, MotherBrainDeathColorFile.BodyFadeFrameCount),
         ("MotherBrainDeathColorCatalog", "BodyColor" or "LegColor", "color") => new(0, MotherBrainDeathColorFormat.BodyColorCount),
         ("MotherBrainDeathColorCatalog", "CorpseColor", "frame") => new(0, MotherBrainDeathColorFile.CorpseFadeFrameCount),

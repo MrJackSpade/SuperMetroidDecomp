@@ -224,7 +224,7 @@ internal static class LookupStream5Verification
             AssertEqual(ReadVerificationWord(rom, 0xa7cdaf + nextPattern * 8), body.Position.X.Whole, "Exact delayed native X");
             AssertEqual(ReadVerificationWord(rom, 0xa7cdb1 + nextPattern * 8), body.Position.Y.Whole, "Exact delayed native Y");
             AssertEqual(PhantoonPhase.BecomeSolidAfterFlameRain, state.Phase, "Native rain appearance handoff");
-            AssertEqual(false, state.FigureEight.Reversed, "Rain handoff clears fade counter");
+            AssertEqual(PhantoonPathDirection.Forwards, state.FigureEight.Direction, "Rain handoff clears fade counter");
             var flames = system.Projectiles.EnemyProjectiles.Where(projectile => projectile.IsActive).ToArray();
             AssertEqual(8, flames.Length, "Actual hidden expiry launches eight rain projectiles");
             foreach (var flame in flames)
@@ -259,7 +259,8 @@ internal static class LookupStream5Verification
             begin(state);
             ushort duration = ReadVerificationWord(rom, 0xa7cd53 + bucket * 2);
             AssertEqual(duration, state.Round.EyeClosedTimer, "Native first-round closed-eye duration");
-            AssertEqual(reversed, state.FigureEight.Reversed, "Direction selection remains independent of duration bucket");
+            AssertEqual(reversed ? PhantoonPathDirection.Backwards : PhantoonPathDirection.Forwards, state.FigureEight.Direction,
+                "Direction selection remains independent of duration bucket");
             // A valid unexpired casual-flame hold keeps this fixture specific to
             // the identified closed-eye countdown and its actual expiry producer.
             state.CasualFlames.Hold = duration + 1;
@@ -1273,12 +1274,12 @@ internal static class LookupStream5Verification
             var state = new PhantoonEnemyState(body, eye, enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]);
             enemies.BeginPhantoonAsSetUp(state);
             state.PhaseTimer = 1;
-            state.FigureEight.Reversed = true;
+            state.FigureEight.Direction = PhantoonPathDirection.Backwards;
             new Action<RoomEnemyPlace, PhantoonEnemyState>(enemies.PhantoonBehavior.Patterns.RunPhantoonHiddenFlameRain)(body, state);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdad + pattern * 8)), state.FigureEight.PathPlace.Place, "Real rain cursor handoff");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdaf + pattern * 8)), body.Position.X.Whole, "Real rain body placement X");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdb1 + pattern * 8)), body.Position.Y.Whole, "Real rain body placement Y");
-            AssertEqual(false, state.FigureEight.Reversed, "Real rain direction reset");
+            AssertEqual(PhantoonPathDirection.Forwards, state.FigureEight.Direction, "Real rain direction reset");
             AssertEqual(PhantoonPhase.BecomeSolidAfterFlameRain, state.Phase, "Real rain phase handoff");
             AssertEqual(1, calls, "Rain consumes one RNG word");
             var flames = enemies.Projectiles.EnemyProjectiles.Where(p => p.IsActive).OrderBy(p => p.StateOf<PhantoonRainFlameState>().FallDelay).ToArray();

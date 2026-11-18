@@ -165,18 +165,29 @@ internal static class NativeSnapshotMotherBrainImport
     /// Resumes <paramref name="fade"/> where the cartridge's count of its steps, <paramref name="steps"/>, and its phase
     /// timer, <paramref name="timer"/>, leave it: the cartridge steps the fade as the timer runs below zero, so the next step
     /// comes the timer's count and one more updates on, and at once once it has run out. Before its first step the fade
-    /// waits that long for its first image; after it, the image last shown holds that long.
+    /// waits that long for its first image; after it, the image last shown holds that long. The fade's own start and steps
+    /// bring it there (#2471): started to show its first image on its first step, it shows each image after the one before
+    /// has held its updates, and the image last shown has held all but the updates it has left.
     /// </summary>
-    /// <exception cref="InvalidDataException">The count is past the fade's last image, which ends its phase.</exception>
+    /// <exception cref="InvalidDataException">
+    /// The count is past the fade's last image, which ends its phase, or the hold left is longer than an image's.
+    /// </exception>
     private static void ResumeFade(MotherBrainFadeProgress fade, int steps, int timer)
     {
         int updates = Math.Max(timer + 1, 1);
         if (steps == 0)
+        {
             fade.StartAfter(updates);
-        else if (steps <= fade.Fade.Images.Count)
-            fade.ShowFor(fade.Fade.Images[steps - 1], updates);
-        else
+            return;
+        }
+        if (steps > fade.Fade.Images.Count)
             throw new InvalidDataException($"Mother Brain's recorded fade count {steps} is past the last of the {fade.Fade.Images.Count} images of {fade.Fade}, whose phase has ended.");
+        if (updates > fade.Fade.ImageUpdates)
+            throw new InvalidDataException($"Mother Brain's recorded fade hold of {updates} updates is longer than the {fade.Fade.ImageUpdates} each image of {fade.Fade} holds.");
+        fade.StartAfter(1);
+        int stepsToResume = 1 + (steps - 1) * fade.Fade.ImageUpdates + fade.Fade.ImageUpdates - updates;
+        for (int step = 0; step < stepsToResume; step++)
+            _ = fade.Step();
     }
 
     /// <summary>
@@ -242,7 +253,7 @@ internal static class NativeSnapshotMotherBrainImport
     /// </summary>
     private static void ImportNativeMotherBrainRainbowSequence(MotherBrainEnemyState state, Func<int, ushort> W)
     {
-        var sequence = new MotherBrainRainbowBeamAttackSequence(state);
+        MotherBrainRainbowBeamAttackSequence sequence = state.BeginLateFight();
         // The cartridge keeps the brain's fall speed in the body's phase timer.
         sequence.State.BrainFallSpeed = new SignedEightEight(W(MotherBrainMemory.BodyFunctionTimer));
         sequence.RainbowAttack.AngularWidth = RotationAngleConstants.FromRaw(W(MotherBrainMemory.RainbowBeamAngularWidth));
@@ -255,7 +266,6 @@ internal static class NativeSnapshotMotherBrainImport
         // Once the sequence runs, the sub-function word holds the bursts' interval; their place was imported with the
         // encounter, whose cycle the sequence shares.
         PrivateState.Set(state.Bursts, nameof(MotherBrainBurstCycle.Interval), CoordinateAxis.AsSigned(W(MotherBrainMemory.BrainSubFunction)));
-        state.RainbowBeamSequence = sequence;
     }
 
     /// <summary>The phases of her rise from which it has placed her body with her (#1949, #2031).</summary>

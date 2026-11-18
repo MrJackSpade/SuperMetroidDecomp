@@ -48,13 +48,13 @@ internal sealed class PhantoonPatterns
         if (PhantoonRandomDefinitions.FigureEightReversed.IsSetIn(_room.Random.Generate()))
         {
             state.FigureEight.Speed = SignedSixteenSixteen.Zero;
-            state.FigureEight.Reversed = true;
+            state.FigureEight.Direction = PhantoonPathDirection.Backwards;
             state.FigureEight.PathPlace = PhantoonPath.At(PhantoonPathDefinitions.LastPlace);
         }
         else
         {
             state.FigureEight.Speed = PhantoonMotionDefinitions.FigureEightStartSpeed;
-            state.FigureEight.Reversed = false;
+            state.FigureEight.Direction = PhantoonPathDirection.Forwards;
             state.FigureEight.PathPlace = PhantoonPath.At(0);
         }
     }
@@ -79,18 +79,19 @@ internal sealed class PhantoonPatterns
     /// <summary>Moves his body along its figure-eight path by the figure-eight's speed.</summary>
     internal static void StepPhantoonFigureEight(RoomEnemyPlace body, PhantoonFigureEightState figureEight)
     {
-        if (figureEight.Reversed)
+        bool backwards = figureEight.Direction == PhantoonPathDirection.Backwards;
+        if (backwards)
             AdjustPhantoonReverseFigureEightSpeed(figureEight);
         else
             AdjustPhantoonForwardFigureEightSpeed(figureEight);
 
-        int steps = figureEight.Reversed
+        int steps = backwards
             ? -figureEight.Speed.WholePixels
             : figureEight.Speed.WholePixels;
         for (int step = 0; step < steps; step++)
         {
             Offset16<RoomPixels> pathStep = figureEight.PathPlace.Entry;
-            if (figureEight.Reversed)
+            if (backwards)
             {
                 body.Position -= pathStep;
                 figureEight.PathPlace = figureEight.PathPlace.PreviousInCycle;
@@ -313,7 +314,7 @@ internal sealed class PhantoonPatterns
             body.Position = body.Position.WithWholeX(PhantoonPathDefinitions.LeftAppearancePosition.X);
         }
         body.Position = body.Position.WithWholeY(PhantoonPathDefinitions.AppearanceY);
-        state.FigureEight.Reversed = false;
+        state.FigureEight.Direction = PhantoonPathDirection.Forwards;
         state.FigureEight.Speed = PhantoonMotionDefinitions.FigureEightStartSpeed;
         state.FlameRainRequested = false;
 
@@ -407,7 +408,7 @@ internal sealed class PhantoonPatterns
         PhantoonRainPattern pattern = Ensure.Element(PhantoonRainPatternDefinitions.Choices, _room.Random.Next(PhantoonRandomDefinitions.FlameRainPattern));
         state.FigureEight.PathPlace = PhantoonPath.At(pattern.PathPlace);
         body.Position = body.Position.WithWhole(pattern.BodyPosition);
-        state.FigureEight.Reversed = false;
+        state.FigureEight.Direction = PhantoonPathDirection.Forwards;
         state.Phase = PhantoonPhase.BecomeSolidAfterFlameRain;
         SpawnPhantoonFlameRain(body, pattern);
     }
@@ -633,19 +634,19 @@ internal sealed class PhantoonPatterns
         state.Round.EyeClosedTimer = PhantoonTimerDefinitions.EyeClosed[_room.Random.Next(PhantoonRandomDefinitions.EyeClosedChoice)];
         if (PhantoonCadenceDefinitions.FigureEightReverses.IsSetIn(_frameContext.FrameCounter))
         {
-            if (!state.FigureEight.Reversed)
+            if (state.FigureEight.Direction == PhantoonPathDirection.Forwards)
                 state.FigureEight.PathPlace = state.FigureEight.PathPlace.PreviousInCycle;
             state.FigureEight.Speed = SignedSixteenSixteen.Zero;
             state.FigureEight.Stage = PhantoonFigureEightStage.EasingIn;
-            state.FigureEight.Reversed = true;
+            state.FigureEight.Direction = PhantoonPathDirection.Backwards;
         }
         else
         {
-            if (state.FigureEight.Reversed)
+            if (state.FigureEight.Direction == PhantoonPathDirection.Backwards)
                 state.FigureEight.PathPlace = state.FigureEight.PathPlace.NextInCycle;
             state.FigureEight.Speed = PhantoonMotionDefinitions.FigureEightStartSpeed;
             state.FigureEight.Stage = PhantoonFigureEightStage.EasingIn;
-            state.FigureEight.Reversed = false;
+            state.FigureEight.Direction = PhantoonPathDirection.Forwards;
         }
 
         state.Phase = state.FlameRainRequested

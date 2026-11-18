@@ -61,8 +61,8 @@ internal static class MotherBrainPlasmaImpactVerification
         AssertEqual(17550, head.Health, "First form retains its missile-only damage restriction");
         head.InvincibilityTimer = 0;
         state.Form = MotherBrainForm.ThirdPhase;
-        state.RainbowBeamSequence = new MotherBrainRainbowBeamAttackSequence(state);
-        state.RainbowBeamSequence.Encounter.Form = MotherBrainForm.ThirdPhase;
+        MotherBrainRainbowBeamAttackSequence lateFight = state.BeginLateFight();
+        lateFight.Encounter.Form = MotherBrainForm.ThirdPhase;
         // The sequence shares the encounter's walk credit (#1388); recoil needs less than the Hyper Beam's cost.
         state.WalkCounter = MotherBrainWalkCredit.Empty;
         SeedChargedPlasma();
@@ -72,7 +72,7 @@ internal static class MotherBrainPlasmaImpactVerification
         head.InvincibilityTimer = 0;
         AssertEqual(1, Hit(), "Hyper Beam still accepts its later-form damage callback");
         AssertEqual(16550, head.Health, "Hyper Beam retains its native charged damage selection");
-        AssertEqual(MotherBrainPhase3NeckPhase.SetupHyperBeamRecoil, state.RainbowBeamSequence.ThirdPhaseFight.Phase3NeckPhase,
+        AssertEqual(MotherBrainPhase3NeckPhase.SetupHyperBeamRecoil, lateFight.ThirdPhaseFight.Phase3NeckPhase,
             "Hyper Beam retains its phase-three recoil transition");
         AssertTrue(shot.IsSpent, "Hyper Beam also obeys the head collision property");
         Console.WriteLine("Mother Brain Plasma: one charged impact/damage event, no later-frame repeats, recoil and first-form restriction passed.");

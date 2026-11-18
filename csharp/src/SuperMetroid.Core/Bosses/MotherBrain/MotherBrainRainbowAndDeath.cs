@@ -160,22 +160,20 @@ internal sealed class MotherBrainRainbowAndDeath
     private void WriteZebesTypewriterGlyph(EscapeTypewriterGlyph glyph) =>
         _motherBrainEncounter.ShowZebesWarning(new WrittenPicture(glyph.Picture, glyph.Corner));
 
-    /// <summary>Runs one body-phase update through the shared sequence.</summary>
+    /// <summary>Runs one body-phase update of her late fight, <paramref name="sequence"/>.</summary>
     internal void RunLiveMotherBrainRainbowBeam(
-        MotherBrainEnemyState state,
+        MotherBrainRainbowBeamAttackSequence sequence,
         SamusState samus,
         int enemyFrameCounter,
         SamusBombProjectileSystem sharedProjectiles)
     {
-        MotherBrainRainbowBeamAttackSequence sequence = state.RainbowBeamSequence ??
-            throw new InvalidOperationException(
-                "Mother Brain entered a rainbow phase without its live sequence owner.");
-
+        MotherBrainEnemyState state = Ensure.NotNull(sequence).Encounter;
         bool typewriterFinished = false;
-        if (state.Stage == MotherBrainBodyStage.Dying && state.DeathPhase is MotherBrainDeathPhase.TypeOutZebesEscapeText or
-            MotherBrainDeathPhase.SpawnTimeBombSetSubtitle)
+        // The escape text types from the update after her escape's start made it, through the subtitle's wait and the
+        // typing (#2471). Once it has typed its last character a step types nothing, clicks nothing and reports it
+        // finished, which only the typing phase reads, so the text steps on every update it exists.
+        if (state.EscapeTypewriter is { } text)
         {
-            var text = state.EscapeTypewriter ?? throw new InvalidOperationException("Mother Brain escape text was not initialized.");
             typewriterFinished = text.Step(out EscapeTypewriterGlyph? glyph);
             if (glyph is { } typed)
                 WriteZebesTypewriterGlyph(typed);
@@ -232,7 +230,7 @@ internal sealed class MotherBrainRainbowAndDeath
             sharedProjectiles.SetSharedCooldown(samusCooldown);
 
         if (current.BabySpawnRequested)
-            _roomActors.SpawnBabyMetroid(state);
+            _roomActors.SpawnBabyMetroid(sequence);
         if (current.Explosion is { } explosion)
         {
             // The rainbow explosion spawn runs before the rainbow's movement steps move Samus. The reusable sequence

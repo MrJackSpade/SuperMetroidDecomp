@@ -74,73 +74,15 @@ internal sealed class MotherBrainLateFightState
         Encounter.UpperNeckMovement = MotherBrainNeckMovement.Lower;
     }
 
-    /// <summary>Walks her body forwards at <paramref name="speed"/>, by the forward target rules.</summary>
+    /// <summary>Walks her body forwards toward <paramref name="targetX"/> at <paramref name="speed"/> (<see cref="MotherBrainWalks.Forwards"/>).</summary>
     /// <returns>Whether she has reached the walk's target or the arena's front limit.</returns>
-    internal bool RequestWalkForward(int targetX, MotherBrainWalkSpeed speed)
-    {
-        MotherBrainBodySegment segment = speed switch
-        {
-            MotherBrainWalkSpeed.ReallyFast => MotherBrainBodySegment.WalkForwardReallyFast,
-            MotherBrainWalkSpeed.Fast => MotherBrainBodySegment.WalkForwardFast,
-            MotherBrainWalkSpeed.Medium => MotherBrainBodySegment.WalkForwardMedium,
-            MotherBrainWalkSpeed.Slow => MotherBrainBodySegment.WalkForwardSlow,
-            MotherBrainWalkSpeed.ReallySlow => MotherBrainBodySegment.WalkForwardReallySlow,
-            _ => throw new InvalidOperationException($"Undefined {nameof(MotherBrainWalkSpeed)} {speed}."),
-        };
-        return MakeBodyWalkForwards(targetX, segment);
-    }
+    internal bool RequestWalkForward(int targetX, MotherBrainWalkSpeed speed) =>
+        MotherBrainWalks.Forwards(Encounter, targetX, speed);
 
-    /// <summary>Walks her body backwards at <paramref name="speed"/>, by the backward target rules.</summary>
+    /// <summary>Walks her body backwards toward <paramref name="targetX"/> at <paramref name="speed"/> (<see cref="MotherBrainWalks.Backwards"/>).</summary>
     /// <returns>Whether she has reached the walk's target or the arena's back limit.</returns>
-    internal bool RequestWalkBackward(int targetX, MotherBrainWalkSpeed speed)
-    {
-        MotherBrainBodySegment segment = speed switch
-        {
-            MotherBrainWalkSpeed.ReallyFast => MotherBrainBodySegment.WalkBackwardReallyFast,
-            MotherBrainWalkSpeed.Fast => MotherBrainBodySegment.WalkBackwardFast,
-            MotherBrainWalkSpeed.Medium => MotherBrainBodySegment.WalkBackwardMedium,
-            MotherBrainWalkSpeed.Slow => MotherBrainBodySegment.WalkBackwardSlow,
-            MotherBrainWalkSpeed.ReallySlow => MotherBrainBodySegment.WalkBackwardReallySlow,
-            _ => throw new InvalidOperationException($"Undefined {nameof(MotherBrainWalkSpeed)} {speed}."),
-        };
-        return MakeBodyWalkBackwards(targetX, segment);
-    }
-
-    /// <summary>
-    /// Makes the body walk forwards. An overshoot of the target reports it reached first; at
-    /// equality the walk is still requested. A body still mid-pose then reports it waiting,
-    /// ahead of the arena's front limit that also reports the target reached. Only a standing body
-    /// inside both limits starts the walk.
-    /// </summary>
-    private bool MakeBodyWalkForwards(int targetX, MotherBrainBodySegment segment)
-    {
-        if (BodyPosition.X > targetX)
-            return true;
-        if (Encounter.Pose != MotherBrainBodyPose.Standing)
-            return false;
-        if (BodyPosition.X >= MotherBrainFightDefinitions.FrontLimitX)
-            return true;
-        SetBodyAnimation(segment);
-        return false;
-    }
-
-    /// <summary>
-    /// Makes the body walk backwards. Reaching or passing the target reports it reached first, so a walk
-    /// can complete the AI phase on the frame its movement step arrives. A body still
-    /// mid-pose then reports it waiting, ahead of the arena's back limit that also reports
-    /// the target reached. Only a standing body inside both limits starts the walk.
-    /// </summary>
-    private bool MakeBodyWalkBackwards(int targetX, MotherBrainBodySegment segment)
-    {
-        if (BodyPosition.X <= targetX)
-            return true;
-        if (Encounter.Pose != MotherBrainBodyPose.Standing)
-            return false;
-        if (BodyPosition.X < MotherBrainFightDefinitions.BackLimitX)
-            return true;
-        SetBodyAnimation(segment);
-        return false;
-    }
+    internal bool RequestWalkBackward(int targetX, MotherBrainWalkSpeed speed) =>
+        MotherBrainWalks.Backwards(Encounter, targetX, speed);
 
     /// <summary>Takes the posture chance (<see cref="MotherBrainRandomDefinitions.PostureChanges"/>) to toggle a standing or leaning body animation.</summary>
     internal void MaybeRequestStandUpOrLeanDown(MotherBrainRandomSample randomNumberSeed)

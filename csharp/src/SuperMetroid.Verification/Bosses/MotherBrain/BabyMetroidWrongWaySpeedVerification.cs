@@ -17,14 +17,14 @@ internal static class BabyMetroidWrongWaySpeedVerification
     {
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Health = 99, Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0080)) };
         var motherBrain = MotherBrainLateFightFixtures.NewSequence();
-        var baby = new BabyMetroidCutsceneState();
+        var baby = motherBrain.Baby;
         baby.Initialize(FixedPosition<RoomPixels>.FromStoredParts(0, 0x1400, 0, 0x3100));
         baby.Phase = BabyMetroidCutscenePhase.MoveToFinalChargeStart;
         baby.Position = FixedPosition<RoomPixels>.FromWhole(new(0x0133, 0x004d)).WithFractionsOf(baby.Position);
         baby.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(0x015f), new SignedEightEight(0x012b));
 
         // Layer-1 X zero puts X $133 beyond the $120-wide vaguely-on-screen band.
-        baby.Step(samus, motherBrain, HeadOf(motherBrain), Position16<RoomPixels>.Zero, enemyFrameCounter: 0, randomNumber: 0);
+        baby.Step(samus, HeadOf(motherBrain), Position16<RoomPixels>.Zero, enemyFrameCounter: 0, randomNumber: 0);
         AssertEqual((ushort)0x0145, baby.Velocity.X.RawValue,
             "the wrong-way off-screen reversal subtracts the $10 extra, $8 and two $1 steps");
         Console.WriteLine("Baby Metroid wrong-way speed: $A9:F466 legs apply the $10 off-screen extra.");

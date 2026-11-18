@@ -131,7 +131,7 @@ internal sealed class CeresEscape : IGameplayShadingSource
             // self-destruct warning shows over the room, not the turning floor.
             Floor.Active = false;
             Floor.Offset = Offset16<FloorPixels>.Zero;
-            Floor.Center = Position16<FloorPixels>.Zero;
+            Floor.Center = Offset16<FloorPixels>.Zero;
             // The getaway's end hands on to the self-destruct warning, which Ridley's AI runs. Samus's
             // special push and fall movement remains responsible for restoring normal input;
             // ending the rotating view itself does not unlock her in the game.
@@ -142,8 +142,10 @@ internal sealed class CeresEscape : IGameplayShadingSource
         FloorZoom zoom = CeresRidleyGetawayCurve.ZoomAt(update);
         Offset16<FloorPixels> drift = CeresRidleyGetawayCurve.DriftAt(update);
         Floor.Zoom = zoom;
-        // The update's drift is added to the vertical offset and subtracted from the horizontal offset.
-        Floor.Offset = Offset16<FloorPixels>.Wrapped(
+        // The update's drift is added to the vertical offset and subtracted from the horizontal offset. Over the whole
+        // getaway the drift curve takes the offset from its start, (-128, 32), no further than -268 across and between
+        // -110 and 1019 down, so the sums always lie within the offset's range and need no wrap (#2471).
+        Floor.Offset = new Offset16<FloorPixels>(
             Floor.Offset.X - drift.X,
             Floor.Offset.Y + drift.Y);
 
@@ -174,7 +176,7 @@ internal sealed class CeresEscape : IGameplayShadingSource
     /// scrolled by the getaway's offset across the floor.
     /// </summary>
     internal FloorView? ShownFloor => Floor.Active
-        ? FloorView.Turned(Floor.Angle, Floor.Zoom, Floor.Center.AsSignedOffset(), Floor.Offset)
+        ? FloorView.Turned(Floor.Angle, Floor.Zoom, Floor.Center, Floor.Offset)
         : null;
 
     /// <summary>Shows the zoom-dependent shade of the floor's fifteen colours, which leaves its transparent colour as it is.</summary>

@@ -239,10 +239,44 @@ internal sealed class MotherBrainHead
     /// Plays her brain's animation at her brain's draw (<see cref="MotherBrainBrainAnimation"/>) and returns the picture it
     /// shows, or null when the brain is not live; its cues act on <paramref name="state"/> and read <paramref name="samus"/>.
     /// </summary>
+    /// <remarks>
+    /// Once her late fight has begun its own cues act on it (#2471): her attacks on the Baby count, aim at and cry at the
+    /// Baby it made.
+    /// </remarks>
     internal EnemyFrameId? AdvanceMotherBrainBrain(MotherBrainEnemyState state, SamusState samus) =>
-        state.Brain.AdvanceAtDraw(_frameContext.TimeIsFrozen, cue => ApplyMotherBrainHeadCue(state, samus, cue) is { } segment
+        state.Brain.AdvanceAtDraw(_frameContext.TimeIsFrozen, cue => (state.RainbowBeamSequence is { } lateFight
+                ? ApplyLateFightHeadCue(lateFight, samus, cue)
+                : ApplyMotherBrainHeadCue(state, samus, cue)) is { } segment
             ? new AnimationContinuation<MotherBrainHeadSegment>(MotherBrainAnimations.HeadStartingWith(segment), AnimationPlace.StartOfAnimation)
             : null);
+
+    /// <summary>
+    /// Carries out one event of a brain animation in her late fight: the cues of her attacks on the Baby act on
+    /// <paramref name="lateFight"/>, and every other cue as before it began.
+    /// </summary>
+    /// <returns>The segment whose animation a random hold or drool event continues at; otherwise null.</returns>
+    private MotherBrainHeadSegment? ApplyLateFightHeadCue(MotherBrainRainbowBeamAttackSequence lateFight, SamusState samus, MotherBrainHeadCue cue)
+    {
+        switch (cue)
+        {
+            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.AimOnionRingsAtBabyMetroid }:
+                AimMotherBrainOnionRingsAt(lateFight.Encounter, lateFight.Baby.Position.Whole);
+                return null;
+            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.CountBabyMetroidAttack }:
+                lateFight.IncrementLiveBabyMetroidAttackCounter();
+                return null;
+            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.ResetBabyMetroidAttacks }:
+                lateFight.ResetLiveBabyMetroidAttackCounter();
+                return null;
+            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.QueueBabyMetroidAttackSound }:
+                // The attack cry step skips the attack cry once the attack counter reaches eleven.
+                if (lateFight.Revival.BabyMetroidAttackCounter != MotherBrainFightDefinitions.SilentBabyAttackCount)
+                    _audio.QueueEnemySound(MotherBrainSoundDefinitions.AttackCry, priority: SoundRequestPriority.Normal);
+                return null;
+            default:
+                return ApplyMotherBrainHeadCue(lateFight.Encounter, samus, cue);
+        }
+    }
 
     /// <summary>Carries out one event of a brain animation.</summary>
     /// <returns>The segment whose animation a random hold or drool event continues at; otherwise null.</returns>
@@ -277,13 +311,6 @@ internal sealed class MotherBrainHead
                 AimMotherBrainOnionRingsAt(state, samus.Position.Whole);
                 return null;
             }
-            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.AimOnionRingsAtBabyMetroid }:
-            {
-                BabyMetroidCutsceneState baby = state.BabyMetroid ?? throw new InvalidOperationException(
-                    "Mother Brain's Baby-targeting cue ran without the Baby actor.");
-                AimMotherBrainOnionRingsAt(state, baby.Position.Whole);
-                return null;
-            }
             case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.SpawnOnionRing }:
                 SpawnMotherBrainOnionRing(state, state.OnionRingsTargetAngle);
                 return null;
@@ -293,17 +320,11 @@ internal sealed class MotherBrainHead
             case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.SpawnLaser }:
                 SpawnMotherBrainMouthLaser(state);
                 return null;
-            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.CountBabyMetroidAttack }:
-                MotherBrainEncounterAccess.RequireLiveMotherBrainRainbowSequence(state).IncrementLiveBabyMetroidAttackCounter();
-                return null;
-            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.ResetBabyMetroidAttacks }:
-                MotherBrainEncounterAccess.RequireLiveMotherBrainRainbowSequence(state).ResetLiveBabyMetroidAttackCounter();
-                return null;
-            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.QueueBabyMetroidAttackSound }:
-                // The attack cry step skips the attack cry once the attack counter reaches eleven.
-                if (MotherBrainEncounterAccess.RequireLiveMotherBrainRainbowSequence(state).Revival.BabyMetroidAttackCounter != MotherBrainFightDefinitions.SilentBabyAttackCount)
-                    _audio.QueueEnemySound(MotherBrainSoundDefinitions.AttackCry, priority: SoundRequestPriority.Normal);
-                return null;
+            // Only the animations of her attacks on the Baby, which her late fight starts, raise their cues
+            // (ApplyLateFightHeadCue).
+            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.AimOnionRingsAtBabyMetroid or MotherBrainHeadCueKind.CountBabyMetroidAttack or
+                MotherBrainHeadCueKind.ResetBabyMetroidAttacks or MotherBrainHeadCueKind.QueueBabyMetroidAttackSound }:
+                throw new InvalidOperationException($"Mother Brain's brain raised {cue}, a cue of her late fight, before it began.");
             case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.PrepareRainbowBeamCharge }:
                 state.SmallPurpleBreathGenerationEnabled = false;
                 _audio.QueueEnemySound(MotherBrainSoundDefinitions.RainbowBeamCharge, priority: SoundRequestPriority.Normal);
@@ -429,6 +450,10 @@ internal sealed class MotherBrainHead
         if (drool is null)
             return;
 
+        // The game itself picks the drool by how fast her neck turns (#2471), and no phase stands behind that choice: her
+        // phase-two laser's quick aim and steady fire, her fake death's landing, her third phase's bob and her late fight's
+        // fast throws all drool the dying drool, her slow sways and rises the ordinary one. Only the neck's turn tells them apart, so it stays the
+        // decision.
         RoomEnemyProjectileKind kind = state.NeckTurnPerUpdate < MotherBrainNeckTurnDefinitions.DyingDrool
             ? RoomEnemyProjectileKind.MotherBrainDrool
             : RoomEnemyProjectileKind.MotherBrainDyingDrool;

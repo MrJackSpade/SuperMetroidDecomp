@@ -18,7 +18,7 @@ internal sealed class MotherBrainRoomActors(
     RidleyProjectiles ridleyProjectiles) : IMotherBrainRoomActors
 {
     /// <inheritdoc/>
-    public void SpawnBabyMetroid(MotherBrainEnemyState state) => babyMetroid.SpawnMotherBrainBabyMetroid(state);
+    public void SpawnBabyMetroid(MotherBrainRainbowBeamAttackSequence lateFight) => babyMetroid.SpawnMotherBrainBabyMetroid(lateFight);
 
     /// <inheritdoc/>
     public void TerminateRinkas() => rinkas.RequestTermination();

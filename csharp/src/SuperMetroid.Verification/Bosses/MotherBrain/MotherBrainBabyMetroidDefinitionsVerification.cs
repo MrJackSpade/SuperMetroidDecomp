@@ -53,12 +53,12 @@ internal static class MotherBrainBabyMetroidDefinitionsVerification
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         body.Bind(EnemyDefinitionId.MotherBrainBody, body.Definition);
         var state = new MotherBrainEnemyState(body, enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation());
-        state.RainbowBeamSequence = new MotherBrainRainbowBeamAttackSequence(state);
+        MotherBrainRainbowBeamAttackSequence lateFight = state.BeginLateFight();
         enemies.MotherBrainEncounter.BeginAsSetUp(state);
 
-        enemies.BabyMetroidCutsceneBehavior.SpawnMotherBrainBabyMetroid(state);
+        enemies.BabyMetroidCutsceneBehavior.SpawnMotherBrainBabyMetroid(lateFight);
 
-        RoomEnemyPlace baby = state.BabyMetroidPlace ??
+        RoomEnemyPlace baby = lateFight.Baby.Place ??
             throw new InvalidDataException("Mother Brain Baby allocator produced no physical slot.");
         AssertEqual(1, baby.Ordinal, "Mother Brain Baby first free physical slot");
         AssertEqual(EnemyDefinitionId.BabyMetroidCutscene,
@@ -66,8 +66,8 @@ internal static class MotherBrainBabyMetroidDefinitionsVerification
             "Mother Brain Baby physical definition");
         AssertEqual(population, baby.Spawn.Population,
             "Mother Brain Baby retained population snapshot");
-        AssertTrue(state.BabyMetroid is not null,
-            "Mother Brain Baby initialization created cutscene state");
+        AssertTrue(ReferenceEquals(lateFight.Baby, baby.SpeciesState<BabyMetroidCutsceneState>()),
+            "Mother Brain Baby's place holds the Baby its late fight made");
         AssertEqual(2, enemies.Places.EnemyCount,
             "Mother Brain Baby extended physical enemy high-water mark");
         AssertEqual(enemies.Places.InUpdateOrder[2], enemies.Places.FindFreePlace(),
@@ -75,7 +75,7 @@ internal static class MotherBrainBabyMetroidDefinitionsVerification
 
         try
         {
-            enemies.BabyMetroidCutsceneBehavior.SpawnMotherBrainBabyMetroid(state);
+            enemies.BabyMetroidCutsceneBehavior.SpawnMotherBrainBabyMetroid(lateFight);
             throw new InvalidDataException(
                 "Mother Brain Baby accepted a duplicate physical allocation.");
         }

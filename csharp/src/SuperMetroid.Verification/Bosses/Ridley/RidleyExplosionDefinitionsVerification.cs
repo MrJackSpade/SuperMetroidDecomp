@@ -41,10 +41,10 @@ internal static class RidleyExplosionDefinitionsVerification
 
         for (ushort parameter = 0; parameter <= SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.RidleyExplosionParameter(RidleyExplosionPart.Claw); parameter += 2)
         {
-            RidleyExplosionPartDefinition definition =
-                RidleyExplosionDefinitions.GetPart(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.RidleyExplosionPart(parameter));
+            int lifetimeUpdates =
+                RidleyExplosionDefinitions.LifetimeUpdates[SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.RidleyExplosionPart(parameter)];
             // The cartridge stores the count the lifetime runs below zero from, one short of the updates it lasts.
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c6ce + parameter)) + 1, definition.LifetimeUpdates,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c6ce + parameter)) + 1, lifetimeUpdates,
                 $"Ridley breakup lifetime ${parameter:X2}");
         }
 

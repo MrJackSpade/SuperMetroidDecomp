@@ -58,11 +58,19 @@ internal static class PhantoonCadenceDefinitions
     /// The phase of Phantoon's rage wave count on which a wave is an odd wave of eight flames (#1619): set on its odd
     /// counts; the even waves, from the first, fire seven.
     /// </summary>
+    /// <remarks>
+    /// The count stays the decision (#2471): it is what ends his rage at its eighth wave, and the waves alternate on it, so
+    /// a second record of which wave comes next would only repeat what the count already holds.
+    /// </remarks>
     internal static readonly UpdateCounterField OddRageWave = new(0, 1);
 
     /// <summary>
     /// The phase of the dying Phantoon's fade cycle count on which he fades back in (#1619): set on its odd counts; on the
     /// even ones, from the first, he fades out.
     /// </summary>
+    /// <remarks>
+    /// The count stays the decision (#2471): it is what ends his dying fades at the tenth, and his fades alternate on it, so
+    /// a second record of which way the next fade runs would only repeat what the count already holds.
+    /// </remarks>
     internal static readonly UpdateCounterField DyingFadeIn = new(0, 1);
 }

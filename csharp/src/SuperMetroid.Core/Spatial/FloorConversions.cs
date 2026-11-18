@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Spatial;
 
-/// <summary>Conversions from room and floor positions to the signed floor offsets a floor transform takes.</summary>
+/// <summary>Conversions from room positions and views to the signed floor offsets a floor transform takes.</summary>
 public static class FloorConversions
 {
     /// <summary>
@@ -16,11 +16,4 @@ public static class FloorConversions
     /// </summary>
     public static Offset16<FloorPixels> AsFloorOffset(this Offset16<RoomPixels> foregroundView) =>
         new(foregroundView.X, foregroundView.Y);
-
-    /// <summary>
-    /// A floor position as the signed offset a floor transform takes for its scroll or centre; the coordinates are
-    /// unchanged.
-    /// </summary>
-    public static Offset16<FloorPixels> AsSignedOffset(this Position16<FloorPixels> position) =>
-        new(CoordinateAxis.AsSigned(position.X), CoordinateAxis.AsSigned(position.Y));
 }

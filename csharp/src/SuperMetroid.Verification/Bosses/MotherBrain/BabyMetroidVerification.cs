@@ -75,7 +75,7 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
     motherBrain.Encounter.Body.Position = FixedPosition<RoomPixels>.FromWhole(new(0x0040, 0x0064));
     motherBrain.StartAttackCycle(); // Establishes the pre-existing enabled neck flag.
 
-    var baby = new BabyMetroidCutsceneState();
+    var baby = motherBrain.Baby;
     baby.Initialize(FixedPosition<RoomPixels>.Zero);
 
     AssertEqual(false, baby.HurtFlashShown, "Baby cutscene shows its own palette, not the hit flash");
@@ -95,13 +95,13 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
     // `$F8` reaches zero without expiring. This is 248 visibly stationary calls, not an
     // approximate four-second host delay.
     for (int call = 1; call <= 248; call++)
-        baby.Step(samus, motherBrain, HeadOf(motherBrain), Position16<RoomPixels>.Zero, enemyFrameCounter: 0, randomNumber: 0);
+        baby.Step(samus, HeadOf(motherBrain), Position16<RoomPixels>.Zero, enemyFrameCounter: 0, randomNumber: 0);
     AssertEqual(BabyMetroidCutscenePhase.DashOntoScreen, baby.Phase,
         "Baby dash delay retains function at timer zero");
     AssertEqual(0, baby.PhaseTimer.Count, "Baby dash delay exact zero boundary");
     AssertEqual(new Position16<RoomPixels>(0x0140, 0x0060), baby.Position.Whole, "Baby remains still through call 248");
 
-    baby.Step(samus, motherBrain, HeadOf(motherBrain), Position16<RoomPixels>.Zero, enemyFrameCounter: 0, randomNumber: 0);
+    baby.Step(samus, HeadOf(motherBrain), Position16<RoomPixels>.Zero, enemyFrameCounter: 0, randomNumber: 0);
     AssertEqual(BabyMetroidCutscenePhase.CurveTowardMotherBrainHead, baby.Phase,
         "Baby call 249 falls through into curve function");
     AssertEqual(SuperMetroid.Core.Spatial.RotationAngleConstants.FromRaw(0xd680), baby.Angle, "Baby first curve angle");
@@ -122,7 +122,7 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
            calls < 700)
     {
         SamusPoseId samusPoseBeforeStep = samus.Pose;
-        latch = baby.Step(samus, motherBrain, HeadOf(motherBrain), Position16<RoomPixels>.Zero, enemyFrameCounter: 0, randomNumber: 0);
+        latch = baby.Step(samus, HeadOf(motherBrain), Position16<RoomPixels>.Zero, enemyFrameCounter: 0, randomNumber: 0);
         calls++;
 
         sawMotherBrainInterrupt |= (motherBrain.Encounter.Stage == MotherBrainBodyStage.DrainedByBaby && motherBrain.Encounter.DrainedPhase == MotherBrainDrainedPhase.TakenAback);

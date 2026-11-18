@@ -67,10 +67,18 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         Revival = new MotherBrainRevivalPhases(State);
         ThirdPhaseFight = new MotherBrainThirdPhaseFight(State, encounter.Walk);
         ThirdPhaseDeath = new MotherBrainThirdPhaseDeath(State, encounter.Bursts);
+        Baby = new BabyMetroidCutsceneState(this);
     }
 
     /// <summary>The encounter the sequence runs, the one owner of the state its phases read and write.</summary>
     internal MotherBrainEnemyState Encounter { get; }
+
+    /// <summary>
+    /// The Baby Metroid of her late fight (#2471), made with it: the final beam's spawn gives it its place in the room's
+    /// enemies (<see cref="BabyMetroidCutsceneState.Place"/>), from which on its own turn it latches on, drains, heals Samus
+    /// and dies; her brain's attacks on it aim at it.
+    /// </summary>
+    public BabyMetroidCutsceneState Baby { get; }
 
     /// <summary>
     /// Current angle, in 256ths of a turn, of the rainbow beam's cone.

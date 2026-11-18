@@ -27,14 +27,22 @@ public sealed class BackgroundScrollState
     /// </summary>
     public BackgroundScrollModes BackgroundScrollModes { get; set; } = BackgroundScrollModes.FollowsForeground;
 
-    /// <summary>The room pixel the foreground's view starts at: its position at the last scroll calculation, or a room main's shift.</summary>
-    public Position16<RoomPixels> ForegroundScroll { get; private set; }
+    /// <summary>
+    /// The room pixel the foreground's view starts at: its position at the last scroll calculation, or a room main's shift,
+    /// as a signed position (#2384): a view above or left of the room's origin, as the Crocomire rumble's from a camera at the
+    /// room's top, is negative.
+    /// </summary>
+    public Offset16<RoomPixels> ForegroundScroll { get; private set; }
 
     /// <summary>The background pixel the background's view starts at: its position at the last scroll calculation.</summary>
     public Position16<BackgroundPixels> BackgroundScroll { get; private set; }
 
-    /// <summary>Shifts the foreground's view to row <paramref name="vertical"/> without moving the camera (a room main's rumble).</summary>
-    public void SetForegroundVerticalScroll(int vertical) => ForegroundScroll = ForegroundScroll.WithY(vertical);
+    /// <summary>
+    /// Shifts the foreground's view <paramref name="rows"/> rows down from the camera's row without moving the camera (a room
+    /// main's rumble): a plain offset from the camera's signed row, so a rumble above the room's top leaves a negative row.
+    /// </summary>
+    public void ShiftForegroundViewFromCamera(int rows) =>
+        ForegroundScroll = ForegroundScroll.WithY(SignedView(ForegroundPosition).Y + rows);
 
     /// <summary>
     /// Begins a door's opening scroll with the destination room's views at <paramref name="openingForeground"/>, the
@@ -43,7 +51,7 @@ public sealed class BackgroundScrollState
     /// </summary>
     public void BeginDoorOpeningViews(Position16<RoomPixels> openingForeground)
     {
-        ForegroundScroll = openingForeground;
+        ForegroundScroll = SignedView(openingForeground);
         BackgroundScroll = new Position16<BackgroundPixels>(openingForeground.X, openingForeground.Y);
     }
 
@@ -83,7 +91,7 @@ public sealed class BackgroundScrollState
     /// </summary>
     public void CalculateScrolls()
     {
-        ForegroundScroll = ForegroundPosition;
+        ForegroundScroll = SignedView(ForegroundPosition);
 
         // A fixed axis keeps both the background's position and its view on that axis.
         if (BackgroundScrollModes.Horizontal.BackgroundPositionFor(ForegroundPosition.X) is int backgroundX)
@@ -105,7 +113,14 @@ public sealed class BackgroundScrollState
     /// </summary>
     public void CalculateLayerScrolls()
     {
-        ForegroundScroll = ForegroundPosition;
+        ForegroundScroll = SignedView(ForegroundPosition);
         BackgroundScroll = BackgroundPosition;
     }
+
+    /// <summary>
+    /// The foreground's view at a room position, a wrapping position taken as a signed view once (#2384): a position that has wrapped
+    /// past the room's top or left edge, as a door's opening view does, lies a small negative distance from the origin.
+    /// </summary>
+    private static Offset16<RoomPixels> SignedView(Position16<RoomPixels> position) =>
+        Offset16<RoomPixels>.Wrapped(position.X, position.Y);
 }

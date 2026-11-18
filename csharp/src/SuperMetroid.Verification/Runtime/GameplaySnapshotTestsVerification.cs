@@ -37,7 +37,7 @@ internal static class GameplaySnapshotTestsVerification
         };
         AssertThrows<ArgumentException>(() => new ScrollBands(0, [new ScrollBand(64, 0), new ScrollBand(64, 1)]),
             "each band begins below the one before it");
-        var registers = new GameplaySceneView(new Position16<RoomPixels>(511, 255), new Offset16<BackgroundPixels>(-1, 511),
+        var registers = new GameplaySceneView(new Offset16<RoomPixels>(511, 255), new Offset16<BackgroundPixels>(-1, 511),
             ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites);
         var layer = new GameplaySceneLayer(registers, rooms, scrolls);
         AssertThrows<ArgumentException>(() => new LayeredScene(memory,

@@ -42,8 +42,9 @@ internal sealed class RoomMainRoutines
 
         var death = room.Enemies.RoomMainHooks.CrocomireDeath ?? throw new InvalidOperationException(
             "Crocomire's room shaking found no Crocomire death in progress.");
-        _backgroundScroll.SetForegroundVerticalScroll(CoordinateAxis.Wrap(
-            _backgroundScroll.ForegroundPosition.Y + death.RumbleYOffset));
+        // The rumble moves the foreground's view by a plain offset from the camera's row: in Crocomire's one-screen-high
+        // room the camera's row is the room's top, so the view rises above it, a negative row (#2384).
+        _backgroundScroll.ShiftForegroundViewFromCamera(death.RumbleYOffset);
     }
 
     /// <summary>

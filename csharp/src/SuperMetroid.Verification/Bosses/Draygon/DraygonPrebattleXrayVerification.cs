@@ -96,7 +96,7 @@ internal static class DraygonPrebattleXrayVerification
         // corner 62 left of and 64 above it, where the cartridge's layer put it; the screen shows them there against the room
         // pixel at its top-left corner, starting at the area's corner.
         Position16<RoomPixels> placement = runtime.Display.Latched.Bosses.Placement ?? throw new InvalidOperationException("Draygon publishes his body placement.");
-        Offset16<ScreenPixels> corner = (placement + BossBodySourceDefinitions.AreaFromBoss[BossBodyOwner.Draygon]).RelativeToCamera(ordinary.View.ForegroundScroll);
+        Offset16<ScreenPixels> corner = (placement + BossBodySourceDefinitions.AreaFromBoss[BossBodyOwner.Draygon]).RelativeToCamera(Position16<RoomPixels>.Wrapped(ordinary.View.ForegroundScroll.X, ordinary.View.ForegroundScroll.Y));
         Console.WriteLine($"Battle-start Draygon body: {shown.Length} visible pixels; body={boss.Body.Position.X.Whole}/{boss.Body.Position.Y.Whole}, " +
             $"its area's corner on screen {corner.X}/{corner.Y}.");
         AssertTrue(shown.Length > 0, "battle start still displays Draygon's body");

@@ -53,7 +53,7 @@ internal static class SignedBackgroundScrollVerification
     /// <summary>The pixels of the background alone, scrolled to <paramref name="scroll"/>.</summary>
     private static RgbaPixel[] Render(RoomBackgrounds rooms, Offset16<BackgroundPixels> scroll, RgbColor[] colours) =>
         DisplayRendering.Render(new LayeredScene(FramePaint.FromNativeGameplay(colours, []),
-            new DisplayLayer[] { new GameplaySceneLayer(new GameplaySceneView(Position16<RoomPixels>.Zero, scroll, ScreenLayers.Background), rooms) },
+            new DisplayLayer[] { new GameplaySceneLayer(new GameplaySceneView(Offset16<RoomPixels>.Zero, scroll, ScreenLayers.Background), rooms) },
             DisplayBrightness.Full));
 
     /// <summary>Runs the signed background scroll check.</summary>

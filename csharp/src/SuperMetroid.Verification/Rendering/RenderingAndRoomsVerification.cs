@@ -656,7 +656,7 @@ internal static void VerifyBackgroundScrollState()
     AssertEqual(oldLayer2X, state.BackgroundPosition.X, "fixed BG2 X position remains unchanged");
     AssertEqual(oldBg2X, state.BackgroundScroll.X, "fixed BG2 X view remains unchanged");
 
-    ushort frozenBg1X = state.ForegroundScroll.X;
+    short frozenBg1X = state.ForegroundScroll.X;
     state.ForegroundPosition = state.ForegroundPosition.WithX(0x4444);
     state.StepScrolling(timeIsFrozen: true);
     AssertEqual(frozenBg1X, state.ForegroundScroll.X, "a frozen frame keeps the views");
@@ -689,12 +689,12 @@ internal static void VerifyBackgroundScrollState()
         BackgroundPosition = new(0xff04, 0),
     };
     rightDoor.BeginDoorOpeningViews(openingForeground: new(0xff00, 0x0000));
-    AssertEqual(new Position16<RoomPixels>(0xff00, 0), rightDoor.ForegroundScroll,
-        "the door's foreground view begins at the staged destination origin");
+    AssertEqual(new Offset16<RoomPixels>(-0x0100, 0), rightDoor.ForegroundScroll,
+        "the door's foreground view begins at the staged destination origin, a signed column left of the room's (#2384)");
     AssertEqual(new Position16<BackgroundPixels>(0xff00, 0), rightDoor.BackgroundScroll,
         "the door's background view begins at the staged destination origin");
     rightDoor.CalculateLayerScrolls();
-    AssertEqual((ushort)0xff04, rightDoor.ForegroundScroll.X,
+    AssertEqual(-0x00fc, rightDoor.ForegroundScroll.X,
         "right-door foreground view moves four pixels with its first step");
     AssertEqual((ushort)0xff04, rightDoor.BackgroundScroll.X,
         "right-door background view moves four pixels with its first step");
@@ -706,7 +706,7 @@ internal static void VerifyBackgroundScrollState()
     };
     leftDoor.BeginDoorOpeningViews(openingForeground: new(0x0100, 0x0000));
     leftDoor.CalculateLayerScrolls();
-    AssertEqual((ushort)0x00fc, leftDoor.ForegroundScroll.X,
+    AssertEqual(0x00fc, leftDoor.ForegroundScroll.X,
         "left-door foreground view retreats four pixels with its first step");
     AssertEqual((ushort)0x00fc, leftDoor.BackgroundScroll.X,
         "left-door background view retreats four pixels with its first step");
@@ -718,10 +718,10 @@ internal static void VerifyBackgroundScrollState()
         BackgroundPosition = new(0, 0x01dc),
     };
     upwardDestination.BeginDoorOpeningViews(openingForeground: new(0, 0x0300));
-    AssertEqual((ushort)0x0300, upwardDestination.ForegroundScroll.Y,
+    AssertEqual(0x0300, upwardDestination.ForegroundScroll.Y,
         "upward setup's view begins at the staged origin");
     upwardDestination.CalculateLayerScrolls();
-    AssertEqual((ushort)0x02fb, upwardDestination.ForegroundScroll.Y,
+    AssertEqual(0x02fb, upwardDestination.ForegroundScroll.Y,
         "upward setup's first moving call shows the source screen five pixels lower");
 
     Console.WriteLine("  BG scroll: parallax, frozen frames and the door's opening views agree.");
@@ -944,7 +944,7 @@ internal static void VerifyBg2ScreenLayout()
     RgbaPixel[] gameplayFrame = RenderOrdinaryGameplay(gameplayCgram,
         new GameplaySceneLayer(
             // The view names the background pixel the screen's top shows: the row below a camera at row $E0 (#1514).
-            new GameplaySceneView(new Position16<RoomPixels>(0, 0), GameplaySceneView.LayerPixelAtScreenTop(new Offset16<BackgroundPixels>(0, 0x00e0)),
+            new GameplaySceneView(Offset16<RoomPixels>.Zero, GameplaySceneView.LayerPixelAtScreenTop(new Offset16<BackgroundPixels>(0, 0x00e0)),
                 ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites),
             // BG2 shows the tilemap just loaded, as its library background's image (#1403).
             RoomBackgroundsFixtures.Blank() with
@@ -971,7 +971,7 @@ internal static void VerifyBg2ScreenLayout()
     gameplayFrame = RenderOrdinaryGameplay(gameplayCgram,
         new GameplaySceneLayer(
             // The view names the background pixel the screen's top shows: the row below a camera at row zero (#1514).
-            new GameplaySceneView(new Position16<RoomPixels>(0, 0), GameplaySceneView.LayerPixelAtScreenTop(Offset16<BackgroundPixels>.Zero),
+            new GameplaySceneView(Offset16<RoomPixels>.Zero, GameplaySceneView.LayerPixelAtScreenTop(Offset16<BackgroundPixels>.Zero),
                 ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites),
             // Kraid's body is the 64x64 map he loads at $4000, 512 pixels square, drawn from its pictures (#1403).
             RoomBackgroundsFixtures.Blank() with

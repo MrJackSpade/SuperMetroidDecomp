@@ -310,9 +310,11 @@ public sealed class D3D11FrameRenderer : IDisposable
         var r = layer.Gameplay.View;
         var data = ClearUploadConstants();
         data[0] = (uint)D3D11TileOperation.XrayRoom;
-        // Xray.hlsli reads the foreground pixel the screen's top-left shows and the blend from the layer header words.
-        data[3] = r.ForegroundScroll.X;
-        data[4] = r.ForegroundScroll.Y;
+        // Xray.hlsli reads the foreground pixel the screen's top-left shows and the blend from the layer header words. The
+        // foreground's scroll is signed (#2384); the room's pictures do not repeat, so the shader places them against the
+        // scroll's sixteen bits, where a scroll above or left of the room's origin lies beyond the room and shows nothing.
+        data[3] = unchecked((ushort)r.ForegroundScroll.X);
+        data[4] = unchecked((ushort)r.ForegroundScroll.Y);
         data[8] = layer.RevealBlocks ? 1u : 0u;
         data[9] = BlendWord(layer.Blend);
         FadeLevelColour blendColour = ShaderLevels(layer.Blend.Colour);

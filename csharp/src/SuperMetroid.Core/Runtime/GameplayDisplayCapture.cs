@@ -85,7 +85,9 @@ public static class GameplayDisplayCapture
         GameplayLatchedScene scene = latched.Scene;
         GameplayLatchedBossBody bosses = latched.Bosses;
         RoomShakeFrameResult shake = scrolls.RoomShake;
-        Position16<RoomPixels> foregroundScroll = scrolls.ForegroundScroll + shake.Foreground;
+        // The foreground's scroll is signed (#2384): the room's shake, like the Crocomire rumble, adds a plain offset, and a
+        // scroll above or left of the room's origin needs no wrap.
+        Offset16<RoomPixels> foregroundScroll = scrolls.ForegroundScroll + shake.Foreground;
         // A boss's body (Kraid's, Phantoon's, Draygon's, Crocomire's or Mother Brain's, #1352-#1356) shows where its boss places
         // it in the room against the frame's camera (#2031): the background shows the body from its placement, each frame
         // where it lies against it, moved by the room's shake as any background is. Only a room without a placed body shows
@@ -322,7 +324,7 @@ public static class GameplayDisplayCapture
             // The reveal lies over the room's own blocks (#1514), so the background it is drawn on moves with the foreground.
             view = view with
             {
-                BackgroundScroll = Offset16<BackgroundPixels>.Wrapped(view.ForegroundScroll.X, view.ForegroundScroll.Y),
+                BackgroundScroll = new Offset16<BackgroundPixels>(view.ForegroundScroll.X, view.ForegroundScroll.Y),
             };
         }
         view = view with

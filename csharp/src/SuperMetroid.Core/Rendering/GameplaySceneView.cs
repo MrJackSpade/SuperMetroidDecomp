@@ -10,7 +10,10 @@ namespace SuperMetroid.Core.Rendering;
 /// shows says how far it reaches before it repeats: each of its pictures repeats by its own size, or shows nothing beyond
 /// its edges (#2305).
 /// </summary>
-/// <param name="ForegroundScroll">The foreground pixel the screen's top-left corner shows.</param>
+/// <param name="ForegroundScroll">
+/// The foreground pixel the screen's top-left corner shows, as a signed position (#2384): a scroll left of or above the
+/// room's origin is negative, and the room's pictures, which do not repeat, show nothing there.
+/// </param>
 /// <param name="BackgroundScroll">
 /// The background pixel the screen's top-left corner shows, on every line that has no scroll of its own, as a signed
 /// position (#2305): a scroll left of or above the background's origin is negative, and a repeating picture shows its last
@@ -19,17 +22,17 @@ namespace SuperMetroid.Core.Rendering;
 /// <param name="ShownLayers">The room's layers and the actors the frame shows, on every line no band of the scene shows its own.</param>
 /// <param name="BackgroundPixelation">How the background is pixelated.</param>
 public readonly record struct GameplaySceneView(
-    Position16<RoomPixels> ForegroundScroll, Offset16<BackgroundPixels> BackgroundScroll,
+    Offset16<RoomPixels> ForegroundScroll, Offset16<BackgroundPixels> BackgroundScroll,
     ScreenLayers ShownLayers,
     BackgroundPixelation BackgroundPixelation = default)
 {
     /// <summary>
-    /// The foreground pixel the screen's top-left corner shows while the foreground's camera is at
+    /// The foreground pixel the screen's top-left corner shows while the foreground's camera is at the signed position
     /// <paramref name="camera"/>: the camera's column, on the row below the camera row the screen hides
     /// (<see cref="ScreenGeometry.LayerRowsHiddenAboveScreen"/>).
     /// </summary>
-    public static Position16<RoomPixels> LayerPixelAtScreenTop(Position16<RoomPixels> camera) =>
-        camera + new Offset16<RoomPixels>(0, ScreenGeometry.LayerRowsHiddenAboveScreen);
+    public static Offset16<RoomPixels> LayerPixelAtScreenTop(Offset16<RoomPixels> camera) =>
+        camera.WithY(camera.Y + ScreenGeometry.LayerRowsHiddenAboveScreen);
 
     /// <summary>
     /// The background pixel the screen's top-left corner shows while the background's camera is at the signed position

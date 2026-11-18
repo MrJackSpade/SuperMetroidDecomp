@@ -46,7 +46,7 @@ internal static class XrayGameplayTests
             oam[0] = 16; oam[1] = 64; oam[3] = (byte)(0x30 | palette << 1);
             var memory = FramePaint.FromOamGameplay(vram.Bytes, cgram.Colors, oam, 1, 0);
             SuperMetroid.Core.Assets.LayeredPicture plane = FxOverlayFixtures.PlaneFromVram(vram.Bytes, cgram.Colors, 0x1000);
-            var registers = new GameplaySceneView(new Position16<RoomPixels>(0, 0), Offset16<BackgroundPixels>.Zero,
+            var registers = new GameplaySceneView(Offset16<RoomPixels>.Zero, Offset16<BackgroundPixels>.Zero,
                 ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites);
             // The X-ray's window covers the screen's right half (#1468).
             var lines = ScreenWindow.Of(WindowRectangle.Spanning(128, 0, 255, 223));
@@ -150,7 +150,7 @@ internal static class XrayGameplayTests
             var colors = Enumerable.Range(0, 256).Select(_ => RgbColor.FromWord((ushort)random.Next(32768))).ToArray();
             // The OBSEL is drawn after the layer below, keeping the seeded stream; the OAM converts under it then.
             ushort Word() => (ushort)random.Next(65536);
-            var registers = new GameplaySceneView(new Position16<RoomPixels>(Word(), Word()), Offset16<BackgroundPixels>.Wrapped(Word(), Word()),
+            var registers = new GameplaySceneView(Offset16<RoomPixels>.Wrapped(Word(), Word()), Offset16<BackgroundPixels>.Wrapped(Word(), Word()),
                 (random.Next(2) == 0 ? ScreenLayers.None : ScreenLayers.Foreground) | (random.Next(2) == 0 ? ScreenLayers.None : ScreenLayers.Background)
                     | (random.Next(2) == 0 ? ScreenLayers.None : ScreenLayers.Sprites));
             // Every fifth frame's planes draw from block pictures (#1392).
@@ -192,7 +192,7 @@ internal static class XrayGameplayTests
             var oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount]; random.NextBytes(oam);
             var colors = Enumerable.Range(0, 256).Select(_ => RgbColor.FromWord((ushort)random.Next(32768))).ToArray();
             ushort Fine() => (ushort)random.Next(16);
-            var registers = new GameplaySceneView(new Position16<RoomPixels>((ushort)random.Next(65536), (ushort)random.Next(65536)),
+            var registers = new GameplaySceneView(Offset16<RoomPixels>.Wrapped(random.Next(65536), random.Next(65536)),
                 new Offset16<BackgroundPixels>(Fine(), Fine()),
                 ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites);
             SuperMetroid.Core.Gameplay.RoomBackgrounds seeded = RoomBackgroundsFixtures.Seeded(random, registers.ForegroundScroll.AsPlaneScroll(), pictureColours: colors);

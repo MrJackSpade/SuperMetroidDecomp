@@ -41,10 +41,11 @@ internal static class ShaktoolInstructionDefinitionsVerification
         ShaktoolSegmentState centerState = (enemies.ShaktoolSegments[3] ?? throw new InvalidOperationException("Verification requires enemies.ShaktoolSegments[3]."));
         ShaktoolSegmentState nextState = (enemies.ShaktoolSegments[4] ?? throw new InvalidOperationException("Verification requires enemies.ShaktoolSegments[4]."));
         Action<RoomEnemyPlace, ShaktoolSegmentState> orient = enemies.ShaktoolBehavior.AdvanceAndOrientShaktoolCenter;
+        ShaktoolChain chain = enemies.ShaktoolBehavior.ChainOf(center);
         for (ushort bucket = 0; bucket <= 0x00e0; bucket += 0x0020)
         {
             ushort midpoint = unchecked((ushort)(bucket << 8));
-            centerState.MotionFlags = 0;
+            chain.Motion = ShaktoolChainMotion.CurlingClockwise;
             centerState.OrbitAngle = RotationAngleConstants.FromRaw(unchecked((ushort)(midpoint ^ 0x8000)));
             centerState.AngularVelocity = RotationAngle.Zero;
             centerState.ResetOrientation();
@@ -52,8 +53,9 @@ internal static class ShaktoolInstructionDefinitionsVerification
             orient(center, centerState);
             AssertEqual(new Bearing(bucket).DirectionOfEighth(), centerState.Orientation,
                 $"Shaktool production orientation bucket {bucket:X2}");
-            AssertEqual<EnemyFrameId?>(ShaktoolHeadPictures.Aiming(new Bearing(bucket).DirectionOfEighth()), centerState.AimedPicture,
+            AssertEqual<EnemyFrameId?>(ShaktoolHeadPictures.Aiming(new Bearing(bucket).DirectionOfEighth()), center.Frame,
                 $"Shaktool production orientation picture {bucket:X2}");
+            AssertTrue(center.AnimationClock.IsStopped, $"the head's animation takes no step while its orientation {bucket:X2} shows its picture");
         }
 
         RoomEnemyPlace tail = enemies.Places.InUpdateOrder[6];

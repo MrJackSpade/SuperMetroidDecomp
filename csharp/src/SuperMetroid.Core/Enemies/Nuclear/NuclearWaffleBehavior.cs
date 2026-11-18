@@ -250,7 +250,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         NuclearWaffleSweepDefinition sweep = state.Sweep;
         RotationDirection risingTurn = RisingTurn(state.Direction);
         if (angle.HasReached(sweep.FallingTurnThreshold, state.Direction))
-            return new NuclearWaffleOrientation(Reversed(risingTurn), NuclearWaffleTurnState.PastFallingThreshold);
+            return new NuclearWaffleOrientation(risingTurn.Reversed(), NuclearWaffleTurnState.PastFallingThreshold);
         if (angle.HasReached(sweep.RisingTurnThreshold, state.Direction))
             return new NuclearWaffleOrientation(risingTurn, NuclearWaffleTurnState.PastRisingThreshold);
         return new NuclearWaffleOrientation(RotationDirection.Clockwise, NuclearWaffleTurnState.BeforeTurns);
@@ -262,14 +262,6 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         NuclearWaffleSweepDirection.Forward => RotationDirection.Clockwise,
         NuclearWaffleSweepDirection.Backward => RotationDirection.Counterclockwise,
         _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, "Undefined Nuclear Waffle sweep direction."),
-    };
-
-    /// <summary>The other way round from <paramref name="turn"/>.</summary>
-    private static RotationDirection Reversed(RotationDirection turn) => turn switch
-    {
-        RotationDirection.Clockwise => RotationDirection.Counterclockwise,
-        RotationDirection.Counterclockwise => RotationDirection.Clockwise,
-        _ => throw new ArgumentOutOfRangeException(nameof(turn), turn, "Undefined rotation direction."),
     };
 
     /// <summary>Emits a turn overlay and direction sprite, queuing sound on the rising turn.</summary>

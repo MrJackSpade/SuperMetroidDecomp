@@ -120,7 +120,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
             const ushort diveFraction = 1920;
             place.Position = place.Position.WithFractionY(diveFraction);
             // One speed step left: the dive ends after this movement, wherever it is.
-            state.Speed = new SignedEightEight(64);
+            state.DiveSpeed = new SignedEightEight(64);
             RoomLevelData level = VerificationHelpersVerification.CreateEmptyRoom(new(32, 32));
             enemies.NinjaSpacePirateBehavior.StepNinjaPirateDive(place, state, level, movingRight ? HorizontalDirection.Right : HorizontalDirection.Left);
             AssertEqual(NinjaSpacePirateAction.DivekickWalkToPost, state.Action, $"ninja Pirate dive {(movingRight ? "right" : "left")} lands");
@@ -147,7 +147,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
             HorizontalDirection heading = movingRight ? HorizontalDirection.Right : HorizontalDirection.Left;
             state.Action = rising;
             state.Heading = heading;
-            state.Speed = new SignedEightEight(initialDiveSpeed);
+            state.DiveSpeed = new SignedEightEight(initialDiveSpeed);
             var frame = new ClockedEnemyAiFrame(
                 RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = samus },
                 new FrameCounters(0));
@@ -162,7 +162,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
                 AssertEqual(expectedY, place.Position.Y.Whole, $"ninja divekick rise update {update} climbs by the speed's whole pixels");
                 if (!riseEnds)
                 {
-                    AssertEqual(new SignedEightEight(nativeSpeed), state.Speed, $"ninja divekick rise update {update} lowers the speed by 64");
+                    AssertEqual(new SignedEightEight(nativeSpeed), state.DiveSpeed, $"ninja divekick rise update {update} lowers the speed by 64");
                     AssertEqual(rising, state.Action, $"ninja divekick rise update {update} keeps rising while the speed is not negative");
                     risingUpdates++;
                     continue;
@@ -171,7 +171,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
                 AssertEqual(ushort.MaxValue + 1 - speedStep, (int)nativeSpeed, "the native speed word wraps below zero on the last rising update");
                 AssertEqual(diving, state.Action, $"ninja divekick rise ends on update {update}, when the speed turns negative");
                 AssertEqual(heading, state.Heading, "the dive goes the rise's way (#2165)");
-                AssertEqual(new SignedEightEight(initialDiveSpeed), state.Speed, "the dive starts again from the initial speed");
+                AssertEqual(new SignedEightEight(initialDiveSpeed), state.DiveSpeed, "the dive starts again from the initial speed");
                 break;
             }
             AssertEqual(initialDiveSpeed / speedStep, risingUpdates, "the rise lasts until the speed passes zero");
@@ -184,12 +184,12 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
             (RoomEnemySystem enemies, RoomEnemyPlace place, SamusState _) = CreateSystem();
             NinjaSpacePirateEnemyState state = enemies.NinjaSpacePirateStates[0]
                 ?? throw new InvalidOperationException("Verification requires the initialized ninja state.");
-            state.Speed = new SignedEightEight(0);
+            state.DiveSpeed = new SignedEightEight(0);
             RoomLevelData level = VerificationHelpersVerification.CreateEmptyRoom(new(32, 32));
             ushort nativeSpeed = unchecked((ushort)(0 - 64));
             enemies.NinjaSpacePirateBehavior.StepNinjaPirateDive(place, state, level, movingRight ? HorizontalDirection.Right : HorizontalDirection.Left);
-            AssertEqual(nativeSpeed, state.Speed.RawValue, "the dive's speed word wraps from zero to its negative raw value");
-            AssertEqual(-64, state.Speed.InTwoHundredFiftySixthsOfPixel, "the wrapped dive speed reads as minus 64");
+            AssertEqual(nativeSpeed, state.DiveSpeed.RawValue, "the dive's speed word wraps from zero to its negative raw value");
+            AssertEqual(-64, state.DiveSpeed.InTwoHundredFiftySixthsOfPixel, "the wrapped dive speed reads as minus 64");
             AssertEqual(NinjaSpacePirateAction.DivekickWalkToPost, state.Action, "a negative dive speed lands the dive");
         }
 

@@ -116,7 +116,10 @@ internal static class FamilyTrigonometryVerification
             var previous = enemies.Places.InUpdateOrder[0];
             var segment = enemies.Places.InUpdateOrder[1];
             previous.Bind(EnemyDefinitionId.Shaktool, previous.Definition);
-            // The second segment finds the saw it orbits as production places it, right after the saw.
+            // The leading saw starts the chain the second segment joins (#2452); the second segment finds the saw it
+            // orbits as production places it, right after the saw.
+            previous.SetSpawnParameter2(EnemyDefinitionId.Shaktool, 0);
+            enemies.ShaktoolBehavior.InitializeShaktool(previous);
             segment.Bind(EnemyDefinitionId.Shaktool, segment.Definition);
             segment.SetSpawnParameter2(EnemyDefinitionId.Shaktool, 2);
             enemies.ShaktoolBehavior.InitializeShaktool(segment);

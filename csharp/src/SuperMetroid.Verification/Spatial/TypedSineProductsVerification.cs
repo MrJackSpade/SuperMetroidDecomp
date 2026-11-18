@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Enemies.YappingMaws;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -9,7 +10,8 @@ namespace SuperMetroid.Verification.Spatial;
 /// Confirms the #2428 conversions of the hand-written "length times the game's sine" products: the reach rounded toward
 /// negative infinity (Mother Brain's neck, Ridley's tail), the reach rounded toward zero (Phantoon's flames, the charged
 /// beam combos) and the fine sine's coarse reading (the Bull, the Yapping Maw) each equal the raw 8.8 arithmetic they
-/// replace over every angle and every length their callers pass.
+/// replace over every angle and every length their callers pass; and the #2453 conversions of the enemies' raw-int
+/// arithmetic, the homing pull and the aim's turn from its slope, equal it over their whole input ranges.
 /// </summary>
 internal static class TypedSineProductsVerification
 {
@@ -22,8 +24,8 @@ internal static class TypedSineProductsVerification
     /// <summary>Runs every comparison of the typed sine products with the arithmetic they replace.</summary>
     internal static void VerifyTypedSineProducts()
     {
-        int compared = VerifyReachRoundedDown() + VerifyReachTowardZero() + VerifyCoarseSizeOfFineSine();
-        Console.WriteLine($"  Typed sine products: {compared} rounded-down, toward-zero and coarse fine-sine products equal the raw 8.8 arithmetic they replace.");
+        int compared = VerifyReachRoundedDown() + VerifyReachTowardZero() + VerifyCoarseSizeOfFineSine() + VerifyHomingPull() + VerifyAimTurnSteps();
+        Console.WriteLine($"  Typed sine products: {compared} rounded-down, toward-zero and coarse fine-sine products, homing pulls and aim turns equal the raw arithmetic they replace.");
     }
 
     /// <summary>
@@ -116,6 +118,47 @@ internal static class TypedSineProductsVerification
                 int actual = YappingMawBehavior.CalculateYappingMawY(angle, length);
                 if (actual != old)
                     throw new InvalidDataException($"Angle {raw}, length {length}: the Yapping Maw offset {actual} differs from {old}.");
+                compared++;
+            }
+        }
+
+        return compared;
+    }
+
+    /// <summary>
+    /// The homing pull equals the distance shifted right twice into 256ths of a pixel, as the Metroids computed it, for
+    /// every distance a signed distance holds.
+    /// </summary>
+    private static int VerifyHomingPull()
+    {
+        int compared = 0;
+        for (int distance = short.MinValue; distance <= short.MaxValue; distance++)
+        {
+            SignedSixteenSixteen old = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(distance >> 2);
+            SignedSixteenSixteen pull = EnemyMath.HomingPull(distance);
+            if (pull != old)
+                throw new InvalidDataException($"Distance {distance}: the homing pull {pull} differs from {old}.");
+            compared++;
+        }
+
+        return compared;
+    }
+
+    /// <summary>
+    /// The aim's turn in steps equals the slope shifted right three times, as the bearing computed it, for every pair of
+    /// sides up to past the long side's span, so its remainder and the steepest slope are covered too.
+    /// </summary>
+    private static int VerifyAimTurnSteps()
+    {
+        int compared = 0;
+        for (int shortSide = 0; shortSide <= LongestLength; shortSide++)
+        {
+            for (int longSide = 0; longSide <= LongestLength; longSide++)
+            {
+                int old = AimAngleSlope.Of(shortSide, longSide) >> 3;
+                int turn = AimAngleSlope.TurnSteps(shortSide, longSide);
+                if (turn != old)
+                    throw new InvalidDataException($"Sides {shortSide} and {longSide}: the aim's turn {turn} differs from {old}.");
                 compared++;
             }
         }

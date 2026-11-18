@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Compatibility;
 /// again; a Norfair Pipe Bug formation does not rise while one of its Gamets is killed and not yet respawned; the hit
 /// that destroys a destroyable shutter still sets it off, finding the destroyed shutter at rest; and the rest of a
 /// Shaktool chain runs out the update a hit kills one of its segments in (#1543, #2143), orbiting, orienting and reversing
-/// against the killed segment emptied, with no heading, orbit, angular speed, orientation, motion or motion flags, and
-/// reading back what it writes there that update, though the kill deletes the chain. An enemy placed in the place
+/// against the killed segment emptied, with no orbit, angular speed, orientation or motion, and reading back what it
+/// writes there that update, though the kill deletes the chain; the motion and heading the chain shares are its own. An enemy placed in the place
 /// afterwards is read as itself.
 /// </summary>
 /// <remarks>

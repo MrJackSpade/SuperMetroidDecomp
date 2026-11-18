@@ -26,7 +26,7 @@ internal static class NinjaSpacePirateAnimations
         [
             Cue(new NinjaSpacePirateCue.Begin(NinjaSpacePirateAction.StandingStill)),
             .. ClawThrow(NinjaSpacePirateClawPoses.Left, new(-32, -8)),
-            Cue(new NinjaSpacePirateCue.Signal(K.ResetSpeed)),
+            Cue(new NinjaSpacePirateCue.Signal(K.ResetSpinSpeed)),
             Cue(new NinjaSpacePirateCue.Begin(NinjaSpacePirateAction.StandingStill)),
             Show(EnemyFrameId.NinjaPirateCrouchFacingLeft, 8),
             Cue(new NinjaSpacePirateCue.BeginHeading(NinjaSpacePirateAction.SpinJumpRising, HorizontalDirection.Left)),
@@ -145,7 +145,7 @@ internal static class NinjaSpacePirateAnimations
         [
             Cue(new NinjaSpacePirateCue.Begin(NinjaSpacePirateAction.StandingStill)),
             .. ClawThrow(NinjaSpacePirateClawPoses.Right, new(32, -8)),
-            Cue(new NinjaSpacePirateCue.Signal(K.ResetSpeed)),
+            Cue(new NinjaSpacePirateCue.Signal(K.ResetSpinSpeed)),
             Cue(new NinjaSpacePirateCue.Begin(NinjaSpacePirateAction.StandingStill)),
             Show(EnemyFrameId.NinjaPirateCrouchFacingRight, 8),
             Cue(new NinjaSpacePirateCue.BeginHeading(NinjaSpacePirateAction.SpinJumpRising, HorizontalDirection.Right)),

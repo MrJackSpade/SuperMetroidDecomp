@@ -233,7 +233,7 @@ internal sealed class RidleyTail
                         DeactivateRidleyTailLink(link);
                         return;
                     }
-                    link.SwingDirection = Reversed(direction);
+                    link.SwingDirection = direction.Reversed();
                     link.Angle = limit;
                 }
                 else
@@ -243,7 +243,7 @@ internal sealed class RidleyTail
             }
             else if (swung.Reaches(limit, direction))
             {
-                link.SwingDirection = Reversed(direction);
+                link.SwingDirection = direction.Reversed();
                 link.Angle = limit;
             }
             else
@@ -254,10 +254,6 @@ internal sealed class RidleyTail
 
         UpdateRidleyTailLinkOffset(link);
     }
-
-    /// <summary>The other way round from <paramref name="direction"/>.</summary>
-    private static RotationDirection Reversed(RotationDirection direction) =>
-        direction == RotationDirection.Clockwise ? RotationDirection.Counterclockwise : RotationDirection.Clockwise;
 
     /// <summary>
     /// Converts one link's current polar angle/distance into the relative Cartesian offset the tail composition consumes.
@@ -281,7 +277,7 @@ internal sealed class RidleyTail
         link.Active = false;
         link.StartedNextLink = false;
         link.Stagger = RidleyTailTurn.None;
-        link.SwingDirection = Reversed(link.SwingDirection);
+        link.SwingDirection = link.SwingDirection.Reversed();
     }
 
     /// <summary>

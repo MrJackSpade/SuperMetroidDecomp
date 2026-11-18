@@ -18,17 +18,17 @@ internal static class MotherBrainEffectAnimations
         [P.OnionRing] =
         [
             Cue(new MotherBrainEffectCue.SetRadius(Radius: new(1, 1))),
-            Show(EnemyProjectileFrameId.MotherBrainBlueRingAcross8, 16),
+            Show(EnemyProjectileFrameId.MotherBrainBlueRingForming, 16),
             Cue(new MotherBrainEffectCue.SetRadius(Radius: new(2, 2))),
-            Show(EnemyProjectileFrameId.MotherBrainBlueRingAcross16, 10),
+            Show(EnemyProjectileFrameId.MotherBrainBlueRingOpening, 10),
             Cue(new MotherBrainEffectCue.SetRadius(Radius: new(3, 3))),
-            Show(EnemyProjectileFrameId.MotherBrainBlueRingAcross22, 8),
+            Show(EnemyProjectileFrameId.MotherBrainBlueRingSpreading, 8),
             Cue(new MotherBrainEffectCue.SetRadius(Radius: new(4, 4))),
-            Show(EnemyProjectileFrameId.MotherBrainBlueRingAcross24, 7),
+            Show(EnemyProjectileFrameId.MotherBrainBlueRingGrowing, 7),
             Cue(new MotherBrainEffectCue.SetRadius(Radius: new(5, 5))),
-            Show(EnemyProjectileFrameId.MotherBrainBlueRingAcross30, 6),
+            Show(EnemyProjectileFrameId.MotherBrainBlueRingSwelling, 6),
             Cue(new MotherBrainEffectCue.SetRadius(Radius: new(6, 6))),
-            Show(EnemyProjectileFrameId.MotherBrainBlueRingAcross32, 5),
+            Show(EnemyProjectileFrameId.MotherBrainBlueRingFullSize, 5),
         ],
         [P.OnionRingHit] =
         [

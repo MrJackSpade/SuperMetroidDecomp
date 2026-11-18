@@ -58,21 +58,23 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// The powered robots' glow (#2380): the step it shows and the updates that step has left. A room starts it on its last
-    /// step, stopped.
+    /// The powered robots' glow (#2380): the place its step shows and the updates that step has left. A room starts it on
+    /// its last step, stopped.
     /// </summary>
-    internal readonly AnimationPlayer<WorkRobotGlowSegment, WorkRobotGlowStep, NoAnimationCue> glow =
-        AnimationPlayer<WorkRobotGlowSegment, WorkRobotGlowStep, NoAnimationCue>.StartShowing(
+    internal readonly AnimationPlayer<WorkRobotGlowSegment, WorkRobotGlowPlace, NoAnimationCue> glow =
+        AnimationPlayer<WorkRobotGlowSegment, WorkRobotGlowPlace, NoAnimationCue>.StartShowing(
             WorkRobotGlowAnimations.Segments, WorkRobotGlowAnimations.Restarted, 1);
 
     /// <summary>Whether the glow runs: a powered robot's setup starts it, and an unpowered robot's stops it.</summary>
     internal bool GlowRuns { get; private set; }
 
-    /// <summary>The step of the glow every powered robot shows; after the last step the cycle starts again at the first.</summary>
-    internal WorkRobotGlowStep GlowStep => glow.Showing;
+    /// <summary>
+    /// The place of the glow every powered robot shows (#2393); after the last step the cycle starts again at the first.
+    /// </summary>
+    internal WorkRobotGlowPlace GlowPlace => glow.Showing;
 
     /// <summary>The glow every powered robot in the room shows now (#1512).</summary>
-    internal PictureShading Glow => PictureShading.Shaded(WorkRobotShades.Glow(GlowStep));
+    internal PictureShading Glow => PictureShading.Shaded(WorkRobotShades.Glow(GlowPlace));
 
     /// <summary>Initializes a powered robot.</summary>
     internal void InitializePoweredWorkRobot(RoomEnemyPlace place)
@@ -289,10 +291,11 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (!GlowRuns)
             return;
-        WorkRobotGlowStep shown = GlowStep;
+        WorkRobotGlowPlace shown = GlowPlace;
         this.glow.Step();
-        // No step of the glow follows itself, so a step that differs from the one shown is the next step, shown now.
-        if (GlowStep == shown)
+        // No step of the glow shows the place the step before it showed, so a place that differs from the one shown is the
+        // next step's, shown now.
+        if (GlowPlace == shown)
             return;
 
         PictureShading glow = Glow;

@@ -139,8 +139,8 @@ internal static class EncounterArtworkDrawingDefinitions
     /// <summary>Her onion rings, whose characters her legs' look holds.</summary>
     private static readonly EnemyProjectileFrameId[] MotherBrainRings =
     [
-        EnemyProjectileFrameId.MotherBrainBlueRingAcross8, EnemyProjectileFrameId.MotherBrainBlueRingAcross16, EnemyProjectileFrameId.MotherBrainBlueRingAcross22,
-        EnemyProjectileFrameId.MotherBrainBlueRingAcross24, EnemyProjectileFrameId.MotherBrainBlueRingAcross30, EnemyProjectileFrameId.MotherBrainBlueRingAcross32,
+        EnemyProjectileFrameId.MotherBrainBlueRingForming, EnemyProjectileFrameId.MotherBrainBlueRingOpening, EnemyProjectileFrameId.MotherBrainBlueRingSpreading,
+        EnemyProjectileFrameId.MotherBrainBlueRingGrowing, EnemyProjectileFrameId.MotherBrainBlueRingSwelling, EnemyProjectileFrameId.MotherBrainBlueRingFullSize,
     ];
 
     /// <summary>Her bombs, which her attacks' look holds.</summary>

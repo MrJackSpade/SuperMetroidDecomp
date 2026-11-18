@@ -39,15 +39,6 @@ public sealed class MaridiaLargeSnailEnemyState
     /// </summary>
     public bool AttackAllowsRotation { get; internal set; }
 
-    /// <summary>Samus is within the strict 24-by-32 proximity window.</summary>
-    public bool SamusInPushingRange { get; internal set; }
-
-    /// <summary>The side of Oum Samus is on while she is within its pushing range (#2338); right while she is not.</summary>
-    public HorizontalDirection SamusSide { get; internal set; }
-
-    /// <summary>Whole-pixel position captured before this frame's AI.</summary>
-    public Position16<RoomPixels> PreviousPosition { get; internal set; }
-
     /// <summary>
     /// Movement suppression produced after AI and consumed on the next frame.
     /// This one-frame pipeline is intentional game ordering, not input latency invented

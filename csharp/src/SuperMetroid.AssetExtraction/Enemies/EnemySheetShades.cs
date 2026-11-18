@@ -14,6 +14,7 @@ using SuperMetroid.Core.Enemies.Corpses.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Enemies.FaceBlocks.Artwork;
 using SuperMetroid.Core.Enemies.Gunship;
+using SuperMetroid.Core.Enemies.Magdollite;
 using SuperMetroid.Core.Enemies.Magdollite.Artwork;
 using SuperMetroid.Core.Enemies.SpacePirates.Artwork;
 using SuperMetroid.Core.Enemies.WorkRobots;
@@ -308,11 +309,13 @@ internal sealed class EnemySheetShades
             case EnemyDefinitionId.Magdollite:
             {
                 MagdollitePaletteCycle cycle = inputs.Enemies.MagdollitePaletteCycle ?? throw Missing("Magdollite glow colours");
-                for (int frame = 0; frame < MagdolliteShades.GlowFrames; frame++)
+                // The cartridge's glow colour rows are the glow's frames in the order the glow shows them; each frame installs
+                // one shade named by the frame (#2474).
+                for (int glowRow = 0; glowRow < MagdolliteGlowAnimations.Cycle.Count; glowRow++)
                 {
-                    int step = frame;
-                    shades.Add(SheetShade.Run(MagdolliteShades.Glow(step), first + MagdollitePaletteCycle.FirstAnimatedColor,
-                        Frame(MagdollitePaletteCycle.AnimatedColorCount, colour => cycle.Resolve(step, colour))));
+                    int colours = glowRow;
+                    shades.Add(SheetShade.Run(MagdolliteShades.Glow(MagdolliteGlowAnimations.Cycle[glowRow]), first + MagdollitePaletteCycle.FirstAnimatedColor,
+                        Frame(MagdollitePaletteCycle.AnimatedColorCount, colour => cycle.Resolve(colours, colour))));
                 }
                 break;
             }

@@ -62,9 +62,9 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Diagonal, EarthquakeReach.Foreground),
             KagoDefinitions.ShotQuakeDuration);
 
-        if (!state.UsesFastAnimation)
+        // The first hit speeds the shell's loop up for good.
+        if (state.HitsTaken == 0)
         {
-            state.UsesFastAnimation = true;
             state.Playback = new(KagoAnimations.StartingWith(KagoSegment.Fast), AnimationPlace.StartOfAnimation);
             place.AnimationClock.StepOnNextUpdate();
         }

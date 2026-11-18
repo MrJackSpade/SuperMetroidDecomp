@@ -37,10 +37,11 @@ internal static class HopperHopArcVerification
             place.Bind(EnemyDefinitionId.Sidehopper, place.Definition);
             place.Position = place.Position.WithWhole(new(64, 48));
             place.Radius = new(8, 8);
-            var state = new HopperEnemyState(HopperAction.ChooseHopSize)
+            // The hopper reads its surface from its placement (#2474).
+            place.SetSpawnSettings(new HopperSpawnSettings(HopperSurface.Floor));
+            // The hop's two halves are its two actions (#2473).
+            var state = new HopperEnemyState(falling ? HopperAction.Returning : HopperAction.HoppingAway)
             {
-                Action = HopperAction.Jumping,
-                Falling = falling,
                 YSpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(start),
                 YSpeedCurvePlaceStep = QuadraticSpeedCurvePlace.FromMarks(step),
             };
@@ -50,7 +51,7 @@ internal static class HopperHopArcVerification
 
             string context = $"Hopper {(falling ? "returning" : "rising")} from record {start} by {step}";
             AssertEqual(QuadraticSpeedCurvePlace.FromMarks(expected), state.YSpeedCurvePlace, context);
-            AssertEqual(expectedFalling, state.Falling, $"{context}: direction");
+            AssertEqual(expectedFalling ? HopperAction.Returning : HopperAction.HoppingAway, state.Action, $"{context}: direction");
         }
         Console.WriteLine("  Hopper hop arc: the record clamps to zero past the apex and caps at 64 on the way back.");
     }

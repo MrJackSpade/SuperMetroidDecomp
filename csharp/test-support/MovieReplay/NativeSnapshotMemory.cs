@@ -566,6 +566,8 @@ internal static class NativeSnapshotMemory
     public const int EnemyBase = 0xf78;
     /// <summary>$7800: enemy extra variables, imported from the original movie.</summary>
     public const int EnemyExtra = 0x7800;
+    /// <summary>The bytes of enemy extra variables each enemy slot keeps from <see cref="EnemyExtra"/> on.</summary>
+    public const int EnemyExtraBytes = 64;
     /// <summary>$7802: Brinstar pipe bug variable 01, imported from the original movie.</summary>
     public const int EnemyExtraPreviousAnimation = 0x7802;
     /// <summary>$1C37: roomObject_header_ptr, imported from the original movie.</summary>

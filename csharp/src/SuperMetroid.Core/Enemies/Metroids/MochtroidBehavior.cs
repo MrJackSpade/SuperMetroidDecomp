@@ -40,7 +40,6 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // start every Mochtroid this way.
         var state = new MochtroidEnemyState
         {
-            AttachmentDamageTimer = 0,
             MovementMode = MochtroidMovementMode.NotTouchingSamus,
         };
         place.SetSpeciesState(state);

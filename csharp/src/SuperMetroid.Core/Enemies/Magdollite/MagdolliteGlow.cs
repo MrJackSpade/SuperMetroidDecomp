@@ -1,20 +1,24 @@
-using SuperMetroid.Core.Enemies.Magdollite.Artwork;
-
 namespace SuperMetroid.Core.Enemies.Magdollite;
 
 /// <summary>
-/// One frame of the room's lava glow (#2343), which every Magdollite and the lava they throw show at once; the glow plays
-/// its frames in order, the last followed by the first (<see cref="MagdolliteGlowAnimations"/>, #2439).
+/// One frame of the room's lava glow (#2343), which every Magdollite and the lava they throw show at once, named for the
+/// frame it shows (#2474): where the glow's brightest colour stands among the four lava colours the Magdollite is drawn
+/// with, ranked from the brightest as drawn. The glow carries its brightest colour from the brightest drawn colour to the
+/// darkest and back up through the others; it plays its frames in that order, the last followed by the first
+/// (<see cref="MagdolliteGlowAnimations"/>, #2439). Each frame's colours are the installed shade the import pre-colours
+/// for it (<see cref="Artwork.MagdolliteShades"/>). Its values are arbitrary.
 /// </summary>
-public readonly record struct MagdolliteGlow
+public enum MagdolliteGlow
 {
-    /// <summary>The frame at <paramref name="step"/> of the cycle.</summary>
-    private MagdolliteGlow(int step) => Step = step;
+    /// <summary>The lava as drawn: its brightest colour brightest, each darker one darker.</summary>
+    OnBrightestColour,
 
-    /// <summary>The frame's place in the cycle, from zero: the step of its installed shade.</summary>
-    public int Step { get; }
+    /// <summary>The glow's brightest colour on the lava's darkest drawn colour, each brighter one a step darker.</summary>
+    OnDarkestColour,
 
-    /// <summary>Every frame of the cycle, in order.</summary>
-    public static IReadOnlyList<MagdolliteGlow> All { get; } =
-        [.. Enumerable.Range(0, MagdolliteShades.GlowFrames).Select(step => new MagdolliteGlow(step))];
+    /// <summary>The glow's brightest colour on the lava's second darkest drawn colour.</summary>
+    OnSecondDarkestColour,
+
+    /// <summary>The glow's brightest colour on the lava's second brightest drawn colour.</summary>
+    OnSecondBrightestColour,
 }

@@ -5,6 +5,7 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Magdollite;
 using SuperMetroid.Core.Enemies.Magdollite.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Verification.Harness;
@@ -35,7 +36,7 @@ internal static class MagdolliteShadeContentVerification
         for (int frame = 0; frame < MagdolliteShades.GlowFrames; frame++)
         {
             RgbColor[] shown = InstalledPictureColoursConstants.ByComposedIndex(image,
-                PictureShading.Shaded(MagdolliteShades.Glow(frame)).KeyColours(image));
+                PictureShading.Shaded(MagdolliteShades.Glow(MagdolliteGlowAnimations.Cycle[frame])).KeyColours(image));
             for (int color = 0; color < LoadedSetColours.RowColours; color++)
             {
                 if (InstalledPictureColoursConstants.KeyComposedAs(image, first + color) is null)

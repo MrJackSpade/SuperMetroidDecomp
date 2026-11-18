@@ -382,7 +382,11 @@ internal static class NativeSnapshotImport
                 W(address + 48), W(address + 50), W(address + 52), W(address + 54), W(address + 56), W(address + 58));
             // A free native slot's family words are its last occupant's, which no family state of this slot holds (#1435).
             if (W(address) != 0)
+            {
                 NativeEnemyFamilyStateImport.Import(runtime.Enemies, enemy, words);
+                int extra = NativeSnapshotMemory.EnemyExtra + index * NativeSnapshotMemory.EnemyExtraBytes;
+                NativeEnemyFamilyStateImport.ImportExtraWords(enemy, words, offset => W(extra + offset));
+            }
             // A recorded swoop path's length is word C; before Draygon plans his first swoop it is zero and he has none.
             if (W(address) != 0 && enemy.SpeciesState<SuperMetroid.Core.Bosses.Draygon.DraygonEnemyState>() is { } draygon && words.C != 0)
                 draygon.SwoopPath = SuperMetroid.Core.Bosses.Draygon.DraygonNativeWords.SwoopPathAt(W, words.C);
@@ -399,11 +403,11 @@ internal static class NativeSnapshotImport
                 pipe.RespawnDelay = unchecked((short)words.D);
                 SuperMetroid.Core.Enemies.PipeBugs.BrinstarPipeBugKind kind =
                     runtime.Enemies.Places.InUpdateOrder[index].SpawnSettings<SuperMetroid.Core.Enemies.PipeBugs.BrinstarPipeBugSpawnSettings>().Kind;
-                pipe.EmergenceTopY = W(NativeSnapshotMemory.EnemyExtra + index * 64);
+                pipe.EmergenceTopY = W(NativeSnapshotMemory.EnemyExtra + index * NativeSnapshotMemory.EnemyExtraBytes);
                 // The game keeps the requested animation beside the installed one and installs a request in the same AI
                 // update, so a record whose two differ fails (#1810). Core keeps only the playing animation (#2145): the
                 // recorded pointer resumes in the installed animation, which the bug's next request for it finds playing.
-                ushort installed = W(NativeSnapshotMemory.EnemyExtraPreviousAnimation + index * 64);
+                ushort installed = W(NativeSnapshotMemory.EnemyExtraPreviousAnimation + index * NativeSnapshotMemory.EnemyExtraBytes);
                 if (words.E != installed)
                     throw new InvalidDataException($"Recorded Pipe Bug {index} requests animation {words.E} while {installed} is installed.");
                 pipe.Playback = pipeBugPointers.PlaybackAt(W(address + MovieDesyncMemory.EnemyAnimationScriptOffset),

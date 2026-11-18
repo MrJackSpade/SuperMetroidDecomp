@@ -34,7 +34,6 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new PolypEnemyState(PolypAction.WaitingForSamus)
         {
             Playback = new(PolypAnimations.StartingWith(PolypSegment.Stationary), AnimationPlace.StartOfAnimation),
-            CooldownTimer = 0,
         };
         place.SetSpeciesState(state);
 

@@ -9,11 +9,23 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 /// </summary>
 internal static class MagdolliteGlowAnimations
 {
+    /// <summary>
+    /// The glow's frames in the order it shows them, from its first (#2474): the installed glow colours hold one row for
+    /// each in this order, and the import installs one shade for each, named by the frame.
+    /// </summary>
+    internal static IReadOnlyList<MagdolliteGlow> Cycle { get; } =
+    [
+        MagdolliteGlow.OnBrightestColour,
+        MagdolliteGlow.OnDarkestColour,
+        MagdolliteGlow.OnSecondDarkestColour,
+        MagdolliteGlow.OnSecondBrightestColour,
+    ];
+
     /// <summary>Every run's beats.</summary>
     internal static AnimationSegments<MagdolliteGlowSegment, MagdolliteGlow, NoAnimationCue> Segments { get; } = new(
         new Dictionary<MagdolliteGlowSegment, AnimationBeat<MagdolliteGlow, NoAnimationCue>[]>
     {
-        [MagdolliteGlowSegment.Glowing] = [.. MagdolliteGlow.All.Select(Show)],
+        [MagdolliteGlowSegment.Glowing] = [.. Cycle.Select(Show)],
     });
 
     /// <summary>The glow as a part's placement restarts it: its first frame at once, then each in turn, over and over.</summary>

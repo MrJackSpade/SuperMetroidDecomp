@@ -440,8 +440,6 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         {
             State(top).Phase = GunshipPhase.WaitForEngines;
             State(top).PhaseTimer = GunshipTakeoffDefinitions.EngineStartUpdates;
-            State(top).EscapeVelocity = SignedEightEight.Zero;
-            State(top).RumbleFrame = 0;
             _frameResults.Gunship = GunshipFrameEvent.EscapeTakeoffStarted;
             return;
         }

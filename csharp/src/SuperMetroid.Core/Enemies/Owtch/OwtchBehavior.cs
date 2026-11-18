@@ -32,7 +32,6 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new OwtchEnemyState
         {
             Behavior = settings.InitialBehavior,
-            BurialDepth = 0,
             UndergroundTimer = settings.UndergroundWait,
             MinimumX = place.Position.X.Whole - settings.TravelDistance,
             MaximumX = place.Position.X.Whole + settings.TravelDistance,
@@ -106,15 +105,16 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// The walking animation an Owtch starts in for its first behaviour. The game alternates the facing along its order
-    /// of first behaviours, so walking left, buried and rising start facing left, and walking right and sinking start
-    /// facing right.
+    /// of first behaviours, so walking left and buried start facing left, and walking right and sinking start facing
+    /// right. No placement starts an Owtch rising (#2474): it rises only out of a burial, and no room places one rising.
     /// </summary>
-    /// <exception cref="InvalidDataException"><paramref name="initial"/> is the turn at the left bound, which no placement starts in.</exception>
+    /// <exception cref="InvalidDataException"><paramref name="initial"/> is the turn at the left bound or the rise, which no placement starts in.</exception>
     private static OwtchSegment InitialAnimation(OwtchBehaviorState initial) => initial switch
     {
-        OwtchBehaviorState.MovingLeft or OwtchBehaviorState.Underground or OwtchBehaviorState.Rising => OwtchSegment.MovingLeft,
+        OwtchBehaviorState.MovingLeft or OwtchBehaviorState.Underground => OwtchSegment.MovingLeft,
         OwtchBehaviorState.MovingRight or OwtchBehaviorState.Sinking => OwtchSegment.MovingRight,
         OwtchBehaviorState.TurningAtLeftBound => throw new InvalidDataException("No Owtch placement starts turning at its left bound."),
+        OwtchBehaviorState.Rising => throw new InvalidDataException("No Owtch placement starts rising: an Owtch rises only out of a burial."),
         _ => throw new ArgumentOutOfRangeException(nameof(initial), initial, "Undefined Owtch behaviour."),
     };
 

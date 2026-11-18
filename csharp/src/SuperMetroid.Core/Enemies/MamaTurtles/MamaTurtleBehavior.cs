@@ -451,6 +451,8 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!_terrain.MoveEnemyVertically(level, mama, state.Velocity.Y.WithoutFraction()))
             return;
 
+        // She lands facing the way her horizontal velocity carries her, which its sign says (#2473): her hover's
+        // acceleration and the wall reversal can each turn that velocity round, so no separate heading is kept.
         StartTurtleAnimation(
             mama,
             state,

@@ -13,7 +13,12 @@ public sealed class MamaTurtleEnemyState
     /// <summary>The current Mama Turtle behaviour.</summary>
     public MamaTurtleAction Action { get; internal set; }
 
-    /// <summary>Mama's velocity, in pixels an update.</summary>
+    /// <summary>
+    /// Mama's velocity, in pixels an update. Its horizontal part stays signed rather than a heading with a speed (#2473):
+    /// her hover's acceleration can point against it, so it slows through zero and turns her round, and a wall reverses it
+    /// by the game's partwise arithmetic (<see cref="MamaTurtleWallReversal"/>), which changes its size by a pixel an update.
+    /// Its sign is the way she moves, which her landing faces.
+    /// </summary>
     public FixedVector<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>
@@ -39,7 +44,9 @@ public sealed class MamaTurtleEnemyState
 
     /// <summary>
     /// Mama's sideways acceleration while she hovers, in pixels an update each update, toward Samus's side when hovering
-    /// starts; a wall turns it round (<see cref="MamaTurtleWallReversal"/>).
+    /// starts; a wall turns it round (<see cref="MamaTurtleWallReversal"/>). It stays signed rather than a direction with a
+    /// size (#2473): the wall's reversal lowers it a further pixel after a hit at under a pixel an update leftward, which
+    /// changes its size as well as its way.
     /// </summary>
     public SignedSixteenSixteen XAcceleration { get; internal set; }
 }

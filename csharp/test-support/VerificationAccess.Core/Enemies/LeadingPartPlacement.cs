@@ -32,11 +32,11 @@ internal static class LeadingPartPlacement
             place.SetSpawnSettings(new EvirSpawnSettings(EvirBodyPart.Body, SignedSixteenSixteen.FromSixteenthsOfPixel(0), 0));
         // A Powamp placement names whether it is the body or the balloon (#2163); the body owns the Powamp's members.
         if (definition == EnemyDefinitionId.Powamp)
-            place.SetSpawnSettings(new PowampSpawnSettings(PowampPart.Body, GrappleTravelDistance: 0));
+            place.SetSpawnSettings(new PowampSpawnSettings(PowampPart.Body, GrappleTravelDistance: 0, PowampContact.Accepts));
         // A Morph Ball eye placement names the eye or its beam mount, and a Rio's or a lava jumper's whether it leads or
         // follows (#2164); the eye and the leading part carry the species' members.
         if (definition == EnemyDefinitionId.MorphBallEye)
-            place.SetSpawnSettings(new MorphBallEyeSpawnSettings(HorizontalDirection.Right, MorphBallEyePart.Eye, MorphBallEyeMountSide.Left));
+            place.SetSpawnSettings(new MorphBallEyeBodySpawnSettings(HorizontalDirection.Right));
         if (definition is EnemyDefinitionId.Geruta or EnemyDefinitionId.Holtz or EnemyDefinitionId.Squeept)
             place.SetSpawnSettings(new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));
         // A Dragon placement names whether it is the body or the wing (#2175); the body carries the species' members.
@@ -50,6 +50,6 @@ internal static class LeadingPartPlacement
             place.SetSpawnSettings(new HibashiSpawnSettings(InactiveTime: 0, HibashiPart.Flame));
         // A Magdollite placement names its head, rising body or tracking overlay; the head carries the species' members.
         if (definition == EnemyDefinitionId.Magdollite)
-            place.SetSpawnSettings(new MagdolliteSpawnSettings(MagdollitePart.Head, new MagdolliteHeadRise(SignedSixteenSixteen.Zero, Range: 0)));
+            place.SetSpawnSettings(new MagdolliteHeadSpawnSettings(SignedSixteenSixteen.Zero, Range: 0));
     }
 }

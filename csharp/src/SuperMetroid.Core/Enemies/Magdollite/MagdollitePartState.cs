@@ -8,11 +8,10 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 /// </summary>
 public abstract class MagdollitePartState
 {
-    /// <summary>Creates the state for one Magdollite part.</summary>
-    private protected MagdollitePartState(MagdollitePart part) => Part = part;
-
-    /// <summary>The head, arm, or hand role its spawn names.</summary>
-    public MagdollitePart Part { get; }
+    /// <summary>Creates the state for one Magdollite part, which its own state type names (#2474).</summary>
+    private protected MagdollitePartState()
+    {
+    }
 
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<MagdolliteSegment> Playback { get; set; }

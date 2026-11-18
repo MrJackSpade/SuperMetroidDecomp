@@ -14,9 +14,9 @@ public sealed class KiHunterWingState
     public KiHunterWingAction Action { get; internal set; }
 
     /// <summary>
-    /// The detached wings' place along the shared quadratic speed curve: reset to <see cref="DetachedSpeedReset"/> at each
-    /// arc and lowered by a mark and a half per update, landing on mark one when the step would go below the start,
-    /// so it stays on the curve.
+    /// The detached wings' place along the shared quadratic speed curve: reset at each arc to where the wings' climb starts
+    /// (<see cref="KiHunterMotionDefinitions.DetachedWingClimb"/>, #2474) and lowered by a mark and a half per update,
+    /// landing on mark one when the step would go below the start, so it stays on the curve.
     /// </summary>
     public QuadraticSpeedCurvePlace DetachedSpeedCurvePlace { get; internal set; }
 
@@ -34,21 +34,15 @@ public sealed class KiHunterWingState
     public KiHunterWingMovement WingMovement { get; internal set; } = KiHunterWingMovement.Orbit;
 
     /// <summary>
-    /// The reset place along the speed curve, set at detachment to where the wings' climb starts
-    /// (<see cref="KiHunterMotionDefinitions.DetachedWingClimb"/>) and reapplied at each arc change; on the curve.
+    /// The room-pixel anchor used with an arc-specific correction: where the wings detached, then recaptured whenever the
+    /// detached arc changes.
     /// </summary>
-    public QuadraticSpeedCurvePlace DetachedSpeedReset { get; internal set; }
-
-    /// <summary>The signed pixel correction for the non-colliding arc, calculated seven eighths of a turn round and at radius 48.</summary>
-    public Offset16<RoomPixels> OrbitOffset { get; internal set; }
-
-    /// <summary>The signed pixel correction for the collision-bearing arc, calculated five eighths of a turn round and at radius 48.</summary>
-    public Offset16<RoomPixels> FallingArcOffset { get; internal set; }
-
-    /// <summary>The room-pixel anchor used with an arc-specific correction; recaptured whenever the detached arc changes.</summary>
     public Position16<RoomPixels> OrbitCenter { get; internal set; }
 
-    /// <summary>The wings' room position saved at detachment, where the first orbit is centred and where the collision-bearing arc deletes them.</summary>
-    public Position16<RoomPixels> SavedWingPosition { get; internal set; }
+    /// <summary>
+    /// Where the wings detached (#2474): their first orbit's centre, and where the falling arc puts them back as it deletes
+    /// them on landing. The deleted wings keep that position until the next update clears their place, as the game's do.
+    /// </summary>
+    public Position16<RoomPixels> DetachedAt { get; internal set; }
 
 }

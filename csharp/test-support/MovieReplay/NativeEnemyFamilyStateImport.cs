@@ -380,11 +380,17 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (enemy.SpeciesState<YellowPipeBugState>() is { } yellowPipeBug)
         {
-            // Each way a flight or arc goes has a routine of its own (#2165).
+            // Each way a flight or arc goes has a routine of its own (#2165); the bug flies the way its placement faces
+            // (#2474), which the recorded routine's way must be. An arc's dip direction word (F) is set while it dips and
+            // cleared once it climbs back (#2473).
             if (PipeBugsNativeWords.YellowPipeBugFlights.TryDecode(words.A, out (YellowPipeBugAction Action, HorizontalDirection Direction) yellowFlight))
             {
-                yellowPipeBug.Action = yellowFlight.Action;
-                yellowPipeBug.FlightDirection = yellowFlight.Direction;
+                HorizontalDirection yellowFacing = enemy.SpawnSettings<YellowPipeBugSpawnSettings>().Facing;
+                if (yellowFlight.Direction != yellowFacing)
+                    throw new InvalidDataException($"Recorded yellow Pipe Bug flies {yellowFlight.Direction}, not its placement's {yellowFacing}.");
+                yellowPipeBug.Action = yellowFlight.Action == YellowPipeBugAction.ArcDipping && words.F == 0
+                    ? YellowPipeBugAction.ArcClimbing
+                    : yellowFlight.Action;
             }
             else
             {
@@ -418,7 +424,7 @@ internal static class NativeEnemyFamilyStateImport
             kiHunterBodyRecord.Action = KiHuntersNativeWords.KiHunterActions.Decode(words.A, "recorded KiHunterAction");
             kiHunterBodyRecord.SwoopTargetX = words.B;
             kiHunterBodyRecord.SwoopOriginY = words.C;
-            kiHunterBodyRecord.AnimationChangeAngle = RotationAngle.FromSteps(words.E);
+            // The swipe's trigger angle follows from the way the body swoops (#2474); the game keeps it in an extra word.
             kiHunterBodyRecord.SwoopAngle = RotationAngle.WrappedSteps(words.F);
         }
         if (enemy.SpeciesState<KiHunterWingState>() is { } kiHunterWingRecord)
@@ -776,10 +782,6 @@ internal static class NativeEnemyFamilyStateImport
             // Only the angle word's low byte is ever read; movement discards its high byte.
             skultera.Angle = RotationAngle.FromSteps(LittleEndianBytes.LowByte(words.F));
         }
-        if (enemy.EntityState<KagoEntity, KagoEnemyState>() is { } kago)
-        {
-            kago.UsesFastAnimation = words.B != 0;
-        }
         if (enemy.DefinitionId == EnemyDefinitionId.Coven && enemy.SpeciesState<WreckedShipGhostEnemyState>() is { } ghost)
         {
             ghost.Action = WreckedShipNativeWords.WreckedShipGhostActions.Decode(words.A, "recorded WreckedShipGhostAction");
@@ -1053,6 +1055,57 @@ internal static class NativeEnemyFamilyStateImport
             puyo.CurrentHop = PuyoNativeWords.HopRecordOffsets.Decode(words.E, "recorded Puyo hop record offset");
         }
     }
+
+    /// <summary>
+    /// Translates the family facts some enemies keep among their extra variables rather than their record words (#2473):
+    /// a Ki-Hunter body's swipe and wingless flags, a hopper's falling flag and a Kago's hits left.
+    /// </summary>
+    /// <param name="enemy">The imported slot, its record words already imported.</param>
+    /// <param name="words">The enemy's six recorded record words.</param>
+    /// <param name="extraWord">The enemy's extra variable word at a byte offset from the start of its extra variables.</param>
+    internal static void ImportExtraWords(RoomEnemyPlace enemy, NativeEnemyRecordWords words, Func<int, ushort> extraWord)
+    {
+        if (enemy.SpeciesState<KiHunterBodyState>() is { } kiHunterBody)
+        {
+            // The swipe flag ($7E:7820) marks a swoop whose swipe has started: the swipe half of the dive.
+            if (kiHunterBody.Action == KiHunterAction.Swooping && extraWord(KiHunterSwipeFlagOffset) != 0)
+                kiHunterBody.Action = KiHunterAction.Swiping;
+            // The wingless flag ($7E:7828) is the body's having lost its wings, which its routine already says.
+            if ((extraWord(KiHunterWinglessFlagOffset) != 0) == kiHunterBody.Flies)
+                throw new InvalidDataException($"Recorded Ki-Hunter {kiHunterBody.Action} disagrees with its wingless flag ${extraWord(KiHunterWinglessFlagOffset):X4}.");
+        }
+        if (enemy.SpeciesState<HopperEnemyState>() is { } hopper)
+        {
+            // The falling flag ($7E:7806) is set only while a hop returns to its surface (#2473).
+            bool returning = extraWord(HopperFallingFlagOffset) != 0;
+            hopper.Action = (hopper.Action, returning) switch
+            {
+                (HopperAction.HoppingAway, true) => HopperAction.Returning,
+                (_, false) => hopper.Action,
+                (var other, true) => throw new InvalidDataException($"Recorded hopper {other} has its falling flag set."),
+            };
+        }
+        if (enemy.EntityState<KagoEntity, KagoEnemyState>() is { } kago)
+        {
+            // The hit counter ($7E:7808) counts the shots left before the one that kills, from the placement's hit count; the
+            // fast animation flag (word B) is the shell's having been hit, which the hits taken say (#2473).
+            kago.HitsTaken = enemy.SpawnSettings<KagoSpawnSettings>().HitCount - unchecked((short)extraWord(KagoHitCounterOffset));
+            if ((words.B != 0) != (kago.HitsTaken > 0))
+                throw new InvalidDataException($"Recorded Kago fast animation flag ${words.B:X4} disagrees with its {kago.HitsTaken} hits taken.");
+        }
+    }
+
+    /// <summary>The byte offset of a Ki-Hunter body's swipe flag among its extra variables ($7E:7820).</summary>
+    private const int KiHunterSwipeFlagOffset = 0x20;
+
+    /// <summary>The byte offset of a Ki-Hunter body's wingless flag among its extra variables ($7E:7828).</summary>
+    private const int KiHunterWinglessFlagOffset = 0x28;
+
+    /// <summary>The byte offset of a hopper's falling flag among its extra variables ($7E:7806).</summary>
+    private const int HopperFallingFlagOffset = 0x06;
+
+    /// <summary>The byte offset of a Kago's hit counter among its extra variables ($7E:7808).</summary>
+    private const int KagoHitCounterOffset = 0x08;
 
     /// <summary>
     /// Imports one of Kraid's parts' record (#2208): word A names the phase the part runs, of its own part's type, and

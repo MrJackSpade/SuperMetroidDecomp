@@ -134,7 +134,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         KzanEnemyState state,
         SamusState samus)
     {
-        state.PreviousY = place.Position.Y.Whole;
+        int previousY = place.Position.Y.Whole;
         place.Position = place.Position.AdvanceY(state.FallingSpeed);
 
         // The top lands once it reaches its falling target.
@@ -146,7 +146,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
             _audio.QueueEnemySound(EnemySoundEffectDefinitions.KzanLandingSoundEffect, priority: SoundRequestPriority.Normal);
         }
 
-        CarrySamusWithKzanIfTouchingFromBelow(place, state, samus);
+        CarrySamusWithKzanIfTouchingFromBelow(place, previousY, samus);
 
         state.FallingSpeed = SignedSixteenSixteen.Min(state.FallingSpeed + KzanMotionDefinitions.FallAcceleration, KzanMotionDefinitions.FastestFall);
     }
@@ -164,7 +164,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         KzanEnemyState state,
         SamusState samus)
     {
-        state.PreviousY = place.Position.Y.Whole;
+        int previousY = place.Position.Y.Whole;
 
         // The Kzan rises by exactly half a pixel per update.
         place.Position = place.Position.WithY(place.Position.Y.MovedBy(KzanMotionDefinitions.RisingStep));
@@ -174,22 +174,22 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
             place.Position = place.Position.WithWholeY(state.RisingTargetY);
         }
 
-        CarrySamusWithKzanIfTouchingFromBelow(place, state, samus);
+        CarrySamusWithKzanIfTouchingFromBelow(place, previousY, samus);
     }
 
     /// <summary>
-    /// Carries Samus, standing on the Kzan, by the whole pixels it moved this update; her fraction of a pixel is left
-    /// as it is.
+    /// Carries Samus, standing on the Kzan, by the whole pixels it moved this update from <paramref name="previousY"/>,
+    /// its room Y before the move (#2473); her fraction of a pixel is left as it is.
     /// </summary>
     private static void CarrySamusWithKzanIfTouchingFromBelow(
         RoomEnemyPlace place,
-        KzanEnemyState state,
+        int previousY,
         SamusState samus)
     {
         if (!EnemyCollision.IsSamusStandingOn(place, samus, KzanMotionDefinitions.SamusStandingBias))
             return;
 
-        samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(0, place.Position.Y.Whole - state.PreviousY);
+        samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(0, place.Position.Y.Whole - previousY);
     }
 
     /// <summary>Advances Kzan's typed animation.</summary>

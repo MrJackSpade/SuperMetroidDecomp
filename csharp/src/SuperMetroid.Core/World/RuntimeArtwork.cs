@@ -15,6 +15,7 @@ namespace SuperMetroid.Core.World;
 /// runtime's owners draw and colour from. Every catalog is installed from the start: the runtime is built over the
 /// host's installed artwork (#2049), and a rebinding replaces a catalog with another installed one.
 /// </summary>
+[ArchitectureReview("context-bag", "The runtime's binding of host-installed artwork: its setters rebind the HUD, the boss artwork, the loaded room's enemies and the Samus artwork binding when the host binds new content; every other member is an immutable artwork catalog, not a service.")]
 internal sealed class RuntimeArtwork
 {
 

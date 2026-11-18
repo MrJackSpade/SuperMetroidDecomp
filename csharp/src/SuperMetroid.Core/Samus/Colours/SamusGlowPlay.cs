@@ -20,6 +20,29 @@ internal static class SamusGlowPlay
     internal static void Restart(AnimationPlayer<G, PictureShade, NoAnimationCue> player, G sequence) =>
         Ensure.NotNull(player).Start(SamusGlowAnimationDefinitions.Animations[sequence]);
 
+    /// <summary>
+    /// Starts <paramref name="player"/> on <paramref name="sequence"/> again, showing nothing until its
+    /// <paramref name="updates"/>th update (#2447).
+    /// </summary>
+    internal static void RestartAfter(AnimationPlayer<G, PictureShade, NoAnimationCue> player, G sequence, int updates) =>
+        Ensure.NotNull(player).StartAfter(SamusGlowAnimationDefinitions.Animations[sequence], updates);
+
+    /// <summary>
+    /// Starts <paramref name="player"/> on <paramref name="sequence"/> again on its first shade, which shows at once for
+    /// <paramref name="updates"/> updates (#2447).
+    /// </summary>
+    internal static void RestartShowing(AnimationPlayer<G, PictureShade, NoAnimationCue> player, G sequence, int updates) =>
+        Ensure.NotNull(player).Show(SamusGlowAnimationDefinitions.Animations[sequence], updates);
+
+    /// <summary>
+    /// Counts <paramref name="player"/>'s shown shade down and, once it runs out, plays <paramref name="sequence"/> on to its
+    /// next shade from where the player stands, going on in it from another sequence's place (#2447,
+    /// <see cref="AnimationPlayer{TSegment, TFrame, TEvent}.StepToNewFrameGoingOnIn"/>).
+    /// </summary>
+    /// <returns>The shade the update shows anew, or null while the shown shade holds.</returns>
+    internal static PictureShade? StepToNextShadeGoingOnIn(AnimationPlayer<G, PictureShade, NoAnimationCue> player, G sequence) =>
+        Ensure.NotNull(player).StepToNewFrameGoingOnIn(SamusGlowAnimationDefinitions.Animations[sequence]);
+
     /// <summary>Plays <paramref name="sequence"/> on from <paramref name="place"/> to its next shade, and moves the place past it.</summary>
     /// <exception cref="InvalidOperationException">The sequence ends instead of showing a shade.</exception>
     internal static AnimationShown<G, PictureShade>.Frame NextShade(G sequence, ref AnimationPlace place)

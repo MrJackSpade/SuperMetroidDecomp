@@ -89,9 +89,8 @@ internal static class RoomBackgroundsFixtures
     {
         RoomBlockPictureTable pictures = SeededPictures(random, scene);
         RevealedBlockArrangement[] arrangements = Enum.GetValues<RevealedBlockArrangement>();
-        var blocks = new RevealedBlock?[SuperMetroid.Core.Samus.Abilities.XrayRevealArea.BlockCount];
-        for (int block = 0; block < blocks.Length; block++)
-            blocks[block] = new RevealedBlock(RoomCellPicture.OfBlock(random.Next(Definitions)), arrangements[random.Next(arrangements.Length)]);
+        SuperMetroid.Core.Samus.Abilities.XrayRevealGrid blocks = SuperMetroid.Core.Samus.Abilities.XrayRevealFixtures.Grid(_ =>
+            new RevealedBlock(RoomCellPicture.OfBlock(random.Next(Definitions)), arrangements[random.Next(arrangements.Length)]));
         return new SuperMetroid.Core.Samus.Abilities.XrayRevealPlane(default, blocks, pictures);
     }
 

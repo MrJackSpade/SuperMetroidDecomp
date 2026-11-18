@@ -64,7 +64,7 @@ internal static class SamusHyperBeamColorsVerification
             ushort pointer = ReadVerificationWord(rom, 0x91d83d - 2 * frame);
             AssertEqual(ReadVerificationWord(rom, 0x91d99e + 2 * (9 - frame)), pointer,
                 "Both native pointer views address the same rows in reverse playback order");
-            shotColours.ShowSuit(SamusShades.HyperShot(SamusShadeDefinitions.FullBodyCycles.HyperBeamShadeCount - 1 - frame));
+            shotColours.ShowSuit(SamusShades.HyperShot[SamusShadeDefinitions.FullBodyCycles.HyperBeamShadeCount - 1 - frame]);
             for (int color = 0; color < 16; color++)
             {
                 ushort expected = ReadVerificationWord(rom, 0x9b0000 | (pointer + 2 * color));
@@ -103,9 +103,9 @@ internal static class SamusHyperBeamColorsVerification
                 $"Hyper Beam call {call} owns palette");
             // Original91D96F copies the selected row before DEC; EnableRainbow's
             // timer/reload are1, so every call advances and wraps at native limit10.
-            AssertEqual(SuperMetroid.Core.Samus.Colours.SamusShades.HyperBeamSuit[(call + 1) % 10], installedSamus.Drained.RainbowShade,
+            AssertEqual(SuperMetroid.Core.Samus.Colours.SamusShades.HyperBeamSuit[(call + 1) % 10], installedSamus.Drained.Rainbow.Shown,
                 $"Hyper Beam call {call} next frame");
-            AssertEqual(1, installedSamus.Drained.RainbowGlowStepCountdown,
+            AssertEqual(1, installedSamus.Drained.Rainbow.UpdatesLeft,
                 $"Hyper Beam call {call} native timer");
             ushort originalPointer = ReadVerificationWord(rom, 0x91d99e + 2 * (call % 10));
             for (int color = 0; color < 16; color++)

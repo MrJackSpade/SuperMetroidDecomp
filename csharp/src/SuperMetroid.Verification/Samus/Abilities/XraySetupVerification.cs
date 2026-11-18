@@ -70,14 +70,14 @@ internal static class XraySetupVerification
         RevealedBlock?[] Expected()
         {
             var visuals = runtime.Xray.XrayRevealVisuals;
-            RevealedBlock?[] built = XrayRevealMap.Build(level, scroll.ForegroundPosition, room.Area, visuals);
+            XrayRevealGrid built = XrayRevealMap.Build(level, scroll.ForegroundPosition, room.Area, visuals);
             XrayRevealOverlays.Apply(built, runtime.RoomObjects.CollectibleObjects.Collectibles, runtime.System,
                 room.State.XrayOverlay, scroll.ForegroundPosition, visuals);
-            return built;
+            return [.. built.Blocks];
         }
         XrayRevealPlane Shown() => runtime.Display.Latched.XrayReveal ?? throw new InvalidOperationException("X-ray setup's reveal is not displayed.");
         RevealedBlock?[] expected = Expected();
-        AssertTrue(expected.SequenceEqual(Shown().Blocks.ToArray()), "the shown reveal is built from the foreground the room shows and its overlays");
+        AssertTrue(expected.SequenceEqual(XrayRevealFixtures.Shown(Shown())), "the shown reveal is built from the foreground the room shows and its overlays");
         AssertTrue(expected.Contains(Marker(2)), "the reveal copies the level data the frame shows");
         AssertTrue(!expected.Any(block => block == Marker(0) || block == Marker(1)), "no earlier frame's foreground reaches the reveal");
         // An uncollected item that shows its own picture overlays that picture (#1538, #1764), which is no block of the room's
@@ -88,13 +88,13 @@ internal static class XraySetupVerification
         RevealedBlock? stray = expected.FirstOrDefault(block => block is { } shown && shown != Marker(2) &&
             (shown.Picture.ShowsCollectible ? !itemPictures.Contains(shown.Picture) : !shown.Picture.ShowsNothing && shown.Picture.Block >= CommonRoomElementBlocks));
         AssertTrue(stray is null,
-            $"every revealed block is the shown foreground block as the level shows it, a reveal or overlay metatile, or an uncollected item's own picture (first other: {stray}, at {Array.IndexOf(expected, stray)})");
+            $"every revealed block is the shown foreground block as the level shows it, a reveal or overlay metatile, or an uncollected item's own picture (first other: {stray}, at {(stray is null ? "no place" : XrayRevealGrid.Places[Array.IndexOf(expected, stray)].ToString())})");
         AssertEqual(XrayRevealMap.OriginOf(scroll.ForegroundPosition), Shown().Origin,
             "the reveal lies over the room's own blocks");
         ShowEverywhere(3);
         for (int frame = 0; frame < 90; frame++) runtime.StepFrame(held);
         expected = Expected();
-        AssertTrue(expected.Contains(Marker(3)) && expected.SequenceEqual(Shown().Blocks.ToArray()),
+        AssertTrue(expected.Contains(Marker(3)) && expected.SequenceEqual(XrayRevealFixtures.Shown(Shown())),
             "through the full beam the reveal shows the room as each frame shows it");
         // Each revealed block draws from the picture the room's own foreground draws for that block (#1392), laid out as the
         // reveal placed it.
@@ -113,12 +113,12 @@ internal static class XraySetupVerification
     internal static void VerifyXrayRevealOverOpenSpace()
     {
         var pictures = new RoomBlockPictureTable([null], new Dictionary<CollectiblePicture, LayeredPicture>());
-        var open = new RevealedBlock?[XrayRevealArea.BlockCount];
-        Array.Fill(open, new RevealedBlock(RoomCellPicture.Nothing, RevealedBlockArrangement.AsDefined));
+        var nothing = new RevealedBlock(RoomCellPicture.Nothing, RevealedBlockArrangement.AsDefined);
+        XrayRevealGrid open = XrayRevealFixtures.Grid(_ => nothing);
         var reveal = new XrayRevealPlane(default, open, pictures);
-        AssertTrue(reveal.Blocks[0] is { Picture.ShowsNothing: true }, "a reveal over open space keeps its blocks that show nothing");
-        var unresolved = (RevealedBlock?[])open.Clone();
-        unresolved[0] = new RevealedBlock(RoomCellPicture.OfBlock(0), RevealedBlockArrangement.AsDefined);
+        AssertTrue(reveal[Position16<RoomBlocks>.Zero] is { Picture.ShowsNothing: true }, "a reveal over open space keeps its blocks that show nothing");
+        XrayRevealGrid unresolved = XrayRevealFixtures.Grid(place => place == Position16<RoomBlocks>.Zero
+            ? new RevealedBlock(RoomCellPicture.OfBlock(0), RevealedBlockArrangement.AsDefined) : nothing);
         AssertThrows<InvalidDataException>(() => new XrayRevealPlane(default, unresolved, pictures),
             "a reveal block whose picture is not resolved");
         Console.WriteLine("  X-ray reveal: open space draws nothing; an unresolved picture is refused.");

@@ -29,120 +29,36 @@ internal static class SamusGlowAnimationDefinitions
     internal static AnimationSegments<G, PictureShade, NoAnimationCue> Segments { get; } = new(
         new Dictionary<G, AnimationBeat<PictureShade, NoAnimationCue>[]>
     {
-        [G.ChargedBeamPowerPulse] =
-        [
-            Pulse(SamusChargeKind.ChargedBeam, S.Power, 0), Pulse(SamusChargeKind.ChargedBeam, S.Power, 1),
-            Pulse(SamusChargeKind.ChargedBeam, S.Power, 2), Pulse(SamusChargeKind.ChargedBeam, S.Power, 3),
-            Pulse(SamusChargeKind.ChargedBeam, S.Power, 4), Pulse(SamusChargeKind.ChargedBeam, S.Power, 5),
-        ],
-        [G.ChargedBeamVariaPulse] =
-        [
-            Pulse(SamusChargeKind.ChargedBeam, S.Varia, 0), Pulse(SamusChargeKind.ChargedBeam, S.Varia, 1),
-            Pulse(SamusChargeKind.ChargedBeam, S.Varia, 2), Pulse(SamusChargeKind.ChargedBeam, S.Varia, 3),
-            Pulse(SamusChargeKind.ChargedBeam, S.Varia, 4), Pulse(SamusChargeKind.ChargedBeam, S.Varia, 5),
-        ],
-        [G.ChargedBeamGravityPulse] =
-        [
-            Pulse(SamusChargeKind.ChargedBeam, S.Gravity, 0), Pulse(SamusChargeKind.ChargedBeam, S.Gravity, 1),
-            Pulse(SamusChargeKind.ChargedBeam, S.Gravity, 2), Pulse(SamusChargeKind.ChargedBeam, S.Gravity, 3),
-            Pulse(SamusChargeKind.ChargedBeam, S.Gravity, 4), Pulse(SamusChargeKind.ChargedBeam, S.Gravity, 5),
-        ],
-        [G.PseudoScrewPowerPulse] =
-        [
-            Pulse(SamusChargeKind.PseudoScrew, S.Power, 0), Pulse(SamusChargeKind.PseudoScrew, S.Power, 1),
-            Pulse(SamusChargeKind.PseudoScrew, S.Power, 2), Pulse(SamusChargeKind.PseudoScrew, S.Power, 3),
-            Pulse(SamusChargeKind.PseudoScrew, S.Power, 4), Pulse(SamusChargeKind.PseudoScrew, S.Power, 5),
-        ],
-        [G.PseudoScrewVariaPulse] =
-        [
-            Pulse(SamusChargeKind.PseudoScrew, S.Varia, 0), Pulse(SamusChargeKind.PseudoScrew, S.Varia, 1),
-            Pulse(SamusChargeKind.PseudoScrew, S.Varia, 2), Pulse(SamusChargeKind.PseudoScrew, S.Varia, 3),
-            Pulse(SamusChargeKind.PseudoScrew, S.Varia, 4), Pulse(SamusChargeKind.PseudoScrew, S.Varia, 5),
-        ],
-        [G.PseudoScrewGravityPulse] =
-        [
-            Pulse(SamusChargeKind.PseudoScrew, S.Gravity, 0), Pulse(SamusChargeKind.PseudoScrew, S.Gravity, 1),
-            Pulse(SamusChargeKind.PseudoScrew, S.Gravity, 2), Pulse(SamusChargeKind.PseudoScrew, S.Gravity, 3),
-            Pulse(SamusChargeKind.PseudoScrew, S.Gravity, 4), Pulse(SamusChargeKind.PseudoScrew, S.Gravity, 5),
-        ],
-        [G.ChargedShotFlash] =
-        [
-            Show(SamusShades.ChargedShotGlow, 1), Show(SamusShades.ChargedShotGlow, 1), Show(SamusShades.ChargedShotGlow, 1),
-        ],
-        [G.HyperShotGlow] =
-        [
-            Show(SamusShades.HyperShot(9), 2), Show(SamusShades.HyperShot(8), 2), Show(SamusShades.HyperShot(7), 2),
-            Show(SamusShades.HyperShot(6), 2), Show(SamusShades.HyperShot(5), 2), Show(SamusShades.HyperShot(4), 2),
-            Show(SamusShades.HyperShot(3), 2), Show(SamusShades.HyperShot(2), 2), Show(SamusShades.HyperShot(1), 2),
-            Show(SamusShades.HyperShot(0), 2),
-        ],
-        [G.HyperBeamCycle] =
-        [
-            Show(SamusShades.HyperBeamCycle(0), 2), Show(SamusShades.HyperBeamCycle(1), 2), Show(SamusShades.HyperBeamCycle(2), 2),
-            Show(SamusShades.HyperBeamCycle(3), 2), Show(SamusShades.HyperBeamCycle(4), 2), Show(SamusShades.HyperBeamCycle(5), 2),
-            Show(SamusShades.HyperBeamCycle(6), 2), Show(SamusShades.HyperBeamCycle(7), 2), Show(SamusShades.HyperBeamCycle(8), 2),
-            Show(SamusShades.HyperBeamCycle(9), 2),
-        ],
-        [G.CrystalFlashBody] =
-        [
-            Show(SamusShades.CrystalFlashBody[0], 10), Show(SamusShades.CrystalFlashBody[1], 10),
-            Show(SamusShades.CrystalFlashBody[2], 10), Show(SamusShades.CrystalFlashBody[3], 10),
-            Show(SamusShades.CrystalFlashBody[4], 10), Show(SamusShades.CrystalFlashBody[5], 10),
-            Show(SamusShades.CrystalFlashBody[6], 10), Show(SamusShades.CrystalFlashBody[7], 10),
-            Show(SamusShades.CrystalFlashBody[8], 10), Show(SamusShades.CrystalFlashBody[9], 10),
-        ],
-        [G.CrystalFlashBubble] =
-        [
-            Show(SamusShades.CrystalFlashBubble[0], 5), Show(SamusShades.CrystalFlashBubble[1], 5),
-            Show(SamusShades.CrystalFlashBubble[2], 5), Show(SamusShades.CrystalFlashBubble[3], 5),
-            Show(SamusShades.CrystalFlashBubble[4], 5), Show(SamusShades.CrystalFlashBubble[5], 5),
-        ],
-        [G.HyperBeamRainbow] =
-        [
-            Show(SamusShades.HyperBeamSuit[0], 1), Show(SamusShades.HyperBeamSuit[1], 1), Show(SamusShades.HyperBeamSuit[2], 1),
-            Show(SamusShades.HyperBeamSuit[3], 1), Show(SamusShades.HyperBeamSuit[4], 1), Show(SamusShades.HyperBeamSuit[5], 1),
-            Show(SamusShades.HyperBeamSuit[6], 1), Show(SamusShades.HyperBeamSuit[7], 1), Show(SamusShades.HyperBeamSuit[8], 1),
-            Show(SamusShades.HyperBeamSuit[9], 1),
-        ],
-        [G.XrayVisorWidening] = [Show(SamusShades.XrayWideningVisor[0], 5), Show(SamusShades.XrayWideningVisor[1], 5)],
-        [G.XrayVisorWidest] = [Show(SamusShades.XrayWideningVisor[2], 5)],
-        [G.VisorCycle] = [Show(SamusShades.VisorCycle[0], 5), Show(SamusShades.VisorCycle[1], 5), Show(SamusShades.VisorCycle[2], 5)],
+        [G.ChargedBeamPowerPulse] = Each(SamusShades.ChargePulse(SamusChargeKind.ChargedBeam, S.Power), 1),
+        [G.ChargedBeamVariaPulse] = Each(SamusShades.ChargePulse(SamusChargeKind.ChargedBeam, S.Varia), 1),
+        [G.ChargedBeamGravityPulse] = Each(SamusShades.ChargePulse(SamusChargeKind.ChargedBeam, S.Gravity), 1),
+        [G.PseudoScrewPowerPulse] = Each(SamusShades.ChargePulse(SamusChargeKind.PseudoScrew, S.Power), 1),
+        [G.PseudoScrewVariaPulse] = Each(SamusShades.ChargePulse(SamusChargeKind.PseudoScrew, S.Varia), 1),
+        [G.PseudoScrewGravityPulse] = Each(SamusShades.ChargePulse(SamusChargeKind.PseudoScrew, S.Gravity), 1),
+        [G.ChargedShotFlash] = Each([SamusShades.ChargedShotGlow, SamusShades.ChargedShotGlow, SamusShades.ChargedShotGlow], 1),
+        [G.HyperShotGlow] = Each(SamusShades.HyperShot.Reverse(), 2),
+        [G.HyperBeamCycle] = Each(SamusShades.HyperBeamCycle, 2),
+        [G.CrystalFlashBody] = Each(SamusShades.CrystalFlashBody, 10),
+        [G.CrystalFlashBubble] = Each(SamusShades.CrystalFlashBubble, 5),
+        [G.HyperBeamRainbow] = Each(SamusShades.HyperBeamSuit, 1),
+        [G.XrayVisorWidening] = Each(SamusShades.XrayWideningVisor.SkipLast(1), 5),
+        [G.XrayVisorWidest] = [Show(SamusShades.XrayWideningVisor[^1], 5)],
+        [G.VisorCycle] = Each(SamusShades.VisorCycle, 5),
         [G.StoredShinePower] = RiseAndFall(F.StoredShine, S.Power),
         [G.StoredShineVaria] = RiseAndFall(F.StoredShine, S.Varia),
         [G.StoredShineGravity] = RiseAndFall(F.StoredShine, S.Gravity),
-        [G.ActiveShinesparkPower] =
-        [
-            Cycle(F.ActiveShinespark, S.Power, 0, 1), Cycle(F.ActiveShinespark, S.Power, 1, 1),
-            Cycle(F.ActiveShinespark, S.Power, 2, 1), Cycle(F.ActiveShinespark, S.Power, 3, 1),
-        ],
-        [G.ActiveShinesparkVaria] =
-        [
-            Cycle(F.ActiveShinespark, S.Varia, 0, 1), Cycle(F.ActiveShinespark, S.Varia, 1, 1),
-            Cycle(F.ActiveShinespark, S.Varia, 2, 1), Cycle(F.ActiveShinespark, S.Varia, 3, 1),
-        ],
-        [G.ActiveShinesparkGravity] =
-        [
-            Cycle(F.ActiveShinespark, S.Gravity, 0, 1), Cycle(F.ActiveShinespark, S.Gravity, 1, 1),
-            Cycle(F.ActiveShinespark, S.Gravity, 2, 1), Cycle(F.ActiveShinespark, S.Gravity, 3, 1),
-        ],
+        [G.ActiveShinesparkPower] = Each(SamusShades.FullBodyCycleShades(F.ActiveShinespark, S.Power), 1),
+        [G.ActiveShinesparkVaria] = Each(SamusShades.FullBodyCycleShades(F.ActiveShinespark, S.Varia), 1),
+        [G.ActiveShinesparkGravity] = Each(SamusShades.FullBodyCycleShades(F.ActiveShinespark, S.Gravity), 1),
         [G.ScrewAttackPower] = RiseAndFall(F.ScrewAttack, S.Power),
         [G.ScrewAttackVaria] = RiseAndFall(F.ScrewAttack, S.Varia),
         [G.ScrewAttackGravity] = RiseAndFall(F.ScrewAttack, S.Gravity),
-        [G.SpeedBoosterRisingPower] =
-        [
-            Cycle(F.SpeedBooster, S.Power, 0, 4), Cycle(F.SpeedBooster, S.Power, 1, 4), Cycle(F.SpeedBooster, S.Power, 2, 4),
-        ],
-        [G.SpeedBoosterRisingVaria] =
-        [
-            Cycle(F.SpeedBooster, S.Varia, 0, 4), Cycle(F.SpeedBooster, S.Varia, 1, 4), Cycle(F.SpeedBooster, S.Varia, 2, 4),
-        ],
-        [G.SpeedBoosterRisingGravity] =
-        [
-            Cycle(F.SpeedBooster, S.Gravity, 0, 4), Cycle(F.SpeedBooster, S.Gravity, 1, 4), Cycle(F.SpeedBooster, S.Gravity, 2, 4),
-        ],
-        [G.SpeedBoosterBrightestPower] = [Cycle(F.SpeedBooster, S.Power, 3, 4)],
-        [G.SpeedBoosterBrightestVaria] = [Cycle(F.SpeedBooster, S.Varia, 3, 4)],
-        [G.SpeedBoosterBrightestGravity] = [Cycle(F.SpeedBooster, S.Gravity, 3, 4)],
+        [G.SpeedBoosterRisingPower] = Each(SamusShades.FullBodyCycleShades(F.SpeedBooster, S.Power).SkipLast(1), 4),
+        [G.SpeedBoosterRisingVaria] = Each(SamusShades.FullBodyCycleShades(F.SpeedBooster, S.Varia).SkipLast(1), 4),
+        [G.SpeedBoosterRisingGravity] = Each(SamusShades.FullBodyCycleShades(F.SpeedBooster, S.Gravity).SkipLast(1), 4),
+        [G.SpeedBoosterBrightestPower] = [Show(SamusShades.FullBodyCycleShades(F.SpeedBooster, S.Power)[^1], 4)],
+        [G.SpeedBoosterBrightestVaria] = [Show(SamusShades.FullBodyCycleShades(F.SpeedBooster, S.Varia)[^1], 4)],
+        [G.SpeedBoosterBrightestGravity] = [Show(SamusShades.FullBodyCycleShades(F.SpeedBooster, S.Gravity)[^1], 4)],
     });
 
     /// <summary>
@@ -243,21 +159,14 @@ internal static class SamusGlowAnimationDefinitions
     private static AnimationBeat<PictureShade, NoAnimationCue> Show(PictureShade shade, int updates) =>
         new AnimationBeat<PictureShade, NoAnimationCue>.Frame(shade, updates);
 
-    /// <summary>Shows step <paramref name="step"/> of <paramref name="kind"/>'s pulse in <paramref name="suit"/> for one update.</summary>
-    private static AnimationBeat<PictureShade, NoAnimationCue> Pulse(SamusChargeKind kind, S suit, int step) =>
-        Show(SamusShades.Charge(new SamusChargeShade(kind, suit, step)), 1);
-
-    /// <summary>Shows <paramref name="family"/>'s shade <paramref name="shade"/> in <paramref name="suit"/> for <paramref name="updates"/> updates.</summary>
-    private static AnimationBeat<PictureShade, NoAnimationCue> Cycle(F family, S suit, int shade, int updates) =>
-        Show(SamusShades.FullBodyCycle(new SamusFullBodyCycleShade(family, suit, shade)), updates);
+    /// <summary>Shows each of <paramref name="shades"/> in turn, each for <paramref name="updates"/> updates (#2447).</summary>
+    private static AnimationBeat<PictureShade, NoAnimationCue>[] Each(IEnumerable<PictureShade> shades, int updates) =>
+        [.. shades.Select(shade => Show(shade, updates))];
 
     /// <summary>
     /// <paramref name="family"/>'s rise through its four shades in <paramref name="suit"/> and its fall back through the
     /// middle two, one update each: the stored shine's and the Screw Attack's six.
     /// </summary>
     private static AnimationBeat<PictureShade, NoAnimationCue>[] RiseAndFall(F family, S suit) =>
-    [
-        Cycle(family, suit, 0, 1), Cycle(family, suit, 1, 1), Cycle(family, suit, 2, 1),
-        Cycle(family, suit, 3, 1), Cycle(family, suit, 2, 1), Cycle(family, suit, 1, 1),
-    ];
+        Each([.. SamusShades.FullBodyCycleShades(family, suit), .. SamusShades.FullBodyCycleShades(family, suit).Reverse().Skip(1).SkipLast(1)], 1);
 }

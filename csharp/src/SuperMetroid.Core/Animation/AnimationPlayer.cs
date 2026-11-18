@@ -60,10 +60,21 @@ internal sealed class AnimationPlayer<TSegment, TFrame, TEvent>
         AnimationSegments<TSegment, TFrame, TEvent> segments, Animation<TSegment> animation, int updates)
     {
         var player = new AnimationPlayer<TSegment, TFrame, TEvent>(segments, animation);
-        player.UpdatesLeft = updates >= 1
-            ? updates
-            : throw new ArgumentOutOfRangeException(nameof(updates), updates, "An animation shows its first frame on its first update or later.");
+        player.StartAfter(animation, updates);
         return player;
+    }
+
+    /// <summary>
+    /// Starts <paramref name="animation"/> again showing nothing until its <paramref name="updates"/>th update, as
+    /// <see cref="StartingAfter"/> does (#2447): Samus's Speed Booster glow starts over on its first boosted update.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="updates"/> is below one.</exception>
+    internal void StartAfter(Animation<TSegment> animation, int updates)
+    {
+        if (updates < 1)
+            throw new ArgumentOutOfRangeException(nameof(updates), updates, "An animation shows its first frame on its first update or later.");
+        Start(animation);
+        UpdatesLeft = updates;
     }
 
     /// <summary>
@@ -179,6 +190,35 @@ internal sealed class AnimationPlayer<TSegment, TFrame, TEvent>
     {
         Ensure.NotNull(raise);
         return IsResting || --UpdatesLeft > 0 ? null : PlayOn(raise);
+    }
+
+    /// <summary>
+    /// Runs one update as <see cref="StepToNewFrame()"/> does, but once the shown frame's updates run out plays on in
+    /// <paramref name="animation"/>, of the same segments, going on from where the play stands as
+    /// <see cref="AnimationPlayback{TSegment}.GoingOnIn"/> hands it (#2447): an owner sharing its place with another
+    /// animation, as Samus's Speed Booster glow shares hers with her Screw Attack glow, takes the place over only as it
+    /// moves on, and counts its own frame's updates meanwhile.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The animation raises an event, which this owner has nothing to act on.</exception>
+    internal TFrame? StepToNewFrameGoingOnIn(Animation<TSegment> animation)
+    {
+        Ensure.NotNull(animation);
+        if (IsResting || --UpdatesLeft > 0)
+            return null;
+        if (!ReferenceEquals(Playback.Animation, animation))
+            Playback = Playback.GoingOnIn(animation);
+        return PlayOn(raised => throw new InvalidOperationException($"The animation raised {raised} with no owner to act on it."));
+    }
+
+    /// <summary>
+    /// Goes on from <paramref name="playback"/>, of the same segments, in place of where the play stands, the shown frame
+    /// keeping its updates left (#2447): another animation sharing the place has moved it on, as Samus's Screw Attack glow
+    /// moves on the place her Speed Booster glow counts its shades from, or started it again.
+    /// </summary>
+    internal void GoOnFrom(AnimationPlayback<TSegment> playback)
+    {
+        Ensure.NotNull(playback.Animation);
+        Playback = playback;
     }
 
     /// <summary>

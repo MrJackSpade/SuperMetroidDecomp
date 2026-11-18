@@ -45,24 +45,18 @@ public sealed class SamusDrainedState
 
     /// <summary>
     /// How long the rainbow holds each of its shades (#2387): one update as the rainbow starts, lengthened by the Baby, and
-    /// none once it stops. Each shade the rainbow moves on to restarts <see cref="RainbowGlowStepCountdown"/> from it.
+    /// none once it stops. Each shade the rainbow moves on to shows for the hold as it stands then.
     /// </summary>
     public RainbowGlowHold RainbowGlowHold { get; private set; }
 
     /// <summary>
-    /// The updates the rainbow's shown shade still shows for: the rainbow start sets it to one, so the first colouring
-    /// moves the rainbow on at once, and the rainbow stop clears it.
+    /// The rainbow's play of the Hyper Beam's full-body glow (#2387, #2447): the shade it shows, none outside the rainbow,
+    /// and the updates that shade still shows for. The rainbow's start shows its first shade for the starting hold, so the
+    /// first colouring moves it on at once, and each shade it moves on to shows for <see cref="RainbowGlowHold"/> as it
+    /// stands then, not for its own beat.
     /// </summary>
-    public int RainbowGlowStepCountdown { get; private set; }
-
-    /// <summary>
-    /// The shade of the Hyper Beam's full-body glow the rainbow shows (#2387), which its sequence moves on from as each
-    /// hold runs out; none outside the rainbow.
-    /// </summary>
-    public PictureShade? RainbowShade { get; private set; }
-
-    /// <summary>Where the rainbow's sequence stands: just past <see cref="RainbowShade"/> while the rainbow runs.</summary>
-    internal AnimationPlace RainbowPlace { get; private set; } = AnimationPlace.StartOfAnimation;
+    internal AnimationPlayer<SamusGlowSegment, PictureShade, NoAnimationCue> Rainbow { get; } =
+        SamusGlowPlay.Starting(SamusGlowSegment.HyperBeamRainbow);
 
     /// <summary>
     /// How Samus answers Up after each movement, which either drain setup chooses: able or unable to stand. It
@@ -155,10 +149,7 @@ public sealed class SamusDrainedState
         Ensure.NotNull(samus);
         RainbowGlowing = true;
         RainbowGlowHold = RainbowGlowHold.Starting;
-        RainbowGlowStepCountdown = 1;
-        AnimationPlace place = AnimationPlace.StartOfAnimation;
-        RainbowShade = SamusGlowPlay.NextShade(SamusGlowSegment.HyperBeamRainbow, ref place).Shown;
-        RainbowPlace = place;
+        SamusGlowPlay.RestartShowing(Rainbow, SamusGlowSegment.HyperBeamRainbow, RainbowGlowHold.Updates);
         _suitShadeRestoreRequested = false;
     }
 
@@ -178,9 +169,7 @@ public sealed class SamusDrainedState
         Ensure.NotNull(samus);
         RainbowGlowing = false;
         RainbowGlowHold = RainbowGlowHold.None;
-        RainbowGlowStepCountdown = 0;
-        RainbowShade = null;
-        RainbowPlace = AnimationPlace.StartOfAnimation;
+        SamusGlowPlay.Restart(Rainbow, SamusGlowSegment.HyperBeamRainbow);
         _suitShadeRestoreRequested = true;
         SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusDrainedAnimationDefinitions.RainbowStopFrame, timer: SamusDrainedAnimationDefinitions.SetFrameTimer);
     }
@@ -213,16 +202,11 @@ public sealed class SamusDrainedState
             return false;
 
         // The colouring shows the rainbow's shade before counting down its hold.
-        colours.ShowSuit(RainbowShade ?? throw new InvalidOperationException("The rainbow glows with no shade."));
-
-        if (--RainbowGlowStepCountdown > 0)
-            return true;
+        colours.ShowSuit(Rainbow.Showing);
 
         // Each shade shows for the rainbow's hold as it stands when the rainbow moves on to it, not for its own beat.
-        RainbowGlowStepCountdown = RainbowGlowHold.Updates;
-        AnimationPlace place = RainbowPlace;
-        RainbowShade = SamusGlowPlay.NextShade(SamusGlowSegment.HyperBeamRainbow, ref place).Shown;
-        RainbowPlace = place;
+        if (Rainbow.StepToNewFrame() is not null)
+            Rainbow.HoldShownFrameFor(RainbowGlowHold.Updates);
         return true;
     }
 

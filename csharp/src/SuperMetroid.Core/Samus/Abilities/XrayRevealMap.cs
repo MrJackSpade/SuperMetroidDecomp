@@ -24,19 +24,18 @@ public static class XrayRevealMap
     /// </param>
     /// <param name="area">The room's area; only Brinstar shows Brinstar-only reveals.</param>
     /// <param name="visuals">The installed reveal blocks.</param>
-    /// <returns>The revealed blocks, row by row, <see cref="XrayRevealArea.Columns"/> to a row; null beyond the room.</returns>
-    public static RevealedBlock?[] Build(RoomLevelData level, Position16<RoomPixels> foregroundPosition,
+    /// <returns>The revealed blocks by place; null beyond the room.</returns>
+    public static XrayRevealGrid Build(RoomLevelData level, Position16<RoomPixels> foregroundPosition,
         AreaId area, InstalledXrayReveals visuals)
     {
         Ensure.NotNull(level);
         Ensure.NotNull(visuals);
         RoomBlockCells foreground = level.ForegroundPlane.Cells;
         Position16<RoomBlocks> cameraBlock = foregroundPosition.ToRoomBlock();
-        var result = new RevealedBlock?[XrayRevealArea.BlockCount];
-        for (int row = 0; row < XrayRevealArea.Rows; row++)
-        for (int col = 0; col < XrayRevealArea.Columns; col++)
-            Place(col, row, Copied(col, row));
-        for (int row = 0; row < XrayRevealArea.Rows; row++)
+        var result = new XrayRevealGrid();
+        foreach (Position16<RoomBlocks> place in XrayRevealGrid.Places)
+            result.Show(place, Copied(place));
+        for (int row = 0; row < XrayRevealGrid.Size.Y; row++)
         {
             // A wide or square reveal in the room's column just before the revealed area shows its right half in the
             // first column. Its halves are copied before this row's own reveals overwrite them.
@@ -44,31 +43,32 @@ public static class XrayRevealMap
                 Lookup(before)?.Blocks is { } predecessor)
             {
                 if (predecessor.BottomRight is { } bottomRight)
-                    CopyBlock(0, row + 1, bottomRight);
+                    CopyBlock(Position16<RoomBlocks>.Of(0, row + 1), bottomRight);
                 if (predecessor.TopRight is { } topRight)
-                    CopyBlock(0, row, topRight);
+                    CopyBlock(Position16<RoomBlocks>.Of(0, row), topRight);
             }
-            for (int col = 0; col < XrayRevealArea.Columns; col++)
+            for (int column = 0; column < XrayRevealGrid.Size.X; column++)
             {
-                if (RoomBlock(level, cameraBlock.X + col, cameraBlock.Y + row) is not { } block ||
+                var place = Position16<RoomBlocks>.Of(column, row);
+                if (RoomBlock(level, cameraBlock.X + column, cameraBlock.Y + row) is not { } block ||
                     Lookup(block) is not { } reveal)
                     continue;
                 if (reveal.Blocks is not { } shown)
                 {
                     // An extension shows the block its chain reaches.
                     if (XrayRevealExtensions.Resolve(level, block, visuals) is { } replacement)
-                        CopyBlock(col, row, replacement);
+                        CopyBlock(place, replacement);
                     continue;
                 }
                 if (reveal.Shape == XrayRevealShape.CopyBrinstar && area != AreaId.Brinstar)
                     continue;
-                CopyBlock(col, row, shown.TopLeft);
+                CopyBlock(place, shown.TopLeft);
                 if (shown.TopRight is { } topRight)
-                    CopyBlock(col + 1, row, topRight);
+                    CopyBlock(place + Right, topRight);
                 if (shown.BottomLeft is { } bottomLeft)
-                    CopyBlock(col, row + 1, bottomLeft);
+                    CopyBlock(place + Down, bottomLeft);
                 if (shown.BottomRight is { } bottomRight)
-                    CopyBlock(col + 1, row + 1, bottomRight);
+                    CopyBlock(place + Right + Down, bottomRight);
             }
         }
         return result;
@@ -79,23 +79,24 @@ public static class XrayRevealMap
             return visuals.Apply(block.CollisionType, block.Behavior);
         }
         // The foreground block the revealed block lies over, mirrored as the level mirrors it.
-        RevealedBlock? Copied(int col, int row)
+        RevealedBlock? Copied(Position16<RoomBlocks> place)
         {
-            if (RoomBlock(level, cameraBlock.X + col, cameraBlock.Y + row) is not { } block)
+            if (RoomBlock(level, cameraBlock.X + place.X, cameraBlock.Y + place.Y) is not { } block)
                 return null;
-            RoomBlockCell cell = foreground.Cells[foreground.Size.RowMajorIndex(block)];
+            RoomBlockCell cell = foreground[block];
             return new RevealedBlock(cell.Picture, Mirrored(cell.Flips));
         }
-        // A reveal block is placed as it is defined; its number is validated as a room block.
-        void CopyBlock(int col, int row, int blockNumber) =>
-            Place(col, row, new RevealedBlock(RoomCellPicture.OfBlock(blockNumber), RevealedBlockArrangement.AsDefined));
-        // Only blocks inside the revealed area are shown.
-        void Place(int col, int row, RevealedBlock? block)
-        {
-            if (col < XrayRevealArea.Columns && row < XrayRevealArea.Rows)
-                result[row * XrayRevealArea.Columns + col] = block;
-        }
+        // A reveal block is placed as it is defined; its number is validated as a room block. Only blocks inside the
+        // revealed area are shown.
+        void CopyBlock(Position16<RoomBlocks> place, int blockNumber) =>
+            result.Show(place, new RevealedBlock(RoomCellPicture.OfBlock(blockNumber), RevealedBlockArrangement.AsDefined));
     }
+
+    /// <summary>The next place to the right, where a wide or square reveal's right half lies.</summary>
+    private static Offset16<RoomBlocks> Right => Offset16<RoomBlocks>.Of(1, 0);
+
+    /// <summary>The next place down, where a tall or square reveal's lower half lies.</summary>
+    private static Offset16<RoomBlocks> Down => Offset16<RoomBlocks>.Of(0, 1);
 
     /// <summary>
     /// The room's block at <paramref name="column"/> and <paramref name="row"/>, or null when that place lies beyond the

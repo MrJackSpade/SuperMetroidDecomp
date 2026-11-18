@@ -48,26 +48,26 @@ internal static class XrayOverlaysVerification
         };
         // Each overlay places one whole block (#1431): the cell at the camera's block shows the block written last, in the
         // arrangement its mirroring selects.
-        var map = new RevealedBlock?[XrayRevealArea.BlockCount];
+        var map = new XrayRevealGrid();
         RevealedBlock Defined(int block) => new(RoomCellPicture.OfBlock(block), RevealedBlockArrangement.AsDefined);
         XrayRevealOverlays.Apply(map, items, system, null, new(16, 16), visuals);
-        AssertEqual(new RevealedBlock(RoomCellPicture.Of(new CollectiblePicture(InWorldCollectibleKind.Bombs, CollectibleLook.Primary)), RevealedBlockArrangement.AsDefined), map[0],
+        AssertEqual(new RevealedBlock(RoomCellPicture.Of(new CollectiblePicture(InWorldCollectibleKind.Bombs, CollectibleLook.Primary)), RevealedBlockArrangement.AsDefined), map[Position16<RoomBlocks>.Zero],
             "descending item order leaves the lower item's reveal last, and Bombs is revealed as its own picture's first frame");
         system.SetCollectedItemBit(1);
         XrayRevealOverlays.Apply(map, items, system, null, new(16, 16), visuals);
-        AssertEqual(Defined(5), map[0], "collected items do not obscure another live reveal, and the Energy Tank shows its installed block");
+        AssertEqual(Defined(5), map[Position16<RoomBlocks>.Zero], "collected items do not obscure another live reveal, and the Energy Tank shows its installed block");
         XrayRevealOverlays.Apply(map, items, system, SpecialRoom, new(16, 16), visuals);
-        AssertEqual(new RevealedBlock(RoomCellPicture.OfBlock(9), RevealedBlockArrangement.MirroredVertically), map[0],
+        AssertEqual(new RevealedBlock(RoomCellPicture.OfBlock(9), RevealedBlockArrangement.MirroredVertically), map[Position16<RoomBlocks>.Zero],
             "special-room override follows item writes, and its vertical flip mirrors the block top to bottom");
-        AssertEqual(new RevealedBlock(RoomCellPicture.OfBlock(3), RevealedBlockArrangement.MirroredHorizontally), map[1],
+        AssertEqual(new RevealedBlock(RoomCellPicture.OfBlock(3), RevealedBlockArrangement.MirroredHorizontally), map[Position16<RoomBlocks>.Of(1, 0)],
             "an overlay's horizontal flip mirrors the block left to right");
-        AssertEqual(new RevealedBlock(RoomCellPicture.OfBlock(4), RevealedBlockArrangement.MirroredBoth), map[2],
+        AssertEqual(new RevealedBlock(RoomCellPicture.OfBlock(4), RevealedBlockArrangement.MirroredBoth), map[Position16<RoomBlocks>.Of(2, 0)],
             "an overlay flipped both ways is mirrored both ways");
-        Array.Clear(map);
+        map = new XrayRevealGrid();
         items[0] = items[0] with { Location = null };
         system.SetCollectedItemBit(2);
         XrayRevealOverlays.Apply(map, items, system, null, new(16, 16), visuals);
-        AssertTrue(map.All(block => block is null), "negative item arguments and collected items leave the reveal unchanged");
+        AssertTrue(map.Blocks.All(block => block is null), "negative item arguments and collected items leave the reveal unchanged");
         // The tanks' reveals are keyed by tank kind (#2115): a missing tank or another kind of item is rejected.
         AssertThrows<InvalidDataException>(() => InstalledXrayOverlays.FromOverlaysForVerification(
                 new Dictionary<InWorldCollectibleKind, RoomBlockAppearance> { [InWorldCollectibleKind.EnergyTank] = RoomBlockAppearance.Of(5) }, []),

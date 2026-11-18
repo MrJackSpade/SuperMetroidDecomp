@@ -25,7 +25,7 @@ internal static class PauseMomentumVerification
                 SpeedBoostCounter = new SamusSpeedBoostCounter(4, 2),
             };
             speed.CycleShadeStep = 3;
-            PrivateState.Set(speed, nameof(SamusHorizontalSpeedState.CycleShadeTimer), 3);
+            speed.CycleShadeTimer = 3;
             // Populate both echo slots through their production capture path, then
             // put them in departure mode. Unpause must erase rather than restart it.
             speed.CaptureSpeedEchoPosition(0, new(80, 200));
@@ -44,7 +44,7 @@ internal static class PauseMomentumVerification
             if (!equipped)
             {
                 AssertEqual(0, speed.CycleShadeStep, "unpause clears boost palette frame");
-                AssertEqual(0, speed.CycleShadeTimer, "unpause clears boost palette timer");
+                AssertEqual(1, speed.CycleShadeTimer, "unpause starts the boost palette glow again, so its next boosted update moves it on");
                 AssertEqual(SpeedEchoPhase.CapturingFirst, speed.SpeedEchoPhase, "unpause resets the echo cursor without departure");
                 AssertTrue(speed.FirstSpeedEchoPosition is null && speed.SecondSpeedEchoPosition is null &&
                     speed.FirstSpeedEchoHorizontalSpeed == 0 && speed.SecondSpeedEchoHorizontalSpeed == 0, "unpause clears both echo positions and velocities");
@@ -52,7 +52,7 @@ internal static class PauseMomentumVerification
             else if (momentum && counter == default)
             {
                 AssertEqual(0, speed.CycleShadeStep, "newly enabled boost resets palette frame");
-                AssertEqual(0, speed.CycleShadeTimer, "unpause arms boost with native zero palette timer");
+                AssertEqual(1, speed.CycleShadeTimer, "unpause arms boost with its palette glow started again, so its next boosted update moves it on");
             }
         }
     }

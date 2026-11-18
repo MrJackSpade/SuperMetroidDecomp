@@ -73,7 +73,7 @@ internal sealed record SamusShadeSources(GameplayStartingColours Starting, RgbCo
         {
             // The charge colours hold the Hyper shot's own copy of the glow in playback order, the cycle's last frame first.
             int playback = SamusShadeDefinitions.FullBodyCycles.HyperBeamShadeCount - 1 - frame;
-            shades.Add(Suit(SamusShades.HyperShot(frame), Colours(colour => Charge.ResolveHyper(playback, colour))));
+            shades.Add(Suit(SamusShades.HyperShot[frame], Colours(colour => Charge.ResolveHyper(playback, colour))));
         }
         foreach (SamusFullBodyCycleShade palette in FullBodyCycles.Palettes)
             shades.Add(Suit(SamusShades.FullBodyCycle(palette), Colours(colour => FullBodyCycles.Resolve(palette, colour))));
@@ -97,9 +97,9 @@ internal sealed record SamusShadeSources(GameplayStartingColours Starting, RgbCo
             shades.Add(SheetShade.Run(SamusShades.CrystalFlashBubble[shown], SamusSheetInks.Beams + SamusSheetInks.CrystalFlashBubbleFirstColour,
                 Enumerable.Range(0, CrystalFlashColorFormat.BubbleColorCount).Select(colour => CrystalFlash.ResolveBubble(shown, colour)).ToArray()));
         }
-        for (int frame = 0; frame < SamusColourSets.HyperBeamCycleFrames; frame++)
+        for (int frame = 0; frame < SamusShades.HyperBeamCycle.Count; frame++)
         {
-            shades.Add(SheetShade.Run(SamusShades.HyperBeamCycle(frame), SamusSheetInks.Beams + SamusSheetInks.HyperBeamFirstColour,
+            shades.Add(SheetShade.Run(SamusShades.HyperBeamCycle[frame], SamusSheetInks.Beams + SamusSheetInks.HyperBeamFirstColour,
                 HyperBeamCycle.Frame(frame).AsSpan()));
         }
         foreach (SamusDeathShade shown in SamusDeathShade.All)

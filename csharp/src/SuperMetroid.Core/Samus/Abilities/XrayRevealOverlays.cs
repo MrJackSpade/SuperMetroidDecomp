@@ -16,18 +16,18 @@ public static class XrayRevealOverlays
     /// installed reveal block; every other item shows its kind's own picture's first frame (#1538), whatever was set up
     /// before it.
     /// </summary>
-    /// <param name="blocks">The revealed blocks, as <see cref="XrayRevealMap.Build"/> lays them out.</param>
+    /// <param name="blocks">The revealed blocks, as <see cref="XrayRevealMap.Build"/> builds them.</param>
     /// <param name="items">The room's collectibles.</param>
     /// <param name="system">The collected-item record.</param>
     /// <param name="roomOverlay">The room state's special overlay, or null.</param>
     /// <param name="foregroundPosition">Camera position, which places the overlays on screen.</param>
     /// <param name="visuals">Installed reveal art.</param>
-    public static void Apply(Span<RevealedBlock?> blocks,
+    public static void Apply(XrayRevealGrid blocks,
         IReadOnlyList<CollectibleObjectSnapshot> items, SharedGameState system,
         XrayRoomOverlayDefinition? roomOverlay, Position16<RoomPixels> foregroundPosition,
         InstalledXrayReveals visuals)
     {
-        Ensure.LengthEqual(blocks, XrayRevealArea.BlockCount);
+        Ensure.NotNull(blocks);
         InstalledXrayOverlays overlays = Ensure.NotNull(visuals).Overlays;
         for (int i = items.Count - 1; i >= 0; i--)
         {
@@ -48,14 +48,13 @@ public static class XrayRevealOverlays
         new(RoomCellPicture.Of(appearance), XrayRevealMap.Mirrored(appearance.Mirroring));
 
     /// <summary>Places an overlay's block where it lies, when that is inside the revealed area.</summary>
-    private static void Write(Span<RevealedBlock?> blocks, RevealedBlock revealed, Position16<RoomBlocks> block,
+    private static void Write(XrayRevealGrid blocks, RevealedBlock revealed, Position16<RoomBlocks> block,
         Position16<RoomPixels> foregroundPosition)
     {
         // The overlay's block within the visible window, relative to the camera's block.
         Offset16<RoomBlocks> visible = block - foregroundPosition.ToRoomBlock();
-        int x = visible.X, y = visible.Y;
-        // Only an overlay inside the revealed area shows.
-        if (x < 0 || x >= XrayRevealArea.Columns || y < 0 || y >= XrayRevealArea.Rows) return;
-        blocks[y * XrayRevealArea.Columns + x] = revealed;
+        // Only an overlay inside the revealed area shows: one before the camera's block lies before the area's first.
+        if (visible.X < 0 || visible.Y < 0) return;
+        blocks.Show(Position16<RoomBlocks>.Of(visible.X, visible.Y), revealed);
     }
 }

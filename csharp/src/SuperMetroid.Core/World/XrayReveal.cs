@@ -42,9 +42,9 @@ internal sealed class XrayReveal
         Ensure.NotNull(room);
         InstalledXrayReveals visuals = XrayRevealVisuals;
         Position16<RoomPixels> foregroundPosition = _backgroundScroll.ForegroundPosition;
-        RevealedBlock?[] blocks = XrayRevealMap.Build(room.LevelData, foregroundPosition, room.Room.Area, visuals);
+        XrayRevealGrid blocks = XrayRevealMap.Build(room.LevelData, foregroundPosition, room.Room.Area, visuals);
         XrayRevealOverlays.Apply(blocks, room.RoomObjects.CollectibleObjects.Collectibles, _system,
             room.Room.State.XrayOverlay, foregroundPosition, visuals);
-        return new(XrayRevealMap.OriginOf(foregroundPosition), [.. blocks]);
+        return new(XrayRevealMap.OriginOf(foregroundPosition), blocks);
     }
 }

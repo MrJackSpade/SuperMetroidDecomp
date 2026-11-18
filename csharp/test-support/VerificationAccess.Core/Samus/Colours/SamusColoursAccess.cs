@@ -92,6 +92,6 @@ internal static class SamusColoursAccess
         /// update laid one: the shade the effect showed last.
         /// </summary>
         internal int? ShownHyperBeamCycleShade =>
-            self.beamOverlays.Where(shade => shade.Effect == SamusShades.HyperBeamCycle(0).Effect).Select(shade => (int?)shade.Step).LastOrDefault();
+            self.beamOverlays.Where(shade => shade.Effect == SamusShades.HyperBeamCycle[0].Effect).Select(shade => (int?)shade.Step).LastOrDefault();
     }
 }

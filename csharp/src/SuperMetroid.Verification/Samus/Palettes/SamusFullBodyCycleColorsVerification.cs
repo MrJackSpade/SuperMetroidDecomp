@@ -85,7 +85,7 @@ internal static class SamusFullBodyCycleColorsVerification
                     SpeedBoostCounter = new SamusSpeedBoostCounter(4, 0),
                 };
                 speed.CycleShadeStep = phase;
-                PrivateState.Set(speed, nameof(SamusHorizontalSpeedState.CycleShadeTimer), 1);
+                speed.CycleShadeTimer = 1;
                 var cgram = new SamusColours();
                 AssertTrue(speed.UpdateSpeedBoosterGlow(cgram, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.Running, AnimationOnSpinStart = (0) == 0, AnimationPastScrewAttackSpin = (0) >= 27, AnimationBeforeWallJumpSpin = (0) < 3, EquippedItems = items, SuppressActiveSpeedBoosterGlow = false, BottomBoundarySubmerged = false }),
                     "Speed Booster reaches installed color source");

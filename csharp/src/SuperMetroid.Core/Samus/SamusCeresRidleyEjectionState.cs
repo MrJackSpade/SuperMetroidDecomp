@@ -87,7 +87,7 @@ public sealed class SamusCeresRidleyEjectionState
                 : CeresRidleyShoveDirection.Right;
             samus.Kinematics.YSpeed = new UnsignedSixteenSixteen(SamusVerticalMotionDefinitions.CeresRidleyShoveFallingSpeed, 0);
 
-            // Initializes only the shove's state on this update. The shove does not
+            // Only the shove's state is set up on this update. The shove does not
             // perform the first collision/movement pass until the following frame.
             return;
         }

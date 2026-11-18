@@ -6,7 +6,7 @@ public enum ChargedShotGlowKind
     /// <summary>No glow: the suit shows the charge colours or its own.</summary>
     None,
 
-    /// <summary>An ordinary charged shot's white flash.</summary>
+    /// <summary>An ordinary charged shot's yellow flash.</summary>
     ChargedShotFlash,
 
     /// <summary>The Hyper Beam shot's glow through its ten authored colours.</summary>

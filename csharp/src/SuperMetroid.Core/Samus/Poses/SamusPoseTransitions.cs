@@ -154,7 +154,7 @@ internal static class SamusPoseTransitions
         }
         else if (collision == LargerPoseCollisionOutcome.CrouchFallback)
         {
-            // Deliberately chooses stable crouch for a non-Morph source when
+            // A non-Morph source takes the stable crouch when
             // both the floor and ceiling reject the full landing body. This is what lets
             // a spin jump land in a 32-pixel passage without embedding Samus in its ceiling.
             samus.ApplyPoseChangeCollisionCrouchFallback(sourcePose);
@@ -177,7 +177,7 @@ internal static class SamusPoseTransitions
     /// </summary>
     internal static SamusAnimationFrame StandingPoseInitialFrame(SamusPoseId sourcePose, SamusPoseId targetPose)
     {
-        // Keeps the gun raised when both the old and new standing
+        // The gun stays raised when both the old and new standing
         // setup's poses aim straight up, including landing and its completion.
         return SamusPoseMetadata.ReadMovementType(targetPose) == SamusMovementType.Standing &&
             SamusPoseMetadata.ReadAim(sourcePose).AimsStraightUp &&
@@ -225,16 +225,16 @@ internal static class SamusPoseTransitions
     /// </summary>
     private static void SettleAcceptedLanding(SamusState samus, bool leavingScrewAttack)
     {
-        // Selects the same one-shot pose input a turn animation's transition installs.
+        // The landing sets the same one-shot pose input a turn animation's transition installs.
         // Its short held-Jump window is evaluated in the next input phase, not during landing.
         if (!samus.Control.InputLocked) samus.InputSnapshot.AutoJumpInputPending = true;
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
         samus.HorizontalSpeed.BaseSpeed = default;
         samus.Kinematics.YSpeed = default;
 
-        // Reloads the normal suit shade whenever a pose change leaves spin or
+        // The normal suit shade is reloaded whenever a pose change leaves spin or
         // wall-jump movement while Screw Attack is equipped. The suit shade shows
-        // at the later shade phase, so publish that same deferred work here.
+        // at the later shade phase, so the landing requests it here.
         if (leavingScrewAttack)
             samus.HorizontalSpeed.RequestSuitShadeRestore();
         samus.Kinematics.YDirection = SamusVerticalDirection.None;
@@ -269,7 +269,7 @@ internal static class SamusPoseTransitions
         if (collision == LargerPoseCollisionOutcome.Allowed)
         {
             samus.Pose = targetPose;
-            // Leaves the collision radius at the compact body's radius: this frame's enemy and
+            // The collision radius stays the compact body's: this frame's enemy and
             // projectile collision still use it, and the input phase's radius update takes the
             // landing body only next frame, as for an ordinary landing.
             samus.Kinematics.Position += new Offset16<RoomPixels>(0, centerAdjustment);
@@ -314,7 +314,7 @@ internal static class SamusPoseTransitions
         SamusPoseId sourcePose = samus.Pose;
         SamusMovementType previousMovementType = SamusPoseMetadata.ReadMovementType(sourcePose);
 
-        // Runs movement-type initialization after the pose-transition cue has
+        // The movement type is initialised after the pose-transition cue has
         // selected the new normal-jump pose but before it initializes that pose's frame.
         // A live stored shine replaces the target with the shinespark windup, so never briefly seed
         // neutral, aimed-up or diagonally-up normal-jump animation state for it.

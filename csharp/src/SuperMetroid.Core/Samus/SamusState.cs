@@ -88,7 +88,7 @@ public sealed class SamusState
 
     /// <summary>
     /// Where Samus's animation stands (#2048): a frame of a named segment of the animation of <see cref="AnimatedPose"/>.
-    /// Every frame the animation reaches names a step of that animation or of the animation laid out after it, and reading
+    /// Every frame the animation reaches names a step of that animation or of the animation a frame read past its end reaches, and reading
     /// a frame that names no step fails (<see cref="AnimationStep"/>).
     /// </summary>
     internal SamusAnimationFrame AnimationFrame { get; set; }
@@ -99,7 +99,7 @@ public sealed class SamusState
     /// <summary>Sets her animation frame to <paramref name="place"/>, as it lands in the animation she animates by (<see cref="SamusAnimationDelays.Land"/>).</summary>
     internal void SetAnimationFrame(SamusAnimationPlace place) => AnimationFrame = SamusAnimationDelays.Land(AnimationPose, place, FramesBeyondAnimation);
 
-    /// <summary>Moves her animation on to the frame after the one it is on, the animation laid out after hers included.</summary>
+    /// <summary>Moves her animation on to the frame after the one it is on, a frame past her animation's end included.</summary>
     internal void AdvanceAnimationFrame() => AnimationFrame = SamusAnimationDelays.Next(AnimationPose, AnimationFrame, FramesBeyondAnimation);
 
     /// <summary>Moves her animation back to the first frame of the animation she animates by.</summary>
@@ -806,7 +806,7 @@ public sealed class SamusState
         // but leaves the live radius untouched until the next ordinary input phase.
         if (oldRadius < fallbackRadius)
         {
-            // Subtracts the extra crouch radius from center Y. This is
+            // The fallback moves her centre up by the extra crouch radius. This is
             // normally invisible for radius-16 aimed crouches, but compact radius ten must
             // move up six pixels when simultaneous initial probes force ordinary crouching.
             Kinematics.Position = Kinematics.Position.WithWrappedWholeY(
@@ -937,8 +937,8 @@ public sealed class SamusState
             ? left ? SamusPoseId.SpringBallGroundLeftPose : SamusPoseId.SpringBallGroundRightPose
             : left ? SamusPoseId.MorphBallGroundLeftPose : SamusPoseId.MorphBallGroundRightPose;
         SamusPoseMetadata.RefreshCollisionRadii(this);
-        // Preserve animation only within the same ball family. Crossing
-        // families through the equipment menu therefore runs the normal frame-zero setup.
+        // Switching between the Morph Ball and the Spring Ball through the equipment menu
+        // restarts the ball's animation from its first frame.
         SamusPresentation.InitializeAnimation(this);
     }
 

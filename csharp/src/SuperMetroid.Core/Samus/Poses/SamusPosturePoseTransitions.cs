@@ -49,8 +49,8 @@ internal static class SamusPosturePoseTransitions
                 out int centerAdjustment);
         if (collision != LargerPoseCollisionOutcome.Allowed)
         {
-            // Does not restore an aimed crouch when the attempted standing body
-            // is boxed in. It selects the ordinary stable crouch from facing metadata.
+            // An aimed crouch is not restored when the attempted standing body
+            // is boxed in: Samus takes the ordinary stable crouch for her facing.
             if (collision == LargerPoseCollisionOutcome.CrouchFallback)
                 samus.ApplyPoseChangeCollisionCrouchFallback(sourcePose);
             return false;
@@ -238,7 +238,7 @@ internal static class SamusPosturePoseTransitions
         }
 
         samus.Pose = targetPose;
-        // Restores the source radius before returning. The prospective
+        // The collision radius stays the source pose's. The prospective
         // standing-transition geometry was used only by the collision probes above;
         // the ordinary input phase publishes the target radius at the start of the next frame.
         // Keeping that one-frame handoff is observable when the crouched body is resting
@@ -269,7 +269,7 @@ internal static class SamusPosturePoseTransitions
     {
         Ensure.NotNull(level);
 
-        // Does not require the crouching movement type. Falling straight-down
+        // The morph does not require the crouching movement type. Falling straight-down
         // and spin-jump input transitions can select the same morphing-transition setup. The literal
         // previous-movement-type test below even has a dedicated spin-jumping side effect.
         // Validate only the facing-preserving relationship guaranteed by the input transitions.
@@ -326,7 +326,7 @@ internal static class SamusPosturePoseTransitions
             // after alignment, so the camera does not count pose displacement as motion.
             samus.WritePreviousYPosition(samus.Kinematics.Position.Y.Whole);
 
-            // Deliberately recognizes a spin-jump source and forces
+            // Morphing from a spin jump sets
             // SamusAccelerationMode.Decelerating so the compact body retains decelerating aerial momentum after morphing.
             if (previousMovementType == SamusMovementType.SpinJumping)
                 samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Decelerating;
@@ -475,11 +475,11 @@ internal static class SamusPosturePoseTransitions
             (previousDirection == SamusFacingDirection.Left && currentDirection == SamusFacingDirection.Right);
         if (reversed)
         {
-            // Folds run momentum into base speed, the fraction carrying into the whole pixels,
+            // Reversing folds the run momentum into the base speed, the fraction carrying into the whole pixels,
             // clears the extra speeds, and selects SamusAccelerationMode.Turning so displacement initially keeps
             // travelling in the old direction while the ball decelerates through its turn.
             samus.HorizontalSpeed.BaseSpeed += samus.HorizontalSpeed.ExtraRunSpeed;
-            // Cancels the speed boost between folding the extra run speed into the base speed and the
+            // The speed boost is cancelled between folding the extra run speed into the base speed and the
             // explicit extra-speed clear. Preserve that ordering even for ordinary Dash.
             samus.HorizontalSpeed.CancelRunningMomentum(currentDirection);
             samus.HorizontalSpeed.ExtraRunSpeed = default;
@@ -533,7 +533,7 @@ internal static class SamusPosturePoseTransitions
             ? SamusPoseId.MorphBallGroundLeftPose
             : SamusPoseId.MorphBallGroundRightPose;
         ApplyMorphBallPoseChange(samus, groundedPose);
-        // Clears base momentum only when the bounce ends with the ball on the
+        // The base speed is cleared only when the bounce ends with the ball on the
         // ground. Both airborne rebounds above retain their horizontal speed.
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
         samus.HorizontalSpeed.BaseSpeed = default;
@@ -560,7 +560,7 @@ internal static class SamusPosturePoseTransitions
             return false;
         }
 
-        // Selects by the rebound count only, so an ordinary-ball
+        // The bounce is chosen by the rebound count only, so an ordinary-ball
         // rebound left over from a Spring Ball toggle selects the same rebound step.
         if (samus.MorphBallBounceState == SamusBallBounceState.None &&
             SamusSpeedMagnitude.IsAtLeast(samus.Kinematics.YSpeed.Whole, SamusMovementDefinitions.FirstBallBounceMinimumSpeed))

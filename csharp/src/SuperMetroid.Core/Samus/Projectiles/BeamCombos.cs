@@ -46,7 +46,7 @@ internal sealed class BeamCombos
         if (!beam.CanBeEquipped)
             throw new NotSupportedException(
                 "A Spazer and Plasma special attack runs the game's live state as code; reproducing it needs full memory " +
-                "and processor emulation, which is outside the port's scope.");
+                "and processor emulation, which is outside the emulation scope limit (#1500).");
         int remaining = samus.PowerBombs - SamusComboMechanics.GetPowerBombCost(beam);
         samus.PowerBombs = remaining < 0 ? 0 : remaining;
         SamusComboKind? combo = SamusComboMechanics.ComboKind(beam);

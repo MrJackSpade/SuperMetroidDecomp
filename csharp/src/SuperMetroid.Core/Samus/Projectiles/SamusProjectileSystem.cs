@@ -169,8 +169,8 @@ public sealed class SamusProjectileSystem
     }
 
     /// <summary>
-    /// Runs the beam charge colours against the
-    /// modeled Samus shade.
+    /// Runs the beam charge colours on
+    /// Samus's suit shade.
     /// </summary>
     /// <remarks>
     /// This belongs to Samus's suit colouring, not charge-flare drawing. It changes

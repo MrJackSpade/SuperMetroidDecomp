@@ -291,7 +291,7 @@
     {
       "module": "csharp/src/SuperMetroid.Core/Progression",
       "role": "production",
-      "files": 38,
+      "files": 39,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Compatibility",
@@ -335,7 +335,7 @@
     {
       "module": "csharp/src/SuperMetroid.Core/Runtime",
       "role": "production",
-      "files": 32,
+      "files": 35,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Areas",
@@ -727,7 +727,7 @@
     {
       "module": "csharp/src/SuperMetroid.Verification",
       "role": "verification",
-      "files": 2306,
+      "files": 2305,
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core",
@@ -60080,6 +60080,7 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
+        "csharp/src/SuperMetroid.Core/Progression",
         "csharp/src/SuperMetroid.Core/Saves"
       ]
     },
@@ -66654,7 +66655,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Progression/GameTimeState.cs",
+      "path": "csharp/src/SuperMetroid.Core/Progression/GameClockReading.cs",
       "module": "csharp/src/SuperMetroid.Core/Progression",
       "role": "production",
       "namespace": "SuperMetroid.Core.Progression",
@@ -66664,6 +66665,16 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Progression/GameTimeState.cs",
+      "module": "csharp/src/SuperMetroid.Core/Progression",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Progression",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
       ]
     },
     {
@@ -74074,19 +74085,6 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Runtime/Attract/AttractDemoInputDefinitions.cs",
-      "module": "csharp/src/SuperMetroid.Core/Runtime",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Runtime.Attract",
-      "layer": "Runtime",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Input"
-      ]
-    },
-    {
       "path": "csharp/src/SuperMetroid.Core/Runtime/Attract/AttractDemoRoomSetup.cs",
       "module": "csharp/src/SuperMetroid.Core/Runtime",
       "role": "production",
@@ -74104,6 +74102,36 @@
       "layer": "Runtime",
       "assemblies": [
         "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Samus",
+        "csharp/src/SuperMetroid.Core/Spatial"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Runtime/Attract/AttractDemoSamusSetups.cs",
+      "module": "csharp/src/SuperMetroid.Core/Runtime",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Runtime.Attract",
+      "layer": "Runtime",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Samus"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Runtime/Attract/AttractDemoSamusStaging.cs",
+      "module": "csharp/src/SuperMetroid.Core/Runtime",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Runtime.Attract",
+      "layer": "Runtime",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Spatial"
       ]
     },
     {
@@ -74154,9 +74182,9 @@
         "SuperMetroid.Core"
       ],
       "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Input",
         "csharp/src/SuperMetroid.Core/Progression",
         "csharp/src/SuperMetroid.Core/Rooms",
-        "csharp/src/SuperMetroid.Core/Samus",
         "csharp/src/SuperMetroid.Core/Spatial"
       ]
     },
@@ -74171,11 +74199,8 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
-        "csharp/src/SuperMetroid.Core/Compatibility",
         "csharp/src/SuperMetroid.Core/Enemies",
-        "csharp/src/SuperMetroid.Core/Gameplay",
         "csharp/src/SuperMetroid.Core/Progression",
-        "csharp/src/SuperMetroid.Core/Samus",
         "csharp/src/SuperMetroid.Core/Saves",
         "csharp/src/SuperMetroid.Core/World"
       ]
@@ -74254,6 +74279,19 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Runtime/DoorTransitionStage.cs",
+      "module": "csharp/src/SuperMetroid.Core/Runtime",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Runtime",
+      "layer": "Runtime",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Rooms"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Runtime/DoorTransitionState.cs",
       "module": "csharp/src/SuperMetroid.Core/Runtime",
       "role": "production",
@@ -74275,7 +74313,6 @@
         "csharp/src/SuperMetroid.Core/Input",
         "csharp/src/SuperMetroid.Core/Rooms",
         "csharp/src/SuperMetroid.Core/Samus",
-        "csharp/src/SuperMetroid.Core/Spatial",
         "csharp/src/SuperMetroid.Core/World"
       ]
     },
@@ -74402,6 +74439,23 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Runtime/OrdinaryDoorTransition.cs",
+      "module": "csharp/src/SuperMetroid.Core/Runtime",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Runtime",
+      "layer": "Runtime",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core",
+        "csharp/src/SuperMetroid.Core/Compatibility",
+        "csharp/src/SuperMetroid.Core/Fx",
+        "csharp/src/SuperMetroid.Core/Rooms",
+        "csharp/src/SuperMetroid.Core/Spatial"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Runtime/RuntimeFrameAudio.cs",
       "module": "csharp/src/SuperMetroid.Core/Runtime",
       "role": "production",
@@ -74491,6 +74545,7 @@
         "csharp/src/SuperMetroid.Core/Rendering",
         "csharp/src/SuperMetroid.Core/Rooms",
         "csharp/src/SuperMetroid.Core/Samus",
+        "csharp/src/SuperMetroid.Core/Saves",
         "csharp/src/SuperMetroid.Core/Spatial",
         "csharp/src/SuperMetroid.Core/World"
       ]
@@ -102805,6 +102860,7 @@
         "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Core/Escape",
         "csharp/src/SuperMetroid.Core/Rooms",
+        "csharp/src/SuperMetroid.Core/Spatial",
         "csharp/src/SuperMetroid.Core/World",
         "csharp/test-support/Assertions",
         "csharp/test-support/RepositoryInstallation.Verification",
@@ -117452,6 +117508,7 @@
         "csharp/src/SuperMetroid.Core/Audio",
         "csharp/src/SuperMetroid.Core/Frontend",
         "csharp/src/SuperMetroid.Core/Input",
+        "csharp/src/SuperMetroid.Core/Progression",
         "csharp/src/SuperMetroid.Core/Saves",
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/Assertions",
@@ -134571,18 +134628,6 @@
       "namespace": "SuperMetroid.Verification.Saves",
       "assemblies": [
         "SuperMetroid.Verification"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Verification/Saves/VerifyWidenedSlotFieldsRoundTripCase.cs",
-      "module": "csharp/src/SuperMetroid.Verification",
-      "role": "verification",
-      "namespace": "SuperMetroid.Verification.Saves",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Saves"
       ]
     },
     {
@@ -155585,7 +155630,7 @@
       ]
     },
     {
-      "path": "csharp/test-support/VerificationAccess.Core/Runtime/Attract/AttractDemoInputDefinitionsAccess.cs",
+      "path": "csharp/test-support/VerificationAccess.Core/Runtime/Attract/AttractDemoInputDefinitionAccess.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Runtime.Attract",
@@ -155597,6 +155642,7 @@
         "SuperMetroid.Verification"
       ],
       "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Input",
         "csharp/src/SuperMetroid.Core/Runtime"
       ]
     },

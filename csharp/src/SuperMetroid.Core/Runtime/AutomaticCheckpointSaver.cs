@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Enemies.Gunship;
-using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Progression;
 

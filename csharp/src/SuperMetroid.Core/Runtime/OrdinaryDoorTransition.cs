@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Rooms.Doors;
 

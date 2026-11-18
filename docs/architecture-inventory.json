@@ -103908,6 +103908,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Gameplay.AmmoLoanGuard.AmmoLoan",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Gameplay/AmmoLoanGuard.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Gameplay.BelowPerspectiveFloor",
       "kind": "enum",
       "scope": "product",
@@ -107032,6 +107045,19 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Progression.GameClockReading",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Progression/GameClockReading.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Progression.GameTimeState",
@@ -120795,20 +120821,7 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Runtime.Attract.AttractDemoInputDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Runtime/Attract/AttractDemoInputDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Runtime.Attract.AttractDemoInputDefinitionsAccess",
+      "type": "SuperMetroid.Core.Runtime.Attract.AttractDemoInputDefinitionAccess",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
@@ -120818,13 +120831,13 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Runtime/Attract/AttractDemoInputDefinitionsAccess.cs"
+        "csharp/test-support/VerificationAccess.Core/Runtime/Attract/AttractDemoInputDefinitionAccess.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Runtime.Attract.AttractDemoInputDefinitionsAccess.extension(SuperMetroid.Core.Runtime.Attract.AttractDemoInputDefinitions)",
+      "type": "SuperMetroid.Core.Runtime.Attract.AttractDemoInputDefinitionAccess.extension(SuperMetroid.Core.Runtime.Attract.AttractDemoInputDefinition)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -120834,7 +120847,7 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Runtime/Attract/AttractDemoInputDefinitionsAccess.cs"
+        "csharp/test-support/VerificationAccess.Core/Runtime/Attract/AttractDemoInputDefinitionAccess.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
@@ -120870,13 +120883,78 @@
     },
     {
       "type": "SuperMetroid.Core.Runtime.Attract.AttractDemoSamusSetup",
-      "kind": "enum",
+      "kind": "record",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Runtime/Attract/AttractDemoSamusSetup.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Runtime.Attract.AttractDemoSamusSetup.ForwardFacing",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Runtime/Attract/AttractDemoSamusSetup.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Runtime.Attract.AttractDemoSamusSetup.Posed",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Runtime/Attract/AttractDemoSamusSetup.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Runtime.Attract.AttractDemoSamusSetup.Shinespark",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Runtime/Attract/AttractDemoSamusSetup.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Runtime.Attract.AttractDemoSamusSetups",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Runtime/Attract/AttractDemoSamusSetups.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Runtime.Attract.AttractDemoSamusStaging",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Runtime/Attract/AttractDemoSamusStaging.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -120932,19 +121010,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Runtime.Attract.StockAttractDemoScenes.Demonstration",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Runtime/Attract/StockAttractDemoScenes.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Runtime.AutomaticCheckpointSaver",
@@ -121039,6 +121104,32 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Runtime.DoorTransitionStage",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Runtime/DoorTransitionStage.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Runtime.DoorTransitionStage.Resting",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Runtime/DoorTransitionStage.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Runtime.DoorTransitionState",
@@ -121163,6 +121254,19 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Runtime.OrdinaryDoorTransition",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Runtime/OrdinaryDoorTransition.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Runtime.RuntimeFrameAudio",
@@ -182570,19 +182674,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Saves/VerifyInvalidSlotAndNoncanonicalMarkerCase.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Verification.Saves.VerifyWidenedSlotFieldsRoundTripCase",
-      "kind": "record struct",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Saves/VerifyWidenedSlotFieldsRoundTripCase.cs"
       ],
       "partial": "none",
       "disposition": "value"

@@ -4,7 +4,6 @@ using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Frontend;

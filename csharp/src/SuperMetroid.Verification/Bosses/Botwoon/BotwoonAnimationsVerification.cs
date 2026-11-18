@@ -325,7 +325,8 @@ internal static class BotwoonAnimationsVerification
             }
             string at = $"Botwoon {label} pass {update}";
             SuperMetroid.Verification.Enemies.NativeEnemyProjectileParity.AssertFrameHold(timer, projectile, at);
-            AssertEqual(operand, projectile.PresentationOperandAddress, $"{at}: frame");
+            // The hidden segment's operand draws nothing and shows the blank frame (#2431).
+            AssertEqual(EnemyProjectileProgramFrameOperands.OwnOperand(operand), projectile.PresentationOperandAddress, $"{at}: frame");
         }
     }
 

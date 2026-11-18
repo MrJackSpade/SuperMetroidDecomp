@@ -236,7 +236,7 @@ internal static class YardAnimations
         [P.HiddenUpsideUpMovingLeft] =
         [
             Show(EnemyFrameId.YardUpsideUpFacingLeftShellClosed, 48),
-            Show(EnemyFrameId.YardUpsideUpFacingLeftLegsTuckingShiftedLeft3, 16),
+            Show(EnemyFrameId.YardUpsideUpFacingLeftLegsEmerging, 16),
         ],
         [P.HidingUpsideDownMovingLeft] =
         [
@@ -251,7 +251,7 @@ internal static class YardAnimations
         [P.HiddenUpsideDownMovingLeft] =
         [
             Show(EnemyFrameId.YardUpsideDownFacingLeftShellClosed, 48),
-            Show(EnemyFrameId.YardUpsideDownFacingLeftLegsTuckingShiftedLeft2, 16),
+            Show(EnemyFrameId.YardUpsideDownFacingLeftLegsEmerging, 16),
         ],
         [P.HidingUpsideDownMovingRight] =
         [
@@ -266,7 +266,7 @@ internal static class YardAnimations
         [P.HiddenUpsideDownMovingRight] =
         [
             Show(EnemyFrameId.YardUpsideDownFacingRightShellClosed, 48),
-            Show(EnemyFrameId.YardUpsideDownFacingRightLegsTuckingShiftedRight2, 16),
+            Show(EnemyFrameId.YardUpsideDownFacingRightLegsEmerging, 16),
         ],
         [P.HidingUpsideUpMovingRight] =
         [
@@ -281,7 +281,7 @@ internal static class YardAnimations
         [P.HiddenUpsideUpMovingRight] =
         [
             Show(EnemyFrameId.YardUpsideUpFacingRightShellClosed, 48),
-            Show(EnemyFrameId.YardUpsideUpFacingRightLegsTuckingShiftedRight3, 16),
+            Show(EnemyFrameId.YardUpsideUpFacingRightLegsEmerging, 16),
         ],
         [P.HidingUpsideRightMovingUp] =
         [
@@ -296,7 +296,7 @@ internal static class YardAnimations
         [P.HiddenUpsideRightMovingUp] =
         [
             Show(EnemyFrameId.YardUpsideRightFacingUpShellClosed, 48),
-            Show(EnemyFrameId.YardUpsideRightFacingUpLegsTuckingFurther, 16),
+            Show(EnemyFrameId.YardUpsideRightFacingUpLegsEmerging, 16),
         ],
         [P.HidingUpsideLeftMovingUp] =
         [
@@ -311,7 +311,7 @@ internal static class YardAnimations
         [P.HiddenUpsideLeftMovingUp] =
         [
             Show(EnemyFrameId.YardUpsideLeftFacingUpShellClosed, 48),
-            Show(EnemyFrameId.YardUpsideLeftFacingUpLegsTuckingShiftedUp2, 16),
+            Show(EnemyFrameId.YardUpsideLeftFacingUpLegsEmerging, 16),
         ],
         [P.HidingUpsideLeftMovingDown] =
         [
@@ -326,7 +326,7 @@ internal static class YardAnimations
         [P.HiddenUpsideLeftMovingDown] =
         [
             Show(EnemyFrameId.YardUpsideLeftFacingDownShellClosed, 48),
-            Show(EnemyFrameId.YardUpsideLeftFacingDownLegsTuckingShiftedDown2, 16),
+            Show(EnemyFrameId.YardUpsideLeftFacingDownLegsEmerging, 16),
         ],
         [P.HidingUpsideRightMovingDown] =
         [
@@ -341,7 +341,7 @@ internal static class YardAnimations
         [P.HiddenUpsideRightMovingDown] =
         [
             Show(EnemyFrameId.YardUpsideRightFacingDownShellClosed, 48),
-            Show(EnemyFrameId.YardUpsideRightFacingDownLegsTuckingShiftedDown2, 16),
+            Show(EnemyFrameId.YardUpsideRightFacingDownLegsEmerging, 16),
         ],
         [P.AirborneFacingLeft] =
         [

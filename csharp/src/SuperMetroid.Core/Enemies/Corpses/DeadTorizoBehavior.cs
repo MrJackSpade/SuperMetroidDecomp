@@ -54,7 +54,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         place.SetSpeciesState(new DeadTorizoEnemyState(new CorpseRotSchedule(DeadTorizoCorpseDefinitions.RowCount), DeadTorizoPhase.Wait)
         {
             Playback = playback,
-            Velocity = new(default, DeadTorizoCorpseDefinitions.StartingFallSpeed),
+            FallSpeed = DeadTorizoCorpseDefinitions.StartingFallSpeed,
         });
     }
 
@@ -105,8 +105,8 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Advances the corpse's fall and runs one rot update of its schedule.</summary>
     private void RunDeadTorizoRotting(RoomEnemyPlace place, DeadTorizoEnemyState state)
     {
-        state.Velocity = state.Velocity.WithY(state.Velocity.Y + DeadTorizoCorpseDefinitions.RotGravity);
-        place.Position = place.Position.MovedBy(state.Velocity);
+        state.FallSpeed += DeadTorizoCorpseDefinitions.RotGravity;
+        place.Position = place.Position.WithY(place.Position.Y.MovedBy(state.FallSpeed));
         state.RotUpdateCount++;
         bool stillRotting = state.Rot.Step(state.Rows.MoveRow, _ => FinishDeadTorizoCorpseRow());
         if (!stillRotting)

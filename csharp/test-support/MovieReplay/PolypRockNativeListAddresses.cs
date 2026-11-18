@@ -19,5 +19,5 @@ internal static class PolypRockNativeListAddresses
     internal static readonly MotherBrainEffectNativeListAddressesExtent Extent = new MotherBrainEffectNativeListAddressesExtent(0xbbd5, 0xbbdb);
 
     /// <summary>The family's typed programs beside their native lists.</summary>
-    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, PolypRockAnimations.Segments, PolypRockAnimations.StartingAt, (frame => EnemyProjectileProgramFrameSources.Operand(frame)), NativeEnemyProjectileCommonCues.Rules);
+    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, PolypRockAnimations.Segments, PolypRockAnimations.StartingAt, EnemyProjectileProgramFrameOperands.KeyOf, NativeEnemyProjectileCommonCues.Rules);
 }

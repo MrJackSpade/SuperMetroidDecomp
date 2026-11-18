@@ -34,19 +34,19 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Carries out one cue of Cacatac's animations.</summary>
     private CacatacSegment? ApplyCacatacCue(RoomEnemyPlace place, CacatacEnemyState state, CacatacCue cue)
     {
-        switch (cue.Kind)
+        switch (cue)
         {
-            case CacatacCueKind.RestorePatrol:
+            case CacatacCue.Signal { Kind: CacatacCueKind.RestorePatrol }:
                 RestoreCacatacPatrol(state);
                 break;
-            case CacatacCueKind.PlaySpikeSound:
+            case CacatacCue.Signal { Kind: CacatacCueKind.PlaySpikeSound }:
                 PlayCacatacSpikeSound();
                 break;
-            case CacatacCueKind.SpawnSpike:
-                SpawnCacatacSpike(place, cue.Direction);
+            case CacatacCue.SpawnSpike spike:
+                SpawnCacatacSpike(place, spike.Direction);
                 break;
             default:
-                throw new InvalidOperationException($"Undefined {nameof(CacatacCueKind)} {cue.Kind}.");
+                throw new InvalidOperationException($"Undefined Cacatac cue {cue}.");
         }
         return null;
     }

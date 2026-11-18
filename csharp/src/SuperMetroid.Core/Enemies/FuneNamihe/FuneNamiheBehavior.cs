@@ -65,7 +65,6 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
         FuneSpawnSettings settings = place.SpawnSettings<FuneSpawnSettings>();
         var state = new FuneEnemyState(FuneAction.WaitForCooldown)
         {
-            ShowsActiveAnimation = false,
             CooldownTime = settings.CooldownTime,
             CooldownTimer = 0,
             Facing = settings.Facing,
@@ -81,7 +80,6 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
         NamiheSpawnSettings settings = place.SpawnSettings<NamiheSpawnSettings>();
         var state = new NamiheEnemyState(NamiheAction.WaitForSamus)
         {
-            ShowsActiveAnimation = false,
             YProximity = settings.YProximity,
             Facing = settings.Facing,
             LaunchSpeed = settings.LaunchSpeed,
@@ -101,9 +99,8 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (state.CooldownTimer < state.CooldownTime)
                     return;
 
-                state.ShowsActiveAnimation = true;
-                StartFuneNamiheAnimation(place, state);
                 state.Action = FuneAction.Spitting;
+                StartFuneNamiheAnimation(place, state);
                 state.CooldownTimer = 0;
                 return;
 
@@ -129,9 +126,8 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
                     return;
                 }
 
-                state.ShowsActiveAnimation = true;
-                StartFuneNamiheAnimation(place, state);
                 state.Action = NamiheAction.Spitting;
+                StartFuneNamiheAnimation(place, state);
                 return;
 
             case NamiheAction.Spitting:

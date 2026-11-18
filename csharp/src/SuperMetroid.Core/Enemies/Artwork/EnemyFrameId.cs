@@ -1928,50 +1928,50 @@ public enum EnemyFrameId
     YardUpsideUpFacingLeftLegsTucking,
     /// <summary>Yard: upright, facing left, withdrawn into its closed shell.</summary>
     YardUpsideUpFacingLeftShellClosed,
-    /// <summary>Yard: upright, facing left, tucking its legs into its shell: the picture of YardUpsideUpFacingLeftLegsTucking, drawn 3 pixels left of it.</summary>
-    YardUpsideUpFacingLeftLegsTuckingShiftedLeft3,
+    /// <summary>Yard: upright, facing left, putting its legs back out of its shell before it crawls on: the picture of YardUpsideUpFacingLeftLegsTucking, placed 3 pixels further left.</summary>
+    YardUpsideUpFacingLeftLegsEmerging,
     /// <summary>Yard: upside down, facing left, tucking its legs into its shell.</summary>
     YardUpsideDownFacingLeftLegsTucking,
     /// <summary>Yard: upside down, facing left, withdrawn into its closed shell.</summary>
     YardUpsideDownFacingLeftShellClosed,
-    /// <summary>Yard: upside down, facing left, tucking its legs into its shell: the picture of YardUpsideDownFacingLeftLegsTucking, drawn 2 pixels left of it.</summary>
-    YardUpsideDownFacingLeftLegsTuckingShiftedLeft2,
+    /// <summary>Yard: upside down, facing left, putting its legs back out of its shell before it crawls on: the picture of YardUpsideDownFacingLeftLegsTucking, placed 2 pixels further left.</summary>
+    YardUpsideDownFacingLeftLegsEmerging,
     /// <summary>Yard: upside down, facing right, tucking its legs into its shell.</summary>
     YardUpsideDownFacingRightLegsTucking,
     /// <summary>Yard: upside down, facing right, withdrawn into its closed shell.</summary>
     YardUpsideDownFacingRightShellClosed,
-    /// <summary>Yard: upside down, facing right, tucking its legs into its shell: the picture of YardUpsideDownFacingRightLegsTucking, drawn 2 pixels right of it.</summary>
-    YardUpsideDownFacingRightLegsTuckingShiftedRight2,
+    /// <summary>Yard: upside down, facing right, putting its legs back out of its shell before it crawls on: the picture of YardUpsideDownFacingRightLegsTucking, placed 2 pixels further right.</summary>
+    YardUpsideDownFacingRightLegsEmerging,
     /// <summary>Yard: upright, facing right, tucking its legs into its shell.</summary>
     YardUpsideUpFacingRightLegsTucking,
     /// <summary>Yard: upright, facing right, withdrawn into its closed shell.</summary>
     YardUpsideUpFacingRightShellClosed,
-    /// <summary>Yard: upright, facing right, tucking its legs into its shell: the picture of YardUpsideUpFacingRightLegsTucking, drawn 3 pixels right of it.</summary>
-    YardUpsideUpFacingRightLegsTuckingShiftedRight3,
+    /// <summary>Yard: upright, facing right, putting its legs back out of its shell before it crawls on: the picture of YardUpsideUpFacingRightLegsTucking, placed 3 pixels further right.</summary>
+    YardUpsideUpFacingRightLegsEmerging,
     /// <summary>Yard: with its top to the right, facing up, tucking its legs into its shell.</summary>
     YardUpsideRightFacingUpLegsTucking,
     /// <summary>Yard: with its top to the right, facing up, withdrawn into its closed shell.</summary>
     YardUpsideRightFacingUpShellClosed,
-    /// <summary>Yard: with its top to the right, facing up, tucking its legs further into its shell.</summary>
-    YardUpsideRightFacingUpLegsTuckingFurther,
+    /// <summary>Yard: with its top to the right, facing up, putting its legs back out of its shell before it crawls on.</summary>
+    YardUpsideRightFacingUpLegsEmerging,
     /// <summary>Yard: with its top to the left, facing up, tucking its legs into its shell.</summary>
     YardUpsideLeftFacingUpLegsTucking,
     /// <summary>Yard: with its top to the left, facing up, withdrawn into its closed shell.</summary>
     YardUpsideLeftFacingUpShellClosed,
-    /// <summary>Yard: with its top to the left, facing up, tucking its legs into its shell: the picture of YardUpsideLeftFacingUpLegsTucking, drawn 2 pixels up of it.</summary>
-    YardUpsideLeftFacingUpLegsTuckingShiftedUp2,
+    /// <summary>Yard: with its top to the left, facing up, putting its legs back out of its shell before it crawls on: the picture of YardUpsideLeftFacingUpLegsTucking, placed 2 pixels higher.</summary>
+    YardUpsideLeftFacingUpLegsEmerging,
     /// <summary>Yard: with its top to the left, facing down, tucking its legs into its shell.</summary>
     YardUpsideLeftFacingDownLegsTucking,
     /// <summary>Yard: with its top to the left, facing down, withdrawn into its closed shell.</summary>
     YardUpsideLeftFacingDownShellClosed,
-    /// <summary>Yard: with its top to the left, facing down, tucking its legs into its shell: the picture of YardUpsideLeftFacingDownLegsTucking, drawn 2 pixels down of it.</summary>
-    YardUpsideLeftFacingDownLegsTuckingShiftedDown2,
+    /// <summary>Yard: with its top to the left, facing down, putting its legs back out of its shell before it crawls on: the picture of YardUpsideLeftFacingDownLegsTucking, placed 2 pixels lower.</summary>
+    YardUpsideLeftFacingDownLegsEmerging,
     /// <summary>Yard: with its top to the right, facing down, tucking its legs into its shell.</summary>
     YardUpsideRightFacingDownLegsTucking,
     /// <summary>Yard: with its top to the right, facing down, withdrawn into its closed shell.</summary>
     YardUpsideRightFacingDownShellClosed,
-    /// <summary>Yard: with its top to the right, facing down, tucking its legs into its shell: the picture of YardUpsideRightFacingDownLegsTucking, drawn 2 pixels down of it.</summary>
-    YardUpsideRightFacingDownLegsTuckingShiftedDown2,
+    /// <summary>Yard: with its top to the right, facing down, putting its legs back out of its shell before it crawls on: the picture of YardUpsideRightFacingDownLegsTucking, placed 2 pixels lower.</summary>
+    YardUpsideRightFacingDownLegsEmerging,
     /// <summary>Botwoon: head closed up left.</summary>
     BotwoonHeadClosedUpLeft,
     /// <summary>Botwoon: head closed left.</summary>

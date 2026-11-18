@@ -26,5 +26,5 @@ internal static class MotherBrainTopTubeNativeListAddresses
 
     /// <summary>The family's typed segments and animations beside their native lists.</summary>
     internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, MotherBrainTopTubeAnimations.Segments, MotherBrainTopTubeAnimations.StartingAt,
-        EnemyProjectileProgramFrameSources.Operand, Rules);
+        EnemyProjectileProgramFrameOperands.KeyOf, Rules);
 }

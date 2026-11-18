@@ -118,7 +118,7 @@ internal static class BotwoonAnimations
                 Show(F.BotwoonBodyUpLeftRipple270, BodyFrameDuration),
             ],
             [B.TailCap(CompassDirection.UpLeft)] = [Show(F.BotwoonTailUpLeft, 1)],
-            [B.Hidden] = [Show(F.BotwoonBlank, 1)],
+            [B.Hidden] = [Show(F.Blank, 1)],
         }, BodyAnimationKeys);
 
     /// <summary>

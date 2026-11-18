@@ -31,5 +31,5 @@ internal static class CacatacProjectileNativeListAddresses
     internal static ushort Entry(CacatacSpikeDirection program) => NativeEnemyProjectileProgramOracle.EntryOf(Entries, program);
 
     /// <summary>The family's typed programs beside their native lists.</summary>
-    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, CacatacProjectileAnimations.Segments, CacatacProjectileAnimations.StartingAt, (frame => EnemyProjectileProgramFrameSources.Operand(frame)), NativeEnemyProjectileCommonCues.Rules);
+    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, CacatacProjectileAnimations.Segments, CacatacProjectileAnimations.StartingAt, EnemyProjectileProgramFrameOperands.KeyOf, NativeEnemyProjectileCommonCues.Rules);
 }

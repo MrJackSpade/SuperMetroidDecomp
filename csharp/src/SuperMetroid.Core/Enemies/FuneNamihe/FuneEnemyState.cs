@@ -32,14 +32,16 @@ public sealed class FuneEnemyState : FuneNamiheEnemyState
     internal override RoomEnemyProjectileKind Fireball => RoomEnemyProjectileKind.FuneFireball;
 
     /// <inheritdoc/>
-    internal override FuneNamiheSegment Animation => ShowsActiveAnimation
+    internal override bool IsSpitting => Action == FuneAction.Spitting;
+
+    /// <inheritdoc/>
+    internal override FuneNamiheSegment Animation => IsSpitting
         ? Facing == HorizontalDirection.Right ? FuneNamiheSegment.FuneActiveRight : FuneNamiheSegment.FuneActiveLeft
         : Facing == HorizontalDirection.Right ? FuneNamiheSegment.FuneIdleRight : FuneNamiheSegment.FuneIdleLeft;
 
     /// <inheritdoc/>
     internal override void FinishSpit()
     {
-        ShowsActiveAnimation = false;
         Action = FuneAction.WaitForCooldown;
     }
 }

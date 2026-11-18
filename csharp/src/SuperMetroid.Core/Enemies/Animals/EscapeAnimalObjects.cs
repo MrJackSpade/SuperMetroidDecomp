@@ -31,7 +31,7 @@ internal sealed class EscapeAnimalObjects : ICrittersEscapeReaction
             throw new InvalidOperationException("Animal rescue wall setup has no free room-object place.");
         RoomObjectLevelWrites.WriteObjectCollisionAndBehavior(level, origin, EscapeAnimalWallDefinitions.OriginCollisionType,
             EscapeAnimalWallDefinitions.ReactionBehavior);
-        for (int row = 1; row <= 2; row++)
+        for (int row = 1; row < EscapeAnimalWallDefinitions.HeightInBlocks; row++)
             RoomObjectLevelWrites.WriteObjectCollisionAndBehavior(level, origin + new Offset16<RoomBlocks>(0, row),
                 EscapeAnimalWallDefinitions.ExtensionCollisionType,
                 EscapeAnimalWallDefinitions.ExtensionBehavior);

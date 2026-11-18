@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// </summary>
 public enum EnemyProjectileFrameId
 {
-    /// <summary>The empty projectile frame, which draws nothing.</summary>
+    /// <summary>The empty projectile frame, which draws nothing and is on no sheet: every beat that shows no picture (#2431).</summary>
     Blank,
     /// <summary>The Skree debris, one composed picture.</summary>
     SkreeDebris,
@@ -136,8 +136,6 @@ public enum EnemyProjectileFrameId
     PhantoonFlameLastWisp,
     /// <summary>Phantoon's flame: a flame kindling.</summary>
     PhantoonFlameKindling,
-    /// <summary>Phantoon's flame: nothing; it draws no picture.</summary>
-    PhantoonFlameBlank,
     /// <summary>Phantoon's flame: a teardrop of flame.</summary>
     PhantoonFlameTeardrop,
     /// <summary>Phantoon's flame: a flame sputtering.</summary>
@@ -349,8 +347,6 @@ public enum EnemyProjectileFrameId
     TorizoExplosionFireCloudBreaking,
     /// <summary>A Torizo's explosion: the embers of a cloud of fire.</summary>
     TorizoExplosionFireCloudEmbers,
-    /// <summary>A Torizo's drool: nothing; it draws no picture.</summary>
-    TorizoDroolBlank,
     /// <summary>A Torizo's drool: a falling drop.</summary>
     TorizoDroolDrop,
     /// <summary>A Torizo's drool: a splash rising.</summary>
@@ -543,8 +539,6 @@ public enum EnemyProjectileFrameId
     GoldenTorizoEyeBeamFlareRing,
     /// <summary>Golden Torizo's eye beam: a fading ring of light.</summary>
     GoldenTorizoEyeBeamFlareRingFading,
-    /// <summary>Golden Torizo's eye beam: nothing; it draws no picture.</summary>
-    GoldenTorizoEyeBeamBlank,
     /// <summary>Golden Torizo's eye beam: a burst of flame.</summary>
     GoldenTorizoEyeBeamFlameBurst,
     /// <summary>Golden Torizo's eye beam: a low dome of flame.</summary>
@@ -635,8 +629,6 @@ public enum EnemyProjectileFrameId
     TourianStatueEyeGlowStreakSmall,
     /// <summary>A Tourian statue's eye glow: one dot.</summary>
     TourianStatueEyeGlowDot,
-    /// <summary>A Tourian statue's eye glow: nothing; it draws no picture.</summary>
-    TourianStatueEyeGlowBlank,
     /// <summary>A Tourian statue's particle: a curl.</summary>
     TourianStatueParticleTurned0,
     /// <summary>A Tourian statue's particle: a curl turned a quarter.</summary>
@@ -1541,8 +1533,6 @@ public enum EnemyProjectileFrameId
     BotwoonTailRight,
     /// <summary>A Botwoon tail segment: pointing up and right.</summary>
     BotwoonTailUpRight,
-    /// <summary>A Botwoon segment: nothing; it draws no picture.</summary>
-    BotwoonBlank,
     /// <summary>Botwoon's spit: a dim green ball.</summary>
     BotwoonSpitDim,
     /// <summary>Botwoon's spit: a bright green ball.</summary>
@@ -1557,8 +1547,6 @@ public enum EnemyProjectileFrameId
     YappingMawFacingDown,
     /// <summary>A Yapping Maw body segment: facing up.</summary>
     YappingMawFacingUp,
-    /// <summary>An enemy's death: nothing; it draws no picture.</summary>
-    EnemyDeathBlank,
     /// <summary>An enemy's death: a small fireball.</summary>
     EnemyDeathFireballSmall,
     /// <summary>An enemy's death: a large fireball.</summary>
@@ -1643,6 +1631,4 @@ public enum EnemyProjectileFrameId
     FallingSparkDiagonal,
     /// <summary>A falling spark: a small upright cross.</summary>
     FallingSparkUprightSmall,
-    /// <summary>A falling spark: nothing; it draws no picture.</summary>
-    FallingSparkBlank,
 }

@@ -58,22 +58,25 @@ public sealed class BoulderEnemyState
     public BoulderRoll Roll { get; internal set; }
 
     /// <summary>
-    /// The window, relative to the boulder, that Samus's displacement must enter to start it. X is the signed pixel
-    /// threshold from its authored trigger reach, positive for rightward activation and negative for leftward
-    /// activation.
-    /// Y is the exclusive upper threshold for Samus's nonnegative Y displacement, its authored trigger height.
+    /// How far toward its roll, in pixels, Samus may stand from the boulder to start it, from its authored trigger reach
+    /// (#2432): up to this far to the left of a boulder that rolls left, and nearer than this to the right of one that
+    /// rolls right.
     /// </summary>
-    public Offset16<RoomPixels> TriggerReach { get; internal set; }
+    public int TriggerReach { get; internal set => field = Ensure.AtLeastZero(value); }
+
+    /// <summary>
+    /// How far below the boulder, in pixels, Samus must stand nearer than to start it, from its authored trigger height.
+    /// </summary>
+    public int TriggerHeight { get; internal set => field = Ensure.AtLeastZero(value); }
     /// <summary>Extra downward collision reach during rolling, in pixels, subtracted from the Y position afterward. Initially two pixels, then zero once the full Y position stops changing.</summary>
     public int VerticalCompensation { get; internal set; }
     /// <summary>Saved Y position with its subpixel, compared with the current Y to detect stationary rolling; captured at initialization and on the final bounce, then refreshed after each rolling update.</summary>
     public FixedCoordinate PreviousY { get; internal set; }
     /// <summary>
-    /// The population's spawn position in room pixels: X retained
-    /// (the movement does not consume it later), and Y before
-    /// the initial upward offset, which the first fall snaps to before rebounding.
+    /// The population's spawn height in room pixels, before the initial upward offset: the first fall lands there before
+    /// rebounding (#2432).
     /// </summary>
-    public Position16<RoomPixels> InitialPosition { get; internal set; }
+    public int RestingY { get; internal set; }
     /// <summary>True when it rolls at once: it hangs a pixel above its resting place and activation bypasses the falling and bounce sequence.</summary>
     public bool StartsRollingWithoutBounce { get; internal set; }
 }

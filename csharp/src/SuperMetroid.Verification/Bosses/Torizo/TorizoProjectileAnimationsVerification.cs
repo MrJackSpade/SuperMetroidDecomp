@@ -151,7 +151,7 @@ internal static class TorizoProjectileAnimationsVerification
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         int steps = NativeEnemyProjectileProgramOracle.CompareByEntry(cartridge, ProjectileLists, ProjectileAnimationEntries,
             TorizoProjectileAnimations.Segments, TorizoProjectileAnimations.StartingAt,
-            EnemyProjectileProgramFrameSources.Operand, CueRules, named: NamedProjectileAnimationEntries);
+            EnemyProjectileProgramFrameOperands.KeyOf, CueRules, named: NamedProjectileAnimationEntries);
 
         int frames = 0;
         foreach (TorizoProjectileFamily family in Enum.GetValues<TorizoProjectileFamily>())
@@ -161,6 +161,8 @@ internal static class TorizoProjectileAnimationsVerification
                 .Where(animation => TorizoProjectileAnimationsConstants.Family(animation) == family)
                 .SelectMany(animation => TorizoProjectileAnimations.Segments.Beats(animation))
                 .Select(beat => beat.ShownFrame).OfType<EnemyProjectileFrameId>().ToHashSet();
+            // The drool's delays and the eye beam's floor impact show the blank frame, which is installed nowhere (#2431).
+            shown.Remove(EnemyProjectileFrameId.Blank);
             AssertTrue(shown.SetEquals(installed), $"the {family} animations show exactly the installed frames");
             ushort[] keys = [.. installed.Select(EnemyProjectileProgramFrameSources.Operand)];
             AssertTrue(keys.Zip(keys.Skip(1), (first, second) => first < second).All(ascends => ascends), $"the {family} frames install in native operand order");

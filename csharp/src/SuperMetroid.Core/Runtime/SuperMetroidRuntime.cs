@@ -561,7 +561,7 @@ internal sealed class SuperMetroidRuntime
             waveBoss.BodyWave.Step(waveBoss);
             waveBoss.BodyVisibility.Step(waveBoss);
         }
-        room.FxOverlay.Step(room.ArtworkFrames, new RoomFxOverlayFrame { Camera = room.Camera.PixelPosition, TimeIsFrozen = Freeze.TimeIsFrozen, FirefleaDarkness = new FirefleaDarkness(room.Enemies.RoomStatus.FirefleaDarknessStep) });
+        room.FxOverlay.Step(room.ArtworkFrames, new RoomFxOverlayFrame { Camera = room.Camera.PixelPosition, TimeIsFrozen = Freeze.TimeIsFrozen, FirefleaDarkness = room.Enemies.RoomStatus.FirefleaDarkness });
         // A lava or acid rise sustains the room's earthquake. Apply it before the ordinary earthquake step later in
         // this frame so its first displacement is visible immediately.
         if (room.FxOverlay.SustainedEarthquake is { } risingLiquidShake)

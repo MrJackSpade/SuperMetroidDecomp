@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Corpses;
@@ -24,8 +25,8 @@ internal static class DeadSidehopperLaunchDefinitionsVerification
         {
             ushort vx = CartridgeImportSource.Require(rom).ReadCartridgeWord((EnemyRomTablePointersDeadSidehopper.HorizontalVelocityWords + phase * 2));
             ushort vy = CartridgeImportSource.Require(rom).ReadCartridgeWord((EnemyRomTablePointersDeadSidehopper.VerticalVelocityWords + phase * 2));
-            AssertEqual(vx, DeadSidehopperLaunchDefinitions.Velocity(phase).X.RawValue, "Native corpse X launch");
-            AssertEqual(vy, DeadSidehopperLaunchDefinitions.Velocity(phase).Y.RawValue, "Native corpse Y launch");
+            AssertEqual(vx, DeadSidehopperLaunchDefinitions.Launches[phase].X.RawValue, "Native corpse X launch");
+            AssertEqual(vy, DeadSidehopperLaunchDefinitions.Launches[phase].Y.RawValue, "Native corpse Y launch");
             foreach (SidehopperDrainStage drainStage in new[] { SidehopperDrainStage.Untouched, SidehopperDrainStage.LatchedOn })
             // The pause starts at its true duration and ends on the step that takes it to zero; one at zero ends on its next
             // step. Every count it can hold is swept.
@@ -34,7 +35,7 @@ internal static class DeadSidehopperLaunchDefinitionsVerification
                 state.Action = DeadSidehopperAction.PostLandingDelay;
                 state.StateTimer = raw;
                 state.DrainStage = drainStage;
-                state.JumpPhase = phase;
+                state.NextHop = CyclingSequence<EightEightVector<RoomPixels>>.At(DeadSidehopperLaunchDefinitions.Launches, phase);
                 state.Velocity = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(4660, 4660);
                 state.Playback = new(DeadTourianAnimations.StartingWith(DeadTourianSegment.SidehopperCorpse), AnimationPlace.StartOfAnimation);
                 place.AnimationClock.HoldFor(9);
@@ -50,7 +51,7 @@ internal static class DeadSidehopperLaunchDefinitionsVerification
                 AssertEqual(new AnimationPlayback<DeadTourianSegment>(DeadTourianAnimations.StartingWith(launch ? DeadTourianSegment.SidehopperIdle : DeadTourianSegment.SidehopperCorpse), AnimationPlace.StartOfAnimation),
                     state.Playback, "Launch restarts the alive-idle animation");
                 AssertEqual(launch ? (ushort)1 : (ushort)9, place.AnimationClock.Hold.RawValue, "Launch instruction timer");
-                AssertEqual(phase, state.JumpPhase, "Launch does not advance landing-owned phase");
+                AssertEqual<int>(phase, state.NextHop.Position, "Launch does not advance landing-owned phase");
             }
         }
         Console.WriteLine("Dead sidehopper launches: all eight native words and 524288 actual timer/phase/palette transitions pass without a bus.");

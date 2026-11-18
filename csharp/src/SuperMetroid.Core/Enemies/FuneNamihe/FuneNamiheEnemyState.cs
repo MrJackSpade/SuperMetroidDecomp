@@ -17,8 +17,11 @@ public abstract class FuneNamiheEnemyState
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<FuneNamiheSegment> Playback { get; set; }
 
-    /// <summary>Whether the spitting animation is selected rather than the idle one; waking selects it and the spit's finishing cue deselects it.</summary>
-    public bool ShowsActiveAnimation { get; internal set; }
+    /// <summary>
+    /// Whether it is spitting, which selects its spitting animation rather than its idle one (#2432): waking starts the
+    /// spit and the spit's finishing cue ends it.
+    /// </summary>
+    internal abstract bool IsSpitting { get; }
 
     /// <summary>The way it faces, which selects its animations, from its spawn facing (#2277).</summary>
     public HorizontalDirection Facing { get; internal set; }

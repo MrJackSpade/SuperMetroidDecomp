@@ -143,14 +143,10 @@ internal sealed class Walk
     public static readonly string[] ExcludedEnemyFrames = ["Empty"];
 
     /// <summary>
-    /// EnemyProjectileFrameId members that draw nothing and are on no sheet: the blank frame, and the program frames Core's
-    /// <c>EnemyProjectileEmptyFrameDefinitions.EmptyFrames</c> lists as showing the empty projectile spritemap.
+    /// EnemyProjectileFrameId members that draw nothing and are on no sheet: the blank frame, which every beat that shows no
+    /// picture shows (#2431).
     /// </summary>
-    public static readonly string[] ExcludedProjectileFrames =
-    [
-        "Blank", "EnemyDeathBlank", "FallingSparkBlank", "PhantoonFlameBlank", "TorizoDroolBlank", "GoldenTorizoEyeBeamBlank",
-        "TourianStatueEyeGlowBlank", "BotwoonBlank",
-    ];
+    public static readonly string[] ExcludedProjectileFrames = ["Blank"];
 
     /// <summary>
     /// RoomEffectActorKind members that are Samus's weapon effects and on no enemy sheet (#1713): the burst her hit shows

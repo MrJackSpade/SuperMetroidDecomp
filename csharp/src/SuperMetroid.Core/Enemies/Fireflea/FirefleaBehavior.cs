@@ -122,15 +122,11 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Advances the room's Fireflea darkness by one step after one Fireflea death. Rooms contain at most
-    /// five, so the darkness usually stops at its fifth step; a sixth step is nevertheless permitted, and the darkness
-    /// stops there.
+    /// Deepens the room's Fireflea darkness after one Fireflea death (<see cref="EnemyRoomStatus.RecordFirefleaDeath"/>).
+    /// Rooms contain at most five, so the darkness usually stops at its fifth step; a sixth step is nevertheless permitted,
+    /// and the darkness stops there.
     /// </summary>
-    private void AdvanceFirefleaDarkness()
-    {
-        if (_roomStatus.FirefleaDarknessStep < EnemyRoomStatus.MaximumFirefleaDarknessStep)
-            _roomStatus.FirefleaDarknessStep++;
-    }
+    private void AdvanceFirefleaDarkness() => _roomStatus.RecordFirefleaDeath();
 
     /// <summary>Advances darkness after common bomb damage kills a Fireflea.</summary>
     internal EnemyBombReaction FirefleaBombReaction => field ??= new()

@@ -3,7 +3,7 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>
-/// One dead Torizo's corpse state: its pose, phase and velocity, rot schedule, its own rows as the rot has left them,
+/// One dead Torizo's corpse state: its pose, phase and fall speed, rot schedule, its own rows as the rot has left them,
 /// contact delay and the rot updates its sand heap forms by.
 /// </summary>
 public sealed class DeadTorizoEnemyState
@@ -31,6 +31,9 @@ public sealed class DeadTorizoEnemyState
     /// <summary>The corpse phase.</summary>
     internal DeadTorizoPhase Phase { get; set; }
 
-    /// <summary>Signed 1/256-pixel velocity per update: X, and Y, which rotting increases by one 256th each update.</summary>
-    public EightEightVector<RoomPixels> Velocity { get; internal set; }
+    /// <summary>
+    /// How fast the rotting corpse sinks, in 256ths of a pixel an update, downward positive: rotting increases it by one
+    /// 256th each update (#2432).
+    /// </summary>
+    public SignedEightEight FallSpeed { get; internal set; }
 }

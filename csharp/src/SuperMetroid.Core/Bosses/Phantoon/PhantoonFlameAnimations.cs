@@ -48,17 +48,17 @@ internal static class PhantoonFlameAnimations
         [P.CasualFallingKindling] =
         [
             Show(EnemyProjectileFrameId.PhantoonFlameKindling, 1),
-            Show(EnemyProjectileFrameId.PhantoonFlameBlank, 1),
+            Show(EnemyProjectileFrameId.Blank, 1),
         ],
         [P.CasualFallingTeardrop] =
         [
             Show(EnemyProjectileFrameId.PhantoonFlameTeardrop, 1),
-            Show(EnemyProjectileFrameId.PhantoonFlameBlank, 1),
+            Show(EnemyProjectileFrameId.Blank, 1),
         ],
         [P.CasualFallingSputtering] =
         [
             Show(EnemyProjectileFrameId.PhantoonFlameSputtering, 1),
-            Show(EnemyProjectileFrameId.PhantoonFlameBlank, 1),
+            Show(EnemyProjectileFrameId.Blank, 1),
         ],
         [P.StartingFlame] =
         [

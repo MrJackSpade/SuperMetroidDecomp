@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Enemies;
@@ -28,17 +29,16 @@ internal sealed class EnemyRoomStatus
     /// </summary>
     public AreaBoss? Boss { get; internal set; }
     /// <summary>
-    /// Fireflea darkness progression, 0 through <see cref="MaximumFirefleaDarknessStep"/>: reset on room load and
-    /// advanced by one step per Fireflea death until it reaches the last step, where further deaths leave it. No
-    /// producer wraps it, so the setter rejects any value outside that range.
+    /// The darkness the Firefleas killed in the room bring (#2367, #2432): none as the room loads, one step deeper for each
+    /// Fireflea death <see cref="RecordFirefleaDeath"/> records.
     /// </summary>
-    public int FirefleaDarknessStep { get; internal set => field = Ensure.BetweenInclusive(0, MaximumFirefleaDarknessStep, value); }
-
-    /// <summary>The last darkness step Fireflea deaths reach: six deaths; a seventh leaves it.</summary>
-    public const int MaximumFirefleaDarknessStep = 6;
+    public FirefleaDarkness FirefleaDarkness { get; internal set; }
 
     /// <summary>Counts one more enemy death in the room's kill count.</summary>
     internal void RecordKill() => EnemiesKilled++;
+
+    /// <summary>Deepens the room's Fireflea darkness by one more Fireflea death (<see cref="FirefleaDarkness.Deeper"/>).</summary>
+    internal void RecordFirefleaDeath() => FirefleaDarkness = FirefleaDarkness.Deeper;
 
     /// <summary>Language flag sampled when the Ceres warning-text phase begins and by Mother Brain's alternate escape-text selection.</summary>
     public bool JapaneseText

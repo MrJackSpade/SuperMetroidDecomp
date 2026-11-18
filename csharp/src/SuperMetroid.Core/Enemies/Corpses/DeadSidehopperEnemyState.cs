@@ -27,8 +27,11 @@ public sealed class DeadSidehopperEnemyState
     /// <summary>The current dead-sidehopper AI behaviour.</summary>
     public DeadSidehopperAction Action { get; internal set; }
 
-    /// <summary>Position 0..3 in the four-hop launch cycle, selecting the next launch velocity; each landing advances it, the first following the fourth.</summary>
-    public int JumpPhase { get; internal set; }
+    /// <summary>
+    /// The launch of its next hop in its four-hop cycle (<see cref="DeadSidehopperLaunchDefinitions.Launches"/>): each
+    /// landing steps it on, the first following the fourth (#2432).
+    /// </summary>
+    internal CyclingSequence<EightEightVector<RoomPixels>> NextHop { get; set; } = CyclingSequence<EightEightVector<RoomPixels>>.StartOf(DeadSidehopperLaunchDefinitions.Launches);
 
     /// <summary>Draining AI updates since the drain last stepped, 0..7; the eighth steps the drain and restarts the count.</summary>
     public int DrainStepUpdates { get; internal set; }

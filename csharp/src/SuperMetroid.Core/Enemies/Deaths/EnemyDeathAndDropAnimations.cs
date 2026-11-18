@@ -18,7 +18,7 @@ internal static class EnemyDeathAndDropAnimations
     {
         [P.RespawnTail] =
         [
-            Show(EnemyProjectileFrameId.EnemyDeathBlank, 64),
+            Show(EnemyProjectileFrameId.Blank, 64),
             Cue(new EnemyDeathAndDropCue.Signal(K.HandleRespawningEnemy)),
             Cue(new EnemyDeathAndDropCue.Signal(K.Delete)),
         ],
@@ -26,7 +26,7 @@ internal static class EnemyDeathAndDropAnimations
         [
             Cue(new EnemyDeathAndDropCue.SpawnEffectActor(RoomEffectActorKind.SmallExplosion, EnemyDeathExplosionDefinitions.NarrowSpriteSpread)),
             Cue(new EnemyDeathAndDropCue.SpawnEffectActor(RoomEffectActorKind.Smoke, EnemyDeathExplosionDefinitions.NarrowSpriteSpread)),
-            Show(EnemyProjectileFrameId.EnemyDeathBlank, 8),
+            Show(EnemyProjectileFrameId.Blank, 8),
             Cue(new EnemyDeathAndDropCue.Signal(K.PlaySmallExplosionSound)),
         ],
         [P.BigExplosionEnd] =
@@ -38,7 +38,7 @@ internal static class EnemyDeathAndDropAnimations
             Cue(new EnemyDeathAndDropCue.SpawnEffectActor(RoomEffectActorKind.SmallExplosion, EnemyDeathExplosionDefinitions.WideSpriteSpread)),
             Cue(new EnemyDeathAndDropCue.SpawnEffectActor(RoomEffectActorKind.Smoke, EnemyDeathExplosionDefinitions.WideSpriteSpread)),
             Cue(new EnemyDeathAndDropCue.SpawnEffectActor(RoomEffectActorKind.BigDustCloud, EnemyDeathExplosionDefinitions.WideSpriteSpread)),
-            Show(EnemyProjectileFrameId.EnemyDeathBlank, 8),
+            Show(EnemyProjectileFrameId.Blank, 8),
             Cue(new EnemyDeathAndDropCue.Signal(K.PlaySmallExplosionSound)),
         ],
         [P.FakeKraidExplosionEnd] =

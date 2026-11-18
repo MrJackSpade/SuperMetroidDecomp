@@ -20,14 +20,16 @@ public sealed class NamiheEnemyState : FuneNamiheEnemyState
     internal override RoomEnemyProjectileKind Fireball => RoomEnemyProjectileKind.NamiheFireball;
 
     /// <inheritdoc/>
-    internal override FuneNamiheSegment Animation => ShowsActiveAnimation
+    internal override bool IsSpitting => Action == NamiheAction.Spitting;
+
+    /// <inheritdoc/>
+    internal override FuneNamiheSegment Animation => IsSpitting
         ? Facing == HorizontalDirection.Right ? FuneNamiheSegment.NamiheActiveRight : FuneNamiheSegment.NamiheActiveLeft
         : Facing == HorizontalDirection.Right ? FuneNamiheSegment.NamiheIdleRight : FuneNamiheSegment.NamiheIdleLeft;
 
     /// <inheritdoc/>
     internal override void FinishSpit()
     {
-        ShowsActiveAnimation = false;
         Action = NamiheAction.WaitForSamus;
     }
 }

@@ -4,10 +4,10 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 public static class DeadSidehopperLaunchDefinitions
 {
     /// <summary>
-    /// The launches after each landing, one for each jump of the cycle in turn: 1.75, 1.125 and 1.125 pixels an update
-    /// rightward and 2 upward, then 3 rightward and 4 upward.
+    /// The launches of the corpse's four-hop cycle, in the order it takes them after each landing, the first following the
+    /// fourth (#2432): 1.75, 1.125 and 1.125 pixels an update rightward and 2 upward, then 3 rightward and 4 upward.
     /// </summary>
-    private static readonly EightEightVector<RoomPixels>[] Launches =
+    public static IReadOnlyList<EightEightVector<RoomPixels>> Launches { get; } =
     [
         new(SignedEightEight.FromParts(1, 192), -SignedEightEight.FromParts(2, 0)), new(SignedEightEight.FromParts(1, 32), -SignedEightEight.FromParts(2, 0)),
         new(SignedEightEight.FromParts(1, 32), -SignedEightEight.FromParts(2, 0)), new(SignedEightEight.FromParts(3, 0), -SignedEightEight.FromParts(4, 0)),
@@ -25,10 +25,4 @@ public static class DeadSidehopperLaunchDefinitions
     /// <summary>How much a falling hop speeds up each update: half a pixel an update.</summary>
     public static SignedEightEight FallingGravity { get; } = SignedEightEight.FromParts(0, 128);
 
-    /// <summary>The number of jumps in the cycle, after which it starts again.</summary>
-    public static int PhaseCount => Launches.Length;
-
-    /// <summary>The launch for jump <paramref name="phase"/> of the cycle.</summary>
-    /// <param name="phase">The jump's place in the cycle, from zero.</param>
-    public static EightEightVector<RoomPixels> Velocity(int phase) => Launches[phase];
 }

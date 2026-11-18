@@ -13,9 +13,14 @@ internal enum DachoraSegment
     /// <summary>Running left with the same stride at its quickest, a new pose every update, repeating.</summary>
     RunningLeftVeryFast,
     /// <summary>
-    /// Standing facing left with its head up, then stretching its neck and pecking at the ground twice, repeating.
+    /// Standing facing left with its head up, then stretching its neck. Its animation then pecks at the ground twice and
+    /// stretches back up, repeating.
     /// </summary>
     IdleLeft,
+    /// <summary>One peck at the ground facing left: its head lowered, to the ground, raising and back to the ground.</summary>
+    PeckLeft,
+    /// <summary>Stretching its neck back up facing left after its pecks, before its head comes up again.</summary>
+    RisingFromPecksLeft,
     /// <summary>
     /// Standing facing left with its head up, its eye half shutting and shutting three times, repeating.
     /// </summary>
@@ -31,9 +36,14 @@ internal enum DachoraSegment
     /// <summary>Running right with the same stride at its quickest, a new pose every update, repeating.</summary>
     RunningRightVeryFast,
     /// <summary>
-    /// Standing facing right with its head up, then stretching its neck and pecking at the ground twice, repeating.
+    /// Standing facing right with its head up, then stretching its neck. Its animation then pecks at the ground twice and
+    /// stretches back up, repeating.
     /// </summary>
     IdleRight,
+    /// <summary>One peck at the ground facing right: its head lowered, to the ground, raising and back to the ground.</summary>
+    PeckRight,
+    /// <summary>Stretching its neck back up facing right after its pecks, before its head comes up again.</summary>
+    RisingFromPecksRight,
     /// <summary>
     /// Standing facing right with its head up, its eye half shutting and shutting three times, repeating.
     /// </summary>

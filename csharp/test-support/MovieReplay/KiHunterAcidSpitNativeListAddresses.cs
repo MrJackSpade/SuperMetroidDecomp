@@ -21,5 +21,5 @@ internal static class KiHunterAcidSpitNativeListAddresses
     internal static readonly MotherBrainEffectNativeListAddressesExtent Extent = new MotherBrainEffectNativeListAddressesExtent(0xcf34, 0xcf90);
 
     /// <summary>The family's typed programs beside their native lists.</summary>
-    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, KiHunterAcidSpitAnimations.Segments, KiHunterAcidSpitAnimations.StartingAt, (frame => EnemyProjectileProgramFrameSources.Operand(frame)), KiHunterAcidSpitCueRules.Rules);
+    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, KiHunterAcidSpitAnimations.Segments, KiHunterAcidSpitAnimations.StartingAt, EnemyProjectileProgramFrameOperands.KeyOf, KiHunterAcidSpitCueRules.Rules);
 }

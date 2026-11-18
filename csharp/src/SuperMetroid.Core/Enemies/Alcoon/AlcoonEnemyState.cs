@@ -32,8 +32,6 @@ public sealed class AlcoonEnemyState
     /// </summary>
     public Position16<RoomPixels> SpawnPosition { get; internal set; }
 
-    /// <summary>Vertical velocity increment per acceleration step; jump setup makes it half a pixel downward.</summary>
-    public SignedSixteenSixteen YAcceleration { get; internal set; }
 
     /// <summary>The floor-aligned position the complete initialization jump lands at: the spawn X and the landing Y.</summary>
     public Position16<RoomPixels> LandingPosition { get; internal set; }

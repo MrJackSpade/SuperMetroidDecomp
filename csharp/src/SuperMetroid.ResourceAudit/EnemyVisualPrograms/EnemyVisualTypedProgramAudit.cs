@@ -149,9 +149,10 @@ internal static class EnemyVisualTypedProgramAudit
             report.Require(ResourceDomains.EnemyDisplay, nameof(BotwoonVisualDefinitions),
                 ResourceIndex.Address(frame.Bank, frame.Pointer), botwoonSource, exports);
         }
-        // His body segments' and spit's beats name their installed projectile frames (#2036).
+        // His body segments' and spit's beats name their installed projectile frames (#2036); a hidden segment shows the
+        // blank frame, which draws nothing and is installed nowhere (#2431).
         const string botwoonProjectileSource = "csharp/src/SuperMetroid.Core/Bosses/Botwoon/BotwoonAnimations.cs";
-        EnemyProjectileFrameId[] botwoonProjectileFrames = [.. BotwoonAnimations.ProjectileFrames];
+        EnemyProjectileFrameId[] botwoonProjectileFrames = [.. BotwoonAnimations.ProjectileFrames.Where(frame => frame != EnemyProjectileFrameId.Blank)];
         foreach (EnemyProjectileFrameId frame in botwoonProjectileFrames)
         {
             ProjectileDefinitionAudit.RequireFrame(EnemyProjectileProgramFrameSources.Operand(frame),

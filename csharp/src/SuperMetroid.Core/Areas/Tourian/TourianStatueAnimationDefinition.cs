@@ -18,7 +18,7 @@ public sealed class TourianStatueAnimationDefinition
     }
 
     /// <summary>The statue this animation animates, as the shared statue animation state names it.</summary>
-    public required TourianGreyStatues Statue { get; init; }
+    public required TourianStatue Statue { get; init; }
 
     /// <summary>The background animation whose frames are the statue's pictures.</summary>
     public ArtworkAnimation Animation => new($"{Statue} statue");

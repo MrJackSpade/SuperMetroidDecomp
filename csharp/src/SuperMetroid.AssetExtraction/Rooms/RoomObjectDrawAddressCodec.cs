@@ -121,7 +121,7 @@ internal static class RoomObjectDrawAddressCodec
     /// <summary>An eye-door draw: the right door's draws follow the left's at a fixed offset.</summary>
     private static SnesAddress EyeDoor(EyeDoorDraws.Draw eye)
     {
-        int side = eye.Left ? 0 : RoomObjectDrawSourceDefinitions.EyeDoorRightOffset;
+        int side = eye.Orientation == EyeDoorOrientation.Left ? 0 : RoomObjectDrawSourceDefinitions.EyeDoorRightOffset;
         return eye.Part switch
         {
             null => Offset(RoomObjectDrawSourceDefinitions.EyeDoorMirroredOpeningClear, side),

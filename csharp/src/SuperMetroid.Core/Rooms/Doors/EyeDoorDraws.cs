@@ -17,13 +17,12 @@ internal static class EyeDoorDraws
 
     /// <summary>The draw <paramref name="pose"/> shows for the eye door's body or bottom, <paramref name="part"/>.</summary>
     internal static RoomObjectDraw Of(EyeDoorPart part, EyeDoorPartPose pose) =>
-        Family.Of(new Draw(EyeDoorPartLookDefinitions.Looks[part.BodyPart][pose], IsLeft(part.Orientation)));
+        Family.Of(new Draw(EyeDoorPartLookDefinitions.Looks[part.BodyPart][pose], part.Orientation));
 
     /// <summary>The draw <paramref name="frame"/> shows for the eye of the door facing <paramref name="orientation"/>.</summary>
     internal static RoomObjectDraw Of(EyeDoorOrientation orientation, EyeDoorObjectFrame frame)
     {
-        bool left = IsLeft(orientation);
-        RoomObjectDraw Shown(EyeDoorLook look) => Family.Of(new Draw(look, left));
+        RoomObjectDraw Shown(EyeDoorLook look) => Family.Of(new Draw(look, orientation));
         return frame switch
         {
             EyeDoorObjectFrame.ClosedEye => Shown(EyeDoorLook.EyeClosed),
@@ -33,16 +32,17 @@ internal static class EyeDoorDraws
             EyeDoorObjectFrame.OpenSolidEye => Shown(EyeDoorLook.EyeOpenSolid),
             EyeDoorObjectFrame.OpeningClear => Shown(EyeDoorLook.Clear),
             // The eye flashes to the closed blue cap of its facing.
-            EyeDoorObjectFrame.BlueCap => BlueDoorCaps.ClosedSolid(left ? ColoredDoorOrientation.Left : ColoredDoorOrientation.Right),
+            EyeDoorObjectFrame.BlueCap => BlueDoorCaps.ClosedSolid(BlueCapFacing(orientation)),
             _ => throw new InvalidOperationException($"Undefined {nameof(EyeDoorObjectFrame)} {frame}."),
         };
     }
 
-    /// <summary>Whether <paramref name="orientation"/> is the left-facing door's.</summary>
-    private static bool IsLeft(EyeDoorOrientation orientation) => orientation switch
+    /// <summary>The blue cap the eye of the door facing <paramref name="orientation"/> flashes to and turns into: the one facing its own side.</summary>
+    /// <exception cref="InvalidOperationException">The orientation is undefined.</exception>
+    internal static ColoredDoorOrientation BlueCapFacing(EyeDoorOrientation orientation) => orientation switch
     {
-        EyeDoorOrientation.Left => true,
-        EyeDoorOrientation.Right => false,
+        EyeDoorOrientation.Left => ColoredDoorOrientation.Left,
+        EyeDoorOrientation.Right => ColoredDoorOrientation.Right,
         _ => throw new InvalidOperationException($"Undefined {nameof(EyeDoorOrientation)} {orientation}."),
     };
 
@@ -62,9 +62,8 @@ internal static class EyeDoorDraws
 
     /// <summary>One eye-door draw: what it shows and its side.</summary>
     /// <param name="Look">What the draw shows, which names the component it writes.</param>
-    /// <param name="Left">Whether the draw belongs to the left-facing door; the two clears differ only in this.</param>
-    [IndependentFlag("which of the two mirrored eye doors a draw belongs to, a fact of the draw")]
-    internal readonly record struct Draw(EyeDoorLook Look, bool Left)
+    /// <param name="Orientation">The way the door the draw belongs to faces; the two clears differ only in this.</param>
+    internal readonly record struct Draw(EyeDoorLook Look, EyeDoorOrientation Orientation)
     {
         /// <summary>The component the draw writes, or null for the clear.</summary>
         internal EyeDoorComponent? Part => PartOf(Look);

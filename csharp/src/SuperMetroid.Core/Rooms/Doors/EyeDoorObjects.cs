@@ -111,12 +111,8 @@ internal sealed class EyeDoorObjects
     /// </summary>
     internal static void ConvertEyeToBlueDoor(RoomLevelData level, RoomObjectPlace place, EyeDoorOrientation orientation)
     {
-        RoomBlockBehavior facing = orientation switch
-        {
-            EyeDoorOrientation.Left => RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Left)),
-            EyeDoorOrientation.Right => RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Right)),
-            _ => throw new InvalidOperationException($"Undefined {nameof(EyeDoorOrientation)} {orientation}."),
-        };
+        RoomBlockBehavior facing = RoomBlockBehavior.Reacting(
+            BlockReactionDefinitions.BlueDoorCaps.ReactionFor(EyeDoorDraws.BlueCapFacing(orientation)));
         place.Block += new Offset16<RoomBlocks>(0, -1);
         RoomObjectLevelWrites.WriteObjectCollisionAndBehavior(
             level,

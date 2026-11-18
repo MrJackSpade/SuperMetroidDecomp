@@ -18,16 +18,16 @@ internal sealed class EscapeAcidRiseObject(IRoomSamusAccess samus, IRoomFxMotion
     /// <summary>The room's liquid motion, which the trigger starts.</summary>
     private readonly IRoomFxMotion _roomFx = roomFx;
 
-    /// <summary>Whether the trigger watches for Samus yet: its first update only starts the watch.</summary>
-    private bool _watching;
+    /// <summary>Where the trigger is in its course: its first update only starts the watch.</summary>
+    private EscapeAcidRisePhase _phase = EscapeAcidRisePhase.Starting;
 
     /// <inheritdoc/>
     internal override void Update(RoomObjectPlace place, RoomObjectStepContext context)
     {
         Ensure.NotNull(place);
-        if (!_watching)
+        if (_phase == EscapeAcidRisePhase.Starting)
         {
-            _watching = true;
+            _phase = EscapeAcidRisePhase.Watching;
             return;
         }
 

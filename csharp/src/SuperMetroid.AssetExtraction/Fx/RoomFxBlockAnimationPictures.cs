@@ -15,13 +15,13 @@ internal static class RoomFxBlockAnimationPictures
 
     /// <summary>The windows of <paramref name="statue"/> in the shared strip.</summary>
     /// <exception cref="InvalidDataException"><paramref name="statue"/> is not one statue.</exception>
-    internal static TourianStatueTileWindow TourianStatueWindow(TourianGreyStatues statue) =>
+    internal static TourianStatueTileWindow TourianStatueWindow(TourianStatue statue) =>
         TourianStatueTileStripDefinitions.Windows.TryGetValue(statue, out TourianStatueTileWindow window)
             ? window : throw new InvalidDataException($"Unknown Tourian statue {statue}.");
 
     /// <summary>The strip character <paramref name="picture"/> of <paramref name="statue"/> starts at.</summary>
     /// <exception cref="InvalidDataException"><paramref name="statue"/> is not a statue, or the picture is undefined.</exception>
-    internal static int TourianStatueFirstTile(TourianGreyStatues statue, TourianStatueBlockPicture picture)
+    internal static int TourianStatueFirstTile(TourianStatue statue, TourianStatueBlockPicture picture)
     {
         TourianStatueTileWindow window = TourianStatueWindow(statue);
         return picture switch
@@ -36,7 +36,7 @@ internal static class RoomFxBlockAnimationPictures
 
     /// <summary>The bytes of characters one picture of <paramref name="statue"/> holds.</summary>
     /// <exception cref="InvalidDataException"><paramref name="statue"/> is not one statue.</exception>
-    internal static int TourianStatuePictureByteCount(TourianGreyStatues statue) =>
+    internal static int TourianStatuePictureByteCount(TourianStatue statue) =>
         TourianStatueWindow(statue).Tiles * TourianStatueTileStripDefinitions.CharacterByteCount;
 
     /// <summary>The pictures of one installed atlas.</summary>
@@ -65,7 +65,7 @@ internal static class RoomFxBlockAnimationPictures
 
         /// <summary>Returns the characters of <paramref name="picture"/> of <paramref name="statue"/>, a window of the shared statue strip.</summary>
         /// <exception cref="InvalidDataException"><paramref name="statue"/> is not one statue.</exception>
-        internal ReadOnlyMemory<byte> TourianStatuePicture(TourianGreyStatues statue, TourianStatueBlockPicture picture)
+        internal ReadOnlyMemory<byte> TourianStatuePicture(TourianStatue statue, TourianStatueBlockPicture picture)
         {
             int offset = (RoomFxBlockAnimationAtlasFormat.PreStatueTileCount + TourianStatueFirstTile(statue, picture)) *
                 TourianStatueTileStripDefinitions.CharacterByteCount;

@@ -122,7 +122,7 @@ internal static class KraidSuperMissileDamageVerification
         {
             int row = index / ArenaWidth;
             int shown = Math.Min(row, room.Size.Y - 1) * ArenaWidth + index % ArenaWidth;
-            terrain[index] = new RoomTerrainBlock(room.ShownForeground[shown], row == FloorRow ? RoomCollisionType.SolidBlock : RoomCollisionType.Air);
+            terrain[index] = new RoomTerrainBlock(room.ShownForegroundGrid[shown], row == FloorRow ? RoomCollisionType.SolidBlock : RoomCollisionType.Air);
             backdrop[index] = background[shown].Appearance;
         }
         return new RoomLevelData(new Extent16<RoomBlocks>(ArenaWidth, ArenaHeight),

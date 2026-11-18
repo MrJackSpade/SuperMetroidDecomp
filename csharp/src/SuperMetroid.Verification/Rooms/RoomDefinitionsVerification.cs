@@ -26,8 +26,8 @@ internal static class RoomDefinitionsVerification
         Suite(nameof(VerifyRoomDefinitionMapY), () => VerifyRoomDefinitionMapY(rom, rooms));
         Suite(nameof(VerifyRoomDefinitionWidthInScreens), () => VerifyRoomDefinitionWidthInScreens(rom, rooms));
         Suite(nameof(VerifyRoomDefinitionHeightInScreens), () => VerifyRoomDefinitionHeightInScreens(rom, rooms));
-        Suite(nameof(VerifyRoomDefinitionUpScroller), () => VerifyRoomDefinitionUpScroller(rom, rooms));
-        Suite(nameof(VerifyRoomDefinitionDownScroller), () => VerifyRoomDefinitionDownScroller(rom, rooms));
+        Suite(nameof(VerifyRoomDefinitionFallingCameraOffset), () => VerifyRoomDefinitionFallingCameraOffset(rom, rooms));
+        Suite(nameof(VerifyRoomDefinitionRisingCameraOffset), () => VerifyRoomDefinitionRisingCameraOffset(rom, rooms));
         Suite(nameof(VerifyRoomDefinitionIsolatedDoorTransition), () => VerifyRoomDefinitionIsolatedDoorTransition(rom, rooms));
         Suite(nameof(VerifyRoomDefinitionDoorListPointer), () => VerifyRoomDefinitionDoorListPointer(rom, rooms));
         Console.WriteLine("Room definitions: all 261 identities, nine fields against the cartridge's headers, sorted enumeration and complete ushort rejection domain pass.");
@@ -69,9 +69,9 @@ internal static class RoomDefinitionsVerification
     /// <summary>Checks room height in screen units against header byte five.</summary>
     private static void VerifyRoomDefinitionHeightInScreens(CartridgeImportAddressSpace rom, ushort[] rooms) => VerifyRoomDefinitionField(rom, rooms, 5, header => header.Size.Y);
     /// <summary>Checks the upward scroller setting at header byte six.</summary>
-    private static void VerifyRoomDefinitionUpScroller(CartridgeImportAddressSpace rom, ushort[] rooms) => VerifyRoomDefinitionField(rom, rooms, 6, header => header.UpScroller);
+    private static void VerifyRoomDefinitionFallingCameraOffset(CartridgeImportAddressSpace rom, ushort[] rooms) => VerifyRoomDefinitionField(rom, rooms, 6, header => header.FallingCameraOffset);
     /// <summary>Checks the downward scroller setting at header byte seven.</summary>
-    private static void VerifyRoomDefinitionDownScroller(CartridgeImportAddressSpace rom, ushort[] rooms) => VerifyRoomDefinitionField(rom, rooms, 7, header => header.DownScroller);
+    private static void VerifyRoomDefinitionRisingCameraOffset(CartridgeImportAddressSpace rom, ushort[] rooms) => VerifyRoomDefinitionField(rom, rooms, 7, header => header.RisingCameraOffset);
     /// <summary>
     /// Checks the isolated door transition against bit zero of header byte eight, whatever the byte's other bits hold:
     /// rooms that set only other bits (the common-element tile reloads) keep the ordinary transition.

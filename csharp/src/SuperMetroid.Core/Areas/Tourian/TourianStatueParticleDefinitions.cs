@@ -18,6 +18,12 @@ internal static class TourianStatueParticleDefinitions
     /// </summary>
     internal const int LaunchAngleCentring = 32;
 
+    /// <summary>The pixels an update a particle is thrown across at its launch angle's sine's peak (#2482).</summary>
+    internal const int LaunchAcrossPixels = 1;
+
+    /// <summary>The pixels an update a particle is thrown up or down at its launch angle's negative cosine's peak (#2482).</summary>
+    internal const int LaunchVerticalPixels = 4;
+
     /// <summary>The downward speed a falling particle gains each update: a sixteenth of a pixel per update.</summary>
     internal static readonly SignedEightEight Gravity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(16);
 

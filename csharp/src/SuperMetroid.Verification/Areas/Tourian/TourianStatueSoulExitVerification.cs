@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Verification.Enemies;
@@ -25,6 +27,23 @@ internal static class TourianStatueSoulExitVerification
     /// <summary>Whether <paramref name="effect"/> has left the room: its motion ends it (#2424).</summary>
     private static bool IsDeleting(EnemyProjectile effect) => !effect.IsActive;
 
+    /// <summary>The room, Samus and bombs an effect's motion is handed, of which the souls' and particles' motions read none.</summary>
+    private static readonly Lazy<MotionInput> MotionInputs =
+        new(() => new MotionInput(RoomLevelData.CollisionOnly(new(1, 1), [RoomCollisionType.Air]), RoomEnemyFrameFixtures.StandaloneSamus(),
+            InstalledFixtures.CreateBombSystem()));
+
+    /// <summary>What an effect's motion is handed besides the effect.</summary>
+    /// <param name="Room">The room's blocks.</param>
+    /// <param name="Samus">Samus.</param>
+    /// <param name="Bombs">Samus's bombs.</param>
+    private sealed record MotionInput(RoomLevelData Room, SuperMetroid.Core.Samus.SamusState Samus,
+        SuperMetroid.Core.Samus.Projectiles.SamusBombProjectileSystem Bombs);
+
+    /// <summary>Moves <paramref name="effect"/> one update by the motion its spawn gave it, as the projectile pass does (#2482).</summary>
+    private static void Move(TourianUnlockBehavior unlock, EnemyProjectile effect) =>
+        unlock.Effects.RunMotion(new EnemyProjectileMotionContext(effect, MotionInputs.Value.Room, MotionInputs.Value.Samus,
+            Position16<RoomPixels>.Zero, ShortCounter: 0, FrameCounter: 0, MotionInputs.Value.Bombs));
+
     /// <summary>Follows every soul and particle from the statues' eyes to its deletion.</summary>
     internal static void VerifyTourianStatueSoulExit()
     {
@@ -39,7 +58,7 @@ internal static class TourianStatueSoulExitVerification
             for (int update = 0; ; update++)
             {
                 AssertTrue(update < UpdateLimit, $"the {statue.Statue} statue's soul leaves the room");
-                TourianUnlockBehavior.RaiseTourianStatueSoul(soul);
+                Move(enemies.UnlockEffects(), soul);
                 updates++;
                 int y = soul.Position.Y.Whole;
                 AssertEqual(ScreenRow(y) % 2 != 0, IsDeleting(soul),
@@ -60,14 +79,15 @@ internal static class TourianStatueSoulExitVerification
             TourianUnlockBehavior unlock = enemies.UnlockEffects();
             unlock.SpawnTourianSoul(statue.Eye);
             EnemyProjectile soul = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
-            unlock.SpawnTourianParticle(soul);
+            unlock.RunCue(new EnemyProjectileCueContext(soul, MotionInputs.Value.Samus, Position16<RoomPixels>.Zero, ShortCounter: 0,
+                MotionInputs.Value.Bombs), new TourianStatueProjectileCue.Signal(TourianStatueProjectileCueKind.SpawnParticle));
             EnemyProjectile particle = enemies.Projectiles.EnemyProjectiles.Single(projectile =>
                 projectile.IsActive && projectile.Kind == RoomEnemyProjectileKind.TourianStatueParticle);
             bool aboveTop = false;
             for (int update = 0; ; update++)
             {
                 AssertTrue(update < UpdateLimit, $"the {statue.Statue} statue's particle {random} sinks");
-                unlock.DropTourianStatueParticle(particle);
+                Move(unlock, particle);
                 updates++;
                 int y = particle.Position.Y.Whole;
                 aboveTop |= CoordinateAxis.AsSigned(y) < 0;

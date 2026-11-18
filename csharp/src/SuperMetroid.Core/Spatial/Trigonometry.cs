@@ -37,6 +37,15 @@ public static class Trigonometry
         SignedEightEight.Wrapped(ScaledBySine(speed.UnsignedTwoHundredFiftySixthsOfPixel, angle));
 
     /// <summary>
+    /// The velocity <paramref name="angle"/>'s sine gives at <paramref name="peakPixels"/> pixels an update (#2482): the signed
+    /// sine's 256ths of its peak taken as 256ths of a pixel, times the peak, exactly with nothing dropped. A cosine is the sine
+    /// a quarter-turn on, a negative cosine the sine a quarter-turn back.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">The velocity is faster, either way, than a velocity can be.</exception>
+    public static SignedEightEight SineVelocity(TrigonometryAngle angle, int peakPixels) =>
+        SignedEightEight.FromTwoHundredFiftySixthsOfPixel(peakPixels * SignedSine(angle));
+
+    /// <summary>
     /// <paramref name="magnitude"/>, 0 through 65535 in any unit, times <paramref name="angle"/>'s sine, a signed number of 256ths: the
     /// product of the magnitude and the sine's size with its 256ths dropped, then the sine's sign restored, so the result
     /// rounds toward zero in the magnitude's own unit.

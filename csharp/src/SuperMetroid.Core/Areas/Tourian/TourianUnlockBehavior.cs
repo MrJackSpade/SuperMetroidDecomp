@@ -102,7 +102,7 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
     }
 
     /// <summary>Spawns the splash of <paramref name="parent"/>, a particle crossing the water surface, held at the surface.</summary>
-    internal void SpawnTourianSplash(EnemyProjectile parent)
+    private void SpawnTourianSplash(EnemyProjectile parent)
     {
         if (SpawnAtParent(parent, RoomEnemyProjectileKind.TourianStatueSplash, TourianStatueProjectileSegment.Splash) is not { } splash)
             return;
@@ -110,18 +110,18 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
     }
 
     /// <summary>Spawns a particle thrown from <paramref name="parent"/> at a random angle.</summary>
-    internal void SpawnTourianParticle(EnemyProjectile parent)
+    private void SpawnTourianParticle(EnemyProjectile parent)
     {
         if (SpawnAtParent(parent, RoomEnemyProjectileKind.TourianStatueParticle, TourianStatueProjectileSegment.Particle) is not { } particle)
             return;
         // A particle leaves within an eighth of a turn either side of the zero angle; one below zero lies near a full turn.
         TrigonometryAngle angle = TrigonometryAngle.Wrapped(
             _room.Random.Next(TourianStatueParticleDefinitions.LaunchAngle) - TourianStatueParticleDefinitions.LaunchAngleCentring);
-        // The samples lie within one pixel either way, so four times one stays within four. The vertical speed is the
-        // sine a quarter turn back: the angle's negative cosine.
-        particle.Velocity = particle.Velocity.WithX(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(Trigonometry.SignedSine(angle)));
-        particle.Velocity = particle.Velocity.WithY(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(
-            4 * Trigonometry.SignedSine(angle - TrigonometryAngle.QuarterTurn)));
+        // The particle flies one pixel an update across at the angle's sine, and four up or down at its negative cosine, the
+        // sine a quarter turn back.
+        particle.Velocity = particle.Velocity.WithX(Trigonometry.SineVelocity(angle, TourianStatueParticleDefinitions.LaunchAcrossPixels));
+        particle.Velocity = particle.Velocity.WithY(Trigonometry.SineVelocity(angle - TrigonometryAngle.QuarterTurn,
+            TourianStatueParticleDefinitions.LaunchVerticalPixels));
     }
 
     /// <summary>Spawns a tail behind <paramref name="parent"/>, which holds still where it spawned.</summary>
@@ -153,7 +153,7 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
     /// update, before its animation's step, and the velocity it leaves behind for the next spawn in its place still gains
     /// this update's acceleration.
     /// </summary>
-    internal static void RaiseTourianStatueSoul(EnemyProjectile projectile)
+    private static void RaiseTourianStatueSoul(EnemyProjectile projectile)
     {
         projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta());
         if (CoordinateAxis.AsSigned(projectile.Position.Y.Whole) < 0)
@@ -166,7 +166,7 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
     /// animation's step (#2424), once it sinks past the bottom of the statues' screen. A particle thrown above the room's
     /// top falls back through it.
     /// </summary>
-    internal void DropTourianStatueParticle(EnemyProjectile projectile)
+    private void DropTourianStatueParticle(EnemyProjectile projectile)
     {
         // A splash marks the update the particle crosses the surface in either direction.
         bool submergedBefore = IsBelowWaterSurface(projectile);

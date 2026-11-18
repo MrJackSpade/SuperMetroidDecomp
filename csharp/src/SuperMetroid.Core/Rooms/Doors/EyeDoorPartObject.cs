@@ -29,17 +29,17 @@ internal sealed class EyeDoorPartObject(EyeDoorPart part, PlacedDoor? door)
     public bool StaysOpenBehindSamus(Func<LockedDoor, bool> openedForGood, ShotOpenedCapClosing<LockedDoor> shotCapClosing) =>
         Door?.IsOpenedForGood(openedForGood) == true;
 
-    /// <summary>Whether the part pulses while Samus stays near.</summary>
-    internal bool Pulsing { get; private set; }
+    /// <summary>What the part is doing (#2482).</summary>
+    internal EyeDoorPartPhase Phase { get; private set; } = EyeDoorPartPhase.Placed;
 
-    /// <summary>Whether the part waits for its door to be opened for good, which makes it leave the room.</summary>
+    /// <summary>
+    /// Whether the part waits for its door to be opened for good, which makes it leave the room. The wait starts the first
+    /// time Samus comes near and stays when she leaves, so it is a fact of its own beside what the part shows.
+    /// </summary>
     internal bool WaitsForOpenedDoor { get; private set; }
 
-    /// <summary>Whether the part has yet to take its first look at its door.</summary>
-    private bool _placed = true;
-
     /// <summary>Whether the part closes behind Samus, leaving the room on its next update.</summary>
-    internal bool ClosesBehindSamus { get; private set; }
+    internal bool ClosesBehindSamus => Phase == EyeDoorPartPhase.ClosingBehindSamus;
 
     /// <inheritdoc/>
     /// <exception cref="InvalidDataException">The part is the bottom, which no door closes.</exception>
@@ -47,7 +47,7 @@ internal sealed class EyeDoorPartObject(EyeDoorPart part, PlacedDoor? door)
     {
         if (Part.BodyPart != EyeDoorBodyPart.Middle)
             throw new InvalidDataException($"An eye door's {Part.BodyPart} has no closing behind Samus.");
-        ClosesBehindSamus = true;
+        Phase = EyeDoorPartPhase.ClosingBehindSamus;
         EndOnNextUpdate();
     }
 
@@ -79,28 +79,29 @@ internal sealed class EyeDoorPartObject(EyeDoorPart part, PlacedDoor? door)
     /// <inheritdoc/>
     private protected override void SequenceEnded(RoomObjectPlace place, RoomObjectStepContext context)
     {
-        if (ClosesBehindSamus)
+        switch (Phase)
         {
-            context.RoomObjects.DeleteObject(place);
-            return;
-        }
-        if (_placed)
-        {
-            _placed = false;
-            if (context.RoomObjects.DoorObjects.IsDoorOpened(Door))
-            {
+            case EyeDoorPartPhase.ClosingBehindSamus:
                 context.RoomObjects.DeleteObject(place);
                 return;
-            }
-            Look(place, context);
-            return;
+            case EyeDoorPartPhase.Placed:
+                if (context.RoomObjects.DoorObjects.IsDoorOpened(Door))
+                {
+                    context.RoomObjects.DeleteObject(place);
+                    return;
+                }
+                Look(place, context);
+                return;
+            case EyeDoorPartPhase.Pulsing when IsSamusNear(place, context):
+                Play(EyeDoorSequenceDefinitions.Pulse[Orientation], place, context);
+                return;
+            case EyeDoorPartPhase.Pulsing:
+            case EyeDoorPartPhase.Still:
+                Look(place, context);
+                return;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(EyeDoorPartPhase)} {Phase}.");
         }
-        if (Pulsing && IsSamusNear(place, context))
-        {
-            Play(EyeDoorSequenceDefinitions.Pulse[Orientation], place, context);
-            return;
-        }
-        Look(place, context);
     }
 
     /// <summary>
@@ -111,11 +112,11 @@ internal sealed class EyeDoorPartObject(EyeDoorPart part, PlacedDoor? door)
         if (IsSamusNear(place, context))
         {
             WaitsForOpenedDoor = true;
-            Pulsing = true;
+            Phase = EyeDoorPartPhase.Pulsing;
             Play(EyeDoorSequenceDefinitions.Pulse[Orientation], place, context);
             return;
         }
-        Pulsing = false;
+        Phase = EyeDoorPartPhase.Still;
         Play(EyeDoorSequenceDefinitions.Still, place, context);
     }
 

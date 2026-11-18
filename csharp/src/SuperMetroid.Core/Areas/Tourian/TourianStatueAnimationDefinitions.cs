@@ -10,12 +10,12 @@ namespace SuperMetroid.Core.Areas.Tourian;
 public static class TourianStatueAnimationDefinitions
 {
     /// <summary>Each statue's event, first-frame duration, boss test, shades, eye and colour effect, by statue.</summary>
-    internal static readonly IReadOnlyDictionary<TourianGreyStatues, TourianStatueAnimationDefinition> Statues =
-        new Dictionary<TourianGreyStatues, TourianStatueAnimationDefinition>
+    internal static readonly IReadOnlyDictionary<TourianStatue, TourianStatueAnimationDefinition> Statues =
+        new Dictionary<TourianStatue, TourianStatueAnimationDefinition>
     {
-        [TourianGreyStatues.Phantoon] = new()
+        [TourianStatue.Phantoon] = new()
         {
-            Statue = TourianGreyStatues.Phantoon,
+            Statue = TourianStatue.Phantoon,
             GreyEvent = StoryEvent.PhantoonStatueGrey,
             FirstFrameDuration = 6,
             BossArea = AreaId.WreckedShip,
@@ -26,9 +26,9 @@ public static class TourianStatueAnimationDefinitions
             GreyedSprite = TourianSpriteStatue.Phantoon,
             GreyShade = TourianStatueShades.PhantoonGrey,
         },
-        [TourianGreyStatues.Ridley] = new()
+        [TourianStatue.Ridley] = new()
         {
-            Statue = TourianGreyStatues.Ridley,
+            Statue = TourianStatue.Ridley,
             GreyEvent = StoryEvent.RidleyStatueGrey,
             FirstFrameDuration = 10,
             BossArea = AreaId.Norfair,
@@ -39,9 +39,9 @@ public static class TourianStatueAnimationDefinitions
             GreyedSprite = TourianSpriteStatue.Ridley,
             GreyShade = TourianStatueShades.RidleyGrey,
         },
-        [TourianGreyStatues.Kraid] = new()
+        [TourianStatue.Kraid] = new()
         {
-            Statue = TourianGreyStatues.Kraid,
+            Statue = TourianStatue.Kraid,
             GreyEvent = StoryEvent.KraidStatueGrey,
             FirstFrameDuration = 4,
             BossArea = AreaId.Brinstar,
@@ -52,9 +52,9 @@ public static class TourianStatueAnimationDefinitions
             GreyedSprite = null,
             GreyShade = TourianStatueShades.KraidGrey,
         },
-        [TourianGreyStatues.Draygon] = new()
+        [TourianStatue.Draygon] = new()
         {
-            Statue = TourianGreyStatues.Draygon,
+            Statue = TourianStatue.Draygon,
             GreyEvent = StoryEvent.DraygonStatueGrey,
             FirstFrameDuration = 8,
             BossArea = AreaId.Maridia,

@@ -25,18 +25,6 @@ public static class TourianStatueShades
     /// <summary>The eye glow Kraid's statue lights once released.</summary>
     public static PictureShade KraidEyeGlow { get; } = new("tourian-statue-kraid-eye-glow", 0);
 
-    /// <summary>The eye glow <paramref name="statue"/> lights once released (#1747).</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="statue"/> is not one boss's statue.</exception>
-    public static PictureShade EyeGlow(TourianGreyStatues statue) => statue switch
-    {
-        TourianGreyStatues.Phantoon => PhantoonEyeGlow,
-        TourianGreyStatues.Ridley => RidleyEyeGlow,
-        TourianGreyStatues.Draygon => DraygonEyeGlow,
-        TourianGreyStatues.Kraid => KraidEyeGlow,
-        TourianGreyStatues.None => throw new ArgumentOutOfRangeException(nameof(statue), statue, "No statue lights an eye glow."),
-        _ => throw new ArgumentOutOfRangeException(nameof(statue), statue, "Only one boss's statue lights an eye glow."),
-    };
-
     /// <summary>Phantoon's statue with its eyes blacked out.</summary>
     public static PictureShade PhantoonCleared { get; } = new("tourian-statue-phantoon-cleared", 0);
 

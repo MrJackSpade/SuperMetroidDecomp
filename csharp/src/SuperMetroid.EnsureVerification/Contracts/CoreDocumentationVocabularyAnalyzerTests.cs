@@ -121,6 +121,9 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect("class P { // extended word 08 holds it\n }", "('extended word')");
         Expect("class P { // init1 packs two unrelated bytes\n }", "('init1')");
         Expect("class P { /// <summary>The level words of the room.</summary>\nint F => 0; }", "('level words')");
+        // A block's behaviour byte, in either spelling (#2482).
+        Expect("class P { /// <summary>Only the codec knows how the behaviour byte numbers them.</summary>\nint F => 0; }", "('behaviour byte')");
+        Expect("class P { // the behavior bytes stay\n }", "('behavior bytes')");
         Expect("class P { // the six-byte input record\n }", "('six-byte')");
         Expect("class P { // keep the high bit raw\n }", "('high bit')");
         Expect("class P { // the random-number word and the carry\n }", "('random-number word')");

@@ -96,7 +96,7 @@ internal static class NativeSnapshotImport
             // A door block's behaviour byte is its place in the room's door list, which the installation already resolved
             // to the door it leads through (#2090); writing the byte as a behaviour would clear that door. A native door
             // block where the installed room has none fails loudly at its first touch, as an unresolved door does.
-            if (terrain.Collision == RoomCollisionType.DoorBlock && level.Exits[index] is not null)
+            if (terrain.Collision == RoomCollisionType.DoorBlock && level.ExitGrid[index] is not null)
                 continue;
             level.SetBehavior(block, RoomBlockBehaviorCodec.Decode(runtime.Room.LoadedRoom.Area, memory[NativeSnapshotMemory.Bts + index]));
         }

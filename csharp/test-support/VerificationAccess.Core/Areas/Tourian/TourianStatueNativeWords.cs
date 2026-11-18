@@ -65,10 +65,10 @@ internal static class TourianStatueNativeWords
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="selector"/> names no statue.</exception>
     internal static TourianStatueEye Eye(int selector) => TourianStatueAnimationDefinitions.Statues[selector switch
     {
-        0 => TourianGreyStatues.Phantoon,
-        2 => TourianGreyStatues.Ridley,
-        4 => TourianGreyStatues.Draygon,
-        6 => TourianGreyStatues.Kraid,
+        0 => TourianStatue.Phantoon,
+        2 => TourianStatue.Ridley,
+        4 => TourianStatue.Draygon,
+        6 => TourianStatue.Kraid,
         _ => throw new ArgumentOutOfRangeException(nameof(selector), selector, "A statue selector is 0, 2, 4 or 6."),
     }].Eye;
 

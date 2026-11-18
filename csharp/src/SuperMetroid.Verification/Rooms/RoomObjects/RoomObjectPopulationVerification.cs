@@ -424,7 +424,7 @@ internal static class RoomObjectPopulationVerification
             Setup: DoorSetupDefinitions.None);
         AssertTrue(roomObjects.DoorObjects.TrySpawnDoorClosingObject(level, enteringDoor),
             "Bomb Torizo entry redirects the resident door to its secondary list");
-        AssertEqual(GreyDoorPhase.Closing, roomObjects.GreyDoorSnapshots.Single().Phase,
+        AssertEqual(GreyDoorPhase.HeldOpen, roomObjects.GreyDoorSnapshots.Single().Phase,
             "redirected actor retains explicit grey-door ownership while closing");
 
         roomObjects.Step(level, new RoomObjectFrameInputs { Scrolls = SuperMetroid.Core.Rooms.RoomObjects.RoomObjectFixtures.UnreadScrolls(), EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0, CollectedItems = samus.CollectedItems, PowerBombExplosionActive = false });
@@ -432,7 +432,7 @@ internal static class RoomObjectPopulationVerification
             "collected Bombs admit the secondary list's closing draw");
 
         for (int frame = 0; frame < 80 &&
-             roomObjects.GreyDoorSnapshots.Single().Phase == GreyDoorPhase.Closing; frame++)
+             roomObjects.GreyDoorSnapshots.Single().Phase is GreyDoorPhase.HeldOpen or GreyDoorPhase.Closing; frame++)
             roomObjects.Step(level, new RoomObjectFrameInputs { Scrolls = SuperMetroid.Core.Rooms.RoomObjects.RoomObjectFixtures.UnreadScrolls(), EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0, CollectedItems = samus.CollectedItems, PowerBombExplosionActive = false });
         AssertEqual(GreyDoorPhase.Locked, roomObjects.GreyDoorSnapshots.Single().Phase,
             "closing Goto hands the resident actor back to its grey-door family");

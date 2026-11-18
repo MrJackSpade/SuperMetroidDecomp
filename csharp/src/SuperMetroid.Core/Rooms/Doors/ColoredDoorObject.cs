@@ -35,14 +35,14 @@ internal sealed class ColoredDoorObject : DoorCapObject, IClosingDoor
     /// </summary>
     internal int HitCounter { get; private set; }
 
-    /// <summary>Whether a shot at the cap's block reaches it: from its first look until the hit that opens it.</summary>
+    /// <summary>
+    /// Whether a shot at the cap's block reaches it: from its first look until the hit that opens it, so a waiting cap that
+    /// takes no shots has yet to take that look.
+    /// </summary>
     internal bool TakesShots { get; private set; }
 
     /// <summary>The colour and facing's sequences.</summary>
     private readonly ColoredDoorSequences _sequences;
-
-    /// <summary>Whether the cap has yet to take its first look at its door.</summary>
-    private bool _placed = true;
 
     /// <inheritdoc/>
     public void CloseBehindSamus()
@@ -83,7 +83,7 @@ internal sealed class ColoredDoorObject : DoorCapObject, IClosingDoor
                 Look(place, context);
                 return;
             case ColoredDoorPhase.Waiting:
-                if (_placed)
+                if (!TakesShots)
                     Look(place, context);
                 else
                     Rest();
@@ -115,7 +115,6 @@ internal sealed class ColoredDoorObject : DoorCapObject, IClosingDoor
     /// </summary>
     private void Look(RoomObjectPlace place, RoomObjectStepContext context)
     {
-        _placed = false;
         if (context.RoomObjects.DoorObjects.IsDoorOpened(Door))
         {
             BlueDoorCapObject.TakeOver(place, context, Orientation, Door);

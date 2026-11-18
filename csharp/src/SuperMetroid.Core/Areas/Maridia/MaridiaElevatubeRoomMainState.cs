@@ -84,12 +84,9 @@ public sealed class MaridiaElevatubeRoomMainState
 
         BlockMoveResult movement = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter), IncludeSolidEnemies = false });
 
-        // The game's range test is exactly the inclusive range of the maximum speed either
-        // way; a candidate outside it is rejected rather than clamped, leaving the preceding velocity intact. The velocity
-        // never passes the maximum speed and the acceleration is an eighth of a pixel, so their sum stays far inside the
-        // velocity's range.
-        SignedEightEight candidate = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(
-            Velocity.InTwoHundredFiftySixthsOfPixel + Acceleration.InTwoHundredFiftySixthsOfPixel);
+        // The game's range test is exactly the inclusive range of the maximum speed either way; a candidate outside it is
+        // rejected rather than clamped, leaving the preceding velocity intact.
+        SignedEightEight candidate = Velocity.Accelerated(Acceleration);
         if (candidate >= -MaridiaElevatubeDefinitions.MaximumSpeed && candidate <= MaridiaElevatubeDefinitions.MaximumSpeed)
             Velocity = candidate;
 

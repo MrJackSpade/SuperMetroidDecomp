@@ -21,8 +21,8 @@ internal static class CartridgeRoomHeaderVerification
             SelectedRoom room = SelectedRoom.LoadUsingCompiledSelection(definition, new RoomStateSelectionContext(new PersistentProgress().Events, DefeatedBosses.None, false, false));
             AssertEqual(definition.UsesIsolatedDoorTransition, room.UsesIsolatedDoorTransition,
                 $"room ${definition.Pointer:X4} isolated door transition");
-            AssertEqual(definition.UpScroller, room.UpScroller, $"room ${definition.Pointer:X4} up scroller");
-            AssertEqual(definition.DownScroller, room.DownScroller, $"room ${definition.Pointer:X4} down scroller");
+            AssertEqual(definition.FallingCameraOffset, room.FallingCameraOffset, $"room ${definition.Pointer:X4} up scroller");
+            AssertEqual(definition.RisingCameraOffset, room.RisingCameraOffset, $"room ${definition.Pointer:X4} down scroller");
             if (room.UsesIsolatedDoorTransition) isolated++;
         }
         AssertEqual(5, isolated, "retail rooms selecting the isolated door transition");

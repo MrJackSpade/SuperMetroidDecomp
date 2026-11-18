@@ -18,12 +18,12 @@ internal static class TourianStatueTileStripDefinitions
     /// first character, its pictures' width in characters and its released picture's first character
     /// (<see cref="RoomFxBlockAnimationPictures"/>).
     /// </summary>
-    internal static readonly IReadOnlyDictionary<TourianGreyStatues, TourianStatueTileWindow> Windows =
-        new Dictionary<TourianGreyStatues, TourianStatueTileWindow>
+    internal static readonly IReadOnlyDictionary<TourianStatue, TourianStatueTileWindow> Windows =
+        new Dictionary<TourianStatue, TourianStatueTileWindow>
         {
-            [TourianGreyStatues.Phantoon] = new(BlockAnimation.TourianStatuePhantoon, 0, 8, 72),
-            [TourianGreyStatues.Ridley] = new(BlockAnimation.TourianStatueRidley, 24, 4, 80),
-            [TourianGreyStatues.Kraid] = new(BlockAnimation.TourianStatueKraid, 60, 4, 84),
-            [TourianGreyStatues.Draygon] = new(BlockAnimation.TourianStatueDraygon, 36, 8, 88),
+            [TourianStatue.Phantoon] = new(BlockAnimation.TourianStatuePhantoon, 0, 8, 72),
+            [TourianStatue.Ridley] = new(BlockAnimation.TourianStatueRidley, 24, 4, 80),
+            [TourianStatue.Kraid] = new(BlockAnimation.TourianStatueKraid, 60, 4, 84),
+            [TourianStatue.Draygon] = new(BlockAnimation.TourianStatueDraygon, 36, 8, 88),
         };
 }

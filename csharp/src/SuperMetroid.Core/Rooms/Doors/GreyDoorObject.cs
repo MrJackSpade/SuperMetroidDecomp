@@ -32,21 +32,24 @@ internal sealed class GreyDoorObject : DoorCapObject, IClosingDoor
     /// <summary>What the cap is doing.</summary>
     internal GreyDoorPhase Phase { get; private set; } = GreyDoorPhase.Locked;
 
-    /// <summary>What the cap waits for on each update.</summary>
+    /// <summary>
+    /// What the cap waits for on each update: nothing until its first look locks it (a locked cap waiting for nothing has
+    /// yet to take that look), and nothing once it opens.
+    /// </summary>
     internal GreyDoorWait Waits { get; private set; }
 
-    /// <summary>Whether the cap has yet to take its first look at its door.</summary>
-    private bool _placed = true;
-
-    /// <summary>Whether Bomb Torizo's door, closing, has seen Samus with Bombs and is closing for good.</summary>
-    private bool _closingForGood;
-
     /// <inheritdoc/>
+    /// <remarks>Bomb Torizo's door is held open until Samus has Bombs; every other cap closes at once.</remarks>
     public void CloseBehindSamus()
     {
+        if (Variant.Closing == GreyDoorClosing.AfterBombs)
+        {
+            Phase = GreyDoorPhase.HeldOpen;
+            PlayFromNextUpdate(GreyDoorDefinitions.BombTorizoHeldOpen);
+            return;
+        }
         Phase = GreyDoorPhase.Closing;
-        _closingForGood = Variant.Closing == GreyDoorClosing.AtOnce;
-        PlayFromNextUpdate(Variant.Closing == GreyDoorClosing.AfterBombs ? GreyDoorDefinitions.BombTorizoHeldOpen : DoorCapSequenceDefinitions.CapClosing);
+        PlayFromNextUpdate(DoorCapSequenceDefinitions.CapClosing);
     }
 
     /// <summary>Reacts to what the object waits for, then, unless the reaction took this update, counts its steps down.</summary>
@@ -96,17 +99,20 @@ internal sealed class GreyDoorObject : DoorCapObject, IClosingDoor
         switch (Phase)
         {
             case GreyDoorPhase.Closing:
-                if (_closingForGood)
+                Look(place, context);
+                return;
+            case GreyDoorPhase.HeldOpen:
+                // Bomb Torizo's door stays open, two updates at a time, until Samus has Bombs.
+                if (!context.Frame.CollectedItems.HasAny(SamusEquipmentFlags.Bombs))
                 {
-                    Look(place, context);
+                    Play(GreyDoorDefinitions.BombTorizoHeldOpen, place, context);
                     return;
                 }
-                // Bomb Torizo's door stays open, two updates at a time, until Samus has Bombs.
-                _closingForGood = context.Frame.CollectedItems.HasAny(SamusEquipmentFlags.Bombs);
-                Play(_closingForGood ? GreyDoorDefinitions.BombTorizoClosing : GreyDoorDefinitions.BombTorizoHeldOpen, place, context);
+                Phase = GreyDoorPhase.Closing;
+                Play(GreyDoorDefinitions.BombTorizoClosing, place, context);
                 return;
             case GreyDoorPhase.Locked:
-                if (_placed)
+                if (Waits == GreyDoorWait.Nothing)
                     Look(place, context);
                 else
                     Rest();
@@ -128,7 +134,6 @@ internal sealed class GreyDoorObject : DoorCapObject, IClosingDoor
     /// </summary>
     private void Look(RoomObjectPlace place, RoomObjectStepContext context)
     {
-        _placed = false;
         if (context.RoomObjects.DoorObjects.IsDoorOpened(Door))
         {
             BlueDoorCapObject.TakeOver(place, context, Orientation, Door);

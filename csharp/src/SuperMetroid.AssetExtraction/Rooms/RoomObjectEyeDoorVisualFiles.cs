@@ -32,13 +32,13 @@ public static class RoomObjectEyeDoorVisualFiles
     {
         get
         {
-            foreach (bool left in new[] { true, false })
+            foreach (EyeDoorOrientation side in (EyeDoorOrientation[])[EyeDoorOrientation.Left, EyeDoorOrientation.Right])
             {
-                TryGet(EyeDoorDraws.Family.Of(new EyeDoorDraws.Draw(EyeDoorLook.Clear, left)), out var clear);
+                TryGet(EyeDoorDraws.Family.Of(new EyeDoorDraws.Draw(EyeDoorLook.Clear, side)), out var clear);
                 yield return clear;
                 foreach (EyeDoorLook look in EyeDoorLookNames.TableOrder)
                 {
-                    TryGet(EyeDoorDraws.Family.Of(new EyeDoorDraws.Draw(look, left)), out var value);
+                    TryGet(EyeDoorDraws.Family.Of(new EyeDoorDraws.Draw(look, side)), out var value);
                     yield return value;
                 }
             }
@@ -62,6 +62,6 @@ public static class RoomObjectEyeDoorVisualFiles
     {
         if (!RoomObjectDrawIdentity.TryFrame<EyeDoorDraws.Draw>(request, out var draw) || request == EyeDoorObjectDrawDefinitions.MirroredOpeningClear)
             throw new InvalidDataException($"Eye-door draw {request} has no visual ID.");
-        return draw.Look == EyeDoorLook.Clear ? "left-eye-clear" : $"{(draw.Left ? "left" : "right")}-{EyeDoorLookNames.VisualName(draw.Look)}";
+        return draw.Look == EyeDoorLook.Clear ? "left-eye-clear" : $"{(draw.Orientation == EyeDoorOrientation.Left ? "left" : "right")}-{EyeDoorLookNames.VisualName(draw.Look)}";
     }
 }

@@ -155,7 +155,7 @@ internal sealed class DoorObjects
                 "The shootable block's behaviour is not a blue-door facing.");
         }
 
-        // A power-bomb collision deletes the just-allocated room object without touching the cap.
+        // A Power Bomb opens no blue cap: the cap stays shut and no room object takes a place.
         if (projectileType.Family == SamusProjectileFamily.PowerBomb)
             return false;
 

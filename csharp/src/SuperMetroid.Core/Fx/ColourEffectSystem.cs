@@ -65,9 +65,6 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     /// <summary>Points the colour effects' sounds at <paramref name="requests"/>, the update's audio requests of the runtime running them.</summary>
     internal void BindAudioRequests(GameplaySoundRequests requests) => AudioRequests = Ensure.NotNull(requests);
 
-    /// <summary>Whether <paramref name="effect"/> is running.</summary>
-    public bool IsRunning(ColourEffectId effect) => effects.Exists(running => running.Effect == effect);
-
     /// <summary>
     /// Starts an effect outside the room's effect during gameplay: Samus's load appearance, a background statue's grey-out
     /// or the escape's flashes. It must start: the start is rejected loudly when it does not. A frontend screen starts its

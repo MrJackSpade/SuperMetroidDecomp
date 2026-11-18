@@ -252,10 +252,6 @@ internal static class SamusPoseMetadata
         SamusPoseId.DraygonGrabbedFiringRightPose or SamusPoseId.DraygonGrabbedAimDownRightPose or
         SamusPoseId.DraygonGrabbedMovingRightPose;
 
-    /// <summary>True for the complete ten-pose grabbed-by-Draygon family.</summary>
-    public static bool IsDraygonGrabbedPose(SamusPoseId pose) =>
-        IsLeftFacingDraygonGrabbedPose(pose) || IsRightFacingDraygonGrabbedPose(pose);
-
     /// <summary>
     /// Applies one ordinary Draygon-held transition without inventing pose physics.
     /// Every admitted pose stays within one facing, retains radius 21, and restarts the
@@ -320,13 +316,6 @@ internal static class SamusPoseMetadata
     public static bool IsRanIntoWallPose(SamusPoseId pose) =>
         IsRightFacingRanIntoWallPose(pose) || IsLeftFacingRanIntoWallPose(pose);
 
-    /// <summary>True for the four aimed wall-contact poses; neutral wall-contact <see cref="SamusPoseId.RanIntoWallRightPose"/> and <see cref="SamusPoseId.RanIntoWallLeftPose"/> are excluded.</summary>
-    /// <param name="pose">Current or prospective pose.</param>
-    /// <returns>Whether the ran-into-wall body uses an aimed wall-contact variant.</returns>
-    public static bool IsAimedRanIntoWallPose(SamusPoseId pose) => pose is
-        SamusPoseId.RanIntoWallAimUpRightPose or SamusPoseId.RanIntoWallAimUpLeftPose or
-        SamusPoseId.RanIntoWallAimDownRightPose or SamusPoseId.RanIntoWallAimDownLeftPose;
-
     /// <summary>True when a supported standing, running, crouching, or landing pose carries aim metadata.</summary>
     public static bool IsGroundedAimPose(SamusPoseId pose) => pose is
         SamusPoseId.StandingAimUpRightPose or SamusPoseId.StandingAimUpLeftPose or
@@ -365,30 +354,6 @@ internal static class SamusPoseMetadata
     public static bool IsLandingPose(SamusPoseId pose) => IsRightFacingLandingPose(pose) || IsLeftFacingLandingPose(pose);
 
     /// <summary>
-    /// True when the ordinary grounded input step may interrupt a landing
-    /// with any same-facing normal-jump transition, neutral or aimed.
-    /// </summary>
-    /// <remarks>
-    /// Every landing pose above takes the standing input transitions
-    /// (<see cref="SamusPoseInputList.StandingAndLandingRight"/>), the aimed and firing landings as well as the normal
-    /// and spin ones. Those transitions keep Up, the diagonal-up aim or the diagonal-down aim held on the fresh
-    /// Jump press, so a right diagonal-up landing can take the right
-    /// diagonal-up jump transition, not only the neutral one. Every landing of the family admits every one of
-    /// these transitions.
-    /// </remarks>
-    public static bool IsLandingToNormalJumpTransition(SamusPoseId sourcePose, SamusPoseId targetPose) =>
-        IsRightFacingLandingPose(sourcePose) && targetPose is
-            SamusPoseId.NeutralJumpTransitionRightPose or
-            SamusPoseId.NormalJumpTransitionAimUpRightPose or
-            SamusPoseId.NormalJumpTransitionAimDiagonalUpRightPose or
-            SamusPoseId.NormalJumpTransitionAimDiagonalDownRightPose ||
-        IsLeftFacingLandingPose(sourcePose) && targetPose is
-            SamusPoseId.NeutralJumpTransitionLeftPose or
-            SamusPoseId.NormalJumpTransitionAimUpLeftPose or
-            SamusPoseId.NormalJumpTransitionAimDiagonalUpLeftPose or
-            SamusPoseId.NormalJumpTransitionAimDiagonalDownLeftPose;
-
-    /// <summary>
     /// True for the complete right-facing <see cref="SamusMovementType.Crouching"/> family. All four
     /// poses use radius 16 and the shared input transitions.
     /// </summary>
@@ -401,12 +366,6 @@ internal static class SamusPoseMetadata
     /// poses use radius 16 and the mirrored input transitions.
     /// </summary>
     public static bool IsLeftFacingCrouchingPose(SamusPoseId pose) => IsRightFacingCrouchingPose(SamusPoseMirror.Of(pose));
-
-    /// <summary>True for the six crouching poses carrying a real shot direction.</summary>
-    public static bool IsAimedCrouchingPose(SamusPoseId pose) => pose is
-        SamusPoseId.CrouchingAimUpRightPose or SamusPoseId.CrouchingAimUpLeftPose or
-        SamusPoseId.CrouchingAimDiagonalUpRightPose or SamusPoseId.CrouchingAimDiagonalUpLeftPose or
-        SamusPoseId.CrouchingAimDiagonalDownRightPose or SamusPoseId.CrouchingAimDiagonalDownLeftPose;
 
     /// <summary>
     /// True for the grounded turning poses that began facing right and turn left. Each already faces left, the facing
@@ -421,28 +380,6 @@ internal static class SamusPoseMetadata
 
     /// <summary>True for admitted grounded turning poses that began facing left and turn right.</summary>
     public static bool IsLeftToRightGroundTurnPose(SamusPoseId pose) => IsRightToLeftGroundTurnPose(SamusPoseMirror.Of(pose));
-
-    /// <summary>
-    /// True when a Jump edge turns a standing turn into the spin jump or the neutral jump transition.
-    /// </summary>
-    /// <remarks>
-    /// All eight turning-on-ground standing turn poses consult the same
-    /// input transitions while their art is active. Holding the completed facing selects
-    /// the spin jump; releasing it on the Jump edge selects the neutral jump transition. Crouched turns are
-    /// deliberately excluded because their radius expansion requires the room-aware
-    /// crouch-jump collision path rather than the direct ordinary setup.
-    /// </remarks>
-    public static bool IsStandingGroundTurnToJumpTransition(
-        SamusPoseId sourcePose,
-        SamusPoseId targetPose) =>
-        (sourcePose is
-            SamusPoseId.TurningLeftToRightPose or SamusPoseId.TurningLeftToRightAimUpPose or
-            SamusPoseId.TurningLeftToRightAimDiagonalUpPose or SamusPoseId.TurningLeftToRightAimDiagonalDownPose &&
-         targetPose is SamusPoseId.SpinJumpRightPose or SamusPoseId.NeutralJumpTransitionRightPose) ||
-        (sourcePose is
-            SamusPoseId.TurningRightToLeftPose or SamusPoseId.TurningRightToLeftAimUpPose or
-            SamusPoseId.TurningRightToLeftAimDiagonalUpPose or SamusPoseId.TurningRightToLeftAimDiagonalDownPose &&
-         targetPose is SamusPoseId.SpinJumpLeftPose or SamusPoseId.NeutralJumpTransitionLeftPose);
 
     /// <summary>
     /// True for the six aimed crouched-turn poses moved by the turning-while-jumping movement type.

@@ -757,13 +757,13 @@ internal static void VerifySamusGunExtendedMovement()
         foreach (SamusPoseId targetPose in rightLandingJumpTargets)
         {
             AssertTrue(
-                SamusPoseMetadata.IsLandingToNormalJumpTransition(sourcePose, targetPose),
+                SamusPoseMetadataConstants.IsLandingToNormalJumpTransition(sourcePose, targetPose),
                 $"right landing ${(int)SamusPoseNumbers.Number(sourcePose):X2} admits jump ${(int)SamusPoseNumbers.Number(targetPose):X2}");
         }
         foreach (SamusPoseId targetPose in leftLandingJumpTargets)
         {
             AssertTrue(
-                !SamusPoseMetadata.IsLandingToNormalJumpTransition(sourcePose, targetPose),
+                !SamusPoseMetadataConstants.IsLandingToNormalJumpTransition(sourcePose, targetPose),
                 $"right landing ${(int)SamusPoseNumbers.Number(sourcePose):X2} rejects mirrored jump ${(int)SamusPoseNumbers.Number(targetPose):X2}");
         }
     }
@@ -772,13 +772,13 @@ internal static void VerifySamusGunExtendedMovement()
         foreach (SamusPoseId targetPose in leftLandingJumpTargets)
         {
             AssertTrue(
-                SamusPoseMetadata.IsLandingToNormalJumpTransition(sourcePose, targetPose),
+                SamusPoseMetadataConstants.IsLandingToNormalJumpTransition(sourcePose, targetPose),
                 $"left landing ${(int)SamusPoseNumbers.Number(sourcePose):X2} admits jump ${(int)SamusPoseNumbers.Number(targetPose):X2}");
         }
         foreach (SamusPoseId targetPose in rightLandingJumpTargets)
         {
             AssertTrue(
-                !SamusPoseMetadata.IsLandingToNormalJumpTransition(sourcePose, targetPose),
+                !SamusPoseMetadataConstants.IsLandingToNormalJumpTransition(sourcePose, targetPose),
                 $"left landing ${(int)SamusPoseNumbers.Number(sourcePose):X2} rejects mirrored jump ${(int)SamusPoseNumbers.Number(targetPose):X2}");
         }
     }

@@ -101,11 +101,17 @@ public abstract class RoomSetupBehavior
     public static RoomSetupBehavior MediumHorizontalShakingWithRisingAcid { get; } = new RisingAcidEscapeSetup();
 
     /// <summary>
-    /// Spawns the Ceres room haze during setup. Ceres Ridley's arena and the elevator shaft after his escape run this setup
-    /// too: the arena's walls show the artwork its room loads for his fight, which the import pictures for the arena's
-    /// states, and nothing the simulation does tells either from this one (#1791, #2485).
+    /// Spawns the Ceres room haze during setup. Ceres Ridley's arena runs this setup too: its walls show the artwork its
+    /// room loads for his fight, which the import pictures for the arena's states, and nothing the simulation does tells it
+    /// from this one (#1791, #2485).
     /// </summary>
     public static RoomSetupBehavior SpawnCeresHaze { get; } = new CeresHazeSetup();
+
+    /// <summary>
+    /// The elevator shaft's setup once Ceres Ridley is dead (#2494): it spawns the Ceres haze, and places the room object
+    /// that turns the blocks of the shaft's door solid, so Samus cannot walk back out through it during the escape.
+    /// </summary>
+    public static RoomSetupBehavior SealCeresElevatorDoorAndSpawnHaze { get; } = new CeresElevatorEscapeSetup();
 
     /// <summary>The setup that does nothing.</summary>
     private sealed class NoRoomSetup() : RoomSetupBehavior(nameof(None));
@@ -124,13 +130,21 @@ public abstract class RoomSetupBehavior
     private sealed class CeresHazeSetup() : RoomSetupBehavior(nameof(SpawnCeresHaze))
     {
         /// <inheritdoc/>
-        internal override void Compose(RoomSetupComposition composition)
-        {
-            RoomScopeConstruction scope = Ensure.NotNull(composition).Scope;
-            scope.ComposeCeresHaze(
-                ridleyIsDead: composition.System.HasDefeatedAnyOf(scope.Room.Area, DefeatedBosses.AreaBoss),
-                immediateViewport: composition.DisplaysInitialViewport);
-        }
+        internal override void Compose(RoomSetupComposition composition) => ComposeCeresHaze(composition);
+    }
+
+    /// <summary>
+    /// The elevator shaft's escape setup: the Ceres haze, and while the room's objects are placed, the seal of the shaft's
+    /// door (#2494).
+    /// </summary>
+    private sealed class CeresElevatorEscapeSetup() : RoomSetupBehavior(nameof(SealCeresElevatorDoorAndSpawnHaze))
+    {
+        /// <inheritdoc/>
+        internal override void Compose(RoomSetupComposition composition) => ComposeCeresHaze(composition);
+
+        /// <inheritdoc/>
+        internal override void PlaceRoomObjects(RoomSetupPlacing placing) =>
+            Ensure.NotNull(placing).RoomObjects.CeresEscape.TrySealElevatorDoor(placing.Level);
     }
 
     /// <summary>
@@ -260,6 +274,18 @@ public abstract class RoomSetupBehavior
         /// <inheritdoc/>
         internal override void StartWithRoomEnemies(RoomSetupEnemiesLoaded loaded) =>
             Ensure.NotNull(loaded).Enemies.LoaderHooks.SpawnPrePhantoonRoomProjectile();
+    }
+
+    /// <summary>
+    /// Composes the Ceres haze a Ceres room's setup spawns: red once Ceres Ridley is dead, and shown at once in a room loaded
+    /// on its first view rather than through a door.
+    /// </summary>
+    private static void ComposeCeresHaze(RoomSetupComposition composition)
+    {
+        RoomScopeConstruction scope = Ensure.NotNull(composition).Scope;
+        scope.ComposeCeresHaze(
+            ridleyIsDead: composition.System.HasDefeatedAnyOf(scope.Room.Area, DefeatedBosses.AreaBoss),
+            immediateViewport: composition.DisplaysInitialViewport);
     }
 
     /// <summary>Clears the diagonal quake the previous room's main left, as the two escape setups that switch quakes do.</summary>

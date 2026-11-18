@@ -27,6 +27,9 @@ internal static class TourianStatueDescentRoundingVerification
         foreach (StoryEvent grey in new[] { StoryEvent.PhantoonStatueGrey, StoryEvent.RidleyStatueGrey,
                      StoryEvent.DraygonStatueGrey, StoryEvent.KraidStatueGrey })
             runtime.System.SetEvent(grey);
+        // A room without the statues latches no descent at all (#2385), so its background keeps its own vertical scroll.
+        runtime.FrameBoundary.PublishWhileLoading();
+        AssertEqual(null, runtime.Display.Latched.TourianStatueVerticalOffset, "a room without the statues latches no descent");
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Statues);
         runtime.Player.IntroducedSamus.Control.LockOutPlayer();
 

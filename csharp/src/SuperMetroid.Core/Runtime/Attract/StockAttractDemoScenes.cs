@@ -488,11 +488,13 @@ public static class StockAttractDemoScenes
         return floorRow * RoomGridConversions.BlockPixels - SamusPoseCollisionRadii.ReadVerticalRadius(pose);
     }
 
-    /// <summary>Landing Site entries select their sky, the charge-beam-room demonstration selects its scroll correction, and the two boss scenarios select their explicit room setup. Every other staged room is left as loaded, with no setup.</summary>
+    /// <summary>
+    /// The charge-beam-room demonstration selects its scroll correction, and the two boss scenarios select their explicit
+    /// room setup. Every other staged room, the Landing Site's with the sky its load sets up among them, is left as loaded,
+    /// with no setup.
+    /// </summary>
     private static AttractDemoRoomSetup? RoomSetupFor(Demonstration demonstration) => demonstration switch
     {
-        Demonstration.LandingSite or Demonstration.DiagonalShinespark or Demonstration.GauntletEntrance or
-        Demonstration.InfiniteBombJump or Demonstration.CrystalFlash => AttractDemoRoomSetup.LandingSiteSky,
         Demonstration.PseudoScrewAttack => AttractDemoRoomSetup.ChargeBeamScroll,
         Demonstration.Kraid => AttractDemoRoomSetup.KraidTimer,
         Demonstration.TourianEntrance => AttractDemoRoomSetup.DefeatedKraid,
@@ -501,7 +503,8 @@ public static class StockAttractDemoScenes
         Demonstration.BrinstarDiagonalRoom or Demonstration.LowerNorfairEntrance or Demonstration.ScrewAttack or
         Demonstration.Dachora or Demonstration.PrePhantoonHall or Demonstration.EyeDoor or
         Demonstration.RedBrinstarElevator or Demonstration.AdvancedGrappleBeam or
-        Demonstration.SpecialBeamAttack => null,
+        Demonstration.SpecialBeamAttack or Demonstration.LandingSite or Demonstration.DiagonalShinespark or
+        Demonstration.GauntletEntrance or Demonstration.InfiniteBombJump or Demonstration.CrystalFlash => null,
         _ => throw new ArgumentOutOfRangeException(nameof(demonstration), demonstration, "Undefined attract demonstration."),
     };
 

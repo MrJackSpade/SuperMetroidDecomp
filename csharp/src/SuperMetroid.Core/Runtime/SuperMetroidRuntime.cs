@@ -999,8 +999,7 @@ internal sealed class SuperMetroidRuntime
             PowerBombRenderSnapshot.Capture(Room.LoadedScope.BombProjectiles.PowerBombExplosion),
             MessageBoxLayer.Capture(MessageBox, Room.Scope?.MessageBoxes),
             SuitPickup.IsActive ? SuitPickup.Beam : null,
-            SamusXrayDisplaySnapshot.Capture(Player.Samus, Player.LastXrayBeamStep),
-            Room.LoadedScope.TourianStatues is not null);
+            SamusXrayDisplaySnapshot.Capture(Player.Samus, Player.LastXrayBeamStep));
         return new(Display.Latched, frameEnd, new FramePaint(PublishShading(),
             Player.Colours.ShadeOwnDraws(DisplayedSprites.Draws)));
     }

@@ -34,7 +34,7 @@ internal static class AttractDemoSceneImporter
             new(unchecked((short)Room(AttractDemoSceneRoomFields.SamusXFromCenter)),
                 unchecked((short)Room(AttractDemoSceneRoomFields.SamusYFromTop))),
             Room(AttractDemoSceneRoomFields.Duration),
-            Room(AttractDemoSceneRoomFields.Setup) == AttractDemoNativeWords.NoRoomSetup
+            Room(AttractDemoSceneRoomFields.Setup) is AttractDemoNativeWords.NoRoomSetup or AttractDemoNativeWords.SkyTilemapSetup
                 ? null
                 : AttractDemoNativeWords.RoomSetups.Decode(Room(AttractDemoSceneRoomFields.Setup), "demo room setup"),
             AttractDemoNativeWords.SamusSetups.Decode(setup, "demo Samus setup"),

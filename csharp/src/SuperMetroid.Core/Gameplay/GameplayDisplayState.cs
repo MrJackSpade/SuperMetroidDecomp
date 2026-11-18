@@ -38,7 +38,7 @@ internal sealed class GameplayDisplayState
 
     /// <summary>The latch in effect before any accepted frame: nothing scrolled, no floor and no active effects.</summary>
     private static GameplayDisplayLatch InitialLatch => new(
-        default, default, null, null, null, null, 0,
+        default, default, null, null, null, null, null,
         new GameplayLatchedScene(default,
             null, null, null, null),
         default, default, null, null);

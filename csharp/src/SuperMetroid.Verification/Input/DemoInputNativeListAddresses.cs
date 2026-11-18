@@ -80,7 +80,7 @@ internal static class DemoInputNativeListAddresses
 
     /// <summary>A title demonstration's native object: its first watch's pre-instruction word and its program.</summary>
     private static Object Title(ushort header, AttractDemoInputDefinition input) =>
-        new(header, WatchAddress(input.FirstWatch), input.Animation);
+        new(header, input.Continuation is null ? TitleLeavingCheckAddress : ShinesparkReleaseAddress, input.Animation);
 
     /// <summary>
     /// The recordings whose loop the cartridge authors as a list of its own, which the recording's last list runs on into
@@ -109,13 +109,20 @@ internal static class DemoInputNativeListAddresses
     /// <summary>The native pre-instruction word of an object whose owner watches for nothing: the return-only routine.</summary>
     internal const ushort ReturnOnlyAddress = (ushort)NativeDemoFrameBehavior.ReturnOnly;
 
-    /// <summary>The native pre-instruction word a title demonstration's <paramref name="watch"/> stands for.</summary>
-    internal static ushort WatchAddress(AttractDemoInputWatch watch) => watch switch
-    {
-        AttractDemoInputWatch.TitleLeaving => (ushort)NativeDemoFrameBehavior.AttractCheckLeave,
-        AttractDemoInputWatch.ShinesparkRelease => (ushort)NativeDemoFrameBehavior.AttractShinespark,
-        _ => throw new ArgumentOutOfRangeException(nameof(watch), watch, "Undefined title demonstration watch."),
-    };
+    /// <summary>The native pre-instruction word of a title demonstration that checks only for the title leaving.</summary>
+    internal const ushort TitleLeavingCheckAddress = (ushort)NativeDemoFrameBehavior.AttractCheckLeave;
+
+    /// <summary>The native pre-instruction word of the diagonal shinespark's demonstration until its release continues it.</summary>
+    internal const ushort ShinesparkReleaseAddress = (ushort)NativeDemoFrameBehavior.AttractShinespark;
+
+    /// <summary>
+    /// The native pre-instruction word a title demonstration's playback stands for (#2385): the shinespark's release while a
+    /// scene whose input names a continuation still plays its first recording, otherwise the leave check.
+    /// </summary>
+    internal static ushort WatchAddress(AttractDemoInputDefinition input, DemoInputState playback) =>
+        input.Continuation is not null && playback.Position is { } position && position.Recording == input.Animation
+            ? ShinesparkReleaseAddress
+            : TitleLeavingCheckAddress;
 
     /// <summary>The native pre-instruction word the intro Baby discovery's <paramref name="phase"/> stands for.</summary>
     internal static ushort PhaseAddress(IntroBabyDiscoveryDemoPhase phase) => phase switch

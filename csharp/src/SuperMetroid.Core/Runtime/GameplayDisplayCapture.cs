@@ -97,11 +97,11 @@ public static class GameplayDisplayCapture
         Position16<RoomPixels>? bodyPlacement = bosses.Placement;
         Offset16<BackgroundPixels> backgroundScroll = (bodyPlacement is { } placement ? BossBodyPlacement.Shown(placement, camera) : SignedScroll(scrolls.BackgroundScroll))
             + shake.Background;
-        if (live.TourianStatuesEnabled)
-            // The statues' descent supplies the background's vertical scroll per line after the
+        if (latched.TourianStatueVerticalOffset is int descent)
+            // The statue room's descent supplies the background's vertical scroll per line after the
             // ordinary scroll. It replaces, rather than adds to, the quake-adjusted
             // scroll. The descent also gives the statue sprites zero quake displacement.
-            backgroundScroll = backgroundScroll.WithY(scrolls.ForegroundPosition.Y + latched.TourianStatueVerticalOffset);
+            backgroundScroll = backgroundScroll.WithY(scrolls.ForegroundPosition.Y + descent);
         RoomFxOverlayRenderSnapshot? fx = latched.RoomFxOverlay;
         LatchedScrollingSky? sky = scene.ScrollingSky;
         ScrollBands? skyX = SkyHorizontalScrolls(live, shake);

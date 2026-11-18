@@ -54,7 +54,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
     {
         if (_attractSession.Input is null) return;
         _player.IntroducedSamus.InputSnapshot.PreviousDrawNewInput = _attractSession.Input.Script.NewlyPressed;
-        _attractSession.Input.StepStock();
+        _attractSession.Input.Step();
         _attractSession.InputRestore = _playerActions.UseDemoInput(
             _attractSession.Input.Script.Held, _attractSession.Input.Script.NewlyPressed);
     }
@@ -164,19 +164,13 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
         }
     }
 
-    /// <summary>Applies scene-specific scroll, sky-owner, Kraid timer, or defeated-boss setup.</summary>
+    /// <summary>Applies scene-specific scroll, Kraid timer, or defeated-boss setup.</summary>
     private void ApplyAttractRoomSetup(AttractDemoRoomSetup roomSetup, RoomEnemySystem enemies)
     {
         switch (roomSetup)
         {
             case AttractDemoRoomSetup.ChargeBeamScroll:
                 _room.LoadedCamera.Scrolls.SetLogicalState(AttractDemoDefinitions.ChargeBeamClosedScreen, RoomScrollState.Closed);
-                break;
-            case AttractDemoRoomSetup.LandingSiteSky:
-                // Loading the Landing Site has already set up its scrolling sky, which the
-                // demo shows as it is. Require it rather than setting up a second sky.
-                if (_room.ScrollingSky is null)
-                    throw new InvalidDataException("Landing Site demo requires the scrolling sky's background owner.");
                 break;
             case AttractDemoRoomSetup.KraidTimer:
                 enemies.AttractDemoHooks.SetKraidPhaseTimer(AttractDemoDefinitions.KraidPhaseTimer);

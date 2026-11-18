@@ -105,7 +105,7 @@ internal static class YardAirborneVerification
 
         SelectedRoom aqueduct = runtime.RoomLoader.LoadSelectedRoom(RoomDefinitions.Aqueduct);
         runtime.RoomLoader.LoadRoom(MaridiaDoorDefinitions.CrabShaftToAqueduct, aqueduct, new Position16<RoomPixels>(0, 0),
-            RoomViewportLoadMode.StreamThroughDoor);
+            RoomViewportLoadMode.KeepSourceScreenWhileScrollingIn);
         AssertEqual(measured, runtime.YardKickDistance.HorizontalDistancePlusOne, "the door load keeps the camera's measure");
 
         RoomEnemySystem enemies = runtime.Room.LoadedScope.Enemies;

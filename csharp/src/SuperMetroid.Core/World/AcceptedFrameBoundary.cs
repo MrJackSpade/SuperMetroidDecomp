@@ -122,9 +122,10 @@ internal sealed class AcceptedFrameBoundary
             // Before the first room no eye beam is shown.
             _room.Enemies?.DisplaySources.MorphBallEyeBeam.LatchDisplay(),
             Displays?.Phantoon is { } phantoon ? PhantoonDisplaySnapshot.Capture(phantoon) : null,
-            // Before the first room there are no statues, so no descent is displayed. The descent stops at its authored
-            // distance, which holds the offset between minus that distance and zero (#1627).
-            _room.TourianStatues?.DisplayedVerticalOffset ?? 0,
+            // Only the statue room has statues, so only its frames carry a descent (#2385), and before the first room none
+            // does. The descent stops at its authored distance, which holds the offset between minus that distance and zero
+            // (#1627).
+            _room.TourianStatues?.DisplayedVerticalOffset,
             scene,
             CaptureBossBody(),
             CaptureTints(),

@@ -11,7 +11,7 @@ namespace SuperMetroid.Verification.Runtime.Attract;
 internal static class AttractInputFixtureVerification
 {
     /// <summary>Interprets cartridge or synthetic demo words as the independent reference input stream.</summary>
-    /// <remarks>Production playback plays <c>DemoInputRecordings</c> through <c>StepStock</c>.</remarks>
+    /// <remarks>Production playback plays <c>DemoInputRecordings</c> through <c>AttractDemoInput.Step</c>.</remarks>
     internal sealed class ReferenceAttractInput
     {
         /// <summary>The reference object, including independently authored held and new inputs.</summary>

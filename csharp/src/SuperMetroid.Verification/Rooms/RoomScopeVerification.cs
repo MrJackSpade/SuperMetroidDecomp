@@ -57,7 +57,7 @@ internal static class RoomScopeVerification
             DestinationScreen: camera.ToRoomScreen(),
             SamusSpeed: DoorSamusSpeed.None,
             Setup: DoorSetupDefinitions.None);
-        runtime.RoomLoader.LoadRoom(door, parlor, camera, RoomViewportLoadMode.StreamThroughDoor);
+        runtime.RoomLoader.LoadRoom(door, parlor, camera, RoomViewportLoadMode.KeepSourceScreenWhileScrollingIn);
 
         RoomScope destination = runtime.Room.Scope;
         VerificationAssertions.AssertTrue(!ReferenceEquals(source, destination) && !ReferenceEquals(previous, destination.Camera),

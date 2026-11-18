@@ -23,7 +23,8 @@ internal sealed record ProgramFrameSplit(IReadOnlySet<string> Spawned, IReadOnly
 /// poses rather than projectile frames, and the room pictures Core draws from the shared sheet (#2260). A family's
 /// programs are the segments its animations start at. An animation shows what the segments its phases play show; a
 /// segment shows the projectile frames its beats name, or the table entries of the poses they construct, inlining the
-/// segments' own beat helpers with their constant arguments; a pose argument no constant decides (a loop's phase) matches
+/// segments' own beat helpers with their constant arguments and the pose sets they are handed, whose frames are read from
+/// the pose set's construction (#2472); a pose argument no constant decides (a loop's phase) matches
 /// every entry the pose's other arguments do. A segment its beats name (a cue continuing the play in the animation starting
 /// there) is run on into. A family is started in the programs its start names, together with every one of its programs
 /// Core names outside its segments, animations and starts, since code naming a program can switch an object to it. A

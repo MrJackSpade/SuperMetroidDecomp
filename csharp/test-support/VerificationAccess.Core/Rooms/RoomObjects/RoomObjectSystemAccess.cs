@@ -35,7 +35,7 @@ internal static class RoomObjectSystemAccess
                 RoomObjectKind.SpeedBoosterEscape or
                 RoomObjectKind.WreckedShipAttic or
                 RoomObjectKind.NoobTube or
-                RoomObjectKind.MetroidRoomClearance or
+                RoomObjectKind.MetroidRoomClearance or RoomObjectKind.EscapeRoomHeldPlace or
                 RoomObjectKind.MotherBrainEscapeRoomGate or
                 RoomObjectKind.DownwardGate or RoomObjectKind.DownwardGateShotBlock ||
                 EyeDoorObjectsConstants.IsEyeDoorKind(header) || DraygonCannonObjectsConstants.IsDraygonCannonKind(header))

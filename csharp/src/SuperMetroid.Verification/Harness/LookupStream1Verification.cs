@@ -1281,16 +1281,20 @@ internal static class LookupStream1Verification
         {
             ushort pointer = Word(0x84db28 + argument);
             AssertEqual(pointer, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectFrameBehaviorNativeRoutines.MetroidsCleared(argument), "native Metroid quota dispatcher identity");
+            if (argument < 18)
+            {
+                // A no-op entry's placement is an escape room's held place, which marks no event (#2426).
+                AssertTrue(SuperMetroid.Core.Rooms.RoomObjects.RoomObjectRoomArgumentWords.PlacedKind(
+                        SuperMetroid.Core.Rooms.RoomObjects.RoomObjectKind.MetroidRoomClearance, argument)
+                    == SuperMetroid.Core.Rooms.RoomObjects.RoomObjectKind.EscapeRoomHeldPlace, "nine no-op quota identities place a held place");
+                AssertEqual((byte)0x60, LookupStream1PuyoAndQuotaRomByte(rom, 0x840000 | pointer), "native distinct no-op RTS");
+                continue;
+            }
             var eventNumber = (SuperMetroid.Core.Rooms.RoomObjects.RoomObjectRoomArgumentWords.Decode(
                 SuperMetroid.Core.Rooms.RoomObjects.RoomObjectKind.MetroidRoomClearance, argument)
                 as SuperMetroid.Core.Rooms.RoomObjects.MetroidRoomArgument
                 ?? throw new InvalidOperationException($"Metroids-cleared argument {argument} decodes to no watch.")).Cleared;
-            if (argument < 18)
-            {
-                AssertTrue(eventNumber is null, "nine no-op quota identities have no event");
-                AssertEqual((byte)0x60, LookupStream1PuyoAndQuotaRomByte(rom, 0x840000 | pointer), "native distinct no-op RTS");
-            }
-            else AssertEqual(Word(0x840000 | (pointer + 9)), (eventNumber ?? throw new InvalidOperationException("Verification requires eventNumber.")).Number(), "native quota observer event operand");
+            AssertEqual(Word(0x840000 | (pointer + 9)), eventNumber.Number(), "native quota observer event operand");
         }
         foreach (ushort invalid in new ushort[] { 1, 17, 25, 26, ushort.MaxValue })
         {

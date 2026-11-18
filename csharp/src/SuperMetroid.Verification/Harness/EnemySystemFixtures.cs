@@ -1,4 +1,6 @@
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
@@ -37,11 +39,12 @@ internal static class EnemySystemFixtures
     /// <param name="roomFx">The room's effect state, or null for an effect of its own with no liquid.</param>
     /// <param name="floor">The room's turning floor, or null for a room that shows none.</param>
     /// <param name="statueRoom">The Tourian statue room, or null for any other room.</param>
+    /// <param name="shaftTurn">The elevator shaft's turn, or null for a room that is no turning shaft.</param>
     internal static RoomEnemySystem New(EnemySession session, RoomEnemyCompatibility compatibility,
         IRoomEnemyDefinitionSource? definitions = null, IRoomEnemyServices? services = null,
         BossSourceArtwork? installedBosses = null, EnemyBreakableTerrainObjects? breakableTerrain = null,
         AreaId area = AreaId.Crateria, DoorPassage? doorPassage = null, RoomFxOverlayState? roomFx = null,
-        RoomFloor? floor = null, ITourianStatueRoom? statueRoom = null)
+        RoomFloor? floor = null, ITourianStatueRoom? statueRoom = null, CeresElevatorShaftRoomMainState? shaftTurn = null)
     {
         var system = new RoomEnemySystem(new RoomEnemySystemDependencies
         {
@@ -57,7 +60,7 @@ internal static class EnemySystemFixtures
             DoorPassage = doorPassage ?? new DoorPassage(),
             RoomFx = roomFx ?? new RoomFxOverlayState(),
             Earthquake = new RoomEarthquake(),
-            Scenery = new RoomEnemyScenery(floor, statueRoom),
+            Scenery = new RoomEnemyScenery(floor, shaftTurn, statueRoom),
         });
         system.BossArtwork = installedBosses;
         return system;
@@ -65,8 +68,9 @@ internal static class EnemySystemFixtures
 
     /// <summary>
     /// A room's enemy system, as <see cref="New"/> builds it, in a room that can place any enemy: it shows the Ceres
-    /// turning floor whose platform the elevator door cycles and holds the Tourian statue room whose statue the statue's
-    /// decorations follow down (#2382), for a check that binds definitions it does not pick one by one (#2420).
+    /// turning floor whose platform the elevator door cycles, turns as the elevator shaft its rotating steam vents ride, and
+    /// holds the Tourian statue room whose statue the statue's decorations follow down (#2382, #2426), for a check that
+    /// binds definitions it does not pick one by one (#2420).
     /// </summary>
     /// <param name="session">The enemy state and installed artwork that outlive each room.</param>
     /// <param name="compatibility">The compatibility services the room's enemies consult.</param>
@@ -76,5 +80,17 @@ internal static class EnemySystemFixtures
     internal static RoomEnemySystem PlacingAnyEnemy(EnemySession session, RoomEnemyCompatibility compatibility,
         IRoomEnemyDefinitionSource? definitions = null, IRoomEnemyServices? services = null, BossSourceArtwork? installedBosses = null) =>
         New(session, compatibility, definitions, services, installedBosses,
-            floor: RoomBackgroundsFixtures.CeresFloor(), statueRoom: new FixedTourianStatueRoom(WaterSurface: 216, StatueOffset: 0));
+            floor: RoomBackgroundsFixtures.CeresFloor(), statueRoom: new FixedTourianStatueRoom(WaterSurface: 216, StatueOffset: 0),
+            shaftTurn: new CeresElevatorShaftRoomMainState(new RoomMainCarryover()));
+
+    /// <summary>The Tourian statue scene of <paramref name="enemies"/>, which the check built for the statue room.</summary>
+    /// <exception cref="InvalidOperationException">The check built the enemies for another room.</exception>
+    internal static TourianEntranceStatueBehavior StatueScene(RoomEnemySystem enemies) => enemies.TourianEntranceStatueBehavior
+        ?? throw new InvalidOperationException("The check built its enemies without the statue room, which alone holds the statue scene.");
+
+    /// <summary>Initializes the statue scene's placement <paramref name="place"/> holds, as the room's enemy load does.</summary>
+    /// <exception cref="InvalidOperationException">The place holds no statue scene placement.</exception>
+    internal static void InitializeStatuePlacement(RoomEnemyPlace place) =>
+        (place.Entity as TourianEntranceStatueEntity
+            ?? throw new InvalidOperationException($"Enemy place {place.Ordinal} holds no Tourian statue scene placement.")).Initialize();
 }

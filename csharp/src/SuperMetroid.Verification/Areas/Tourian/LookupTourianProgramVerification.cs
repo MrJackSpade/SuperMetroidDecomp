@@ -156,7 +156,7 @@ internal static class LookupTourianProgramVerification
                     break;
                 case AnimatedTileInstruction.WriteEightTargetPaletteColors:
                     AssertEqual(NativeColourIndexes[definition.GreyShade] * sizeof(ushort), (int)operand, $"{at}: grey colour byte index");
-                    steps.Add(Cue(TourianStatueBlockCueKind.ApplyGreyColors));
+                    steps.Add(Cue(TourianStatueBlockCueKind.TurnGrey));
                     break;
                 case AnimatedTileInstruction.Goto:
                     continues.Add(currentLabel, Label(labels, operand, at));

@@ -981,7 +981,7 @@ internal sealed class RoomLoader
             RoomFx = roomFxOverlay,
             DoorPassage = _doorTransition.Passage,
             Earthquake = earthquake,
-            Scenery = new RoomEnemyScenery(scope.Floor, statueRoom),
+            Scenery = new RoomEnemyScenery(scope.Floor, scope.CeresElevatorShaft, statueRoom),
         });
         enemies.TakeOverFrom(_room.HandOver);
         scope.Enemies = enemies;

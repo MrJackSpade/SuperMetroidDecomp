@@ -31,8 +31,8 @@ internal static class OperationContractsVerification
         AssertTrue(typeof(IEnemyAiFrame).IsAssignableFrom(typeof(ClockedEnemyAiFrame)), "the pass's clocked frame satisfies main AI's frame");
         AssertTrue(MetadataShape.Properties(typeof(IEnemyAiFrame), BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public).Select(property => property.Name).Order(StringComparer.Ordinal).SequenceEqual(
             ["Camera", "Clock", "ControllerInput", "Level", "NewlyPressedControllerInput", "PseudoScrew", "Samus", "SamusProjectiles",
-             "SharedProjectiles", "TurningFloor"]),
-            "main AI's frame exposes only the ten values main AI reads");
+             "SharedProjectiles"]),
+            "main AI's frame exposes only the nine values main AI reads");
         AssertEqual(typeof(IEnemyAiFrame), MetadataShape.ParameterTypes(typeof(EnemyLifecycle), nameof(EnemyLifecycle.RunMainAi), shared)[1],
             "main AI accepts its narrow frame, not the enemy pass's whole frame");
         AssertEqual(typeof(IEnemyAiFrame), MetadataShape.ParameterTypes(typeof(GrappleBehavior), nameof(GrappleBehavior.RunCommonGrappleAi), instance)[1],
@@ -44,7 +44,7 @@ internal static class OperationContractsVerification
             MetadataShape.ParameterTypes(typeof(ColourEffectSystem), "CheckCondition", instance)[1],
             "a colour effect's condition takes only the room's conditions; the power bomb stays with the step");
         AssertEqual(typeof(VerticalTerrainProbe),
-            MetadataShape.ParameterTypes(typeof(SamusBlockCollision), "ScanVerticalTerrain", shared)[3],
+            MetadataShape.ParameterTypes(typeof(SamusBlockCollision), "ScanVerticalTerrain", shared)[4],
             "the vertical terrain scan takes its probe, not the whole vertical move");
         AssertEqual(typeof(IAreaBossFlagReader),
             typeof(RoomObjectSetupContext).GetProperty(nameof(RoomObjectSetupContext.Bosses))?.PropertyType,

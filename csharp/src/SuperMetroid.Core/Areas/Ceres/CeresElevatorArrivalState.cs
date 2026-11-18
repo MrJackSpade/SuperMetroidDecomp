@@ -14,8 +14,8 @@ namespace SuperMetroid.Core.Areas.Ceres;
 [RoomLifetime]
 public sealed class CeresElevatorArrivalState
 {
-    /// <summary>The moving pad, which lowers Samus before the platform checks for her landing.</summary>
-    private readonly CeresElevatorArrivalActor pad;
+    /// <summary>The moving pad, which lowers Samus before the platform checks for her landing, and its wait before it moves.</summary>
+    private readonly CeresElevatorPad pad;
     /// <summary>The stationary platform, which waits behind the pad until Samus lands.</summary>
     private readonly CeresElevatorArrivalActor platform;
 
@@ -26,10 +26,9 @@ public sealed class CeresElevatorArrivalState
 
         // Both actors show the shared sheet's pictures in the colours their frames author, with the concealer cleared to
         // black (CeresElevatorArrivalDefinitions.StartingGraphics).
-        pad = CreateActor(
+        pad = new CeresElevatorPad(CreateActor(
             CeresElevatorArrivalSegment.Pad,
-            MovingPadUnder(samus));
-        pad.WaitTimer = CeresElevatorArrivalDefinitions.MovingPadWaitFrames;
+            MovingPadUnder(samus)));
 
         platform = CreateActor(
             CeresElevatorArrivalSegment.Platform,
@@ -37,7 +36,7 @@ public sealed class CeresElevatorArrivalState
     }
 
     /// <summary>True after both actors leave, once Samus has landed at Y=72.</summary>
-    public bool IsComplete => !pad.Active && !platform.Active;
+    public bool IsComplete => !pad.Actor.Active && !platform.Active;
 
     /// <summary>Runs the pad, then the platform.</summary>
     /// <returns>True on and after the frame that hands Samus control back after the elevator descent.</returns>
@@ -47,12 +46,12 @@ public sealed class CeresElevatorArrivalState
 
         // The pad moves Samus before the platform tests whether she has landed at Y=72, so both leave on the update
         // she lands, without showing another pose (#2424).
-        if (pad.Active)
+        if (pad.Actor.Active)
         {
             if (LowerSamus(samus))
-                pad.Active = false;
+                pad.Actor.Active = false;
             else
-                AdvanceAnimation(pad);
+                AdvanceAnimation(pad.Actor);
         }
 
         if (platform.Active)
@@ -73,14 +72,11 @@ public sealed class CeresElevatorArrivalState
     /// <returns>True on the update Samus lands.</returns>
     private bool LowerSamus(SamusState samus)
     {
-        if (pad.WaitTimer > 1)
-        {
-            pad.WaitTimer--;
+        if (pad.WaitOneUpdate())
             return false;
-        }
         // The descent samples the old Samus position for the pad, then increments
         // Samus. That one-pixel separation is visible throughout the descent.
-        pad.Position = pad.Position.WithY(MovingPadUnder(samus).Y);
+        pad.Actor.Position = pad.Actor.Position.WithY(MovingPadUnder(samus).Y);
         samus.Position += new Offset16<RoomPixels>(0, 1);
         // Samus starts the descent at the room's top and moves down a pixel an update, so she reaches the landing
         // threshold from above.
@@ -100,7 +96,7 @@ public sealed class CeresElevatorArrivalState
     {
         Ensure.NotNull(sprites);
         Ensure.NotNull(presentation);
-        DrawActor(pad, sprites, presentation, camera);
+        DrawActor(pad.Actor, sprites, presentation, camera);
         DrawActor(platform, sprites, presentation, camera);
     }
 
@@ -171,7 +167,32 @@ public sealed class CeresElevatorArrivalState
             CeresElevatorArrivalPictures.SheetName(pose), actor.Position.RelativeToCamera(camera), actor.Graphics);
     }
 
-    /// <summary>One of the two arrival actors, the pad or the platform: its animation, place and the pad's wait.</summary>
+    /// <summary>
+    /// The moving pad: its actor and the wait before it first moves Samus, which only the pad has (#2426).
+    /// </summary>
+    /// <param name="actor">The pad's actor.</param>
+    internal sealed class CeresElevatorPad(CeresElevatorArrivalActor actor)
+    {
+        /// <summary>The pad's actor: its animation and place.</summary>
+        public CeresElevatorArrivalActor Actor { get; } = Ensure.NotNull(actor);
+
+        /// <summary>
+        /// The updates left in the pad's wait, the one it first moves Samus on included; none once it has run out, after
+        /// which the pad moves her on every update.
+        /// </summary>
+        private int _waitUpdatesLeft = CeresElevatorArrivalDefinitions.MovingPadWaitUpdates;
+
+        /// <summary>Counts one update of the pad's wait.</summary>
+        /// <returns>Whether the pad still waits on this update: false on the update its wait runs out and on every one after.</returns>
+        internal bool WaitOneUpdate()
+        {
+            if (_waitUpdatesLeft > 0)
+                _waitUpdatesLeft--;
+            return _waitUpdatesLeft > 0;
+        }
+    }
+
+    /// <summary>One of the two arrival actors, the pad or the platform: its animation and place.</summary>
     internal sealed class CeresElevatorArrivalActor
     {
         /// <summary>Starts an actor's animation at its position, showing its graphics.</summary>
@@ -191,8 +212,6 @@ public sealed class CeresElevatorArrivalState
         public bool Active { get; set; } = true;
         /// <summary>Whole room position; the per-frame movement only rewrites Y.</summary>
         public Position16<RoomPixels> Position { get; set; }
-        /// <summary>Pad-only startup delay before it begins moving Samus toward the platform.</summary>
-        public int WaitTimer { get; set; }
         /// <summary>The actor's animation and where it stands in it, played on when its frame expires.</summary>
         internal AnimationPlayback<CeresElevatorArrivalSegment> Playback { get; set; }
 

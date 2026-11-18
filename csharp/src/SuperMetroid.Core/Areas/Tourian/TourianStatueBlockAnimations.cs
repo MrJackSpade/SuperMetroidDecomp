@@ -75,7 +75,7 @@ internal sealed class TourianStatueBlockAnimations
             [P.AlreadyGrey] =
             [
                 Cue(new(K.FinishRelease)),
-                Cue(new(K.ApplyGreyColors)),
+                Cue(new(K.TurnGrey)),
             ],
         });
 

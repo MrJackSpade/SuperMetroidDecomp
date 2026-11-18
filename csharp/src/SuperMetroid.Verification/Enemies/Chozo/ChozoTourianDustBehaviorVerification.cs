@@ -22,12 +22,12 @@ internal static class ChozoTourianDustBehaviorVerification
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, ChozoTourianDustNativeListAddresses.Extent, "Chozo/Tourian dust");
-        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+        // The statue's descent dust spawns only in the Tourian statue room (#2382), which the enemies are built for (#2426).
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null),
+            statueRoom: new FixedTourianStatueRoom(WaterSurface: 216, StatueOffset: 0));
         // The scatter draws again while a candidate falls below its center, so the fixture's random sequence advances.
         ushort random = 0;
         enemies.VerificationServices().NextRandom = () => random = unchecked((ushort)(random + 4951));
-        // The statue's descent dust spawns only in the Tourian statue room (#2382), which both kinds are initialized in here.
-        var statueRoom = new FixedTourianStatueRoom(WaterSurface: 216, StatueOffset: 0);
         foreach ((RoomEnemyProjectileKind kind, ChozoTourianDustSegment program, ushort nativeStart) in new VerifyChozoTourianDustBehaviorCase[]
                  {
                      new VerifyChozoTourianDustBehaviorCase(RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep, ChozoTourianDustSegment.Footsteps,
@@ -38,7 +38,7 @@ internal static class ChozoTourianDustBehaviorVerification
         {
             EnemyProjectile dust = enemies.Projectiles.EnemyProjectiles[0];
             dust.Delete();
-            FamilyProjectileStarts.Initialize(enemies, dust, kind, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard, statueRoom);
+            FamilyProjectileStarts.Initialize(enemies, dust, kind, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard);
             dust.State = new AnchoredProjectileState(new(128, 96));
             AssertTrue(dust.Animation is ChozoTourianDustAnimation animation && animation.PlayingSegment == program, $"{kind} starts {program}");
             (bool deleted, int updates) = NativeEnemyProjectileParity.Compare(cartridge, enemies, dust, nativeStart, 600, kind.ToString());

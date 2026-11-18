@@ -19,8 +19,6 @@ internal sealed class EnemyFramePhase
     private readonly BackgroundScrollState _backgroundScroll;
     /// <summary>Supplies the held and newly pressed actions to the enemies.</summary>
     private readonly GameplayActionInput _playerActions;
-    /// <summary>Provides the active Samus turning-floor transform to the enemy frame.</summary>
-    private readonly GameplayDisplayState _display;
     /// <summary>Applies room effects requested by enemies after their AI pass.</summary>
     private readonly EnemyRoomEffects _enemyRoomEffects;
     /// <summary>Controls whether frozen-time encounters advance presentation effects.</summary>
@@ -38,7 +36,6 @@ internal sealed class EnemyFramePhase
     {
         _backgroundScroll = dependencies.BackgroundScroll;
         _playerActions = dependencies.PlayerActions;
-        _display = dependencies.Display;
         _enemyRoomEffects = dependencies.EnemyRoomEffects;
         _freeze = dependencies.Freeze;
         _clock = dependencies.Clock;
@@ -77,7 +74,7 @@ internal sealed class EnemyFramePhase
         bool hyperBeamBefore = samus.HyperBeamEnabled;
         if (processingList == EnemyProcessingList.Unprepared)
             room.Enemies.ProcessingWindow.PrepareEnemyProcessingList(room.Camera.PixelPosition);
-        EnemyFrameResult result = room.Enemies.StepFrame(new RoomEnemyFrame { Camera = room.Camera.PixelPosition, TimeIsFrozen = _freeze.TimeIsFrozen, Samus = samus, SamusColours = _player.Colours, NewlyPressedControllerInput = _playerActions.NewlyPressed, Level = room.LevelData, ControllerInput = _playerActions.Current, SamusProjectiles = room.Projectiles, ShortCounter = _clock.ShortCounter, TurningFloor = _display.ActiveTurningFloor, SharedProjectiles = room.BombProjectiles, FrameCounter = _clock.Counter, SamusPreviousPositionCheckpoint = samusPreviousPositionCheckpoint });
+        EnemyFrameResult result = room.Enemies.StepFrame(new RoomEnemyFrame { Camera = room.Camera.PixelPosition, TimeIsFrozen = _freeze.TimeIsFrozen, Samus = samus, SamusColours = _player.Colours, NewlyPressedControllerInput = _playerActions.NewlyPressed, Level = room.LevelData, ControllerInput = _playerActions.Current, SamusProjectiles = room.Projectiles, ShortCounter = _clock.ShortCounter, SharedProjectiles = room.BombProjectiles, FrameCounter = _clock.Counter, SamusPreviousPositionCheckpoint = samusPreviousPositionCheckpoint });
         var effectSite = EnemyRoomEffectSite.Of(room, samus);
         _enemyRoomEffects.ApplyEnemyRequestedRoomEffects(result.RoomEffects, effectSite);
         EnemyRoomEffects.StartEnemyGlow(result.Glow, effectSite);

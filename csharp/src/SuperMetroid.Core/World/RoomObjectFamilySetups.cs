@@ -76,7 +76,11 @@ internal sealed class RoomObjectFamilySetups(RoomObjectSetupContext context) : I
     public void SetUpBombTorizoHand() => context.Families.BombTorizoHand.SetupBombTorizoHand(context.Place, context.Bosses);
 
     /// <inheritdoc/>
-    public void SetUpMetroidRoomClearance(MetroidRoomArgument? watches) => TourianObjects.SetupMetroidsCleared(context.Place, watches);
+    public void SetUpMetroidRoomClearance(MetroidRoomArgument watches) => TourianObjects.SetupMetroidsCleared(context.Place, watches);
+
+    /// <inheritdoc/>
+    /// <remarks>The held place's object changes nothing: it only holds its place.</remarks>
+    public void SetUpEscapeRoomHeldPlace() => context.Place.Become(new EscapeRoomHeldPlaceObject());
 
     /// <inheritdoc/>
     public void SetUpSpeedBoosterEscape() => context.Families.SpeedBoosterEscape.SetupSpeedBoosterEscape(context.Place);

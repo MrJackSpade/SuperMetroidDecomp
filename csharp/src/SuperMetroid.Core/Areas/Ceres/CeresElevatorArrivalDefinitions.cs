@@ -19,8 +19,11 @@ internal static class CeresElevatorArrivalDefinitions
     internal static SpriteGraphics StartingGraphics { get; } =
         SpriteGraphics.SharedIn(PictureShading.Shaded(CeresElevatorShades.ConcealerCleared));
 
-    /// <summary>The updates the moving pad waits before it moves.</summary>
-    internal const int MovingPadWaitFrames = 60;
+    /// <summary>
+    /// The updates of the moving pad's wait before it lowers Samus, the one it first lowers her on included: it holds her
+    /// still for 59 updates and moves her on the 60th.
+    /// </summary>
+    internal const int MovingPadWaitUpdates = 60;
 
     /// <summary>How far below Samus the moving pad rides, in pixels.</summary>
     internal const int MovingPadYOffset = 28;

@@ -108,6 +108,10 @@ internal static class RoomObjectRoomArgumentWords
         string name = header.ToString();
         if (header == RoomObjectKind.ScrollTrigger || FixedWords.ContainsKey(header) || FillerHeaders.Contains(header))
             return null;
+        // A held place's word only selects one of the clearance table's no-op entries, which nothing reads after.
+        if (header == RoomObjectKind.EscapeRoomHeldPlace)
+            return PlacedKind(RoomObjectKind.MetroidRoomClearance, word) == header ? null
+                : throw new InvalidDataException($"Held-place argument ${word:X4} selects a clearance watch, not one of the no-op entries.");
         if (PermanentCollectibleObjectDefinitions.Items.ContainsKey(header))
             return new CollectedItemArgument(SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Item(word));
         if (name.StartsWith("GreyDoor", StringComparison.Ordinal) || header == RoomObjectKind.BombTorizoGreyDoor)
@@ -132,10 +136,9 @@ internal static class RoomObjectRoomArgumentWords
         }
         if (header == RoomObjectKind.MetroidRoomClearance)
         {
-            int entry = (word & 1) == 0 ? word / 2 : throw new InvalidDataException($"Metroids-cleared argument ${word:X4} is odd.");
-            return entry >= MetroidRoomEntryCount
-                ? throw new InvalidDataException($"Metroids-cleared argument ${word:X4} is not one of its {MetroidRoomEntryCount} entries.")
-                : entry < MetroidRoomNoOpEntryCount ? MetroidRoomArgument.ObservesNothing
+            int entry = MetroidRoomEntry(word);
+            return entry < MetroidRoomNoOpEntryCount
+                ? throw new InvalidDataException($"Metroids-cleared argument ${word:X4} selects a no-op entry: the placement is an escape room's held place.")
                 : new MetroidRoomArgument(MetroidRoomQuotaObserverEvents[entry - MetroidRoomNoOpEntryCount]);
         }
         if (header == RoomObjectKind.DownwardGateShotBlock)
@@ -149,13 +152,39 @@ internal static class RoomObjectRoomArgumentWords
     }
 
     /// <summary>
+    /// The entry of the cartridge's Metroids-cleared table a clearance object's <paramref name="word"/> selects.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The word is odd or past the table.</exception>
+    private static int MetroidRoomEntry(int word)
+    {
+        int entry = (word & 1) == 0 ? word / 2 : throw new InvalidDataException($"Metroids-cleared argument ${word:X4} is odd.");
+        return entry < MetroidRoomEntryCount ? entry
+            : throw new InvalidDataException($"Metroids-cleared argument ${word:X4} is not one of its {MetroidRoomEntryCount} entries.");
+    }
+
+    /// <summary>
+    /// The kind a cartridge record of <paramref name="header"/> with argument <paramref name="word"/> places: an escape
+    /// room's held place for a Metroids-cleared object whose word selects one of its table's no-op entries (#2426), else the
+    /// header's own kind.
+    /// </summary>
+    /// <exception cref="InvalidDataException">A Metroids-cleared object's word selects none of its table's entries.</exception>
+    internal static RoomObjectKind PlacedKind(RoomObjectKind header, int word) =>
+        header == RoomObjectKind.MetroidRoomClearance && MetroidRoomEntry(word) < MetroidRoomNoOpEntryCount
+            ? RoomObjectKind.EscapeRoomHeldPlace
+            : header;
+
+    /// <summary>The header a placement of <paramref name="kind"/> is stored under: a held place's is the Metroids-cleared object's.</summary>
+    internal static RoomObjectKind Header(RoomObjectKind kind) =>
+        kind == RoomObjectKind.EscapeRoomHeldPlace ? RoomObjectKind.MetroidRoomClearance : kind;
+
+    /// <summary>
     /// The native word of a placement's argument: its typed argument's word, the scroll program's place for a scroll
-    /// trigger, the fixed or filler word of a placement that carries nothing, else zero. A clearance watch that observes
-    /// nothing has no word: the cartridge's is one of its table's no-op entries, which the port does not keep.
+    /// trigger, the fixed or filler word of a placement that carries nothing, else zero. A held place has no word: the
+    /// cartridge's is one of the clearance table's no-op entries, which the port does not keep.
     /// </summary>
     internal static ushort Encode(RoomObjectKind header, RoomObjectRoomArgument? argument, RoomScrollChange? scroll) =>
-        argument is MetroidRoomArgument { Cleared: null }
-            ? throw new InvalidOperationException("A clearance watch that observes nothing keeps no no-op entry's word.")
+        header == RoomObjectKind.EscapeRoomHeldPlace
+            ? throw new InvalidOperationException("A held place keeps no no-op entry's word.")
             : ArgumentWord(argument) ?? (header == RoomObjectKind.ScrollTrigger && scroll is { } program ? RoomScrollProgramNative.Addresses[program]
             : FixedWords.TryGetValue(header, out ushort fixedWord) ? fixedWord
             : FillerHeaders.Contains(header) || header == RoomObjectKind.ScrollTrigger ? Filler
@@ -224,10 +253,8 @@ internal static class RoomObjectRoomArgumentWords
             GreyDoorArgument grey => checked((ushort)((grey.Door.Persists ? 0 : NeverPersists) |
                 (Array.IndexOf(GreyDoorConditionsInTableOrder, grey.Condition) << GreyConditionShift) | SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Number(grey.Door.Door))),
             SaveStationArgument saved => checked((ushort)SuperMetroid.AssetExtraction.Progression.LoadStationNumberCodec.Number(saved.Station)),
-            MetroidRoomArgument { Cleared: { } cleared } =>
-                checked((ushort)((MetroidRoomNoOpEntryCount + Array.IndexOf(MetroidRoomQuotaObserverEvents, cleared)) * 2)),
-            // A watch that observes nothing keeps none of the no-op entries' words.
-            MetroidRoomArgument => null,
+            MetroidRoomArgument watch =>
+                checked((ushort)((MetroidRoomNoOpEntryCount + Array.IndexOf(MetroidRoomQuotaObserverEvents, watch.Cleared)) * 2)),
             GateTriggerArgument gate => checked((ushort)(GateTriggerIndex(gate.Trigger) * 2)),
             null => null,
             _ => throw new InvalidOperationException($"Undefined room argument {argument}."),

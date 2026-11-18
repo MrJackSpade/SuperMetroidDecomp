@@ -30,7 +30,7 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectKind.UpwardsScrollExtension, new(30, 39), new ScrollExtensionSetup()),
         new(RoomObjectKind.UpwardsScrollExtension, new(30, 38), new ScrollExtensionSetup()),
         new(RoomObjectKind.UpwardsScrollExtension, new(30, 37), new ScrollExtensionSetup()),
-        new(RoomObjectKind.MetroidRoomClearance, new(8, 8), new MetroidRoomClearanceSetup(MetroidRoomArgument.ObservesNothing)),
+        new(RoomObjectKind.EscapeRoomHeldPlace, new(8, 8), new EscapeRoomHeldPlaceSetup()),
         new(RoomObjectKind.GreyDoorFacingRight, new(1, 38), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.Never, new LockedDoorArgument(LockedDoorDefinitions.LandingSiteWhenZebesTimebombSetGreyDoorFacingRight, DoorOpeningPersistence.Transient)))),
         new(RoomObjectKind.GreyDoorFacingLeft, new(142, 70), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.Never, new LockedDoorArgument(LockedDoorDefinitions.LandingSiteWhenZebesTimebombSetGreyDoorFacingLeftAt142x70, DoorOpeningPersistence.Transient)))),
         new(RoomObjectKind.GreyDoorFacingLeft, new(142, 22), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.Never, new LockedDoorArgument(LockedDoorDefinitions.LandingSiteWhenZebesTimebombSetGreyDoorFacingLeftAt142x22, DoorOpeningPersistence.Transient)))),
@@ -104,7 +104,7 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectKind.RightwardsScrollExtension, new(61, 17), new ScrollExtensionSetup()),
         new(RoomObjectKind.RightwardsScrollExtension, new(62, 17), new ScrollExtensionSetup()),
         new(RoomObjectKind.ScrollTrigger, new(52, 14), new ScrollTriggerSetup(RoomScrollChange.ParlorClosesScreen4x0OpensScreen3x1)),
-        new(RoomObjectKind.MetroidRoomClearance, new(8, 8), new MetroidRoomClearanceSetup(MetroidRoomArgument.ObservesNothing)),
+        new(RoomObjectKind.EscapeRoomHeldPlace, new(8, 8), new EscapeRoomHeldPlaceSetup()),
         new(RoomObjectKind.GreyDoorFacingRight, new(1, 6), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.Never, new LockedDoorArgument(LockedDoorDefinitions.ParlorWhenZebesTimebombSetGreyDoorFacingRightAt1x6, DoorOpeningPersistence.Transient)))),
         new(RoomObjectKind.GreyDoorFacingRight, new(17, 38), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.Never, new LockedDoorArgument(LockedDoorDefinitions.ParlorWhenZebesTimebombSetGreyDoorFacingRightAt17x38, DoorOpeningPersistence.Transient)))),
         new(RoomObjectKind.GreyDoorFacingRight, new(17, 54), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.Never, new LockedDoorArgument(LockedDoorDefinitions.ParlorWhenZebesTimebombSetGreyDoorFacingRightAt17x54, DoorOpeningPersistence.Transient)))),
@@ -266,7 +266,7 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectKind.UpwardsScrollExtension, new(8, 135), new ScrollExtensionSetup()),
         new(RoomObjectKind.UpwardsScrollExtension, new(8, 136), new ScrollExtensionSetup()),
         new(RoomObjectKind.ScrollTrigger, new(8, 137), new ScrollTriggerSetup(RoomScrollChange.ClimbClosesScreen1x8)),
-        new(RoomObjectKind.MetroidRoomClearance, new(8, 8), new MetroidRoomClearanceSetup(MetroidRoomArgument.ObservesNothing)),
+        new(RoomObjectKind.EscapeRoomHeldPlace, new(8, 8), new EscapeRoomHeldPlaceSetup()),
         new(RoomObjectKind.GreyDoorFacingLeft, new(46, 6), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.Never, new LockedDoorArgument(LockedDoorDefinitions.ClimbWhenZebesTimebombSetGreyDoorFacingLeftAt46x6, DoorOpeningPersistence.Transient)))),
         new(RoomObjectKind.GreyDoorFacingLeft, new(46, 118), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.Never, new LockedDoorArgument(LockedDoorDefinitions.ClimbWhenZebesTimebombSetGreyDoorFacingLeftAt46x118, DoorOpeningPersistence.Transient)))),
         new(RoomObjectKind.GreyDoorFacingLeft, new(30, 134), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.Never, new LockedDoorArgument(LockedDoorDefinitions.ClimbWhenZebesTimebombSetGreyDoorFacingLeftAt30x134, DoorOpeningPersistence.Transient)))),
@@ -310,7 +310,7 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The BombTorizoWhenZebesTimebombSet room-object population.</summary>
     public static RoomObjectPopulation BombTorizoWhenZebesTimebombSet { get; } = RoomObjectPopulation.FromPlacements(nameof(BombTorizoWhenZebesTimebombSet),
     [
-        new(RoomObjectKind.MetroidRoomClearance, new(8, 8), new MetroidRoomClearanceSetup(MetroidRoomArgument.ObservesNothing)),
+        new(RoomObjectKind.EscapeRoomHeldPlace, new(8, 8), new EscapeRoomHeldPlaceSetup()),
         new(RoomObjectKind.GreyDoorFacingRight, new(1, 6), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.CrittersEscaped, new LockedDoorArgument(LockedDoorDefinitions.BombTorizoWhenZebesTimebombSetGreyDoorFacingRight, DoorOpeningPersistence.Persistent)))),
     ]);
 
@@ -323,7 +323,7 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The FlywayWhenZebesTimebombSet room-object population.</summary>
     public static RoomObjectPopulation FlywayWhenZebesTimebombSet { get; } = RoomObjectPopulation.FromPlacements(nameof(FlywayWhenZebesTimebombSet),
     [
-        new(RoomObjectKind.MetroidRoomClearance, new(8, 8), new MetroidRoomClearanceSetup(MetroidRoomArgument.ObservesNothing)),
+        new(RoomObjectKind.EscapeRoomHeldPlace, new(8, 8), new EscapeRoomHeldPlaceSetup()),
     ]);
 
     /// <summary>The PreMapFlyway room-object population.</summary>
@@ -2307,28 +2307,28 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The TourianEscape1 room-object population.</summary>
     public static RoomObjectPopulation TourianEscape1 { get; } = RoomObjectPopulation.FromPlacements(nameof(TourianEscape1),
     [
-        new(RoomObjectKind.MetroidRoomClearance, new(8, 8), new MetroidRoomClearanceSetup(MetroidRoomArgument.ObservesNothing)),
+        new(RoomObjectKind.EscapeRoomHeldPlace, new(8, 8), new EscapeRoomHeldPlaceSetup()),
         new(RoomObjectKind.MotherBrainEscapeRoomGate, new(31, 6), new MotherBrainEscapeRoomGateSetup()),
     ]);
 
     /// <summary>The TourianEscape2 room-object population.</summary>
     public static RoomObjectPopulation TourianEscape2 { get; } = RoomObjectPopulation.FromPlacements(nameof(TourianEscape2),
     [
-        new(RoomObjectKind.MetroidRoomClearance, new(8, 8), new MetroidRoomClearanceSetup(MetroidRoomArgument.ObservesNothing)),
+        new(RoomObjectKind.EscapeRoomHeldPlace, new(8, 8), new EscapeRoomHeldPlaceSetup()),
         new(RoomObjectKind.GreyDoorFacingDown, new(6, 3), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.Never, new LockedDoorArgument(LockedDoorDefinitions.TourianEscape2GreyDoorFacingDown, DoorOpeningPersistence.Transient)))),
     ]);
 
     /// <summary>The TourianEscape3 room-object population.</summary>
     public static RoomObjectPopulation TourianEscape3 { get; } = RoomObjectPopulation.FromPlacements(nameof(TourianEscape3),
     [
-        new(RoomObjectKind.MetroidRoomClearance, new(8, 8), new MetroidRoomClearanceSetup(MetroidRoomArgument.ObservesNothing)),
+        new(RoomObjectKind.EscapeRoomHeldPlace, new(8, 8), new EscapeRoomHeldPlaceSetup()),
         new(RoomObjectKind.GreyDoorFacingRight, new(1, 22), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.Never, new LockedDoorArgument(LockedDoorDefinitions.TourianEscape3GreyDoorFacingRight, DoorOpeningPersistence.Transient)))),
     ]);
 
     /// <summary>The TourianEscape4 room-object population.</summary>
     public static RoomObjectPopulation TourianEscape4 { get; } = RoomObjectPopulation.FromPlacements(nameof(TourianEscape4),
     [
-        new(RoomObjectKind.MetroidRoomClearance, new(8, 8), new MetroidRoomClearanceSetup(MetroidRoomArgument.ObservesNothing)),
+        new(RoomObjectKind.EscapeRoomHeldPlace, new(8, 8), new EscapeRoomHeldPlaceSetup()),
         new(RoomObjectKind.GreyDoorFacingRight, new(1, 54), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.Never, new LockedDoorArgument(LockedDoorDefinitions.TourianEscape4GreyDoorFacingRight, DoorOpeningPersistence.Transient)))),
     ]);
 

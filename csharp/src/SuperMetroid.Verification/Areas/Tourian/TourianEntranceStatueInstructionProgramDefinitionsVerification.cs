@@ -40,7 +40,7 @@ internal static class TourianEntranceStatueInstructionProgramDefinitionsVerifica
             place.Bind(EnemyDefinitionId.TourianStatue, place.Definition);
             place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
             place.SetSpawnParameter1(EnemyDefinitionId.TourianStatue, parameter);
-            enemies.TourianEntranceStatueBehavior.InitializeTourianEntranceStatue(place, new FixedTourianStatueRoom(WaterSurface: 216, StatueOffset: 0));
+            EnemySystemFixtures.InitializeStatuePlacement(place);
             AssertEqual(parameter == 0 ? 3 : 0, enemies.Projectiles.EnemyProjectiles.Count(projectile => projectile.IsActive),
                 $"Tourian entrance-statue parameter {parameter} spawns the decorations only from the first placement");
             AssertTrue(!place.Presence.HasAny(EnemyPresence.Deleted),

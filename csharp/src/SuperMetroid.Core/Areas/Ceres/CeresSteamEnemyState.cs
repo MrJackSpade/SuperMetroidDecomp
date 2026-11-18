@@ -5,14 +5,17 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// <summary>The state of one Ceres steam vent.</summary>
 internal sealed class CeresSteamEnemyState
 {
-    /// <summary>Starts the state in <paramref name="action"/>.</summary>
-    internal CeresSteamEnemyState(CeresSteamAction action) => Action = action;
+    /// <summary>Starts the state with the vent's <paramref name="motion"/>.</summary>
+    internal CeresSteamEnemyState(CeresSteamMotion motion) => Motion = Ensure.NotNull(motion);
 
-    /// <summary>The action the vent's variant selects: holding its place, or following the rotating elevator room.</summary>
-    public CeresSteamAction Action { get; internal set; }
+    /// <summary>Where the vent is drawn: where it stands, or turned with the elevator shaft it stands in.</summary>
+    public CeresSteamMotion Motion { get; }
 
-    /// <summary>The staggered updates before the vent first appears, counted down by its animation.</summary>
-    public WrappingCountdown ActivationDelay { get; internal set; }
+    /// <summary>
+    /// The updates the vent waits dormant before its first plume, the one it appears on included: 1 through 32 when it
+    /// initializes, counted down by its animation's wait, which it leaves for good on the update this runs out.
+    /// </summary>
+    public int UpdatesToActivation { get; internal set; }
 
     /// <summary>The vent's animation and where it stands in it (#1600), set when the vent initializes.</summary>
     internal AnimationPlayback<CeresSteamSegment> Playback { get; set; }

@@ -14,8 +14,9 @@ internal static class RoomObjectHeaderCatalogVerification
     /// </summary>
     internal static void VerifyRoomObjectHeaderCatalog()
     {
+        // An escape room's held place is stored under the Metroids-cleared object's header and has none of its own (#2426).
         ushort[] cataloguedHeaders = Enum.GetValues<RoomObjectKind>()
-            .Where(header => header != RoomObjectKind.None)
+            .Where(header => header is not (RoomObjectKind.None or RoomObjectKind.EscapeRoomHeldPlace))
             .Select(RoomObjectNativeWords.Word)
             .ToArray();
         AssertEqual(cataloguedHeaders.Length, cataloguedHeaders.Distinct().Count(),

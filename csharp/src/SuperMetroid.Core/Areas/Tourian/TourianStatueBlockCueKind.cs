@@ -42,6 +42,6 @@ internal enum TourianStatueBlockCueKind
     /// <summary>Clears the release-in-progress flag together with the statue's own animating flag.</summary>
     FinishRelease,
 
-    /// <summary>Gives the statue's eight greying colours the common grey colours.</summary>
-    ApplyGreyColors,
+    /// <summary>Turns the released statue grey: it shows its grey look from then on.</summary>
+    TurnGrey,
 }

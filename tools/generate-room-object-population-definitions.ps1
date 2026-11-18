@@ -56,8 +56,9 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
     $fixedArgumentWords = @{ 'NoobTube' = 0x0080; 'BombTorizoHand' = 0x0000 }
     # A grey door's word selects its unlock condition by its place in the cartridge's condition table, a gate trigger's
     # its colour and side by its place in the trigger table, and a Metroid room's clearance watch its cleared event by its
-    # place in the watch table, whose nine leading entries observe nothing (#1746). The places stay here; the definitions
-    # name the condition, the trigger and the event.
+    # place in the watch table (#1746). The table's nine leading entries observe nothing: a placement of one is an escape
+    # room's held place, an object that only holds its place (#2426). The places stay here; the definitions name the
+    # condition, the trigger, the event and the held place.
     $greyDoorConditions = @('AreaBossDefeated', 'AreaMiniBossDefeated', 'AreaTorizoDefeated', 'EnemyDeathQuota', 'Never', 'TourianStatueFinished', 'CrittersEscaped')
     $gateTriggers = @('BlueLeft', 'BlueRight', 'RedLeft', 'RedRight', 'GreenLeft', 'GreenRight', 'YellowLeft', 'YellowRight')
     $metroidRoomEvents = @($null, $null, $null, $null, $null, $null, $null, $null, $null, 'FirstMetroidHallCleared', 'FirstMetroidShaftCleared', 'SecondMetroidHallCleared', 'SecondMetroidShaftCleared')
@@ -91,7 +92,7 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
                 return 'new GateTriggerArgument(DownwardGateTriggerBehavior.{0})' -f $gateTriggers[$entry]
             }
             if ($entry -ge $metroidRoomEvents.Count) { throw ('{0} argument {1:X4} selects no entry.' -f $name, $word) }
-            if ($null -eq $metroidRoomEvents[$entry]) { return 'MetroidRoomArgument.ObservesNothing' }
+            if ($null -eq $metroidRoomEvents[$entry]) { return '@@HELDPLACE@@' }
             return 'new MetroidRoomArgument(StoryEvent.{0})' -f $metroidRoomEvents[$entry]
         }
         throw ('Room-object kind {0} has no decoded room argument for {1:X4}.' -f $name, $word)
@@ -203,6 +204,8 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
     $doorPlacements = @{}
     $itemPlacements = @{}
     $placedWords = [Collections.Generic.HashSet[int]]::new()
+    # Whether any population places an escape room's held place, which the cartridge stores as a clearance watch.
+    $heldPlacePlaced = $false
     $scrollProgramPointers = [Collections.Generic.HashSet[int]]::new()
     # The one room whose populations place each scroll program; the program's name is resolved once its writes are decoded.
     $scrollRooms = @{}
@@ -242,6 +245,7 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
                 $scrollProgram = 'RoomScrollChange.@@SCROLL:{0}@@' -f $scrollProgramPointer
             }
             if (-not $kindNames.ContainsKey($kindWord)) { throw ('Retail header word {0:X4} names no room-object kind.' -f $kindWord) }
+            $placedKind = $kindNames[$kindWord]
             $argument = [int]$rom[$offset + 4] -bor ([int]$rom[$offset + 5] -shl 8)
             if ($kindNames[$kindWord].StartsWith('DraygonCannon')) {
                 if (-not $draygonCannonControls.ContainsKey($argument)) {
@@ -251,6 +255,12 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
             }
             else {
                 $argumentText = Format-RoomArgument $kindNames[$kindWord] $argument
+                if ($argumentText -eq '@@HELDPLACE@@') {
+                    if ($name -notmatch 'ZebesTimebombSet|TourianEscape') { throw "Population $name holds a place for good outside the escape rooms." }
+                    $placedKind = 'EscapeRoomHeldPlace'
+                    $argumentText = 'null'
+                    $heldPlacePlaced = $true
+                }
                 if ($argumentText -match '^@@STATION:(\d+)@@$') {
                     [string[]] $areas = @()
                     if ($populationAreas.ContainsKey($name)) { $areas = [string[]] @($populationAreas[$name]) }
@@ -289,8 +299,8 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
                 $blockY = [int]$parts[1]
                 if ($parts[2] -eq 'True') { $site = ', Site: RoomObjectSite.BeyondTheRoom' }
             }
-            $setupText = Format-PlacementSetup $kindNames[$kindWord] $argumentText $scrollProgram
-            $lines.Add(('        new(RoomObjectKind.{0}, new({1}, {2}), {3}{4}),' -f $kindNames[$kindWord], $blockX, $blockY, $setupText, $site))
+            $setupText = Format-PlacementSetup $placedKind $argumentText $scrollProgram
+            $lines.Add(('        new(RoomObjectKind.{0}, new({1}, {2}), {3}{4}),' -f $placedKind, $blockX, $blockY, $setupText, $site))
             $offset += 6
         }
         $recordTotal += $count
@@ -490,6 +500,8 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
     foreach ($kindWord in $placedKindWords) {
         if (-not $kindNames.ContainsKey($kindWord)) { throw ('Retail header word {0:X4} names no room-object kind.' -f $kindWord) }
         $kindLines.Add(('        RoomObjectKind.{0},' -f $kindNames[$kindWord]))
+        # The held place is stored under the clearance watch's header word, so it is listed after the watch.
+        if ($kindNames[$kindWord] -eq 'MetroidRoomClearance' -and $heldPlacePlaced) { $kindLines.Add('        RoomObjectKind.EscapeRoomHeldPlace,') }
     }
     $kindLines.Add('    };')
     $kindLines.Add('}')

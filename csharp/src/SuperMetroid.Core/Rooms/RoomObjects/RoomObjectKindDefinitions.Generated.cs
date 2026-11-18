@@ -41,6 +41,7 @@ internal static partial class RoomObjectKindDefinitions
         RoomObjectKind.BombTorizoHand,
         RoomObjectKind.NoobTube,
         RoomObjectKind.MetroidRoomClearance,
+        RoomObjectKind.EscapeRoomHeldPlace,
         RoomObjectKind.EyeDoorEyeFacingRight,
         RoomObjectKind.EyeDoorFacingRight,
         RoomObjectKind.EyeDoorBottomFacingRight,

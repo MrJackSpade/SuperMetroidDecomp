@@ -39,8 +39,10 @@ internal static class RoomObjectPopulationImporter
                 throw new InvalidDataException(
                     $"PLM population $8F:{pointer:X4} record {index} names unlabelled header $84:{headerWord:X4} " +
                     $"at block ({blockX},{blockY}) with argument ${argument:X4}.");
-            records.Add(RoomObjectPlacementAccess.Placed(header,
-                new(blockX, blockY), RoomObjectRoomArgumentWords.Decode(header, argument, area),
+            // A Metroids-cleared record whose argument selects a no-op entry places an escape room's held place (#2426).
+            RoomObjectKind placed = RoomObjectRoomArgumentWords.PlacedKind(header, argument);
+            records.Add(RoomObjectPlacementAccess.Placed(placed,
+                new(blockX, blockY), RoomObjectRoomArgumentWords.Decode(placed, argument, area),
                 DraygonCannonObjectsConstants.IsDraygonCannonKind(header) ? DraygonWallCannonAddresses.Decode(argument) : null,
                 header == RoomObjectKind.ScrollTrigger ? RetailScrollProgram(argument, StoredScroll(argument)) : null));
             cursor = unchecked((ushort)(cursor + RoomObjectPopulationFormatConstants.RecordByteCount));

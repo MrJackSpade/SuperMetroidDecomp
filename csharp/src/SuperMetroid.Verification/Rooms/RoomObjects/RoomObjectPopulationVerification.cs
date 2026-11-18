@@ -1041,8 +1041,10 @@ internal static class RoomObjectPopulationVerification
         }
         AssertEqual(5, roomObjects.Places.ActiveCount,
             "Metroids-cleared observers stay in the room after their quota is met");
-        AssertTrue(roomObjects.PopulationPlaces.OrderBy(place => place.UpdatePosition).Select(place => place.Behaviour is MetroidRoomClearanceObject watch ? watch.Cleared : null).SequenceEqual(
-                [null, StoryEvent.FirstMetroidHallCleared, StoryEvent.FirstMetroidShaftCleared, StoryEvent.SecondMetroidHallCleared, StoryEvent.SecondMetroidShaftCleared]),
+        RoomObjectPlaceSnapshot[] watches = [.. roomObjects.PopulationPlaces.OrderBy(place => place.UpdatePosition)];
+        AssertTrue(watches[0].Behaviour is EscapeRoomHeldPlaceObject, "the no-op entry's placement holds its place with an object that does nothing");
+        AssertTrue(watches.Skip(1).Select(place => place.Behaviour is MetroidRoomClearanceObject watch ? watch.Cleared : (StoryEvent?)null).SequenceEqual(
+                [StoryEvent.FirstMetroidHallCleared, StoryEvent.FirstMetroidShaftCleared, StoryEvent.SecondMetroidHallCleared, StoryEvent.SecondMetroidShaftCleared]),
             "Metroids-cleared observers are typed watches, each marking its entry's event");
 
         const ushort invalidPopulation = 0x9580;

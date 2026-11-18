@@ -63,9 +63,12 @@ internal static class RoomObjectDefinitionMigrationVerification
         AssertEqual(48, SamusEaterObjectDefinitions.ReleaseInvincibilityFrames, "plant release invincibility");
         AssertEqual(new UnsignedSixteenSixteen(whole: 2, fraction: 0), SamusEaterObjectDefinitions.ChewDamage, "plant chew damage");
         AssertEqual(RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.SolidBlock), RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.SpecialBlock).Deactivated(), "plant trigger deactivation leaves a solid block solid with its appearance");
-        // The import decodes a clearance watch's word into the event it marks (#1746).
-        AssertEqual<RoomObjectRoomArgument?>(MetroidRoomArgument.ObservesNothing,
-            RoomObjectRoomArgumentWords.Decode(RoomObjectKind.MetroidRoomClearance, 16), "ninth metroids-cleared entry observes nothing");
+        // The import decodes a clearance watch's word into the event it marks (#1746); a word selecting one of the table's
+        // no-op entries places an escape room's held place instead (#2426).
+        AssertTrue(RoomObjectRoomArgumentWords.PlacedKind(RoomObjectKind.MetroidRoomClearance, 16) == RoomObjectKind.EscapeRoomHeldPlace,
+            "ninth metroids-cleared entry places an escape room's held place");
+        AssertThrows<InvalidDataException>(() => RoomObjectRoomArgumentWords.Decode(RoomObjectKind.MetroidRoomClearance, 16),
+            "a no-op entry decodes to no clearance watch");
         AssertEqual<RoomObjectRoomArgument?>(new MetroidRoomArgument(StoryEvent.FirstMetroidHallCleared),
             RoomObjectRoomArgumentWords.Decode(RoomObjectKind.MetroidRoomClearance, 18), "first quota observer");
         AssertEqual<RoomObjectRoomArgument?>(new MetroidRoomArgument(StoryEvent.SecondMetroidShaftCleared),

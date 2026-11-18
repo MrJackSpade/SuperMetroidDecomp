@@ -17,25 +17,19 @@ namespace SuperMetroid.Core.Areas.Ceres;
 public sealed class CeresElevatorShaftRoomMainState
 {
     /// <summary>The last tilt of the forward sweep, one step short of the full clockwise tilt; the turn reverses after it.</summary>
-    private const int LastForwardTilt = CeresShaftRotationDefinitions.FullTiltSteps - 1;
+    private static readonly CeresShaftTilt LastForwardTilt = CeresShaftTilt.FullClockwise.OneStepAnticlockwise;
 
     /// <summary>The last tilt of the backward sweep, one step short of the full anticlockwise tilt.</summary>
-    private const int LastBackwardTilt = 1 - CeresShaftRotationDefinitions.FullTiltSteps;
-
-    /// <summary>The updates the shaft holds level, once the elevator door's destruction releases it, before its first turn.</summary>
-    public const int LevelHoldFrames = 60;
-
-    /// <summary>The updates Samus stands held on the elevator, once she reaches it, before the screen fades to black.</summary>
-    public const int DepartureHoldFrames = 60;
+    private static readonly CeresShaftTilt LastBackwardTilt = CeresShaftTilt.FullAnticlockwise.OneStepClockwise;
 
     /// <summary>The further updates the shaft holds its tilt; the update after the last of them turns it.</summary>
     public int HoldFramesLeft { get; private set; }
 
     /// <summary>
-    /// The shaft's tilt in steps from level, each a 256th of a radian, clockwise positive (#1895): from the full
-    /// anticlockwise tilt through the full clockwise one. It selects how long the shaft holds the tilt.
+    /// The tilt the shaft turns to next (#1895): from the full anticlockwise tilt through the full clockwise one. It selects
+    /// how long the shaft holds the tilt.
     /// </summary>
-    public int TiltSteps { get; private set; }
+    public CeresShaftTilt Tilt { get; private set; }
 
     /// <summary>
     /// Which way the turn is sweeping: forward, clockwise, from the full anticlockwise tilt to one step short of the full
@@ -60,9 +54,9 @@ public sealed class CeresElevatorShaftRoomMainState
     public CeresElevatorShaftRoomMainState(RoomMainCarryover carryover)
     {
         Ensure.NotNull(carryover);
-        TiltSteps = 0;
+        Tilt = CeresShaftTilt.Level;
         LeaveTurnStep(carryover);
-        HoldFramesLeft = LevelHoldFrames;
+        HoldFramesLeft = CeresShaftRotationDefinitions.LevelHoldFrames;
     }
 
     /// <summary>Runs the shaft's room main behaviour once.</summary>
@@ -116,9 +110,8 @@ public sealed class CeresElevatorShaftRoomMainState
 
         // Both sweeps show the current tilt.
         // The update that turns the shaft to a tilt is the first of the updates it holds it.
-        var rotation = CeresShaftRotation.Read(TiltSteps);
-        HoldFramesLeft = rotation.HoldFrames - 1;
-        Transform = new TurningFloorTransform(rotation.Tilt, CeresShaftRotationDefinitions.RotationCenter);
+        HoldFramesLeft = Tilt.HoldUpdates - 1;
+        Transform = new TurningFloorTransform(Tilt.Radians, CeresShaftRotationDefinitions.RotationCenter);
 
         // The forward sweep turns clockwise one step at a time; after its last tilt the turn reverses at the full
         // clockwise tilt. The backward sweep turns back until its last tilt hands over to the forward sweep at the full
@@ -126,16 +119,16 @@ public sealed class CeresElevatorShaftRoomMainState
         switch (Sweep)
         {
             case CeresShaftSweep.Backward:
-                if (TiltSteps == LastBackwardTilt)
+                if (Tilt == LastBackwardTilt)
                     Sweep = CeresShaftSweep.Forward;
-                TiltSteps--;
+                Tilt = Tilt.OneStepAnticlockwise;
                 break;
-            case CeresShaftSweep.Forward when TiltSteps == LastForwardTilt:
+            case CeresShaftSweep.Forward when Tilt == LastForwardTilt:
                 Sweep = CeresShaftSweep.Backward;
-                TiltSteps = CeresShaftRotationDefinitions.FullTiltSteps;
+                Tilt = CeresShaftTilt.FullClockwise;
                 break;
             case CeresShaftSweep.Forward:
-                TiltSteps++;
+                Tilt = Tilt.OneStepClockwise;
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(CeresShaftSweep)} {Sweep}.");
@@ -163,7 +156,7 @@ public sealed class CeresElevatorShaftRoomMainState
     /// sweep.
     /// </summary>
     private void LeaveTurnStep(RoomMainCarryover carryover) =>
-        carryover.LeaveTurnStep(TiltSteps + CeresShaftRotationDefinitions.FullTiltSteps, backward: Sweep == CeresShaftSweep.Backward);
+        carryover.LeaveTurnStep(Tilt.StepsFromFullAnticlockwise, backward: Sweep == CeresShaftSweep.Backward);
 
     /// <summary>Starts the shaft level, as the elevator door's setup leaves it, about its fixed rotation center.</summary>
     private static TurningFloorTransform CreateInitialTransform() => TurningFloorTransform.Level(CeresShaftRotationDefinitions.RotationCenter);

@@ -7,7 +7,9 @@ namespace SuperMetroid.Core.Compatibility;
 /// spawn takes the first free place in that order, so in a room where nothing has left the objects update in the order
 /// they were spawned, and a spawn after an object has left takes that object's place and updates where it did. A spawn
 /// while all forty places are held takes none, and the object it would have made never exists: a gate trigger's shot,
-/// a Speed Booster block's contact or a boss's terrain change is lost then.
+/// a Speed Booster block's contact or a boss's terrain change is lost then. The escape rooms' populations each place one
+/// object that does nothing but hold its place for as long as the room is loaded, so those rooms hold one object fewer
+/// before they fill.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -33,10 +35,12 @@ namespace SuperMetroid.Core.Compatibility;
 /// Evidence: the original room-object spawns search their forty places from the last down for a free one and report
 /// none when all are held, and the room-object update runs through the places in the same order, so a population whose
 /// setups free their places at once leaves them to its next records; the original touch searches run from the first
-/// of the forty up, the reverse of that order.
+/// of the forty up, the reverse of that order. The escape rooms' populations place the Metroid rooms' clearance object
+/// with an argument that leaves it nothing to do on its updates (<c>$84:DAD5</c> through <c>$84:DADD</c>), and that object sleeps in
+/// its place without deleting itself.
 /// </para>
 /// </remarks>
-[CompatibilityService("room objects update in the order of the forty places they hold; a spawn takes the first free place in that order, and a spawn into a full room is lost")]
+[CompatibilityService("room objects update in the order of the forty places they hold; a spawn takes the first free place in that order, a spawn into a full room is lost, and an escape room holds one place for good with an object that does nothing")]
 public sealed class RoomObjectPlaces
 {
     /// <summary>How many room objects the room holds at once; a spawn while every place is held takes none.</summary>

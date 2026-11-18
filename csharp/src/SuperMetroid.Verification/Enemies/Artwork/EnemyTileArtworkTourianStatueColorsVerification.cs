@@ -92,8 +92,8 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         foreach (ushort parameter in new ushort[] { 0, 2, 4, 6 })
         {
             RoomEnemySystem installed = CreateEnemy(stock);
-            installed.UnlockEffectsIn(new SuperMetroid.Verification.Areas.Tourian.FixedTourianStatueRoom(WaterSurface: 216, StatueOffset: 0)).SpawnTourianEyeGlow(TourianStatueNativeWords.Eye(parameter));
-            AssertNativeWrites(NativeColouredPictures.ShownIn(composedStatueSheet, installed.TourianEntranceStatueBehavior.SceneShading), sceneHeld,
+            installed.UnlockEffects().SpawnTourianEyeGlow(TourianStatueNativeWords.Eye(parameter));
+            AssertNativeWrites(NativeColouredPictures.ShownIn(composedStatueSheet, EnemySystemFixtures.StatueScene(installed).SceneShading), sceneHeld,
                 0x86b91e + parameter * 4, TourianStatuePaletteConstants.EyeCgramIndex, TourianStatueColorDefinitions.EyeColorCount,
                 $"Tourian eye parameter {parameter} shows the native eye glow colours");
             AssertEqual(new ushort[] { 0x84, 0x7a, 0x9e, 0x68 }[parameter / 2],
@@ -120,7 +120,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         // shading show, at each of the four retail programs' grey destinations, the native grey instruction's colours
         // (#1512): the room-tile statues grey over the room's pictures, the sprite statues over the scene's.
         RgbColor[] greyRoom = GameplayShownColours.Of(installedRoom, InstalledFixtures.SamusShadeSources);
-        RgbColor[] greyScene = NativeColouredPictures.ShownIn(composedStatueSheet, installedRoom.Enemies.TourianEntranceStatueBehavior.SceneShading);
+        RgbColor[] greyScene = NativeColouredPictures.ShownIn(composedStatueSheet, EnemySystemFixtures.StatueScene(installedRoom.Enemies).SceneShading);
         HashSet<int> roomHeld = [.. GameplayShownColours.ComparedIn(installedRoom)];
         foreach (int program in new[] { 0x8783ac, 0x878414, 0x87847c, 0x8784e4 })
         {
@@ -178,7 +178,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
             RoomEnemyPlace place = enemy.Places.InUpdateOrder[0];
             place.SetSpawnParameter1(EnemyDefinitionId.TourianStatue, parameter);
             place.Bind(EnemyDefinitionId.TourianStatue, place.Definition);
-            enemy.TourianEntranceStatueBehavior.InitializeTourianEntranceStatue(place, new SuperMetroid.Verification.Areas.Tourian.FixedTourianStatueRoom(WaterSurface: 216, StatueOffset: 0));
+            EnemySystemFixtures.InitializeStatuePlacement(place);
         }
 
         static SuperMetroidRuntime CreateGreyRoom(

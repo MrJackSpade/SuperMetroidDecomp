@@ -236,7 +236,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void StartDragonAnimation(RoomEnemyPlace place, DragonPartState state, DragonSegment segment) =>
         state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, DragonAnimations.StartingWith(segment));
 
-    /// <summary>Applies Dragon's paired-body combat tail after the common bomb-as-shot reaction.</summary>
+    /// <summary>Finishes a bomb's hit on a Dragon as its shot reaction does, carrying the hit to its paired body.</summary>
     internal EnemyBombReaction DragonBombReaction => field ??= new()
     {
         AfterCommon = c => ResolveDragonCombatAfterCommon(c.Enemy),

@@ -26,7 +26,7 @@ public sealed class FlyEnemyState
     public int CooldownUpdatesLeft { get; internal set; }
 
     /// <summary>
-    /// Signed 1/256-pixel attack/retreat velocity in room pixels per actor update: X sampled from Samus's attack-start angle
+    /// Attack and retreat velocity in room pixels per update: X sampled from Samus's attack-start angle
     /// and retained during retreat; Y, whose sign reverses when the saved target height is crossed.
     /// </summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }

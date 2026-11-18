@@ -482,8 +482,8 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
                 : null);
 
     /// <summary>Clears attachment after every accepted common shot, including zero damage.</summary>
-    /// <remarks>Beetom lets go after common shot AI for every accepted hit, including immune/zero-damage
-    /// vulnerability results.</remarks>
+    /// <remarks>Beetom lets go after the common damage of every accepted hit, including a hit that deals it no
+    /// damage.</remarks>
     internal static EnemyShotReaction BeetomShotReaction { get; } = new()
     {
         AfterCommon = c => ResolveBeetomShotAfterCommon(c.Enemy),

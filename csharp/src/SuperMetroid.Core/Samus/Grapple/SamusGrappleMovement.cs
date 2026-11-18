@@ -760,9 +760,8 @@ public static class SamusGrappleMovement
                         roomObjects.DoorObjects.TrySpawnBlueDoorOpening(level, block.At, block.Behavior, projectileType: SamusProjectileType.None);
                     else if (block.Behavior.Shootable == ShootableReaction.ResidentObjectTrigger)
                     {
-                        // Generic shot-trigger setup also reacts to the grapple.
-                        // Notify the resident actor with no weapon family; its own
-                        // frame behaviour decides whether to reject the hit or wake up.
+                        // A shot-triggered block also reacts to the grapple: its resident actor hears of a hit with no
+                        // weapon, and decides itself whether to refuse the hit or wake up.
                         if (!roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(block.At, projectileType: SamusProjectileType.None))
                             throw new InvalidOperationException(
                                 $"Grapple trigger block {block.Position} has no resident room-object owner.");

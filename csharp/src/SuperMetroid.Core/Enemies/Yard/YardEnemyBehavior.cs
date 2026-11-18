@@ -613,13 +613,12 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = playback;
     }
 
-    /// <summary>Routes Yard shots through its custom launch branch before common vulnerability damage.</summary>
+    /// <summary>Kicks a struck Yard's shell into the air, or lets a bomb's or a power bomb's vulnerability damage run.</summary>
     internal EnemyShotReaction YardShotReaction => field ??= new()
     {
         AdmitsBombFamilies = true,
-        // Yard's custom shot AI sends super-missile/power-bomb families through normal vulnerability damage,
-        // but every other colliding shot merely kicks the shell into the air. This occurs after projectile
-        // impact, once the collision pass has accepted the collision.
+        // A bomb or a power bomb deals the Yard its vulnerability damage; every other shot that strikes it only kicks
+        // the shell into the air, after the shot's impact.
         BeforeVulnerability = (in EnemyShotContext c) =>
         {
             if (c.Family is SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb)

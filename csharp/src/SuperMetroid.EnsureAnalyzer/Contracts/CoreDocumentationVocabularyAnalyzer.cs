@@ -150,6 +150,9 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// #2461 adds, outside hardware owners, the port's build and scope and the original's animation layout: anything
 /// compiled or modelled, the port named as itself and an animation laid out against another, by its animation or as a
 /// layout.
+/// #2456 adds, outside hardware owners, the original's routines, per-frame code, copies and precision: a routine's tail
+/// named by what it ends, pointed at, owned or of an update, a frame behaviour, common shot, touch or bomb AI, the
+/// game's copies of a table, the longest duration a frame can have and a quantity told by its 1/256 precision.
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -2037,6 +2040,42 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
+    /// The original's routines, per-frame code, copies and precision told in prose (#2456), outside hardware owners and
+    /// markup: a routine's tail named by the reaction, the stage or the outcome it ends (the frozen tail, the combat
+    /// tail, the recoil tail, the respawn tail, the no-drop tail, the deletion tail, the Metroid tail, Rinka's frozen-AI
+    /// prelude/tail), pointed at (this same tail, before that tail, a tail that still runs), owned (the frozen enemy's own
+    /// tail, with no tail of its own) or of an update or reaction (the tail of a frozen Metroid's update); a frame
+    /// behaviour, the original's per-frame code for a projectile; common, normal or ordinary shot, touch, contact or bomb
+    /// AI, run or not run (never calls common shot AI, instead of normal shot AI); the game's copies of a table
+    /// (both of the game's copies of the curve); the longest duration a frame can have; and a quantity told by the
+    /// precision it is kept at (a signed 1/256-pixel velocity, 1/256-pixel steps, a 1/256-turn aim, -1/256 px,
+    /// 1/256ths). The original ended its routines in shared code, gave each projectile a routine it ran every frame,
+    /// named its shared reactions their AI, kept two copies of one table, held a frame by giving it the largest count its
+    /// word holds and kept its speeds in 256ths of a pixel; Core says what the game does: what a reaction does after the
+    /// common damage, how a projectile moves each update, which hits deal damage, what speeds the curve gives, that a
+    /// frame holds for good and how fast a thing moves. English stays legal: a body's tail (Ridley's tail, its tail, the
+    /// tail cap), a particle's fading tail, a straddled block's lead and tail, a per-frame behaviour, an item frame's
+    /// behaviour, main AI and a unit of measure (a speed in 1/256 pixels, a 256th of a pixel) and a hardware owner, which
+    /// describes the encoding it keeps.
+    /// </summary>
+    private static readonly Regex RoutineTailFrameBehaviourAndPrecisionProse = new(
+        @"(?<![\w-])(?:frozen(?:-AI)?|combat|recoil|respawn|deletion|enemy-deletion|no-drop|no-damage|fatal-shot|shot|bomb" +
+        @"|touch|linked-health|family-specific|species-specific|visible-flash|death-animation|aim|copy|health-feedback" +
+        @"|reaction|damage|trail|projectile-handling|release|swing-release|normal|Metroid)\s+tails?\b" +
+        @"|\bprelude/tails?\b" +
+        @"|\bno\s+(?:[\w-]+\s+)?tails?\s+of\s+(?:its|their)\s+own\b" +
+        @"|\b(?:this|that)\s+(?:same\s+)?tail\b(?!['’])" +
+        @"|\ba\s+tail\s+that\b" +
+        @"|\b[\w-]+(?:'|’)s\s+own\s+tail\b" +
+        @"|\btails?\s+of\s+an?\s+(?:[\w'’-]+\s+){0,3}?(?:updates?|routines?|reactions?|steps?)\b" +
+        @"|(?<![\w-])frame[-\s]behaviou?rs?\b" +
+        @"|\b(?:common|normal|ordinary|generic)\s+(?:shot|touch|contact|bomb|power[-\s]bomb)\s+AI\b" +
+        @"|\b(?:game|original|cartridge)(?:'|’)s\s+(?:two\s+)?copies\b" +
+        @"|\blongest\s+(?:duration|time)\s+(?:a|any)\s+frame\s+can\s+(?:have|show|hold|last)\b" +
+        @"|(?<![\w/])1/256(?:-(?:pixel|step|turn)s?\b|\s*px\b|ths?\b)",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
     /// A type's summary that calls the type a species owner (#2427): the species-owner template (its per-room state,
     /// behaviour and the interactions it registers). Only a type that creates or keeps a species' enemies
     /// (<see cref="SpeciesOwnerInterfaces"/>) is one; any other type says what it is.
@@ -2599,6 +2638,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : SamusProgramStorageAndTableNarrationProse.Match(Markup.Replace(text, " ")) is { Success: true } samusNarration ? samusNarration.Value
             : PoseRangeProse.Match(text) is { Success: true } poseRange ? poseRange.Value
             : PortBuildScopeAndLayoutProse.Match(Markup.Replace(text, " ")) is { Success: true } portBuild ? portBuild.Value
+            : RoutineTailFrameBehaviourAndPrecisionProse.Match(Markup.Replace(text, " ")) is { Success: true } routineTail ? routineTail.Value
             : TileCharacterFinding(text, owner) is { } character ? character
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;

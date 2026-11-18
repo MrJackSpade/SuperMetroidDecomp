@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Puyo;
 /// </summary>
 public enum PuyoAction
 {
-    /// <summary>Decrements the hop cooldown and selects an airborne hop when the countdown becomes negative.</summary>
+    /// <summary>Counts the hop cooldown down and starts a hop on the update it runs out.</summary>
     Grounded,
     /// <summary>Runs the current hop or collision-recovery behaviour through the airborne behaviour.</summary>
     Airborne,

@@ -764,8 +764,8 @@ internal sealed class MotherBrainProjectiles
         beam.Position.X.Whole >= MotherBrainHandBeamDefinitions.ArenaBottomRight.X;
 
     /// <summary>
-    /// Moves the falling drool. The actor uses signed 1/256-pixel velocity, adds its gravity
-    /// each frame, and switches to its four-frame splash at the floor.
+    /// Moves the falling drool: it falls at its velocity, gains its gravity each update, and switches to its four-frame
+    /// splash at the floor.
     /// </summary>
     internal static void DropMotherBrainDrool(
         EnemyProjectile drool)
@@ -846,7 +846,7 @@ internal sealed class MotherBrainProjectiles
         return place.X >= 0 && viewX >= 0 && viewX < MotherBrainTurretDefinitions.ViewWidth;
     }
 
-    /// <summary>Runs the bullet property flicker, 1/256-pixel movement, and point collision.</summary>
+    /// <summary>Runs the bullet's property flicker, its movement and its point collision.</summary>
     internal static void FlyMotherBrainTurretBullet(
         EnemyProjectile bullet,
         RoomLevelData level)

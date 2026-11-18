@@ -10,7 +10,7 @@ internal static class PirateHitboxShotActions
     /// Fails for a reaction no Pirate hitbox names. The empty frame still has a real point hitbox for a pirate, whose
     /// common reaction bypasses the Ninja-specific armor tests; it is not rejected as unknown. Only the gold Ninja
     /// (<see cref="SelectGoldNinjaHitboxShotAction"/>) gives the two Ninja body reactions special meaning: every other
-    /// Pirate deliberately goes on to normal shot AI even when it shows one of the frames it shares with the Ninja (#2453).
+    /// Pirate takes the ordinary shot reaction even when it shows one of the frames it shares with the Ninja (#2453).
     /// </summary>
     internal static void RequirePirateShotReaction(EnemyReaction? hitboxShot)
     {
@@ -24,7 +24,7 @@ internal static class PirateHitboxShotActions
 
     /// <summary>
     /// Runs the gold Ninja's hitbox shot reactions: its two body reactions reflect or ignore what does it no damage, and
-    /// the common and Pirate reactions run normal shot AI.
+    /// the common and Pirate reactions run the ordinary shot reaction.
     /// </summary>
     internal static PirateHitboxShotAction SelectGoldNinjaHitboxShotAction(
         RoomEnemyPlace enemy,

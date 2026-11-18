@@ -23,7 +23,7 @@ public sealed class SkulteraEnemyState
     /// <summary>The way the Skultera swims, or turns to swim (#2165).</summary>
     public HorizontalDirection Heading { get; internal set; }
 
-    /// <summary>The vertical oscillation's phase; only its whole step is meaningful, and it wraps after a full turn.</summary>
+    /// <summary>The vertical oscillation's phase, carried on around the circle.</summary>
     public RotationAngle Angle { get; internal set; }
 
     /// <summary>Oscillation offset retained from the preceding movement attempt, in pixels (at most the radius either way).</summary>
@@ -33,9 +33,8 @@ public sealed class SkulteraEnemyState
     public int CurrentYOffset { get; internal set; }
 
     /// <summary>
-    /// Advances the oscillation phase by the wave's step of <paramref name="settings"/>, wrapping after a full turn: forward
-    /// while the Skultera swims the way it started, backward once a turn has brought it the other way (#2450). The game
-    /// keeps the step signed and negates it as each turn finishes; the heading the turn reversed says the same.
+    /// Advances the oscillation phase by the wave's step of <paramref name="settings"/>, around the circle: forward while
+    /// the Skultera swims the way it started, backward once a turn has brought it the other way (#2450).
     /// </summary>
     internal void AdvanceAngle(SkulteraSpawnSettings settings) =>
         Angle = Angle.TurnedBySteps(Heading == Ensure.NotNull(settings).StartDirection ? settings.AngleDelta : -settings.AngleDelta);

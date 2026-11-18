@@ -169,7 +169,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Runs the no-damage tail of the Bull's shot and bomb reactions: the hit kicks it away at <paramref name="kickAngle"/>.
+    /// Finishes the Bull's shot and bomb reactions when they deal no damage: the hit kicks it away at <paramref name="kickAngle"/>.
     /// </summary>
     internal static void ResolveBullImmuneShot(
         RoomEnemyPlace bull,

@@ -519,9 +519,8 @@ internal sealed class EnemyTerrain
         AlignEnemyYWithNonSquareSlopeAndReportAdjustment(level, place);
 
     /// <summary>
-    /// Runs the same two probes as <see cref="AlignEnemyYWithNonSquareSlope"/> while reporting
-    /// whether the slope alignment moved the enemy. Yard is the first enemy that
-    /// uses that report to suppress corner-transition animation after a slope adjustment.
+    /// Runs the same two probes as <see cref="AlignEnemyYWithNonSquareSlope"/> while reporting whether the slope
+    /// alignment moved the enemy, which holds back the Yard's corner turns after a slope adjustment.
     /// </summary>
     internal static bool AlignEnemyYWithNonSquareSlopeAndReportAdjustment(
         RoomLevelData level,
@@ -579,7 +578,10 @@ internal sealed class EnemyTerrain
     internal static int ReadNonSquareSlopeHeight(RoomBlockBehavior behavior, int xWithinBlock) =>
         behavior.Slope.Shape.HeightAt(xWithinBlock);
 
-    /// <summary>Spawns the breakable-block room object for an enemy spike reaction and clears collision even if its pool is full.</summary>
+    /// <summary>
+    /// Breaks an enemy-breakable spike block the enemy reaches, clearing its collision when the room has a place for the
+    /// break; either way the enemy passes through it.
+    /// </summary>
     /// <param name="level">The room's terrain.</param>
     /// <param name="position">The spike block the enemy's lookup reached.</param>
     /// <param name="block">The spike block's terrain and behaviour.</param>
@@ -587,6 +589,6 @@ internal sealed class EnemyTerrain
     {
         if (!EnemyBreakableTerrain.IsEnemyBreakable(block.Behavior)) return true;
         _breakableTerrain.TrySpawnEnemyBreakableBlock(level, position);
-        return false; // The block reaction reports no collision even if the room-object pool was full.
+        return false; // The enemy passes through even when the room was too full to break the block.
     }
 }

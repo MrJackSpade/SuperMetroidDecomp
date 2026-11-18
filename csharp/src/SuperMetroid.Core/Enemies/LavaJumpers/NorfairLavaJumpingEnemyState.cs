@@ -27,6 +27,6 @@ public sealed class NorfairLavaJumpingEnemyState
     /// and falls back into the lava's row at about that speed, so the jumper never moves much faster than eight pixels an
     /// update either way.
     /// </summary>
-    /// <param name="gravity">The 1/256-pixel gravity step.</param>
+    /// <param name="gravity">The gravity step, in pixels per update.</param>
     internal void ApplyGravity(SignedEightEight gravity) => YVelocity = YVelocity.Accelerated(gravity);
 }

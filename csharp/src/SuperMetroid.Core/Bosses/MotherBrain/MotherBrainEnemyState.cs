@@ -400,7 +400,7 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     /// </summary>
     /// <remarks>Charging starts it at the beam position with zero subpixels (body Y minus 48).</remarks>
     public FixedPosition<RoomPixels> HandBeamNextPosition { get; internal set; }
-    /// <summary>Signed 1/256-pixel aimed velocity; moves the shared start position on before each child receives its independent randomized scatter velocity.</summary>
+    /// <summary>The aimed velocity; moves the shared start position on before each child receives its independent randomized scatter velocity.</summary>
     public EightEightVector<RoomPixels> HandBeamNextVelocity { get; internal set; }
     /// <summary>Aim angle, calculated from hand to Samus at charging setup and used as the children's randomized scatter-angle base.</summary>
     public TrigonometryAngle HandBeamNextAngle { get; internal set; }

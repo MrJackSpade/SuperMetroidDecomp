@@ -306,14 +306,11 @@ internal sealed class EnemyCollision
             if (reaction.AlwaysUsesCollisionPrelude || family is SamusProjectileFamily.Beam or
                 SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile)
             {
-                // The collision marks the projectile's direction, not a
-                // terrain impact. Projectile frame behaviours consume that marker
-                // on the projectiles' next update; the damage below shows its own hit burst at the enemy.
-                // Super Missiles must retain their handler so it also clears their
-                // collision links. Terrain conversion strands a live link that can
-                // damage the enemy again after its flash timer expires.
-                // Neither the beam nor the missile damage path rejects the removal marker: later
-                // overlapping enemies in this pass still receive the live payload.
+                // The collision marks the projectile's direction rather than striking terrain; the projectile acts on
+                // the mark on its next update, and the damage below shows its own hit burst at the enemy. A Super
+                // Missile keeps moving as itself so that it also clears its collision links, which would otherwise stay
+                // live and damage the enemy again once its flash timer runs out. Neither the beam's nor the missile's
+                // damage refuses the mark, so later overlapping enemies this pass still take the live payload.
                 projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(
                     projectile,
                     enemy.Contact.HasAny(EnemyContact.BlocksPlasmaBeam) ||
@@ -400,7 +397,7 @@ internal sealed class EnemyCollision
 
         enemy.FlashTimer = enemy.HurtFlashFrames + EnemyCollisionDefinitions.WeaponHurtFlashExtension;
         enemy.AiStates = enemy.AiStates | EnemyAiStates.Hurt;
-        // Common shot AI queues the definition's cry before subtracting health,
+        // The common shot reaction queues the definition's cry before subtracting health,
         // including lethal hits. Frozen targets suppress this cry; death
         // explosion animations retain their separate, later sound owner. The
         // same test, made here before a lethal Ice hit freezes the enemy, decides
@@ -447,7 +444,7 @@ internal sealed class EnemyCollision
     /// countdown to reach zero, marks the overlapping bomb as having hit, and runs the enemy's shot reaction with
     /// that bomb selected.
     ///
-    /// This pass owns both the common reaction and the Metroid tail. Private per-species reactions remain deliberately
+    /// This pass runs both the common reaction and the Metroids' own reaction. Private per-species reactions remain deliberately
     /// outside the common branch; each joins it only with its own bomb-specific post-processing, rather than
     /// silently treating every reaction as the ordinary shot reaction.
     /// </remarks>
@@ -536,8 +533,8 @@ internal sealed class EnemyCollision
                 continue;
 
             // The bomb collision marks the bomb before its reaction runs. Unlike an
-            // ordinary beam impact, the bomb is already running its explosion animation;
-            // common shot AI must not replace it with an impact animation.
+            // ordinary beam impact, the bomb is already running its explosion animation, which the
+            // common shot reaction leaves in place of an impact animation.
             bomb.IsSpent = true;
             var bombContext = new EnemyBombContext(
                 enemy,
@@ -627,7 +624,7 @@ internal sealed class EnemyCollision
         return hurtUnfrozen ? NormalBombHit.HurtUnfrozen : NormalBombHit.HurtFrozen;
     }
 
-    /// <summary>How the ordinary shot reaction ends after a bomb's damage: a killed enemy starts its death.</summary>
+    /// <summary>Starts the death of an enemy a bomb's damage killed.</summary>
     private void StartNormalBombDeathIfKilled(RoomEnemyPlace enemy, SamusState samus)
     {
         if (enemy.Health != 0)
@@ -984,7 +981,7 @@ internal sealed class EnemyCollision
             return;
 
         // Touch damage shows the hurt flash alone, unlike projectile and
-        // power-bomb paths which add their own visible-flash tail. Samus's timers are also
+        // power-bomb damage, which add their own visible flash. Samus's timers are also
         // cleared, because Samus touching it this way is Samus attacking the enemy.
         enemy.FlashTimer = enemy.HurtFlashFrames;
         enemy.AiStates = enemy.AiStates | EnemyAiStates.Hurt;
@@ -997,9 +994,8 @@ internal sealed class EnemyCollision
         if (enemy.Health != 0)
             return;
 
-        // Rinka's touch reaction calls this common damage body explicitly, inspects the
-        // resulting zero health, then chooses either generic respawn death or its private
-        // hidden two-frame Mother Brain respawn. Do not clear the place before that tail.
+        // A Rinka killed by touch chooses its own death, the generic respawning death or, one of Mother Brain's, its
+        // hidden respawn two updates on, so its place is left as it is here.
         if (deathAnimation == TouchDeathAnimation.Skip)
             return;
 

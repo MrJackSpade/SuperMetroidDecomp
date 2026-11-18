@@ -189,7 +189,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         // Unlike every ordinary contact response, Mochtroid immediately cancels the timers
-        // installed by common touch AI. Samus remains attached rather than entering a normal
+        // its common contact damage started. Samus remains attached rather than entering a normal
         // invincibility/knockback grace period, permitting another 80-contact drain cycle.
         samus.InvincibilityTimer = WrappingCountdown.Start(0);
         samus.KnockbackTimer = 0;

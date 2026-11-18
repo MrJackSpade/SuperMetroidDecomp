@@ -4,7 +4,7 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Enemies.Deaths;
 
 /// <summary>
-/// Enemy death and drop's typed animation: a drop's or the respawn tail's, which start at their segments, or a death
+/// Enemy death and drop's typed animation: a drop's or the respawn pause's, which start at their segments, or a death
 /// explosion's, started by the explosion (<see cref="EnemyDeathAndDropAnimations.Explosions"/>, #2061).
 /// </summary>
 internal sealed class EnemyDeathAndDropAnimation(Animation<EnemyDeathAndDropSegment> animation)

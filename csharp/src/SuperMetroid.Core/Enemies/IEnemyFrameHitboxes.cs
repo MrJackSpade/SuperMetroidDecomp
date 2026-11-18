@@ -7,7 +7,7 @@ internal interface IEnemyFrameHitboxes : IEnemyEntity
     /// The reaction of the first of the occupant's hitboxes the probe overlaps: true with the reaction, false when none
     /// overlaps, or null when the species' geometry does not cover the current frame.
     /// </summary>
-    /// <param name="probe">The colliding edges and walker.</param>
+    /// <param name="probe">The colliding projectile's or Samus's edges, and whether the test selects the shot or the touch reaction.</param>
     /// <param name="reaction">The selected hitbox's touch or shot reaction.</param>
     bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction);
 

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies;
 /// </summary>
 internal sealed class EnemyShotReaction
 {
-    /// <summary>Whether bomb, power-bomb and beam-explosion families reach this reaction (ordinary shot AI never sees them).</summary>
+    /// <summary>Whether bomb, power-bomb and beam-explosion families reach this reaction (the ordinary shot reaction never sees them).</summary>
     internal bool AdmitsBombFamilies { get; init; }
 
     /// <summary>Whether the enemy currently ignores every shot before any projectile is examined.</summary>
@@ -53,6 +53,6 @@ internal sealed class EnemyShotReaction
     /// <summary>Replaces the generic death when it returns true.</summary>
     internal Func<EnemyShotContext, bool>? ReplacesGenericDeath { get; init; }
 
-    /// <summary>What the species does after the common shot AI; <see cref="EnemyShotContext.Froze"/> reports the immediate-freeze path.</summary>
+    /// <summary>What the species does after the common shot reaction; <see cref="EnemyShotContext.Froze"/> reports the immediate-freeze path.</summary>
     internal Action<EnemyShotContext>? AfterCommon { get; init; }
 }

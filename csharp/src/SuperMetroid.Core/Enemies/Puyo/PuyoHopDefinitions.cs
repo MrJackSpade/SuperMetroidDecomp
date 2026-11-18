@@ -5,8 +5,8 @@ internal static class PuyoHopDefinitions
 {
     /// <summary>
     /// Each hop's height, horizontal speed, launch search step, speed-curve step, airborne behaviour and the speed its drop falls at when a
-    /// wall or ceiling cuts it short (#1820): two pixels per frame after a small, big or giant hop, three after the long
-    /// hop and a pixel and three quarters after a dropped bounce, the same number as the hop's curve step.
+    /// wall or ceiling cuts it short (#1820): two pixels each update after a small, big or giant hop, three after the long
+    /// hop and a pixel and three quarters after a dropped bounce.
     /// </summary>
     internal static readonly Dictionary<PuyoHopType, PuyoHopDefinition> Hops = new()
     {

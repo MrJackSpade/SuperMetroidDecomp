@@ -61,9 +61,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
             case SkreeAction.AttackReady:
                 StartSkreeAnimation(place, state, SkreeMetareeSegment.SkreeDiving);
                 state.Action = SkreeAction.Diving;
-                // The dive queues its dive sound on the exact frame the wind-up
-                // cue releases the dive. Publishing it as a frame event retains
-                // the game's timing without coupling enemy AI to a particular audio backend.
+                // The dive screeches on the update the wind-up releases it.
                 _audio.QueueEnemySound(EnemySound.DiveScreech, priority: SoundRequestPriority.Normal);
                 return;
 

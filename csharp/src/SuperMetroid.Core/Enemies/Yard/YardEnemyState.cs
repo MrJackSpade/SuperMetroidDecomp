@@ -12,8 +12,8 @@ public sealed class YardEnemyState
     internal AnimationPlayback<YardSegment> Playback { get; set; }
 
     /// <summary>
-    /// Signed 1/256-pixel horizontal and vertical crawl velocity, each axis used either tangentially or as a normal-axis
-    /// surface probe according to its movement.
+    /// The crawl velocity in pixels per update, each axis used either along the surface or as a probe into it according
+    /// to its movement.
     /// </summary>
     public EightEightVector<RoomPixels> CrawlingVelocity { get; internal set; }
 
@@ -59,8 +59,7 @@ public sealed class YardEnemyState
     /// <summary>
     /// The slope-free crawl passes left before the Yard may turn at a corner again, the one that frees it included
     /// (#2450): a slope alignment, a turn or a landing starts <see cref="YardMotionDefinitions.TurnSuppressionPasses"/> of
-    /// them, each unadjusted crawl pass uses one, and none left lets it turn. The game keeps a flag beside a count of the
-    /// passes made; the passes left say both.
+    /// them, each unadjusted crawl pass uses one, and none left lets it turn.
     /// </summary>
     public int TurnSuppressionPassesLeft
     {

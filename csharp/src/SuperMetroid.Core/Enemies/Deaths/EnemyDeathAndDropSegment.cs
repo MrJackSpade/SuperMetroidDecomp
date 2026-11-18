@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Deaths;
 
 /// <summary>
-/// The generic enemy-death explosions, the drops they become and the respawn tail (#641) animation segments, in authored order.
+/// The generic enemy-death explosions, the drops they become and the respawn pause (#641) animation segments, in authored order.
 /// Their steps are <see cref="EnemyDeathAndDropAnimations"/>.
 /// </summary>
 internal enum EnemyDeathAndDropSegment

@@ -89,7 +89,7 @@ internal sealed class SamusInputSnapshot
         PreviousDrawNewInput = newlyPressed;
     }
 
-    /// <summary>Health-feedback tail of the post-draw input filter, independent of knockback admission.</summary>
+    /// <summary>Flashes Samus's hurt colours when she has lost health, after the input filter that follows the draw, whether or not knockback is admitted.</summary>
     internal static void UpdateHurtFlashFromHealthLoss(SamusState samus)
     {
         if (samus.Health < samus.PreviousHealthForHurtCheck && samus.HurtFlash.IsIdle)

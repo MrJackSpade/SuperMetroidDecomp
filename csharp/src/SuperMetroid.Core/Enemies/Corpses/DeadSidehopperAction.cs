@@ -8,7 +8,7 @@ public enum DeadSidehopperAction
 {
     /// <summary>Activates the living victim when the camera's X is left of room pixel 513, moving it in the same update.</summary>
     AliveWaitForCamera,
-    /// <summary>Applies signed 1/256-pixel hop velocity and gravity; landing advances the four-phase launch sequence and starts the hopping animation.</summary>
+    /// <summary>Applies the hop velocity and gravity; landing advances the four-phase launch sequence and starts the hopping animation.</summary>
     ActivatedMovement,
     /// <summary>Lands: main AI waits while the landing animation runs, until its end-hop cue selects what follows.</summary>
     Landing,

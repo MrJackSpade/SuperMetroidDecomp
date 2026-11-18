@@ -12,7 +12,7 @@ internal static class RidleyFireballDefinitions
     /// <summary>The afterburn stages a fireball breathed with its afterburn spawns on impact.</summary>
     internal const int AfterburnStages = 3;
 
-    /// <summary>The fireball's 1/256-pixel speed: five pixels per update.</summary>
+    /// <summary>The fireball's speed: five pixels per update.</summary>
     internal static readonly SignedEightEight FireballSpeed = SignedEightEight.FromPixels(5);
 
     /// <summary>The start of the arc a left-facing Ridley aims his fireballs within.</summary>

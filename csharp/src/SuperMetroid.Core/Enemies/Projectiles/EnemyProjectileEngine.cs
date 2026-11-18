@@ -141,10 +141,9 @@ internal sealed class EnemyProjectileEngine
                 if (!ShotAndProjectileSquares.Meet(shot.Position.Whole, enemyProjectile.Position.Whole))
                     continue;
 
-                // The collision response only marks non-plasma shots spent. It makes no ordinary
-                // enemy impact and therefore cannot turn a freshly fired
-                // Super Missile (or its invisible link) into an explosion in the producer
-                // frame. Its own frame behaviour consumes the mark on the next projectile pass.
+                // A shot that meets the projectile is only marked spent, a plasma shot not even that: it strikes no
+                // enemy, so a freshly fired Super Missile (or its invisible link) does not explode on the update it was
+                // fired. The shot acts on the mark as it moves on the next projectile pass.
                 if (!shot.Type.HasAnyBeam(SamusBeamFlags.Plasma))
                     shot.IsSpent = true;
 
@@ -335,10 +334,8 @@ internal sealed class EnemyProjectileEngine
     }
 
     /// <summary>
-    /// Copies the definition a projectile spawn installs.
-    /// Family setups may then replace fields exactly as their
-    /// authored setup does; centralizing the copy prevents each projectile kind
-    /// from inventing subtly different radius/property semantics.
+    /// Copies the definition a projectile spawn installs; a family's setup may then replace fields as its own setup
+    /// does.
     /// </summary>
     /// <param name="projectile">The freshly spawned projectile.</param>
     /// <param name="kind">What the projectile is, which names its definition.</param>
@@ -561,7 +558,7 @@ internal sealed class EnemyProjectileEngine
             return;
         }
 
-        // A projectile its frame behaviour ended this pass, or one spawned without an animation, runs nothing.
+        // A projectile its own update ended this pass, or one spawned without an animation, runs nothing.
         if (!projectile.IsActive)
             return;
         throw new InvalidOperationException($"Enemy projectile {projectile.Kind} in place {projectile.Place} runs no animation.");
@@ -686,8 +683,8 @@ internal sealed class EnemyProjectileEngine
     }
 
     /// <summary>
-    /// Deletes an enemy projectile once it is vertically off screen, shared by
-    /// Dragon's fireball and both n00b-tube shard frame behaviours.
+    /// Deletes an enemy projectile once it is vertically off screen, as Dragon's fireball and both n00b-tube shards do
+    /// each update.
     /// </summary>
     /// <remarks>
     /// A position above the camera's top row is kept; only a

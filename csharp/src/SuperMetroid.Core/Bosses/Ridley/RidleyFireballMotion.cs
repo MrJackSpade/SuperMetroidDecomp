@@ -8,9 +8,9 @@ internal enum RidleyFireballMotion
     /// <summary>Flies a Ridley fireball.</summary>
     FireballFlying,
 
-    /// <summary>Flies one of Ridley's horizontal afterburns by its 1/256-pixel velocity.</summary>
+    /// <summary>Flies one of Ridley's horizontal afterburns by its velocity.</summary>
     HorizontalAfterburnFlying,
 
-    /// <summary>Flies one of Ridley's vertical afterburns by its 1/256-pixel velocity.</summary>
+    /// <summary>Flies one of Ridley's vertical afterburns by its velocity.</summary>
     VerticalAfterburnFlying,
 }

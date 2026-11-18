@@ -70,7 +70,7 @@ public sealed class SamusProjectile
 
     /// <summary>Room position in 1/65536 pixels.</summary>
     public FixedPosition<RoomPixels> Position { get; internal set; }
-    /// <summary>Signed 1/256-pixel per-update velocity.</summary>
+    /// <summary>Velocity in pixels per update.</summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
     /// <summary>Collision half-extents in pixels.</summary>
     public Extent16<RoomPixels> Radius { get; internal set; }

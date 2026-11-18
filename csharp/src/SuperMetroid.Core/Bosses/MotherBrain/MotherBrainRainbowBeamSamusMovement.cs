@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </remarks>
 public sealed class MotherBrainRainbowBeamSamusMovement
 {
-    /// <summary>Samus's forced signed 1/256-pixel velocity.</summary>
+    /// <summary>The velocity the beam forces on Samus.</summary>
     public EightEightVector<RoomPixels> CustomVelocity { get; private set; }
 
     /// <summary>
@@ -117,7 +117,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
             reachedBoundary: reachedVerticalBoundary);
     }
 
-    /// <summary>Projects a 1/256-pixel beam speed onto the vertical axis using the quarter-turn sine lookup.</summary>
+    /// <summary>Projects the beam's speed onto the vertical axis using the quarter-turn sine lookup.</summary>
     /// <param name="speed">The beam's speed, whose size the sine scales.</param>
     /// <param name="angle">The live beam angle.</param>
     internal static SignedEightEight CalculateYVelocity(
@@ -129,7 +129,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
             speed, (angle + RotationAngle.QuarterTurn).ToTrigonometryAngle());
     }
 
-    /// <summary>Applies 1/256-pixel Y movement, copies the result into the previous position, and clamps to arena Y=48..192.</summary>
+    /// <summary>Applies the vertical movement, copies the result into the previous position, and clamps to arena Y=48..192.</summary>
     private static bool MoveVerticallyTowardCeilingOrFloor(
         SamusState samus,
         RainbowBeamCameraCheckpoint cameraCheckpoint,
@@ -161,7 +161,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         return false;
     }
 
-    /// <summary>Applies 1/256-pixel X movement, copies the result into the previous position, and clamps at the right wall X=235.</summary>
+    /// <summary>Applies the sideways movement, copies the result into the previous position, and clamps at the right wall X=235.</summary>
     private static bool MoveHorizontallyTowardWall(SamusState samus, RainbowBeamCameraCheckpoint cameraCheckpoint, SignedEightEight velocity)
     {
         FixedCoordinate moved = MoveByPushVelocity(

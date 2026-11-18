@@ -8,7 +8,7 @@ internal enum MotherBrainProjectileMotion
     /// <summary>Turns a Mother Brain room turret, fires it, or removes it once the room asks.</summary>
     TurretAiming,
 
-    /// <summary>Flies a shard of Mother Brain's glass in 1/256-pixel steps under gravity, trailing sparkles.</summary>
+    /// <summary>Flies a shard of Mother Brain's glass under gravity, trailing sparkles.</summary>
     GlassShardFlying,
 
     /// <summary>Raises dust once, then drops a ceiling tube, accelerating.</summary>

@@ -284,7 +284,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
             });
 
     /// <summary>Applies Tripper's direction-specific frozen frame after a successful common shot freeze.</summary>
-    /// <remarks>After common shot AI freezes a Tripper at once, its current frame is replaced with its direction's
+    /// <remarks>After the common shot reaction freezes a Tripper at once, its current frame is replaced with its direction's
     /// frozen frame.</remarks>
     internal static EnemyShotReaction TripperShotReaction { get; } = new()
     {

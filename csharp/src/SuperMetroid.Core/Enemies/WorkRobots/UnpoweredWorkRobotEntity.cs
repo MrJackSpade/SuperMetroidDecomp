@@ -22,6 +22,6 @@ internal sealed class UnpoweredWorkRobotEntity(WorkRobotBehavior species, RoomEn
     /// <summary>The robot takes a bomb's damage, never rejecting it, and does nothing more (#2164).</summary>
     protected override EnemyBombReaction OwnBombReaction => Species.UnpoweredWorkRobotBombReaction;
 
-    /// <summary>The robot's own shot reaction, which runs nothing after the common shot AI.</summary>
+    /// <summary>The robot's own shot reaction, which runs nothing after the common shot reaction.</summary>
     protected override EnemyShotReaction OwnShotReaction => Species.UnpoweredWorkRobotShotReaction;
 }

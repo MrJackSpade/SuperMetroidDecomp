@@ -394,8 +394,8 @@ internal sealed class IntroCeresFlightState
     /// <summary>Accelerates the front stars and both turning-floor scroll offsets along the same diagonal.</summary>
     private void StepStarsAndBackground()
     {
-        // The star field adds 128/256 to a signed 1/256-pixel speed, then applies that same growing delta to
-        // the star actor and both turning-floor offsets. This is why the ship rush feels diagonal.
+        // The star field's speed grows by half a pixel each update, and that same growing distance moves the star
+        // actor and both turning-floor offsets, so the ship's rush looks diagonal.
         // The rush lasts while the zoom falls from two floor pixels by a sixteenth an update, about 32 updates, so the speed rises from four
         // pixels an update one way to at most twelve the other.
         starsVelocity += CeresFlightActorDefinitions.FrontStarAcceleration;

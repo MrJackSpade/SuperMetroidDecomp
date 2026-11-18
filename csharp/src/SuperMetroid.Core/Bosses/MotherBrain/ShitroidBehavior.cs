@@ -544,7 +544,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         return xArrived && yArrived;
     }
 
-    /// <summary>Clamps signed 1/256-pixel speed to 1280 and zeroes it on predicted target crossing.</summary>
+    /// <summary>Caps one axis's speed at five pixels an update and stops it where it would pass the target.</summary>
     private static ShitroidAxisStep AccelerateShitroidAxis(
         int current,
         int target,

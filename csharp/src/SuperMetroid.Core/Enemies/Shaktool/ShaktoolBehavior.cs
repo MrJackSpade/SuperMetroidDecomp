@@ -436,7 +436,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyMath.SineVelocity(angle, 1);
 
     /// <summary>
-    /// Implements Shaktool's fatal-shot tail: a hit that kills one segment deletes the enemies the room lists first
+    /// Ends Shaktool after a fatal shot: a hit that kills one segment deletes the enemies the room lists first
     /// (<see cref="ShaktoolDeathDeletesFirstListed"/>), which initialization requires to be the chain's own segments.
     /// </summary>
     private void ResolveShaktoolShotAfterCommon(RoomEnemyPlace struckSegment)

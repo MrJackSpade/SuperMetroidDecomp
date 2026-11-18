@@ -41,12 +41,10 @@ internal sealed class EnemyProcessingWindow
     /// Steps the species' work that runs before selection (the Morph Ball eye's beam), then decides which enemies to process.
     /// </summary>
     /// <remarks>
-    /// Main gameplay builds the window first, before Samus's input and movement. The grapple
-    /// endpoint scan therefore sees this frame's interactive list, including an actor that
-    /// a death explosion respawned at the end of the previous frame. The per-line display effects run
-    /// earlier still, at the start of the update: that order is observable on spawn (one-frame pending
-    /// initialization) and shutdown (the full beam sees the body's cleared activation flag on
-    /// the following frame).
+    /// Main gameplay builds the window first, before Samus's input and movement, so the grapple's endpoint scan sees this
+    /// update's interactive enemies, including one a death explosion respawned at the end of the previous update. The
+    /// Morph Ball eye's beam steps earlier still, at the start of the update, which shows as it starts, a beam set up on
+    /// one update beginning on the next, and as it ends, the full beam seeing the eye shut down on the update after.
     /// </remarks>
     /// <param name="camera">Camera position (viewport top-left) in whole room pixels.</param>
     public void PrepareEnemyProcessingList(Position16<RoomPixels> camera)

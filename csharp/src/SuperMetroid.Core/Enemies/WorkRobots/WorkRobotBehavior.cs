@@ -248,9 +248,8 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Finishes a powered robot's reaction to a shot after common shot handling. The
-    /// indestructible vulnerability table leaves health unchanged, but the accepted impact
-    /// still chooses an ahead/behind recoil animation and delays the next laser by 64 frames.
+    /// Finishes a powered robot's reaction to a shot: the robot takes no damage, but the shot's impact still turns it to
+    /// recoil ahead or behind and holds off its next laser for 64 updates.
     /// </summary>
     private static void ResolveWorkRobotShotAfterCommon(RoomEnemyPlace robot, SamusState samus)
     {
@@ -308,7 +307,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>An unpowered robot takes the bomb damage, which it never rejects, and nothing more: it has no recoil.</summary>
     internal EnemyBombReaction UnpoweredWorkRobotBombReaction { get; } = new();
 
-    /// <summary>A robot without power runs nothing after the common shot AI: it has no recoil.</summary>
+    /// <summary>A robot without power runs nothing after the common shot reaction: it has no recoil.</summary>
     internal EnemyShotReaction UnpoweredWorkRobotShotReaction { get; } = new();
 
     /// <summary>A Work Robot laser, whichever way it flies (#1760): it flies with room collision.</summary>
@@ -336,7 +335,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
                 ? new AnimationContinuation<WorkRobotSegment>(WorkRobotAnimations.StartingWith(continuesAt), AnimationPlace.StartOfAnimation)
                 : null);
 
-    /// <summary>Applies the powered robot's accepted-impact recoil tail after common projectile shots.</summary>
+    /// <summary>The powered robot's shot reaction: the common damage, then its recoil.</summary>
     internal EnemyShotReaction WorkRobotShotReaction { get; } = new()
     {
         AfterCommon = c => ResolveWorkRobotShotAfterCommon(c.Enemy, c.Samus),

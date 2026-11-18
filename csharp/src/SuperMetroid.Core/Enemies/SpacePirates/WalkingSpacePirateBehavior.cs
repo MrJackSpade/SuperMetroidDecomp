@@ -147,8 +147,8 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         if (!_terrain.MoveEnemyVertically(level, place, SpacePirateMotionDefinitions.WalkingGroundProbeStep))
             return;
 
-        // Left and right are not mirrors: walking left probes for floor 17 pixels ahead and moves 14337/65536 of a pixel;
-        // walking right probes 16 pixels ahead and moves 14336/65536.
+        // Left and right are not mirrors: walking left probes for floor a pixel further ahead than walking right, and its
+        // step is a 65536th of a pixel longer.
         int originalX = place.Position.X.Whole;
         place.Position = place.Position.WithWholeX(
             place.Position.X.Whole - SpacePirateMotionDefinitions.WalkingLeftLedgeProbe);
@@ -157,8 +157,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
 
         if (floorAhead)
         {
-            // The ignored horizontal probe has one mutable result, a displacement pair the following move
-            // immediately overwrites, so it leaves no persistent actor-side effect.
+            // With floor ahead, the Pirate steps left and walks on until a wall or its left post stops it.
             bool hitWall = _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
                 place,
@@ -554,17 +553,14 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     /// <summary>Skips frozen contact and rejects unsupported extended hitbox reactions before normal touch damage.</summary>
     internal void ReactToSpacePirateTouch(EnemyTouchContext context)
     {
-        // Every Space Pirate frame's hitboxes use the shared Pirate touch
-        // reaction in every hitbox. Keep the reaction check explicit: silently
-        // treating a later family-specific attack box as ordinary body contact would
-        // recreate the exact radius-flattening bug this path is intended to remove.
+        // Every hitbox of every Space Pirate frame uses the shared Pirate touch reaction; a hitbox with any other
+        // reaction is refused.
         if (context.UsesFrameHitboxes && context.HitboxTouch != SpacePirateReactions.Touch)
         {
             throw new InvalidDataException(
                 $"Space Pirate has no response to touch reaction {context.HitboxTouch?.ToString() ?? "(unnamed)"}.");
         }
-        // The shared Pirate touch returns before common touch AI while frozen. The overlap was
-        // still found, but neither Samus nor the Pirate receives contact damage.
+        // While the Pirate is frozen, touching it deals neither Samus nor the Pirate contact damage.
         if (context.Place.FrozenTimer != 0)
             return;
         _collision.ResolveNormalEnemyTouch(context);

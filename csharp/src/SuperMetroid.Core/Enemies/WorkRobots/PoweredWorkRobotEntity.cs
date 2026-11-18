@@ -22,6 +22,6 @@ internal sealed class PoweredWorkRobotEntity(WorkRobotBehavior species, RoomEnem
     /// <summary>The robot takes a bomb's damage and recoils (#2164).</summary>
     protected override EnemyBombReaction OwnBombReaction => Species.PoweredWorkRobotBombReaction;
 
-    /// <summary>The robot's own shot reaction, which recoils it after the common shot AI.</summary>
+    /// <summary>The robot's own shot reaction, which recoils it after the common shot reaction.</summary>
     protected override EnemyShotReaction OwnShotReaction => Species.WorkRobotShotReaction;
 }

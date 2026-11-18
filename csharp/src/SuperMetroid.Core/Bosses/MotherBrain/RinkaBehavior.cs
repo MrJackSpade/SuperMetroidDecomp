@@ -214,9 +214,8 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Runs the family-specific tail run after common touch, shot, or power-bomb damage.
-    /// Common damage deliberately leaves lethal Rinkas alive long enough for this method to
-    /// select their two distinct death lifecycles.
+    /// Finishes a Rinka's reaction to a touch, a shot or a power bomb after the common damage: a killed Rinka either
+    /// dies, or, one of Mother Brain's, hides and waits to respawn.
     /// </summary>
     private void ResolveRinkaCombatAfterCommon(RoomEnemyPlace place)
     {
@@ -240,7 +239,10 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         state.DelayTimer.LastFor(RinkaLifeDefinitions.RespawnDelayUpdates);
     }
 
-    /// <summary>Runs Rinka's private frozen-AI prelude/tail around common frozen handling.</summary>
+    /// <summary>
+    /// Runs a frozen Rinka's own step before the common thaw: outside its flight window it thaws at once, and once the
+    /// Rinkas are ending it dies; true when it died.
+    /// </summary>
     internal bool RunRinkaFrozenTail(RoomEnemyPlace place)
     {
         if (RinkaIsOutsideFlightWindow(place))

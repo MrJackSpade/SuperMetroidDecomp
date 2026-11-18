@@ -262,7 +262,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         place.AnimationClock.ShowForGood();
     }
 
-    /// <summary>Lets bombs share the Zebetite shot tail without generic death handling.</summary>
+    /// <summary>Lets a bomb finish as a shot does on the Zebetite, without the generic death.</summary>
     internal EnemyBombReaction ZebetiteBombReaction => field ??= new()
     {
         RunsGenericDeath = false,
@@ -277,7 +277,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         RunZebetiteMain(place, place.RequireSpeciesState<ZebetiteEnemyState>());
     }
 
-    /// <summary>Runs shot damage with the Zebetite-specific linked-health tail and no generic death.</summary>
+    /// <summary>Runs shot damage, then shares it across the linked Zebetites' health, with no generic death.</summary>
     internal EnemyShotReaction ZebetiteShotReaction => field ??= new()
     {
         AlwaysUsesCollisionPrelude = true,

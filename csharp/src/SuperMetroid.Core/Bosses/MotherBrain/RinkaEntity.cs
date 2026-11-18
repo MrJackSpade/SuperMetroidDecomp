@@ -42,7 +42,7 @@ internal sealed class RinkaEntity(RinkaBehavior species, RoomEnemyPlace place, E
     /// <summary>Rinka's own Power Bomb reaction where its definition leaves the blast to it, or the shared one.</summary>
     public override EnemyPowerBombReaction? PowerBombReaction => LeavesPowerBombToSpecies ? species.RinkaPowerBombReaction : base.PowerBombReaction;
 
-    /// <summary>Runs Rinka's frozen tail before the common thaw; true when it ended the turn.</summary>
+    /// <summary>Runs a frozen Rinka's own step before the common thaw; true when it ended the turn.</summary>
     public override bool PreemptFrozenTurn() => species.RunRinkaFrozenTail(Place);
 
     /// <summary>Rinka's own shot reaction, which a normal bomb triggers as it does the common one.</summary>

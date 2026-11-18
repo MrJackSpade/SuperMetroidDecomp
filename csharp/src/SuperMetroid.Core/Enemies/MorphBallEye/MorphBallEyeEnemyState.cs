@@ -27,7 +27,7 @@ public sealed class MorphBallEyeEnemyState
     public bool IsActivated { get; internal set; }
 
     /// <summary>
-    /// Zero-up, clockwise, 1/256-turn aim angle.
+    /// The aim angle, zero up and turning clockwise.
     /// </summary>
     public RotationAngle Angle { get; internal set; }
 

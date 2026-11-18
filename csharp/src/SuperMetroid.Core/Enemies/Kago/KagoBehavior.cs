@@ -72,8 +72,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         // The shell withstands as many shots as its placement names and dies of the next (#2340).
         if (++state.HitsTaken > place.SpawnSettings<KagoSpawnSettings>().HitCount)
         {
-            // Common shot AI can in principle kill the 1600-health shell first. Do not
-            // count the same death twice.
+            // A shot's common damage may already have killed the 1600-health shell, which counts its death once.
             if (!place.Presence.HasAny(EnemyPresence.Deleted))
             {
                 place.Presence = place.Presence.With(EnemyPresence.Deleted);
@@ -86,7 +85,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         SpawnKagoBug(place);
     }
 
-    /// <summary>Routes bomb hits through common shot AI before applying Kago's quake, counter, and bug spawn.</summary>
+    /// <summary>Runs a bomb's common damage on Kago before its quake, its hit count and its bug spawn.</summary>
     internal EnemyBombReaction KagoBombReaction => field ??= new()
     {
         AfterCommon = c => ResolveKagoShotAfterCommon(c.Enemy, c.Enemy.RequireSpeciesState<KagoEnemyState>()),

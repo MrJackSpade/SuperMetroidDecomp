@@ -1856,6 +1856,31 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         // A model, a body's or a controller's port, a layout alone, laying a picture out and a hardware owner are English.
         Expect("class P { /// <summary>The display model; the top port's spike; the controller in port 2; a room's scroll layout; lays out the caption; the credits are laid out by role; the offsets are laid out one for each share.</summary>\nint F => 0; }");
         Expect(CompatibilityService + "/// <summary>A frame past an animation's end reads an animation laid out after it, which the port does not keep compiled.</summary>\n[CompatibilityService(\"frames\")] class Frames { }");
+        // The original's routines, per-frame code, copies and precision, outside hardware owners and markup (#2456): a
+        // routine's tail named by what it ends, pointed at, owned or of an update, a frame behaviour, common shot AI, the
+        // game's copies, the longest duration a frame can have and a quantity told by its 1/256 precision.
+        Expect("class P { /// <summary>Custom frozen tail for all five auxiliary actors.</summary>\nvoid Run() { } }", "('frozen tail')");
+        Expect("class P { /// <summary>Applies the powered robot's accepted-impact recoil tail.</summary>\nvoid Run() { } }", "('recoil tail')");
+        Expect("class P { /// <summary>Rolls a direct drop or starts the no-drop tail.</summary>\nvoid Run() { } }", "('no-drop tail')");
+        Expect("class P { /// <summary>This pass owns both the common reaction and the Metroid tail.</summary>\nvoid Run() { } }", "('Metroid tail')");
+        Expect("class P { /// <summary>Runs Rinka's private frozen-AI prelude/tail around common frozen handling.</summary>\nvoid Run() { } }", "('prelude/tail')");
+        Expect("class P { void Run() { // Collection and natural expiry use this same tail.\n } }", "('this same tail')");
+        Expect("class P { /// <summary>Runs the frozen enemy's own tail before the common thaw.</summary>\nvoid Run() { } }", "('enemy's own tail')");
+        Expect("class P { /// <summary>Common damage with no tail of its own.</summary>\nvoid Run() { } }", "('no tail of its own')");
+        Expect("class P { /// <summary>Runs the family-specific tail of a frozen Metroid's update.</summary>\nvoid Run() { } }", "('family-specific tail')");
+        Expect("class P { /// <summary>Runs the end of the work, the tail of a frozen Metroid's update.</summary>\nvoid Run() { } }", "('tail of a frozen Metroid's update')");
+        Expect("class P { void Run() { // Projectile frame behaviours consume that marker\n } }", "('frame behaviours')");
+        Expect("class P { void Run() { // The shutter's reaction runs before common shot AI.\n } }", "('common shot AI')");
+        Expect("class P { void Run() { // The shot reaches the shutter instead of normal shot AI.\n } }", "('normal shot AI')");
+        Expect("class P { /// <summary>Both of the game's copies of the curve hold these speeds.</summary>\nint F => 0; }", "('game's copies')");
+        Expect("class P { /// <summary>The game shows it for the longest duration a frame can have and then rests on it.</summary>\nint F => 0; }", "('longest duration a frame can have')");
+        Expect("class P { /// <summary>Moves with signed 1/256-pixel velocities.</summary>\nint F => 0; }", "('1/256-pixel')");
+        Expect("class P { void Run() { // starts the upward phase at -1/256 px.\n } }", "('1/256 px')");
+        Expect("class P { /// <summary>Zero-up, clockwise, 1/256-turn aim angle.</summary>\nint F => 0; }", "('1/256-turn')");
+        // A body's tail, a particle's fading tail, a straddled block's lead and tail, a per-frame behaviour, an item frame's
+        // behaviour, main AI, a unit of measure and a hardware owner are English.
+        Expect("class P { /// <summary>Ridley's tail whips; its tail swings; the tail cap; a one-shot tail whip; a particle's fading tail; for every lead and tail the terrain they make; runs a Puyo's per-frame behaviour; the item-frame behaviour; runs Puyo's main AI; its normal AI; a speed in 1/256 pixels per update; a 256th of a pixel.</summary>\nint F => 0; }");
+        Expect(CompatibilityService + "/// <summary>The shot's frame behaviour runs the fuse; it moves in 1/256-pixel steps.</summary>\n[CompatibilityService(\"fuse\")] class Fuse { }");
         // The species-owner template on a type that owns no species (#2427), read on the type's own summary; a type that
         // implements or is a species owner's interface owns a species, and an entity's parameter names its owner.
         const string SpeciesOwners = "interface IEnemySpecies { }\ninterface IEnemyEntityFactory { }\n";

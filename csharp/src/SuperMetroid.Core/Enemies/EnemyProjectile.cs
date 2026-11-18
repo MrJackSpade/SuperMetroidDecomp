@@ -91,7 +91,7 @@ public sealed class EnemyProjectile
     /// </summary>
     internal Enum? Motion { get; set; }
     /// <summary>
-    /// What the projectile's kind does (#1760): it runs the projectile's frame behaviours, carries out its animations'
+    /// What the projectile's kind does (#1760): it moves the projectile each update, carries out its animations'
     /// cues and names its shot and touch animations. The spawner binds it with the kind; none until then. A projectile
     /// that ends keeps it, so the cues its animation publishes on the way out still reach their owner.
     /// </summary>

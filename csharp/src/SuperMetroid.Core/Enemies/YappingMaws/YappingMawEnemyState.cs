@@ -4,8 +4,8 @@ using SuperMetroid.Core.Enemies.EffectActors;
 namespace SuperMetroid.Core.Enemies.YappingMaws;
 
 /// <summary>
-/// The Yapping Maw's unusually large state.
-/// Names describe the values' actual consumers; the four identical tongue links are one list of link records (#2162).
+/// The Yapping Maw's state: its aim and curl, its tongue's four links from root to mouth (#2162) and its hold on
+/// Samus.
 /// </summary>
 public sealed class YappingMawEnemyState
 {
@@ -16,9 +16,8 @@ public sealed class YappingMawEnemyState
     public YappingMawAction Action { get; internal set; }
 
     /// <summary>
-    /// The immovable population position in whole room pixels, retained for the whole fight;
-    /// link and mouth positions are offsets from this root
-    /// rather than accumulated movement.
+    /// Where the Maw was placed, in whole room pixels, which never moves: its links and its mouth are placed as offsets
+    /// from it.
     /// </summary>
     public Position16<RoomPixels> Origin { get; internal set; }
 
@@ -29,8 +28,8 @@ public sealed class YappingMawEnemyState
     public required IReadOnlyList<YappingMawLink> Links { get; init; }
 
     /// <summary>
-    /// Approximate distance from the root to Samus in room pixels, 0 through 32768: a single axis's magnitude
-    /// when Samus is 255 or more pixels away on it, otherwise the sum of two short trigonometric products. An attack
+    /// Approximate distance from the root to Samus in room pixels: a single axis's magnitude when Samus is 255 or more
+    /// pixels away on it, otherwise the sum of two short trigonometric products. An attack
     /// caps it at <see cref="YappingMawAttackGeometry.MaximumTargetDistance"/>, so the extension sees 32 through 64.
     /// </summary>
     public int DistanceToSamus { get; internal set; }
@@ -48,16 +47,15 @@ public sealed class YappingMawEnemyState
     public bool MirroredBend { get; internal set; }
 
     /// <summary>
-    /// Signed room-pixel reference samples subtracted from each raw link before curl correction:
-    /// X at angle 128 and SegmentRadius, Y at angle 128 and half SegmentRadius.
+    /// The uncurled tongue's offsets, subtracted from each link before the curl's correction: X a half turn along at the
+    /// segment radius, Y a half turn along at half of it.
     /// </summary>
     public Offset16<RoomPixels> Baseline { get; internal set; }
 
     /// <summary>
-    /// The signed 1/65536-step curl amount, in angle units. It accelerates out to the 128 turn-around clamp, where its
-    /// fraction is cleared, then decelerates back; the update whose addition carries its whole part below zero is the
-    /// one on which the retracting tongue has completed its full curve. Every addition carries the fraction into the
-    /// whole part and wraps at 65536 whole steps.
+    /// How far the tongue has curled, in angle units, fraction included. It accelerates out to the largest curl, where it
+    /// stops on the whole unit, then decelerates back; the update that carries it below zero is the one on which the
+    /// retracting tongue has completed its full curve.
     /// </summary>
     public SignedSixteenSixteen Extension { get; internal set; }
 
@@ -92,7 +90,7 @@ public sealed class YappingMawEnemyState
     /// </summary>
     public YappingMawGrabCooldown GrabCooldown { get; internal set; }
 
-    /// <summary>Result of the point-based viewport test sampled before movement.</summary>
+    /// <summary>Whether the Maw lay outside the view as its update began, which silences its bite.</summary>
     public bool IsOffScreen { get; internal set; }
 
     /// <summary>The root/base object its attack direction selects, which every Maw spawns with (#2284).</summary>

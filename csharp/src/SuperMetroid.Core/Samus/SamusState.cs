@@ -873,7 +873,7 @@ public sealed class SamusState
 
     /// <summary>
     /// Applies this frame's whole previous-position writes before scrolling calculates
-    /// distance; the fractions are kept. Its normal tail subsequently replaces the complete checkpoint. The written X is
+    /// distance; the fractions are kept. Later in the update the whole position replaces the checkpoint. The written X is
     /// a whole pixel of the room's coordinates, which <see cref="FixedCoordinate"/> holds (#1627).
     /// </summary>
     internal FixedPosition<RoomPixels> ApplyPreviousPositionWrites(FixedPosition<RoomPixels> previous)

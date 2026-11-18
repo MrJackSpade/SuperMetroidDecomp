@@ -123,8 +123,8 @@ internal sealed class SamusFramePhases
             ShowGrappleShades();
         else if (_player.LastGrappleMovement is { Phase: GrapplePhase.Inactive })
         {
-            // Cancellation, drop, wall-jump and swing-release tails all
-            // restore the equipped beam's shade before returning to inactive.
+            // A grapple that ends by cancellation, a drop, a wall jump or a release from its swing restores the equipped
+            // beam's shade as it becomes inactive.
             _player.Colours.ShowBeams(SuperMetroid.Core.Samus.Colours.SamusShades.Beam(SamusBeamCombinations.Of(samus.EquippedBeams)));
         }
 
@@ -269,7 +269,7 @@ internal sealed class SamusFramePhases
         // In particular its draw-only zero input must not release a held charge.
         // X-ray's freeze leaves the normal input mode installed, so the normal input phase
         // still runs cooldown, HUD switching and the HUD item's step; only its
-        // projectile-handling tail stops, which both projectile owners
+        // projectile handling stops, which both projectile owners
         // apply themselves. A selection cancel during X-ray therefore takes effect.
         frame.SampleInputHandlingRuns(!_freeze.GameplayTimeFrozen && !frame.DeathOwnsSamus && !_doorPassage.IsUnderWay);
         if (frame.InputHandlingRuns)

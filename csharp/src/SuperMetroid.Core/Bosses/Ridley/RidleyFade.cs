@@ -23,11 +23,11 @@ public sealed class RidleyFade
     public IReadOnlyList<RidleyFadeImage> Images { get; }
 
     /// <summary>
-    /// The image at <paramref name="step"/> of the run, counting from zero, or null at the step after its last, which
-    /// shows no new colours.
+    /// The image a quantity selects by its place in the run, counting from zero (#2409): the getaway floor's shade for its
+    /// zoom's whole floor pixels per screen pixel.
     /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException">The step is negative.</exception>
-    internal RidleyFadeImage? ImageAt(int step) => Ensure.AtLeastZero(step) < Images.Count ? Images[step] : null;
+    /// <exception cref="ArgumentOutOfRangeException">The run has no image at <paramref name="step"/>.</exception>
+    internal RidleyFadeImage ImageAt(int step) => Ensure.Element(Images, step);
 
     /// <inheritdoc/>
     public override string ToString() => Key;

@@ -555,17 +555,25 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 // Before lift-off he runs his reveal's phases, after it his own (#2227); each table names its own words.
                 if (nativeFunctionWord != RidleyNativeWords.NorfairPhaseWord(ridleyState))
                     mismatches.Add($"Ridley AI function: native={nativeFunctionWord:X4} port={ridleyState.PhaseName()}");
-                // The eye and body fades pace themselves, not by the phase countdown (#2233): the cartridge's timer stays at
-                // zero through the eye fade and counts the first of each body shade's two updates.
-                int expectedTimer = ridleyState.LiftedOff ? ridleyState.PhaseTimer.Count : ridleyState.RevealPhase switch
-                {
-                    RidleyRevealPhase.FadeInEyes => 0,
-                    RidleyRevealPhase.FadeInBody => ridleyState.BodyFade.WaitedForShade ? 1 : 0,
-                    RidleyRevealPhase.WaitForDoorTransition or RidleyRevealPhase.InitialDelay or RidleyRevealPhase.WaitBeforeRoar or
-                        RidleyRevealPhase.WaitBeforeLiftoff or RidleyRevealPhase.TakingOff => ridleyState.PhaseTimer.Count,
-                    _ => throw new InvalidOperationException($"Undefined {nameof(RidleyRevealPhase)} {ridleyState.RevealPhase}."),
-                };
-                Check("Ridley AI timer", unchecked((ushort)expectedTimer), NativeSnapshotMemory.RidleyFunctionTimer);
+                // The eye and body fades and the arena reveal play on the shared animation player, not the phase countdown
+                // (#2233, #2409): the cartridge's timer stays at zero through the eye fade, counts the first of each body
+                // shade's two updates, and through the reveal counts the updates its shown step has left after this one.
+                // Once the reveal ends, the cartridge's timer keeps the reload of its last step, which no phase reads; the port
+                // keeps no such value, so the timer is compared only where a phase runs it.
+                int? expectedTimer = ridleyState.LiftedOff
+                    ? NorfairRidleyRunsPhaseTimer(ridleyState.Phase) ? ridleyState.PhaseTimer.Count : null
+                    : ridleyState.RevealPhase switch
+                    {
+                        RidleyRevealPhase.FadeInEyes => 0,
+                        RidleyRevealPhase.FadeInBody => ridleyState.BodyFade.UpdatesLeft == 1 ? 1 : 0,
+                        RidleyRevealPhase.WaitBeforeLiftoff => ridleyState.ArenaReveal.UpdatesLeft - 1,
+                        RidleyRevealPhase.WaitForDoorTransition or RidleyRevealPhase.InitialDelay or RidleyRevealPhase.WaitBeforeRoar =>
+                            ridleyState.PhaseTimer.Count,
+                        RidleyRevealPhase.TakingOff => null,
+                        _ => throw new InvalidOperationException($"Undefined {nameof(RidleyRevealPhase)} {ridleyState.RevealPhase}."),
+                    };
+                if (expectedTimer is { } timer)
+                    Check("Ridley AI timer", unchecked((ushort)timer), NativeSnapshotMemory.RidleyFunctionTimer);
                 Check("Ridley TailFunctionIndex", RidleyNativeWords.TailActions.Word(ridleyState.Tail.Action), NativeSnapshotMemory.RidleyTailFunctionIndex);
                 Check("Ridley IdleTailWhipEnabled", ridleyState.Tail.IdleWhipEnabled ? (ushort)1 : (ushort)0, NativeSnapshotMemory.RidleyIdleTailWhipEnabled);
                 Check("Ridley TailWhipRequest", ridleyState.Tail.WhipRequested ? (ushort)1 : (ushort)0, NativeSnapshotMemory.RidleyTailWhipRequest);
@@ -1091,6 +1099,18 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
         ridley.Phase == NorfairRidleyPhase.SwoopMoveToStart
             ? NativeSwoopSetupTimer
             : checked((ushort)ridley.SwoopPhaseTimer.Count);
+
+    /// <summary>
+    /// Whether Lower Norfair Ridley's <paramref name="phase"/> runs his phase countdown (#2409): every such phase is entered
+    /// with the countdown loaded for it, so its count is the cartridge's. Elsewhere the cartridge's timer keeps whatever the
+    /// last phase that ran it left, or after his arena's reveal that reveal's last reload, which nothing reads.
+    /// </summary>
+    private static bool NorfairRidleyRunsPhaseTimer(NorfairRidleyPhase phase) => phase is
+        NorfairRidleyPhase.Hover or NorfairRidleyPhase.SweepToWallBehind or NorfairRidleyPhase.SweepToWallAhead or
+        NorfairRidleyPhase.PogoMoveToHeight or NorfairRidleyPhase.PogoFall or NorfairRidleyPhase.PogoRise or
+        NorfairRidleyPhase.CarryMoveToAnchor or NorfairRidleyPhase.CarryRise or NorfairRidleyPhase.CarryRelease or
+        NorfairRidleyPhase.DeathRoar or NorfairRidleyPhase.DeathExplosions or NorfairRidleyPhase.DeathWait or
+        NorfairRidleyPhase.DeathFinish;
 
     /// <inheritdoc/>
     /// <remarks>The frame sequence owns the trace it opens; ending or disposing the sequence closes it.</remarks>

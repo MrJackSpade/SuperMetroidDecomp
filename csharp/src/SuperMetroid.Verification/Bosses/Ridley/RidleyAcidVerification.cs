@@ -50,7 +50,7 @@ internal static class RidleyAcidVerification
         // Enter the native palette-reveal phase, then let its real ROM table reach
         // the terminator. This does not inject a liquid command into the fixture.
         state.RevealPhase = RidleyRevealPhase.WaitBeforeLiftoff;
-        state.PhaseTimer.LastFor(1);
+        runtime.Enemies.NorfairRidleyBehavior.BeginRoarHold(state);
         for (int frame = 0; frame < 200 && state.RevealPhase == RidleyRevealPhase.WaitBeforeLiftoff; frame++)
             runtime.Enemies.StepStandaloneFrame(runtime.Enemies.StandaloneFrame(runtime.Room.LoadedLevelData) with { Camera = new(0, 256), TimeIsFrozen = false, Samus = runtime.Player.IntroducedSamus, SharedProjectiles = runtime.BombProjectiles });
         AssertEqual(440, fx.NamedTargetSurface, "native reveal writes acid rise target to shared FX");

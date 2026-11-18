@@ -86,26 +86,31 @@ internal static class CeresRidleyColorsVerification
         Action<RoomEnemyPlace, RidleyEncounterState> bodyTick = enemies.RidleyBody.Reveal.TickBodyFadeIn;
         Action<CeresRidleyState> healthTick = CeresRidleyHits.UpdateCeresRidleyHealthBand;
         var state = new CeresRidleyState(Position16<RoomPixels>.Zero) { RevealPhase = RidleyRevealPhase.FadeInEyes };
-        // The eye fade shows its sixteen shades from the darkest, then holds his own eye colours (#2247).
+        // The eye fade shows its sixteen shades from the darkest, the cartridge's last row, then holds his own eye colours,
+        // its first row (#2247, #2409).
         for (int step = 0; step < RidleyEyeFadeDefinitions.ShadeCount + RidleyEyeFadeDefinitions.HoldUpdates; step++)
         {
             eyeTick(state);
             int row = Math.Max(0, RidleyEyeFadeDefinitions.ShadeCount - 1 - step);
-            AssertEqual(new RidleyEyeFadeProgress(Math.Min(step + 1, RidleyEyeFadeDefinitions.ShadeCount), Math.Max(0, step + 1 - RidleyEyeFadeDefinitions.ShadeCount)),
-                state.EyeFade, $"installed eye fade update {step} advances");
+            AssertEqual(RidleyRevealPhase.FadeInEyes, state.RevealPhase, $"installed eye fade update {step} holds the eye fade");
             CheckCgram(state, CeresRidleyColorFormat.EyeFadeColorCount,
                 CeresRidleyShadeDefinitionsConstants.EyeFadeCgramIndex,
                 color => InstalledFixtures.ImportOf(original).CeresRidleyColors.ResolveEyeFade(row, color),
                 $"Ceres Ridley eye fade step {step}");
         }
-        state.RevealPhase = RidleyRevealPhase.FadeInBody;
+        eyeTick(state);
+        AssertEqual(RidleyRevealPhase.FadeInBody, state.RevealPhase, "the eye fade's rest starts the body fade");
         for (int row = 0; row < RidleyShadeDefinitions.BodyFadeShadeCount; row++)
         {
-            // The update before each shade has passed, so this one shows it (#2233).
-            state.BodyFade = new RidleyBodyFadeProgress(row) { WaitedForShade = true };
+            // The first of each shade's two updates only waits; the second shows it (#2233, #2409).
             bodyTick(place, state);
-            // The body fade keeps its own progress (#2228): the last row completes it rather than resetting a shared step.
-            AssertEqual(row + 1, state.BodyFade.Shade, $"installed body fade row {row} advances to the next row");
+            AssertEqual(row == 0 ? (RidleyFadeImage?)null : RidleyFadeDefinitions.BodyFade.Images[row - 1], state.BodyFade.Shown,
+                $"installed body fade row {row} waits an update first");
+            bodyTick(place, state);
+            AssertEqual(RidleyFadeDefinitions.BodyFade.Images[row], state.BodyFade.Shown, $"installed body fade shows row {row}");
+            // The last row ends the fade as it shows (#2228).
+            AssertEqual(row == RidleyShadeDefinitions.BodyFadeShadeCount - 1 ? RidleyRevealPhase.WaitBeforeRoar : RidleyRevealPhase.FadeInBody,
+                state.RevealPhase, $"installed body fade row {row} ends the fade only at the last row");
             CheckCgram(state, CeresRidleyColorFormat.BodyFadeColorCount,
                 CeresRidleyShadeDefinitionsConstants.BodyFadeBgCgramIndex,
                 color => InstalledFixtures.ImportOf(original).CeresRidleyColors.ResolveBodyFade(row, color),
@@ -167,13 +172,13 @@ internal static class CeresRidleyColorsVerification
                 stockEscape.StepAlarm(frame);
                 RgbColor[] nativeCgram = RidleyLaidColours.Ceres(nativeState, nativeEscape, original);
                 RgbColor[] stockCgram = RidleyLaidColours.Ceres(stockState, stockEscape, original);
-                AssertEqual(nativeEscape.Warning.AlarmStep, stockEscape.Warning.AlarmStep,
+                AssertEqual(nativeEscape.Warning.Alarm.Shown, stockEscape.Warning.Alarm.Shown,
                     $"stock Ceres alarm frame {frame} selection");
                 for (int color = 0; color < SnesCgram.ColorCount; color++)
                     AssertEqual(nativeCgram[color], stockCgram[color],
                         $"stock Ceres alarm frame {frame} CGRAM {color}");
             }
-            AssertEqual(0, stockEscape.Warning.AlarmStep.Step,
+            AssertEqual(RidleyFadeDefinitions.SelfDestructAlarm.Images[0], stockEscape.Warning.Alarm.Shown,
                 "Ceres alarm frame sixteen wraps to zero");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 "installed Ceres alarm never reads its source color rows");

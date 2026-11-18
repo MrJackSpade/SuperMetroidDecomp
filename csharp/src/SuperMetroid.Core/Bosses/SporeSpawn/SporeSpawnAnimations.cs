@@ -131,12 +131,12 @@ internal static class SporeSpawnAnimations
         ],
         [P.DeathFade] =
         [
-            .. FadeStep(SporeSpawnDeathFadeStep.All[0]),
-            .. FadeStep(SporeSpawnDeathFadeStep.All[1]),
-            .. FadeStep(SporeSpawnDeathFadeStep.All[2]),
-            .. FadeStep(SporeSpawnDeathFadeStep.All[3]),
-            .. FadeStep(SporeSpawnDeathFadeStep.All[4]),
-            .. FadeStep(SporeSpawnDeathFadeStep.All[5]),
+            .. FadeStep(SporeSpawnDeathFadeStep.Unhardened),
+            .. FadeStep(SporeSpawnDeathFadeStep.SixthHardened),
+            .. FadeStep(SporeSpawnDeathFadeStep.ThirdHardened),
+            .. FadeStep(SporeSpawnDeathFadeStep.HalfHardened),
+            .. FadeStep(SporeSpawnDeathFadeStep.TwoThirdsHardened),
+            .. FadeStep(SporeSpawnDeathFadeStep.FiveSixthsHardened),
             .. FadeStep(SporeSpawnDeathFadeStep.Husk),
             Cue(new SporeSpawnCue.Signal(K.RequestDeathDrops)),
         ],

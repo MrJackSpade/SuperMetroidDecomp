@@ -16,9 +16,6 @@ public readonly record struct RidleyFadeImage
     /// <summary>The image's place in its run, from zero: the step of its installed shade.</summary>
     public int Step { get; }
 
-    /// <summary>The image after this one in a cycling run: the run's first follows its last.</summary>
-    public RidleyFadeImage Next => Fade.Images[(Step + 1) % Fade.Images.Count];
-
     /// <summary>This image, which <paramref name="expected"/>'s owner shows only from that run.</summary>
     /// <exception cref="ArgumentException">The image belongs to another run.</exception>
     internal RidleyFadeImage Of(RidleyFade expected) => ReferenceEquals(Fade, expected)

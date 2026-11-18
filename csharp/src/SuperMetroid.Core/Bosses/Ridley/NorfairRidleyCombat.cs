@@ -80,23 +80,15 @@ internal sealed class NorfairRidleyCombat
     internal static void LiftOff(NorfairRidleyState state) => Ensure.NotNull(state).Phase = NorfairRidleyPhase.EnterArena;
 
     /// <summary>
-    /// Runs one update of the arena reveal Ridley holds his roar through: a Norfair-only fourteen-colour fade that steps
-    /// every third update. The step after the last colour step raises the battle's liquid and ends the hold.
+    /// Plays one update of the arena reveal Ridley holds his roar through (#2409): a Norfair-only fourteen-colour fade showing
+    /// a step every third update. The update after the last step's raises the battle's liquid and ends the hold.
     /// </summary>
     /// <returns>Whether the reveal ended this update, so he takes off.</returns>
     internal bool TickNorfairRidleyArenaReveal(NorfairRidleyState state)
     {
-        if (state.PhaseTimer.StepKeepsRunning())
-            return false;
-
-        state.PhaseTimer.LastFor(NorfairRidleyMotionDefinitions.ArenaRevealStepUpdates);
-        NorfairArenaRevealProgress reveal = state.ArenaReveal;
-        if (reveal.Step > NorfairRidleyRevealDefinitions.RevealStepCount)
-            throw new InvalidDataException($"Norfair Ridley reveal step {reveal.Step} is past the reveal's end.");
-        if (reveal.ShowsStep)
-            state.Colours.ShowArenaReveal(RidleyFadeDefinitions.ArenaReveal.Images[reveal.Step]);
-        state.ArenaReveal = reveal.Next();
-        if (reveal.ShowsStep)
+        if (state.ArenaReveal.StepToNewFrame() is { } image)
+            state.Colours.ShowArenaReveal(image);
+        if (!state.ArenaReveal.IsResting)
             return false;
 
         RidleyLiquidMotion.Publish(_roomFx, RidleyLiquidDefinitions.BattleHeight,

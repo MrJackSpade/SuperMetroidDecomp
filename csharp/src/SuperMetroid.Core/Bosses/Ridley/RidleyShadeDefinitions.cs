@@ -9,6 +9,12 @@ public static class RidleyShadeDefinitions
     /// <summary>The black-to-visible body shades, one shown every two updates of his body fade.</summary>
     public const int BodyFadeShadeCount = 16;
 
+    /// <summary>
+    /// The updates of each body shade (#2409): it shows on the second of them, the first of its updates only waiting, and
+    /// the last shade ends the fade as it shows.
+    /// </summary>
+    public const int BodyFadeShadeUpdates = 2;
+
     /// <summary>The updates both Ridleys wait after their last body shade; on the last they begin their opening roar.</summary>
     public const int BeforeRoarUpdates = 5;
 }

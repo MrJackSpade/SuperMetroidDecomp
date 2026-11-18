@@ -13,7 +13,7 @@ internal static class CrocomireReactions
 
     /// <summary>
     /// The shot reaction of his raised and high mouth and his lower body, which absorbs the shot: it neither hurts him nor
-    /// raises dust (#1939; the count the game kept of these hits was never read, #1620).
+    /// raises dust, and nothing else of his changes with it (#1939, #1620).
     /// </summary>
     internal static EnemyReaction AbsorbedShot { get; } = EnemyReaction.OfSpecies("Crocomire.AbsorbedShot");
 

@@ -103921,19 +103921,6 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Gameplay.BelowPerspectiveFloor",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Gameplay/BelowPerspectiveFloor.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Gameplay.CeresPerspectiveFloors",
       "kind": "static class",
       "scope": "product",
@@ -104148,6 +104135,32 @@
       "disposition": "contract"
     },
     {
+      "type": "SuperMetroid.Core.Gameplay.LatchBeforeFirstRoom",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Gameplay/LatchBeforeFirstRoom.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Gameplay.LatchedFirefleaDarkness",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Gameplay/LatchedFirefleaDarkness.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Gameplay.LoaderSamusPlacement",
       "kind": "record struct",
       "scope": "product",
@@ -104161,6 +104174,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Gameplay.OrdinaryRoomFrameLatch",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Gameplay/OrdinaryRoomFrameLatch.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.Core.Gameplay.PerspectiveFloor",
       "kind": "record struct",
       "scope": "product",
@@ -104172,6 +104198,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Gameplay.PerspectiveFloorFrameLatch",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Gameplay/PerspectiveFloorFrameLatch.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Core.Gameplay.RoomBackgrounds",
@@ -104189,6 +104228,19 @@
         "context-bag"
       ],
       "justified": true
+    },
+    {
+      "type": "SuperMetroid.Core.Gameplay.RoomFrameLatch",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Gameplay/RoomFrameLatch.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Core.Gameplay.SamusColourEffects",
@@ -121220,6 +121272,38 @@
       "disposition": "record"
     },
     {
+      "type": "SuperMetroid.Core.Runtime.GameplayDisplayFrameAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Runtime/GameplayDisplayFrameAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Runtime.GameplayDisplayFrameAccess.extension(SuperMetroid.Core.Runtime.GameplayDisplayFrame)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Runtime/GameplayDisplayFrameAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.Core.Runtime.GameplayFadeOut",
       "kind": "class",
       "scope": "product",
@@ -121299,6 +121383,19 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Runtime.OrdinaryGameplayBase",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Runtime/OrdinaryGameplayBase.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Core.Runtime.RuntimeFrameAudio",
@@ -133690,6 +133787,38 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.World.ActiveRoomStateAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/World/ActiveRoomStateAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.World.ActiveRoomStateAccess.extension(SuperMetroid.Core.World.ActiveRoomState)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/World/ActiveRoomStateAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.World.BackgroundScrollPhase",

@@ -4,7 +4,6 @@ using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Death;
-using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Samus;

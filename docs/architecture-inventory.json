@@ -60203,40 +60203,27 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Compatibility.KraidMouthHitBound",
+      "type": "SuperMetroid.Core.Compatibility.KraidMouthHitReach",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Compatibility/KraidMouthHitBound.cs"
+        "csharp/src/SuperMetroid.Core/Compatibility/KraidMouthHitReach.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Compatibility.KraidMouthHitBound.Family",
+      "type": "SuperMetroid.Core.Compatibility.KraidMouthHitReach.DamagingHit",
       "kind": "enum",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Compatibility/KraidMouthHitBound.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Compatibility.KraidMouthHitBound.Hit",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Compatibility/KraidMouthHitBound.cs"
+        "csharp/src/SuperMetroid.Core/Compatibility/KraidMouthHitReach.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -60623,19 +60610,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Compatibility.PerSoundLibrary\u003CTLibrary, TValue\u003E",
-      "kind": "struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Compatibility/PerSoundLibrary.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Compatibility.PeriodicDamageEnergyFraction",
@@ -61421,6 +61395,19 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.SoundAcceptanceClock\u003CTLibrary, TSound\u003E.ByLibrary\u003CTValue\u003E",
+      "kind": "struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/SoundAcceptanceClock.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Compatibility.SoundAcknowledgement\u003CTSound\u003E",
@@ -99182,6 +99169,38 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Fx.ColourEffectSystemAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Fx/ColourEffectSystemAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Fx.ColourEffectSystemAccess.extension(SuperMetroid.Core.Fx.ColourEffectSystem)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Fx/ColourEffectSystemAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.Core.Fx.ColourEffects.BeaconPaletteFxColorDefinitionsConstants",
       "kind": "static class",
       "scope": "test",
@@ -109183,7 +109202,7 @@
     },
     {
       "type": "SuperMetroid.Core.Rendering.XrayRoomBlendMode",
-      "kind": "enum",
+      "kind": "record",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
@@ -109192,7 +109211,7 @@
         "csharp/src/SuperMetroid.Core/Rendering/XrayRoomBlendMode.cs"
       ],
       "partial": "none",
-      "disposition": "value"
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Core.Rendering.XrayRoomDisplayRules",
@@ -128581,6 +128600,32 @@
       "disposition": "record"
     },
     {
+      "type": "SuperMetroid.Core.Samus.Poses.SamusLookupFailureSetup",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Poses/SamusLookupFailureSetup.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Poses.SamusLookupFailureSetups",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Poses/SamusLookupFailureSetups.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Samus.Poses.SamusMomentumResponses",
       "kind": "static class",
       "scope": "product",
@@ -128960,6 +129005,22 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Samus.Poses.SamusPoseMetadataConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Samus/Poses/SamusPoseMetadataConstants.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Samus.Poses.SamusPoseMirror",
       "kind": "static class",
       "scope": "product",
@@ -129075,6 +129136,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Samus/Poses/SamusPoseTransitionLookup.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Poses.SamusPoseTransitionSetup",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Poses/SamusPoseTransitionSetup.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -155176,6 +155250,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Bosses/Kraid/KraidInstalledPresentationVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Bosses.Kraid.KraidMouthHitReachVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Bosses/Kraid/KraidMouthHitReachVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -181445,6 +181532,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Verification.Samus.Poses.PoseInputDefinitionsVerification.NativeResult",
+      "kind": "record struct",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Samus/Poses/PoseInputDefinitionsVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Verification.Samus.Poses.PoseProjectileOriginVerification",
       "kind": "static class",
       "scope": "test",
@@ -181453,6 +181553,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Samus/Poses/PoseProjectileOriginVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Samus.Poses.PoseTransitionSetupVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Samus/Poses/PoseTransitionSetupVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"

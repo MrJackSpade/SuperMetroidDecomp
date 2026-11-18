@@ -26,11 +26,11 @@ public sealed class SkulteraEnemyState
     /// <summary>The vertical oscillation's phase, carried on around the circle.</summary>
     public RotationAngle Angle { get; internal set; }
 
-    /// <summary>Oscillation offset retained from the preceding movement attempt, in pixels (at most the radius either way).</summary>
+    /// <summary>
+    /// Oscillation offset retained from the preceding movement attempt, in pixels (at most the radius either way): each
+    /// update bobs the Skultera by its new offset's difference from this one (#2512).
+    /// </summary>
     public int PreviousYOffset { get; internal set; }
-
-    /// <summary>Current oscillation offset in pixels (at most the radius either way).</summary>
-    public int CurrentYOffset { get; internal set; }
 
     /// <summary>
     /// Advances the oscillation phase by the wave's step of <paramref name="settings"/>, around the circle: forward while

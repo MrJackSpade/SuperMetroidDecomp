@@ -470,12 +470,12 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Reverses Yard's crawl direction and associated graphics, properties, and velocities unless it is hidden or holding still.</summary>
-    internal static bool TurnYardAround(YardEnemyState state)
+    internal static void TurnYardAround(YardEnemyState state)
     {
         if (state.Behavior == YardBehavior.Hiding ||
             state.Movement == YardMovement.HoldingStill)
         {
-            return false;
+            return;
         }
 
         state.Direction = YardDirections.ForDirection(state.Direction).OppositeDirection;
@@ -488,7 +488,6 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Movement = YardMovement.Crawling;
         state.Crawl = definition.Crawl;
         state.SuppressTurns();
-        return true;
     }
 
     /// <summary>

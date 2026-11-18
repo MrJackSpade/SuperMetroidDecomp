@@ -36,7 +36,7 @@ internal static class WreckedShipGhostBobbingVerification
             var state = new WreckedShipGhostEnemyState(WreckedShipGhostAction.InitialInvisibleDelay)
             {
                 Action = WreckedShipGhostAction.BobbingWhileVisible,
-                PhaseTimer = 120,
+                VisibleTimer = 120,
                 BobbingOriginY = originY,
                 VerticalVelocity = SignedSixteenSixteen.FromParts(whole, 0),
             };

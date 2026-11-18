@@ -1,30 +1,42 @@
 namespace SuperMetroid.Core.Enemies.WreckedShip;
 
 /// <summary>
-/// One step of a Wrecked Ship ghost's flicker as it appears (#2451), in the order the ghost takes them: each lasts its
-/// updates before the next starts, and starting it may show the ghost. The flicker ends when the last step does.
+/// One step of a Wrecked Ship ghost's flicker as it appears (#2451), in the order the ghost takes them: each carries how
+/// long it lasts before the next starts, what starting it does to the ghost's visibility, and the step after it (#2512).
+/// The flicker ends when the last step does.
 /// </summary>
-public readonly record struct WreckedShipGhostFlickerStep
+public sealed class WreckedShipGhostFlickerStep
 {
-    /// <summary>The step at <paramref name="step"/> of the flicker.</summary>
-    private WreckedShipGhostFlickerStep(int step) => Step = step;
+    /// <summary>The step of <paramref name="timing"/>, followed by <paramref name="next"/>.</summary>
+    private WreckedShipGhostFlickerStep(WreckedShipGhostFlickerTiming timing, WreckedShipGhostFlickerStep? next)
+    {
+        Duration = timing.Duration;
+        Visibility = timing.Visibility;
+        Next = next;
+    }
 
-    /// <summary>The step's place in the flicker, from zero.</summary>
-    private int Step { get; }
-
-    /// <summary>Every step of the flicker, in the order the ghost takes them.</summary>
-    public static IReadOnlyList<WreckedShipGhostFlickerStep> All { get; } =
-        [.. Enumerable.Range(0, WreckedShipGhostAppearanceDefinitions.FlickerTimings.Count).Select(step => new WreckedShipGhostFlickerStep(step))];
-
-    /// <summary>The flicker's first step, which each appearance and each visible spell starts the flicker at.</summary>
-    public static WreckedShipGhostFlickerStep First => All[0];
+    /// <summary>
+    /// The flicker's first step, which each appearance starts the flicker at; the steps after it follow
+    /// <see cref="WreckedShipGhostAppearanceDefinitions.FlickerTimings"/> in order.
+    /// </summary>
+    public static WreckedShipGhostFlickerStep First { get; } = Schedule(WreckedShipGhostAppearanceDefinitions.FlickerTimings);
 
     /// <summary>The updates the step lasts before the next one starts.</summary>
-    public int Duration => WreckedShipGhostAppearanceDefinitions.FlickerTimings[Step].Duration;
+    public int Duration { get; }
 
     /// <summary>What starting the step does to the ghost's visibility.</summary>
-    public WreckedShipGhostFlickerVisibility Visibility => WreckedShipGhostAppearanceDefinitions.FlickerTimings[Step].Visibility;
+    public WreckedShipGhostFlickerVisibility Visibility { get; }
 
     /// <summary>The step after this one; none after the last, whose end ends the flicker.</summary>
-    public WreckedShipGhostFlickerStep? Next => Step + 1 < All.Count ? All[Step + 1] : null;
+    public WreckedShipGhostFlickerStep? Next { get; }
+
+    /// <summary>The first of the steps of <paramref name="timings"/>, each followed by the next.</summary>
+    /// <exception cref="InvalidDataException">The flicker has no step.</exception>
+    private static WreckedShipGhostFlickerStep Schedule(IReadOnlyList<WreckedShipGhostFlickerTiming> timings)
+    {
+        WreckedShipGhostFlickerStep? next = null;
+        for (int step = timings.Count - 1; step >= 0; step--)
+            next = new(timings[step], next);
+        return next ?? throw new InvalidDataException("The ghost's flicker has no step.");
+    }
 }

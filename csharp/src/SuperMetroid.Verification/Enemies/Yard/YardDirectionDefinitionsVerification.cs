@@ -92,8 +92,7 @@ internal static class YardDirectionDefinitionsVerification
             state.Direction = SuperMetroid.AssetExtraction.Enemies.YardDirectionCodec.At(direction);
             state.Movement = YardMovement.Crawling;
             state.Crawl = initial.Crawl;
-            bool turned = YardEnemyBehavior.TurnYardAround(state);
-            AssertTrue(turned, $"Yard direction {direction} production turn");
+            YardEnemyBehavior.TurnYardAround(state);
             YardDirectionDefinition opposite =
                 YardDirections.ForDirection(initial.OppositeDirection);
             AssertEqual(initial.OppositeDirection, state.Direction,

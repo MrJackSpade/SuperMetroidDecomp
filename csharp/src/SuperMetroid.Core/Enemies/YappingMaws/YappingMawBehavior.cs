@@ -182,7 +182,6 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         state.CurlPhase = YappingMawCurlPhase.Extending;
         state.SegmentRadius = state.DistanceToSamus / 2;
         state.CurlAngle = state.AimAngle.ToTrigonometryAngle().ToAngle();
-        state.MirroredBend = state.CurlAngle >= RotationAngle.HalfTurn;
 
         state.Baseline = new Offset16<RoomPixels>(
             CalculateYappingMawX(TrigonometryAngle.HalfTurn, state.SegmentRadius),

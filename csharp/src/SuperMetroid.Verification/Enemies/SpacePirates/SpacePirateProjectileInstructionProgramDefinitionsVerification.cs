@@ -202,7 +202,7 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
                 nativeOutbound = false;
             wrapped |= nativeReturning && nativeWord == 0;
             AssertEqual(nativeStep, claw.StepAlongThrow(), $"claw step on update {update}");
-            AssertEqual(nativeOutbound, claw.Outbound, $"claw direction after update {update}");
+            AssertEqual(nativeOutbound ? NinjaPirateClawFlight.FlyingOut : NinjaPirateClawFlight.ComingBack, claw.Flight, $"claw flight after update {update}");
         }
         AssertTrue(wrapped, "the returning claw's speed passes the top of its range within the checked updates");
     }

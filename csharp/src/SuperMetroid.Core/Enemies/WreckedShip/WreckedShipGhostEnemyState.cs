@@ -1,7 +1,10 @@
 using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.WreckedShip;
 
-/// <summary>The state of the Wrecked Ship ghost: its behaviour, its flicker and its bobbing.</summary>
+/// <summary>
+/// The state of the Wrecked Ship ghost: its behaviour, a countdown for each of its timed phases (#2512), its flicker and its
+/// bobbing.
+/// </summary>
 public sealed class WreckedShipGhostEnemyState
 {
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
@@ -13,14 +16,33 @@ public sealed class WreckedShipGhostEnemyState
     /// <summary>The current behaviour.</summary>
     public WreckedShipGhostAction Action { get; internal set; }
 
-    /// <summary>Initial/reappearance delay, flicker interval, or visible lifetime, depending on <see cref="Action"/>.</summary>
-    public int PhaseTimer { get; internal set; }
+    /// <summary>
+    /// The hidden updates left before the ghost watches Samus (<see cref="WreckedShipGhostAction.InitialInvisibleDelay"/>):
+    /// its first delay once placed, and its reappearance delay after each vanishing. The update it runs out on starts the
+    /// watch.
+    /// </summary>
+    public int InvisibleDelay { get; internal set; }
 
     /// <summary>
-    /// The flicker step that starts when the current one's <see cref="PhaseTimer"/> runs out (#2451); none once the last step
-    /// has started, whose end ends the flicker. Each appearance and each visible spell starts it at the first step.
+    /// The updates left before the flicker's next step starts while the ghost brightens and fades in (#2512): the update it
+    /// runs out on starts the step. Zero once the last step has run out, when the flicker has ended.
     /// </summary>
-    public WreckedShipGhostFlickerStep? NextFlickerStep { get; internal set; } = WreckedShipGhostFlickerStep.First;
+    public int FlickerTimer { get; internal set; }
+
+    /// <summary>
+    /// The flicker step that starts when <see cref="FlickerTimer"/> runs out (#2451); none once the last step has started,
+    /// whose end ends the flicker. Each appearance starts the flicker before its first step.
+    /// </summary>
+    public WreckedShipGhostFlickerStep? NextFlickerStep { get; internal set; }
+
+    /// <summary>Whether the appearance's flicker still runs: its last step has not yet run out.</summary>
+    internal bool IsFlickering => FlickerTimer != 0;
+
+    /// <summary>
+    /// The updates left of the ghost's visible bob (<see cref="WreckedShipGhostAction.BobbingWhileVisible"/>): the update it
+    /// runs out on starts the ghost vanishing.
+    /// </summary>
+    public int VisibleTimer { get; internal set; }
 
     /// <summary>
     /// The room Y about which the visible ghost oscillates, where it appeared: 64 pixels above a rising Samus near a

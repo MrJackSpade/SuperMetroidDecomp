@@ -62,6 +62,11 @@ public static class WreckedShipGhostAppearanceDefinitions
     /// <summary>How long a new ghost waits before it watches Samus, in updates: its 120-update appearance delay and a further 160.</summary>
     internal const int InitialDelay = 280;
 
+    /// <summary>
+    /// The updates from the ghost's appearance to its flicker's first step: the first update it brightens starts the step.
+    /// </summary>
+    internal const int FlickerFirstStepDelay = 1;
+
     /// <summary>How long the ghost stays visible once its appearance starts bobbing, in updates.</summary>
     internal const int VisibleDuration = 120;
 

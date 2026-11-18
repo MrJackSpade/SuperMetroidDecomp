@@ -57,9 +57,10 @@ internal static class EnemyLinearSpeedsVerification
             // The Ripper flies its spawn speed toward its heading (#2450).
             place.SetSpawnSettings(new RipperSpawnSettings(EnemyLinearSpeedTable.Speed(index), HorizontalDirection.Right));
             var ripperState = new RipperEnemyState() { Heading = HorizontalDirection.Right };
-            AssertEqual(positive, RipperBehavior.FlyingVelocity(place, ripperState), "Ripper right speed");
+            SignedSixteenSixteen ripperSpeed = place.SpawnSettings<RipperSpawnSettings>().Speed;
+            AssertEqual(positive, RipperBehavior.FlyingVelocity(ripperSpeed, ripperState.Heading), "Ripper right speed");
             RipperBehavior.Reverse(ripperState);
-            AssertEqual(negative, RipperBehavior.FlyingVelocity(place, ripperState), "Ripper reversal speed");
+            AssertEqual(negative, RipperBehavior.FlyingVelocity(ripperSpeed, ripperState.Heading), "Ripper reversal speed");
         }
         Console.WriteLine("Compiled linear speeds: all 65 rows match both cartridge copies and four direct family callers without speed-table ROM reads.");
     }

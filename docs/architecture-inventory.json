@@ -60303,19 +60303,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Compatibility.MultipliedDeceleration",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Compatibility/MultipliedDeceleration.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Core.Compatibility.MultiviolaLeftOrUpSpeed",
       "kind": "static class",
       "scope": "product",
@@ -122441,35 +122428,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Samus.Colours.SamusChargeShadeDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Colours/SamusChargeShadeDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Samus.Colours.SamusChargeShadeDefinitionsConstants",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Samus/Colours/SamusChargeShadeDefinitionsConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
       "type": "SuperMetroid.Core.Samus.Colours.SamusColourDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -122799,22 +122757,6 @@
     },
     {
       "type": "SuperMetroid.Core.Samus.Colours.SamusPaletteNative.extension(SuperMetroid.AssetExtraction.Samus.SamusFullBodyCycleColorFormat)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Samus/Colours/SamusPaletteNative.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Samus.Colours.SamusPaletteNative.extension(SuperMetroid.Core.Samus.Colours.SamusChargeShadeDefinitions)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -178358,19 +178300,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Samus/Movement/MoonwalkRanIntoWallVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Verification.Samus.Movement.MultipliedDecelerationVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Samus/Movement/MultipliedDecelerationVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"

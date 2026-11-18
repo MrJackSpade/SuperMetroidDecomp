@@ -66094,6 +66094,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Boyon.BoyonPhase",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Boyon/BoyonPhase.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Boyon.BoyonSegment",
       "kind": "enum",
       "scope": "product",
@@ -66390,7 +66403,7 @@
     },
     {
       "type": "SuperMetroid.Core.Enemies.Cacatac.CacatacCue",
-      "kind": "record struct",
+      "kind": "record",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
@@ -66399,7 +66412,33 @@
         "csharp/src/SuperMetroid.Core/Enemies/Cacatac/CacatacCue.cs"
       ],
       "partial": "none",
-      "disposition": "value"
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Cacatac.CacatacCue.Signal",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Cacatac/CacatacCue.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Cacatac.CacatacCue.SpawnSpike",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Cacatac/CacatacCue.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Cacatac.CacatacCueKind",
@@ -67738,7 +67777,7 @@
         "csharp/src/SuperMetroid.Core/Enemies/Corpses/DeadSidehopperLaunchDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Corpses.DeadSidehopperLayout",
@@ -79413,19 +79452,6 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Projectiles.Artwork.EnemyProjectileEmptyFrameDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Projectiles/Artwork/EnemyProjectileEmptyFrameDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.Projectiles.Artwork.EnemyProjectileRoomPictureDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -79804,19 +79830,6 @@
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileEmptyFrames",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Projectiles/EnemyProjectileEmptyFrames.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileEngine",

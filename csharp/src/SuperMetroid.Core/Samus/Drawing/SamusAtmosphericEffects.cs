@@ -38,7 +38,8 @@ internal static class SamusAtmosphericEffects
     internal static bool IsRunningFootContact(SamusAnimationTarget strideFrame)
     {
         if (strideFrame.Segment != SamusAnimationSegmentName.Run ||
-            (uint)strideFrame.Frame >= (uint)SamusAnimationDelayDefinitions.RunningAnimation.Segment(SamusAnimationSegmentName.Run).Delays.Count)
+            strideFrame.Frame < 0 ||
+            strideFrame.Frame >= SamusAnimationDelayDefinitions.RunningAnimation.Segment(SamusAnimationSegmentName.Run).Delays.Count)
             throw new InvalidDataException($"Running animation frame {strideFrame} is outside the run's stride.");
         return strideFrame == SamusAnimationFrames.RunFirstFootContact || strideFrame == SamusAnimationFrames.RunSecondFootContact;
     }

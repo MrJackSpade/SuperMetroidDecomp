@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Samus.Poses;
 
 namespace SuperMetroid.Core.Samus.Movement;
 
@@ -92,10 +93,10 @@ public sealed class SamusKinematicsState
     public FixedVector<RoomPixels> ExtraDisplacement { get; set; }
 
     /// <summary>
-    /// Collision half-extents: X is always five; Y is the
-    /// pose-defined radius.
+    /// Collision half-extents: X is always every pose's horizontal radius
+    /// (<see cref="SamusPoseCollisionDefinitions.HorizontalRadius"/>); Y is the pose-defined radius.
     /// </summary>
-    public Extent16<RoomPixels> Radius { get; set; } = new(5, 0);
+    public Extent16<RoomPixels> Radius { get; set; } = new(SamusPoseCollisionDefinitions.HorizontalRadius, 0);
 
     /// <summary>Vertical speed magnitude; its direction is <see cref="YDirection"/>.</summary>
     public UnsignedSixteenSixteen YSpeed { get; set; }

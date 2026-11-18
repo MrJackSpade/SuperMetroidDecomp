@@ -209,7 +209,6 @@ public static class SamusBlockCollision
                         // when reached through the horizontal step.
                         collided = SamusInsideBlockReactions.ReactCollision(new(state, state.CollisionBodyAttack(owner)), terrain, block, Axis.Horizontal,
                             ref acceptedDisplacement, out _, move.BlockReactionDirection) == SpecialAirCollisionOutcome.Blocks;
-                        if (collided) _ = block;
                         if (block.Behavior.SpecialAir == SpecialAirReaction.ScrollTrigger &&
                             !terrain.RoomObjects.Scrolls.TryNotifyScrollTouch(block.At))
                         {
@@ -439,9 +438,9 @@ public static class SamusBlockCollision
             mover.ProjectileInheritance.Record(
                 move.Displacement.IsNegative ? VerticalDirection.Up : VerticalDirection.Down,
                 acceptedDisplacement);
-        // Publishes sand contact after either signed movement direction.
-        // Pose probes instead consume only the block reaction's collision result.
-        if (move.PublishQuicksandGrounding && sandContact)
+        // Publishes sand contact after either signed movement direction. A changed pose's probe
+        // (ProbeChangedPoseVertical) instead consumes only the block reaction's collision result.
+        if (sandContact)
             collided = true;
         return new BlockMoveResult(
             acceptedDisplacement,
@@ -1112,8 +1111,8 @@ public static class SamusBlockCollision
         int down = GrappleVerticalOverlap(level, state, direction: VerticalDirection.Up);
         if (up == 0 || down != 0) return;
         state.Position -= new Offset16<RoomPixels>(0, up);
-        // Tall bodies may overlap two rows. The check repeats once, not until clear.
-        if (state.Radius.Y >= 16)
+        // A body whose radius reaches a block's height may overlap two rows. The check repeats once, not until clear.
+        if (state.Radius.Y >= RoomGridConversions.BlockPixels)
             state.Position = state.Position.WithWrappedWholeY(state.Position.Y.Whole - GrappleVerticalOverlap(level, state, direction: VerticalDirection.Down));
     }
 

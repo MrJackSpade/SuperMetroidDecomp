@@ -59,7 +59,7 @@ internal static class SamusProjectilePlayback
     internal static AnimationPlayback<SamusProjectileSegment> PlaybackAt(SamusProjectileSegmentBeat beat)
     {
         Animation<SamusProjectileSegment> animation = SamusProjectileAnimations.StartingWith(beat.Segment);
-        if ((uint)beat.Beat > (uint)animation.Phases[0].BeatCount)
+        if (beat.Beat < 0 || beat.Beat > animation.Phases[0].BeatCount)
             throw new InvalidDataException($"Samus projectile segment {beat.Segment} has no place after beat {beat.Beat}.");
         return new(animation, beat.Beat == 0 ? AnimationPlace.StartOfAnimation : new AnimationPlace(0, beat.Beat));
     }

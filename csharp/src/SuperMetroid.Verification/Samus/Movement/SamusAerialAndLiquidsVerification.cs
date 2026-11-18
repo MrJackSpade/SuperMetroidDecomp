@@ -705,12 +705,12 @@ empty, screwRepeat, GameplayAction.Jump, 0, GameplayAction.Jump, roomObjects: Sa
     // Samus names shades (#1512); the import resolves them from the seeded suits and cycles.
     var aerialSources = InstalledFixtures.SamusShadeSources with { Suits = suitColors, FullBodyCycles = cycleColors.ToColours() };
     var samusColours = new SamusColours();
-    AssertTrue(palettes.UpdateSpeedBoosterGlow(samusColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.SpinJumping, AnimationOnSpinStart = (0x1b) == 0, AnimationPastScrewAttackSpin = (0x1b) >= 27, AnimationBeforeWallJumpSpin = (0x1b) < 3, EquippedItems = SamusEquipmentFlags.ScrewAttack }),
+    AssertTrue(palettes.UpdateSpeedBoosterGlow(samusColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.SpinJumping, AnimationOnSpinStart = (0x1b) == 0, AnimationPastScrewAttackSpin = (0x1b) >= 27, AnimationBeforeWallJumpSpin = (0x1b) < 3, EquippedItems = SamusEquipmentFlags.ScrewAttack, SuppressActiveSpeedBoosterGlow = false, BottomBoundarySubmerged = false }),
         "ending Screw frame copies normal suit palette");
     AssertEqual(0x0111, samusColours.ShownSuit(aerialSources)[0], "ending Screw frame normal palette");
     for (int frame = 0; frame < 6; frame++)
     {
-        AssertTrue(palettes.UpdateSpeedBoosterGlow(samusColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.SpinJumping, AnimationOnSpinStart = (1) == 0, AnimationPastScrewAttackSpin = (1) >= 27, AnimationBeforeWallJumpSpin = (1) < 3, EquippedItems = SamusEquipmentFlags.ScrewAttack }),
+        AssertTrue(palettes.UpdateSpeedBoosterGlow(samusColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.SpinJumping, AnimationOnSpinStart = (1) == 0, AnimationPastScrewAttackSpin = (1) >= 27, AnimationBeforeWallJumpSpin = (1) < 3, EquippedItems = SamusEquipmentFlags.ScrewAttack, SuppressActiveSpeedBoosterGlow = false, BottomBoundarySubmerged = false }),
             $"Screw palette frame {frame} copies");
         AssertEqual(unchecked((ushort)(0x1200 + Math.Min(frame, 6 - frame))), samusColours.ShownSuit(aerialSources)[0],
             $"Screw palette frame {frame} ROM color");

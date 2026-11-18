@@ -18,9 +18,6 @@ public sealed record VerticalBlockMove
     /// <summary>Whether a door block the move touches publishes its door transition and other side effects.</summary>
     public bool PublishDoorSideEffects { get; init; } = true;
 
-    /// <summary>Whether landing in quicksand publishes her grounding in it.</summary>
-    public bool PublishQuicksandGrounding { get; init; } = true;
-
     /// <summary>
     /// The direction the touched blocks react to, or null to take the move's own; the nondirectional probe suppresses
     /// directional station activation.

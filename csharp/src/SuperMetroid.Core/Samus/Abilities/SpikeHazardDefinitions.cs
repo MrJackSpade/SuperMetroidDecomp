@@ -13,7 +13,7 @@ public static class SpikeHazardDefinitions
     {
         [SpikeReaction.HeavySpike] = SpikeBlockBehavior.Heavy,
         [SpikeReaction.LightSpike] = SpikeBlockBehavior.Light,
-        [SpikeReaction.TurretSpike] = SpikeBlockBehavior.AlternateLight,
+        [SpikeReaction.TurretSpike] = SpikeBlockBehavior.Light,
     };
 
     /// <summary>Energy a heavy solid spike takes.</summary>

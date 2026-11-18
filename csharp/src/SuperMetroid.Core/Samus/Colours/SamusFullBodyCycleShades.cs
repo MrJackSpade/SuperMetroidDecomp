@@ -59,7 +59,7 @@ public static class SamusFullBodyCycleShades
         ShadeCycleShape shape,
         out SamusFullBodyCycleShade shade)
     {
-        if ((uint)step >= (uint)steps)
+        if (step < 0 || step >= steps)
         {
             shade = default;
             return false;

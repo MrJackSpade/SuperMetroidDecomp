@@ -87,7 +87,7 @@ internal static class SamusFullBodyCycleColorsVerification
                 };
                 PrivateState.Set(speed, nameof(SamusHorizontalSpeedState.CycleShadeTimer), 1);
                 var cgram = new SamusColours();
-                AssertTrue(speed.UpdateSpeedBoosterGlow(cgram, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.Running, AnimationOnSpinStart = (0) == 0, AnimationPastScrewAttackSpin = (0) >= 27, AnimationBeforeWallJumpSpin = (0) < 3, EquippedItems = items }),
+                AssertTrue(speed.UpdateSpeedBoosterGlow(cgram, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.Running, AnimationOnSpinStart = (0) == 0, AnimationPastScrewAttackSpin = (0) >= 27, AnimationBeforeWallJumpSpin = (0) < 3, EquippedItems = items, SuppressActiveSpeedBoosterGlow = false, BottomBoundarySubmerged = false }),
                     "Speed Booster reaches installed color source");
                 AssertColors(cgram, SamusFullBodyCycleFamily.SpeedBooster, suit, phase);
             }
@@ -96,7 +96,7 @@ internal static class SamusFullBodyCycleColorsVerification
             {
                 var screw = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { CycleShadeStep = phase };
                 var cgram = new SamusColours();
-                AssertTrue(screw.UpdateSpeedBoosterGlow(cgram, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.SpinJumping, AnimationOnSpinStart = (1) == 0, AnimationPastScrewAttackSpin = (1) >= 27, AnimationBeforeWallJumpSpin = (1) < 3, EquippedItems = (items | SamusEquipmentFlags.ScrewAttack) }),
+                AssertTrue(screw.UpdateSpeedBoosterGlow(cgram, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.SpinJumping, AnimationOnSpinStart = (1) == 0, AnimationPastScrewAttackSpin = (1) >= 27, AnimationBeforeWallJumpSpin = (1) < 3, EquippedItems = (items | SamusEquipmentFlags.ScrewAttack), SuppressActiveSpeedBoosterGlow = false, BottomBoundarySubmerged = false }),
                     "Screw Attack reaches installed color source");
                 AssertColors(cgram, SamusFullBodyCycleFamily.ScrewAttack, suit,
                     Math.Min(phase, 6 - phase));

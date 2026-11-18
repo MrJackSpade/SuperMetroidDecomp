@@ -345,8 +345,6 @@ public sealed class SamusSuitPickupState
     /// <summary>Clears the light beam's window and colour, then releases Samus input after the last light-beam stage.</summary>
     private void Finish(SamusState samus)
     {
-        BeamColor = new FadeLevelColour(SamusShadeDefinitions.SuitPickup.ResetRed, SamusShadeDefinitions.SuitPickup.ResetGreen,
-            SamusShadeDefinitions.SuitPickup.ResetBlue).ToColour();
         Beam = SamusSuitPickupBeam.None;
         Stage = SamusSuitPickupStage.LightBeamAppears;
         _lightBeamLines = 0;

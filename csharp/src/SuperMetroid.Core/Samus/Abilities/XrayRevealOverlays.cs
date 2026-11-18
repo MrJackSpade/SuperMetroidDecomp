@@ -55,7 +55,7 @@ public static class XrayRevealOverlays
         Offset16<RoomBlocks> visible = block - foregroundPosition.ToRoomBlock();
         int x = visible.X, y = visible.Y;
         // Only an overlay inside the revealed area shows.
-        if ((uint)x >= XrayRevealArea.Columns || (uint)y >= XrayRevealArea.Rows) return;
+        if (x < 0 || x >= XrayRevealArea.Columns || y < 0 || y >= XrayRevealArea.Rows) return;
         blocks[y * XrayRevealArea.Columns + x] = revealed;
     }
 }

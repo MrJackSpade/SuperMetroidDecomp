@@ -55,7 +55,7 @@ public static class SamusTerrainHazardCollision
             SpikeBlockBehavior.Heavy => samus.HeavySpikeDamageEnabled
                 ? SpikeHazardDefinitions.HeavySpikeDamage
                 : 0,
-            SpikeBlockBehavior.Light or SpikeBlockBehavior.AlternateLight =>
+            SpikeBlockBehavior.Light =>
                 SpikeHazardDefinitions.LightSpikeDamage,
             _ => throw new InvalidOperationException($"Undefined SpikeBlockBehavior {behavior}."),
         };

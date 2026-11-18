@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Frontend.Artwork;
-using SuperMetroid.Core;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using System.Text.Json;

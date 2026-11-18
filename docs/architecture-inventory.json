@@ -120487,19 +120487,6 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Samus.Abilities.SamusXrayState.XrayPosture",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Abilities/SamusXrayState.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Samus.Abilities.SamusXrayStateAccess",
       "kind": "static class",
       "scope": "test",
@@ -120798,17 +120785,17 @@
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.Core.Samus.Abilities.XrayRevealArea",
-      "kind": "static class",
+      "type": "SuperMetroid.Core.Samus.Abilities.XrayPosture",
+      "kind": "enum",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Abilities/XrayRevealArea.cs"
+        "csharp/src/SuperMetroid.Core/Samus/Abilities/XrayPosture.cs"
       ],
       "partial": "none",
-      "disposition": "definition-catalog"
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Samus.Abilities.XrayRevealDefinition",
@@ -120864,6 +120851,19 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Abilities.XrayRevealGrid",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Abilities/XrayRevealGrid.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Samus.Abilities.XrayRevealMap",
@@ -122801,6 +122801,19 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.Core.Samus.Colours.SamusShadeDefinitions.Charge",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Colours/SamusShadeDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Samus.Colours.SamusShadeDefinitions.CrystalFlash",
       "kind": "static class",
       "scope": "product",
@@ -122828,6 +122841,19 @@
     },
     {
       "type": "SuperMetroid.Core.Samus.Colours.SamusShadeDefinitions.FullBodyCycles",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Colours/SamusShadeDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Colours.SamusShadeDefinitions.HyperBeamCycle",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
@@ -124175,6 +124201,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Samus.Grapple.GrappleFiringResponse",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Grapple/GrappleFiringResponse.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Samus.Grapple.GrappleFlareStage",
       "kind": "enum",
       "scope": "product",
@@ -125360,6 +125399,19 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Movement.SamusKnockbackResponse",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Movement/SamusKnockbackResponse.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Samus.Movement.SamusLandingParticlePair",

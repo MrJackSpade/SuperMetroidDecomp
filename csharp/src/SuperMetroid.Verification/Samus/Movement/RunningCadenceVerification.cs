@@ -1,4 +1,3 @@
-using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Samus;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Input;

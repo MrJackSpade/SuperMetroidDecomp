@@ -275,9 +275,14 @@ internal sealed class TorizoAttacks
     /// </summary>
     internal void SpawnBombTorizoLowHealthDrool(RoomEnemyPlace torizo)
     {
-        EnemyProjectile? projectile = SpawnDroolProjectile(torizo, RoomEnemyProjectileKind.BombTorizoLowHealthDrool);
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return;
+        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
+            projectile,
+            RoomEnemyProjectileKind.BombTorizoLowHealthDrool,
+            TorizoProjectiles,
+            SpriteGraphics.SpawnedBy(torizo));
         projectile.StartAnimation(new TorizoProjectileAnimation(SelectLowHealthDroolAnimation(_room.Random.Generate())));
         int random = _room.Random.Generate();
         Offset16<RoomPixels> drool = TorizoProjectilePlacementDefinitions.LowHealthDrool;
@@ -297,9 +302,14 @@ internal sealed class TorizoAttacks
     /// </summary>
     internal void SpawnTorizoInitialDrool(RoomEnemyPlace torizo)
     {
-        EnemyProjectile? projectile = SpawnDroolProjectile(torizo, RoomEnemyProjectileKind.TorizoInitialDrool);
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return;
+        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
+            projectile,
+            RoomEnemyProjectileKind.TorizoInitialDrool,
+            TorizoProjectiles,
+            SpriteGraphics.SpawnedBy(torizo));
         projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectileSegment.DroolNoDelay));
         int random = _room.Random.Generate();
         // Every vertical and horizontal move of a Torizo is tested against the room's terrain, solid past its edges,
@@ -318,20 +328,6 @@ internal sealed class TorizoAttacks
                 ? jitteredX + TorizoMotionDefinitions.InitialDroolSideOffset
                 : jitteredX - TorizoMotionDefinitions.InitialDroolSideOffset);
         projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.Zero);
-    }
-
-    /// <summary>A drool of <paramref name="kind"/> in a free projectile place, set up from its definition; null when no place is free.</summary>
-    private EnemyProjectile? SpawnDroolProjectile(RoomEnemyPlace torizo, RoomEnemyProjectileKind kind)
-    {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
-        if (projectile is null)
-            return null;
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            projectile,
-            kind,
-            TorizoProjectiles,
-            SpriteGraphics.SpawnedBy(torizo));
-        return projectile;
     }
 
     /// <summary>

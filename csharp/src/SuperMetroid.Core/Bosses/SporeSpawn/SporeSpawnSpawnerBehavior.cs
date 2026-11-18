@@ -11,13 +11,23 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 /// <param name="projectiles">The enemy projectiles, which hold the spores the spawner releases.</param>
 /// <param name="spores">The behaviour every spore the spawner releases runs.</param>
 internal sealed class SporeSpawnSpawnerBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles, SporeSpawnSporeBehavior spores)
-    : EnemyProjectileMotionBehavior<SingleMotion>(SingleMotion.Moving, shot: () => new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.SpawnerClosed)),
+    : EnemyProjectileMotionBehavior<SporeSpawnSpawnerMotion>(SporeSpawnSpawnerMotion.Releasing, shot: () => new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.SpawnerClosed)),
         IEnemyProjectileCues<SporeSpawnProjectileCue>
 {
     /// <summary>Releases spores on the spawner's random cadence while Spore Spawn lets it.</summary>
     /// <param name="context">The spawner and what its pass hands every motion.</param>
-    /// <param name="motion">The spawner's one motion, its releasing.</param>
-    private protected override void Move(EnemyProjectileMotionContext context, SingleMotion motion) => ReleaseSpores(context.Projectile);
+    /// <param name="motion">The spawner's motion, its releasing, which only a spawner's spawn starts.</param>
+    private protected override void Move(EnemyProjectileMotionContext context, SporeSpawnSpawnerMotion motion)
+    {
+        switch (motion)
+        {
+            case SporeSpawnSpawnerMotion.Releasing:
+                ReleaseSpores(context.Projectile);
+                return;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(SporeSpawnSpawnerMotion)} {motion}.");
+        }
+    }
 
     /// <summary>Carries out a cue of the spawner's release: the spore it spawns.</summary>
     public void RunCue(EnemyProjectileCueContext context, SporeSpawnProjectileCue cue)

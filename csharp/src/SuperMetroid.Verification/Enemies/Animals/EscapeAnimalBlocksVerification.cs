@@ -30,7 +30,7 @@ internal static class EscapeAnimalBlocksVerification
         // continue stepping alongside the rescue animation, as it does in gameplay.
         RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, system, AreaId.Crateria), RoomObjectPopulationImporter.Read(bus, 0x8412), RoomObjectServiceFixtures.Uninstalled with { Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => true }, Events = new FixtureEventFlags { HasEvent = system.HasEvent, SetEvent = system.SetEvent } });
         var origin = new Position16<RoomBlocks>(15, 10);
-        roomObjects.EscapeAnimals.SetupCrittersEscapeBlock(level, origin);
+        AssertTrue(roomObjects.EscapeAnimals.TrySpawnCrittersEscapeWall(level, origin), "the rescue wall spawns with a place free");
         AssertEqual(0x4f, RoomBlockBehaviorCodec.Encode(level.GetCollisionBlock(new(15, 10)).Behavior), "rescue origin has the critters-escape behaviour");
         for (int y = 11; y <= 12; y++)
             AssertEqual(RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.VerticalExtension), level.GetCollisionBlock(new(15, checked((ushort)y))).Terrain, "rescue extensions preserve visual tile");

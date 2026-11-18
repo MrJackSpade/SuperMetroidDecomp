@@ -82,6 +82,7 @@ using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresExplosionDe
 using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresFlightActorDefinitionsVerification;
 using static SuperMetroid.Verification.Areas.Ceres.CeresHazeVerification;
 using static SuperMetroid.Verification.Areas.Ceres.CeresElevatorDoorSealVerification;
+using static SuperMetroid.Verification.Enemies.Animals.CrittersEscapeWallSetupVerification;
 using static SuperMetroid.Verification.Bosses.Ridley.CeresRidleyWallVerification;
 using static SuperMetroid.Verification.Areas.Ceres.CeresSteamCollisionDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.ChainsawFiringVerification;
@@ -863,6 +864,9 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyWallJumpDust), () => VerifyWallJumpDust()),
         new(nameof(VerifyCeresHazeLifecycle), () => VerifyCeresHazeLifecycle()),
         new(nameof(VerifyCeresElevatorDoorSealsDuringEscape), () => VerifyCeresElevatorDoorSealsDuringEscape()),
+        new(nameof(VerifyCrittersEscapeWallSetupHoldsItsPlace), () => VerifyCrittersEscapeWallSetupHoldsItsPlace()),
+        new(nameof(VerifyCrittersEscapeWallSetupInAFullRoom), () => VerifyCrittersEscapeWallSetupInAFullRoom()),
+        new(nameof(VerifyCrittersEscapeWallSetupKeepsWhatItsBlocksShow), () => VerifyCrittersEscapeWallSetupKeepsWhatItsBlocksShow()),
         new(nameof(VerifyCeresRidleyWallImpact), () => VerifyCeresRidleyWallImpact()),
         new(nameof(VerifySamusKnockbackAndDamageBoost), () => VerifySamusKnockbackAndDamageBoost()),
         new(nameof(VerifyYappingMawGrappleRelease), () => VerifyYappingMawGrappleRelease()),

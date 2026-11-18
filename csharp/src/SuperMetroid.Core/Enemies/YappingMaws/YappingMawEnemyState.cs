@@ -68,26 +68,13 @@ public sealed class YappingMawEnemyState
     public QuadraticSpeedCurvePlace SpeedCurvePlace { get; internal set; }
 
     /// <summary>
-    /// Which way the curl adds the mark's speed: as it is while the tongue extends, negated after the turn-around
-    /// clamp.
+    /// Whether the tongue curls out or back (#2450): the curl adds the mark's speed while it extends and takes it away
+    /// after the turn-around clamp.
     /// </summary>
-    internal EnemySpeedSign QuadraticSpeedSign { get; set; }
+    internal YappingMawCurlPhase CurlPhase { get; set; }
 
     /// <summary>The updates left in the hold after the tongue fully retracts, the one it releases Samus on included (#2281).</summary>
     public int RetractedDelayTimer { get; internal set; }
-
-    /// <summary>
-    /// The distance from its spawn settings below which an attack starts, in pixels: every authored Maw's lies between
-    /// 48 and 128.
-    /// </summary>
-    public int ActivationDistance { get; internal set; }
-
-    /// <summary>
-    /// Whether <paramref name="distance"/> is strictly inside <see cref="ActivationDistance"/>. The game compares them by
-    /// the sign of their difference; with the target distance at most 32768 and an authored activation distance, that
-    /// difference never reaches half the counting range, so the plain comparison is the game's.
-    /// </summary>
-    internal bool IsWithinActivationDistance(int distance) => distance < ActivationDistance;
 
     /// <summary>Whether the mouth currently holds Samus, owning her input and position.</summary>
     public bool HasGrabbedSamus { get; internal set; }

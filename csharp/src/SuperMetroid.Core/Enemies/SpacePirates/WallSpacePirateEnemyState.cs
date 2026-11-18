@@ -2,16 +2,16 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>
-/// The state of a wall Pirate; the jump endpoints and angular step are the Pirate's own state, which nothing else
-/// reads.
+/// The state of a wall Pirate; the jump its placement chose is the Pirate's own, which nothing else reads.
 /// </summary>
 public sealed class WallSpacePirateEnemyState
 {
-    /// <summary>Starts the state in <paramref name="action"/> on <paramref name="wall"/>.</summary>
-    internal WallSpacePirateEnemyState(WallSpacePirateAction action, HorizontalDirection wall)
+    /// <summary>Starts the state in <paramref name="action"/> on <paramref name="wall"/>, jumping as <paramref name="jump"/> does.</summary>
+    internal WallSpacePirateEnemyState(WallSpacePirateAction action, HorizontalDirection wall, WallSpacePirateJump jump)
     {
         Action = action;
         Wall = wall;
+        Jump = Ensure.NotNull(jump);
     }
 
     /// <summary>The wall the Pirate clings to, or, jumping, the wall it jumps to (#2165).</summary>
@@ -45,10 +45,10 @@ public sealed class WallSpacePirateEnemyState
     /// </summary>
     public RotationAngle WallJumpArcAngle { get; internal set; }
 
-    /// <summary>The rightward jump's endpoint, step 190 of the turn for slow jumps or 192 for fast ones; reaching it installs the right-wall landing.</summary>
-    public RotationAngle RightJumpTargetAngle { get; internal set; }
-    /// <summary>The leftward jump's endpoint, step 66 of the turn for slow jumps or 64 for fast ones; reaching it installs the left-wall landing.</summary>
-    public RotationAngle LeftJumpTargetAngle { get; internal set; }
-    /// <summary>Steps (256ths of a turn) the jump angle turns each update, two for slow or four for fast jumps; subtracted when jumping right and added when jumping left.</summary>
-    public int JumpAngleDelta { get; internal set; }
+    /// <summary>
+    /// The jump between the walls its placement chose (#2450), slow or fast: the endpoints, step 190 or 192 of the turn
+    /// rightward and 66 or 64 leftward, whose reaching installs that wall's landing, and the two or four steps (256ths of a
+    /// turn) its angle turns each update, subtracted jumping right and added jumping left.
+    /// </summary>
+    internal WallSpacePirateJump Jump { get; }
 }

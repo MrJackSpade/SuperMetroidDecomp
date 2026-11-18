@@ -31,7 +31,6 @@ internal static class WaverBehaviorVerification
             WaverEnemyState state = enemies.WaverStates[0] ?? throw new InvalidOperationException("Verification requires enemies.WaverStates[0].");
             state.Playback = new(WaverAnimations.StartingWith(selector == WaverSegment.SteadyFacingLeft ? WaverSegment.SteadyFacingRight : WaverSegment.SteadyFacingLeft),
                 AnimationPlace.StartOfAnimation);
-            state.SpinFinished = false;
             WaverBehavior.SetWaverAnimation(place, state, selector);
 
             WaverSegment program = selector;
@@ -41,7 +40,8 @@ internal static class WaverBehaviorVerification
             ushort[] shown = frames;
             string expected = EnemyInstructionRunner.ExpectedFrames(shown, shown.Select(_ => duration));
             AssertEqual(expected, EnemyInstructionRunner.ShownFrames(place, frames.Length * duration + 2), $"Waver {selector} animation");
-            AssertEqual(selector is WaverSegment.SpinningFacingLeft or WaverSegment.SpinningFacingRight, state.SpinFinished, $"Waver {selector} spin-completion cue");
+            AssertEqual(selector is WaverSegment.SpinningFacingLeft or WaverSegment.SpinningFacingRight ? WaverAction.SpinFinished : WaverAction.Gliding,
+                state.Action, $"Waver {selector} spin-completion cue");
         }
         Console.WriteLine("  Waver behavior: both steady poses and both spins run, and only the spins report completion.");
     }

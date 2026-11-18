@@ -51,7 +51,7 @@ internal static class ShutterScrewContactVerification
             var samus = runtime.Player.IntroducedSamus;
             RoomEnemyPlace shutter = runtime.Enemies.Places.InUpdateOrder[ShutterPlace];
             VerticalShutterEnemyState state = (runtime.Enemies.VerticalShutterStates[ShutterPlace] ?? throw new InvalidOperationException("Verification requires runtime.Enemies.VerticalShutterStates[10]."));
-            AssertEqual(ShutterTriggerMode.OneShotReaction, state.TriggerMode, "the movie's shutter waits only for a shot");
+            AssertEqual(ShutterTriggerMode.OneShotReaction, shutter.SpawnSettings<ShutterSpawnSettings>().TriggerMode, "the movie's shutter waits only for a shot");
 
             samus.HorizontalSpeed.BodyAttack = contactDamage;
             for (int direction = 0; direction < ContactDirections.Length; direction++)

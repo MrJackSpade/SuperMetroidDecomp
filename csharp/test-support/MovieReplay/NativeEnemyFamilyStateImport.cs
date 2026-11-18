@@ -543,13 +543,17 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (enemy.SpeciesState<VerticalShutterEnemyState>() is { } verticalShutterRecord)
         {
-            verticalShutterRecord.Action = ShuttersNativeWords.DecodeVerticalShutterAction(words.A, verticalShutterRecord.TriggerMode);
+            ShutterSpawnSettings verticalShutterSettings = enemy.SpawnSettings<ShutterSpawnSettings>();
+            verticalShutterRecord.Action = ShuttersNativeWords.DecodeVerticalShutterAction(words.A, verticalShutterSettings.TriggerMode);
             verticalShutterRecord.ActionTimer = WrappingCountdown.Start(words.B);
             // The cartridge rests at an end in the same word as the first wait; the port keeps the rest's own duration.
             if (verticalShutterRecord.Action is VerticalShutterAction.StoppedAfterMovingUp or VerticalShutterAction.StoppedAfterMovingDown)
                 verticalShutterRecord.RestTimer = TrueDuration(words.B);
-            // The upward words are the speed reversed (#2278): the speed is the downward pair.
-            verticalShutterRecord.Speed = SignedSixteenSixteen.FromParts(unchecked((short)words.D), words.C);
+            // The upward words are the speed reversed (#2278): the speed is the downward pair. The shutter moves at its
+            // placement's speed (#2450), which the recording's must be.
+            SignedSixteenSixteen verticalShutterSpeed = SignedSixteenSixteen.FromParts(unchecked((short)words.D), words.C);
+            if (verticalShutterSpeed != verticalShutterSettings.Speed)
+                throw new InvalidDataException($"Recorded vertical shutter speed {verticalShutterSpeed} is not its placement's {verticalShutterSettings.Speed}.");
         }
         if (enemy.SpeciesState<CacatacEnemyState>() is { } cacatacRecord)
         {
@@ -635,7 +639,13 @@ internal static class NativeEnemyFamilyStateImport
             skreeRecord.BurrowTimer = unchecked((short)words.A);
             skreeRecord.Action = SkreeNativeWords.SkreeActions.Decode(words.B, "recorded SkreeAction");
             RequirePlayingSkreeMetareeAnimation(skreeRecord.Playback, SkreeNativeWords.SkreeAnimationPhases, words, "Skree");
-            skreeRecord.AttackReady = words.E != 0;
+            // The game keeps a readied dive as a flag beside its winding-up routine (#2450), set only while it winds up.
+            skreeRecord.Action = (skreeRecord.Action, words.E) switch
+            {
+                (SkreeAction.PreparingAttack, not 0) => SkreeAction.AttackReady,
+                (_, 0) => skreeRecord.Action,
+                (var readied, _) => throw new InvalidDataException($"Recorded Skree {readied} has its dive readied."),
+            };
         }
         if (enemy.SpeciesState<BoulderEnemyState>() is { } boulderRecord)
         {
@@ -757,8 +767,11 @@ internal static class NativeEnemyFamilyStateImport
         if (enemies.SkulteraStates[index] is { } skultera)
         {
             (skultera.Action, skultera.Heading) = SkulteraNativeWords.SkulteraActions.Decode(words.A, "recorded SkulteraAction");
-            // The leftward words are the speed reversed (#2278): the speed is the rightward pair.
-            skultera.Speed = SignedSixteenSixteen.FromParts(unchecked((short)words.C), words.B);
+            // The leftward words are the speed reversed (#2278): the speed is the rightward pair. The Skultera swims at its
+            // placement's speed (#2450), which the recording's must be.
+            SignedSixteenSixteen skulteraSpeed = SignedSixteenSixteen.FromParts(unchecked((short)words.C), words.B);
+            if (skulteraSpeed != enemy.SpawnSettings<SkulteraSpawnSettings>().Speed)
+                throw new InvalidDataException($"Recorded Skultera speed {skulteraSpeed} is not its placement's {enemy.SpawnSettings<SkulteraSpawnSettings>().Speed}.");
             // Only the angle word's low byte is ever read; movement discards its high byte.
             skultera.Angle = RotationAngle.FromSteps(LittleEndianBytes.LowByte(words.F));
         }
@@ -900,7 +913,16 @@ internal static class NativeEnemyFamilyStateImport
             RequirePlaying(waver.Playback, WaverAnimations.StartingWith(WaverNativeWords.Animations.Decode(words.C, "recorded Waver installed animation")), "Waver");
             // Only the phase word's low byte is ever read.
             waver.Angle = RotationAngle.FromSteps(LittleEndianBytes.LowByte(words.D));
-            waver.SpinFinished = words.E != 0;
+            // The game keeps a finished spin as a flag beside the spin it installed (#2450): a spinning Waver whose flag is
+            // set has finished its spin, and only a spin sets it.
+            bool spins = WaverAnimationChoices.IsSpin(WaverNativeWords.Animations.Decode(words.C, "recorded Waver installed animation"));
+            waver.Action = (spins, words.E) switch
+            {
+                (true, 0) => WaverAction.Spinning,
+                (true, _) => WaverAction.SpinFinished,
+                (false, 0) => WaverAction.Gliding,
+                (false, _) => throw new InvalidDataException("Recorded steady Waver has finished a spin."),
+            };
             waver.Facing = WaverAnimationChoicesConstants.Facing(WaverNativeWords.Animations.Decode(words.F, "recorded Waver requested animation"));
             // The Waver flies its one speed toward its facing (#2278): the recorded velocity must be that.
             if (waver.XVelocity != SignedSixteenSixteen.FromParts(unchecked((short)words.B), words.A))
@@ -982,7 +1004,11 @@ internal static class NativeEnemyFamilyStateImport
             enemy.SpeciesState<RipperEnemyState>() is { } ripperVariant)
         {
             ripperVariant.Heading = unchecked((short)words.D) < 0 ? HorizontalDirection.Left : HorizontalDirection.Right;
-            ripperVariant.Speeds = SuperMetroid.AssetExtraction.Enemies.EnemySpeedTableCodec.LinearSpeedAtOffset(words.E);
+            // The Ripper flies its placement's speed (#2450), which the recording's must be.
+            EnemyLinearSpeed recordedRipperSpeed = SuperMetroid.AssetExtraction.Enemies.EnemySpeedTableCodec.LinearSpeedAtOffset(words.E);
+            SignedSixteenSixteen ripperRightward = RipperBehavior.FlyingVelocity(enemy, new RipperEnemyState { Heading = HorizontalDirection.Right });
+            if (recordedRipperSpeed.Speed != ripperRightward)
+                throw new InvalidDataException($"Recorded Ripper speed {recordedRipperSpeed.Speed} is not its placement's {ripperRightward}.");
         }
         if (enemies.NorfairLavaJumpingEnemyStates[index] is { } lavaJumper)
         {
@@ -1007,7 +1033,9 @@ internal static class NativeEnemyFamilyStateImport
         if (enemies.SparkStates[index] is { } spark)
         {
             spark.Action = SparksNativeWords.SparkActions.Decode(words.B, "recorded SparkAction");
-            spark.BaseActionTime = words.E;
+            // The Spark waits its placement's time between actions (#2450), which the recording's copy must be.
+            if (words.E != enemy.SpawnSettings<SparkSpawnSettings>().BaseActionTime)
+                throw new InvalidDataException($"Recorded Spark wait {words.E} is not its placement's {enemy.SpawnSettings<SparkSpawnSettings>().BaseActionTime}.");
             spark.ActionTimer = unchecked((short)words.F);
         }
         if (enemies.PuyoStates[index] is { } puyo)

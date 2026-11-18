@@ -29,15 +29,18 @@ internal static class SkulteraOwnedStateVerification
 
         SignedSixteenSixteen right = EnemyLinearSpeedTable.Speed(speedRecord);
         SignedSixteenSixteen left = -right;
-        AssertEqual(right, state.VelocityToward(HorizontalDirection.Right), "rightward speed");
-        AssertEqual(left, state.VelocityToward(HorizontalDirection.Left), "leftward speed");
-        AssertEqual(new VerifySkulteraOwnedStateCase(20, 10), new VerifySkulteraOwnedStateCase(state.Radius, state.AngleDelta), "radius and angle step come from parameter two");
+        AssertEqual(right, SkulteraBehavior.SwimVelocity(place, HorizontalDirection.Right), "rightward speed");
+        AssertEqual(left, SkulteraBehavior.SwimVelocity(place, HorizontalDirection.Left), "leftward speed");
+        SkulteraSpawnSettings settings = place.SpawnSettings<SkulteraSpawnSettings>();
+        AssertEqual(new VerifySkulteraOwnedStateCase(20, 10), new VerifySkulteraOwnedStateCase(settings.Radius, settings.AngleDelta), "radius and angle step come from parameter two");
 
+        // The wave steps forward while the Skultera swims the way it started and backward once a turn has brought it
+        // the other way (#2450).
         state.Angle = RotationAngle.FromSteps(250);
-        state.AdvanceAngle();
+        state.AdvanceAngle(settings);
         AssertEqual((byte)4, state.Angle.ToTrigonometryAngle().RawValue, "the phase wraps forward through a full turn");
-        state.AngleDelta = -state.AngleDelta;
-        state.AdvanceAngle();
+        state.Heading = settings.StartDirection == HorizontalDirection.Left ? HorizontalDirection.Right : HorizontalDirection.Left;
+        state.AdvanceAngle(settings);
         AssertEqual((byte)250, state.Angle.ToTrigonometryAngle().RawValue, "the phase wraps backward through a full turn");
         Console.WriteLine("Skultera owned state: speeds and phase wrap match.");
     }

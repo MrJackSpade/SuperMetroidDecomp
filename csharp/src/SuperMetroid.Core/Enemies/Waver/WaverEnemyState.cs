@@ -19,8 +19,8 @@ public sealed class WaverEnemyState
     /// </summary>
     public RotationAngle Angle { get; internal set; }
 
-    /// <summary>Set by the spin animation's last cue after the four-frame spin completes.</summary>
-    public bool SpinFinished { get; internal set; }
+    /// <summary>Whether the Waver glides, spins or has just finished a spin (#2450).</summary>
+    public WaverAction Action { get; internal set; }
 
     /// <summary>Advances the wave phase by its step, wrapping after a full turn.</summary>
     internal void AdvanceWave() => Angle = Angle.TurnedBySteps(WaverMotionDefinitions.WaveStep);

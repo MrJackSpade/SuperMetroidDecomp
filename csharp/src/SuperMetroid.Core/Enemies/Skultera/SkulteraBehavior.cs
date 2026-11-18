@@ -29,9 +29,11 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (cue.Kind)
         {
             case SkulteraCueKind.FinishTurn:
-                // Turns rest immediately after publishing this flag. Main AI consumes it on the following frame
-                // and starts the steady swim.
-                state.TurnFinished = true;
+                // Turns rest immediately after finishing (#2450). Main AI starts the steady swim on the following
+                // update.
+                if (state.Action != SkulteraAction.Turning)
+                    throw new InvalidOperationException($"A Skultera's turn finished while it was {state.Action}.");
+                state.Action = SkulteraAction.TurnFinished;
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(SkulteraCueKind)} {cue.Kind}.");
@@ -51,15 +53,10 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = new(SkulteraAnimations.StartingWith(startsLeft
             ? SkulteraSegment.SwimmingLeft
             : SkulteraSegment.SwimmingRight), AnimationPlace.StartOfAnimation);
-        state.Speed = settings.Speed;
 
-        // The wave's step starts positive and becomes negative only when a turn negates it.
-        state.Radius = settings.Radius;
-        state.AngleDelta = settings.AngleDelta;
         state.Angle = RotationAngle.Zero;
-        state.TurnFinished = false;
         state.CurrentYOffset = 0;
-        state.PreviousYOffset = EnemyMath.CircleNegativeSinePixels(state.Angle.ToTrigonometryAngle(), state.Radius);
+        state.PreviousYOffset = EnemyMath.CircleNegativeSinePixels(state.Angle.ToTrigonometryAngle(), settings.Radius);
     }
 
     /// <summary>Runs the Skultera's main AI.</summary>
@@ -74,6 +71,8 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
                 SwimSkultera(place, state, level, state.Heading);
                 return;
             case SkulteraAction.Turning:
+                return;
+            case SkulteraAction.TurnFinished:
                 FinishSkulteraTurn(place, state, state.Heading);
                 return;
             default:
@@ -89,7 +88,8 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level,
         HorizontalDirection direction)
     {
-        SignedSixteenSixteen horizontalDisplacement = state.VelocityToward(direction);
+        SkulteraSpawnSettings settings = place.SpawnSettings<SkulteraSpawnSettings>();
+        SignedSixteenSixteen horizontalDisplacement = SwimVelocity(place, direction);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
                 place,
@@ -101,7 +101,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        state.CurrentYOffset = EnemyMath.CircleNegativeSinePixels(state.Angle.ToTrigonometryAngle(), state.Radius);
+        state.CurrentYOffset = EnemyMath.CircleNegativeSinePixels(state.Angle.ToTrigonometryAngle(), settings.Radius);
         // Both offsets lie within the radius either way, so their difference never wraps.
         int yDifference = state.CurrentYOffset - state.PreviousYOffset;
         if (_terrain.MoveEnemyVertically(level, place, SignedSixteenSixteen.FromWholePixels(yDifference)))
@@ -111,7 +111,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
         else
         {
             // Only unobstructed movement advances the phase, which wraps after a full turn.
-            state.AdvanceAngle();
+            state.AdvanceAngle(settings);
         }
 
         // The new offset stands whether the vertical move succeeded or hit terrain, so a blocked step is not taken
@@ -132,18 +132,26 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
             : SkulteraSegment.TurningLeft));
     }
 
-    /// <summary>Runs the mirrored turn completions.</summary>
+    /// <summary>
+    /// The swimming displacement of the Skultera in <paramref name="place"/> toward <paramref name="direction"/>: its
+    /// spawn speed, reversed leftward (#2278).
+    /// </summary>
+    internal static SignedSixteenSixteen SwimVelocity(RoomEnemyPlace place, HorizontalDirection direction)
+    {
+        SignedSixteenSixteen speed = Ensure.NotNull(place).SpawnSettings<SkulteraSpawnSettings>().Speed;
+        return direction == HorizontalDirection.Left ? -speed : speed;
+    }
+
+    /// <summary>
+    /// Runs the mirrored turn completions: the Skultera swims toward <paramref name="direction"/>, the way it turned, and
+    /// its wave steps the other way from then on (<see cref="SkulteraEnemyState.AdvanceAngle"/>).
+    /// </summary>
     private static void FinishSkulteraTurn(
         RoomEnemyPlace place,
         SkulteraEnemyState state,
         HorizontalDirection direction)
     {
-        if (!state.TurnFinished)
-            return;
-
-        state.TurnFinished = false;
         state.Action = SkulteraAction.Swimming;
-        state.AngleDelta = -state.AngleDelta;
         state.Playback = EnemyAnimationPlayback.Start(place, SkulteraAnimations.StartingWith(direction == HorizontalDirection.Left
             ? SkulteraSegment.SwimmingLeft
             : SkulteraSegment.SwimmingRight));

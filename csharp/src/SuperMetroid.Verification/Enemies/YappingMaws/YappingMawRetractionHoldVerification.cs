@@ -51,7 +51,7 @@ internal static class YappingMawRetractionHoldVerification
             state.Aim = aim;
             state.Extension = SixteenSixteenWords.ToDisplacement(-retract - 1);
             state.SpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(row);
-            state.QuadraticSpeedSign = EnemySpeedSign.Negative;
+            state.CurlPhase = YappingMawCurlPhase.Retracting;
             state.HasGrabbedSamus = true;
             state.HeldSamusOffset = new Offset16<RoomPixels>(0, -20);
             samus.Position = samus.Position.WithWhole(EarlierHold);

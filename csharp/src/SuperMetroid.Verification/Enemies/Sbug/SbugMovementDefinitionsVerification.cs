@@ -58,9 +58,10 @@ internal static class SbugMovementDefinitionsVerification
 
             ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(instructionTable + selector * 2);
             SbugEnemyState state = (enemies.SbugStates[0] ?? throw new InvalidOperationException("Verification requires enemies.SbugStates[0]."));
-            AssertEqual(SbugMovementDefinitions.Facings.InTurnOrder[selector], state.ForwardFacing,
+            CompassDirection forward = SbugBehavior.ForwardLeg(place).Facing;
+            AssertEqual(SbugMovementDefinitions.Facings.InTurnOrder[selector], forward,
                 $"Sbug production facing {selector}");
-            AssertEqual(new AnimationPlayback<SbugSegment>(SbugAnimations.StartingWith(SbugMovement.FacingAnimation(state.ForwardFacing)), AnimationPlace.StartOfAnimation), state.Playback,
+            AssertEqual(new AnimationPlayback<SbugSegment>(SbugAnimations.StartingWith(SbugMovement.FacingAnimation(forward)), AnimationPlace.StartOfAnimation), state.Playback,
                 $"Sbug production facing animation {selector}");
             AssertEqual(native, NativeEnemyAnimationOracle.EntryOf(SbugNativeListAddresses.Entries, state.Playback.Animation.Phases[0].Segment),
                 $"Sbug production facing list {selector}");

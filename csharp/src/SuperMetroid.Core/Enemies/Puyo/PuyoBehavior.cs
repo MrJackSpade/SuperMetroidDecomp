@@ -46,11 +46,8 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
             HopCooldownTimer = place.SpawnSettings<PuyoSpawnSettings>().HopCooldown + EnemyWaitDefinitions.RunOutUpdate,
             CurrentHop = PuyoHopType.NormalSmall,
             HopType = PuyoHopType.NormalSmall,
-            HoppingAnimationActive = false,
             Direction = HorizontalDirection.Right,
             Falling = false,
-            InvertDirection = false,
-            InvertedDirection = HorizontalDirection.Right,
             InitialYSpeedCurvePlaceThreeQuarters = QuadraticSpeedCurvePlace.Start,
             InitialYSpeedCurvePlaceHalf = QuadraticSpeedCurvePlace.Start,
         };
@@ -89,7 +86,6 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.Action = PuyoAction.Airborne;
         state.HopCooldownTimer = place.SpawnSettings<PuyoSpawnSettings>().HopCooldown + EnemyWaitDefinitions.RunOutUpdate;
-        state.HoppingAnimationActive = true;
         InitiatePuyoHop(place, state, samus);
     }
 
@@ -107,15 +103,13 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
                 : PuyoHopType.NormalSmall;
         }
 
-        // Aim toward Samus unless the preceding terrain collision latched the opposite
-        // direction. Equality follows the game's non-negative path and therefore aims right.
-        HorizontalDirection direction = CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole) < 0
+        // Aim toward Samus unless the preceding terrain collision turned the Puyo back. Equality follows the game's
+        // non-negative path and therefore aims right.
+        HorizontalDirection towardSamus = CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole) < 0
             ? HorizontalDirection.Left
             : HorizontalDirection.Right;
-        if (state.InvertDirection)
-            direction = state.InvertedDirection;
-        state.Direction = direction;
-        state.InvertDirection = false;
+        state.Direction = state.TurnBack ?? towardSamus;
+        state.TurnBack = null;
 
         // The giant hop, the drop and the dropped bounces ignore this sample but still advance the seed, an observable
         // side effect shared with every other random enemy in the room.
@@ -215,30 +209,26 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level,
         PuyoSegment landingSegment)
     {
-        MovePuyo(place, state, level);
-        if (!state.InvertDirection && state.HoppingAnimationActive)
+        if (!MovePuyo(place, state, level))
             return;
 
-        state.HoppingAnimationActive = false;
         SetPuyoAnimation(place, state, landingSegment);
     }
 
     /// <summary>Runs the Puyo's giant airborne hop.</summary>
     private void RunGiantPuyoHop(RoomEnemyPlace place, PuyoEnemyState state, RoomLevelData level)
     {
-        MovePuyo(place, state, level);
-        if (!state.InvertDirection && state.HoppingAnimationActive)
+        if (!MovePuyo(place, state, level))
             return;
 
-        // A normal landing returns a giant hop to the small hop. A wall or ceiling collision takes
-        // the branch around these two writes, leaving the drop's recovery.
-        if (!state.InvertDirection)
+        // A normal landing returns a giant hop to the small hop. A wall or ceiling collision that turns the Puyo back
+        // leaves it dropping instead, its hop and its airborne behaviour the drop's.
+        if (state.TurnBack is null)
         {
             state.HopType = PuyoHopType.NormalSmall;
             state.Action = PuyoAction.Grounded;
         }
 
-        state.HoppingAnimationActive = false;
         SetPuyoAnimation(place, state, PuyoSegment.GroundedSlow);
     }
 
@@ -261,8 +251,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs the bounce after the drop.</summary>
     private void RunDroppedPuyo(RoomEnemyPlace place, PuyoEnemyState state, RoomLevelData level)
     {
-        MovePuyo(place, state, level);
-        if (state.HoppingAnimationActive)
+        if (!MovePuyo(place, state, level))
             return;
 
         state.HopType = PuyoHopType.Giant;
@@ -270,8 +259,11 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         SetPuyoAnimation(place, state, PuyoSegment.GroundedSlow);
     }
 
-    /// <summary>Moves the Puyo.</summary>
-    private void MovePuyo(RoomEnemyPlace place, PuyoEnemyState state, RoomLevelData level)
+    /// <summary>
+    /// Moves the airborne Puyo one update along its hop, and whether the hop met terrain (#2450): a landing grounds it, and
+    /// a ceiling or a wall starts its drop. Until it meets terrain it keeps its hopping poses.
+    /// </summary>
+    private bool MovePuyo(RoomEnemyPlace place, PuyoEnemyState state, RoomLevelData level)
     {
         QuadraticCurveSpeed curveSpeed = QuadraticSpeedCurvePlace.Min(state.YSpeedCurvePlace, PuyoHopDefinitions.FastestSpeedPlace).Speed;
         SignedSixteenSixteen verticalDisplacement = curveSpeed.Toward(state.Falling ? EnemySpeedSign.Positive : EnemySpeedSign.Negative);
@@ -282,18 +274,15 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
             {
                 // Striking a ceiling while rising starts the drop; whether the next hop turns back is what the room's
                 // last draw and HUD redraw left (PuyoCeilingTurnFromLastDraw): always in an ordinary gameplay update.
-                state.InvertDirection = _ceilingTurn.TurnsBack;
-                state.InvertedDirection = Opposite(state.Direction);
+                state.TurnBack = _ceilingTurn.TurnsBack ? Opposite(state.Direction) : null;
                 state.HopType = PuyoHopType.Dropping;
                 state.AirborneMovement = PuyoAirborneMovement.Dropping;
-                state.HoppingAnimationActive = false;
             }
             else
             {
                 state.Action = PuyoAction.Grounded;
-                state.HoppingAnimationActive = false;
             }
-            return;
+            return true;
         }
 
         // Pose selection happens before the place changes, matching the five discrete
@@ -315,14 +304,13 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
                 place,
                 horizontalDisplacement))
         {
-            return;
+            return false;
         }
 
-        state.InvertDirection = true;
-        state.InvertedDirection = Opposite(state.Direction);
-        state.HoppingAnimationActive = false;
+        state.TurnBack = Opposite(state.Direction);
         state.HopType = PuyoHopType.Dropping;
         state.AirborneMovement = PuyoAirborneMovement.Dropping;
+        return true;
     }
 
     /// <summary>Selects the rising/falling one-frame pose for the current curve place.</summary>

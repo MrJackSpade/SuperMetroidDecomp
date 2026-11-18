@@ -15,7 +15,4 @@ public sealed class SkreeEnemyState
 
     /// <summary>The current action.</summary>
     public SkreeAction Action { get; internal set; }
-
-    /// <summary>The wind-up cue's one-shot authorization to begin diving.</summary>
-    public bool AttackReady { get; internal set; }
 }

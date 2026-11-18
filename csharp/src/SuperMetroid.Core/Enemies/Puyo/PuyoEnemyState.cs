@@ -37,23 +37,17 @@ public sealed class PuyoEnemyState
     /// <summary>The mark selected for the next hop.</summary>
     public PuyoHopType HopType { get; internal set; }
 
-    /// <summary>
-    /// True means the hopping pose is still active, while false permits
-    /// the grounded-animation handoff.
-    /// </summary>
-    public bool HoppingAnimationActive { get; internal set; }
-
     /// <summary>The direction of the current hop.</summary>
     public HorizontalDirection Direction { get; internal set; }
 
     /// <summary>Selects the curve's downward speeds.</summary>
     public bool Falling { get; internal set; }
 
-    /// <summary>A terrain collision requests that the next hop use the precomputed opposite direction instead of re-aiming at Samus.</summary>
-    public bool InvertDirection { get; internal set; }
-
-    /// <summary>Opposite direction captured when Puyo strikes a wall or ceiling.</summary>
-    public HorizontalDirection InvertedDirection { get; internal set; }
+    /// <summary>
+    /// The way the next hop goes after a wall, or a ceiling that turns it back, cut this one short: the way back from the
+    /// hop it was making (#2450). None while the next hop aims at Samus; the hop that takes it clears it.
+    /// </summary>
+    public HorizontalDirection? TurnBack { get; internal set; }
 
     /// <summary>Three-quarter point of the initial vertical speed-curve place.</summary>
     public QuadraticSpeedCurvePlace InitialYSpeedCurvePlaceThreeQuarters { get; internal set; }

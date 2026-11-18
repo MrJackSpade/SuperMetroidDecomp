@@ -51,6 +51,14 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
                 $"Norfair Rio {name} animation signal");
         }
 
+        // The game's follower picks its flames by the sign of the offset its parent's instruction placed: falling flames
+        // above the Rio, rising ones level with or below it. Each native placement names those flames (#2450).
+        foreach (NorfairRioCue.PlaceFlames placement in NorfairRioNativeListAddresses.Instructions.Values.Select(instruction => instruction.Cue).OfType<NorfairRioCue.PlaceFlames>())
+        {
+            AssertEqual(placement.Below < 0 ? NorfairRioFlames.Descending : NorfairRioFlames.Ascending, placement.Flames,
+                $"Norfair Rio flames placed {placement.Below} pixels below it");
+        }
+
         Suite(nameof(VerifyNorfairRioInitializerSelections), () => VerifyNorfairRioInitializerSelections());
         Suite(nameof(NorfairRioAnimationsVerification.VerifyNorfairRioAnimations), () => NorfairRioAnimationsVerification.VerifyNorfairRioAnimations(rom));
 

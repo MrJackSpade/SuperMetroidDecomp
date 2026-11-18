@@ -39,7 +39,6 @@ internal static class EnemyLinearSpeedsVerification
         // are present; Ripper does not need any bus for its speed setup.
         var cacatac = new Action<RoomEnemyPlace>(CacatacBehavior.InitializeCacatac);
         var owtch = new Action<RoomEnemyPlace>(OwtchBehavior.InitializeOwtch);
-        Action<RipperEnemyState> ripper = RipperBehavior.Reverse;
         var place = enemies.Places.InUpdateOrder[0];
         for (int index = 0; index < EnemyLinearSpeedTable.RowCount; index++)
         {
@@ -55,10 +54,12 @@ internal static class EnemyLinearSpeedsVerification
             owtch(place);
             SignedSixteenSixteen owtchSpeed = place.SpawnSettings<OwtchSpawnSettings>().Speed;
             AssertEqual((positive, negative), (owtchSpeed, -owtchSpeed), "Owtch spawn speed, negated for moving left");
-            var ripperState = new RipperEnemyState() { Speeds = new EnemyLinearSpeed(EnemyLinearSpeedTable.Speed(index)), Heading = HorizontalDirection.Right };
-            AssertEqual(positive, ripperState.XVelocity, "Ripper right speed");
-            ripper(ripperState);
-            AssertEqual(negative, ripperState.XVelocity, "Ripper reversal speed");
+            // The Ripper flies its spawn speed toward its heading (#2450).
+            place.SetSpawnSettings(new RipperSpawnSettings(EnemyLinearSpeedTable.Speed(index), HorizontalDirection.Right));
+            var ripperState = new RipperEnemyState() { Heading = HorizontalDirection.Right };
+            AssertEqual(positive, RipperBehavior.FlyingVelocity(place, ripperState), "Ripper right speed");
+            RipperBehavior.Reverse(ripperState);
+            AssertEqual(negative, RipperBehavior.FlyingVelocity(place, ripperState), "Ripper reversal speed");
         }
         Console.WriteLine("Compiled linear speeds: all 65 rows match both cartridge copies and four direct family callers without speed-table ROM reads.");
     }

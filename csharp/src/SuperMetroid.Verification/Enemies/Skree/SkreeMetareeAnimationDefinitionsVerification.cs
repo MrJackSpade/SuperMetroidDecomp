@@ -120,7 +120,7 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
         enemies.SkreeBehavior.RunSkreeMain(place, samus, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
         AssertSkreeMetareeHandoff(place, SkreeMetareeSegment.SkreePreparingAttack, state.Playback, "live Skree preparation");
 
-        state.AttackReady = true;
+        state.Action = SkreeAction.AttackReady;
         enemies.SkreeBehavior.RunSkreeMain(place, samus, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
         AssertSkreeMetareeHandoff(place, SkreeMetareeSegment.SkreeDiving, state.Playback, "live Skree dive");
     }

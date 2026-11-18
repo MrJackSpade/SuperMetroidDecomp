@@ -29,15 +29,15 @@ internal static class NorfairRioNativeListAddresses
     internal static readonly Dictionary<ushort, NorfairRioNativeListAddressesInstruction> Instructions = new()
     {
         [0xc1c9] = new NorfairRioNativeListAddressesInstruction(new NorfairRioCue.SwoopStartFinished(), ""),
-        [0xc1d4] = new NorfairRioNativeListAddressesInstruction(new NorfairRioCue.PlaceFlames(8), ""),
-        [0xc1df] = new NorfairRioNativeListAddressesInstruction(new NorfairRioCue.PlaceFlames(8), ""),
-        [0xc1ea] = new NorfairRioNativeListAddressesInstruction(new NorfairRioCue.PlaceFlames(12), ""),
-        [0xc1f5] = new NorfairRioNativeListAddressesInstruction(new NorfairRioCue.PlaceFlames(-12), ""),
-        [0xc200] = new NorfairRioNativeListAddressesInstruction(new NorfairRioCue.PlaceFlames(4), ""),
-        [0xc20b] = new NorfairRioNativeListAddressesInstruction(new NorfairRioCue.PlaceFlames(0), ""),
-        [0xc216] = new NorfairRioNativeListAddressesInstruction(new NorfairRioCue.PlaceFlames(-4), ""),
-        [0xc221] = new NorfairRioNativeListAddressesInstruction(new NorfairRioCue.PlaceFlames(-12), ""),
-        [0xc22c] = new NorfairRioNativeListAddressesInstruction(new NorfairRioCue.PlaceFlames(-16), ""),
-        [0xc237] = new NorfairRioNativeListAddressesInstruction(new NorfairRioCue.PlaceFlames(12), ""),
+        [0xc1d4] = new NorfairRioNativeListAddressesInstruction(new NorfairRioCue.PlaceFlames(8, NorfairRioFlames.Ascending), ""),
+        [0xc1df] = new NorfairRioNativeListAddressesInstruction(new NorfairRioCue.PlaceFlames(8, NorfairRioFlames.Ascending), ""),
+        [0xc1ea] = new NorfairRioNativeListAddressesInstruction(new NorfairRioCue.PlaceFlames(12, NorfairRioFlames.Ascending), ""),
+        [0xc1f5] = new NorfairRioNativeListAddressesInstruction(new NorfairRioCue.PlaceFlames(-12, NorfairRioFlames.Descending), ""),
+        [0xc200] = new NorfairRioNativeListAddressesInstruction(new NorfairRioCue.PlaceFlames(4, NorfairRioFlames.Ascending), ""),
+        [0xc20b] = new NorfairRioNativeListAddressesInstruction(new NorfairRioCue.PlaceFlames(0, NorfairRioFlames.Ascending), ""),
+        [0xc216] = new NorfairRioNativeListAddressesInstruction(new NorfairRioCue.PlaceFlames(-4, NorfairRioFlames.Descending), ""),
+        [0xc221] = new NorfairRioNativeListAddressesInstruction(new NorfairRioCue.PlaceFlames(-12, NorfairRioFlames.Descending), ""),
+        [0xc22c] = new NorfairRioNativeListAddressesInstruction(new NorfairRioCue.PlaceFlames(-16, NorfairRioFlames.Descending), ""),
+        [0xc237] = new NorfairRioNativeListAddressesInstruction(new NorfairRioCue.PlaceFlames(12, NorfairRioFlames.Ascending), ""),
     };
 }

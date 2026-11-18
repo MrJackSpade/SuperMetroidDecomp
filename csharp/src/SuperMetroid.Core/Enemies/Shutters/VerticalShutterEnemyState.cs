@@ -2,8 +2,9 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Shutters;
 
 /// <summary>
-/// The state of a vertical shutter: its behaviour, speeds, endpoints, rest lengths, trigger and rider carry, each a
-/// value of its own.
+/// The state of a vertical shutter: its behaviour, endpoints, timers, reaction and rider carry, each a value of its own.
+/// It reads its speed, first heading, trigger, travel, proximity, wait and rests from its spawn settings where it uses
+/// them (#2450).
 /// </summary>
 public sealed class VerticalShutterEnemyState
 {
@@ -29,26 +30,6 @@ public sealed class VerticalShutterEnemyState
     /// it runs out on (<see cref="EnemyWaitDefinitions.RunOutUpdate"/>, #2281).
     /// </summary>
     public int RestTimer { get; internal set; }
-    /// <summary>The shutter's speed, 1/65536 pixels per update, one of the common linear speeds (#2278).</summary>
-    public SignedSixteenSixteen Speed { get; internal set; }
-
-    /// <summary>The shutter's velocity moving toward <paramref name="direction"/>: its speed, reversed upward, fraction included.</summary>
-    public SignedSixteenSixteen VelocityToward(VerticalDirection direction) => direction == VerticalDirection.Up ? -Speed : Speed;
-
-    /// <summary>The end the shutter first heads for, as its population entry names it.</summary>
-    public ShutterHeading PrimaryDirection { get; internal set; }
-    /// <summary>Population trigger mode: timer, proximity, immediate, one-shot reaction, or repeatable reaction activation.</summary>
-    public ShutterTriggerMode TriggerMode { get; internal set; }
-    /// <summary>Whole-pixel separation of the two Y endpoints.</summary>
-    public int TravelDistance { get; internal set; }
-    /// <summary>The strict horizontal pixel distance Samus must come within to start a proximity-triggered shutter.</summary>
-    public int ProximityDistance { get; internal set; }
-    /// <summary>The AI updates a timer-triggered shutter waits before it moves.</summary>
-    public int WaitTime { get; internal set; }
-    /// <summary>How long the shutter rests at its upper end, or that it stays there until a reaction starts it again.</summary>
-    public ShutterRest MovedUpRest { get; internal set; }
-    /// <summary>How long the shutter rests at its lower end, or that it stays there until a reaction starts it again.</summary>
-    public ShutterRest MovedDownRest { get; internal set; }
     /// <summary>Whether the pre-movement riding test found Samus supported by this shutter; enables whole-pixel extra-Y carry for the current movement.</summary>
     public bool MovingSamus { get; internal set; }
     /// <summary>One-shot reaction latch, initially clear and set by a one-shot shutter's first reaction so later reactions cannot start it again.</summary>
@@ -62,6 +43,6 @@ public sealed class VerticalShutterEnemyState
     public int UpperEndpointY { get; internal set; }
     /// <summary>Lower whole-pixel travel row derived from the spawn row and travel distance; downward motion stops upon reaching or passing it.</summary>
     public int LowerEndpointY { get; internal set; }
-    /// <summary>The end the next reaction heads for, initially the primary heading; it turns after each reaction.</summary>
-    public ShutterHeading ReactionDirection { get; internal set; }
+    /// <summary>The way the next reaction moves the shutter, initially its first heading; it turns after each reaction.</summary>
+    public VerticalDirection ReactionDirection { get; internal set; }
 }

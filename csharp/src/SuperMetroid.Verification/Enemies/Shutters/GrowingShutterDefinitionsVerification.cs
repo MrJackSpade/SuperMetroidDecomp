@@ -42,8 +42,8 @@ internal static class GrowingShutterDefinitionsVerification
                     initialize(place);
                     GrowingShutterEnemyState state = (enemies.GrowingShutterStates[0] ?? throw new InvalidOperationException("Verification requires enemies.GrowingShutterStates[0]."));
                     AssertEqual(Word(0xa2ea4e + selector * 2), ShuttersNativeWords.GrowingShutterActions.Word(state.Action), "Shutter real dispatch without bus");
-                    AssertEqual(unchecked((short)Word(0xa2ea56 + speed * 4)), state.GrowthSpeed.WholePixels, "Shutter native whole speed");
-                    AssertEqual(Word(0xa2ea58 + speed * 4), state.GrowthSpeed.Fraction, "Shutter native fractional speed");
+                    AssertEqual(unchecked((short)Word(0xa2ea56 + speed * 4)), place.SpawnSettings<GrowingShutterSpawnSettings>().GrowthSpeed.WholePixels, "Shutter native whole speed");
+                    AssertEqual(Word(0xa2ea58 + speed * 4), place.SpawnSettings<GrowingShutterSpawnSettings>().GrowthSpeed.Fraction, "Shutter native fractional speed");
                     int direction = selector < 2 ? 1 : -1;
                     for (int level = 0; level < GrowingShutterEnemyState.SectionCount; level++)
                         AssertEqual(unchecked((ushort)(place.Position.Y.Whole + direction * 8 * level)), state.SectionOriginY(level), $"Shutter wrapped origin {level}");

@@ -36,10 +36,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Starts a Skree in its idle action and initial shared animation.</summary>
     internal static void InitializeSkree(RoomEnemyPlace place)
     {
-        var state = new SkreeEnemyState(SkreeAction.Idling)
-        {
-            AttackReady = false,
-        };
+        var state = new SkreeEnemyState(SkreeAction.Idling);
         place.SetSpeciesState(state);
         state.Playback = new(SkreeMetareeAnimations.StartingWith(SkreeMetareeSegment.SkreeIdling), AnimationPlace.StartOfAnimation);
     }
@@ -59,9 +56,9 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case SkreeAction.PreparingAttack:
-                if (!state.AttackReady)
-                    return;
-                state.AttackReady = false;
+                return;
+
+            case SkreeAction.AttackReady:
                 StartSkreeAnimation(place, state, SkreeMetareeSegment.SkreeDiving);
                 state.Action = SkreeAction.Diving;
                 // The dive queues its dive sound on the exact frame the wind-up
@@ -141,9 +138,20 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
             static (SkreeEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {
-                SkreeMetareeCues.Apply(place, cue, () => state.AttackReady = true);
+                SkreeMetareeCues.Apply(place, cue, () => ReadySkreeAttack(state));
                 return null;
             });
+
+    /// <summary>
+    /// The wind-up's finishing cue (#2450): the dive is ready, and the Skree starts it on its next update.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The Skree is not winding up.</exception>
+    private static void ReadySkreeAttack(SkreeEnemyState state)
+    {
+        if (state.Action != SkreeAction.PreparingAttack)
+            throw new InvalidOperationException($"A Skree's dive was readied while it was {state.Action}.");
+        state.Action = SkreeAction.AttackReady;
+    }
 
 
     /// <summary>Spawns Skree's four debris actors before generic death processing of a lethal shot.</summary>

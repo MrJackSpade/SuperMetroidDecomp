@@ -33,23 +33,17 @@ internal static class BullAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<BullSegment, Animation<BullSegment>> StartingAt { get; } = new Dictionary<BullSegment, Animation<BullSegment>>
     {
-        [P.Normal] = new([Whole(P.Normal)], AnimationEnd.LoopsFrom(0)),
+        [P.Normal] = new([Segments.Whole(P.Normal)], AnimationEnd.LoopsFrom(0)),
     };
 
     /// <summary>How many quick cycles of its poses an immune shot sets off before its normal cycle resumes.</summary>
     private const int ShotCycles = 5;
 
     /// <summary>The reaction to an immune shot (#2061): five quick cycles of its poses, then its normal cycle for good.</summary>
-    internal static Animation<BullSegment> Shot { get; } = new([Repeated(P.Shot, ShotCycles), Whole(P.Normal)], AnimationEnd.LoopsFrom(1));
+    internal static Animation<BullSegment> Shot { get; } = new([Segments.Repeated(P.Shot, ShotCycles), Segments.Whole(P.Normal)], AnimationEnd.LoopsFrom(1));
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<BullSegment> StartingWith(BullSegment segment) => StartingAt[segment];
-
-    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<BullSegment> Whole(BullSegment segment) => Repeated(segment, 1);
-
-    /// <summary><paramref name="plays"/> plays of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<BullSegment> Repeated(BullSegment segment, int plays) => new(segment, 0, Segments.Beats(segment).Count, plays);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, NoAnimationCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);

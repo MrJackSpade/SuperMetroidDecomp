@@ -54,7 +54,7 @@ internal static class MetroidBombPlacementVerification
             bombs.StepFrame(new SamusTerrain { Level = assets.LevelData, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, input, input);
             if (firstExplosion < 0 && bombs.Bombs.Any(b => !b.Type.IsNone && b.BombTimer.IsZero)) firstExplosion = frame;
             enemies.StepStandaloneFrame(enemies.StandaloneFrame(assets.LevelData) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
-            enemies.Collision.ResolveOrdinaryBombHits(bombs, shots, samus);
+            enemies.ResolveBombsOnInteractiveEnemies(bombs, shots, samus);
             if (state.Movement == MetroidMovement.PowerBombEscape && detached < 0) detached = frame;
             if (detached >= 0) break;
         }

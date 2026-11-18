@@ -89,16 +89,13 @@ internal static class BeetomAnimations
     /// </summary>
     internal static IReadOnlyDictionary<BeetomSegment, Animation<BeetomSegment>> StartingAt { get; } = new Dictionary<BeetomSegment, Animation<BeetomSegment>>
     {
-        [P.CrawlingLeft] = new([Whole(P.CrawlingLeft), Whole(P.CrawlingLeftStride)], AnimationEnd.LoopsFrom(1)),
-        [P.HopLeft] = new([Whole(P.HopLeft)], AnimationEnd.Holds),
-        [P.DrainingLeft] = new([Whole(P.DrainingLeft), Whole(P.DrainingLeftRed)], AnimationEnd.LoopsFrom(1)),
-        [P.CrawlingRight] = new([Whole(P.CrawlingRight), Whole(P.CrawlingRightStride)], AnimationEnd.LoopsFrom(1)),
-        [P.HopRight] = new([Whole(P.HopRight)], AnimationEnd.Holds),
-        [P.DrainingRight] = new([Whole(P.DrainingRight), Whole(P.DrainingRightRed)], AnimationEnd.LoopsFrom(1)),
+        [P.CrawlingLeft] = new([Segments.Whole(P.CrawlingLeft), Segments.Whole(P.CrawlingLeftStride)], AnimationEnd.LoopsFrom(1)),
+        [P.HopLeft] = new([Segments.Whole(P.HopLeft)], AnimationEnd.Holds),
+        [P.DrainingLeft] = new([Segments.Whole(P.DrainingLeft), Segments.Whole(P.DrainingLeftRed)], AnimationEnd.LoopsFrom(1)),
+        [P.CrawlingRight] = new([Segments.Whole(P.CrawlingRight), Segments.Whole(P.CrawlingRightStride)], AnimationEnd.LoopsFrom(1)),
+        [P.HopRight] = new([Segments.Whole(P.HopRight)], AnimationEnd.Holds),
+        [P.DrainingRight] = new([Segments.Whole(P.DrainingRight), Segments.Whole(P.DrainingRightRed)], AnimationEnd.LoopsFrom(1)),
     };
-
-    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<BeetomSegment> Whole(BeetomSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<BeetomSegment> StartingWith(BeetomSegment segment) => StartingAt[segment];

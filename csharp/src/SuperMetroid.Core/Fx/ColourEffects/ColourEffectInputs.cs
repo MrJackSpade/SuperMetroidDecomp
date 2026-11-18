@@ -21,8 +21,11 @@ public sealed record ColourEffectInputs
     /// <summary>Whether the area's mini-boss is dead.</summary>
     public required bool AreaMiniBossDefeated { get; init; }
 
-    /// <summary>Samus, whose suit some colour effects read, or null before she is created.</summary>
-    public IRoomSamus? Samus { get; init; } = null;
+    /// <summary>
+    /// Samus, whom the heat shimmer burns while her suit leaves her unprotected (#2391): she is read only then, and every
+    /// heated room has her.
+    /// </summary>
+    public required IRoomSamusAccess Samus { get; init; }
 
     /// <summary>
     /// The long frame counter this update (<see cref="FrameClock.Counter"/>), 0 through one short of

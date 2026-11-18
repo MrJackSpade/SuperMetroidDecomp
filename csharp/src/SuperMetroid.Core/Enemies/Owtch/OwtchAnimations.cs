@@ -42,15 +42,12 @@ internal static class OwtchAnimations
     /// </summary>
     internal static IReadOnlyDictionary<OwtchSegment, Animation<OwtchSegment>> StartingAt { get; } = new Dictionary<OwtchSegment, Animation<OwtchSegment>>
     {
-        [P.MovingLeft] = new([Whole(P.MovingLeft), Whole(P.CrawlingLeft)], AnimationEnd.LoopsFrom(1)),
-        [P.MovingRight] = new([Whole(P.MovingRight), Whole(P.CrawlingRight)], AnimationEnd.LoopsFrom(1)),
+        [P.MovingLeft] = new([Segments.Whole(P.MovingLeft), Segments.Whole(P.CrawlingLeft)], AnimationEnd.LoopsFrom(1)),
+        [P.MovingRight] = new([Segments.Whole(P.MovingRight), Segments.Whole(P.CrawlingRight)], AnimationEnd.LoopsFrom(1)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<OwtchSegment> StartingWith(OwtchSegment segment) => StartingAt[segment];
-
-    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<OwtchSegment> Whole(OwtchSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, OwtchCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, OwtchCue>.Frame(frame, duration);

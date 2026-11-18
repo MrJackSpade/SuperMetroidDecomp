@@ -133,26 +133,23 @@ internal static class CrawlerAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<CrawlerSegment, Animation<CrawlerSegment>> StartingAt { get; } = new Dictionary<CrawlerSegment, Animation<CrawlerSegment>>
     {
-        [P.SciserUpsideRight] = new([Whole(P.SciserUpsideRight)], AnimationEnd.LoopsFrom(0)),
-        [P.SciserUpsideLeft] = new([Whole(P.SciserUpsideLeft)], AnimationEnd.LoopsFrom(0)),
-        [P.SciserUpsideDown] = new([Whole(P.SciserUpsideDown)], AnimationEnd.LoopsFrom(0)),
-        [P.SciserUpsideUp] = new([Whole(P.SciserUpsideUp)], AnimationEnd.LoopsFrom(0)),
-        [P.ZeroUpsideRight] = new([Whole(P.ZeroUpsideRight)], AnimationEnd.LoopsFrom(0)),
-        [P.ZeroUpsideLeft] = new([Whole(P.ZeroUpsideLeft)], AnimationEnd.LoopsFrom(0)),
-        [P.ZeroUpsideDown] = new([Whole(P.ZeroUpsideDown)], AnimationEnd.LoopsFrom(0)),
-        [P.ZeroUpsideUp] = new([Whole(P.ZeroUpsideUp)], AnimationEnd.LoopsFrom(0)),
-        [P.ViolaNormal] = new([Whole(P.ViolaNormal)], AnimationEnd.LoopsFrom(0)),
-        [P.SpinyCrawlerUpsideRight] = new([Whole(P.SpinyCrawlerUpsideRight)], AnimationEnd.LoopsFrom(0)),
-        [P.SpinyCrawlerUpsideLeft] = new([Whole(P.SpinyCrawlerUpsideLeft)], AnimationEnd.LoopsFrom(0)),
-        [P.SpinyCrawlerUpsideDown] = new([Whole(P.SpinyCrawlerUpsideDown)], AnimationEnd.LoopsFrom(0)),
-        [P.SpinyCrawlerUpsideUp] = new([Whole(P.SpinyCrawlerUpsideUp)], AnimationEnd.LoopsFrom(0)),
+        [P.SciserUpsideRight] = new([Segments.Whole(P.SciserUpsideRight)], AnimationEnd.LoopsFrom(0)),
+        [P.SciserUpsideLeft] = new([Segments.Whole(P.SciserUpsideLeft)], AnimationEnd.LoopsFrom(0)),
+        [P.SciserUpsideDown] = new([Segments.Whole(P.SciserUpsideDown)], AnimationEnd.LoopsFrom(0)),
+        [P.SciserUpsideUp] = new([Segments.Whole(P.SciserUpsideUp)], AnimationEnd.LoopsFrom(0)),
+        [P.ZeroUpsideRight] = new([Segments.Whole(P.ZeroUpsideRight)], AnimationEnd.LoopsFrom(0)),
+        [P.ZeroUpsideLeft] = new([Segments.Whole(P.ZeroUpsideLeft)], AnimationEnd.LoopsFrom(0)),
+        [P.ZeroUpsideDown] = new([Segments.Whole(P.ZeroUpsideDown)], AnimationEnd.LoopsFrom(0)),
+        [P.ZeroUpsideUp] = new([Segments.Whole(P.ZeroUpsideUp)], AnimationEnd.LoopsFrom(0)),
+        [P.ViolaNormal] = new([Segments.Whole(P.ViolaNormal)], AnimationEnd.LoopsFrom(0)),
+        [P.SpinyCrawlerUpsideRight] = new([Segments.Whole(P.SpinyCrawlerUpsideRight)], AnimationEnd.LoopsFrom(0)),
+        [P.SpinyCrawlerUpsideLeft] = new([Segments.Whole(P.SpinyCrawlerUpsideLeft)], AnimationEnd.LoopsFrom(0)),
+        [P.SpinyCrawlerUpsideDown] = new([Segments.Whole(P.SpinyCrawlerUpsideDown)], AnimationEnd.LoopsFrom(0)),
+        [P.SpinyCrawlerUpsideUp] = new([Segments.Whole(P.SpinyCrawlerUpsideUp)], AnimationEnd.LoopsFrom(0)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<CrawlerSegment> StartingWith(CrawlerSegment segment) => StartingAt[segment];
-
-    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<CrawlerSegment> Whole(CrawlerSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, NoAnimationCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);

@@ -5,6 +5,7 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.Core.Fx.ColourEffects;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Samus;
 
@@ -12,7 +13,7 @@ namespace SuperMetroid.Core.Samus;
 /// Samus and her per-frame state: the actor, movement mode, prospective poses, the last movement and X-ray
 /// results, death-sequence and colour effect steps, and load appearance.
 /// </summary>
-internal sealed class SamusFrameState
+internal sealed class SamusFrameState : IRoomSamusAccess
 {
     /// <summary>Samus's colours, which outlive each Samus (#1405).</summary>
     public SamusColours Colours { get; }
@@ -53,6 +54,12 @@ internal sealed class SamusFrameState
     /// <summary>Samus once the scenario has introduced her; gameplay phases that move, draw or damage her require it.</summary>
     public SamusState IntroducedSamus => Samus ??
         throw new InvalidOperationException("Samus has not been introduced; this gameplay phase requires her actor.");
+
+    /// <summary>
+    /// Samus as the room's colour effects see her each time one reads her (#2391); an effect reading her before the scenario
+    /// introduces her fails there.
+    /// </summary>
+    IRoomSamus IRoomSamusAccess.Current => IntroducedSamus.RoomView;
 
     /// <summary>
     /// The input transition the latched held and newly pressed actions selected, which the pose-transition phase applies

@@ -29,16 +29,16 @@ internal static class CacatacProjectileAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at: each spike a still picture (#2275).</summary>
     internal static IReadOnlyDictionary<CacatacSpikeDirection, Animation<CacatacSpikeDirection>> StartingAt { get; } = new Dictionary<CacatacSpikeDirection, Animation<CacatacSpikeDirection>>
     {
-        [P.LeftFacingUp] = new([Whole(P.LeftFacingUp)], AnimationEnd.Holds),
-        [P.UpLeft] = new([Whole(P.UpLeft)], AnimationEnd.Holds),
-        [P.Up] = new([Whole(P.Up)], AnimationEnd.Holds),
-        [P.UpRight] = new([Whole(P.UpRight)], AnimationEnd.Holds),
-        [P.RightFacingUp] = new([Whole(P.RightFacingUp)], AnimationEnd.Holds),
-        [P.LeftFacingDown] = new([Whole(P.LeftFacingDown)], AnimationEnd.Holds),
-        [P.DownLeft] = new([Whole(P.DownLeft)], AnimationEnd.Holds),
-        [P.Down] = new([Whole(P.Down)], AnimationEnd.Holds),
-        [P.DownRight] = new([Whole(P.DownRight)], AnimationEnd.Holds),
-        [P.RightFacingDown] = new([Whole(P.RightFacingDown)], AnimationEnd.Holds),
+        [P.LeftFacingUp] = new([Segments.Whole(P.LeftFacingUp)], AnimationEnd.Holds),
+        [P.UpLeft] = new([Segments.Whole(P.UpLeft)], AnimationEnd.Holds),
+        [P.Up] = new([Segments.Whole(P.Up)], AnimationEnd.Holds),
+        [P.UpRight] = new([Segments.Whole(P.UpRight)], AnimationEnd.Holds),
+        [P.RightFacingUp] = new([Segments.Whole(P.RightFacingUp)], AnimationEnd.Holds),
+        [P.LeftFacingDown] = new([Segments.Whole(P.LeftFacingDown)], AnimationEnd.Holds),
+        [P.DownLeft] = new([Segments.Whole(P.DownLeft)], AnimationEnd.Holds),
+        [P.Down] = new([Segments.Whole(P.Down)], AnimationEnd.Holds),
+        [P.DownRight] = new([Segments.Whole(P.DownRight)], AnimationEnd.Holds),
+        [P.RightFacingDown] = new([Segments.Whole(P.RightFacingDown)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation of a spike launched in <paramref name="direction"/>.</summary>
@@ -47,9 +47,6 @@ internal static class CacatacProjectileAnimations
         StartingAt.TryGetValue(direction, out Animation<CacatacSpikeDirection>? animation)
             ? animation
             : throw new InvalidDataException($"Cacatac spike direction {direction} is outside the ten spike directions.");
-
-    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<CacatacSpikeDirection> Whole(CacatacSpikeDirection segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>A still picture (#2275): <paramref name="frame"/>, held from the update it shows.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Hold(EnemyProjectileFrameId frame) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.HeldFrame(frame);

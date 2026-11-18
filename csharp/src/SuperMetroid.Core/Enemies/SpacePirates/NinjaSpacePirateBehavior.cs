@@ -63,8 +63,8 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             _ => throw new InvalidOperationException($"Undefined {nameof(NinjaSpacePirateStartPost)} {settings.StartPost}."),
         };
         NinjaSpacePirateSegment initial = startsAtLeft
-            ? NinjaSpacePirateSegment.InitialFacingRight
-            : NinjaSpacePirateSegment.InitialFacingLeft;
+            ? NinjaSpacePirateSegment.AwaitingSamusFacingRight
+            : NinjaSpacePirateSegment.AwaitingSamusFacingLeft;
         state.Playback = new(NinjaSpacePirateAnimations.StartingWith(initial), AnimationPlace.StartOfAnimation);
         state.ActiveAnimation = initial;
 
@@ -109,8 +109,8 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         {
             case NinjaSpacePirateAction.StandingStill:
                 return;
-            case NinjaSpacePirateAction.Initial:
-                RunNinjaPirateInitial(place, state, samus, samusProjectiles);
+            case NinjaSpacePirateAction.AwaitingSamus:
+                RunNinjaPirateAwaitingSamus(place, state, samus, samusProjectiles);
                 return;
             case NinjaSpacePirateAction.Active:
                 RunNinjaPirateActive(place, state, samus, samusProjectiles);
@@ -144,7 +144,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     }
 
     /// <summary>Waits for Samus to approach, then selects the active animation facing her.</summary>
-    private static void RunNinjaPirateInitial(
+    private static void RunNinjaPirateAwaitingSamus(
         RoomEnemyPlace place,
         NinjaSpacePirateEnemyState state,
         SamusState samus,

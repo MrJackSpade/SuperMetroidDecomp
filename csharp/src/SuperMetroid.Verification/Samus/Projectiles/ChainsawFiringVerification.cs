@@ -152,7 +152,7 @@ internal static class ChainsawFiringVerification
         target.Health = 1000;
         target.Frame = EnemyFrameId.SkulteraSwimmingLeftTailStraight;
         combat.System.StepStandaloneFrame(combat.System.StandaloneFrame(combat.Level) with { Camera = new(0, 0), TimeIsFrozen = true, Samus = samus });
-        AssertEqual(1, combat.System.Collision.ResolveOrdinaryProjectileHits(
+        AssertEqual(1, combat.System.ResolveShotsOnInteractiveEnemies(
             combatProjectiles, combatShared, SuperMetroid.Core.Progression.AreaId.Crateria, samus),
             "active Chainsaw overlaps one ordinary enemy");
         AssertEqual(850, target.Health,

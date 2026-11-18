@@ -30,15 +30,12 @@ internal static class EyeDoorSweatAnimations
     /// <summary>The animation that starts at each segment: the falling drop holds its picture, and the splash holds once it has deleted the drop.</summary>
     internal static IReadOnlyDictionary<EyeDoorSweatSegment, Animation<EyeDoorSweatSegment>> StartingAt { get; } = new Dictionary<EyeDoorSweatSegment, Animation<EyeDoorSweatSegment>>
     {
-        [P.Falling] = new([Whole(P.Falling)], AnimationEnd.Holds),
-        [P.HitFloor] = new([Whole(P.HitFloor)], AnimationEnd.Holds),
+        [P.Falling] = new([Segments.Whole(P.Falling)], AnimationEnd.Holds),
+        [P.HitFloor] = new([Segments.Whole(P.HitFloor)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<EyeDoorSweatSegment> StartingWith(EyeDoorSweatSegment segment) => StartingAt[segment];
-
-    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<EyeDoorSweatSegment> Whole(EyeDoorSweatSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>A still picture (#2275): <paramref name="frame"/>, held from the update it shows.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, EyeDoorProjectileCue> Hold(EnemyProjectileFrameId frame) => new AnimationBeat<EnemyProjectileFrameId, EyeDoorProjectileCue>.HeldFrame(frame);

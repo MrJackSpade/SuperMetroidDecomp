@@ -336,16 +336,17 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     private void BurnSamusInHeat(
         RoomColourEffect effect,
         SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems,
-        IRoomSamus? samus,
+        IRoomSamusAccess samus,
         int frameCounter)
     {
         bool protectedFromHeat = equippedItems.HasAny(
             SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.GravitySuit);
-        if (!protectedFromHeat && samus is not null)
+        if (!protectedFromHeat)
         {
-            samus.TakePeriodicDamage(ColourEffectHeatData.DamagePerUpdate);
+            IRoomSamus burned = samus.Current;
+            burned.TakePeriodicDamage(ColourEffectHeatData.DamagePerUpdate);
             if (ColourEffectHeatData.DamageSoundEveryEighthUpdate.IsDue(frameCounter) &&
-                samus.Health > ColourEffectHeatData.DamageSoundEnergyThreshold)
+                burned.Health > ColourEffectHeatData.DamageSoundEnergyThreshold)
             {
                 AudioRequests.QueueSound(RoomSound.IncrementalEnergy, ColourEffectHeatData.DamageSoundPriority);
             }

@@ -68,7 +68,7 @@ internal sealed class NorfairRidleyCombat
         var ridley = new NorfairRidleyState { MovementAnimationEnabled = true };
         place.SetSpeciesState(ridley);
         _ridleyEncounter.BeginLowerNorfair();
-        RidleyFlight.StartAnimation(ridley.Flight, place, RidleyAnimations.Initial);
+        RidleyFlight.StartAnimation(ridley.Flight, place, RidleyAnimations.Standing);
 
         // He arrives in his own colours, his body and tail hidden in black, and his arena hidden for its reveal.
         ridley.Colours.ShowNorfairArrival();

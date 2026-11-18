@@ -59,18 +59,15 @@ internal static class GunshipAnimations
     /// </summary>
     internal static IReadOnlyDictionary<GunshipSegment, Animation<GunshipSegment>> StartingAt { get; } = new Dictionary<GunshipSegment, Animation<GunshipSegment>>
     {
-        [P.EntrancePadOpening] = new([Whole(P.EntrancePadOpening)], AnimationEnd.Holds),
-        [P.EntrancePadClosing] = new([Whole(P.EntrancePadClosing), Whole(P.BottomEntrancePad)], AnimationEnd.Holds),
-        [P.BottomEntrancePad] = new([Whole(P.BottomEntrancePad)], AnimationEnd.Holds),
-        [P.TopHull] = new([Whole(P.TopHull)], AnimationEnd.Holds),
-        [P.BottomHull] = new([Whole(P.BottomHull)], AnimationEnd.Holds),
+        [P.EntrancePadOpening] = new([Segments.Whole(P.EntrancePadOpening)], AnimationEnd.Holds),
+        [P.EntrancePadClosing] = new([Segments.Whole(P.EntrancePadClosing), Segments.Whole(P.BottomEntrancePad)], AnimationEnd.Holds),
+        [P.BottomEntrancePad] = new([Segments.Whole(P.BottomEntrancePad)], AnimationEnd.Holds),
+        [P.TopHull] = new([Segments.Whole(P.TopHull)], AnimationEnd.Holds),
+        [P.BottomHull] = new([Segments.Whole(P.BottomHull)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<GunshipSegment> StartingWith(GunshipSegment segment) => StartingAt[segment];
-
-    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<GunshipSegment> Whole(GunshipSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, NoAnimationCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);

@@ -67,19 +67,16 @@ internal static class MamaTurtleAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<MamaTurtleSegment, Animation<MamaTurtleSegment>> StartingAt { get; } = new Dictionary<MamaTurtleSegment, Animation<MamaTurtleSegment>>
     {
-        [P.Spinning] = new([Whole(P.Spinning)], AnimationEnd.LoopsFrom(0)),
-        [P.EnterShellLeft] = new([Whole(P.EnterShellLeft)], AnimationEnd.Holds),
-        [P.Asleep] = new([Whole(P.Asleep)], AnimationEnd.Holds),
-        [P.LeaveShellLeft] = new([Whole(P.LeaveShellLeft)], AnimationEnd.Holds),
-        [P.EnterShellRight] = new([Whole(P.EnterShellRight)], AnimationEnd.Holds),
-        [P.LeaveShellRight] = new([Whole(P.LeaveShellRight)], AnimationEnd.Holds),
+        [P.Spinning] = new([Segments.Whole(P.Spinning)], AnimationEnd.LoopsFrom(0)),
+        [P.EnterShellLeft] = new([Segments.Whole(P.EnterShellLeft)], AnimationEnd.Holds),
+        [P.Asleep] = new([Segments.Whole(P.Asleep)], AnimationEnd.Holds),
+        [P.LeaveShellLeft] = new([Segments.Whole(P.LeaveShellLeft)], AnimationEnd.Holds),
+        [P.EnterShellRight] = new([Segments.Whole(P.EnterShellRight)], AnimationEnd.Holds),
+        [P.LeaveShellRight] = new([Segments.Whole(P.LeaveShellRight)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<MamaTurtleSegment> StartingWith(MamaTurtleSegment segment) => StartingAt[segment];
-
-    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<MamaTurtleSegment> Whole(MamaTurtleSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, MamaTurtleCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, MamaTurtleCue>.Frame(frame, duration);

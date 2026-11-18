@@ -20,14 +20,11 @@ internal static class DeadTorizoAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<DeadTorizoSegment, Animation<DeadTorizoSegment>> StartingAt { get; } = new Dictionary<DeadTorizoSegment, Animation<DeadTorizoSegment>>
     {
-        [P.Stationary] = new([Whole(P.Stationary)], AnimationEnd.Holds),
+        [P.Stationary] = new([Segments.Whole(P.Stationary)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<DeadTorizoSegment> StartingWith(DeadTorizoSegment segment) => StartingAt[segment];
-
-    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<DeadTorizoSegment> Whole(DeadTorizoSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>A still picture (#2275): <paramref name="frame"/>, held from the update it shows.</summary>
     private static AnimationBeat<EnemyFrameId, NoAnimationCue> Hold(EnemyFrameId frame) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.HeldFrame(frame);

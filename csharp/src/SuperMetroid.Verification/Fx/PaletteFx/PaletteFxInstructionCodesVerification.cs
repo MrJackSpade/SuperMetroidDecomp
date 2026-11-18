@@ -834,7 +834,7 @@ internal static class PaletteFxInstructionCodesVerification
         for (ushort frame = 0; frame <= 17; frame++)
         {
             paletteFx.AudioRequests.BeginRecordedUpdate();
-            paletteFx.Step(new ColourEffectInputs { SamusY = samus.Position.Y.Whole, EquippedItems = samus.EquippedItems, AreaMiniBossDefeated = false, Samus = samus.RoomView, FrameCounter = frame });
+            paletteFx.Step(new ColourEffectInputs { SamusY = samus.Position.Y.Whole, EquippedItems = samus.EquippedItems, AreaMiniBossDefeated = false, Samus = new FixtureRoomSamus(() => samus), FrameCounter = frame });
             // The room's groups show their records over the room's pictures as the import's shades of them (#1512).
             PaletteFxRoomLook.LayShownShades(paletteFx, cgram, new ReferencePaletteFxColorSource(bus));
             damageSoundCount += paletteFx.SoundRequests.Count;
@@ -1502,7 +1502,7 @@ internal static class PaletteFxInstructionCodesVerification
         {
             // Each step is an update of its own; the effects' record keeps only its sounds.
             paletteFx.AudioRequests.BeginRecordedUpdate();
-            paletteFx.Step(new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
+            paletteFx.Step(new ColourEffectInputs { Samus = FixtureRoomSamus.Uninstalled, SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
             // The room's groups show their records over the room's pictures as the import's shades of them (#1512).
             PaletteFxRoomLook.LayShownShades(paletteFx, cgram, new ReferencePaletteFxColorSource(bus));
             if (paletteFx.SoundRequests.Count == 0)
@@ -1525,7 +1525,7 @@ internal static class PaletteFxInstructionCodesVerification
         // The next call must parse the timed palette record immediately after the byte
         // operand. This is the observable consequence of returning Y+1 at $8D:C67A.
         paletteFx.AudioRequests.BeginRecordedUpdate();
-        paletteFx.Step(new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
+        paletteFx.Step(new ColourEffectInputs { Samus = FixtureRoomSamus.Uninstalled, SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
         // The room's groups show their records over the room's pictures as the import's shades of them (#1512).
         PaletteFxRoomLook.LayShownShades(paletteFx, cgram, new ReferencePaletteFxColorSource(bus));
         AssertEqual(0, paletteFx.SoundRequests.Count,
@@ -1599,7 +1599,7 @@ internal static class PaletteFxInstructionCodesVerification
     {
         ColourEffectColours[] groups = Enum.GetValues<ColourEffectColours>();
         ColourEffectFrame?[] before = [.. groups.Select(fx.FrameOf)];
-        fx.Step(new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
+        fx.Step(new ColourEffectInputs { Samus = FixtureRoomSamus.Uninstalled, SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
         for (int index = 0; index < groups.Length; index++)
         {
             if (fx.FrameOf(groups[index]) is { } record && record != before[index])

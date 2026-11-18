@@ -127,11 +127,11 @@ internal static class NinjaSpacePirateAnimations
             Show(EnemyFrameId.NinjaPirateRunningLeftNearLegPassing, 5),
             Show(EnemyFrameId.NinjaPirateRunningLeftNearLegPlanting, 5),
         ],
-        [P.InitialFacingLeft] =
+        [P.AwaitingSamusFacingLeft] =
         [
-            Cue(new NinjaSpacePirateCue.Begin(NinjaSpacePirateAction.Initial)),
+            Cue(new NinjaSpacePirateCue.Begin(NinjaSpacePirateAction.AwaitingSamus)),
         ],
-        [P.InitialFacingLeftLookingAround] =
+        [P.LookingAroundFacingLeft] =
         [
             Show(EnemyFrameId.NinjaPirateLookingAtViewerFacingLeft, 32),
             Show(EnemyFrameId.NinjaPirateStandingFacingLeft, 10),
@@ -276,11 +276,11 @@ internal static class NinjaSpacePirateAnimations
             Show(EnemyFrameId.NinjaPirateRunningRightNearLegPassing, 5),
             Show(EnemyFrameId.NinjaPirateRunningRightNearLegPlanting, 5),
         ],
-        [P.InitialFacingRight] =
+        [P.AwaitingSamusFacingRight] =
         [
-            Cue(new NinjaSpacePirateCue.Begin(NinjaSpacePirateAction.Initial)),
+            Cue(new NinjaSpacePirateCue.Begin(NinjaSpacePirateAction.AwaitingSamus)),
         ],
-        [P.InitialFacingRightLookingAround] =
+        [P.LookingAroundFacingRight] =
         [
             Show(EnemyFrameId.NinjaPirateLookingAtViewerFacingRight, 32),
             Show(EnemyFrameId.NinjaPirateStandingFacingRight, 10),
@@ -322,36 +322,33 @@ internal static class NinjaSpacePirateAnimations
     /// </summary>
     internal static IReadOnlyDictionary<NinjaSpacePirateSegment, Animation<NinjaSpacePirateSegment>> StartingAt { get; } = new Dictionary<NinjaSpacePirateSegment, Animation<NinjaSpacePirateSegment>>
     {
-        [P.ClawAttackLeft] = new([Whole(P.ClawAttackLeft), .. Active(P.ActiveFacingLeft, P.ActiveFacingLeftStance)], AnimationEnd.LoopsFrom(2)),
-        [P.SpinJumpLeft] = new([Whole(P.SpinJumpLeft), Whole(P.SpinJumpLeftSpinning)], AnimationEnd.LoopsFrom(1)),
+        [P.ClawAttackLeft] = new([Segments.Whole(P.ClawAttackLeft), .. Active(P.ActiveFacingLeft, P.ActiveFacingLeftStance)], AnimationEnd.LoopsFrom(2)),
+        [P.SpinJumpLeft] = new([Segments.Whole(P.SpinJumpLeft), Segments.Whole(P.SpinJumpLeftSpinning)], AnimationEnd.LoopsFrom(1)),
         [P.ActiveFacingLeft] = new(Active(P.ActiveFacingLeft, P.ActiveFacingLeftStance), AnimationEnd.LoopsFrom(1)),
-        [P.FlinchFacingLeft] = new([Whole(P.FlinchFacingLeft), .. Active(P.ActiveFacingLeft, P.ActiveFacingLeftStance)], AnimationEnd.LoopsFrom(2)),
-        [P.DivekickLeftJump] = new([Whole(P.DivekickLeftJump), Whole(P.DivekickLeftJumpFlash)], AnimationEnd.LoopsFrom(1)),
-        [P.DivekickLeftDive] = new([Whole(P.DivekickLeftDive)], AnimationEnd.Holds),
-        [P.WalkToLeftPost] = new([Whole(P.WalkToLeftPost), Whole(P.RunningToLeftPost)], AnimationEnd.LoopsFrom(1)),
-        [P.InitialFacingLeft] = new([Whole(P.InitialFacingLeft), Whole(P.InitialFacingLeftLookingAround)], AnimationEnd.LoopsFrom(1)),
-        [P.LandFacingLeft] = new([Whole(P.LandFacingLeft), Whole(P.LandFacingLeftReady)], AnimationEnd.LoopsFrom(1)),
-        [P.KickFacingLeft] = new([Whole(P.KickFacingLeft), .. Active(P.ActiveFacingLeft, P.ActiveFacingLeftStance)], AnimationEnd.LoopsFrom(2)),
-        [P.ClawAttackRight] = new([Whole(P.ClawAttackRight), .. Active(P.ActiveFacingRight, P.ActiveFacingRightStance)], AnimationEnd.LoopsFrom(2)),
-        [P.SpinJumpRight] = new([Whole(P.SpinJumpRight), Whole(P.SpinJumpRightSpinning)], AnimationEnd.LoopsFrom(1)),
+        [P.FlinchFacingLeft] = new([Segments.Whole(P.FlinchFacingLeft), .. Active(P.ActiveFacingLeft, P.ActiveFacingLeftStance)], AnimationEnd.LoopsFrom(2)),
+        [P.DivekickLeftJump] = new([Segments.Whole(P.DivekickLeftJump), Segments.Whole(P.DivekickLeftJumpFlash)], AnimationEnd.LoopsFrom(1)),
+        [P.DivekickLeftDive] = new([Segments.Whole(P.DivekickLeftDive)], AnimationEnd.Holds),
+        [P.WalkToLeftPost] = new([Segments.Whole(P.WalkToLeftPost), Segments.Whole(P.RunningToLeftPost)], AnimationEnd.LoopsFrom(1)),
+        [P.AwaitingSamusFacingLeft] = new([Segments.Whole(P.AwaitingSamusFacingLeft), Segments.Whole(P.LookingAroundFacingLeft)], AnimationEnd.LoopsFrom(1)),
+        [P.LandFacingLeft] = new([Segments.Whole(P.LandFacingLeft), Segments.Whole(P.LandFacingLeftReady)], AnimationEnd.LoopsFrom(1)),
+        [P.KickFacingLeft] = new([Segments.Whole(P.KickFacingLeft), .. Active(P.ActiveFacingLeft, P.ActiveFacingLeftStance)], AnimationEnd.LoopsFrom(2)),
+        [P.ClawAttackRight] = new([Segments.Whole(P.ClawAttackRight), .. Active(P.ActiveFacingRight, P.ActiveFacingRightStance)], AnimationEnd.LoopsFrom(2)),
+        [P.SpinJumpRight] = new([Segments.Whole(P.SpinJumpRight), Segments.Whole(P.SpinJumpRightSpinning)], AnimationEnd.LoopsFrom(1)),
         [P.ActiveFacingRight] = new(Active(P.ActiveFacingRight, P.ActiveFacingRightStance), AnimationEnd.LoopsFrom(1)),
-        [P.FlinchFacingRight] = new([Whole(P.FlinchFacingRight), .. Active(P.ActiveFacingRight, P.ActiveFacingRightStance)], AnimationEnd.LoopsFrom(2)),
-        [P.DivekickRightJump] = new([Whole(P.DivekickRightJump), Whole(P.DivekickRightJumpFlash)], AnimationEnd.LoopsFrom(1)),
-        [P.DivekickRightDive] = new([Whole(P.DivekickRightDive)], AnimationEnd.Holds),
-        [P.WalkToRightPost] = new([Whole(P.WalkToRightPost), Whole(P.RunningToRightPost)], AnimationEnd.LoopsFrom(1)),
-        [P.InitialFacingRight] = new([Whole(P.InitialFacingRight), Whole(P.InitialFacingRightLookingAround)], AnimationEnd.LoopsFrom(1)),
-        [P.LandFacingRight] = new([Whole(P.LandFacingRight), Whole(P.LandFacingRightReady)], AnimationEnd.LoopsFrom(1)),
-        [P.KickFacingRight] = new([Whole(P.KickFacingRight), .. Active(P.ActiveFacingRight, P.ActiveFacingRightStance)], AnimationEnd.LoopsFrom(2)),
+        [P.FlinchFacingRight] = new([Segments.Whole(P.FlinchFacingRight), .. Active(P.ActiveFacingRight, P.ActiveFacingRightStance)], AnimationEnd.LoopsFrom(2)),
+        [P.DivekickRightJump] = new([Segments.Whole(P.DivekickRightJump), Segments.Whole(P.DivekickRightJumpFlash)], AnimationEnd.LoopsFrom(1)),
+        [P.DivekickRightDive] = new([Segments.Whole(P.DivekickRightDive)], AnimationEnd.Holds),
+        [P.WalkToRightPost] = new([Segments.Whole(P.WalkToRightPost), Segments.Whole(P.RunningToRightPost)], AnimationEnd.LoopsFrom(1)),
+        [P.AwaitingSamusFacingRight] = new([Segments.Whole(P.AwaitingSamusFacingRight), Segments.Whole(P.LookingAroundFacingRight)], AnimationEnd.LoopsFrom(1)),
+        [P.LandFacingRight] = new([Segments.Whole(P.LandFacingRight), Segments.Whole(P.LandFacingRightReady)], AnimationEnd.LoopsFrom(1)),
+        [P.KickFacingRight] = new([Segments.Whole(P.KickFacingRight), .. Active(P.ActiveFacingRight, P.ActiveFacingRightStance)], AnimationEnd.LoopsFrom(2)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<NinjaSpacePirateSegment> StartingWith(NinjaSpacePirateSegment segment) => StartingAt[segment];
 
-    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<NinjaSpacePirateSegment> Whole(NinjaSpacePirateSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
-
     /// <summary>The active stance's entry, <paramref name="entry"/>, then its stance <paramref name="stance"/>, which loops.</summary>
-    private static AnimationPhase<NinjaSpacePirateSegment>[] Active(NinjaSpacePirateSegment entry, NinjaSpacePirateSegment stance) => [Whole(entry), Whole(stance)];
+    private static AnimationPhase<NinjaSpacePirateSegment>[] Active(NinjaSpacePirateSegment entry, NinjaSpacePirateSegment stance) => [Segments.Whole(entry), Segments.Whole(stance)];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, NinjaSpacePirateCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NinjaSpacePirateCue>.Frame(frame, duration);

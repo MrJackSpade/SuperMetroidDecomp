@@ -33,16 +33,13 @@ internal static class MagdolliteLavaAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<MagdolliteLavaSegment, Animation<MagdolliteLavaSegment>> StartingAt { get; } = new Dictionary<MagdolliteLavaSegment, Animation<MagdolliteLavaSegment>>
     {
-        [P.Left] = new([Whole(P.Left)], AnimationEnd.Holds),
-        [P.Right] = new([Whole(P.Right)], AnimationEnd.Holds),
-        [P.Shot] = new([Whole(P.Shot)], AnimationEnd.Holds),
+        [P.Left] = new([Segments.Whole(P.Left)], AnimationEnd.Holds),
+        [P.Right] = new([Segments.Whole(P.Right)], AnimationEnd.Holds),
+        [P.Shot] = new([Segments.Whole(P.Shot)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<MagdolliteLavaSegment> StartingWith(MagdolliteLavaSegment segment) => StartingAt[segment];
-
-    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<MagdolliteLavaSegment> Whole(MagdolliteLavaSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>Shows <paramref name="frame"/> for good (#2337): a still picture rests on it until its owner plays another.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, MagdolliteLavaCue> Hold(EnemyProjectileFrameId frame) => new AnimationBeat<EnemyProjectileFrameId, MagdolliteLavaCue>.HeldFrame(frame);

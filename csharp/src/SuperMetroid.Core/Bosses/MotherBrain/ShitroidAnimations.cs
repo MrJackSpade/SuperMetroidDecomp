@@ -21,18 +21,15 @@ internal static class ShitroidAnimations
     /// </summary>
     internal static IReadOnlyDictionary<ShitroidSegment, Animation<ShitroidSegment>> StartingAt { get; } = new Dictionary<ShitroidSegment, Animation<ShitroidSegment>>
     {
-        [ShitroidSegment.FinishDraining] = new([Whole(ShitroidSegment.FinishDraining), Whole(ShitroidSegment.Normal)], AnimationEnd.LoopsFrom(1)),
-        [ShitroidSegment.Normal] = new([Whole(ShitroidSegment.Normal)], AnimationEnd.LoopsFrom(0)),
-        [ShitroidSegment.LatchedOn] = new([Whole(ShitroidSegment.LatchedOn)], AnimationEnd.LoopsFrom(0)),
-        [ShitroidSegment.Remorse] = new([Whole(ShitroidSegment.Remorse)], AnimationEnd.LoopsFrom(0)),
+        [ShitroidSegment.FinishDraining] = new([Segments.Whole(ShitroidSegment.FinishDraining), Segments.Whole(ShitroidSegment.Normal)], AnimationEnd.LoopsFrom(1)),
+        [ShitroidSegment.Normal] = new([Segments.Whole(ShitroidSegment.Normal)], AnimationEnd.LoopsFrom(0)),
+        [ShitroidSegment.LatchedOn] = new([Segments.Whole(ShitroidSegment.LatchedOn)], AnimationEnd.LoopsFrom(0)),
+        [ShitroidSegment.Remorse] = new([Segments.Whole(ShitroidSegment.Remorse)], AnimationEnd.LoopsFrom(0)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>, before its first play.</summary>
     internal static AnimationPlayback<ShitroidSegment> Starting(ShitroidSegment segment) =>
         new(StartingAt[segment], AnimationPlace.StartOfAnimation);
-
-    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<ShitroidSegment> Whole(ShitroidSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>How long each pose of the remorse's two calm pulses shows.</summary>
     private const int RemorseCalmPose = 10;

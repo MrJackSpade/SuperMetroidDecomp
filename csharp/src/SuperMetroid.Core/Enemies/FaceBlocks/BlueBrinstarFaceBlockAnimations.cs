@@ -32,16 +32,13 @@ internal static class BlueBrinstarFaceBlockAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<BlueBrinstarFaceBlockSegment, Animation<BlueBrinstarFaceBlockSegment>> StartingAt { get; } = new Dictionary<BlueBrinstarFaceBlockSegment, Animation<BlueBrinstarFaceBlockSegment>>
     {
-        [P.SamusLeft] = new([Whole(P.SamusLeft)], AnimationEnd.Holds),
-        [P.SamusRight] = new([Whole(P.SamusRight)], AnimationEnd.Holds),
-        [P.LookingAhead] = new([Whole(P.LookingAhead)], AnimationEnd.Holds),
+        [P.SamusLeft] = new([Segments.Whole(P.SamusLeft)], AnimationEnd.Holds),
+        [P.SamusRight] = new([Segments.Whole(P.SamusRight)], AnimationEnd.Holds),
+        [P.LookingAhead] = new([Segments.Whole(P.LookingAhead)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<BlueBrinstarFaceBlockSegment> StartingWith(BlueBrinstarFaceBlockSegment segment) => StartingAt[segment];
-
-    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<BlueBrinstarFaceBlockSegment> Whole(BlueBrinstarFaceBlockSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>A still picture (#2275): <paramref name="frame"/>, held from the update it shows.</summary>
     private static AnimationBeat<EnemyFrameId, NoAnimationCue> Hold(EnemyFrameId frame) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.HeldFrame(frame);

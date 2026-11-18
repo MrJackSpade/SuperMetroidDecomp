@@ -140,29 +140,26 @@ internal static class HopperAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<HopperSegment, Animation<HopperSegment>> StartingAt { get; } = new Dictionary<HopperSegment, Animation<HopperSegment>>
     {
-        [P.SidehopperFloorJumping] = new([Whole(P.SidehopperFloorJumping)], AnimationEnd.Holds),
-        [P.SidehopperFloorLanded] = new([Whole(P.SidehopperFloorLanded)], AnimationEnd.Holds),
-        [P.SidehopperCeilingJumping] = new([Whole(P.SidehopperCeilingJumping)], AnimationEnd.Holds),
-        [P.SidehopperCeilingLanded] = new([Whole(P.SidehopperCeilingLanded)], AnimationEnd.Holds),
-        [P.DessgeegaFloorJumping] = new([Whole(P.DessgeegaFloorJumping)], AnimationEnd.Holds),
-        [P.DessgeegaFloorLanded] = new([Whole(P.DessgeegaFloorLanded)], AnimationEnd.Holds),
-        [P.DessgeegaCeilingJumping] = new([Whole(P.DessgeegaCeilingJumping)], AnimationEnd.Holds),
-        [P.DessgeegaCeilingLanded] = new([Whole(P.DessgeegaCeilingLanded)], AnimationEnd.Holds),
-        [P.LargeSidehopperFloorJumping] = new([Whole(P.LargeSidehopperFloorJumping)], AnimationEnd.Holds),
-        [P.LargeSidehopperFloorLanded] = new([Whole(P.LargeSidehopperFloorLanded)], AnimationEnd.Holds),
-        [P.LargeSidehopperCeilingJumping] = new([Whole(P.LargeSidehopperCeilingJumping)], AnimationEnd.Holds),
-        [P.LargeSidehopperCeilingLanded] = new([Whole(P.LargeSidehopperCeilingLanded)], AnimationEnd.Holds),
-        [P.LargeDessgeegaFloorJumping] = new([Whole(P.LargeDessgeegaFloorJumping)], AnimationEnd.Holds),
-        [P.LargeDessgeegaFloorLanded] = new([Whole(P.LargeDessgeegaFloorLanded)], AnimationEnd.Holds),
-        [P.LargeDessgeegaCeilingJumping] = new([Whole(P.LargeDessgeegaCeilingJumping)], AnimationEnd.Holds),
-        [P.LargeDessgeegaCeilingLanded] = new([Whole(P.LargeDessgeegaCeilingLanded)], AnimationEnd.Holds),
+        [P.SidehopperFloorJumping] = new([Segments.Whole(P.SidehopperFloorJumping)], AnimationEnd.Holds),
+        [P.SidehopperFloorLanded] = new([Segments.Whole(P.SidehopperFloorLanded)], AnimationEnd.Holds),
+        [P.SidehopperCeilingJumping] = new([Segments.Whole(P.SidehopperCeilingJumping)], AnimationEnd.Holds),
+        [P.SidehopperCeilingLanded] = new([Segments.Whole(P.SidehopperCeilingLanded)], AnimationEnd.Holds),
+        [P.DessgeegaFloorJumping] = new([Segments.Whole(P.DessgeegaFloorJumping)], AnimationEnd.Holds),
+        [P.DessgeegaFloorLanded] = new([Segments.Whole(P.DessgeegaFloorLanded)], AnimationEnd.Holds),
+        [P.DessgeegaCeilingJumping] = new([Segments.Whole(P.DessgeegaCeilingJumping)], AnimationEnd.Holds),
+        [P.DessgeegaCeilingLanded] = new([Segments.Whole(P.DessgeegaCeilingLanded)], AnimationEnd.Holds),
+        [P.LargeSidehopperFloorJumping] = new([Segments.Whole(P.LargeSidehopperFloorJumping)], AnimationEnd.Holds),
+        [P.LargeSidehopperFloorLanded] = new([Segments.Whole(P.LargeSidehopperFloorLanded)], AnimationEnd.Holds),
+        [P.LargeSidehopperCeilingJumping] = new([Segments.Whole(P.LargeSidehopperCeilingJumping)], AnimationEnd.Holds),
+        [P.LargeSidehopperCeilingLanded] = new([Segments.Whole(P.LargeSidehopperCeilingLanded)], AnimationEnd.Holds),
+        [P.LargeDessgeegaFloorJumping] = new([Segments.Whole(P.LargeDessgeegaFloorJumping)], AnimationEnd.Holds),
+        [P.LargeDessgeegaFloorLanded] = new([Segments.Whole(P.LargeDessgeegaFloorLanded)], AnimationEnd.Holds),
+        [P.LargeDessgeegaCeilingJumping] = new([Segments.Whole(P.LargeDessgeegaCeilingJumping)], AnimationEnd.Holds),
+        [P.LargeDessgeegaCeilingLanded] = new([Segments.Whole(P.LargeDessgeegaCeilingLanded)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<HopperSegment> StartingWith(HopperSegment segment) => StartingAt[segment];
-
-    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<HopperSegment> Whole(HopperSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, HopperCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, HopperCue>.Frame(frame, duration);

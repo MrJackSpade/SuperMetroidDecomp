@@ -15,8 +15,8 @@ internal static class RidleyNativeListAddresses
     /// <summary>Each typed body program's native entry point in bank $A6, in authored order.</summary>
     internal static readonly BodyEntry[] BodyEntries =
     [
-        new BodyEntry(RidleyBodySegment.InitialFacingLeft, 0xe538),
-        new BodyEntry(RidleyBodySegment.InitialFacingRight, 0xe542),
+        new BodyEntry(RidleyBodySegment.StandingFacingLeft, 0xe538),
+        new BodyEntry(RidleyBodySegment.StandingFacingRight, 0xe542),
         new BodyEntry(RidleyBodySegment.CeresLungeFacingLeft, 0xe548),
         new BodyEntry(RidleyBodySegment.CeresLungeFacingRight, 0xe576),
         new BodyEntry(RidleyBodySegment.RetrieveBabyMetroidFacingLeft, 0xe658),

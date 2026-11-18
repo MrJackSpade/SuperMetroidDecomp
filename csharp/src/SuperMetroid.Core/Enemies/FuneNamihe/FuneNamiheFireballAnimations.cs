@@ -31,15 +31,12 @@ internal static class FuneNamiheFireballAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<FuneNamiheFireballSegment, Animation<FuneNamiheFireballSegment>> StartingAt { get; } = new Dictionary<FuneNamiheFireballSegment, Animation<FuneNamiheFireballSegment>>
     {
-        [P.Left] = new([Whole(P.Left)], AnimationEnd.LoopsFrom(0)),
-        [P.Right] = new([Whole(P.Right)], AnimationEnd.LoopsFrom(0)),
+        [P.Left] = new([Segments.Whole(P.Left)], AnimationEnd.LoopsFrom(0)),
+        [P.Right] = new([Segments.Whole(P.Right)], AnimationEnd.LoopsFrom(0)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<FuneNamiheFireballSegment> StartingWith(FuneNamiheFireballSegment segment) => StartingAt[segment];
-
-    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<FuneNamiheFireballSegment> Whole(FuneNamiheFireballSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Frame(frame, duration);

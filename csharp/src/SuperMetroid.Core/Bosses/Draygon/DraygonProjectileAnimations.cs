@@ -70,17 +70,14 @@ internal static class DraygonProjectileAnimations
     internal static IReadOnlyDictionary<DraygonProjectileSegment, Animation<DraygonProjectileSegment>> StartingAt { get; } =
         new Dictionary<DraygonProjectileSegment, Animation<DraygonProjectileSegment>>
         {
-            [P.GoopTouch] = new([Whole(P.GoopTouch), Whole(P.Goop)], AnimationEnd.LoopsFrom(1)),
-            [P.Goop] = new([Whole(P.Goop)], AnimationEnd.LoopsFrom(0)),
-            [P.GoopShot] = new([Whole(P.GoopShot)], AnimationEnd.Holds),
-            [P.WallTurretBloom] = new([Whole(P.WallTurretBloom), Whole(P.WallTurretFlight)], AnimationEnd.LoopsFrom(1)),
+            [P.GoopTouch] = new([Segments.Whole(P.GoopTouch), Segments.Whole(P.Goop)], AnimationEnd.LoopsFrom(1)),
+            [P.Goop] = new([Segments.Whole(P.Goop)], AnimationEnd.LoopsFrom(0)),
+            [P.GoopShot] = new([Segments.Whole(P.GoopShot)], AnimationEnd.Holds),
+            [P.WallTurretBloom] = new([Segments.Whole(P.WallTurretBloom), Segments.Whole(P.WallTurretFlight)], AnimationEnd.LoopsFrom(1)),
         };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<DraygonProjectileSegment> StartingWith(DraygonProjectileSegment segment) => StartingAt[segment];
-
-    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<DraygonProjectileSegment> Whole(DraygonProjectileSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>Raises <paramref name="cue"/>.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, DraygonProjectileCue> Cue(DraygonProjectileCue cue) =>

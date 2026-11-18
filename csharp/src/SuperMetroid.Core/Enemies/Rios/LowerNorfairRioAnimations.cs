@@ -91,20 +91,17 @@ internal static class LowerNorfairRioAnimations
     /// </summary>
     internal static IReadOnlyDictionary<LowerNorfairRioSegment, Animation<LowerNorfairRioSegment>> StartingAt { get; } = new Dictionary<LowerNorfairRioSegment, Animation<LowerNorfairRioSegment>>
     {
-        [P.Idle] = new([Whole(P.Idle), Whole(P.IdleWingbeat)], AnimationEnd.LoopsFrom(1)),
-        [P.PrepareToSwoop] = new([Whole(P.PrepareToSwoop)], AnimationEnd.Holds),
-        [P.Descending] = new([Whole(P.Descending)], AnimationEnd.Holds),
-        [P.AscentOpening] = new([Whole(P.AscentOpening)], AnimationEnd.Holds),
-        [P.Ascending] = new([Whole(P.Ascending), Whole(P.AscendingWingbeat)], AnimationEnd.LoopsFrom(1)),
-        [P.Cooldown] = new([Whole(P.Cooldown)], AnimationEnd.Holds),
-        [P.Flames] = new([Whole(P.Flames)], AnimationEnd.LoopsFrom(0)),
+        [P.Idle] = new([Segments.Whole(P.Idle), Segments.Whole(P.IdleWingbeat)], AnimationEnd.LoopsFrom(1)),
+        [P.PrepareToSwoop] = new([Segments.Whole(P.PrepareToSwoop)], AnimationEnd.Holds),
+        [P.Descending] = new([Segments.Whole(P.Descending)], AnimationEnd.Holds),
+        [P.AscentOpening] = new([Segments.Whole(P.AscentOpening)], AnimationEnd.Holds),
+        [P.Ascending] = new([Segments.Whole(P.Ascending), Segments.Whole(P.AscendingWingbeat)], AnimationEnd.LoopsFrom(1)),
+        [P.Cooldown] = new([Segments.Whole(P.Cooldown)], AnimationEnd.Holds),
+        [P.Flames] = new([Segments.Whole(P.Flames)], AnimationEnd.LoopsFrom(0)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<LowerNorfairRioSegment> StartingWith(LowerNorfairRioSegment segment) => StartingAt[segment];
-
-    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<LowerNorfairRioSegment> Whole(LowerNorfairRioSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, LowerNorfairRioCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, LowerNorfairRioCue>.Frame(frame, duration);

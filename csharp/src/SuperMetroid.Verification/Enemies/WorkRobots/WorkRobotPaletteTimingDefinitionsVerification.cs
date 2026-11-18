@@ -22,7 +22,7 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
         CartridgeImportAddressSpace rom)
     {
         int[] holds = [.. WorkRobotGlowAnimations.Segments.Beats(WorkRobotGlowSegment.Glowing)
-            .Select(beat => ((AnimationBeat<WorkRobotGlowStep, NoAnimationCue>.Frame)beat).Duration)];
+            .Select(beat => ((AnimationBeat<WorkRobotGlowPlace, NoAnimationCue>.Frame)beat).Duration)];
         AssertEqual(WorkRobotGlowAnimations.Cycle.Count, holds.Length, "every beat of the Work Robot glow shows a step for a hold");
         for (int glowStep = 0; glowStep < WorkRobotGlowAnimations.Cycle.Count; glowStep++)
         {
@@ -48,6 +48,16 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(source), stock.Resolve(record, color),
                 $"Work Robot color record {record} slot {color} preserves ROM RGB5");
         }
+        // The way back passes the places between the ends again in the same colours: records 1 and 5, and 2 and 4, are one
+        // colouring each, so the glow installs four shades (#2393).
+        int[] shadeOfRecord = [0, 1, 2, 3, 2, 1];
+        AssertEqual(4, WorkRobotGlowAnimations.Places.Count, "the Work Robot glow shows four places, one shade each");
+        for (int record = 0; record < WorkRobotGlowAnimations.Cycle.Count; record++)
+        for (int color = 0; color < WorkRobotPaletteDefinitions.ColorCount; color++)
+        {
+            AssertEqual(stock.Resolve(shadeOfRecord[record], color), stock.Resolve(record, color),
+                $"Work Robot color record {record} slot {color} matches the record of the place it shows");
+        }
         var guard = NewWorkRobotPaletteTimingReadGuard(rom);
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), WorkRobotPaletteCycle = stock })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         // A powered robot's initialization restarts the glow; the glow shows on the robot it placed and on no other place
@@ -67,15 +77,16 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
 
             int record = nextLoad % WorkRobotGlowAnimations.Cycle.Count;
             AssertEqual(WorkRobotGlowAnimations.Cycle[record],
-                enemies.WorkRobotBehavior.GlowStep,
+                enemies.WorkRobotBehavior.GlowPlace,
                 $"production Work Robot glow load {nextLoad} shows the next step");
             AssertEqual(holds[record],
                 enemies.WorkRobotBehavior.UpdatesUntilNextGlowStep,
                 $"production Work Robot glow load {nextLoad} timer");
-            // The robots draw in the record's glow shade, which the import pre-colours from the cycle's colours for the
-            // record (#1512); those colours are compared with bank $A3 above. The shade's step is the record (#2380).
-            AssertEqual(new PictureShade(WorkRobotShades.GlowEffect, record), WorkRobotShades.Glow(WorkRobotGlowAnimations.Cycle[record]),
-                $"production Work Robot glow load {nextLoad} keys its shade by the record");
+            // The robots draw in the glow shade of the place the record shows, which the import pre-colours from the cycle's
+            // colours for that place (#1512); those colours are compared with bank $A3 above. Records showing one place share
+            // its shade (#2393).
+            AssertEqual(new PictureShade(WorkRobotShades.GlowEffect, shadeOfRecord[record]), WorkRobotShades.Glow(WorkRobotGlowAnimations.Cycle[record]),
+                $"production Work Robot glow load {nextLoad} keys its shade by the place it shows");
             AssertEqual(PictureShading.Shaded(WorkRobotShades.Glow(WorkRobotGlowAnimations.Cycle[record])), enemies.WorkRobotBehavior.Glow,
                 $"production Work Robot palette load {nextLoad} shows the record's glow shade");
             AssertEqual(enemies.WorkRobotBehavior.Glow, robot.Shading,

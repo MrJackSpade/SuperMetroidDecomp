@@ -168,23 +168,16 @@ internal static class ChozoStatueAnimations
     /// </summary>
     internal static IReadOnlyDictionary<ChozoStatueSegment, Animation<ChozoStatueSegment>> StartingAt { get; } = new Dictionary<ChozoStatueSegment, Animation<ChozoStatueSegment>>
     {
-        [P.LowerNorfairInitial] = new([Whole(P.LowerNorfairInitial)], AnimationEnd.Holds),
+        [P.LowerNorfairInitial] = new([Segments.Whole(P.LowerNorfairInitial)], AnimationEnd.Holds),
         [P.LowerNorfairActivated] = new(
-            [Whole(P.LowerNorfairActivated), Repeated(P.LowerNorfairFlexing, LowerNorfairFlexes), Whole(P.LowerNorfairRelease)],
+            [Segments.Whole(P.LowerNorfairActivated), Segments.Repeated(P.LowerNorfairFlexing, LowerNorfairFlexes), Segments.Whole(P.LowerNorfairRelease)],
             AnimationEnd.Holds),
-        [P.WreckedShipInitial] = new([Whole(P.WreckedShipInitial)], AnimationEnd.Holds),
+        [P.WreckedShipInitial] = new([Segments.Whole(P.WreckedShipInitial)], AnimationEnd.Holds),
         [P.WreckedShipActivated] = new(
-            [Whole(P.WreckedShipActivated), Repeated(P.WreckedShipFlexing, WreckedShipFlexes), Whole(P.WreckedShipFlexEnd),
-                Repeated(P.WreckedShipWalkingWithSamus, WreckedShipStrideRuns), Whole(P.WreckedShipSettingSamusDown)],
+            [Segments.Whole(P.WreckedShipActivated), Segments.Repeated(P.WreckedShipFlexing, WreckedShipFlexes), Segments.Whole(P.WreckedShipFlexEnd),
+                Segments.Repeated(P.WreckedShipWalkingWithSamus, WreckedShipStrideRuns), Segments.Whole(P.WreckedShipSettingSamusDown)],
             AnimationEnd.Holds),
     };
-
-    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<ChozoStatueSegment> Whole(ChozoStatueSegment segment) => Repeated(segment, 1);
-
-    /// <summary><paramref name="plays"/> plays of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<ChozoStatueSegment> Repeated(ChozoStatueSegment segment, int plays) =>
-        new(segment, 0, Segments.Beats(segment).Count, plays);
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<ChozoStatueSegment> StartingWith(ChozoStatueSegment segment) => StartingAt[segment];

@@ -176,22 +176,22 @@ public enum EnemyProjectileFrameId
     SpacePirateLaserFlareGlow,
     /// <summary>A Space Pirate's laser: a ball of light.</summary>
     SpacePirateLaserFlareBall,
-    /// <summary>A Space Pirate's laser: a bright zigzag 8 pixels long.</summary>
-    SpacePirateLaserBright8,
-    /// <summary>A Space Pirate's laser: a dim zigzag 8 pixels long.</summary>
-    SpacePirateLaserDim8,
-    /// <summary>A Space Pirate's laser: a bright zigzag 16 pixels long.</summary>
-    SpacePirateLaserBright16,
-    /// <summary>A Space Pirate's laser: a dim zigzag 16 pixels long.</summary>
-    SpacePirateLaserDim16,
-    /// <summary>A Space Pirate's laser: a bright zigzag 24 pixels long.</summary>
-    SpacePirateLaserBright24,
-    /// <summary>A Space Pirate's laser: a dim zigzag 24 pixels long.</summary>
-    SpacePirateLaserDim24,
-    /// <summary>A Space Pirate's laser: a bright zigzag 32 pixels long.</summary>
-    SpacePirateLaserBright32,
-    /// <summary>A Space Pirate's laser: a dim zigzag 32 pixels long.</summary>
-    SpacePirateLaserDim32,
+    /// <summary>A Space Pirate's laser: a bright zigzag just leaving the muzzle.</summary>
+    SpacePirateLaserEmergingBright,
+    /// <summary>A Space Pirate's laser: a dim zigzag just leaving the muzzle.</summary>
+    SpacePirateLaserEmergingDim,
+    /// <summary>A Space Pirate's laser: a bright zigzag extending.</summary>
+    SpacePirateLaserExtendingBright,
+    /// <summary>A Space Pirate's laser: a dim zigzag extending.</summary>
+    SpacePirateLaserExtendingDim,
+    /// <summary>A Space Pirate's laser: a bright zigzag lengthening further.</summary>
+    SpacePirateLaserLengtheningBright,
+    /// <summary>A Space Pirate's laser: a dim zigzag lengthening further.</summary>
+    SpacePirateLaserLengtheningDim,
+    /// <summary>A Space Pirate's laser: a bright zigzag at its full length.</summary>
+    SpacePirateLaserFullLengthBright,
+    /// <summary>A Space Pirate's laser: a dim zigzag at its full length.</summary>
+    SpacePirateLaserFullLengthDim,
     /// <summary>A Space Pirate's claw thrown left: the claw turned 0 degrees.</summary>
     SpacePirateClawLeftTurned0,
     /// <summary>A Space Pirate's claw thrown left: the claw turned 45 degrees.</summary>
@@ -723,18 +723,18 @@ public enum EnemyProjectileFrameId
     MotherBrainTurretBulletFireCloudEmbers,
     /// <summary>A Mother Brain turret's bullet: one faint speck.</summary>
     MotherBrainTurretBulletSpeck,
-    /// <summary>Mother Brain's blue ring: a blue ring 8 pixels across.</summary>
-    MotherBrainBlueRingAcross8,
-    /// <summary>Mother Brain's blue ring: a blue ring 16 pixels across.</summary>
-    MotherBrainBlueRingAcross16,
-    /// <summary>Mother Brain's blue ring: a blue ring 22 pixels across.</summary>
-    MotherBrainBlueRingAcross22,
-    /// <summary>Mother Brain's blue ring: a blue ring 24 pixels across.</summary>
-    MotherBrainBlueRingAcross24,
-    /// <summary>Mother Brain's blue ring: a blue ring 30 pixels across.</summary>
-    MotherBrainBlueRingAcross30,
-    /// <summary>Mother Brain's blue ring: a blue ring 32 pixels across.</summary>
-    MotherBrainBlueRingAcross32,
+    /// <summary>Mother Brain's blue ring: a small blue ring, just formed.</summary>
+    MotherBrainBlueRingForming,
+    /// <summary>Mother Brain's blue ring: the blue ring opening out.</summary>
+    MotherBrainBlueRingOpening,
+    /// <summary>Mother Brain's blue ring: the blue ring spreading wider.</summary>
+    MotherBrainBlueRingSpreading,
+    /// <summary>Mother Brain's blue ring: the blue ring growing on.</summary>
+    MotherBrainBlueRingGrowing,
+    /// <summary>Mother Brain's blue ring: the blue ring swelling to nearly its full size.</summary>
+    MotherBrainBlueRingSwelling,
+    /// <summary>Mother Brain's blue ring: the blue ring at its full size.</summary>
+    MotherBrainBlueRingFullSize,
     /// <summary>Mother Brain's blue ring exploding: a small fireball.</summary>
     MotherBrainBlueRingFireballSmall,
     /// <summary>Mother Brain's blue ring exploding: a large fireball.</summary>

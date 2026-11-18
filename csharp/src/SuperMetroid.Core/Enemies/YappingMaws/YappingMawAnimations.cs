@@ -133,27 +133,24 @@ internal static class YappingMawAnimations
     /// </summary>
     internal static IReadOnlyDictionary<YappingMawSegment, Animation<YappingMawSegment>> StartingAt { get; } = new Dictionary<YappingMawSegment, Animation<YappingMawSegment>>
     {
-        [P.AttackingUp] = new([Whole(P.AttackingUp)], AnimationEnd.LoopsFrom(0)),
-        [P.AttackingUpRight] = new([Whole(P.AttackingUpRight)], AnimationEnd.LoopsFrom(0)),
-        [P.AttackingRight] = new([Whole(P.AttackingRight)], AnimationEnd.LoopsFrom(0)),
-        [P.AttackingDownRight] = new([Whole(P.AttackingDownRight)], AnimationEnd.LoopsFrom(0)),
-        [P.AttackingDown] = new([Whole(P.AttackingDown)], AnimationEnd.LoopsFrom(0)),
-        [P.AttackingDownLeft] = new([Whole(P.AttackingDownLeft)], AnimationEnd.LoopsFrom(0)),
-        [P.AttackingLeft] = new([Whole(P.AttackingLeft)], AnimationEnd.LoopsFrom(0)),
-        [P.AttackingUpLeft] = new([Whole(P.AttackingUpLeft)], AnimationEnd.LoopsFrom(0)),
-        [P.CooldownUpRight] = new([Whole(P.CooldownUpRight), Whole(P.CooldownUp), Whole(P.ChewingUp)], AnimationEnd.LoopsFrom(2)),
-        [P.CooldownUp] = new([Whole(P.CooldownUp), Whole(P.ChewingUp)], AnimationEnd.LoopsFrom(1)),
-        [P.CooldownUpLeft] = new([Whole(P.CooldownUpLeft), Whole(P.ChewingUp)], AnimationEnd.LoopsFrom(1)),
-        [P.CooldownDownRight] = new([Whole(P.CooldownDownRight), Whole(P.CooldownDown), Whole(P.ChewingDown)], AnimationEnd.LoopsFrom(2)),
-        [P.CooldownDown] = new([Whole(P.CooldownDown), Whole(P.ChewingDown)], AnimationEnd.LoopsFrom(1)),
-        [P.CooldownDownLeft] = new([Whole(P.CooldownDownLeft), Whole(P.ChewingDown)], AnimationEnd.LoopsFrom(1)),
+        [P.AttackingUp] = new([Segments.Whole(P.AttackingUp)], AnimationEnd.LoopsFrom(0)),
+        [P.AttackingUpRight] = new([Segments.Whole(P.AttackingUpRight)], AnimationEnd.LoopsFrom(0)),
+        [P.AttackingRight] = new([Segments.Whole(P.AttackingRight)], AnimationEnd.LoopsFrom(0)),
+        [P.AttackingDownRight] = new([Segments.Whole(P.AttackingDownRight)], AnimationEnd.LoopsFrom(0)),
+        [P.AttackingDown] = new([Segments.Whole(P.AttackingDown)], AnimationEnd.LoopsFrom(0)),
+        [P.AttackingDownLeft] = new([Segments.Whole(P.AttackingDownLeft)], AnimationEnd.LoopsFrom(0)),
+        [P.AttackingLeft] = new([Segments.Whole(P.AttackingLeft)], AnimationEnd.LoopsFrom(0)),
+        [P.AttackingUpLeft] = new([Segments.Whole(P.AttackingUpLeft)], AnimationEnd.LoopsFrom(0)),
+        [P.CooldownUpRight] = new([Segments.Whole(P.CooldownUpRight), Segments.Whole(P.CooldownUp), Segments.Whole(P.ChewingUp)], AnimationEnd.LoopsFrom(2)),
+        [P.CooldownUp] = new([Segments.Whole(P.CooldownUp), Segments.Whole(P.ChewingUp)], AnimationEnd.LoopsFrom(1)),
+        [P.CooldownUpLeft] = new([Segments.Whole(P.CooldownUpLeft), Segments.Whole(P.ChewingUp)], AnimationEnd.LoopsFrom(1)),
+        [P.CooldownDownRight] = new([Segments.Whole(P.CooldownDownRight), Segments.Whole(P.CooldownDown), Segments.Whole(P.ChewingDown)], AnimationEnd.LoopsFrom(2)),
+        [P.CooldownDown] = new([Segments.Whole(P.CooldownDown), Segments.Whole(P.ChewingDown)], AnimationEnd.LoopsFrom(1)),
+        [P.CooldownDownLeft] = new([Segments.Whole(P.CooldownDownLeft), Segments.Whole(P.ChewingDown)], AnimationEnd.LoopsFrom(1)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<YappingMawSegment> StartingWith(YappingMawSegment segment) => StartingAt[segment];
-
-    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<YappingMawSegment> Whole(YappingMawSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, YappingMawCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, YappingMawCue>.Frame(frame, duration);

@@ -33,15 +33,12 @@ internal static class MochtroidAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<MochtroidSegment, Animation<MochtroidSegment>> StartingAt { get; } = new Dictionary<MochtroidSegment, Animation<MochtroidSegment>>
     {
-        [P.FreeFlight] = new([Whole(P.FreeFlight)], AnimationEnd.LoopsFrom(0)),
-        [P.Attached] = new([Whole(P.Attached)], AnimationEnd.LoopsFrom(0)),
+        [P.FreeFlight] = new([Segments.Whole(P.FreeFlight)], AnimationEnd.LoopsFrom(0)),
+        [P.Attached] = new([Segments.Whole(P.Attached)], AnimationEnd.LoopsFrom(0)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<MochtroidSegment> StartingWith(MochtroidSegment segment) => StartingAt[segment];
-
-    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<MochtroidSegment> Whole(MochtroidSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, NoAnimationCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);

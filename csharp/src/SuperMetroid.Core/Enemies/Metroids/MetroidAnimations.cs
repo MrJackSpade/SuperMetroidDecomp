@@ -49,18 +49,12 @@ internal static class MetroidAnimations
     /// </summary>
     internal static IReadOnlyDictionary<MetroidSegment, Animation<MetroidSegment>> StartingAt { get; } = new Dictionary<MetroidSegment, Animation<MetroidSegment>>
     {
-        [P.ChasingSamus] = new([Repeated(P.ChasingSamus, PulsesBetweenCries), Whole(P.ChasingCry)], AnimationEnd.LoopsFrom(0)),
-        [P.DrainingSamus] = new([Whole(P.DrainingSamus)], AnimationEnd.LoopsFrom(0)),
+        [P.ChasingSamus] = new([Segments.Repeated(P.ChasingSamus, PulsesBetweenCries), Segments.Whole(P.ChasingCry)], AnimationEnd.LoopsFrom(0)),
+        [P.DrainingSamus] = new([Segments.Whole(P.DrainingSamus)], AnimationEnd.LoopsFrom(0)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<MetroidSegment> StartingWith(MetroidSegment segment) => StartingAt[segment];
-
-    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<MetroidSegment> Whole(MetroidSegment segment) => Repeated(segment, 1);
-
-    /// <summary><paramref name="plays"/> plays of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<MetroidSegment> Repeated(MetroidSegment segment, int plays) => new(segment, 0, Segments.Beats(segment).Count, plays);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, MetroidCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, MetroidCue>.Frame(frame, duration);

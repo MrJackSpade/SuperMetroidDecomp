@@ -152,12 +152,12 @@ internal static class WallSpacePirateAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<WallSpacePirateSegment, Animation<WallSpacePirateSegment>> StartingAt { get; } = new Dictionary<WallSpacePirateSegment, Animation<WallSpacePirateSegment>>
     {
-        [P.FireAndJumpLeft] = new([Whole(P.FireAndJumpLeft)], AnimationEnd.Holds),
-        [P.LandedOnLeftWall] = new([Whole(P.LandedOnLeftWall), .. Climb(P.MovingUpLeftWall, P.ClimbingUpLeftWall, P.ChooseLeftWallClimb)], AnimationEnd.Holds),
+        [P.FireAndJumpLeft] = new([Segments.Whole(P.FireAndJumpLeft)], AnimationEnd.Holds),
+        [P.LandedOnLeftWall] = new([Segments.Whole(P.LandedOnLeftWall), .. Climb(P.MovingUpLeftWall, P.ClimbingUpLeftWall, P.ChooseLeftWallClimb)], AnimationEnd.Holds),
         [P.MovingUpLeftWall] = new(Climb(P.MovingUpLeftWall, P.ClimbingUpLeftWall, P.ChooseLeftWallClimb), AnimationEnd.Holds),
         [P.MovingDownLeftWall] = new(Climb(P.MovingDownLeftWall, P.ClimbingDownLeftWall, P.ChooseLeftWallClimb), AnimationEnd.Holds),
-        [P.FireAndJumpRight] = new([Whole(P.FireAndJumpRight)], AnimationEnd.Holds),
-        [P.LandedOnRightWall] = new([Whole(P.LandedOnRightWall), .. Climb(P.MovingDownRightWall, P.ClimbingDownRightWall, P.ChooseRightWallClimb)], AnimationEnd.Holds),
+        [P.FireAndJumpRight] = new([Segments.Whole(P.FireAndJumpRight)], AnimationEnd.Holds),
+        [P.LandedOnRightWall] = new([Segments.Whole(P.LandedOnRightWall), .. Climb(P.MovingDownRightWall, P.ClimbingDownRightWall, P.ChooseRightWallClimb)], AnimationEnd.Holds),
         [P.MovingDownRightWall] = new(Climb(P.MovingDownRightWall, P.ClimbingDownRightWall, P.ChooseRightWallClimb), AnimationEnd.Holds),
         [P.MovingUpRightWall] = new(Climb(P.MovingUpRightWall, P.ClimbingUpRightWall, P.ChooseRightWallClimb), AnimationEnd.Holds),
     };
@@ -165,15 +165,12 @@ internal static class WallSpacePirateAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<WallSpacePirateSegment> StartingWith(WallSpacePirateSegment segment) => StartingAt[segment];
 
-    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<WallSpacePirateSegment> Whole(WallSpacePirateSegment segment) => Segments.Whole(segment);
-
     /// <summary>
     /// A climb (#2276): its entry cue <paramref name="entry"/>, the climb <paramref name="climb"/> four times, then the
     /// choice <paramref name="choice"/> of the next.
     /// </summary>
     private static AnimationPhase<WallSpacePirateSegment>[] Climb(WallSpacePirateSegment entry, WallSpacePirateSegment climb, WallSpacePirateSegment choice) =>
-        [Whole(entry), Segments.Repeated(climb, ClimbRepeats), Whole(choice)];
+        [Segments.Whole(entry), Segments.Repeated(climb, ClimbRepeats), Segments.Whole(choice)];
 
     /// <summary>The times a climb plays before the pirate chooses the next.</summary>
     private const int ClimbRepeats = 4;

@@ -1394,19 +1394,15 @@ internal static class SamusProjectileAnimations
     /// <summary>Shows <paramref name="frame"/> from now on (#2347): a still picture the projectile keeps until it changes animation.</summary>
     private static AnimationBeat<SamusProjectileFrameId, NoAnimationCue> Hold(SamusProjectileFrameId frame) => new AnimationBeat<SamusProjectileFrameId, NoAnimationCue>.HeldFrame(frame);
 
-    /// <summary>The phase that plays all of <paramref name="segment"/> once, its beats counted from the segment itself (#2347).</summary>
-    private static AnimationPhase<SamusProjectileSegment> Whole(SamusProjectileSegment segment) =>
-        new(segment, 0, Segments.Beats(segment).Count, 1);
-
     /// <summary>An animation that plays <paramref name="segment"/> and, past its end, plays it again.</summary>
     private static Animation<SamusProjectileSegment> Repeating(SamusProjectileSegment segment) =>
-        new([Whole(segment)], AnimationEnd.LoopsFrom(0));
+        new([Segments.Whole(segment)], AnimationEnd.LoopsFrom(0));
 
     /// <summary>An animation that plays <paramref name="opening"/> once, then plays <paramref name="repeated"/> over and over.</summary>
     private static Animation<SamusProjectileSegment> OpeningThenRepeating(SamusProjectileSegment opening, SamusProjectileSegment repeated) =>
-        new([Whole(opening), Whole(repeated)], AnimationEnd.LoopsFrom(1));
+        new([Segments.Whole(opening), Segments.Whole(repeated)], AnimationEnd.LoopsFrom(1));
 
     /// <summary>An animation that plays <paramref name="segment"/> once and is over: an explosion.</summary>
     private static Animation<SamusProjectileSegment> PlayedOnce(SamusProjectileSegment segment) =>
-        new([Whole(segment)], AnimationEnd.Stops);
+        new([Segments.Whole(segment)], AnimationEnd.Stops);
 }

@@ -112,26 +112,26 @@ internal static class EtecoonAnimations
     /// </summary>
     internal static IReadOnlyDictionary<EtecoonSegment, Animation<EtecoonSegment>> StartingAt { get; } = new Dictionary<EtecoonSegment, Animation<EtecoonSegment>>
     {
-        [P.LookRightAtSamusAndRunLeft] = new([Whole(P.LookRightAtSamusAndRunLeft)], AnimationEnd.Holds),
-        [P.BeginRunningLeft] = new([Whole(P.BeginRunningLeft), Whole(P.RunningLeft)], AnimationEnd.LoopsFrom(1)),
-        [P.RunningLeft] = new([Whole(P.RunningLeft)], AnimationEnd.LoopsFrom(0)),
-        [P.WallJumpLeft] = new([Whole(P.WallJumpLeft), Whole(P.JumpingLeft)], AnimationEnd.LoopsFrom(1)),
-        [P.HoppingFacingLeft] = new([Whole(P.HoppingFacingLeft)], AnimationEnd.Holds),
-        [P.ContinueHoppingFacingLeft] = new([Whole(P.ContinueHoppingFacingLeft)], AnimationEnd.Holds),
-        [P.WallJumpLeftEligible] = new([Whole(P.WallJumpLeftEligible)], AnimationEnd.Holds),
-        [P.LookLeftAtSamusAndRunRight] = new([Whole(P.LookLeftAtSamusAndRunRight)], AnimationEnd.Holds),
-        [P.BeginRunningRight] = new([Whole(P.BeginRunningRight), Whole(P.RunningRight)], AnimationEnd.LoopsFrom(1)),
-        [P.RunningRight] = new([Whole(P.RunningRight)], AnimationEnd.LoopsFrom(0)),
-        [P.WallJumpRight] = new([Whole(P.WallJumpRight), Whole(P.JumpingRight)], AnimationEnd.LoopsFrom(1)),
-        [P.JumpingRight] = new([Whole(P.JumpingRight)], AnimationEnd.LoopsFrom(0)),
-        [P.HoppingFacingRight] = new([Whole(P.HoppingFacingRight)], AnimationEnd.Holds),
-        [P.ContinueHoppingFacingRight] = new([Whole(P.ContinueHoppingFacingRight)], AnimationEnd.Holds),
-        [P.WallJumpRightEligible] = new([Whole(P.WallJumpRightEligible)], AnimationEnd.Holds),
-        [P.StartingCrouch] = new([Whole(P.StartingCrouch)], AnimationEnd.Holds),
+        [P.LookRightAtSamusAndRunLeft] = new([Segments.Whole(P.LookRightAtSamusAndRunLeft)], AnimationEnd.Holds),
+        [P.BeginRunningLeft] = new([Segments.Whole(P.BeginRunningLeft), Segments.Whole(P.RunningLeft)], AnimationEnd.LoopsFrom(1)),
+        [P.RunningLeft] = new([Segments.Whole(P.RunningLeft)], AnimationEnd.LoopsFrom(0)),
+        [P.WallJumpLeft] = new([Segments.Whole(P.WallJumpLeft), Segments.Whole(P.JumpingLeft)], AnimationEnd.LoopsFrom(1)),
+        [P.HoppingFacingLeft] = new([Segments.Whole(P.HoppingFacingLeft)], AnimationEnd.Holds),
+        [P.ContinueHoppingFacingLeft] = new([Segments.Whole(P.ContinueHoppingFacingLeft)], AnimationEnd.Holds),
+        [P.WallJumpLeftEligible] = new([Segments.Whole(P.WallJumpLeftEligible)], AnimationEnd.Holds),
+        [P.LookLeftAtSamusAndRunRight] = new([Segments.Whole(P.LookLeftAtSamusAndRunRight)], AnimationEnd.Holds),
+        [P.BeginRunningRight] = new([Segments.Whole(P.BeginRunningRight), Segments.Whole(P.RunningRight)], AnimationEnd.LoopsFrom(1)),
+        [P.RunningRight] = new([Segments.Whole(P.RunningRight)], AnimationEnd.LoopsFrom(0)),
+        [P.WallJumpRight] = new([Segments.Whole(P.WallJumpRight), Segments.Whole(P.JumpingRight)], AnimationEnd.LoopsFrom(1)),
+        [P.JumpingRight] = new([Segments.Whole(P.JumpingRight)], AnimationEnd.LoopsFrom(0)),
+        [P.HoppingFacingRight] = new([Segments.Whole(P.HoppingFacingRight)], AnimationEnd.Holds),
+        [P.ContinueHoppingFacingRight] = new([Segments.Whole(P.ContinueHoppingFacingRight)], AnimationEnd.Holds),
+        [P.WallJumpRightEligible] = new([Segments.Whole(P.WallJumpRightEligible)], AnimationEnd.Holds),
+        [P.StartingCrouch] = new([Segments.Whole(P.StartingCrouch)], AnimationEnd.Holds),
     };
 
     /// <summary>The flex its wake starts (#2061): four plays of its six hop poses, then its two closing poses, held.</summary>
-    internal static Animation<EtecoonSegment> Flexing { get; } = new([Repeated(P.Flexing, FlexRuns), Whole(P.FlexEnd)], AnimationEnd.Holds);
+    internal static Animation<EtecoonSegment> Flexing { get; } = new([Segments.Repeated(P.Flexing, FlexRuns), Segments.Whole(P.FlexEnd)], AnimationEnd.Holds);
 
     /// <summary>
     /// The left hop entered at its crest (#2061), as hitting a ceiling enters it: the crest, then the way down.
@@ -141,13 +141,6 @@ internal static class EtecoonAnimations
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<EtecoonSegment> StartingWith(EtecoonSegment segment) => StartingAt[segment];
-
-    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<EtecoonSegment> Whole(EtecoonSegment segment) => Repeated(segment, 1);
-
-    /// <summary><paramref name="plays"/> plays of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<EtecoonSegment> Repeated(EtecoonSegment segment, int plays) =>
-        new(segment, 0, Segments.Beats(segment).Count, plays);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, NoAnimationCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);

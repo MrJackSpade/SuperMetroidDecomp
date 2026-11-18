@@ -74,15 +74,12 @@ internal static class HibashiAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<HibashiSegment, Animation<HibashiSegment>> StartingAt { get; } = new Dictionary<HibashiSegment, Animation<HibashiSegment>>
     {
-        [P.Flame] = new([Whole(P.Flame)], AnimationEnd.Holds),
-        [P.Hitbox] = new([Whole(P.Hitbox)], AnimationEnd.Holds),
+        [P.Flame] = new([Segments.Whole(P.Flame)], AnimationEnd.Holds),
+        [P.Hitbox] = new([Segments.Whole(P.Hitbox)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<HibashiSegment> StartingWith(HibashiSegment segment) => StartingAt[segment];
-
-    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<HibashiSegment> Whole(HibashiSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, HibashiCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, HibashiCue>.Frame(frame, duration);

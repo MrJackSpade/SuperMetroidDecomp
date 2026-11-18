@@ -4,9 +4,9 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 internal enum SporeSpawnBodySegment
 {
     /// <summary>A defeated room's hardened husk.</summary>
-    InitialDead,
+    Husk,
     /// <summary>The living room's wait before the descent.</summary>
-    InitialAlive,
+    AwaitingDescent,
     /// <summary>The fight's first sway.</summary>
     FightStarted,
     /// <summary>Opening the head and stopping.</summary>

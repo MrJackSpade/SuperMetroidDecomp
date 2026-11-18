@@ -167,7 +167,7 @@ internal static class ShotCallbackDefinitionsVerification
             projectile.Playback = ProjectileFixturePlaybacks.Active;
             projectile.FrameHold = WrappingCountdown.Start(1);
 
-            AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(
+            AssertEqual(1, enemies.ResolveShotsOnInteractiveEnemies(
                     projectiles,
                     new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors, global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), SuperMetroid.Core.Progression.AreaId.Crateria, RoomEnemyFrameFixtures.StandaloneSamus()),
                 $"literal shot no-op ${callback:X6} is admitted by production collision");

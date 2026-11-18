@@ -83,14 +83,14 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaMiniBoss))
         {
-            state.BodyPlayback = new AnimationPlayback<SporeSpawnBodySegment>(SporeSpawnAnimations.StartingWith(SporeSpawnBodySegment.InitialDead), AnimationPlace.StartOfAnimation);
+            state.BodyPlayback = new AnimationPlayback<SporeSpawnBodySegment>(SporeSpawnAnimations.StartingWith(SporeSpawnBodySegment.Husk), AnimationPlace.StartOfAnimation);
             body.Contact = body.Contact.With(EnemyContact.SolidToSamus);
             UpdateSporeSpawnStalks(body, state);
             PublishSporeSpawnObject(SporeSpawnCeilingMutation.Clear);
             return;
         }
 
-        state.BodyPlayback = new AnimationPlayback<SporeSpawnBodySegment>(SporeSpawnAnimations.StartingWith(SporeSpawnBodySegment.InitialAlive), AnimationPlace.StartOfAnimation);
+        state.BodyPlayback = new AnimationPlayback<SporeSpawnBodySegment>(SporeSpawnAnimations.StartingWith(SporeSpawnBodySegment.AwaitingDescent), AnimationPlace.StartOfAnimation);
         body.Position = body.Position.WithWholeY(body.Position.Y.Whole - SporeSpawnArenaDefinitions.FightStartRise);
 
         // His fight runs every enemy in the room each update, wherever the camera is.

@@ -65,18 +65,15 @@ internal static class SporeSpawnProjectileAnimations
     /// </summary>
     internal static IReadOnlyDictionary<SporeSpawnProjectileSegment, Animation<SporeSpawnProjectileSegment>> StartingAt { get; } = new Dictionary<SporeSpawnProjectileSegment, Animation<SporeSpawnProjectileSegment>>
     {
-        [P.SpawnerClosed] = new([Whole(P.SpawnerClosed)], AnimationEnd.Holds),
-        [P.SpawnerRelease] = new([Whole(P.SpawnerRelease)], AnimationEnd.Holds),
-        [P.Spore] = new([Whole(P.Spore)], AnimationEnd.LoopsFrom(0)),
-        [P.Stalk] = new([Whole(P.Stalk)], AnimationEnd.Holds),
-        [P.SporeShot] = new([Whole(P.SporeShot)], AnimationEnd.Holds),
+        [P.SpawnerClosed] = new([Segments.Whole(P.SpawnerClosed)], AnimationEnd.Holds),
+        [P.SpawnerRelease] = new([Segments.Whole(P.SpawnerRelease)], AnimationEnd.Holds),
+        [P.Spore] = new([Segments.Whole(P.Spore)], AnimationEnd.LoopsFrom(0)),
+        [P.Stalk] = new([Segments.Whole(P.Stalk)], AnimationEnd.Holds),
+        [P.SporeShot] = new([Segments.Whole(P.SporeShot)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<SporeSpawnProjectileSegment> StartingWith(SporeSpawnProjectileSegment segment) => StartingAt[segment];
-
-    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<SporeSpawnProjectileSegment> Whole(SporeSpawnProjectileSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>Shows <paramref name="frame"/> for good: a still picture (#2235).</summary>
     private static AnimationBeat<EnemyProjectileFrameId, SporeSpawnProjectileCue> Hold(EnemyProjectileFrameId frame) =>

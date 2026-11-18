@@ -508,43 +508,39 @@ internal static class CrocomireBodyAnimations
     /// </summary>
     internal static IReadOnlyDictionary<CrocomireBodySegment, Animation<CrocomireBodySegment>> StartingAt { get; } = new Dictionary<CrocomireBodySegment, Animation<CrocomireBodySegment>>
     {
-        [P.IdleSway] = new([Whole(P.IdleSway)], AnimationEnd.LoopsFrom(0)),
-        [P.ProjectileAttack] = new([Whole(P.ProjectileAttack), Whole(P.ProjectileAttackSpitting)], AnimationEnd.LoopsFrom(1)),
-        [P.StepForwardAfterDelay] = new([Whole(P.StepForwardAfterDelay), Whole(P.StepForward)], AnimationEnd.LoopsFrom(1)),
-        [P.StepForward] = new([Whole(P.StepForward)], AnimationEnd.LoopsFrom(0)),
-        [P.StepBack] = new([Whole(P.StepBack), Whole(P.SteppingBack), Whole(P.WaitForFirstSecondDamage), Whole(P.MovingClaws), Whole(P.Roar), Whole(P.RoarCloseMouth), ClosedMouthToFightCue], AnimationEnd.LoopsFrom(4)),
-        [P.SteppingBack] = new([Whole(P.SteppingBack), Whole(P.WaitForFirstSecondDamage), Whole(P.MovingClaws), Whole(P.Roar), Whole(P.RoarCloseMouth), ClosedMouthToFightCue], AnimationEnd.LoopsFrom(3)),
-        [P.WaitForFirstSecondDamage] = new([Whole(P.WaitForFirstSecondDamage), Whole(P.MovingClaws), Whole(P.Roar), Whole(P.RoarCloseMouth), ClosedMouthToFightCue], AnimationEnd.LoopsFrom(2)),
-        [P.MovingClaws] = new([Whole(P.MovingClaws), Whole(P.Roar), Whole(P.RoarCloseMouth), ClosedMouthToFightCue], AnimationEnd.LoopsFrom(1)),
-        [P.Roar] = new([Whole(P.Roar), Whole(P.RoarCloseMouth), ClosedMouthToFightCue], AnimationEnd.LoopsFrom(0)),
-        [P.RoarCloseMouth] = new([Whole(P.RoarCloseMouth), ClosedMouthToFightCue, Whole(P.Roar), Whole(P.RoarCloseMouth), ClosedMouthToFightCue], AnimationEnd.LoopsFrom(2)),
-        [P.PowerBombReactionMouthFullyOpen] = new([Whole(P.PowerBombReactionMouthFullyOpen), Whole(P.PowerBombReactionMouthPartiallyOpen), Whole(P.PowerBombReactionMouthNotOpen), Whole(P.PowerBombReactionCharge)], AnimationEnd.LoopsFrom(3)),
-        [P.PowerBombReactionMouthPartiallyOpen] = new([Whole(P.PowerBombReactionMouthPartiallyOpen), Whole(P.PowerBombReactionMouthNotOpen), Whole(P.PowerBombReactionCharge)], AnimationEnd.LoopsFrom(2)),
-        [P.PowerBombReactionMouthNotOpen] = new([Whole(P.PowerBombReactionMouthNotOpen), Whole(P.PowerBombReactionCharge)], AnimationEnd.LoopsFrom(1)),
-        [P.NearSpikeWallCharge] = new([Whole(P.NearSpikeWallCharge), Whole(P.NearSpikeWallChargeSteps)], AnimationEnd.LoopsFrom(1)),
-        [P.BackOffFromSpikeWall] = new([Whole(P.BackOffFromSpikeWall)], AnimationEnd.LoopsFrom(0)),
-        [P.MeltingFleshTopRow] = new([Whole(P.MeltingFleshTopRow)], AnimationEnd.LoopsFrom(0)),
-        [P.MeltingFleshTopTwoRows] = new([Whole(P.MeltingFleshTopTwoRows)], AnimationEnd.Holds),
-        [P.MeltingFleshTopThreeRows] = new([Whole(P.MeltingFleshTopThreeRows)], AnimationEnd.Holds),
-        [P.MeltingFleshTopFourRows] = new([Whole(P.MeltingFleshTopFourRows)], AnimationEnd.Holds),
-        [P.MeltingBareSkullTopRow] = new([Whole(P.MeltingBareSkullTopRow)], AnimationEnd.LoopsFrom(0)),
-        [P.MeltingBareSkullTopTwoRows] = new([Whole(P.MeltingBareSkullTopTwoRows)], AnimationEnd.Holds),
-        [P.MeltingBareSkullTopThreeRows] = new([Whole(P.MeltingBareSkullTopThreeRows)], AnimationEnd.Holds),
-        [P.MeltingBareSkullTopFourRows] = new([Whole(P.MeltingBareSkullTopFourRows)], AnimationEnd.Holds),
-        [P.BridgeCollapsed] = new([Whole(P.BridgeCollapsed)], AnimationEnd.Holds),
-        [P.SkeletonFalling] = new([Whole(P.SkeletonFalling)], AnimationEnd.Holds),
-        [P.SkeletonFallsApart] = new([Whole(P.SkeletonFallsApart), Whole(P.SkeletonStable)], AnimationEnd.Holds),
-        [P.SkeletonStable] = new([Whole(P.SkeletonStable)], AnimationEnd.Holds),
-        [P.Dead] = new([Whole(P.Dead)], AnimationEnd.Holds),
-        [P.SkeletonFlowingDownRiver] = new([Whole(P.SkeletonFlowingDownRiver)], AnimationEnd.LoopsFrom(0)),
+        [P.IdleSway] = new([Segments.Whole(P.IdleSway)], AnimationEnd.LoopsFrom(0)),
+        [P.ProjectileAttack] = new([Segments.Whole(P.ProjectileAttack), Segments.Whole(P.ProjectileAttackSpitting)], AnimationEnd.LoopsFrom(1)),
+        [P.StepForwardAfterDelay] = new([Segments.Whole(P.StepForwardAfterDelay), Segments.Whole(P.StepForward)], AnimationEnd.LoopsFrom(1)),
+        [P.StepForward] = new([Segments.Whole(P.StepForward)], AnimationEnd.LoopsFrom(0)),
+        [P.StepBack] = new([Segments.Whole(P.StepBack), Segments.Whole(P.SteppingBack), Segments.Whole(P.WaitForFirstSecondDamage), Segments.Whole(P.MovingClaws), Segments.Whole(P.Roar), Segments.Whole(P.RoarCloseMouth), ClosedMouthToFightCue], AnimationEnd.LoopsFrom(4)),
+        [P.SteppingBack] = new([Segments.Whole(P.SteppingBack), Segments.Whole(P.WaitForFirstSecondDamage), Segments.Whole(P.MovingClaws), Segments.Whole(P.Roar), Segments.Whole(P.RoarCloseMouth), ClosedMouthToFightCue], AnimationEnd.LoopsFrom(3)),
+        [P.WaitForFirstSecondDamage] = new([Segments.Whole(P.WaitForFirstSecondDamage), Segments.Whole(P.MovingClaws), Segments.Whole(P.Roar), Segments.Whole(P.RoarCloseMouth), ClosedMouthToFightCue], AnimationEnd.LoopsFrom(2)),
+        [P.MovingClaws] = new([Segments.Whole(P.MovingClaws), Segments.Whole(P.Roar), Segments.Whole(P.RoarCloseMouth), ClosedMouthToFightCue], AnimationEnd.LoopsFrom(1)),
+        [P.Roar] = new([Segments.Whole(P.Roar), Segments.Whole(P.RoarCloseMouth), ClosedMouthToFightCue], AnimationEnd.LoopsFrom(0)),
+        [P.RoarCloseMouth] = new([Segments.Whole(P.RoarCloseMouth), ClosedMouthToFightCue, Segments.Whole(P.Roar), Segments.Whole(P.RoarCloseMouth), ClosedMouthToFightCue], AnimationEnd.LoopsFrom(2)),
+        [P.PowerBombReactionMouthFullyOpen] = new([Segments.Whole(P.PowerBombReactionMouthFullyOpen), Segments.Whole(P.PowerBombReactionMouthPartiallyOpen), Segments.Whole(P.PowerBombReactionMouthNotOpen), Segments.Whole(P.PowerBombReactionCharge)], AnimationEnd.LoopsFrom(3)),
+        [P.PowerBombReactionMouthPartiallyOpen] = new([Segments.Whole(P.PowerBombReactionMouthPartiallyOpen), Segments.Whole(P.PowerBombReactionMouthNotOpen), Segments.Whole(P.PowerBombReactionCharge)], AnimationEnd.LoopsFrom(2)),
+        [P.PowerBombReactionMouthNotOpen] = new([Segments.Whole(P.PowerBombReactionMouthNotOpen), Segments.Whole(P.PowerBombReactionCharge)], AnimationEnd.LoopsFrom(1)),
+        [P.NearSpikeWallCharge] = new([Segments.Whole(P.NearSpikeWallCharge), Segments.Whole(P.NearSpikeWallChargeSteps)], AnimationEnd.LoopsFrom(1)),
+        [P.BackOffFromSpikeWall] = new([Segments.Whole(P.BackOffFromSpikeWall)], AnimationEnd.LoopsFrom(0)),
+        [P.MeltingFleshTopRow] = new([Segments.Whole(P.MeltingFleshTopRow)], AnimationEnd.LoopsFrom(0)),
+        [P.MeltingFleshTopTwoRows] = new([Segments.Whole(P.MeltingFleshTopTwoRows)], AnimationEnd.Holds),
+        [P.MeltingFleshTopThreeRows] = new([Segments.Whole(P.MeltingFleshTopThreeRows)], AnimationEnd.Holds),
+        [P.MeltingFleshTopFourRows] = new([Segments.Whole(P.MeltingFleshTopFourRows)], AnimationEnd.Holds),
+        [P.MeltingBareSkullTopRow] = new([Segments.Whole(P.MeltingBareSkullTopRow)], AnimationEnd.LoopsFrom(0)),
+        [P.MeltingBareSkullTopTwoRows] = new([Segments.Whole(P.MeltingBareSkullTopTwoRows)], AnimationEnd.Holds),
+        [P.MeltingBareSkullTopThreeRows] = new([Segments.Whole(P.MeltingBareSkullTopThreeRows)], AnimationEnd.Holds),
+        [P.MeltingBareSkullTopFourRows] = new([Segments.Whole(P.MeltingBareSkullTopFourRows)], AnimationEnd.Holds),
+        [P.BridgeCollapsed] = new([Segments.Whole(P.BridgeCollapsed)], AnimationEnd.Holds),
+        [P.SkeletonFalling] = new([Segments.Whole(P.SkeletonFalling)], AnimationEnd.Holds),
+        [P.SkeletonFallsApart] = new([Segments.Whole(P.SkeletonFallsApart), Segments.Whole(P.SkeletonStable)], AnimationEnd.Holds),
+        [P.SkeletonStable] = new([Segments.Whole(P.SkeletonStable)], AnimationEnd.Holds),
+        [P.Dead] = new([Segments.Whole(P.Dead)], AnimationEnd.Holds),
+        [P.SkeletonFlowingDownRiver] = new([Segments.Whole(P.SkeletonFlowingDownRiver)], AnimationEnd.LoopsFrom(0)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<CrocomireBodySegment> StartingWith(CrocomireBodySegment segment) => StartingAt[segment];
-
-    /// <summary>One play of every beat of <paramref name="segment"/> (#2296).</summary>
-    private static AnimationPhase<CrocomireBodySegment> Whole(CrocomireBodySegment segment) =>
-        new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>
     /// The roar's closed mouth played up to and with its first fight cue, after which the animations that play it roar again

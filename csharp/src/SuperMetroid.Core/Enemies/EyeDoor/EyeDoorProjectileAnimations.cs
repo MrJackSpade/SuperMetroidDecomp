@@ -46,16 +46,13 @@ internal static class EyeDoorProjectileAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<EyeDoorProjectileSegment, Animation<EyeDoorProjectileSegment>> StartingAt { get; } = new Dictionary<EyeDoorProjectileSegment, Animation<EyeDoorProjectileSegment>>
     {
-        [P.Fired] = new([Whole(P.Fired)], AnimationEnd.Holds),
-        [P.Impact] = new([Whole(P.Impact)], AnimationEnd.Holds),
-        [P.Shot] = new([Whole(P.Shot)], AnimationEnd.Holds),
+        [P.Fired] = new([Segments.Whole(P.Fired)], AnimationEnd.Holds),
+        [P.Impact] = new([Segments.Whole(P.Impact)], AnimationEnd.Holds),
+        [P.Shot] = new([Segments.Whole(P.Shot)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<EyeDoorProjectileSegment> StartingWith(EyeDoorProjectileSegment segment) => StartingAt[segment];
-
-    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<EyeDoorProjectileSegment> Whole(EyeDoorProjectileSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, EyeDoorProjectileCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EyeDoorProjectileCue>.Frame(frame, duration);

@@ -83,18 +83,12 @@ internal static class FirefleaAnimations
     /// </summary>
     internal static IReadOnlyDictionary<FirefleaSegment, Animation<FirefleaSegment>> StartingAt { get; } = new Dictionary<FirefleaSegment, Animation<FirefleaSegment>>
     {
-        [P.BrightestWingbeat] = new([Repeated(P.BrightestWingbeat, BrightestWingbeats), Whole(P.Dimming), Whole(P.Brightening)],
+        [P.BrightestWingbeat] = new([Segments.Repeated(P.BrightestWingbeat, BrightestWingbeats), Segments.Whole(P.Dimming), Segments.Whole(P.Brightening)],
             AnimationEnd.LoopsFrom(0)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<FirefleaSegment> StartingWith(FirefleaSegment segment) => StartingAt[segment];
-
-    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<FirefleaSegment> Whole(FirefleaSegment segment) => Repeated(segment, 1);
-
-    /// <summary><paramref name="plays"/> plays of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<FirefleaSegment> Repeated(FirefleaSegment segment, int plays) => new(segment, 0, Segments.Beats(segment).Count, plays);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, NoAnimationCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);

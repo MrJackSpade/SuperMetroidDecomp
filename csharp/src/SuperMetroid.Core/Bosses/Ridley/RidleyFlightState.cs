@@ -20,7 +20,7 @@ public sealed class RidleyFlightState
         MovementMinimum = minimum;
         MovementMaximum = maximum;
         Wings = new RidleyWingBeat(firstWingPose);
-        BodyPlayback = new(RidleyAnimations.StartingWith(RidleyAnimations.Initial.For(facing)), AnimationPlace.StartOfAnimation);
+        BodyPlayback = new(RidleyAnimations.StartingWith(RidleyAnimations.Standing.For(facing)), AnimationPlace.StartOfAnimation);
     }
 
     /// <summary>Gets which way Ridley faces: left, toward the screen in his intermediate turning pose, or right.</summary>

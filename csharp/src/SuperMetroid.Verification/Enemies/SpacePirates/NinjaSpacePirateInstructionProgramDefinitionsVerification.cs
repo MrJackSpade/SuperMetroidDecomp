@@ -65,7 +65,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
             NinjaSpacePirateSegment.DivekickLeftJump,
             NinjaSpacePirateSegment.DivekickLeftDive,
             NinjaSpacePirateSegment.WalkToLeftPost,
-            NinjaSpacePirateSegment.InitialFacingLeft,
+            NinjaSpacePirateSegment.AwaitingSamusFacingLeft,
             NinjaSpacePirateSegment.LandFacingLeft,
             NinjaSpacePirateSegment.KickFacingLeft,
             NinjaSpacePirateSegment.ClawAttackRight,
@@ -75,7 +75,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
             NinjaSpacePirateSegment.DivekickRightJump,
             NinjaSpacePirateSegment.DivekickRightDive,
             NinjaSpacePirateSegment.WalkToRightPost,
-            NinjaSpacePirateSegment.InitialFacingRight,
+            NinjaSpacePirateSegment.AwaitingSamusFacingRight,
             NinjaSpacePirateSegment.LandFacingRight,
             NinjaSpacePirateSegment.KickFacingRight,
         ];

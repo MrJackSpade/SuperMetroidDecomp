@@ -53,7 +53,7 @@ internal sealed class CeresRidleyFlight
         var ridley = new CeresRidleyState(place.Position.Whole);
         place.SetSpeciesState(ridley);
         _ridleyEncounter.BeginCeres(place, ridley);
-        RidleyFlight.StartAnimation(ridley.Flight, place, RidleyAnimations.Initial);
+        RidleyFlight.StartAnimation(ridley.Flight, place, RidleyAnimations.Standing);
         // Ceres Ridley's setup ends by stopping the music.
         _audio.RequestRoomEnemyStartMusic(MusicRequest.Stop);
 

@@ -82,21 +82,18 @@ internal static class FuneNamiheAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<FuneNamiheSegment, Animation<FuneNamiheSegment>> StartingAt { get; } = new Dictionary<FuneNamiheSegment, Animation<FuneNamiheSegment>>
     {
-        [P.FuneIdleLeft] = new([Whole(P.FuneIdleLeft)], AnimationEnd.Holds),
-        [P.FuneActiveLeft] = new([Whole(P.FuneActiveLeft), Whole(P.FuneIdleLeft)], AnimationEnd.Holds),
-        [P.FuneIdleRight] = new([Whole(P.FuneIdleRight)], AnimationEnd.Holds),
-        [P.FuneActiveRight] = new([Whole(P.FuneActiveRight), Whole(P.FuneIdleRight)], AnimationEnd.Holds),
-        [P.NamiheIdleLeft] = new([Whole(P.NamiheIdleLeft)], AnimationEnd.Holds),
-        [P.NamiheActiveLeft] = new([Whole(P.NamiheActiveLeft), Whole(P.NamiheIdleLeft)], AnimationEnd.Holds),
-        [P.NamiheIdleRight] = new([Whole(P.NamiheIdleRight)], AnimationEnd.Holds),
-        [P.NamiheActiveRight] = new([Whole(P.NamiheActiveRight), Whole(P.NamiheIdleRight)], AnimationEnd.Holds),
+        [P.FuneIdleLeft] = new([Segments.Whole(P.FuneIdleLeft)], AnimationEnd.Holds),
+        [P.FuneActiveLeft] = new([Segments.Whole(P.FuneActiveLeft), Segments.Whole(P.FuneIdleLeft)], AnimationEnd.Holds),
+        [P.FuneIdleRight] = new([Segments.Whole(P.FuneIdleRight)], AnimationEnd.Holds),
+        [P.FuneActiveRight] = new([Segments.Whole(P.FuneActiveRight), Segments.Whole(P.FuneIdleRight)], AnimationEnd.Holds),
+        [P.NamiheIdleLeft] = new([Segments.Whole(P.NamiheIdleLeft)], AnimationEnd.Holds),
+        [P.NamiheActiveLeft] = new([Segments.Whole(P.NamiheActiveLeft), Segments.Whole(P.NamiheIdleLeft)], AnimationEnd.Holds),
+        [P.NamiheIdleRight] = new([Segments.Whole(P.NamiheIdleRight)], AnimationEnd.Holds),
+        [P.NamiheActiveRight] = new([Segments.Whole(P.NamiheActiveRight), Segments.Whole(P.NamiheIdleRight)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<FuneNamiheSegment> StartingWith(FuneNamiheSegment segment) => StartingAt[segment];
-
-    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<FuneNamiheSegment> Whole(FuneNamiheSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>A still picture (#2275): <paramref name="frame"/>, held from the update it shows.</summary>
     private static AnimationBeat<EnemyFrameId, FuneNamiheCue> Hold(EnemyFrameId frame) => new AnimationBeat<EnemyFrameId, FuneNamiheCue>.HeldFrame(frame);

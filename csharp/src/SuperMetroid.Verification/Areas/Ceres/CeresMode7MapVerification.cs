@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
@@ -78,8 +79,7 @@ internal static class CeresMode7MapVerification
 
     /// <summary>The floor the runtime's last NMI published.</summary>
     private static AffineFloor Published(SuperMetroidRuntime runtime) =>
-        (runtime.Display.Latched.Rooms ?? throw new InvalidOperationException("A loaded room publishes its backgrounds.")).Floor
-            ?? throw new InvalidOperationException("A Ceres room publishes its floor.");
+        runtime.Display.LatchedOrdinaryRoom.Rooms.Floor ?? throw new InvalidOperationException("A Ceres room publishes its floor.");
 
     /// <summary>Runs the Ceres floor checks.</summary>
     [VerificationCommand("--ceres-mode7-map")]

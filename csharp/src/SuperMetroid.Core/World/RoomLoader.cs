@@ -773,11 +773,10 @@ internal sealed class RoomLoader
         // shaft level about its centre and starts the shaft's turn there before the fresh room becomes visible. Publishing
         // the immutable transform here gives Samus, her projectiles, and the rotating elevator's steam a single
         // authoritative producer. Every other door shows the ordinary display, so stale rotating-view math cannot leak
-        // across rooms. The displayed copy starts the same; subsequent room-main changes reach it only when the frame's
-        // display is published, like every other floor change.
+        // across rooms. The display shows it from the next frame boundary, which alone latches the display (#2498), like
+        // every later floor change; the screen is dark while the door loads.
         door.Setup.RoomEvent.Compose(scope);
         _display.ActiveTurningFloor = scope.ShownTurningFloor;
-        _display.PublishDoorElevatorFloor(scope.ShownTurningFloor);
         scope.LevelData = assets.LevelData;
         ScrollBoundaryCamera? previousCamera = carryOver.PreviousCamera;
         var destinationCamera = new ScrollBoundaryCamera(assets.Scrolls);

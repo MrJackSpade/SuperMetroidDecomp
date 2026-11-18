@@ -143,7 +143,7 @@ public static class GameplayEffectCapture
             Operation = blend.Operation,
             Halved = false,
             Colour = RgbColor.Black,
-        }, CaptureRoomFxOverlay(fx, gameplay.Rooms.ShownFxOverlay), blend.BackgroundBehind);
+        }, CaptureRoomFxOverlay(fx, gameplay.Rooms.FxOverlay), blend.BackgroundBehind);
     }
 
     /// <summary>

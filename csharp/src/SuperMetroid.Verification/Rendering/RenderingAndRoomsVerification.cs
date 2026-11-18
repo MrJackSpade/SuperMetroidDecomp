@@ -649,7 +649,7 @@ internal static void VerifyBackgroundScrollState()
 
     // A fixed axis preserves both the background's position and its view.
     ushort oldLayer2X = state.BackgroundPosition.X;
-    ushort oldBg2X = state.BackgroundScroll.X;
+    short oldBg2X = state.BackgroundScroll.X;
     state.BackgroundScrollModes = new(BackgroundAxisScroll.Fixed, BackgroundAxisScroll.Fixed, RoomBackgroundSource.Placed);
     state.ForegroundPosition = new(0x1300, 0x0300);
     state.StepScrolling(timeIsFrozen: false);
@@ -691,12 +691,12 @@ internal static void VerifyBackgroundScrollState()
     rightDoor.BeginDoorOpeningViews(openingForeground: new(0xff00, 0x0000));
     AssertEqual(new Offset16<RoomPixels>(-0x0100, 0), rightDoor.ForegroundScroll,
         "the door's foreground view begins at the staged destination origin, a signed column left of the room's (#2384)");
-    AssertEqual(new Position16<BackgroundPixels>(0xff00, 0), rightDoor.BackgroundScroll,
-        "the door's background view begins at the staged destination origin");
+    AssertEqual(new Offset16<BackgroundPixels>(-0x0100, 0), rightDoor.BackgroundScroll,
+        "the door's background view begins at the staged destination origin, a signed column left of the background's (#2498)");
     rightDoor.CalculateLayerScrolls();
     AssertEqual(-0x00fc, rightDoor.ForegroundScroll.X,
         "right-door foreground view moves four pixels with its first step");
-    AssertEqual((ushort)0xff04, rightDoor.BackgroundScroll.X,
+    AssertEqual(-0x00fc, rightDoor.BackgroundScroll.X,
         "right-door background view moves four pixels with its first step");
 
     var leftDoor = new BackgroundScrollState
@@ -708,7 +708,7 @@ internal static void VerifyBackgroundScrollState()
     leftDoor.CalculateLayerScrolls();
     AssertEqual(0x00fc, leftDoor.ForegroundScroll.X,
         "left-door foreground view retreats four pixels with its first step");
-    AssertEqual((ushort)0x00fc, leftDoor.BackgroundScroll.X,
+    AssertEqual(0x00fc, leftDoor.BackgroundScroll.X,
         "left-door background view retreats four pixels with its first step");
 
     // Upward setup shows the destination five pixels above its staged origin after the built-in first moving call.

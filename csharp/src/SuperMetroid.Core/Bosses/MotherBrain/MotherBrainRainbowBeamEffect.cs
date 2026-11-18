@@ -7,7 +7,8 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <summary>
 /// Mother Brain's rainbow beam as a screen effect: whether it shows, the colour it adds and the cone it adds that colour
 /// across, from her mouth between its two edge angles. The display draws the cone; the colour advances only with the
-/// simulation, never when a frame is repainted.
+/// simulation, never when a frame is repainted. The beam chooses its colour during the update and the frame boundary
+/// latches it, so a colour reaches the screen one frame after it is chosen, while the cone is read as the frame ends (#2498).
 /// </summary>
 public sealed class MotherBrainRainbowBeamEffect
 {
@@ -25,8 +26,19 @@ public sealed class MotherBrainRainbowBeamEffect
     private MotherBrainRainbowBeamColours? played;
     /// <summary>The cone the last update that showed the beam aimed; null until the beam first shows.</summary>
     public MotherBrainRainbowBeamGeometry? Geometry { get; private set; }
-    /// <summary>What the beam shows now, or null while it is hidden; taking it never advances the beam.</summary>
-    public MotherBrainRainbowBeamRenderSnapshot? RenderSnapshot => Active && Geometry is { } cone ? new(Color, cone) : null;
+    /// <summary>
+    /// The colour the screen shows the beam adding: <see cref="Color"/> as the last frame boundary latched it
+    /// (<see cref="LatchDisplay"/>), which is the colour the beam starts with before any boundary.
+    /// </summary>
+    public RgbColor DisplayedColor { get; private set; }
+    /// <summary>
+    /// What the beam shows now: the cone it aimed in the colour the last frame boundary latched, or null while it is hidden;
+    /// taking it never advances the beam.
+    /// </summary>
+    public MotherBrainRainbowBeamRenderSnapshot? RenderSnapshot => Active && Geometry is { } cone ? new(DisplayedColor, cone) : null;
+
+    /// <summary>Latches the beam's colour with the frame's other displayed presentation state, as each frame boundary does.</summary>
+    public void LatchDisplay() => DisplayedColor = Color;
 
     /// <summary>One update that hides the beam, without advancing its colour; the next update that shows it restarts the colour sequence.</summary>
     public void Hide() => colours = null;

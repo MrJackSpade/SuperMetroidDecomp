@@ -29,7 +29,7 @@ internal static class CeresRidleyBodyPublicationVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.CeresRidley, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        AssertTrue(runtime.Display.Latched.Rooms?.Foreground.Pictures is not null, "the arena publishes its blocks' pictures");
+        AssertTrue(runtime.Display.Latched is OrdinaryRoomFrameLatch, "the arena shows its ordinary layers, its blocks' pictures among them, before the getaway");
 
         AssertTrue(runtime.Enemies.CeresRidley() is not null, "The Ceres Ridley room loads Ridley.");
         // The station's escape flies the getaway (#2228). Its setup places the floor's scroll (-128, 32), its centre
@@ -44,19 +44,17 @@ internal static class CeresRidleyBodyPublicationVerification
             runtime.FrameBoundary.BeginAcceptedFrame(0);
             AssertTrue(previousAngle is not { } previous || escape.Floor.Angle != previous, "the getaway turns Ridley between the two frames");
             previousAngle = escape.Floor.Angle;
-            PerspectiveFloor floor = runtime.Display.Latched.PerspectiveFloor
-                ?? throw new InvalidOperationException("Ridley's getaway publishes his floor.");
+            PerspectiveFloorFrameLatch getaway = runtime.Display.LatchedPerspectiveFloor;
             AssertEqual(escape.ShownFloor
-                ?? throw new InvalidOperationException("Ridley flies his getaway."), floor.Transform, $"angle {escape.Floor.Angle} publishes Ridley's floor");
-            AssertEqual(BelowPerspectiveFloor.RoomBackground, floor.Below, "the getaway shows the room's background below its floor");
-            AffineFloor map = runtime.Display.Latched.Rooms?.Floor
-                ?? throw new InvalidOperationException("The arena publishes its floor.");
+                ?? throw new InvalidOperationException("Ridley flies his getaway."), getaway.Floor.Transform, $"angle {escape.Floor.Angle} publishes Ridley's floor");
+            AssertTrue(getaway.BackgroundBand is not null, "the getaway shows the room's background below its floor");
+            AffineFloor map = getaway.FloorMap;
             RoomFloorSheet sheet = (runtime.Room.LoadedScope.Floor ?? throw new InvalidOperationException("The arena shows a floor.")).Sheet;
             AssertTrue(map.DrawnOver.Contains(sheet.Picture(wings)),
                 $"angle {escape.Floor.Angle} publishes his {wings} body frame");
             var mode7 = (TurningRoomLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
             AssertTrue(mode7.Map.Equals(map), $"angle {escape.Floor.Angle} draws his published body");
-            VerifyChamberWalls(mode7, runtime.Display.Latched.Scrolls.ForegroundPosition);
+            VerifyChamberWalls(mode7, runtime.Display.LatchedRoomFrame.Scrolls.ForegroundPosition);
         }
         Console.WriteLine("  Ceres Ridley body: two getaway rotations publish his transform and body frames on the Mode 7 layer.");
     }

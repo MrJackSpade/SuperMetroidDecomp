@@ -53,7 +53,7 @@ internal static class TourianStatueWaterVerification
         var displayed = runtime.Display.DisplayedRoomFxOverlay ?? throw new InvalidOperationException("No displayed water snapshot");
         AssertEqual(0xb0, displayed.WaterSurfaceScreenY, "Displayed water surface stays at native room height");
         AssertEqual(RoomEffectBlendDefinitions.OverlayBrightens, displayed.Blend, "the statues' water brightens the room");
-        var basis = GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame());
+        var basis = runtime.PublishDisplayFrame().OrdinaryBaseScene;
         var full = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         AssertEqual(1, full.Layers.Count(layer => layer is OverlayBlendLayer), "One BG3 water plane accompanies the statue");
         var dryPixels = DisplayRendering.Render(basis);
@@ -68,7 +68,7 @@ internal static class TourianStatueWaterVerification
         runtime.TourianStatues.Room.Descent = SignedSixteenSixteen.FromWholePixels(64);
         runtime.TourianStatues.LatchDisplay();
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        var descending = (GameplaySceneLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame()).Layers[0];
+        var descending = runtime.PublishDisplayFrame().OrdinaryBase.Room;
         // The view shows the background row below the descent's camera row at the screen's top (#1514): with the camera at
         // the room's top, the descent puts that row above the background's origin, a negative scroll, not a wrapped one
         // (#2305).

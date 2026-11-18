@@ -3,6 +3,7 @@ using SuperMetroid.Core.Rooms;
 
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>How the X-ray beam shows each room: which rooms it reveals blocks in, and how it blends them.</summary>
@@ -50,10 +51,13 @@ public static class XrayRoomDisplayRules
         _ => throw new ArgumentOutOfRangeException(nameof(mode), mode, "Undefined X-ray room blend."),
     };
 
-    /// <summary>Fireflea's room takes its own blend before the ordinary room and boss exclusions apply.</summary>
-    public static XrayRoomBlendMode Select(RoomDefinition room, RoomFxType fx, AreaBoss? boss)
+    /// <summary>A room with Fireflea darkness takes its own blend before the ordinary room and boss exclusions apply.</summary>
+    /// <param name="room">The room the X-ray shows.</param>
+    /// <param name="fireflea">The room's Fireflea darkness, or null in a room without it.</param>
+    /// <param name="boss">The room's loaded boss, or null.</param>
+    public static XrayRoomBlendMode Select(RoomDefinition room, LatchedFirefleaDarkness? fireflea, AreaBoss? boss)
     {
-        if (fx == RoomFxType.Fireflea) return XrayRoomBlendMode.Fireflea;
+        if (fireflea is not null) return XrayRoomBlendMode.Fireflea;
         if (!XrayBlockRevealRules.RevealsBlocks(room, boss))
             return XrayRoomBlendMode.PreserveBackgrounds;
         return XrayRoomBlendMode.RevealBlocks;

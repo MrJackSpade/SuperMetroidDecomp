@@ -41,7 +41,7 @@ internal static class FirefleaEyeVerification
         // image verification composes holds the room's, the HUD's and Samus's colours only, so an enemy's draw painted from
         // it would show black: its colours are its own, not a row of that image.
         var memory = runtime.PublishDisplayFrame().Paint.WithShownDraws(sprites.Draws);
-        var source = GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame());
+        var source = runtime.PublishDisplayFrame().OrdinaryBaseScene;
         var actualDarkness = (GameplayBlendLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
         AssertEqual(BlendedLayers.Background | BlendedLayers.Backdrop, actualDarkness.Blend.Blended,
             "reported room darkens the background and backdrop, not the sprites");

@@ -95,7 +95,7 @@ internal static class CrocomirePresentation1193Verification
                 {
                     AssertEqual(previousScroll, runtime.Display.DisplayedGameplayScrolls.ForegroundScroll.Y,
                         "Rumble becomes visible at the following accepted NMI");
-                    var layer = (GameplaySceneLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame()).Layers[0];
+                    var layer = runtime.PublishDisplayFrame().OrdinaryBase.Room;
                     // The view shows the foreground row below the displayed camera row at the screen's top (#1514).
                     AssertEqual(previousScroll + ScreenGeometry.LayerRowsHiddenAboveScreen, (int)layer.View.ForegroundScroll.Y,
                         "Production foreground composition receives the displayed rumble scroll as a plain signed row");
@@ -129,7 +129,7 @@ internal static class CrocomirePresentation1193Verification
             var scroll = runtime.BackgroundScroll;
             scroll.ForegroundPosition = scroll.ForegroundPosition.WithY(100);
             scroll.CalculateLayerScrolls();
-            ushort bg2 = scroll.BackgroundScroll.Y;
+            short bg2 = scroll.BackgroundScroll.Y;
             (death ?? throw new InvalidOperationException("Verification requires death.")).RumbleYOffset = -4;
             runtime.RoomMains.RunCrocomireComebackRoomMain(boss ?? throw new InvalidOperationException("Verification requires boss."));
             AssertEqual(96, scroll.ForegroundScroll.Y, "The rumble shifts the foreground's view from the camera");
@@ -142,7 +142,7 @@ internal static class CrocomirePresentation1193Verification
             runtime.RoomMains.RunCrocomireComebackRoomMain(boss);
             AssertEqual(-4, scroll.ForegroundScroll.Y, "The rumble above the room's top leaves a negative foreground view row");
             runtime.FrameBoundary.PublishWhileLoading();
-            var risen = (GameplaySceneLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame()).Layers[0];
+            var risen = runtime.PublishDisplayFrame().OrdinaryBase.Room;
             AssertEqual(-4 + ScreenGeometry.LayerRowsHiddenAboveScreen, (int)risen.View.ForegroundScroll.Y,
                 "The frame shows the risen view's signed row at the screen's top");
             scroll.ForegroundPosition = scroll.ForegroundPosition.WithY(100);

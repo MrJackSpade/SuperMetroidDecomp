@@ -33,6 +33,6 @@ internal static class MotherBrainAscentCaptureVerification
         AssertEqual(ScreenLayers.Foreground, captured.ShownLayersAt(223), "Captured frame retains its own bands after the state changes");
         Console.WriteLine("Mother Brain ascent capture: actual room, production start/end and every line's shown layers passed.");
         return 0;
-        GameplaySceneLayer Layer() => (GameplaySceneLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame()).Layers[0];
+        GameplaySceneLayer Layer() => runtime.PublishDisplayFrame().OrdinaryBase.Room;
     }
 }

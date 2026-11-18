@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
@@ -29,7 +30,8 @@ internal static class TourianStatueDescentRoundingVerification
             runtime.System.SetEvent(grey);
         // A room without the statues latches no descent at all (#2385), so its background keeps its own vertical scroll.
         runtime.FrameBoundary.PublishWhileLoading();
-        AssertEqual(null, runtime.Display.Latched.TourianStatueVerticalOffset, "a room without the statues latches no descent");
+        AssertTrue(runtime.Display.Latched is not OrdinaryRoomFrameLatch { TourianStatueVerticalOffset: not null },
+            "a room without the statues latches no descent");
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Statues);
         runtime.Player.IntroducedSamus.Control.LockOutPlayer();
 
@@ -62,7 +64,7 @@ internal static class TourianStatueDescentRoundingVerification
             runtime.StepFrame(0);
         AssertEqual(-TourianStatueSequenceDefinitions.DescentDistance, runtime.TourianStatues.VerticalOffset,
             "the finished descent stays at its authored distance");
-        AssertEqual(-TourianStatueSequenceDefinitions.DescentDistance, runtime.Display.Latched.TourianStatueVerticalOffset,
+        AssertEqual(-TourianStatueSequenceDefinitions.DescentDistance, runtime.Display.LatchedOrdinaryRoom.TourianStatueVerticalOffset,
             "the frame boundary latches the finished descent's offset as it is");
         Console.WriteLine("Tourian statue descent rounding: the signed 16.16 descent floors and unlocks at $FF10.");
     }

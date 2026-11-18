@@ -377,10 +377,11 @@ internal sealed class SuperMetroidRuntime
         set => EnemySession.JapaneseText = value;
     }
 
-    /// <summary>The HUD's images the last frame boundary latched (#1351, #1466): the HUD as displayed.</summary>
-    /// <exception cref="InvalidOperationException">No frame boundary has latched the HUD yet.</exception>
-    public ShownHud AcceptedHud =>
-        Display.Latched.Hud ?? throw new InvalidOperationException("No frame boundary has latched the HUD.");
+    /// <summary>
+    /// The HUD's images the last frame boundary latched (#1351, #1466): the HUD as displayed, which shows no image before any
+    /// frame boundary.
+    /// </summary>
+    public ShownHud AcceptedHud => Display.Latched.Hud;
 
     /// <summary>Whether the colour effects run, and the heat phases, which outlive each room's colour effects.</summary>
     public ColourEffectSessionState ColourEffectSession { get; } = new();

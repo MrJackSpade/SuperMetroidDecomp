@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Gameplay;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies;
@@ -47,7 +48,7 @@ internal static class CeresRidleyPicturesVerification
         AssertTrue(!overlay.Pictures.IsEmpty, "Ceres Ridley's getaway shows its warning over BG1");
         // The getaway writes its pages' and glyphs' pictures by name (#1466); the words they stand for are the import's.
         System.Collections.Immutable.ImmutableArray<int> words = overlay.WordsIn(InstalledFixtures.AreaArtwork.CeresEscapeOverlayTilemaps);
-        RoomOverlayPictures shown = runtime.Display.Latched.Rooms?.ForegroundText
+        RoomOverlayPictures shown = runtime.Display.LatchedOrdinaryRoom.Rooms.ForegroundText
             ?? throw new InvalidOperationException("The displayed frame shows no warning over BG1.");
         BgTilePicture?[] shownCells = TwoScreenTilemapCells.Lay(shown.Pictures);
         ReadOnlySpan<byte> page = EnemySheetFixtures.LivePage(runtime.Enemies.GraphicsSet, UploadedPictureChecks.Shown(runtime)).Characters;

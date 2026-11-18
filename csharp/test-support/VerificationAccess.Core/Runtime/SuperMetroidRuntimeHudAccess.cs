@@ -1,23 +1,17 @@
 using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Runtime;
 
 /// <summary>
-/// Verification access to what the last accepted NMI latched of BG3 (#1466): the room effect's plane and the HUD's
-/// images, laid out as the cartridge's tilemap words.
+/// Verification access to what the last accepted NMI latched of BG3 (#1466): the HUD's images, laid out as the
+/// cartridge's tilemap words.
 /// </summary>
 internal static class SuperMetroidRuntimeHudAccess
 {
     /// <summary>The latched BG3.</summary>
     extension(SuperMetroidRuntime self)
     {
-        /// <summary>The room effect's BG3 plane the last accepted NMI latched.</summary>
-        /// <exception cref="InvalidOperationException">No NMI has latched a room's backgrounds yet.</exception>
-        internal FxOverlayPlane AcceptedFxOverlayPlane =>
-            self.Display.Latched.FxOverlay ?? throw new InvalidOperationException("No accepted NMI has latched a room's BG3 plane.");
-
         /// <summary>
         /// The installed HUD artwork the runtime's HUD layout was read with: the tiles the import pictures the HUD's images
         /// from, which the runtime never holds (#1616).

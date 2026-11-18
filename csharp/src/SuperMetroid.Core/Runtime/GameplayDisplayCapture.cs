@@ -1,7 +1,6 @@
 using System.Collections.Immutable;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus.Abilities;
@@ -20,69 +19,137 @@ public static class GameplayDisplayCapture
     /// Captures the full gameplay composition, including the HUD band above the room,
     /// room FX, X-ray ownership, message glyphs, and the final suit/power-bomb color effects.
     /// </summary>
+    /// <exception cref="InvalidOperationException">No frame boundary has latched a room's frame yet.</exception>
     public static LayeredScene Capture(GameplayDisplayFrame frame)
     {
         Ensure.NotNull(frame);
-        GameplayDisplayLatch latched = frame.Latched;
-        GameplayFrameEndDisplayInputs live = frame.FrameEnd;
-        LayeredScene basis = latched.ShowsPerspectiveFloor ? CapturePerspectiveFloorBase(frame) : CaptureOrdinaryBase(frame);
-        var layers = new List<DisplayLayer>(basis.Layers.ToArray());
-        GameplayRenderSnapshot scrolls = latched.Scrolls;
-        bool doorOwnsDisplay = live.DoorTransitionShownLayers is not null;
-        if (!doorOwnsDisplay && CaptureXray(frame, basis) is { } xray) return xray;
-        if (!doorOwnsDisplay && latched.Phantoon is { } phantoon)
-            layers[0] = CapturePhantoonBody(phantoon, basis);
-        if (!doorOwnsDisplay && latched.Scene.FxType == RoomFxType.Fireflea)
-            layers[0] = CaptureFirefleaDarkness(FirefleaTint(latched), basis);
-        if (!doorOwnsDisplay)
+        return frame.Latched switch
         {
-            // While the rainbow beam shows, its added colour takes the place of the room effect's overlay and blend.
-            MotherBrainRainbowBeamRenderSnapshot? rainbow = RainbowBeam(frame);
-            if (rainbow is null && latched.RoomFxOverlay is { } fx)
-            {
-                // An effect whose overlay lies behind the room blends the room with it; one lying over the room is drawn
-                // over the finished scene (#1545).
-                if (fx.Blend?.BlendsBehind is not null)
-                {
-                    if (layers[0] is not GameplaySceneLayer ordinary)
-                        throw new NotSupportedException("An effect blending behind the room requires an ordinary gameplay base.");
-                    layers[0] = GameplayEffectCapture.CaptureEffectBlendingBehind(ordinary, fx);
-                }
-                else AddLayer(GameplayEffectCapture.CaptureRoomFxOverlay(fx, FxOverlay(latched)));
-            }
+            OrdinaryRoomFrameLatch ordinary => CaptureOrdinary(frame, ordinary),
+            PerspectiveFloorFrameLatch perspective => CapturePerspectiveFloor(frame, perspective),
+            LatchBeforeFirstRoom => throw new InvalidOperationException("A gameplay frame shows a room once a frame boundary has latched one."),
+            _ => throw new InvalidOperationException($"Undefined kind of gameplay frame {frame.Latched.GetType().Name}."),
+        };
+    }
+
+    /// <summary>
+    /// An ordinary room's frame: its base, X-ray's scene when X-ray owns it, and otherwise the effects that blend the room's
+    /// scene and the effects drawn over it.
+    /// </summary>
+    private static LayeredScene CaptureOrdinary(GameplayDisplayFrame frame, OrdinaryRoomFrameLatch latched)
+    {
+        GameplayFrameEndDisplayInputs live = frame.FrameEnd;
+        OrdinaryGameplayBase basis = CaptureOrdinaryBase(latched, live);
+        if (live.DoorTransitionShownLayers is not null)
+            return Compose(frame, latched, basis.Room, latched.Rooms.FxOverlay);
+        if (CaptureXray(frame, latched, basis) is { } xray) return xray;
+        // The room's scene, which the effects lie on, and the effect blending it, of which a room shows one at most:
+        // Phantoon's translucent body, Fireflea's darkness, or a room effect lying behind the room.
+        GameplaySceneLayer scene = basis.Room;
+        GameplayBlendLayer? blended = null;
+        if (latched.Phantoon is { } phantoon)
+        {
+            scene = PhantoonScene(phantoon, scene);
+            if (phantoon.BodyVisibility == PhantoonBodyVisibility.Translucent)
+                blended = PhantoonTranslucence(scene);
+        }
+        if (latched.Fireflea is { } darkness)
+            blended = CaptureFirefleaDarkness(darkness.Shade, basis.Room);
+        // While the rainbow beam shows, its added colour takes the place of the room effect's overlay and blend. An effect
+        // whose overlay lies behind the room blends the room with it; one lying over the room is drawn over the finished
+        // scene (#1545).
+        if (live.RainbowBeam is null && latched.RoomFxOverlay is { Blend.BlendsBehind: not null } behind)
+        {
+            if (blended is not null)
+                throw new NotSupportedException("An effect blending behind the room requires a room no other effect blends.");
+            blended = GameplayEffectCapture.CaptureEffectBlendingBehind(scene, behind);
+        }
+        return Compose(frame, latched, (DisplayLayer?)blended ?? scene, latched.Rooms.FxOverlay);
+    }
+
+    /// <summary>
+    /// A perspective floor's frame: the latched floor and, during Ridley's getaway, the background band below the floor and
+    /// the chamber's walls behind it (#1545), with the effects drawn over them.
+    /// </summary>
+    /// <exception cref="NotSupportedException">X-ray shows its blended room, or the room's effect lies behind the room.</exception>
+    private static LayeredScene CapturePerspectiveFloor(GameplayDisplayFrame frame, PerspectiveFloorFrameLatch latched)
+    {
+        GameplayFrameEndDisplayInputs live = frame.FrameEnd;
+        if (live.DoorTransitionShownLayers is null)
+        {
+            if (live.Xray is { WarmUp.ShowsBlendedRoom: true })
+                throw new NotSupportedException("X-ray display requires ordinary gameplay layers.");
+            if (live.RainbowBeam is null && latched.RoomFxOverlay is { Blend.BlendsBehind: not null })
+                throw new NotSupportedException("An effect blending behind the room requires an ordinary gameplay base.");
+        }
+        GameplayRenderSnapshot scrolls = latched.Scrolls;
+        RoomShakeFrameResult shake = scrolls.RoomShake;
+        PerspectiveFloor perspective = latched.Floor;
+        // Room shake moves the floor with the foreground.
+        FloorView transform = perspective.Transform with
+        {
+            Scroll = new Offset16<FloorPixels>(
+                perspective.Transform.Scroll.X + shake.Foreground.X,
+                perspective.Transform.Scroll.Y + shake.Foreground.Y),
+        };
+        // The band's background scroll is a position that goes above and left of its origin (#2308), as the ordinary view's
+        // does: the latched scroll plus the room's shake.
+        TurningRoomLowerBand? band = latched.BackgroundBand is { } background
+            ? new(GameplayRenderDefinitions.CeresFloorFirstLine, scrolls.BackgroundScroll + shake.Background, background)
+            : null;
+        var layer = new TurningRoomLayer(transform, latched.FloorMap, ScreenGeometry.GameplayHudHeightPixels, band)
+        {
+            Scenery = Scenery(perspective.Scenery, scrolls.ForegroundPosition),
+        };
+        return Compose(frame, latched, layer, latched.FxOverlay);
+    }
+
+    /// <summary>
+    /// The frame's scene: <paramref name="room"/>, the HUD's layer, and the effects drawn over them. Outside a door's
+    /// transition these are the room effect's overlay lying over the room, the Ceres haze, the Morph Ball eye's beam and
+    /// the rainbow beam; during it too, above the rest and in this order: the Power Bomb's glow, the message box, then the
+    /// suit pickup's light beam over the message's letters.
+    /// </summary>
+    /// <param name="frame">The published frame.</param>
+    /// <param name="latched">The room's frame the frame boundary latched.</param>
+    /// <param name="room">The room as the frame shows it, its effects that blend it composed.</param>
+    /// <param name="fxOverlay">The room effect's artwork on the effect overlay.</param>
+    private static LayeredScene Compose(GameplayDisplayFrame frame, RoomFrameLatch latched, DisplayLayer room, FxOverlayArtwork fxOverlay)
+    {
+        GameplayFrameEndDisplayInputs live = frame.FrameEnd;
+        Position16<RoomPixels> camera = latched.Scrolls.ForegroundPosition;
+        var layers = new List<DisplayLayer> { room, Hud(latched) };
+        if (live.DoorTransitionShownLayers is null)
+        {
+            if (live.RainbowBeam is null && latched.RoomFxOverlay is { } over && over.Blend?.BlendsBehind is null)
+                AddLayer(GameplayEffectCapture.CaptureRoomFxOverlay(over, fxOverlay));
             if (live.CeresHaze is { } haze)
                 AddLayer(GameplayEffectCapture.CaptureCeresHaze(live.CeresHazeTints, haze.Tint, haze.Strength));
             if (latched.MorphBallEyeBeam is { } eye)
-                AddLayer(GameplayEffectCapture.CaptureMorphBallEyeBeam(eye, scrolls.ForegroundPosition));
-            if (rainbow is { } beam)
-                AddLayer(GameplayEffectCapture.CaptureMotherBrainRainbowBeam(beam, scrolls.ForegroundPosition));
+                AddLayer(GameplayEffectCapture.CaptureMorphBallEyeBeam(eye, camera));
+            if (live.RainbowBeam is { } beam)
+                AddLayer(GameplayEffectCapture.CaptureMotherBrainRainbowBeam(beam, camera));
         }
-        // These layers show during the door's scroll too, above the rest and in this order: the Power Bomb's glow,
-        // the message box, then the suit pickup's light beam over the message's letters.
-        AddLayer(GameplayEffectCapture.CapturePowerBombGlow(PowerBomb(frame), scrolls.ForegroundPosition));
+        AddLayer(GameplayEffectCapture.CapturePowerBombGlow(PowerBomb(live, latched), camera));
         AddLayer(live.MessageBox);
-        AddLayer(GameplayEffectCapture.CaptureSuitPickup(SuitPickup(frame)));
-        return new(basis.Paint, layers.ToArray(), basis.Brightness);
+        AddLayer(GameplayEffectCapture.CaptureSuitPickup(SuitPickup(live, latched)));
+        return new(frame.Paint, layers.ToArray(), DisplayBrightness.Full);
 
         // Append active optional effects without introducing empty render layers.
         void AddLayer(DisplayLayer? layer) { if (layer is not null) layers.Add(layer); }
     }
 
     /// <summary>
-    /// Captures the ordinary base only: the room and the HUD's layer. Room blends, windows, messages and
+    /// Captures an ordinary room frame's base only: the room's scene and the HUD's layer. Room blends, windows, messages and
     /// suit effects are deliberately excluded; this is not a substitute for a complete frame.
-    /// Turning-floor rooms are rejected rather than silently drawn as an ordinary room.
     /// </summary>
-    public static LayeredScene CaptureOrdinaryBase(GameplayDisplayFrame frame)
+    /// <param name="latched">The ordinary room frame the frame boundary latched.</param>
+    /// <param name="live">The display inputs read as the frame ends.</param>
+    public static OrdinaryGameplayBase CaptureOrdinaryBase(OrdinaryRoomFrameLatch latched, GameplayFrameEndDisplayInputs live)
     {
-        Ensure.NotNull(frame);
-        GameplayDisplayLatch latched = frame.Latched;
-        GameplayFrameEndDisplayInputs live = frame.FrameEnd;
-        if (latched.ShowsPerspectiveFloor)
-            throw new InvalidOperationException("Ordinary base capture cannot represent a turning-floor scene.");
-
+        Ensure.NotNull(latched);
+        Ensure.NotNull(live);
         GameplayRenderSnapshot scrolls = latched.Scrolls;
-        GameplayLatchedScene scene = latched.Scene;
         GameplayLatchedBossBody bosses = latched.Bosses;
         RoomShakeFrameResult shake = scrolls.RoomShake;
         // The foreground's scroll is signed (#2384): the room's shake, like the Crocomire rumble, adds a plain offset, and a
@@ -95,7 +162,7 @@ public static class GameplayDisplayCapture
         // background picture by its own size, so a scroll left of or above the background's origin needs no wrap.
         Position16<RoomPixels> camera = scrolls.ForegroundPosition;
         Position16<RoomPixels>? bodyPlacement = bosses.Placement;
-        Offset16<BackgroundPixels> backgroundScroll = (bodyPlacement is { } placement ? BossBodyPlacement.Shown(placement, camera) : SignedScroll(scrolls.BackgroundScroll))
+        Offset16<BackgroundPixels> backgroundScroll = (bodyPlacement is { } placement ? BossBodyPlacement.Shown(placement, camera) : scrolls.BackgroundScroll)
             + shake.Background;
         if (latched.TourianStatueVerticalOffset is int descent)
             // The statue room's descent supplies the background's vertical scroll per line after the
@@ -103,7 +170,7 @@ public static class GameplayDisplayCapture
             // scroll. The descent also gives the statue sprites zero quake displacement.
             backgroundScroll = backgroundScroll.WithY(scrolls.ForegroundPosition.Y + descent);
         RoomFxOverlayRenderSnapshot? fx = latched.RoomFxOverlay;
-        LatchedScrollingSky? sky = scene.ScrollingSky;
+        LatchedScrollingSky? sky = latched.Scene.ScrollingSky;
         ScrollBands? skyX = SkyHorizontalScrolls(live, shake);
 
         SampledScrollWave? waterX = fx is { } water
@@ -125,38 +192,26 @@ public static class GameplayDisplayCapture
                 ? backgroundScroll.WithY(latchedSky.CameraRow + shake.Background.Y) : backgroundScroll),
             live.DoorTransitionShownLayers ?? displayedLayers,
             BackgroundPixelation: latched.Phantoon is { } phantoonDisplay ? new BackgroundPixelation(phantoonDisplay.PixelationBlockSize) : default);
-        // Phantoon's wave owns the background's horizontal scroll while it shows; otherwise lava, water or the sky does.
-        LineScroll? backgroundHorizontal = latched.Phantoon?.Wave is { } wave
-            ? BossLineScrolls.Of(wave, camera, bodyPlacement ?? throw new InvalidOperationException("Phantoon's wave ripples a body he does not place."))
+        // Phantoon's wave owns the background's horizontal scroll while it shows, rippling his body about where it lies;
+        // otherwise lava, water or the sky does.
+        LineScroll? backgroundHorizontal = latched.Phantoon is { Wave: { } wave } phantoon
+            ? BossLineScrolls.Of(wave, camera, phantoon.BodyPlacement)
             : lavaX ?? waterX ?? (LineScroll?)skyX;
         // Crocomire's melt owns the background's vertical scroll while it sags his body; otherwise lava's does.
         LineScroll? backgroundVertical = live.CrocomireMelt is { } melt ? BossLineScrolls.Of(melt, camera) : lavaY;
         // A sky room shows the sky's rows on the background (#1347); a boss shows its body layer there while it owns it (#1352,
         // #1353), its pictures placed where they show against its placement (#1466, #1514, #2031).
-        RoomBackgrounds rooms = (latched.Rooms
-            ?? throw new InvalidOperationException("Ordinary gameplay capture has no room backgrounds.")) with
-            {
-                BossBody = bosses.Body is null ? null
-                    : bosses.ShownBody ?? throw new InvalidOperationException("A boss body is shown once the accepted frame resolves its pictures."),
-            };
-        var layer = new GameplaySceneLayer(view, rooms, new BackgroundLineScrolls { Horizontal = backgroundHorizontal, Vertical = backgroundVertical },
+        var layer = new GameplaySceneLayer(view, latched.Rooms, new BackgroundLineScrolls { Horizontal = backgroundHorizontal, Vertical = backgroundVertical },
             live.DoorTransitionShownLayers is null && live.MotherBrainAscentShowing
                 ? MotherBrainAscentDisplay.Bands : default);
-        return new(frame.Paint, new DisplayLayer[] { layer, Hud(latched) },
-            DisplayBrightness.Full);
+        return new(layer, Hud(latched));
     }
 
     /// <summary>
     /// The HUD the frame boundary latched, its own layer drawn straight after the room (#1466): gameplay's HUD band shows its
     /// pictures opaque, their background included, in front of everything the band holds.
     /// </summary>
-    private static HudLayer Hud(GameplayDisplayLatch latched) => new(latched.PicturedHud
-        ?? throw new InvalidOperationException("A gameplay frame shows the HUD once the frame boundary that latched it resolves its pictures."),
-        DrawsOpaque: true);
-
-    /// <summary>The room effect's artwork the frame boundary displays on the effect overlay (#1348, #1514, #1706).</summary>
-    private static FxOverlayArtwork FxOverlay(GameplayDisplayLatch latched) => (latched.Rooms
-        ?? throw new InvalidOperationException("A gameplay frame shows the effect overlay only once a room is loaded.")).ShownFxOverlay;
+    private static HudLayer Hud(RoomFrameLatch latched) => new(latched.PicturedHud, DrawsOpaque: true);
 
     /// <summary>
     /// The sky's bands of the background's horizontal scroll (#1468) with the latched room shake added, or null without a
@@ -165,90 +220,30 @@ public static class GameplayDisplayCapture
     internal static ScrollBands? SkyHorizontalScrolls(GameplayFrameEndDisplayInputs live, RoomShakeFrameResult shake) =>
         live.ScrollingSky is { } sky ? SkyBandScrolls.Of(sky, shake.Background.X) : null;
 
-    /// <summary>The shown rainbow beam's cone in the colour the accepted frame latched, or null while it is hidden.</summary>
-    internal static MotherBrainRainbowBeamRenderSnapshot? RainbowBeam(GameplayDisplayFrame frame)
-    {
-        if (frame.FrameEnd.RainbowBeam is not { } shown) return null;
-        return shown with
-        {
-            Color = frame.Latched.Tints.RainbowBeam
-                ?? throw new InvalidOperationException("An active rainbow beam has no latched colour."),
-        };
-    }
-
     /// <summary>The power bomb's live window inputs drawn in the colour the accepted frame latched.</summary>
-    internal static PowerBombRenderSnapshot PowerBomb(GameplayDisplayFrame frame)
-    {
-        return frame.FrameEnd.PowerBomb with { Oval = frame.FrameEnd.PowerBomb.Oval with { Colour = frame.Latched.Tints.PowerBomb } };
-    }
+    /// <param name="live">The display inputs read as the frame ends.</param>
+    /// <param name="latched">The room's frame the frame boundary latched.</param>
+    internal static PowerBombRenderSnapshot PowerBomb(GameplayFrameEndDisplayInputs live, RoomFrameLatch latched) =>
+        live.PowerBomb with { Oval = live.PowerBomb.Oval with { Colour = latched.Tints.PowerBomb } };
 
     /// <summary>The suit pickup's live light beam drawn in the colour the accepted frame latched, or null while inactive.</summary>
-    internal static SamusSuitPickupFlash? SuitPickup(GameplayDisplayFrame frame)
-    {
-        if (frame.FrameEnd.SuitPickupBeam is not { } beam) return null;
-        return new(beam, frame.Latched.Tints.SuitPickup);
-    }
-
-    /// <summary>The shade Fireflea darkness latched for a frame whose room effect is Fireflea darkness.</summary>
-    /// <exception cref="InvalidOperationException">The frame latched no Fireflea shade.</exception>
-    private static RgbColor FirefleaTint(GameplayDisplayLatch latched) =>
-        latched.Tints.Fireflea ?? throw new InvalidOperationException("A Fireflea room's frame latched no Fireflea shade.");
-
-    /// <summary>
-    /// The background scroll the frame latched, a wrapping room-space position, as the display's signed scroll (#2305): a
-    /// scroll stored left of or above the background's origin has wrapped past zero and reads negative.
-    /// </summary>
-    private static Offset16<BackgroundPixels> SignedScroll(Position16<BackgroundPixels> latched) =>
-        Offset16<BackgroundPixels>.Wrapped(latched.X, latched.Y);
+    /// <param name="live">The display inputs read as the frame ends.</param>
+    /// <param name="latched">The room's frame the frame boundary latched.</param>
+    internal static SamusSuitPickupFlash? SuitPickup(GameplayFrameEndDisplayInputs live, RoomFrameLatch latched) =>
+        live.SuitPickupBeam is { } beam ? new(beam, latched.Tints.SuitPickup) : null;
 
     /// <summary>
     /// Fireflea's darkness, before and after X-ray owns the window (#1514): its shade darkens the background and the backdrop
     /// where each is frontmost, everywhere on the screen. The foreground and Samus keep their colours.
     /// </summary>
-    private static GameplayBlendLayer CaptureFirefleaDarkness(RgbColor shade, LayeredScene basis)
-    {
-        if (basis.Layers[0] is not GameplaySceneLayer ordinary)
-            throw new InvalidOperationException("Fireflea darkness requires ordinary gameplay.");
-        return new(ordinary, ScreenWindow.Closed, revealBlocks: false, blend: new GameplayBlend
+    private static GameplayBlendLayer CaptureFirefleaDarkness(RgbColor shade, GameplaySceneLayer ordinary) =>
+        new(ordinary, ScreenWindow.Closed, revealBlocks: false, blend: new GameplayBlend
         {
             Blended = BlendedLayers.Background | BlendedLayers.Backdrop,
             Operation = BlendOperation.Subtract,
             Halved = false,
             Colour = shade,
         });
-    }
-
-    /// <summary>
-    /// Captures the latched perspective floor and the HUD's layer, adding the background band below the floor and the chamber's
-    /// walls behind it during Ridley's getaway (#1545).
-    /// </summary>
-    private static LayeredScene CapturePerspectiveFloorBase(GameplayDisplayFrame frame)
-    {
-        GameplayDisplayLatch latched = frame.Latched;
-        GameplayRenderSnapshot scrolls = latched.Scrolls;
-        RoomShakeFrameResult shake = scrolls.RoomShake;
-        PerspectiveFloor perspective = latched.PerspectiveFloor
-            ?? throw new InvalidOperationException("A perspective-floor capture has no latched floor.");
-        // Room shake moves the floor with the foreground.
-        FloorView transform = perspective.Transform with
-        {
-            Scroll = new Offset16<FloorPixels>(
-                perspective.Transform.Scroll.X + shake.Foreground.X,
-                perspective.Transform.Scroll.Y + shake.Foreground.Y),
-        };
-        // The band's background scroll is a position that goes above and left of its origin (#2308), as the ordinary view's
-        // does: the latched scroll plus the room's shake.
-        TurningRoomLowerBand? floor = perspective.Below == BelowPerspectiveFloor.RoomBackground
-            ? new(GameplayRenderDefinitions.CeresFloorFirstLine, SignedScroll(scrolls.BackgroundScroll) + shake.Background,
-                latched.Rooms?.Background ?? throw new InvalidOperationException("Ceres Ridley's room shows its background plane below the turning floor."))
-            : null;
-        var layer = new TurningRoomLayer(transform, (latched.Rooms?.Floor
-                ?? throw new InvalidOperationException("A turning-floor gameplay frame shows a Ceres room's floor.")), ScreenGeometry.GameplayHudHeightPixels, floor)
-        {
-            Scenery = Scenery(perspective.Scenery, scrolls.ForegroundPosition),
-        };
-        return new(frame.Paint, new DisplayLayer[] { layer, Hud(latched) }, DisplayBrightness.Full);
-    }
 
     /// <summary>
     /// The pictures fixed in the room around a turning floor (#1545), each placed so its origin lands on its room point,
@@ -266,55 +261,55 @@ public static class GameplayDisplayCapture
     }
 
     /// <summary>
-    /// Phantoon's body as it shows (#1545): as the room shows it, removed when he is hidden, or lying translucent behind
-    /// the room. His room shows his body on its background.
+    /// The room's scene as Phantoon's body shows on it (#1545): as the room shows it, or without the background his body
+    /// shows on while he is hidden or translucent.
     /// </summary>
-    private static DisplayLayer CapturePhantoonBody(PhantoonDisplaySnapshot phantoon, LayeredScene basis)
+    /// <exception cref="InvalidOperationException">His body's visibility is undefined.</exception>
+    private static GameplaySceneLayer PhantoonScene(PhantoonDisplaySnapshot phantoon, GameplaySceneLayer ordinary)
     {
-        var ordinary = (GameplaySceneLayer)basis.Layers[0];
         switch (phantoon.BodyVisibility)
         {
             case PhantoonBodyVisibility.Shown:
                 return ordinary;
             case PhantoonBodyVisibility.Hidden:
             case PhantoonBodyVisibility.Translucent:
-                break;
+                return new GameplaySceneLayer(ordinary.View with
+                {
+                    ShownLayers = ordinary.View.ShownLayers & ~ScreenLayers.Background,
+                }, ordinary.Rooms, ordinary.BackgroundLineScrolls);
             default:
                 throw new InvalidOperationException($"Undefined Phantoon body visibility {phantoon.BodyVisibility}.");
         }
-        var gameplay = new GameplaySceneLayer(ordinary.View with
-        {
-            ShownLayers = ordinary.View.ShownLayers & ~ScreenLayers.Background,
-        }, ordinary.Rooms, ordinary.BackgroundLineScrolls);
-        if (phantoon.BodyVisibility == PhantoonBodyVisibility.Hidden) return gameplay;
-        // Phantoon's translucent body is the background lying behind the room: it brightens the foreground, the actors taking
-        // part in blends and the backdrop wherever it shows, without ever covering the foreground (#1514).
-        return new GameplayBlendLayer(gameplay, ScreenWindow.Closed, false, new GameplayBlend
+    }
+
+    /// <summary>
+    /// Phantoon's translucent body (#1514): the background lying behind <paramref name="gameplay"/>, the room without it,
+    /// brightens the foreground, the actors taking part in blends and the backdrop wherever it shows, without ever covering
+    /// the foreground.
+    /// </summary>
+    private static GameplayBlendLayer PhantoonTranslucence(GameplaySceneLayer gameplay) =>
+        new(gameplay, ScreenWindow.Closed, false, new GameplayBlend
         {
             Blended = BlendedLayers.Foreground | BlendedLayers.Actors | BlendedLayers.Backdrop,
             Operation = BlendOperation.Add,
             Halved = false,
             Colour = RgbColor.Black,
         }, backgroundBehind: true);
-    }
 
     /// <summary>
     /// The X-ray's scene (#1514): the room, its reveal's blocks inside the cone where the room reveals them, and outside the
     /// cone the room blended toward its liquid or the X-ray's colour.
     /// </summary>
-    private static LayeredScene? CaptureXray(GameplayDisplayFrame frame, LayeredScene basis)
+    private static LayeredScene? CaptureXray(GameplayDisplayFrame frame, OrdinaryRoomFrameLatch latched, OrdinaryGameplayBase basis)
     {
         if (frame.FrameEnd.Xray is not { } xray) return null;
         bool finishedThisFrame = xray.FinishedThisFrame;
         if (!xray.WarmUp.ShowsBlendedRoom) return null;
         bool warmingUp = !xray.WarmUp.IsOver;
-        if (basis.Layers[0] is not GameplaySceneLayer ordinary)
-            throw new NotSupportedException("X-ray display requires ordinary gameplay layers.");
-        GameplayDisplayLatch latched = frame.Latched;
+        GameplaySceneLayer ordinary = basis.Room;
         GameplayLatchedScene scene = latched.Scene;
-        RoomDefinition xrayRoom = scene.Room ?? throw new InvalidOperationException("X-ray has no room.");
-        var scrolls = latched.Scrolls;
-        var mode = XrayRoomDisplayRules.Select(xrayRoom, scene.FxType, scene.Boss);
+        RoomDefinition xrayRoom = scene.Room;
+        var mode = XrayRoomDisplayRules.Select(xrayRoom, latched.Fireflea, scene.Boss);
         bool reveal = mode == XrayRoomBlendMode.RevealBlocks;
         // The reveal shows once a frame boundary has latched it; until then the background shows what the room shows (#1403).
         XrayRevealPlane? shownReveal = reveal ? latched.XrayReveal : null;
@@ -342,7 +337,7 @@ public static class GameplayDisplayCapture
         // Outside the cone the room blends with its liquid or fog lying behind it, except in Fireflea's room, whose darkness
         // blends with its shade alone.
         OverlayBlendLayer? overlayBehind = mode != XrayRoomBlendMode.Fireflea && latched.RoomFxOverlay is { } fx
-            ? GameplayEffectCapture.CaptureRoomFxOverlay(fx, ordinary.Rooms.ShownFxOverlay) : null;
+            ? GameplayEffectCapture.CaptureRoomFxOverlay(fx, ordinary.Rooms.FxOverlay) : null;
         // A room with no visible effect blends with nothing behind (#1514). With nothing lying behind, the room combines with the
         // blend's colour unhalved, as it does wherever its liquid shows nothing.
         // Whether the blend darkens belongs to the room's liquid, even when the liquid is currently off screen and shows
@@ -350,21 +345,17 @@ public static class GameplayDisplayCapture
         bool roomDarkens = scene.Blend?.Operation == BlendOperation.Subtract;
         // The X-ray's own tint: grey in a reveal room, none elsewhere; in Fireflea's room the room's darkness shade, never
         // lighter than the reveal's grey. Its last pass clears the tint at once, except in Fireflea's room.
-        int level = mode switch
-        {
-            XrayRoomBlendMode.RevealBlocks => XrayWindowRenderDefinitions.RevealTintLevel,
-            XrayRoomBlendMode.Fireflea => Math.Max(FirefleaTint(latched).FadeLevels.Red, XrayWindowRenderDefinitions.RevealTintLevel),
-            XrayRoomBlendMode.PreserveBackgrounds => 0,
-            _ => throw new InvalidOperationException($"Undefined X-ray room blend {mode}."),
-        };
+        int level = latched.Fireflea is { } darkness
+            ? Math.Max(darkness.Shade.FadeLevels.Red, XrayWindowRenderDefinitions.RevealTintLevel)
+            : reveal ? XrayWindowRenderDefinitions.RevealTintLevel : 0;
         if (finishedThisFrame && mode != XrayRoomBlendMode.Fireflea) level = 0;
         // Releasing Run starts the beam's closing, whose window and backdrop still show until its first update is spent;
         // the X-ray keeps the display until its last step finally unfreezes gameplay.
         bool closing = finishedThisFrame || (xray.BeamPhase is XrayBeamPhase.Closing or XrayBeamPhase.Finish && !xray.Closing.ShowsBeam);
-        FramePaint paint = warmingUp ? basis.Paint
-            : basis.Paint.WithBackdrop(closing ? RgbColor.Black : XrayRoomDisplayRules.ActiveBackdrop);
+        FramePaint paint = warmingUp ? frame.Paint
+            : frame.Paint.WithBackdrop(closing ? RgbColor.Black : XrayRoomDisplayRules.ActiveBackdrop);
         bool closed = warmingUp || closing || xray.BeamPhase == XrayBeamPhase.NoBeam;
-        ScreenWindow window = closed ? ScreenWindow.Closed : GameplayEffectCapture.CaptureXrayWindow(xray, scrolls.ForegroundPosition);
+        ScreenWindow window = closed ? ScreenWindow.Closed : GameplayEffectCapture.CaptureXrayWindow(xray, latched.Scrolls.ForegroundPosition);
         var layer = new GameplayBlendLayer(gameplay, window, reveal, new GameplayBlend
         {
             Blended = XrayRoomDisplayRules.Blended(mode),
@@ -372,6 +363,6 @@ public static class GameplayDisplayCapture
             Halved = XrayRoomDisplayRules.Halves(mode) && overlayBehind is not null,
             Colour = new FadeLevelColour(level, level, level).ToColour(),
         }, overlayBehind);
-        return new(paint, new DisplayLayer[] { layer, Hud(latched) }, basis.Brightness);
+        return new(paint, new DisplayLayer[] { layer, basis.Hud }, DisplayBrightness.Full);
     }
 }

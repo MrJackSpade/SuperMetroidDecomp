@@ -73,7 +73,7 @@ internal static class XrayInputVerification
         InstalledXrayReveals installedReveals = runtime.Xray.XrayRevealVisuals;
         AssertEqual(255, (installedReveals.Apply(probe.CollisionType, probe.Behavior) ?? throw new InvalidOperationException("Verification requires an X-ray reveal for the probed air block.")).Blocks?.TopLeft,
             "the installed air reveal replaces decorative wall art with the blank metatile");
-        var ordinaryPixels = DisplayRendering.Render(GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame()));
+        var ordinaryPixels = DisplayRendering.Render(runtime.PublishDisplayFrame().OrdinaryBaseScene);
         int revealedAirPixel = 120 * 256 + 200;
         AssertTrue(ordinaryPixels[revealedAirPixel] != new RgbaPixel(24, 24, 24, 255), "fixture starts with visible decorative wall art");
         AssertEqual(new RgbaPixel(24, 24, 24, 255), horizontalPixels[revealedAirPixel],
@@ -144,7 +144,7 @@ internal static class XrayInputVerification
             // position so it need not drive an unrelated room's entrance sequence.
             AssertTrue(samus.Xray.TryBeginAndActivate(samus, SamusPoseMetadata.ReadMovementType(samus), new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay, PowerBombExplosionActive = false, ProjectileCooldownTimer = 0, BombCounter = 0 }), "excluded-room capture fixture activates");
             for (int frame = 0; frame < 90; frame++) runtime.StepFrame(runtime.Options.ControllerBindings.Dash);
-            var baseFrame = GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame());
+            var baseFrame = runtime.PublishDisplayFrame().OrdinaryBaseScene;
             var excludedFrame = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
             var excluded = (GameplayBlendLayer)excludedFrame.Layers[0];
             AssertTrue(!excluded.RevealBlocks, "native excluded room never substitutes the reveal map");

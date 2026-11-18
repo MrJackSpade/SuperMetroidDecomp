@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
@@ -48,11 +49,12 @@ internal static class GameplaySnapshotTestsVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        AssertThrows<InvalidOperationException>(() => GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame()),
-            "Mode-7 shaft cannot silently capture as ordinary tiles");
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
+        AssertTrue(runtime.PublishDisplayFrame().Latched is PerspectiveFloorFrameLatch,
+            "the Mode-7 shaft latches its perspective floor, never ordinary tiles");
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.AlphaPowerBomb, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        LayeredScene captured = GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame());
+        LayeredScene captured = runtime.PublishDisplayFrame().OrdinaryBaseScene;
         RgbaPixel[] retail = RenderForComparison(captured);
         runtime.Vram.LoadBytes(0, new byte[SnesVram.ByteCount]);
         AssertTrue(retail.SequenceEqual(RenderForComparison(captured)),

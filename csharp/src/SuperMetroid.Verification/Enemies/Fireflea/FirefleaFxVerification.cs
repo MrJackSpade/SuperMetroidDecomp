@@ -48,7 +48,7 @@ internal static class FirefleaFxVerification
             int expectedPhase = (frame / 6) % 12;
             int shade = LittleEndianBytes.HighByte(flash[expectedPhase]);
             AssertEqual(new FirefleaFlashShade(shade), state.Flash, $"Fireflea flash look frame {frame}");
-            AssertEqual(new RgbColor?(new FadeLevelColour(shade, shade, shade).ToColour()), fx.FirefleaTint,
+            AssertEqual(new RgbColor?(new FadeLevelColour(shade, shade, shade).ToColour()), fx.Fireflea?.Tint,
                 $"Fireflea grey shade frame {frame}");
         }
         RgbColor tint = state.Tint;
@@ -83,7 +83,6 @@ internal static class FirefleaFxVerification
         fx.BindAudioRequests(GameplayAudioRequests.Standalone());
         fx.Step(new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false });
         AssertTrue(fx.Fireflea is null, "a non-Fireflea room has no Fireflea darkness");
-        AssertEqual<RgbColor?>(null, fx.FirefleaTint, "non-Fireflea room shows no Fireflea shade");
         if (includeXrayCapture) VerifyFirefleaXrayCapture();
         Console.WriteLine("  Fireflea FX: compiled native shades, ROM-read guard, initialization, flash cycles, all seven death offsets, grey shades and frozen-time retention agree.");
     }

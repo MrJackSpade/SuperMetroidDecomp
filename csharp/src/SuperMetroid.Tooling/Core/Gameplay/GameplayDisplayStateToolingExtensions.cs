@@ -11,8 +11,8 @@ internal static class GameplayDisplayStateToolingExtensions
     {
         /// <summary>
         /// The Morph Ball eye beam's cone the displayed frame shows, latched at the frame's end with
-        /// <see cref="SuperMetroidRuntime.DisplayedSprites"/>; null while no beam exists.
+        /// <see cref="SuperMetroidRuntime.DisplayedSprites"/>; null while no beam exists or no room's frame is latched.
         /// </summary>
-        public MorphBallEyeBeamCone? DisplayedMorphBallEyeBeam => self.Latched.MorphBallEyeBeam;
+        public MorphBallEyeBeamCone? DisplayedMorphBallEyeBeam => (self.Latched as RoomFrameLatch)?.MorphBallEyeBeam;
     }
 }

@@ -18,7 +18,7 @@ public sealed class DachoraEnemyState
     internal AnimationPlayback<DachoraSegment> Playback { get; set; }
 
     /// <summary>
-    /// The signed 1/65536-pixel speed in pixels per update while running, falling or shinesparking, horizontal while running and
+    /// The speed in pixels per update while running, falling or shinesparking, horizontal while running and
     /// vertical after the launch. Each update's gain carries its fraction into the whole pixels.
     /// </summary>
     public SignedSixteenSixteen Speed { get; internal set; }
@@ -33,7 +33,7 @@ public sealed class DachoraEnemyState
     public int TrailTimer { get; internal set; }
 
     /// <summary>
-    /// During the shinespark: the signed 1/65536-pixel vertical acceleration per update, which gravity accumulates into with
+    /// During the shinespark: the vertical acceleration per update, which gravity accumulates into with
     /// its fraction carried into the whole pixels.
     /// </summary>
     public SignedSixteenSixteen VerticalAcceleration { get; internal set; }

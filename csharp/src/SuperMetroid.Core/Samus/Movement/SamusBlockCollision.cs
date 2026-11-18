@@ -722,7 +722,7 @@ public static class SamusBlockCollision
     /// The pose being installed, which the elevator pseudo-door's standing-pose gate tests: the game writes it to Samus's
     /// pose before the larger-radius check.
     /// </param>
-    /// <param name="displacement">Signed 1/65536-pixel distance to test; zero tests the current bottom boundary.</param>
+    /// <param name="displacement">The distance to test, negative upward; zero tests the current bottom boundary.</param>
     /// <param name="scanLeftToRight">Scan order chosen by the frame counter's parity.</param>
     /// <param name="roomObjects">The room's room-object owner for special and bombable blocks.</param>
     internal static BlockMoveResult ProbeChangedPoseVertical(
@@ -768,7 +768,7 @@ public static class SamusBlockCollision
 
     /// <summary>
     /// Resolves a non-square slope against Samus's leading vertical boundary and retains
-    /// the clipped 1/65536-pixel distance when the slope intercepts the requested travel.
+    /// the clipped distance when the slope intercepts the requested travel.
     /// </summary>
     private static SlopeClip ClipVerticalToNonSquareSlope(
         SamusKinematicsState state,

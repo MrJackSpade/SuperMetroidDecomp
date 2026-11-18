@@ -34,6 +34,6 @@ public sealed class KraidNailState : KraidAnimatedPartState
     /// </summary>
     public bool AlternateSpawn { get; internal set; }
 
-    /// <summary>A fingernail's signed 1/65536-pixel velocity in pixels per update.</summary>
+    /// <summary>A fingernail's velocity in pixels per update, positive right and down.</summary>
     public FixedVector<RoomPixels> NailVelocity { get; internal set; }
 }

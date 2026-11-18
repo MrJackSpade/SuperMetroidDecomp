@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies;
 internal static class EnemyMath
 {
     /// <summary>
-    /// Clamps a signed 1/65536-pixel velocity to plus or minus <paramref name="maximum"/> whole pixels: a whole part at or past
+    /// Clamps a velocity to plus or minus <paramref name="maximum"/> whole pixels: a whole part at or past
     /// the maximum becomes exactly the maximum, one below its negation exactly the negation.
     /// </summary>
     internal static SignedSixteenSixteen ClampWholeVelocity(SignedSixteenSixteen velocity, int maximum)
@@ -125,7 +125,7 @@ internal static class EnemyMath
     /// half-wave deterministically avoids floating-point rounding, so each speed is exactly the game's product.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="wholePixels"/> is negative.</exception>
-    /// <exception cref="OverflowException">The product does not fit a 1/65536-pixel speed.</exception>
+    /// <exception cref="OverflowException">The product is 65536 pixels or more.</exception>
     internal static UnsignedSixteenSixteen UnsignedSineSpeed(TrigonometryAngle angle, int wholePixels) =>
         UnsignedSixteenSixteen.ShareOfWholePixels(wholePixels, Trigonometry.UnsignedHalfWave(angle.StepsIntoHalfTurn));
 

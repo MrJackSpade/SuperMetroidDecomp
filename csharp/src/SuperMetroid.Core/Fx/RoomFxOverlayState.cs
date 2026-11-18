@@ -155,7 +155,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// </summary>
     public int? TargetSurface { get; private set; }
 
-    /// <summary>The liquid's signed 1/256-pixel level speed in room pixels per update while it moves toward its target: negative rises.</summary>
+    /// <summary>The liquid's level speed in room pixels per update while it moves toward its target: negative rises.</summary>
     public SignedEightEight LiquidLevelSpeed { get; private set; }
 
     /// <summary>

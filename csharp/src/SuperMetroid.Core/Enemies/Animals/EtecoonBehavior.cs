@@ -606,7 +606,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         place.AnimationClock.Extend(EtecoonQuakeDefinitions.QuakePauseFrames);
     }
 
-    /// <summary>Moves an Etecoon horizontally by its signed 1/65536-pixel speed.</summary>
+    /// <summary>Moves an Etecoon horizontally by its speed.</summary>
     private bool MoveEtecoonHorizontally(
         RoomEnemyPlace place,
         EtecoonEnemyState state,

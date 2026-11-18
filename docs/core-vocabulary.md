@@ -385,7 +385,7 @@ helper`, `in signed 1/65536-pixel form`); paired additions, adds, subtractions o
 paired additions`); and a routine run or called as a helper or controller (`Runs the linked-segment placement helper`,
 `runs the last segment's collision/reversal controller`, `calls the previous-pose helper`). Core says what the value or
 the step does: the speed moves the position, a fraction past a whole pixel carries into the whole pixels, the segment is
-placed on its orbit, the chain reverses. A unit of measure (`a speed in 1/65536 pixels`, `a 1/65536-pixel velocity`),
+placed on its orbit, the chain reverses. A unit of measure (`a speed in 1/65536 pixels`; #2427 reads the hyphenated form),
 things the game pairs, an addition alone, the player's controller with its input, buttons or port, and a helper or
 controller nothing runs or calls stay English.
 
@@ -640,6 +640,16 @@ bits`); and `save bits`. Core says what the game does: the update draws its rand
 `PublishHeldInput`), a binding holds several buttons, a probe is limited in 256ths of a pixel, an untinted look shows
 one colour black, the random number chooses one of rain's four winds, nothing is marked explored. The middle of a room,
 the upper half of the screen, a tint's colours, a bit and a save stay English.
+
+#2427 widens SME6454, outside hardware owners, to the original's setup and storage as area prose tells them: a setup,
+initialization or spawn that selects colours (`the setup selects the enemy projectiles' colours`, `statue initialization
+selects the common sprite colours`), and a value named by its hyphenated 1/65536-pixel storage (`Samus's 1/65536-pixel
+position`, `a signed 1/65536-pixel velocity`), which #2172 had left as a unit of measure. It also reads the species-owner
+template (`The Ceres steam species owner: its per-room state, behaviour and the interactions it registers`) on the
+summary of a type that neither is nor implements `IEnemyEntityFactory` or `IEnemySpecies`. Core says what the game
+does: pictures arrive pre-coloured, a position or speed carries its fraction of a pixel in its type, and a type that owns
+no species says what it is (`The Zebes escape's explosions`, `The falling sparks`). A speed in 1/65536 pixels, a setup
+that selects anything but colours and an entity's parameter naming its species owner stay English.
 
 `Tilemap` is matched as the one word the cartridge's sources spell. A room layer named as the destination engine names
 it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as does `MapTiles`; so does

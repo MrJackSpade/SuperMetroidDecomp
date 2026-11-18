@@ -253,7 +253,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
             verticalDisplacement);
     }
 
-    /// <summary>Applies signed 1/256-pixel scripted motion to one 1/65536-pixel axis before terrain collision takes over.</summary>
+    /// <summary>Moves the corpse along one axis by its scripted speed before terrain collision takes over.</summary>
     private static void MoveDeadSidehopperAxisDirect(
         RoomEnemyPlace place,
         Axis axis,

@@ -23,7 +23,7 @@ public sealed class ScrollBoundaryCamera
     }
 
     /// <summary>
-    /// Gets the camera's 1/65536-pixel position: whole pixels and fraction.
+    /// Gets the camera's position: whole pixels and fraction.
     /// </summary>
     public FixedPosition<RoomPixels> Position { get; internal set; }
 
@@ -37,7 +37,7 @@ public sealed class ScrollBoundaryCamera
     public Position16<RoomPixels> IdealPosition { get; private set; }
 
     /// <summary>
-    /// Gets the most recently calculated 1/65536-pixel camera speed on each axis:
+    /// Gets the most recently calculated camera speed on each axis:
     /// Samus's unsigned distance moved plus one pixel, held unsigned.
     /// </summary>
     public FixedVector<RoomPixels> Speed { get; internal set; }

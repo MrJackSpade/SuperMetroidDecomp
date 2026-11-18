@@ -59,21 +59,21 @@ public sealed class SbugEnemyState
     /// <summary>How the Sbug moves once activated, as its placement names it.</summary>
     public SbugActivationBehavior ActivationBehavior { get; }
 
-    /// <summary>Spawn-computed signed 1/65536-pixel horizontal displacement in pixels per AI update along the spawn heading, used by forward movement.</summary>
+    /// <summary>Spawn-computed horizontal displacement in pixels per AI update along the spawn heading, used by forward movement.</summary>
     public SignedSixteenSixteen ForwardXVelocity { get; internal set; }
-    /// <summary>Spawn-computed signed 1/65536-pixel vertical displacement in pixels per AI update along the spawn heading, used by forward movement.</summary>
+    /// <summary>Spawn-computed vertical displacement in pixels per AI update along the spawn heading, used by forward movement.</summary>
     public SignedSixteenSixteen ForwardYVelocity { get; internal set; }
-    /// <summary>Spawn-computed signed 1/65536-pixel horizontal displacement for angle <c>InitialAngle - 32</c>, used by the left zigzag leg.</summary>
+    /// <summary>Spawn-computed horizontal displacement for angle <c>InitialAngle - 32</c>, used by the left zigzag leg.</summary>
     public SignedSixteenSixteen LeftXVelocity { get; internal set; }
-    /// <summary>Spawn-computed signed 1/65536-pixel vertical displacement for angle <c>InitialAngle - 32</c>, used by the left zigzag leg.</summary>
+    /// <summary>Spawn-computed vertical displacement for angle <c>InitialAngle - 32</c>, used by the left zigzag leg.</summary>
     public SignedSixteenSixteen LeftYVelocity { get; internal set; }
-    /// <summary>Spawn-computed signed 1/65536-pixel horizontal displacement for angle <c>InitialAngle + 32</c>, used by the right zigzag leg.</summary>
+    /// <summary>Spawn-computed horizontal displacement for angle <c>InitialAngle + 32</c>, used by the right zigzag leg.</summary>
     public SignedSixteenSixteen RightXVelocity { get; internal set; }
-    /// <summary>Spawn-computed signed 1/65536-pixel vertical displacement for angle <c>InitialAngle + 32</c>, used by the right zigzag leg.</summary>
+    /// <summary>Spawn-computed vertical displacement for angle <c>InitialAngle + 32</c>, used by the right zigzag leg.</summary>
     public SignedSixteenSixteen RightYVelocity { get; internal set; }
-    /// <summary>Current signed 1/65536-pixel horizontal displacement in pixels per AI update, computed from the custom angle and turned to its opposite when the Sbug reverses.</summary>
+    /// <summary>Current horizontal displacement in pixels per AI update, computed from the custom angle and turned to its opposite when the Sbug reverses.</summary>
     public SignedSixteenSixteen CustomXVelocity { get; internal set; }
-    /// <summary>Current signed 1/65536-pixel vertical displacement in pixels per AI update, computed from the custom angle and turned to its opposite when the Sbug reverses.</summary>
+    /// <summary>Current vertical displacement in pixels per AI update, computed from the custom angle and turned to its opposite when the Sbug reverses.</summary>
     public SignedSixteenSixteen CustomYVelocity { get; internal set; }
 
     /// <summary>Spawn-computed facing for the spawn heading; selects the forward loop.</summary>

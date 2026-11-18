@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 public static class CrawlerSlopes
 {
     /// <summary>
-    /// Converts signed 1/256-pixel tangent speed into signed 1/65536-pixel displacement along <paramref name="shape"/>, by
+    /// Converts the crawler's speed along the surface into its displacement along <paramref name="shape"/>, by
     /// the shape's crawler tangent share, without truncating the product.
     /// </summary>
     /// <exception cref="ArgumentNullException"><paramref name="shape"/> is null.</exception>

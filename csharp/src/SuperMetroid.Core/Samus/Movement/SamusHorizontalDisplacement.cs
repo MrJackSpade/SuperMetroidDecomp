@@ -2,7 +2,7 @@ using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>
-/// One frame's signed 1/65536-pixel X displacement together with the collision movement direction
+/// One frame's X displacement together with the collision movement direction
 /// that its calculator stored: the leftward calculator writes <see cref="SamusCollisionDirection.Left"/> and
 /// the rightward one <see cref="SamusCollisionDirection.Right"/>.
 /// </summary>

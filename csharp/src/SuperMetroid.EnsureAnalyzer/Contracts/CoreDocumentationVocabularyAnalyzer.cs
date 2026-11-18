@@ -135,6 +135,9 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// #2423 adds, outside hardware owners, the original's main loop, storage and colour slots as effects, HUD, map and
 /// escape prose tells them: the main loop, in prose and in declared names, a multibit value, a value's middle part or a
 /// half of its fraction, the colours a tint sets, a value's bits by count or end, and save bits.
+/// #2427 adds, outside hardware owners, the original's setup and storage as area prose tells them: a setup that selects
+/// colours and a value named by its 1/65536-pixel storage, and the species-owner template on a type's summary where the
+/// type owns no species.
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -960,8 +963,8 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
     /// helper, the ordinary 1/65536-pixel movement helpers, in signed 1/65536-pixel form, in 1/65536-pixel space). The
     /// original kept a position or speed as a whole word and a fraction word and added them as a pair; Core says what the
     /// value does: the speed moves the position, a fraction past a whole pixel carries into the whole pixels, the whole
-    /// pixels wrap around the room. English stays legal: a unit of measure (a speed in 1/65536 pixels, a 1/65536-pixel
-    /// velocity, displacement or position).
+    /// pixels wrap around the room. English stays legal: a unit of measure (a speed in 1/65536 pixels); a value named by
+    /// its hyphenated 1/65536-pixel storage is <see cref="AreaSetupColourAndStorageProse"/>'s (#2427).
     /// </summary>
     private static readonly Regex SixteenSixteenArithmeticProse = new(
         @"(?<![\w/])1/65536(?:ths?)?(?:[-\s]pixels?)?(?:\s+[\w'-]+){0,2}?\s+" +
@@ -1890,6 +1893,34 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
+    /// The original's setup and storage told in area prose (#2427), outside hardware owners and markup: a setup,
+    /// initialization or spawn that selects colours (the setup selects the enemy projectiles' colours, statue
+    /// initialization selects the common sprite colours), and a value named by its 1/65536-pixel storage, hyphenated
+    /// (Samus's 1/65536-pixel position, a signed 1/65536-pixel velocity, 1/65536th-pixel steps). The original chose the
+    /// colour set a sprite drew in as it set an enemy up and kept a position or speed as a whole and a fraction word; Core's
+    /// pictures arrive pre-coloured and its positions and speeds carry their fractions in their types. English stays
+    /// legal: a unit of measure (a speed in 1/65536 pixels, one 65536th of a pixel), a setup that selects anything but
+    /// colours and a hardware owner.
+    /// </summary>
+    private static readonly Regex AreaSetupColourAndStorageProse = new(
+        @"\b(?:setup|set-up|initiali[sz]ation|initiali[sz]er|spawn)\s+selects\s+(?:[\w'’-]+\s+){0,4}?colou?rs\b" +
+        @"|(?<![\w/])1/65536(?:ths?)?-pixels?\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// A type's summary that calls the type a species owner (#2427): the species-owner template (its per-room state,
+    /// behaviour and the interactions it registers). Only a type that creates or keeps a species' enemies
+    /// (<see cref="SpeciesOwnerInterfaces"/>) is one; any other type says what it is.
+    /// </summary>
+    private static readonly Regex SpeciesOwnerProse = new(@"\bspecies[-\s]+owners?\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>A documentation comment's summary element, whose text <see cref="SpeciesOwnerProse"/> reads.</summary>
+    private static readonly Regex SummaryElement = new(@"<summary>(?<text>.*?)</summary>", RegexOptions.Singleline | RegexOptions.CultureInvariant);
+
+    /// <summary>The interfaces of Core's species owners (#2427): a type that implements one, or is one, owns a species.</summary>
+    private static readonly ImmutableHashSet<string> SpeciesOwnerInterfaces = ["IEnemyEntityFactory", "IEnemySpecies"];
+
+    /// <summary>
     /// A camel-case word pair of a declared name that names the original's main loop (#2423): MainLoop at any word
     /// boundary (<c>MovesLiquidBeforeMainLoop</c>, <c>mainLoopRandom</c>). Core names what the update does.
     /// </summary>
@@ -2139,7 +2170,34 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             Compilation compilation = start.Compilation;
             var codeNames = new Lazy<ImmutableHashSet<string>>(() => CodeNames(compilation, start.CancellationToken));
             start.RegisterSyntaxTreeAction(tree => AnalyzeTree(tree, tree.IsGeneratedCode ? null : codeNames, tree.IsGeneratedCode));
+            start.RegisterSymbolAction(AnalyzeSpeciesOwnerSummary, SymbolKind.NamedType);
         });
+    }
+
+    /// <summary>
+    /// Reports a type's summary that calls the type a species owner (<see cref="SpeciesOwnerProse"/>) when the type neither
+    /// is nor implements one of <see cref="SpeciesOwnerInterfaces"/> (#2427), outside hardware owners: the species-owner
+    /// template copied onto a type that owns no species.
+    /// </summary>
+    private static void AnalyzeSpeciesOwnerSummary(SymbolAnalysisContext context)
+    {
+        var type = (INamedTypeSymbol)context.Symbol;
+        if (SpeciesOwnerInterfaces.Contains(type.Name) || type.AllInterfaces.Any(face => SpeciesOwnerInterfaces.Contains(face.Name)))
+            return;
+        foreach (SyntaxReference reference in type.DeclaringSyntaxReferences)
+        {
+            if (reference.GetSyntax(context.CancellationToken) is not BaseTypeDeclarationSyntax declaration || IsInHardwareOwner(declaration))
+                continue;
+            foreach (SyntaxTrivia trivia in declaration.GetLeadingTrivia())
+            {
+                if (!trivia.IsKind(SyntaxKind.SingleLineDocumentationCommentTrivia) &&
+                    !trivia.IsKind(SyntaxKind.MultiLineDocumentationCommentTrivia))
+                    continue;
+                if (SummaryElement.Match(trivia.ToFullString()) is { Success: true } summary &&
+                    SpeciesOwnerProse.Match(Markup.Replace(summary.Groups["text"].Value, " ")) is { Success: true } owner)
+                    context.ReportDiagnostic(Diagnostic.Create(Rule, trivia.GetLocation(), owner.Value));
+            }
+        }
     }
 
     /// <summary>Every name Core's code spells: each identifier of every source file, declared or used.</summary>
@@ -2406,6 +2464,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : RoomCallAreaAndLayerProse.Match(Markup.Replace(text, " ")) is { Success: true } roomCallAreaAndLayer ? roomCallAreaAndLayer.Value
             : FrontendColourScrollAndProgramProse.Match(Markup.Replace(text, " ")) is { Success: true } frontendProse ? frontendProse.Value
             : EffectsHudMapAndEscapeStorageProse.Match(Markup.Replace(text, " ")) is { Success: true } effectsStorage ? effectsStorage.Value
+            : AreaSetupColourAndStorageProse.Match(Markup.Replace(text, " ")) is { Success: true } areaStorage ? areaStorage.Value
             : TileCharacterFinding(text, owner) is { } character ? character
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;

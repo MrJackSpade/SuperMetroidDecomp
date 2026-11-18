@@ -49,7 +49,7 @@ public sealed class CrawlerEnemyState
     public CrawlerAnimationFamily SurfaceFamily { get; internal set; }
 
     /// <summary>
-    /// Signed 1/65536-pixel falling Y velocity per AI update, separate from attached 1/256-pixel motion: gravity adds half a pixel per
+    /// Falling Y velocity per AI update, separate from the speed it crawls at while attached: gravity adds half a pixel per
     /// update while the whole pixels are below four, and landing clears it.
     /// </summary>
     public SignedSixteenSixteen FallingYVelocity { get; internal set; }

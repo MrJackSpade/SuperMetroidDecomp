@@ -104,8 +104,7 @@ internal sealed class CeresElevatorDoorEntity(CeresDoorBehavior doors, RoomEnemy
 
     /// <summary>
     /// Cycles the elevator room's glow and the room's turning-floor elevator frame by the door's own update count. The glow
-    /// and the platform strip are only drawn, so the door clocks them itself; the game read the room's first enemy's count,
-    /// which only shifts the drawn phase where another enemy is listed first.
+    /// and the platform strip are only drawn, so the door clocks them itself.
     /// </summary>
     internal void CycleGlowAndPlatform()
     {

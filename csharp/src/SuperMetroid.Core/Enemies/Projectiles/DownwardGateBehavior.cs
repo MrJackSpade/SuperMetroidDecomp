@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
-/// <summary>The downward gate species owner: its per-room state, behaviour and the interactions it registers.</summary>
+/// <summary>The downward gates: each gate moving down to close, closed, and rising again when woken.</summary>
 [RoomLifetime]
 internal sealed class DownwardGateBehavior
 {

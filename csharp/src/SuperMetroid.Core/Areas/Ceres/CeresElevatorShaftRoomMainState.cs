@@ -25,7 +25,7 @@ public sealed class CeresElevatorShaftRoomMainState
     /// <summary>The updates the shaft holds level, once the elevator door's destruction releases it, before its first turn.</summary>
     public const int LevelHoldFrames = 60;
 
-    /// <summary>The elevator hold reaching the Ceres elevator writes.</summary>
+    /// <summary>The updates Samus stands held on the elevator, once she reaches it, before the screen fades to black.</summary>
     public const int DepartureHoldFrames = 60;
 
     /// <summary>The further updates the shaft holds its tilt; the update after the last of them turns it.</summary>

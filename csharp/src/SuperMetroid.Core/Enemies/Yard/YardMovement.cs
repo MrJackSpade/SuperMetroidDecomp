@@ -18,6 +18,6 @@ public enum YardMovement
     /// along that surface: vertical ones on a wall, horizontal ones on a floor or ceiling.
     /// </summary>
     Crawling,
-    /// <summary>Applies 1/65536-pixel shell motion, horizontal decay, gravity, per-axis collision bounces, and low-speed floor landing.</summary>
+    /// <summary>Applies shell motion, horizontal decay, gravity, per-axis collision bounces, and low-speed floor landing.</summary>
     Airborne,
 }

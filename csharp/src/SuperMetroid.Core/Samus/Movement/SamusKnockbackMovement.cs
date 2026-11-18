@@ -305,7 +305,7 @@ public static class SamusKnockbackMovement
         }
 
         // Both target families have the same radius. The pose change nevertheless runs
-        // their ordinary setup: it preserves the live 1/65536-pixel jump velocity,
+        // their ordinary setup: it preserves the live jump velocity,
         // reselects the acceleration mode from extra run speed, and can start a spark from
         // stored shine. The selected target's frame delays start at frame zero.
         samus.Pose = targetPose;

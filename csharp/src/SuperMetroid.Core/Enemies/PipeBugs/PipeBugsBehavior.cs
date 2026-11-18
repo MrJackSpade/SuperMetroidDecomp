@@ -555,7 +555,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         return true;
     }
 
-    /// <summary>Moves the bug its 1/65536-pixel flight speed toward <paramref name="direction"/>.</summary>
+    /// <summary>Moves the bug its flight speed toward <paramref name="direction"/>.</summary>
     private static void AddYellowPipeBugHorizontalVelocity(
         RoomEnemyPlace place,
         YellowPipeBugState state,
@@ -573,7 +573,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         place.Position = axis == Axis.Horizontal ? place.Position.AdvanceX(velocity) : place.Position.AdvanceY(velocity);
     }
 
-    /// <summary>Adds a signed 1/65536-pixel displacement to one position axis.</summary>
+    /// <summary>Moves the bug along one axis by a displacement.</summary>
     private static void AddPipeBugDisplacement(
         RoomEnemyPlace place,
         Axis axis,

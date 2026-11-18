@@ -12,7 +12,7 @@ internal enum TourianStatueBlockSegment
     /// <summary>The idle swing, which branches to <see cref="Release"/> once the statue's boss is dead.</summary>
     Oscillate,
 
-    /// <summary>The release: waits its turn, blacks out three colours, glows the eye, frees the soul and sets the grey event.</summary>
+    /// <summary>The release: waits its turn, blacks out its eyes, glows the eye, frees the soul and sets the grey event.</summary>
     Release,
 
     /// <summary>A statue released on an earlier visit: clears its state, installs its grey colours and stops.</summary>

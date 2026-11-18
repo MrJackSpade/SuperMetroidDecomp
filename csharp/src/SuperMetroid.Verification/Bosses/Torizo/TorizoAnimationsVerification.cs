@@ -13,8 +13,10 @@ namespace SuperMetroid.Verification.Bosses.Torizo;
 /// <summary>
 /// #1289, #1600, #1788: Bomb and Golden Torizo's body animations against the retail cartridge. Each animation's phases must
 /// follow the native bank-$AA lists' control flow from the list it starts at (sleeps, stops, gotos, counter loads, counted
-/// repeats, runs on into the next list, and returns, which always continue elsewhere), each phase playing one segment whole
-/// (#2235), and each of a segment's steps must match the native list beat its phase plays there: every frame's duration
+/// repeats, runs on into the next list, returns, which always continue elsewhere, and loop marks, whose conditional goto
+/// to its own list loops the run it ends while the owner waits to start the animation that starts past it, #2411), each
+/// phase playing one segment whole (#2235), and each of a segment's steps must match the native list beat its phase plays
+/// there: every frame's duration
 /// and spritemap, every common command, every Torizo instruction's cue and operands, every tile transfer's descriptor, and
 /// the waits and the fixed sleeps two callbacks schedule, those that follow one another at once as one wait.
 /// </summary>

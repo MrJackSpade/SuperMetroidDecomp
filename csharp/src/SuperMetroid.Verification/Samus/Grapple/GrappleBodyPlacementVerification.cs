@@ -25,7 +25,9 @@ internal static class GrappleBodyPlacementVerification
             var g = samus.Grapple;
             samus.Artwork.GrappleSwingFrames = installed ? InstalledFixtures.Projectiles.Grapple.SwingFrames : stock;
             samus.Pose = left ? SamusPoseId.GrappleSwingLeftPose : SamusPoseId.GrappleSwingRightPose;
-            g.Anchor = g.Anchor.WithX((ushort)raw); g.Anchor = g.Anchor.WithY(unchecked((ushort)~raw));
+            // Anchors range over four screens on each axis, at least a rope and a body inside the room's top and left edges,
+            // as a swing's are: its anchor and the body line it sweeps lie in the room.
+            g.Anchor = g.Anchor.WithX(AnchorMargin + (raw & AnchorSpread)); g.Anchor = g.Anchor.WithY(AnchorMargin + (~raw & AnchorSpread));
             g.RopeLength = (ushort)(raw & 127);
             g.ValidateAnchorBlock = (raw & 1) != 0;
             // The physical rope uses Angle; the body mapping uses the remembered mirror.
@@ -48,8 +50,14 @@ internal static class GrappleBodyPlacementVerification
         foreach (int invalid in new[] { -1, 32 })
             AssertThrows<InvalidDataException>(() => GrappleSwingFrameFile.Load(new MemoryStream(GrappleSwingFrameFile.Write(new() { Version = GrappleSwingFrameFile.Version, Frames = Enumerable.Repeat(invalid, GrappleSwingDirection.Count).ToArray() }))), "Invalid swing-frame index rejected");
         AssertThrows<InvalidDataException>(() => GrappleSwingFrameFile.Load(new MemoryStream(GrappleSwingFrameFile.Write(new() { Version = GrappleSwingFrameFile.Version, Frames = new int[GrappleSwingDirection.Count - 1] }))), "Incomplete swing-frame table rejected");
-        Console.WriteLine("Grapple body placement: 262144 extracted/installed updates preserve native frames and physical offsets across mirror angle, facing and anchor wrapping.");
+        Console.WriteLine("Grapple body placement: 262144 extracted/installed updates preserve native frames and physical offsets across mirror angle, facing and anchors across the room.");
     }
+
+    /// <summary>The nearest an anchor lies to the room's top or left edge: past the longest rope swept here and the body's farthest offset.</summary>
+    private const int AnchorMargin = 256;
+
+    /// <summary>The spread of anchors beyond the margin, as a mask of the swept word.</summary>
+    private const int AnchorSpread = 1023;
 
     /// <summary>Reads native frame and body-offset tables for the independent placement oracle.</summary>
     private static byte GrappleBodyPlacementRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);

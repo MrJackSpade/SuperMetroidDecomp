@@ -21,11 +21,15 @@ public readonly record struct TurningFloorTransform(double Angle, Position16<Roo
     /// Where <paramref name="world"/> shows once the floor has turned: the point turned clockwise by <see cref="Angle"/>
     /// about <see cref="Center"/>, to the nearest pixel.
     /// </summary>
+    /// <remarks>
+    /// The points turned are Samus's, her charge flare's and the shaft's steam, all within the shaft's few screens of its
+    /// centre, so the turned offset is a small one.
+    /// </remarks>
     public Position16<RoomPixels> Transform(Position16<RoomPixels> world)
     {
         Offset16<RoomPixels> fromCentre = world - Center;
         double cosine = Math.Cos(Angle), sine = Math.Sin(Angle);
-        Offset16<RoomPixels> turned = Offset16<RoomPixels>.Wrapped(
+        Offset16<RoomPixels> turned = new(
             (int)Math.Round(fromCentre.X * cosine - fromCentre.Y * sine),
             (int)Math.Round(fromCentre.X * sine + fromCentre.Y * cosine));
         return Center + turned;

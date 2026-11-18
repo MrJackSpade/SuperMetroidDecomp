@@ -489,9 +489,9 @@ public sealed class SamusLiquidPhysicsState
         SamusLandingParticlePair pair = kind == SamusParticleKind.SurfaceSplash
             ? SamusLiquidParticleDefinitions.LandingSplashes
             : SamusLiquidParticleDefinitions.LandingDust;
-        int firstX = CoordinateAxis.Wrap(samus.Position.X.Whole + pair.Right.X);
-        int secondX = CoordinateAxis.Wrap(firstX - pair.Separation);
-        int y = CoordinateAxis.Wrap(bottom + pair.Right.Y);
+        int firstX = samus.Position.X.Whole + pair.Right.X;
+        int secondX = firstX - pair.Separation;
+        int y = bottom + pair.Right.Y;
 
         // Both begin immediately on their first step, which shows for three updates.
         EffectWaits.HoldBubbles(SpawnParticle(kind, Position16<RoomPixels>.Of(firstX, y), AtOnce));
@@ -529,7 +529,7 @@ public sealed class SamusLiquidPhysicsState
 
         foreach (Offset16<RoomPixels> splash in SamusLiquidParticleDefinitions.ShallowSplashes)
             _particles.Spawn(SamusParticleKind.SurfaceSplash,
-                new(CoordinateAxis.Wrap(samus.Position.X.Whole + splash.X), CoordinateAxis.Wrap(bottom + splash.Y)), AtOnce);
+                new(samus.Position.X.Whole + splash.X, bottom + splash.Y), AtOnce);
         EffectWaits.ReleaseSpray();
     }
 
@@ -551,7 +551,7 @@ public sealed class SamusLiquidPhysicsState
         }
 
         EffectWaits.HoldBubbles(SpawnParticle(SamusParticleKind.Bubbles,
-            new(samus.Position.X.Whole, CoordinateAxis.Wrap(top + SamusLiquidParticleDefinitions.BubbleBelowTop)), AtOnce));
+            new(samus.Position.X.Whole, top + SamusLiquidParticleDefinitions.BubbleBelowTop), AtOnce));
         int sample = random.Generate();
         QueueSound(SamusBreathBubbleDefinitions.LowSound.IsSetIn(sample) ? EnemySound.LowBubbles : EnemySound.HighBubbles, priority: SoundRequestPriority.Normal);
     }
@@ -570,12 +570,12 @@ public sealed class SamusLiquidPhysicsState
         // The outer particles show at once and the middle two one update late; the first two drift right and the last two
         // left. The first holds up the next spray while it shows, and the third holds up breath bubbles.
         int x = samus.Position.X.Whole;
-        _particles.SpawnLavaSpray(new(CoordinateAxis.Wrap(x + SamusLiquidParticleDefinitions.LavaSprayOuterOffset), surface), AtOnce, horizontalDrift: 1);
+        _particles.SpawnLavaSpray(new(x + SamusLiquidParticleDefinitions.LavaSprayOuterOffset, surface), AtOnce, horizontalDrift: 1);
         EffectWaits.HoldSpray(SamusParticle.UpdatesUntilFinished(SamusParticleKind.LavaSpray, AnimationPlace.StartOfAnimation, AtOnce));
         _particles.SpawnLavaSpray(new(x, surface), OneUpdateLate, horizontalDrift: 1);
         _particles.SpawnLavaSpray(new(x, surface), OneUpdateLate, horizontalDrift: -1);
         EffectWaits.HoldBubbles(SamusParticle.UpdatesUntilFinished(SamusParticleKind.LavaSpray, AnimationPlace.StartOfAnimation, OneUpdateLate));
-        _particles.SpawnLavaSpray(new(CoordinateAxis.Wrap(x - SamusLiquidParticleDefinitions.LavaSprayOuterOffset), surface), AtOnce, horizontalDrift: -1);
+        _particles.SpawnLavaSpray(new(x - SamusLiquidParticleDefinitions.LavaSprayOuterOffset, surface), AtOnce, horizontalDrift: -1);
 
         if (SamusCadenceDefinitions.LavaSpraySoundEverySecondUpdate.IsDue(frameCounter))
             QueueSound(EnemySound.LiquidDamage, priority: SoundRequestPriority.Normal);
@@ -621,12 +621,12 @@ public sealed class SamusLiquidPhysicsState
     {
         bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
         int firstX = facingLeft
-            ? CoordinateAxis.Wrap(samus.Position.X.Whole - SamusLiquidParticleDefinitions.FootstepLeadingAhead)
-            : CoordinateAxis.Wrap(samus.Position.X.Whole + SamusLiquidParticleDefinitions.FootstepLeadingAhead);
+            ? samus.Position.X.Whole - SamusLiquidParticleDefinitions.FootstepLeadingAhead
+            : samus.Position.X.Whole + SamusLiquidParticleDefinitions.FootstepLeadingAhead;
         int secondX = facingLeft
-            ? CoordinateAxis.Wrap(samus.Position.X.Whole + SamusLiquidParticleDefinitions.FootstepTrailingBehind)
-            : CoordinateAxis.Wrap(samus.Position.X.Whole - SamusLiquidParticleDefinitions.FootstepTrailingBehind);
-        int y = CoordinateAxis.Wrap(samus.Position.Y.Whole + SamusLiquidParticleDefinitions.FootstepBelowCentre);
+            ? samus.Position.X.Whole + SamusLiquidParticleDefinitions.FootstepTrailingBehind
+            : samus.Position.X.Whole - SamusLiquidParticleDefinitions.FootstepTrailingBehind;
+        int y = samus.Position.Y.Whole + SamusLiquidParticleDefinitions.FootstepBelowCentre;
         int leadingUpdates = SpawnParticle(kind, Position16<RoomPixels>.Of(firstX, y), OneUpdateLate);
         _particles.Spawn(kind, Position16<RoomPixels>.Of(secondX, y), AtOnce);
         if (kind == SamusParticleKind.Dust)
@@ -676,7 +676,7 @@ public sealed class SamusLiquidPhysicsState
             ? -SamusWallJumpDustDefinitions.HorizontalOffset
             : SamusWallJumpDustDefinitions.HorizontalOffset;
         _particles.Spawn(SamusWallJumpDustDefinitions.Kind,
-            Position16<RoomPixels>.Of(CoordinateAxis.Wrap(samus.Position.X.Whole + offset), bottom),
+            Position16<RoomPixels>.Of(samus.Position.X.Whole + offset, bottom),
             SamusParticleStart.Shown(SamusWallJumpDustDefinitions.FirstStepUpdates));
     }
 }

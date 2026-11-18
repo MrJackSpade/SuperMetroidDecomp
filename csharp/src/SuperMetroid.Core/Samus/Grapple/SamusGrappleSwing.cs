@@ -39,7 +39,7 @@ public static class SamusGrappleSwing
         var offset = GrappleBodyPlacements.Offset(direction, SamusPoseMetadata.IsFacingLeft(samus.Pose));
 
         SamusPresentation.ShowGrappleSwingPicture(samus, picture);
-        samus.Position = samus.Position.WithWhole(new(CoordinateAxis.Wrap(ropeStart.Pixel.X + offset.X), CoordinateAxis.Wrap(ropeStart.Pixel.Y + offset.Y)));
+        samus.Position = samus.Position.WithWhole(new(ropeStart.Pixel.X + offset.X, ropeStart.Pixel.Y + offset.Y));
     }
 
 

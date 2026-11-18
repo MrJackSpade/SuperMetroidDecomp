@@ -85,10 +85,10 @@ public static class SamusSlopePhysics
             {
                 int height = ReadAlignmentHeight(bottom.Behavior, xPosition);
                 int bottomDepth = RoomGridConversions.OffsetWithinBlock(bottomPosition);
-                int correction = CoordinateAxis.Difference(height - bottomDepth, 1);
+                int correction = height - bottomDepth - 1;
                 if (correction < 0)
                 {
-                    yPosition = CoordinateAxis.Wrap(yPosition + correction);
+                    yPosition += correction;
                     adjusted = true;
                 }
             }
@@ -105,10 +105,10 @@ public static class SamusSlopePhysics
             {
                 int height = ReadAlignmentHeight(top.Behavior, xPosition);
                 int topDepth = RoomGridConversions.OffsetFromBlockEnd(topPosition);
-                int correction = CoordinateAxis.Difference(height - topDepth, 1);
+                int correction = height - topDepth - 1;
                 if (correction <= 0)
                 {
-                    yPosition = CoordinateAxis.Wrap(yPosition - correction);
+                    yPosition -= correction;
                     adjusted = true;
                 }
             }

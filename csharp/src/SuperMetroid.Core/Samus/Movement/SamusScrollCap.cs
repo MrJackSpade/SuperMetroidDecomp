@@ -25,8 +25,12 @@ internal sealed class SamusScrollCap
     /// <remarks>
     /// The offset takes the movement's sign: a downward or rightward move puts the previous
     /// position beyond Samus, not behind her. Only the distance reaches the camera, whose
-    /// direction comes from separate values. The distance is the shorter way round the room's wrapped coordinates,
-    /// half their range included, so a move that far is capped too.
+    /// direction comes from separate values. Twelve pixels past Samus still lies in the room. Draygon moves her twelve
+    /// pixels or more in an update only downward, as it grabs her, and around its spiral, which keeps her at least 88
+    /// pixels from the room's left edge and 64 below its top. A Yapping Maw's mouth reaches no further than where she
+    /// stood and holds her at most 16 pixels beyond it, and every Maw stands far enough inside its room: the one nearest
+    /// a room's edge, in Bug Sand Hole, stands 77 pixels from the left edge, and the wall there keeps her at least 37
+    /// from it.
     /// </remarks>
     internal void CapSamusScrollingSpeed(SamusState samus)
     {
@@ -44,9 +48,9 @@ internal sealed class SamusScrollCap
     /// <summary>The previous position capped to the camera's reach from Samus, or null when it lies within it.</summary>
     private static int? CappedPreviousPosition(int position, int previous)
     {
-        int delta = CoordinateAxis.Difference(position, previous);
+        int delta = position - previous;
         if (Math.Abs(delta) < SamusCameraDefinitions.PreviousPositionCap)
             return null;
-        return CoordinateAxis.Wrap(position + (delta < 0 ? -SamusCameraDefinitions.PreviousPositionCap : SamusCameraDefinitions.PreviousPositionCap));
+        return position + (delta < 0 ? -SamusCameraDefinitions.PreviousPositionCap : SamusCameraDefinitions.PreviousPositionCap);
     }
 }

@@ -93,8 +93,8 @@ public sealed class ScrollBoundaryCamera
         // the first vertical movement applies the screen-specific exact maximum.
         int maxY = (RoomGridConversions.ScreenToPixels(Scrolls.Size.Y - 1)) + SamusCameraDefinitions.LowerAlignment;
         var clamped = new Position16<RoomPixels>(
-            CoordinateAxis.Wrap(Math.Clamp(requested.X, 0, maxX)),
-            CoordinateAxis.Wrap(Math.Clamp(requested.Y, 0, maxY)));
+            Math.Clamp(requested.X, 0, maxX),
+            Math.Clamp(requested.Y, 0, maxY));
         Position = FixedPosition<RoomPixels>.FromWhole(clamped);
         IdealPosition = clamped;
     }
@@ -312,7 +312,7 @@ public sealed class ScrollBoundaryCamera
         if (CoordinateAxis.AsSigned(Position.X.Whole) < 0)
             SetWholeX(0);
 
-        int roomMaximum = CoordinateAxis.Wrap(RoomGridConversions.ScreenToPixels(Scrolls.Size.X - 1));
+        int roomMaximum = RoomGridConversions.ScreenToPixels(Scrolls.Size.X - 1);
         if (Position.X.Whole > roomMaximum)
             SetWholeX(roomMaximum);
 
@@ -380,7 +380,7 @@ public sealed class ScrollBoundaryCamera
         if (CoordinateAxis.AsSigned(Position.Y.Whole) < 0)
             SetWholeY(0);
 
-        int roomMaximum = CoordinateAxis.Wrap((RoomGridConversions.ScreenToPixels(Scrolls.Size.Y - 1)) + verticalAlignment);
+        int roomMaximum = RoomGridConversions.ScreenToPixels(Scrolls.Size.Y - 1) + verticalAlignment;
         if (Position.Y.Whole > roomMaximum)
             SetWholeY(roomMaximum);
 
@@ -442,7 +442,7 @@ public sealed class ScrollBoundaryCamera
             Position = Position.WithX(new FixedCoordinate(IdealPosition.X, 0));
         }
 
-        int roomMaximum = CoordinateAxis.Wrap(RoomGridConversions.ScreenToPixels(Scrolls.Size.X - 1));
+        int roomMaximum = RoomGridConversions.ScreenToPixels(Scrolls.Size.X - 1);
         if (Position.X.Whole > roomMaximum)
         {
             SetWholeX(roomMaximum);
@@ -503,7 +503,7 @@ public sealed class ScrollBoundaryCamera
             Position = Position.WithY(new FixedCoordinate(IdealPosition.Y, 0));
         }
 
-        int boundary = CoordinateAxis.Wrap((RoomGridConversions.ScreenToPixels(Scrolls.Size.Y - 1)) + verticalAlignment);
+        int boundary = RoomGridConversions.ScreenToPixels(Scrolls.Size.Y - 1) + verticalAlignment;
         bool beyondRoomBottom = boundary < Position.Y.Whole;
         bool blockedBelow = false;
         if (!beyondRoomBottom)

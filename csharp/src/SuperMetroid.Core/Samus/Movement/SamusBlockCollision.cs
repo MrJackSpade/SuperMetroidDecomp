@@ -792,7 +792,7 @@ public static class SamusBlockCollision
 
             int height = SamusSlopePhysics.ReadAlignmentHeight(block.Behavior, state.Position.X.Whole);
             int bottomDepth = RoomGridConversions.OffsetWithinBlock(state.Radius.Y + targetCenter - 1);
-            int correction = CoordinateAxis.Difference(height - bottomDepth, 1);
+            int correction = height - bottomDepth - 1;
             if (correction > 0)
                 return new SlopeClip(displacement, false);
 
@@ -805,7 +805,7 @@ public static class SamusBlockCollision
 
             int height = SamusSlopePhysics.ReadAlignmentHeight(block.Behavior, state.Position.X.Whole);
             int topDepth = RoomGridConversions.OffsetFromBlockEnd(targetCenter - state.Radius.Y);
-            int correction = CoordinateAxis.Difference(height - topDepth, 1);
+            int correction = height - topDepth - 1;
             if (correction > 0)
                 return new SlopeClip(displacement, false);
 
@@ -1114,7 +1114,7 @@ public static class SamusBlockCollision
         state.Position -= new Offset16<RoomPixels>(0, up);
         // A body whose radius reaches a block's height may overlap two rows. The check repeats once, not until clear.
         if (state.Radius.Y >= RoomGridConversions.BlockPixels)
-            state.Position = state.Position.WithWrappedWholeY(state.Position.Y.Whole - GrappleVerticalOverlap(level, state, direction: VerticalDirection.Down));
+            state.Position = state.Position.WithWholeY(state.Position.Y.Whole - GrappleVerticalOverlap(level, state, direction: VerticalDirection.Down));
     }
 
     /// <summary>

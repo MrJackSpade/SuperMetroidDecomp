@@ -33,7 +33,7 @@ internal static class PhantoonPathVerification
             figureEight.Speed = SignedSixteenSixteen.FromParts(reverse ? -speed : speed, 0x8000);
             figureEight.Stage = PhantoonFigureEightStage.Surging;
             body.Position = new(new(origin, 0x1234), new(origin, 0x5678));
-            figureEight.Reversed = reverse;
+            figureEight.Direction = reverse ? PhantoonPathDirection.Backwards : PhantoonPathDirection.Forwards;
             // Fast-stage +/-0.0625 leaves the whole word unchanged, except the
             // native reverse cap clamps -7 to -6. Independently tested speed logic
             // supplies the step count; the path oracle reads only original bytes.

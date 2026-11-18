@@ -30,13 +30,6 @@ internal sealed class MotherBrainEncounterAccess
     internal static void SetMotherBrainBrainAnimation(MotherBrainEnemyState state, MotherBrainHeadSegment segment) =>
         state.Brain.Start(MotherBrainAnimations.HeadStartingWith(segment));
 
-    /// <summary>Requires the active rainbow attack sequence for live phase transitions.</summary>
-    internal static MotherBrainRainbowBeamAttackSequence RequireLiveMotherBrainRainbowSequence(
-        MotherBrainEnemyState state) =>
-        state.RainbowBeamSequence ??
-        throw new InvalidDataException(
-            "Mother Brain's brain needs the live rainbow beam and Baby sequence.");
-
     /// <summary>Restarts the body enemy on <paramref name="segment"/> with its initial timer.</summary>
     internal static void SetMotherBrainBodyAnimation(MotherBrainEnemyState state, MotherBrainBodySegment segment)
     {

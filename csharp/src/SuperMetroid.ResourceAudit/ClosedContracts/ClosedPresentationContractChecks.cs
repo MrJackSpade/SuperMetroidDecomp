@@ -11,7 +11,7 @@ namespace SuperMetroid.ResourceAudit.ClosedContracts;
 /// <summary>Confirms only the identified closed-provider adapter contracts, without gameplay or asset files.</summary>
 internal static class ClosedPresentationContractChecks
 {
-    /// <summary>Compiles 28 constructed consumer calls to check reviewed provider classifications, invalid selections, and mutable-source invalidation.</summary>
+    /// <summary>Compiles 26 constructed consumer calls to check reviewed provider classifications, invalid selections, and mutable-source invalidation.</summary>
     internal static void Run()
     {
         string root = Directory.GetCurrentDirectory();
@@ -56,7 +56,7 @@ internal static class ClosedPresentationContractChecks
                     InstalledBeamPalettes beam, CrocomireColorCatalog crocomire,
                     SporeSpawnColorCatalog spores, DraygonColorCatalog draygon, PhantoonColorCatalog phantoon,
                     TourianStatuePalettes statues,
-                    MotherBrainRainbowBeamColours rainbow, MotherBrainDeathColorCatalog death,
+                    MotherBrainDeathColorCatalog death,
                     ChozoAndTubeColorCatalog chozo,
                     InstalledSamusDeathPalettes samusDeath,
                     Span<ushort> tiles, Span<byte> bytes, Span<BackgroundTile> cells,
@@ -79,8 +79,6 @@ internal static class ClosedPresentationContractChecks
                     phantoon.ResolvePowerOn(SuperMetroid.AssetExtraction.Enemies.Artwork.WreckedShipPoweredPart.Lights, 16);
                     statues.ResolveEye(3, 0);
                     statues.ResolveEye(4, 0);
-                    _ = rainbow.BeamColor(37);
-                    _ = rainbow.BeamColor(38);
                     death.BodyColor(15, 13);
                     death.CorpseColor(8, 0);
                     chozo.ResolveTubeCracks(31);
@@ -108,16 +106,16 @@ internal static class ClosedPresentationContractChecks
         var before = new AuditReport();
         foreach (InvocationExpressionSyntax call in calls.GetRoot().DescendantNodes().OfType<InvocationExpressionSyntax>())
             ConsumerAudit.Inspect(call, compilation.GetSemanticModel(calls), exports, before);
-        Require(before.UnresolvedCount == 28, "the fixture must reproduce the identified missing-adapter boundaries first" + " (" + before.Describe() + ")");
+        Require(before.UnresolvedCount == 26, "the fixture must reproduce the identified missing-adapter boundaries first" + " (" + before.Describe() + ")");
         var report = new AuditReport();
         foreach (InvocationExpressionSyntax call in calls.GetRoot().DescendantNodes().OfType<InvocationExpressionSyntax>())
             ConsumerAudit.Inspect(call, compilation.GetSemanticModel(calls), exports, report, adapter);
-        Require(report.Classifications.Count == 17 && report.MissingCount == 0 && report.UnresolvedCount == 11,
+        Require(report.Classifications.Count == 16 && report.MissingCount == 0 && report.UnresolvedCount == 10,
             $"only reviewed valid-domain operations qualify; invalid selections must fail " +
-            $"(classified {report.Classifications.Count}/17, missing {report.MissingCount}/0, unresolved {report.UnresolvedCount}/11; " +
+            $"(classified {report.Classifications.Count}/16, missing {report.MissingCount}/0, unresolved {report.UnresolvedCount}/10; " +
             $"revoked: {string.Join(", ", adapter.InvalidContracts)}; unresolved: " +
             string.Join(" | ", report.Findings.Where(finding => finding.Code != AuditReport.Missing).Select(finding => finding.Owner + " " + finding.Message)) + ")" + " (" + report.Describe() + ")");
-        Require(report.Consumers.Count == 28, $"classifications must retain every inventoried call (consumers {report.Consumers.Count}/28; unbound: " +
+        Require(report.Consumers.Count == 26, $"classifications must retain every inventoried call (consumers {report.Consumers.Count}/26; unbound: " +
             string.Join(" | ", report.Findings.Where(finding => finding.Message.Contains("could not be bound", StringComparison.Ordinal)).Select(finding => finding.Message)) + ")" + " (" + report.Describe() + ")");
     }
 

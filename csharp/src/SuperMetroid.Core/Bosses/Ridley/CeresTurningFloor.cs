@@ -22,8 +22,11 @@ public sealed class CeresTurningFloor
     /// for each update. It also selects the floor's shade.
     /// </summary>
     public FloorZoom Zoom { get; internal set; }
-    /// <summary>Gets the floor point the getaway turns and zooms its floor about, (64, 64) while it runs and cleared on completion.</summary>
-    public Position16<FloorPixels> Center { get; internal set; }
+    /// <summary>
+    /// Gets the floor point the getaway turns and zooms its floor about, from the floor's top-left (#2471): (64, 64) while it
+    /// runs and cleared on completion.
+    /// </summary>
+    public Offset16<FloorPixels> Center { get; internal set; }
     /// <summary>Gets the picture of the Baby capsule's cycle the floor shows (#2329).</summary>
     public ListStep<CeresFloorAnimationFrame> Capsule { get; internal set; } = FirstCapsulePicture;
     /// <summary>Gets the picture of the wings' two-beat cycle the floor shows (#2329).</summary>

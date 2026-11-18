@@ -1304,16 +1304,14 @@ internal static class LookupStream3Verification
         void CheckBeam(MotherBrainRainbowBeamColours palette)
         {
             for (int index = 0; index < 38; index++)
-                AssertEqual(RgbColor.FromWord(Word(beamDocument.Cycle[index])), palette.BeamColor(index),
+                AssertEqual(RgbColor.FromWord(Word(beamDocument.Cycle[index])), palette.BeamCycle[index],
                     "stream 3 beam wheel matches every native sampled color");
-            AssertEqual(38, palette.BeamCycleLength, "stream 3 beam cycle ends after its last colour");
+            AssertEqual(38, palette.BeamCycle.Count, "stream 3 beam cycle ends after its last colour");
             AssertEqual(0x3ce0, palette.BeamInitialColor, "stream 3 beam initial fixed color unchanged");
         }
         MotherBrainRainbowBeamColours beam = MotherBrainBeamColourFile.Read(
             new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(beamDocument, ArtworkJson.Options)));
         CheckBeam(beam);
-        foreach (int invalid in new[] { -1, 38, int.MaxValue })
-            AssertThrows<InvalidDataException>(() => beam.BeamColor(invalid), "stream 3 beam colour index bounds");
         Check(stock);
         void CheckRainbow(InstalledMotherBrainRainbowPalette palette)
         {

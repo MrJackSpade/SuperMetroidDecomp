@@ -40,13 +40,4 @@ public sealed class MotherBrainFadeProgress
     /// and once the fade is over.
     /// </summary>
     internal MotherBrainFadeImage? Step() => player.StepToNewFrame();
-
-    /// <summary>
-    /// Shows <paramref name="image"/> of the fade at once for <paramref name="updates"/> more updates, the fade then going
-    /// on from it, as a recording resumes a fade partway.
-    /// </summary>
-    /// <exception cref="ArgumentException">The image belongs to another fade.</exception>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="updates"/> is below one.</exception>
-    internal void ShowFor(MotherBrainFadeImage image, int updates) =>
-        player.ShowAt(Fade.Animation, new AnimationPlace(0, image.Of(Fade).Step), updates);
 }

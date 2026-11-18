@@ -28,7 +28,7 @@ public static class MotherBrainBeamColourFile
         {
             Version = Version,
             First = PaletteRgb5.From(colours.BeamInitialColor),
-            Cycle = [.. Enumerable.Range(0, colours.BeamCycleLength).Select(index => PaletteRgb5.From(colours.BeamColor(index)))],
+            Cycle = [.. colours.BeamCycle.Select(PaletteRgb5.From)],
         }, ArtworkJson.Options);
     }
 

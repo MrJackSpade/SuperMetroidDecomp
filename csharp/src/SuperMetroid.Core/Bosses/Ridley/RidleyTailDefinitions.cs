@@ -3,11 +3,6 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// <summary>Ridley's tail as it is made, and the swings, spacings, reaches and extensions its actions set (#2238).</summary>
 internal static class RidleyTailDefinitions
 {
-    /// <summary>The bound the tail starts with whichever way he faces: sixteen steps clockwise of straight down.</summary>
-    internal static RidleyTailAngle InitialMinimumClockwise { get; } = RidleyTailAngle.StraightDown.TurnedClockwise(16);
-    /// <summary>The bound the tail starts with, which the live tail's action then adjusts: a quarter turn counterclockwise of straight down.</summary>
-    internal static RidleyTailAngle InitialMaximumCounterClockwise { get; } = RidleyTailAngle.StraightDown.TurnedCounterclockwise(64);
-
     /// <summary>
     /// The spacing the tail's links keep as it is made and through most of the fight: each link starts the next once it
     /// has swung sixteen steps, and each link starts sixteen steps counterclockwise of the one before.

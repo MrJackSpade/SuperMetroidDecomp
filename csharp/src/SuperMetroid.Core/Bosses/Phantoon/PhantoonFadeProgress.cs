@@ -7,6 +7,13 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// fade over; the phases that wait on a fade read <see cref="Complete"/>, which each phase that fades clears before its
 /// first step reads it.
 /// </summary>
+/// <remarks>
+/// The count and the latch stay as they are (#2471), unlike Mother Brain's fades, which each start over on the shared
+/// animation player. Phantoon's fades share one count that only a completed fade starts over: a hit, a pattern or his death
+/// that moves him on mid-fade clears the latch but leaves the count where the fade stopped, so the next fade begins from
+/// that step, and a fade toward his health band reads the band afresh at every step. Each step's goal and starting step are
+/// therefore state the fight carries across fades, which a fade of installed images started by its phase would not keep.
+/// </remarks>
 public sealed class PhantoonFadeProgress
 {
     /// <summary>The steps the fade has taken since it last completed, which is the next step's place in the fade.</summary>

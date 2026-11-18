@@ -34,7 +34,7 @@ internal static class RetailRidleyCaptureTests
             runtime.Enemies.CeresEscape.Floor.Active = true;
             runtime.Enemies.CeresEscape.Floor.Zoom = FloorZoom.FromTwoHundredFiftySixths(scale);
             runtime.Enemies.CeresEscape.Floor.Angle = RotationAngle.WrappedSteps(tilt);
-            runtime.Enemies.CeresEscape.Floor.Center = new Position16<FloorPixels>(128, 120);
+            runtime.Enemies.CeresEscape.Floor.Center = new Offset16<FloorPixels>(128, 120);
             runtime.Enemies.CeresEscape.Floor.Offset = new Offset16<FloorPixels>(7, unchecked(scroll));
             // The getaway's floor reaches the display at the accepted frame boundary (#1307).
             runtime.FrameBoundary.BeginAcceptedFrame(0);

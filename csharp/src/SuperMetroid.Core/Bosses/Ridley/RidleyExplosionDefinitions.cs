@@ -47,9 +47,6 @@ internal static class RidleyExplosionDefinitions
         [RidleyExplosionPart.Torso] = 129,
     }.ToFrozenDictionary();
 
-    /// <summary>The definition of <paramref name="part"/>.</summary>
-    public static RidleyExplosionPartDefinition GetPart(RidleyExplosionPart part) => new(LifetimeUpdates[part]);
-
     /// <summary>The tail pose each of the first six tail fragments shows.</summary>
     internal static readonly FrozenDictionary<RidleyExplosionPart, EnemyFrameId> TailFrames = new Dictionary<RidleyExplosionPart, EnemyFrameId>
     {

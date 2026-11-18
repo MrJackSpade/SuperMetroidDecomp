@@ -422,7 +422,7 @@ internal sealed class PhantoonCombat
             PhantoonPhase.FadeOutWhileSwooping
                 ? PhantoonPhase.FinishFatalSwoop
                 : PhantoonPhase.DyingFadeInOut;
-        state.FigureEight.Reversed = false;
+        state.FigureEight.Direction = PhantoonPathDirection.Forwards;
         state.BodyFade.Complete = false;
         state.BodyWave.InitializeDeathScroll();
         state.Translucent = true;

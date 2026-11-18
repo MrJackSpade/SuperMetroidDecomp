@@ -26,12 +26,11 @@ internal static class BabyMetroidPresenceVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MotherBrain);
         MotherBrainEnemyState state = runtime.Enemies.BossEncounters.MotherBrain
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
-        state.RainbowBeamSequence = new MotherBrainRainbowBeamAttackSequence(state);
-        runtime.Enemies.BabyMetroidCutsceneBehavior.SpawnMotherBrainBabyMetroid(state);
-        RoomEnemyPlace place = state.BabyMetroidPlace
-            ?? throw new InvalidOperationException("Verification requires state.BabyMetroidPlace.");
-        BabyMetroidCutsceneState baby = state.BabyMetroid
-            ?? throw new InvalidOperationException("Verification requires state.BabyMetroid.");
+        MotherBrainRainbowBeamAttackSequence lateFight = state.BeginLateFight();
+        runtime.Enemies.BabyMetroidCutsceneBehavior.SpawnMotherBrainBabyMetroid(lateFight);
+        BabyMetroidCutsceneState baby = lateFight.Baby;
+        RoomEnemyPlace place = baby.Place
+            ?? throw new InvalidOperationException("Verification requires the Baby's place.");
 
         // The population's animation and off-screen processing, plus initialization's Plasma Beam block.
         const EnemyContact contact = EnemyContact.BlocksPlasmaBeam;

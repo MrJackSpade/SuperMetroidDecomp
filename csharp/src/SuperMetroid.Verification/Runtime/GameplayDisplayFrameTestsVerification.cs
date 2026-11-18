@@ -219,7 +219,7 @@ internal static class GameplayDisplayFrameTestsVerification
         getaway.Active = true;
         getaway.Angle = RotationAngle.FromSteps(5);
         getaway.Zoom = FloorZoom.FromTwoHundredFiftySixths(240);
-        getaway.Center = new Position16<FloorPixels>(128, 120);
+        getaway.Center = new Offset16<FloorPixels>(128, 120);
         getaway.Offset = new Offset16<FloorPixels>(7, 19);
         AssertTrue(GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0] is GameplaySceneLayer,
             "Ridley's floor and fake BGMODE wait for the NMI");

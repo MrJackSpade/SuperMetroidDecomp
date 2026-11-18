@@ -394,29 +394,20 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     public TrigonometryAngle HandBeamNextAngle { get; internal set; }
 
     /// <summary>
-    /// The rainbow, finish-off, Baby and phase-three phases, attached once phase-two health reaches zero. They run over
-    /// this encounter, reading and writing its body, brain, phase, neck and flags in place (#2209), and keep only what the
-    /// late fight alone needs: the beam, the forced Samus movement, the Baby's arrival and her death's progress.
+    /// Her late fight (#2471): the rainbow, finish-off, Baby and phase-three phases, begun once phase-two health reaches
+    /// zero (<see cref="BeginLateFight"/>), or null before then. It runs over this encounter, reading and writing its body,
+    /// brain, phase, neck and flags in place (#2209), and keeps only what the late fight alone needs: the beam, the forced
+    /// Samus movement, the Baby and her death's progress. Her body runs it from its rainbow-beam stage on, and her brain's
+    /// cues act on it from then.
     /// </summary>
-    public MotherBrainRainbowBeamAttackSequence? RainbowBeamSequence
-    {
-        get;
-        internal set
-        {
-            // An attached sequence runs this encounter: its walk credit, its bursts (#1872) and its state are this one's.
-            if (value is not null && !ReferenceEquals(value.Encounter, this))
-                throw new InvalidOperationException("A rainbow-beam sequence attached to Mother Brain's encounter is built over that encounter.");
-            field = value;
-        }
-    }
+    public MotherBrainRainbowBeamAttackSequence? RainbowBeamSequence { get; private set; }
 
     /// <summary>
-    /// The Baby Metroid's place in the room's enemy list, which the final beam's Baby spawn fills: the Baby is an enemy of
-    /// its own, which Mother Brain's attacks find there, not an effect her body draws.
+    /// Begins her late fight over this encounter, whose walk credit, bursts (#1872) and state it runs, and holds it from
+    /// here.
     /// </summary>
-    public RoomEnemyPlace? BabyMetroidPlace { get; internal set; }
-    /// <summary>The Baby Metroid's cutscene at that place: on its own turn it latches on, drains, heals Samus and dies.</summary>
-    public BabyMetroidCutsceneState? BabyMetroid { get; internal set; }
+    /// <returns>The late fight begun.</returns>
+    internal MotherBrainRainbowBeamAttackSequence BeginLateFight() => RainbowBeamSequence = new MotherBrainRainbowBeamAttackSequence(this);
 
     /// <summary>
     /// The Baby's cries still to come: each onion ring that hits it adds one, and its later healing and idle phases take

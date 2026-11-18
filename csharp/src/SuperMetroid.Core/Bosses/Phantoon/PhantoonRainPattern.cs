@@ -6,19 +6,9 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// </summary>
 /// <param name="PathPlace">The place on his figure-eight path his body resumes from (<see cref="PhantoonPath.Places"/>).</param>
 /// <param name="BodyPosition">His body's whole-pixel room position.</param>
-public sealed record PhantoonRainPattern(int PathPlace, Position16<RoomPixels> BodyPosition)
-{
-    /// <summary>
-    /// The rain column of its first flame: the column after the one his body stands in. The rain's eight flames take the
-    /// columns from there on, the first following the last, so the one column left empty is his body's.
-    /// </summary>
-    public ListStep<int> FirstColumn
-    {
-        get
-        {
-            IReadOnlyList<int> columns = PhantoonFlameSpawns.RainXs;
-            int spacing = columns[1] - columns[0];
-            return ListStep<int>.At(columns, (BodyPosition.X - columns[0]) / spacing).NextInCycle;
-        }
-    }
-}
+/// <param name="FirstColumn">
+/// The rain column of its first flame (#2471, <see cref="PhantoonFlameSpawns.RainXs"/>): the column after the one his body
+/// stands in, the first after the last. The rain's eight flames take the columns from there on, the first following the
+/// last, so the one column left empty is his body's.
+/// </param>
+public sealed record PhantoonRainPattern(int PathPlace, Position16<RoomPixels> BodyPosition, ListStep<int> FirstColumn);

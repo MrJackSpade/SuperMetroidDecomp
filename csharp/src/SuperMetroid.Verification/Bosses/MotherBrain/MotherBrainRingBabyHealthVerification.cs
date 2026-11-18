@@ -25,9 +25,10 @@ internal static class MotherBrainRingBabyHealthVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MotherBrain);
         MotherBrainEnemyState state = runtime.Enemies.BossEncounters.MotherBrain
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
-        state.RainbowBeamSequence = new MotherBrainRainbowBeamAttackSequence(state);
-        runtime.Enemies.BabyMetroidCutsceneBehavior.SpawnMotherBrainBabyMetroid(state);
-        RoomEnemyPlace babyPlace = (state.BabyMetroidPlace ?? throw new InvalidOperationException("Verification requires state.BabyMetroidSlot."));
+        MotherBrainRainbowBeamAttackSequence lateFight = state.BeginLateFight();
+        runtime.Enemies.BabyMetroidCutsceneBehavior.SpawnMotherBrainBabyMetroid(lateFight);
+        BabyMetroidCutsceneState babyMetroid = lateFight.Baby;
+        RoomEnemyPlace babyPlace = babyMetroid.Place ?? throw new InvalidOperationException("Verification requires the Baby's place.");
         AssertEqual(0x0c80, babyPlace.Health, "the Baby spawns with 3200 health");
 
         // The movie's hit: the ring reaches ($AE,$8C), exactly $24 above the Baby at ($CE,$B0).
@@ -37,10 +38,10 @@ internal static class MotherBrainRingBabyHealthVerification
         ring.Radius = new(1, 1);
         ring.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
         ring.State = new MotherBrainOnionRingState(state, mouthWaitUpdates: 1);
-        (state.BabyMetroid ?? throw new InvalidOperationException("Verification requires state.BabyMetroid.")).Position = state.BabyMetroid.Position.WithWhole(new(0x00ce, 0x00b0));
+        babyMetroid.Position = babyMetroid.Position.WithWhole(new(0x00ce, 0x00b0));
 
         runtime.Enemies.MotherBrainBehavior.Projectiles.OnionRing.FlyMotherBrainOnionRing(ring, runtime.Player.IntroducedSamus, 0);
-        AssertEqual(0x0c30, state.BabyMetroid.Health, "the ring charges the Baby $50");
+        AssertEqual(0x0c30, babyMetroid.Health, "the ring charges the Baby $50");
         AssertEqual(0x0c30, babyPlace.Health, "the Baby slot's health drops within the projectile pass");
         Console.WriteLine("Mother Brain ring Baby health: the hit writes the Baby slot's health immediately.");
     }

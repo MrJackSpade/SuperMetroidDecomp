@@ -12,8 +12,8 @@ public sealed class PhantoonFigureEightState
     /// </summary>
     public ListStep<Offset16<RoomPixels>> PathPlace { get; internal set; } = PhantoonPath.At(0);
 
-    /// <summary>Whether he runs the path backwards.</summary>
-    public bool Reversed { get; internal set; }
+    /// <summary>Which way he runs the path (#2471).</summary>
+    public PhantoonPathDirection Direction { get; internal set; }
 
     /// <summary>
     /// His speed in path places per update: zero or more forward, zero or less while he runs the path backwards, and

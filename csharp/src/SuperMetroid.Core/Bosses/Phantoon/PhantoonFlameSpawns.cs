@@ -18,6 +18,10 @@ public static class PhantoonFlameSpawns
     /// <summary>The rain columns' screen Xs, left to right.</summary>
     internal static IReadOnlyList<int> RainXs => PhantoonFlameSpawnDefinitions.RainXs;
 
+    /// <summary>The rain column at <paramref name="place"/> of <see cref="RainXs"/>, counting from the left from zero.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The rain has no such column.</exception>
+    internal static ListStep<int> RainColumn(int place) => ListStep<int>.At(RainXs, place);
+
     /// <summary>
     /// The turn a rage flame starting at <paramref name="start"/> makes each update: the rage turn clockwise, or the same
     /// turn back, a full circle less it, counterclockwise. The flame's angle grows clockwise round the body.

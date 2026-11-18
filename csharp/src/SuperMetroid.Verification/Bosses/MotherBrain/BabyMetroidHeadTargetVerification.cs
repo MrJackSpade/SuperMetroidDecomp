@@ -26,11 +26,10 @@ internal static class BabyMetroidHeadTargetVerification
         MotherBrainEnemyState state = runtime.Enemies.BossEncounters.MotherBrain
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
         RoomEnemyPlace head = state.Head;
-        var sequence = new MotherBrainRainbowBeamAttackSequence(state);
-        state.RainbowBeamSequence = sequence;
-        runtime.Enemies.BabyMetroidCutsceneBehavior.SpawnMotherBrainBabyMetroid(state);
-        RoomEnemyPlace place = (state.BabyMetroidPlace ?? throw new InvalidOperationException("Verification requires state.BabyMetroidSlot."));
-        BabyMetroidCutsceneState baby = (state.BabyMetroid ?? throw new InvalidOperationException("Verification requires state.BabyMetroid."));
+        MotherBrainRainbowBeamAttackSequence sequence = state.BeginLateFight();
+        runtime.Enemies.BabyMetroidCutsceneBehavior.SpawnMotherBrainBabyMetroid(sequence);
+        BabyMetroidCutsceneState baby = sequence.Baby;
+        RoomEnemyPlace place = baby.Place ?? throw new InvalidOperationException("Verification requires the Baby's place.");
 
         head.Position = head.Position.WithWhole(new(0x007d, 0x005d));
         baby.Phase = BabyMetroidCutscenePhase.ActivateRainbowBeamAndMotherBrainBody;

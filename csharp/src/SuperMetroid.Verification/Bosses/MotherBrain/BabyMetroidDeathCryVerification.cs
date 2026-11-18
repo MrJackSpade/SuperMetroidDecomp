@@ -22,19 +22,19 @@ internal static class BabyMetroidDeathCryVerification
         enemies.MotherBrainEncounter.BeginAsSetUp(motherBrain);
         ushort[] Shown() => MotherBrainLook.Over(motherBrain, InstalledFixtures.ImportMaps, InstalledFixtures.BossArtwork,
             [.. Enumerable.Range(0, 256).Select(index => (ushort)(index + 1))]);
-        var baby = new BabyMetroidCutsceneState();
+        var sequence = MotherBrainLateFightFixtures.NewSequence();
+        var baby = sequence.Baby;
         baby.Phase = BabyMetroidCutscenePhase.FinalCharge;
         baby.Health = 79;
-        var sequence = MotherBrainLateFightFixtures.NewSequence();
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         Action<BabyMetroidCutsceneStepResult> apply = step => enemies.BabyMetroidCutsceneBehavior.ApplyBabyMetroidFrameEffects(motherBrain.Colours, step);
-        apply(baby.Step(samus, sequence, HeadOf(sequence), Position16<RoomPixels>.Zero, enemyFrameCounter: 0, randomNumber: 0));
+        apply(baby.Step(samus, HeadOf(sequence), Position16<RoomPixels>.Zero, enemyFrameCounter: 0, randomNumber: 0));
         AssertEqual(0, enemies.Audio.SoundRequests.Count, "The live final charge does not emit a death cry early");
         ushort[] charged = Shown();
         for (int index = 0; index < 256; index++)
             AssertEqual((ushort)(index + 1), charged[index], "Live final charge preserves room colors");
         baby.ApplyMotherBrainOnionRingHit(MotherBrainAttackDamage.OnionRing);
-        var fatal = baby.Step(samus, sequence, HeadOf(sequence), Position16<RoomPixels>.Zero, enemyFrameCounter: 0, randomNumber: 0);
+        var fatal = baby.Step(samus, HeadOf(sequence), Position16<RoomPixels>.Zero, enemyFrameCounter: 0, randomNumber: 0);
         AssertEqual(BabyMetroidCutscenePhase.TakeFinalBlow, fatal.PhaseAfter, "Fatal hit enters native shake phase");
         apply(fatal);
         ushort[] blackout = Shown();
@@ -49,13 +49,13 @@ internal static class BabyMetroidDeathCryVerification
         for (int frame = 0; frame < 3; frame++)
         {
             enemies.BeginEnemySoundRequestFrame();
-            apply(baby.Step(samus, sequence, HeadOf(sequence), Position16<RoomPixels>.Zero, enemyFrameCounter: 0, randomNumber: 0));
+            apply(baby.Step(samus, HeadOf(sequence), Position16<RoomPixels>.Zero, enemyFrameCounter: 0, randomNumber: 0));
             AssertEqual(0, enemies.Audio.SoundRequests.Count, "Fatal shake does not replay the death cry");
         }
         baby.Phase = BabyMetroidCutscenePhase.FinalCutscene;
         for (int frame = 0; frame < 7; frame++)
         {
-            var recovery = baby.Step(samus, sequence, HeadOf(sequence), Position16<RoomPixels>.Zero, enemyFrameCounter: 0, randomNumber: 0);
+            var recovery = baby.Step(samus, HeadOf(sequence), Position16<RoomPixels>.Zero, enemyFrameCounter: 0, randomNumber: 0);
             AssertEqual<MotherBrainFadeImage?>(MotherBrainFadeDefinitions.RecoveryLights.Images[frame], recovery.RecoveryLightsImage, "Recovery publishes each native light row");
             apply(recovery);
             ushort[] cgram = Shown();

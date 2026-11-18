@@ -5,8 +5,8 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <summary>What Mother Brain asks of the other actors in her room: the Baby, the Rinkas, a Pirate laser and an afterburn.</summary>
 internal interface IMotherBrainRoomActors
 {
-    /// <summary>Spawns the Baby Metroid in the first free enemy place for the rainbow-beam rescue.</summary>
-    void SpawnBabyMetroid(MotherBrainEnemyState state);
+    /// <summary>Spawns <paramref name="lateFight"/>'s Baby Metroid in the first free enemy place for the rainbow-beam rescue.</summary>
+    void SpawnBabyMetroid(MotherBrainRainbowBeamAttackSequence lateFight);
 
     /// <summary>Has the special Rinkas removed instead of launched or respawned, as fake death begins.</summary>
     void TerminateRinkas();

@@ -232,7 +232,7 @@ internal sealed class NorfairRidleyDeath
             Velocity = new(BossRandomRolls.InLowerHalf(random) ? horizontalSpeed : -horizontalSpeed, default),
             Picture = picture,
         };
-        fragmentState.Lifetime.LastFor(RidleyExplosionDefinitions.GetPart(part).LifetimeUpdates);
+        fragmentState.Lifetime.LastFor(RidleyExplosionDefinitions.LifetimeUpdates[part]);
         fragment.SetSpeciesState(fragmentState);
     }
 

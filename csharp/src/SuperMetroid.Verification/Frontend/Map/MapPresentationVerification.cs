@@ -486,10 +486,10 @@ internal static class MapPresentationVerification
         {
             int address = MotherBrainSourceDefinitions.Beam.ColorTable + frame * MotherBrainSourceDefinitions.Beam.ColorEntryBytes;
             ushort nativeBeamColor = LittleEndianBytes.Word(CpuBusRegionRead.Read(bus, address), CpuBusRegionRead.Read(bus, address + 1));
-            AssertEqual(RgbColor.FromWord(nativeBeamColor), original.MotherBrainRainbowBeamColours.BeamColor(frame),
+            AssertEqual(RgbColor.FromWord(nativeBeamColor), original.MotherBrainRainbowBeamColours.BeamCycle[frame],
                 $"installed beam HDMA color {frame} matches bank-$88");
         }
-        AssertEqual(MotherBrainRainbowPaletteGeometry.BeamCycleColorCount, original.MotherBrainRainbowBeamColours.BeamCycleLength,
+        AssertEqual(MotherBrainRainbowPaletteGeometry.BeamCycleColorCount, original.MotherBrainRainbowBeamColours.BeamCycle.Count,
             "installed beam colour cycle ends where the native loop does");
         // Source words were compared independently against bank $88 above;
         // playback itself must use the installed catalog on both paths.

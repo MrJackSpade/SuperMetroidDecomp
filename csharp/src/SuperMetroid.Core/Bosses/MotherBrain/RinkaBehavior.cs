@@ -47,10 +47,15 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Camera coordinates used by the spawn and flight windows.</summary>
     private Position16<RoomPixels> _rinkaCamera;
     /// <summary>
-    /// Special Rinkas awaiting the door loader's camera for spawn selection, in the
-    /// order the room's enemy setup reaches them.
+    /// Special Rinkas awaiting the door loader's camera for spawn selection, each with the state its setup gave it (#2471),
+    /// in the order the room's enemy setup reaches them.
     /// </summary>
-    private readonly List<RoomEnemyPlace> _deferredRinkaSpawnPlaces = new();
+    private readonly List<DeferredRinkaSpawn> _deferredRinkaSpawns = new();
+
+    /// <summary>A special Rinka whose spawn choice waits for the door loader's camera.</summary>
+    /// <param name="Place">The Rinka's place.</param>
+    /// <param name="State">The state its setup gave it.</param>
+    private readonly record struct DeferredRinkaSpawn(RoomEnemyPlace Place, RinkaEnemyState State);
 
     /// <summary>
     /// Captures camera coordinates used by the Rinka's flight and spawn checks. StepFrame refreshes these before
@@ -78,7 +83,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
             // while the door transition is still scrolling, so that choice waits for the camera
             // of the update in which the loader reaches this place.
             if (_frameContext.DeferLoaderTimeCameraReads)
-                _deferredRinkaSpawnPlaces.Add(place);
+                _deferredRinkaSpawns.Add(new DeferredRinkaSpawn(place, state));
             else
                 ReserveSpecialRinkaSpawn(place, state);
             place.Processing = place.Processing.With(EnemyProcessing.Animates | EnemyProcessing.OffScreen);
@@ -131,7 +136,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         IsSpecialRinka(place) ? RinkaSegment.Special : RinkaSegment.Ordinary;
 
     /// <summary>True while a door load still owes a special Rinka its spawn choice.</summary>
-    public bool HasDeferredLoaderTimeCameraReads => _deferredRinkaSpawnPlaces.Count != 0;
+    public bool HasDeferredLoaderTimeCameraReads => _deferredRinkaSpawns.Count != 0;
 
     /// <summary>
     /// Runs the camera-dependent part of each deferred initialization whose place the door
@@ -142,14 +147,12 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         Position16<RoomPixels> camera)
     {
         Ensure.NotNull(loaderInitializedPlace);
-        while (_deferredRinkaSpawnPlaces.Count != 0 && loaderInitializedPlace(_deferredRinkaSpawnPlaces[0].Ordinal))
+        while (_deferredRinkaSpawns.Count != 0 && loaderInitializedPlace(_deferredRinkaSpawns[0].Place.Ordinal))
         {
-            RoomEnemyPlace rinka = _deferredRinkaSpawnPlaces[0];
-            _deferredRinkaSpawnPlaces.RemoveAt(0);
-            RinkaEnemyState state = rinka.SpeciesState<RinkaEnemyState>() ?? throw new InvalidOperationException(
-                $"Deferred Rinka spawn place {rinka.Ordinal} no longer holds a Rinka.");
+            DeferredRinkaSpawn rinka = _deferredRinkaSpawns[0];
+            _deferredRinkaSpawns.RemoveAt(0);
             SetRinkaCamera(camera);
-            ReserveSpecialRinkaSpawn(rinka, state);
+            ReserveSpecialRinkaSpawn(rinka.Place, rinka.State);
         }
     }
 
@@ -159,7 +162,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         RinkaEnemyState state,
         SamusState samus)
     {
-        if (_deferredRinkaSpawnPlaces.Count != 0)
+        if (_deferredRinkaSpawns.Count != 0)
             throw new InvalidOperationException(
                 "A Rinka ran before the door loader chose every special Rinka's spawn point.");
         if (IsSpecialRinka(place) && _rinkaTerminationFlag)

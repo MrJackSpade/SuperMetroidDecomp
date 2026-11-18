@@ -29,10 +29,9 @@ internal static class MotherBrainMissileWalkResetVerification
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
         RoomEnemyPlace head = state.Head;
 
-        var sequence = new MotherBrainRainbowBeamAttackSequence(state);
+        MotherBrainRainbowBeamAttackSequence sequence = state.BeginLateFight();
         sequence.Encounter.Form = MotherBrainForm.ThirdPhase;
         sequence.ThirdPhaseFight.Phase3WalkCounter = MotherBrainWalkCredit.Of(64);
-        state.RainbowBeamSequence = sequence;
         state.Form = MotherBrainForm.ThirdPhase;
         state.WalkCounter = MotherBrainWalkCredit.Of(64);
         head.Health = 0x8bd8;
@@ -58,8 +57,7 @@ internal static class MotherBrainMissileWalkResetVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         var state = new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0], enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation()) { WalkCounter = MotherBrainWalkCredit.Of(0x0180) };
-        var sequence = new MotherBrainRainbowBeamAttackSequence(state);
-        state.RainbowBeamSequence = sequence;
+        MotherBrainRainbowBeamAttackSequence sequence = state.BeginLateFight();
         AssertEqual(MotherBrainWalkCredit.Of(0x0180), sequence.ThirdPhaseFight.Phase3WalkCounter, "an attached sequence reads the encounter's credit");
         state.WalkCounter = state.WalkCounter.SpendForShot(MotherBrainWalkCredit.StepCredit);
         AssertEqual(MotherBrainWalkCredit.Of(0x0080), sequence.ThirdPhaseFight.Phase3WalkCounter, "a spend through the encounter reaches the sequence");

@@ -108,12 +108,20 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         MotherBrainBody.ResolveMotherBrainSamusCollision(state, samus);
     }
 
-    /// <summary>Runs the stage Mother Brain's body is in (#2208), keeping its phase's own timer and attack order.</summary>
+    /// <summary>
+    /// Runs the stage Mother Brain's body is in (#2208), keeping its phase's own timer and attack order: her late fight,
+    /// once begun, runs every stage from the rainbow beam on (#2471).
+    /// </summary>
     private void RunMotherBrainBodyPhase(
         MotherBrainEnemyState state,
         SamusState samus,
         SamusBombProjectileSystem sharedProjectiles)
     {
+        if (state.RainbowBeamSequence is { } lateFight)
+        {
+            RainbowAndDeath.RunLiveMotherBrainRainbowBeam(lateFight, samus, state.Body.FrameCounter, sharedProjectiles);
+            return;
+        }
         switch (state.Stage)
         {
             case MotherBrainBodyStage.Glass:
@@ -128,21 +136,16 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             case MotherBrainBodyStage.Phase2Fight:
                 RunMotherBrainPhase2Fight(state, samus);
                 return;
+            // The stages from the rainbow beam on belong to her late fight, which runs them once it has begun.
             case MotherBrainBodyStage.RainbowBeam:
             case MotherBrainBodyStage.FinishingSamusOff:
             case MotherBrainBodyStage.DrainedByBaby:
             case MotherBrainBodyStage.Reviving:
             case MotherBrainBodyStage.Phase3Fight:
             case MotherBrainBodyStage.Dying:
-                RainbowAndDeath.RunLiveMotherBrainRainbowBeam(
-                    state,
-                    samus,
-                    state.Body.FrameCounter,
-                    sharedProjectiles);
-                return;
             default:
                 throw new InvalidDataException(
-                    $"Mother Brain's body has no behaviour for its {state.Stage} stage.");
+                    $"Mother Brain's body has no behaviour for its {state.Stage} stage outside her late fight.");
         }
     }
 

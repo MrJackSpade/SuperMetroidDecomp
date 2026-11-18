@@ -88,7 +88,7 @@ internal static class NativeEnemyFamilyStateImport
             {
                 // A count the cartridge ran below zero has run out, as the port's timer that stays at zero has.
                 phantoon.Round.EyeClosedTimer = Math.Max(0, CoordinateAxis.AsSigned(words.A));
-                phantoon.FigureEight.Reversed = words.C != 0;
+                phantoon.FigureEight.Direction = words.C != 0 ? PhantoonPathDirection.Backwards : PhantoonPathDirection.Forwards;
                 phantoon.Death.FadeCycles = words.C;
                 // The eye's word E counts the steps of whichever of his fades runs: his body's, or after his death the
                 // Wrecked Ship's power coming on, each its own progress (#2251). Word D, the fade's length, is rewritten

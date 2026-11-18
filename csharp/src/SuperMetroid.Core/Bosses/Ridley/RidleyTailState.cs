@@ -44,10 +44,17 @@ public sealed class RidleyTailState
     public RidleyTailAction Action { get; internal set; } = RidleyTailAction.None;
     /// <summary>Gets how far each swinging link turns each update and adds to its stagger (zero through eight steps).</summary>
     public RidleyTailTurn SwingStep { get; internal set; } = RidleyTailDefinitions.SlowNeutralSwing;
-    /// <summary>Gets the facing-dependent furthest-clockwise angle clockwise tail movement may reach.</summary>
-    public RidleyTailAngle MinimumClockwiseAngle { get; internal set; } = RidleyTailDefinitions.InitialMinimumClockwise;
-    /// <summary>Gets the facing-dependent furthest-counterclockwise angle counterclockwise tail movement may reach.</summary>
-    public RidleyTailAngle MaximumCounterClockwiseAngle { get; internal set; } = RidleyTailDefinitions.InitialMaximumCounterClockwise;
+    /// <summary>
+    /// Gets the facing-dependent furthest-clockwise angle clockwise tail movement may reach. The tail is made with a
+    /// left-facing Ridley's whichever way he faces (#2471), as the game's tail setup gives it, until his tail's action sets
+    /// the bounds for his facing.
+    /// </summary>
+    public RidleyTailAngle MinimumClockwiseAngle { get; internal set; } = RidleyTailReach.MinimumClockwise(RidleyFacing.Left);
+    /// <summary>
+    /// Gets the facing-dependent furthest-counterclockwise angle counterclockwise tail movement may reach, made with a
+    /// left-facing Ridley's as <see cref="MinimumClockwiseAngle"/> is.
+    /// </summary>
+    public RidleyTailAngle MaximumCounterClockwiseAngle { get; internal set; } = RidleyTailReach.MaximumCounterClockwise(RidleyFacing.Left);
     /// <summary>
     /// Gets the tail angle a clockwise whip stops at, or null while no clockwise whip is aimed. Aimed targets lie within
     /// a turn either side of straight down.

@@ -10,7 +10,7 @@ public static class CeresRidleyGetawayDefinitions
     internal static Offset16<FloorPixels> InitialFloorOffset { get; } = new(-128, 32);
 
     /// <summary>The point of the floor the getaway turns and zooms it about as it sets it up.</summary>
-    internal static Position16<FloorPixels> InitialFloorCentre { get; } = new(64, 64);
+    internal static Offset16<FloorPixels> InitialFloorCentre { get; } = new(64, 64);
 
     /// <summary>The getaway floor's angle as it is set up: a 256th of a step past no turn.</summary>
     internal static RotationAngle InitialAngle { get; } = RotationAngle.FromSteps(0, 1);

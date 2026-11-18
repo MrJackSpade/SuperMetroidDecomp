@@ -39,9 +39,6 @@ internal sealed class EyeDoorPartObject(EyeDoorPart part, PlacedDoor? door)
     /// </summary>
     internal bool WaitsForOpenedDoor { get; private set; }
 
-    /// <summary>Whether the part closes behind Samus, leaving the room on its next update.</summary>
-    internal bool ClosesBehindSamus => Phase == EyeDoorPartPhase.ClosingBehindSamus;
-
     /// <inheritdoc/>
     /// <exception cref="InvalidDataException">The part is the bottom, which no door closes.</exception>
     public void CloseBehindSamus()

@@ -7,7 +7,6 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Fx.Artwork;
-using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.Core.World;
 

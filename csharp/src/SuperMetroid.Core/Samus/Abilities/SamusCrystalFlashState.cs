@@ -5,6 +5,7 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Samus.Abilities;
 
@@ -96,8 +97,7 @@ public sealed class SamusCrystalFlashState
     /// <summary>Set when the raise finishes and the bubble's explosion and its glow start.</summary>
     public bool BubbleEffectRequested { get; private set; }
 
-
-    /// <summary>
+/// <summary>
     /// Starts Crystal Flash when Samus may use it: checks every admission condition and sets up the raise.
     /// </summary>
     /// <param name="samus">Live actor whose admission state is checked and whose pose, movement owner, shared timers, and hit state are updated on success.</param>
@@ -334,7 +334,7 @@ public sealed class SamusCrystalFlashState
         {
             // Completion reloads the equipped combination's beam shade with the loader equipping a beam uses, so a Spazer
             // and Plasma combination shows the same colours as everywhere else (#1506, #1736).
-            SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem.ShowBeamShade(colours, samus.EquippedBeams);
+            SamusProjectileSystem.ShowBeamShade(colours, samus.EquippedBeams);
 
             _colouring.Release(SamusSpecialColouringKind.CrystalFlash);
             BeamShadeRestoreRequested = false;

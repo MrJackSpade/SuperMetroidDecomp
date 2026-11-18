@@ -33,9 +33,9 @@ internal static class SamusChargeColorsVerification
         forbidden.UnionWith(VerifySamusChargeColorPhases(rom));
         for (int frame = 0; frame < SamusChargeColorFormat.HyperFrameCount; frame++)
         {
-            ushort offset = (ushort)((SamusChargeShadeDefinitions.HyperShotSteps - frame) * sizeof(ushort));
+            ushort offset = (ushort)((SamusChargeColorFormat.HyperFrameCount - frame) * sizeof(ushort));
             ushort pointer = BlockWord(SamusSourceDefinitions.HyperBeamShotPointers.Value + offset);
-            AssertTrue(SamusChargeShadeDefinitions.TryHyperShot(offset, out ushort compiledPointer),
+            AssertTrue(SamusPaletteNative.TryHyperShot(offset, out ushort compiledPointer),
                 "all native Hyper-shot entries are compiled");
             AssertEqual(pointer, compiledPointer, $"Hyper-shot frame {frame} pointer");
             for (int color = 0; color < SamusChargeColorFormat.ColorsPerPalette; color++)
@@ -142,8 +142,8 @@ internal static class SamusChargeColorsVerification
                 {
                     ushort pointer = Word(0x910000 | (list + phase * 2));
                     bool found = family == 0
-                        ? SamusChargeShadeDefinitions.TryChargedBeam((ushort)(suit * 2), (ushort)(phase * 2), out ushort compiled)
-                        : SamusChargeShadeDefinitions.TryPseudoScrew((ushort)(suit * 2), (ushort)(phase * 2), out compiled);
+                        ? SamusPaletteNative.TryChargedBeam((ushort)(suit * 2), (ushort)(phase * 2), out ushort compiled)
+                        : SamusPaletteNative.TryPseudoScrew((ushort)(suit * 2), (ushort)(phase * 2), out compiled);
                     AssertTrue(found, "Native charge pointer supported");
                     AssertEqual(pointer, compiled, "Native charge pointer selection");
                     samusColours.ShowSuit(SamusShades.Charge(new SamusChargeShade(

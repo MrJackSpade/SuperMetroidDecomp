@@ -414,7 +414,7 @@ public sealed class SamusHorizontalSpeedState
     /// </summary>
     public bool ApplyPendingSuitShadeRestore(
         SamusColours colours,
-        SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems)
+        SamusEquipmentFlags equippedItems)
     {
         Ensure.NotNull(colours);
         if (!SuitShadeRestoreRequested)

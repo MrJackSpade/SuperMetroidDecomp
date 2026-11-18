@@ -928,8 +928,8 @@ public static class SamusGrappleMovement
             // from the no-run flare origin. Graphics-Y correction does not participate.
             var origin = GrappleFiring.Origin(grapple.FireDirection, running: false);
             var flare = ReadFlareOrigin(grapple, grapple.FireDirection, running: false);
-            samus.Position = samus.Position.WithWhole(grapple.RopeStart - new Offset16<RoomPixels>(origin.X, origin.Y));
-            grapple.FlareOrigin = samus.Position.Whole + new Offset16<RoomPixels>(flare.X, flare.Y);
+            samus.Position = samus.Position.WithWhole(grapple.RopeStart - origin);
+            grapple.FlareOrigin = samus.Position.Whole + flare;
             grapple.Phase = GrapplePhase.ConnectedLocked;
         }
 
@@ -991,12 +991,8 @@ public static class SamusGrappleMovement
         Ensure.BetweenInclusive(0, Ensure.BetweenInclusive(1, int.MaxValue, major), minor) * EighthTurnSteps / major;
 
     /// <summary>Reads the installed presentation offset for the current shot direction and running state.</summary>
-    internal static Offset16<RoomPixels> ReadFlareOrigin(SamusGrappleState grapple, SamusProjectileDirection direction, bool running)
-    {
-        var offset = grapple.Artwork.GrappleFlarePlacement
-            .Resolve(running, SamusFlareAim.AtMuzzle(direction));
-        return new Offset16<RoomPixels>(offset.X, offset.Y);
-    }
+    internal static Offset16<RoomPixels> ReadFlareOrigin(SamusGrappleState grapple, SamusProjectileDirection direction, bool running) =>
+        grapple.Artwork.GrappleFlarePlacement.Resolve(running, SamusFlareAim.AtMuzzle(direction));
 
     /// <summary>
     /// Completes the one-frame cancellation phase entered from firing: the stop sound, the ejection, the fallback

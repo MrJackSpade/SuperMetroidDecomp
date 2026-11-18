@@ -42,8 +42,7 @@ public static class SamusGrappleSwing
         samus.Position = samus.Position.WithWhole(new(CoordinateAxis.Wrap(ropeStart.Pixel.X + offset.X), CoordinateAxis.Wrap(ropeStart.Pixel.Y + offset.Y)));
     }
 
-
-    /// <summary>Converts the rope's angular velocity into launch speeds and facing direction on release.</summary>
+/// <summary>Converts the rope's angular velocity into launch speeds and facing direction on release.</summary>
     internal static void PropelSamusFromSwing(
         SamusState samus,
         SamusGrappleState grapple)
@@ -68,15 +67,13 @@ public static class SamusGrappleSwing
         samus.HorizontalSpeed.BaseSpeed = horizontal.SizeTimes(releaseSpeed);
     }
 
-
-    /// <summary>
+/// <summary>
     /// The signed negative cosine of <paramref name="angle"/>'s whole step: the sine a quarter turn behind it.
     /// </summary>
     internal static UnitComponent ReadSignedSine(RotationAngle angle) =>
         UnitComponent.SineOf((angle - RotationAngle.QuarterTurn).ToTrigonometryAngle());
 
-
-    /// <summary>Changes rope length on Up or Down edges and pumps the swing only where directional input can accelerate it.</summary>
+/// <summary>Changes rope length on Up or Down edges and pumps the swing only where directional input can accelerate it.</summary>
     internal static void ApplyRopeAndDirectionInput(
         SamusGrappleState grapple,
         GameplayAction controllerInput,
@@ -126,14 +123,12 @@ public static class SamusGrappleSwing
         grapple.DirectionInputAcceleration = AngularSpeed.Zero;
     }
 
-
-    /// <summary>How hard a held direction pushes the swing toward increasing angles: half as hard under water.</summary>
+/// <summary>How hard a held direction pushes the swing toward increasing angles: half as hard under water.</summary>
     private static AngularSpeed DirectionInputPush(SamusGrappleState grapple) => grapple.Submerged
         ? GrappleBeamDefinitions.Physics.DirectionInputMagnitude.DividedBy(GrappleBeamDefinitions.Physics.SubmergedShare)
         : GrappleBeamDefinitions.Physics.DirectionInputMagnitude;
 
-
-    /// <summary>Walks each intermediate rope length against terrain, stopping at the last clear length to prevent tunneling.</summary>
+/// <summary>Walks each intermediate rope length against terrain, stopping at the last clear length to prevent tunneling.</summary>
     internal static void ApplyRopeLengthDelta(
         RoomLevelData level,
         SamusState samus,
@@ -193,16 +188,14 @@ public static class SamusGrappleSwing
         grapple.RopeLength = targetLength;
     }
 
-
-    /// <summary>
+/// <summary>
     /// The directions' kick-start compares only the angle's whole step with straight down;
     /// the release-time drop test instead requires exactly half a turn.
     /// </summary>
     private static bool HangsStraightDown(SamusGrappleState grapple) =>
         grapple.Angle.WholeStep == RotationAngle.HalfTurn;
 
-
-    /// <summary>Assigns quadrant-based gravity and correction, attenuated underwater and stopped near the downward rest angle.</summary>
+/// <summary>Assigns quadrant-based gravity and correction, attenuated underwater and stopped near the downward rest angle.</summary>
     internal static void CalculateGravity(SamusGrappleState grapple)
     {
         // Swing gravity is deliberately quadrant-based rather than trigonometric. The four
@@ -248,8 +241,7 @@ public static class SamusGrappleSwing
         }
     }
 
-
-    /// <summary>Combines input, gravity, and sign-sensitive correction before clamping pendulum angular velocity.</summary>
+/// <summary>Combines input, gravity, and sign-sensitive correction before clamping pendulum angular velocity.</summary>
     internal static void IntegrateAngularVelocity(SamusGrappleState grapple)
     {
         AngularSpeed velocity = grapple.AngularVelocity +
@@ -264,8 +256,7 @@ public static class SamusGrappleSwing
         grapple.AngularVelocity = velocity.LimitedTo(GrappleBeamDefinitions.Physics.MaximumAngularVelocity);
     }
 
-
-    /// <summary>Accepts a fresh Jump during the terrain-reflection window as a temporary angular kick, halved underwater.</summary>
+/// <summary>Accepts a fresh Jump during the terrain-reflection window as a temporary angular kick, halved underwater.</summary>
     internal static void ApplyJumpImpulse(SamusGrappleState grapple, GameplayAction newlyPressedInput)
     {
         // The swing only admits this extra angular impulse during the 16-frame terrain-
@@ -286,8 +277,7 @@ public static class SamusGrappleSwing
         }
     }
 
-
-    /// <summary>Sweeps each traversed angle step against terrain and reflects or locks at the last clear angle.</summary>
+/// <summary>Sweeps each traversed angle step against terrain and reflects or locks at the last clear angle.</summary>
     internal static void AdvanceAngleWithTerrainCollision(
         RoomLevelData level,
         SamusState samus,
@@ -370,8 +360,7 @@ public static class SamusGrappleSwing
         grapple.JumpImpulse = grapple.JumpImpulse.SlowedTowardRest(GrappleBeamDefinitions.Physics.JumpImpulseDecay);
     }
 
-
-    /// <summary>
+/// <summary>
     /// Checks the evenly spaced points along Samus's radial body line at a candidate swing angle, from the hand toward
     /// the feet, and reports the first that strikes terrain.
     /// </summary>
@@ -397,8 +386,7 @@ public static class SamusGrappleSwing
         return GrappleSwingCollisionResult.Clear;
     }
 
-
-    /// <summary>Projects a body probe from the block-biased anchor and wraps its room-block coordinates below 256.</summary>
+/// <summary>Projects a body probe from the block-biased anchor and wraps its room-block coordinates below 256.</summary>
     internal static GrappleCollisionPoint CalculateCollisionPoint(
         SamusGrappleState grapple,
         TrigonometryAngle angle,
@@ -436,8 +424,7 @@ public static class SamusGrappleSwing
     private static int BiasedWithinBlock(int anchor, UnitComponent ropeComponent) =>
         RoomGridConversions.BlockStart(anchor) + (ropeComponent.IsNegative ? GrappleBeamDefinitions.Swing.AnchorBiasTowardNegative : GrappleBeamDefinitions.Swing.AnchorBiasTowardPositive);
 
-
-    /// <summary>Resolves grapple swing collision through block extensions, including damaging spike reactions.</summary>
+/// <summary>Resolves grapple swing collision through block extensions, including damaging spike reactions.</summary>
     private static bool IsSwingCollision(
         RoomLevelData level,
         SamusState samus,
@@ -504,8 +491,7 @@ public static class SamusGrappleSwing
         throw new InvalidDataException("Grapple swing extension chain exceeded sixteen blocks.");
     }
 
-
-    /// <summary>Rechecks the stored endpoint through the firing step and retains the connection while the block there stops the beam.</summary>
+/// <summary>Rechecks the stored endpoint through the firing step and retains the connection while the block there stops the beam.</summary>
     internal static bool IsStillConnectedToSupportedBlock(
         SamusTerrain terrain,
         SamusState samus,
@@ -522,8 +508,7 @@ public static class SamusGrappleSwing
         return reaction.Collides();
     }
 
-
-    /// <summary>Applies behaviour-specific spike damage once per invincibility window and starts knockback.</summary>
+/// <summary>Applies behaviour-specific spike damage once per invincibility window and starts knockback.</summary>
     private static void ApplySwingSpikeDamage(
         SamusState samus,
         SpikeReaction? reaction,
@@ -551,8 +536,7 @@ public static class SamusGrappleSwing
         samus.KnockbackTimer = SpikeHazardDefinitions.KnockbackFrames;
     }
 
-
-    /// <summary>
+/// <summary>
     /// The swing speed a bounce off terrain reverses <paramref name="velocity"/> into: half as fast the other way, the half
     /// rounded toward negative values, so an odd negative velocity rebounds one 256th of a step faster than the odd
     /// positive velocity of the same size.

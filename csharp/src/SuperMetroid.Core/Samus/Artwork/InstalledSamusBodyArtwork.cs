@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 public sealed class InstalledSamusBodyArtwork
 {
     /// <summary>Each pose's art origin, independent of physical collision offsets.</summary>
-    internal readonly Dictionary<SamusPoseId, int> artOrigins;
+    private readonly Dictionary<SamusPoseId, int> artOrigins;
     /// <summary>Where each pose's installed animation frames place the body, by frame of the pose's animation.</summary>
     private readonly Dictionary<SamusPoseId, IReadOnlyDictionary<SamusAnimationFrame, int>> originRises;
 

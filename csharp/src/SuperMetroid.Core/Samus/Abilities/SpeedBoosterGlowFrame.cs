@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Abilities;
 
@@ -18,7 +19,7 @@ public readonly record struct SpeedBoosterGlowFrame
     public required bool AnimationBeforeWallJumpSpin { get; init; }
 
     /// <summary>The items Samus has equipped, whose Speed Booster the glow belongs to.</summary>
-    public required SuperMetroid.Core.Progression.SamusEquipmentFlags EquippedItems { get; init; }
+    public required SamusEquipmentFlags EquippedItems { get; init; }
 
     /// <summary>Whether another special colouring owns Samus's colours, which keeps the active Speed Booster glow off.</summary>
     public required bool SuppressActiveSpeedBoosterGlow { get; init; }

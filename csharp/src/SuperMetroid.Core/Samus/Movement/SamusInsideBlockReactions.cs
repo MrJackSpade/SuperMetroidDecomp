@@ -35,9 +35,9 @@ public static class SamusInsideBlockReactions
                 throw new InvalidOperationException($"Inside scroll trigger block {block.Position} has no active room-object owner.");
             // The conveyors carry Samus the same in every area; the reactions the area gives meaning
             // own sand and plants. Both are visited in the same bottom/center/top order.
-            if (block.Behavior.SpecialAir is { } conveyed && ConveyorBlockDefinitions.Conveyors.ContainsKey(conveyed))
+            if (block.Behavior.SpecialAir is { } conveyed && ConveyorBlockDefinitions.Conveyors.TryGetValue(conveyed, out ConveyorBlock conveyor))
             {
-                ApplyConveyor(conveyed);
+                ApplyConveyor(conveyor);
                 return;
             }
             SpecialAirInsideReaction reaction = SpecialAirReactions.InsideOf(block.Behavior.SpecialAir);
@@ -108,10 +108,8 @@ public static class SamusInsideBlockReactions
                     throw new InvalidOperationException($"Undefined {nameof(SpecialAirInsideReaction)} {reaction}.");
             }
         }
-        void ApplyConveyor(SpecialAirReaction reaction)
+        void ApplyConveyor(ConveyorBlock conveyor)
         {
-            // The common special-air reactions include the conveyors; only they react here.
-            if (!ConveyorBlockDefinitions.Conveyors.TryGetValue(reaction, out ConveyorBlock conveyor)) return;
             bool rightward = conveyor.Direction == HorizontalDirection.Right;
             samus.HorizontalSpeed.SelectAirSpeeds();
             if (conveyor.Condition == ConveyorCarryCondition.OnFootWithPower &&

@@ -1132,22 +1132,24 @@ public static class SamusBlockCollision
         for (int column = firstColumn; column <= lastColumn; column++)
         {
             RoomCollisionBlock block = level.GetCollisionBlockOrEdgeSolid(new(CoordinateAxis.Wrap(column), RoomGridConversions.PixelToBlock(boundary)));
-            int depth;
+            // The overlap counts the pixels from the solid edge through Samus's boundary pixel, which it includes; a
+            // column she does not overlap counts none.
+            int overlap;
             // The post-grapple table treats even vertical extensions as solid, without
             // following behaviour. Ordinary movement's step is not interchangeable.
             if (block.CollisionType.IsSolidKind())
-                depth = RoomGridConversions.OffsetWithinBlock(boundary);
+                overlap = RoomGridConversions.OffsetWithinBlock(boundary) + 1;
             else if (block.CollisionType != RoomCollisionType.Slope)
                 continue;
             else if (block.Behavior.Slope.IsNonSquare)
             {
                 if (column != RoomGridConversions.PixelToBlock(state.Position.X.Whole)) continue;
                 if (block.Behavior.Slope.FlipsVertically == (direction == VerticalDirection.Down))
-                    depth = RoomGridConversions.OffsetWithinBlock(boundary);
+                    overlap = RoomGridConversions.OffsetWithinBlock(boundary) + 1;
                 else
                 {
                     int difference = SamusSlopePhysics.ReadAlignmentHeight(block.Behavior, state.Position.X.Whole) - RoomGridConversions.OffsetWithinBlock(boundary) - 1;
-                    depth = direction == VerticalDirection.Down ? (difference <= 0 ? -1 - difference : -1) : (difference >= 0 ? difference : -1);
+                    overlap = direction == VerticalDirection.Down ? (difference <= 0 ? -difference : 0) : (difference >= 0 ? difference + 1 : 0);
                 }
             }
             else
@@ -1162,11 +1164,11 @@ public static class SamusBlockCollision
                     collides = selected || SquareSlopes.IsSolid(shape, quadrant.OtherColumn);
                 else
                     collides = SquareSlopes.IsSolid(shape, quadrant.OtherColumn);
-                depth = collides
-                    ? (direction == VerticalDirection.Down ? RoomGridConversions.OffsetWithinHalfBlock(boundary) : RoomGridConversions.OffsetFromHalfBlockEnd(boundary))
-                    : -1;
+                overlap = collides
+                    ? (direction == VerticalDirection.Down ? RoomGridConversions.OffsetWithinHalfBlock(boundary) : RoomGridConversions.OffsetFromHalfBlockEnd(boundary)) + 1
+                    : 0;
             }
-            maximum = Math.Max(maximum, depth + 1);
+            maximum = Math.Max(maximum, overlap);
         }
         return maximum;
     }

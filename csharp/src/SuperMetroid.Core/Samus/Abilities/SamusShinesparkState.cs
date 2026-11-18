@@ -110,8 +110,7 @@ public sealed class SamusShinesparkState
         ShineGlow = ShineGlowStart;
     }
 
-
-    /// <summary>
+/// <summary>
     /// The stage of the crash's orbit: expanding at crash entry, orbiting once the radius reaches sixteen,
     /// and contracting once the orbit's travel reaches 128.
     /// </summary>
@@ -335,8 +334,7 @@ public sealed class SamusShinesparkState
             if (Phase == ShinesparkPhase.CrashFinish)
                 return FinishCrash(samus, frame.Projectiles);
 
-
-            // A stored shine or no spark at all does not move Samus. Returning
+// A stored shine or no spark at all does not move Samus. Returning
             // an empty snapshot is defensive; runtime normally never runs them here.
             return new ShinesparkMovementResult(
                 false);
@@ -393,7 +391,7 @@ public sealed class SamusShinesparkState
     /// Runs the stored shine's or the shinespark's suit colouring, restoring Samus's
     /// normal colours when its signed countdown expires.
     /// </summary>
-    public bool UpdateColouring(SamusColours colours, SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems)
+    public bool UpdateColouring(SamusColours colours, SamusEquipmentFlags equippedItems)
     {
         Ensure.NotNull(colours);
         SamusSpecialColouringKind colouring = _colouring.Holder;

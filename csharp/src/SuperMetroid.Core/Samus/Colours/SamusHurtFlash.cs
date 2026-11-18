@@ -42,8 +42,7 @@ public static class SamusHurtFlash
             return;
         }
 
-
-        // The hurt flash plays the impact sound on its impact update. Cinematics and the
+// The hurt flash plays the impact sound on its impact update. Cinematics and the
         // Mother-Brain drained knockback are the two exceptions; the latter is
         // identified by the same explicit phase/pose pair that replaces its movement.
         if (counterBefore == SamusHurtFlashDefinitions.ImpactSoundUpdate &&

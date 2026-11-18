@@ -196,7 +196,7 @@ public sealed class SamusDrainedState
     /// the delay before the rainbow moves on to its next shade (#2387).
     /// </remarks>
     /// <returns>True when this state owned the current frame's Samus colours.</returns>
-    public bool UpdateColouring(SamusColours colours, SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems)
+    public bool UpdateColouring(SamusColours colours, SamusEquipmentFlags equippedItems)
     {
         Ensure.NotNull(colours);
 

@@ -40,7 +40,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
         place.SetSpeciesState(state);
 
         // The Rio rests in its idle animation until its first swoop starts another.
-        state.Playback = EnemyAnimationPlayback.Start(place, RioAnimations.StartingWith(RioSegment.Idle));
+        state.Playback = EnemyAnimationPlayback.Start(place, RioAnimations.StartingWith(RioSegment.TuckedWingbeat));
     }
 
     /// <summary>Runs the Rio's main AI and its five actions.</summary>
@@ -85,10 +85,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (!state.AnimationFinished)
                     return;
                 state.AnimationFinished = false;
-                StartRioAnimation(
-                    place,
-                    state,
-                    RioSegment.PostSwoopIdle);
+                state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, RioAnimations.PostSwoopHover);
                 state.Action = RioAction.WaitingForSamus;
                 return;
 

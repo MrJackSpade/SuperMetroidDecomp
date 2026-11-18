@@ -2,9 +2,9 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Shutters;
 
 /// <summary>
-/// The state of a vertical shutter: its behaviour, endpoints, timers, reaction and rider carry, each a value of its own.
-/// It reads its speed, first heading, trigger, travel, proximity, wait and rests from its spawn settings where it uses
-/// them (#2450).
+/// The state of a vertical shutter: its behaviour, endpoints, timers and reaction, each a value of its own. It reads its
+/// speed, first heading, trigger, travel, proximity, wait and rests from its spawn settings where it uses them (#2450);
+/// the rider a move carries is found and carried within that move (#2512).
 /// </summary>
 public sealed class VerticalShutterEnemyState
 {
@@ -33,15 +33,8 @@ public sealed class VerticalShutterEnemyState
     /// it runs out on (<see cref="EnemyWaitDefinitions.RunOutUpdate"/>, #2281).
     /// </summary>
     public int RestTimer { get; internal set; }
-    /// <summary>Whether the pre-movement riding test found Samus supported by this shutter; enables whole-pixel extra-Y carry for the current movement.</summary>
-    public bool MovingSamus { get; internal set; }
     /// <summary>Whether a one-shot shutter has been started: clear at first and set by its first reaction, so later reactions cannot start it again.</summary>
     public bool ShotActivated { get; internal set; }
-    /// <summary>
-    /// The shutter's whole-pixel row saved before its current move, from which the rider moves by the shutter's own move
-    /// (#2178): a vertical shutter only moves vertically.
-    /// </summary>
-    public int PreviousY { get; internal set; }
     /// <summary>Upper whole-pixel travel row derived from the spawn row and travel distance; upward motion stops upon reaching or passing it.</summary>
     public int UpperEndpointY { get; internal set; }
     /// <summary>Lower whole-pixel travel row derived from the spawn row and travel distance; downward motion stops upon reaching or passing it.</summary>

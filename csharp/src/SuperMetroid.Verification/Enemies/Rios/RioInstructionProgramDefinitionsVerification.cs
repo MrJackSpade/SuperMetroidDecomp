@@ -34,13 +34,13 @@ internal static class RioInstructionProgramDefinitionsVerification
         rio.AnimationClock.StepOnNextUpdate();
         RioBehavior.InitializeRio(rio);
         RioEnemyState state = enemies.RioStates[0] ?? throw new InvalidOperationException("The Rio has no state.");
-        AssertEqual(new AnimationPlayback<RioSegment>(RioAnimations.StartingWith(RioSegment.Idle), AnimationPlace.StartOfAnimation), state.Playback, "real Rio initializer starts idling");
+        AssertEqual(new AnimationPlayback<RioSegment>(RioAnimations.StartingWith(RioSegment.TuckedWingbeat), AnimationPlace.StartOfAnimation), state.Playback, "real Rio initializer starts idling");
 
-        // Idle shows its two poses, then runs into the post-swoop hover's tucked wingbeat three times and its hanging
-        // wingbeat twice, which return to idle (#2451).
-        IEnumerable<ushort> idlePass = RioAnimationsConstants.Spritemaps(RioSegment.Idle,
-            RioSegment.PostSwoopIdle, RioSegment.PostSwoopIdle, RioSegment.PostSwoopIdle, RioSegment.HangingWingbeat, RioSegment.HangingWingbeat);
-        AssertEqual(EnemyInstructionRunner.ExpectedFrames([.. idlePass, RioAnimationsConstants.Spritemaps(RioSegment.Idle).First()], Enumerable.Repeat(4, 13)),
+        // Idle shows its tucked wingbeat, then runs into the post-swoop hover's tucked wingbeat three times and its hanging
+        // wingbeat twice, which return to idle (#2451, #2512).
+        IEnumerable<ushort> idlePass = RioAnimationsConstants.Spritemaps(RioSegment.TuckedWingbeat,
+            RioSegment.TuckedWingbeat, RioSegment.TuckedWingbeat, RioSegment.TuckedWingbeat, RioSegment.HangingWingbeat, RioSegment.HangingWingbeat);
+        AssertEqual(EnemyInstructionRunner.ExpectedFrames([.. idlePass, RioAnimationsConstants.Spritemaps(RioSegment.TuckedWingbeat).First()], Enumerable.Repeat(4, 13)),
             EnemyInstructionRunner.ShownFrames(rio, 12 * 4 + 1),
             "idle runs into the post-swoop idle and returns");
 

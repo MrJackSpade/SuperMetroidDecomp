@@ -47,7 +47,6 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
             CurrentHop = PuyoHopType.NormalSmall,
             HopType = PuyoHopType.NormalSmall,
             Direction = HorizontalDirection.Right,
-            Falling = false,
             InitialYSpeedCurvePlaceThreeQuarters = QuadraticSpeedCurvePlace.Start,
             InitialYSpeedCurvePlaceHalf = QuadraticSpeedCurvePlace.Start,
         };
@@ -67,7 +66,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
             case PuyoAction.Grounded:
                 RunGroundedPuyo(place, state, samus);
                 return;
-            case PuyoAction.Airborne:
+            case PuyoAction.Rising or PuyoAction.Falling:
                 RunAirbornePuyo(place, state, level);
                 return;
             default:
@@ -84,7 +83,8 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         if (--state.HopCooldownTimer > 0)
             return;
 
-        state.Action = PuyoAction.Airborne;
+        // Every hop starts rising.
+        state.Action = PuyoAction.Rising;
         state.HopCooldownTimer = place.SpawnSettings<PuyoSpawnSettings>().HopCooldown + EnemyWaitDefinitions.RunOutUpdate;
         InitiatePuyoHop(place, state, samus);
     }
@@ -150,7 +150,6 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         while (risen <= height);
 
         state.YSpeedCurvePlace = place;
-        state.Falling = false;
         state.InitialYSpeedCurvePlaceHalf = place.DividedBy(2);
         state.InitialYSpeedCurvePlaceThreeQuarters = place.DividedBy(4) + state.InitialYSpeedCurvePlaceHalf;
     }
@@ -266,11 +265,11 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     private bool MovePuyo(RoomEnemyPlace place, PuyoEnemyState state, RoomLevelData level)
     {
         QuadraticCurveSpeed curveSpeed = QuadraticSpeedCurvePlace.Min(state.YSpeedCurvePlace, PuyoHopDefinitions.FastestSpeedPlace).Speed;
-        SignedSixteenSixteen verticalDisplacement = curveSpeed.Toward(state.Falling ? EnemySpeedSign.Positive : EnemySpeedSign.Negative);
+        SignedSixteenSixteen verticalDisplacement = curveSpeed.Toward(state.Action == PuyoAction.Falling ? EnemySpeedSign.Positive : EnemySpeedSign.Negative);
         bool verticalCollision = _terrain.MoveEnemyVertically(level, place, verticalDisplacement);
         if (verticalCollision)
         {
-            if (!state.Falling)
+            if (state.Action == PuyoAction.Rising)
             {
                 // Striking a ceiling while rising starts the drop; whether the next hop turns back is what the room's
                 // last draw and HUD redraw left (PuyoCeilingTurnFromLastDraw): always in an ordinary gameplay update.
@@ -316,7 +315,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void SetPuyoAirborneAnimation(RoomEnemyPlace place, PuyoEnemyState state)
     {
         PuyoSegment segment;
-        if (!state.Falling)
+        if (state.Action == PuyoAction.Rising)
         {
             if (state.Direction == HorizontalDirection.Right)
             {

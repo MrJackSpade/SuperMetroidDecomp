@@ -53,7 +53,8 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         RipperEnemyState state,
         RoomLevelData level)
     {
-        SignedSixteenSixteen displacement = FlyingVelocity(place, state);
+        GrappleRipperSpawnSettings settings = place.SpawnSettings<GrappleRipperSpawnSettings>();
+        SignedSixteenSixteen displacement = FlyingVelocity(settings.Speed, state.Heading);
         bool reverse = _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
             level,
             place,
@@ -61,7 +62,6 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         // Unlike a wall, a patrol bound does not move the Ripper back flush with it: the update that passes the bound
         // keeps its overshoot, which shows again when the Ripper reverses on its next pass. The left bound is exclusive
         // and the right inclusive, compared as CoordinateAxis.Precedes compares columns.
-        GrappleRipperSpawnSettings settings = place.SpawnSettings<GrappleRipperSpawnSettings>();
         if (!reverse && state.Heading == HorizontalDirection.Left)
         {
             reverse = place.Position.X.Whole < settings.MinimumX;
@@ -89,7 +89,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs the jet Ripper's main AI.</summary>
     private void RunJetRipperMain(RoomEnemyPlace place, RipperEnemyState state, RoomLevelData level)
     {
-        SignedSixteenSixteen displacement = FlyingVelocity(place, state);
+        SignedSixteenSixteen displacement = FlyingVelocity(place.SpawnSettings<RipperSpawnSettings>().Speed, state.Heading);
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, place, displacement))
             return;
 
@@ -117,7 +117,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         // mover aligns the actor flush with the wall before Ripper swaps direction
         // and animation.
         RipperEnemyState state = place.RequireSpeciesState<RipperEnemyState>();
-        SignedSixteenSixteen displacement = FlyingVelocity(place, state);
+        SignedSixteenSixteen displacement = FlyingVelocity(place.SpawnSettings<RipperSpawnSettings>().Speed, state.Heading);
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, place, displacement))
             return;
 
@@ -126,19 +126,13 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// The horizontal displacement each update of the Ripper-family enemy in <paramref name="place"/>, whose state is
-    /// <paramref name="state"/>: its spawn speed toward its heading (#2278, #2450).
+    /// The horizontal displacement each update of a Ripper-family enemy flying <paramref name="speed"/>, the spawn speed
+    /// its own main AI reads from its own settings (#2512), toward <paramref name="heading"/> (#2278, #2450).
     /// </summary>
-    /// <exception cref="InvalidDataException">The place's settings are no Ripper's.</exception>
-    internal static SignedSixteenSixteen FlyingVelocity(RoomEnemyPlace place, RipperEnemyState state)
+    internal static SignedSixteenSixteen FlyingVelocity(SignedSixteenSixteen speed, HorizontalDirection heading)
     {
-        EnemyLinearSpeed speed = new(Ensure.NotNull(place).SpawnSettings<EnemySpawnSettings>() switch
-        {
-            GrappleRipperSpawnSettings grapple => grapple.Speed,
-            RipperSpawnSettings ripper => ripper.Speed,
-            var other => throw new InvalidDataException($"Enemy {place.DefinitionId}'s settings {other} are no Ripper's."),
-        });
-        return Ensure.NotNull(state).Heading == HorizontalDirection.Right ? speed.Positive : speed.Negative;
+        EnemyLinearSpeed linear = new(speed);
+        return heading == HorizontalDirection.Right ? linear.Positive : linear.Negative;
     }
 
     /// <summary>Turns a Ripper-family enemy round: it flies its spawn speed the other way (#2278).</summary>

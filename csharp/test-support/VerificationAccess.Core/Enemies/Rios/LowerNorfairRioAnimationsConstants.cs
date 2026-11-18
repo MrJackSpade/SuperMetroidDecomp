@@ -10,6 +10,6 @@ internal static class LowerNorfairRioAnimationsConstants
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params LowerNorfairRioSegment[] programs) =>
         programs.SelectMany(program => LowerNorfairRioAnimations.Segments.Beats(program))
-            .OfType<AnimationBeat<EnemyFrameId, LowerNorfairRioCue>.Frame>()
-            .Select(frame => LowerNorfairRioFrameToolingDefinitions.Spritemap(frame.Shown));
+            .Select(beat => beat.ShownFrame).OfType<EnemyFrameId>()
+            .Select(frame => LowerNorfairRioFrameToolingDefinitions.Spritemap(frame));
 }

@@ -56,10 +56,7 @@ internal static class LowerNorfairRioAnimations
         [P.Ascending] =
         [
             Cue(new(K.ShowFlames)),
-        ],
-        [P.AscendingWingbeat] =
-        [
-            Show(EnemyFrameId.LowerNorfairRioWingsSwept, AscendingWingbeatUpdates),
+            Hold(EnemyFrameId.LowerNorfairRioWingsSwept),
         ],
         [P.Cooldown] =
         [
@@ -84,8 +81,9 @@ internal static class LowerNorfairRioAnimations
     });
 
     /// <summary>
-    /// The animation that starts at each segment an owner can start or restart at, each segment played whole; the
-    /// wingbeats loop on from the entry cues before them (#2061, #2276).
+    /// The animation that starts at each segment an owner can start or restart at, each segment played whole; the idle's
+    /// wingbeat loops on from the entry cue before it (#2061, #2276), and the climb shows its flames and holds its swept
+    /// wings (#2512).
     /// </summary>
     internal static IReadOnlyDictionary<LowerNorfairRioSegment, Animation<LowerNorfairRioSegment>> StartingAt { get; } = new Dictionary<LowerNorfairRioSegment, Animation<LowerNorfairRioSegment>>
     {
@@ -93,7 +91,7 @@ internal static class LowerNorfairRioAnimations
         [P.PrepareToSwoop] = new([Segments.Whole(P.PrepareToSwoop)], AnimationEnd.Holds),
         [P.Descending] = new([Segments.Whole(P.Descending)], AnimationEnd.Holds),
         [P.AscentOpening] = new([Segments.Whole(P.AscentOpening)], AnimationEnd.Holds),
-        [P.Ascending] = Animation<LowerNorfairRioSegment>.LeadingInto([Segments.Whole(P.Ascending)], [Segments.Whole(P.AscendingWingbeat)]),
+        [P.Ascending] = new([Segments.Whole(P.Ascending)], AnimationEnd.Holds),
         [P.Cooldown] = new([Segments.Whole(P.Cooldown)], AnimationEnd.Holds),
         [P.Flames] = Animation<LowerNorfairRioSegment>.Looping([Segments.Whole(P.Flames)]),
     };
@@ -106,9 +104,6 @@ internal static class LowerNorfairRioAnimations
 
     /// <summary>Shows <paramref name="frame"/> for good: a still picture rests on it until its owner plays another.</summary>
     private static AnimationBeat<EnemyFrameId, LowerNorfairRioCue> Hold(EnemyFrameId frame) => new AnimationBeat<EnemyFrameId, LowerNorfairRioCue>.HeldFrame(frame);
-
-    /// <summary>The updates the climb shows its swept wings before showing them again (#2451).</summary>
-    private const int AscendingWingbeatUpdates = 6;
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
     private static AnimationBeat<EnemyFrameId, LowerNorfairRioCue> Cue(LowerNorfairRioCue cue) => new AnimationBeat<EnemyFrameId, LowerNorfairRioCue>.Event(cue);

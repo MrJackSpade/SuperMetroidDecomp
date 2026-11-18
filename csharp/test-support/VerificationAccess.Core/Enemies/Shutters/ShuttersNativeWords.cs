@@ -8,16 +8,20 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 /// </summary>
 internal static class ShuttersNativeWords
 {
-    /// <summary>The routine word naming each <see cref="GrowingShutterAction"/>.</summary>
-    internal static readonly NativeWordIdentities<GrowingShutterAction> GrowingShutterActions = new(new Dictionary<GrowingShutterAction, ushort>
-    {
-        [GrowingShutterAction.WaitToGrowUpForTimer] = 0xeabd,
-        [GrowingShutterAction.WaitToGrowUpForProximity] = 0xead1,
-        [GrowingShutterAction.WaitToGrowDownForProximity] = 0xeae7,
-        [GrowingShutterAction.WaitToGrowDownForTimer] = 0xeafd,
-        [GrowingShutterAction.GrowDown] = 0xeb11,
-        [GrowingShutterAction.GrowUp] = 0xec13,
-    });
+    /// <summary>
+    /// The routine word naming each <see cref="GrowingShutterAction"/> and the way the shutter grows (#2512), the cartridge
+    /// giving each way a routine of its own.
+    /// </summary>
+    internal static readonly NativeWordIdentities<(GrowingShutterAction Action, VerticalDirection Growth)> GrowingShutterActions =
+        new(new Dictionary<(GrowingShutterAction Action, VerticalDirection Growth), ushort>
+        {
+            [(GrowingShutterAction.WaitForTimer, VerticalDirection.Up)] = 0xeabd,
+            [(GrowingShutterAction.WaitForProximity, VerticalDirection.Up)] = 0xead1,
+            [(GrowingShutterAction.WaitForProximity, VerticalDirection.Down)] = 0xeae7,
+            [(GrowingShutterAction.WaitForTimer, VerticalDirection.Down)] = 0xeafd,
+            [(GrowingShutterAction.Grow, VerticalDirection.Down)] = 0xeb11,
+            [(GrowingShutterAction.Grow, VerticalDirection.Up)] = 0xec13,
+        });
 
     /// <summary>
     /// The routine word of the vertical shutter's initial dispatch, which calls its trigger mode's entry every update

@@ -44,7 +44,7 @@ internal static class MaridiaPuyoPileVerification
             for (int i = 0; i < population.Length; i++)
             {
                 var state = enemies.PuyoStates[i];
-                if (firstHop[i] < 0 && (state ?? throw new InvalidOperationException("Verification requires state.")).Action == PuyoAction.Airborne) firstHop[i] = frame;
+                if (firstHop[i] < 0 && (state ?? throw new InvalidOperationException("Verification requires state.")).Action != PuyoAction.Grounded) firstHop[i] = frame;
                 if (frame <= population[i].Delay)
                 {
                     AssertEqual(PuyoAction.Grounded, (state ?? throw new InvalidOperationException("Verification requires state.")).Action, "native cooldown holds pile member grounded");

@@ -12,9 +12,9 @@ internal static class GrowingShutterSectionOriginsVerification
     /// </summary>
     internal static void VerifyGrowingShutterSectionOrigins()
     {
-        var state = new GrowingShutterEnemyState(GrowingShutterAction.WaitToGrowUpForTimer, spawnY: 0x0200, VerticalDirection.Up);
+        var state = new GrowingShutterEnemyState(GrowingShutterAction.WaitForTimer, spawnY: 0x0200, VerticalDirection.Up);
         AssertEqual(0x0200 - 24, state.SectionOriginY(3), "the fourth section sits 24 pixels above the spawn row");
-        state = new GrowingShutterEnemyState(GrowingShutterAction.WaitToGrowDownForTimer, spawnY: 296, VerticalDirection.Down);
+        state = new GrowingShutterEnemyState(GrowingShutterAction.WaitForTimer, spawnY: 296, VerticalDirection.Down);
         AssertEqual(296 + 24, state.SectionOriginY(3), "a downward shutter's fourth section sits 24 pixels below the spawn row");
         Console.WriteLine("Growing shutter section origins: a shutter stacks its sections from its spawn the way it grows.");
     }

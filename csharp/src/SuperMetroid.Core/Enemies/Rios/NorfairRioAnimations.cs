@@ -41,7 +41,7 @@ internal static class NorfairRioAnimations
         [P.Descending] =
         [
             Cue(new NorfairRioCue.PlaceFlames(-12, NorfairRioFlames.Descending)),
-            Show(EnemyFrameId.NorfairRioDiving, FlameFlickerUpdates),
+            Hold(EnemyFrameId.NorfairRioDiving),
         ],
         [P.StartAscending] =
         [
@@ -66,7 +66,7 @@ internal static class NorfairRioAnimations
         [P.Ascending] =
         [
             Cue(new NorfairRioCue.PlaceFlames(12, NorfairRioFlames.Ascending)),
-            Show(EnemyFrameId.NorfairRioClimbing, FlameFlickerUpdates),
+            Hold(EnemyFrameId.NorfairRioClimbing),
         ],
         [P.FlamesAscending] =
         [
@@ -84,14 +84,18 @@ internal static class NorfairRioAnimations
         ],
     });
 
-    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    /// <summary>
+    /// The animation that starts at each segment an owner can start or restart at. The dive and the climb place their flames
+    /// and hold their one pose (#2512): only those placements move the flames, so placing them again each time the pose
+    /// showed again would change nothing.
+    /// </summary>
     internal static IReadOnlyDictionary<NorfairRioSegment, Animation<NorfairRioSegment>> StartingAt { get; } = new Dictionary<NorfairRioSegment, Animation<NorfairRioSegment>>
     {
         [P.Idle] = Animation<NorfairRioSegment>.Looping([Segments.Whole(P.Idle)]),
         [P.StartDescending] = new([Segments.Whole(P.StartDescending)], AnimationEnd.Holds),
-        [P.Descending] = Animation<NorfairRioSegment>.Looping([Segments.Whole(P.Descending)]),
+        [P.Descending] = new([Segments.Whole(P.Descending)], AnimationEnd.Holds),
         [P.StartAscending] = new([Segments.Whole(P.StartAscending)], AnimationEnd.Holds),
-        [P.Ascending] = Animation<NorfairRioSegment>.Looping([Segments.Whole(P.Ascending)]),
+        [P.Ascending] = new([Segments.Whole(P.Ascending)], AnimationEnd.Holds),
         [P.FlamesAscending] = Animation<NorfairRioSegment>.Looping([Segments.Whole(P.FlamesAscending)]),
         [P.FlamesDescending] = Animation<NorfairRioSegment>.Looping([Segments.Whole(P.FlamesDescending)]),
     };
@@ -99,14 +103,11 @@ internal static class NorfairRioAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<NorfairRioSegment> StartingWith(NorfairRioSegment segment) => StartingAt[segment];
 
-    /// <summary>
-    /// The updates of one flicker of the Rio's flames, large, medium, small and medium again (#2451): a dive or a climb holds
-    /// its one pose that long before it places its flames again.
-    /// </summary>
-    private const int FlameFlickerUpdates = 25;
-
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, NorfairRioCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NorfairRioCue>.Frame(frame, duration);
+
+    /// <summary>Shows <paramref name="frame"/> for good: a still picture rests on it until its owner plays another.</summary>
+    private static AnimationBeat<EnemyFrameId, NorfairRioCue> Hold(EnemyFrameId frame) => new AnimationBeat<EnemyFrameId, NorfairRioCue>.HeldFrame(frame);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
     private static AnimationBeat<EnemyFrameId, NorfairRioCue> Cue(NorfairRioCue cue) => new AnimationBeat<EnemyFrameId, NorfairRioCue>.Event(cue);

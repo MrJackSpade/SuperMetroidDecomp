@@ -16,14 +16,18 @@ internal static class RioNativeListAddresses
     /// <summary>Each typed program's native entry point, in authored order.</summary>
     internal static readonly NativeProgramEntry<RioSegment>[] Entries =
     [
-        new NativeProgramEntry<RioSegment>(RioSegment.Idle, 0xbb4b),
-        new NativeProgramEntry<RioSegment>(RioSegment.PostSwoopIdle, 0xbb53),
-        // The post-swoop list writes its tucked wingbeat out three times and then its hanging wingbeat twice (#2451).
+        // The idle's list shows one tucked wingbeat and runs on into the post-swoop list, which writes the same wingbeat out
+        // three times and then its hanging wingbeat twice (#2451, #2512).
+        new NativeProgramEntry<RioSegment>(RioSegment.TuckedWingbeat, 0xbb4b),
+        new NativeProgramEntry<RioSegment>(RioSegment.TuckedWingbeat, PostSwoopHoverEntry),
         new NativeProgramEntry<RioSegment>(RioSegment.HangingWingbeat, 0xbb6b),
         new NativeProgramEntry<RioSegment>(RioSegment.SwoopOpening, 0xbb7f),
         new NativeProgramEntry<RioSegment>(RioSegment.SwoopLoop, 0xbb97),
         new NativeProgramEntry<RioSegment>(RioSegment.SwoopCooldown, 0xbba3),
     ];
+
+    /// <summary>The post-swoop list's entry, where the hover a swoop ends in starts (#2512).</summary>
+    internal const ushort PostSwoopHoverEntry = 0xbb53;
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
     internal static readonly Dictionary<ushort, RioNativeListAddressesInstruction> Instructions = new()

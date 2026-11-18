@@ -35,8 +35,8 @@ public sealed class GrowingShutterEnemyState
     internal AnimationPlayback<ShutterSegment> Playback { get; set; }
 
     /// <summary>
-    /// The current behaviour; initialization selects a wait action and activation replaces it with a growth
-    /// action.
+    /// The current behaviour; initialization selects a wait action and activation replaces it with growth, which grows
+    /// the shutter the way <see cref="Growth"/> says (#2512).
     /// </summary>
     public GrowingShutterAction Action { get; internal set; }
 
@@ -63,12 +63,6 @@ public sealed class GrowingShutterEnemyState
         get;
         internal set => field = Ensure.BetweenInclusive(0, SectionCount, value);
     }
-
-    /// <summary>
-    /// The shutter's whole-pixel row immediately before its current upward move, used to derive Samus's carry (#2178): it
-    /// only ever moves vertically.
-    /// </summary>
-    public int PreviousY { get; internal set; }
 
     /// <summary>Whether every section has grown (#2182): the shutter grows no further.</summary>
     internal bool IsFullyGrown => GrowthLevel == SectionCount;

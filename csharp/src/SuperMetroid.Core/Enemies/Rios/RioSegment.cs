@@ -1,20 +1,16 @@
 namespace SuperMetroid.Core.Enemies.Rios;
 
 /// <summary>
-/// The Rio's idle, swoop and cooldown animations (#641): one segment per animation a spawn, branch or wake enters, in authored order.
-/// Their steps are <see cref="RioAnimations"/>.
+/// The Rio's idle, swoop and cooldown animations (#641): the wingbeats its hover plays and one segment per swoop animation a
+/// branch enters, in authored order. Their steps are <see cref="RioAnimations"/>.
 /// </summary>
 internal enum RioSegment
 {
     /// <summary>
-    /// Hovering: one wingbeat with its legs tucked, before the hover a swoop ends in, which the idle repeats (#2451).
+    /// A wingbeat with its legs tucked (#2451, #2512): the idle starts with one, and the hover, which the idle runs on into
+    /// and a swoop ends in, plays it three times before its legs hang.
     /// </summary>
-    Idle,
-    /// <summary>
-    /// Hovering after a swoop: a wingbeat with its legs tucked, which the hover plays three times before its legs hang
-    /// (#2451).
-    /// </summary>
-    PostSwoopIdle,
+    TuckedWingbeat,
     /// <summary>
     /// The hover's wingbeat with its legs hanging, which it plays twice before the idle starts again (#2451).
     /// </summary>

@@ -7,12 +7,10 @@ internal static class WreckedShipGhostOwnedStateVerification
 {
     /// <summary>
     /// Confirms a ghost's flicker steps run from the first through each timing in order and end after the last (#2451),
-    /// and that a new ghost starts at the first step.
+    /// each step carrying its own timing and the step after it (#2512).
     /// </summary>
     internal static void VerifyWreckedShipGhostOwnedState()
     {
-        var state = new WreckedShipGhostEnemyState(WreckedShipGhostAction.InitialInvisibleDelay);
-        AssertEqual(WreckedShipGhostFlickerStep.First, state.NextFlickerStep, "a new ghost's next flicker step is the first");
         IReadOnlyList<WreckedShipGhostFlickerTiming> timings = WreckedShipGhostAppearanceDefinitions.FlickerTimings;
         WreckedShipGhostFlickerStep? step = WreckedShipGhostFlickerStep.First;
         for (int position = 0; position < timings.Count; position++)

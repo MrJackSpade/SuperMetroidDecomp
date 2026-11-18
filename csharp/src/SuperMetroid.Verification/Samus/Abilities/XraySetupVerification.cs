@@ -75,7 +75,7 @@ internal static class XraySetupVerification
                 room.State.XrayOverlay, scroll.ForegroundPosition, visuals);
             return [.. built.Blocks];
         }
-        XrayRevealPlane Shown() => runtime.Display.Latched.XrayReveal ?? throw new InvalidOperationException("X-ray setup's reveal is not displayed.");
+        XrayRevealPlane Shown() => runtime.Display.LatchedOrdinaryRoom.XrayReveal ?? throw new InvalidOperationException("X-ray setup's reveal is not displayed.");
         RevealedBlock?[] expected = Expected();
         AssertTrue(expected.SequenceEqual(XrayRevealFixtures.Shown(Shown())), "the shown reveal is built from the foreground the room shows and its overlays");
         AssertTrue(expected.Contains(Marker(2)), "the reveal copies the level data the frame shows");
@@ -99,7 +99,7 @@ internal static class XraySetupVerification
         // Each revealed block draws from the picture the room's own foreground draws for that block (#1392), laid out as the
         // reveal placed it.
         XrayRevealPlane shown = Shown();
-        RoomBackgrounds rooms = runtime.Display.Latched.Rooms ?? throw new InvalidOperationException("X-ray setup displays no room.");
+        RoomBackgrounds rooms = runtime.Display.LatchedOrdinaryRoom.Rooms;
         AssertTrue(ReferenceEquals(rooms.Foreground.Pictures, shown.Pictures), "the reveal draws its blocks from the pictures the room's foreground draws");
         for (int frame = 0; frame < 8; frame++) runtime.StepFrame(0);
         AssertTrue(!samus.Xray.IsActive, "setup fixture tears down normally");

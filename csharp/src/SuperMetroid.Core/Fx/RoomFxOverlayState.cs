@@ -34,12 +34,6 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     public FirefleaFxState? Fireflea { get; private set; }
 
     /// <summary>
-    /// The shade Fireflea darkness subtracts from this room (<see cref="FirefleaFxState.Tint"/>), or null when the room's
-    /// effect is not Fireflea darkness. No other room shows it.
-    /// </summary>
-    public RgbColor? FirefleaTint => Fireflea?.Tint;
-
-    /// <summary>
     /// Whether the room's last applied effect animates Samus's visor (<see cref="RoomEffectDefinition.VisorAnimation"/>):
     /// selected when the room loads, steady for a room with no effect, and replaced when a fight applies another effect.
     /// </summary>

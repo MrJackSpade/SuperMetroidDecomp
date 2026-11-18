@@ -27,7 +27,7 @@ internal static class OceanSkyVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.WestOcean, camera: new Position16<RoomPixels>(128, 768));
         // Capture consumes the accepted NMI's register snapshot, not the room's mutable scroll state.
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        var scene = GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame());
+        var scene = runtime.PublishDisplayFrame().OrdinaryBaseScene;
         var ordinary = (GameplaySceneLayer)scene.Layers[0];
         Console.WriteLine($"Ocean room: main={runtime.Room.LoadedRoom.State.MainBehavior}, sky={runtime.Room.ScrollingSky is not null}");
 

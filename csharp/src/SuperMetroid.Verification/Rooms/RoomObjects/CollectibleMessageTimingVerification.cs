@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Backgrounds;
@@ -46,10 +47,9 @@ internal static class CollectibleMessageTimingVerification
         // BG1 (#1346, #1431).
         (RoomBlockCell Cell, LayeredPicture? Picture) ShownBlock()
         {
-            RoomBackgroundLayer bg1 = (runtime.Display.Latched.Rooms ?? throw new InvalidOperationException(
-                "The displayed frame has no room backgrounds.")).Foreground;
+            RoomBackgroundLayer bg1 = runtime.Display.LatchedOrdinaryRoom.Rooms.Foreground;
             RoomBlockCell cell = bg1.Blocks.Cells[itemIndex];
-            return (cell, bg1.Pictures?.Picture(cell.Picture));
+            return (cell, bg1.Pictures.Picture(cell.Picture));
         }
         ushort[] HudWords() => runtime.Hud.TileWords(runtime.InstalledHudArtwork).WhereToArray((_, index) => index % 32 < 26);
         // The displayed HUD is the one the last accepted NMI latched, laid out as tilemap words below its static top row;

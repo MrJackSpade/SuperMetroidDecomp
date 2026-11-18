@@ -124,8 +124,7 @@ internal static class RoomBackgroundsVerification
             runtime.LoadCartridgeRoomForDebug(room, new Position16<RoomPixels>(0, 0x30));
             runtime.FrameBoundary.BeginAcceptedFrame(0);
             runtime.PublishDisplayFrame();
-            RoomBackgrounds published = runtime.Display.Latched.Rooms
-                ?? throw new InvalidOperationException("A loaded room publishes its backgrounds.");
+            RoomBackgrounds published = runtime.Display.LatchedOrdinaryRoom.Rooms;
             RoomLevelData level = runtime.Room.LoadedLevelData;
             AssertTrue(ReferenceEquals(level.ForegroundPlane.Cells, published.Foreground.Blocks), $"{room.Name} BG1 is the room's foreground plane");
             AssertEqual(streams, published.Background is not null, $"{room.Name} BG2 comes from level data only when layer 2 streams");

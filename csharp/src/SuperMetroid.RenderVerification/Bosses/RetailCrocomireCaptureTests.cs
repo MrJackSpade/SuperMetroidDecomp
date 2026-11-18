@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rendering;
@@ -41,7 +42,7 @@ internal static class RetailCrocomireCaptureTests
             Position16<RoomPixels> previousPlacement = boss.Body.Position.Whole;
             runtime.StepFrame(0);
             GameplayDisplayFrame published = runtime.PublishDisplayFrame();
-            if (published.Latched.Bosses.Placement != previousPlacement)
+            if (published.OrdinaryLatch.Bosses.Placement != previousPlacement)
                 throw new InvalidOperationException($"Crocomire's body placement was not published by the following frame boundary at tick {tick}.");
             if (previousPlacement != boss.Body.Position.Whole) latchedScrollChanges++;
             var scene = GameplayDisplayCapture.Capture(published);
@@ -69,7 +70,7 @@ internal static class RetailCrocomireCaptureTests
             bool changed = phases.Add(boss.DeathPhase);
             // The melt shows its stretch once some gameplay line of his body layer scrolls differently from the first (#1468).
             bool nonuniform = shouldMelt && Enumerable.Range(ScreenGeometry.GameplayHudHeightPixels, BackgroundLineScrolls.GameplayLines)
-                .Select(line => ScrollShapeLines.StretchScroll(BossLineScrolls.Of(death.MeltDistortion, runtime.Display.Latched.Scrolls.ForegroundPosition), line)).Distinct().Count() > 1;
+                .Select(line => ScrollShapeLines.StretchScroll(BossLineScrolls.Of(death.MeltDistortion, runtime.Display.LatchedRoomFrame.Scrolls.ForegroundPosition), line)).Distinct().Count() > 1;
             bool firstDistortion = nonuniform && !distorted;
             distorted |= nonuniform;
             complete = boss.DeathPhase == CrocomireDeathPhase.InertCorpse;

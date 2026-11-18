@@ -8,38 +8,15 @@ namespace SuperMetroid.Core.Gameplay;
 internal sealed class GameplayDisplayState
 {
     /// <summary>
-    /// The Ceres elevator shaft's current turning floor. The shaft room main publishes it after the
-    /// drawing pass, and sprite producers use it only while calculating their temporary
-    /// rendered origins. The consumer never moves physical coordinates.
+    /// The Ceres elevator shaft's current turning floor. The shaft's door shows it as the room loads and the shaft room
+    /// main publishes it after the drawing pass; sprite producers use it only while calculating their temporary rendered
+    /// origins, and the next frame boundary shows it. The consumer never moves physical coordinates.
     /// </summary>
     public TurningFloorTransform? ActiveTurningFloor { get; set; }
 
     /// <summary>
-    /// The scene the most recent shown (or loading) frame shows. An update without a frame boundary leaves it unchanged. Door setup
-    /// that shows the elevator shaft's floor before the room becomes visible updates it through
-    /// <see cref="PublishDoorElevatorFloor"/>.
+    /// The scene the most recent shown (or loading) frame shows, which only the frame boundary latches (#2498). An update
+    /// without a frame boundary leaves it unchanged; before any frame boundary it shows no room.
     /// </summary>
-    public GameplayDisplayLatch Latched { get; internal set; } = InitialLatch;
-
-
-    /// <summary>
-    /// Door setup shows the elevator shaft's floor before the room is exposed, or removes it,
-    /// scrolled with the latched foreground scroll. A getaway floor already latched stays, as it takes
-    /// precedence over the shaft's. Later room-main changes reach the display only through the frame latch.
-    /// </summary>
-    /// <param name="transform">The shaft's transform, or null to remove the floor.</param>
-    internal void PublishDoorElevatorFloor(TurningFloorTransform? transform) =>
-        Latched = Latched with
-        {
-            PerspectiveFloor = Latched.PerspectiveFloor is { Below: BelowPerspectiveFloor.RoomBackground } getaway ? getaway
-                : transform is { } shaft ? CeresPerspectiveFloors.ElevatorShaft(shaft, Latched.Scrolls.ForegroundScroll)
-                : null,
-        };
-
-    /// <summary>The latch in effect before any accepted frame: nothing scrolled, no floor and no active effects.</summary>
-    private static GameplayDisplayLatch InitialLatch => new(
-        default, default, null, null, null, null, null,
-        new GameplayLatchedScene(default,
-            null, null, null, null),
-        default, default, null, null);
+    public GameplayDisplayLatch Latched { get; internal set; } = LatchBeforeFirstRoom.NothingLatched;
 }

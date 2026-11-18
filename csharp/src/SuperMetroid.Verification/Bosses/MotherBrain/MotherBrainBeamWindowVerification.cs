@@ -64,16 +64,23 @@ internal static class MotherBrainBeamWindowVerification
         AssertEqual(31, beam.Color, "past the cycle's end the beam starts over at colour zero");
         Step();
         AssertEqual(992, beam.Color, "colour zero does not repeat: the next update shows colour one (#2251)");
+        // The frame boundary latches the beam's colour with the rest of the frame (#2498).
+        beam.LatchDisplay();
         MotherBrainRainbowBeamRenderSnapshot snapshot = beam.RenderSnapshot
             ?? throw new InvalidOperationException("The shown beam publishes its cone.");
         AssertEqual(new MotherBrainRainbowBeamRenderSnapshot(beam.Color, new(new(114, 100), new TrigonometryAngle(32), new TrigonometryAngle(96))), snapshot,
-            "the shown beam publishes its colour and cone by value");
+            "the shown beam publishes its latched colour and cone by value");
         ColourAddWindowLayer capture = GameplayEffectCapture.CaptureMotherBrainRainbowBeam(snapshot, default);
         AssertEqual(snapshot.Color, capture.Colour, "the captured layer adds the beam's colour");
         _ = GameplayEffectCapture.CaptureMotherBrainRainbowBeam(snapshot, default);
         AssertEqual(snapshot.Color, beam.Color, "repainting cannot advance beam simulation");
         Step();
         AssertEqual(31, beam.Color, "the update after the repaints shows the cycle's next colour");
+        AssertEqual(snapshot.Color, (beam.RenderSnapshot ?? throw new InvalidOperationException("The shown beam publishes its cone.")).Color,
+            "the update's colour reaches the screen only at the next frame boundary");
+        beam.LatchDisplay();
+        AssertEqual(beam.Color, (beam.RenderSnapshot ?? throw new InvalidOperationException("The shown beam publishes its cone.")).Color,
+            "the next frame boundary shows the update's colour");
         beam.Hide();
         AssertTrue(beam.RenderSnapshot is null, "a hidden beam shows nothing");
         Step();

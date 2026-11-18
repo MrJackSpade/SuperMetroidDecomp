@@ -283,7 +283,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         {
             if (planes[slot] is not { } layer)
                 continue;
-            RoomBlockPictureTable table = layer.Pictures ?? throw new InvalidOperationException("A room plane is drawn once its pictures are resolved.");
+            RoomBlockPictureTable table = layer.Pictures;
             pictureTables[slot] = words;
             words += TableEntries(table) * PartWords;
         }
@@ -360,7 +360,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             upload[record + 3] = unchecked((ushort)origin.X);
             upload[record + 4] = unchecked((ushort)origin.Y);
             upload[record + 5] = (uint)pictureTables[slot];
-            RoomBlockPictureTable table = layer.Pictures ?? throw new InvalidOperationException("A room plane is drawn once its pictures are resolved.");
+            RoomBlockPictureTable table = layer.Pictures;
             int entries = TableEntries(table);
             for (int entry = 0; entry < entries; entry++)
                 PackParts(upload, pictureTables[slot] + entry * PartWords, table.Picture(EntryPicture(table, entry)), PlaneColouring(slot), pictureWords);

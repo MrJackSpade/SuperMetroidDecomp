@@ -50,7 +50,7 @@ internal static class EscapeRoomEffectsVerification
             offsets.Add(new OctantVector(shake.Foreground.X, shake.Foreground.Y));
             if (frame % 10 == 9)
             {
-                var capture = GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame());
+                var capture = runtime.PublishDisplayFrame().OrdinaryBaseScene;
                 var layer = (GameplaySceneLayer)capture.Layers[0];
                 var actual = DisplayRendering.Render(capture);
                 var noObjects = new GameplaySceneLayer(layer.View with

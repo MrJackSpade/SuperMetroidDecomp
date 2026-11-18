@@ -34,8 +34,18 @@ public sealed class BackgroundScrollState
     /// </summary>
     public Offset16<RoomPixels> ForegroundScroll { get; private set; }
 
-    /// <summary>The background pixel the background's view starts at: its position at the last scroll calculation.</summary>
-    public Position16<BackgroundPixels> BackgroundScroll { get; private set; }
+    /// <summary>
+    /// The background pixel the background's view starts at: its position at the last scroll calculation, as a signed
+    /// position (#2305, #2498): a view left of or above the background's origin, as a door's opening view or a fixed axis
+    /// held there, is negative.
+    /// </summary>
+    /// <remarks>
+    /// The position's wrap past the origin is not load-bearing: nothing reads the background's position but its views and the
+    /// door's opening scroll, which moves it a few pixels at a time, and it stays within a room's few screens of the origin,
+    /// so a position that has wrapped past the background's top or left edge lies a small negative distance from the origin.
+    /// The view takes it signed once, where it is set.
+    /// </remarks>
+    public Offset16<BackgroundPixels> BackgroundScroll { get; private set; }
 
     /// <summary>
     /// Shifts the foreground's view <paramref name="rows"/> rows down from the camera's row without moving the camera (a room
@@ -52,7 +62,7 @@ public sealed class BackgroundScrollState
     public void BeginDoorOpeningViews(Position16<RoomPixels> openingForeground)
     {
         ForegroundScroll = SignedView(openingForeground);
-        BackgroundScroll = new Position16<BackgroundPixels>(openingForeground.X, openingForeground.Y);
+        BackgroundScroll = Offset16<BackgroundPixels>.Wrapped(openingForeground.X, openingForeground.Y);
     }
 
     /// <summary>
@@ -97,13 +107,13 @@ public sealed class BackgroundScrollState
         if (BackgroundScrollModes.Horizontal.BackgroundPositionFor(ForegroundPosition.X) is int backgroundX)
         {
             BackgroundPosition = BackgroundPosition.WithX(backgroundX);
-            BackgroundScroll = BackgroundScroll.WithX(backgroundX);
+            BackgroundScroll = BackgroundScroll.WithX(CoordinateAxis.AsSigned(backgroundX));
         }
 
         if (BackgroundScrollModes.Vertical.BackgroundPositionFor(ForegroundPosition.Y) is int backgroundY)
         {
             BackgroundPosition = BackgroundPosition.WithY(backgroundY);
-            BackgroundScroll = BackgroundScroll.WithY(backgroundY);
+            BackgroundScroll = BackgroundScroll.WithY(CoordinateAxis.AsSigned(backgroundY));
         }
     }
 
@@ -114,7 +124,7 @@ public sealed class BackgroundScrollState
     public void CalculateLayerScrolls()
     {
         ForegroundScroll = SignedView(ForegroundPosition);
-        BackgroundScroll = BackgroundPosition;
+        BackgroundScroll = Offset16<BackgroundPixels>.Wrapped(BackgroundPosition.X, BackgroundPosition.Y);
     }
 
     /// <summary>

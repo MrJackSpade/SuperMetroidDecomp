@@ -13,6 +13,7 @@ using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.Enemies.MorphBallEye;
 
 namespace SuperMetroid.Core.World;
 
@@ -31,11 +32,6 @@ internal sealed class AcceptedFrameBoundary
     /// <summary>Sprite frame made visible at each frame boundary.</summary>
     private readonly SpriteFrameBuffer _displayedSprites;
 
-    /// <summary>
-    /// The loading or loaded room's enemy displays, whose bosses the publication latches; null before the gameplay
-    /// runtime's first room, when no enemy is displayed.
-    /// </summary>
-    private IEnemyDisplaySources? Displays => _room.Enemies?.DisplaySources;
     /// <summary>The layers shown, latched with the accepted frame.</summary>
     private readonly GameplayScreenLayers _screenLayers;
     /// <summary>Sprite frame the update finalized for the next frame boundary.</summary>
@@ -92,8 +88,8 @@ internal sealed class AcceptedFrameBoundary
     internal void PublishWhileLoading() => PublishAcceptedFrame();
 
     /// <summary>
-    /// Latches what the frame shows: its finished sprites, its shown layers, the views' scrolls, the room's effects, the
-    /// bosses' displays and the room's planes with their pictures.
+    /// Latches what the frame shows, every picture resolved as it is latched (#2498): its finished sprites, its shown
+    /// layers, the HUD, and once a room is loaded the room's frame as the kind of frame the room shows.
     /// </summary>
     private void PublishAcceptedFrame()
     {
@@ -101,125 +97,126 @@ internal sealed class AcceptedFrameBoundary
         // sees one coherent frame instead of combining old sprites with a newer room main's turning floor.
         _displayedSprites.LatchFrom(_sprites);
         _screenLayers.Latch();
-        var displayScroll = new GameplayRenderSnapshot(
+        // The HUD's images as gameplay last placed them, which this frame boundary shows.
+        ShownHud hud = _hud.Shown();
+        // Before the first room no room shows, and no room's effect has a display of its own to latch.
+        _display.Latched = _room.Scope is { } scope ? LatchRoomFrame(scope, hud) : new LatchBeforeFirstRoom(hud);
+    }
+
+    /// <summary>
+    /// The frame of the loaded room (#2498): the effects that keep their own displayed state latch it, then the views'
+    /// scrolls, the room effect's state, the Morph Ball eye's beam, the HUD's pictures and the glows' tints are latched
+    /// with the room as it shows: as a Ceres perspective floor while one shows, otherwise as its ordinary layers.
+    /// </summary>
+    /// <param name="scope">The loaded room.</param>
+    /// <param name="hud">The HUD's images this frame boundary shows.</param>
+    private RoomFrameLatch LatchRoomFrame(RoomScope scope, ShownHud hud)
+    {
+        IEnemyDisplaySources displays = scope.Enemies.DisplaySources;
+        var scrolls = new GameplayRenderSnapshot(
             _backgroundScroll.ForegroundPosition,
             _backgroundScroll.ForegroundScroll,
             _backgroundScroll.BackgroundScroll,
-            // Before the first room no enemy earthquake shakes the room.
-            _room.Enemies?.Earthquake.LastRoomShake ?? default);
-        RoomFxOverlayRenderSnapshot? roomFxOverlay = _room.FxOverlay?.CaptureForDisplay();
-        Displays?.Phantoon?.BodyWave.LatchDisplay();
-        if (Displays?.Phantoon is { } phantoonDisplay)
+            scope.Enemies.Earthquake.LastRoomShake);
+        RoomFxOverlayRenderSnapshot? roomFxOverlay = scope.FxOverlay.CaptureForDisplay();
+        // Phantoon's wave and visibility, the statues' descent and the rainbow beam's colour latch with the rest of the
+        // frame, whatever kind of frame the room shows.
+        displays.Phantoon?.BodyWave.LatchDisplay();
+        if (displays.Phantoon is { } phantoonDisplay)
             phantoonDisplay.BodyVisibility.LatchDisplay(phantoonDisplay.Death.PixelationSize);
-        _room.TourianStatues?.LatchDisplay();
-        GameplayLatchedScene scene = CaptureScene();
-        XrayRevealedBlocks? reveal = CaptureXrayReveal(scene);
-        _display.Latched = new GameplayDisplayLatch(
-            displayScroll,
-            _screenLayers.Displayed,
-            CapturePerspectiveFloor(displayScroll.ForegroundScroll),
-            roomFxOverlay,
-            // Before the first room no eye beam is shown.
-            _room.Enemies?.DisplaySources.MorphBallEyeBeam.LatchDisplay(),
-            Displays?.Phantoon is { } phantoon ? PhantoonDisplaySnapshot.Capture(phantoon) : null,
-            // Only the statue room has statues, so only its frames carry a descent (#2385), and before the first room none
-            // does. The descent stops at its authored distance, which holds the offset between minus that distance and zero
-            // (#1627).
-            _room.TourianStatues?.DisplayedVerticalOffset,
-            scene,
-            CaptureBossBody(),
-            CaptureTints(),
-            // The reveal and the room's planes are drawn once this frame boundary's pictures are bound (WithBlockPictures).
-            null,
-            CaptureRoomBackgrounds(),
-            _room.Scope is null ? null : CaptureFxOverlayPlane(),
-            // The HUD's images as gameplay last placed them, which this frame boundary shows.
-            _hud.Shown());
-        // The planes' blocks show the pictures named by what gameplay has shown so far (#1392, #1466).
-        if (_display.Latched.Rooms is { } rooms)
-            _display.Latched = WithBlockPictures(_display.Latched, rooms, reveal);
-    }
-
-    /// <summary>
-    /// The room's part of the scene: the room's blending, and the sky's background map and vertical scroll.
-    /// </summary>
-    private GameplayLatchedScene CaptureScene()
-    {
-        var room = _room.ActiveRoom;
-        return new(
-            // Before the first room no room effect is chosen and no effect blends.
-            _room.FxOverlay?.Type ?? RoomFxType.None,
-            _room.FxOverlay?.Blend,
-            LatchedScrollingSky.Capture(_room.ScrollingSky),
-            room?.Definition,
-            // Before the first room no boss is loaded.
-            _room.Enemies?.RoomStatus.Boss);
-    }
-
-    /// <summary>
-    /// The Ceres perspective floor this frame shows: the floor Ceres Ridley's getaway flies over while he flies it (his
-    /// room main computes it), with the chamber's walls around it (#1545), otherwise the elevator shaft's while the shaft has its transform. The
-    /// shaft's transform exists exactly while the room was entered through the shaft's door.
-    /// </summary>
-    /// <param name="foregroundScroll">The foreground's scroll this frame shows, which scrolls the shaft's floor.</param>
-    private PerspectiveFloor? CapturePerspectiveFloor(Offset16<RoomPixels> foregroundScroll) =>
-        Displays is { } displays && displays.CeresGetawayFloor is { } ridley
-            ? CeresPerspectiveFloors.RidleyGetaway(ridley, displays.CeresGetawayChamberWalls)
-        : _display.ActiveTurningFloor is { } shaft ? CeresPerspectiveFloors.ElevatorShaft(shaft, foregroundScroll)
-        : null;
-
-    /// <summary>
-    /// The body a boss shows (#1352-#1356, #1466, #2031): its parts, where its boss places it as the frame ends, and whether
-    /// it shows this frame.
-    /// </summary>
-    private GameplayLatchedBossBody CaptureBossBody() =>
-        new(Displays?.BossBody, Displays?.BossBodyPlacement, Displays?.BossBodyHidden ?? false);
-
-    /// <summary>
-    /// The room backgrounds this frame boundary displays (#1346, #1555): foreground from the level plane, background from the
-    /// background plane when the room state shows its level background (otherwise the background shows what its owner places there), the source screen of a
-    /// door's opening scroll, and the text shown over the foreground. The planes are shared until gameplay changes level data.
-    /// </summary>
-    private RoomBackgrounds? CaptureRoomBackgrounds()
-    {
-        // Before the first room no background is shown.
-        if (_room.Scope is not { } scope)
-            return null;
-        RoomLevelData level = scope.LevelData;
-        BackgroundScrollModes backgroundModes = _backgroundScroll.BackgroundScrollModes;
-        // Each plane's pictures are resolved once this frame boundary's pictures are bound (WithBlockPictures).
-        return new RoomBackgrounds(
-            new RoomBackgroundLayer(level.ForegroundPlane.Cells, null),
-            backgroundModes.Source == RoomBackgroundSource.Level
-                ? new RoomBackgroundLayer(level.BackgroundPlane.Cells, null)
-                : null,
-            null,
-            _room.DoorSourceBackground,
-            // The text shown over the foreground and the background is drawn once this frame boundary's pictures are bound (WithBlockPictures).
-            null,
-            Floor: scope.Floor?.Publish());
-    }
-
-    /// <summary>
-    /// <paramref name="latched"/> with <paramref name="rooms"/>' foreground and the background planes, and the X-ray reveal showing
-    /// <paramref name="reveal"/>'s blocks (#1431), showing the pictures their blocks show for the values the room's
-    /// appearance inputs take now (#1392, #1466).
-    /// </summary>
-    private GameplayDisplayLatch WithBlockPictures(GameplayDisplayLatch latched, RoomBackgrounds rooms, XrayRevealedBlocks? reveal)
-    {
-        // While a Ceres room shows its turning floor, the floor draws its installed pictures (#1467); Ceres Ridley's getaway
-        // shows its warning over the arena once his floor ends.
-        RoomScope scope = _room.Scope ?? throw new InvalidOperationException("Room backgrounds were captured with no room loaded.");
+        scope.TourianStatues?.LatchDisplay();
+        displays.MotherBrain?.RainbowBeam.LatchDisplay();
+        MorphBallEyeBeamCone? eyeBeam = displays.MorphBallEyeBeam.LatchDisplay();
+        GameplayLatchedScene scene = CaptureScene(scope);
+        XrayRevealedBlocks? reveal = CaptureXrayReveal(scope, scene);
         // The room's pictures are named by what gameplay showed over its load, the frames its animations selected and, in
         // the Ceres Ridley arena, Ridley's looks (#1466, #1791).
         var appearance = new RoomAppearanceView(scope.Appearance, scope.ArtworkFrames, scope.Looks);
-        // The planes the latch shows are the level data's, which nothing changes before this frame boundary's pictures resolve.
-        // The elevator shaft's screen is its turning floor alone: it draws none of its level's blocks (#1647).
-        RoomBlockPictureTable pictures = scope.Room.State.TurningFloor == RoomTurningFloor.ElevatorShaft
+        RoomLevelData level = scope.LevelData;
+        // The background shows the background plane when the room state shows its level background; otherwise it shows
+        // what its owner places there.
+        RoomLevelPlane? backgroundPlane = _backgroundScroll.BackgroundScrollModes.Source == RoomBackgroundSource.Level
+            ? level.BackgroundPlane
+            : null;
+        RoomBlockPictureTable pictures = BlockPictures(scope, appearance, backgroundPlane, reveal);
+        RoomBackgroundLayer? background = backgroundPlane is { } shownPlane ? new RoomBackgroundLayer(shownPlane.Cells, pictures) : null;
+        // The HUD's images draw from the HUD's own sheet, on the HUD's own layer (#1466, #1731).
+        PicturedHud picturedHud = HudPicturesIn(scope.HudPictures.Sheet).Pictured(hud);
+        // The room effect's liquid or atmosphere draws from the effect overlay sheet's pictures, as the effects' animations
+        // select them; the overlay holds nothing else (#1466, #1706).
+        FxOverlayArtwork fxOverlay = scope.FxOverlayPictures.Resolve(CaptureFxOverlayPlane(), appearance);
+        GameplayLatchedTints tints = CaptureTints(scope);
+        // The floor Ceres Ridley's getaway flies over shows while he flies it (his room main computes it), with the
+        // chamber's walls around it and the room's background in a band below it (#1545).
+        if (displays.CeresGetawayFloor is { } ridley)
+        {
+            return new PerspectiveFloorFrameLatch(hud, picturedHud, scrolls, roomFxOverlay, eyeBeam, tints,
+                CeresPerspectiveFloors.RidleyGetaway(ridley, displays.CeresGetawayChamberWalls), FloorMap(scope), fxOverlay,
+                background ?? throw new InvalidDataException(
+                    $"{scope.Room.Definition.Name} shows its background plane below Ridley's floor, but its state shows no level background."));
+        }
+        // The elevator shaft's floor shows while the shaft has its transform, which exists exactly while the room was
+        // entered through the shaft's door; it fills the gameplay view.
+        if (_display.ActiveTurningFloor is { } shaft)
+        {
+            return new PerspectiveFloorFrameLatch(hud, picturedHud, scrolls, roomFxOverlay, eyeBeam, tints,
+                CeresPerspectiveFloors.ElevatorShaft(shaft, scrolls.ForegroundScroll), FloorMap(scope), fxOverlay, BackgroundBand: null);
+        }
+        GameplayLatchedBossBody bosses = new(displays.BossBody, displays.BossBodyPlacement, displays.BossBodyHidden);
+        return new OrdinaryRoomFrameLatch(hud, picturedHud, scrolls, roomFxOverlay, eyeBeam, tints,
+            _screenLayers.Displayed,
+            RoomBackgroundsOf(scope, appearance, new RoomBackgroundLayer(level.ForegroundPlane.Cells, pictures), background, fxOverlay,
+                bosses.Body),
+            scene,
+            bosses,
+            displays.Phantoon is { } phantoon ? PhantoonDisplaySnapshot.Capture(phantoon) : null,
+            scope.FxOverlay.Fireflea is { } fireflea ? new LatchedFirefleaDarkness(fireflea.Tint) : null,
+            // Only the statue room has statues, so only its frames carry a descent (#2385). The descent stops at its
+            // authored distance, which holds the offset between minus that distance and zero (#1627).
+            scope.TourianStatues?.DisplayedVerticalOffset,
+            reveal is { } revealed ? new XrayRevealPlane(revealed.Origin, revealed.Grid, pictures) : null);
+    }
+
+    /// <summary>The room's part of the scene: the room's blending, the sky's vertical scroll, and the room and its boss.</summary>
+    private static GameplayLatchedScene CaptureScene(RoomScope scope) => new(
+        scope.FxOverlay.Blend,
+        LatchedScrollingSky.Capture(scope.ScrollingSky),
+        scope.Room.Definition,
+        scope.Enemies.RoomStatus.Boss);
+
+    /// <summary>The turning floor a perspective-floor frame of <paramref name="scope"/> shows (#1349, #1467).</summary>
+    /// <exception cref="InvalidDataException">The room shows a perspective floor but has no turning floor.</exception>
+    private static AffineFloor FloorMap(RoomScope scope) => (scope.Floor ?? throw new InvalidDataException(
+        $"{scope.Room.Definition.Name} shows a perspective floor but has no turning floor.")).Publish();
+
+    /// <summary>
+    /// The pictures the room's planes and the X-ray reveal's blocks show for the values the room's appearance inputs take
+    /// now (#1392, #1431, #1466): the foreground's, the background's where <paramref name="backgroundPlane"/> shows, and
+    /// <paramref name="reveal"/>'s. The elevator shaft's screen is its turning floor alone: it draws none of its level's
+    /// blocks (#1647).
+    /// </summary>
+    private static RoomBlockPictureTable BlockPictures(RoomScope scope, RoomAppearanceView appearance, RoomLevelPlane? backgroundPlane,
+        XrayRevealedBlocks? reveal) =>
+        scope.Room.State.TurningFloor == RoomTurningFloor.ElevatorShaft
             ? RoomBlockPictureTable.NoneDrawn(scope.BlockPictures.Sheet)
-            : scope.BlockPictures.Resolve(scope.LevelData.ForegroundPlane,
-                rooms.Background is null ? null : scope.LevelData.BackgroundPlane, appearance,
+            : scope.BlockPictures.Resolve(scope.LevelData.ForegroundPlane, backgroundPlane, appearance,
                 reveal?.Grid.Blocks.OfType<RevealedBlock>().Select(block => block.Picture) ?? []);
+
+    /// <summary>
+    /// The room backgrounds an ordinary frame of <paramref name="scope"/> displays (#1346, #1555): <paramref name="foreground"/>
+    /// and <paramref name="background"/>, the effect overlay's artwork, the source screen of a door's opening scroll, the
+    /// sky's rows, the room's library background, the text an escape shows over either layer, the room's turning floor and
+    /// the boss's body, each with its pictures.
+    /// </summary>
+    /// <param name="scope">The loaded room.</param>
+    /// <param name="appearance">The values the room's appearance inputs take now.</param>
+    /// <param name="foreground">The foreground's level plane with its pictures.</param>
+    /// <param name="background">The background's level plane with its pictures, or null when the background shows a loaded picture.</param>
+    /// <param name="fxOverlay">The effect overlay's artwork.</param>
+    /// <param name="body">The body the room's boss shows, or null.</param>
+    private RoomBackgrounds RoomBackgroundsOf(RoomScope scope, RoomAppearanceView appearance, RoomBackgroundLayer foreground,
+        RoomBackgroundLayer? background, FxOverlayArtwork fxOverlay, BossBodyLayer? body)
+    {
         // A sky room's background shows the sky's rows, drawn from their image (#1392, #1403), once the room has configured the
         // sky's bands; without them, background shows the room's own background.
         SkyPictures? sky = null;
@@ -233,14 +230,12 @@ internal sealed class AcceptedFrameBoundary
         // #1649): not over a room's own background, the sky's rows or a boss body that owns the background. A library
         // background the player sees as something else draws no picture.
         RoomBackgroundImagePlane? image = null;
-        if (rooms.Background is null && sky is null && latched.Bosses.Body is null
-            && scope.BackgroundImage is RoomLibraryBackgroundPicture.Drawn { Image: var background })
+        if (background is null && sky is null && body is null
+            && scope.BackgroundImage is RoomLibraryBackgroundPicture.Drawn { Image: var backgroundImage })
         {
             // The image is one period of what the background shows, as its room shows it, repeated across and down (#1651, #1617).
-            image = background.Resolve(appearance, RoomBackgroundImagePlacement.Whole(background.Image));
+            image = backgroundImage.Resolve(appearance, RoomBackgroundImagePlacement.Whole(backgroundImage.Image));
         }
-        // A boss body shows each part's whole picture (#1466, #1513).
-        ShownBossBody? shownBody = latched.Bosses.Body?.Show();
         // The text an escape shows over a layer, as its sequence describes it (#1555): Zebes's warning over the background, Ceres's
         // over the foreground, each drawn from the written picture sheet's frames for the inputs they depend on (#1466).
         RoomWrittenOverlay zebesWarning = scope.Enemies.DisplaySources.ZebesWarning;
@@ -251,26 +246,9 @@ internal sealed class AcceptedFrameBoundary
         RoomOverlayPictures? foregroundText = ceresWarning.Pictures.IsEmpty ? null
             : new RoomOverlayPictures((scope.ForegroundWrittenPictures ?? throw new InvalidDataException(
                 $"{scope.Room.Definition.Name} shows text over the foreground with no installed written picture sheet.")).Resolve(ceresWarning, appearance));
-        return latched with
-        {
-            Bosses = latched.Bosses with { ShownBody = shownBody },
-            Rooms = rooms with
-            {
-                Foreground = rooms.Foreground with { Pictures = pictures },
-                Background = rooms.Background is { } shownBackground ? shownBackground with { Pictures = pictures } : null,
-                BackgroundImage = image,
-                Sky = sky,
-                BackgroundText = backgroundText,
-                ForegroundText = foregroundText,
-                // The room effect's liquid or atmosphere draws from the effect overlay sheet's pictures, as the effects' animations
-                // select them; the overlay holds nothing else (#1466, #1706).
-                FxOverlay = scope.FxOverlayPictures.Resolve(latched.FxOverlay ?? throw new InvalidOperationException("A room's frame boundary latches its effect overlay plane."),
-                    appearance),
-            },
-            // The HUD's images draw from the HUD's own sheet, on the HUD's own layer (#1466, #1731).
-            PicturedHud = HudPicturesIn(scope.HudPictures.Sheet).Pictured(latched.Hud ?? ShownHud.Nothing),
-            XrayReveal = reveal is { } revealed ? new XrayRevealPlane(revealed.Origin, revealed.Grid, pictures) : null,
-        };
+        // The planes are shared until gameplay changes level data. A boss body shows each part's whole picture (#1466, #1513).
+        return new RoomBackgrounds(foreground, background, fxOverlay, _room.DoorSourceBackground, foregroundText, sky,
+            backgroundText, scope.Floor?.Publish(), body?.Show(), BackgroundImage: image);
     }
 
     /// <summary>The effect overlay plane this frame boundary displays (#1348): the room effect it shows; the HUD is its own layer (#1466).</summary>
@@ -280,26 +258,17 @@ internal sealed class AcceptedFrameBoundary
     private HudPictures HudPicturesIn(SpriteSheet sheet) =>
         _hudPictures is { } shown && ReferenceEquals(shown.Sheet, sheet) ? shown : _hudPictures = new HudPictures(sheet);
 
-    /// <summary>The tints effects chose during the previous update, each from its own effect.</summary>
-    private GameplayLatchedTints CaptureTints()
-    {
-        // Before the first room exists there is no explosion; its colour is black.
-        RgbColor powerBomb = _room.BombProjectiles?.PowerBombExplosion.Blast.GlowColor ?? RgbColor.Black;
-        return new(
-            // Before the first room there is no room effect, so no Fireflea darkness.
-            _room.FxOverlay?.FirefleaTint,
-            powerBomb,
-            _suitPickup.BeamColor,
-            Displays?.MotherBrain?.RainbowBeam.Color);
-    }
+    /// <summary>The tints the glows chose during the previous update, each from its own effect.</summary>
+    private GameplayLatchedTints CaptureTints(RoomScope scope) =>
+        new(scope.BombProjectiles.PowerBombExplosion.Blast.GlowColor, _suitPickup.BeamColor);
 
     /// <summary>
     /// What the X-ray reveals in the frame this boundary shows (#1431, #1514), built from the room as it is now, while
     /// X-ray is active in a room it reveals blocks in; otherwise null, and the background is the room's own.
     /// </summary>
-    private XrayRevealedBlocks? CaptureXrayReveal(GameplayLatchedScene scene) =>
+    private XrayRevealedBlocks? CaptureXrayReveal(RoomScope scope, GameplayLatchedScene scene) =>
         // Where X-ray preserves the backgrounds it reveals no blocks: the pictures are another room's.
-        _player.Samus?.Xray.IsActive == true && scene.Room is { } room && XrayBlockRevealRules.RevealsBlocks(room, scene.Boss)
-            ? _xray.Reveal(_room.Scope ?? throw new InvalidOperationException("The X-ray reveals no loaded room."))
+        _player.Samus?.Xray.IsActive == true && XrayBlockRevealRules.RevealsBlocks(scene.Room, scene.Boss)
+            ? _xray.Reveal(scope)
             : null;
 }

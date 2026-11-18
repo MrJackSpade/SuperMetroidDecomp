@@ -83,7 +83,7 @@ internal static class KraidBodyPublicationVerification
     private static GameplayLatchedBossBody Published(SuperMetroidRuntime runtime)
     {
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        GameplayLatchedBossBody bosses = runtime.Display.Latched.Bosses;
+        GameplayLatchedBossBody bosses = runtime.Display.LatchedOrdinaryRoom.Bosses;
         return bosses.Body is not null && bosses.Placement is not null ? bosses
             : throw new InvalidOperationException("Kraid owning BG2 publishes his body.");
     }

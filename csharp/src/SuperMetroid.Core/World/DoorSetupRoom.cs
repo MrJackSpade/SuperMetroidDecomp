@@ -51,11 +51,7 @@ internal sealed class DoorSetupRoom : IDoorEventRoom
     }
 
     /// <inheritdoc/>
-    public void ShowOrdinaryDisplay()
-    {
-        Display.ActiveTurningFloor = null;
-        Display.PublishDoorElevatorFloor(null);
-    }
+    public void ShowOrdinaryDisplay() => Display.ActiveTurningFloor = null;
 
     /// <inheritdoc/>
     public void StartTreadmillAnimation(WreckedShipTreadmillDirection direction) => BlockAnimations.StartDoorTreadmill(direction);

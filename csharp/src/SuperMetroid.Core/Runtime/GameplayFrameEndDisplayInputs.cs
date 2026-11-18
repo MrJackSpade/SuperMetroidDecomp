@@ -20,7 +20,7 @@ namespace SuperMetroid.Core.Runtime;
 /// <param name="ScrollingSky">The scrolling sky's drifting bands, when the room's sky bands drift.</param>
 /// <param name="CrocomireMelt">How Crocomire's melt sags his body layer (#1468), while it runs.</param>
 /// <param name="MotherBrainAscentShowing">Whether Mother Brain's rising-body display owns the gameplay layers.</param>
-/// <param name="RainbowBeam">The shown rainbow beam's cone, or null while it is hidden; its colour comes from the frame-boundary latch.</param>
+/// <param name="RainbowBeam">The shown rainbow beam's cone in the colour the beam latched at the frame boundary, or null while it is hidden.</param>
 /// <param name="CeresHaze">The Ceres haze's colour gradient down the screen, when the room spawned one.</param>
 /// <param name="CeresHazeTints">The installed tints of the haze gradient, which a haze that shows colours with (#2290).</param>
 /// <param name="PowerBomb">Power-bomb glow window inputs; its glow colour comes from the frame-boundary latch.</param>

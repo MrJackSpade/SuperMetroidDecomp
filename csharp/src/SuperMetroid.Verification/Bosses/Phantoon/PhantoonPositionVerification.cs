@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Gameplay;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Verification.Bosses.MotherBrain;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -70,10 +71,10 @@ internal static class PhantoonPositionVerification
             ushort displayedBodyX = (ushort)(phantoon.Body.Position.X.Whole - runtime.Room.LoadedCamera.PixelPosition.X);
             ushort displayedBodyY = (ushort)(phantoon.Body.Position.Y.Whole - runtime.Room.LoadedCamera.PixelPosition.Y);
             runtime.StepFrame(0);
-            AssertEqual<Position16<RoomPixels>?>(placementBefore, runtime.Display.Latched.Bosses.Placement,
+            AssertEqual<Position16<RoomPixels>?>(placementBefore, runtime.Display.LatchedOrdinaryRoom.Bosses.Placement,
                 $"the accepted frame publishes his body placed where Phantoon lay, frame {frame}");
             if (frame == 0) continue;
-            var layer = (GameplaySceneLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame()).Layers[0];
+            var layer = runtime.PublishDisplayFrame().OrdinaryBase.Room;
             AssertEqual(displayedX, (int)layer.View.BackgroundScroll.X, "Phantoon captured horizontal register follows accepted NMI");
             // The view shows the background row below his placement at the screen's top (#1514).
             AssertEqual(displayedY + ScreenGeometry.LayerRowsHiddenAboveScreen, (int)layer.View.BackgroundScroll.Y, "Phantoon captured vertical register follows accepted NMI");

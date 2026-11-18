@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Gameplay;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Phantoon;
@@ -62,14 +63,14 @@ internal static class PhantoonBodyPublicationVerification
         state.BodyWave.Step(state);
         state.BodyWave.Step(state);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        PhantoonDisplaySnapshot fadingIn = runtime.Display.Latched.Phantoon
+        PhantoonDisplaySnapshot fadingIn = runtime.Display.LatchedOrdinaryRoom.Phantoon
             ?? throw new InvalidOperationException("Phantoon publishes his display.");
         AssertEqual(new PhantoonWave(new UnsignedSixteenSixteen(12, 0), state.BodyWave.Phase.ToTrigonometryAngle(), PhantoonWaveDefinitions.ShortPeriod),
             fadingIn.Wave, "the wavy fade-in publishes the wave's amplitude, phase's angle and its mode's period");
         // His body, which the wave ripples, is placed at his position (#2031).
-        AssertEqual<Position16<RoomPixels>?>(state.Body.Position.Whole, runtime.Display.Latched.Bosses.Placement,
+        AssertEqual<Position16<RoomPixels>?>(state.Body.Position.Whole, runtime.Display.LatchedOrdinaryRoom.Bosses.Placement,
             "his body is placed at his position");
-        BossBodyLayer image = runtime.Display.Latched.Bosses.Body
+        BossBodyLayer image = runtime.Display.LatchedOrdinaryRoom.Bosses.Body
             ?? throw new InvalidOperationException("Phantoon publishes his body layer.");
         AssertTrue(BossBodyWords.Of(image, BossBodyOwner.Phantoon, bosses).AsSpan().SequenceEqual(expected),
             "the published layer shows the drawn body frame over the cleared layer");
@@ -80,10 +81,10 @@ internal static class PhantoonBodyPublicationVerification
         state.Wave.Length = null;
         state.BodyWave.Step(state);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        PhantoonDisplaySnapshot fadingOut = runtime.Display.Latched.Phantoon
+        PhantoonDisplaySnapshot fadingOut = runtime.Display.LatchedOrdinaryRoom.Phantoon
             ?? throw new InvalidOperationException("Phantoon publishes his display.");
         AssertTrue(fadingOut.Wave is null, "a deleted wave publishes nothing");
-        AssertTrue(ReferenceEquals(image, runtime.Display.Latched.Bosses.Body), "an unchanged body layer publishes again unchanged");
+        AssertTrue(ReferenceEquals(image, runtime.Display.LatchedOrdinaryRoom.Bosses.Body), "an unchanged body layer publishes again unchanged");
         Console.WriteLine("  Phantoon body: the body image and wave publish through the wavy fade-in and the swooping fade-out.");
     }
 

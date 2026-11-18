@@ -107,7 +107,7 @@ internal static class RoomBlockPicturesVerification
         runtime.StepFrame(0);
         AssertEqual(RoomLibraryBackgroundPicture.SeenOtherwise,
             RoomScopeOf(runtime).BackgroundImage, "Phantoon's room binds no background picture");
-        RoomBackgrounds rooms = runtime.Display.Latched.Rooms ?? throw new InvalidOperationException("Phantoon's room shows no room backgrounds.");
+        RoomBackgrounds rooms = runtime.Display.LatchedOrdinaryRoom.Rooms;
         AssertTrue(rooms.BackgroundImage is null, "Phantoon's room draws no background picture");
         Console.WriteLine("Room background images: Phantoon's room binds and draws no background picture.");
     }
@@ -123,7 +123,7 @@ internal static class RoomBlockPicturesVerification
     {
         SuperMetroidRuntime runtime = LoadRoom(room);
         runtime.StepFrame(0);
-        var shown = runtime.Display.Latched.Rooms?.Sky
+        var shown = runtime.Display.LatchedOrdinaryRoom.Rooms.Sky
             ?? throw new InvalidOperationException($"{room.Name}: BG2 shows no sky image.");
         // The sky pages the import pictured, which are import data (#1638); the runtime holds only their picture (#1466).
         SkyTilemap sky = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SkyTilemaps
@@ -428,11 +428,10 @@ internal static class RoomBlockPicturesVerification
         {
             SuperMetroidRuntime runtime = LoadRoom(room, stocked);
             runtime.StepFrame(0);
-            GameplayDisplayLatch latched = runtime.Display.Latched;
-            FxOverlayPlane plane = latched.FxOverlay ?? throw new InvalidOperationException($"{room.Name} latches no BG3 plane.");
+            // The room effect's plane, from which the frame boundary resolves the overlay's pictures (#2498).
+            FxOverlayPlane plane = runtime.FrameBoundary.CaptureFxOverlayPlane();
             // The plane names its pictures (#1466); the installed pages spell the words the cartridge writes for them.
             ushort[] planeWords = plane.WordsIn(InstalledFixtures.ImportMaps.RoomFxPages);
-            AssertTrue(latched.Rooms?.FxOverlay is not null, $"{room.Name}: BG3 draws from its pictures");
             ReadOnlySpan<byte> vram = runtime.ComposedVram();
             BgCharacterSet layer3 = BgCharacterSet.Layer3;
             int characterBase = BgCharacterWordsConstants.WordOf(layer3, 0);
@@ -516,7 +515,7 @@ internal static class RoomBlockPicturesVerification
         RoomDefinition room = RoomDefinitions.CeresElevator;
         SuperMetroidRuntime runtime = LoadRoom(room);
         runtime.StepFrame(0);
-        AffineFloor shown = runtime.Display.Latched.Rooms?.Floor ?? throw new InvalidOperationException($"{room.Name} shows no floor.");
+        AffineFloor shown = runtime.Display.LatchedOrdinaryRoom.Rooms.Floor ?? throw new InvalidOperationException($"{room.Name} shows no floor.");
         RoomFloorSheet floor = (runtime.Room.LoadedScope.Floor ?? throw new InvalidOperationException($"{room.Name} has no floor.")).Sheet;
         AssertTrue(ReferenceEquals(shown.Image, floor.Floor.Image), $"{room.Name} shows its tileset's installed floor");
         FloorMemory memory = AffineFloorConstants.Split(runtime.ComposedVram());
@@ -577,7 +576,7 @@ internal static class RoomBlockPicturesVerification
     private static int AssertBackgroundPaintsTiles(SuperMetroidRuntime runtime, RoomAnimatedCharacters animations,
         ArtworkFrameSelections latched, string where)
     {
-        RoomBackgroundImagePlane plane = runtime.Display.Latched.Rooms?.BackgroundImage
+        RoomBackgroundImagePlane plane = runtime.Display.LatchedOrdinaryRoom.Rooms.BackgroundImage
             ?? throw new InvalidOperationException($"{where}: BG2 shows no library background image.");
         ReadOnlySpan<byte> vram = runtime.ComposedVram();
         // The room's load selects the image by name (#1406); its tilemap words are the pages the library list builds, as
@@ -706,8 +705,8 @@ internal static class RoomBlockPicturesVerification
     private static (int Pictures, int Uploaded) AssertPicturesPaintLive(SuperMetroidRuntime runtime, RoomAnimatedCharacters tileAnimations,
         ArtworkFrameSelections latched, string where)
     {
-        RoomBackgrounds rooms = runtime.Display.Latched.Rooms ?? throw new InvalidOperationException($"{where}: no room backgrounds are displayed.");
-        RoomBlockPictureTable table = rooms.Foreground.Pictures ?? throw new InvalidOperationException($"{where}: BG1 shows no block pictures.");
+        RoomBackgrounds rooms = runtime.Display.LatchedOrdinaryRoom.Rooms;
+        RoomBlockPictureTable table = rooms.Foreground.Pictures;
         RoomAppearanceView appearance = AppearanceOf(runtime, latched);
         // The Ceres Ridley arena's blocks read the OBJ character page its uploads compose, as its setup points them there; any
         // other room's, the bound tiles, and the frames its animations paint over them.

@@ -101,7 +101,7 @@ internal static class GameplayDisplayFrameTestsVerification
         AssertPending(runtime, registers => registers.BackgroundScroll == before.BackgroundScroll, "Kraid's body on the background");
         // The view shows the body row below where his body lies against the frame's camera at the screen's top (#1514, #1617).
         AssertPublished(runtime, registers => registers.BackgroundScroll == GameplaySceneView.LayerPixelAtScreenTop(
-            BossBodyPlacement.Shown(kraidBody.Position.Whole, runtime.Display.Latched.Scrolls.ForegroundPosition)), "Kraid's body on the background");
+            BossBodyPlacement.Shown(kraidBody.Position.Whole, runtime.Display.LatchedRoomFrame.Scrolls.ForegroundPosition)), "Kraid's body on the background");
         kraid.ShowsBodyLayer = false;
         runtime.FrameBoundary.BeginAcceptedFrame(0);
 
@@ -115,8 +115,8 @@ internal static class GameplayDisplayFrameTestsVerification
         AssertPending(runtime, registers => registers.ShownLayers == before.ShownLayers, "Mother Brain's hidden background");
         AssertPublished(runtime, registers => registers.ShownLayers == (ScreenLayers.Foreground | ScreenLayers.Sprites),
             "Mother Brain's hidden background");
-        AssertEqual(motherBrain.RainbowBeam.Color, runtime.PublishDisplayFrame().Latched.Tints.RainbowBeam,
-            "rainbow beam COLDATA is latched with Mother Brain's registers");
+        AssertEqual(motherBrain.RainbowBeam.Color, motherBrain.RainbowBeam.DisplayedColor,
+            "the rainbow beam's colour is latched with Mother Brain's registers");
         motherBrain.DeathHidesBodyLayer = false;
         motherBrain.BodyPlacement = MotherBrainBodyPlacement.Unplaced;
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.AlphaPowerBomb, new Position16<RoomPixels>(0, 0));
@@ -165,7 +165,7 @@ internal static class GameplayDisplayFrameTestsVerification
             "the next accepted frame publishes the chosen shade");
         runtime.RoomFxOverlay.EndFirefleaDarknessForCheck(originalFx);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        AssertEqual<RgbColor?>(null, runtime.PublishDisplayFrame().Latched.Tints.Fireflea,
+        AssertEqual<LatchedFirefleaDarkness?>(null, runtime.PublishDisplayFrame().OrdinaryLatch.Fireflea,
             "a room whose effect is not Fireflea darkness publishes no Fireflea shade");
 
         // Power bomb: the window table is built during the main loop and read live; the
@@ -181,9 +181,9 @@ internal static class GameplayDisplayFrameTestsVerification
         AssertTrue(explosion.Blast.GlowColor.FadeLevels.Red != latchedRed, "fixture reaches a power-bomb COLDATA change");
         GameplayDisplayFrame pending = runtime.PublishDisplayFrame();
         AssertEqual(explosion.ShownOval.Radii, pending.FrameEnd.PowerBomb.Oval.Radii, "power-bomb oval is read live");
-        AssertEqual(latchedRed, GameplayDisplayCapture.PowerBomb(pending).Oval.Colour.FadeLevels.Red, "power-bomb COLDATA waits for the NMI");
+        AssertEqual(latchedRed, pending.PowerBomb.Oval.Colour.FadeLevels.Red, "power-bomb COLDATA waits for the NMI");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        AssertEqual(explosion.Blast.GlowColor.FadeLevels.Red, GameplayDisplayCapture.PowerBomb(runtime.PublishDisplayFrame()).Oval.Colour.FadeLevels.Red,
+        AssertEqual(explosion.Blast.GlowColor.FadeLevels.Red, runtime.PublishDisplayFrame().PowerBomb.Oval.Colour.FadeLevels.Red,
             "the accepted NMI publishes power-bomb COLDATA");
         explosion.Reset();
         runtime.FrameBoundary.BeginAcceptedFrame(0);
@@ -192,27 +192,33 @@ internal static class GameplayDisplayFrameTestsVerification
         SamusState samus = runtime.Player.IntroducedSamus;
         runtime.SuitPickup.Begin(samus, new(0, 0), SamusSuitPickupKind.Varia);
         runtime.SuitPickup.Step(samus, runtime.Player.Colours);
-        RgbColor suitBefore = runtime.PublishDisplayFrame().Latched.Tints.SuitPickup;
+        RgbColor suitBefore = runtime.PublishDisplayFrame().RoomLatch.Tints.SuitPickup;
         AssertTrue(runtime.PublishDisplayFrame().FrameEnd.SuitPickupBeam is not null, "suit light beam window is read live");
-        AssertEqual(suitBefore.FadeLevels.Red, (GameplayDisplayCapture.SuitPickup(runtime.PublishDisplayFrame())
+        AssertEqual(suitBefore.FadeLevels.Red, (runtime.PublishDisplayFrame().SuitPickup
             ?? throw new InvalidOperationException("Active suit pickup has no flash.")).Color.FadeLevels.Red, "suit COLDATA waits for the NMI");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        AssertEqual(runtime.SuitPickup.BeamColor.FadeLevels.Red, (GameplayDisplayCapture.SuitPickup(runtime.PublishDisplayFrame())
+        AssertEqual(runtime.SuitPickup.BeamColor.FadeLevels.Red, (runtime.PublishDisplayFrame().SuitPickup
             ?? throw new InvalidOperationException("Active suit pickup has no flash.")).Color.FadeLevels.Red, "the accepted NMI publishes suit COLDATA");
     }
 
-    /// <summary>Door setup shows the shaft's floor with its transform; room setup's characters and Ridley's floor follow the accepted frame.</summary>
+    /// <summary>
+    /// The shaft's floor its door's setup shows, its removal and Ridley's floor all reach the display at the accepted frame
+    /// after they are set, which alone latches the display (#2498).
+    /// </summary>
     private static void VerifyCeresModeTiming(SuperMetroidRuntime runtime)
     {
-        GameplayDisplayLatch shaft = runtime.PublishDisplayFrame().Latched;
-        AssertTrue(shaft.PerspectiveFloor is { Below: BelowPerspectiveFloor.Nothing },
-            "door setup $8F:E4E0 shows the elevator shaft's floor");
+        AssertTrue(runtime.PublishDisplayFrame().Latched is LatchBeforeFirstRoom,
+            "the shaft's door setup shows nothing before the accepted frame");
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
+        AssertTrue(runtime.PublishDisplayFrame().Latched is PerspectiveFloorFrameLatch { BackgroundBand: null },
+            "the accepted frame after the shaft's door setup shows the elevator shaft's floor filling the view");
 
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.CeresRidley, new Position16<RoomPixels>(0, 0));
-        GameplayDisplayLatch arena = runtime.PublishDisplayFrame().Latched;
-        AssertTrue(arena.PerspectiveFloor is null,
-            "door setup $8F:E513 removes the elevator shaft's floor");
+        AssertTrue(runtime.PublishDisplayFrame().Latched is PerspectiveFloorFrameLatch,
+            "leaving the shaft keeps its floor until the accepted frame");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
+        AssertTrue(runtime.PublishDisplayFrame().Latched is OrdinaryRoomFrameLatch,
+            "the accepted frame shows Ceres Ridley's room without the elevator shaft's floor");
 
         // The station's escape owns the getaway's floor (#2228).
         CeresTurningFloor getaway = runtime.Enemies.CeresEscape.Floor;
@@ -251,7 +257,7 @@ internal static class GameplayDisplayFrameTestsVerification
 
     /// <summary>The ordinary gameplay registers of a freshly published frame.</summary>
     private static GameplaySceneView Registers(SuperMetroidRuntime runtime) =>
-        ((GameplaySceneLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame()).Layers[0]).View;
+        (runtime.PublishDisplayFrame().OrdinaryBase.Room).View;
 
     /// <summary>Runs the focused gameplay display frame confirmation.</summary>
     [VerificationCommand("--gameplay-display-frame")]

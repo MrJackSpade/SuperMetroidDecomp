@@ -71,12 +71,6 @@ public sealed class SharedGameState
     /// <summary>The current shared RNG state as a sample, 0 through 65535, without advancing it.</summary>
     public int RandomNumber => Random.Read();
 
-    /// <summary>
-    /// Overwrites the shared random state, as a state import does. A species reseeds through
-    /// <see cref="SharedRandom.Reseed"/> instead.
-    /// </summary>
-    public void SetRandomNumber(int value) => Random.Seed(value);
-
     /// <summary>Stores the shared RNG state with its two halves exchanged, as the lava and acid FX does.</summary>
     internal void SwapRandomHalves() => Random.SwapHalves();
 

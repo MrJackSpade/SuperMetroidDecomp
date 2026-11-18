@@ -36580,6 +36580,32 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Areas.Ceres.CeresElevatorDoorSealDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Areas/Ceres/CeresElevatorDoorSealDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Areas.Ceres.CeresElevatorDoorSealObject",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Areas/Ceres/CeresElevatorDoorSealObject.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.Core.Areas.Ceres.CeresElevatorDoorState",
       "kind": "class",
       "scope": "product",
@@ -36659,6 +36685,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Areas/Ceres/CeresElevatorShaftRoomMainState.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Areas.Ceres.CeresEscapeObjects",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Areas/Ceres/CeresEscapeObjects.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -117627,51 +117666,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Rooms.RoomObjects.RoomObjectKindDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/RoomObjectKindDefinitions.Generated.cs"
-      ],
-      "partial": "generated",
-      "disposition": "generated-boundary"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.RoomObjects.RoomObjectKindDefinitionsConstants",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Rooms/RoomObjects/RoomObjectKindDefinitionsConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.RoomObjects.RoomObjectKindDefinitionsConstants.extension(SuperMetroid.Core.Rooms.RoomObjects.RoomObjectKindDefinitions)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Rooms/RoomObjects/RoomObjectKindDefinitionsConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
       "type": "SuperMetroid.Core.Rooms.RoomObjects.RoomObjectKindDefinitionsTooling",
       "kind": "static class",
       "scope": "test",
@@ -117702,19 +117696,6 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.RoomObjects.RoomObjectKinds",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/RoomObjectKinds.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Rooms.RoomObjects.RoomObjectLevelWrites",
@@ -134686,6 +134667,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.World.RoomStates.RoomSetupBehavior.CeresElevatorEscapeSetup",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/World/RoomStates/RoomSetupBehavior.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.Core.World.RoomStates.RoomSetupBehavior.CeresHazeSetup",
       "kind": "class",
       "scope": "product",
@@ -150414,6 +150408,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Areas/Ceres/CeresElevatorArrivalVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Areas.Ceres.CeresElevatorDoorSealVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Areas/Ceres/CeresElevatorDoorSealVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"

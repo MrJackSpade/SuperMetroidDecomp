@@ -126,7 +126,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
             distance += state.Speed.AsDisplacement();
             state.FallOneEntry();
         }
-        while (distance.InTwoFiftySixths < state.JumpHeight.InTwoFiftySixths);
+        while (distance < state.JumpHeight);
 
         state.BaselineCurvePlace = state.CurvePlace;
         state.Phase = BoyonPhase.Resting;

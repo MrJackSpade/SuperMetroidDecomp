@@ -36,8 +36,8 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Carries out one cue of the Alcoon's animations: spitting a fireball, starting to walk, or stepping. Starting to walk
-    /// always continues at the walk for the Alcoon's facing, and a step that meets a wall turns it round to the other walk.
+    /// Carries out one cue of the Alcoon's animations: spitting a fireball, starting to walk, or taking a stride. Starting to
+    /// walk always continues at the walk for the Alcoon's facing, and a stride that meets a wall turns it round to the other walk.
     /// </summary>
     private AnimationContinuation<AlcoonSegment>? ApplyAlcoonCue(RoomEnemyPlace place, AlcoonEnemyState state, RoomLevelData level, AlcoonCue cue)
     {
@@ -52,9 +52,9 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             case AlcoonCueKind.StartWalking:
                 return StartAlcoonWalking(state);
-            case AlcoonCueKind.Step:
-                if (state.StepCounter != 0)
-                    state.StepCounter--;
+            case AlcoonCueKind.CompleteWalkCycle:
+                if (state.WalkCyclesBeforeVolley != 0)
+                    state.WalkCyclesBeforeVolley--;
                 return MoveAlcoonHorizontally(place, state, level);
             case AlcoonCueKind.Move:
                 return MoveAlcoonHorizontally(place, state, level);
@@ -72,7 +72,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new AlcoonEnemyState(AlcoonAction.WaitingForSamus);
         place.SetSpeciesState(state);
 
-        state.StepCounter = 0;
+        state.WalkCyclesBeforeVolley = 0;
         state.SpawnPosition = place.Position.Whole;
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
         state.Playback = new(AlcoonAnimations.StartingWith(AlcoonSegment.WalkingLeft), AnimationPlace.StartOfAnimation);
@@ -88,7 +88,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             AccelerateAlcoonY(state);
             GuardAlcoonJumpSimulation(++iterations, place);
         }
-        while (state.VerticalVelocity.WholePixels < 0);
+        while (state.VerticalVelocity.IsNegative);
 
         while (true)
         {
@@ -171,7 +171,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         AddAlcoonYVelocity(place, state);
         AccelerateAlcoonY(state);
-        if (state.VerticalVelocity.WholePixels < 0)
+        if (state.VerticalVelocity.IsNegative)
             return;
 
         state.Action = AlcoonAction.EmergingFalling;
@@ -208,7 +208,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             StartAlcoonAnimation(place, state, AlcoonSegment.WalkingRight);
         }
         state.Action = AlcoonAction.WalkingAndFiring;
-        state.StepCounter = 1;
+        state.WalkCyclesBeforeVolley = 1;
     }
 
     /// <summary>Maintains floor contact, starts a retreat at the spawn-distance limit, or begins a forward volley.</summary>
@@ -236,7 +236,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        if (state.StepCounter != 0)
+        if (state.WalkCyclesBeforeVolley != 0)
             return;
 
         bool samusIsLeft = samus.Position.X.Whole < place.Position.X.Whole;
@@ -258,7 +258,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         AddAlcoonYVelocity(place, state);
         AccelerateAlcoonY(state);
-        if (state.VerticalVelocity.WholePixels >= 0)
+        if (!state.VerticalVelocity.IsNegative)
             state.Action = AlcoonAction.HidingFalling;
     }
 
@@ -319,8 +319,8 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private AnimationContinuation<AlcoonSegment> StartAlcoonWalking(AlcoonEnemyState state)
     {
         state.Action = AlcoonAction.WalkingAndFiring;
-        int count = AlcoonWalkDefinitions.StepCount.Of(_room.Random.Read());
-        state.StepCounter = count == 0 ? AlcoonWalkDefinitions.StepsForZeroSample : count;
+        int count = AlcoonWalkDefinitions.WalkCycleCount.Of(_room.Random.Read());
+        state.WalkCyclesBeforeVolley = count == 0 ? AlcoonWalkDefinitions.WalkCyclesForZeroSample : count;
         return new(AlcoonAnimations.StartingWith(FacesLeft(state) ? AlcoonSegment.WalkingLeft : AlcoonSegment.WalkingRight),
             AnimationPlace.StartOfAnimation);
     }
@@ -336,8 +336,8 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         SignedSixteenSixteen displacement = state.WalkingDirection switch
         {
-            HorizontalDirection.Left => -AlcoonWalkDefinitions.StepDistance,
-            HorizontalDirection.Right => AlcoonWalkDefinitions.StepDistance,
+            HorizontalDirection.Left => -AlcoonWalkDefinitions.StrideDistance,
+            HorizontalDirection.Right => AlcoonWalkDefinitions.StrideDistance,
             null => SignedSixteenSixteen.Zero,
             _ => throw new InvalidOperationException($"Undefined {nameof(HorizontalDirection)} {state.WalkingDirection}."),
         };

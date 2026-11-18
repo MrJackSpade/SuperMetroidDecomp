@@ -284,7 +284,7 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         // game's blocks and pictures are English (a per-line effect is #2089's).
         Expect("class P { /// <summary>The speed's sign selects the animation; the sign of the difference picks the side; a sign-inverted mirror.</summary>\nint F => 0; }");
         Expect("class P { // the percentage's digits and percent sign; the turn relies on the sign of the speed\n }");
-        Expect("class P { /// <summary>Counts down until the countdown passes zero, then reads as below zero.</summary>\nint F => 0; }");
+        Expect("class P { /// <summary>Counts down until the countdown runs out, then reads as below zero.</summary>\nint F => 0; }");
         Expect("class P { /// <summary>Renaming a frame never changes a key on disk; installed frame bindings key on, so identities stay.</summary>\nint F => 0; }");
         Expect("class P { // the table is keyed on the name; bindings key on the identity\n }");
         Expect("class P { /// <summary>The room's heat wave; the effect's per-line scroll; the falling tile's picture.</summary>\nint F => 0; }");
@@ -1935,6 +1935,18 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         // fixed point, markup and a hardware owner are English.
         Expect("class P { /// <summary>Morph art preserves the charge and art preserve the charge; the Metroid latches onto Samus; a latched Beetom; the frame-end display latch; runs its main AI; the beam widens; in 1/256 pixels; the leg targets a fixed point; <see cref=\"Run\"/>.</summary>\nvoid Run() { } }");
         Expect(CompatibilityService + "/// <summary>Evidence: its hurt AI keeps the wingless latch in a fixed-point word that would go round.</summary>\n[CompatibilityService(\"latch\")] class Latch { }");
+        // A count's end, a velocity's sign and a placement's direction told by the original's storage in enemy prose,
+        // outside hardware owners and markup (#2478).
+        Expect("class P { /// <summary>Enters rolling when the bounce counter passes zero.</summary>\nint F => 0; }", "('counter passes zero')");
+        Expect("class P { void Run() { // Once the grab cooldown has passed zero, a touch catches Samus.\n } }", "('cooldown has passed zero')");
+        Expect("class P { /// <summary>Counts the jump delay down until it passes zero before the jump.</summary>\nint F => 0; }", "('Counts the jump delay down until it passes zero')");
+        Expect("class P { /// <summary>Integrates upward motion until the whole velocity becomes nonnegative.</summary>\nint F => 0; }", "('whole velocity becomes nonnegative')");
+        Expect("class P { void Run() { // Because the bounce's whole part is negative, later frames skip gravity.\n } }", "('whole part is negative')");
+        Expect("class P { /// <summary>The cue sends every placement but a left one to the right.</summary>\nint F => 0; }", "('every placement but')");
+        // A speed that passes zero, a count that runs out, whole pixels, a placement alone, markup and a hardware owner
+        // are English.
+        Expect("class P { /// <summary>A speed passing zero at the apex; the wait runs out; the speed in whole pixels, never negative; its whole part reaches four; every placement patrols; <see cref=\"Run\"/>.</summary>\nvoid Run() { } }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the counter passes zero and the whole velocity is negative for every placement but one.</summary>\n[CompatibilityService(\"count\")] class Count { }");
         // The species-owner template on a type that owns no species (#2427), read on the type's own summary; a type that
         // implements or is a species owner's interface owns a species, and an entity's parameter names its owner.
         const string SpeciesOwners = "interface IEnemySpecies { }\ninterface IEnemyEntityFactory { }\n";

@@ -196,7 +196,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!MoveEtecoonVertically(place, state, samus, level))
             return;
 
-        if (state.Velocity.Y.WholePixels >= 0)
+        if (!state.Velocity.Y.IsNegative)
         {
             if (EtecoonIsWithinY(place, samus, EtecoonRouteDefinitions.NearbyDistance) &&
                 EtecoonIsWithinX(place, samus, EtecoonRouteDefinitions.NearbyDistance))
@@ -485,7 +485,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!MoveEtecoonVertically(place, state, samus, level))
             return;
 
-        if (state.Velocity.Y.WholePixels >= 0)
+        if (!state.Velocity.Y.IsNegative)
         {
             state.ActionTimer = EtecoonTimingDefinitions.HopCrouch;
             StartEtecoonAnimation(place, state, EtecoonSegment.HoppingFacingLeft);
@@ -624,7 +624,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         SignedSixteenSixteen displacement = state.Velocity.Y;
         // Below the cap the Etecoon falls faster by Samus's own downward acceleration.
-        if (state.Velocity.Y.WholePixels < EtecoonTimingDefinitions.FallingSpeedCap)
+        if (state.Velocity.Y < EtecoonTimingDefinitions.FallingSpeedCap)
             state.Velocity = state.Velocity.WithY(state.Velocity.Y + samus.Kinematics.YAcceleration.AsDisplacement());
         return _terrain.MoveEnemyVertically(level, place, displacement);
     }

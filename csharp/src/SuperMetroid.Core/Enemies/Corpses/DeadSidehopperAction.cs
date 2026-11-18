@@ -20,7 +20,7 @@ public enum DeadSidehopperAction
     Draining,
     /// <summary>Waits for Samus's solid-enemy collision to select the pre-rot delay; also the return state after rotting completes.</summary>
     WaitForSamusCollision,
-    /// <summary>Increments the retained contact-delay counter to sixteen before starting rotting and rejecting normal interaction.</summary>
+    /// <summary>Counts sixteen updates from Samus's first touch (<see cref="CorpseRotScheduleDefinitions.PreRotDelayUpdates"/>), then starts rotting, Samus passing through the corpse from then on.</summary>
     PreRotDelay,
     /// <summary>Rots the corpse row by row by its <see cref="CorpseRotSchedule"/> and shows the rotted rows, including on the update the rot ends.</summary>
     Rotting,

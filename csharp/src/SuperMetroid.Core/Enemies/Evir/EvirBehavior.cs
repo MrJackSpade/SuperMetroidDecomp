@@ -464,7 +464,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = playback;
     }
 
-    /// <summary>Preserves power-bomb reactions on both body and arms, including relative aliases.</summary>
+    /// <summary>A Power Bomb's hit on an Evir's body or arms, finished as its other reactions finish.</summary>
     internal EnemyPowerBombReaction EvirPowerBombReaction => field ??= new()
     {
         // Touch and shot collision skip the arms, which are intangible, but a Power Bomb's blast does not. Both body and arms therefore finish with the same follow-up, which reaches the enemy after

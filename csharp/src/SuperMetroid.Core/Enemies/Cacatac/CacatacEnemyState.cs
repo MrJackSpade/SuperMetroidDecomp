@@ -19,8 +19,8 @@ public sealed class CacatacEnemyState
     public SignedSixteenSixteen Speed { get; internal set; }
 
     /// <summary>
-    /// The way it patrols (#2277). A Cacatac placed to stop at first patrols right once its first idle step starts it, the
-    /// game's restore-patrol cue sending every placement but left to the right.
+    /// The way it patrols (#2277). A Cacatac placed to stop at first patrols the way its placement names once its first idle
+    /// step starts it.
     /// </summary>
     public HorizontalDirection PatrolDirection { get; internal set; }
 

@@ -55,7 +55,7 @@ public static class IntroNarrationExtractor
             int word = ReadWord(bus, cursor);
             if ((word & IntroNarrationScriptDefinitions.InstructionCommandBit) != 0)
             {
-                if (page.Id == IntroNarrationPageId.Page6 &&
+                if (page.Id == IntroNarrationPageId.CeresUnderAttack &&
                     word == IntroNarrationScriptDefinitions.SetCaretBlinkingOpcode)
                 {
                     cursor = Add(cursor, 2);

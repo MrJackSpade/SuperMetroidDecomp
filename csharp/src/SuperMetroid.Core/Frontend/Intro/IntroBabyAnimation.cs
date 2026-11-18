@@ -20,17 +20,17 @@ internal enum IntroBabyAnimation
     /// <summary>The confused Baby Metroid's loop.</summary>
     ConfusedBaby,
     /// <summary>
-    /// The Baby Metroid being delivered: its pulse, played ten times before the fourth page starts, then on; as a segment,
+    /// The Baby Metroid being delivered: its pulse, played ten times before the next page starts, then on; as a segment,
     /// one pulse.
     /// </summary>
     DeliveredBaby,
-    /// <summary>A segment of the delivered Baby (#2358): the moment its tenth pulse ends and the fourth page starts.</summary>
-    DeliveredBabyStartingPageFour,
+    /// <summary>The delivered Baby's eleventh pulse (#2489), at whose start it starts the page the delivery leads into.</summary>
+    DeliveredBabyTurningPage,
     /// <summary>
-    /// The Baby Metroid being examined: its pulse, played ten times before the fifth page starts, then on; as a segment, one
+    /// The Baby Metroid being examined: its pulse, played ten times before the next page starts, then on; as a segment, one
     /// pulse.
     /// </summary>
     ExaminedBaby,
-    /// <summary>A segment of the examined Baby (#2358): the moment its tenth pulse ends and the fifth page starts.</summary>
-    ExaminedBabyStartingPageFive,
+    /// <summary>The examined Baby's eleventh pulse (#2489), at whose start it starts the page the examination leads into.</summary>
+    ExaminedBabyTurningPage,
 }

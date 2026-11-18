@@ -42,11 +42,11 @@ internal static class IntroNarrationScriptDefinitions
     /// </summary>
     internal static ImmutableArray<IntroNarrationScriptPage> Pages { get; } =
     [
-        new(IntroNarrationPageId.Page1, 0xc383, 0xae43, 0xae5b),
-        new(IntroNarrationPageId.Page2, 0xc797, 0xae79, 0xae91),
-        new(IntroNarrationPageId.Page3, 0xcb45, 0xb074, 0xb08c),
-        new(IntroNarrationPageId.Page4, 0xce33, 0xb0b3, 0xb0cb),
-        new(IntroNarrationPageId.Page5, 0xd15d, 0xb19b, 0xb1b3),
-        new(IntroNarrationPageId.Page6, 0xd511, 0xb228, 0xb240),
+        new(IntroNarrationPageId.ZebesBattle, 0xc383, 0xae43, 0xae5b),
+        new(IntroNarrationPageId.HatchedLarva, 0xc797, 0xae79, 0xae91),
+        new(IntroNarrationPageId.DeliveryToCeres, 0xcb45, 0xb074, 0xb08c),
+        new(IntroNarrationPageId.ScientistsFindings, 0xce33, 0xb0b3, 0xb0cb),
+        new(IntroNarrationPageId.DistressSignal, 0xd15d, 0xb19b, 0xb1b3),
+        new(IntroNarrationPageId.CeresUnderAttack, 0xd511, 0xb228, 0xb240),
     ];
 }

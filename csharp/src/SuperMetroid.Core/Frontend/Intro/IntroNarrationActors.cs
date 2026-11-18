@@ -68,12 +68,12 @@ internal sealed class IntroNarrationActors
     }
 
     /// <summary>
-    /// The page, one to five, whose input wait has started (#2359): set as its text ends, or, for a Japanese page that waits
-    /// for it, as its second subtitle shows; null from the start of the next page until that page's wait starts.
+    /// The page whose input wait has started (#2359): set as its text ends, or, for a Japanese page that waits for it, as
+    /// its second subtitle shows; null from the start of the next page until that page's wait starts.
     /// </summary>
     public IntroNarrationPageId? AwaitingInputPage { get; private set; }
 
-    /// <summary>Set after page six's final 128-frame hold.</summary>
+    /// <summary>Set after the last page's final 128-frame hold.</summary>
     public bool IntroFinishRequested { get; private set; }
 
     /// <summary>
@@ -109,68 +109,36 @@ internal sealed class IntroNarrationActors
     public void HideCaret() => caretHidden = true;
 
     /// <summary>
-    /// Starts the letter-by-letter narration. The eye-blink
-    /// animation and the portrait-border sprite are already active at page setup.
+    /// Starts <paramref name="page"/>'s letter-by-letter narration as its definition says (#2489): the first page keeps the
+    /// caret its setup started, with the eye's blinking and the portrait already showing; a page after an illustration
+    /// shows the caret again at the first line; the last page clears the earlier pages' text first and closes the eye for
+    /// good.
     /// </summary>
-    public void StartEnglishPageOne()
+    public void StartPage(IntroNarrationPageId page)
     {
-        StartNarration(
-            IntroNarrationPageId.Page1);
-    }
-
-    /// <summary>
-    /// Spawns page two's narration and restores the existing caret.
-    /// </summary>
-    public void StartEnglishPageTwo()
-    {
-        StartNarration(
-            IntroNarrationPageId.Page2);
+        IntroNarrationPageOpening opening = IntroNarrationPageDefinitions.Pages[page].Opening;
+        if (opening == IntroNarrationPageOpening.ReplacesEarlierPages)
+            text.ClearText();
+        StartNarration(page);
         AwaitingInputPage = null;
-        ResetCaret();
-    }
-
-    /// <summary>
-    /// Spawns page three's narration after the egg actor requests page three.
-    /// </summary>
-    public void StartEnglishPageThree()
-    {
-        StartNarration(
-            IntroNarrationPageId.Page3);
-        AwaitingInputPage = null;
-        ResetCaret();
-    }
-
-    /// <summary>Spawns the page-four text definition.</summary>
-    public void StartEnglishPageFour()
-    {
-        StartNarration(
-            IntroNarrationPageId.Page4);
-        AwaitingInputPage = null;
-        ResetCaret();
-    }
-
-    /// <summary>Spawns the page-five text definition.</summary>
-    public void StartEnglishPageFive()
-    {
-        StartNarration(
-            IntroNarrationPageId.Page5);
-        AwaitingInputPage = null;
-        ResetCaret();
-    }
-
-    /// <summary>Clears pages one-through-five and starts the final text.</summary>
-    public void StartEnglishPageSix()
-    {
-        text.ClearText();
-        StartNarration(
-            IntroNarrationPageId.Page6);
         IntroFinishRequested = false;
-        ResetCaret();
-
-        // The eye observes the page-six cinematic phase and permanently changes the eye
-        // to its closed/half-open/deadpan animation; the portrait keeps the eye's frame until that animation's first frame
-        // shows at the eye's next update.
-        eye.StartKeepingShown(IntroEyeAnimations.StartingWith(IntroEyeSegment.FinalPageClosing));
+        switch (opening)
+        {
+            case IntroNarrationPageOpening.KeepsSetupCaret:
+                return;
+            case IntroNarrationPageOpening.RestoresCaret:
+                ResetCaret();
+                return;
+            case IntroNarrationPageOpening.ReplacesEarlierPages:
+                ResetCaret();
+                // The eye observes the last page's cinematic phase and permanently changes to its closed, half-open and
+                // deadpan animation; the portrait keeps the eye's frame until that animation's first frame shows at the
+                // eye's next update.
+                eye.StartKeepingShown(IntroEyeAnimations.StartingWith(IntroEyeSegment.FinalPageClosing));
+                return;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(IntroNarrationPageOpening)} {opening}.");
+        }
     }
 
     /// <summary>Runs the narration's actors in the cinematic game state's order.</summary>
@@ -299,16 +267,16 @@ internal sealed class IntroNarrationActors
         text.Type(character);
     }
 
-    /// <summary>Starts the input wait or marks the sixth page complete after its hold.</summary>
+    /// <summary>Starts the input wait, or marks the intro's last page complete after its hold.</summary>
     private void FinishInstalledNarration(IntroNarrationPageId page)
     {
-        if (page == IntroNarrationPageId.Page6)
+        if (IntroNarrationPageDefinitions.Pages[page].Closing == IntroNarrationPageClosing.EndsIntro)
         {
             IntroFinishRequested = true;
             return;
         }
-        // Once the page is typed the caret starts blinking, and Japanese text shows the next-page arrow. Japanese pages
-        // two to five then wait for the press that shows their second subtitle, which selects the page's input wait.
+        // Once the page is typed the caret starts blinking, and Japanese text shows the next-page arrow. A Japanese page
+        // with a second subtitle then waits for the press that shows it, which selects the page's input wait.
         SetCaretBlinking();
         if (subtitles.Enabled)
             SpawnNextPageArrow();
@@ -317,14 +285,11 @@ internal sealed class IntroNarrationActors
     }
 
     /// <summary>Publishes the completed page's input wait to the outer intro state machine.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The page is page six, which ends the intro instead of waiting, or undefined.</exception>
-    private void MarkAwaitingInput(IntroNarrationPageId page) => AwaitingInputPage = page switch
-    {
-        IntroNarrationPageId.Page1 or IntroNarrationPageId.Page2 or IntroNarrationPageId.Page3 or IntroNarrationPageId.Page4
-            or IntroNarrationPageId.Page5 => page,
-        IntroNarrationPageId.Page6 => throw new ArgumentOutOfRangeException(nameof(page), page, "Page six ends the intro instead of waiting for input."),
-        _ => throw new ArgumentOutOfRangeException(nameof(page), page, "Undefined narration page."),
-    };
+    /// <exception cref="ArgumentOutOfRangeException">The page ends the intro instead of waiting for input.</exception>
+    private void MarkAwaitingInput(IntroNarrationPageId page) =>
+        AwaitingInputPage = IntroNarrationPageDefinitions.Pages[page].Closing != IntroNarrationPageClosing.EndsIntro
+            ? page
+            : throw new ArgumentOutOfRangeException(nameof(page), page, "The intro's last page ends the intro instead of waiting for input.");
 
     /// <summary>Shows the persistent caret again at the first text line and restarts its non-blinking sprite animation.</summary>
     private void ResetCaret()

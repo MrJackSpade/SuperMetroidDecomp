@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
@@ -28,7 +29,7 @@ internal static class IntroCaretHidingVerification
             narration.Step(0);
         }
 
-        narration.StartEnglishPageTwo();
+        narration.StartPage(IntroNarrationPageId.HatchedLarva);
         AssertEqual(new Offset16<ScreenPixels>(IntroCinematicDefinitions.NarrationLayout.CaretLeftX, IntroCinematicDefinitions.NarrationLayout.CaretFirstTextY),
             narration.Caret, "the next page restores the caret to the first text line");
         narration.Step(0);

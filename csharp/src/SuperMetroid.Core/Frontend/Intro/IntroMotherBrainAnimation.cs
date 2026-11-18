@@ -5,6 +5,6 @@ internal enum IntroMotherBrainAnimation
 {
     /// <summary>Mother Brain pulsing in her tank: her four-picture loop.</summary>
     Pulsing,
-    /// <summary>Mother Brain starting the intro's second page and its cross-fade, then pulsing on.</summary>
-    StartingPageTwo,
+    /// <summary>Mother Brain starting the narration page the flashback leads into and its cross-fade, then pulsing on.</summary>
+    StartingNextPage,
 }

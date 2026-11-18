@@ -25,13 +25,13 @@ internal static class CeresDestructionActorDefinitions
     /// It holds still, then slides away, its speed growing by a quarter pixel each update.</summary>
     internal static CeresDestructionActorDefinition ZebesPlanet =>
         new(CeresAnimation.ZebesPlanet,
-            CeresSpriteColouring.Zebes, SignedSixteenSixteen.Zero, false, SignedEightEight.FromParts(0, 64), false);
+            CeresSpriteColouring.Zebes, SignedSixteenSixteen.Zero, false, SignedEightEight.FromParts(0, 64), false, false);
 
     /// <summary>The PLANET ZEBES title actor, in the title's colours and playing the title's animation; it never moves.
     /// Its animation deletes it before the scene slides away, so it has no slide.</summary>
     internal static CeresDestructionActorDefinition ZebesTitle =>
         new(CeresAnimation.ZebesTitle,
-            CeresSpriteColouring.ZebesTitle, SignedSixteenSixteen.Zero, false, null, false);
+            CeresSpriteColouring.ZebesTitle, SignedSixteenSixteen.Zero, false, null, false, false);
 
     /// <summary>
     /// The Japanese PLANET ZEBES subtitle, which the title spawns below itself as its first hold ends when Japanese text is
@@ -40,7 +40,7 @@ internal static class CeresDestructionActorDefinitions
     /// </summary>
     internal static CeresDestructionActorDefinition ZebesSubtitle =>
         new(CeresAnimation.ZebesJapaneseTitle,
-            CeresSpriteColouring.ZebesTitle, SignedSixteenSixteen.Zero, false, null, false);
+            CeresSpriteColouring.ZebesTitle, SignedSixteenSixteen.Zero, false, null, false, false);
 
     /// <summary>The animation each quarter of the reveal's star field shows.</summary>
     internal static IReadOnlyDictionary<ZebesRevealActorRole, CeresAnimation> StarSheets { get; } =

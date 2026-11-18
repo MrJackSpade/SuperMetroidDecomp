@@ -58,10 +58,10 @@ internal static class IntroNextPageArrowVerification
     private static void VerifyPageOne(IntroNarrationPresentation narration)
     {
         (IntroNarrationActors japanese, IntroNarrationActors english, _) = Pair(narration);
-        japanese.StartEnglishPageOne();
-        english.StartEnglishPageOne();
-        RunToTextEnd(japanese, english, () => english.AwaitingInputPage == IntroNarrationPageId.Page1, "page one");
-        AssertEqual(IntroNarrationPageId.Page1, japanese.AwaitingInputPage, "Japanese page one's input wait starts as its text ends");
+        japanese.StartPage(IntroNarrationPageId.ZebesBattle);
+        english.StartPage(IntroNarrationPageId.ZebesBattle);
+        RunToTextEnd(japanese, english, () => english.AwaitingInputPage == IntroNarrationPageId.ZebesBattle, "page one");
+        AssertEqual(IntroNarrationPageId.ZebesBattle, japanese.AwaitingInputPage, "Japanese page one's input wait starts as its text ends");
         RequireSpawned(japanese, "page one");
         CompareLoop(japanese, english, "page one's input wait");
         TurnPage(japanese, english, "page one");
@@ -75,10 +75,10 @@ internal static class IntroNextPageArrowVerification
     private static void VerifyPageTwo(IntroNarrationPresentation narration)
     {
         (IntroNarrationActors japanese, IntroNarrationActors english, IntroJapaneseSubtitles subtitles) = Pair(narration);
-        japanese.StartEnglishPageTwo();
-        english.StartEnglishPageTwo();
-        RunToTextEnd(japanese, english, () => english.AwaitingInputPage == IntroNarrationPageId.Page2, "page two");
-        AssertTrue(japanese.AwaitingInputPage != IntroNarrationPageId.Page2, "Japanese page two waits for its second subtitle before its input wait");
+        japanese.StartPage(IntroNarrationPageId.HatchedLarva);
+        english.StartPage(IntroNarrationPageId.HatchedLarva);
+        RunToTextEnd(japanese, english, () => english.AwaitingInputPage == IntroNarrationPageId.HatchedLarva, "page two");
+        AssertTrue(japanese.AwaitingInputPage != IntroNarrationPageId.HatchedLarva, "Japanese page two waits for its second subtitle before its input wait");
         RequireSpawned(japanese, "page two");
 
         for (int update = 0; update < UpdatesBeforeSecondSubtitle; update++)
@@ -89,7 +89,7 @@ internal static class IntroNextPageArrowVerification
         // The press shows the second subtitle after the arrow's update, which still shows its loop.
         Step(japanese, english, ControllerButton.A);
         AssertArrowShows(japanese, LoopPose(UpdatesBeforeSecondSubtitle), "page two on the second subtitle's press");
-        AssertEqual(IntroNarrationPageId.Page2, japanese.AwaitingInputPage, "the second subtitle starts Japanese page two's input wait");
+        AssertEqual(IntroNarrationPageId.HatchedLarva, japanese.AwaitingInputPage, "the second subtitle starts Japanese page two's input wait");
 
         // The page's input wait takes its hold check before the narration's objects update, as each page's setup does.
         for (int update = 0; update < HiddenUpdates; update++)

@@ -41,8 +41,8 @@ internal static class TextAndMapPresentationContractChecks
                     escape.Get(EscapeTypewriterMessageId.Zebes);
                     escape.Get((EscapeTypewriterMessageId)(-1));
                     escape.Get((EscapeTypewriterMessageId)99);
-                    intro.GetLines(IntroNarrationPageId.Page1);
-                    intro.Compile(IntroNarrationPageId.Page6);
+                    intro.GetLines(IntroNarrationPageId.ZebesBattle);
+                    intro.Compile(IntroNarrationPageId.CeresUnderAttack);
                     intro.Compile((IntroNarrationPageId)(-1));
                     ending.BuildResultPanel();
                     ending.BuildCopyrightPanel();

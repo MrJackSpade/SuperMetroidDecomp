@@ -3,12 +3,14 @@ using SuperMetroid.Core.Frontend.Intro;
 using A = SuperMetroid.Core.Frontend.CeresCinematics.CeresAnimation;
 using B = SuperMetroid.Core.Frontend.Intro.CinematicBeats<SuperMetroid.Core.Frontend.Intro.CinematicSpritePose, SuperMetroid.Core.Frontend.CeresCinematics.CeresCue>;
 using S = SuperMetroid.Core.Frontend.Intro.CinematicSpritePose;
+using W = SuperMetroid.Core.Frontend.Intro.CinematicBeats<SuperMetroid.Core.Frontend.Intro.CinematicSpritePose, SuperMetroid.Core.Frontend.CeresCinematics.CeresExplosionSpawnerCue>;
 
 namespace SuperMetroid.Core.Frontend.CeresCinematics;
 
 /// <summary>
 /// The animations of the Ceres cinematics' actors (#641, #1600, #2196, #2197): the flight to Ceres, its destruction and the
-/// Zebes reveal, whose only cues are the PLANET ZEBES title's; and the explosion spawner's schedule, with its own cues.
+/// Zebes reveal, whose only cues are the PLANET ZEBES title's; and the invisible explosion spawner's, whose cues spawn the
+/// station's blasts (#2489).
 /// </summary>
 internal static class CeresAnimations
 {
@@ -82,6 +84,41 @@ internal static class CeresAnimations
             [A.ZebesStarsLowerRight] = plays.Still(A.ZebesStarsLowerRight),
             [A.ZebesTitle] = plays.Through(A.ZebesTitle, AnimationEnd.Stops),
             [A.ZebesJapaneseTitle] = plays.Through(A.ZebesJapaneseTitle, AnimationEnd.Stops),
+        });
+
+    /// <summary>
+    /// The invisible explosion spawner's animation (#2489), which the destruction's setup starts: it waits 128 updates and
+    /// spawns the first wave; 81 updates later it spawns the first repeating blast and five more, one every 12 updates;
+    /// three updates after the sixth it spawns the final wave and ends. The repeating blasts start on the update after an
+    /// 80-update wait, the first of the 64 updates before the final wave, so they spawn on the first update of that stretch
+    /// and every twelfth after it.
+    /// </summary>
+    internal static CinematicAnimations<CeresAnimation, CinematicSpritePose, CeresExplosionSpawnerCue> ExplosionSpawner { get; } = new(
+        new Dictionary<CeresAnimation, AnimationBeat<CinematicSpritePose, CeresExplosionSpawnerCue>[]>
+        {
+            [A.ExplosionSpawner] =
+            [
+                W.Show(S.Blank, 128),
+                W.Raise(CeresExplosionSpawnerCue.SpawnInitialWave),
+                W.Show(S.Blank, 81),
+                W.Raise(CeresExplosionSpawnerCue.SpawnRepeatingBlast),
+                W.Show(S.Blank, 12),
+                W.Raise(CeresExplosionSpawnerCue.SpawnRepeatingBlast),
+                W.Show(S.Blank, 12),
+                W.Raise(CeresExplosionSpawnerCue.SpawnRepeatingBlast),
+                W.Show(S.Blank, 12),
+                W.Raise(CeresExplosionSpawnerCue.SpawnRepeatingBlast),
+                W.Show(S.Blank, 12),
+                W.Raise(CeresExplosionSpawnerCue.SpawnRepeatingBlast),
+                W.Show(S.Blank, 12),
+                W.Raise(CeresExplosionSpawnerCue.SpawnRepeatingBlast),
+                W.Show(S.Blank, 3),
+                W.Raise(CeresExplosionSpawnerCue.SpawnFinalWave),
+            ],
+        },
+        plays => new Dictionary<CeresAnimation, Animation<CeresAnimation>>
+        {
+            [A.ExplosionSpawner] = plays.Through(A.ExplosionSpawner, AnimationEnd.Stops),
         });
 
     /// <summary>A small explosion burning through its six pictures, three updates each.</summary>

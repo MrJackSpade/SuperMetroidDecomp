@@ -133,7 +133,7 @@ internal static class CinematicColourEffectTests
         IntroCinematicState intro = RenderRetailFixture.CreateIntro(audio);
         int? start = null;
         int checks = 0;
-        for (int update = 0; intro.CurrentFlashbackMotherBrain?.PageTwoRequested != true; update++)
+        for (int update = 0; intro.CurrentFlashbackMotherBrain?.NextPageRequested != true; update++)
         {
             if (update >= 20_000)
                 throw new InvalidOperationException("The intro did not reach page two.");

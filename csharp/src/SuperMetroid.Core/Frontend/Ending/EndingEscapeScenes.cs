@@ -76,20 +76,10 @@ internal sealed class EndingEscapeScenes
         _stage.Phase = EndingCreditsPhase.FadeInTopAndBottomCloudEscape;
     }
 
-    /// <summary>Advances each cloud's zoom-relative motion and its own cues.</summary>
-    internal void StepEscapeClouds()
-    {
-        foreach (EndingSprite wrapper in sprites)
-        {
-            ICinematicActor<EndingSceneCue> sprite = wrapper.Sprite;
-            EndingCloudMotion.Step(wrapper, _stage.FloorZoom);
-            sprite.Step();
-        }
-    }
-
     /// <summary>
-    /// Runs the live actors in running order. An actor a step spawns after the running one runs later in this same pass;
-    /// one spawned before it waits for the next pass.
+    /// Runs the live actors in running order, each its own motion and then its animation (#2489): the escapes' clouds,
+    /// the explosion's actors, the completion text and the reward. An actor a step spawns after the running one runs later
+    /// in this same pass; one spawned before it waits for the next pass.
     /// </summary>
     /// <exception cref="InvalidOperationException">An actor's own step replaced it.</exception>
     internal void StepSprites()
@@ -114,7 +104,8 @@ internal sealed class EndingEscapeScenes
         {
             case EndingSceneCue.WaitForFlyaway:
                 // The right-hand stars wait for the flyaway to carry them away.
-                wrapper.StarsMotion = EndingStarsMotion.WaitingForFlyaway;
+                (wrapper.Motion as EndingFlyawayStarsMotion ?? throw new InvalidOperationException(
+                    $"The ending's {wrapper.Role} actor, which no flyaway moves, waited for the flyaway.")).WaitForFlyaway();
                 return;
 
             case EndingSceneCue.FadeExplosionColours:

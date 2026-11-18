@@ -1,4 +1,6 @@
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Frontend.CeresCinematics;
+using SuperMetroid.Verification.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Intro;
 
@@ -20,7 +22,7 @@ internal static class CinematicSpriteNativeListAddresses
     internal static readonly IReadOnlyDictionary<Enum, ushort> Starts = new Dictionary<Enum, ushort>
     {
         [IntroMotherBrainAnimation.Pulsing] = 0xcb05,
-        [IntroMotherBrainAnimation.StartingPageTwo] = 0xcb19,
+        [IntroMotherBrainAnimation.StartingNextPage] = 0xcb19,
         [IntroBabyAnimation.Egg] = 0xcb33,
         [IntroBabyAnimation.EggHatching] = 0xcb3b,
         [IntroBabyAnimation.DeliveredBaby] = 0xcb9f,
@@ -114,12 +116,12 @@ internal static class CinematicSpriteNativeListAddresses
 
     /// <summary>What the intro Mother Brain's lists have her owner do.</summary>
     internal static NativeCinematicCues<IntroMotherBrainCue> MotherBrainCues { get; } = new(
-        new Dictionary<ushort, IntroMotherBrainCue> { [0xb336] = IntroMotherBrainCue.StartPageTwo },
+        new Dictionary<ushort, IntroMotherBrainCue> { [0xb336] = IntroMotherBrainCue.StartNextPage },
         new Dictionary<ushort, IntroMotherBrainCue> { [CinematicActorNativeMotions.MotherBrainCrossFade] = IntroMotherBrainCue.StartCrossFade });
 
     /// <summary>What the discovery scene egg's lists have their owner do.</summary>
     internal static NativeCinematicCues<IntroDiscoveryCue> DiscoveryCues { get; } = new(
-        new Dictionary<ushort, IntroDiscoveryCue> { [0xa918] = IntroDiscoveryCue.SpawnShellPieces, [0xb33e] = IntroDiscoveryCue.StartPageThree },
+        new Dictionary<ushort, IntroDiscoveryCue> { [0xa918] = IntroDiscoveryCue.SpawnShellPieces, [0xb33e] = IntroDiscoveryCue.StartNextPage },
         new Dictionary<ushort, IntroDiscoveryCue>
         {
             [CinematicActorNativeMotions.MetroidEgg[MetroidEggBehavior.WaitsForCrossFadeEnd]] = IntroDiscoveryCue.DeleteEggAfterCrossFade,
@@ -127,7 +129,7 @@ internal static class CinematicSpriteNativeListAddresses
 
     /// <summary>What the laboratory Baby's lists have their owner do.</summary>
     internal static NativeCinematicCues<IntroLaboratoryCue> LaboratoryCues { get; } = new(
-        new Dictionary<ushort, IntroLaboratoryCue> { [0xb346] = IntroLaboratoryCue.StartPageFour, [0xb34e] = IntroLaboratoryCue.StartPageFive },
+        new Dictionary<ushort, IntroLaboratoryCue> { [0xb346] = IntroLaboratoryCue.StartNextPage, [0xb34e] = IntroLaboratoryCue.StartNextPage },
         new Dictionary<ushort, IntroLaboratoryCue>());
 
     /// <summary>What the intro Rinka's list has its owner do.</summary>
@@ -150,10 +152,19 @@ internal static class CinematicSpriteNativeListAddresses
         },
         new Dictionary<ushort, CeresCue>());
 
-    /// <summary>What the Ceres explosion spawner's list has its owner do.</summary>
+    /// <summary>
+    /// What the Ceres explosion spawner's list has its owner do: its two waves, and the repeating blasts the routine it
+    /// installs spawns (#2489).
+    /// </summary>
     internal static NativeCinematicCues<CeresExplosionSpawnerCue> ExplosionSpawnerCues { get; } = new(
         new Dictionary<ushort, CeresExplosionSpawnerCue> { [0xc404] = CeresExplosionSpawnerCue.SpawnInitialWave, [0xc50c] = CeresExplosionSpawnerCue.SpawnFinalWave },
-        new Dictionary<ushort, CeresExplosionSpawnerCue> { [CinematicActorNativeMotions.CeresRepeatingExplosions] = CeresExplosionSpawnerCue.StartRepeatingExplosions });
+        new Dictionary<ushort, CeresExplosionSpawnerCue>())
+    {
+        Routines = new Dictionary<ushort, Func<IImportCartridgeSource, INativeCinematicRoutine<CeresExplosionSpawnerCue>>>
+        {
+            [CinematicActorNativeMotions.CeresRepeatingExplosions] = cartridge => new NativeCeresRepeatingExplosions(cartridge),
+        },
+    };
 
     /// <summary>What the ending scenes' lists have the escape scenes do: the explosion's and the result text's cues.</summary>
     internal static NativeCinematicCues<EndingSceneCue> EndingSceneCues { get; } = new(

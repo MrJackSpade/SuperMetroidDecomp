@@ -4,29 +4,33 @@ using SuperMetroid.Core.Frontend.Intro;
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>
-/// A live ending actor with its role and role-specific motion: a picture actor (<see cref="EndingPictureSprite"/>) or a typed
+/// A live ending actor with its role and its own motion: a picture actor (<see cref="EndingPictureSprite"/>) or a typed
 /// text (<see cref="EndingTextSprite"/>), both running animations that publish the escape scenes' cues (#2195, #2197).
 /// </summary>
-/// <param name="role">What the actor shows and how it moves.</param>
-internal abstract class EndingSprite(EndingSpriteRole role)
+internal abstract class EndingSprite
 {
-    /// <summary>What the actor shows and how it moves.</summary>
-    public EndingSpriteRole Role { get; } = role;
+    /// <summary>Creates an actor of <paramref name="role"/>, starting the motion its role names (#2489).</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The role is undefined.</exception>
+    protected EndingSprite(EndingSpriteRole role)
+    {
+        Role = role;
+        Definition = EndingSpriteRoleDefinitions.Roles.TryGetValue(role, out EndingSpriteRoleDefinition? definition)
+            ? definition
+            : throw new ArgumentOutOfRangeException(nameof(role), role, "Undefined ending sprite role.");
+        Motion = Definition.Motion?.Invoke();
+    }
+
+    /// <summary>What the actor shows.</summary>
+    public EndingSpriteRole Role { get; }
+
+    /// <summary>What the actor's role draws from, the sprite layer it shows on and the motion it starts with.</summary>
+    public EndingSpriteRoleDefinition Definition { get; }
+
+    /// <summary>How the actor moves, with whatever state its motion keeps (#2489), or null for one with no motion of its own.</summary>
+    public EndingActorMotion? Motion { get; }
 
     /// <summary>The actor: where it stands, whether it is alive, and its animation's next update.</summary>
     public abstract ICinematicActor<EndingSceneCue> Sprite { get; }
-
-    /// <summary>The explosion stars' flyaway motion, or null for an actor the flyaway does not move.</summary>
-    public EndingStarsMotion? StarsMotion { get; set; }
-
-    /// <summary>Whether cloud motion has entered its moving cue phase.</summary>
-    public bool CloudMoving { get; set; }
-
-    /// <summary>
-    /// The starfield's speed across the screen once the flyaway starts it: a quarter pixel an update to the right,
-    /// slowing by 1/2048 of a pixel each update until the starfield leaves with the finale.
-    /// </summary>
-    public SignedSixteenSixteen FlyawayVelocity { get; set; }
 
     /// <summary>
     /// Draws what the actor shows from <paramref name="art"/> without advancing it: a picture from its family's

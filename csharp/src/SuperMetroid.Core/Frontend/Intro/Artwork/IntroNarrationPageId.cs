@@ -1,18 +1,18 @@
 namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 
-/// <summary>One named English narration page exposed to presentation content.</summary>
+/// <summary>The English narration pages, in the order the opening tells them, each named for what it tells (#2489).</summary>
 public enum IntroNarrationPageId
 {
-    /// <summary>First story page, recalling the Zebes battle and Mother Brain's plans.</summary>
-    Page1,
-    /// <summary>Second story page, recalling SR388 and the surviving larva.</summary>
-    Page2,
-    /// <summary>Third story page, describing the larva's delivery to Ceres for research.</summary>
-    Page3,
-    /// <summary>Fourth story page, describing the scientists' findings about Metroid energy.</summary>
-    Page4,
-    /// <summary>Fifth story page, describing Samus's departure and receipt of a distress signal.</summary>
-    Page5,
-    /// <summary>Final story page, announcing the attack on Ceres and using a timed final hold instead of the earlier pages' input wait.</summary>
-    Page6,
+    /// <summary>The battle on Zebes, where Samus foiled Mother Brain's plans.</summary>
+    ZebesBattle,
+    /// <summary>The fight on SR388 and the larva that hatched and followed Samus.</summary>
+    HatchedLarva,
+    /// <summary>The larva's delivery to the research station on Ceres.</summary>
+    DeliveryToCeres,
+    /// <summary>The scientists' findings about the Metroid's energy.</summary>
+    ScientistsFindings,
+    /// <summary>Samus's departure from the station and the distress signal she picks up.</summary>
+    DistressSignal,
+    /// <summary>The attack on Ceres, the last page.</summary>
+    CeresUnderAttack,
 }

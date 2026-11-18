@@ -7,5 +7,5 @@ namespace SuperMetroid.TestSupport.MovieReplay;
 /// <param name="Name">The animation's name, for failure messages.</param>
 /// <param name="Animation">The animation.</param>
 /// <param name="Entry">The native place it starts at.</param>
-internal sealed record NativeNamedAnimationEntry<TSegment>(string Name, Animation<TSegment> Animation, ushort Entry)
+internal readonly record struct NativeNamedAnimationEntry<TSegment>(string Name, Animation<TSegment> Animation, ushort Entry)
     where TSegment : struct;

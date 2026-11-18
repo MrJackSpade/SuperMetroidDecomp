@@ -62782,6 +62782,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Alcoon.AlcoonSpitPoses",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Alcoon/AlcoonSpitPoses.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Alcoon.AlcoonWalkDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -63153,6 +63166,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/Animals/DachoraSpawnSettings.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Animals.DachoraStride",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Animals/DachoraStride.cs"
       ],
       "partial": "none",
       "disposition": "record"
@@ -63702,6 +63728,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/Animals/EtecoonSpawnSettings.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Animals.EtecoonStride",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Animals/EtecoonStride.cs"
       ],
       "partial": "none",
       "disposition": "record"
@@ -67325,6 +67364,32 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Chozo.ChozoStatueHand",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Chozo/ChozoStatueHand.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Chozo.ChozoStatueLeg",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Chozo/ChozoStatueLeg.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Chozo.ChozoStatueObjectDefinitions",
@@ -71971,19 +72036,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.FaceBlocks.Artwork.FaceBlockGlowFrame",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/FaceBlocks/Artwork/FaceBlockGlowFrame.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.FaceBlocks.Artwork.FaceBlockShades",
       "kind": "static class",
       "scope": "product",
@@ -72078,6 +72130,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.FaceBlocks.FaceBlockGlowAnimations",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/FaceBlocks/FaceBlockGlowAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.FaceBlocks.FaceBlockGlowDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -72089,6 +72154,32 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.FaceBlocks.FaceBlockGlowLevel",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/FaceBlocks/FaceBlockGlowLevel.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.FaceBlocks.FaceBlockGlowSegment",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/FaceBlocks/FaceBlockGlowSegment.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Enemies.FaceBlocks.FaceBlockSpawnSettings",
@@ -160900,6 +160991,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Enemies/FaceBlocks/BlueBrinstarFaceBlockBehaviorVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.FaceBlocks.BlueBrinstarFaceBlockGlowVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/FaceBlocks/BlueBrinstarFaceBlockGlowVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"

@@ -25,7 +25,7 @@ internal static class KraidSuperMissileDamageVerification
     /// <summary>Runs two room shots through damage and deferred link cleanup, or emits the focused collision report.</summary>
     internal static int VerifyKraidSuperMissileDamage(bool collisionReport = false)
     {
-        var game=new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
+        var game=new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
         var projectiles=InstalledFixtures.Projectiles;
         InstalledFixtures.BindGame(game);
         game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);

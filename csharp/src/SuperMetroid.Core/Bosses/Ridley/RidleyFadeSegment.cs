@@ -26,4 +26,10 @@ internal enum RidleyFadeSegment
     /// alarm's steps, its first after its last.
     /// </summary>
     AlarmCycling,
+
+    /// <summary>
+    /// The self-destruct warning's first cycle through its alarm colours, from its second colouring to its last: the
+    /// cycle counts on from its first colouring before it shows any, then cycles whole (<see cref="AlarmCycling"/>).
+    /// </summary>
+    AlarmFirstCycle,
 }

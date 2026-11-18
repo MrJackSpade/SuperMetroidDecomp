@@ -66,6 +66,10 @@ internal static class ControllerButtonLookupsVerification
                 $"reject undefined action {(int)undefined}");
         AssertTrue(!(bindings with { Shoot = bindings.Jump }).IsUniquePermutation,
             "duplicate button invalidates permutation");
+        // Bindings that leave a button to no action are not a permutation; a swap onto that button is refused rather than
+        // leaving the action's old button bound twice.
+        AssertThrows<InvalidOperationException>(() => (bindings with { Shoot = bindings.Jump }).AssignAndSwap(ControllerAction.Jump, original[0]),
+            "a swap onto a button no action holds is refused");
     }
 
     /// <summary>Reads native default binding instructions and checks their action-to-WRAM mapping.</summary>

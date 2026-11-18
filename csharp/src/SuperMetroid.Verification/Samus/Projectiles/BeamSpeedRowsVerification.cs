@@ -119,8 +119,8 @@ internal static class BeamSpeedRowsVerification
                     // Anchor the trajectory at the spawn origin: the fire-frame position less
                     // that frame's unaccelerated ignition step, which the update below re-adds.
                     var fired = projectiles.Shots[0];
-                    x = unchecked(SixteenSixteenWords.Compose(fired.Position.X.Whole, fired.Position.X.Fraction) - (uint)SixteenSixteen.FromEightEight(vx));
-                    y = unchecked(SixteenSixteenWords.Compose(fired.Position.Y.Whole, fired.Position.Y.Fraction) - (uint)SixteenSixteen.FromEightEight(vy));
+                    x = unchecked(SixteenSixteenWords.Compose(fired.Position.X.Whole, fired.Position.X.Fraction) - (uint)EightEightOracle.ToSixteenSixteen(vx));
+                    y = unchecked(SixteenSixteenWords.Compose(fired.Position.Y.Whole, fired.Position.Y.Fraction) - (uint)EightEightOracle.ToSixteenSixteen(vy));
                 }
                 else
                 {
@@ -130,8 +130,8 @@ internal static class BeamSpeedRowsVerification
                     vy = unchecked((short)(vy + (short)retail.ReadCartridgeWord((table + direction * 4 + 2)) +
                         (weapon == 1 ? (short)retail.ReadCartridgeWord((0x90c367 + direction * 2)) : 0)));
                 }
-                x = unchecked(x + (uint)SixteenSixteen.FromEightEight(vx));
-                y = unchecked(y + (uint)SixteenSixteen.FromEightEight(vy));
+                x = unchecked(x + (uint)EightEightOracle.ToSixteenSixteen(vx));
+                y = unchecked(y + (uint)EightEightOracle.ToSixteenSixteen(vy));
                 var owner = projectiles.Shots[0];
                 AssertTrue(owner.IsActive, "Motion fixture retains its visible missile owner");
                 AssertEqual((short)vx, owner.Velocity.X.InTwoHundredFiftySixthsOfPixel, "Native missile acceleration X across ignition and movement");

@@ -30,7 +30,7 @@ internal static class MotherBrainRinkaDoorSpawnVerification
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var random = new SharedRandom();
         var progress = new CameraReachedLoaderProgress(0x038c);
-        var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false,
+        var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), renderGameplayFrames: false,
             hostServices: SuperMetroidGameHostServices.Default with { RoomLoadProgress = progress }, random: random);
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random, audio: game.AudioForVerification);
         progress.Runtime = runtime;

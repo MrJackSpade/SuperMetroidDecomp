@@ -522,17 +522,14 @@ internal sealed class PhantoonCombat
         flame.Position = flame.Position.WithWhole(body.Position.Whole + PhantoonArenaDefinitions.FlameCircleCentre + new Offset16<RoomPixels>(xOffset, yOffset));
     }
 
-    /// <summary>One part of a flame's place on its orbit: the radius times the wave's size, negated over the second half turn.</summary>
+    /// <summary>
+    /// One part of a flame's place on its orbit: the radius laid along the angle's sine, rounded toward zero
+    /// (<see cref="UnitComponent.ReachOf"/>).
+    /// </summary>
     /// <param name="angle">The flame's orbit angle.</param>
     /// <param name="radius">The orbit radius, zero or more; the product uses its place within 256 (<see cref="ShortCircleProduct"/>).</param>
-    internal static int ReadPhantoonFlameComponent(TrigonometryAngle angle, int radius)
-    {
-        // The wave's size is in 256ths, at most one whole: its fraction and its whole part each multiply the radius.
-        int sample = Trigonometry.SignedSine(angle.InFirstHalfTurn());
-        int orbit = ShortCircleProduct.RadiusInUse(radius);
-        int magnitude = EightEight.Multiply(EightEight.FractionOf(sample), orbit) + EightEight.WholeOf(sample) * orbit;
-        return angle.IsInSecondHalf ? -magnitude : magnitude;
-    }
+    internal static int ReadPhantoonFlameComponent(TrigonometryAngle angle, int radius) =>
+        UnitComponent.SineOf(angle).ReachOf(ShortCircleProduct.RadiusInUse(radius));
 
     /// <summary>Switches a flame to its delete animation after leaving the room bounds.</summary>
     private static void DeletePhantoonFlameOutsideRoom(EnemyProjectile flame)

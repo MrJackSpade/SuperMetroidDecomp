@@ -93,15 +93,11 @@ internal static class ExploredMapPackingDefinitionsVerification
     /// <summary>Reads a native map-packing byte solely for the cartridge-side verification oracle.</summary>
     private static byte ExploredMapPackingDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    /// <summary>Checks that map packing needs a bound map presentation and that debugger restoration keeps the bound provider and decoded slots.</summary>
+    /// <summary>Checks that debugger restoration keeps the bound provider and decoded slots.</summary>
     private static void VerifyCalculatedMapPackingBindings(PersistentProgress explored)
     {
         var original = InstalledFixtures.Maps;
         var snapshot = SaveSnapshotFixtures.NewGame with { Progress = explored };
-        var unbound = new SaveSlotStore();
-        AssertThrows<InvalidOperationException>(() => unbound.SaveSlot(SaveSlot.A, snapshot),
-            "unbound map packing fails before persistence");
-        AssertTrue(unbound.ReadSlot(SaveSlot.A) is null, "unbound save leaves the slot empty");
         var saves = new SaveSlotStore(original);
         saves.SaveSlot(SaveSlot.A, snapshot);
 

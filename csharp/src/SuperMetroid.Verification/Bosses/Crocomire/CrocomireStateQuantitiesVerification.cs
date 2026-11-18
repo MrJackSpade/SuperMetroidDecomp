@@ -212,7 +212,7 @@ internal static class CrocomireStateQuantitiesVerification
     {
         if (unchecked((short)(y - 218)) < 0)
             return false;
-        acceleration = unchecked((ushort)Math.Min(acceleration + EightEight.FromWhole(1), EightEight.FromWhole(31)));
+        acceleration = unchecked((ushort)Math.Min(acceleration + EightEightOracle.FromWhole(1), EightEightOracle.FromWhole(31)));
         int accelerationWhole = LittleEndianBytes.HighByte(acceleration);
 
         byte speedFraction = LittleEndianBytes.LowByte(speed);
@@ -256,7 +256,7 @@ internal static class CrocomireStateQuantitiesVerification
         // The drift right of the broken wall, while the skeleton is left of X 224.
         for (int frame = 1; frame <= delay; frame++)
         {
-            NativeAccelerate(ref fraction, ref whole, (uint)SixteenSixteen.FromEightEight(128), 2);
+            NativeAccelerate(ref fraction, ref whole, (uint)EightEightOracle.ToSixteenSixteen(128), 2);
             position = position.WithX(NativeAdvance(position.X, fraction, whole));
             if (frame == delay)
                 fraction = 0;
@@ -268,7 +268,7 @@ internal static class CrocomireStateQuantitiesVerification
         // The arc into the arena, falling 224/256 pixel a frame, until the skeleton passes X 576.
         for (int frame = 1; frame <= 400; frame++)
         {
-            NativeAccelerate(ref fraction, ref whole, (uint)SixteenSixteen.FromEightEight(8), 5);
+            NativeAccelerate(ref fraction, ref whole, (uint)EightEightOracle.ToSixteenSixteen(8), 5);
             position = position.WithY(NativeAdvance(position.Y, LittleEndianBytes.Word(0, 224), 0));
             position = position.WithX(NativeAdvance(position.X, fraction, whole));
             behavior.Skeleton.RunCrocomireSkeletonArc(state);
@@ -282,7 +282,7 @@ internal static class CrocomireStateQuantitiesVerification
         state.BodyPlayback = new AnimationPlayback<CrocomireBodySegment>(CrocomireBodyAnimations.StartingWith(CrocomireBodyAnimation.SkeletonFallsApart), AnimationPlace.StartOfAnimation);
         for (int frame = 1; frame <= 20; frame++)
         {
-            NativeAccelerate(ref fraction, ref whole, (uint)SixteenSixteen.FromEightEight(16), 6);
+            NativeAccelerate(ref fraction, ref whole, (uint)EightEightOracle.ToSixteenSixteen(16), 6);
             behavior.Skeleton.RunCrocomireSkeletonCollapse(state, RoomEnemyFrameFixtures.StandaloneSamus());
             AssertEqual(fraction, state.SkeletonVelocity.Fraction, $"skeleton collapse frame {frame}: speed fraction word");
             AssertEqual(whole, state.SkeletonVelocity.UnsignedWholePixels, $"skeleton collapse frame {frame}: speed whole word");

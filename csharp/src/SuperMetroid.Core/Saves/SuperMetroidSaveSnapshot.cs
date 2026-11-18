@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Saves;
 /// <summary>What a save station, checkpoint or save editor hands a save slot to keep: Samus, options and progress.</summary>
 public sealed record SuperMetroidSaveSnapshot
 {
-    /// <summary>The seven configurable actions as a validated permutation of controller button masks.</summary>
+    /// <summary>The button bound to each of the seven configurable actions, no button bound to two.</summary>
     public required ControllerBindings ControllerBindings { get; init; }
 
     /// <summary>Whether the options menu's moonwalk behavior is enabled.</summary>
@@ -19,16 +19,16 @@ public sealed record SuperMetroidSaveSnapshot
     /// <summary>Whether the alternate Japanese text setting is enabled.</summary>
     public required bool JapaneseText { get; init; }
 
-    /// <summary>Bit mask of collected items currently enabled on Samus.</summary>
+    /// <summary>The collected items Samus has equipped.</summary>
     public required SamusEquipmentFlags EquippedItems { get; init; }
 
-    /// <summary>Bit mask of item upgrades Samus has collected, including unequipped upgrades.</summary>
+    /// <summary>The items Samus has collected, equipped or not.</summary>
     public required SamusEquipmentFlags CollectedItems { get; init; }
 
-    /// <summary>Bit mask of collected beam upgrades currently enabled on Samus.</summary>
+    /// <summary>The collected beams Samus has equipped.</summary>
     public required SamusBeamFlags EquippedBeams { get; init; }
 
-    /// <summary>Bit mask of all beam upgrades Samus has collected.</summary>
+    /// <summary>The beams Samus has collected, equipped or not.</summary>
     public required SamusBeamFlags CollectedBeams { get; init; }
 
     /// <summary>The reserve tanks' mode: none, auto or manual.</summary>

@@ -94,7 +94,7 @@ internal static class CeresSaveStartupVerification
 
         // A new game must write $1F before capturing the initial checkpoint. Reuse
         // immutable installed catalogs, but enter only the one reported room.
-        var fresh = new SuperMetroidGame(new SaveSlotStore());
+        var fresh = new SuperMetroidGame(new SaveSlotStore(RetailPresentationFixture()));
         bind(fresh, true);
         fresh.BindArtwork(fresh.Artwork with
         {

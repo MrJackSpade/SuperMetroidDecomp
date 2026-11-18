@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Saves;
 internal static class SaveSlotRetention
 {
     /// <summary>The slot <paramref name="snapshot"/> saves as in <paramref name="slot"/>.</summary>
-    internal static SuperMetroidSaveSlot Retain(SuperMetroidSaveSnapshot snapshot, SaveSlot slot, IAreaMapSource? maps)
+    internal static SuperMetroidSaveSlot Retain(SuperMetroidSaveSnapshot snapshot, SaveSlot slot, IAreaMapSource maps)
     {
         Ensure.NotNull(snapshot);
         ControllerBindings bindings = snapshot.ControllerBindings.RequireUniquePermutation();

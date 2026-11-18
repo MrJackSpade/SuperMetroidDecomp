@@ -83,10 +83,15 @@ public readonly record struct ControllerBindings(
     /// <summary>
     /// Reproduces the options screen's permutation swap. Assigning a physical button to one
     /// action moves that action's old button to whichever other action previously owned the
-    /// requested button; the seven bindings therefore remain unique.
+    /// requested button; the seven bindings therefore remain unique. Assigning an action the
+    /// button it already has changes nothing.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">
     /// <paramref name="action"/> is not a defined action, or <paramref name="physicalButton"/> is not assignable.
+    /// </exception>
+    /// <exception cref="InvalidOperationException">
+    /// No action holds <paramref name="physicalButton"/>: these bindings are not a unique permutation of the assignable
+    /// buttons, which every save, the options menu and the swap itself keep them.
     /// </exception>
     public ControllerBindings AssignAndSwap(ControllerAction action, ControllerButton physicalButton)
     {
@@ -97,6 +102,8 @@ public readonly record struct ControllerBindings(
                 nameof(physicalButton), physicalButton, "Button is not assignable.");
         }
 
+        if (displaced == physicalButton)
+            return this;
         ControllerBindings result = WithAction(action, physicalButton);
         foreach (ControllerAction other in Actions)
         {
@@ -104,10 +111,8 @@ public readonly record struct ControllerBindings(
                 return result.WithAction(other, displaced);
         }
 
-        // A corrupt saved permutation can omit the selected physical button. The game scans
-        // six peers and then leaves the displaced value nowhere; matching that behavior is
-        // safer than inventing a repair policy at runtime.
-        return result;
+        throw new InvalidOperationException(
+            $"No action holds {physicalButton}, so the bindings are not a unique permutation of the assignable buttons.");
     }
 
     /// <summary>

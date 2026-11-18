@@ -55,17 +55,17 @@ public struct KraidPassBounds
     /// <param name="top">The rectangle's top edge in room pixels.</param>
     /// <param name="bottom">The rectangle's bottom edge in room pixels.</param>
     public static KraidPassBounds Placed(int left, int top, int bottom) =>
-        new() { _left = Wrap(left), _top = Wrap(top), Bottom = Wrap(bottom) };
+        new() { _left = CoordinateAxis.Wrap(left), _top = CoordinateAxis.Wrap(top), Bottom = CoordinateAxis.Wrap(bottom) };
 
     /// <summary>Whether a projectile whose top edge is <paramref name="shotTop"/> reaches above the bottom bound.</summary>
     /// <param name="shotTop">The projectile's top edge in room pixels.</param>
-    public readonly bool IsAboveBottom(int shotTop) => unchecked((short)(shotTop - 1 - Bottom)) < 0;
+    public readonly bool IsAboveBottom(int shotTop) => CoordinateAxis.Precedes(shotTop - 1, Bottom);
 
     /// <summary>Whether a projectile reaches below the top bound and right of the left bound.</summary>
     /// <param name="shotBottom">The projectile's bottom edge in room pixels.</param>
     /// <param name="shotRight">The projectile's right edge in room pixels.</param>
     public readonly bool ReachesTopAndLeft(int shotBottom, int shotRight) =>
-        unchecked((short)(shotBottom - _top)) >= 0 && unchecked((short)(shotRight - _left)) >= 0;
+        !CoordinateAxis.Precedes(shotBottom, _top) && !CoordinateAxis.Precedes(shotRight, _left);
 
     /// <summary>Whether a projectile overlaps the bounds as the mouth test reads them.</summary>
     /// <param name="shotTop">The projectile's top edge in room pixels.</param>
@@ -76,14 +76,14 @@ public struct KraidPassBounds
 
     /// <summary>Leaves a projectile's right edge as the bottom, as the body contour test does.</summary>
     /// <param name="shotRight">The projectile's right edge in room pixels.</param>
-    public void LeaveRightEdgeAsBottom(int shotRight) => Bottom = Wrap(shotRight);
+    public void LeaveRightEdgeAsBottom(int shotRight) => Bottom = CoordinateAxis.Wrap(shotRight);
 
     /// <summary>Leaves the bounds a damaging mouth hit leaves: the given bottom and <see cref="TopAfterMouthHit"/>.</summary>
     /// <param name="bottom">The bottom <see cref="KraidMouthHitBound"/> gives for the hit.</param>
     public void LeaveAfterMouthHit(int bottom)
     {
-        Bottom = Wrap(bottom);
-        _top = Wrap(TopAfterMouthHit);
+        Bottom = CoordinateAxis.Wrap(bottom);
+        _top = CoordinateAxis.Wrap(TopAfterMouthHit);
     }
 
     /// <summary>Leaves the bounds a mouth hit that does no damage leaves, with <see cref="LeftAfterDud"/> as the left bound.</summary>
@@ -103,7 +103,4 @@ public struct KraidPassBounds
         Bottom = shot.X;
         _top = shot.Y;
     }
-
-    /// <summary>A room coordinate as the bounds hold it, wrapped into the sixteen-bit range the comparisons read.</summary>
-    private static int Wrap(int coordinate) => unchecked((ushort)coordinate);
 }

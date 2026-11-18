@@ -132,6 +132,15 @@ public readonly record struct UnsignedSixteenSixteen
         FromRaw(checked((uint)(((long)Ensure.BetweenInclusive(0, ushort.MaxValue, wholePixels) << 16) /
             Ensure.BetweenInclusive(1, int.MaxValue, updates))));
 
+    /// <summary>
+    /// The value divided by <paramref name="divisor"/> as one amount in 256ths (<see cref="InTwoFiftySixths"/>): the
+    /// fraction's part finer than a 256th drops out first, and the quotient's remainder below a 256th is dropped, so a
+    /// whole unit the division moves into the fraction is kept to the 256th.
+    /// </summary>
+    /// <param name="divisor">The divisor, one or more.</param>
+    public UnsignedSixteenSixteen DividedInTwoFiftySixths(int divisor) =>
+        FromTwoHundredFiftySixthsOfPixel(InTwoFiftySixths / Ensure.BetweenInclusive(1, int.MaxValue, divisor));
+
     /// <summary>This speed with its whole part replaced.</summary>
     public UnsignedSixteenSixteen WithWhole(int whole) => new(whole, Fraction);
 

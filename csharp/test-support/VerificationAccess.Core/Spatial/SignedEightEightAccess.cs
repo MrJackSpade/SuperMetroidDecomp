@@ -9,14 +9,14 @@ internal static class SignedEightEightAccess
     {
         /// <summary>Creates an exact whole-pixel velocity and rejects values outside 8.8 range.</summary>
         internal static SignedEightEight FromWholePixels(int pixels) =>
-            new(unchecked((ushort)EightEight.FromWhole(checked((sbyte)pixels))));
+            new(unchecked((ushort)EightEightOracle.FromWhole(checked((sbyte)pixels))));
     }
 
     /// <summary>Inspects or advances a signed 8.8 value with native wrap semantics.</summary>
     extension(SignedEightEight self)
     {
         /// <summary>Signed whole-pixel byte.</summary>
-        internal sbyte WholePixels => unchecked((sbyte)(EightEight.WholeOf(self.RawValue)));
+        internal sbyte WholePixels => unchecked((sbyte)(EightEightOracle.WholeOf(self.RawValue)));
 
         /// <summary>Unsigned 1/256-pixel fraction byte.</summary>
         internal byte Fraction => unchecked((byte)self.RawValue);

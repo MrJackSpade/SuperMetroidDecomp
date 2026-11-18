@@ -6,6 +6,9 @@ namespace SuperMetroid.Core.Rooms.Scrolling;
 /// </summary>
 public sealed record ParallaxRate
 {
+    /// <summary>The 256ths in the whole of the foreground's movement.</summary>
+    private const int Whole = 256;
+
     /// <summary>The rate in 256ths of the foreground's movement, 1 through 255.</summary>
     private readonly int _twoHundredFiftySixths;
 
@@ -22,13 +25,12 @@ public sealed record ParallaxRate
     /// </exception>
     public static ParallaxRate Of(int numerator, int denominator)
     {
-        int whole = EightEight.FromWhole(1);
-        int scaled = checked(numerator * whole);
-        Ensure.BetweenInclusive(1, whole, denominator);
+        int scaled = checked(numerator * Whole);
+        Ensure.BetweenInclusive(1, Whole, denominator);
         if (scaled % denominator != 0)
             throw new ArgumentOutOfRangeException(nameof(denominator), denominator,
                 $"A parallax rate of {numerator}/{denominator} is not a whole number of 256ths.");
-        return new(Ensure.BetweenInclusive(1, whole - 1, scaled / denominator));
+        return new(Ensure.BetweenInclusive(1, Whole - 1, scaled / denominator));
     }
 
     /// <summary>
@@ -37,13 +39,13 @@ public sealed record ParallaxRate
     /// </summary>
     /// <param name="foregroundPosition">The foreground's position on the axis, not negative.</param>
     internal int Trail(int foregroundPosition) =>
-        checked((int)EightEight.WholeOf(checked((uint)foregroundPosition) * (uint)_twoHundredFiftySixths));
+        checked((int)(checked((uint)foregroundPosition) * (uint)_twoHundredFiftySixths / Whole));
 
     /// <summary>The rate as a fraction in lowest terms.</summary>
     public override string ToString()
     {
         int numerator = _twoHundredFiftySixths;
-        int denominator = EightEight.FromWhole(1);
+        int denominator = Whole;
         while (numerator % 2 == 0)
         {
             numerator /= 2;

@@ -12,7 +12,7 @@ internal static class BombSpreadLaunchWordsAccess
         /// </summary>
         public static SignedSixteenSixteen Unpack(int launchWord)
         {
-            int high = UnsignedEightEight.Whole(launchWord);
+            int high = EightEightOracle.UnsignedWhole(launchWord);
             bool movingLeft = high >= BombSpreadLaunchWords.LeftwardBit;
             SignedSixteenSixteen speed = SignedSixteenSixteen.FromParts(
                 movingLeft ? high - BombSpreadLaunchWords.LeftwardBit : high, unchecked((byte)launchWord) << 8);

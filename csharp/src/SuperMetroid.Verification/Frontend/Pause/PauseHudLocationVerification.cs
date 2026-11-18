@@ -27,7 +27,7 @@ internal static class PauseHudLocationVerification
             // A runtime belongs to the one session that runs it, as every runtime a session builds does (its audio
             // requests reach that session's queues alone), so each phase's new game adopts a runtime of its own.
             var random = new SharedRandom();
-            var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), null, SuperMetroid.Core.Frontend.SuperMetroidGameHostServices.Default, random);
+            var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), null, SuperMetroid.Core.Frontend.SuperMetroidGameHostServices.Default, random);
             var runtime = CreateRetailRuntimeFixture(random: random, audio: game.AudioForVerification);
             runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();

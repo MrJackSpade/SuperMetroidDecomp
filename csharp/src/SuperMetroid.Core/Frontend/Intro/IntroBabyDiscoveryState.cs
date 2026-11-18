@@ -190,7 +190,7 @@ internal sealed class IntroBabyDiscoveryState
                 if (Samus.Position.X.Whole < IntroBabyDiscoveryDefinitions.DemoRunStopX)
                 {
                     DemoPhase = IntroBabyDiscoveryDemoPhase.StoppedAndLooking;
-                    demo.SwitchTo(DemoInputRecordingId.IntroBabyDiscoveryStopAndLook);
+                    demo.Load(DemoInputRecordingId.IntroBabyDiscoveryStopAndLook);
                 }
                 return;
 
@@ -198,7 +198,7 @@ internal sealed class IntroBabyDiscoveryState
                 if (crossfadeFinishing)
                 {
                     DemoPhase = IntroBabyDiscoveryDemoPhase.Ending;
-                    demo.SwitchTo(DemoInputRecordingId.IntroBabyDiscoveryEnd);
+                    demo.Load(DemoInputRecordingId.IntroBabyDiscoveryEnd);
                 }
                 return;
 

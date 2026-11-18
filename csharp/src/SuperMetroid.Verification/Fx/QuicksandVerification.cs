@@ -208,7 +208,7 @@ internal static class QuicksandVerification
         Func<QuicksandSurfacePhysics, SignedSixteenSixteen> field)
     {
         for (int suit = 0; suit < 2; suit++)
-            AssertEqual(SixteenSixteenWords.ToDisplacement(SixteenSixteen.FromEightEight(ReadRomWord(rom, address + suit * 2))),
+            AssertEqual(SixteenSixteenWords.ToDisplacement(EightEightOracle.ToSixteenSixteen(ReadRomWord(rom, address + suit * 2))),
                 field(QuicksandReactions.SurfacePhysics(suit != 0)),
                 $"quicksand physics {address:X6} suit {suit}");
     }

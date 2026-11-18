@@ -132,7 +132,7 @@ internal static class DesktopTimerSoakTests
     private static void CreateDesktopSoakSeed(SuperMetroid.AssetExtraction.Installation.GameInstallation installation,
         SuperMetroidGameOptions options, bool paused)
     {
-        var game = InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(), options.ToAssists());
+        var game = InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), options.ToAssists());
         var clips = DesktopAccess.LoadAudioClips();
         game.BindAudio(clips);
         void Step(ControllerButton input) => game.StepCaptured(input);

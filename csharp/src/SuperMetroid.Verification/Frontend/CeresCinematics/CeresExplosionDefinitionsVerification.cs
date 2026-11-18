@@ -32,7 +32,7 @@ internal static class CeresExplosionDefinitionsVerification
 
         Suite(nameof(VerifyCeresBurstLayout), () => VerifyCeresBurstLayout(retail));
 
-        Suite(nameof(VerifyCeresSpawnerSchedule), () => VerifyCeresSpawnerSchedule(retail));
+        Suite(nameof(VerifyCeresSpawnerSchedule), () => VerifyCeresSpawnerSchedule());
 
         AssertEqual(5, CeresExplosionDefinitions.InitialWave.Count, "the first wave spawns five blasts");
         AssertEqual(4, CeresExplosionDefinitions.FinalWave.Count, "the final wave spawns four blasts");
@@ -69,7 +69,7 @@ internal static class CeresExplosionDefinitionsVerification
     /// <summary>Compares the repeating blasts' eight places and the final wave's heights with the cartridge's placement words.</summary>
     internal static void VerifyCeresBurstLayout(ISnesAddressSpace retail)
     {
-        AssertEqual(8, CeresExplosionDefinitions.RepeatingBlasts.Count, "the repeating blasts cycle eight places");
+        AssertEqual(6, CeresExplosionDefinitions.RepeatingBlasts.Count, "the spawner's six repeating blasts take the first six of the cartridge's eight places");
         for (int index = 0; index < CeresExplosionDefinitions.RepeatingBlasts.Count; index++)
         {
             CeresExplosionPlacement placement = CeresExplosionDefinitions.RepeatingBlasts[index];

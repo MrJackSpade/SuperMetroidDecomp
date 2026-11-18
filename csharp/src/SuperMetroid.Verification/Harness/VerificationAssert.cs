@@ -1797,8 +1797,8 @@ internal static class VerificationAssert
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ceres spawner oracle revision");
-        Suite(nameof(VerifyCeresSpawnerSchedule), () => VerifyCeresSpawnerSchedule(rom));
-        Console.WriteLine("Ceres spawner: native list timing, late countdown resets, simultaneous waves and departure boundaries pass.");
+        Suite(nameof(VerifyCeresSpawnerSchedule), () => VerifyCeresSpawnerSchedule());
+        Console.WriteLine("Ceres spawner: the retail scene's fade-in and departure lie outside the spawner's repeating blasts.");
         return 0;
     }
 

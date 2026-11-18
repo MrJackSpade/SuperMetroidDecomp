@@ -1,4 +1,6 @@
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Frontend.CeresCinematics;
+using SuperMetroid.Verification.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Intro;
 
@@ -150,10 +152,19 @@ internal static class CinematicSpriteNativeListAddresses
         },
         new Dictionary<ushort, CeresCue>());
 
-    /// <summary>What the Ceres explosion spawner's list has its owner do.</summary>
+    /// <summary>
+    /// What the Ceres explosion spawner's list has its owner do: its two waves, and the repeating blasts the routine it
+    /// installs spawns (#2489).
+    /// </summary>
     internal static NativeCinematicCues<CeresExplosionSpawnerCue> ExplosionSpawnerCues { get; } = new(
         new Dictionary<ushort, CeresExplosionSpawnerCue> { [0xc404] = CeresExplosionSpawnerCue.SpawnInitialWave, [0xc50c] = CeresExplosionSpawnerCue.SpawnFinalWave },
-        new Dictionary<ushort, CeresExplosionSpawnerCue> { [CinematicActorNativeMotions.CeresRepeatingExplosions] = CeresExplosionSpawnerCue.StartRepeatingExplosions });
+        new Dictionary<ushort, CeresExplosionSpawnerCue>())
+    {
+        Routines = new Dictionary<ushort, Func<IImportCartridgeSource, INativeCinematicRoutine<CeresExplosionSpawnerCue>>>
+        {
+            [CinematicActorNativeMotions.CeresRepeatingExplosions] = cartridge => new NativeCeresRepeatingExplosions(cartridge),
+        },
+    };
 
     /// <summary>What the ending scenes' lists have the escape scenes do: the explosion's and the result text's cues.</summary>
     internal static NativeCinematicCues<EndingSceneCue> EndingSceneCues { get; } = new(

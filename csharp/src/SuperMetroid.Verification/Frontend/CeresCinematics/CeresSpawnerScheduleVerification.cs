@@ -1,77 +1,56 @@
+using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Frontend.Intro;
-using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Frontend.CeresCinematics;
+using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 
 namespace SuperMetroid.Verification.Frontend.CeresCinematics;
 
-/// <summary>Checks the Ceres repeating explosion schedule against native countdown and actor playback.</summary>
+/// <summary>
+/// Checks the retail Ceres destruction around its explosion spawner's repeating blasts (#2489): the cinematic sprite
+/// oracle matches the spawner's animation to the cartridge's list and the repeating-explosions routine it installs, read
+/// with the countdown the fade-in seeds and without its departure stop; this confirms the scene those two readings assume.
+/// </summary>
 internal static class CeresSpawnerScheduleVerification
 {
-    /// <summary>Compares spawn events and timer reloads across reseeds and departure frames, including inactive boundaries.</summary>
-    internal static void VerifyCeresSpawnerSchedule(ISnesAddressSpace rom)
+    /// <summary>
+    /// Runs the retail destruction and checks that its fade-in completes no later than the spawner's first repeating blast,
+    /// so the countdown the fade-in seeds is the one the stretch starts from, and that its gunship flies away only after the
+    /// spawner's last repeating blast, so the routine's departure stop never withholds one.
+    /// </summary>
+    internal static void VerifyCeresSpawnerSchedule()
     {
-        // C33B loads the repeat countdown seed; C4A8 reloads the period after a spawn.
-        AssertEqual((byte)0xa9, rom.ReadCartridgeByte(0x8bc33b), "native countdown seed opcode");
-        AssertEqual((byte)0xa9, rom.ReadCartridgeByte(0x8bc4a8), "native countdown reload opcode");
-        foreach (int reseedFrame in new[] { 1, 211, 273 })
-        foreach (int departure in new[] { 1, 209, 210, 222, 273, int.MaxValue })
+        var spawner = new CinematicActor<CeresAnimation, CinematicSpritePose, CeresExplosionSpawnerCue>(new(0, 0),
+            CeresShades.Drawn(CeresSpriteColouring.Explosions), CeresAnimations.ExplosionSpawner, CeresExplosionDefinitions.SpawnerActor.Animation);
+        var repeatingUpdates = new List<int>();
+        for (int update = 1; spawner.IsActive; update++)
         {
-            var native = new CinematicActor<CeresAnimation, CinematicSpritePose, CeresExplosionSpawnerCue>(new(0, 0), CeresShades.Drawn(CeresSpriteColouring.Explosions),
-                CeresAnimationsConstants.ExplosionSpawner, CeresAnimation.ExplosionSpawner);
-            ushort countdown = 0;
-            int actualCountdown = 0;
-            bool disabled = false;
-            bool repeating = false;
-            // The spawner's cue starts the repeating explosions; the events of its own update are unchanged.
-            CeresExplosionSpawnEvents StartRepeating(CeresExplosionSpawnEvents events)
+            spawner.Step(cue =>
             {
-                repeating = true;
-                return events;
-            }
-            for (int frame = 1; frame <= 300; frame++)
-            {
-                if (frame == reseedFrame)
-                {
-                    countdown = CartridgeImportSource.Require(rom).ReadCartridgeWord(0x8bc33c);
-                    actualCountdown = CeresExplosionDefinitions.RepeatingCountdownSeed;
-                }
-                CeresExplosionSpawnEvents expected = default;
-                if (native.IsActive && repeating && !disabled)
-                {
-                    if (frame >= departure) disabled = true;
-                    else
-                    {
-                        countdown = WrappingCounter.Decrement(countdown).Value;
-                        if ((short)countdown <= 0)
-                        {
-                            expected = expected with { Repeating = true };
-                            countdown = CartridgeImportSource.Require(rom).ReadCartridgeWord(0x8bc4a9);
-                        }
-                    }
-                }
-                // The spawner's typed program (#641), which the cinematic sprite oracle matches to $8B:CE35.
-                native.Step(cue =>
-                {
-                    expected = cue switch
-                    {
-                        CeresExplosionSpawnerCue.StartRepeatingExplosions => StartRepeating(expected),
-                        CeresExplosionSpawnerCue.SpawnInitialWave => expected with { Initial = true },
-                        CeresExplosionSpawnerCue.SpawnFinalWave => expected with { Final = true },
-                        _ => throw new InvalidOperationException($"Undefined {nameof(CeresExplosionSpawnerCue)} {cue}."),
-                    };
-                });
-                AssertEqual(expected, CeresExplosions.EventsAtFrame(frame, frame < departure, ref actualCountdown),
-                    $"native spawner events at frame{frame}, reset{reseedFrame}, departure{departure}");
-                AssertEqual(countdown, actualCountdown, "native repeat countdown including late fade reset");
-            }
-            AssertEqual(false, native.IsActive, "native spawner terminates");
+                if (cue == CeresExplosionSpawnerCue.SpawnRepeatingBlast)
+                    repeatingUpdates.Add(update);
+            });
         }
-        foreach (int outside in new[] { int.MinValue, -1, 0, 301, int.MaxValue })
+        AssertEqual(CeresExplosionDefinitions.RepeatingBlasts.Count, repeatingUpdates.Count, "the spawner spawns one repeating blast per place");
+
+        var audio = AudioQueues.Standalone();
+        CeresDestructionCinematicState state = CreateRetailDestructionFixture(audio);
+        int? fadeInCompleted = null;
+        int? departed = null;
+        // The spawner's first update is the scene's setup, the update after its opening waits.
+        for (int step = 1; step < 5000 && !state.Finished && departed is null; step++)
         {
-            int untouched = 123;
-            AssertEqual(default(CeresExplosionSpawnEvents), CeresExplosions.EventsAtFrame(outside, true, ref untouched), "outside finite spawner lifetime");
-            AssertEqual(123, untouched, "inactive countdown is untouched");
+            CeresDestructionPhase before = state.Phase;
+            state.Step();
+            audio.AdvanceFrame(default);
+            int spawnerUpdate = step - CeresDestructionSceneDefinitions.InitialFrameWaits;
+            if (before == CeresDestructionPhase.FadeInAndDrift && state.Phase == CeresDestructionPhase.ApproachExplosion)
+                fadeInCompleted = spawnerUpdate;
+            if (state.Phase == CeresDestructionPhase.FlyingAwayFromExplosion)
+                departed = spawnerUpdate;
         }
+        AssertTrue(fadeInCompleted is { } faded && faded <= repeatingUpdates[0],
+            $"the fade-in completes on spawner update {fadeInCompleted}, no later than the first repeating blast's {repeatingUpdates[0]}");
+        AssertTrue(departed is { } left && left > repeatingUpdates[^1],
+            $"the gunship flies away on spawner update {departed}, after the last repeating blast's {repeatingUpdates[^1]}");
     }
 }

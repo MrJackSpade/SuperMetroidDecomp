@@ -66,7 +66,7 @@ internal static class CinematicSpriteAnimationsVerification
         updates += CompareFamily(cartridge, IntroRinkaAnimations.Spawner, RinkaSpawnerCues, Pictures, compared);
         updates += CompareFamily(cartridge, IntroNarrationAnimations.Narration, NativeCinematicCues<NoAnimationCue>.None, Pictures, compared);
         updates += CompareFamily(cartridge, CeresAnimations.Scenes, CeresCues, Pictures, compared);
-        updates += CompareFamily(cartridge, CeresAnimationsConstants.ExplosionSpawner, ExplosionSpawnerCues, Pictures, compared);
+        updates += CompareFamily(cartridge, CeresAnimations.ExplosionSpawner, ExplosionSpawnerCues, Pictures, compared);
         updates += CompareFamily(cartridge, EndingSceneAnimations.Pictures, EndingSceneCues, Pictures, compared);
         updates += CompareFamily(cartridge, EndingTextAnimations.Texts, EndingSceneCues, TypedTexts, compared);
         updates += CompareFamily(cartridge, EndingRewardAnimations.Gesture, RewardGestureCues, Pictures, compared);
@@ -153,13 +153,17 @@ internal static class CinematicSpriteAnimationsVerification
         internal WrappingCountdown Timer { get; private set; }
         /// <summary>The owner instructions the latest update ran, as the family's cues.</summary>
         internal List<TCue> Cues { get; } = [];
+        /// <summary>The installed routine that raises cues of its own, which runs before the list on every update, if any.</summary>
+        private INativeCinematicRoutine<TCue>? routine;
 
-        /// <summary>Runs one generic handler call.</summary>
+        /// <summary>Runs one generic handler call: the installed routine, then the list once its timer runs out.</summary>
         internal void Step()
         {
             Cues.Clear();
             if (!Active)
                 return;
+            if (routine is { } running)
+                Cues.AddRange(running.Step());
             frameTimer = frameTimer.Decrement().Remaining;
             if (!frameTimer.IsZero)
                 return;
@@ -190,6 +194,13 @@ internal static class CinematicSpriteAnimationsVerification
                     case SharedWord.Sleep:
                         return;
                     case SharedWord.SetFrameBehavior:
+                        // A routine whose updates raise the family's cues runs from the next update on (#2489).
+                        if (cues.Routines.TryGetValue(operand, out Func<IImportCartridgeSource, INativeCinematicRoutine<TCue>>? reader))
+                        {
+                            routine = reader(cartridge);
+                            cursor = unchecked((ushort)(cursor + 4));
+                            continue;
+                        }
                         // Installing a routine starts its motion, which the actor's owner runs on the cue Core raises.
                         if (!cues.Installs.TryGetValue(operand, out TCue? starting))
                             throw new InvalidDataException($"Routine ${operand:X4} installed at $8B:{cursor:X4} starts none of the family's motions.");

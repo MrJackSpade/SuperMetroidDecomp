@@ -1,34 +1,16 @@
 using SuperMetroid.Core.Frontend.Intro;
 namespace SuperMetroid.Core.Frontend.CeresCinematics;
 
-/// <summary>Fixed actor metadata and physical spawn schedule for the Ceres destruction blasts.</summary>
+/// <summary>The Ceres destruction blasts' actors and where each wave places them.</summary>
 internal static class CeresExplosionDefinitions
 {
+    /// <summary>
+    /// The invisible actor whose animation (<see cref="CeresAnimations.ExplosionSpawner"/>) spawns the station's three
+    /// waves of blasts (#2489).
+    /// </summary>
+    public static CinematicActorDefinition<CeresAnimation> SpawnerActor =>
+        new(CeresAnimation.ExplosionSpawner);
 
-    /// <summary>Invisible wait before the first wave.</summary>
-    public const int InitialWaitFrames = 128;
-
-    /// <summary>Wait before the repeating wave starts.</summary>
-    public const int RepeatingStartWaitFrames = 80;
-
-    /// <summary>Final spawner lifetime before the final wave.</summary>
-    public const int RepeatingLifetimeFrames = 64;
-
-    /// <summary>Frames between repeating second-wave explosions.</summary>
-    public const int RepeatingPeriodFrames = 12;
-
-    /// <summary>The scene's first frame after the initial wait has run out.</summary>
-    public const int InitialSpawnFrame = InitialWaitFrames + 1;
-
-    /// <summary>The scene's first frame of the repeating wave.</summary>
-    public const int RepeatingFirstFrame = InitialWaitFrames + RepeatingStartWaitFrames + 2;
-
-    /// <summary>The scene's last frame of the spawner and its final wave.</summary>
-    public const int SpawnerFinalFrame =
-        InitialWaitFrames + RepeatingStartWaitFrames + RepeatingLifetimeFrames + 1;
-
-    /// <summary>The cinematic phase's countdown seed when the initial fade completes.</summary>
-    internal const int RepeatingCountdownSeed = 1;
     /// <summary>First delayed small-explosion actor.</summary>
     /// <remarks>Its animation displays six duration-3 small-explosion frames, then deletes. It runs as a typed cinematic sprite animation.</remarks>
     public static CinematicActorDefinition<CeresAnimation> InitialActor =>
@@ -63,9 +45,9 @@ internal static class CeresExplosionDefinitions
     ];
 
     /// <summary>
-    /// The repeating small blasts' eight places around the station, in the order they appear; after the eighth the next
-    /// blast appears at the first again. Each appears on the update after it is spawned. The places stay on screen while
-    /// the turning floor's picture shrinks beneath them.
+    /// The six repeating small blasts' places around the station, in the order the spawner's animation spawns them, one
+    /// place each (#2489). Each appears on the update after it is spawned. The places stay on screen while the turning
+    /// floor's picture shrinks beneath them.
     /// </summary>
     internal static IReadOnlyList<CeresExplosionPlacement> RepeatingBlasts { get; } =
     [
@@ -75,8 +57,6 @@ internal static class CeresExplosionDefinitions
         new(new(-8, -14), 1),
         new(new(0, 0), 1),
         new(new(16, 14), 1),
-        new(new(-12, 4), 1),
-        new(new(-8, -16), 1),
     ];
 
     /// <summary>

@@ -31,7 +31,7 @@ namespace SuperMetroid.Core.World;
 /// the places update in and the loss of a spawn into a full room are the room's <see cref="Compatibility.RoomObjectPlaces"/>.
 /// </remarks>
 [RoomLifetime]
-public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects
+public sealed class RoomObjectSystem : ISamusRoomObjects
 {
     /// <summary>Creates collision-triggered block room objects from Samus and projectile reactions.</summary>
     internal BlockReactionObjects BlockReactions { get; }
@@ -160,7 +160,7 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects
         DoorObjects = new DoorObjects(room.System, Places, Sounds, shotCapClosing);
         GreyDoors = new GreyDoorObjects(room.System, room.Area, services.TourianStatue, Sounds);
         Tourian = new TourianObjects(services.Samus, services.Enemies, services.RoomFx, Places);
-        PopulationLoader = new RoomObjectPopulationLoader(new RoomObjectPopulationLoaderDependencies { BombTorizoHand = BombTorizoHand, CollectibleObjects = CollectibleObjects, EyeDoors = EyeDoors, Gates = Gates, MotherBrainGlass = MotherBrainGlass, Places = Places, SpeedBoosterEscape = SpeedBoosterEscape, NoobTube = NoobTube });
+        PopulationLoader = new RoomObjectPopulationLoader(new RoomObjectPopulationLoaderDependencies { BombTorizoHand = BombTorizoHand, CollectibleObjects = CollectibleObjects, EyeDoors = EyeDoors, Gates = Gates, MotherBrainGlass = MotherBrainGlass, Places = Places, SpeedBoosterEscape = SpeedBoosterEscape, DraygonCannons = DraygonCannons, NoobTube = NoobTube });
         BlockReactions = new BlockReactionObjects(EscapeAnimals, Places, Drawing);
         BossRoomMutations = new BossRoomMutationObjects(Places);
     }
@@ -252,8 +252,4 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects
 
     /// <inheritdoc/>
     IChozoStatueHand ISamusRoomObjects.ChozoStatueHand => ChozoStatue;
-
-    /// <inheritdoc/>
-    DraygonCannonObjects IBossRoomObjects.DraygonCannons => DraygonCannons;
-
 }

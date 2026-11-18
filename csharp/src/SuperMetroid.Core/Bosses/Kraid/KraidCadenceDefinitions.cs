@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
-/// The counter cadences and phases of Kraid's fight (#1606, #1619): his rising rocks, his spit rocks, his flashes and the
-/// sway and ceiling rocks his height paces as he rises.
+/// The counter cadences and phases of Kraid's fight (#1606, #1619): his rising rocks, his spit rocks, his lints' charge
+/// flash and the sway and ceiling rocks his height paces as he rises.
 /// </summary>
 internal static class KraidCadenceDefinitions
 {
@@ -18,12 +18,6 @@ internal static class KraidCadenceDefinitions
     /// fourth pixel of the height he rises to, one a pixel an update, on the period's first place.
     /// </summary>
     internal static readonly UpdateCadence CeilingRockEveryFourthRow = new(4, 0);
-
-    /// <summary>
-    /// The phase of Kraid's hurt count on which he shows his hurt colours: set on its odd counts, so the hurt colours
-    /// and his health band's colours alternate every update while it counts down.
-    /// </summary>
-    internal static readonly UpdateCounterField HurtColoursShown = new(0, 1);
 
     /// <summary>
     /// The updates on which Kraid's fully open mouth spits a rock: every sixteenth value of his head's countdown, on the

@@ -1,11 +1,11 @@
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Projectiles;
 using F = SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileFrameId;
-using K = SuperMetroid.Core.Bosses.Botwoon.BotwoonBodyAnimationSegmentKind;
+using B = SuperMetroid.Core.Bosses.Botwoon.BotwoonBodyAnimationSegment;
 
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
-/// <summary>Botwoon's typed animations (#641).</summary>
+/// <summary>Botwoon's typed animations (#641): his head's, his body segments' and his spit's (#2400).</summary>
 internal static class BotwoonAnimations
 {
     /// <summary>The closed-mouth aiming hold before Botwoon publishes the spit cue.</summary>
@@ -24,22 +24,17 @@ internal static class BotwoonAnimations
     [
         .. Enum.GetValues<CompassDirection>().SelectMany(facing => new[]
         {
-            new BotwoonHeadAnimationSegment(BotwoonHeadAnimationSegmentKind.Moving, facing),
-            new BotwoonHeadAnimationSegment(BotwoonHeadAnimationSegmentKind.Spitting, facing),
+            BotwoonHeadAnimationSegment.Moving(facing),
+            BotwoonHeadAnimationSegment.Spitting(facing),
         }),
         BotwoonHeadAnimationSegment.Hidden,
     ];
 
-    /// <summary>Every projectile animation's segment: body cycles and stationary tail caps by facing, the hidden body/tail, and the spit.</summary>
-    private static readonly BotwoonBodyAnimationSegment[] SegmentAnimationKeys =
+    /// <summary>Every body segment animation: body cycles and stationary tail caps by facing, and the hidden link or tail.</summary>
+    private static readonly BotwoonBodyAnimationSegment[] BodyAnimationKeys =
     [
-        .. Enum.GetValues<CompassDirection>().SelectMany(facing => new[]
-        {
-            new BotwoonBodyAnimationSegment(BotwoonBodyAnimationSegmentKind.Body, facing),
-            new BotwoonBodyAnimationSegment(BotwoonBodyAnimationSegmentKind.Tail, facing),
-        }),
-        BotwoonBodyAnimationSegment.Hidden,
-        BotwoonBodyAnimationSegment.Spit,
+        .. Enum.GetValues<CompassDirection>().SelectMany(facing => new[] { B.Link(facing), B.TailCap(facing) }),
+        B.Hidden,
     ];
 
     /// <summary>The head's segments: each head animation's beats.</summary>
@@ -52,79 +47,93 @@ internal static class BotwoonAnimations
             [new(segment, 0, HeadSegments.Beats(segment).Count, 1)], AnimationEnd.Holds));
 
     /// <summary>
-    /// The segments a body segment or spit plays, each beat the installed <see cref="EnemyProjectileFrameId"/> it shows
-    /// (#2036): a body link cycles its facing's four frames at eight updates apiece, a tail cap and the hidden segment show
-    /// their one frame, and the spit cycles its five frames at three updates apiece.
+    /// The segments a body segment plays, each beat the installed <see cref="EnemyProjectileFrameId"/> it shows (#2036): a
+    /// body link cycles its facing's four frames at eight updates apiece, and a tail cap and the hidden segment show their
+    /// one frame.
     /// </summary>
-    internal static AnimationSegments<BotwoonBodyAnimationSegment, EnemyProjectileFrameId, NoAnimationCue> ProjectileSegments { get; } = new(
+    internal static AnimationSegments<BotwoonBodyAnimationSegment, EnemyProjectileFrameId, NoAnimationCue> BodySegments { get; } = new(
         new Dictionary<BotwoonBodyAnimationSegment, AnimationBeat<EnemyProjectileFrameId, NoAnimationCue>[]>
         {
-            [new(K.Body, CompassDirection.Up)] =
+            [B.Link(CompassDirection.Up)] =
             [
                 Show(F.BotwoonBodyUpRipple0, BodyFrameDuration),
                 Show(F.BotwoonBodyUpRipple90, BodyFrameDuration),
                 Show(F.BotwoonBodyUpRipple180, BodyFrameDuration),
                 Show(F.BotwoonBodyUpRipple270, BodyFrameDuration),
             ],
-            [new(K.Tail, CompassDirection.Up)] = [Show(F.BotwoonTailUp, 1)],
-            [new(K.Body, CompassDirection.UpRight)] =
+            [B.TailCap(CompassDirection.Up)] = [Show(F.BotwoonTailUp, 1)],
+            [B.Link(CompassDirection.UpRight)] =
             [
                 Show(F.BotwoonBodyUpRightRipple0, BodyFrameDuration),
                 Show(F.BotwoonBodyUpRightRipple90, BodyFrameDuration),
                 Show(F.BotwoonBodyUpRightRipple180, BodyFrameDuration),
                 Show(F.BotwoonBodyUpRightRipple270, BodyFrameDuration),
             ],
-            [new(K.Tail, CompassDirection.UpRight)] = [Show(F.BotwoonTailUpRight, 1)],
-            [new(K.Body, CompassDirection.Right)] =
+            [B.TailCap(CompassDirection.UpRight)] = [Show(F.BotwoonTailUpRight, 1)],
+            [B.Link(CompassDirection.Right)] =
             [
                 Show(F.BotwoonBodyRightRipple0, BodyFrameDuration),
                 Show(F.BotwoonBodyRightRipple90, BodyFrameDuration),
                 Show(F.BotwoonBodyRightRipple180, BodyFrameDuration),
                 Show(F.BotwoonBodyRightRipple270, BodyFrameDuration),
             ],
-            [new(K.Tail, CompassDirection.Right)] = [Show(F.BotwoonTailRight, 1)],
-            [new(K.Body, CompassDirection.DownRight)] =
+            [B.TailCap(CompassDirection.Right)] = [Show(F.BotwoonTailRight, 1)],
+            [B.Link(CompassDirection.DownRight)] =
             [
                 Show(F.BotwoonBodyDownRightRipple0, BodyFrameDuration),
                 Show(F.BotwoonBodyDownRightRipple90, BodyFrameDuration),
                 Show(F.BotwoonBodyDownRightRipple180, BodyFrameDuration),
                 Show(F.BotwoonBodyDownRightRipple270, BodyFrameDuration),
             ],
-            [new(K.Tail, CompassDirection.DownRight)] = [Show(F.BotwoonTailDownRight, 1)],
-            [new(K.Body, CompassDirection.Down)] =
+            [B.TailCap(CompassDirection.DownRight)] = [Show(F.BotwoonTailDownRight, 1)],
+            [B.Link(CompassDirection.Down)] =
             [
                 Show(F.BotwoonBodyDownRipple0, BodyFrameDuration),
                 Show(F.BotwoonBodyDownRipple90, BodyFrameDuration),
                 Show(F.BotwoonBodyDownRipple180, BodyFrameDuration),
                 Show(F.BotwoonBodyDownRipple270, BodyFrameDuration),
             ],
-            [new(K.Tail, CompassDirection.Down)] = [Show(F.BotwoonTailDown, 1)],
-            [new(K.Body, CompassDirection.DownLeft)] =
+            [B.TailCap(CompassDirection.Down)] = [Show(F.BotwoonTailDown, 1)],
+            [B.Link(CompassDirection.DownLeft)] =
             [
                 Show(F.BotwoonBodyDownLeftRipple0, BodyFrameDuration),
                 Show(F.BotwoonBodyDownLeftRipple90, BodyFrameDuration),
                 Show(F.BotwoonBodyDownLeftRipple180, BodyFrameDuration),
                 Show(F.BotwoonBodyDownLeftRipple270, BodyFrameDuration),
             ],
-            [new(K.Tail, CompassDirection.DownLeft)] = [Show(F.BotwoonTailDownLeft, 1)],
-            [new(K.Body, CompassDirection.Left)] =
+            [B.TailCap(CompassDirection.DownLeft)] = [Show(F.BotwoonTailDownLeft, 1)],
+            [B.Link(CompassDirection.Left)] =
             [
                 Show(F.BotwoonBodyLeftRipple0, BodyFrameDuration),
                 Show(F.BotwoonBodyLeftRipple90, BodyFrameDuration),
                 Show(F.BotwoonBodyLeftRipple180, BodyFrameDuration),
                 Show(F.BotwoonBodyLeftRipple270, BodyFrameDuration),
             ],
-            [new(K.Tail, CompassDirection.Left)] = [Show(F.BotwoonTailLeft, 1)],
-            [new(K.Body, CompassDirection.UpLeft)] =
+            [B.TailCap(CompassDirection.Left)] = [Show(F.BotwoonTailLeft, 1)],
+            [B.Link(CompassDirection.UpLeft)] =
             [
                 Show(F.BotwoonBodyUpLeftRipple0, BodyFrameDuration),
                 Show(F.BotwoonBodyUpLeftRipple90, BodyFrameDuration),
                 Show(F.BotwoonBodyUpLeftRipple180, BodyFrameDuration),
                 Show(F.BotwoonBodyUpLeftRipple270, BodyFrameDuration),
             ],
-            [new(K.Tail, CompassDirection.UpLeft)] = [Show(F.BotwoonTailUpLeft, 1)],
-            [BotwoonBodyAnimationSegment.Hidden] = [Show(F.BotwoonBlank, 1)],
-            [BotwoonBodyAnimationSegment.Spit] =
+            [B.TailCap(CompassDirection.UpLeft)] = [Show(F.BotwoonTailUpLeft, 1)],
+            [B.Hidden] = [Show(F.BotwoonBlank, 1)],
+        }, BodyAnimationKeys);
+
+    /// <summary>
+    /// The body segment animation that starts at each of those segments: a body link cycles its frames for good, and a tail
+    /// cap or hidden segment shows its one frame and holds it.
+    /// </summary>
+    internal static IReadOnlyDictionary<BotwoonBodyAnimationSegment, Animation<BotwoonBodyAnimationSegment>> BodyStartingAt { get; } =
+        BodyAnimationKeys.ToDictionary(segment => segment, segment => new Animation<BotwoonBodyAnimationSegment>(
+            [BodySegments.Whole(segment)], BodyEnd(segment.Kind)));
+
+    /// <summary>The spit's run, each beat the installed <see cref="EnemyProjectileFrameId"/> it shows: five frames at three updates apiece.</summary>
+    internal static AnimationSegments<BotwoonSpitSegment, EnemyProjectileFrameId, NoAnimationCue> SpitSegments { get; } = new(
+        new Dictionary<BotwoonSpitSegment, AnimationBeat<EnemyProjectileFrameId, NoAnimationCue>[]>
+        {
+            [BotwoonSpitSegment.Flight] =
             [
                 Show(F.BotwoonSpitDim, SpitFrameDuration),
                 Show(F.BotwoonSpitBright, SpitFrameDuration),
@@ -132,21 +141,24 @@ internal static class BotwoonAnimations
                 Show(F.BotwoonSpitRingedBright, SpitFrameDuration),
                 Show(F.BotwoonSpitDissolving, SpitFrameDuration),
             ],
-        }, SegmentAnimationKeys);
+        });
 
-    /// <summary>
-    /// The projectile animation that starts at each of those segments: a body link and the spit cycle their frames for good,
-    /// and a tail cap or hidden segment shows its one frame and holds it.
-    /// </summary>
-    internal static IReadOnlyDictionary<BotwoonBodyAnimationSegment, Animation<BotwoonBodyAnimationSegment>> ProjectileStartingAt { get; } =
-        SegmentAnimationKeys.ToDictionary(segment => segment, segment => new Animation<BotwoonBodyAnimationSegment>(
-            [new(segment, 0, ProjectileSegments.Beats(segment).Count, 1)], ProjectileEnd(segment.Kind)));
+    /// <summary>The spit's animation: its frames, cycled for good.</summary>
+    internal static Animation<BotwoonSpitSegment> SpitFlight { get; } =
+        Animation<BotwoonSpitSegment>.Looping([SpitSegments.Whole(BotwoonSpitSegment.Flight)]);
+
+    /// <summary>The spit's one animation, by the run it starts at.</summary>
+    internal static IReadOnlyDictionary<BotwoonSpitSegment, Animation<BotwoonSpitSegment>> SpitStartingAt { get; } =
+        new Dictionary<BotwoonSpitSegment, Animation<BotwoonSpitSegment>> { [BotwoonSpitSegment.Flight] = SpitFlight };
+
+    /// <summary>Every projectile frame his body segments and his spit show.</summary>
+    internal static IEnumerable<EnemyProjectileFrameId> ProjectileFrames => BodySegments.Frames.Concat(SpitSegments.Frames);
 
     /// <summary>The head animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<BotwoonHeadAnimationSegment> HeadStartingWith(BotwoonHeadAnimationSegment segment) => HeadStartingAt[segment];
 
-    /// <summary>The projectile animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<BotwoonBodyAnimationSegment> ProjectileStartingWith(BotwoonBodyAnimationSegment segment) => ProjectileStartingAt[segment];
+    /// <summary>The body segment animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<BotwoonBodyAnimationSegment> BodyStartingWith(BotwoonBodyAnimationSegment segment) => BodyStartingAt[segment];
 
     /// <summary>
     /// The head's collision half-extents facing <paramref name="facing"/>: tall vertically, wide
@@ -160,20 +172,20 @@ internal static class BotwoonAnimations
         _ => throw new ArgumentOutOfRangeException(nameof(facing), facing, "Undefined Botwoon facing."),
     };
 
-    /// <summary>How a body segment's animation ends: a body link and the spit cycle, a tail cap or hidden segment holds.</summary>
-    private static AnimationEnd ProjectileEnd(BotwoonBodyAnimationSegmentKind kind) => kind switch
+    /// <summary>How a body segment's animation ends: a body link cycles, a tail cap or hidden segment holds.</summary>
+    private static AnimationEnd BodyEnd(BotwoonBodyAnimationSegmentKind kind) => kind switch
     {
-        BotwoonBodyAnimationSegmentKind.Body or BotwoonBodyAnimationSegmentKind.Spit => AnimationEnd.LoopsFrom(0),
+        BotwoonBodyAnimationSegmentKind.Body => AnimationEnd.LoopsFrom(0),
         BotwoonBodyAnimationSegmentKind.Tail or BotwoonBodyAnimationSegmentKind.Hidden => AnimationEnd.Holds,
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "Undefined Botwoon segment animation kind."),
     };
 
     /// <summary>The beats of head animation <paramref name="segment"/>.</summary>
-    private static AnimationBeat<BotwoonHeadFrame, BotwoonHeadCue>[] HeadBeats(BotwoonHeadAnimationSegment segment) => segment.Kind switch
+    private static AnimationBeat<BotwoonHeadFrame, BotwoonHeadCue>[] HeadBeats(BotwoonHeadAnimationSegment segment) => segment switch
     {
-        BotwoonHeadAnimationSegmentKind.Hidden => HiddenHead(),
-        BotwoonHeadAnimationSegmentKind.Moving => MovingHead(segment.Facing),
-        BotwoonHeadAnimationSegmentKind.Spitting => SpittingHead(segment.Facing),
+        { Kind: BotwoonHeadAnimationSegmentKind.Hidden } => HiddenHead(),
+        { Kind: BotwoonHeadAnimationSegmentKind.Moving, Facing: { } facing } => MovingHead(facing),
+        { Kind: BotwoonHeadAnimationSegmentKind.Spitting, Facing: { } facing } => SpittingHead(facing),
         _ => throw new ArgumentOutOfRangeException(nameof(segment), segment, "Undefined Botwoon head animation."),
     };
 

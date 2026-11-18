@@ -84,8 +84,24 @@ public sealed class KraidEnemyState
     /// growth raises the clamp.
     /// </summary>
     public int EjectionLimitY { get; internal set; }
-    /// <summary>Gets the mouth's shot latches: a charged hit this pass, an armed reopen and a pending reopen.</summary>
-    public KraidMouthFlags MouthFlags { get; internal set; }
+    /// <summary>
+    /// Whether a charged shot hit his mouth or body this pass (#2400): his body's pass clears it before it tests, a charged
+    /// beam into his mouth or a charged shot into his body sets it, and a body hit that starts his eye glow reads it.
+    /// </summary>
+    internal bool ChargedHitThisPass { get; set; }
+
+    /// <summary>
+    /// Whether his mouth's reopens are armed (#2400): a charged body hit that started his eye glow arms them, and only a
+    /// clear of his mouth disarms them.
+    /// </summary>
+    internal bool MouthReopenArmed { get; set; }
+
+    /// <summary>
+    /// Whether his mouth reopens as it closes (#2400): a mouth hit while the reopens are armed marks it, and a closing mouth
+    /// that finds it removes one pending reopen.
+    /// </summary>
+    internal bool MouthReopenPending { get; set; }
+
     /// <summary>
     /// Gets the number of mouth reopens still pending, from zero to three. A charged body hit arms three; each reopen
     /// continuation removes one, and the last removal clears the mouth with the count (#1627).
@@ -107,10 +123,19 @@ public sealed class KraidEnemyState
     /// Gets the room X the second-phase body walks to, from 208 to 384.
     /// </summary>
     public int WalkTargetX { get; internal set; }
-    /// <summary>Gets the hurt-flash phase, from zero to six: started at six by a vulnerable mouth hit and stepped down by its frame timer.</summary>
-    public int HurtFrame { get; internal set; }
-    /// <summary>Gets the countdown pacing hurt-flash phases, reloaded to <see cref="KraidArenaDefinitions.HurtFlashStepUpdates"/> after each.</summary>
-    public int HurtFrameTimer { get; internal set; }
+    /// <summary>
+    /// His hurt flash (#2400): the colours a mouth hit flashes him through, played one update at a time by the shared
+    /// player. At rest it shows his health band's colours, as it does before his first mouth hit.
+    /// </summary>
+    internal AnimationPlayer<KraidHurtFlashSegment, KraidHurtFlashShade, NoAnimationCue> HurtFlash { get; private set; } =
+        KraidHurtFlashAnimations.Resting();
+
+    /// <summary>A mouth hit starts his hurt flash again from its beginning, whatever it showed.</summary>
+    internal void StartHurtFlash() => HurtFlash = KraidHurtFlashAnimations.Starting();
+
+    /// <summary>His health running out cuts his hurt flash short: it rests on his health band's colours from here.</summary>
+    internal void SettleHurtFlash() => HurtFlash = KraidHurtFlashAnimations.Resting();
+
     /// <summary>The head pose Kraid is showing, which selects the head image; null until the head animation shows its first pose.</summary>
     internal KraidHeadFrame? DisplayedHeadFrame { get; set; }
 
@@ -119,11 +144,6 @@ public sealed class KraidEnemyState
     /// attack, glow or death installs an animation.
     /// </summary>
     internal AnimationPlayback<KraidHeadSegment>? HeadPlayback { get; set; }
-
-    /// <summary>Moves the hurt-flash phase one step toward zero; Kraid's hurt flash steps it only while the phase is running.</summary>
-    internal void StepHurtFrameDown() => HurtFrame = HurtFrame > 0
-        ? HurtFrame - 1
-        : throw new InvalidOperationException($"Kraid's hurt phase {HurtFrame} stepped while it was not running.");
 
     /// <summary>Arms three mouth reopens, whatever number of them was still pending (#1890).</summary>
     internal void ArmMouthReopens() => PendingMouthReopens = ArmedMouthReopens;
@@ -142,7 +162,9 @@ public sealed class KraidEnemyState
     /// <summary>Clears every mouth latch and the pending reopen count.</summary>
     internal void ClearMouthReactions()
     {
-        MouthFlags = KraidMouthFlags.None;
+        ChargedHitThisPass = false;
+        MouthReopenArmed = false;
+        MouthReopenPending = false;
         PendingMouthReopens = 0;
     }
 

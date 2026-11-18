@@ -151,7 +151,7 @@ internal static class EnemyVisualTypedProgramAudit
         }
         // His body segments' and spit's beats name their installed projectile frames (#2036).
         const string botwoonProjectileSource = "csharp/src/SuperMetroid.Core/Bosses/Botwoon/BotwoonAnimations.cs";
-        EnemyProjectileFrameId[] botwoonProjectileFrames = [.. BotwoonAnimations.ProjectileSegments.Frames];
+        EnemyProjectileFrameId[] botwoonProjectileFrames = [.. BotwoonAnimations.ProjectileFrames];
         foreach (EnemyProjectileFrameId frame in botwoonProjectileFrames)
         {
             ProjectileDefinitionAudit.RequireFrame(EnemyProjectileProgramFrameSources.Operand(frame),

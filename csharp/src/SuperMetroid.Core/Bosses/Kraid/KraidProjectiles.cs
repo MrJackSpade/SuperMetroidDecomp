@@ -50,10 +50,7 @@ internal sealed class KraidProjectiles
         KraidLintState part = state.Lint(expected);
         KraidEncounterAccess.AttachKraidPart(part);
         lint.Shading = _parts.Body.Shading;
-        // A lint shows the pose its behaviour sets; its animation never steps, and nothing starts its clock again.
-        lint.AnimationClock.Stop();
-        part.SetAnimation(KraidPartSegment.LintInitial);
-        lint.Frame = EnemyFrameId.KraidLintBudding;
+        part.ShowPose(KraidPartSegment.LintInitial);
         part.Phase = KraidLintPhase.Inactive;
         part.LintXOffset = KraidArenaDefinitions.LintXOffsets[expected];
     }

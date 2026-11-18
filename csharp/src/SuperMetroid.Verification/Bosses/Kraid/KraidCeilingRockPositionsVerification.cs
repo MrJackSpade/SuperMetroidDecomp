@@ -1,4 +1,5 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -10,17 +11,16 @@ using SuperMetroid.Core.World;
 /// <summary>Checks Kraid ceiling-rock X positions and their production spawn cadence against native data.</summary>
 internal static class KraidCeilingRockPositionsVerification
 {
-    /// <summary>Compares every ceiling rock's X with the cartridge's word for it and rejects steps outside the rocks.</summary>
+    /// <summary>Compares every ceiling rock's X with the cartridge's word for it.</summary>
     internal static void VerifyKraidCeilingRockCoordinates(CartridgeImportAddressSpace rom)
     {
         ushort Word(int a) => LittleEndianBytes.Word(KraidCeilingRockCoordinatesRomByte(rom, a), KraidCeilingRockCoordinatesRomByte(rom, a + 1));
         // The cartridge's table holds one X word per rock.
-        for (int rock = 0; rock < KraidCeilingRocks.Count; rock++)
+        IReadOnlyList<KraidCeilingRock> rocks = KraidCeilingRockDefinitions.Rocks;
+        AssertEqual(9, rocks.Count, "Nine ceiling rocks");
+        for (int rock = 0; rock < rocks.Count; rock++)
             AssertEqual(unchecked((short)Word(EnemyRomTablePointers.Kraid.CeilingRockXWords + rock * 2)),
-                KraidCeilingRocks.X(rock), "Native ceiling rock X");
-        foreach (int invalid in new[] { int.MinValue, -1, KraidCeilingRocks.Count, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => KraidCeilingRocks.X(invalid),
-                "Ceiling rock bounds");
+                rocks[rock].X, "Native ceiling rock X");
     }
 
     /// <summary>Reads one bank-$A7 coordinate byte solely for the native oracle.</summary>
@@ -40,25 +40,27 @@ internal static class KraidCeilingRockPositionsVerification
         body.FrameCounter = 1; // Isolate the ceiling placement from the independent rising-rock cadence.
         // Every height his rising body passes through as it breaks the ceiling, and on past his room's two screens (#2299).
         for (int raw = 1; raw <= 1024; raw++)
-        for (int index = 0; index < KraidCeilingRocks.Count; index++)
+        for (int index = 0; index < KraidCeilingRockDefinitions.Rocks.Count; index++)
         {
             foreach (var occupied in enemies.Projectiles.EnemyProjectiles) occupied.Delete();
             requests.Clear();
             body.Position = body.Position.WithWhole(new(128, (ushort)raw));
-            state.BodyState.CeilingRock = index;
+            state.BodyState.NextCeilingRock = ListStep<KraidCeilingRock>.At(KraidCeilingRockDefinitions.Rocks, index);
             state.BodyState.GrowthPhase = KraidGrowthPhase.BreakCeilingPlatforms;
             step(body, state);
             int y = raw - 1;
             bool spawn = (y & 3) == 0;
             AssertEqual(y, body.Position.Y.Whole, "Ceiling break moves before cadence test");
             AssertEqual(spawn ? 1 : 0, requests.Count, "Ceiling PLM cadence");
-            AssertEqual(index + (spawn ? 1 : 0), state.BodyState.CeilingRock, "Ceiling rock advances only on emission");
+            // The rock after the last is none, the place past the list's end.
+            AssertEqual(index + (spawn ? 1 : 0), state.BodyState.NextCeilingRock?.Place ?? KraidCeilingRockDefinitions.Rocks.Count,
+                "Ceiling rock advances only on emission");
             if (!spawn) continue;
             var rock = enemies.Projectiles.EnemyProjectiles[^1];
             AssertEqual(Word(EnemyRomTablePointers.Kraid.CeilingRockXWords + index * 2), rock.Position.X.Whole, "Native ceiling X reaches actual projectile");
             AssertEqual((ushort)312, rock.Position.Y.Whole, "Ceiling projectile origin Y");
             AssertEqual((ushort)127, rock.Velocity.Y.RawValue, "Ceiling projectile retains current RNG velocity");
-            AssertEqual(KraidObjectDefinitions.GrowthCeiling[index], requests[0], "Rock and ceiling mutation stay paired");
+            AssertEqual(KraidCeilingRockDefinitions.Rocks[index].Crumble, requests[0], "Rock and ceiling mutation stay paired");
         }
         Console.WriteLine("Kraid ceiling rocks: all 9 rock positions and 9216 actual growth updates, at every height his rise passes, match with placement reads forbidden.");
     }

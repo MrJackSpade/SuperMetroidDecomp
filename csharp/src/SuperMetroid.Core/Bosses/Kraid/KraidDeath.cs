@@ -83,8 +83,6 @@ internal sealed class KraidDeath
                 if (_background.AdvanceKraidRoomBackgroundFade(fade: KraidBackdropFade.ToBlack))
                 {
                     state.BodyState.DeathPhase = KraidDeathPhase.ShowBody;
-                    state.HurtFrameTimer = 1;
-                    state.HurtFrame = 1;
                     state.ShowBody();
                 }
                 return;
@@ -155,11 +153,12 @@ internal sealed class KraidDeath
         KraidEncounterAccess.MarkKraidPartDead(body);
     }
 
-    /// <summary>Starts the death animation and prepares its room mutation schedule.</summary>
+    /// <summary>
+    /// Starts the death animation and prepares its room mutation schedule. His health has run out, so the update's colour
+    /// handling, which runs before it, has already cut his hurt flash short.
+    /// </summary>
     internal void InitializeKraidDeath(KraidEnemyState state, SamusState samus)
     {
-        if (state.HurtFrame != 0)
-            return;
         state.Colours.ShowDeathArm();
         state.ArmState.StartAnimation(KraidPartSegment.ArmDyingOrPreparingToLunge);
         state.BodyState.DeathPhase = KraidDeathPhase.FadeOut;

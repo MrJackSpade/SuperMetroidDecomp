@@ -3,9 +3,8 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
-/// The fixed room-object spawns embedded in Kraid's growth and sinking steps.
-/// Their irregular order is visible: the ceiling breaks from scattered points as the
-/// body rises, rather than sweeping monotonically across the room.
+/// The fixed room-object spawns of Kraid's death, his sinking steps and a defeated room; his growth's ceiling blocks
+/// break with their rocks (<see cref="KraidCeilingRockDefinitions"/>).
 /// </summary>
 public static class KraidObjectDefinitions
 {
@@ -20,24 +19,6 @@ public static class KraidObjectDefinitions
 
     /// <summary>Clears the spike blocks from (5,27).</summary>
     private static RoomObjectSpawnRequest<KraidRoomMutation> ClearSpikes => new(new(5, 27), KraidRoomMutation.ClearSpikes);
-
-    /// <summary>
-    /// The nine updates of Kraid's ceiling crumble, indexed by how many ceiling rocks have fallen: the ceiling steps
-    /// it selects. Each block lies directly above its paired rock center on row 18; column 2 shows the left-edge
-    /// background, and the other columns their odd or even column's.
-    /// </summary>
-    public static IReadOnlyList<RoomObjectSpawnRequest<KraidRoomMutation>> GrowthCeiling { get; } = new List<RoomObjectSpawnRequest<KraidRoomMutation>>
-    {
-        new(new(6, 18), KraidRoomMutation.CrumbleCeilingInEvenColumn),
-        new(new(13, 18), KraidRoomMutation.CrumbleCeilingInOddColumn),
-        new(new(2, 18), KraidRoomMutation.CrumbleCeilingAtLeftEdge),
-        new(new(10, 18), KraidRoomMutation.CrumbleCeilingInEvenColumn),
-        new(new(5, 18), KraidRoomMutation.CrumbleCeilingInOddColumn),
-        new(new(12, 18), KraidRoomMutation.CrumbleCeilingInEvenColumn),
-        new(new(3, 18), KraidRoomMutation.CrumbleCeilingInOddColumn),
-        new(new(11, 18), KraidRoomMutation.CrumbleCeilingInOddColumn),
-        new(new(4, 18), KraidRoomMutation.CrumbleCeilingInEvenColumn),
-    }.AsReadOnly();
 
     /// <summary>
     /// The fixed room objects spawned by defeated-room initialization, in the order it spawns them.

@@ -25,6 +25,7 @@ using SuperMetroid.Core.Enemies.Shutters;
 using SuperMetroid.Core.Enemies.Cacatac;
 using SuperMetroid.Core.Enemies.WorkRobots;
 using SuperMetroid.Core.Enemies.Kzan;
+using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Enemies.MaridiaSnails;
 using SuperMetroid.Core.Enemies.Boulder;
@@ -985,7 +986,13 @@ internal static class NativeEnemyFamilyStateImport
                     KraidNativeWords.ImportBodyPhase(body, words.A);
                 // Word F is the ceiling rocks' byte cursor, two per rock, while Kraid's growth breaks the ceiling.
                 if (body.Stage == KraidBodyStage.Growing && body.GrowthPhase == KraidGrowthPhase.BreakCeilingPlatforms)
-                    body.CeilingRock = words.F / sizeof(ushort);
+                {
+                    // A cursor just past the last rock names none: every rock has fallen. One further is rejected.
+                    int rock = words.F / sizeof(ushort);
+                    body.NextCeilingRock = rock == KraidCeilingRockDefinitions.Rocks.Count
+                        ? null
+                        : ListStep<KraidCeilingRock>.At(KraidCeilingRockDefinitions.Rocks, rock);
+                }
                 else
                     body.PhaseTimer = deathWait ? deathWaitLeft : words.F;
                 return;

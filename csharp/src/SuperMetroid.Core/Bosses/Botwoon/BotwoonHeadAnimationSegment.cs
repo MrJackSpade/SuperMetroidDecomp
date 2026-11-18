@@ -1,19 +1,39 @@
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
-/// <summary>Botwoon's head animation: what it does and which way it faces.</summary>
-internal readonly record struct BotwoonHeadAnimationSegment(BotwoonHeadAnimationSegmentKind Kind, CompassDirection Facing)
+/// <summary>
+/// Botwoon's head animation (#2400): moving or spitting facing a way, or hidden inside the wall, which faces no way. Only
+/// the animations its factories make exist.
+/// </summary>
+internal readonly record struct BotwoonHeadAnimationSegment
 {
-    /// <summary>The hidden head. Facing is irrelevant and fixed so equal animations compare equal.</summary>
-    internal static BotwoonHeadAnimationSegment Hidden => new(BotwoonHeadAnimationSegmentKind.Hidden, CompassDirection.Up);
+    /// <summary>The head doing <paramref name="kind"/> facing <paramref name="facing"/>, or no way for the hidden head.</summary>
+    private BotwoonHeadAnimationSegment(BotwoonHeadAnimationSegmentKind kind, CompassDirection? facing)
+    {
+        Kind = kind;
+        Facing = facing;
+    }
+
+    /// <summary>What the head is doing.</summary>
+    internal BotwoonHeadAnimationSegmentKind Kind { get; }
+
+    /// <summary>The way a moving or spitting head faces; the hidden head faces no way.</summary>
+    internal CompassDirection? Facing { get; }
+
+    /// <summary>The hidden head.</summary>
+    internal static BotwoonHeadAnimationSegment Hidden { get; } = new(BotwoonHeadAnimationSegmentKind.Hidden, null);
+
+    /// <summary>The visible moving head facing <paramref name="facing"/>, its closed mouth facing its movement.</summary>
+    internal static BotwoonHeadAnimationSegment Moving(CompassDirection facing) => new(BotwoonHeadAnimationSegmentKind.Moving, facing);
+
+    /// <summary>The spitting head facing <paramref name="facing"/>.</summary>
+    internal static BotwoonHeadAnimationSegment Spitting(CompassDirection facing) => new(BotwoonHeadAnimationSegmentKind.Spitting, facing);
 
     /// <summary>
     /// The visible moving head for a bearing: the direction opening the eighth of the turn the bearing lies in selects
     /// one of the eight closed-mouth animations.
     /// </summary>
-    internal static BotwoonHeadAnimationSegment MovingToward(Bearing bearing) =>
-        new(BotwoonHeadAnimationSegmentKind.Moving, bearing.DirectionOfEighth());
+    internal static BotwoonHeadAnimationSegment MovingToward(Bearing bearing) => Moving(bearing.DirectionOfEighth());
 
     /// <summary>The spitting head for a bearing: it faces the compass direction nearest the bearing, so Samus is aimed at.</summary>
-    internal static BotwoonHeadAnimationSegment SpittingToward(Bearing bearing) =>
-        new(BotwoonHeadAnimationSegmentKind.Spitting, bearing.NearestDirection());
+    internal static BotwoonHeadAnimationSegment SpittingToward(Bearing bearing) => Spitting(bearing.NearestDirection());
 }

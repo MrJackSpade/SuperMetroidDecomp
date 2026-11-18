@@ -140,7 +140,7 @@ internal sealed class KraidCombat
                     continue;
 
                 if (type.Family == SamusProjectileFamily.Beam)
-                    state.MouthFlags |= KraidMouthFlags.Hit;
+                    state.ChargedHitThisPass = true;
                 // A Super Missile's leftover changes which way the next shot's test falls; rebuilding a clean rectangle here
                 // doubles close-range damage.
                 bounds.LeaveAfterMouthHit(KraidMouthHitBound.After(MouthFamily(shot.Type.Family), MouthHit(shot)));
@@ -179,10 +179,9 @@ internal sealed class KraidCombat
 
         if (mouthHits != 0)
         {
-            state.HurtFrame = KraidArenaDefinitions.HurtFlashSteps;
-            state.HurtFrameTimer = KraidArenaDefinitions.HurtFlashStepUpdates;
-            if ((state.MouthFlags & KraidMouthFlags.ReopenArmed) != KraidMouthFlags.None)
-                state.MouthFlags |= KraidMouthFlags.ReopenPending;
+            state.StartHurtFlash();
+            if (state.MouthReopenArmed)
+                state.MouthReopenPending = true;
             if (body.Health < 1 && state.BodyState.Fights)
                 BeginKraidDeath(state);
         }
@@ -199,7 +198,7 @@ internal sealed class KraidCombat
         if (KraidSinkingSkipsProjectileCollision(state))
             return 0;
 
-        state.MouthFlags &= ~KraidMouthFlags.Hit;
+        state.ChargedHitThisPass = false;
         int bodyHits = 0;
         if (tested.Count != 0)
         {
@@ -214,7 +213,7 @@ internal sealed class KraidCombat
                 bounds.LeaveAfterBodyHit(shot.Position);
                 projectile.MarkCollision();
                 if (shot.Type.IsChargedBeam)
-                    state.MouthFlags |= KraidMouthFlags.Hit;
+                    state.ChargedHitThisPass = true;
                 bodyHits++;
             }
         }
@@ -223,9 +222,9 @@ internal sealed class KraidCombat
             state.BodyState.FightPhase == KraidFightPhase.FirstPhaseThinking)
         {
             state.BodyState.FightPhase = KraidFightPhase.InitializeEyeGlow;
-            if ((state.MouthFlags & KraidMouthFlags.Hit) != KraidMouthFlags.None)
+            if (state.ChargedHitThisPass)
             {
-                state.MouthFlags |= KraidMouthFlags.ReopenArmed;
+                state.MouthReopenArmed = true;
                 state.ArmMouthReopens();
             }
         }

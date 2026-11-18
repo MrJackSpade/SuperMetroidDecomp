@@ -43,7 +43,7 @@ internal static class EnemyEffectMechanicsVerification
     {
         CrocomireDeathState death = fixture.Effect;
         ushort placement = NativePlacement(fixture);
-        int line = Math.Clamp((fixture.Actor.Tongue?.Position.Y.Whole ?? fixture.Actor.Body.Position.Y.Whole) - 72, 0, 256);
+        int line = Math.Clamp(fixture.Actor.Tongue.Position.Y.Whole - 72, 0, 256);
         int adjustedY = death.DistortionSourceRow, currentY = adjustedY, fraction = 0;
         while (line < scrolls.Length && adjustedY < death.LowestDistortionSourceRow)
         {

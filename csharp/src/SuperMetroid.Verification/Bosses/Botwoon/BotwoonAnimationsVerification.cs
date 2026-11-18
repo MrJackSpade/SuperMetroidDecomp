@@ -92,7 +92,7 @@ internal static class BotwoonAnimationsVerification
             movingState.HeadHistory[3] = new Position16<RoomPixels>(1000, 1000);
             movingState.InsideHole = false;
             animateHead(movingHead, movingState);
-            AssertTrue(PlaysHead(movingState, new BotwoonHeadAnimationSegment(BotwoonHeadAnimationSegmentKind.Moving, octantDirections[octant])),
+            AssertTrue(PlaysHead(movingState, BotwoonHeadAnimationSegment.Moving(octantDirections[octant])),
                 $"moving head toward octant {octant}");
             CompareBotwoonHead(rom, CartridgeImportSource.Require(rom).ReadCartridgeWord((BotwoonMovingListTable + 2 * octant)), movingEnemies, movingHead,
                 movingState, $"AI-selected moving octant {octant}");
@@ -105,7 +105,7 @@ internal static class BotwoonAnimationsVerification
                 Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(1000 + dx)), unchecked((ushort)(1000 + dy)))),
             };
             aimHead(spitEnemies, spitHead, spitState, samus);
-            AssertTrue(PlaysHead(spitState, new BotwoonHeadAnimationSegment(BotwoonHeadAnimationSegmentKind.Spitting, octantDirections[octant])),
+            AssertTrue(PlaysHead(spitState, BotwoonHeadAnimationSegment.Spitting(octantDirections[octant])),
                 $"spitting head toward octant {octant}");
             // Outside a hidden spit the aim fires a three-shot volley at once. The spit angle is a quarter turn minus
             // the aim and the volley spreads a sixteenth of a turn either side of it, all wrapping around the turn.
@@ -144,7 +144,7 @@ internal static class BotwoonAnimationsVerification
         for (ushort selector = 0; selector < 64; selector += 2)
         {
             ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord((BotwoonSegmentListTable + selector));
-            _ = BotwoonAnimations.ProjectileSegments.Beats(BotwoonSegmentSelectorCodec.Program(selector));
+            _ = BotwoonAnimations.BodySegments.Beats(BotwoonSegmentSelectorCodec.Program(selector));
             AssertTrue(native != 0, $"Botwoon segment selector ${selector:X2} has a native list");
         }
         AssertThrows<ArgumentOutOfRangeException>(() => BotwoonSegmentSelectorCodec.Program(1), "odd Botwoon segment selector");
@@ -161,7 +161,7 @@ internal static class BotwoonAnimationsVerification
         for (ushort selector = 0; selector < 64; selector += 2)
         {
             var projectile = new EnemyProjectile(0, default) { Kind = RoomEnemyProjectileKind.BotwoonBody };
-            projectile.StartAnimation(BotwoonProjectileAnimation.ForSegment(BotwoonSegmentSelectorCodec.Program(selector)));
+            projectile.StartAnimation(new BotwoonSegmentAnimation(BotwoonSegmentSelectorCodec.Program(selector)));
             CompareBotwoonProjectile(rom, CartridgeImportSource.Require(rom).ReadCartridgeWord((BotwoonSegmentListTable + selector)), projectile, Pass,
                 $"segment selector ${selector:X2}");
         }
@@ -169,7 +169,7 @@ internal static class BotwoonAnimationsVerification
         Action<RoomEnemyPlace, byte, ushort> spawnSpit = (head, angle, speed) => enemies.BotwoonBehavior.SpawnBotwoonSpit(head, new TrigonometryAngle(angle), speed);
         spawnSpit(enemies.Places.InUpdateOrder[0], 0x40, 0x0180);
         EnemyProjectile spit = enemies.Projectiles.EnemyProjectiles.First(item => item.Kind == RoomEnemyProjectileKind.BotwoonSpit);
-        AssertTrue(spit.Animation is BotwoonProjectileAnimation { Segment: null }, "the real spit producer starts the typed spit animation");
+        AssertTrue(spit.Animation is BotwoonSpitAnimation, "the real spit producer starts the typed spit animation");
         AssertTrue(spit.Animation is not null, "a typed spit keeps no native instruction pointer");
         CompareBotwoonProjectile(rom, BotwoonSpitList, spit, Pass, "spit");
 
@@ -180,8 +180,9 @@ internal static class BotwoonAnimationsVerification
         // A changed selector restarts the segment; an unchanged one keeps running.
         Action<EnemyProjectile, int> animate = BotwoonBehavior.AnimateBotwoonBodySegment;
         var segment = new EnemyProjectile(1, default) { Kind = RoomEnemyProjectileKind.BotwoonBody };
-        segment.State = new BotwoonSegmentState(head, 1, segment, BotwoonSegmentSelectorCodec.Program(0));
-        segment.StartAnimation(BotwoonProjectileAnimation.ForSegment(BotwoonSegmentSelectorCodec.Program(0)));
+        var segmentAnimation = new BotwoonSegmentAnimation(BotwoonSegmentSelectorCodec.Program(0));
+        segment.State = new BotwoonSegmentState(head, 1, segment, segmentAnimation);
+        segment.StartAnimation(segmentAnimation);
         Pass(segment);
         Pass(segment);
         animate(segment, 0);
@@ -199,7 +200,7 @@ internal static class BotwoonAnimationsVerification
         BotwoonSegmentState spawned = spawnBody(head, 1);
         EnemyProjectile body = enemies.Projectiles.EnemyProjectiles.First(item => item.Kind == RoomEnemyProjectileKind.BotwoonBody);
         AssertTrue(ReferenceEquals(spawned.Projectile, body), "the real body producer returns the segment it spawned");
-        AssertEqual(BotwoonBodyAnimationSegment.Hidden, ((BotwoonProjectileAnimation)(body.Animation ?? throw new InvalidOperationException("Verification requires body.Animation."))).Segment,
+        AssertEqual(BotwoonBodyAnimationSegment.Hidden, ((BotwoonSegmentAnimation)(body.Animation ?? throw new InvalidOperationException("Verification requires body.Animation."))).PlayingSegment,
             "the real body producer starts a non-tail segment hidden");
         // A falling segment starts at the quadratic table's first row and moves on three quarters of a row each update
         // it has not landed; the whole rows of its place before the update choose the speed it falls by.

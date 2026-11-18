@@ -5,14 +5,14 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 
 /// <summary>
 /// One of Botwoon's body segments (#2178): the projectile showing it, the head it trails, its place in the body, its phase,
-/// whether it travels inside the wall, the pose its angle to the segment ahead selects, its delay before it falls when
-/// Botwoon dies, and its place along the quadratic speed table as it falls.
+/// whether it travels inside the wall, the pose its angle to the segment ahead selects and the animation that shows it,
+/// its delay before it falls when Botwoon dies, and its place along the quadratic speed table as it falls.
 /// </summary>
 /// <param name="head">Botwoon's head, which the segment trails and whose state its death and colours follow.</param>
 /// <param name="index">The segment's place in the body, zero (the tail) through twelve (behind the head).</param>
 /// <param name="projectile">The enemy projectile Botwoon spawned to show the segment.</param>
-/// <param name="pose">The pose the segment starts in.</param>
-internal sealed class BotwoonSegmentState(RoomEnemyPlace head, int index, EnemyProjectile projectile, BotwoonBodyAnimationSegment pose)
+/// <param name="animation">The segment's animation, started on its projectile, whose pose the segment starts in.</param>
+internal sealed class BotwoonSegmentState(RoomEnemyPlace head, int index, EnemyProjectile projectile, BotwoonSegmentAnimation animation)
     : EnemyProjectileState
 {
     /// <summary>Botwoon's head, which the segment trails: its state starts the segment's death and colours it.</summary>
@@ -38,7 +38,10 @@ internal sealed class BotwoonSegmentState(RoomEnemyPlace head, int index, EnemyP
     internal bool InsideHole { get; set; } = true;
 
     /// <summary>The pose the segment's angle to the segment ahead selects; the segment shows it while Botwoon lives.</summary>
-    internal BotwoonBodyAnimationSegment Pose { get; set; } = pose;
+    internal BotwoonBodyAnimationSegment Pose { get; set; } = animation.PlayingSegment;
+
+    /// <summary>The segment's animation, which shows its pose while Botwoon lives (#2400).</summary>
+    internal BotwoonSegmentAnimation Animation { get; } = Ensure.NotNull(animation);
 
     /// <summary>
     /// The segment's count toward falling once Botwoon dies: it starts by the segment's projectile place

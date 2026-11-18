@@ -20,12 +20,16 @@ internal sealed class DraygonCannonObjects
         _enemies = enemies;
     }
 
-    /// <summary>Sets up the cannon that controls <paramref name="cannon"/>, installing shootable terrain unless it starts destroyed.</summary>
-    internal static void SetupDraygonCannon(RoomLevelData level, RoomObjectPlace place, DraygonCannonSetup setup, DraygonWallCannon cannon)
+    /// <summary>
+    /// Sets up the cannon its placement's <paramref name="setup"/> carries, which stops its wall cannon's firing through
+    /// these cannons when it is destroyed (#2400), installing shootable terrain unless it starts destroyed.
+    /// </summary>
+    internal void SetupDraygonCannon(RoomLevelData level, RoomObjectPlace place, DraygonWallCannonSetup setup)
     {
         Ensure.NotNull(level);
         Ensure.NotNull(place);
-        place.Become(new DraygonCannonObject(setup.Orientation, cannon, setup.Start));
+        Ensure.NotNull(setup);
+        place.Become(new DraygonCannonObject(this, setup.Orientation, setup.Cannon, setup.Start));
         // A cannon set up destroyed writes its destroyed terrain on its first update.
         if (setup.Start is DraygonCannonStart.Destroyed)
             return;

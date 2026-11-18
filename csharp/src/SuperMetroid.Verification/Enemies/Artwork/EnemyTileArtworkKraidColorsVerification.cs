@@ -466,9 +466,9 @@ internal static class EnemyTileArtworkKraidColorsVerification
             case KraidPaletteConsumer.HealthNormal:
             case KraidPaletteConsumer.HealthFlash:
             {
-                state.HurtFrame = consumer == KraidPaletteConsumer.HealthFlash
-                    ? (ushort)1 : (ushort)0;
-                new Action<RoomEnemyPlace, KraidEnemyState>(enemies.KraidBehavior.Head.UpdateKraidHealthColours)(body, state);
+                KraidHurtFlashShade shown = consumer == KraidPaletteConsumer.HealthFlash
+                    ? KraidHurtFlashShade.HurtColours : KraidHurtFlashShade.BandColours;
+                new Action<RoomEnemyPlace, KraidEnemyState, KraidHurtFlashShade>(enemies.KraidBehavior.Head.UpdateKraidHealthColours)(body, state, shown);
                 PictureShade shade = state.Colours.Shown ?? throw new InvalidOperationException("Kraid's health update shows no shade.");
                 AssertEqual(consumer == KraidPaletteConsumer.HealthFlash, shade == KraidShades.HurtFlash, $"Kraid's {consumer} update shows the hurt flash only on its flash");
                 AssertEqual(PictureShading.Shaded(shade), body.Shading, $"Kraid's body slot draws in {shade}");

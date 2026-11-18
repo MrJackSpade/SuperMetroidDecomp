@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Botwoon.Artwork;
 /// <summary>
 /// Botwoon's head presentation (#641): the installed artwork identity of every typed head frame. Gameplay animates
 /// <see cref="BotwoonHeadFrame"/> values; only this catalog knows the frames that draw them. His body segments' and
-/// spit's beats name their installed projectile frames themselves (<see cref="BotwoonAnimations.ProjectileSegments"/>).
+/// spit's beats name their installed projectile frames themselves (<see cref="BotwoonAnimations.ProjectileFrames"/>).
 /// </summary>
 internal static class BotwoonVisualDefinitions
 {

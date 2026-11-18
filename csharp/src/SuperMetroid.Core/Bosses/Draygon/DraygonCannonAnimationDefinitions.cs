@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using D = SuperMetroid.Core.Bosses.Draygon.DraygonCannonDraw;
 using S = SuperMetroid.Core.Bosses.Draygon.DraygonCannonSegment;
 

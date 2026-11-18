@@ -141,7 +141,6 @@ internal sealed class KraidLimbs
         state.HeadPlayback = KraidHeadAnimations.GrowthResumePlayback(resume);
         state.BodyState.HeadTimer = KraidHeadAnimations.GrowthResumeDelay(resume);
         _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Medium, EarthquakeDirection.Vertical, EarthquakeReach.Foreground), KraidArenaDefinitions.GrowthShakeUpdates);
-        _ = _parts.Foot;
         state.FootState.StartAnimation(KraidPartSegment.FootInitial);
         state.FootState.Phase = KraidFootPhase.Resting;
         RoomEnemyPlace arm = _parts.Arm;
@@ -249,7 +248,6 @@ internal sealed class KraidLimbs
         KraidEnemyState state = part.Kraid;
         if (TryBeginKraidGrowth(body, state))
             return;
-        _ = _parts.Arm;
         if (state.ArmState.YetToPause)
             return;
         state.ArmState.StartAnimation(KraidPartSegment.ArmDyingOrPreparingToLunge);
@@ -297,7 +295,6 @@ internal sealed class KraidLimbs
             return;
         if (body.Position.X.Whole == KraidArenaDefinitions.FirstPhaseX)
         {
-            _ = _parts.Arm;
             state.ArmState.StartAnimation(KraidPartSegment.ArmNormal);
             state.FootState.StartAnimation(KraidPartSegment.FootNeutral);
             part.Phase = KraidFootPhase.FirstPhaseThinking;

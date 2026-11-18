@@ -43,7 +43,7 @@ internal static class KraidNailContourVerification
             AssertTrue(record < 6, "Every native relative-Y walk terminates within six records");
             histogram[record]++;
             if (record >= 4) overreadCases++;
-            if (record > KraidNailContourDefinitions.LedgeCount)
+            if (record > KraidNailContourDefinitions.Ledges.Count)
             {
                 // No nail in Kraid's room lies this far above his body; the installed record past the ledges rejects it.
                 AssertThrows<ArgumentOutOfRangeException>(() => reflect(nail), "A nail beyond the record past the ledges is rejected");

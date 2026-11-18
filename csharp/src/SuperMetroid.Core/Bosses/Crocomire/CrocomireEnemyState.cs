@@ -53,8 +53,25 @@ public sealed class CrocomireEnemyState : SuperMetroid.Core.Enemies.BossBodies.I
     internal AnimationPlayback<CrocomireTongueSegment> TonguePlayback { get; set; } =
         new(CrocomireAnimations.TongueStartingWith(CrocomireTongueSegment.Fight), AnimationPlace.StartOfAnimation);
 
-    /// <summary>Crocomire's tongue, attached during initialization; bridge collapse rests and hides it, while later melting phases reuse its actor.</summary>
-    public RoomEnemyPlace? Tongue { get; internal set; }
+    /// <summary>The enemy that joined as his tongue, or none before the tongue set up.</summary>
+    private RoomEnemyPlace? _tongue;
+
+    /// <summary>
+    /// Crocomire's tongue (#2400), which joins the encounter as it sets up, right after his body, in a living room and a
+    /// defeated one alike; bridge collapse rests and hides it, while later melting phases reuse its actor.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The tongue has not set up.</exception>
+    public RoomEnemyPlace Tongue => _tongue ?? throw new InvalidOperationException("Crocomire's tongue is reached before it set up.");
+
+    /// <summary>Joins <paramref name="tongue"/> as his tongue, as it sets up.</summary>
+    /// <exception cref="InvalidDataException">Another enemy already set up as his tongue.</exception>
+    internal void JoinTongue(RoomEnemyPlace tongue)
+    {
+        Ensure.NotNull(tongue);
+        if (_tongue is { } joined && !ReferenceEquals(joined, tongue))
+            throw new InvalidDataException($"Crocomire's tongue set up as enemy {tongue.Ordinal}, but enemy {joined.Ordinal} already is.");
+        _tongue = tongue;
+    }
 
     /// <summary>The phase of his death sequence; <see cref="CrocomireDeathPhase.Fighting"/> runs the fight and bridge checks, and <see cref="CrocomireDeathPhase.InertCorpse"/> is a corpse, an already-defeated room's from its setup.</summary>
     public CrocomireDeathPhase DeathPhase { get; internal set; }

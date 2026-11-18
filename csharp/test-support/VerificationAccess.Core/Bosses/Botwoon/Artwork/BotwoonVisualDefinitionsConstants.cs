@@ -9,12 +9,13 @@ internal static class BotwoonVisualDefinitionsConstants
     /// <summary>Botwoon's head OAM bank, $B3.</summary>
     internal const byte Bank = 0xb3;
     /// <summary>The installed head spritemap for <paramref name="frame"/>; the hidden frame is the shared empty map.</summary>
-    internal static ushort HeadSpritemap(BotwoonHeadFrame frame)
+    internal static ushort HeadSpritemap(BotwoonHeadFrame frame) => frame switch
     {
-        if (!frame.Visible)
-            return CommonEnemyEmptyFrameToolingDefinitions.EmptySpritemap;
-        return frame.MouthOpen ? OpenMouth(frame.Facing) : ClosedMouth(frame.Facing);
-    }
+        { Pose: BotwoonHeadPose.Hidden } => CommonEnemyEmptyFrameToolingDefinitions.EmptySpritemap,
+        { Pose: BotwoonHeadPose.MouthOpen, Facing: { } facing } => OpenMouth(facing),
+        { Pose: BotwoonHeadPose.MouthClosed, Facing: { } facing } => ClosedMouth(facing),
+        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Botwoon head frame."),
+    };
     /// <summary>The sixteen visible head frames as installed artwork, closed then open, in physical order.</summary>
     internal static NativeEnemySpritemapDefinition[] Frames() =>
     [

@@ -157,7 +157,7 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
     $lines.Add('/// </summary>')
     $lines.Add('internal static class RoomObjectPopulationDefinitions')
     $lines.Add('{')
-    # Each placed kind's family setup (#2383): the coloured, grey and eye doors, the items, the Draygon cannons and the
+    # Each placed kind's family setup (#2383): the coloured, grey and eye doors, the items and the
     # stations are the kinds their families' own tables list; the scroll objects and each other kind are named for it.
     $familySetups = @{}
     function Add-FamilyKinds([string] $file, [string] $table, [string] $setup) {
@@ -174,11 +174,21 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
     Add-FamilyKinds 'csharp/src/SuperMetroid.Core/Rooms/Doors/DoorObjectKindDefinitions.cs' 'GreyDoors' 'GreyDoorSetup'
     Add-FamilyKinds 'csharp/src/SuperMetroid.Core/Rooms/RoomObjects/PermanentCollectibleObjectDefinitions.cs' 'Items' 'CollectibleSetup'
     Add-FamilyKinds 'csharp/src/SuperMetroid.Core/Rooms/Doors/EyeDoorPartDefinitions.cs' 'Parts' 'EyeDoorSetup'
-    Add-FamilyKinds 'csharp/src/SuperMetroid.Core/Bosses/Draygon/DraygonCannonDefinitions.cs' 'Setups' 'DraygonWallCannonSetup'
     Add-FamilyKinds 'csharp/src/SuperMetroid.Core/Rooms/RoomObjects/StationKindDefinitions.cs' 'Kinds' 'StationSetup'
+    $draygonCannonSetups = @{
+        DraygonCannonFacingRight = 'DraygonCannonOrientation.Right, DraygonCannonStart.Whole'
+        DraygonCannonFacingRightDestroyed = 'DraygonCannonOrientation.Right, DraygonCannonStart.Destroyed'
+        DraygonCannonFacingLeft = 'DraygonCannonOrientation.Left, DraygonCannonStart.Whole'
+    }
     function Format-PlacementSetup([string] $name, [string] $argumentText, [string] $scrollProgram) {
         if ($name -eq 'ScrollTrigger') { return 'new ScrollTriggerSetup({0})' -f $scrollProgram }
-        if ($argumentText -match '^null, (DraygonWallCannon\.\w+)$') { return 'new DraygonWallCannonSetup({0})' -f $Matches[1] }
+        # A Draygon cannon's placement carries the wall cannon it controls, the wall it faces out from and whether it starts
+        # destroyed (#2400): the cartridge gives each facing and start an object definition of its own.
+        if ($draygonCannonSetups.ContainsKey($name)) {
+            if ($argumentText -notmatch '^null, (DraygonWallCannon\.\w+)$') { throw "Draygon cannon $name names no wall cannon: $argumentText." }
+            return 'new DraygonWallCannonSetup({0}, {1})' -f $Matches[1], $draygonCannonSetups[$name]
+        }
+        if ($argumentText -match '^null, DraygonWallCannon\.') { throw "Room-object kind $name controls a Draygon wall cannon but is no cannon." }
         if ($name -match 'ScrollExtension$') { $setup = 'ScrollExtensionSetup' }
         elseif ($familySetups.ContainsKey($name)) { $setup = $familySetups[$name] }
         else { $setup = $name + 'Setup' }

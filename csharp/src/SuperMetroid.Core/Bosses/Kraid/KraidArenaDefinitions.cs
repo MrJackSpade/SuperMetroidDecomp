@@ -36,12 +36,6 @@ internal static class KraidArenaDefinitions
     /// <summary>The updates the room shakes from the start of the rise's rocks.</summary>
     internal const int RiseShakeUpdates = 496;
 
-    /// <summary>
-    /// The timer Kraid's rise sets as his body starts to rise; the rise ends when his body reaches
-    /// <see cref="RisenY"/>, so nothing counts it down.
-    /// </summary>
-    internal const int RaiseBodyTimerUpdates = 288;
-
     /// <summary>The height Kraid's rising body rises above before his first phase starts.</summary>
     internal const int RisenY = 457;
 
@@ -125,10 +119,10 @@ internal static class KraidArenaDefinitions
     /// <summary>The updates Kraid waits before glowing his eye again while reopens of his mouth are pending.</summary>
     internal const int EyeGlowDelayUpdates = 64;
 
-    /// <summary>The steps of Kraid's hurt flash after a shot into his mouth; his hurt colours show on the odd ones.</summary>
-    internal const int HurtFlashSteps = 6;
-
-    /// <summary>The updates each step of his hurt flash lasts.</summary>
+    /// <summary>
+    /// The updates each step of his hurt flash lasts (<see cref="KraidHurtFlashAnimations"/>), and the wait before its first,
+    /// counting the hit's own update.
+    /// </summary>
     internal const int HurtFlashStepUpdates = 2;
 
     /// <summary>

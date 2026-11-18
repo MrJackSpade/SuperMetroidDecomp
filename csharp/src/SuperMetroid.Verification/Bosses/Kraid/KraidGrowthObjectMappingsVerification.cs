@@ -25,19 +25,15 @@ internal static class KraidGrowthObjectMappingsVerification
         Func<RoomObjectSpawnRequest<KraidRoomMutation>, ushort> field)
     {
         ushort Word(int address) => LittleEndianBytes.Word(KraidGrowthObjectFieldRomByte(rom, address), KraidGrowthObjectFieldRomByte(rom, address + 1));
-        var requests = KraidObjectDefinitions.GrowthCeiling;
-        var enumerated = requests.ToArray();
-        AssertEqual(9, requests.Count, "Nine native growth callbacks");
-        AssertEqual(9, enumerated.Length, "Growth request enumeration count");
+        // Each ceiling rock carries the block it breaks, in the order the rocks fall (#2400).
+        RoomObjectSpawnRequest<KraidRoomMutation>[] requests = [.. KraidCeilingRockDefinitions.Rocks.Select(rock => rock.Crumble)];
+        AssertEqual(9, requests.Length, "Nine native growth callbacks");
         for (int index = 0; index < 9; index++)
         {
             int callback = 0xa70000 | Word(0xa7acc5 + 2 * index);
             ushort expected = offset == 6 ? Word(callback + offset) : KraidGrowthObjectFieldRomByte(rom, callback + offset);
             AssertEqual(expected, field(requests[index]), "Native callback inline PLM field");
-            AssertEqual(expected, field(enumerated[index]), "Ordered calculated PLM enumeration");
         }
-        foreach (int invalid in new[] { int.MinValue, -1, 9, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = requests[invalid], "Growth request list bounds");
     }
 
     /// <summary>Reads a native Kraid growth callback byte for the focused cartridge comparison.</summary>

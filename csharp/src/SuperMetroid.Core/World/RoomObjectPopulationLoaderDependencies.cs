@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Rooms.Doors;
@@ -31,6 +32,9 @@ internal sealed record RoomObjectPopulationLoaderDependencies
 
     /// <summary>The Speed Booster's escape, which sets up when its room places it.</summary>
     public required SpeedBoosterEscapeObjects SpeedBoosterEscape { get; init; }
+
+    /// <summary>Draygon's wall cannons, whose objects each placement sets up with the cannons' firing they stop (#2400).</summary>
+    public required DraygonCannonObjects DraygonCannons { get; init; }
 
     /// <summary>Maridia's glass tube, which population sets up.</summary>
     public required NoobTubeObjects NoobTube { get; init; }

@@ -92,8 +92,6 @@ internal sealed class KraidRise
 
         // Kraid's initialization readies his body layer, on which his body shows once he rises.
         state.InitializeBodyLayer();
-        state.HurtFrame = 0;
-        state.HurtFrameTimer = 0;
 
         body.Position = body.Position.WithWhole(KraidArenaDefinitions.RiseStart);
         body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
@@ -159,12 +157,11 @@ internal sealed class KraidRise
                     (KraidCadenceDefinitions.RiseSwayPhase.IsSetIn(body.Position.Y.Whole) ? -1 : 1));
                 body.Position = body.Position.WithWholeY(body.Position.Y.Whole - 1);
                 if (KraidCadenceDefinitions.CeilingRockEveryFourthRow.IsDue(body.Position.Y.Whole) &&
-                    state.BodyState.CeilingRock < KraidCeilingRocks.Count)
+                    state.BodyState.NextCeilingRock is { } rock)
                 {
-                    int rock = state.BodyState.CeilingRock;
-                    _background.SpawnKraidCeilingRock(KraidCeilingRocks.X(rock));
-                    _frameResults.KraidObjects.Add(KraidObjectDefinitions.GrowthCeiling[rock]);
-                    state.BodyState.CeilingRock = rock + 1;
+                    _background.SpawnKraidCeilingRock(rock.Entry.X);
+                    _frameResults.KraidObjects.Add(rock.Entry.Crumble);
+                    state.BodyState.NextCeilingRock = rock.Following;
                 }
                 if (body.Position.Y.Whole < KraidArenaDefinitions.GrownY)
                     state.BodyState.GrowthPhase = KraidGrowthPhase.BringBodyInFront;
@@ -179,13 +176,9 @@ internal sealed class KraidRise
 
             case KraidGrowthPhase.SettleParts:
                 state.BodyState.GrowthPhase = KraidGrowthPhase.ShowRoomBackdrop;
-                RoomEnemyPlace foot = _parts.Foot;
                 state.FootState.StartAnimation(KraidPartSegment.FootNeutral);
                 foreach (KraidLintState lint in state.Lints)
-                {
-                    lint.SetAnimation(KraidPartSegment.LintPostGrowth);
-                    lint.Place.Frame = EnemyFrameId.KraidLintGrown;
-                }
+                    lint.ShowPose(KraidPartSegment.LintPostGrowth);
                 return;
 
             case KraidGrowthPhase.ShowRoomBackdrop:
@@ -231,7 +224,6 @@ internal sealed class KraidRise
         }
         state.HeadPlayback = KraidHeadAnimations.RoarAfterEntryFrame;
         state.WalkTargetX = KraidArenaDefinitions.SecondPhaseStartX;
-        _ = _parts.Foot;
         state.FootState.Phase = KraidFootPhase.SecondPhaseWalkToStart;
         state.FootState.StartAnimation(KraidPartSegment.FootWalkingBackward);
     }
@@ -307,7 +299,6 @@ internal sealed class KraidRise
                 if (--state.BodyState.RisingRockTimer == 0)
                 {
                     state.BodyState.RisePhase = KraidRisePhase.RaiseBody;
-                    state.BodyState.PhaseTimer = KraidArenaDefinitions.RaiseBodyTimerUpdates;
                 }
                 else if (KraidCadenceDefinitions.FasterRiseRockEveryEighthUpdate.IsDue(state.BodyState.RisingRockTimer))
                 {

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Animation;
+
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
@@ -13,6 +15,25 @@ public sealed class KraidLintState : KraidAnimatedPartState
     internal KraidLintState(KraidEnemyState kraid, KraidPartReference reference)
         : base(kraid, reference, KraidPartSegment.LintInitial)
     {
+    }
+
+    /// <summary>
+    /// Shows at once, for good, the pose the lint's animation beginning at <paramref name="segment"/> holds (#2400): the
+    /// animation plays to that pose and rests there, and the lint's clock stops, so the shared animation never steps it
+    /// again. A lint's setup shows its budding pose this way, and his growth its grown one.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The animation does not rest on a held pose first.</exception>
+    internal void ShowPose(KraidPartSegment segment)
+    {
+        Animation<KraidPartSegment> animation = KraidAnimations.StartingWith(segment);
+        AnimationPlace place = AnimationPlace.StartOfAnimation;
+        AnimationShown<KraidPartSegment, KraidPartPose> shown = KraidAnimations.Segments.PlayToNextFrame(animation, ref place,
+            cue => throw new InvalidOperationException($"Kraid's lint animation {segment} raised {cue} before its pose."));
+        if (shown is not AnimationShown<KraidPartSegment, KraidPartPose>.HeldFrame held)
+            throw new InvalidOperationException($"Kraid's lint animation {segment} holds no pose: it reached {shown}.");
+        Playback = new(animation, place);
+        Place.Frame = Show(held.Shown);
+        Place.AnimationClock.Stop();
     }
 
     /// <summary>The phase the lint runs, inactive from its setup until his growth produces it.</summary>

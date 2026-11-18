@@ -21,8 +21,8 @@ internal interface IRoomObjectFamilySetups
     /// <summary>Sets up an eye door's part of <paramref name="kind"/>.</summary>
     void SetUpEyeDoor(RoomObjectKind kind, LockedDoorArgument? lockedBy);
 
-    /// <summary>Sets up a Draygon wall cannon of <paramref name="kind"/> controlling <paramref name="cannon"/>.</summary>
-    void SetUpDraygonCannon(RoomObjectKind kind, DraygonWallCannon cannon);
+    /// <summary>Sets up a Draygon wall cannon as its placement's <paramref name="setup"/> carries it.</summary>
+    void SetUpDraygonCannon(DraygonWallCannonSetup setup);
 
     /// <summary>Sets up a station of <paramref name="kind"/>.</summary>
     void SetUpStation(RoomObjectKind kind, SaveStationArgument? savesAt);

@@ -34,7 +34,7 @@ internal static class BotwoonSegmentSelectorCodec
         int entry = byteOffset / EntryBytes;
         if ((entry & 8) != 0)
             return BotwoonBodyAnimationSegment.Hidden;
-        return new((entry & 16) != 0 ? BotwoonBodyAnimationSegmentKind.Tail : BotwoonBodyAnimationSegmentKind.Body,
-            DirectionsClockwise[entry & 7]);
+        CompassDirection facing = DirectionsClockwise[entry & 7];
+        return (entry & 16) != 0 ? BotwoonBodyAnimationSegment.TailCap(facing) : BotwoonBodyAnimationSegment.Link(facing);
     }
 }

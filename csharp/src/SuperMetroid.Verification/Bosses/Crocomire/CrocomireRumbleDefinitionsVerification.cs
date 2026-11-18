@@ -83,6 +83,7 @@ internal static class CrocomireRumbleDefinitionsVerification
             RumbleOscillation = 0,
             RumbleTowardExtreme = false,
         };
+        state.JoinFixtureTongue(enemies.Places.InUpdateOrder[1]);
         CrocomireDeathState death = state.Death;
         death.RumbleYOffset = 0;
         death.RumbleRepeatsLeft = CrocomireRumbleDefinitions.Oscillations[0].Repeats;

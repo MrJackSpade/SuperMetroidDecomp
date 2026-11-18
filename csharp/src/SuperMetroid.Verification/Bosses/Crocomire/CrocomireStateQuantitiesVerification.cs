@@ -348,6 +348,7 @@ internal static class CrocomireStateQuantitiesVerification
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
         var state = new CrocomireEnemyState(body);
         body.SetSpeciesState(state);
+        state.JoinFixtureTongue(enemies.Places.InUpdateOrder[1]);
         // Crocomire's initialisation attaches the body his sink hides (#1446, #1466, #1515).
         BossBodyCanvasFixtures.AttachCrocomire(enemies, InstalledFixtures.BossBodySheets);
         enemies.VerificationServices().ReadRandom = () => ushort.MaxValue;

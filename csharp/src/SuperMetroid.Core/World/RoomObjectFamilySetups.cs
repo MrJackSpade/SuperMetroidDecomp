@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.World;
 /// <summary>
 /// The room's room-object families' setups for one placement, once its object has taken its place (#2288, #2383): the
 /// placement's own setup names its family and hands it the typed argument it reads, and the coloured, grey and eye doors,
-/// the items, the stations and the Draygon cannons find what their kind installs in their families' own tables.
+/// the items and the stations find what their kind installs in their families' own tables.
 /// </summary>
 /// <param name="context">The room, the place the placement took, the area's boss flags and the families that keep state.</param>
 internal sealed class RoomObjectFamilySetups(RoomObjectSetupContext context) : IRoomObjectFamilySetups
@@ -55,13 +55,8 @@ internal sealed class RoomObjectFamilySetups(RoomObjectSetupContext context) : I
         context.Families.EyeDoors.SetupEyeDoor(context.Room.Level, context.Place, kind, lockedBy);
 
     /// <inheritdoc/>
-    /// <exception cref="InvalidDataException"><paramref name="kind"/> installs no Draygon cannon.</exception>
-    public void SetUpDraygonCannon(RoomObjectKind kind, DraygonWallCannon cannon)
-    {
-        DraygonCannonSetup setup = DraygonCannonDefinitions.Setups.TryGetValue(kind, out DraygonCannonSetup found) ? found
-            : throw new InvalidDataException($"Room-object kind {kind} installs no Draygon cannon.");
-        DraygonCannonObjects.SetupDraygonCannon(context.Room.Level, context.Place, setup, cannon);
-    }
+    public void SetUpDraygonCannon(DraygonWallCannonSetup setup) =>
+        context.Families.DraygonCannons.SetupDraygonCannon(context.Room.Level, context.Place, setup);
 
     /// <inheritdoc/>
     /// <exception cref="InvalidDataException"><paramref name="kind"/> installs no station.</exception>

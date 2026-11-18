@@ -610,6 +610,8 @@ internal static class FullRunSuitesVerification
             SuperMetroid.Verification.Bosses.Botwoon.BotwoonRandomChancesVerification.VerifyBotwoonRandomChances),
         new(nameof(SuperMetroid.Verification.Bosses.Kraid.KraidRandomChancesVerification.VerifyKraidRandomChances),
             SuperMetroid.Verification.Bosses.Kraid.KraidRandomChancesVerification.VerifyKraidRandomChances),
+        new(nameof(SuperMetroid.Verification.Bosses.Kraid.KraidMouthHitReachVerification.VerifyKraidMouthHitReach),
+            SuperMetroid.Verification.Bosses.Kraid.KraidMouthHitReachVerification.VerifyKraidMouthHitReach),
         new(nameof(SuperMetroid.Verification.Enemies.Beetom.BeetomRandomChancesVerification.VerifyBeetomRandomChances),
             SuperMetroid.Verification.Enemies.Beetom.BeetomRandomChancesVerification.VerifyBeetomRandomChances),
         new(nameof(SuperMetroid.Verification.Enemies.Hoppers.HopperRandomChancesVerification.VerifyHopperRandomChances),

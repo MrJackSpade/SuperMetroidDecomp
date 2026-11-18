@@ -142,9 +142,6 @@ internal sealed class KraidCombat
 
                 if (type.Family == SamusProjectileFamily.Beam)
                     state.ChargedHitThisPass = true;
-                // A hit leaves the mouth's bounds as the hit left them, a Super Missile's leftover with them, which decides
-                // which way the next shot's test falls.
-                bounds.LeaveAfterMouthHit(KraidMouthHitBound.After(MouthFamily(shot.Type.Family), MouthHit(shot)));
                 // Every beam takes Kraid's charged-beam response; the other families take their own.
                 EnemyWeaponVulnerability vulnerability = type.Family switch
                 {
@@ -158,6 +155,9 @@ internal sealed class KraidCombat
                 int damage = vulnerability.DamageFrom(shot.Damage);
                 if (damage != 0)
                 {
+                    // A damaging hit lets only the later shots from the row its kind names reach the mouth, which decides
+                    // whether the next shot's test falls inside; a dud leaves its own bounds below.
+                    bounds.LeaveAfterMouthHit(KraidMouthHitReach.RowAfter(DamagingMouthHit(shot)));
                     body.Health = damage >= body.Health
                         ? 0
                         : body.Health - damage;
@@ -358,25 +358,26 @@ internal sealed class KraidCombat
         return false;
     }
 
-    /// <summary>The family of a projectile that hit the mouth, for the bound it leaves the mouth.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="family"/> is undefined.</exception>
-    private static KraidMouthHitBound.Family MouthFamily(SamusProjectileFamily family) => family switch
-    {
-        SamusProjectileFamily.Beam => KraidMouthHitBound.Family.Beam,
-        SamusProjectileFamily.Missile => KraidMouthHitBound.Family.Missile,
-        SamusProjectileFamily.SuperMissile => KraidMouthHitBound.Family.SuperMissile,
-        SamusProjectileFamily.PowerBomb => KraidMouthHitBound.Family.PowerBomb,
-        SamusProjectileFamily.Bomb => KraidMouthHitBound.Family.Bomb,
-        SamusProjectileFamily.BeamExplosion => KraidMouthHitBound.Family.BeamExplosion,
-        SamusProjectileFamily.MissileExplosion => KraidMouthHitBound.Family.MissileExplosion,
-        _ => throw new ArgumentOutOfRangeException(nameof(family), family, "Undefined projectile family."),
-    };
+    /// <summary>
+    /// The kind of hit <paramref name="shot"/> made when it damaged the mouth, for the row it lets later shots in from. An
+    /// uncharged beam or an echo never hits the mouth, an explosion never damages it, Samus fires no Power Bomb, and only
+    /// her first bomb's place holds a placed bomb.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">No projectile of the shot's family and delivery damages the mouth.</exception>
+    private static KraidMouthHitReach.DamagingHit DamagingMouthHit(KraidBehavior.KraidCollisionShot shot) =>
+        shot.Type.Family switch
+        {
+            SamusProjectileFamily.Beam => !shot.IsPlacedBomb && shot.Type.IsChargedBeam && shot.Type.Echo is null
+                ? KraidMouthHitReach.DamagingHit.ChargedBeam : throw CannotDamageMouth(shot),
+            SamusProjectileFamily.Missile => !shot.IsPlacedBomb ? KraidMouthHitReach.DamagingHit.Missile : throw CannotDamageMouth(shot),
+            SamusProjectileFamily.SuperMissile => !shot.IsPlacedBomb ? KraidMouthHitReach.DamagingHit.SuperMissile : throw CannotDamageMouth(shot),
+            SamusProjectileFamily.Bomb => shot.IsPlacedBomb ? KraidMouthHitReach.DamagingHit.PlacedBomb : KraidMouthHitReach.DamagingHit.SpreadBomb,
+            SamusProjectileFamily.PowerBomb => shot.IsPlacedBomb ? KraidMouthHitReach.DamagingHit.PlacedPowerBomb : throw CannotDamageMouth(shot),
+            SamusProjectileFamily.BeamExplosion or SamusProjectileFamily.MissileExplosion => throw CannotDamageMouth(shot),
+            _ => throw new InvalidOperationException($"Undefined SamusProjectileFamily {shot.Type.Family}."),
+        };
 
-    /// <summary>How <paramref name="shot"/> was delivered, for the bound it leaves the mouth.</summary>
-    private static KraidMouthHitBound.Hit MouthHit(KraidBehavior.KraidCollisionShot shot) =>
-        shot.IsPlacedBomb ? KraidMouthHitBound.Hit.PlacedBomb
-        : shot.Type.IsChargedBeam && shot.Type.Echo is not null ? KraidMouthHitBound.Hit.FiredChargedEcho
-        : shot.Type.IsChargedBeam ? KraidMouthHitBound.Hit.FiredChargedBeam
-        : shot.Type.Echo is not null ? KraidMouthHitBound.Hit.FiredEcho
-        : KraidMouthHitBound.Hit.Fired;
+    /// <summary>The failure of a projectile that cannot damage Kraid's mouth reaching the mouth's damage.</summary>
+    private static InvalidOperationException CannotDamageMouth(KraidBehavior.KraidCollisionShot shot) =>
+        new($"A {shot.Type} projectile ({(shot.IsPlacedBomb ? "placed" : "fired")}) cannot damage Kraid's mouth.");
 }

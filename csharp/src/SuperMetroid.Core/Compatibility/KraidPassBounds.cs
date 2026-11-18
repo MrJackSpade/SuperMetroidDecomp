@@ -6,7 +6,8 @@ namespace SuperMetroid.Core.Compatibility;
 /// hit leaves its own values over the bounds, and every later projectile in that pass is tested against those leftovers
 /// with wrapped signed comparisons:
 /// <list type="bullet">
-/// <item>a damaging mouth hit leaves the bottom <see cref="KraidMouthHitBound"/> gives and a top far above the room;</item>
+/// <item>a damaging mouth hit leaves a bottom that lets in only the projectiles whose top lies from the row
+/// <see cref="KraidMouthHitReach"/> names for the hit on, and a top far above the room;</item>
 /// <item>a mouth hit that does no damage leaves twice the place its dud flash takes (<see cref="EffectActorPlaces"/>) as
 /// the bottom, or the projectile's X when the flash took no place, the projectile's Y as the top, and a fixed left bound;</item>
 /// <item>a body hit leaves the projectile's X as the bottom and its Y as the top;</item>
@@ -78,11 +79,16 @@ public struct KraidPassBounds
     /// <param name="shotRight">The projectile's right edge in room pixels.</param>
     public void LeaveRightEdgeAsBottom(int shotRight) => Bottom = CoordinateAxis.Wrap(shotRight);
 
-    /// <summary>Leaves the bounds a damaging mouth hit leaves: the given bottom and <see cref="TopAfterMouthHit"/>.</summary>
-    /// <param name="bottom">The bottom <see cref="KraidMouthHitBound"/> gives for the hit.</param>
-    public void LeaveAfterMouthHit(int bottom)
+    /// <summary>
+    /// Leaves the bounds a damaging mouth hit leaves: <see cref="TopAfterMouthHit"/>, and a bottom the farthest a signed
+    /// reading still finds past <paramref name="reachRow"/> (<see cref="CoordinateAxis.LastNonNegative"/> rows on), so a
+    /// later projectile reaches above the bottom exactly when its top lies at or below <paramref name="reachRow"/> across
+    /// the wrapping room space.
+    /// </summary>
+    /// <param name="reachRow">The room row from which a later projectile reaches the mouth (<see cref="KraidMouthHitReach.RowAfter"/>).</param>
+    public void LeaveAfterMouthHit(int reachRow)
     {
-        Bottom = CoordinateAxis.Wrap(bottom);
+        Bottom = CoordinateAxis.Wrap(reachRow + CoordinateAxis.LastNonNegative);
         _top = CoordinateAxis.Wrap(TopAfterMouthHit);
     }
 

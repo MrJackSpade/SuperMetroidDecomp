@@ -45,7 +45,7 @@ internal static class DraygonAnimationsVerification
             lists[copy.Program] = lists[copy.Program] with { Repeats = [.. lists[copy.Program].Repeats, ReadList(cartridge, copy.Program, copy.Entry, drawn)] };
         // An animation started through a counter preamble (#1938) starts at its counted list, which the shared comparison
         // takes for a body no animation starts in; it is compared below from the preamble's count.
-        // The body's dying cry is no animation of its own (#2175): the arms' dying runs on into it, and no owner starts it.
+        // The body's dying cry is no animation of its own (#2175): the body's dying runs on into it, and no owner starts it.
         // Nor are the runs that follow a counted run (#2296): the dying's paralysis and its looping burst, the eye's dying
         // stare and the tail's release of Samus, which the animations play on into.
         NativeEnemyAnimationOracle.CompareAnimations(lists,
@@ -53,7 +53,7 @@ internal static class DraygonAnimationsVerification
                 .ToDictionary(pair => pair.Key, pair => pair.Value),
             onlyRunOnInto: new HashSet<DraygonSegment>
             {
-                DraygonSegment.BodyDying, DraygonSegment.BodyDyingParalysis, DraygonSegment.BodyDyingExplosionLoop,
+                DraygonSegment.BodyDyingCry, DraygonSegment.BodyDyingParalysis, DraygonSegment.BodyDyingExplosionLoop,
                 DraygonSegment.EyeFacingLeftDyingStare, DraygonSegment.EyeFacingRightDyingStare,
                 DraygonSegment.TailFacingLeftReleaseSamus, DraygonSegment.TailFacingRightReleaseSamus,
             });
@@ -264,7 +264,7 @@ internal static class DraygonAnimationsVerification
     }
 
     /// <summary>
-    /// The arms' dying program runs on into the body's dying explosions: the cry, the intangible body, eight counted
+    /// The body's dying, played here on the arms, runs on into its dying explosions: the cry, the intangible body, eight counted
     /// explosion rounds with their waits, the paralysis of the tail, then the explosion loop, update by update beside
     /// the native list, including the plays the counted rounds have left, which the arms' timer word counts (#2006).
     /// </summary>
@@ -272,9 +272,9 @@ internal static class DraygonAnimationsVerification
     {
         (RoomEnemySystem enemies, DraygonEnemyState state) = NewDraygon();
         RoomEnemyPlace arms = state.Arms;
-        state.ArmsPart.SetAnimation(DraygonSegment.ArmsFacingLeftDying);
+        state.ArmsPart.SetAnimation(DraygonSegment.BodyFacingLeftDying);
         arms.AnimationClock.StepOnNextUpdate();
-        var native = new NativeEnemyListReader(BodyBankNumber, Entry(DraygonSegment.ArmsFacingLeftDying), 1, OperandWords);
+        var native = new NativeEnemyListReader(BodyBankNumber, Entry(DraygonSegment.BodyFacingLeftDying), 1, OperandWords);
         bool paralysed = false;
         for (int update = 0; update < 400; update++)
         {

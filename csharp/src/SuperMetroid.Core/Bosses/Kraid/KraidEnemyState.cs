@@ -77,7 +77,7 @@ public sealed class KraidEnemyState
     /// <summary>His two fingernails' own states, first first.</summary>
     internal IEnumerable<KraidNailState> Nails => [FirstNailState, SecondNailState];
 
-    /// <summary>Gets the body think countdown selected from the random-delay table and consumed before the next mouth attack.</summary>
+    /// <summary>Gets the updates his body thinks before its next mouth attack: a random number of 64-update steps.</summary>
     public int ThinkingTimer { get; internal set; }
     /// <summary>
     /// Gets the highest room Y Samus may be pushed to when Kraid's body ejects her: 324 for the small form and 164 once

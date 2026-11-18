@@ -167,7 +167,7 @@ internal sealed class DoorObjects
         // A later closing behind Samus at this block asks the room's shot-cap rule whether the cap stays open (#1906).
         place.Become(new BlueDoorCapObject(orientation, BlueDoorCapPhase.Opening));
 
-        // This is a direct terrain write, not a cap draw. The cap's first draw comes on its next update, while collision
+        // The block turns solid at once, before the cap is drawn. The cap's first draw comes on its next update, while collision
         // sees the solid block at once.
         level.SetTerrain(position,
             level.GetCollisionBlock(position).Terrain.WithCollision(RoomCollisionType.SolidBlock));

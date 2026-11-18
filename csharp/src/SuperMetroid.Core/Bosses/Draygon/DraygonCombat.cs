@@ -88,8 +88,9 @@ internal sealed class DraygonCombat
     }
 
     /// <summary>
-    /// The vulnerable eye's shot reaction increases future swoop curvature before common shot AI.
-    /// The comparison keeps the stored value from ever advancing beyond 152.
+    /// A shot to his vulnerable eye makes his later swoops curve harder, before the common shot reaction: each hit adds a
+    /// step to his swoop acceleration while the sum stays below its limit, so it tops out at 152/256 pixel per update per
+    /// update.
     /// </summary>
     internal static void AdvanceDraygonShotAcceleration(DraygonEnemyState state)
     {
@@ -112,16 +113,16 @@ internal sealed class DraygonCombat
     }
 
     /// <remarks>
-    /// Draygon's shared reaction has no "already dying" test in its dead branch. Every
-    /// touch, shot or power-bomb reaction on a zero-health body runs it again: the dying
-    /// arm and eye animations restart, the drift phase is restarted and Samus is released.
+    /// Draygon's death starts again on every touch, shot or power-bomb reaction to a body with no
+    /// health left, however long he has been dying: his dying body and eye animations
+    /// restart, the drift phase is restarted and Samus is released.
     /// </remarks>
     private void BeginDraygonDeath(DraygonEnemyState state, SamusState samus)
     {
         samus.Grapple.Phase = GrapplePhase.Dropped;
         state.BodyPart.StartAnimation(state.Facing == HorizontalDirection.Right
-                ? DraygonSegment.ArmsFacingRightDying
-                : DraygonSegment.ArmsFacingLeftDying);
+                ? DraygonSegment.BodyFacingRightDying
+                : DraygonSegment.BodyFacingLeftDying);
         state.EyePart.StartAnimation(state.Facing == HorizontalDirection.Right
                 ? DraygonSegment.EyeFacingRightDying
                 : DraygonSegment.EyeFacingLeftDying);

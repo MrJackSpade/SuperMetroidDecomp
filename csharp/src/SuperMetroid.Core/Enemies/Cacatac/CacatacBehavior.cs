@@ -79,7 +79,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
         SetCacatacAnimation(place, state, upsideUp ? CacatacSegment.UpsideUpIdle : CacatacSegment.UpsideDownIdle);
     }
 
-    /// <summary>Runs a Cacatac's per-frame behaviour through its three actions.</summary>
+    /// <summary>Runs a Cacatac for one update through its three actions.</summary>
     private void RunCacatacMain(RoomEnemyPlace place, CacatacEnemyState state)
     {
         switch (state.Action)
@@ -178,7 +178,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Runs the spike's per-frame behaviour: the spike moves along its velocity, horizontally then vertically, then is culled
+    /// Runs the spike for one update: the spike moves along its velocity, horizontally then vertically, then is culled
     /// once outside the view.
     /// </summary>
     internal static void FlyCacatacSpike(

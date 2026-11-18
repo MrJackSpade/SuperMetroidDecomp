@@ -10,21 +10,21 @@ internal enum RidleyBodySegment
     StandingFacingLeft,
     /// <summary>The right-facing standing pose.</summary>
     StandingFacingRight,
-    /// <summary>Ceres Ridley's left-facing lunge.</summary>
+    /// <summary>Ceres Ridley lunging facing left: his legs stretching out and drawing back in to standing.</summary>
     CeresLungeFacingLeft,
-    /// <summary>The right-facing lunge.</summary>
+    /// <summary>Ceres Ridley lunging facing right: his legs stretching out and drawing back in to standing.</summary>
     CeresLungeFacingRight,
     /// <summary>Ceres Ridley reaching for the Baby Metroid, facing left.</summary>
     RetrieveBabyMetroidFacingLeft,
     /// <summary>The right-facing reach.</summary>
     RetrieveBabyMetroidFacingRight,
-    /// <summary>The left-facing opening roar.</summary>
+    /// <summary>Ridley facing left roaring as the fight opens: his mouth opening wide and closing again, then standing.</summary>
     OpeningRoarFacingLeft,
-    /// <summary>The right-facing opening roar.</summary>
+    /// <summary>Ridley facing right roaring as the fight opens: his mouth opening wide and closing again, then standing.</summary>
     OpeningRoarFacingRight,
-    /// <summary>The left-facing death roar.</summary>
+    /// <summary>Ridley facing left roaring as he dies, resting on his open mouth.</summary>
     DeathRoarFacingLeft,
-    /// <summary>The right-facing death roar.</summary>
+    /// <summary>Ridley facing right roaring as he dies, resting on his open mouth.</summary>
     DeathRoarFacingRight,
     /// <summary>Turning to face right.</summary>
     TurnFromLeftToRight,

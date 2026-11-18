@@ -61,7 +61,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         return new(x, y, SbugMovement.FacingOf(heading));
     }
 
-    /// <summary>Runs an Sbug's per-frame behaviour through all of its actions.</summary>
+    /// <summary>Runs an Sbug for one update through all of its actions.</summary>
     internal void RunSbugMain(RoomEnemyPlace place, SamusState samus, RoomLevelData level)
     {
         SbugEnemyState state = place.RequireSpeciesState<SbugEnemyState>();

@@ -309,7 +309,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Runs the fireball's per-frame behaviour.</summary>
+    /// <summary>Flies the fireball for one update.</summary>
     internal static void FlyDragonFireball(
         EnemyProjectile projectile,
         int cameraY)

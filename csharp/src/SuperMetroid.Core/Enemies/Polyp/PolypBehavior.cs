@@ -135,7 +135,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         projectile.Position = source.Position;
     }
 
-    /// <summary>Runs the rock's per-frame behaviour and its rising/falling step.</summary>
+    /// <summary>Flies the rock for one update, rising or falling.</summary>
     internal static void FlyPolypRock(
         EnemyProjectile projectile,
         Position16<RoomPixels> camera)

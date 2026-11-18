@@ -12,8 +12,11 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// An animation segment says what it shows (SME6459, #2309): in <c>SuperMetroid.Core</c>, a member of an enum named
 /// <c>*Segment</c>, one run of an actor's animation, has a summary stating what that run shows in game terms. A summary
 /// that only restates the member's name, as "The facing left shooting animation." on <c>FacingLeftShooting</c>, "The
-/// idle." on <c>Idle</c>, or "The loop.", says nothing the name does not. The comparison ignores case and spacing; a
-/// summary holding anything besides plain text, such as a <c>see</c> reference, is not a restatement.
+/// idle." on <c>Idle</c>, or "The loop.", says nothing the name does not. Nor does one whose words are all the name's,
+/// the actor's its enum is named for, an article or a possessive, or "animation" (#2465), however they are ordered or
+/// punctuated: "Draygon body animation: facing left, reset." on <c>DraygonSegment.BodyFacingLeftReset</c>. The
+/// comparison ignores case and spacing; a summary holding anything besides plain text, such as a <c>see</c> reference, is
+/// not a restatement.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class AnimationSegmentSummaryAnalyzer : DiagnosticAnalyzer
@@ -40,6 +43,16 @@ public sealed class AnimationSegmentSummaryAnalyzer : DiagnosticAnalyzer
     /// <summary>A run of spacing inside a summary.</summary>
     private static readonly Regex Spacing = new(@"\s+", RegexOptions.CultureInvariant);
 
+    /// <summary>A word of a summary's plain text: a run of letters and digits.</summary>
+    private static readonly Regex SummaryWord = new("[a-z0-9]+", RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// The words a restatement adds to the name's (#2465): articles, possessives (a possessive's s among them) and
+    /// "animation", which say nothing of what the run shows.
+    /// </summary>
+    private static readonly ImmutableHashSet<string> RestatingWords =
+        ["the", "a", "an", "its", "his", "her", "their", "s", "animation", "animations"];
+
     /// <summary>The suffix of an enum whose members are animation segments.</summary>
     private const string SegmentSuffix = "Segment";
 
@@ -59,7 +72,10 @@ public sealed class AnimationSegmentSummaryAnalyzer : DiagnosticAnalyzer
         });
     }
 
-    /// <summary>Reports a segment whose summary's plain text is only its name, as an animation or alone, or "The loop.".</summary>
+    /// <summary>
+    /// Reports a segment whose summary's plain text is only its name, as an animation or alone, "The loop.", or words all of
+    /// which are the name's, the actor's or restating words (<see cref="RestatingWords"/>).
+    /// </summary>
     private static void AnalyzeMember(SyntaxNodeAnalysisContext context)
     {
         var member = (EnumMemberDeclarationSyntax)context.Node;
@@ -71,8 +87,22 @@ public sealed class AnimationSegmentSummaryAnalyzer : DiagnosticAnalyzer
         string name = member.Identifier.ValueText;
         string words = WordBoundary.Replace(name, " ").ToLowerInvariant();
         string text = summary.ToLowerInvariant();
-        if (text == "the loop." || text == "the " + words + " animation." || text == "the " + words + ".")
+        if (text == "the loop." || text == "the " + words + " animation." || text == "the " + words + "." ||
+            OnlyNamesWords(text, words, enumName))
             context.ReportDiagnostic(Diagnostic.Create(Rule, member.Identifier.GetLocation(), name));
+    }
+
+    /// <summary>
+    /// Whether every word of <paramref name="text"/> is one of the member name's <paramref name="words"/>, a word of the actor
+    /// <paramref name="enumName"/> is named for, or a restating word, and at least one is the name's (#2465).
+    /// </summary>
+    private static bool OnlyNamesWords(string text, string words, string enumName)
+    {
+        HashSet<string> named = [.. words.Split(' ')];
+        HashSet<string> actor = [.. WordBoundary.Replace(enumName.Substring(0, enumName.Length - SegmentSuffix.Length), " ").ToLowerInvariant().Split(' ')];
+        string[] summaryWords = [.. SummaryWord.Matches(text).Cast<Match>().Select(match => match.Value)];
+        return summaryWords.Any(named.Contains) &&
+            summaryWords.All(word => named.Contains(word) || actor.Contains(word) || RestatingWords.Contains(word));
     }
 
     /// <summary>

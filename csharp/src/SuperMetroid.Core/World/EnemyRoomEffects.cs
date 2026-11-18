@@ -144,7 +144,7 @@ internal sealed class EnemyRoomEffects
     /// <summary>
     /// Transfers Mother Brain's fixed room-object requests to the shared
     /// owner. The enemy state publishes requests in the order it makes them; consuming them
-    /// here keeps the places they take in update order and the one-frame execution seam.
+    /// here keeps the places they take in update order and applies them in the update that makes them.
     /// </summary>
     internal void ApplyPendingMotherBrainObjects(EnemyRoomEffectRequests requests, EnemyRoomEffectSite site)
     {

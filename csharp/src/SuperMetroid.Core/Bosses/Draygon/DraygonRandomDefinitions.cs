@@ -32,8 +32,7 @@ internal static class DraygonRandomDefinitions
     internal static readonly RandomSampleField DyingScatterY = new(8, 7);
 
     /// <summary>
-    /// The tail whip Draygon inserts while he holds Samus (#1619): only the lowest of the 256 rolls of the sample's bits
-    /// 0-7, a zero, whips.
+    /// The tail whip Draygon inserts while he holds Samus (#1619): one roll in 256, the lowest, whips.
     /// </summary>
     internal static readonly RandomChance TailWhips = RandomChance.Lowest(1, new RandomSampleField(0, 8));
 }

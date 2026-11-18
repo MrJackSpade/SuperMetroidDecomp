@@ -10,7 +10,7 @@ public sealed record SamusAnimationStep
 
     /// <summary>
     /// The frame clock's value for this step, 0 through 65535: the clock wraps back to 0 after 65535 and paces
-    /// liquid effects, so the full wrapped value is carried; other values are rejected.
+    /// liquid effects, so every value of its cycle is carried; other values are rejected.
     /// </summary>
     public int FrameCounter
     {

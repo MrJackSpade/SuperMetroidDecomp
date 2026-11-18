@@ -542,8 +542,8 @@ public sealed class SamusHorizontalSpeedState
 
     /// <summary>
     /// Performs the complete horizontal-momentum teardown shared by collision, standing,
-    /// posture, aerial, and Morph-Ball movements. The seam first cancels Speed Booster
-    /// bookkeeping/echoes, then clears the extra run speed, the base speed and the
+    /// posture, aerial, and Morph-Ball movements. The seam first cancels the Speed Booster's
+    /// charge and echoes, then clears the extra run speed, the base speed and the
     /// acceleration mode, in that order.
     /// </summary>
     public void ClearHorizontalMomentum(SamusFacingDirection facingDirection)
@@ -554,7 +554,7 @@ public sealed class SamusHorizontalSpeedState
 
     /// <summary>
     /// Clears the extra run speed, the base speed and the acceleration mode without cancelling the
-    /// boost's bookkeeping. Crouching's cleanup clears only these;
+    /// boost's charge. Crouching's cleanup clears only these;
     /// its angle-held input route can therefore preserve a temporary Blue Suit.
     /// </summary>
     public void ClearHorizontalVelocity()

@@ -51,7 +51,7 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
     public bool TakesOff(RoomEnemyPlace place, NorfairRidleyState ridley) => Combat.TickNorfairRidleyArenaReveal(ridley);
 
     /// <summary>
-    /// Runs Norfair Ridley's per-frame behaviour, including the reveal phases he shares with
+    /// Runs Norfair Ridley for one update, including the reveal phases he shares with
     /// Ceres Ridley. Composition is advanced after the selected phase, so a velocity change affects the same rendered
     /// frame.
     /// </summary>

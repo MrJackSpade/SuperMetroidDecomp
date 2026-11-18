@@ -62,7 +62,7 @@ internal static class SamusShotBehaviors
 
     /// <summary>
     /// The charged Spazer, Plasma and Wave and Spazer, Plasma and Ice shots, which run whatever Samus's changing state
-    /// holds, so the game's execution depends on that state and may crash.
+    /// holds, so what the game does depends on that state and may crash it.
     /// </summary>
     internal static SamusShotBehavior ChargedChainsaw { get; } =
         new ShotRefusedWhenRun("whatever Samus's changing state holds");

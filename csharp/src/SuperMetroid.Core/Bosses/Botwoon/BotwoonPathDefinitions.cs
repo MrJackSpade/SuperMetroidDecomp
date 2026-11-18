@@ -598,7 +598,7 @@ internal static class BotwoonPathDefinitions
     ];
 
     /// <summary>
-    /// Every authored path, in a fixed order the checks compare them in.
+    /// Every path Botwoon walks between his holes, through the open room and inside the wall.
     /// </summary>
     internal static readonly BotwoonPathDefinition[] Paths =
     [

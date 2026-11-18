@@ -701,6 +701,32 @@ the game's live state as code is outside the emulation scope limit. Where an ani
 body's or a controller's port (`the top port's spike`, `port 2`), a layout alone (`a room's scroll layout`), laying a
 picture out (`lays out the caption`) and a hardware owner stay English.
 
+#2465 widens SME6454, outside hardware owners, to the original's program and storage and the repository's checks as boss
+prose tells them: a frame behaviour, spaced or per-frame (`the shot's fired frame behaviour`, `a Zoa's per-frame
+behaviour`); an early return; a thing left `unwritten`; a final or last store or write (`the runner's final store`); a
+query or routine that returns zero or nonzero; `execution` (`does not leave execution at the setup`, `cue execution`);
+`bookkeeping`; the real pool; the game's mover, routine, handler or subroutine (`as the game's projectile mover does`);
+the checks that compare, read or assert something; a wrapped count, counter, value, word, timer or sum; a stored value,
+word, byte or count; a respawn, flag, status, enable or done bit;
+authored arguments or operands; a direct write of anything (`the Shitroid's direct camera X write`, `a direct terrain
+write`); and a branch that also, then, first or only does something (`the riding branch also carries Samus`). In every
+type, hardware owners included, fix history told inside a clause now also covers rebuilding, recomputing, resetting,
+rewriting or replacing something here that doubles, halves, breaks, loses or desyncs something (`rebuilding a clean
+rectangle here doubles close-range damage`). Core says what the game does: a shot flies each update, the eye breathes its
+bubble whether or not its gaze turns, a deleted part's animation stays where it stood, one roll in 256 whips, the
+Shitroid moves the camera, a hit leaves the mouth's bounds as it left them. A frame alone and a behaviour alone, a
+return to a place, a count that wraps, a value kept, a bit of a thing, an authored path, a direct hit, a branch alone
+and a hardware owner, which describes the program it reproduces, stay English.
+
+SME6459 (#2309) reads the summary of every member of a Core `*Segment` enum, one run of an actor's animation, and rejects
+one that only restates the member's name: `The facing left shooting animation.`, `The idle.`, `The loop.`, and (#2465)
+any summary whose words are all the name's, the actor's the enum is named for, articles, possessives or `animation`,
+however ordered or punctuated (`Draygon body animation: facing left, reset.` on `DraygonSegment.BodyFacingLeftReset`,
+`Ceres Ridley's left-facing lunge.` on `CeresLungeFacingLeft`). The summary says what the run shows: what the actor
+does, which way it faces, which pictures it passes through and for how long, what it starts or sounds (`His body facing
+left opening its jaw wide to spit goop with its sound, then shutting it.`). A summary holding a `see` reference is not
+read.
+
 `Tilemap` is matched as the one word the cartridge's sources spell. A room layer named as the destination engine names
 it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as does `MapTiles`; so does
 `SpriteSheet` beside `Spritemap`, and `Scan`, `Scanned` or `FirstLine` beside `Scanline` (#1694). Documentation prose is

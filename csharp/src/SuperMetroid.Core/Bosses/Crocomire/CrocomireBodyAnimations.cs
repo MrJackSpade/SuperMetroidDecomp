@@ -133,37 +133,14 @@ internal static class CrocomireBodyAnimations
         [P.WaitForFirstSecondDamage] =
         [
             Show(F.CrocomireBodyArmUprightMouthShut, 34),
-            Show(F.CrocomireBodyArmUprightMouthNearlyShut, 2),
-            Show(F.CrocomireBodyArmUprightMouthMostlyClosed, 2),
-            Show(F.CrocomireBodyArmUprightMouthHalfClosed, 2),
-            Show(F.CrocomireBodyArmUprightMouthClosing, 2),
-            Show(F.CrocomireBodyArmUprightMouthOpenLess, 2),
-            Show(F.CrocomireBodyArmUprightMouthOpen, 2),
+            .. MouthOpening(2),
             Show(F.CrocomireBodyArmUprightMouthOpen, 16),
-            Show(F.CrocomireBodyArmUprightMouthOpenLess, 1),
-            Show(F.CrocomireBodyArmUprightMouthClosing, 1),
-            Show(F.CrocomireBodyArmUprightMouthHalfClosed, 1),
-            Show(F.CrocomireBodyArmUprightMouthMostlyClosed, 1),
-            Show(F.CrocomireBodyArmUprightMouthNearlyShut, 1),
+            .. MouthClosing(1),
             Show(F.CrocomireBodyArmUprightMouthShut, 16),
-            Show(F.CrocomireBodyArmUprightMouthNearlyShut, 1),
-            Show(F.CrocomireBodyArmUprightMouthMostlyClosed, 1),
-            Show(F.CrocomireBodyArmUprightMouthHalfClosed, 1),
-            Show(F.CrocomireBodyArmUprightMouthClosing, 1),
-            Show(F.CrocomireBodyArmUprightMouthOpenLess, 1),
-            Show(F.CrocomireBodyArmUprightMouthOpen, 1),
-            Show(F.CrocomireBodyArmUprightMouthOpenLess, 1),
-            Show(F.CrocomireBodyArmUprightMouthClosing, 1),
-            Show(F.CrocomireBodyArmUprightMouthHalfClosed, 1),
-            Show(F.CrocomireBodyArmUprightMouthMostlyClosed, 1),
-            Show(F.CrocomireBodyArmUprightMouthNearlyShut, 1),
+            .. MouthOpening(1),
+            .. MouthClosing(1),
             Show(F.CrocomireBodyArmUprightMouthShut, 1),
-            Show(F.CrocomireBodyArmUprightMouthNearlyShut, 1),
-            Show(F.CrocomireBodyArmUprightMouthMostlyClosed, 1),
-            Show(F.CrocomireBodyArmUprightMouthHalfClosed, 1),
-            Show(F.CrocomireBodyArmUprightMouthClosing, 1),
-            Show(F.CrocomireBodyArmUprightMouthOpenLess, 1),
-            Show(F.CrocomireBodyArmUprightMouthOpen, 1),
+            .. MouthOpening(1),
             Cue(K.FightAi),
         ],
         [P.ClawSwingFightCue] =
@@ -491,6 +468,33 @@ internal static class CrocomireBodyAnimations
     /// count runs out, and a shot's added updates move when.
     /// </summary>
     private const int LoopingMeltFrameDuration = 32767;
+
+    /// <summary>
+    /// His mouth opening as he waits for damage, his arm upright (#2465): from nearly shut through closing and opening less
+    /// to open, each picture for <paramref name="updates"/>.
+    /// </summary>
+    private static AnimationBeat<EnemyFrameId, CrocomireBodyCue>[] MouthOpening(int updates) =>
+    [
+        Show(F.CrocomireBodyArmUprightMouthNearlyShut, updates),
+        Show(F.CrocomireBodyArmUprightMouthMostlyClosed, updates),
+        Show(F.CrocomireBodyArmUprightMouthHalfClosed, updates),
+        Show(F.CrocomireBodyArmUprightMouthClosing, updates),
+        Show(F.CrocomireBodyArmUprightMouthOpenLess, updates),
+        Show(F.CrocomireBodyArmUprightMouthOpen, updates),
+    ];
+
+    /// <summary>
+    /// His mouth closing as he waits for damage, his arm upright (#2465): from opening less back to nearly shut, each
+    /// picture for <paramref name="updates"/>; the shut mouth that follows is held as long as the wait says.
+    /// </summary>
+    private static AnimationBeat<EnemyFrameId, CrocomireBodyCue>[] MouthClosing(int updates) =>
+    [
+        Show(F.CrocomireBodyArmUprightMouthOpenLess, updates),
+        Show(F.CrocomireBodyArmUprightMouthClosing, updates),
+        Show(F.CrocomireBodyArmUprightMouthHalfClosed, updates),
+        Show(F.CrocomireBodyArmUprightMouthMostlyClosed, updates),
+        Show(F.CrocomireBodyArmUprightMouthNearlyShut, updates),
+    ];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, CrocomireBodyCue> Show(EnemyFrameId frame, int duration) =>

@@ -142,8 +142,8 @@ internal sealed class KraidCombat
 
                 if (type.Family == SamusProjectileFamily.Beam)
                     state.ChargedHitThisPass = true;
-                // A Super Missile's leftover changes which way the next shot's test falls; rebuilding a clean rectangle here
-                // doubles close-range damage.
+                // A hit leaves the mouth's bounds as the hit left them, a Super Missile's leftover with them, which decides
+                // which way the next shot's test falls.
                 bounds.LeaveAfterMouthHit(KraidMouthHitBound.After(MouthFamily(shot.Type.Family), MouthHit(shot)));
                 // Every beam takes Kraid's charged-beam response; the other families take their own.
                 EnemyWeaponVulnerability vulnerability = type.Family switch

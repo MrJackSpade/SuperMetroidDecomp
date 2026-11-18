@@ -255,7 +255,7 @@ public sealed class SamusBombProjectileSystem
                 AudioRequests.QueueSound(EnemySound.BombExplosion, SoundRequestPriority.Normal);
             }
 
-            // The loop still steps the animation after a frame behaviour ends a bomb.
+            // The loop still steps the animation after a bomb's own update ends it.
             // Its cleared timer passes zero and returns without reading an empty animation. An
             // inactive projectile has the same externally visible result, so skip the
             // otherwise meaningless decrement rather than pretending an empty animation ran.
@@ -737,7 +737,7 @@ public sealed class SamusBombProjectileSystem
     }
 
     /// <summary>
-    /// The power-bomb boundary's reactions, shared by every frame behaviour that runs them: each block of the boundary
+    /// The power-bomb boundary's reactions, shared by every bomb update that runs them: each block of the boundary
     /// (<see cref="PowerBombBoundaryBlocks"/>) reacts in turn. Coordinates and radius belong to the global explosion, not
     /// the calling bomb.
     /// </summary>

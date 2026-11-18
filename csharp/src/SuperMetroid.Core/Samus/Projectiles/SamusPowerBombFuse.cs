@@ -6,7 +6,7 @@ public static class SamusPowerBombFuse
 {
     /// <summary>
     /// Computes the fuse and animation changes and asks for the bomb's explosion or deletion. The step that burns the fuse
-    /// out starts the explosion; the bomb's boundary reactions wait for the update after it, because other frame behaviours
+    /// out starts the explosion; the bomb's boundary reactions wait for the update after it, because a bomb's other updates
     /// can reach this step.
     /// </summary>
     /// <param name="fuseUpdatesLeft">The updates the fuse has left, zero once it has burned out.</param>

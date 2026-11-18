@@ -307,7 +307,7 @@ internal sealed class EnemyCollision
                 SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile)
             {
                 // The collision marks the projectile's direction, not a
-                // terrain impact. Projectile frame behaviours consume that marker
+                // terrain impact. Each projectile's own movement consumes that marker
                 // on the projectiles' next update; the damage below shows its own hit burst at the enemy.
                 // Super Missiles must retain their handler so it also clears their
                 // collision links. Terrain conversion strands a live link that can

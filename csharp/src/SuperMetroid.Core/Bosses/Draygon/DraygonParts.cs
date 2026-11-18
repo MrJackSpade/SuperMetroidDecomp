@@ -160,7 +160,7 @@ internal sealed class DraygonParts
                 running.Playback = new AnimationPlayback<DraygonSegment>(animation, place);
                 return;
             case AnimationShown<DraygonSegment, EnemyFrameId>.Ended:
-                // The end deletes the part and leaves its animation's place unwritten.
+                // The end deletes the part; its animation stays where it stood.
                 part.Presence = part.Presence.With(EnemyPresence.Deleted);
                 return;
             default:
@@ -169,9 +169,9 @@ internal sealed class DraygonParts
     }
 
     /// <summary>
-    /// Carries out one cue of a Draygon animation. Animation starts write the parts' stored playbacks, so the running
-    /// part's own write is replaced when its update ends, as the animation runner's final store of the running part's
-    /// position replaces it.
+    /// Carries out one cue of a Draygon animation. A cue that starts the parts' animations starts the running part's
+    /// too, but the running part goes on with its own: once its play reaches its next frame, it stands where that play
+    /// stopped.
     /// </summary>
     /// <remarks>Draygon's cues never continue the running part's play elsewhere.</remarks>
     private void ApplyDraygonCue(DraygonEnemyState state, SamusState samus, DraygonCue cue)
@@ -233,8 +233,8 @@ internal sealed class DraygonParts
     internal void TrackSamusWithDraygonEye(DraygonEnemyState state, SamusState samus, HorizontalDirection facing)
     {
         RoomEnemyPlace eye = state.Eye;
-        // Emission precedes the angle-change early return, so a stationary
-        // target must not suppress the periodic particle. It shares the real pool.
+        // The eye breathes its bubble on its cadence whether or not its gaze turns,
+        // as one of the room's dust and explosion effects.
         if (DraygonCadenceDefinitions.EyeBreathBubbleEvery128thUpdate.IsDue(eye.FrameCounter))
             _projectiles.SpawnDustOrExplosion(
                 new(CoordinateAxis.Wrap(eye.Position.X.Whole + (facing == HorizontalDirection.Right

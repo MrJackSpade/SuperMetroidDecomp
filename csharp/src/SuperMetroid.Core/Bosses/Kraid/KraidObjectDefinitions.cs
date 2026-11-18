@@ -27,7 +27,7 @@ public static class KraidObjectDefinitions
 
     /// <summary>
     /// The platform mutation paired with each sinking-schedule step. The surviving platforms share the ceiling row and
-    /// alternate background blocks by column parity, as in the sinking steps' authored arguments.
+    /// alternate background blocks by column parity, odd and even in turn along each platform.
     /// </summary>
     public static IReadOnlyDictionary<KraidSinkStep, RoomObjectSpawnRequest<KraidRoomMutation>> SinkMutations { get; } =
         new Dictionary<KraidSinkStep, RoomObjectSpawnRequest<KraidRoomMutation>>

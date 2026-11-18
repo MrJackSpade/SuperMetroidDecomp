@@ -22,7 +22,7 @@ internal sealed class BossFrameResultBuilder
     /// <summary>Ceres Ridley started the escape.</summary>
     internal bool CeresEscapeStarted { get; set; }
 
-    /// <summary>The Shitroid's direct camera X write in room pixels, if any.</summary>
+    /// <summary>The camera X in room pixels the Shitroid moves the view to, if any.</summary>
     internal int? CameraXOverride { get; set; }
 
     /// <summary>Mother Brain's tube landed, removing the room's liquid effects.</summary>

@@ -155,8 +155,8 @@ internal sealed class CrocomireCombat
                 SignedEightEight.FromPixels(CrocomireSpikeMotion.MaximumVelocity(piece.Piece)));
             projectile.Velocity = projectile.Velocity.WithX(xVelocity);
 
-            // Move X in 256ths of a pixel, as the game's projectile mover does: the position's precision finer than a
-            // 256th of a pixel stays exactly as it was.
+            // The piece moves across by its velocity, a 256th of a pixel at its finest: its place within a 256th of a
+            // pixel stays exactly as it was.
             FixedCoordinate x = new FixedCoordinate(projectile.Position.X.Whole, projectile.Position.X.Fraction)
                 .MovedBy(xVelocity);
             projectile.Position = projectile.Position.WithFractionX(x.Fraction).WithWholeX(x.Whole);

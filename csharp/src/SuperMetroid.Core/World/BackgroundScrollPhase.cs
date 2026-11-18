@@ -15,7 +15,7 @@ internal sealed class BackgroundScrollPhase
     /// <summary>Binds the background phase to shared scroll state.</summary>
     internal BackgroundScrollPhase(BackgroundScrollState backgroundScroll) => _backgroundScroll = backgroundScroll;
 
-    /// <summary>Copies the loaded room's camera into the background scroll bookkeeping and steps the scroll offsets.</summary>
+    /// <summary>Gives the background scroll the loaded room's camera and steps the scroll offsets.</summary>
     public void UpdateBackgroundScrollingFromCamera(ScrollBoundaryCamera camera, bool timeIsFrozen)
     {
         _backgroundScroll.ForegroundPosition = camera.PixelPosition;

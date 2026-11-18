@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 internal static class KraidPlatformMovement
 {
     /// <summary>
-    /// The lint's horizontal displacement each firing update, three and a half pixels leftward, which the riding
-    /// branch also carries Samus by.
+    /// The lint's horizontal displacement each firing update, three and a half pixels leftward, which also carries Samus
+    /// while she rides it.
     /// </summary>
     public static SignedSixteenSixteen FiringDisplacement { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(-56);
 

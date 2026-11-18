@@ -161,7 +161,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
                 audio.QueueEnemySound(EnemySoundEffectDefinitions.KagoBugSoundEffect, priority: SoundRequestPriority.Normal);
         }
 
-        /// <summary>Runs the bug's idle per-frame behaviour.</summary>
+        /// <summary>Runs the idle bug for one update.</summary>
         private void RunKagoBugIdle(EnemyProjectile projectile)
         {
             StepKagoBugSound(projectile);
@@ -175,7 +175,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
             projectile.HoldStill();
         }
 
-        /// <summary>Runs the bug's airborne rising per-frame behaviour.</summary>
+        /// <summary>Runs the bug rising through the air for one update.</summary>
         private void RunKagoBugJumping(EnemyProjectile projectile, RoomLevelData level)
         {
             StepKagoBugSound(projectile);
@@ -202,7 +202,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
                 BeginKagoBugFall(projectile);
         }
 
-        /// <summary>Runs the bug's falling per-frame behaviour.</summary>
+        /// <summary>Runs the falling bug for one update.</summary>
         private void RunKagoBugFalling(EnemyProjectile projectile, RoomLevelData level)
         {
             StepKagoBugSound(projectile);

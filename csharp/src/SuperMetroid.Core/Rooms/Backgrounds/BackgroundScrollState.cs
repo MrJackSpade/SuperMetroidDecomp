@@ -58,7 +58,7 @@ public sealed class BackgroundScrollState
     /// <summary>
     /// Implements the two background position calculations made by each directional door
     /// setup after the door installs the destination camera coordinates. A fixed background
-    /// deliberately retains its old background position, exactly like the game's early return.
+    /// keeps its old background position, as the game's does.
     /// </summary>
     /// <param name="destination">The foreground destination published to <see cref="ForegroundPosition"/>.</param>
     /// <param name="parallaxBasis">

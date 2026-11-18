@@ -7,7 +7,7 @@ public enum CrocomireProjectileSegment
     Mouth,
     /// <summary>A crumbling bridge fragment.</summary>
     BridgeFragment,
-    /// <summary>A spike-wall piece.</summary>
+    /// <summary>A piece of the broken spike wall, one still picture as it falls.</summary>
     SpikeWallPiece,
     /// <summary>The mouth projectile's explosion after a Samus shot.</summary>
     Shot,

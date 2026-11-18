@@ -11,7 +11,7 @@ internal enum PhantoonPartSegment
     EyeHitboxBody,
     /// <summary>The eye opening, then the materialization sound and eye tracking.</summary>
     EyeOpen,
-    /// <summary>The closed eye.</summary>
+    /// <summary>His eye shut, held.</summary>
     EyeClosed,
     /// <summary>The eye closing, then picking the next pattern.</summary>
     EyeCloseAndPickNewPattern,

@@ -103,7 +103,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         place.Position = place.Position.WithWholeY(state.SpawnPosition.Y);
     }
 
-    /// <summary>Runs Alcoon's per-frame behaviour through all seven of its actions.</summary>
+    /// <summary>Runs Alcoon for one update through all seven of its actions.</summary>
     private void RunAlcoonMain(
         RoomEnemyPlace place,
         AlcoonEnemyState state,
@@ -398,7 +398,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         // Spawning copies the fireball's complete authored
         // definition before its setup touches its position, to a fraction of a pixel, and its velocity.
         // Keeping that division exact makes radii, damage, persistence, shot blocking,
-        // animation, and frame behaviour owned by the definition instead of duplicating them here.
+        // animation, and the way it moves each update owned by the definition instead of duplicating them here.
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.AlcoonFireball,

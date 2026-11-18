@@ -16,7 +16,7 @@ internal sealed class EnemyAnimationPlayer
     /// <summary>Holds the body the room's boss shows its parts' frames on.</summary>
     private readonly EnemyPresentation _presentation;
 
-    /// <summary>Captures the presentation for cue execution.</summary>
+    /// <summary>Keeps the presentation the cues it carries out change.</summary>
     internal EnemyAnimationPlayer(EnemyPresentation presentation) => _presentation = presentation;
 
     /// <summary>

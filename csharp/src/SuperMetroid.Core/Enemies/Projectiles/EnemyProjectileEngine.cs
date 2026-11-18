@@ -144,7 +144,7 @@ internal sealed class EnemyProjectileEngine
                 // The collision response only marks non-plasma shots spent. It makes no ordinary
                 // enemy impact and therefore cannot turn a freshly fired
                 // Super Missile (or its invisible link) into an explosion in the producer
-                // frame. Its own frame behaviour consumes the mark on the next projectile pass.
+                // frame. Its own movement consumes the mark on the next projectile pass.
                 if (!shot.Type.HasAnyBeam(SamusBeamFlags.Plasma))
                     shot.IsSpent = true;
 
@@ -561,7 +561,7 @@ internal sealed class EnemyProjectileEngine
             return;
         }
 
-        // A projectile its frame behaviour ended this pass, or one spawned without an animation, runs nothing.
+        // A projectile its own movement ended this pass, or one spawned without an animation, runs nothing.
         if (!projectile.IsActive)
             return;
         throw new InvalidOperationException($"Enemy projectile {projectile.Kind} in place {projectile.Place} runs no animation.");
@@ -687,7 +687,7 @@ internal sealed class EnemyProjectileEngine
 
     /// <summary>
     /// Deletes an enemy projectile once it is vertically off screen, shared by
-    /// Dragon's fireball and both n00b-tube shard frame behaviours.
+    /// Dragon's fireball and both n00b-tube shards as they fly.
     /// </summary>
     /// <remarks>
     /// A position above the camera's top row is kept; only a

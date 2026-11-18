@@ -94,7 +94,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         Combat = new DraygonCombat(dependencies.Projectiles, dependencies.Collision, Grab);
     }
 
-    /// <summary>Runs Draygon's body per-frame behaviour.</summary>
+    /// <summary>Runs Draygon's body for one update.</summary>
     private void RunDraygonBodyMain(RoomEnemyPlace body, SamusState samus, int frameCounter)
     {
         DraygonEnemyState state = body.RequireSpeciesState<DraygonEnemyState>();

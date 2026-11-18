@@ -234,7 +234,7 @@ public static class SamusBlockCollision
 
                     case RoomCollisionType.SpecialBlock when
                         block.Behavior.Special == SpecialBlockReaction.CollectibleTrigger:
-                        // Visible item frames are special blocks of the item-frame behaviour. Block collision spawns the
+                        // Visible item frames are special blocks that collect an item. Block collision spawns the
                         // shared item detector, whose setup triggers the item at this
                         // origin and reports no collision; Samus therefore passes through
                         // rather than clipping against the item's visual block.

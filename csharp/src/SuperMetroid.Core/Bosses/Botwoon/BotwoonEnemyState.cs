@@ -68,9 +68,9 @@ public sealed class BotwoonEnemyState
     public BotwoonSpeedStage SpeedStage { get; internal set; } = BotwoonSpeedStageDefinitions.Full;
     /// <summary>The hole that direct movement targets and the next walk starts from.</summary>
     public BotwoonHole TargetHole { get; internal set; }
-    /// <summary>Wrapping movement angle in 256ths of a turn: a quarter turn minus the clamped head-to-hole angle, along which he moves toward the hole.</summary>
+    /// <summary>The direction he moves in toward his target hole: the bearing from his head to it, its distance clamped on each axis.</summary>
     public RotationAngle MovementAngle { get; internal set; }
-    /// <summary>Wrapping spit angle in 256ths of a turn: a quarter turn minus the head-to-Samus angle; volley children add their spread offsets to it.</summary>
+    /// <summary>The direction his spits fly: the bearing from his head to Samus, to which a volley's other spits add their spread.</summary>
     public RotationAngle SpitAngle { get; internal set; }
     /// <summary>The authored path being walked; none before his first walk.</summary>
     internal BotwoonPathDefinition? Path { get; set; }

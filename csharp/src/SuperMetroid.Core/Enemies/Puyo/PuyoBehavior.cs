@@ -55,7 +55,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         SetPuyoAnimation(place, state, PuyoSegment.GroundedFast);
     }
 
-    /// <summary>Runs a Puyo's per-frame behaviour and its top-level actions.</summary>
+    /// <summary>Runs a Puyo for one update and its top-level actions.</summary>
     private void RunPuyoMain(
         RoomEnemyPlace place,
         PuyoEnemyState state,

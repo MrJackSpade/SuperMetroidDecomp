@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.World;
 /// <param name="ElevatorClearedProjectileData">The elevator cleared Samus's projectiles; the bomb owner completes it.</param>
 /// <param name="DraygonDiscardedSamusPoseRequests">Draygon grabbed or released Samus, discarding the input phase's pose requests.</param>
 /// <param name="CeresEscapeStarted">Ceres Ridley started the escape on this enemy pass.</param>
-/// <param name="CameraXOverride">The Shitroid's direct camera X write in room pixels, if any.</param>
+/// <param name="CameraXOverride">The camera X in room pixels the Shitroid moves the view to, if any.</param>
 /// <param name="StopLiquidMotion">Mother Brain's tube landed, stopping the liquid surface's motion from the next frame.</param>
 /// <param name="Gunship">The gunship lifecycle event, if any.</param>
 /// <param name="RoomEffects">The room objects and room changes enemy AI requested.</param>

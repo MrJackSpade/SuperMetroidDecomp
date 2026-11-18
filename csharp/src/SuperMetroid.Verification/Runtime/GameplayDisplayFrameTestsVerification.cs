@@ -18,6 +18,7 @@ using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.TestSupport.FrameRendering;
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.Core.World;
 namespace SuperMetroid.Verification.Runtime;
 
 /// <summary>

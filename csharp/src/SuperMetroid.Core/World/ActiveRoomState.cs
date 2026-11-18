@@ -59,7 +59,7 @@ internal sealed class ActiveRoomState
     }
 
     /// <summary>The value one room view reads: the part under construction during a load, otherwise the loaded scope's.</summary>
-    private T? View<T>(Func<RoomScopeConstruction, T?> building, Func<RoomScope, T?> loaded) where T : class =>
+    internal T? View<T>(Func<RoomScopeConstruction, T?> building, Func<RoomScope, T?> loaded) where T : class =>
         _construction is { } construction ? building(construction) : Scope is { } scope ? loaded(scope) : null;
 
     /// <summary>The selected room/state definition for a generic backed room.</summary>
@@ -99,17 +99,8 @@ internal sealed class ActiveRoomState
     public RoomLevelData LoadedLevelData => LevelData ??
         throw new InvalidOperationException("No room level data is loaded.");
 
-    /// <summary>Landing Site's scrolling-sky updater after room initialization.</summary>
-    public ScrollingSkyState? ScrollingSky => View(c => c.ScrollingSky, s => s.ScrollingSky);
-
     /// <summary>The loading or loaded room's effect-overlay FX, for the accepted-frame publication.</summary>
     internal RoomFxOverlayState? FxOverlay => View(c => c.FxOverlay, s => s.FxOverlay);
-
-    /// <summary>The loading or loaded room's Tourian statues, for the accepted-frame publication.</summary>
-    internal TourianStatueSequence? TourianStatues => View(c => c.TourianStatues, s => s.TourianStatues);
-
-    /// <summary>The loading or loaded room's enemies, for the accepted-frame publication.</summary>
-    internal RoomEnemySystem? Enemies => View(c => c.Enemies, s => s.Enemies);
 
     /// <summary>The loading or loaded room's bombs, for frame roots such as the accepted-frame publication.</summary>
     internal SamusBombProjectileSystem? BombProjectiles => View(c => c.BombProjectiles, s => s.BombProjectiles);

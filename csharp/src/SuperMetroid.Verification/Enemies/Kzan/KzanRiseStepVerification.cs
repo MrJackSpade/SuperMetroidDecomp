@@ -15,8 +15,9 @@ internal static class KzanRiseStepVerification
     private const int WordRange = 65536;
 
     /// <summary>
-    /// The production Kzan rise from every fraction at whole heights inside the room and at both ends of the coordinate
-    /// space: each rise moves the top half a pixel up as the original's subtraction with its borrow does.
+    /// The production Kzan rise from every fraction at whole heights from the room's top row to below the lowest Kzan
+    /// placement: each rise moves the top half a pixel up as the original's subtraction with its borrow does. Every Kzan
+    /// rises back to its spawn height inside the room (#2438), so the heights checked lie in the room as well.
     /// </summary>
     internal static void VerifyKzanRiseStep()
     {
@@ -25,14 +26,14 @@ internal static class KzanRiseStepVerification
         place.Bind(EnemyDefinitionId.KzanTop, place.Definition);
         place.SetSpawnParameter1(EnemyDefinitionId.KzanTop, 0);
         place.SetSpawnParameter2(EnemyDefinitionId.KzanTop, 32 * 256);
-        // The rising target lies sixteen pixels above the room's bottom edge, so every height checked keeps rising.
-        place.Position = place.Position.WithWhole(new(128, 65520));
+        // The rising target lies on the room's top edge, so every height checked keeps rising.
+        place.Position = place.Position.WithWhole(new(128, 0));
         KzanBehavior.InitializeKzanTop(place);
         KzanEnemyState state = place.RequireSpeciesState<KzanEnemyState>();
         var frame = new ClockedEnemyAiFrame(
             RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false },
             new FrameCounters(0));
-        foreach (int whole in new[] { 0, 1, 16, 300, 32000, 65521, 65535 })
+        foreach (int whole in new[] { 1, 16, 96, 300, 1368, 1500 })
         for (int fraction = 0; fraction < WordRange; fraction++)
         {
             state.Action = KzanAction.Rising;
@@ -40,7 +41,7 @@ internal static class KzanRiseStepVerification
             enemies.KzanBehavior.RunKzanTopMainAi(place, frame);
             int lowered = fraction - 0x8000;
             int borrow = lowered < 0 ? 1 : 0;
-            var expected = new FixedCoordinate((whole - borrow) & ushort.MaxValue, lowered & ushort.MaxValue);
+            var expected = new FixedCoordinate(whole - borrow, lowered & ushort.MaxValue);
             if (state.Action != KzanAction.Rising || place.Position.Y != expected)
                 throw new InvalidOperationException($"A Kzan rising from {whole}+{fraction:X4} reached {place.Position.Y}, not {expected}.");
         }

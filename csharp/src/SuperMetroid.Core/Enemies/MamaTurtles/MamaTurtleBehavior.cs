@@ -225,7 +225,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         mama.Radius = mama.Radius.WithY(0);
-        int signedDifference = CoordinateAxis.Difference(mama.Position.X.Whole, samus.Position.X.Whole);
+        int signedDifference = mama.Position.X.Whole - samus.Position.X.Whole;
         int distance = Math.Abs(signedDifference);
         if (distance >= MamaTurtleShellContourDefinitions.HalfWidth)
             return;
@@ -292,7 +292,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         StartTurtleAnimation(
             mama,
             state,
-            CoordinateAxis.Difference(mama.Position.X.Whole, samus.Position.X.Whole) >= 0
+            mama.Position.X.Whole >= samus.Position.X.Whole
                 ? MamaTurtleSegment.EnterShellLeft
                 : MamaTurtleSegment.EnterShellRight);
         state.Action = MamaTurtleAction.Idle;
@@ -319,7 +319,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         // She hovers off from rest toward Samus's side, speeding up a sixteenth of a pixel each update.
-        state.XAcceleration = CoordinateAxis.Difference(mama.Position.X.Whole, samus.Position.X.Whole) < 0
+        state.XAcceleration = mama.Position.X.Whole < samus.Position.X.Whole
             ? MamaTurtleMotionDefinitions.HoverAcceleration
             : -MamaTurtleMotionDefinitions.HoverAcceleration;
         state.Velocity = state.Velocity.WithX(SignedSixteenSixteen.Zero);
@@ -401,7 +401,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         PseudoScrewCharge pseudoScrew)
     {
         ResolveMamaTurtleExpandedContact(mama, samus, pseudoScrew);
-        if (CoordinateAxis.Difference(mama.Position.Y.Whole, MamaTurtleMotionDefinitions.RiddenAscentPeak) < 0)
+        if (mama.Position.Y.Whole < MamaTurtleMotionDefinitions.RiddenAscentPeak)
         {
             state.ActionTimer = MamaTurtleMotionDefinitions.PeakPause;
             state.Action = MamaTurtleAction.HoveringAtPeak;
@@ -584,7 +584,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         if (parent.Action != MamaTurtleAction.Asleep)
             return;
 
-        int signedDifference = CoordinateAxis.Difference(parentPlace.Position.X.Whole, baby.Position.X.Whole);
+        int signedDifference = parentPlace.Position.X.Whole - baby.Position.X.Whole;
         int distance = Math.Abs(signedDifference);
         int contourOffset = distance >= MamaTurtleShellContourDefinitions.HalfWidth
             ? MamaTurtleMotionDefinitions.BabySinkClearOfShell
@@ -602,7 +602,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyPlace baby,
         BabyTurtleEnemyState state)
     {
-        int signedDifference = CoordinateAxis.Difference(state.SpawnTopCenter.X, baby.Position.X.Whole);
+        int signedDifference = state.SpawnTopCenter.X - baby.Position.X.Whole;
         int distance = Math.Abs(signedDifference);
         if (distance >= MamaTurtleMotionDefinitions.BabyTravelDistance)
         {
@@ -677,7 +677,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         state.HorizontalSpeed = MamaTurtleMotionDefinitions.BabyCrawlSpeed;
         StartTurtleAnimation(baby, state, BabyCrawl(state.Heading));
 
-        baby.Position = baby.Position.WithWholeX(CoordinateAxis.Difference(baby.Position.X.Whole, samus.Position.X.Whole) >= 0
+        baby.Position = baby.Position.WithWholeX(baby.Position.X.Whole >= samus.Position.X.Whole
             ? samus.Position.X.Whole + samus.Kinematics.Radius.X + baby.Radius.X
             : samus.Position.X.Whole - samus.Kinematics.Radius.X - baby.Radius.X);
         state.Action = BabyTurtleAction.CrawlingNotCarryingSamus;

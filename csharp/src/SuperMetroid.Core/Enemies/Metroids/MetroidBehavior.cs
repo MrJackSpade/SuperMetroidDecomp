@@ -124,13 +124,13 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         int targetY,
         RoomLevelData level)
     {
-        int yDifference = CoordinateAxis.Difference(place.Position.Y.Whole, targetY);
+        int yDifference = place.Position.Y.Whole - targetY;
         SignedSixteenSixteen yVelocity = ClampMetroidVelocity(state.Velocity.Y - EnemyMath.HomingPull(yDifference));
         StoreMetroidYVelocity(state, yVelocity);
         if (_terrain.MoveEnemyVertically(level, place, yVelocity))
             StoreMetroidYVelocity(state, SignedSixteenSixteen.Zero);
 
-        int xDifference = CoordinateAxis.Difference(place.Position.X.Whole, samus.Position.X.Whole);
+        int xDifference = place.Position.X.Whole - samus.Position.X.Whole;
         SignedSixteenSixteen xVelocity = ClampMetroidVelocity(state.Velocity.X - EnemyMath.HomingPull(xDifference));
         StoreMetroidXVelocity(state, xVelocity);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, place, xVelocity))
@@ -240,10 +240,10 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 // The body attack throws the Metroid away from Samus at a quarter of their distance an update.
                 StoreMetroidXVelocity(
                     state,
-                    SignedSixteenSixteen.FromSixteenthsOfPixel(MetroidBehaviorDefinitions.BodyAttackThrowPerDistance * CoordinateAxis.Difference(place.Position.X.Whole, samus.Position.X.Whole)));
+                    SignedSixteenSixteen.FromSixteenthsOfPixel(MetroidBehaviorDefinitions.BodyAttackThrowPerDistance * (place.Position.X.Whole - samus.Position.X.Whole)));
                 StoreMetroidYVelocity(
                     state,
-                    SignedSixteenSixteen.FromSixteenthsOfPixel(MetroidBehaviorDefinitions.BodyAttackThrowPerDistance * CoordinateAxis.Difference(place.Position.Y.Whole, targetY)));
+                    SignedSixteenSixteen.FromSixteenthsOfPixel(MetroidBehaviorDefinitions.BodyAttackThrowPerDistance * (place.Position.Y.Whole - targetY)));
                 state.Movement = MetroidMovement.Homing;
                 SetMetroidAnimation(place, state, MetroidSegment.ChasingSamus);
             }
@@ -261,8 +261,8 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.Movement = MetroidMovement.ClosingOnSamus;
-        if (CoordinateAxis.Distance(place.Position.X.Whole, samus.Position.X.Whole) >= MetroidBehaviorDefinitions.LatchDistance ||
-            CoordinateAxis.Distance(place.Position.Y.Whole, targetY) >= MetroidBehaviorDefinitions.LatchDistance)
+        if (Math.Abs(place.Position.X.Whole - samus.Position.X.Whole) >= MetroidBehaviorDefinitions.LatchDistance ||
+            Math.Abs(place.Position.Y.Whole - targetY) >= MetroidBehaviorDefinitions.LatchDistance)
         {
             return;
         }
@@ -308,7 +308,10 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         // The Metroid's shot reaction recoils from the first projectile (MetroidRecoilOrigin), not the shot that
-        // hit it now. It recoils away from that origin at an eighth of its distance from it an update.
+        // hit it now. It recoils away from that origin at an eighth of its distance from it an update. That
+        // projectile need not lie in the room: a shot lives on up to 64 pixels past the view's left and top edges, and
+        // a Wave shot passes through the room's walls, so one beyond the room's left or top edge, with the view at
+        // that edge, still pushes the Metroid away from it the short way, as CoordinateAxis.Difference gives it.
         StoreMetroidXVelocity(
             state,
             SignedSixteenSixteen.FromSixteenthsOfPixel(MetroidBehaviorDefinitions.ShotRecoilPerDistance * CoordinateAxis.Difference(place.Position.X.Whole, recoilOrigin.X)));

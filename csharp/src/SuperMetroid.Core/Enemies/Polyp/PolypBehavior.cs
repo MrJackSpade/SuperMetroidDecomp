@@ -92,7 +92,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private static bool IsWithinPolypAxis(int samusCoordinate, int enemyCoordinate)
     {
-        return CoordinateAxis.Distance(samusCoordinate, enemyCoordinate) < PolypLaunchDefinitions.LaunchReach;
+        return Math.Abs(samusCoordinate - enemyCoordinate) < PolypLaunchDefinitions.LaunchReach;
     }
 
     /// <summary>A Polyp rock (#1760): it rises and falls quadratically until it leaves the camera.</summary>

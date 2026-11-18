@@ -111,7 +111,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             state.Heading = HorizontalDirection.Left;
         StartMaridiaLargeSnailAnimation(place, state, MaridiaLargeSnailAnimationChoices.Idle(state.Facing));
 
-        if (CoordinateAxis.Distance(samus.Position.X.Whole, place.Position.X.Whole) >= MaridiaLargeSnailMotionDefinitions.PushingReachX)
+        if (Math.Abs(samus.Position.X.Whole - place.Position.X.Whole) >= MaridiaLargeSnailMotionDefinitions.PushingReachX)
         {
             return;
         }
@@ -150,7 +150,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             state.AttackCooldown--;
         if (state.AttackCooldown == 0)
         {
-            bool mayAttack = CoordinateAxis.Distance(samus.Position.X.Whole, place.Position.X.Whole) < MaridiaLargeSnailMotionDefinitions.AttackReach &&
+            bool mayAttack = Math.Abs(samus.Position.X.Whole - place.Position.X.Whole) < MaridiaLargeSnailMotionDefinitions.AttackReach &&
                 state.AttackAllowsRotation &&
                 state.RemainingBounces == 0;
             if (mayAttack)
@@ -285,8 +285,8 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     {
         state.SamusInPushingRange = false;
         state.SamusSide = HorizontalDirection.Right;
-        if (CoordinateAxis.Distance(samus.Position.Y.Whole, place.Position.Y.Whole) >= MaridiaLargeSnailMotionDefinitions.PushingReachY ||
-            CoordinateAxis.Distance(samus.Position.X.Whole, place.Position.X.Whole) >= MaridiaLargeSnailMotionDefinitions.PushingReachX)
+        if (Math.Abs(samus.Position.Y.Whole - place.Position.Y.Whole) >= MaridiaLargeSnailMotionDefinitions.PushingReachY ||
+            Math.Abs(samus.Position.X.Whole - place.Position.X.Whole) >= MaridiaLargeSnailMotionDefinitions.PushingReachX)
         {
             return;
         }
@@ -383,7 +383,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
 
     /// <summary>The side of Oum Samus is on: left when she is to its left, otherwise right (#2338).</summary>
     private static HorizontalDirection SamusSide(SamusState samus, RoomEnemyPlace place) =>
-        CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole) < 0 ? HorizontalDirection.Left : HorizontalDirection.Right;
+        samus.Position.X.Whole < place.Position.X.Whole ? HorizontalDirection.Left : HorizontalDirection.Right;
 
     /// <summary>
     /// Starts <paramref name="segment"/>'s animation only when it differs from the one the snail plays. While the snail
@@ -417,7 +417,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         if (EnemyCollision.IsSamusStandingOn(place, samus))
             return;
 
-        int shove = CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole) < 0
+        int shove = samus.Position.X.Whole < place.Position.X.Whole
             ? -MaridiaLargeSnailMotionDefinitions.ShoveDistance
             : MaridiaLargeSnailMotionDefinitions.ShoveDistance;
         samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(shove, 0);

@@ -136,9 +136,9 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         PlatformEnemyState state,
         RoomLevelData level)
     {
-        // Normal platforms stop once they have risen from their depressed position to one pixel below their original
-        // spawn center, which way the difference lies deciding it.
-        if (CoordinateAxis.Difference(place.Position.Y.Whole, state.RestingY) < 0)
+        // Normal platforms stop once they have risen from their depressed position past their resting height, one
+        // pixel below their original spawn center.
+        if (place.Position.Y.Whole < state.RestingY)
         {
             state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
             SetPlatformVerticallyStillAnimation(place, state);

@@ -139,7 +139,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         place.Position = place.Position.AdvanceY(state.FallingSpeed);
 
         // The top lands once it reaches its falling target.
-        if (!CoordinateAxis.Precedes(place.Position.Y.Whole, state.FallingTargetY))
+        if (place.Position.Y.Whole >= state.FallingTargetY)
         {
             state.RiseWaitTimer = KzanMotionDefinitions.RiseWait;
             state.Action = KzanAction.WaitingToRise;
@@ -169,7 +169,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The Kzan rises by exactly half a pixel per update.
         place.Position = place.Position.WithY(place.Position.Y.MovedBy(KzanMotionDefinitions.RisingStep));
-        if (CoordinateAxis.Precedes(place.Position.Y.Whole, state.RisingTargetY))
+        if (place.Position.Y.Whole < state.RisingTargetY)
         {
             state.Action = KzanAction.WaitingToFall;
             place.Position = place.Position.WithWholeY(state.RisingTargetY);

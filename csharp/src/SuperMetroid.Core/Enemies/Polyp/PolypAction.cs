@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Polyp;
 /// </summary>
 public enum PolypAction
 {
-    /// <summary>Waits for Samus to come closer than 64 pixels on both axes (<see cref="CoordinateAxis.Distance"/>), then shoots a rock on the next update.</summary>
+    /// <summary>Waits for Samus to come closer than 64 pixels on both axes, then shoots a rock on the next update.</summary>
     WaitingForSamus,
     /// <summary>Consumes separate shared-RNG samples for horizontal velocity, the rock's first place on the speed curve, and cooldown; requests one lava rock and enters cooldown even if the projectile pool is full.</summary>
     ShootingRock,

@@ -238,7 +238,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
 
         overlayState.AttackCooldown = MagdolliteMotionDefinitions.AttackPollWait;
         int range = HeadRise(head).Range;
-        if (CoordinateAxis.Distance(head.Position.X.Whole, samus.Position.X.Whole) >= range)
+        if (Math.Abs(head.Position.X.Whole - samus.Position.X.Whole) >= range)
             return;
 
         StartMagdolliteAnimation(head, state, samusSide == HorizontalDirection.Right ? MagdolliteSegment.RightSubmerge : MagdolliteSegment.LeftSubmerge);
@@ -313,7 +313,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         int upwardDistance = -state.RiseDisplacementY;
         MagdollitePhaseDefinition phase = state.BodyPhase.Phase;
         bool roseMaximum = upwardDistance >= MagdollitePhaseDefinitions.MaximumRise;
-        bool rosePastSamus = CoordinateAxis.Precedes(body.Position.Y.Whole - phase.OverlayYOffset, samus.Position.Y.Whole);
+        bool rosePastSamus = body.Position.Y.Whole - phase.OverlayYOffset < samus.Position.Y.Whole;
         // At full height whether the arm grows its last segment depends on the place it occupies
         // (MagdolliteApexGrowth); the Samus test compares with the phase's own threshold.
         bool growsAPhase = roseMaximum
@@ -691,7 +691,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>The side of <paramref name="part"/> Samus is on: right unless she is to its left (#2338).</summary>
     private static HorizontalDirection SamusSide(SamusState samus, RoomEnemyPlace part) =>
-        CoordinateAxis.Precedes(samus.Position.X.Whole, part.Position.X.Whole) ? HorizontalDirection.Left : HorizontalDirection.Right;
+        samus.Position.X.Whole < part.Position.X.Whole ? HorizontalDirection.Left : HorizontalDirection.Right;
 
     /// <summary>Spawns and initializes a Magdollite lava ball thrown <paramref name="thrown"/>.</summary>
     internal void SpawnMagdolliteLava(RoomEnemyPlace source, HorizontalDirection thrown)

@@ -99,14 +99,14 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Starts the eye's opening once Samus is closer than its opening reach on both axes (<see cref="CoordinateAxis.Distance"/>).</summary>
+    /// <summary>Starts the eye's opening once Samus is closer than its opening reach on both axes.</summary>
     private static void WaitForSamusNearMorphBallEye(
         RoomEnemyPlace eye,
         MorphBallEyeEnemyState state,
         SamusState samus)
     {
-        if (CoordinateAxis.Distance(samus.Position.Y.Whole, eye.Position.Y.Whole) >= MorphBallEyeWatchDefinitions.OpeningReachY ||
-            CoordinateAxis.Distance(samus.Position.X.Whole, eye.Position.X.Whole) >= MorphBallEyeWatchDefinitions.OpeningReachX)
+        if (Math.Abs(samus.Position.Y.Whole - eye.Position.Y.Whole) >= MorphBallEyeWatchDefinitions.OpeningReachY ||
+            Math.Abs(samus.Position.X.Whole - eye.Position.X.Whole) >= MorphBallEyeWatchDefinitions.OpeningReachX)
         {
             return;
         }
@@ -142,8 +142,8 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus)
     {
         bool inProximity =
-            CoordinateAxis.Distance(samus.Position.Y.Whole, eye.Position.Y.Whole) < MorphBallEyeWatchDefinitions.StayOpenReachY &&
-            CoordinateAxis.Distance(samus.Position.X.Whole, eye.Position.X.Whole) < MorphBallEyeWatchDefinitions.StayOpenReachX;
+            Math.Abs(samus.Position.Y.Whole - eye.Position.Y.Whole) < MorphBallEyeWatchDefinitions.StayOpenReachY &&
+            Math.Abs(samus.Position.X.Whole - eye.Position.X.Whole) < MorphBallEyeWatchDefinitions.StayOpenReachX;
         if (!inProximity)
         {
             _audio.QueueEnemySound(EnemySoundEffectDefinitions.EyeRaySoundStop, priority: SoundRequestPriority.Normal);
@@ -173,10 +173,10 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Action = MorphBallEyeAction.WaitForSamus;
     }
 
-    /// <summary>The eye's bearing to Samus, from her distance on each axis (<see cref="CoordinateAxis.Difference"/>).</summary>
+    /// <summary>The eye's bearing to Samus, from her distance on each axis.</summary>
     private static RotationAngle CalculateMorphBallEyeAngle(RoomEnemyPlace eye, SamusState samus) =>
         EnemyMath.CalculateBearing(
-            new(CoordinateAxis.Difference(samus.Position.X.Whole, eye.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, eye.Position.Y.Whole))).ToMirroredTrigonometryAngle().ToAngle();
+            new(samus.Position.X.Whole - eye.Position.X.Whole, samus.Position.Y.Whole - eye.Position.Y.Whole)).ToMirroredTrigonometryAngle().ToAngle();
 
     /// <summary>
     /// Schedules the room-global beam to appear next frame, following <paramref name="eye"/>, the eye that opened (#2342):

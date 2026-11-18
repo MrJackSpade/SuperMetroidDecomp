@@ -10,6 +10,11 @@ internal static class WallSpacePirateAnimationsConstants
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params WallSpacePirateSegment[] programs) =>
         programs.SelectMany(program => WallSpacePirateAnimations.Segments.Beats(program))
-            .OfType<AnimationBeat<EnemyFrameId, WallSpacePirateCue>.Frame>()
-            .Select(frame => WallSpacePirateFrameToolingDefinitions.Spritemap(frame.Shown));
+            .SelectMany(beat => beat switch
+            {
+                AnimationBeat<EnemyFrameId, WallSpacePirateCue>.Frame frame => (EnemyFrameId[])[frame.Shown],
+                AnimationBeat<EnemyFrameId, WallSpacePirateCue>.HeldFrame held => [held.Shown],
+                _ => [],
+            })
+            .Select(WallSpacePirateFrameToolingDefinitions.Spritemap);
 }

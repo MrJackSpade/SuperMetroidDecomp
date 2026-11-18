@@ -18,7 +18,10 @@ internal static class GrowingShutterDefinitionsVerification
     /// <summary>The number of growth speeds a placement can select.</summary>
     private const int GrowthSpeedCount = 24;
 
-    /// <summary>Compares native words and all valid initializer combinations, including wrapped section origins.</summary>
+    /// <summary>
+    /// Compares native words and all valid initializer combinations, and the section origins of a shutter spawned inside
+    /// the room, as every placement is (#2449).
+    /// </summary>
     internal static void VerifyCompiledGrowingShutters(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyGrowingShutterWholeSpeed), () => VerifyGrowingShutterWholeSpeed(rom));
@@ -38,7 +41,7 @@ internal static class GrowingShutterDefinitionsVerification
                     // bit the initialization word that names the wait.
                     place.SetSpawnWords(EnemyDefinitionId.ShutterGrowing, _ => new SuperMetroid.AssetExtraction.Enemies.PopulationWords(
                         selector & 1, 0, selector >> 1, 0, (high << 8) | speed));
-                    place.Position = place.Position.WithWholeY(selector < 2 ? (ushort)65530 : (ushort)5);
+                    place.Position = place.Position.WithWholeY(296);
                     initialize(place);
                     GrowingShutterEnemyState state = (enemies.GrowingShutterStates[0] ?? throw new InvalidOperationException("Verification requires enemies.GrowingShutterStates[0]."));
                     AssertEqual(Word(0xa2ea4e + selector * 2), ShuttersNativeWords.GrowingShutterActions.Word(state.Action), "Shutter real dispatch without bus");
@@ -46,12 +49,12 @@ internal static class GrowingShutterDefinitionsVerification
                     AssertEqual(Word(0xa2ea58 + speed * 4), state.GrowthSpeed.Fraction, "Shutter native fractional speed");
                     int direction = selector < 2 ? 1 : -1;
                     for (int level = 0; level < GrowingShutterEnemyState.SectionCount; level++)
-                        AssertEqual(unchecked((ushort)(place.Position.Y.Whole + direction * 8 * level)), state.SectionOriginY(level), $"Shutter wrapped origin {level}");
+                        AssertEqual(place.Position.Y.Whole + direction * 8 * level, state.SectionOriginY(level), $"Shutter section origin {level}");
                     AssertTrue(!place.CollidesByFrameHitboxes && !place.AnimationClock.ShowsNewFrame, "Shutter clears its additional properties");
                 }
             }
         }
-        Console.WriteLine("Growing shutter definitions: 52 native words, 24576 real initializers and wrapped section origins match without a bus.");
+        Console.WriteLine("Growing shutter definitions: 52 native words, 24576 real initializers and section origins match without a bus.");
     }
 
     /// <summary>Reads cartridge bytes used as the compiled shutter comparison oracle.</summary>

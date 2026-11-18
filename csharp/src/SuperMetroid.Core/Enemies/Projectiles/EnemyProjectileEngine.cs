@@ -505,8 +505,12 @@ internal sealed class EnemyProjectileEngine
         if (!projectile.CanDamageSamus || projectile.Radius.X == 0 || projectile.Radius.Y == 0)
             return null;
 
-        int xDistance = CoordinateAxis.Distance(projectile.Position.X.Whole, samus.Position.X.Whole);
-        int yDistance = CoordinateAxis.Distance(projectile.Position.Y.Whole, samus.Position.Y.Whole);
+        // Samus keeps a block of wall or door between her body and the room's left and top edges, and no projectile that
+        // harms her reaches more than 16 pixels from its centre on either axis, save the Torizos' sonic booms, which fly
+        // across at a Torizo's height: one that has passed beyond those edges never reaches her. She lies above the room's
+        // top only on a departing up-elevator, near which no enemy fires.
+        int xDistance = Math.Abs(projectile.Position.X.Whole - samus.Position.X.Whole);
+        int yDistance = Math.Abs(projectile.Position.Y.Whole - samus.Position.Y.Whole);
         if (xDistance >= projectile.Radius.X + samus.Kinematics.Radius.X ||
             yDistance >= projectile.Radius.Y + samus.Kinematics.Radius.Y)
         {
@@ -515,8 +519,7 @@ internal sealed class EnemyProjectileEngine
 
         SamusSuitDamage.Hurt(samus, projectile.Damage);
         samus.InvincibilityTimer = WrappingCountdown.Start(EnemyCollisionDefinitions.SamusProjectileHitInvincibilityUpdates);
-        KnockbackHorizontalDirection knockbackXDirection = CoordinateAxis.Difference(
-            samus.Position.X.Whole, projectile.Position.X.Whole) >= 0
+        KnockbackHorizontalDirection knockbackXDirection = samus.Position.X.Whole >= projectile.Position.X.Whole
             ? KnockbackHorizontalDirection.Right
             : KnockbackHorizontalDirection.Left;
 
@@ -573,6 +576,9 @@ internal sealed class EnemyProjectileEngine
     internal void SpawnRandomEnemyDeathSprite(EnemyProjectile projectile, RoomEffectActorKind kind, EnemyDeathSpriteSpread spread)
     {
         int random = _room.Random.Generate();
+        // The death actor stands where its enemy died, which can lie above or left of the room's origin (a fly that has
+        // climbed through the ceiling, a Bull braking past Samus), so a sprite scattered across the origin continues from
+        // the space's far end, as CoordinateAxis.Wrap gives it.
         _ = _effectActors.SpawnRoomEffectActor(new(
             CoordinateAxis.Wrap(projectile.Position.X.Whole + spread.HorizontalScatter.Of(random) - spread.Radius),
             CoordinateAxis.Wrap(projectile.Position.Y.Whole + spread.VerticalScatter.Of(random) - spread.Radius)),

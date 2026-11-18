@@ -118,17 +118,17 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         // the fractions untouched. The jump ellipse is the jump span wide and
         // a quarter of it tall.
         int span = place.SpawnSettings<WallSpacePirateSpawnSettings>().JumpSpan;
-        place.Position = place.Position.WithWrappedWholeX(
+        place.Position = place.Position.WithWholeX(
             state.WallJumpArcCenter.X +
             EnemyMath.CircleNegativeSinePixels(state.WallJumpArcAngle.ToTrigonometryAngle(), span / 2));
-        place.Position = place.Position.WithWrappedWholeY(
+        place.Position = place.Position.WithWholeY(
             state.WallJumpArcCenter.Y -
             EnemyMath.CircleCosinePixels(state.WallJumpArcAngle.ToTrigonometryAngle(), span / 4));
     }
 
     /// <summary>Allows the fire-and-jump sequence when Samus is within the strict vertical detection band.</summary>
     private static bool WallSpacePirateCanAttack(RoomEnemyPlace place, SamusState samus) =>
-        CoordinateAxis.Distance(samus.Position.Y.Whole, place.Position.Y.Whole) <
+        Math.Abs(samus.Position.Y.Whole - place.Position.Y.Whole) <
             SpacePirateMotionDefinitions.WallDetectionBand;
 
     /// <summary>Applies the split alignment rule when a Pirate starts or lands on a wall.</summary>
@@ -139,7 +139,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         int x = place.Position.X.Whole;
         place.Position = place.Position.WithWholeX(RoomGridConversions.OffsetWithinBlock(x) < SpacePirateMotionDefinitions.WallSnapForwardFrom
             ? RoomGridConversions.HalfBlockStart(x)
-            : CoordinateAxis.Wrap(RoomGridConversions.NextBlockStart(x)));
+            : RoomGridConversions.NextBlockStart(x));
     }
 
     /// <summary>Starts a selected wall-Pirate animation on its first frame.</summary>
@@ -209,7 +209,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
             ? span / 2
             : -(span / 2);
         state.WallJumpArcCenter = new Position16<RoomPixels>(
-            CoordinateAxis.Wrap(place.Position.X.Whole + signedHalfSpan),
+            place.Position.X.Whole + signedHalfSpan,
             place.Position.Y.Whole);
         state.WallJumpArcAngle = direction == HorizontalDirection.Right ? RotationAngle.QuarterTurn : RotationAngle.ThreeQuarterTurn;
     }

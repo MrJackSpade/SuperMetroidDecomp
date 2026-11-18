@@ -81,7 +81,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                 // number does not hold it back. A Rio that does not attack, and whose swoop's start has finished, rests
                 // idle again.
                 if (RioLaunchDefinitions.AttackHeldBack.IsTakenBy(random) ||
-                    CoordinateAxis.Distance(samus.Position.X.Whole, place.Position.X.Whole) >= RioLaunchDefinitions.NorfairTriggerDistance)
+                    Math.Abs(samus.Position.X.Whole - place.Position.X.Whole) >= RioLaunchDefinitions.NorfairTriggerDistance)
                 {
                     if (state.AnimationSignal)
                     {
@@ -95,7 +95,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.Velocity = new EightEightVector<RoomPixels>(
                     RioLaunchDefinitions.NorfairXVelocity,
                     RioLaunches.NorfairYVelocity(random));
-                if (CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole) < 0)
+                if (samus.Position.X.Whole < place.Position.X.Whole)
                     state.Velocity = state.Velocity.ReversedX();
                 StartNorfairRioSwoopAnimation(
                     place,

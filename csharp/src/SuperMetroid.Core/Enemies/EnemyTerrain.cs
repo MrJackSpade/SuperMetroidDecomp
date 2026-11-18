@@ -194,8 +194,7 @@ internal sealed class EnemyTerrain
         int lastColumn = RoomGridConversions.PixelToBlock(CoordinateAxis.Wrap(place.Position.X.Whole + place.Radius.X - 1));
         for (int column = firstColumn; column <= lastColumn; column++)
         {
-            if ((uint)column >= level.Size.X ||
-                (uint)row >= level.Size.Y ||
+            if (!level.Size.Contains(new(column, row)) ||
                 level.GetCollisionBlock(new(column, row)).Terrain.StopsAttachment)
             {
                 return true;
@@ -227,8 +226,7 @@ internal sealed class EnemyTerrain
         int column = RoomGridConversions.PixelToBlock(targetEdge);
         for (int row = firstRow; row <= lastRow; row++)
         {
-            if ((uint)column >= level.Size.X ||
-                (uint)row >= level.Size.Y ||
+            if (!level.Size.Contains(new(column, row)) ||
                 level.GetCollisionBlock(new(column, row)).Terrain.StopsAttachment)
             {
                 return true;
@@ -251,10 +249,10 @@ internal sealed class EnemyTerrain
         int blockY = RoomGridConversions.PixelToBlock(edge);
         int firstBlockX = RoomGridConversions.PixelToBlock(CoordinateAxis.Wrap(place.Position.X.Whole - place.Radius.X));
         int lastBlockX = RoomGridConversions.PixelToBlock(CoordinateAxis.Wrap(place.Position.X.Whole + place.Radius.X - 1));
-        if ((uint)blockY >= level.Size.Y) return true;
+        if (blockY >= level.Size.Y) return true;
         for (int blockX = firstBlockX; blockX <= lastBlockX; blockX++)
         {
-            if ((uint)blockX >= level.Size.X ||
+            if (blockX >= level.Size.X ||
                 level.GetCollisionBlock(new(blockX, blockY)).Terrain.StopsAttachment)
                 return true;
         }
@@ -551,11 +549,8 @@ internal sealed class EnemyTerrain
     {
         int blockX = RoomGridConversions.PixelToBlock(pixel.X);
         int blockY = RoomGridConversions.PixelToBlock(pixel.Y);
-        if ((uint)blockX >= level.Size.X ||
-            (uint)blockY >= level.Size.Y)
-        {
+        if (!level.Size.Contains(new(blockX, blockY)))
             return false;
-        }
 
         RoomCollisionBlock block = level.GetCollisionBlock(new(blockX, blockY));
         if (block.CollisionType != RoomCollisionType.Slope ||

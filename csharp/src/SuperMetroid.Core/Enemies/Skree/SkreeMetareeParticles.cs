@@ -59,7 +59,7 @@ internal static class SkreeMetareeParticles
             Behavior,
             SpriteGraphics.SpawnedBy(source));
         particle.StartAnimation(new SkreeMetareeParticleAnimation(look));
-        particle.Position = particle.Position.WithWhole(new(CoordinateAxis.Wrap(source.Position.X.Whole + xOffset), source.Position.Y.Whole));
+        particle.Position = particle.Position.WithWhole(new(source.Position.X.Whole + xOffset, source.Position.Y.Whole));
         particle.Velocity = velocity;
     }
 }

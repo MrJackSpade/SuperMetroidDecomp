@@ -704,6 +704,9 @@ internal sealed class EnemyCollision
             if (vulnerability.Multiplier == 0)
                 continue;
 
+            // The blast lies in the room, but an enemy it reaches need not: a fly that has climbed through the ceiling or a
+            // Bull braking past Samus can lie above or left of the room's origin, and the blast reaches one the short way,
+            // as CoordinateAxis.Distance gives it.
             int xDistance = CoordinateAxis.Distance(explosionCenter.X, enemy.Position.X.Whole);
             int yDistance = CoordinateAxis.Distance(explosionCenter.Y, enemy.Position.Y.Whole);
             if (xDistance >= horizontalRadius || yDistance >= verticalRadius)
@@ -1004,6 +1007,12 @@ internal sealed class EnemyCollision
     }
 
     /// <summary>Uses the strict radius test, excluding contact where either axis is only tangent.</summary>
+    /// <remarks>
+    /// Each axis's distance is a <see cref="CoordinateAxis.Distance"/>, the short way between the two. The test meets every
+    /// enemy with Samus, her shots and her bombs, and either side can lie past the room's origin: a fly that has climbed
+    /// through the ceiling or a Bull braking past Samus lies above or left of it, and a shot lives on up to 64 pixels past
+    /// the view's left and top edges, a Wave shot passing through walls.
+    /// </remarks>
     internal static bool RadiusBoxesOverlap(
         Position16<RoomPixels> firstPosition,
         Extent16<RoomPixels> firstRadius,
@@ -1044,16 +1053,17 @@ internal sealed class EnemyCollision
     /// Whether Samus stands on <paramref name="enemy"/> with her centre reckoned <paramref name="bias"/> pixels lower
     /// (#2155, #2342): that centre lies above the enemy's centre, and their bodies overlap: horizontally strictly, so bodies
     /// that only meet side by side do not count, and vertically including the pixel where her feet meet the enemy's top.
-    /// Both distances are across the room's wrapping coordinates. The Kzan reckons her five pixels lower
+    /// Every enemy that asks stays in the room, and Samus lies above its top only on a departing up-elevator, where none
+    /// of them is placed. The Kzan reckons her five pixels lower
     /// (<see cref="Kzan.KzanMotionDefinitions.SamusStandingBias"/>), every other enemy three.
     /// </summary>
     internal static bool IsSamusStandingOn(RoomEnemyPlace enemy, SamusState samus, int bias)
     {
-        if (CoordinateAxis.Distance(samus.Position.X.Whole, enemy.Position.X.Whole) >=
+        if (Math.Abs(samus.Position.X.Whole - enemy.Position.X.Whole) >=
             samus.Kinematics.Radius.X + enemy.Radius.X)
             return false;
 
-        int below = CoordinateAxis.Difference(samus.Position.Y.Whole + bias, enemy.Position.Y.Whole);
+        int below = samus.Position.Y.Whole + bias - enemy.Position.Y.Whole;
         return below < 0 && -below <= samus.Kinematics.Radius.Y + enemy.Radius.Y;
     }
 }

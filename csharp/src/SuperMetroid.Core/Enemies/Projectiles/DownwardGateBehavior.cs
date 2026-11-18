@@ -58,12 +58,12 @@ internal sealed class DownwardGateBehavior
             : DownwardGateProjectileSegment.Moving));
         int blockX = request.RoomObjectBlock.X;
         int blockY = request.RoomObjectBlock.Y;
-        projectile.Position = projectile.Position.WithWhole(new(CoordinateAxis.Wrap(
-            blockX * RoomGridConversions.BlockPixels), CoordinateAxis.Wrap(
+        projectile.Position = projectile.Position.WithWhole(new(
+            blockX * RoomGridConversions.BlockPixels,
             blockY * RoomGridConversions.BlockPixels +
             (request.Kind == DownwardGateProjectileKind.Closed
                 ? DownwardGateDefinitions.ClosedPositionOffsetPixels
-                : 0))));
+                : 0)));
 
         // The gate's block ties the actor to its gate; the gate's room object searches for it when the gate needs to open again.
         projectile.State = new DownwardGateState(request.RoomObjectBlock,

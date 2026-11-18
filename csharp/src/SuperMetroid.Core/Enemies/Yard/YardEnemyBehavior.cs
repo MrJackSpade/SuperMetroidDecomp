@@ -184,7 +184,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.Behavior is YardBehavior.AggressiveCrawling or YardBehavior.Dropped or YardBehavior.Kicked or YardBehavior.BeamLaunched)
             return;
 
-        bool withinVerticalBand = CoordinateAxis.Difference(place.Position.Y.Whole, samus.Position.Y.Whole) >= -YardMotionDefinitions.HidingReachAbove;
+        bool withinVerticalBand = place.Position.Y.Whole - samus.Position.Y.Whole >= -YardMotionDefinitions.HidingReachAbove;
         SamusFacingDirection samusFacing = SamusPoseMetadata.ReadFacingDirection(samus);
         bool samusLookingAtYard = place.Position.X.Whole < samus.Position.X.Whole
             ? samusFacing == SamusFacingDirection.Left

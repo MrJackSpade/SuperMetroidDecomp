@@ -22,8 +22,8 @@ public sealed class NinjaSpacePirateEnemyState
     internal NinjaSpacePirateSegment ActiveAnimation { get; set; }
 
     /// <summary>
-    /// The room column midway between the adjusted posts. Samus and the Pirate are compared with it by the wrapped
-    /// difference.
+    /// The room column midway between the adjusted posts, which every placement sets inside the room: the Pirate's spin
+    /// jump turns to its fall on crossing it, and Samus near it sets off the spin jump and the divekick.
     /// </summary>
     public int PostsMidpointX { get; internal set; }
 
@@ -49,7 +49,4 @@ public sealed class NinjaSpacePirateEnemyState
     /// </summary>
     public Position16<RoomPixels> SpawnPosition { get; internal set; }
 
-    /// <summary>Changes <see cref="Speed"/> by <paramref name="delta"/>.</summary>
-    internal void ChangeSpeed(SignedEightEight delta) =>
-        Speed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(Speed.InTwoHundredFiftySixthsOfPixel + delta.InTwoHundredFiftySixthsOfPixel);
 }

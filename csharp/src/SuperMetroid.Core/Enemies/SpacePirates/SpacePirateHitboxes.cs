@@ -13,10 +13,10 @@ internal static class SpacePirateHitboxes
         Position16<RoomPixels> origin = enemy.Position.Whole;
         foreach (EnemyCollisionHitbox hitbox in SpacePirateCollisionDefinitions.Frames.Of(enemy.Frame))
         {
-            int left = CoordinateAxis.Wrap(origin.X + hitbox.Left);
-            int top = CoordinateAxis.Wrap(origin.Y + hitbox.Top);
-            int right = CoordinateAxis.Wrap(origin.X + hitbox.Right);
-            int bottom = CoordinateAxis.Wrap(origin.Y + hitbox.Bottom);
+            int left = origin.X + hitbox.Left;
+            int top = origin.Y + hitbox.Top;
+            int right = origin.X + hitbox.Right;
+            int bottom = origin.Y + hitbox.Bottom;
             if (!probe.Overlaps(left, top, right, bottom))
                 continue;
             reaction = probe.SelectsShot ? hitbox.Shot : hitbox.Touch;

@@ -21,14 +21,14 @@ public sealed class RipperEnemyState
     public EnemyLinearSpeed Speeds { get; internal set; }
 
     /// <summary>
-    /// grapple Ripper's exclusive left patrol reversal threshold, a room X coordinate in pixels from its spawn settings. The
-    /// patrol compares with it as <see cref="CoordinateAxis.Precedes"/> compares columns.
+    /// grapple Ripper's exclusive left patrol reversal threshold, a room X coordinate in pixels from its spawn settings:
+    /// leftward patrol turns once the Ripper lies left of it. Every placement's limit lies inside the room.
     /// </summary>
     public int MinimumXPosition { get; internal set; }
 
     /// <summary>
-    /// grapple Ripper's inclusive right patrol reversal threshold, a room X coordinate in pixels from its spawn settings. The
-    /// patrol compares with it as <see cref="CoordinateAxis.Precedes"/> compares columns.
+    /// grapple Ripper's inclusive right patrol reversal threshold, a room X coordinate in pixels from its spawn settings:
+    /// rightward patrol turns once the Ripper reaches or passes it.
     /// </summary>
     public int MaximumXPosition { get; internal set; }
 }

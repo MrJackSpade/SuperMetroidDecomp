@@ -74,17 +74,17 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Wakes when Samus enters the 128-pixel column and selects a rising pose from the wrapped horizontal direction.</summary>
+    /// <summary>Wakes when Samus enters the 128-pixel column and rises facing her.</summary>
     internal static void RunZoaWait(
         RoomEnemyPlace place,
         ZoaEnemyState state,
         SamusState samus)
     {
-        if (CoordinateAxis.Distance(samus.Position.X.Whole, place.Position.X.Whole) >= ZoaSpeedDefinitions.ActivationDistance)
+        if (Math.Abs(samus.Position.X.Whole - place.Position.X.Whole) >= ZoaSpeedDefinitions.ActivationDistance)
             return;
 
-        // The Zoa rises facing Samus, judged across the room as the distance to her is.
-        state.Facing = CoordinateAxis.Precedes(samus.Position.X.Whole, place.Position.X.Whole)
+        // A waiting Zoa stands at its spawn, inside the room, and rises facing Samus.
+        state.Facing = samus.Position.X.Whole < place.Position.X.Whole
             ? HorizontalDirection.Left
             : HorizontalDirection.Right;
         SetZoaAnimation(place, state, ZoaAnimationChoices.Rising(state.Facing));
@@ -98,7 +98,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus)
     {
         place.Presence = place.Presence.Without(EnemyPresence.Hidden);
-        if (CoordinateAxis.Difference(samus.Position.Y.Whole, place.Position.Y.Whole) < 0)
+        if (samus.Position.Y.Whole < place.Position.Y.Whole)
         {
             // The Japanese and North American release subtracts exactly 0.5 px/frame; the European release's step is 0.625.
             // This project targets the Japanese and North American release and reads its data.

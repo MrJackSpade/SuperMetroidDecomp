@@ -172,7 +172,8 @@ internal sealed class EnemyDeathsAndDrops
 
     /// <summary>
     /// Spawns <paramref name="count"/> drops by <paramref name="spawn"/>, each at the base plus the two scatters of one
-    /// random sample drawn before it spawns.
+    /// random sample drawn before it spawns. The base is a corner of a boss's arena and the scatters only add, so every
+    /// drop lies in the room.
     /// </summary>
     private void ScatterDrops(
         int count,
@@ -185,13 +186,14 @@ internal sealed class EnemyDeathsAndDrops
         for (int drop = 0; drop < count; drop++)
         {
             int random = _room.Random.Generate();
-            _ = spawn(new(
-                CoordinateAxis.Wrap(xScatter.Of(random) + xBase),
-                CoordinateAxis.Wrap(yScatter.Of(random) + yBase)));
+            _ = spawn(new(xScatter.Of(random) + xBase, yScatter.Of(random) + yBase));
         }
     }
 
-    /// <summary>Scatters drops within a 32-pixel square around a defeated actor.</summary>
+    /// <summary>
+    /// Scatters drops within a 32-pixel square around a defeated actor: the gold ninja Pirate or Fake Kraid, each of which
+    /// dies well inside its room, so every drop lies in the room.
+    /// </summary>
     internal void SpawnEnemyDropScatterAround(
         EnemyDefinitionId definitionId,
         int count,
@@ -202,8 +204,8 @@ internal sealed class EnemyDeathsAndDrops
         {
             int random = _room.Random.Generate();
             SpawnEnemyDropFromDefinition(new(
-                CoordinateAxis.Wrap(origin.X + EnemyDropScatterDefinitions.HorizontalScatter.Of(random) - EnemyDropScatterDefinitions.ScatterCentring),
-                CoordinateAxis.Wrap(origin.Y + EnemyDropScatterDefinitions.VerticalScatter.Of(random) - EnemyDropScatterDefinitions.ScatterCentring)), definitionId, samus);
+                origin.X + EnemyDropScatterDefinitions.HorizontalScatter.Of(random) - EnemyDropScatterDefinitions.ScatterCentring,
+                origin.Y + EnemyDropScatterDefinitions.VerticalScatter.Of(random) - EnemyDropScatterDefinitions.ScatterCentring), definitionId, samus);
         }
     }
 
@@ -444,6 +446,10 @@ internal sealed class EnemyDeathsAndDrops
             return;
         }
 
+        // A pickup appears where its enemy died, and an enemy can die above or left of the room's origin: a fly that has
+        // climbed through the ceiling, or a Bull braking past Samus, struck by a shot that lives on past the view's edge.
+        // The grapple's endpoint and Samus reach such a pickup from the room's top row or left column the short way, as
+        // CoordinateAxis.Distance gives it.
         // The grapple query reports any grapple phase but inactive. A pickup is immune to its
         // endpoint for the first sixteen decrements, then uses strict 16-pixel axis tests.
         if (samus.Grapple.Phase != GrapplePhase.Inactive &&

@@ -5,7 +5,7 @@ using SuperMetroid.Core.Enemies.EffectActors;
 
 namespace SuperMetroid.Core.Enemies.FallingSparks;
 
-/// <summary>The falling sparks species owner: its per-room state, behaviour and the interactions it registers.</summary>
+/// <summary>The falling sparks: each drops under gravity, bounces on the floor and leaves a trail.</summary>
 [RoomLifetime]
 internal sealed class FallingSparksBehavior
 {

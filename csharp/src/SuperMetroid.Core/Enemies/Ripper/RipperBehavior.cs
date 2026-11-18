@@ -125,7 +125,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs the Ripper's main AI.</summary>
     private void RunRipperMain(RoomEnemyPlace place, RoomLevelData level)
     {
-        // The horizontal mover consumes the signed 1/65536-pixel velocity as a displacement. On collision the
+        // The horizontal mover moves the Ripper by its velocity. On collision the
         // mover aligns the actor flush with the wall before Ripper swaps direction
         // and animation.
         RipperEnemyState state = place.RequireSpeciesState<RipperEnemyState>();

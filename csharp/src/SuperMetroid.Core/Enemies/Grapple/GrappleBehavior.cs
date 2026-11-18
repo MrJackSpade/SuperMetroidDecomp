@@ -3,7 +3,7 @@ using SuperMetroid.Core.Samus.Grapple;
 
 namespace SuperMetroid.Core.Enemies.Grapple;
 
-/// <summary>The Grapple species owner: its per-room state, behaviour and the interactions it registers.</summary>
+/// <summary>The grapple beam's hold on enemies: the enemy its end catches and what a caught enemy does.</summary>
 [RoomLifetime]
 internal sealed class GrappleBehavior : IGrappleTargets
 {

@@ -4,7 +4,7 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.World;
 
 /// <summary>
-/// The room's layers and the actors gameplay shows (#1407): chosen on each main-loop pass, shown from the accepted frame
+/// The room's layers and the actors gameplay shows (#1407): chosen on each update, shown from the accepted frame
 /// that latches them. An update without a frame boundary leaves the shown layers in place.
 /// </summary>
 internal sealed class GameplayScreenLayers
@@ -21,7 +21,7 @@ internal sealed class GameplayScreenLayers
         _room = room;
     }
 
-    /// <summary>The layers the main loop chose for the next accepted frame.</summary>
+    /// <summary>The layers the update chose for the next accepted frame.</summary>
     internal ScreenLayers Chosen { get; private set; } = OrdinaryLayers;
 
     /// <summary>The layers the most recent accepted frame shows.</summary>

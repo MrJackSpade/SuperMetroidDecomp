@@ -37,7 +37,7 @@ internal sealed class SamusInputSnapshot
         internal set => field = Ensure.BetweenInclusive(0, WrappingCounter.LargestCount, value);
     }
 
-    /// <summary>Held input published by the post-draw input filter and the main loop's tail.</summary>
+    /// <summary>Held input published by the post-draw input filter and at the end of each update.</summary>
     public GameplayAction PreviousDrawHeldInput { get; private set; }
 
     /// <summary>Samus's pose input is currently the one-shot auto-jump.</summary>
@@ -77,7 +77,7 @@ internal sealed class SamusInputSnapshot
         WrappingCounter.IsBehind(heldUpdates, SamusAutoJumpDefinitions.TimerComparisonLimit);
 
     /// <summary>Publishes held input without advancing Samus's draw-time owners.</summary>
-    internal void PublishMainLoopHeldInput(GameplayAction held) => PreviousDrawHeldInput = held;
+    internal void PublishHeldInput(GameplayAction held) => PreviousDrawHeldInput = held;
 
     /// <summary>The post-draw input filter increments only when Jump is held in both draw samples.</summary>
     internal void SnapshotDrawInput(GameplayAction held, GameplayAction newlyPressed)

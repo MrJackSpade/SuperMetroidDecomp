@@ -19,10 +19,10 @@ public sealed class MaridiaElevatubeRoomMainState
     /// </summary>
     public FixedCoordinate TrackedY { get; private set; }
 
-    /// <summary>The tube's signed 1/256-pixel vertical velocity in room pixels per update.</summary>
+    /// <summary>The tube's vertical velocity in room pixels per update, negative upward.</summary>
     public SignedEightEight Velocity { get; private set; }
 
-    /// <summary>The tube's signed 1/256-pixel vertical acceleration in room pixels per update per update.</summary>
+    /// <summary>The tube's vertical acceleration in room pixels per update per update, negative upward.</summary>
     public SignedEightEight Acceleration { get; private set; }
 
     /// <summary>
@@ -58,9 +58,9 @@ public sealed class MaridiaElevatubeRoomMainState
     }
 
     /// <summary>
-    /// Runs the elevatube once: pin X to 128, integrate signed 1/256-pixel velocity into both
-    /// the tracked height and Samus's 1/65536-pixel position through Samus's ordinary
-    /// vertical collision check, then apply the game's bounded acceleration.
+    /// Runs the elevatube once: hold Samus at X 128, move both the tracked height and Samus by the velocity, Samus
+    /// through her ordinary vertical collision check, then add the acceleration to the velocity unless that passes the
+    /// maximum speed.
     /// </summary>
     internal BlockMoveResult Step(
 
@@ -75,7 +75,7 @@ public sealed class MaridiaElevatubeRoomMainState
         Ensure.NotNull(roomObjects);
         Ensure.NotNull(samus);
 
-        // Stores the whole and fractional X separately every frame.
+        // Samus is held at the tube's centre every update, with no fraction of a pixel.
         samus.Kinematics.Position = samus.Kinematics.Position.WithX(new FixedCoordinate(MaridiaElevatubeDefinitions.SamusCenterX, 0));
 
         SignedSixteenSixteen displacement = Velocity.ToSixteenSixteenDelta();

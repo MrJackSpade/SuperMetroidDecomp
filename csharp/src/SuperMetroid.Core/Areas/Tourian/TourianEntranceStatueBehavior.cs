@@ -7,7 +7,10 @@ using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.Core.Areas.Tourian;
 
-/// <summary>The Tourian entrance statue species owner: its per-room state, behaviour and the interactions it registers.</summary>
+/// <summary>
+/// The Tourian entrance statue scene: the statues, their decorations and unlock effects, and the eye glows, blacked-out
+/// eyes and greys the released statues show.
+/// </summary>
 [RoomLifetime]
 internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntityFactory, IGameplayShadingSource
 {
@@ -176,8 +179,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
                 decorations);
         }
 
-        // Statue initialization selects the common sprite colours, which the import colours the statue's sheets in, and
-        // installs the statue's own colours and its decoration colours: the scene's entrance shade (#1512).
+        // The statues and their decorations show the scene's entrance shade from the start (#1512).
         ShowScene();
     }
 

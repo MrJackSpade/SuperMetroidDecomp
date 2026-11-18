@@ -29,7 +29,7 @@ public sealed class RoomEffectActor
     public bool IsActive => Playback is not null;
 
     /// <summary>
-    /// The 1/65536-pixel room position, converted to screen coordinates by subtracting the camera when drawn. Most
+    /// The room position, with its fraction of a pixel, converted to screen coordinates by subtracting the camera when drawn. Most
     /// effect actors move only in whole pixels and leave the fractions zero; Draygon's six burial Evirs move by
     /// fractional speeds, so discarding the fractions visibly changes their fan-in.
     /// </summary>

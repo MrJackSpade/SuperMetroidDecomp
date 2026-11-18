@@ -153,7 +153,7 @@ public static class SamusGroundedMovement
             speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
             liquidImpeded: liquidMedium != SamusLiquidMedium.Air);
 
-        // The horizontal speed calculation advances the split 1/65536-pixel base speed. The following
+        // The horizontal speed calculation advances the base speed. The following
         // direction selector is shared by every horizontal movement family:
         // accelerating and decelerating obey the pose's facing, while turning
         // reverses it. Turning is therefore not an invalid running state; it is the

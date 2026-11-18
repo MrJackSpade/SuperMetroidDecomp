@@ -35,7 +35,7 @@ public sealed class TourianStatueAnimationDefinition
     /// <summary>The bosses of <see cref="BossArea"/> whose defeat, any one of them, starts the release.</summary>
     public required DefeatedBosses DefeatedBosses { get; init; }
 
-    /// <summary>The statue with its three eye colours blacked out, which it shows from the start of its release (#1512).</summary>
+    /// <summary>The statue with its eyes blacked out, which it shows from the start of its release (#1512).</summary>
     public required PictureShade ClearedShade { get; init; }
 
     /// <summary>The statue's eye, where its release's eye glow and soul appear, and the glow it lights.</summary>
@@ -47,7 +47,7 @@ public sealed class TourianStatueAnimationDefinition
     /// <summary>Where the statue's grey-out shows: on the room's background or on the entrance statue's sprites (#2288).</summary>
     public required TourianStatueGreyOutSite GreyOutSite { get; init; }
 
-    /// <summary>The statue greyed, which it shows once its eight colours take the common grey colours (#1512).</summary>
+    /// <summary>The statue greyed, which a statue released on an earlier visit shows (#1512).</summary>
     public required PictureShade GreyShade { get; init; }
 
     /// <summary>The frame of the statue's animation that shows <paramref name="picture"/>.</summary>

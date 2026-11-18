@@ -17,9 +17,9 @@ public enum VerticalShutterAction
     /// that has stopped at an end for good.
     /// </summary>
     Still,
-    /// <summary>Adds upward 1/65536-pixel velocity, carries a rider, and stops at the minimum Y boundary.</summary>
+    /// <summary>Moves up by its speed, carries a rider, and stops at the minimum Y boundary.</summary>
     MovingUp,
-    /// <summary>Adds downward 1/65536-pixel velocity, carries a rider, and stops at the maximum Y boundary.</summary>
+    /// <summary>Moves down by its speed, carries a rider, and stops at the maximum Y boundary.</summary>
     MovingDown,
     /// <summary>Waits out the rest at the upper end before moving down or restoring proximity waiting.</summary>
     StoppedAfterMovingUp,

@@ -127,7 +127,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         state.AccelerationDelta = BullMovementDefinitions.AccelerationStep;
     }
 
-    /// <summary>Integrates both 1/65536-pixel position components from the committed angle and 1/256-pixel speed.</summary>
+    /// <summary>Moves the Bull along both axes by its speed in the direction of its committed angle.</summary>
     internal static void MoveBull(RoomEnemyPlace place, BullEnemyState state)
     {
         place.Position = place.Position.WithX(AddBullComponent(
@@ -154,7 +154,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         int sine,
         SignedEightEight speed)
     {
-        // The sine's magnitude is below 128 256ths and the speed at most 2880 256ths, so the step fits a 1/65536-pixel displacement.
+        // The sine's magnitude is below 128 256ths and the speed at most 2880 256ths, so the step is under six pixels.
         int sineTwoFiftySixths = UnsignedEightEight.Whole(Math.Abs(sine));
         SignedSixteenSixteen forward = UnsignedSixteenSixteen.ProductOfTwoFiftySixths(
             sineTwoFiftySixths, speed.InTwoHundredFiftySixthsOfPixel).AsDisplacement();

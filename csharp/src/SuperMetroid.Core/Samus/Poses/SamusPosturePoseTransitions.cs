@@ -479,7 +479,7 @@ internal static class SamusPosturePoseTransitions
             // clears the extra speeds, and selects SamusAccelerationMode.Turning so displacement initially keeps
             // travelling in the old direction while the ball decelerates through its turn.
             samus.HorizontalSpeed.BaseSpeed += samus.HorizontalSpeed.ExtraRunSpeed;
-            // Cancels the speed boost between the 1/65536-pixel fold and the
+            // Cancels the speed boost between folding the extra run speed into the base speed and the
             // explicit extra-speed clear. Preserve that ordering even for ordinary Dash.
             samus.HorizontalSpeed.CancelRunningMomentum(currentDirection);
             samus.HorizontalSpeed.ExtraRunSpeed = default;

@@ -2,11 +2,11 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Metroids;
 
 /// <summary>
-/// The state of a Mochtroid: its 1/65536-pixel steering and its one-update movement selector.
+/// The state of a Mochtroid: its steering and its one-update movement selector.
 /// </summary>
 public sealed class MochtroidEnemyState
 {
-    /// <summary>Signed 1/65536-pixel velocity in room pixels per update.</summary>
+    /// <summary>The Mochtroid's velocity in room pixels per update, positive right and down.</summary>
     public FixedVector<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>How the Mochtroid moves this update, cleared before each run of its main AI.</summary>

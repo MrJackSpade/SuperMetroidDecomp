@@ -71,7 +71,7 @@ public static class SamusGrappleMovement
         grapple.OriginOffset = new(origin.X, origin.Y - physicalYOffset);
         grapple.FlareOffset = new(flare.X, flare.Y - artOrigin);
 
-        // The endpoint offset is a signed 1/65536-pixel displacement from Samus plus the firing
+        // The endpoint offset is a displacement from Samus plus the firing
         // origin. Firing clears both axes, fraction and whole alike.
         grapple.EndpointOffset = FixedVector<RoomPixels>.Zero;
         // Firing's shade and sound setup.

@@ -9,7 +9,7 @@ public static class GameplayMessageButtons
 {
     /// <summary>
     /// The button the glyph shows for <paramref name="binding"/>: the first of <see cref="Buttons.GlyphOrder"/> the binding
-    /// holds, so the first matching button wins even for a malformed multibit binding, or
+    /// holds, so the first matching button wins even for a binding that holds several buttons, or
     /// <see cref="ControllerButton.None"/> when it holds none of them.
     /// </summary>
     public static ControllerButton Shown(ControllerButton binding)

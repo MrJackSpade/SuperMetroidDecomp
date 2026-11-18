@@ -42,7 +42,7 @@ internal static void VerifySamusAerialTurnsAndWallJump()
         AssertEqual(0, autoJump.InputSnapshot.AutoJumpTimer, "release clears auto-jump history");
     }
     var wrappingAutoJump = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { InputSnapshot = { AutoJumpTimer = ushort.MaxValue } };
-    wrappingAutoJump.InputSnapshot.PublishMainLoopHeldInput(GameplayAction.Jump);
+    wrappingAutoJump.InputSnapshot.PublishHeldInput(GameplayAction.Jump);
     wrappingAutoJump.InputSnapshot.SnapshotDrawInput(GameplayAction.Jump, 0);
     AssertEqual(0, wrappingAutoJump.InputSnapshot.AutoJumpTimer, "held Jump wraps the auto-jump timer from 65535 to zero");
     AssertThrows<ArgumentOutOfRangeException>(() => wrappingAutoJump.InputSnapshot.AutoJumpTimer = SuperMetroid.Core.Compatibility.WrappingCounter.LargestCount + 1,

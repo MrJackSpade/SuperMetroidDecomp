@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Spatial;
 
-/// <summary>A two-dimensional unsigned 1/65536-pixel position: whole pixels and subpixels on each axis.</summary>
+/// <summary>A two-dimensional position: whole pixels and 65536ths of a pixel on each axis, neither negative.</summary>
 /// <typeparam name="TSpace">The coordinate space of the position.</typeparam>
 /// <remarks>
 /// Placing something at a whole-pixel point (<see cref="WithWhole"/>, <see cref="WithWholeX"/>,
@@ -73,10 +73,10 @@ public readonly record struct FixedPosition<TSpace>(FixedCoordinate X, FixedCoor
     public static FixedPosition<TSpace> operator -(FixedPosition<TSpace> position, Offset16<TSpace> offset) =>
         position.WithWhole(position.Whole - offset);
 
-    /// <summary>Moves only the X axis by a signed 1/65536-pixel delta, the fraction's overflow passing on, wrapping in 1/65536 pixels.</summary>
+    /// <summary>Moves only the X axis by <paramref name="delta"/>, the fraction's overflow passing on to the whole pixels, which wrap.</summary>
     public FixedPosition<TSpace> AdvanceX(SignedSixteenSixteen delta) => WithX(delta.AddTo(X.Whole, X.Fraction));
 
-    /// <summary>Moves only the Y axis by a signed 1/65536-pixel delta, the fraction's overflow passing on, wrapping in 1/65536 pixels.</summary>
+    /// <summary>Moves only the Y axis by <paramref name="delta"/>, the fraction's overflow passing on to the whole pixels, which wrap.</summary>
     public FixedPosition<TSpace> AdvanceY(SignedSixteenSixteen delta) => WithY(delta.AddTo(Y.Whole, Y.Fraction));
 
     /// <summary>Moves each axis by its signed 1/256-pixel velocity, the fraction's overflow passing on, wrapping in 1/65536 pixels.</summary>

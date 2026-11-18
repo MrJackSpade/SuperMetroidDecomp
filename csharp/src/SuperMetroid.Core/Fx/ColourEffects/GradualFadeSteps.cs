@@ -56,7 +56,7 @@ internal sealed class GradualFadeSteps
 
     /// <summary>
     /// Takes one step: the first (counter zero) changes nothing, step denominator plus one reaches the far colour, and the
-    /// call after it completes the fade and resets the shared counter.
+    /// update after it completes the fade and resets the shared counter.
     /// </summary>
     /// <returns>Whether the fade completed on this update, taking no step.</returns>
     internal bool Step()

@@ -43,6 +43,6 @@ public readonly record struct EightEightVector<TSpace>(SignedEightEight X, Signe
     /// <summary>Both axes' whole pixels, -128 through 127, each axis's fraction dropped toward negative infinity.</summary>
     public Offset16<TSpace> Whole => new(X.WholePixels, Y.WholePixels);
 
-    /// <summary>The same velocity as the 1/65536-pixel displacement used by position adders.</summary>
+    /// <summary>The same velocity as the displacement positions move by.</summary>
     public FixedVector<TSpace> ToSixteenSixteen() => new(X.ToSixteenSixteenDelta(), Y.ToSixteenSixteenDelta());
 }

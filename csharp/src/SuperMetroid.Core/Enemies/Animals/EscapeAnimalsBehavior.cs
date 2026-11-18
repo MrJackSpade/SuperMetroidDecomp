@@ -59,7 +59,6 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
         place.Contact = place.Contact.With(EnemyContact.IgnoresSamus | EnemyContact.SolidToSamus);
         place.AnimationClock.Restart();
-        // The setup selects the common sprite colours, which the import colours the escape Etecoons' sheets in (#1512).
 
         place.Position = place.Position.WithWhole(initialization.Position);
         state.Playback = new(EscapeEtecoonAnimations.StartingWith(initialization.Animation), AnimationPlace.StartOfAnimation);

@@ -134,7 +134,7 @@ internal sealed class ProjectileMotion
         SamusProjectileDirection direction = shot.Direction;
         Accelerate(shot, SamusProjectileAccelerations.For(direction).Beam);
 
-        // Wave's block collisions advance the same 1/65536-pixel positions and scan every block touched by
+        // Wave's block collisions advance the same positions and scan every block touched by
         // the projectile radii, but deliberately never report a collision. That is
         // the defining Wave Beam behavior: block reactions may run, yet terrain never kills
         // or clips the shot. The span scans below publish ordinary shootable-block

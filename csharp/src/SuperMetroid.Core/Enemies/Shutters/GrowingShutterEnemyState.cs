@@ -66,7 +66,7 @@ public sealed class GrowingShutterEnemyState
         internal set => field = Ensure.BetweenInclusive(0, SectionCount, value);
     }
 
-    /// <summary>Positive 1/65536-pixel growth speed in pixels per update; upward growth applies its exact negation.</summary>
+    /// <summary>Positive growth speed in pixels per update; upward growth applies its exact negation.</summary>
     public SignedSixteenSixteen GrowthSpeed { get; internal set; }
 
     /// <summary>

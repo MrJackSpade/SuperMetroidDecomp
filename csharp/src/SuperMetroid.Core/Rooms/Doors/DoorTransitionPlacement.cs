@@ -1,6 +1,6 @@
 ﻿namespace SuperMetroid.Core.Rooms.Doors;
 
-/// <summary>Final door-scroll camera and 1/65536-pixel Samus coordinates.</summary>
+/// <summary>Where the door's scroll leaves the camera and Samus, her fraction of a pixel included.</summary>
 internal readonly record struct DoorTransitionPlacement(
     Position16<RoomPixels> CameraPosition,
     FixedPosition<RoomPixels> SamusPosition);

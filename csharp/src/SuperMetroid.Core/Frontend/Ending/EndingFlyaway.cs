@@ -33,7 +33,7 @@ internal sealed class EndingFlyaway
     /// <summary>Where the gunship's shake stands in the current planet-escape leg's authored sequence (#1902).</summary>
     internal EndingShipShakeCursor ShipShake { get; private set; }
 
-    /// <summary>Planet-escape velocity: a signed 1/65536-pixel displacement that grows more negative every accelerating update.</summary>
+    /// <summary>Planet-escape velocity: a displacement that grows more negative every accelerating update.</summary>
     internal SignedSixteenSixteen PlanetVelocity { get; private set; }
 
     /// <summary>Clears the whiteout from the sky and starts the accelerating planet flyaway with its authored colour effects.</summary>

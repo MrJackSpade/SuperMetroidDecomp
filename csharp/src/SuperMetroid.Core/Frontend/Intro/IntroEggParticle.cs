@@ -34,7 +34,7 @@ internal sealed class IntroEggParticle
             IntroEggEffectAnimations.Effects, definition.Animation);
     }
 
-    /// <summary>Applies 1/65536-pixel fragment velocity and gravity, redirecting to deletion once it reaches the floor.</summary>
+    /// <summary>Applies the fragment's velocity and gravity, redirecting to deletion once it reaches the floor.</summary>
     public void Step()
     {
         if (!sprite.IsActive)

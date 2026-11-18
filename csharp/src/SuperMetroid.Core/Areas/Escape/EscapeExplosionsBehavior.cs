@@ -5,7 +5,7 @@ using SuperMetroid.Core.Enemies.EffectActors;
 
 namespace SuperMetroid.Core.Areas.Escape;
 
-/// <summary>The escape explosions species owner: its per-room state, behaviour and the interactions it registers.</summary>
+/// <summary>The Zebes escape's explosions: each goes off as an effect actor and, when its draw names one, plays its sound.</summary>
 [RoomLifetime]
 internal sealed class EscapeExplosionsBehavior
 {

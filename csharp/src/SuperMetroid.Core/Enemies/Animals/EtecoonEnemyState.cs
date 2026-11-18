@@ -11,7 +11,7 @@ public sealed class EtecoonEnemyState
     internal AnimationPlayback<EtecoonSegment> Playback { get; set; }
 
     /// <summary>
-    /// Signed 1/65536-pixel velocity in room pixels per update.
+    /// The Etecoon's velocity in room pixels per update, positive right and down.
     /// </summary>
     public FixedVector<RoomPixels> Velocity { get; internal set; }
 

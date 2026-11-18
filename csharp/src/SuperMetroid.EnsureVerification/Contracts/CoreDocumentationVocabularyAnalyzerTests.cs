@@ -877,8 +877,9 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
             "('1/65536-pixel sum')");
         Expect("class P { string Name => \"Moves the projectile in 1/65536-pixel space.\"; }", "('1/65536-pixel space')");
         Expect("class P { // The 1/65536th constant is exactly -1.0\n }", "('1/65536th constant')");
-        // A unit of measure and a hardware owner are English.
-        Expect("class P { /// <summary>A speed in 1/65536 pixels; the signed 1/65536-pixel velocity; a 1/65536-pixel displacement into the slope move; its 1/65536-pixel position.</summary>\nint F => 0; }");
+        // A unit of measure and a hardware owner are English; a value named by its hyphenated 1/65536-pixel storage is
+        // #2427's.
+        Expect("class P { /// <summary>A speed in 1/65536 pixels; one 65536th of a pixel further.</summary>\nint F => 0; }");
         Expect(CompatibilityService + "/// <summary>Evidence: the game's 1/65536-pixel additions carry the fraction.</summary>\n[CompatibilityService(\"carry\")] class Carry { }");
         // Paired arithmetic, outside hardware owners, spaced or hyphenated (#2172).
         Expect("class P { // The fraction's overflow and the whole pixels' wraparound match the game's paired additions.\n }", "('paired additions')");
@@ -1720,5 +1721,57 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         // alone and a hardware owner are English.
         Expect("class P { /// <summary>The flash's first colours; the cycle's first colour; the colour group of each colouring; each frame inherits its actor's colours; the map marker; the grapple beam's handler.</summary>\nint F => 0; }");
         Expect(CompatibilityService + "/// <summary>Evidence: the original replies to each library's handler.</summary>\n[CompatibilityService(\"reply\")] class Reply { }");
+        // The original's main loop, storage and colour slots in effects, HUD, map and escape prose, outside hardware owners
+        // and markup (#2423): the main loop in prose and in declared names, a multibit value, a value's middle part or a
+        // half of its fraction, the colours a tint sets, a value's bits by count or end, and save bits.
+        Expect("class P { /// <summary>Moves the lava before the main loop's random number.</summary>\nint F => 0; }",
+            "('main loop')");
+        Expect("class P { void Run() { // advances main-loop random state\n } }", "('main-loop')");
+        Expect("class P { bool MovesLiquidBeforeMainLoop => true; }", "('MovesLiquidBeforeMainLoop')");
+        Expect("class P { void Run() { int mainLoopRandom = 0; _ = mainLoopRandom; } }", "('mainLoopRandom')");
+        Expect("class P { /// <summary>The first matching button wins even for a malformed multibit binding.</summary>\nint F => 0; }",
+            "('multibit')");
+        Expect("class P { /// <summary>The surface replaces only the probe's middle part.</summary>\nint F => 0; }", "('middle part')");
+        Expect("class P { void Run() { // the game's reading of the middle of the displacement\n } }",
+            "('middle of the displacement')");
+        Expect("class P { /// <summary>Its whole pixels and the upper half of its fraction.</summary>\nint F => 0; }",
+            "('upper half of its fraction')");
+        Expect("class P { void Run() { // clipping clears the fractional half\n } }", "('fractional half')");
+        Expect("class P { /// <summary>The overlay keeps its colours, except the last of the three colours a tint sets.</summary>\nint F => 0; }",
+            "('colours a tint sets')");
+        Expect("class P { /// <summary>Except the last of the three a tint sets, which shows black.</summary>\nint F => 0; }",
+            "('three a tint sets')");
+        Expect("class P { /// <summary>The random number when the room loads; rain reads two of its bits.</summary>\nint F => 0; }",
+            "('two of its bits')");
+        Expect("class P { void Run() { // gameplay that samples its top bits\n } }", "('its top bits')");
+        Expect("class P { /// <summary>No exploration or save bits are changed.</summary>\nint F => 0; }", "('save bits')");
+        // The middle of a room, the upper half of the screen, a tint's colours, a bit alone, a save, a loop alone and a
+        // hardware owner are English.
+        Expect("class P { /// <summary>The middle of the arena; the upper half of the screen; the colours a tint shows; a bit of the floor; the save; the main room; the loop of the track.</summary>\nint F => 0; }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the original main loop draws its random number.</summary>\n[CompatibilityService(\"loop\")] class MainLoopDraw { bool MovesBeforeMainLoop => true; }");
+        // The original's setup and storage in area prose, outside hardware owners and markup (#2427): a setup that selects
+        // colours and a value named by its hyphenated 1/65536-pixel storage.
+        Expect("class P { void Run() { // The setup selects the enemy projectiles' colours.\n } }",
+            "('setup selects the enemy projectiles' colours')");
+        Expect("class P { /// <summary>Statue initialization selects the common sprite colours.</summary>\nint F => 0; }",
+            "('initialization selects the common sprite colours')");
+        Expect("class P { /// <summary>Moves the tracked height and Samus's 1/65536-pixel position.</summary>\nint F => 0; }",
+            "('1/65536-pixel')");
+        Expect("class P { /// <summary>A fingernail's signed 1/65536-pixel velocity in pixels per update.</summary>\nint F => 0; }",
+            "('1/65536-pixel')");
+        Expect("class P { string Name => \"its 1/65536th-pixel steps\"; }", "('1/65536th-pixel')");
+        // A unit of measure, a setup that selects anything but colours and a hardware owner are English.
+        Expect("class P { /// <summary>A speed in 1/65536 pixels; the setup selects the vent's first plume.</summary>\nint F => 0; }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the setup selects the common sprite colours for Samus's 1/65536-pixel position.</summary>\n[CompatibilityService(\"setup\")] class Setup { }");
+        // The species-owner template on a type that owns no species (#2427), read on the type's own summary; a type that
+        // implements or is a species owner's interface owns a species, and an entity's parameter names its owner.
+        const string SpeciesOwners = "interface IEnemySpecies { }\ninterface IEnemyEntityFactory { }\n";
+        Expect(SpeciesOwners + "/// <summary>The escape explosions species owner: its per-room state, behaviour and the interactions it registers.</summary>\nsealed class EscapeExplosions { }",
+            "('species owner')");
+        Expect(SpeciesOwners + "/// <summary>\n/// The Grapple species owner.\n/// </summary>\nsealed class Grapple { }", "('species owner')");
+        Expect(SpeciesOwners + "/// <summary>The Botwoon species owner: its per-room state, behaviour and the interactions it registers.</summary>\nsealed class Botwoon : IEnemyEntityFactory { }\n" +
+            "/// <summary>The Crocomire species owner.</summary>\nsealed class Crocomire : IEnemySpecies { }\n" +
+            "abstract class Shared : IEnemySpecies { }\n/// <summary>The Kraid species owner.</summary>\nsealed class Kraid : Shared { }\n" +
+            "/// <summary>One Botwoon occupant.</summary>\n/// <param name=\"species\">The Botwoon species owner.</param>\nsealed class BotwoonEntity(Botwoon species) { Botwoon Species => species; }");
     }
 }

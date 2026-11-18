@@ -280,7 +280,7 @@ internal sealed class AcceptedFrameBoundary
     private HudPictures HudPicturesIn(SpriteSheet sheet) =>
         _hudPictures is { } shown && ReferenceEquals(shown.Sheet, sheet) ? shown : _hudPictures = new HudPictures(sheet);
 
-    /// <summary>The tints effects chose during the previous main loop, each from its own effect.</summary>
+    /// <summary>The tints effects chose during the previous update, each from its own effect.</summary>
     private GameplayLatchedTints CaptureTints()
     {
         // Before the first room exists there is no explosion; its colour is black.

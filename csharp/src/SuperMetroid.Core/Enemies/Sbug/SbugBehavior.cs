@@ -286,7 +286,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         SetSbugFacing(place, state, state.CustomFacing);
     }
 
-    /// <summary>Adds both signed 1/65536-pixel velocities to the actor position.</summary>
+    /// <summary>Moves the Sbug by both its velocities.</summary>
     private static void AddSbugVelocity(
         RoomEnemyPlace place,
         SignedSixteenSixteen xVelocity,

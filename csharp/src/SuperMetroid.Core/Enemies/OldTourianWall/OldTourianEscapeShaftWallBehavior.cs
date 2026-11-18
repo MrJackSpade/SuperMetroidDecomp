@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Enemies.OldTourianWall;
 
-/// <summary>The old Tourian escape-shaft wall species owner: its per-room state, behaviour and the interactions it registers.</summary>
+/// <summary>The old Tourian escape shaft's fake wall: the explosion that goes off as it breaks.</summary>
 [RoomLifetime]
 internal sealed class OldTourianEscapeShaftWallBehavior
 {

@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Gameplay;
 
 /// <summary>
 /// The tints the accepted frame's effects blend with, each published by its own effect. Effects choose them during the
-/// main loop, so a tint reaches the screen one frame after it is chosen, even though the same effect's window is read
+/// update, so a tint reaches the screen one frame after it is chosen, even though the same effect's window is read
 /// live during display.
 /// </summary>
 /// <param name="Fireflea">The shade Fireflea darkness subtracts, or null when the room's effect is not Fireflea darkness.</param>

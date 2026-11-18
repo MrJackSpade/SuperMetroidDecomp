@@ -6,7 +6,7 @@ using SuperMetroid.Core.Rooms.Doors;
 
 namespace SuperMetroid.Core.Enemies.EyeDoor;
 
-/// <summary>The eye door species owner: its per-room state, behaviour and the interactions it registers.</summary>
+/// <summary>The eye doors' projectiles: the shots the eye fires, the sweat it drips and the smoke it leaves.</summary>
 [RoomLifetime]
 internal sealed class EyeDoorBehavior
 {

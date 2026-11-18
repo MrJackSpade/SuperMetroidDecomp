@@ -19,7 +19,7 @@ public sealed class MetroidEnemyState
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<MetroidSegment> Playback { get; set; }
 
-    /// <summary>Signed 1/65536-pixel velocity in pixels per movement update, positive right and down.</summary>
+    /// <summary>The Metroid's velocity in pixels per movement update, positive right and down.</summary>
     public FixedVector<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>

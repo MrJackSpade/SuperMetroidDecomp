@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// their shared choice of water or lava physics.
 /// </summary>
 /// <remarks>
-/// This deliberately retains the game's split 1/65536-pixel magnitudes and separate vertical
+/// This keeps the game's speed magnitudes, each with its fraction of a pixel, and separate vertical
 /// direction. It does not use floating point, host elapsed time, or a guessed gravity
 /// curve. Solid enemies stop Samus through the shared block collision, and the displacement enemies and blocks
 /// add to her is the shared extra displacement. Ordinary

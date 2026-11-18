@@ -198,8 +198,8 @@ public static class SamusInsideBlockReactions
         }
         // A stationary Samus's probe is limited to the surface limit counted in 256ths of a pixel, keeping its finer
         // fraction. The probe here moves down (only a scan's own downward displacement reaches this for a stationary
-        // Samus; the pose-observation probe passed through above) and by far less than 256 pixels, where the game's
-        // reading of the middle of the displacement is exactly its count in 256ths.
+        // Samus; the pose-observation probe passed through above) and by far less than 256 pixels, so counting it in
+        // 256ths of a pixel loses nothing but its finer fraction.
         if (body.YDirection == SamusVerticalDirection.None)
             displacement = displacement.WithTwoFiftySixthsAtMost(QuicksandDefinitions.StationarySurfaceProbeLimit);
         surfaceContact = true;

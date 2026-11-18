@@ -14,7 +14,7 @@ public sealed class UnpoweredWorkRobotEnemyState
     internal AnimationPlayback<WorkRobotSegment> Playback { get; set; }
 
     /// <summary>
-    /// The robot's signed 1/65536-pixel falling speed in pixels per update, starting at the unpowered fall's speed: a
+    /// The robot's falling speed in pixels per update, starting at the unpowered fall's speed: a
     /// powered robot's definition placed while the ship has no power falls by it, and gravity adds to it, its
     /// fraction carried into the whole pixels. The unpowered robot's definition takes no action and never
     /// reads it.

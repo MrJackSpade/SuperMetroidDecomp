@@ -72,7 +72,7 @@ internal static class Mode7GameplaySnapshotTestsVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var aboveOrigin = (TurningRoomLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
         AssertEqual(new Offset16<BackgroundPixels>(5, -3) + runtime.Display.DisplayedGameplayScrolls.RoomShake.Background,
-            (aboveOrigin.Floor ?? throw new InvalidOperationException("The getaway shows the room's background below its floor.")).Scroll,
+            (aboveOrigin.LowerBand ?? throw new InvalidOperationException("The getaway shows the room's background below its floor.")).Scroll,
             "the floor band's background scroll above the origin is signed");
         getaway.Active = false; getaway.Zoom = default;
         runtime.Vram.LoadBytes(0, new byte[SnesVram.ByteCount]);

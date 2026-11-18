@@ -37,7 +37,7 @@ public sealed class RoomBackgroundImage
         ArgumentException.ThrowIfNullOrEmpty(name);
         if (size.X == 0 || size.X % CellPixels != 0 || size.Y == 0 || size.Y % CellPixels != 0)
             throw new InvalidDataException($"Room background {name} is {size.X}x{size.Y}, not whole cells across and down.");
-        LayeredPicture picture = PictureParts.Of(Ensure.NotNull(sheet), FrameName);
+        LayeredPicture picture = Ensure.NotNull(sheet).Picture(FrameName);
         foreach (SpriteSheetFrame part in picture.Parts)
         {
             if (part.Size != size)

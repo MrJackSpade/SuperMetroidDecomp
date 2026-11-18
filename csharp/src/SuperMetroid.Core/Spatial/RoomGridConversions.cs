@@ -49,7 +49,7 @@ public static class RoomGridConversions
     public static int PixelToScreen(int pixel) => RequirePixel(pixel) >> ScreenPixelBits;
 
     /// <summary>The first pixel of the 256-pixel room screen holding an unsigned room pixel coordinate.</summary>
-    public static ushort ScreenStart(int pixel) => (ushort)(PixelToScreen(pixel) << ScreenPixelBits);
+    public static int ScreenStart(int pixel) => PixelToScreen(pixel) << ScreenPixelBits;
 
     /// <summary>An unsigned room pixel coordinate's offset within its 256-pixel room screen, 0 through 255.</summary>
     public static int OffsetWithinScreen(int pixel) => RequirePixel(pixel) - ScreenStart(pixel);

@@ -46,7 +46,7 @@ public sealed class RoomBlockSheet
     /// <exception cref="InvalidDataException">The sheet holds no such picture, or a part is not one block.</exception>
     public LayeredPicture Picture(string name)
     {
-        LayeredPicture picture = PictureParts.Of(Sheet, name);
+        LayeredPicture picture = Sheet.Picture(name);
         foreach (SpriteSheetFrame part in picture.Parts)
         {
             if (part.Size.X != BlockPixels || part.Size.Y != BlockPixels)
@@ -75,7 +75,7 @@ public sealed class RoomBlockSheet
     public LayeredPicture BlockPicture(int block, ImmutableArray<AppearanceInput> inputs, ReadOnlySpan<string> values)
     {
         string name = RoomBlockPictureNames.Of(block, inputs, values);
-        if (!PictureParts.Holds(Sheet, name))
+        if (!Sheet.HoldsPicture(name))
             throw new InvalidDataException(
                 $"Room block sheet {Sheet.Image.Name} has no picture of block {block} for its inputs' values: it holds no picture {name}.");
         return Picture(name);

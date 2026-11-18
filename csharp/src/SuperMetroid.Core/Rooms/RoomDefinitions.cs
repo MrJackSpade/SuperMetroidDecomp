@@ -192,7 +192,7 @@ public static class RoomDefinitions
         new(nameof(GravitySuit), AreaId.WreckedShip, new(10, 14), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(WreckedShipSave), AreaId.WreckedShip, new(17, 15), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(GlassTunnelSave), AreaId.Maridia, new(12, 20), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
-        new(nameof(GlassTunnel), AreaId.Maridia, new(11, 18), new(1, 3), 112, 160, RoomDoorTransitionStyle.Standard),
+        new(nameof(GlassTunnel), AreaId.Maridia, new(11, 18), new(1, 3), 112, 160, RoomDoorTransitionStyle.Standard) { XrayHidesBackground = true },
         new(nameof(WestTunnel), AreaId.Maridia, new(10, 19), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(EastTunnel), AreaId.Maridia, new(12, 18), new(4, 2), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(MainStreet), AreaId.Maridia, new(10, 10), new(3, 8), 112, 160, RoomDoorTransitionStyle.Standard),

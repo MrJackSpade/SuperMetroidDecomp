@@ -188,10 +188,28 @@ internal static class KraidSuperMissileDamageVerification
             shot.Damage = 60;
         }
         runtime.Enemies.ResolveKraidProjectileHits(projectiles, runtime.BombProjectiles);
-        // A charged beam is only fired with Charge equipped, so its identity carries the Charge bit; the bound that leaves
-        // the mouth ($9010) turns the second shot's clobbered compare at this height positive (#1470).
+        // A charged beam's hit lets later shots reach the mouth only from a row far below the room (#1470, #2507).
         AssertEqual(940, body.Health,
-            "The first charged shot's bound rejects a second charged shot at the same height");
+            "The first charged shot's reach rejects a second charged shot at the same height");
+
+        // A missile's hit lets later shots reach the mouth from row 257 down, so a second missile at the same height follows
+        // the first in and takes the same damage (#2507).
+        int HealthAfterMissiles(params int[] places)
+        {
+            Prepare(1);
+            foreach (int place in places)
+            {
+                Place(place);
+                projectiles.Shots[place].Type = SamusProjectileType.Of(SamusProjectileFamily.Missile);
+                projectiles.Shots[place].Damage = 100;
+            }
+            runtime.Enemies.ResolveKraidProjectileHits(projectiles, runtime.BombProjectiles);
+            return body.Health;
+        }
+        int afterOne = HealthAfterMissiles(1);
+        AssertTrue(afterOne < 1000, "a close-range missile damages Kraid's mouth");
+        AssertEqual(2 * (1000 - afterOne), 1000 - HealthAfterMissiles(1, 0),
+            "The first missile's reach lets a second missile at the same height hit");
 
         Prepare(5);
         var bomb = runtime.BombProjectiles.Bombs[0];

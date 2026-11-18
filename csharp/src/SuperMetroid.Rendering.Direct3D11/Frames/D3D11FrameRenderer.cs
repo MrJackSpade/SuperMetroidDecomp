@@ -450,7 +450,7 @@ public sealed class D3D11FrameRenderer : IDisposable
     {
         // Clipping is in screen lines. Never move the floor's origin to the start of the band: the transform is the
         // whole screen's.
-        int floorStart = layer.Floor?.FirstLine ?? 224;
+        int floorStart = layer.LowerBand?.FirstLine ?? 224;
         // The pictures fixed in the room lie behind the floor, the actors and the band's background, every pixel of each;
         // the floor's and the background's clear pixels show them.
         if (layer.Scenery is { } scenery)
@@ -461,7 +461,7 @@ public sealed class D3D11FrameRenderer : IDisposable
             });
         DispatchFloor(layer.Transform, layer.HudLines, floorStart);
         DispatchTile(D3D11TileOperation.InsertSprites, new D3D11TileDispatch { FirstScanline = (uint)layer.HudLines, EndScanline = (uint)floorStart });
-        if (layer.Floor is not { } floor)
+        if (layer.LowerBand is not { } band)
             return;
         // Only the band below the floor shows the background; transparent pixels keep the backdrop. The band shows no
         // foreground. Its signed scroll (#2308) goes in the dispatch's sixteen-bit halves: the room's background plane does
@@ -476,7 +476,7 @@ public sealed class D3D11FrameRenderer : IDisposable
                 case GameplayLayer.BackgroundBackPart or GameplayLayer.BackgroundFrontPart:
                     DispatchTile(D3D11TileOperation.Layer, new D3D11TileDispatch
                     {
-                        RoomSource = D3D11RoomSource.Background, Scroll = PlaneScroll(floor.Scroll.AsPlaneOffset()),
+                        RoomSource = D3D11RoomSource.Background, Scroll = PlaneScroll(band.Scroll.AsPlaneOffset()),
                         DrawnDepth = PicturePart(shown == GameplayLayer.BackgroundFrontPart), FirstScanline = (uint)floorStart,
                     });
                     break;
@@ -709,8 +709,8 @@ public sealed class D3D11FrameRenderer : IDisposable
             }
             if (layer is TurningRoomLayer turningRoom)
             {
-                floor = turningRoom.Floor?.Room ?? floor;
-                floorMap = SameFloor(floorMap, turningRoom.Map);
+                floor = turningRoom.LowerBand?.Room ?? floor;
+                floorMap = SameFloor(floorMap, turningRoom.Floor);
                 floorColouring = D3D11PictureColouring.Room;
             }
             else if (layer is OverlayBlendLayer math)

@@ -35,7 +35,7 @@ public sealed class WrittenPictureSheet
         foreach ((string picture, ImmutableArray<AppearanceInput> depends) in this.inputs)
         {
             string[] loaded = [.. Enumerable.Repeat(RoomAppearanceValues.Loaded, depends.Length)];
-            _ = PictureParts.Of(sheet, AppearancePictureNames.Of(picture, depends, loaded));
+            _ = sheet.Picture(AppearancePictureNames.Of(picture, depends, loaded));
         }
     }
 
@@ -63,7 +63,7 @@ public sealed class WrittenPictureSheet
         var values = new string[depends.Length];
         for (int input = 0; input < depends.Length; input++)
             values[input] = appearance.ValueOf(depends[input]);
-        return PictureParts.Of(Sheet, AppearancePictureNames.Of(picture, depends, values));
+        return Sheet.Picture(AppearancePictureNames.Of(picture, depends, values));
     }
 
     /// <summary>

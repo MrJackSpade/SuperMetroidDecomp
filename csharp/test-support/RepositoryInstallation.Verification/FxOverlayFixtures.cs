@@ -60,7 +60,7 @@ internal static class FxOverlayFixtures
         SpriteSheet sheet = Sheet(transfer[..((cut.BodyFirstRow + cut.BodyRows) * columns)], image, palette, characterWord,
             [("surface", 0, cut.BodyFirstRow, new Offset16<ImagePixels>(0, RoomEffectTransferCuts.SurfaceRow)),
              ("body", cut.BodyFirstRow, cut.BodyRows, default)]);
-        return new FxOverlayArtwork(new LiquidArtwork(PictureParts.Of(sheet, "surface"), PictureParts.Of(sheet, "body")));
+        return new FxOverlayArtwork(new LiquidArtwork(sheet.Picture("surface"), sheet.Picture("body")));
     }
 
     /// <summary>
@@ -96,7 +96,7 @@ internal static class FxOverlayFixtures
     /// </summary>
     internal static LayeredPicture Picture(ReadOnlySpan<ushort> words, ReadOnlySpan<byte> image, ReadOnlySpan<RgbColor> palette,
         int characterWord = GameplayVramLayout.HudCharacterWord) =>
-        PictureParts.Of(Sheet(words, image, palette, characterWord, [("overlay", 0, words.Length / FxOverlayPlaneConstants.Columns, default)]), "overlay");
+        Sheet(words, image, palette, characterWord, [("overlay", 0, words.Length / FxOverlayPlaneConstants.Columns, default)]).Picture("overlay");
 
     /// <summary>
     /// One sheet of what <paramref name="words"/> show, laid as <see cref="Picture"/> lays them, with each of

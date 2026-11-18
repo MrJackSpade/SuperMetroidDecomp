@@ -6,7 +6,8 @@ namespace SuperMetroid.Core.Compatibility;
 /// velocity carries the Torizo by this one, and the ground probe falls by it (<see cref="TorizoGroundProbeFall"/>).
 /// </summary>
 /// <remarks>
-/// Evidence: the walking instructions store their signed whole-pixel delta in the Torizo's horizontal velocity word,
+/// Consulted at each walking step of the Torizo's walk animation, before the step moves it, so the velocity it leaves is
+/// the one a jump or a ground probe later that update or in a following one reads. Evidence: the walking instructions store their signed whole-pixel delta in the Torizo's horizontal velocity word,
 /// which the jump and the air transition's ground probe read as that velocity.
 /// </remarks>
 [CompatibilityService("a Torizo's walking step leaves its whole pixels as its sideways velocity in 256ths of a pixel, which a following jump and the ground probe read")]

@@ -41,11 +41,9 @@ internal static class FamilyProjectileStarts
 
     /// <summary>The statue room's unlock effects a Tourian statue projectile of <paramref name="kind"/> spawns from.</summary>
     /// <exception cref="InvalidOperationException">The enemies are not the statue room's.</exception>
-    private static TourianUnlockBehavior UnlockEffects(RoomEnemySystem enemies, RoomEnemyProjectileKind kind)
-    {
-        _ = RequireStatueScene(enemies, kind);
-        return enemies.UnlockEffects();
-    }
+    private static TourianUnlockBehavior UnlockEffects(RoomEnemySystem enemies, RoomEnemyProjectileKind kind) =>
+        enemies.TourianUnlockEffects
+            ?? throw new InvalidOperationException($"A {kind} projectile spawns only in the Tourian statue room, which these enemies are not.");
 
     /// <summary>Initializes <paramref name="projectile"/> as its kind's production spawner does.</summary>
     /// <param name="enemies">The enemy system whose species own the room-lifetime behaviours.</param>

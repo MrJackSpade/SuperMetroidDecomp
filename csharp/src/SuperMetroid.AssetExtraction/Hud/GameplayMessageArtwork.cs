@@ -39,8 +39,8 @@ public sealed class GameplayMessageArtwork(
         if (Notices is { } noticeArtwork && noticeArtwork.Contains(message))
         {
             BackgroundTile[] notice = noticeArtwork.Build(message);
-            if (shown.ChoiceYes is bool yes)
-                noticeArtwork.ApplySelection(message, notice, yes);
+            if (shown.Choice is { } choice)
+                noticeArtwork.ApplySelection(message, notice, yesSelected: choice == SaveChoice.Yes);
             return notice;
         }
         if (Panels is { } panelArtwork && panelArtwork.Contains(message))
@@ -75,8 +75,8 @@ public sealed class GameplayMessageArtwork(
             }
             else if (GameplayMessageNotices.IsSaveConfirmation(message))
             {
-                yield return new ShownMessage(message, null, ChoiceYes: true);
-                yield return new ShownMessage(message, null, ChoiceYes: false);
+                yield return new ShownMessage(message, null, SaveChoice.Yes);
+                yield return new ShownMessage(message, null, SaveChoice.No);
             }
             else
                 yield return new ShownMessage(message, null, null);

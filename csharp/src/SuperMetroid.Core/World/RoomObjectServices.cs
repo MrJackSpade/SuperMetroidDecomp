@@ -21,8 +21,11 @@ public sealed record RoomObjectServices
     /// <summary>The story events that have happened, which room objects read and mark.</summary>
     public required IGlobalEventFlags Events { get; init; }
 
-    /// <summary>Tourian entrance statue progress for grey-door conditions.</summary>
-    public required ITourianStatueProgress TourianStatue { get; init; }
+    /// <summary>
+    /// The statue room's statue, whose finished sinking its grey door waits for; null in every other room, which places no
+    /// cap waiting for it (#2486).
+    /// </summary>
+    public ITourianStatueProgress? TourianStatue { get; init; }
 
     /// <summary>The room FX the Speed Booster escape, the n00b tube, collectibles and Tourian's acid trigger drive.</summary>
     public required IRoomObjectFx RoomFx { get; init; }

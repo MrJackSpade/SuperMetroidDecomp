@@ -7,6 +7,8 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.World;
 
@@ -19,22 +21,24 @@ namespace SuperMetroid.Core.World;
 public sealed class TourianStatueSequence
 {
 
-    /// <summary>
-    /// The room's enemies: the statues' shared animation state (which statues animate, which one is releasing, whether all
-    /// have released), the unlock's effects and the room's earthquake the descent shakes.
-    /// </summary>
-    private readonly RoomEnemySystem _enemies;
+    /// <summary>The room's earthquake, which the descent shakes.</summary>
+    private readonly RoomEarthquake _earthquake;
     /// <summary>
     /// The statue room the sequence lowers the statue in (#2382), which its statues' decorations follow down and its unlock
-    /// effects splash in.
+    /// effects splash in, and whose statues' shared animation state (which statues animate, which one is releasing, whether
+    /// all have released) the statue animations set (#2486).
     /// </summary>
     internal TourianStatueRoom Room { get; }
     /// <summary>The entrance statue and the unlock effects in the statue room, which the statue animations drive.</summary>
     private readonly ITourianStatueActors _statue;
     /// <summary>Supplies equipped items to colour effects started during the release animation.</summary>
     private readonly SamusFrameState _player;
-    /// <summary>Identifies the statue room setup and controls its two logical scroll cells.</summary>
-    private readonly ActiveRoomState _room;
+    /// <summary>The room's level, where the way into Tourian opens.</summary>
+    private readonly RoomLevelData _level;
+    /// <summary>The room's scroll grid, whose two screens the statues hold until the way opens.</summary>
+    private readonly RoomScrollGrid _scrolls;
+    /// <summary>The frame each of the room's animations shows, which the statues' block animations select into.</summary>
+    private readonly ArtworkFrameSelections _artworkFrames;
     /// <summary>Publishes the earthquake sound of the statues' descent.</summary>
     private readonly RoomFxOverlayState _roomFxOverlay;
     /// <summary>Creates the colour effect selected by a statue animation cue.</summary>
@@ -48,26 +52,23 @@ public sealed class TourianStatueSequence
 
     /// <summary>Builds one room's statue sequence over the session services that run its statue and background descent animations.</summary>
     /// <param name="dependencies">The session owners the sequence reads and writes.</param>
-    /// <param name="statueRoom">The statue room, whose statue the sequence lowers.</param>
-    /// <param name="roomFxOverlay">The room's effect overlay FX, whose earthquake sound the descent publishes.</param>
-    /// <param name="roomColourEffects">The room's colour effects.</param>
-    /// <param name="roomObjects">The room's room-object system, which receives the Tourian access room object when the statues are already open.</param>
-    /// <param name="enemies">The room's enemies, whose statue actors the sequence drives.</param>
-    internal TourianStatueSequence(TourianStatueSequenceDependencies dependencies, TourianStatueRoom statueRoom,
-        RoomFxOverlayState roomFxOverlay, ColourEffectSystem roomColourEffects, RoomObjectSystem roomObjects, RoomEnemySystem enemies)
+    /// <param name="room">The statue room's parts the sequence acts on, as the room's load has built them (#2486).</param>
+    internal TourianStatueSequence(TourianStatueSequenceDependencies dependencies, TourianStatueSequenceRoom room)
     {
-
-        _enemies = Ensure.NotNull(enemies);
-        Room = Ensure.NotNull(statueRoom);
-        _statue = enemies.TourianStatueIn(statueRoom);
+        Ensure.NotNull(room);
+        _earthquake = Ensure.NotNull(room.Earthquake);
+        Room = Ensure.NotNull(room.StatueRoom);
+        _statue = Ensure.NotNull(room.Statue);
         _player = dependencies.Player;
-        _room = dependencies.Room;
-        _roomFxOverlay = Ensure.NotNull(roomFxOverlay);
-        _roomColourEffects = Ensure.NotNull(roomColourEffects);
+        _level = Ensure.NotNull(room.Level);
+        _scrolls = Ensure.NotNull(room.Scrolls);
+        _artworkFrames = Ensure.NotNull(room.ArtworkFrames);
+        _roomFxOverlay = Ensure.NotNull(room.FxOverlay);
+        _roomColourEffects = Ensure.NotNull(room.ColourEffects);
         _system = dependencies.System;
         _assists = dependencies.Assists;
         _freeze = dependencies.Freeze;
-        Begin(Ensure.NotNull(roomObjects));
+        Begin(Ensure.NotNull(room.RoomObjects));
     }
 
     /// <summary>One spawned statue's definition and its animation, played on the shared animation player (#2487).</summary>
@@ -141,13 +142,13 @@ public sealed class TourianStatueSequence
         if (_assists.Current.TourianStatuesOpen || _system.HasEvent(StoryEvent.TourianUnlocked))
         {
             Room.Descent = SignedSixteenSixteen.FromWholePixels(TourianStatueSequenceDefinitions.DescentDistance);
-            roomObjects.Tourian.TrySpawnTourianAccess(_room.LoadedLevelData, TourianAccessFloor.Clear);
+            roomObjects.Tourian.TrySpawnTourianAccess(_level, TourianAccessFloor.Clear);
             EnableScrolling();
         }
         else
         {
-            _room.LoadedCamera.Scrolls.SetRoomScreen(TourianStatueSequenceDefinitions.UpperScrollCell, RoomScrollState.OpenAlignedToTop);
-            _room.LoadedCamera.Scrolls.SetRoomScreen(TourianStatueSequenceDefinitions.LowerScrollCell, RoomScrollState.Closed);
+            _scrolls.SetRoomScreen(TourianStatueSequenceDefinitions.UpperScrollCell, RoomScrollState.OpenAlignedToTop);
+            _scrolls.SetRoomScreen(TourianStatueSequenceDefinitions.LowerScrollCell, RoomScrollState.Closed);
         }
     }
 
@@ -184,7 +185,7 @@ public sealed class TourianStatueSequence
             TourianStatueAnimationDefinition definition = statueAnimation.Definition;
             TourianStatueBlockAnimations animations = statueAnimation.Animations;
             if (statueAnimation.Player.StepToNewFrame(cue => RunCue(definition, animations, cue)) is { } picture)
-                _room.LoadedScope.ArtworkFrames.Select(definition.Picture(picture));
+                _artworkFrames.Select(definition.Picture(picture));
         }
 
         // Carries out one event with the statue's values; an event whose condition holds returns the animation the statue starts.
@@ -278,7 +279,7 @@ public sealed class TourianStatueSequence
             _holdUpdatesLeft = TourianStatueSequenceDefinitions.DescentDelay;
             return;
         }
-        _enemies.Earthquake.Sustain(TourianStatueSequenceDefinitions.DescentEarthquake);
+        _earthquake.Sustain(TourianStatueSequenceDefinitions.DescentEarthquake);
         _roomFxOverlay.PublishStatueEarthquakeSound(
             _system.RandomNumber, _system.EarthquakeSoundDelay);
         if (_descentPhase == TourianStatueDescentPhase.Holding)
@@ -296,7 +297,7 @@ public sealed class TourianStatueSequence
         // three quarter-steps before a full 240 pixels.
         if (VerticalOffset == -TourianStatueSequenceDefinitions.DescentDistance)
         {
-            roomObjects.Tourian.TrySpawnTourianAccess(_room.LoadedLevelData, TourianAccessFloor.Crumble);
+            roomObjects.Tourian.TrySpawnTourianAccess(_level, TourianAccessFloor.Crumble);
             _system.SetEvent(StoryEvent.TourianUnlocked);
         }
     }
@@ -305,7 +306,7 @@ public sealed class TourianStatueSequence
     private void EnableScrolling()
     {
         _statue.Finished = true;
-        _room.LoadedCamera.Scrolls.SetRoomScreen(TourianStatueSequenceDefinitions.UpperScrollCell, RoomScrollState.Open);
-        _room.LoadedCamera.Scrolls.SetRoomScreen(TourianStatueSequenceDefinitions.LowerScrollCell, RoomScrollState.Open);
+        _scrolls.SetRoomScreen(TourianStatueSequenceDefinitions.UpperScrollCell, RoomScrollState.Open);
+        _scrolls.SetRoomScreen(TourianStatueSequenceDefinitions.LowerScrollCell, RoomScrollState.Open);
     }
 }

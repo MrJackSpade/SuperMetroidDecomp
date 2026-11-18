@@ -133,7 +133,7 @@ internal static class NativeSnapshotImport
                     .OfType<SuperMetroid.Core.Enemies.Gunship.GunshipPieces>().SingleOrDefault()
                     ?? throw new InvalidDataException("The native snapshot runs the gunship's glow in a room with no gunship.")
                 : effect is ColourEffectId.GreyOutTourianStatueRidley or ColourEffectId.GreyOutTourianStatuePhantoon
-                    ? runtime.Enemies.TourianStatueIn(runtime.Room.LoadedScope.TourianStatues?.Room
+                    ? (runtime.Enemies.TourianStatue
                         ?? throw new InvalidDataException("The native snapshot greys a sprite statue in a room with no statues."))
                         .SpriteStatueGreyOut(SuperMetroid.Core.Areas.Tourian.TourianStatueAnimationDefinitions.Statues.Values.Single(statue => statue.ColourEffect == effect)
                             .GreyedSprite ?? throw new InvalidDataException($"The native snapshot greys {effect}, no sprite statue's grey-out."))

@@ -67,7 +67,7 @@ internal sealed class StationObjects
     /// animation frame within the same room-object pass. The declined route still installs the
     /// once-per-room-entry lockout. Returns whether the station is saving.
     /// </summary>
-    public bool ResolveSaveStationConfirmation(SaveStationActivation activation, bool accepted, RoomLevelData level)
+    public bool ResolveSaveStationConfirmation(SaveStationActivation activation, SaveChoice choice, RoomLevelData level)
     {
         Ensure.NotNull(level);
         StationObject station = activation.Station;
@@ -78,7 +78,7 @@ internal sealed class StationObjects
                 $"confirmation while in {station.SavePhase}.");
         }
 
-        if (!accepted)
+        if (choice == SaveChoice.No)
         {
             station.EndSave();
             SaveStationLockedOut = true;

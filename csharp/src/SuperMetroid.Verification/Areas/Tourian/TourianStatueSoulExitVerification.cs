@@ -53,12 +53,12 @@ internal static class TourianStatueSoulExitVerification
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
                 statueRoom: new FixedTourianStatueRoom(WaterSurface: 216, StatueOffset: 0));
-            enemies.UnlockEffects().SpawnTourianSoul(statue.Eye);
+            EnemySystemFixtures.UnlockEffects(enemies).SpawnTourianSoul(statue.Eye);
             EnemyProjectile soul = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
             for (int update = 0; ; update++)
             {
                 AssertTrue(update < UpdateLimit, $"the {statue.Statue} statue's soul leaves the room");
-                Move(enemies.UnlockEffects(), soul);
+                Move(EnemySystemFixtures.UnlockEffects(enemies), soul);
                 updates++;
                 int y = soul.Position.Y.Whole;
                 AssertEqual(ScreenRow(y) % 2 != 0, IsDeleting(soul),
@@ -76,7 +76,7 @@ internal static class TourianStatueSoulExitVerification
             ushort sample = random;
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
                 services: new StandaloneRoomEnemyServices(() => sample), statueRoom: new FixedTourianStatueRoom(WaterSurface: 216, StatueOffset: 0));
-            TourianUnlockBehavior unlock = enemies.UnlockEffects();
+            TourianUnlockBehavior unlock = EnemySystemFixtures.UnlockEffects(enemies);
             unlock.SpawnTourianSoul(statue.Eye);
             EnemyProjectile soul = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
             unlock.RunCue(new EnemyProjectileCueContext(soul, MotionInputs.Value.Samus, Position16<RoomPixels>.Zero, ShortCounter: 0,

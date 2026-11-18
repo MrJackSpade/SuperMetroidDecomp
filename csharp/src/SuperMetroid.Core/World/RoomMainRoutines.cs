@@ -17,34 +17,28 @@ internal sealed class RoomMainRoutines
 {
     /// <summary>The layer scrolls adjusted during Crocomire's hidden-wall rumble.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
-    /// <summary>Samus state consulted for X-ray animation suspension.</summary>
-    private readonly SamusFrameState _player;
-    /// <summary>Active room behaviour and area identity used to select room-main work.</summary>
-    private readonly ActiveRoomState _room;
     /// <summary>Defeated bosses and the random number sampled by room-main behaviours.</summary>
     private readonly SharedGameState _system;
 
-    /// <summary>Binds the room, enemy, picture, and Samus owners used by room-main behaviours.</summary>
+    /// <summary>Binds the layer scrolls and the session state the room-main behaviours read.</summary>
     internal RoomMainRoutines(RoomMainRoutinesDependencies dependencies)
     {
         _backgroundScroll = dependencies.BackgroundScroll;
-        _player = dependencies.Player;
-        _room = dependencies.Room;
         _system = dependencies.System;
     }
+
     /// <summary>Crocomire's room shaking while his comeback hides the wall.</summary>
-    internal void RunCrocomireComebackRoomMain(RoomScope room)
+    /// <param name="crocomire">The room's Crocomire, whom the room's main is composed with (#2486).</param>
+    internal void RunCrocomireComebackRoomMain(CrocomireEnemyState crocomire)
     {
-        if (room.Enemies.RoomMainHooks.Crocomire is not { } boss ||
-            boss.Body.Presence.HasAny(EnemyPresence.Hidden) ||
-            boss.DeathPhase != CrocomireDeathPhase.RumbleHiddenWall)
+        Ensure.NotNull(crocomire);
+        if (crocomire.Body.Presence.HasAny(EnemyPresence.Hidden) ||
+            crocomire.DeathPhase != CrocomireDeathPhase.RumbleHiddenWall)
             return;
 
-        var death = room.Enemies.RoomMainHooks.CrocomireDeath ?? throw new InvalidOperationException(
-            "Crocomire's room shaking found no Crocomire death in progress.");
         // The rumble moves the foreground's view by a plain offset from the camera's row: in Crocomire's one-screen-high
         // room the camera's row is the room's top, so the view rises above it, a negative row (#2384).
-        _backgroundScroll.ShiftForegroundViewFromCamera(death.RumbleYOffset);
+        _backgroundScroll.ShiftForegroundViewFromCamera(crocomire.Death.RumbleYOffset);
     }
 
     /// <summary>
@@ -63,13 +57,15 @@ internal sealed class RoomMainRoutines
     /// transition's scroll and every fade step take it. The X-Ray Scope's setup
     /// disables the block animations, freezing every animation until the scope ends.
     /// </summary>
-    internal void RunBlockAnimations(RoomScope room)
+    /// <param name="room">The loaded room, whose area's boss the treadmills wait for.</param>
+    /// <param name="samus">Samus, whose X-Ray Scope holds the animations still.</param>
+    internal void RunBlockAnimations(RoomScope room, SamusState samus)
     {
-        if (_player.Samus?.Xray.AreBlockAnimationsSuspended == true)
+        if (samus.Xray.AreBlockAnimationsSuspended)
             return;
         // The treadmills, the effect's and the one a Wrecked Ship entrance door starts, show a frame a pass only after
         // Phantoon is defeated.
-        room.BlockAnimations.Step(_system.HasDefeatedAnyOf(_room.LoadedRoom.Area, DefeatedBosses.AreaBoss), room.ArtworkFrames);
+        room.BlockAnimations.Step(_system.HasDefeatedAnyOf(room.Room.Area, DefeatedBosses.AreaBoss), room.ArtworkFrames);
         room.TourianStatues?.StepBlockAnimations();
     }
 

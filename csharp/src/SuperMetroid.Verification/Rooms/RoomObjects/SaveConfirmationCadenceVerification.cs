@@ -24,11 +24,11 @@ internal static class SaveConfirmationCadenceVerification
         // Find the frame of a read by holding Right until the cursor moves.
         int ReadsUntilToggle(ControllerButton hold)
         {
-            bool before = box.ConfirmationSelectionYes;
+            SaveChoice before = box.ConfirmationSelection;
             for (int frame = 1; frame <= 8; frame++)
             {
                 box.Step(hold);
-                if (box.ConfirmationSelectionYes != before)
+                if (box.ConfirmationSelection != before)
                     return frame;
             }
             throw new InvalidOperationException("The cursor never moved.");

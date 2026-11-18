@@ -19,7 +19,7 @@ internal sealed class RoomObjectFamilySetups(RoomObjectSetupContext context) : I
 
     /// <inheritdoc/>
     public void SetUpGreyDoor(GreyDoorVariant door, GreyDoorArgument opening) =>
-        GreyDoorObjects.SetupGreyDoor(context.Room.Level, context.Place, door, opening);
+        context.Families.GreyDoors.SetupGreyDoor(context.Room.Level, context.Place, door, opening);
 
     /// <inheritdoc/>
     public void SetUpScrollTrigger(RoomScrollChange change) =>

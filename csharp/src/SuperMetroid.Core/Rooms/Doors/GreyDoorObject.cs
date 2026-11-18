@@ -11,16 +11,18 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// the dud sound; once it holds (the room's enemy quota also wakes Zebes) the pending shot is consumed and the cap
 /// flashes, again and again, until a shot opens it. The shot that opens it records the door opened for good, and the
 /// cap leaves the room once open. A cap closing behind Samus plays the shared closing (Bomb Torizo's door stays open until
-/// she has Bombs), then looks at its door again.
+/// she has Bombs), then looks at its door again. The cap lives in its room's object places, with the lock its setup resolved
+/// for that room (#2486).
 /// </summary>
+[RoomLifetime]
 internal sealed class GreyDoorObject : DoorCapObject, IClosingDoor
 {
-    /// <summary>A grey cap of <paramref name="variant"/>, locked by <paramref name="condition"/>, just placed in <paramref name="door"/>.</summary>
-    internal GreyDoorObject(GreyDoorVariant variant, GreyDoorCondition condition, PlacedDoor door)
+    /// <summary>A grey cap of <paramref name="variant"/>, locked by <paramref name="doorLock"/>, just placed in <paramref name="door"/>.</summary>
+    internal GreyDoorObject(GreyDoorVariant variant, GreyDoorLock doorLock, PlacedDoor door)
         : base(variant.Orientation, DoorCapPaint.Grey)
     {
         Variant = variant;
-        Condition = condition;
+        Lock = Ensure.NotNull(doorLock);
         Door = Ensure.NotNull(door);
     }
 
@@ -34,8 +36,8 @@ internal sealed class GreyDoorObject : DoorCapObject, IClosingDoor
     /// <summary>Which grey cap this is.</summary>
     internal GreyDoorVariant Variant { get; }
 
-    /// <summary>The condition that unlocks the cap.</summary>
-    internal GreyDoorCondition Condition { get; }
+    /// <summary>What holds the cap locked: the condition it was placed with and what that condition reads (#2486).</summary>
+    internal GreyDoorLock Lock { get; }
 
     /// <summary>What the cap is doing.</summary>
     internal GreyDoorPhase Phase { get; private set; } = GreyDoorPhase.Locked;
@@ -77,14 +79,14 @@ internal sealed class GreyDoorObject : DoorCapObject, IClosingDoor
             case GreyDoorWait.Nothing:
                 return false;
             case GreyDoorWait.Condition:
-                if (!doors.IsUnlocked(Condition, context.Frame))
+                if (!Lock.IsUnlocked(context.Frame))
                 {
                     if (place.ProjectileHit is not null)
                         doors.QueueDudSound();
                     place.ProjectileHit = null;
                     return false;
                 }
-                doors.RecordUnlocked(Condition);
+                Lock.RecordUnlocked();
                 place.ProjectileHit = null;
                 Waits = GreyDoorWait.Shot;
                 Phase = GreyDoorPhase.Flashing;

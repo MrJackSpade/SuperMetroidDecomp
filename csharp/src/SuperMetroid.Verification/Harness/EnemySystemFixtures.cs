@@ -88,6 +88,11 @@ internal static class EnemySystemFixtures
     internal static TourianEntranceStatueBehavior StatueScene(RoomEnemySystem enemies) => enemies.TourianEntranceStatueBehavior
         ?? throw new InvalidOperationException("The check built its enemies without the statue room, which alone holds the statue scene.");
 
+    /// <summary>The Tourian statues' unlock effects of <paramref name="enemies"/>, which the check built for the statue room.</summary>
+    /// <exception cref="InvalidOperationException">The check built the enemies for another room.</exception>
+    internal static TourianUnlockBehavior UnlockEffects(RoomEnemySystem enemies) => enemies.TourianUnlockEffects
+        ?? throw new InvalidOperationException("The check built its enemies without the statue room, which alone holds the unlock effects.");
+
     /// <summary>Initializes the statue scene's placement <paramref name="place"/> holds, as the room's enemy load does.</summary>
     /// <exception cref="InvalidOperationException">The place holds no statue scene placement.</exception>
     internal static void InitializeStatuePlacement(RoomEnemyPlace place) =>

@@ -165,7 +165,7 @@ public sealed class RoomObjectSystem : ISamusRoomObjects
         GreyDoors = new GreyDoorObjects(room.System, room.Area, services.TourianStatue, Sounds);
         Tourian = new TourianObjects(services.Samus, services.Enemies, services.RoomFx, Places);
         CeresEscape = new CeresEscapeObjects(Places);
-        PopulationLoader = new RoomObjectPopulationLoader(new RoomObjectPopulationLoaderDependencies { BombTorizoHand = BombTorizoHand, CollectibleObjects = CollectibleObjects, EyeDoors = EyeDoors, Stations = Stations, Gates = Gates, MotherBrainGlass = MotherBrainGlass, Places = Places, SpeedBoosterEscape = SpeedBoosterEscape, DraygonCannons = DraygonCannons, NoobTube = NoobTube });
+        PopulationLoader = new RoomObjectPopulationLoader(new RoomObjectPopulationLoaderDependencies { BombTorizoHand = BombTorizoHand, CollectibleObjects = CollectibleObjects, EyeDoors = EyeDoors, GreyDoors = GreyDoors, Stations = Stations, Gates = Gates, MotherBrainGlass = MotherBrainGlass, Places = Places, SpeedBoosterEscape = SpeedBoosterEscape, DraygonCannons = DraygonCannons, NoobTube = NoobTube });
         BlockReactions = new BlockReactionObjects(EscapeAnimals, Places, Drawing);
         BossRoomMutations = new BossRoomMutationObjects(Places);
     }

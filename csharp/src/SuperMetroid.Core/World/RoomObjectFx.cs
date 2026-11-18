@@ -8,7 +8,9 @@ namespace SuperMetroid.Core.World;
 /// The room FX as room objects use it (#1395). Room objects move the liquid whose surface Samus reads; the model keeps Samus's
 /// copy of whether the water's surface affects her, so enabling water physics writes both in the same operation.
 /// </summary>
-internal sealed class RoomObjectFx(RoomFxOverlayState fx, Func<SamusState?> samus) : IRoomObjectFx
+/// <param name="fx">The room's effect.</param>
+/// <param name="samus">Samus as the room's objects reach her when one acts: every room that steps its objects has her (#2486).</param>
+internal sealed class RoomObjectFx(RoomFxOverlayState fx, Func<SamusState> samus) : IRoomObjectFx
 {
     /// <inheritdoc/>
     public FixedCoordinate? BaseY => fx.BaseY;
@@ -35,7 +37,6 @@ internal sealed class RoomObjectFx(RoomFxOverlayState fx, Func<SamusState?> samu
     public void EnableWaterPhysics()
     {
         fx.EnableWaterPhysics();
-        (samus() ?? throw new InvalidOperationException("Room water physics has no live Samus owner."))
-            .LiquidPhysics.ConfigureFor(fx);
+        samus().LiquidPhysics.ConfigureFor(fx);
     }
 }

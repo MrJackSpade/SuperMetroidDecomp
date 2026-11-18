@@ -50,7 +50,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     {
         _projectiles = projectiles;
         StatueRoom = Ensure.NotNull(statueRoom);
-        Decorations = new DecorationBehavior(TourianEntranceStatueAnimation, StatueRoom);
+        Decorations = new DecorationBehavior(StatueRoom.Animation, StatueRoom);
     }
 
     /// <summary>The statue room, which tells the decorations how far the statue has sunk and which the unlock effects splash in.</summary>
@@ -140,12 +140,6 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
         _sceneProjectiles.RemoveAll(ended => !ended.IsActive);
         _sceneProjectiles.Add(projectile);
     }
-
-    /// <summary>
-    /// The statues' shared animation state, set and cleared by the statue animations, the descent and the decorations,
-    /// whether the statue's sinking has finished among it.
-    /// </summary>
-    public TourianStatueAnimation TourianEntranceStatueAnimation { get; } = new();
 
 
     /// <summary>

@@ -51,7 +51,7 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
             statueRoom: new FixedTourianStatueRoom(WaterSurface: 216, StatueOffset: 0));
         enemies.VerificationServices().NextRandom = () => 4;
         _ = EnemySystemFixtures.StatueScene(enemies);
-        TourianUnlockBehavior unlock = enemies.UnlockEffects();
+        TourianUnlockBehavior unlock = EnemySystemFixtures.UnlockEffects(enemies);
 
         unlock.SpawnTourianEyeGlow(TourianStatueNativeWords.Eye(0));
         EnemyProjectile eye = Single(RoomEnemyProjectileKind.TourianStatueEyeGlow);

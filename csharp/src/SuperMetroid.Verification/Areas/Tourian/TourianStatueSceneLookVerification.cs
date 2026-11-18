@@ -44,7 +44,7 @@ internal static class TourianStatueSceneLookVerification
             projectile.IsActive && !ReferenceEquals(projectile, stranger))];
         AssertEqual(3, decorations.Length, "the scene's first placement spawns its three decorations");
 
-        enemies.UnlockEffects().SpawnTourianEyeGlow(TourianStatueNativeWords.Eye(0));
+        EnemySystemFixtures.UnlockEffects(enemies).SpawnTourianEyeGlow(TourianStatueNativeWords.Eye(0));
         EnemyProjectile glow = enemies.Projectiles.EnemyProjectiles.Single(projectile =>
             projectile.IsActive && projectile.Kind == RoomEnemyProjectileKind.TourianStatueEyeGlow);
         PictureShading look = scene.SceneShading;
@@ -60,7 +60,7 @@ internal static class TourianStatueSceneLookVerification
         // The placement leaves, and an enemy of another kind takes its place: the scene's next look is not shown there.
         placement.Bind(EnemyDefinitionId.Zoa, placement.Definition);
         PictureShading newcomer = placement.Shading;
-        enemies.UnlockEffects().SpawnTourianEyeGlow(TourianStatueNativeWords.Eye(2));
+        EnemySystemFixtures.UnlockEffects(enemies).SpawnTourianEyeGlow(TourianStatueNativeWords.Eye(2));
         AssertTrue(scene.SceneShading != look, "a second lit eye gives the scene a further look");
         AssertEqual(newcomer, placement.Shading, "a place the scene's placement has left keeps its new occupant's colours");
         Console.WriteLine("  Tourian statue scene: its look shows on its own placement, decorations and eye glow, and on nothing else.");

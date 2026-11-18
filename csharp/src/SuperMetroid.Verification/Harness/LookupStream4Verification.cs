@@ -1358,9 +1358,9 @@ internal static class LookupStream4Verification
             for (int frame = 0; frame < 100 && state.Phase != GameplayMessageBoxPhase.AwaitingInput; frame++) state.Step(0);
             AssertEqual(GameplayMessageBoxPhase.AwaitingInput, state.Phase, "Save notice reaches existing input phase");
             // The selector reads the controller only after its two native lag frames ($85:84BA): hold Right until it does.
-            for (int frame = 0; frame < 3 && state.ConfirmationSelectionYes; frame++)
+            for (int frame = 0; frame < 3 && state.ConfirmationSelection == SaveChoice.Yes; frame++)
                 state.Step(ControllerButton.Right);
-            AssertTrue(!state.ConfirmationSelectionYes, "Right moves the save selection to NO");
+            AssertEqual(SaveChoice.No, state.ConfirmationSelection, "Right moves the save selection to NO");
             for (int column = 0; column < 32; column++) expected[128 + column] = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x859601 + column * 2));
             ushort[] shown = BackgroundTileWordBytes.Words(state.Tilemap(stockMessages));
             AssertTrue(expected.SequenceEqual(shown), "Actual notice NO selection retains native row and neighboring content; differing cells " +

@@ -209,6 +209,19 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     /// </summary>
     internal TourianEntranceStatueBehavior? TourianEntranceStatueBehavior { get; }
 
+    /// <summary>
+    /// The Tourian statues' unlock effects in the statue room: the eyes' glows, the released souls and particles, their
+    /// splashes at its water and the descent's dust (#2382). Only the statue room builds them, with its statue scene; null in
+    /// every other room (#2486).
+    /// </summary>
+    internal TourianUnlockBehavior? TourianUnlockEffects { get; }
+
+    /// <summary>
+    /// The statue room's entrance statue and unlock effects as its statue sequence drives them; null in every other room
+    /// (#2486).
+    /// </summary>
+    internal ITourianStatueActors? TourianStatue { get; }
+
     /// <summary>Spore Spawn, Brinstar's mini-boss, which swings its core and releases spores.</summary>
     internal SporeSpawnBehavior SporeSpawnBehavior { get; }
 
@@ -529,33 +542,6 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     /// <summary>The room-object work the Chozo statues and downward gates exchange with their room objects each frame.</summary>
     internal IEnemyObjectRequests RoomObjectRequests => field ??= new EnemyObjectRequests(ChozoStatueBehavior, DownwardGateBehavior);
 
-    /// <summary>The statue room's statue scene.</summary>
-    /// <exception cref="InvalidOperationException">These enemies are not the statue room's.</exception>
-    private TourianEntranceStatueBehavior StatueScene => TourianEntranceStatueBehavior
-        ?? throw new InvalidOperationException("These enemies hold no Tourian statue scene: their room is not the statue room.");
-
-    /// <summary>
-    /// The Tourian statues' unlock effects in the statue room: the eyes' glows, the released souls and particles, their
-    /// splashes at its water and the descent's dust (#2382).
-    /// </summary>
-    /// <exception cref="InvalidOperationException">These enemies are not the statue room's.</exception>
-    internal TourianUnlockBehavior UnlockEffects() =>
-        new(Room, Projectiles, Earthquake, Audio, StatueScene, StatueScene.StatueRoom);
-
-    /// <summary>
-    /// The Tourian statue sequence's operations in <paramref name="statueRoom"/>: the entrance statue and the unlock effects
-    /// that splash at its water (#2382). The statue room's sequence makes them, in the room these enemies were built for.
-    /// </summary>
-    /// <exception cref="InvalidOperationException">These enemies are not <paramref name="statueRoom"/>'s.</exception>
-    internal ITourianStatueActors TourianStatueIn(ITourianStatueRoom statueRoom) =>
-        ReferenceEquals(StatueScene.StatueRoom, Ensure.NotNull(statueRoom))
-            ? new TourianStatueActors(StatueScene, UnlockEffects())
-            : throw new InvalidOperationException("The statue sequence's room is not the statue room these enemies were built for.");
-
-    /// <summary>Whether the Tourian entrance statue's sinking has finished.</summary>
-    /// <exception cref="InvalidOperationException">These enemies are not the statue room's.</exception>
-    internal bool TourianEntranceStatueFinished => StatueScene.TourianEntranceStatueAnimation.Finished;
-
     /// <summary>
     /// Shows <paramref name="frame"/> of the escape's shutter flash on the destroyable shutters the room holds, and on
     /// nothing once both are destroyed (#1512, #2288). Mother Brain's exploded door's fragments are pre-coloured in their
@@ -679,10 +665,15 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         WaverBehavior = new WaverBehavior(Terrain);
         WalkingSpacePirateBehavior = new WalkingSpacePirateBehavior(Terrain, Projectiles, Audio, Collision, DeathsAndDrops);
         WallSpacePirateBehavior = new WallSpacePirateBehavior(Room, Terrain, WalkingSpacePirateBehavior);
-        // The statue room alone builds the statue scene, with its room (#2426).
-        TourianEntranceStatueBehavior = dependencies.Scenery.TourianStatueRoom is { } statueRoom
-            ? new TourianEntranceStatueBehavior(Projectiles, statueRoom)
-            : null;
+        // The statue room alone builds the statue scene and its unlock effects, with its room (#2426, #2486).
+        if (dependencies.Scenery.TourianStatueRoom is { } statueRoom)
+        {
+            var statueScene = new TourianEntranceStatueBehavior(Projectiles, statueRoom);
+            var unlockEffects = new TourianUnlockBehavior(Room, Projectiles, Earthquake, Audio, statueScene, statueRoom);
+            TourianEntranceStatueBehavior = statueScene;
+            TourianUnlockEffects = unlockEffects;
+            TourianStatue = new TourianStatueActors(statueScene, unlockEffects);
+        }
         SporeSpawnBehavior = new SporeSpawnBehavior(new SporeSpawnBehaviorDependencies { Audio = Audio, Room = Room, Presentation = Presentation, Projectiles = Projectiles, EffectActors = EffectActors, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, FrameResults = BossFrameResults, CameraFloor = CameraFloor });
         FallingSparksBehavior = new FallingSparksBehavior(Room, Projectiles, EffectActors, compatibility.FallingSparkFloorProbe);
         SparkBehavior = new SparkBehavior(FallingSparksBehavior);

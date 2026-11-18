@@ -244,7 +244,7 @@ internal sealed class DoorTransitionState
                 // transition gives them one explicit step before polling the music queue.
                 runtime.RunBlankGameplayFrame(controllerInput);
                 runtime.DoorTransition.AdvanceEffectsAndRandom(runtime.Room.LoadedScope, samus);
-                runtime.RoomMains.RunBlockAnimations(runtime.Room.LoadedScope);
+                runtime.RoomMains.RunBlockAnimations(runtime.Room.LoadedScope, samus);
                 Phase = DoorTransitionPhase.WaitForMusicQueue;
                 break;
 
@@ -281,7 +281,7 @@ internal sealed class DoorTransitionState
                 runtime.DoorTransition.AdvanceEffectsAndRandom(runtime.Room.LoadedScope, samus);
                 // Every fade step runs the block animations, then the enemy and draw owners,
                 // without Samus's movement and animation or the camera's scrolling.
-                runtime.RoomMains.RunBlockAnimations(runtime.Room.LoadedScope);
+                runtime.RoomMains.RunBlockAnimations(runtime.Room.LoadedScope, samus);
                 runtime.DoorTransition.DrawDoorTransitionActors(enemyProjectiles: DoorTransitionEnemyProjectiles.Run, runtime.Room.LoadedScope, samus);
                 Phase = DoorTransitionPhase.FadeInDestinationRoom;
                 // The destination fades in toward the colours its owners show, which enemy scripts running

@@ -182,7 +182,7 @@ internal static class ProjectileSpriteLocations
     private static ushort SuperMissileExplosionPointer(int phase) => (ushort)(SuperMissileExplosionStart +
         Math.Min(phase, 3) * RecordBytes(4) + (phase >= 4 ? RecordBytes(4 + 4 * 2) : 0) +
         (phase >= 5 ? RecordBytes(4 * 2) : 0));
-    /// <summary>Maps PlasmaWave composition-group order to its named core orientation and alternate.</summary>
+    /// <summary>Maps PlasmaWave composition-group order to its named core orientation and thickness.</summary>
     private static PlasmaWaveShape PlasmaWaveShapeAt(int group) => group switch
     {
         0 => PlasmaWaveShape.HorizontalShort,
@@ -191,10 +191,10 @@ internal static class ProjectileSpriteLocations
         3 => PlasmaWaveShape.DownRightLong,
         4 => PlasmaWaveShape.VerticalShort,
         5 => PlasmaWaveShape.VerticalLong,
-        6 => PlasmaWaveShape.HorizontalAlternate,
-        7 => PlasmaWaveShape.DownRightAlternate,
-        8 => PlasmaWaveShape.VerticalAlternate,
-        9 => PlasmaWaveShape.DownLeftAlternate,
+        6 => PlasmaWaveShape.HorizontalThick,
+        7 => PlasmaWaveShape.DownRightThick,
+        8 => PlasmaWaveShape.VerticalThick,
+        9 => PlasmaWaveShape.DownLeftThick,
         10 => PlasmaWaveShape.DownLeftShort,
         11 => PlasmaWaveShape.DownLeftLong,
         _ => throw new ArgumentOutOfRangeException(nameof(group)),
@@ -214,10 +214,10 @@ internal static class ProjectileSpriteLocations
             PlasmaWaveShape.DownRightLong => new PlasmaWaveParts(PlasmaWaveDownRightLong, 10),
             PlasmaWaveShape.VerticalShort => new PlasmaWaveParts(PlasmaWaveVerticalShort, 4),
             PlasmaWaveShape.VerticalLong => new PlasmaWaveParts(PlasmaWaveVerticalLong, 7),
-            PlasmaWaveShape.HorizontalAlternate => new PlasmaWaveParts(PlasmaWaveHorizontalAlternate, 7),
-            PlasmaWaveShape.DownRightAlternate => new PlasmaWaveParts(PlasmaWaveDownRightAlternate, 12),
-            PlasmaWaveShape.VerticalAlternate => new PlasmaWaveParts(PlasmaWaveVerticalAlternate, 7),
-            PlasmaWaveShape.DownLeftAlternate => new PlasmaWaveParts(PlasmaWaveDownLeftAlternate, 12),
+            PlasmaWaveShape.HorizontalThick => new PlasmaWaveParts(PlasmaWaveHorizontalThick, 7),
+            PlasmaWaveShape.DownRightThick => new PlasmaWaveParts(PlasmaWaveDownRightThick, 12),
+            PlasmaWaveShape.VerticalThick => new PlasmaWaveParts(PlasmaWaveVerticalThick, 7),
+            PlasmaWaveShape.DownLeftThick => new PlasmaWaveParts(PlasmaWaveDownLeftThick, 12),
             PlasmaWaveShape.DownLeftShort => new PlasmaWaveParts(PlasmaWaveDownLeftShort, 6),
             PlasmaWaveShape.DownLeftLong => new PlasmaWaveParts(PlasmaWaveDownLeftLong, 10),
             _ => throw new ArgumentOutOfRangeException(nameof(shape)),

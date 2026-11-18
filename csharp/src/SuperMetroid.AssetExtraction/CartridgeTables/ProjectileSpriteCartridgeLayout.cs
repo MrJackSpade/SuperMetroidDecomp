@@ -93,17 +93,17 @@ internal static class ProjectileSpriteCartridgeLayout
     /// <summary>$93:C0F1/C1AF: vertical uncharged four-tile and charged seven-tile cores.</summary>
     internal const ushort PlasmaWaveVerticalLong = 0xc1af;
 
-    /// <summary>$93:C3B2/C669: alternate charged horizontal seven-part and down-right twelve-part cores, after native unselected composition groups.</summary>
-    internal const ushort PlasmaWaveHorizontalAlternate = 0xc3b2;
+    /// <summary>$93:C3B2/C669: thick charged horizontal seven-part and down-right twelve-part cores, after native unselected composition groups.</summary>
+    internal const ushort PlasmaWaveHorizontalThick = 0xc3b2;
 
-    /// <summary>$93:C3B2/C669: alternate charged horizontal seven-part and down-right twelve-part cores, after native unselected composition groups.</summary>
-    internal const ushort PlasmaWaveDownRightAlternate = 0xc669;
+    /// <summary>$93:C3B2/C669: thick charged horizontal seven-part and down-right twelve-part cores, after native unselected composition groups.</summary>
+    internal const ushort PlasmaWaveDownRightThick = 0xc669;
 
-    /// <summary>$93:C94D/CC04: alternate charged vertical seven-part and down-left twelve-part cores, after native unselected composition groups.</summary>
-    internal const ushort PlasmaWaveVerticalAlternate = 0xc94d;
+    /// <summary>$93:C94D/CC04: thick charged vertical seven-part and down-left twelve-part cores, after native unselected composition groups.</summary>
+    internal const ushort PlasmaWaveVerticalThick = 0xc94d;
 
-    /// <summary>$93:C94D/CC04: alternate charged vertical seven-part and down-left twelve-part cores, after native unselected composition groups.</summary>
-    internal const ushort PlasmaWaveDownLeftAlternate = 0xcc04;
+    /// <summary>$93:C94D/CC04: thick charged vertical seven-part and down-left twelve-part cores, after native unselected composition groups.</summary>
+    internal const ushort PlasmaWaveDownLeftThick = 0xcc04;
 
     /// <summary>$93:CE2A/CF42: down-left/up-right diagonal six-part and ten-part cores.</summary>
     internal const ushort PlasmaWaveDownLeftShort = 0xce2a;
@@ -111,6 +111,6 @@ internal static class ProjectileSpriteCartridgeLayout
     /// <summary>$93:CE2A/CF42: down-left/up-right diagonal six-part and ten-part cores.</summary>
     internal const ushort PlasmaWaveDownLeftLong = 0xcf42;
 
-    /// <summary>$93:F0FA: Charged_P_PI_PW_PIW startup, two axial orientation groups then two diagonal groups, repeated with alternate orientation/art.</summary>
+    /// <summary>$93:F0FA: Charged_P_PI_PW_PIW startup, two axial orientation groups then two diagonal groups, repeated with the thick beam's orientation/art.</summary>
     internal const ushort PlasmaStartupStart = 0xf0fa;
 }

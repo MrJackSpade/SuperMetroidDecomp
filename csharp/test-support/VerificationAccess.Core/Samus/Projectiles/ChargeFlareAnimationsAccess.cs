@@ -3,57 +3,96 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
-/// Charge-flare places by their number among a component's pictures, its runs in order, as the original programs and the
-/// flare's selector table count them (#2285): checks compare the typed places with those numbers.
+/// Charge-flare pictures by their number among a component's pictures, its phases in order, as the original programs and
+/// the flare's selector table count them (#2285, #2396), and a component's animation read and set as the original's picture
+/// number and wait: checks compare the shared player's play with those numbers.
 /// </summary>
 internal static class ChargeFlareAnimationsAccess
 {
-    /// <summary>Places by number.</summary>
-    extension(ChargeFlareAnimations)
+    /// <summary>Pictures by number.</summary>
+    extension(ChargeFlareAnimationDefinitions)
     {
-        /// <summary>How many pictures <paramref name="component"/> has across its runs.</summary>
+        /// <summary>How many pictures <paramref name="component"/> has across its phases.</summary>
         internal static int PictureCount(ChargeFlareComponent component) =>
-            ChargeFlareAnimationDefinitions.Runs[component].Sum(run => ChargeFlareAnimationDefinitions.Segments.Beats(run).Count);
+            ChargeFlareAnimationDefinitions.Animations[component].Phases.Sum(phase => phase.BeatCount);
 
-        /// <summary>Every picture of <paramref name="component"/>, its runs in order.</summary>
+        /// <summary>Every picture of <paramref name="component"/>, its phases in order.</summary>
         internal static IReadOnlyList<AnimationBeat<ChargeFlarePicture, NoAnimationCue>> Pictures(ChargeFlareComponent component) =>
-            [.. ChargeFlareAnimationDefinitions.Runs[component].SelectMany(run => ChargeFlareAnimationDefinitions.Segments.Beats(run))];
+            [.. ChargeFlareAnimationDefinitions.Animations[component].Phases.SelectMany(phase =>
+                ChargeFlareAnimationDefinitions.Segments.Beats(phase.Segment).Skip(phase.FirstBeat).Take(phase.BeatCount))];
 
-        /// <summary>The place of <paramref name="component"/>'s picture numbered <paramref name="number"/>.</summary>
+        /// <summary>The picture of <paramref name="component"/> numbered <paramref name="number"/>.</summary>
         /// <exception cref="ArgumentOutOfRangeException">The component has no picture of that number.</exception>
-        internal static ChargeFlarePlace PlaceAt(ChargeFlareComponent component, int number)
+        internal static ChargeFlarePicture PictureNumbered(ChargeFlareComponent component, int number) =>
+            number >= 0 && number < ChargeFlareAnimationDefinitions.PictureCount(component)
+                ? ChargeFlareAnimationDefinitions.Pictures(component)[number].ShownFrame
+                    ?? throw new InvalidOperationException($"Charge-flare {component} picture {number} shows no picture.")
+                : throw new ArgumentOutOfRangeException(nameof(number), number, $"Charge-flare {component} has no picture {number}.");
+
+        /// <summary>The place of <paramref name="component"/>'s animation whose next beat shows its picture numbered <paramref name="number"/>.</summary>
+        /// <exception cref="ArgumentOutOfRangeException">The component has no picture of that number.</exception>
+        internal static AnimationPlace PlaceOfPicture(ChargeFlareComponent component, int number)
         {
+            IReadOnlyList<AnimationPhase<ChargeFlareSegment>> phases = ChargeFlareAnimationDefinitions.Animations[component].Phases;
             int left = number;
-            foreach (ChargeFlareSegment run in ChargeFlareAnimationDefinitions.Runs[component])
+            for (int phase = 0; phase < phases.Count; phase++)
             {
-                int count = ChargeFlareAnimationDefinitions.Segments.Beats(run).Count;
-                if (left >= 0 && left < count)
-                    return new(run, left);
-                left -= count;
+                if (left >= 0 && left < phases[phase].BeatCount)
+                    return new(phase, left);
+                left -= phases[phase].BeatCount;
             }
             throw new ArgumentOutOfRangeException(nameof(number), number, $"Charge-flare {component} has no picture {number}.");
         }
+    }
 
-        /// <summary>The number of the picture at <paramref name="place"/> among <paramref name="component"/>'s pictures.</summary>
-        /// <exception cref="ArgumentOutOfRangeException">The place is none of the component's pictures.</exception>
-        internal static int NumberOf(ChargeFlareComponent component, ChargeFlarePlace place)
+    /// <summary>A component's animation as the original counts it.</summary>
+    extension(ChargeFlareComponentState self)
+    {
+        /// <summary>
+        /// The number of the picture the component shows among its pictures, or null once the Hyper Beam's count has
+        /// stepped back past its first.
+        /// </summary>
+        internal int? NativePicture
         {
-            int before = 0;
-            foreach (ChargeFlareSegment run in ChargeFlareAnimationDefinitions.Runs[component])
+            get
             {
-                int count = ChargeFlareAnimationDefinitions.Segments.Beats(run).Count;
-                if (run == place.Segment && place.Beat >= 0 && place.Beat < count)
-                    return before + place.Beat;
-                before += count;
+                if (self.Picture is null)
+                    return null;
+                // The place stands just past the beat shown.
+                AnimationPlace place = self.player.Playback.Place;
+                return self.player.Playback.Animation.Phases.Take(place.Phase).Sum(phase => phase.BeatCount) + place.Beat - 1;
             }
-            throw new ArgumentOutOfRangeException(nameof(place), place, $"Charge-flare {component} has no picture at {place}.");
         }
 
-        /// <summary>The place just past <paramref name="component"/>'s last picture, which is none of its pictures.</summary>
-        internal static ChargeFlarePlace PastLastPlace(ChargeFlareComponent component)
+        /// <summary>
+        /// The ordinary flare's wait as the original keeps it: the updates its picture still shows less one, so the update
+        /// that takes it below zero shows the next picture.
+        /// </summary>
+        internal WrappingCountdown NativeWait => WrappingCountdown.Start(self.player.UpdatesLeft - 1);
+
+        /// <summary>
+        /// Shows the ordinary flare's picture numbered <paramref name="number"/> with the original's wait
+        /// <paramref name="wait"/>, which the ordinary flare never leaves run past zero.
+        /// </summary>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// The component has no picture of that number, or the wait has run past zero.
+        /// </exception>
+        internal void ShowNative(int number, WrappingCountdown wait) =>
+            self.player.ShowAt(ChargeFlareAnimationDefinitions.Animations[self.Component],
+                ChargeFlareAnimationDefinitions.PlaceOfPicture(self.Component, number),
+                wait.IsNegative
+                    ? throw new ArgumentOutOfRangeException(nameof(wait), wait, "The ordinary flare never leaves a wait run past zero.")
+                    : wait.RemainingFrames + 1);
+
+        /// <summary>
+        /// Starts the Hyper Beam's count on the component and counts it back until it has stepped back past its first
+        /// picture, where it shows nothing.
+        /// </summary>
+        internal void RunPastFirstPicture()
         {
-            ChargeFlareSegment last = ChargeFlareAnimationDefinitions.Runs[component][^1];
-            return new(last, ChargeFlareAnimationDefinitions.Segments.Beats(last).Count);
+            self.StartBackward();
+            while (self.Picture is not null)
+                _ = self.PlayBackward();
         }
     }
 }

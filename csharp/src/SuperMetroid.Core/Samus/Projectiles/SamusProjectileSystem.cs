@@ -391,34 +391,13 @@ public sealed class SamusProjectileSystem
         if (samus.HyperBeamEnabled)
         {
             // Hyper Beam replaces the ordinary flare's animations with a backward count through the components'
-            // pictures, fast sparks first, then slow sparks, then the main flare.
+            // pictures, fast sparks first, then slow sparks, then the main flare. The fast sparks reaching their first
+            // picture end the whole flare.
             ChargeFlareComponents hyper = ChargeFlareComponents.HyperBeamFlare;
             foreach (ChargeFlareComponent component in hyper.DrawOrder)
             {
-                ChargeFlareComponentState flare = Charge.Flare(component);
-                CountdownStep hold = flare.CountHold();
-                if (hold.IsZeroOrNegative)
-                {
-                    WrappingCountdown nextHold = WrappingCountdown.Start(ChargeFlareAnimationDefinitions.HyperBeamPictureUpdates);
-                    if (flare.Picture is not { } picture || ChargeFlareAnimations.Previous(component, picture) is not { } previous)
-                    {
-                        // A component already at its first picture when its spent wait runs out again steps back past
-                        // it, where it shows nothing and its count goes on (#2114).
-                        flare.RunPastFirstPicture(nextHold);
-                    }
-                    else if (previous == ChargeFlareAnimations.FirstPlace(component))
-                    {
-                        // The component reaches its first picture and stops counting: its wait is left spent. The fast
-                        // sparks reaching theirs end the whole flare.
-                        flare.Show(new(previous, hold.Remaining));
-                        if (component == ChargeFlareComponent.FastSparks)
-                            Charge.ClearCount();
-                    }
-                    else
-                    {
-                        flare.Show(new(previous, nextHold));
-                    }
-                }
+                if (Charge.Flare(component).PlayBackward() && component == ChargeFlareComponent.FastSparks)
+                    Charge.ClearCount();
             }
             // Every component is shown, the fast spark first, even on the frame that ends the flare.
             return hyper;

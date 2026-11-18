@@ -52,6 +52,21 @@ internal sealed class AnimationPlayer<TSegment, TFrame, TEvent>
         new(segments, animation);
 
     /// <summary>
+    /// Starts <paramref name="animation"/> showing nothing until its <paramref name="updates"/>th update, which plays it to
+    /// its first frame (#2387), as Samus's death flash waits before its first shade.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="updates"/> is below one.</exception>
+    internal static AnimationPlayer<TSegment, TFrame, TEvent> StartingAfter(
+        AnimationSegments<TSegment, TFrame, TEvent> segments, Animation<TSegment> animation, int updates)
+    {
+        var player = new AnimationPlayer<TSegment, TFrame, TEvent>(segments, animation);
+        player.UpdatesLeft = updates >= 1
+            ? updates
+            : throw new ArgumentOutOfRangeException(nameof(updates), updates, "An animation shows its first frame on its first update or later.");
+        return player;
+    }
+
+    /// <summary>
     /// Starts <paramref name="animation"/> on its first frame, shown at once for <paramref name="firstFrameUpdates"/> updates
     /// instead of its own duration: the menus' and maps' pictures show their first frame until their first update moves them
     /// on, and the pause selector's first frame shows for its installed opening hold.
@@ -85,6 +100,49 @@ internal sealed class AnimationPlayer<TSegment, TFrame, TEvent>
         ShowFirstFrame(firstFrameUpdates);
     }
 
+    /// <summary>
+    /// Starts <paramref name="animation"/> on its first frame, shown at once for that frame's own updates (#2388), as the
+    /// grapple's endpoint and rope start on a fresh beam and Samus's suit explosion on the flash's last update.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The animation raises an event or pauses before its first frame.</exception>
+    internal static AnimationPlayer<TSegment, TFrame, TEvent> StartShowing(
+        AnimationSegments<TSegment, TFrame, TEvent> segments, Animation<TSegment> animation)
+    {
+        var player = new AnimationPlayer<TSegment, TFrame, TEvent>(segments, animation);
+        player.ShowFirstFrameForItsOwnUpdates();
+        return player;
+    }
+
+    /// <summary>Starts <paramref name="animation"/> again on its first frame, for that frame's own updates (#2388).</summary>
+    /// <exception cref="InvalidOperationException">The animation raises an event or pauses before its first frame.</exception>
+    internal void Show(Animation<TSegment> animation)
+    {
+        Start(animation);
+        ShowFirstFrameForItsOwnUpdates();
+    }
+
+    /// <summary>Plays the animation to its first frame, which shows for its own updates.</summary>
+    private void ShowFirstFrameForItsOwnUpdates()
+    {
+        _ = PlayOn(raised => throw new InvalidOperationException($"The animation raised {raised} before its first frame."));
+        if (Shown is null)
+            throw new InvalidOperationException("The animation shows no frame to start on.");
+    }
+
+    /// <summary>
+    /// Starts <paramref name="animation"/> again at <paramref name="place"/>, showing at once the frame it plays to from
+    /// there for <paramref name="firstFrameUpdates"/> updates (#2388): a particle restored partway through its animation
+    /// shows the frame it stood on for the updates it had left.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="firstFrameUpdates"/> is below one.</exception>
+    /// <exception cref="InvalidOperationException">The animation raises an event or pauses before the frame.</exception>
+    internal void ShowAt(Animation<TSegment> animation, AnimationPlace place, int firstFrameUpdates)
+    {
+        Start(animation);
+        Playback = Playback with { Place = place };
+        ShowFirstFrame(firstFrameUpdates);
+    }
+
     /// <summary>Runs one update of an animation that raises no event.</summary>
     /// <exception cref="InvalidOperationException">The animation raises an event, which this owner has nothing to act on.</exception>
     internal void Step() => Step(raised => throw new InvalidOperationException($"The animation raised {raised} with no owner to act on it."));
@@ -99,8 +157,20 @@ internal sealed class AnimationPlayer<TSegment, TFrame, TEvent>
         Ensure.NotNull(raise);
         if (IsResting || --UpdatesLeft > 0)
             return;
-        PlayOn(raise);
+        _ = PlayOn(raise);
     }
+
+    /// <summary>
+    /// Runs one update of an animation that raises no event, as <see cref="Step()"/> does, and returns the frame the update
+    /// shows anew (#2387): the next frame once the shown one has run its updates, even when it is the same frame again, or
+    /// null while the shown frame holds, while the play pauses and once it rests. An owner that copies each frame it
+    /// reaches, as Samus's colourings copy their shades, copies what this returns.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The animation raises an event, which this owner has nothing to act on.</exception>
+    internal TFrame? StepToNewFrame() =>
+        IsResting || --UpdatesLeft > 0
+            ? null
+            : PlayOn(raised => throw new InvalidOperationException($"The animation raised {raised} with no owner to act on it."));
 
     /// <summary>
     /// Plays the animation's segments as <paramref name="rebound"/> holds them from now on, keeping where the play stands,
@@ -132,15 +202,15 @@ internal sealed class AnimationPlayer<TSegment, TFrame, TEvent>
     {
         if (firstFrameUpdates < 1)
             throw new ArgumentOutOfRangeException(nameof(firstFrameUpdates), firstFrameUpdates, "A first frame shows for at least one update.");
-        PlayOn(raised => throw new InvalidOperationException($"The animation raised {raised} before its first frame."));
+        _ = PlayOn(raised => throw new InvalidOperationException($"The animation raised {raised} before its first frame."));
         if (Shown is null)
             throw new InvalidOperationException("The animation shows no frame to start on.");
         if (!IsResting)
             UpdatesLeft = firstFrameUpdates;
     }
 
-    /// <summary>Plays the animation on to its next frame, pause or rest.</summary>
-    private void PlayOn(Action<TEvent> raise)
+    /// <summary>Plays the animation on to its next frame, pause or rest, and returns the frame it shows anew, if any.</summary>
+    private TFrame? PlayOn(Action<TEvent> raise)
     {
         AnimationPlace place = Playback.Place;
         AnimationShown<TSegment, TFrame> next = segments.PlayToNextFrame(Playback.Animation, ref place, raise);
@@ -150,23 +220,111 @@ internal sealed class AnimationPlayer<TSegment, TFrame, TEvent>
             case AnimationShown<TSegment, TFrame>.Frame frame:
                 Shown = frame.Shown;
                 UpdatesLeft = frame.Duration;
-                return;
+                return frame.Shown;
             case AnimationShown<TSegment, TFrame>.Paused pause:
                 UpdatesLeft = pause.Duration;
-                return;
+                return null;
             case AnimationShown<TSegment, TFrame>.HeldFrame held:
                 Shown = held.Shown;
                 IsResting = true;
-                return;
+                return held.Shown;
             case AnimationShown<TSegment, TFrame>.Held:
                 IsResting = true;
-                return;
+                return null;
             case AnimationShown<TSegment, TFrame>.Ended:
                 IsResting = true;
                 HasStopped = true;
-                return;
+                return null;
             default:
                 throw new InvalidOperationException($"The animation played on to {next}.");
         }
+    }
+
+    /// <summary>
+    /// Starts <paramref name="animation"/> again at <paramref name="place"/>, showing at once the frame it plays to from
+    /// there for that frame's own updates (#2396): the grapple beam's flare restarts at the main flare's loop.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The animation raises an event or pauses before the frame.</exception>
+    internal void ShowFrom(Animation<TSegment> animation, AnimationPlace place)
+    {
+        Start(animation);
+        Playback = Playback with { Place = place };
+        ShowFirstFrameForItsOwnUpdates();
+    }
+
+    /// <summary>
+    /// Starts <paramref name="animation"/> again on its last frame, the last beat of its last phase, shown at once for
+    /// <paramref name="updates"/> updates (#2396), to be played backward from there (<see cref="StepBackward"/>).
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="updates"/> is below one.</exception>
+    /// <exception cref="InvalidOperationException">The animation has no phase, or its last beat is no frame.</exception>
+    internal void ShowLastFrame(Animation<TSegment> animation, int updates)
+    {
+        Ensure.NotNull(animation);
+        if (animation.Phases.Count == 0)
+            throw new InvalidOperationException("An animation of no phase has no last frame.");
+        int last = animation.Phases.Count - 1;
+        ShowAt(animation, new AnimationPlace(last, animation.Phases[last].BeatCount - 1), updates);
+    }
+
+    /// <summary>
+    /// Runs one update of the animation played backward (#2396): counts the shown frame's updates down and, once they run
+    /// out, steps back to the frame the animation shows before it, shown for <paramref name="frameUpdates"/> updates, or for
+    /// <paramref name="firstFrameUpdates"/> when that is the animation's first frame. A backward play goes once through the
+    /// phases, last to first, each from its last beat to its first, and follows no loop or repeat; stepping back past the
+    /// first frame stops it, and it shows nothing more. A resting animation does nothing.
+    /// </summary>
+    /// <returns>Whether the update stepped back onto the animation's first frame.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Either count of updates is below one.</exception>
+    /// <exception cref="InvalidOperationException">
+    /// The animation stands on no frame, or steps back onto a beat that shows none.
+    /// </exception>
+    internal bool StepBackward(int frameUpdates, int firstFrameUpdates)
+    {
+        if (frameUpdates < 1)
+            throw new ArgumentOutOfRangeException(nameof(frameUpdates), frameUpdates, "A frame shows for at least one update.");
+        if (firstFrameUpdates < 1)
+            throw new ArgumentOutOfRangeException(nameof(firstFrameUpdates), firstFrameUpdates, "A frame shows for at least one update.");
+        if (IsResting || --UpdatesLeft > 0)
+            return false;
+        AnimationPlace place = Playback.Place;
+        IReadOnlyList<AnimationPhase<TSegment>> phases = Playback.Animation.Phases;
+        if (Shown is null || place.Phase >= phases.Count || place.Beat < 1 || place.Beat > phases[place.Phase].BeatCount)
+            throw new InvalidOperationException("The animation stands on no frame to step back from.");
+        // The place stands just past the beat shown, so the beat before that one is two back.
+        int phase = place.Phase, beat = place.Beat - 2;
+        while (beat < 0)
+        {
+            if (--phase < 0)
+            {
+                Shown = null;
+                IsResting = true;
+                HasStopped = true;
+                return false;
+            }
+            beat = phases[phase].BeatCount - 1;
+        }
+        AnimationPhase<TSegment> stepped = phases[phase];
+        Shown = segments.Beats(stepped.Segment)[stepped.FirstBeat + beat].ShownFrame
+            ?? throw new InvalidOperationException($"The animation steps back onto a beat of {stepped.Segment} that shows no frame.");
+        Playback = Playback with { Place = new AnimationPlace(phase, beat + 1) };
+        bool first = beat == 0 && phases.Take(phase).All(earlier => earlier.BeatCount == 0);
+        UpdatesLeft = first ? firstFrameUpdates : frameUpdates;
+        return first;
+    }
+
+    /// <summary>
+    /// Shows the shown frame for <paramref name="updates"/> more updates from now, in place of the updates it had left
+    /// (#2396): an owner that hands a frame over to another way of counting gives it the wait that count leaves it.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="updates"/> is below one.</exception>
+    /// <exception cref="InvalidOperationException">The animation rests or shows no frame.</exception>
+    internal void HoldShownFrameFor(int updates)
+    {
+        if (updates < 1)
+            throw new ArgumentOutOfRangeException(nameof(updates), updates, "A frame shows for at least one update.");
+        if (IsResting || Shown is null)
+            throw new InvalidOperationException("The animation holds no frame it is counting.");
+        UpdatesLeft = updates;
     }
 }

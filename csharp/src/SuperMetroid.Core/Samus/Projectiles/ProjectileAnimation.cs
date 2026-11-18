@@ -85,21 +85,8 @@ internal sealed class ProjectileAnimation
         sprites.Add(new ImageSpriteDraw(source, image, place, SpriteMirror.None));
     }
 
-    /// <summary>Counts one update off a flare component's wait and shows its animation's next picture once the wait is spent.</summary>
-    internal void AdvanceFlareComponent(ChargeFlareComponent component)
-    {
-        // The next picture shows on the update the wait's count passes below zero, so a wait of zero still holds its
-        // picture for one update; testing for zero would show every picture one update too short.
-        ChargeFlareComponentState flare = _charge.Flare(component);
-        CountdownStep hold = flare.CountHold();
-        if (hold.IsNonNegative)
-            return;
-        // Only the Hyper Beam's count runs a component past its first picture, and the ordinary flare never plays again
-        // once Samus has the Hyper Beam.
-        ChargeFlarePlace picture = flare.Picture
-            ?? throw new InvalidOperationException($"Charge-flare {component} has run past its first picture and plays no further.");
-        flare.Show(ChargeFlareAnimations.Next(component, picture));
-    }
+    /// <summary>Plays a flare component's ordinary animation one update on.</summary>
+    internal void AdvanceFlareComponent(ChargeFlareComponent component) => _charge.Flare(component).PlayForward();
 
     /// <summary>
     /// Reads Samus's shot direction and movement metadata before drawing an eligible charge-flare component. Only a pose
@@ -129,10 +116,10 @@ internal sealed class ProjectileAnimation
 
         // The flare is published wherever it lies; the display clips it to the view (#1541).
 
-        // A component the Hyper Beam's count has run past its first picture draws nothing (#1275, #2114).
-        if (_charge.Flare(component).Picture is not { } shownPlace)
+        // A component the Hyper Beam's count has stepped back past its first picture draws nothing (#1275, #2114).
+        if (_charge.Flare(component).Picture is not { } shown)
             return;
-        ProjectileSpriteId picture = ChargeFlarePictures.Of(component, pose.FacingLeft, shownPlace);
+        ProjectileSpriteId picture = ChargeFlarePictures.Of(component, pose.FacingLeft, shown);
         // The flare is Samus's own charge, so it shows the sheet of the beams she has equipped (#1586).
         SpriteSheetFrame image = artwork.Sheets.SheetOf(SamusBeamCombinations.Of(samus.EquippedBeams)).Frame(ProjectileSheetFrames.FlareFrame(picture));
         sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusChargeFlare), image,

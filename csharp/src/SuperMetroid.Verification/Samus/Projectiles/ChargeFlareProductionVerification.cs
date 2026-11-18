@@ -48,8 +48,8 @@ internal static class ChargeFlareProductionVerification
                 // the first tick of each pose compares the whole projectile state (#1567).
                 AssertEqual(native.Charge.FlareCounter, compiled.Charge.FlareCounter, "Drawing leaves the flare counters identical");
                 AssertTrue(Enum.GetValues<ChargeFlareComponent>().All(component =>
-                        (native.Charge.Flare(component).Picture, native.Charge.Flare(component).Hold) ==
-                        (compiled.Charge.Flare(component).Picture, compiled.Charge.Flare(component).Hold)),
+                        (native.Charge.Flare(component).NativePicture, native.Charge.Flare(component).NativeWait) ==
+                        (compiled.Charge.Flare(component).NativePicture, compiled.Charge.Flare(component).NativeWait)),
                     "Drawing leaves the flare animation state identical");
                 if (tick == 0)
                     AssertTrue(SameGraph(native, compiled, InstalledFixtures.BoundContent), "Drawing leaves projectile, flare-counter and animation state identical");
@@ -58,12 +58,13 @@ internal static class ChargeFlareProductionVerification
         }
         // A component the Hyper Beam's count runs past its first picture stands, natively, at a selector past the $93:A1A1
         // table (the native wrap of a flare frame, as in the #1275 Mother Brain glitch movie), which makes native draw
-        // WRAM/I/O bytes as a spritemap. The port's component past its first picture draws nothing (#2114).
+        // WRAM/I/O bytes as a spritemap. The port's component past its first picture draws nothing (#2114), and the Hyper
+        // Beam's count goes on drawing nothing (#2396).
         {
             var invalidSelector = Create();
             foreach (ChargeFlareComponent component in Enum.GetValues<ChargeFlareComponent>())
-                invalidSelector.Charge.Flare(component).RunPastFirstPicture(WrappingCountdown.Start(3));
-            var subject = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
+                invalidSelector.Charge.Flare(component).RunPastFirstPicture();
+            var subject = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)), HyperBeamEnabled = true };
             subject.BindBodyFixture(body);
             OamBuffer outOfTableOam = invalidSelector.ChargeFlareOam(subject, new(0, 0), placement);
             AssertEqual(0, outOfTableOam.LastFinalizedSpriteCount,
@@ -84,7 +85,7 @@ internal static class ChargeFlareProductionVerification
         InstalledFixtures.BindProjectileArtwork(runtime);
         runtime.Projectiles.Charge.FlareCounter = 30;
         foreach (ChargeFlareComponent component in Enum.GetValues<ChargeFlareComponent>())
-            runtime.Projectiles.Charge.Flare(component).Show(new(ChargeFlareAnimations.FirstPlace(component), WrappingCountdown.Start(100)));
+            runtime.Projectiles.Charge.Flare(component).ShowNative(0, WrappingCountdown.Start(100));
         game.AdoptRuntime(runtime);
         SpriteImage PowerBeamSheet(InstalledSpriteSheets sheets) => sheets.Get(SpriteSheetId.ProjectilesPower).Image;
         AssertTrue(FlareDraws(runtime).All(draw => ReferenceEquals(PowerBeamSheet(InstalledFixtures.SpriteSheets), draw.Image.Sheet)),
@@ -110,7 +111,7 @@ internal static class ChargeFlareProductionVerification
             var system = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
             system.Charge.FlareCounter = 30;
             foreach (ChargeFlareComponent component in Enum.GetValues<ChargeFlareComponent>())
-                system.Charge.Flare(component).Show(new(ChargeFlareAnimations.PlaceAt(component, 3), WrappingCountdown.Start(3)));
+                system.Charge.Flare(component).ShowNative(3, WrappingCountdown.Start(3));
             return system;
         }
     }

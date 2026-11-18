@@ -2058,8 +2058,8 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
     /// word holds and kept its speeds in 256ths of a pixel; Core says what the game does: what a reaction does after the
     /// common damage, how a projectile moves each update, which hits deal damage, what speeds the curve gives, that a
     /// frame holds for good and how fast a thing moves. English stays legal: a body's tail (Ridley's tail, its tail, the
-    /// tail cap), a particle's fading tail, a straddled block's lead and tail, a per-frame behaviour, an item frame's
-    /// behaviour, main AI and a unit of measure (a speed in 1/256 pixels, a 256th of a pixel) and a hardware owner, which
+    /// tail cap), a particle's fading tail, a straddled block's lead and tail, main AI and a unit of
+    /// measure (a speed in 1/256 pixels, a 256th of a pixel) and a hardware owner, which
     /// describes the encoding it keeps.
     /// </summary>
     private static readonly Regex RoutineTailFrameBehaviourAndPrecisionProse = new(

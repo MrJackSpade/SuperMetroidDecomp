@@ -712,8 +712,7 @@ quantity told by the precision it is kept at (`a signed 1/256-pixel velocity`, `
 `-1/256 px`, `1/256ths`). Core says what the game does: what a reaction does after the common damage (`a shot deals the
 shutter no damage and starts it moving`), how a projectile moves each update, which speeds the curve gives, that a frame
 holds for good and how fast a thing moves (`its velocity, in pixels per update`). A body's tail (`Ridley's tail`, `its
-tail`, `the tail cap`, `a one-shot tail whip`), a particle's fading tail, a straddled block's lead and tail, a per-frame
-behaviour, an item frame's behaviour, main AI, a unit of measure (`a speed in 1/256 pixels`, `a 256th of a pixel`) and a
+tail`, `the tail cap`, `a one-shot tail whip`), a particle's fading tail, a straddled block's lead and tail, main AI, a unit of measure (`a speed in 1/256 pixels`, `a 256th of a pixel`) and a
 hardware owner stay English.
 
 #2465 widens SME6454, outside hardware owners, to the original's program and storage and the repository's checks as boss

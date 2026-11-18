@@ -1883,9 +1883,8 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect("class P { /// <summary>Moves with signed 1/256-pixel velocities.</summary>\nint F => 0; }", "('1/256-pixel')");
         Expect("class P { void Run() { // starts the upward phase at -1/256 px.\n } }", "('1/256 px')");
         Expect("class P { /// <summary>Zero-up, clockwise, 1/256-turn aim angle.</summary>\nint F => 0; }", "('1/256-turn')");
-        // A body's tail, a particle's fading tail, a straddled block's lead and tail, a per-frame behaviour, an item frame's
-        // behaviour, main AI, a unit of measure and a hardware owner are English.
-        Expect("class P { /// <summary>Ridley's tail whips; its tail swings; the tail cap; a one-shot tail whip; a particle's fading tail; for every lead and tail the terrain they make; runs a Puyo's per-frame behaviour; the item-frame behaviour; runs Puyo's main AI; its normal AI; a speed in 1/256 pixels per update; a 256th of a pixel.</summary>\nint F => 0; }");
+        // A body's tail, a particle's fading tail, a straddled block's lead and tail, main AI, a unit of measure and a hardware owner are English.
+        Expect("class P { /// <summary>Ridley's tail whips; its tail swings; the tail cap; a one-shot tail whip; a particle's fading tail; for every lead and tail the terrain they make; runs Puyo's main AI; its normal AI; a speed in 1/256 pixels per update; a 256th of a pixel.</summary>\nint F => 0; }");
         Expect(CompatibilityService + "/// <summary>The shot's frame behaviour runs the fuse; it moves in 1/256-pixel steps.</summary>\n[CompatibilityService(\"fuse\")] class Fuse { }");
         // The original's program and storage and the repository's checks told in boss prose, outside hardware owners and
         // markup (#2465).

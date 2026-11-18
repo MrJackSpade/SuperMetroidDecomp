@@ -101,7 +101,7 @@ internal static void VerifyControllerBindingsAndOptionsSubmenus()
 
     for (int row = 0; row < 3; row++)
         PressOptions(options, ControllerButton.Down);
-    AssertEqual<GameOptionsRow>(new GameOptionsRow.OnPrimaryPage(), options.SelectedRow, "primary options selects controller settings");
+    AssertEqual<GameOptionsRow>(new GameOptionsRow.OnPrimaryPage(GameOptionsPrimaryRow.ControllerSettings), options.SelectedRow, "primary options selects controller settings");
     PressOptions(options, ControllerButton.A);
     StepOptionsUntil(options, GameOptionsPhase.ControllerSettings);
 
@@ -117,7 +117,7 @@ internal static void VerifyControllerBindingsAndOptionsSubmenus()
         if (options.Phase == GameOptionsPhase.ScrollControllerDown)
             StepOptionsUntil(options, GameOptionsPhase.ControllerSettings);
     }
-    AssertEqual<GameOptionsRow>(new GameOptionsRow.OnControllerPage(), options.SelectedRow, "controller page reaches Exit after native scroll");
+    AssertEqual<GameOptionsRow>(new GameOptionsRow.OnControllerPage(GameOptionsControllerRow.Exit.Instance), options.SelectedRow, "controller page reaches Exit after native scroll");
     PressOptions(options, ControllerButton.A);
     StepOptionsUntil(options, GameOptionsPhase.Main);
 

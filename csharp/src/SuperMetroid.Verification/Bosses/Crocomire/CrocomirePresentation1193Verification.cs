@@ -66,7 +66,7 @@ internal static class CrocomirePresentation1193Verification
         }
         int[] sources = [0x879d84, 0x879e04, 0x879e84, 0x879e04, 0x879d84];
         int sourceIndex = 0;
-        ushort previousScroll = 0;
+        int previousScroll = 0;
         for (int frame = 0; frame < (spikes ? 34 : 6); frame++)
         {
             ArtworkAnimation spikeTiles = BlockAnimationFrames.Of(BlockAnimation.HorizontalSpikes);
@@ -86,8 +86,9 @@ internal static class CrocomirePresentation1193Verification
             }
             else
             {
-                ushort expected = unchecked((ushort)(runtime.BackgroundScroll.ForegroundPosition.Y +
-                    (death ?? throw new InvalidOperationException("Verification requires death.")).RumbleYOffset));
+                // The camera stands at the room's top, so the rumble's upward swing leaves a negative row (#2384).
+                int expected = runtime.BackgroundScroll.ForegroundPosition.Y +
+                    (death ?? throw new InvalidOperationException("Verification requires death.")).RumbleYOffset;
                 AssertEqual(expected, runtime.BackgroundScroll.ForegroundScroll.Y,
                     $"Comeback frame {frame} applies current enemy rumble to foreground scroll");
                 if (frame != 0)
@@ -96,8 +97,8 @@ internal static class CrocomirePresentation1193Verification
                         "Rumble becomes visible at the following accepted NMI");
                     var layer = (GameplaySceneLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame()).Layers[0];
                     // The view shows the foreground row below the displayed camera row at the screen's top (#1514).
-                    AssertEqual(GameplaySceneView.LayerPixelAtScreenTop(new Position16<RoomPixels>(0, previousScroll)).Y, layer.View.ForegroundScroll.Y,
-                        "Production foreground composition receives the displayed rumble scroll");
+                    AssertEqual(previousScroll + ScreenGeometry.LayerRowsHiddenAboveScreen, (int)layer.View.ForegroundScroll.Y,
+                        "Production foreground composition receives the displayed rumble scroll as a plain signed row");
                 }
                 previousScroll = expected;
             }
@@ -131,19 +132,30 @@ internal static class CrocomirePresentation1193Verification
             ushort bg2 = scroll.BackgroundScroll.Y;
             (death ?? throw new InvalidOperationException("Verification requires death.")).RumbleYOffset = -4;
             runtime.RoomMains.RunCrocomireComebackRoomMain(runtime.Room.LoadedScope);
-            AssertEqual((ushort)96, scroll.ForegroundScroll.Y, "The rumble shifts the foreground's view from the camera");
+            AssertEqual(96, scroll.ForegroundScroll.Y, "The rumble shifts the foreground's view from the camera");
             AssertEqual(bg2, scroll.BackgroundScroll.Y, "Hidden-wall rumble leaves BG2 unchanged");
             AssertEqual((ushort)100, scroll.ForegroundPosition.Y, "Rumble does not move the camera or streaming origin");
+            // With the camera at the room's top, the rumble's upward swing takes the view above the room (#2384): the view's
+            // row is the plain sum, negative, and the frame shows the foreground's signed row with no wrap.
+            scroll.ForegroundPosition = scroll.ForegroundPosition.WithY(0);
+            scroll.CalculateLayerScrolls();
+            runtime.RoomMains.RunCrocomireComebackRoomMain(runtime.Room.LoadedScope);
+            AssertEqual(-4, scroll.ForegroundScroll.Y, "The rumble above the room's top leaves a negative foreground view row");
+            runtime.FrameBoundary.PublishWhileLoading();
+            var risen = (GameplaySceneLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame()).Layers[0];
+            AssertEqual(-4 + ScreenGeometry.LayerRowsHiddenAboveScreen, (int)risen.View.ForegroundScroll.Y,
+                "The frame shows the risen view's signed row at the screen's top");
+            scroll.ForegroundPosition = scroll.ForegroundPosition.WithY(100);
             (boss ?? throw new InvalidOperationException("Verification requires boss.")).Body.Presence = boss.Body.Presence.With(EnemyPresence.Hidden);
             scroll.CalculateLayerScrolls();
             runtime.RoomMains.RunCrocomireComebackRoomMain(runtime.Room.LoadedScope);
-            AssertEqual((ushort)100, scroll.ForegroundScroll.Y, "Invisible body suppresses the native room callback");
+            AssertEqual(100, scroll.ForegroundScroll.Y, "Invisible body suppresses the native room callback");
             boss.Body.Presence = boss.Body.Presence.Without(EnemyPresence.Hidden);
             boss.DeathPhase = CrocomireDeathPhase.BreakSpikeWall;
             death.RumbleYOffset = 0x8080;
             scroll.CalculateLayerScrolls();
             runtime.RoomMains.RunCrocomireComebackRoomMain(runtime.Room.LoadedScope);
-            AssertEqual((ushort)100, scroll.ForegroundScroll.Y, "Leaving phase 40 restores ordinary scroll and excludes the terminator word");
+            AssertEqual(100, scroll.ForegroundScroll.Y, "Leaving phase 40 restores ordinary scroll and excludes the terminator word");
         }
         Console.WriteLine(spikes ? "Crocomire spike cadence and NMI artwork verified." : "Crocomire comeback scroll and NMI ordering verified.");
         return 0;

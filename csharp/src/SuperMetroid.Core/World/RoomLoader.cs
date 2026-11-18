@@ -56,7 +56,6 @@ internal sealed class RoomLoader
 
     /// <summary>Applies room-scoped visual effects driven by enemies.</summary>
     private readonly EnemyRoomEffects _enemyRoomEffects;
-    /// <summary>Sets up the escape's room effects when entering the relevant room.</summary>
     /// <summary>Restores the save slot's accumulated game time.</summary>
     private readonly GameTimeState _gameTime;
     /// <summary>Holds HUD values carried into the loaded room.</summary>
@@ -676,7 +675,7 @@ internal sealed class RoomLoader
     /// scroll updates slide the destination in.
     /// </summary>
     internal void LoadPendingDoorDestinationForTransition(FixedPosition<RoomPixels> sourceSamus) =>
-        LoadPendingDoorDestination(RoomViewportLoadMode.StreamThroughDoor, sourceSamus);
+        LoadPendingDoorDestination(RoomViewportLoadMode.KeepSourceScreenWhileScrollingIn, sourceSamus);
 
     /// <summary>
     /// Builds the selected door's destination while preserving the source position needed
@@ -773,7 +772,7 @@ internal sealed class RoomLoader
         DoorOpeningSourceView? doorOpeningSourceView = viewportLoadMode switch
         {
             RoomViewportLoadMode.DisplayInitialViewport => null,
-            RoomViewportLoadMode.StreamThroughDoor => new DoorOpeningSourceView(_backgroundScroll.ForegroundScroll,
+            RoomViewportLoadMode.KeepSourceScreenWhileScrollingIn => new DoorOpeningSourceView(_backgroundScroll.ForegroundScroll,
                 new RoomBackgroundLayer(_room.LoadedLevelData.ForegroundPlane.Cells, SourceScreenPictures())),
             _ => throw new ArgumentOutOfRangeException(
                 nameof(viewportLoadMode), viewportLoadMode, "Unknown room viewport load mode."),
@@ -813,7 +812,7 @@ internal sealed class RoomLoader
         ScrollBoundaryCamera? previousCamera = carryOver.PreviousCamera;
         var destinationCamera = new ScrollBoundaryCamera(assets.Scrolls);
         scope.Camera = destinationCamera;
-        if (viewportLoadMode == RoomViewportLoadMode.StreamThroughDoor)
+        if (viewportLoadMode == RoomViewportLoadMode.KeepSourceScreenWhileScrollingIn)
         {
             if (previousCamera is not null) destinationCamera.InheritTrackingState(previousCamera);
             destinationCamera.SetDoorTransitionPosition(camera, previousCamera?.Position ?? _cameraFractions.Fractions);
@@ -1000,7 +999,7 @@ internal sealed class RoomLoader
             ControllerInput = _playerActions.Current,
             Camera = destinationCamera.PixelPosition,
             GunshipScenario = entry.GunshipScenario,
-            DeferLoaderTimeCameraReads = viewportLoadMode == RoomViewportLoadMode.StreamThroughDoor,
+            DeferLoaderTimeCameraReads = viewportLoadMode == RoomViewportLoadMode.KeepSourceScreenWhileScrollingIn,
         });
         // The shared Ridley setup marks the map explored only for a live boss.
         // Ceres also disables the HUD map, but has no matching exploration list.
@@ -1034,7 +1033,7 @@ internal sealed class RoomLoader
             ? new TourianStatueSequence(_tourianStatueDependencies, roomFxOverlay, roomColourEffects, roomObjects, enemies)
             : null;
 
-        if (viewportLoadMode == RoomViewportLoadMode.StreamThroughDoor)
+        if (viewportLoadMode == RoomViewportLoadMode.KeepSourceScreenWhileScrollingIn)
         {
             // The door transition never redraws the destination's whole viewport: the source screen stays
             // visible while the opening scroll moves the destination in around it.

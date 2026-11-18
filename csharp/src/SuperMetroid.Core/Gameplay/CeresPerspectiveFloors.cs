@@ -15,7 +15,7 @@ internal static class CeresPerspectiveFloors
     /// </summary>
     /// <param name="shaft">The tilt the shaft's room main last set.</param>
     /// <param name="foregroundScroll">The foreground's scroll in the frame that shows the floor.</param>
-    internal static PerspectiveFloor ElevatorShaft(TurningFloorTransform shaft, Position16<RoomPixels> foregroundScroll) => new(
+    internal static PerspectiveFloor ElevatorShaft(TurningFloorTransform shaft, Offset16<RoomPixels> foregroundScroll) => new(
         new FloorView(shaft.Angle, FloorView.OwnSize, shaft.Center.AsFloorOffset(), foregroundScroll.AsFloorOffset(), FloorOverflowMode.Wrap),
         BelowPerspectiveFloor.Nothing);
 

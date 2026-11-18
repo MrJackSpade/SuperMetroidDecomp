@@ -11,6 +11,13 @@ public static class FloorConversions
         new(CoordinateAxis.AsSigned(cameraPosition.X), CoordinateAxis.AsSigned(cameraPosition.Y));
 
     /// <summary>
+    /// A signed foreground view (#2384) as the signed floor offset a floor transform takes when the turning floor is the
+    /// foreground; the coordinates are unchanged.
+    /// </summary>
+    public static Offset16<FloorPixels> AsFloorOffset(this Offset16<RoomPixels> foregroundView) =>
+        new(foregroundView.X, foregroundView.Y);
+
+    /// <summary>
     /// A floor position as the signed offset a floor transform takes for its scroll or centre; the coordinates are
     /// unchanged.
     /// </summary>

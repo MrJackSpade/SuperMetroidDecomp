@@ -3,100 +3,103 @@ using SuperMetroid.Core.Input;
 namespace SuperMetroid.Core.Runtime.Attract;
 
 /// <summary>
-/// The title demonstrations' inputs (#1300, #1554): the recording each plays and what its playback first watches for.
+/// The title demonstrations' inputs (#1300, #1554): the recording each plays, and the diagonal shinespark's continuation.
 /// Creating an input does nothing until its playback first steps.
 /// </summary>
 public static class AttractDemoInputDefinitions
 {
     /// <summary>The LandingSite title demonstration's input.</summary>
     public static AttractDemoInputDefinition AttractLandingSite { get; } =
-        new(AttractDemoInputWatch.TitleLeaving, DemoInputRecordingId.AttractLandingSite);
+        new(DemoInputRecordingId.AttractLandingSite);
 
     /// <summary>The PseudoScrewAttack title demonstration's input.</summary>
     public static AttractDemoInputDefinition AttractPseudoScrewAttack { get; } =
-        new(AttractDemoInputWatch.TitleLeaving, DemoInputRecordingId.AttractPseudoScrewAttack);
+        new(DemoInputRecordingId.AttractPseudoScrewAttack);
 
     /// <summary>The SpeedBooster title demonstration's input.</summary>
     public static AttractDemoInputDefinition AttractSpeedBooster { get; } =
-        new(AttractDemoInputWatch.TitleLeaving, DemoInputRecordingId.AttractSpeedBooster);
+        new(DemoInputRecordingId.AttractSpeedBooster);
 
     /// <summary>The Dachora title demonstration's input.</summary>
     public static AttractDemoInputDefinition AttractDachora { get; } =
-        new(AttractDemoInputWatch.TitleLeaving, DemoInputRecordingId.AttractDachora);
+        new(DemoInputRecordingId.AttractDachora);
 
     /// <summary>The RedBrinstarElevator title demonstration's input.</summary>
     public static AttractDemoInputDefinition AttractRedBrinstarElevator { get; } =
-        new(AttractDemoInputWatch.TitleLeaving, DemoInputRecordingId.AttractRedBrinstarElevator);
+        new(DemoInputRecordingId.AttractRedBrinstarElevator);
 
     /// <summary>The PrePhantoonHall title demonstration's input.</summary>
     public static AttractDemoInputDefinition AttractPrePhantoonHall { get; } =
-        new(AttractDemoInputWatch.TitleLeaving, DemoInputRecordingId.AttractPrePhantoonHall);
+        new(DemoInputRecordingId.AttractPrePhantoonHall);
 
     /// <summary>The LowerNorfairEntrance title demonstration's input.</summary>
     public static AttractDemoInputDefinition AttractLowerNorfairEntrance { get; } =
-        new(AttractDemoInputWatch.TitleLeaving, DemoInputRecordingId.AttractLowerNorfairEntrance);
+        new(DemoInputRecordingId.AttractLowerNorfairEntrance);
 
     /// <summary>The EyeDoor title demonstration's input.</summary>
     public static AttractDemoInputDefinition AttractEyeDoor { get; } =
-        new(AttractDemoInputWatch.TitleLeaving, DemoInputRecordingId.AttractEyeDoor);
+        new(DemoInputRecordingId.AttractEyeDoor);
 
-    /// <summary>The DiagonalShinespark title demonstration's input.</summary>
+    /// <summary>
+    /// The DiagonalShinespark title demonstration's input: the shinespark's launch, released into its continuation on the
+    /// first step that plays.
+    /// </summary>
     public static AttractDemoInputDefinition AttractDiagonalShinespark { get; } =
-        new(AttractDemoInputWatch.ShinesparkRelease, DemoInputRecordingId.AttractDiagonalShinespark);
+        new(DemoInputRecordingId.AttractDiagonalShinespark, Continuation: DemoInputRecordingId.AttractDiagonalShinesparkContinuation);
 
     /// <summary>The MissileDoor title demonstration's input.</summary>
     public static AttractDemoInputDefinition AttractMissileDoor { get; } =
-        new(AttractDemoInputWatch.TitleLeaving, DemoInputRecordingId.AttractMissileDoor);
+        new(DemoInputRecordingId.AttractMissileDoor);
 
     /// <summary>The Kraid title demonstration's input.</summary>
     public static AttractDemoInputDefinition AttractKraid { get; } =
-        new(AttractDemoInputWatch.TitleLeaving, DemoInputRecordingId.AttractKraid);
+        new(DemoInputRecordingId.AttractKraid);
 
     /// <summary>The FirefleaRoom title demonstration's input.</summary>
     public static AttractDemoInputDefinition AttractFirefleaRoom { get; } =
-        new(AttractDemoInputWatch.TitleLeaving, DemoInputRecordingId.AttractFirefleaRoom);
+        new(DemoInputRecordingId.AttractFirefleaRoom);
 
     /// <summary>The ScrewAttack title demonstration's input.</summary>
     public static AttractDemoInputDefinition AttractScrewAttack { get; } =
-        new(AttractDemoInputWatch.TitleLeaving, DemoInputRecordingId.AttractScrewAttack);
+        new(DemoInputRecordingId.AttractScrewAttack);
 
     /// <summary>The BrinstarDiagonalRoom title demonstration's input.</summary>
     public static AttractDemoInputDefinition AttractBrinstarDiagonalRoom { get; } =
-        new(AttractDemoInputWatch.TitleLeaving, DemoInputRecordingId.AttractBrinstarDiagonalRoom);
+        new(DemoInputRecordingId.AttractBrinstarDiagonalRoom);
 
     /// <summary>The PreSporeSpawnHall title demonstration's input.</summary>
     public static AttractDemoInputDefinition AttractPreSporeSpawnHall { get; } =
-        new(AttractDemoInputWatch.TitleLeaving, DemoInputRecordingId.AttractPreSporeSpawnHall);
+        new(DemoInputRecordingId.AttractPreSporeSpawnHall);
 
     /// <summary>The GrappleBeam title demonstration's input.</summary>
     public static AttractDemoInputDefinition AttractGrappleBeam { get; } =
-        new(AttractDemoInputWatch.TitleLeaving, DemoInputRecordingId.AttractGrappleBeam);
+        new(DemoInputRecordingId.AttractGrappleBeam);
 
     /// <summary>The IceBeam title demonstration's input.</summary>
     public static AttractDemoInputDefinition AttractIceBeam { get; } =
-        new(AttractDemoInputWatch.TitleLeaving, DemoInputRecordingId.AttractIceBeam);
+        new(DemoInputRecordingId.AttractIceBeam);
 
     /// <summary>The GauntletEntrance title demonstration's input.</summary>
     public static AttractDemoInputDefinition AttractGauntletEntrance { get; } =
-        new(AttractDemoInputWatch.TitleLeaving, DemoInputRecordingId.AttractGauntletEntrance);
+        new(DemoInputRecordingId.AttractGauntletEntrance);
 
     /// <summary>The AdvancedGrappleBeam title demonstration's input.</summary>
     public static AttractDemoInputDefinition AttractAdvancedGrappleBeam { get; } =
-        new(AttractDemoInputWatch.TitleLeaving, DemoInputRecordingId.AttractAdvancedGrappleBeam);
+        new(DemoInputRecordingId.AttractAdvancedGrappleBeam);
 
     /// <summary>The InfiniteBombJump title demonstration's input.</summary>
     public static AttractDemoInputDefinition AttractInfiniteBombJump { get; } =
-        new(AttractDemoInputWatch.TitleLeaving, DemoInputRecordingId.AttractInfiniteBombJump);
+        new(DemoInputRecordingId.AttractInfiniteBombJump);
 
     /// <summary>The SpecialBeamAttack title demonstration's input.</summary>
     public static AttractDemoInputDefinition AttractSpecialBeamAttack { get; } =
-        new(AttractDemoInputWatch.TitleLeaving, DemoInputRecordingId.AttractSpecialBeamAttack);
+        new(DemoInputRecordingId.AttractSpecialBeamAttack);
 
     /// <summary>The TourianEntrance title demonstration's input.</summary>
     public static AttractDemoInputDefinition AttractTourianEntrance { get; } =
-        new(AttractDemoInputWatch.TitleLeaving, DemoInputRecordingId.AttractTourianEntrance);
+        new(DemoInputRecordingId.AttractTourianEntrance);
 
     /// <summary>The CrystalFlash title demonstration's input.</summary>
     public static AttractDemoInputDefinition AttractCrystalFlash { get; } =
-        new(AttractDemoInputWatch.TitleLeaving, DemoInputRecordingId.AttractCrystalFlash);
+        new(DemoInputRecordingId.AttractCrystalFlash);
 }

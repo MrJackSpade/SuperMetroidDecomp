@@ -131,7 +131,7 @@ internal static class AttractDemoSceneVerification
                 // presentation initialization are separate from this dispatch contract.
                 var input = new AttractDemoInput(scene);
                 for (int frame = 0; frame < scene.Duration; frame++)
-                    input.StepStock();
+                    input.Step();
             }
         }
     }
@@ -149,8 +149,8 @@ internal static class AttractDemoSceneVerification
             // The demonstrations never show Samus held by Draygon, the one movement the native shinespark release
             // waits out (#2190).
             reference.Step(titleLeaving: false, SamusMovementType.Standing);
-            compiled.StepStock();
-            AssertEqual(reference.Script.Snapshot(), NativeDemoInputReference.Of(compiled.Script, DemoInputNativeListAddresses.WatchAddress(compiled.Watch)),
+            compiled.Step();
+            AssertEqual(reference.Script.Snapshot(), NativeDemoInputReference.Of(compiled.Script, DemoInputNativeListAddresses.WatchAddress(scene.Input, compiled.Script)),
                 $"compiled attract {scene.Input.Animation}, frame {frame}");
         }
     }

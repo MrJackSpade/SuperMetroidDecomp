@@ -11,13 +11,18 @@ internal static class AttractDemoNativeWords
     /// <summary>The bank-$82 post-room-load callback that does nothing: the scene has no <see cref="AttractDemoRoomSetup"/>.</summary>
     internal const ushort NoRoomSetup = 0x8924;
 
+    /// <summary>
+    /// The bank-$82 post-room-load callback DemoRoom_SetBG2TilemapBase, which the Landing Site's scenes name: it points the
+    /// background at the sky's tall map, which loading the room's sky already shows, so the scene has no
+    /// <see cref="AttractDemoRoomSetup"/> (#2385).
+    /// </summary>
+    internal const ushort SkyTilemapSetup = 0x8925;
+
     /// <summary>The bank-$82 post-room-load callback naming each <see cref="AttractDemoRoomSetup"/>.</summary>
     internal static readonly NativeWordIdentities<AttractDemoRoomSetup> RoomSetups = new(new Dictionary<AttractDemoRoomSetup, ushort>
     {
         // DemoRoom_ChargeBeamRoomScroll21: scroll cell $21 becomes red.
         [AttractDemoRoomSetup.ChargeBeamScroll] = 0x891a,
-        // DemoRoom_SetBG2TilemapBase.
-        [AttractDemoRoomSetup.LandingSiteSky] = 0x8925,
         // DemoRoom_SetKraidFunctionTimer: body variable F becomes sixty.
         [AttractDemoRoomSetup.KraidTimer] = 0x892b,
         // DemoRoom_SetBrinstarBossBits: Brinstar boss byte becomes one.

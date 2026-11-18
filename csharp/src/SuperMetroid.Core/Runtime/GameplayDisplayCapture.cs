@@ -85,7 +85,9 @@ public static class GameplayDisplayCapture
         GameplayLatchedScene scene = latched.Scene;
         GameplayLatchedBossBody bosses = latched.Bosses;
         RoomShakeFrameResult shake = scrolls.RoomShake;
-        Position16<RoomPixels> foregroundScroll = scrolls.ForegroundScroll + shake.Foreground;
+        // The foreground's scroll is signed (#2384): the room's shake, like the Crocomire rumble, adds a plain offset, and a
+        // scroll above or left of the room's origin needs no wrap.
+        Offset16<RoomPixels> foregroundScroll = scrolls.ForegroundScroll + shake.Foreground;
         // A boss's body (Kraid's, Phantoon's, Draygon's, Crocomire's or Mother Brain's, #1352-#1356) shows where its boss places
         // it in the room against the frame's camera (#2031): the background shows the body from its placement, each frame
         // where it lies against it, moved by the room's shake as any background is. Only a room without a placed body shows
@@ -95,11 +97,11 @@ public static class GameplayDisplayCapture
         Position16<RoomPixels>? bodyPlacement = bosses.Placement;
         Offset16<BackgroundPixels> backgroundScroll = (bodyPlacement is { } placement ? BossBodyPlacement.Shown(placement, camera) : SignedScroll(scrolls.BackgroundScroll))
             + shake.Background;
-        if (live.TourianStatuesEnabled)
-            // The statues' descent supplies the background's vertical scroll per line after the
+        if (latched.TourianStatueVerticalOffset is int descent)
+            // The statue room's descent supplies the background's vertical scroll per line after the
             // ordinary scroll. It replaces, rather than adds to, the quake-adjusted
             // scroll. The descent also gives the statue sprites zero quake displacement.
-            backgroundScroll = backgroundScroll.WithY(scrolls.ForegroundPosition.Y + latched.TourianStatueVerticalOffset);
+            backgroundScroll = backgroundScroll.WithY(scrolls.ForegroundPosition.Y + descent);
         RoomFxOverlayRenderSnapshot? fx = latched.RoomFxOverlay;
         LatchedScrollingSky? sky = scene.ScrollingSky;
         ScrollBands? skyX = SkyHorizontalScrolls(live, shake);
@@ -322,7 +324,7 @@ public static class GameplayDisplayCapture
             // The reveal lies over the room's own blocks (#1514), so the background it is drawn on moves with the foreground.
             view = view with
             {
-                BackgroundScroll = Offset16<BackgroundPixels>.Wrapped(view.ForegroundScroll.X, view.ForegroundScroll.Y),
+                BackgroundScroll = new Offset16<BackgroundPixels>(view.ForegroundScroll.X, view.ForegroundScroll.Y),
             };
         }
         view = view with

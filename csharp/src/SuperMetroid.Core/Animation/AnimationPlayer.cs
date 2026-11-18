@@ -212,8 +212,10 @@ internal sealed class AnimationPlayer<TSegment, TFrame, TEvent>
 
     /// <summary>
     /// Goes on from <paramref name="playback"/>, of the same segments, in place of where the play stands, the shown frame
-    /// keeping its updates left (#2447): another animation sharing the place has moved it on, as Samus's Screw Attack glow
-    /// moves on the place her Speed Booster glow counts its shades from, or started it again.
+    /// keeping its updates left and whether it rests (#2447, #2458): another animation sharing the place has moved it on,
+    /// as Samus's Screw Attack glow moves on the place her Speed Booster glow counts its shades from, or started it again;
+    /// or the frames after it come from another animation, as a Power Bomb's fuse moves its live animation onto the same
+    /// frame of its fast animation.
     /// </summary>
     internal void GoOnFrom(AnimationPlayback<TSegment> playback)
     {
@@ -227,17 +229,6 @@ internal sealed class AnimationPlayer<TSegment, TFrame, TEvent>
     /// new animation, as the Shitroid's membrane pulse changes its pace.
     /// </summary>
     internal void GoOnIn(Animation<TSegment> animation) => Rebind(segments, animation);
-
-    /// <summary>
-    /// Goes on from <paramref name="playback"/>, of the same segments, in place of where the play stands (#2458): the shown
-    /// frame keeps its updates left and whether it rests, and the frames after it come from there, as a Power Bomb's fuse
-    /// moves its live animation onto the same frame of its fast animation.
-    /// </summary>
-    internal void GoOnFrom(AnimationPlayback<TSegment> playback)
-    {
-        Ensure.NotNull(playback.Animation);
-        Playback = playback;
-    }
 
     /// <summary>
     /// Plays the animation's segments as <paramref name="rebound"/> holds them from now on, keeping where the play stands,

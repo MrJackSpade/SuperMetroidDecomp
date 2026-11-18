@@ -2,6 +2,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
@@ -30,6 +31,6 @@ internal sealed class CeresEncounter(RidleyEncounter encounter, CeresRidleyBehav
         ceresRidley.BabyScene.DrawCeresRidleyBabyAndDoorOverEnemies(sprites, camera);
 
     /// <inheritdoc/>
-    public void RunCeresRidleyGetawayRoomMain(SamusState? samus, int frameCounter) =>
-        escape.RunGetawayRoomMain(samus, frameCounter);
+    public void RunCeresRidleyGetawayRoomMain(SamusState samus, RoomFloor floor, int frameCounter) =>
+        escape.RunGetawayRoomMain(samus, floor, frameCounter);
 }

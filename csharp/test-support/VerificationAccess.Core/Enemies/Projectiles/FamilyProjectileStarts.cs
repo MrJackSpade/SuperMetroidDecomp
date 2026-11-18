@@ -34,14 +34,21 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// </summary>
 internal static class FamilyProjectileStarts
 {
+    /// <summary>The statue room a Tourian statue projectile of <paramref name="kind"/> spawns in.</summary>
+    /// <exception cref="InvalidOperationException">No statue room was given.</exception>
+    private static ITourianStatueRoom RequireStatueRoom(ITourianStatueRoom? statueRoom, RoomEnemyProjectileKind kind) =>
+        statueRoom ?? throw new InvalidOperationException($"A {kind} projectile spawns only in the Tourian statue room.");
+
     /// <summary>Initializes <paramref name="projectile"/> as its kind's production spawner does.</summary>
     /// <param name="enemies">The enemy system whose species own the room-lifetime behaviours.</param>
     /// <param name="projectile">The freshly spawned projectile.</param>
     /// <param name="kind">What the projectile is.</param>
     /// <param name="graphics">The sheet and shading the projectile draws with.</param>
-    internal static void Initialize(RoomEnemySystem enemies, EnemyProjectile projectile, RoomEnemyProjectileKind kind, SpriteGraphics graphics)
+    /// <param name="statueRoom">The Tourian statue room, whose statues' projectiles splash in it and follow it down; null elsewhere.</param>
+    internal static void Initialize(RoomEnemySystem enemies, EnemyProjectile projectile, RoomEnemyProjectileKind kind, SpriteGraphics graphics,
+        ITourianStatueRoom? statueRoom = null)
     {
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, BehaviorOf(enemies, kind), graphics);
+        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, BehaviorOf(enemies, kind, statueRoom), graphics);
         if (StartingAnimation(kind) is { } animation)
             projectile.StartAnimation(animation);
     }
@@ -49,7 +56,8 @@ internal static class FamilyProjectileStarts
     /// <summary>The behaviour the production spawner of <paramref name="kind"/> binds to it.</summary>
     /// <param name="enemies">The enemy system whose species own the room-lifetime behaviours.</param>
     /// <param name="kind">What the projectile is.</param>
-    internal static EnemyProjectileBehavior BehaviorOf(RoomEnemySystem enemies, RoomEnemyProjectileKind kind) => kind switch
+    /// <param name="statueRoom">The Tourian statue room, whose statues' projectiles splash in it and follow it down; null elsewhere.</param>
+    internal static EnemyProjectileBehavior BehaviorOf(RoomEnemySystem enemies, RoomEnemyProjectileKind kind, ITourianStatueRoom? statueRoom = null) => kind switch
     {
         RoomEnemyProjectileKind.PrePhantoonRoomHeldPlace => PrePhantoonRoomBehavior.HoldingProjectile,
         RoomEnemyProjectileKind.SkreeMetareeParticle =>
@@ -116,9 +124,9 @@ internal static class FamilyProjectileStarts
         RoomEnemyProjectileKind.TourianStatueSplash or RoomEnemyProjectileKind.TourianStatueEyeGlow or
             RoomEnemyProjectileKind.TourianStatueParticle or RoomEnemyProjectileKind.TourianStatueTail or
             RoomEnemyProjectileKind.TourianStatueSoul or RoomEnemyProjectileKind.TourianStatueDescentDust =>
-            enemies.TourianUnlockBehavior.Effects,
+            enemies.UnlockEffectsIn(RequireStatueRoom(statueRoom, kind)).Effects,
         RoomEnemyProjectileKind.TourianStatueRidley or RoomEnemyProjectileKind.TourianStatuePhantoon or
-            RoomEnemyProjectileKind.TourianStatueBaseDecoration => enemies.TourianEntranceStatueBehavior.Decorations,
+            RoomEnemyProjectileKind.TourianStatueBaseDecoration => enemies.TourianEntranceStatueBehavior.DecorationsIn(RequireStatueRoom(statueRoom, kind)),
         RoomEnemyProjectileKind.SporeSpawnStalk => enemies.SporeSpawnBehavior.Stalk,
         RoomEnemyProjectileKind.SporeSpawnSpore => enemies.SporeSpawnBehavior.Spore,
         RoomEnemyProjectileKind.SporeSpawnSpawner => enemies.SporeSpawnBehavior.Spawner,

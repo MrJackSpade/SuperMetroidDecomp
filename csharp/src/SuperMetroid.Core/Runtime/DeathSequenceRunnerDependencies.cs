@@ -19,7 +19,4 @@ internal sealed record DeathSequenceRunnerDependencies
 
     /// <summary>Samus's frame state, which owns Samus and records the death sequence's last step.</summary>
     public required SamusFrameState Player { get; init; }
-
-    /// <summary>The active room, whose camera Samus's death draws use.</summary>
-    public required ActiveRoomState Room { get; init; }
 }

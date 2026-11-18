@@ -14,8 +14,10 @@ namespace SuperMetroid.Core.Areas.Tourian;
 [RoomLifetime]
 internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<TourianStatueEffectMotion>
 {
-    /// <summary>The room's randomness and the statue room's water surface the particles splash through.</summary>
+    /// <summary>The room's randomness, which aims the particles.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>The statue room, whose water surface the particles splash through.</summary>
+    private readonly ITourianStatueRoom _statueRoom;
     /// <summary>Spawns and sets up the statue, dust, particle and splash projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Earthquake state written by the statue release cue.</summary>
@@ -30,10 +32,12 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
 
 
     /// <summary>Binds the unlock effects to the current room's projectile, audio, FX and statue owners.</summary>
-    internal TourianUnlockBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles, RoomEarthquake earthquake, EnemyAudioQueue audio, TourianEntranceStatueBehavior statue)
+    internal TourianUnlockBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles, RoomEarthquake earthquake, EnemyAudioQueue audio,
+        TourianEntranceStatueBehavior statue, ITourianStatueRoom statueRoom)
         : base(StartingMotions)
     {
         _room = room;
+        _statueRoom = Ensure.NotNull(statueRoom);
         _projectiles = projectiles;
         _earthquake = earthquake;
         _audio = audio;
@@ -41,9 +45,7 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
     }
 
     /// <summary>The room line of the statue room's water surface, which the particles cross and their splashes ride.</summary>
-    /// <exception cref="InvalidOperationException">The room's effect names no water surface.</exception>
-    private int WaterSurface => _room.Services.TourianStatueRoom.WaterSurface ??
-        throw new InvalidOperationException("The Tourian statues' room effect names no water surface.");
+    private int WaterSurface => _statueRoom.WaterSurface;
 
     /// <summary>
     /// Whether <paramref name="projectile"/> lies below the water surface: the signed distance from it down to the surface,

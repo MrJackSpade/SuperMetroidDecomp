@@ -35,12 +35,12 @@ internal static class TourianEntranceStatueInstructionProgramDefinitionsVerifica
                 NativeEnemyListDefinitions.Classify(cartridge.ReadCartridgeWord((int)new SnesAddress(ListBank, entry))),
                 $"Tourian entrance-statue parameter {parameter} selects a native list that deletes the statue at once");
 
-            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork);
+            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork, statueRoom: new SuperMetroid.Verification.Areas.Tourian.FixedTourianStatueRoom(WaterSurface: 216, StatueOffset: 0));
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             place.Bind(EnemyDefinitionId.TourianStatue, place.Definition);
             place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
             place.SetSpawnParameter1(EnemyDefinitionId.TourianStatue, parameter);
-            enemies.TourianEntranceStatueBehavior.InitializeTourianEntranceStatue(place);
+            enemies.TourianEntranceStatueBehavior.InitializeTourianEntranceStatue(place, new FixedTourianStatueRoom(WaterSurface: 216, StatueOffset: 0));
             AssertEqual(parameter == 0 ? 3 : 0, enemies.Projectiles.EnemyProjectiles.Count(projectile => projectile.IsActive),
                 $"Tourian entrance-statue parameter {parameter} spawns the decorations only from the first placement");
             AssertTrue(!place.Presence.HasAny(EnemyPresence.Deleted),

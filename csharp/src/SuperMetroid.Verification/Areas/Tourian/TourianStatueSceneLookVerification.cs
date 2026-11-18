@@ -24,7 +24,8 @@ internal static class TourianStatueSceneLookVerification
     internal static void VerifyTourianStatueSceneLook()
     {
         RoomEnemySystem enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles),
-            RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork);
+            RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork,
+            statueRoom: new FixedTourianStatueRoom(WaterSurface: 216, StatueOffset: 0));
         RoomEnemyPlace placement = enemies.Places.InUpdateOrder[0];
         placement.SetSpawnParameter1(EnemyDefinitionId.TourianStatue, 0);
         placement.Bind(EnemyDefinitionId.TourianStatue, placement.Definition);
@@ -36,12 +37,13 @@ internal static class TourianStatueSceneLookVerification
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(stranger, RoomEnemyProjectileKind.DustOrExplosion,
             DustExplosionProjectileBehavior.Instance, SpriteGraphics.SharedStandard);
 
-        enemies.TourianEntranceStatueBehavior.InitializeTourianEntranceStatue(placement);
+        var statueRoom = new FixedTourianStatueRoom(WaterSurface: 216, StatueOffset: 0);
+        enemies.TourianEntranceStatueBehavior.InitializeTourianEntranceStatue(placement, statueRoom);
         EnemyProjectile[] decorations = [.. enemies.Projectiles.EnemyProjectiles.Where(projectile =>
             projectile.IsActive && !ReferenceEquals(projectile, stranger))];
         AssertEqual(3, decorations.Length, "the scene's first placement spawns its three decorations");
 
-        enemies.TourianUnlockBehavior.SpawnTourianEyeGlow(TourianStatueNativeWords.Eye(0));
+        enemies.UnlockEffectsIn(statueRoom).SpawnTourianEyeGlow(TourianStatueNativeWords.Eye(0));
         EnemyProjectile glow = enemies.Projectiles.EnemyProjectiles.Single(projectile =>
             projectile.IsActive && projectile.Kind == RoomEnemyProjectileKind.TourianStatueEyeGlow);
         PictureShading look = enemies.TourianEntranceStatueBehavior.SceneShading;

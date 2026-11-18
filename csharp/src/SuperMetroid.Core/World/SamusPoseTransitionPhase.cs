@@ -26,8 +26,6 @@ internal sealed class SamusPoseTransitionPhase
     private readonly GameplayOptions _options;
     /// <summary>Owns the live Samus state and the selection of her input and movement modes.</summary>
     private readonly SamusFrameState _player;
-    /// <summary>Provides active level data, camera, and room state for movement scans.</summary>
-    private readonly ActiveRoomState _room;
 
     /// <summary>Creates the phase over the frame phases' collaborators.</summary>
     internal SamusPoseTransitionPhase(SamusPoseTransitionPhaseDependencies dependencies)
@@ -37,11 +35,10 @@ internal sealed class SamusPoseTransitionPhase
         _clock = dependencies.Clock;
         _options = dependencies.Options;
         _player = dependencies.Player;
-        _room = dependencies.Room;
     }
 
     /// <summary>Applies post-movement pose and animation transitions after the frame's selected movement mode.</summary>
-    internal void Apply(SamusControlFrame frame, SamusState samus, ISamusRoomObjects roomObjects)
+    internal void Apply(SamusControlFrame frame, SamusState samus, SamusTerrain terrain)
     {
         if (!_player.GroundedSamusMovementEnabled ||
             frame.Mode.Movement is SamusMovementMode.Fatal or SamusMovementMode.SuitPickup or SamusMovementMode.ScriptLocked)
@@ -65,11 +62,11 @@ internal sealed class SamusPoseTransitionPhase
             SamusPoseTransitions.ApplyPendingVerifiedAnimationTransition(samus);
 
         animationTransitionApplied = ApplyInterruptionTransitions(frame, samus, animationTransitionApplied,
-            hitInterruptionExpiryPending, roomObjects);
-        animationTransitionApplied = ApplyCollisionTransitions(frame, samus, animationTransitionApplied, roomObjects);
+            hitInterruptionExpiryPending, terrain);
+        animationTransitionApplied = ApplyCollisionTransitions(frame, samus, animationTransitionApplied, terrain);
 
         if (!animationTransitionApplied && _player.ProspectiveSamusPose is { } inputTransition)
-            ApplyInputTransition(frame, samus, inputTransition, roomObjects);
+            ApplyInputTransition(frame, samus, inputTransition, terrain);
         else if (!animationTransitionApplied)
             ApplyLookupFailureResponse(frame, samus);
 
@@ -127,7 +124,7 @@ internal sealed class SamusPoseTransitionPhase
     /// </summary>
     [IndependentFlag("An earlier transition this frame and a pending hit expiry are independent pose-update states.")]
     private bool ApplyInterruptionTransitions(SamusControlFrame frame, SamusState samus, bool alreadyApplied,
-        bool hitInterruptionExpiryPending, ISamusRoomObjects roomObjects)
+        bool hitInterruptionExpiryPending, SamusTerrain terrain)
     {
         bool animationTransitionApplied = alreadyApplied;
         // The animation's transition queues a transitional pose rather than replacing movement.
@@ -136,8 +133,8 @@ internal sealed class SamusPoseTransitionPhase
         if (!animationTransitionApplied && _player.LastGrappleMovement is { PendingDropPose: SamusPoseId dropPose })
         {
             SamusAerialPoseTransitions.ApplyGrappleDropTransition(samus,
-                _room.LevelData ?? throw new InvalidOperationException("Grapple drop requires room geometry."),
-                dropPose, _clock.Counter, roomObjects);
+                terrain.Level,
+                dropPose, _clock.Counter, terrain.RoomObjects);
             _player.ProspectiveSamusPose = null;
             _player.ProspectiveSamusFallbackPose = null;
             _player.ProspectiveSamusWallCollisionPose = null;
@@ -191,7 +188,7 @@ internal sealed class SamusPoseTransitionPhase
                 samus,
                 _playerActions.Current,
                 _freeze.TimeIsFrozen,
-                new KnockbackPoseCollision(new SamusTerrain { Level = _room.LoadedLevelData, RoomObjects = roomObjects }, _clock.Counter)))
+                new KnockbackPoseCollision(terrain, _clock.Counter)))
         {
             _player.ProspectiveSamusPose = null;
             _player.ProspectiveSamusFallbackPose = null;
@@ -208,12 +205,11 @@ internal sealed class SamusPoseTransitionPhase
         if (!animationTransitionApplied && samus.KnockbackTimer == 0 &&
             samus.KnockbackDirection == SuperMetroid.Core.Samus.Movement.SamusKnockbackDirection.None &&
             SamusPoseMetadata.TrySetupPublishedBombJump(samus,
-                _room.LevelData ?? throw new InvalidOperationException(
-                    "A published bomb-jump direction requires active room level data."),
+                terrain.Level,
                 _freeze.TimeIsFrozen,
                 _clock.Counter,
                 _playerActions.NewlyPressed,
-                roomObjects))
+                terrain.RoomObjects))
         {
             _player.ProspectiveSamusPose = null;
             _player.ProspectiveSamusFallbackPose = null;
@@ -268,7 +264,7 @@ internal sealed class SamusPoseTransitionPhase
     /// wall, Morph Ball, wall-jump and Spring Ball landings, ordinary landings and walking off a floor. Returns whether
     /// a transition has been applied.
     /// </summary>
-    private bool ApplyCollisionTransitions(SamusControlFrame frame, SamusState samus, bool alreadyApplied, ISamusRoomObjects roomObjects)
+    private bool ApplyCollisionTransitions(SamusControlFrame frame, SamusState samus, bool alreadyApplied, SamusTerrain terrain)
     {
         bool animationTransitionApplied = alreadyApplied;
         // The ceiling collision replaces the ordinary input target with the current pose
@@ -327,12 +323,11 @@ internal sealed class SamusPoseTransitionPhase
                     : _player.ProspectiveSamusFallbackPose;
             _player.ProspectiveSamusWallCollisionPose =
                 SamusGroundedPoseTransitions.CheckProspectiveRunningPoseForWall(samus,
-                    _room.LevelData ?? throw new InvalidOperationException(
-                        "Ran-into-wall probe requires active room level data."),
+                    terrain.Level,
                     prospectiveRunningPose,
                     currentRunHitWall,
                     out _,
-                    roomObjects);
+                    terrain.RoomObjects);
         }
 
         if (!animationTransitionApplied &&
@@ -380,7 +375,7 @@ internal sealed class SamusPoseTransitionPhase
         if (!animationTransitionApplied &&
             _player.LastAerialSamusMovement is { WallJumpTriggered: true })
         {
-            SamusAerialPoseTransitions.ApplyWallJumpTrigger(samus, _room.LoadedLevelData, _clock.Counter, roomObjects);
+            SamusAerialPoseTransitions.ApplyWallJumpTrigger(samus, terrain.Level, _clock.Counter, terrain.RoomObjects);
             animationTransitionApplied = true;
         }
 
@@ -407,22 +402,20 @@ internal sealed class SamusPoseTransitionPhase
             if (SamusPoseMetadata.IsCompactAerialPose(frame.PoseAtFrameStart))
             {
                 SamusPoseTransitions.TryApplyCompactAerialLanding(samus,
-                    _room.LevelData ?? throw new InvalidOperationException(
-                        "Compact landing requires active room level data."),
+                    terrain.Level,
                     _clock.Counter,
-                    roomObjects);
+                    terrain.RoomObjects);
             }
             else
             {
                 bool wasSpinning = SamusPoseMetadata.IsSpinJumpPose(frame.PoseAtFrameStart) ||
                     SamusPoseMetadata.IsWallJumpPose(frame.PoseAtFrameStart);
                 SamusPoseTransitions.TryApplyAerialLanding(samus,
-                    _room.LevelData ?? throw new InvalidOperationException(
-                        "Aerial landing requires active room level data."),
+                    terrain.Level,
                     wasSpinning,
                     _playerActions.Current,
                     _clock.Counter,
-                    roomObjects);
+                    terrain.RoomObjects);
             }
             animationTransitionApplied = true;
         }
@@ -451,8 +444,8 @@ internal sealed class SamusPoseTransitionPhase
         {
             SamusPoseId fallingPose = SamusPoseTransitions.SelectFallingPoseForCurrentAim(samus);
             SamusPoseTransitions.ApplyWalkedOffFloorTransition(samus,
-                _room.LevelData ?? throw new InvalidOperationException("Walk-off requires room collision data."),
-                fallingPose, _clock.Counter, roomObjects);
+                terrain.Level,
+                fallingPose, _clock.Counter, terrain.RoomObjects);
             animationTransitionApplied = true;
         }
 
@@ -476,22 +469,22 @@ internal sealed class SamusPoseTransitionPhase
     /// Applies the input transition the input phase selected from the pose table, through the family setup that owns the
     /// source and target pair. Self-transitions in the turn tables mean "remain in this animation".
     /// </summary>
-    private void ApplyInputTransition(SamusControlFrame frame, SamusState samus, SamusPoseTransition inputTransition, ISamusRoomObjects roomObjects)
+    private void ApplyInputTransition(SamusControlFrame frame, SamusState samus, SamusPoseTransition inputTransition, SamusTerrain terrain)
     {
         SamusPoseId targetPose = inputTransition.ProspectivePose;
 
         // Reinitializing frame zero would prevent the turn transition from ever being reached.
         if (targetPose == frame.PoseAtFrameStart)
             return;
-        if (!TryApplySpecialBodyTransition(frame, samus, targetPose, roomObjects) && !TryApplyAimRunOrTurnTransition(frame, samus, targetPose))
-            ApplyJumpCrouchOrPostureTransition(frame, samus, targetPose, roomObjects);
+        if (!TryApplySpecialBodyTransition(frame, samus, targetPose, terrain) && !TryApplyAimRunOrTurnTransition(frame, samus, targetPose))
+            ApplyJumpCrouchOrPostureTransition(frame, samus, targetPose, terrain);
     }
 
     /// <summary>
     /// Applies a Draygon-grab, moonwalk, damage-boost, aerial-turn, spin, Morph Ball or compact aerial transition.
     /// Returns false when the pair belongs to a later family.
     /// </summary>
-    private bool TryApplySpecialBodyTransition(SamusControlFrame frame, SamusState samus, SamusPoseId targetPose, ISamusRoomObjects roomObjects)
+    private bool TryApplySpecialBodyTransition(SamusControlFrame frame, SamusState samus, SamusPoseId targetPose, SamusTerrain terrain)
     {
         switch (new SamusPoseChange(frame.PoseAtFrameStart, targetPose))
         {
@@ -572,11 +565,10 @@ internal sealed class SamusPoseTransitionPhase
                 // aimed aerial turn art when needed, folds momentum, and runs compact
                 // pose-expansion collision before committing the turn.
                 SamusAerialPoseTransitions.TryApplyAerialTurn(samus,
-                    _room.LevelData ?? throw new InvalidOperationException(
-                        "Aerial turn requires active room level data."),
+                    terrain.Level,
                     target,
                     _clock.Counter,
-                    roomObjects);
+                    terrain.RoomObjects);
                 return true;
             case var (source, target)
                 when (SamusPoseMetadata.IsSpinJumpPose(source) ||
@@ -610,11 +602,10 @@ internal sealed class SamusPoseTransitionPhase
                        target is SamusPoseId.UnmorphingTransitionRightPose or
                            SamusPoseId.UnmorphingTransitionLeftPose)):
                 SamusPosturePoseTransitions.TryApplyMorphTransition(samus,
-                    _room.LevelData ?? throw new InvalidOperationException(
-                        "Morph transition requires active room level data."),
+                    terrain.Level,
                     targetPose,
                     _clock.Counter,
-                    roomObjects);
+                    terrain.RoomObjects);
                 return true;
             case var (source, target)
                 when (SamusPoseMetadata.IsCompactAerialPose(source) ||
@@ -628,11 +619,10 @@ internal sealed class SamusPoseTransitionPhase
                       (SamusPoseMetadata.IsLeftFacingFallingPose(source) &&
                        SamusPoseMetadata.IsLeftFacingFallingPose(target))):
                 SamusAerialPoseTransitions.TryApplyCompactAerialTransition(samus,
-                    _room.LevelData ?? throw new InvalidOperationException(
-                        "Compact aerial transition requires active room level data."),
+                    terrain.Level,
                     targetPose,
                     _clock.Counter,
-                    roomObjects);
+                    terrain.RoomObjects);
                 return true;
             default:
                 return false;
@@ -732,7 +722,7 @@ internal sealed class SamusPoseTransitionPhase
     /// Applies a jump, crouch, unmorph, landing, posture or Shinespark direction transition. Every active pair
     /// is owned by this or an earlier family; any other pair means the pose table or state is corrupt.
     /// </summary>
-    private void ApplyJumpCrouchOrPostureTransition(SamusControlFrame frame, SamusState samus, SamusPoseId targetPose, ISamusRoomObjects roomObjects)
+    private void ApplyJumpCrouchOrPostureTransition(SamusControlFrame frame, SamusState samus, SamusPoseId targetPose, SamusTerrain terrain)
     {
         switch (new SamusPoseChange(frame.PoseAtFrameStart, targetPose))
         {
@@ -795,11 +785,10 @@ internal sealed class SamusPoseTransitionPhase
                 // The crouched aim poses use the ordinary neutral-jump transition
                 // art for every crouched aim direction, keeping the crouching-turn poses' ten-pixel adjustment.
                 SamusPosturePoseTransitions.TryApplyCrouchJumpTransition(samus,
-                    _room.LevelData ?? throw new InvalidOperationException(
-                        "Crouch jump requires active room level data."),
+                    terrain.Level,
                     targetPose,
                     _clock.Counter,
-                    roomObjects);
+                    terrain.RoomObjects);
                 break;
             case var (source, target)
                 when (SamusPoseMetadata.IsSpinJumpPose(source) ||
@@ -813,12 +802,11 @@ internal sealed class SamusPoseTransitionPhase
                 // changed-pose collision for every radius expansion; a rejected
                 // body leaves the compact source pose installed.
                 SamusAerialPoseTransitions.TryApplySpinOrWallJumpToNormalJumpTransition(samus,
-                    _room.LevelData ?? throw new InvalidOperationException(
-                        "Spin-to-normal-jump transition requires active room level data."),
+                    terrain.Level,
                     targetPose,
                     _clock.Counter,
                     _playerActions.NewlyPressed,
-                    roomObjects);
+                    terrain.RoomObjects);
                 break;
             case var (source, target)
                 when (source == SamusPoseId.UnmorphingTransitionRightPose &&
@@ -830,11 +818,10 @@ internal sealed class SamusPoseTransitionPhase
                 // Posture transitions do not poll controller pose tables:
                 // the posture-transition movement type's input lookup returns at once.
                 SamusPosturePoseTransitions.TryApplyUnmorphToFallingTransition(samus,
-                    _room.LevelData ?? throw new InvalidOperationException(
-                        "Unmorph-to-falling transition requires active room level data."),
+                    terrain.Level,
                     targetPose,
                     _clock.Counter,
-                    roomObjects);
+                    terrain.RoomObjects);
                 break;
             case var (source, target)
                 when ((SamusPoseMetadata.IsRightFacingCrouchingPose(source) &&
@@ -845,11 +832,10 @@ internal sealed class SamusPoseTransitionPhase
                 // aimed standing-transition family, but still run pose-expansion
                 // collision before installing the final standing body.
                 SamusPosturePoseTransitions.TryApplyDirectCrouchToStandingTransition(samus,
-                    _room.LevelData ?? throw new InvalidOperationException(
-                        "Direct crouch exit requires active room level data."),
+                    terrain.Level,
                     targetPose,
                     _clock.Counter,
-                    roomObjects);
+                    terrain.RoomObjects);
                 break;
             case var (landingSource, landingTarget)
                 when (landingTarget == SamusPoseId.MovingRightNormalPose &&
@@ -871,11 +857,10 @@ internal sealed class SamusPoseTransitionPhase
                       SamusPoseMetadata.IsRightFacingCrouchingPose(source) ||
                       SamusPoseMetadata.IsLeftFacingCrouchingPose(source)):
                 SamusPosturePoseTransitions.TryApplyPostureTransition(samus,
-                    _room.LevelData ?? throw new InvalidOperationException(
-                        "Posture transition requires active room level data."),
+                    terrain.Level,
                     targetPose,
                     _clock.Counter,
-                    roomObjects);
+                    terrain.RoomObjects);
                 break;
             case var (source, sparkTarget)
                 when source is

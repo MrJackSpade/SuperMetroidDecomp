@@ -15,7 +15,9 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.TourianStatue];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new TourianEntranceStatueEntity(this, place, common);
+    /// <exception cref="InvalidDataException">The statue is placed in a room whose setup does not unlock the statues.</exception>
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new TourianEntranceStatueEntity(this, place, common,
+        _statueRoom ?? throw new InvalidDataException("The Tourian entrance statue is placed in a room whose setup does not unlock the statues."));
 
     /// <summary>Spawns the scene's decorations and its unlock effects.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -23,8 +25,8 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     private readonly List<RoomEnemyPlace> _placements = [];
     /// <summary>The scene's projectiles spawned this room, its decorations and its unlock effects; each still active shows the scene's look.</summary>
     private readonly List<EnemyProjectile> _sceneProjectiles = [];
-    /// <summary>The room's services, whose statue room tells the decorations how far the statue has sunk.</summary>
-    private readonly EnemyRoomBinding _room;
+    /// <summary>The statue room, which tells the decorations how far the statue has sunk; null in every other room.</summary>
+    private readonly ITourianStatueRoom? _statueRoom;
 
     /// <summary>The eye glow the statues' eyes show, the last a released boss lit; none before any.</summary>
     private PictureShade? _eyeGlow;
@@ -38,11 +40,11 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     /// <summary>The released statues drawn in the room's background: their blacked-out eyes and greys, in the order shown.</summary>
     private readonly List<PictureShade> _roomLooks = [];
 
-    /// <summary>Binds projectile allocation and the room's services to the statue species.</summary>
-    internal TourianEntranceStatueBehavior(EnemyProjectileEngine projectiles, EnemyRoomBinding room)
+    /// <summary>Binds projectile allocation and the room's statue room to the statue species.</summary>
+    internal TourianEntranceStatueBehavior(EnemyProjectileEngine projectiles, ITourianStatueRoom? statueRoom)
     {
         _projectiles = projectiles;
-        _room = room;
+        _statueRoom = statueRoom;
     }
 
     /// <summary>
@@ -148,9 +150,10 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     /// Initializes one of the statue scene's three placements (#2014): the first spawns the scene's decorations, and each
     /// shows the scene's entrance look.
     /// </summary>
-    internal void InitializeTourianEntranceStatue(RoomEnemyPlace statue)
+    internal void InitializeTourianEntranceStatue(RoomEnemyPlace statue, ITourianStatueRoom statueRoom)
     {
         Ensure.NotNull(statue);
+        EnemyProjectileBehavior decorations = DecorationsIn(statueRoom);
         if (!_placements.Contains(statue))
             _placements.Add(statue);
         // The base decoration, Ridley and Phantoon spawn in this order, which gives them their authored draw order.
@@ -159,15 +162,18 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
             SpawnTourianEntranceStatueProjectile(
                 RoomEnemyProjectileKind.TourianStatueBaseDecoration,
                 TourianStatueProjectileSegment.BaseDecoration,
-                TourianStatueDecorationDefinitions.BaseDecoration);
+                TourianStatueDecorationDefinitions.BaseDecoration,
+                decorations);
             SpawnTourianEntranceStatueProjectile(
                 RoomEnemyProjectileKind.TourianStatueRidley,
                 TourianStatueProjectileSegment.Ridley,
-                TourianStatueDecorationDefinitions.RidleyStatue);
+                TourianStatueDecorationDefinitions.RidleyStatue,
+                decorations);
             SpawnTourianEntranceStatueProjectile(
                 RoomEnemyProjectileKind.TourianStatuePhantoon,
                 TourianStatueProjectileSegment.Phantoon,
-                TourianStatueDecorationDefinitions.PhantoonStatue);
+                TourianStatueDecorationDefinitions.PhantoonStatue,
+                decorations);
         }
 
         // Statue initialization selects the common sprite colours, which the import colours the statue's sheets in, and
@@ -182,13 +188,14 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     internal void SpawnTourianEntranceStatueProjectile(
         RoomEnemyProjectileKind kind,
         TourianStatueProjectileSegment start,
-        Position16<RoomPixels> position)
+        Position16<RoomPixels> position,
+        EnemyProjectileBehavior decorations)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, Decorations, graphics: SceneGraphics);
+        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, decorations, graphics: SceneGraphics);
         HoldSceneProjectile(projectile);
         projectile.StartAnimation(new TourianStatueProjectileAnimation(start));
         projectile.Position = projectile.Position.WithWhole(position);
@@ -196,13 +203,17 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
         projectile.State = new AnchoredProjectileState(position);
     }
 
-    /// <summary>The statue's base decoration, Ridley and Phantoon (#1760): their spawner starts their animations.</summary>
-    internal EnemyProjectileBehavior Decorations => field ??= new DecorationBehavior(TourianEntranceStatueAnimation, _room);
+    /// <summary>
+    /// The behaviour of the statue's base decoration, Ridley and Phantoon in <paramref name="statueRoom"/> (#1760, #2382):
+    /// their spawner starts their animations, and they follow the statue room's statue down.
+    /// </summary>
+    internal EnemyProjectileBehavior DecorationsIn(ITourianStatueRoom statueRoom) =>
+        new DecorationBehavior(TourianEntranceStatueAnimation, Ensure.NotNull(statueRoom));
 
     /// <summary>A decoration: it follows the statue's reveal and descent, and settles at its place.</summary>
     /// <param name="statue">The statues' shared animation state, whose rest finishes the statue's sinking.</param>
-    /// <param name="room">The room's services, whose statue room says how far the statue has sunk.</param>
-    private sealed class DecorationBehavior(TourianStatueAnimation statue, EnemyRoomBinding room)
+    /// <param name="statueRoom">The statue room, which says how far the statue has sunk.</param>
+    private sealed class DecorationBehavior(TourianStatueAnimation statue, ITourianStatueRoom statueRoom)
         : TourianStatueProjectileBehavior<TourianStatueDecorationMotion>(TourianStatueDecorationMotion.Settled)
     {
         /// <summary>The base decoration's animation starts it following the statue's reveal.</summary>
@@ -238,7 +249,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
 
             // A decoration stands at its place less how far the statue has sunk, which keeps its pictures on the sinking
             // statue drawn in the room's background.
-            projectile.Position = projectile.Position.WithWholeY(anchor.Y - room.Services.TourianStatueRoom.StatueOffset);
+            projectile.Position = projectile.Position.WithWholeY(anchor.Y - statueRoom.StatueOffset);
         }
     }
 }

@@ -57,6 +57,8 @@ internal static class SuperMetroidRuntimeAccess
                 DoorPassage = self.DoorTransition.Passage,
                 // The room's earthquake is the room's, which its shots also start.
                 Earthquake = self.Room.LoadedScope.Enemies.Earthquake,
+                Floor = self.Room.LoadedScope.Floor,
+                TourianStatueRoom = self.Room.LoadedScope.TourianStatues?.Room,
             });
             enemies.Load(request);
             self.Room.Adopt(self.Room.LoadedScope with { Enemies = enemies, Looks = looks });
@@ -89,6 +91,8 @@ internal static class SuperMetroidRuntimeAccess
                 DoorPassage = self.DoorTransition.Passage,
                 // The room's earthquake is the room's, which its shots also start.
                 Earthquake = loaded.Earthquake,
+                Floor = scope.Floor,
+                TourianStatueRoom = scope.TourianStatues?.Room,
             });
             // The room load hands the scope its enemy system before loading the population, as here.
             self.Room.Adopt(scope with { Enemies = enemies, Looks = looks });

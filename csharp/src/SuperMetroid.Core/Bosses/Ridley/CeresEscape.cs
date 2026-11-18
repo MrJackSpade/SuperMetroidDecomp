@@ -107,18 +107,21 @@ internal sealed class CeresEscape : IGameplayShadingSource
     /// Runs the getaway while it flies. It runs after the frame's enemy AI and Samus processing, so the getaway's first
     /// step shares the frame in which Ridley's escape handoff publishes <see cref="CeresEscapeStatus.RidleyEscaped"/>.
     /// </summary>
-    public void RunGetawayRoomMain(SamusState? samus, int frameCounter)
+    /// <param name="samus">Samus, whom the getaway's floor carries.</param>
+    /// <param name="floor">The arena's turning floor, whose capsule and wings the getaway animates.</param>
+    /// <param name="frameCounter">The game's frame counter, which beats the capsule and the wings.</param>
+    public void RunGetawayRoomMain(SamusState? samus, RoomFloor floor, int frameCounter)
     {
         if (Stage != CeresEscapeStage.Getaway)
             return;
-        TickGetawayFloor(samus, frameCounter);
+        TickGetawayFloor(samus, floor, frameCounter);
     }
 
     /// <summary>
     /// Runs the getaway room main until its motion ends. This step owns presentation only: ordinary Ridley has already been
     /// hidden, while Samus remains in room-world coordinates exactly as she does during the boss-room getaway.
     /// </summary>
-    private void TickGetawayFloor(SamusState? samus, int frameCounter)
+    private void TickGetawayFloor(SamusState? samus, RoomFloor floor, int frameCounter)
     {
         int update = Floor.GetawayUpdate;
         Floor.GetawayUpdate = update + 1;
@@ -163,7 +166,7 @@ internal sealed class CeresEscape : IGameplayShadingSource
         if (RidleyCadenceDefinitions.GetawayCapsuleStepEveryFourthUpdate.IsDue(frameCounter))
         {
             Floor.Capsule = Floor.Capsule.NextInCycle;
-            _room.Services.ShowFloorFrame(Floor.Capsule.Entry);
+            floor.Show(Floor.Capsule.Entry);
         }
 
         // The wings beat on every eighth frame of the frame counter. Each wing frame leaves behind the delays
@@ -172,7 +175,7 @@ internal sealed class CeresEscape : IGameplayShadingSource
         {
             Floor.Wings = Floor.Wings.NextInCycle;
             CeresFloorAnimationFrame wing = Floor.Wings.Entry;
-            _room.Services.ShowFloorFrame(wing);
+            floor.Show(wing);
             _unauthoredBoostCadence.TakeDelaysLeftByWings(_bossArtwork.CeresRidleyGetawayBoostDelays.LeftBy(wing));
         }
     }

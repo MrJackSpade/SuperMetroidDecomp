@@ -18,9 +18,6 @@ internal sealed class StandaloneRoomEnemyServices : IRoomEnemyServices
     /// <summary>Only RNG generation is mandatory; reading or seeding its current word needs explicit delegates.</summary>
     private readonly RandomNumbers random;
 
-    /// <summary>The room's turning floor, or null when the host provides none.</summary>
-    private readonly RoomFloor? floor;
-
     /// <summary>Services whose RNG advances with <paramref name="generate"/>.</summary>
     public StandaloneRoomEnemyServices(Func<int> generate) => random = new RandomNumbers(Ensure.NotNull(generate));
 
@@ -48,21 +45,11 @@ internal sealed class StandaloneRoomEnemyServices : IRoomEnemyServices
     /// <inheritdoc />
     public IMotherBrainRoomEffects MotherBrain { get; init; } = Unavailable.Instance;
 
-    /// <inheritdoc />
-    public ITourianStatueRoom TourianStatueRoom { get; init; } = Unavailable.Instance;
-
     /// <summary>Installs the RNG seed's read and write, which some initializers sample or overwrite.</summary>
     public Func<int> ReadRandom { init => random.Read = Ensure.NotNull(value); }
 
     /// <summary>Installs the RNG seed write.</summary>
     public Action<int> SeedRandom { init => random.Write = Ensure.NotNull(value); }
-
-    /// <summary>Installs the turning floor whose parts the Ceres door and Ridley's getaway animate.</summary>
-    public RoomFloor Floor { init => floor = Ensure.NotNull(value); }
-
-    /// <inheritdoc />
-    public void ShowFloorFrame(CeresFloorAnimationFrame frame) =>
-        (floor ?? throw Unavailable.Missing("animate the room's turning floor")).Show(frame);
 
     /// <summary>Routes generated values through a required fixture callback and current-word access through optional callbacks.</summary>
     private sealed class RandomNumbers(Func<int> generate) : IEnemyRandomNumbers
@@ -85,7 +72,7 @@ internal sealed class StandaloneRoomEnemyServices : IRoomEnemyServices
 
     /// <summary>The services a standalone host does not provide: every call fails at the dependency.</summary>
     private sealed class Unavailable : IGlobalEventFlags, IZebetiteProgress, IAreaBossFlags, IRoomObjectPresence,
-        IRoomScrollZoneAccess, ISamusControlLock, IMotherBrainRoomEffects, ITourianStatueRoom
+        IRoomScrollZoneAccess, ISamusControlLock, IMotherBrainRoomEffects
     {
         /// <summary>Shared failure object for every cartridge-state capability absent from this standalone host.</summary>
         internal static readonly Unavailable Instance = new();
@@ -121,9 +108,5 @@ internal sealed class StandaloneRoomEnemyServices : IRoomEnemyServices
         public void DisableControls() => throw Missing("disable Samus's controls");
         /// <summary>Fails when Mother Brain glass setup lacks its room-effects service.</summary>
         public void CountHeadShotOnGlass() => throw Missing("count a head shot on Mother Brain's glass");
-        /// <summary>Fails when a Tourian statue effect reads the room's water without an installed statue-room service.</summary>
-        public int? WaterSurface => throw Missing("read the Tourian statue room's water surface");
-        /// <summary>Fails when a Tourian statue decoration reads the descent without an installed statue-room service.</summary>
-        public int StatueOffset => throw Missing("read how far the Tourian entrance statue has sunk");
     }
 }

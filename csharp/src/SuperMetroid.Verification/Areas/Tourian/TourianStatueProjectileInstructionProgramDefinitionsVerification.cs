@@ -48,9 +48,10 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
             TourianStatueProjectileNativeListAddresses.Family.NativePointers(CartridgeImportSource.Require(rom));
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null), installedBosses: InstalledFixtures.BossArtwork);
         enemies.VerificationServices().NextRandom = () => 4;
-        enemies.VerificationServices().FixedTourianStatueRoom = new FixedTourianStatueRoom(WaterSurface: 216, StatueOffset: 0);
+        var statueRoom = new FixedTourianStatueRoom(WaterSurface: 216, StatueOffset: 0);
+        TourianUnlockBehavior unlock = enemies.UnlockEffectsIn(statueRoom);
 
-        enemies.TourianUnlockBehavior.SpawnTourianEyeGlow(TourianStatueNativeWords.Eye(0));
+        unlock.SpawnTourianEyeGlow(TourianStatueNativeWords.Eye(0));
         EnemyProjectile eye = Single(RoomEnemyProjectileKind.TourianStatueEyeGlow);
         Run(eye, 10);
         AssertEqual((ushort)0xb7db, NativePointer(eye),
@@ -88,7 +89,7 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
         Run(tail, 1);
         AssertTrue(!tail.IsActive, "particle tail deletes after four authored poses");
 
-        enemies.TourianUnlockBehavior.SpawnTourianParticleChild(particle, RoomEnemyProjectileKind.TourianStatueSplash,
+        unlock.SpawnTourianParticleChild(particle, RoomEnemyProjectileKind.TourianStatueSplash,
             TourianStatueProjectileSegment.Splash);
         EnemyProjectile splash = Single(RoomEnemyProjectileKind.TourianStatueSplash);
         Run(splash, 4);
@@ -97,7 +98,7 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
         Run(splash, 1);
         AssertTrue(!splash.IsActive, "water splash deletes on its fifth instruction tick");
 
-        enemies.TourianUnlockBehavior.SpawnTourianSoul(TourianStatueNativeWords.Eye(2));
+        unlock.SpawnTourianSoul(TourianStatueNativeWords.Eye(2));
         EnemyProjectile soul = Single(RoomEnemyProjectileKind.TourianStatueSoul);
         Run(soul, 3);
         AssertEqual((ushort)0xb852, NativePointer(soul),
@@ -164,7 +165,8 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
             TourianStatueProjectileSegment start = FamilyProjectileStarts.StartingAnimation(kind) is TourianStatueProjectileAnimation started
                 ? started.PlayingSegment
                 : throw new ArgumentOutOfRangeException(nameof(kind), kind, "The entrance statue spawns no such decoration.");
-            enemies.TourianEntranceStatueBehavior.SpawnTourianEntranceStatueProjectile(kind, start, new Position16<RoomPixels>(128, 128));
+            enemies.TourianEntranceStatueBehavior.SpawnTourianEntranceStatueProjectile(kind, start, new Position16<RoomPixels>(128, 128),
+                enemies.TourianEntranceStatueBehavior.DecorationsIn(statueRoom));
             return enemies.Projectiles.EnemyProjectiles.First(projectile => projectile.Kind == kind);
         }
 

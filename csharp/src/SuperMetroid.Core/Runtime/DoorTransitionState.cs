@@ -70,19 +70,19 @@ internal sealed class DoorTransitionState
     public void Begin(SuperMetroidRuntime runtime)
     {
         Ensure.NotNull(runtime);
-        if (runtime.RoomLoader.PendingDoorTransition is null || runtime.Player.Samus is null)
-            throw new InvalidOperationException("A door transition requires a pending door and Samus.");
+        if (runtime.RoomLoader.PendingDoorTransition is null)
+            throw new InvalidOperationException("A door transition requires a pending door.");
         if (IsActive)
             throw new InvalidOperationException("A door transition is already active.");
 
+        SamusState samus = runtime.Player.IntroducedSamus;
         runtime.Hud.EnableMinimapAfterDoorEntry();
-        runtime.Player.Samus.Control.LockOutPlayer();
+        samus.Control.LockOutPlayer();
         runtime.DoorTransition.Passage.Start();
         door =runtime.RoomLoader.PendingDoorTransition;
-        sourceIsolated = runtime.Room.ActiveRoom?.UsesIsolatedDoorTransition
-            ?? throw new InvalidOperationException("Door transition requires a source room.");
+        sourceIsolated = runtime.Room.LoadedScope.Room.UsesIsolatedDoorTransition;
         destinationIsolated = runtime.RoomLoader.PendingDoorDestinationUsesIsolatedDoorTransition;
-        sourceSamus = runtime.Player.Samus.Position;
+        sourceSamus = samus.Position;
         FadeSteps = new GradualFadeSteps(DoorTransitionColourDefinitions.FadeDenominator, runtime.FadeStepCount);
         // Between two common rooms the fade keeps the HUD's item and minimap backgrounds lit as well.
         runtime.DoorFade.FadeOut(FadeSteps, commonRooms: !sourceIsolated && !destinationIsolated);
@@ -101,6 +101,8 @@ internal sealed class DoorTransitionState
         Ensure.NotNull(loaderProgress);
         if (!IsActive)
             throw new InvalidOperationException("Door transition has not begun.");
+        // A door transition carries the one Samus through both rooms.
+        SamusState samus = runtime.Player.IntroducedSamus;
 
         runtime.Room.LoadedScope.CeresHaze?.Step(Phase switch
         {
@@ -126,7 +128,7 @@ internal sealed class DoorTransitionState
         switch (Phase)
         {
             case DoorTransitionPhase.WaitForSoundQueues:
-                runtime.DoorTransition.RunDoorSoundWaitFrame(controllerInput, runtime.Room.LoadedScope);
+                runtime.DoorTransition.RunDoorSoundWaitFrame(controllerInput, runtime.Room.LoadedScope, samus);
                 if (!audio.HasQueuedSounds)
                     Phase = DoorTransitionPhase.FadeOutSourceRoom;
                 break;
@@ -134,7 +136,7 @@ internal sealed class DoorTransitionState
             case DoorTransitionPhase.FadeOutSourceRoom:
                 runtime.FrameBoundary.BeginAcceptedFrame(controllerInput);
                 // Each colour step is one update, with its own effects and random draw.
-                runtime.DoorTransition.AdvanceEffectsAndRandom(runtime.Room.LoadedScope.RoomObjects, runtime.Room.LoadedScope);
+                runtime.DoorTransition.AdvanceEffectsAndRandom(runtime.Room.LoadedScope, samus);
                 if (FadeSteps.Step())
                 {
                     runtime.DoorFade.Darken();
@@ -144,7 +146,7 @@ internal sealed class DoorTransitionState
                 }
                 else
                 {
-                    runtime.DoorTransition.DrawDoorTransitionActors(enemyProjectiles: DoorTransitionEnemyProjectiles.Held, runtime.Room.LoadedScope);
+                    runtime.DoorTransition.DrawDoorTransitionActors(enemyProjectiles: DoorTransitionEnemyProjectiles.Held, runtime.Room.LoadedScope, samus);
                 }
                 break;
 
@@ -152,7 +154,7 @@ internal sealed class DoorTransitionState
                 // The door was captured by Begin; this update keeps its own frame, after
                 // which the liquid wave and statue descent stop and the door's display takes over the screen.
                 runtime.RunBlankGameplayFrame(controllerInput);
-                runtime.DoorTransition.AdvanceEffectsAndRandom(runtime.Room.LoadedScope.RoomObjects, runtime.Room.LoadedScope);
+                runtime.DoorTransition.AdvanceEffectsAndRandom(runtime.Room.LoadedScope, samus);
                 runtime.LiquidWaveAndStatueDescentOrder.StopForDoorLoading();
                 runtime.RoomLoader.BeginDoorTransitionDisplay(sourceIsolated, destinationIsolated);
                 Phase = DoorTransitionPhase.AlignSourceCamera;
@@ -160,7 +162,7 @@ internal sealed class DoorTransitionState
 
             case DoorTransitionPhase.AlignSourceCamera:
                 runtime.RunBlankGameplayFrame(controllerInput);
-                runtime.DoorTransition.AdvanceEffectsAndRandom(runtime.Room.LoadedScope.RoomObjects, runtime.Room.LoadedScope);
+                runtime.DoorTransition.AdvanceEffectsAndRandom(runtime.Room.LoadedScope, samus);
                 if (runtime.RoomLoader.AlignPendingDoorCameraOnePixel())
                 {
                     destinationSetupWait = DoorDestinationSetupWait.Started;
@@ -172,7 +174,7 @@ internal sealed class DoorTransitionState
                 // The destination's setup happens at once in its load; its wait's updates are
                 // still whole updates of the transition, each with its own random draw.
                 runtime.RunBlankGameplayFrame(controllerInput);
-                runtime.DoorTransition.AdvanceEffectsAndRandom(runtime.Room.LoadedScope.RoomObjects, runtime.Room.LoadedScope);
+                runtime.DoorTransition.AdvanceEffectsAndRandom(runtime.Room.LoadedScope, samus);
                 destinationSetupWait = destinationSetupWait.Spend();
                 if (destinationSetupWait.IsOver)
                     Phase = DoorTransitionPhase.MoveToDoorScrollStart;
@@ -180,26 +182,24 @@ internal sealed class DoorTransitionState
 
             case DoorTransitionPhase.MoveToDoorScrollStart:
                 runtime.RunBlankGameplayFrame(controllerInput);
-                runtime.DoorTransition.AdvanceEffectsAndRandom(runtime.Room.LoadedScope.RoomObjects, runtime.Room.LoadedScope);
+                runtime.DoorTransition.AdvanceEffectsAndRandom(runtime.Room.LoadedScope, samus);
                 // Capture immediately before the setup call; source actors have run
                 // during the fade. The atomic loader must not apply this step twice.
-                var setupSamus = runtime.Player.Samus
-                    ?? throw new InvalidOperationException("Door scrolling requires Samus.");
-                sourceSamus = setupSamus.Position;
+                sourceSamus = samus.Position;
                 runtime.RoomLoader.ApplyDoorScrollingSetupMovement();
                 Phase = DoorTransitionPhase.PlaceSamusInDestination;
                 break;
 
             case DoorTransitionPhase.PlaceSamusInDestination:
                 runtime.RunBlankGameplayFrame(controllerInput);
-                runtime.DoorTransition.AdvanceEffectsAndRandom(runtime.Room.LoadedScope.RoomObjects, runtime.Room.LoadedScope);
+                runtime.DoorTransition.AdvanceEffectsAndRandom(runtime.Room.LoadedScope, samus);
                 runtime.RoomLoader.PlaceSamusForDestinationLoading();
                 Phase = DoorTransitionPhase.LoadDestinationRoom;
                 break;
 
             case DoorTransitionPhase.LoadDestinationRoom:
                 runtime.RunBlankGameplayFrame(controllerInput);
-                runtime.DoorTransition.AdvanceEffectsAndRandom(runtime.Room.LoadedScope.RoomObjects, runtime.Room.LoadedScope);
+                runtime.DoorTransition.AdvanceEffectsAndRandom(runtime.Room.LoadedScope, samus);
                 // Loading initializes enemy graphics, music, projectiles, block animations,
                 // room objects, FX and backgrounds, and then waits one update at a time until the
                 // door's scroll finishes. The room constructor performs that setup
@@ -215,7 +215,7 @@ internal sealed class DoorTransitionState
                     loaderProgress,
                     completedLoadingScrollUpdates: 1);
                 runtime.RoomLoader.StepDoorOpeningScroll(loaderProgress);
-                if (runtime.Options.IconCancelEnabled && runtime.Player.Samus is { } samus)
+                if (runtime.Options.IconCancelEnabled)
                 {
                     // Resetting the projectiles selects the beam again when Icon Cancel is
                     // on. This is the only gameplay effect of the Icon Cancel option.
@@ -240,7 +240,7 @@ internal sealed class DoorTransitionState
                     // exposes the room as it was before they ran.
                     runtime.Player.Colours.ShowVisor(SuperMetroid.Core.Samus.Colours.SamusShades.DoorCompletionVisor);
                     runtime.DoorFade.DoorOpened();
-                    runtime.RoomObjectPhase.RunRoomObjectsForDoor(runtime.Room.LoadedScope.RoomObjects, runtime.Room.LoadedScope.BombProjectiles, runtime.Room.LoadedScope);
+                    RoomObjectFramePhase.RunRoomObjectsForDoor(runtime.Room.LoadedScope, samus);
                     Phase = DoorTransitionPhase.AlignSamusWithDoorway;
                 }
                 break;
@@ -257,14 +257,14 @@ internal sealed class DoorTransitionState
                 // LoadRoom already initialized the destination's block animations; the
                 // transition gives them one explicit step before polling the music queue.
                 runtime.RunBlankGameplayFrame(controllerInput);
-                runtime.DoorTransition.AdvanceEffectsAndRandom(runtime.Room.LoadedScope.RoomObjects, runtime.Room.LoadedScope);
+                runtime.DoorTransition.AdvanceEffectsAndRandom(runtime.Room.LoadedScope, samus);
                 runtime.RoomMains.RunBlockAnimations(runtime.Room.LoadedScope);
                 Phase = DoorTransitionPhase.WaitForMusicQueue;
                 break;
 
             case DoorTransitionPhase.WaitForMusicQueue:
                 runtime.RunBlankGameplayFrame(controllerInput);
-                runtime.DoorTransition.AdvanceEffectsAndRandom(runtime.Room.LoadedScope.RoomObjects, runtime.Room.LoadedScope);
+                runtime.DoorTransition.AdvanceEffectsAndRandom(runtime.Room.LoadedScope, samus);
                 if (!audio.HasQueuedMusic)
                 {
                     Phase = DoorTransitionPhase.FinishDoorOpeningScroll;
@@ -272,16 +272,14 @@ internal sealed class DoorTransitionState
                     // Samus nudge and colour fade, not during room creation.
                     if (!runtime.AttractDemo.IsAttractDemo)
                     {
-                        RoomStateSettings state = runtime.Room.ActiveRoom?.State
-                            ?? throw new InvalidOperationException("Door music requires the destination room.");
-                        audio.QueueRoomMusicTrack(state.Music);
+                        audio.QueueRoomMusicTrack(runtime.Room.LoadedScope.Room.State.Music);
                     }
                 }
                 break;
 
             case DoorTransitionPhase.FinishDoorOpeningScroll:
                 runtime.FrameBoundary.BeginAcceptedFrame(controllerInput);
-                runtime.DoorTransition.AdvanceEffectsAndRandom(runtime.Room.LoadedScope.RoomObjects, runtime.Room.LoadedScope);
+                runtime.DoorTransition.AdvanceEffectsAndRandom(runtime.Room.LoadedScope, samus);
                 // The narrow-door nudges apply only after the opening scroll and the music
                 // queue are both complete. The atomic loader computed that exact endpoint,
                 // which is restored here rather than during the visible scroll.
@@ -294,11 +292,11 @@ internal sealed class DoorTransitionState
             case DoorTransitionPhase.DrawFirstDestinationFrame:
             case DoorTransitionPhase.FadeInDestinationRoom:
                 runtime.FrameBoundary.BeginAcceptedFrame(controllerInput);
-                runtime.DoorTransition.AdvanceEffectsAndRandom(runtime.Room.LoadedScope.RoomObjects, runtime.Room.LoadedScope);
+                runtime.DoorTransition.AdvanceEffectsAndRandom(runtime.Room.LoadedScope, samus);
                 // Every fade step runs the block animations, then the enemy and draw owners,
                 // without Samus's movement and animation or the camera's scrolling.
                 runtime.RoomMains.RunBlockAnimations(runtime.Room.LoadedScope);
-                runtime.DoorTransition.DrawDoorTransitionActors(enemyProjectiles: DoorTransitionEnemyProjectiles.Run, runtime.Room.LoadedScope);
+                runtime.DoorTransition.DrawDoorTransitionActors(enemyProjectiles: DoorTransitionEnemyProjectiles.Run, runtime.Room.LoadedScope, samus);
                 Phase = DoorTransitionPhase.FadeInDestinationRoom;
                 // The destination fades in toward the colours its owners show, which enemy scripts running
                 // during the fade change as their typed colour state changes (#1512).
@@ -314,8 +312,8 @@ internal sealed class DoorTransitionState
                     // does not replace that lock: release only the temporary door
                     // input gate, never a stationary script's movement ownership.
                     if (runtime.Room.LoadedScope.Enemies.Elevator.ElevatorStatus == ElevatorActorStatus.Inactive &&
-                        runtime.Player.Samus is { } arrivingSamus && arrivingSamus.Control.Mode.Movement != SamusMovementMode.ScriptLocked)
-                        arrivingSamus.Control.Unlock();
+                        samus.Control.Mode.Movement != SamusMovementMode.ScriptLocked)
+                        samus.Control.Unlock();
                     Phase = DoorTransitionPhase.Complete;
                 }
                 break;

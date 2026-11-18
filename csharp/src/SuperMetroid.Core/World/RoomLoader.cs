@@ -794,6 +794,10 @@ internal sealed class RoomLoader
         // The room's block animations: those the door-selected effect lists, and the treadmill a door's setup may start.
         var blockAnimations = new RoomBlockAnimations(room.State.Fx, door);
         scope.BlockAnimations = blockAnimations;
+        // The room's pictures carry its tileset's colours (#1512), so the load colours nothing.
+        // The elevator shaft and Ceres Ridley's arena show their tileset's turning floor, which the shaft's door and Ridley
+        // then draw over (#1349, #1467); every other room shows none (#1649). Ridley's getaway's main shows its frames.
+        scope.Floor = assets.CreateFloor();
         // The room composes the main its state names, with the state that main keeps: the elevatube's ride and the
         // elevator shaft's turn, which the door's setup below starts, a sky, debris or a diagonal quake (#2287).
         room.State.MainBehavior.Compose(scope);
@@ -839,11 +843,6 @@ internal sealed class RoomLoader
                 : camera;
             _backgroundScroll.PrepareDoorOpeningDestination(camera, parallaxBasis);
         }
-
-        // The room's pictures carry its tileset's colours (#1512), so the load colours nothing.
-        // The elevator shaft and Ceres Ridley's arena show their tileset's turning floor, which the shaft's door and Ridley
-        // then draw over (#1349, #1467); every other room shows none (#1649).
-        scope.Floor = assets.CreateFloor();
 
         // Loading the room's effect chooses the entering door's own effect where it has one, applies its colour blend,
         // chooses the picture its overlay shows, and creates its distortion and block animation state before colour
@@ -924,6 +923,8 @@ internal sealed class RoomLoader
             _audioRequests);
         scope.RoomObjects = roomObjects;
         var areaServices = new RoomEnemyRuntimeServices(_system, _room, _player, roomObjects, _display, progress);
+        // Only the statue room, whose setup unlocks the statues, has their room: its statues' enemies take it (#2287, #2382).
+        TourianStatueRoom? statueRoom = room.State.SetupBehavior.UnlocksTourianStatues ? new TourianStatueRoom(roomFxOverlay) : null;
         roomObjects.PopulationLoader.LoadRoomPopulation(roomObjectRoom, room.State.ObjectPopulation, roomObjectBindings);
 
         // The door transition runs the door setup only after destination room objects
@@ -931,7 +932,7 @@ internal sealed class RoomLoader
         // those setups rewrite the room scroll array, so postponing them until the
         // first gameplay frame would already have streamed a viewport with wrong camera
         // limits.
-        _doorTransition.RunDoorSetup(door, roomObjects, blockAnimations, scope.MaridiaElevatube);
+        _doorTransition.RunDoorSetup(door, new DoorSetupRoom { Level = assets.LevelData, Scrolls = destinationCamera.Scrolls, Area = room.Area, RoomObjects = roomObjects, BlockAnimations = blockAnimations, MaridiaElevatube = scope.MaridiaElevatube, Samus = loadingSamus });
         // The room state's setup runs right after the door's.
         room.State.SetupBehavior.PlaceRoomObjects(new RoomSetupPlacing
         {
@@ -985,6 +986,8 @@ internal sealed class RoomLoader
             RoomFx = roomFxOverlay,
             DoorPassage = _doorTransition.Passage,
             Earthquake = earthquake,
+            Floor = scope.Floor,
+            TourianStatueRoom = statueRoom,
         });
         enemies.TakeOverFrom(_room.HandOver);
         scope.Enemies = enemies;
@@ -1025,13 +1028,24 @@ internal sealed class RoomLoader
         // subsequently clears the shared projectile pool. Consume those setup
         // requests here—the first point matching the game's completed room teardown—
         // so the closed actor survives into the initial viewport.
-        _enemyRoomEffects.ApplyPendingDownwardGateProjectileRequests(roomObjects, enemies);
-        _enemyRoomEffects.ApplyEnemyRequestedRoomEffects(enemies.LastEnemyFrame.RoomEffects, roomObjects, roomFxOverlay, roomColourEffects, enemies);
+        var effectSite = new EnemyRoomEffectSite
+        {
+            Level = assets.LevelData,
+            Scrolls = destinationCamera.Scrolls,
+            Area = room.Area,
+            RoomObjects = roomObjects,
+            FxOverlay = roomFxOverlay,
+            ColourEffects = roomColourEffects,
+            Enemies = enemies,
+            Samus = loadingSamus,
+        };
+        EnemyRoomEffects.ApplyPendingDownwardGateProjectileRequests(effectSite);
+        _enemyRoomEffects.ApplyEnemyRequestedRoomEffects(enemies.LastEnemyFrame.RoomEffects, effectSite);
         // The gunship's placement starts its lights' glow after the room's own colour effects (#1733).
-        _enemyRoomEffects.StartEnemyGlow(enemies.LastEnemyFrame.Glow, roomColourEffects);
+        EnemyRoomEffects.StartEnemyGlow(enemies.LastEnemyFrame.Glow, effectSite);
         // Only the statue room, whose setup unlocks the statues, has their sequence (#2287).
-        scope.TourianStatues = room.State.SetupBehavior.UnlocksTourianStatues
-            ? new TourianStatueSequence(_tourianStatueDependencies, roomFxOverlay, roomColourEffects, roomObjects, enemies)
+        scope.TourianStatues = statueRoom is not null
+            ? new TourianStatueSequence(_tourianStatueDependencies, statueRoom, roomFxOverlay, roomColourEffects, roomObjects, enemies)
             : null;
 
         if (viewportLoadMode == RoomViewportLoadMode.StreamThroughDoor)

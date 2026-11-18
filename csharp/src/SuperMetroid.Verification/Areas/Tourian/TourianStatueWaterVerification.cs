@@ -65,7 +65,7 @@ internal static class TourianStatueWaterVerification
             "Actual water artwork visibly changes submerged room pixels");
         AssertTrue(GameplayEffectCapture.BuildWaterBackgroundHorizontalScrolls(displayed, Offset16<BackgroundPixels>.Zero) is null,
             "Special statue FX does not install ordinary-water BG2 X-wave HDMA");
-        PrivateState.Set(runtime.TourianStatues, nameof(SuperMetroid.Core.World.TourianStatueSequence.Descent), SignedSixteenSixteen.FromWholePixels(64));
+        runtime.TourianStatues.Room.Descent = SignedSixteenSixteen.FromWholePixels(64);
         runtime.TourianStatues.LatchDisplay();
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var descending = (GameplaySceneLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame()).Layers[0];

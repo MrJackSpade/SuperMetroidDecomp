@@ -1,8 +1,6 @@
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Rooms.Scrolling;
-using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Bosses;
@@ -16,16 +14,13 @@ namespace SuperMetroid.Core.World;
 
 /// <summary>
 /// Room effects enemy AI requests during a pass: the fixed room-object spawns of Botwoon, Spore Spawn, Crocomire,
-/// Kraid, Mother Brain, the Shitroid, Phantoon and the Chozo statues, and the downward gates' projectile requests.
+/// Kraid, Mother Brain, the Shitroid, Phantoon and the Chozo statues, and the downward gates' projectile requests. Each
+/// lands in the room it is handed (<see cref="EnemyRoomEffectSite"/>, #2382).
 /// </summary>
 internal sealed class EnemyRoomEffects
 {
     /// <summary>Starts the escape countdown on Mother Brain's requested frame.</summary>
     private readonly EscapeTimer _escapeTimer;
-    /// <summary>Supplies Samus equipment and ends the drained get-up when the escape countdown starts.</summary>
-    private readonly SamusFrameState _player;
-    /// <summary>Provides the active level, area, room effect and room scroll state.</summary>
-    private readonly ActiveRoomState _room;
     /// <summary>Records defeated bosses and the Zebes timebomb event requested by the encounter.</summary>
     private readonly SharedGameState _system;
 
@@ -33,8 +28,6 @@ internal sealed class EnemyRoomEffects
     internal EnemyRoomEffects(EnemyRoomEffectsDependencies dependencies)
     {
         _escapeTimer = dependencies.EscapeTimer;
-        _player = dependencies.Player;
-        _room = dependencies.Room;
         _system = dependencies.System;
     }
 
@@ -54,17 +47,17 @@ internal sealed class EnemyRoomEffects
     /// terrain; Baby Metroid clears its invisible wall this way just before Samus runs
     /// through it.
     /// </remarks>
-    internal void ApplyEnemyRequestedRoomEffects(EnemyRoomEffectRequests requests, RoomObjectSystem roomObjects, RoomFxOverlayState roomFxOverlay, ColourEffectSystem roomColourEffects, RoomEnemySystem enemies)
+    internal void ApplyEnemyRequestedRoomEffects(EnemyRoomEffectRequests requests, EnemyRoomEffectSite site)
     {
-        ApplyPendingBotwoonWallObject(requests, roomObjects);
-        ApplyPendingSporeSpawnCeilingObject(requests, roomObjects);
-        ApplyPendingCrocomireArenaObjects(requests, roomObjects);
-        ApplyPendingKraidObjects(requests, roomObjects);
-        ApplyPendingMotherBrainObjects(requests, roomObjects, roomFxOverlay, roomColourEffects);
-        ApplyPendingShitroidWallObjects(requests, roomObjects);
-        ApplyPendingPhantoonDoorObject(requests, roomObjects);
-        ApplyPendingChozoStatueObjects(roomObjects, enemies);
-        ApplyPendingTorizoBellyGlow(requests, roomColourEffects);
+        ApplyPendingBotwoonWallObject(requests, site);
+        ApplyPendingSporeSpawnCeilingObject(requests, site);
+        ApplyPendingCrocomireArenaObjects(requests, site);
+        ApplyPendingKraidObjects(requests, site);
+        ApplyPendingMotherBrainObjects(requests, site);
+        ApplyPendingShitroidWallObjects(requests, site);
+        ApplyPendingPhantoonDoorObject(requests, site);
+        ApplyPendingChozoStatueObjects(site);
+        ApplyPendingTorizoBellyGlow(requests, site);
     }
 
     /// <summary>
@@ -72,17 +65,17 @@ internal sealed class EnemyRoomEffects
     /// which its top hull's placement starts. The glow keeps the gunship it shows on and runs until the room's colour
     /// effects are cleared (#1783), as the original's glow object runs until the room load clears its colour effects.
     /// </summary>
-    internal void StartEnemyGlow(EnemyGlowStart? glow, ColourEffectSystem roomColourEffects)
+    internal static void StartEnemyGlow(EnemyGlowStart? glow, EnemyRoomEffectSite site)
     {
         if (glow is not null)
-            Ensure.NotNull(roomColourEffects).StartEnemyGlow(glow, _player.Samus?.EquippedItems ?? SamusEquipmentFlags.None);
+            site.ColourEffects.StartEnemyGlow(glow, site.Samus.EquippedItems);
     }
 
     /// <summary>Starts the belly glow a Torizo's fight start asked for among the room's colour effects, watching that Torizo.</summary>
-    internal void ApplyPendingTorizoBellyGlow(EnemyRoomEffectRequests requests, ColourEffectSystem roomColourEffects)
+    private static void ApplyPendingTorizoBellyGlow(EnemyRoomEffectRequests requests, EnemyRoomEffectSite site)
     {
         if (requests.TorizoBellyGlow is { } glow)
-            roomColourEffects.StartTorizoBellyGlow(glow.Glow, glow.Torizo, _player.IntroducedSamus.EquippedItems);
+            site.ColourEffects.StartTorizoBellyGlow(glow.Glow, glow.Torizo, site.Samus.EquippedItems);
     }
 
     /// <summary>
@@ -90,19 +83,14 @@ internal sealed class EnemyRoomEffects
     /// room-object owner. This is called at both producer sites: room initialization
     /// for an already-defeated boss and the enemy pass when the final body segment lands.
     /// </summary>
-    internal void ApplyPendingBotwoonWallObject(EnemyRoomEffectRequests requests, RoomObjectSystem roomObjects)
+    private static void ApplyPendingBotwoonWallObject(EnemyRoomEffectRequests requests, EnemyRoomEffectSite site)
     {
         if (requests.BotwoonWall is not BotwoonWallMutation mutation)
             return;
-        if (_room.LevelData is null || _room.Camera is null)
-        {
-            throw new InvalidOperationException(
-                "Botwoon published a wall room object without an active room level and scroll grid.");
-        }
 
         // The wall's room object does not spawn while every room-object place is held; a room loads with every place
         // free.
-        roomObjects.BossRoomMutations.BotwoonWall.TrySpawn(_room.LevelData, mutation);
+        site.RoomObjects.BossRoomMutations.BotwoonWall.TrySpawn(site.Level, mutation);
 
         if (mutation == BotwoonWallMutation.Clear)
         {
@@ -110,7 +98,7 @@ internal sealed class EnemyRoomEffects
             // object, it does not wait for its
             // clearing step during the first room-object step.
             foreach (Position16<RoomScreens> cell in BotwoonWallMutationDefinitions.OpenedScrollCells)
-                _room.Camera.Scrolls.SetLogicalState(cell, RoomScrollState.OpenAlignedToTop);
+                site.Scrolls.SetLogicalState(cell, RoomScrollState.OpenAlignedToTop);
         }
     }
 
@@ -119,75 +107,57 @@ internal sealed class EnemyRoomEffects
     /// owner. Initialization publishes the clear entry for a defeated save; the live death
     /// reaction publishes the animated crumble entry on the exact collision frame.
     /// </summary>
-    internal void ApplyPendingSporeSpawnCeilingObject(EnemyRoomEffectRequests requests, RoomObjectSystem roomObjects)
+    private static void ApplyPendingSporeSpawnCeilingObject(EnemyRoomEffectRequests requests, EnemyRoomEffectSite site)
     {
         if (requests.SporeSpawnCeiling is not SporeSpawnCeilingMutation mutation)
             return;
-        if (_room.LevelData is null)
-        {
-            throw new InvalidOperationException(
-                "Spore Spawn published a ceiling room object without active room level data.");
-        }
 
         // A fixed room-object spawn silently drops the request if all forty places are held.
-        roomObjects.BossRoomMutations.SporeSpawnCeiling.TrySpawn(_room.LevelData, mutation);
+        site.RoomObjects.BossRoomMutations.SporeSpawnCeiling.TrySpawn(site.Level, mutation);
     }
 
     /// <summary>
-    /// Applies Crocomire's arena changes through the shared 
+    /// Applies Crocomire's arena changes through the shared
     /// room-object owner. Consuming the full frame-local list preserves publication order
     /// and fixed-pool exhaustion behavior.
     /// </summary>
-    internal void ApplyPendingCrocomireArenaObjects(EnemyRoomEffectRequests requests, RoomObjectSystem roomObjects)
+    private static void ApplyPendingCrocomireArenaObjects(EnemyRoomEffectRequests requests, EnemyRoomEffectSite site)
     {
-        if (requests.CrocomireObjects.Count == 0)
-            return;
-        if (_room.LevelData is null)
-        {
-            throw new InvalidOperationException(
-                "Crocomire published an arena room object without an active room level.");
-        }
-
         foreach (RoomObjectSpawnRequest<CrocomireArenaMutation> request in requests.CrocomireObjects)
         {
             // A fixed room-object spawn silently loses a request when all forty places are
             // held. The arena spawner deliberately mirrors that result.
-            roomObjects.BossRoomMutations.CrocomireArena.TrySpawn(_room.LevelData, request);
+            site.RoomObjects.BossRoomMutations.CrocomireArena.TrySpawn(site.Level, request);
         }
     }
 
     /// <summary>
-    /// Transfers Kraid's ceiling and platform requests into the shared 
+    /// Transfers Kraid's ceiling and platform requests into the shared
     /// room-object pool before the current frame's room-object step.
     /// </summary>
-    internal void ApplyPendingKraidObjects(EnemyRoomEffectRequests requests, RoomObjectSystem roomObjects)
+    private static void ApplyPendingKraidObjects(EnemyRoomEffectRequests requests, EnemyRoomEffectSite site)
     {
-        if (requests.KraidObjects.Count == 0)
-            return;
-        if (_room.LevelData is null)
-            throw new InvalidOperationException("Kraid published room objects without active level data.");
-
         foreach (RoomObjectSpawnRequest<KraidRoomMutation> request in requests.KraidObjects)
-            roomObjects.BossRoomMutations.KraidRoom.TrySpawn(_room.LevelData, request);
+            site.RoomObjects.BossRoomMutations.KraidRoom.TrySpawn(site.Level, request);
     }
 
     /// <summary>
-    /// Transfers Mother Brain's fixed room-object requests to the shared 
+    /// Transfers Mother Brain's fixed room-object requests to the shared
     /// owner. The enemy state publishes requests in the order it makes them; consuming them
     /// here keeps the places they take in update order and the one-frame execution seam.
     /// </summary>
-    internal void ApplyPendingMotherBrainObjects(EnemyRoomEffectRequests requests, RoomObjectSystem roomObjects, RoomFxOverlayState roomFxOverlay, ColourEffectSystem roomColourEffects)
+    internal void ApplyPendingMotherBrainObjects(EnemyRoomEffectRequests requests, EnemyRoomEffectSite site)
     {
         if (requests.MotherBrainDeathStep is { } death)
         {
             foreach (ColourEffectId definition in death.EscapeColourEffectRequests)
-                roomColourEffects.Start(definition, _player.IntroducedSamus.EquippedItems);
+                site.ColourEffects.Start(definition, site.Samus.EquippedItems);
             if (death.GetUpReleaseRequested)
-                _player.IntroducedSamus.Drained.RelinquishGetUp();
+                site.Samus.Drained.RelinquishGetUp();
             if (death.MotherBrainEscapeTimerStartRequested)
                 _escapeTimer.RequestMotherBrainStart(); // The runtime already owns per-frame timer processing/drawing.
             if (death.MotherBrainDefeatRecordRequested)
-                _system.RecordBossesDefeated(_room.LoadedRoom.Area, DefeatedBosses.AreaMiniBoss);
+                _system.RecordBossesDefeated(site.Area, DefeatedBosses.AreaMiniBoss);
             if (death.ZebesTimebombEventRequested)
                 _system.SetEvent(StoryEvent.ZebesTimebombSet);
         }
@@ -195,36 +165,21 @@ internal sealed class EnemyRoomEffects
         {
             // The acid change is applied once, on the pass that requested it. Reapplying it each frame would reset
             // its delay and prevent the acid from moving.
-            roomFxOverlay.ApplyEntry(acidChange);
-        }
-        if (requests.MotherBrainObjects.Count == 0)
-            return;
-        if (_room.LevelData is null)
-        {
-            throw new InvalidOperationException(
-                "Mother Brain published a room object without active room level data.");
+            site.FxOverlay.ApplyEntry(acidChange);
         }
 
         foreach (RoomObjectSpawnRequest<MotherBrainRoomMutation> request in requests.MotherBrainObjects)
-            roomObjects.BossRoomMutations.MotherBrainRoom.TrySpawn(_room.LevelData, request);
+            site.RoomObjects.BossRoomMutations.MotherBrainRoom.TrySpawn(site.Level, request);
     }
 
     /// <summary>
     /// Transfers the Shitroid's wall requests to the shared room-object
     /// pool at both producer seams: enemy initialization and the end of each enemy pass.
     /// </summary>
-    internal void ApplyPendingShitroidWallObjects(EnemyRoomEffectRequests requests, RoomObjectSystem roomObjects)
+    private static void ApplyPendingShitroidWallObjects(EnemyRoomEffectRequests requests, EnemyRoomEffectSite site)
     {
-        if (requests.ShitroidObjects.Count == 0)
-            return;
-        if (_room.LevelData is null)
-        {
-            throw new InvalidOperationException(
-                "Shitroid published wall room objects without active room level data.");
-        }
-
         foreach (RoomObjectSpawnRequest<ShitroidWallMutation> request in requests.ShitroidObjects)
-            roomObjects.BossRoomMutations.ShitroidWall.TrySpawn(_room.LevelData, request);
+            site.RoomObjects.BossRoomMutations.ShitroidWall.TrySpawn(site.Level, request);
     }
 
     /// <summary>
@@ -232,38 +187,30 @@ internal sealed class EnemyRoomEffects
     /// as the starting flames close in, the restored door once the Wrecked Ship's power is back. Its setup holds the
     /// door's top block solid until its first update draws the door.
     /// </summary>
-    internal void ApplyPendingPhantoonDoorObject(EnemyRoomEffectRequests requests, RoomObjectSystem roomObjects)
+    private static void ApplyPendingPhantoonDoorObject(EnemyRoomEffectRequests requests, EnemyRoomEffectSite site)
     {
         if (requests.PhantoonDoor is not { } change)
             return;
-        if (_room.LevelData is null)
-            throw new InvalidOperationException("Phantoon asked for a door change without active room level data.");
 
         // A spawn into a full room is lost, as every boss terrain change's is (RoomObjectPlaces).
-        roomObjects.BossRoomMutations.PhantoonDoor.TrySpawn(_room.LevelData, change);
+        site.RoomObjects.BossRoomMutations.PhantoonDoor.TrySpawn(site.Level, change);
     }
 
     /// <summary>
     /// Consumes pending Chozo terrain publications. Also runs at the frame's entry, before movement, so Samus cannot
     /// collide before a pending initialization setup has installed the hand block.
     /// </summary>
-    internal void ApplyPendingChozoStatueObjects(RoomObjectSystem roomObjects, RoomEnemySystem enemies)
-    {
-        if (_room.LevelData is not null)
-            enemies.RoomObjectRequests.ApplyPendingChozoStatueObjects(_room.LevelData, roomObjects.ChozoStatue);
-    }
+    internal static void ApplyPendingChozoStatueObjects(EnemyRoomEffectSite site) =>
+        site.Enemies.RoomObjectRequests.ApplyPendingChozoStatueObjects(site.Level, site.RoomObjects.ChozoStatue);
 
     /// <summary>Transfers downward-gate spawn/wake work into the enemy-projectile pool.</summary>
-    internal void ApplyPendingDownwardGateProjectileRequests(RoomObjectSystem roomObjects, RoomEnemySystem enemies)
+    internal static void ApplyPendingDownwardGateProjectileRequests(EnemyRoomEffectSite site)
     {
-        if (_room.LevelData is null)
-            throw new InvalidOperationException("Gate projectile work requires active room level data.");
-
-        foreach (DownwardGateProjectileRequest request in roomObjects.Gates.TakeDownwardGateProjectileRequests())
+        foreach (DownwardGateProjectileRequest request in site.RoomObjects.Gates.TakeDownwardGateProjectileRequests())
         {
-            if (_player.Samus?.Xray.AreEnemyProjectilesSuspended == true)
+            if (site.Samus.Xray.AreEnemyProjectilesSuspended)
                 continue;
-            enemies.RoomObjectRequests.ApplyDownwardGateProjectileRequest(request);
+            site.Enemies.RoomObjectRequests.ApplyDownwardGateProjectileRequest(request);
         }
     }
 }

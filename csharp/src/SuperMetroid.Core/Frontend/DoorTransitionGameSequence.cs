@@ -79,7 +79,7 @@ internal sealed class DoorTransitionGameSequence(FrontendSession session) : IGam
         // A downward elevator's delay. The elevator gate is still clear, so the ride continues behind it.
         if (session.DownwardsElevator.CountFrame())
             return true;
-        session.GameplayRuntime.DoorTransition.RunDoorSoundWaitFrame(controllerInput, session.GameplayRuntime.Room.LoadedScope);
+        session.GameplayRuntime.DoorTransition.RunDoorSoundWaitFrame(controllerInput, session.GameplayRuntime.Room.LoadedScope, session.GameplayRuntime.Player.IntroducedSamus);
         session.display.PublishGameplay(session.GameplayRuntime);
         return false;
     }
@@ -89,12 +89,12 @@ internal sealed class DoorTransitionGameSequence(FrontendSession session) : IGam
     {
         // The update's liquid wave and statue descent advance before this step. A rising
         // liquid's rumble or ambient sound they request is queued as it runs, ahead of the cancels.
-        session.GameplayRuntime.DoorTransition.RunDoorSoundWaitPrologue(controllerInput, session.GameplayRuntime.Room.LoadedScope.RoomObjects, session.GameplayRuntime.Room.LoadedScope);
+        session.GameplayRuntime.DoorTransition.RunDoorSoundWaitPrologue(controllerInput, session.GameplayRuntime.Room.LoadedScope, session.GameplayRuntime.Player.IntroducedSamus);
         // The door sets the door/enemy pause flags, then runs the source
         // enemy/draw owners while sounds are still admitted, so an enemy cue's
         // sound on this frame is queued, as it runs, before the door's cancels.
         session.doorTransition.Begin(session.GameplayRuntime);
-        session.GameplayRuntime.DoorTransition.DrawDoorTransitionActors(enemyProjectiles: DoorTransitionEnemyProjectiles.Held, session.GameplayRuntime.Room.LoadedScope);
+        session.GameplayRuntime.DoorTransition.DrawDoorTransitionActors(enemyProjectiles: DoorTransitionEnemyProjectiles.Held, session.GameplayRuntime.Room.LoadedScope, session.GameplayRuntime.Player.IntroducedSamus);
         // The door queues Samus's door-entry sound stop, then queues
         // the enemy library's silence so movement/charge loops terminate rather than leaking
         // into the next room.

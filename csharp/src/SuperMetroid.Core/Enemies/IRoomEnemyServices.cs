@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies;
 /// The game-state services enemy AI calls during a room: the union of every child operation's
 /// service contract plus the RNG, events, defeated bosses and room-object presence the AI uses directly.
 /// </summary>
-public interface IRoomEnemyServices : IChozoStatueRoomServices, IMotherBrainRoomServices, ITourianStatueRoomServices
+public interface IRoomEnemyServices : IChozoStatueRoomServices, IMotherBrainRoomServices
 {
     /// <summary>The game RNG.</summary>
     IEnemyRandomNumbers Random { get; }
@@ -25,7 +25,4 @@ public interface IRoomEnemyServices : IChozoStatueRoomServices, IMotherBrainRoom
 
     /// <summary>The active room-object population.</summary>
     IRoomObjectPresence RoomObjects { get; }
-
-    /// <summary>Shows <paramref name="frame"/> on the part of the room's turning floor it animates (#1349, #1467, #1626).</summary>
-    void ShowFloorFrame(CeresFloorAnimationFrame frame);
 }

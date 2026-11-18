@@ -23,8 +23,7 @@ internal static class RoomEnemyLoadContractsVerification
             typeof(IRoomEnemyActorContext).IsAssignableFrom(typeof(IRoomEnemyLoad)),
             "the load contract includes the population source and actor context its child loaders read");
         AssertTrue(typeof(IChozoStatueRoomServices).IsAssignableFrom(typeof(IRoomEnemyServices)) &&
-            typeof(IMotherBrainRoomServices).IsAssignableFrom(typeof(IRoomEnemyServices)) &&
-            typeof(ITourianStatueRoomServices).IsAssignableFrom(typeof(IRoomEnemyServices)),
+            typeof(IMotherBrainRoomServices).IsAssignableFrom(typeof(IRoomEnemyServices)),
             "room services include every child service contract");
 
         static string[] Members(Type contract) => contract.GetProperties()
@@ -34,8 +33,6 @@ internal static class RoomEnemyLoadContractsVerification
             "the Chozo statue contract exposes only Samus's control lock and the scroll zones");
         AssertTrue(Members(typeof(IMotherBrainRoomServices)).SequenceEqual(["MotherBrain", "RoomScroll"]),
             "the Mother Brain contract exposes only its room effects and the scroll zones");
-        AssertTrue(Members(typeof(ITourianStatueRoomServices)).SequenceEqual(["TourianStatueRoom"]),
-            "the Tourian statue contract exposes only the statue room's water and descent");
 
         var services = new StandaloneRoomEnemyServices(() => 0x1234);
         AssertEqual(GunshipLoadScenario.Ordinary, new RoomEnemyLoadRequest(
@@ -45,8 +42,6 @@ internal static class RoomEnemyLoadContractsVerification
         AssertEqual(0x1234, services.Random.Generate(), "the standalone RNG generates through its installed generator");
         AssertThrows<InvalidOperationException>(() => services.Random.Read(), "an uninstalled RNG read fails at the dependency");
         AssertThrows<InvalidOperationException>(() => services.Events.Has(StoryEvent.ZebesAwake), "uninstalled event bits fail at the dependency");
-        AssertThrows<InvalidOperationException>(() => services.TourianStatueRoom.WaterSurface,
-            "an uninstalled Tourian statue room's water fails at the dependency");
         int seed = 0;
         var seeded = new StandaloneRoomEnemyServices(() => 0) { ReadRandom = () => seed, SeedRandom = value => seed = value };
         seeded.Random.Reseed(SpeciesRandomReseed.BeetomPlacement);

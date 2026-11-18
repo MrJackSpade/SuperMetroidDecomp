@@ -21,10 +21,6 @@ internal sealed class MessageBoxFlow
     private readonly HudState _hud;
     /// <summary>Publishes the confirmation choice consumed by save-station and gunship flows.</summary>
     private readonly GameplayMessageBoxState _messageBox;
-    /// <summary>Supplies Samus inventory and state for HUD refresh and suit pickup.</summary>
-    private readonly SamusFrameState _player;
-    /// <summary>Supplies level data and camera for resumed room-object drawing.</summary>
-    private readonly ActiveRoomState _room;
     /// <summary>Starts Varia or Gravity transformation after its suspended room object resumes.</summary>
     private readonly SamusSuitPickupState _suitPickup;
     /// <summary>Marks accepted gunship and room station saves in area progression bits.</summary>
@@ -38,8 +34,6 @@ internal sealed class MessageBoxFlow
         _freeze = dependencies.Freeze;
         _hud = dependencies.Hud;
         _messageBox = dependencies.MessageBox;
-        _player = dependencies.Player;
-        _room = dependencies.Room;
         _suitPickup = dependencies.SuitPickup;
         _system = dependencies.System;
         _audioRequests = Ensure.NotNull(dependencies.AudioRequests);
@@ -98,7 +92,7 @@ internal sealed class MessageBoxFlow
     }
 
     /// <summary>Applies the effects that follow a message box closing.</summary>
-    internal void ResolveClosedMessageBox(bool frameSuspended, IRoomObjects roomObjects, RoomScope room)
+    internal void ResolveClosedMessageBox(bool frameSuspended, RoomScope room, SamusState samus)
     {
         if (room.Enemies.Gunship.SavePromptPending)
         {
@@ -124,11 +118,7 @@ internal sealed class MessageBoxFlow
                     "The save station's save-confirmation message closed without publishing a selection.");
             }
             _pendingSaveStation = null;
-            RoomLevelData level = _room.LevelData ?? throw new InvalidOperationException(
-                "A save-station message returned without active room level data.");
-            if (_room.Camera is null)
-                throw new InvalidOperationException("A save-station message returned without an active room.");
-            bool saving = roomObjects.Stations.ResolveSaveStationConfirmation(saveStation, accepted.Value, level);
+            bool saving = room.RoomObjects.Stations.ResolveSaveStationConfirmation(saveStation, accepted.Value, room.LevelData);
             if (saving)
             {
                 room.Enemies.SaveStationElectricity.Spawn(saveStation.Block);
@@ -140,32 +130,25 @@ internal sealed class MessageBoxFlow
 
         if (_pendingSaveStationCompletion is { } completedStation)
         {
-            roomObjects.Stations.CompleteSaveStation(completedStation);
+            room.RoomObjects.Stations.CompleteSaveStation(completedStation);
             _pendingSaveStationCompletion = null;
         }
 
-        if (_room.LevelData is null || _room.Camera is null)
-            throw new InvalidOperationException("A message box returned without an active room.");
-        roomObjects.CollectibleObjects.CompleteCollectibleMessage(_room.LevelData);
+        room.RoomObjects.CollectibleObjects.CompleteCollectibleMessage(room.LevelData);
         // The resumed frame reaches the HUD update, which shows the new inventory. A
         // suspended frame tail does that itself; a capture without one updates it here.
-        if (_player.Samus is not null && !frameSuspended)
-            _hud.UpdateGameplayCounters(_player.Samus, _audioRequests, _freeze.TimeIsFrozen);
+        if (!frameSuspended)
+            _hud.UpdateGameplayCounters(samus, _audioRequests, _freeze.TimeIsFrozen);
 
         // Closing the message resumes the item pickup that opened it.
         // Varia/Gravity immediately call their shared setup; for other items the
         // rest of the pickup already ran when the box opened.
         if (_pendingSuitPickup is { } pendingSuit)
         {
-            if (_player.Samus is null)
-            {
-                throw new InvalidOperationException(
-                    "A pending suit transformation requires an active Samus.");
-            }
             room.Enemies.Elevator.ResetStatus();
             _suitPickup.Begin(
-                _player.Samus,
-                _room.Camera.PixelPosition,
+                samus,
+                room.Camera.PixelPosition,
                 pendingSuit);
             _pendingSuitPickup = null;
         }

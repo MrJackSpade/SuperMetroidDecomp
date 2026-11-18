@@ -32,7 +32,4 @@ internal sealed record EnemyFramePhaseDependencies
 
     /// <summary>Samus, whose pose, motion and collisions the enemies read and change.</summary>
     public required SamusFrameState Player { get; init; }
-
-    /// <summary>The loaded room, whose level and camera the enemies read and whose camera they move.</summary>
-    public required ActiveRoomState Room { get; init; }
 }

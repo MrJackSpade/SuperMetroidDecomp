@@ -33,9 +33,6 @@ internal sealed record SamusFramePhasesDependencies
     /// <summary>Samus, her input and movement modes and what her update keeps.</summary>
     public required SamusFrameState Player { get; init; }
 
-    /// <summary>The loaded room, whose level, camera and room objects Samus moves through.</summary>
-    public required ActiveRoomState Room { get; init; }
-
     /// <summary>The session's shared game state, which Samus's movement and shots consult.</summary>
     public required SharedGameState System { get; init; }
 

@@ -25,6 +25,13 @@ public sealed class TourianStatueSequence
     /// have released), the unlock's effects and the room's earthquake the descent shakes.
     /// </summary>
     private readonly RoomEnemySystem _enemies;
+    /// <summary>
+    /// The statue room the sequence lowers the statue in (#2382), which its statues' decorations follow down and its unlock
+    /// effects splash in.
+    /// </summary>
+    internal TourianStatueRoom Room { get; }
+    /// <summary>The entrance statue and the unlock effects in the statue room, which the statue animations drive.</summary>
+    private readonly ITourianStatueActors _statue;
     /// <summary>Supplies equipped items to colour effects started during the release animation.</summary>
     private readonly SamusFrameState _player;
     /// <summary>Identifies the statue room setup and controls its two logical scroll cells.</summary>
@@ -42,15 +49,18 @@ public sealed class TourianStatueSequence
 
     /// <summary>Builds one room's statue sequence over the session services that run its statue and background descent animations.</summary>
     /// <param name="dependencies">The session owners the sequence reads and writes.</param>
+    /// <param name="statueRoom">The statue room, whose statue the sequence lowers.</param>
     /// <param name="roomFxOverlay">The room's effect overlay FX, whose earthquake sound the descent publishes.</param>
     /// <param name="roomColourEffects">The room's colour effects.</param>
     /// <param name="roomObjects">The room's room-object system, which receives the Tourian access room object when the statues are already open.</param>
     /// <param name="enemies">The room's enemies, whose statue actors the sequence drives.</param>
-    internal TourianStatueSequence(TourianStatueSequenceDependencies dependencies, RoomFxOverlayState roomFxOverlay,
-        ColourEffectSystem roomColourEffects, RoomObjectSystem roomObjects, RoomEnemySystem enemies)
+    internal TourianStatueSequence(TourianStatueSequenceDependencies dependencies, TourianStatueRoom statueRoom,
+        RoomFxOverlayState roomFxOverlay, ColourEffectSystem roomColourEffects, RoomObjectSystem roomObjects, RoomEnemySystem enemies)
     {
 
         _enemies = Ensure.NotNull(enemies);
+        Room = Ensure.NotNull(statueRoom);
+        _statue = enemies.TourianStatueIn(statueRoom);
         _player = dependencies.Player;
         _room = dependencies.Room;
         _roomFxOverlay = Ensure.NotNull(roomFxOverlay);
@@ -102,17 +112,8 @@ public sealed class TourianStatueSequence
     private TourianStatueDescentPhase _descentPhase = TourianStatueDescentPhase.AwaitingReleases;
     /// <summary>Updates left in the pre-descent hold while <see cref="_descentPhase"/> is <see cref="TourianStatueDescentPhase.Holding"/>.</summary>
     private int _holdUpdates;
-    /// <summary>
-    /// How far the statues have lowered, zero through the authored distance and the few quarter-steps that first reach it,
-    /// exposed as a negative background vertical offset.
-    /// </summary>
-    internal SignedSixteenSixteen Descent { get; private set; }
-    /// <summary>
-    /// The whole pixels of the statues' descent upward, which descends by a quarter pixel per frame. The upward distance's
-    /// whole pixels round toward negative infinity, so the first quarter-pixel step already reads -1. The descent stops at
-    /// its authored distance, so the offset stays between minus that distance and zero.
-    /// </summary>
-    public int VerticalOffset => (-Descent).WholePixels;
+    /// <summary>The statue room's statue offset: minus the whole pixels of its descent (<see cref="TourianStatueRoom.StatueOffset"/>).</summary>
+    public int VerticalOffset => Room.StatueOffset;
     /// <summary>Background offset latched at the same frame boundary as the displayed sprite frame.</summary>
     public int DisplayedVerticalOffset { get; private set; }
     /// <summary>Captures the current background position for presentation with the corresponding sprite frame.</summary>
@@ -128,7 +129,7 @@ public sealed class TourianStatueSequence
         _statues.Clear();
         _descentPhase = TourianStatueDescentPhase.AwaitingReleases;
         _holdUpdates = 0;
-        Descent = SignedSixteenSixteen.Zero;
+        Room.Descent = SignedSixteenSixteen.Zero;
         DisplayedVerticalOffset = 0;
         Begin(roomObjects);
     }
@@ -143,7 +144,7 @@ public sealed class TourianStatueSequence
         SpawnStatueAnimations();
         if (_assists.Current.TourianStatuesOpen || _system.HasEvent(StoryEvent.TourianUnlocked))
         {
-            Descent = SignedSixteenSixteen.FromWholePixels(TourianStatueSequenceDefinitions.DescentDistance);
+            Room.Descent = SignedSixteenSixteen.FromWholePixels(TourianStatueSequenceDefinitions.DescentDistance);
             roomObjects.Tourian.TrySpawnTourianAccess(_room.LoadedLevelData, TourianAccessFloor.Clear);
             EnableScrolling();
         }
@@ -209,7 +210,7 @@ public sealed class TourianStatueSequence
         AnimationContinuation<TourianStatueBlockSegment>? RunCue(
             TourianStatueAnimationDefinition definition, TourianStatueBlockCue cue)
         {
-            ITourianStatueActors statue = _enemies.TourianStatue;
+            ITourianStatueActors statue = _statue;
             switch (cue.Kind)
             {
                 case TourianStatueBlockCueKind.MarkAnimating:
@@ -229,7 +230,7 @@ public sealed class TourianStatueSequence
                     return null;
                 case TourianStatueBlockCueKind.BlackOutEyes:
                     // The statue shows its eye colours blacked out, then its grey, as the shades the import pre-colours (#1512).
-                    _enemies.TourianStatue.ShowStatueLook(definition.ClearedShade);
+                    _statue.ShowStatueLook(definition.ClearedShade);
                     return null;
                 case TourianStatueBlockCueKind.SpawnEyeGlow:
                     statue.SpawnEyeGlow(definition.Eye);
@@ -248,7 +249,7 @@ public sealed class TourianStatueSequence
                     statue.Animation.Animating &= ~definition.Statue;
                     return null;
                 case TourianStatueBlockCueKind.ApplyGreyColors:
-                    _enemies.TourianStatue.ShowStatueLook(definition.GreyShade);
+                    _statue.ShowStatueLook(definition.GreyShade);
                     return null;
                 default:
                     throw new InvalidOperationException($"Undefined {nameof(TourianStatueBlockCueKind)} {cue.Kind}.");
@@ -299,8 +300,8 @@ public sealed class TourianStatueSequence
         {
             if (!_system.HasEvent(StoryEvent.PhantoonStatueGrey) || !_system.HasEvent(StoryEvent.RidleyStatueGrey)
                 || !_system.HasEvent(StoryEvent.DraygonStatueGrey) || !_system.HasEvent(StoryEvent.KraidStatueGrey)) return;
-            _enemies.TourianStatue.Animation.AllReleased = true;
-            if (_enemies.TourianStatue.Animation.ReleaseInProgress) return;
+            _statue.Animation.AllReleased = true;
+            if (_statue.Animation.ReleaseInProgress) return;
             _descentPhase = TourianStatueDescentPhase.Holding;
             _holdUpdates = TourianStatueSequenceDefinitions.DescentDelay;
             return;
@@ -313,13 +314,13 @@ public sealed class TourianStatueSequence
             // The update that takes the hold to zero raises the dust.
             if (--_holdUpdates <= 0)
             {
-                _enemies.TourianStatue.SpawnDescentDust();
+                _statue.SpawnDescentDust();
                 _descentPhase = TourianStatueDescentPhase.Lowering;
             }
             return;
         }
         if (_freeze.TimeIsFrozen) return;
-        Descent += TourianStatueSequenceDefinitions.DescentStep;
+        Room.Descent += TourianStatueSequenceDefinitions.DescentStep;
         // The statue's descent compares the whole position against its end value, which it first reaches
         // three quarter-steps before a full 240 pixels.
         if (VerticalOffset == -TourianStatueSequenceDefinitions.DescentDistance)
@@ -332,7 +333,7 @@ public sealed class TourianStatueSequence
     /// <summary>Marks the entrance statue finished and makes both access-room scroll cells freely traversable.</summary>
     private void EnableScrolling()
     {
-        _enemies.TourianStatue.Finished = true;
+        _statue.Finished = true;
         _room.LoadedCamera.Scrolls.SetLogicalState(TourianStatueSequenceDefinitions.UpperScrollCell, RoomScrollState.Open);
         _room.LoadedCamera.Scrolls.SetLogicalState(TourianStatueSequenceDefinitions.LowerScrollCell, RoomScrollState.Open);
     }

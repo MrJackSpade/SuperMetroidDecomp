@@ -119,16 +119,6 @@ internal static class RoomFloorSheetsVerification
         AssertTrue(hall.Room.LoadedScope.Floor is null, "the Ceres hall before the elevator binds no turning floor");
         AssertTrue(!hall.Room.LoadedScope.Assets.Pictures.Floors.ContainsKey(hall.Room.LoadedScope.Assets.Tileset),
             "the hall's tileset installs no turning floor");
-        bool refused = false;
-        try
-        {
-            hall.Enemies.Room.Services.ShowFloorFrame(CeresFloorAnimationFrame.ElevatorLight);
-        }
-        catch (InvalidOperationException)
-        {
-            refused = true;
-        }
-        AssertTrue(refused, "drawing over the floor of a room that shows none is refused");
 
         SuperMetroidRuntime shaft = LoadRoom(RoomDefinitions.CeresElevator);
         RoomFloor floor = shaft.Room.LoadedScope.Floor ?? throw new InvalidOperationException("The elevator shaft binds no turning floor.");

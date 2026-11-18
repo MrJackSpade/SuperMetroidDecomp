@@ -22,18 +22,14 @@ internal sealed class RoomObjectFramePhase
     private readonly ControllerInputState _playerButtons;
     /// <summary>The options whose controller bindings an opening message box's panel names.</summary>
     private readonly GameplayOptions _options;
-    /// <summary>Applies gate projectiles requested during the room-object pass.</summary>
-    private readonly EnemyRoomEffects _enemyRoomEffects;
     /// <summary>Suppresses ordinary room-object updates while gameplay time is frozen.</summary>
     private readonly GameplayTimeFreeze _freeze;
     /// <summary>Owns the active synchronous item or station message.</summary>
     private readonly GameplayMessageBoxState _messageBox;
     /// <summary>Retains pending save-station and suit-pickup handoffs.</summary>
     private readonly MessageBoxFlow _messageBoxes;
-    /// <summary>Supplies Samus and the X-ray room-object-suspension flag.</summary>
+    /// <summary>Shows the colours of the beams a pickup equips.</summary>
     private readonly SamusFrameState _player;
-    /// <summary>Supplies active level data, camera, and scroll state.</summary>
-    private readonly ActiveRoomState _room;
     /// <summary>Prevents a second suit transformation from replacing an active one.</summary>
     private readonly SamusSuitPickupState _suitPickup;
 
@@ -48,12 +44,10 @@ internal sealed class RoomObjectFramePhase
         _playerActions = dependencies.PlayerActions;
         _playerButtons = dependencies.PlayerButtons;
         _options = dependencies.Options;
-        _enemyRoomEffects = dependencies.EnemyRoomEffects;
         _freeze = dependencies.Freeze;
         _messageBox = dependencies.MessageBox;
         _messageBoxes = dependencies.MessageBoxes;
         _player = dependencies.Player;
-        _room = dependencies.Room;
         _suitPickup = dependencies.SuitPickup;
 
     }
@@ -66,15 +60,16 @@ internal sealed class RoomObjectFramePhase
     /// door/elevator freeze flag is set. This step is the game's one exception: it
     /// advances the freshly loaded room objects' sequences once before the destination fades in.
     /// </remarks>
-    internal void RunRoomObjectsForDoor(RoomObjectSystem roomObjects, SamusBombProjectileSystem bombProjectiles, RoomScope room)
+    internal static void RunRoomObjectsForDoor(RoomScope room, SamusState samus)
     {
         // The room objects' door-transition update still enters the common room-object step,
         // which returns at once while the X-ray suspends the room objects.
         // Indirect G-Mode deliberately carries that suspension across the door.
-        if (_player.Samus?.Xray.AreObjectsSuspended == true)
+        if (samus.Xray.AreObjectsSuspended)
             return;
 
-        StepRoomObjects(controllerNewInput: GameplayAction.None, roomObjects, bombProjectiles, room);
+        StepRoomObjects(controllerNewInput: GameplayAction.None, room, samus);
+        RoomObjectSystem roomObjects = room.RoomObjects;
 
         // Setup-time room objects do not have Samus contact/input available. If a future
         // change publishes a player-facing event here, fail at the exact ownership
@@ -95,21 +90,16 @@ internal sealed class RoomObjectFramePhase
     /// transition-time call. Player-facing events remain with each phase that runs them because the
     /// transition path cannot legitimately collect an item or activate a station.
     /// </summary>
-    private void StepRoomObjects(GameplayAction controllerNewInput, RoomObjectSystem roomObjects, SamusBombProjectileSystem bombProjectiles, RoomScope room)
+    private static void StepRoomObjects(GameplayAction controllerNewInput, RoomScope room, SamusState samus)
     {
-        if (_room.LevelData is null || _room.Camera is null || _player.Samus is null)
-        {
-            throw new InvalidOperationException(
-                "The room objects' step requires an active room, camera, and Samus.");
-        }
-
-        roomObjects.Step(_room.LevelData, new RoomObjectFrameInputs { Scrolls = _room.LoadedCamera.Scrolls, EnemyDeaths = room.Enemies.RoomStatus.EnemiesKilled, EnemyDeathQuota = room.Enemies.PopulationLoader.DeathQuota, ControllerNewInput = controllerNewInput, CollectedItems = _player.Samus.CollectedItems, PowerBombExplosionActive = bombProjectiles.PowerBombExplosion.IsActive });
-        _enemyRoomEffects.ApplyPendingDownwardGateProjectileRequests(roomObjects, room.Enemies);
+        room.RoomObjects.Step(room.LevelData, new RoomObjectFrameInputs { Scrolls = room.Camera.Scrolls, EnemyDeaths = room.Enemies.RoomStatus.EnemiesKilled, EnemyDeathQuota = room.Enemies.PopulationLoader.DeathQuota, ControllerNewInput = controllerNewInput, CollectedItems = samus.CollectedItems, PowerBombExplosionActive = room.BombProjectiles.PowerBombExplosion.IsActive });
+        EnemyRoomEffects.ApplyPendingDownwardGateProjectileRequests(EnemyRoomEffectSite.Of(room, samus));
     }
 
     /// <summary>Runs the ordinary room-object phase when gameplay permits it, then applies pickups, station messages, and spawned projectiles.</summary>
-    internal void RunObjectPhase(bool deathOwnsSamus, SamusState samus, RoomObjectSystem roomObjects, SamusBombProjectileSystem bombProjectiles, RoomScope room)
+    internal void RunObjectPhase(bool deathOwnsSamus, SamusState samus, RoomScope room)
     {
+        RoomObjectSystem roomObjects = room.RoomObjects;
         // Main gameplay reaches the room-object update after Samus's new-state and
         // enemy-projectile passes but before the main scrolling. A grapple block
         // acquired above therefore consumes its initial timer and draws its first frame in this
@@ -117,7 +107,7 @@ internal sealed class RoomObjectFramePhase
         // sees that mutation on the following Samus frame.
         if (!deathOwnsSamus && !_freeze.TimeIsFrozen && !samus.Xray.AreObjectsSuspended)
         {
-            StepRoomObjects(_playerActions.NewlyPressed, roomObjects, bombProjectiles, room);
+            StepRoomObjects(_playerActions.NewlyPressed, room, samus);
 
             // Item room objects publish acquisition only after their trigger and
             // step. Apply their colour consequences at that same seam:

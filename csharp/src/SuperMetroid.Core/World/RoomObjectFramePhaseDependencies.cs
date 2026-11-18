@@ -18,9 +18,6 @@ internal sealed record RoomObjectFramePhaseDependencies
     /// <summary>The options whose controller bindings the message panels name.</summary>
     public required GameplayOptions Options { get; init; }
 
-    /// <summary>The room effects room objects request of the enemies, such as the gates' projectiles.</summary>
-    public required EnemyRoomEffects EnemyRoomEffects { get; init; }
-
     /// <summary>Whether gameplay time is frozen, which holds the room objects.</summary>
     public required GameplayTimeFreeze Freeze { get; init; }
 
@@ -32,9 +29,6 @@ internal sealed record RoomObjectFramePhaseDependencies
 
     /// <summary>Samus, whom the room objects touch, and whether the X-ray scope holds the room objects still.</summary>
     public required SamusFrameState Player { get; init; }
-
-    /// <summary>The loaded room, whose level, camera and scrolling the room objects change.</summary>
-    public required ActiveRoomState Room { get; init; }
 
     /// <summary>The suit transformation, which keeps a second suit from replacing one already running.</summary>
     public required SamusSuitPickupState SuitPickup { get; init; }

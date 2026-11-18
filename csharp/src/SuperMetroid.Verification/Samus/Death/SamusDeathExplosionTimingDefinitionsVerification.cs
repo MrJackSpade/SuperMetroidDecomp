@@ -26,7 +26,7 @@ internal static class SamusDeathExplosionTimingDefinitionsVerification
             int address = SuperMetroid.Core.Samus.Death.SamusDeathExplosionTimingDefinitionsConstants.NativeFirstTimerAddress +
                 index * SuperMetroid.Core.Samus.Death.SamusDeathExplosionTimingDefinitionsConstants.RecordByteCount;
             var beat = (AnimationBeat<SamusDeathExplosionFrame, NoAnimationCue>.Frame)beats[index];
-            AssertEqual((int)rom.ReadCartridgeByte(address), beat.Duration, $"Samus death-explosion duration {index}");
+            AssertEqual(rom.ReadCartridgeByte(address), beat.Duration, $"Samus death-explosion duration {index}");
             AssertEqual(SamusDeathSheetDefinitions.Explosion[index], beat.Shown, $"Samus death-explosion picture {index}");
         }
 

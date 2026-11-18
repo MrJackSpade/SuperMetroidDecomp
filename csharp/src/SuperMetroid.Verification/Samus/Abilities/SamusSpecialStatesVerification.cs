@@ -361,13 +361,13 @@ static void SeedXrayCartridge(TestAddressSpace bus)
     // 43FF/2F5A/1AB5. The normal-palette pointer is deliberately synthetic so teardown's
     // complete 16-color restoration cannot pass by leaving the previous visor word behind.
     ushort[] visorColors = [0x3be0, 0x5ff0, 0x7fff, 0x43ff, 0x2f5a, 0x1ab5];
-    WriteTestWords(bus, XrayScopeDefinitions.VisorShades.VisorWords, visorColors);
-    WriteTestWord(bus, XrayScopeDefinitions.VisorShades.NormalSuitPointers, 0x9400);
-    for (ushort index = 0; index < XrayScopeDefinitions.VisorShades.SuitColorCount; index++)
+    WriteTestWords(bus, XrayScopeDefinitionsConstants.VisorShades.VisorWords, visorColors);
+    WriteTestWord(bus, XrayScopeDefinitionsConstants.VisorShades.NormalSuitPointers, 0x9400);
+    for (ushort index = 0; index < XrayScopeDefinitionsConstants.VisorShades.SuitColorCount; index++)
     {
         WriteTestWord(
             bus,
-            XrayScopeDefinitions.VisorShades.PaletteBank | (0x9400 + index * 2),
+            XrayScopeDefinitionsConstants.VisorShades.PaletteBank | (0x9400 + index * 2),
             unchecked((ushort)(0x0100 + index)));
     }
 
@@ -426,7 +426,7 @@ internal static void VerifySamusXray()
         "X-ray widening palette writes first visor color");
     AssertEqual(0x3be0, xrayColours.ShownVisor(xraySources), "first widening visor shade shows its installed color");
     AssertEqual(SuperMetroid.Core.Samus.Colours.SamusShades.XrayWideningVisor[0], standing.Xray.Visor.Showing, "widening visor shows its first shade");
-    AssertEqual(XrayScopeDefinitions.VisorShades.FrameDelay, standing.Xray.Visor.UpdatesLeft,
+    AssertEqual(XrayScopeDefinitionsConstants.VisorShades.FrameDelay, standing.Xray.Visor.UpdatesLeft,
         "widening visor shade holds five updates");
 
     // Eight instruction-list setup functions execute before the main bank-$88 preinstruction: the warm-up's

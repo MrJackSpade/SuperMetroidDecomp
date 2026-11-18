@@ -2,7 +2,6 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Artwork;
-using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Samus;
@@ -65,8 +64,4 @@ internal static class SamusDeathSheetComposer
     internal static int ExplosionSpritemap(HorizontalDirection facing, int frame) =>
         (facing == HorizontalDirection.Left ? LeftExplosionSpritemap
             : RightExplosionSpritemap) + frame;
-
-    /// <summary>The Samus spritemap explosion picture <paramref name="frame"/> shows facing <paramref name="facing"/>.</summary>
-    internal static int ExplosionSpritemap(HorizontalDirection facing, SamusDeathExplosionFrame frame) =>
-        ExplosionSpritemap(facing, SamusDeathSheetDefinitions.Explosion.ToList().IndexOf(frame));
 }

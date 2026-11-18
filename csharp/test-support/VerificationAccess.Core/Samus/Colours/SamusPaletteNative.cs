@@ -119,7 +119,7 @@ internal static class SamusPaletteNative
         internal static bool TryStoredShinePalettePointer(ushort suitByteOffset, ushort phaseByteOffset, out ushort pointer)
         {
             bool found = TryNativeSuitAndStep(suitByteOffset, phaseByteOffset, out SamusSuit suit, out int step) &&
-                (uint)step < SamusShadeDefinitions.FullBodyCycles.StoredShineSteps;
+                (uint)step < SamusShadeDefinitionsFullBodyCyclesConstants.StoredShineSteps;
             return Pointer(found, new(SamusFullBodyCycleFamily.StoredShine, suit, Math.Min(step, 6 - step)), out pointer);
         }
 
@@ -127,7 +127,7 @@ internal static class SamusPaletteNative
         internal static bool TryActiveShinesparkPalettePointer(ushort suitByteOffset, ushort phaseByteOffset, out ushort pointer)
         {
             bool found = TryNativeSuitAndStep(suitByteOffset, phaseByteOffset, out SamusSuit suit, out int step) &&
-                (uint)step < SamusShadeDefinitions.FullBodyCycles.ActiveShinesparkSteps;
+                (uint)step < SamusShadeDefinitionsFullBodyCyclesConstants.ActiveShinesparkSteps;
             return Pointer(found, new(SamusFullBodyCycleFamily.ActiveShinespark, suit, step), out pointer);
         }
 

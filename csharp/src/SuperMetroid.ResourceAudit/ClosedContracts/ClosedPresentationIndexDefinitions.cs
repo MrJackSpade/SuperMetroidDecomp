@@ -10,7 +10,6 @@ using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.Core.Hud.Artwork;
-using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Samus;

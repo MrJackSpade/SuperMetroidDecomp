@@ -36,12 +36,11 @@ internal sealed class GameplayGamePhases(FrontendSession session)
     /// <summary>Runs one update of <see cref="SuperMetroidGameState.ReserveTankRefill"/>.</summary>
     internal void RunReserveTankRefill(ControllerButton controllerInput)
     {
+        // The refill begins from main gameplay, whose updates all run with Samus, and no update replaces her (#2503).
+        SamusState samus = session.GameplayRuntime.Player.IntroducedSamus;
         SamusReserveAutoRecoveryStep reserveStep = default;
         session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Audio = RuntimeFrameAudio.WithLowHealthCheck, AfterFrameBoundary = () =>
             {
-                SamusState samus = session.GameplayRuntime.Player.Samus
-                    ?? throw new InvalidOperationException(
-                        "Reserve recovery requires a live Samus state.");
                 reserveStep = session.reserveRecovery.StepAfterFrame(
                     samus,
                     session.GameplayRuntime.Clock.Counter);
@@ -60,17 +59,17 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         // locked Samus movement mode omits it, after the update's gameplay, whose sounds are
         // already queued; the queue occupancy they leave decides whether this final
         // normal-priority request joins.
-        session.GameplayRuntime.Player.IntroducedSamus.HealthWarning.Update(session.GameplayRuntime.Player.IntroducedSamus.Health,
-            session.GameplayRuntime.AudioRequests);
+        samus.HealthWarning.Update(samus.Health, session.GameplayRuntime.AudioRequests);
     }
 
     /// <summary>Checks the main-gameplay pause gate, including Samus's control locks and new Start input.</summary>
     [IndependentFlag("Message-box ownership and the frame-start input lock are separate runtime states read from the frame.")]
     private bool CanEnterPause(
+        SamusState samus,
         bool messageBoxOwnedFrame,
         bool samusInputLockedAtFrameStart)
     {
-        if (session.Runtime?.Player.Samus is not SamusState samus || session.Runtime.Room.ActiveRoom is null)
+        if (session.GameplayRuntime.Room.ActiveRoom is null)
             return false;
 
         // The pause check runs only while Samus takes her normal input. A station's lock holds her input through its
@@ -79,14 +78,14 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         // the pause check's own predicate.
         return session.GameState == SuperMetroidGameState.MainGameplay &&
                !messageBoxOwnedFrame &&
-               !session.Runtime.MessageBox.IsActive &&
+               !session.GameplayRuntime.MessageBox.IsActive &&
                !samusInputLockedAtFrameStart &&
                !samus.Control.InputLocked &&
-               !session.Runtime.PowerBombExplosionActive &&
+               !session.GameplayRuntime.PowerBombExplosionActive &&
                !samus.Xray.TimeIsFrozen &&
-               !session.Runtime.RoomLoader.HasPendingDoorTransition &&
-               session.Runtime.Room.ActiveRoom.Area != AreaId.Ceres &&
-               session.Runtime.PlayerActions.NewlyPressed.HasAny(GameplayAction.Start);
+               !session.GameplayRuntime.RoomLoader.HasPendingDoorTransition &&
+               session.GameplayRuntime.Room.ActiveRoom.Area != AreaId.Ceres &&
+               session.GameplayRuntime.PlayerActions.NewlyPressed.HasAny(GameplayAction.Start);
     }
 
     /// <summary>
@@ -107,13 +106,15 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         // The station's lock has stopped Samus's input before this
         // frame. Retraction can restore normal input later in StepFrame, after
         // Samus's input phase has already passed pause-check.
-        bool samusInputLockedAtFrameStart = session.GameplayRuntime.Player.Samus?.Control.InputLocked == true;
+        // Every gameplay update runs with Samus, and no update replaces her (#2503).
+        SamusState samus = session.GameplayRuntime.Player.IntroducedSamus;
+        bool samusInputLockedAtFrameStart = samus.Control.InputLocked;
         session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Audio = RuntimeFrameAudio.WithLowHealthCheck });
         bool timeUp = session.GameplayRuntime.ConsumeTimeUpRequest();
-        HandleSaveStationPersistence();
+        HandleSaveStationPersistence(samus);
         session.display.PublishGameplay(session.GameplayRuntime);
         session.HandleGunshipLandingSave();
-        if (RouteOutOfHealth())
+        if (RouteOutOfHealth(samus))
         {
             // The death trigger enters the next sequence at the end of this update's completed gameplay.
             // Nothing else may replace it on the trigger
@@ -137,7 +138,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
             session.Close<PauseMenuState>();
             session.Enter(PauseStep.DarkeningGameplay);
         }
-        else if (CanEnterPause(messageBoxOwnedFrame, samusInputLockedAtFrameStart))
+        else if (CanEnterPause(samus, messageBoxOwnedFrame, samusInputLockedAtFrameStart))
         {
             // Samus's pause check executes during the already-completed
             // main-gameplay frame. It initializes both fade counters and starts
@@ -167,12 +168,12 @@ internal sealed class GameplayGamePhases(FrontendSession session)
     }
 
     /// <summary>Freezes gameplay and enters the reserve tanks' refill or death after Samus reaches zero health.</summary>
-    private bool RouteOutOfHealth()
+    private bool RouteOutOfHealth(SamusState samus)
     {
-        if (session.Runtime?.Player.Samus is not SamusState samus || samus.Health > 0)
+        if (samus.Health > 0)
             return false;
 
-        session.Runtime.Freeze.GameplayTimeFrozen = true;
+        session.GameplayRuntime.Freeze.GameplayTimeFrozen = true;
         if (samus.ReserveTankMode == ReserveTankMode.Auto && samus.ReserveEnergy != 0)
         {
             session.reserveRecovery.Begin(samus);
@@ -190,18 +191,15 @@ internal sealed class GameplayGamePhases(FrontendSession session)
     }
 
     /// <summary>Consumes a confirmed station save and writes the selected save slot.</summary>
-    private void HandleSaveStationPersistence()
+    private void HandleSaveStationPersistence(SamusState samus)
     {
-        if (session.Runtime?.MessageBoxes.ConsumeSaveStationPersistenceRequest() is not { } request)
+        if (session.GameplayRuntime.MessageBoxes.ConsumeSaveStationPersistenceRequest() is not { } request)
             return;
-        SamusState samus = session.Runtime.Player.Samus
-            ?? throw new InvalidOperationException(
-                "A confirmed save station has no live Samus state.");
         // Saving first stores the live explored map as the current area's.
-        session.Runtime.System.StoredExploredMaps.StoreLiveMap(request.Station.Area);
+        session.GameplayRuntime.System.StoredExploredMaps.StoreLiveMap(request.Station.Area);
         session.saves.SaveSlot(
             session.SelectedSaveSlot,
-            SuperMetroidSaveSnapshot.Capture(samus, session.Runtime.System, new SaveSnapshotContext { Checkpoint = request.Station, GameTime = session.Runtime.GameTime, ControllerBindings = session.Runtime.Options.ControllerBindings, MoonwalkEnabled = session.Runtime.Options.MoonwalkEnabled, IconCancelEnabled = session.Runtime.Options.IconCancelEnabled, JapaneseText = session.Runtime.JapaneseText }));
+            SuperMetroidSaveSnapshot.Capture(samus, session.GameplayRuntime.System, new SaveSnapshotContext { Checkpoint = request.Station, GameTime = session.GameplayRuntime.GameTime, ControllerBindings = session.GameplayRuntime.Options.ControllerBindings, MoonwalkEnabled = session.GameplayRuntime.Options.MoonwalkEnabled, IconCancelEnabled = session.GameplayRuntime.Options.IconCancelEnabled, JapaneseText = session.GameplayRuntime.JapaneseText }));
         session.RaiseSavesChanged();
     }
 }

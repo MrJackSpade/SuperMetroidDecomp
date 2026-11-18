@@ -37,7 +37,7 @@ internal sealed class DeathGameSequence(FrontendSession session) : IGamePhase
         DeathSequenceStep.FinalGameplayPass => "Death: final gameplay pass",
         DeathSequenceStep.BlackingOutSurroundings => "Death: surroundings black out",
         DeathSequenceStep.WaitingForMusic => "Death: waiting for music",
-        DeathSequenceStep.SamusDying => $"Death: {session.Runtime?.Player.Samus?.DeathSequence.Phase}",
+        DeathSequenceStep.SamusDying => $"Death: {session.GameplayRuntime.Player.IntroducedSamus.DeathSequence.Phase}",
         DeathSequenceStep.FinalBlackOut => "Death: final black-out",
         _ => throw new InvalidOperationException($"Undefined {nameof(DeathSequenceStep)} {session.DeathStep}."),
     };
@@ -78,8 +78,7 @@ internal sealed class DeathGameSequence(FrontendSession session) : IGamePhase
         session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false }, Audio = RuntimeFrameAudio.WithLowHealthCheck });
         session.display.PublishGameplay(session.GameplayRuntime);
         BeginDeathFade();
-        SamusState dyingSamus = session.GameplayRuntime.Player.Samus
-            ?? throw new InvalidOperationException("Death sequence lost its Samus owner.");
+        SamusState dyingSamus = session.GameplayRuntime.Player.IntroducedSamus;
         dyingSamus.SelectBeam();
         dyingSamus.ClearHurtTimers();
         dyingSamus.KnockbackActive = false;
@@ -153,8 +152,7 @@ internal sealed class DeathGameSequence(FrontendSession session) : IGamePhase
     /// </summary>
     private void BeginDeathFade()
     {
-        SuperMetroidRuntime runtime = session.Runtime ?? throw new InvalidOperationException("The death fade requires a runtime.");
-        runtime.FadeOut.Begin(RgbColor.Black, SamusDeathDefinitions.FadeLastStep, GameplayFadeSpares.Samus);
+        session.GameplayRuntime.FadeOut.Begin(RgbColor.Black, SamusDeathDefinitions.FadeLastStep, GameplayFadeSpares.Samus);
     }
 
     /// <summary>
@@ -164,6 +162,6 @@ internal sealed class DeathGameSequence(FrontendSession session) : IGamePhase
     /// <returns>Whether the fade completed on this update.</returns>
     private bool StepDeathFade()
     {
-        return (session.Runtime ?? throw new InvalidOperationException("The death fade requires a runtime.")).FadeOut.Step();
+        return session.GameplayRuntime.FadeOut.Step();
     }
 }

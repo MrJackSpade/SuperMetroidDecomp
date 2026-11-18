@@ -64,7 +64,7 @@ internal sealed class TimeUpGameSequence(FrontendSession session, GameplayGamePh
         // The white-out runs the whole main-gameplay update, then advances every colour
         // toward the white target with denominator eight.
         gameplay.RunMainGameplayUpdate(controllerInput);
-        if ((session.Runtime ?? throw new InvalidOperationException("Time-up white-out requires a gameplay runtime.")).FadeOut.Step())
+        if (session.GameplayRuntime.FadeOut.Step())
         {
             session.Enter(TimeUpStep.FadingToBlack);
             session.screenFade.StepEvery(1);
@@ -88,15 +88,13 @@ internal sealed class TimeUpGameSequence(FrontendSession session, GameplayGamePh
     /// </summary>
     private void FinishTimeUpBlackOut()
     {
-        if (session.Runtime is null)
-            throw new InvalidOperationException("Time-up black-out requires a gameplay runtime.");
         session.screenFade.StepEvery(1);
-        session.Runtime.FadeOut.End();
-        session.Runtime.EnemySession.CeresStatus = CeresEscapeStatus.RidleyNotEscaped;
-        session.Runtime.EscapeTimer.ClearStatus();
+        session.GameplayRuntime.FadeOut.End();
+        session.GameplayRuntime.EnemySession.CeresStatus = CeresEscapeStatus.RidleyNotEscaped;
+        session.GameplayRuntime.EscapeTimer.ClearStatus();
         session.audio.QueueCancelSoundEffects(SoundRequestPriority.Essential);
         session.display.PublishBlack();
-        if (session.Runtime.System.HasEvent(StoryEvent.ZebesTimebombSet))
+        if (session.GameplayRuntime.System.HasEvent(StoryEvent.ZebesTimebombSet))
         {
             session.BeginBlackDeathBlackOut();
             return;
@@ -104,7 +102,7 @@ internal sealed class TimeUpGameSequence(FrontendSession session, GameplayGamePh
         session.Show(new CeresDestructionCinematicState(
             session.audio, session.Artwork.ScreenContent.PowerBombGlowColors,
             session.Artwork.IntroCinematicArt, session.Artwork.SpriteSheets,
-            outcome: CeresDestructionOutcome.SamusAboard, japaneseText: session.Runtime.JapaneseText));
+            outcome: CeresDestructionOutcome.SamusAboard, japaneseText: session.GameplayRuntime.JapaneseText));
         session.Enter(CeresDestructionOutcome.SamusAboard);
     }
 }

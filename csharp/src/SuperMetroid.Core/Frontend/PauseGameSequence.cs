@@ -130,8 +130,7 @@ internal sealed class PauseGameSequence(FrontendSession session, GameplayGamePha
         SelectedRoom pauseRoom = session.GameplayRuntime.Room.ActiveRoom ??
             throw new InvalidOperationException(
                 "Pause setup requires an active room.");
-        session.Show(new PauseMenuState(new PauseMenuEntry { Samus = session.GameplayRuntime.Player.Samus ?? throw new InvalidOperationException(
-                "Pause setup requires a live Samus state."), System = session.GameplayRuntime.System, Area = pauseRoom.Area, RoomMapPosition = pauseRoom.MapPosition, Audio = session.audio, GameplayHud = session.GameplayRuntime.AcceptedHud, MapRevealMode = session.Assists.MapReveal, ScreenContent = session.Artwork.ScreenContent, SpriteSheets = session.Artwork.SpriteSheets }));
+        session.Show(new PauseMenuState(new PauseMenuEntry { Samus = session.GameplayRuntime.Player.IntroducedSamus, System = session.GameplayRuntime.System, Area = pauseRoom.Area, RoomMapPosition = pauseRoom.MapPosition, Audio = session.audio, GameplayHud = session.GameplayRuntime.AcceptedHud, MapRevealMode = session.Assists.MapReveal, ScreenContent = session.Artwork.ScreenContent, SpriteSheets = session.Artwork.SpriteSheets }));
         session.BeginPauseFade(0);
         session.display.PublishMenu(session.ActivePauseMenu);
         session.SetDisplayBrightness(session.PauseBrightness);
@@ -192,9 +191,8 @@ internal sealed class PauseGameSequence(FrontendSession session, GameplayGamePha
         // hooks, room effects and block animations on a blank display. Pause graphics live in a
         // separate display image here, so discarding it restores the untouched runtime
         // image without rebuilding it.
-        SamusState resumedSamus = session.GameplayRuntime.Player.Samus ??
-            throw new InvalidOperationException(
-                "Pause teardown requires live Samus equipment state.");
+        // The pause is entered only from main gameplay, whose updates all run with Samus (#2503).
+        SamusState resumedSamus = session.GameplayRuntime.Player.IntroducedSamus;
         // The equipment screen's category button response changes the equipped beams. Unpausing shows the newly
         // equipped beams' colours before its frame; the projectiles fired from then on show the beams' own pictures (#1586).
         session.GameplayRuntime.SamusPhases.ShowEquippedBeamColours(resumedSamus.EquippedBeams);

@@ -96,7 +96,7 @@ internal sealed class PhantoonCombat
                     RunPhantoonCasualFlameFalling(flame, context.Level);
                     break;
                 case PhantoonFlameMotion.CasualLanding:
-                    RunPhantoonCasualFlameImpactPause(flame, context.FrameCounter);
+                    RunPhantoonCasualFlameLandingPause(flame, context.FrameCounter);
                     break;
                 case PhantoonFlameMotion.CasualBouncing:
                     RunPhantoonCasualFlameBouncing(flame, context.Level);
@@ -139,7 +139,7 @@ internal sealed class PhantoonCombat
             if (!orbit.Phantoon.StartingFlames.Orbiting)
                 return;
             flame.StartMotion(PhantoonFlameMotion.IntroOrbiting);
-            orbit.StartDelay = PhantoonFlameMotionDefinitions.IntroCircleDelay;
+            orbit.FullRadiusHold.LastFor(PhantoonFlameMotionDefinitions.IntroCircleHoldUpdates);
             orbit.Radius = PhantoonFlameMotionDefinitions.IntroCircleRadius;
         }
 
@@ -148,19 +148,15 @@ internal sealed class PhantoonCombat
         {
             PhantoonOrbitingFlameState orbit = flame.StateOf<PhantoonOrbitingFlameState>();
             PhantoonEnemyState state = orbit.Phantoon;
-            if (orbit.StartDelay != 0)
-            {
-                orbit.StartDelay--;
-            }
-            // The orbit closes on every second update of the game's frame counter.
-            else if (PhantoonCadenceDefinitions.OrbitClosesEverySecondUpdate.IsDue(frameCounter))
+            // Once its hold at its full radius has run out, the orbit closes on every second update of the game's frame
+            // counter.
+            if (orbit.FullRadiusHold.StepRunsOut() && PhantoonCadenceDefinitions.OrbitClosesEverySecondUpdate.IsDue(frameCounter))
             {
                 orbit.Radius--;
                 if (orbit.Radius == 0)
                 {
                     flame.Position = flame.Position.WithWhole(state.Body.Position.Whole + PhantoonArenaDefinitions.FlameCircleCentre);
                     flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameSegment.Delete));
-                    flame.FrameHold = WrappingCountdown.Start(1);
                     return;
                 }
             }
@@ -193,12 +189,12 @@ internal sealed class PhantoonCombat
             RoomLevelData level)
         {
             PhantoonRainFlameState rain = flame.StateOf<PhantoonRainFlameState>();
-            if (rain.FallDelay != 0)
+            if (rain.HangWait is { } hang)
             {
-                rain.FallDelay--;
-                if (rain.FallDelay != 0)
+                if (hang.StepKeepsRunning())
                     return;
-                // The flame queues its own falling sound as its delay runs out, and falls in that same update.
+                // The flame queues its own falling sound as its hang runs out, and falls in that same update.
+                rain.HangWait = null;
                 audio.QueueEnemySound(PhantoonFlameMotionDefinitions.RainFallSound, PhantoonFlameMotionDefinitions.RainSoundPriority);
             }
 
@@ -206,7 +202,6 @@ internal sealed class PhantoonCombat
             if (!EnemyProjectileEngine.MoveProjectileAxis(flame, level, axis: Axis.Vertical))
                 return;
             flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameSegment.RainImpact));
-            flame.FrameHold = WrappingCountdown.Start(1);
             flame.Position = flame.Position.WithWholeY(flame.Position.Y.Whole + PhantoonArenaDefinitions.FlameLandingDrop);
             flame.HoldStill();
             audio.QueueEnemySound(PhantoonFlameMotionDefinitions.RainFallSound, PhantoonFlameMotionDefinitions.RainSoundPriority);
@@ -446,24 +441,21 @@ internal sealed class PhantoonCombat
         flame.BlocksSamusProjectiles = true;
         flame.StartMotion(PhantoonFlameMotion.CasualLanding);
         flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameSegment.CasualHitGround));
-        flame.FrameHold = WrappingCountdown.Start(1);
         flame.State = new PhantoonCasualFlameState();
         flame.Position = flame.Position.WithWholeY(flame.Position.Y.Whole + PhantoonArenaDefinitions.FlameLandingDrop);
     }
 
     /// <summary>Holds the flame briefly at the floor after impact.</summary>
-    internal static void RunPhantoonCasualFlameImpactPause(
+    internal static void RunPhantoonCasualFlameLandingPause(
         EnemyProjectile flame,
         int frameCounter)
     {
         PhantoonCasualFlameState casual = flame.StateOf<PhantoonCasualFlameState>();
-        casual.ImpactPause--;
-        if (casual.ImpactPause != 0)
+        if (!casual.LandingPause.StepRunsOut())
             return;
 
         flame.StartMotion(PhantoonFlameMotion.CasualBouncing);
         flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameSegment.Burning));
-        flame.FrameHold = WrappingCountdown.Start(1);
         flame.Position = flame.Position.WithWholeY(flame.Position.Y.Whole - PhantoonArenaDefinitions.FlameLandingDrop);
         flame.Velocity = flame.Velocity.WithY(PhantoonArenaDefinitions.CasualRiseSpeed);
         // The flame drifts left or right by the game's frame counter.
@@ -498,7 +490,6 @@ internal sealed class PhantoonCombat
     private static void RestPhantoonCasualFlame(EnemyProjectile flame)
     {
         flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameSegment.CasualResting));
-        flame.FrameHold = WrappingCountdown.Start(1);
         flame.HoldStill();
     }
 
@@ -532,7 +523,6 @@ internal sealed class PhantoonCombat
             CoordinateAxis.AsSigned(flame.Position.Y.Whole) < 0 || flame.Position.Y.Whole >= PhantoonArenaDefinitions.RoomSize)
         {
             flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameSegment.Delete));
-            flame.FrameHold = WrappingCountdown.Start(1);
         }
     }
 

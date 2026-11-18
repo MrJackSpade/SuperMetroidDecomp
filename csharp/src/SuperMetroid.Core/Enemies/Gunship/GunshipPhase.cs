@@ -34,8 +34,8 @@ internal enum GunshipPhase
     RaiseSamus,
     /// <summary>Wait for the entrance to close after Samus exits.</summary>
     FinishSamusExit,
-    /// <summary>Ready the engines for the takeoff, which then fire up.</summary>
-    ReadyTakeoffEngines,
+    /// <summary>Wait for the engines to fire up for the takeoff.</summary>
+    WaitForEngines,
     /// <summary>Run the engine-rumble/dust phase.</summary>
     FireUpEngines,
     /// <summary>Constant-speed first liftoff phase.</summary>

@@ -6,14 +6,14 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// </summary>
 internal enum CeresSelfDestructPhase
 {
-    /// <summary>The getaway has just ended: the warning's colours are copied in, and the warning starts readying.</summary>
+    /// <summary>The getaway has just ended: the wait for the escape timer and warning starts, its first update this one.</summary>
     Start,
 
-    /// <summary>The escape timer and warning are brought up over their duration; the last update shows them.</summary>
-    ReadyingWarning,
+    /// <summary>The escape timer and warning wait to show; the wait's last update shows them and starts the wait for the title.</summary>
+    WaitingForWarning,
 
-    /// <summary>The arena's backgrounds are readied over their duration; the last update draws EMERGENCY and starts the music.</summary>
-    ReadyingBackgrounds,
+    /// <summary>The EMERGENCY title waits to show, its wait's first update the warning's showing; the last draws it and starts the music.</summary>
+    WaitingForTitle,
 
     /// <summary>The EMERGENCY title holds, the alarm colours cycling, until its hold runs out.</summary>
     HoldingTitle,

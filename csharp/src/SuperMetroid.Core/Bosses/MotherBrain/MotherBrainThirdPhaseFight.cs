@@ -46,8 +46,11 @@ internal sealed class MotherBrainThirdPhaseFight
     public MotherBrainPhase3NeckPhase Phase3NeckPhase { get; internal set; } =
         MotherBrainPhase3NeckPhase.Inactive;
 
-    /// <summary>The wait of her neck's recoil from a Hyper Beam hit and of its recovery after it, each run out by its phase.</summary>
-    public BossCountdown Phase3NeckRecoil { get; } = new();
+    /// <summary>The wait of her neck's recoil from a Hyper Beam hit (#2469), which its recoil phase runs out.</summary>
+    public BossCountdown HyperBeamRecoilWait { get; } = new();
+
+    /// <summary>The wait of her neck's recovery after a recoil (#2469), which its recovery phase runs out.</summary>
+    public BossCountdown RecoilRecoveryWait { get; } = new();
 
     /// <summary>
     /// Whether phase-three attacks are suspended. Hyper Beam recoil sets it
@@ -155,13 +158,13 @@ internal sealed class MotherBrainThirdPhaseFight
                 Encounter.LowerNeckMovement = MotherBrainNeckMovement.Lower;
                 Encounter.UpperNeckMovement = MotherBrainNeckMovement.Lower;
                 Phase3NeckPhase = MotherBrainPhase3NeckPhase.RecoilRecovery;
-                Phase3NeckRecoil.LastFor(MotherBrainLateFightDefinitions.RecoilRecoveryUpdates);
+                RecoilRecoveryWait.LastFor(MotherBrainLateFightDefinitions.RecoilRecoveryUpdates);
 
                 // The recovery's first update is this same update.
                 goto case MotherBrainPhase3NeckPhase.RecoilRecovery;
 
             case MotherBrainPhase3NeckPhase.RecoilRecovery:
-                if (Phase3NeckRecoil.StepKeepsRunning())
+                if (RecoilRecoveryWait.StepKeepsRunning())
                     return;
 
                 // On the recovery's last update the four-ring recovery animation starts.
@@ -173,18 +176,18 @@ internal sealed class MotherBrainThirdPhaseFight
                 Encounter.NeckMovementEnabled = true;
                 Phase3DisableAttacks = true;
                 _state.SetHeadAnimation(MotherBrainHeadSegment.HyperBeamRecoil);
-                Encounter.BrainMainShakeTimer = MotherBrainFightDefinitions.BrainShakeUpdates;
+                Encounter.BrainShake.ShakeFor(MotherBrainFightDefinitions.BrainShakeUpdates);
                 Encounter.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.HyperBeamRecoil;
                 Encounter.LowerNeckMovement = MotherBrainNeckMovement.Raise;
                 Encounter.UpperNeckMovement = MotherBrainNeckMovement.Raise;
                 Phase3NeckPhase = MotherBrainPhase3NeckPhase.HyperBeamRecoil;
-                Phase3NeckRecoil.LastFor(MotherBrainLateFightDefinitions.HyperBeamRecoilUpdates);
+                HyperBeamRecoilWait.LastFor(MotherBrainLateFightDefinitions.HyperBeamRecoilUpdates);
 
                 // The recoil's first update is this same update.
                 goto case MotherBrainPhase3NeckPhase.HyperBeamRecoil;
 
             case MotherBrainPhase3NeckPhase.HyperBeamRecoil:
-                if (Phase3NeckRecoil.StepKeepsRunning())
+                if (HyperBeamRecoilWait.StepKeepsRunning())
                     return;
 
                 Encounter.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Bobbing;

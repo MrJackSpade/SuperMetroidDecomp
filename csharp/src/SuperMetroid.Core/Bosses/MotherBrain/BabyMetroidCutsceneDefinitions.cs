@@ -58,10 +58,13 @@ internal static class BabyMetroidCutsceneDefinitions
     /// <summary>The updates between the dust explosions about the dying Baby.</summary>
     internal const int DeathExplosionIntervalUpdates = 5;
 
-    /// <summary>The updates after its fade to black ends before the cutscene readies Mother Brain's attacks again.</summary>
-    internal const int BeforeReadyingAttacksUpdates = 129;
+    /// <summary>
+    /// The updates of the pause after its fade to black ends, Samus's rainbow cycling, before her rainbow runs on; the last
+    /// is the first of <see cref="RainbowSomeMoreUpdates"/>.
+    /// </summary>
+    internal const int AfterFadeUpdates = 132;
 
-    /// <summary>The updates Samus's rainbow runs on after Mother Brain's attacks are readied, before the room's lights return.</summary>
+    /// <summary>The updates Samus's rainbow runs on after the pause, before the room's lights return.</summary>
     internal const int RainbowSomeMoreUpdates = 177;
 
     /// <summary>

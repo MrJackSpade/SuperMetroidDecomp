@@ -111,7 +111,8 @@ internal static class NativeEnemyFamilyStateImport
             {
                 // The record names the burst by its place in the casual-flame update's choices.
                 phantoon.CasualFlames.Schedule = Ensure.Element(PhantoonCasualFlameDefinitions.Choices, words.A);
-                phantoon.CasualFlames.Hold = CoordinateAxis.AsSigned(words.B);
+                // Its wait's word holds the updates the wait lasts; a word at or below zero runs out on the next update.
+                PrivateState.Set(phantoon.CasualFlames.Hold, nameof(BossCountdown.Count), CoordinateAxis.AsSigned(words.B) - 1);
                 // The record counts the burst's flames still to come; it reads below zero while no burst is under way, which
                 // the burst holds as no next flame. A count of zero spits a last flame as a count of one does.
                 short casualFlames = unchecked((short)words.C);
@@ -149,10 +150,10 @@ internal static class NativeEnemyFamilyStateImport
             ImportKraidPart(enemy, kraidPartRecord, words);
         if (enemy.SpeciesState<GunshipState>() is { } gunshipRecord)
         {
-            // The cartridge keeps the ship's phase timer, engine readying, bob phase, bob timer, and base Y and
-            // landing-brake step in the top hull's variables A through E.
+            // The cartridge keeps the ship's phase timer, bob phase, bob timer, and base Y and landing-brake step in the
+            // top hull's variables A and C through E. Variable B counts the records the takeoff has copied while the ship
+            // waits for its engines, which the port times on its phase timer from the wait's start (#2469).
             gunshipRecord.PhaseTimer = unchecked((short)words.A);
-            gunshipRecord.EngineReadyingElapsed = words.B;
             gunshipRecord.Bob = GunshipIdleBob.All[words.C];
             gunshipRecord.BobTimer = unchecked((short)words.D);
             gunshipRecord.BaseY = words.E;
@@ -318,7 +319,7 @@ internal static class NativeEnemyFamilyStateImport
                 ShitroidMembranePulse.All[LittleEndianBytes.LowByte(words.D)], LittleEndianBytes.HighByte(words.D) + 1);
             // The cartridge keeps the Sidehopper drain's updates in the same word as every other wait's count.
             if (shitroidRecord.Action == ShitroidAction.DrainSidehopper)
-                shitroidRecord.SidehopperDrainTimer = words.F;
+                PrivateState.Set(shitroidRecord.SidehopperDrain, nameof(BossCountdown.Count), words.F - 1);
             else
                 PrivateState.Set(shitroidRecord.StateTimer, nameof(BossCountdown.Count), CoordinateAxis.AsSigned(words.F));
         }

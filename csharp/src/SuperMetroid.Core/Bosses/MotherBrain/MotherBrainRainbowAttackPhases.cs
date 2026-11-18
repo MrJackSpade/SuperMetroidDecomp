@@ -440,7 +440,6 @@ internal sealed class MotherBrainRainbowAttackPhases
                 // and short of the arena's front limit.
                 _state.RequestWalkForward(
                     _state.BodyPosition.X + MotherBrainLateFightDefinitions.FinishOffStepX, MotherBrainWalkSpeed.ReallySlow);
-                _state.BabyArrivalReadyingElapsed = 0;
                 _state.BabyMetroidSpawned = false;
                 Encounter.FinishOffPhase = MotherBrainFinishOffPhase.GetSamusToLowEnergy;
             }

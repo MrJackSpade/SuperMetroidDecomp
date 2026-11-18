@@ -4,8 +4,9 @@ namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>
 /// The cartridge's three bank-$A6 Ceres escape transfer lists (#1406), as development audits and checks compare them:
-/// the game readies them over <see cref="CeresEscapeReadyingDefinitions"/>'s durations and shows their overlays through the Ceres
-/// warning tilemaps' cells.
+/// the game copies them one record an update, which the self-destruct warning's waits last
+/// (<see cref="SuperMetroid.Core.Bosses.Ridley.CeresSelfDestructWarningDefinitions"/>), and shows their overlays through the
+/// Ceres warning tilemaps' cells.
 /// </summary>
 internal static class CeresEscapeVramTransferDefinitions
 {

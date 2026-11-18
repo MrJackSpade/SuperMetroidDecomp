@@ -352,7 +352,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Action = ShitroidAction.DrainSidehopper;
         state.PaceMembrane(ShitroidMembranePace.Feeding);
         state.ReactsToSamus = false;
-        state.SidehopperDrainTimer = ShitroidFightDefinitions.SidehopperDrainUpdates;
+        state.SidehopperDrain.LastFor(ShitroidFightDefinitions.SidehopperDrainUpdates);
     }
 
     /// <summary>Shakes above the victim for its drain before activating its corpse sequence.</summary>
@@ -362,7 +362,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         int shakeIndex = MotherBrainCadenceDefinitions.ShitroidShakeStep.Of(place.FrameCounter);
         place.Position = place.Position.WithWhole(
             victim.Position.Whole + MotherBrainShakeDefinitions.Offsets[shakeIndex] + ShitroidFightDefinitions.LatchOffset);
-        if (--state.SidehopperDrainTimer == 0)
+        if (state.SidehopperDrain.StepRunsOut())
         {
             state.Action = ShitroidAction.ActivateSidehopperCorpse;
             SetShitroidAnimation(place, ShitroidSegment.FinishDraining);
@@ -393,16 +393,20 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             camera);
     }
 
-    /// <summary>Alternates between a timed followed point and the followed X at its hover height, using the room RNG.</summary>
+    /// <summary>
+    /// Steers at the followed point itself while it hovers at Samus's height, and otherwise at the followed X at its own
+    /// hover height, where the room RNG may restart its hover at Samus's height from the next update.
+    /// </summary>
     private Position16<RoomPixels> SelectShitroidHoverTarget(ShitroidEnemyState state, Position16<RoomPixels> followed)
     {
-        if (state.HoverTimer != 0)
+        if (state.SamusHeightHover is { } hover)
         {
-            state.HoverTimer--;
+            if (hover.StepRunsOut())
+                state.SamusHeightHover = null;
             return followed;
         }
         if (MotherBrainRandomDefinitions.ShitroidHoverRestarts.IsTakenBy(_room.Random.Read()))
-            state.HoverTimer = ShitroidFightDefinitions.HoverUpdates;
+            state.SamusHeightHover = BossCountdown.Lasting(ShitroidFightDefinitions.HoverUpdates);
         return followed.WithY(ShitroidFightDefinitions.HoverY);
     }
 
@@ -676,12 +680,9 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private void CountShitroidCry(ShitroidEnemyState state)
     {
-        if (!state.CryEnabled)
+        if (!state.CryEnabled || !state.CryWait.StepRunsOut())
             return;
-        state.CryCounter++;
-        if (state.CryCounter < ShitroidFightDefinitions.PulsesPerCry)
-            return;
-        state.CryCounter = 0;
+        state.CryWait.LastFor(ShitroidFightDefinitions.PulsesPerCry);
         RequestShitroidSound(state.MembranePace == ShitroidMembranePace.Feeding
             ? ShitroidSoundDefinitions.QuickDrainCry
             : ShitroidSoundDefinitions.DrainCry);

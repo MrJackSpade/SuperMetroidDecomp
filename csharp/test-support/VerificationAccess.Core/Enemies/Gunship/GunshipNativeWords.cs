@@ -25,7 +25,7 @@ internal static class GunshipNativeWords
         [GunshipPhase.WaitForExitPadToOpen] = 0xab60,
         [GunshipPhase.RaiseSamus] = 0xab6e,
         [GunshipPhase.FinishSamusExit] = 0xaba5,
-        [GunshipPhase.ReadyTakeoffEngines] = 0xabc7,
+        [GunshipPhase.WaitForEngines] = 0xabc7,
         [GunshipPhase.FireUpEngines] = 0xac1b,
         [GunshipPhase.SteadyLiftoff] = 0xacd7,
         [GunshipPhase.AcceleratingLiftoff] = 0xad0e,

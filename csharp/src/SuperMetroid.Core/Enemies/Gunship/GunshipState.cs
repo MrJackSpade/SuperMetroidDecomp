@@ -10,16 +10,10 @@ internal sealed class GunshipState
     internal GunshipState(GunshipPhase phase) => Phase = phase;
 
     /// <summary>
-    /// The updates left of a waiting phase, the one it ends on included: each pad movement starts it at 144, and the update
-    /// that takes it to zero ends the phase (#2340).
+    /// The updates left of a waiting phase, the one it ends on included: each pad movement starts it at 144 and the wait
+    /// for the engines at five, and the update that takes it to zero ends the phase (#2340, #2469).
     /// </summary>
     public int PhaseTimer { get; internal set; }
-
-    /// <summary>
-    /// The updates the takeoff has spent readying the engines so far, fewer than
-    /// <see cref="GunshipTakeoffDefinitions.EngineReadyingDuration"/>; zero once they fire up.
-    /// </summary>
-    public int EngineReadyingElapsed { get; internal set; }
 
     /// <summary>The ship's next idle-bob step.</summary>
     public GunshipIdleBob Bob { get; internal set; }

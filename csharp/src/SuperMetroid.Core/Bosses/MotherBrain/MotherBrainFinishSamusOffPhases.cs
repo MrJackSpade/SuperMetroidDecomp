@@ -34,15 +34,6 @@ internal sealed class MotherBrainFinishSamusOffPhases
     internal static int OnionRingsOnlyEnergy(SamusEquipmentFlags equippedItems) =>
         SamusSuitDamage.Reduce(MotherBrainAttackDamage.Bomb, equippedItems) + MotherBrainFinishOffDefinitions.EnergyMargin;
 
-    /// <summary>Runs one update of readying the Baby Metroid's arrival, rejecting calls once it has arrived.</summary>
-    private void ReadyBabyMetroidArrival()
-    {
-        if (_state.BabyArrivalReadyingElapsed >= MotherBrainReadyingDefinitions.BabyArrivalDuration)
-            throw new InvalidOperationException("The Baby Metroid's arrival is already readied.");
-
-        _state.BabyArrivalReadyingElapsed++;
-    }
-
     /// <summary>
     /// Attacks Samus with onion rings and bombs until her energy is low enough to finish her off, then stands up. True
     /// when her next phase runs on in this same update.
@@ -117,28 +108,29 @@ internal sealed class MotherBrainFinishSamusOffPhases
     }
 
     /// <summary>
-    /// Charges the final beam until the wait runs out. True when her next phase runs on in this same update.
+    /// Stretches until the wait runs out, then starts charging the final beam and the wait for the Baby's arrival. True
+    /// when her next phase runs on in this same update.
     /// </summary>
     internal bool ChargeFinalBeam()
     {
         if (Encounter.PhaseTimer.StepRunsOut())
         {
             _state.SetHeadAnimation(MotherBrainHeadSegment.ChargingRainbowBeam);
-            Encounter.FinishOffPhase = MotherBrainFinishOffPhase.ReadyBaby;
+            Encounter.FinishOffPhase = MotherBrainFinishOffPhase.BringInBaby;
+            Encounter.PhaseTimer.LastFor(MotherBrainWaitDefinitions.BabyArrivalUpdates);
             return true;
         }
         return false;
     }
 
     /// <summary>
-    /// Readies the Baby's arrival one update at a time; the last update spawns it and starts the final beam's wait.
-    /// True when her next phase runs on in this same update.
+    /// Charges the final beam until the Baby's wait runs out, then spawns it and starts the final beam's wait. True when
+    /// her next phase runs on in this same update.
     /// </summary>
     internal bool BringInBaby(MotherBrainRainbowBeamStepRequests requests)
     {
-        // Each update readies one update of the Baby's arrival; the last spawns it on that same update.
-        ReadyBabyMetroidArrival();
-        if (_state.BabyArrivalReadyingElapsed == MotherBrainReadyingDefinitions.BabyArrivalDuration)
+        // The wait's first update is the stretch's last; the Baby spawns on its last.
+        if (Encounter.PhaseTimer.StepRunsOut())
         {
             _state.RetractHead();
             _state.BabyMetroidSpawned = true;
@@ -187,7 +179,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
         MotherBrainFinishOffPhase.StandUp => StandUpToFinishOff(),
         MotherBrainFinishOffPhase.Admire => AdmireSamus(),
         MotherBrainFinishOffPhase.ChargeFinalBeam => ChargeFinalBeam(),
-        MotherBrainFinishOffPhase.ReadyBaby => BringInBaby(requests),
+        MotherBrainFinishOffPhase.BringInBaby => BringInBaby(requests),
         MotherBrainFinishOffPhase.FireFinalBeam => FireFinalBeam(requests),
         MotherBrainFinishOffPhase.FinalBeamHolding => HoldFinalBeam(),
         _ => throw new InvalidOperationException($"Undefined {nameof(MotherBrainFinishOffPhase)} {Encounter.FinishOffPhase}."),

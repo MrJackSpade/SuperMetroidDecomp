@@ -53,14 +53,14 @@ public sealed class ShitroidEnemyState
     /// </summary>
     public BossCountdown StateTimer { get; } = new();
 
-    /// <summary>
-    /// The updates left of the Shitroid's drain of the Sidehopper, zero or more: the drain finishes on the update it
-    /// reaches zero (#2253).
-    /// </summary>
-    public int SidehopperDrainTimer { get; internal set => field = Ensure.AtLeastZero(value); }
+    /// <summary>The Shitroid's drain of the Sidehopper, which finishes on the update it runs out on (#2253, #2469).</summary>
+    public BossCountdown SidehopperDrain { get; } = new();
 
-    /// <summary>The randomized vertical-follow duration left; it stops at zero.</summary>
-    public int HoverTimer { get; internal set; }
+    /// <summary>
+    /// Its hover at Samus's height (#2469), which a random restart starts and which runs until the update it runs out on;
+    /// null while it hovers at its own hover height.
+    /// </summary>
+    public BossCountdown? SamusHeightHover { get; internal set; }
 
     /// <summary>
     /// Horizontal-lock accumulator: gains two each update the Shitroid is horizontally
@@ -71,8 +71,11 @@ public sealed class ShitroidEnemyState
     /// <summary>Whether the periodic Shitroid cry is enabled.</summary>
     public bool CryEnabled { get; internal set; }
 
-    /// <summary>Membrane pulses toward the next periodic cry, 0 through 3.</summary>
-    public int CryCounter { get; internal set; }
+    /// <summary>
+    /// The cry pulses before its next periodic cry (#2469), counted one a pulse reaching its cry phase while its cry is
+    /// enabled: it cries on the pulse the wait runs out on, and the wait starts again.
+    /// </summary>
+    public BossCountdown CryWait { get; } = BossCountdown.Lasting(ShitroidFightDefinitions.PulsesPerCry);
 
     /// <summary>The membrane pulse phase last shown, or null before its first step (#1512).</summary>
     internal ShitroidMembranePulse? MembraneShown { get; set; }

@@ -47,12 +47,6 @@ internal sealed class MotherBrainLateFightState
     /// </summary>
     public MotherBrainPhase2CorpseState Phase2CorpseState { get; internal set; }
 
-    /// <summary>
-    /// The updates the finish-off has spent readying the Baby Metroid's arrival so far.
-    /// <see cref="MotherBrainReadyingDefinitions.BabyArrivalDuration"/> means it has arrived and the spawn handoff has run.
-    /// </summary>
-    public int BabyArrivalReadyingElapsed { get; internal set; }
-
     /// <summary>True once the final beam's Baby spawn has requested the cutscene Baby enemy population entry.</summary>
     public bool BabyMetroidSpawned { get; internal set; }
 

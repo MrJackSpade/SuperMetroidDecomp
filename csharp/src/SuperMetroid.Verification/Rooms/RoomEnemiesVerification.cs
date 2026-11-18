@@ -1143,7 +1143,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     AssertTrue(!enemies.CeresEscape.Floor.Active, "Ceres Ridley consumes the Mode-7 terminator");
     AssertEqual(CeresEscapeStage.SelfDestruct, enemies.CeresEscape.Stage,
         "Ceres Ridley Mode-7 terminator starts the self-destruct, which runs in Ridley's step");
-    AssertEqual(CeresEscapeReadyingStage.None, enemies.CeresEscape.Warning.Readying.Stage,
+    AssertEqual(CeresSelfDestructPhase.Start, enemies.CeresEscape.Warning.Phase,
         "Mode-7 terminator does not run the new actor function in the same enemy frame");
 
     var spriteTransfers = ReadRetailCeresEscapeTransfers(nativeRidleyRom, 0xa6c4cb);
@@ -1154,24 +1154,24 @@ internal static void VerifyCeresRidleyRoomEntry()
     {
         enemies.StepStandaloneFrame(enemies.StandaloneFrame(openRoom) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
         bool finalSprite = record == spriteTransfers.Count - 1;
-        AssertEqual(finalSprite, enemies.Presentation.Looks.Shows(CeresEscapeReadyingDefinitions.WarningLook),
-            "Ceres shows the warning look on the warning's last readying update only");
-        AssertEqual(finalSprite ? CeresSelfDestructPhase.ReadyingBackgrounds : CeresSelfDestructPhase.ReadyingWarning, enemies.CeresEscape.Warning.Phase, "Ceres sprite/background phase handoff");
+        AssertEqual(finalSprite, enemies.Presentation.Looks.Shows(CeresEscapeWarningLookDefinitions.WarningLook),
+            "Ceres shows the warning look on the last update of the wait for it only");
+        AssertEqual(finalSprite ? CeresSelfDestructPhase.WaitingForTitle : CeresSelfDestructPhase.WaitingForWarning, enemies.CeresEscape.Warning.Phase, "Ceres warning/title wait handoff");
     }
     for (int record = 1; record < backgroundTransfers.Count; record++)
     {
         enemies.StepStandaloneFrame(enemies.StandaloneFrame(openRoom) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
         bool finalBackground = record == backgroundTransfers.Count - 1;
-        AssertTrue(enemies.Presentation.Looks.Shows(CeresEscapeReadyingDefinitions.WarningLook),
-            "Ceres readying the backgrounds shows nothing new over the sprites");
+        AssertTrue(enemies.Presentation.Looks.Shows(CeresEscapeWarningLookDefinitions.WarningLook),
+            "Ceres waiting for the title shows nothing new over the sprites");
         AssertEqual(finalBackground, !enemies.CeresEscape.Warning.Overlay.Pictures.IsEmpty,
             "Ceres writes EMERGENCY over BG1 on the final background frame");
-        AssertEqual(finalBackground ? CeresSelfDestructPhase.HoldingTitle : CeresSelfDestructPhase.ReadyingBackgrounds, enemies.CeresEscape.Warning.Phase, "Ceres background/hold phase handoff");
+        AssertEqual(finalBackground ? CeresSelfDestructPhase.HoldingTitle : CeresSelfDestructPhase.WaitingForTitle, enemies.CeresEscape.Warning.Phase, "Ceres title wait/hold phase handoff");
     }
     var escapeResolver = new SuperMetroid.TestSupport.VerificationOracles.EnemyTileTransfers(InstalledFixtures.EnemyArtwork,
         timer: InstalledFixtures.ImportMaps.EscapeTimerTiles);
     IReadOnlyList<EncounterArtworkUpload> warningPages = EncounterLookUploads.Uploads(SuperMetroid.AssetExtraction.Enemies.ComposedEncounter.CeresEscape,
-        EncounterLookUploads.IndexOf(SuperMetroid.AssetExtraction.Enemies.ComposedEncounter.CeresEscape, CeresEscapeReadyingDefinitions.WarningLook.Name), escapeResolver);
+        EncounterLookUploads.IndexOf(SuperMetroid.AssetExtraction.Enemies.ComposedEncounter.CeresEscape, CeresEscapeWarningLookDefinitions.WarningLook.Name), escapeResolver);
     AssertEqual(spriteTransfers.Count, warningPages.Count, "the warning look copies one page a native sprite transfer");
     for (int index = 0; index < spriteTransfers.Count; index++)
     {

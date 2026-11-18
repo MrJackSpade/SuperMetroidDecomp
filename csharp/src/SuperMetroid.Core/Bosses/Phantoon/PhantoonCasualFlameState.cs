@@ -8,15 +8,11 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// </summary>
 internal sealed class PhantoonCasualFlameState : EnemyProjectileState
 {
-    /// <summary>Updates the landed flame pauses at the floor before it starts bouncing.</summary>
-    private const int LandingPause = 8;
+    /// <summary>The updates the landed flame pauses at the floor, the last being the one it starts bouncing on.</summary>
+    private const int LandingPauseUpdates = 8;
 
-    /// <summary>Updates left in the flame's pause at the floor; it starts bouncing on the update this reaches zero.</summary>
-    internal int ImpactPause
-    {
-        get;
-        set => field = Ensure.AtLeastZero(value);
-    } = LandingPause;
+    /// <summary>The flame's pause at the floor (#2469); it starts bouncing on the update the pause runs out on.</summary>
+    internal BossCountdown LandingPause { get; } = BossCountdown.Lasting(LandingPauseUpdates);
 
     /// <summary>How many times the bouncing flame has struck the floor.</summary>
     internal int Bounces

@@ -137,7 +137,7 @@ internal sealed class MotherBrainRevivalPhases
     /// </summary>
     internal bool BobNeckToAttackBaby()
     {
-        // Readying the neck for the Baby's death takes one update and moves on in that same update; her body may
+        // Starting the neck's bob for the Baby's death takes one update and moves on in that same update; her body may
         // still be finishing the last walk.
         BabyMetroidAttackCounter = 0;
         Encounter.NeckMovementEnabled = true;

@@ -35,10 +35,9 @@ internal sealed class PhantoonOrbitingFlameState(PhantoonEnemyState phantoon, Tr
         set => field = Ensure.AtLeastZero(value);
     }
 
-    /// <summary>Updates an intro flame circles at its full radius before the circle starts closing.</summary>
-    internal int StartDelay
-    {
-        get;
-        set => field = Ensure.AtLeastZero(value);
-    }
+    /// <summary>
+    /// An intro flame's hold at its full radius (#2469): its circle may close from the update the hold runs out on, on
+    /// the closing's cadence. Other flames start none.
+    /// </summary>
+    internal BossCountdown FullRadiusHold { get; } = new();
 }

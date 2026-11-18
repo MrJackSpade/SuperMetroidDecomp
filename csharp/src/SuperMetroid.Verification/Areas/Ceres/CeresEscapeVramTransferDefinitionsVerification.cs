@@ -64,40 +64,36 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
                 CeresEscapeOverlayTilemapFiles.Extract(rom), writable: false));
         var system = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance,
             services: new SuperMetroid.Verification.Enemies.StandaloneRoomEnemyServices(() => throw new InvalidOperationException("The warning fixture generates no random numbers.")));
-        // Bringing up the warning takes one update for each ROM-checked record of the timer-sprite list, the warning look
-        // showing on the last (#1538); where each record's page lands is the import's, which the Ceres escape tile check
-        // compares with the cartridge's.
+        // The wait for the warning lasts one update for each ROM-checked record of the timer-sprite list, the warning look
+        // showing on the last (#1538, #2469); where each record's page lands is the import's, which the Ceres escape tile
+        // check compares with the cartridge's.
         TileTransferDefinition[] spriteList = [.. records
             .SkipWhile(record => record.Pointer != CeresEscapeVramTransferDefinitions.TimerSprites)
             .TakeWhile(record => record.Pointer < 0xc4fc)];
         AssertEqual(7, spriteList.Length, "Ceres timer-sprite list length");
-        AssertEqual(spriteList.Length, CeresEscapeReadyingDefinitions.WarningReadyingDuration, "bringing up the warning takes one update a timer-sprite record");
+        AssertEqual(spriteList.Length, CeresSelfDestructWarningDefinitions.BeforeWarningUpdates, "the wait for the warning lasts one update a timer-sprite record");
         int timerPages = Enum.GetValues<EscapeTimerTilePage>().Length;
-        // The station's escape readies its warning (#2228).
+        // The station's escape runs its warning (#2228).
         CeresEscape escape = system.CeresEscape;
-        escape.Warning.Readying = CeresEscapeReadying.Warning;
+        escape.BeginSelfDestruct();
         for (int index = 0; index < spriteList.Length; index++)
         {
-            bool finished = escape.ReadyWarning();
+            escape.RunRidleysStep(0);
             TileTransferDefinition expected = spriteList[index];
-            AssertEqual(index == spriteList.Length - 1, finished, $"Ceres transfer ${expected.Pointer:X4} list completion");
-            AssertEqual(index == spriteList.Length - 1, system.Presentation.Looks.Shows(CeresEscapeReadyingDefinitions.WarningLook),
+            AssertEqual(index == spriteList.Length - 1, escape.Warning.Phase == CeresSelfDestructPhase.WaitingForTitle,
+                $"Ceres transfer ${expected.Pointer:X4}'s update ends the wait only last");
+            AssertEqual(index == spriteList.Length - 1, system.Presentation.Looks.Shows(CeresEscapeWarningLookDefinitions.WarningLook),
                 $"Ceres transfer ${expected.Pointer:X4}'s update shows the warning look only last");
             AssertTrue(expected.Pointer is 0xc4cb or 0xc4d2 ? index < timerPages
                     : CeresWarningTextPageConstants.ForTransfer(expected.SourceAddress, expected.ByteCount) == index - timerPages,
                 $"Ceres transfer ${expected.Pointer:X4} is the copy of its page: the timer's two, then the warning's in order");
         }
-        // The background list's records land in characters the Ridley arena does not show: it takes one update for each.
+        // The background list's records land in characters the Ridley arena does not show: the wait for the title lasts one
+        // update for each, which the room enemies' Ceres check steps through.
         TileTransferDefinition[] backgroundList = [.. records
             .SkipWhile(record => record.Pointer != CeresEscapeVramTransferDefinitions.TimerBackgrounds)];
         AssertEqual(8, backgroundList.Length, "Ceres timer-background list length");
-        AssertEqual(backgroundList.Length, CeresEscapeReadyingDefinitions.BackgroundReadyingDuration, "readying the backgrounds takes one update a timer-background record");
-        escape.Warning.Readying = CeresEscapeReadying.Backgrounds;
-        for (int index = 0; index < backgroundList.Length; index++)
-            AssertEqual(index == backgroundList.Length - 1, escape.ReadyWarning(),
-                $"Ceres transfer ${backgroundList[index].Pointer:X4} update completes the list only last");
-        AssertTrue(system.Presentation.Looks.Shows(CeresEscapeReadyingDefinitions.WarningLook),
-            "readying the backgrounds shows nothing new over the sprites");
+        AssertEqual(backgroundList.Length, CeresSelfDestructWarningDefinitions.BeforeTitleUpdates, "the wait for the title lasts one update a timer-background record");
 
         // The Japanese subtitle's lines are written over BG1 at exactly the four compiled records' destinations, two rows each.
         foreach (CeresEscapeWarningPicture line in CeresEscapeWarningPictures.JapaneseSubtitle)

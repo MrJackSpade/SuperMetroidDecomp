@@ -45,9 +45,11 @@ internal static class PhantoonFlameSpawnsVerification
         for (int order = 0; order < 8; order++)
             AssertEqual(new TrigonometryAngle(order * 32), PhantoonFlameSpawns.StartingFlameStarts[order], $"Intro flame {order} start angle");
 
+        // A rain flame hangs at least one delay step (#2469): the rain hangs its flames eight through sixty-four updates, so
+        // the parameters of no delay are not rain it spawns.
         var parameters = Enumerable.Range(0, 16).Select(i => (ushort)(0x200 + i))
             .Concat(Enumerable.Range(0, 8).Select(i => (ushort)(0x600 + i)))
-            .Concat(Enumerable.Range(0, 16).SelectMany(delay => Enumerable.Range(0, 9).Select(column => (ushort)(0x400 + delay * 16 + column))))
+            .Concat(Enumerable.Range(1, 15).SelectMany(delay => Enumerable.Range(0, 9).Select(column => (ushort)(0x400 + delay * 16 + column))))
             .Append((ushort)0).ToArray();
         foreach (ushort origin in new ushort[] { 0, 128, 0xfff8 })
         foreach (ushort parameter in parameters)
@@ -97,7 +99,7 @@ internal static class PhantoonFlameSpawnsVerification
             // field, the rage flame's a turn whose signed step is the native word.
             ushort typedSpeed = flame.State switch
             {
-                PhantoonRainFlameState rain => checked((ushort)rain.FallDelay),
+                PhantoonRainFlameState rain => checked((ushort)rain.HangUpdates),
                 PhantoonOrbitingFlameState rage when type == PhantoonFlameSpawnType.Enraged =>
                     unchecked((ushort)rage.TurnPerUpdate.StepsFrom(TrigonometryAngle.Zero)),
                 _ => 0,

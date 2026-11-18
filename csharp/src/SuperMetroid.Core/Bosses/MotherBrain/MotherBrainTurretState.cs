@@ -21,9 +21,9 @@ internal sealed class MotherBrainTurretState(MotherBrainEnemyState motherBrain, 
     /// </summary>
     internal RotationDirection Turning { get; set; } = RotationDirection.Counterclockwise;
 
-    /// <summary>Updates until the turret next turns; it turns on the update this reaches zero.</summary>
-    internal int RotationWait { get; set; }
+    /// <summary>The turret's wait before it next turns, which it turns on the update of running out (#2469).</summary>
+    internal BossCountdown RotationWait { get; } = new();
 
-    /// <summary>Updates until the turret next fires; it fires on the update this reaches zero.</summary>
-    internal int FiringWait { get; set; }
+    /// <summary>The turret's wait before it next fires, which it fires on the update of running out (#2469).</summary>
+    internal BossCountdown FiringWait { get; } = new();
 }

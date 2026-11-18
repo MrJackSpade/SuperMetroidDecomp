@@ -229,29 +229,29 @@ internal sealed class CeresEscape : IGameplayShadingSource
         switch (Warning.Phase)
         {
             case CeresSelfDestructPhase.Start:
-                Warning.Readying = CeresEscapeReadying.Warning;
-                Warning.Phase = CeresSelfDestructPhase.ReadyingWarning;
-                goto case CeresSelfDestructPhase.ReadyingWarning;
+                Warning.Phase = CeresSelfDestructPhase.WaitingForWarning;
+                Warning.PhaseWait.LastFor(CeresSelfDestructWarningDefinitions.BeforeWarningUpdates);
+                goto case CeresSelfDestructPhase.WaitingForWarning;
 
-            case CeresSelfDestructPhase.ReadyingWarning:
-                if (ReadyWarning())
-                {
-                    Warning.Readying = CeresEscapeReadying.Backgrounds;
-                    Warning.Phase = CeresSelfDestructPhase.ReadyingBackgrounds;
-                    goto case CeresSelfDestructPhase.ReadyingBackgrounds;
-                }
-                return;
+            case CeresSelfDestructPhase.WaitingForWarning:
+                if (Warning.PhaseWait.StepKeepsRunning())
+                    return;
 
-            case CeresSelfDestructPhase.ReadyingBackgrounds:
-                if (ReadyWarning())
-                {
-                    // The warning setup draws the emergency text immediately after the final graphics step.
-                    ShowWarningPicture(CeresEscapeWarningPictures.Emergency);
-                    // The warning setup also requests the escape music after showing the final static warning picture.
-                    _audio.RequestRidleyMusic(MusicRequest.SelectTrack(MusicTrack.Escape));
-                    Warning.Phase = CeresSelfDestructPhase.HoldingTitle;
-                    Warning.PhaseWait.LastFor(CeresSelfDestructWarningDefinitions.TitleHoldUpdates);
-                }
+                // The escape timer and warning show from this update's frame on, and the wait for the title starts on it.
+                _presentation.ShowLook(CeresEscapeWarningLookDefinitions.WarningLook);
+                Warning.Phase = CeresSelfDestructPhase.WaitingForTitle;
+                Warning.PhaseWait.LastFor(CeresSelfDestructWarningDefinitions.BeforeTitleUpdates);
+                goto case CeresSelfDestructPhase.WaitingForTitle;
+
+            case CeresSelfDestructPhase.WaitingForTitle:
+                if (Warning.PhaseWait.StepKeepsRunning())
+                    return;
+
+                ShowWarningPicture(CeresEscapeWarningPictures.Emergency);
+                // The escape music is requested after the title shows.
+                _audio.RequestRidleyMusic(MusicRequest.SelectTrack(MusicTrack.Escape));
+                Warning.Phase = CeresSelfDestructPhase.HoldingTitle;
+                Warning.PhaseWait.LastFor(CeresSelfDestructWarningDefinitions.TitleHoldUpdates);
                 return;
 
             case CeresSelfDestructPhase.HoldingTitle:
@@ -316,26 +316,6 @@ internal sealed class CeresEscape : IGameplayShadingSource
     /// </summary>
     internal void ShowWarningPicture(CeresEscapeWarningPicture page) =>
         Warning.Show(new WrittenPicture(page.Picture, page.Corner));
-
-    /// <summary>
-    /// Runs one update of the warning's current readying stage (#1406, #1538): on the last update of bringing up the escape
-    /// timer and warning, the arena's backgrounds show them from this update's frame on; readying the backgrounds shows
-    /// nothing new but still takes its updates.
-    /// </summary>
-    /// <returns>True once the stage has spent all its updates.</returns>
-    /// <exception cref="InvalidDataException">No stage was started.</exception>
-    internal bool ReadyWarning()
-    {
-        CeresEscapeReadying readying = Warning.Readying;
-        if (!readying.IsStarted)
-            throw new InvalidDataException("The Ceres self-destruct readied its warning without starting a stage.");
-        if (readying.IsFinished)
-            return true;
-        Warning.Readying = readying.Advance();
-        if (Warning.Readying is { Stage: CeresEscapeReadyingStage.Warning, IsFinished: true })
-            _presentation.ShowLook(CeresEscapeReadyingDefinitions.WarningLook);
-        return Warning.Readying.IsFinished;
-    }
 
     /// <summary>Types the next step of the escape text.</summary>
     private bool StepTypewriter()

@@ -49,7 +49,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     /// </summary>
     private RoomEnemyPlace? _topAwaitingSaveAnswer;
 
-    /// <summary>The room's enemy presentation, which shows the takeoff look once the engines are readied.</summary>
+    /// <summary>The room's enemy presentation, which shows the takeoff look once the engines fire up.</summary>
     private readonly EnemyPresentation _presentation;
 
     /// <summary>Binds the frame, room, place and presentation owners used by the ship's three-part actor.</summary>
@@ -182,8 +182,8 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             State(top).EngineSoundTimer = GunshipHoverSoundDefinitions.Interval;
         }
 
-        // The landed ship bobs before running its phase, from waiting for the landing entrance through readying the
-        // engines for takeoff.
+        // The landed ship bobs before running its phase, from waiting for the landing entrance through waiting for the
+        // engines to fire up for takeoff.
         GunshipPhase phase = State(top).Phase;
         if (BobsWhileLanded(phase))
             StepGunshipBob(top);
@@ -247,8 +247,8 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
                     _frameResults.Gunship = GunshipFrameEvent.ExitCompleted;
                 }
                 return;
-            case GunshipPhase.ReadyTakeoffEngines:
-                ReadyGunshipTakeoffEngines(top);
+            case GunshipPhase.WaitForEngines:
+                WaitForGunshipEngines(top);
                 return;
             case GunshipPhase.FireUpEngines:
                 FireUpGunshipEngines(top, samus);
@@ -348,14 +348,14 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
 
     /// <summary>
     /// Whether the landed ship bobs before running <paramref name="phase"/>: every phase from waiting for the
-    /// landing entrance through readying the engines, Idle among them; firing up the engines is the first that does not.
+    /// landing entrance through waiting for the engines, Idle among them; firing up the engines is the first that does not.
     /// </summary>
     private static bool BobsWhileLanded(GunshipPhase phase) => phase is
         GunshipPhase.WaitForLandingEntranceToOpen or GunshipPhase.EjectSamus or GunshipPhase.FinishLanding or
         GunshipPhase.Idle or GunshipPhase.WaitForEntranceToOpen or GunshipPhase.LowerSamus or
         GunshipPhase.WaitForEntranceToClose or GunshipPhase.BeginLiftoffOrRestoreSamus or
         GunshipPhase.HandleSaveConfirmation or GunshipPhase.WaitForExitPadToOpen or GunshipPhase.RaiseSamus or
-        GunshipPhase.FinishSamusExit or GunshipPhase.ReadyTakeoffEngines;
+        GunshipPhase.FinishSamusExit or GunshipPhase.WaitForEngines;
 
     /// <summary>Cycles the four idle-bob phases while moving the hull and pad together.</summary>
     internal static void StepGunshipBob(RoomEnemyPlace top)
@@ -435,11 +435,11 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     private void RestoreSamusInGunship(RoomEnemyPlace top, SamusState samus)
     {
         // Once Mother Brain's death has set the Zebes timebomb, the ship neither refills Samus nor offers to save: it
-        // readies its engines for the escape at once, carrying the hidden Samus with it.
+        // waits for its engines to fire up for the escape at once, carrying the hidden Samus with it.
         if (_room.Services.Events.Has(StoryEvent.ZebesTimebombSet))
         {
-            State(top).Phase = GunshipPhase.ReadyTakeoffEngines;
-            State(top).EngineReadyingElapsed = 0;
+            State(top).Phase = GunshipPhase.WaitForEngines;
+            State(top).PhaseTimer = GunshipTakeoffDefinitions.EngineStartUpdates;
             State(top).EscapeVelocity = SignedEightEight.Zero;
             State(top).RumbleFrame = 0;
             _frameResults.Gunship = GunshipFrameEvent.EscapeTakeoffStarted;
@@ -477,19 +477,16 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Runs one update of the takeoff readying the engines (#1406, #1538): on the last of
-    /// <see cref="GunshipTakeoffDefinitions.EngineReadyingDuration"/> updates the gunship shows its takeoff look from this
+    /// Waits one update for the engines to fire up: on the wait's last update the gunship shows its takeoff look from this
     /// update's frame on, and the engines fire up.
     /// </summary>
-    internal void ReadyGunshipTakeoffEngines(RoomEnemyPlace top)
+    internal void WaitForGunshipEngines(RoomEnemyPlace top)
     {
-        State(top).EngineReadyingElapsed++;
-        if (State(top).EngineReadyingElapsed >= GunshipTakeoffDefinitions.EngineReadyingDuration)
-        {
-            _presentation.ShowLook(GunshipTakeoffDefinitions.TakeoffLook);
-            State(top).Phase = GunshipPhase.FireUpEngines;
-            State(top).EngineReadyingElapsed = 0;
-        }
+        if (!TickGunshipPhaseTimer(top))
+            return;
+
+        _presentation.ShowLook(GunshipTakeoffDefinitions.TakeoffLook);
+        State(top).Phase = GunshipPhase.FireUpEngines;
     }
 
     /// <summary>Runs the 128-frame engine-rumble phase.</summary>

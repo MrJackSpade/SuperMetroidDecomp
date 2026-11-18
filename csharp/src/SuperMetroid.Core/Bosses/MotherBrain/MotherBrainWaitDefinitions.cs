@@ -27,10 +27,16 @@ internal static class MotherBrainWaitDefinitions
     /// <summary>The updates of the suspense before she prepares to rise, her brain set up on its neck.</summary>
     internal const int SuspenseUpdates = 129;
 
-    /// <summary>The updates she prepares to rise before her standing body is readied.</summary>
+    /// <summary>The updates she prepares to rise before the floor starts to hide her legs.</summary>
     internal const int BeforeRisingUpdates = 33;
 
-    /// <summary>The updates of the pause, from her standing body's readying, before her hidden body is placed to rise.</summary>
+    /// <summary>
+    /// The updates from the floor starting to hide her legs to her pause before rising, the first being the update it
+    /// starts and the last the pause's first.
+    /// </summary>
+    internal const int BeforePauseUpdates = 12;
+
+    /// <summary>The updates of the pause before her hidden body is placed to rise.</summary>
     internal const int StandingBodyPauseUpdates = 257;
 
     /// <summary>The updates each step of her colours' return from grey lasts, once she has risen.</summary>
@@ -51,11 +57,19 @@ internal static class MotherBrainWaitDefinitions
     /// <summary>The updates after her laser fires before her neck bobs again and she thinks again.</summary>
     internal const int LaserRecoveryUpdates = 17;
 
+    /// <summary>The updates her second phase cools down after choosing an attack before it thinks again.</summary>
+    internal const int AttackCooldownUpdates = 64;
+
     /// <summary>The updates she stands admiring the weakened Samus before she stretches for her final beam.</summary>
     internal const int AdmireUpdates = 17;
 
     /// <summary>The updates she stretches before charging her final beam.</summary>
     internal const int FinalBeamChargeUpdates = 257;
+
+    /// <summary>
+    /// The updates from her final beam's charge starting to the Baby Metroid's arrival, the first being the stretch's last.
+    /// </summary>
+    internal const int BabyArrivalUpdates = 4;
 
     /// <summary>The updates from the Baby's arrival to her final beam's firing.</summary>
     internal const int FinalBeamFireDelayUpdates = 257;

@@ -44,18 +44,14 @@ internal static class CeresEscapeTileArtworkVerification
         EscapeTimerCharacters timer = EscapeTimerCharacters.Read(timerPng);
         var guarded = NewCeresEscapeArtworkReadGuard(rom);
         var installed = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        foreach (CeresEscapeReadying start in new[] { CeresEscapeReadying.Warning, CeresEscapeReadying.Backgrounds })
-        {
-            // The station's escape readies its warning (#2228).
-            installed.CeresEscape.Warning.Readying = start;
-            while (!installed.CeresEscape.ReadyWarning())
-            {
-            }
-        }
-        AssertTrue(installed.Presentation.Looks.Shows(CeresEscapeReadyingDefinitions.WarningLook),
-            "Ceres escape production shows the warning look once its readying ends, and readying the backgrounds shows nothing new");
+        // The station's escape runs its warning until the escape timer and warning show (#2228, #2469).
+        installed.CeresEscape.BeginSelfDestruct();
+        for (int update = 0; update < CeresSelfDestructWarningDefinitions.BeforeWarningUpdates; update++)
+            installed.CeresEscape.RunRidleysStep(0);
+        AssertTrue(installed.Presentation.Looks.Shows(CeresEscapeWarningLookDefinitions.WarningLook),
+            "Ceres escape production shows the warning look once its wait runs out");
         IReadOnlyList<EncounterArtworkUpload> installedPages = EncounterLookUploads.Uploads(ComposedEncounter.CeresEscape,
-            EncounterLookUploads.IndexOf(ComposedEncounter.CeresEscape, CeresEscapeReadyingDefinitions.WarningLook.Name), new EnemyTileTransfers(stock, timer: timer));
+            EncounterLookUploads.IndexOf(ComposedEncounter.CeresEscape, CeresEscapeWarningLookDefinitions.WarningLook.Name), new EnemyTileTransfers(stock, timer: timer));
         AssertEqual(7, installedPages.Count, "the warning look copies the timer-sprite list's seven pages");
 
         // The cartridge's timer-sprite records, read from its descriptors and source bytes.

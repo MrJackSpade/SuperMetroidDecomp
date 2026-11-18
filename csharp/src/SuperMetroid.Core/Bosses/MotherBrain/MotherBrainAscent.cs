@@ -89,45 +89,24 @@ internal sealed class MotherBrainAscent
         state.RisingFloorClipActive = true;
         state.Head.Presence = state.Head.Presence.With(EnemyPresence.Hidden);
         MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.WholeHeadMouthClosed);
-        state.AscentPhase = MotherBrainAscentPhase.ReadyStandingBody;
-        state.PhaseTimer.LastFor(MotherBrainWaitDefinitions.StandingBodyPauseUpdates);
+        state.AscentPhase = MotherBrainAscentPhase.WaitBeforePause;
+        state.PhaseTimer.LastFor(MotherBrainWaitDefinitions.BeforePauseUpdates);
 
-        // The first readying update runs on the same frame the floor-clipping effect starts.
-        ReadyMotherBrainStandingBody(state);
+        // The wait's first update is the update the floor starts to hide her legs.
+        WaitBeforeMotherBrainAscentPause(state);
     }
 
-    /// <summary>Runs one update of readying her standing body before the phase-two body becomes visible.</summary>
-    internal static void ReadyMotherBrainStandingBody(
-        MotherBrainEnemyState state)
+    /// <summary>Waits out the updates before her pause before rising, then starts the pause on the wait's last update.</summary>
+    internal static void WaitBeforeMotherBrainAscentPause(MotherBrainEnemyState state)
     {
-        if (!ReadyStandingBodyOnce(state))
-        {
+        if (!state.PhaseTimer.StepRunsOut())
             return;
-        }
 
         state.AscentPhase = MotherBrainAscentPhase.ContinuePausing;
+        state.PhaseTimer.LastFor(MotherBrainWaitDefinitions.StandingBodyPauseUpdates);
 
-        // The final artwork step runs straight into the next step; the pause's first update is the final artwork
-        // update.
+        // The pause's first update is the wait's last.
         ContinueMotherBrainAscentPause(state);
-    }
-
-    /// <summary>
-    /// Runs one update of readying her standing body and reports whether it was the last of
-    /// <see cref="MotherBrainReadyingDefinitions.StandingBodyDuration"/>: the last completes in the same update and starts
-    /// the count over.
-    /// </summary>
-    internal static bool ReadyStandingBodyOnce(MotherBrainEnemyState state)
-    {
-        int elapsed = state.StandingBodyReadyingElapsed;
-        if (elapsed + 1 == MotherBrainReadyingDefinitions.StandingBodyDuration)
-        {
-            state.StandingBodyReadyingElapsed = 0;
-            return true;
-        }
-
-        state.StandingBodyReadyingElapsed = elapsed + 1;
-        return false;
     }
 
     /// <summary>Consumes the pre-rise wait and advances to body ascent.</summary>

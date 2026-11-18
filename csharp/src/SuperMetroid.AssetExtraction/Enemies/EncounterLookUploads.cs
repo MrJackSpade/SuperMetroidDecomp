@@ -159,7 +159,7 @@ internal static class EncounterLookUploads
             .. TorizoLookUploadDefinitions.BombSequence.Select(look => look.Of(EncounterArtwork.BombTorizo).Name)],
         ComposedEncounter.GoldenTorizo => [EncounterLook.LoadedName,
             .. TorizoLookUploadDefinitions.GoldenSequence.Select(look => look.Of(EncounterArtwork.GoldenTorizo).Name)],
-        ComposedEncounter.CeresEscape => [EncounterLook.LoadedName, CeresEscapeReadyingDefinitions.WarningLook.Name],
+        ComposedEncounter.CeresEscape => [EncounterLook.LoadedName, CeresEscapeWarningLookDefinitions.WarningLook.Name],
         ComposedEncounter.CeresElevatorDoor => [EncounterLook.LoadedName, CeresElevatorDoorLookDefinitions.OverlayLook.Name],
         ComposedEncounter.MotherBrain => [EncounterLook.LoadedName, .. MotherBrainLooks.Select(look => look.Name)],
         _ => throw new InvalidDataException($"Undefined {nameof(ComposedEncounter)} {encounter}."),

@@ -191,22 +191,19 @@ internal sealed class MotherBrainHead
             { Shading = frame.Shading, RotRows = corpseRows });
     }
 
-    /// <summary>Derives the head's current shake offset from the encounter's animation state.</summary>
+    /// <summary>
+    /// Where her brain's shake places it at this draw: her brain's own shake, which this draw's play of her brain counted
+    /// down, while it was shaking; otherwise the shake her hurt flash or her shake timer paces.
+    /// </summary>
     private static Offset16<RoomPixels> GetMotherBrainBrainShake(
         MotherBrainEnemyState state,
         RoomEnemyPlace head)
     {
-        int shake;
-        if (state.BrainMainShakeTimer != 0)
-        {
-            shake = --state.BrainMainShakeTimer;
-        }
-        else
-        {
-            shake = head.FlashTimer != 0 ? head.FlashTimer : head.ShakeTimer;
-        }
+        if (state.BrainShake.ShookAtLastStep)
+            return state.BrainShake.Offset;
 
-        return MotherBrainShakeDefinitions.Offsets[MotherBrainCadenceDefinitions.BrainShakeStep.Of(shake)];
+        int paced = head.FlashTimer != 0 ? head.FlashTimer : head.ShakeTimer;
+        return MotherBrainShakeDefinitions.Offsets[MotherBrainCadenceDefinitions.BrainShakeStep.Of(paced)];
     }
 
     /// <summary>Moves neck segments toward the head and updates their attachment to Samus's position.</summary>
@@ -236,13 +233,19 @@ internal sealed class MotherBrainHead
     }
 
     /// <summary>
-    /// Plays her brain's animation at her brain's draw (<see cref="MotherBrainBrainAnimation"/>) and returns the picture it
-    /// shows, or null when the brain is not live; its cues act on <paramref name="state"/> and read <paramref name="samus"/>.
+    /// Plays her brain at her brain's draw (<see cref="MotherBrainBrainAnimation"/>) and returns the picture it shows, or
+    /// null when the brain is not live; its cues act on <paramref name="state"/> and read <paramref name="samus"/>. A
+    /// brain that shows a picture counts its own shake down at the same draw (#2469).
     /// </summary>
-    internal EnemyFrameId? AdvanceMotherBrainBrain(MotherBrainEnemyState state, SamusState samus) =>
-        state.Brain.AdvanceAtDraw(_frameContext.TimeIsFrozen, cue => ApplyMotherBrainHeadCue(state, samus, cue) is { } segment
+    internal EnemyFrameId? AdvanceMotherBrainBrain(MotherBrainEnemyState state, SamusState samus)
+    {
+        EnemyFrameId? shown = state.Brain.AdvanceAtDraw(_frameContext.TimeIsFrozen, cue => ApplyMotherBrainHeadCue(state, samus, cue) is { } segment
             ? new AnimationContinuation<MotherBrainHeadSegment>(MotherBrainAnimations.HeadStartingWith(segment), AnimationPlace.StartOfAnimation)
             : null);
+        if (shown is not null)
+            state.BrainShake.Step();
+        return shown;
+    }
 
     /// <summary>Carries out one event of a brain animation.</summary>
     /// <returns>The segment whose animation a random hold or drool event continues at; otherwise null.</returns>
@@ -255,7 +258,7 @@ internal sealed class MotherBrainHead
         switch (cue)
         {
             case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.ShakeBrain }:
-                state.BrainMainShakeTimer = MotherBrainFightDefinitions.BrainShakeUpdates;
+                state.BrainShake.ShakeFor(MotherBrainFightDefinitions.BrainShakeUpdates);
                 return null;
             case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.SpawnDrool }:
                 SpawnMotherBrainDrool(state);
@@ -405,7 +408,7 @@ internal sealed class MotherBrainHead
             _projectileAttacks.OnionRing,
             graphics: SpriteGraphics.SharedIn(state.Colours.OwnShading));
         ring.StartAnimation(new MotherBrainEffectAnimation(MotherBrainEffectSegment.OnionRing));
-        ring.State = new MotherBrainOnionRingState(state, MotherBrainOnionRingDefinitions.MouthDelay);
+        ring.State = new MotherBrainOnionRingState(state, MotherBrainOnionRingDefinitions.MouthWaitUpdates);
         ring.Velocity = ring.Velocity.WithX(EnemyMath.SineSpeed(MotherBrainOnionRingDefinitions.Speed, angle));
         ring.Velocity = ring.Velocity.WithY(EnemyMath.SineSpeed(
             MotherBrainOnionRingDefinitions.Speed,

@@ -5,7 +5,7 @@ internal static class CorpseDustDefinitions
 {
     /// <summary>
     /// The random field that moves a Tourian or Sidehopper corpse's dust cloud zero or one <see cref="SpreadFineStep"/> to
-    /// the right (#2479): a count of steps, the sample's second bit. With <see cref="SpreadCoarseSteps"/> it spreads the
+    /// the right (#2479): a count of steps, zero or one by an even choice of the random number. With <see cref="SpreadCoarseSteps"/> it spreads the
     /// cloud 0-26 pixels, even.
     /// </summary>
     internal static readonly RandomSampleField SpreadFineSteps = new(1, 1);

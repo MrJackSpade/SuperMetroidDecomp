@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Shaktool;
 
-/// <summary>Shaktool's orbit and orientation encodings, as its segments apply them.</summary>
+/// <summary>The turns, orbit and head directions Shaktool's segments move and aim by.</summary>
 internal static class ShaktoolOrbitDefinitions
 {
     /// <summary>The turn a straightening chain's segments and target make each update: one whole step.</summary>

@@ -176,6 +176,10 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// #2501 adds, outside hardware owners, the port's loading and its layers yet to come as runtime and gameplay prose tells
 /// them: a load, loader, construction or operation called atomic, a constructor said to do something atomically, the setup
 /// call, and a thing that waits until it gets its own.
+/// #2515 adds, outside hardware owners, the original's routines, flags and bits and the port's reasoning as enemy and world
+/// prose tells them, read across a documentation comment's line breaks: an AI entry, an enemy's shot AI split over two
+/// lines, a flip, curling or mirror flag, a bit by its ordinal, what the port avoided teaching or inventing, a value told
+/// against a representation it no longer has and the camera's scroller distances.
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -2268,6 +2272,40 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
+    /// The original's routines, flags and bits and the port's reasoning told in enemy and world prose (#2515), outside
+    /// hardware owners and markup, read across a documentation comment's line breaks: an AI entry (the Pirate's AI entry);
+    /// an enemy's hurt, shot, touch, contact, bomb, frozen or grapple AI with its words on two lines (calls the normal
+    /// enemy shot AI); a flip, curling or mirror flag; a bit by its ordinal (the sample's fifteenth bit, a sample whose
+    /// ninth bit is set, the 15th bit); the port's narration of what it avoided building (without teaching the runtime how
+    /// to own enemies, instead of inventing an enemy, rather than inventing a flare, teaches it how to draw); a value told
+    /// against a representation it no longer has (rather than a signed offset); and the camera's scroller distances or
+    /// offsets. The original named its per-state routines their AI, kept its choices in flags and the bits of its random
+    /// numbers, and the port's earlier code reasoned about what it did not build; Core says what the game does: which
+    /// action the Pirate runs, what a shot does, which way the chain turns, one random number in two, where the Baby is
+    /// drawn, how far above Samus the camera aims. English stays legal: main AI or an AI alone, an entry alone, a flag
+    /// alone, a thing that flips or curls, a bit alone (a bit further), an Etecoon's teaching hops, a signed offset alone,
+    /// the camera's scroll and a hardware owner, which describes the storage it keeps.
+    /// </summary>
+    private static readonly Regex EnemyAndWorldRoutineBitAndReasoningProse = new(
+        @"\bAI\s+entr(?:y|ies)\b" +
+        @"|\b(?:hurt|shot|touch|contact|bomb|power[-\s]bomb|frozen|grapple)\s+AI\b" +
+        @"|\b(?:flip(?:ped)?|curl(?:ing)?|mirror(?:ed|ing)?)\s+flags?\b" +
+        @"|\b(?:zeroth|first|second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth|eleventh|twelfth|thirteenth" +
+        @"|fourteenth|fifteenth|sixteenth|\d+(?:st|nd|rd|th))\s+bits?\b" +
+        @"|\bwithout\s+teaching\b|\bteach(?:es|ing)?\s+[^.;]{0,60}?\bhow\s+to\b" +
+        @"|\b(?:instead\s+of|rather\s+than|without)\s+invent(?:ing)?\b" +
+        @"|\b(?:instead\s+of|rather\s+than)\s+(?:an?\s+|the\s+)?(?:signed|unsigned|raw|packed)\s+(?:offsets?|values?|words?" +
+        @"|numbers?|bytes?|fields?)\b" +
+        @"|\bscroller\s+(?:distances?|offsets?)\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// A documentation comment's line break with the next line's comment prefix (#2515), which
+    /// <see cref="EnemyAndWorldRoutineBitAndReasoningProse"/> reads as a space so a phrase runs on across it.
+    /// </summary>
+    private static readonly Regex CommentLineBreak = new(@"\s*\r?\n\s*(?:///?|\*+)?\s*", RegexOptions.CultureInvariant);
+
+    /// <summary>
     /// A storage unit told on a member whose type already measures it (#2491), outside hardware owners and markup: a
     /// count of 256ths, 512ths, 2048ths or 65536ths of a turn, a step, a pixel or a floor pixel (in 256ths of a turn, the
     /// zoom in 256ths of a floor pixel, 64 256ths of a pixel), or a fraction written 1/N of one (1/512 of a pixel, 1/256
@@ -2829,6 +2867,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : FrontendTimerAndInstallationProse.Match(Markup.Replace(text, " ")) is { Success: true } timerInstallation ? timerInstallation.Value
             : typedMeasure && TypedMeasureUnitProse.Match(Markup.Replace(text, " ")) is { Success: true } typedUnit ? typedUnit.Value
             : RuntimeLoaderAndLayerNarrationProse.Match(Markup.Replace(text, " ")) is { Success: true } loaderNarration ? loaderNarration.Value
+            : EnemyAndWorldRoutineBitAndReasoningProse.Match(CommentLineBreak.Replace(Markup.Replace(text, " "), " ")) is { Success: true } enemyAndWorld ? enemyAndWorld.Value
             : TileCharacterFinding(text, owner) is { } character ? character
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;

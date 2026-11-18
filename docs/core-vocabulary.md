@@ -796,6 +796,17 @@ performs that setup atomically`, read line by line), `the setup call`, and a thi
 set up on the loading update, and each following update moves the door's scroll. The Atomic, the Wrecked Ship's floating
 atom, a setup or a call alone, a thing of its own and a hardware owner stay English.
 
+#2515 widens SME6454, outside hardware owners, to the original's routines, flags and bits and the port's reasoning as
+enemy and world prose tells them, read across a documentation comment's line breaks: an AI entry (`AI entry, initialized
+for the starting wall`); an enemy's hurt, shot, touch, contact, bomb, frozen or grapple AI with its words on two lines
+(`calls the normal enemy shot` / `AI`); a flip, curling or mirror flag; a bit by its ordinal (`the sample's fifteenth bit`,
+`a sample whose ninth bit is set`); what the port avoided teaching or inventing (`without teaching the reusable Landing
+Site runtime how to own enemies`, `instead of inventing an enemy for the Baby`); a value told against a representation it
+no longer has (`rather than a signed offset`); and the camera's scroller distances or offsets. Core says what the game
+does: which action the Pirate runs, which way the chain turns, one random number in two, where the Baby is drawn, how far
+above Samus the camera aims. Main AI or an AI alone, an entry, a flag or a bit alone, a thing that flips or curls, an
+Etecoon's teaching hops, a signed offset alone, the camera's scroll and a hardware owner stay English.
+
 SME6459 (#2309) reads the summary of every member of a Core `*Segment` enum, one run of an actor's animation, and rejects
 one that only restates the member's name: `The facing left shooting animation.`, `The idle.`, `The loop.`, and (#2465)
 any summary whose words are all the name's, the actor's the enum is named for, articles, possessives or `animation`,

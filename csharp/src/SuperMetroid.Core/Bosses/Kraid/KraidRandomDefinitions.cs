@@ -65,8 +65,8 @@ internal static class KraidRandomDefinitions
     internal static readonly RandomChance NailWaitsForLint = RandomChance.Highest(1, new RandomSampleField(0, 1));
 
     /// <summary>
-    /// Whether a rising rock takes its pose flying to the right (#2479): taken when the sample's fifth bit is set, half the
-    /// random numbers.
+    /// Whether a rising rock takes its pose flying to the right (#2479): an even choice, taken by half the random
+    /// numbers.
     /// </summary>
     internal static readonly RandomChance RisingRockFliesRight = RandomChance.Highest(1, new RandomSampleField(4, 1));
 

@@ -209,9 +209,8 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
             return;
         }
 
-        // The follower again reads the preceding parent's visibility switch, which shows or hides it,
-        // rather than a signed offset. The follower takes the parent's live position and
-        // this variant adds the flames' drop.
+        // The follower shows while its parent's flames are visible, at the parent's live position lowered by the
+        // flames' drop.
         follower.Presence = follower.Presence.Without(EnemyPresence.Hidden);
         follower.Position = follower.Position.WithWhole(new(parent.Position.X.Whole, parent.Position.Y.Whole + RioLaunchDefinitions.LowerNorfairFlameDrop));
     }

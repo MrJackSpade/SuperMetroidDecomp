@@ -19,10 +19,10 @@ internal static class YardTurnDefinitions
     };
 
     /// <summary>
-    /// The transition-disabled alternatives, which only the four crawls along a floor or ceiling have: zero lookahead and
-    /// the corresponding crawls along a wall.
+    /// The turns the four crawls along a floor or ceiling take while the Yard's turns are suppressed, which the crawls along
+    /// a wall do not have: no lookahead, and the corresponding crawls along a wall.
     /// </summary>
-    internal static readonly Dictionary<YardDirection, YardTurnDefinition> DisabledTurns = new()
+    internal static readonly Dictionary<YardDirection, YardTurnDefinition> SuppressedTurns = new()
     {
         [YardDirection.UpsideUpMovingLeft] = new(new(0, 0), YardSegment.CrawlingUpsideLeftMovingDown, YardSegment.CrawlingUpsideRightMovingUp),
         [YardDirection.UpsideDownMovingRight] = new(new(0, 0), YardSegment.CrawlingUpsideRightMovingUp, YardSegment.CrawlingUpsideLeftMovingDown),

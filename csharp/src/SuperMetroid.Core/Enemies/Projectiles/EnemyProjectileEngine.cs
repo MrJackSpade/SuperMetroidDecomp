@@ -695,12 +695,11 @@ internal sealed class EnemyProjectileEngine
         EnemyProjectile projectile,
         int cameraY)
     {
-        int screenY = CoordinateAxis.Wrap(projectile.Position.Y.Whole - cameraY);
-        if (CoordinateAxis.AsSigned(screenY) >= 0 &&
-            screenY >= EnemyProjectileOffScreenDefinitions.VerticalDeletionDepth)
-        {
+        // A fireball or shard that flies up past the room's top keeps a wrapped height, so its distance below the
+        // camera's top row is measured the short way, as CoordinateAxis.Difference gives it: it lies above the camera
+        // and is kept, not read as lying far below it.
+        if (CoordinateAxis.Difference(projectile.Position.Y.Whole, cameraY) >= EnemyProjectileOffScreenDefinitions.VerticalDeletionDepth)
             projectile.Delete();
-        }
     }
 
     /// <summary>

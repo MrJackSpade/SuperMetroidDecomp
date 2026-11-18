@@ -60,8 +60,8 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
             place,
             displacement);
         // Unlike a wall, a patrol bound does not move the Ripper back flush with it: the update that passes the bound
-        // keeps its overshoot, which shows again when the Ripper reverses on its next pass. The left bound is exclusive
-        // and the right inclusive, compared as CoordinateAxis.Precedes compares columns.
+        // keeps its overshoot, which shows again when the Ripper reverses on its next pass. The Ripper turns back once its
+        // column lies left of the left bound, or at or right of the right one.
         if (!reverse && state.Heading == HorizontalDirection.Left)
         {
             reverse = place.Position.X.Whole < settings.MinimumX;

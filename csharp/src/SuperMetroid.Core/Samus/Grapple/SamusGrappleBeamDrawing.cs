@@ -75,8 +75,8 @@ public static class SamusGrappleBeamDrawing
     internal static void InitializeBeamAnimation(SamusGrappleState grapple)
     {
         // Firing marks the flare just fired after starting the rope's animation.
-        // A beam that starts already connected has no preceding firing history, so it
-        // begins at the same first flare state rather than inventing a static flare.
+        // A beam that starts already connected was never fired, and it begins at the same first flare stage as one
+        // just fired.
         grapple.FlareStage = GrappleFlareStage.JustFired;
         grapple.Flare.Clear();
         grapple.Endpoint.Show(GrappleAnimations.Endpoint);

@@ -19,8 +19,8 @@ internal static class MotherBrainRandomDefinitions
     internal static readonly RandomChance ShitroidHoverRestarts = RandomChance.Highest(32, RollOf4096);
 
     /// <summary>
-    /// A dust cloud of Mother Brain's ascent being the short big cloud rather than the small one (#2470): a sample whose
-    /// ninth bit is set, one in two.
+    /// A dust cloud of Mother Brain's ascent being the short big cloud rather than the small one (#2470): an even choice of
+    /// the random number, one in two.
     /// </summary>
     internal static readonly RandomChance AscentDustIsBig = RandomChance.Highest(1, new RandomSampleField(8, 1));
 
@@ -72,8 +72,8 @@ internal static class MotherBrainRandomDefinitions
     internal static readonly RandomSampleField CorpseDustOffset = new(0, 5);
 
     /// <summary>
-    /// Phase three's forward inch waiting two updates longer, at her medium walk rather than her fast one (#2470): a sample
-    /// whose second bit is set, one in two.
+    /// Phase three's forward inch waiting two updates longer, at her medium walk rather than her fast one (#2470): an even
+    /// choice of the random number, one in two.
     /// </summary>
     internal static readonly RandomChance ForwardInchWaitsLonger = RandomChance.Highest(1, new RandomSampleField(1, 1));
 

@@ -21,14 +21,14 @@ public sealed class WallSpacePirateEnemyState
     internal AnimationPlayback<WallSpacePirateSegment> Playback { get; set; }
 
     /// <summary>
-    /// AI entry, initialized for the starting wall and replaced by an animation cue as attack, jump, and landing animations
-    /// advance.
+    /// What the Pirate does each update: the starting wall's action when it is placed, then the one each animation cue
+    /// selects as its attack, jump and landing animations play.
     /// </summary>
     public WallSpacePirateAction Action { get; internal set; }
 
     /// <summary>
-    /// Binary direction; starts downward, reverses on a blocked vertical move, and is reselected from whether the
-    /// random sample is odd by the climb animation's direction cues.
+    /// The way the Pirate climbs its wall: down at first, reversed by a blocked vertical move, and chosen again by the
+    /// climb animation's direction cues, by whether the random number is odd.
     /// </summary>
     public WallSpacePirateClimbDirection ClimbDirection { get; internal set; }
 

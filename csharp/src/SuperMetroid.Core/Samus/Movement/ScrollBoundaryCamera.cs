@@ -32,7 +32,7 @@ public sealed class ScrollBoundaryCamera
 
     /// <summary>
     /// Gets the camera target calculated from Samus's position: horizontally from her facing
-    /// context, vertically from the scroller offsets.
+    /// context, vertically from the room's falling and rising camera offsets.
     /// </summary>
     public Position16<RoomPixels> IdealPosition { get; private set; }
 

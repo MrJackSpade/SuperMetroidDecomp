@@ -413,8 +413,8 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     }
 
     /// <summary>
-    /// Plays the Oum's shot sound after common shot
-    /// AI, for damaging, freezing, and zero-damage vulnerability results alike.
+    /// Plays the Oum's shot sound after the common shot damage, for damaging, freezing, and zero-damage vulnerability
+    /// results alike.
     /// </summary>
     private void ResolveMaridiaLargeSnailShotAfterCommon() =>
         _audio.QueueEnemySound(EnemySoundEffectDefinitions.MaridiaLargeSnailShotSound, priority: SoundRequestPriority.Normal);

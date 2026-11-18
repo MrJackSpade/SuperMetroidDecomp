@@ -24,7 +24,7 @@ internal static class PuyoNativeWords
     {
         [PuyoHopType.NormalSmall] = 0,
         [PuyoHopType.NormalBig] = 8,
-        [PuyoHopType.NormalHigh] = 16,
+        [PuyoHopType.NormalLong] = 16,
         [PuyoHopType.Giant] = 24,
         [PuyoHopType.Dropping] = 32,
         [PuyoHopType.DroppedSmall] = 40,

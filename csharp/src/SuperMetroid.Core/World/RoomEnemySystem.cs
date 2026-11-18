@@ -188,7 +188,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     /// <summary>The Yapping Maws, mouths on stalks that bite at Samus and carry her.</summary>
     internal YappingMawBehavior YappingMawBehavior { get; }
 
-    /// <summary>The Covern ghosts that flicker in and out in the Wrecked Ship.</summary>
+    /// <summary>The Wrecked Ship's ghosts, which flicker in and out.</summary>
     internal WreckedShipGhostBehavior WreckedShipGhostBehavior { get; }
 
     /// <summary>The Wrecked Ship's work robots, which patrol and fire lasers.</summary>
@@ -872,7 +872,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     public IReadOnlyList<SolidEnemyCollisionBody> InteractiveCollisionBodies =>
         _interactiveCollisionBodies;
 
-    /// <summary>What the room\'s bosses draw with: its presentation surfaces and the installed boss artwork.</summary>
+    /// <summary>What the room's bosses draw with: its presentation surfaces and the installed boss artwork.</summary>
     internal BossPresentation BossPresentation { get; }
 
     /// <summary>The bosses' installed artwork, read through the session's binding.</summary>

@@ -13,7 +13,7 @@ namespace SuperMetroid.Verification.Enemies.Puyo;
 internal static class PuyoHopChoicesVerification
 {
     /// <summary>The ordinary hops in the order the replaced roll of zero, one or two indexed them.</summary>
-    private static readonly PuyoHopType[] HopsByRoll = [PuyoHopType.NormalSmall, PuyoHopType.NormalBig, PuyoHopType.NormalHigh];
+    private static readonly PuyoHopType[] HopsByRoll = [PuyoHopType.NormalSmall, PuyoHopType.NormalBig, PuyoHopType.NormalLong];
 
     /// <summary>Compares every sample at each compared enemy count with the replaced roll, mask and clamp.</summary>
     internal static void VerifyPuyoHopChoices()

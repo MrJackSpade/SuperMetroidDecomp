@@ -253,8 +253,7 @@ internal static class SamusPoseMetadata
         SamusPoseId.DraygonGrabbedMovingRightPose;
 
     /// <summary>
-    /// Applies one ordinary Draygon-held transition without inventing pose physics.
-    /// Every admitted pose stays within one facing, retains radius 21, and restarts the
+    /// Applies one ordinary Draygon-held transition. Every admitted pose stays within one facing, retains radius 21, and restarts the
     /// target's animation at its start through the normal pose setup.
     /// </summary>
     public static void ApplyDraygonGrabbedPoseChange(SamusState samus, SamusPoseId targetPose)

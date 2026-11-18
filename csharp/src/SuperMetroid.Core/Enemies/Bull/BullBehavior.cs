@@ -26,7 +26,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         BullEnemyState state = _inheritance.Inherit(place.Ordinal, static previous => new BullEnemyState(previous, BullAction.MovementDelay));
         place.SetSpeciesState(state);
 
-        state.Playback = EnemyAnimationPlayback.Start(place, BullAnimations.StartingWith(BullSegment.Normal));
+        state.Playback = EnemyAnimationPlayback.Start(place, BullAnimations.StartingWith(BullSegment.Idle));
 
         BullSpawnSettings settings = place.SpawnSettings<BullSpawnSettings>();
         state.AccelerationIntervalTimer = settings.Intervals.Acceleration;
@@ -187,7 +187,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         state.ShotReactionDisableTimer = BullMovementDefinitions.ShotReactionGuardDuration;
     }
 
-    /// <summary>Runs Bull's normal and immune-shot animations (#641).</summary>
+    /// <summary>Runs Bull's idle and immune-shot animations (#641).</summary>
     internal static void AdvanceBullAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
         EnemyAnimationPlayback.Advance(place, BullAnimations.Segments,
             static (BullEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,

@@ -28,12 +28,10 @@ internal enum EvirSegment
     ArmsFacingRight,
     /// <summary>The arms facing right resting folded after their waves.</summary>
     ArmsFoldedFacingRight,
-    /// <summary>Its spine ball, held while it flies.</summary>
-    ProjectileNormal,
-    /// <summary>A regenerating spit's start at the mouth, its entry cue.</summary>
+    /// <summary>Its spit idle (#2477): its spine ball, held while it flies.</summary>
+    ProjectileIdle,
+    /// <summary>A regenerating spit's start back at the mouth and its spit sound (#2477).</summary>
     ProjectileRegenerating,
-    /// <summary>A regenerating spit's sound, once it starts back at the mouth.</summary>
-    ProjectileRegeneratingSound,
     /// <summary>One step of a regenerating spit's regrowth out from the mouth, which its regeneration repeats.</summary>
     ProjectileRegrowing,
     /// <summary>The regenerated spit, whole again.</summary>

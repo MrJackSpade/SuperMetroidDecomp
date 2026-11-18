@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 /// </summary>
 internal enum ChozoStatueSegment
 {
-    /// <summary>The Lower Norfair statue sitting with its hands cupped, waiting for Samus to sit in them.</summary>
-    LowerNorfairInitial,
+    /// <summary>The Lower Norfair statue idle (#2477): sitting with its hands cupped, waiting for Samus to sit in them.</summary>
+    LowerNorfairIdle,
     /// <summary>
     /// The Lower Norfair statue moving Samus right: its hand reaching and gripping her with a sound, then opening, its
     /// eye glowing and its fingers clenching before the acid starts to lower.
@@ -17,8 +17,8 @@ internal enum ChozoStatueSegment
     LowerNorfairFlexing,
     /// <summary>The Lower Norfair statue's release of Samus and the lowered acid.</summary>
     LowerNorfairRelease,
-    /// <summary>The Wrecked Ship statue sitting with its hands cupped, waiting for Samus to sit in them.</summary>
-    WreckedShipInitial,
+    /// <summary>The Wrecked Ship statue idle (#2477): sitting with its hands cupped, waiting for Samus to sit in them.</summary>
+    WreckedShipIdle,
     /// <summary>
     /// The Wrecked Ship statue moving Samus left: its hand reaching and gripping her with a sound, then opening, its
     /// eye glowing and its fingers clenching.

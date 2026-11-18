@@ -426,8 +426,8 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// The faster clone of each run loop that speeds up, where the speed-up jump lands at the same pose. The very fast
-    /// runs are the fastest.
+    /// The quicker run of each run that speeds up, where the speed-up lands at the same pose: every run plays its facing's one
+    /// <see cref="DachoraStride"/> (#2477). The very fast runs are the fastest.
     /// </summary>
     private static readonly Dictionary<DachoraSegment, DachoraSegment> FasterRuns = new()
     {
@@ -437,7 +437,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         [DachoraSegment.RunningRightFast] = DachoraSegment.RunningRightVeryFast,
     };
 
-    /// <summary>The faster clone of a run loop, where the speed-up jump lands at the same pose.</summary>
+    /// <summary>The quicker run of a run, where the speed-up lands at the same pose.</summary>
     /// <exception cref="InvalidOperationException"><paramref name="segment"/> has no faster run.</exception>
     private static DachoraSegment FasterDachoraRun(DachoraSegment segment) =>
         FasterRuns.TryGetValue(segment, out DachoraSegment faster)

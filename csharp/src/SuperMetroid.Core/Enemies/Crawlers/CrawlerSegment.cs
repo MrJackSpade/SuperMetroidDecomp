@@ -23,8 +23,8 @@ internal enum CrawlerSegment
     ZeroUpsideDown,
     /// <summary>The Zero crawling with its upper side up.</summary>
     ZeroUpsideUp,
-    /// <summary>The Viola's crawl, the same on every surface.</summary>
-    ViolaNormal,
+    /// <summary>The Viola's idle crawl (#2477), the same on every surface.</summary>
+    ViolaIdle,
     /// <summary>A Zoomer, Zeela, Sova or orange Zoomer crawling with its upper side right (#2283).</summary>
     SpinyCrawlerUpsideRight,
     /// <summary>A Zoomer, Zeela, Sova or orange Zoomer crawling with its upper side left (#2283).</summary>

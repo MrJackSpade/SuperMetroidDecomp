@@ -22,13 +22,7 @@ internal static class EtecoonAnimations
         [
             Show(EnemyFrameId.EtecoonTurningLeft, 1),
         ],
-        [P.RunningLeft] =
-        [
-            Show(EnemyFrameId.EtecoonRunningLeftStretched, 5),
-            Show(EnemyFrameId.EtecoonRunningLeftBunched, 5),
-            Show(EnemyFrameId.EtecoonRunningLeftPushingOff, 5),
-            Show(EnemyFrameId.EtecoonRunningLeftBunched, 5),
-        ],
+        [P.RunningLeft] = Stride(EtecoonStride.Left, 5),
         [P.WallJumpLeft] =
         [
             Show(EnemyFrameId.EtecoonLeapingLeft, 8),
@@ -58,13 +52,7 @@ internal static class EtecoonAnimations
         [
             Show(EnemyFrameId.EtecoonTurningRight, 1),
         ],
-        [P.RunningRight] =
-        [
-            Show(EnemyFrameId.EtecoonRunningRightStretched, 5),
-            Show(EnemyFrameId.EtecoonRunningRightBunched, 5),
-            Show(EnemyFrameId.EtecoonRunningRightPushingOff, 5),
-            Show(EnemyFrameId.EtecoonRunningRightBunched, 5),
-        ],
+        [P.RunningRight] = Stride(EtecoonStride.Right, 5),
         [P.WallJumpRight] =
         [
             Show(EnemyFrameId.EtecoonLeapingRight, 8),
@@ -141,6 +129,10 @@ internal static class EtecoonAnimations
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<EtecoonSegment> StartingWith(EtecoonSegment segment) => StartingAt[segment];
+
+    /// <summary>One <paramref name="stride"/> (#2477), each of its poses shown for <paramref name="updates"/> updates.</summary>
+    private static AnimationBeat<EnemyFrameId, NoAnimationCue>[] Stride(EtecoonStride stride, int updates) =>
+        [.. stride.Poses.Select(pose => Show(pose, updates))];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, NoAnimationCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);

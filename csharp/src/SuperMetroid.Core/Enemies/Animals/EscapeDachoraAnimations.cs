@@ -17,68 +17,24 @@ internal static class EscapeDachoraAnimations
     {
         [P.RunningAroundLowTideLeft] =
         [
-            Show(EnemyFrameId.DachoraRunningLeftFarLegBack, 3),
-            Cue(new EscapeDachoraCue.Move(Offset: -6)),
-            Show(EnemyFrameId.DachoraRunningLeftFarLegPassing, 3),
-            Cue(new EscapeDachoraCue.Move(Offset: -6)),
-            Show(EnemyFrameId.DachoraRunningLeftFarLegReaching, 3),
-            Cue(new EscapeDachoraCue.Move(Offset: -6)),
-            Show(EnemyFrameId.DachoraRunningLeftNearLegBack, 3),
-            Cue(new EscapeDachoraCue.Move(Offset: -6)),
-            Show(EnemyFrameId.DachoraRunningLeftNearLegPassing, 3),
-            Cue(new EscapeDachoraCue.Move(Offset: -6)),
-            Show(EnemyFrameId.DachoraRunningLeftNearLegReaching, 3),
-            Cue(new EscapeDachoraCue.Move(Offset: -6)),
+            .. Stride(DachoraStride.Left, 3, -LapStepPixels),
             Cue(new EscapeDachoraCue.LowTideLapEnds(Lap: HorizontalDirection.Left)),
             Cue(new EscapeDachoraCue.LapEnds(Lap: HorizontalDirection.Left)),
         ],
         [P.RunningAroundLowTideRight] =
         [
-            Show(EnemyFrameId.DachoraRunningRightFarLegBack, 3),
-            Cue(new EscapeDachoraCue.Move(Offset: 6)),
-            Show(EnemyFrameId.DachoraRunningRightFarLegPassing, 3),
-            Cue(new EscapeDachoraCue.Move(Offset: 6)),
-            Show(EnemyFrameId.DachoraRunningRightFarLegReaching, 3),
-            Cue(new EscapeDachoraCue.Move(Offset: 6)),
-            Show(EnemyFrameId.DachoraRunningRightNearLegBack, 3),
-            Cue(new EscapeDachoraCue.Move(Offset: 6)),
-            Show(EnemyFrameId.DachoraRunningRightNearLegPassing, 3),
-            Cue(new EscapeDachoraCue.Move(Offset: 6)),
-            Show(EnemyFrameId.DachoraRunningRightNearLegReaching, 3),
-            Cue(new EscapeDachoraCue.Move(Offset: 6)),
+            .. Stride(DachoraStride.Right, 3, LapStepPixels),
             Cue(new EscapeDachoraCue.LowTideLapEnds(Lap: HorizontalDirection.Right)),
             Cue(new EscapeDachoraCue.LapEnds(Lap: HorizontalDirection.Right)),
         ],
         [P.RunningAroundHighTideLeft] =
         [
-            Show(EnemyFrameId.DachoraRunningLeftFarLegBack, 2),
-            Cue(new EscapeDachoraCue.Move(Offset: -6)),
-            Show(EnemyFrameId.DachoraRunningLeftFarLegPassing, 2),
-            Cue(new EscapeDachoraCue.Move(Offset: -6)),
-            Show(EnemyFrameId.DachoraRunningLeftFarLegReaching, 2),
-            Cue(new EscapeDachoraCue.Move(Offset: -6)),
-            Show(EnemyFrameId.DachoraRunningLeftNearLegBack, 2),
-            Cue(new EscapeDachoraCue.Move(Offset: -6)),
-            Show(EnemyFrameId.DachoraRunningLeftNearLegPassing, 2),
-            Cue(new EscapeDachoraCue.Move(Offset: -6)),
-            Show(EnemyFrameId.DachoraRunningLeftNearLegReaching, 2),
-            Cue(new EscapeDachoraCue.Move(Offset: -6)),
+            .. Stride(DachoraStride.Left, 2, -LapStepPixels),
             Cue(new EscapeDachoraCue.LapEnds(Lap: HorizontalDirection.Left)),
         ],
         [P.RunningAroundHighTideRight] =
         [
-            Show(EnemyFrameId.DachoraRunningRightFarLegBack, 2),
-            Cue(new EscapeDachoraCue.Move(Offset: 6)),
-            Show(EnemyFrameId.DachoraRunningRightFarLegPassing, 2),
-            Cue(new EscapeDachoraCue.Move(Offset: 6)),
-            Show(EnemyFrameId.DachoraRunningRightFarLegReaching, 2),
-            Cue(new EscapeDachoraCue.Move(Offset: 6)),
-            Show(EnemyFrameId.DachoraRunningRightNearLegBack, 2),
-            Cue(new EscapeDachoraCue.Move(Offset: 6)),
-            Show(EnemyFrameId.DachoraRunningRightNearLegPassing, 2),
-            Cue(new EscapeDachoraCue.Move(Offset: 6)),
-            Show(EnemyFrameId.DachoraRunningRightNearLegReaching, 2),
-            Cue(new EscapeDachoraCue.Move(Offset: 6)),
+            .. Stride(DachoraStride.Right, 2, LapStepPixels),
             Cue(new EscapeDachoraCue.LapEnds(Lap: HorizontalDirection.Right)),
         ],
         [P.RunningForEscape] =
@@ -87,47 +43,14 @@ internal static class EscapeDachoraAnimations
         ],
         [P.RunningForEscapeAccelerating] =
         [
-            Show(EnemyFrameId.DachoraRunningRightFarLegBack, 90),
-            Cue(new EscapeDachoraCue.Move(Offset: 6)),
-            Show(EnemyFrameId.DachoraRunningRightFarLegPassing, 5),
-            Cue(new EscapeDachoraCue.Move(Offset: 6)),
-            Show(EnemyFrameId.DachoraRunningRightFarLegReaching, 5),
-            Cue(new EscapeDachoraCue.Move(Offset: 6)),
-            Show(EnemyFrameId.DachoraRunningRightNearLegBack, 4),
-            Cue(new EscapeDachoraCue.Move(Offset: 6)),
-            Show(EnemyFrameId.DachoraRunningRightNearLegPassing, 4),
-            Cue(new EscapeDachoraCue.Move(Offset: 6)),
-            Show(EnemyFrameId.DachoraRunningRightNearLegReaching, 4),
-            Cue(new EscapeDachoraCue.Move(Offset: 6)),
-            Show(EnemyFrameId.DachoraRunningRightFarLegBack, 3),
-            Cue(new EscapeDachoraCue.Move(Offset: 6)),
-            Show(EnemyFrameId.DachoraRunningRightFarLegPassing, 3),
-            Cue(new EscapeDachoraCue.Move(Offset: 6)),
-            Show(EnemyFrameId.DachoraRunningRightFarLegReaching, 3),
-            Cue(new EscapeDachoraCue.Move(Offset: 6)),
-            Show(EnemyFrameId.DachoraRunningRightNearLegBack, 2),
-            Cue(new EscapeDachoraCue.Move(Offset: 6)),
-            Show(EnemyFrameId.DachoraRunningRightNearLegPassing, 2),
-            Cue(new EscapeDachoraCue.Move(Offset: 6)),
-            Show(EnemyFrameId.DachoraRunningRightNearLegReaching, 2),
-            Cue(new EscapeDachoraCue.Move(Offset: 6)),
+            .. Stride(DachoraStride.Right, [90, 5, 5, 4, 4, 4], LapStepPixels),
+            .. Stride(DachoraStride.Right, [3, 3, 3, 2, 2, 2], LapStepPixels),
         ],
-        [P.RunningForEscapeMaximumSpeed] =
-        [
-            Show(EnemyFrameId.DachoraRunningRightFarLegBack, 1),
-            Cue(new EscapeDachoraCue.Move(Offset: 6)),
-            Show(EnemyFrameId.DachoraRunningRightFarLegPassing, 1),
-            Cue(new EscapeDachoraCue.Move(Offset: 6)),
-            Show(EnemyFrameId.DachoraRunningRightFarLegReaching, 1),
-            Cue(new EscapeDachoraCue.Move(Offset: 6)),
-            Show(EnemyFrameId.DachoraRunningRightNearLegBack, 1),
-            Cue(new EscapeDachoraCue.Move(Offset: 6)),
-            Show(EnemyFrameId.DachoraRunningRightNearLegPassing, 1),
-            Cue(new EscapeDachoraCue.Move(Offset: 6)),
-            Show(EnemyFrameId.DachoraRunningRightNearLegReaching, 1),
-            Cue(new EscapeDachoraCue.Move(Offset: 6)),
-        ],
+        [P.RunningForEscapeMaximumSpeed] = Stride(DachoraStride.Right, 1, LapStepPixels),
     });
+
+    /// <summary>The pixels the escaping Dachora steps with each pose of its stride, toward the way it runs.</summary>
+    private const int LapStepPixels = 6;
 
     /// <summary>How many laps the escaping Dachora runs each way before it turns around.</summary>
     private const int LapsEachWay = 5;
@@ -167,6 +90,23 @@ internal static class EscapeDachoraAnimations
 
     /// <summary>Where the critters' escape takes a lap to the right: the run for the escape, from its acceleration.</summary>
     internal static AnimationContinuation<P> EscapeAfterRightLap { get; } = new(RunningForEscapeAccelerating, AnimationPlace.StartOfAnimation);
+
+    /// <summary>
+    /// One <paramref name="stride"/> (#2477), each pose shown for <paramref name="updates"/> updates and followed by a step of
+    /// <paramref name="step"/> pixels.
+    /// </summary>
+    private static AnimationBeat<EnemyFrameId, EscapeDachoraCue>[] Stride(DachoraStride stride, int updates, int step) =>
+        Stride(stride, [.. stride.Poses.Select(_ => updates)], step);
+
+    /// <summary>
+    /// One <paramref name="stride"/> whose pace changes from pose to pose (#2477): each pose shown for its own count of
+    /// <paramref name="updates"/> and followed by a step of <paramref name="step"/> pixels.
+    /// </summary>
+    /// <exception cref="ArgumentException"><paramref name="updates"/> does not time every pose of the stride.</exception>
+    private static AnimationBeat<EnemyFrameId, EscapeDachoraCue>[] Stride(DachoraStride stride, IReadOnlyList<int> updates, int step) =>
+        updates.Count == stride.Poses.Count
+            ? [.. stride.Poses.SelectMany((pose, index) => new[] { Show(pose, updates[index]), Cue(new EscapeDachoraCue.Move(Offset: step)) })]
+            : throw new ArgumentException($"A Dachora stride of {stride.Poses.Count} poses is timed by {updates.Count} counts.", nameof(updates));
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, EscapeDachoraCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, EscapeDachoraCue>.Frame(frame, duration);

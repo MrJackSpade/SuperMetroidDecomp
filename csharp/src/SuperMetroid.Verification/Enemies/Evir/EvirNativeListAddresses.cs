@@ -22,9 +22,8 @@ internal static class EvirNativeListAddresses
         new NativeProgramEntry<EvirSegment>(EvirSegment.BodyFacingRight, 0x870b),
         new NativeProgramEntry<EvirSegment>(EvirSegment.ArmsFacingRight, 0x8727),
         new NativeProgramEntry<EvirSegment>(EvirSegment.ArmsFoldedFacingRight, 0x8767),
-        new NativeProgramEntry<EvirSegment>(EvirSegment.ProjectileNormal, 0x876f),
+        new NativeProgramEntry<EvirSegment>(EvirSegment.ProjectileIdle, 0x876f),
         new NativeProgramEntry<EvirSegment>(EvirSegment.ProjectileRegenerating, 0x8775),
-        new NativeProgramEntry<EvirSegment>(EvirSegment.ProjectileRegeneratingSound, 0x877b),
         new NativeProgramEntry<EvirSegment>(EvirSegment.ProjectileRegrowing, 0x877d),
         new NativeProgramEntry<EvirSegment>(EvirSegment.ProjectileRegrown, 0x8787),
     ];

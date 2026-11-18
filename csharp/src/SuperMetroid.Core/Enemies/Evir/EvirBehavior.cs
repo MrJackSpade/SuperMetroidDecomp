@@ -141,10 +141,10 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             RegenerationOffset = Offset16<RoomPixels>.Zero,
         };
         place.SetSpeciesState(state);
-        RequestEvirAnimation(place, state, EvirSegment.ProjectileNormal);
+        RequestEvirAnimation(place, state, EvirSegment.ProjectileIdle);
         ResetEvirProjectilePosition(place, state);
 
-        // The spit's first request, at its first launch, starts its normal animation afresh, refreshing the frame timer once.
+        // The spit's first request, at its first launch, starts its idle animation afresh, refreshing the frame timer once.
         state.ShowsSpawnAnimation = true;
     }
 
@@ -194,7 +194,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
                 RequestEvirAnimation(
                     place,
                     state,
-                    EvirSegment.ProjectileNormal);
+                    EvirSegment.ProjectileIdle);
             }
             else if (state.Action == EvirSpitAction.Regenerating)
             {
@@ -294,7 +294,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         RequestEvirAnimation(
             projectile,
             state,
-            EvirSegment.ProjectileNormal);
+            EvirSegment.ProjectileIdle);
         state.Action = EvirSpitAction.Moving;
     }
 

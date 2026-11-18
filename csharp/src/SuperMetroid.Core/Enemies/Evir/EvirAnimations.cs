@@ -55,13 +55,10 @@ internal static class EvirAnimations
         [
             Show(EnemyFrameId.EvirArmsFacingRightFolded, 48),
         ],
-        [P.ProjectileNormal] = [new AnimationBeat<EnemyFrameId, EvirCue>.HeldFrame(EnemyFrameId.EvirSpineBall)],
+        [P.ProjectileIdle] = [new AnimationBeat<EnemyFrameId, EvirCue>.HeldFrame(EnemyFrameId.EvirSpineBall)],
         [P.ProjectileRegenerating] =
         [
             Cue(new(K.SetInitialRegenerationOffset)),
-        ],
-        [P.ProjectileRegeneratingSound] =
-        [
             Cue(new(K.PlaySpitSound)),
         ],
         [P.ProjectileRegrowing] =
@@ -93,9 +90,9 @@ internal static class EvirAnimations
         [P.ArmsFacingLeft] = Animation<EvirSegment>.Looping([Segments.Repeated(P.ArmsFacingLeft, ArmWaves), Segments.Whole(P.ArmsFoldedFacingLeft)]),
         [P.BodyFacingRight] = Animation<EvirSegment>.Looping([Segments.Whole(P.BodyFacingRight)]),
         [P.ArmsFacingRight] = Animation<EvirSegment>.Looping([Segments.Repeated(P.ArmsFacingRight, ArmWaves), Segments.Whole(P.ArmsFoldedFacingRight)]),
-        [P.ProjectileNormal] = new([Segments.Whole(P.ProjectileNormal)], AnimationEnd.Holds),
+        [P.ProjectileIdle] = new([Segments.Whole(P.ProjectileIdle)], AnimationEnd.Holds),
         [P.ProjectileRegenerating] = new(
-            [Segments.Whole(P.ProjectileRegenerating), Segments.Whole(P.ProjectileRegeneratingSound), Segments.Repeated(P.ProjectileRegrowing, RegrowthSteps), Segments.Whole(P.ProjectileRegrown)],
+            [Segments.Whole(P.ProjectileRegenerating), Segments.Repeated(P.ProjectileRegrowing, RegrowthSteps), Segments.Whole(P.ProjectileRegrown)],
             AnimationEnd.Holds),
     };
 

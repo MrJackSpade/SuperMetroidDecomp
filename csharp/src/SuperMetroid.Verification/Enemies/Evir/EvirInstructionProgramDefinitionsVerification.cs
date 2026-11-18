@@ -45,9 +45,9 @@ internal static class EvirInstructionProgramDefinitionsVerification
             var enemies = NewEvirInstructionSystem();
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             // The held pose runs no cue, so the spit's body is never read.
-            EvirSpitState state = PrepareEvirSpit(place, EvirSegment.ProjectileNormal, body: place);
+            EvirSpitState state = PrepareEvirSpit(place, EvirSegment.ProjectileIdle, body: place);
             _ = EnemyInstructionRunner.ShownFrames(place, 4);
-            AssertEqual(EvirAnimationsConstants.Spritemaps(EvirSegment.ProjectileNormal).Single(), place.SpritemapPointer,
+            AssertEqual(EvirAnimationsConstants.Spritemaps(EvirSegment.ProjectileIdle).Single(), place.SpritemapPointer,
                 "normal Evir projectile shows its flight pose");
             AnimationPlayback<EvirSegment> held = state.Playback;
             _ = EnemyInstructionRunner.ShownFrames(place, 4);
@@ -82,7 +82,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
                     AssertEqual(new Offset16<RoomPixels>(8, 0), state.RegenerationOffset,
                         "a left-facing body sets the +8 offset whatever the projectile's facing word");
             }
-            AssertEqual(EvirAnimationsConstants.Spritemaps(EvirSegment.ProjectileNormal).Single(), place.SpritemapPointer,
+            AssertEqual(EvirAnimationsConstants.Spritemaps(EvirSegment.ProjectileIdle).Single(), place.SpritemapPointer,
                 "regenerating Evir projectile ends on its flight pose");
             AssertEqual(Offset16<RoomPixels>.Zero, state.RegenerationOffset, "regeneration loop advances the projectile mouth offset eight times");
             AssertEqual(EvirSpitAction.Idle, state.Action, "regeneration finish cue restores idle AI, the spit held at the mouth");

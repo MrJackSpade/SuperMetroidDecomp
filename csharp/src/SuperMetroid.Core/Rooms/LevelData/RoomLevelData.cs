@@ -299,7 +299,7 @@ public sealed class RoomLevelData
     internal void SetCollision(Position16<RoomBlocks> block, RoomCollisionType collision)
     {
         int place = GridPlace(block);
-        Terrain[place] = Terrain[place].WithCollision(collision);
+        terrain[place] = terrain[place].WithCollision(collision);
     }
 
     /// <summary>

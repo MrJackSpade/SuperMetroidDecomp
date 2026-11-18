@@ -16,7 +16,10 @@ public sealed class CeresFallingDebrisRoomMainState
     /// <summary>The value the following room's main inherits.</summary>
     private readonly RoomMainCarryover _carryover;
 
-    /// <summary>The updates until the next tile falls, the one it falls on included: 1 through 32769.</summary>
+    /// <summary>
+    /// The updates until the next tile falls, the one it falls on included: at least one, and as many as the wait the previous
+    /// room's main left, plus the update it falls on.
+    /// </summary>
     private int _updatesToNextFall;
 
     /// <summary>Builds one room's debris owner, adopting the wait the previous room's main left.</summary>

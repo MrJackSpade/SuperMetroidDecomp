@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.AssetExtraction.Bosses;
+using SuperMetroid.AssetExtraction.World.RoomStates;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.World.RoomStates;
@@ -51,7 +52,8 @@ internal static class PicturedLibraryBackgrounds
                 }
                 return false;
             case LibraryBackgroundView.SkyRows:
-                if (state.MainBehavior.Sky is null || !state.SetupBehavior.SpawnsSkyBands)
+                if (!RoomBehaviorPictureDefinitions.MainSkies.ContainsKey(state.MainBehavior) ||
+                    !RoomBehaviorPictureDefinitions.SkyBandSetups.Contains(state.SetupBehavior))
                 {
                     throw new InvalidDataException(
                         $"Room state {state.Name} shows the sky's rows on its background {background}, but does not run the sky's bands.");

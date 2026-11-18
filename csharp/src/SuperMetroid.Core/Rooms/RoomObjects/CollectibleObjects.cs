@@ -20,7 +20,7 @@ internal sealed class CollectibleObjects
     private readonly IRoomFxMotion _roomFx;
     /// <summary>Updates level blocks and queues their draws.</summary>
     private readonly IRoomObjectDrawing _drawing;
-    /// <summary>The room's places, searched for the item room objects they hold.</summary>
+    /// <summary>The room's places, searched for the item a touch or a shot reaches and for the items the room holds.</summary>
     private readonly RoomObjectPlaceList _places;
     /// <summary>
     /// Connects the collectibles to room state and drawing, and to the room's block pairs, which its collectibles that
@@ -46,32 +46,33 @@ internal sealed class CollectibleObjects
     private readonly RoomObjectSoundQueue _sounds;
     /// <summary>Delays the Speed Booster Chozo lava motion write until message return.</summary>
     private bool _pendingSpeedBoosterPickupContinuation;
+    /// <summary>
+    /// The items collected whose pickup message is still open, each at its place, in the order they were collected: the
+    /// room-object update's order, the order of their places.
+    /// </summary>
+    private readonly List<AwaitingPickup> _awaitingMessage = [];
+
+    /// <summary>An item collected whose pickup message is still open, at its place.</summary>
+    /// <param name="Place">The item's place.</param>
+    /// <param name="Item">The item.</param>
+    private readonly record struct AwaitingPickup(RoomObjectPlace Place, CollectibleObject Item);
 
     /// <summary>Whether the room objects' step is waiting for its synchronous pickup message.</summary>
-    internal bool HasPendingCollectibleMessage
-    {
-        get
-        {
-            foreach (RoomObjectPlace place in _places.FromLastPlace)
-                if (place.Active && (place.Behaviour as CollectibleObject)?.Phase == CollectiblePhase.AwaitingMessage)
-                    return true;
-            return false;
-        }
-    }
+    internal bool HasPendingCollectibleMessage => _awaitingMessage.Count != 0;
 
     /// <summary>
     /// The pickup message has closed: each item awaiting it finishes its pickup within the same room-object update, an item
-    /// showing its empty block before it leaves, a shot block's item leaving its block empty.
+    /// showing its empty block before it leaves, a shot block's item leaving its block empty. They finish from the last
+    /// place back, the order the room's searches for a collectible run in.
     /// </summary>
     internal void CompleteCollectibleMessage(RoomLevelData level)
     {
-        foreach (RoomObjectPlace place in _places.FromLastPlace)
+        for (int index = _awaitingMessage.Count - 1; index >= 0; index--)
         {
-            if (!place.Active || place.Behaviour is not CollectibleObject { Phase: CollectiblePhase.AwaitingMessage } item)
-                continue;
-            item.Phase = CollectiblePhase.ResumeAfterMessage;
-            item.FinishPickup(_drawing, level, place);
+            AwaitingPickup awaiting = _awaitingMessage[index];
+            awaiting.Item.ResumeAfterMessage(_drawing, level, awaiting.Place);
         }
+        _awaitingMessage.Clear();
         CompleteSpeedBoosterPickupContinuation();
     }
 
@@ -117,7 +118,7 @@ internal sealed class CollectibleObjects
             if (item.Phase is not (
                     CollectiblePhase.Visible or CollectiblePhase.ShotBlockVisible))
                 return false;
-            item.Triggered = true;
+            item.Trigger();
             return true;
         }
         return false;
@@ -141,7 +142,7 @@ internal sealed class CollectibleObjects
             {
                 return false;
             }
-            item.Triggered = true;
+            item.Trigger();
             return true;
         }
         return false;
@@ -151,21 +152,21 @@ internal sealed class CollectibleObjects
     internal void BeginCollectibleFrame() => _collectiblePickupEvents.Clear();
 
     /// <summary>
-    /// Runs one permanent-item setup on the place selected by the shared room loader, for the item its placement
-    /// (<paramref name="placed"/>) names the location of, as the collectible's definition and its pictures describe it.
+    /// Runs one permanent-item setup on the place selected by the shared room loader, for <paramref name="item"/>, whose
+    /// location its placement (<paramref name="placed"/>) names, as the collectible's definition and its pictures describe it.
     /// </summary>
     internal void SetupCollectible(
         RoomObjectRoom room,
         RoomObjectPlace place,
-        InWorldCollectibleKind kind,
-        CollectiblePresentation presentation,
+        PermanentCollectibleObject item,
         CollectedItemArgument? placed)
     {
         RoomLevelData level = room.Level;
         SharedGameState system = room.System;
+        (InWorldCollectibleKind kind, CollectiblePresentation presentation) = item;
         RoomCollisionBlock original = level.GetCollisionBlock(place.Block);
         bool collected = placed is not null && system.HasCollectedItem(placed.Location);
-        CollectibleBlockPairs.Pair? blockPair = ShowsOwnPicture(kind) ? _blockPairs.Take() : null;
+        CollectibleBlockPairs.Pair? blockPair = CollectibleDefinitions.Items[kind].Picture == CollectiblePictureSource.OwnPicture ? _blockPairs.Take() : null;
 
         RoomTerrainBlock setup = original.Terrain.WithCollision(
             presentation == CollectiblePresentation.ShotBlock ? RoomCollisionType.ShootableBlock : RoomCollisionType.Air);
@@ -190,13 +191,6 @@ internal sealed class CollectibleObjects
     }
 
     /// <summary>
-    /// Whether a collectible shows its own picture where it lies (#1452, #1538): every item but the four tanks, whose
-    /// pictures are blocks every room loads.
-    /// </summary>
-    internal static bool ShowsOwnPicture(InWorldCollectibleKind kind) => kind is not (InWorldCollectibleKind.EnergyTank
-        or InWorldCollectibleKind.MissileTank or InWorldCollectibleKind.SuperMissileTank or InWorldCollectibleKind.PowerBombTank);
-
-    /// <summary>
     /// Collects <paramref name="item"/>, placed at <paramref name="place"/>: sets persistence and inventory before publishing
     /// the synchronous message and fanfare request.
     /// </summary>
@@ -209,12 +203,10 @@ internal sealed class CollectibleObjects
 
         if (item.Location is { } location)
             system.CollectItem(location);
-        ApplyCollectibleEffect(samus, item.Kind);
+        CollectibleDefinition definition = CollectibleDefinitions.Items[item.Kind];
+        definition.Grant.Apply(samus);
 
-        var pickup = new CollectiblePickupEvent(
-            item.Kind,
-            PickupMessage(item.Kind),
-            PickupConsequence(item.Kind));
+        var pickup = new CollectiblePickupEvent(item.Kind, definition.Message, definition.Consequence);
         _collectiblePickupEvents.Add(pickup);
         // The item's cue starts the fanfare as it runs, before its message box opens.
         _sounds.QueuePermanentItemFanfare();
@@ -224,173 +216,7 @@ internal sealed class CollectibleObjects
 
         // The item is granted before its message opens; it keeps its block and its place while the message shows, and
         // finishes its pickup once the message closes.
-        item.Triggered = false;
-        item.Timer = 0;
-        item.Phase = CollectiblePhase.AwaitingMessage;
+        item.AwaitMessage();
+        _awaitingMessage.Add(new AwaitingPickup(place, item));
     }
-
-    /// <summary>Applies tank capacity, equipment, or beam ownership, including Spazer/Plasma exclusion.</summary>
-    private static void ApplyCollectibleEffect(
-        IRoomSamus samus,
-        InWorldCollectibleKind kind)
-    {
-        switch (kind)
-        {
-            case InWorldCollectibleKind.EnergyTank:
-                // An energy tank adds its energy to her maximum and fills her health.
-                samus.MaxHealth += SamusEnergyDefinitions.EnergyPerTank;
-                samus.Health = samus.MaxHealth;
-                return;
-            case InWorldCollectibleKind.ReserveTank:
-                samus.MaxReserveEnergy += SamusEnergyDefinitions.EnergyPerTank;
-                if (samus.ReserveTankMode == ReserveTankMode.None)
-                    samus.ReserveTankMode = ReserveTankMode.Auto;
-                return;
-            case InWorldCollectibleKind.MissileTank:
-                samus.MaxMissiles += CollectibleCapacityDefinitions.MissileTankMissiles;
-                samus.Missiles += CollectibleCapacityDefinitions.MissileTankMissiles;
-                return;
-            case InWorldCollectibleKind.SuperMissileTank:
-                samus.MaxSuperMissiles += CollectibleCapacityDefinitions.SuperMissileTankSuperMissiles;
-                samus.SuperMissiles += CollectibleCapacityDefinitions.SuperMissileTankSuperMissiles;
-                return;
-            case InWorldCollectibleKind.PowerBombTank:
-                samus.MaxPowerBombs += CollectibleCapacityDefinitions.PowerBombTankPowerBombs;
-                samus.PowerBombs += CollectibleCapacityDefinitions.PowerBombTankPowerBombs;
-                return;
-            case InWorldCollectibleKind.Bombs:
-            case InWorldCollectibleKind.HiJumpBoots:
-            case InWorldCollectibleKind.SpeedBooster:
-            case InWorldCollectibleKind.SpringBall:
-            case InWorldCollectibleKind.VariaSuit:
-            case InWorldCollectibleKind.GravitySuit:
-            case InWorldCollectibleKind.XrayScope:
-            case InWorldCollectibleKind.GrappleBeam:
-            case InWorldCollectibleKind.SpaceJump:
-            case InWorldCollectibleKind.ScrewAttack:
-            case InWorldCollectibleKind.MorphBall:
-                SamusEquipmentFlags equipmentMask = GetEquipmentMask(kind);
-                samus.EquippedItems |= equipmentMask;
-                samus.CollectedItems |= equipmentMask;
-                // A Varia or Gravity Suit pickup clears the beam's charge as the suit is equipped, before its
-                // message, so no charge is held through the fanfare or the suit's reveal that follows it.
-                if (kind is InWorldCollectibleKind.VariaSuit or InWorldCollectibleKind.GravitySuit)
-                    samus.ClearBeamCharge();
-                return;
-            case InWorldCollectibleKind.ChargeBeam:
-            case InWorldCollectibleKind.IceBeam:
-            case InWorldCollectibleKind.WaveBeam:
-            case InWorldCollectibleKind.SpazerBeam:
-            case InWorldCollectibleKind.PlasmaBeam:
-                SamusBeamFlags beamMask = GetBeamMask(kind);
-                samus.CollectedBeams |= beamMask;
-                samus.EquippedBeams |= beamMask;
-
-                // Spazer and Plasma are the only mutually exclusive beam pair: collecting Spazer unequips Plasma, and
-                // collecting Plasma unequips Spazer.
-                if ((beamMask & SamusBeamFlags.Spazer) != SamusBeamFlags.None)
-                    samus.EquippedBeams &= ~SamusBeamFlags.Plasma;
-                if ((beamMask & SamusBeamFlags.Plasma) != SamusBeamFlags.None)
-                    samus.EquippedBeams &= ~SamusBeamFlags.Spazer;
-                return;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(kind), kind, "Undefined collectible kind.");
-        }
-    }
-
-    /// <summary>Maps an equipment pickup to the item it adds to the equipped and collected items.</summary>
-    private static SamusEquipmentFlags GetEquipmentMask(InWorldCollectibleKind kind) => kind switch
-    {
-        InWorldCollectibleKind.Bombs => SamusEquipmentFlags.Bombs,
-        InWorldCollectibleKind.HiJumpBoots => SamusEquipmentFlags.HiJumpBoots,
-        InWorldCollectibleKind.SpeedBooster => SamusEquipmentFlags.SpeedBooster,
-        InWorldCollectibleKind.SpringBall => SamusEquipmentFlags.SpringBall,
-        InWorldCollectibleKind.VariaSuit => SamusEquipmentFlags.VariaSuit,
-        InWorldCollectibleKind.GravitySuit => SamusEquipmentFlags.GravitySuit,
-        InWorldCollectibleKind.XrayScope => SamusEquipmentFlags.XrayScope,
-        InWorldCollectibleKind.GrappleBeam => SamusEquipmentFlags.GrappleBeam,
-        InWorldCollectibleKind.SpaceJump => SamusEquipmentFlags.SpaceJump,
-        InWorldCollectibleKind.ScrewAttack => SamusEquipmentFlags.ScrewAttack,
-        InWorldCollectibleKind.MorphBall => SamusEquipmentFlags.MorphBall,
-        InWorldCollectibleKind.EnergyTank or
-            InWorldCollectibleKind.MissileTank or
-            InWorldCollectibleKind.SuperMissileTank or
-            InWorldCollectibleKind.PowerBombTank or
-            InWorldCollectibleKind.ChargeBeam or
-            InWorldCollectibleKind.IceBeam or
-            InWorldCollectibleKind.WaveBeam or
-            InWorldCollectibleKind.SpazerBeam or
-            InWorldCollectibleKind.PlasmaBeam or
-            InWorldCollectibleKind.ReserveTank => throw new ArgumentOutOfRangeException(nameof(kind), kind, "Not an equipment collectible."),
-        _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "Not an equipment collectible."),
-    };
-
-    /// <summary>Maps a beam pickup to the beam it adds to the collected and equipped beams.</summary>
-    private static SamusBeamFlags GetBeamMask(InWorldCollectibleKind kind) => kind switch
-    {
-        InWorldCollectibleKind.ChargeBeam => SamusBeamFlags.Charge,
-        InWorldCollectibleKind.IceBeam => SamusBeamFlags.Ice,
-        InWorldCollectibleKind.WaveBeam => SamusBeamFlags.Wave,
-        InWorldCollectibleKind.SpazerBeam => SamusBeamFlags.Spazer,
-        InWorldCollectibleKind.PlasmaBeam => SamusBeamFlags.Plasma,
-        InWorldCollectibleKind.EnergyTank or
-            InWorldCollectibleKind.MissileTank or
-            InWorldCollectibleKind.SuperMissileTank or
-            InWorldCollectibleKind.PowerBombTank or
-            InWorldCollectibleKind.Bombs or
-            InWorldCollectibleKind.HiJumpBoots or
-            InWorldCollectibleKind.SpeedBooster or
-            InWorldCollectibleKind.SpringBall or
-            InWorldCollectibleKind.VariaSuit or
-            InWorldCollectibleKind.GravitySuit or
-            InWorldCollectibleKind.XrayScope or
-            InWorldCollectibleKind.GrappleBeam or
-            InWorldCollectibleKind.SpaceJump or
-            InWorldCollectibleKind.ScrewAttack or
-            InWorldCollectibleKind.MorphBall or
-            InWorldCollectibleKind.ReserveTank => throw new ArgumentOutOfRangeException(nameof(kind), kind, null),
-        _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, null),
-    };
-
-    /// <summary>Selects the message shown synchronously after a permanent pickup.</summary>
-    private static CollectiblePickupConsequence PickupConsequence(InWorldCollectibleKind kind) => kind switch
-    {
-        InWorldCollectibleKind.ChargeBeam or InWorldCollectibleKind.IceBeam or InWorldCollectibleKind.WaveBeam or
-            InWorldCollectibleKind.SpazerBeam or InWorldCollectibleKind.PlasmaBeam => CollectiblePickupConsequence.ShowsEquippedBeams,
-        InWorldCollectibleKind.VariaSuit => CollectiblePickupConsequence.TransformsSuit(SamusSuitPickupKind.Varia),
-        InWorldCollectibleKind.GravitySuit => CollectiblePickupConsequence.TransformsSuit(SamusSuitPickupKind.Gravity),
-        InWorldCollectibleKind.EnergyTank or InWorldCollectibleKind.MissileTank or InWorldCollectibleKind.SuperMissileTank or
-            InWorldCollectibleKind.PowerBombTank or InWorldCollectibleKind.ReserveTank or InWorldCollectibleKind.Bombs or
-            InWorldCollectibleKind.HiJumpBoots or InWorldCollectibleKind.SpeedBooster or InWorldCollectibleKind.SpringBall or
-            InWorldCollectibleKind.XrayScope or InWorldCollectibleKind.GrappleBeam or InWorldCollectibleKind.SpaceJump or
-            InWorldCollectibleKind.ScrewAttack or InWorldCollectibleKind.MorphBall => CollectiblePickupConsequence.Nothing,
-        _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "No permanent item is of this kind."),
-    };
-
-    /// <summary>The message the pickup of <paramref name="kind"/> opens.</summary>
-    private static GameplayMessageId PickupMessage(InWorldCollectibleKind kind) => kind switch
-    {
-        InWorldCollectibleKind.EnergyTank => GameplayMessageId.EnergyTank,
-        InWorldCollectibleKind.MissileTank => GameplayMessageId.MissileTank,
-        InWorldCollectibleKind.SuperMissileTank => GameplayMessageId.SuperMissileTank,
-        InWorldCollectibleKind.PowerBombTank => GameplayMessageId.PowerBombTank,
-        InWorldCollectibleKind.GrappleBeam => GameplayMessageId.GrappleBeam,
-        InWorldCollectibleKind.XrayScope => GameplayMessageId.XrayScope,
-        InWorldCollectibleKind.VariaSuit => GameplayMessageId.VariaSuit,
-        InWorldCollectibleKind.SpringBall => GameplayMessageId.SpringBall,
-        InWorldCollectibleKind.MorphBall => GameplayMessageId.MorphBall,
-        InWorldCollectibleKind.ScrewAttack => GameplayMessageId.ScrewAttack,
-        InWorldCollectibleKind.HiJumpBoots => GameplayMessageId.HiJumpBoots,
-        InWorldCollectibleKind.SpaceJump => GameplayMessageId.SpaceJump,
-        InWorldCollectibleKind.SpeedBooster => GameplayMessageId.SpeedBooster,
-        InWorldCollectibleKind.ChargeBeam => GameplayMessageId.ChargeBeam,
-        InWorldCollectibleKind.IceBeam => GameplayMessageId.IceBeam,
-        InWorldCollectibleKind.WaveBeam => GameplayMessageId.WaveBeam,
-        InWorldCollectibleKind.SpazerBeam => GameplayMessageId.SpazerBeam,
-        InWorldCollectibleKind.PlasmaBeam => GameplayMessageId.PlasmaBeam,
-        InWorldCollectibleKind.Bombs => GameplayMessageId.Bombs,
-        InWorldCollectibleKind.GravitySuit => GameplayMessageId.GravitySuit,
-        InWorldCollectibleKind.ReserveTank => GameplayMessageId.ReserveTank,
-        _ => throw new ArgumentOutOfRangeException(nameof(kind)),
-    };
 }

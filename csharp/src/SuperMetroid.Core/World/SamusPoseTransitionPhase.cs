@@ -135,8 +135,7 @@ internal sealed class SamusPoseTransitionPhase
             SamusAerialPoseTransitions.ApplyGrappleDropTransition(samus,
                 terrain.Level,
                 dropPose, _clock.Counter, terrain.RoomObjects);
-            _player.ProspectiveSamusPose = null;
-            _player.ProspectiveSamusFallbackPose = null;
+            _player.ClearProspectivePoses();
             _player.ProspectiveSamusWallCollisionPose = null;
             animationTransitionApplied = true;
         }
@@ -146,8 +145,7 @@ internal sealed class SamusPoseTransitionPhase
         if (!animationTransitionApplied && _player.LastGrappleMovement is { PendingReleasePose: SamusPoseId releasePose })
         {
             SamusGrappleMovement.ApplyReleasePose(samus, releasePose);
-            _player.ProspectiveSamusPose = null;
-            _player.ProspectiveSamusFallbackPose = null;
+            _player.ClearProspectivePoses();
             _player.ProspectiveSamusWallCollisionPose = null;
             animationTransitionApplied = true;
         }
@@ -158,8 +156,7 @@ internal sealed class SamusPoseTransitionPhase
         if (!animationTransitionApplied && _player.LastShinesparkMovement is { CrashSequenceFinished: true })
         {
             SamusShinesparkState.ApplyCrashFinishPose(samus);
-            _player.ProspectiveSamusPose = null;
-            _player.ProspectiveSamusFallbackPose = null;
+            _player.ClearProspectivePoses();
             _player.ProspectiveSamusWallCollisionPose = null;
             animationTransitionApplied = true;
         }
@@ -172,8 +169,7 @@ internal sealed class SamusPoseTransitionPhase
         if (hitInterruptionExpiryPending)
         {
             SamusKnockbackMovement.FinishExpiredHitInterruption(samus);
-            _player.ProspectiveSamusPose = null;
-            _player.ProspectiveSamusFallbackPose = null;
+            _player.ClearProspectivePoses();
             _player.ProspectiveSamusWallCollisionPose = null;
             animationTransitionApplied = true;
         }
@@ -190,8 +186,7 @@ internal sealed class SamusPoseTransitionPhase
                 _freeze.TimeIsFrozen,
                 new KnockbackPoseCollision(terrain, _clock.Counter)))
         {
-            _player.ProspectiveSamusPose = null;
-            _player.ProspectiveSamusFallbackPose = null;
+            _player.ClearProspectivePoses();
             _player.ProspectiveSamusWallCollisionPose = null;
             animationTransitionApplied = true;
         }
@@ -211,8 +206,7 @@ internal sealed class SamusPoseTransitionPhase
                 _playerActions.NewlyPressed,
                 terrain.RoomObjects))
         {
-            _player.ProspectiveSamusPose = null;
-            _player.ProspectiveSamusFallbackPose = null;
+            _player.ClearProspectivePoses();
             _player.ProspectiveSamusWallCollisionPose = null;
             animationTransitionApplied = true;
         }
@@ -224,16 +218,14 @@ internal sealed class SamusPoseTransitionPhase
             _player.LastShinesparkMovement is { PendingLaunchPose: SamusPoseId launchPose })
         {
             SamusShinesparkState.ApplyDirectionalLaunchPose(samus, launchPose);
-            _player.ProspectiveSamusPose = null;
-            _player.ProspectiveSamusFallbackPose = null;
+            _player.ClearProspectivePoses();
             _player.ProspectiveSamusWallCollisionPose = null;
             animationTransitionApplied = true;
         }
 
         if (samus.Xray.CommitPendingActivation(samus, animationTransitionApplied))
         {
-            _player.ProspectiveSamusPose = null;
-            _player.ProspectiveSamusFallbackPose = null;
+            _player.ClearProspectivePoses();
             _player.ProspectiveSamusWallCollisionPose = null;
             animationTransitionApplied = true;
         }
@@ -250,8 +242,7 @@ internal sealed class SamusPoseTransitionPhase
                     samus,
                     pendingConnection);
             frame.SnapCameraPoint(grapplePrevious);
-            _player.ProspectiveSamusPose = null;
-            _player.ProspectiveSamusFallbackPose = null;
+            _player.ClearProspectivePoses();
             _player.ProspectiveSamusWallCollisionPose = null;
             animationTransitionApplied = true;
         }
@@ -281,8 +272,7 @@ internal sealed class SamusPoseTransitionPhase
         {
             if (_player.LastMorphBallMovement is { HitCeiling: true })
                 SamusPosturePoseTransitions.ApplySolidCeilingCollision(samus);
-            _player.ProspectiveSamusPose = null;
-            _player.ProspectiveSamusFallbackPose = null;
+            _player.ClearProspectivePoses();
             animationTransitionApplied = true;
         }
 
@@ -292,8 +282,7 @@ internal sealed class SamusPoseTransitionPhase
             _player.LastBombJumpMovement is { FellWithoutFloor: true })
         {
             SamusPosturePoseTransitions.ApplyBombJumpFallingPose(samus);
-            _player.ProspectiveSamusPose = null;
-            _player.ProspectiveSamusFallbackPose = null;
+            _player.ClearProspectivePoses();
             animationTransitionApplied = true;
         }
 
@@ -353,12 +342,12 @@ internal sealed class SamusPoseTransitionPhase
             }
         }
 
-        // Morph landing has its own prospective-pose and collision tables. A hard
+        // A Morph Ball landing has its own poses and landing transitions. A hard
         // impact retains the falling morph ball poses and launches the first bounce; the next collision
         // launches the second bounce; only a gentle or second-bounce collision installs
         // the grounded morph ball poses. Every one of these outcomes consumes the transition, so input
         // selected before collision cannot override the game's bounce result.
-        // The collision table ignores the ground family's SamusMovementType.MorphBallGround, even if hurt
+        // The landing transitions ignore the ground family's SamusMovementType.MorphBallGround, even if hurt
         // movement left that pose with nonzero Y speed. Do not infer an airborne
         // landing step from velocity alone.
         if (!animationTransitionApplied &&
@@ -382,7 +371,7 @@ internal sealed class SamusPoseTransitionPhase
         // Spring Ball's three movement families share one collision transition, but
         // Spring Ball's movement makes held Jump an immediate relaunch and stores the jump intent
         // during automatic rebounds. Keep it distinct from ordinary-ball state.
-        // The grounded Spring Ball movement type likewise has the table's no-transition entry.
+        // The grounded Spring Ball movement type likewise lands with no transition.
         if (!animationTransitionApplied &&
             _player.LastMorphBallMovement is { Landed: true } &&
             SamusPoseMetadata.IsAirborneSpringBallPose(frame.PoseAtFrameStart))
@@ -466,8 +455,8 @@ internal sealed class SamusPoseTransitionPhase
     }
 
     /// <summary>
-    /// Applies the input transition the input phase selected from the pose table, through the family setup that owns the
-    /// source and target pair. Self-transitions in the turn tables mean "remain in this animation".
+    /// Applies the input transition the input phase selected from the pose's input transitions, through the family setup
+    /// that owns the source and target pair. A turn's input transition back to its own pose means "remain in this animation".
     /// </summary>
     private void ApplyInputTransition(SamusControlFrame frame, SamusState samus, SamusPoseTransition inputTransition, SamusTerrain terrain)
     {
@@ -516,7 +505,7 @@ internal sealed class SamusPoseTransitionPhase
             case var (source, target)
                 when SamusPoseMetadata.IsMoonwalkingPose(source) &&
                      SamusPoseMetadata.IsMoonwalkTurnJumpPose(target):
-                // The stable moonwalk poses' table publishes a generic
+                // The stable moonwalk poses' input transitions select a generic
                 // reversal target. The reversal check validates it against the old
                 // shot direction, folds momentum, and leaves the moonwalk turn-jump poses
                 // grounded until either its input transitions or the turn transition starts the jump.
@@ -718,7 +707,7 @@ internal sealed class SamusPoseTransitionPhase
 
     /// <summary>
     /// Applies a jump, crouch, unmorph, landing, posture or Shinespark direction transition. Every active pair
-    /// is owned by this or an earlier family; any other pair means the pose table or state is corrupt.
+    /// is owned by this or an earlier family; any other pair means the pose's input transitions or Samus's state are corrupt.
     /// </summary>
     private void ApplyJumpCrouchOrPostureTransition(SamusControlFrame frame, SamusState samus, SamusPoseId targetPose, SamusTerrain terrain)
     {
@@ -813,7 +802,7 @@ internal sealed class SamusPoseTransitionPhase
                       SamusPoseMetadata.IsLeftFacingFallingPose(target)):
                 // Route an animation/collision-selected falling body through
                 // ordinary expansion collision while preserving the fall.
-                // Posture transitions do not poll controller pose tables:
+                // Posture transitions read no input transitions:
                 // the posture-transition movement type's input lookup returns at once.
                 SamusPosturePoseTransitions.TryApplyUnmorphToFallingTransition(samus,
                     terrain.Level,

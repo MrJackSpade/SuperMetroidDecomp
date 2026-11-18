@@ -62,7 +62,7 @@ internal static class CollectibleVisualsVerification
             "stock collectible block reaches the immediate redraw");
 
         // Every item kind some room places lying in the open (#2354).
-        foreach ((RoomObjectKind header, PermanentCollectibleObject item) in PermanentCollectibleObjectDefinitions.Items
+        foreach ((RoomObjectKind header, PermanentCollectibleObject item) in RoomObjectKindVariants.Items
             .Where(entry => entry.Value.Presentation == CollectiblePresentation.Exposed))
         {
             InWorldCollectibleKind kind = item.Kind;

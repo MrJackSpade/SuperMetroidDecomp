@@ -18,7 +18,7 @@ internal static class FirefleaAnimationsVerification
             new NativeEnemyCueRules<NoAnimationCue>(
                 word => null,
                 (word, operands, cue, at) => throw new InvalidDataException($"{at}: the lists use no owner instructions.")),
-            onlyRunOnInto: new HashSet<FirefleaSegment> { FirefleaSegment.Dimming, FirefleaSegment.Brightening });
+            onlyRunOnInto: new HashSet<FirefleaSegment>(Enum.GetValues<FirefleaSegment>().Where(segment => segment != FirefleaSegment.BrightestWingbeat)));
         Console.WriteLine($"  Fireflea animations: {Entries.Length} segments ({beats} beats) and {FirefleaAnimations.StartingAt.Count} animations match bank $A3.");
     }
 }

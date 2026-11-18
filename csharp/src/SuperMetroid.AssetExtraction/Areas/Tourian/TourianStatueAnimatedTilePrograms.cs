@@ -16,20 +16,20 @@ internal static class TourianStatueAnimatedTilePrograms
     {
         get
         {
-            yield return Require(TourianGreyStatues.Phantoon);
-            yield return Require(TourianGreyStatues.Ridley);
-            yield return Require(TourianGreyStatues.Kraid);
-            yield return Require(TourianGreyStatues.Draygon);
+            yield return Require(TourianStatue.Phantoon);
+            yield return Require(TourianStatue.Ridley);
+            yield return Require(TourianStatue.Kraid);
+            yield return Require(TourianStatue.Draygon);
         }
     }
 
     /// <summary>The animated-tile object whose header copies <paramref name="statue"/>'s pictures.</summary>
     /// <exception cref="InvalidDataException"><paramref name="statue"/> is not one statue.</exception>
-    internal static BlockAnimation ObjectOf(TourianGreyStatues statue) => RoomFxBlockAnimationPictures.TourianStatueWindow(statue).Object;
+    internal static BlockAnimation ObjectOf(TourianStatue statue) => RoomFxBlockAnimationPictures.TourianStatueWindow(statue).Object;
 
     /// <summary>The animation of <paramref name="statue"/>.</summary>
     /// <exception cref="InvalidOperationException"><paramref name="statue"/> is not cataloged.</exception>
-    private static TourianStatueAnimationDefinition Require(TourianGreyStatues statue) =>
+    private static TourianStatueAnimationDefinition Require(TourianStatue statue) =>
         TourianStatueAnimationDefinitions.Statues.TryGetValue(statue, out TourianStatueAnimationDefinition? definition)
             ? definition
             : throw new InvalidOperationException($"Tourian statue {statue} has no definition in this catalog.");

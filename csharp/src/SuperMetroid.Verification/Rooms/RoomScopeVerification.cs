@@ -30,6 +30,9 @@ internal static class RoomScopeVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite);
         RoomScope source = runtime.Room.Scope ?? throw new InvalidOperationException("The debug load adopted no scope.");
+        // The Landing Site's main composes the land sky, and its setup the sky's drifting bands (#2485).
+        VerificationAssertions.AssertTrue(source.ScrollingSky is { Sky: SuperMetroid.Core.Rooms.Scrolling.ScrollingSky.Land, HasBands: true },
+            "the Landing Site composes the land sky with the bands its setup spawns");
         ScrollBoundaryCamera previous = source.Camera;
         previous.Position = previous.Position.WithFractionsOf(FixedPosition<RoomPixels>.FromStoredParts(0, 0x1234, 0, 0x5678));
         PrivateState.Set(previous, nameof(ScrollBoundaryCamera.IdealPosition), new Position16<RoomPixels>(0x0123, 0x0456));

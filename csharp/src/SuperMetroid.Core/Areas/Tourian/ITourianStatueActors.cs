@@ -27,8 +27,8 @@ internal interface ITourianStatueActors
     void ShowStatueLook(PictureShade look);
 
     /// <summary>
-    /// The entrance statue's sprite statue in <paramref name="colours"/>, the Ridley or Phantoon statue's, which that statue's
+    /// The entrance statue's sprite statue <paramref name="sprite"/>, the Ridley or Phantoon statue, which that statue's
     /// grey-out shows on (#2288).
     /// </summary>
-    IGlowingEnemy SpriteStatueGreyOut(ColourEffectColours colours);
+    IGlowingEnemy SpriteStatueGreyOut(TourianSpriteStatue sprite);
 }

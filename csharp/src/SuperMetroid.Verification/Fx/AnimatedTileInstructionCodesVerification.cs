@@ -11,6 +11,7 @@ using SuperMetroid.Core.Enemies.WreckedShip;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Verification.Fx;
 using SuperMetroid.Verification.Harness;
 

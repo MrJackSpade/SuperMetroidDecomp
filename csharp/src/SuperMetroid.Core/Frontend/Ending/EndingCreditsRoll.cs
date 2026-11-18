@@ -78,23 +78,39 @@ internal sealed class EndingCreditsRoll
     /// <summary>Fades the post-credits waiting backdrop toward its authored colours.</summary>
     internal void FadeWaitingBackdrop(int step) => screen.Colours.Fade(EndingFade.WaitingBackdrop, step);
 
-    /// <summary>Interpolation step for suitless or helmetless reward colors.</summary>
-    private int rewardFadeStep;
+    /// <summary>
+    /// The reward's colour fade (#2488), paced by the reward's own updates: a step every fourth, the copyright between its
+    /// halves taking none; none before the reward.
+    /// </summary>
+    private PacedFadeSteps? rewardFade;
+
+    /// <summary>The reward's colour fade, which the reward has from its start.</summary>
+    private PacedFadeSteps RewardFade => rewardFade ?? throw new InvalidOperationException("The reward's colour fade has not started.");
 
     /// <summary>Crossfades waiting colors into the selected non-armored reward colours.</summary>
-    internal void ShowRewardFade()
+    private void ShowRewardFade()
     {
         if (_stage.EndingReward == EndingReward.Armored) return;
-        FadeWaitingBackdrop(EndingSequenceDefinitions.Timing.WaitingBackdropFadeFrames - rewardFadeStep);
-        screen.Colours.Fade(EndingFade.SuitlessSamus, rewardFadeStep);
+        int step = RewardFade.Taken;
+        FadeWaitingBackdrop(EndingSequenceDefinitions.Timing.WaitingBackdropFadeFrames - step);
+        screen.Colours.Fade(EndingFade.SuitlessSamus, step);
         if (_stage.EndingReward == EndingReward.Helmetless)
-            screen.Colours.Fade(EndingFade.SuitedSamus, rewardFadeStep);
+            screen.Colours.Fade(EndingFade.SuitedSamus, step);
         // The fade brightens toward the post-credits colours in 32 steps: step S shows each colour at S 32nds of its
         // brightness, rounded down, the level the import pre-colours (#1512).
     }
 
-    /// <summary>The steps left of the white wash of the brief transition into the final logo (<see cref="WhiteWash"/>), fading to none, where it stays.</summary>
-    internal int WhiteWashStepsLeft { get; set; }
+    /// <summary>
+    /// The white wash of the brief transition into the final logo (<see cref="WhiteWash"/>): full white as it begins, a
+    /// step fewer each update, fading to none, where it stays.
+    /// </summary>
+    internal WhiteWash WhiteFlash => whiteFlash ?? throw new InvalidOperationException("The post-credits white flash has not begun.");
+
+    /// <summary>The transition's white wash, or none before the transition begins.</summary>
+    private WhiteWash? whiteFlash;
+
+    /// <summary>One update of the transition's white wash: a step fewer, stopping at none.</summary>
+    internal void FadeWhiteFlash() => WhiteFlash.Fade();
 
     /// <summary>The state of the ending logo, which exists while that phase runs.</summary>
     internal EndingLogo EndingLogo => _artwork.CurrentEndingLogo ??
@@ -107,7 +123,7 @@ internal sealed class EndingCreditsRoll
         _stage.LoadColours(EndingColourLoad.RestoredShot);
         _artwork.PostCreditsText.Drop = 0;
         _artwork.PostCreditsText.ClearCopyright();
-        WhiteWashStepsLeft = EndingPostShotDefinitions.WhiteWashStart;
+        whiteFlash = WhiteWash.FullWhite(updatesPerStep: 1, firstStepUpdate: 1);
         _stage.PhaseTimer = EndingPostShotDefinitions.FadeFrames;
         _stage.Phase = EndingCreditsPhase.PostCreditsWhiteFlash;
     }
@@ -142,9 +158,18 @@ internal sealed class EndingCreditsRoll
     /// <summary>Whether the reward copyright is showing.</summary>
     internal bool RewardCopyrightShown { get; private set; }
 
-    /// <summary>Starts the reward colour fade from its first step.</summary>
-    internal void ResetRewardFade() => rewardFadeStep = 0;
+    /// <summary>Starts the reward colour fade from its start and shows it there.</summary>
+    internal void StartRewardFade()
+    {
+        rewardFade = new PacedFadeSteps(EndingCadenceDefinitions.RewardColourFadeSteps, EndingCadenceDefinitions.RewardColourUpdatesPerStep,
+            firstStepUpdate: EndingCadenceDefinitions.RewardColourUpdatesPerStep);
+        ShowRewardFade();
+    }
 
-    /// <summary>Moves the reward colour fade to its next step.</summary>
-    internal void AdvanceRewardFade() => rewardFadeStep++;
+    /// <summary>One update of the reward's colour fade: on its due updates it takes its next step and shows it.</summary>
+    internal void StepRewardFade()
+    {
+        if (RewardFade.Advance())
+            ShowRewardFade();
+    }
 }

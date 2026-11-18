@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>A save station asks whether to save at the load station it saves at (#2383).</summary>
 /// <param name="Save">The save station that asks.</param>
-public sealed record SaveConfirmationRequested(SaveStationActivation Save) : StationActivationEvent
+internal sealed record SaveConfirmationRequested(SaveStationActivation Save) : StationActivationEvent
 {
     /// <inheritdoc/>
     public override GameplayMessageId Message => GameplayMessageId.SaveConfirmation;

@@ -79,7 +79,7 @@ internal static class CrawlerAnimations
             Show(EnemyFrameId.ZeroUpsideUpStretched, 4),
             Show(EnemyFrameId.ZeroUpsideUpStretching, 4),
         ],
-        [P.ViolaNormal] =
+        [P.ViolaIdle] =
         [
             Show(EnemyFrameId.ViolaPlain, 10),
             Show(EnemyFrameId.ViolaFaceFaint, 10),
@@ -141,7 +141,7 @@ internal static class CrawlerAnimations
         [P.ZeroUpsideLeft] = Animation<CrawlerSegment>.Looping([Segments.Whole(P.ZeroUpsideLeft)]),
         [P.ZeroUpsideDown] = Animation<CrawlerSegment>.Looping([Segments.Whole(P.ZeroUpsideDown)]),
         [P.ZeroUpsideUp] = Animation<CrawlerSegment>.Looping([Segments.Whole(P.ZeroUpsideUp)]),
-        [P.ViolaNormal] = Animation<CrawlerSegment>.Looping([Segments.Whole(P.ViolaNormal)]),
+        [P.ViolaIdle] = Animation<CrawlerSegment>.Looping([Segments.Whole(P.ViolaIdle)]),
         [P.SpinyCrawlerUpsideRight] = Animation<CrawlerSegment>.Looping([Segments.Whole(P.SpinyCrawlerUpsideRight)]),
         [P.SpinyCrawlerUpsideLeft] = Animation<CrawlerSegment>.Looping([Segments.Whole(P.SpinyCrawlerUpsideLeft)]),
         [P.SpinyCrawlerUpsideDown] = Animation<CrawlerSegment>.Looping([Segments.Whole(P.SpinyCrawlerUpsideDown)]),

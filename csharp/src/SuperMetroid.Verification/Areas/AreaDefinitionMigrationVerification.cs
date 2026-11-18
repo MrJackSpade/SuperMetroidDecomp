@@ -64,12 +64,12 @@ internal static class AreaDefinitionMigrationVerification
 
         // MaridiaElevatubeRomData and MaridiaElevatubeObjectRomData.
         AssertEqual(0x0080, MaridiaElevatubeDefinitions.SamusCenterX, "elevatube Samus X");
-        AssertEqual(0x09c0, MaridiaElevatubeDefinitions.SouthStartingY, "south entry position");
-        AssertEqual(0xff00, MaridiaElevatubeDefinitions.SouthStartingVelocity.RawValue, "south entry velocity");
-        AssertEqual(0xffe0, MaridiaElevatubeDefinitions.SouthAcceleration.RawValue, "south entry acceleration");
-        AssertEqual(0x0040, MaridiaElevatubeDefinitions.NorthStartingY, "north entry position");
-        AssertEqual(0x0100, MaridiaElevatubeDefinitions.NorthStartingVelocity.RawValue, "north entry velocity");
-        AssertEqual(0x0020, MaridiaElevatubeDefinitions.NorthAcceleration.RawValue, "north entry acceleration");
+        AssertEqual(0x09c0, MaridiaElevatubeDefinitions.FromSouth.StartingY, "south entry position");
+        AssertEqual(0xff00, MaridiaElevatubeDefinitions.FromSouth.StartingVelocity.RawValue, "south entry velocity");
+        AssertEqual(0xffe0, MaridiaElevatubeDefinitions.FromSouth.Acceleration.RawValue, "south entry acceleration");
+        AssertEqual(0x0040, MaridiaElevatubeDefinitions.FromNorth.StartingY, "north entry position");
+        AssertEqual(0x0100, MaridiaElevatubeDefinitions.FromNorth.StartingVelocity.RawValue, "north entry velocity");
+        AssertEqual(0x0020, MaridiaElevatubeDefinitions.FromNorth.Acceleration.RawValue, "north entry acceleration");
         AssertEqual(0x0e20, MaridiaElevatubeDefinitions.MaximumSpeed.RawValue, "elevatube speed limit");
         AssertEqual(new Position16<RoomBlocks>(1, 0), MaridiaElevatubeDefinitions.RoomObjectBlock, "elevatube PLM block");
 

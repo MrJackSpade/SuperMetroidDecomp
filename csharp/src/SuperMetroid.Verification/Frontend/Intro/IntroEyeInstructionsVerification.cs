@@ -10,7 +10,7 @@ namespace SuperMetroid.Verification.Frontend.Intro;
 /// <summary>
 /// Checks the typed portrait-eye programs (<see cref="IntroEyeAnimations"/>) against the cartridge's own bank-$8C eye
 /// lists: a minimal reader walks each native list with the background-object timer gate, and the production narration
-/// objects must draw the same eye frame and hold the same countdown on every update.
+/// objects must draw the same eye frame on every update, so each frame shows for the native list's duration.
 /// </summary>
 internal static class IntroEyeInstructionsVerification
 {
@@ -38,7 +38,8 @@ internal static class IntroEyeInstructionsVerification
 
     /// <summary>
     /// Steps the objects and the native reader together, comparing the eye frame the portrait shows (#1467: the frame's
-    /// installed picture, in the cartridge's draw-record order) and the eye countdown.
+    /// installed picture, in the cartridge's draw-record order) on every update (#2488: the frames' timing is what the
+    /// comparison sees, not the eye's countdown).
     /// </summary>
     private static void Compare(IntroNarrationActors objects, NativeEyeReader native, int updates, string phase)
     {
@@ -48,10 +49,6 @@ internal static class IntroEyeInstructionsVerification
             objects.Step(0);
             native.Step();
             string at = $"intro eye {phase} update {update}";
-            // Once the eye rests on the final page's stare it counts nothing down (#2196): the cartridge's countdown only
-            // re-reads the same stare, and the frame it shows is compared below.
-            if (objects.EyeFrameHold is { } hold)
-                AssertEqual(native.Timer, hold, $"{at}: countdown");
             AssertEqual<IntroEyeFrame?>(frames[native.Frame], objects.EyeFrame, $"{at}: portrait eye frame");
         }
     }

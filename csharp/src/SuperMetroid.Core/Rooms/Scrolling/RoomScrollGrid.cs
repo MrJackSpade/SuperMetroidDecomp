@@ -24,7 +24,7 @@ public sealed class RoomScrollGrid
     private RoomScrollGrid(ScrollCellsKeptAcrossRooms<RoomScrollState, AreaId> cells, Extent16<RoomScreens> size)
     {
         KeptCells = Ensure.NotNull(cells);
-        if (size.X == 0 || size.Y == 0 || size.X * size.Y > cells.Count)
+        if (size.X == 0 || size.Y == 0 || size.Area > cells.Count)
             throw new ArgumentOutOfRangeException(nameof(size));
 
         Size = size;
@@ -34,7 +34,7 @@ public sealed class RoomScrollGrid
     public Extent16<RoomScreens> Size { get; }
 
     /// <summary>Gets the number of the room's screens.</summary>
-    public int ScreenCount => Size.X * Size.Y;
+    public int ScreenCount => Size.Area;
 
     /// <summary>
     /// The session's scroll cells, cleared as power-on leaves them, with a check past them reading
@@ -90,7 +90,7 @@ public sealed class RoomScrollGrid
         Validate(lastRowState, nameof(lastRowState));
         var grid = new RoomScrollGrid(cells, size);
         for (int index = 0; index < grid.ScreenCount; index++)
-            cells.Write(index, index / size.X == size.Y - 1 ? lastRowState : RoomScrollState.Open);
+            cells.Write(index, size.CellAtRowMajorIndex(index).Y == size.Y - 1 ? lastRowState : RoomScrollState.Open);
         return grid;
     }
 
@@ -141,7 +141,7 @@ public sealed class RoomScrollGrid
         if (screen.X >= Size.X)
             throw new ArgumentOutOfRangeException(nameof(screen), screen, "The screen's column lies outside the room.");
         Validate(state, nameof(state));
-        KeptCells.Write(screen.Y * Size.X + screen.X, state);
+        KeptCells.Write(Size.RowMajorIndex(screen), state);
     }
 
     /// <summary>Updates one of the room's screens, as enemies, room objects and the title demonstrations do.</summary>
@@ -151,7 +151,7 @@ public sealed class RoomScrollGrid
         if (screen.X >= Size.X || screen.Y >= Size.Y)
             throw new ArgumentOutOfRangeException(nameof(screen));
         Validate(state, nameof(state));
-        KeptCells.Write(screen.Y * Size.X + screen.X, state);
+        KeptCells.Write(Size.RowMajorIndex(screen), state);
     }
 
     /// <summary>Rejects a value that is not one of the three scroll states.</summary>

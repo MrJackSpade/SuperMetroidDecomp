@@ -34,7 +34,7 @@ internal static class CeresSteamCollisionDefinitionsVerification
             place.Bind(EnemyDefinitionId.CeresSteam, place.Definition);
             place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
             place.SetSpawnParameter1(EnemyDefinitionId.CeresSteam, (ushort)variant);
-            enemies.CeresSteamBehavior.InitializeCeresSteam(place);
+            ((IEnemyInitialization)(place.Entity ?? throw new InvalidOperationException("The vent bound no entity."))).Initialize();
             object?[] arguments =
                 [place, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
             for (int frame = 0; frame < 90; frame++)

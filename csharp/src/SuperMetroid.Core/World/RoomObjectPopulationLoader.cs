@@ -17,7 +17,7 @@ internal sealed class RoomObjectPopulationLoader
     /// Places one room-object population exactly once, in its placements' order. Each
     /// placement takes its place before its setup runs, as the game's room-object spawn
     /// does. A setup may immediately delete its place;
-    /// the next placement can consequently reuse that same highest place. Loading
+    /// the next placement can consequently reuse that same place. Loading
     /// requires installed placements; no population or definition is decoded during play.
     /// </summary>
     public void LoadRoomPopulation(RoomObjectRoom room, RoomObjectPopulation population, RoomObjectServices services)
@@ -66,11 +66,11 @@ internal sealed class RoomObjectPopulationLoader
                 Bosses = services.Bosses,
                 Place = place,
                 Families = _families,
-            }), objectKind);
+            }));
         }
     }
 
-    /// <summary>Claims the highest free place, which resets whatever it held, and installs the record's block before setup runs.</summary>
+    /// <summary>Claims the first free place in update order, which resets whatever it held, and installs the record's block before setup runs.</summary>
     private RoomObjectPlace? AllocateRoomPopulationPlace(Position16<RoomBlocks> block)
     {
         if (_families.Places.Spawn() is not { } place)

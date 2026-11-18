@@ -14,6 +14,7 @@ using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Rooms.Scrolling;
+using SuperMetroid.Core.Samus.Drawing;
 
 namespace SuperMetroid.Core.World;
 
@@ -24,7 +25,7 @@ namespace SuperMetroid.Core.World;
 /// </summary>
 [RoomLifetime]
 internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom room, LoadedRoomAssets assets,
-    LoadStation? loadStation, RoomMainCarryover carryover)
+    LoadStation? loadStation, RoomMainCarryover carryover) : IDoorEventLoad
 {
     /// <summary>The working value the previous room's main left, which the main the room composes adopts or replaces.</summary>
     private readonly RoomMainCarryover _carryover = Ensure.NotNull(carryover);
@@ -66,6 +67,15 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
     /// <summary>The turning floor the room shows, or null when it shows none (#1649).</summary>
     public RoomFloor? Floor { get; set; }
 
+    /// <summary>
+    /// The view of the room as a turning floor that the door's room event shows from the room's first frame, or null for
+    /// the ordinary room display (#2485).
+    /// </summary>
+    public TurningFloorTransform? ShownTurningFloor { get; private set; }
+
+    /// <summary>Whether the room's setup has spawned the scrolling sky's drifting bands (#2485).</summary>
+    private bool _setupSpawnedSkyBands;
+
     /// <summary>Samus's projectiles, once the teardown step has built them.</summary>
     public SamusProjectileSystem? Projectiles { get; set; }
 
@@ -78,8 +88,11 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
     /// <summary>The colour effects, once the FX step has built them.</summary>
     public ColourEffectSystem? ColourEffects { get; set; }
 
-    /// <summary>The Ceres haze, once the FX step has built it for a room whose setup spawns one.</summary>
-    public CeresHazeState? CeresHaze { get; set; }
+    /// <summary>The Ceres haze, once the room's setup has composed it for a room whose setup spawns one (#2485).</summary>
+    public CeresHazeState? CeresHaze { get; private set; }
+
+    /// <summary>The Tourian statues' room, once the statue room's setup has composed it (#2485).</summary>
+    public TourianStatueRoom? TourianStatueRoom { get; private set; }
 
     /// <summary>The block animations, once the definition step has built them.</summary>
     public RoomBlockAnimations? BlockAnimations { get; set; }
@@ -93,7 +106,7 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
     /// <summary>The elevatube's ride, once the definition step has composed the elevatube's main.</summary>
     public MaridiaElevatubeRoomMainState? MaridiaElevatube { get; private set; }
 
-    /// <summary>The Ceres elevator shaft's turn, once the definition step has composed the shaft's main.</summary>
+    /// <summary>The Ceres elevator shaft's turn, once the elevator door's room event has started it (#2485).</summary>
     public CeresElevatorShaftRoomMainState? CeresElevatorShaft { get; private set; }
 
     /// <summary>The enemy system, once the enemy step has built it.</summary>
@@ -110,7 +123,7 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
     /// <param name="explosions">Where the room's escape explosions go off, or null for a room that sets off none.</param>
     internal void ComposeSkyMain(ScrollingSky sky, EscapeExplosionSite? explosions)
     {
-        bool bands = Room.State.Fx?.Select(Door)?.Type == RoomFxType.ScrollingSky || Room.State.SetupBehavior.SpawnsSkyBands;
+        bool bands = Room.State.Fx?.Select(Door)?.Type == RoomFxType.ScrollingSky || _setupSpawnedSkyBands;
         var state = new ScrollingSkyState(sky, bands);
         ScrollingSky = state;
         Main = new ScrollingSkyMain(state, explosions);
@@ -134,13 +147,35 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
         Main = new MaridiaElevatubeMain(tube);
     }
 
-    /// <summary>Composes the Ceres elevator shaft's main and its turn, which its elevator door's setup starts (#2287).</summary>
-    internal void ComposeElevatorShaftMain()
+    /// <summary>Composes the Ceres elevator shaft's main over the turn its elevator door's room event started (#2287, #2485).</summary>
+    /// <param name="shaft">The shaft's turn.</param>
+    internal void ComposeElevatorShaftMain(CeresElevatorShaftRoomMainState shaft) => Main = new CeresElevatorShaftMain(shaft);
+
+    /// <inheritdoc/>
+    /// <remarks>
+    /// The shaft's turn starts level, which is the view the door shows; the turn leaves its starting step for the
+    /// following room's main.
+    /// </remarks>
+    public void ShowShaftLevelAndStartTurn()
     {
         var shaft = new CeresElevatorShaftRoomMainState(_carryover);
         CeresElevatorShaft = shaft;
-        Main = new CeresElevatorShaftMain(shaft);
+        ShownTurningFloor = shaft.Transform;
     }
+
+    /// <summary>Records that the room's setup spawns the scrolling sky's drifting bands, which the sky's main then drifts (#2485).</summary>
+    internal void ComposeSkyBands() => _setupSpawnedSkyBands = true;
+
+    /// <summary>Composes the Ceres haze the room's setup spawns (#2485).</summary>
+    /// <param name="ridleyIsDead">Whether Ceres Ridley is dead, which turns the haze red.</param>
+    /// <param name="immediateViewport">Whether the room shows its first view at once, which shows the haze at once.</param>
+    [IndependentFlag("independent load facts: whether the area's boss is dead and whether the room shows its first view at once")]
+    internal void ComposeCeresHaze(bool ridleyIsDead, bool immediateViewport) =>
+        CeresHaze = new CeresHazeState(ridleyIsDead, immediateViewport);
+
+    /// <summary>Composes the Tourian statues' room the statue room's setup builds over the room's effect (#2485).</summary>
+    /// <param name="fxOverlay">The room's effect, whose water the statues' particles splash through.</param>
+    internal void ComposeTourianStatueRoom(RoomFxOverlayState fxOverlay) => TourianStatueRoom = new TourianStatueRoom(fxOverlay);
 
     /// <summary>Composes the Ceres pre-elevator hall's main and its debris countdown, carried from the previous room's main (#2287).</summary>
     internal void ComposeFallingDebrisMain() =>

@@ -1,20 +1,15 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Areas.Maridia;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Rooms.Doors;
-using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.World;
 
-/// <summary>
-/// Door transitions: the door's setup (Wrecked Ship treadmill, Maridia elevatube, screen changes) and the
-/// door sound-wait frames with their actor drawing.
-/// </summary>
+/// <summary>Door transitions: the door sound-wait frames with their actor drawing.</summary>
 internal sealed class DoorTransitionRunner
 {
     /// <summary>Draws Samus and room actors during door waits and fades.</summary>
@@ -31,7 +26,7 @@ internal sealed class DoorTransitionRunner
     private readonly AcceptedFrameBoundary _frameBoundary;
     /// <summary>Sprite frame begun and finalized around each drawn frame.</summary>
     private readonly SpriteFrameBuffer _sprites;
-    /// <summary>Provides defeated bosses and draws each update's random number.</summary>
+    /// <summary>Draws each update's random number.</summary>
     private readonly SharedGameState _system;
 
     /// <summary>Captures the runtime services used by the door's setup and its wait updates.</summary>
@@ -53,101 +48,6 @@ internal sealed class DoorTransitionRunner
     /// </summary>
     internal DoorPassage Passage { get; } = new();
 
-    /// <summary>
-    /// Runs the active door's setup after room-object creation: its screen changes, then its room event.
-    /// </summary>
-    /// <remarks>
-    /// The room load runs the door's setup between room-object
-    /// construction and the first visible destination viewport. Every door that names a setup receives the same
-    /// screen changes and room event.
-    /// </remarks>
-    internal void RunDoorSetup(DoorDefinition door, DoorSetupRoom room)
-    {
-        door.Setup.ChangeScreens(room.Scrolls);
-
-        switch (door.Setup.RoomEvent)
-        {
-            case DoorRoomEvent.None:
-                return;
-
-            case DoorRoomEvent.ShowsTurningFloor:
-                // Ceres's door setup owns the turning floor's rotation and centre. Those
-                // values must exist before room graphics/actors initialize, so the shared
-                // loader installs them at construction time and this point merely verifies
-                // that the recognized setup was not discarded.
-                if (_display.ActiveTurningFloor is null)
-                {
-                    throw new InvalidDataException(
-                        "Ceres elevator door setup reached its room event without its turning-floor transform.");
-                }
-                return;
-
-            case DoorRoomEvent.EndsTurningFloor:
-                // The paired exit setup of the Ceres elevator shaft's entry: it returns
-                // the screen from the turning floor to the ordinary room display, removing
-                // both the active and the shown transforms. Do this explicitly here rather
-                // than relying on the destination loader's defensive state reset: this is
-                // the door setup that owns the transition back to the ordinary display. Its
-                // door leads out of the shaft, so the destination has no shaft's turn to end (#2287).
-                _display.ActiveTurningFloor = null;
-                _display.PublishDoorElevatorFloor(null);
-                return;
-
-            case DoorRoomEvent.StartsTreadmillRightwards:
-                StartWreckedShipTreadmill(WreckedShipTreadmillDirection.Rightwards, room);
-                return;
-
-            case DoorRoomEvent.StartsTreadmillLeftwards:
-                StartWreckedShipTreadmill(WreckedShipTreadmillDirection.Leftwards, room);
-                return;
-
-            case DoorRoomEvent.StartsElevatubeRideFromSouth:
-                SetUpMaridiaElevatube(entry: ElevatubeEntry.FromSouth, room);
-                return;
-
-            case DoorRoomEvent.StartsElevatubeRideFromNorth:
-                SetUpMaridiaElevatube(entry: ElevatubeEntry.FromNorth, room);
-                return;
-
-            case DoorRoomEvent.EndsElevatubeRide:
-                // Both exit doors lead out of the tube, so the destination has no ride to end; the setup only restores
-                // Samus's control (#2287).
-                room.Samus.Control.Unlock();
-                return;
-
-            default:
-                throw new InvalidOperationException(
-                    $"Undefined {nameof(DoorRoomEvent)} {door.Setup.RoomEvent} in door {door.Name}.");
-        }
-    }
-
-    /// <summary>Starts the room's entrance treadmill animation and attempts the matching entrance room-object spawn.</summary>
-    private void StartWreckedShipTreadmill(WreckedShipTreadmillDirection direction, DoorSetupRoom room)
-    {
-        room.BlockAnimations.StartDoorTreadmill(direction);
-        // The spawn reports whether the room had a free room-object place, and the door setup ignores it: with
-        // every place held, the treadmill's blocks still animate and the entrance treadmill does not appear.
-        _ = room.RoomObjects.WreckedShipTreadmill.TrySpawnWreckedShipEntranceTreadmill(
-            room.Level,
-            direction,
-            _system.HasDefeatedAnyOf(room.Area, DefeatedBosses.AreaBoss));
-    }
-
-    /// <summary>Positions Samus for the selected elevatube entrance and attempts its room-object spawn.</summary>
-    private static void SetUpMaridiaElevatube(ElevatubeEntry entry, DoorSetupRoom room)
-    {
-        MaridiaElevatubeRoomMainState maridiaElevatube = room.MaridiaElevatube ?? throw new InvalidDataException(
-            $"Door setup event {entry} drives the elevatube in a room whose room behaviour is not the elevatube.");
-
-        if (entry == ElevatubeEntry.FromSouth)
-            maridiaElevatube.SetUpFromSouth(room.Samus);
-        else
-            maridiaElevatube.SetUpFromNorth(room.Samus);
-
-        // The door setup ignores whether the spawn found a free room-object place: with all forty held, Samus is
-        // still placed for the ride and the elevatube does not appear.
-        _ = room.RoomObjects.MaridiaElevatube.TrySpawnMaridiaElevatube(room.Level);
-    }
     /// <summary>Runs one update of the door's wait for its sounds to finish: enemies and drawing, without Samus's movement.</summary>
     public void RunDoorSoundWaitFrame(ControllerButton controllerInput, RoomScope room, SamusState samus)
     {

@@ -15,22 +15,14 @@ internal static class EyeDoorDraws
     private static Dictionary<Draw, RoomBlockShape> Shapes => field ??= EyeDoorObjectDrawDefinitions.Collisions
         .ToDictionary(pair => pair.Key, pair => RoomBlockShapes.Line(pair.Key.Vertical, pair.Value));
 
-    /// <summary>The draw <paramref name="frame"/> shows for <paramref name="component"/> facing <paramref name="orientation"/>.</summary>
-    internal static RoomObjectDraw Of(EyeDoorOrientation orientation, EyeDoorComponent component, EyeDoorObjectFrame frame)
+    /// <summary>The draw <paramref name="pose"/> shows for the eye door's body or bottom, <paramref name="part"/>.</summary>
+    internal static RoomObjectDraw Of(EyeDoorPart part, EyeDoorPartPose pose) =>
+        Family.Of(new Draw(EyeDoorPartLookDefinitions.Looks[part.BodyPart][pose], part.Orientation));
+
+    /// <summary>The draw <paramref name="frame"/> shows for the eye of the door facing <paramref name="orientation"/>.</summary>
+    internal static RoomObjectDraw Of(EyeDoorOrientation orientation, EyeDoorObjectFrame frame)
     {
-        bool left = orientation switch
-        {
-            EyeDoorOrientation.Left => true,
-            EyeDoorOrientation.Right => false,
-            _ => throw new InvalidOperationException($"Undefined {nameof(EyeDoorOrientation)} {orientation}."),
-        };
-        bool bottom = component switch
-        {
-            EyeDoorComponent.Door or EyeDoorComponent.Eye => false,
-            EyeDoorComponent.Bottom => true,
-            _ => throw new InvalidOperationException($"Undefined {nameof(EyeDoorComponent)} {component}."),
-        };
-        RoomObjectDraw Shown(EyeDoorLook look) => Family.Of(new Draw(look, left));
+        RoomObjectDraw Shown(EyeDoorLook look) => Family.Of(new Draw(look, orientation));
         return frame switch
         {
             EyeDoorObjectFrame.ClosedEye => Shown(EyeDoorLook.EyeClosed),
@@ -40,13 +32,19 @@ internal static class EyeDoorDraws
             EyeDoorObjectFrame.OpenSolidEye => Shown(EyeDoorLook.EyeOpenSolid),
             EyeDoorObjectFrame.OpeningClear => Shown(EyeDoorLook.Clear),
             // The eye flashes to the closed blue cap of its facing.
-            EyeDoorObjectFrame.BlueCap => BlueDoorCaps.ClosedSolid(left ? ColoredDoorOrientation.Left : ColoredDoorOrientation.Right),
-            EyeDoorObjectFrame.PartResting => Shown(bottom ? EyeDoorLook.BottomResting : EyeDoorLook.MiddleResting),
-            EyeDoorObjectFrame.PartSwelling => Shown(bottom ? EyeDoorLook.BottomSwelling : EyeDoorLook.MiddleSwelling),
-            EyeDoorObjectFrame.PartSwollen => Shown(bottom ? EyeDoorLook.BottomSwollen : EyeDoorLook.MiddleSwollen),
+            EyeDoorObjectFrame.BlueCap => BlueDoorCaps.ClosedSolid(BlueCapFacing(orientation)),
             _ => throw new InvalidOperationException($"Undefined {nameof(EyeDoorObjectFrame)} {frame}."),
         };
     }
+
+    /// <summary>The blue cap the eye of the door facing <paramref name="orientation"/> flashes to and turns into: the one facing its own side.</summary>
+    /// <exception cref="InvalidOperationException">The orientation is undefined.</exception>
+    internal static ColoredDoorOrientation BlueCapFacing(EyeDoorOrientation orientation) => orientation switch
+    {
+        EyeDoorOrientation.Left => ColoredDoorOrientation.Left,
+        EyeDoorOrientation.Right => ColoredDoorOrientation.Right,
+        _ => throw new InvalidOperationException($"Undefined {nameof(EyeDoorOrientation)} {orientation}."),
+    };
 
     /// <summary>
     /// The component <paramref name="look"/> draws, or null for the clear, which clears the whole door's four blocks once
@@ -64,9 +62,8 @@ internal static class EyeDoorDraws
 
     /// <summary>One eye-door draw: what it shows and its side.</summary>
     /// <param name="Look">What the draw shows, which names the component it writes.</param>
-    /// <param name="Left">Whether the draw belongs to the left-facing door; the two clears differ only in this.</param>
-    [IndependentFlag("which of the two mirrored eye doors a draw belongs to, a fact of the draw")]
-    internal readonly record struct Draw(EyeDoorLook Look, bool Left)
+    /// <param name="Orientation">The way the door the draw belongs to faces; the two clears differ only in this.</param>
+    internal readonly record struct Draw(EyeDoorLook Look, EyeDoorOrientation Orientation)
     {
         /// <summary>The component the draw writes, or null for the clear.</summary>
         internal EyeDoorComponent? Part => PartOf(Look);

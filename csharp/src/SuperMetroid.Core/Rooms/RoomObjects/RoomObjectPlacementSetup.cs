@@ -12,6 +12,6 @@ internal abstract record RoomObjectPlacementSetup
     {
     }
 
-    /// <summary>Runs this setup of a placement of <paramref name="kind"/> through <paramref name="setups"/>.</summary>
-    internal abstract void SetUp(IRoomObjectFamilySetups setups, RoomObjectKind kind);
+    /// <summary>Runs this setup through <paramref name="setups"/>.</summary>
+    internal abstract void SetUp(IRoomObjectFamilySetups setups);
 }

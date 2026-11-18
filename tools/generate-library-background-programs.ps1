@@ -193,7 +193,20 @@ try {
         $view = @($views)[0]
         $lines.Add('    ]);')
         $lines.Add('')
-        $coreLines.Add(('    /// <summary>The {0} library background.</summary>' -f $programName))
+        # Each background's summary says what the player sees of it and how many entry doors show a picture of their own
+        # (#2482), which its name does not.
+        $viewPhrases = @{
+            Picture = 'A background that shows its own picture'
+            BossBody = "A background that shows the body the room's boss draws there"
+            SkyRows = "A background that shows the scrolling sky's rows"
+            Nothing = 'A background that shows nothing'
+        }
+        $doorPhrase = switch ($pictureDoors.Count) {
+            0 { '' }
+            1 { '; one of its entry doors shows a picture of its own' }
+            default { '; {0} of its entry doors each show a picture of their own' -f $pictureDoors.Count }
+        }
+        $coreLines.Add(('    /// <summary>{0}{1}.</summary>' -f $viewPhrases[$view], $doorPhrase))
         $coreLines.Add(('    public static LibraryBackground {0} {{ get; }} = new(nameof({0}), LibraryBackgroundView.{1}, [{2}]);' -f
             $programName, $view, ($pictureDoors -join ', ')))
         $coreLines.Add('')

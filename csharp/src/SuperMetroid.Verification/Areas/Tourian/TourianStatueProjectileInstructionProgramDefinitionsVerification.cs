@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.TestSupport.MovieReplay;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Hardware.ImportedSpritemapsVerification;
@@ -49,7 +50,7 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null), installedBosses: InstalledFixtures.BossArtwork,
             statueRoom: new FixedTourianStatueRoom(WaterSurface: 216, StatueOffset: 0));
         enemies.VerificationServices().NextRandom = () => 4;
-        TourianEntranceStatueBehavior scene = EnemySystemFixtures.StatueScene(enemies);
+        _ = EnemySystemFixtures.StatueScene(enemies);
         TourianUnlockBehavior unlock = enemies.UnlockEffects();
 
         unlock.SpawnTourianEyeGlow(TourianStatueNativeWords.Eye(0));
@@ -90,8 +91,12 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
         Run(tail, 1);
         AssertTrue(!tail.IsActive, "particle tail deletes after four authored poses");
 
-        unlock.SpawnTourianParticleChild(particle, RoomEnemyProjectileKind.TourianStatueSplash,
-            TourianStatueProjectileSegment.Splash);
+        // The particle splashes as its fall carries it below the water surface: two pixels down from the surface itself.
+        particle.Position = particle.Position.WithWholeY(216);
+        particle.Velocity = particle.Velocity.WithY(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(512));
+        unlock.Effects.RunMotion(new EnemyProjectileMotionContext(particle, RoomLevelData.CollisionOnly(new(1, 1), [RoomCollisionType.Air]),
+            RoomEnemyFrameFixtures.StandaloneSamus(), Position16<RoomPixels>.Zero, ShortCounter: 0, FrameCounter: 0,
+            InstalledFixtures.CreateBombSystem()));
         EnemyProjectile splash = Single(RoomEnemyProjectileKind.TourianStatueSplash);
         Run(splash, 4);
         AssertEqual((ushort)0xb7b1, NativePointer(splash),
@@ -157,14 +162,18 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
         EnemyProjectile Single(RoomEnemyProjectileKind kind) =>
             enemies.Projectiles.EnemyProjectiles.First(projectile => projectile.Kind == kind);
 
+        // The scene's decorations spawn as the statue placement that spawns them initializes, as the room's enemy load does:
+        // its first request for a decoration places them all.
         EnemyProjectile SpawnStatue(RoomEnemyProjectileKind kind)
         {
-            // The statue names the animation each decoration starts, the one the kind's spawn starts.
-            TourianStatueProjectileSegment start = FamilyProjectileStarts.StartingAnimation(kind) is TourianStatueProjectileAnimation started
-                ? started.PlayingSegment
-                : throw new ArgumentOutOfRangeException(nameof(kind), kind, "The entrance statue spawns no such decoration.");
-            scene.SpawnTourianEntranceStatueProjectile(kind, start, new Position16<RoomPixels>(128, 128), scene.Decorations());
-            return enemies.Projectiles.EnemyProjectiles.First(projectile => projectile.Kind == kind);
+            if (!enemies.Projectiles.EnemyProjectiles.Any(projectile => projectile.IsActive && projectile.Kind == kind))
+            {
+                RoomEnemyPlace placement = enemies.Places.InUpdateOrder[0];
+                placement.SetSpawnParameter1(EnemyDefinitionId.TourianStatue, 0);
+                placement.Bind(EnemyDefinitionId.TourianStatue, placement.Definition);
+                EnemySystemFixtures.InitializeStatuePlacement(placement);
+            }
+            return enemies.Projectiles.EnemyProjectiles.First(projectile => projectile.IsActive && projectile.Kind == kind);
         }
 
         void Run(EnemyProjectile projectile, int frames)

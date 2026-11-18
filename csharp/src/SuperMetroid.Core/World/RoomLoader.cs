@@ -2,7 +2,6 @@ using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Areas.Ceres;
-using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Beetom;
 using SuperMetroid.Core.Enemies.Bull;
@@ -796,21 +795,15 @@ internal sealed class RoomLoader
         // The elevator shaft and Ceres Ridley's arena show their tileset's turning floor, which the shaft's door and Ridley
         // then draw over (#1349, #1467); every other room shows none (#1649). Ridley's getaway's main shows its frames.
         scope.Floor = assets.CreateFloor();
-        // The room composes the main its state names, with the state that main keeps: the elevatube's ride and the
-        // elevator shaft's turn, which the door's setup below starts, a sky, debris or a diagonal quake (#2287).
-        room.State.MainBehavior.Compose(scope);
-        // Ceres's elevator door setup levels the shaft about its centre before the fresh Ceres
-        // elevator room becomes visible. Publishing the immutable transform here gives
-        // Samus, her projectiles, and the rotating elevator's steam a single authoritative
-        // producer. Ordinary doors clear it so stale rotating-view math cannot leak across rooms.
-        TurningFloorTransform? initialFloorTransform = door.EntersCeresElevatorShaft
-            ? TurningFloorTransform.Level(CeresShaftRotationDefinitions.RotationCenter)
-            : null;
-        _display.ActiveTurningFloor = initialFloorTransform;
-        // The Ceres elevator door setup levels the shaft before it is
-        // exposed. Initialize the displayed copy as well; subsequent room-main changes
-        // reach it only when the frame's display is published, like every other floor change.
-        _display.PublishDoorElevatorFloor(initialFloorTransform);
+        // The door's room event composes what the room shows from its first frame (#2485): Ceres's elevator door shows the
+        // shaft level about its centre and starts the shaft's turn there before the fresh room becomes visible. Publishing
+        // the immutable transform here gives Samus, her projectiles, and the rotating elevator's steam a single
+        // authoritative producer. Every other door shows the ordinary display, so stale rotating-view math cannot leak
+        // across rooms. The displayed copy starts the same; subsequent room-main changes reach it only when the frame's
+        // display is published, like every other floor change.
+        door.Setup.RoomEvent.Compose(scope);
+        _display.ActiveTurningFloor = scope.ShownTurningFloor;
+        _display.PublishDoorElevatorFloor(scope.ShownTurningFloor);
         scope.LevelData = assets.LevelData;
         ScrollBoundaryCamera? previousCamera = carryOver.PreviousCamera;
         var destinationCamera = new ScrollBoundaryCamera(assets.Scrolls);
@@ -853,11 +846,18 @@ internal sealed class RoomLoader
         roomFxOverlay.BindAudioRequests(_audioRequests);
         scope.FxOverlay = roomFxOverlay;
         roomFxOverlay.PrimeViewport(destinationCamera.PixelPosition);
-        // Only a room whose setup spawns the Ceres haze has one (#2287).
-        scope.CeresHaze = room.State.SetupBehavior.SpawnsCeresHaze
-            ? new CeresHazeState(_system.HasDefeatedAnyOf(room.Area, DefeatedBosses.AreaBoss),
-                viewportLoadMode == RoomViewportLoadMode.DisplayInitialViewport)
-            : null;
+        // The room's setup composes its own parts, the sky's bands, the Ceres haze or the statues' room, which only the
+        // rooms whose setups spawn them have (#2287, #2485). The room then composes the main its state names, with the
+        // state that main keeps: the elevatube's ride, which the door's setup below starts, the elevator shaft's main over
+        // the turn its door started, a sky, debris or a diagonal quake (#2287).
+        room.State.SetupBehavior.Compose(new RoomSetupComposition
+        {
+            Scope = scope,
+            System = _system,
+            FxOverlay = roomFxOverlay,
+            DisplaysInitialViewport = viewportLoadMode == RoomViewportLoadMode.DisplayInitialViewport,
+        });
+        room.State.MainBehavior.Compose(scope);
         // Every room loads with Samus: a new game's Ceres start has initialized her before its first room loads.
         SamusState loadingSamus = _player.IntroducedSamus;
         loadingSamus.LiquidPhysics.ConfigureFor(roomFxOverlay);
@@ -892,8 +892,8 @@ internal sealed class RoomLoader
         scope.BombProjectiles = bombs;
         scope.Projectiles = projectiles;
 
-        // The room-object loader walks the room's placements once. Each placement takes the highest free place among the
-        // room's room objects before its setup runs, so a room object its setup deletes at once frees that place for the
+        // The room-object loader walks the room's placements once. Each placement takes the first free place in update
+        // order among the room's room objects before its setup runs, so a room object its setup deletes at once frees that place for the
         // next placement, and enemies can observe which room object holds which place. Every room-object family enters
         // through this one loader; an unsupported placement throws, naming it, instead of being skipped.
         // The room's room-object system is built with its bindings, then one set of runtime services
@@ -920,14 +920,22 @@ internal sealed class RoomLoader
             _audioRequests);
         scope.RoomObjects = roomObjects;
         var areaServices = new RoomEnemyRuntimeServices(_system, _room, _player, roomObjects, _display, progress);
-        // Only the statue room, whose setup unlocks the statues, has their room: its statues' enemies take it (#2287, #2382).
-        TourianStatueRoom? statueRoom = room.State.SetupBehavior.UnlocksTourianStatues ? new TourianStatueRoom(roomFxOverlay) : null;
         roomObjects.PopulationLoader.LoadRoomPopulation(roomObjectRoom, room.State.ObjectPopulation, roomObjectBindings);
 
         // The door's setup runs after the destination's room objects exist and before its enemies and first view are
         // set up. Several setups change which of the room's screens scroll, and the first view already stands within
         // those limits.
-        _doorTransition.RunDoorSetup(door, new DoorSetupRoom { Level = assets.LevelData, Scrolls = destinationCamera.Scrolls, Area = room.Area, RoomObjects = roomObjects, BlockAnimations = blockAnimations, MaridiaElevatube = scope.MaridiaElevatube, Samus = loadingSamus });
+        door.Setup.Run(destinationCamera.Scrolls, new DoorSetupRoom
+        {
+            Level = assets.LevelData,
+            Area = room.Area,
+            RoomObjects = roomObjects,
+            BlockAnimations = blockAnimations,
+            Scope = scope,
+            Samus = loadingSamus,
+            Display = _display,
+            System = _system,
+        });
         // The room state's setup runs right after the door's.
         room.State.SetupBehavior.PlaceRoomObjects(new RoomSetupPlacing
         {
@@ -981,7 +989,7 @@ internal sealed class RoomLoader
             RoomFx = roomFxOverlay,
             DoorPassage = _doorTransition.Passage,
             Earthquake = earthquake,
-            Scenery = new RoomEnemyScenery(scope.Floor, scope.CeresElevatorShaft, statueRoom),
+            Scenery = new RoomEnemyScenery(scope.Floor, scope.CeresElevatorShaft, scope.TourianStatueRoom),
         });
         enemies.TakeOverFrom(_room.HandOver);
         scope.Enemies = enemies;
@@ -999,15 +1007,13 @@ internal sealed class RoomLoader
             GunshipScenario = entry.GunshipScenario,
             DeferLoaderTimeCameraReads = viewportLoadMode == RoomViewportLoadMode.KeepSourceScreenWhileScrollingIn,
         });
-        // The shared Ridley setup marks the map explored only for a live boss.
-        // Ceres also disables the HUD map, but has no matching exploration list.
+        // A live Ridley's encounter hides the HUD map and marks the map rows of his arena his encounter names explored:
+        // Norfair's Ridley his arena's, Ceres Ridley none (#2485).
         if (enemies.Ceres.RidleyPresent)
         {
             _hud.DisableMinimapForBoss();
-            // Only Norfair's Ridley marks his arena explored.
-            if (enemies.RoomStatus.Boss == AreaBoss.Ridley)
-                for (int row = 0; row < RidleyMapDefinitions.ArenaScreenRows; row++)
-                    _system.MarkExploredMapTile(room.Area, room.MapPosition + new Offset16<MapTiles>(0, row));
+            for (int row = 0; row < enemies.Ceres.ExploredArenaMapRows; row++)
+                _system.MarkExploredMapTile(room.Area, room.MapPosition + new Offset16<MapTiles>(0, row));
         }
         // The room state's setup starts its earthquake and its projectile once the enemies are loaded. The pre-Phantoon
         // room's setup holds its projectile place in the pool that Enemies.Load has just cleared; its room has no gate whose
@@ -1037,8 +1043,8 @@ internal sealed class RoomLoader
         _enemyRoomEffects.ApplyEnemyRequestedRoomEffects(enemies.LastEnemyFrame.RoomEffects, effectSite);
         // The gunship's placement starts its lights' glow after the room's own colour effects (#1733).
         EnemyRoomEffects.StartEnemyGlow(enemies.LastEnemyFrame.Glow, effectSite);
-        // Only the statue room, whose setup unlocks the statues, has their sequence (#2287).
-        scope.TourianStatues = statueRoom is not null
+        // Only the statue room, whose setup composed the statues' room, has their sequence (#2287, #2485).
+        scope.TourianStatues = scope.TourianStatueRoom is { } statueRoom
             ? new TourianStatueSequence(_tourianStatueDependencies, statueRoom, roomFxOverlay, roomColourEffects, roomObjects, enemies)
             : null;
 
@@ -1160,7 +1166,7 @@ internal sealed class RoomLoader
     internal ActiveRoomGeometry GetActiveRoomGeometry()
     {
         SelectedRoom room = _room.ActiveRoom ?? throw new InvalidOperationException("No room is active.");
-        return new ActiveRoomGeometry(room.Area, room.MapPosition, room.UpScroller, room.DownScroller);
+        return new ActiveRoomGeometry(room.Area, room.MapPosition, room.FallingCameraOffset, room.RisingCameraOffset);
     }
 
     /// <summary>

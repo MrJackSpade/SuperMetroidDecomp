@@ -6,6 +6,6 @@ namespace SuperMetroid.Core.Enemies.Elevator;
 /// </summary>
 internal enum ElevatorSegment
 {
-    /// <summary>The elevator's pad flashing, unlit then lit, repeating.</summary>
-    Loop,
+    /// <summary>The elevator's idle flash (#2477): its pad unlit then lit, repeating.</summary>
+    Idle,
 }

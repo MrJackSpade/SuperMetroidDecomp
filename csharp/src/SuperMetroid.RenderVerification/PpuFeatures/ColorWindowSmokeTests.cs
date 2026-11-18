@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 using SuperMetroid.AssetExtraction.Frontend;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
@@ -90,8 +91,8 @@ internal static class ColorWindowSmokeTests
         var hazeTints = new SuperMetroid.Core.Fx.Artwork.CeresHazeTints(
             SuperMetroid.AssetExtraction.Frontend.Map.SceneColourFiles.StockCeresHazeBlue,
             SuperMetroid.AssetExtraction.Frontend.Map.SceneColourFiles.StockCeresHazeRed);
-        Check(GameplayEffectCapture.CaptureCeresHaze(hazeTints, false, CeresHazeRenderDefinitions.MaximumComponent));
-        Check(GameplayEffectCapture.CaptureCeresHaze(hazeTints, true, CeresHazeRenderDefinitions.MaximumComponent));
+        Check(GameplayEffectCapture.CaptureCeresHaze(hazeTints, CeresHazeTint.WhileRidleyLives, new CeresHazeStrength(CeresHazeRenderDefinitions.MaximumComponent)));
+        Check(GameplayEffectCapture.CaptureCeresHaze(hazeTints, CeresHazeTint.AfterRidleyDies, new CeresHazeStrength(CeresHazeRenderDefinitions.MaximumComponent)));
         foreach (ushort height in new ushort[] { 32, 64 })
         foreach (int first in new[] { 0, 32, 223, 224 })
         foreach (BlendOperation operation in Enum.GetValues<BlendOperation>())

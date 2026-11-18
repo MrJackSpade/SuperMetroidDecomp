@@ -97,8 +97,7 @@ internal sealed class BlockReactionObjects
     /// Only downward collision activates it: the setup keeps the block's collision kind and mirroring with the crumble
     /// parent's block as the restore block, makes the live block solid, and delays the change for four room-object
     /// passes. Crumble blocks that grow back reverse their animation and restore the parent; the others end on air. The
-    /// collision check independently returns solid for the triggering frame, so allocation success is not a
-    /// collision-result substitute.
+    /// collision check returns solid for the triggering frame on its own, whether or not the crumble took a place.
     /// </remarks>
     public bool TrySpawnSamusContactCrumbleBlock(
         RoomLevelData level,
@@ -146,9 +145,8 @@ internal sealed class BlockReactionObjects
             return false;
         }
 
-        // The special-block response reports a pass-through contact before spawning. When every place is held the
-        // spawn returns that result unchanged: setup never runs, so its no-Speed-Booster rejection cannot make this
-        // contact solid. The block stays; this is not a break animation.
+        // A Speed Booster block lets Samus through unless its reaction refuses her. When every place is held no reaction
+        // takes a place, so nothing can refuse her: she passes and the block stays as it is, unbroken.
         if (_places.IsFull)
             return true;
 

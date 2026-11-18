@@ -33,5 +33,5 @@ internal sealed class TourianStatueActors(TourianEntranceStatueBehavior statue, 
     public void ShowStatueLook(PictureShade look) => statue.ShowStatueLook(look);
 
     /// <inheritdoc/>
-    public IGlowingEnemy SpriteStatueGreyOut(ColourEffectColours colours) => new TourianSpriteStatueGreyOut(statue, colours);
+    public IGlowingEnemy SpriteStatueGreyOut(TourianSpriteStatue sprite) => new TourianSpriteStatueGreyOut(statue, sprite);
 }

@@ -119,7 +119,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         place.SetSpeciesState(state);
 
         place.Frame = EnemyFrameId.Empty;
-        state.Playback = EnemyAnimationPlayback.Start(place, ElevatorAnimations.StartingWith(ElevatorSegment.Loop));
+        state.Playback = EnemyAnimationPlayback.Start(place, ElevatorAnimations.StartingWith(ElevatorSegment.Idle));
         state.RestingY = place.Position.Y.Whole;
 
         if (ElevatorStatus != ElevatorActorStatus.BeginArrivalReturn)

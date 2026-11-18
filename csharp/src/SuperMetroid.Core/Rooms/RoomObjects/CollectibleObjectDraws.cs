@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
 /// The collectibles' draws (#2034): how each draw's block collides, the terrain a block pair's frame writes, and the frame
-/// selection; the Chozo orb's frames are its animation's (<see cref="CollectibleOrbAnimation"/>). What a frame other than a
+/// selection; the Chozo orb's frames are its animation's (<see cref="CollectibleSequenceAnimations"/>). What a frame other than a
 /// block pair's shows is its installed picture (#1557).
 /// </summary>
 internal static class CollectibleObjectDraws

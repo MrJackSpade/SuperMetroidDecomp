@@ -30,7 +30,7 @@ internal static class TypedDoorObjectOracle
         ColoredDoorObject { Phase: ColoredDoorPhase.Waiting } colored => DoorObjectNativeListAddresses.Colored(colored.Color, colored.Orientation).Waiting,
         ColoredDoorObject { Phase: ColoredDoorPhase.Closing } colored => DoorObjectNativeListAddresses.Colored(colored.Color, colored.Orientation).Closing,
         GreyDoorObject { Phase: GreyDoorPhase.Locked } grey => DoorObjectNativeListAddresses.Grey(grey.Variant).Waiting,
-        GreyDoorObject { Phase: GreyDoorPhase.Closing } grey => DoorObjectNativeListAddresses.Grey(grey.Variant).Closing,
+        GreyDoorObject { Phase: GreyDoorPhase.Closing or GreyDoorPhase.HeldOpen } grey => DoorObjectNativeListAddresses.Grey(grey.Variant).Closing,
         null => throw new InvalidOperationException("An empty place stands for no native door list."),
         _ => throw new InvalidOperationException($"{behaviour.GetType().Name} stands for no native door list."),
     };
@@ -39,7 +39,7 @@ internal static class TypedDoorObjectOracle
     internal static bool IsClosing(RoomObjectBehaviour? behaviour) => behaviour switch
     {
         ColoredDoorObject colored => colored.Phase == ColoredDoorPhase.Closing,
-        GreyDoorObject grey => grey.Phase == GreyDoorPhase.Closing,
+        GreyDoorObject grey => grey.Phase is GreyDoorPhase.Closing or GreyDoorPhase.HeldOpen,
         BlueDoorCapObject blue => blue.Phase == BlueDoorCapPhase.Closing,
         MotherBrainEscapeGateObject gate => gate.Change == MotherBrainEscapeGateDefinitions.Closing,
         EyeDoorPartObject part => part.ClosesBehindSamus,

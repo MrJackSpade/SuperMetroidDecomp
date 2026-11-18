@@ -99,14 +99,14 @@ internal static class EnemySpritemapArtworkVerification
             [bull, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
         for (int frame = 0; frame < 41; frame++)
             EnemyInstructionRunner.Process(arguments);
-        AssertEqual(BullAnimationsConstants.Spritemaps(BullSegment.Normal).First(), bull.SpritemapPointer,
+        AssertEqual(BullAnimationsConstants.Spritemaps(BullSegment.Idle).First(), bull.SpritemapPointer,
             "installed Bull normal animation loops back to its first frame on time");
         BullEnemyState state = enemies.BullStates[0] ?? throw new InvalidDataException(
             "Bull initializer did not publish typed state.");
         BullBehavior.ResolveBullImmuneShot(bull, state, BullMotion.ShotAngle(SamusProjectileDirection.Right));
         for (int frame = 0; frame < 61; frame++)
             EnemyInstructionRunner.Process(arguments);
-        AssertEqual(BullAnimationsConstants.Spritemaps(BullSegment.Normal).First(), bull.SpritemapPointer,
+        AssertEqual(BullAnimationsConstants.Spritemaps(BullSegment.Idle).First(), bull.SpritemapPointer,
             "installed Bull immune-shot program returns to the normal loop");
     }
 
@@ -409,7 +409,7 @@ internal static class EnemySpritemapArtworkVerification
             .Select(frame => frame.Pointer).ToHashSet();
         AssertEqual(ViolaVisualDefinitions.FrameCount, violaFrames.Count,
             "Viola's fourteen-frame loop selects eight distinct OAM frames");
-        AssertTrue(CrawlerAnimationsConstants.Spritemaps(CrawlerSegment.ViolaNormal).ToHashSet().SetEquals(violaFrames),
+        AssertTrue(CrawlerAnimationsConstants.Spritemaps(CrawlerSegment.ViolaIdle).ToHashSet().SetEquals(violaFrames),
             "every installed Viola composition is shown by its normal loop");
         HashSet<ushort> rinkaFrames = RinkaVisualDefinitions.Frames()
             .Select(frame => frame.Pointer).ToHashSet();

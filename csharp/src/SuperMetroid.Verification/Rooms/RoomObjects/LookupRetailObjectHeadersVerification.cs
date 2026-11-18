@@ -11,7 +11,7 @@ internal static class LookupRetailObjectHeadersVerification
     /// Checks the seventy retail headers across the full word domain and independently traverses native room
     /// populations. The compiled header record no longer carries the cartridge's setup and list words (#1414); this
     /// check now asserts that the compiled headers are exactly the words the retail populations place, translated
-    /// through the native-word table, and that every other word is rejected.
+    /// through the native-word table, and that every word naming a room-object kind is one of them.
     /// </summary>
     internal static void VerifyRetailObjectHeaders(CartridgeImportAddressSpace rom)
     {
@@ -23,20 +23,16 @@ internal static class LookupRetailObjectHeadersVerification
             0xef37,0xef3b,0xef3f,0xef43,0xef47,0xef4b,0xef4f,0xef53,0xef57,0xef5b,
             0xef5f,0xef63,0xef67,0xef6b,0xef6f,0xef73,0xef7b,0xef7f,0xef83,0xef87];
         var exported = RoomObjectKindDefinitionsTooling.All.ToArray();
-        AssertEqual(70, RoomObjectKindDefinitions.PlacedKindCount, "Retail header contract count");
         AssertEqual(70, exported.Length, "Retail header enumeration count");
         for (int index = 0; index < headers.Length; index++)
             AssertEqual(headers[index], RoomObjectNativeWords.Word(exported[index]), "Retail header ascending enumeration");
-        AssertThrows<InvalidOperationException>(() => RoomObjectKinds.RequirePlaced((RoomObjectKind)(-1)), "Undefined header identities fail");
+        // Every word that names a room object's kind is one the retail populations place: no kind exists that none places.
+        // The empty kind's word ends a population and names no room object.
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             ushort word = (ushort)raw;
-            if (!RoomObjectNativeWords.Headers.TryDecode(word, out RoomObjectKind header))
-                continue;
-            if (!headers.Contains(word))
-                AssertThrows<InvalidDataException>(() => RoomObjectKinds.RequirePlaced(header), "Retail header rejects all unsupported headers");
-            else
-                AssertEqual(header, RoomObjectKinds.RequirePlaced(header), "Retail header identity preserved");
+            if (RoomObjectNativeWords.Headers.TryDecode(word, out RoomObjectKind header) && header != RoomObjectKind.None)
+                AssertTrue(headers.Contains(word), $"Room-object kind {header} is placed by a retail population");
         }
         // Native records independently establish which header identities the retail
         // populations reference; expected pointer fields never come from the new cases.

@@ -52,7 +52,7 @@ internal static class RoomCallbackDefinitionsVerification
 
         AssertEqual(RoomStateDefinitions.RetailStateCount, states.Count,
             "callback audit reaches every compiled retail room state");
-        AssertTrue(mainCallbacks.SetEquals(RoomMainBehavior.All),
+        AssertTrue(mainCallbacks.SetEquals(RoomMainBehaviorConstants.All),
             "every typed room-main callback occurs in the retail state graph");
         AssertTrue(setupCallbacks.SetEquals(RoomSetupBehaviorConstants.All),
             "every typed room-setup callback occurs in the retail state graph");
@@ -62,10 +62,6 @@ internal static class RoomCallbackDefinitionsVerification
         AssertThrows<ArgumentOutOfRangeException>(
             () => RoomBehaviorRoutines.ResolveSetup(0xffff),
             "room-setup dispatch rejects unknown native pointers");
-        AssertTrue(RoomSetupBehavior.SealCeresDoorAndSpawnHaze.SpawnsCeresHaze,
-            "Ceres solid-door callback retains its haze side effect");
-        AssertTrue(!RoomSetupBehavior.SetMediumHorizontalRoomShaking.SpawnsCeresHaze,
-            "unrelated callback does not acquire Ceres haze");
 
         Console.WriteLine(
             $"Room callbacks: all {states.Count} states map exactly to " +

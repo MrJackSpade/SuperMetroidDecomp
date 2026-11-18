@@ -798,15 +798,24 @@ internal static class LookupStream4Verification
             AssertEqual((ushort)0x5678, copied[^1].PackedWord, "Subtitle copy leaves the destination suffix untouched");
             // The game shows the subtitle as its installed picture at its corner (#1467, #1555); the import pictures these words.
             var state = new EndingTypewriter(new EndingTypewriterSetup { Inventory = default, JapaneseText = true, Text = presentation.Typewriter() }, EndingTextSequence.ItemPercentage);
-            PrivateState.Set(state, nameof(EndingTypewriter.InitialPausePending), false);
-            PrivateState.Set(state, nameof(EndingTypewriter.TypedCount), presentation.Compile(EndingTextSequence.ItemPercentage).Length);
-            state.Step();
             var subtitle = new EndingShownText(EndingPictureNames.JapaneseSubtitle, EndingResultTextLayout.JapaneseSubtitleCorner);
-            AssertTrue(state.Shown().Contains(subtitle), "Actual ending state shows the subtitle picture at its corner");
-            PrivateState.Set(state, nameof(EndingTypewriter.FrameHold), 1);
-            state.Step();
+            // The text types in full, then shows the percentage with its subtitle for the percentage's hold (#2488).
+            const int TypewriterUpdateLimit = 4000;
+            int updates = 0;
+            for (; !state.Shown().Contains(subtitle); updates++)
+            {
+                AssertTrue(updates < TypewriterUpdateLimit, "Actual ending state reaches its percentage hold");
+                state.Step();
+            }
+            AssertTrue(!state.Completed, "Actual ending state shows the subtitle picture at its corner during the hold");
+            for (; !state.Completed; updates++)
+            {
+                AssertTrue(updates < TypewriterUpdateLimit, "Actual ending state completes its percentage hold");
+                AssertTrue(state.Shown().Contains(subtitle), "Actual ending state shows the subtitle throughout the hold");
+                state.Step();
+            }
             AssertTrue(!state.Shown().Contains(subtitle), "Actual ending state clears the subtitle at its hold boundary");
-            AssertTrue(state.Completed && state.RequestedItemPercentageScroll, "Subtitle clear preserves completion and scroll handoff");
+            AssertTrue(state.RequestedItemPercentageScroll, "Subtitle clear preserves completion and scroll handoff");
         }
     }
 
@@ -1136,7 +1145,7 @@ internal static class LookupStream4Verification
             AssertEqual(entry, spawned.InstructionPointer, "room sprite actual initial program");
             // A still picture holds from its spawn and counts no timer (#2275).
             // A picture the list shows in two records in a row is one frame of their summed durations.
-            if (!spawned.Holds)
+            if (!spawned.AnimationClock.IsStopped)
                 AssertEqual(Enumerable.Range(0, RoomEffectActorProgramAddresses.RecordsOf(RoomEffectActorSegment.Of(kind), 0))
                         .Sum(record => CartridgeImportSource.Require(rom).ReadCartridgeWord(0xb40000 | (entry + 4 * record))),
                     spawned.FrameHold, "room sprite actual initial native duration");

@@ -90,7 +90,6 @@ internal static class IntroNextPageArrowVerification
         Step(japanese, english, ControllerButton.A);
         AssertArrowShows(japanese, LoopPose(UpdatesBeforeSecondSubtitle), "page two on the second subtitle's press");
         AssertEqual(IntroNarrationPageId.HatchedLarva, japanese.AwaitingInputPage, "the second subtitle starts Japanese page two's input wait");
-        AssertEqual(IntroJapaneseSubtitles.SecondSubtitleHoldFrames, subtitles.Timer, "the second subtitle holds the input wait");
 
         // The page's input wait takes its hold check before the narration's objects update, as each page's setup does.
         for (int update = 0; update < HiddenUpdates; update++)

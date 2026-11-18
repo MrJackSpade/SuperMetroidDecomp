@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
@@ -35,25 +36,19 @@ public sealed class MaridiaElevatubeRoomMainState
         TrackedY = FixedCoordinate.Of(0, Ensure.NotNull(carryover).Fraction);
     }
 
-    /// <summary>Applies the door behaviour for entry from Oasis to the south.</summary>
-    public void SetUpFromSouth(SamusState samus)
+    /// <summary>
+    /// Starts the ride from <paramref name="entry"/>, as the tube's entry door does (#2485): the tube's starting height,
+    /// speed and acceleration for a ride from that end, Samus held still. The tracked fraction stays as it was.
+    /// </summary>
+    /// <param name="entry">The end of the tube Samus enters from.</param>
+    /// <param name="samus">Samus, whom the ride holds still.</param>
+    public void StartRide(ElevatubeEntry entry, SamusState samus)
     {
         Ensure.NotNull(samus);
-        // Entry from the south leaves the tracked fraction as it was.
-        TrackedY = TrackedY.WithWhole(MaridiaElevatubeDefinitions.SouthStartingY);
-        Velocity = MaridiaElevatubeDefinitions.SouthStartingVelocity;
-        Acceleration = MaridiaElevatubeDefinitions.SouthAcceleration;
-        samus.Control.LockStationary();
-    }
-
-    /// <summary>Applies the door behaviour for entry from Plasma Spark to the north.</summary>
-    public void SetUpFromNorth(SamusState samus)
-    {
-        Ensure.NotNull(samus);
-        // Entry from the north leaves the tracked fraction as it was.
-        TrackedY = TrackedY.WithWhole(MaridiaElevatubeDefinitions.NorthStartingY);
-        Velocity = MaridiaElevatubeDefinitions.NorthStartingVelocity;
-        Acceleration = MaridiaElevatubeDefinitions.NorthAcceleration;
+        MaridiaElevatubeRideStart start = MaridiaElevatubeDefinitions.RideStarts[entry];
+        TrackedY = TrackedY.WithWhole(start.StartingY);
+        Velocity = start.StartingVelocity;
+        Acceleration = start.Acceleration;
         samus.Control.LockStationary();
     }
 
@@ -84,12 +79,9 @@ public sealed class MaridiaElevatubeRoomMainState
 
         BlockMoveResult movement = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter), IncludeSolidEnemies = false });
 
-        // The game's range test is exactly the inclusive range of the maximum speed either
-        // way; a candidate outside it is rejected rather than clamped, leaving the preceding velocity intact. The velocity
-        // never passes the maximum speed and the acceleration is an eighth of a pixel, so their sum stays far inside the
-        // velocity's range.
-        SignedEightEight candidate = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(
-            Velocity.InTwoHundredFiftySixthsOfPixel + Acceleration.InTwoHundredFiftySixthsOfPixel);
+        // The game's range test is exactly the inclusive range of the maximum speed either way; a candidate outside it is
+        // rejected rather than clamped, leaving the preceding velocity intact.
+        SignedEightEight candidate = Velocity.Accelerated(Acceleration);
         if (candidate >= -MaridiaElevatubeDefinitions.MaximumSpeed && candidate <= MaridiaElevatubeDefinitions.MaximumSpeed)
             Velocity = candidate;
 

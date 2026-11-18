@@ -139,16 +139,15 @@ public sealed class CeresElevatorShaftRoomMainState
     }
 
     /// <summary>
-    /// Applies the elevator trigger's asymmetric bounds (<see cref="CeresElevatorDepartureDefinitions"/>), with both whole
-    /// and fractional vertical speed zero.
+    /// Applies the elevator trigger's asymmetric bounds (<see cref="CeresElevatorDepartureDefinitions"/>), with Samus
+    /// moving neither up nor down.
     /// </summary>
     private static bool IsInsideDepartureTrigger(SamusState samus) =>
         samus.Position.X.Whole > CeresElevatorDepartureDefinitions.LeftOfTriggerX &&
         samus.Position.X.Whole <= CeresElevatorDepartureDefinitions.TriggerRightX &&
         samus.Position.Y.Whole >= CeresElevatorDepartureDefinitions.TriggerTopY &&
         samus.Position.Y.Whole < CeresElevatorDepartureDefinitions.BelowTriggerY &&
-        samus.Kinematics.YSpeed.Whole == 0 &&
-        samus.Kinematics.YSpeed.Fraction == 0;
+        samus.Kinematics.YSpeed.IsZero;
 
 
     /// <summary>

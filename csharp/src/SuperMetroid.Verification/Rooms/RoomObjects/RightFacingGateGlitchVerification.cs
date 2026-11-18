@@ -108,7 +108,7 @@ internal static class RightFacingGateGlitchVerification
             gameStateByColumn[x - firstX] = gameState;
             // One pristine level and one working level restored from it per position. The
             // field-by-field check proves no state from the previous position survives.
-            RoomLevelData NewLevel() => new RoomLevelData(original.Size, new RoomLevelPlanes(original.Terrain, original.Behaviors, background), RoomLevelData.NothingBeyondGrid(), []);
+            RoomLevelData NewLevel() => new RoomLevelData(original.Size, new RoomLevelPlanes(original.TerrainGrid, original.BehaviorGrid, background), RoomLevelData.NothingBeyondGrid(), []);
             RoomLevelData pristine = NewLevel();
             RoomLevelData level = NewLevel();
             for (int y = gateY - 32; y <= gateY + 96; y++)

@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RoomHeaderImport;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Tooling;
 using System.Buffers.Binary;
@@ -111,7 +112,7 @@ internal static class RoomVisualLayoutsVerification
         int spikeBlocks = 0;
         foreach (RoomDefinition header in RetailRooms.All)
         {
-            SelectedRoom room = SelectedRoom.LoadUsingCompiledSelection(header, new RoomStateSelectionContext(new PersistentProgress().Events, DefeatedBosses.None, false, false));
+            SelectedRoom room = SelectedRoom.LoadUsingCompiledSelection(header, RoomStateSelectionContexts.NoProgress);
             ushort headerPointer = header.Pointer;
             foreach (ushort statePointer in RoomStateSelection.GetStatePointers(header))
             {

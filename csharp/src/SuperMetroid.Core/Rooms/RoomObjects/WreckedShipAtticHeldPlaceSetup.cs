@@ -4,5 +4,5 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 internal sealed record WreckedShipAtticHeldPlaceSetup : RoomObjectPlacementSetup
 {
     /// <inheritdoc/>
-    internal override void SetUp(IRoomObjectFamilySetups setups, RoomObjectKind kind) => setups.SetUpWreckedShipAtticHeldPlace();
+    internal override void SetUp(IRoomObjectFamilySetups setups) => setups.SetUpWreckedShipAtticHeldPlace();
 }

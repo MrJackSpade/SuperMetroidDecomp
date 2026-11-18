@@ -43,8 +43,11 @@ internal sealed class EndingZebesExplosion
         _stage.Phase = EndingCreditsPhase.FadeInZebesExplosion;
     }
 
-    /// <summary>Current colour crossfade step during the explosion crossfade.</summary>
-    private int explosionFadeStep;
+    /// <summary>
+    /// The explosion's colour crossfade (#2488): a step every second update from its second, its last ending the crossfade;
+    /// none before the explosion is set up.
+    /// </summary>
+    private PacedFadeSteps? crossfade;
 
     /// <summary>Whether the explosion's crossfade still sets the scene's colours.</summary>
     internal bool ExplosionCrossfadeActive => _stage.Phase is EndingCreditsPhase.FadeInZebesExplosion
@@ -57,24 +60,27 @@ internal sealed class EndingZebesExplosion
         // The crossfade fades the escape's far background out and the explosion's planet and lava in, from colours the
         // import scales at every level (#1512).
         _stage.ResetColourEffects();
-        explosionFadeStep = 0;
+        crossfade = new PacedFadeSteps(EndingExplosionFadeDefinitions.Steps, EndingCadenceDefinitions.ExplosionCrossfadeUpdatesPerStep,
+            firstStepUpdate: EndingCadenceDefinitions.ExplosionCrossfadeUpdatesPerStep);
         screen.Colours.Fade(EndingFade.ExplosionLava, 0);
         screen.Colours.Fade(EndingFade.ExplodingPlanet, 0);
-        _stage.PhaseTimer = EndingExplosionFadeDefinitions.InitialCountdown;
     }
 
-    /// <summary>Crossfades the explosion's colours on alternating updates and then enters the explosion's hold.</summary>
+    /// <summary>
+    /// Crossfades the explosion's colours on alternating updates and, on the update that takes the crossfade's last step,
+    /// enters the explosion's hold.
+    /// </summary>
     internal void StepExplosionCrossfade()
     {
+        PacedFadeSteps fade = crossfade ?? throw new InvalidOperationException("The explosion crossfades with no crossfade set up.");
         _stage.FloorZoom = _stage.FloorZoom.Widened(EndingExplosionFadeDefinitions.ZoomStep);
-        if (EndingCadenceDefinitions.ExplosionFadeStepEverySecondUpdate.IsDue(_stage.PhaseTimer))
+        if (fade.Advance())
         {
-            explosionFadeStep++;
-            screen.Colours.Fade(EndingFade.ExplosionBackground, EndingExplosionFadeDefinitions.Steps - explosionFadeStep);
-            screen.Colours.Fade(EndingFade.ExplosionLava, explosionFadeStep);
-            screen.Colours.Fade(EndingFade.ExplodingPlanet, explosionFadeStep);
+            screen.Colours.Fade(EndingFade.ExplosionBackground, fade.Left);
+            screen.Colours.Fade(EndingFade.ExplosionLava, fade.Taken);
+            screen.Colours.Fade(EndingFade.ExplodingPlanet, fade.Taken);
         }
-        if (--_stage.PhaseTimer < 0)
+        if (fade.IsComplete)
         {
             _stage.PhaseTimer = EndingExplosionFadeDefinitions.HoldUpdates;
             _flyaway.PrepareFlyaway();

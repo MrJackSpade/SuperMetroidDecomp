@@ -168,6 +168,8 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// go round and anything fixed-point.
 /// #2478 adds, outside hardware owners, a count's end, a velocity's sign and a placement's direction told by the
 /// original's storage: a count that passes zero, a sign told through a whole part and every placement but one.
+/// #2487 adds, outside hardware owners, the original's tables and calls as room and world prose tells them: a collision,
+/// pose, turn or controller pose table, a table's entry named by a hyphenated kind, and an invocation of a thing.
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -292,13 +294,13 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
 
     /// <summary>
     /// The program's storage and machine vocabulary #1558 left out (#1611): a record's generic variables, words and bytes
-    /// named by where they are stored, palette colours and handlers by number, tile transfers and characters, tilemap cells
+    /// named by where they are stored (a block's behaviour byte among them, #2482), palette colours and handlers by number, tile transfers and characters, tilemap cells
     /// and pages, register shadows and work memory, scanline numbers and raw bits. Each term is read spaced or hyphenated
     /// ("work memory", "work-memory heap"); the clauses about the carry and what uploads leave are read as written.
     /// </summary>
     private static readonly Regex StorageProse = new(
         @"\b[Vv]ariable[-\s][A-F]\b|\bextended[-\s]words?\b|\binit[12]\b|\bunrelated[-\s]bytes\b" +
-        @"|\b(?:level|draw|controller|random-number|RNG|scratch|speed|whole|attribute|pose-definition|population|parameter|property)[-\s]+(?:words?|bytes?)\b" +
+        @"|\b(?:level|draw|controller|random-number|RNG|scratch|speed|whole|attribute|pose-definition|population|parameter|property|behaviou?r)[-\s]+(?:words?|bytes?)\b" +
         @"|\b(?:one|two|three|four|six|eight|sixteen|[0-9]+)-byte\b|\bodd-byte\b|\b(?:high|low)[-\s](?:bit|byte|word)s?\b|\bcarry[-\s](?:flags?|bits?|set|clear|returned|out)\b|\b(?:on|with|without|by) the carry\b|\bthe carry returned\b" +
         @"|\bcolou?rs?[-\s][0-9]+(?:\s*(?:-|through|to)\s*[0-9]+)?\b|\bpalette[-\s]handlers?\b|\bhandler[-\s](?:one|two|three|four|five|six|seven|eight|nine|ten|[0-9]+)\b|\bvisor[-\s]colou?r\b" +
         @"|\btile[-\s](?:transfers?|uploaders?|uploads?)\b|\b(?:sheet|sprite)[-\s]characters?\b|\buploads? leave\b|\btransfer[-\s]lists?\b|\btile[-\s]cells?\b|\btilemap[-\s]pages?\b|\b[0-9]+-by-[0-9]+[-\s]pages?\b" +
@@ -2207,6 +2209,24 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
+    /// The original's tables and calls told in room and world prose (#2487), outside hardware owners and markup: a
+    /// collision, pose, turn or controller pose table, spaced or hyphenated (Morph landing has its own collision tables, the
+    /// stable moonwalk poses' table, stale pose-table equipment state, the turn tables, controller pose tables); a table's
+    /// entry named by a hyphenated kind (the table's no-transition entry); and an invocation of a thing, which
+    /// counts updates as the original's calls (One invocation of the game's alignment step). The original kept Samus's
+    /// pose changes in tables it indexed and ran its steps as routines it invoked; Core says what the game does: the pose's
+    /// input transitions, a landing with no transition, one update's step. English stays legal: a table alone, a collision
+    /// or a pose alone, the pose's input transitions, an entry alone or a table's next entry, a thing invoked and a hardware
+    /// owner, which describes
+    /// the storage it keeps.
+    /// </summary>
+    private static readonly Regex RoomAndWorldTableAndInvocationProse = new(
+        @"\b(?:collision|pose|turn|controller(?:[-\s]+pose)?)[-\s]+tables?\b" +
+        @"|\btable(?:'|\u2019)s\s+(?:\w+-[\w-]+\s+){1,3}?entr(?:y|ies)\b" +
+        @"|\binvocations?\s+of\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
     /// A type's summary that calls the type a species owner (#2427): the species-owner template (its per-room state,
     /// behaviour and the interactions it registers). Only a type that creates or keeps a species' enemies
     /// (<see cref="SpeciesOwnerInterfaces"/>) is one; any other type says what it is.
@@ -2711,6 +2731,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : LateFightWaitLineAndStorageProse.Match(Markup.Replace(text, " ")) is { Success: true } lateFight ? lateFight.Value
             : EnemyProgramLatchAndPrecisionProse.Match(Markup.Replace(text, " ")) is { Success: true } enemyLatch ? enemyLatch.Value
             : EnemyCountSignAndPlacementProse.Match(Markup.Replace(text, " ")) is { Success: true } countSign ? countSign.Value
+            : RoomAndWorldTableAndInvocationProse.Match(Markup.Replace(text, " ")) is { Success: true } tableInvocation ? tableInvocation.Value
             : TileCharacterFinding(text, owner) is { } character ? character
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;

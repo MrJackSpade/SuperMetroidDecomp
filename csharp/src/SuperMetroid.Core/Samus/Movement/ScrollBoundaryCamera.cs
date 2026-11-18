@@ -268,10 +268,8 @@ public sealed class ScrollBoundaryCamera
             return;
         }
 
-        // The apparently reversed scroller choice is
-        // literal: upward motion subtracts the down scroller, all else
-        // subtracts the up scroller.
-        int targetOffset = context.YDirection == SamusVerticalDirection.Up ? context.DownScroller : context.UpScroller;
+        // Moving up aims by the rising offset; moving any other way, by the falling one.
+        int targetOffset = context.YDirection == SamusVerticalDirection.Up ? context.RisingCameraOffset : context.FallingCameraOffset;
         IdealPosition = IdealPosition.WithY(CoordinateAxis.Wrap(current.Y.Whole - targetOffset));
 
         if (IdealPosition.Y == Position.Y.Whole)

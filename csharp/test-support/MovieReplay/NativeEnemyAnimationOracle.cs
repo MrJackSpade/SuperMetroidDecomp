@@ -552,13 +552,19 @@ internal static class NativeEnemyAnimationOracle
         {
             foreach (NativeEnemyControl<TSegment> control in current.Controls)
             {
-                if (control.AfterBeat > runStart)
+                // A counter load is no beat and no turn in the play (#2477): the list's run goes on through it, and the
+                // count it loads is the plays of the next counted list the play reaches. The Evir's regenerating spit loads
+                // its regrowth's count between its two entry cues, which are one run.
+                if (control.Kind != NativeEnemyControlKind.SetCounter)
                 {
-                    phases.Add(new(segment, runStart, control.AfterBeat - runStart, plays));
-                    played.Add(current);
+                    if (control.AfterBeat > runStart)
+                    {
+                        phases.Add(new(segment, runStart, control.AfterBeat - runStart, plays));
+                        played.Add(current);
+                    }
+                    runStart = control.AfterBeat;
+                    plays = 1;
                 }
-                runStart = control.AfterBeat;
-                plays = 1;
                 switch (control.Kind)
                 {
                     case NativeEnemyControlKind.SetCounter:

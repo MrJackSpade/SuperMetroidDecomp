@@ -34903,6 +34903,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.World.RoomStates.RoomBehaviorPictureDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/World/RoomStates/RoomBehaviorPictureDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.World.RoomStates.RoomStateDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -37055,6 +37068,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Areas.Ceres.CeresShaftSteamVentMotions",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Areas/Ceres/CeresShaftSteamVentMotions.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Areas.Ceres.CeresShaftSweep",
       "kind": "enum",
       "scope": "product",
@@ -37197,45 +37223,6 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Areas.Ceres.CeresSteamCue",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Areas/Ceres/CeresSteamCue.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.Core.Areas.Ceres.CeresSteamCue.CountDownToActivation",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Areas/Ceres/CeresSteamCue.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.Core.Areas.Ceres.CeresSteamCue.Signal",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Areas/Ceres/CeresSteamCue.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
       "type": "SuperMetroid.Core.Areas.Ceres.CeresSteamCueKind",
       "kind": "enum",
       "scope": "product",
@@ -37283,6 +37270,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Areas/Ceres/CeresSteamEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Areas.Ceres.CeresSteamFactory",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Areas/Ceres/CeresSteamFactory.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -37403,6 +37403,32 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Areas.Ceres.CeresSteamVentMotions",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Areas/Ceres/CeresSteamVentMotions.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Areas.Ceres.CeresSteamVentsHoldingPlace",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Areas/Ceres/CeresSteamVentsHoldingPlace.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Areas.Ceres.ICeresEscapeStatus",
@@ -37593,6 +37619,19 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Areas.Maridia.MaridiaElevatubeRideStart",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Areas/Maridia/MaridiaElevatubeRideStart.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Core.Areas.Maridia.MaridiaElevatubeRoomMainState",
@@ -62782,6 +62821,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Alcoon.AlcoonSpitPoses",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Alcoon/AlcoonSpitPoses.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Alcoon.AlcoonWalkDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -63153,6 +63205,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/Animals/DachoraSpawnSettings.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Animals.DachoraStride",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Animals/DachoraStride.cs"
       ],
       "partial": "none",
       "disposition": "record"
@@ -63702,6 +63767,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/Animals/EtecoonSpawnSettings.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Animals.EtecoonStride",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Animals/EtecoonStride.cs"
       ],
       "partial": "none",
       "disposition": "record"
@@ -67325,6 +67403,32 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Chozo.ChozoStatueHand",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Chozo/ChozoStatueHand.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Chozo.ChozoStatueLeg",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Chozo/ChozoStatueLeg.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Chozo.ChozoStatueObjectDefinitions",
@@ -71971,19 +72075,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.FaceBlocks.Artwork.FaceBlockGlowFrame",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/FaceBlocks/Artwork/FaceBlockGlowFrame.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.FaceBlocks.Artwork.FaceBlockShades",
       "kind": "static class",
       "scope": "product",
@@ -72078,6 +72169,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.FaceBlocks.FaceBlockGlowAnimations",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/FaceBlocks/FaceBlockGlowAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.FaceBlocks.FaceBlockGlowDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -72089,6 +72193,32 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.FaceBlocks.FaceBlockGlowLevel",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/FaceBlocks/FaceBlockGlowLevel.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.FaceBlocks.FaceBlockGlowSegment",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/FaceBlocks/FaceBlockGlowSegment.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Enemies.FaceBlocks.FaceBlockSpawnSettings",
@@ -87463,7 +87593,7 @@
     },
     {
       "type": "SuperMetroid.Core.Escape.EscapeExplosionSite",
-      "kind": "enum",
+      "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
@@ -87472,7 +87602,33 @@
         "csharp/src/SuperMetroid.Core/Escape/EscapeExplosionSite.cs"
       ],
       "partial": "none",
-      "disposition": "value"
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Escape.EscapeExplosionSite.IndoorSite",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Escape/EscapeExplosionSite.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Escape.EscapeExplosionSite.OutdoorSite",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Escape/EscapeExplosionSite.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Escape.EscapeTimeReadout",
@@ -103264,19 +103420,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Fx.WreckedShipTreadmillDirection",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/WreckedShipTreadmillDirection.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Gameplay.AcceptedFrameInput",
       "kind": "class",
       "scope": "product",
@@ -109862,6 +110005,38 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Rooms.Doors.DoorCapObjectAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Rooms/Doors/DoorCapObjectAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.Doors.DoorCapObjectAccess.extension(SuperMetroid.Core.Rooms.Doors.DoorCapObject)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Rooms/Doors/DoorCapObjectAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.Core.Rooms.Doors.DoorCapPaint",
       "kind": "enum",
       "scope": "product",
@@ -109870,6 +110045,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Rooms/Doors/DoorCapPaint.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.Doors.DoorCapSegment",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/Doors/DoorCapSegment.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -109885,20 +110073,7 @@
         "csharp/src/SuperMetroid.Core/Rooms/Doors/DoorCapSequenceDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.Doors.DoorCapStep",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/Doors/DoorCapStep.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Rooms.Doors.DoorCaps",
@@ -110321,7 +110496,7 @@
     },
     {
       "type": "SuperMetroid.Core.Rooms.Doors.DoorRoomEvent",
-      "kind": "enum",
+      "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
@@ -110330,7 +110505,85 @@
         "csharp/src/SuperMetroid.Core/Rooms/Doors/DoorRoomEvent.cs"
       ],
       "partial": "none",
-      "disposition": "value"
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.Doors.DoorRoomEvent.ElevatubeRideEnded",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/Doors/DoorRoomEvent.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.Doors.DoorRoomEvent.ElevatubeRideStarted",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/Doors/DoorRoomEvent.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.Doors.DoorRoomEvent.NoDoorRoomEvent",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/Doors/DoorRoomEvent.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.Doors.DoorRoomEvent.ShaftTurningFloorShown",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/Doors/DoorRoomEvent.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.Doors.DoorRoomEvent.TreadmillStarted",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/Doors/DoorRoomEvent.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.Doors.DoorRoomEvent.TurningFloorEnded",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/Doors/DoorRoomEvent.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Rooms.Doors.DoorSamusSpeed",
@@ -110370,32 +110623,6 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.Doors.DoorSetups",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/Doors/DoorSetups.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.Doors.DoorSetups.extension(SuperMetroid.Core.Rooms.Doors.DoorDefinition)",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/Doors/DoorSetups.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Rooms.Doors.DoorToolingDefinitions",
@@ -110800,6 +111027,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Rooms.Doors.EyeDoorSegment",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/Doors/EyeDoorSegment.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Rooms.Doors.EyeDoorSequenceDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -110810,20 +111050,7 @@
         "csharp/src/SuperMetroid.Core/Rooms/Doors/EyeDoorSequenceDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.Doors.EyeDoorStep",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/Doors/EyeDoorStep.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Rooms.Doors.EyeDoorSweatSegment",
@@ -111038,6 +111265,32 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Rooms/Doors/IClosingDoor.cs"
+      ],
+      "partial": "none",
+      "disposition": "contract"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.Doors.IDoorEventLoad",
+      "kind": "interface",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/Doors/IDoorEventLoad.cs"
+      ],
+      "partial": "none",
+      "disposition": "contract"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.Doors.IDoorEventRoom",
+      "kind": "interface",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/Doors/IDoorEventRoom.cs"
       ],
       "partial": "none",
       "disposition": "contract"
@@ -113028,32 +113281,6 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Rooms.RoomObjects.CollectibleOrbAnimation",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/CollectibleOrbAnimation.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.RoomObjects.CollectibleOrbSegment",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/CollectibleOrbSegment.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Rooms.RoomObjects.CollectiblePhase",
       "kind": "enum",
       "scope": "product",
@@ -113375,6 +113602,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Rooms.RoomObjects.DownwardGateAnimations",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/DownwardGateAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Rooms.RoomObjects.DownwardGateDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -113451,6 +113691,38 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.RoomObjects.DownwardGateObjectAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Rooms/RoomObjects/DownwardGateObjectAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.RoomObjects.DownwardGateObjectAccess.extension(SuperMetroid.Core.Rooms.RoomObjects.DownwardGateObject)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Rooms/RoomObjects/DownwardGateObjectAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Rooms.RoomObjects.DownwardGateObjectDraws",
@@ -113565,6 +113837,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/DownwardGateProjectileSegment.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.RoomObjects.DownwardGateSegment",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/DownwardGateSegment.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -115623,6 +115908,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Rooms.RoomObjects.NoobTubeAnimations",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/NoobTubeAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Rooms.RoomObjects.NoobTubeDebrisDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -115813,6 +116111,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/NoobTubeProjectileSegment.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.RoomObjects.NoobTubeSegment",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/NoobTubeSegment.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -116650,6 +116961,32 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.RoomObjects.RoomObjectFrameRun",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/RoomObjectFrameRun.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.RoomObjects.RoomObjectFrameRuns",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/RoomObjectFrameRuns.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Rooms.RoomObjects.RoomObjectGrappleBlockDrawDefinitions",
@@ -117614,6 +117951,19 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.Core.Rooms.RoomObjects.SamusEaterAnimations",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/SamusEaterAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Rooms.RoomObjects.SamusEaterBite",
       "kind": "enum",
       "scope": "product",
@@ -117755,6 +118105,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/SamusEaterPhase.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.RoomObjects.SamusEaterSegment",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/SamusEaterSegment.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -117961,7 +118324,7 @@
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.Core.Rooms.RoomObjects.SequencedRoomObject\u003CTStep\u003E",
+      "type": "SuperMetroid.Core.Rooms.RoomObjects.SequencedRoomObject\u003CTSegment, TFrame, TEvent\u003E",
       "kind": "class",
       "scope": "product",
       "assemblies": [
@@ -118243,6 +118606,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Rooms.RoomObjects.StationAccessCue",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/StationAccessCue.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Rooms.RoomObjects.StationAccessObjectDefinition",
       "kind": "record struct",
       "scope": "product",
@@ -118351,6 +118727,19 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.RoomObjects.StationAccessSegment",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/StationAccessSegment.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Rooms.RoomObjects.StationAccessTimingDefinitions",
@@ -119428,6 +119817,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Rooms.WreckedShipTreadmillDirection",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/WreckedShipTreadmillDirection.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Rooms.Xray.InstalledXrayOverlaysAccess",
       "kind": "static class",
       "scope": "test",
@@ -119516,6 +119918,19 @@
       ],
       "partial": "none",
       "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.XrayBlockRevealDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/XrayBlockRevealDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Rooms.XrayBlockRevealRules",
@@ -132462,7 +132877,7 @@
     },
     {
       "type": "SuperMetroid.Core.World.DoorSetupRoom",
-      "kind": "record struct",
+      "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
@@ -132471,7 +132886,7 @@
         "csharp/src/SuperMetroid.Core/World/DoorSetupRoom.cs"
       ],
       "partial": "none",
-      "disposition": "value"
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.World.DoorTransitionColourDefinitions",
@@ -133720,6 +134135,22 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.World.RoomStates.RoomMainBehaviorConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/World/RoomStates/RoomMainBehaviorConstants.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.World.RoomStates.RoomSetupBehavior",
       "kind": "class",
       "scope": "product",
@@ -133942,6 +134373,19 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.World.RoomStates.RoomSetupComposition",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/World/RoomStates/RoomSetupComposition.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Core.World.RoomStates.RoomSetupEnemiesLoaded",
@@ -160900,6 +161344,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Enemies/FaceBlocks/BlueBrinstarFaceBlockBehaviorVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.FaceBlocks.BlueBrinstarFaceBlockGlowVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/FaceBlocks/BlueBrinstarFaceBlockGlowVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"

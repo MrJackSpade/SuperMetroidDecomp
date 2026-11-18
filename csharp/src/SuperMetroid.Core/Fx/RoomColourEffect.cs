@@ -5,9 +5,9 @@ namespace SuperMetroid.Core.Fx;
 
 /// <summary>
 /// One colour effect running in a room or on a screen (#1554, #1598, #1600, #1982): the glow, flash, fade or shimmer it
-/// shows, the colours it shows its frames in and the condition it watches (both its definition's), the animation it plays
-/// and where it stands in it, and the updates left until its next frame. Its definitions are
-/// <see cref="ColourEffectAnimations"/>; the <see cref="ColourEffectSystem"/> that started it gives it its turn.
+/// shows, the colours it shows its frames in and the condition it watches (both its definition's), and the animation it
+/// plays on the shared animation player (#2488). Its definitions are <see cref="ColourEffectAnimations"/>; the
+/// <see cref="ColourEffectSystem"/> that started it gives it its turn.
 /// </summary>
 internal sealed class RoomColourEffect
 {
@@ -28,10 +28,12 @@ internal sealed class RoomColourEffect
         LitTorizo = litTorizo;
         GlowingEnemy = glowingEnemy;
         FramesOf = framesOf;
-        Animation = ColourEffectAnimations.Definition(framesOf).Animation;
-        Place = AnimationPlace.StartOfAnimation;
-        UpdatesUntilNextStep = 1;
+        play = AnimationPlayer<ColourEffectSegment, int, ColourEffectCue>.Starting(
+            ColourEffectAnimations.Segments, ColourEffectAnimations.Definition(framesOf).Animation);
     }
+
+    /// <summary>The effect's animation as it plays: due on its first turn, and on each turn its shown frame's updates run out.</summary>
+    private readonly AnimationPlayer<ColourEffectSegment, int, ColourEffectCue> play;
 
     /// <summary>What the effect shows.</summary>
     internal ColourEffectId Effect { get; }
@@ -70,17 +72,10 @@ internal sealed class RoomColourEffect
     internal bool AnimatesColours => !Ended && Frame is not null;
 
     /// <summary>The animation the effect plays: that of the effect whose frames it shows.</summary>
-    internal Animation<ColourEffectSegment> Animation { get; private set; }
+    internal Animation<ColourEffectSegment> Animation => play.Playback.Animation;
 
     /// <summary>Where the effect stands in its animation: the phase, and the phase's next beat.</summary>
-    internal AnimationPlace Place { get; private set; }
-
-    /// <summary>
-    /// Updates until the effect plays on to its next frame. It counts down before it is compared with zero; every frame
-    /// lasts at least one update and a started or restarted effect stands at one, so a running effect never counts down
-    /// from zero.
-    /// </summary>
-    internal int UpdatesUntilNextStep { get; private set; }
+    internal AnimationPlace Place => play.Playback.Place;
 
     /// <summary>
     /// The frame the effect shows now (#1597, #1598): the last its animation reached, held for that frame's duration and
@@ -107,45 +102,35 @@ internal sealed class RoomColourEffect
     internal void Restart(ColourEffectId framesOf, AnimationPlace place)
     {
         FramesOf = framesOf;
-        Animation = ColourEffectAnimations.Definition(framesOf).Animation;
-        Place = place;
-        UpdatesUntilNextStep = 1;
+        play.StartAt(ColourEffectAnimations.Definition(framesOf).Animation, place);
     }
 
     /// <summary>Restarts the effect at the start of its cycle, the phase its animation loops from, due on this turn.</summary>
     /// <exception cref="InvalidOperationException">The effect's animation does not loop.</exception>
-    internal void RestartCycle()
-    {
-        Place = AnimationPlace.Before(Animation.CyclePhase);
-        UpdatesUntilNextStep = 1;
-    }
-
-    /// <summary>Counts one update off the wait for the next frame; true when it is due now.</summary>
-    internal bool CountDown() => --UpdatesUntilNextStep == 0;
+    internal void RestartCycle() => play.StartAt(Animation, AnimationPlace.Before(Animation.CyclePhase));
 
     /// <summary>
-    /// Plays the effect on to its next frame, which it then holds for that frame's duration, or to its end, handing each
-    /// event it passes, a heat phase or a sound, to <paramref name="carryOut"/>.
+    /// Takes the effect's turn: counts one update off its shown frame and, once it is due, plays on to its next frame, which
+    /// it then holds for that frame's duration, or to its end, handing each event it passes, a heat phase or a sound, to
+    /// <paramref name="carryOut"/>.
     /// </summary>
-    /// <returns>The frame shown, of the effect that shows it, or null when the effect ended.</returns>
-    internal ColourEffectFrame? Advance(Action<ColourEffectCue> carryOut)
+    /// <returns>The frame the turn shows anew, of the effect that shows it, or null while a frame holds or once the effect ended.</returns>
+    /// <exception cref="InvalidOperationException">The animation comes to rest without ending, which no colour effect's does.</exception>
+    internal ColourEffectFrame? TakeTurn(Action<ColourEffectCue> carryOut)
     {
         Ensure.NotNull(carryOut);
-        AnimationPlace place = Place;
-        AnimationShown<ColourEffectSegment, int> shown = ColourEffectAnimations.Segments.PlayToNextFrame(Animation, ref place, carryOut);
-        Place = place;
-        switch (shown)
+        if (play.StepToNewFrame(carryOut) is { } shown)
         {
-            case AnimationShown<ColourEffectSegment, int>.Frame frame:
-                UpdatesUntilNextStep = frame.Duration;
-                Frame = new ColourEffectFrame(FramesOf, frame.Shown);
-                return Frame;
-            case AnimationShown<ColourEffectSegment, int>.Ended:
-                End();
-                Settled = true;
-                return null;
-            default:
-                throw new InvalidOperationException($"Undefined animation outcome {shown}.");
+            Frame = new ColourEffectFrame(FramesOf, shown);
+            return Frame;
         }
+        if (play.HasStopped)
+        {
+            End();
+            Settled = true;
+        }
+        else if (play.IsResting)
+            throw new InvalidOperationException($"Colour effect {Effect}'s animation came to rest without ending.");
+        return null;
     }
 }

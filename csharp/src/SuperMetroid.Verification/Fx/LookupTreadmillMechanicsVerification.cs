@@ -2,6 +2,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using SuperMetroid.Core.Enemies.WreckedShip;
 using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Verification.Fx;
 

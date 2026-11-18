@@ -29,7 +29,7 @@ internal static class RoomMainCodeCatalogVerification
     {
         IReadOnlyDictionary<ushort, RoomMainBehavior> routines = RoomBehaviorRoutines.MainRoutines;
         ushort[] catalog = [.. routines.Keys];
-        foreach (RoomMainBehavior acting in RoomMainBehavior.All.Where(callback => callback != RoomMainBehavior.None))
+        foreach (RoomMainBehavior acting in RoomMainBehaviorConstants.All.Where(callback => callback != RoomMainBehavior.None))
         {
             AssertEqual(1, routines.Values.Count(callback => callback == acting),
                 $"room-main behaviour {acting} is one routine");

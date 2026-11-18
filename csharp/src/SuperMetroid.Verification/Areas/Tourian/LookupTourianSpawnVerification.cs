@@ -50,8 +50,8 @@ internal static class LookupTourianSpawnVerification
             // The program oracle proves the entry animation starts at the header's native program pointer.
             AssertEqual<AnimationPlayback<TourianStatueBlockSegment>?>(
                 new AnimationPlayback<TourianStatueBlockSegment>(tile.Animations.StartingWith(TourianStatueBlockSegment.Entry), AnimationPlace.StartOfAnimation),
-                tile.Playback, "Spawned statue starts at its entry animation");
-            AssertEqual(1, tile.Timer, "Spawned instruction timer");
+                tile.Player.Playback, "Spawned statue starts at its entry animation");
+            AssertEqual(1, tile.Player.UpdatesLeft, "Spawned statue shows its first picture on its first update");
         }
     }
 }

@@ -121,6 +121,9 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect("class P { // extended word 08 holds it\n }", "('extended word')");
         Expect("class P { // init1 packs two unrelated bytes\n }", "('init1')");
         Expect("class P { /// <summary>The level words of the room.</summary>\nint F => 0; }", "('level words')");
+        // A block's behaviour byte, in either spelling (#2482).
+        Expect("class P { /// <summary>Only the codec knows how the behaviour byte numbers them.</summary>\nint F => 0; }", "('behaviour byte')");
+        Expect("class P { // the behavior bytes stay\n }", "('behavior bytes')");
         Expect("class P { // the six-byte input record\n }", "('six-byte')");
         Expect("class P { // keep the high bit raw\n }", "('high bit')");
         Expect("class P { // the random-number word and the carry\n }", "('random-number word')");
@@ -1964,6 +1967,20 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         // are English.
         Expect("class P { /// <summary>A speed passing zero at the apex; the wait runs out; the speed in whole pixels, never negative; its whole part reaches four; every placement patrols; <see cref=\"Run\"/>.</summary>\nvoid Run() { } }");
         Expect(CompatibilityService + "/// <summary>Evidence: the counter passes zero and the whole velocity is negative for every placement but one.</summary>\n[CompatibilityService(\"count\")] class Count { }");
+        // The original's tables and calls told in room and world prose, outside hardware owners and markup (#2487): a
+        // collision, pose, turn or controller pose table, a table's entry named by a hyphenated kind, and an invocation of a
+        // thing.
+        Expect("class P { void Run() { // Morph landing has its own prospective-pose and collision tables.\n } }", "('collision tables')");
+        Expect("class P { /// <summary>Applies the transition the input phase selected from the pose table.</summary>\nvoid Run() { } }", "('pose table')");
+        Expect("class P { void Run() { // Jump art instead of trusting stale pose-table equipment state.\n } }", "('pose-table')");
+        Expect("class P { /// <summary>Self-transitions in the turn tables mean remain in this animation.</summary>\nvoid Run() { } }", "('turn tables')");
+        Expect("class P { void Run() { // Posture transitions do not poll controller pose tables.\n } }", "('controller pose tables')");
+        Expect("class P { void Run() { // The grounded movement type likewise has the table's no-transition entry.\n } }", "('table's no-transition entry')");
+        Expect("class P { /// <summary>One invocation of the game's source-camera alignment step.</summary>\nint F => 0; }", "('invocation of')");
+        // A table alone, a collision or a pose alone, the pose's input transitions, an entry alone, a thing invoked, markup
+        // and a hardware owner are English.
+        Expect("class P { /// <summary>A table of rooms; Samus's collision with the floor; the pose's input transitions; a turn of the pose; the room's entry; the speed table's next entry; the setup it invoked; <see cref=\"Run\"/>.</summary>\nvoid Run() { } }");
+        Expect(CompatibilityService + "/// <summary>Evidence: one invocation of the pose table's no-transition entry.</summary>\n[CompatibilityService(\"table\")] class Table { }");
         // The species-owner template on a type that owns no species (#2427), read on the type's own summary; a type that
         // implements or is a species owner's interface owns a species, and an entity's parameter names its owner.
         const string SpeciesOwners = "interface IEnemySpecies { }\ninterface IEnemyEntityFactory { }\n";

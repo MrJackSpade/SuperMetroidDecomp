@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// <summary>
 /// One of the shapes a slope block takes (#1805): the height of its surface under each pixel column, how much of a
 /// grounded horizontal move crosses it, and how much of a crawler's tangent speed carries along it. The shapes are the
-/// catalog's (<see cref="SlopeShapeDefinitions"/>); only the import's codec knows how the behaviour byte numbers them.
+/// catalog's (<see cref="SlopeShapeDefinitions"/>); only the import's codec knows how the game numbers them.
 /// </summary>
 /// <remarks>
 /// A square shape is made of solid quarters, which Samus, her shots and enemies read through the square slopes; every

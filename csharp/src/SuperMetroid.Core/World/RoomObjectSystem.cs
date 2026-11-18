@@ -160,7 +160,7 @@ public sealed class RoomObjectSystem : ISamusRoomObjects
         DoorObjects = new DoorObjects(room.System, Places, Sounds, shotCapClosing);
         GreyDoors = new GreyDoorObjects(room.System, room.Area, services.TourianStatue, Sounds);
         Tourian = new TourianObjects(services.Samus, services.Enemies, services.RoomFx, Places);
-        PopulationLoader = new RoomObjectPopulationLoader(new RoomObjectPopulationLoaderDependencies { BombTorizoHand = BombTorizoHand, CollectibleObjects = CollectibleObjects, EyeDoors = EyeDoors, Gates = Gates, MotherBrainGlass = MotherBrainGlass, Places = Places, SpeedBoosterEscape = SpeedBoosterEscape, DraygonCannons = DraygonCannons, NoobTube = NoobTube });
+        PopulationLoader = new RoomObjectPopulationLoader(new RoomObjectPopulationLoaderDependencies { BombTorizoHand = BombTorizoHand, CollectibleObjects = CollectibleObjects, EyeDoors = EyeDoors, Stations = Stations, Gates = Gates, MotherBrainGlass = MotherBrainGlass, Places = Places, SpeedBoosterEscape = SpeedBoosterEscape, DraygonCannons = DraygonCannons, NoobTube = NoobTube });
         BlockReactions = new BlockReactionObjects(EscapeAnimals, Places, Drawing);
         BossRoomMutations = new BossRoomMutationObjects(Places);
     }
@@ -193,8 +193,8 @@ public sealed class RoomObjectSystem : ISamusRoomObjects
     }
 
     /// <summary>
-    /// The object at <paramref name="place"/> leaves the room, freeing its place; Mother Brain's glass first keeps its hit
-    /// count.
+    /// The object at <paramref name="place"/> leaves the room, freeing its place; when it is Mother Brain's glass, the
+    /// glass's place is first forgotten.
     /// </summary>
     internal void DeleteObject(RoomObjectPlace place)
     {

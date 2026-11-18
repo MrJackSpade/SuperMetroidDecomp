@@ -43,34 +43,33 @@ internal sealed class ScrollObjects
         return false;
     }
 
-    /// <summary>Runs one scroll trigger's or extension's setup at the place the room population took for it.</summary>
+    /// <summary>Runs one scroll trigger's setup at the place the room population took for it.</summary>
     /// <param name="level">The room's level data.</param>
     /// <param name="place">The place the population took.</param>
-    /// <param name="kind">A scroll trigger or one of the scroll extensions.</param>
-    /// <param name="change">The scroll change a trigger applies; null for an extension.</param>
-    /// <exception cref="InvalidOperationException">The kind is neither, or a trigger has no scroll change.</exception>
-    internal static void SetupScroll(RoomLevelData level, RoomObjectPlace place, RoomObjectKind kind, RoomScrollChange? change)
+    /// <param name="change">The scroll change the trigger applies.</param>
+    internal static void SetupScrollTrigger(RoomLevelData level, RoomObjectPlace place, RoomScrollChange change)
     {
         Ensure.NotNull(level);
         Ensure.NotNull(place);
-        if (kind != RoomObjectKind.ScrollTrigger)
-        {
-            (RoomCollisionType collisionType, int offset) = ScrollExtensionDefinitions.Extensions.TryGetValue(kind, out ScrollExtension extension)
-                ? extension
-                : throw new InvalidOperationException($"Room object {kind} is neither a scroll trigger nor a scroll extension.");
-            level.SetTerrain(
-                place.Block,
-                level.GetCollisionBlock(place.Block).Terrain.WithCollision(collisionType));
-            level.SetBehavior(place.Block, RoomBlockBehavior.Extending(offset));
-
-            // An extension's whole effect is its setup, which removes it at once, freeing its place for the room's next
-            // object.
-            place.Delete();
-            return;
-        }
-
-        var trigger = new ScrollTriggerObject(change ?? throw new InvalidOperationException("A scroll trigger was set up without its scroll change."));
+        var trigger = new ScrollTriggerObject(change);
         place.Become(trigger);
         trigger.Rest(level, place.Block);
+    }
+
+    /// <summary>Runs one scroll extension's setup at the place the room population took for it.</summary>
+    /// <param name="level">The room's level data.</param>
+    /// <param name="place">The place the population took.</param>
+    /// <param name="extension">The collision and the step back toward the trigger the extension writes.</param>
+    internal static void SetupScrollExtension(RoomLevelData level, RoomObjectPlace place, ScrollExtension extension)
+    {
+        Ensure.NotNull(level);
+        Ensure.NotNull(place);
+        level.SetTerrain(
+            place.Block,
+            level.GetCollisionBlock(place.Block).Terrain.WithCollision(extension.CollisionType));
+        level.SetBehavior(place.Block, RoomBlockBehavior.Extending(extension.Offset));
+
+        // An extension's whole effect is its setup, which removes it at once, freeing its place for the room's next object.
+        place.Delete();
     }
 }

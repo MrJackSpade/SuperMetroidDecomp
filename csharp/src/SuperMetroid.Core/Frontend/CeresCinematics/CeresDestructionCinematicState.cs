@@ -129,8 +129,12 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// </summary>
     [IntegerQuantity("pixelation block width in screen pixels, one through sixteen")]
     private int revealBlockWidth = 1;
-    /// <summary>Completed waiting updates before the scene is set up; setup follows the last wait.</summary>
-    private int initialFrameWaits;
+    /// <summary>
+    /// The updates the scene still waits, black, before it sets the station up, counted down to none from
+    /// <see cref="CeresDestructionSceneDefinitions.InitialFrameWaits"/> (#2488): the update that finds none left sets the
+    /// scene up; null once it is set up.
+    /// </summary>
+    private int? openingWaitsLeft = CeresDestructionSceneDefinitions.InitialFrameWaits;
     /// <summary>
     /// Cinematic updates elapsed, incremented after the cinematic phase runs and before the actors step. Only its phase
     /// within a four-update cycle is read, which a wider counter preserves exactly.
@@ -174,10 +178,11 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
 
     /// <summary>
     /// True while the scene's opening step waits out frames of the display: the next update finishes that wait instead of
-    /// starting a new update of the cinematic (<see cref="DisplayFrameWaitContinuation"/>).
+    /// starting a new update of the cinematic (<see cref="DisplayFrameWaitContinuation"/>). That is from the scene's first
+    /// update, which takes its first wait, until the update that sets it up.
     /// </summary>
     internal bool IsWaitingOutDisplayFrame =>
-        initialFrameWaits is > 0 and <= CeresDestructionSceneDefinitions.InitialFrameWaits;
+        openingWaitsLeft is { } waitsLeft && waitsLeft < CeresDestructionSceneDefinitions.InitialFrameWaits;
 
     /// <summary>Binds the installed station-blast colors when the game is bound to its installed content.</summary>
     internal void BindGlowColors(InstalledPowerBombGlowColors colors) => glowColors = Ensure.NotNull(colors);
@@ -208,14 +213,14 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         // The cinematic first waits nine updates with the screen black; each wait is one update
         // that continues it. After the last it sets up the scene and goes on with the cinematic
         // phase, whose objects and update count then advance once.
-        if (initialFrameWaits < CeresDestructionSceneDefinitions.InitialFrameWaits)
+        if (openingWaitsLeft is { } waitsLeft)
         {
-            initialFrameWaits++;
-            return;
-        }
-        if (initialFrameWaits == CeresDestructionSceneDefinitions.InitialFrameWaits)
-        {
-            initialFrameWaits++;
+            if (waitsLeft > 0)
+            {
+                openingWaitsLeft = waitsLeft - 1;
+                return;
+            }
+            openingWaitsLeft = null;
             SetupCeresDestruction();
             // Setup queues the cinematic music and the state's own track last.
             audio.QueueMusic(MusicRequest.Stop);

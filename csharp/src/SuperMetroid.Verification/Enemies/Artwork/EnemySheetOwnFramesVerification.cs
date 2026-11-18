@@ -160,7 +160,7 @@ internal static class EnemySheetOwnFramesVerification
             [EnemyDefinitionId.Evir] = Reach(EvirAnimations.Segments, EvirAnimations.StartingAt,
                 [EvirSegment.BodyFacingLeft, EvirSegment.BodyFacingRight, EvirSegment.ArmsFacingLeft, EvirSegment.ArmsFacingRight]),
             [EnemyDefinitionId.EvirProjectile] = Reach(EvirAnimations.Segments, EvirAnimations.StartingAt,
-                [EvirSegment.ProjectileNormal, EvirSegment.ProjectileRegenerating]),
+                [EvirSegment.ProjectileIdle, EvirSegment.ProjectileRegenerating]),
         });
 
     /// <summary>The gunship's top is its top hull; its bottom is the bottom hull or the entrance pad, which opens and closes.</summary>

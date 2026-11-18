@@ -121,8 +121,8 @@ internal sealed class MessageBoxFlow
             if (saving)
             {
                 room.Enemies.SaveStationElectricity.Spawn(saveStation.Block);
-                _system.MarkSaveStationUsed(saveStation.Station);
-                _completedSaveStation = new SaveStationPersistenceRequest(saveStation.Station);
+                _system.MarkSaveStationUsed(saveStation.SavesAt);
+                _completedSaveStation = new SaveStationPersistenceRequest(saveStation.SavesAt);
             }
             return;
         }

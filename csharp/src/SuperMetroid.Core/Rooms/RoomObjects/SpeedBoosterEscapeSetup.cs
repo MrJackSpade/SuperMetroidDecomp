@@ -4,5 +4,5 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 internal sealed record SpeedBoosterEscapeSetup : RoomObjectPlacementSetup
 {
     /// <inheritdoc/>
-    internal override void SetUp(IRoomObjectFamilySetups setups, RoomObjectKind kind) => setups.SetUpSpeedBoosterEscape();
+    internal override void SetUp(IRoomObjectFamilySetups setups) => setups.SetUpSpeedBoosterEscape();
 }

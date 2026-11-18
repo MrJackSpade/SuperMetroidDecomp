@@ -21,6 +21,9 @@ internal sealed record RoomObjectPopulationLoaderDependencies
     /// <summary>The eye doors, which set up once they have taken their places.</summary>
     public required EyeDoorObjects EyeDoors { get; init; }
 
+    /// <summary>The room's stations, which hold the map stations they place.</summary>
+    public required StationObjects Stations { get; init; }
+
     /// <summary>The gates, which set up their blocks as they are placed.</summary>
     public required GateObjects Gates { get; init; }
 

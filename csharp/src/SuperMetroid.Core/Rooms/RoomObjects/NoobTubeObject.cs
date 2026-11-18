@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Progression;
 
@@ -13,7 +14,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// </summary>
 /// <param name="owner">The room's tube owner, which reaches Samus, the events, the water, the earthquake and the debris.</param>
 [RoomLifetime]
-internal sealed class NoobTubeObject(NoobTubeObjects owner) : SequencedRoomObject<TerrainChangeFrame>, IShootableRoomObject
+internal sealed class NoobTubeObject(NoobTubeObjects owner) : SequencedRoomObject<NoobTubeSegment, TerrainChangeFrame, NoAnimationCue>(NoobTubeAnimations.Segments), IShootableRoomObject
 {
     /// <summary>The room's tube owner.</summary>
     private readonly NoobTubeObjects _owner = Ensure.NotNull(owner);
@@ -46,19 +47,18 @@ internal sealed class NoobTubeObject(NoobTubeObjects owner) : SequencedRoomObjec
                 return;
             case NoobTubePhase.Starting:
                 Phase = NoobTubePhase.WaitingForPowerBomb;
-                Play([new(NoobTubeObjectDraws.Family.Of(NoobTubeObjectDefinitions.IntactImage), 1)], place, context);
+                Play(NoobTubeAnimations.Intact, place, context);
                 return;
             case NoobTubePhase.WaitingForPowerBomb:
             case NoobTubePhase.WaitingForInput:
                 // The tube rests until a wake starts its next step.
-                Rest();
                 return;
             case NoobTubePhase.Cracking:
                 context.QueueSound(NoobTubeObjectDefinitions.BreakSound, NoobTubeObjectDefinitions.BreakSoundPriority);
                 _owner.SpawnShardsAndBubbles(place);
                 _owner.TriggerEarthquake();
                 Phase = NoobTubePhase.Shattered;
-                Play([NoobTubeObjectDefinitions.Shattered], place, context);
+                Play(NoobTubeAnimations.Shattered, place, context);
                 return;
             case NoobTubePhase.Shattered:
                 _owner.SetBrokenEvent();
@@ -72,11 +72,8 @@ internal sealed class NoobTubeObject(NoobTubeObjects owner) : SequencedRoomObjec
     }
 
     /// <inheritdoc/>
-    private protected override int Show(TerrainChangeFrame step, RoomObjectPlace place, RoomObjectStepContext context)
-    {
-        context.Draw(place, step.Draw);
-        return step.Updates;
-    }
+    private protected override void Show(TerrainChangeFrame frame, RoomObjectPlace place, RoomObjectStepContext context) =>
+        context.Draw(place, frame.Draw);
 
     /// <summary>
     /// Reads the update's strike or input while the tube waits for one, and starts the step it wakes: a Power Bomb's
@@ -104,7 +101,7 @@ internal sealed class NoobTubeObject(NoobTubeObjects owner) : SequencedRoomObjec
                 _owner.LockSamus();
                 _owner.SpawnCrack(place);
                 Phase = NoobTubePhase.Cracking;
-                PlayFromNextUpdate(NoobTubeObjectDefinitions.Cracking);
+                PlayFromNextUpdate(NoobTubeAnimations.Cracking);
                 return;
             case NoobTubePhase.Starting:
             case NoobTubePhase.WaitingForInput:

@@ -48,8 +48,7 @@ internal sealed class EndingFlyaway
         _stage.FloorZoom = EndingMotionDefinitions.PlanetEscapeInitialZoom;
         _stage.FloorAngle = EndingMotionDefinitions.PlanetEscapeInitialAngle;
         _stage.PhaseTimer = EndingFlyawayFadeDefinitions.WhiteHoldFrames;
-        flyawayWhite = EndingFlyawayFadeDefinitions.InitialWhite;
-        flyawayFadeCountdown = EndingFlyawayFadeDefinitions.InitialCountdown;
+        flyawayWash = WhiteWash.FullWhite(EndingFlyawayFadeDefinitions.UpdatesPerStep, EndingFlyawayFadeDefinitions.FirstStepUpdate);
         ShipShake = EndingShipShakeCursor.StartOf(EndingShipShake.Fast);
         _stage.Phase = EndingCreditsPhase.PlanetEscapeFast;
     }
@@ -128,24 +127,20 @@ internal sealed class EndingFlyaway
         }
     }
 
-    /// <summary>The steps left of the white wash over the planet escape (<see cref="WhiteWash"/>), from full white fading to none, where it stays.</summary>
-    private int flyawayWhite;
-
-    /// <summary>Countdown between the steps the flyaway's white wash fades by.</summary>
-    private int flyawayFadeCountdown;
+    /// <summary>
+    /// The white wash over the planet escape (<see cref="WhiteWash"/>), from full white fading to none, where it stays; none
+    /// before the escape is set up.
+    /// </summary>
+    private WhiteWash? flyawayWash;
 
     /// <summary>The white wash, shown only during visible planet flyaway phases.</summary>
-    internal ScreenTintLayer? FlyawayWhiteWash => flyawayWhite != 0
+    internal ScreenTintLayer? FlyawayWhiteWash => flyawayWash is { IsGone: false } wash
         && EndingCreditsPhaseGroups.PlanetEscape.Contains(_stage.Phase)
-        ? WhiteWash.Layer(flyawayWhite) : null;
+        ? wash.Layer : null;
 
     /// <summary>Takes one step off the flyaway's white wash at its authored interval.</summary>
-    private void StepFlyawayFade()
-    {
-        if (--flyawayFadeCountdown > 0) return;
-        if (flyawayWhite > 0) flyawayWhite--;
-        flyawayFadeCountdown = EndingFlyawayFadeDefinitions.Interval;
-    }
+    private void StepFlyawayFade() =>
+        (flyawayWash ?? throw new InvalidOperationException("The flyaway fades a white wash its setup has not started.")).Fade();
 
     /// <summary>Restores the explosion's background colours as the explosion's hold begins (#1467).</summary>
     internal void PrepareFlyaway()

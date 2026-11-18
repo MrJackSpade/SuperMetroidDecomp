@@ -13,8 +13,10 @@ public enum CollectiblePhase
     ChozoOrbBurst,
     /// <summary>An uncollected item is concealed in its saved shot block and waits for a projectile trigger.</summary>
     ShotBlock,
-    /// <summary>The shot block crumbles away before showing either the item or its already-collected empty space.</summary>
+    /// <summary>The shot block crumbles away before showing the item it conceals.</summary>
     ShotBlockReveal,
+    /// <summary>A previously collected item's shot block crumbles away before showing its empty space (#2482).</summary>
+    CollectedShotBlockReveal,
     /// <summary>The revealed item accepts touch acquisition while it alternates its two looks twenty-two times.</summary>
     ShotBlockVisible,
     /// <summary>An uncollected revealed item is hidden as its shot block forms again and restores its concealed shot block.</summary>

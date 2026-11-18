@@ -2,6 +2,7 @@ using System.Collections.Frozen;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Assets;
 using Idle = SuperMetroid.Core.Animation.AnimationBeat<SuperMetroid.Core.Assets.ArtworkFrame, SuperMetroid.Core.Animation.NoAnimationCue>.Frame;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Fx;
 

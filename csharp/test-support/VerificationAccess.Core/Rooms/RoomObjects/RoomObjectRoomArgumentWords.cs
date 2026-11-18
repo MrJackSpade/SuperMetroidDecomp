@@ -112,7 +112,7 @@ internal static class RoomObjectRoomArgumentWords
         if (header == RoomObjectKind.EscapeRoomHeldPlace)
             return PlacedKind(RoomObjectKind.MetroidRoomClearance, word) == header ? null
                 : throw new InvalidDataException($"Held-place argument ${word:X4} selects a clearance watch, not one of the no-op entries.");
-        if (PermanentCollectibleObjectDefinitions.Items.ContainsKey(header))
+        if (RoomObjectKindVariants.Items.ContainsKey(header))
             return new CollectedItemArgument(SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Item(word));
         if (name.StartsWith("GreyDoor", StringComparison.Ordinal) || header == RoomObjectKind.BombTorizoGreyDoor)
         {

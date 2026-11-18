@@ -29,6 +29,12 @@ internal sealed class RidleyEncounter : ICeresEscapeStatus, ICeresRidleyScene
     internal bool RidleyPresent { get; private set; }
 
     /// <summary>
+    /// The rows of the room's map, from its top, that the begun encounter marks explored as the room loads (#2485): Lower
+    /// Norfair Ridley's arena's, none for Ceres Ridley's or before an encounter begins.
+    /// </summary>
+    internal int ExploredArenaMapRows { get; private set; }
+
+    /// <summary>
     /// Ceres Ridley as he attached himself to the room as he initialized (#2231, #2194): the room's own Ceres reads, his
     /// shots and the Baby and door it draws, go through it; null in a room he has not initialized in. No part of his reads it.
     /// </summary>
@@ -51,8 +57,12 @@ internal sealed class RidleyEncounter : ICeresEscapeStatus, ICeresRidleyScene
         set => _session.CeresStatus = value;
     }
 
-    /// <summary>Records that Lower Norfair Ridley began his encounter in this room.</summary>
-    internal void BeginLowerNorfair() => RidleyPresent = true;
+    /// <summary>Records that Lower Norfair Ridley began his encounter in this room, whose arena he marks explored on the map.</summary>
+    internal void BeginLowerNorfair()
+    {
+        RidleyPresent = true;
+        ExploredArenaMapRows = RidleyMapDefinitions.ArenaScreenRows;
+    }
 
     /// <summary>Attaches Ceres Ridley, his body <paramref name="body"/> and his encounter <paramref name="ridley"/>, as he begins it.</summary>
     internal void BeginCeres(RoomEnemyPlace body, CeresRidleyState ridley)

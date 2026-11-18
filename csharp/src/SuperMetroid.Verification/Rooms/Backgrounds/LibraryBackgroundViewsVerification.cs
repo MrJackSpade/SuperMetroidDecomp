@@ -65,7 +65,7 @@ internal static class LibraryBackgroundViewsVerification
         RoomStateSettings sky = CrateriaRoomStateDefinitions.LandingSiteDefault;
         TilesetDefinition skyTileset = RoomTilesets.Get(sky.GraphicsSet);
         string[] skyNames = [.. RoomBlockUploads.BackgroundNamesOf([sky])];
-        string[] skyRows = [RoomBackgroundImage.SkyNameOf(sky.MainBehavior.Sky ?? throw new InvalidOperationException("The Landing Site scrolls a sky."), skyTileset)];
+        string[] skyRows = [RoomBackgroundImage.SkyNameOf(SuperMetroid.AssetExtraction.World.RoomStates.RoomBehaviorPictureDefinitions.MainSkies[sky.MainBehavior], skyTileset)];
         AssertTrue(skyNames.SequenceEqual(skyRows, StringComparer.Ordinal),
             $"a sky room installs only its sky's rows, not [{string.Join(", ", skyNames)}]");
         AssertBindsNone(sky.Background, "a sky room");

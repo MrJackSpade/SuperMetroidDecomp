@@ -127,4 +127,31 @@ internal sealed class SamusFrameState : IRoomSamusAccess
 
     /// <summary>Most recent update of drained Samus's fall.</summary>
     public DrainedSamusMovementResult? LastDrainedSamusMovement { get; internal set; }
+
+    /// <summary>
+    /// Forgets the pending pose change: the input transition the input phase selected and the grapple cancel's fallback
+    /// pose, so the pose-transition phase applies neither.
+    /// </summary>
+    internal void ClearProspectivePoses()
+    {
+        ProspectiveSamusPose = null;
+        ProspectiveSamusFallbackPose = null;
+    }
+
+    /// <summary>
+    /// Forgets the previous update's movement results before this update's movement runs: the grounded, aerial, Morph
+    /// Ball, bomb-jump, knockback, Shinespark, Crystal Flash and drained-fall results. The grapple's result is the grapple
+    /// update's own, and the X-ray scope's steps publish theirs outside the movement.
+    /// </summary>
+    internal void ClearMovementResults()
+    {
+        LastGroundedSamusMovement = null;
+        LastAerialSamusMovement = null;
+        LastMorphBallMovement = null;
+        LastBombJumpMovement = null;
+        LastKnockbackMovement = null;
+        LastShinesparkMovement = null;
+        LastCrystalFlashMovement = null;
+        LastDrainedSamusMovement = null;
+    }
 }

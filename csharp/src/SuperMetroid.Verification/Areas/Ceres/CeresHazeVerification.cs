@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Poses;
@@ -41,36 +42,36 @@ internal static class CeresHazeVerification
         foreach (bool immediate in new[] { false, true })
         {
             var haze = new CeresHazeState(dead, immediate);
-            AssertEqual(immediate ? 15 : 0, haze.Intensity, "Load projects initial/completed fade state");
+            AssertEqual(immediate ? 15 : 0, haze.Strength.FadeSteps, "Load projects initial/completed fade state");
             if (!immediate)
             {
                 haze.StepWhileRoomFadesOut();
                 haze.Step();
-                AssertEqual(0, haze.Intensity, "Waiting ignores fade-out and absent fade-in");
+                AssertEqual(0, haze.Strength.FadeSteps, "Waiting ignores fade-out and absent fade-in");
                 foreach (int expected in entering)
                 {
                     if (expected == 0) haze.StepWhileRoomFadesIn();
                     else haze.StepWhileRoomFadesOut();
-                    AssertEqual(expected, haze.Intensity, "Native fade-in ignores further transition signals");
+                    AssertEqual(expected, haze.Strength.FadeSteps, "Native fade-in ignores further transition signals");
                 }
                 haze.StepWhileRoomFadesOut();
-                AssertEqual(15, haze.Intensity, "Counter16 selects holding without writing or consuming fade-out");
+                AssertEqual(15, haze.Strength.FadeSteps, "Counter16 selects holding without writing or consuming fade-out");
             }
             haze.StepWhileRoomFadesIn();
-            AssertEqual(15, haze.Intensity, "Holding ignores fade-in");
+            AssertEqual(15, haze.Strength.FadeSteps, "Holding ignores fade-in");
             haze.StepWhileRoomFadesOut();
-            AssertEqual(15, haze.Intensity, "Fade-out selection retains previous table for one call");
+            AssertEqual(15, haze.Strength.FadeSteps, "Fade-out selection retains previous table for one call");
             foreach (int expected in leaving)
             {
                 haze.StepWhileRoomFadesIn();
-                AssertEqual(expected, haze.Intensity, "Native fade-out writes before decrement");
+                AssertEqual(expected, haze.Strength.FadeSteps, "Native fade-out writes before decrement");
             }
             haze.Step();
             haze.StepWhileRoomFadesIn();
-            AssertEqual(1, haze.Intensity, "Zero counter retains final table without restarting");
-            AssertEqual(dead, haze.IsRed, "Selected channel is room-owned throughout the trace");
+            AssertEqual(1, haze.Strength.FadeSteps, "Zero counter retains final table without restarting");
+            AssertEqual(dead ? CeresHazeTint.AfterRidleyDies : CeresHazeTint.WhileRidleyLives, haze.Tint, "Selected channel is room-owned throughout the trace");
             haze = new CeresHazeState(!dead, immediate);
-            AssertTrue(haze.IsRed == !dead, "Reload replaces the channel");
+            AssertTrue(haze.Tint == (dead ? CeresHazeTint.WhileRidleyLives : CeresHazeTint.AfterRidleyDies), "Reload replaces the channel");
         }
     }
 
@@ -88,10 +89,10 @@ internal static class CeresHazeVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.CeresRidley);
-        AssertTrue(runtime.Room.LoadedScope.CeresHaze is { IsRed: false }, "Ridley room spawns blue haze");
+        AssertTrue(runtime.Room.LoadedScope.CeresHaze is { Tint: CeresHazeTint.WhileRidleyLives }, "Ridley room spawns blue haze");
         runtime.System.RecordBossesDefeated(runtime.Room.LoadedRoom.Area, DefeatedBosses.AreaBoss);
         for (int frame = 0; frame < 30; frame++) runtime.CeresHaze.Step();
-        AssertTrue(!runtime.CeresHaze.IsRed, "defeat cannot replace the current room's HDMA channel");
+        AssertTrue(runtime.CeresHaze.Tint == CeresHazeTint.WhileRidleyLives, "defeat cannot replace the current room's HDMA channel");
         runtime.Room.LoadedLevelData.ResolveDoorCollision(runtime.Room.LoadedLevelData.DoorBlockLeadingThrough(RoomDoorListDefinitions.ByRoom[RoomDefinitions.CeresRidley][0]), runtime.Player.IntroducedSamus.Pose.ForRoomCollision(), publishDoorSideEffects: true);
         var transition = new DoorTransitionState();
         var audio = AudioQueues.Standalone();
@@ -102,16 +103,16 @@ internal static class CeresHazeVerification
             bool fadingIn = transition.Phase == DoorTransitionPhase.FadeInDestinationRoom;
             transition.Step(runtime, audio, 0, SuperMetroid.Core.Compatibility.InstantRoomLoad.Instance);
             if (runtime.Room.LoadedRoom.Definition == RoomDefinitions.CeresRidley)
-                AssertTrue(!runtime.CeresHaze.IsRed, "source room remains blue through actual door fade");
+                AssertTrue(runtime.CeresHaze.Tint == CeresHazeTint.WhileRidleyLives, "source room remains blue through actual door fade");
             if (fadingIn)
             {
                 sawDestinationFade = true;
-                AssertTrue(runtime.CeresHaze.IsRed, "destination fade uses newly selected red channel");
+                AssertTrue(runtime.CeresHaze.Tint == CeresHazeTint.AfterRidleyDies, "destination fade uses newly selected red channel");
             }
         }
         AssertTrue(!transition.IsActive && sawDestinationFade, "retail escape door completes its haze fade handoff");
         AssertEqual(RoomDefinitions.CeresRidleyHallway, runtime.Room.LoadedRoom.Definition, "retail exit enters final hallway");
-        AssertTrue(runtime.Room.LoadedScope.CeresHaze is { IsRed: true }, "next room selects escape red on load");
+        AssertTrue(runtime.Room.LoadedScope.CeresHaze is { Tint: CeresHazeTint.AfterRidleyDies }, "next room selects escape red on load");
         Console.WriteLine("Ceres haze: native ramps, source fade and retail room-owned blue/red selection agree.");
     }
 }

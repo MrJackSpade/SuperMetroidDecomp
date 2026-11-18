@@ -51,10 +51,10 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
         var guarded = NewChozoAndTubePaletteReadGuard(rom);
         Suite(nameof(VerifyLive), () => VerifyLive(0, PictureShading.Shaded(ChozoAndTubeShades.WreckedShipStatue),
             "Wrecked Ship Chozo", (enemies, statue) => enemies.ChozoStatueBehavior.InitializeChozoStatue(statue),
-            ChozoStatueSegment.WreckedShipInitial));
+            ChozoStatueSegment.WreckedShipIdle));
         Suite(nameof(VerifyLive), () => VerifyLive(2, PictureShading.Shaded(ChozoAndTubeShades.LowerNorfairStatue),
             "Lower Norfair Chozo", (enemies, statue) => enemies.ChozoStatueBehavior.InitializeChozoStatue(statue),
-            ChozoStatueSegment.LowerNorfairInitial));
+            ChozoStatueSegment.LowerNorfairIdle));
 
         visual.TubeCracks[5] = visual.TubeCracks[5] with { Blue = 32 };
         AssertThrows<InvalidDataException>(() => ChozoAndTubeColorFile.Read(new MemoryStream(ChozoAndTubeColorFile.Write(visual))),

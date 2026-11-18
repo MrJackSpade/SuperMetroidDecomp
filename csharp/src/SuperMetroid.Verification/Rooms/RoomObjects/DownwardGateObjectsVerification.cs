@@ -101,7 +101,6 @@ internal static class DownwardGateObjectsVerification
     {
         foreach ((RoomObjectKind header, int source) in new[] { new VerifyDownwardGateHeaderDefinitionsCase(RoomObjectKind.DownwardGate, 0x84c82c), new VerifyDownwardGateHeaderDefinitionsCase(RoomObjectKind.DownwardGateShotBlock, 0x84c838) })
         {
-            AssertEqual(header, RoomObjectKinds.RequirePlaced(header), "Gate compiled-population header");
             AssertEqual(unchecked((ushort)(source - 2)), RoomObjectNativeWords.Word(header), "Gate header word precedes its first-list word");
         }
     }
@@ -188,7 +187,8 @@ internal static class DownwardGateObjectsVerification
             level.GetCollisionBlockByIndex(gateBlockIndex + level.Size.X).Terrain,
             "compiled initial gate draw installs the second solid column word");
         AssertTrue(roomObjects.PopulationPlaces.Single(place => place.Behaviour is DownwardGateObject).Behaviour is
-                DownwardGateObject { Phase: DownwardGatePhase.RestingClosed, Resting: true, StepsShown: 1 },
+                DownwardGateObject { Phase: DownwardGatePhase.RestingClosed, Resting: true } restingGate &&
+                restingGate.Animation.Shown == DownwardGateMovementDefinitions.Closed,
             "a gate that has not moved rests on its closed image, not on an image of a movement (#1627)");
         AssertTrue(roomObjects.Gates.TrySpawnDownwardGateTrigger(
                 level,
@@ -198,7 +198,8 @@ internal static class DownwardGateObjectsVerification
             "power beam reaches the sleeping blue gate");
         StepDownwardGateObject(roomObjects, level);
         AssertTrue(roomObjects.PopulationPlaces.Single(place => place.Behaviour is DownwardGateObject).Behaviour is
-                DownwardGateObject { Phase: DownwardGatePhase.Reopening, Resting: false, StepsShown: 1 },
+                DownwardGateObject { Phase: DownwardGatePhase.Reopening, Resting: false } wakingGate &&
+                wakingGate.Animation.Shown == DownwardGateMovementDefinitions.Reopening[0],
             "the waking update shows the reopening's first image (#1627)");
         DownwardGateProjectileRequest wake = roomObjects.Gates.TakeDownwardGateProjectileRequests().Single();
         AssertEqual(DownwardGateProjectileOperation.Wake, wake.Operation,
@@ -222,7 +223,7 @@ internal static class DownwardGateObjectsVerification
             "compiled final open draw clears the second column collision word");
         RoomObjectPlaceSnapshot openedGate = roomObjects.PopulationPlaces.Single(place =>
             place.Behaviour is DownwardGateObject);
-        AssertTrue(openedGate.Behaviour is DownwardGateObject { Phase: DownwardGatePhase.RestingOpen, WakeArmed: true },
+        AssertTrue(openedGate.Behaviour is DownwardGateObject { Phase: DownwardGatePhase.RestingOpen },
             "open gate rests, waiting only for a trigger");
 
         AssertTrue(roomObjects.Gates.TrySpawnDownwardGateTrigger(
@@ -298,9 +299,9 @@ internal static class DownwardGateObjectsVerification
         // the guard below prohibits them only while the production runtime sets up slots.
         var population = new RoomObjectPopulation($"$8F:{populationPointer:X4}",
         [
-            RoomObjectPlacementAccess.Placed(RoomObjectKinds.RequirePlaced(RoomObjectKind.DownwardGate),
+            RoomObjectPlacementAccess.Placed(RoomObjectKind.DownwardGate,
                 new(gateX, gateY)),
-            RoomObjectPlacementAccess.Placed(RoomObjectKinds.RequirePlaced(RoomObjectKind.DownwardGateShotBlock),
+            RoomObjectPlacementAccess.Placed(RoomObjectKind.DownwardGateShotBlock,
                 new(gateX, gateY), RoomObjectRoomArgumentWords.Decode(RoomObjectKind.DownwardGateShotBlock, argument)),
         ]);
         SeedDownwardGateProjectileRom(bus);

@@ -19,19 +19,19 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 public sealed class RoomLevelData
 {
     /// <summary>Each foreground block's terrain, row by row; collision and room objects read and change it.</summary>
-    internal readonly RoomTerrainBlock[] Terrain;
+    private readonly RoomTerrainBlock[] terrain;
 
     /// <summary>Each foreground block's behaviour, row by row; its terrain's collision kind gives it meaning.</summary>
-    internal readonly RoomBlockBehavior[] Behaviors;
+    private readonly RoomBlockBehavior[] behaviors;
 
     /// <summary>
     /// Where each foreground block leads as a door block, row by row, or null where it leads nowhere (#2090). A block's exit
     /// is what its behaviour leads through, so a behaviour write takes it away.
     /// </summary>
-    internal readonly DoorBlockExit?[] Exits;
+    private readonly DoorBlockExit?[] exits;
 
     /// <summary>What each foreground block shows, row by row: its terrain's appearance unless a layout or draw shows another.</summary>
-    internal readonly RoomBlockAppearance[] ShownForeground;
+    private readonly RoomBlockAppearance[] shownForeground;
 
     /// <summary>
     /// The collectible picture each foreground block where a collectible showing its own picture lies shows over its
@@ -81,29 +81,29 @@ public sealed class RoomLevelData
             throw new ArgumentException("The background must hold exactly one appearance per room block.", nameof(planes));
 
         Size = size;
-        Exits = new DoorBlockExit?[expectedBlocks];
+        exits = new DoorBlockExit?[expectedBlocks];
         foreach (RoomDoorBlock door in Ensure.NotNull(doorBlocks))
         {
             if (!size.Contains(door.Block))
                 throw new ArgumentException($"Door block {door.Block} lies outside the {size.X}x{size.Y}-block grid.", nameof(doorBlocks));
             int place = size.RowMajorIndex(door.Block);
-            if (Exits[place] is not null)
+            if (exits[place] is not null)
                 throw new ArgumentException($"Door block {door.Block} is listed twice.", nameof(doorBlocks));
-            Exits[place] = door.Exit;
+            exits[place] = door.Exit;
         }
-        Terrain = planes.Foreground.ToArray();
-        Behaviors = planes.Behavior.ToArray();
+        terrain = planes.Foreground.ToArray();
+        behaviors = planes.Behavior.ToArray();
         BeyondRoom = Ensure.NotNull(beyondRoom);
 
         if (visualLayout is null)
         {
-            ShownForeground = [.. Terrain.Select(block => block.Appearance)];
+            shownForeground = [.. terrain.Select(block => block.Appearance)];
             background = planes.Background.ToArray();
             return;
         }
         if (visualLayout.Size != size)
             throw new InvalidDataException("Installed room layout dimensions do not match the room's grid.");
-        ShownForeground = visualLayout.Foreground.ToArray();
+        shownForeground = visualLayout.Foreground.ToArray();
         background = visualLayout.Background.ToArray();
     }
 
@@ -161,7 +161,7 @@ public sealed class RoomLevelData
     /// The foreground as the room shows it (#1346). The same immutable plane is returned until a block write, so frames
     /// that change nothing share it.
     /// </summary>
-    public RoomLevelPlane ForegroundPlane => PublishedForeground ??= new(Size, ShownForeground, shownCollectibles);
+    public RoomLevelPlane ForegroundPlane => PublishedForeground ??= new(Size, shownForeground, shownCollectibles);
 
     /// <summary>The background plane as the room shows it; nothing changes the background after loading, so it is built once.</summary>
     public RoomLevelPlane BackgroundPlane => field ??= new(Size, background);
@@ -249,7 +249,7 @@ public sealed class RoomLevelData
     internal void SetObjectBehavior(Position16<RoomBlocks> block, RoomBlockBehavior behavior)
     {
         int place = Size.RowMajorIndex(block);
-        if (place >= Terrain.Length)
+        if (place >= terrain.Length)
         {
             BeyondRoom.SetBehavior(BeyondPlace(place), behavior);
             return;
@@ -263,7 +263,7 @@ public sealed class RoomLevelData
     /// up (#2090); the block's collision kind and behaviour are written first.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The block is outside the grid.</exception>
-    internal void SetDoorExit(Position16<RoomBlocks> block, DoorBlockExit exit) => Exits[GridPlace(block)] = exit;
+    internal void SetDoorExit(Position16<RoomBlocks> block, DoorBlockExit exit) => exits[GridPlace(block)] = exit;
 
     /// <summary>
     /// Shows <paramref name="picture"/> at a foreground block over its terrain's appearance, as a collectible showing its
@@ -273,7 +273,7 @@ public sealed class RoomLevelData
     internal void ShowCollectible(Position16<RoomBlocks> block, CollectiblePicture picture)
     {
         int place = Size.RowMajorIndex(block);
-        if (place >= Terrain.Length)
+        if (place >= terrain.Length)
             return;
         shownCollectibles[place] = picture;
         PublishedForeground = null;
@@ -309,7 +309,7 @@ public sealed class RoomLevelData
             throw new ArgumentOutOfRangeException(nameof(block), $"Block {block} lies outside the {Size.X}-block room width.");
         if (Size.Contains(block))
             throw new ArgumentOutOfRangeException(nameof(block), "The block is inside the room's grid.");
-        int beyond = Size.RowMajorIndex(block) - Terrain.Length;
+        int beyond = Size.RowMajorIndex(block) - terrain.Length;
         if (beyond >= BeyondRoom.Count)
         {
             throw new NotSupportedException(
@@ -352,7 +352,7 @@ public sealed class RoomLevelData
         // Elevator and physical door blocks are found alike before the destination decides whether collision is solid or
         // starts the door transition.
         Position16<RoomBlocks> block = doorBlock.At;
-        DoorBlockExit entry = Exits[GridPlace(block)] ?? throw new InvalidDataException($"Door block {block} leads nowhere.");
+        DoorBlockExit entry = exits[GridPlace(block)] ?? throw new InvalidDataException($"Door block {block} leads nowhere.");
         // The door reaction normally publishes either a real transition or the elevator-contact flag. The runtime
         // collapses the outer transition states into one room-load update, however, so destination-side elevator return
         // scans must inspect the same door block without republishing either side effect. Keep the door lookup and
@@ -400,19 +400,19 @@ public sealed class RoomLevelData
     /// <summary>Writes the behaviour of the grid's block at <paramref name="place"/>, which no longer leads where it did.</summary>
     private void WriteBehavior(int place, RoomBlockBehavior behavior)
     {
-        Behaviors[place] = behavior;
-        Exits[place] = null;
+        behaviors[place] = behavior;
+        exits[place] = null;
     }
 
     /// <summary>The block of the grid at <paramref name="place"/> in its planes, as collision reads it.</summary>
     private RoomCollisionBlock GridCollisionBlockAt(int place) =>
-        new(Size.CellAtRowMajorIndex(place), Terrain[place], Behaviors[place]);
+        new(Size.CellAtRowMajorIndex(place), terrain[place], behaviors[place]);
 
     /// <summary>A room object's block at <paramref name="place"/> in the level space, inside the grid or beyond it.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The place is past the terrain beyond the room.</exception>
     private RoomCollisionBlock ObjectCollisionBlockAt(int place)
     {
-        if (place < Terrain.Length)
+        if (place < terrain.Length)
             return GridCollisionBlockAt(place);
         int beyond = BeyondPlace(place);
         return new RoomCollisionBlock(Size.CellAtRowMajorIndex(place), BeyondRoom.TerrainAt(beyond), BeyondRoom.BehaviorAt(beyond));
@@ -422,18 +422,18 @@ public sealed class RoomLevelData
     /// A terrain write at <paramref name="place"/> in the level space that shows <paramref name="shown"/>. Writes inside
     /// the grid reach collision and the display; writes past it persist in the terrain beyond the room.
     /// </summary>
-    internal void WriteObjectTerrain(int place, RoomTerrainBlock block, RoomBlockAppearance shown)
+    private void WriteObjectTerrain(int place, RoomTerrainBlock block, RoomBlockAppearance shown)
     {
-        if (place >= Terrain.Length)
+        if (place >= terrain.Length)
         {
             BeyondRoom.SetTerrain(BeyondPlace(place), block);
             return;
         }
 
-        Terrain[place] = block;
-        if (ShownForeground[place] != shown)
+        terrain[place] = block;
+        if (shownForeground[place] != shown)
             shownCollectibles.Remove(place);
-        ShownForeground[place] = shown;
+        shownForeground[place] = shown;
         PublishedForeground = null;
     }
 
@@ -441,5 +441,5 @@ public sealed class RoomLevelData
     private RoomCollisionBlock EdgeSolid() => new(Position: null, BeyondRoom.EdgeSolid, BeyondRoom.NoBehavior);
 
     /// <summary>A place in the level space past the grid, counted from the first block past it.</summary>
-    private int BeyondPlace(int place) => place - Terrain.Length;
+    private int BeyondPlace(int place) => place - terrain.Length;
 }

@@ -1,51 +1,39 @@
+using SuperMetroid.Core.Animation;
+
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
 /// The glows of typed narration letters, each aging on its own (#1625): every typed letter starts one, and none is
-/// dropped or displaces another. Each recolours only its own letter, so the order they step in is not observable.
+/// dropped or displaces another. Each recolours only its own letter, so the order they step in is not observable. Each
+/// glow plays <see cref="IntroTextGlowAnimations.Glowing"/> on the shared animation player (#2488).
 /// </summary>
 internal sealed class CinematicTextGlowSystem
 {
     /// <summary>The glows still running, oldest first.</summary>
     private readonly List<Glow> glows = [];
 
-    /// <summary>Starts a glow over the letter at <paramref name="column"/> of row <paramref name="row"/>.</summary>
-    public void Spawn(int column, int row) => glows.Add(new Glow { Column = column, Row = row, Timer = 1 });
+    /// <summary>Starts a glow over the letter at <paramref name="column"/> of row <paramref name="row"/>, which shows its first step on its first update.</summary>
+    public void Spawn(int column, int row) => glows.Add(new Glow(column, row,
+        AnimationPlayer<IntroTextGlowSegment, IntroTextGlowStep, NoAnimationCue>.Starting(IntroTextGlowAnimations.Segments, IntroTextGlowAnimations.Glowing)));
 
     /// <summary>
-    /// Advances the glows whose timers expire, giving the letter each covers the glow's current step while
-    /// keeping the letter, and ends each glow after its last step.
+    /// Runs each glow one update, giving the letter it covers each step the glow shows anew while keeping the letter, and
+    /// ends each glow once it rests on its last step.
     /// </summary>
     public void Step(IntroNarrationText text)
     {
         Ensure.NotNull(text);
         foreach (Glow glow in glows)
         {
-            if (--glow.Timer != 0) continue;
-            text.Recolour(glow.Column, glow.Row, glow.Shown);
-            if (glow.Shown.Following is { } following)
-            {
-                glow.Shown = following;
-                glow.Timer = CinematicTextGlowDefinitions.VariantDuration;
-            }
-            else
-                glow.Ended = true;
+            if (glow.Steps.StepToNewFrame() is { } step)
+                text.Recolour(glow.Column, glow.Row, step);
         }
-        _ = glows.RemoveAll(glow => glow.Ended);
+        _ = glows.RemoveAll(glow => glow.Steps.IsResting);
     }
 
     /// <summary>One independently timed letter glow.</summary>
-    private sealed class Glow
-    {
-        /// <summary>The glowing letter's column of the narration's text rows.</summary>
-        public int Column;
-        /// <summary>The glowing letter's row, counted from the narration's top.</summary>
-        public int Row;
-        /// <summary>Frames until this glow's next colour phase.</summary>
-        public int Timer;
-        /// <summary>The glow step its letter is given next: the first when the glow starts, then each in turn up to the last, after which the glow ends.</summary>
-        public IntroTextGlowStep Shown = IntroTextGlowStep.Typed;
-        /// <summary>Whether the glow has shown its final variant, so the system drops it.</summary>
-        public bool Ended;
-    }
+    /// <param name="Column">The glowing letter's column of the narration's text rows.</param>
+    /// <param name="Row">The glowing letter's row, counted from the narration's top.</param>
+    /// <param name="Steps">The glow's steps as they play.</param>
+    private sealed record Glow(int Column, int Row, AnimationPlayer<IntroTextGlowSegment, IntroTextGlowStep, NoAnimationCue> Steps);
 }

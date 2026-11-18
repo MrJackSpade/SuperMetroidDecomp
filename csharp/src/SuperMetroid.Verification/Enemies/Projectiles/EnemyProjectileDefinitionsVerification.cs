@@ -22,6 +22,7 @@ using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Enemies.Projectiles;
 
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Verification.Areas.Tourian;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Enemies.EyeDoor;
@@ -57,11 +58,13 @@ internal static class EnemyProjectileDefinitionsVerification
         Func<EnemyProjectile, SamusState, SuperMetroid.Core.Samus.Movement.KnockbackHorizontalDirection?> collideWithSamus =
             EnemyProjectileEngine.ResolveEnemyProjectileSamusCollision;
 
+        // The Tourian statues' projectiles spawn only in their room (#2383), which every kind is initialized in here.
+        var statueRoom = new FixedTourianStatueRoom(WaterSurface: 216, StatueOffset: 0);
         foreach (RoomEnemyProjectileKind kind in kinds)
         {
             EnemyProjectileDefinition definition = EnemyProjectileKinds.Get(kind);
             projectile.Delete();
-            FamilyProjectileStarts.Initialize(enemies, projectile, kind, SpriteGraphics.SharedIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook));
+            FamilyProjectileStarts.Initialize(enemies, projectile, kind, SpriteGraphics.SharedIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook), statueRoom);
             AssertEqual(kind, projectile.Kind, $"{kind} production kind");
             AssertEqual(startingMotions[kind], projectile.Motion,
                 $"{kind} production pre-instruction");
@@ -128,7 +131,7 @@ internal static class EnemyProjectileDefinitionsVerification
                 AssertTrue(ReferenceEquals(initialProgram, projectile.Animation), $"{kind} production touch keeps its program");
             }
 
-            FamilyProjectileStarts.Initialize(enemies, projectile, kind, SpriteGraphics.SharedStandard);
+            FamilyProjectileStarts.Initialize(enemies, projectile, kind, SpriteGraphics.SharedStandard, statueRoom);
             projectile.Position = projectile.Position.WithWhole(new(0x0100, 0x0100));
             projectile.BlocksSamusProjectiles = true;
             projectile.CollisionOption = EnemyProjectileCollisionOption.PlaysShotAnimation;

@@ -102,7 +102,7 @@ internal static class IntroBabyActorDefinitionsVerification
                 $"SR388 input edge at frame {frame} matches ROM-backed controller");
             AssertEqual(reference.Samus.Position.X.Whole, discovery.Samus.Position.X.Whole,
                 $"SR388 Samus X at frame {frame} matches ROM-backed controller");
-            AssertEqual(reference.PageThreeRequested, discovery.PageThreeRequested,
+            AssertEqual(reference.NextPageRequested, discovery.NextPageRequested,
                 $"SR388 page-three request at frame {frame} matches ROM-backed actor");
             AssertEqual(reference.ActiveEggParticleCount, discovery.ActiveEggParticleCount,
                 $"SR388 egg particle count at frame {frame} matches ROM-backed actor");
@@ -112,7 +112,7 @@ internal static class IntroBabyActorDefinitionsVerification
                 $"SR388 baby visual frame {frame} matches ROM-backed instruction playback");
             AssertEqual(nativeBaby.ScreenPlace.Y, baby.ScreenPlace.Y,
                 $"SR388 baby Y motion at frame {frame} matches ROM-backed instruction playback");
-            if (discovery.PageThreeRequested)
+            if (discovery.NextPageRequested)
             {
                 pageThreeFrame = frame;
                 break;
@@ -136,14 +136,14 @@ internal static class IntroBabyActorDefinitionsVerification
         var deliveredBaby = delivery.baby;
         var examinedBaby = examination.baby;
         for (ushort frame = 0; frame < 1024 &&
-            (!delivery.PageFourRequested || !examination.PageFiveRequested); frame++)
+            (!delivery.NextPageRequested || !examination.NextPageRequested); frame++)
         {
             delivery.Step(IntoLaboratory(frame));
             examination.Step(IntoLaboratory(frame));
         }
-        AssertTrue(delivery.PageFourRequested,
+        AssertTrue(delivery.NextPageRequested,
             "delivered-baby production actor reaches page-four instruction");
-        AssertTrue(examination.PageFiveRequested,
+        AssertTrue(examination.NextPageRequested,
             "examined-baby production actor reaches page-five instruction");
         delivery.Step(OutOfLaboratoryFinishing);
         examination.Step(OutOfLaboratoryFinishing);

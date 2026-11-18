@@ -8,8 +8,11 @@ namespace SuperMetroid.Core.Frontend;
 /// </summary>
 internal sealed class DownwardsElevatorWait
 {
-    /// <summary>The frames left before destination loading resumes.</summary>
-    private int delay;
+    /// <summary>
+    /// The frames loading still stays paused, counted down to none: a wait of <c>n</c> pauses <c>n</c> frames and resumes
+    /// loading on the frame after them (#2488).
+    /// </summary>
+    private int framesLeft;
 
     /// <summary>Whether room loading is paused for the downward elevator.</summary>
     internal bool Waiting { get; private set; }
@@ -17,15 +20,18 @@ internal sealed class DownwardsElevatorWait
     /// <summary>Starts the elevator's delay.</summary>
     internal void Begin()
     {
-        delay = ElevatorDoorDefinitions.DownwardsElevatorDelayFrames;
+        framesLeft = ElevatorDoorDefinitions.DownwardsElevatorDelayFrames;
         Waiting = true;
     }
 
     /// <summary>Counts one frame of the delay; returns whether loading resumes.</summary>
     internal bool CountFrame()
     {
-        if (--delay >= 0)
+        if (framesLeft > 0)
+        {
+            framesLeft--;
             return false;
+        }
         Waiting = false;
         return true;
     }

@@ -1,3 +1,5 @@
+using SuperMetroid.AssetExtraction.Cartridge;
+
 namespace SuperMetroid.Verification.Frontend.Intro;
 
 /// <summary>
@@ -12,4 +14,11 @@ internal sealed record NativeCinematicCues<TCue>(IReadOnlyDictionary<ushort, TCu
 {
     /// <summary>The cues of a family whose lists hold no owner instruction and install no routine.</summary>
     internal static NativeCinematicCues<TCue> None { get; } = new(new Dictionary<ushort, TCue>(), new Dictionary<ushort, TCue>());
+
+    /// <summary>
+    /// Each routine the lists install whose own updates raise the family's cues (#2489), by the reader of that routine,
+    /// which runs on every update of the actor from the next on, before its list.
+    /// </summary>
+    internal IReadOnlyDictionary<ushort, Func<IImportCartridgeSource, INativeCinematicRoutine<TCue>>> Routines { get; init; } =
+        new Dictionary<ushort, Func<IImportCartridgeSource, INativeCinematicRoutine<TCue>>>();
 }

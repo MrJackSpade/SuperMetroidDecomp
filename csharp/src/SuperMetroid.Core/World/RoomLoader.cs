@@ -2,7 +2,6 @@ using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Areas.Ceres;
-using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Beetom;
 using SuperMetroid.Core.Enemies.Bull;
@@ -161,16 +160,9 @@ internal sealed class RoomLoader
     /// </summary>
     public void InitializeStartingCeresRoom()
     {
-        // A new game loads at the Ceres start; the station names the room, door and placement.
+        // A new game loads at the Ceres start; the station names the door into its room and the placement.
         LoadStation station = LoadStationDefinitions.CeresElevator;
         DoorDefinition door = station.Placement.Door;
-        if (door.DestinationRoom != station.Placement.Room)
-        {
-            throw new InvalidDataException(
-                $"Ceres station room {station.Placement.Room.Name} disagrees with door " +
-                $"{door.Name}'s destination {door.DestinationRoom.Name}.");
-        }
-
         // A new game loads Ceres before it sets Samus up (InitializeCeresStartSamus): the room is chosen and loads with
         // Samus as initialization leaves her, unless a restored Ceres-elevator save has already set her up, as the game
         // holds her state through every load. Ceres's room choice reads none of her equipment, so a new game's Ceres is
@@ -205,13 +197,6 @@ internal sealed class RoomLoader
         LoadStation station = slot.Checkpoint;
         AreaId requestedArea = station.Area;
         DoorDefinition door = station.Placement.Door;
-        if (door.DestinationRoom != station.Placement.Room)
-        {
-            throw new InvalidDataException(
-                $"Load station {station} room {station.Placement.Room.Name} " +
-                $"disagrees with door {door.Name}'s destination " +
-                $"{door.DestinationRoom.Name}.");
-        }
 
         // Apply progression before room construction. Enemy and room-object initialization query
         // boss/event/item flags synchronously, while room-state selection and beam graphics
@@ -329,13 +314,6 @@ internal sealed class RoomLoader
         // not the checkpoint until the gunship's landing finishes and performs the save.
         LoadStation station = LoadStationDefinitions.ZebesArrival;
         DoorDefinition door = station.Placement.Door;
-        if (door.DestinationRoom != station.Placement.Room)
-        {
-            throw new InvalidDataException(
-                $"Post-Ceres station room {station.Placement.Room.Name} disagrees with " +
-                $"door {door.Name}'s destination {door.DestinationRoom.Name}.");
-        }
-
         SelectedRoom room = LoadSelectedRoom(door.DestinationRoom);
         if (room.Area != AreaId.Crateria)
         {
@@ -892,8 +870,8 @@ internal sealed class RoomLoader
         scope.BombProjectiles = bombs;
         scope.Projectiles = projectiles;
 
-        // The room-object loader walks the room's placements once. Each placement takes the highest free place among the
-        // room's room objects before its setup runs, so a room object its setup deletes at once frees that place for the
+        // The room-object loader walks the room's placements once. Each placement takes the first free place in update
+        // order among the room's room objects before its setup runs, so a room object its setup deletes at once frees that place for the
         // next placement, and enemies can observe which room object holds which place. Every room-object family enters
         // through this one loader; an unsupported placement throws, naming it, instead of being skipped.
         // The room's room-object system is built with its bindings, then one set of runtime services
@@ -1182,7 +1160,7 @@ internal sealed class RoomLoader
     internal ActiveRoomGeometry GetActiveRoomGeometry()
     {
         SelectedRoom room = _room.ActiveRoom ?? throw new InvalidOperationException("No room is active.");
-        return new ActiveRoomGeometry(room.Area, room.MapPosition, room.UpScroller, room.DownScroller);
+        return new ActiveRoomGeometry(room.Area, room.MapPosition, room.FallingCameraOffset, room.RisingCameraOffset);
     }
 
     /// <summary>

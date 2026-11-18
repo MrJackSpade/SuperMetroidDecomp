@@ -1166,8 +1166,8 @@ public static class RoomFxDefinitions
     public static RoomFxSelection CeresRidleyWhenAreaBossDead { get; } = new(nameof(CeresRidleyWhenAreaBossDead), [],
         null);
 
-    /// <summary>The MotherBrainWhenMainAreaBossDead room FX.</summary>
-    public static RoomFxSelection MotherBrainWhenMainAreaBossDead { get; } = new(nameof(MotherBrainWhenMainAreaBossDead), [],
+    /// <summary>The MotherBrainWhenAreaBossDead room FX.</summary>
+    public static RoomFxSelection MotherBrainWhenAreaBossDead { get; } = new(nameof(MotherBrainWhenAreaBossDead), [],
         null);
 
     /// <summary>The MotherBrainAcidRises room effect, which Mother Brain's fight applies to her room after its default effect.</summary>

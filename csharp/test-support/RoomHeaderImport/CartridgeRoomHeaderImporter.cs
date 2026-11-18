@@ -62,19 +62,12 @@ public static class CartridgeRoomHeaderImporter
         }
         throw new InvalidDataException("Native room selector exceeds its bounded command count.");
     }
-    /// <summary>
-    /// The conditions of a game with no progress: no story event has happened, no boss is defeated and Samus carries
-    /// neither the Morph Ball and missiles nor Power Bombs.
-    /// </summary>
-    public static RoomStateSelectionContext NoProgress =>
-        new(new SuperMetroid.Core.Progression.PersistentProgress().Events, SuperMetroid.Core.Progression.DefeatedBosses.None, false, false);
-
     /// <summary>Evaluates the native selector program following the room header at <paramref name="roomPointer"/> for a game with no progress.</summary>
     /// <param name="bus">Address space providing the import-only cartridge source.</param>
     /// <param name="roomPointer">Sixteen-bit room-header address within bank $8F.</param>
     /// <returns>The bank-$8F pointer of the first matching state, or of the inline default state.</returns>
     public static ushort SelectStatePointer(ISnesAddressSpace bus, ushort roomPointer) =>
-        SelectStatePointer(bus, roomPointer, NoProgress);
+        SelectStatePointer(bus, roomPointer, RoomStateSelectionContexts.NoProgress);
 
     /// <summary>Evaluates the native selector program following the room header at <paramref name="roomPointer"/>, independently of compiled gameplay branches.</summary>
     /// <param name="bus">Address space providing the import-only cartridge source.</param>
@@ -99,7 +92,7 @@ public static class CartridgeRoomHeaderImporter
     /// <param name="roomPointer">Sixteen-bit room-header address within bank $8F.</param>
     /// <returns>The decoded room header and selected room-state payload; no gameplay state is initialized.</returns>
     public static SelectedRoom Load(ISnesAddressSpace bus, ushort roomPointer) =>
-        Load(bus, roomPointer, NoProgress);
+        Load(bus, roomPointer, RoomStateSelectionContexts.NoProgress);
 
     /// <summary>Decodes a native bank-$8F room header and evaluates its bounded state-selection command list independently of compiled gameplay definitions.</summary>
     /// <param name="bus">Address space providing the import-only cartridge source.</param>

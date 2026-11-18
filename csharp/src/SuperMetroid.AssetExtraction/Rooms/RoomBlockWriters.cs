@@ -45,7 +45,7 @@ internal static class RoomBlockWriters
             .. PerFrame(catalogs.ColoredDoor.Images, ColoredDoorFrameWrittenIn),
             // The grey caps, and the cleared opening every door cap of a facing shows once it opens (#1636).
             .. PerFrame(catalogs.GreyDoor.Images, GreyDoorFrameWrittenIn),
-            new(FrameBlocks(catalogs.EyeDoor.Images), Placing(EyeDoorPartDefinitions.Parts.Keys)),
+            new(FrameBlocks(catalogs.EyeDoor.Images), state => state.Places(static setup => setup is EyeDoorEyeSetup or EyeDoorPartSetup)),
             new(FrameBlocks(catalogs.DownwardGate.Images), state => state.HoldsDownwardGateTriggers ||
                 state.Headers.Contains(RoomObjectKind.DownwardGate) || state.Headers.Contains(RoomObjectKind.DownwardGateShotBlock)),
             .. PerFrame(catalogs.Collectible.Images, CollectibleFrameWrittenIn),
@@ -150,11 +150,11 @@ internal static class RoomBlockWriters
         if (!RoomObjectDrawIdentity.TryFrame<GreyDoorCaps.Draw>(draw, out GreyDoorCaps.Draw cap))
             throw new InvalidDataException($"Grey door frame {draw} is not a grey door cap's frame.");
         ColoredDoorOrientation facing = cap.Orientation;
-        Func<InventoriedRoomState, bool> grey = Placing(DoorObjectKindDefinitions.GreyDoors.Where(door => door.Value.Orientation == facing).Select(door => door.Key));
+        Func<InventoriedRoomState, bool> grey = state => state.Places(setup => setup is GreyDoorSetup { Door.Orientation: var placed } && placed == facing);
         if (!cap.IsCleared)
             return grey;
-        Func<InventoriedRoomState, bool> coloured = Placing(DoorObjectKindDefinitions.ColoredDoors
-            .Where(door => door.Value.Orientation == facing).Select(door => door.Key));
+        Func<InventoriedRoomState, bool> coloured = state =>
+            state.Places(setup => setup is ColoredDoorSetup { Door.Orientation: var placed } && placed == facing);
         return state => grey(state) || coloured(state) || state.HoldsBlueDoorCap(facing) ||
             state.Entrances.Any(door => DoorClosingObjects.GetDefinition(door.Orientation)?.BlueCapFacing == facing);
     }
@@ -184,7 +184,8 @@ internal static class RoomBlockWriters
     {
         if (!RoomObjectDrawIdentity.TryFrame<ColoredDoorCaps.Draw>(draw, out ColoredDoorCaps.Draw cap))
             throw new InvalidDataException($"Coloured door frame {draw} is not a coloured door cap's frame.");
-        return Placing(DoorObjectKindDefinitions.ColoredDoors.Where(door => door.Value.Color == cap.Color).Select(door => door.Key));
+        ColoredDoorColor color = cap.Color;
+        return state => state.Places(setup => setup is ColoredDoorSetup { Door.Color: var placed } && placed == color);
     }
 
     /// <summary>
@@ -209,7 +210,7 @@ internal static class RoomBlockWriters
                 InWorldCollectibleKind tank = TankKinds.Single(kind => TankLooks[kind] is var looks && (looks.Primary == frame || looks.Alternate == frame));
                 return state => state.PlacesCollectible((kind, _) => kind == tank);
             case DrawGroup.OwnPicture:
-                return static state => state.PlacesCollectible(static (kind, _) => CollectibleObjects.ShowsOwnPicture(kind));
+                return static state => state.PlacesCollectible(static (kind, _) => CollectibleDefinitions.Items[kind].Picture == CollectiblePictureSource.OwnPicture);
             default:
                 throw new InvalidDataException($"Collectible frame {draw} is of no collectible draw group.");
         }

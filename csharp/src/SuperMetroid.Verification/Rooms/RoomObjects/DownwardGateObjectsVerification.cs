@@ -101,7 +101,6 @@ internal static class DownwardGateObjectsVerification
     {
         foreach ((RoomObjectKind header, int source) in new[] { new VerifyDownwardGateHeaderDefinitionsCase(RoomObjectKind.DownwardGate, 0x84c82c), new VerifyDownwardGateHeaderDefinitionsCase(RoomObjectKind.DownwardGateShotBlock, 0x84c838) })
         {
-            AssertEqual(header, RoomObjectKinds.RequirePlaced(header), "Gate compiled-population header");
             AssertEqual(unchecked((ushort)(source - 2)), RoomObjectNativeWords.Word(header), "Gate header word precedes its first-list word");
         }
     }
@@ -156,10 +155,8 @@ internal static class DownwardGateObjectsVerification
             "argument zero installs retail blue-left BTS $46");
 
         DownwardGateProjectileRequest request = roomObjects.Gates.TakeDownwardGateProjectileRequests().Single();
-        AssertEqual(DownwardGateProjectileOperation.Spawn, request.Operation,
-            "closed gate setup publishes one spawn");
-        AssertEqual((DownwardGateProjectileKind?)DownwardGateProjectileKind.Closed,
-            request.Kind, "closed gate setup spawns the initially closed gate projectile");
+        AssertTrue(request is DownwardGateProjectileSpawn { Kind: DownwardGateProjectileKind.Closed },
+            "closed gate setup publishes one spawn of the initially closed gate projectile");
 
         // The production room loader consumes this request after Enemies.Load has cleared
         // the shared projectile pool. Recreate that exact boundary and inspect initializer E.
@@ -203,8 +200,7 @@ internal static class DownwardGateObjectsVerification
                 wakingGate.Animation.Shown == DownwardGateMovementDefinitions.Reopening[0],
             "the waking update shows the reopening's first image (#1627)");
         DownwardGateProjectileRequest wake = roomObjects.Gates.TakeDownwardGateProjectileRequests().Single();
-        AssertEqual(DownwardGateProjectileOperation.Wake, wake.Operation,
-            "closed gate publishes a wake request");
+        AssertTrue(wake is DownwardGateProjectileWake, "closed gate publishes a wake request");
         AssertTrue(roomObjects.Sounds.SoundRequests.Any(sound =>
                 sound.SoundEffect == DownwardGateDefinitions.MovementSound),
             "opening gate queues its cartridge movement sound");
@@ -224,7 +220,7 @@ internal static class DownwardGateObjectsVerification
             "compiled final open draw clears the second column collision word");
         RoomObjectPlaceSnapshot openedGate = roomObjects.PopulationPlaces.Single(place =>
             place.Behaviour is DownwardGateObject);
-        AssertTrue(openedGate.Behaviour is DownwardGateObject { Phase: DownwardGatePhase.RestingOpen, WakeArmed: true },
+        AssertTrue(openedGate.Behaviour is DownwardGateObject { Phase: DownwardGatePhase.RestingOpen },
             "open gate rests, waiting only for a trigger");
 
         AssertTrue(roomObjects.Gates.TrySpawnDownwardGateTrigger(
@@ -238,10 +234,8 @@ internal static class DownwardGateObjectsVerification
         for (int frame = 0; frame < 17; frame++)
             StepDownwardGateObject(roomObjects, level);
         DownwardGateProjectileRequest close = roomObjects.Gates.TakeDownwardGateProjectileRequests().Single();
-        AssertEqual(DownwardGateProjectileOperation.Spawn, close.Operation,
-            "open gate publishes a moving close actor");
-        AssertEqual((DownwardGateProjectileKind?)DownwardGateProjectileKind.Moving,
-            close.Kind, "close request spawns the moving gate projectile");
+        AssertTrue(close is DownwardGateProjectileSpawn { Kind: DownwardGateProjectileKind.Moving },
+            "open gate publishes a spawn of the moving gate projectile");
         enemies.DownwardGateBehavior.ApplyDownwardGateProjectileRequest(close);
         for (int frame = 0; frame < 80; frame++)
             enemies.StepEnemyProjectiles(level, samus: RoomEnemyFrameFixtures.StandaloneSamus());
@@ -300,9 +294,9 @@ internal static class DownwardGateObjectsVerification
         // the guard below prohibits them only while the production runtime sets up slots.
         var population = new RoomObjectPopulation($"$8F:{populationPointer:X4}",
         [
-            RoomObjectPlacementAccess.Placed(RoomObjectKinds.RequirePlaced(RoomObjectKind.DownwardGate),
+            RoomObjectPlacementAccess.Placed(RoomObjectKind.DownwardGate,
                 new(gateX, gateY)),
-            RoomObjectPlacementAccess.Placed(RoomObjectKinds.RequirePlaced(RoomObjectKind.DownwardGateShotBlock),
+            RoomObjectPlacementAccess.Placed(RoomObjectKind.DownwardGateShotBlock,
                 new(gateX, gateY), RoomObjectRoomArgumentWords.Decode(RoomObjectKind.DownwardGateShotBlock, argument)),
         ]);
         SeedDownwardGateProjectileRom(bus);

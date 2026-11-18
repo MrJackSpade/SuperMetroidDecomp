@@ -26,30 +26,28 @@ internal sealed class DownwardGateBehavior
     public void ApplyDownwardGateProjectileRequest(
         DownwardGateProjectileRequest request)
     {
-
-        switch (request.Operation)
+        switch (request)
         {
-            case DownwardGateProjectileOperation.Spawn:
-                SpawnDownwardGateProjectile(request);
+            case DownwardGateProjectileSpawn spawn:
+                SpawnDownwardGateProjectile(spawn);
                 return;
-            case DownwardGateProjectileOperation.Wake:
-                WakeDownwardGateProjectile(request.RoomObjectBlock);
+            case DownwardGateProjectileWake wake:
+                WakeDownwardGateProjectile(wake.RoomObjectBlock);
                 return;
             default:
                 throw new ArgumentOutOfRangeException(
-                    nameof(request), request.Operation, "Unknown downward gate projectile operation.");
+                    nameof(request), request, "Unknown downward gate projectile request.");
         }
     }
 
     /// <summary>Allocates a gate actor at its room object's block and ties it to its gate's block for waking.</summary>
     private void SpawnDownwardGateProjectile(
-        DownwardGateProjectileRequest request)
+        DownwardGateProjectileSpawn request)
     {
         RoomEnemyProjectileKind kind = request.Kind switch
         {
             DownwardGateProjectileKind.Closed => RoomEnemyProjectileKind.DownwardGateClosed,
             DownwardGateProjectileKind.Moving => RoomEnemyProjectileKind.DownwardGateMoving,
-            null => throw new InvalidDataException("Downward gate spawn requested no projectile."),
             _ => throw new InvalidDataException($"Downward gate requested undefined projectile {request.Kind}."),
         };
 

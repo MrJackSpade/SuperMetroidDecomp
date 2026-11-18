@@ -90,7 +90,7 @@ internal static class EndingCreditsPresentation
             else layers.Add(Sprites(ending, blend: RewardSpritesGlow(ending) ? SpriteBlend.Glows : SpriteBlend.Drawn));
         }
         if (ending.Stage.Phase == EndingCreditsPhase.PostCreditsWhiteFlash)
-            layers.Add(WhiteWash.Layer(ending.CreditsRoll.WhiteWashStepsLeft));
+            layers.Add(ending.CreditsRoll.WhiteFlash.Layer);
         return new(paint, layers.ToArray(), ending.Stage.Brightness);
     }
 
@@ -161,20 +161,6 @@ internal static class EndingCreditsPresentation
     /// <summary>The colour the flyaway's white sky tints the sprites with, or null while it shows none.</summary>
     private static RgbColor? FlyawaySkyWhite(EndingCreditsState ending) => ending.Flyaway.FlyawayWhiteWash?.Colour;
 
-    /// <summary>The sprite layer <paramref name="role"/>'s sprite shows on (#1514): the starfields lie behind, every other sprite in front.</summary>
-    /// <exception cref="InvalidOperationException">The role is undefined.</exception>
-    private static EndingSpriteLayer LayerOf(EndingSpriteRole role) => role switch
-    {
-        EndingSpriteRole.ExplosionStars or EndingSpriteRole.ExplosionStarsRight or EndingSpriteRole.ExplosionStarsLeft => EndingSpriteLayer.Stars,
-        EndingSpriteRole.SideCloudRightLeading or EndingSpriteRole.SideCloudLeftLeading or EndingSpriteRole.SideCloudRightTrailing or EndingSpriteRole.SideCloudLeftTrailing
-            or EndingSpriteRole.TopCloudPattern or EndingSpriteRole.TopCloudEdge or EndingSpriteRole.BottomCloudEdge or EndingSpriteRole.BottomCloudPattern
-            or EndingSpriteRole.ExplodingZebes or EndingSpriteRole.ExplosionLava or EndingSpriteRole.ExplosionGlow
-            or EndingSpriteRole.ExplosionSilhouette or EndingSpriteRole.ExplosionAfterglow or EndingSpriteRole.OperationWasText
-            or EndingSpriteRole.CompletedSuccessfullyText or EndingSpriteRole.ClearTimeText or EndingSpriteRole.ClearTimeDigit
-            or EndingSpriteRole.RewardSamus or EndingSpriteRole.AnimalEscape => EndingSpriteLayer.Actors,
-        _ => throw new InvalidOperationException($"Undefined ending sprite role {role}."),
-    };
-
     /// <summary>
     /// Places the scene's sprite entries at the simulation display boundary without advancing sprite state, each actor's
     /// frames drawn from its own sheet (#1392, #1626), in the ending's colours under its colouring (#1512): those of
@@ -206,7 +192,7 @@ internal static class EndingCreditsPresentation
                 ending.screen.Colours.Drawn);
             foreach (EndingSprite wrapper in ending.sprites)
             {
-                if (Shows(LayerOf(wrapper.Role)))
+                if (Shows(wrapper.Definition.Layer))
                     wrapper.Draw(sprites, art);
             }
         }

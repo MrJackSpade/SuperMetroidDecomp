@@ -235,8 +235,8 @@ internal static class IntroCinematicArtworkVerification
             AssertEqual(native.EyeFrame, installed.EyeFrame,
                 $"installed normal eye blink shows the native frame at frame {frame}");
         }
-        native.StartEnglishPageSix();
-        installed.StartEnglishPageSix();
+        native.StartPage(IntroNarrationPageId.CeresUnderAttack);
+        installed.StartPage(IntroNarrationPageId.CeresUnderAttack);
         for (int frame = 0; frame < 64; frame++)
         {
             native.Step(0);

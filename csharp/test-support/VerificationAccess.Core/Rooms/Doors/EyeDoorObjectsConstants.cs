@@ -6,5 +6,6 @@ namespace SuperMetroid.Core.Rooms.Doors;
 internal static class EyeDoorObjectsConstants
 {
     /// <summary>Recognizes the eye, middle, and bottom definitions for either door orientation.</summary>
-    internal static bool IsEyeDoorKind(RoomObjectKind kind) => EyeDoorPartDefinitions.Parts.ContainsKey(kind);
+    internal static bool IsEyeDoorKind(RoomObjectKind kind) =>
+        RoomObjectKindVariants.EyeDoorEyes.ContainsKey(kind) || RoomObjectKindVariants.EyeDoorParts.ContainsKey(kind);
 }

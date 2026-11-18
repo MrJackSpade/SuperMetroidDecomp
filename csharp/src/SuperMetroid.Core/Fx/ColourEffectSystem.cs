@@ -225,9 +225,9 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
         foreach (RoomColourEffect effect in effects)
         {
             checkCondition(effect);
-            if (effect.Ended || !effect.CountDown())
+            if (effect.Ended)
                 continue;
-            if (effect.Advance(cue => CarryOut(effect, cue)) is { } frame)
+            if (effect.TakeTurn(cue => CarryOut(effect, cue)) is { } frame)
                 show(effect, frame);
         }
         foreach (RoomColourEffect effect in effects)

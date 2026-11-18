@@ -5,6 +5,12 @@ namespace SuperMetroid.Core.World;
 /// are built from the installation's whole set of room-object pictures (#2290), which a rebinding replaces whole, so every
 /// family's draw finds its catalog.
 /// </summary>
+/// <remarks>
+/// A family finds its catalog by the catalog's type because the families live in Rooms, Bosses, Enemies and Areas, all of
+/// which World composes: none of them can name <see cref="RoomObjectArtwork"/>, World's whole set, without a module cycle.
+/// Each family's catalog is therefore a type of its own, even where two families' catalogs hold the same kind of
+/// pictures, and that type is the family's key here (#2487).
+/// </remarks>
 internal sealed class RoomObjectVisuals
 {
     /// <summary>The bound catalogs, each under its own type, which names the one family it pictures.</summary>

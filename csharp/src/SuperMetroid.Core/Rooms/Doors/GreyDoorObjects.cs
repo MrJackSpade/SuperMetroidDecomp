@@ -70,20 +70,17 @@ internal sealed class GreyDoorObjects
     /// condition, resolved into its lock, and its door. Installs its shootable collision and places the cap, which takes its
     /// first look on its first update.
     /// </summary>
-    /// <exception cref="InvalidDataException">
-    /// The placement named no condition and door, or waits for the Tourian statue outside the statue room.
-    /// </exception>
+    /// <exception cref="InvalidDataException">The cap waits for the Tourian statue outside the statue room.</exception>
     internal void SetupGreyDoor(
         RoomLevelData level,
         RoomObjectPlace place,
         GreyDoorVariant variant,
-        GreyDoorArgument? placed)
+        GreyDoorArgument placed)
     {
         Ensure.NotNull(place);
-        GreyDoorArgument argument = placed ?? throw new InvalidDataException(
-            $"Grey door {variant} at block {place.Block} was placed without its condition and door.");
-        GreyDoorLock doorLock = LockFor(argument.Condition);
+        Ensure.NotNull(placed);
+        GreyDoorLock doorLock = LockFor(placed.Condition);
         ApplyGreyDoorSetup(level, place.Block);
-        place.Become(new GreyDoorObject(variant, doorLock, new PlacedDoor(argument.Door)));
+        place.Become(new GreyDoorObject(variant, doorLock, new PlacedDoor(placed.Door)));
     }
 }

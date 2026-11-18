@@ -27,9 +27,9 @@ internal sealed class IntroMotherBrainSpriteState
     /// </summary>
     private int explodingTimer;
     /// <summary>Whether explosion timing has entered the page-two animation.</summary>
-    private bool pageTwoAnimationStarted;
+    private bool nextPageAnimationStarted;
     /// <summary>Whether the page-two animation has started the cross-fade, which replaces hit flashing.</summary>
-    private bool crossfadingToPageTwo;
+    private bool crossfadingToNextPage;
 
     /// <summary>Fixed cinematic screen origin from Mother Brain's definition.</summary>
     public static Offset16<ScreenPixels> Position => IntroMotherBrainDefinitions.MotherBrainOrigin;
@@ -60,8 +60,8 @@ internal sealed class IntroMotherBrainSpriteState
     public Position16<RoomPixels> Background { get; private set; } =
         new(0, IntroCinematicState.GameplayFlashbackVerticalScroll);
 
-    /// <summary>True when the exploding behaviour switches the actor to its page-two animation.</summary>
-    public bool PageTwoRequested { get; private set; }
+    /// <summary>True when the exploding behaviour's animation asks for the page the flashback leads into.</summary>
+    public bool NextPageRequested { get; private set; }
 
     /// <summary>Whether the actor still contributes its frame to the cinematic sprites.</summary>
     public bool IsVisible { get; private set; } = true;
@@ -75,7 +75,7 @@ internal sealed class IntroMotherBrainSpriteState
         int cinematicFrameCounter,
         bool crossfadeFinishing)
     {
-        if (crossfadingToPageTwo)
+        if (crossfadingToNextPage)
         {
             ApplyScreenShake(cinematicFrameCounter);
             // Page two's crossfade reaching its final update deletes this actor and clears Samus's intro display.
@@ -85,7 +85,7 @@ internal sealed class IntroMotherBrainSpriteState
         }
 
         ApplyHurtFlash();
-        if (!ExplosionStarted || pageTwoAnimationStarted)
+        if (!ExplosionStarted || nextPageAnimationStarted)
             return;
 
         ApplyScreenShake(cinematicFrameCounter);
@@ -95,8 +95,8 @@ internal sealed class IntroMotherBrainSpriteState
         {
             // The exploding behaviour starts the page-two animation. The shared step below runs its page request and
             // starts the cross-fade during this same cinematic-actor update.
-            actor.Start(IntroMotherBrainAnimation.StartingPageTwo);
-            pageTwoAnimationStarted = true;
+            actor.Start(IntroMotherBrainAnimation.StartingNextPage);
+            nextPageAnimationStarted = true;
         }
     }
 
@@ -147,11 +147,11 @@ internal sealed class IntroMotherBrainSpriteState
     {
         switch (cue)
         {
-            case IntroMotherBrainCue.StartPageTwo:
-                PageTwoRequested = true;
+            case IntroMotherBrainCue.StartNextPage:
+                NextPageRequested = true;
                 return;
             case IntroMotherBrainCue.StartCrossFade:
-                crossfadingToPageTwo = true;
+                crossfadingToNextPage = true;
                 return;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(IntroMotherBrainCue)} {cue}.");

@@ -127,7 +127,7 @@ internal static class FamilyProjectileStarts
             RoomEnemyProjectileKind.TourianStatueSoul or RoomEnemyProjectileKind.TourianStatueDescentDust =>
             UnlockEffects(enemies, kind).Effects,
         RoomEnemyProjectileKind.TourianStatueRidley or RoomEnemyProjectileKind.TourianStatuePhantoon or
-            RoomEnemyProjectileKind.TourianStatueBaseDecoration => RequireStatueScene(enemies, kind).Decorations(),
+            RoomEnemyProjectileKind.TourianStatueBaseDecoration => RequireStatueScene(enemies, kind).Decorations,
         RoomEnemyProjectileKind.SporeSpawnStalk => enemies.SporeSpawnBehavior.Stalk,
         RoomEnemyProjectileKind.SporeSpawnSpore => enemies.SporeSpawnBehavior.Spore,
         RoomEnemyProjectileKind.SporeSpawnSpawner => enemies.SporeSpawnBehavior.Spawner,

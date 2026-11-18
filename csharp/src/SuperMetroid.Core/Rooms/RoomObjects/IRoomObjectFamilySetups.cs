@@ -1,31 +1,43 @@
+using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Rooms.Scrolling;
+
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>The room's room-object families' setups, which a placement's setup runs as its population places it (#2383).</summary>
+/// <summary>
+/// The room's room-object families' setups, which a placement's setup runs as its population places it (#2383), each
+/// handed what its placement decoded (#2481).
+/// </summary>
 internal interface IRoomObjectFamilySetups
 {
-    /// <summary>Sets up a coloured door of <paramref name="kind"/>.</summary>
-    void SetUpColoredDoor(RoomObjectKind kind, LockedDoorArgument? lockedBy);
+    /// <summary>Sets up a coloured door's cap, <paramref name="door"/>.</summary>
+    void SetUpColoredDoor(ColoredDoorVariant door, LockedDoorArgument lockedBy);
 
-    /// <summary>Sets up a grey door of <paramref name="kind"/>.</summary>
-    void SetUpGreyDoor(RoomObjectKind kind, GreyDoorArgument? opening);
+    /// <summary>Sets up a grey door's cap, <paramref name="door"/>.</summary>
+    void SetUpGreyDoor(GreyDoorVariant door, GreyDoorArgument opening);
 
     /// <summary>Sets up a scroll trigger running <paramref name="change"/>.</summary>
     void SetUpScrollTrigger(RoomScrollChange change);
 
-    /// <summary>Sets up a scroll extension of <paramref name="kind"/>.</summary>
-    void SetUpScrollExtension(RoomObjectKind kind);
+    /// <summary>Sets up a scroll extension writing <paramref name="extension"/>.</summary>
+    void SetUpScrollExtension(ScrollExtension extension);
 
-    /// <summary>Sets up a permanent item of <paramref name="kind"/>.</summary>
-    void SetUpCollectible(RoomObjectKind kind, CollectedItemArgument? collected);
+    /// <summary>Sets up a permanent item, <paramref name="item"/>.</summary>
+    void SetUpCollectible(PermanentCollectibleObject item, CollectedItemArgument collected);
 
-    /// <summary>Sets up an eye door's part of <paramref name="kind"/>.</summary>
-    void SetUpEyeDoor(RoomObjectKind kind, LockedDoorArgument? lockedBy);
+    /// <summary>Sets up an eye door's eye facing <paramref name="orientation"/>.</summary>
+    void SetUpEyeDoorEye(EyeDoorOrientation orientation, LockedDoorArgument lockedBy);
+
+    /// <summary>Sets up an eye door's body or bottom, <paramref name="part"/>.</summary>
+    void SetUpEyeDoorPart(EyeDoorPart part, LockedDoorArgument lockedBy);
 
     /// <summary>Sets up a Draygon wall cannon as its placement's <paramref name="setup"/> carries it.</summary>
     void SetUpDraygonCannon(DraygonWallCannonSetup setup);
 
-    /// <summary>Sets up a station of <paramref name="kind"/>.</summary>
-    void SetUpStation(RoomObjectKind kind, SaveStationArgument? savesAt);
+    /// <summary>Sets up a save station saving at <paramref name="savesAt"/>.</summary>
+    void SetUpSaveStation(SaveStationArgument savesAt);
+
+    /// <summary>Sets up a map, energy or missile station used by <paramref name="station"/>.</summary>
+    void SetUpAccessStation(StationAccessRule station);
 
     /// <summary>Sets up an elevator platform.</summary>
     void SetUpElevatorPlatform();
@@ -58,5 +70,5 @@ internal interface IRoomObjectFamilySetups
     void SetUpDownwardGate();
 
     /// <summary>Sets up a downward gate's shot block.</summary>
-    void SetUpDownwardGateShotBlock(GateTriggerArgument? trigger);
+    void SetUpDownwardGateShotBlock(GateTriggerArgument trigger);
 }

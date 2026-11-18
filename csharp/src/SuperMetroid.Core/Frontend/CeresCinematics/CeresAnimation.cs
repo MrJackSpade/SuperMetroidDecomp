@@ -37,6 +37,6 @@ internal enum CeresAnimation
     ZebesTitle,
     /// <summary>The Japanese PLANET ZEBES title.</summary>
     ZebesJapaneseTitle,
-    /// <summary>The Ceres explosion spawner's two waves and the repeating explosions between them.</summary>
+    /// <summary>The invisible explosion spawner's schedule: the first wave, the six repeating blasts and the final wave.</summary>
     ExplosionSpawner,
 }

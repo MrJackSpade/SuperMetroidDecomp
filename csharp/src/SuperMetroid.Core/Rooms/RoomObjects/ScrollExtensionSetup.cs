@@ -1,8 +1,11 @@
+using SuperMetroid.Core.Rooms.Scrolling;
+
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>A scroll extension's setup, which extends the trigger beside it in its kind's direction.</summary>
-internal sealed record ScrollExtensionSetup : RoomObjectPlacementSetup
+/// <summary>A scroll extension's setup (#2481): what it writes to extend the trigger beside it in its direction.</summary>
+/// <param name="Extension">The collision and the step back toward the trigger the extension writes.</param>
+internal sealed record ScrollExtensionSetup(ScrollExtension Extension) : RoomObjectPlacementSetup
 {
     /// <inheritdoc/>
-    internal override void SetUp(IRoomObjectFamilySetups setups, RoomObjectKind kind) => setups.SetUpScrollExtension(kind);
+    internal override void SetUp(IRoomObjectFamilySetups setups) => setups.SetUpScrollExtension(Extension);
 }

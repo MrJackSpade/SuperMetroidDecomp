@@ -805,8 +805,8 @@ internal sealed class SuperMetroidRuntime
                     currentCameraPoint,
                     new VerticalCameraContext(
                         YDirection: samus.Kinematics.YDirection,
-                        UpScroller: roomGeometry.UpScroller,
-                        DownScroller: roomGeometry.DownScroller),
+                        FallingCameraOffset: roomGeometry.FallingCameraOffset,
+                        RisingCameraOffset: roomGeometry.RisingCameraOffset),
                     Freeze.TimeIsFrozen);
             }
             // A kicked Yard flies off with the camera's own measure of Samus's movement (YardKickTrackingDistance),

@@ -159,8 +159,6 @@ internal static class RoomPaletteFxDefinitionsVerification
             system.Start(pointer, equippedItems: 0);
             RoomColourEffect effect = ActiveColourEffect(system);
             AssertEqual(pointer, effect.Id, $"${pointer:X4} production ID");
-            AssertEqual(1, effect.UpdatesUntilNextStep,
-                $"${pointer:X4} production countdown");
             // Every native start installs a pre-instruction that does nothing, the intro's included: no condition is
             // watched before the effect's first frame.
             AssertEqual(null, effect.WatchedCondition, $"${pointer:X4} production condition");
@@ -170,6 +168,8 @@ internal static class RoomPaletteFxDefinitionsVerification
                 : definition.Animation;
             AssertTrue(ReferenceEquals(expected, effect.Animation), $"${pointer:X4} production initial animation");
             AssertEqual(AnimationPlace.StartOfAnimation, effect.Place, $"${pointer:X4} production starts its animation");
+            // A started effect is due on its first turn (#2488): that turn shows its animation's first frame.
+            AssertTrue(effect.TakeTurn(static _ => { }) is not null, $"${pointer:X4} production shows its first frame on its first turn");
         }
 
     }

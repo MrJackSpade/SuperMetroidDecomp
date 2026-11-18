@@ -3,7 +3,9 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// <summary>What an eye door's eye is doing (#1554).</summary>
 internal enum EyeDoorEyePhase
 {
-    /// <summary>The eye is closed and looks for Samus every four updates; one just placed looks at its door first.</summary>
+    /// <summary>The eye has just been placed: on its next update it takes its first look at its door (#2482).</summary>
+    Placed,
+    /// <summary>The eye is closed and looks for Samus every four updates.</summary>
     Closed,
     /// <summary>Samus came near: the eye opens and starts taking shots.</summary>
     Opening,

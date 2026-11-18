@@ -20,7 +20,4 @@ public readonly record struct IntroTextGlowStep
 
     /// <summary>The glow's first step, the colours a letter is typed in.</summary>
     public static IntroTextGlowStep Typed => All[0];
-
-    /// <summary>The step after this one, or null after the glow's last, where the letter keeps its colours.</summary>
-    public IntroTextGlowStep? Following => Step + 1 < StepCount ? All[Step + 1] : null;
 }

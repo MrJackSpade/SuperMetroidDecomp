@@ -31,42 +31,34 @@ internal sealed class EyeDoorObjects
     }
 
     /// <summary>
-    /// Places the eye-door part the room's population placed as <paramref name="placed"/> in <paramref name="door"/>, which
-    /// takes its first look on its first update, and installs its closed collision blocks unless its door has been opened
-    /// for good.
+    /// Places the eye of the eye door facing <paramref name="orientation"/> that locks <paramref name="door"/>, which takes
+    /// its first look on its first update, and installs its closed collision blocks unless its door has been opened for
+    /// good; the eye's first look then turns it into the ordinary blue cap.
     /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="placed"/> is not an eye-door part.</exception>
-    internal void SetupEyeDoor(
-        RoomLevelData level,
-        RoomObjectPlace place,
-        RoomObjectKind placed,
-        LockedDoorArgument? door)
+    internal void SetupEyeDoorEye(RoomLevelData level, RoomObjectPlace place, EyeDoorOrientation orientation, LockedDoorArgument door)
     {
         Ensure.NotNull(place);
-        (EyeDoorComponent component, EyeDoorOrientation orientation) = EyeDoorPartDefinitions.Parts.TryGetValue(placed, out EyeDoorPart part)
-            ? part
-            : throw new ArgumentOutOfRangeException(nameof(placed), placed, "Not an eye-door room object.");
-        PlacedDoor? placedDoor = PlacedDoor.For(door);
-        place.Become(component == EyeDoorComponent.Eye
-            ? new EyeDoorEyeObject(orientation, placedDoor
-                ?? throw new InvalidDataException($"The eye door's eye at block {place.Block} names no door."))
-            : new EyeDoorPartObject(orientation, component, placedDoor));
-
-        if (placedDoor?.IsOpenedForGood(_system.HasOpenedDoor) == true)
-        {
-            // Setup leaves an opened door's terrain untouched: the part's first look removes a body or bottom, and turns
-            // the eye into the ordinary blue cap.
+        var placedDoor = new PlacedDoor(Ensure.NotNull(door));
+        place.Become(new EyeDoorEyeObject(orientation, placedDoor));
+        if (placedDoor.IsOpenedForGood(_system.HasOpenedDoor))
             return;
-        }
+        RoomObjectLevelWrites.WriteObjectCollisionAndBehavior(level, place.Block, EyeDoorDefinitions.EyeCollision,
+            EyeDoorDefinitions.EyeBehavior);
+        WriteExtensionRows(level, place.Block, EyeDoorDefinitions.EyeExtensionRows);
+    }
 
-        if (component == EyeDoorComponent.Eye)
-        {
-            RoomObjectLevelWrites.WriteObjectCollisionAndBehavior(level, place.Block, EyeDoorDefinitions.EyeCollision,
-                EyeDoorDefinitions.EyeBehavior);
-            WriteExtensionRows(level, place.Block, EyeDoorDefinitions.EyeExtensionRows);
+    /// <summary>
+    /// Places the eye door's body or bottom, <paramref name="part"/>, in <paramref name="door"/>, which takes its first look
+    /// on its first update, and installs its closed collision block unless its door has been opened for good; the part's
+    /// first look then removes it.
+    /// </summary>
+    internal void SetupEyeDoorPart(RoomLevelData level, RoomObjectPlace place, EyeDoorPart part, LockedDoorArgument door)
+    {
+        Ensure.NotNull(place);
+        var placedDoor = new PlacedDoor(door);
+        place.Become(new EyeDoorPartObject(part, placedDoor));
+        if (placedDoor.IsOpenedForGood(_system.HasOpenedDoor))
             return;
-        }
-
         RoomObjectLevelWrites.WriteObjectCollisionAndBehavior(level, place.Block, EyeDoorDefinitions.ClosedComponentCollision,
             EyeDoorDefinitions.ClosedComponentBehavior);
     }
@@ -119,12 +111,8 @@ internal sealed class EyeDoorObjects
     /// </summary>
     internal static void ConvertEyeToBlueDoor(RoomLevelData level, RoomObjectPlace place, EyeDoorOrientation orientation)
     {
-        RoomBlockBehavior facing = orientation switch
-        {
-            EyeDoorOrientation.Left => RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Left)),
-            EyeDoorOrientation.Right => RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Right)),
-            _ => throw new InvalidOperationException($"Undefined {nameof(EyeDoorOrientation)} {orientation}."),
-        };
+        RoomBlockBehavior facing = RoomBlockBehavior.Reacting(
+            BlockReactionDefinitions.BlueDoorCaps.ReactionFor(EyeDoorDraws.BlueCapFacing(orientation)));
         place.Block += new Offset16<RoomBlocks>(0, -1);
         RoomObjectLevelWrites.WriteObjectCollisionAndBehavior(
             level,

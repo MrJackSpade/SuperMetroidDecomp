@@ -33,6 +33,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// a block among them that rejects a beam starts nothing.
 /// </param>
 /// <param name="Headers">The room objects the state's population places.</param>
+/// <param name="Setups">What each of the state's placements sets up: the doors, items and stations it places among it (#2481).</param>
 /// <param name="Enemies">The enemies the state's population places.</param>
 /// <param name="SetupBehavior">The behaviour the state runs when its room loads.</param>
 /// <param name="MainBehavior">The room behaviour the state runs each frame.</param>
@@ -41,6 +42,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// <param name="XrayOverlay">The X-ray reveal's overlay of the state, or null where it has none.</param>
 internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Area, IReadOnlySet<int> Placed,
     IReadOnlySet<RoomTerrainReaction> Terrain, IReadOnlySet<RoomTerrainReaction> StraddledShots, IReadOnlySet<RoomObjectKind> Headers,
+    IReadOnlyList<RoomObjectPlacementSetup> Setups,
     IReadOnlySet<EnemyDefinitionId> Enemies, RoomSetupBehavior SetupBehavior, RoomMainBehavior MainBehavior,
     RoomTurningFloor TurningFloor, IReadOnlySet<DoorDefinition> Entrances, XrayRoomOverlayDefinition? XrayOverlay)
 {
@@ -166,10 +168,21 @@ internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Ar
     internal bool PlacesCollectible(Func<InWorldCollectibleKind, CollectiblePresentation, bool> placed)
     {
         Ensure.NotNull(placed);
-        foreach (RoomObjectKind header in Headers)
+        foreach (RoomObjectPlacementSetup setup in Setups)
         {
-            if (PermanentCollectibleObjectDefinitions.Items.TryGetValue(header, out PermanentCollectibleObject item) &&
-                placed(item.Kind, item.Presentation))
+            if (setup is CollectibleSetup { Item: var item } && placed(item.Kind, item.Presentation))
+                return true;
+        }
+        return false;
+    }
+
+    /// <summary>Whether the state's population places a placement whose setup <paramref name="placed"/> accepts.</summary>
+    internal bool Places(Func<RoomObjectPlacementSetup, bool> placed)
+    {
+        Ensure.NotNull(placed);
+        foreach (RoomObjectPlacementSetup setup in Setups)
+        {
+            if (placed(setup))
                 return true;
         }
         return false;
@@ -224,12 +237,16 @@ internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Ar
         for (int index = 0; index < terrain.Foreground.Length; index++)
             reactions.Add(new(terrain.Foreground[index].Collision, terrain.Behaviors[index].In(room.Area)));
         var headers = new HashSet<RoomObjectKind>();
+        var setups = new List<RoomObjectPlacementSetup>();
         foreach (RoomObjectPlacement placement in state.ObjectPopulation.Placements.Span)
+        {
             headers.Add(placement.Kind);
+            setups.Add(placement.Setup);
+        }
         var enemies = new HashSet<EnemyDefinitionId>();
         foreach (RoomEnemyPlacement record in state.EnemyPopulation.Placements.Span)
             enemies.Add(record.DefinitionId);
-        return new InventoriedRoomState(RoomTilesets.Get(state.GraphicsSet), room.Area, placed, reactions, straddledShots, headers, enemies,
+        return new InventoriedRoomState(RoomTilesets.Get(state.GraphicsSet), room.Area, placed, reactions, straddledShots, headers, setups, enemies,
             state.SetupBehavior, state.MainBehavior, state.TurningFloor, entrances.ToHashSet(), state.XrayOverlay);
     }
 }

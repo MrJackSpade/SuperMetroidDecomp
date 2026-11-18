@@ -45,7 +45,7 @@ internal static class RoomObjectSystemAccess
             if (RoomObjectSystem.IsColoredDoorHeader(header) ||
                 GreyDoorObjectsConstants.TryIdentifyGreyDoor(header, out _))
                 return true;
-            return PermanentCollectibleObjectDefinitions.Items.ContainsKey(header);
+            return RoomObjectKindVariants.Items.ContainsKey(header);
         }
 
         /// <summary>Recognizes the ten directional yellow, green, and red door headers some room places.</summary>
@@ -96,7 +96,12 @@ internal static class RoomObjectSystemAccess
                     entry.Place.Block,
                     entry.Place.NativeRoomArgument,
                     entry.Door is not null ? EyeDoorComponent.Eye
-                        : (entry.Part ?? throw new InvalidOperationException("Verification requires an eye-door part.")).Component,
+                        : (entry.Part ?? throw new InvalidOperationException("Verification requires an eye-door part.")).Part.BodyPart switch
+                        {
+                            EyeDoorBodyPart.Middle => EyeDoorComponent.Door,
+                            EyeDoorBodyPart.Bottom => EyeDoorComponent.Bottom,
+                            var bodyPart => throw new InvalidOperationException($"Undefined {nameof(EyeDoorBodyPart)} {bodyPart}."),
+                        },
                     checked((byte)(entry.Door?.HitCounter ?? 0)),
                     entry.Place.Behaviour,
                     entry.Door is { } eye

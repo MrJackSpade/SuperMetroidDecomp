@@ -53,7 +53,7 @@ internal static class RoomFxRecordDefinitionsVerification
     private static void VerifyCompiledCeresRoomFxConsumers(CartridgeImportAddressSpace bus)
     {
         LoadStationPlacement station = LoadStationDefinitions.CeresElevator.Placement;
-        SelectedRoom room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, station.Room.Pointer);
+        SelectedRoom room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, station.Door.DestinationRoom.Pointer);
         var nativeVram = new SnesVram();
         var compiledVram = new SnesVram();
         RoomFxOverlayState nativeFx;

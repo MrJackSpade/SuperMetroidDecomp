@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Progression;
+using SuperMetroid.TestSupport.RoomHeaderImport;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Scrolling;
@@ -21,8 +21,8 @@ internal static class ImplicitScrollResidueVerification
     internal static void VerifyImplicitScrollResidue()
     {
         var storage = RoomScrollGrid.PowerOnCells();
-        SelectedRoom previous = SelectedRoom.LoadUsingCompiledSelection(RoomDefinitions.BusinessCenter, new RoomStateSelectionContext(new PersistentProgress().Events, DefeatedBosses.None, false, false));
-        SelectedRoom room = SelectedRoom.LoadUsingCompiledSelection(RoomDefinitions.CathedralEntrance, new RoomStateSelectionContext(new PersistentProgress().Events, DefeatedBosses.None, false, false));
+        SelectedRoom previous = SelectedRoom.LoadUsingCompiledSelection(RoomDefinitions.BusinessCenter, RoomStateSelectionContexts.NoProgress);
+        SelectedRoom room = SelectedRoom.LoadUsingCompiledSelection(RoomDefinitions.CathedralEntrance, RoomStateSelectionContexts.NoProgress);
         AssertTrue(unchecked((short)room.State.ScrollPointer) >= 0, "$A7B3 uses an implicit scroll table");
 
         ScrollCellsPastRoomScreens<RoomScrollState> pastScreens = InstalledFixtures.RoomAssets.ScrollCellsPastRoomScreens;

@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RoomHeaderImport;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Rooms.RoomMainCodeCatalogVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -26,8 +27,8 @@ internal static class RoomDefinitionsVerification
         Suite(nameof(VerifyRoomDefinitionMapY), () => VerifyRoomDefinitionMapY(rom, rooms));
         Suite(nameof(VerifyRoomDefinitionWidthInScreens), () => VerifyRoomDefinitionWidthInScreens(rom, rooms));
         Suite(nameof(VerifyRoomDefinitionHeightInScreens), () => VerifyRoomDefinitionHeightInScreens(rom, rooms));
-        Suite(nameof(VerifyRoomDefinitionUpScroller), () => VerifyRoomDefinitionUpScroller(rom, rooms));
-        Suite(nameof(VerifyRoomDefinitionDownScroller), () => VerifyRoomDefinitionDownScroller(rom, rooms));
+        Suite(nameof(VerifyRoomDefinitionFallingCameraOffset), () => VerifyRoomDefinitionFallingCameraOffset(rom, rooms));
+        Suite(nameof(VerifyRoomDefinitionRisingCameraOffset), () => VerifyRoomDefinitionRisingCameraOffset(rom, rooms));
         Suite(nameof(VerifyRoomDefinitionIsolatedDoorTransition), () => VerifyRoomDefinitionIsolatedDoorTransition(rom, rooms));
         Suite(nameof(VerifyRoomDefinitionDoorListPointer), () => VerifyRoomDefinitionDoorListPointer(rom, rooms));
         Console.WriteLine("Room definitions: all 261 identities, nine fields against the cartridge's headers, sorted enumeration and complete ushort rejection domain pass.");
@@ -48,7 +49,7 @@ internal static class RoomDefinitionsVerification
             if (expected)
             {
                 AssertEqual(pointer, RoomDefinitions.Get(pointer).Pointer, "Header preserves selected identity");
-                AssertEqual(pointer, SelectedRoom.LoadUsingCompiledSelection(RoomDefinitions.Get(pointer), default).Pointer,
+                AssertEqual(pointer, SelectedRoom.LoadUsingCompiledSelection(RoomDefinitions.Get(pointer), RoomStateSelectionContexts.NoProgress).Pointer,
                     "Production header construction preserves identity without a cartridge capability");
             }
             else
@@ -69,9 +70,9 @@ internal static class RoomDefinitionsVerification
     /// <summary>Checks room height in screen units against header byte five.</summary>
     private static void VerifyRoomDefinitionHeightInScreens(CartridgeImportAddressSpace rom, ushort[] rooms) => VerifyRoomDefinitionField(rom, rooms, 5, header => header.Size.Y);
     /// <summary>Checks the upward scroller setting at header byte six.</summary>
-    private static void VerifyRoomDefinitionUpScroller(CartridgeImportAddressSpace rom, ushort[] rooms) => VerifyRoomDefinitionField(rom, rooms, 6, header => header.UpScroller);
+    private static void VerifyRoomDefinitionFallingCameraOffset(CartridgeImportAddressSpace rom, ushort[] rooms) => VerifyRoomDefinitionField(rom, rooms, 6, header => header.FallingCameraOffset);
     /// <summary>Checks the downward scroller setting at header byte seven.</summary>
-    private static void VerifyRoomDefinitionDownScroller(CartridgeImportAddressSpace rom, ushort[] rooms) => VerifyRoomDefinitionField(rom, rooms, 7, header => header.DownScroller);
+    private static void VerifyRoomDefinitionRisingCameraOffset(CartridgeImportAddressSpace rom, ushort[] rooms) => VerifyRoomDefinitionField(rom, rooms, 7, header => header.RisingCameraOffset);
     /// <summary>
     /// Checks the isolated door transition against bit zero of header byte eight, whatever the byte's other bits hold:
     /// rooms that set only other bits (the common-element tile reloads) keep the ordinary transition.
@@ -106,7 +107,7 @@ internal static class RoomDefinitionsVerification
             AssertEqual(expected, field(RoomDefinitions.Get(pointer)), $"Room {pointer:X4} native field {offset}");
             AssertEqual(expected, field(enumerated[index]), $"Room {pointer:X4} enumerated field {offset}");
             if (offset == 1)
-                AssertEqual(expected, SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(SelectedRoom.LoadUsingCompiledSelection(RoomDefinitions.Get(pointer), default).Area), "Production area view");
+                AssertEqual(expected, SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(SelectedRoom.LoadUsingCompiledSelection(RoomDefinitions.Get(pointer), RoomStateSelectionContexts.NoProgress).Area), "Production area view");
         }
     }
 

@@ -91,7 +91,7 @@ internal static class IntroFightLightsVerification
             discovered = intro.Phase == IntroCinematicPhase.BabyDiscovery;
             if (before == IntroCinematicPhase.MotherBrainCrossfade && intro.Phase == IntroCinematicPhase.MotherBrainFlashback)
                 lights = new NativeColourEffectRun(cartridge, LightsDefinition);
-            bool pageTwoUpdate = !pageTwo && intro.CurrentFlashbackMotherBrain?.PageTwoRequested == true;
+            bool pageTwoUpdate = !pageTwo && intro.CurrentFlashbackMotherBrain?.NextPageRequested == true;
             pageTwo |= pageTwoUpdate;
             ColourEffectFrame? shown = intro.ColourEffects.FrameOf(ColourEffectColours.OldMotherBrainBackgroundLights);
             if (lights is null || (pageTwo && !pageTwoUpdate))

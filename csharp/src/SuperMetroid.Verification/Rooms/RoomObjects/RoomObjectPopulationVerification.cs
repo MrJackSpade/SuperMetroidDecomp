@@ -424,7 +424,7 @@ internal static class RoomObjectPopulationVerification
             Setup: DoorSetupDefinitions.None);
         AssertTrue(roomObjects.DoorObjects.TrySpawnDoorClosingObject(level, enteringDoor),
             "Bomb Torizo entry redirects the resident door to its secondary list");
-        AssertEqual(GreyDoorPhase.Closing, roomObjects.GreyDoorSnapshots.Single().Phase,
+        AssertEqual(GreyDoorPhase.HeldOpen, roomObjects.GreyDoorSnapshots.Single().Phase,
             "redirected actor retains explicit grey-door ownership while closing");
 
         roomObjects.Step(level, new RoomObjectFrameInputs { Scrolls = SuperMetroid.Core.Rooms.RoomObjects.RoomObjectFixtures.UnreadScrolls(), EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0, CollectedItems = samus.CollectedItems, PowerBombExplosionActive = false });
@@ -432,7 +432,7 @@ internal static class RoomObjectPopulationVerification
             "collected Bombs admit the secondary list's closing draw");
 
         for (int frame = 0; frame < 80 &&
-             roomObjects.GreyDoorSnapshots.Single().Phase == GreyDoorPhase.Closing; frame++)
+             roomObjects.GreyDoorSnapshots.Single().Phase is GreyDoorPhase.HeldOpen or GreyDoorPhase.Closing; frame++)
             roomObjects.Step(level, new RoomObjectFrameInputs { Scrolls = SuperMetroid.Core.Rooms.RoomObjects.RoomObjectFixtures.UnreadScrolls(), EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0, CollectedItems = samus.CollectedItems, PowerBombExplosionActive = false });
         AssertEqual(GreyDoorPhase.Locked, roomObjects.GreyDoorSnapshots.Single().Phase,
             "closing Goto hands the resident actor back to its grey-door family");
@@ -771,10 +771,10 @@ internal static class RoomObjectPopulationVerification
 
         var decoded = new RoomObjectPopulation($"$8F:{population:X4}",
         [
-            RoomObjectPlacementAccess.Placed(RoomObjectKinds.RequirePlaced(RoomObjectKind.GreenDoorFacingRight),
+            RoomObjectPlacementAccess.Placed(RoomObjectKind.GreenDoorFacingRight,
                 new(offRoomX, offRoomY), new LockedDoorArgument(SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(0x27), DoorOpeningPersistence.Persistent))
             with { Site = RoomObjectSite.BeyondTheRoom },
-            RoomObjectPlacementAccess.Placed(RoomObjectKinds.RequirePlaced(RoomObjectKind.GreenDoorFacingLeft),
+            RoomObjectPlacementAccess.Placed(RoomObjectKind.GreenDoorFacingLeft,
                 new(inRoomX, inRoomY), new LockedDoorArgument(SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(0x28), DoorOpeningPersistence.Persistent)),
         ]);
 
@@ -801,7 +801,7 @@ internal static class RoomObjectPopulationVerification
 
         var malformed = new RoomObjectPopulation($"$8F:{malformedPopulation:X4}",
         [
-            RoomObjectPlacementAccess.Placed(RoomObjectKinds.RequirePlaced(RoomObjectKind.ScrollTrigger),
+            RoomObjectPlacementAccess.Placed(RoomObjectKind.ScrollTrigger,
                 new(offRoomX, offRoomY), scrollChange: RoomScrollChange.BrinstarReserveTankOpensScreen1x0TopAligned) with { Site = RoomObjectSite.BeyondTheRoom },
         ]);
         AssertThrows<ArgumentOutOfRangeException>(
@@ -812,7 +812,7 @@ internal static class RoomObjectPopulationVerification
         // block beyond the room is refused, and one decoded beyond the room must lie past the grid.
         var undecoded = new RoomObjectPopulation("undecoded off-room door",
         [
-            RoomObjectPlacementAccess.Placed(RoomObjectKinds.RequirePlaced(RoomObjectKind.GreenDoorFacingRight),
+            RoomObjectPlacementAccess.Placed(RoomObjectKind.GreenDoorFacingRight,
                 new(offRoomX, offRoomY), new LockedDoorArgument(SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(0x27), DoorOpeningPersistence.Persistent)),
         ]);
         AssertThrows<InvalidDataException>(
@@ -1208,7 +1208,7 @@ internal static class RoomObjectPopulationVerification
         SaveStationActivation saveRequest = roomObjects.Stations.StationActivationEvents.Single() is SaveConfirmationRequested request
             ? request.Save
             : throw new InvalidOperationException("The save trigger publishes a save confirmation request.");
-        AssertTrue(ReferenceEquals(SuperMetroid.Core.Progression.LoadStationDefinitions.CrocomireSave, saveRequest.Station),
+        AssertTrue(ReferenceEquals(SuperMetroid.Core.Progression.LoadStationDefinitions.CrocomireSave, saveRequest.SavesAt),
             "save request carries the load station its room argument names");
 
         samus.Position = samus.Position.WithWholeX(0x0127);

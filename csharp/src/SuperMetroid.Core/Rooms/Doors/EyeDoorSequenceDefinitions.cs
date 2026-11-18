@@ -65,9 +65,26 @@ internal static class EyeDoorSequenceDefinitions
                 Show(F.OpenSolidEye, 4),
             ],
             [S.OpeningFlash] = [Show(F.OpeningClear, 3), Show(F.BlueCap, 4)],
-            [S.Still] = [Show(F.PartResting, 8)],
-            [S.LeftPulse] = [Show(F.PartResting, 8), Show(F.PartSwelling, 8), Show(F.PartSwollen, 8), Show(F.PartSwelling, 8)],
-            [S.RightPulse] = [Show(F.PartResting, 6), Show(F.PartSwelling, 6), Show(F.PartSwollen, 6), Show(F.PartSwelling, 6)],
+        });
+
+    /// <summary>
+    /// The body's and bottom's runs of poses, each for its updates (#2481): a part only draws, so its animations raise
+    /// nothing.
+    /// </summary>
+    internal static AnimationSegments<EyeDoorPartSegment, EyeDoorPartPose, NoAnimationCue> PartSegments { get; } = new(
+        new Dictionary<EyeDoorPartSegment, AnimationBeat<EyeDoorPartPose, NoAnimationCue>[]>
+        {
+            [EyeDoorPartSegment.Still] = [Pose(EyeDoorPartPose.Resting, 8)],
+            [EyeDoorPartSegment.LeftPulse] =
+            [
+                Pose(EyeDoorPartPose.Resting, 8), Pose(EyeDoorPartPose.Swelling, 8), Pose(EyeDoorPartPose.Swollen, 8),
+                Pose(EyeDoorPartPose.Swelling, 8),
+            ],
+            [EyeDoorPartSegment.RightPulse] =
+            [
+                Pose(EyeDoorPartPose.Resting, 6), Pose(EyeDoorPartPose.Swelling, 6), Pose(EyeDoorPartPose.Swollen, 6),
+                Pose(EyeDoorPartPose.Swelling, 6),
+            ],
         });
 
     /// <summary>The closed eye, for four updates before it looks for Samus again.</summary>
@@ -89,18 +106,25 @@ internal static class EyeDoorSequenceDefinitions
     internal static Animation<EyeDoorSegment> Destroyed { get; } = new([Segments.Repeated(S.OpeningFlash, OpeningFlashes)], AnimationEnd.Stops);
 
     /// <summary>The still body or bottom, before it looks for Samus again.</summary>
-    internal static Animation<EyeDoorSegment> Still { get; } = Once(S.Still);
+    internal static Animation<EyeDoorPartSegment> Still { get; } = Once(EyeDoorPartSegment.Still);
 
     /// <summary>Each facing's body and bottom pulsing while Samus is near.</summary>
-    internal static IReadOnlyDictionary<EyeDoorOrientation, Animation<EyeDoorSegment>> Pulse { get; } =
-        new Dictionary<EyeDoorOrientation, Animation<EyeDoorSegment>>
+    internal static IReadOnlyDictionary<EyeDoorOrientation, Animation<EyeDoorPartSegment>> Pulse { get; } =
+        new Dictionary<EyeDoorOrientation, Animation<EyeDoorPartSegment>>
     {
-        [EyeDoorOrientation.Left] = Once(S.LeftPulse),
-        [EyeDoorOrientation.Right] = Once(S.RightPulse),
+        [EyeDoorOrientation.Left] = Once(EyeDoorPartSegment.LeftPulse),
+        [EyeDoorOrientation.Right] = Once(EyeDoorPartSegment.RightPulse),
     };
 
     /// <summary>The whole of <paramref name="segment"/>, once.</summary>
     private static Animation<EyeDoorSegment> Once(EyeDoorSegment segment) => new([Segments.Whole(segment)], AnimationEnd.Stops);
+
+    /// <summary>The whole of the part's <paramref name="segment"/>, once.</summary>
+    private static Animation<EyeDoorPartSegment> Once(EyeDoorPartSegment segment) => new([PartSegments.Whole(segment)], AnimationEnd.Stops);
+
+    /// <summary>Draws the part in <paramref name="pose"/> for <paramref name="updates"/> updates.</summary>
+    private static AnimationBeat<EyeDoorPartPose, NoAnimationCue> Pose(EyeDoorPartPose pose, int updates) =>
+        new AnimationBeat<EyeDoorPartPose, NoAnimationCue>.Frame(pose, updates);
 
     /// <summary>Draws <paramref name="frame"/> for <paramref name="updates"/> updates.</summary>
     private static AnimationBeat<EyeDoorObjectFrame, EyeDoorAction> Show(EyeDoorObjectFrame frame, int updates) =>

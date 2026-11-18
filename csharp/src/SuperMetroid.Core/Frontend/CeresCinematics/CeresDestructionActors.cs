@@ -13,7 +13,8 @@ internal static class CeresDestructionActors
     /// <remarks>
     /// The large asteroids are the rear view's with their own animation, the small asteroids are the rear view's
     /// unchanged, and the vortex is the rear view's held still: this vortex has no motion, so it neither
-    /// moves nor drifts round the loop. No slide applies to these actors.</remarks>
+    /// moves nor drifts round the loop. The small asteroids and the vortex are drawn after every other actor, so the large
+    /// asteroids and the blasts overlap them. No slide applies to these actors.</remarks>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="role"/> is not a destruction role.</exception>
     public static CeresDestructionActorDefinition InitialActor(CeresDestructionActorRole role) => role switch
     {
@@ -21,24 +22,25 @@ internal static class CeresDestructionActors
         {
             Animation = CeresAnimation.DestructionLargeAsteroid,
         },
-        CeresDestructionActorRole.SmallAsteroids => RearViewVariant(CeresRearViewActorRole.SmallAsteroids),
+        CeresDestructionActorRole.SmallAsteroids => RearViewVariant(CeresRearViewActorRole.SmallAsteroids) with { DrawnLast = true },
         // The destruction's vortex holds still.
         CeresDestructionActorRole.Vortex => RearViewVariant(CeresRearViewActorRole.Vortex) with
         {
             HorizontalDelta = SignedSixteenSixteen.Zero,
             DriftsRoundLoop = false,
+            DrawnLast = true,
         },
         _ => throw new ArgumentOutOfRangeException(nameof(role)),
     };
 
     /// <summary>
     /// The destruction's copy of a rear-view actor: its behaviour, animation, colouring and horizontal motion, with no
-    /// slide away and no part in ending the scene.
+    /// slide away, no part in ending the scene and drawn in spawn order.
     /// </summary>
     private static CeresDestructionActorDefinition RearViewVariant(CeresRearViewActorRole role)
     {
         CeresFlightActorDefinition flight = CeresFlightActors.RearViewActor(role);
-        return new(flight.Animation, flight.Colouring, flight.HorizontalDelta, flight.DriftsRoundLoop, null, false);
+        return new(flight.Animation, flight.Colouring, flight.HorizontalDelta, flight.DriftsRoundLoop, null, false, false);
     }
 
     /// <summary>Selects the definition of the Zebes reveal actor that shows <paramref name="role"/>.</summary>
@@ -65,6 +67,6 @@ internal static class CeresDestructionActors
         return new(
             StarSheets[quarter],
             CeresSpriteColouring.SpaceObjects, SignedSixteenSixteen.Zero, false, SignedEightEight.FromParts(0, 32),
-            quarter == SceneCompletingStars);
+            quarter == SceneCompletingStars, false);
     }
 }

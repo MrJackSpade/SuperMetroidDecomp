@@ -11,7 +11,7 @@ internal static class RoomEnemyPopulationDefinitionsAccess
     /// <summary>Each compiled population, by the pointer the cartridge stores for it.</summary>
     private static readonly Dictionary<ushort, RoomEnemyPopulationDefinition> ByPointer = new()
     {
-        [0x8000] = RoomEnemyPopulationDefinitions.DraygonWhenAreaBossDeadOrMotherBrainWhenMainAreaBossDead,
+        [0x8000] = RoomEnemyPopulationDefinitions.DraygonOrMotherBrainWhenAreaBossDead,
         [0x8002] = RoomEnemyPopulationDefinitions.EastOcean,
         [0x80d5] = RoomEnemyPopulationDefinitions.CrateriaPowerBombs,
         [0x8108] = RoomEnemyPopulationDefinitions.Terminator,

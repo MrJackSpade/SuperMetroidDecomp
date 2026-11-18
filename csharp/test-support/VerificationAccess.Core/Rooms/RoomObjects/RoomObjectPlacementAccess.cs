@@ -19,8 +19,9 @@ internal static class RoomObjectPlacementAccess
             ColoredDoorSetup door => door.LockedBy,
             GreyDoorSetup door => door.Opening,
             CollectibleSetup item => item.Collected,
-            EyeDoorSetup part => part.LockedBy,
-            StationSetup station => station.SavesAt,
+            EyeDoorEyeSetup eye => eye.LockedBy,
+            EyeDoorPartSetup part => part.LockedBy,
+            SaveStationSetup station => station.SavesAt,
             MetroidRoomClearanceSetup clearance => clearance.Watches,
             DownwardGateShotBlockSetup shotBlock => shotBlock.Trigger,
             _ => null,
@@ -58,14 +59,31 @@ internal static class RoomObjectPlacementAccess
         }
         if (cannon is not null)
             throw new InvalidDataException($"Placement {kind} is no Draygon cannon to control a wall cannon.");
-        if (DoorObjectKindDefinitions.ColoredDoors.ContainsKey(kind)) return new ColoredDoorSetup(Read<LockedDoorArgument>(kind, argument));
-        if (DoorObjectKindDefinitions.GreyDoors.ContainsKey(kind)) return new GreyDoorSetup(Read<GreyDoorArgument>(kind, argument));
-        if (PermanentCollectibleObjectDefinitions.Items.ContainsKey(kind)) return new CollectibleSetup(Read<CollectedItemArgument>(kind, argument));
-        if (EyeDoorPartDefinitions.Parts.ContainsKey(kind)) return new EyeDoorSetup(Read<LockedDoorArgument>(kind, argument));
-        if (StationKindDefinitions.Kinds.ContainsKey(kind)) return new StationSetup(Read<SaveStationArgument>(kind, argument));
+        if (RoomObjectKindVariants.ColoredDoors.TryGetValue(kind, out ColoredDoorVariant colored))
+            return new ColoredDoorSetup(colored, Require<LockedDoorArgument>(kind, argument));
+        if (RoomObjectKindVariants.GreyDoors.TryGetValue(kind, out GreyDoorVariant grey))
+            return new GreyDoorSetup(grey, Require<GreyDoorArgument>(kind, argument));
+        if (RoomObjectKindVariants.Items.TryGetValue(kind, out PermanentCollectibleObject item))
+            return new CollectibleSetup(item, Require<CollectedItemArgument>(kind, argument));
+        if (RoomObjectKindVariants.EyeDoorEyes.TryGetValue(kind, out EyeDoorOrientation eye))
+            return new EyeDoorEyeSetup(eye, Require<LockedDoorArgument>(kind, argument));
+        if (RoomObjectKindVariants.EyeDoorParts.TryGetValue(kind, out EyeDoorPart part))
+            return new EyeDoorPartSetup(part, Require<LockedDoorArgument>(kind, argument));
+        if (kind == RoomObjectKind.SaveStation)
+            return new SaveStationSetup(Require<SaveStationArgument>(kind, argument));
+        if (RoomObjectKindVariants.AccessStations.TryGetValue(kind, out StationAccessRule? station))
+        {
+            return argument is null ? new AccessStationSetup(station)
+                : throw new InvalidDataException($"Placement {kind} reads no argument, but its record gives {argument}.");
+        }
+        if (RoomObjectKindVariants.ScrollExtensions.TryGetValue(kind, out SuperMetroid.Core.Rooms.Scrolling.ScrollExtension extension))
+        {
+            return argument is null ? new ScrollExtensionSetup(extension)
+                : throw new InvalidDataException($"Placement {kind} reads no argument, but its record gives {argument}.");
+        }
         if (kind == RoomObjectKind.MetroidRoomClearance)
-            return new MetroidRoomClearanceSetup(Read<MetroidRoomArgument>(kind, argument) ?? throw new InvalidDataException("A Metroid room clearance watch needs the event it marks."));
-        if (kind == RoomObjectKind.DownwardGateShotBlock) return new DownwardGateShotBlockSetup(Read<GateTriggerArgument>(kind, argument));
+            return new MetroidRoomClearanceSetup(Require<MetroidRoomArgument>(kind, argument));
+        if (kind == RoomObjectKind.DownwardGateShotBlock) return new DownwardGateShotBlockSetup(Require<GateTriggerArgument>(kind, argument));
         if (argument is not null)
             throw new InvalidDataException($"Placement {kind} reads no argument, but its record gives {argument}.");
         return UnarguedSetups.TryGetValue(kind, out RoomObjectPlacementSetup? setup) ? setup
@@ -75,10 +93,6 @@ internal static class RoomObjectPlacementAccess
     /// <summary>The setup of each kind whose family reads no argument.</summary>
     private static readonly Dictionary<RoomObjectKind, RoomObjectPlacementSetup> UnarguedSetups = new()
     {
-        [RoomObjectKind.RightwardsScrollExtension] = new ScrollExtensionSetup(),
-        [RoomObjectKind.LeftwardsScrollExtension] = new ScrollExtensionSetup(),
-        [RoomObjectKind.DownwardsScrollExtension] = new ScrollExtensionSetup(),
-        [RoomObjectKind.UpwardsScrollExtension] = new ScrollExtensionSetup(),
         [RoomObjectKind.ElevatorPlatform] = new ElevatorPlatformSetup(),
         [RoomObjectKind.MotherBrainGlass] = new MotherBrainGlassSetup(),
         [RoomObjectKind.BombTorizoHand] = new BombTorizoHandSetup(),
@@ -90,11 +104,11 @@ internal static class RoomObjectPlacementAccess
         [RoomObjectKind.EscapeRoomHeldPlace] = new EscapeRoomHeldPlaceSetup(),
     };
 
-    /// <summary>The <typeparamref name="T"/> argument a family of <paramref name="kind"/> reads, or null for none.</summary>
-    /// <exception cref="InvalidDataException">The record gives an argument of another kind.</exception>
-    private static T? Read<T>(RoomObjectKind kind, RoomObjectRoomArgument? argument) where T : RoomObjectRoomArgument => argument switch
+    /// <summary>The <typeparamref name="T"/> argument a family of <paramref name="kind"/> requires.</summary>
+    /// <exception cref="InvalidDataException">The record gives no argument, or one of another kind.</exception>
+    private static T Require<T>(RoomObjectKind kind, RoomObjectRoomArgument? argument) where T : RoomObjectRoomArgument => argument switch
     {
-        null => null,
+        null => throw new InvalidDataException($"Placement {kind} requires a {typeof(T).Name}, but its record gives none."),
         T typed => typed,
         _ => throw new InvalidDataException($"Placement {kind} reads a {typeof(T).Name}, but its record gives {argument}."),
     };

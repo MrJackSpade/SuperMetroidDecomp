@@ -19,22 +19,23 @@ internal sealed class DownwardGateObject(GateObjects owner) : SequencedRoomObjec
     /// <summary>Where the gate is in its course.</summary>
     internal DownwardGatePhase Phase { get; private set; } = DownwardGatePhase.Starting;
 
-    /// <summary>Whether an accepted shot on one of its triggers has set the gate off since it last rested.</summary>
+    /// <summary>
+    /// Whether an accepted shot on one of its triggers has set the gate off since it last rested. A shot can come at any
+    /// point of the gate's course and is kept until the gate next rests, so it is a fact of its own beside the phase.
+    /// </summary>
     internal bool Triggered { get; private set; }
-
-    /// <summary>Whether the gate wakes for a trigger (or, closed, for Samus in its column): from when it rests until it wakes.</summary>
-    internal bool WakeArmed { get; private set; }
 
     /// <summary>An accepted shot on one of the gate's triggers sets it off; further shots before it rests change nothing.</summary>
     internal void Trigger() => Triggered = true;
 
     /// <inheritdoc/>
+    /// <remarks>Only a resting gate wakes: for a trigger, or, closed, for Samus in its column.</remarks>
     internal override void Update(RoomObjectPlace place, RoomObjectStepContext context)
     {
         Ensure.NotNull(place);
-        if (WakeArmed && (Triggered || (Phase == DownwardGatePhase.RestingClosed && _owner.IsSamusInsideDownwardGateColumn(place))))
+        if (Phase is DownwardGatePhase.RestingClosed or DownwardGatePhase.RestingOpen &&
+            (Triggered || (Phase == DownwardGatePhase.RestingClosed && _owner.IsSamusInsideDownwardGateColumn(place))))
         {
-            WakeArmed = false;
             bool open = Phase == DownwardGatePhase.RestingOpen;
             Phase = open ? DownwardGatePhase.Closing : DownwardGatePhase.Reopening;
             // The movement's first image shows as the sequence runs below, on this update.
@@ -93,13 +94,12 @@ internal sealed class DownwardGateObject(GateObjects owner) : SequencedRoomObjec
     }
 
     /// <summary>
-    /// Clears the gate's trigger and lets it rest in <paramref name="phase"/> on the image it shows, its wake armed from the
-    /// next update.
+    /// Clears the gate's trigger and lets it rest in <paramref name="phase"/> on the image it shows, waking from the
+    /// next update on.
     /// </summary>
     private void RestIn(DownwardGatePhase phase)
     {
         Triggered = false;
-        WakeArmed = true;
         Phase = phase;
     }
 }

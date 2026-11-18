@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
@@ -13,29 +14,43 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// </summary>
 internal sealed class BlueDoorCapObject : DoorCapObject
 {
-    /// <summary>A cap that a shot opens or that closes behind Samus, from its next update.</summary>
+    /// <summary>A cap a shot opens, from its next update.</summary>
+    /// <param name="orientation">The cap's facing.</param>
+    internal static BlueDoorCapObject Opening(ColoredDoorOrientation orientation) =>
+        new(orientation, BlueDoorCapPhase.Opening, DoorCapSequenceDefinitions.BlueOpening);
+
+    /// <summary>A cap closing behind Samus, from its next update.</summary>
+    /// <param name="orientation">The cap's facing.</param>
+    internal static BlueDoorCapObject Closing(ColoredDoorOrientation orientation) =>
+        new(orientation, BlueDoorCapPhase.Closing, DoorCapSequenceDefinitions.BlueClosing);
+
+    /// <summary>A cap that plays <paramref name="sequence"/> from its next update, standing in no door of its own.</summary>
     /// <param name="orientation">The cap's facing.</param>
     /// <param name="phase">Whether it opens or closes.</param>
-    internal BlueDoorCapObject(ColoredDoorOrientation orientation, BlueDoorCapPhase phase)
-        : base(orientation, DoorCapPaint.Blue, door: null)
+    /// <param name="sequence">The opening or the closing it plays.</param>
+    private BlueDoorCapObject(ColoredDoorOrientation orientation, BlueDoorCapPhase phase, Animation<DoorCapSegment> sequence)
+        : base(orientation, DoorCapPaint.Blue)
     {
         Phase = phase;
         OpenedByShot = phase == BlueDoorCapPhase.Opening;
-        PlayFromNextUpdate(phase switch
-        {
-            BlueDoorCapPhase.Opening => DoorCapSequenceDefinitions.BlueOpening,
-            BlueDoorCapPhase.Closing => DoorCapSequenceDefinitions.BlueClosing,
-            BlueDoorCapPhase.Closed => throw new ArgumentOutOfRangeException(nameof(phase), phase,
-                "A closed blue cap only takes over from a door that turns blue."),
-            _ => throw new ArgumentOutOfRangeException(nameof(phase), phase, "Undefined blue door cap phase."),
-        });
+        PlayFromNextUpdate(sequence);
     }
 
     /// <summary>A cap another door turns into, which its takeover closes at once, standing in that door's door.</summary>
     /// <param name="orientation">The cap's facing.</param>
-    /// <param name="door">The door the door it takes over from was placed in; null for none.</param>
-    private BlueDoorCapObject(ColoredDoorOrientation orientation, PlacedDoor? door)
-        : base(orientation, DoorCapPaint.Blue, door) => Phase = BlueDoorCapPhase.Closed;
+    /// <param name="door">The door the door it takes over from was placed in.</param>
+    private BlueDoorCapObject(ColoredDoorOrientation orientation, PlacedDoor door)
+        : base(orientation, DoorCapPaint.Blue)
+    {
+        Phase = BlueDoorCapPhase.Closed;
+        Door = Ensure.NotNull(door);
+    }
+
+    /// <summary>
+    /// The door the cap stands in, as the door it took over from named it; null for a cap a shot opens or one closing
+    /// behind Samus, which stand in no door of their own.
+    /// </summary>
+    internal PlacedDoor? Door { get; }
 
     /// <summary>What the cap is doing.</summary>
     internal BlueDoorCapPhase Phase { get; private set; }
@@ -47,17 +62,18 @@ internal sealed class BlueDoorCapObject : DoorCapObject
     internal bool OpenedByShot { get; }
 
     /// <inheritdoc/>
+    /// <remarks>A cap another door turns into stays open once that door has been opened for good; a closing cap never does.</remarks>
     public override bool StaysOpenBehindSamus(Func<LockedDoor, bool> openedForGood, ShotOpenedCapClosing<LockedDoor> shotCapClosing) =>
         OpenedByShot
             ? Ensure.NotNull(shotCapClosing).StaysOpen(openedForGood)
-            : base.StaysOpenBehindSamus(openedForGood, shotCapClosing);
+            : Door?.IsOpenedForGood(openedForGood) == true;
 
     /// <summary>
     /// Turns the door at <paramref name="place"/>, placed in <paramref name="door"/>, into its closed blue cap facing
     /// <paramref name="orientation"/>, which makes its block shootable and draws its closed image on this same update.
     /// </summary>
     internal static void TakeOver(RoomObjectPlace place, RoomObjectStepContext context, ColoredDoorOrientation orientation,
-        PlacedDoor? door)
+        PlacedDoor door)
     {
         Ensure.NotNull(place);
         var cap = new BlueDoorCapObject(orientation, door);

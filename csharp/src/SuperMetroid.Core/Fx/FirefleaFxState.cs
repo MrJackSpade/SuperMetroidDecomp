@@ -13,24 +13,21 @@ namespace SuperMetroid.Core.Fx;
 [RoomLifetime]
 public sealed class FirefleaFxState
 {
-    /// <summary>Where the flash's animation resumes: past the look it shows.</summary>
-    private AnimationPlace place = AnimationPlace.StartOfAnimation;
-
-    /// <summary>Starts the flash on its first look, held for its updates, in a room no Fireflea death has darkened.</summary>
-    public FirefleaFxState()
-    {
-        ShowNextFlash();
-        Tint = Shade(Flash, Darkness);
-    }
+    /// <summary>Where the flash plays on from while the darkness holds it: its brightest look.</summary>
+    private static readonly AnimationPlace HeldFlash = FirefleaFlashAnimations.Segments.PlaceOfFrame(
+        FirefleaFlashAnimations.Flashing, FirefleaFlashSegment.Flashing, FirefleaFlashShade.Brightest);
 
     /// <summary>
-    /// Updates until the flash shows its next look, held while time is frozen: a step that reaches zero shows the next look
-    /// for its updates.
+    /// The flash's animation (#2488), played by the shared player: each look shows for its updates, which frozen time holds.
     /// </summary>
-    public int UpdatesUntilNextFlash { get; private set; }
+    private readonly AnimationPlayer<FirefleaFlashSegment, FirefleaFlashShade, NoAnimationCue> flash =
+        AnimationPlayer<FirefleaFlashSegment, FirefleaFlashShade, NoAnimationCue>.StartShowing(FirefleaFlashAnimations.Segments, FirefleaFlashAnimations.Flashing);
+
+    /// <summary>Starts the flash on its first look, held for its updates, in a room no Fireflea death has darkened.</summary>
+    public FirefleaFxState() => Tint = Shade(Flash, Darkness);
 
     /// <summary>The flash's look the room shows: it brightens over its first six looks and dims over the last six.</summary>
-    public FirefleaFlashShade Flash { get; private set; }
+    public FirefleaFlashShade Flash => flash.Showing;
 
     /// <summary>The darkness published from the enemies' count of Firefleas killed.</summary>
     public FirefleaDarkness Darkness { get; private set; }
@@ -50,29 +47,12 @@ public sealed class FirefleaFxState
     {
         Darkness = darkness;
         if (frozen) return;
-        if (--UpdatesUntilNextFlash == 0)
-        {
-            if (darkness.HoldsFlash)
-            {
-                place = FirefleaFlashAnimations.Segments.PlaceOfFrame(FirefleaFlashAnimations.Flashing, FirefleaFlashSegment.Flashing,
-                    FirefleaFlashShade.Brightest);
-            }
-            ShowNextFlash();
-        }
+        if (darkness.HoldsFlash)
+            flash.StepPlayingOnFrom(HeldFlash);
+        else
+            flash.Step();
 
         Tint = Shade(Flash, darkness);
-    }
-
-    /// <summary>Plays the flash on to its next look, which it shows for that look's updates.</summary>
-    /// <exception cref="InvalidOperationException">The flash reached something other than a look, which its loop never does.</exception>
-    private void ShowNextFlash()
-    {
-        AnimationShown<FirefleaFlashSegment, FirefleaFlashShade> shown =
-            FirefleaFlashAnimations.Segments.PlayToNextFrame(FirefleaFlashAnimations.Flashing, ref place, static _ => { });
-        if (shown is not AnimationShown<FirefleaFlashSegment, FirefleaFlashShade>.Frame look)
-            throw new InvalidOperationException($"The Fireflea flash reached {shown}; it only shows looks.");
-        Flash = look.Shown;
-        UpdatesUntilNextFlash = look.Duration;
     }
 
     /// <summary>

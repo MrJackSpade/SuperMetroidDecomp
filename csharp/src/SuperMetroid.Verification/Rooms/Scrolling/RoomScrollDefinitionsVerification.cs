@@ -1,5 +1,6 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.TestSupport.RoomHeaderImport;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Rooms.RoomMainCodeCatalogVerification;
 using SuperMetroid.Core.Rooms.RoomObjects;
@@ -104,7 +105,7 @@ internal static class RoomScrollDefinitionsVerification
             "compiled scroll installation rejects incomplete storage");
 
         SelectedRoom ceres = SelectedRoom.LoadUsingCompiledSelection(
-            SuperMetroid.Core.Progression.LoadStationDefinitions.CeresElevator.Placement.Room, default);
+            SuperMetroid.Core.Progression.LoadStationDefinitions.CeresElevator.Placement.Door.DestinationRoom, RoomStateSelectionContexts.NoProgress);
         var guardedCeres = CreateRetailRuntimeFixture();
         // A new session's scroll cells start cleared, so Ceres's cells past its own read red.
         RoomScrollState[] ceresResidue = [.. Enumerable.Repeat(RoomScrollState.Closed, RoomScrollGrid.KeptCellCount)];

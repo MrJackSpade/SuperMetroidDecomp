@@ -282,7 +282,7 @@ public static class GameSaveJsonCodec
             (slot.Inventory.EquippedItems & ~AllEquipmentFlags) != SamusEquipmentFlags.None ||
             (slot.Inventory.CollectedBeams & ~AllBeamFlags) != SamusBeamFlags.None ||
             (slot.Inventory.EquippedBeams & ~AllBeamFlags) != SamusBeamFlags.None)
-            throw new InvalidDataException($"slots[{expectedSlot}].inventory contains unknown bits");
+            throw new InvalidDataException($"slots[{expectedSlot}].inventory names an item or beam the game does not have");
         if ((slot.Inventory.EquippedItems & ~slot.Inventory.CollectedItems) != SamusEquipmentFlags.None ||
             (slot.Inventory.EquippedBeams & ~slot.Inventory.CollectedBeams) != SamusBeamFlags.None)
             throw new InvalidDataException($"slots[{expectedSlot}].inventory equips an uncollected upgrade");

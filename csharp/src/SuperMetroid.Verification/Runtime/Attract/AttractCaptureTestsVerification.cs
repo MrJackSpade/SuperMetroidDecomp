@@ -25,8 +25,8 @@ internal static class AttractCaptureTestsVerification
         InstalledScreenContent presentation = RetailPresentationFixture();
         // Scene setup is compiled now. Bound only the live verification instance after
         // its real first scene has loaded; ROM table patches no longer affect admission.
-        var legacy = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore());
-        var captured = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore());
+        var legacy = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
+        var captured = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
         legacy.BindArtwork(legacy.Artwork with
         {
             ScreenContent = presentation,

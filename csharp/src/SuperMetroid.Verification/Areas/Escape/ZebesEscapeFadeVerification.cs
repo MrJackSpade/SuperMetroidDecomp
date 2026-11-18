@@ -12,7 +12,7 @@ internal static class ZebesEscapeFadeVerification
     /// <remarks>#1269: the earlier transition froze time and dimmed every second call, halting Samus's rise and RNG advancement in the 100% movie.</remarks>
     internal static void VerifyZebesEscapeFade()
     {
-        var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false);
+        var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), renderGameplayFrames: false);
         game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);
         var runtime = game.Session.GameplayRuntime;
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);

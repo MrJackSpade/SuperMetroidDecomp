@@ -63,22 +63,15 @@ public sealed class DemoInputState
     /// <summary>Stops the playback without discarding its loaded recording.</summary>
     public void Disable() => Enabled = false;
 
-    /// <summary>Loads <paramref name="recording"/>, with its first input due on the next step.</summary>
-    public void Load(DemoInputRecordingId recording)
-    {
-        Position = DemoPlaybackPosition.Start(recording);
-        FrameHold = 1;
-    }
-
     /// <summary>
-    /// Switches the playback to <paramref name="recording"/>, whose first input is due on the next step, as an owner's watch
-    /// does before a step.
+    /// Loads <paramref name="recording"/>, with its first input due on the next step: the playback's first recording, or
+    /// the one an owner's watch switches it to before a step.
     /// </summary>
     /// <remarks>
     /// The recording and its countdown change together, so a switch never publishes the new recording with the old
     /// countdown for one step, a state the game cannot expose.
     /// </remarks>
-    public void SwitchTo(DemoInputRecordingId recording)
+    public void Load(DemoInputRecordingId recording)
     {
         Position = DemoPlaybackPosition.Start(recording);
         FrameHold = 1;

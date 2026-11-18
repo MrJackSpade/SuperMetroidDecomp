@@ -269,6 +269,10 @@ internal static class GameSaveJsonVerification
         // Counts are signed words, which the cartridge drains below zero; only values outside the word are invalid.
         AssertInvalidJsonSave(Replaced("\"health\": 99", "\"health\": -32769"), "health");
         AssertInvalidJsonSave(Replaced("\"maxHealth\": 99", "\"maxHealth\": 32768"), "maxHealth");
+        // The current schema always writes the startup route, so a slot without one is malformed, not a main-game save.
+        JsonObject withoutRoute = RequiredJson.Parse(json).AsObject();
+        withoutRoute.Required("slots").Required(0).AsObject().Remove("startupRoute");
+        AssertInvalidJsonSave(withoutRoute.ToJsonString(), "startupRoute");
         Console.WriteLine("  JSON save numbers: full-range slot fields round-trip exactly; out-of-range numbers and a checkpoint naming no load station are rejected at parse.");
     }
 

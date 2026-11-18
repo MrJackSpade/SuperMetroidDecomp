@@ -39,8 +39,9 @@ internal static class SuperMetroidRuntimeToolingExtensions
                     GameState = new SharedGameStateCarryover
                     {
                         Random = random ?? new SuperMetroid.Core.Compatibility.SharedRandom(),
-                        // A tooling runtime powers on as the game does with an empty save store.
-                        EarthquakeSoundDelay = new SuperMetroid.Core.Saves.SaveSlotStore().EarthquakeSoundDelayAtPowerOn(),
+                        // A tooling runtime powers on as the game does with an empty save file: no valid save, no history.
+                        EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.FoundAtPowerOn(
+                            validSaveFound: false, gameCompleted: false, powerOnFoundNoValidSave: false),
                         // A tooling runtime's explored maps are its own, as power-on leaves them.
                         StoredExploredMaps = SuperMetroid.Core.Progression.StoredExploredMapLoads.PowerOn(),
                     },

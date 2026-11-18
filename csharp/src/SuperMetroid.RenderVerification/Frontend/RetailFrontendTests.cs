@@ -44,8 +44,8 @@ internal static class RetailFrontendTests
         if (!title.FileSelectRequested || !phases.Contains(TitleSequencePhase.FinalZoom))
             throw new InvalidOperationException("Retail title did not cover natural zoom and reach file select.");
 
-        var legacy = RenderRetailFixture.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore());
-        var captured = RenderRetailFixture.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore());
+        var legacy = RenderRetailFixture.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
+        var captured = RenderRetailFixture.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
         var states = new HashSet<object>();
         for (int tick = 0; tick < 500; tick++)
         {

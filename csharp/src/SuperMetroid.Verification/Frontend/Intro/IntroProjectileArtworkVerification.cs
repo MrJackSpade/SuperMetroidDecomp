@@ -22,7 +22,7 @@ internal static class IntroProjectileArtworkVerification
         intro.SetupFirstIllustratedPage();
         intro.SetupMotherBrainFlashback();
         var projectiles = intro.flashbackProjectiles;
-        var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore());
+        var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
         game.Session.Show(intro);
         game.GameState = SuperMetroidGameState.IntroCinematic;
         game.BindArtwork(game.Artwork with { SpriteSheets = InstalledFixtures.SpriteSheets });

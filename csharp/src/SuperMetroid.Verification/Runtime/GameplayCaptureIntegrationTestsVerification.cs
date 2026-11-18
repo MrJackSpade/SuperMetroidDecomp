@@ -57,8 +57,8 @@ internal static class GameplayCaptureIntegrationTestsVerification
 
         var options = new SuperMetroid.Core.Gameplay.GameplayAssists { SkipOpeningCinematic = true };
         InstalledScreenContent presentation = RetailPresentationFixture();
-        var legacy = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), options);
-        var packets = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), options);
+        var legacy = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), options);
+        var packets = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), options);
         legacy.BindArtwork(legacy.Artwork with
         {
             ScreenContent = presentation,

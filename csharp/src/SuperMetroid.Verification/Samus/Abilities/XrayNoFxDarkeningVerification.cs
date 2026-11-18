@@ -23,7 +23,7 @@ internal static class XrayNoFxDarkeningVerification
     /// <summary>Confirms the fixed colour adds without halving where no effect lies behind, and Fireflea subtraction.</summary>
     internal static void VerifyXrayNoFxDarkening()
     {
-        var game=new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
+        var game=new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
         InstalledFixtures.BindGame(game);
         game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);
         var runtime = game.Session.GameplayRuntime;

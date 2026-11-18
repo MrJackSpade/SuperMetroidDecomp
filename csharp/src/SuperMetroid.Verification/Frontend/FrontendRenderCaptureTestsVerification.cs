@@ -19,8 +19,8 @@ internal static class FrontendRenderCaptureTestsVerification
     internal static void VerifyFrontendRenderCapture()
     {
         InstalledScreenContent presentation = RetailPresentationFixture();
-        var legacy = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore());
-        var captured = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore());
+        var legacy = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
+        var captured = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
         legacy.BindArtwork(legacy.Artwork with
         {
             ScreenContent = presentation,

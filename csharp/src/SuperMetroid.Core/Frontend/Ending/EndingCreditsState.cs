@@ -299,21 +299,15 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 if (--Stage.PhaseTimer <= 0)
                 {
                     EscapeScenes.SpawnEndingRewardActors();
-                    CreditsRoll.ResetRewardFade();
-                    CreditsRoll.ShowRewardFade();
+                    CreditsRoll.StartRewardFade();
                     Stage.PhaseTimer = EndingSequenceDefinitions.Timing.RewardRevealHalfFrames;
                     Stage.Phase = EndingCreditsPhase.PostCreditsReward;
                 }
                 break;
 
             case EndingCreditsPhase.PostCreditsReward:
-                // Both fade halves test their counter before counting it down, so both 64-update halves advance
-                // their shared colour step on their fourth update and every fourth update after.
-                if (EndingCadenceDefinitions.RewardColourStepEveryFourthUpdate.IsDue(Stage.PhaseTimer))
-                {
-                    CreditsRoll.AdvanceRewardFade();
-                    CreditsRoll.ShowRewardFade();
-                }
+                // Both 64-update halves advance their shared colour fade on their fourth update and every fourth update after.
+                CreditsRoll.StepRewardFade();
                 EscapeScenes.StepSprites();
                 if (--Stage.PhaseTimer <= 0)
                 {
@@ -360,7 +354,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 break;
 
             case EndingCreditsPhase.PostCreditsWhiteFlash:
-                if (CreditsRoll.WhiteWashStepsLeft > 0) CreditsRoll.WhiteWashStepsLeft--;
+                CreditsRoll.FadeWhiteFlash();
                 RewardJump.Step();
                 if (--Stage.PhaseTimer <= 0) CreditsRoll.FinishPostCreditsWhiteFlash();
                 break;

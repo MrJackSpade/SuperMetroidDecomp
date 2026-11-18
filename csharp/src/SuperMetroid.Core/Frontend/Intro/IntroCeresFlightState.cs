@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Assets;
@@ -56,18 +57,19 @@ internal sealed class IntroCeresFlightState
     /// <summary>The rear view's five station, asteroid, vortex and star actors, in spawn order, created when the camera switches to it.</summary>
     internal IReadOnlyList<CeresRearViewActor> RearViewActors { get; private set; } = [];
     /// <summary>
-    /// The steps left of the rear-view flash's white wash (<see cref="WhiteWash"/>): all of them when the rear view starts,
-    /// one fewer each update, stopping at none.
+    /// The rear-view flash's white wash (<see cref="WhiteWash"/>): full white when the rear view starts, one step fewer each
+    /// update, stopping at none; none before the rear view.
     /// </summary>
-    private int flashIntensity;
-    /// <summary>How many of the caption's letters are shown, in order; the next letter typed is this one.</summary>
-    internal int CaptionLettersShown { get; private set; }
-    /// <summary>Sixteen-frame glyph cadence and final 128-frame caption hold.</summary>
-    private int spaceColonyTimer;
-    /// <summary>Distinguishes the completed caption's final hold from its glyph-writing phase.</summary>
-    private bool spaceColonyHoldStarted;
-    /// <summary>Whether the Japanese text's katakana caption has shown, for the one frame it shows before the hold.</summary>
-    internal bool JapaneseCaptionShown { get; private set; }
+    private WhiteWash? rearViewFlash;
+    /// <summary>
+    /// The SPACE COLONY caption's typing (#2488), played by the shared player from the title's setup: its letters, with
+    /// Japanese text its katakana caption, its hold and the fade-out cue; none before the title.
+    /// </summary>
+    private AnimationPlayer<SpaceColonyCaptionText, SpaceColonyCaptionTyping, SpaceColonyCaptionCue>? caption;
+    /// <summary>How many of the caption's letters are shown, in order; none before the title.</summary>
+    internal int CaptionLettersShown => caption?.Shown?.Letters ?? 0;
+    /// <summary>Whether the Japanese text's katakana caption has shown, from the update it shows until the flight ends.</summary>
+    internal bool JapaneseCaptionShown => caption?.Shown?.Shows == SpaceColonyCaptionText.WithKatakana;
     /// <summary>Whether the Japanese text is selected, which shows the katakana caption.</summary>
     private readonly bool japaneseText;
 
@@ -222,7 +224,7 @@ internal sealed class IntroCeresFlightState
         }
         if (Phase == IntroCeresFlightPhase.FlyingTowardCeres)
         {
-            layers.Add(WhiteWash.Layer(flashIntensity));
+            layers.Add((rearViewFlash ?? throw new InvalidOperationException("The rear view shows no flash before its setup.")).Layer);
         }
         return new(new FramePaint(Backdrop), layers.ToArray(), fade.Level);
     }
@@ -283,8 +285,8 @@ internal sealed class IntroCeresFlightState
             .Select(role => new CeresRearViewActor(role, CreateActor(CeresFlightActors.RearViewActor(role), layout[role].Place)))];
 
         // The flash washes the rear view, sprites and backdrop toward white. It begins fully white and takes one step
-        // off the wash per frame until none is left.
-        flashIntensity = WhiteWash.Steps;
+        // off the wash per frame, from the next, until none is left.
+        rearViewFlash = WhiteWash.FullWhite(updatesPerStep: 1, firstStepUpdate: 1);
         Phase = IntroCeresFlightPhase.FlyingTowardCeres;
         // The rear view's setup starts the gunship engine's flicker, then the station's blinking navigation lights (#1733).
         ColourEffects.StartScreen(CeresFlightSceneDefinitions.GunshipEngineFlicker);
@@ -309,7 +311,7 @@ internal sealed class IntroCeresFlightState
     private void StepFlyingTowardCeres()
     {
         // The white flash fades by one step per frame, stopping at none.
-        flashIntensity = Math.Max(0, flashIntensity - 1);
+        (rearViewFlash ?? throw new InvalidOperationException("The rear view flies with no flash set up.")).Fade();
 
         // The rear view drifts left by an eighth of a pixel and grows the rear-of-gunship turning
         // image in two bands: the slow step until twelve floor pixels per screen pixel, then the fast step until thirty-two.
@@ -322,49 +324,32 @@ internal sealed class IntroCeresFlightState
             SetupSpaceColonyTitle();
     }
 
-    /// <summary>Switches to the caption page and writes its first glyph.</summary>
+    /// <summary>Switches to the caption page and starts typing the caption, its first glyph shown at once.</summary>
     private void SetupSpaceColonyTitle()
     {
         // The title replaces the turning image with the caption page
         // and starts the caption's background text object. The rear-view cinematic actors are not
         // deleted, so Ceres and both asteroid layers remain behind the title text.
-        CaptionLettersShown = 0;
-        spaceColonyHoldStarted = false;
-        JapaneseCaptionShown = false;
-        CaptionLettersShown++;
-        spaceColonyTimer = CeresFlightSceneDefinitions.CaptionLetterDelay;
+        // English text shows no katakana caption; Japanese text shows it for one frame before the hold.
+        caption = AnimationPlayer<SpaceColonyCaptionText, SpaceColonyCaptionTyping, SpaceColonyCaptionCue>.StartShowing(
+            SpaceColonyCaptionAnimations.Segments,
+            SpaceColonyCaptionAnimations.Typing(japaneseText ? SpaceColonyCaptionText.WithKatakana : SpaceColonyCaptionText.English));
         Phase = IntroCeresFlightPhase.SpaceColonyTitle;
     }
 
-    /// <summary>Writes title letters every sixteen frames, optionally adds katakana, then holds before fading.</summary>
-    private void StepSpaceColonyTitle()
+    /// <summary>
+    /// Types the title's letters every sixteen frames, optionally adds katakana, then holds the completed caption before
+    /// the fade step installs the ordinary fade owner.
+    /// </summary>
+    private void StepSpaceColonyTitle() =>
+        (caption ?? throw new InvalidOperationException("The SPACE COLONY title runs with no caption set up.")).Step(CarryOut);
+
+    /// <summary>Carries out <paramref name="cue"/> of the caption's typing.</summary>
+    /// <exception cref="InvalidOperationException">The cue is not one the caption's typing raises.</exception>
+    private void CarryOut(SpaceColonyCaptionCue cue)
     {
-        if (--spaceColonyTimer > 0)
-            return;
-
-        if (CaptionLettersShown < SpaceColonyCaptionDefinitions.LetterCount)
-        {
-            CaptionLettersShown++;
-            spaceColonyTimer = CeresFlightSceneDefinitions.CaptionLetterDelay;
-            return;
-        }
-
-        // English text shows no katakana caption; Japanese text shows it for one frame before the hold.
-        if (japaneseText && !JapaneseCaptionShown)
-        {
-            JapaneseCaptionShown = true;
-            spaceColonyTimer = CeresFlightSceneDefinitions.JapaneseCaptionDelay;
-            return;
-        }
-
-        // The caption's final step holds the completed caption before the fade step installs the ordinary fade owner.
-        if (!spaceColonyHoldStarted)
-        {
-            spaceColonyHoldStarted = true;
-            spaceColonyTimer = CeresFlightSceneDefinitions.CaptionHold;
-            return;
-        }
-
+        if (cue != SpaceColonyCaptionCue.StartFadeOut)
+            throw new InvalidOperationException($"Undefined SPACE COLONY caption cue {cue}.");
         fade.StepEvery(CeresFlightSceneDefinitions.FadeOutUpdatesPerStep);
         Phase = IntroCeresFlightPhase.FadeOut;
     }

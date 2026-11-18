@@ -3,8 +3,6 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// <summary>The post-shot transition's timing, motion and sound.</summary>
 internal static class EndingPostShotDefinitions
 {
-    /// <summary>The steps of the white wash it starts with, full white; it takes one step off each frame.</summary>
-    public const int WhiteWashStart = WhiteWash.Steps;
     /// <summary>The charged plasma-wave sound the shot queues.</summary>
     public static readonly SoundEffectId ShotSound = SamusSound.ChargedPlasmaWave;
     /// <summary>The priority the post-shot step queues the shot's sound at: essential, so it joins any sound queue that is not full.</summary>

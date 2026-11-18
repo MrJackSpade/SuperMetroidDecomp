@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Samus.Hud;
 using SuperMetroid.Core.Input;
@@ -116,13 +118,12 @@ public sealed class SamusXrayState
     public XrayVisorShadeMode VisorShadeMode { get; private set; }
 
     /// <summary>
-    /// The shade of <see cref="VisorShadeMode"/>'s sequence shown next (#2285): widening shows the widening glow's three
-    /// and holds its last; the full beam cycles the steady visor cycle's three. Every advance is bounded by those counts.
+    /// The visor's shade sequence for <see cref="VisorShadeMode"/> (#2285, #2387), each shade shown for five colouring
+    /// updates: widening shows the widening glow's three and rests on its widest, showing it again each time it runs out;
+    /// the full beam cycles the steady visor cycle's three. Its first shade shows on the colouring update after it starts.
     /// </summary>
-    public int VisorShade { get; private set; }
-
-    /// <summary>The shared five-frame colouring cadence timer.</summary>
-    public int VisorShadeTimer { get; private set; }
+    internal AnimationPlayer<SamusGlowSegment, PictureShade, NoAnimationCue> Visor { get; } =
+        SamusGlowPlay.Starting(SamusGlowSegment.XrayVisorWidening);
 
 
     /// <summary>
@@ -239,8 +240,7 @@ public sealed class SamusXrayState
         // The same step takes over Samus's suit colouring and clears
         // the special colouring timer even when an interrupted Flash, not a normal charge, owns it.
         samus.CrystalFlash.RelinquishSuitColouring();
-        VisorShade = 0;
-        VisorShadeTimer = 1;
+        SamusGlowPlay.Restart(Visor, SamusGlowSegment.XrayVisorWidening);
         samus.AudioRequests.QueueSound(SamusSound.XrayStart, SoundRequestPriority.Normal);
         OwnsSamusControl = true;
     }
@@ -296,15 +296,13 @@ public sealed class SamusXrayState
         AngularWideningSpeed = RotationAngle.Zero;
         VisorShadeMode = XrayVisorShadeMode.Widening;
         _colouring.Release(SamusSpecialColouringKind.Xray);
-        VisorShade = 0;
-        VisorShadeTimer = 0;
+        SamusGlowPlay.Restart(Visor, SamusGlowSegment.XrayVisorWidening);
     }
 
     /// <summary>Another special suit colouring takes over from X-ray's.</summary>
     internal void RelinquishSuitColouring()
     {
-        VisorShade = 0;
-        VisorShadeTimer = 0;
+        SamusGlowPlay.Restart(Visor, SamusGlowSegment.XrayVisorWidening);
         VisorShadeMode = XrayVisorShadeMode.Widening;
     }
 
@@ -486,8 +484,7 @@ public sealed class SamusXrayState
             // complete normal suit shade, then clears every X-ray shade value.
             SamusSuitShade.Show(colours, equippedItems);
             _colouring.Release(SamusSpecialColouringKind.Xray);
-            VisorShade = 0;
-            VisorShadeTimer = 0;
+            SamusGlowPlay.Restart(Visor, SamusGlowSegment.XrayVisorWidening);
             VisorShadeMode = XrayVisorShadeMode.Widening;
             return true;
         }
@@ -497,33 +494,14 @@ public sealed class SamusXrayState
 
         if (VisorShadeMode == XrayVisorShadeMode.Widening && BeamPhase is not (XrayBeamPhase.NoBeam or XrayBeamPhase.Widening))
         {
-            // The visor enters the steady cycle at its first shade.
-            VisorShade = 0;
-            VisorShadeTimer = 1;
+            // The visor enters the steady cycle, whose first shade shows on this update.
+            SamusGlowPlay.Restart(Visor, SamusGlowSegment.VisorCycle);
             VisorShadeMode = XrayVisorShadeMode.FullBeam;
         }
 
-        if (--VisorShadeTimer > 0)
+        if (Visor.StepToNewFrame() is not { } shade)
             return false;
-
-        VisorShadeTimer = XrayScopeDefinitions.VisorShades.FrameDelay;
-        colours.ShowVisor(VisorShadeMode == XrayVisorShadeMode.Widening
-            ? SamusShades.XrayWideningVisor(VisorShade)
-            : SamusShades.VisorCycle(VisorShade));
-
-        if (VisorShadeMode == XrayVisorShadeMode.Widening)
-        {
-            // Widening shows its shades in order and then pins the last until the full beam is observed.
-            if (VisorShade < XrayScopeDefinitions.VisorShades.WideningLastShade)
-                VisorShade++;
-        }
-        else
-        {
-            // The full beam cycles the steady shades, back to the first after the last.
-            int next = VisorShade + 1;
-            VisorShade = next < XrayScopeDefinitions.VisorShades.FullCycleShades ? next : 0;
-        }
-
+        colours.ShowVisor(shade);
         return true;
     }
 

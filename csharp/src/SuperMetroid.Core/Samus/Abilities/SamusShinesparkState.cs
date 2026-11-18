@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -57,10 +58,14 @@ public sealed class SamusShinesparkState
     public int ShineTimer { get; private set; }
 
     /// <summary>
-    /// The next step of the shine colour cycle, below the stored-shine list's six steps for the stored shine and below the
-    /// active list's four while sparking: each colouring update advances it by one and returns it to zero at that limit.
+    /// Where the shine's glow stands (#2387): the stored shine's six shades or the shinespark's four, one each colouring
+    /// update and over again, in the suit Samus shows. Every suit's glow runs its shades alike, so a change of suit goes on
+    /// from where the glow stood; each start of the shine or the spark starts it again.
     /// </summary>
-    public int ShadeStep { get; private set; }
+    internal AnimationPlayback<SamusGlowSegment> ShineGlow { get; private set; } = ShineGlowStart;
+
+    /// <summary>The shine's glow before its first shade.</summary>
+    private static AnimationPlayback<SamusGlowSegment> ShineGlowStart => SamusGlowPlay.Before(SamusGlowSegment.StoredShinePower);
 
     /// <summary>
     /// The updates the windup still waits for a direction: <see cref="ShinesparkDefinitions.WindupFrames"/> when it
@@ -103,7 +108,7 @@ public sealed class SamusShinesparkState
     {
         Phase = ShinesparkPhase.Inactive;
         ShineTimer = 0;
-        ShadeStep = 0;
+        ShineGlow = ShineGlowStart;
     }
 
 
@@ -152,7 +157,7 @@ public sealed class SamusShinesparkState
     internal void RelinquishColoursToXray()
     {
         ShineTimer = 0;
-        ShadeStep = 0;
+        ShineGlow = ShineGlowStart;
         if (Phase == ShinesparkPhase.Stored)
             Phase = ShinesparkPhase.Inactive;
     }
@@ -184,7 +189,7 @@ public sealed class SamusShinesparkState
 
         ShineTimer = ShinesparkDefinitions.StoredShineFrames;
         _colouring.Take(SamusSpecialColouringKind.SpeedBoosterShine);
-        ShadeStep = 0;
+        ShineGlow = ShineGlowStart;
         Phase = ShinesparkPhase.Stored;
         return true;
     }
@@ -246,7 +251,7 @@ public sealed class SamusShinesparkState
         WindupCountdown = ShinesparkDefinitions.WindupFrames;
         ShineTimer = ShinesparkDefinitions.WindupShadeFrames;
         _colouring.Take(SamusSpecialColouringKind.Shinesparking);
-        ShadeStep = 0;
+        ShineGlow = ShineGlowStart;
         Phase = ShinesparkPhase.Windup;
         samus.HurtFlash.Clear();
     }
@@ -404,7 +409,7 @@ public sealed class SamusShinesparkState
         if (expired)
         {
             _colouring.Release(colouring);
-            ShadeStep = 0;
+            ShineGlow = ShineGlowStart;
             if (Phase == ShinesparkPhase.Stored)
                 Phase = ShinesparkPhase.Inactive;
             SamusSuitShade.Show(colours, equippedItems);
@@ -412,23 +417,12 @@ public sealed class SamusShinesparkState
         }
 
         SamusSuit suit = equippedItems.ShownSuit();
-        bool catalogued = colouring == SamusSpecialColouringKind.SpeedBoosterShine
-            ? SamusFullBodyCycleShades.TryStoredShineShade(
-                suit, ShadeStep, out SamusFullBodyCycleShade shade)
-            : SamusFullBodyCycleShades.TryActiveShinesparkShade(
-                suit, ShadeStep, out shade);
-        if (!catalogued)
-            throw new InvalidDataException(
-                $"Shinespark colouring {colouring} step {ShadeStep} has no shade.");
-        colours.ShowSuit(SamusShades.FullBodyCycle(shade));
-
-        int steps = colouring == SamusSpecialColouringKind.SpeedBoosterShine
-            ? SamusShadeDefinitions.FullBodyCycles.StoredShineSteps
-            : SamusShadeDefinitions.FullBodyCycles.ActiveShinesparkSteps;
-        // The step is always below its limit before this advance, so it never approaches a wrap.
-        ShadeStep++;
-        if (ShadeStep >= steps)
-            ShadeStep = 0;
+        SamusGlowSegment glow = colouring == SamusSpecialColouringKind.SpeedBoosterShine
+            ? SamusGlowAnimationDefinitions.StoredShine[suit]
+            : SamusGlowAnimationDefinitions.ActiveShinespark[suit];
+        AnimationPlayback<SamusGlowSegment> playback = ShineGlow;
+        colours.ShowSuit(SamusGlowPlay.NextShade(glow, ref playback).Shown);
+        ShineGlow = playback;
         return true;
     }
 

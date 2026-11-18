@@ -179,7 +179,7 @@ internal static class SamusChargeColorsVerification
         }
         var whiteout = Enumerable.Range(0, SamusShadeDefinitions.Death.WhiteoutShadeCount)
             .Select(index => Word(SamusSourceDefinitions.DeathWhiteoutShades.Value + index * 2)).ToArray();
-        var selectors = Enumerable.Range(0, SamusDeathExplosionTimingDefinitions.StepCount)
+        var selectors = Enumerable.Range(0, SuperMetroid.Core.Samus.Death.SamusDeathExplosionTimingDefinitionsConstants.RecordCount)
             .Select(index => (ushort)rom.ReadCartridgeByte(SamusSourceDefinitions.DeathExplosionTimingAndPaletteIndices.Value + 2 * index + 1)).ToArray();
         var death = new InstalledSamusDeathPalettes(ToColors(deathSuited), ToColors(deathSuitless), ToColors(whiteout), selectors);
         for (int index = 0; index < whiteout.Length; index++)

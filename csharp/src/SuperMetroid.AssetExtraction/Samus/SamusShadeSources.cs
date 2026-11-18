@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Colours;
+using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Fx;
@@ -63,10 +64,10 @@ internal sealed record SamusShadeSources(GameplayStartingColours Starting, RgbCo
             shades.Add(Suit(SamusShades.Suit(suit), Colours(colour => Suits.Resolve(suit, colour))));
         foreach (SamusChargeShade palette in Charge.Palettes)
             shades.Add(Suit(SamusShades.Charge(palette), Colours(colour => Charge.Resolve(palette, colour))));
-        for (int frame = 0; frame < SamusShadeDefinitions.FullBodyCycles.HyperBeamShadeCount; frame++)
+        for (int frame = 0; frame < SamusShades.HyperBeamSuit.Count; frame++)
         {
             int shown = frame;
-            shades.Add(Suit(SamusShades.HyperBeamSuit(shown), Colours(colour => HyperBeamSuit.Resolve(shown, colour))));
+            shades.Add(Suit(SamusShades.HyperBeamSuit[shown], Colours(colour => HyperBeamSuit.Resolve(shown, colour))));
         }
         for (int frame = 0; frame < SamusShadeDefinitions.FullBodyCycles.HyperBeamShadeCount; frame++)
         {
@@ -78,28 +79,22 @@ internal sealed record SamusShadeSources(GameplayStartingColours Starting, RgbCo
             shades.Add(Suit(SamusShades.FullBodyCycle(palette), Colours(colour => FullBodyCycles.Resolve(palette, colour))));
         foreach (SamusHurtColorVariant variant in Enum.GetValues<SamusHurtColorVariant>())
             shades.Add(Suit(SamusShades.Hurt(variant), Colours(colour => Hurt.Resolve(variant, colour))));
-        for (int shade = 0; shade < SamusShadeDefinitions.Visor.XrayWideningShades; shade++)
-        {
-            shades.Add(new(SamusShades.XrayWideningVisor(shade), [SamusSheetInks.Suit + SamusSheetInks.VisorColour],
-                [Visor.XrayWidening(shade)]));
-        }
-        for (int shade = 0; shade < SamusShadeDefinitions.Visor.CycleShades; shade++)
-        {
-            shades.Add(new(SamusShades.VisorCycle(shade), [SamusSheetInks.Suit + SamusSheetInks.VisorColour],
-                [Visor.Cycle(shade)]));
-        }
+        for (int step = 0; step < SamusShades.XrayWideningVisor.Count; step++)
+            shades.Add(new(SamusShades.XrayWideningVisor[step], [SamusSheetInks.Suit + SamusSheetInks.VisorColour], [Visor.XrayWidening(step)]));
+        for (int step = 0; step < SamusShades.VisorCycle.Count; step++)
+            shades.Add(new(SamusShades.VisorCycle[step], [SamusSheetInks.Suit + SamusSheetInks.VisorColour], [Visor.Cycle(step)]));
         foreach (SamusBeamCombination combination in SamusBeamColours.Shown)
             shades.Add(Beams(SamusShades.Beam(combination), SamusBeamColours.Of(combination, BeamPalettes)));
-        for (int step = 0; step < CrystalFlashColorFormat.BodyFrameCount; step++)
+        for (int step = 0; step < SamusShades.CrystalFlashBody.Count; step++)
         {
             int shown = step;
-            shades.Add(SheetShade.Run(SamusShades.CrystalFlashBody(shown), SamusSheetInks.Beams,
+            shades.Add(SheetShade.Run(SamusShades.CrystalFlashBody[shown], SamusSheetInks.Beams,
                 Enumerable.Range(0, CrystalFlashColorFormat.BodyColorCount).Select(colour => CrystalFlash.ResolveBody(shown, colour)).ToArray()));
         }
-        for (int step = 0; step < CrystalFlashColorFormat.BubbleFrameCount; step++)
+        for (int step = 0; step < SamusShades.CrystalFlashBubble.Count; step++)
         {
             int shown = step;
-            shades.Add(SheetShade.Run(SamusShades.CrystalFlashBubble(shown), SamusSheetInks.Beams + SamusSheetInks.CrystalFlashBubbleFirstColour,
+            shades.Add(SheetShade.Run(SamusShades.CrystalFlashBubble[shown], SamusSheetInks.Beams + SamusSheetInks.CrystalFlashBubbleFirstColour,
                 Enumerable.Range(0, CrystalFlashColorFormat.BubbleColorCount).Select(colour => CrystalFlash.ResolveBubble(shown, colour)).ToArray()));
         }
         for (int frame = 0; frame < SamusColourSets.HyperBeamCycleFrames; frame++)
@@ -107,22 +102,21 @@ internal sealed record SamusShadeSources(GameplayStartingColours Starting, RgbCo
             shades.Add(SheetShade.Run(SamusShades.HyperBeamCycle(frame), SamusSheetInks.Beams + SamusSheetInks.HyperBeamFirstColour,
                 HyperBeamCycle.Frame(frame).AsSpan()));
         }
-        for (int step = 0; step < SamusShadeDefinitions.Death.ExplosionShadeCount; step++)
+        foreach (SamusDeathShade shown in SamusDeathShade.All)
         {
-            int shown = step;
             foreach (SamusSuit suit in Enum.GetValues<SamusSuit>())
             {
                 shades.Add(Suit(SamusShades.DeathSuit(suit, shown),
-                    Colours(colour => Death.SuitedColor(SamusSuitListLayout.Place(suit), shown, colour))));
+                    Colours(colour => Death.SuitedColor(SamusSuitListLayout.Place(suit), shown.Step, colour))));
             }
             shades.Add(SheetShade.Run(SamusShades.DeathSuitless(shown), SamusSheetInks.Suitless,
-                Colours(colour => Death.SuitlessColor(shown, colour))));
+                Colours(colour => Death.SuitlessColor(shown.Step, colour))));
         }
-        for (int step = 0; step < SamusShadeDefinitions.Death.WhiteoutShadeCount; step++)
+        foreach (SamusWhiteoutShade whiteout in SamusWhiteoutShade.All)
         {
             // The whiteout fills her beams' colours and her grapple flare's.
-            RgbColor white = Death.WhiteoutColor(step);
-            shades.Add(new(SamusShades.DeathWhiteout(step),
+            RgbColor white = Death.WhiteoutColor(whiteout.Step);
+            shades.Add(new(SamusShades.DeathWhiteout(whiteout),
                 [SamusSheetInks.GrappleFlare, .. Enumerable.Range(SamusSheetInks.Beams, SamusColourSets.ColoursPerSet)],
                 Enumerable.Repeat(white, SamusColourSets.ColoursPerSet + 1).ToArray()));
         }

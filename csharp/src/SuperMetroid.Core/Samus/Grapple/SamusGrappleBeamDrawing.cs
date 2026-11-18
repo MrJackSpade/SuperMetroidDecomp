@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -9,9 +10,6 @@ namespace SuperMetroid.Core.Samus.Grapple;
 /// <summary>How the grapple beam draws: its flare, the connected beam's segments and its endpoint.</summary>
 public static class SamusGrappleBeamDrawing
 {
-    /// <summary>The rope's cycle of pictures.</summary>
-    private const int RopeCycle = GrappleBeamDefinitions.Rendering.SegmentAnimationFrameCount;
-
     /// <summary>How Samus draws during <paramref name="phase"/>.</summary>
     /// <remarks>
     /// Cancellation, release, drop and the grapple wall jump each last one update. On the frame one of them begins, the
@@ -85,12 +83,10 @@ public static class SamusGrappleBeamDrawing
         grapple.FlareStage = GrappleFlareStage.JustFired;
         grapple.FlarePlace = ChargeFlareAnimations.FirstPlace(ChargeFlareComponent.MainFlare);
         grapple.FlareAnimationTimer = WrappingCountdown.Start(0);
-        grapple.PointAnimationTimer = WrappingCountdown.Start(GrapplePointAnimationDefinitions.Delay);
-        grapple.PointAnimationFrame = 0;
+        grapple.Endpoint.Show(GrappleAnimations.Endpoint);
         // The rope starts on its opening pattern: the muzzle's segment on the cycle's last picture, each segment beyond
         // on the one before. Its first step waits one draw longer than the rest.
-        grapple.RopeAnimationPhase = 0;
-        grapple.RopeAnimationTimer = GrappleBeamDefinitions.Rendering.FirstSegmentAnimationDelay;
+        grapple.Rope.Show(GrappleAnimations.Rope, GrappleBeamDefinitions.Rendering.FirstSegmentAnimationDelay);
     }
 
 
@@ -138,9 +134,8 @@ public static class SamusGrappleBeamDrawing
         if (DrawingFor(grapple.Phase) != SamusGrappleDrawing.Beam)
             return;
 
-        // The pair is a begin/end range, not two animation frames. Each
-        // six-update interval advances the endpoint to the next of its four pictures.
-        GrapplePointAnimation.Advance(grapple);
+        // Each six-draw interval moves the endpoint on to the next of its four pictures.
+        grapple.Endpoint.Step();
         SpriteSheet installed = Ensure.NotNull(sheet);
         SuperMetroid.Core.Samus.Artwork.GrappleRopeOrientation orientation =
             SuperMetroid.Core.Samus.Artwork.GrappleRopeOrientations.For(grapple.Angle);
@@ -168,43 +163,31 @@ public static class SamusGrappleBeamDrawing
             SegmentStep(SamusGrappleSwing.ReadSignedSine(drawAngle)));
 
         SpriteMirror mirror = RopeMirror(grapple.Angle);
-        AdvanceRopeAnimation(grapple);
+        // Each rope draw counts one off the pattern's picture, and the whole rope steps on with it.
+        grapple.Rope.Step();
 
         // Each rope picture is placed by its centre, the first at the muzzle and each after it one segment's spacing on
         // toward the anchor. A positive rope shorter than one spacing still shows its first picture.
         FixedVector<ScreenPixels> centre = FixedVector<ScreenPixels>.FromWholePixels(grapple.FlareOrigin.RelativeToCamera(cameraPosition));
         int segmentCount = Math.Max(1, grapple.RopeLength / GrappleBeamDefinitions.Rendering.SegmentSpacing);
+        // The muzzle's segment shows the pattern's picture, and each segment beyond it the picture before its neighbour's.
+        GrappleRopePicture picture = grapple.Rope.Showing;
         for (int segment = 0; segment < segmentCount; segment++)
         {
             // The rope draw's direction flips are ORed into the segment's own; the sheet holds each combination.
-            SpriteSheetFrame image = installed.Frame(SuperMetroid.Core.Samus.Artwork.GrappleSheets.RopeFrame(
-                orientation, RopePicture(grapple.RopeAnimationPhase, segment), mirror));
+            SpriteSheetFrame image = installed.Frame(GrappleSheets.RopeFrame(orientation, picture, mirror));
             sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusGrappleRope), image,
                 centre.Whole, SpriteMirror.None));
             centre += step;
+            picture = GrappleAnimations.RopePictureBefore[picture];
         }
 
         // The endpoint is placed by its centre at the anchor.
-        SpriteSheetFrame endpoint = installed.Frame(SuperMetroid.Core.Samus.Artwork.GrappleSheets.EndpointFrame(grapple.PointAnimationFrame));
+        SpriteSheetFrame endpoint = installed.Frame(GrappleSheets.EndpointFrame(grapple.Endpoint.Showing));
         sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusGrappleEndpoint), endpoint,
             grapple.Anchor.RelativeToCamera(cameraPosition), SpriteMirror.None));
     }
 
-
-    /// <summary>
-    /// Counts one rope draw off the rope's animation, and steps the whole rope on to its next picture on the draw that
-    /// finishes the wait.
-    /// </summary>
-    private static void AdvanceRopeAnimation(SamusGrappleState grapple)
-    {
-        int remaining = grapple.RopeAnimationTimer - 1;
-        if (remaining == 0)
-        {
-            remaining = GrappleBeamDefinitions.Rendering.SegmentAnimationDelay;
-            grapple.RopeAnimationPhase = (grapple.RopeAnimationPhase + 1) % RopeCycle;
-        }
-        grapple.RopeAnimationTimer = remaining;
-    }
 
     /// <summary>
     /// The displacement along one axis from one rope picture's centre to the next: one segment's spacing scaled by the
@@ -222,13 +205,6 @@ public static class SamusGrappleBeamDrawing
         (angle >= RotationAngle.HalfTurn ? SpriteMirror.Horizontal : SpriteMirror.None) |
         (angle < RotationAngle.QuarterTurn || angle >= RotationAngle.ThreeQuarterTurn ? SpriteMirror.Vertical : SpriteMirror.None);
 
-
-    /// <summary>
-    /// The picture a rope segment shows at the rope's animation phase: the muzzle's segment shows the cycle's last
-    /// picture moved on by the phase, and each segment further along the rope the picture before its neighbour's.
-    /// </summary>
-    private static int RopePicture(int phase, int segment) =>
-        (phase + RopeCycle - 1 - segment % RopeCycle) % RopeCycle;
 
 
     /// <summary>Clears the three charge-flare values shared by grapple cancellation and connection cleanup.</summary>

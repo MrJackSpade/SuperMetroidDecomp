@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Samus.Grapple;
@@ -192,41 +194,21 @@ public sealed class SamusGrappleState
     /// <summary>The wait the grapple's flare holds its picture for: the picture shows for it and one update more.</summary>
     public WrappingCountdown FlareAnimationTimer { get; set; }
 
-    /// <summary>The grapple endpoint animation countdown.</summary>
-    public WrappingCountdown PointAnimationTimer { get; set; }
     /// <summary>
-    /// Endpoint animation frame, one of the endpoint's <see cref="GrapplePointAnimationDefinitions.FrameCount"/> frames (#1627):
-    /// a fresh beam starts at the first and every advance steps on from a frame of the cycle, returning to the first past
-    /// the last, so no frame outside the cycle exists; writing one is rejected.
+    /// The endpoint's animation (#1627, #2388): its four pictures, six beam draws each, over and over; a fresh beam starts
+    /// it on its first.
     /// </summary>
-    public int PointAnimationFrame
-    {
-        get;
-        set => field = Ensure.BetweenInclusive(0, GrapplePointAnimationDefinitions.FrameCount - 1, value);
-    }
+    internal AnimationPlayer<GrappleEndpointSegment, GrappleEndpointFrame, NoAnimationCue> Endpoint { get; } =
+        AnimationPlayer<GrappleEndpointSegment, GrappleEndpointFrame, NoAnimationCue>.StartShowing(
+            GrappleAnimations.EndpointSegments, GrappleAnimations.Endpoint);
 
     /// <summary>
-    /// Rope draws left before the rope's pictures step on: a fresh beam waits
-    /// <see cref="GrappleBeamDefinitions.Rendering.FirstSegmentAnimationDelay"/> draws for its first step and
-    /// <see cref="GrappleBeamDefinitions.Rendering.SegmentAnimationDelay"/> for each after it. Each draw that shows rope
-    /// counts one off and restarts the wait on the draw that reaches none, so other values are rejected.
+    /// The rope's travelling pattern (#2388): the picture its muzzle segment shows, stepping on every
+    /// <see cref="GrappleBeamDefinitions.Rendering.SegmentAnimationDelay"/> rope draws, a fresh beam's first after
+    /// <see cref="GrappleBeamDefinitions.Rendering.FirstSegmentAnimationDelay"/>. Each segment further along the rope
+    /// shows the picture before its neighbour's (<see cref="GrappleAnimations.RopePictureBefore"/>).
     /// </summary>
-    public int RopeAnimationTimer
-    {
-        get;
-        set => field = Ensure.BetweenInclusive(1, GrappleBeamDefinitions.Rendering.FirstSegmentAnimationDelay, value);
-    } = GrappleBeamDefinitions.Rendering.FirstSegmentAnimationDelay;
-
-    /// <summary>
-    /// The rope's one animation phase: how many times its pictures have stepped on since the beam fired, counted round
-    /// its cycle of <see cref="GrappleBeamDefinitions.Rendering.SegmentAnimationFrameCount"/> pictures. The segment at
-    /// the muzzle shows the cycle's last picture moved on by the phase, and each segment further along the rope the
-    /// picture before its neighbour's, so the pattern runs out along the rope as the phase steps. Other values are
-    /// rejected.
-    /// </summary>
-    public int RopeAnimationPhase
-    {
-        get;
-        set => field = Ensure.BetweenInclusive(0, GrappleBeamDefinitions.Rendering.SegmentAnimationFrameCount - 1, value);
-    }
+    internal AnimationPlayer<GrappleRopeSegment, GrappleRopePicture, NoAnimationCue> Rope { get; } =
+        AnimationPlayer<GrappleRopeSegment, GrappleRopePicture, NoAnimationCue>.StartShowing(
+            GrappleAnimations.RopeSegments, GrappleAnimations.Rope, GrappleBeamDefinitions.Rendering.FirstSegmentAnimationDelay);
 }

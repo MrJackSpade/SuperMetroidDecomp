@@ -107,7 +107,7 @@ internal static class SamusSourceDefinitions
     /// distance or measured-brightness quantity determines those durations;
     /// inventing such a relationship would replace the intended drawing rhythm.
     /// This is the concrete animation/nonsense case documented on
-    /// SamusDeathExplosionTimingDefinitions, not an exemption for authored data
+    /// SamusDeathAnimations' explosion, not an exemption for authored data
     /// in general. Only the nine timer bytes receive that disposition.
     /// The caller decrements
     /// the active timer before advancing, loads the next duration

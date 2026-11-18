@@ -1375,7 +1375,7 @@ internal static class LookupStream2Verification
         for (int frame = 0; frame < CrystalFlashColorFormat.BodyFrameCount; frame++)
         {
             ushort pointer = ReadVerificationWord(rom, SamusSourceDefinitions.CrystalFlashBodyRecords.Value + frame * 4);
-            samus.LayOverBeams(SamusShades.CrystalFlashBody(frame));
+            samus.LayOverBeams(SamusShades.CrystalFlashBody[frame]);
             for (int color = 0; color < CrystalFlashColorFormat.BodyColorCount; color++)
             {
                 ushort expected = ReadVerificationWord(rom, 0x9b0000 | pointer + 2 * color);
@@ -1389,7 +1389,7 @@ internal static class LookupStream2Verification
             ushort pointer = ReadVerificationWord(rom, SamusSourceDefinitions.BubblePointers.Value + frame * 2);
             ushort original = ReadVerificationWord(rom, 0x9b0000 | pointer + 2 * color);
             AssertEqual(original, stock.ResolveBubble(frame, color), "Original bubble payload preserved");
-            samus.LayOverBeams(SamusShades.CrystalFlashBubble(frame));
+            samus.LayOverBeams(SamusShades.CrystalFlashBubble[frame]);
             AssertEqual(original, samus.ShownBeams(InstalledFixtures.SamusShadeSources with { CrystalFlash = stock })[SamusPaletteDefinitionsCrystalFlashConstants.BubbleCgramStart - SamusPaletteDefinitionsCrystalFlashConstants.BodyCgramStart + color], "Original bubble color reaches the bubble shade");
         }
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveBubble(-1, 0), "Bubble lower frame bound");

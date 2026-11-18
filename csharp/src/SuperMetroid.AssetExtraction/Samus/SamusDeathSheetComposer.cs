@@ -22,12 +22,9 @@ internal static class SamusDeathSheetComposer
     /// <summary>Every facing the explosion is drawn in.</summary>
     internal static IReadOnlyList<HorizontalDirection> Facings { get; } = [HorizontalDirection.Right, HorizontalDirection.Left];
 
-    /// <summary>The explosion frames each facing shows.</summary>
-    internal const int ExplosionFrameCount = SamusDeathExplosionTimingDefinitions.StepCount;
-
     /// <summary>Every frame the sheet holds.</summary>
     internal static IEnumerable<string> Frames =>
-        Facings.SelectMany(facing => Enumerable.Range(0, ExplosionFrameCount).Select(frame => SamusDeathSheetDefinitions.ExplosionFrame(facing, frame)));
+        Facings.SelectMany(facing => SamusDeathSheetDefinitions.Explosion.Select(frame => SamusDeathSheetDefinitions.ExplosionFrame(facing, frame)));
 
     /// <summary>What the death sheet composes.</summary>
     internal static SpriteSheetSources Sources(SamusSheetInputs inputs)
@@ -37,9 +34,10 @@ internal static class SamusDeathSheetComposer
         var frames = new List<SheetFrameSource>();
         foreach (HorizontalDirection facing in Facings)
         {
-            for (int frame = 0; frame < ExplosionFrameCount; frame++)
+            // The explosion's pictures stand in the order of its spritemaps.
+            for (int frame = 0; frame < SamusDeathSheetDefinitions.Explosion.Count; frame++)
             {
-                string name = SamusDeathSheetDefinitions.ExplosionFrame(facing, frame);
+                string name = SamusDeathSheetDefinitions.ExplosionFrame(facing, SamusDeathSheetDefinitions.Explosion[frame]);
                 // A zero entry in the installed pointer table names direct-page scratch the port does not model and
                 // draws nothing (owner decision on #1318), so its frame is empty.
                 frames.Add(new(name, body.Spritemaps.TryGetFrame(ExplosionSpritemap(facing, frame), out SpriteFrame? spritemap)
@@ -67,4 +65,8 @@ internal static class SamusDeathSheetComposer
     internal static int ExplosionSpritemap(HorizontalDirection facing, int frame) =>
         (facing == HorizontalDirection.Left ? LeftExplosionSpritemap
             : RightExplosionSpritemap) + frame;
+
+    /// <summary>The Samus spritemap explosion picture <paramref name="frame"/> shows facing <paramref name="facing"/>.</summary>
+    internal static int ExplosionSpritemap(HorizontalDirection facing, SamusDeathExplosionFrame frame) =>
+        ExplosionSpritemap(facing, SamusDeathSheetDefinitions.Explosion.ToList().IndexOf(frame));
 }

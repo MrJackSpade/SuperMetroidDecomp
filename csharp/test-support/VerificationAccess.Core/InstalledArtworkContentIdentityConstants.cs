@@ -29,7 +29,7 @@ internal static class InstalledArtworkContentIdentityConstants
             Span<RgbColor> whiteoutColors = stackalloc RgbColor[SamusShadeDefinitions.Death.WhiteoutShadeCount];
             for (int index = 0; index < whiteoutColors.Length; index++) whiteoutColors[index] = palettes.WhiteoutColor(index);
             content.AppendColors("whiteout", whiteoutColors);
-            Span<int> selectors = stackalloc int[SamusDeathExplosionTimingDefinitions.StepCount];
+            Span<int> selectors = stackalloc int[SuperMetroid.Core.Samus.Death.SamusDeathExplosionTimingDefinitionsConstants.RecordCount];
             for (int frame = 0; frame < selectors.Length; frame++) selectors[frame] = palettes.ExplosionPaletteIndex(frame);
             content.AppendWords("explosion palette indices", selectors);
         });

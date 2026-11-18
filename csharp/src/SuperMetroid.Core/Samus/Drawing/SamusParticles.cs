@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Artwork;
 using static SuperMetroid.Core.Samus.Drawing.SamusAtmosphericAnimationDefinitions;
@@ -30,7 +31,7 @@ public sealed class SamusParticles
     {
         if (kind == SamusParticleKind.LavaSpray)
             throw new ArgumentOutOfRangeException(nameof(kind), kind, "Lava spray drifts outward and starts with its drift.");
-        Add(new SamusParticle(kind, step: 0, start, position, kind == SamusParticleKind.Dust ? DustDrift : Offset16<RoomPixels>.Zero));
+        Add(new SamusParticle(kind, AnimationPlace.StartOfAnimation, start, position, kind == SamusParticleKind.Dust ? DustDrift : Offset16<RoomPixels>.Zero));
     }
 
     /// <summary>Starts a particle of lava spray on its first step, rising and drifting to one side as it shows.</summary>
@@ -41,7 +42,7 @@ public sealed class SamusParticles
     {
         if (horizontalDrift is not (1 or -1))
             throw new ArgumentOutOfRangeException(nameof(horizontalDrift), horizontalDrift, "Lava spray drifts one pixel to one side.");
-        Add(new SamusParticle(SamusParticleKind.LavaSpray, step: 0, start, position,
+        Add(new SamusParticle(SamusParticleKind.LavaSpray, AnimationPlace.StartOfAnimation, start, position,
             new Offset16<RoomPixels>(horizontalDrift, LavaSprayRise)));
     }
 
@@ -90,15 +91,8 @@ public sealed class SamusParticles
     /// </summary>
     private static ImageSpriteDraw Draw(SamusParticle particle, Position16<RoomPixels> camera, InstalledSpriteSheets sheets)
     {
-        int step = particle.AnimationStep;
-        string frame = particle.Kind switch
-        {
-            SamusParticleKind.SurfaceSplash => SamusAtmosphereSheetDefinitions.FootstepFrame(step),
-            SamusParticleKind.LavaSpray or SamusParticleKind.Dust => SamusAtmosphereSheetDefinitions.LavaAndDustFrame(step),
-            SamusParticleKind.DivingSplash => SamusAtmosphereSheetDefinitions.DivingSplashFrame(step),
-            SamusParticleKind.Bubbles => SamusAtmosphereSheetDefinitions.BubblesFrame(step),
-            _ => throw new InvalidDataException($"Undefined particle kind {particle.Kind}."),
-        };
+        string frame = SamusAtmosphereSheetDefinitions.FrameName(
+            particle.Shown ?? throw new InvalidOperationException("A particle drawn shows no picture."));
         Offset16<ScreenPixels> place = particle.Position.RelativeToCamera(camera);
         if (particle.Kind is SamusParticleKind.SurfaceSplash or SamusParticleKind.LavaSpray or SamusParticleKind.Dust)
             place -= Offset16<ScreenPixels>.Of(SmallParticleHalfWidth, SmallParticleHalfWidth);

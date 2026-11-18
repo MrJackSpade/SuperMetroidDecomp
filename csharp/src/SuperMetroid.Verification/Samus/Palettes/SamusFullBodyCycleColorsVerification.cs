@@ -83,8 +83,8 @@ internal static class SamusFullBodyCycleColorsVerification
                 var speed = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())
                 {
                     SpeedBoostCounter = new SamusSpeedBoostCounter(4, 0),
-                    CycleShadeStep = phase,
                 };
+                speed.CycleShadeStep = phase;
                 PrivateState.Set(speed, nameof(SamusHorizontalSpeedState.CycleShadeTimer), 1);
                 var cgram = new SamusColours();
                 AssertTrue(speed.UpdateSpeedBoosterGlow(cgram, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.Running, AnimationOnSpinStart = (0) == 0, AnimationPastScrewAttackSpin = (0) >= 27, AnimationBeforeWallJumpSpin = (0) < 3, EquippedItems = items, SuppressActiveSpeedBoosterGlow = false, BottomBoundarySubmerged = false }),
@@ -94,7 +94,8 @@ internal static class SamusFullBodyCycleColorsVerification
 
             for (int phase = 0; phase < 6; phase++)
             {
-                var screw = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { CycleShadeStep = phase };
+                var screw = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus());
+                screw.CycleShadeStep = phase;
                 var cgram = new SamusColours();
                 AssertTrue(screw.UpdateSpeedBoosterGlow(cgram, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.SpinJumping, AnimationOnSpinStart = (1) == 0, AnimationPastScrewAttackSpin = (1) >= 27, AnimationBeforeWallJumpSpin = (1) < 3, EquippedItems = (items | SamusEquipmentFlags.ScrewAttack), SuppressActiveSpeedBoosterGlow = false, BottomBoundarySubmerged = false }),
                     "Screw Attack reaches installed color source");

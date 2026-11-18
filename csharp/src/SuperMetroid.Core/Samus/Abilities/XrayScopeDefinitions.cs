@@ -13,8 +13,6 @@ public static class XrayScopeDefinitions
     /// <summary>The visor shades X-ray shows while it is active.</summary>
     public static class VisorShades
     {
-        /// <summary>The widening glow's last shade, held while the beam widens.</summary>
-        public const int WideningLastShade = SamusShadeDefinitions.Visor.XrayWideningShades - 1;
         /// <summary>The shades of the steady cycle the full beam shows.</summary>
         public const int FullCycleShades = SamusShadeDefinitions.Visor.CycleShades;
         /// <summary>Frames between visor shade advances.</summary>

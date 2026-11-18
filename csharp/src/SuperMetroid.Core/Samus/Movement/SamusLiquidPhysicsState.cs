@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
@@ -569,7 +570,7 @@ public sealed class SamusLiquidPhysicsState
     private int SpawnParticle(SamusParticleKind kind, Position16<RoomPixels> position, SamusParticleStart start)
     {
         _particles.Spawn(kind, position, start);
-        return SamusParticleAnimations.UpdatesUntilFinished(kind, step: 0, start);
+        return SamusParticle.UpdatesUntilFinished(kind, AnimationPlace.StartOfAnimation, start);
     }
 
     /// <summary>Creates either the diving surface particle or paired shallow splashes selected by movement type.</summary>
@@ -632,10 +633,10 @@ public sealed class SamusLiquidPhysicsState
         // left. The first holds up the next spray while it shows, and the third holds up breath bubbles.
         int x = samus.Position.X.Whole;
         _particles.SpawnLavaSpray(new(CoordinateAxis.Wrap(x + SamusLiquidParticleDefinitions.LavaSprayOuterOffset), surface), AtOnce, horizontalDrift: 1);
-        EffectWaits.HoldSpray(SamusParticleAnimations.UpdatesUntilFinished(SamusParticleKind.LavaSpray, step: 0, AtOnce));
+        EffectWaits.HoldSpray(SamusParticle.UpdatesUntilFinished(SamusParticleKind.LavaSpray, AnimationPlace.StartOfAnimation, AtOnce));
         _particles.SpawnLavaSpray(new(x, surface), OneUpdateLate, horizontalDrift: 1);
         _particles.SpawnLavaSpray(new(x, surface), OneUpdateLate, horizontalDrift: -1);
-        EffectWaits.HoldBubbles(SamusParticleAnimations.UpdatesUntilFinished(SamusParticleKind.LavaSpray, step: 0, OneUpdateLate));
+        EffectWaits.HoldBubbles(SamusParticle.UpdatesUntilFinished(SamusParticleKind.LavaSpray, AnimationPlace.StartOfAnimation, OneUpdateLate));
         _particles.SpawnLavaSpray(new(CoordinateAxis.Wrap(x - SamusLiquidParticleDefinitions.LavaSprayOuterOffset), surface), AtOnce, horizontalDrift: -1);
 
         if (SamusCadenceDefinitions.LavaSpraySoundEverySecondUpdate.IsDue(frameCounter))

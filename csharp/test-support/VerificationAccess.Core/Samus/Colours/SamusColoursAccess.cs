@@ -77,7 +77,7 @@ internal static class SamusColoursAccess
 
         /// <summary>The visor shade laid over her suit, or null while the suit's own visor colour shows.</summary>
         internal PictureShade? VisorShade => self.SuitOverlays.LastOrDefault(shade =>
-            shade.Effect == SamusShades.XrayWideningVisor(0).Effect || shade.Effect == SamusShades.VisorCycle(0).Effect || shade == SamusShades.DoorCompletionVisor) is { Effect: not null } shade
+            shade.Effect == SamusShades.XrayWideningVisor[0].Effect || shade.Effect == SamusShades.VisorCycle[0].Effect || shade == SamusShades.DoorCompletionVisor) is { Effect: not null } shade
                 ? shade
                 : null;
 

@@ -181,7 +181,7 @@ internal static class SamusBodyArtworkVerification
         static SamusParticles OneParticle(int type, int step)
         {
             var particles = new SamusParticles();
-            particles.Add(new SamusParticle(SamusAtmosphericEffectWordCodec.KindNumbered(type)
+            particles.Add(SamusParticle.AtStep(SamusAtmosphericEffectWordCodec.KindNumbered(type)
                 ?? throw new InvalidDataException($"Effect number {type} names no particle."), step,
                 SamusParticleStart.Shown(2), new(128, 128), Offset16<RoomPixels>.Zero));
             return particles;
@@ -276,7 +276,7 @@ internal static class SamusBodyArtworkVerification
             AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord(at),
                 stockDeathPalettes.WhiteoutColor(shade), $"death whiteout shade {shade}");
         }
-        for (int frame = 0; frame < SamusDeathExplosionTimingDefinitions.StepCount; frame++)
+        for (int frame = 0; frame < SuperMetroid.Core.Samus.Death.SamusDeathExplosionTimingDefinitionsConstants.RecordCount; frame++)
             AssertEqual(bus.ReadCartridgeByte(SamusSourceDefinitions.DeathExplosionTimingAndPaletteIndices.Value +
                 frame * 2 + 1), stockDeathPalettes.ExplosionPaletteIndex(frame),
                 $"death explosion frame {frame} visual palette selector");
@@ -326,7 +326,7 @@ internal static class SamusBodyArtworkVerification
                 int[] suitlessMatches = [.. Enumerable.Range(0, SamusShadeDefinitions.Death.ExplosionShadeCount).Where(palette => CartridgeDeathColours(bus,
                     SamusSourceDefinitions.SuitlessPointers.Value + palette * sizeof(ushort)).SequenceEqual(suitlessWords))];
                 // Until the sequence writes its first pair, her colours are the ones she had, as the cartridge's CGRAM is.
-                bool pairWritten = installedColors.Shading.Shades.Any(shade => shade.Effect == SamusShades.DeathSuitless(0).Effect);
+                bool pairWritten = installedColors.Shading.Shades.Any(shade => shade.Effect == SamusShades.DeathSuitless(SuperMetroid.Core.Samus.Death.SamusDeathShade.First).Effect);
                 if (pairWritten)
                     pairFrames++;
                 bool pair = !pairWritten || suitMatches.Intersect(suitlessMatches).Any();
@@ -340,9 +340,11 @@ internal static class SamusBodyArtworkVerification
                     $"death suit {suit} frame {frame} whiteout is one of the cartridge's whiteout shades");
                 AssertTrue(nativeSamus.DeathSequence.Whiteout == installedSamus.DeathSequence.Whiteout &&
                     nativeStep.PhaseAfterStep == installedStep.PhaseAfterStep &&
-                    nativeSamus.DeathSequence.FlashShadeTimer == installedSamus.DeathSequence.FlashShadeTimer &&
+                    nativeSamus.DeathSequence.Flash.UpdatesLeft == installedSamus.DeathSequence.Flash.UpdatesLeft &&
+                    nativeSamus.DeathSequence.Flash.Shown == installedSamus.DeathSequence.Flash.Shown &&
                     nativeSamus.DeathSequence.FlashUpdates == installedSamus.DeathSequence.FlashUpdates &&
-                    nativeSamus.DeathSequence.ExplosionTimer == installedSamus.DeathSequence.ExplosionTimer &&
+                    nativeSamus.DeathSequence.Explosion?.UpdatesLeft == installedSamus.DeathSequence.Explosion?.UpdatesLeft &&
+                    nativeSamus.DeathSequence.ExplosionFrame == installedSamus.DeathSequence.ExplosionFrame &&
                     nativeSamus.DeathSequence.WhiteoutShade == installedSamus.DeathSequence.WhiteoutShade,
                     $"death suit {suit} frame {frame} native/installed colors and timing");
                 if (nativeStep.Completed)

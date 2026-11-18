@@ -90,21 +90,21 @@ internal static class SamusVisorColorsVerification
         var guarded = NewForbiddenVisorColorBus(rom);
         for (int frame = 0; frame < 32; frame++)
         {
-            // The room's cycle is stored after the widening glow's shades.
-            int sourceShade = SamusShadeDefinitions.Visor.XrayWideningShades + native.NextShade;
             native.Update(nativeColours, 0,
                 RoomVisorAnimation.Animated);
             installed.Update(installedColours, 0,
                 RoomVisorAnimation.Animated);
             // `$91:D864` reloads the expired countdown to the frame delay only on the call
             // that writes a color; countdown calls leave it below that delay.
-            bool expectedWrite = native.Timer == SamusShadeDefinitions.Visor.FrameDelay;
-            bool actualWrite = installed.Timer == SamusShadeDefinitions.Visor.FrameDelay;
+            bool expectedWrite = native.Cycle.UpdatesLeft == SamusShadeDefinitions.Visor.FrameDelay;
+            bool actualWrite = installed.Cycle.UpdatesLeft == SamusShadeDefinitions.Visor.FrameDelay;
+            // The room's cycle is stored after the widening glow's shades.
             if (expectedWrite)
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(SamusSourceDefinitions.VisorColors.Value + sourceShade * sizeof(ushort)), installedColours.ShownVisor(installedSources),
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(SamusSourceDefinitions.VisorColors.Value +
+                        (SamusShadeDefinitions.Visor.XrayWideningShades + native.Cycle.Showing.Step) * sizeof(ushort)), installedColours.ShownVisor(installedSources),
                     $"room visor frame {frame} matches native color word");
             AssertEqual(expectedWrite, actualWrite, $"room visor frame {frame} action");
-            AssertEqual(new VerifySamusVisorPaletteCase(native.Timer, native.NextShade), new VerifySamusVisorPaletteCase(installed.Timer, installed.NextShade),
+            AssertEqual(VerifySamusVisorPaletteCase.Of(native), VerifySamusVisorPaletteCase.Of(installed),
                 $"room visor frame {frame} timer and index");
             AssertEqual(nativeColours.VisorShade, installedColours.VisorShade,
                 $"room visor frame {frame} shade");
@@ -131,18 +131,21 @@ internal static class SamusVisorColorsVerification
         {
             // This fixture enters the full-beam stage immediately before call 11;
             // native $91:DCEA restarts that stage at the full-beam cycle's first shade.
-            // The stored colours hold the widening glow's shades, then the steady cycle's.
-            int sourceShade = call == 11 ? SamusShadeDefinitions.Visor.XrayWideningShades
-                : native.Xray.VisorShadeMode == XrayVisorShadeMode.Widening ? native.Xray.VisorShade
-                : SamusShadeDefinitions.Visor.XrayWideningShades + native.Xray.VisorShade;
             bool expected = native.Xray.UpdateColouring(nativeColours, native.EquippedItems);
             bool actual = installed.Xray.UpdateColouring(installedColours, installed.EquippedItems);
             if (expected)
+            {
+                // The stored colours hold the widening glow's shades, then the steady cycle's.
+                SuperMetroid.Core.Assets.PictureShade shown = native.Xray.Visor.Showing;
+                int sourceShade = shown.Effect == SamusShades.VisorCycle[0].Effect
+                    ? SamusShadeDefinitions.Visor.XrayWideningShades + shown.Step
+                    : shown.Step;
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(SamusSourceDefinitions.VisorColors.Value + sourceShade * sizeof(ushort)), installedColours.ShownVisor(installedSources),
                     $"X-ray visor call {call} matches native color word");
+            }
             AssertEqual(expected, actual, $"X-ray visor call {call} write");
-            AssertEqual(native.Xray.VisorShade, installed.Xray.VisorShade,
-                $"X-ray visor call {call} next shade");
+            AssertEqual(native.Xray.Visor.Shown, installed.Xray.Visor.Shown,
+                $"X-ray visor call {call} sequence shade");
             AssertEqual(nativeColours.VisorShade, installedColours.VisorShade,
                 $"X-ray visor call {call} shade");
             AssertEqual(nativeColours.ShownVisor(nativeSources), installedColours.ShownVisor(installedSources),

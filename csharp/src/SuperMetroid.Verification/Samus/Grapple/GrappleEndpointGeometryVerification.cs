@@ -32,7 +32,7 @@ internal static class GrappleEndpointGeometryVerification
             {
                 Phase = GrapplePhase.Firing, RopeLength = 8,
                 FlareOrigin = new(camera, camera),
-                Anchor = new(endpointX, endpointY), PointAnimationTimer = WrappingCountdown.Start(5),
+                Anchor = new(endpointX, endpointY),
             };
             var drawn = new SpriteFrameBuffer();
             drawn.BeginFrame();

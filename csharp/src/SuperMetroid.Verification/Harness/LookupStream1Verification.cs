@@ -333,20 +333,14 @@ internal static class LookupStream1Verification
             SamusParticleKind kind = SamusAtmosphericEffectWordCodec.KindNumbered(type) ?? throw new InvalidDataException($"Effect number {type} names no particle.");
             int pointer = 0x900000 | Word(0x908b93 + type * 2);
             int count = Word(0x908bef + type * 2);
-            AssertEqual(count, SamusParticleAnimations.StepCount(kind), "Named atmospheric frame domain matches native source");
+            AssertEqual(count, PictureCount(kind), "Named atmospheric frame domain matches native source");
+            // Each picture shows for the native duration of the step before it, the first for its own (#2388).
             for (int frame = 0; frame < count; frame++)
-                AssertEqual(Word(pointer + frame * 2), SamusParticleAnimations.StepUpdates(kind, frame), "Calculated atmospheric cadence preserves every native duration");
-            AssertThrows<InvalidDataException>(() => SamusParticleAnimations.StepUpdates(kind, count), "Atmospheric first out-of-range frame still rejects");
-            AssertThrows<InvalidDataException>(() => SamusParticleAnimations.StepUpdates(kind, byte.MaxValue), "Atmospheric byte-max frame still rejects");
+                AssertEqual(Word(pointer + Math.Max(frame - 1, 0) * 2), PictureUpdates(kind, frame), "Atmospheric pictures show every handed-on native duration");
         }
         AssertTrue(SamusAtmosphericEffectWordCodec.KindNumbered(0) is null, "Effect number zero is an empty place");
         foreach (int invalid in new[] { 2, 8, byte.MaxValue })
             AssertThrows<InvalidDataException>(() => SamusAtmosphericEffectWordCodec.KindNumbered(invalid), "An unstarted or out-of-domain atmospheric type names no particle");
-        foreach (int invalid in new[] { -1, Enum.GetValues<SamusParticleKind>().Length })
-        {
-            AssertThrows<InvalidDataException>(() => SamusParticleAnimations.StepCount((SamusParticleKind)invalid), "An undefined particle kind rejects");
-            AssertThrows<InvalidDataException>(() => SamusParticleAnimations.StepUpdates((SamusParticleKind)invalid, 0), "An undefined particle kind fails before step selection");
-        }
         Suite(nameof(VerifyProductionAtmosphericCadence), () => VerifyProductionAtmosphericCadence());
     }
 

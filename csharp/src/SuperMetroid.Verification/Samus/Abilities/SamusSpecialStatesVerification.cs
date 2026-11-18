@@ -153,12 +153,12 @@ internal static void VerifySamusCrystalFlash()
         "Crystal Flash bubble palette begins at color ten");
     AssertEqual(0x0205, crystalColours.ShownBeams(crystalSources)[15],
         "Crystal Flash bubble palette copies six colors");
-    AssertEqual(5, samus.CrystalFlash.BubbleTimer,
-        "Crystal Flash bubble timer reloads five");
-    AssertEqual(10, samus.CrystalFlash.CrystalPulseTimer,
-        "Crystal Flash body timer comes from interleaved ROM record");
-    AssertEqual(1, samus.CrystalFlash.BodyStep,
-        "Crystal Flash body pulse advances one step");
+    AssertEqual(5, samus.CrystalFlash.BubbleTurn.UpdatesLeft,
+        "Crystal Flash bubble shade holds five updates");
+    AssertEqual(10, samus.CrystalFlash.BodyPulse.UpdatesLeft,
+        "Crystal Flash body shade holds ten updates");
+    AssertEqual(SuperMetroid.Core.Samus.Colours.SamusShades.CrystalFlashBody[0], samus.CrystalFlash.BodyPulse.Showing,
+        "Crystal Flash body pulse shows its first shade");
 
     // Five more calls expire only the bubble timer and select pointer one. The ten-call
     // body timer remains halfway through its first record.
@@ -166,7 +166,7 @@ internal static void VerifySamusCrystalFlash()
         samus.CrystalFlash.UpdateColouring(crystalColours, samus);
     AssertEqual(0x0220, crystalColours.ShownBeams(crystalSources)[10],
         "Crystal Flash bubble palette advances independently");
-    AssertEqual(5, samus.CrystalFlash.CrystalPulseTimer,
+    AssertEqual(5, samus.CrystalFlash.BodyPulse.UpdatesLeft,
         "Crystal Flash body palette retains independent countdown");
 
     ushort initialY = samus.Position.Y.Whole;
@@ -420,14 +420,14 @@ internal static void VerifySamusXray()
     AssertEqual(14, standing.AnimationFrameTimer.RawValue,
         "generic animation follows X-ray movement timer write");
 
-    // Palette handler eight runs in the palette-FX phase. Timer one expires immediately,
-    // writes only the visor colour, advances shade zero to one, and reloads five.
+    // Palette handler eight runs in the palette-FX phase. Its first update shows the widening's first visor shade at once,
+    // writing only the visor colour, and holds it for five updates.
     AssertTrue(standing.Xray.UpdateColouring(xrayColours, standing.EquippedItems),
         "X-ray widening palette writes first visor color");
     AssertEqual(0x3be0, xrayColours.ShownVisor(xraySources), "first widening visor shade shows its installed color");
-    AssertEqual(1, standing.Xray.VisorShade, "widening visor shade advances");
-    AssertEqual(XrayScopeDefinitions.VisorShades.FrameDelay, standing.Xray.VisorShadeTimer,
-        "widening palette timer reload");
+    AssertEqual(SuperMetroid.Core.Samus.Colours.SamusShades.XrayWideningVisor[0], standing.Xray.Visor.Showing, "widening visor shows its first shade");
+    AssertEqual(XrayScopeDefinitions.VisorShades.FrameDelay, standing.Xray.Visor.UpdatesLeft,
+        "widening visor shade holds five updates");
 
     // Eight instruction-list setup functions execute before the main bank-$88 preinstruction: the warm-up's
     // eight updates. The eighth ends the warm-up; the next call changes X-ray state zero to one.
@@ -476,7 +476,7 @@ internal static void VerifySamusXray()
         "full beam enters visor cycle");
     AssertEqual(XrayVisorShadeMode.FullBeam, standing.Xray.VisorShadeMode, "full beam palette mode");
     AssertEqual(0x43ff, xrayColours.ShownVisor(xraySources), "first full-beam visor shade shows its installed color");
-    AssertEqual(1, standing.Xray.VisorShade, "full-beam visor shade advances");
+    AssertEqual(SuperMetroid.Core.Samus.Colours.SamusShades.VisorCycle[0], standing.Xray.Visor.Showing, "full-beam visor shows the cycle's first shade");
 
     // Full-beam aiming moves one angle unit per call and Up wins over Down. Width ten clamps
     // the right-facing center at angle ten, so 80 calls cannot wrap into left-facing space.
@@ -697,7 +697,7 @@ static void SeedSamusDeathSequenceCartridge(TestAddressSpace bus, ushort[] shade
 
     // Interleaved timer/palette bytes at `$9B:B823`: index zero uses 21/palette zero,
     // indices one through eight use 6/2,3/3,4/4,5/5,5/6,6/7,6/8,80/9.
-    bus.WriteBytes(SamusDeathExplosionTimingDefinitions.NativeFirstTimerAddress,
+    bus.WriteBytes(SuperMetroid.Core.Samus.Death.SamusDeathExplosionTimingDefinitionsConstants.NativeFirstTimerAddress,
         [0x15, 0x00, 0x06, 0x02, 0x03, 0x03, 0x04, 0x04, 0x05, 0x05,
          0x05, 0x06, 0x06, 0x07, 0x06, 0x08, 0x50, 0x09]);
     WriteTestWords(bus, 0x9bb835, shades);
@@ -713,8 +713,8 @@ static InstalledSamusDeathPalettes DecodeSamusDeathFixtureArtwork(TestAddressSpa
         .Select(color => LittleEndianBytes.Word(bus.ReadByte(pointer + color * 2), bus.ReadByte(pointer + color * 2 + 1))).ToArray();
     ushort[][] suitColors = Enumerable.Range(0, 10).Select(palette => FixturePalette(0x9bc000 + palette * 0x20)).ToArray();
     ushort[][] suitlessColors = Enumerable.Range(0, 10).Select(palette => FixturePalette(0x9bd400 + palette * 0x20)).ToArray();
-    ushort[] paletteIndices = Enumerable.Range(0, SamusDeathExplosionTimingDefinitions.StepCount)
-        .Select(index => (ushort)bus.ReadByte(SamusDeathExplosionTimingDefinitions.NativeFirstTimerAddress + index * 2 + 1)).ToArray();
+    ushort[] paletteIndices = Enumerable.Range(0, SuperMetroid.Core.Samus.Death.SamusDeathExplosionTimingDefinitionsConstants.RecordCount)
+        .Select(index => (ushort)bus.ReadByte(SuperMetroid.Core.Samus.Death.SamusDeathExplosionTimingDefinitionsConstants.NativeFirstTimerAddress + index * 2 + 1)).ToArray();
     return new InstalledSamusDeathPalettes([ToColors(suitColors), ToColors(suitColors), ToColors(suitColors)], ToColors(suitlessColors), ToColors(shades), paletteIndices);
 }
 
@@ -777,17 +777,17 @@ internal static void VerifySamusDeathSequence()
         step = samus.DeathSequence.Step(samus, samusColours, artwork.Steps);
     AssertEqual(SamusDeathSequencePhase.SuitExplosion, samus.DeathSequence.Phase,
         "60 flashing calls enter suit explosion");
-    AssertEqual(0, samus.DeathSequence.ExplosionStep,
-        "explosion begins at index zero");
-    AssertEqual(20, samus.DeathSequence.ExplosionTimer,
+    AssertEqual(SuperMetroid.Core.Samus.Artwork.SamusDeathExplosionFrame.SuitGlowing, samus.DeathSequence.ExplosionFrame,
+        "explosion begins on its first picture");
+    AssertEqual(20, samus.DeathSequence.Explosion?.UpdatesLeft,
         "same-call first explosion decrement");
     AssertEqual(0x081c, (samus.DeathSequence.ExplosionSpritemapIndex ?? throw new InvalidOperationException("Verification requires samus.DeathSequence.ExplosionSpritemapIndex.")),
         "right explosion base spritemap");
     AssertEqual(0x0100, samusColours.ShownSuit(deathSources)[0], "finish restores suit palette zero");
     AssertEqual(0x0400, samusColours.ShownSuitless(deathSources)[0], "finish restores suitless palette zero");
 
-    // The remaining literal timers total 135 calls. The terminal call increments index
-    // eight to nine, forces white shade 21, and deliberately emits no tenth spritemap.
+    // The remaining dwell times total 135 calls. The terminal call ends the explosion after its
+    // last picture, forces the final white shade, and deliberately emits no tenth spritemap.
     int explosionCalls = 0;
     while (samus.DeathSequence.Phase != SamusDeathSequencePhase.Complete)
     {
@@ -798,10 +798,10 @@ internal static void VerifySamusDeathSequence()
     AssertEqual(135, explosionCalls, "death explosion remaining call count");
     AssertTrue(step.Completed && !step.DrawExplosion,
         "terminal death call completes without drawing");
-    AssertEqual(9, samus.DeathSequence.ExplosionStep,
-        "death terminal index nine");
-    AssertEqual(0x0015, samus.DeathSequence.WhiteoutShade,
-        "death terminal whiteout shade index");
+    AssertEqual(true, samus.DeathSequence.Explosion?.HasStopped,
+        "the explosion has played its last picture");
+    AssertEqual(SuperMetroid.Core.Samus.Death.SamusWhiteoutShade.Final, samus.DeathSequence.WhiteoutShade,
+        "death terminal whiteout shade");
     AssertEqual(RgbColor.White, samus.DeathSequence.Whiteout, "death whiteout the display shows reaches the cartridge's full white");
     AssertEqual(0x7fff, samusColours.ShownBeams(deathSources)[15], "death whiteout includes the beams' last colour");
     AssertEqual(0x0220, samusColours.ShownSuit(deathSources)[0],

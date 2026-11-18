@@ -17,7 +17,7 @@ internal static class SamusAtmosphereArtworkBoundaryVerification
     private static SamusParticles OneParticle(SamusParticleKind kind, int step)
     {
         var particles = new SamusParticles();
-        particles.Add(new SamusParticle(kind, step, SamusParticleStart.Shown(2), new(128, 128), Offset16<RoomPixels>.Zero));
+        particles.Add(SamusParticle.AtStep(kind, step, SamusParticleStart.Shown(2), new(128, 128), Offset16<RoomPixels>.Zero));
         return particles;
     }
 

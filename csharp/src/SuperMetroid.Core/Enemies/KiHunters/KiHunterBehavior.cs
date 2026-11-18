@@ -489,7 +489,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Turns the detached wings back along their orbit by the coarse speed of their place on the speed curve
-    /// (<see cref="DetachedWingCoarseSpeed"/>).
+    /// (<see cref="DetachedWingTurn"/>).
     /// </summary>
     internal static void RunDetachedKiHunterWingOrbit(RoomEnemyPlace wings, KiHunterWingState state)
     {

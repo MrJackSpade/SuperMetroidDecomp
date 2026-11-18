@@ -30,7 +30,7 @@ public sealed class WreckedShipGhostEnemyState
     public int BobbingOriginY { get; internal set; }
 
     /// <summary>
-    /// The visible ghost's vertical speed in 1/65536 pixels per update, accelerating toward
+    /// The visible ghost's vertical speed each update, accelerating toward
     /// <see cref="BobbingOriginY"/>.
     /// </summary>
     public SignedSixteenSixteen VerticalVelocity { get; internal set; }

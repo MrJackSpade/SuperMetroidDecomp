@@ -6,8 +6,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 internal static class SamusProjectileMotionDefinitions
 {
     /// <summary>
-    /// The horizontal and vertical speed every beam combination launches at, in 256ths of a pixel per update:
-    /// four pixels.
+    /// The horizontal and vertical speed every beam combination launches at: four pixels an update.
     /// </summary>
     internal static readonly SignedEightEight CardinalSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(1024);
 
@@ -28,7 +27,7 @@ internal static class SamusProjectileMotionDefinitions
     /// within them is malformed room data.
     /// </summary>
     internal const int LongestExtensionChain = 16;
-    /// <summary>The diagonal speed every beam combination launches at, in 256ths of a pixel per update.</summary>
+    /// <summary>The diagonal speed every beam combination launches at, each update.</summary>
     internal static readonly SignedEightEight DiagonalSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(683);
     /// <summary>The base speed a fired missile ignites at: one pixel per update.</summary>
     internal static readonly SignedEightEight MissileIgnitionSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(256);

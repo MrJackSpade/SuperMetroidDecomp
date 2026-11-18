@@ -39,7 +39,7 @@ public static class SamusMovementDefinitions
     /// <summary>Samus's horizontal acceleration: how fast her extra run speed builds.</summary>
     public static class HorizontalMotion
     {
-        /// <summary>Per-frame extra-run acceleration while charging the Speed Booster: 1/16 pixel.</summary>
+        /// <summary>Per-frame extra-run acceleration while charging the Speed Booster: a sixteenth of a pixel.</summary>
         public static readonly UnsignedSixteenSixteen ExtraRunAcceleration = UnsignedSixteenSixteen.FromSixteenthsOfPixel(1);
     }
 }

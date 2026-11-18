@@ -159,6 +159,27 @@ internal static class SaveSchemaTranslationVerification
         AssertTrue(tenProgress.OpenedDoors.SequenceEqual([LockedDoorDefinitions.RedBrinstarElevatorYellowDoorFacingDown.Name]),
             "schema ten's misspelt, abbreviated door becomes its room's spelled-out name");
 
+        // A schema-thirteen save names some item locations after the room state that first places them (#2491); the current
+        // schema's strict reader rejects those names, and the save upgrades to the rooms' names. A schema-ten name that
+        // schema eleven spelled out with its room state upgrades through both.
+        JsonObject schemaThirteen = RequiredJson.Parse(json).AsObject();
+        schemaThirteen["schemaVersion"] = 13;
+        schemaThirteen.Required("slots").Required(0).Required("progression")["collectedItems"] =
+            new JsonArray("BombTorizoDefaultOrWhenAreaTorizoDeadChozoBombs", "MorphBallDefaultExposedMorphBall");
+        JsonObject thirteenAsCurrent = RequiredJson.Parse(schemaThirteen.ToJsonString()).AsObject();
+        thirteenAsCurrent["schemaVersion"] = GameSaveJsonFormat.SchemaVersion;
+        AssertInvalidJsonSave(thirteenAsCurrent.ToJsonString(), "BombTorizoDefaultOrWhenAreaTorizoDeadChozoBombs");
+        GameSaveJsonDocument upgradedThirteen = LegacyGameSaveJson.Deserialize(schemaThirteen.ToJsonString(), "game save", out bool migratedThirteen);
+        AssertTrue(migratedThirteen, "a schema-thirteen save is upgraded");
+        AssertTrue((upgradedThirteen.Slots[0] ?? throw new InvalidOperationException("The upgraded save lost slot 0.")).Progression.CollectedItems
+                .SequenceEqual([ItemLocationDefinitions.BombTorizoChozoBombs.Name, ItemLocationDefinitions.MorphBallExposedMorphBall.Name]),
+            "schema thirteen's item locations named for a room state become their rooms' names");
+        tenProgression["collectedItems"] = new JsonArray("WSEastSuperWhenAreaBossDeadExposedSuperMissileTank");
+        GameSaveJsonDocument upgradedTenThroughThirteen = LegacyGameSaveJson.Deserialize(schemaTen.ToJsonString(), "game save", out _);
+        AssertTrue((upgradedTenThroughThirteen.Slots[0] ?? throw new InvalidOperationException("The upgraded save lost slot 0.")).Progression.CollectedItems
+                .SequenceEqual([ItemLocationDefinitions.WreckedShipEastSuperExposedSuperMissileTank.Name]),
+            "schema ten's abbreviated, state-named item location becomes its room's name");
+
         // A schema-seven save carries the count of item set-ups, which nothing in the game reads (#1691); the current
         // schema's strict reader rejects it, and the save upgrades to the same saves without it.
         JsonObject schemaSeven = RequiredJson.Parse(json).AsObject();

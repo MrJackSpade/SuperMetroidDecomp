@@ -12,917 +12,917 @@ namespace SuperMetroid.Core.Fx;
 /// </summary>
 public static class RoomFxDefinitions
 {
-    /// <summary>The LandingSiteWhenZebesTimebombSet room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, starting <see cref="ColourEffectId.UpperCrateriaRedFlashing"/> and <see cref="ColourEffectId.CrateriaEscapeYellowLightning"/>, in the untinted look.</summary>
     public static RoomFxSelection LandingSiteWhenZebesTimebombSet { get; } = new(nameof(LandingSiteWhenZebesTimebombSet), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [ColourEffectId.UpperCrateriaRedFlashing, ColourEffectId.CrateriaEscapeYellowLightning], [], RoomEffectTint.None));
 
-    /// <summary>The ParlorWhenZebesTimebombSet room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, the liquid level starting at line 1256 and rising to line 16, starting <see cref="ColourEffectId.UpperCrateriaRedFlashing"/> and <see cref="ColourEffectId.ParlorEscapeSkyFlicker"/>, in the untinted look.</summary>
     public static RoomFxSelection ParlorWhenZebesTimebombSet { get; } = new(nameof(ParlorWhenZebesTimebombSet), [],
         new(1256, 16, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-104), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [ColourEffectId.UpperCrateriaRedFlashing, ColourEffectId.ParlorEscapeSkyFlicker], [], RoomEffectTint.None));
 
-    /// <summary>The ClimbWhenZebesTimebombSet room FX.</summary>
+    /// <summary>A selection whose rooms show acid, the liquid level starting at line 2280 and rising to line 16, starting <see cref="ColourEffectId.OldTourianRedFlashing"/>, <see cref="ColourEffectId.OldTourianBackgroundRailingsFlashYellow"/> and <see cref="ColourEffectId.OldTourianBackgroundPanelsFlashYellow"/>, in the untinted look.</summary>
     public static RoomFxSelection ClimbWhenZebesTimebombSet { get; } = new(nameof(ClimbWhenZebesTimebombSet), [],
         new(2280, 16, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-104), 40, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.None), [ColourEffectId.OldTourianRedFlashing, ColourEffectId.OldTourianBackgroundRailingsFlashYellow, ColourEffectId.OldTourianBackgroundPanelsFlashYellow], [], RoomEffectTint.None));
 
-    /// <summary>The BombTorizoWhenZebesTimebombSet room FX.</summary>
+    /// <summary>A selection whose rooms show acid, the liquid level starting at line 240 and rising to line 184, in the untinted look.</summary>
     public static RoomFxSelection BombTorizoWhenZebesTimebombSet { get; } = new(nameof(BombTorizoWhenZebesTimebombSet), [],
         new(240, 184, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-16), 48, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.None), [], [], RoomEffectTint.None));
 
-    /// <summary>The FlywayWhenZebesTimebombSet room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, in the untinted look.</summary>
     public static RoomFxSelection FlywayWhenZebesTimebombSet { get; } = new(nameof(FlywayWhenZebesTimebombSet), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [], [], RoomEffectTint.None));
 
-    /// <summary>The ParlorWhenZebesAwake room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, in the untinted look.</summary>
     public static RoomFxSelection ParlorWhenZebesAwake { get; } = new(nameof(ParlorWhenZebesAwake), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [], [], RoomEffectTint.None));
 
-    /// <summary>The ClimbWhenZebesAwake room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, in the untinted look unless entered through the one door that selects an effect of its own.</summary>
     public static RoomFxSelection ClimbWhenZebesAwake { get; } = new(nameof(ClimbWhenZebesAwake),
     [
         new(TourianDoorDefinitions.TourianEscape4ToClimb, new(2312, 0, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-128), 32, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.Vertical), [ColourEffectId.CrateriaLightning, ColourEffectId.UpperCrateriaRedFlashing, ColourEffectId.CrateriaEscapeYellowLightning, ColourEffectId.OldTourianRedFlashing, ColourEffectId.OldTourianBackgroundRailingsFlashYellow], [BlockAnimation.HorizontalSpikes], RoomEffectTint.Lava)),
     ],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [], [], RoomEffectTint.None));
 
-    /// <summary>The PitWithMorphBallAndMissiles room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, in the untinted look.</summary>
     public static RoomFxSelection PitWithMorphBallAndMissiles { get; } = new(nameof(PitWithMorphBallAndMissiles), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [], [], RoomEffectTint.None));
 
-    /// <summary>The ElevatorToBlueBrinstarWithMorphBallAndMissiles room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, in the untinted look.</summary>
     public static RoomFxSelection ElevatorToBlueBrinstarWithMorphBallAndMissiles { get; } = new(nameof(ElevatorToBlueBrinstarWithMorphBallAndMissiles), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [], [], RoomEffectTint.None));
 
-    /// <summary>The FinalMissileBombwayWhenZebesAwake room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, in the untinted look.</summary>
     public static RoomFxSelection FinalMissileBombwayWhenZebesAwake { get; } = new(nameof(FinalMissileBombwayWhenZebesAwake), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [], [], RoomEffectTint.None));
 
-    /// <summary>The FinalMissileWhenZebesAwake room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, in the untinted look.</summary>
     public static RoomFxSelection FinalMissileWhenZebesAwake { get; } = new(nameof(FinalMissileWhenZebesAwake), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [], [], RoomEffectTint.None));
 
-    /// <summary>The LandingSiteDefaultOrWhenZebesAwake room FX.</summary>
-    public static RoomFxSelection LandingSiteDefaultOrWhenZebesAwake { get; } = new(nameof(LandingSiteDefaultOrWhenZebesAwake), [],
+    /// <summary>A selection whose rooms show rain, starting <see cref="ColourEffectId.CrateriaLightning"/>, in the <see cref="RoomEffectTint.LandingSiteRain"/> tint.</summary>
+    public static RoomFxSelection LandingSiteRain { get; } = new(nameof(LandingSiteRain), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Rain, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, null, [ColourEffectId.CrateriaLightning], [], RoomEffectTint.LandingSiteRain));
 
-    /// <summary>The LandingSiteWithPowerBombs room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, in the untinted look.</summary>
     public static RoomFxSelection LandingSiteWithPowerBombs { get; } = new(nameof(LandingSiteWithPowerBombs), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [], [], RoomEffectTint.None));
 
-    /// <summary>The GauntletEntrance room FX.</summary>
+    /// <summary>A selection whose rooms show acid, the liquid level starting at line 200, in the untinted look.</summary>
     public static RoomFxSelection GauntletEntrance { get; } = new(nameof(GauntletEntrance), [],
         new(200, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.Large, HeatHazeDirection.Vertical), [], [], RoomEffectTint.None));
 
-    /// <summary>The ParlorDefault room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, in the <see cref="RoomEffectTint.Fog"/> tint, Samus's visor cycling its room shades.</summary>
     public static RoomFxSelection ParlorDefault { get; } = new(nameof(ParlorDefault), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Animated, null, null, [], [], RoomEffectTint.Fog));
 
-    /// <summary>The CrateriaPowerBombs room FX.</summary>
+    /// <summary>A selection whose rooms show acid, the liquid level starting at line 192, in the <see cref="RoomEffectTint.WaterAndAcid"/> tint.</summary>
     public static RoomFxSelection CrateriaPowerBombs { get; } = new(nameof(CrateriaPowerBombs), [],
         new(192, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.Large, HeatHazeDirection.Vertical), [], [], RoomEffectTint.WaterAndAcid));
 
-    /// <summary>The CrateriaSave room FX.</summary>
+    /// <summary>A selection whose rooms show no room effect, the overlay and the HUD keeping their own colours.</summary>
     public static RoomFxSelection CrateriaSave { get; } = new(nameof(CrateriaSave), [],
         null);
 
-    /// <summary>The WestOcean room FX.</summary>
+    /// <summary>A selection whose rooms show water, the liquid level starting at line 1264, in the <see cref="RoomEffectTint.WaterAndAcid"/> tint.</summary>
     public static RoomFxSelection WestOcean { get; } = new(nameof(WestOcean), [],
         new(1264, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomWater(LiquidTide.None, SurfaceDrift: true, BackgroundWave: false, IgnoresSurfaceUntilEnabled: false), [], [], RoomEffectTint.WaterAndAcid));
 
-    /// <summary>The BowlingAlleyPath room FX.</summary>
+    /// <summary>A selection whose rooms show water, the liquid level starting at line 176, in the <see cref="RoomEffectTint.WaterAndAcid"/> tint.</summary>
     public static RoomFxSelection BowlingAlleyPath { get; } = new(nameof(BowlingAlleyPath), [],
         new(176, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [], [], RoomEffectTint.WaterAndAcid));
 
-    /// <summary>The CrateriaKihunters room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, in the untinted look.</summary>
     public static RoomFxSelection CrateriaKihunters { get; } = new(nameof(CrateriaKihunters), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [], [], RoomEffectTint.None));
 
-    /// <summary>The ForgottenHighwayElevator room FX.</summary>
+    /// <summary>A selection whose rooms show no room effect, the overlay and the HUD keeping their own colours.</summary>
     public static RoomFxSelection ForgottenHighwayElevator { get; } = new(nameof(ForgottenHighwayElevator), [],
         null);
 
-    /// <summary>The EastOcean room FX.</summary>
+    /// <summary>A selection whose rooms show water, the liquid level starting at line 1264, in the <see cref="RoomEffectTint.WaterAndAcid"/> tint.</summary>
     public static RoomFxSelection EastOcean { get; } = new(nameof(EastOcean), [],
         new(1264, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomWater(LiquidTide.None, SurfaceDrift: true, BackgroundWave: false, IgnoresSurfaceUntilEnabled: false), [], [], RoomEffectTint.WaterAndAcid));
 
-    /// <summary>The ForgottenHighwayKagos room FX.</summary>
+    /// <summary>A selection whose rooms show no room effect, the overlay and the HUD keeping their own colours.</summary>
     public static RoomFxSelection ForgottenHighwayKagos { get; } = new(nameof(ForgottenHighwayKagos), [],
         null);
 
-    /// <summary>The CrabMaze room FX.</summary>
+    /// <summary>A selection whose rooms show water, the liquid level starting at line 432, in the <see cref="RoomEffectTint.WaterAndAcid"/> tint.</summary>
     public static RoomFxSelection CrabMaze { get; } = new(nameof(CrabMaze), [],
         new(432, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomWater(LiquidTide.None, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [], [], RoomEffectTint.WaterAndAcid));
 
-    /// <summary>The ForgottenHighwayElbow room FX.</summary>
+    /// <summary>A selection whose rooms show no room effect, the overlay and the HUD keeping their own colours.</summary>
     public static RoomFxSelection ForgottenHighwayElbow { get; } = new(nameof(ForgottenHighwayElbow), [],
         null);
 
-    /// <summary>The CrateriaTube room FX.</summary>
+    /// <summary>A selection whose rooms show no room effect, the overlay and the HUD keeping their own colours.</summary>
     public static RoomFxSelection CrateriaTube { get; } = new(nameof(CrateriaTube), [],
         null);
 
-    /// <summary>The Moat room FX.</summary>
+    /// <summary>A selection whose rooms show water, the liquid level starting at line 176, in the <see cref="RoomEffectTint.WaterAndAcid"/> tint.</summary>
     public static RoomFxSelection Moat { get; } = new(nameof(Moat), [],
         new(176, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomWater(LiquidTide.None, SurfaceDrift: true, BackgroundWave: false, IgnoresSurfaceUntilEnabled: false), [], [], RoomEffectTint.WaterAndAcid));
 
-    /// <summary>The RedBrinstarElevator room FX.</summary>
+    /// <summary>A selection whose rooms show no room effect, the overlay and the HUD keeping their own colours.</summary>
     public static RoomFxSelection RedBrinstarElevator { get; } = new(nameof(RedBrinstarElevator), [],
         null);
 
-    /// <summary>The GauntletEnergyTank room FX.</summary>
+    /// <summary>A selection whose rooms show acid, the liquid level starting at line 200, in the untinted look.</summary>
     public static RoomFxSelection GauntletEnergyTank { get; } = new(nameof(GauntletEnergyTank), [],
         new(200, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.Large, HeatHazeDirection.Vertical), [], [], RoomEffectTint.None));
 
-    /// <summary>The PreBowling room FX.</summary>
+    /// <summary>A selection whose rooms show no room effect, the overlay and the HUD keeping their own colours.</summary>
     public static RoomFxSelection PreBowling { get; } = new(nameof(PreBowling), [],
         null);
 
-    /// <summary>The ClimbDefault room FX.</summary>
+    /// <summary>A selection whose rooms show fog, in the <see cref="RoomEffectTint.Fog"/> tint.</summary>
     public static RoomFxSelection ClimbDefault { get; } = new(nameof(ClimbDefault), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Fog, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, null, [], [], RoomEffectTint.Fog));
 
-    /// <summary>The PitDefault room FX.</summary>
+    /// <summary>A selection whose rooms show fog, in the <see cref="RoomEffectTint.Fog"/> tint.</summary>
     public static RoomFxSelection PitDefault { get; } = new(nameof(PitDefault), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Fog, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, null, [], [], RoomEffectTint.Fog));
 
-    /// <summary>The ElevatorToBlueBrinstarDefault room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, in the untinted look, Samus's visor cycling its room shades.</summary>
     public static RoomFxSelection ElevatorToBlueBrinstarDefault { get; } = new(nameof(ElevatorToBlueBrinstarDefault), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Animated, null, null, [], [], RoomEffectTint.None));
 
-    /// <summary>The BombTorizoDefaultOrWhenAreaTorizoDead room FX.</summary>
-    public static RoomFxSelection BombTorizoDefaultOrWhenAreaTorizoDead { get; } = new(nameof(BombTorizoDefaultOrWhenAreaTorizoDead), [],
+    /// <summary>A selection whose rooms show no room effect, the overlay and the HUD keeping their own colours.</summary>
+    public static RoomFxSelection BombTorizo { get; } = new(nameof(BombTorizo), [],
         null);
 
-    /// <summary>The FlywayDefaultOrWhenAreaTorizoDead room FX.</summary>
-    public static RoomFxSelection FlywayDefaultOrWhenAreaTorizoDead { get; } = new(nameof(FlywayDefaultOrWhenAreaTorizoDead), [],
+    /// <summary>A selection whose rooms show no room effect, the overlay and the HUD keeping their own colours.</summary>
+    public static RoomFxSelection Flyway { get; } = new(nameof(Flyway), [],
         null);
 
-    /// <summary>The SharedWithoutEffects room FX.</summary>
-    public static RoomFxSelection SharedWithoutEffects { get; } = new(nameof(SharedWithoutEffects), [],
+    /// <summary>A selection whose rooms show no room effect, the overlay and the HUD keeping their own colours.</summary>
+    public static RoomFxSelection NoEffect { get; } = new(nameof(NoEffect), [],
         null);
 
-    /// <summary>The CrateriaSuper room FX.</summary>
+    /// <summary>A selection whose rooms show acid, the liquid level starting at line 2016, in the <see cref="RoomEffectTint.WaterAndAcid"/> tint.</summary>
     public static RoomFxSelection CrateriaSuper { get; } = new(nameof(CrateriaSuper), [],
         new(2016, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.Large, HeatHazeDirection.None), [], [], RoomEffectTint.WaterAndAcid));
 
-    /// <summary>The FinalMissileBombwayDefault room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, in the <see cref="RoomEffectTint.Fog"/> tint, Samus's visor cycling its room shades.</summary>
     public static RoomFxSelection FinalMissileBombwayDefault { get; } = new(nameof(FinalMissileBombwayDefault), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Animated, null, null, [], [], RoomEffectTint.Fog));
 
-    /// <summary>The FinalMissileDefault room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, in the <see cref="RoomEffectTint.Fog"/> tint, Samus's visor cycling its room shades.</summary>
     public static RoomFxSelection FinalMissileDefault { get; } = new(nameof(FinalMissileDefault), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Animated, null, null, [], [], RoomEffectTint.Fog));
 
-    /// <summary>The SharedPlain room FX.</summary>
-    public static RoomFxSelection SharedPlain { get; } = new(nameof(SharedPlain), [],
+    /// <summary>A selection whose rooms show no effect of their own, in the untinted look.</summary>
+    public static RoomFxSelection BrinstarUntinted { get; } = new(nameof(BrinstarUntinted), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [], [], RoomEffectTint.None));
 
-    /// <summary>The GreenBrinstarMainShaft room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, starting <see cref="ColourEffectId.BrinstarBlueBackgroundSpores"/>, in the untinted look.</summary>
     public static RoomFxSelection GreenBrinstarMainShaft { get; } = new(nameof(GreenBrinstarMainShaft), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [ColourEffectId.BrinstarBlueBackgroundSpores], [], RoomEffectTint.None));
 
-    /// <summary>The SporeSpawnSuper room FX.</summary>
+    /// <summary>A selection whose rooms show spores, in the untinted look.</summary>
     public static RoomFxSelection SporeSpawnSuper { get; } = new(nameof(SporeSpawnSuper), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Spores, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.SporesBrightenBehind, null, [], [], RoomEffectTint.None));
 
-    /// <summary>The BrinstarPreMap room FX.</summary>
+    /// <summary>A selection whose rooms show no room effect, the overlay and the HUD keeping their own colours.</summary>
     public static RoomFxSelection BrinstarPreMap { get; } = new(nameof(BrinstarPreMap), [],
         null);
 
-    /// <summary>The EarlySupers room FX.</summary>
+    /// <summary>A selection whose rooms show no room effect, the overlay and the HUD keeping their own colours.</summary>
     public static RoomFxSelection EarlySupers { get; } = new(nameof(EarlySupers), [],
         null);
 
-    /// <summary>The BrinstarReserveTank room FX.</summary>
+    /// <summary>A selection whose rooms show no room effect, the overlay and the HUD keeping their own colours.</summary>
     public static RoomFxSelection BrinstarReserveTank { get; } = new(nameof(BrinstarReserveTank), [],
         null);
 
-    /// <summary>The GreenBrinstarMap room FX.</summary>
+    /// <summary>A selection whose rooms show no room effect, the overlay and the HUD keeping their own colours.</summary>
     public static RoomFxSelection GreenBrinstarMap { get; } = new(nameof(GreenBrinstarMap), [],
         null);
 
-    /// <summary>The GreenBrinstarFirefleas room FX.</summary>
+    /// <summary>A selection whose rooms show the Fireflea rooms' darkness, in the untinted look.</summary>
     public static RoomFxSelection GreenBrinstarFirefleas { get; } = new(nameof(GreenBrinstarFirefleas), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Fireflea, RoomVisorAnimation.Steady, null, null, [], [], RoomEffectTint.None));
 
-    /// <summary>The GreenBrinstarMissileRefill room FX.</summary>
+    /// <summary>A selection whose rooms show no room effect, the overlay and the HUD keeping their own colours.</summary>
     public static RoomFxSelection GreenBrinstarMissileRefill { get; } = new(nameof(GreenBrinstarMissileRefill), [],
         null);
 
-    /// <summary>The Dachora room FX.</summary>
+    /// <summary>A selection whose rooms show spores, in the untinted look.</summary>
     public static RoomFxSelection Dachora { get; } = new(nameof(Dachora), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Spores, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.SporesBrightenBehind, null, [], [], RoomEffectTint.None));
 
-    /// <summary>The BigPink room FX.</summary>
+    /// <summary>A selection whose rooms show spores, animating <see cref="BlockAnimation.HorizontalSpikes"/>, in the untinted look.</summary>
     public static RoomFxSelection BigPink { get; } = new(nameof(BigPink), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Spores, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.SporesBrightenBehind, null, [], [BlockAnimation.HorizontalSpikes], RoomEffectTint.None));
 
-    /// <summary>The SporeSpawnKihunters room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, starting <see cref="ColourEffectId.BrinstarBlueBackgroundSpores"/>, in the untinted look.</summary>
     public static RoomFxSelection SporeSpawnKihunters { get; } = new(nameof(SporeSpawnKihunters), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [ColourEffectId.BrinstarBlueBackgroundSpores], [], RoomEffectTint.None));
 
-    /// <summary>The SporeSpawn room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, starting <see cref="ColourEffectId.SporeSpawnBlueBackgroundSpores"/>, in the untinted look.</summary>
     public static RoomFxSelection SporeSpawn { get; } = new(nameof(SporeSpawn), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [ColourEffectId.SporeSpawnBlueBackgroundSpores], [], RoomEffectTint.None));
 
-    /// <summary>The PinkBrinstarPowerBombs room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, in the untinted look.</summary>
     public static RoomFxSelection PinkBrinstarPowerBombs { get; } = new(nameof(PinkBrinstarPowerBombs), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [], [], RoomEffectTint.None));
 
-    /// <summary>The GreenHillZone room FX.</summary>
+    /// <summary>A selection whose rooms show no room effect, the overlay and the HUD keeping their own colours.</summary>
     public static RoomFxSelection GreenHillZone { get; } = new(nameof(GreenHillZone), [],
         null);
 
-    /// <summary>The MorphBallDefault room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, in the untinted look, Samus's visor cycling its room shades.</summary>
     public static RoomFxSelection MorphBallDefault { get; } = new(nameof(MorphBallDefault), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Animated, null, null, [], [], RoomEffectTint.None));
 
-    /// <summary>The ConstructionZoneDefault room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, in the untinted look, Samus's visor cycling its room shades.</summary>
     public static RoomFxSelection ConstructionZoneDefault { get; } = new(nameof(ConstructionZoneDefault), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Animated, null, null, [], [], RoomEffectTint.None));
 
-    /// <summary>The BlueBrinstarEnergyTankDefault room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, in the untinted look, Samus's visor cycling its room shades.</summary>
     public static RoomFxSelection BlueBrinstarEnergyTankDefault { get; } = new(nameof(BlueBrinstarEnergyTankDefault), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Animated, null, null, [], [], RoomEffectTint.None));
 
-    /// <summary>The NoobBridge room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, starting <see cref="ColourEffectId.BrinstarBlueBackgroundSpores"/>, in the untinted look.</summary>
     public static RoomFxSelection NoobBridge { get; } = new(nameof(NoobBridge), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [ColourEffectId.BrinstarBlueBackgroundSpores], [], RoomEffectTint.None));
 
-    /// <summary>The GreenBrinstarBeetoms room FX.</summary>
+    /// <summary>A selection whose rooms show no room effect, the overlay and the HUD keeping their own colours.</summary>
     public static RoomFxSelection GreenBrinstarBeetoms { get; } = new(nameof(GreenBrinstarBeetoms), [],
         null);
 
-    /// <summary>The EtecoonEnergyTank room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, starting <see cref="ColourEffectId.BrinstarBlueBackgroundSpores"/>, in the untinted look.</summary>
     public static RoomFxSelection EtecoonEnergyTank { get; } = new(nameof(EtecoonEnergyTank), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [ColourEffectId.BrinstarBlueBackgroundSpores], [], RoomEffectTint.None));
 
-    /// <summary>The EtecoonSuper room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, starting <see cref="ColourEffectId.BrinstarBlueBackgroundSpores"/>, in the untinted look.</summary>
     public static RoomFxSelection EtecoonSuper { get; } = new(nameof(EtecoonSuper), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [ColourEffectId.BrinstarBlueBackgroundSpores], [], RoomEffectTint.None));
 
-    /// <summary>The DachoraEnergyRefill room FX.</summary>
+    /// <summary>A selection whose rooms show no room effect, the overlay and the HUD keeping their own colours.</summary>
     public static RoomFxSelection DachoraEnergyRefill { get; } = new(nameof(DachoraEnergyRefill), [],
         null);
 
-    /// <summary>The SporeSpawnFarming room FX.</summary>
+    /// <summary>A selection whose rooms show spores, in the untinted look.</summary>
     public static RoomFxSelection SporeSpawnFarming { get; } = new(nameof(SporeSpawnFarming), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Spores, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.SporesBrightenBehind, null, [], [], RoomEffectTint.None));
 
-    /// <summary>The WaterwayEnergyTank room FX.</summary>
+    /// <summary>A selection whose rooms show water, the liquid level starting at line 168, in the <see cref="RoomEffectTint.WaterAndAcid"/> tint.</summary>
     public static RoomFxSelection WaterwayEnergyTank { get; } = new(nameof(WaterwayEnergyTank), [],
         new(168, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomWater(LiquidTide.None, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [], [], RoomEffectTint.WaterAndAcid));
 
-    /// <summary>The FirstMissile room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, in the untinted look.</summary>
     public static RoomFxSelection FirstMissile { get; } = new(nameof(FirstMissile), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [], [], RoomEffectTint.None));
 
-    /// <summary>The PinkBrinstarHoppers room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, starting <see cref="ColourEffectId.BrinstarBlueBackgroundSpores"/>, and animating <see cref="BlockAnimation.HorizontalSpikes"/>, in the untinted look.</summary>
     public static RoomFxSelection PinkBrinstarHoppers { get; } = new(nameof(PinkBrinstarHoppers), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [ColourEffectId.BrinstarBlueBackgroundSpores], [BlockAnimation.HorizontalSpikes], RoomEffectTint.None));
 
-    /// <summary>The HopperEnergyTank room FX.</summary>
+    /// <summary>A selection whose rooms show no room effect, the overlay and the HUD keeping their own colours.</summary>
     public static RoomFxSelection HopperEnergyTank { get; } = new(nameof(HopperEnergyTank), [],
         null);
 
-    /// <summary>The BigPinkSaveRoom room FX.</summary>
+    /// <summary>A selection whose rooms show no room effect, the overlay and the HUD keeping their own colours.</summary>
     public static RoomFxSelection BigPinkSaveRoom { get; } = new(nameof(BigPinkSaveRoom), [],
         null);
 
-    /// <summary>The BlueBrinstarBoulders room FX.</summary>
+    /// <summary>A selection whose rooms show water, the liquid level starting at line 176, in the <see cref="RoomEffectTint.WaterAndAcid"/> tint.</summary>
     public static RoomFxSelection BlueBrinstarBoulders { get; } = new(nameof(BlueBrinstarBoulders), [],
         new(176, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [], [], RoomEffectTint.WaterAndAcid));
 
-    /// <summary>The BillyMays room FX.</summary>
+    /// <summary>A selection whose rooms show no room effect, the overlay and the HUD keeping their own colours.</summary>
     public static RoomFxSelection BillyMays { get; } = new(nameof(BillyMays), [],
         null);
 
-    /// <summary>The GreenBrinstarSave room FX.</summary>
+    /// <summary>A selection whose rooms show no room effect, the overlay and the HUD keeping their own colours.</summary>
     public static RoomFxSelection GreenBrinstarSave { get; } = new(nameof(GreenBrinstarSave), [],
         null);
 
-    /// <summary>The EtecoonSave room FX.</summary>
+    /// <summary>A selection whose rooms show no room effect, the overlay and the HUD keeping their own colours.</summary>
     public static RoomFxSelection EtecoonSave { get; } = new(nameof(EtecoonSave), [],
         null);
 
-    /// <summary>The RedTower room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, starting <see cref="ColourEffectId.BrinstarRedBackgroundGlow"/> and <see cref="ColourEffectId.BeaconFlashing"/>, and animating <see cref="BlockAnimation.HorizontalSpikes"/>, in the untinted look.</summary>
     public static RoomFxSelection RedTower { get; } = new(nameof(RedTower), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [ColourEffectId.BrinstarRedBackgroundGlow, ColourEffectId.BeaconFlashing], [BlockAnimation.HorizontalSpikes], RoomEffectTint.None));
 
-    /// <summary>The RedBrinstarFirefleas room FX.</summary>
+    /// <summary>A selection whose rooms show the Fireflea rooms' darkness, in the untinted look.</summary>
     public static RoomFxSelection RedBrinstarFirefleas { get; } = new(nameof(RedBrinstarFirefleas), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Fireflea, RoomVisorAnimation.Steady, null, null, [], [], RoomEffectTint.None));
 
-    /// <summary>The XrayScope room FX.</summary>
+    /// <summary>A selection whose rooms show no room effect, the overlay and the HUD keeping their own colours.</summary>
     public static RoomFxSelection XrayScope { get; } = new(nameof(XrayScope), [],
         null);
 
-    /// <summary>The Hellway room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, starting <see cref="ColourEffectId.BrinstarRedBackgroundGlow"/>, in the untinted look.</summary>
     public static RoomFxSelection Hellway { get; } = new(nameof(Hellway), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [ColourEffectId.BrinstarRedBackgroundGlow], [], RoomEffectTint.None));
 
-    /// <summary>The Caterpillar room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, starting <see cref="ColourEffectId.BrinstarRedBackgroundGlow"/> and <see cref="ColourEffectId.BeaconFlashing"/>, in the untinted look.</summary>
     public static RoomFxSelection Caterpillar { get; } = new(nameof(Caterpillar), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [ColourEffectId.BrinstarRedBackgroundGlow, ColourEffectId.BeaconFlashing], [], RoomEffectTint.None));
 
-    /// <summary>The BetaPowerBomb room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, in the untinted look.</summary>
     public static RoomFxSelection BetaPowerBomb { get; } = new(nameof(BetaPowerBomb), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [], [], RoomEffectTint.None));
 
-    /// <summary>The AlphaPowerBomb room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, in the untinted look.</summary>
     public static RoomFxSelection AlphaPowerBomb { get; } = new(nameof(AlphaPowerBomb), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [], [], RoomEffectTint.None));
 
-    /// <summary>The SkreeBoost room FX.</summary>
+    /// <summary>A selection whose rooms show water, the liquid level starting at line 190, in the <see cref="RoomEffectTint.WaterAndAcid"/> tint.</summary>
     public static RoomFxSelection SkreeBoost { get; } = new(nameof(SkreeBoost), [],
         new(190, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomWater(LiquidTide.None, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [], [], RoomEffectTint.WaterAndAcid));
 
-    /// <summary>The BelowSpazer room FX.</summary>
+    /// <summary>A selection whose rooms show water, the liquid level starting at line 446, animating <see cref="BlockAnimation.HorizontalSpikes"/>, in the <see cref="RoomEffectTint.WaterAndAcid"/> tint.</summary>
     public static RoomFxSelection BelowSpazer { get; } = new(nameof(BelowSpazer), [],
         new(446, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomWater(LiquidTide.None, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [], [BlockAnimation.HorizontalSpikes], RoomEffectTint.WaterAndAcid));
 
-    /// <summary>The Spazer room FX.</summary>
+    /// <summary>A selection whose rooms show no room effect, the overlay and the HUD keeping their own colours.</summary>
     public static RoomFxSelection Spazer { get; } = new(nameof(Spazer), [],
         null);
 
-    /// <summary>The SharedBeaconFlashing room FX.</summary>
-    public static RoomFxSelection SharedBeaconFlashing { get; } = new(nameof(SharedBeaconFlashing), [],
+    /// <summary>A selection whose rooms show no effect of their own, starting <see cref="ColourEffectId.BeaconFlashing"/>, in the untinted look.</summary>
+    public static RoomFxSelection BeaconFlashing { get; } = new(nameof(BeaconFlashing), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [ColourEffectId.BeaconFlashing], [], RoomEffectTint.None));
 
-    /// <summary>The MiniKraid room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, in the untinted look.</summary>
     public static RoomFxSelection MiniKraid { get; } = new(nameof(MiniKraid), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [], [], RoomEffectTint.None));
 
-    /// <summary>The KraidEyeDoor room FX.</summary>
+    /// <summary>A selection whose rooms show no room effect, the overlay and the HUD keeping their own colours.</summary>
     public static RoomFxSelection KraidEyeDoor { get; } = new(nameof(KraidEyeDoor), [],
         null);
 
-    /// <summary>The Kraid room FX.</summary>
+    /// <summary>A selection whose rooms show no room effect, the overlay and the HUD keeping their own colours.</summary>
     public static RoomFxSelection Kraid { get; } = new(nameof(Kraid), [],
         null);
 
-    /// <summary>The StatuesHallway room FX.</summary>
+    /// <summary>A selection whose rooms show fog, starting <see cref="ColourEffectId.BeaconFlashing"/>, in the <see cref="RoomEffectTint.Fog"/> tint.</summary>
     public static RoomFxSelection StatuesHallway { get; } = new(nameof(StatuesHallway), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Fog, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, null, [ColourEffectId.BeaconFlashing], [], RoomEffectTint.Fog));
 
-    /// <summary>The RedTowerRefill room FX.</summary>
+    /// <summary>A selection whose rooms show no room effect, the overlay and the HUD keeping their own colours.</summary>
     public static RoomFxSelection RedTowerRefill { get; } = new(nameof(RedTowerRefill), [],
         null);
 
-    /// <summary>The KraidRefill room FX.</summary>
+    /// <summary>A selection whose rooms show no room effect, the overlay and the HUD keeping their own colours.</summary>
     public static RoomFxSelection KraidRefill { get; } = new(nameof(KraidRefill), [],
         null);
 
-    /// <summary>The Statues room FX.</summary>
+    /// <summary>A selection whose rooms show the statue room's surface, the liquid level starting at line 176 and falling to line 511, in the <see cref="RoomEffectTint.WaterAndAcid"/> tint.</summary>
     public static RoomFxSelection Statues { get; } = new(nameof(Statues), [],
         new(176, 511, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.TourianEntranceStatue, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomWater(LiquidTide.None, SurfaceDrift: true, BackgroundWave: false, IgnoresSurfaceUntilEnabled: false), [], [], RoomEffectTint.WaterAndAcid));
 
-    /// <summary>The WarehouseEntrance room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, in the untinted look, Samus's visor cycling its room shades.</summary>
     public static RoomFxSelection WarehouseEntrance { get; } = new(nameof(WarehouseEntrance), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Animated, null, null, [], [], RoomEffectTint.None));
 
-    /// <summary>The VariaSuit room FX.</summary>
+    /// <summary>A selection whose rooms show no room effect, the overlay and the HUD keeping their own colours.</summary>
     public static RoomFxSelection VariaSuit { get; } = new(nameof(VariaSuit), [],
         null);
 
-    /// <summary>The WarehouseSave room FX.</summary>
+    /// <summary>A selection whose rooms show no room effect, the overlay and the HUD keeping their own colours.</summary>
     public static RoomFxSelection WarehouseSave { get; } = new(nameof(WarehouseSave), [],
         null);
 
-    /// <summary>The RedBrinstarSave room FX.</summary>
+    /// <summary>A selection whose rooms show no room effect, the overlay and the HUD keeping their own colours.</summary>
     public static RoomFxSelection RedBrinstarSave { get; } = new(nameof(RedBrinstarSave), [],
         null);
 
-    /// <summary>The IceBeamAcid room FX.</summary>
+    /// <summary>A selection whose rooms show lava, the liquid level starting at line 184, starting <see cref="ColourEffectId.SamusInHeat"/>, <see cref="ColourEffectId.NorfairForegroundAndHeatPhase"/>, <see cref="ColourEffectId.NorfairGreenForegroundHeatGlow"/>, <see cref="ColourEffectId.NorfairPurpleForegroundHeatGlow"/> and <see cref="ColourEffectId.NorfairDarkForegroundHeatGlow"/>, in the <see cref="RoomEffectTint.Lava"/> tint.</summary>
     public static RoomFxSelection IceBeamAcid { get; } = new(nameof(IceBeamAcid), [],
         new(184, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.Vertical), [ColourEffectId.SamusInHeat, ColourEffectId.NorfairForegroundAndHeatPhase, ColourEffectId.NorfairGreenForegroundHeatGlow, ColourEffectId.NorfairPurpleForegroundHeatGlow, ColourEffectId.NorfairDarkForegroundHeatGlow], [], RoomEffectTint.Lava));
 
-    /// <summary>The Cathedral room FX.</summary>
+    /// <summary>A selection whose rooms show lava, the liquid level starting at line 433, starting <see cref="ColourEffectId.SamusInHeat"/>, <see cref="ColourEffectId.NorfairForegroundAndHeatPhase"/>, <see cref="ColourEffectId.NorfairGreenForegroundHeatGlow"/>, <see cref="ColourEffectId.NorfairPurpleForegroundHeatGlow"/> and <see cref="ColourEffectId.NorfairDarkForegroundHeatGlow"/>, in the <see cref="RoomEffectTint.Lava"/> tint.</summary>
     public static RoomFxSelection Cathedral { get; } = new(nameof(Cathedral), [],
         new(433, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.Vertical), [ColourEffectId.SamusInHeat, ColourEffectId.NorfairForegroundAndHeatPhase, ColourEffectId.NorfairGreenForegroundHeatGlow, ColourEffectId.NorfairPurpleForegroundHeatGlow, ColourEffectId.NorfairDarkForegroundHeatGlow], [], RoomEffectTint.Lava));
 
-    /// <summary>The CathedralEntrance room FX.</summary>
+    /// <summary>A selection whose rooms show lava, the liquid level starting at line 464, starting <see cref="ColourEffectId.SamusInHeat"/>, <see cref="ColourEffectId.NorfairForegroundAndHeatPhase"/>, <see cref="ColourEffectId.NorfairGreenForegroundHeatGlow"/>, <see cref="ColourEffectId.NorfairPurpleForegroundHeatGlow"/> and <see cref="ColourEffectId.NorfairDarkForegroundHeatGlow"/>, and animating <see cref="BlockAnimation.HorizontalSpikes"/>, in the <see cref="RoomEffectTint.Lava"/> tint.</summary>
     public static RoomFxSelection CathedralEntrance { get; } = new(nameof(CathedralEntrance), [],
         new(464, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.Vertical), [ColourEffectId.SamusInHeat, ColourEffectId.NorfairForegroundAndHeatPhase, ColourEffectId.NorfairGreenForegroundHeatGlow, ColourEffectId.NorfairPurpleForegroundHeatGlow, ColourEffectId.NorfairDarkForegroundHeatGlow], [BlockAnimation.HorizontalSpikes], RoomEffectTint.Lava));
 
-    /// <summary>The BusinessCenter room FX.</summary>
+    /// <summary>A selection whose rooms show lava, in the <see cref="RoomEffectTint.Lava"/> tint.</summary>
     public static RoomFxSelection BusinessCenter { get; } = new(nameof(BusinessCenter), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.None), [], [], RoomEffectTint.Lava));
 
-    /// <summary>The IceBeamGate room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, in the untinted look.</summary>
     public static RoomFxSelection IceBeamGate { get; } = new(nameof(IceBeamGate), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [], [], RoomEffectTint.None));
 
-    /// <summary>The IceBeamTutorial room FX.</summary>
+    /// <summary>A selection whose rooms show lava, the liquid level starting at line 178, starting <see cref="ColourEffectId.SamusInHeat"/>, <see cref="ColourEffectId.NorfairForegroundAndHeatPhase"/>, <see cref="ColourEffectId.NorfairGreenForegroundHeatGlow"/>, <see cref="ColourEffectId.NorfairPurpleForegroundHeatGlow"/> and <see cref="ColourEffectId.NorfairDarkForegroundHeatGlow"/>, in the <see cref="RoomEffectTint.Lava"/> tint.</summary>
     public static RoomFxSelection IceBeamTutorial { get; } = new(nameof(IceBeamTutorial), [],
         new(178, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.Vertical), [ColourEffectId.SamusInHeat, ColourEffectId.NorfairForegroundAndHeatPhase, ColourEffectId.NorfairGreenForegroundHeatGlow, ColourEffectId.NorfairPurpleForegroundHeatGlow, ColourEffectId.NorfairDarkForegroundHeatGlow], [], RoomEffectTint.Lava));
 
-    /// <summary>The IceBeam room FX.</summary>
+    /// <summary>A selection whose rooms show lava, in the <see cref="RoomEffectTint.Lava"/> tint.</summary>
     public static RoomFxSelection IceBeam { get; } = new(nameof(IceBeam), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.None), [], [], RoomEffectTint.Lava));
 
-    /// <summary>The IceBeamSnake room FX.</summary>
+    /// <summary>A selection whose rooms show lava, the liquid level starting at line 696, starting <see cref="ColourEffectId.SamusInHeat"/>, <see cref="ColourEffectId.NorfairForegroundAndHeatPhase"/>, <see cref="ColourEffectId.NorfairGreenForegroundHeatGlow"/>, <see cref="ColourEffectId.NorfairPurpleForegroundHeatGlow"/> and <see cref="ColourEffectId.NorfairDarkForegroundHeatGlow"/>, and animating <see cref="BlockAnimation.HorizontalSpikes"/>, in the <see cref="RoomEffectTint.Lava"/> tint.</summary>
     public static RoomFxSelection IceBeamSnake { get; } = new(nameof(IceBeamSnake), [],
         new(696, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.Vertical), [ColourEffectId.SamusInHeat, ColourEffectId.NorfairForegroundAndHeatPhase, ColourEffectId.NorfairGreenForegroundHeatGlow, ColourEffectId.NorfairPurpleForegroundHeatGlow, ColourEffectId.NorfairDarkForegroundHeatGlow], [BlockAnimation.HorizontalSpikes], RoomEffectTint.Lava));
 
-    /// <summary>The CrumbleShaft room FX.</summary>
+    /// <summary>A selection whose rooms show lava, starting <see cref="ColourEffectId.SamusInHeat"/>, <see cref="ColourEffectId.NorfairForegroundAndHeatPhase"/>, <see cref="ColourEffectId.NorfairGreenForegroundHeatGlow"/>, <see cref="ColourEffectId.NorfairPurpleForegroundHeatGlow"/> and <see cref="ColourEffectId.NorfairDarkForegroundHeatGlow"/>, in the <see cref="RoomEffectTint.Lava"/> tint.</summary>
     public static RoomFxSelection CrumbleShaft { get; } = new(nameof(CrumbleShaft), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.Vertical), [ColourEffectId.SamusInHeat, ColourEffectId.NorfairForegroundAndHeatPhase, ColourEffectId.NorfairGreenForegroundHeatGlow, ColourEffectId.NorfairPurpleForegroundHeatGlow, ColourEffectId.NorfairDarkForegroundHeatGlow], [], RoomEffectTint.Lava));
 
-    /// <summary>The CrocomireSpeedway room FX.</summary>
+    /// <summary>A selection whose rooms show lava, starting <see cref="ColourEffectId.SamusInHeat"/>, <see cref="ColourEffectId.NorfairForegroundAndHeatPhase"/>, <see cref="ColourEffectId.NorfairGreenForegroundHeatGlow"/>, <see cref="ColourEffectId.NorfairPurpleForegroundHeatGlow"/> and <see cref="ColourEffectId.NorfairDarkForegroundHeatGlow"/>, in the <see cref="RoomEffectTint.Lava"/> tint.</summary>
     public static RoomFxSelection CrocomireSpeedway { get; } = new(nameof(CrocomireSpeedway), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.Vertical), [ColourEffectId.SamusInHeat, ColourEffectId.NorfairForegroundAndHeatPhase, ColourEffectId.NorfairGreenForegroundHeatGlow, ColourEffectId.NorfairPurpleForegroundHeatGlow, ColourEffectId.NorfairDarkForegroundHeatGlow], [], RoomEffectTint.Lava));
 
-    /// <summary>The Crocomire room FX.</summary>
+    /// <summary>A selection whose rooms show acid, the liquid level starting at line 198, animating <see cref="BlockAnimation.HorizontalSpikes"/>, in the <see cref="RoomEffectTint.Lava"/> tint.</summary>
     public static RoomFxSelection Crocomire { get; } = new(nameof(Crocomire), [],
         new(198, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.Small, HeatHazeDirection.None), [], [BlockAnimation.HorizontalSpikes], RoomEffectTint.Lava));
 
-    /// <summary>The HiJumpBoots room FX.</summary>
+    /// <summary>A selection whose rooms show lava, in the <see cref="RoomEffectTint.Lava"/> tint.</summary>
     public static RoomFxSelection HiJumpBoots { get; } = new(nameof(HiJumpBoots), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.None), [], [], RoomEffectTint.Lava));
 
-    /// <summary>The CrocomireEscape room FX.</summary>
+    /// <summary>A selection whose rooms show lava, the liquid level starting at line 440, starting <see cref="ColourEffectId.SamusInHeat"/>, <see cref="ColourEffectId.NorfairForegroundAndHeatPhase"/>, <see cref="ColourEffectId.NorfairGreenForegroundHeatGlow"/>, <see cref="ColourEffectId.NorfairPurpleForegroundHeatGlow"/> and <see cref="ColourEffectId.NorfairDarkForegroundHeatGlow"/>, in the <see cref="RoomEffectTint.Lava"/> tint.</summary>
     public static RoomFxSelection CrocomireEscape { get; } = new(nameof(CrocomireEscape), [],
         new(440, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.Vertical), [ColourEffectId.SamusInHeat, ColourEffectId.NorfairForegroundAndHeatPhase, ColourEffectId.NorfairGreenForegroundHeatGlow, ColourEffectId.NorfairPurpleForegroundHeatGlow, ColourEffectId.NorfairDarkForegroundHeatGlow], [], RoomEffectTint.Lava));
 
-    /// <summary>The HiJumpEnergyTank room FX.</summary>
+    /// <summary>A selection whose rooms show lava, in the <see cref="RoomEffectTint.Lava"/> tint.</summary>
     public static RoomFxSelection HiJumpEnergyTank { get; } = new(nameof(HiJumpEnergyTank), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.None), [], [], RoomEffectTint.Lava));
 
-    /// <summary>The PostCrocomireFarming room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, in the <see cref="RoomEffectTint.Lava"/> tint.</summary>
     public static RoomFxSelection PostCrocomireFarming { get; } = new(nameof(PostCrocomireFarming), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [], [], RoomEffectTint.Lava));
 
-    /// <summary>The PostCrocomireSave room FX.</summary>
+    /// <summary>A selection whose rooms show lava, in the <see cref="RoomEffectTint.Lava"/> tint.</summary>
     public static RoomFxSelection PostCrocomireSave { get; } = new(nameof(PostCrocomireSave), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.None), [], [], RoomEffectTint.Lava));
 
-    /// <summary>The PostCrocomirePowerBombs room FX.</summary>
+    /// <summary>A selection whose rooms show lava, starting <see cref="ColourEffectId.SamusInHeat"/>, <see cref="ColourEffectId.NorfairForegroundAndHeatPhase"/>, <see cref="ColourEffectId.NorfairGreenForegroundHeatGlow"/>, <see cref="ColourEffectId.NorfairPurpleForegroundHeatGlow"/> and <see cref="ColourEffectId.NorfairDarkForegroundHeatGlow"/>, in the <see cref="RoomEffectTint.Lava"/> tint.</summary>
     public static RoomFxSelection PostCrocomirePowerBombs { get; } = new(nameof(PostCrocomirePowerBombs), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.Vertical), [ColourEffectId.SamusInHeat, ColourEffectId.NorfairForegroundAndHeatPhase, ColourEffectId.NorfairGreenForegroundHeatGlow, ColourEffectId.NorfairPurpleForegroundHeatGlow, ColourEffectId.NorfairDarkForegroundHeatGlow], [], RoomEffectTint.Lava));
 
-    /// <summary>The PostCrocomireShaft room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, in the untinted look.</summary>
     public static RoomFxSelection PostCrocomireShaft { get; } = new(nameof(PostCrocomireShaft), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [], [], RoomEffectTint.None));
 
-    /// <summary>The PostCrocomireMissile room FX.</summary>
+    /// <summary>A selection whose rooms show acid, the liquid level starting at line 200, in the untinted look.</summary>
     public static RoomFxSelection PostCrocomireMissile { get; } = new(nameof(PostCrocomireMissile), [],
         new(200, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.Large, HeatHazeDirection.None), [], [], RoomEffectTint.None));
 
-    /// <summary>The GrappleTutorial3 room FX.</summary>
+    /// <summary>A selection whose rooms show water, the liquid level starting at line 184, in the <see cref="RoomEffectTint.WaterAndAcid"/> tint.</summary>
     public static RoomFxSelection GrappleTutorial3 { get; } = new(nameof(GrappleTutorial3), [],
         new(184, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [], [], RoomEffectTint.WaterAndAcid));
 
-    /// <summary>The PostCrocomireJump room FX.</summary>
+    /// <summary>A selection whose rooms show acid, the liquid level starting at line 692, in the untinted look.</summary>
     public static RoomFxSelection PostCrocomireJump { get; } = new(nameof(PostCrocomireJump), [],
         new(692, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.Small, HeatHazeDirection.None), [], [], RoomEffectTint.None));
 
-    /// <summary>The GrappleTutorial2 room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, in the untinted look.</summary>
     public static RoomFxSelection GrappleTutorial2 { get; } = new(nameof(GrappleTutorial2), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [], [], RoomEffectTint.None));
 
-    /// <summary>The GrappleTutorial1 room FX.</summary>
+    /// <summary>A selection whose rooms show water, the liquid level starting at line 192, in the <see cref="RoomEffectTint.WaterAndAcid"/> tint.</summary>
     public static RoomFxSelection GrappleTutorial1 { get; } = new(nameof(GrappleTutorial1), [],
         new(192, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [], [], RoomEffectTint.WaterAndAcid));
 
-    /// <summary>The GrappleBeam room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, animating <see cref="BlockAnimation.HorizontalSpikes"/>, in the untinted look.</summary>
     public static RoomFxSelection GrappleBeam { get; } = new(nameof(GrappleBeam), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [], [BlockAnimation.HorizontalSpikes], RoomEffectTint.None));
 
-    /// <summary>The NorfairReserveTank room FX.</summary>
+    /// <summary>A selection whose rooms show lava, the liquid level starting at line 199, starting <see cref="ColourEffectId.SamusInHeat"/>, <see cref="ColourEffectId.NorfairForegroundAndHeatPhase"/>, <see cref="ColourEffectId.NorfairGreenForegroundHeatGlow"/>, <see cref="ColourEffectId.NorfairPurpleForegroundHeatGlow"/> and <see cref="ColourEffectId.NorfairDarkForegroundHeatGlow"/>, in the <see cref="RoomEffectTint.Lava"/> tint.</summary>
     public static RoomFxSelection NorfairReserveTank { get; } = new(nameof(NorfairReserveTank), [],
         new(199, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.Vertical), [ColourEffectId.SamusInHeat, ColourEffectId.NorfairForegroundAndHeatPhase, ColourEffectId.NorfairGreenForegroundHeatGlow, ColourEffectId.NorfairPurpleForegroundHeatGlow, ColourEffectId.NorfairDarkForegroundHeatGlow], [], RoomEffectTint.Lava));
 
-    /// <summary>The GreenBubblesMissiles room FX.</summary>
+    /// <summary>A selection whose rooms show lava, the liquid level starting at line 198, starting <see cref="ColourEffectId.SamusInHeat"/>, <see cref="ColourEffectId.NorfairForegroundAndHeatPhase"/>, <see cref="ColourEffectId.NorfairGreenForegroundHeatGlow"/>, <see cref="ColourEffectId.NorfairPurpleForegroundHeatGlow"/> and <see cref="ColourEffectId.NorfairDarkForegroundHeatGlow"/>, in the <see cref="RoomEffectTint.Lava"/> tint.</summary>
     public static RoomFxSelection GreenBubblesMissiles { get; } = new(nameof(GreenBubblesMissiles), [],
         new(198, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.Vertical), [ColourEffectId.SamusInHeat, ColourEffectId.NorfairForegroundAndHeatPhase, ColourEffectId.NorfairGreenForegroundHeatGlow, ColourEffectId.NorfairPurpleForegroundHeatGlow, ColourEffectId.NorfairDarkForegroundHeatGlow], [], RoomEffectTint.Lava));
 
-    /// <summary>The BubbleMountain room FX.</summary>
+    /// <summary>A selection whose rooms show lava, in the <see cref="RoomEffectTint.Lava"/> tint.</summary>
     public static RoomFxSelection BubbleMountain { get; } = new(nameof(BubbleMountain), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.Vertical), [], [], RoomEffectTint.Lava));
 
-    /// <summary>The SpeedBoosterHall room FX.</summary>
+    /// <summary>A selection whose rooms show lava, the liquid level starting at line 474, starting <see cref="ColourEffectId.SamusInHeat"/>, <see cref="ColourEffectId.NorfairForegroundAndHeatPhase"/>, <see cref="ColourEffectId.NorfairGreenForegroundHeatGlow"/>, <see cref="ColourEffectId.NorfairPurpleForegroundHeatGlow"/> and <see cref="ColourEffectId.NorfairDarkForegroundHeatGlow"/>, in the <see cref="RoomEffectTint.Lava"/> tint unless entered through the one door that selects an effect of its own.</summary>
     public static RoomFxSelection SpeedBoosterHall { get; } = new(nameof(SpeedBoosterHall),
     [
         new(NorfairDoorDefinitions.SpeedBoosterToSpeedBoosterHall, new(474, 176, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 240, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.Vertical), [ColourEffectId.SamusInHeat, ColourEffectId.NorfairForegroundAndHeatPhase, ColourEffectId.NorfairGreenForegroundHeatGlow, ColourEffectId.NorfairPurpleForegroundHeatGlow, ColourEffectId.NorfairDarkForegroundHeatGlow], [], RoomEffectTint.Lava)),
     ],
         new(474, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.Vertical), [ColourEffectId.SamusInHeat, ColourEffectId.NorfairForegroundAndHeatPhase, ColourEffectId.NorfairGreenForegroundHeatGlow, ColourEffectId.NorfairPurpleForegroundHeatGlow, ColourEffectId.NorfairDarkForegroundHeatGlow], [], RoomEffectTint.Lava));
 
-    /// <summary>The SpeedBooster room FX.</summary>
+    /// <summary>A selection whose rooms show lava, the liquid level starting at line 218 and falling to line 0, starting <see cref="ColourEffectId.SamusInHeat"/>, <see cref="ColourEffectId.NorfairForegroundAndHeatPhase"/>, <see cref="ColourEffectId.NorfairGreenForegroundHeatGlow"/>, <see cref="ColourEffectId.NorfairPurpleForegroundHeatGlow"/> and <see cref="ColourEffectId.NorfairDarkForegroundHeatGlow"/>, in the <see cref="RoomEffectTint.Lava"/> tint.</summary>
     public static RoomFxSelection SpeedBooster { get; } = new(nameof(SpeedBooster), [],
         new(218, 0, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 32, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.Vertical), [ColourEffectId.SamusInHeat, ColourEffectId.NorfairForegroundAndHeatPhase, ColourEffectId.NorfairGreenForegroundHeatGlow, ColourEffectId.NorfairPurpleForegroundHeatGlow, ColourEffectId.NorfairDarkForegroundHeatGlow], [], RoomEffectTint.Lava));
 
-    /// <summary>The SingleChamber room FX.</summary>
+    /// <summary>A selection whose rooms show lava, starting <see cref="ColourEffectId.SamusInHeat"/>, <see cref="ColourEffectId.NorfairForegroundAndHeatPhase"/>, <see cref="ColourEffectId.NorfairGreenForegroundHeatGlow"/>, <see cref="ColourEffectId.NorfairPurpleForegroundHeatGlow"/> and <see cref="ColourEffectId.NorfairDarkForegroundHeatGlow"/>, in the <see cref="RoomEffectTint.Lava"/> tint.</summary>
     public static RoomFxSelection SingleChamber { get; } = new(nameof(SingleChamber), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.Vertical), [ColourEffectId.SamusInHeat, ColourEffectId.NorfairForegroundAndHeatPhase, ColourEffectId.NorfairGreenForegroundHeatGlow, ColourEffectId.NorfairPurpleForegroundHeatGlow, ColourEffectId.NorfairDarkForegroundHeatGlow], [], RoomEffectTint.Lava));
 
-    /// <summary>The DoubleChamber room FX.</summary>
+    /// <summary>A selection whose rooms show lava, starting <see cref="ColourEffectId.SamusInHeat"/>, <see cref="ColourEffectId.NorfairForegroundAndHeatPhase"/>, <see cref="ColourEffectId.NorfairGreenForegroundHeatGlow"/>, <see cref="ColourEffectId.NorfairPurpleForegroundHeatGlow"/> and <see cref="ColourEffectId.NorfairDarkForegroundHeatGlow"/>, in the <see cref="RoomEffectTint.Lava"/> tint.</summary>
     public static RoomFxSelection DoubleChamber { get; } = new(nameof(DoubleChamber), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.Vertical), [ColourEffectId.SamusInHeat, ColourEffectId.NorfairForegroundAndHeatPhase, ColourEffectId.NorfairGreenForegroundHeatGlow, ColourEffectId.NorfairPurpleForegroundHeatGlow, ColourEffectId.NorfairDarkForegroundHeatGlow], [], RoomEffectTint.Lava));
 
-    /// <summary>The WaveBeam room FX.</summary>
+    /// <summary>A selection whose rooms show lava, in the <see cref="RoomEffectTint.Lava"/> tint.</summary>
     public static RoomFxSelection WaveBeam { get; } = new(nameof(WaveBeam), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.None), [], [], RoomEffectTint.Lava));
 
-    /// <summary>The SpikyPlatformsTunnel room FX.</summary>
+    /// <summary>A selection whose rooms show lava, the liquid level starting at line 192, starting <see cref="ColourEffectId.SamusInHeat"/>, <see cref="ColourEffectId.NorfairForegroundAndHeatPhase"/>, <see cref="ColourEffectId.NorfairGreenForegroundHeatGlow"/>, <see cref="ColourEffectId.NorfairPurpleForegroundHeatGlow"/> and <see cref="ColourEffectId.NorfairDarkForegroundHeatGlow"/>, in the <see cref="RoomEffectTint.Lava"/> tint.</summary>
     public static RoomFxSelection SpikyPlatformsTunnel { get; } = new(nameof(SpikyPlatformsTunnel), [],
         new(192, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.Vertical), [ColourEffectId.SamusInHeat, ColourEffectId.NorfairForegroundAndHeatPhase, ColourEffectId.NorfairGreenForegroundHeatGlow, ColourEffectId.NorfairPurpleForegroundHeatGlow, ColourEffectId.NorfairDarkForegroundHeatGlow], [], RoomEffectTint.Lava));
 
-    /// <summary>The Volcano room FX.</summary>
+    /// <summary>A selection whose rooms show lava, the liquid level starting at line 616, in the <see cref="RoomEffectTint.Lava"/> tint unless entered through the one door that selects an effect of its own.</summary>
     public static RoomFxSelection Volcano { get; } = new(nameof(Volcano),
     [
         new(NorfairDoorDefinitions.KronicBoostToVolcano, new(736, 608, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-10), 64, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.Vertical), [ColourEffectId.SamusInHeat, ColourEffectId.NorfairForegroundAndHeatPhase, ColourEffectId.NorfairGreenForegroundHeatGlow, ColourEffectId.NorfairPurpleForegroundHeatGlow, ColourEffectId.NorfairDarkForegroundHeatGlow], [], RoomEffectTint.Lava)),
     ],
         new(616, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.None), [], [], RoomEffectTint.Lava));
 
-    /// <summary>The KronicBoost room FX.</summary>
+    /// <summary>A selection whose rooms show lava, the liquid level starting at line 724, starting <see cref="ColourEffectId.SamusInHeat"/>, <see cref="ColourEffectId.NorfairForegroundAndHeatPhase"/>, <see cref="ColourEffectId.NorfairGreenForegroundHeatGlow"/>, <see cref="ColourEffectId.NorfairPurpleForegroundHeatGlow"/> and <see cref="ColourEffectId.NorfairDarkForegroundHeatGlow"/>, in the <see cref="RoomEffectTint.Lava"/> tint.</summary>
     public static RoomFxSelection KronicBoost { get; } = new(nameof(KronicBoost), [],
         new(724, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.Vertical), [ColourEffectId.SamusInHeat, ColourEffectId.NorfairForegroundAndHeatPhase, ColourEffectId.NorfairGreenForegroundHeatGlow, ColourEffectId.NorfairPurpleForegroundHeatGlow, ColourEffectId.NorfairDarkForegroundHeatGlow], [], RoomEffectTint.Lava));
 
-    /// <summary>The MagdolliteTunnel room FX.</summary>
+    /// <summary>A selection whose rooms show lava, the liquid level starting at line 190, starting <see cref="ColourEffectId.SamusInHeat"/>, <see cref="ColourEffectId.NorfairForegroundAndHeatPhase"/>, <see cref="ColourEffectId.NorfairGreenForegroundHeatGlow"/>, <see cref="ColourEffectId.NorfairPurpleForegroundHeatGlow"/> and <see cref="ColourEffectId.NorfairDarkForegroundHeatGlow"/>, in the <see cref="RoomEffectTint.Lava"/> tint.</summary>
     public static RoomFxSelection MagdolliteTunnel { get; } = new(nameof(MagdolliteTunnel), [],
         new(190, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.Vertical), [ColourEffectId.SamusInHeat, ColourEffectId.NorfairForegroundAndHeatPhase, ColourEffectId.NorfairGreenForegroundHeatGlow, ColourEffectId.NorfairPurpleForegroundHeatGlow, ColourEffectId.NorfairDarkForegroundHeatGlow], [], RoomEffectTint.Lava));
 
-    /// <summary>The PurpleShaft room FX.</summary>
+    /// <summary>A selection whose rooms show lava, starting <see cref="ColourEffectId.SamusInHeat"/>, <see cref="ColourEffectId.NorfairForegroundAndHeatPhase"/>, <see cref="ColourEffectId.NorfairGreenForegroundHeatGlow"/>, <see cref="ColourEffectId.NorfairPurpleForegroundHeatGlow"/> and <see cref="ColourEffectId.NorfairDarkForegroundHeatGlow"/>, and animating <see cref="BlockAnimation.HorizontalSpikes"/>, in the <see cref="RoomEffectTint.Lava"/> tint.</summary>
     public static RoomFxSelection PurpleShaft { get; } = new(nameof(PurpleShaft), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.Vertical), [ColourEffectId.SamusInHeat, ColourEffectId.NorfairForegroundAndHeatPhase, ColourEffectId.NorfairGreenForegroundHeatGlow, ColourEffectId.NorfairPurpleForegroundHeatGlow, ColourEffectId.NorfairDarkForegroundHeatGlow], [BlockAnimation.HorizontalSpikes], RoomEffectTint.Lava));
 
-    /// <summary>The LavaDive room FX.</summary>
+    /// <summary>A selection whose rooms show lava, the liquid level starting at line 208, starting <see cref="ColourEffectId.SamusInHeat"/>, <see cref="ColourEffectId.NorfairForegroundAndHeatPhase"/>, <see cref="ColourEffectId.NorfairGreenForegroundHeatGlow"/>, <see cref="ColourEffectId.NorfairPurpleForegroundHeatGlow"/> and <see cref="ColourEffectId.NorfairDarkForegroundHeatGlow"/>, and animating <see cref="BlockAnimation.HorizontalSpikes"/>, in the <see cref="RoomEffectTint.Lava"/> tint.</summary>
     public static RoomFxSelection LavaDive { get; } = new(nameof(LavaDive), [],
         new(208, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.Vertical), [ColourEffectId.SamusInHeat, ColourEffectId.NorfairForegroundAndHeatPhase, ColourEffectId.NorfairGreenForegroundHeatGlow, ColourEffectId.NorfairPurpleForegroundHeatGlow, ColourEffectId.NorfairDarkForegroundHeatGlow], [BlockAnimation.HorizontalSpikes], RoomEffectTint.Lava));
 
-    /// <summary>The LowerNorfairElevator room FX.</summary>
+    /// <summary>A selection whose rooms show lava, starting <see cref="ColourEffectId.SamusInHeat"/>, <see cref="ColourEffectId.NorfairForegroundAndHeatPhase"/>, <see cref="ColourEffectId.NorfairGreenForegroundHeatGlow"/>, <see cref="ColourEffectId.NorfairPurpleForegroundHeatGlow"/> and <see cref="ColourEffectId.NorfairDarkForegroundHeatGlow"/>, in the <see cref="RoomEffectTint.Lava"/> tint.</summary>
     public static RoomFxSelection LowerNorfairElevator { get; } = new(nameof(LowerNorfairElevator), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.Vertical), [ColourEffectId.SamusInHeat, ColourEffectId.NorfairForegroundAndHeatPhase, ColourEffectId.NorfairGreenForegroundHeatGlow, ColourEffectId.NorfairPurpleForegroundHeatGlow, ColourEffectId.NorfairDarkForegroundHeatGlow], [], RoomEffectTint.Lava));
 
-    /// <summary>The UpperNorfairFarming room FX.</summary>
+    /// <summary>A selection whose rooms show lava, the liquid level starting at line 448, starting <see cref="ColourEffectId.SamusInHeat"/>, <see cref="ColourEffectId.NorfairForegroundAndHeatPhase"/>, <see cref="ColourEffectId.NorfairGreenForegroundHeatGlow"/>, <see cref="ColourEffectId.NorfairPurpleForegroundHeatGlow"/> and <see cref="ColourEffectId.NorfairDarkForegroundHeatGlow"/>, in the <see cref="RoomEffectTint.Lava"/> tint.</summary>
     public static RoomFxSelection UpperNorfairFarming { get; } = new(nameof(UpperNorfairFarming), [],
         new(448, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.Vertical), [ColourEffectId.SamusInHeat, ColourEffectId.NorfairForegroundAndHeatPhase, ColourEffectId.NorfairGreenForegroundHeatGlow, ColourEffectId.NorfairPurpleForegroundHeatGlow, ColourEffectId.NorfairDarkForegroundHeatGlow], [], RoomEffectTint.Lava));
 
-    /// <summary>The RisingTide room FX.</summary>
+    /// <summary>A selection whose rooms show lava, the liquid level starting at line 200, starting <see cref="ColourEffectId.SamusInHeat"/>, <see cref="ColourEffectId.NorfairForegroundAndHeatPhase"/>, <see cref="ColourEffectId.NorfairGreenForegroundHeatGlow"/>, <see cref="ColourEffectId.NorfairPurpleForegroundHeatGlow"/> and <see cref="ColourEffectId.NorfairDarkForegroundHeatGlow"/>, in the <see cref="RoomEffectTint.Lava"/> tint unless entered through the one door that selects an effect of its own.</summary>
     public static RoomFxSelection RisingTide { get; } = new(nameof(RisingTide),
     [
         new(NorfairDoorDefinitions.CathedralToRisingTide, new(264, 192, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-32), 64, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.Vertical), [ColourEffectId.SamusInHeat, ColourEffectId.NorfairForegroundAndHeatPhase, ColourEffectId.NorfairGreenForegroundHeatGlow, ColourEffectId.NorfairPurpleForegroundHeatGlow, ColourEffectId.NorfairDarkForegroundHeatGlow], [], RoomEffectTint.Lava)),
     ],
         new(200, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.Vertical), [ColourEffectId.SamusInHeat, ColourEffectId.NorfairForegroundAndHeatPhase, ColourEffectId.NorfairGreenForegroundHeatGlow, ColourEffectId.NorfairPurpleForegroundHeatGlow, ColourEffectId.NorfairDarkForegroundHeatGlow], [], RoomEffectTint.Lava));
 
-    /// <summary>The AcidSnakesTunnel room FX.</summary>
+    /// <summary>A selection whose rooms show lava, the liquid level starting at line 197, starting <see cref="ColourEffectId.SamusInHeat"/>, <see cref="ColourEffectId.NorfairForegroundAndHeatPhase"/>, <see cref="ColourEffectId.NorfairGreenForegroundHeatGlow"/>, <see cref="ColourEffectId.NorfairPurpleForegroundHeatGlow"/> and <see cref="ColourEffectId.NorfairDarkForegroundHeatGlow"/>, in the <see cref="RoomEffectTint.Lava"/> tint.</summary>
     public static RoomFxSelection AcidSnakesTunnel { get; } = new(nameof(AcidSnakesTunnel), [],
         new(197, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.Vertical), [ColourEffectId.SamusInHeat, ColourEffectId.NorfairForegroundAndHeatPhase, ColourEffectId.NorfairGreenForegroundHeatGlow, ColourEffectId.NorfairPurpleForegroundHeatGlow, ColourEffectId.NorfairDarkForegroundHeatGlow], [], RoomEffectTint.Lava));
 
-    /// <summary>The SpikyAcidSnakesTunnel room FX.</summary>
+    /// <summary>A selection whose rooms show lava, the liquid level starting at line 198, starting <see cref="ColourEffectId.SamusInHeat"/>, <see cref="ColourEffectId.NorfairForegroundAndHeatPhase"/>, <see cref="ColourEffectId.NorfairGreenForegroundHeatGlow"/>, <see cref="ColourEffectId.NorfairPurpleForegroundHeatGlow"/> and <see cref="ColourEffectId.NorfairDarkForegroundHeatGlow"/>, in the <see cref="RoomEffectTint.Lava"/> tint.</summary>
     public static RoomFxSelection SpikyAcidSnakesTunnel { get; } = new(nameof(SpikyAcidSnakesTunnel), [],
         new(198, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.Vertical), [ColourEffectId.SamusInHeat, ColourEffectId.NorfairForegroundAndHeatPhase, ColourEffectId.NorfairGreenForegroundHeatGlow, ColourEffectId.NorfairPurpleForegroundHeatGlow, ColourEffectId.NorfairDarkForegroundHeatGlow], [], RoomEffectTint.Lava));
 
-    /// <summary>The UpperNorfairRefill room FX.</summary>
+    /// <summary>A selection whose rooms show lava, in the <see cref="RoomEffectTint.Lava"/> tint.</summary>
     public static RoomFxSelection UpperNorfairRefill { get; } = new(nameof(UpperNorfairRefill), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.None), [], [], RoomEffectTint.Lava));
 
-    /// <summary>The PurpleFarming room FX.</summary>
+    /// <summary>A selection whose rooms show lava, starting <see cref="ColourEffectId.SamusInHeat"/>, <see cref="ColourEffectId.NorfairForegroundAndHeatPhase"/>, <see cref="ColourEffectId.NorfairGreenForegroundHeatGlow"/>, <see cref="ColourEffectId.NorfairPurpleForegroundHeatGlow"/> and <see cref="ColourEffectId.NorfairDarkForegroundHeatGlow"/>, in the <see cref="RoomEffectTint.Lava"/> tint.</summary>
     public static RoomFxSelection PurpleFarming { get; } = new(nameof(PurpleFarming), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.Vertical), [ColourEffectId.SamusInHeat, ColourEffectId.NorfairForegroundAndHeatPhase, ColourEffectId.NorfairGreenForegroundHeatGlow, ColourEffectId.NorfairPurpleForegroundHeatGlow, ColourEffectId.NorfairDarkForegroundHeatGlow], [], RoomEffectTint.Lava));
 
-    /// <summary>The BatCave room FX.</summary>
+    /// <summary>A selection whose rooms show lava, the liquid level starting at line 436, starting <see cref="ColourEffectId.SamusInHeat"/>, <see cref="ColourEffectId.NorfairForegroundAndHeatPhase"/>, <see cref="ColourEffectId.NorfairGreenForegroundHeatGlow"/>, <see cref="ColourEffectId.NorfairPurpleForegroundHeatGlow"/> and <see cref="ColourEffectId.NorfairDarkForegroundHeatGlow"/>, in the <see cref="RoomEffectTint.Lava"/> tint.</summary>
     public static RoomFxSelection BatCave { get; } = new(nameof(BatCave), [],
         new(436, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.Vertical), [ColourEffectId.SamusInHeat, ColourEffectId.NorfairForegroundAndHeatPhase, ColourEffectId.NorfairGreenForegroundHeatGlow, ColourEffectId.NorfairPurpleForegroundHeatGlow, ColourEffectId.NorfairDarkForegroundHeatGlow], [], RoomEffectTint.Lava));
 
-    /// <summary>The NorfairMap room FX.</summary>
+    /// <summary>A selection whose rooms show lava, in the <see cref="RoomEffectTint.Lava"/> tint.</summary>
     public static RoomFxSelection NorfairMap { get; } = new(nameof(NorfairMap), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.None), [], [], RoomEffectTint.Lava));
 
-    /// <summary>The BubbleMountainSave room FX.</summary>
+    /// <summary>A selection whose rooms show lava, in the <see cref="RoomEffectTint.Lava"/> tint.</summary>
     public static RoomFxSelection BubbleMountainSave { get; } = new(nameof(BubbleMountainSave), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.None), [], [], RoomEffectTint.Lava));
 
-    /// <summary>The FrogSpeedway room FX.</summary>
+    /// <summary>A selection whose rooms show no room effect, the overlay and the HUD keeping their own colours.</summary>
     public static RoomFxSelection FrogSpeedway { get; } = new(nameof(FrogSpeedway), [],
         null);
 
-    /// <summary>The RedPirateShaft room FX.</summary>
+    /// <summary>A selection whose rooms show no room effect, the overlay and the HUD keeping their own colours.</summary>
     public static RoomFxSelection RedPirateShaft { get; } = new(nameof(RedPirateShaft), [],
         null);
 
-    /// <summary>The FrogSave room FX.</summary>
+    /// <summary>A selection whose rooms show no room effect, the overlay and the HUD keeping their own colours.</summary>
     public static RoomFxSelection FrogSave { get; } = new(nameof(FrogSave), [],
         null);
 
-    /// <summary>The CrocomireSave room FX.</summary>
+    /// <summary>A selection whose rooms show no room effect, the overlay and the HUD keeping their own colours.</summary>
     public static RoomFxSelection CrocomireSave { get; } = new(nameof(CrocomireSave), [],
         null);
 
-    /// <summary>The LowerNorfairElevatorSave room FX.</summary>
+    /// <summary>A selection whose rooms show no room effect, the overlay and the HUD keeping their own colours.</summary>
     public static RoomFxSelection LowerNorfairElevatorSave { get; } = new(nameof(LowerNorfairElevatorSave), [],
         null);
 
-    /// <summary>The AcidStatue room FX.</summary>
+    /// <summary>A selection whose rooms show acid, the liquid level starting at line 200 and falling to line 722, starting <see cref="ColourEffectId.SamusInHeat"/>, <see cref="ColourEffectId.NorfairForegroundAndHeatPhase"/>, <see cref="ColourEffectId.NorfairGreenForegroundHeatGlow"/>, <see cref="ColourEffectId.NorfairPurpleForegroundHeatGlow"/> and <see cref="ColourEffectId.NorfairDarkForegroundHeatGlow"/>, in the untinted look unless entered through the one door that selects an effect of its own.</summary>
     public static RoomFxSelection AcidStatue { get; } = new(nameof(AcidStatue),
     [
         new(NorfairDoorDefinitions.GoldenTorizoToAcidStatue, new(722, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.Small, HeatHazeDirection.Vertical), [ColourEffectId.SamusInHeat, ColourEffectId.NorfairForegroundAndHeatPhase, ColourEffectId.NorfairGreenForegroundHeatGlow, ColourEffectId.NorfairPurpleForegroundHeatGlow, ColourEffectId.NorfairDarkForegroundHeatGlow], [], RoomEffectTint.None)),
     ],
         new(200, 722, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.Vertical), [ColourEffectId.SamusInHeat, ColourEffectId.NorfairForegroundAndHeatPhase, ColourEffectId.NorfairGreenForegroundHeatGlow, ColourEffectId.NorfairPurpleForegroundHeatGlow, ColourEffectId.NorfairDarkForegroundHeatGlow], [], RoomEffectTint.None));
 
-    /// <summary>The MainHall room FX.</summary>
+    /// <summary>A selection whose rooms show acid, the liquid level starting at line 705, starting <see cref="ColourEffectId.SamusInHeat"/>, <see cref="ColourEffectId.NorfairForegroundAndHeatPhase"/>, <see cref="ColourEffectId.NorfairGreenForegroundHeatGlow"/>, <see cref="ColourEffectId.NorfairPurpleForegroundHeatGlow"/> and <see cref="ColourEffectId.NorfairDarkForegroundHeatGlow"/>, in the untinted look.</summary>
     public static RoomFxSelection MainHall { get; } = new(nameof(MainHall), [],
         new(705, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.Small, HeatHazeDirection.Vertical), [ColourEffectId.SamusInHeat, ColourEffectId.NorfairForegroundAndHeatPhase, ColourEffectId.NorfairGreenForegroundHeatGlow, ColourEffectId.NorfairPurpleForegroundHeatGlow, ColourEffectId.NorfairDarkForegroundHeatGlow], [], RoomEffectTint.None));
 
-    /// <summary>The GoldenTorizo room FX.</summary>
+    /// <summary>A selection whose rooms show acid, the liquid level starting at line 710, starting <see cref="ColourEffectId.SamusInHeat"/>, <see cref="ColourEffectId.NorfairForegroundAndHeatPhase"/>, <see cref="ColourEffectId.NorfairGreenForegroundHeatGlow"/>, <see cref="ColourEffectId.NorfairPurpleForegroundHeatGlow"/> and <see cref="ColourEffectId.NorfairDarkForegroundHeatGlow"/>, in the untinted look.</summary>
     public static RoomFxSelection GoldenTorizo { get; } = new(nameof(GoldenTorizo), [],
         new(710, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.Small, HeatHazeDirection.Vertical), [ColourEffectId.SamusInHeat, ColourEffectId.NorfairForegroundAndHeatPhase, ColourEffectId.NorfairGreenForegroundHeatGlow, ColourEffectId.NorfairPurpleForegroundHeatGlow, ColourEffectId.NorfairDarkForegroundHeatGlow], [], RoomEffectTint.None));
 
-    /// <summary>The FastRipper room FX.</summary>
+    /// <summary>A selection whose rooms show acid, the liquid level starting at line 184, starting <see cref="ColourEffectId.SamusInHeat"/>, <see cref="ColourEffectId.NorfairForegroundAndHeatPhase"/>, <see cref="ColourEffectId.NorfairGreenForegroundHeatGlow"/>, <see cref="ColourEffectId.NorfairPurpleForegroundHeatGlow"/> and <see cref="ColourEffectId.NorfairDarkForegroundHeatGlow"/>, in the untinted look.</summary>
     public static RoomFxSelection FastRipper { get; } = new(nameof(FastRipper), [],
         new(184, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.Small, HeatHazeDirection.Vertical), [ColourEffectId.SamusInHeat, ColourEffectId.NorfairForegroundAndHeatPhase, ColourEffectId.NorfairGreenForegroundHeatGlow, ColourEffectId.NorfairPurpleForegroundHeatGlow, ColourEffectId.NorfairDarkForegroundHeatGlow], [], RoomEffectTint.None));
 
-    /// <summary>The GoldenTorizoEnergyRefill room FX.</summary>
+    /// <summary>A selection whose rooms show no room effect, the overlay and the HUD keeping their own colours.</summary>
     public static RoomFxSelection GoldenTorizoEnergyRefill { get; } = new(nameof(GoldenTorizoEnergyRefill), [],
         null);
 
-    /// <summary>The Ridley room FX.</summary>
+    /// <summary>A selection whose rooms show acid, the liquid level starting at line 528 and falling to line 464, starting <see cref="ColourEffectId.SamusInHeat"/>, <see cref="ColourEffectId.NorfairForegroundAndHeatPhase"/>, <see cref="ColourEffectId.NorfairGreenForegroundHeatGlow"/>, <see cref="ColourEffectId.NorfairPurpleForegroundHeatGlow"/> and <see cref="ColourEffectId.NorfairDarkForegroundHeatGlow"/>, in the untinted look.</summary>
     public static RoomFxSelection Ridley { get; } = new(nameof(Ridley), [],
         new(528, 464, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.Small, HeatHazeDirection.Vertical), [ColourEffectId.SamusInHeat, ColourEffectId.NorfairForegroundAndHeatPhase, ColourEffectId.NorfairGreenForegroundHeatGlow, ColourEffectId.NorfairPurpleForegroundHeatGlow, ColourEffectId.NorfairDarkForegroundHeatGlow], [], RoomEffectTint.None));
 
-    /// <summary>The LowerNorfairFarming room FX.</summary>
+    /// <summary>A selection whose rooms show acid, the liquid level starting at line 208, starting <see cref="ColourEffectId.SamusInHeat"/>, <see cref="ColourEffectId.NorfairForegroundAndHeatPhase"/>, <see cref="ColourEffectId.NorfairGreenForegroundHeatGlow"/>, <see cref="ColourEffectId.NorfairPurpleForegroundHeatGlow"/> and <see cref="ColourEffectId.NorfairDarkForegroundHeatGlow"/>, in the untinted look.</summary>
     public static RoomFxSelection LowerNorfairFarming { get; } = new(nameof(LowerNorfairFarming), [],
         new(208, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.Small, HeatHazeDirection.Vertical), [ColourEffectId.SamusInHeat, ColourEffectId.NorfairForegroundAndHeatPhase, ColourEffectId.NorfairGreenForegroundHeatGlow, ColourEffectId.NorfairPurpleForegroundHeatGlow, ColourEffectId.NorfairDarkForegroundHeatGlow], [], RoomEffectTint.None));
 
-    /// <summary>The FastPillarsSetup room FX.</summary>
+    /// <summary>A selection whose rooms show acid, starting <see cref="ColourEffectId.SamusInHeat"/>, <see cref="ColourEffectId.NorfairForegroundAndHeatPhase"/>, <see cref="ColourEffectId.NorfairGreenForegroundHeatGlow"/>, <see cref="ColourEffectId.NorfairPurpleForegroundHeatGlow"/> and <see cref="ColourEffectId.NorfairDarkForegroundHeatGlow"/>, in the untinted look.</summary>
     public static RoomFxSelection FastPillarsSetup { get; } = new(nameof(FastPillarsSetup), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.Vertical), [ColourEffectId.SamusInHeat, ColourEffectId.NorfairForegroundAndHeatPhase, ColourEffectId.NorfairGreenForegroundHeatGlow, ColourEffectId.NorfairPurpleForegroundHeatGlow, ColourEffectId.NorfairDarkForegroundHeatGlow], [], RoomEffectTint.None));
 
-    /// <summary>The MickeyMouse room FX.</summary>
+    /// <summary>A selection whose rooms show acid, starting <see cref="ColourEffectId.SamusInHeat"/>, <see cref="ColourEffectId.NorfairForegroundAndHeatPhase"/>, <see cref="ColourEffectId.NorfairGreenForegroundHeatGlow"/>, <see cref="ColourEffectId.NorfairPurpleForegroundHeatGlow"/> and <see cref="ColourEffectId.NorfairDarkForegroundHeatGlow"/>, in the untinted look.</summary>
     public static RoomFxSelection MickeyMouse { get; } = new(nameof(MickeyMouse), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.Vertical), [ColourEffectId.SamusInHeat, ColourEffectId.NorfairForegroundAndHeatPhase, ColourEffectId.NorfairGreenForegroundHeatGlow, ColourEffectId.NorfairPurpleForegroundHeatGlow, ColourEffectId.NorfairDarkForegroundHeatGlow], [], RoomEffectTint.None));
 
-    /// <summary>The Pillar room FX.</summary>
+    /// <summary>A selection whose rooms show acid, the liquid level starting at line 232 and rising to line 16, starting <see cref="ColourEffectId.SamusInHeat"/>, <see cref="ColourEffectId.NorfairForegroundAndHeatPhase"/>, <see cref="ColourEffectId.NorfairGreenForegroundHeatGlow"/>, <see cref="ColourEffectId.NorfairPurpleForegroundHeatGlow"/> and <see cref="ColourEffectId.NorfairDarkForegroundHeatGlow"/>, in the untinted look.</summary>
     public static RoomFxSelection Pillar { get; } = new(nameof(Pillar), [],
         new(232, 16, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-32), 80, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.Small, HeatHazeDirection.Vertical), [ColourEffectId.SamusInHeat, ColourEffectId.NorfairForegroundAndHeatPhase, ColourEffectId.NorfairGreenForegroundHeatGlow, ColourEffectId.NorfairPurpleForegroundHeatGlow, ColourEffectId.NorfairDarkForegroundHeatGlow], [], RoomEffectTint.None));
 
-    /// <summary>The Plowerhouse room FX.</summary>
+    /// <summary>A selection whose rooms show acid, the liquid level starting at line 205, starting <see cref="ColourEffectId.SamusInHeat"/>, <see cref="ColourEffectId.NorfairForegroundAndHeatPhase"/>, <see cref="ColourEffectId.NorfairGreenForegroundHeatGlow"/>, <see cref="ColourEffectId.NorfairPurpleForegroundHeatGlow"/> and <see cref="ColourEffectId.NorfairDarkForegroundHeatGlow"/>, in the untinted look.</summary>
     public static RoomFxSelection Plowerhouse { get; } = new(nameof(Plowerhouse), [],
         new(205, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.Small, HeatHazeDirection.Vertical), [ColourEffectId.SamusInHeat, ColourEffectId.NorfairForegroundAndHeatPhase, ColourEffectId.NorfairGreenForegroundHeatGlow, ColourEffectId.NorfairPurpleForegroundHeatGlow, ColourEffectId.NorfairDarkForegroundHeatGlow], [], RoomEffectTint.None));
 
-    /// <summary>The WorstRoomInTheGame room FX.</summary>
+    /// <summary>A selection whose rooms show acid, starting <see cref="ColourEffectId.SamusInHeat"/>, <see cref="ColourEffectId.NorfairForegroundAndHeatPhase"/>, <see cref="ColourEffectId.NorfairGreenForegroundHeatGlow"/>, <see cref="ColourEffectId.NorfairPurpleForegroundHeatGlow"/> and <see cref="ColourEffectId.NorfairDarkForegroundHeatGlow"/>, in the untinted look.</summary>
     public static RoomFxSelection WorstRoomInTheGame { get; } = new(nameof(WorstRoomInTheGame), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 32, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.Vertical), [ColourEffectId.SamusInHeat, ColourEffectId.NorfairForegroundAndHeatPhase, ColourEffectId.NorfairGreenForegroundHeatGlow, ColourEffectId.NorfairPurpleForegroundHeatGlow, ColourEffectId.NorfairDarkForegroundHeatGlow], [], RoomEffectTint.None));
 
-    /// <summary>The Amphitheatre room FX.</summary>
+    /// <summary>A selection whose rooms show acid, the liquid level starting at line 1256 and rising to line 208, starting <see cref="ColourEffectId.SamusInHeat"/>, <see cref="ColourEffectId.NorfairForegroundAndHeatPhase"/>, <see cref="ColourEffectId.NorfairGreenForegroundHeatGlow"/>, <see cref="ColourEffectId.NorfairPurpleForegroundHeatGlow"/> and <see cref="ColourEffectId.NorfairDarkForegroundHeatGlow"/>, in the untinted look unless entered through the one door that selects an effect of its own.</summary>
     public static RoomFxSelection Amphitheatre { get; } = new(nameof(Amphitheatre),
     [
         new(NorfairDoorDefinitions.RedKihunterShaftToAmphitheatre, new(208, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.Small, HeatHazeDirection.Vertical), [ColourEffectId.SamusInHeat, ColourEffectId.NorfairForegroundAndHeatPhase, ColourEffectId.NorfairGreenForegroundHeatGlow, ColourEffectId.NorfairPurpleForegroundHeatGlow, ColourEffectId.NorfairDarkForegroundHeatGlow], [], RoomEffectTint.None)),
     ],
         new(1256, 208, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-128), 96, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.Small, HeatHazeDirection.Vertical), [ColourEffectId.SamusInHeat, ColourEffectId.NorfairForegroundAndHeatPhase, ColourEffectId.NorfairGreenForegroundHeatGlow, ColourEffectId.NorfairPurpleForegroundHeatGlow, ColourEffectId.NorfairDarkForegroundHeatGlow], [], RoomEffectTint.None));
 
-    /// <summary>The LowerNorfairSpringBallMaze room FX.</summary>
+    /// <summary>A selection whose rooms show acid, starting <see cref="ColourEffectId.SamusInHeat"/>, <see cref="ColourEffectId.NorfairForegroundAndHeatPhase"/>, <see cref="ColourEffectId.NorfairGreenForegroundHeatGlow"/>, <see cref="ColourEffectId.NorfairPurpleForegroundHeatGlow"/> and <see cref="ColourEffectId.NorfairDarkForegroundHeatGlow"/>, in the untinted look.</summary>
     public static RoomFxSelection LowerNorfairSpringBallMaze { get; } = new(nameof(LowerNorfairSpringBallMaze), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.Vertical), [ColourEffectId.SamusInHeat, ColourEffectId.NorfairForegroundAndHeatPhase, ColourEffectId.NorfairGreenForegroundHeatGlow, ColourEffectId.NorfairPurpleForegroundHeatGlow, ColourEffectId.NorfairDarkForegroundHeatGlow], [], RoomEffectTint.None));
 
-    /// <summary>The LowerNorfairEscapePowerBombs room FX.</summary>
+    /// <summary>A selection whose rooms show acid, the liquid level starting at line 179, starting <see cref="ColourEffectId.SamusInHeat"/>, <see cref="ColourEffectId.NorfairForegroundAndHeatPhase"/>, <see cref="ColourEffectId.NorfairGreenForegroundHeatGlow"/>, <see cref="ColourEffectId.NorfairPurpleForegroundHeatGlow"/> and <see cref="ColourEffectId.NorfairDarkForegroundHeatGlow"/>, in the untinted look.</summary>
     public static RoomFxSelection LowerNorfairEscapePowerBombs { get; } = new(nameof(LowerNorfairEscapePowerBombs), [],
         new(179, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.Small, HeatHazeDirection.Vertical), [ColourEffectId.SamusInHeat, ColourEffectId.NorfairForegroundAndHeatPhase, ColourEffectId.NorfairGreenForegroundHeatGlow, ColourEffectId.NorfairPurpleForegroundHeatGlow, ColourEffectId.NorfairDarkForegroundHeatGlow], [], RoomEffectTint.None));
 
-    /// <summary>The RedKihunterShaft room FX.</summary>
+    /// <summary>A selection whose rooms show acid, starting <see cref="ColourEffectId.SamusInHeat"/>, <see cref="ColourEffectId.NorfairForegroundAndHeatPhase"/>, <see cref="ColourEffectId.NorfairGreenForegroundHeatGlow"/>, <see cref="ColourEffectId.NorfairPurpleForegroundHeatGlow"/> and <see cref="ColourEffectId.NorfairDarkForegroundHeatGlow"/>, in the untinted look.</summary>
     public static RoomFxSelection RedKihunterShaft { get; } = new(nameof(RedKihunterShaft), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.Vertical), [ColourEffectId.SamusInHeat, ColourEffectId.NorfairForegroundAndHeatPhase, ColourEffectId.NorfairGreenForegroundHeatGlow, ColourEffectId.NorfairPurpleForegroundHeatGlow, ColourEffectId.NorfairDarkForegroundHeatGlow], [], RoomEffectTint.None));
 
-    /// <summary>The Wasteland room FX.</summary>
+    /// <summary>A selection whose rooms show acid, the liquid level starting at line 704, starting <see cref="ColourEffectId.SamusInHeat"/>, <see cref="ColourEffectId.NorfairForegroundAndHeatPhase"/>, <see cref="ColourEffectId.NorfairGreenForegroundHeatGlow"/>, <see cref="ColourEffectId.NorfairPurpleForegroundHeatGlow"/> and <see cref="ColourEffectId.NorfairDarkForegroundHeatGlow"/>, and animating <see cref="BlockAnimation.HorizontalSpikes"/>, in the untinted look.</summary>
     public static RoomFxSelection Wasteland { get; } = new(nameof(Wasteland), [],
         new(704, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.Vertical), [ColourEffectId.SamusInHeat, ColourEffectId.NorfairForegroundAndHeatPhase, ColourEffectId.NorfairGreenForegroundHeatGlow, ColourEffectId.NorfairPurpleForegroundHeatGlow, ColourEffectId.NorfairDarkForegroundHeatGlow], [BlockAnimation.HorizontalSpikes], RoomEffectTint.None));
 
-    /// <summary>The MetalPirates room FX.</summary>
+    /// <summary>A selection whose rooms show acid, starting <see cref="ColourEffectId.SamusInHeat"/>, <see cref="ColourEffectId.NorfairForegroundAndHeatPhase"/>, <see cref="ColourEffectId.NorfairGreenForegroundHeatGlow"/>, <see cref="ColourEffectId.NorfairPurpleForegroundHeatGlow"/> and <see cref="ColourEffectId.NorfairDarkForegroundHeatGlow"/>, in the untinted look.</summary>
     public static RoomFxSelection MetalPirates { get; } = new(nameof(MetalPirates), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.Vertical), [ColourEffectId.SamusInHeat, ColourEffectId.NorfairForegroundAndHeatPhase, ColourEffectId.NorfairGreenForegroundHeatGlow, ColourEffectId.NorfairPurpleForegroundHeatGlow, ColourEffectId.NorfairDarkForegroundHeatGlow], [], RoomEffectTint.None));
 
-    /// <summary>The ThreeMusketeers room FX.</summary>
+    /// <summary>A selection whose rooms show acid, the liquid level starting at line 720, starting <see cref="ColourEffectId.SamusInHeat"/>, <see cref="ColourEffectId.NorfairForegroundAndHeatPhase"/>, <see cref="ColourEffectId.NorfairGreenForegroundHeatGlow"/>, <see cref="ColourEffectId.NorfairPurpleForegroundHeatGlow"/> and <see cref="ColourEffectId.NorfairDarkForegroundHeatGlow"/>, in the untinted look.</summary>
     public static RoomFxSelection ThreeMusketeers { get; } = new(nameof(ThreeMusketeers), [],
         new(720, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.Large, HeatHazeDirection.Vertical), [ColourEffectId.SamusInHeat, ColourEffectId.NorfairForegroundAndHeatPhase, ColourEffectId.NorfairGreenForegroundHeatGlow, ColourEffectId.NorfairPurpleForegroundHeatGlow, ColourEffectId.NorfairDarkForegroundHeatGlow], [], RoomEffectTint.None));
 
-    /// <summary>The RidleyEnergyTank room FX.</summary>
+    /// <summary>A selection whose rooms show acid, the liquid level starting at line 221, starting <see cref="ColourEffectId.SamusInHeat"/>, <see cref="ColourEffectId.NorfairForegroundAndHeatPhase"/>, <see cref="ColourEffectId.NorfairGreenForegroundHeatGlow"/>, <see cref="ColourEffectId.NorfairPurpleForegroundHeatGlow"/> and <see cref="ColourEffectId.NorfairDarkForegroundHeatGlow"/>, in the untinted look.</summary>
     public static RoomFxSelection RidleyEnergyTank { get; } = new(nameof(RidleyEnergyTank), [],
         new(221, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.Small, HeatHazeDirection.Vertical), [ColourEffectId.SamusInHeat, ColourEffectId.NorfairForegroundAndHeatPhase, ColourEffectId.NorfairGreenForegroundHeatGlow, ColourEffectId.NorfairPurpleForegroundHeatGlow, ColourEffectId.NorfairDarkForegroundHeatGlow], [], RoomEffectTint.None));
 
-    /// <summary>The ScrewAttack room FX.</summary>
+    /// <summary>A selection whose rooms show acid, the liquid level starting at line 733, starting <see cref="ColourEffectId.SamusInHeat"/>, <see cref="ColourEffectId.NorfairForegroundAndHeatPhase"/>, <see cref="ColourEffectId.NorfairGreenForegroundHeatGlow"/>, <see cref="ColourEffectId.NorfairPurpleForegroundHeatGlow"/> and <see cref="ColourEffectId.NorfairDarkForegroundHeatGlow"/>, in the untinted look.</summary>
     public static RoomFxSelection ScrewAttack { get; } = new(nameof(ScrewAttack), [],
         new(733, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.Small, HeatHazeDirection.Vertical), [ColourEffectId.SamusInHeat, ColourEffectId.NorfairForegroundAndHeatPhase, ColourEffectId.NorfairGreenForegroundHeatGlow, ColourEffectId.NorfairPurpleForegroundHeatGlow, ColourEffectId.NorfairDarkForegroundHeatGlow], [], RoomEffectTint.None));
 
-    /// <summary>The LowerNorfairFireflea room FX.</summary>
+    /// <summary>A selection whose rooms show the Fireflea rooms' darkness, in the untinted look.</summary>
     public static RoomFxSelection LowerNorfairFireflea { get; } = new(nameof(LowerNorfairFireflea), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Fireflea, RoomVisorAnimation.Steady, null, null, [], [], RoomEffectTint.None));
 
-    /// <summary>The LowerNorfairSave room FX.</summary>
+    /// <summary>A selection whose rooms show lava, in the <see cref="RoomEffectTint.Lava"/> tint.</summary>
     public static RoomFxSelection LowerNorfairSave { get; } = new(nameof(LowerNorfairSave), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.None), [], [], RoomEffectTint.Lava));
 
-    /// <summary>The BowlingAlleyWhenAreaBossDead room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, the liquid level starting at line 432, starting <see cref="ColourEffectId.WreckedShipGreenLights"/>, and animating <see cref="BlockAnimation.HorizontalSpikes"/> and <see cref="BlockAnimation.WreckedShipTreadmillLeftwards"/>, in the untinted look.</summary>
     public static RoomFxSelection BowlingAlleyWhenAreaBossDead { get; } = new(nameof(BowlingAlleyWhenAreaBossDead), [],
         new(432, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [ColourEffectId.WreckedShipGreenLights], [BlockAnimation.HorizontalSpikes, BlockAnimation.WreckedShipTreadmillLeftwards], RoomEffectTint.None));
 
-    /// <summary>The WreckedShipEntranceWhenAreaBossDead room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, starting <see cref="ColourEffectId.WreckedShipGreenLights"/>, in the untinted look.</summary>
     public static RoomFxSelection WreckedShipEntranceWhenAreaBossDead { get; } = new(nameof(WreckedShipEntranceWhenAreaBossDead), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [ColourEffectId.WreckedShipGreenLights], [], RoomEffectTint.None));
 
-    /// <summary>The AtticWhenAreaBossDead room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, starting <see cref="ColourEffectId.WreckedShipGreenLights"/>, in the untinted look.</summary>
     public static RoomFxSelection AtticWhenAreaBossDead { get; } = new(nameof(AtticWhenAreaBossDead), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [ColourEffectId.WreckedShipGreenLights], [], RoomEffectTint.None));
 
-    /// <summary>The AssemblyLineWhenAreaBossDead room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, starting <see cref="ColourEffectId.WreckedShipGreenLights"/>, and animating <see cref="BlockAnimation.WreckedShipTreadmillLeftwards"/>, in the untinted look.</summary>
     public static RoomFxSelection AssemblyLineWhenAreaBossDead { get; } = new(nameof(AssemblyLineWhenAreaBossDead), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [ColourEffectId.WreckedShipGreenLights], [BlockAnimation.WreckedShipTreadmillLeftwards], RoomEffectTint.None));
 
-    /// <summary>The WreckedShipMainShaftWhenAreaBossDead room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, starting <see cref="ColourEffectId.WreckedShipGreenLights"/>, and animating <see cref="BlockAnimation.WreckedShipTreadmillRightwards"/>, in the untinted look.</summary>
     public static RoomFxSelection WreckedShipMainShaftWhenAreaBossDead { get; } = new(nameof(WreckedShipMainShaftWhenAreaBossDead), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [ColourEffectId.WreckedShipGreenLights], [BlockAnimation.WreckedShipTreadmillRightwards], RoomEffectTint.None));
 
-    /// <summary>The SpikyDeathWhenAreaBossDead room FX.</summary>
+    /// <summary>A selection whose rooms show water, the liquid level starting at line 168, starting <see cref="ColourEffectId.WreckedShipGreenLights"/>, and animating <see cref="BlockAnimation.WreckedShipTreadmillLeftwards"/>, in the <see cref="RoomEffectTint.WaterAndAcid"/> tint.</summary>
     public static RoomFxSelection SpikyDeathWhenAreaBossDead { get; } = new(nameof(SpikyDeathWhenAreaBossDead), [],
         new(168, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomWater(LiquidTide.None, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [ColourEffectId.WreckedShipGreenLights], [BlockAnimation.WreckedShipTreadmillLeftwards], RoomEffectTint.WaterAndAcid));
 
-    /// <summary>The ElectricDeathWhenAreaBossDead room FX.</summary>
+    /// <summary>A selection whose rooms show water, the liquid level starting at line 680, starting <see cref="ColourEffectId.WreckedShipGreenLights"/>, in the <see cref="RoomEffectTint.WaterAndAcid"/> tint.</summary>
     public static RoomFxSelection ElectricDeathWhenAreaBossDead { get; } = new(nameof(ElectricDeathWhenAreaBossDead), [],
         new(680, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomWater(LiquidTide.None, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [ColourEffectId.WreckedShipGreenLights], [], RoomEffectTint.WaterAndAcid));
 
-    /// <summary>The WreckedShipEnergyTankWhenAreaBossDead room FX.</summary>
+    /// <summary>A selection whose rooms show water, the liquid level starting at line 176, starting <see cref="ColourEffectId.WreckedShipGreenLights"/>, and animating <see cref="BlockAnimation.WreckedShipTreadmillRightwards"/>, in the <see cref="RoomEffectTint.WaterAndAcid"/> tint.</summary>
     public static RoomFxSelection WreckedShipEnergyTankWhenAreaBossDead { get; } = new(nameof(WreckedShipEnergyTankWhenAreaBossDead), [],
         new(176, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [ColourEffectId.WreckedShipGreenLights], [BlockAnimation.WreckedShipTreadmillRightwards], RoomEffectTint.WaterAndAcid));
 
-    /// <summary>The BasementWhenAreaBossDead room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, starting <see cref="ColourEffectId.WreckedShipGreenLights"/>, in the untinted look.</summary>
     public static RoomFxSelection BasementWhenAreaBossDead { get; } = new(nameof(BasementWhenAreaBossDead), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [ColourEffectId.WreckedShipGreenLights], [], RoomEffectTint.None));
 
-    /// <summary>The WreckedShipMapWhenAreaBossDead room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, in the untinted look.</summary>
     public static RoomFxSelection WreckedShipMapWhenAreaBossDead { get; } = new(nameof(WreckedShipMapWhenAreaBossDead), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [], [], RoomEffectTint.None));
 
-    /// <summary>The PhantoonWhenAreaBossDead room FX.</summary>
+    /// <summary>A selection whose rooms show no room effect, the overlay and the HUD keeping their own colours.</summary>
     public static RoomFxSelection PhantoonWhenAreaBossDead { get; } = new(nameof(PhantoonWhenAreaBossDead), [],
         null);
 
-    /// <summary>The SpongeBathWhenAreaBossDead room FX.</summary>
+    /// <summary>A selection whose rooms show water, the liquid level starting at line 168, in the <see cref="RoomEffectTint.WaterAndAcid"/> tint.</summary>
     public static RoomFxSelection SpongeBathWhenAreaBossDead { get; } = new(nameof(SpongeBathWhenAreaBossDead), [],
         new(168, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomWater(LiquidTide.None, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [], [], RoomEffectTint.WaterAndAcid));
 
-    /// <summary>The WreckedShipWestSuperWhenAreaBossDead room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, starting <see cref="ColourEffectId.WreckedShipGreenLights"/>, in the untinted look.</summary>
     public static RoomFxSelection WreckedShipWestSuperWhenAreaBossDead { get; } = new(nameof(WreckedShipWestSuperWhenAreaBossDead), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [ColourEffectId.WreckedShipGreenLights], [], RoomEffectTint.None));
 
-    /// <summary>The WreckedShipEastSuperWhenAreaBossDead room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, starting <see cref="ColourEffectId.WreckedShipGreenLights"/>, and animating <see cref="BlockAnimation.HorizontalSpikes"/> and <see cref="BlockAnimation.WreckedShipTreadmillLeftwards"/>, in the untinted look.</summary>
     public static RoomFxSelection WreckedShipEastSuperWhenAreaBossDead { get; } = new(nameof(WreckedShipEastSuperWhenAreaBossDead), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [ColourEffectId.WreckedShipGreenLights], [BlockAnimation.HorizontalSpikes, BlockAnimation.WreckedShipTreadmillLeftwards], RoomEffectTint.None));
 
-    /// <summary>The GravitySuitOrWreckedShipSaveWhenAreaBossDead room FX.</summary>
-    public static RoomFxSelection GravitySuitOrWreckedShipSaveWhenAreaBossDead { get; } = new(nameof(GravitySuitOrWreckedShipSaveWhenAreaBossDead), [],
+    /// <summary>A selection whose rooms show no effect of their own, starting <see cref="ColourEffectId.WreckedShipGreenLights"/>, in the untinted look.</summary>
+    public static RoomFxSelection WreckedShipGreenLights { get; } = new(nameof(WreckedShipGreenLights), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [ColourEffectId.WreckedShipGreenLights], [], RoomEffectTint.None));
 
-    /// <summary>The BowlingAlleyDefault room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, in the untinted look, Samus's visor cycling its room shades.</summary>
     public static RoomFxSelection BowlingAlleyDefault { get; } = new(nameof(BowlingAlleyDefault), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Animated, null, null, [], [], RoomEffectTint.None));
 
-    /// <summary>The WreckedShipEntranceDefault room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, in the untinted look.</summary>
     public static RoomFxSelection WreckedShipEntranceDefault { get; } = new(nameof(WreckedShipEntranceDefault), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [], [], RoomEffectTint.None));
 
-    /// <summary>The AtticDefault room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, in the untinted look.</summary>
     public static RoomFxSelection AtticDefault { get; } = new(nameof(AtticDefault), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [], [], RoomEffectTint.None));
 
-    /// <summary>The AssemblyLineDefault room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, in the untinted look.</summary>
     public static RoomFxSelection AssemblyLineDefault { get; } = new(nameof(AssemblyLineDefault), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [], [], RoomEffectTint.None));
 
-    /// <summary>The WreckedShipMainShaftDefault room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, in the untinted look.</summary>
     public static RoomFxSelection WreckedShipMainShaftDefault { get; } = new(nameof(WreckedShipMainShaftDefault), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [], [], RoomEffectTint.None));
 
-    /// <summary>The SpikyDeathDefault room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, in the untinted look.</summary>
     public static RoomFxSelection SpikyDeathDefault { get; } = new(nameof(SpikyDeathDefault), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [], [], RoomEffectTint.None));
 
-    /// <summary>The ElectricDeathDefault room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, in the untinted look.</summary>
     public static RoomFxSelection ElectricDeathDefault { get; } = new(nameof(ElectricDeathDefault), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [], [], RoomEffectTint.None));
 
-    /// <summary>The WreckedShipEnergyTankDefault room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, in the untinted look.</summary>
     public static RoomFxSelection WreckedShipEnergyTankDefault { get; } = new(nameof(WreckedShipEnergyTankDefault), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [], [], RoomEffectTint.None));
 
-    /// <summary>The BasementDefault room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, in the untinted look, Samus's visor cycling its room shades.</summary>
     public static RoomFxSelection BasementDefault { get; } = new(nameof(BasementDefault), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Animated, null, null, [], [], RoomEffectTint.None));
 
-    /// <summary>The WreckedShipMapDefault room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, in the untinted look.</summary>
     public static RoomFxSelection WreckedShipMapDefault { get; } = new(nameof(WreckedShipMapDefault), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [], [], RoomEffectTint.None));
 
-    /// <summary>The PhantoonDefault room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, in the untinted look.</summary>
     public static RoomFxSelection PhantoonDefault { get; } = new(nameof(PhantoonDefault), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [], [], RoomEffectTint.None));
 
-    /// <summary>The SpongeBathDefault room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, in the untinted look.</summary>
     public static RoomFxSelection SpongeBathDefault { get; } = new(nameof(SpongeBathDefault), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [], [], RoomEffectTint.None));
 
-    /// <summary>The WreckedShipWestSuperDefault room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, in the untinted look.</summary>
     public static RoomFxSelection WreckedShipWestSuperDefault { get; } = new(nameof(WreckedShipWestSuperDefault), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [], [], RoomEffectTint.None));
 
-    /// <summary>The GravitySuitOrWreckedShipEastSuperOrWreckedShipSaveDefault room FX.</summary>
-    public static RoomFxSelection GravitySuitOrWreckedShipEastSuperOrWreckedShipSaveDefault { get; } = new(nameof(GravitySuitOrWreckedShipEastSuperOrWreckedShipSaveDefault), [],
+    /// <summary>A selection whose rooms show no effect of their own, in the untinted look.</summary>
+    public static RoomFxSelection WreckedShipUntinted { get; } = new(nameof(WreckedShipUntinted), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [], [], RoomEffectTint.None));
 
-    /// <summary>The GlassTunnelSave room FX.</summary>
+    /// <summary>A selection whose rooms show water, the liquid level starting at line 16, in the <see cref="RoomEffectTint.TealMaridiaWater"/> tint.</summary>
     public static RoomFxSelection GlassTunnelSave { get; } = new(nameof(GlassTunnelSave), [],
         new(16, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: false, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [], [], RoomEffectTint.TealMaridiaWater));
 
-    /// <summary>The GlassTunnel room FX.</summary>
+    /// <summary>A selection whose rooms show water, the liquid level starting at line 16, in the <see cref="RoomEffectTint.TealMaridiaWater"/> tint.</summary>
     public static RoomFxSelection GlassTunnel { get; } = new(nameof(GlassTunnel), [],
         new(16, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: false, BackgroundWave: false, IgnoresSurfaceUntilEnabled: true), [], [], RoomEffectTint.TealMaridiaWater));
 
-    /// <summary>The WestTunnel room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, in the untinted look, Samus's visor cycling its room shades.</summary>
     public static RoomFxSelection WestTunnel { get; } = new(nameof(WestTunnel), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Animated, null, null, [], [], RoomEffectTint.None));
 
-    /// <summary>The EastTunnel room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, in the untinted look, Samus's visor cycling its room shades.</summary>
     public static RoomFxSelection EastTunnel { get; } = new(nameof(EastTunnel), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Animated, null, null, [], [], RoomEffectTint.None));
 
-    /// <summary>The MainStreet room FX.</summary>
+    /// <summary>A selection whose rooms show water, the liquid level starting at line 16, in the <see cref="RoomEffectTint.TealMaridiaWater"/> tint.</summary>
     public static RoomFxSelection MainStreet { get; } = new(nameof(MainStreet), [],
         new(16, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [], [], RoomEffectTint.TealMaridiaWater));
 
-    /// <summary>The FishTank room FX.</summary>
+    /// <summary>A selection whose rooms show water, the liquid level starting at line 16, in the <see cref="RoomEffectTint.TealMaridiaWater"/> tint.</summary>
     public static RoomFxSelection FishTank { get; } = new(nameof(FishTank), [],
         new(16, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [], [], RoomEffectTint.TealMaridiaWater));
 
-    /// <summary>The MamaTurtle room FX.</summary>
+    /// <summary>A selection whose rooms show water, the liquid level starting at line 698, in the <see cref="RoomEffectTint.TealMaridiaWater"/> tint.</summary>
     public static RoomFxSelection MamaTurtle { get; } = new(nameof(MamaTurtle), [],
         new(698, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: false, BackgroundWave: false, IgnoresSurfaceUntilEnabled: false), [], [], RoomEffectTint.TealMaridiaWater));
 
-    /// <summary>The CrabTunnel room FX.</summary>
+    /// <summary>A selection whose rooms show water, the liquid level starting at line 16, in the <see cref="RoomEffectTint.TealMaridiaWater"/> tint.</summary>
     public static RoomFxSelection CrabTunnel { get; } = new(nameof(CrabTunnel), [],
         new(16, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: false, BackgroundWave: false, IgnoresSurfaceUntilEnabled: false), [], [], RoomEffectTint.TealMaridiaWater));
 
-    /// <summary>The MtEverest room FX.</summary>
+    /// <summary>A selection whose rooms show water, the liquid level starting at line 16, in the <see cref="RoomEffectTint.TealMaridiaWater"/> tint.</summary>
     public static RoomFxSelection MtEverest { get; } = new(nameof(MtEverest), [],
         new(16, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [], [], RoomEffectTint.TealMaridiaWater));
 
-    /// <summary>The RedFish room FX.</summary>
+    /// <summary>A selection whose rooms show water, the liquid level starting at line 384, in the <see cref="RoomEffectTint.TealMaridiaWater"/> tint.</summary>
     public static RoomFxSelection RedFish { get; } = new(nameof(RedFish), [],
         new(384, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: false, IgnoresSurfaceUntilEnabled: false), [], [], RoomEffectTint.TealMaridiaWater));
 
-    /// <summary>The WateringHole room FX.</summary>
+    /// <summary>A selection whose rooms show water, the liquid level starting at line 437, in the <see cref="RoomEffectTint.IndigoMaridiaWater"/> tint.</summary>
     public static RoomFxSelection WateringHole { get; } = new(nameof(WateringHole), [],
         new(437, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [], [], RoomEffectTint.IndigoMaridiaWater));
 
-    /// <summary>The NorthwestMaridiaBug room FX.</summary>
+    /// <summary>A selection whose rooms show water, the liquid level starting at line 437, in the <see cref="RoomEffectTint.IndigoMaridiaWater"/> tint.</summary>
     public static RoomFxSelection NorthwestMaridiaBug { get; } = new(nameof(NorthwestMaridiaBug), [],
         new(437, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [], [], RoomEffectTint.IndigoMaridiaWater));
 
-    /// <summary>The CrabShaft room FX.</summary>
+    /// <summary>A selection whose rooms show water, the liquid level starting at line 16, in the <see cref="RoomEffectTint.TealMaridiaWater"/> tint.</summary>
     public static RoomFxSelection CrabShaft { get; } = new(nameof(CrabShaft), [],
         new(16, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: false, IgnoresSurfaceUntilEnabled: false), [], [], RoomEffectTint.TealMaridiaWater));
 
-    /// <summary>The PseudoPlasmaSpark room FX.</summary>
+    /// <summary>A selection whose rooms show water, the liquid level starting at line 437, in the <see cref="RoomEffectTint.IndigoMaridiaWater"/> tint.</summary>
     public static RoomFxSelection PseudoPlasmaSpark { get; } = new(nameof(PseudoPlasmaSpark), [],
         new(437, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [], [], RoomEffectTint.IndigoMaridiaWater));
 
-    /// <summary>The CrabHole room FX.</summary>
+    /// <summary>A selection whose rooms show water, the liquid level starting at line 16, in the <see cref="RoomEffectTint.TealMaridiaWater"/> tint.</summary>
     public static RoomFxSelection CrabHole { get; } = new(nameof(CrabHole), [],
         new(16, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: false, BackgroundWave: false, IgnoresSurfaceUntilEnabled: false), [], [], RoomEffectTint.TealMaridiaWater));
 
-    /// <summary>The WestSandHallTunnel room FX.</summary>
+    /// <summary>A selection whose rooms show water, the liquid level starting at line 16, in the <see cref="RoomEffectTint.TealMaridiaWater"/> tint.</summary>
     public static RoomFxSelection WestSandHallTunnel { get; } = new(nameof(WestSandHallTunnel), [],
         new(16, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: false, BackgroundWave: false, IgnoresSurfaceUntilEnabled: false), [], [], RoomEffectTint.TealMaridiaWater));
 
-    /// <summary>The PlasmaTutorial room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, in the <see cref="RoomEffectTint.IndigoMaridiaWater"/> tint, Samus's visor cycling its room shades.</summary>
     public static RoomFxSelection PlasmaTutorial { get; } = new(nameof(PlasmaTutorial), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Animated, null, null, [], [], RoomEffectTint.IndigoMaridiaWater));
 
-    /// <summary>The Plasma room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, in the <see cref="RoomEffectTint.IndigoMaridiaWater"/> tint, Samus's visor cycling its room shades.</summary>
     public static RoomFxSelection Plasma { get; } = new(nameof(Plasma), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Animated, null, null, [], [], RoomEffectTint.IndigoMaridiaWater));
 
-    /// <summary>The ThreadTheNeedle room FX.</summary>
+    /// <summary>A selection whose rooms show water, the liquid level starting at line 181, in the <see cref="RoomEffectTint.IndigoMaridiaWater"/> tint.</summary>
     public static RoomFxSelection ThreadTheNeedle { get; } = new(nameof(ThreadTheNeedle), [],
         new(181, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [], [], RoomEffectTint.IndigoMaridiaWater));
 
-    /// <summary>The MaridiaElevator room FX.</summary>
+    /// <summary>A selection whose rooms show water, the liquid level starting at line 1461, in the <see cref="RoomEffectTint.IndigoMaridiaWater"/> tint.</summary>
     public static RoomFxSelection MaridiaElevator { get; } = new(nameof(MaridiaElevator), [],
         new(1461, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [], [], RoomEffectTint.IndigoMaridiaWater));
 
-    /// <summary>The PlasmaSpark room FX.</summary>
+    /// <summary>A selection whose rooms show water, the liquid level starting at line 948, in the <see cref="RoomEffectTint.IndigoMaridiaWater"/> tint.</summary>
     public static RoomFxSelection PlasmaSpark { get; } = new(nameof(PlasmaSpark), [],
         new(948, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [], [], RoomEffectTint.IndigoMaridiaWater));
 
-    /// <summary>The Kassiuz room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, in the <see cref="RoomEffectTint.IndigoMaridiaWater"/> tint, Samus's visor cycling its room shades.</summary>
     public static RoomFxSelection Kassiuz { get; } = new(nameof(Kassiuz), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Animated, null, null, [], [], RoomEffectTint.IndigoMaridiaWater));
 
-    /// <summary>The MaridiaMap room FX.</summary>
+    /// <summary>A selection whose rooms show water, the liquid level starting at line 16, in the <see cref="RoomEffectTint.TealMaridiaWater"/> tint.</summary>
     public static RoomFxSelection MaridiaMap { get; } = new(nameof(MaridiaMap), [],
         new(16, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: false, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [], [], RoomEffectTint.TealMaridiaWater));
 
-    /// <summary>The ForgottenHighwaySave room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, in the <see cref="RoomEffectTint.IndigoMaridiaWater"/> tint.</summary>
     public static RoomFxSelection ForgottenHighwaySave { get; } = new(nameof(ForgottenHighwaySave), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [], [], RoomEffectTint.IndigoMaridiaWater));
 
-    /// <summary>The Toilet room FX.</summary>
+    /// <summary>A selection whose rooms show water, the liquid level starting at line 128, in the <see cref="RoomEffectTint.GreenMaridiaWater"/> tint unless entered through one of the 2 doors that each select an effect of their own.</summary>
     public static RoomFxSelection Toilet { get; } = new(nameof(Toilet),
     [
         new(MaridiaDoorDefinitions.PlasmaSparkToToilet, new(128, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: false, IgnoresSurfaceUntilEnabled: true), [], [], RoomEffectTint.GreenMaridiaWater)),
@@ -930,249 +930,249 @@ public static class RoomFxDefinitions
     ],
         new(128, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: false, IgnoresSurfaceUntilEnabled: false), [], [], RoomEffectTint.GreenMaridiaWater));
 
-    /// <summary>The BugSandHole room FX.</summary>
+    /// <summary>A selection whose rooms show water, the liquid level starting at line 181, starting <see cref="ColourEffectId.MaridiaSandPits"/>, in the <see cref="RoomEffectTint.IndigoMaridiaWater"/> tint.</summary>
     public static RoomFxSelection BugSandHole { get; } = new(nameof(BugSandHole), [],
         new(181, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [ColourEffectId.MaridiaSandPits], [], RoomEffectTint.IndigoMaridiaWater));
 
-    /// <summary>The WestSandHall room FX.</summary>
+    /// <summary>A selection whose rooms show water, the liquid level starting at line 16, starting <see cref="ColourEffectId.MaridiaSandPits"/>, and animating <see cref="BlockAnimation.MaridiaSandCeiling"/> and <see cref="BlockAnimation.MaridiaSandFalling"/>, in the <see cref="RoomEffectTint.GreenMaridiaWater"/> tint.</summary>
     public static RoomFxSelection WestSandHall { get; } = new(nameof(WestSandHall), [],
         new(16, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: false, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [ColourEffectId.MaridiaSandPits], [BlockAnimation.MaridiaSandCeiling, BlockAnimation.MaridiaSandFalling], RoomEffectTint.GreenMaridiaWater));
 
-    /// <summary>The Oasis room FX.</summary>
+    /// <summary>A selection whose rooms show water, the liquid level starting at line 16, starting <see cref="ColourEffectId.MaridiaSandPits"/>, in the <see cref="RoomEffectTint.GreenMaridiaWater"/> tint.</summary>
     public static RoomFxSelection Oasis { get; } = new(nameof(Oasis), [],
         new(16, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: false, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [ColourEffectId.MaridiaSandPits], [], RoomEffectTint.GreenMaridiaWater));
 
-    /// <summary>The EastSandHall room FX.</summary>
+    /// <summary>A selection whose rooms show water, the liquid level starting at line 16, starting <see cref="ColourEffectId.MaridiaSandPits"/>, and animating <see cref="BlockAnimation.MaridiaSandCeiling"/> and <see cref="BlockAnimation.MaridiaSandFalling"/>, in the <see cref="RoomEffectTint.GreenMaridiaWater"/> tint.</summary>
     public static RoomFxSelection EastSandHall { get; } = new(nameof(EastSandHall), [],
         new(16, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: false, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [ColourEffectId.MaridiaSandPits], [BlockAnimation.MaridiaSandCeiling, BlockAnimation.MaridiaSandFalling], RoomEffectTint.GreenMaridiaWater));
 
-    /// <summary>The WestSandHole room FX.</summary>
+    /// <summary>A selection whose rooms show water, the liquid level starting at line 214, starting <see cref="ColourEffectId.MaridiaSandPits"/>, and animating <see cref="BlockAnimation.MaridiaSandCeiling"/> and <see cref="BlockAnimation.MaridiaSandFalling"/>, in the <see cref="RoomEffectTint.PurpleMaridiaWater"/> tint.</summary>
     public static RoomFxSelection WestSandHole { get; } = new(nameof(WestSandHole), [],
         new(214, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.None, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [ColourEffectId.MaridiaSandPits], [BlockAnimation.MaridiaSandCeiling, BlockAnimation.MaridiaSandFalling], RoomEffectTint.PurpleMaridiaWater));
 
-    /// <summary>The EastSandHole room FX.</summary>
+    /// <summary>A selection whose rooms show water, the liquid level starting at line 214, starting <see cref="ColourEffectId.MaridiaSandPits"/>, and animating <see cref="BlockAnimation.MaridiaSandCeiling"/> and <see cref="BlockAnimation.MaridiaSandFalling"/>, in the <see cref="RoomEffectTint.PurpleMaridiaWater"/> tint.</summary>
     public static RoomFxSelection EastSandHole { get; } = new(nameof(EastSandHole), [],
         new(214, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.None, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [ColourEffectId.MaridiaSandPits], [BlockAnimation.MaridiaSandCeiling, BlockAnimation.MaridiaSandFalling], RoomEffectTint.PurpleMaridiaWater));
 
-    /// <summary>The EastAqueductQuicksandWestAqueductQuicksand room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, starting <see cref="ColourEffectId.MaridiaSandFalls"/>, in the untinted look, Samus's visor cycling its room shades.</summary>
     public static RoomFxSelection EastAqueductQuicksandWestAqueductQuicksand { get; } = new(nameof(EastAqueductQuicksandWestAqueductQuicksand), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Animated, null, null, [ColourEffectId.MaridiaSandFalls], [], RoomEffectTint.None));
 
-    /// <summary>The Aqueduct room FX.</summary>
+    /// <summary>A selection whose rooms show water, the liquid level starting at line 16, starting <see cref="ColourEffectId.MaridiaSandPits"/>, in the <see cref="RoomEffectTint.PurpleMaridiaWater"/> tint.</summary>
     public static RoomFxSelection Aqueduct { get; } = new(nameof(Aqueduct), [],
         new(16, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [ColourEffectId.MaridiaSandPits], [], RoomEffectTint.PurpleMaridiaWater));
 
-    /// <summary>The Butterfly room FX.</summary>
+    /// <summary>A selection whose rooms show water, the liquid level starting at line 73, starting <see cref="ColourEffectId.MaridiaSandPits"/>, and animating <see cref="BlockAnimation.MaridiaSandCeiling"/> and <see cref="BlockAnimation.MaridiaSandFalling"/>, in the <see cref="RoomEffectTint.IndigoMaridiaWater"/> tint.</summary>
     public static RoomFxSelection Butterfly { get; } = new(nameof(Butterfly), [],
         new(73, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [ColourEffectId.MaridiaSandPits], [BlockAnimation.MaridiaSandCeiling, BlockAnimation.MaridiaSandFalling], RoomEffectTint.IndigoMaridiaWater));
 
-    /// <summary>The BotwoonHallway room FX.</summary>
+    /// <summary>A selection whose rooms show water, the liquid level starting at line 16, in the <see cref="RoomEffectTint.PurpleMaridiaWater"/> tint.</summary>
     public static RoomFxSelection BotwoonHallway { get; } = new(nameof(BotwoonHallway), [],
         new(16, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [], [], RoomEffectTint.PurpleMaridiaWater));
 
-    /// <summary>The Pants room FX.</summary>
+    /// <summary>A selection whose rooms show water, the liquid level starting at line 688, starting <see cref="ColourEffectId.MaridiaSandPits"/>, in the <see cref="RoomEffectTint.GreenMaridiaWater"/> tint.</summary>
     public static RoomFxSelection Pants { get; } = new(nameof(Pants), [],
         new(688, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: false, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [ColourEffectId.MaridiaSandPits], [], RoomEffectTint.GreenMaridiaWater));
 
-    /// <summary>The EastPants room FX.</summary>
+    /// <summary>A selection whose rooms show water, the liquid level starting at line 176, starting <see cref="ColourEffectId.MaridiaSandPits"/>, in the <see cref="RoomEffectTint.GreenMaridiaWater"/> tint.</summary>
     public static RoomFxSelection EastPants { get; } = new(nameof(EastPants), [],
         new(176, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: false, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [ColourEffectId.MaridiaSandPits], [], RoomEffectTint.GreenMaridiaWater));
 
-    /// <summary>The Springball room FX.</summary>
+    /// <summary>A selection whose rooms show water, the liquid level starting at line 176, starting <see cref="ColourEffectId.MaridiaSandPits"/>, in the <see cref="RoomEffectTint.GreenMaridiaWater"/> tint.</summary>
     public static RoomFxSelection Springball { get; } = new(nameof(Springball), [],
         new(176, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: false, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [ColourEffectId.MaridiaSandPits], [], RoomEffectTint.GreenMaridiaWater));
 
-    /// <summary>The BelowBotwoonEnergyTank room FX.</summary>
+    /// <summary>A selection whose rooms show water, the liquid level starting at line 72, starting <see cref="ColourEffectId.MaridiaSandPits"/>, and animating <see cref="BlockAnimation.MaridiaSandCeiling"/> and <see cref="BlockAnimation.MaridiaSandFalling"/>, in the <see cref="RoomEffectTint.PurpleMaridiaWater"/> tint.</summary>
     public static RoomFxSelection BelowBotwoonEnergyTank { get; } = new(nameof(BelowBotwoonEnergyTank), [],
         new(72, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.None, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [ColourEffectId.MaridiaSandPits], [BlockAnimation.MaridiaSandCeiling, BlockAnimation.MaridiaSandFalling], RoomEffectTint.PurpleMaridiaWater));
 
-    /// <summary>The Colosseum room FX.</summary>
+    /// <summary>A selection whose rooms show water, the liquid level starting at line 279, starting <see cref="ColourEffectId.MaridiaSandPits"/> and <see cref="ColourEffectId.MaridiaBackgroundWaterfalls"/>, in the <see cref="RoomEffectTint.PurpleMaridiaWater"/> tint.</summary>
     public static RoomFxSelection Colosseum { get; } = new(nameof(Colosseum), [],
         new(279, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.WaterfallDarkensBehind, new RoomWater(LiquidTide.None, SurfaceDrift: true, BackgroundWave: false, IgnoresSurfaceUntilEnabled: false), [ColourEffectId.MaridiaSandPits, ColourEffectId.MaridiaBackgroundWaterfalls], [], RoomEffectTint.PurpleMaridiaWater));
 
-    /// <summary>The AqueductSave room FX.</summary>
+    /// <summary>A selection whose rooms show water, the liquid level starting at line 16, starting <see cref="ColourEffectId.MaridiaSandFalls"/>, in the <see cref="RoomEffectTint.IndigoMaridiaWater"/> tint.</summary>
     public static RoomFxSelection AqueductSave { get; } = new(nameof(AqueductSave), [],
         new(16, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: false, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [ColourEffectId.MaridiaSandFalls], [], RoomEffectTint.IndigoMaridiaWater));
 
-    /// <summary>The ThePrecious room FX.</summary>
+    /// <summary>A selection whose rooms show water, the liquid level starting at line 191, in the <see cref="RoomEffectTint.PurpleMaridiaWater"/> tint.</summary>
     public static RoomFxSelection ThePrecious { get; } = new(nameof(ThePrecious), [],
         new(191, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [], [], RoomEffectTint.PurpleMaridiaWater));
 
-    /// <summary>The BotwoonEnergyTank room FX.</summary>
+    /// <summary>A selection whose rooms show water, the liquid level starting at line 16, starting <see cref="ColourEffectId.MaridiaSandPits"/>, in the <see cref="RoomEffectTint.PurpleMaridiaWater"/> tint.</summary>
     public static RoomFxSelection BotwoonEnergyTank { get; } = new(nameof(BotwoonEnergyTank), [],
         new(16, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [ColourEffectId.MaridiaSandPits], [], RoomEffectTint.PurpleMaridiaWater));
 
-    /// <summary>The DraygonSave room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, in the <see cref="RoomEffectTint.PurpleMaridiaWater"/> tint.</summary>
     public static RoomFxSelection DraygonSave { get; } = new(nameof(DraygonSave), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [], [], RoomEffectTint.PurpleMaridiaWater));
 
-    /// <summary>The MaridiaMissileRefill room FX.</summary>
+    /// <summary>A selection whose rooms show water, the liquid level starting at line 0, in the <see cref="RoomEffectTint.PurpleMaridiaWater"/> tint.</summary>
     public static RoomFxSelection MaridiaMissileRefill { get; } = new(nameof(MaridiaMissileRefill), [],
         new(0, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.None, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [], [], RoomEffectTint.PurpleMaridiaWater));
 
-    /// <summary>The PlasmaBeachQuicksandBotwoonQuicksand room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, starting <see cref="ColourEffectId.MaridiaSandFalls"/>, in the untinted look, Samus's visor cycling its room shades.</summary>
     public static RoomFxSelection PlasmaBeachQuicksandBotwoonQuicksand { get; } = new(nameof(PlasmaBeachQuicksandBotwoonQuicksand), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Animated, null, null, [ColourEffectId.MaridiaSandFalls], [], RoomEffectTint.None));
 
-    /// <summary>The Shaktool room FX.</summary>
+    /// <summary>A selection whose rooms show water, the liquid level starting at line 176, in the <see cref="RoomEffectTint.GreenMaridiaWater"/> tint.</summary>
     public static RoomFxSelection Shaktool { get; } = new(nameof(Shaktool), [],
         new(176, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: false, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [], [], RoomEffectTint.GreenMaridiaWater));
 
-    /// <summary>The HalfieClimb room FX.</summary>
+    /// <summary>A selection whose rooms show water, the liquid level starting at line 309, starting <see cref="ColourEffectId.MaridiaBackgroundWaterfalls"/>, in the <see cref="RoomEffectTint.PurpleMaridiaWater"/> tint.</summary>
     public static RoomFxSelection HalfieClimb { get; } = new(nameof(HalfieClimb), [],
         new(309, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.WaterfallDarkensBehind, new RoomWater(LiquidTide.None, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [ColourEffectId.MaridiaBackgroundWaterfalls], [], RoomEffectTint.PurpleMaridiaWater));
 
-    /// <summary>The Botwoon room FX.</summary>
+    /// <summary>A selection whose rooms show water, the liquid level starting at line 16, starting <see cref="ColourEffectId.MaridiaSandFalls"/>, in the <see cref="RoomEffectTint.PurpleMaridiaWater"/> tint.</summary>
     public static RoomFxSelection Botwoon { get; } = new(nameof(Botwoon), [],
         new(16, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [ColourEffectId.MaridiaSandFalls], [], RoomEffectTint.PurpleMaridiaWater));
 
-    /// <summary>The SpaceJump room FX.</summary>
+    /// <summary>A selection whose rooms show water, the liquid level starting at line 16, in the <see cref="RoomEffectTint.PurpleMaridiaWater"/> tint.</summary>
     public static RoomFxSelection SpaceJump { get; } = new(nameof(SpaceJump), [],
         new(16, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [], [], RoomEffectTint.PurpleMaridiaWater));
 
-    /// <summary>The MaridiaEnergyRefill room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, in the <see cref="RoomEffectTint.PurpleMaridiaWater"/> tint.</summary>
     public static RoomFxSelection MaridiaEnergyRefill { get; } = new(nameof(MaridiaEnergyRefill), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [], [], RoomEffectTint.PurpleMaridiaWater));
 
-    /// <summary>The WestCactusAlley room FX.</summary>
+    /// <summary>A selection whose rooms show water, the liquid level starting at line 185, in the <see cref="RoomEffectTint.PurpleMaridiaWater"/> tint.</summary>
     public static RoomFxSelection WestCactusAlley { get; } = new(nameof(WestCactusAlley), [],
         new(185, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [], [], RoomEffectTint.PurpleMaridiaWater));
 
-    /// <summary>The EastCactusAlley room FX.</summary>
+    /// <summary>A selection whose rooms show water, the liquid level starting at line 309, starting <see cref="ColourEffectId.MaridiaBackgroundWaterfalls"/>, in the <see cref="RoomEffectTint.PurpleMaridiaWater"/> tint.</summary>
     public static RoomFxSelection EastCactusAlley { get; } = new(nameof(EastCactusAlley), [],
         new(309, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.WaterfallDarkensBehind, new RoomWater(LiquidTide.None, SurfaceDrift: true, BackgroundWave: false, IgnoresSurfaceUntilEnabled: false), [ColourEffectId.MaridiaBackgroundWaterfalls], [], RoomEffectTint.PurpleMaridiaWater));
 
-    /// <summary>The Draygon room FX.</summary>
+    /// <summary>A selection whose rooms show water, the liquid level starting at line 16, in the <see cref="RoomEffectTint.IndigoMaridiaWater"/> tint.</summary>
     public static RoomFxSelection Draygon { get; } = new(nameof(Draygon), [],
         new(16, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: false, IgnoresSurfaceUntilEnabled: false), [], [], RoomEffectTint.IndigoMaridiaWater));
 
-    /// <summary>The TourianFirst room FX.</summary>
+    /// <summary>A selection whose rooms show acid, the liquid level starting at line 956, starting <see cref="ColourEffectId.TourianGlowingArkanoidBlocksAndRedOrbs"/>, in the <see cref="RoomEffectTint.Lava"/> tint.</summary>
     public static RoomFxSelection TourianFirst { get; } = new(nameof(TourianFirst), [],
         new(956, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.None), [ColourEffectId.TourianGlowingArkanoidBlocksAndRedOrbs], [], RoomEffectTint.Lava));
 
-    /// <summary>The Metroids1 room FX.</summary>
+    /// <summary>A selection whose rooms show acid, the liquid level starting at line 208, starting <see cref="ColourEffectId.TourianGlowingArkanoidBlocksAndRedOrbs"/>, in the <see cref="RoomEffectTint.Lava"/> tint.</summary>
     public static RoomFxSelection Metroids1 { get; } = new(nameof(Metroids1), [],
         new(208, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 16, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.None), [ColourEffectId.TourianGlowingArkanoidBlocksAndRedOrbs], [], RoomEffectTint.Lava));
 
-    /// <summary>The Metroids2 room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, starting <see cref="ColourEffectId.TourianGlowingArkanoidBlocksAndRedOrbs"/>, in the untinted look.</summary>
     public static RoomFxSelection Metroids2 { get; } = new(nameof(Metroids2), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [ColourEffectId.TourianGlowingArkanoidBlocksAndRedOrbs], [], RoomEffectTint.None));
 
-    /// <summary>The Metroids3 room FX.</summary>
+    /// <summary>A selection whose rooms show acid, the liquid level starting at line 208, starting <see cref="ColourEffectId.TourianGlowingArkanoidBlocksAndRedOrbs"/>, in the <see cref="RoomEffectTint.Lava"/> tint.</summary>
     public static RoomFxSelection Metroids3 { get; } = new(nameof(Metroids3), [],
         new(208, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 16, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.None), [ColourEffectId.TourianGlowingArkanoidBlocksAndRedOrbs], [], RoomEffectTint.Lava));
 
-    /// <summary>The Metroids4 room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, starting <see cref="ColourEffectId.TourianGlowingArkanoidBlocksAndRedOrbs"/>, in the untinted look.</summary>
     public static RoomFxSelection Metroids4 { get; } = new(nameof(Metroids4), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [ColourEffectId.TourianGlowingArkanoidBlocksAndRedOrbs], [], RoomEffectTint.None));
 
-    /// <summary>The BlueHopper room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, starting <see cref="ColourEffectId.TourianGlowingArkanoidBlocksAndRedOrbs"/>, in the untinted look.</summary>
     public static RoomFxSelection BlueHopper { get; } = new(nameof(BlueHopper), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [ColourEffectId.TourianGlowingArkanoidBlocksAndRedOrbs], [], RoomEffectTint.None));
 
-    /// <summary>The DustTorizo room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, starting <see cref="ColourEffectId.TourianGlowingArkanoidBlocksAndRedOrbs"/>, in the untinted look.</summary>
     public static RoomFxSelection DustTorizo { get; } = new(nameof(DustTorizo), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [ColourEffectId.TourianGlowingArkanoidBlocksAndRedOrbs], [], RoomEffectTint.None));
 
-    /// <summary>The BigBoy room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, starting <see cref="ColourEffectId.TourianGlowingArkanoidBlocksAndRedOrbs"/>, in the untinted look.</summary>
     public static RoomFxSelection BigBoy { get; } = new(nameof(BigBoy), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [ColourEffectId.TourianGlowingArkanoidBlocksAndRedOrbs], [], RoomEffectTint.None));
 
-    /// <summary>The Seaweed room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, starting <see cref="ColourEffectId.TourianGlowingArkanoidBlocksAndRedOrbs"/>, in the untinted look.</summary>
     public static RoomFxSelection Seaweed { get; } = new(nameof(Seaweed), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [ColourEffectId.TourianGlowingArkanoidBlocksAndRedOrbs], [], RoomEffectTint.None));
 
-    /// <summary>The TourianRecharge room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, in the untinted look.</summary>
     public static RoomFxSelection TourianRecharge { get; } = new(nameof(TourianRecharge), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [], [], RoomEffectTint.None));
 
-    /// <summary>The MotherBrainDefaultOrWhenMotherBrainGlassDestroyed room FX.</summary>
-    public static RoomFxSelection MotherBrainDefaultOrWhenMotherBrainGlassDestroyed { get; } = new(nameof(MotherBrainDefaultOrWhenMotherBrainGlassDestroyed), [],
+    /// <summary>A selection whose rooms show acid, the liquid level starting at line 232, starting <see cref="ColourEffectId.TourianGlowingArkanoidBlocksAndRedOrbs"/>, in the <see cref="RoomEffectTint.Lava"/> tint.</summary>
+    public static RoomFxSelection MotherBrain { get; } = new(nameof(MotherBrain), [],
         new(232, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 16, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.None), [ColourEffectId.TourianGlowingArkanoidBlocksAndRedOrbs], [], RoomEffectTint.Lava));
 
-    /// <summary>The TourianEyeDoor room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, starting <see cref="ColourEffectId.TourianGlowingArkanoidBlocksAndRedOrbs"/>, in the untinted look.</summary>
     public static RoomFxSelection TourianEyeDoor { get; } = new(nameof(TourianEyeDoor), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [ColourEffectId.TourianGlowingArkanoidBlocksAndRedOrbs], [], RoomEffectTint.None));
 
-    /// <summary>The RinkaShaft room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, starting <see cref="ColourEffectId.TourianGlowingArkanoidBlocksAndRedOrbs"/>, in the untinted look.</summary>
     public static RoomFxSelection RinkaShaft { get; } = new(nameof(RinkaShaft), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [ColourEffectId.TourianGlowingArkanoidBlocksAndRedOrbs], [], RoomEffectTint.None));
 
-    /// <summary>The MotherBrainSave room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, in the untinted look.</summary>
     public static RoomFxSelection MotherBrainSave { get; } = new(nameof(MotherBrainSave), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [], [], RoomEffectTint.None));
 
-    /// <summary>The TourianEscape1 room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, starting <see cref="ColourEffectId.TourianShutterRedFlashing"/>, <see cref="ColourEffectId.TourianBackgroundRedFlashing"/>, <see cref="ColourEffectId.TourianGeneralLevelRedFlashing"/> and <see cref="ColourEffectId.TourianRedFlashingArkanoidBlocksAndRedOrbs"/>, in the untinted look.</summary>
     public static RoomFxSelection TourianEscape1 { get; } = new(nameof(TourianEscape1), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [ColourEffectId.TourianShutterRedFlashing, ColourEffectId.TourianBackgroundRedFlashing, ColourEffectId.TourianGeneralLevelRedFlashing, ColourEffectId.TourianRedFlashingArkanoidBlocksAndRedOrbs], [], RoomEffectTint.None));
 
-    /// <summary>The TourianEscape2 room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, starting <see cref="ColourEffectId.TourianBackgroundRedFlashing"/>, <see cref="ColourEffectId.TourianGeneralLevelRedFlashing"/> and <see cref="ColourEffectId.TourianRedFlashingArkanoidBlocksAndRedOrbs"/>, in the untinted look.</summary>
     public static RoomFxSelection TourianEscape2 { get; } = new(nameof(TourianEscape2), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [ColourEffectId.TourianBackgroundRedFlashing, ColourEffectId.TourianGeneralLevelRedFlashing, ColourEffectId.TourianRedFlashingArkanoidBlocksAndRedOrbs], [], RoomEffectTint.None));
 
-    /// <summary>The TourianEscape3 room FX.</summary>
+    /// <summary>A selection whose rooms show no effect of their own, starting <see cref="ColourEffectId.TourianBackgroundRedFlashing"/>, <see cref="ColourEffectId.TourianGeneralLevelRedFlashing"/> and <see cref="ColourEffectId.TourianRedFlashingArkanoidBlocksAndRedOrbs"/>, in the untinted look.</summary>
     public static RoomFxSelection TourianEscape3 { get; } = new(nameof(TourianEscape3), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [ColourEffectId.TourianBackgroundRedFlashing, ColourEffectId.TourianGeneralLevelRedFlashing, ColourEffectId.TourianRedFlashingArkanoidBlocksAndRedOrbs], [], RoomEffectTint.None));
 
-    /// <summary>The TourianEscape4 room FX.</summary>
+    /// <summary>A selection whose rooms show acid, the liquid level starting at line 1504 and falling to line 16, starting <see cref="ColourEffectId.TourianBackgroundRedFlashing"/>, <see cref="ColourEffectId.TourianGeneralLevelRedFlashing"/> and <see cref="ColourEffectId.TourianRedFlashingArkanoidBlocksAndRedOrbs"/>, in the untinted look.</summary>
     public static RoomFxSelection TourianEscape4 { get; } = new(nameof(TourianEscape4), [],
         new(1504, 16, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 64, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.None), [ColourEffectId.TourianBackgroundRedFlashing, ColourEffectId.TourianGeneralLevelRedFlashing, ColourEffectId.TourianRedFlashingArkanoidBlocksAndRedOrbs], [], RoomEffectTint.None));
 
-    /// <summary>The UpperTourianSave room FX.</summary>
+    /// <summary>A selection whose rooms show no room effect, the overlay and the HUD keeping their own colours.</summary>
     public static RoomFxSelection UpperTourianSave { get; } = new(nameof(UpperTourianSave), [],
         null);
 
-    /// <summary>The CeresElevator room FX.</summary>
+    /// <summary>A selection whose rooms show the Ceres elevator shaft, in the untinted look.</summary>
     public static RoomFxSelection CeresElevator { get; } = new(nameof(CeresElevator), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.CeresElevator, RoomVisorAnimation.Steady, null, null, [], [], RoomEffectTint.None));
 
-    /// <summary>The FallingTileDefault room FX.</summary>
+    /// <summary>A selection whose rooms show no room effect, the overlay and the HUD keeping their own colours.</summary>
     public static RoomFxSelection FallingTileDefault { get; } = new(nameof(FallingTileDefault), [],
         null);
 
-    /// <summary>The MagnetStairsDefault room FX.</summary>
+    /// <summary>A selection whose rooms show no room effect, the overlay and the HUD keeping their own colours.</summary>
     public static RoomFxSelection MagnetStairsDefault { get; } = new(nameof(MagnetStairsDefault), [],
         null);
 
-    /// <summary>The DeadScientistDefault room FX.</summary>
+    /// <summary>A selection whose rooms show no room effect, the overlay and the HUD keeping their own colours.</summary>
     public static RoomFxSelection DeadScientistDefault { get; } = new(nameof(DeadScientistDefault), [],
         null);
 
-    /// <summary>The CeresRidleyHallwayDefault room FX.</summary>
+    /// <summary>A selection whose rooms show no room effect, the overlay and the HUD keeping their own colours.</summary>
     public static RoomFxSelection CeresRidleyHallwayDefault { get; } = new(nameof(CeresRidleyHallwayDefault), [],
         null);
 
-    /// <summary>The CeresRidleyDefault room FX.</summary>
+    /// <summary>A selection whose rooms show Ceres Ridley's turning floor, in the untinted look.</summary>
     public static RoomFxSelection CeresRidleyDefault { get; } = new(nameof(CeresRidleyDefault), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.CeresRidley, RoomVisorAnimation.Steady, null, null, [], [], RoomEffectTint.None));
 
-    /// <summary>The FallingTileWhenAreaBossDead room FX.</summary>
+    /// <summary>A selection whose rooms show no room effect, the overlay and the HUD keeping their own colours.</summary>
     public static RoomFxSelection FallingTileWhenAreaBossDead { get; } = new(nameof(FallingTileWhenAreaBossDead), [],
         null);
 
-    /// <summary>The MagnetStairsWhenAreaBossDead room FX.</summary>
+    /// <summary>A selection whose rooms show no room effect, the overlay and the HUD keeping their own colours.</summary>
     public static RoomFxSelection MagnetStairsWhenAreaBossDead { get; } = new(nameof(MagnetStairsWhenAreaBossDead), [],
         null);
 
-    /// <summary>The DeadScientistWhenAreaBossDead room FX.</summary>
+    /// <summary>A selection whose rooms show no room effect, the overlay and the HUD keeping their own colours.</summary>
     public static RoomFxSelection DeadScientistWhenAreaBossDead { get; } = new(nameof(DeadScientistWhenAreaBossDead), [],
         null);
 
-    /// <summary>The CeresRidleyHallwayWhenAreaBossDead room FX.</summary>
+    /// <summary>A selection whose rooms show no room effect, the overlay and the HUD keeping their own colours.</summary>
     public static RoomFxSelection CeresRidleyHallwayWhenAreaBossDead { get; } = new(nameof(CeresRidleyHallwayWhenAreaBossDead), [],
         null);
 
-    /// <summary>The CeresRidleyWhenAreaBossDead room FX.</summary>
+    /// <summary>A selection whose rooms show no room effect, the overlay and the HUD keeping their own colours.</summary>
     public static RoomFxSelection CeresRidleyWhenAreaBossDead { get; } = new(nameof(CeresRidleyWhenAreaBossDead), [],
         null);
 
-    /// <summary>The MotherBrainWhenAreaBossDead room FX.</summary>
+    /// <summary>A selection whose rooms show no room effect, the overlay and the HUD keeping their own colours.</summary>
     public static RoomFxSelection MotherBrainWhenAreaBossDead { get; } = new(nameof(MotherBrainWhenAreaBossDead), [],
         null);
 
-    /// <summary>The MotherBrainAcidRises room effect, which Mother Brain's fight applies to her room after its default effect.</summary>
+    /// <summary>An effect Mother Brain's fight applies to her room after its default effect: acid, the liquid level starting at line 232 and rising to line 184, starting <see cref="ColourEffectId.TourianGlowingArkanoidBlocksAndRedOrbs"/>, in the <see cref="RoomEffectTint.Lava"/> tint.</summary>
     public static RoomEffectDefinition MotherBrainAcidRises { get; } = new(232, 184, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-16), 16, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.None), [ColourEffectId.TourianGlowingArkanoidBlocksAndRedOrbs], [], RoomEffectTint.Lava);
 
-    /// <summary>The MotherBrainAcidDrains room effect, which Mother Brain's fight applies to her room after its default effect.</summary>
+    /// <summary>An effect Mother Brain's fight applies to her room after its default effect: acid, the liquid level starting at line 184 and falling to line 232, starting <see cref="ColourEffectId.TourianGlowingArkanoidBlocksAndRedOrbs"/>, in the <see cref="RoomEffectTint.Lava"/> tint.</summary>
     public static RoomEffectDefinition MotherBrainAcidDrains { get; } = new(184, 232, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(48), 16, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.None), [ColourEffectId.TourianGlowingArkanoidBlocksAndRedOrbs], [], RoomEffectTint.Lava);
 }

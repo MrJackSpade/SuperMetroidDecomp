@@ -119,8 +119,7 @@ public sealed class DraygonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBo
     public HorizontalDirection Facing { get; internal set; }
 
     /// <summary>
-    /// Phase of the goop pass's vertical bob, in 256ths of a turn: zero when a pass starts and one unit further each
-    /// movement update, wrapping around the turn, which the bob depends on. The body's height is 384 plus the cosine
+    /// Phase of the goop pass's vertical bob: zero when a pass starts and one step further each movement update, wrapping around the turn, which the bob depends on. The body's height is 384 plus the cosine
     /// of this phase times 32.
     /// </summary>
     public RotationAngle GoopYOscillationAngle { get; internal set; }
@@ -145,13 +144,13 @@ public sealed class DraygonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBo
     public DraygonRegrabSpiralLift SpiralCenter { get; internal set; }
 
     /// <summary>
-    /// Draygon's position around the carry spiral, in 256ths of a turn: three quarters when a grab starts, advanced by
+    /// Draygon's position around the carry spiral: three quarters of a turn when a grab starts, advanced by
     /// the whole steps of <see cref="SpiralAngleDelta"/> each spiral frame and wrapping around the turn.
     /// </summary>
     public RotationAngle SpiralAngle { get; internal set; }
     /// <summary>
-    /// Angular step of the carry spiral per frame: eight steps when a grab starts, slowed by 1/256 of a step each
-    /// spiral frame before it is applied, so the orbit decelerates as the radius grows.
+    /// Angular step of the carry spiral per frame: eight steps when a grab starts, slowed by
+    /// <see cref="DraygonGrabDefinitions.SpiralTurnSlowing"/> each spiral frame before it is applied, so the orbit decelerates as the radius grows.
     /// </summary>
     public RotationAngle SpiralAngleDelta { get; internal set; }
 

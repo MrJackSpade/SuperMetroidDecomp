@@ -335,11 +335,11 @@ internal sealed class IntroNarrationActors
         arrow.Step();
     }
 
-    /// <summary>Points the existing caret sprite at its blinking animation and primes its timer.</summary>
+    /// <summary>Points the existing caret sprite at its blinking animation, whose first frame it shows on this update.</summary>
     internal void SetCaretBlinking()
     {
-        // The caret-blink cue starts the existing caret sprite's blinking animation and primes timer
-        // one, allowing the cinematic sprite's update to select the first frame now.
+        // The caret-blink cue starts the existing caret sprite's blinking animation, and the sprite's update that follows
+        // shows its first frame at once.
         caretSprite.Start(IntroNarrationAnimation.CaretBlinking);
     }
 

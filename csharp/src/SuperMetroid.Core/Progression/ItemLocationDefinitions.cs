@@ -3,8 +3,8 @@
 namespace SuperMetroid.Core.Progression;
 
 /// <summary>
-/// Every item location of the game's room populations, named for the first room-state population that places it and
-/// its item and, where two would share that name, its block. Regenerate with
+/// Every item location of the game's room populations, named for the room that places it, whichever of its states does,
+/// and its item and, where two would share that name, its block. Regenerate with
 /// tools/generate-room-object-population-definitions.ps1.
 /// </summary>
 [NumberedIdentities("Each item location named with its block is one distinct location of its population, told apart by where it stands; nothing indexes them.")]
@@ -28,11 +28,11 @@ public static class ItemLocationDefinitions
     /// <summary>The GauntletEnergyTankExposedEnergyTank item location.</summary>
     public static ItemLocation GauntletEnergyTankExposedEnergyTank { get; } = new(nameof(GauntletEnergyTankExposedEnergyTank));
 
-    /// <summary>The PitWithMorphBallAndMissilesExposedMissileTank item location.</summary>
-    public static ItemLocation PitWithMorphBallAndMissilesExposedMissileTank { get; } = new(nameof(PitWithMorphBallAndMissilesExposedMissileTank));
+    /// <summary>The PitExposedMissileTank item location.</summary>
+    public static ItemLocation PitExposedMissileTank { get; } = new(nameof(PitExposedMissileTank));
 
-    /// <summary>The BombTorizoDefaultOrWhenAreaTorizoDeadChozoBombs item location.</summary>
-    public static ItemLocation BombTorizoDefaultOrWhenAreaTorizoDeadChozoBombs { get; } = new(nameof(BombTorizoDefaultOrWhenAreaTorizoDeadChozoBombs));
+    /// <summary>The BombTorizoChozoBombs item location.</summary>
+    public static ItemLocation BombTorizoChozoBombs { get; } = new(nameof(BombTorizoChozoBombs));
 
     /// <summary>The TerminatorExposedEnergyTank item location.</summary>
     public static ItemLocation TerminatorExposedEnergyTank { get; } = new(nameof(TerminatorExposedEnergyTank));
@@ -46,8 +46,8 @@ public static class ItemLocationDefinitions
     /// <summary>The CrateriaSuperExposedSuperMissileTank item location.</summary>
     public static ItemLocation CrateriaSuperExposedSuperMissileTank { get; } = new(nameof(CrateriaSuperExposedSuperMissileTank));
 
-    /// <summary>The FinalMissileWhenZebesAwakeExposedMissileTank item location.</summary>
-    public static ItemLocation FinalMissileWhenZebesAwakeExposedMissileTank { get; } = new(nameof(FinalMissileWhenZebesAwakeExposedMissileTank));
+    /// <summary>The FinalMissileExposedMissileTank item location.</summary>
+    public static ItemLocation FinalMissileExposedMissileTank { get; } = new(nameof(FinalMissileExposedMissileTank));
 
     /// <summary>The GreenBrinstarMainShaftChozoPowerBombTank item location.</summary>
     public static ItemLocation GreenBrinstarMainShaftChozoPowerBombTank { get; } = new(nameof(GreenBrinstarMainShaftChozoPowerBombTank));
@@ -85,11 +85,11 @@ public static class ItemLocationDefinitions
     /// <summary>The GreenHillZoneExposedMissileTank item location.</summary>
     public static ItemLocation GreenHillZoneExposedMissileTank { get; } = new(nameof(GreenHillZoneExposedMissileTank));
 
-    /// <summary>The MorphBallDefaultExposedMorphBall item location.</summary>
-    public static ItemLocation MorphBallDefaultExposedMorphBall { get; } = new(nameof(MorphBallDefaultExposedMorphBall));
+    /// <summary>The MorphBallExposedMorphBall item location.</summary>
+    public static ItemLocation MorphBallExposedMorphBall { get; } = new(nameof(MorphBallExposedMorphBall));
 
-    /// <summary>The MorphBallWhenZebesAwakeExposedPowerBombTank item location.</summary>
-    public static ItemLocation MorphBallWhenZebesAwakeExposedPowerBombTank { get; } = new(nameof(MorphBallWhenZebesAwakeExposedPowerBombTank));
+    /// <summary>The MorphBallExposedPowerBombTank item location.</summary>
+    public static ItemLocation MorphBallExposedPowerBombTank { get; } = new(nameof(MorphBallExposedPowerBombTank));
 
     /// <summary>The BlueBrinstarEnergyTankExposedMissileTank item location.</summary>
     public static ItemLocation BlueBrinstarEnergyTankExposedMissileTank { get; } = new(nameof(BlueBrinstarEnergyTankExposedMissileTank));
@@ -235,26 +235,26 @@ public static class ItemLocationDefinitions
     /// <summary>The WreckedShipMainShaftExposedMissileTank item location.</summary>
     public static ItemLocation WreckedShipMainShaftExposedMissileTank { get; } = new(nameof(WreckedShipMainShaftExposedMissileTank));
 
-    /// <summary>The BowlingAlleyWhenAreaBossDeadChozoReserveTank item location.</summary>
-    public static ItemLocation BowlingAlleyWhenAreaBossDeadChozoReserveTank { get; } = new(nameof(BowlingAlleyWhenAreaBossDeadChozoReserveTank));
+    /// <summary>The BowlingAlleyChozoReserveTank item location.</summary>
+    public static ItemLocation BowlingAlleyChozoReserveTank { get; } = new(nameof(BowlingAlleyChozoReserveTank));
 
-    /// <summary>The BowlingAlleyWhenAreaBossDeadExposedMissileTank item location.</summary>
-    public static ItemLocation BowlingAlleyWhenAreaBossDeadExposedMissileTank { get; } = new(nameof(BowlingAlleyWhenAreaBossDeadExposedMissileTank));
+    /// <summary>The BowlingAlleyExposedMissileTank item location.</summary>
+    public static ItemLocation BowlingAlleyExposedMissileTank { get; } = new(nameof(BowlingAlleyExposedMissileTank));
 
-    /// <summary>The AssemblyLineWhenAreaBossDeadExposedMissileTank item location.</summary>
-    public static ItemLocation AssemblyLineWhenAreaBossDeadExposedMissileTank { get; } = new(nameof(AssemblyLineWhenAreaBossDeadExposedMissileTank));
+    /// <summary>The AssemblyLineExposedMissileTank item location.</summary>
+    public static ItemLocation AssemblyLineExposedMissileTank { get; } = new(nameof(AssemblyLineExposedMissileTank));
 
-    /// <summary>The WreckedShipEnergyTankWhenAreaBossDeadExposedEnergyTank item location.</summary>
-    public static ItemLocation WreckedShipEnergyTankWhenAreaBossDeadExposedEnergyTank { get; } = new(nameof(WreckedShipEnergyTankWhenAreaBossDeadExposedEnergyTank));
+    /// <summary>The WreckedShipEnergyTankExposedEnergyTank item location.</summary>
+    public static ItemLocation WreckedShipEnergyTankExposedEnergyTank { get; } = new(nameof(WreckedShipEnergyTankExposedEnergyTank));
 
-    /// <summary>The WreckedShipWestSuperWhenAreaBossDeadExposedSuperMissileTank item location.</summary>
-    public static ItemLocation WreckedShipWestSuperWhenAreaBossDeadExposedSuperMissileTank { get; } = new(nameof(WreckedShipWestSuperWhenAreaBossDeadExposedSuperMissileTank));
+    /// <summary>The WreckedShipWestSuperExposedSuperMissileTank item location.</summary>
+    public static ItemLocation WreckedShipWestSuperExposedSuperMissileTank { get; } = new(nameof(WreckedShipWestSuperExposedSuperMissileTank));
 
-    /// <summary>The WreckedShipEastSuperWhenAreaBossDeadExposedSuperMissileTank item location.</summary>
-    public static ItemLocation WreckedShipEastSuperWhenAreaBossDeadExposedSuperMissileTank { get; } = new(nameof(WreckedShipEastSuperWhenAreaBossDeadExposedSuperMissileTank));
+    /// <summary>The WreckedShipEastSuperExposedSuperMissileTank item location.</summary>
+    public static ItemLocation WreckedShipEastSuperExposedSuperMissileTank { get; } = new(nameof(WreckedShipEastSuperExposedSuperMissileTank));
 
-    /// <summary>The GravitySuitWhenAreaBossDeadChozoGravitySuit item location.</summary>
-    public static ItemLocation GravitySuitWhenAreaBossDeadChozoGravitySuit { get; } = new(nameof(GravitySuitWhenAreaBossDeadChozoGravitySuit));
+    /// <summary>The GravitySuitChozoGravitySuit item location.</summary>
+    public static ItemLocation GravitySuitChozoGravitySuit { get; } = new(nameof(GravitySuitChozoGravitySuit));
 
     /// <summary>The MainStreetExposedMissileTank item location.</summary>
     public static ItemLocation MainStreetExposedMissileTank { get; } = new(nameof(MainStreetExposedMissileTank));
@@ -319,13 +319,13 @@ public static class ItemLocationDefinitions
         WestOceanExposedMissileTankAt1x47,
         MoatExposedMissileTank,
         GauntletEnergyTankExposedEnergyTank,
-        PitWithMorphBallAndMissilesExposedMissileTank,
-        BombTorizoDefaultOrWhenAreaTorizoDeadChozoBombs,
+        PitExposedMissileTank,
+        BombTorizoChozoBombs,
         TerminatorExposedEnergyTank,
         GreenPiratesShaftExposedMissileTankAt13x27,
         GreenPiratesShaftExposedMissileTankAt2x27,
         CrateriaSuperExposedSuperMissileTank,
-        FinalMissileWhenZebesAwakeExposedMissileTank,
+        FinalMissileExposedMissileTank,
         GreenBrinstarMainShaftChozoPowerBombTank,
         SporeSpawnSuperChozoSuperMissileTank,
         EarlySupersExposedMissileTank,
@@ -338,8 +338,8 @@ public static class ItemLocationDefinitions
         BigPinkChozoChargeBeam,
         PinkBrinstarPowerBombsExposedPowerBombTank,
         GreenHillZoneExposedMissileTank,
-        MorphBallDefaultExposedMorphBall,
-        MorphBallWhenZebesAwakeExposedPowerBombTank,
+        MorphBallExposedMorphBall,
+        MorphBallExposedPowerBombTank,
         BlueBrinstarEnergyTankExposedMissileTank,
         BlueBrinstarEnergyTankShotBlockEnergyTank,
         EtecoonEnergyTankExposedEnergyTank,
@@ -388,13 +388,13 @@ public static class ItemLocationDefinitions
         ScrewAttackChozoScrewAttack,
         LowerNorfairFirefleaExposedEnergyTank,
         WreckedShipMainShaftExposedMissileTank,
-        BowlingAlleyWhenAreaBossDeadChozoReserveTank,
-        BowlingAlleyWhenAreaBossDeadExposedMissileTank,
-        AssemblyLineWhenAreaBossDeadExposedMissileTank,
-        WreckedShipEnergyTankWhenAreaBossDeadExposedEnergyTank,
-        WreckedShipWestSuperWhenAreaBossDeadExposedSuperMissileTank,
-        WreckedShipEastSuperWhenAreaBossDeadExposedSuperMissileTank,
-        GravitySuitWhenAreaBossDeadChozoGravitySuit,
+        BowlingAlleyChozoReserveTank,
+        BowlingAlleyExposedMissileTank,
+        AssemblyLineExposedMissileTank,
+        WreckedShipEnergyTankExposedEnergyTank,
+        WreckedShipWestSuperExposedSuperMissileTank,
+        WreckedShipEastSuperExposedSuperMissileTank,
+        GravitySuitChozoGravitySuit,
         MainStreetExposedMissileTank,
         MainStreetExposedSuperMissileTank,
         MamaTurtleExposedEnergyTank,

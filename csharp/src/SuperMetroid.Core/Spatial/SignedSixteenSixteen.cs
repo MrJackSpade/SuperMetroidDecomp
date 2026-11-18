@@ -30,6 +30,24 @@ public readonly record struct SignedSixteenSixteen : IComparable<SignedSixteenSi
     public static SignedSixteenSixteen FromTwoHundredFiftySixthsOfPixel(int twoHundredFiftySixths) =>
         new(checked(twoHundredFiftySixths * 256));
 
+    /// <summary>
+    /// A displacement of <paramref name="numerator"/> <paramref name="denominator"/>ths of a pixel (#2491), the denominator a
+    /// power of two from 1 through 65536 so the fraction is kept exactly: the precision the game's finest speeds are
+    /// authored in, such as a 512th or a 2048th of a pixel.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">The denominator is no power of two from 1 through 65536.</exception>
+    /// <exception cref="OverflowException">The displacement lies outside the type's range.</exception>
+    public static SignedSixteenSixteen FromPixelFraction(int numerator, int denominator)
+    {
+        int fractionsEach = FractionsPerPixel / Ensure.BetweenInclusive(1, FractionsPerPixel, denominator);
+        if (fractionsEach * denominator != FractionsPerPixel)
+            throw new ArgumentOutOfRangeException(nameof(denominator), denominator, "The denominator must be a power of two from 1 through 65536.");
+        return new(checked(numerator * fractionsEach));
+    }
+
+    /// <summary>The fractions of a pixel the displacement counts: 65536 to the pixel.</summary>
+    private const int FractionsPerPixel = 65536;
+
     /// <summary>The zero displacement.</summary>
     public static SignedSixteenSixteen Zero => default;
 

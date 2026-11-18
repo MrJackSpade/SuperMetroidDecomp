@@ -27,7 +27,7 @@ internal static class MotherBrainRainbowBeamPushDefinitions
     /// <summary>How much the leftward push slows on each update of Samus's fall from the beam.</summary>
     internal static readonly SignedEightEight FallingPushSlowing = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(2);
 
-    /// <summary>The gravity Samus's fall from the beam adds to her speed each update: 24 256ths of a pixel downward.</summary>
+    /// <summary>The gravity Samus's fall from the beam adds to her speed each update, downward.</summary>
     internal static readonly EightEightVector<RoomPixels> FallGravity = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 24);
 
     /// <summary>The arena's ceiling: the least whole Y the forced movement leaves Samus at.</summary>

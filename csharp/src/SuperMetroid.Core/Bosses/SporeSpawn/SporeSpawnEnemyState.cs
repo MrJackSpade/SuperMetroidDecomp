@@ -36,7 +36,7 @@ public sealed class SporeSpawnEnemyState
     /// </summary>
     public Position16<RoomPixels> MovementCenter { get; internal set; }
     /// <summary>
-    /// Sway phase in 256ths of a turn, starting at three quarters; X samples cosine and Y samples the doubled,
+    /// Sway phase, starting at three quarters of a turn; X samples cosine and Y samples the doubled,
     /// shifted phase. The phase wraps around the turn as it advances, which the sway depends on.
     /// </summary>
     public RotationAngle Angle { get; internal set; }
@@ -52,7 +52,7 @@ public sealed class SporeSpawnEnemyState
     /// <summary>One-hit guard for an open phase: once set, further hits neither reverse the sway nor close the head until the animation clears it.</summary>
     public bool Damaged { get; internal set; }
     /// <summary>
-    /// His death drift in 1/65536 pixels per update on each axis, set once as his death begins: one pixel per update
+    /// His death drift each update on each axis, set once as his death begins: one pixel per update
     /// shared between the axes along his bearing to the arena's centre, each axis signed toward it.
     /// </summary>
     public FixedVector<RoomPixels> DeathVelocity { get; internal set; }

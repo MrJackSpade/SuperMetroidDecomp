@@ -49,7 +49,7 @@ internal static class RoomFxDefinitionsAccess
                 SuffixesByPointer.Add(last, new RoomFxSelection($"$83:{last:X4}", [], null));
             }
         }
-        RoomFxSelection motherBrain = RoomFxDefinitions.MotherBrainDefaultOrWhenMotherBrainGlassDestroyed;
+        RoomFxSelection motherBrain = RoomFxDefinitions.MotherBrain;
         AddMotherBrainRecord(motherBrain, MotherBrainFxRecordPointers.Initial, RoomFxDefinitions.MotherBrainAcidRises);
         AddMotherBrainRecord(motherBrain, MotherBrainFxRecordPointers.FakeDeath, RoomFxDefinitions.MotherBrainAcidDrains);
 

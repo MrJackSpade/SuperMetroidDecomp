@@ -52,8 +52,8 @@ internal static class MotherBrainTurretDefinitions
     private static readonly SignedEightEight StraightBulletSpeed = SignedEightEight.FromParts(2, 192);
 
     /// <summary>
-    /// A diagonal bullet's speed along each axis: one and 242 256ths of a pixel an update, the straight speed's share of
-    /// each axis on a diagonal.
+    /// A diagonal bullet's speed along each axis: just under two pixels an update, the straight speed's share of each axis
+    /// on a diagonal.
     /// </summary>
     private static readonly SignedEightEight DiagonalBulletSpeed = SignedEightEight.FromParts(1, 242);
 

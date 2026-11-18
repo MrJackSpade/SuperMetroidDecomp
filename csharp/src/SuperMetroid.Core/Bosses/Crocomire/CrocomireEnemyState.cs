@@ -118,9 +118,11 @@ public sealed class CrocomireEnemyState : SuperMetroid.Core.Enemies.BossBodies.I
     public bool RumbleTowardExtreme { get; internal set; }
 
     /// <summary>
-    /// While the body sinks or rises: the vertical acceleration, in pixels an update an update (#2299). A sink grows it to
-    /// at most forty-eight 256ths of a pixel an update an update, from eight after the bridge's collapse or a melt and
-    /// otherwise from where the rise before it left it; a rise grows it from none to at most thirty-one.
+    /// While the body sinks or rises: the vertical acceleration (#2299). A sink grows it to at most
+    /// <see cref="CrocomireBridgeCollapseDefinitions.MaximumSinkAcceleration"/>, from
+    /// <see cref="CrocomireBridgeCollapseDefinitions.SinkStartingAcceleration"/> after the bridge's collapse or a melt and
+    /// otherwise from where the rise before it left it; a rise grows it from none to at most
+    /// <see cref="CrocomireBridgeCollapseDefinitions.MaximumRiseAcceleration"/>.
     /// </summary>
     public SignedSixteenSixteen VerticalAcceleration { get; internal set; }
 

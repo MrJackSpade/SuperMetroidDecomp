@@ -81,7 +81,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     public BabyMetroidCutsceneState Baby { get; }
 
     /// <summary>
-    /// The way the rainbow beam's cone points, in 256ths of a turn: the angle she aims it at Samus with, which the beam's
+    /// The way the rainbow beam's cone points: the angle she aims it at Samus with, which the beam's
     /// picture is drawn along.
     /// </summary>
     public RotationAngle RainbowBeamAngle => _movement.RainbowBeamAngle;

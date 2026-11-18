@@ -98,8 +98,8 @@ public sealed class SamusXrayState
     /// The angle from the beam's centre to each of its edges, with its fraction of a step: zero at admission, grown by
     /// <see cref="AngularWideningSpeed"/> on each widening update, and clamped to exactly
     /// <see cref="XrayScopeDefinitions.Cone.WidestHalfWidth"/> once it would reach a step beyond. The widening adds
-    /// carry the fraction into whole steps exactly as the game does; the widening step is a whole number of 256ths of a
-    /// step, so no finer fraction ever arises.
+    /// carry the fraction into whole steps exactly as the game does; the widening step is a whole number of the angle's
+    /// finest turns, so no finer fraction ever arises.
     /// </summary>
     public RotationAngle AngularHalfWidth { get; private set; }
 
@@ -307,8 +307,8 @@ public sealed class SamusXrayState
     }
 
     /// <summary>
-    /// Runs X-ray's own pose input, including the exact
-    /// standing/crouching turn bodies and the turn-end/timer-one completion gate.
+    /// Runs X-ray's own pose input, including the exact standing and crouching turns and their completion on the
+    /// update the turn's last frame has one update left to show.
     /// </summary>
     public void HandlePoseInput(
         SamusState samus,

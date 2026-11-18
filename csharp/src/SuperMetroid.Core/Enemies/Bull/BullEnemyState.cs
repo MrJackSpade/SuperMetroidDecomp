@@ -37,18 +37,21 @@ public sealed class BullEnemyState
     public SignedEightEight Acceleration { get; internal set; }
 
     /// <summary>
-    /// The change in <see cref="Acceleration"/> at each interval expiry, 24 256ths of a pixel an update while flying and
-    /// none once the flight cycle stops.
+    /// The change in <see cref="Acceleration"/> at each interval expiry, <see cref="BullMovementDefinitions.AccelerationStep"/>
+    /// while flying and none once the flight cycle stops.
     /// </summary>
     public SignedEightEight AccelerationDelta { get; internal set; }
 
     /// <summary>
-    /// The flight speed along the heading, in 256ths of a pixel an update: never below zero and never above 2880. A
-    /// flight starts from rest and speeds up by 24, 48, 72 ... each interval until it reaches the spawn's top speed, at
-    /// most 2815, so it passes that by at most one step, from 2520 to 2880. A braking flight slows by 24 less each interval
-    /// than it last sped up by, so its braking runs out before it comes to rest; a kick, six pixels an update slowing by a
-    /// pixel an interval at first, stops with its braking spent at 304, or, when the kick finds the Bull waiting with no
-    /// braking change, slows a whole pixel each interval to exactly zero.
+    /// The flight speed along the heading: never below zero and never above eleven and a quarter pixels an update. A
+    /// flight starts from rest and speeds up by one, two, three and more acceleration steps
+    /// (<see cref="BullMovementDefinitions.AccelerationStep"/>, three thirty-seconds of a pixel an update) each interval
+    /// until it reaches the spawn's top speed, just under eleven pixels an update at most, so it passes that by at most one
+    /// step, from nine and twenty-seven thirty-seconds to eleven and a quarter pixels an update. A braking flight slows by
+    /// one acceleration step less each interval than it last sped up by, so its braking runs out before it comes to rest; a
+    /// kick, six pixels an update slowing by a pixel an interval at first, stops with its braking spent at a pixel and three
+    /// sixteenths an update, or, when the kick finds the Bull waiting with no braking change, slows a whole pixel each
+    /// interval to exactly zero.
     /// </summary>
     public SignedEightEight Speed { get; internal set; }
 

@@ -20,10 +20,10 @@ public static class EndingMotionDefinitions
     /// <summary>The zoom at which the side-cloud and top-and-bottom-cloud escapes begin fading out: one and a half floor pixels per screen pixel.</summary>
     public static FloorZoom EscapeEndZoom { get; } = FloorZoom.FromTwoHundredFiftySixths(384);
 
-    /// <summary>The side-cloud escape's zoom change each update, in 256ths of a floor pixel per screen pixel.</summary>
+    /// <summary>The side-cloud escape's zoom change each update.</summary>
     public static FloorZoomStep SideCloudEscapeZoomStep { get; } = FloorZoomStep.FromTwoHundredFiftySixths(2);
 
-    /// <summary>The top-and-bottom-cloud escape's zoom change each update, in 256ths of a floor pixel per screen pixel.</summary>
+    /// <summary>The top-and-bottom-cloud escape's zoom change each update.</summary>
     public static FloorZoomStep TopAndBottomCloudEscapeZoomStep { get; } = FloorZoomStep.FromTwoHundredFiftySixths(3);
 
     /// <summary>The zoom enabling the side clouds' motion in the side-cloud escape.</summary>
@@ -71,26 +71,26 @@ public static class EndingMotionDefinitions
     /// <summary>How far the fly-to-camera turn toward the exit angle turns the floor on each of its updates, in steps.</summary>
     public const int PlanetExitTurnSteps = 2;
 
-    /// <summary>The fast emergence's zoom change each update, in 256ths of a floor pixel per screen pixel.</summary>
+    /// <summary>The fast emergence's zoom change each update.</summary>
     public static FloorZoomStep PlanetFastZoomStep { get; } = FloorZoomStep.FromTwoHundredFiftySixths(8);
 
-    /// <summary>The slow emergence's zoom change each update, in 256ths of a floor pixel per screen pixel.</summary>
+    /// <summary>The slow emergence's zoom change each update.</summary>
     public static FloorZoomStep PlanetSlowZoomStep { get; } = FloorZoomStep.FromTwoHundredFiftySixths(2);
 
-    /// <summary>The fly-to-camera phase's zoom change each update, in 256ths of a floor pixel per screen pixel.</summary>
+    /// <summary>The fly-to-camera phase's zoom change each update.</summary>
     public static FloorZoomStep PlanetFlyToCameraZoomStep { get; } = FloorZoomStep.FromTwoHundredFiftySixths(4);
 
     /// <summary>The fly-to-camera phase's initial horizontal velocity: half a pixel per update.</summary>
     public static SignedSixteenSixteen PlanetInitialVelocity => SignedSixteenSixteen.FromSixteenthsOfPixel(8);
 
-    /// <summary>The fly-to-camera phase's velocity decrease per update: 1/256 pixel per update squared.</summary>
+    /// <summary>The fly-to-camera phase's velocity decrease each update.</summary>
     public static SignedSixteenSixteen PlanetAcceleration => SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(1);
 
     /// <summary>The starfield's flyaway speed when the fast planet escape starts it: a quarter pixel an update to the right.</summary>
     public static SignedSixteenSixteen StarsFlyawayInitialVelocity => SignedSixteenSixteen.FromSixteenthsOfPixel(4);
 
-    /// <summary>The starfield's flyaway slowing each update, applied before it moves: 1/2048 of a pixel an update.</summary>
-    public static SignedSixteenSixteen StarsFlyawayDeceleration => SignedSixteenSixteen.FromParts(0, 32);
+    /// <summary>The starfield's flyaway slowing each update, applied before it moves.</summary>
+    public static SignedSixteenSixteen StarsFlyawayDeceleration => SignedSixteenSixteen.FromPixelFraction(1, 2048);
 
     /// <summary>The credits' vertical scroll per update: half a pixel.</summary>
     public static SignedSixteenSixteen CreditsScrollVelocity => SignedSixteenSixteen.FromSixteenthsOfPixel(8);

@@ -77,7 +77,7 @@ public sealed class TitleSequenceState : IFrontendScreen
     internal bool CopyrightRestored { get; private set; }
     /// <summary>The floor's pan position, whose whole pixels may lie left of zero.</summary>
     private FixedVector<FloorPixels> panPosition;
-    /// <summary>The floor's zoom in 256ths of a floor pixel per screen pixel, animated from the close-up scene to the floor's own size.</summary>
+    /// <summary>The floor's zoom, animated from the close-up scene to the floor's own size.</summary>
     internal FloorZoom Zoom { get; private set; }
     /// <summary>The title's screen brightness and the cadence of its fades; the skip's and the fade-in's step every update.</summary>
     private readonly ScreenFade fade = new(0);

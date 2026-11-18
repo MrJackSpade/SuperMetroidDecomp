@@ -9,8 +9,8 @@ namespace SuperMetroid.Core.Samus.Colours;
 
 /// <summary>
 /// Samus's named shade sequences (#2351, #2387), each a run of the shades it shows with the updates each shows for, played
-/// as an animation: the charge pulse shows its six shades one update each and starts again; a charged shot's flash shows
-/// the yellow glow for three updates; a Hyper Beam shot's glow shows the Hyper Beam's full-body glow from its last frame to
+/// as an animation: the charge pulse shows its six shades one update each and starts again; a charged shot's flash paints
+/// the yellow glow on each of three updates; a Hyper Beam shot's glow shows the Hyper Beam's full-body glow from its last frame to
 /// its first, two updates each; the Hyper Beam's colour cycle shows its ten beam colourings two updates each and starts
 /// again. The Crystal Flash pulses its body through ten shades ten updates each and turns its bubble through six five
 /// updates each. The drained Samus's rainbow walks the Hyper Beam's full-body glow, each shade held as long as the Baby's
@@ -21,7 +21,11 @@ namespace SuperMetroid.Core.Samus.Colours;
 /// </summary>
 internal static class SamusGlowAnimationDefinitions
 {
-    /// <summary>Every sequence's shades, each with the updates it shows for.</summary>
+    /// <summary>
+    /// Every sequence's shades, each with the updates it shows for. A charged shot's flash paints its yellow anew on each
+    /// of its three updates, over any colouring laid on the suit after it on the update before, so it is three beats of one
+    /// update rather than one beat of three.
+    /// </summary>
     internal static AnimationSegments<G, PictureShade, NoAnimationCue> Segments { get; } = new(
         new Dictionary<G, AnimationBeat<PictureShade, NoAnimationCue>[]>
     {
@@ -61,7 +65,10 @@ internal static class SamusGlowAnimationDefinitions
             Pulse(SamusChargeKind.PseudoScrew, S.Gravity, 2), Pulse(SamusChargeKind.PseudoScrew, S.Gravity, 3),
             Pulse(SamusChargeKind.PseudoScrew, S.Gravity, 4), Pulse(SamusChargeKind.PseudoScrew, S.Gravity, 5),
         ],
-        [G.ChargedShotFlash] = [Show(SamusShades.ChargedShotGlow, 3)],
+        [G.ChargedShotFlash] =
+        [
+            Show(SamusShades.ChargedShotGlow, 1), Show(SamusShades.ChargedShotGlow, 1), Show(SamusShades.ChargedShotGlow, 1),
+        ],
         [G.HyperShotGlow] =
         [
             Show(SamusShades.HyperShot(9), 2), Show(SamusShades.HyperShot(8), 2), Show(SamusShades.HyperShot(7), 2),

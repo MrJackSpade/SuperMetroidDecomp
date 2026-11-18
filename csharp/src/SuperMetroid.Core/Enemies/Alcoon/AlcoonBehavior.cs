@@ -144,10 +144,10 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         AlcoonEnemyState state,
         SamusState samus)
     {
-        if (CoordinateAxis.Distance(state.LandingPosition.Y, samus.Position.Y.Whole) >= AlcoonMotionDefinitions.EmergeYDistance)
+        if (Math.Abs(state.LandingPosition.Y - samus.Position.Y.Whole) >= AlcoonMotionDefinitions.EmergeYDistance)
             return;
 
-        int signedXDistance = CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole);
+        int signedXDistance = samus.Position.X.Whole - place.Position.X.Whole;
         if (Math.Abs(signedXDistance) >= AlcoonMotionDefinitions.EmergeXDistance)
             return;
 
@@ -197,7 +197,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        if (CoordinateAxis.Precedes(samus.Position.X.Whole, place.Position.X.Whole))
+        if (samus.Position.X.Whole < place.Position.X.Whole)
         {
             state.WalkingDirection = HorizontalDirection.Left;
             StartAlcoonAnimation(place, state, AlcoonSegment.WalkingLeft);
@@ -223,7 +223,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         // walking actor fall by the same amount before the remainder of main AI runs.
         _terrain.MoveEnemyVertically(level, place, AlcoonMotionDefinitions.FloorPress);
 
-        if (CoordinateAxis.Distance(state.SpawnPosition.X, place.Position.X.Whole) >= AlcoonMotionDefinitions.HideXDistance)
+        if (Math.Abs(state.SpawnPosition.X - place.Position.X.Whole) >= AlcoonMotionDefinitions.HideXDistance)
         {
             state.Action = AlcoonAction.HidingRising;
             state.VerticalVelocity = AlcoonMotionDefinitions.HideJumpVelocity;
@@ -239,7 +239,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.StepCounter != 0)
             return;
 
-        bool samusIsLeft = CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole) < 0;
+        bool samusIsLeft = samus.Position.X.Whole < place.Position.X.Whole;
         bool movingLeft = FacesLeft(state);
         if (samusIsLeft != movingLeft)
             return;
@@ -266,7 +266,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void RunAlcoonHidingFall(RoomEnemyPlace place, AlcoonEnemyState state)
     {
         AddAlcoonYVelocity(place, state);
-        if (CoordinateAxis.Difference(place.Position.Y.Whole, state.SpawnPosition.Y) < 0)
+        if (place.Position.Y.Whole < state.SpawnPosition.Y)
         {
             AccelerateAlcoonY(state);
             return;

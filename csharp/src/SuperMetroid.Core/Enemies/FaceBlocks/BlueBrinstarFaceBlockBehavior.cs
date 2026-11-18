@@ -86,12 +86,12 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
         if (state.Activated)
             return;
 
-        if (CoordinateAxis.Distance(samus.Position.Y.Whole, place.Position.Y.Whole) >=
+        if (Math.Abs(samus.Position.Y.Whole - place.Position.Y.Whole) >=
             place.SpawnSettings<FaceBlockSpawnSettings>().TriggerDistance)
             return;
 
         // How far Samus lies to the block's left or right.
-        int horizontalDelta = CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole);
+        int horizontalDelta = samus.Position.X.Whole - place.Position.X.Whole;
         if (Math.Abs(horizontalDelta) >= place.SpawnSettings<FaceBlockSpawnSettings>().TriggerDistance)
             return;
 

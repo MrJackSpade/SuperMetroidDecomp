@@ -176,7 +176,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Whether Samus lies within Boyon's authored horizontal reach, in pixel columns, of the enemy.</summary>
     private static bool IsBoyonSamusWithinHorizontalRange(RoomEnemyPlace place, SamusState samus)
     {
-        int distance = CoordinateAxis.Distance(samus.Position.X.Whole, place.Position.X.Whole);
+        int distance = Math.Abs(samus.Position.X.Whole - place.Position.X.Whole);
         return distance < place.SpawnSettings<BoyonSpawnSettings>().TriggerDistance;
     }
 

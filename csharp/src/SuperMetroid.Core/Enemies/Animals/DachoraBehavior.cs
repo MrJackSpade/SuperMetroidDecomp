@@ -444,9 +444,9 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             ? faster
             : throw new InvalidOperationException($"Dachora speed-up from {segment}, which has no faster run.");
 
-    /// <summary>Whether Samus lies less than <paramref name="distance"/> pixels from the Dachora on one axis, by <see cref="CoordinateAxis.Distance"/>.</summary>
+    /// <summary>Whether Samus lies less than <paramref name="distance"/> pixels from the Dachora on one axis.</summary>
     private static bool DachoraWithinAxis(int actor, int samus, int distance) =>
-        CoordinateAxis.Distance(actor, samus) < distance;
+        Math.Abs(actor - samus) < distance;
 
     /// <summary>Samus's current gravity per update, which the shinespark and fall accumulate.</summary>
     private static SignedSixteenSixteen SamusGravity(SamusState samus) => samus.Kinematics.YAcceleration.AsDisplacement();

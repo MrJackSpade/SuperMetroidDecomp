@@ -209,7 +209,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             }
 
-            bool samusBelow = CoordinateAxis.Difference(samus.Position.Y.Whole, place.Position.Y.Whole) >= 0;
+            bool samusBelow = samus.Position.Y.Whole >= place.Position.Y.Whole;
             bool movingDown = !state.Velocity.Y.IsNegative;
             if (samusBelow != movingDown)
                 state.Velocity = state.Velocity.ReversedY();
@@ -246,7 +246,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             }
 
             EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, place);
-            bool samusRight = CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole) >= 0;
+            bool samusRight = samus.Position.X.Whole >= place.Position.X.Whole;
             bool movingRight = !state.Velocity.X.IsNegative;
             if (samusRight != movingRight)
                 state.Velocity = state.Velocity.ReversedX();

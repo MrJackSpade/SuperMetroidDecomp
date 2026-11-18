@@ -644,19 +644,19 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         return state.ActionTimer == 0;
     }
 
-    /// <summary>Whether Samus lies less than <paramref name="distance"/> pixels from the Etecoon horizontally, by <see cref="CoordinateAxis.Distance"/>.</summary>
+    /// <summary>Whether Samus lies less than <paramref name="distance"/> pixels from the Etecoon horizontally.</summary>
     private static bool EtecoonIsWithinX(
         RoomEnemyPlace place,
         SamusState samus,
         int distance) =>
-        CoordinateAxis.Distance(place.Position.X.Whole, samus.Position.X.Whole) < distance;
+        Math.Abs(place.Position.X.Whole - samus.Position.X.Whole) < distance;
 
-    /// <summary>Whether Samus lies less than <paramref name="distance"/> pixels from the Etecoon vertically, by <see cref="CoordinateAxis.Distance"/>.</summary>
+    /// <summary>Whether Samus lies less than <paramref name="distance"/> pixels from the Etecoon vertically.</summary>
     private static bool EtecoonIsWithinY(
         RoomEnemyPlace place,
         SamusState samus,
         int distance) =>
-        CoordinateAxis.Distance(place.Position.Y.Whole, samus.Position.Y.Whole) < distance;
+        Math.Abs(place.Position.Y.Whole - samus.Position.Y.Whole) < distance;
 
     /// <summary>
     /// Whether the eight-way direction from the Etecoon to Samus points left: straight left, up-left or down-left.
@@ -667,8 +667,8 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyPlace place,
         SamusState samus)
     {
-        int deltaX = CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole);
-        int deltaY = CoordinateAxis.Difference(samus.Position.Y.Whole, place.Position.Y.Whole);
+        int deltaX = samus.Position.X.Whole - place.Position.X.Whole;
+        int deltaY = samus.Position.Y.Whole - place.Position.Y.Whole;
         bool straightAboveOrBelow = Math.Abs(deltaY) >= EtecoonRouteDefinitions.DirectionBand && Math.Abs(deltaX) < EtecoonRouteDefinitions.DirectionBand;
         return deltaX < 0 && !straightAboveOrBelow;
     }

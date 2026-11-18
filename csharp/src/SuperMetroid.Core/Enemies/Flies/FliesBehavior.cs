@@ -79,7 +79,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             state.CooldownUpdatesLeft--;
         }
-        else if (CoordinateAxis.Distance(place.Position.X.Whole, samus.Position.X.Whole) <
+        else if (Math.Abs(place.Position.X.Whole - samus.Position.X.Whole) <
             FlyMotionDefinitions.AttackHorizontalRange)
         {
             SetFlyToAttackSamus(place, state, samus);
@@ -102,8 +102,12 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
         FlyEnemyState state,
         SamusState samus)
     {
+        // A fly retreats one update longer than it dives, so each attack leaves it a step higher, and nothing stops it
+        // rising through the ceiling: one that has climbed above the room's top keeps a wrapped height and dives down
+        // the short way across the wrap to Samus. Across, a dive ends above Samus and a circle is a few pixels wide, so
+        // it never passes the room's left edge.
         TrigonometryAngle angle = EnemyMath.CalculateBearing(
-            new(CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, place.Position.Y.Whole))).ToMirroredTrigonometryAngle();
+            new(samus.Position.X.Whole - place.Position.X.Whole, CoordinateAxis.Difference(samus.Position.Y.Whole, place.Position.Y.Whole))).ToMirroredTrigonometryAngle();
         state.Velocity = DiveVelocity(angle);
         state.TargetY = samus.Position.Y.Whole;
         state.DiveUpdates = 0;

@@ -14,16 +14,23 @@ public sealed class InstalledRoomLevelStreams
     /// <summary>Each room's door blocks in each level its states use.</summary>
     private readonly Dictionary<RoomLevelUse, IReadOnlyList<RoomDoorBlock>> doorBlocks;
 
-    /// <summary>Copies a validated installation and requires exactly every room level.</summary>
+    /// <summary>
+    /// Copies a validated installation and requires exactly every room level, and the door blocks of exactly every room's use
+    /// of a level.
+    /// </summary>
     /// <param name="levels">The installed levels keyed by their room level.</param>
     /// <param name="requiredLevels">Every room level, each of which the installation must hold.</param>
     /// <param name="doorBlocks">
     /// Each room's door blocks in each level its states use, keyed by the room and the level; every block lies in the level's
     /// grid.
     /// </param>
-    /// <exception cref="InvalidDataException">A level is null, missing or unknown, or a door block lies outside its level's grid.</exception>
+    /// <param name="requiredUses">Every room's use of a level, whose door blocks the installation must hold.</param>
+    /// <exception cref="InvalidDataException">
+    /// A level is null, missing or unknown, a use's door blocks are missing or unknown, or a door block lies outside its level's
+    /// grid.
+    /// </exception>
     internal InstalledRoomLevelStreams(IReadOnlyDictionary<RoomLevelId, InstalledRoomLevel> levels, IEnumerable<RoomLevelId> requiredLevels,
-        IReadOnlyDictionary<RoomLevelUse, IReadOnlyList<RoomDoorBlock>> doorBlocks)
+        IReadOnlyDictionary<RoomLevelUse, IReadOnlyList<RoomDoorBlock>> doorBlocks, IEnumerable<RoomLevelUse> requiredUses)
     {
         Ensure.NotNull(levels);
         var required = Ensure.NotNull(requiredLevels).ToHashSet();
@@ -37,9 +44,14 @@ public sealed class InstalledRoomLevelStreams
         foreach (RoomLevelId level in required)
             if (!this.levels.ContainsKey(level))
                 throw new InvalidDataException($"Installed room levels lack required level {level}.");
+        var requiredDoorBlocks = Ensure.NotNull(requiredUses).ToHashSet();
         this.doorBlocks = new Dictionary<RoomLevelUse, IReadOnlyList<RoomDoorBlock>>(Ensure.NotNull(doorBlocks).Count);
         foreach ((RoomLevelUse use, IReadOnlyList<RoomDoorBlock> blocks) in doorBlocks)
         {
+            if (!requiredDoorBlocks.Contains(use))
+                throw new InvalidDataException($"Installed door blocks name level {use.Level} for {use.Room.Name}, whose states do not use it.");
+            if (blocks is null)
+                throw new InvalidDataException($"Installed door blocks of {use.Room.Name} in level {use.Level} are null.");
             Extent16<RoomBlocks> size = Get(use.Level).Size;
             foreach (RoomDoorBlock door in blocks)
                 if (!size.Contains(door.Block))
@@ -47,6 +59,9 @@ public sealed class InstalledRoomLevelStreams
                         $"{use.Room.Name}'s door block {door.Block} lies outside level {use.Level}'s {size.X}x{size.Y}-block grid.");
             this.doorBlocks.Add(use, blocks);
         }
+        foreach (RoomLevelUse use in requiredDoorBlocks)
+            if (!this.doorBlocks.ContainsKey(use))
+                throw new InvalidDataException($"Installed door blocks lack {use.Room.Name}'s level {use.Level}.");
     }
 
     /// <summary>Where <paramref name="room"/>'s door blocks in <paramref name="level"/> lead (#2090).</summary>

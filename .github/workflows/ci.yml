@@ -80,9 +80,15 @@ jobs:
       # that moves what they reference is caught at once (#1645 found SamusArtworkPresentationContractChecks stale).
       - name: Resource audit contract self-check
         run: dotnet run --project csharp/src/SuperMetroid.ResourceAudit -c Release --no-build -- --self-check
+      # The repository's own consumers, on every push: a new catalog operation that no contract or adapter covers fails
+      # here instead of in a later agent's manual run (#2435 found DoorBlocks unresolved since #2090).
+      - name: Audit static resource dependencies (no ROM or gameplay)
+        run: dotnet run --project csharp/src/SuperMetroid.ResourceAudit -c Release --no-build -- --root . --json out/resource-audit.json
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
           name: enemy-visual-program-audit
-          path: out/enemy-visual-program-audit.json
+          path: |
+            out/enemy-visual-program-audit.json
+            out/resource-audit.json
           if-no-files-found: warn

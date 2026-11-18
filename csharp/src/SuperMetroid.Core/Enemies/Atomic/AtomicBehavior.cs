@@ -40,12 +40,12 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // The Atomic moves towards Samus on each axis; being level with her counts as her being below or to the right, so
         // it moves down or right.
-        SignedSixteenSixteen vertical = CoordinateAxis.Difference(samus.Position.Y.Whole, place.Position.Y.Whole) < 0
+        SignedSixteenSixteen vertical = samus.Position.Y.Whole < place.Position.Y.Whole
             ? -state.Speed
             : state.Speed;
         place.Position = place.Position.WithY(place.Position.Y.MovedBy(vertical));
 
-        SignedSixteenSixteen horizontal = CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole) < 0
+        SignedSixteenSixteen horizontal = samus.Position.X.Whole < place.Position.X.Whole
             ? -state.Speed
             : state.Speed;
         place.Position = place.Position.WithX(place.Position.X.MovedBy(horizontal));

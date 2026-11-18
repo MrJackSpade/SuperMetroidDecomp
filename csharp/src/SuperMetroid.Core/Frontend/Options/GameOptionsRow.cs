@@ -15,24 +15,21 @@ public abstract record GameOptionsRow
     internal abstract GameOptionsPage Page { get; }
 
     /// <summary>A row of the primary page.</summary>
-    /// <param name="Row">The row.</param>
-    public sealed record OnPrimaryPage(GameOptionsPrimaryRow Row) : GameOptionsRow
+    public sealed record OnPrimaryPage() : GameOptionsRow
     {
         /// <inheritdoc/>
         internal override GameOptionsPage Page => GameOptionsPage.Primary;
     }
 
     /// <summary>A row of the controller page.</summary>
-    /// <param name="Row">The row.</param>
-    public sealed record OnControllerPage(GameOptionsControllerRow Row) : GameOptionsRow
+    public sealed record OnControllerPage() : GameOptionsRow
     {
         /// <inheritdoc/>
         internal override GameOptionsPage Page => GameOptionsPage.Controller;
     }
 
     /// <summary>A row of the special-settings page.</summary>
-    /// <param name="Row">The row.</param>
-    public sealed record OnSpecialPage(GameOptionsSpecialRow Row) : GameOptionsRow
+    public sealed record OnSpecialPage() : GameOptionsRow
     {
         /// <inheritdoc/>
         internal override GameOptionsPage Page => GameOptionsPage.Special;

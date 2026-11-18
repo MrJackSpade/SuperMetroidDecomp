@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
-using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core;
 
 namespace SuperMetroid.AssetExtraction.Frontend;

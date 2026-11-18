@@ -1203,17 +1203,17 @@ internal static class NativeEnemyFamilyStateImport
     /// <summary>
     /// Decodes a Wrecked Ship ghost's recorded flicker-table byte offset into its next flicker step. The steps are the
     /// table's entries after its first, two bytes each, so offset two is the first step; the terminator's offset and zero,
-    /// which the game writes when the flicker ends, are the position past the last step.
+    /// which the game writes when the flicker ends, are no step: the last has started (#2451).
     /// </summary>
     /// <param name="word">The recorded byte offset.</param>
-    private static int WreckedShipGhostFlickerStepOf(ushort word)
+    private static WreckedShipGhostFlickerStep? WreckedShipGhostFlickerStepOf(ushort word)
     {
-        int count = WreckedShipGhostAppearanceDefinitions.FlickerSteps.Count;
+        IReadOnlyList<WreckedShipGhostFlickerStep> steps = WreckedShipGhostFlickerStep.All;
         if (word == 0)
-            return count;
-        if (word % 2 != 0 || word / 2 - 1 > count)
+            return null;
+        if (word % 2 != 0 || word / 2 - 1 > steps.Count)
             throw new InvalidDataException($"Recorded Wrecked Ship ghost flicker offset {word} is not a flicker step.");
-        return word / 2 - 1;
+        return word / 2 - 1 == steps.Count ? null : steps[word / 2 - 1];
     }
 
     /// <summary>Decodes a recorded index word that the family's updates keep within 0 through <paramref name="maximum"/>.</summary>

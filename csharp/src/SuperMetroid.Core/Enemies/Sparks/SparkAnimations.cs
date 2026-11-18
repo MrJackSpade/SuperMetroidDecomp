@@ -38,10 +38,8 @@ internal static class SparkAnimations
         ],
         [P.FlickerOut] =
         [
-            Show(EnemyFrameId.SparkLargeCross, 1),
-            Show(EnemyFrameId.SparkLargeCross, 1),
-            Show(EnemyFrameId.SparkLargeSlant, 1),
-            Show(EnemyFrameId.SparkLargeSlant, 1),
+            Show(EnemyFrameId.SparkLargeCross, 2),
+            Show(EnemyFrameId.SparkLargeSlant, 2),
             Show(EnemyFrameId.SparkLargeCrossScattering, 1),
             Show(EnemyFrameId.Empty, 1),
             Show(EnemyFrameId.SparkLargeCrossScattering, 1),

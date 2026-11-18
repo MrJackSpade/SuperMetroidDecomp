@@ -65,119 +65,27 @@ internal static class WorkRobotAnimations
         [P.FacingLeftHitWallMovingForwards] =
         [
             Show(EnemyFrameId.WorkRobotWalkingLeftFarFootSettling, 11),
-            Cue(new WorkRobotCue.Signal(K.Footstep)),
-            Cue(new WorkRobotCue.Step(WorkRobotMoveStepDefinitions.LeftBackwardWatchingLedges)),
-            Show(EnemyFrameId.WorkRobotWalkingLeftFarFootLeanForward, 10),
-            Show(EnemyFrameId.WorkRobotWalkingLeftFarFootEasingForward, 10),
-            Show(EnemyFrameId.WorkRobotWalkingLeftFarFootUpright, 10),
-            Show(EnemyFrameId.WorkRobotWalkingLeftFarFootEasingUp, 10),
-            Show(EnemyFrameId.WorkRobotWalkingLeftFarFootLeanBack, 10),
-            Cue(new WorkRobotCue.Signal(K.Footstep)),
-            Cue(new WorkRobotCue.Step(WorkRobotMoveStepDefinitions.LeftBackwardWatchingLedges)),
-            Show(EnemyFrameId.WorkRobotWalkingLeftNearFootSettling, 10),
-            Cue(new WorkRobotCue.Step(WorkRobotMoveStepDefinitions.LeftBackwardWatchingLedges)),
-            Show(EnemyFrameId.WorkRobotWalkingLeftNearFootLeanForward, 10),
-            Show(EnemyFrameId.WorkRobotWalkingLeftNearFootEasingForward, 10),
-            Show(EnemyFrameId.WorkRobotWalkingLeftNearFootUpright, 10),
-            Show(EnemyFrameId.WorkRobotWalkingLeftNearFootEasingUp, 10),
-            Show(EnemyFrameId.WorkRobotWalkingLeftNearFootLeanBack, 10),
-            Cue(new WorkRobotCue.Step(WorkRobotMoveStepDefinitions.LeftBackwardWatchingLedges)),
-            Cue(new WorkRobotCue.Signal(K.Footstep)),
-            Show(EnemyFrameId.WorkRobotWalkingLeftFarFootSettling, 10),
-            Cue(new WorkRobotCue.Step(WorkRobotMoveStepDefinitions.LeftBackwardWatchingLedges)),
-            Show(EnemyFrameId.WorkRobotWalkingLeftFarFootLeanForward, 10),
-            Show(EnemyFrameId.WorkRobotWalkingLeftFarFootEasingForward, 10),
-            Show(EnemyFrameId.WorkRobotWalkingLeftFarFootUpright, 10),
-            Show(EnemyFrameId.WorkRobotWalkingLeftFarFootEasingUp, 10),
-            Show(EnemyFrameId.WorkRobotWalkingLeftFarFootLeanBack, 10),
-            Cue(new WorkRobotCue.Signal(K.Footstep)),
-            Cue(new WorkRobotCue.Step(WorkRobotMoveStepDefinitions.LeftBackwardWatchingLedges)),
-            Show(EnemyFrameId.WorkRobotWalkingLeftNearFootSettling, 10),
-            Cue(new WorkRobotCue.Step(WorkRobotMoveStepDefinitions.LeftBackwardWatchingLedges)),
-            Show(EnemyFrameId.WorkRobotWalkingLeftNearFootLeanForward, 10),
-            Show(EnemyFrameId.WorkRobotWalkingLeftNearFootEasingForward, 10),
-            Show(EnemyFrameId.WorkRobotWalkingLeftNearFootUpright, 10),
-            Show(EnemyFrameId.WorkRobotWalkingLeftNearFootEasingUp, 10),
-            Show(EnemyFrameId.WorkRobotWalkingLeftNearFootLeanBack, 10),
+            Footstep,
+            Step(WorkRobotMoveStepDefinitions.LeftBackwardWatchingLedges),
+            .. StrideBack(WorkRobotFoot.LeftNear, WorkRobotFoot.LeftFar, 10, 10, WorkRobotMoveStepDefinitions.LeftBackwardWatchingLedges),
+            .. SteppingOntoFoot(WorkRobotFoot.LeftFar, 10, WorkRobotMoveStepDefinitions.LeftBackwardWatchingLedges),
+            .. StrideBack(WorkRobotFoot.LeftNear, WorkRobotFoot.LeftFar, 10, 10, WorkRobotMoveStepDefinitions.LeftBackwardWatchingLedges),
         ],
         [P.FacingLeftShotSamusAhead] =
         [
             Show(EnemyFrameId.WorkRobotWalkingLeftFarFootSettling, 5),
-            Cue(new WorkRobotCue.Signal(K.Footstep)),
-            Cue(new WorkRobotCue.Step(WorkRobotMoveStepDefinitions.LeftBackward)),
-            Show(EnemyFrameId.WorkRobotWalkingLeftFarFootLeanForward, 5),
-            Show(EnemyFrameId.WorkRobotWalkingLeftFarFootEasingForward, 5),
-            Show(EnemyFrameId.WorkRobotWalkingLeftFarFootUpright, 5),
-            Show(EnemyFrameId.WorkRobotWalkingLeftFarFootEasingUp, 5),
-            Show(EnemyFrameId.WorkRobotWalkingLeftFarFootLeanBack, 5),
-            Cue(new WorkRobotCue.Signal(K.Footstep)),
-            Cue(new WorkRobotCue.Step(WorkRobotMoveStepDefinitions.LeftBackward)),
-            Show(EnemyFrameId.WorkRobotWalkingLeftNearFootSettling, 5),
-            Cue(new WorkRobotCue.Step(WorkRobotMoveStepDefinitions.LeftBackward)),
-            Show(EnemyFrameId.WorkRobotWalkingLeftNearFootLeanForward, 5),
-            Show(EnemyFrameId.WorkRobotWalkingLeftNearFootEasingForward, 5),
-            Show(EnemyFrameId.WorkRobotWalkingLeftNearFootUpright, 5),
-            Show(EnemyFrameId.WorkRobotWalkingLeftNearFootEasingUp, 5),
-            Show(EnemyFrameId.WorkRobotWalkingLeftNearFootLeanBack, 5),
-            Cue(new WorkRobotCue.Step(WorkRobotMoveStepDefinitions.LeftBackward)),
-            Cue(new WorkRobotCue.Signal(K.Footstep)),
-            Show(EnemyFrameId.WorkRobotWalkingLeftFarFootSettling, 5),
-            Cue(new WorkRobotCue.Step(WorkRobotMoveStepDefinitions.LeftBackward)),
-            Show(EnemyFrameId.WorkRobotWalkingLeftFarFootLeanForward, 5),
-            Show(EnemyFrameId.WorkRobotWalkingLeftFarFootEasingForward, 5),
-            Show(EnemyFrameId.WorkRobotWalkingLeftFarFootUpright, 5),
-            Show(EnemyFrameId.WorkRobotWalkingLeftFarFootEasingUp, 5),
-            Show(EnemyFrameId.WorkRobotWalkingLeftFarFootLeanBack, 5),
-            Cue(new WorkRobotCue.Signal(K.Footstep)),
-            Cue(new WorkRobotCue.Step(WorkRobotMoveStepDefinitions.LeftBackward)),
-            Show(EnemyFrameId.WorkRobotWalkingLeftNearFootSettling, 5),
-            Cue(new WorkRobotCue.Step(WorkRobotMoveStepDefinitions.LeftBackward)),
-            Show(EnemyFrameId.WorkRobotWalkingLeftNearFootLeanForward, 5),
-            Show(EnemyFrameId.WorkRobotWalkingLeftNearFootEasingForward, 5),
-            Show(EnemyFrameId.WorkRobotWalkingLeftNearFootUpright, 5),
-            Show(EnemyFrameId.WorkRobotWalkingLeftNearFootEasingUp, 5),
-            Show(EnemyFrameId.WorkRobotWalkingLeftNearFootLeanBack, 5),
+            Footstep,
+            Step(WorkRobotMoveStepDefinitions.LeftBackward),
+            .. StrideBack(WorkRobotFoot.LeftNear, WorkRobotFoot.LeftFar, 5, 5, WorkRobotMoveStepDefinitions.LeftBackward),
+            .. SteppingOntoFoot(WorkRobotFoot.LeftFar, 5, WorkRobotMoveStepDefinitions.LeftBackward),
+            .. StrideBack(WorkRobotFoot.LeftNear, WorkRobotFoot.LeftFar, 5, 5, WorkRobotMoveStepDefinitions.LeftBackward),
         ],
         [P.FacingLeftShotSamusBehind] =
         [
-            Cue(new WorkRobotCue.Signal(K.Footstep)),
-            Cue(new WorkRobotCue.Step(WorkRobotMoveStepDefinitions.LeftForward)),
-            Show(EnemyFrameId.WorkRobotWalkingLeftNearFootEasingUp, 5),
-            Show(EnemyFrameId.WorkRobotWalkingLeftNearFootUpright, 5),
-            Show(EnemyFrameId.WorkRobotWalkingLeftNearFootEasingForward, 5),
-            Show(EnemyFrameId.WorkRobotWalkingLeftNearFootLeanForward, 5),
-            Cue(new WorkRobotCue.Signal(K.Footstep)),
-            Cue(new WorkRobotCue.Step(WorkRobotMoveStepDefinitions.LeftForward)),
-            Show(EnemyFrameId.WorkRobotWalkingLeftNearFootSettling, 5),
-            Cue(new WorkRobotCue.Step(WorkRobotMoveStepDefinitions.LeftForward)),
-            Show(EnemyFrameId.WorkRobotWalkingLeftFarFootLeanBack, 5),
-            Show(EnemyFrameId.WorkRobotWalkingLeftFarFootEasingUp, 5),
-            Show(EnemyFrameId.WorkRobotWalkingLeftFarFootUpright, 5),
-            Show(EnemyFrameId.WorkRobotWalkingLeftFarFootEasingForward, 5),
-            Show(EnemyFrameId.WorkRobotWalkingLeftFarFootLeanForward, 5),
-            Cue(new WorkRobotCue.Step(WorkRobotMoveStepDefinitions.LeftForward)),
-            Cue(new WorkRobotCue.Signal(K.Footstep)),
-            Show(EnemyFrameId.WorkRobotWalkingLeftFarFootSettling, 5),
-            Cue(new WorkRobotCue.Step(WorkRobotMoveStepDefinitions.LeftForward)),
-            Show(EnemyFrameId.WorkRobotWalkingLeftNearFootLeanBack, 5),
-            Show(EnemyFrameId.WorkRobotWalkingLeftNearFootEasingUp, 5),
-            Show(EnemyFrameId.WorkRobotWalkingLeftNearFootUpright, 5),
-            Show(EnemyFrameId.WorkRobotWalkingLeftNearFootEasingForward, 5),
-            Show(EnemyFrameId.WorkRobotWalkingLeftNearFootLeanForward, 5),
-            Cue(new WorkRobotCue.Signal(K.Footstep)),
-            Cue(new WorkRobotCue.Step(WorkRobotMoveStepDefinitions.LeftForward)),
-            Show(EnemyFrameId.WorkRobotWalkingLeftNearFootSettling, 5),
-            Cue(new WorkRobotCue.Step(WorkRobotMoveStepDefinitions.LeftForward)),
-            Show(EnemyFrameId.WorkRobotWalkingLeftFarFootLeanBack, 5),
-            Show(EnemyFrameId.WorkRobotWalkingLeftFarFootEasingUp, 5),
-            Show(EnemyFrameId.WorkRobotWalkingLeftFarFootUpright, 5),
-            Show(EnemyFrameId.WorkRobotWalkingLeftFarFootEasingForward, 5),
-            Show(EnemyFrameId.WorkRobotWalkingLeftFarFootLeanForward, 5),
-            Cue(new WorkRobotCue.Step(WorkRobotMoveStepDefinitions.LeftForward)),
-            Cue(new WorkRobotCue.Signal(K.Footstep)),
-            Show(EnemyFrameId.WorkRobotWalkingLeftFarFootSettling, 5),
-            Cue(new WorkRobotCue.Step(WorkRobotMoveStepDefinitions.LeftForward)),
-            Show(EnemyFrameId.WorkRobotWalkingLeftNearFootLeanBack, 5),
+            Footstep,
+            Step(WorkRobotMoveStepDefinitions.LeftForward),
+            .. StrideForward(WorkRobotFoot.LeftNear, WorkRobotFoot.LeftFar, 5, WorkRobotMoveStepDefinitions.LeftForward),
+            .. StrideForward(WorkRobotFoot.LeftNear, WorkRobotFoot.LeftFar, 5, WorkRobotMoveStepDefinitions.LeftForward),
         ],
         [P.FacingLeftShotLaserDownLeft] =
         [
@@ -261,120 +169,34 @@ internal static class WorkRobotAnimations
         [P.FacingRightHitWallMovingForwards] =
         [
             Show(EnemyFrameId.WorkRobotWalkingRightFarFootSettling, 11),
-            Cue(new WorkRobotCue.Signal(K.Footstep)),
-            Cue(new WorkRobotCue.Step(WorkRobotMoveStepDefinitions.RightBackwardWatchingLedges)),
-            Show(EnemyFrameId.WorkRobotWalkingRightFarFootLeanForward, 10),
-            Show(EnemyFrameId.WorkRobotWalkingRightFarFootEasingForward, 10),
-            Show(EnemyFrameId.WorkRobotWalkingRightFarFootUpright, 10),
-            Show(EnemyFrameId.WorkRobotWalkingRightFarFootEasingUp, 10),
-            Show(EnemyFrameId.WorkRobotWalkingRightFarFootLeanBack, 10),
-            Cue(new WorkRobotCue.Signal(K.Footstep)),
-            Cue(new WorkRobotCue.Step(WorkRobotMoveStepDefinitions.RightBackwardWatchingLedges)),
-            Show(EnemyFrameId.WorkRobotWalkingRightNearFootSettling, 10),
-            Cue(new WorkRobotCue.Step(WorkRobotMoveStepDefinitions.RightBackwardWatchingLedges)),
-            Show(EnemyFrameId.WorkRobotWalkingRightNearFootLeanForward, 10),
-            Show(EnemyFrameId.WorkRobotWalkingRightNearFootEasingForward, 10),
-            Show(EnemyFrameId.WorkRobotWalkingRightNearFootUpright, 10),
-            Show(EnemyFrameId.WorkRobotWalkingRightNearFootEasingUp, 10),
-            Show(EnemyFrameId.WorkRobotWalkingRightNearFootLeanBack, 10),
-            Cue(new WorkRobotCue.Signal(K.Footstep)),
-            Cue(new WorkRobotCue.Step(WorkRobotMoveStepDefinitions.RightBackwardWatchingLedges)),
-            Show(EnemyFrameId.WorkRobotWalkingRightFarFootSettling, 10),
-            Cue(new WorkRobotCue.Step(WorkRobotMoveStepDefinitions.RightBackwardWatchingLedges)),
-            Show(EnemyFrameId.WorkRobotWalkingRightFarFootLeanForward, 10),
-            Show(EnemyFrameId.WorkRobotWalkingRightFarFootEasingForward, 10),
-            Show(EnemyFrameId.WorkRobotWalkingRightFarFootUpright, 10),
-            Show(EnemyFrameId.WorkRobotWalkingRightFarFootEasingUp, 10),
-            Show(EnemyFrameId.WorkRobotWalkingRightFarFootLeanBack, 10),
-            Cue(new WorkRobotCue.Signal(K.Footstep)),
-            Cue(new WorkRobotCue.Step(WorkRobotMoveStepDefinitions.RightBackwardWatchingLedges)),
-            Show(EnemyFrameId.WorkRobotWalkingRightNearFootSettling, 10),
-            Cue(new WorkRobotCue.Step(WorkRobotMoveStepDefinitions.RightBackwardWatchingLedges)),
-            Show(EnemyFrameId.WorkRobotWalkingRightNearFootLeanForward, 10),
-            Show(EnemyFrameId.WorkRobotWalkingRightNearFootEasingForward, 10),
-            Show(EnemyFrameId.WorkRobotWalkingRightNearFootUpright, 10),
-            Show(EnemyFrameId.WorkRobotWalkingRightNearFootEasingUp, 10),
-            Show(EnemyFrameId.WorkRobotWalkingRightNearFootLeanBack, 10),
+            Footstep,
+            Step(WorkRobotMoveStepDefinitions.RightBackwardWatchingLedges),
+            .. StrideBack(WorkRobotFoot.RightNear, WorkRobotFoot.RightFar, 10, 10, WorkRobotMoveStepDefinitions.RightBackwardWatchingLedges),
+            .. FootLanding(WorkRobotFoot.RightFar, 10, WorkRobotMoveStepDefinitions.RightBackwardWatchingLedges),
+            .. StrideBack(WorkRobotFoot.RightNear, WorkRobotFoot.RightFar, 10, 10, WorkRobotMoveStepDefinitions.RightBackwardWatchingLedges),
         ],
         [P.FacingRightShotSamusAhead] =
         [
             Show(EnemyFrameId.WorkRobotWalkingRightFarFootSettling, 6),
-            Cue(new WorkRobotCue.Signal(K.Footstep)),
-            Cue(new WorkRobotCue.Step(WorkRobotMoveStepDefinitions.RightBackward)),
-            Show(EnemyFrameId.WorkRobotWalkingRightFarFootLeanForward, 5),
-            Show(EnemyFrameId.WorkRobotWalkingRightFarFootEasingForward, 5),
-            Show(EnemyFrameId.WorkRobotWalkingRightFarFootUpright, 5),
-            Show(EnemyFrameId.WorkRobotWalkingRightFarFootEasingUp, 5),
-            Show(EnemyFrameId.WorkRobotWalkingRightFarFootLeanBack, 5),
-            Cue(new WorkRobotCue.Signal(K.Footstep)),
-            Cue(new WorkRobotCue.Step(WorkRobotMoveStepDefinitions.RightBackward)),
-            Show(EnemyFrameId.WorkRobotWalkingRightNearFootSettling, 5),
-            Cue(new WorkRobotCue.Step(WorkRobotMoveStepDefinitions.RightBackward)),
-            Show(EnemyFrameId.WorkRobotWalkingRightNearFootLeanForward, 5),
-            Show(EnemyFrameId.WorkRobotWalkingRightNearFootEasingForward, 5),
-            Show(EnemyFrameId.WorkRobotWalkingRightNearFootUpright, 5),
-            Show(EnemyFrameId.WorkRobotWalkingRightNearFootEasingUp, 5),
-            Show(EnemyFrameId.WorkRobotWalkingRightNearFootLeanBack, 5),
-            Cue(new WorkRobotCue.Step(WorkRobotMoveStepDefinitions.RightBackward)),
-            Cue(new WorkRobotCue.Signal(K.Footstep)),
-            Show(EnemyFrameId.WorkRobotWalkingRightFarFootSettling, 5),
-            Cue(new WorkRobotCue.Step(WorkRobotMoveStepDefinitions.RightBackward)),
-            Show(EnemyFrameId.WorkRobotWalkingRightFarFootLeanForward, 5),
-            Show(EnemyFrameId.WorkRobotWalkingRightFarFootEasingForward, 5),
-            Show(EnemyFrameId.WorkRobotWalkingRightFarFootUpright, 5),
-            Show(EnemyFrameId.WorkRobotWalkingRightFarFootEasingUp, 5),
-            Show(EnemyFrameId.WorkRobotWalkingRightFarFootLeanBack, 5),
-            Cue(new WorkRobotCue.Signal(K.Footstep)),
-            Cue(new WorkRobotCue.Step(WorkRobotMoveStepDefinitions.RightBackward)),
-            Show(EnemyFrameId.WorkRobotWalkingRightNearFootSettling, 10),
-            Cue(new WorkRobotCue.Step(WorkRobotMoveStepDefinitions.RightBackward)),
-            Show(EnemyFrameId.WorkRobotWalkingRightNearFootLeanForward, 5),
-            Show(EnemyFrameId.WorkRobotWalkingRightNearFootEasingForward, 5),
-            Show(EnemyFrameId.WorkRobotWalkingRightNearFootUpright, 5),
-            Show(EnemyFrameId.WorkRobotWalkingRightNearFootEasingUp, 5),
-            Show(EnemyFrameId.WorkRobotWalkingRightNearFootLeanBack, 5),
+            Footstep,
+            Step(WorkRobotMoveStepDefinitions.RightBackward),
+            .. StrideBack(WorkRobotFoot.RightNear, WorkRobotFoot.RightFar, 5, 5, WorkRobotMoveStepDefinitions.RightBackward),
+            .. SteppingOntoFoot(WorkRobotFoot.RightFar, 5, WorkRobotMoveStepDefinitions.RightBackward),
+            .. StrideBack(WorkRobotFoot.RightNear, WorkRobotFoot.RightFar, 5, 10, WorkRobotMoveStepDefinitions.RightBackward),
         ],
         [P.FacingRightShotSamusBehind] =
         [
-            Cue(new WorkRobotCue.Step(WorkRobotMoveStepDefinitions.RightForward)),
-            Cue(new WorkRobotCue.Signal(K.Footstep)),
-            Show(EnemyFrameId.WorkRobotWalkingRightNearFootLeanBack, 5),
-            Show(EnemyFrameId.WorkRobotWalkingRightNearFootEasingUp, 5),
-            Show(EnemyFrameId.WorkRobotWalkingRightNearFootUpright, 5),
-            Show(EnemyFrameId.WorkRobotWalkingRightNearFootEasingForward, 5),
-            Show(EnemyFrameId.WorkRobotWalkingRightNearFootLeanForward, 5),
-            Cue(new WorkRobotCue.Signal(K.Footstep)),
-            Cue(new WorkRobotCue.Step(WorkRobotMoveStepDefinitions.RightForward)),
-            Show(EnemyFrameId.WorkRobotWalkingRightNearFootSettling, 5),
-            Cue(new WorkRobotCue.Step(WorkRobotMoveStepDefinitions.RightForward)),
-            Cue(new WorkRobotCue.Signal(K.Footstep)),
-            Show(EnemyFrameId.WorkRobotWalkingRightFarFootLeanBack, 5),
-            Show(EnemyFrameId.WorkRobotWalkingRightFarFootEasingUp, 5),
-            Show(EnemyFrameId.WorkRobotWalkingRightFarFootUpright, 5),
-            Show(EnemyFrameId.WorkRobotWalkingRightFarFootEasingForward, 5),
-            Show(EnemyFrameId.WorkRobotWalkingRightFarFootLeanForward, 5),
-            Cue(new WorkRobotCue.Step(WorkRobotMoveStepDefinitions.RightForward)),
-            Cue(new WorkRobotCue.Signal(K.Footstep)),
-            Show(EnemyFrameId.WorkRobotWalkingRightFarFootSettling, 5),
-            Cue(new WorkRobotCue.Step(WorkRobotMoveStepDefinitions.RightForward)),
-            Show(EnemyFrameId.WorkRobotWalkingRightNearFootLeanBack, 5),
-            Show(EnemyFrameId.WorkRobotWalkingRightNearFootEasingUp, 5),
-            Show(EnemyFrameId.WorkRobotWalkingRightNearFootUpright, 5),
-            Show(EnemyFrameId.WorkRobotWalkingRightNearFootEasingForward, 5),
-            Show(EnemyFrameId.WorkRobotWalkingRightNearFootLeanForward, 5),
-            Cue(new WorkRobotCue.Signal(K.Footstep)),
-            Cue(new WorkRobotCue.Step(WorkRobotMoveStepDefinitions.RightForward)),
-            Show(EnemyFrameId.WorkRobotWalkingRightNearFootSettling, 5),
-            Cue(new WorkRobotCue.Step(WorkRobotMoveStepDefinitions.RightForward)),
-            Show(EnemyFrameId.WorkRobotWalkingRightFarFootLeanBack, 5),
-            Show(EnemyFrameId.WorkRobotWalkingRightFarFootEasingUp, 5),
-            Show(EnemyFrameId.WorkRobotWalkingRightFarFootUpright, 5),
-            Show(EnemyFrameId.WorkRobotWalkingRightFarFootEasingForward, 5),
-            Show(EnemyFrameId.WorkRobotWalkingRightFarFootLeanForward, 5),
-            Cue(new WorkRobotCue.Step(WorkRobotMoveStepDefinitions.RightForward)),
-            Cue(new WorkRobotCue.Signal(K.Footstep)),
-            Show(EnemyFrameId.WorkRobotWalkingRightFarFootSettling, 5),
-            Cue(new WorkRobotCue.Step(WorkRobotMoveStepDefinitions.RightForward)),
+            Step(WorkRobotMoveStepDefinitions.RightForward),
+            Footstep,
+            .. Swing(WorkRobotFoot.RightNear, 5),
+            .. FootLanding(WorkRobotFoot.RightNear, 5, WorkRobotMoveStepDefinitions.RightForward),
+            Footstep,
+            .. Swing(WorkRobotFoot.RightFar, 5),
+            .. SteppingOntoFoot(WorkRobotFoot.RightFar, 5, WorkRobotMoveStepDefinitions.RightForward),
+            .. Swing(WorkRobotFoot.RightNear, 5),
+            .. FootLanding(WorkRobotFoot.RightNear, 5, WorkRobotMoveStepDefinitions.RightForward),
+            .. Swing(WorkRobotFoot.RightFar, 5),
+            .. SteppingOntoFoot(WorkRobotFoot.RightFar, 5, WorkRobotMoveStepDefinitions.RightForward),
         ],
         [P.FacingRightShotLaserDownRight] =
         [
@@ -461,6 +283,72 @@ internal static class WorkRobotAnimations
     /// </summary>
     private static Animation<P> Walk(IReadOnlyList<P> before, P first, P stride) =>
         Animation<P>.LeadingInto([.. before.Select(Segments.Whole), Segments.Whole(first)], [Segments.Whole(stride)]);
+
+    /// <summary>A footstep's sound.</summary>
+    private static AnimationBeat<EnemyFrameId, WorkRobotCue> Footstep => Cue(new WorkRobotCue.Signal(K.Footstep));
+
+    /// <summary>A walk step of <paramref name="move"/>.</summary>
+    private static AnimationBeat<EnemyFrameId, WorkRobotCue> Step(WorkRobotMoveStep move) => Cue(new WorkRobotCue.Step(move));
+
+    /// <summary><paramref name="foot"/> swinging forward, from leaning back to leaning forward, each pose for <paramref name="updates"/> updates (#2451).</summary>
+    private static AnimationBeat<EnemyFrameId, WorkRobotCue>[] Swing(WorkRobotFoot foot, int updates) =>
+    [
+        Show(foot.LeanBack, updates),
+        Show(foot.EasingUp, updates),
+        Show(foot.Upright, updates),
+        Show(foot.EasingForward, updates),
+        Show(foot.LeanForward, updates),
+    ];
+
+    /// <summary><paramref name="foot"/> swinging back, from leaning forward to leaning back, each pose for <paramref name="updates"/> updates (#2451).</summary>
+    private static AnimationBeat<EnemyFrameId, WorkRobotCue>[] SwingBack(WorkRobotFoot foot, int updates) =>
+    [
+        Show(foot.LeanForward, updates),
+        Show(foot.EasingForward, updates),
+        Show(foot.Upright, updates),
+        Show(foot.EasingUp, updates),
+        Show(foot.LeanBack, updates),
+    ];
+
+    /// <summary>
+    /// <paramref name="foot"/> landing (#2451): its footstep, a step of <paramref name="move"/>, the foot settling for
+    /// <paramref name="updates"/> updates, then another step.
+    /// </summary>
+    private static AnimationBeat<EnemyFrameId, WorkRobotCue>[] FootLanding(WorkRobotFoot foot, int updates, WorkRobotMoveStep move) =>
+        [Footstep, Step(move), Show(foot.Settling, updates), Step(move)];
+
+    /// <summary>
+    /// The robot stepping onto <paramref name="foot"/> (#2451): a step of <paramref name="move"/>, the foot's footstep, the
+    /// foot settling for <paramref name="updates"/> updates, then another step.
+    /// </summary>
+    private static AnimationBeat<EnemyFrameId, WorkRobotCue>[] SteppingOntoFoot(WorkRobotFoot foot, int updates, WorkRobotMoveStep move) =>
+        [Step(move), Footstep, Show(foot.Settling, updates), Step(move)];
+
+    /// <summary>
+    /// A stride back (#2451): <paramref name="far"/> swinging back, <paramref name="near"/> landing, settling for
+    /// <paramref name="nearSettlingUpdates"/> updates, and swinging back; each swinging pose shows for
+    /// <paramref name="updates"/> updates and each step is <paramref name="move"/>.
+    /// </summary>
+    private static AnimationBeat<EnemyFrameId, WorkRobotCue>[] StrideBack(
+        WorkRobotFoot near, WorkRobotFoot far, int updates, int nearSettlingUpdates, WorkRobotMoveStep move) =>
+        [.. SwingBack(far, updates), .. FootLanding(near, nearSettlingUpdates, move), .. SwingBack(near, updates)];
+
+    /// <summary>
+    /// A stride forward (#2451), from <paramref name="near"/> easing up to it leaning back again: the near foot swinging
+    /// forward and landing, then the robot stepping onto <paramref name="far"/> once it has swung; every pose shows for
+    /// <paramref name="updates"/> updates and each step is <paramref name="move"/>.
+    /// </summary>
+    private static AnimationBeat<EnemyFrameId, WorkRobotCue>[] StrideForward(WorkRobotFoot near, WorkRobotFoot far, int updates, WorkRobotMoveStep move) =>
+    [
+        Show(near.EasingUp, updates),
+        Show(near.Upright, updates),
+        Show(near.EasingForward, updates),
+        Show(near.LeanForward, updates),
+        .. FootLanding(near, updates, move),
+        .. Swing(far, updates),
+        .. SteppingOntoFoot(far, updates, move),
+        Show(near.LeanBack, updates),
+    ];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, WorkRobotCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, WorkRobotCue>.Frame(frame, duration);

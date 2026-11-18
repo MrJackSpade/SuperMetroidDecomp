@@ -2,26 +2,28 @@ using SuperMetroid.Core.Enemies.WreckedShip;
 namespace SuperMetroid.Verification.Enemies.WreckedShip;
 using SuperMetroid.Verification.Harness;
 
-/// <summary>Checks the Wrecked Ship ghost state the species owns: the range of its flicker step.</summary>
+/// <summary>Checks the Wrecked Ship ghost state the species owns: the order of its flicker's steps.</summary>
 internal static class WreckedShipGhostOwnedStateVerification
 {
     /// <summary>
-    /// Confirms a ghost's next flicker step reaches the position past the last step, which ends the flicker, and no further.
+    /// Confirms a ghost's flicker steps run from the first through each timing in order and end after the last (#2451),
+    /// and that a new ghost starts at the first step.
     /// </summary>
     internal static void VerifyWreckedShipGhostOwnedState()
     {
-        var state = new WreckedShipGhostEnemyState(WreckedShipGhostAction.InitialInvisibleDelay)
+        var state = new WreckedShipGhostEnemyState(WreckedShipGhostAction.InitialInvisibleDelay);
+        AssertEqual(WreckedShipGhostFlickerStep.First, state.NextFlickerStep, "a new ghost's next flicker step is the first");
+        IReadOnlyList<WreckedShipGhostFlickerTiming> timings = WreckedShipGhostAppearanceDefinitions.FlickerTimings;
+        WreckedShipGhostFlickerStep? step = WreckedShipGhostFlickerStep.First;
+        for (int position = 0; position < timings.Count; position++)
         {
-            Action = WreckedShipGhostAction.BobbingWhileVisible,
-            PhaseTimer = 120,
-            NextFlickerStep = WreckedShipGhostAppearanceDefinitions.FlickerSteps.Count,
-            BobbingOriginY = 96,
-        };
-        AssertThrows<ArgumentOutOfRangeException>(() => state.NextFlickerStep = WreckedShipGhostAppearanceDefinitions.FlickerSteps.Count + 1,
-            "the next flicker step rejects a position beyond the flicker's end");
-        AssertThrows<ArgumentOutOfRangeException>(() => state.NextFlickerStep = -1,
-            "the next flicker step rejects a position before the first step");
-        Console.WriteLine("Wrecked Ship ghost owned state: the next flicker step's range matches.");
+            WreckedShipGhostFlickerStep taken = step ?? throw new InvalidOperationException($"The ghost's flicker ended before its step {position}.");
+            AssertEqual(timings[position].Duration, taken.Duration, $"flicker step {position} lasts its timing's updates");
+            AssertEqual(timings[position].Visibility, taken.Visibility, $"flicker step {position} shows the ghost as its timing says");
+            step = taken.Next;
+        }
+        AssertEqual<WreckedShipGhostFlickerStep?>(null, step, "the ghost's flicker has no step after its last");
+        Console.WriteLine("Wrecked Ship ghost owned state: the flicker's steps run in order and end after the last.");
     }
 
     /// <summary>Runs the focused Wrecked Ship ghost owned-state check.</summary>

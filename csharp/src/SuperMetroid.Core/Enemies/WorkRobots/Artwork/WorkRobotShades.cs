@@ -9,9 +9,9 @@ namespace SuperMetroid.Core.Enemies.WorkRobots.Artwork;
 /// </summary>
 internal static class WorkRobotShades
 {
-    /// <summary>The effect name of the powered robots' glow.</summary>
-    internal const string GlowEffect = "work-robot-glow";
-
-    /// <summary>The shade of glow place <paramref name="place"/>, keyed by its place among the glow's places (#2393).</summary>
-    internal static PictureShade Glow(WorkRobotGlowPlace place) => new(GlowEffect, WorkRobotGlowAnimations.ShadeStep(place));
+    /// <summary>
+    /// The shade of glow place <paramref name="place"/> (#2393), named by the place (#2451), as Kraid's shades are named by
+    /// his health band (#2297).
+    /// </summary>
+    internal static PictureShade Glow(WorkRobotGlowPlace place) => new($"work-robot-glow-{place}", 0);
 }

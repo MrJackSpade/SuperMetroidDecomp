@@ -19,43 +19,13 @@ internal static class NinjaSpacePirateAnimations
         [P.ClawAttackLeft] =
         [
             Cue(new NinjaSpacePirateCue.Begin(NinjaSpacePirateAction.StandingStill)),
-            Show(EnemyFrameId.NinjaPirateCrouchFacingLeft, 5),
-            Show(EnemyFrameId.NinjaPirateClawsReadyFacingLeft, 5),
-            Show(EnemyFrameId.NinjaPirateClawDrawnBackFacingLeft, 5),
-            Show(EnemyFrameId.NinjaPirateClawRaisedHighFacingLeft, 5),
-            Show(EnemyFrameId.NinjaPirateClawRaisedOverheadFacingLeft, 5),
-            Show(EnemyFrameId.NinjaPirateClawSwungForwardFacingLeft, 2),
-            Cue(new NinjaSpacePirateCue.ThrowClaw(Throw: HorizontalDirection.Left, Offset: new(-32, -8))),
-            Cue(new NinjaSpacePirateCue.PlaySound(Sound: NinjaSpacePirateSoundDefinitions.Attack)),
-            Show(EnemyFrameId.NinjaPirateClawsReadyFacingLeft, 2),
-            Show(EnemyFrameId.NinjaPirateClawsSweptDownFacingLeft, 2),
-            Show(EnemyFrameId.NinjaPirateUprightClawsLoweredFacingLeft, 2),
-            Show(EnemyFrameId.NinjaPirateCrouchFacingLeft, 5),
-            Show(EnemyFrameId.NinjaPirateClawsReadyFacingLeft, 5),
-            Show(EnemyFrameId.NinjaPirateClawDrawnBackFacingLeft, 5),
-            Show(EnemyFrameId.NinjaPirateClawRaisedHighFacingLeft, 5),
-            Show(EnemyFrameId.NinjaPirateClawRaisedOverheadFacingLeft, 5),
-            Show(EnemyFrameId.NinjaPirateClawSwungForwardFacingLeft, 2),
-            Cue(new NinjaSpacePirateCue.ThrowClaw(Throw: HorizontalDirection.Left, Offset: new(-16, 8))),
-            Cue(new NinjaSpacePirateCue.PlaySound(Sound: NinjaSpacePirateSoundDefinitions.Attack)),
-            Show(EnemyFrameId.NinjaPirateClawsReadyFacingLeft, 2),
-            Show(EnemyFrameId.NinjaPirateClawsSweptDownFacingLeft, 2),
-            Show(EnemyFrameId.NinjaPirateUprightClawsLoweredFacingLeft, 2),
+            .. ClawThrow(NinjaSpacePirateClawPoses.Left, new(-32, -8)),
+            .. ClawThrow(NinjaSpacePirateClawPoses.Left, new(-16, 8)),
         ],
         [P.SpinJumpLeft] =
         [
             Cue(new NinjaSpacePirateCue.Begin(NinjaSpacePirateAction.StandingStill)),
-            Show(EnemyFrameId.NinjaPirateCrouchFacingLeft, 5),
-            Show(EnemyFrameId.NinjaPirateClawsReadyFacingLeft, 5),
-            Show(EnemyFrameId.NinjaPirateClawDrawnBackFacingLeft, 5),
-            Show(EnemyFrameId.NinjaPirateClawRaisedHighFacingLeft, 5),
-            Show(EnemyFrameId.NinjaPirateClawRaisedOverheadFacingLeft, 5),
-            Show(EnemyFrameId.NinjaPirateClawSwungForwardFacingLeft, 2),
-            Cue(new NinjaSpacePirateCue.ThrowClaw(Throw: HorizontalDirection.Left, Offset: new(-32, -8))),
-            Cue(new NinjaSpacePirateCue.PlaySound(Sound: NinjaSpacePirateSoundDefinitions.Attack)),
-            Show(EnemyFrameId.NinjaPirateClawsReadyFacingLeft, 2),
-            Show(EnemyFrameId.NinjaPirateClawsSweptDownFacingLeft, 2),
-            Show(EnemyFrameId.NinjaPirateUprightClawsLoweredFacingLeft, 2),
+            .. ClawThrow(NinjaSpacePirateClawPoses.Left, new(-32, -8)),
             Cue(new NinjaSpacePirateCue.Signal(K.ResetSpeed)),
             Cue(new NinjaSpacePirateCue.Begin(NinjaSpacePirateAction.StandingStill)),
             Show(EnemyFrameId.NinjaPirateCrouchFacingLeft, 8),
@@ -110,7 +80,7 @@ internal static class NinjaSpacePirateAnimations
             Cue(new NinjaSpacePirateCue.SetShading(NinjaSpacePirateShades.GoldWallFlash)),
             Cue(new NinjaSpacePirateCue.BeginHeading(NinjaSpacePirateAction.DivekickDive, HorizontalDirection.Left)),
             Cue(new NinjaSpacePirateCue.PlaySound(Sound: NinjaSpacePirateSoundDefinitions.Attack)),
-            Show(EnemyFrameId.NinjaPirateDiveKickFacingLeft, 1),
+            Hold(EnemyFrameId.NinjaPirateDiveKickFacingLeft),
         ],
         [P.WalkToLeftPost] =
         [
@@ -168,43 +138,13 @@ internal static class NinjaSpacePirateAnimations
         [P.ClawAttackRight] =
         [
             Cue(new NinjaSpacePirateCue.Begin(NinjaSpacePirateAction.StandingStill)),
-            Show(EnemyFrameId.NinjaPirateCrouchFacingRight, 5),
-            Show(EnemyFrameId.NinjaPirateClawsReadyFacingRight, 5),
-            Show(EnemyFrameId.NinjaPirateClawDrawnBackFacingRight, 5),
-            Show(EnemyFrameId.NinjaPirateClawRaisedHighFacingRight, 5),
-            Show(EnemyFrameId.NinjaPirateClawRaisedOverheadFacingRight, 5),
-            Show(EnemyFrameId.NinjaPirateClawSwungForwardFacingRight, 2),
-            Cue(new NinjaSpacePirateCue.ThrowClaw(Throw: HorizontalDirection.Right, Offset: new(32, -8))),
-            Cue(new NinjaSpacePirateCue.PlaySound(Sound: NinjaSpacePirateSoundDefinitions.Attack)),
-            Show(EnemyFrameId.NinjaPirateClawsReadyFacingRight, 2),
-            Show(EnemyFrameId.NinjaPirateClawsSweptDownFacingRight, 2),
-            Show(EnemyFrameId.NinjaPirateUprightClawsLoweredFacingRight, 2),
-            Show(EnemyFrameId.NinjaPirateCrouchFacingRight, 5),
-            Show(EnemyFrameId.NinjaPirateClawsReadyFacingRight, 5),
-            Show(EnemyFrameId.NinjaPirateClawDrawnBackFacingRight, 5),
-            Show(EnemyFrameId.NinjaPirateClawRaisedHighFacingRight, 5),
-            Show(EnemyFrameId.NinjaPirateClawRaisedOverheadFacingRight, 5),
-            Show(EnemyFrameId.NinjaPirateClawSwungForwardFacingRight, 2),
-            Cue(new NinjaSpacePirateCue.ThrowClaw(Throw: HorizontalDirection.Right, Offset: new(16, 8))),
-            Show(EnemyFrameId.NinjaPirateClawsReadyFacingRight, 2),
-            Cue(new NinjaSpacePirateCue.PlaySound(Sound: NinjaSpacePirateSoundDefinitions.Attack)),
-            Show(EnemyFrameId.NinjaPirateClawsSweptDownFacingRight, 2),
-            Show(EnemyFrameId.NinjaPirateUprightClawsLoweredFacingRight, 2),
+            .. ClawThrow(NinjaSpacePirateClawPoses.Right, new(32, -8)),
+            .. ClawThrowSoundingLate(NinjaSpacePirateClawPoses.Right, new(16, 8)),
         ],
         [P.SpinJumpRight] =
         [
             Cue(new NinjaSpacePirateCue.Begin(NinjaSpacePirateAction.StandingStill)),
-            Show(EnemyFrameId.NinjaPirateCrouchFacingRight, 5),
-            Show(EnemyFrameId.NinjaPirateClawsReadyFacingRight, 5),
-            Show(EnemyFrameId.NinjaPirateClawDrawnBackFacingRight, 5),
-            Show(EnemyFrameId.NinjaPirateClawRaisedHighFacingRight, 5),
-            Show(EnemyFrameId.NinjaPirateClawRaisedOverheadFacingRight, 5),
-            Show(EnemyFrameId.NinjaPirateClawSwungForwardFacingRight, 2),
-            Cue(new NinjaSpacePirateCue.ThrowClaw(Throw: HorizontalDirection.Right, Offset: new(32, -8))),
-            Cue(new NinjaSpacePirateCue.PlaySound(Sound: NinjaSpacePirateSoundDefinitions.Attack)),
-            Show(EnemyFrameId.NinjaPirateClawsReadyFacingRight, 2),
-            Show(EnemyFrameId.NinjaPirateClawsSweptDownFacingRight, 2),
-            Show(EnemyFrameId.NinjaPirateUprightClawsLoweredFacingRight, 2),
+            .. ClawThrow(NinjaSpacePirateClawPoses.Right, new(32, -8)),
             Cue(new NinjaSpacePirateCue.Signal(K.ResetSpeed)),
             Cue(new NinjaSpacePirateCue.Begin(NinjaSpacePirateAction.StandingStill)),
             Show(EnemyFrameId.NinjaPirateCrouchFacingRight, 8),
@@ -259,7 +199,7 @@ internal static class NinjaSpacePirateAnimations
             Cue(new NinjaSpacePirateCue.SetShading(NinjaSpacePirateShades.GoldWallFlash)),
             Cue(new NinjaSpacePirateCue.BeginHeading(NinjaSpacePirateAction.DivekickDive, HorizontalDirection.Right)),
             Cue(new NinjaSpacePirateCue.PlaySound(Sound: NinjaSpacePirateSoundDefinitions.Attack)),
-            Show(EnemyFrameId.NinjaPirateDiveKickFacingRight, 1),
+            Hold(EnemyFrameId.NinjaPirateDiveKickFacingRight),
         ],
         [P.WalkToRightPost] =
         [
@@ -353,6 +293,48 @@ internal static class NinjaSpacePirateAnimations
     /// </summary>
     private static Animation<P> Active(IReadOnlyList<P> before, P entry, P stance) =>
         Animation<P>.LeadingInto([.. before.Select(Segments.Whole), Segments.Whole(entry)], [Segments.Whole(stance)]);
+
+    /// <summary>
+    /// A claw throw on <paramref name="poses"/> (#2451): the wind-up, the claw thrown from <paramref name="offset"/> the way the
+    /// pirate faces with the attack sound, and the follow-through.
+    /// </summary>
+    private static AnimationBeat<EnemyFrameId, NinjaSpacePirateCue>[] ClawThrow(NinjaSpacePirateClawPoses poses, Offset16<RoomPixels> offset) =>
+    [
+        .. ClawWindUp(poses),
+        Cue(new NinjaSpacePirateCue.ThrowClaw(Throw: poses.Facing, Offset: offset)),
+        Cue(new NinjaSpacePirateCue.PlaySound(Sound: NinjaSpacePirateSoundDefinitions.Attack)),
+        Show(poses.ClawsReady, 2),
+        Show(poses.ClawsSweptDown, 2),
+        Show(poses.UprightClawsLowered, 2),
+    ];
+
+    /// <summary>
+    /// A claw throw as <see cref="ClawThrow"/> plays it, but with the attack sound a pose later, after the follow-through's
+    /// first pose (#2451): the right-facing claw attack's second throw sounds so.
+    /// </summary>
+    private static AnimationBeat<EnemyFrameId, NinjaSpacePirateCue>[] ClawThrowSoundingLate(NinjaSpacePirateClawPoses poses, Offset16<RoomPixels> offset) =>
+    [
+        .. ClawWindUp(poses),
+        Cue(new NinjaSpacePirateCue.ThrowClaw(Throw: poses.Facing, Offset: offset)),
+        Show(poses.ClawsReady, 2),
+        Cue(new NinjaSpacePirateCue.PlaySound(Sound: NinjaSpacePirateSoundDefinitions.Attack)),
+        Show(poses.ClawsSweptDown, 2),
+        Show(poses.UprightClawsLowered, 2),
+    ];
+
+    /// <summary>A claw throw's wind-up on <paramref name="poses"/>: crouching, then raising the claw overhead and swinging it forward.</summary>
+    private static AnimationBeat<EnemyFrameId, NinjaSpacePirateCue>[] ClawWindUp(NinjaSpacePirateClawPoses poses) =>
+    [
+        Show(poses.Crouch, 5),
+        Show(poses.ClawsReady, 5),
+        Show(poses.ClawDrawnBack, 5),
+        Show(poses.ClawRaisedHigh, 5),
+        Show(poses.ClawRaisedOverhead, 5),
+        Show(poses.ClawSwungForward, 2),
+    ];
+
+    /// <summary>Shows <paramref name="frame"/> for good: a still picture rests on it until its owner plays another.</summary>
+    private static AnimationBeat<EnemyFrameId, NinjaSpacePirateCue> Hold(EnemyFrameId frame) => new AnimationBeat<EnemyFrameId, NinjaSpacePirateCue>.HeldFrame(frame);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, NinjaSpacePirateCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NinjaSpacePirateCue>.Frame(frame, duration);

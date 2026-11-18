@@ -11,4 +11,9 @@ internal static class WorkRobotGlowDefinitions
 
     /// <summary>The updates the glow shows each step between the ends of its run.</summary>
     internal const int PassingHold = 16;
+
+    /// <summary>
+    /// The updates a powered robot's setup leaves the glow on its last step's place before its first step shows (#2451).
+    /// </summary>
+    internal const int RestartHold = 1;
 }

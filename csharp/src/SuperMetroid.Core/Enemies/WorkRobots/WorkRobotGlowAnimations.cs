@@ -22,6 +22,10 @@ internal static class WorkRobotGlowAnimations
             Show(WorkRobotGlowPlace.NearFarEnd, WorkRobotGlowDefinitions.PassingHold),
             Show(WorkRobotGlowPlace.NearFirstEnd, WorkRobotGlowDefinitions.PassingHold),
         ],
+        [WorkRobotGlowSegment.Restarting] =
+        [
+            Show(WorkRobotGlowPlace.NearFirstEnd, WorkRobotGlowDefinitions.RestartHold),
+        ],
     });
 
     /// <summary>The places the glow's steps show, in the order it shows them, from its first step.</summary>
@@ -29,30 +33,18 @@ internal static class WorkRobotGlowAnimations
         [.. Segments.Beats(WorkRobotGlowSegment.Glowing).Select(beat => beat.ShownFrame ?? throw new InvalidOperationException("Every beat of the glow shows a place."))];
 
     /// <summary>
-    /// Each place the glow shows, once, in the order its cycle first shows them (#2393); a place's position here is its
-    /// installed shade's step.
+    /// Each place the glow shows, once, in the order its cycle first shows them (#2393): the import installs one shade for
+    /// each, named by the place (<see cref="Artwork.WorkRobotShades.Glow"/>).
     /// </summary>
     internal static IReadOnlyList<WorkRobotGlowPlace> Places { get; } = [.. Cycle.Distinct()];
 
     /// <summary>
-    /// The glow as a powered robot's setup starts it: its last step for the update the setup gives it, then its steps from
-    /// the first, over and over.
+    /// The glow as a powered robot's setup starts it (#2451): resting on its last step's place for the update the setup gives
+    /// it, then its steps from the first, over and over.
     /// </summary>
     internal static Animation<WorkRobotGlowSegment> Restarted { get; } = Animation<WorkRobotGlowSegment>.LeadingInto(
-        [new(WorkRobotGlowSegment.Glowing, Cycle.Count - 1, 1, 1)],
+        [Segments.Whole(WorkRobotGlowSegment.Restarting)],
         [Segments.Whole(WorkRobotGlowSegment.Glowing)]);
-
-    /// <summary>The position of <paramref name="place"/> in <see cref="Places"/>, from zero.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The glow shows no such place.</exception>
-    internal static int ShadeStep(WorkRobotGlowPlace place)
-    {
-        for (int step = 0; step < Places.Count; step++)
-        {
-            if (Places[step] == place)
-                return step;
-        }
-        throw new ArgumentOutOfRangeException(nameof(place), place, "The Work Robot glow shows no such place.");
-    }
 
     /// <summary>Shows <paramref name="place"/> for <paramref name="updates"/> updates.</summary>
     private static AnimationBeat<WorkRobotGlowPlace, NoAnimationCue> Show(WorkRobotGlowPlace place, int updates) =>

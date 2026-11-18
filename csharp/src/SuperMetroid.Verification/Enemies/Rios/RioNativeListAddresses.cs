@@ -18,6 +18,8 @@ internal static class RioNativeListAddresses
     [
         new NativeProgramEntry<RioSegment>(RioSegment.Idle, 0xbb4b),
         new NativeProgramEntry<RioSegment>(RioSegment.PostSwoopIdle, 0xbb53),
+        // The post-swoop list writes its tucked wingbeat out three times and then its hanging wingbeat twice (#2451).
+        new NativeProgramEntry<RioSegment>(RioSegment.HangingWingbeat, 0xbb6b),
         new NativeProgramEntry<RioSegment>(RioSegment.SwoopOpening, 0xbb7f),
         new NativeProgramEntry<RioSegment>(RioSegment.SwoopLoop, 0xbb97),
         new NativeProgramEntry<RioSegment>(RioSegment.SwoopCooldown, 0xbba3),

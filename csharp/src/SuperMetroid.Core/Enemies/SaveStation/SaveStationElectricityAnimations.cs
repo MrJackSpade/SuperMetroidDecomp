@@ -18,14 +18,14 @@ internal static class SaveStationElectricityAnimations
     {
         [P.Cycle] =
         [
-            Show(EnemyProjectileFrameId.SaveStationElectricityRaised32, 1),
-            Show(EnemyProjectileFrameId.SaveStationElectricityRaised24, 1),
-            Show(EnemyProjectileFrameId.SaveStationElectricityRaised16, 1),
-            Show(EnemyProjectileFrameId.SaveStationElectricityRaised8, 1),
-            Show(EnemyProjectileFrameId.SaveStationElectricityLevel, 1),
-            Show(EnemyProjectileFrameId.SaveStationElectricityLowered8, 1),
-            Show(EnemyProjectileFrameId.SaveStationElectricityLowered16, 1),
-            Show(EnemyProjectileFrameId.SaveStationElectricityLowered24, 1),
+            Show(EnemyProjectileFrameId.SaveStationElectricitySweepBeginning, 1),
+            Show(EnemyProjectileFrameId.SaveStationElectricitySweepDescending, 1),
+            Show(EnemyProjectileFrameId.SaveStationElectricitySweepLowering, 1),
+            Show(EnemyProjectileFrameId.SaveStationElectricitySweepNearingHalfway, 1),
+            Show(EnemyProjectileFrameId.SaveStationElectricitySweepPassingHalfway, 1),
+            Show(EnemyProjectileFrameId.SaveStationElectricitySweepPastHalfway, 1),
+            Show(EnemyProjectileFrameId.SaveStationElectricitySweepNearingEnd, 1),
+            Show(EnemyProjectileFrameId.SaveStationElectricitySweepEnding, 1),
         ],
         [P.Deletion] =
         [

@@ -457,7 +457,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Turns Yard after landing only when its airborne facing points away from Samus.</summary>
-    private static bool MakeYardFaceSamusHorizontally(
+    private static void MakeYardFaceSamusHorizontally(
         RoomEnemyPlace place,
         YardEnemyState state,
         SamusState samus)
@@ -465,7 +465,8 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         bool shouldTurn = state.AirborneFacingDirection == HorizontalDirection.Right
             ? place.Position.X.Whole >= samus.Position.X.Whole
             : place.Position.X.Whole < samus.Position.X.Whole;
-        return shouldTurn && TurnYardAround(state);
+        if (shouldTurn)
+            TurnYardAround(state);
     }
 
     /// <summary>Reverses Yard's crawl direction and associated graphics, properties, and velocities unless it is hidden or holding still.</summary>

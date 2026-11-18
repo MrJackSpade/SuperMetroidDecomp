@@ -6,12 +6,19 @@ namespace SuperMetroid.Core.Enemies.Rios;
 /// </summary>
 internal enum RioSegment
 {
-    /// <summary>Hovering with its legs tucked as its wings beat, then letting its legs hang, repeating.</summary>
+    /// <summary>
+    /// Hovering: one wingbeat with its legs tucked, before the hover a swoop ends in, which the idle repeats (#2451).
+    /// </summary>
     Idle,
     /// <summary>
-    /// Hovering after a swoop with its legs tucked as its wings beat, then letting them hang, repeating.
+    /// Hovering after a swoop: a wingbeat with its legs tucked, which the hover plays three times before its legs hang
+    /// (#2451).
     /// </summary>
     PostSwoopIdle,
+    /// <summary>
+    /// The hover's wingbeat with its legs hanging, which it plays twice before the idle starts again (#2451).
+    /// </summary>
+    HangingWingbeat,
     /// <summary>The opening of the swoop, which holds its last pose until it finishes.</summary>
     SwoopOpening,
     /// <summary>The swoop's looping wing beat.</summary>

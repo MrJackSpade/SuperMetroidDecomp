@@ -1363,38 +1363,38 @@ public enum EnemyProjectileFrameId
     MiscDustWideRing,
     /// <summary>Misc dust: a wide, fading ring of fire.</summary>
     MiscDustWideRingFading,
-    /// <summary>Misc dust: four glowing pebbles 16 pixels apart.</summary>
-    MiscDustPebblesGlowing16,
-    /// <summary>Misc dust: four glowing pebbles 20 pixels apart.</summary>
-    MiscDustPebblesGlowing20,
-    /// <summary>Misc dust: four glowing pebbles 26 pixels apart.</summary>
-    MiscDustPebblesGlowing26,
-    /// <summary>Misc dust: four glowing pebbles 30 pixels apart.</summary>
-    MiscDustPebblesGlowing30,
-    /// <summary>Misc dust: four glowing pebbles 34 pixels apart.</summary>
-    MiscDustPebblesGlowing34,
-    /// <summary>Misc dust: four glowing pebbles 36 pixels apart.</summary>
-    MiscDustPebblesGlowing36,
-    /// <summary>Misc dust: four cooling pebbles 40 pixels apart.</summary>
-    MiscDustPebblesCooling40,
-    /// <summary>Misc dust: four cooling pebbles 44 pixels apart.</summary>
-    MiscDustPebblesCooling44,
-    /// <summary>Misc dust: four cooling pebbles 48 pixels apart.</summary>
-    MiscDustPebblesCooling48,
-    /// <summary>Misc dust: four cooling pebbles 52 pixels apart.</summary>
-    MiscDustPebblesCooling52,
-    /// <summary>Misc dust: four ashen pebbles 54 pixels apart.</summary>
-    MiscDustPebblesAshen54,
-    /// <summary>Misc dust: four ashen pebbles 56 pixels apart.</summary>
-    MiscDustPebblesAshen56,
-    /// <summary>Misc dust: four ashen pebbles 58 pixels apart.</summary>
-    MiscDustPebblesAshen58,
-    /// <summary>Misc dust: four ashen pebbles 60 pixels apart.</summary>
-    MiscDustPebblesAshen60,
-    /// <summary>Misc dust: four ashen pebbles 62 pixels apart.</summary>
-    MiscDustPebblesAshen62,
-    /// <summary>Misc dust: four ashen pebbles 64 pixels apart.</summary>
-    MiscDustPebblesAshen64,
+    /// <summary>Misc dust: four glowing pebbles bursting from the blast, close together.</summary>
+    MiscDustPebblesBursting,
+    /// <summary>Misc dust: four glowing pebbles flying out from the blast.</summary>
+    MiscDustPebblesFlyingOut,
+    /// <summary>Misc dust: four glowing pebbles flying apart, the upper pair climbing.</summary>
+    MiscDustPebblesFlyingApart,
+    /// <summary>Misc dust: four glowing pebbles climbing as they spread.</summary>
+    MiscDustPebblesClimbing,
+    /// <summary>Misc dust: four glowing pebbles slowing as they near their highest.</summary>
+    MiscDustPebblesSlowing,
+    /// <summary>Misc dust: four glowing pebbles at their highest.</summary>
+    MiscDustPebblesPeaking,
+    /// <summary>Misc dust: four cooling pebbles turning over to fall.</summary>
+    MiscDustPebblesTurningOver,
+    /// <summary>Misc dust: four cooling pebbles starting down.</summary>
+    MiscDustPebblesStartingDown,
+    /// <summary>Misc dust: four cooling pebbles dropping, darker.</summary>
+    MiscDustPebblesDropping,
+    /// <summary>Misc dust: four cooling pebbles falling as they spread.</summary>
+    MiscDustPebblesFalling,
+    /// <summary>Misc dust: four pebbles cooled to ash, falling on.</summary>
+    MiscDustPebblesTurningAshen,
+    /// <summary>Misc dust: four ashen pebbles tumbling down.</summary>
+    MiscDustPebblesTumbling,
+    /// <summary>Misc dust: four ashen pebbles plunging.</summary>
+    MiscDustPebblesPlunging,
+    /// <summary>Misc dust: four ashen pebbles plummeting.</summary>
+    MiscDustPebblesPlummeting,
+    /// <summary>Misc dust: four ashen pebbles scattering wide as they fall.</summary>
+    MiscDustPebblesScattering,
+    /// <summary>Misc dust: four ashen pebbles falling away at their widest.</summary>
+    MiscDustPebblesFallingAway,
     /// <summary>Misc dust: a small puff of dust up and to the left.</summary>
     MiscDustPuffUpLeft,
     /// <summary>Misc dust: a puff of dust and a smaller one.</summary>
@@ -1437,22 +1437,22 @@ public enum EnemyProjectileFrameId
     DownwardGateThreeBlocksTall,
     /// <summary>A downward gate: four blocks tall.</summary>
     DownwardGateFourBlocksTall,
-    /// <summary>A save station's electricity: a zigzag band 32 pixels up.</summary>
-    SaveStationElectricityRaised32,
-    /// <summary>A save station's electricity: a zigzag band 24 pixels up.</summary>
-    SaveStationElectricityRaised24,
-    /// <summary>A save station's electricity: a zigzag band 16 pixels up.</summary>
-    SaveStationElectricityRaised16,
-    /// <summary>A save station's electricity: a zigzag band 8 pixels up.</summary>
-    SaveStationElectricityRaised8,
-    /// <summary>A save station's electricity: a zigzag band level with its place.</summary>
-    SaveStationElectricityLevel,
-    /// <summary>A save station's electricity: a zigzag band 8 pixels down.</summary>
-    SaveStationElectricityLowered8,
-    /// <summary>A save station's electricity: a zigzag band 16 pixels down.</summary>
-    SaveStationElectricityLowered16,
-    /// <summary>A save station's electricity: a zigzag band 24 pixels down.</summary>
-    SaveStationElectricityLowered24,
+    /// <summary>A save station's electricity beginning its sweep down the station: its zigzag band's picture placed 32 pixels above its place.</summary>
+    SaveStationElectricitySweepBeginning,
+    /// <summary>A save station's electricity descending on its sweep: its zigzag band's picture placed 24 pixels above its place.</summary>
+    SaveStationElectricitySweepDescending,
+    /// <summary>A save station's electricity lowering on its sweep: its zigzag band's picture placed 16 pixels above its place.</summary>
+    SaveStationElectricitySweepLowering,
+    /// <summary>A save station's electricity nearing halfway down its sweep: its zigzag band's picture placed 8 pixels above its place.</summary>
+    SaveStationElectricitySweepNearingHalfway,
+    /// <summary>A save station's electricity passing halfway down its sweep: its zigzag band's picture level with its place.</summary>
+    SaveStationElectricitySweepPassingHalfway,
+    /// <summary>A save station's electricity past halfway down its sweep: its zigzag band's picture placed 8 pixels below its place.</summary>
+    SaveStationElectricitySweepPastHalfway,
+    /// <summary>A save station's electricity nearing the end of its sweep: its zigzag band's picture placed 16 pixels below its place.</summary>
+    SaveStationElectricitySweepNearingEnd,
+    /// <summary>A save station's electricity at the end of its sweep: its zigzag band's picture placed 24 pixels below its place.</summary>
+    SaveStationElectricitySweepEnding,
     /// <summary>A Botwoon body segment: facing up and left, its stripes rippled 0 degrees round their cycle.</summary>
     BotwoonBodyUpLeftRipple0,
     /// <summary>A Botwoon body segment: facing up and left, its stripes rippled 90 degrees round their cycle.</summary>

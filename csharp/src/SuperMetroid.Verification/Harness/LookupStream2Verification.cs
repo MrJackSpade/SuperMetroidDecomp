@@ -1300,7 +1300,7 @@ internal static class LookupStream2Verification
         // The flicker steps are the native interval table's words after its first, which no appearance starts (each starts
         // at the second word); the word after the last step is the table's terminator, the steps' end. A step at an odd
         // position shows the ghost.
-        IReadOnlyList<WreckedShipGhostFlickerStep> steps = WreckedShipGhostAppearanceDefinitions.FlickerSteps;
+        IReadOnlyList<WreckedShipGhostFlickerStep> steps = WreckedShipGhostFlickerStep.All;
         for (int position = 0; position <= steps.Count; position++)
         {
             int original = unchecked((short)ReadVerificationWord(rom, 0xa89acc + 2 * (position + 1)));
@@ -1317,23 +1317,23 @@ internal static class LookupStream2Verification
             place.Processing = EnemyProcessing.OffScreen;
             place.Presence = EnemyPresence.Hidden;
             state.PhaseTimer = 1;
-            state.NextFlickerStep = position;
+            state.NextFlickerStep = ended ? null : steps[position];
             flicker(place, state);
             AssertEqual(ended ? 0 : original, state.PhaseTimer, "Ghost actual next interval");
-            AssertEqual(ended ? steps.Count : position + 1, state.NextFlickerStep, "Ghost actual next step");
+            AssertEqual(ended || position + 1 == steps.Count ? null : steps[position + 1], state.NextFlickerStep, "Ghost actual next step");
             bool remainsInvisible = ended || position % 2 == 0;
             AssertEqual(EnemyContact.None, place.Contact, "Ghost actual visibility preserves unrelated contact");
             AssertEqual(EnemyProcessing.OffScreen, place.Processing, "Ghost actual visibility preserves unrelated processing");
             AssertEqual(remainsInvisible ? EnemyPresence.Hidden : EnemyPresence.None, place.Presence, "Ghost actual visibility");
         }
         state.PhaseTimer = 2;
-        state.NextFlickerStep = 0;
+        state.NextFlickerStep = WreckedShipGhostFlickerStep.First;
         place.Contact = EnemyContact.None;
         place.Processing = EnemyProcessing.None;
         place.Presence = EnemyPresence.Hidden;
         flicker(place, state);
         AssertEqual(1, state.PhaseTimer, "Ghost interval countdown");
-        AssertEqual(0, state.NextFlickerStep, "Ghost no early interval advance");
+        AssertEqual(WreckedShipGhostFlickerStep.First, state.NextFlickerStep, "Ghost no early interval advance");
         AssertEqual(EnemyContact.None, place.Contact, "Ghost no early contact change");
         AssertEqual(EnemyProcessing.None, place.Processing, "Ghost no early processing change");
         AssertEqual(EnemyPresence.Hidden, place.Presence, "Ghost no early visibility change");

@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Enemies.Chozo;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Enemies;

@@ -10,7 +10,6 @@ using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;

@@ -8,7 +8,6 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Samus.Abilities;
 namespace SuperMetroid.Verification.Samus.Abilities;
 
 using SuperMetroid.Verification.Harness;

@@ -48,13 +48,14 @@ internal static class CeresRidleyEyeFadeDefinitionsVerification
                     $"production Ceres eye-fade update {update} color {color}");
             }
         }
-        AssertTrue(state.EyeFade.IsComplete, "production Ceres eye fade completes after its shades and its hold");
+        AssertTrue(!state.EyeFade.IsResting, "production Ceres eye fade still holds through the schedule's last update");
 
         tick(state);
-        // Each fade keeps its own progress (#2228): the completed eye fade stays complete, and the body fade starts at black.
-        AssertTrue(state.EyeFade.IsComplete,
-            "production Ceres eye-fade completion keeps the fade complete");
-        AssertEqual(0, state.BodyFade.Shade, "production Ceres body fade starts from black");
+        // Each fade keeps its own progress (#2228, #2409): the eye fade rests on the update after its hold, and the body
+        // fade has shown nothing yet.
+        AssertTrue(state.EyeFade.IsResting,
+            "production Ceres eye fade rests on the terminator's update");
+        AssertEqual<RidleyFadeImage?>(null, state.BodyFade.Shown, "production Ceres body fade has not begun");
         AssertEqual(RidleyRevealPhase.FadeInBody, state.RevealPhase,
             "production Ceres eye-fade terminator enters body fade");
         AssertTrue(state.MovementAnimationEnabled,

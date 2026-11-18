@@ -116,8 +116,11 @@ internal static class RidleySheetShades
         };
         foreach (RidleyFadeImage eyes in RidleyFadeDefinitions.EyeFade.Images)
         {
+            // The cartridge stores the eye shades from his own eye colours to the darkest, the reverse of the order the
+            // fade shows them in, which is the order its images take (#2409).
+            int stored = CeresRidleyColorFormat.EyeFadeShadeCount - 1 - eyes.Step;
             shades.Add(SheetShade.Run(RidleyShades.Fade(eyes), OwnRow + EyeFirstColour,
-                Colours(CeresRidleyColorFormat.EyeFadeColorCount, colour => ceres.ResolveEyeFade(eyes.Step, colour))));
+                Colours(CeresRidleyColorFormat.EyeFadeColorCount, colour => ceres.ResolveEyeFade(stored, colour))));
         }
         foreach (RidleyFadeImage image in RidleyFadeDefinitions.BodyFade.Images)
         {

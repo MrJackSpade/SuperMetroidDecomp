@@ -12,8 +12,9 @@ internal interface IRidleyRevealEncounter<in TState> where TState : RidleyEncoun
     /// <summary>The updates Ridley waits once Samus's door has finished; on the last his eyes begin to fade in.</summary>
     int InitialDelayUpdates { get; }
 
-    /// <summary>The updates of the hold that starts with his roar, which <see cref="TakesOff"/> runs.</summary>
-    int RoarHoldUpdates { get; }
+    /// <summary>Begins the hold that starts with his roar, which <see cref="TakesOff"/> runs (#2409).</summary>
+    /// <param name="ridley">Ridley's encounter.</param>
+    void BeginRoarHold(TState ridley);
 
     /// <summary>Runs one update of the hold before Ridley's take-off, returning whether he takes off on it.</summary>
     /// <param name="place">Ridley's body.</param>

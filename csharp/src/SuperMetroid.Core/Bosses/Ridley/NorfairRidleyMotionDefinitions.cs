@@ -15,9 +15,6 @@ internal static class NorfairRidleyMotionDefinitions
     /// <summary>The least upward speed Ridley lifts a grabbed Samus with: two pixels an update.</summary>
     internal static readonly SignedEightEight GrabLiftMinimumSpeed = SignedEightEight.FromPixels(2);
 
-    /// <summary>The updates between the steps of his arena's reveal: a step every third update.</summary>
-    internal const int ArenaRevealStepUpdates = 3;
-
     /// <summary>The seek divisor of his entry into the arena.</summary>
     internal const int ArenaEntryDivisor = 2;
 

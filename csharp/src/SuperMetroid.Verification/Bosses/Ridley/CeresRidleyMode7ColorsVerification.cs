@@ -74,7 +74,7 @@ internal static class CeresRidleyMode7ColorsVerification
             "installed Mode-7 zoom cycle avoids source-color ROM reads");
         foreach (int unusualFloorPixels in new[] { 9, 255 })
         {
-            AssertThrows<InvalidOperationException>(() => select(FloorZoom.FromFloorPixelsPerScreenPixel(unusualFloorPixels)),
+            AssertThrows<ArgumentOutOfRangeException>(() => select(FloorZoom.FromFloorPixelsPerScreenPixel(unusualFloorPixels)),
                 $"non-catalogued zoom of {unusualFloorPixels} floor pixels per screen pixel fails without a cartridge fallback");
         }
 

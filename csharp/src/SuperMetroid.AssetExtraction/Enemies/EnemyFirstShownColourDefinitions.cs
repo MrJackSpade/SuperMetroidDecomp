@@ -48,21 +48,21 @@ internal static class EnemyFirstShownColourDefinitions
         [
             RidleyShades.CeresStart,
             RidleyShades.CeresHidden,
-            RidleyShades.Fade(RidleyFadeDefinitions.EyeFade.Images[0]),
+            RidleyShades.Fade(RidleyFadeDefinitions.EyeFade.Images[^1]),
             RidleyShades.Fade(RidleyFadeDefinitions.BodyFade.Images[^1]),
         ],
         [EnemyDefinitionId.Ridley] =
         [
             RidleyShades.NorfairStart,
             RidleyShades.NorfairHidden,
-            RidleyShades.Fade(RidleyFadeDefinitions.EyeFade.Images[0]),
+            RidleyShades.Fade(RidleyFadeDefinitions.EyeFade.Images[^1]),
             RidleyShades.Fade(RidleyFadeDefinitions.BodyFade.Images[^1]),
         ],
         [EnemyDefinitionId.RidleyBreakupPiece] =
         [
             RidleyShades.NorfairStart,
             RidleyShades.NorfairHidden,
-            RidleyShades.Fade(RidleyFadeDefinitions.EyeFade.Images[0]),
+            RidleyShades.Fade(RidleyFadeDefinitions.EyeFade.Images[^1]),
             RidleyShades.Fade(RidleyFadeDefinitions.BodyFade.Images[^1]),
         ],
         [EnemyDefinitionId.TourianStatue] = [TourianStatueShades.Entrance],

@@ -21,10 +21,6 @@ internal static class MotherBrainTurrets
         return Ring.At((Ring.PositionOf(direction) + step) % Ring.Members.Count);
     }
 
-    /// <summary>The way round opposite to <paramref name="turning"/>.</summary>
-    internal static RotationDirection Reversed(RotationDirection turning) =>
-        turning == RotationDirection.Counterclockwise ? RotationDirection.Clockwise : RotationDirection.Counterclockwise;
-
     /// <summary>Whether <paramref name="turret"/> may rotate to <paramref name="direction"/>: whether it lies in the turret's arc.</summary>
     internal static bool IsRotationAllowed(MotherBrainTurretDefinition turret, MotherBrainTurretDirection direction)
     {

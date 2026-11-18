@@ -35,7 +35,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     private static RotationAngle OppositeOrbitStep(RotationAngle angle) =>
         (angle + RotationAngle.HalfTurn).WholeStep;
 
-    /// <summary>Initializes the Shaktool, establishing the segment's orbit and owner-place offset.</summary>
+    /// <summary>Initializes the Shaktool, establishing the segment's orbit and its place in its chain.</summary>
     internal void InitializeShaktool(RoomEnemyPlace place)
     {
         ShaktoolSpawnSettings settings = place.SpawnSettings<ShaktoolSpawnSettings>();
@@ -43,11 +43,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new ShaktoolSegmentState();
         place.SetSpeciesState(state);
 
-        // The population entry names the chain's initial motion; the chain then writes its flags to every segment
-        // together.
-        state.MotionFlags = settings.Motion;
         place.AnimationClock.Restart();
-        state.TargetAngle = RotationAngle.Zero;
         state.ResetOrientation();
         place.Processing = place.Processing.With(definition.Processing);
         place.Contact = place.Contact.With(definition.Contact);
@@ -62,10 +58,8 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
                 $"Shaktool's chain starts in enemy place {place.Ordinal - definition.OwnerPlaceDistance}; its death deletes the first seven places, " +
                 "where both Shaktool room states place it.");
         }
-        // The chain's places hold its segments in chain order, leading saw first.
-        RoomEnemyPlace[] chainPlaces = [owner, .. _places.ListedRunAfter(owner, ShaktoolSegmentDefinitions.SegmentCount - 1)];
         _chains.Place(place, new ShaktoolChainPlaces(
-            Chain: [.. chainPlaces.Zip(ShaktoolSegmentDefinitions.Segments, (segment, definition) => new ShaktoolChainSegment(segment, definition))],
+            Chain: owner == place ? StartShaktoolChain(owner, settings.Motion) : JoinShaktoolChain(owner, settings.Motion),
             Previous: _places.ListedBeforeOrNone(place, 1),
             Next: _places.ListedAfterOrNone(place, 1)));
         state.Motion = definition.Motion;
@@ -82,6 +76,35 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         if (definition != ShaktoolSegmentDefinitions.LeadingSaw)
             PositionShaktoolAroundPreviousSegment(place, state);
     }
+
+    /// <summary>
+    /// Starts the chain <paramref name="leadingSaw"/> leads (#2452): its places hold its segments in chain order, leading
+    /// saw first, and the leading saw's placement names how the chain starts moving, with no target yet.
+    /// </summary>
+    private ShaktoolChain StartShaktoolChain(RoomEnemyPlace leadingSaw, ShaktoolChainMotion motion)
+    {
+        RoomEnemyPlace[] chainPlaces = [leadingSaw, .. _places.ListedRunAfter(leadingSaw, ShaktoolSegmentDefinitions.SegmentCount - 1)];
+        return new ShaktoolChain(
+            [.. chainPlaces.Zip(ShaktoolSegmentDefinitions.Segments, (segment, part) => new ShaktoolChainSegment(segment, part))],
+            motion);
+    }
+
+    /// <summary>
+    /// The chain led by <paramref name="leadingSaw"/>, which a later segment joins as it is placed (#2452). Every segment of
+    /// one chain is placed naming the same starting motion, since the chain moves as one.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The segment's placement names another starting motion than its leading saw's.</exception>
+    private ShaktoolChain JoinShaktoolChain(RoomEnemyPlace leadingSaw, ShaktoolChainMotion motion)
+    {
+        ShaktoolChain chain = _chains.Of(leadingSaw).Chain;
+        return chain.Motion == motion
+            ? chain
+            : throw new InvalidDataException(
+                $"A Shaktool segment is placed moving {motion}, but its chain's leading saw in enemy place {leadingSaw.Ordinal} moving {chain.Motion}.");
+    }
+
+    /// <summary>The chain a segment found when it was placed: its segments and their shared motion and target (#2452).</summary>
+    internal ShaktoolChain ChainOf(RoomEnemyPlace segment) => _chains.Of(segment).Chain;
 
     /// <summary>Runs Shaktool's hurt and main behaviours.</summary>
     private void RunShaktoolMain(
@@ -134,32 +157,22 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(ShaktoolOrbitDefinitions.OrbitSine.At(angle - TrigonometryAngle.QuarterTurn)));
 
     /// <summary>
-    /// Places the segment on its orbit and turns the orbit on, by the segment's own angular speed, or by the straightening
-    /// turn while the chain straightens, which also moves the target on.
+    /// Places the segment on its orbit and turns the orbit on its chain's way round, by the segment's own angular speed, or
+    /// by the straightening turn while the chain straightens.
     /// </summary>
     private void AdvanceShaktoolOrbit(RoomEnemyPlace place, ShaktoolSegmentState state)
     {
         PositionShaktoolAroundPreviousSegment(place, state);
-        ShaktoolMotionFlags flags = state.MotionFlags;
-        RotationAngle increment;
-        if ((flags & ShaktoolMotionFlags.Straightening) != ShaktoolMotionFlags.None)
-        {
-            state.TargetAngle += ShaktoolOrbitDefinitions.StraighteningTurn;
-            increment = ShaktoolOrbitDefinitions.StraighteningTurn;
-        }
-        else
-        {
-            increment = state.AngularVelocity;
-        }
-
-        state.OrbitAngle = (flags & ShaktoolMotionFlags.Clockwise) != ShaktoolMotionFlags.None
-            ? state.OrbitAngle - increment
-            : state.OrbitAngle + increment;
+        ShaktoolChainMotion motion = ChainOf(place).Motion;
+        RotationAngle increment = motion.Phase == ShaktoolChainPhase.Straightening ? ShaktoolOrbitDefinitions.StraighteningTurn : state.AngularVelocity;
+        state.OrbitAngle = motion.OrbitDirection == RotationDirection.Clockwise
+            ? state.OrbitAngle + increment
+            : state.OrbitAngle - increment;
     }
 
     /// <summary>
-    /// Orbits the chain's centre segment and turns it to face halfway between the segments either side of it, choosing the
-    /// head's picture for that facing, which its animation pass shows (#2284).
+    /// Orbits the chain's centre segment and turns it to face halfway between the segments either side of it, showing the
+    /// head's picture for that facing (#2284, #2452).
     /// </summary>
     internal void AdvanceAndOrientShaktoolCenter(
         RoomEnemyPlace place,
@@ -176,8 +189,10 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
             midpoint += RotationAngle.HalfTurn;
 
         state.Orientation = ShaktoolOrbitDefinitions.Orientations.At(midpoint);
-        state.AimedPicture = ShaktoolHeadPictures.Aiming(state.Orientation);
-        place.AnimationClock.StepOnNextUpdate();
+        // The head shows the picture its facing chooses in place of its animation, which takes no further step until a
+        // wall's head bob starts it again.
+        place.Frame = ShaktoolHeadPictures.Aiming(state.Orientation);
+        place.AnimationClock.Stop();
     }
 
     /// <summary>
@@ -216,73 +231,66 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         place.Position = place.Position.WithWhole(candidate);
-        ShaktoolMotionFlags flags = state.MotionFlags;
-        if ((flags & ShaktoolMotionFlags.Straightening) != ShaktoolMotionFlags.None)
-        {
-            // The straightening step deliberately adds a second step after the first increment.
-            state.TargetAngle += ShaktoolOrbitDefinitions.StraighteningTurn;
+        ShaktoolChain chain = ChainOf(place);
+        if (chain.Motion.Phase == ShaktoolChainPhase.Straightening)
             return;
-        }
 
-        if (state.TargetAngle.WholeStep == state.OrbitAngle.WholeStep)
+        if (chain.TargetAngle.WholeStep == state.OrbitAngle.WholeStep)
         {
-            SynchronizeShaktoolOrbitTargets(place, state.TargetAngle);
+            SynchronizeShaktoolOrbitTargets(place, chain.TargetAngle);
             // The game keeps only the whole part of the restarted progress, which is already whole.
             state.CurlProgress = ShaktoolOrbitDefinitions.StraighteningStart;
-            SetShaktoolGroupMotionFlags(
-                place,
-                state.MotionFlags & ~ShaktoolMotionFlags.ReversedOnce);
+            chain.Motion = chain.Motion with { NextWall = ShaktoolWallResponse.TurnEndForEnd };
         }
 
         // Accumulation stops once the chain straightens, at most one increment past the threshold.
         state.CurlProgress += state.AngularVelocity;
         if (state.CurlProgress >= ShaktoolOrbitDefinitions.StraighteningThreshold)
-        {
-            SetShaktoolGroupMotionFlags(
-                place,
-                state.MotionFlags | ShaktoolMotionFlags.Straightening);
-        }
+            chain.Motion = chain.Motion with { Phase = ShaktoolChainPhase.Straightening };
     }
 
-    /// <summary>Reverses chain direction at terrain contact, including the first-hit endpoint swap and synchronized flags.</summary>
+    /// <summary>
+    /// Reverses the chain at terrain contact as its next wall response says: it turns end for end, or its orbit turns the
+    /// other way round; either way it curls again and turns toward a new target.
+    /// </summary>
     internal void ReverseShaktoolAfterCollision(
         RoomEnemyPlace place,
         ShaktoolSegmentState state,
         Position16<RoomPixels> previous)
     {
-        ShaktoolMotionFlags flags = state.MotionFlags;
-        if ((flags & ShaktoolMotionFlags.ReversedOnce) != ShaktoolMotionFlags.None)
+        ShaktoolChain chain = ChainOf(place);
+        ShaktoolChainMotion motion = chain.Motion;
+        switch (motion.NextWall)
         {
-            SetShaktoolGroupMotionFlags(
-                place,
-                (flags ^ ShaktoolMotionFlags.Clockwise) &
-                ~(ShaktoolMotionFlags.ReversedOnce | ShaktoolMotionFlags.Straightening));
-        }
-        else
-        {
-            place.Position = place.Position.WithWhole(previous);
-            ReverseShaktoolChainEndpoints(place);
+            case ShaktoolWallResponse.ReverseOrbit:
+                chain.Motion = new(ShaktoolChainPhase.Curling, ShaktoolWallResponse.TurnEndForEnd, motion.OrbitDirection.Reversed());
+                break;
 
-            // The first hit marks the whole chain reversed once and no longer straightening (#2284).
-            SetShaktoolGroupMotionFlags(place, (flags | ShaktoolMotionFlags.ReversedOnce) & ~ShaktoolMotionFlags.Straightening);
+            case ShaktoolWallResponse.TurnEndForEnd:
+                place.Position = place.Position.WithWhole(previous);
+                ReverseShaktoolChainEndpoints(place);
+                // The chain curls again, and the next wall reverses its orbit (#2284).
+                chain.Motion = motion with { Phase = ShaktoolChainPhase.Curling, NextWall = ShaktoolWallResponse.ReverseOrbit };
+                break;
+
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(ShaktoolWallResponse)} {motion.NextWall}.");
         }
 
         state.ResetOrientation();
-        RoomEnemyPlace owner = OwnerPlace(place);
-        RotationAngle target = EnemyMath.CalculateBearing(
+        RoomEnemyPlace owner = chain.LeadingSaw;
+        RotationAngle bearing = EnemyMath.CalculateBearing(
             new(place.Position.X.Whole - owner.Position.X.Whole, place.Position.Y.Whole - owner.Position.Y.Whole)).ToMirroredTrigonometryAngle().ToAngle();
-        target = (state.MotionFlags & ShaktoolMotionFlags.Clockwise) != ShaktoolMotionFlags.None
-            ? target - RotationAngle.QuarterTurn
-            : target + RotationAngle.QuarterTurn;
-        SetShaktoolGroupTargetAngle(place, target);
+        chain.TargetAngle = chain.Motion.OrbitDirection == RotationDirection.Clockwise
+            ? bearing + RotationAngle.QuarterTurn
+            : bearing - RotationAngle.QuarterTurn;
 
         // From the trailing saw back to the leading one, each segment stops and plays its head bob.
         foreach (ShaktoolChainSegment segment in GetShaktoolGroup(place).Reverse())
         {
             ShaktoolSegmentState segmentState = RequireShaktoolState(segment.Place);
-            CalculateShaktoolAngularVelocity(segmentState);
+            CalculateShaktoolAngularVelocity(chain, segmentState);
             segmentState.Motion = ShaktoolSegmentMotion.Idle;
-            segmentState.AimedPicture = null;
             segmentState.Playback = new(ShaktoolAnimations.StartingWith(
                 segment.Definition.CollisionAnimation), AnimationPlace.StartOfAnimation);
             segment.Place.AnimationClock.StepOnNextUpdate();
@@ -332,14 +340,14 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Sets the speed the segment turns toward its target at: a sixty-fourth of the whole steps left to the target in the
-    /// orbit's direction, four 256ths of a step an update for each.
+    /// Sets the speed the segment turns toward its chain's target at: a sixty-fourth of the whole steps left to the target
+    /// its chain's way round, four 256ths of a step an update for each.
     /// </summary>
-    private static void CalculateShaktoolAngularVelocity(ShaktoolSegmentState state)
+    private static void CalculateShaktoolAngularVelocity(ShaktoolChain chain, ShaktoolSegmentState state)
     {
-        RotationAngle turnLeft = (state.MotionFlags & ShaktoolMotionFlags.Clockwise) != ShaktoolMotionFlags.None
-            ? state.OrbitAngle - state.TargetAngle
-            : state.TargetAngle - state.OrbitAngle;
+        RotationAngle turnLeft = chain.Motion.OrbitDirection == RotationDirection.Clockwise
+            ? chain.TargetAngle - state.OrbitAngle
+            : state.OrbitAngle - chain.TargetAngle;
         state.AngularVelocity = turnLeft.WholeStep.DividedBy(ShaktoolOrbitDefinitions.ConvergenceShares);
     }
 
@@ -354,30 +362,11 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Publishes a shared convergence target to all seven initialized segments.</summary>
-    private void SetShaktoolGroupTargetAngle(RoomEnemyPlace anySegment, RotationAngle target)
-    {
-        foreach (ShaktoolChainSegment segment in GetShaktoolGroup(anySegment))
-            RequireShaktoolState(segment.Place).TargetAngle = target;
-    }
-
-    /// <summary>Writes the motion flags to the entire chain.</summary>
-    private void SetShaktoolGroupMotionFlags(
-        RoomEnemyPlace anySegment,
-        ShaktoolMotionFlags flags)
-    {
-        foreach (ShaktoolChainSegment segment in GetShaktoolGroup(anySegment))
-            RequireShaktoolState(segment.Place).MotionFlags = flags;
-    }
-
-    /// <summary>The chain's leading saw, which the segment found when it was placed.</summary>
-    private RoomEnemyPlace OwnerPlace(RoomEnemyPlace segment) => _chains.Of(segment).Chain[0].Place;
-
     /// <summary>The seven segments of the chain a segment found when it was placed, each validated as initialized.</summary>
     private IReadOnlyList<ShaktoolChainSegment> GetShaktoolGroup(RoomEnemyPlace anySegment)
     {
         _ = RequireShaktoolState(anySegment);
-        IReadOnlyList<ShaktoolChainSegment> group = _chains.Of(anySegment).Chain;
+        IReadOnlyList<ShaktoolChainSegment> group = ChainOf(anySegment).Segments;
         foreach (ShaktoolChainSegment segment in group)
         {
             // The chain keeps moving through the rest of the update that kills a segment, reaching the killed segment's cleared state.
@@ -405,14 +394,14 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
             $"Enemy place {place.Ordinal} has no initialized Shaktool state.");
 
     /// <summary>Carries out one cue of a Shaktool segment's animation.</summary>
-    internal void ApplyShaktoolCue(RoomEnemyPlace place, ShaktoolSegmentState state, ShaktoolCue cue)
+    internal void ApplyShaktoolCue(RoomEnemyPlace place, ShaktoolCue cue)
     {
         switch (cue.Kind)
         {
             case ShaktoolCueKind.Lower:
             case ShaktoolCueKind.Raise:
             {
-                TrigonometryAngle targetDirection = state.TargetAngle.ToTrigonometryAngle();
+                TrigonometryAngle targetDirection = ChainOf(place).TargetAngle.ToTrigonometryAngle();
                 MoveShaktoolSegmentForAnimation(
                     place,
                     cue.Kind == ShaktoolCueKind.Lower
@@ -474,24 +463,20 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         RunShaktoolMain(place, RequireShaktoolState(place), frame.Level);
     }
 
-    /// <summary>Advances Shaktool's typed animation.</summary>
+    /// <summary>
+    /// Advances Shaktool's typed animation. The head's clock stays stopped while its chain orients it, so its animation
+    /// takes no step and the picture its facing chose stays shown.
+    /// </summary>
     internal void AdvanceShaktoolTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _)
     {
         if (!place.AnimationClock.Expire())
             return;
         var state = RequireShaktoolState(place);
-        if (state.AimedPicture is { } aimed)
-        {
-            // The head shows the picture its orientation chose for good, until the chain orients it again (#2284).
-            place.Frame = aimed;
-            place.AnimationClock.ShowForGood();
-            return;
-        }
         AnimationPlayback<ShaktoolSegment> playback = state.Playback;
         EnemyAnimationPlayback.Play(place, ShaktoolAnimations.Segments, ref playback,
             cue =>
             {
-                ApplyShaktoolCue(place, state, cue);
+                ApplyShaktoolCue(place, cue);
                 return null;
             });
         state.Playback = playback;

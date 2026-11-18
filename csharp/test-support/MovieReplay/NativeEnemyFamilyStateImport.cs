@@ -733,10 +733,14 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (enemy.DefinitionId == EnemyDefinitionId.Shaktool && enemies.ShaktoolSegments[index] is { } segment)
         {
-            segment.TargetAngle = RotationAngleConstants.FromRaw(words.A);
+            int segmentIndex = Array.IndexOf(ShaktoolSegmentDefinitions.Segments, enemy.SpawnSettings<ShaktoolSpawnSettings>().Segment);
+            // Every segment's record holds a copy of the chain's target; the leading saw's, which no straightening turns
+            // on, is the chain's (#2452).
+            if (segmentIndex == 0)
+                enemies.ShaktoolBehavior.ChainOf(enemy).TargetAngle = RotationAngleConstants.FromRaw(words.A);
             segment.OrbitAngle = RotationAngleConstants.FromRaw(words.B);
             segment.AngularVelocity = RotationAngleConstants.FromRaw(Index(words.C, 1020, "Shaktool angular velocity"));
-            ImportShaktoolOrientation(segment, Array.IndexOf(ShaktoolSegmentDefinitions.Segments, enemy.SpawnSettings<ShaktoolSpawnSettings>().Segment), words.D);
+            ImportShaktoolOrientation(segment, segmentIndex, words.D);
             // Every segment's owner is the chain's leading saw, the first enemy its room lists.
             if (SlotIndex(words.E, "Shaktool owner") != 0)
                 throw new InvalidDataException($"Recorded Shaktool owner ${words.E:X4} does not name the first enemy, where the chain's saw is placed.");

@@ -827,7 +827,7 @@ internal sealed class MotherBrainProjectiles
 
         // A turn out of the arc reverses the way round and immediately turns one direction the other way, with no
         // second arc test. Every turret's arc spans at least three directions, so the turn back stays inside it.
-        state.Turning = MotherBrainTurrets.Reversed(state.Turning);
+        state.Turning = state.Turning.Reversed();
         state.Direction = MotherBrainTurrets.Turned(state.Direction, state.Turning);
     }
 

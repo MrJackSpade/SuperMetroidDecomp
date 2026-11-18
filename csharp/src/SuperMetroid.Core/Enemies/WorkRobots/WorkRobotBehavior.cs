@@ -17,23 +17,21 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.WorkRobot, EnemyDefinitionId.UnpoweredWorkRobot];
 
     /// <summary>
-    /// A powered, a powerless or an unpowered work robot (#2146, #2179). The powered robot's definition has power only
-    /// once Phantoon is defeated, which no update within the room changes, so its power is decided once, here.
+    /// A powered or an unpowered work robot (#2146, #2179). The rooms place the powered robot's definition only in their
+    /// states once Phantoon is defeated, so it always has power (#2455).
     /// </summary>
     /// <exception cref="InvalidOperationException">The place holds no work robot definition.</exception>
     public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
     {
         EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
         if (definition == EnemyDefinitionId.WorkRobot)
-            return IsAreaBossDefeated
-                ? new PoweredWorkRobotEntity(this, place, common)
-                : new PowerlessWorkRobotEntity(this, place, common);
+            return new PoweredWorkRobotEntity(this, place, common);
         if (definition == EnemyDefinitionId.UnpoweredWorkRobot)
             return new UnpoweredWorkRobotEntity(this, place, common);
         throw new InvalidOperationException($"The work robot species creates no {place.DefinitionId}.");
     }
 
-    /// <summary>Checks Phantoon's defeat flag and samples the room random number for laser timing.</summary>
+    /// <summary>Samples the room random number for laser timing.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Moves the robot along floors and probes its next foothold.</summary>
     private readonly EnemyTerrain _terrain;
@@ -42,13 +40,10 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The places of the powered robots the room has set up, in the order they were placed; all show the shared glow (#2306).</summary>
     private readonly List<RoomEnemyPlace> _poweredRobots = [];
 
-    /// <summary>Whether Phantoon is defeated, which powers the work robots.</summary>
-    internal bool IsAreaBossDefeated => _room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss);
-
     /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
 
-    /// <summary>Binds robot locomotion, power state, lasers, and the glow to room services.</summary>
+    /// <summary>Binds robot locomotion, lasers and the glow to room services.</summary>
     internal WorkRobotBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyProjectileEngine projectiles, EnemyAudioQueue audio)
     {
         _audio = audio;
@@ -108,9 +103,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         GlowRuns = true;
     }
 
-    /// <summary>
-    /// Initializes an unpowered robot: the unpowered robot's definition, or the powered robot's while the ship has no power.
-    /// </summary>
+    /// <summary>Initializes an unpowered robot.</summary>
     /// <returns>The robot's state, holding the pose its placement names.</returns>
     internal UnpoweredWorkRobotEnemyState InitializeUnpoweredWorkRobot(RoomEnemyPlace place)
     {
@@ -124,7 +117,6 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         // An unpowered robot stops the room's glow, an earlier powered robot's too: in a room placing both, the order
         // they are placed in decides whether the glow runs.
         GlowRuns = false;
-        state.FallVelocity = WorkRobotMotionDefinitions.FallStartSpeed;
         return state;
     }
 
@@ -313,16 +305,6 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         AfterCommon = c => ResolveWorkRobotShotAfterCommon(c.Enemy, c.Samus),
     };
 
-    /// <summary>
-    /// Rejects a bomb's damage on the powered robot's definition while the ship has no power, and recoils nothing: its own
-    /// shot reaction returns until Phantoon is dead, and the bomb selects it where the definition leaves shots to it. The
-    /// bomb pass has already marked the bomb, so the rejection belongs here rather than in collision admission.
-    /// </summary>
-    internal EnemyBombReaction PowerlessWorkRobotBombReaction { get; } = new()
-    {
-        Rejects = c => c.SelectedShot is null,
-    };
-
     /// <summary>An unpowered robot takes the bomb damage, which it never rejects, and nothing more: it has no recoil.</summary>
     internal EnemyBombReaction UnpoweredWorkRobotBombReaction { get; } = new();
 
@@ -337,13 +319,6 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void RunWorkRobotMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
     {
         WorkRobotEnemyState state = place.RequireSpeciesState<WorkRobotEnemyState>();
-        state.FallVelocity = RunWorkRobotFall(place, state.FallVelocity, frame.Level);
-    }
-
-    /// <summary>Runs the main AI of the powered robot's definition while the ship has no power.</summary>
-    internal void RunPowerlessWorkRobotMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
-    {
-        UnpoweredWorkRobotEnemyState state = place.RequireSpeciesState<UnpoweredWorkRobotEnemyState>();
         state.FallVelocity = RunWorkRobotFall(place, state.FallVelocity, frame.Level);
     }
 

@@ -9,11 +9,14 @@ internal interface IEnemyLifecycle
     /// <summary>Installs a population entry and definition into a free place, as spawning an enemy does.</summary>
     void InitializePlaceFromDefinition(RoomEnemyPlace place, RoomEnemyPlacement population, RoomEnemyDefinition definition);
 
+    /// <summary>Runs the initialization AI of a place the room's population load has placed, in its surroundings.</summary>
+    void RunInitializationAi(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings);
+
     /// <summary>
-    /// Runs the place's initialization AI. A population load supplies its live room, Samus, controller and
-    /// camera; a species spawning on another enemy's behalf runs it with <see cref="EnemySpawnSurroundings.None"/>.
+    /// Runs the initialization AI of a place a species spawned on another enemy's behalf, or a respawn rebuilt: it has no
+    /// population load's surroundings (<see cref="EnemyPopulationSurroundings"/>).
     /// </summary>
-    void RunInitializationAi(RoomEnemyPlace place, EnemySpawnSurroundings surroundings);
+    void RunSpawnedInitializationAi(RoomEnemyPlace place);
 
     /// <summary>
     /// Installs <paramref name="population"/> in the first free place, giving the new occupant <paramref name="encounter"/>,

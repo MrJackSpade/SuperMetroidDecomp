@@ -220,8 +220,8 @@ internal sealed class TorizoMovement
     }
 
     /// <summary>Runs either Torizo's initialization AI.</summary>
-    internal void RunTorizoInitializationAi(RoomEnemyPlace place, TorizoVariant variant, EnemySpawnSurroundings surroundings)
+    internal void RunTorizoInitializationAi(RoomEnemyPlace place, TorizoVariant variant, EnemyPopulationSurroundings surroundings)
     {
-        InitializeTorizo(place, variant, surroundings.IntroducedSamus, surroundings.ControllerInput);
+        InitializeTorizo(place, variant, surroundings.Samus, surroundings.ControllerInput);
     }
 }

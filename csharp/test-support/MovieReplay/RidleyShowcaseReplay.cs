@@ -1007,18 +1007,17 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 Check(owner + " collision option", EnemyProjectileCollisionOptionCodec.ToNative(projectile.CollisionOption), NativeSnapshotMemory.EnemyProjectileCollisionOption + index);
                 if (projectile.Kind is RoomEnemyProjectileKind.EnemyDeathExplosion or RoomEnemyProjectileKind.EnemyDeathPickup)
                 {
-                    VerificationAssertions.AssertTrue(projectile.DropChancesOverride is null,
-                        "Movie drop uses a direct chance-table override; map its native source before comparing");
                     // Death explosions consume their per-slot header on their later
                     // drop instruction. Direct F337 pickups consume it immediately via
                     // caller X ($86:EF3E/F118), not allocated-slot Y, and never read it
-                    // again. Their retained per-slot word is not a live source identity.
-                    if (projectile.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion)
-                        Check(owner + " source enemy header", SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(projectile.DropDefinitionId), NativeSnapshotMemory.EnemyProjectileEnemyHeader + index);
+                    // again. Their retained per-slot word is not a live source identity, and the port's explosion drops
+                    // it once it has rolled its drop (#2455).
+                    if (projectile.State is EnemyDeathExplosionState explosion)
+                        Check(owner + " source enemy header", SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(explosion.DropDefinitionId), NativeSnapshotMemory.EnemyProjectileEnemyHeader + index);
                     // The native word holds the killed slot's table offset, bit 15 for a respawn, $FFFF for none; a
                     // cleared projectile's names the first slot. Only a direct drop is made a pickup from the start: a
                     // death's pickup is its explosion's.
-                    KilledEnemy killed = projectile.KilledEnemy;
+                    KilledEnemy killed = projectile.State is EnemyDeathAndDropState dropped ? dropped.KilledEnemy : KilledEnemy.None;
                     Check(owner + " killed enemy index", projectile.Kind == RoomEnemyProjectileKind.EnemyDeathPickup ? 0xffff
                         : SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.OffsetOf(killed.Enemy?.Ordinal ?? 0) | (killed.Respawns ? 0x8000 : 0),
                         NativeSnapshotMemory.EnemyProjectileKilledEnemy + index);

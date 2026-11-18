@@ -1,9 +1,8 @@
 namespace SuperMetroid.Core.Enemies.WorkRobots;
 
 /// <summary>
-/// A work robot, its power decided once as it is placed (#2179): powered (<see cref="PoweredWorkRobotEntity"/>), the
-/// powered robot's definition without power (<see cref="PowerlessWorkRobotEntity"/>) or unpowered
-/// (<see cref="UnpoweredWorkRobotEntity"/>). Each runs its own touch, shot and bomb reactions where its definition leaves
+/// A work robot, powered (<see cref="PoweredWorkRobotEntity"/>) or unpowered (<see cref="UnpoweredWorkRobotEntity"/>),
+/// as its definition names it (#2179, #2455). Each runs its own touch, shot and bomb reactions where its definition leaves
 /// them to it.
 /// </summary>
 /// <param name="species">The work robot species owner.</param>

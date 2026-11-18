@@ -11,7 +11,7 @@ internal sealed class MagdolliteHeadEntity(MagdolliteBehavior species, RoomEnemy
     internal override MagdollitePartState? State => Place.SpeciesState<MagdolliteHeadState>();
 
     /// <inheritdoc/>
-    public void Initialize(EnemySpawnSurroundings surroundings) => Species.InitializeMagdolliteHead(Place, Ensure.NotNull(surroundings).IntroducedSamus);
+    public void Initialize(EnemyPopulationSurroundings surroundings) => Species.InitializeMagdolliteHead(Place, Ensure.NotNull(surroundings).Samus);
 
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) =>

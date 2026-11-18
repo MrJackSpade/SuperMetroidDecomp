@@ -82,11 +82,6 @@ public sealed class EnemyProjectile
         FrameHold = WrappingCountdown.Start(0);
         IsFrameHoldStopped = true;
     }
-    /// <summary>
-    /// Whether the projectile is hidden: it is drawn only while shown. A flickering n00b tube crack or shard hides on
-    /// alternate updates (#1839).
-    /// </summary>
-    internal bool IsHidden { get; set; }
     /// <summary>The frame the projectile shows: the blank frame from its spawn until its animation shows one, none once it is gone.</summary>
     public EnemyProjectileFrameId? Frame { get; internal set; }
     /// <summary>
@@ -146,15 +141,6 @@ public sealed class EnemyProjectile
     /// property only after its bug has moved far enough from the source shell, while still playing its shot animation.
     /// </summary>
     public EnemyProjectileCollisionOption CollisionOption { get; internal set; }
-    /// <summary>The enemy a death explosion or its drop came from, and whether the explosion rebuilds it when it ends.</summary>
-    public KilledEnemy KilledEnemy { get; internal set; }
-    /// <summary>
-    /// The enemy whose drops a death explosion scatters: the explosion reads that enemy's
-    /// drop chances when it finishes.
-    /// </summary>
-    public EnemyDefinitionId DropDefinitionId { get; internal set; }
-    /// <summary>The chance table a boss-selected drop rolls against instead of its enemy definition's, or null.</summary>
-    internal EnemyDropChances? DropChancesOverride { get; set; }
 
     /// <summary>
     /// Makes the projectile <paramref name="kind"/> with <paramref name="behavior"/> bound to it for its life (#1760), in
@@ -214,7 +200,6 @@ public sealed class EnemyProjectile
     {
         Kind = RoomEnemyProjectileKind.None;
         Motion = null;
-        IsHidden = false;
         Frame = null;
         FrameHold = WrappingCountdown.Start(0);
         Animation = null;
@@ -224,9 +209,6 @@ public sealed class EnemyProjectile
         Depth = EnemyProjectileDepth.BehindSamus;
         State = null;
         CollisionOption = EnemyProjectileCollisionOption.PlaysShotAnimation;
-        KilledEnemy = default;
-        DropDefinitionId = EnemyDefinitionId.None;
-        DropChancesOverride = null;
         CanDamageSamus = PersistsOnSamusContact = BlocksSamusProjectiles = false;
     }
 }

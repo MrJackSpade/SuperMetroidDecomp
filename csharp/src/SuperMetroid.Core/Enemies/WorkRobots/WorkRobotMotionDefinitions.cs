@@ -15,9 +15,6 @@ internal static class WorkRobotMotionDefinitions
     /// <summary>How far a WorkRobot's touch pushes Samus away from it each update, in pixels (#2182).</summary>
     internal const int TouchPush = 4;
 
-    /// <summary>The speed an unpowered WorkRobot starts falling at, one pixel an update.</summary>
-    internal static SignedSixteenSixteen FallStartSpeed { get; } = SignedSixteenSixteen.FromParts(1, 0);
-
-    /// <summary>What gravity adds to a falling unpowered WorkRobot's speed each airborne update, half a pixel.</summary>
+    /// <summary>What gravity adds to a falling powered WorkRobot's speed each airborne update, half a pixel.</summary>
     internal static SignedSixteenSixteen Gravity { get; } = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(128);
 }

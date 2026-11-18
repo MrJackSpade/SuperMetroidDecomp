@@ -573,9 +573,7 @@ internal static class NativeEnemyFamilyStateImport
             workRobotRecord.LaserCooldown = WrappingCountdown.Start(words.B);
             workRobotRecord.FallVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.F), words.E);
         }
-        // An unpowered robot keeps no facing or laser cooldown, only its fall (#2179).
-        if (enemy.SpeciesState<UnpoweredWorkRobotEnemyState>() is { } unpoweredWorkRobotRecord)
-            unpoweredWorkRobotRecord.FallVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.F), words.E);
+        // An unpowered robot keeps no facing, laser cooldown or fall: it only holds its pose (#2179, #2455).
         if (enemy.SpeciesState<KzanEnemyState>() is { } kzanRecord)
         {
             kzanRecord.Action = KzanNativeWords.KzanActions.Decode(words.A, "recorded KzanAction");

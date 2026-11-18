@@ -8,7 +8,7 @@ internal sealed class BlueBrinstarFaceBlockEntity(BlueBrinstarFaceBlockBehavior 
     : CommonParticipationEnemyEntity(place, common), IEnemySurroundingsInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public void Initialize(EnemySpawnSurroundings surroundings) => species.RunBlueBrinstarFaceBlockInitializationAi(Place, surroundings);
+    public void Initialize(EnemyPopulationSurroundings surroundings) => species.RunBlueBrinstarFaceBlockInitializationAi(Place, surroundings);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunBlueBrinstarFaceBlockMainAi(Place, frame);

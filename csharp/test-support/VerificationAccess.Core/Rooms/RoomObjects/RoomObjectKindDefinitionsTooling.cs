@@ -23,7 +23,7 @@ internal static class RoomObjectKindDefinitionsTooling
         yield return RoomObjectKinds.RequirePlaced(RoomObjectKind.SaveStation);
         yield return RoomObjectKinds.RequirePlaced(RoomObjectKind.SpeedBoosterEscape);
         yield return RoomObjectKinds.RequirePlaced(RoomObjectKind.BombTorizoGreyDoor);
-        yield return RoomObjectKinds.RequirePlaced(RoomObjectKind.WreckedShipAttic);
+        yield return RoomObjectKinds.RequirePlaced(RoomObjectKind.WreckedShipAtticHeldPlace);
         yield return RoomObjectKinds.RequirePlaced(RoomObjectKind.DownwardGate);
         yield return RoomObjectKinds.RequirePlaced(RoomObjectKind.DownwardGateShotBlock);
         yield return RoomObjectKinds.RequirePlaced(RoomObjectKind.GreyDoorFacingLeft);

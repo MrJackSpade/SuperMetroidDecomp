@@ -1588,7 +1588,7 @@ internal static class RoomObjectPopulationDefinitions
     [
         new(RoomObjectKind.GreyDoorFacingRight, new(1, 6), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.AreaBossDefeated, new LockedDoorArgument(LockedDoorDefinitions.AtticDefaultGreyDoorFacingRight, DoorOpeningPersistence.Persistent)))),
         new(RoomObjectKind.GreyDoorFacingLeft, new(110, 6), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.AreaBossDefeated, new LockedDoorArgument(LockedDoorDefinitions.AtticDefaultGreyDoorFacingLeft, DoorOpeningPersistence.Persistent)))),
-        new(RoomObjectKind.WreckedShipAttic, new(8, 8), new WreckedShipAtticSetup()),
+        new(RoomObjectKind.WreckedShipAtticHeldPlace, new(8, 8), new WreckedShipAtticHeldPlaceSetup()),
     ]);
 
     /// <summary>The AssemblyLineDefault room-object population.</summary>
@@ -1698,7 +1698,7 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectKind.GreyDoorFacingRight, new(1, 6), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.EnemyDeathQuota, new LockedDoorArgument(LockedDoorDefinitions.AtticWhenAreaBossDeadGreyDoorFacingRight, DoorOpeningPersistence.Persistent)))),
         new(RoomObjectKind.GreyDoorFacingLeft, new(110, 6), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.EnemyDeathQuota, new LockedDoorArgument(LockedDoorDefinitions.AtticWhenAreaBossDeadGreyDoorFacingLeft, DoorOpeningPersistence.Persistent)))),
         new(RoomObjectKind.GreyDoorFacingUp, new(70, 14), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.EnemyDeathQuota, new LockedDoorArgument(LockedDoorDefinitions.AtticWhenAreaBossDeadGreyDoorFacingUp, DoorOpeningPersistence.Persistent)))),
-        new(RoomObjectKind.WreckedShipAttic, new(8, 8), new WreckedShipAtticSetup()),
+        new(RoomObjectKind.WreckedShipAtticHeldPlace, new(8, 8), new WreckedShipAtticHeldPlaceSetup()),
     ]);
 
     /// <summary>The AssemblyLineWhenAreaBossDead room-object population.</summary>

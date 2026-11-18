@@ -375,9 +375,9 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs Fake Kraid's initialization AI.</summary>
-    internal void RunFakeKraidInitializationAi(RoomEnemyPlace place, EnemySpawnSurroundings surroundings)
+    internal void RunFakeKraidInitializationAi(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings)
     {
-        InitializeFakeKraid(place, surroundings.IntroducedSamus);
+        InitializeFakeKraid(place, surroundings.Samus);
     }
 
     /// <summary>Runs Fake Kraid's main AI.</summary>

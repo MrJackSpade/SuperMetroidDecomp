@@ -86,8 +86,8 @@ internal sealed class RoomObjectFamilySetups(RoomObjectSetupContext context) : I
     public void SetUpSpeedBoosterEscape() => context.Families.SpeedBoosterEscape.SetupSpeedBoosterEscape(context.Place);
 
     /// <inheritdoc/>
-    /// <remarks>The attic's object changes nothing: it only holds its place.</remarks>
-    public void SetUpWreckedShipAttic() => context.Place.Become(new WreckedShipAtticObject());
+    /// <remarks>The attic's held place's object changes nothing: it only holds its place.</remarks>
+    public void SetUpWreckedShipAtticHeldPlace() => context.Place.Become(new WreckedShipAtticHeldPlaceObject());
 
     /// <inheritdoc/>
     public void SetUpNoobTube() => context.Families.NoobTube.SetupNoobTube(context.Room.Level, context.Place);

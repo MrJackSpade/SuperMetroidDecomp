@@ -558,7 +558,7 @@ internal static class RoomObjectPopulationVerification
         const int blockX = 3;
         const int blockY = 4;
 
-        SeedObjectProgramWords(bus, unchecked((ushort)(RoomObjectNativeWords.Word(RoomObjectKind.WreckedShipAttic) + 2)),
+        SeedObjectProgramWords(bus, unchecked((ushort)(RoomObjectNativeWords.Word(RoomObjectKind.WreckedShipAtticHeldPlace) + 2)),
             RoomObjectNativeListAddresses.WreckedShipAtticList);
         CartridgeImportAddressSpace? rom = File.Exists("Super Metroid.smc")
             ? SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc")
@@ -583,10 +583,10 @@ internal static class RoomObjectPopulationVerification
         RoomObjectPlaceSnapshot loaded = roomObjects.PopulationPlaces.Single();
         AssertEqual(0, loaded.UpdatePosition,
             "Wrecked Ship attic actor takes the first free slot in processing order");
-        AssertTrue(loaded.Behaviour is WreckedShipAtticObject, "Wrecked Ship attic actor is its typed object");
+        AssertTrue(loaded.Behaviour is WreckedShipAtticHeldPlaceObject, "Wrecked Ship attic actor is its typed object");
 
         roomObjects.Step(level);
-        AssertTrue(roomObjects.PopulationPlaces.Single().Behaviour is WreckedShipAtticObject,
+        AssertTrue(roomObjects.PopulationPlaces.Single().Behaviour is WreckedShipAtticHeldPlaceObject,
             "Wrecked Ship attic actor holds its place after its first update");
         roomObjects.Step(level);
         AssertEqual(1, roomObjects.Places.ActiveCount,

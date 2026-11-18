@@ -116,8 +116,7 @@ internal sealed class EnemyDeathsAndDrops
                 ExplosionsAndPickups,
                 graphics: default);
             explosion.Position = explosion.Position.WithWhole(enemy.Position.Whole);
-            explosion.DropDefinitionId = enemy.DefinitionId;
-            explosion.KilledEnemy = KilledEnemy.Of(enemy, respawns);
+            explosion.State = new EnemyDeathExplosionState(KilledEnemy.Of(enemy, respawns), enemy.DefinitionId);
             explosion.StartAnimation(new EnemyDeathAndDropAnimation(EnemyDeathExplosions.Animation(deathAnimation)));
         }
 
@@ -229,20 +228,17 @@ internal sealed class EnemyDeathsAndDrops
             ExplosionsAndPickups,
             graphics: default);
         pickup.Position = pickup.Position.WithWhole(position);
-        pickup.DropDefinitionId = definitionId;
-        pickup.KilledEnemy = KilledEnemy.None;
-        InitializeDirectEnemyPickup(pickup, samus);
+        InitializeDirectEnemyPickup(pickup, DropChancesOf(definitionId), samus);
         return pickup;
     }
 
     /// <summary>
-    /// Allocates a pickup from a chance table already selected by specialized
-    /// boss code, such as Botwoon's Draygon-eye drop cue, without manufacturing a fake enemy definition solely to reach
-    /// the same six chances.
+    /// Allocates a pickup from a chance table a fight chose itself, such as the Torizos' orbs and Spore Spawn's spores,
+    /// without manufacturing a fake enemy definition solely to reach the same six chances.
     /// </summary>
     internal EnemyProjectile? SpawnEnemyDropFromChanceTable(
         Position16<RoomPixels> position,
-        EnemyDropChances? dropChances,
+        EnemyDropChances dropChances,
         SamusState samus)
     {
         EnemyProjectile? pickup = _projectiles.AllocateEnemyProjectile();
@@ -255,23 +251,24 @@ internal sealed class EnemyDeathsAndDrops
             ExplosionsAndPickups,
             graphics: default);
         pickup.Position = pickup.Position.WithWhole(position);
-        pickup.DropChancesOverride = dropChances;
-        pickup.KilledEnemy = KilledEnemy.None;
-        InitializeDirectEnemyPickup(pickup, samus);
+        InitializeDirectEnemyPickup(pickup, dropChances, samus);
         return pickup;
     }
 
-    /// <summary>Rolls a direct drop and either starts its pickup animation or the no-drop tail.</summary>
-    private void InitializeDirectEnemyPickup(EnemyProjectile pickup, SamusState samus)
+    /// <summary>
+    /// Rolls a direct drop's <paramref name="dropChances"/>, none when its enemy drops nothing, and either starts its
+    /// pickup animation or the no-drop tail.
+    /// </summary>
+    private void InitializeDirectEnemyPickup(EnemyProjectile pickup, EnemyDropChances? dropChances, SamusState samus)
     {
-        EnemyPickupKind kind = SelectRandomEnemyDrop(pickup, samus);
+        EnemyPickupKind kind = SelectRandomEnemyDrop(dropChances, samus);
 
         // Unlike a finished death explosion, a direct drop becomes a pickup in any place for
         // an enemy projectile, the first included. The roll reads the drop's definition straight back from
         // the pickup that holds it.
         pickup.StartAnimation(new EnemyDeathAndDropAnimation(kind == EnemyPickupKind.NoDrop
             ? ConfigureDormantPickup(pickup)
-            : ConfigurePickup(pickup, kind)));
+            : ConfigurePickup(pickup, kind, KilledEnemy.None)));
     }
 
     /// <summary>
@@ -283,17 +280,21 @@ internal sealed class EnemyDeathsAndDrops
     /// <param name="samus">Samus, whose energy and ammunition the drop's roll reads.</param>
     internal EnemyDeathAndDropSegment ConvertEnemyDeathExplosionToPickup(EnemyProjectile projectile, SamusState samus)
     {
-        EnemyPickupKind kind = SelectRandomEnemyDrop(projectile, samus);
+        EnemyDeathExplosionState explosion = Ensure.NotNull(projectile).StateOf<EnemyDeathExplosionState>();
+        EnemyPickupKind kind = SelectRandomEnemyDrop(DropChancesOf(explosion.DropDefinitionId), samus);
         return !FirstPlaceExplosionLeavesNoPickup.BecomesPickup(projectile.Place) || kind == EnemyPickupKind.NoDrop
             ? ConfigureDormantPickup(projectile)
-            : ConfigurePickup(projectile, kind);
+            : ConfigurePickup(projectile, kind, explosion.KilledEnemy);
     }
 
-    /// <summary>Gives the projectile the selected pickup's identity, 400-frame life and collision reaction, and returns its animation.</summary>
-    internal static EnemyDeathAndDropSegment ConfigurePickup(EnemyProjectile projectile, EnemyPickupKind kind)
+    /// <summary>
+    /// Gives the projectile the selected pickup's identity, 400-frame life and collision reaction, keeping
+    /// <paramref name="killedEnemy"/>, the enemy its explosion came from, and returns its animation.
+    /// </summary>
+    internal static EnemyDeathAndDropSegment ConfigurePickup(EnemyProjectile projectile, EnemyPickupKind kind, KilledEnemy killedEnemy)
     {
         EnemyPickupAnimationDefinition animation = EnemyPickups.Animation(kind);
-        projectile.State = new EnemyPickupState(kind, EnemyPickupDefinitions.Lifetime);
+        projectile.State = new EnemyPickupState(kind, EnemyPickupDefinitions.Lifetime, killedEnemy);
         projectile.StartMotion(SingleMotion.Moving);
 
         // A pickup is gone when Samus touches it; it keeps the explosion's other behaviours.
@@ -325,12 +326,12 @@ internal sealed class EnemyDeathsAndDrops
     /// the <see cref="EnemyDropSelectionDefinitions.MajorDrops"/>, and the first whose accumulated chance reaches the random
     /// draw is chosen; the draw is read before anything else, as the game reads it.
     /// </summary>
-    /// <param name="projectile">The drop whose chances are rolled.</param>
+    /// <param name="dropChances">The chances rolled; none when the drop's enemy drops nothing.</param>
     /// <param name="samus">Samus, whose energy and ammunition decide which drops are offered.</param>
-    internal EnemyPickupKind SelectRandomEnemyDrop(EnemyProjectile projectile, SamusState samus)
+    internal EnemyPickupKind SelectRandomEnemyDrop(EnemyDropChances? dropChances, SamusState samus)
     {
         Ensure.NotNull(samus);
-        if (ResolveEnemyDropChances(projectile) is not { } table)
+        if (dropChances is not { } table)
             return EnemyPickupKind.NoDrop;
         // Every authored table's chances sum to the whole budget, so the pooled weights and the budget left for the major
         // drops stay within it (#1620).
@@ -420,17 +421,11 @@ internal sealed class EnemyDeathsAndDrops
     }
 
     /// <summary>
-    /// Uses an explicit boss chance table, a saved enemy definition's, or none. A death explosion from a cleared enemy place
-    /// drops nothing.
+    /// The drop chances of <paramref name="definitionId"/>'s definition, none when it drops nothing; a death explosion from
+    /// a cleared enemy place names no enemy and drops nothing.
     /// </summary>
-    private EnemyDropChances? ResolveEnemyDropChances(EnemyProjectile projectile)
-    {
-        if (projectile.DropChancesOverride is { } chances)
-            return chances;
-        return projectile.DropDefinitionId == EnemyDefinitionId.None
-            ? null
-            : _room.Definitions.ReadEnemyDefinition(projectile.DropDefinitionId).DropChances;
-    }
+    private EnemyDropChances? DropChancesOf(EnemyDefinitionId definitionId) =>
+        definitionId == EnemyDefinitionId.None ? null : _room.Definitions.ReadEnemyDefinition(definitionId).DropChances;
 
     /// <summary>Decrements pickup lifetime, then tests Grapple endpoint and strict Samus body overlap.</summary>
     internal void TendEnemyPickup(
@@ -574,7 +569,7 @@ internal sealed class EnemyDeathsAndDrops
         // or what its init AI set, until its first cue. An empty frame is also
         // the contact gate, so the respawned actor cannot touch Samus before then.
         _lifecycle.InitializePlaceFromDefinition(place, spawn.Population, definition);
-        _lifecycle.RunInitializationAi(place, EnemySpawnSurroundings.None);
+        _lifecycle.RunSpawnedInitializationAi(place);
     }
 
     /// <summary>
@@ -641,8 +636,10 @@ internal sealed class EnemyDeathsAndDrops
                     throw new InvalidDataException($"Enemy projectile {projectile.Kind} reached the become-pickup cue, which only a death explosion runs.");
                 return ConvertEnemyDeathExplosionToPickup(projectile, samus);
             case EnemyDeathAndDropCueKind.HandleRespawningEnemy:
-                if (projectile.KilledEnemy.Respawns)
-                    RespawnEnemyFromSnapshot(projectile.KilledEnemy.Enemy ?? throw new InvalidDataException("A respawning death explosion names no enemy."));
+                // A death explosion, or the pickup it became, rebuilds the enemy it came from when that enemy respawns; a
+                // drop spawned directly came from no enemy.
+                if (projectile.State is EnemyDeathAndDropState { KilledEnemy: { Respawns: true } killed })
+                    RespawnEnemyFromSnapshot(killed.Enemy ?? throw new InvalidDataException("A respawning death explosion names no enemy."));
                 return null;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(EnemyDeathAndDropCueKind)} {kind}.");

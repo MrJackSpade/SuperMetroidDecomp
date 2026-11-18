@@ -368,9 +368,9 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         context => FlyAlcoonFireball(context.Projectile, context.Level));
 
     /// <summary>Runs Alcoon's initialization AI.</summary>
-    internal void RunAlcoonInitializationAi(RoomEnemyPlace place, EnemySpawnSurroundings surroundings)
+    internal void RunAlcoonInitializationAi(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings)
     {
-        InitializeAlcoon(place, surroundings.PopulationLevel);
+        InitializeAlcoon(place, surroundings.Level);
     }
 
     /// <summary>Runs Alcoon's main AI.</summary>

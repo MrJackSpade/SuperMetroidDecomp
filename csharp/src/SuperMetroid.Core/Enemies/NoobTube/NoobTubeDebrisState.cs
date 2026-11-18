@@ -4,11 +4,14 @@ namespace SuperMetroid.Core.Enemies.NoobTube;
 
 /// <summary>
 /// What a n00b-tube shard or released air bubble keeps: its own horizontal position, which the flicker draws at or
-/// mirrors, and how far along its swaying fall it is.
+/// mirrors, whether a shard's hiding flicker hides it, and how far along its swaying fall it is.
 /// </summary>
 /// <param name="column">The column the debris starts at.</param>
-internal sealed class NoobTubeDebrisState(int column) : EnemyProjectileState
+internal sealed class NoobTubeDebrisState(int column) : EnemyProjectileState, IFlickeringProjectileState
 {
+    /// <summary>Whether a shard's hiding flicker hides it on this update (#2455); a bubble never hides.</summary>
+    public bool IsHidden { get; internal set; }
+
     /// <summary>The debris's own horizontal position, with its fraction; the drawn position follows it or hides.</summary>
     internal FixedCoordinate X { get; set; } = new(column, 0);
 

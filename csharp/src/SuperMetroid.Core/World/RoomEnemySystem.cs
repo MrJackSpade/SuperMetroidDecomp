@@ -911,7 +911,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         PopulationLoader.LoadPopulation(
             definitions,
             population,
-            new EnemySpawnSurroundings(request.Level, request.Samus, request.ControllerInput, request.Camera));
+            new EnemyPopulationSurroundings(request.Level, request.Samus, request.ControllerInput, request.Camera));
     }
 
     /// <summary>

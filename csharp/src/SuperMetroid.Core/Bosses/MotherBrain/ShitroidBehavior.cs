@@ -711,7 +711,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         ResolveShitroidShot(c.Enemy, c.Bomb.Damage, MetroidRecoilOrigin.Of(c.OrdinaryProjectiles.Shots));
 
     /// <summary>Runs Shitroid's initialization AI.</summary>
-    internal static void RunShitroidInitializationAi(RoomEnemyPlace place, EnemySpawnSurroundings surroundings)
+    internal static void RunShitroidInitializationAi(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings)
     {
         InitializeShitroid(place, surroundings.Camera.X);
     }

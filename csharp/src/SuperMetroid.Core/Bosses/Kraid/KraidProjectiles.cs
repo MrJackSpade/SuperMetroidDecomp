@@ -399,7 +399,7 @@ internal sealed class KraidProjectiles
         // (LeftoverNumberDeathExplosion).
         if (!context.Place.IsFree)
             _deathsAndDrops.StartGenericEnemyDeath(context.Place,
-                LeftoverNumberDeathExplosion.Named(context.Place.Health, EnemyDeathExplosionDefinitions.AuthoredOrder), context.Samus);
+                EnemyDeathExplosionDefinitions.LeftoverNumbered.Named(context.Place.Health), context.Samus);
     }
 
 }

@@ -9,7 +9,7 @@ namespace SuperMetroid.Verification.Enemies.Powamp;
 
 /// <summary>
 /// #1513: a Powamp shot dead explodes with the explosion its burst's last spike's place in the projectile pool selects,
-/// twice that place names (<see cref="LeftoverNumberDeathExplosion"/>), rather than a number read from its graphics.
+/// twice that place names (<see cref="LeftoverNumberDeathExplosion{TExplosion}"/>), rather than a number read from its graphics.
 /// </summary>
 internal static class PowampBurstExplosionVerification
 {

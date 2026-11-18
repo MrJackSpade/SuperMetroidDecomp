@@ -25,7 +25,7 @@ internal static class RoomObjectNativeWords
         [RoomObjectKind.SaveStation] = 0xb76f,
         [RoomObjectKind.SpeedBoosterEscape] = 0xb8ac,
         [RoomObjectKind.BombTorizoGreyDoor] = 0xbaf4,
-        [RoomObjectKind.WreckedShipAttic] = 0xbb05,
+        [RoomObjectKind.WreckedShipAtticHeldPlace] = 0xbb05,
         [RoomObjectKind.DownwardGate] = 0xc82a,
         [RoomObjectKind.DownwardGateShotBlock] = 0xc836,
         [RoomObjectKind.GreyDoorFacingLeft] = 0xc842,

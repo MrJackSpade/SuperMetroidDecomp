@@ -55,27 +55,25 @@ internal sealed class PhantoonCombat
     /// Phantoon's destroyable flame (#1760): its spawner starts its animation, and a shot one dies, leaves its drop and is
     /// deleted, the animation its definition names.
     /// </summary>
-    internal EnemyProjectileBehavior DestroyableFlame => field ??= new PhantoonFlameBehavior(_room, _audio, _deathsAndDrops,
+    internal EnemyProjectileBehavior DestroyableFlame => field ??= new PhantoonFlameBehavior(_audio, _deathsAndDrops,
         PhantoonFlameMotion.CasualFalling, () => new PhantoonFlameAnimation(PhantoonFlameSegment.Dying));
 
     /// <summary>
     /// One of Phantoon's intro flames (#1760): its spawner starts its animation, and a shot one burns as the destroyable
     /// flame idles, the animation its definition names.
     /// </summary>
-    internal EnemyProjectileBehavior StartingFlame => field ??= new PhantoonFlameBehavior(_room, _audio, _deathsAndDrops,
+    internal EnemyProjectileBehavior StartingFlame => field ??= new PhantoonFlameBehavior(_audio, _deathsAndDrops,
         PhantoonFlameMotion.IntroWaiting, () => new PhantoonFlameAnimation(PhantoonFlameSegment.Burning));
 
     /// <summary>
     /// A Phantoon flame: every flame's motion, from the intro's wait and orbit to the rage and spiral, and the flame
     /// animations' cues. A circling flame holds the encounter that spawned it (#2252), whose body it circles.
     /// </summary>
-    /// <param name="room">The loaded room, whose definitions name the flames' drops.</param>
     /// <param name="audio">The enemy sound queue the rain flames' sounds join.</param>
     /// <param name="deathsAndDrops">The drops a shot destroyable flame leaves.</param>
     /// <param name="initial">The motion the flame starts with.</param>
     /// <param name="shot">The animation a destroying shot starts.</param>
     private sealed class PhantoonFlameBehavior(
-        EnemyRoomBinding room,
         EnemyAudioQueue audio,
         EnemyDeathsAndDrops deathsAndDrops,
         PhantoonFlameMotion initial,
@@ -234,11 +232,7 @@ internal sealed class PhantoonCombat
         /// </summary>
         private void RequestPhantoonFlameDrop(EnemyProjectile flame, SamusState samus)
         {
-            RoomEnemyDefinition eye = room.Definitions.ReadEnemyDefinition(EnemyDefinitionId.PhantoonEye);
-            deathsAndDrops.SpawnEnemyDropFromChanceTable(
-                flame.Position.Whole,
-                eye.DropChances,
-                samus);
+            deathsAndDrops.SpawnEnemyDropFromDefinition(flame.Position.Whole, EnemyDefinitionId.PhantoonEye, samus);
         }
     }
 

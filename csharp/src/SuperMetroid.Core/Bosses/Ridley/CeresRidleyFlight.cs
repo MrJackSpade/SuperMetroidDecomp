@@ -411,7 +411,7 @@ internal sealed class CeresRidleyFlight
             CollidesByFrameHitboxes: false,
             SpawnSettings: new CeresGetawayChamberWallSpawnSettings(side));
         _lifecycle.InitializePlaceFromDefinition(wall, population, definition);
-        _lifecycle.RunInitializationAi(wall, EnemySpawnSurroundings.None);
+        _lifecycle.RunSpawnedInitializationAi(wall);
         _places.CoverSpawn(wall);
     }
 }

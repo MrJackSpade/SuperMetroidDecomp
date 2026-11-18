@@ -8,7 +8,7 @@ internal sealed class ElevatorEntity(ElevatorBehavior species, RoomEnemyPlace pl
     : CommonParticipationEnemyEntity(place, common), IEnemySurroundingsInitialization, IEnemyAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public void Initialize(EnemySpawnSurroundings surroundings) => species.RunElevatorInitializationAi(Place, surroundings);
+    public void Initialize(EnemyPopulationSurroundings surroundings) => species.RunElevatorInitializationAi(Place, surroundings);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunElevatorMainAi(Place, frame);

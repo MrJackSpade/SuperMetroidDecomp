@@ -40,7 +40,7 @@ internal sealed class EnemyPopulationLoader
     internal void LoadPopulation(
         IRoomEnemyDefinitionSource definitions,
         RoomEnemyPopulationDefinition populationDefinition,
-        EnemySpawnSurroundings surroundings)
+        EnemyPopulationSurroundings surroundings)
     {
         ReadOnlySpan<RoomEnemyPlacement> placements = populationDefinition.Placements.Span;
         for (int ordinal = 0; ordinal < placements.Length; ordinal++)

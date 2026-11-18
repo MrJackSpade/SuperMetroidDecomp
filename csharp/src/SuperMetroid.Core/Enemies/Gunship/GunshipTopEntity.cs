@@ -8,7 +8,7 @@ internal sealed class GunshipTopEntity(GunshipBehavior species, RoomEnemyPlace p
     : CommonParticipationEnemyEntity(place, common), IEnemySurroundingsInitialization, IEnemyAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public void Initialize(EnemySpawnSurroundings surroundings) => species.InitializeGunshipTop(Place, surroundings.IntroducedSamus);
+    public void Initialize(EnemyPopulationSurroundings surroundings) => species.InitializeGunshipTop(Place, surroundings.Samus);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunGunshipMainAi(Place, frame);

@@ -826,9 +826,9 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(head.Position.Whole);
 
         // Every segment, the tail cap included, starts hidden inside the wall.
-        BotwoonBodyAnimationSegment pose = BotwoonBodyAnimationSegment.Hidden;
-        projectile.StartAnimation(BotwoonProjectileAnimation.ForSegment(pose));
-        var segment = new BotwoonSegmentState(head, segmentIndex, projectile, pose);
+        var animation = new BotwoonSegmentAnimation(BotwoonBodyAnimationSegment.Hidden);
+        projectile.StartAnimation(animation);
+        var segment = new BotwoonSegmentState(head, segmentIndex, projectile, animation);
         projectile.State = segment;
         projectile.CollisionOption = EnemyProjectileCollisionOption.NoCollision;
         projectile.CanDamageSamus = false;
@@ -886,9 +886,8 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         EnemyProjectile segment,
         int randomEnemyCounter)
     {
-        BotwoonProjectileAnimation animation = segment.Animation as BotwoonProjectileAnimation
-            ?? throw new InvalidOperationException($"Botwoon body segment {segment.Place} has no segment animation.");
-        if (animation.Install(segment.StateOf<BotwoonSegmentState>().Pose))
+        BotwoonSegmentState state = segment.StateOf<BotwoonSegmentState>();
+        if (state.Animation.Install(state.Pose))
             segment.FrameHold = WrappingCountdown.Start(1);
         ShowBotwoonBodyHurtFlash(segment, randomEnemyCounter);
     }
@@ -950,7 +949,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
             BodyAndSpit,
             SpriteGraphics.SpawnedBy(head));
         spit.Position = FixedPosition<RoomPixels>.FromWhole(head.Position.Whole);
-        spit.StartAnimation(BotwoonProjectileAnimation.Spit());
+        spit.StartAnimation(new BotwoonSpitAnimation());
 
         // The spit keeps unsigned quarter-circle speeds, signed by its heading every update, with their fractions so
         // shallow trajectories do not lose their subpixel motion.

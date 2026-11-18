@@ -1,10 +1,9 @@
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>
-/// The twelve pictures the reachable Draygon wall-cannon room-object animations draw (#2176): each facing's shield, the
-/// shield flashing white when a shot hits it, and the four pictures of the sparks crackling along a destroyed cannon's
-/// seam. The sparks' pictures are named for where the arc reaches farthest from the seam, in pixels below the top of the
-/// cannon's two-block column.
+/// The twelve pictures the reachable Draygon wall-cannon room-object animations draw (#2176, #2401): each facing's shield,
+/// the shield flashing white when a shot hits it, and the four stages of the sparks crackling along a destroyed cannon's
+/// seam, which flare, spread, recede and settle flat over and over.
 /// </summary>
 internal enum DraygonCannonDraw
 {
@@ -12,24 +11,24 @@ internal enum DraygonCannonDraw
     RightShield,
     /// <summary>The right-facing cannon's shield flashing white when a shot hits it.</summary>
     RightShieldFlash,
-    /// <summary>The destroyed right-facing cannon's sparks, reaching farthest out 11 and 20 pixels down.</summary>
-    RightSparksPeakingAt11And20,
-    /// <summary>The destroyed right-facing cannon's sparks, reaching farthest out 3 and 28 pixels down.</summary>
-    RightSparksPeakingAt3And28,
-    /// <summary>The destroyed right-facing cannon's sparks, reaching farthest out 6 and 25 pixels down, a pixel short of the others' reach.</summary>
-    RightSparksPeakingAt6And25,
-    /// <summary>The destroyed right-facing cannon's sparks lying flattest along the seam, two pixels short of the others' reach.</summary>
+    /// <summary>The destroyed right-facing cannon's sparks flaring: the arc leaps out from the seam in two peaks near the middle of the column.</summary>
+    RightSparksFlaring,
+    /// <summary>The destroyed right-facing cannon's sparks spreading: the arc's two peaks move out to the ends of the column.</summary>
+    RightSparksSpreading,
+    /// <summary>The destroyed right-facing cannon's sparks receding: the arc's peaks draw back in and sink toward the seam.</summary>
+    RightSparksReceding,
+    /// <summary>The destroyed right-facing cannon's sparks settled flat along the seam, before they flare again.</summary>
     RightSparksFlat,
     /// <summary>The left-facing cannon's closed shield.</summary>
     LeftShield,
     /// <summary>The left-facing cannon's shield flashing white when a shot hits it.</summary>
     LeftShieldFlash,
-    /// <summary>The destroyed left-facing cannon's sparks, reaching farthest out 11 and 20 pixels down.</summary>
-    LeftSparksPeakingAt11And20,
-    /// <summary>The destroyed left-facing cannon's sparks, reaching farthest out 3 and 28 pixels down.</summary>
-    LeftSparksPeakingAt3And28,
-    /// <summary>The destroyed left-facing cannon's sparks, reaching farthest out 6 and 25 pixels down, a pixel short of the others' reach.</summary>
-    LeftSparksPeakingAt6And25,
-    /// <summary>The destroyed left-facing cannon's sparks lying flattest along the seam, two pixels short of the others' reach.</summary>
+    /// <summary>The destroyed left-facing cannon's sparks flaring: the arc leaps out from the seam in two peaks near the middle of the column.</summary>
+    LeftSparksFlaring,
+    /// <summary>The destroyed left-facing cannon's sparks spreading: the arc's two peaks move out to the ends of the column.</summary>
+    LeftSparksSpreading,
+    /// <summary>The destroyed left-facing cannon's sparks receding: the arc's peaks draw back in and sink toward the seam.</summary>
+    LeftSparksReceding,
+    /// <summary>The destroyed left-facing cannon's sparks settled flat along the seam, before they flare again.</summary>
     LeftSparksFlat,
 }

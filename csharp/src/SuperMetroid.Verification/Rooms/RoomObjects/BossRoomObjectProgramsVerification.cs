@@ -1,5 +1,6 @@
 using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.AssetExtraction.Audio;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core.Bosses.Torizo;
@@ -147,12 +148,12 @@ internal static class BossRoomObjectProgramsVerification
                 AssertEqual(RoomObjectInstruction.InstallFrameBehavior, At(entry + 4), $"{at} then arms its missile wake");
                 AssertEqual(DraygonNativeWords.MissileHitFrameBehavior, Word(entry + 6), $"{at} missile wake");
                 int idle = entry + 8;
-                frames += CompareCannonFrames(cartridge, idle, [look.Shield], out int afterShield, $"{at} shield");
+                frames += CompareCannonFrames(cartridge, idle, ImagesOf(look.Shield), out int afterShield, $"{at} shield");
                 AssertEqual(RoomObjectInstruction.Sleep, At(afterShield), $"{at} rests on its shield");
                 AssertEqual(RoomObjectInstruction.IncrementArgumentAndGotoIfGreaterOrEqual, At(hit), $"{at} hit is counted first");
                 AssertEqual(DraygonCannonDefinitions.HitsToDestroy, ReadOperandByte(cartridge, hit + 2), $"{at} hits to destroy");
                 destroy = Word(hit + 3);
-                frames += CompareCannonFrames(cartridge, hit + 5, look.HitFlash, out int afterFlash, $"{at} hit flash");
+                frames += CompareCannonFrames(cartridge, hit + 5, ImagesOf(look.HitFlash), out int afterFlash, $"{at} hit flash");
                 AssertEqual(RoomObjectInstruction.Goto, At(afterFlash), $"{at} returns after its flash");
                 AssertEqual(idle, (int)Word(afterFlash + 2), $"{at} returns to its shield");
             }
@@ -161,18 +162,29 @@ internal static class BossRoomObjectProgramsVerification
                     : RoomObjectInstruction.DamageDraygonCannonFacingLeft,
                 At(destroy), $"{at} destroys its own side");
             int smoke = destroy + 2;
-            frames += CompareCannonFrames(cartridge, smoke, look.Smoke, out int afterSmoke, $"{at} smoke");
+            frames += CompareCannonFrames(cartridge, smoke, ImagesOf(look.Sparks), out int afterSmoke, $"{at} smoke");
             AssertEqual(RoomObjectInstruction.Goto, At(afterSmoke), $"{at} smoke repeats");
             AssertEqual(smoke, (int)Word(afterSmoke + 2), $"{at} smoke loops to its first image");
         }
         Console.WriteLine($"  Draygon cannons: {frames} typed images match bank $84.");
     }
 
+    /// <summary>
+    /// Every image <paramref name="animation"/> shows in one play-through, each with its updates (#2401): each phase's run
+    /// as many times as it plays, its loop not followed.
+    /// </summary>
+    private static TerrainChangeFrame[] ImagesOf(Animation<DraygonCannonSegment> animation) =>
+        [.. animation.Phases.SelectMany(phase => Enumerable.Repeat(phase, phase.Plays).SelectMany(play =>
+            DraygonCannonAnimationDefinitions.Segments.Beats(play.Segment).Skip(play.FirstBeat).Take(play.BeatCount)
+                .Select(beat => beat is AnimationBeat<DraygonCannonDraw, NoAnimationCue>.Frame frame
+                    ? new TerrainChangeFrame(DraygonCannonDraws.Family.Of(frame.Shown), frame.Duration)
+                    : throw new InvalidOperationException($"A Draygon cannon run shows {beat}, not an image."))))];
+
     /// <summary>Compares the native draws from <paramref name="cursor"/> with <paramref name="expected"/>, image for image.</summary>
-    private static int CompareCannonFrames(IImportCartridgeSource cartridge, int cursor, IReadOnlyList<TerrainChangeFrame> expected,
+    private static int CompareCannonFrames(IImportCartridgeSource cartridge, int cursor, TerrainChangeFrame[] expected,
         out int after, string at)
     {
-        for (int index = 0; index < expected.Count; index++, cursor += 4)
+        for (int index = 0; index < expected.Length; index++, cursor += 4)
         {
             int updates = cartridge.ReadCartridgeWord(ProgramBank | cursor);
             AssertTrue(updates < 0x8000, $"{at} image {index} is a draw");
@@ -181,7 +193,7 @@ internal static class BossRoomObjectProgramsVerification
                 (int)cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2)), $"{at} image {index} draw");
         }
         after = cursor;
-        return expected.Count;
+        return expected.Length;
     }
 
     /// <summary>

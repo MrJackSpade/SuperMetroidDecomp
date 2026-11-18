@@ -93,15 +93,15 @@ internal static class RoomObjectDrawSourceDefinitions
     {
         [DraygonCannonDraw.RightShield] = new(Bank, 0x9fcd),
         [DraygonCannonDraw.RightShieldFlash] = new(Bank, 0x9fdd),
-        [DraygonCannonDraw.RightSparksPeakingAt11And20] = new(Bank, 0xa02d),
-        [DraygonCannonDraw.RightSparksPeakingAt3And28] = new(Bank, 0xa03d),
-        [DraygonCannonDraw.RightSparksPeakingAt6And25] = new(Bank, 0xa04d),
+        [DraygonCannonDraw.RightSparksFlaring] = new(Bank, 0xa02d),
+        [DraygonCannonDraw.RightSparksSpreading] = new(Bank, 0xa03d),
+        [DraygonCannonDraw.RightSparksReceding] = new(Bank, 0xa04d),
         [DraygonCannonDraw.RightSparksFlat] = new(Bank, 0xa05d),
         [DraygonCannonDraw.LeftShield] = new(Bank, 0xa0ed),
         [DraygonCannonDraw.LeftShieldFlash] = new(Bank, 0xa101),
-        [DraygonCannonDraw.LeftSparksPeakingAt11And20] = new(Bank, 0xa165),
-        [DraygonCannonDraw.LeftSparksPeakingAt3And28] = new(Bank, 0xa179),
-        [DraygonCannonDraw.LeftSparksPeakingAt6And25] = new(Bank, 0xa18d),
+        [DraygonCannonDraw.LeftSparksFlaring] = new(Bank, 0xa165),
+        [DraygonCannonDraw.LeftSparksSpreading] = new(Bank, 0xa179),
+        [DraygonCannonDraw.LeftSparksReceding] = new(Bank, 0xa18d),
         [DraygonCannonDraw.LeftSparksFlat] = new(Bank, 0xa1a1),
     };
 

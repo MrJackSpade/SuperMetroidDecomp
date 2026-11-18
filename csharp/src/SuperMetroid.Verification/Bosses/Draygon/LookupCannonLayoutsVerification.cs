@@ -12,9 +12,9 @@ internal static class LookupCannonLayoutsVerification
 {
     /// <summary>The twelve reachable cannon frames' draw-list addresses and published names.</summary>
     private static readonly LookupEscapeGateStockFrame[] Frames = [new(0x9fcd, "right-shield"), new(0x9fdd, "right-shield-flash"),
-        new(0xa02d, "right-sparks-peaking-at-11-and-20"), new(0xa03d, "right-sparks-peaking-at-3-and-28"), new(0xa04d, "right-sparks-peaking-at-6-and-25"), new(0xa05d, "right-sparks-flat"),
-        new(0xa0ed, "left-shield"), new(0xa101, "left-shield-flash"), new(0xa165, "left-sparks-peaking-at-11-and-20"), new(0xa179, "left-sparks-peaking-at-3-and-28"),
-        new(0xa18d, "left-sparks-peaking-at-6-and-25"), new(0xa1a1, "left-sparks-flat")];
+        new(0xa02d, "right-sparks-flaring"), new(0xa03d, "right-sparks-spreading"), new(0xa04d, "right-sparks-receding"), new(0xa05d, "right-sparks-flat"),
+        new(0xa0ed, "left-shield"), new(0xa101, "left-shield-flash"), new(0xa165, "left-sparks-flaring"), new(0xa179, "left-sparks-spreading"),
+        new(0xa18d, "left-sparks-receding"), new(0xa1a1, "left-sparks-flat")];
 
     /// <summary>Checks which draws are the cannon's, each frame's runs and continuations against the cartridge, and that each shape covers its frame's four cells only.</summary>
     internal static void VerifyCannonLayoutGeometry(CartridgeImportAddressSpace rom)

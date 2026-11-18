@@ -671,14 +671,14 @@ firingLevel, cancelledSamus, controllerInput: 0, roomObjects: SamusRoomObjectFix
     OamBuffer grappleFlareOam = grappleFlareOamFrame.FinalizeAsOam();
     AssertEqual(GrappleFlareStage.JustFired, samus.Grapple.FlareStage,
         "grapple flare moves on only in post-Samus tile pass");
-    AssertEqual(16, ChargeFlareAnimations.NumberOf(ChargeFlareComponent.MainFlare, samus.Grapple.FlarePlace),
+    AssertEqual(16, samus.Grapple.FlareFrame,
         "first grapple flare selects shared main frame sixteen");
     AssertEqual(2, samus.Grapple.FlareAnimationTimer.RawValue,
         "first grapple flare performs decrement-before-test");
     var grappleFlare = (ImageSpriteDraw)grappleFlareOamFrame.Draws.Single();
     AssertEqual(InstalledFixtures.SpriteSheets.Get(ProjectileSheetFrames.For(SuperMetroid.Core.Progression.SamusBeamCombinations.Of(samus.EquippedBeams)))
             .Frame(ProjectileSheetFrames.FlareFrame(
-            ChargeFlarePictures.Of(SuperMetroid.Core.Samus.Projectiles.ChargeFlareComponent.MainFlare, facingLeft: false, ChargeFlareAnimations.PlaceAt(ChargeFlareComponent.MainFlare, 16)))), grappleFlare.Image,
+            ChargeFlarePictures.Of(SuperMetroid.Core.Samus.Projectiles.ChargeFlareComponent.MainFlare, facingLeft: false, ChargeFlareAnimationDefinitions.PictureNumbered(ChargeFlareComponent.MainFlare, 16)))), grappleFlare.Image,
         "grapple flare shows main flare frame sixteen from the sheet of the beams she has equipped");
     AssertEqual(new Offset16<ScreenPixels>(98, 103), grappleFlare.Origin, "grapple flare is placed at the flare origin");
 
@@ -777,7 +777,7 @@ firingLevel, cancelledSamus, controllerInput: 0, roomObjects: SamusRoomObjectFix
     AssertEqual(0x0c90, samus.Kinematics.YSpeed.Fraction, "release pose preserves fractional Y velocity");
     AssertEqual(GrappleFlareStage.None, samus.Grapple.FlareStage,
         "completed grapple release clears the flare");
-    AssertEqual(0, ChargeFlareAnimations.NumberOf(ChargeFlareComponent.MainFlare, samus.Grapple.FlarePlace),
+    AssertEqual(0, samus.Grapple.FlareFrame,
         "completed grapple release clears flare frame");
     AssertEqual(0, samus.Grapple.FlareAnimationTimer.RawValue,
         "completed grapple release clears flare timer");

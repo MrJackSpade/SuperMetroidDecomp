@@ -60,7 +60,7 @@ internal static class GrappleFlarePresentationVerification
                     ? SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection.Left
                     : SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection.Right;
                 samus.Grapple.FlareStage = stage;
-                samus.Grapple.FlarePlace = ChargeFlareAnimations.PlaceAt(ChargeFlareComponent.MainFlare, 29);
+                samus.Grapple.FlareFrame = 29;
                 samus.Grapple.FlareAnimationTimer = WrappingCountdown.Start(0);
                 samus.Grapple.FlareOrigin = samus.Grapple.FlareOrigin.WithX(coordinate); samus.Grapple.FlareOrigin = samus.Grapple.FlareOrigin.WithY(coordinate);
                 samus.Grapple.RopeStart = samus.Grapple.RopeStart.WithX(70); samus.Grapple.RopeStart = samus.Grapple.RopeStart.WithY(80);
@@ -88,15 +88,15 @@ internal static class GrappleFlarePresentationVerification
                 native.Grapple.FlareStage = actual.Grapple.FlareStage = GrappleFlareStage.Shown;
             }
         }
-        // Exercise negative timers across the complete authored main-flare frame domain
-        // while vertically culled, without inventing valid sprite IDs.
-        foreach (ushort timer in new ushort[] { 0, 1, 2, 32768, 65535 })
+        // Exercise the waits the flare leaves across the complete authored main-flare frame domain while vertically
+        // culled, without inventing valid sprite IDs. The flare never leaves a wait run past zero (#2396).
+        foreach (ushort timer in new ushort[] { 0, 1, 2 })
         foreach (ushort frame in new ushort[] { 0, 15, 16, 29 })
         {
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FacingRightNormalPose };
             samus.Grapple.Phase = GrapplePhase.ConnectedLocked;
             samus.Grapple.FlareStage = GrappleFlareStage.Shown;
-            samus.Grapple.FlarePlace = ChargeFlareAnimations.PlaceAt(ChargeFlareComponent.MainFlare, frame);
+            samus.Grapple.FlareFrame = frame;
             samus.Grapple.FlareAnimationTimer = WrappingCountdown.Start(timer);
             samus.Grapple.FlareOrigin = samus.Grapple.FlareOrigin.WithY(256);
             Check(samus, Clone(samus), wholeState: timer == 0 && frame == 0);
@@ -116,7 +116,7 @@ internal static class GrappleFlarePresentationVerification
                     samus.BindBodyFixture(body);
                 samus.Artwork.GrappleFlarePlacement = flarePlacement;
             }
-            int expectedFrame = ChargeFlareAnimations.NumberOf(ChargeFlareComponent.MainFlare, native.Grapple.FlarePlace);
+            int expectedFrame = native.Grapple.FlareFrame;
             ushort expectedTimer = native.Grapple.FlareAnimationTimer.RawValue;
             if (SamusGrappleBeamDrawing.DrawingFor(native.Grapple.Phase) == SamusGrappleDrawing.Beam && native.Grapple.FlareStage != GrappleFlareStage.None)
             {
@@ -142,7 +142,7 @@ internal static class GrappleFlarePresentationVerification
             AssertEqual(visible, SamusGrappleBeamDrawing.DrawFlareBeforeSamus(actual, bFrame, Position16<RoomPixels>.Zero, artwork), "Grapple sheet retains native flare visibility");
             OamBuffer b = bFrame.FinalizeAsOam();
 
-            AssertEqual(new CheckCase(expectedFrame, expectedTimer), new CheckCase(ChargeFlareAnimations.NumberOf(ChargeFlareComponent.MainFlare, actual.Grapple.FlarePlace), actual.Grapple.FlareAnimationTimer.RawValue), "Grapple shared compiled cadence matches independent native reads");
+            AssertEqual(new CheckCase(expectedFrame, expectedTimer), new CheckCase(actual.Grapple.FlareFrame, actual.Grapple.FlareAnimationTimer.RawValue), "Grapple shared compiled cadence matches independent native reads");
             AssertTrue(a.ImageEquals(b) && (a.LastFinalizedSpriteCount * 4) == (b.LastFinalizedSpriteCount * 4), "Grapple stock parts preserve native complete OAM");
             AssertEqual(FlareState.Of(native.Grapple), FlareState.Of(actual.Grapple), "Flare draws write the same flare timing and physical origins");
             if (wholeState)
@@ -159,7 +159,7 @@ internal static class GrappleFlarePresentationVerification
     private readonly record struct FlareState(GrappleFlareStage Stage, int Frame, ushort Timer, Position16<RoomPixels> RopeStart, Position16<RoomPixels> FlareOrigin)
     {
         /// <summary>The flare state <paramref name="grapple"/> holds.</summary>
-        internal static FlareState Of(SamusGrappleState grapple) => new(grapple.FlareStage, ChargeFlareAnimations.NumberOf(ChargeFlareComponent.MainFlare, grapple.FlarePlace),
+        internal static FlareState Of(SamusGrappleState grapple) => new(grapple.FlareStage, grapple.FlareFrame,
             grapple.FlareAnimationTimer.RawValue, grapple.RopeStart, grapple.FlareOrigin);
     }
 
@@ -184,7 +184,7 @@ internal static class GrappleFlarePresentationVerification
         SamusPresentation.InitializeAnimation(samus);
         samus.Grapple.Phase = GrapplePhase.ConnectedLocked;
         samus.Grapple.FlareOrigin = samus.Grapple.FlareOrigin.WithX(samus.Position.X.Whole); samus.Grapple.FlareOrigin = samus.Grapple.FlareOrigin.WithY(samus.Position.Y.Whole);
-        samus.Grapple.FlareStage = GrappleFlareStage.Shown; samus.Grapple.FlarePlace = ChargeFlareAnimations.PlaceAt(ChargeFlareComponent.MainFlare, 16); samus.Grapple.FlareAnimationTimer = WrappingCountdown.Start(100);
+        samus.Grapple.FlareStage = GrappleFlareStage.Shown; samus.Grapple.FlareFrame = 16; samus.Grapple.FlareAnimationTimer = WrappingCountdown.Start(100);
         game.AdoptRuntime(runtime);
         byte[] original = Draw(runtime);
         samus.Grapple.FlareStage = GrappleFlareStage.None;

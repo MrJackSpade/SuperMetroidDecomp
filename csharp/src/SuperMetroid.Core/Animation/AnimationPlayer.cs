@@ -239,4 +239,92 @@ internal sealed class AnimationPlayer<TSegment, TFrame, TEvent>
                 throw new InvalidOperationException($"The animation played on to {next}.");
         }
     }
+
+    /// <summary>
+    /// Starts <paramref name="animation"/> again at <paramref name="place"/>, showing at once the frame it plays to from
+    /// there for that frame's own updates (#2396): the grapple beam's flare restarts at the main flare's loop.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The animation raises an event or pauses before the frame.</exception>
+    internal void ShowFrom(Animation<TSegment> animation, AnimationPlace place)
+    {
+        Start(animation);
+        Playback = Playback with { Place = place };
+        ShowFirstFrameForItsOwnUpdates();
+    }
+
+    /// <summary>
+    /// Starts <paramref name="animation"/> again on its last frame, the last beat of its last phase, shown at once for
+    /// <paramref name="updates"/> updates (#2396), to be played backward from there (<see cref="StepBackward"/>).
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="updates"/> is below one.</exception>
+    /// <exception cref="InvalidOperationException">The animation has no phase, or its last beat is no frame.</exception>
+    internal void ShowLastFrame(Animation<TSegment> animation, int updates)
+    {
+        Ensure.NotNull(animation);
+        if (animation.Phases.Count == 0)
+            throw new InvalidOperationException("An animation of no phase has no last frame.");
+        int last = animation.Phases.Count - 1;
+        ShowAt(animation, new AnimationPlace(last, animation.Phases[last].BeatCount - 1), updates);
+    }
+
+    /// <summary>
+    /// Runs one update of the animation played backward (#2396): counts the shown frame's updates down and, once they run
+    /// out, steps back to the frame the animation shows before it, shown for <paramref name="frameUpdates"/> updates, or for
+    /// <paramref name="firstFrameUpdates"/> when that is the animation's first frame. A backward play goes once through the
+    /// phases, last to first, each from its last beat to its first, and follows no loop or repeat; stepping back past the
+    /// first frame stops it, and it shows nothing more. A resting animation does nothing.
+    /// </summary>
+    /// <returns>Whether the update stepped back onto the animation's first frame.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Either count of updates is below one.</exception>
+    /// <exception cref="InvalidOperationException">
+    /// The animation stands on no frame, or steps back onto a beat that shows none.
+    /// </exception>
+    internal bool StepBackward(int frameUpdates, int firstFrameUpdates)
+    {
+        if (frameUpdates < 1)
+            throw new ArgumentOutOfRangeException(nameof(frameUpdates), frameUpdates, "A frame shows for at least one update.");
+        if (firstFrameUpdates < 1)
+            throw new ArgumentOutOfRangeException(nameof(firstFrameUpdates), firstFrameUpdates, "A frame shows for at least one update.");
+        if (IsResting || --UpdatesLeft > 0)
+            return false;
+        AnimationPlace place = Playback.Place;
+        IReadOnlyList<AnimationPhase<TSegment>> phases = Playback.Animation.Phases;
+        if (Shown is null || place.Phase >= phases.Count || place.Beat < 1 || place.Beat > phases[place.Phase].BeatCount)
+            throw new InvalidOperationException("The animation stands on no frame to step back from.");
+        // The place stands just past the beat shown, so the beat before that one is two back.
+        int phase = place.Phase, beat = place.Beat - 2;
+        while (beat < 0)
+        {
+            if (--phase < 0)
+            {
+                Shown = null;
+                IsResting = true;
+                HasStopped = true;
+                return false;
+            }
+            beat = phases[phase].BeatCount - 1;
+        }
+        AnimationPhase<TSegment> stepped = phases[phase];
+        Shown = segments.Beats(stepped.Segment)[stepped.FirstBeat + beat].ShownFrame
+            ?? throw new InvalidOperationException($"The animation steps back onto a beat of {stepped.Segment} that shows no frame.");
+        Playback = Playback with { Place = new AnimationPlace(phase, beat + 1) };
+        bool first = beat == 0 && phases.Take(phase).All(earlier => earlier.BeatCount == 0);
+        UpdatesLeft = first ? firstFrameUpdates : frameUpdates;
+        return first;
+    }
+
+    /// <summary>
+    /// Shows the shown frame for <paramref name="updates"/> more updates from now, in place of the updates it had left
+    /// (#2396): an owner that hands a frame over to another way of counting gives it the wait that count leaves it.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="updates"/> is below one.</exception>
+    /// <exception cref="InvalidOperationException">The animation rests or shows no frame.</exception>
+    internal void HoldShownFrameFor(int updates)
+    {
+        if (updates < 1)
+            throw new ArgumentOutOfRangeException(nameof(updates), updates, "A frame shows for at least one update.");
+        if (IsResting || Shown is null)
+            throw new InvalidOperationException("The animation holds no frame it is counting.");
+        UpdatesLeft = updates;
+    }
 }

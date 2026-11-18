@@ -188,11 +188,7 @@ internal sealed class DraygonParts
                 state.Eye.AnimationClock.StepOnNextUpdate();
                 state.Body.AnimationClock.StepOnNextUpdate();
                 return;
-            // Only his eye's animations track with its own eye, so both cues set the eye's tracking.
             case DraygonCue.TrackWithEye track:
-                Track(state.EyeTracking, track.Facing);
-                return;
-            case DraygonCue.TrackWithOwnEye track:
                 Track(state.EyeTracking, track.Facing);
                 return;
             case DraygonCue.ShiftBodyPicture shift:

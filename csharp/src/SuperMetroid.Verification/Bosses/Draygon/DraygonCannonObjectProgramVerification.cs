@@ -67,6 +67,26 @@ internal static class DraygonCannonObjectProgramVerification
             "left shield draws its native physical collision and tile reference");
         AssertTrue(disabled.Contains(DraygonWallCannon.UpperLeft),
             "pre-destroyed cannon executes its retail damage-list entry");
+        // A Missile that does not destroy the cannon flashes its shield (#2401): the update that reads the hit shows the
+        // shield for three updates, then the shield shows white for four, three times over, and the shield shows again and
+        // stays, as the native hit list's draws and durations say.
+        RoomTerrainBlock rightShield = RoomTerrainBlock.Of(0x114, BlockMirroring.Horizontal, RoomCollisionType.ShootableBlock);
+        RoomTerrainBlock rightWhite = RoomTerrainBlock.Of(0x116, BlockMirroring.Horizontal, RoomCollisionType.ShootableBlock);
+        AssertTrue(roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(level.BlockAt(rightShieldBlock), SamusProjectileType.Of(SamusProjectileFamily.Missile)),
+            "Missile reaches live right cannon");
+        RoomTerrainBlock[] expectedFlash =
+        [
+            .. Enumerable.Repeat(0, 3).SelectMany(_ => Enumerable.Repeat(rightShield, 3).Concat(Enumerable.Repeat(rightWhite, 4))),
+            .. Enumerable.Repeat(rightShield, 12),
+        ];
+        var shownFlash = new List<RoomTerrainBlock>();
+        foreach (RoomTerrainBlock _ in expectedFlash)
+        {
+            Step(roomObjects, guarded, level);
+            shownFlash.Add(level.GetCollisionBlockByIndex(rightShieldBlock).Terrain);
+        }
+        AssertTrue(expectedFlash.SequenceEqual(shownFlash),
+            $"a Missile flashes the right cannon's shield three times and returns to it: {string.Join(", ", shownFlash.Select(block => block == rightWhite ? "white" : block == rightShield ? "shield" : block.ToString()))}");
         int rightBlock = rightShieldBlock;
         AssertTrue(roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(level.BlockAt(rightBlock), SamusProjectileType.Of(SamusProjectileFamily.SuperMissile)),
             "Super Missile reaches live right cannon");

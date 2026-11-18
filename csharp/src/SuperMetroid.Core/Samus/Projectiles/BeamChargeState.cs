@@ -95,7 +95,7 @@ internal sealed class BeamChargeState
     internal void StartChargeFlare()
     {
         foreach (ChargeFlareComponent component in Enum.GetValues<ChargeFlareComponent>())
-            Flare(component).Show(ChargeFlareAnimations.First(component));
+            Flare(component).Start();
     }
 
     /// <summary>The Hyper Beam's shot: every component shows its last picture, to count its pictures backward from there.</summary>
@@ -104,10 +104,7 @@ internal sealed class BeamChargeState
         FlareCounter = 0;
         HyperBeamFlare = true;
         foreach (ChargeFlareComponent component in Enum.GetValues<ChargeFlareComponent>())
-        {
-            Flare(component).Show(new(ChargeFlareAnimations.LastPlace(component),
-                WrappingCountdown.Start(ChargeFlareAnimationDefinitions.HyperBeamPictureUpdates)));
-        }
+            Flare(component).StartBackward();
     }
 
     /// <summary>Clears every flare component to its first picture with no wait.</summary>

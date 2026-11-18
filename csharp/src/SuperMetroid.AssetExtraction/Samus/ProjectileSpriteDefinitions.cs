@@ -33,23 +33,24 @@ public static class ProjectileSpriteDefinitions
     private static readonly ProjectileSpriteId MissileExplosionFlare = new(ProjectileSpriteGroup.MissileExplosion, "Flare");
 
     /// <summary>
-    /// Charged Wave's cores and paired lobes, in storage order: each lobe pair's swing from the core (Near, Midway, Far, Peak)
-    /// and its alternate drawing. Charged Ice Wave stores all of them again, byte for byte, and charged Ice's cross and star
-    /// are its alternate core and core.
+    /// Charged Wave's cores and paired lobes, in storage order: its core as an orb and as a starburst, and each lobe pair's
+    /// swing from the core (Near, Midway, Far, Peak) with the orb on its upper (or left) lobe and then on its lower (or right)
+    /// one, the starburst on the other: the two pictures its flicker trades. Charged Ice Wave stores all of them again, byte
+    /// for byte, and charged Ice's cross and star are its starburst core and core.
     /// </summary>
     private static readonly ProjectileSpriteId[] ChargedWave = Poses(ProjectileSpriteGroup.ChargedWave,
-        "Core", "CoreAlternate", "Right.LobesNear", "Right.LobesNearAlternate", "Right.LobesMidway",
-        "Right.LobesMidwayAlternate", "Right.LobesFar", "Right.LobesFarAlternate", "Right.LobesPeak",
-        "Right.LobesPeakAlternate", "DownRight.LobesNear", "DownRight.LobesNearAlternate", "DownRight.LobesMidway",
-        "DownRight.LobesMidwayAlternate", "DownRight.LobesFar", "DownRight.LobesFarAlternate", "DownRight.LobesPeak",
-        "DownRight.LobesPeakAlternate", "UpRight.LobesNear", "UpRight.LobesNearAlternate", "UpRight.LobesMidway",
-        "UpRight.LobesMidwayAlternate", "UpRight.LobesFar", "UpRight.LobesFarAlternate", "UpRight.LobesPeak",
-        "UpRight.LobesPeakAlternate", "Down.LobesNear", "Down.LobesNearAlternate", "Down.LobesMidway",
-        "Down.LobesMidwayAlternate", "Down.LobesFar", "Down.LobesFarAlternate", "Down.LobesPeak", "Down.LobesPeakAlternate");
+        "Core", "CoreStarburst", "Right.LobesNear", "Right.LobesNearOrbBelow", "Right.LobesMidway",
+        "Right.LobesMidwayOrbBelow", "Right.LobesFar", "Right.LobesFarOrbBelow", "Right.LobesPeak",
+        "Right.LobesPeakOrbBelow", "DownRight.LobesNear", "DownRight.LobesNearOrbBelow", "DownRight.LobesMidway",
+        "DownRight.LobesMidwayOrbBelow", "DownRight.LobesFar", "DownRight.LobesFarOrbBelow", "DownRight.LobesPeak",
+        "DownRight.LobesPeakOrbBelow", "UpRight.LobesNear", "UpRight.LobesNearOrbBelow", "UpRight.LobesMidway",
+        "UpRight.LobesMidwayOrbBelow", "UpRight.LobesFar", "UpRight.LobesFarOrbBelow", "UpRight.LobesPeak",
+        "UpRight.LobesPeakOrbBelow", "Down.LobesNear", "Down.LobesNearOrbRight", "Down.LobesMidway",
+        "Down.LobesMidwayOrbRight", "Down.LobesFar", "Down.LobesFarOrbRight", "Down.LobesPeak", "Down.LobesPeakOrbRight");
     /// <summary>Charged Wave's core.</summary>
     private static readonly ProjectileSpriteId ChargedWaveCore = ChargedWave[0];
-    /// <summary>Charged Wave's alternate core.</summary>
-    private static readonly ProjectileSpriteId ChargedWaveCoreAlternate = ChargedWave[1];
+    /// <summary>Charged Wave's core as a starburst, which its flicker trades with the orb.</summary>
+    private static readonly ProjectileSpriteId ChargedWaveCoreStarburst = ChargedWave[1];
 
     /// <summary>The Spazer beam's up-right seed, which charged Spazer's up-right startup grows into.</summary>
     private static readonly ProjectileSpriteId SpazerUpRightSeed = new(ProjectileSpriteGroup.Spazer, "UpRight.Seed");
@@ -67,25 +68,26 @@ public static class ProjectileSpriteDefinitions
     private static readonly ProjectileSpriteId ChargedSpazerLeftSplitting = new(ProjectileSpriteGroup.ChargedSpazer, "Left.Splitting");
     /// <summary>Charged Power's shot fired up left, which it shows in every direction but left.</summary>
     private static readonly ProjectileSpriteId ChargedPowerUpLeft = new(ProjectileSpriteGroup.ChargedPower, "UpLeft");
-    /// <summary>Charged Power's alternate drawing fired left, which it shows in every direction.</summary>
-    private static readonly ProjectileSpriteId ChargedPowerLeftAlternate = new(ProjectileSpriteGroup.ChargedPower, "LeftAlternate");
+    /// <summary>Charged Power's orb, which its flicker trades with the starburst in every direction.</summary>
+    private static readonly ProjectileSpriteId ChargedPowerOrb = new(ProjectileSpriteGroup.ChargedPower, "Orb");
     /// <summary>Charged Spazer's upward startup strip, which charged Plasma's upward core also shows.</summary>
     private static readonly ProjectileSpriteId SpazerStartupUpShort = new(ProjectileSpriteGroup.SpazerStartup, "Up.Short");
-    /// <summary>Charged Spazer's horizontal alternate startup strip, which charged Plasma's rightward alternate core also shows.</summary>
-    private static readonly ProjectileSpriteId SpazerStartupHorizontalAlternateShort = new(ProjectileSpriteGroup.SpazerStartup, "HorizontalAlternate.Short");
-    /// <summary>Charged Spazer's down-right alternate startup strip, which charged Plasma's down-right alternate core also shows.</summary>
-    private static readonly ProjectileSpriteId SpazerStartupDownRightAlternateShort = new(ProjectileSpriteGroup.SpazerStartup, "DownRightAlternate.Short");
-    /// <summary>Charged Spazer's vertical alternate startup strip, which charged Plasma's upward alternate core also shows.</summary>
-    private static readonly ProjectileSpriteId SpazerStartupVerticalAlternateShort = new(ProjectileSpriteGroup.SpazerStartup, "VerticalAlternate.Short");
-    /// <summary>Charged Spazer's up-right alternate startup strip, which charged Plasma's up-right alternate core also shows.</summary>
-    private static readonly ProjectileSpriteId SpazerStartupUpRightAlternateShort = new(ProjectileSpriteGroup.SpazerStartup, "UpRightAlternate.Short");
+    /// <summary>Charged Spazer's thick horizontal startup strip, which charged Plasma's thick rightward core also shows.</summary>
+    private static readonly ProjectileSpriteId SpazerStartupHorizontalThickShort = new(ProjectileSpriteGroup.SpazerStartup, "HorizontalThick.Short");
+    /// <summary>Charged Spazer's thick down-right startup strip, which charged Plasma's thick down-right core also shows.</summary>
+    private static readonly ProjectileSpriteId SpazerStartupDownRightThickShort = new(ProjectileSpriteGroup.SpazerStartup, "DownRightThick.Short");
+    /// <summary>Charged Spazer's thick vertical startup strip, which charged Plasma's thick upward core also shows.</summary>
+    private static readonly ProjectileSpriteId SpazerStartupVerticalThickShort = new(ProjectileSpriteGroup.SpazerStartup, "VerticalThick.Short");
+    /// <summary>Charged Spazer's thick up-right startup strip, which charged Plasma's thick up-right core also shows.</summary>
+    private static readonly ProjectileSpriteId SpazerStartupUpRightThickShort = new(ProjectileSpriteGroup.SpazerStartup, "UpRightThick.Short");
 
     /// <summary>
     /// The composition each of the cartridge's 417 projectile composition records holds, in its storage order (#1762, #2295):
     /// each named by its family and pose, the pose naming the direction it points or travels and the stage of its animation
     /// it shows. A wave's poses name the side it swings to and how far (Near, Midway, Far, Peak), a spread its lanes'
-    /// widening from its seed (Splitting, Parting, Spreading, NearlySpread, Spread), and an alternate the drawing the beam
-    /// shows on alternate updates. A record that stores, byte for byte, a composition stored earlier holds that composition:
+    /// widening from its seed (Splitting, Parting, Spreading, NearlySpread, Spread), and a charged shot's flicker the
+    /// picture it trades on alternate updates: Charged Power's orb, Charged Wave's starburst core and lobes with the orb
+    /// moved (OrbBelow, OrbRight), and the Spazer and Plasma beams' thick beam. A record that stores, byte for byte, a composition stored earlier holds that composition:
     /// it is one picture, named once, for the family that stores it first, and the import maps both records to it.
     /// </summary>
     internal static IReadOnlyList<ProjectileSpriteId> Stored { get; } =
@@ -122,12 +124,12 @@ public static class ProjectileSpriteDefinitions
             "DownRightLong.LobesNear", "DownRightLong.LobesMidway", "DownRightLong.LobesFar", "DownRightLong.LobesPeak",
             "UpShort.Core", "UpShort.LobesNear", "UpShort.LobesMidway", "UpShort.LobesFar", "UpShort.LobesPeak",
             "UpLong.Core", "UpLong.LobesNear", "UpLong.LobesMidway", "UpLong.LobesFar", "UpLong.LobesPeak",
-            "RightAlternate.Core", "RightAlternate.LobesNear", "RightAlternate.LobesMidway", "RightAlternate.LobesFar",
-            "RightAlternate.LobesPeak", "DownRightAlternate.Core", "DownRightAlternate.LobesNear",
-            "DownRightAlternate.LobesMidway", "DownRightAlternate.LobesFar", "DownRightAlternate.LobesPeak",
-            "UpAlternate.Core", "UpAlternate.LobesNear", "UpAlternate.LobesMidway", "UpAlternate.LobesFar",
-            "UpAlternate.LobesPeak", "UpRightAlternate.Core", "UpRightAlternate.LobesNear", "UpRightAlternate.LobesMidway",
-            "UpRightAlternate.LobesFar", "UpRightAlternate.LobesPeak", "UpRightShort.Core", "UpRightShort.LobesNear",
+            "RightThick.Core", "RightThick.LobesNear", "RightThick.LobesMidway", "RightThick.LobesFar",
+            "RightThick.LobesPeak", "DownRightThick.Core", "DownRightThick.LobesNear",
+            "DownRightThick.LobesMidway", "DownRightThick.LobesFar", "DownRightThick.LobesPeak",
+            "UpThick.Core", "UpThick.LobesNear", "UpThick.LobesMidway", "UpThick.LobesFar",
+            "UpThick.LobesPeak", "UpRightThick.Core", "UpRightThick.LobesNear", "UpRightThick.LobesMidway",
+            "UpRightThick.LobesFar", "UpRightThick.LobesPeak", "UpRightShort.Core", "UpRightShort.LobesNear",
             "UpRightShort.LobesMidway", "UpRightShort.LobesFar", "UpRightShort.LobesPeak", "UpRightLong.Core",
             "UpRightLong.LobesNear", "UpRightLong.LobesMidway", "UpRightLong.LobesFar", "UpRightLong.LobesPeak"),
         SpazerUpRightSeed,
@@ -150,14 +152,14 @@ public static class ProjectileSpriteDefinitions
             "Right.Seed"),
         SpazerLeftSplitting,
         .. Poses(ProjectileSpriteGroup.Spazer, "Right.Parting", "Right.Spreading", "Right.NearlySpread", "Right.Spread"),
-        .. Poses(ProjectileSpriteGroup.ChargedSpazer, "HorizontalAlternate.Seed", "HorizontalAlternate.Splitting",
-            "HorizontalAlternate.Parting", "HorizontalAlternate.Spreading", "HorizontalAlternate.NearlySpread",
-            "HorizontalAlternate.Spread", "VerticalAlternate.Seed", "VerticalAlternate.Splitting", "VerticalAlternate.Parting",
-            "VerticalAlternate.Spreading", "VerticalAlternate.NearlySpread", "VerticalAlternate.Spread",
-            "DownRightAlternate.Seed", "DownRightAlternate.Splitting", "DownRightAlternate.Parting",
-            "DownRightAlternate.Spreading", "DownRightAlternate.NearlySpread", "DownRightAlternate.Spread",
-            "UpRightAlternate.Seed", "UpRightAlternate.Splitting", "UpRightAlternate.Parting", "UpRightAlternate.Spreading",
-            "UpRightAlternate.NearlySpread", "UpRightAlternate.Spread", "UpRight.Seed", "UpRight.Parting",
+        .. Poses(ProjectileSpriteGroup.ChargedSpazer, "HorizontalThick.Seed", "HorizontalThick.Splitting",
+            "HorizontalThick.Parting", "HorizontalThick.Spreading", "HorizontalThick.NearlySpread",
+            "HorizontalThick.Spread", "VerticalThick.Seed", "VerticalThick.Splitting", "VerticalThick.Parting",
+            "VerticalThick.Spreading", "VerticalThick.NearlySpread", "VerticalThick.Spread",
+            "DownRightThick.Seed", "DownRightThick.Splitting", "DownRightThick.Parting",
+            "DownRightThick.Spreading", "DownRightThick.NearlySpread", "DownRightThick.Spread",
+            "UpRightThick.Seed", "UpRightThick.Splitting", "UpRightThick.Parting", "UpRightThick.Spreading",
+            "UpRightThick.NearlySpread", "UpRightThick.Spread", "UpRight.Seed", "UpRight.Parting",
             "UpRight.Spreading", "UpRight.NearlySpread", "UpRight.Spread", "UpRight.Splitting", "DownRight.Seed",
             "DownRight.Parting", "DownRight.Spreading", "DownRight.NearlySpread", "DownRight.Spread", "DownRight.Splitting",
             "DownLeft.Seed", "DownLeft.Parting", "DownLeft.Spreading", "DownLeft.NearlySpread", "DownLeft.Spread",
@@ -172,9 +174,9 @@ public static class ProjectileSpriteDefinitions
         new(ProjectileSpriteGroup.ChargedPower, "Left"),
         ChargedPowerUpLeft, ChargedPowerUpLeft, ChargedPowerUpLeft, ChargedPowerUpLeft, ChargedPowerUpLeft, ChargedPowerUpLeft,
         ChargedPowerUpLeft,
-        ChargedPowerLeftAlternate, ChargedPowerLeftAlternate, ChargedPowerLeftAlternate, ChargedPowerLeftAlternate,
-        ChargedPowerLeftAlternate, ChargedPowerLeftAlternate, ChargedPowerLeftAlternate, ChargedPowerLeftAlternate,
-        ChargedWaveCoreAlternate, ChargedWaveCore, ChargedWaveCoreAlternate, ChargedWaveCore,
+        ChargedPowerOrb, ChargedPowerOrb, ChargedPowerOrb, ChargedPowerOrb,
+        ChargedPowerOrb, ChargedPowerOrb, ChargedPowerOrb, ChargedPowerOrb,
+        ChargedWaveCoreStarburst, ChargedWaveCore, ChargedWaveCoreStarburst, ChargedWaveCore,
         PowerLeft, PowerUpLeft, PowerUp, PowerUpRight,
         PowerLeft, new(ProjectileSpriteGroup.SpazerStartup, "Left.Long"),
         new(ProjectileSpriteGroup.SpazerStartup, "UpLeft.Short"), SpazerUpLeftSeed,
@@ -182,22 +184,22 @@ public static class ProjectileSpriteDefinitions
         new(ProjectileSpriteGroup.SpazerStartup, "UpRight.Short"), SpazerUpRightSeed,
         .. Poses(ProjectileSpriteGroup.SpazerStartup, "Right.Short", "Right.Long", "DownRight.Short"), SpazerDownRightSeed,
         new(ProjectileSpriteGroup.SpazerStartup, "Down.Short"), SpazerDownSeed,
-        SpazerStartupHorizontalAlternateShort, new(ProjectileSpriteGroup.SpazerStartup, "HorizontalAlternate.Long"),
-        SpazerStartupDownRightAlternateShort, new(ProjectileSpriteGroup.SpazerStartup, "DownRightAlternate.Long"),
-        SpazerStartupVerticalAlternateShort, new(ProjectileSpriteGroup.SpazerStartup, "VerticalAlternate.Long"),
-        SpazerStartupUpRightAlternateShort, new(ProjectileSpriteGroup.SpazerStartup, "UpRightAlternate.Long"),
+        SpazerStartupHorizontalThickShort, new(ProjectileSpriteGroup.SpazerStartup, "HorizontalThick.Long"),
+        SpazerStartupDownRightThickShort, new(ProjectileSpriteGroup.SpazerStartup, "DownRightThick.Long"),
+        SpazerStartupVerticalThickShort, new(ProjectileSpriteGroup.SpazerStartup, "VerticalThick.Long"),
+        SpazerStartupUpRightThickShort, new(ProjectileSpriteGroup.SpazerStartup, "UpRightThick.Long"),
         PowerLeft, .. Poses(ProjectileSpriteGroup.PlasmaStartup, "Right.Short", "Right.Long", "Right.Full"),
         SpazerStartupUpShort, .. Poses(ProjectileSpriteGroup.PlasmaStartup, "Up.Short", "Up.Long", "Up.Full",
             "DownRight.Core", "DownRight.Short", "DownRight.Long", "DownRight.Full", "UpRight.Core", "UpRight.Short",
             "UpRight.Long", "UpRight.Full"),
-        SpazerStartupHorizontalAlternateShort, .. Poses(ProjectileSpriteGroup.PlasmaStartup, "RightAlternate.Short",
-            "RightAlternate.Long", "RightAlternate.Full"),
-        SpazerStartupVerticalAlternateShort, .. Poses(ProjectileSpriteGroup.PlasmaStartup, "UpAlternate.Short",
-            "UpAlternate.Long", "UpAlternate.Full"),
-        SpazerStartupDownRightAlternateShort, .. Poses(ProjectileSpriteGroup.PlasmaStartup, "DownRightAlternate.Short",
-            "DownRightAlternate.Long", "DownRightAlternate.Full"),
-        SpazerStartupUpRightAlternateShort, .. Poses(ProjectileSpriteGroup.PlasmaStartup, "UpRightAlternate.Short",
-            "UpRightAlternate.Long", "UpRightAlternate.Full"),
+        SpazerStartupHorizontalThickShort, .. Poses(ProjectileSpriteGroup.PlasmaStartup, "RightThick.Short",
+            "RightThick.Long", "RightThick.Full"),
+        SpazerStartupVerticalThickShort, .. Poses(ProjectileSpriteGroup.PlasmaStartup, "UpThick.Short",
+            "UpThick.Long", "UpThick.Full"),
+        SpazerStartupDownRightThickShort, .. Poses(ProjectileSpriteGroup.PlasmaStartup, "DownRightThick.Short",
+            "DownRightThick.Long", "DownRightThick.Full"),
+        SpazerStartupUpRightThickShort, .. Poses(ProjectileSpriteGroup.PlasmaStartup, "UpRightThick.Short",
+            "UpRightThick.Long", "UpRightThick.Full"),
     ];
 
     /// <summary>

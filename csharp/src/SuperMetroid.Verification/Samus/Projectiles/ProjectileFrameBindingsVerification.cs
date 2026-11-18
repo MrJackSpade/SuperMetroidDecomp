@@ -108,7 +108,7 @@ internal static class ProjectileFrameBindingsVerification
         AssertEqual("Spazer.DownLeft.Spread", document.Frames[nameof(SamusProjectileFrameId.SpazerDownLeftSpread)], "the down-left Spazer's spread lanes bind its spread composition");
         // #2295: a record storing a composition again, byte for byte, binds that one composition: charged Ice's cross and star
         // are charged Wave's alternate core and core, and the Wave beam's centre is the leftward Power beam's character.
-        AssertEqual("ChargedWave.CoreAlternate", document.Frames[nameof(SamusProjectileFrameId.ChargedIceCrossed)], "charged Ice's cross binds the composition it stores");
+        AssertEqual("ChargedWave.CoreStarburst", document.Frames[nameof(SamusProjectileFrameId.ChargedIceCrossed)], "charged Ice's cross binds the composition it stores");
         AssertEqual("ChargedWave.Core", document.Frames[nameof(SamusProjectileFrameId.ChargedIceStar)], "charged Ice's star binds the composition it stores");
         AssertEqual("Power.Left", document.Frames[nameof(SamusProjectileFrameId.WaveHorizontalCentre)], "the Wave beam's centre binds the composition it stores");
         string[] unbound = [.. ProjectileSpriteDefinitions.All.Select(sprite => sprite.Name).Except(document.Frames.Values)];

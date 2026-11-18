@@ -15,14 +15,14 @@ internal enum PlasmaWaveShape
     VerticalShort,
     /// <summary>Seven-tile vertical charged core.</summary>
     VerticalLong,
-    /// <summary>Alternate charged horizontal seven-part group.</summary>
-    HorizontalAlternate,
-    /// <summary>Alternate charged down-right twelve-part group.</summary>
-    DownRightAlternate,
-    /// <summary>Alternate charged vertical seven-part group.</summary>
-    VerticalAlternate,
-    /// <summary>Alternate charged down-left twelve-part group.</summary>
-    DownLeftAlternate,
+    /// <summary>Thick charged horizontal seven-part group.</summary>
+    HorizontalThick,
+    /// <summary>Thick charged down-right twelve-part group.</summary>
+    DownRightThick,
+    /// <summary>Thick charged vertical seven-part group.</summary>
+    VerticalThick,
+    /// <summary>Thick charged down-left twelve-part group.</summary>
+    DownLeftThick,
     /// <summary>Six-part down-left diagonal core.</summary>
     DownLeftShort,
     /// <summary>Ten-part down-left charged core.</summary>

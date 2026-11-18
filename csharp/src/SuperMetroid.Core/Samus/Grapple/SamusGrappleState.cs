@@ -180,19 +180,10 @@ public sealed class SamusGrappleState
     public GrappleFlareStage FlareStage { get; set; }
 
     /// <summary>
-    /// The place in the main flare's animation whose picture the grapple's flare shows: the flare restarts at the main
-    /// flare's loop when fired and plays its animation on from there.
+    /// The grapple's flare (#2396): the main flare's animation, which the flare restarts at the main flare's loop when
+    /// fired and plays on from there, and which teardown clears.
     /// </summary>
-    public ChargeFlarePlace FlarePlace
-    {
-        get;
-        set => field = ChargeFlareAnimations.IsPicture(ChargeFlareComponent.MainFlare, value)
-            ? value
-            : throw new ArgumentOutOfRangeException(nameof(value), value, "The grapple's flare shows only the main flare's pictures.");
-    }
-
-    /// <summary>The wait the grapple's flare holds its picture for: the picture shows for it and one update more.</summary>
-    public WrappingCountdown FlareAnimationTimer { get; set; }
+    internal ChargeFlareComponentState Flare { get; } = new(ChargeFlareComponent.MainFlare);
 
     /// <summary>
     /// The endpoint's animation (#1627, #2388): its four pictures, six beam draws each, over and over; a fresh beam starts

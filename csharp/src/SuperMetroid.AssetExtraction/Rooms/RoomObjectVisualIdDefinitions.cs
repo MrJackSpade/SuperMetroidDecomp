@@ -45,15 +45,15 @@ internal static class RoomObjectVisualIdDefinitions
     {
         [DraygonCannonDraw.RightShield] = "right-shield",
         [DraygonCannonDraw.RightShieldFlash] = "right-shield-flash",
-        [DraygonCannonDraw.RightSparksPeakingAt11And20] = "right-sparks-peaking-at-11-and-20",
-        [DraygonCannonDraw.RightSparksPeakingAt3And28] = "right-sparks-peaking-at-3-and-28",
-        [DraygonCannonDraw.RightSparksPeakingAt6And25] = "right-sparks-peaking-at-6-and-25",
+        [DraygonCannonDraw.RightSparksFlaring] = "right-sparks-flaring",
+        [DraygonCannonDraw.RightSparksSpreading] = "right-sparks-spreading",
+        [DraygonCannonDraw.RightSparksReceding] = "right-sparks-receding",
         [DraygonCannonDraw.RightSparksFlat] = "right-sparks-flat",
         [DraygonCannonDraw.LeftShield] = "left-shield",
         [DraygonCannonDraw.LeftShieldFlash] = "left-shield-flash",
-        [DraygonCannonDraw.LeftSparksPeakingAt11And20] = "left-sparks-peaking-at-11-and-20",
-        [DraygonCannonDraw.LeftSparksPeakingAt3And28] = "left-sparks-peaking-at-3-and-28",
-        [DraygonCannonDraw.LeftSparksPeakingAt6And25] = "left-sparks-peaking-at-6-and-25",
+        [DraygonCannonDraw.LeftSparksFlaring] = "left-sparks-flaring",
+        [DraygonCannonDraw.LeftSparksSpreading] = "left-sparks-spreading",
+        [DraygonCannonDraw.LeftSparksReceding] = "left-sparks-receding",
         [DraygonCannonDraw.LeftSparksFlat] = "left-sparks-flat",
     };
 

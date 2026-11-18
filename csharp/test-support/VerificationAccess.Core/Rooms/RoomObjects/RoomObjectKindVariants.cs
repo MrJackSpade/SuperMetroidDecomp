@@ -4,9 +4,10 @@ using SuperMetroid.Core.Rooms.Scrolling;
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// What a placement of each door, item, station and scroll-extension kind carries in its setup (#2481), as the population
-/// generator decodes it: the generator reads these tables to write each placement's setup, and verification builds a
-/// synthetic placement of a kind from them. Each kind the retail rooms place is listed by the one table of its family.
+/// What a placement of each door, item, map or refill station and scroll-extension kind carries in its setup (#2481,
+/// #2483), as the population generator decodes it: the generator reads these tables to write each placement's setup, and
+/// verification builds a synthetic placement of a kind from them. Each kind the retail rooms place is listed by the one
+/// table of its family; the save station, whose setup carries only its placement's load station, is listed by none.
 /// </summary>
 internal static class RoomObjectKindVariants
 {
@@ -89,13 +90,12 @@ internal static class RoomObjectKindVariants
         [RoomObjectKind.EyeDoorBottomFacingLeft] = new(EyeDoorBodyPart.Bottom, EyeDoorOrientation.Left),
     };
 
-    /// <summary>The station each station kind places.</summary>
-    internal static IReadOnlyDictionary<RoomObjectKind, StationKind> Stations { get; } = new Dictionary<RoomObjectKind, StationKind>
+    /// <summary>The access rule of the station each map, energy and missile station kind places.</summary>
+    internal static IReadOnlyDictionary<RoomObjectKind, StationAccessRule> AccessStations { get; } = new Dictionary<RoomObjectKind, StationAccessRule>
     {
-        [RoomObjectKind.MapStation] = StationKind.Map,
-        [RoomObjectKind.EnergyStation] = StationKind.Energy,
-        [RoomObjectKind.MissileStation] = StationKind.Missile,
-        [RoomObjectKind.SaveStation] = StationKind.Save,
+        [RoomObjectKind.MapStation] = StationAccessRuleDefinitions.Map,
+        [RoomObjectKind.EnergyStation] = StationAccessRuleDefinitions.Energy,
+        [RoomObjectKind.MissileStation] = StationAccessRuleDefinitions.Missile,
     };
 
     /// <summary>What each scroll-extension kind writes to extend the trigger beside it.</summary>

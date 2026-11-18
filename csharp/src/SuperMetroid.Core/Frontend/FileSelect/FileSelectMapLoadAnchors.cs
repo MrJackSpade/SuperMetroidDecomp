@@ -21,7 +21,7 @@ public static class FileSelectMapLoadAnchors
     {
         _ = MapSaveMarkers.Id(station);
         LoadStationPlacement placement = station.Placement;
-        RoomDefinition room = placement.Room;
+        RoomDefinition room = placement.Door.DestinationRoom;
         Position16<RoomPixels> samus = placement.SamusPosition;
         return new((room.MapPosition.X + RoomGridConversions.PixelToScreen(samus.X)) * FileSelectMapDefinitions.MapSquarePixels,
             (room.MapPosition.Y + RoomGridConversions.PixelToScreen(samus.Y)) * FileSelectMapDefinitions.MapSquarePixels);

@@ -16,12 +16,20 @@ namespace SuperMetroid.Core.Rooms.Doors;
 internal sealed class ColoredDoorObject : DoorCapObject, IClosingDoor
 {
     /// <summary>A cap of <paramref name="variant"/>'s colour and facing, just placed in <paramref name="door"/>.</summary>
-    internal ColoredDoorObject(ColoredDoorVariant variant, PlacedDoor? door)
-        : base(variant.Orientation, DoorCaps.PaintOf(variant.Color), door)
+    internal ColoredDoorObject(ColoredDoorVariant variant, PlacedDoor door)
+        : base(variant.Orientation, DoorCaps.PaintOf(variant.Color))
     {
         Color = variant.Color;
+        Door = Ensure.NotNull(door);
         _sequences = ColoredDoorDefinitions.Sequences[variant];
     }
+
+    /// <summary>The door the cap stands in, as its placement named it.</summary>
+    internal PlacedDoor Door { get; }
+
+    /// <summary>A cap whose door has been opened for good stays open behind Samus.</summary>
+    public override bool StaysOpenBehindSamus(Func<LockedDoor, bool> openedForGood, ShotOpenedCapClosing<LockedDoor> shotCapClosing) =>
+        Door.IsOpenedForGood(openedForGood);
 
     /// <summary>The cap's colour, which selects the projectile that opens it.</summary>
     internal ColoredDoorColor Color { get; }

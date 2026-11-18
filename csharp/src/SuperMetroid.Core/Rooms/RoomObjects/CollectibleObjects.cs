@@ -159,13 +159,14 @@ internal sealed class CollectibleObjects
         RoomObjectRoom room,
         RoomObjectPlace place,
         PermanentCollectibleObject item,
-        CollectedItemArgument? placed)
+        CollectedItemArgument placed)
     {
+        Ensure.NotNull(placed);
         RoomLevelData level = room.Level;
         SharedGameState system = room.System;
         (InWorldCollectibleKind kind, CollectiblePresentation presentation) = item;
         RoomCollisionBlock original = level.GetCollisionBlock(place.Block);
-        bool collected = placed is not null && system.HasCollectedItem(placed.Location);
+        bool collected = system.HasCollectedItem(placed.Location);
         CollectibleBlockPairs.Pair? blockPair = CollectibleDefinitions.Items[kind].Picture == CollectiblePictureSource.OwnPicture ? _blockPairs.Take() : null;
 
         RoomTerrainBlock setup = original.Terrain.WithCollision(
@@ -187,7 +188,7 @@ internal sealed class CollectibleObjects
                 CollectiblePresentation.ShotBlock => CollectiblePhase.ShotBlock,
                 _ => throw new ArgumentOutOfRangeException(nameof(presentation)),
             };
-        place.Become(new CollectibleObject(kind, presentation, blockPair, phase, placed?.Location));
+        place.Become(new CollectibleObject(kind, presentation, blockPair, phase, placed.Location));
     }
 
     /// <summary>
@@ -201,8 +202,7 @@ internal sealed class CollectibleObjects
         IRoomSamus samus = _samus.Current;
         SharedGameState system = _system;
 
-        if (item.Location is { } location)
-            system.CollectItem(location);
+        system.CollectItem(item.Location);
         CollectibleDefinition definition = CollectibleDefinitions.Items[item.Kind];
         definition.Grant.Apply(samus);
 

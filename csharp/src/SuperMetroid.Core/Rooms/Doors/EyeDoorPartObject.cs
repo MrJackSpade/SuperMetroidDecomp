@@ -13,8 +13,8 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// by leaving the room on its next update. A part only draws its poses: its animations raise nothing (#2481).
 /// </summary>
 /// <param name="part">Which part this is, the body's middle or its bottom, and the way its door faces.</param>
-/// <param name="door">The door the part's placement named; null for none.</param>
-internal sealed class EyeDoorPartObject(EyeDoorPart part, PlacedDoor? door)
+/// <param name="door">The door the part's placement named.</param>
+internal sealed class EyeDoorPartObject(EyeDoorPart part, PlacedDoor door)
     : SequencedRoomObject<EyeDoorPartSegment, EyeDoorPartPose, NoAnimationCue>(EyeDoorSequenceDefinitions.PartSegments), IClosingDoor, IDoorKeptOpen
 {
     /// <summary>Which part this is and the way its door faces.</summary>
@@ -23,12 +23,12 @@ internal sealed class EyeDoorPartObject(EyeDoorPart part, PlacedDoor? door)
     /// <summary>The eye door's facing.</summary>
     internal EyeDoorOrientation Orientation => Part.Orientation;
 
-    /// <summary>The door the part stands in, as its placement named it; null for none.</summary>
-    internal PlacedDoor? Door { get; } = door;
+    /// <summary>The door the part stands in, as its placement named it.</summary>
+    internal PlacedDoor Door { get; } = Ensure.NotNull(door);
 
     /// <summary>A part whose door has been opened for good stays open behind Samus.</summary>
     public bool StaysOpenBehindSamus(Func<LockedDoor, bool> openedForGood, ShotOpenedCapClosing<LockedDoor> shotCapClosing) =>
-        Door?.IsOpenedForGood(openedForGood) == true;
+        Door.IsOpenedForGood(openedForGood);
 
     /// <summary>What the part is doing (#2482).</summary>
     internal EyeDoorPartPhase Phase { get; private set; } = EyeDoorPartPhase.Placed;

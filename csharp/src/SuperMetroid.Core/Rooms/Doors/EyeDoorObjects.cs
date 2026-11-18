@@ -52,12 +52,12 @@ internal sealed class EyeDoorObjects
     /// on its first update, and installs its closed collision block unless its door has been opened for good; the part's
     /// first look then removes it.
     /// </summary>
-    internal void SetupEyeDoorPart(RoomLevelData level, RoomObjectPlace place, EyeDoorPart part, LockedDoorArgument? door)
+    internal void SetupEyeDoorPart(RoomLevelData level, RoomObjectPlace place, EyeDoorPart part, LockedDoorArgument door)
     {
         Ensure.NotNull(place);
-        PlacedDoor? placedDoor = PlacedDoor.For(door);
+        var placedDoor = new PlacedDoor(door);
         place.Become(new EyeDoorPartObject(part, placedDoor));
-        if (placedDoor?.IsOpenedForGood(_system.HasOpenedDoor) == true)
+        if (placedDoor.IsOpenedForGood(_system.HasOpenedDoor))
             return;
         RoomObjectLevelWrites.WriteObjectCollisionAndBehavior(level, place.Block, EyeDoorDefinitions.ClosedComponentCollision,
             EyeDoorDefinitions.ClosedComponentBehavior);

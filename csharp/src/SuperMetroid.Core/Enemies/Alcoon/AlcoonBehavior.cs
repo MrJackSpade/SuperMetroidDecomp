@@ -405,7 +405,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             RoomEnemyProjectileKind.AlcoonFireball,
             Fireball,
             SpriteGraphics.SpawnedBy(alcoon));
-        projectile.StartAnimation(new AlcoonFireballAnimation(AlcoonFireballSegment.Initial));
+        projectile.StartAnimation(new AlcoonFireballAnimation(AlcoonFireballSegment.Spinning));
         Offset16<RoomPixels> muzzle = AlcoonFireballLaunchDefinitions.MuzzleFacingRight;
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(alcoon.Position.Whole + (movingLeft ? muzzle.MirroredX() : muzzle));
         projectile.Velocity = projectile.Velocity.WithX(movingLeft

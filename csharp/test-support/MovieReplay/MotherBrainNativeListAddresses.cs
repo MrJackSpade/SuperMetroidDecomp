@@ -64,7 +64,7 @@ internal static class MotherBrainNativeListAddresses
         new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.StretchingPhase3Held, 0x9bdf),
         new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.HyperBeamRecoil, 0x9be7),
         new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.HyperBeamRecoilHeld, 0x9c0b),
-        new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.Initial, 0x9c21),
+        new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.WholeHeadMouthClosed, 0x9c21),
         new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.Decapitated, 0x9c29),
         new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.DecapitatedHeld, 0x9c31),
         new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.DyingDrool, 0x9c39),
@@ -92,7 +92,7 @@ internal static class MotherBrainNativeListAddresses
     /// <summary>Each cutscene Baby program's native entry point in bank $A9.</summary>
     internal static readonly NativeProgramEntry<MotherBrainBabySegment>[] BabyEntries =
     [
-        new NativeProgramEntry<MotherBrainBabySegment>(MotherBrainBabySegment.Initial, 0xcfa2),
+        new NativeProgramEntry<MotherBrainBabySegment>(MotherBrainBabySegment.IdlePulse, 0xcfa2),
         new NativeProgramEntry<MotherBrainBabySegment>(MotherBrainBabySegment.DrainingMotherBrain, 0xcfb8),
         new NativeProgramEntry<MotherBrainBabySegment>(MotherBrainBabySegment.TakingFatalBlow, 0xcfce),
     ];
@@ -389,7 +389,7 @@ internal static class MotherBrainNativeListAddresses
     /// <summary>The cutscene Baby's opcodes: its two same-bank gotos.</summary>
     private static Dictionary<ushort, NativeListOp<MotherBrainBabySegment, NoAnimationCue>> BabyNativeOps { get; } = new()
     {
-        [0xcfb4] = new(0, (_, _) => new([], MotherBrainBabySegment.Initial)),
+        [0xcfb4] = new(0, (_, _) => new([], MotherBrainBabySegment.IdlePulse)),
         [0xcfca] = new(0, (_, _) => new([], MotherBrainBabySegment.DrainingMotherBrain)),
     };
 

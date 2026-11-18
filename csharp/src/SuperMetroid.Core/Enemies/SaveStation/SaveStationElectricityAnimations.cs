@@ -37,7 +37,7 @@ internal static class SaveStationElectricityAnimations
     internal static IReadOnlyDictionary<SaveStationElectricitySegment, Animation<SaveStationElectricitySegment>> StartingAt { get; } = new Dictionary<SaveStationElectricitySegment, Animation<SaveStationElectricitySegment>>();
 
     /// <summary>The electricity's discharge (#2061): twenty eight-pose cycles, then the deletion.</summary>
-    internal static Animation<SaveStationElectricitySegment> Discharge { get; } = new([new(P.Cycle, 0, 8, 20), new(P.Deletion, 0, 1, 1)], AnimationEnd.Holds);
+    internal static Animation<SaveStationElectricitySegment> Discharge { get; } = new([Segments.Repeated(P.Cycle, 20), Segments.Whole(P.Deletion)], AnimationEnd.Holds);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Frame(frame, duration);

@@ -14,7 +14,7 @@ internal static class PolypRockAnimations
     internal static AnimationSegments<PolypRockSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(
         new Dictionary<PolypRockSegment, AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>[]>
     {
-        [P.Initial] =
+        [P.LavaRock] =
         [
             Hold(EnemyProjectileFrameId.PolypRock),
         ],
@@ -23,7 +23,7 @@ internal static class PolypRockAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<PolypRockSegment, Animation<PolypRockSegment>> StartingAt { get; } = new Dictionary<PolypRockSegment, Animation<PolypRockSegment>>
     {
-        [P.Initial] = new([new(P.Initial, 0, 1, 1)], AnimationEnd.Holds),
+        [P.LavaRock] = new([Segments.Whole(P.LavaRock)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

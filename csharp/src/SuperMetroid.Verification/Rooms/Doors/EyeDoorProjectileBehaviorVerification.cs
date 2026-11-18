@@ -31,9 +31,9 @@ internal static class EyeDoorProjectileBehaviorVerification
         EnemyProjectile shot = enemies.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.EyeDoorProjectile);
         shot.Position = shot.Position.WithWhole(new(64, 32));
-        AssertTrue(shot.Animation is EyeDoorProjectileAnimation { PlayingSegment: EyeDoorProjectileSegment.Initial }, "the shot starts its flight");
+        AssertTrue(shot.Animation is EyeDoorProjectileAnimation { PlayingSegment: EyeDoorProjectileSegment.Fired }, "the shot starts its flight");
         (bool deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, shot,
-            EyeDoorProjectileNativeListAddresses.Entry(EyeDoorProjectileSegment.Initial), 60, "eye-door flight");
+            EyeDoorProjectileNativeListAddresses.Entry(EyeDoorProjectileSegment.Fired), 60, "eye-door flight");
         AssertTrue(!deleted, "the flight loops");
         AssertTrue(shot.Velocity.X.RawValue != 0 || shot.Velocity.Y.RawValue != 0, "the aim cue launches the shot toward Samus");
 

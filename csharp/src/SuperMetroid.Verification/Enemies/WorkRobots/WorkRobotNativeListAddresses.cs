@@ -19,7 +19,7 @@ internal static class WorkRobotNativeListAddresses
         new NativeProgramEntry<WorkRobotSegment>(WorkRobotSegment.NoPowerNeutral, 0xc6d3),
         new NativeProgramEntry<WorkRobotSegment>(WorkRobotSegment.NoPowerLeaningLeft, 0xc6d9),
         new NativeProgramEntry<WorkRobotSegment>(WorkRobotSegment.NoPowerLeaningRight, 0xc6df),
-        new NativeProgramEntry<WorkRobotSegment>(WorkRobotSegment.Initial, 0xc6e5),
+        new NativeProgramEntry<WorkRobotSegment>(WorkRobotSegment.StandingFacingLeft, 0xc6e5),
         new NativeProgramEntry<WorkRobotSegment>(WorkRobotSegment.FacingLeftWalkingForwards, 0xc6e9),
         new NativeProgramEntry<WorkRobotSegment>(WorkRobotSegment.FacingLeftWalkingStride, 0xc6ed),
         new NativeProgramEntry<WorkRobotSegment>(WorkRobotSegment.FacingLeftHitWallMovingForwards, 0xc73f),

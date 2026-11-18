@@ -42,11 +42,11 @@ internal static class ShutterAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<ShutterSegment, Animation<ShutterSegment>> StartingAt { get; } = new Dictionary<ShutterSegment, Animation<ShutterSegment>>
     {
-        [P.GrowingTenPixels] = new([new(P.GrowingTenPixels, 0, 1, 1)], AnimationEnd.Holds),
-        [P.GrowingTwentyPixels] = new([new(P.GrowingTwentyPixels, 0, 1, 1)], AnimationEnd.Holds),
-        [P.GrowingThirtyPixels] = new([new(P.GrowingThirtyPixels, 0, 1, 1)], AnimationEnd.Holds),
-        [P.FortyPixels] = new([new(P.FortyPixels, 0, 1, 1)], AnimationEnd.Holds),
-        [P.KamerPlatform] = new([new(P.KamerPlatform, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.GrowingTenPixels] = new([Segments.Whole(P.GrowingTenPixels)], AnimationEnd.Holds),
+        [P.GrowingTwentyPixels] = new([Segments.Whole(P.GrowingTwentyPixels)], AnimationEnd.Holds),
+        [P.GrowingThirtyPixels] = new([Segments.Whole(P.GrowingThirtyPixels)], AnimationEnd.Holds),
+        [P.FortyPixels] = new([Segments.Whole(P.FortyPixels)], AnimationEnd.Holds),
+        [P.KamerPlatform] = new([Segments.Whole(P.KamerPlatform)], AnimationEnd.LoopsFrom(0)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

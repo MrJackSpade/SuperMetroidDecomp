@@ -86,7 +86,7 @@ internal static class EtecoonAnimations
             Show(EnemyFrameId.EtecoonHopArmsRaisingFacingRight, 12),
         ],
         [P.WallJumpRightEligible] = [Hold(EnemyFrameId.EtecoonClingingFacingRight)],
-        [P.Initial] = [Hold(EnemyFrameId.EtecoonHopCrouchFacingRight)],
+        [P.StartingCrouch] = [Hold(EnemyFrameId.EtecoonHopCrouchFacingRight)],
         [P.Flexing] =
         [
             Show(EnemyFrameId.EtecoonHopCrouchFacingRight, 8),
@@ -127,7 +127,7 @@ internal static class EtecoonAnimations
         [P.HoppingFacingRight] = new([Whole(P.HoppingFacingRight)], AnimationEnd.Holds),
         [P.ContinueHoppingFacingRight] = new([Whole(P.ContinueHoppingFacingRight)], AnimationEnd.Holds),
         [P.WallJumpRightEligible] = new([Whole(P.WallJumpRightEligible)], AnimationEnd.Holds),
-        [P.Initial] = new([Whole(P.Initial)], AnimationEnd.Holds),
+        [P.StartingCrouch] = new([Whole(P.StartingCrouch)], AnimationEnd.Holds),
     };
 
     /// <summary>The flex its wake starts (#2061): four plays of its six hop poses, then its two closing poses, held.</summary>

@@ -86,7 +86,7 @@ internal sealed class EyeDoorBehavior
             return; // Spawning fails when the room has no place left for an enemy projectile.
 
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, RoomEnemyProjectileKind.EyeDoorProjectile, Shot, graphics: default);
-        projectile.StartAnimation(new EyeDoorProjectileAnimation(EyeDoorProjectileSegment.Initial));
+        projectile.StartAnimation(new EyeDoorProjectileAnimation(EyeDoorProjectileSegment.Fired));
         InitializeEyeDoorProjectile(projectile, request, system);
     }
 

@@ -41,7 +41,7 @@ internal enum EtecoonSegment
     /// <summary>Clinging to a wall facing right, held, ready to jump off it.</summary>
     WallJumpRightEligible,
     /// <summary>Crouched to hop facing right, the pose it starts in.</summary>
-    Initial,
+    StartingCrouch,
     /// <summary>The flex's six hop poses, which the flex plays four times.</summary>
     Flexing,
     /// <summary>The flex's two closing poses, the last held.</summary>

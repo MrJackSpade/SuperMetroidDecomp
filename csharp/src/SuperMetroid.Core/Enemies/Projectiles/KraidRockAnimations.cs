@@ -33,9 +33,9 @@ internal static class KraidRockAnimations
     /// </summary>
     internal static IReadOnlyDictionary<KraidRockSegment, Animation<KraidRockSegment>> StartingAt { get; } = new Dictionary<KraidRockSegment, Animation<KraidRockSegment>>
     {
-        [KraidRockSegment.SharedPose] = new([new(KraidRockSegment.SharedPose, 0, 1, 1)], AnimationEnd.Holds),
-        [KraidRockSegment.RisingRightPose] = new([new(KraidRockSegment.RisingRightPose, 0, 1, 1)], AnimationEnd.Holds),
-        [KraidRockSegment.SpitRockShot] = new([new(KraidRockSegment.SpitRockShot, 0, 7, 1)], AnimationEnd.Holds),
+        [KraidRockSegment.SharedPose] = new([Segments.Whole(KraidRockSegment.SharedPose)], AnimationEnd.Holds),
+        [KraidRockSegment.RisingRightPose] = new([Segments.Whole(KraidRockSegment.RisingRightPose)], AnimationEnd.Holds),
+        [KraidRockSegment.SpitRockShot] = new([Segments.Whole(KraidRockSegment.SpitRockShot)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

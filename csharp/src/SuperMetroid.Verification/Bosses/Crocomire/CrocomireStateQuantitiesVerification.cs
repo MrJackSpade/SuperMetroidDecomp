@@ -58,7 +58,7 @@ internal static class CrocomireStateQuantitiesVerification
             (RoomEnemySystem enemies, CrocomireEnemyState state) = NewCrocomire();
             state.Phase = CrocomirePhase.PowerBombCharge;
             state.StepCounter = start;
-            state.BodyPlayback = new AnimationPlayback<CrocomireBodySegment>(CrocomireBodyAnimations.StartingWith(CrocomireBodySegment.Initial), AnimationPlace.StartOfAnimation);
+            state.BodyPlayback = new AnimationPlayback<CrocomireBodySegment>(CrocomireBodyAnimations.StartingWith(CrocomireBodySegment.IdleSway), AnimationPlace.StartOfAnimation);
             state.Body.AnimationClock.StepOnNextUpdate();
             // The initial program shows its frame on the first update and runs its fight-AI cue on every later one.
             Pass(enemies, state);

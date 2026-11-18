@@ -31,7 +31,7 @@ internal static class EtecoonNativeListAddresses
         new NativeProgramEntry<EtecoonSegment>(EtecoonSegment.HoppingFacingRight, 0xe8ac),
         new NativeProgramEntry<EtecoonSegment>(EtecoonSegment.ContinueHoppingFacingRight, 0xe8b2),
         new NativeProgramEntry<EtecoonSegment>(EtecoonSegment.WallJumpRightEligible, 0xe8c8),
-        new NativeProgramEntry<EtecoonSegment>(EtecoonSegment.Initial, 0xe8ce),
+        new NativeProgramEntry<EtecoonSegment>(EtecoonSegment.StartingCrouch, 0xe8ce),
         new NativeProgramEntry<EtecoonSegment>(EtecoonSegment.Flexing, 0xe8da),
         new NativeProgramEntry<EtecoonSegment>(EtecoonSegment.FlexEnd, 0xe8f6),
     ];

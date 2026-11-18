@@ -13,7 +13,7 @@ internal enum WorkRobotSegment
     /// <summary>Unpowered and tilted right, held.</summary>
     NoPowerLeaningRight,
     /// <summary>Standing facing left with its near foot easing up for a long moment, then walking left.</summary>
-    Initial,
+    StandingFacingLeft,
     /// <summary>Facing left with its near foot easing up as it sets off, then striding left.</summary>
     FacingLeftWalkingForwards,
     /// <summary>The stride walking forwards facing left, looped (#2276).</summary>

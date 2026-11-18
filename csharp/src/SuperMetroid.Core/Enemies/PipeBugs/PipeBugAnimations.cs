@@ -155,22 +155,22 @@ internal static class PipeBugAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<PipeBugSegment, Animation<PipeBugSegment>> StartingAt { get; } = new Dictionary<PipeBugSegment, Animation<PipeBugSegment>>
     {
-        [P.ZebRisingLeft] = new([new(P.ZebRisingLeft, 0, 8, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ZebShootingLeft] = new([new(P.ZebShootingLeft, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ZebRisingRight] = new([new(P.ZebRisingRight, 0, 8, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ZebShootingRight] = new([new(P.ZebShootingRight, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ZebboRisingLeft] = new([new(P.ZebboRisingLeft, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ZebboShootingLeft] = new([new(P.ZebboShootingLeft, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ZebboRisingRight] = new([new(P.ZebboRisingRight, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ZebboShootingRight] = new([new(P.ZebboShootingRight, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.GametRisingLeft] = new([new(P.GametRisingLeft, 0, 8, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.GametFlyingLeft] = new([new(P.GametFlyingLeft, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.GametRisingRight] = new([new(P.GametRisingRight, 0, 8, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.GametFlyingRight] = new([new(P.GametFlyingRight, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.GeegaFlyingLeft] = new([new(P.GeegaFlyingLeft, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.GeegaArcingLeft] = new([new(P.GeegaArcingLeft, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.GeegaFlyingRight] = new([new(P.GeegaFlyingRight, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.GeegaArcingRight] = new([new(P.GeegaArcingRight, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.ZebRisingLeft] = new([Segments.Whole(P.ZebRisingLeft)], AnimationEnd.LoopsFrom(0)),
+        [P.ZebShootingLeft] = new([Segments.Whole(P.ZebShootingLeft)], AnimationEnd.LoopsFrom(0)),
+        [P.ZebRisingRight] = new([Segments.Whole(P.ZebRisingRight)], AnimationEnd.LoopsFrom(0)),
+        [P.ZebShootingRight] = new([Segments.Whole(P.ZebShootingRight)], AnimationEnd.LoopsFrom(0)),
+        [P.ZebboRisingLeft] = new([Segments.Whole(P.ZebboRisingLeft)], AnimationEnd.LoopsFrom(0)),
+        [P.ZebboShootingLeft] = new([Segments.Whole(P.ZebboShootingLeft)], AnimationEnd.LoopsFrom(0)),
+        [P.ZebboRisingRight] = new([Segments.Whole(P.ZebboRisingRight)], AnimationEnd.LoopsFrom(0)),
+        [P.ZebboShootingRight] = new([Segments.Whole(P.ZebboShootingRight)], AnimationEnd.LoopsFrom(0)),
+        [P.GametRisingLeft] = new([Segments.Whole(P.GametRisingLeft)], AnimationEnd.LoopsFrom(0)),
+        [P.GametFlyingLeft] = new([Segments.Whole(P.GametFlyingLeft)], AnimationEnd.LoopsFrom(0)),
+        [P.GametRisingRight] = new([Segments.Whole(P.GametRisingRight)], AnimationEnd.LoopsFrom(0)),
+        [P.GametFlyingRight] = new([Segments.Whole(P.GametFlyingRight)], AnimationEnd.LoopsFrom(0)),
+        [P.GeegaFlyingLeft] = new([Segments.Whole(P.GeegaFlyingLeft)], AnimationEnd.LoopsFrom(0)),
+        [P.GeegaArcingLeft] = new([Segments.Whole(P.GeegaArcingLeft)], AnimationEnd.LoopsFrom(0)),
+        [P.GeegaFlyingRight] = new([Segments.Whole(P.GeegaFlyingRight)], AnimationEnd.LoopsFrom(0)),
+        [P.GeegaArcingRight] = new([Segments.Whole(P.GeegaArcingRight)], AnimationEnd.LoopsFrom(0)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

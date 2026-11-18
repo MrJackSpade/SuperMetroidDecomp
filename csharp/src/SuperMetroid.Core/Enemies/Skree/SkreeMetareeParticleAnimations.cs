@@ -27,8 +27,8 @@ internal static class SkreeMetareeParticleAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<SkreeMetareeParticleSegment, Animation<SkreeMetareeParticleSegment>> StartingAt { get; } = new Dictionary<SkreeMetareeParticleSegment, Animation<SkreeMetareeParticleSegment>>
     {
-        [P.Skree] = new([new(P.Skree, 0, 1, 1)], AnimationEnd.Holds),
-        [P.Metaree] = new([new(P.Metaree, 0, 1, 1)], AnimationEnd.Holds),
+        [P.Skree] = new([Segments.Whole(P.Skree)], AnimationEnd.Holds),
+        [P.Metaree] = new([Segments.Whole(P.Metaree)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

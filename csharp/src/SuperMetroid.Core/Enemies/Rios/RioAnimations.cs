@@ -61,11 +61,11 @@ internal static class RioAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<RioSegment, Animation<RioSegment>> StartingAt { get; } = new Dictionary<RioSegment, Animation<RioSegment>>
     {
-        [P.Idle] = new([new(P.Idle, 0, 2, 1), new(P.PostSwoopIdle, 0, 10, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.PostSwoopIdle] = new([new(P.PostSwoopIdle, 0, 10, 1), new(P.Idle, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.SwoopOpening] = new([new(P.SwoopOpening, 0, 6, 1)], AnimationEnd.Holds),
-        [P.SwoopLoop] = new([new(P.SwoopLoop, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.SwoopCooldown] = new([new(P.SwoopCooldown, 0, 6, 1)], AnimationEnd.Holds),
+        [P.Idle] = new([Segments.Whole(P.Idle), Segments.Whole(P.PostSwoopIdle)], AnimationEnd.LoopsFrom(0)),
+        [P.PostSwoopIdle] = new([Segments.Whole(P.PostSwoopIdle), Segments.Whole(P.Idle)], AnimationEnd.LoopsFrom(0)),
+        [P.SwoopOpening] = new([Segments.Whole(P.SwoopOpening)], AnimationEnd.Holds),
+        [P.SwoopLoop] = new([Segments.Whole(P.SwoopLoop)], AnimationEnd.LoopsFrom(0)),
+        [P.SwoopCooldown] = new([Segments.Whole(P.SwoopCooldown)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

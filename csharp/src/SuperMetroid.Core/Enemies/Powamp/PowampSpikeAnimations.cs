@@ -15,7 +15,7 @@ internal static class PowampSpikeAnimations
     internal static AnimationSegments<PowampSpikeSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(
         new Dictionary<PowampSpikeSegment, AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>[]>
     {
-        [P.Initial] =
+        [P.Flying] =
         [
             Show(EnemyProjectileFrameId.PowampSpikeStar, 6),
             Show(EnemyProjectileFrameId.PowampSpikeCluster, 6),
@@ -30,8 +30,8 @@ internal static class PowampSpikeAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<PowampSpikeSegment, Animation<PowampSpikeSegment>> StartingAt { get; } = new Dictionary<PowampSpikeSegment, Animation<PowampSpikeSegment>>
     {
-        [P.Initial] = new([new(P.Initial, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.Delete] = new([new(P.Delete, 0, 1, 1)], AnimationEnd.Holds),
+        [P.Flying] = new([Segments.Whole(P.Flying)], AnimationEnd.LoopsFrom(0)),
+        [P.Delete] = new([Segments.Whole(P.Delete)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

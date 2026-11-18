@@ -176,7 +176,7 @@ internal sealed class CeresRidleyBabyScene
     internal const CeresBabySegment MovingAnimation = CeresBabySegment.ExpressiveLoop;
 
     /// <summary>The animation the Baby starts when it rests silently instead of crying (#2167).</summary>
-    internal const CeresBabySegment SilentAnimation = CeresBabySegment.Initial;
+    internal const CeresBabySegment SilentAnimation = CeresBabySegment.IdleSquish;
 
     /// <summary>Carries out one cue of the Baby's animation, returning the segment whose animation its owner starts, or null to play on.</summary>
     private CeresBabySegment? ApplyCeresBabyCue(CeresRidleyState ridley, CeresBabyCue cue)

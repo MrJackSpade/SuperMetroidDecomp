@@ -186,12 +186,12 @@ internal static class NativeEnemyAnimationOracle
         Ensure.NotNull(startingAt);
         foreach (NativeCountedStart<TSegment> counted in countedStarts ?? [])
         {
-            (List<AnimationPhase<TSegment>> countedPhases, AnimationEnd countedEnd) = Linearize(lists, counted.Into, counted.Count);
+            (List<AnimationPhase<TSegment>> countedPhases, AnimationEnd countedEnd) = Linearize(lists, counted.Into, counted.Count, counted.IntoEntry);
             VerificationAssertions.AssertTrue(counted.Entry.Animation.Phases.SequenceEqual(countedPhases),
                 $"{counted.Entry.Name}'s phases follow its native lists from its counted entry ${counted.Entry.Address:X4}");
             VerificationAssertions.AssertEqual(countedEnd, counted.Entry.Animation.End, $"{counted.Entry.Name}'s end follows its native lists");
         }
-        HashSet<TSegment> bodies = [.. lists.Values.SelectMany(list => list.Controls)
+        HashSet<TSegment> bodies = [.. lists.Values.SelectMany(list => list.Repeats.Prepend(list)).SelectMany(list => list.Controls)
             .Where(control => control.Kind == NativeEnemyControlKind.Repeat).Select(control => control.Target!.Value)];
         HashSet<TSegment> tails = CountDownTails(lists);
         foreach (TSegment start in Enum.GetValues<TSegment>())
@@ -274,13 +274,49 @@ internal static class NativeEnemyAnimationOracle
             return entries.Single(entry => EqualityComparer<TSegment>.Default.Equals(entry.Program, start)).Entry;
         }
         AnimationPhase<TSegment> phase = animation.Phases[place.Phase];
-        NativeEnemyList<TSegment> list = lists[phase.Segment];
+        NativeEnemyList<TSegment> list = ListPlayedBy(lists, startingAt, animation, place.Phase, countedStarts);
         if (list.Controls.Any(control => control.Kind == NativeEnemyControlKind.WrittenOutRepeat))
             throw new InvalidOperationException($"{phase.Segment}'s native list writes its run out more than once (#2337): each play stands at its own copy, which the list's beats do not record.");
         if (place.Beat < phase.BeatCount)
             return list.BeatAddresses[phase.FirstBeat + place.Beat];
         return list.Controls.FirstOrDefault(control => control.AfterBeat == phase.FirstBeat + phase.BeatCount)?.Address
             ?? throw new InvalidOperationException($"{phase.Segment}'s native list has no control after beat {phase.FirstBeat + phase.BeatCount}.");
+    }
+
+    /// <summary>
+    /// The native list phase <paramref name="phase"/> of <paramref name="animation"/> plays: its segment's first list, or,
+    /// where the cartridge repeats the segment under entries continuing elsewhere (#2376), the repeat the animation's
+    /// native lists reach the phase through, from the segment it starts at or the counted entry it starts at.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">
+    /// The animation is none of <paramref name="startingAt"/> or <paramref name="countedStarts"/>, or its phases are not the
+    /// ones its native lists play.
+    /// </exception>
+    internal static NativeEnemyList<TSegment> ListPlayedBy<TSegment>(
+        IReadOnlyDictionary<TSegment, NativeEnemyList<TSegment>> lists,
+        IReadOnlyDictionary<TSegment, Animation<TSegment>> startingAt,
+        Animation<TSegment> animation,
+        int phase,
+        IReadOnlyList<NativeCountedStart<TSegment>>? countedStarts = null)
+        where TSegment : struct, Enum
+    {
+        Ensure.NotNull(lists);
+        Ensure.NotNull(startingAt);
+        Ensure.NotNull(animation);
+        NativeEnemyList<TSegment> first = lists[animation.Phases[phase].Segment];
+        if (first.Repeats.Count == 0)
+            return first;
+        (List<AnimationPhase<TSegment>> Phases, AnimationEnd End, List<NativeEnemyList<TSegment>> Played) walked =
+            (countedStarts ?? []).SingleOrDefault(counted => ReferenceEquals(counted.Entry.Animation, animation)) is { } countedStart
+                ? LinearizeLists(lists, countedStart.Into, countedStart.Count, countedStart.IntoEntry)
+                : LinearizeLists(lists, startingAt.SingleOrDefault(pair => ReferenceEquals(pair.Value, animation)) is { Value: not null } started
+                    ? started.Key
+                    : throw new InvalidOperationException($"A {typeof(TSegment).Name} animation playing a repeated list starts at no segment or counted entry."),
+                    firstPlays: 1, startEntry: null);
+        (List<AnimationPhase<TSegment>> phases, List<NativeEnemyList<TSegment>> played) = (walked.Phases, walked.Played);
+        if (!phases.SequenceEqual(animation.Phases))
+            throw new InvalidOperationException($"A {typeof(TSegment).Name} animation playing a repeated list does not play the phases its native lists play.");
+        return played[phase];
     }
 
     /// <summary>
@@ -320,37 +356,41 @@ internal static class NativeEnemyAnimationOracle
             return new AnimationPlayback<TSegment>(startingAt[started], AnimationPlace.StartOfAnimation);
         if (counted.SingleOrDefault(start => start.Entry.Address == nativePointer) is { } countedStart)
             return new AnimationPlayback<TSegment>(countedStart.Entry.Animation, AnimationPlace.StartOfAnimation);
-        var beats = new List<NativeEnemySegmentPlace<TSegment>>();
-        var ends = new List<NativeEnemySegmentPlace<TSegment>>();
+        var beats = new List<(NativeEnemySegmentPlace<TSegment> Place, NativeEnemyList<TSegment> List)>();
+        var ends = new List<(NativeEnemySegmentPlace<TSegment> Place, NativeEnemyList<TSegment> List)>();
         foreach (KeyValuePair<TSegment, NativeEnemyList<TSegment>> pair in lists)
         {
             TSegment segment = pair.Key;
-            NativeEnemyList<TSegment> list = pair.Value;
-            // Markers (#2301) share the address of what follows them, and a play rests before a marker, never just past it:
-            // the pointer stands at the first of the beats sharing its address, and an end those beats run up to is theirs.
-            var pastMarkers = new HashSet<int>();
-            for (int beat = 0; beat < list.BeatAddresses.Length; beat++)
+            // A segment the cartridge repeats under entries continuing elsewhere (#2376) is searched in each of its lists.
+            foreach (NativeEnemyList<TSegment> list in pair.Value.Repeats.Prepend(pair.Value))
             {
-                if (list.BeatAddresses[beat] != nativePointer || (beat > 0 && list.BeatAddresses[beat - 1] == nativePointer))
-                    continue;
-                beats.Add(new(segment, beat));
-                int past = beat;
-                while (past < list.BeatAddresses.Length && list.BeatAddresses[past] == nativePointer)
-                    past++;
-                pastMarkers.Add(past);
-            }
-            // The pointer rests on a list's first control after a beat; a later control at the same beat never holds it.
-            foreach (IGrouping<int, NativeEnemyControl<TSegment>> after in list.Controls.GroupBy(control => control.AfterBeat))
-            {
-                if (after.First().Address == nativePointer && !pastMarkers.Contains(after.Key)
-                    && after.First().Kind is not (NativeEnemyControlKind.RunOnIntoNext or NativeEnemyControlKind.LoopStart or NativeEnemyControlKind.PoseShownAgain))
-                    ends.Add(new(segment, after.Key));
+                // Markers (#2301) share the address of what follows them, and a play rests before a marker, never just past
+                // it: the pointer stands at the first of the beats sharing its address, and an end those beats run up to is
+                // theirs.
+                var pastMarkers = new HashSet<int>();
+                for (int beat = 0; beat < list.BeatAddresses.Length; beat++)
+                {
+                    if (list.BeatAddresses[beat] != nativePointer || (beat > 0 && list.BeatAddresses[beat - 1] == nativePointer))
+                        continue;
+                    beats.Add((new(segment, beat), list));
+                    int past = beat;
+                    while (past < list.BeatAddresses.Length && list.BeatAddresses[past] == nativePointer)
+                        past++;
+                    pastMarkers.Add(past);
+                }
+                // The pointer rests on a list's first control after a beat; a later control at the same beat never holds it.
+                foreach (IGrouping<int, NativeEnemyControl<TSegment>> after in list.Controls.GroupBy(control => control.AfterBeat))
+                {
+                    if (after.First().Address == nativePointer && !pastMarkers.Contains(after.Key)
+                        && after.First().Kind is not (NativeEnemyControlKind.RunOnIntoNext or NativeEnemyControlKind.LoopStart or NativeEnemyControlKind.PoseShownAgain))
+                        ends.Add((new(segment, after.Key), list));
+                }
             }
         }
         if (beats.Count + ends.Count != 1)
             throw new InvalidDataException($"Native {typeof(TSegment).Name} instruction pointer ${nativePointer:X4} matches {beats.Count + ends.Count} typed places.");
         bool atEnd = ends.Count == 1;
-        NativeEnemySegmentPlace<TSegment> found = atEnd ? ends[0] : beats[0];
+        (NativeEnemySegmentPlace<TSegment> found, NativeEnemyList<TSegment> foundList) = atEnd ? ends[0] : beats[0];
         IEnumerable<TSegment> candidates = startingAt.ContainsKey(found.Segment)
             ? [found.Segment, .. Enum.GetValues<TSegment>().Where(startingAt.ContainsKey)]
             : Enum.GetValues<TSegment>().Where(startingAt.ContainsKey);
@@ -362,14 +402,15 @@ internal static class NativeEnemyAnimationOracle
             for (int index = 0; index < animation.Phases.Count; index++)
             {
                 AnimationPhase<TSegment> phase = animation.Phases[index];
-                if (!EqualityComparer<TSegment>.Default.Equals(phase.Segment, found.Segment))
+                if (!EqualityComparer<TSegment>.Default.Equals(phase.Segment, found.Segment)
+                    || !ReferenceEquals(ListPlayedBy(lists, startingAt, animation, index, countedStarts), foundList))
                     continue;
                 if (!atEnd && found.Beat >= phase.FirstBeat && found.Beat < phase.FirstBeat + phase.BeatCount)
                     return new AnimationPlayback<TSegment>(animation, new AnimationPlace(index, found.Beat - phase.FirstBeat));
                 // A pointer resting on a sleep holds the phase's last frame; one resting on a goto, repeat or stop ends its play.
                 if (atEnd && found.Beat == phase.FirstBeat + phase.BeatCount)
                     return new AnimationPlayback<TSegment>(animation,
-                        lists[found.Segment].Controls.First(control => control.AfterBeat == found.Beat).Kind == NativeEnemyControlKind.Sleep
+                        foundList.Controls.First(control => control.AfterBeat == found.Beat).Kind == NativeEnemyControlKind.Sleep
                             ? AnimationPlace.HoldingIn(index, phase.BeatCount)
                             : new AnimationPlace(index, phase.BeatCount));
             }
@@ -418,23 +459,42 @@ internal static class NativeEnemyAnimationOracle
     /// (#2275), one a counted repeat replays, is that list's plays: a list the play passes through first plays once.
     /// </summary>
     internal static (List<AnimationPhase<TSegment>> Phases, AnimationEnd End) Linearize<TSegment>(
-        IReadOnlyDictionary<TSegment, NativeEnemyList<TSegment>> lists, TSegment start, int firstPlays = 1)
+        IReadOnlyDictionary<TSegment, NativeEnemyList<TSegment>> lists, TSegment start, int firstPlays = 1, ushort? startEntry = null)
         where TSegment : struct, Enum
     {
-        HashSet<TSegment> counted = [.. lists.Values.SelectMany(list => list.Controls)
+        (List<AnimationPhase<TSegment>> phases, AnimationEnd end, _) = LinearizeLists(lists, start, firstPlays, startEntry);
+        return (phases, end);
+    }
+
+    /// <summary>
+    /// The phases and end the native lists play from <paramref name="start"/>, as <see cref="Linearize"/> reads them, with
+    /// the native list each phase plays: where the cartridge repeats a segment under entries continuing elsewhere (#2376),
+    /// the repeat each continuation names. The play starts at <paramref name="startEntry"/>'s list, or the start segment's
+    /// first.
+    /// </summary>
+    private static (List<AnimationPhase<TSegment>> Phases, AnimationEnd End, List<NativeEnemyList<TSegment>> Played) LinearizeLists<TSegment>(
+        IReadOnlyDictionary<TSegment, NativeEnemyList<TSegment>> lists, TSegment start, int firstPlays, ushort? startEntry)
+        where TSegment : struct, Enum
+    {
+        HashSet<TSegment> counted = [.. lists.Values.SelectMany(list => list.Repeats.Prepend(list)).SelectMany(list => list.Controls)
             .Where(control => control.Kind == NativeEnemyControlKind.Repeat).Select(control => control.Target!.Value)];
         var phases = new List<AnimationPhase<TSegment>>();
+        var played = new List<NativeEnemyList<TSegment>>();
+        NativeEnemyList<TSegment> current = ListAt(lists, start, startEntry);
         // Where the play entered each list, at its entry (beat zero) or at a beat a goto in that list loops back to (#2144).
-        var entered = new Dictionary<(TSegment Segment, int Beat), int> { [(start, 0)] = 0 };
+        var entered = new Dictionary<(TSegment Segment, ushort Entry, int Beat), int> { [(start, current.Entry, 0)] = 0 };
         TSegment segment = start;
         int runStart = 0, plays = firstPlays;
         int? pending = null;
         for (int guard = 0; guard < 100000; guard++)
         {
-            foreach (NativeEnemyControl<TSegment> control in lists[segment].Controls)
+            foreach (NativeEnemyControl<TSegment> control in current.Controls)
             {
                 if (control.AfterBeat > runStart)
+                {
                     phases.Add(new(segment, runStart, control.AfterBeat - runStart, plays));
+                    played.Add(current);
+                }
                 runStart = control.AfterBeat;
                 plays = 1;
                 switch (control.Kind)
@@ -452,12 +512,12 @@ internal static class NativeEnemyAnimationOracle
                         }
                         continue;
                     case NativeEnemyControlKind.Stop:
-                        return (phases, AnimationEnd.Stops);
+                        return (phases, AnimationEnd.Stops, played);
                     case NativeEnemyControlKind.Sleep:
-                        return (phases, AnimationEnd.Holds);
+                        return (phases, AnimationEnd.Holds, played);
                     case NativeEnemyControlKind.LoopStart:
                         // The run before the beat a later goto returns to is its own phase; the loop plays on from here.
-                        entered[(segment, control.AfterBeat)] = phases.Count;
+                        entered[(segment, current.Entry, control.AfterBeat)] = phases.Count;
                         continue;
                     case NativeEnemyControlKind.PoseShownAgain:
                         // A pose its owner may show again and the instruction that decides are a phase of their own.
@@ -471,12 +531,14 @@ internal static class NativeEnemyAnimationOracle
                     case NativeEnemyControlKind.Goto:
                     case NativeEnemyControlKind.RunOnIntoNext:
                         TSegment target = control.Target!.Value;
-                        if (entered.TryGetValue((target, control.TargetBeat), out int loop))
-                            return (phases, AnimationEnd.LoopsFrom(loop));
+                        NativeEnemyList<TSegment> next = ListAt(lists, target, control.TargetEntry);
+                        if (entered.TryGetValue((target, next.Entry, control.TargetBeat), out int loop))
+                            return (phases, AnimationEnd.LoopsFrom(loop), played);
                         if (control.TargetBeat != 0)
                             throw new InvalidDataException($"{segment}'s goto to beat {control.TargetBeat} of {target} enters no list the play has entered.");
-                        entered[(target, 0)] = phases.Count;
+                        entered[(target, next.Entry, 0)] = phases.Count;
                         segment = target;
+                        current = next;
                         runStart = 0;
                         plays = 1;
                         if (counted.Contains(target))
@@ -492,6 +554,17 @@ internal static class NativeEnemyAnimationOracle
             }
         }
         throw new InvalidDataException($"The native lists from {start} never end or loop.");
+    }
+
+    /// <summary>
+    /// The native list of <paramref name="segment"/> starting at <paramref name="entry"/>: the segment's repeat continuing
+    /// elsewhere (#2376) when one starts there, otherwise its first list, which every repeat continuing as it does reads as.
+    /// </summary>
+    private static NativeEnemyList<TSegment> ListAt<TSegment>(IReadOnlyDictionary<TSegment, NativeEnemyList<TSegment>> lists, TSegment segment, ushort? entry)
+        where TSegment : struct, Enum
+    {
+        NativeEnemyList<TSegment> first = lists[segment];
+        return entry is { } at ? first.Repeats.FirstOrDefault(repeat => repeat.Entry == at) ?? first : first;
     }
 
     /// <summary>Whether <paramref name="phase"/> plays every beat of <paramref name="segment"/>'s native list, from its first.</summary>
@@ -567,7 +640,7 @@ internal static class NativeEnemyAnimationOracle
         where TEvent : notnull
     {
         (Func<ushort, int?> operandWords, Action<ushort, ushort[], TEvent, string> compareCue, Func<TEvent, bool>? endsList, Func<ushort, bool>? omitted,
-            Func<ushort, ushort?>? goesTo, Func<ushort, bool>? showsPoseAgain, Func<ushort, ushort>? picturedAt) = rules;
+            Func<ushort, ushort?>? goesTo, Func<ushort, bool>? showsPoseAgain, Func<ushort, ushort>? picturedAt, Func<ushort, bool>? ownerLeavesAt) = rules;
         var addresses = new List<ushort>();
         var controls = new List<NativeEnemyControl<TSegment>>();
         var continuedAt = new HashSet<ushort>();
@@ -588,6 +661,13 @@ internal static class NativeEnemyAnimationOracle
                 controls.Add(viaGoto
                     ? new(NativeEnemyControlKind.Goto, beat, following, null, followedGoto!.Value.Address)
                     : new(NativeEnemyControlKind.RunOnIntoNext, beat, following, null, cursor));
+                return Finish();
+            }
+            if (cursor != entry && ownerLeavesAt?.Invoke(cursor) == true)
+            {
+                // The owner always leaves the list before its play reaches here (#2376): the segment ends, holding, and
+                // what follows never shows.
+                controls.Add(new(NativeEnemyControlKind.Sleep, beat, null, null, cursor));
                 return Finish();
             }
             if (beat < beats.Count && beats[beat] is AnimationBeat<TFrame, TEvent>.Marker)
@@ -803,7 +883,11 @@ internal sealed record NativeCountedEntry<TSegment>(string Name, Animation<TSegm
 /// <param name="Entry">The entry and the animation started there.</param>
 /// <param name="Count">The loop count the entry loads.</param>
 /// <param name="Into">The segment whose list the entry continues into.</param>
-internal sealed record NativeCountedStart<TSegment>(NativeCountedEntry<TSegment> Entry, int Count, TSegment Into)
+/// <param name="IntoEntry">
+/// The native entry of the list it continues into, where the oracle reads it: one of the segment's repeats continuing
+/// elsewhere (#2376) is told apart by it; null reads the segment's first list.
+/// </param>
+internal sealed record NativeCountedStart<TSegment>(NativeCountedEntry<TSegment> Entry, int Count, TSegment Into, ushort? IntoEntry = null)
     where TSegment : struct, Enum;
 
 /// <summary>One enemy segment's native list (#1600): each beat's native address, and its control instructions.</summary>
@@ -812,8 +896,18 @@ internal sealed record NativeCountedStart<TSegment>(NativeCountedEntry<TSegment>
 /// The native address of each beat, in order; a marker beat (#2301), which occupies none, has the address of what follows it.
 /// </param>
 /// <param name="Controls">The list's control instructions, in order.</param>
-internal sealed record NativeEnemyList<TSegment>(ushort[] BeatAddresses, NativeEnemyControl<TSegment>[] Controls)
-    where TSegment : struct, Enum;
+/// <param name="Entry">The list's native entry, where the oracle records it; zero where it does not.</param>
+internal sealed record NativeEnemyList<TSegment>(ushort[] BeatAddresses, NativeEnemyControl<TSegment>[] Controls, ushort Entry = 0)
+    where TSegment : struct, Enum
+{
+    /// <summary>
+    /// The segment's other native lists, which the cartridge repeats under other entries holding the same beats but
+    /// continuing elsewhere (#2376: each n00b tube shard's flicker, once for its flight and once for its fall). A play
+    /// reaches each through the continuation naming its entry. Repeats continuing as this list does are not kept: a play
+    /// reads them as this one (#1842).
+    /// </summary>
+    internal IReadOnlyList<NativeEnemyList<TSegment>> Repeats { get; init; } = [];
+}
 
 /// <summary>What a native control instruction of an enemy's list does (#1600).</summary>
 internal enum NativeEnemyControlKind
@@ -868,7 +962,11 @@ internal enum NativeEnemyControlKind
 /// <param name="TargetBeat">
 /// The beat of the target's list it continues at: zero, the list's entry, except for a goto back into its own list (#2144).
 /// </param>
-internal sealed record NativeEnemyControl<TSegment>(NativeEnemyControlKind Kind, int AfterBeat, TSegment? Target, int? Count, ushort Address, int TargetBeat = 0)
+/// <param name="TargetEntry">
+/// The native entry of the target's list, where the oracle reads it: one of the target segment's repeats continuing
+/// elsewhere (#2376) is told apart by it; null reads the segment's first list.
+/// </param>
+internal sealed record NativeEnemyControl<TSegment>(NativeEnemyControlKind Kind, int AfterBeat, TSegment? Target, int? Count, ushort Address, int TargetBeat = 0, ushort? TargetEntry = null)
     where TSegment : struct, Enum;
 
 /// <summary>A place in one segment's native list (#1600): at a beat, or at the end of a run that stops before one.</summary>

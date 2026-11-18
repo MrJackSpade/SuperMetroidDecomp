@@ -27,7 +27,7 @@ internal static class CrocomireNativeListAddresses
     /// <summary>Each typed body program's native entry point in bank $A4, in authored order.</summary>
     internal static readonly BodyEntryValue[] BodyEntries =
     [
-        new BodyEntryValue(CrocomireBodySegment.Initial, 0xbade),
+        new BodyEntryValue(CrocomireBodySegment.IdleSway, 0xbade),
         new BodyEntryValue(CrocomireBodySegment.ProjectileAttack, 0xbb36),
         // The part of the list its goto loops back to (#2296), as the next two are.
         new BodyEntryValue(CrocomireBodySegment.ProjectileAttackSpitting, 0xbb94),

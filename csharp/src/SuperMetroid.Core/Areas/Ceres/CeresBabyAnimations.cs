@@ -15,7 +15,7 @@ internal static class CeresBabyAnimations
     internal static AnimationSegments<P, F, CeresBabyCue> Segments { get; } = new(
         new Dictionary<P, AnimationBeat<F, CeresBabyCue>[]>
     {
-        [P.Initial] =
+        [P.IdleSquish] =
         [
             Cue(new CeresBabyCue.ReactsToMotion()),
             .. SquishCycle,
@@ -41,8 +41,8 @@ internal static class CeresBabyAnimations
     /// </summary>
     internal static IReadOnlyDictionary<P, Animation<P>> StartingAt { get; } = new Dictionary<P, Animation<P>>
     {
-        [P.Initial] = new([Whole(P.Initial), Whole(P.ExpressiveLoop)], AnimationEnd.LoopsFrom(0)),
-        [P.ExpressiveLoop] = new([Whole(P.ExpressiveLoop), Whole(P.Initial)], AnimationEnd.LoopsFrom(0)),
+        [P.IdleSquish] = new([Whole(P.IdleSquish), Whole(P.ExpressiveLoop)], AnimationEnd.LoopsFrom(0)),
+        [P.ExpressiveLoop] = new([Whole(P.ExpressiveLoop), Whole(P.IdleSquish)], AnimationEnd.LoopsFrom(0)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

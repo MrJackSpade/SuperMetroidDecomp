@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 internal enum CeresBabySegment
 {
     /// <summary>The idle squish, two squish cycles that each first check whether the baby moves.</summary>
-    Initial,
+    IdleSquish,
     /// <summary>The crying squish while it moves, a cry and then twelve poses whose colours pulse with them, slowing back down.</summary>
     ExpressiveLoop,
 }

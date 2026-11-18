@@ -11,5 +11,5 @@ internal enum BlueBrinstarFaceBlockSegment
     /// <summary>The face looking ahead, then glancing and turning to look right toward Samus, held.</summary>
     SamusRight,
     /// <summary>The face looking ahead, held.</summary>
-    Initial,
+    LookingAhead,
 }

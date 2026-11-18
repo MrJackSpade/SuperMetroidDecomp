@@ -12,7 +12,7 @@ internal static class WorkRobotLaserNativeListAddresses
     /// <summary>Each typed program's native entry point, in authored order.</summary>
     internal static readonly NativeProgramEntry<WorkRobotLaserSegment>[] Entries =
     [
-        new NativeProgramEntry<WorkRobotLaserSegment>(WorkRobotLaserSegment.Initial, 0xd2ec),
+        new NativeProgramEntry<WorkRobotLaserSegment>(WorkRobotLaserSegment.Flare, 0xd2ec),
         new NativeProgramEntry<WorkRobotLaserSegment>(WorkRobotLaserSegment.Ring, 0xd2f8),
     ];
 

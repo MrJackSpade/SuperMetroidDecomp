@@ -68,17 +68,17 @@ internal static class DownwardGateProjectileAnimations
     /// <summary>The animation each place of the gate's travel starts; the stopping gate shows itself closed as it stops.</summary>
     internal static IReadOnlyDictionary<DownwardGateProjectileSegment, Animation<DownwardGateProjectileSegment>> StartingAt { get; } = new Dictionary<DownwardGateProjectileSegment, Animation<DownwardGateProjectileSegment>>
     {
-        [P.Moving] = new([new(P.Moving, 0, 3, 1)], AnimationEnd.Holds),
-        [P.MovedOneBlock] = new([new(P.MovedOneBlock, 0, 1, 1)], AnimationEnd.Holds),
-        [P.MovedTwoBlocks] = new([new(P.MovedTwoBlocks, 0, 1, 1)], AnimationEnd.Holds),
-        [P.MovedThreeBlocks] = new([new(P.MovedThreeBlocks, 0, 1, 1)], AnimationEnd.Holds),
-        [P.Stopping] = new([new(P.Stopping, 0, 1, 1), new(P.Closed, 0, 2, 1)], AnimationEnd.Holds),
-        [P.Closed] = new([new(P.Closed, 0, 2, 1)], AnimationEnd.Holds),
-        [P.Rising] = new([new(P.Rising, 0, 2, 1)], AnimationEnd.Holds),
-        [P.RisenOneBlock] = new([new(P.RisenOneBlock, 0, 1, 1)], AnimationEnd.Holds),
-        [P.RisenTwoBlocks] = new([new(P.RisenTwoBlocks, 0, 1, 1)], AnimationEnd.Holds),
-        [P.RisenThreeBlocks] = new([new(P.RisenThreeBlocks, 0, 1, 1)], AnimationEnd.Holds),
-        [P.Vanishing] = new([new(P.Vanishing, 0, 1, 1)], AnimationEnd.Holds),
+        [P.Moving] = new([Segments.Whole(P.Moving)], AnimationEnd.Holds),
+        [P.MovedOneBlock] = new([Segments.Whole(P.MovedOneBlock)], AnimationEnd.Holds),
+        [P.MovedTwoBlocks] = new([Segments.Whole(P.MovedTwoBlocks)], AnimationEnd.Holds),
+        [P.MovedThreeBlocks] = new([Segments.Whole(P.MovedThreeBlocks)], AnimationEnd.Holds),
+        [P.Stopping] = new([Segments.Whole(P.Stopping), Segments.Whole(P.Closed)], AnimationEnd.Holds),
+        [P.Closed] = new([Segments.Whole(P.Closed)], AnimationEnd.Holds),
+        [P.Rising] = new([Segments.Whole(P.Rising)], AnimationEnd.Holds),
+        [P.RisenOneBlock] = new([Segments.Whole(P.RisenOneBlock)], AnimationEnd.Holds),
+        [P.RisenTwoBlocks] = new([Segments.Whole(P.RisenTwoBlocks)], AnimationEnd.Holds),
+        [P.RisenThreeBlocks] = new([Segments.Whole(P.RisenThreeBlocks)], AnimationEnd.Holds),
+        [P.Vanishing] = new([Segments.Whole(P.Vanishing)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

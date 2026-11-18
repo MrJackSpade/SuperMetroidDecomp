@@ -16,7 +16,7 @@ internal static class EyeDoorProjectileAnimations
     internal static AnimationSegments<EyeDoorProjectileSegment, EnemyProjectileFrameId, EyeDoorProjectileCue> Segments { get; } = new(
         new Dictionary<EyeDoorProjectileSegment, AnimationBeat<EnemyProjectileFrameId, EyeDoorProjectileCue>[]>
     {
-        [P.Initial] =
+        [P.Fired] =
         [
             Show(EnemyProjectileFrameId.EyeDoorBallRingFaint, 4),
             Show(EnemyProjectileFrameId.EyeDoorBallRing, 3),
@@ -46,7 +46,7 @@ internal static class EyeDoorProjectileAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<EyeDoorProjectileSegment, Animation<EyeDoorProjectileSegment>> StartingAt { get; } = new Dictionary<EyeDoorProjectileSegment, Animation<EyeDoorProjectileSegment>>
     {
-        [P.Initial] = new([new(P.Initial, 0, 6, 1)], AnimationEnd.Holds),
+        [P.Fired] = new([new(P.Fired, 0, 6, 1)], AnimationEnd.Holds),
         [P.Impact] = new([new(P.Impact, 0, 5, 1)], AnimationEnd.Holds),
         [P.Shot] = new([new(P.Shot, 0, 5, 1)], AnimationEnd.Holds),
     };

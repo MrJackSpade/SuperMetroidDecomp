@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 public enum MotherBrainBabySegment
 {
     /// <summary>The slow idle pulse.</summary>
-    Initial,
+    IdlePulse,
     /// <summary>The quick draining pulse.</summary>
     DrainingMotherBrain,
     /// <summary>Baby Metroid animation: taking fatal blow.</summary>

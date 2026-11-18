@@ -37,8 +37,8 @@ internal static class PowampSpikeBehaviorVerification
             "the burst's spikes take their pool places in the cartridge's firing order");
         foreach (EnemyProjectile spike in spikes)
         {
-            AssertEqual(PowampSpikeSegment.Initial, ProgramOf(spike), $"spike {spike.StateOf<PowampSpikeState>().Direction} starts its looping program");
-            (bool deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, spike, Entry(PowampSpikeSegment.Initial), 40,
+            AssertEqual(PowampSpikeSegment.Flying, ProgramOf(spike), $"spike {spike.StateOf<PowampSpikeState>().Direction} starts its looping program");
+            (bool deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, spike, Entry(PowampSpikeSegment.Flying), 40,
                 $"Powamp spike {spike.StateOf<PowampSpikeState>().Direction}");
             AssertTrue(!deleted, "a spike's loop runs until collision deletes it");
         }

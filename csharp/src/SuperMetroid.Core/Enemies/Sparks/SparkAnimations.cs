@@ -60,10 +60,10 @@ internal static class SparkAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<SparkSegment, Animation<SparkSegment>> StartingAt { get; } = new Dictionary<SparkSegment, Animation<SparkSegment>>
     {
-        [P.FlickerOn] = new([new(P.FlickerOn, 0, 11, 1), new(P.Active, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.Active] = new([new(P.Active, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.FlickerOut] = new([new(P.FlickerOut, 0, 9, 1)], AnimationEnd.Holds),
-        [P.Emitter] = new([new(P.Emitter, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.FlickerOn] = new([Segments.Whole(P.FlickerOn), Segments.Whole(P.Active)], AnimationEnd.LoopsFrom(1)),
+        [P.Active] = new([Segments.Whole(P.Active)], AnimationEnd.LoopsFrom(0)),
+        [P.FlickerOut] = new([Segments.Whole(P.FlickerOut)], AnimationEnd.Holds),
+        [P.Emitter] = new([Segments.Whole(P.Emitter)], AnimationEnd.LoopsFrom(0)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

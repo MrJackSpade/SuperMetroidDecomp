@@ -12,7 +12,7 @@ internal static class NuclearWaffleProjectileNativeListAddresses
     /// <summary>Each typed program's native entry point, in authored order.</summary>
     internal static readonly NativeProgramEntry<NuclearWaffleProjectileSegment>[] Entries =
     [
-        new NativeProgramEntry<NuclearWaffleProjectileSegment>(NuclearWaffleProjectileSegment.Initial, 0xbb5e),
+        new NativeProgramEntry<NuclearWaffleProjectileSegment>(NuclearWaffleProjectileSegment.Churning, 0xbb5e),
     ];
 
     /// <summary>The bank-$86 bytes from the first list to the end of the last, $86:BB5E-BB91, which production must never read.</summary>

@@ -19,7 +19,7 @@ internal static class CrocomireBodyAnimations
     internal static AnimationSegments<CrocomireBodySegment, EnemyFrameId, CrocomireBodyCue> Segments { get; } = new(
         new Dictionary<CrocomireBodySegment, AnimationBeat<EnemyFrameId, CrocomireBodyCue>[]>
     {
-        [P.Initial] =
+        [P.IdleSway] =
         [
             Show(F.CrocomireBodyArmUprightMouthOpen, 1),
             Cue(K.FightAi),
@@ -508,7 +508,7 @@ internal static class CrocomireBodyAnimations
     /// </summary>
     internal static IReadOnlyDictionary<CrocomireBodySegment, Animation<CrocomireBodySegment>> StartingAt { get; } = new Dictionary<CrocomireBodySegment, Animation<CrocomireBodySegment>>
     {
-        [P.Initial] = new([Whole(P.Initial)], AnimationEnd.LoopsFrom(0)),
+        [P.IdleSway] = new([Whole(P.IdleSway)], AnimationEnd.LoopsFrom(0)),
         [P.ProjectileAttack] = new([Whole(P.ProjectileAttack), Whole(P.ProjectileAttackSpitting)], AnimationEnd.LoopsFrom(1)),
         [P.StepForwardAfterDelay] = new([Whole(P.StepForwardAfterDelay), Whole(P.StepForward)], AnimationEnd.LoopsFrom(1)),
         [P.StepForward] = new([Whole(P.StepForward)], AnimationEnd.LoopsFrom(0)),

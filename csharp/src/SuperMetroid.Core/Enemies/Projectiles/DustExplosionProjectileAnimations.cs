@@ -165,20 +165,20 @@ internal static class DustExplosionProjectileAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<DustExplosionAnimation, Animation<DustExplosionAnimation>> StartingAt { get; } = new Dictionary<DustExplosionAnimation, Animation<DustExplosionAnimation>>
     {
-        [P.MotherBrainElbowChargeParticle] = new([new(P.MotherBrainElbowChargeParticle, 0, 7, 1)], AnimationEnd.Holds),
-        [P.MotherBrainElbowChargeEnergy] = new([new(P.MotherBrainElbowChargeEnergy, 0, 8, 1)], AnimationEnd.Holds),
-        [P.SmallExplosion] = new([new(P.SmallExplosion, 0, 7, 1)], AnimationEnd.Holds),
-        [P.MotherBrainRainbowBeamExplosion] = new([new(P.MotherBrainRainbowBeamExplosion, 0, 6, 1)], AnimationEnd.Holds),
-        [P.DudShotTinyExplosion] = new([new(P.DudShotTinyExplosion, 0, 7, 1)], AnimationEnd.Holds),
-        [P.SmallDustCloud] = new([new(P.SmallDustCloud, 0, 6, 1)], AnimationEnd.Holds),
-        [P.CorpseDustCloud] = new([new(P.CorpseDustCloud, 0, 5, 1)], AnimationEnd.Holds),
-        [P.EyeDoorSmokePuff] = new([new(P.EyeDoorSmokePuff, 0, 5, 1)], AnimationEnd.Holds),
-        [P.Smoke] = new([new(P.Smoke, 0, 5, 1)], AnimationEnd.Holds),
-        [P.BigExplosion] = new([new(P.BigExplosion, 0, 7, 1)], AnimationEnd.Holds),
-        [P.RockParticles] = new([new(P.RockParticles, 0, 17, 1)], AnimationEnd.Holds),
-        [P.ShortBigDustCloud] = new([new(P.ShortBigDustCloud, 0, 5, 1)], AnimationEnd.Holds),
-        [P.BigDustCloud] = new([new(P.BigDustCloud, 0, 9, 1)], AnimationEnd.Holds),
-        [P.LongDraygonBreathBubbles] = new([new(P.LongDraygonBreathBubbles, 0, 10, 1)], AnimationEnd.Holds),
+        [P.MotherBrainElbowChargeParticle] = new([Segments.Whole(P.MotherBrainElbowChargeParticle)], AnimationEnd.Holds),
+        [P.MotherBrainElbowChargeEnergy] = new([Segments.Whole(P.MotherBrainElbowChargeEnergy)], AnimationEnd.Holds),
+        [P.SmallExplosion] = new([Segments.Whole(P.SmallExplosion)], AnimationEnd.Holds),
+        [P.MotherBrainRainbowBeamExplosion] = new([Segments.Whole(P.MotherBrainRainbowBeamExplosion)], AnimationEnd.Holds),
+        [P.DudShotTinyExplosion] = new([Segments.Whole(P.DudShotTinyExplosion)], AnimationEnd.Holds),
+        [P.SmallDustCloud] = new([Segments.Whole(P.SmallDustCloud)], AnimationEnd.Holds),
+        [P.CorpseDustCloud] = new([Segments.Whole(P.CorpseDustCloud)], AnimationEnd.Holds),
+        [P.EyeDoorSmokePuff] = new([Segments.Whole(P.EyeDoorSmokePuff)], AnimationEnd.Holds),
+        [P.Smoke] = new([Segments.Whole(P.Smoke)], AnimationEnd.Holds),
+        [P.BigExplosion] = new([Segments.Whole(P.BigExplosion)], AnimationEnd.Holds),
+        [P.RockParticles] = new([Segments.Whole(P.RockParticles)], AnimationEnd.Holds),
+        [P.ShortBigDustCloud] = new([Segments.Whole(P.ShortBigDustCloud)], AnimationEnd.Holds),
+        [P.BigDustCloud] = new([Segments.Whole(P.BigDustCloud)], AnimationEnd.Holds),
+        [P.LongDraygonBreathBubbles] = new([Segments.Whole(P.LongDraygonBreathBubbles)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

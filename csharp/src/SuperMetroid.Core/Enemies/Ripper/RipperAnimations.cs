@@ -47,10 +47,10 @@ internal static class RipperAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<RipperSegment, Animation<RipperSegment>> StartingAt { get; } = new Dictionary<RipperSegment, Animation<RipperSegment>>
     {
-        [P.GrappleRipperMovingLeft] = new([new(P.GrappleRipperMovingLeft, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.GrappleRipperMovingRight] = new([new(P.GrappleRipperMovingRight, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.RipperMovingRight] = new([new(P.RipperMovingRight, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.RipperMovingLeft] = new([new(P.RipperMovingLeft, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.GrappleRipperMovingLeft] = new([Segments.Whole(P.GrappleRipperMovingLeft)], AnimationEnd.LoopsFrom(0)),
+        [P.GrappleRipperMovingRight] = new([Segments.Whole(P.GrappleRipperMovingRight)], AnimationEnd.LoopsFrom(0)),
+        [P.RipperMovingRight] = new([Segments.Whole(P.RipperMovingRight)], AnimationEnd.LoopsFrom(0)),
+        [P.RipperMovingLeft] = new([Segments.Whole(P.RipperMovingLeft)], AnimationEnd.LoopsFrom(0)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

@@ -12,7 +12,7 @@ internal static class PolypRockNativeListAddresses
     /// <summary>Each typed program's native entry point, in authored order.</summary>
     internal static readonly NativeProgramEntry<PolypRockSegment>[] Entries =
     [
-        new NativeProgramEntry<PolypRockSegment>(PolypRockSegment.Initial, 0xbbd5),
+        new NativeProgramEntry<PolypRockSegment>(PolypRockSegment.LavaRock, 0xbbd5),
     ];
 
     /// <summary>The bank-$86 bytes the lists occupy, $86:BBD5-BBDA, which production must never read.</summary>

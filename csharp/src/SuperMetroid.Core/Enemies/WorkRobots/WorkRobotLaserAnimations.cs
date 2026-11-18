@@ -14,7 +14,7 @@ internal static class WorkRobotLaserAnimations
     internal static AnimationSegments<WorkRobotLaserSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(
         new Dictionary<WorkRobotLaserSegment, AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>[]>
     {
-        [P.Initial] =
+        [P.Flare] =
         [
             Show(EnemyProjectileFrameId.WorkRobotLaserFlareGlint, 4),
             Show(EnemyProjectileFrameId.WorkRobotLaserFlareGlow, 4),
@@ -32,7 +32,7 @@ internal static class WorkRobotLaserAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at: the flare once, then the ring looping (#2276).</summary>
     internal static IReadOnlyDictionary<WorkRobotLaserSegment, Animation<WorkRobotLaserSegment>> StartingAt { get; } = new Dictionary<WorkRobotLaserSegment, Animation<WorkRobotLaserSegment>>
     {
-        [P.Initial] = new([new(P.Initial, 0, 3, 1), new(P.Ring, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.Flare] = new([Segments.Whole(P.Flare), Segments.Whole(P.Ring)], AnimationEnd.LoopsFrom(1)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

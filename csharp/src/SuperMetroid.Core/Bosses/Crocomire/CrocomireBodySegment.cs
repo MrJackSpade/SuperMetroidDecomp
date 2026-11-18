@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 public enum CrocomireBodySegment
 {
     /// <summary>His idle sway before the fight starts.</summary>
-    Initial,
+    IdleSway,
     /// <summary>Swinging his claws and opening his mouth to spit, before his spitting lunges.</summary>
     ProjectileAttack,
     /// <summary>His spitting lunges, each led by the fight cue that spits a shot, looping until his volley is spent.</summary>

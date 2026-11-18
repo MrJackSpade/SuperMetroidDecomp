@@ -12,7 +12,7 @@ internal static class PowampSpikeNativeListAddresses
     /// <summary>Each typed program's native entry point, in authored order.</summary>
     internal static readonly NativeProgramEntry<PowampSpikeSegment>[] Entries =
     [
-        new NativeProgramEntry<PowampSpikeSegment>(PowampSpikeSegment.Initial, 0xd208),
+        new NativeProgramEntry<PowampSpikeSegment>(PowampSpikeSegment.Flying, 0xd208),
         new NativeProgramEntry<PowampSpikeSegment>(PowampSpikeSegment.Delete, 0xd218),
     ];
 

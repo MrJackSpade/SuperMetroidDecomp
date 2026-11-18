@@ -21,7 +21,7 @@ public enum MotherBrainHeadSegment
     /// <summary>Her damaged head holds its open mouth after the recoil.</summary>
     HyperBeamRecoilHeld,
     /// <summary>Her whole head, mouth closed.</summary>
-    Initial,
+    WholeHeadMouthClosed,
     /// <summary>Her damaged head closes its open mouth as her body falls away.</summary>
     Decapitated,
     /// <summary>Her decapitated head holds its closed mouth.</summary>

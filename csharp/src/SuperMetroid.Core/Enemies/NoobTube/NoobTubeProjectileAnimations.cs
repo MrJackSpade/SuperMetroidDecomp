@@ -68,152 +68,57 @@ internal static class NoobTubeProjectileAnimations
         [
             Cue(new(K.Delete)),
         ],
-        [P.ShardDownOutwardFlying] =
+        [P.ShardDownOutwardFlicker] =
         [
             Cue(new(K.FlickerReflected)),
             Flicker(F.NoobTubeShardDownOutward, F.NoobTubeShardDownOutwardMirrored),
         ],
-        [P.ShardDownOutwardFallStart] =
+        [P.ShardFallStart] =
         [
             Cue(new(K.AssignShardFallingAngle)),
             Cue(new(K.StartShardFall)),
         ],
-        [P.ShardDownOutwardFalling] =
-        [
-            Cue(new(K.FlickerReflected)),
-            Flicker(F.NoobTubeShardDownOutward, F.NoobTubeShardDownOutwardMirrored),
-        ],
-        [P.ShardUpOutwardFlying] =
+        [P.ShardUpOutwardFlicker] =
         [
             Cue(new(K.FlickerReflected)),
             Flicker(F.NoobTubeShardUpOutward, F.NoobTubeShardUpOutwardMirrored),
         ],
-        [P.ShardUpOutwardFallStart] =
-        [
-            Cue(new(K.AssignShardFallingAngle)),
-            Cue(new(K.StartShardFall)),
-        ],
-        [P.ShardUpOutwardFalling] =
-        [
-            Cue(new(K.FlickerReflected)),
-            Flicker(F.NoobTubeShardUpOutward, F.NoobTubeShardUpOutwardMirrored),
-        ],
-        [P.ShardUpSteepFlying] =
+        [P.ShardUpSteepFlicker] =
         [
             Cue(new(K.FlickerReflected)),
             Flicker(F.NoobTubeShardUpSteep, F.NoobTubeShardUpSteepMirrored),
         ],
-        [P.ShardUpSteepFallStart] =
-        [
-            Cue(new(K.AssignShardFallingAngle)),
-            Cue(new(K.StartShardFall)),
-        ],
-        [P.ShardUpSteepFalling] =
-        [
-            Cue(new(K.FlickerReflected)),
-            Flicker(F.NoobTubeShardUpSteep, F.NoobTubeShardUpSteepMirrored),
-        ],
-        [P.ShardUpDiagonalInnerFlying] =
+        [P.ShardUpDiagonalInnerFlicker] =
         [
             Cue(new(K.FlickerReflected)),
             Flicker(F.NoobTubeShardUpDiagonalInner, F.NoobTubeShardUpDiagonalInnerMirrored),
         ],
-        [P.ShardUpDiagonalInnerFallStart] =
-        [
-            Cue(new(K.AssignShardFallingAngle)),
-            Cue(new(K.StartShardFall)),
-        ],
-        [P.ShardUpDiagonalInnerFalling] =
-        [
-            Cue(new(K.FlickerReflected)),
-            Flicker(F.NoobTubeShardUpDiagonalInner, F.NoobTubeShardUpDiagonalInnerMirrored),
-        ],
-        [P.ShardUpDiagonalOuterFlying] =
+        [P.ShardUpDiagonalOuterFlicker] =
         [
             Cue(new(K.FlickerReflected)),
             Flicker(F.NoobTubeShardUpDiagonalOuter, F.NoobTubeShardUpDiagonalOuterMirrored),
         ],
-        [P.ShardUpDiagonalOuterFallStart] =
-        [
-            Cue(new(K.AssignShardFallingAngle)),
-            Cue(new(K.StartShardFall)),
-        ],
-        [P.ShardUpDiagonalOuterFalling] =
-        [
-            Cue(new(K.FlickerReflected)),
-            Flicker(F.NoobTubeShardUpDiagonalOuter, F.NoobTubeShardUpDiagonalOuterMirrored),
-        ],
-        [P.ShardDownDiagonalFlying] =
+        [P.ShardDownDiagonalFlicker] =
         [
             Cue(new(K.FlickerReflected)),
             Flicker(F.NoobTubeShardDownDiagonal, F.NoobTubeShardDownDiagonalMirrored),
         ],
-        [P.ShardDownDiagonalFallStart] =
-        [
-            Cue(new(K.AssignShardFallingAngle)),
-            Cue(new(K.StartShardFall)),
-        ],
-        [P.ShardDownDiagonalFalling] =
-        [
-            Cue(new(K.FlickerReflected)),
-            Flicker(F.NoobTubeShardDownDiagonal, F.NoobTubeShardDownDiagonalMirrored),
-        ],
-        [P.ShardDownOuterFlying] =
+        [P.ShardDownOuterFlicker] =
         [
             Cue(new(K.FlickerReflected)),
             Flicker(F.NoobTubeShardDownOuter, F.NoobTubeShardDownOuterMirrored),
         ],
-        [P.ShardDownOuterFallStart] =
-        [
-            Cue(new(K.AssignShardFallingAngle)),
-            Cue(new(K.StartShardFall)),
-        ],
-        [P.ShardDownOuterFalling] =
-        [
-            Cue(new(K.FlickerReflected)),
-            Flicker(F.NoobTubeShardDownOuter, F.NoobTubeShardDownOuterMirrored),
-        ],
-        [P.ShardOutwardFlying] =
+        [P.ShardOutwardFlicker] =
         [
             Cue(new(K.FlickerReflected)),
             Flicker(F.NoobTubeShardOutward, F.NoobTubeShardOutwardMirrored),
         ],
-        [P.ShardOutwardFallStart] =
-        [
-            Cue(new(K.AssignShardFallingAngle)),
-            Cue(new(K.StartShardFall)),
-        ],
-        [P.ShardOutwardFalling] =
-        [
-            Cue(new(K.FlickerReflected)),
-            Flicker(F.NoobTubeShardOutward, F.NoobTubeShardOutwardMirrored),
-        ],
-        [P.ShardUpFlying] =
+        [P.ShardUpFlicker] =
         [
             Cue(new(K.FlickerHidden)),
             Flicker(F.NoobTubeShardUp),
         ],
-        [P.ShardUpFallStart] =
-        [
-            Cue(new(K.AssignShardFallingAngle)),
-            Cue(new(K.StartShardFall)),
-        ],
-        [P.ShardUpFalling] =
-        [
-            Cue(new(K.FlickerHidden)),
-            Flicker(F.NoobTubeShardUp),
-        ],
-        [P.ShardDownInnerFlying] =
-        [
-            Cue(new(K.FlickerReflected)),
-            Flicker(F.NoobTubeShardDownInner, F.NoobTubeShardDownInnerMirrored),
-        ],
-        [P.ShardDownInnerFallStart] =
-        [
-            Cue(new(K.AssignShardFallingAngle)),
-            Cue(new(K.StartShardFall)),
-        ],
-        [P.ShardDownInnerFalling] =
+        [P.ShardDownInnerFlicker] =
         [
             Cue(new(K.FlickerReflected)),
             Flicker(F.NoobTubeShardDownInner, F.NoobTubeShardDownInnerMirrored),
@@ -245,28 +150,37 @@ internal static class NoobTubeProjectileAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at: the crack's and the bubbles'.</summary>
     internal static IReadOnlyDictionary<NoobTubeProjectileSegment, Animation<NoobTubeProjectileSegment>> StartingAt { get; } = new Dictionary<NoobTubeProjectileSegment, Animation<NoobTubeProjectileSegment>>
     {
-        [P.Crack] = new([new(P.Crack, 0, 37, 1), new(P.CrackFallen, 0, 2, 6), new(P.Deletion, 0, 1, 1)], AnimationEnd.Holds),
-        [P.ReleasedAirBubble] = new([new(P.ReleasedAirBubble, 0, 19, 1)], AnimationEnd.Holds),
+        [P.Crack] = new([Segments.Whole(P.Crack), Segments.Repeated(P.CrackFallen, CrackFallenPlays), Segments.Whole(P.Deletion)], AnimationEnd.Holds),
+        [P.ReleasedAirBubble] = new([Segments.Whole(P.ReleasedAirBubble)], AnimationEnd.Holds),
     };
 
     /// <summary>
-    /// The animation each glass shard's spawn starts (#2044): its flight out of the tube, flickering for 32 plays, the start
-    /// of its fall, then its swaying fall, flickering for 272, after which it is deleted; each phase plays its segment whole
-    /// (#2276).
+    /// The animation each glass shard's spawn starts (#2044): its flight out of the tube, its own flicker played
+    /// <see cref="FlightFlickers"/> times, the start of its fall, then its swaying fall, the same flicker played
+    /// <see cref="FallFlickers"/> times (#2376), after which it is deleted; each phase plays its segment whole.
     /// </summary>
     internal static IReadOnlyDictionary<NoobTubeShard, Animation<NoobTubeProjectileSegment>> ShardAnimations { get; } = new Dictionary<NoobTubeShard, Animation<NoobTubeProjectileSegment>>
     {
-        [S.DownOutward] = new([new(P.ShardDownOutwardFlying, 0, 2, 32), new(P.ShardDownOutwardFallStart, 0, 2, 1), new(P.ShardDownOutwardFalling, 0, 2, 272), new(P.Deletion, 0, 1, 1)], AnimationEnd.Holds),
-        [S.UpOutward] = new([new(P.ShardUpOutwardFlying, 0, 2, 32), new(P.ShardUpOutwardFallStart, 0, 2, 1), new(P.ShardUpOutwardFalling, 0, 2, 272), new(P.Deletion, 0, 1, 1)], AnimationEnd.Holds),
-        [S.UpSteep] = new([new(P.ShardUpSteepFlying, 0, 2, 32), new(P.ShardUpSteepFallStart, 0, 2, 1), new(P.ShardUpSteepFalling, 0, 2, 272), new(P.Deletion, 0, 1, 1)], AnimationEnd.Holds),
-        [S.UpDiagonalInner] = new([new(P.ShardUpDiagonalInnerFlying, 0, 2, 32), new(P.ShardUpDiagonalInnerFallStart, 0, 2, 1), new(P.ShardUpDiagonalInnerFalling, 0, 2, 272), new(P.Deletion, 0, 1, 1)], AnimationEnd.Holds),
-        [S.UpDiagonalOuter] = new([new(P.ShardUpDiagonalOuterFlying, 0, 2, 32), new(P.ShardUpDiagonalOuterFallStart, 0, 2, 1), new(P.ShardUpDiagonalOuterFalling, 0, 2, 272), new(P.Deletion, 0, 1, 1)], AnimationEnd.Holds),
-        [S.DownDiagonal] = new([new(P.ShardDownDiagonalFlying, 0, 2, 32), new(P.ShardDownDiagonalFallStart, 0, 2, 1), new(P.ShardDownDiagonalFalling, 0, 2, 272), new(P.Deletion, 0, 1, 1)], AnimationEnd.Holds),
-        [S.DownOuter] = new([new(P.ShardDownOuterFlying, 0, 2, 32), new(P.ShardDownOuterFallStart, 0, 2, 1), new(P.ShardDownOuterFalling, 0, 2, 272), new(P.Deletion, 0, 1, 1)], AnimationEnd.Holds),
-        [S.Outward] = new([new(P.ShardOutwardFlying, 0, 2, 32), new(P.ShardOutwardFallStart, 0, 2, 1), new(P.ShardOutwardFalling, 0, 2, 272), new(P.Deletion, 0, 1, 1)], AnimationEnd.Holds),
-        [S.Up] = new([new(P.ShardUpFlying, 0, 2, 32), new(P.ShardUpFallStart, 0, 2, 1), new(P.ShardUpFalling, 0, 2, 272), new(P.Deletion, 0, 1, 1)], AnimationEnd.Holds),
-        [S.DownInner] = new([new(P.ShardDownInnerFlying, 0, 2, 32), new(P.ShardDownInnerFallStart, 0, 2, 1), new(P.ShardDownInnerFalling, 0, 2, 272), new(P.Deletion, 0, 1, 1)], AnimationEnd.Holds),
+        [S.DownOutward] = new([Segments.Repeated(P.ShardDownOutwardFlicker, FlightFlickers), Segments.Whole(P.ShardFallStart), Segments.Repeated(P.ShardDownOutwardFlicker, FallFlickers), Segments.Whole(P.Deletion)], AnimationEnd.Holds),
+        [S.UpOutward] = new([Segments.Repeated(P.ShardUpOutwardFlicker, FlightFlickers), Segments.Whole(P.ShardFallStart), Segments.Repeated(P.ShardUpOutwardFlicker, FallFlickers), Segments.Whole(P.Deletion)], AnimationEnd.Holds),
+        [S.UpSteep] = new([Segments.Repeated(P.ShardUpSteepFlicker, FlightFlickers), Segments.Whole(P.ShardFallStart), Segments.Repeated(P.ShardUpSteepFlicker, FallFlickers), Segments.Whole(P.Deletion)], AnimationEnd.Holds),
+        [S.UpDiagonalInner] = new([Segments.Repeated(P.ShardUpDiagonalInnerFlicker, FlightFlickers), Segments.Whole(P.ShardFallStart), Segments.Repeated(P.ShardUpDiagonalInnerFlicker, FallFlickers), Segments.Whole(P.Deletion)], AnimationEnd.Holds),
+        [S.UpDiagonalOuter] = new([Segments.Repeated(P.ShardUpDiagonalOuterFlicker, FlightFlickers), Segments.Whole(P.ShardFallStart), Segments.Repeated(P.ShardUpDiagonalOuterFlicker, FallFlickers), Segments.Whole(P.Deletion)], AnimationEnd.Holds),
+        [S.DownDiagonal] = new([Segments.Repeated(P.ShardDownDiagonalFlicker, FlightFlickers), Segments.Whole(P.ShardFallStart), Segments.Repeated(P.ShardDownDiagonalFlicker, FallFlickers), Segments.Whole(P.Deletion)], AnimationEnd.Holds),
+        [S.DownOuter] = new([Segments.Repeated(P.ShardDownOuterFlicker, FlightFlickers), Segments.Whole(P.ShardFallStart), Segments.Repeated(P.ShardDownOuterFlicker, FallFlickers), Segments.Whole(P.Deletion)], AnimationEnd.Holds),
+        [S.Outward] = new([Segments.Repeated(P.ShardOutwardFlicker, FlightFlickers), Segments.Whole(P.ShardFallStart), Segments.Repeated(P.ShardOutwardFlicker, FallFlickers), Segments.Whole(P.Deletion)], AnimationEnd.Holds),
+        [S.Up] = new([Segments.Repeated(P.ShardUpFlicker, FlightFlickers), Segments.Whole(P.ShardFallStart), Segments.Repeated(P.ShardUpFlicker, FallFlickers), Segments.Whole(P.Deletion)], AnimationEnd.Holds),
+        [S.DownInner] = new([Segments.Repeated(P.ShardDownInnerFlicker, FlightFlickers), Segments.Whole(P.ShardFallStart), Segments.Repeated(P.ShardDownInnerFlicker, FallFlickers), Segments.Whole(P.Deletion)], AnimationEnd.Holds),
     };
+
+    /// <summary>The plays of the fallen crack's last pieces before it is deleted.</summary>
+    private const int CrackFallenPlays = 6;
+
+    /// <summary>The flickers of a shard's flight out of the tube.</summary>
+    private const int FlightFlickers = 32;
+
+    /// <summary>The flickers of a shard's swaying fall.</summary>
+    private const int FallFlickers = 272;
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<NoobTubeProjectileSegment> StartingWith(NoobTubeProjectileSegment segment) => StartingAt[segment];

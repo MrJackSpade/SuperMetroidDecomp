@@ -138,7 +138,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
         bool definitionHasOwner = false;
         foreach (RoomEnemyPlacement population in records)
         {
-            var enemies =EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+            var enemies = EnemySystemFixtures.PlacingAnyEnemy(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
             enemies.VerificationServices().NextRandom = () => 0;
             enemies.VerificationServices().ReadRandom = () => 0;

@@ -112,7 +112,7 @@ internal static class RoomPaletteFxPresentationVerification
         foreach (TorizoBellyPaletteFxColorDefinition definition in
                  TorizoBellyPaletteFxColorDefinitions.All)
         {
-            VerifyInstalledPaletteFxFamily(bus, presentation, $"{definition.Owner} belly", new PaletteFxFamilyShape { FrameCount = TorizoBellyPaletteFxColorDefinitionsConstants.FrameCount, ColorsPerFrame = TorizoBellyPaletteFxColorDefinitions.ColorsPerFrame, ColorPointer = definition.ColorPointer, Definitions = [definition.DefinitionPointer], LitTorizo = LivingTorizo.Instance }, TorizoBellyPaletteFxColorDefinitions.CycleFrames * 2);
+            VerifyInstalledPaletteFxFamily(bus, presentation, $"{definition.Owner} belly", new PaletteFxFamilyShape { FrameCount = TorizoBellyPaletteFxColorDefinitionsConstants.FrameCount, ColorsPerFrame = TorizoBellyPaletteFxColorDefinitions.ColorsPerFrame, ColorPointer = definition.ColorPointer, Definitions = [definition.DefinitionPointer], LitTorizo = global::SuperMetroid.Verification.Bosses.Torizo.LivingTorizo.Instance }, TorizoBellyPaletteFxColorDefinitions.CycleFrames * 2);
         }
         Suite(nameof(VerifyInstalledPaletteFxFamily), () => VerifyInstalledPaletteFxFamily(bus, presentation, "Tourian statue grey-out", new PaletteFxFamilyShape { FrameCount = TourianStatueGreyPaletteFxColorDefinitions.ColorFrames.FrameCount, ColorsPerFrame = TourianStatueGreyPaletteFxColorDefinitions.ColorsPerFrame, ColorPointer = TourianStatueGreyPaletteFxColorDefinitions.ColorPointer, Definitions = TourianStatueGreyPaletteFxColorToolingDefinitions.All
                 .Select(definition => definition.DefinitionPointer)
@@ -729,22 +729,6 @@ internal static class RoomPaletteFxPresentationVerification
             fx.StartScreen(definition);
         else
             fx.Start(definition, equippedItems: 0);
-    }
-
-    /// <summary>A Torizo that keeps its health through the check, so the belly glow lighting it plays its whole cycle.</summary>
-    private sealed class LivingTorizo : ILitTorizo
-    {
-        /// <summary>The one Torizo.</summary>
-        internal static LivingTorizo Instance { get; } = new();
-
-        /// <inheritdoc/>
-        public bool IsDefeated => false;
-
-        /// <summary>Shows nothing: the check reads each frame the glow shows from the colour effects themselves.</summary>
-        /// <param name="frame">The glow's frame.</param>
-        public void ShowGlow(ColourEffectFrame frame)
-        {
-        }
     }
 
     /// <summary>Runs one handler pass of <paramref name="fx"/> as <paramref name="shape"/>'s family plays: on a frontend screen or in gameplay.</summary>

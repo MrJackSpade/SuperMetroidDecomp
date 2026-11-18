@@ -82,13 +82,14 @@ internal sealed class KraidCombat
     };
 
     /// <summary>Runs the arm's push against Samus's touch.</summary>
-    internal void ReactToArmTouch(EnemyTouchContext context)
+    /// <param name="context">The touch.</param>
+    /// <param name="state">The encounter the arm is part of.</param>
+    internal void ReactToArmTouch(EnemyTouchContext context, KraidEnemyState state)
     {
         // The arm's push forces the bottom lint's firing phase, so it fires immediately after
         // the arm launches Samus up and right.
         // Writes only the whole pixels of the displacement, so preserve both
         // fractions exactly as they were before contact.
-        KraidEnemyState state = KraidEntity.EncounterOf(context.Place);
         context.Samus.Kinematics.ExtraDisplacement = context.Samus.Kinematics.ExtraDisplacement.WithWhole(KraidContactDefinitions.PushBack);
         state.BottomLintState.Phase = KraidLintPhase.Fire;
         _collision.ResolveNormalEnemyTouch(context, TouchDeathAnimation.Skip);

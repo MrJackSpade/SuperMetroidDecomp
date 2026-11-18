@@ -50,13 +50,16 @@ internal sealed class CrocomireBodyEntity(CrocomireBehavior species, RoomEnemyPl
         if (Place.Definition.Shot is not null || !context.UsesFrameHitboxes ||
             context.SelectedShot == EnemyReaction.NormalEnemyShot)
             return base.TryReactToBomb(context);
-        Species.Combat.ReactToCrocomireBomb(context);
+        Species.Combat.ReactToCrocomireBomb(context, Encounter);
         return true;
     }
 
     /// <summary>The body's own Power Bomb reaction where its definition leaves the blast to it, or the shared one.</summary>
     public override EnemyPowerBombReaction? PowerBombReaction =>
-        LeavesPowerBombToSpecies ? Species.Combat.CrocomirePowerBombReaction : base.PowerBombReaction;
+        LeavesPowerBombToSpecies ? OwnPowerBombReaction : base.PowerBombReaction;
+
+    /// <summary>The body's own Power Bomb reaction, which acts on the encounter the body set up.</summary>
+    private EnemyPowerBombReaction OwnPowerBombReaction => field ??= CrocomireCombat.CrocomirePowerBombReactionOf(this);
 
     /// <summary>The body takes normal bombs on its frames' hitboxes although its species definition names no shot reaction.</summary>
     public bool AdmitsNormalBombs(bool collidesByFrameHitboxes) => Place.Definition.Shot is null && collidesByFrameHitboxes;

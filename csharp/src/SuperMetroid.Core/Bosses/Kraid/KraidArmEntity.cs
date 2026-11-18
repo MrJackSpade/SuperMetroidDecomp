@@ -39,7 +39,7 @@ internal sealed class KraidArmEntity(KraidBehavior species, RoomEnemyPlace place
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (LeavesTouchToSpecies)
-            Species.Combat.ReactToArmTouch(context);
+            Species.Combat.ReactToArmTouch(context, Encounter);
         else
             base.ReactToTouch(context);
     }

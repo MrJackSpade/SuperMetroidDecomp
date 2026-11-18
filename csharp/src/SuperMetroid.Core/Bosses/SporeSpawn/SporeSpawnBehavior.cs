@@ -266,12 +266,17 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     private void PublishSporeSpawnObject(SporeSpawnCeilingMutation mutation) =>
         _frameResults.SporeSpawnCeiling = mutation;
 
-    /// <summary>Routes accepted bomb hits through the boss-specific post-damage response.</summary>
-    internal EnemyBombReaction SporeSpawnBombReaction => field ??= new()
+    /// <summary>Routes accepted bomb hits on <paramref name="body"/> through his encounter's post-damage response.</summary>
+    /// <param name="body">His body, whose encounter the response acts on.</param>
+    internal EnemyBombReaction SporeSpawnBombReactionOf(SporeSpawnEntity body)
     {
-        RunsGenericDeath = false,
-        AfterCommon = c => ResolveSporeSpawnShotAfterCommon(c.Enemy),
-    };
+        Ensure.NotNull(body);
+        return new()
+        {
+            RunsGenericDeath = false,
+            AfterCommon = c => ResolveSporeSpawnShotAfterCommon(c.Enemy, body.Encounter),
+        };
+    }
 
     /// <summary>A spore (#1760, #2410): it drifts from its spawn, and a shot one bursts, harmless, then drops and deletes itself.</summary>
     internal SporeSpawnSporeBehavior Spore => field ??= new SporeSpawnSporeBehavior(_deathsAndDrops);
@@ -311,39 +316,50 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>A bomb striking one of Spore Spawn's dud-shot hitboxes: the dud flash where the bomb lies and the dud sound.</summary>
     internal void CreateBombDudShot(EnemyBombContext context) => _projectiles.CreateBombDudShot(context.Bomb);
 
-    /// <summary>Restricts core-hitbox damage to accepted projectile families and handles boss death.</summary>
-    internal EnemyShotReaction SporeSpawnShotReaction => field ??= new()
+    /// <summary>Restricts core-hitbox damage on <paramref name="body"/> to accepted projectile families and handles his death.</summary>
+    /// <param name="body">His body, whose encounter the rest of an accepted shot acts on.</param>
+    internal EnemyShotReaction SporeSpawnShotReactionOf(SporeSpawnEntity body)
     {
-        AfterSuperMissileQuake = (in EnemyShotContext c) =>
+        Ensure.NotNull(body);
+        return new()
         {
-            // His frames' hitboxes meet a shot with his shell's dud or his core's own reaction.
-            if (c.HitboxShot == EnemyReaction.DudShot)
+            AfterSuperMissileQuake = (in EnemyShotContext c) =>
             {
-                c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
-                _projectiles.CreateEnemyProjectileDudShot(c.Projectile);
-                return true;
-            }
-            if (!SporeSpawnAcceptsProjectile(c.ProjectileType))
-            {
-                // The shot has struck the vulnerable core, whose shot reaction rejects it before common damage.
-                c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
-                return true;
-            }
-            return false;
-        },
-        ExemptFromGenericDeath = true,
-        AfterCommon = c => ResolveSporeSpawnShotAfterCommon(c.Enemy),
-    };
+                // His frames' hitboxes meet a shot with his shell's dud or his core's own reaction.
+                if (c.HitboxShot == EnemyReaction.DudShot)
+                {
+                    c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
+                    _projectiles.CreateEnemyProjectileDudShot(c.Projectile);
+                    return true;
+                }
+                if (!SporeSpawnAcceptsProjectile(c.ProjectileType))
+                {
+                    // The shot has struck the vulnerable core, whose shot reaction rejects it before common damage.
+                    c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
+                    return true;
+                }
+                return false;
+            },
+            ExemptFromGenericDeath = true,
+            AfterCommon = c => ResolveSporeSpawnShotAfterCommon(c.Enemy, body.Encounter),
+        };
+    }
 
-    /// <summary>Routes vulnerable hitbox touch through common damage; a touch on a hitbox that does nothing does nothing.</summary>
-    internal void ReactToSporeSpawnTouch(EnemyTouchContext context)
+    /// <summary>
+    /// Routes vulnerable hitbox touch on his body through common damage, then resolves <paramref name="state"/>'s death; a
+    /// touch on a hitbox that does nothing does nothing.
+    /// </summary>
+    /// <param name="context">The touch.</param>
+    /// <param name="state">The encounter his body holds.</param>
+    internal void ReactToSporeSpawnTouch(EnemyTouchContext context, SporeSpawnEnemyState state)
     {
         // His frames' hitboxes meet a touch with his hardened husk's shell, which does nothing, or his own reaction.
         if (context.HitboxTouch == EnemyReaction.Ignore)
             return;
         _collision.ResolveNormalEnemyTouch(context, TouchDeathAnimation.Skip);
-        ResolveSporeSpawnDeathAfterCommon(context.Place, SporeSpawnEntity.EncounterOf(context.Place));
+        ResolveSporeSpawnDeathAfterCommon(context.Place, state);
     }
+
     /// <summary>
     /// Whether the vulnerable core accepts the projectile: a charged beam, or any family but an
     /// uncharged beam and a missile explosion.
@@ -352,10 +368,9 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         !projectileType.IsFamily(SamusProjectileFamily.Beam) && !projectileType.IsFamily(SamusProjectileFamily.MissileExplosion) ||
         projectileType.IsChargedBeam;
 
-    /// <summary>Resolves the rest of a shot on Spore Spawn after the common reaction.</summary>
-    private void ResolveSporeSpawnShotAfterCommon(RoomEnemyPlace body)
+    /// <summary>Resolves the rest of a shot on Spore Spawn's <paramref name="body"/>, of encounter <paramref name="state"/>, after the common reaction.</summary>
+    private void ResolveSporeSpawnShotAfterCommon(RoomEnemyPlace body, SporeSpawnEnemyState state)
     {
-        SporeSpawnEnemyState state = SporeSpawnEntity.EncounterOf(body);
         if (body.FlashTimer != 0)
         {
             state.Movement = SporeSpawnMovement.Moving;

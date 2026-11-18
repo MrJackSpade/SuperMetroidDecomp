@@ -506,7 +506,7 @@ internal static class EnemySpritemapArtworkVerification
             ISnesAddressSpace guard, ushort pointer, EnemyDefinitionId definition,
             Action<RoomEnemyPlace, RoomEnemySystem>? inspect = null, byte? spritemapBank = null)
         {
-            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(art.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: art.Bosses);
+            var enemies = EnemySystemFixtures.PlacingAnyEnemy(EnemySessionFixtures.WithInstalledServices(art.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: art.Bosses);
             // The powered work robot's definition decides its power as it is placed (#2179); either power answers alike.
             enemies.VerificationServices().IsAreaBossDefeated = () => false;
             // The enemy draws as a room drawing it loads it: at its tile base and in its palette there.

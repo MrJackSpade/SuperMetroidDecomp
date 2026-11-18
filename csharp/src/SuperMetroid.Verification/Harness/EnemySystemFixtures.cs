@@ -9,6 +9,7 @@ using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Verification.Areas.Tourian;
 
 namespace SuperMetroid.Verification.Harness;
 
@@ -61,4 +62,19 @@ internal static class EnemySystemFixtures
         system.BossArtwork = installedBosses;
         return system;
     }
+
+    /// <summary>
+    /// A room's enemy system, as <see cref="New"/> builds it, in a room that can place any enemy: it shows the Ceres
+    /// turning floor whose platform the elevator door cycles and holds the Tourian statue room whose statue the statue's
+    /// decorations follow down (#2382), for a check that binds definitions it does not pick one by one (#2420).
+    /// </summary>
+    /// <param name="session">The enemy state and installed artwork that outlive each room.</param>
+    /// <param name="compatibility">The compatibility services the room's enemies consult.</param>
+    /// <param name="definitions">The room's enemy definition source, or null for the compiled definitions.</param>
+    /// <param name="services">The game-state services the room's AI calls, or null for verification services.</param>
+    /// <param name="installedBosses">The bosses' installed artwork, or null when the check reads none of it.</param>
+    internal static RoomEnemySystem PlacingAnyEnemy(EnemySession session, RoomEnemyCompatibility compatibility,
+        IRoomEnemyDefinitionSource? definitions = null, IRoomEnemyServices? services = null, BossSourceArtwork? installedBosses = null) =>
+        New(session, compatibility, definitions, services, installedBosses,
+            floor: RoomBackgroundsFixtures.CeresFloor(), statueRoom: new FixedTourianStatueRoom(WaterSurface: 216, StatueOffset: 0));
 }

@@ -26,14 +26,20 @@ internal static class RoomBackgroundsFixtures
     /// <summary>Tiles a fixture paints into each block picture: top left, top right, bottom left, bottom right.</summary>
     private const int BlockTiles = 4;
 
+    /// <summary>The blank Ceres floor sheet, composed once: a sheet holds only its pictures, which no floor changes.</summary>
+    private static readonly Lazy<RoomFloorSheet> BlankCeresFloorSheet = new(AffineFloorConstants.BlankCeresRoom);
+
     /// <summary>A room whose BG1 shows tile word zero over the whole unscrolled screen, no BG2 plane, and no effect page.</summary>
     internal static RoomBackgrounds Blank() => Uniform(new byte[SnesVram.ByteCount], new RgbColor[SnesCgram.ColorCount], default);
 
     /// <summary>An effect overlay showing nothing (#1403, #1514, #1706).</summary>
     internal static FxOverlayArtwork BlankFxOverlay() => new(null);
 
-    /// <summary>A Ceres room's turning floor, with its floor animation frames, whose drawing a check does not look at (#1467).</summary>
-    internal static RoomFloor CeresFloor() => new(AffineFloorConstants.BlankCeresRoom());
+    /// <summary>
+    /// A Ceres room's turning floor, with its floor animation frames, whose drawing a check does not look at (#1467). Each
+    /// floor keeps the frames its own parts show, over the one blank sheet every fixture floor shares (#2420).
+    /// </summary>
+    internal static RoomFloor CeresFloor() => new(BlankCeresFloorSheet.Value);
 
     /// <summary>A turning floor of tile zero everywhere, showing nothing.</summary>
     internal static AffineFloor BlankMode7Floor() => AffineFloorConstants.BlankCeresRoom().Floor;

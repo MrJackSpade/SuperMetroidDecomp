@@ -41,11 +41,16 @@ internal sealed class CrocomireCombat
         state.Colours.ShowBody(white);
     }
 
-    /// <summary>Runs the component-specific reaction a bomb's hitbox selects, before the check for an ignoring reaction.</summary>
-    internal void ReactToCrocomireBomb(EnemyBombContext c) =>
+    /// <summary>
+    /// Runs the component-specific reaction a bomb's hitbox selects on <paramref name="state"/>, before the check for an
+    /// ignoring reaction.
+    /// </summary>
+    /// <param name="c">The bomb contact.</param>
+    /// <param name="state">The encounter the bombed part is part of.</param>
+    internal void ReactToCrocomireBomb(EnemyBombContext c, CrocomireEnemyState state) =>
         // Crocomire's species definition names no shot reaction; every live component supplies its own. Normal bombs
         // therefore reach the same hit counter, dust, or mouth reaction selected by the map.
-        ResolveCrocomireHitboxShot(CrocomireEntity.EncounterOf(c.Enemy), c.Bomb.Type, c.Bomb.Position.Whole, c.SelectedShot, c.Camera);
+        ResolveCrocomireHitboxShot(state, c.Bomb.Type, c.Bomb.Position.Whole, c.SelectedShot, c.Camera);
 
     /// <summary>
     /// The mouth's shot (#1760): its spawner starts its animation, and a shot one runs its typed shot animation, whose
@@ -173,26 +178,36 @@ internal sealed class CrocomireCombat
         }
     }
 
-    /// <summary>Routes power-bomb hits on each Crocomire component to their authored reactions.</summary>
-    internal EnemyPowerBombReaction CrocomirePowerBombReaction => field ??= new()
+    /// <summary>Routes power-bomb hits on <paramref name="body"/> to his encounter's authored reaction.</summary>
+    /// <param name="body">His body, whose encounter the reaction acts on.</param>
+    internal static EnemyPowerBombReaction CrocomirePowerBombReactionOf(CrocomireBodyEntity body)
     {
-        ReplacesCommon = c => ResolveCrocomirePowerBombReaction(c.Enemy),
-    };
-
-    /// <summary>Routes body, mouth, and auxiliary hitboxes to their distinct shot reactions.</summary>
-    internal EnemyShotReaction CrocomireShotReaction => field ??= new()
-    {
-        AfterSuperMissileQuake = (in EnemyShotContext c) =>
+        Ensure.NotNull(body);
+        return new()
         {
-            if (c.HitboxShot == EnemyReaction.NormalEnemyShot)
-                return false;
-            if (!c.UsesFrameHitboxes)
-                throw new InvalidDataException("Crocomire's parts require collision by their frames' hitboxes.");
-            c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
-            ResolveCrocomireHitboxShot(CrocomireEntity.EncounterOf(c.Enemy), c.Projectile.Type, c.Projectile.Position.Whole, c.HitboxShot, c.Camera);
-            return true;
-        },
-    };
+            ReplacesCommon = c => ResolveCrocomirePowerBombReaction(c.Enemy, body.Encounter),
+        };
+    }
+
+    /// <summary>Routes <paramref name="part"/>'s body, mouth, and auxiliary hitboxes to their distinct shot reactions on its encounter.</summary>
+    /// <param name="part">His body or tongue, whose encounter the reactions act on.</param>
+    internal EnemyShotReaction CrocomireShotReactionOf(CrocomireEntity part)
+    {
+        Ensure.NotNull(part);
+        return new()
+        {
+            AfterSuperMissileQuake = (in EnemyShotContext c) =>
+            {
+                if (c.HitboxShot == EnemyReaction.NormalEnemyShot)
+                    return false;
+                if (!c.UsesFrameHitboxes)
+                    throw new InvalidDataException("Crocomire's parts require collision by their frames' hitboxes.");
+                c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
+                ResolveCrocomireHitboxShot(part.Encounter, c.Projectile.Type, c.Projectile.Position.Whole, c.HitboxShot, c.Camera);
+                return true;
+            },
+        };
+    }
 
     /// <summary>Runs Crocomire's component contact, including normal enemy touch damage.</summary>
     internal void ReactToCrocomireTouch(EnemyTouchContext context)
@@ -323,9 +338,8 @@ internal sealed class CrocomireCombat
     }
 
     /// <summary>Runs Crocomire's power-bomb reaction without applying normal power-bomb HP damage.</summary>
-    private static void ResolveCrocomirePowerBombReaction(RoomEnemyPlace body)
+    private static void ResolveCrocomirePowerBombReaction(RoomEnemyPlace body, CrocomireEnemyState state)
     {
-        CrocomireEnemyState state = CrocomireEntity.EncounterOf(body);
         if (state.DeathPhase != CrocomireDeathPhase.Fighting)
             return;
 

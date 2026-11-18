@@ -51,7 +51,7 @@ internal static class KraidArmSamusContactVerification
 
         AssertEqual(4, samus.Kinematics.ExtraDisplacement.X.WholePixels, "$A7:94A4 pushes Samus four pixels right");
         AssertEqual(-8, samus.Kinematics.ExtraDisplacement.Y.WholePixels, "$A7:94AA pushes Samus eight pixels up");
-        AssertEqual(KraidLintPhase.Fire, KraidEntity.EncounterOf(runtime.Enemies.KraidBehavior.Parts.Body).BottomLintState.Phase,
+        AssertEqual(KraidLintPhase.Fire, runtime.Enemies.KraidBehavior.Parts.Encounter.BottomLintState.Phase,
             "the arm touch makes the bottom lint fire");
         AssertTrue(!samus.InvincibilityTimer.IsZero, "the arm's contact damage starts invincibility");
         Console.WriteLine("  Kraid arm Samus contact: the extended arm frame pushes Samus back and fires the bottom lint.");

@@ -75,7 +75,7 @@ internal static class CrocomireMouthShotHoldVerification
                 CrocomireReactions.MouthShot, UsesFrameHitboxes: true, new Position16<RoomPixels>(cameraX, 0))
             {
                 StruckOccupant = body.OccupantStates,
-            });
+            }, state);
             AssertEqual(reacts, state.DamageReactionPending, $"a bomb with the camera at column {cameraX} finds his body {place}");
             AssertEqual(reacts ? expected : StartingHold, body.AnimationClock.Hold.RemainingFrames,
                 $"a bomb with the camera at column {cameraX} {(reacts ? "holds" : "leaves")} his frame");

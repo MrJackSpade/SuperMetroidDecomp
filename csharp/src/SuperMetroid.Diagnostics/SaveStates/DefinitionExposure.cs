@@ -20,7 +20,9 @@ namespace SuperMetroid.Diagnostics.SaveStates;
 /// contents, as an object no catalog holds is;
 /// </item>
 /// <item>a class that is not sealed, or an interface, holds what each type of the game's assembly that derives from or
-/// implements it holds;</item>
+/// implements it holds. A generic type whose declared base or interface leaves some of its type parameters open is
+/// taken in each construction that binds its fields' types to constructions the game's declarations name: a room-object
+/// draw, declared only as a draw, holds its family, so it is taken as a draw of each family the game declares (#2420);</item>
 /// <item>
 /// a location declared as <see cref="object"/>, <see cref="ValueType"/> or a collection that enumerates objects of
 /// no declared type can hold anything, so its catalog may hold an object of every type;
@@ -49,6 +51,13 @@ internal sealed class DefinitionExposure
     /// parameters for a generic definition.
     /// </summary>
     private readonly Dictionary<Type, List<(Type Derived, Type Declared)>> derived = [];
+
+    /// <summary>
+    /// The closed constructions of each generic definition the game's declarations name, by generic definition: the types
+    /// of every field, base type and interface of the game's types, and the element types and type arguments within them.
+    /// A derived generic type whose declared base leaves a type parameter open is constructed with the arguments these bind.
+    /// </summary>
+    private readonly Dictionary<Type, HashSet<Type>> named = [];
 
     /// <summary>Each declared type reached, by its number.</summary>
     private readonly Dictionary<Type, int> numbers = [];
@@ -89,8 +98,12 @@ internal sealed class DefinitionExposure
         this.game = Ensure.NotNull(game);
         this.catalogs = Ensure.NotNull(catalogs);
         universal = new ulong[(catalogs.Count + WordBits - 1) / WordBits];
+        var namedSeen = new HashSet<Type>();
         foreach (Type type in Ensure.NotNull(types))
+        {
             FileDerived(type);
+            FileNamed(type, namedSeen);
+        }
         var pending = new Stack<int>();
         int[] visited = [];
         for (int catalog = 0; catalog < catalogs.Count; catalog++)
@@ -188,6 +201,44 @@ internal sealed class DefinitionExposure
         if (!derived.TryGetValue(key, out List<(Type Derived, Type Declared)>? filed))
             derived.Add(key, filed = []);
         filed.Add((type, declaredBase));
+    }
+
+    /// <summary>Files the closed generic constructions the declared types of <paramref name="type"/>'s fields, base type and interfaces name.</summary>
+    /// <param name="type">A type of the game's assembly.</param>
+    /// <param name="seen">The types already filed through, which name nothing more.</param>
+    private void FileNamed(Type type, HashSet<Type> seen)
+    {
+        foreach (FieldInfo field in type.GetFields(InstanceFields | BindingFlags.Static))
+            Name(field.FieldType, seen);
+        if (type.BaseType is { } baseType)
+            Name(baseType, seen);
+        foreach (Type implemented in type.GetInterfaces())
+            Name(implemented, seen);
+    }
+
+    /// <summary>Files <paramref name="type"/> when it is a closed generic construction, and what its element type and type arguments name.</summary>
+    /// <param name="type">A declared type.</param>
+    /// <param name="seen">The types already filed through, which name nothing more.</param>
+    private void Name(Type type, HashSet<Type> seen)
+    {
+        if (!seen.Add(type))
+            return;
+        if (type.HasElementType)
+        {
+            Name(Ensure.NotNull(type.GetElementType()), seen);
+            return;
+        }
+        if (!type.IsGenericType)
+            return;
+        if (!type.ContainsGenericParameters)
+        {
+            Type definition = type.GetGenericTypeDefinition();
+            if (!named.TryGetValue(definition, out HashSet<Type>? constructions))
+                named.Add(definition, constructions = []);
+            constructions.Add(type);
+        }
+        foreach (Type argument in type.GetGenericArguments())
+            Name(argument, seen);
     }
 
     /// <summary>The number of declared type <paramref name="type"/>, numbering it on first sight.</summary>
@@ -307,24 +358,94 @@ internal sealed class DefinitionExposure
                     types.Add(candidate);
                 continue;
             }
-            if (Constructed(candidate, declaredBase, type) is { } constructed)
+            foreach (Type constructed in Constructions(candidate, declaredBase, type))
                 types.Add(constructed);
         }
     }
 
     /// <summary>
-    /// <paramref name="definition"/> constructed so that its <paramref name="declaredBase"/>, written in its own type
-    /// parameters, is <paramref name="type"/>; null when no type arguments do so or they break its constraints.
+    /// The constructions of <paramref name="definition"/> whose <paramref name="declaredBase"/>, written in its own type
+    /// parameters, is <paramref name="type"/>: the arguments matching the base binds, with each parameter the base leaves
+    /// open bound as <see cref="Bindings"/> binds it. None when no arguments do so or they break its constraints.
     /// </summary>
-    private static Type? Constructed(Type definition, Type declaredBase, Type type)
+    private List<Type> Constructions(Type definition, Type declaredBase, Type type)
+    {
+        var constructions = new List<Type>();
+        var arguments = new Type?[definition.GetGenericArguments().Length];
+        if (!Unify(declaredBase, type, definition, arguments))
+            return constructions;
+        foreach (Type[] bound in Bindings(definition, arguments, FieldPatterns(definition)))
+            if (Constructed(definition, bound, type) is { } constructed && !constructions.Contains(constructed))
+                constructions.Add(constructed);
+        return constructions;
+    }
+
+    /// <summary>
+    /// Every completion of <paramref name="arguments"/>, the type arguments of <paramref name="definition"/> bound so far:
+    /// each parameter still open is bound by matching one of <paramref name="patterns"/>, the generic types its fields are
+    /// declared with, against a construction the game's declarations name (<see cref="named"/>). A parameter no pattern
+    /// binds leaves no completion.
+    /// </summary>
+    private IEnumerable<Type[]> Bindings(Type definition, Type?[] arguments, List<Type> patterns)
+    {
+        int boundCount = arguments.Count(argument => argument is not null);
+        if (boundCount == arguments.Length)
+        {
+            yield return [.. arguments.Select(argument => Ensure.NotNull(argument))];
+            yield break;
+        }
+        foreach (Type pattern in patterns)
+        {
+            if (!named.TryGetValue(pattern.GetGenericTypeDefinition(), out HashSet<Type>? constructions))
+                continue;
+            foreach (Type construction in constructions)
+            {
+                Type?[] extended = [.. arguments];
+                // A match that binds no further parameter completes nothing the others do not.
+                if (!Unify(pattern, construction, definition, extended) || extended.Count(argument => argument is not null) == boundCount)
+                    continue;
+                foreach (Type[] bound in Bindings(definition, extended, patterns))
+                    yield return bound;
+            }
+        }
+    }
+
+    /// <summary>
+    /// The generic types written in <paramref name="definition"/>'s type parameters that its instance fields, and its
+    /// bases', are declared with, and those within their element types and type arguments.
+    /// </summary>
+    private static List<Type> FieldPatterns(Type definition)
+    {
+        var patterns = new List<Type>();
+        for (Type? current = definition; current is not null; current = current.BaseType)
+            foreach (FieldInfo field in current.GetFields(InstanceFields))
+                AddPatterns(field.FieldType, patterns);
+        return patterns;
+    }
+
+    /// <summary>Adds <paramref name="type"/>, when it is a generic type written in type parameters, and the ones within it to <paramref name="patterns"/>.</summary>
+    private static void AddPatterns(Type type, List<Type> patterns)
+    {
+        if (type.HasElementType)
+        {
+            AddPatterns(Ensure.NotNull(type.GetElementType()), patterns);
+            return;
+        }
+        if (!type.IsGenericType || !type.ContainsGenericParameters)
+            return;
+        if (!patterns.Contains(type))
+            patterns.Add(type);
+        foreach (Type argument in type.GetGenericArguments())
+            AddPatterns(argument, patterns);
+    }
+
+    /// <summary>
+    /// <paramref name="definition"/> constructed with <paramref name="bound"/>, when they meet its constraints and the
+    /// construction is assignable to <paramref name="type"/>; null otherwise.
+    /// </summary>
+    private static Type? Constructed(Type definition, Type[] bound, Type type)
     {
         Type[] parameters = definition.GetGenericArguments();
-        var arguments = new Type?[parameters.Length];
-        if (!Unify(declaredBase, type, definition, arguments))
-            return null;
-        if (arguments.Any(argument => argument is null))
-            return null;
-        Type[] bound = [.. arguments.Select(argument => argument!)];
         for (int index = 0; index < parameters.Length; index++)
             if (!Satisfies(parameters[index], bound[index], definition, bound))
                 return null;

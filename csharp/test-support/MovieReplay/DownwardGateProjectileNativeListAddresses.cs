@@ -33,5 +33,5 @@ internal static class DownwardGateProjectileNativeListAddresses
     internal static ushort Entry(DownwardGateProjectileSegment program) => NativeEnemyProjectileProgramOracle.EntryOf(Entries, program);
 
     /// <summary>The family's typed programs beside their native lists.</summary>
-    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, DownwardGateProjectileAnimations.Segments, DownwardGateProjectileAnimations.StartingAt, (frame => EnemyProjectileProgramFrameSources.Operand(frame)), DownwardGateProjectileCueRules.Rules);
+    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, DownwardGateProjectileAnimations.Segments, DownwardGateProjectileAnimations.StartingAt, EnemyProjectileProgramFrameOperands.KeyOf, DownwardGateProjectileCueRules.Rules);
 }

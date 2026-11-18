@@ -224,7 +224,6 @@ internal static class EnemyProjectilePresentationFrameDefinitions
         new("phantoon_flame_wisps"),
         new("phantoon_flame_last_wisp"),
         new("phantoon_flame_kindling"),
-        new("phantoon_flame_blank"),
         new("phantoon_flame_teardrop"),
         new("phantoon_flame_sputtering"),
         new("kraid_rock_large"),
@@ -295,7 +294,6 @@ internal static class EnemyProjectilePresentationFrameDefinitions
         new("tourian_statue_eye_glow_sparkle_small"),
         new("tourian_statue_eye_glow_streak_small"),
         new("tourian_statue_eye_glow_dot"),
-        new("tourian_statue_eye_glow_blank"),
         new("tourian_statue_particle_turned_0"),
         new("tourian_statue_particle_turned_90"),
         new("tourian_statue_particle_turned_180"),
@@ -461,7 +459,6 @@ internal static class EnemyProjectilePresentationFrameDefinitions
         new("botwoon_tail_down_right"),
         new("botwoon_tail_right"),
         new("botwoon_tail_up_right"),
-        new("botwoon_blank"),
         new("botwoon_spit_dim"),
         new("botwoon_spit_bright"),
         new("botwoon_spit_ringed"),
@@ -493,7 +490,6 @@ internal static class EnemyProjectilePresentationFrameDefinitions
         new("golden_torizo_eye_beam_flare_ring_cored"),
         new("golden_torizo_eye_beam_flare_ring"),
         new("golden_torizo_eye_beam_flare_ring_fading"),
-        new("golden_torizo_eye_beam_blank"),
         new("golden_torizo_eye_beam_flame_burst"),
         new("golden_torizo_eye_beam_flame_dome"),
         new("golden_torizo_eye_beam_flame_column_short"),
@@ -549,7 +545,6 @@ internal static class EnemyProjectilePresentationFrameDefinitions
         new("torizo_explosion_fire_cloud_spreading"),
         new("torizo_explosion_fire_cloud_breaking"),
         new("torizo_explosion_fire_cloud_embers"),
-        new("torizo_drool_blank"),
         new("torizo_drool_drop"),
         new("torizo_drool_splash_rising"),
         new("torizo_drool_splash_spreading"),
@@ -596,7 +591,6 @@ internal static class EnemyProjectilePresentationFrameDefinitions
     /// <summary>Enemy pickups and generic enemy deaths.</summary>
     internal static IReadOnlyList<EnemyProjectilePresentationFrameDefinition> PreEnvironmentAndAttackAdditions { get; } =
     [
-        new("enemy_death_blank"),
         new("enemy_death_fireball_small"),
         new("enemy_death_fireball_large"),
         new("enemy_death_flaming_ring"),
@@ -744,7 +738,6 @@ internal static class EnemyProjectilePresentationFrameDefinitions
         new("falling_spark_upright"),
         new("falling_spark_diagonal"),
         new("falling_spark_upright_small"),
-        new("falling_spark_blank"),
     ];
 
     /// <summary>Mother Brain and statue projectiles.</summary>

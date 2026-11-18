@@ -20,6 +20,6 @@ internal static class WorkRobotLaserNativeListAddresses
     internal static readonly MotherBrainEffectNativeListAddressesExtent Extent = new MotherBrainEffectNativeListAddressesExtent(0xd2ec, 0xd30c);
 
     /// <summary>The family's typed programs beside their native lists.</summary>
-    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, WorkRobotLaserAnimations.Segments, WorkRobotLaserAnimations.StartingAt, (frame => EnemyProjectileProgramFrameSources.Operand(frame)), NativeEnemyProjectileCommonCues.Rules,
+    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, WorkRobotLaserAnimations.Segments, WorkRobotLaserAnimations.StartingAt, EnemyProjectileProgramFrameOperands.KeyOf, NativeEnemyProjectileCommonCues.Rules,
         onlyRunOnInto: new HashSet<WorkRobotLaserSegment> { WorkRobotLaserSegment.Ring });
 }

@@ -35,7 +35,7 @@ internal static class TourianStatueProjectileAnimations
             Show(EnemyProjectileFrameId.TourianStatueEyeGlowSparkleSmall, 6),
             Show(EnemyProjectileFrameId.TourianStatueEyeGlowStreakSmall, 6),
             Show(EnemyProjectileFrameId.TourianStatueEyeGlowDot, 5),
-            Show(EnemyProjectileFrameId.TourianStatueEyeGlowBlank, 48),
+            Show(EnemyProjectileFrameId.Blank, 48),
             Cue(new TourianStatueProjectileCue.Signal(K.PlayReleaseSound)),
             Cue(new TourianStatueProjectileCue.Signal(K.Earthquake)),
             Cue(new TourianStatueProjectileCue.Signal(K.SpawnParticle)),

@@ -79,7 +79,6 @@ internal static class EnemyProjectileProgramFrameDefinitions
         [EnemyProjectileFrameId.PhantoonFlameWisps] = 0x97a4,
         [EnemyProjectileFrameId.PhantoonFlameLastWisp] = 0x97a8,
         [EnemyProjectileFrameId.PhantoonFlameKindling] = 0x97ba,
-        [EnemyProjectileFrameId.PhantoonFlameBlank] = 0x97be,
         [EnemyProjectileFrameId.PhantoonFlameTeardrop] = 0x97ca,
         [EnemyProjectileFrameId.PhantoonFlameSputtering] = 0x97da,
         [EnemyProjectileFrameId.KraidRockLarge] = 0x9c7f,
@@ -185,7 +184,6 @@ internal static class EnemyProjectileProgramFrameDefinitions
         [EnemyProjectileFrameId.TorizoExplosionFireCloudSpreading] = 0xa446,
         [EnemyProjectileFrameId.TorizoExplosionFireCloudBreaking] = 0xa44a,
         [EnemyProjectileFrameId.TorizoExplosionFireCloudEmbers] = 0xa44e,
-        [EnemyProjectileFrameId.TorizoDroolBlank] = 0xa46c,
         [EnemyProjectileFrameId.TorizoDroolDrop] = 0xa47c,
         [EnemyProjectileFrameId.TorizoDroolSplashRising] = 0xa492,
         [EnemyProjectileFrameId.TorizoDroolSplashSpreading] = 0xa496,
@@ -282,7 +280,6 @@ internal static class EnemyProjectileProgramFrameDefinitions
         [EnemyProjectileFrameId.GoldenTorizoEyeBeamFlareRingCored] = 0xb3d9,
         [EnemyProjectileFrameId.GoldenTorizoEyeBeamFlareRing] = 0xb3dd,
         [EnemyProjectileFrameId.GoldenTorizoEyeBeamFlareRingFading] = 0xb3e1,
-        [EnemyProjectileFrameId.GoldenTorizoEyeBeamBlank] = 0xb3e9,
         [EnemyProjectileFrameId.GoldenTorizoEyeBeamFlameBurst] = 0xb3f4,
         [EnemyProjectileFrameId.GoldenTorizoEyeBeamFlameDome] = 0xb3f8,
         [EnemyProjectileFrameId.GoldenTorizoEyeBeamFlameColumnShort] = 0xb400,
@@ -328,7 +325,6 @@ internal static class EnemyProjectileProgramFrameDefinitions
         [EnemyProjectileFrameId.TourianStatueEyeGlowSparkleSmall] = 0xb7cd,
         [EnemyProjectileFrameId.TourianStatueEyeGlowStreakSmall] = 0xb7d1,
         [EnemyProjectileFrameId.TourianStatueEyeGlowDot] = 0xb7d5,
-        [EnemyProjectileFrameId.TourianStatueEyeGlowBlank] = 0xb7d9,
         [EnemyProjectileFrameId.TourianStatueParticleTurned0] = 0xb804,
         [EnemyProjectileFrameId.TourianStatueParticleTurned90] = 0xb808,
         [EnemyProjectileFrameId.TourianStatueParticleTurned180] = 0xb80e,
@@ -780,7 +776,6 @@ internal static class EnemyProjectileProgramFrameDefinitions
         [EnemyProjectileFrameId.BotwoonTailDownRight] = 0xe8e3,
         [EnemyProjectileFrameId.BotwoonTailRight] = 0xe8e9,
         [EnemyProjectileFrameId.BotwoonTailUpRight] = 0xe8ef,
-        [EnemyProjectileFrameId.BotwoonBlank] = 0xe8f5,
         [EnemyProjectileFrameId.BotwoonSpitDim] = 0xebb0,
         [EnemyProjectileFrameId.BotwoonSpitBright] = 0xebb4,
         [EnemyProjectileFrameId.BotwoonSpitRinged] = 0xebb8,
@@ -788,7 +783,6 @@ internal static class EnemyProjectileProgramFrameDefinitions
         [EnemyProjectileFrameId.BotwoonSpitDissolving] = 0xebc0,
         [EnemyProjectileFrameId.YappingMawFacingDown] = 0xec58,
         [EnemyProjectileFrameId.YappingMawFacingUp] = 0xec5e,
-        [EnemyProjectileFrameId.EnemyDeathBlank] = 0xeca5,
         [EnemyProjectileFrameId.EnemyDeathFireballSmall] = 0xed4d,
         [EnemyProjectileFrameId.EnemyDeathFireballLarge] = 0xed51,
         [EnemyProjectileFrameId.EnemyDeathFlamingRing] = 0xed55,
@@ -831,7 +825,6 @@ internal static class EnemyProjectileProgramFrameDefinitions
         [EnemyProjectileFrameId.FallingSparkUpright] = 0xf355,
         [EnemyProjectileFrameId.FallingSparkDiagonal] = 0xf359,
         [EnemyProjectileFrameId.FallingSparkUprightSmall] = 0xf35d,
-        [EnemyProjectileFrameId.FallingSparkBlank] = 0xf369,
     }.ToFrozenDictionary();
 
     /// <summary>
@@ -842,8 +835,11 @@ internal static class EnemyProjectileProgramFrameDefinitions
     /// pirates' lasers and claws, the noob tube's shards and dust, the dust puffs, death fireballs and pickups, the falling
     /// sparks, the downward gate, the Kago bug, the Ki-Hunter's acid, the nuclear waffle's fireballs, the eye door's balls,
     /// the work robot's flare, the Chozo's dust and the Tourian statue's base show poses their lists showed before from
-    /// operands of their own, some drawing the same picture from a copy of its spritemap (#2273). The import
-    /// composes each frame once from <see cref="Operands"/>; tools reading native lists find its frame here.
+    /// operands of their own, some drawing the same picture from a copy of its spritemap (#2273). The operands of Phantoon's
+    /// flames' blinks, the Torizos' drool delays, Golden Torizo's eye beam floor impact, the Tourian statues' eye glow,
+    /// Botwoon's hidden segments, the enemy deaths' waits and the falling sparks' blinks draw nothing and show the blank
+    /// frame (#2431). The import composes each frame once from <see cref="Operands"/>; tools reading native lists find its
+    /// frame here.
     /// </summary>
     internal static readonly FrozenDictionary<ushort, EnemyProjectileFrameId> AlsoStoredAt = new Dictionary<ushort, EnemyProjectileFrameId>
     {
@@ -915,8 +911,6 @@ internal static class EnemyProjectileProgramFrameDefinitions
         [0xe574] = EnemyProjectileFrameId.DownwardGateThreeBlocksTall,
         [0xe57a] = EnemyProjectileFrameId.DownwardGateTwoBlocksTall,
         [0xe580] = EnemyProjectileFrameId.DownwardGateOneBlockTall,
-        [0xecb9] = EnemyProjectileFrameId.EnemyDeathBlank,
-        [0xecd7] = EnemyProjectileFrameId.EnemyDeathBlank,
         [0xed6f] = EnemyProjectileFrameId.EnemyDeathFireballSmall,
         [0xed73] = EnemyProjectileFrameId.EnemyDeathFireballLarge,
         [0xed79] = EnemyProjectileFrameId.EnemyDeathFlamingRing,
@@ -924,13 +918,9 @@ internal static class EnemyProjectileProgramFrameDefinitions
         [0xee01] = EnemyProjectileFrameId.EnemyDeathFireballLarge,
         [0xf365] = EnemyProjectileFrameId.FallingSparkUpright,
         [0xf36d] = EnemyProjectileFrameId.FallingSparkUpright,
-        [0xf371] = EnemyProjectileFrameId.FallingSparkBlank,
         [0xf375] = EnemyProjectileFrameId.FallingSparkDiagonal,
-        [0xf379] = EnemyProjectileFrameId.FallingSparkBlank,
         [0xf37d] = EnemyProjectileFrameId.FallingSparkDiagonal,
-        [0xf381] = EnemyProjectileFrameId.FallingSparkBlank,
         [0xf385] = EnemyProjectileFrameId.FallingSparkUprightSmall,
-        [0xf389] = EnemyProjectileFrameId.FallingSparkBlank,
         [0xf38d] = EnemyProjectileFrameId.FallingSparkUprightSmall,
         [0x8c4c] = EnemyProjectileFrameId.DraygonGoopRounded,
         [0x8c50] = EnemyProjectileFrameId.DraygonGoopPuffed,
@@ -955,8 +945,6 @@ internal static class EnemyProjectileProgramFrameDefinitions
         [0x977c] = EnemyProjectileFrameId.PhantoonFlameFlickering,
         [0x9798] = EnemyProjectileFrameId.PhantoonFlameResting,
         [0x97ae] = EnemyProjectileFrameId.PhantoonFlameSplashed,
-        [0x97ce] = EnemyProjectileFrameId.PhantoonFlameBlank,
-        [0x97de] = EnemyProjectileFrameId.PhantoonFlameBlank,
         [0x97ea] = EnemyProjectileFrameId.PhantoonFlameKindling,
         [0x97ee] = EnemyProjectileFrameId.PhantoonFlameTeardrop,
         [0x97f2] = EnemyProjectileFrameId.PhantoonFlameSputtering,
@@ -981,7 +969,6 @@ internal static class EnemyProjectileProgramFrameDefinitions
         [0x9614] = EnemyProjectileFrameId.RidleyFireballFireCloudSpreading,
         [0x9618] = EnemyProjectileFrameId.RidleyFireballFireCloudBreaking,
         [0x961c] = EnemyProjectileFrameId.RidleyFireballFireCloudEmbers,
-        [0xa470] = EnemyProjectileFrameId.TorizoDroolBlank,
         [0xa484] = EnemyProjectileFrameId.TorizoDroolDrop,
         [0xa4d0] = EnemyProjectileFrameId.BombTorizoStatueMossClump,
         [0xa4e1] = EnemyProjectileFrameId.BombTorizoStatueRubbleLitRight,
@@ -1017,5 +1004,21 @@ internal static class EnemyProjectileProgramFrameDefinitions
         [0xdc16] = EnemyProjectileFrameId.SporeSpawnSpawnerOpening,
         [0xdc1a] = EnemyProjectileFrameId.SporeSpawnSpawnerClosed,
         [0xdc3c] = EnemyProjectileFrameId.SporeSpawnSporeBurstSpark,
+        [0x97be] = EnemyProjectileFrameId.Blank,
+        [0x97ce] = EnemyProjectileFrameId.Blank,
+        [0x97de] = EnemyProjectileFrameId.Blank,
+        [0xa46c] = EnemyProjectileFrameId.Blank,
+        [0xa470] = EnemyProjectileFrameId.Blank,
+        [0xb3e9] = EnemyProjectileFrameId.Blank,
+        [0xb7d9] = EnemyProjectileFrameId.Blank,
+        [0xe8f5] = EnemyProjectileFrameId.Blank,
+        [0xeca5] = EnemyProjectileFrameId.Blank,
+        [0xecb9] = EnemyProjectileFrameId.Blank,
+        [0xecd7] = EnemyProjectileFrameId.Blank,
+        [0xf369] = EnemyProjectileFrameId.Blank,
+        [0xf371] = EnemyProjectileFrameId.Blank,
+        [0xf379] = EnemyProjectileFrameId.Blank,
+        [0xf381] = EnemyProjectileFrameId.Blank,
+        [0xf389] = EnemyProjectileFrameId.Blank,
     }.ToFrozenDictionary();
 }

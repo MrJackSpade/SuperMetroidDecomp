@@ -52,7 +52,7 @@ internal static class EnemyDeathProjectileNativeListAddresses
             : Entry(EnemyDeathAndDropAnimations.StartingAt.Single(pair => ReferenceEquals(pair.Value, animation)).Key);
 
     /// <summary>The family's typed programs beside their native lists; the big and Fake Kraid explosions start at their counted entries.</summary>
-    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, EnemyDeathAndDropAnimations.Segments, EnemyDeathAndDropAnimations.StartingAt, (frame => EnemyProjectileProgramFrameSources.Operand(frame)), EnemyDeathProjectileCueRules.Rules,
+    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, EnemyDeathAndDropAnimations.Segments, EnemyDeathAndDropAnimations.StartingAt, EnemyProjectileProgramFrameOperands.KeyOf, EnemyDeathProjectileCueRules.Rules,
         countedEntries: CountedExplosions,
         onlyRunOnInto: new HashSet<EnemyDeathAndDropSegment> { EnemyDeathAndDropSegment.BigExplosionEnd, EnemyDeathAndDropSegment.FakeKraidExplosionEnd });
 }

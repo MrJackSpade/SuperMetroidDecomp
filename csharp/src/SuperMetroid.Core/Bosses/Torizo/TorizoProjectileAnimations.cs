@@ -62,7 +62,7 @@ internal static class TorizoProjectileAnimations
             Show(EnemyProjectileFrameId.TorizoExplosionFireCloudBreaking, 8),
             Show(EnemyProjectileFrameId.TorizoExplosionFireCloudEmbers, 8),
         ],
-        [P.DroolForming] = [Show(EnemyProjectileFrameId.TorizoDroolBlank, 2)],
+        [P.DroolForming] = [Show(EnemyProjectileFrameId.Blank, 2)],
         [P.DroolNoDelay] =
         [
             Cue(new TorizoProjectileCue.Signal(K.StartDroolFall)),
@@ -307,7 +307,7 @@ internal static class TorizoProjectileAnimations
         ],
         [P.EyeBeamFloorImpactWaiting] =
         [
-            Show(EnemyProjectileFrameId.GoldenTorizoEyeBeamBlank, 8),
+            Show(EnemyProjectileFrameId.Blank, 8),
             Mark(K.FloorImpactWaited),
         ],
         [P.EyeBeamFloorFlames] =

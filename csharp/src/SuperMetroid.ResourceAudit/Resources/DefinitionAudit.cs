@@ -55,10 +55,11 @@ internal static class DefinitionAudit
         CompiledEnemyDisplayAudit.Install(root, exports, report);
         foreach (EnemyProjectilePresentationFrameDefinition frame in EnemyProjectilePresentationFrameSets.All)
             exports.Add(ResourceDomains.EnemyProjectileProgram, ResourceIndex.Address(ResourceBanks.EnemyProjectilePrograms, EnemyProjectileProgramFrameSources.Operand(frame.Frame)));
-        // An operand that shows an installed program frame's picture again shows that frame (#2210, #2234, #2249).
+        // An operand that shows an installed program frame's picture again shows that frame (#2210, #2234, #2249); one that
+        // draws nothing shows the blank frame, which draws without an installed frame (#2431).
         foreach ((ushort operand, EnemyProjectileFrameId shown) in EnemyProjectileProgramFrameDefinitions.AlsoStoredAt)
         {
-            if (exports.Contains(ResourceDomains.EnemyProjectileProgram,
+            if (shown == EnemyProjectileFrameId.Blank || exports.Contains(ResourceDomains.EnemyProjectileProgram,
                     ResourceIndex.Address(ResourceBanks.EnemyProjectilePrograms, EnemyProjectileProgramFrameSources.Operand(shown))))
                 exports.Add(ResourceDomains.EnemyProjectileProgram, ResourceIndex.Address(ResourceBanks.EnemyProjectilePrograms, operand));
         }

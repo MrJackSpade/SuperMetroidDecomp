@@ -23,12 +23,20 @@ internal static class EnemyProjectileProgramFrameOperands
 
     /// <summary>
     /// The bank-$86 operand the installed frame shown from <paramref name="operand"/> is stored at: the operand itself, or,
-    /// for an operand that stores a frame's picture again (#2234), that frame's own operand.
+    /// for an operand that stores a frame's picture again (#2234), that frame's key (<see cref="KeyOf"/>), zero for an
+    /// operand that draws nothing (#2431).
     /// </summary>
     internal static ushort OwnOperand(ushort operand) =>
         EnemyProjectileProgramFrameDefinitions.AlsoStoredAt.TryGetValue(operand, out EnemyProjectileFrameId frame)
-            ? EnemyProjectileProgramFrameDefinitions.Operands[frame]
+            ? KeyOf(frame)
             : operand;
+
+    /// <summary>
+    /// The key a native check reads shown frame <paramref name="frame"/> by: the bank-$86 operand its installed program
+    /// frame is stored at, or zero for the blank frame, which no operand installs (#2431), as a slot showing it reads.
+    /// </summary>
+    internal static ushort KeyOf(EnemyProjectileFrameId frame) =>
+        frame == EnemyProjectileFrameId.Blank ? (ushort)0 : EnemyProjectileProgramFrameSources.Operand(frame);
 
     /// <summary>
     /// The bank-$86 operands that store the picture of the installed frame stored at <paramref name="operand"/> again

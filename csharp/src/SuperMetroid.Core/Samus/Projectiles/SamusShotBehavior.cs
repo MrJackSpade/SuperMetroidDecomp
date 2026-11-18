@@ -17,8 +17,8 @@ internal abstract class SamusShotBehavior
     internal abstract void Run(SamusShotUpdate update);
 
     /// <summary>
-    /// Fails loudly when a shot that runs this behaviour cannot be fired: nothing for every behaviour the port reproduces;
-    /// a behaviour that runs data rather than the game's code refuses the shot as it is fired
+    /// Fails loudly when a shot that runs this behaviour cannot be fired: nothing for every behaviour a shot fires with;
+    /// a behaviour whose shot runs data rather than the game's code refuses the shot as it is fired
     /// (<see cref="ShotRefusedWhenFired"/>).
     /// </summary>
     internal virtual void AdmitFiring()

@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Samus.Movement;
 
-/// <summary>Compiled liquid-damage rates from Samus's fixed physics constants.</summary>
+/// <summary>Samus's liquid-damage rates.</summary>
 internal static class SamusLiquidDamageDefinitions
 {
     /// <summary>Lava rate: one half energy per frame.</summary>

@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Samus.Abilities.Artwork;
 
 /// <summary>
 /// The installed blocks every X-ray copy reveal shows, and the installed item and special-room overlays. The game's
-/// collision and behaviour lookup, copy dimensions, extension traversal and Brinstar-only condition remain compiled; there
-/// is no compiled copy of the blocks (#1596). An extension chain leaving the room shows no block of its own (#1792).
+/// collision and behaviour lookup, copy dimensions, extension traversal and Brinstar-only condition are the game's own; there
+/// is no other copy of the blocks (#1596). An extension chain leaving the room shows no block of its own (#1792).
 /// </summary>
 public sealed class InstalledXrayReveals
 {
@@ -57,7 +57,7 @@ public sealed class InstalledXrayReveals
     public InstalledXrayOverlays Overlays { get; }
 
     /// <summary>
-    /// Resolves the compiled shape and its installed blocks from the same collision kind and behaviour. Nothing
+    /// Resolves the reveal shape and its installed blocks from the same collision kind and behaviour. Nothing
     /// can pair a drawable shape with another block's absent artwork; unowned pairs retain the no-reveal result, and
     /// an extension shape has no blocks.
     /// </summary>
@@ -80,7 +80,7 @@ public sealed class InstalledXrayReveals
             _ = RoomBlockAppearance.Of(block);
     }
 
-    /// <summary>Whether this compiled shape carries authored visual blocks.</summary>
+    /// <summary>Whether this reveal shape carries authored visual blocks.</summary>
     /// <remarks>
     /// The game has seven reachable revealed-block shapes. Five copy one, Brinstar-only one, wide, tall and square
     /// blocks; the other two traverse vertical and horizontal extensions instead. A shape is drawable exactly when it is

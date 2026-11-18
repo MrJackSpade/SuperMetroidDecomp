@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Shaktool;
 
 /// <summary>
-/// Compiled mechanics and behaviour metadata for Shaktool's seven linked body segments, leading saw first. Processing and contact:
+/// The mechanics and behaviour of Shaktool's seven linked body segments, leading saw first. Processing and contact:
 /// every segment runs its animation and is processed off screen; the five internal pieces also ignore Samus's
 /// touch. Owner distance: how many places each segment sits after the chain's first segment, its owner: its
 /// position in the chain. Initial orbit angle: where each segment starts around the one before it, the chain curled a

@@ -55,7 +55,7 @@ internal sealed record InstalledScreenContentParts
     /// <summary>Opening narration text and presentation, separate from its selected font characters.</summary>
     public required IntroNarrationPresentation IntroNarration { get; init; }
 
-    /// <summary>The characters the ending's typewriter types, compiled by the import from the installed ending text (#1467).</summary>
+    /// <summary>The characters the ending's typewriter types, which the import builds from the installed ending text (#1467).</summary>
     public required EndingTypewriterText EndingText { get; init; }
 
     /// <summary>The colour the title shows behind its floor and objects (#1512).</summary>

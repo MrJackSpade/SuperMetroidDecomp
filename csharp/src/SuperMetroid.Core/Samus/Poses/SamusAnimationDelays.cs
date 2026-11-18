@@ -23,7 +23,7 @@ internal static class SamusAnimationDelays
     /// <exception cref="InvalidDataException">The frame reads no step of the pose's animation.</exception>
     /// <remarks>
     /// A frame on a value a cue carries reads the step the value selects, and a frame past the animation's end reads the
-    /// frame of a later animation the import decoded for it, both through <paramref name="framesBeyondAnimation"/>, which
+    /// frame of another animation the import decoded for it, both through <paramref name="framesBeyondAnimation"/>, which
     /// names each animation by its own name (#1535, #2048); a cue read there names its frames in that animation
     /// (<see cref="Target"/>).
     /// </remarks>
@@ -32,7 +32,7 @@ internal static class SamusAnimationDelays
     /// <param name="framesBeyondAnimation">What a frame that is no step of its animation reads.</param>
     internal static SamusPoseAnimationStep StepFor(SamusPoseId pose, SamusAnimationFrame frame, SamusFramesBeyondAnimation framesBeyondAnimation) =>
         TryStepFor(pose, frame, framesBeyondAnimation) ?? throw new InvalidDataException(
-            $"Samus animation frame {frame} is not a step of pose {pose}'s animation nor of an animation laid out after it.");
+            $"Samus animation frame {frame} is not a step of pose {pose}'s animation nor of an animation a frame read past its end reaches.");
 
     /// <summary>
     /// The step of <paramref name="pose"/>'s animation at <paramref name="frame"/>, read as <see cref="StepFor"/> reads it, or

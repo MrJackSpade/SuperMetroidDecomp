@@ -501,7 +501,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     }
 
     /// <summary>The reaction of the first of the occupant's hitboxes the probe overlaps on the frame it shows.</summary>
-    /// <exception cref="InvalidDataException">The frame shown has no compiled Oum collision.</exception>
+    /// <exception cref="InvalidDataException">The frame shown has no Oum collision.</exception>
     internal static bool? FindHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
     {
         reaction = null;

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// </summary>
 /// <remarks>
 /// The selection stops before applying a prospective pose. The runtime owns the
-/// transition side effects. Authored conditions are compiled; an undefined pose fails loudly. The
+/// transition side effects. An undefined pose fails loudly. The
 /// returned lookup states which input transition won for a precise
 /// held/newly-pressed input chord.
 /// </remarks>

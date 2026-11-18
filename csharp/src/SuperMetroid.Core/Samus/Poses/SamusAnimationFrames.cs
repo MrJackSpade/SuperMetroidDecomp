@@ -39,7 +39,7 @@ internal static class SamusAnimationFrames
     /// <summary>The fall's first fast-fall frame.</summary>
     internal static SamusAnimationFrame FastFall { get; } = new(SamusAnimationSegmentName.FastFall, 0);
 
-    /// <summary>The fast fall's first frame as the plain fall lays it out, below which the movement starts the fast fall.</summary>
+    /// <summary>The fast fall's first frame as a place in the fall's animation, below which the movement starts the fast fall.</summary>
     internal static SamusAnimationPlace FastFallStart { get; } = SamusAnimationDelayDefinitions.FallingAnimation.Place(SamusAnimationPlaceName.FastFallStart, SamusAnimationSegmentName.FastFall, 0);
 
     /// <summary>The front-facing pose's appearance at the Zebes start.</summary>

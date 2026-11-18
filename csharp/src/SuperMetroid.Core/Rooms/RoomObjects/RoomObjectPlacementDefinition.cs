@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>One compiled room-object population entry: its kind, block and its family's typed setup (#2383).</summary>
+/// <summary>One room-object population entry: its kind, block and its family's typed setup (#2383).</summary>
 /// <param name="Kind">The kind of room object placed.</param>
 /// <param name="Block">The block it is placed on.</param>
 /// <param name="Setup">The setup its family runs, with what the placement gives it.</param>

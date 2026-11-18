@@ -353,7 +353,7 @@ public static class SamusGroundedMovement
     }
 
     /// <summary>
-    /// Runs standing movement for every modelled landing pose: the ordinary
+    /// Runs standing movement for every landing pose: the ordinary
     /// and spin landings, plus the aimed and horizontally firing landings.
     /// Landing animation is cosmetic with respect to movement: every member uses standing's
     /// zero-base-speed horizontal pass, grounding probe, and momentum cleanup until the animation
@@ -370,7 +370,7 @@ public static class SamusGroundedMovement
         // Do not duplicate the pose list here. The predicates are the single audited definition
         // of the standing movement type's landing family and deliberately include the two firing
         // landings. Keeping the movement selection and this defensive guard on the same predicates prevents a
-        // newly modelled landing from reaching this real movement only to be rejected.
+        // landing the selection admits from being rejected here.
         if (!SamusPoseMetadata.IsRightFacingLandingPose(samus.Pose) &&
             !SamusPoseMetadata.IsLeftFacingLandingPose(samus.Pose))
         {

@@ -22,7 +22,7 @@ internal sealed class IntroEggParticle
     /// <summary>The installed steps the fragment falls by once it has fallen past its gravity curve.</summary>
     private readonly ShellFragmentFallPastCurve fallPastCurve;
 
-    /// <summary>Spawns one of six shell fragments at its compiled position with its selected animation.</summary>
+    /// <summary>Spawns one of six shell fragments at its defined position with its selected animation.</summary>
     /// <param name="fragment">Which piece of the shell to spawn.</param>
     /// <param name="fallPastCurve">The installed steps a fragment falls by once it has fallen past its gravity curve.</param>
     public IntroEggParticle(IntroEggShellFragment fragment, ShellFragmentFallPastCurve fallPastCurve)
@@ -60,7 +60,7 @@ internal sealed class IntroEggParticle
     public void Draw(ScreenSprites screenSprites, IIntroCinematicSpritePresentation installedArt) =>
         sprite.Draw(screenSprites, installedArt: installedArt);
 
-    /// <summary><paramref name="position"/> with a compiled signed whole/fraction velocity added to one axis, the other unchanged.</summary>
+    /// <summary><paramref name="position"/> with a defined velocity added to one axis, the other unchanged.</summary>
     private static FixedVector<ScreenPixels> WithVelocity(FixedVector<ScreenPixels> position, Axis axis, SignedSixteenSixteen velocity) =>
         axis == Axis.Horizontal ? position.WithX(position.X + velocity) : position.WithY(position.Y + velocity);
 }

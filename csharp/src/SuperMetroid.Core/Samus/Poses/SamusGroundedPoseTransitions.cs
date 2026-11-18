@@ -165,8 +165,8 @@ internal static class SamusGroundedPoseTransitions
         bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
         if (samus.Kinematics.InteractiveEnemies.Count != 0)
         {
-            // Samus's solid-enemy collision detection with a requested distance of one whole pixel
-            // and the facing direction stored as the collision movement direction.
+            // Samus's solid-enemy collision probes one whole pixel ahead,
+            // moving in her facing direction.
             SamusCollisionDirection direction = facingLeft
                 ? SamusCollisionDirection.Left
                 : SamusCollisionDirection.Right;
@@ -383,7 +383,7 @@ internal static class SamusGroundedPoseTransitions
     /// </summary>
     public static void ApplyGroundedTurn(SamusState samus, SamusPoseId targetPose, GameplayAction controllerInput = GameplayAction.None)
     {
-        // Gives the two front-view poses a deliberately unusual route.
+        // The two front-view poses take an unusual route.
         // They face neither way, so they cannot honestly be classified as either
         // a right-facing or left-facing source. The game instead skips the shot-direction
         // lookup entirely when the previous pose is forward-facing, retaining the generic
@@ -397,7 +397,7 @@ internal static class SamusGroundedPoseTransitions
         bool wasCrouching = sourceMovementType == SamusMovementType.Crouching;
         bool wasMoonwalking = sourceMovementType == SamusMovementType.Moonwalking;
 
-        // Reads the PREVIOUS moonwalk pose, not the selected turn pose.
+        // The shot reads the PREVIOUS moonwalk pose, not the selected turn pose.
         // Preserve the source aim now so its projectile direction is still available after
         // ApplySimpleGroundedPoseChange replaces `Pose` below.
         SamusTransitionShot? moonwalkSourceShot = wasMoonwalking
@@ -438,7 +438,7 @@ internal static class SamusGroundedPoseTransitions
             return;
         }
 
-        // Reads the PREVIOUS pose before it starts the final turn's pose.
+        // The turn reads the PREVIOUS pose before it starts the final turn's pose.
         // A previous crouching movement selects the crouched turns by aim; every other admitted source selects
         // the standing ones. Both cover Samus's ten aims, but her two straight-down aims belong to
         // the compact straight-down family, which this transition does not handle.
@@ -532,7 +532,7 @@ internal static class SamusGroundedPoseTransitions
         // remains active until the next input phase, including compact down-aim targets.
         if (refreshRadius)
             SamusPoseMetadata.RefreshCollisionRadii(samus);
-        // Retains the frame/timer when the ordinary pose is
+        // The animation keeps its frame and timer when the ordinary pose is
         // unchanged. A prospective run rejected by the wall probe can resolve
         // back to the current wall-stop pose on every held-input frame.
         if (expectedPose != targetPose)

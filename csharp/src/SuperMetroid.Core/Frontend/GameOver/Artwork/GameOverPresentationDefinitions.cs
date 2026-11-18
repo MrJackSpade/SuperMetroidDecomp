@@ -8,7 +8,7 @@ public static class GameOverPresentationDefinitions
     /// <summary>The menus' picture of the whole game-over page: its title, objective, prompt and both answers (#1467).</summary>
     public const string PageFrame = "GameOver.Page";
 
-    /// <summary>Maps a compiled Baby animation frame to its authored sprite composition identity.</summary>
+    /// <summary>Maps a Baby animation frame to its authored sprite composition identity.</summary>
     internal static readonly IReadOnlyDictionary<GameOverBabyFrame, string> BabyFrameNames =
         new Dictionary<GameOverBabyFrame, string>
         {

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// An animation is the named segments a pose animates by (#2048), each closed by the cue it ends in, under a name of its own
 /// (<see cref="SamusAnimationName"/>). It holds every segment of the game's animation: the frames the breathing, drained,
 /// falling, spin and wall-jump animations reach by cue or by a frame their movement owner sets, and the segments only a
-/// frame read past an earlier animation or a named place landing in it reaches. Animations no pose animates by are here
+/// frame read past another animation's end or a named place landing in it reaches. Animations no pose animates by are here
 /// because such a read reaches them. These are gameplay cadence and transition definitions, not editable sprite artwork.
 /// </remarks>
 internal static class SamusAnimationDelayDefinitions
@@ -131,20 +131,20 @@ internal static class SamusAnimationDelayDefinitions
     internal static SamusPoseAnimation GrappleStandingAnimation { get; } = new(SamusAnimationName.GrappleStanding, [new(SamusAnimationSegmentName.Main, [16], new SamusAnimationRestart())]);
 
     /// <summary>
-    /// The right-facing airborne grapple aimed right animation, which no pose Samus holds animates by: only a read past an animation laid out before
-    /// it reaches it, under the reading pose (<see cref="Compatibility.FramesBeyondAnimation{TAnimation, TFrame, TPlace, TStep}"/>).
+    /// The right-facing airborne grapple aimed right animation, which no pose Samus holds animates by: only a frame read past another animation's end
+    /// reaches it, under the reading pose (<see cref="Compatibility.FramesBeyondAnimation{TAnimation, TFrame, TPlace, TStep}"/>).
     /// </summary>
     internal static SamusPoseAnimation GrappleAirborneGunExtendedRightAnimation { get; } = new(SamusAnimationName.GrappleAirborneGunExtendedRight, [new(SamusAnimationSegmentName.Main, [2, 16], new SamusAnimationRepeat(SamusAnimationSegmentName.Main, 1))]);
 
     /// <summary>
-    /// The right-facing airborne grapple aimed down animation, which no pose Samus holds animates by: only a read past an animation laid out before
-    /// it reaches it, under the reading pose (<see cref="Compatibility.FramesBeyondAnimation{TAnimation, TFrame, TPlace, TStep}"/>).
+    /// The right-facing airborne grapple aimed down animation, which no pose Samus holds animates by: only a frame read past another animation's end
+    /// reaches it, under the reading pose (<see cref="Compatibility.FramesBeyondAnimation{TAnimation, TFrame, TPlace, TStep}"/>).
     /// </summary>
     internal static SamusPoseAnimation GrappleAirborneAimDownRightAnimation { get; } = new(SamusAnimationName.GrappleAirborneAimDownRight, [new(SamusAnimationSegmentName.Main, [2, 16], new SamusAnimationRepeat(SamusAnimationSegmentName.Main, 1))]);
 
     /// <summary>
-    /// The right-facing airborne grapple aimed diagonally down animation, which no pose Samus holds animates by: only a read past an animation laid out before
-    /// it reaches it, under the reading pose (<see cref="Compatibility.FramesBeyondAnimation{TAnimation, TFrame, TPlace, TStep}"/>).
+    /// The right-facing airborne grapple aimed diagonally down animation, which no pose Samus holds animates by: only a frame read past another animation's end
+    /// reaches it, under the reading pose (<see cref="Compatibility.FramesBeyondAnimation{TAnimation, TFrame, TPlace, TStep}"/>).
     /// </summary>
     internal static SamusPoseAnimation GrappleAirborneAimDiagonalDownRightAnimation { get; } = new(SamusAnimationName.GrappleAirborneAimDiagonalDownRight, [new(SamusAnimationSegmentName.Main, [2, 16], new SamusAnimationRepeat(SamusAnimationSegmentName.Main, 1))]);
 
@@ -370,26 +370,26 @@ internal static class SamusAnimationDelayDefinitions
     internal static SamusPoseAnimation MoonwalkTurnJumpAimDownRightAnimation { get; } = new(SamusAnimationName.MoonwalkTurnJumpAimDownRight, [new(SamusAnimationSegmentName.Main, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.SpinJumpRightPose))]);
 
     /// <summary>
-    /// The left-facing Draygon grab animation, which no pose Samus holds animates by: only a read past an animation laid out before
-    /// it reaches it, under the reading pose (<see cref="Compatibility.FramesBeyondAnimation{TAnimation, TFrame, TPlace, TStep}"/>).
+    /// The left-facing Draygon grab animation, which no pose Samus holds animates by: only a frame read past another animation's end
+    /// reaches it, under the reading pose (<see cref="Compatibility.FramesBeyondAnimation{TAnimation, TFrame, TPlace, TStep}"/>).
     /// </summary>
     internal static SamusPoseAnimation DraygonGrabbingLeftAnimation { get; } = new(SamusAnimationName.DraygonGrabbingLeft, [new(SamusAnimationSegmentName.Main, [2, 2, 2], new SamusAnimationTransition(SamusPoseId.DraygonGrabbedNeutralLeftPose))]);
 
     /// <summary>
-    /// The right-facing compact airborne animation, which no pose Samus holds animates by: only a read past an animation laid out before
-    /// it reaches it, under the reading pose (<see cref="Compatibility.FramesBeyondAnimation{TAnimation, TFrame, TPlace, TStep}"/>).
+    /// The right-facing compact airborne animation, which no pose Samus holds animates by: only a frame read past another animation's end
+    /// reaches it, under the reading pose (<see cref="Compatibility.FramesBeyondAnimation{TAnimation, TFrame, TPlace, TStep}"/>).
     /// </summary>
     internal static SamusPoseAnimation CompactAirborneRightAnimation { get; } = new(SamusAnimationName.CompactAirborneRight, [new(SamusAnimationSegmentName.Main, [4, 3], new SamusAnimationRepeat(SamusAnimationSegmentName.Main, 1))]);
 
     /// <summary>
-    /// The left-facing compact airborne animation, which no pose Samus holds animates by: only a read past an animation laid out before
-    /// it reaches it, under the reading pose (<see cref="Compatibility.FramesBeyondAnimation{TAnimation, TFrame, TPlace, TStep}"/>).
+    /// The left-facing compact airborne animation, which no pose Samus holds animates by: only a frame read past another animation's end
+    /// reaches it, under the reading pose (<see cref="Compatibility.FramesBeyondAnimation{TAnimation, TFrame, TPlace, TStep}"/>).
     /// </summary>
     internal static SamusPoseAnimation CompactAirborneLeftAnimation { get; } = new(SamusAnimationName.CompactAirborneLeft, [new(SamusAnimationSegmentName.Main, [4, 3], new SamusAnimationRepeat(SamusAnimationSegmentName.Main, 1))]);
 
     /// <summary>
-    /// The compact airborne fall animation, which no pose Samus holds animates by: only a read past an animation laid out before
-    /// it reaches it, under the reading pose (<see cref="Compatibility.FramesBeyondAnimation{TAnimation, TFrame, TPlace, TStep}"/>).
+    /// The compact airborne fall animation, which no pose Samus holds animates by: only a frame read past another animation's end
+    /// reaches it, under the reading pose (<see cref="Compatibility.FramesBeyondAnimation{TAnimation, TFrame, TPlace, TStep}"/>).
     /// </summary>
     internal static SamusPoseAnimation CompactAirborneFallingAnimation { get; } = new(SamusAnimationName.CompactAirborneFalling, [new(SamusAnimationSegmentName.Main, [3, .. Repeat(2, 8)], new SamusAnimationRepeat(SamusAnimationSegmentName.Main, 1))]);
 
@@ -415,14 +415,14 @@ internal static class SamusAnimationDelayDefinitions
     internal static SamusPoseAnimation MorphingTransitionLeftAnimation { get; } = new(SamusAnimationName.MorphingTransitionLeft, [new(SamusAnimationSegmentName.Main, [3, 3], new SamusAnimationItemAirborneTransition(SamusEquipmentFlags.SpringBall, SamusPoseId.MorphBallGroundLeftPose, SamusPoseId.MorphBallFallingLeftPose, SamusPoseId.SpringBallGroundLeftPose, SamusPoseId.SpringBallFallingLeftPose))]);
 
     /// <summary>
-    /// The right-facing glitch-ball morph animation, which no pose Samus holds animates by: only a read past an animation laid out before
-    /// it reaches it, under the reading pose (<see cref="Compatibility.FramesBeyondAnimation{TAnimation, TFrame, TPlace, TStep}"/>).
+    /// The right-facing glitch-ball morph animation, which no pose Samus holds animates by: only a frame read past another animation's end
+    /// reaches it, under the reading pose (<see cref="Compatibility.FramesBeyondAnimation{TAnimation, TFrame, TPlace, TStep}"/>).
     /// </summary>
     internal static SamusPoseAnimation GlitchBallMorphingRightAnimation { get; } = new(SamusAnimationName.GlitchBallMorphingRight, [new(SamusAnimationSegmentName.Main, [0], new SamusAnimationTransition(SamusPoseId.GlitchBallRightPose))]);
 
     /// <summary>
-    /// The left-facing glitch-ball morph animation, which no pose Samus holds animates by: only a read past an animation laid out before
-    /// it reaches it, under the reading pose (<see cref="Compatibility.FramesBeyondAnimation{TAnimation, TFrame, TPlace, TStep}"/>).
+    /// The left-facing glitch-ball morph animation, which no pose Samus holds animates by: only a frame read past another animation's end
+    /// reaches it, under the reading pose (<see cref="Compatibility.FramesBeyondAnimation{TAnimation, TFrame, TPlace, TStep}"/>).
     /// </summary>
     internal static SamusPoseAnimation GlitchBallMorphingLeftAnimation { get; } = new(SamusAnimationName.GlitchBallMorphingLeft, [new(SamusAnimationSegmentName.Main, [0], new SamusAnimationTransition(SamusPoseId.GlitchBallLeftPose))]);
 
@@ -439,32 +439,32 @@ internal static class SamusAnimationDelayDefinitions
     internal static SamusPoseAnimation UnmorphingTransitionLeftAnimation { get; } = new(SamusAnimationName.UnmorphingTransitionLeft, [new(SamusAnimationSegmentName.Main, [3, 3], new SamusAnimationTransition(SamusPoseId.CrouchingLeftPose))]);
 
     /// <summary>
-    /// The right-facing instant morph animation, which no pose Samus holds animates by: only a read past an animation laid out before
-    /// it reaches it, under the reading pose (<see cref="Compatibility.FramesBeyondAnimation{TAnimation, TFrame, TPlace, TStep}"/>).
+    /// The right-facing instant morph animation, which no pose Samus holds animates by: only a frame read past another animation's end
+    /// reaches it, under the reading pose (<see cref="Compatibility.FramesBeyondAnimation{TAnimation, TFrame, TPlace, TStep}"/>).
     /// </summary>
     internal static SamusPoseAnimation InstantMorphingRightAnimation { get; } = new(SamusAnimationName.InstantMorphingRight, [new(SamusAnimationSegmentName.Main, [0], new SamusAnimationItemTransition(SamusEquipmentFlags.SpringBall, SamusPoseId.MorphBallGroundRightPose, SamusPoseId.SpringBallGroundRightPose))]);
 
     /// <summary>
-    /// The left-facing instant morph animation, which no pose Samus holds animates by: only a read past an animation laid out before
-    /// it reaches it, under the reading pose (<see cref="Compatibility.FramesBeyondAnimation{TAnimation, TFrame, TPlace, TStep}"/>).
+    /// The left-facing instant morph animation, which no pose Samus holds animates by: only a frame read past another animation's end
+    /// reaches it, under the reading pose (<see cref="Compatibility.FramesBeyondAnimation{TAnimation, TFrame, TPlace, TStep}"/>).
     /// </summary>
     internal static SamusPoseAnimation InstantMorphingLeftAnimation { get; } = new(SamusAnimationName.InstantMorphingLeft, [new(SamusAnimationSegmentName.Main, [0], new SamusAnimationItemTransition(SamusEquipmentFlags.SpringBall, SamusPoseId.MorphBallGroundLeftPose, SamusPoseId.SpringBallGroundLeftPose))]);
 
     /// <summary>
-    /// The right-facing compact morph animation, which no pose Samus holds animates by: only a read past an animation laid out before
-    /// it reaches it, under the reading pose (<see cref="Compatibility.FramesBeyondAnimation{TAnimation, TFrame, TPlace, TStep}"/>).
+    /// The right-facing compact morph animation, which no pose Samus holds animates by: only a frame read past another animation's end
+    /// reaches it, under the reading pose (<see cref="Compatibility.FramesBeyondAnimation{TAnimation, TFrame, TPlace, TStep}"/>).
     /// </summary>
     internal static SamusPoseAnimation CompactMorphingRightAnimation { get; } = new(SamusAnimationName.CompactMorphingRight, [new(SamusAnimationSegmentName.Main, [3, 3, 3], new SamusAnimationItemAirborneTransition(SamusEquipmentFlags.SpringBall, SamusPoseId.MorphBallGroundRightPose, SamusPoseId.MorphBallFallingRightPose, SamusPoseId.SpringBallGroundRightPose, SamusPoseId.SpringBallFallingRightPose))]);
 
     /// <summary>
-    /// The left-facing Draygon-held morph animation, which no pose Samus holds animates by: only a read past an animation laid out before
-    /// it reaches it, under the reading pose (<see cref="Compatibility.FramesBeyondAnimation{TAnimation, TFrame, TPlace, TStep}"/>).
+    /// The left-facing Draygon-held morph animation, which no pose Samus holds animates by: only a frame read past another animation's end
+    /// reaches it, under the reading pose (<see cref="Compatibility.FramesBeyondAnimation{TAnimation, TFrame, TPlace, TStep}"/>).
     /// </summary>
     internal static SamusPoseAnimation DraygonHeldMorphingLeftAnimation { get; } = new(SamusAnimationName.DraygonHeldMorphingLeft, [new(SamusAnimationSegmentName.Main, [3, 3, 3], new SamusAnimationItemAirborneTransition(SamusEquipmentFlags.SpringBall, SamusPoseId.DraygonHeldBallLeftPose, SamusPoseId.DraygonHeldBallLeftPose, SamusPoseId.DraygonHeldBallLeftPose, SamusPoseId.DraygonHeldBallLeftPose))]);
 
     /// <summary>
-    /// The right-facing compact stand-up animation, which no pose Samus holds animates by: only a read past an animation laid out before
-    /// it reaches it, under the reading pose (<see cref="Compatibility.FramesBeyondAnimation{TAnimation, TFrame, TPlace, TStep}"/>).
+    /// The right-facing compact stand-up animation, which no pose Samus holds animates by: only a frame read past another animation's end
+    /// reaches it, under the reading pose (<see cref="Compatibility.FramesBeyondAnimation{TAnimation, TFrame, TPlace, TStep}"/>).
     /// </summary>
     internal static SamusPoseAnimation CompactStandingUpRightAnimation { get; } = new(SamusAnimationName.CompactStandingUpRight, [new(SamusAnimationSegmentName.Main, [3, 3, 3], new SamusAnimationTransition(SamusPoseId.FacingRightNormalPose))]);
 

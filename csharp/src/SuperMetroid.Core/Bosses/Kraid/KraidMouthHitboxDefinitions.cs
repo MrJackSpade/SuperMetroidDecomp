@@ -2,7 +2,7 @@ using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
 
-/// <summary>Compiled collision geometry, independent of Kraid's editable head artwork.</summary>
+/// <summary>Kraid's mouth collision geometry, independent of his editable head artwork.</summary>
 internal static class KraidMouthHitboxDefinitions
 {
     /// <summary>The rectangle of each mouth shape, relative to Kraid's body position.</summary>

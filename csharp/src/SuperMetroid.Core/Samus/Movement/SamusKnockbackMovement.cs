@@ -78,7 +78,7 @@ public static class SamusKnockbackMovement
 
         // Every movement type is morphed, upright, the glitch ball or one that refuses knockback
         // (SamusMovementTypeDefinitions). Any other cannot name another game behaviour; it means Samus carries
-        // corrupt pose metadata rather than an unmodelled movement family.
+        // corrupt pose metadata rather than a movement family of its own.
         SamusMovementType sourceMovementType = SamusPoseMetadata.ReadMovementType(samus);
         SamusKnockbackResponse response =
             SamusMovementTypeDefinitions.Movements.TryGetValue(sourceMovementType, out SamusMovementTypeDefinition? definition)

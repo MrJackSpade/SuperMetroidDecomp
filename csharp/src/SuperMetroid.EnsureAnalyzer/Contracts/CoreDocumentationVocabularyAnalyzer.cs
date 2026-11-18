@@ -147,6 +147,9 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// tails named by what they end, a routine's entries by kind, an enum or flag told as nonzero, a value told by its
 /// storage's range or sign, tables and records named for what the original stored, a shared sprite list and poses
 /// named as a range of their order.
+/// #2461 adds, outside hardware owners, the port's build and scope and the original's animation layout: anything
+/// compiled or modelled, the port named as itself and an animation laid out against another, by its animation or as a
+/// layout.
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -2011,6 +2014,29 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         RegexOptions.CultureInvariant);
 
     /// <summary>
+    /// The port's narration of its build and its scope and the original's animation layout told in prose (#2461), outside
+    /// hardware owners and markup: anything compiled in any word form (compiled definitions, the import compiles them, the
+    /// compilation), anything modelled or modeled but the noun (a newly modelled landing, the modeled shade, an unmodeled
+    /// reaction), the port named as itself (the port's scope, every behaviour the port reproduces) and an animation laid
+    /// out against another (an animation laid out before or after it, an animation laid out late), laid out by the
+    /// animation that holds it (as the plain fall lays it out) or told by its layout (identical four-frame layouts, the
+    /// animation layout). The port built the game from definitions it compiled and behaviour it models, and the original
+    /// laid its animations out one after another; Core says what the game does: what a definition gives, which frame a
+    /// read past an animation's end reaches, which attack the game refuses. English stays legal: a model (the display
+    /// model), a body's or a controller's port (the top port's spike, port 2), a layout alone (a room's scroll layout),
+    /// laying a picture out (lays out the caption) and a hardware owner, which describes the layout it reproduces.
+    /// </summary>
+    private static readonly Regex PortBuildScopeAndLayoutProse = new(
+        @"\bcompil(?:e|es|ed|ing|ations?|ers?)\b" +
+        @"|\b(?:un)?modell?(?:ed|ing)\b" +
+        @"|\b(?:the|this|our)\s+port\b(?!\s*\d)" +
+        @"|\b(?:laid|lay(?:s|ing)?)\s+out\s+(?:just\s+|right\s+|directly\s+|immediately\s+)?(?:before|after|ahead\s+of|behind" +
+        @"|late|early)\b" +
+        @"|\b(?:lays?|laid|laying)\s+(?:it|them)\s+out\b" +
+        @"|\b(?:[\w-]+-frame|frame|animation|step|cue)\s+layouts?\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
     /// A type's summary that calls the type a species owner (#2427): the species-owner template (its per-room state,
     /// behaviour and the interactions it registers). Only a type that creates or keeps a species' enemies
     /// (<see cref="SpeciesOwnerInterfaces"/>) is one; any other type says what it is.
@@ -2572,6 +2598,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : EnemyStorageAndProgramNarrationProse.Match(Markup.Replace(text, " ")) is { Success: true } enemyStorage ? enemyStorage.Value
             : SamusProgramStorageAndTableNarrationProse.Match(Markup.Replace(text, " ")) is { Success: true } samusNarration ? samusNarration.Value
             : PoseRangeProse.Match(text) is { Success: true } poseRange ? poseRange.Value
+            : PortBuildScopeAndLayoutProse.Match(Markup.Replace(text, " ")) is { Success: true } portBuild ? portBuild.Value
             : TileCharacterFinding(text, owner) is { } character ? character
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;

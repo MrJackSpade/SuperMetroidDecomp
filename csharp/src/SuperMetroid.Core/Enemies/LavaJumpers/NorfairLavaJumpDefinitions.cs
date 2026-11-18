@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.LavaJumpers;
 
-/// <summary>Compiled launch velocities, gravity and animation switch of the Norfair lava-jumping enemy (Squeept).</summary>
+/// <summary>The launch velocities, gravity and animation switch of the Norfair lava-jumping enemy (Squeept).</summary>
 internal static class NorfairLavaJumpDefinitions
 {
     /// <summary>The four upward launch velocities, from the highest jump to the lowest.</summary>

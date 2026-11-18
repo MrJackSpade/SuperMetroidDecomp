@@ -14,7 +14,7 @@ public sealed class CeresDestructionArtwork
         DestructionActors = destructionActors;
     }
 
-    /// <summary>Initial screen-pixel placements of the six Zebes-reveal actors; animations, slide acceleration, deletion, and phase transitions remain compiled cinematic behavior.</summary>
+    /// <summary>Initial screen-pixel placements of the six Zebes-reveal actors; animations, slide acceleration, deletion, and phase transitions are the cinematic's own behavior.</summary>
     public CeresRevealActorPlacements RevealActors { get; }
     /// <summary>Initial screen-pixel placements of the three persistent destruction-background actors; their motion round the drift loop is not editable through this layout.</summary>
     public CeresDestructionActorPlacements DestructionActors { get; }

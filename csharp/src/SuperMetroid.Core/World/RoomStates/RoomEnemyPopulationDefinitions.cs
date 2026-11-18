@@ -31,7 +31,7 @@ public static class RoomEnemyPopulationDefinitions
     /// <summary>Each room's enemy population by name.</summary>
     private static readonly Dictionary<string, RoomEnemyPopulationDefinition> ByName = Definitions.ToDictionary(list => list.Name);
 
-    /// <summary>The compiled population named <paramref name="name"/>.</summary>
+    /// <summary>The population named <paramref name="name"/>.</summary>
     private static RoomEnemyPopulationDefinition Find(string name) => ByName[name];
 
     /// <summary>The enemy population shared by the Draygon room once the area's boss is dead and the Mother Brain room once the main area boss is dead.</summary>

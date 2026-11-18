@@ -274,10 +274,10 @@ public static class RoomDefinitions
         new(nameof(CeresRidley), AreaId.Ceres, new(20, 17), new(1, 1), 112, 160, RoomDoorTransitionStyle.ObjectsOnly),
     ];
 
-    /// <summary>Every compiled room by its name.</summary>
+    /// <summary>Every room by its name.</summary>
     private static readonly Dictionary<string, RoomDefinition> ByName = All.ToDictionary(room => room.Name);
 
-    /// <summary>The compiled room named <paramref name="name"/>.</summary>
+    /// <summary>The room named <paramref name="name"/>.</summary>
     private static RoomDefinition Find(string name) => ByName[name];
 
     /// <summary>The Landing Site room.</summary>

@@ -102,8 +102,8 @@ internal static class SamusPoseMetadata
 
     /// <summary>
     /// Reads the pose's signed vertical drawing offset for presentation, including Grapple's flare.
-    /// Physical beam/Grapple origins use their separate compiled correction; replacing
-    /// artwork must not shift a projectile's collision position.
+    /// A beam's or the grapple's origin uses its own correction, so replacing
+    /// artwork never moves where a projectile collides.
     /// </summary>
     public static int ReadArtOrigin(SamusState samus)
     {
@@ -173,12 +173,11 @@ internal static class SamusPoseMetadata
     /// Applies the movement/animation subset of facing Samus forward.
     /// </summary>
     /// <remarks>
-    /// The behaviour also locks the player out of Samus's control, kills grapple,
-    /// clears beam-flare presentation state, and reloads the suit shade. Those owners do
-    /// not live in this state object. This method covers the pose the equipment chooses, its animation, the lift its
-    /// radius sets and every motion value the setup clears. It does not set the collision radius;
-    /// the next input phase's radius update does. The input lock, the colouring and the grapple are the runtime's, before
-    /// their first displayed frame.
+    /// This covers the pose the equipment chooses, its animation, the lift its radius sets and every motion value the
+    /// setup clears. It does not set the collision radius; the next input phase's radius update does. Facing forward also
+    /// locks the player out of Samus's control, ends the grapple, clears the beam flare and reloads the suit shade before
+    /// her first displayed frame; this setup does none of those, and each sequence that faces her forward does what it
+    /// needs (the elevator's setup locks the player out, <see cref="SetupForElevator"/>).
     /// </remarks>
     public static void ApplyForwardFacingPoseSetup(SamusState samus)
     {
@@ -189,8 +188,8 @@ internal static class SamusPoseMetadata
         // It does not finish as an ordinary input transition does.
         samus.CommitPoseHistory();
 
-        // Compares the live radius, still the previous pose's, and
-        // lifts both current and previous Y unless it is already the front view's.
+        // Unless her live radius, still the previous pose's, is already the front view's,
+        // Samus is lifted, her current and previous Y both.
         if (samus.Kinematics.Radius.Y != SamusPoseCollisionDefinitions.ForwardFacingYRadius)
         {
             samus.Kinematics.Position -= new Offset16<RoomPixels>(0, SamusPoseCollisionDefinitions.ForwardFacingSetupLift);
@@ -352,8 +351,8 @@ internal static class SamusPoseMetadata
     /// <summary>
     /// True for the complete right-facing landing set that shares the ordinary standing
     /// input transitions: normal, spin, aimed up, diagonally up and diagonally down, and firing.
-    /// Centralizing this prevents a newly modelled landing from silently losing crouch,
-    /// turn, run, or wall-probe exits in one of the several pose-change seams.
+    /// Every pose change that tests for a landing reads this set, so each of these landings keeps standing's crouch,
+    /// turn, run and wall-probe exits.
     /// </summary>
     public static bool IsRightFacingLandingPose(SamusPoseId pose) => pose is
         SamusPoseId.NormalLandingRightPose or SamusPoseId.SpinLandingRightPose or SamusPoseId.FiringLandingRightPose ||
@@ -572,7 +571,7 @@ internal static class SamusPoseMetadata
     /// gameplay loop does this after the input phase; setup considers it after movement and hurt arbitration.
     /// </summary>
     public static void PublishBombJumpDirection(SamusState samus, SamusBombJumpDirection direction) =>
-        // Replaces the whole request, so a blast during an accepted jump publishes a fresh, unaccepted one.
+        // Publishing replaces the whole request, so a blast during an accepted jump publishes a fresh, unaccepted one.
         samus.BombJumpRequest = SamusBombJumpRequest.Published(direction);
 
     /// <summary>
@@ -618,7 +617,7 @@ internal static class SamusPoseMetadata
         {
             case SamusBombJumpSetup.ForwardJump:
             case SamusBombJumpSetup.ForwardJumpUnlessTimeFrozen:
-                // Tests the pose's facing, not its name: a pose that does not face left takes the right-facing path.
+                // The jump reads the pose's facing, not its name: a pose that does not face left takes the right-facing path.
                 SamusPoseId sourcePose = samus.Pose;
                 SamusPoseId targetPose = ReadFacingDirection(samus) == SamusFacingDirection.Left
                     ? SamusPoseId.NormalJumpForwardLeftPose
@@ -662,7 +661,7 @@ internal static class SamusPoseMetadata
                 return true;
 
             case SamusBombJumpSetup.KeepPose:
-                // Copies the current pose into the special prospective pose. Because
+                // Samus's current pose becomes the special prospective pose. Because
                 // that pose already matches, Samus's pose handling immediately arms the bomb jump.
                 ArmPublishedBombJump(samus);
                 return true;

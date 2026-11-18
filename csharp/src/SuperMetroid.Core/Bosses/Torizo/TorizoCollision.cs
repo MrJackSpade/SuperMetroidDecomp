@@ -10,5 +10,5 @@ internal static class TorizoCollision
     internal static TorizoHitboxList HitboxesAt(EnemyFrameId? frame) =>
         frame is { } shown && TorizoCollisionDefinitions.FrameHitboxes.TryGetValue(shown, out TorizoHitboxList? hitboxes)
             ? hitboxes
-            : throw new InvalidDataException($"Torizo frame {frame} is not compiled.");
+            : throw new InvalidDataException($"Torizo frame {frame} has no hitboxes.");
 }

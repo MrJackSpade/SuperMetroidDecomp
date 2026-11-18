@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 
 /// <summary>
 /// Editable UTF-8 lines and bounded glyph placement for the six English opening-narration pages.
-/// Typewriter timing, audio cadence, caret behavior, input waits and scene transitions remain compiled.
+/// Typewriter timing, audio cadence, caret behavior, input waits and scene transitions are the game's own.
 /// </summary>
 public sealed class IntroNarrationPresentation
 {
@@ -19,7 +19,7 @@ public sealed class IntroNarrationPresentation
         pages.TryGetValue(page, out NarrationPage? lines)
             ? lines
             : throw new ArgumentOutOfRangeException(nameof(page), page, "The narration catalog does not contain this page.");
-    /// <summary>Compiles a narration page into its ordered typewriter character placements.</summary>
+    /// <summary>Builds a narration page's ordered typewriter character placements.</summary>
     public IntroNarrationCharacter[] Compile(IntroNarrationPageId page)
     {
         IReadOnlyList<IntroNarrationLine> lines = GetLines(page);

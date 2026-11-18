@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Owtch;
 
-/// <summary>Compiled patrol rules for Owtch.</summary>
+/// <summary>Owtch's patrol rules.</summary>
 internal static class OwtchMovementDefinitions
 {
     /// <summary>The random choice that sends a surfacing Owtch right rather than left: taken for half the random numbers.</summary>

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.GameOver.Artwork;
 /// Immutable game-over screen anchors the game binds (#1616); the Baby's colourings are shades the import pre-colours (#1512).
 /// The page is a picture the import composes once (#1467); the actors are drawn from the installed game-over sheet, whose
 /// compositions, page layout and colourings belong to the import pipeline that reads the installed presentation
-/// (#1463). Menu control, answer semantics, music and the Baby sequence stay compiled in the application.
+/// (#1463). Menu control, answer semantics, music and the Baby sequence are the game's own.
 /// </summary>
 public sealed class GameOverPresentation
 {
@@ -36,8 +36,8 @@ public sealed class GameOverPresentation
     /// <summary>Appends the chosen Baby sprite composition at the installed anchor, shown in its colours <paramref name="colours"/>.</summary>
     /// <param name="screenSprites">The screen's sprite entries for the current frame.</param>
     /// <param name="sheet">The installed game-over sheet.</param>
-    /// <param name="frame">Closed, middle, or open Baby frame selected by the compiled animation sequence.</param>
-    /// <param name="colours">Idle or one of the three crying colourings selected by the compiled Baby sequence (#1512).</param>
+    /// <param name="frame">Closed, middle, or open Baby frame selected by the Baby's animation sequence.</param>
+    /// <param name="colours">Idle or one of the three crying colourings selected by the Baby sequence (#1512).</param>
     /// <exception cref="ArgumentOutOfRangeException">The frame is not a supported Baby frame.</exception>
     public void DrawBaby(ScreenSprites screenSprites, SpriteSheet sheet, GameOverBabyFrame frame, GameOverBabyColouring colours) =>
         Ensure.NotNull(screenSprites).AddImage(Ensure.NotNull(sheet).Frame(GameOverPresentationNames.BabyFrameName(frame)), BabyAnchor,

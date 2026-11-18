@@ -894,7 +894,7 @@ internal sealed class EnemyCollision
 
         throw new InvalidDataException(
             $"Enemy {enemy.DefinitionId} extended collision frame " +
-            $"{enemy.Frame} has no compiled geometry.");
+            $"{enemy.Frame} has no collision geometry.");
     }
 
     /// <summary>

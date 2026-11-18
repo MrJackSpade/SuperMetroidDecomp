@@ -1837,6 +1837,25 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         // records, a sprite list alone, a pose kept through something and a hardware owner are English.
         Expect("class P { int RightPose => 0; /// <summary>Ridley's tail whips; the tail cap; the room entry; the crash entry; the entry door; a nonzero timer; a nonzero external value; a speed in 1/65536 pixels; the turn records its angle; the frame's sprite list; keeps <see cref=\"RightPose\"/> through the turn.</summary>\nint F => 0; }");
         Expect(EncodingOwner + "/// <summary>The common epilogue keeps 0 through 32767, held unsigned, in the damage table.</summary>\n[EncodingOwner(\"speed\")] struct Speed { }");
+        // The port's build and scope and the original's animation layout, outside hardware owners and markup (#2461):
+        // anything compiled or modelled, the port named as itself, an animation laid out against another, laid out by its
+        // animation or told by its layout.
+        Expect("class P { /// <summary>Compiled fixed initialization values for the steam.</summary>\nint F => 0; }", "('Compiled')");
+        Expect("class P { string Name => \"Crocomire frame has no compiled reaction.\"; }", "('compiled')");
+        Expect("class P { /// <summary>The import compiles them from the installed ending text.</summary>\nint F => 0; }", "('compiles')");
+        Expect("class P { void Run() { // each identity's single compilation is checked\n } }", "('compilation')");
+        Expect("class P { /// <summary>Prevents a newly modelled landing from losing its exits.</summary>\nint F => 0; }", "('modelled')");
+        Expect("class P { /// <summary>Runs the beam charge colours against the modeled Samus shade.</summary>\nvoid Run() { } }", "('modeled')");
+        Expect("class P { string Name => \"the block has an unmodeled reaction\"; }", "('unmodeled')");
+        Expect("class P { string Name => \"reproducing it is outside the port's scope.\"; }", "('the port')");
+        Expect("class P { /// <summary>Nothing for every behaviour this port reproduces.</summary>\nvoid Run() { } }", "('this port')");
+        Expect("class P { /// <summary>Only a read past an animation laid out before it reaches it.</summary>\nint F => 0; }", "('laid out before')");
+        Expect("class P { string Name => \"frame is not a step of an animation laid out after it.\"; }", "('laid out after')");
+        Expect("class P { /// <summary>The fast fall's first frame as the plain fall lays it out.</summary>\nint F => 0; }", "('lays it out')");
+        Expect("class P { void Run() { // The slow and fast animations have identical four-frame layouts\n } }", "('four-frame layouts')");
+        // A model, a body's or a controller's port, a layout alone, laying a picture out and a hardware owner are English.
+        Expect("class P { /// <summary>The display model; the top port's spike; the controller in port 2; a room's scroll layout; lays out the caption; the credits are laid out by role; the offsets are laid out one for each share.</summary>\nint F => 0; }");
+        Expect(CompatibilityService + "/// <summary>A frame past an animation's end reads an animation laid out after it, which the port does not keep compiled.</summary>\n[CompatibilityService(\"frames\")] class Frames { }");
         // The species-owner template on a type that owns no species (#2427), read on the type's own summary; a type that
         // implements or is a species owner's interface owns a species, and an entity's parameter names its owner.
         const string SpeciesOwners = "interface IEnemySpecies { }\ninterface IEnemyEntityFactory { }\n";

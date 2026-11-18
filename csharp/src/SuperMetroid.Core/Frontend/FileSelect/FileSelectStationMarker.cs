@@ -26,7 +26,7 @@ public sealed class FileSelectStationMarker
         MapPosition = Ensure.NotNull(layout).Get(station);
     }
 
-    /// <summary>Station's area-map drawing anchor in whole pixels before scroll subtraction, independent of its compiled load coordinates.</summary>
+    /// <summary>Station's area-map drawing anchor in whole pixels before scroll subtraction, independent of its load coordinates.</summary>
     public Position16<MapPixels> MapPosition { get; private set; }
     /// <summary>The marker's picture, following its pulse; querying does not advance it.</summary>
     public MapSpriteId SpriteId => pulse.Sprite;

@@ -113,7 +113,7 @@ internal sealed class EnemyDrawList
                 continue;
             }
             // Resolve the sprite picture and the body frame through one presentation binding. Validate the
-            // frame before the body is shown; physical selectors continue to belong to the compiled animations
+            // frame before the body is shown; physical selectors continue to belong to the enemy's animations
             // and collision definitions. The empty frame draws nothing and is on no sheet (#1513).
             EnemyFrameDisplays displays = _room.Session.FrameDisplays;
             if (!displays.TryGetDisplay(shown, out bool pictured))

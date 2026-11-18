@@ -487,7 +487,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             if (SelectedControl != PauseEquipmentControls.ReserveMode)
                 throw new NotSupportedException(
                     "A same-frame equipment toggle into a reserve row past the first corrupts unrelated game state; " +
-                    "reproducing it needs full memory emulation, which is outside the port's scope.");
+                    "reproducing it needs full memory emulation, which is outside the emulation scope limit (#1500).");
             audio.QueueSound(SamusSound.MenuConfirm, priority: SoundRequestPriority.Normal);
             // A last place holding no spread bomb has no flight to repaint: no other bomb reads the speed, and the next
             // spread launches with its own (#2459).

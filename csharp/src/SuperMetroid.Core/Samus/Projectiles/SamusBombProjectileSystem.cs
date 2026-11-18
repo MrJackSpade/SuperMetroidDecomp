@@ -548,7 +548,7 @@ public sealed class SamusBombProjectileSystem
             $"A bomb was admitted with all {PlaceCount} places held: the placing count ({BombCounter}) is out of step with the bombs out.");
     }
 
-    /// <summary>Starts a bomb: its damage and its animation, from the compiled non-beam projectile data for the bomb's family.</summary>
+    /// <summary>Starts a bomb: its damage and its animation, from the bomb definitions of its family.</summary>
     internal static void InitializeBomb(
         SamusBomb bomb)
     {
@@ -617,8 +617,8 @@ public sealed class SamusBombProjectileSystem
             bomb.FuseUpdatesLeft--;
             if (bomb.FuseUpdatesLeft == SamusPowerBombFuseData.FastAnimationTimer)
             {
-                // The slow and fast animations have identical four-frame layouts and differ by
-                // a fixed distance. Moving the live animation by it preserves phase.
+                // The fuse switches the bomb to the same frame of its fast animation, so its
+                // four-frame cycle keeps its place.
                 SamusPowerBombFuse.SwitchToFastAnimation(bomb.Animation);
             }
             else if (bomb.HasBurnedOut)
@@ -878,8 +878,8 @@ public sealed class SamusBombProjectileSystem
         }
 
         // The bomb reaction sends these types to reactions that only report pass or stop. They
-        // spawn no room object and do not alter the room's terrain or behaviours, so recording the visit is
-        // the complete observable effect for this runtime.
+        // spawn no room object and do not alter the room's terrain or behaviours: the bomb's visit is recorded
+        // and nothing else happens.
         if (block.CollisionType is
             RoomCollisionType.Air or
             RoomCollisionType.Slope or

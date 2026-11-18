@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Samus.Drawing;
 
 /// <summary>
-/// Compiled policy for Samus's water splashes, running foot contacts, Crateria-specific atmospheric effects and
+/// The rules for Samus's water splashes, running foot contacts, Crateria-specific atmospheric effects and
 /// the Brinstar and Tourian rooms whose landings raise dust.
 /// </summary>
 internal static class SamusAtmosphericEffectDefinitions

@@ -566,7 +566,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         fade.Show(DisplayBrightness.Full);
     }
 
-    /// <summary>Installs a compiled turning-floor scene's position and zoom while clearing the previous text sprite.</summary>
+    /// <summary>Installs a turning-floor scene's position and zoom while clearing the previous text sprite.</summary>
     private void ApplyScene(TitleFloorSceneDefinition definition)
     {
         Phase = definition.Phase;

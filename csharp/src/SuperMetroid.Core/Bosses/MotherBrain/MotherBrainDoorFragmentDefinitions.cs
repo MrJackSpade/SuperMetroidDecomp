@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>Compiled physical definitions for Mother Brain's eight escape-door fragments.</summary>
+/// <summary>The physical definitions of Mother Brain's eight escape-door fragments.</summary>
 internal static class MotherBrainDoorFragmentDefinitions
 {
     /// <summary>

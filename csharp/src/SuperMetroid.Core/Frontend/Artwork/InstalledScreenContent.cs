@@ -78,7 +78,7 @@ public sealed class InstalledScreenContent : IGameplayPresentationContent
     public EscapeTypewriterPresentation EscapeTypewriter { get; }
     /// <summary>Opening narration text and presentation, separate from its selected font characters.</summary>
     public IntroNarrationPresentation IntroNarration { get; }
-    /// <summary>The characters the ending's typewriter types, compiled by the import from the installed ending text (#1467).</summary>
+    /// <summary>The characters the ending's typewriter types, which the import builds from the installed ending text (#1467).</summary>
     public EndingTypewriterText EndingText { get; }
     /// <summary>
     /// The colour the title shows behind its floor and objects (#1512); the title's other colours are pre-coloured into its
@@ -99,7 +99,7 @@ public sealed class InstalledScreenContent : IGameplayPresentationContent
 
     /// <summary>Returns an area's map with its stock exploration and station-reveal rules (<see cref="Maps"/>).</summary>
     /// <param name="area">One of the seven areas, including Ceres.</param>
-    /// <returns>The immutable view compiled when this content was loaded.</returns>
+    /// <returns>The immutable view built when this content was loaded.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The value is not an area.</exception>
     public IAreaMapView Get(AreaId area) => Maps.Get(area);
 }

@@ -2,7 +2,7 @@ using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>Compiled animation selectors for Mother Brain's body-relative death explosions.</summary>
+/// <summary>The animation each of Mother Brain's body-relative death explosions plays.</summary>
 internal static class MotherBrainDeathExplosionDefinitions
 {
     /// <summary>The updates after a burst of smoky explosions before the next.</summary>

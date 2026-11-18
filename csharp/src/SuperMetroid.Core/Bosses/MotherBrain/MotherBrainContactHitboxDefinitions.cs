@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// Compiled physical hitboxes for Mother Brain's body, brain, and three tested neck joints (#2211): each part's signed
+/// The physical hitboxes of Mother Brain's body, brain, and three tested neck joints (#2211): each part's signed
 /// local rectangles in the order her contact tests them, stopping at the first hit. These definitions remain
 /// application-owned when visual frames become editable.
 /// </summary>

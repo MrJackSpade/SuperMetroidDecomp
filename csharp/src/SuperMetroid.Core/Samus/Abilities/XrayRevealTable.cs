@@ -2,7 +2,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Samus.Abilities;
 
-/// <summary>Exposes the compiled two-stage collision-kind and behaviour reveal shape lookup.</summary>
+/// <summary>Exposes the two-stage collision-kind and behaviour reveal shape lookup.</summary>
 public static class XrayRevealTable
 {
     /// <summary>

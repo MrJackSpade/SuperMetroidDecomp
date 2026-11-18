@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Frontend.Title.Artwork;
 /// <summary>
 /// How the title places its compositions (#1409, #1463, #1467, #1583): each is a frame of the installed title sheet, which
 /// the import pictures from the installed title artwork; the game reads none of that artwork. Motion and the Baby's
-/// animation remain compiled behaviour.
+/// animation are the game's own.
 /// </summary>
 public static class TitleSpriteDrawing
 {

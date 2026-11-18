@@ -9,7 +9,8 @@ public static class SamusPowerBombFuseData
     public const int FastAnimationTimer = 15;
     /// <summary>
     /// The fast-animation place each slow bomb and Power Bomb place switches to: the same frame in the fast segment.
-    /// A bomb's segment is one beat ahead of its fast segment.
+    /// A bomb's slow animation opens with a picture its fast animation lacks, so each later bomb frame switches to the
+    /// fast frame one before it.
     /// </summary>
     internal static readonly FrozenDictionary<SamusProjectileSegmentBeat, SamusProjectileSegmentBeat> FastCounterparts =
         new Dictionary<SamusProjectileSegmentBeat, SamusProjectileSegmentBeat>

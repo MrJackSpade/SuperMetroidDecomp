@@ -59,7 +59,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
     /// <summary>Initializes existing-save map entry from the saved Zebes area/station, exploration, boss, map-station, and used-station data without loading a gameplay room.</summary>
     /// <param name="audio">Owner receiving menu confirmation, scroll, colour-loop, and transition sound requests.</param>
     /// <param name="random">The session's random number generator, which the saved progress the map reads shares with the rest of the session.</param>
-    /// <param name="slot">Selected save slot; its area must be one of the six Zebes identities and its station supplies the compiled load/scroll anchor.</param>
+    /// <param name="slot">Selected save slot; its area must be one of the six Zebes identities and its station supplies the load/scroll anchor.</param>
     /// <param name="initialHeldInput">Controller buttons already held on entry, latched to prevent a held confirmation button becoming a fresh navigation press.</param>
     /// <param name="screenContent">The installed screen content, whose area maps the screen draws.</param>
     /// <param name="spriteSheets">The installed sprite sheets the map's sprites draw from, rebound with the other artwork.</param>
@@ -111,7 +111,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
     /// <summary>The installed map artwork the map draws and moves over.</summary>
     private InstalledScreenContent InstalledScreenContent { get; set; }
 
-    /// <summary>Starts room-map scrolling at the compiled anchor for the saved area and station.</summary>
+    /// <summary>Starts room-map scrolling at the anchor for the saved area and station.</summary>
     private MapScroll CreateScrollForCurrentContent()
     {
         InstalledScreenContent catalog = InstalledScreenContent;

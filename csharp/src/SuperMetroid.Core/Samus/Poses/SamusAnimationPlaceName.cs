@@ -35,7 +35,7 @@ internal enum SamusAnimationPlaceName
     /// <summary>The Screw Attack spin's first frame (<see cref="SamusAnimationFrames.ScrewAttackSpinStart"/>).</summary>
     ScrewAttackSpinStart,
 
-    /// <summary>The fast fall's first frame as the plain fall lays it out (<see cref="SamusAnimationFrames.FastFallStart"/>).</summary>
+    /// <summary>The fast fall's first frame as a place in the fall's animation (<see cref="SamusAnimationFrames.FastFallStart"/>).</summary>
     FastFallStart,
 
     /// <summary>The held drained crouch's first frame after its landing, once she can stand (<see cref="Abilities.SamusDrainedAnimationDefinitions.AbleToStandFirstFrame"/>).</summary>

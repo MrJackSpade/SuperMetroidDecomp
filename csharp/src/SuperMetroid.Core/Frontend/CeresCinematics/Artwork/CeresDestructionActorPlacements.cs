@@ -3,8 +3,8 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 
 /// <summary>
 /// The installed spawn positions of the three persistent actors behind Ceres's explosion, as the player left them, keyed
-/// by role (#1768); the installation is their only source (#1596). Their animations, movement and drift round the drift loop remain
-/// compiled mechanics.
+/// by role (#1768); the installation is their only source (#1596). Their animations, movement and drift round the drift loop are
+/// the game's own.
 /// </summary>
 public sealed class CeresDestructionActorPlacements
 {

@@ -74,7 +74,7 @@ internal static class SamusAerialPoseTransitions
             return false;
         if (collision == LargerPoseCollisionOutcome.CrouchFallback)
         {
-            // Installs ordinary crouch when the expanded body is blocked above and
+            // Samus takes the ordinary crouch when the expanded body is blocked above and
             // below. The pose change still runs and sees the spin/wall-jump previous movement type.
             samus.ApplyPoseChangeCollisionCrouchFallback(sourcePose);
             if (samus.EquippedItems.HasAny(SamusEquipmentFlags.ScrewAttack))
@@ -104,7 +104,7 @@ internal static class SamusAerialPoseTransitions
         if (beganShinespark)
             return true;
 
-        // Publishes the newly installed pose's shot direction on the exact Fire
+        // The newly installed pose's shot direction is published on the exact Fire
         // edge that selected this pose. The projectile producer consumes it in the input phase.
         if ((controllerNewInput & GameplayAction.Shoot) != GameplayAction.None)
             samus.PendingTransitionShot = SamusTransitionShot.FromPose(samus);
@@ -274,13 +274,13 @@ internal static class SamusAerialPoseTransitions
             samus.HorizontalSpeed.RequestSuitShadeRestore();
 
         samus.Pose = targetPose;
-        // Leaves the collision radius at the spin body's radius; the input phase's radius update takes
+        // The collision radius stays the spin body's; the input phase's radius update takes
         // the wall-jump body only next frame, so this frame's enemy and projectile
         // collision still use the compact spin radius.
 
-        // Clears acceleration and the ordinary base-speed pair before
-        // the jump installs the launch. It deliberately does *not* touch the extra-run
-        // pair or the running-momentum flag: a wall jump made
+        // The wall jump sets her accelerating and clears the base speed before
+        // the jump installs the launch. It does *not* touch the extra run
+        // speed or the running momentum: a wall jump made
         // out of a Dash therefore carries that speed into wall-jumping movement.
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
         samus.HorizontalSpeed.BaseSpeed = default;
@@ -314,18 +314,18 @@ internal static class SamusAerialPoseTransitions
                 $"Grapple wall jump requires a grapple wall-contact pose, not {samus.Pose}.");
         }
 
-        // Tests the contact pose's facing, not its descriptive wall side. Facing right selects
+        // The wall jump reads the contact pose's facing, not the wall side its name gives. Facing right selects
         // the left wall jump; any other facing selects the right.
         samus.Pose = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Right) ? SamusPoseId.WallJumpLeftPose : SamusPoseId.WallJumpRightPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
 
-        // Clears the ordinary base-speed pair, then the normal pose-transition
-        // machinery reaches the jump launch. Like the non-grapple route, it leaves both the
-        // extra-run pair and the running-momentum flag intact, so Dash momentum survives this wall launch.
+        // The grapple's wall jump clears the base speed, then the normal pose transition
+        // reaches the jump launch. Like the wall jump without the grapple, it leaves both the
+        // extra run speed and the running momentum intact, so Dash momentum survives this wall launch.
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
         samus.HorizontalSpeed.BaseSpeed = default;
 
-        // Queues the grapple's end sound at essential priority.
+        // The grapple's end sound is queued at essential priority.
         // It also clears the beam's charge and its flare, so neither the wall jump's charged contact nor the next
         // projectile pass inherits a charge built before the grapple (#1577).
         samus.AudioRequests.QueueSound(GrappleBeamDefinitions.Sounds.Stop.SoundEffect, GrappleBeamDefinitions.Sounds.Stop.Priority);
@@ -365,9 +365,9 @@ internal static class SamusAerialPoseTransitions
             SamusPoseId.CrouchingAimDiagonalDownRightPose or SamusPoseId.CrouchingAimDiagonalDownLeftPose;
         if (!supportedTarget)
         {
-            // Chooses from every pose a grapple drop can take, whose
-            // outputs are exactly the standing/aim/crouch set above. Other releases use
-            // separate grapple wall-jump or swing-release movements, not this API.
+            // The poses above are every pose a grapple drop can take: exactly the
+            // standing, aimed and crouching set. Other releases take the grapple's
+            // wall jump or the swing release instead.
             throw new InvalidOperationException(
                 $"Grapple drop transition {samus.Pose} -> {targetPose} is not a route a grapple drop takes.");
         }
@@ -488,8 +488,8 @@ internal static class SamusAerialPoseTransitions
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         samus.Shinespark.BeginWindup(samus);
 
-        // Checks the PREVIOUS movement type, lifts Samus one pixel and
-        // stores the result as both current and previous Y, so this frame's vertical scroll sees no motion.
+        // From a normal jump (the PREVIOUS movement type), Samus is lifted one pixel and
+        // the result becomes both current and previous Y, so this frame's vertical scroll sees no motion.
         if (previousMovementType == SamusMovementType.NormalJumping)
         {
             samus.Kinematics.Position -= new Offset16<RoomPixels>(0, 1);

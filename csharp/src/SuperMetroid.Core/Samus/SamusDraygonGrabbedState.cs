@@ -7,15 +7,15 @@ using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Core.Samus;
 
 /// <summary>
-/// Exact Samus-owned half of Draygon's hold (<see cref="SamusMovementOwner.DraygonHold"/>) and
+/// Samus's half of Draygon's hold (<see cref="SamusMovementOwner.DraygonHold"/>) and
 /// the Draygon-held movement type.
 /// </summary>
 /// <remarks>
 /// Draygon is an enemy actor, so its AI computes the boss's flight position and then
 /// carries Samus to it. This object takes that position as an input; Samus's movement
 /// computes no flight of Draygon's own.
-/// Everything after that boundary—the signed claw offset, pose family, escape counter,
-/// release pose, velocity cleanup, and movement-type side effect—is modelled here.
+/// This object places her at the claw's offset and keeps her pose family, her escape presses, her release pose,
+/// the speeds her release clears and the movement type's side effect.
 /// </remarks>
 public sealed class SamusDraygonGrabbedState
 {
@@ -82,7 +82,7 @@ public sealed class SamusDraygonGrabbedState
         ReleasePublishedToOwner = false;
         // Forced grab owns its history shift; no ordinary input transition is consumed.
         samus.CommitPoseHistory();
-        // Clears every pending pose. The pose the animation left pending is Samus's to clear; the runtime clears the
+        // The grab clears every pending pose. The pose the animation left pending is Samus's to clear; the runtime clears the
         // others after the enemy update, which publishes the grab.
         samus.PendingTransitionalPose = null;
     }

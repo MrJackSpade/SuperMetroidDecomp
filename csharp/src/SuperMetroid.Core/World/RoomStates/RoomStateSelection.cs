@@ -20,8 +20,8 @@ public static class RoomStateSelection
         return choice.Default;
     }
 
-    /// <summary>The state choice of <paramref name="room"/>, which must be a compiled room.</summary>
+    /// <summary>The state choice of <paramref name="room"/>, which must be one of the game's rooms.</summary>
     internal static RoomStateChoice ChoiceFor(RoomDefinition room) =>
         RoomStateSelectionDefinitions.Choices.TryGetValue(room, out RoomStateChoice? choice) ? choice
-            : throw new ArgumentOutOfRangeException(nameof(room), room.Name, "Room is not one of the 262 compiled rooms.");
+            : throw new ArgumentOutOfRangeException(nameof(room), room.Name, "Room is not one of the game's 262 rooms.");
 }

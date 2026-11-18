@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Metroids;
 
-/// <summary>Compiled fixed behavior definitions for ordinary Metroids.</summary>
+/// <summary>The fixed behavior definitions of ordinary Metroids.</summary>
 internal static class MetroidBehaviorDefinitions
 {
     /// <summary>

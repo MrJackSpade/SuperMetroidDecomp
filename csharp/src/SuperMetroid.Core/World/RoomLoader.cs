@@ -1058,7 +1058,7 @@ internal sealed class RoomLoader
     }
 
     /// <summary>
-    /// Resolves a compiled room selector against the live saved progress and Samus inventory.
+    /// Resolves a room selector against the live saved progress and Samus inventory.
     /// </summary>
     /// <remarks>
     /// The fixed room definition still supplies the area needed to choose that

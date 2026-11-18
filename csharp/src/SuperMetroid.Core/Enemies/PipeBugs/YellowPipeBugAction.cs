@@ -10,7 +10,7 @@ public enum YellowPipeBugAction
     WaitForSamus,
     /// <summary>Delays before a yellow Pipe Bug begins straight flight.</summary>
     EmergenceDelay,
-    /// <summary>Flies a yellow Pipe Bug straight the way it emerged (<see cref="YellowPipeBugState.FlightDirection"/>).</summary>
+    /// <summary>Flies a yellow Pipe Bug straight the way it emerged, the way its placement faces.</summary>
     Fly,
     /// <summary>
     /// The first half of the yellow Pipe Bug's one arc, moving on the way it emerged (#2473): it dips downward ever more

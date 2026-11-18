@@ -379,11 +379,14 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (enemy.SpeciesState<YellowPipeBugState>() is { } yellowPipeBug)
         {
-            // Each way a flight or arc goes has a routine of its own (#2165). An arc's dip direction word (F) is set while it
-            // dips and cleared once it climbs back (#2473).
+            // Each way a flight or arc goes has a routine of its own (#2165); the bug flies the way its placement faces
+            // (#2474), which the recorded routine's way must be. An arc's dip direction word (F) is set while it dips and
+            // cleared once it climbs back (#2473).
             if (PipeBugsNativeWords.YellowPipeBugFlights.TryDecode(words.A, out (YellowPipeBugAction Action, HorizontalDirection Direction) yellowFlight))
             {
-                yellowPipeBug.FlightDirection = yellowFlight.Direction;
+                HorizontalDirection yellowFacing = enemy.SpawnSettings<YellowPipeBugSpawnSettings>().Facing;
+                if (yellowFlight.Direction != yellowFacing)
+                    throw new InvalidDataException($"Recorded yellow Pipe Bug flies {yellowFlight.Direction}, not its placement's {yellowFacing}.");
                 yellowPipeBug.Action = yellowFlight.Action == YellowPipeBugAction.ArcDipping && words.F == 0
                     ? YellowPipeBugAction.ArcClimbing
                     : yellowFlight.Action;
@@ -420,7 +423,7 @@ internal static class NativeEnemyFamilyStateImport
             kiHunterBodyRecord.Action = KiHuntersNativeWords.KiHunterActions.Decode(words.A, "recorded KiHunterAction");
             kiHunterBodyRecord.SwoopTargetX = words.B;
             kiHunterBodyRecord.SwoopOriginY = words.C;
-            kiHunterBodyRecord.AnimationChangeAngle = RotationAngle.FromSteps(words.E);
+            // The swipe's trigger angle follows from the way the body swoops (#2474); the game keeps it in an extra word.
             kiHunterBodyRecord.SwoopAngle = RotationAngle.WrappedSteps(words.F);
         }
         if (enemy.SpeciesState<KiHunterWingState>() is { } kiHunterWingRecord)

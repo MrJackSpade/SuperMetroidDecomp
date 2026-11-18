@@ -38,11 +38,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         var state = new MaridiaLargeSnailEnemyState(MaridiaLargeSnailAction.Idle, MaridiaLargeSnailBouncePhase.Falling)
         {
             Facing = HorizontalDirection.Right,
-            RollsBackwards = false,
             ShowsSpawnIdle = true,
-            AttackAllowsRotation = false,
-            StopMovementNextFrame = false,
-            YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start,
             AttackCooldown = MaridiaLargeSnailMotionDefinitions.InitialAttackCooldown,
             Heading = HorizontalDirection.Right,
             RemainingBounces = MaridiaLargeSnailMotionDefinitions.SettlingBounces,

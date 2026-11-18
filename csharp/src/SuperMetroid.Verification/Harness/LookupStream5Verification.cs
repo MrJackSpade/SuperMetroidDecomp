@@ -1083,8 +1083,8 @@ internal static class LookupStream5Verification
             var expected = new LookupStream5Expected2(unchecked((short)ReadVerificationWord(rom, 0xa890ca + direction * 2)),
                 unchecked((short)ReadVerificationWord(rom, 0xa890d2 + direction * 2)),
                 ReadVerificationWord(rom, 0xa890da + direction * 2));
-            var mountSettings = (MorphBallEyeSpawnSettings)EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.MorphBallEye, PopulationWords.Parameters(0, 0x8000 | direction));
-            var mount = MorphBallEyeGeometry.Mount(mountSettings.MountSide);
+            var mountSettings = (MorphBallEyeMountSpawnSettings)EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.MorphBallEye, PopulationWords.Parameters(0, 0x8000 | direction));
+            var mount = MorphBallEyeGeometry.Mount(mountSettings.Side);
             AssertEqual(expected, new LookupStream5Expected2(mount.Offset.X, mount.Offset.Y, NativeEnemyAnimationOracle.EntryOf(MorphBallEyeNativeListAddresses.Entries, mount.Animation)),
                 "Native directional mount tuple");
             foreach (ushort origin in new ushort[] { 0, 65535 })
@@ -1110,7 +1110,7 @@ internal static class LookupStream5Verification
         }
         var owner = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         var body = owner.Places.InUpdateOrder[1];
-        body.SetSpawnSettings(new MorphBallEyeSpawnSettings(HorizontalDirection.Right, MorphBallEyePart.Eye, MorphBallEyeMountSide.Left));
+        body.SetSpawnSettings(new MorphBallEyeBodySpawnSettings(HorizontalDirection.Right));
         body.Bind(EnemyDefinitionId.MorphBallEye, body.Definition);
         new Action<RoomEnemyPlace>(MorphBallEyeBehavior.InitializeMorphBallEyeBody)(body);
         (body.SpeciesState<MorphBallEyeEnemyState>() ?? throw new InvalidOperationException("Verification requires the eye body's state.")).IsActivated = true;

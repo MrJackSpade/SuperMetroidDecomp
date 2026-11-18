@@ -50,9 +50,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Kind, axis: Axis.Horizontal, state.XMovement)), AnimationPlace.StartOfAnimation);
 
         state.PreviousYMovement = PlatformVerticalMovement.Rising;
-        state.VerticalArt = null;
         state.RestingY = place.Position.Y.Whole + PlatformMotionDefinitions.RestingDepthBelowPlacement;
-        state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
     }
 
     /// <summary>Runs the Tripper's and the suspensor platform's main AI.</summary>

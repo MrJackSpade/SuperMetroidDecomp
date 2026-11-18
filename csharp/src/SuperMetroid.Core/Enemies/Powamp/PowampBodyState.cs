@@ -34,6 +34,9 @@ public sealed class PowampBodyState
     /// <summary>The main-AI behaviour.</summary>
     public PowampAction Action { get; internal set; }
 
-    /// <summary>Whether touch and shot AI are refused: set once a lethal shot starts the body's death.</summary>
-    public bool RefusesContact { get; internal set; }
+    /// <summary>
+    /// Whether the body is dying (#2474): a lethal shot has started its own death, which refuses Samus's later touch and
+    /// shots whatever its placement says.
+    /// </summary>
+    internal bool IsDying => Action is PowampAction.FatalDamage or PowampAction.DeathSequence;
 }

@@ -14,15 +14,15 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Magdollite];
 
-    /// <summary>The Magdollite part the placement names: its head, rising body or tracking overlay (#2342).</summary>
+    /// <summary>The Magdollite part the placement names: its head, rising body or tracking overlay (#2342, #2474).</summary>
     /// <exception cref="InvalidOperationException">The placement names no Magdollite part.</exception>
     public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) =>
-        Ensure.NotNull(place).SpawnSettings<MagdolliteSpawnSettings>().Part switch
+        Ensure.NotNull(place).SpawnSettings<MagdolliteSpawnSettings>() switch
         {
-            MagdollitePart.Head => new MagdolliteHeadEntity(this, place, common),
-            MagdollitePart.RisingBody => new MagdolliteBodyEntity(this, place, common),
-            MagdollitePart.TrackingOverlay => new MagdolliteOverlayEntity(this, place, common),
-            var part => throw new InvalidOperationException($"Undefined {nameof(MagdollitePart)} {part}."),
+            MagdolliteHeadSpawnSettings => new MagdolliteHeadEntity(this, place, common),
+            MagdolliteBodySpawnSettings => new MagdolliteBodyEntity(this, place, common),
+            MagdolliteOverlaySpawnSettings => new MagdolliteOverlayEntity(this, place, common),
+            var part => throw new InvalidOperationException($"Undefined Magdollite part {part}."),
         };
 
     /// <summary>Supplies the room's apex overreads.</summary>
@@ -92,11 +92,8 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private void FinishPlacingMagdollitePart() => RestartGlow();
 
-    /// <summary>How the Magdollite head in <paramref name="head"/> rises, from its spawn settings.</summary>
-    /// <exception cref="InvalidDataException">The head's placement names no rise.</exception>
-    private static MagdolliteHeadRise HeadRise(RoomEnemyPlace head) =>
-        head.SpawnSettings<MagdolliteSpawnSettings>().Rise
-            ?? throw new InvalidDataException($"The Magdollite head in enemy place {head.Ordinal} names no rise.");
+    /// <summary>How the Magdollite head in <paramref name="head"/> and its arm rise, from the head's spawn settings (#2474).</summary>
+    private static MagdolliteHeadSpawnSettings HeadRise(RoomEnemyPlace head) => head.SpawnSettings<MagdolliteHeadSpawnSettings>();
 
     /// <summary>
     /// Restarts the room's lava glow at its first frame, which every Magdollite and its lava show at once, holding it
@@ -115,8 +112,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus)
     {
         PlaceMagdollitePart(place, placesAfterHead: 0);
-        // The head's spawn settings name the speed it and its arm rise and sink at; the arm reads the head's.
-        var state = new MagdolliteHeadState(MagdolliteHeadAction.Waiting) { Speed = HeadRise(place).Speed };
+        var state = new MagdolliteHeadState(MagdolliteHeadAction.Waiting);
         place.SetSpeciesState(state);
         state.OriginY = place.Position.Y.Whole;
 
@@ -301,10 +297,9 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         MagdolliteBodyState state,
         SamusState samus)
     {
-        // The arm rises at its head's speed.
+        // The arm rises at the speed its head's spawn settings name (#2474).
         (RoomEnemyPlace head, _, _) = RequireMagdolliteComposite(body);
-        MagdolliteHeadState speedOwner = head.RequireSpeciesState<MagdolliteHeadState>();
-        state.RiseDisplacementY += AddMagdolliteY(body, -speedOwner.Speed);
+        state.RiseDisplacementY += AddMagdolliteY(body, -HeadRise(head).Speed);
 
         int upwardDistance = -state.RiseDisplacementY;
         MagdollitePhaseDefinition phase = state.BodyPhase.Phase;
@@ -339,7 +334,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         (RoomEnemyPlace head, _, _) = RequireMagdolliteComposite(body);
         MagdolliteHeadState headState = head.RequireSpeciesState<MagdolliteHeadState>();
-        state.RiseDisplacementY += AddMagdolliteY(body, headState.Speed);
+        state.RiseDisplacementY += AddMagdolliteY(body, HeadRise(head).Speed);
 
         if (state.RiseDisplacementY >= 0)
         {

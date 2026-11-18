@@ -149,7 +149,6 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
             // A swoop heading left turns toward decreasing angles (#2338).
             state.Heading = swoopLeft ? HorizontalDirection.Left : HorizontalDirection.Right;
             state.SwoopAngle = RotationAngle.FromSteps(angle);
-            state.AnimationChangeAngle = RotationAngle.FromSteps(swoopLeft ? 240 : 144);
             state.SwoopTargetX = body.Position.X.Whole;
             state.SwoopOriginY = body.Position.Y.Whole;
             state.SwoopRadius = new Extent16<RoomPixels>(16, 16);

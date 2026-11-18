@@ -98,7 +98,6 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         // Every Ki-Hunter animation is played by the shared enemy animation, which this property admits.
         body.Processing = body.Processing.With(EnemyProcessing.Animates);
         StartKiHunterAnimation(body, state, KiHunterSegment.FlyingLeft);
-        state.SwoopAngle = RotationAngle.Zero;
         state.Heading = KiHunterMotionDefinitions.PatrolStartHeading;
         state.HorizontalSpeed = KiHunterMotionDefinitions.PatrolSpeed;
         state.VerticalVelocity = SignedSixteenSixteen.FromWholePixels(KiHunterMotionDefinitions.PatrolSpeed);
@@ -241,16 +240,9 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         // The swoop heads toward Samus and arcs that way (#2338).
         state.Heading = signedXDistance < 0 ? HorizontalDirection.Left : HorizontalDirection.Right;
         state.HorizontalSpeed = KiHunterMotionDefinitions.PatrolSpeed;
-        if (state.Heading == HorizontalDirection.Left)
-        {
-            state.SwoopAngle = KiHunterMotionDefinitions.LeftSwoopStartAngle;
-            state.AnimationChangeAngle = KiHunterMotionDefinitions.LeftSwoopAnimationChangeAngle;
-        }
-        else
-        {
-            state.SwoopAngle = KiHunterMotionDefinitions.RightSwoopStartAngle;
-            state.AnimationChangeAngle = KiHunterMotionDefinitions.RightSwoopAnimationChangeAngle;
-        }
+        state.SwoopAngle = state.Heading == HorizontalDirection.Left
+            ? KiHunterMotionDefinitions.LeftSwoopStartAngle
+            : KiHunterMotionDefinitions.RightSwoopStartAngle;
         SetKiHunterPairFacing(body, state.Heading);
     }
 
@@ -269,8 +261,8 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         bool leftArc = state.Heading == HorizontalDirection.Left;
         bool pastSwipeAngle = leftArc
-            ? state.SwoopAngle < state.AnimationChangeAngle
-            : state.SwoopAngle >= state.AnimationChangeAngle;
+            ? state.SwoopAngle < state.SwipeAngle
+            : state.SwoopAngle >= state.SwipeAngle;
         if (!pastSwipeAngle)
             return;
 
@@ -501,7 +493,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             sign: EnemySpeedSign.Negative));
         int radius = KiHunterMotionDefinitions.DetachedWingRadius;
         TrigonometryAngle trigonometryAngle = state.WingArcAngle.ToTrigonometryAngle();
-        wings.Position = wings.Position.WithWhole(state.OrbitCenter + EnemyMath.CircleOffset(trigonometryAngle, radius) - state.OrbitOffset);
+        wings.Position = wings.Position.WithWhole(state.OrbitCenter + EnemyMath.CircleOffset(trigonometryAngle, radius) - KiHunterMotionDefinitions.DetachedOrbitOffset);
 
         if (LiesWithinMiddleHalfTurn(state.WingArcAngle))
         {
@@ -522,20 +514,21 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             sign: EnemySpeedSign.Positive));
         int radius = KiHunterMotionDefinitions.DetachedWingRadius;
         TrigonometryAngle trigonometryAngle = state.WingArcAngle.ToTrigonometryAngle();
-        int desiredY = state.OrbitCenter.Y + EnemyMath.CircleNegativeSinePixels(trigonometryAngle, radius) - state.FallingArcOffset.Y;
+        int desiredY = state.OrbitCenter.Y + EnemyMath.CircleNegativeSinePixels(trigonometryAngle, radius) - KiHunterMotionDefinitions.FallingArcOffset.Y;
         if (_terrain.MoveEnemyVertically(
                 level,
                 wings,
                 SignedSixteenSixteen.FromWholePixels(desiredY - wings.Position.Y.Whole)))
         {
+            // The game also moves the deleted wings back to where they detached (#2474); nothing reads a deleted place's
+            // position before the next update clears the place, so the move is not kept.
             wings.Presence = wings.Presence.With(EnemyPresence.Deleted);
-            wings.Position = wings.Position.WithWhole(state.SavedWingPosition);
             SlowDetachedKiHunterWing(state);
             return;
         }
 
         wings.Position = wings.Position.WithWholeX(
-            state.OrbitCenter.X + EnemyMath.CircleCosinePixels(trigonometryAngle, radius) - state.FallingArcOffset.X);
+            state.OrbitCenter.X + EnemyMath.CircleCosinePixels(trigonometryAngle, radius) - KiHunterMotionDefinitions.FallingArcOffset.X);
         if (!LiesWithinMiddleHalfTurn(state.WingArcAngle))
         {
             BeginDetachedKiHunterWingOrbit(wings, state);
@@ -587,20 +580,14 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         wings.FlashTimer = body.FlashTimer;
     }
 
-    /// <summary>Initializes all fields the wing detachment writes.</summary>
+    /// <summary>Detaches the wings: their first orbit is centred where they are, starting where their climb starts.</summary>
     private static void DetachKiHunterWings(RoomEnemyPlace wings, KiHunterWingState state)
     {
-        state.SavedWingPosition = wings.Position.Whole;
-        state.DetachedSpeedReset = KiHunterMotionDefinitions.DetachedWingClimb.StartPlace;
-
-        int radius = KiHunterMotionDefinitions.DetachedWingRadius;
-        state.OrbitOffset = EnemyMath.CircleOffset(KiHunterMotionDefinitions.DetachedOrbitOffsetAngle, radius);
-        state.FallingArcOffset = EnemyMath.CircleOffset(KiHunterMotionDefinitions.FallingArcOffsetAngle, radius);
         state.WingArcAngle = KiHunterMotionDefinitions.DetachedOrbitStartAngle;
         state.Action = KiHunterWingAction.Detached;
         state.WingMovement = KiHunterWingMovement.Orbit;
-        state.OrbitCenter = state.SavedWingPosition;
-        state.DetachedSpeedCurvePlace = state.DetachedSpeedReset;
+        state.OrbitCenter = wings.Position.Whole;
+        state.DetachedSpeedCurvePlace = KiHunterMotionDefinitions.DetachedWingClimb.StartPlace;
         StartKiHunterAnimation(
             wings,
             state,
@@ -615,7 +602,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         KiHunterWingState state)
     {
         state.WingMovement = KiHunterWingMovement.Orbit;
-        state.DetachedSpeedCurvePlace = state.DetachedSpeedReset;
+        state.DetachedSpeedCurvePlace = KiHunterMotionDefinitions.DetachedWingClimb.StartPlace;
         state.WingArcAngle = KiHunterMotionDefinitions.DetachedOrbitStartAngle;
         state.OrbitCenter = wings.Position.Whole;
     }
@@ -626,7 +613,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         KiHunterWingState state)
     {
         state.WingMovement = KiHunterWingMovement.FallingCollisionArc;
-        state.DetachedSpeedCurvePlace = state.DetachedSpeedReset;
+        state.DetachedSpeedCurvePlace = KiHunterMotionDefinitions.DetachedWingClimb.StartPlace;
         state.WingArcAngle = KiHunterMotionDefinitions.FallingArcStartAngle;
         state.OrbitCenter = wings.Position.Whole;
     }

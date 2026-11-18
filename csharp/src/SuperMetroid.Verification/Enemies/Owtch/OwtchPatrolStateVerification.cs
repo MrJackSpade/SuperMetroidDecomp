@@ -48,7 +48,9 @@ internal static class OwtchPatrolStateVerification
             AssertEqual(expectedBehavior, state.Behavior, $"Owtch sinking from {depth}: behavior");
         }
 
-        (enemies, place, state) = NewOwtch(OwtchBehaviorState.Rising);
+        // An Owtch rises only out of a burial (#2474): one placed buried whose wait has run out rises.
+        (enemies, place, state) = NewOwtch(OwtchBehaviorState.Underground);
+        state.Behavior = OwtchBehaviorState.Rising;
         state.BurialDepth = 1;
         enemies.OwtchBehavior.RunOwtchMainAi(place, frame);
         AssertEqual(0, state.BurialDepth, "Owtch rising from depth one surfaces");

@@ -20,11 +20,13 @@ public sealed class KiHunterBodyState
     public int SwoopOriginY { get; internal set; }
 
     /// <summary>
-    /// The swoop angle at which the swoop's swipe animation starts: a sixteenth of a turn short of a full turn for a
-    /// leftward swoop, a sixteenth of a turn past the half turn for a rightward one. Passing it installs the swoop
-    /// animation.
+    /// The swoop angle at which the swoop's swipe animation starts, the way the body swoops (#2474): a sixteenth of a turn
+    /// short of a full turn for a leftward swoop, a sixteenth of a turn past the half turn for a rightward one. Passing it
+    /// starts the swipe.
     /// </summary>
-    public RotationAngle AnimationChangeAngle { get; internal set; }
+    public RotationAngle SwipeAngle => Heading == HorizontalDirection.Left
+        ? KiHunterMotionDefinitions.LeftSwoopAnimationChangeAngle
+        : KiHunterMotionDefinitions.RightSwoopAnimationChangeAngle;
 
     /// <summary>
     /// The swoop angle, in whole steps: a half turn, or one step short of a full turn, when a swoop begins, stepped by the

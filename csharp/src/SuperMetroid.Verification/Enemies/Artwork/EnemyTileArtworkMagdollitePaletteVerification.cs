@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Enemies.Magdollite;
 using SuperMetroid.Core.Enemies.Magdollite.Artwork;
 using System.Text.Json;
 using SuperMetroid.Core.Enemies;
@@ -61,7 +62,7 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
             member.Bind(EnemyDefinitionId.Magdollite, member.Definition);
             member.InitializeAsPlaced(RoomEnemyFrameFixtures.StandaloneSamus());
         }
-        AssertEqual(PictureShading.Shaded(MagdolliteShades.Glow(0)), enemies.MagdolliteBehavior.Glow,
+        AssertEqual(PictureShading.Shaded(MagdolliteShades.Glow(MagdolliteGlowAnimations.Cycle[0])), enemies.MagdolliteBehavior.Glow,
             "a restarted Magdollite glow shows its first frame");
         Action step = enemies.MagdolliteBehavior.StepGlow;
         RoomEnemyPlace untouched = enemies.Places.InUpdateOrder[3];
@@ -80,7 +81,7 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
             else
             {
                 int frame = (tick + 1) / 8 & (MagdolliteShades.GlowFrames - 1);
-                AssertEqual(PictureShading.Shaded(MagdolliteShades.Glow(frame)), enemies.MagdolliteBehavior.Glow,
+                AssertEqual(PictureShading.Shaded(MagdolliteShades.Glow(MagdolliteGlowAnimations.Cycle[frame])), enemies.MagdolliteBehavior.Glow,
                     $"Magdollite glow tick {tick + 1} glow frame");
                 AssertGlowShownOnPartsOnly($"glow tick {tick + 1}");
             }

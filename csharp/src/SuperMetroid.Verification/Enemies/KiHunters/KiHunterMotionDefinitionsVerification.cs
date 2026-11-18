@@ -28,9 +28,16 @@ internal static class KiHunterMotionDefinitionsVerification
         var gravity = KiHunterMotionDefinitions.Gravity;
         var place = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom()).Places.InUpdateOrder[0];
         var state = new KiHunterWingState(KiHunterWingAction.FollowBody);
-        // Any reset distinguishes an arc change, which restores it, from a slowing step, which lands on 256.
-        const int speedReset = 10752;
-        state.DetachedSpeedReset = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(speedReset);
+        // An arc change restores the wings' climb start (#2474), which a slowing step's landing on 256 is not.
+        int speedReset = KiHunterMotionDefinitions.DetachedWingClimb.StartPlace.InTwoHundredFiftySixthsOfMark;
+        AssertTrue(speedReset != 256, "the wings' climb starts off the slowest place a slowing step lands on");
+        // The arcs' corrections are the cartridge's circle points at the wings' radius: seven eighths and five eighths of a
+        // turn round.
+        AssertEqual(new Offset16<RoomPixels>(cosine(0xe0, radius), sine(0xe0, radius)), KiHunterMotionDefinitions.DetachedOrbitOffset,
+            "Detached orbit correction is the native circle point at angle $E0");
+        AssertEqual(new Offset16<RoomPixels>(cosine(0xa0, radius), sine(0xa0, radius)), KiHunterMotionDefinitions.FallingArcOffset,
+            "Falling arc correction is the native circle point at angle $A0");
+        Offset16<RoomPixels> orbitOffset = KiHunterMotionDefinitions.DetachedOrbitOffset;
         int arcChanges = 0;
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
@@ -42,9 +49,8 @@ internal static class KiHunterMotionDefinitionsVerification
             state.WingMovement = KiHunterWingMovement.Orbit;
             state.DetachedSpeedCurvePlace = speed;
             state.OrbitCenter = new Position16<RoomPixels>((ushort)raw, (ushort)(ushort.MaxValue - raw));
-            state.OrbitOffset = new Offset16<RoomPixels>(13, 17);
-            ushort x = unchecked((ushort)(state.OrbitCenter.X + cosine((ushort)(angle >> 8), radius) - 13));
-            ushort y = unchecked((ushort)(state.OrbitCenter.Y + sine((ushort)(angle >> 8), radius) - 17));
+            ushort x = unchecked((ushort)(state.OrbitCenter.X + cosine((ushort)(angle >> 8), radius) - orbitOffset.X));
+            ushort y = unchecked((ushort)(state.OrbitCenter.Y + sine((ushort)(angle >> 8), radius) - orbitOffset.Y));
             orbit(place, state);
             AssertEqual(x, place.Position.X.Whole, "Actual detached orbit uses native radius and wrapped X");
             AssertEqual(y, place.Position.Y.Whole, "Actual detached orbit uses native radius and wrapped Y");

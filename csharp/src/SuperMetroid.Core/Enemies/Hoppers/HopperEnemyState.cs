@@ -61,7 +61,4 @@ public sealed class HopperEnemyState
 
     /// <summary>The kind of hopper its definition is, which selects its animations.</summary>
     public HopperKind Kind { get; internal set; }
-
-    /// <summary>The surface its placement mounts it on, which decides which way is up for its hops (#2338).</summary>
-    internal HopperSurface Surface { get; set; }
 }

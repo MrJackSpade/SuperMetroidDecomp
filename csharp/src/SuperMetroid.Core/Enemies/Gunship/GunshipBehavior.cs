@@ -439,9 +439,6 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         if (_room.Services.Events.Has(StoryEvent.ZebesTimebombSet))
         {
             State(top).Phase = GunshipPhase.ReadyTakeoffEngines;
-            State(top).EngineReadyingElapsed = 0;
-            State(top).EscapeVelocity = SignedEightEight.Zero;
-            State(top).RumbleFrame = 0;
             _frameResults.Gunship = GunshipFrameEvent.EscapeTakeoffStarted;
             return;
         }

@@ -42,4 +42,13 @@ public sealed class LeftoverNumberDeathExplosion<TExplosion>(TExplosion small, T
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="leftoverNumber"/> is negative.</exception>
     public TExplosion Named(int? leftoverNumber) =>
         leftoverNumber is int number && Ensure.AtLeastZero(number) < _numbered.Length ? _numbered[number] : _numbered[0];
+
+    /// <summary>
+    /// The explosion a death names that takes its number from the enemy projectile pool place a spawn last took (#2474):
+    /// the game leaves twice the place, so the first three places name the small, normal and big explosions and any later
+    /// place the small one; a spawn into a full pool, which leaves no place, also names the small one.
+    /// </summary>
+    /// <param name="projectilePlace">The zero-based pool place the spawn last took, or null when the pool was full.</param>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="projectilePlace"/> is negative.</exception>
+    public TExplosion LeftByProjectilePlace(int? projectilePlace) => Named(projectilePlace * 2);
 }

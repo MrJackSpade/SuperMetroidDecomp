@@ -70,7 +70,6 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         place.SetSpeciesState(state);
         state.SpawnPosition = place.Position.Whole;
         place.Presence = place.Presence.With(EnemyPresence.Hidden);
-        state.FormationCounter = 0;
         state.Playback = EnemyAnimationPlayback.Start(place, PipeBugAnimations.StartingWith(PipeBugSegment.GametRisingLeft));
     }
 
@@ -85,8 +84,6 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
             place.SpawnSettings<YellowPipeBugSpawnSettings>().Facing == HorizontalDirection.Left
                 ? PipeBugSegment.GeegaFlyingLeft
                 : PipeBugSegment.GeegaFlyingRight));
-
-        state.ArcCompleted = false;
     }
 
     /// <summary>Runs a Brinstar Pipe Bug's action.</summary>
@@ -186,13 +183,13 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
                 RunYellowPipeBugDelay(place, state);
                 return;
             case YellowPipeBugAction.Fly:
-                RunYellowPipeBugStraightFlight(place, state, samus, camera, state.FlightDirection);
+                RunYellowPipeBugStraightFlight(place, state, samus, camera, YellowPipeBugFacing(place));
                 return;
             case YellowPipeBugAction.ArcDipping:
-                RunYellowPipeBugArcDip(place, state, camera, state.FlightDirection);
+                RunYellowPipeBugArcDip(place, state, camera, YellowPipeBugFacing(place));
                 return;
             case YellowPipeBugAction.ArcClimbing:
-                RunYellowPipeBugArcClimb(place, state, camera, state.FlightDirection);
+                RunYellowPipeBugArcClimb(place, state, camera, YellowPipeBugFacing(place));
                 return;
             default:
                 throw new InvalidDataException(
@@ -437,7 +434,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus)
     {
         int deltaX = samus.Position.X.Whole - place.Position.X.Whole;
-        bool inFront = place.SpawnSettings<YellowPipeBugSpawnSettings>().Facing == HorizontalDirection.Left
+        bool inFront = YellowPipeBugFacing(place) == HorizontalDirection.Left
             ? deltaX is < 0 and >= -PipeBugDefinitions.YellowTriggerDistance
             : deltaX is >= 0 and < PipeBugDefinitions.YellowTriggerDistance;
         if (!inFront ||
@@ -457,8 +454,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         if (--state.EmergenceDelay != 0)
             return;
         place.AnimationClock.Restart();
-        state.FlightDirection = place.SpawnSettings<YellowPipeBugSpawnSettings>().Facing;
-        state.Playback = new AnimationPlayback<PipeBugSegment>(PipeBugAnimations.StartingWith(state.FlightDirection == HorizontalDirection.Left
+        state.Playback = new AnimationPlayback<PipeBugSegment>(PipeBugAnimations.StartingWith(YellowPipeBugFacing(place) == HorizontalDirection.Left
             ? PipeBugSegment.GeegaFlyingLeft
             : PipeBugSegment.GeegaFlyingRight), AnimationPlace.StartOfAnimation);
         state.Action = YellowPipeBugAction.Fly;
@@ -561,6 +557,13 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         place.Presence = place.Presence.With(EnemyPresence.Hidden);
         return true;
     }
+
+    /// <summary>
+    /// The way a yellow Pipe Bug faces, waits, flies and arcs (#2474): its placement's facing, which its flight never
+    /// changes.
+    /// </summary>
+    private static HorizontalDirection YellowPipeBugFacing(RoomEnemyPlace place) =>
+        place.SpawnSettings<YellowPipeBugSpawnSettings>().Facing;
 
     /// <summary>Moves the bug its spawn settings' flight speed toward <paramref name="direction"/>.</summary>
     private static void AddYellowPipeBugHorizontalVelocity(

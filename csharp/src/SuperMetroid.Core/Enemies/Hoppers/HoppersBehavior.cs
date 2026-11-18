@@ -63,13 +63,11 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
 
         var state = new HopperEnemyState(HopperAction.ChooseHopSize)
         {
-            ReadyToHop = false,
             Kind = kind,
-            Surface = place.SpawnSettings<HopperSpawnSettings>().Surface,
         };
         place.SetSpeciesState(state);
 
-        SetHopperAnimation(place, state, ReadHopperAnimation(state, HopperPhase.Landed));
+        SetHopperAnimation(place, state, ReadHopperAnimation(place, state, HopperPhase.Landed));
     }
 
     /// <summary>Runs the Hopper's current action.</summary>
@@ -144,14 +142,14 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Installs the jumping animation and starts the hop along the chosen heading.</summary>
     internal static void StartHopperJump(RoomEnemyPlace place, HopperEnemyState state)
     {
-        SetHopperAnimation(place, state, ReadHopperAnimation(state, HopperPhase.Jumping));
+        SetHopperAnimation(place, state, ReadHopperAnimation(place, state, HopperPhase.Jumping));
         state.Action = HopperAction.HoppingAway;
     }
 
     /// <summary>Starts the landed animation and returns the actor to its wait-for-hop action.</summary>
     internal static void LandHopper(RoomEnemyPlace place, HopperEnemyState state)
     {
-        SetHopperAnimation(place, state, ReadHopperAnimation(state, HopperPhase.Landed));
+        SetHopperAnimation(place, state, ReadHopperAnimation(place, state, HopperPhase.Landed));
         state.Action = HopperAction.WaitToHop;
     }
 
@@ -165,7 +163,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         // A floor hopper rises away from the floor; a ceiling hopper drops away from the ceiling.
-        VerticalDirection away = HopperSurfaces.AwayFrom(state.Surface);
+        VerticalDirection away = HopperSurfaces.AwayFrom(SurfaceOf(place));
         // A collision with the room beyond reverses X and turns the hop back without horizontal motion that update.
         if (_terrain.MoveEnemyVertically(level, place, state.YSpeedCurvePlace.Speed.Toward(away)))
         {
@@ -204,7 +202,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         // A floor hopper drops back to the floor; a ceiling hopper rises back to the ceiling.
-        VerticalDirection back = HopperSurfaces.AwayFrom(state.Surface).Reversed();
+        VerticalDirection back = HopperSurfaces.AwayFrom(SurfaceOf(place)).Reversed();
         if (_terrain.MoveEnemyVertically(level, place, state.YSpeedCurvePlace.Speed.Toward(back)))
         {
             state.Action = HopperAction.Landed;
@@ -230,9 +228,12 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         return true;
     }
 
+    /// <summary>The surface the hopper's placement mounts it on (#2474), which decides which way is up for its hops.</summary>
+    private static HopperSurface SurfaceOf(RoomEnemyPlace place) => place.SpawnSettings<HopperSpawnSettings>().Surface;
+
     /// <summary>Selects the animation for this kind on its surface in its jumping or landing half.</summary>
-    private static HopperSegment ReadHopperAnimation(HopperEnemyState state, HopperPhase phase) =>
-        HopperAnimationChoices.Animation(state.Kind, state.Surface, phase);
+    private static HopperSegment ReadHopperAnimation(RoomEnemyPlace place, HopperEnemyState state, HopperPhase phase) =>
+        HopperAnimationChoices.Animation(state.Kind, SurfaceOf(place), phase);
 
     /// <summary>Starts a new animation with a one-tick countdown.</summary>
     private static void SetHopperAnimation(

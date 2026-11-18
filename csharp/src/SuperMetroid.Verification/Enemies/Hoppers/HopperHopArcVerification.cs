@@ -37,6 +37,8 @@ internal static class HopperHopArcVerification
             place.Bind(EnemyDefinitionId.Sidehopper, place.Definition);
             place.Position = place.Position.WithWhole(new(64, 48));
             place.Radius = new(8, 8);
+            // The hopper reads its surface from its placement (#2474).
+            place.SetSpawnSettings(new HopperSpawnSettings(HopperSurface.Floor));
             // The hop's two halves are its two actions (#2473).
             var state = new HopperEnemyState(falling ? HopperAction.Returning : HopperAction.HoppingAway)
             {

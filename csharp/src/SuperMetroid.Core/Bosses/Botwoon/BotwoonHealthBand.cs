@@ -10,7 +10,7 @@ public sealed class BotwoonHealthBand
     /// <summary>Defines a band.</summary>
     /// <param name="healthBelow">The health his health must fall below for the band to show.</param>
     /// <param name="key">The band's name in its shade's name.</param>
-    internal BotwoonHealthBand(int healthBelow, string key)
+    internal BotwoonHealthBand(int healthBelow, [InstalledKey] string key)
     {
         HealthBelow = healthBelow;
         Key = key;

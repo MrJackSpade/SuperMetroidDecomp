@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.Title.Artwork;
@@ -9,8 +10,21 @@ namespace SuperMetroid.Core.Frontend.Title.Artwork;
 /// </summary>
 public static class TitleShades
 {
+    /// <summary>
+    /// The installed name of each colouring's shade (#2511), written out so renaming a colouring's identity never changes a
+    /// name on disk.
+    /// </summary>
+    private static readonly FrozenDictionary<TitleSpriteColouring, string> DrawnKeys =
+        new Dictionary<TitleSpriteColouring, string>
+        {
+            [TitleSpriteColouring.Text] = "TitleText",
+            [TitleSpriteColouring.Logo] = "TitleLogo",
+            [TitleSpriteColouring.Copyright] = "TitleCopyright",
+        }.ToFrozenDictionary();
+
     /// <summary>A title composition's parts drawn in <paramref name="colouring"/>.</summary>
-    public static PictureShade Drawn(TitleSpriteColouring colouring) => new($"Title{colouring}", 0);
+    /// <exception cref="ArgumentOutOfRangeException">The colouring has no installed name.</exception>
+    public static PictureShade Drawn(TitleSpriteColouring colouring) => new(Ensure.Listed(DrawnKeys, colouring), 0);
 
     /// <summary>
     /// The copyright's glyph colours as the skip to the title screen restores them, laid over the copyright's drawn shade

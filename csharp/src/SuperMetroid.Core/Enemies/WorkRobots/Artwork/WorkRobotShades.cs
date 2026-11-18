@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Enemies.WorkRobots.Artwork;
@@ -10,8 +11,22 @@ namespace SuperMetroid.Core.Enemies.WorkRobots.Artwork;
 internal static class WorkRobotShades
 {
     /// <summary>
+    /// The installed name of each glow place's shade (#2511), written out so renaming a place's identity never changes a name
+    /// on disk.
+    /// </summary>
+    private static readonly FrozenDictionary<WorkRobotGlowPlace, string> GlowKeys =
+        new Dictionary<WorkRobotGlowPlace, string>
+        {
+            [WorkRobotGlowPlace.AtFirstEnd] = "work-robot-glow-AtFirstEnd",
+            [WorkRobotGlowPlace.NearFirstEnd] = "work-robot-glow-NearFirstEnd",
+            [WorkRobotGlowPlace.NearFarEnd] = "work-robot-glow-NearFarEnd",
+            [WorkRobotGlowPlace.AtFarEnd] = "work-robot-glow-AtFarEnd",
+        }.ToFrozenDictionary();
+
+    /// <summary>
     /// The shade of glow place <paramref name="place"/> (#2393), named by the place (#2451), as Kraid's shades are named by
     /// his health band (#2297).
     /// </summary>
-    internal static PictureShade Glow(WorkRobotGlowPlace place) => new($"work-robot-glow-{place}", 0);
+    /// <exception cref="ArgumentOutOfRangeException">The place has no installed name.</exception>
+    internal static PictureShade Glow(WorkRobotGlowPlace place) => new(Ensure.Listed(GlowKeys, place), 0);
 }

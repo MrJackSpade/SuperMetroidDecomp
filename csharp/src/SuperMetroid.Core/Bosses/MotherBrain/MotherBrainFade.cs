@@ -14,7 +14,7 @@ public sealed class MotherBrainFade
     /// <param name="key">The name of its installed shades.</param>
     /// <param name="imageCount">The images it shows, in order.</param>
     /// <param name="imageUpdates">The updates each image shows for before the next, or before the fade is over.</param>
-    internal MotherBrainFade(string key, int imageCount, int imageUpdates)
+    internal MotherBrainFade([InstalledKey] string key, int imageCount, int imageUpdates)
     {
         Key = Ensure.NotNull(key);
         Images = [.. Enumerable.Range(0, Ensure.BetweenInclusive(1, int.MaxValue, imageCount)).Select(step => new MotherBrainFadeImage(this, step))];

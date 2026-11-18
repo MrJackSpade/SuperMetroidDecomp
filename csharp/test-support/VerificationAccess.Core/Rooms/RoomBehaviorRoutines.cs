@@ -7,9 +7,10 @@ namespace SuperMetroid.Core.Rooms;
 /// behaviour objects; production knows only the behaviours. Every offset whose routine returns at once decodes to the
 /// behaviour's <c>None</c>, as offset zero does, so the many return instructions the cartridge points at are one behaviour
 /// (#1787), and so do Draygon's room's setup, which acts only on the room's display (#1827), and the main the port does
-/// not run (#2287). The land and the ocean skies' setups are one behaviour, and so are the three Ceres haze setups, the
-/// arena's display change being what the import pictures for its states (#2485); an offset the map does not know is
-/// refused.
+/// not run (#2287). The land and the ocean skies' setups are one behaviour, and so are the ordinary Ceres rooms' and Ceres
+/// Ridley's arena's haze setups, the arena's display change being what the import pictures for its states (#2485); the
+/// elevator shaft's escape setup, which also seals the shaft's door, is its own (#2494). An offset the map does not know
+/// is refused.
 /// </summary>
 internal static class RoomBehaviorRoutines
 {
@@ -69,7 +70,7 @@ internal static class RoomBehaviorRoutines
         [0xc933] = RoomSetupBehavior.SetLightHorizontalRoomShaking,
         [0xc946] = RoomSetupBehavior.SetMediumHorizontalRoomShaking,
         [0xc953] = RoomSetupBehavior.MediumHorizontalShakingWithRisingAcid,
-        [0xc96e] = RoomSetupBehavior.SpawnCeresHaze,
+        [0xc96e] = RoomSetupBehavior.SealCeresElevatorDoorAndSpawnHaze,
         [0xc976] = RoomSetupBehavior.SpawnCeresHaze,
         [0xc97b] = RoomSetupBehavior.SpawnCeresHaze,
     };

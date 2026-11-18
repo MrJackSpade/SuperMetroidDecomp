@@ -292,6 +292,17 @@ public sealed class RoomLevelData
         WriteObjectTerrain(GridPlace(block), terrain, terrain.Appearance);
 
     /// <summary>
+    /// Replaces only one foreground block's collision kind, as a room object that rewrites nothing but a block's type does
+    /// (#2494): the block keeps its picture, what it shows, its behaviour and where it leads; the block must lie in the grid.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">The block is outside the grid.</exception>
+    internal void SetCollision(Position16<RoomBlocks> block, RoomCollisionType collision)
+    {
+        int place = GridPlace(block);
+        Terrain[place] = Terrain[place].WithCollision(collision);
+    }
+
+    /// <summary>
     /// Replaces the behaviour of one foreground block, which no longer leads where its earlier behaviour did; the block must
     /// lie in the grid.
     /// </summary>

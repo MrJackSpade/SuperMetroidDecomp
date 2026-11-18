@@ -8,6 +8,6 @@ internal enum BotwoonProjectileMotion
     /// <summary>Orients a Botwoon body segment, shows its hurt colours, and runs its death sequence.</summary>
     BodySegment,
 
-    /// <summary>Flies Botwoon's spit by its 1/65536-pixel vector until it leaves the camera.</summary>
+    /// <summary>Flies Botwoon's spit along its velocity until it leaves the camera.</summary>
     SpitFlying,
 }

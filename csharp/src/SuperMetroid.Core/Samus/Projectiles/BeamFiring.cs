@@ -451,9 +451,8 @@ internal sealed class BeamFiring
         projectile.Type = SamusProjectileType.Of(isSuperMissile ? SamusProjectileFamily.SuperMissile : SamusProjectileFamily.Missile);
         projectile.PicturedBeams = SamusBeamCombinations.Of(samus.EquippedBeams);
 
-        // The producer first calls the generic velocity setup with base speed zero.
-        // Ignition replaces that zero with one pixel per update during this same frame's input phase;
-        // keeping both calls makes the one-frame ignition transition directly inspectable.
+        // A missile's velocity starts from base speed zero; its ignition replaces that zero with one pixel per update
+        // later in this same update's input phase.
         InitializeDirectionalVelocity(samus.ProjectileInheritance, projectile, baseSpeed: SignedEightEight.Zero);
 
         // The selected HUD item chose the missile family above; the family selects the projectile kind.

@@ -76,7 +76,7 @@ public sealed class SamusSuitPickupState
     /// </summary>
     private SignedEightEight _lightBeamSpeed;
 
-    /// <summary>The colour the light beam adds inside its window.</summary>
+    /// <summary>The colour the light beam adds where it shines.</summary>
     public RgbColor BeamColor { get; private set; }
 
     /// <summary>Light-beam outline and progress produced by the most recent stage.</summary>
@@ -277,7 +277,7 @@ public sealed class SamusSuitPickupState
         Beam = new(SamusSuitPickupBeamShape.CurvedColumn, _lightBeamLeft, _lightBeamRight, 0);
 
         _lightBeamSpeed += SuitPickupBeamDefinitions.WideningAcceleration;
-        if (new SuitPickupBeamEdges(left, right) == SuitPickupBeamDefinitions.FullScreenWindow)
+        if (new SuitPickupBeamEdges(left, right) == SuitPickupBeamDefinitions.FullScreenEdges)
         {
             Stage = SamusSuitPickupStage.RevealSuit;
             // The speed halves, truncating its lowest fraction bit.
@@ -341,7 +341,7 @@ public sealed class SamusSuitPickupState
             Stage = SamusSuitPickupStage.Finish;
     }
 
-    /// <summary>Clears the light beam's window and colour, then releases Samus input after the last light-beam stage.</summary>
+    /// <summary>Clears the light beam's outline and colour, then releases Samus input after the last light-beam stage.</summary>
     private void Finish(SamusState samus)
     {
         Beam = SamusSuitPickupBeam.None;

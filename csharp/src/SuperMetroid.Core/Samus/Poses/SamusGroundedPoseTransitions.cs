@@ -187,7 +187,7 @@ internal static class SamusGroundedPoseTransitions
     /// <summary>
     /// Installs the pose selected when the wall check finds a block wall. This deliberately
     /// accepts standing/running/landing sources as well as an existing wall-stop source:
-    /// Can test a prospective run before that run is installed, and changing aim
+    /// the check can test a proposed run before that run is installed, and changing aim
     /// while still pressing into the wall proposes another running pose for the same probe.
     /// A moonwalk that proposes a run is probed too: the probe moves one pixel along the
     /// moonwalk pose's facing, but the wall pose is picked from the proposed run's
@@ -367,10 +367,9 @@ internal static class SamusGroundedPoseTransitions
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
 
-        // MovingRightNormalPose's new-pose-unless-buttons entry is the right-facing normal pose. Once the pose
-        // handling selects
-        // the SamusMomentumResponse.Stop response, the momentum cancellation cancels the boost state but deliberately leaves the
-        // numeric extra pair intact. The following standing movement pass consumes that
+        // The right-moving normal pose falls back to the right-facing normal pose when no button holds it. Once pose
+        // handling selects the SamusMomentumResponse.Stop response, cancelling the momentum ends the boost but leaves
+        // her extra run speed intact. The following standing movement pass consumes that
         // final no-base-speed displacement before clearing every X-motion value.
         samus.HorizontalSpeed.CancelRunningMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
         SamusPresentation.InitializeAnimation(samus);

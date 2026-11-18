@@ -350,11 +350,11 @@ public static class SamusAerialMovement
         // the floor. If a producer gives one a vertical direction, the turn movement immediately
         // executes the same X/simple-Y path as the ordinary jumping-turn records
         // (unaimed, aimed up, down and diagonally up). The pose name therefore cannot be used as an admission gate.
-        bool isTranslatedTurnPose = SamusPoseMetadata.IsAerialTurnPose(samus.Pose) ||
+        bool runsAerialTurn = SamusPoseMetadata.IsAerialTurnPose(samus.Pose) ||
             (movementType == SamusMovementType.TurningWhileJumping &&
              SamusPoseMetadata.IsAimedCrouchingTurnPose(samus.Pose));
         if (movementType is not (SamusMovementType.TurningWhileJumping or SamusMovementType.TurningWhileFalling) ||
-            !isTranslatedTurnPose)
+            !runsAerialTurn)
             throw new InvalidOperationException($"Aerial-turn movement requires a jumping or falling turn pose, not {samus.Pose}.");
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;

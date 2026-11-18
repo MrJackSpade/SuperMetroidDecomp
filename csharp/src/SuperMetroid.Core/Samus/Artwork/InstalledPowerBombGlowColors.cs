@@ -3,7 +3,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>
-/// The installed glow colours a Power Bomb, Crystal Flash or Ceres station explosion adds to the scene inside its window, one per
+/// The installed glow colours a Power Bomb, Crystal Flash or Ceres station explosion adds to the scene inside its oval, one per
 /// radius step of each sequence. The import resolves every entry; the explosion selects one by its radius and fades
 /// it in its own state.
 /// </summary>

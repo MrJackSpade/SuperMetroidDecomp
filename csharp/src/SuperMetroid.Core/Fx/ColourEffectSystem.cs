@@ -29,7 +29,7 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     /// its turn before the room's heat glow that publishes the heat phase, so the shimmer, which restarts her suit's pulse
     /// on that phase, follows a new phase one update late. The effects whose turns gameplay observes, the heat shimmer
     /// that burns Samus, the heat glow that paces it and the beacon that sounds, are all started by the room's effect as
-    /// the room loads and run until the room ends (<c>docs/compatibility-layer.md</c> gives the evidence).
+    /// the room loads and run until the room ends.
     /// </summary>
     internal readonly List<RoomColourEffect> effects = [];
     /// <summary>

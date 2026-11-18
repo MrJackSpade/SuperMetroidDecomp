@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// <summary>
 /// One of the authored colour runs of the Ridley encounters (#2316): a run of installed images their owner shows one at
 /// a time, as a fade, a reveal, a zoom's shades or a cycling alarm. Each image is a colouring of its own that the import
-/// reads from the game's tables, not a blend of the run's ends, so a run is its images rather than a typed blend.
+/// supplies, not a blend of the run's ends, so a run is its images rather than a typed blend.
 /// </summary>
 public sealed class RidleyFade
 {

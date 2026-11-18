@@ -72,7 +72,7 @@ internal static class IntroPoseHistoryVerification
             bool hurtExpiry = before is { KnockbackTimer: 0, KnockbackDirection: not 0 };
             // Publishing the display runs the draw passes whose side effects the scene keeps (projectile trails), as the
             // frontend publishes every frame; rasterising it is the host's work, and nothing here reads pixels.
-            _ = intro.CaptureTranslatedRenderSnapshot();
+            _ = intro.CaptureRenderSnapshot();
             intro.Step(tick % 47 == 0 ? ControllerButton.A : 0);
             audio.AdvanceFrame(default);
             SamusState? after = intro.CurrentFlashbackSamus;

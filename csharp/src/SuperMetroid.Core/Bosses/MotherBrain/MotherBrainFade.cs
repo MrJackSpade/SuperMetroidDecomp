@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
 /// One of the authored colour fades of Mother Brain's encounter (#2270): a run of installed images shown one a step, in
-/// order. Each image is a colouring of its own that the import reads from the game's tables, not a blend of the fade's
+/// order. Each image is a colouring of its own that the import supplies, not a blend of the fade's
 /// ends, so a fade is its images rather than a typed blend.
 /// </summary>
 public sealed class MotherBrainFade

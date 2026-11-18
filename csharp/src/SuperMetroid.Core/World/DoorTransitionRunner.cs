@@ -58,8 +58,7 @@ internal sealed class DoorTransitionRunner
     /// </summary>
     /// <remarks>
     /// The room load runs the door's setup between room-object
-    /// construction and the first visible destination viewport. These setups are shared
-    /// behaviour, not room-name patches: every door that names a setup receives the same
+    /// construction and the first visible destination viewport. Every door that names a setup receives the same
     /// screen changes and room event.
     /// </remarks>
     internal void RunDoorSetup(DoorDefinition door, DoorSetupRoom room)

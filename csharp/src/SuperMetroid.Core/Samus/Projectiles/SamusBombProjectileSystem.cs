@@ -142,11 +142,11 @@ public sealed class SamusBombProjectileSystem
         // Each update advances the blast with the liquid wave and statue descent, before gameplay reaches Samus's
         // frame. A power bomb spawned later in her input phase consequently receives
         // its first radius update on the next frame, not on its fuse-expiration frame.
-        bool crystalFlashWindowWasActive = PowerBombExplosion.Blast.Phase is
+        bool crystalFlashBlastWasRunning = PowerBombExplosion.Blast.Phase is
             PowerBombExplosionPhase.CrystalFlashExplosion or
             PowerBombExplosionPhase.CrystalFlashAfterglow;
         bool powerBombCleanup = PowerBombExplosion.StepFrame();
-        if (powerBombCleanup && !crystalFlashWindowWasActive)
+        if (powerBombCleanup && !crystalFlashBlastWasRunning)
         {
             // The explosion offers Crystal Flash only if Samus has remained on the exact bomb
             // origin. Failure (including moving one pixel) releases the power-bomb lock immediately.
@@ -158,7 +158,7 @@ public sealed class SamusBombProjectileSystem
                 PowerBombExplosion.ReleaseFlag();
         }
         // The explosion resumes Samus's sounds at the end of every cleanup, including the
-        // Crystal Flash window's own.
+        // Crystal Flash blast's own.
         if (powerBombCleanup)
             ResumeSoundsAfterPowerBombExplosion(samus, gameState);
     }
@@ -298,7 +298,7 @@ public sealed class SamusBombProjectileSystem
         foreach (SamusBomb bomb in InUpdateOrder)
         {
             // Bombs and Power Bombs show their animations' pictures; a Power Bomb's large flash is its blast's glowing
-            // window, drawn apart from them.
+            // oval, drawn apart from them.
             SamusProjectileFamily family = bomb.Type.Family;
             if (bomb.Playback is null ||
                 family is not (SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb))

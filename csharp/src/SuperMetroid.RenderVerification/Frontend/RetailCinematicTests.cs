@@ -29,7 +29,7 @@ internal static class RetailCinematicTests
             // Drawing owns projectile-trail side effects: keep separate live owners
             // and execute each producer once even on frames not sent to the GPU.
             var expected = legacy.Render();
-            var scene = captured.CaptureTranslatedRenderSnapshot();
+            var scene = captured.CaptureRenderSnapshot();
             bool changed = phases.Add(legacy.Phase);
             bool sample = changed || tick % 31 == 0;
             var packet = new DisplayPacket((ushort)tick, scene);

@@ -56,7 +56,7 @@ public sealed class SamusPowerBombExplosionState
     public void BeginCrystalFlash(Position16<RoomPixels> position)
     {
         // Crystal Flash releases the one-at-a-time Power Bomb lock and starts its own blast, which is the Power Bomb's:
-        // its centre, radii, speed, glow colour and window.
+        // its centre, radii, speed, glow colour and oval.
         IsArmed = false;
         Position = position;
         Blast.BeginCrystalFlash();

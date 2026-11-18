@@ -45,8 +45,7 @@ internal sealed class SamusShotPool
     /// holding its partner's place: the partner itself until a shinespark crash echo is released onto that place, when the
     /// echo ends instead. Replacing the partner has already ended it, so the echo is the only other shot ended there, and
     /// the spent particle's hit takes Samus's crash echo with it: a crash echo released while the attack runs takes the
-    /// last two places, the first of which the attack's last trailing particle holds (<c>docs/compatibility-layer.md</c>
-    /// gives the evidence).
+    /// last two places, the first of which the attack's last trailing particle holds.
     /// </summary>
     internal SamusProjectile HolderOfPlaceOf(SamusProjectile projectile) => _places[Ensure.NotNull(projectile).Place];
     /// <summary>The lowest place no projectile holds, which firing and the Super Missile's link take, or null when all are held.</summary>

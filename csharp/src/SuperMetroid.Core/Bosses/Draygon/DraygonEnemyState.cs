@@ -137,9 +137,9 @@ public sealed class DraygonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBo
 
 
     /// <summary>
-    /// Horizontal radius of the carry spiral in 1/65536 pixels; the vertical radius is a quarter of its whole pixels.
-    /// It is cleared by a grab and grows by one eighth of a pixel per spiral frame, so its whole part advances every
-    /// eighth frame; the spiral ends when the whole part reaches 160.
+    /// Horizontal radius of the carry spiral; the vertical radius is a quarter of its whole pixels. A grab clears it and
+    /// each spiral frame grows it by one eighth of a pixel, so its whole pixels grow every eighth frame; the spiral ends
+    /// when they reach 160.
     /// </summary>
     public SignedSixteenSixteen SpiralXRadius { get; internal set; }
 
@@ -190,11 +190,6 @@ public sealed class DraygonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBo
     /// The updates the current intro stage has run: zero when the opening delay starts and when the dance starts, and
     /// one more after each of that stage's updates. The opening delay ends at 256 and the dance at its duration.
     /// </summary>
-    /// <remarks>
-    /// This count and <see cref="BurialWait"/> are never read under each other's meaning (#1476): each intro stage ends by
-    /// zeroing the count, and the burial wait is loaded with its full length when the dying body reaches its burial point,
-    /// so they are held apart.
-    /// </remarks>
     public int IntroFrames
     {
         get;

@@ -158,8 +158,7 @@ public sealed class BabyMetroidCutsceneState
 
     /// <summary>
     /// Runs one update of the Baby's main AI: the phase first, then the unconditional enemy
-    /// velocity mover. Flash/colour presentation is intentionally kept
-    /// as inspectable state because it does not alter this entrance's coordinates.
+    /// velocity mover.
     /// Every Baby step reads the coordinates of Mother Brain's head, which the head's AI
     /// has already moved this frame; <paramref name="head"/> carries them.
     /// </summary>

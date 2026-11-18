@@ -392,7 +392,7 @@ internal sealed class SamusFramePhases
         _player.LastCrystalFlashMovement = null;
         // X-ray publishes its pose-input and beam results above because both run
         // outside the normal movement-type step. Its movement result is the
-        // directly inspectable frame returned by `StepMovement` below.
+        // frame `StepMovement` returns below.
         _player.LastDrainedSamusMovement = null;
         _player.LastDraygonEscape = null;
 
@@ -909,7 +909,7 @@ internal sealed class SamusFramePhases
         // X-ray's beam is not part of Samus's frame phases. Advance its explicit
         // setup/beam/deactivation state before the input phase so its deactivation can restore the
         // ordinary pose and her normal input and movement modes before this frame samples pose input. The
-        // reveal and the beam's window are the frame boundary's to show.
+        // reveal and the beam's cone are the frame boundary's to show.
         _player.LastXrayBeamStep = null;
         _player.LastDeathSequenceStep = null;
         if (samus.Xray.IsActive && !samus.DeathSequence.IsActive)
@@ -992,7 +992,7 @@ internal sealed class SamusFramePhases
         _player.ProspectiveSamusFallbackPose = null;
         _player.ProspectiveSamusWallCollisionPose = null;
 
-        // Zero input and an unmatched nonzero table chord both reach the input fallback; a matched
+        // Zero input and a nonzero chord no input transition matches both reach the input fallback; a matched
         // same-pose transition does not. The input phase chooses Samus's prospective pose, which takes effect
         // after movement and animation, so the choice is captured here.
         // A retained pose still chooses a pose transition whose change runs later.

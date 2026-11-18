@@ -29,7 +29,7 @@ public sealed class InstalledSamusBodyArtwork
 
     /// <summary>Validates a complete Samus body-art catalog.</summary>
     /// <param name="content">Where each pose's frames place the body, each pose's art origin and the catalogs it binds.</param>
-    /// <remarks>The import supplies every pose the game's tables describe; which poses those are is its knowledge.</remarks>
+    /// <remarks>The import supplies every pose the game draws; which poses those are is its knowledge.</remarks>
     /// <exception cref="InvalidDataException">
     /// A pose has no frame list, or the art origins do not cover exactly the poses with frames. An art origin is any number
     /// of pixels above or below Samus's center (#1627).

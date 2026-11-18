@@ -134,7 +134,7 @@ internal enum SamusPoseInputList
     FallingAimDownRight,
     /// <summary>The input-transition list of the falling aim down left poses.</summary>
     FallingAimDownLeft,
-    /// <summary>The unused input-transition list of the draygon held ball left poses.</summary>
+    /// <summary>The input-transition list of the left-facing ball pose Draygon holds Samus in.</summary>
     DraygonHeldBallLeft,
     /// <summary>The input-transition list of every left-facing pose Draygon's grab holds Samus in.</summary>
     DraygonGrabbedLeft,

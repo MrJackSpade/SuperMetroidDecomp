@@ -122,7 +122,7 @@ internal static class KraidArenaDefinitions
     /// </summary>
     internal const int MouthClosedHeadDelayUpdates = 90;
 
-    /// <summary>The updates Kraid waits before glowing his eye again while his mouth has reopens pending.</summary>
+    /// <summary>The updates Kraid waits before glowing his eye again while reopens of his mouth are pending.</summary>
     internal const int EyeGlowDelayUpdates = 64;
 
     /// <summary>The steps of Kraid's hurt flash after a shot into his mouth; his hurt colours show on the odd ones.</summary>

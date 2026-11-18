@@ -32,7 +32,7 @@ internal static class XrayScopeDefinitionsVerification
         }
 
         AssertEqual(RotationAngle.StepsPerTurn / 2 + 1,
-            XrayScopeDefinitions.Window.AbsoluteTangentWordCount,
+            XrayScopeDefinitions.Cone.AbsoluteTangentWordCount,
             "X-ray absolute tangent table includes both half-turn endpoints");
         AssertEqual(XrayScopeDefinitionsPaletteConstants.SamusCgramIndex + 4,
             XrayScopeDefinitionsPaletteConstants.VisorCgramIndex,
@@ -51,8 +51,8 @@ internal static class XrayScopeDefinitionsVerification
             "X-ray visor palette words");
         TouchRange(bus, XrayScopeDefinitions.VisorShades.NormalSuitPointers,
             3 * sizeof(ushort), "X-ray normal-suit palette pointers");
-        TouchRange(bus, XrayScopeDefinitions.Window.AbsoluteTangentTable,
-            XrayScopeDefinitions.Window.AbsoluteTangentWordCount * sizeof(ushort),
+        TouchRange(bus, XrayScopeDefinitions.Cone.AbsoluteTangentTable,
+            XrayScopeDefinitions.Cone.AbsoluteTangentWordCount * sizeof(ushort),
             "X-ray absolute tangent table");
 
         Console.WriteLine(

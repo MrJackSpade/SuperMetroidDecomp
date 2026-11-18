@@ -63,7 +63,7 @@ internal static class ColorWindowSmokeTests
         // apexes a cone takes, whose offsets are the largest its whole-number test meets. Every device lights exactly
         // the pixels each cone's rule covers.
         var cones = new List<WindowCone>();
-        TrigonometryAngle widest = XrayScopeDefinitions.Window.WidestHalfWidth.ToTrigonometryAngle();
+        TrigonometryAngle widest = XrayScopeDefinitions.Cone.WidestHalfWidth.ToTrigonometryAngle();
         for (TrigonometryAngle halfWidth = TrigonometryAngle.Zero; halfWidth <= widest; halfWidth = halfWidth.TurnedBySteps(1))
         for (int step = 0; step < RotationAngle.StepsPerTurn; step++)
         {

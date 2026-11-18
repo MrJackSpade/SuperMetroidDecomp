@@ -82,7 +82,7 @@ internal static class KraidRandomDefinitions
     internal const int RisingRockLeftExtraPixels = 1;
 
     /// <summary>
-    /// A rising rock's horizontal speed in sixteenths of a pixel an update, 0 through 63, which the game reads without shifting it down.
+    /// A rising rock's horizontal speed in sixteenths of a pixel an update, 0 through 63.
     /// </summary>
     internal static readonly RandomSampleField RisingRockXSpeedSixteenths = new(4, 6);
 }

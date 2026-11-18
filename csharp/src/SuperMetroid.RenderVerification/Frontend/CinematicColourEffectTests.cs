@@ -144,7 +144,7 @@ internal static class CinematicColourEffectTests
                 start = update;
             if (start is { } from && FightSamples.Contains(update - from))
             {
-                Verify(device, renderer, update, intro.CaptureTranslatedRenderSnapshot(), intro.Render(), $"fight lights, {update - from} updates in");
+                Verify(device, renderer, update, intro.CaptureRenderSnapshot(), intro.Render(), $"fight lights, {update - from} updates in");
                 checks++;
             }
         }

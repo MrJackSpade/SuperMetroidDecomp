@@ -117,8 +117,8 @@ public sealed class SamusDraygonGrabbedState
     /// <summary>
     /// Runs <see cref="SamusMovementType.DraygonHeld"/> movement for every pose of that movement type: the grabbed poses,
     /// whose position enemy AI has already supplied through <see cref="ApplyOwnerPosition"/>, and the Draygon-held ball the
-    /// Baby's Hyper Beam freeze can install without Draygon (#1535), which therefore stays where it is. Its entire normal
-    /// movement mode clears one result.
+    /// Baby's Hyper Beam freeze can install without Draygon (#1535), which therefore stays where it is. Her movement only
+    /// clears her vertical collision with a solid.
     /// </summary>
     public static void StepMovement(SamusState samus)
     {

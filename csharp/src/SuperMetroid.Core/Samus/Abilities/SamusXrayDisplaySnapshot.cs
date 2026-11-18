@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>
 /// Value-only X-ray display input sampled after the update: the cone effect's warm-up, beam
-/// phase and closing, and the cone geometry its window table is built from. Facing and crouch are resolved
+/// phase and closing, and the cone geometry it is drawn from. Facing and crouch are resolved
 /// from pose metadata here, so rendering needs no pose definition access.
 /// </summary>
 /// <param name="FinishedThisFrame">Whether this logic frame's beam step was its last, which still owns this displayed frame.</param>

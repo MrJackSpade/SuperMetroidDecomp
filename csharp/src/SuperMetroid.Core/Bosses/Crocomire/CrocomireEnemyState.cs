@@ -6,17 +6,9 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>Crocomire's body state.</summary>
 /// <remarks>
-/// The game keeps the queued steps, the death-phase delay, the rumble step and the vertical acceleration in
-/// one value; the reaction timer, the vertical speed and the skeleton speed's fraction in a second; and the
-/// projectile counter, the carried vertical fraction and the skeleton speed's whole pixels in a third (#1476). Each is held on
-/// its own here because no phase's behaviour depends on what another meaning left behind: every phase starts its
-/// values (the bridge collapse and each melt pass start the sink from rest, the pause loads its delay, the rumble its
-/// first step, the skeleton its speed) except where one phase hands the same meaning to the next (a hop's sink
-/// continues the rise's speed and acceleration). The one value a phase reads under another meaning is a rise's
-/// acceleration, which starts as the death-phase delay the sink left: zero after a submerged pause, which counts its
-/// delay out, but forty-eight 65536ths of a pixel an update an update after a melt, which skips the pause. A rise reads
-/// only the acceleration's whole 256ths, which that leftover never reaches before the acceleration's ceiling discards it,
-/// and every melt's rise is followed by a new sink from rest, so a rise here starts from no acceleration.
+/// Every phase starts its own values: the bridge collapse and each melt pass start the sink from rest, the pause loads
+/// its delay, the rumble its first step and the skeleton its speed. Only a hop's sink carries on from the phase before
+/// it, continuing the rise's speed and acceleration. A rise starts from no acceleration (#1476).
 /// </remarks>
 public sealed class CrocomireEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing
 {

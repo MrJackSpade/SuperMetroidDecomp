@@ -128,9 +128,8 @@ internal static class SamusPoseMetadata
         SamusPoseId.ForwardFacingPowerSuitPose or SamusPoseId.ForwardFacingSuitedPose;
 
     /// <summary>
-    /// Selects the suit's front-view pose as facing forward
-    /// and the Zebes start setup do. The Gravity and Varia suits
-    /// have equal precedence: either selects the shared suited pose <see cref="SamusPoseId.ForwardFacingSuitedPose"/>.
+    /// Selects the suit's front-view pose at its first frame, as facing forward and the Zebes start setup both do. The
+    /// Gravity and Varia suits have equal precedence: either selects the shared suited pose <see cref="SamusPoseId.ForwardFacingSuitedPose"/>.
     /// </summary>
     private static void SelectForwardFacingPose(SamusState samus)
     {
@@ -425,7 +424,7 @@ internal static class SamusPoseMetadata
     public static bool IsLeftToRightGroundTurnPose(SamusPoseId pose) => IsRightToLeftGroundTurnPose(SamusPoseMirror.Of(pose));
 
     /// <summary>
-    /// True for a authored standing turn interrupted by an ordinary Jump edge.
+    /// True when a Jump edge turns a standing turn into the spin jump or the neutral jump transition.
     /// </summary>
     /// <remarks>
     /// All eight turning-on-ground standing turn poses consult the same
@@ -593,7 +592,7 @@ internal static class SamusPoseMetadata
     /// <remarks>
     /// Standing and crouching reject the request only while time is frozen. Running,
     /// falling, moonwalking, wall-jump, wall-stop, and grapple families first select the
-    /// ordinary forward-jump body. Ball, unused glitch-ball, and knockback-family
+    /// ordinary forward-jump body. Ball, glitch-ball, and knockback-family
     /// entries retain their current pose. Jump/turn/transition/damage-boost and actor-owned
     /// families turn it down and clear the published direction.
     /// </remarks>
@@ -767,20 +766,20 @@ internal static class SamusPoseMetadata
     /// aim, horizontal-fire, or moving-forward transition seam.
     /// </summary>
     /// <remarks>
-    /// Deliberately share one set of input transitions among the neutral jump, the forward
-    /// jump, and the non-compact aimed jump bodies. In particular, holding Jump after
+    /// The neutral jump, the forward jump and the non-compact aimed jump bodies share one set of input
+    /// transitions. In particular, holding Jump after
     /// releasing Right/Left turns the forward jump into the neutral jump. Both endpoints therefore take part in this
     /// classification: entering and leaving the forward body run the same pose and animation setup and keep the
     /// live velocity.
     /// </remarks>
     public static bool IsSameFacingAerialAimFireOrForwardTransition(SamusPoseId source, SamusPoseId target)
     {
-        bool hasTranslatedBodyChange =
+        bool changesAimedOrForwardBody =
             IsAimedAerialPose(source) || IsAimedAerialPose(target) ||
             IsGunExtendedPose(source) || IsGunExtendedPose(target) ||
             IsForwardMovingNormalJumpPose(source) ||
             IsForwardMovingNormalJumpPose(target);
-        if (!hasTranslatedBodyChange)
+        if (!changesAimedOrForwardBody)
             return false;
 
         return

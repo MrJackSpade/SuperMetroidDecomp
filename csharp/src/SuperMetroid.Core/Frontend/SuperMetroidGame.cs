@@ -166,7 +166,7 @@ public sealed class SuperMetroidGame
             Session.Runtime.RunningGameState = Session.GameState;
         Phases.Of(Session.GameState).Step(controllerInput);
 
-        Session.CollectTranslatedAudioRequests();
+        Session.CollectFrontendAudioRequests();
         // Opening a message box cancels sound effects before the box's first update.
         // Publish earlier gameplay requests first, then cancel once at this entry
         // boundary; repeating it while the box is shown would cancel the message's

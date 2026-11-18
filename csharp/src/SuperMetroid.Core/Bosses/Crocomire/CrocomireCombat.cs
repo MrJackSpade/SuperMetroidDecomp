@@ -208,8 +208,7 @@ internal sealed class CrocomireCombat
         }
 
         _collision.ResolveNormalEnemyTouch(context);
-        // A claw's touch also pushes Samus back. The game latches the touch too, but only its unused claw attack
-        // reads that latch, so it is not kept.
+        // A claw's touch also pushes Samus back.
         if (context.HitboxTouch == CrocomireReactions.ClawTouch)
             context.Samus.Kinematics.ExtraDisplacement = context.Samus.Kinematics.ExtraDisplacement.WithWholeX(CrocomireFightDefinitions.ClawPush);
     }
@@ -253,8 +252,7 @@ internal sealed class CrocomireCombat
 
     /// <summary>
     /// The frames a mouth shot holds Crocomire's current animation frame (#2182): an uncharged beam holds it this long, and a
-    /// shot that starts a damage reaction adds this to its hold, whatever his fight is doing: the game keeps one value for
-    /// the projectile attack and one for every other fight phase, and both are this.
+    /// shot that starts a damage reaction adds this to its hold, whatever his fight is doing.
     /// </summary>
     internal const int MouthShotReactionHoldFrames = 8;
 

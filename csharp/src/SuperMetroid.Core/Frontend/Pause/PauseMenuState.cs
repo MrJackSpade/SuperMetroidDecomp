@@ -477,10 +477,10 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             return;
         if (handlingCategory == PauseEquipmentCategory.Beams && samus.CollectedBeams == SamusBeamFlags.None)
             return;
-        // Moving into the reserve rows on the frame A is pressed toggles with the reserve category, whose equipment and
-        // label tables hold no entries. On the first row the game repaints a fixed run of projectile values, of which
-        // play reads only the last spread bomb's vertical speed (#1505); it changes no equipment or label. The other
-        // rows take their tables from scratch left by unrelated code, which only full memory emulation could reproduce,
+        // Moving into the reserve rows on the frame A is pressed toggles with the reserve category, which lists no
+        // equipment and no labels. On the first row the game repaints a fixed run of projectile values, of which play
+        // reads only the last spread bomb's vertical speed (#1505); it changes no equipment or label. What the other
+        // rows change depends on values unrelated code left behind, which only full memory emulation could reproduce,
         // so they stay rejected under the emulation scope limit (#1500).
         if (SelectedControl is not PauseUpgradeControl target)
         {

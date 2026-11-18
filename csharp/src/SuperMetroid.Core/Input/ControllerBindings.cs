@@ -29,8 +29,8 @@ public readonly record struct ControllerBindings(
     /// The new-save bindings are
     /// Shoot=X, Jump=A, Dash=B,
     /// ItemSelect=Select, ItemCancel=Y, AimUp=R, and
-    /// AimDown=L. These are named action-to-button cases; the constructor and the
-    /// <see cref="ControllerAction"/> indexer already express that mapping without a stored lookup table.
+    /// AimDown=L. These are named action-to-button cases, read through the constructor and the
+    /// <see cref="ControllerAction"/> indexer.
     /// </remarks>
     public static ControllerBindings Default => new(
         Shoot: ControllerButton.X,

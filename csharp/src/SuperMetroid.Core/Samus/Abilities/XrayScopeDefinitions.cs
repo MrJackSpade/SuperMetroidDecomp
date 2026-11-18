@@ -3,10 +3,10 @@ using SuperMetroid.Core.Samus.Poses;
 
 namespace SuperMetroid.Core.Samus.Abilities;
 
-/// <summary>The X-ray Scope's definitions: its visor cycle, animation angle bands and window growth (#1411).</summary>
+/// <summary>The X-ray Scope's definitions: its visor cycle, animation angle bands and cone growth (#1411).</summary>
 /// <remarks>
 /// The room state's X-ray reveal choice remains room-authored data. This catalog owns the shared
-/// visor shades, animation angle bands and cone-window units used by every room.
+/// visor shades, animation angle bands and cone widths used by every room.
 /// </remarks>
 public static class XrayScopeDefinitions
 {
@@ -69,7 +69,7 @@ public static class XrayScopeDefinitions
     }
 
     /// <summary>How the X-ray scope's cone widens.</summary>
-    public static class Window
+    public static class Cone
     {
         /// <summary>The widening speed's growth each widening update: eight 256ths of a step.</summary>
         public static readonly RotationAngle WideningStep = RotationAngle.FromSteps(0, 8);

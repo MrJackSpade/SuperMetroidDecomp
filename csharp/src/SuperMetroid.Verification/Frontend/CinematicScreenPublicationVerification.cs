@@ -101,7 +101,7 @@ internal static class CinematicScreenPublicationVerification
         restoredIntro.BindFixtureIntroArtwork(InstalledFixtures.IntroArtwork);
         AssertTrue(image.AsSpan().SequenceEqual(restoredIntro.ShownVram()), "a restored intro shows the same characters, blanked glyphs and tilemaps");
         // The intro publishes its faded backdrop and its pictures' shading, not a palette (#1512).
-        LayeredScene introFrame = intro.CaptureTranslatedRenderSnapshot(), restoredFrame = restoredIntro.CaptureTranslatedRenderSnapshot();
+        LayeredScene introFrame = intro.CaptureRenderSnapshot(), restoredFrame = restoredIntro.CaptureRenderSnapshot();
         AssertEqual(introFrame.Paint.Backdrop, restoredFrame.Paint.Backdrop, "a restored intro keeps its backdrop");
         AssertTrue(PlacedSpritePart.Of(introFrame.SpriteDraws).SequenceEqual(PlacedSpritePart.Of(restoredFrame.SpriteDraws)),
             "a restored intro places the same sprite entries");

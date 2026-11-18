@@ -37,9 +37,8 @@ internal static class DraygonCollisionDefinitions
     internal static readonly ImmutableArray<EnemyCollisionComponent> FacingRightBodyComponents = [new(Offset16<RoomPixels>.Zero, FacingRightBodyHitboxes)];
 
     /// <summary>
-    /// Each Draygon frame's collision components (#1937). The first eight body-layer frames and the final one of each facing
-    /// have that facing's one zero-offset body component; the body-layer frames between and every ordinary sprite frame
-    /// cannot be hit or touched and have none.
+    /// Each Draygon frame's collision components (#1937). His body's four jaw frames and his limp arm's four claw frames
+    /// have that facing's one zero-offset body component; his arms, eye and tail cannot be hit or touched and have none.
     /// </summary>
     internal static readonly Dictionary<EnemyFrameId, ImmutableArray<EnemyCollisionComponent>> FrameComponents = new()
     {

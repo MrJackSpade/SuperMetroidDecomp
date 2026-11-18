@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Samus;
 
-/// <summary>Inspectable publication from one reserve-refill update.</summary>
+/// <summary>What one update of the reserve tanks' automatic refill did: whether it asked for the refill sound and whether it finished.</summary>
 [IndependentFlag("independent outcomes of one recovery step: a refill sound, and completion")]
 public readonly record struct SamusReserveAutoRecoveryStep(
     bool RefillSoundRequested,

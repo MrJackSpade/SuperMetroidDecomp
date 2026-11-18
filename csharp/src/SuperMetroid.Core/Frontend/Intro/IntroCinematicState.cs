@@ -1190,7 +1190,7 @@ public sealed class IntroCinematicState : IFrontendScreen
             : crossfade.SceneShading;
 
     /// <summary>Prepares the current display once, holding everything the display needs to draw it.</summary>
-    internal LayeredScene CaptureTranslatedRenderSnapshot()
+    internal LayeredScene CaptureRenderSnapshot()
     {
         if (CurrentCeresFlight is not null && Phase == IntroCinematicPhase.CeresFlight)
             return CurrentCeresFlight.CaptureRenderSnapshot();

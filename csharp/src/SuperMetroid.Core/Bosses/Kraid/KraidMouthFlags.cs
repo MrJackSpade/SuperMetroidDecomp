@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
-/// Kraid's mouth shot latches. The game sets, clears and tests each latch on its own. The pending reopen count
-/// the game keeps with them is <see cref="KraidEnemyState.PendingMouthReopens"/>.
+/// Kraid's mouth shot latches, each set, cleared and tested on its own. The mouth's pending reopens are
+/// <see cref="KraidEnemyState.PendingMouthReopens"/>.
 /// </summary>
 [Flags]
 public enum KraidMouthFlags

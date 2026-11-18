@@ -7,6 +7,9 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 internal sealed class IceSpecialAttackSpread : SpecialAttackParticleBehavior
 {
     /// <inheritdoc/>
-    private protected override SoundEffectId? Step(SamusShotUpdate update) =>
-        update.Shots.Combos.StepIceCombo(update.Samus, update.Shot, update.SharedProjectiles, update.Camera);
+    private protected override SoundEffectId? Step(SamusShotUpdate update)
+    {
+        update.Shots.Combos.StepIceSpread(update.Samus, update.Shot, update.SharedProjectiles, update.Camera);
+        return null;
+    }
 }

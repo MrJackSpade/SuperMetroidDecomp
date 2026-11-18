@@ -166,7 +166,7 @@ internal static void VerifySamusRenderingSlice()
     // The verified ordinary transition applies pose $09 after movement/animation and before
     // drawing. Its movement type one uses default position math and always draws both halves.
     SeedPoseNineSamusData(bus);
-    SamusGroundedPoseTransitions.ApplyStandingRightToRunningRight(samus);
+    SamusGroundedPoseTransitions.ApplyStandingToRunning(samus);
     AssertEqual(SamusPoseId.MovingRightNormalPose, samus.Pose, "standing-right transition applies running-right pose");
     AssertEqual(0, samus.AnimationNumber, "running transition resets animation frame");
     AssertEqual(2, samus.AnimationFrameTimer.RawValue, "running pose first delay byte");
@@ -182,7 +182,7 @@ internal static void VerifySamusRenderingSlice()
         "running pose's frame-zero picture is composed of its top and bottom halves");
     AssertEqual(2, oam.LastFinalizedSpriteCount, "synthetic running pose draws top and bottom pieces");
 
-    SamusGroundedPoseTransitions.ApplyRunningRightToStandingRight(samus);
+    SamusGroundedPoseTransitions.ApplyRunningToStanding(samus);
     AssertEqual(SamusPoseId.FacingRightNormalPose, samus.Pose, "running no-button fallback applies standing-right pose");
     AssertEqual(0, samus.AnimationNumber, "standing fallback resets animation frame");
     AssertEqual(10, samus.AnimationFrameTimer.RawValue, "standing fallback reloads frame-zero delay");

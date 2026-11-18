@@ -200,7 +200,6 @@ internal sealed class BeamFiring
         return new(SamusSound.Silence, Priority: SoundRequestPriority.Essential);
     }
 
-
     /// <summary>Attempts allocation and muzzle setup for an ordinary or charged beam shot.</summary>
     internal BeamShot? TryFireBeam(
         RoomLevelData level,

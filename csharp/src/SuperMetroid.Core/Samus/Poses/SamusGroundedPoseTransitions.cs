@@ -327,73 +327,33 @@ internal static class SamusGroundedPoseTransitions
     }
 
     /// <summary>
-    /// Applies the ordinary transition from standing-right <see cref="SamusPoseId.FacingRightNormalPose"/> to running-
-    /// right <see cref="SamusPoseId.MovingRightNormalPose"/> at the end-of-frame transition seam.
+    /// Applies the ordinary grounded start-moving transition from the normal standing pose,
+    /// <see cref="SamusPoseId.FacingRightNormalPose"/> or <see cref="SamusPoseId.FacingLeftNormalPose"/>, to running the
+    /// same way.
     /// </summary>
-    /// <remarks>
-    /// This is intentionally not a general pose setter. For this transition, the momentum
-    /// response is <see cref="SamusMomentumResponse.None"/>, both poses have radius 21, and <see cref="SamusPoseId.MovingRightNormalPose"/> uses the
-    /// already-supported default render/picture paths. Other transitions can change momentum,
-    /// align radii, invoke collision, or run specialized movement and remain rejected.
-    /// </remarks>
-    public static void ApplyStandingRightToRunningRight(SamusState samus)
-    {
-        if (samus.Pose != SamusPoseId.FacingRightNormalPose)
-        {
-            throw new InvalidOperationException(
-                $"Standing-right to running-right transition requires the right-facing normal pose, not {samus.Pose}.");
-        }
-
-        samus.Pose = SamusPoseId.MovingRightNormalPose;
-        SamusPoseMetadata.RefreshCollisionRadii(samus);
-
-        // The pose setup resets animation frame zero and loads MovingRightNormalPose's first
-        // delay after the pose refresh updates direction/movement metadata.
-        SamusPresentation.InitializeAnimation(samus);
-    }
+    public static void ApplyStandingToRunning(SamusState samus) =>
+        ApplySimpleGroundedPoseChange(samus, FacingHerWay(samus, SamusPoseId.FacingRightNormalPose),
+            FacingHerWay(samus, SamusPoseId.MovingRightNormalPose), "Standing to running");
 
     /// <summary>
-    /// Applies the no-button fallback from running-right <see cref="SamusPoseId.MovingRightNormalPose"/> to standing-right
-    /// <see cref="SamusPoseId.FacingRightNormalPose"/> after ordinary running momentum has decelerated to zero.
+    /// Applies the no-button fallback from the normal running pose, <see cref="SamusPoseId.MovingRightNormalPose"/> or
+    /// <see cref="SamusPoseId.MovingLeftNormalPose"/>, to standing the same way, after ordinary running momentum has
+    /// decelerated to zero.
     /// </summary>
-    public static void ApplyRunningRightToStandingRight(SamusState samus)
+    public static void ApplyRunningToStanding(SamusState samus)
     {
-        if (samus.Pose != SamusPoseId.MovingRightNormalPose)
-        {
-            throw new InvalidOperationException(
-                $"Running-right to standing-right transition requires the right-moving normal pose, not {samus.Pose}.");
-        }
+        ApplySimpleGroundedPoseChange(samus, FacingHerWay(samus, SamusPoseId.MovingRightNormalPose),
+            FacingHerWay(samus, SamusPoseId.FacingRightNormalPose), "Running to standing");
 
-        samus.Pose = SamusPoseId.FacingRightNormalPose;
-        SamusPoseMetadata.RefreshCollisionRadii(samus);
-
-        // The right-moving normal pose falls back to the right-facing normal pose when no button holds it. Once pose
-        // handling selects the SamusMomentumResponse.Stop response, cancelling the momentum ends the boost but leaves
-        // her extra run speed intact. The following standing movement pass consumes that
-        // final no-base-speed displacement before clearing every X-motion value.
-        samus.HorizontalSpeed.CancelRunningMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
-        SamusPresentation.InitializeAnimation(samus);
-    }
-
-    /// <summary>Applies the ordinary grounded start-moving-left transition from left-facing standing.</summary>
-    public static void ApplyStandingLeftToRunningLeft(SamusState samus) =>
-        ApplySimpleGroundedPoseChange(samus,
-            SamusPoseId.FacingLeftNormalPose,
-            SamusPoseId.MovingLeftNormalPose,
-            "Standing-left to running-left");
-
-    /// <summary>Applies the no-button grounded fallback from moving left to standing left.</summary>
-    public static void ApplyRunningLeftToStandingLeft(SamusState samus)
-    {
-        ApplySimpleGroundedPoseChange(samus,
-            SamusPoseId.MovingLeftNormalPose,
-            SamusPoseId.FacingLeftNormalPose,
-            "Running-left to standing-left");
-
-        // This mirrors moving right to standing right: the stop response (SamusMomentumResponse.Stop) cancels
-        // the running momentum, and the extra run speed stays for standing's movement pass to consume before it clears.
+        // The stop response (SamusMomentumResponse.Stop) cancels the running momentum, which ends the boost but leaves her
+        // extra run speed intact: the following standing movement pass consumes that final no-base-speed displacement
+        // before clearing every X-motion value.
         samus.HorizontalSpeed.CancelRunningMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
     }
+
+    /// <summary>The right-facing pose <paramref name="rightFacing"/>, mirrored when Samus faces left.</summary>
+    private static SamusPoseId FacingHerWay(SamusState samus, SamusPoseId rightFacing) =>
+        SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left) ? SamusPoseMirror.Of(rightFacing) : rightFacing;
 
     /// <summary>
     /// Applies the shared standing/landing input-transition route from any right-facing

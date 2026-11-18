@@ -137,7 +137,7 @@ public sealed class SamusBombProjectileSystem
     public void AdvancePowerBombExplosion(
         SamusState samus,
         GameplayAction controllerInput,
-        SuperMetroid.Core.Progression.SuperMetroidGameState gameState = SuperMetroid.Core.Progression.SuperMetroidGameState.MainGameplay)
+        SuperMetroidGameState gameState = SuperMetroidGameState.MainGameplay)
     {
         Ensure.NotNull(samus);
         // Each update advances the blast with the liquid wave and statue descent, before gameplay reaches Samus's
@@ -344,9 +344,9 @@ public sealed class SamusBombProjectileSystem
     /// </summary>
     private static void ResumeSoundsAfterPowerBombExplosion(
         SamusState samus,
-        SuperMetroid.Core.Progression.SuperMetroidGameState gameState)
+        SuperMetroidGameState gameState)
     {
-        if (gameState != SuperMetroid.Core.Progression.SuperMetroidGameState.MainGameplay)
+        if (gameState != SuperMetroidGameState.MainGameplay)
             return;
         if (SamusPoseMetadata.ReadMovementType(samus) is SamusMovementType.SpinJumping or SamusMovementType.WallJumping)
         {
@@ -782,11 +782,11 @@ public sealed class SamusBombProjectileSystem
         int left = RoomGridConversions.PixelToBlock(Math.Max(0, explosion.X - horizontalRadius));
         int right = Math.Min(
             level.Size.X - 1,
-            RoomGridConversions.PixelToBlock(Math.Min(ushort.MaxValue, explosion.X + horizontalRadius)));
+            RoomGridConversions.PixelToBlock(Math.Min(RoomGridConversions.LastPixel, explosion.X + horizontalRadius)));
         int top = RoomGridConversions.PixelToBlock(Math.Max(0, explosion.Y - verticalRadius));
         int bottom = Math.Min(
             level.Size.Y - 1,
-            RoomGridConversions.PixelToBlock(Math.Min(ushort.MaxValue, explosion.Y + verticalRadius)));
+            RoomGridConversions.PixelToBlock(Math.Min(RoomGridConversions.LastPixel, explosion.Y + verticalRadius)));
 
         // The traversal visits all four inclusive edges in this exact order. Corners are
         // intentionally visited twice; synchronous room-object terrain mutation means the second

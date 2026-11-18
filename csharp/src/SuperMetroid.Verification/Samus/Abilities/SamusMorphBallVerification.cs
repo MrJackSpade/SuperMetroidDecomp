@@ -176,7 +176,7 @@ floor, SamusPoseId.MorphingTransitionLeftPose, frameCounter: 0, roomObjects: Sam
     }
     AssertEqual(SamusPoseId.MorphBallGroundRightPose, (samus.PendingTransitionalPose ?? throw new InvalidOperationException("Verification requires samus.PendingTransitionalPose.")),
         "F9 selects no-spring grounded endpoint");
-    AssertTrue(SamusPoseTransitions.ApplyPendingVerifiedAnimationTransition(samus), "grounded F9 endpoint applies");
+    AssertTrue(SamusPoseTransitions.ApplyPendingAnimationTransition(samus), "grounded F9 endpoint applies");
     AssertEqual(SamusPoseId.MorphBallGroundRightPose, samus.Pose, "morph entry reaches stable ball");
 
     // Changing to the moving record preserves the shared rolling frame/timer. Movement
@@ -528,7 +528,7 @@ floor, SamusPoseId.MorphingTransitionRightPose, frameCounter: 0, roomObjects: Sa
     }
     AssertEqual(SamusPoseId.SpringBallGroundRightPose, (spring.PendingTransitionalPose ?? throw new InvalidOperationException("Verification requires spring.PendingTransitionalPose.")),
         "F9 equipped endpoint selects Spring Ball ground");
-    AssertTrue(SamusPoseTransitions.ApplyPendingVerifiedAnimationTransition(spring), "Spring Ball F9 applies");
+    AssertTrue(SamusPoseTransitions.ApplyPendingAnimationTransition(spring), "Spring Ball F9 applies");
     SamusPosturePoseTransitions.ApplyMorphBallPoseChange(spring, SamusPoseId.SpringBallMovingRightPose);
     MorphBallMovementResult springRoll = SamusMorphBallMovement.StepGrounded(
 floor, spring, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);

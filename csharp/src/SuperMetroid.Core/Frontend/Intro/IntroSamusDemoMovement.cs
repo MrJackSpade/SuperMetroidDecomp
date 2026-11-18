@@ -142,14 +142,14 @@ internal static class IntroSamusDemoMovement
         if (sourcePose == SamusPoseId.FacingLeftNormalPose &&
             targetPose == SamusPoseId.MovingLeftNormalPose)
         {
-            SamusGroundedPoseTransitions.ApplyStandingLeftToRunningLeft(samus);
+            SamusGroundedPoseTransitions.ApplyStandingToRunning(samus);
             return;
         }
 
         if (sourcePose == SamusPoseId.MovingLeftNormalPose &&
             targetPose == SamusPoseId.FacingLeftNormalPose)
         {
-            SamusGroundedPoseTransitions.ApplyRunningLeftToStandingLeft(samus);
+            SamusGroundedPoseTransitions.ApplyRunningToStanding(samus);
             return;
         }
 

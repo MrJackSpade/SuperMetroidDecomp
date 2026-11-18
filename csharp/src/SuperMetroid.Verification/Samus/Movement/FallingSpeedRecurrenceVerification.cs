@@ -17,7 +17,7 @@ internal static class FallingSpeedRecurrenceVerification
         foreach (SamusAccelerationMode previousMode in Enum.GetValues<SamusAccelerationMode>())
         {
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FacingLeftNormalPose };
-            SamusGroundedPoseTransitions.ApplyStandingLeftToRunningLeft(samus);
+            SamusGroundedPoseTransitions.ApplyStandingToRunning(samus);
             samus.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(2, 0xc000);
             samus.HorizontalSpeed.AccelerationMode = previousMode;
             samus.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(extraWhole, extraFraction);

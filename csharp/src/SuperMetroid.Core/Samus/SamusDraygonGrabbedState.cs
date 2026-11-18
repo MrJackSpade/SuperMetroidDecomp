@@ -41,7 +41,7 @@ public sealed class SamusDraygonGrabbedState
     internal void RelinquishMovement() => MovementTakenOver = true;
 
     /// <summary>The count of escape presses, which Crystal Flash's ammunition drain and the suit pickup's stage share.</summary>
-    internal readonly SharedEscapeAndDrainCount<SamusSuitPickupStage> escapePresses;
+    private readonly SharedEscapeAndDrainCount<SamusSuitPickupStage> escapePresses;
 
     /// <summary>Creates a Draygon-held owner whose escape presses count on Samus's shared escape and drain count.</summary>
     /// <param name="escapePresses">Samus's shared escape and drain count.</param>
@@ -137,7 +137,7 @@ public sealed class SamusDraygonGrabbedState
         GameplayAction newlyPressedInput)
     {
         Ensure.NotNull(samus);
-        EnsureActiveGrabbedPose();
+        EnsureGrabbed();
 
         GameplayAction directions = newlyPressedInput & GameplayActions.Directions;
         bool counted = false;
@@ -197,7 +197,7 @@ public sealed class SamusDraygonGrabbedState
     }
 
     /// <summary>Rejects escape checks before Draygon grabs Samus.</summary>
-    private void EnsureActiveGrabbedPose()
+    private void EnsureGrabbed()
     {
         if (!IsActive)
         {

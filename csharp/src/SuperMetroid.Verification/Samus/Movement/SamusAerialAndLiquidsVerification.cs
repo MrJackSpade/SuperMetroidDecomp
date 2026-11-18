@@ -69,7 +69,7 @@ level, samus, GameplayAction.Jump, frameCounter: 0, roomObjects: SamusRoomObject
     AssertEqual(77, samus.Position.Y.Whole, "neutral-jump transition preserves Y");
     samus.LiquidPhysics.BeginFrameSoundRequests();
     SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom() });
-    AssertTrue(SamusPoseTransitions.ApplyPendingVerifiedAnimationTransition(samus), "FD installs neutral jump pose");
+    AssertTrue(SamusPoseTransitions.ApplyPendingAnimationTransition(samus), "FD installs neutral jump pose");
     AssertEqual(SamusPoseId.NeutralJumpRightPose, samus.Pose, "FD target pose");
 
     // The first real airborne frame moves by OLD 4.E000, then stores 4.C400 after gravity.
@@ -113,7 +113,7 @@ level, samus, 0, unchecked((ushort)(frame + 3)), roomObjects: SamusRoomObjectFix
         samus.LiquidPhysics.BeginFrameSoundRequests();
         SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom() });
     }
-    AssertTrue(SamusPoseTransitions.ApplyPendingVerifiedAnimationTransition(samus), "landing F8 transition applies");
+    AssertTrue(SamusPoseTransitions.ApplyPendingAnimationTransition(samus), "landing F8 transition applies");
     AssertEqual(SamusPoseId.FacingRightNormalPose, samus.Pose, "landing animation returns to standing");
 
     // Aerial mode two accelerates because $90:9B22 tests only bit zero. This guards the

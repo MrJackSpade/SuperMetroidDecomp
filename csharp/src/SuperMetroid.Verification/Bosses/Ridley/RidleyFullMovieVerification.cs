@@ -384,7 +384,7 @@ internal static class RidleyFullMovieVerification
             SamusPoseId standing = pose == SamusPoseId.FallingAimUpRightPose
                 ? SamusPoseId.StandingAimUpRightPose : SamusPoseId.StandingAimUpLeftPose;
             samus.PendingTransitionalPose = standing;
-            AssertTrue(SamusPoseTransitions.ApplyPendingVerifiedAnimationTransition(samus), "landing completes through animation command");
+            AssertTrue(SamusPoseTransitions.ApplyPendingAnimationTransition(samus), "landing completes through animation command");
             AssertEqual(1, samus.AnimationNumber, "native landing completion retains raised-gun frame");
             AssertEqual((ushort)16, samus.AnimationFrameTimer.RawValue, "native source3606 standing delay");
         }

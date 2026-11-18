@@ -571,7 +571,7 @@ internal static class SamusPoseMetadata
     /// Publishes a bomb overlap's launch direction as a request Samus's pose handling has not yet accepted. The
     /// gameplay loop does this after the input phase; setup considers it after movement and hurt arbitration.
     /// </summary>
-    public static void PublishBombJumpDirection(SamusState samus, SuperMetroid.Core.Samus.Projectiles.SamusBombJumpDirection direction) =>
+    public static void PublishBombJumpDirection(SamusState samus, SamusBombJumpDirection direction) =>
         // Replaces the whole request, so a blast during an accepted jump publishes a fresh, unaccepted one.
         samus.BombJumpRequest = SamusBombJumpRequest.Published(direction);
 

@@ -265,7 +265,7 @@ level, SamusPoseId.CrouchingTransitionRightPose, frameCounter: 0, roomObjects: S
         samus.LiquidPhysics.BeginFrameSoundRequests();
         SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom() });
     }
-    AssertTrue(SamusPoseTransitions.ApplyPendingVerifiedAnimationTransition(samus), "crouch FD applies");
+    AssertTrue(SamusPoseTransitions.ApplyPendingAnimationTransition(samus), "crouch FD applies");
     AssertEqual(SamusPoseId.CrouchingRightPose, samus.Pose, "crouch transition target");
     samus.HorizontalSpeed.HasRunningMomentum = true;
     samus.HorizontalSpeed.SpeedBoostCounter = new SamusSpeedBoostCounter(4, 1);
@@ -293,7 +293,7 @@ level, SamusPoseId.StandingTransitionRightPose, frameCounter: 1, roomObjects: Sa
         samus.LiquidPhysics.BeginFrameSoundRequests();
         SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom() });
     }
-    AssertTrue(SamusPoseTransitions.ApplyPendingVerifiedAnimationTransition(samus), "standing FD applies");
+    AssertTrue(SamusPoseTransitions.ApplyPendingAnimationTransition(samus), "standing FD applies");
     AssertEqual(SamusPoseId.FacingRightNormalPose, samus.Pose, "standing transition target");
 
     // Exercise all six facing/direction variants through both radius-changing halves. This
@@ -322,7 +322,7 @@ level, aimedSamus, unchecked((ushort)index), roomObjects: SamusRoomObjectFixture
             aimedSamus.LiquidPhysics.BeginFrameSoundRequests();
             SamusPresentation.Animate(aimedSamus, new SamusAnimationStep { Random = new SharedRandom() });
         }
-        AssertTrue(SamusPoseTransitions.ApplyPendingVerifiedAnimationTransition(aimedSamus), "aimed crouch FD applies");
+        AssertTrue(SamusPoseTransitions.ApplyPendingAnimationTransition(aimedSamus), "aimed crouch FD applies");
         AssertEqual(aimedCrouchTargets[index], aimedSamus.Pose, "aimed crouch FD target");
         AssertEqual(
             SamusNoInputFallback.ToPose(facesLeft ? SamusPoseId.CrouchingLeftPose : SamusPoseId.CrouchingRightPose),
@@ -345,7 +345,7 @@ level, aimedStandTransitions[index], unchecked((ushort)index), roomObjects: Samu
             aimedSamus.LiquidPhysics.BeginFrameSoundRequests();
             SamusPresentation.Animate(aimedSamus, new SamusAnimationStep { Random = new SharedRandom() });
         }
-        AssertTrue(SamusPoseTransitions.ApplyPendingVerifiedAnimationTransition(aimedSamus), "aimed stand FD applies");
+        AssertTrue(SamusPoseTransitions.ApplyPendingAnimationTransition(aimedSamus), "aimed stand FD applies");
         AssertEqual(aimedStandTargets[index], aimedSamus.Pose, "aimed stand FD target");
     }
 

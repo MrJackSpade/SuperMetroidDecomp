@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
-/// A Spazer special attack particle's flight before it falls (#1923): circling Samus, then flying up towards a point and
-/// away from it (<see cref="SpazerComboPhase"/>), until it falls (<see cref="SpazerSpecialAttackFall"/>).
+/// A Spazer special attack particle's flight (#1923): circling Samus, flying up towards a point and away from it, then
+/// falling until it leaves the screen (<see cref="SpazerComboPhase"/>).
 /// </summary>
 internal sealed class SpazerSpecialAttackFlight : SpecialAttackParticleBehavior
 {

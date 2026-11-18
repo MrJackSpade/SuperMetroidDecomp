@@ -60,17 +60,13 @@ public static class SamusPoseInputTransitions
         GameplayAction newlyPressed = newlyPressedActions & ~StartAndItemSelect;
 
         SamusPoseInputMatch match = SamusPoseInputs.Match(SamusPoseInputs.InputList(currentPose), held, newlyPressed);
-        if (match.Rule is not { } rule)
+        if (match.Transition is not { } transition)
             return new SamusPoseTransitionLookup(null, UsesPoseDefinitionFallback: match.HasConditions);
 
         // The game returns directly when the winning condition keeps this pose.
-        if (rule.TargetPose == currentPose)
-            return new SamusPoseTransitionLookup(null, UsesPoseDefinitionFallback: false);
-
-        return new SamusPoseTransitionLookup(
-            new SamusPoseTransition(
-                ProspectivePose: rule.TargetPose),
-            UsesPoseDefinitionFallback: false);
+        return transition.ProspectivePose == currentPose
+            ? new SamusPoseTransitionLookup(null, UsesPoseDefinitionFallback: false)
+            : new SamusPoseTransitionLookup(transition, UsesPoseDefinitionFallback: false);
     }
 
     /// <summary>
@@ -88,8 +84,8 @@ public static class SamusPoseInputTransitions
             foreach (GameplayAction[] pressedActions in Subsets(heldActions))
             {
                 GameplayAction newlyPressed = pressedActions.Aggregate(GameplayAction.None, (chord, action) => chord | action);
-                if (SamusPoseInputs.Match(inputList, held, newlyPressed).Rule is { } rule)
-                    targets.Add(rule.TargetPose);
+                if (SamusPoseInputs.Match(inputList, held, newlyPressed).Transition is { } transition)
+                    targets.Add(transition.ProspectivePose);
             }
         }
         return targets.ToFrozenSet();

@@ -489,26 +489,6 @@ internal sealed class ProjectileMotion
         // An extension block reacts as the block it leads to, as it does for Samus's body; one that leads nowhere is air.
         if (!SamusBlockCollision.TryResolveExtension(level, ref block))
             return false;
-        if (block.CollisionType == RoomCollisionType.ShootableBlock &&
-            block.Behavior.Shootable == ShootableReaction.CollectibleTrigger)
-        {
-            _ = roomObjects.CollectibleObjects.TryNotifyCollectibleProjectileHit(block.At);
-            return true;
-        }
-        if (block.CollisionType is RoomCollisionType.ShootableAir or RoomCollisionType.ShootableBlock)
-        {
-            // The shootable reactions run the spawn before the block's collision kind decides
-            // the result: shootable air lets the missile pass; a shootable block stops it.
-            ProjectileTerrainCollision.TrySpawnShootableReaction(level, shot, block, roomObjects);
-            return block.CollisionType == RoomCollisionType.ShootableBlock;
-        }
-
-        if (block.CollisionType is RoomCollisionType.BombableAir or RoomCollisionType.BombableBlock)
-        {
-            // A bombable block answers only bombs and Power Bombs, so a missile leaves it as it was: bombable air lets the
-            // missile pass and a bombable block stops it.
-            return block.CollisionType == RoomCollisionType.BombableBlock;
-        }
         return block.CollisionType switch
         {
             // The point reaction treats these categories as transparent air.
@@ -529,13 +509,37 @@ internal sealed class ProjectileMotion
             RoomCollisionType.Slope =>
                 MissileSlopePointReaction(block, shot),
 
-            // The kinds above cover every collision kind left after following the extensions and answering the shootable
-            // and bombable blocks: one reaching here fails rather than inventing a collision result.
-            RoomCollisionType.ShootableAir or RoomCollisionType.HorizontalExtension or RoomCollisionType.BombableAir or
-                RoomCollisionType.ShootableBlock or RoomCollisionType.VerticalExtension or RoomCollisionType.BombableBlock or _ =>
-                throw new InvalidDataException(
-                $"Invalid missile collision type {block.CollisionType} at block {block.Position}."),
+            RoomCollisionType.ShootableAir or
+            RoomCollisionType.ShootableBlock => MissileShootableReaction(level, shot, block, roomObjects),
+
+            // A bombable block answers only bombs and Power Bombs, so a missile leaves it as it was: bombable air lets the
+            // missile pass and a bombable block stops it.
+            RoomCollisionType.BombableAir => false,
+            RoomCollisionType.BombableBlock => true,
+
+            // Following the extensions leaves no extension block: one reaching here fails rather than inventing a
+            // collision result.
+            RoomCollisionType.HorizontalExtension or RoomCollisionType.VerticalExtension or _ =>
+                throw new InvalidDataException($"Invalid missile collision type {block.CollisionType} at block {block.Position}."),
         };
+    }
+
+    /// <summary>
+    /// Whether a shootable block or shootable air stops the missile. A collectible's trigger tells its collectible it was
+    /// hit and stops the missile; any other shootable reaction runs its spawn before the block's kind decides: shootable air
+    /// lets the missile pass and a shootable block stops it.
+    /// </summary>
+    private static bool MissileShootableReaction(RoomLevelData level, SamusProjectile shot, RoomCollisionBlock block,
+        ISamusRoomObjects roomObjects)
+    {
+        if (block.CollisionType == RoomCollisionType.ShootableBlock &&
+            block.Behavior.Shootable == ShootableReaction.CollectibleTrigger)
+        {
+            _ = roomObjects.CollectibleObjects.TryNotifyCollectibleProjectileHit(block.At);
+            return true;
+        }
+        ProjectileTerrainCollision.TrySpawnShootableReaction(level, shot, block, roomObjects);
+        return block.CollisionType == RoomCollisionType.ShootableBlock;
     }
 
     /// <summary>Tests the missile's centre against a slope's mirrored surface, or the square slope's quarter it lies in.</summary>

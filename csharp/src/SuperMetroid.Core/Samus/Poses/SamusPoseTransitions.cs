@@ -291,7 +291,7 @@ internal static class SamusPoseTransitions
     /// Installs the pose the current pose's animation names at its pose-transition cue: every pose an
     /// animation's cue names.
     /// </summary>
-    public static bool ApplyPendingVerifiedAnimationTransition(SamusState samus)
+    public static bool ApplyPendingAnimationTransition(SamusState samus)
     {
         if (samus.PendingTransitionalPose is not SamusPoseId targetPose)
             return false;
@@ -338,8 +338,7 @@ internal static class SamusPoseTransitions
             SamusGroundedPoseTransitions.ApplySimpleGroundedPoseChange(samus, sourcePose, installedPose, "Pose-transition cue",
                 refreshRadius: !SamusPoseMetadata.IsAerialTurnPose(sourcePose));
         }
-        if (sourcePose is SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose or
-            SamusPoseId.DrainedStandingRightPose or SamusPoseId.DrainedStandingLeftPose)
+        if (SamusPoseMetadata.IsDrainedPose(sourcePose))
         {
             // The drained release animation has now reached its authored normal pose.
             // Clear only the drained-release marker; pose initialization above already owns the

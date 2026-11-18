@@ -333,8 +333,8 @@ internal static class SpecialAttackParticlesVerification
                 if (!particle.IsActive)
                     continue;
                 int place = particle.Place;
-                bool wasFalling = particle.Behavior == SamusShotBehaviors.SpazerSpecialAttackFalling;
                 SpazerParticleState spazer = particle.KindStateAs<SpazerParticleState>();
+                bool wasFalling = spazer.Phase == SpazerComboPhase.Falling;
                 TrigonometryAngle angleBefore = spazer.Angle;
                 int radiusBefore = spazer.Radius;
                 SoundEffectId? sound = projectiles.Combos.StepSpazerCombo(samus, particle, shared, SpazerCameraY);
@@ -346,7 +346,8 @@ internal static class SpecialAttackParticlesVerification
                 }
                 if (!particle.IsActive)
                     continue;
-                bool falling = particle.Behavior == SamusShotBehaviors.SpazerSpecialAttackFalling;
+                bool falling = spazer.Phase == SpazerComboPhase.Falling;
+                phasesSeen.Add(spazer.Phase);
                 if (falling)
                 {
                     AssertEqual(SamusProjectileType.EchoOf(SamusBeamEcho.SpazerComboTrail), particle.Type,
@@ -361,13 +362,13 @@ internal static class SpecialAttackParticlesVerification
                     }
                     continue;
                 }
-                phasesSeen.Add(spazer.Phase);
                 int expectedStep = spazer.Phase switch
                 {
                     SpazerComboPhase.Circling => OriginalSpazerTurn(place) * 4,
                     SpazerComboPhase.FlyingUpTowardsPoint => OriginalSpazerTurn(place) * 2,
                     SpazerComboPhase.FlyingUpAwayFromPoint => -OriginalSpazerTurn(place) * 2,
-                    _ => throw new InvalidOperationException($"Undefined {nameof(SpazerComboPhase)} {spazer.Phase}."),
+                    // A falling particle is checked above and turns no more.
+                    SpazerComboPhase.Falling or _ => throw new InvalidOperationException($"Undefined {nameof(SpazerComboPhase)} {spazer.Phase}."),
                 };
                 AssertEqual(TrigonometryAngle.Wrapped(expectedStep), spazer.TurnPerUpdate,
                     $"update {update}: Spazer particle {place} turns its place's way in {spazer.Phase}");

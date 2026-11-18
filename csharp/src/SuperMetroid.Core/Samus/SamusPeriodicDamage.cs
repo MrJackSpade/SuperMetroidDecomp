@@ -43,7 +43,7 @@ public sealed class SamusPeriodicDamage
         if (WrappingCounter.ReadsBelowZero(applied.Whole))
             throw new InvalidDataException("Periodic whole damage overflowed into the signed-negative range.");
 
-        samus.TakeFractionalEnergyDamage(applied.Fraction, applied.Whole);
+        samus.TakeFractionalEnergyDamage(applied);
 
         Pending = default;
     }

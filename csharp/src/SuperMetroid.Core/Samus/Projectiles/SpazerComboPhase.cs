@@ -13,4 +13,7 @@ public enum SpazerComboPhase
 
     /// <summary>Flying up away from the convergence point.</summary>
     FlyingUpAwayFromPoint,
+
+    /// <summary>Falling beside Samus until it leaves the screen; a spent falling particle ends without its partner.</summary>
+    Falling,
 }

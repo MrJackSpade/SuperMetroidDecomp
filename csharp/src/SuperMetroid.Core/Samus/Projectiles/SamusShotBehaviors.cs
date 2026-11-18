@@ -33,11 +33,8 @@ internal static class SamusShotBehaviors
     /// <summary>A Wave special attack particle.</summary>
     internal static SpecialAttackParticleBehavior WaveSpecialAttack { get; } = new WaveSpecialAttackHoming();
 
-    /// <summary>A Spazer special attack particle before it falls.</summary>
+    /// <summary>A Spazer special attack particle, circling, flying up and falling.</summary>
     internal static SpecialAttackParticleBehavior SpazerSpecialAttack { get; } = new SpazerSpecialAttackFlight();
-
-    /// <summary>A Spazer special attack particle that has begun to fall.</summary>
-    internal static SpecialAttackParticleBehavior SpazerSpecialAttackFalling { get; } = new SpazerSpecialAttackFall();
 
     /// <summary>A Plasma special attack particle.</summary>
     internal static SpecialAttackParticleBehavior PlasmaSpecialAttack { get; } = new PlasmaSpecialAttackRing();

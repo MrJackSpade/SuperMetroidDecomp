@@ -28,5 +28,5 @@ internal static class SamusPoseInputs
 
     /// <summary>Marks a selected target as a matched condition, distinct from an empty transition list.</summary>
     internal static SamusPoseInputMatch Accept(SamusPoseId target) =>
-        new(new(target), HasConditions: true);
+        new(new SamusPoseTransition(target), HasConditions: true);
 }

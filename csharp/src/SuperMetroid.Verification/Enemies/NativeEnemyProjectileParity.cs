@@ -47,11 +47,10 @@ internal static class NativeEnemyProjectileParity
     }
 
     /// <summary>
-    /// Whether <paramref name="hold"/>, an enemy's animation clock, is the timer of a frame the typed animation holds for
-    /// good (#1607) beside a native list at <paramref name="nativeTimer"/>: the held frame rests on the clock's hold,
-    /// counting on from zero, while the native list counts its longest frame down before resting on the same frame, so
-    /// within the updates a check runs the two stay the longest frame's duration apart. A projectile's held frame stops its
-    /// hold instead (#2380), which <see cref="AssertFrameHold"/> reads.
+    /// Whether <paramref name="hold"/>, a projectile's frame hold, is the timer of a frame the typed animation holds for
+    /// good (#1607) beside a native list at <paramref name="nativeTimer"/>: the held frame rests on the hold, counting on
+    /// from zero, while the native list counts its longest frame down before resting on the same frame, so within the
+    /// updates a check runs the two stay the longest frame's duration apart.
     /// </summary>
     internal static bool RestsOnHeldFrame(ushort nativeTimer, WrappingCountdown hold) =>
         hold.RawValue == unchecked((ushort)(nativeTimer - NativeHeldFrameDuration));
@@ -66,5 +65,18 @@ internal static class NativeEnemyProjectileParity
     {
         if (!projectile.IsFrameHoldStopped)
             AssertEqual(nativeTimer, projectile.FrameHold.RawValue, $"{at}: timer");
+    }
+
+    /// <summary>
+    /// Compares an enemy's animation <paramref name="clock"/> with the native list's timer, <paramref name="nativeTimer"/>,
+    /// while the clock runs. A stopped clock (#2454), where the typed animation shows a frame for good or rests, counts
+    /// nothing, while the native list's timer counts down its longest frame or on from its sleep toward a step that shows
+    /// nothing new; the frame is compared on its own.
+    /// </summary>
+    internal static void AssertClockHold(ushort nativeTimer, EnemyAnimationClock clock, string at)
+    {
+        ArgumentNullException.ThrowIfNull(clock);
+        if (!clock.IsStopped)
+            AssertEqual(nativeTimer, clock.Hold.RawValue, $"{at}: timer");
     }
 }

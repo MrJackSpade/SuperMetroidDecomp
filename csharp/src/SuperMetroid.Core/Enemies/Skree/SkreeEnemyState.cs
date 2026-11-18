@@ -10,7 +10,10 @@ public sealed class SkreeEnemyState
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<SkreeMetareeSegment> Playback { get; set; }
 
-    /// <summary>Reloaded to 21 while diving and counted down while burrowing.</summary>
+    /// <summary>
+    /// The updates left of the burrow, the one the Skree is gone on included: started at
+    /// <see cref="SkreeMotionDefinitions.BurrowDuration"/> as the dive meets the floor (#2454).
+    /// </summary>
     public int BurrowTimer { get; internal set; }
 
     /// <summary>The current action.</summary>

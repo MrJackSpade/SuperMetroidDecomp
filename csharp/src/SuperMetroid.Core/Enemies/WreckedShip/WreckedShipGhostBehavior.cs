@@ -74,13 +74,13 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     }
 
     /// <summary>
-    /// Counts down the invisible delay. A zero timer also advances immediately, matching the game's
-    /// branch rather than wrapping zero to -1.
+    /// Counts down the invisible delay (<see cref="WreckedShipGhostAppearanceDefinitions.InitialDelay"/> when the ghost is
+    /// placed, <see cref="WreckedShipGhostAppearanceDefinitions.ReappearanceDelay"/> after each vanishing); on the update
+    /// it runs out the ghost starts tracking Samus.
     /// </summary>
     private static void RunWreckedShipGhostInitialDelay(WreckedShipGhostEnemyState state)
     {
-        state.PhaseTimer = Math.Max(0, state.PhaseTimer - 1);
-        if (state.PhaseTimer != 0)
+        if (--state.PhaseTimer != 0)
             return;
 
         state.PhaseTimer = 1;

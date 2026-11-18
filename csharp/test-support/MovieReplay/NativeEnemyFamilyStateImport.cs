@@ -409,9 +409,7 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (enemy.SpeciesState<SbugEnemyState>() is { } sbugRecord)
         {
-            sbugRecord.StraightMovementTimer = WrappingCountdown.Start(words.A);
             sbugRecord.Action = SbugNativeWords.SbugActions.Decode(words.B, "recorded SbugAction");
-            sbugRecord.FaceCustomHeading(RotationAngle.FromSteps(LittleEndianBytes.LowByte(words.C)));
             sbugRecord.MovementTimer = TrueDuration(words.F);
         }
         if (enemy.SpeciesState<KiHunterBodyState>() is { } kiHunterBodyRecord)

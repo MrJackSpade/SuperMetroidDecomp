@@ -282,7 +282,7 @@ internal static class DraygonAnimationsVerification
             Pass(arms);
             List<NativeEnemyListDefinitions.Callback> callbacks = native.Step(cartridge);
             string at = $"Draygon dying update {update}";
-            AssertEqual(native.Timer, arms.AnimationClock.Hold.RawValue, $"{at}: timer");
+            SuperMetroid.Verification.Enemies.NativeEnemyProjectileParity.AssertClockHold(native.Timer, arms.AnimationClock, at);
             AssertEqual(native.Spritemap, arms.SpritemapPointer, $"{at}: frame");
             AssertEqual(native.NewFrame, arms.AnimationClock.ShowsNewFrame, $"{at}: new-frame flag");
             if (NativeEnemyAnimationOracle.NativePlaysLeft(state.ArmsPart.Playback) is { } playsLeft)

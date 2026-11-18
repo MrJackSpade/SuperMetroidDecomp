@@ -99,10 +99,11 @@ public sealed class YappingMawEnemyState
     public YappingMawAim Aim { get; internal set; }
 
     /// <summary>
-    /// The grab cooldown. Main AI decrements it unconditionally; touch may grab only while
-    /// it is negative. Values 48 and zero therefore form real cooldown states, not bools.
+    /// When the Maw may grab Samus (<see cref="YappingMawGrabCooldown"/>): counted on every update of the Maw, started at
+    /// <see cref="YappingMawAttackDefinitions.GrabCooldown"/> as it retracts, lets Samus go or waits with her inside
+    /// <see cref="YappingMawAttackDefinitions.GrabSafetyDistance"/>, and spent as it grabs.
     /// </summary>
-    public WrappingCountdown GrabCooldown { get; internal set; }
+    public YappingMawGrabCooldown GrabCooldown { get; internal set; }
 
     /// <summary>Result of the point-based viewport test sampled before movement.</summary>
     public bool IsOffScreen { get; internal set; }

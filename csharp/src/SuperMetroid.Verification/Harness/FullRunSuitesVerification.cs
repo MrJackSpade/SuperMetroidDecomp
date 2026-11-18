@@ -29,6 +29,7 @@ using static SuperMetroid.Verification.Bosses.Torizo.BombTorizoInitialDroolVerif
 using static SuperMetroid.Verification.Bosses.MotherBrain.DrainingShitroidFallShiftVerification;
 using static SuperMetroid.Verification.Enemies.YappingMaws.YappingMawBendChainVerification;
 using static SuperMetroid.Verification.Enemies.YappingMaws.YappingMawRetractionHoldVerification;
+using static SuperMetroid.Verification.Enemies.YappingMaws.YappingMawGrabCooldownVerification;
 using static SuperMetroid.Verification.Enemies.MamaTurtles.MamaTurtleWallReversalVerification;
 using static SuperMetroid.Verification.Enemies.Kzan.KzanRiseStepVerification;
 using static SuperMetroid.Verification.Enemies.Crawlers.MultiviolaLeftOrUpSpeedVerification;
@@ -38,7 +39,6 @@ using static SuperMetroid.Verification.Enemies.Yard.YardAirborneSlowingVerificat
 using static SuperMetroid.Verification.Enemies.Yard.YardFallAccelerationVerification;
 using static SuperMetroid.Verification.Enemies.Yard.YardShotLaunchFractionsVerification;
 using static SuperMetroid.Verification.Enemies.WorkRobots.WorkRobotLaserSoundRangeVerification;
-using static SuperMetroid.Verification.Enemies.Sbug.SbugReversalVerification;
 using static SuperMetroid.Verification.Enemies.Puyo.PuyoCeilingTurnVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidFatalBlowShakeVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidHeadTargetVerification;
@@ -1114,6 +1114,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyDrainingShitroidFallShift), () => VerifyDrainingShitroidFallShift()),
         new(nameof(VerifyYappingMawBendChain), () => VerifyYappingMawBendChain()),
         new(nameof(VerifyYappingMawRetractionHold), () => VerifyYappingMawRetractionHold()),
+        new(nameof(VerifyYappingMawGrabCooldown), () => VerifyYappingMawGrabCooldown()),
         new(nameof(VerifyMamaTurtleWallReversal), () => VerifyMamaTurtleWallReversal()),
         new(nameof(VerifyKzanRiseStep), () => VerifyKzanRiseStep()),
         new(nameof(VerifyMultiviolaLeftOrUpSpeed), () => VerifyMultiviolaLeftOrUpSpeed()),
@@ -1123,7 +1124,6 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyYardFallAcceleration), () => VerifyYardFallAcceleration()),
         new(nameof(VerifyYardShotLaunchFractions), () => VerifyYardShotLaunchFractions()),
         new(nameof(VerifyWorkRobotLaserSoundRange), () => VerifyWorkRobotLaserSoundRange()),
-        new(nameof(VerifySbugReversal), () => VerifySbugReversal()),
         new(nameof(VerifyPuyoCeilingTurn), () => VerifyPuyoCeilingTurn()),
         new(nameof(VerifyJumpNoXMovement), () => VerifyJumpNoXMovement()),
         new(nameof(VerifySaveConfirmationCadence), () => VerifySaveConfirmationCadence()),

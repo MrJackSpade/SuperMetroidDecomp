@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Enemies;
 /// <summary>
 /// Plays an enemy's typed animation (#641, #1624) on its <see cref="EnemyAnimationClock"/>: a step plays on the update
 /// the clock's hold runs out, a shown frame holds for its duration and is a new frame on that update, a pause holds the
-/// frame shown, and a hold rests where it stands, its clock left to wrap from zero. Owners keep the playback and perform
-/// its events: <c>if (place.AnimationClock.Expire()) { ...; Play(...); }</c>.
+/// frame shown, and a frame held for good or a hold rests where it stands, its clock stopped (#2454). Owners keep the
+/// playback and perform its events: <c>if (place.AnimationClock.Expire()) { ...; Play(...); }</c>.
 /// </summary>
 internal static class EnemyAnimationPlayback
 {
@@ -115,8 +115,7 @@ internal static class EnemyAnimationPlayback
     /// <summary>
     /// Plays <paramref name="playback"/> on to its next frame after the place's frame expired (#1600): a frame becomes the
     /// place's frame for its duration, a held frame becomes it for good (#1607), a pause holds the place's frame for its own, a
-    /// hold leaves the place as it is, and the
-    /// animation's end deletes the enemy.
+    /// hold leaves the place as it is with its clock stopped (#2454), and the animation's end deletes the enemy.
     /// </summary>
     /// <exception cref="InvalidOperationException">The animation passes every beat without showing a frame.</exception>
     internal static void Play<TSegment, TFrame, TEvent>(
@@ -169,6 +168,7 @@ internal static class EnemyAnimationPlayback
                 enemy.AnimationClock.Pause(paused.Duration);
                 return;
             case AnimationShown<TSegment, TFrame>.Held:
+                enemy.AnimationClock.Stop();
                 return;
             case AnimationShown<TSegment, TFrame>.Ended:
                 // The common end deletes the enemy.

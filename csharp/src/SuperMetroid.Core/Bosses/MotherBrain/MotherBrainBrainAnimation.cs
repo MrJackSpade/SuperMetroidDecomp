@@ -73,6 +73,7 @@ public sealed class MotherBrainBrainAnimation
                 Clock.ShowForGood();
                 return;
             case AnimationShown<MotherBrainHeadSegment, EnemyFrameId>.Held:
+                Clock.Stop();
                 return;
             default:
                 throw new InvalidOperationException($"Mother Brain's brain animations have no {shown} beat.");

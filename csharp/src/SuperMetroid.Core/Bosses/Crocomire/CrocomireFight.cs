@@ -155,9 +155,12 @@ internal sealed class CrocomireFight
             state.TonguePlayback.Animation, ref place,
             cue => throw new InvalidOperationException($"A Crocomire tongue animation raised event {cue}."));
         state.TonguePlayback = state.TonguePlayback with { Place = place };
-        // A hold rests the animation: the timer wraps from zero and the last frame stays.
+        // A hold rests the animation: the last frame stays and the clock stops (#2454).
         if (outcome is AnimationShown<CrocomireTongueSegment, EnemyFrameId>.Held)
+        {
+            tongue.AnimationClock.Stop();
             return;
+        }
         if (outcome is not AnimationShown<CrocomireTongueSegment, EnemyFrameId>.Frame shown)
             throw new InvalidOperationException($"Crocomire's tongue animation ended an update with {outcome}.");
         tongue.Frame = shown.Shown;
@@ -188,8 +191,8 @@ internal sealed class CrocomireFight
         // the tongue's picture follows them so that it stays against the body's. The tongue itself, which Samus touches,
         // stays where it was placed until its next placement.
         state.Tongue.DrawOffset += body.Position.Whole - placedAt;
-        // A hold rests the animation: the timer wraps from zero and the last frame stays. A held frame (#1627) shows its
-        // frame for good, its timer left to wrap from zero as a hold's is. The body animations have no pauses or ends.
+        // A hold rests the animation: the last frame stays and the clock stops (#2454). A held frame (#1627) shows its
+        // frame for good, its clock stopped as a hold's is. The body animations have no pauses or ends.
         switch (outcome)
         {
             case AnimationShown<CrocomireBodySegment, EnemyFrameId>.Frame shown:
@@ -201,6 +204,7 @@ internal sealed class CrocomireFight
                 body.AnimationClock.ShowForGood();
                 return;
             case AnimationShown<CrocomireBodySegment, EnemyFrameId>.Held:
+                body.AnimationClock.Stop();
                 return;
             default:
                 throw new InvalidOperationException($"Crocomire's body animation ended an update with {outcome}.");

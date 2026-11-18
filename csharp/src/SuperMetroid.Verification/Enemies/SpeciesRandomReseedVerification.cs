@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Hoppers;
-using SuperMetroid.Core.Enemies.Sbug;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -24,9 +23,6 @@ internal static class SpeciesRandomReseedVerification
 
     /// <summary>The cartridge place of the seed the Beetom placement routine loads (the operand at A8:B798).</summary>
     private const int BeetomSeedOperand = 0xa8b799;
-
-    /// <summary>The cartridge places of the seed each Sbug random-wander activation routine loads (A3:A318 and A3:A32E).</summary>
-    private static readonly int[] SbugSeedOperands = [0xa3a319, 0xa3a32f];
 
     /// <summary>Runs every species' reseeding setup and compares the seed it wrote with the cartridge's.</summary>
     internal static void VerifySpeciesRandomReseeds(CartridgeImportAddressSpace rom)
@@ -70,21 +66,7 @@ internal static class SpeciesRandomReseedVerification
         enemies.BeetomBehavior.InitializeBeetom(place, samus, 0);
         AssertEqual(new ReseedCase([Word(BeetomSeedOperand)], 0), new ReseedCase([.. seeds], draws),
             "a Beetom's placement reseeds with the cartridge's seed");
-
-        seeds.Clear();
-        place.Bind(EnemyDefinitionId.Sbug, place.Definition);
-        place.SetSpawnParameter1(EnemyDefinitionId.Sbug, 1);
-        place.SetSpawnParameter2(EnemyDefinitionId.Sbug, 1);
-        SbugBehavior.InitializeSbug(place);
-        SbugEnemyState sbug = place.RequireSpeciesState<SbugEnemyState>();
-        foreach (SbugAction activation in (SbugAction[])[SbugAction.ActivateRandomUntilCollision, SbugAction.ActivateRandomAndReverseWhenFar])
-        {
-            sbug.Action = activation;
-            enemies.SbugBehavior.RunSbugMain(place, samus, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
-        }
-        AssertEqual(new ReseedCase([.. SbugSeedOperands.Select(Word)], 0), new ReseedCase([.. seeds], draws),
-            "each Sbug random-wander activation reseeds with the cartridge's seed");
-        Console.WriteLine("  Species reseeds: Sidehopper, Polyp, Beetom and both Sbug random wanders write the cartridge's seeds.");
+        Console.WriteLine("  Species reseeds: Sidehopper, Polyp and Beetom write the cartridge's seeds.");
     }
 
     /// <summary>A fresh standing Samus for the species that read her.</summary>

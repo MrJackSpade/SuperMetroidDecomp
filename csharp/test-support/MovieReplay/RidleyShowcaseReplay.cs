@@ -517,7 +517,9 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 // Only actors whose animation cursor translates to a native pointer are compared on it (#1471).
                 if (pointers.TranslatedEnemy(runtime.Enemies, actor) is { } instruction)
                     Check(owner + " instruction", instruction, address + 26);
-                Check(owner + " instruction timer", actor.AnimationClock.Hold.RawValue, address + 28);
+                // A stopped clock (#2454) counts nothing, while the native timer counts on from its sleep.
+                if (!actor.AnimationClock.IsStopped)
+                    Check(owner + " instruction timer", actor.AnimationClock.Hold.RawValue, address + 28);
                 Check(owner + " XRadius", actor.Radius.X, address + 10);
                 Check(owner + " YRadius", actor.Radius.Y, address + 12);
                 // The native words also hold species bits that species code writes and nothing reads (#1472); the port

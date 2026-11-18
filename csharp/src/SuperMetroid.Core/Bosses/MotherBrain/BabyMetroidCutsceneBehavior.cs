@@ -241,8 +241,8 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
 
     /// <summary>
     /// Plays the Baby's animation where the shared enemy animation runs: the frame expires on the update its
-    /// timer would, and the clock notes each newly shown frame. A held pose rests: the timer
-    /// wraps from zero and the last frame stays.
+    /// timer would, and the clock notes each newly shown frame. A held pose rests: the last frame stays and the clock
+    /// stops.
     /// </summary>
     internal static void AdvanceBabyMetroidCutsceneAnimation(RoomEnemyPlace place)
     {

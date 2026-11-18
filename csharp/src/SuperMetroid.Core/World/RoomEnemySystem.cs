@@ -692,7 +692,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         ShitroidBehavior = new ShitroidBehavior(Room, Places, compatibility.FadeStepCount, BossFrameResults, Audio);
         DeadSidehopperBehavior = new DeadSidehopperBehavior(new DeadSidehopperBehaviorDependencies { Room = Room, Terrain = Terrain, Shitroid = new ShitroidFeeding(Places), FrameContext = FrameContext, Projectiles = Projectiles, Collision = Collision, RowDust = CorpseRowDust });
         ShaktoolBehavior = new ShaktoolBehavior(Terrain, Places, Collision);
-        SbugBehavior = new SbugBehavior(Room, Terrain);
+        SbugBehavior = new SbugBehavior();
         RipperBehavior = new RipperBehavior(Terrain);
         RioBehavior = new RioBehavior(Room, Terrain, Audio);
         RinkaBehavior = new RinkaBehavior(Collision, FrameContext, Projectiles, DeathsAndDrops);
@@ -1022,7 +1022,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
 
                 if (ranActorAi)
                 {
-                    place.FrameCounter = WrappingCounter.IncrementCount(place.FrameCounter);
+                    place.FrameCounter++;
                     // The enemy pass skips the animation whenever the enemy is
                     // frozen, even if the hurt state, tried first, selected an
                     // enemy-specific hurt behaviour above: a frozen Metroid's body holds its frame while its frozen

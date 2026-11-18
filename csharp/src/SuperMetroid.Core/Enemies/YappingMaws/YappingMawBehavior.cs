@@ -115,7 +115,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus,
         Position16<RoomPixels> camera)
     {
-        state.GrabCooldown = state.GrabCooldown.Decrement().Remaining;
+        state.GrabCooldown = state.GrabCooldown.Counted();
         state.IsOffScreen = IsYappingMawPointOffScreen(place, camera);
 
         switch (state.Action)
@@ -157,9 +157,8 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (distance < YappingMawAttackDefinitions.GrabSafetyDistance)
         {
-            // A target already inside 32 pixels cannot safely trigger an extension and has
-            // its grab gate refreshed to 48 every frame. This is why the cooldown must wrap.
-            state.GrabCooldown = WrappingCountdown.Start(YappingMawAttackDefinitions.GrabCooldown);
+            // A target already inside 32 pixels triggers no extension, and starts the grab cooldown again on every update.
+            state.GrabCooldown = YappingMawGrabCooldown.Started(YappingMawAttackDefinitions.GrabCooldown);
             return;
         }
 
@@ -267,7 +266,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         state.Action = YappingMawAction.RetractedDelay;
-        state.GrabCooldown = WrappingCountdown.Start(YappingMawAttackDefinitions.GrabCooldown);
+        state.GrabCooldown = YappingMawGrabCooldown.Started(YappingMawAttackDefinitions.GrabCooldown);
 
         // The six retracted animations are not one per aim. The right and left sectors have
         // dedicated art, while every other sector shares its attack direction's animation.
@@ -325,7 +324,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
 
         samus.Control.Unlock();
         state.HasGrabbedSamus = false;
-        state.GrabCooldown = WrappingCountdown.Start(YappingMawAttackDefinitions.GrabCooldown);
+        state.GrabCooldown = YappingMawGrabCooldown.Started(YappingMawAttackDefinitions.GrabCooldown);
         state.RetractedDelayTimer = YappingMawAttackDefinitions.RetractedHold;
         state.Action = YappingMawAction.WaitingForSamus;
     }
@@ -371,10 +370,10 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         YappingMawEnemyState state,
         SamusState samus)
     {
-        if (!state.GrabCooldown.IsNegative || state.HasGrabbedSamus)
+        if (!state.GrabCooldown.AllowsGrab || state.HasGrabbedSamus)
             return;
 
-        state.GrabCooldown = WrappingCountdown.Start(0);
+        state.GrabCooldown = YappingMawGrabCooldown.Spent;
         state.HasGrabbedSamus = true;
         samus.Control.LockOutPlayer();
     }

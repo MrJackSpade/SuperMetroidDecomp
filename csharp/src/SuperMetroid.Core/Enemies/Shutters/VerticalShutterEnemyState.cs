@@ -20,7 +20,10 @@ public sealed class VerticalShutterEnemyState
 
     /// <summary>
     /// The timer-triggered shutter's first wait, a wrapping AI-update countdown that activates at zero: a wait of zero
-    /// wraps and waits the countdown's whole range.
+    /// wraps and waits the countdown's whole range. The wrap is load-bearing (#2454): the Pink Brinstar hopper room's two
+    /// timer-triggered shootable shutters are placed with no wait, no speed and no travel, so each waits the 65536 updates
+    /// of the full wrap and then turns at its ends without moving, queuing the shutter sound on every turn while it is on
+    /// screen.
     /// </summary>
     public WrappingCountdown ActionTimer { get; internal set; }
 

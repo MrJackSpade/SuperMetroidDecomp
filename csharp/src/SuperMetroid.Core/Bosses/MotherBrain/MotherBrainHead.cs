@@ -73,12 +73,12 @@ internal sealed class MotherBrainHead
     }
 
     /// <summary>
-    /// Shows her brain's hit area on <paramref name="place"/> for good, as a frame whose hold is left to wrap from zero.
+    /// Shows her brain's hit area on <paramref name="place"/> for good, its clock stopped (#2454).
     /// </summary>
     internal static void ShowBrainHitArea(RoomEnemyPlace place)
     {
         place.Frame = EnemyFrameId.MotherBrainBrainHitArea;
-        place.AnimationClock.Show(0);
+        place.AnimationClock.ShowForGood();
     }
 
     /// <summary>Runs the head main/hurt entry and its brain action's choice of whether her brain and neck are drawn.</summary>

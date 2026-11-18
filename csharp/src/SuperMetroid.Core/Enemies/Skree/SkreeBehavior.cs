@@ -91,12 +91,10 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus,
         RoomLevelData level)
     {
-        // The burrow timer restarts at the full burrow duration every airborne frame. It becomes the
-        // complete burrow lifetime only on the frame whose downward probe of one dive step collides.
-        state.BurrowTimer = SkreeMotionDefinitions.BurrowDuration;
         if (EnemyTerrain.EnemyMeetsAttachmentBlockBelow(level, place, SignedSixteenSixteen.FromWholePixels(SkreeMotionDefinitions.DiveStep)))
         {
             place.AnimationClock.Restart();
+            state.BurrowTimer = SkreeMotionDefinitions.BurrowDuration;
             state.Action = SkreeAction.Burrowing;
             // The floor collision has its own distinct impact/burrow request.
             _audio.QueueEnemySound(EnemySound.Burrow, priority: SoundRequestPriority.Normal);

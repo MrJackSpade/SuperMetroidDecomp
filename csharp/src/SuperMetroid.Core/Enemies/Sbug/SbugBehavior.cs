@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms;
 
@@ -12,19 +11,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Sbug];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new SbugEntity(this, place, common);
-
-    /// <summary>Provides the shared random seed and draws for wandering variants.</summary>
-    private readonly EnemyRoomBinding _room;
-    /// <summary>Resolves wall and floor collisions for random movement segments.</summary>
-    private readonly EnemyTerrain _terrain;
-
-    /// <summary>Binds Sbug AI to the loaded room's RNG and collision geometry.</summary>
-    internal SbugBehavior(EnemyRoomBinding room, EnemyTerrain terrain)
-    {
-        _room = room;
-        _terrain = terrain;
-    }
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new SbugEntity(place, common);
 
     /// <summary>Initializes the Sbug.</summary>
     internal static void InitializeSbug(RoomEnemyPlace place)
@@ -68,7 +55,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs an Sbug's per-frame behaviour through all of its actions.</summary>
-    internal void RunSbugMain(RoomEnemyPlace place, SamusState samus, RoomLevelData level)
+    internal static void RunSbugMain(RoomEnemyPlace place, SamusState samus)
     {
         SbugEnemyState state = place.RequireSpeciesState<SbugEnemyState>();
         switch (state.Action)
@@ -84,24 +71,9 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
             case SbugAction.ActivateZigZag:
                 state.Action = SbugAction.ZigZag;
                 return;
-            case SbugAction.ActivateRandomUntilCollision:
-                _room.Random.Reseed(SpeciesRandomReseed.SbugRandomWanderActivation);
-                state.Action = SbugAction.ChooseRandomDirectionUntilCollision;
-                return;
-            case SbugAction.ActivateRandomAndReverseWhenFar:
-                state.StraightMovementTimer = WrappingCountdown.Start(SbugMovementDefinitions.LongWanderDuration);
-                _room.Random.Reseed(SpeciesRandomReseed.SbugRandomWanderActivation);
-                state.Action = SbugAction.ChooseRandomDirectionAndReverseWhenFar;
-                return;
             case SbugAction.ActivateMoveForwardThenWait:
                 state.MovementTimer = SbugMovementDefinitions.LegDuration;
                 state.Action = SbugAction.MoveForwardThenWait;
-                return;
-            case SbugAction.ActivateMoveTowardSamus:
-                ActivateSbugTowardOrAway(place, state, samus, relativeHeading: SbugHeading.Toward);
-                return;
-            case SbugAction.ActivateMoveAwayFromSamus:
-                ActivateSbugTowardOrAway(place, state, samus, relativeHeading: SbugHeading.Away);
                 return;
 
             case SbugAction.MoveForward:
@@ -110,24 +82,8 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
             case SbugAction.ZigZag:
                 RunSbugZigZag(place, state);
                 return;
-            case SbugAction.MoveTowardSamus:
-            case SbugAction.MoveAwayFromSamus:
-                AddSbugVelocity(place, state.CustomXVelocity, state.CustomYVelocity);
-                return;
             case SbugAction.MoveForwardThenWait:
                 RunSbugForwardThenWait(place, state);
-                return;
-            case SbugAction.MoveRandomlyUntilCollision:
-                RunSbugCollisionAwareSegment(place, state, level);
-                return;
-            case SbugAction.MoveStraightAndReverseWhenFar:
-                RunSbugStraightReverseSegment(place, state, samus);
-                return;
-            case SbugAction.ChooseRandomDirectionAndReverseWhenFar:
-                ChooseSbugRandomDirection(place, state, SbugAction.MoveStraightAndReverseWhenFar);
-                return;
-            case SbugAction.ChooseRandomDirectionUntilCollision:
-                ChooseSbugRandomDirection(place, state, SbugAction.MoveRandomlyUntilCollision);
                 return;
             default:
                 throw new InvalidDataException(
@@ -145,23 +101,6 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.Action = SbugMovement.ActivationAction(state.ActivationBehavior);
-    }
-
-    /// <summary>Converts Samus's bearing into Sbug's angular convention and chosen direction.</summary>
-    private static void ActivateSbugTowardOrAway(
-        RoomEnemyPlace place,
-        SbugEnemyState state,
-        SamusState samus,
-        SbugHeading relativeHeading)
-    {
-        // The Sbug heads along its bearing to Samus, or, moving away from her, the opposite way.
-        TrigonometryAngle heading = EnemyMath.CalculateBearing(
-            new(samus.Position.X.Whole - place.Position.X.Whole, samus.Position.Y.Whole - place.Position.Y.Whole)).ToTrigonometryAngle();
-        state.FaceCustomHeading((relativeHeading == SbugHeading.Away ? heading.TurnedBy(TrigonometryAngle.HalfTurn) : heading).ToAngle());
-        RecalculateSbugCustomDirection(place, state);
-        state.Action = relativeHeading == SbugHeading.Away
-            ? SbugAction.MoveAwayFromSamus
-            : SbugAction.MoveTowardSamus;
     }
 
     /// <summary>Alternates left and right diagonal legs on the enemy's own update count.</summary>
@@ -184,106 +123,13 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Moves straight for its leg, then returns to the proximity wait.</summary>
     private static void RunSbugForwardThenWait(RoomEnemyPlace place, SbugEnemyState state)
     {
-        if (--state.MovementTimer <= 0)
+        if (--state.MovementTimer == 0)
         {
             state.Action = SbugAction.WaitForSamus;
             return;
         }
 
         AddSbugVelocity(place, state.ForwardXVelocity, state.ForwardYVelocity);
-    }
-
-    /// <summary>Stops a random leg on its first axis collision or chooses a new leg after timeout.</summary>
-    private void RunSbugCollisionAwareSegment(
-        RoomEnemyPlace place,
-        SbugEnemyState state,
-        RoomLevelData level)
-    {
-        if (--state.MovementTimer <= 0)
-        {
-            state.Action = SbugAction.ChooseRandomDirectionUntilCollision;
-            return;
-        }
-
-        // The movement stops at the first colliding axis. The common movers also perform the
-        // game's wall alignment, so a collision frame must not receive a second raw
-        // position adjustment here.
-        if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
-                level,
-                place,
-                state.CustomXVelocity))
-        {
-            state.Action = SbugAction.WaitForSamus;
-            return;
-        }
-        if (_terrain.MoveEnemyVertically(level, place, state.CustomYVelocity))
-            state.Action = SbugAction.WaitForSamus;
-    }
-
-    /// <summary>Reverses only when both Samus distances reach six blocks during the long leg.</summary>
-    private static void RunSbugStraightReverseSegment(
-        RoomEnemyPlace place,
-        SbugEnemyState state,
-        SamusState samus)
-    {
-        state.StraightMovementTimer = state.StraightMovementTimer.Decrement().Remaining;
-        if (!state.StraightMovementTimer.IsNegative)
-        {
-            if (--state.MovementTimer <= 0)
-            {
-                state.Action = SbugAction.ChooseRandomDirectionAndReverseWhenFar;
-                return;
-            }
-
-            // The branch reverses only when both coordinate differences are at
-            // least six blocks. This is a rectangular test, not Euclidean distance.
-            int xDistance = Math.Abs(place.Position.X.Whole - samus.Position.X.Whole);
-            int yDistance = Math.Abs(place.Position.Y.Whole - samus.Position.Y.Whole);
-            if (xDistance >= SbugMovementDefinitions.ReverseDistance && yDistance >= SbugMovementDefinitions.ReverseDistance)
-                ReverseSbugCustomDirection(place, state);
-        }
-
-        AddSbugVelocity(place, state.CustomXVelocity, state.CustomYVelocity);
-    }
-
-    /// <summary>Offsets the current angle by a random value below 256, then begins a 32-frame movement leg.</summary>
-    private void ChooseSbugRandomDirection(
-        RoomEnemyPlace place,
-        SbugEnemyState state,
-        SbugAction movement)
-    {
-        // The random draw, 0 through 255 steps, less a quarter turn, turns the heading either way around the circle.
-        int randomTurn = _room.Random.Next(SbugMovementDefinitions.RandomTurn);
-        state.TurnCustomHeading(RotationAngle.FromSteps(randomTurn) - RotationAngle.QuarterTurn);
-        RecalculateSbugCustomDirection(place, state);
-        state.MovementTimer = SbugMovementDefinitions.LegDuration;
-        state.Action = movement;
-    }
-
-    /// <summary>Rebuilds signed velocities and facing animation from the chosen custom angle.</summary>
-    private static void RecalculateSbugCustomDirection(RoomEnemyPlace place, SbugEnemyState state)
-    {
-        CalculateSignedSbugVelocities(
-            state.CustomHeading.ToTrigonometryAngle(),
-            state.Speed,
-            out SignedSixteenSixteen customX,
-            out SignedSixteenSixteen customY);
-        state.CustomXVelocity = customX;
-        state.CustomYVelocity = customY;
-        state.CustomFacing = SbugMovement.FacingOf(state.CustomHeading);
-        SetSbugFacing(place, state, state.CustomFacing);
-    }
-
-    /// <summary>Reverses the Sbug's custom velocity and folds its facing on reversal.</summary>
-    private static void ReverseSbugCustomDirection(RoomEnemyPlace place, SbugEnemyState state)
-    {
-        state.CustomXVelocity = -state.CustomXVelocity;
-        state.CustomYVelocity = -state.CustomYVelocity;
-
-        // The reversal does not show the opposite facing: as the game does, it turns the facing a quarter turn
-        // counter-clockwise and folds it into the four facings from right to up-left.
-        state.CustomFacing = SbugMovement.ReversedFacing(state.CustomFacing);
-        SetSbugFacing(place, state, state.CustomFacing);
     }
 
     /// <summary>Moves the Sbug by both its velocities.</summary>
@@ -343,8 +189,5 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
             static (_, cue) => throw new InvalidOperationException($"Sbug's cue-free animation raised {cue}."));
 
     /// <summary>Runs Sbug's main AI.</summary>
-    internal void RunSbugMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
-    {
-        RunSbugMain(place, frame.Samus, frame.Level);
-    }
+    internal static void RunSbugMainAi(RoomEnemyPlace place, IEnemyAiFrame frame) => RunSbugMain(place, frame.Samus);
 }

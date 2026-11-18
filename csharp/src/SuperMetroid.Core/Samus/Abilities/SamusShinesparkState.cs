@@ -6,7 +6,6 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
-using SuperMetroid.Core.Samus.Artwork;
 
 namespace SuperMetroid.Core.Samus.Abilities;
 

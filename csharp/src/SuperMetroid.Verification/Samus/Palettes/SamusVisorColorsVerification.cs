@@ -96,8 +96,8 @@ internal static class SamusVisorColorsVerification
                 RoomVisorAnimation.Animated);
             // `$91:D864` reloads the expired countdown to the frame delay only on the call
             // that writes a color; countdown calls leave it below that delay.
-            bool expectedWrite = native.Cycle.UpdatesLeft == SamusShadeDefinitions.Visor.FrameDelay;
-            bool actualWrite = installed.Cycle.UpdatesLeft == SamusShadeDefinitions.Visor.FrameDelay;
+            bool expectedWrite = native.Cycle.UpdatesLeft == SamusShadeDefinitionsVisorConstants.FrameDelay;
+            bool actualWrite = installed.Cycle.UpdatesLeft == SamusShadeDefinitionsVisorConstants.FrameDelay;
             // The room's cycle is stored after the widening glow's shades.
             if (expectedWrite)
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(SamusSourceDefinitions.VisorColors.Value +

@@ -14,8 +14,6 @@ public static class SamusShadeDefinitions
     /// </summary>
     public static class Visor
     {
-        /// <summary>Timer reloaded after each visor shade is shown.</summary>
-        public const int FrameDelay = 5;
         /// <summary>The X-ray widening glow's shades, shown in order; the last is held.</summary>
         public const int XrayWideningShades = 3;
         /// <summary>The steady visor cycle's shades, shown in order and repeated from the first.</summary>
@@ -27,22 +25,8 @@ public static class SamusShadeDefinitions
     {
         /// <summary>Number of full-body Hyper Beam shades.</summary>
         public const int HyperBeamShadeCount = 10;
-        /// <summary>The steps in each suit's Screw Attack cycle list; the cycle wraps to its first step after the last.</summary>
-        public const int ScrewAttackSteps = 6;
-        /// <summary>The steps in each suit's active Speed Booster cycle list.</summary>
-        public const int SpeedBoosterSteps = 4;
-        /// <summary>The Speed Booster step the cycle holds once reached: its list's last.</summary>
-        public const int SpeedBoosterLastStep = SpeedBoosterSteps - 1;
-        /// <summary>The shading updates each active Speed Booster step shows for.</summary>
-        public const int SpeedBoosterStepUpdates = 4;
         /// <summary>The shading updates before the active Speed Booster cycle's first step when the boost starts: it starts on the next.</summary>
         public const int SpeedBoosterFirstStepWait = 1;
-        /// <summary>The steps in each suit's stored-shine cycle list.</summary>
-        public const int StoredShineSteps = 6;
-        /// <summary>The steps in each suit's active-shinespark cycle list.</summary>
-        public const int ActiveShinesparkSteps = 4;
-        /// <summary>The step count a ping-pong cycle mirrors across: step <c>s</c> past the middle shows shade <c>PingPongSpan - s</c>.</summary>
-        public const int PingPongSpan = 6;
         /// <summary>The Speed Booster shade the Metroid-attachment flash alternates with the normal suit: the family's brightest.</summary>
         public const int SpeedBoostFlashShade = 3;
     }

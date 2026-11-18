@@ -26,7 +26,7 @@ internal static class SpeedBoosterInheritedStepVerification
             SamusEquipmentFlags equipped = suitItems | SamusEquipmentFlags.ScrewAttack | SamusEquipmentFlags.SpeedBooster;
             SamusSuit suit = equipped.ShownSuit();
             var lastPalette = new SamusFullBodyCycleShade(SamusFullBodyCycleFamily.SpeedBooster, suit,
-                SamusShadeDefinitions.FullBodyCycles.SpeedBoosterLastStep);
+                SamusShadeDefinitionsFullBodyCyclesConstants.SpeedBoosterLastStep);
             PictureShade lastShade = SamusShades.FullBodyCycle(lastPalette);
             foreach (int inherited in new[] { 4, 5 })
             {
@@ -44,7 +44,7 @@ internal static class SpeedBoosterInheritedStepVerification
                 for (int colour = 0; colour < SamusColourSets.ColoursPerSet; colour++)
                     AssertEqual(InstalledFixtures.SamusShadeSources.FullBodyCycles.Resolve(lastPalette, colour), shown[colour],
                         $"{context}: suit colour {colour} is the suit's own last Speed Booster colour");
-                AssertEqual(SamusShadeDefinitions.FullBodyCycles.SpeedBoosterLastStep, speed.CycleShadeStep, $"{context}: the step is clamped only after the copy");
+                AssertEqual(SamusShadeDefinitionsFullBodyCyclesConstants.SpeedBoosterLastStep, speed.CycleShadeStep, $"{context}: the step is clamped only after the copy");
                 AssertEqual(4, speed.CycleShadeTimer, $"{context}: the four-frame timer is reloaded");
                 for (int call = 0; call < 3; call++)
                 {

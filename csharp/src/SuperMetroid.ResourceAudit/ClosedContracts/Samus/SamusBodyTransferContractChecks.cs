@@ -7,7 +7,6 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Colours;
-using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.ResourceAudit.Resources;

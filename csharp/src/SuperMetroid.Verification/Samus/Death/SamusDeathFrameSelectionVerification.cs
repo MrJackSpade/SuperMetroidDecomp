@@ -51,7 +51,7 @@ internal static class SamusDeathFrameSelectionVerification
                 string context = $"death facing {facing}, update {update}";
                 int? expectedFrame = ExpectedFrame(update);
                 AssertEqual(ExpectedPhase(update), step.PhaseAfterStep, context + ": phase");
-                AssertEqual(expectedFrame is int expected ? SamusDeathSheetDefinitions.Explosion[expected] : (SamusDeathExplosionFrame?)null,
+                AssertEqual(expectedFrame is int expected ? SamusDeathSheetDefinitions.Explosion[expected] : null,
                     samus.DeathSequence.ExplosionFrame, context + ": selected explosion frame");
                 AssertEqual(update < FirstExplosionUpdate, step.DrawPose, context + ": draws the death pose");
                 AssertEqual(expectedFrame is not null, step.DrawExplosion, context + ": draws the explosion");

@@ -591,7 +591,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         return lastSpikePlace;
     }
 
-    /// <summary>Runs the Powamp spike's per-frame behaviour.</summary>
+    /// <summary>Flies the Powamp spike for one update.</summary>
     internal static void FlyPowampSpike(
         EnemyProjectile spike,
         RoomLevelData level)

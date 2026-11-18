@@ -389,7 +389,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
             _audio.QueueEnemySound(EnemySoundEffectDefinitions.WorkRobotLaserSound, priority: SoundRequestPriority.Normal);
     }
 
-    /// <summary>Runs the laser's per-frame behaviour: X collision, then Y collision, else move.</summary>
+    /// <summary>Flies the laser for one update: X collision, then Y collision, else move.</summary>
     internal static void FlyWorkRobotLaser(
         EnemyProjectile projectile,
         RoomLevelData level)

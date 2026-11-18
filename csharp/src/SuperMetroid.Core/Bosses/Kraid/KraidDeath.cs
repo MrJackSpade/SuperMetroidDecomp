@@ -146,7 +146,7 @@ internal sealed class KraidDeath
         state.ArmState.StartAnimation(KraidPartSegment.ArmDyingOrPreparingToLunge);
         state.BodyState.DeathPhase = KraidDeathPhase.FadeOut;
         state.StartHeadAnimation(KraidHeadSegment.Death);
-        // The death clears the fingernails' respawn bit, then kills the
+        // The death stops the fingernails coming back once killed, then kills the
         // nails, then the three lints. The death runs without choosing an explosion, so each
         // part leaves the first death explosion.
         foreach (RoomEnemyPlace nail in _parts.Nails)

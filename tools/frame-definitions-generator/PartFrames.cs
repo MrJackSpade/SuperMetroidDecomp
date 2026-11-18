@@ -79,7 +79,7 @@ internal sealed record PartFrameConfiguration(
                 ["DraygonBody"] =
                 [
                     "BodyFacingLeftIdle", "BodyFacingLeftReset", "BodyFacingRightReset", "BodyFacingLeftFireGoop", "BodyFacingRightFireGoop",
-                    "BodyFacingLeftRoar", "BodyFacingRightRoar", "ArmsFacingLeftDying", "ArmsFacingRightDying", "Rest", "Delete",
+                    "BodyFacingLeftRoar", "BodyFacingRightRoar", "BodyFacingLeftDying", "BodyFacingRightDying", "Rest", "Delete",
                 ],
                 ["DraygonEye"] =
                 [

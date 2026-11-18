@@ -16,7 +16,7 @@ internal enum CacatacSegment
     UpsideUpAttack,
     /// <summary>The upside-down idle's start: its restore-patrol cue.</summary>
     UpsideDownIdle,
-    /// <summary>The upside-down idle's poses.</summary>
+    /// <summary>Hanging upside down, its spikes splaying, drawing in, gathering tall and stretching out, eight updates each.</summary>
     UpsideDownIdlePoses,
     /// <summary>
     /// Hanging upside down, puffing up and firing five spikes in a fan below it with their sound, then idling again.

@@ -921,7 +921,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         projectile.Position = projectile.Position.AdvanceY(segment.FallPlace.Speed.Positive);
         if (projectile.Position.Y.Whole < BotwoonFightDefinitions.FloorY)
         {
-            // A place past the table's last row fails when its row is read, long before the place could grow large.
+            // The segment moves on along the speed curve; it lands well before the curve ends.
             segment.FallPlace += BotwoonDeathDefinitions.FallAcceleration;
             ShowBotwoonBodyHurtFlash(projectile, hurtFlashCadence);
             return;
@@ -959,8 +959,8 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         spit.Position = FixedPosition<RoomPixels>.FromWhole(head.Position.Whole);
         spit.StartAnimation(new BotwoonSpitAnimation());
 
-        // The spit keeps unsigned quarter-circle speeds, signed by its heading every update, with their fractions so
-        // shallow trajectories do not lose their subpixel motion.
+        // The spit flies along its heading at its speed, split across and down, keeping each step's fraction of a pixel
+        // so a shallow flight keeps its slow drift.
         spit.State = AngledFlightState.Launch(angle, speed);
     }
 

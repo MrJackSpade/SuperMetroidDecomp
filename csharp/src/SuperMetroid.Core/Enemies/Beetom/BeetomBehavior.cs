@@ -84,7 +84,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
                 : BeetomSegment.CrawlingRight);
     }
 
-    /// <summary>Runs a Beetom's per-frame behaviour through all of its actions.</summary>
+    /// <summary>Runs a Beetom for one update through all of its actions.</summary>
     private void RunBeetomMain(
         RoomEnemyPlace place,
         BeetomEnemyState state,

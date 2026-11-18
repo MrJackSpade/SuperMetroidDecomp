@@ -831,7 +831,7 @@ public sealed class SamusState
     private int? _previousXPositionWrite;
 
     /// <summary>
-    /// Records a direct write of Samus's previous X position by an owner that runs
+    /// Records Samus's previous X position as set by an owner that runs
     /// before the main scrolling, such as the landed gunship placing Samus.
     /// Only the whole pixels change; the previous X fraction is untouched (Mother Brain's
     /// rainbow-beam push records its fraction in <see cref="RainbowBeamCameraCheckpoint"/>).
@@ -852,7 +852,7 @@ public sealed class SamusState
     }
 
     /// <summary>
-    /// Records a direct write of Samus's previous Y position, such as
+    /// Records Samus's previous Y position as set by something such as
     /// changed-pose collision correction or facing forward's lift. The previous
     /// fraction is deliberately not changed: the game writes only the whole pixels, not the fraction.
     /// The write is absolute, discarding any earlier bottom-alignment shift this frame.

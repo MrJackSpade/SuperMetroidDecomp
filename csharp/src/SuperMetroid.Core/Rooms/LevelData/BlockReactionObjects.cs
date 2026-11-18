@@ -240,7 +240,8 @@ internal sealed class BlockReactionObjects
         }
 
         // A reaction that sets its object off only in a shootable block leaves shootable air before spawning; its
-        // solid-block sibling places the object that does nothing. This early return is therefore collision-kind-specific.
+        // solid-block sibling places the object that does nothing. A reaction that sets its object off only in solid
+        // blocks spawns nothing outside one.
         if (behavior.Shootable is { } shootable && shootable.SetsOffOnlyInSolidBlocks && !solidBlock)
             return false;
 

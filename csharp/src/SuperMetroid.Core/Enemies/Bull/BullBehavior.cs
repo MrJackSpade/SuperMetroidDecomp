@@ -34,7 +34,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         state.MaxSpeed = settings.MaximumSpeed;
     }
 
-    /// <summary>Runs a Bull's per-frame behaviour through all four of its actions.</summary>
+    /// <summary>Runs a Bull for one update through all four of its actions.</summary>
     internal static void RunBullMain(RoomEnemyPlace place, BullEnemyState state, SamusState samus)
     {
         // A kick's guard runs out on the update its countdown reaches zero.

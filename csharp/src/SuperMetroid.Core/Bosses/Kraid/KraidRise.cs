@@ -69,10 +69,8 @@ internal sealed class KraidRise
         if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss))
         {
             // The defeated room shows its dead-room background colours before every part of Kraid is hidden, deleted
-            // and untouchable. Its two updates
-            // immediately before that setup are not cosmetic bookkeeping: they
-            // restore the defeated arena on every room load so the broken ceiling and
-            // removed floor spikes cannot return when the player exits and re-enters.
+            // and untouchable. Showing those colours and the room's backdrop restores the defeated arena on every room
+            // load, so the broken ceiling and removed floor spikes stay gone when Samus leaves and comes back.
             _access.Backdrop.ShowKraidColours();
             state.BodyAppearance = KraidBodyAppearance.Hidden;
             ShowKraidRoomBackdrop();
@@ -315,9 +313,8 @@ internal sealed class KraidRise
                 if (body.Position.Y.Whole < KraidArenaDefinitions.RisenY)
                 {
                     body.Position = body.Position.WithWholeX(KraidArenaDefinitions.FirstPhaseX);
-                    // The rise's last step does not leave execution at the fight setup.
-                    // That setup immediately enters the thinking phase, seeds the random thinking
-                    // timer and selects the roar animation for the first attack.
+                    // The rise's last update goes on into the fight: it enters the thinking phase,
+                    // seeds the random thinking timer and selects the roar animation for the first attack.
                     state.SelectHeadAnimation(KraidHeadSegment.Roar);
                     _head.SetupKraidFirstPhaseThinking(body, state);
 

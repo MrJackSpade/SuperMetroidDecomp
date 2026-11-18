@@ -48,7 +48,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
             place, state, MochtroidSegment.FreeFlight);
     }
 
-    /// <summary>Runs a Mochtroid's per-frame behaviour, resetting its movement before it moves.</summary>
+    /// <summary>Runs a Mochtroid for one update, resetting its movement before it moves.</summary>
     private void RunMochtroidMain(
         RoomEnemyPlace place,
         SamusState samus,

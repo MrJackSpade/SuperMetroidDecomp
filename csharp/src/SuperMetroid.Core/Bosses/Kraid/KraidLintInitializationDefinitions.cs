@@ -9,7 +9,7 @@ internal static class KraidLintInitializationDefinitions
     /// The lints' initial phase timers supply the top,
     /// middle and bottom delays. Each lint's setup enables its named part separately;
     /// the lint's alignment step aligns it while its timer counts down to its production (<see cref="KraidLintPhase.Produce"/>).
-    /// These cases express independent per-part policies, not a calculated sequence.
+    /// Each lint's delay is its own, top latest and bottom soonest.
     /// </summary>
     internal static readonly FrozenDictionary<KraidLintPart, int> InitialDelays = new Dictionary<KraidLintPart, int>
     {

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 /// <summary>
 /// One of Botwoon's body segments (#2178): the projectile showing it, the head it trails, its place in the body, its phase,
 /// whether it travels inside the wall, the pose its angle to the segment ahead selects and the animation that shows it,
-/// its delay before it falls when Botwoon dies, and its place along the quadratic speed table as it falls.
+/// its delay before it falls when Botwoon dies, and its place along the quadratic speed curve as it falls.
 /// </summary>
 /// <param name="head">Botwoon's head, which the segment trails and whose state its death and colours follow.</param>
 /// <param name="index">The segment's place in the body, zero (the tail) through twelve (behind the head).</param>
@@ -51,8 +51,8 @@ internal sealed class BotwoonSegmentState(RoomEnemyPlace head, int index, EnemyP
     internal BossCountdown FallWait { get; } = new();
 
     /// <summary>
-    /// The falling segment's place along the quadratic speed table: its whole rows choose the speed it falls at, and it
-    /// starts at the first row and moves on each update the segment has not yet landed.
+    /// The falling segment's place along the quadratic speed curve: its whole marks choose the speed it falls at, and it
+    /// starts at the curve's start and moves on each update the segment has not yet landed.
     /// </summary>
     internal QuadraticSpeedCurvePlace FallPlace { get; set; }
 }

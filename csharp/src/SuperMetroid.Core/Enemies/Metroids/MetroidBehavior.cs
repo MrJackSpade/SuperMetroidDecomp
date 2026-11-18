@@ -86,7 +86,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = new(MetroidAnimations.StartingWith(MetroidSegment.ChasingSamus), AnimationPlace.StartOfAnimation);
     }
 
-    /// <summary>Runs a Metroid's per-frame behaviour and whichever of its four movements it is in.</summary>
+    /// <summary>Runs a Metroid for one update and whichever of its four movements it is in.</summary>
     private void RunMetroidMain(RoomEnemyPlace place, SamusState samus, RoomLevelData level)
     {
         MetroidEnemyState state = place.RequireSpeciesState<MetroidEnemyState>();

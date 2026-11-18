@@ -418,8 +418,7 @@ internal sealed class CrocomireFight
 
             case CrocomirePhase.PowerBombCharge:
             {
-                // The charge consumes one step and ends once fewer than two remain; a count that would drop below
-                // zero ends it the same way, as the game's wrapped count reads negative.
+                // The charge consumes one step and ends once fewer than two remain, as it does when none remained.
                 int remaining = state.StepCounter - 1;
                 if (remaining < 2)
                 {

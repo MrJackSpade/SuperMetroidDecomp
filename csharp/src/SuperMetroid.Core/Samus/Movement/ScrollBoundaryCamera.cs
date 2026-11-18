@@ -137,7 +137,7 @@ public sealed class ScrollBoundaryCamera
         Position = retainedFractions.WithWhole(position);
 
     /// <summary>
-    /// Applies the direct camera X write the Shitroid's AI makes. Unlike
+    /// Moves the camera across to where the Shitroid's AI places it. Unlike
     /// entry placement, the game does not clear the camera's fraction of a pixel or replace either ideal
     /// camera coordinate at this point in the gameplay frame.
     /// </summary>

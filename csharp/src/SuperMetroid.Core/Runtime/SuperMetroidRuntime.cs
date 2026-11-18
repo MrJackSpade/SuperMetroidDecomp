@@ -554,7 +554,7 @@ internal sealed class SuperMetroidRuntime
         // An open message box keeps the room's sprites, music and sounds while it waits,
         // and blocks every gameplay owner. Room FX objects run in the ordinary gameplay
         // owner list; in particular, they must not scroll or animate while a message box
-        // waits. Keeping this after the message box's early return prevents rain and fog
+        // waits. Running this only once no message box waits keeps rain and fog
         // from advancing behind a station or item message.
         if (room.Enemies.DisplaySources.Phantoon is { } waveBoss)
         {
@@ -910,8 +910,8 @@ internal sealed class SuperMetroidRuntime
     /// <summary>Decrements Samus's hurt timers and the projectile interaction timer.</summary>
     private static void DecrementHurtTimers(RoomScope room, SamusState samus)
     {
-        // Main gameplay decrements these timers after Samus, enemies, drawing, HUD/background
-        // bookkeeping, the room's own update, the energy-zero check, and room shaking. Keep these
+        // Main gameplay decrements these timers after Samus, enemies, drawing, the HUD and background
+        // scrolling, the room's own update, the energy-zero check, and room shaking. Keep these
         // countdowns out of individual movement owners: in particular, grapple spike
         // reactions set the knockback timers without handing her movement to the knockback.
         // Death game states do not count them down at all.

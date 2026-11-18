@@ -360,7 +360,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
 
     /// <summary>
     /// Lava's bubbling: while a lava surface lies within the room, its clock runs, and each time it falls due lava queues
-    /// the bubbling sound <paramref name="random"/> chooses. Acid shares the per-frame behaviour step but not this sound.
+    /// the bubbling sound <paramref name="random"/> chooses. Acid shares the update's step but not this sound.
     /// </summary>
     private void QueueLavaAmbientSound(int random)
     {
@@ -372,7 +372,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     }
 
     /// <summary>
-    /// Runs the active effect's per-frame behaviour step and its overlay's block animation. A liquid's surface is where
+    /// Runs the active effect's step for one update and its overlay's block animation. A liquid's surface is where
     /// its motion pass (<see cref="AdvanceLiquidMotion(SharedGameState, bool)"/>), which runs earlier in the update, left it.
     /// </summary>
     public void Step(ArtworkFrameSelections frames, RoomFxOverlayFrame frame)

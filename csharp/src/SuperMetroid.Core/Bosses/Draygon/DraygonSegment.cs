@@ -2,104 +2,119 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>
 /// Draygon's body, eye, tail and arms animation segments, in authored order. The four parts
-/// run animations of one set: a body cue starts all four, and the arms' dying animation runs on into the body's.
+/// run animations of one set: a body cue starts all four, and his body's dying runs on into its cry and explosions.
 /// Each segment holds beats and is played whole; the eye's dying plays its first segment four times, and the tail's final
 /// whips play its whip four times (#1938, #2296, #2399).
 /// </summary>
 public enum DraygonSegment
 {
-    /// <summary>Draygon animation: a rest on the last frame.</summary>
+    /// <summary>Nothing: the part keeps the picture it last showed, as the tail and arms do once his dying paralyses them.</summary>
     Rest,
-    /// <summary>Draygon body animation: facing left, reset.</summary>
+    /// <summary>Starts his four parts' idles facing left, his eye tracking Samus, and shows his body with its jaw shut.</summary>
     BodyFacingLeftReset,
-    /// <summary>Draygon body animation: facing right, reset.</summary>
+    /// <summary>Starts his four parts' idles facing right, his eye tracking Samus, and shows his body with its jaw shut.</summary>
     BodyFacingRightReset,
-    /// <summary>Draygon arms animation: facing left, idle.</summary>
+    /// <summary>One stroke of his arms facing left: forward, lowering, down, stretched down, raising and reaching, five updates each.</summary>
     ArmsFacingLeftIdle,
-    /// <summary>Draygon arms animation: facing left, near swoop apex.</summary>
+    /// <summary>His arms facing left spreading wide and closing into a tuck, which they hold for 64 updates near the top of his swoop.</summary>
     ArmsFacingLeftNearSwoopApex,
-    /// <summary>Draygon arms animation: facing left, grab.</summary>
+    /// <summary>His arms facing left spreading wide and closing round Samus, tucked for eight updates, then opening and closing again.</summary>
     ArmsFacingLeftGrab,
-    /// <summary>Draygon arms animation: facing left, dying.</summary>
-    ArmsFacingLeftDying,
-    /// <summary>Draygon body animation: facing left, idle.</summary>
+    /// <summary>
+    /// His body facing left going limp as he dies, its claw raised, dropping, dropped and curled, five updates each; it runs on
+    /// into his dying cry.
+    /// </summary>
+    BodyFacingLeftDying,
+    /// <summary>His body facing left with its jaw shut, his eye tracking Samus.</summary>
     BodyFacingLeftIdle,
-    /// <summary>Draygon body animation: dying, its cry as the body turns intangible.</summary>
-    BodyDying,
-    /// <summary>Draygon body animation: dying, one of the eight counted explosion bursts.</summary>
+    /// <summary>His dying cry, as his body stops touching Samus.</summary>
+    BodyDyingCry,
+    /// <summary>One of the eight bursts of his dying: a wait of twelve updates, then explosions, a dust cloud and breath bubbles with their sound.</summary>
     BodyDyingExplosions,
-    /// <summary>Draygon body animation: dying, the pause after the counted bursts and the paralysis of the tail and arms.</summary>
+    /// <summary>The pause after his dying's eight bursts, which stills his tail and arms.</summary>
     BodyDyingParalysis,
-    /// <summary>Draygon body animation: dying, the explosion burst that repeats for good once the tail and arms are paralysed.</summary>
+    /// <summary>The burst that repeats for good once his tail and arms are still: explosions, a dust cloud and breath bubbles every sixteen updates.</summary>
     BodyDyingExplosionLoop,
-    /// <summary>Draygon animation: delete.</summary>
+    /// <summary>Nothing: the part is removed.</summary>
     Delete,
-    /// <summary>Draygon body animation: facing left, fire goop.</summary>
+    /// <summary>His body facing left opening its jaw wide to spit goop with its sound, then shutting it.</summary>
     BodyFacingLeftFireGoop,
-    /// <summary>Draygon body animation: facing left, roar.</summary>
+    /// <summary>His body facing left roaring: its jaw opening wide and shutting again, six updates a picture.</summary>
     BodyFacingLeftRoar,
-    /// <summary>Draygon eye animation: facing left, idle.</summary>
+    /// <summary>His eye facing left shut, opening, staring, narrowing and shutting again, then tracking Samus.</summary>
     EyeFacingLeftIdle,
-    /// <summary>Draygon eye animation: facing left, dying, its rolling, which the dying animation plays four times.</summary>
+    /// <summary>His eye facing left rolling in its dying, open, narrowed, bloodshot and closing, which the dying plays four times.</summary>
     EyeFacingLeftDying,
-    /// <summary>Draygon eye animation: facing left, dying, the wide stare it settles into after its rolling.</summary>
+    /// <summary>His eye facing left settling into a wide stare after its rolling, then half open.</summary>
     EyeFacingLeftDyingStare,
-    /// <summary>Draygon eye animation: facing left, dead.</summary>
+    /// <summary>His eye facing left closing slowly once he is dead: its wide, half-open and barely open pictures for 32 updates each, then shut.</summary>
     EyeFacingLeftDead,
-    /// <summary>Draygon eye animation: facing left, looking left.</summary>
+    /// <summary>His eye facing left wide open as it looks left.</summary>
     EyeFacingLeftLookingLeft,
-    /// <summary>Draygon eye animation: facing left, looking right.</summary>
+    /// <summary>His eye facing left turned back to look right, its bloodshot picture.</summary>
     EyeFacingLeftLookingRight,
-    /// <summary>Draygon eye animation: facing left, looking up.</summary>
+    /// <summary>His eye facing left narrowed as it looks up.</summary>
     EyeFacingLeftLookingUp,
-    /// <summary>Draygon eye animation: facing left, looking down.</summary>
+    /// <summary>His eye facing left half shut as it looks down.</summary>
     EyeFacingLeftLookingDown,
-    /// <summary>Draygon tail animation: facing left, idle.</summary>
+    /// <summary>His tail facing left swaying: its tip curled in, swinging out to its farthest and back again.</summary>
     TailFacingLeftIdle,
-    /// <summary>Draygon tail animation: facing left, fake tail whip.</summary>
+    /// <summary>
+    /// His tail facing left winding up long, lashing out with his body's picture shifting and holding its recoil, without
+    /// striking; it goes on into his idle tail.
+    /// </summary>
     TailFacingLeftInitialFakeWhip,
-    /// <summary>Draygon tail animation: facing left, the release of Samus after the final whips.</summary>
+    /// <summary>Releases Samus after his tail's final whips facing left.</summary>
     TailFacingLeftReleaseSamus,
-    /// <summary>Draygon tail animation: facing left, tail whip, which the final whips play four times.</summary>
+    /// <summary>
+    /// His tail facing left lashing out with his body's picture shifting, striking the held Samus with an explosion, and
+    /// recoiling; the final whips play it four times.
+    /// </summary>
     TailFacingLeftWhip,
-    /// <summary>Draygon tail animation: facing left, tail flail.</summary>
+    /// <summary>His tail facing left flailing: lashing out with an explosion and recoiling, his body's picture still and nothing struck.</summary>
     TailFacingLeftFlail,
-    /// <summary>Draygon arms animation: facing right, idle.</summary>
+    /// <summary>One stroke of his arms facing right: forward, lowering, down, stretched down, raising and reaching, five updates each.</summary>
     ArmsFacingRightIdle,
-    /// <summary>Draygon arms animation: facing right, near swoop apex.</summary>
+    /// <summary>His arms facing right spreading wide and closing into a tuck, which they hold for 64 updates near the top of his swoop.</summary>
     ArmsFacingRightNearSwoopApex,
-    /// <summary>Draygon arms animation: facing right, grab.</summary>
+    /// <summary>His arms facing right spreading wide and closing round Samus, tucked for eight updates, then opening and closing again.</summary>
     ArmsFacingRightGrab,
-    /// <summary>Draygon arms animation: facing right, dying.</summary>
-    ArmsFacingRightDying,
-    /// <summary>Draygon body animation: facing right, idle.</summary>
+    /// <summary>
+    /// His body facing right going limp as he dies, its claw raised, dropping, dropped and curled, five updates each; it runs
+    /// on into his dying cry.
+    /// </summary>
+    BodyFacingRightDying,
+    /// <summary>His body facing right with its jaw shut, his eye tracking Samus.</summary>
     BodyFacingRightIdle,
-    /// <summary>Draygon body animation: facing right, fire goop.</summary>
+    /// <summary>His body facing right opening its jaw wide to spit goop with its sound, then shutting it.</summary>
     BodyFacingRightFireGoop,
-    /// <summary>Draygon body animation: facing right, roar.</summary>
+    /// <summary>His body facing right roaring: its jaw opening wide and shutting again, six updates a picture.</summary>
     BodyFacingRightRoar,
-    /// <summary>Draygon eye animation: facing right, idle.</summary>
+    /// <summary>His eye facing right shut, opening, staring, narrowing and shutting again, then tracking Samus.</summary>
     EyeFacingRightIdle,
-    /// <summary>Draygon eye animation: facing right, dying, its rolling, which the dying animation plays four times.</summary>
+    /// <summary>His eye facing right rolling in its dying, open, narrowed, bloodshot and closing, which the dying plays four times.</summary>
     EyeFacingRightDying,
-    /// <summary>Draygon eye animation: facing right, dying, the wide stare it settles into after its rolling.</summary>
+    /// <summary>His eye facing right settling into a wide stare after its rolling, then half open.</summary>
     EyeFacingRightDyingStare,
-    /// <summary>Draygon eye animation: facing right, dead.</summary>
+    /// <summary>His eye facing right closing slowly once he is dead: its wide, half-open and barely open pictures for 32 updates each, then shut.</summary>
     EyeFacingRightDead,
-    /// <summary>Draygon eye animation: facing right, looking right.</summary>
+    /// <summary>His eye facing right wide open as it looks right.</summary>
     EyeFacingRightLookingRight,
-    /// <summary>Draygon eye animation: facing right, looking left.</summary>
+    /// <summary>His eye facing right turned back to look left, its bloodshot picture.</summary>
     EyeFacingRightLookingLeft,
-    /// <summary>Draygon eye animation: facing right, looking up.</summary>
+    /// <summary>His eye facing right narrowed as it looks up.</summary>
     EyeFacingRightLookingUp,
-    /// <summary>Draygon eye animation: facing right, looking down.</summary>
+    /// <summary>His eye facing right half shut as it looks down.</summary>
     EyeFacingRightLookingDown,
-    /// <summary>Draygon tail animation: facing right, idle.</summary>
+    /// <summary>His tail facing right swaying: its tip curled in, swinging out to its farthest and back again.</summary>
     TailFacingRightIdle,
-    /// <summary>Draygon tail animation: facing right, the release of Samus after the final whips.</summary>
+    /// <summary>Releases Samus after his tail's final whips facing right.</summary>
     TailFacingRightReleaseSamus,
-    /// <summary>Draygon tail animation: facing right, tail whip, which the final whips play four times.</summary>
+    /// <summary>
+    /// His tail facing right lashing out with his body's picture shifting, striking the held Samus with an explosion, and
+    /// recoiling; the final whips play it four times.
+    /// </summary>
     TailFacingRightWhip,
-    /// <summary>Draygon tail animation: facing right, tail flail.</summary>
+    /// <summary>His tail facing right flailing: lashing out with an explosion and recoiling, his body's picture still and nothing struck.</summary>
     TailFacingRightFlail,
 }

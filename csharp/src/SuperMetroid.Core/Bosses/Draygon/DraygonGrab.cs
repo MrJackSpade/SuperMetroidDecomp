@@ -70,8 +70,8 @@ internal sealed class DraygonGrab
                 ? DraygonSegment.ArmsFacingRightGrab
                 : DraygonSegment.ArmsFacingLeftGrab);
 
-        // Samus's grapple query returns nonzero whenever the grapple beam is in any phase
-        // other than inactive. In that case Draygon drops the beam and retreats;
+        // While Samus's grapple beam is out in any phase,
+        // Draygon drops the beam and retreats;
         // it must not enter a grabbed pose and then undo it with a bespoke correction.
         if (samus.Grapple.Phase != GrapplePhase.Inactive)
         {
@@ -138,7 +138,7 @@ internal sealed class DraygonGrab
         }
 
         // The current random number is read without drawing a new one: turret cadence and other
-        // actors draw them. A tail-whip roll of zero inserts one 64-frame tail whip.
+        // actors draw them. One roll in 256 inserts a tail whip of 64 updates.
         if (DraygonRandomDefinitions.TailWhips.IsTakenBy(_room.Random.Read()))
         {
             state.TailWhipTimer = DraygonGrabDefinitions.TailWhipUpdates;

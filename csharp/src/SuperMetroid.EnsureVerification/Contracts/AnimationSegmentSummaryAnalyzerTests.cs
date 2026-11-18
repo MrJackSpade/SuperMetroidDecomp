@@ -26,9 +26,20 @@ internal static class AnimationSegmentSummaryAnalyzerTests
         Expect(Segment("/// <summary>the  ui idle 2 animation.</summary>", "UIIdle2"), "The summary of 'UIIdle2" + Advice);
         Expect(Segment("/// <summary>\n    /// The power up\n    /// facing right animation.\n    /// </summary>", "PowerUpFacingRight"),
             "The summary of 'PowerUpFacingRight" + Advice);
+        // The name's words in any order and punctuation, with the actor's name, articles, possessives and "animation"
+        // (#2465), and a part named twice.
+        Expect(Segment("/// <summary>Zoa body animation: facing left, reset.</summary>", "BodyFacingLeftReset"),
+            "The summary of 'BodyFacingLeftReset" + Advice);
+        Expect(Segment("/// <summary>Zoa tail animation: facing left, fake tail whip.</summary>", "TailFacingLeftInitialFakeWhip"),
+            "The summary of 'TailFacingLeftInitialFakeWhip" + Advice);
+        Expect(Segment("/// <summary>Zoa animation: delete.</summary>", "Delete"), "The summary of 'Delete" + Advice);
+        Expect(Segment("/// <summary>His left-facing idle animation.</summary>", "IdleFacingLeft"), "The summary of 'IdleFacingLeft" + Advice);
+        Expect(Segment("/// <summary>Ceres Zoa's left-facing lunge.</summary>", "CeresLungeFacingLeft"), "The summary of 'CeresLungeFacingLeft" + Advice);
 
-        // A summary that says what the run shows, one that only begins with the name, one holding a reference, and one
-        // missing are not restatements.
+        // A summary that says what the run shows, one that only begins with the name, one holding a reference, one of
+        // only the actor's and restating words, and one missing are not restatements.
+        Expect(Segment("/// <summary>Zoa animation: a rest on the last frame.</summary>", "Rest"), count: 0);
+        Expect(Segment("/// <summary>The Zoa animation.</summary>", "Rest"), count: 0);
         Expect(Segment("/// <summary>Darting left, its tail tucked, then kicking, repeating.</summary>", "FacingLeftShooting"), count: 0);
         Expect(Segment("/// <summary>The idle pose held while it waits for Samus.</summary>", "Idle"), count: 0);
         Expect(Segment("/// <summary>The idle animation of <see cref=\"Other\"/>.</summary>", "Idle"), count: 0);

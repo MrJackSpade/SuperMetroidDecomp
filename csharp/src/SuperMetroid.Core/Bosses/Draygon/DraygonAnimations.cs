@@ -11,7 +11,9 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// each, which plays each of its segments whole (#2296), and his tail's final whips, which play its whip four times and
 /// which his grab starts by name (#2399). The idle eye shows its open and narrowing pictures twice in a row
 /// each, and the two showings stay two beats: his body shows the eye's picture as a showing begins on an update the draw
-/// pass reaches the eye, so the second showing shows it again where the first was missed.
+/// pass reaches the eye, so the second showing shows it again where the first was missed. His tail's lashes are written
+/// once over a facing's poses (#2465): his whips and his fake whip lash out shifting his body's picture, his flail lashes
+/// with it still, and every lash recoils and swings back the same way.
 /// </summary>
 internal static class DraygonAnimations
 {
@@ -61,7 +63,7 @@ internal static class DraygonAnimations
             Show(F.DraygonArmsFacingLeftSpreadWide, 1),
             Show(F.DraygonArmsFacingLeftClosing, 1),
         ],
-        [P.ArmsFacingLeftDying] =
+        [P.BodyFacingLeftDying] =
         [
             Show(F.DraygonLimpArmFacingLeftClawRaised, 5),
             Show(F.DraygonLimpArmFacingLeftClawDropping, 5),
@@ -73,7 +75,7 @@ internal static class DraygonAnimations
             Cue(new DraygonCue.TrackWithEye(HorizontalDirection.Left)),
             Show(F.DraygonBodyFacingLeftJawShut, 1),
         ],
-        [P.BodyDying] =
+        [P.BodyDyingCry] =
         [
             Cue(new DraygonCue.QueueSound(DraygonSoundDefinitions.DyingCry)),
             Cue(DraygonCue.SetBodyIntangible.Instance),
@@ -195,28 +197,8 @@ internal static class DraygonAnimations
         ],
         [P.TailFacingLeftInitialFakeWhip] =
         [
-            Cue(new DraygonCue.ShiftBodyPicture(new(1, 1))),
-            Show(F.DraygonTailFacingLeftTipOut, 16),
-            Cue(new DraygonCue.ShiftBodyPicture(new(2, 2))),
-            Show(F.DraygonTailFacingLeftWhipCocking, 6),
-            Cue(new DraygonCue.ShiftBodyPicture(new(3, 3))),
-            Show(F.DraygonTailFacingLeftWhipRaising, 5),
-            Cue(new DraygonCue.ShiftBodyPicture(new(4, 4))),
-            Show(F.DraygonTailFacingLeftWhipHangingLong, 4),
-            Cue(new DraygonCue.ShiftBodyPicture(new(5, 5))),
-            Show(F.DraygonTailFacingLeftWhipSwinging, 3),
-            Cue(new DraygonCue.ShiftBodyPicture(new(6, 6))),
-            Show(F.DraygonTailFacingLeftWhipLashedOut, 2),
-            Cue(new DraygonCue.ShiftBodyPicture(new(8, 8))),
-            Show(F.DraygonTailFacingLeftWhipCurling, 1),
-            Cue(new DraygonCue.ShiftBodyPicture(new(0, 0))),
-            Show(F.DraygonTailFacingLeftWhipRecoiling, 16),
-            Show(F.DraygonTailFacingLeftWhipCurling, 1),
-            Show(F.DraygonTailFacingLeftWhipLashedOut, 2),
-            Show(F.DraygonTailFacingLeftWhipSwinging, 3),
-            Show(F.DraygonTailFacingLeftWhipHangingLong, 4),
-            Show(F.DraygonTailFacingLeftWhipRaising, 5),
-            Show(F.DraygonTailFacingLeftWhipCocking, 6),
+            .. ShiftingLash(DraygonTailPoses.Left, FakeWhipTipOutUpdates),
+            .. Recoil(DraygonTailPoses.Left, FakeWhipRecoilUpdates),
         ],
         [P.TailFacingLeftReleaseSamus] =
         [
@@ -224,48 +206,16 @@ internal static class DraygonAnimations
         ],
         [P.TailFacingLeftWhip] =
         [
-            Cue(new DraygonCue.ShiftBodyPicture(new(1, 1))),
-            Show(F.DraygonTailFacingLeftTipOut, 2),
-            Cue(new DraygonCue.ShiftBodyPicture(new(2, 2))),
-            Show(F.DraygonTailFacingLeftWhipCocking, 6),
-            Cue(new DraygonCue.ShiftBodyPicture(new(3, 3))),
-            Show(F.DraygonTailFacingLeftWhipRaising, 5),
-            Cue(new DraygonCue.ShiftBodyPicture(new(4, 4))),
-            Show(F.DraygonTailFacingLeftWhipHangingLong, 4),
-            Cue(new DraygonCue.ShiftBodyPicture(new(5, 5))),
-            Show(F.DraygonTailFacingLeftWhipSwinging, 3),
-            Cue(new DraygonCue.ShiftBodyPicture(new(6, 6))),
-            Show(F.DraygonTailFacingLeftWhipLashedOut, 2),
-            Cue(new DraygonCue.ShiftBodyPicture(new(8, 8))),
-            Show(F.DraygonTailFacingLeftWhipCurling, 1),
-            Cue(new DraygonCue.ShiftBodyPicture(new(0, 0))),
+            .. ShiftingLash(DraygonTailPoses.Left, LashTipOutUpdates),
             Cue(DraygonCue.TailWhipHit.Instance),
             Cue(new DraygonCue.QueueSound(DraygonSoundDefinitions.Explosion)),
-            Show(F.DraygonTailFacingLeftWhipRecoiling, 3),
-            Show(F.DraygonTailFacingLeftWhipCurling, 1),
-            Show(F.DraygonTailFacingLeftWhipLashedOut, 2),
-            Show(F.DraygonTailFacingLeftWhipSwinging, 3),
-            Show(F.DraygonTailFacingLeftWhipHangingLong, 4),
-            Show(F.DraygonTailFacingLeftWhipRaising, 5),
-            Show(F.DraygonTailFacingLeftWhipCocking, 6),
+            .. Recoil(DraygonTailPoses.Left, LashRecoilUpdates),
         ],
         [P.TailFacingLeftFlail] =
         [
-            Show(F.DraygonTailFacingLeftTipOut, 2),
-            Show(F.DraygonTailFacingLeftWhipCocking, 6),
-            Show(F.DraygonTailFacingLeftWhipRaising, 5),
-            Show(F.DraygonTailFacingLeftWhipHangingLong, 4),
-            Show(F.DraygonTailFacingLeftWhipSwinging, 3),
-            Show(F.DraygonTailFacingLeftWhipLashedOut, 2),
-            Show(F.DraygonTailFacingLeftWhipCurling, 1),
+            .. Lash(DraygonTailPoses.Left),
             Cue(new DraygonCue.QueueSound(DraygonSoundDefinitions.Explosion)),
-            Show(F.DraygonTailFacingLeftWhipRecoiling, 3),
-            Show(F.DraygonTailFacingLeftWhipCurling, 1),
-            Show(F.DraygonTailFacingLeftWhipLashedOut, 2),
-            Show(F.DraygonTailFacingLeftWhipSwinging, 3),
-            Show(F.DraygonTailFacingLeftWhipHangingLong, 4),
-            Show(F.DraygonTailFacingLeftWhipRaising, 5),
-            Show(F.DraygonTailFacingLeftWhipCocking, 6),
+            .. Recoil(DraygonTailPoses.Left, LashRecoilUpdates),
         ],
         [P.ArmsFacingRightIdle] =
         [
@@ -294,7 +244,7 @@ internal static class DraygonAnimations
             Show(F.DraygonArmsFacingRightSpreadWide, 1),
             Show(F.DraygonArmsFacingRightClosing, 1),
         ],
-        [P.ArmsFacingRightDying] =
+        [P.BodyFacingRightDying] =
         [
             Show(F.DraygonLimpArmFacingRightClawRaised, 5),
             Show(F.DraygonLimpArmFacingRightClawDropping, 5),
@@ -401,48 +351,16 @@ internal static class DraygonAnimations
         ],
         [P.TailFacingRightWhip] =
         [
-            Cue(new DraygonCue.ShiftBodyPicture(new(-1, 1))),
-            Show(F.DraygonTailFacingRightTipOut, 2),
-            Cue(new DraygonCue.ShiftBodyPicture(new(-2, 2))),
-            Show(F.DraygonTailFacingRightWhipCocking, 6),
-            Cue(new DraygonCue.ShiftBodyPicture(new(-3, 3))),
-            Show(F.DraygonTailFacingRightWhipRaising, 5),
-            Cue(new DraygonCue.ShiftBodyPicture(new(-4, 4))),
-            Show(F.DraygonTailFacingRightWhipHangingLong, 4),
-            Cue(new DraygonCue.ShiftBodyPicture(new(-5, 5))),
-            Show(F.DraygonTailFacingRightWhipSwinging, 3),
-            Cue(new DraygonCue.ShiftBodyPicture(new(-6, 6))),
-            Show(F.DraygonTailFacingRightWhipLashedOut, 2),
-            Cue(new DraygonCue.ShiftBodyPicture(new(-8, 8))),
-            Show(F.DraygonTailFacingRightWhipCurling, 1),
-            Cue(new DraygonCue.ShiftBodyPicture(new(0, 0))),
+            .. ShiftingLash(DraygonTailPoses.Right, LashTipOutUpdates),
             Cue(DraygonCue.TailWhipHit.Instance),
             Cue(new DraygonCue.QueueSound(DraygonSoundDefinitions.Explosion)),
-            Show(F.DraygonTailFacingRightWhipRecoiling, 3),
-            Show(F.DraygonTailFacingRightWhipCurling, 1),
-            Show(F.DraygonTailFacingRightWhipLashedOut, 2),
-            Show(F.DraygonTailFacingRightWhipSwinging, 3),
-            Show(F.DraygonTailFacingRightWhipHangingLong, 4),
-            Show(F.DraygonTailFacingRightWhipRaising, 5),
-            Show(F.DraygonTailFacingRightWhipCocking, 6),
+            .. Recoil(DraygonTailPoses.Right, LashRecoilUpdates),
         ],
         [P.TailFacingRightFlail] =
         [
-            Show(F.DraygonTailFacingRightTipOut, 2),
-            Show(F.DraygonTailFacingRightWhipCocking, 6),
-            Show(F.DraygonTailFacingRightWhipRaising, 5),
-            Show(F.DraygonTailFacingRightWhipHangingLong, 4),
-            Show(F.DraygonTailFacingRightWhipSwinging, 3),
-            Show(F.DraygonTailFacingRightWhipLashedOut, 2),
-            Show(F.DraygonTailFacingRightWhipCurling, 1),
+            .. Lash(DraygonTailPoses.Right),
             Cue(new DraygonCue.QueueSound(DraygonSoundDefinitions.Explosion)),
-            Show(F.DraygonTailFacingRightWhipRecoiling, 3),
-            Show(F.DraygonTailFacingRightWhipCurling, 1),
-            Show(F.DraygonTailFacingRightWhipLashedOut, 2),
-            Show(F.DraygonTailFacingRightWhipSwinging, 3),
-            Show(F.DraygonTailFacingRightWhipHangingLong, 4),
-            Show(F.DraygonTailFacingRightWhipRaising, 5),
-            Show(F.DraygonTailFacingRightWhipCocking, 6),
+            .. Recoil(DraygonTailPoses.Right, LashRecoilUpdates),
         ],
     });
 
@@ -455,7 +373,7 @@ internal static class DraygonAnimations
         [P.ArmsFacingLeftIdle] = Animation<DraygonSegment>.Looping([Segments.Whole(P.ArmsFacingLeftIdle)]),
         [P.ArmsFacingLeftNearSwoopApex] = new([Segments.Whole(P.ArmsFacingLeftNearSwoopApex)], AnimationEnd.Holds),
         [P.ArmsFacingLeftGrab] = new([Segments.Whole(P.ArmsFacingLeftGrab)], AnimationEnd.Holds),
-        [P.ArmsFacingLeftDying] = Animation<DraygonSegment>.LeadingInto([Segments.Whole(P.ArmsFacingLeftDying), Segments.Whole(P.BodyDying), Segments.Repeated(P.BodyDyingExplosions, 8), Segments.Whole(P.BodyDyingParalysis)], [Segments.Whole(P.BodyDyingExplosionLoop)]),
+        [P.BodyFacingLeftDying] = Animation<DraygonSegment>.LeadingInto([Segments.Whole(P.BodyFacingLeftDying), Segments.Whole(P.BodyDyingCry), Segments.Repeated(P.BodyDyingExplosions, 8), Segments.Whole(P.BodyDyingParalysis)], [Segments.Whole(P.BodyDyingExplosionLoop)]),
         [P.BodyFacingLeftIdle] = new([Segments.Whole(P.BodyFacingLeftIdle)], AnimationEnd.Holds),
         [P.Delete] = new([], AnimationEnd.Stops),
         [P.BodyFacingLeftFireGoop] = new([Segments.Whole(P.BodyFacingLeftFireGoop)], AnimationEnd.Holds),
@@ -474,7 +392,7 @@ internal static class DraygonAnimations
         [P.ArmsFacingRightIdle] = Animation<DraygonSegment>.Looping([Segments.Whole(P.ArmsFacingRightIdle)]),
         [P.ArmsFacingRightNearSwoopApex] = new([Segments.Whole(P.ArmsFacingRightNearSwoopApex)], AnimationEnd.Holds),
         [P.ArmsFacingRightGrab] = new([Segments.Whole(P.ArmsFacingRightGrab)], AnimationEnd.Holds),
-        [P.ArmsFacingRightDying] = Animation<DraygonSegment>.LeadingInto([Segments.Whole(P.ArmsFacingRightDying), Segments.Whole(P.BodyDying), Segments.Repeated(P.BodyDyingExplosions, 8), Segments.Whole(P.BodyDyingParalysis)], [Segments.Whole(P.BodyDyingExplosionLoop)]),
+        [P.BodyFacingRightDying] = Animation<DraygonSegment>.LeadingInto([Segments.Whole(P.BodyFacingRightDying), Segments.Whole(P.BodyDyingCry), Segments.Repeated(P.BodyDyingExplosions, 8), Segments.Whole(P.BodyDyingParalysis)], [Segments.Whole(P.BodyDyingExplosionLoop)]),
         [P.BodyFacingRightIdle] = new([Segments.Whole(P.BodyFacingRightIdle)], AnimationEnd.Holds),
         [P.BodyFacingRightFireGoop] = new([Segments.Whole(P.BodyFacingRightFireGoop)], AnimationEnd.Holds),
         [P.BodyFacingRightRoar] = new([Segments.Whole(P.BodyFacingRightRoar)], AnimationEnd.Holds),
@@ -506,6 +424,79 @@ internal static class DraygonAnimations
     /// <summary>His tail's final whips facing right (#2399), as <see cref="TailFacingLeftFinalWhips"/> plays them facing left.</summary>
     internal static Animation<DraygonSegment> TailFacingRightFinalWhips { get; } = Animation<DraygonSegment>.LeadingInto(
         [Segments.Repeated(P.TailFacingRightWhip, FinalWhips), Segments.Whole(P.TailFacingRightReleaseSamus)], [Segments.Whole(P.TailFacingRightIdle)]);
+
+    /// <summary>The updates his tail's tip shows swung out before a whip or a flail lashes.</summary>
+    private const int LashTipOutUpdates = 2;
+
+    /// <summary>The updates his tail shows recoiling after a whip or a flail lashes.</summary>
+    private const int LashRecoilUpdates = 3;
+
+    /// <summary>The updates his tail's tip shows swung out before his fake whip lashes, a long wind-up.</summary>
+    private const int FakeWhipTipOutUpdates = 16;
+
+    /// <summary>The updates his tail shows recoiling after his fake whip lashes, a long hold.</summary>
+    private const int FakeWhipRecoilUpdates = 16;
+
+    /// <summary>
+    /// His tail lashing out on <paramref name="poses"/> (#2465): its tip swung out for <paramref name="tipOutUpdates"/>, then
+    /// from cocked to curled, each pose a beat shorter, while his body's picture shifts back from the way he faces and
+    /// down a pixel further each pose, two at the curl, and settles as the lash ends. His whips and his fake whip lash so.
+    /// </summary>
+    private static AnimationBeat<EnemyFrameId, DraygonCue>[] ShiftingLash(DraygonTailPoses poses, int tipOutUpdates) =>
+    [
+        Cue(new DraygonCue.ShiftBodyPicture(BackFrom(poses.Facing, 1))),
+        Show(poses.TipOut, tipOutUpdates),
+        Cue(new DraygonCue.ShiftBodyPicture(BackFrom(poses.Facing, 2))),
+        Show(poses.Cocking, 6),
+        Cue(new DraygonCue.ShiftBodyPicture(BackFrom(poses.Facing, 3))),
+        Show(poses.Raising, 5),
+        Cue(new DraygonCue.ShiftBodyPicture(BackFrom(poses.Facing, 4))),
+        Show(poses.HangingLong, 4),
+        Cue(new DraygonCue.ShiftBodyPicture(BackFrom(poses.Facing, 5))),
+        Show(poses.Swinging, 3),
+        Cue(new DraygonCue.ShiftBodyPicture(BackFrom(poses.Facing, 6))),
+        Show(poses.LashedOut, 2),
+        Cue(new DraygonCue.ShiftBodyPicture(BackFrom(poses.Facing, 8))),
+        Show(poses.Curling, 1),
+        Cue(new DraygonCue.ShiftBodyPicture(new(0, 0))),
+    ];
+
+    /// <summary>
+    /// His tail lashing out on <paramref name="poses"/> as <see cref="ShiftingLash"/> lashes it after a short wind-up, but
+    /// with his body's picture still (#2465): his flail lashes so.
+    /// </summary>
+    private static AnimationBeat<EnemyFrameId, DraygonCue>[] Lash(DraygonTailPoses poses) =>
+    [
+        Show(poses.TipOut, LashTipOutUpdates),
+        Show(poses.Cocking, 6),
+        Show(poses.Raising, 5),
+        Show(poses.HangingLong, 4),
+        Show(poses.Swinging, 3),
+        Show(poses.LashedOut, 2),
+        Show(poses.Curling, 1),
+    ];
+
+    /// <summary>
+    /// His tail recoiling on <paramref name="poses"/> (#2465): recoiling for <paramref name="recoilingUpdates"/>, then
+    /// swinging back from curled to cocked through the lash's poses, each a beat longer. Every lash ends so.
+    /// </summary>
+    private static AnimationBeat<EnemyFrameId, DraygonCue>[] Recoil(DraygonTailPoses poses, int recoilingUpdates) =>
+    [
+        Show(poses.Recoiling, recoilingUpdates),
+        Show(poses.Curling, 1),
+        Show(poses.LashedOut, 2),
+        Show(poses.Swinging, 3),
+        Show(poses.HangingLong, 4),
+        Show(poses.Raising, 5),
+        Show(poses.Cocking, 6),
+    ];
+
+    /// <summary>
+    /// The shift of his body's picture <paramref name="pixels"/> back from the way he faces, <paramref name="facing"/>, and
+    /// as many down.
+    /// </summary>
+    private static Offset16<RoomPixels> BackFrom(HorizontalDirection facing, int pixels) =>
+        DraygonParts.TowardFacing(new(-pixels, pixels), facing);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, DraygonCue> Show(EnemyFrameId frame, int duration) =>

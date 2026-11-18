@@ -19,7 +19,7 @@ public enum MotherBrainHeadSegment
     HyperBeamRecoil,
     /// <summary>Her damaged head holds its open mouth after the recoil.</summary>
     HyperBeamRecoilHeld,
-    /// <summary>Her whole head, mouth closed.</summary>
+    /// <summary>Her head before it is damaged, held still with its eye shut.</summary>
     WholeHeadMouthClosed,
     /// <summary>Her damaged head closes its open mouth as her body falls away.</summary>
     Decapitated,
@@ -43,7 +43,7 @@ public enum MotherBrainHeadSegment
     NeutralPhase3Hold,
     /// <summary>Her damaged head goes still as her corpse.</summary>
     Corpse,
-    /// <summary>Her corpse's head, held.</summary>
+    /// <summary>Her corpse's head slumped, still for good.</summary>
     CorpseHeld,
     /// <summary>Her whole head opens wide with an attack cry and fires four onion rings at Samus.</summary>
     FourOnionRingsPhase2,

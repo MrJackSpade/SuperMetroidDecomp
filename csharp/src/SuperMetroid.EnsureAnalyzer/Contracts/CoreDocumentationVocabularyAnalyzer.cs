@@ -153,6 +153,10 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// #2456 adds, outside hardware owners, the original's routines, per-frame code, copies and precision: a routine's tail
 /// named by what it ends, pointed at, owned or of an update, a frame behaviour, common shot, touch or bomb AI, the
 /// game's copies of a table, the longest duration a frame can have and a quantity told by its 1/256 precision.
+/// #2465 adds, outside hardware owners, the original's program and storage and the repository's checks as boss prose
+/// tells them: frame behaviours, early returns, final stores and direct writes, execution and bookkeeping, a routine that
+/// returns zero, the game's mover, the checks that compare, wrapped and stored values, flag bits, authored
+/// arguments and a branch that also does something; and, in every type, a rebuild here that doubles or breaks something.
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -2076,6 +2080,41 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
+    /// The original's program and storage and the repository's checks told in boss prose (#2465), outside hardware owners
+    /// and markup: a frame behaviour, spaced or per-frame (the shot's fired frame behaviour, a Zoa's per-frame behaviour);
+    /// an early return; a thing left unwritten; a final or last store or write (the runner's final store); a query or
+    /// routine that returns zero or nonzero; execution (leaves execution at the setup, cue execution); bookkeeping; the
+    /// real pool; the game's mover, routine, handler or subroutine (as the game's projectile mover does); the checks that
+    /// compare, read or assert something; a wrapped count, counter, value, word, timer or sum; a stored value, word, byte or
+    /// count; a respawn, flag, status, enable or done bit; authored arguments
+    /// or operands; a direct write of anything (the Shitroid's direct camera X write, a direct terrain write); and a branch
+    /// that also, then, first or only does something (the riding branch also carries Samus). The original ran a frame
+    /// behaviour each frame, returned early, stored its results in the end and kept its counts in words and bits; Core says
+    /// what the game does: how a shot moves each update, that a bubble rises whatever the eye does, where an animation
+    /// goes on, what the count is, which roll whips, that the Shitroid moves the camera. English stays legal: a frame alone
+    /// and a behaviour alone, a return to a place, a count that wraps, a value kept, a bit of a thing, an authored path, a
+    /// direct hit or line, a branch alone and a hardware owner, which describes the program it reproduces.
+    /// </summary>
+    private static readonly Regex BossProgramStorageAndRepositoryProse = new(
+        @"\bframe\s+behaviou?rs?\b" +
+        @"|\bearly\s+returns?\b" +
+        @"|\bunwritten\b" +
+        @"|\b(?:final|last)\s+(?:stores?|writes?)\b" +
+        @"|\breturns?\s+(?:non-?)?zero\b" +
+        @"|\bexecution\b" +
+        @"|\bbookkeeping\b" +
+        @"|\breal\s+pool\b" +
+        @"|\bthe\s+game(?:'|’)s\s+(?:[\w-]+\s+){0,2}(?:movers?|routines?|handlers?|subroutines?)\b" +
+        @"|\bthe\s+checks\s+(?:compare|read|assert|check|test)\b" +
+        @"|\bwrapped\s+(?:counts?|counters?|values?|words?|timers?|sums?)\b" +
+        @"|\bstored\s+(?:values?|words?|bytes?|counts?)\b" +
+        @"|\b(?:respawn|flag|status|enable|done)\s+bits?\b" +
+        @"|\bauthored\s+(?:arguments?|operands?)\b" +
+        @"|\bdirect\s+(?:[\w-]+\s+){0,3}writes?\b" +
+        @"|\bbranch(?:es)?\s+(?:also|then|first|only)\s+\w+",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
     /// A type's summary that calls the type a species owner (#2427): the species-owner template (its per-room state,
     /// behaviour and the interactions it registers). Only a type that creates or keeps a species' enemies
     /// (<see cref="SpeciesOwnerInterfaces"/>) is one; any other type says what it is.
@@ -2183,14 +2222,18 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
     /// this, that or it out (leaving this assignment out produces a silent attack), reducing, combining, collapsing,
     /// simplifying or merging something that then lost, broke or regressed something (reducing those branches to
     /// three/two loses one point), and doing only one thing that then made, caused, broke or lost something (reading only
-    /// the uncharged row made Wave Shield disappear). Core states what the game does; what an earlier version of the port
-    /// got wrong is the repository's history. English stays legal: a consequence told in the present (moving only left
-    /// turns her) and leaving a room.
+    /// the uncharged row made Wave Shield disappear), and rebuilding, recomputing, resetting, rewriting or replacing
+    /// something here that then doubles, halves, breaks, loses or desyncs something (#2465: rebuilding a clean rectangle
+    /// here doubles close-range damage). Core states what the game does; what an earlier version of the port got wrong is
+    /// the repository's history. English stays legal: a consequence told in the present (moving only left turns her), a
+    /// thing that doubles here without a rebuild and leaving a room.
     /// </summary>
     private static readonly Regex ClauseFixHistoryProse = new(
         @"\bleaving\s+(?:this|that|these|those|it|them)\b[^.;]*?\bout\b" +
         @"|\b(?:reducing|combining|collapsing|simplifying|merging)\b[^.;]*?\b(?:loses|lost|broke|breaks|regressed)\b" +
-        @"|\b\w+ing\s+only\b[^.;]*?\b(?:made|caused|broke|lost|regressed)\b",
+        @"|\b\w+ing\s+only\b[^.;]*?\b(?:made|caused|broke|lost|regressed)\b" +
+        @"|\b(?:rebuilding|recomputing|resetting|rewriting|replacing)\b[^.;]*?\bhere\s+(?:would\s+)?" +
+        @"(?:doubles?|halves?|breaks?|loses?|desyncs?)\b",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
@@ -2639,6 +2682,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : PoseRangeProse.Match(text) is { Success: true } poseRange ? poseRange.Value
             : PortBuildScopeAndLayoutProse.Match(Markup.Replace(text, " ")) is { Success: true } portBuild ? portBuild.Value
             : RoutineTailFrameBehaviourAndPrecisionProse.Match(Markup.Replace(text, " ")) is { Success: true } routineTail ? routineTail.Value
+            : BossProgramStorageAndRepositoryProse.Match(Markup.Replace(text, " ")) is { Success: true } bossProgram ? bossProgram.Value
             : TileCharacterFinding(text, owner) is { } character ? character
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;

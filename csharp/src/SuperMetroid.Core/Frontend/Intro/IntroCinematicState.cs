@@ -1012,7 +1012,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         if (cue != DemoInputCue.EndIntroMotherBrainFlashback)
             throw new InvalidOperationException($"The Mother Brain flashback demo handles no {cue} cue.");
 
-        // The flashback's end locks Samus standing facing left, reinitializes the pose/animation bookkeeping,
+        // The flashback's end locks Samus standing facing left, starts her pose and its animation afresh,
         // disables demo publication, and then returns to the demo's animation. The next
         // step is the shared delete, so the actor is removed on the same
         // update. Freezing input after the exact pose change gives the remaining Mother Brain explosion

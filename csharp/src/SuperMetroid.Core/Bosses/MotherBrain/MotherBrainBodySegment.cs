@@ -23,7 +23,7 @@ public enum MotherBrainBodySegment
     WalkBackwardMedium,
     /// <summary>Mother Brain body animation: walking backwards, really slow.</summary>
     WalkBackwardReallySlow,
-    /// <summary>Mother Brain body animation: crouch and then stand up.</summary>
+    /// <summary>Her body lowering into a crouch and rising straight back to standing, eight updates a picture.</summary>
     CrouchAndThenStandUp,
     /// <summary>Mother Brain body animation: standing up after crouching, slow.</summary>
     StandAfterCrouchSlow,
@@ -33,11 +33,11 @@ public enum MotherBrainBodySegment
     StandAfterLeaning,
     /// <summary>Mother Brain body animation: leaning down.</summary>
     LeanDown,
-    /// <summary>Mother Brain body animation: crouched.</summary>
+    /// <summary>Her body holding its crouch.</summary>
     Crouched,
-    /// <summary>Mother Brain body animation: crouch, slow.</summary>
+    /// <summary>Her body lowering from standing into a crouch, eight updates a picture.</summary>
     CrouchSlow,
-    /// <summary>Mother Brain body animation: crouch, fast.</summary>
+    /// <summary>Her body dropping from standing into a crouch, leaning and uncrouching for two updates each.</summary>
     CrouchFast,
     /// <summary>The red hand beam's start: she takes the beam's pose and draws her arm back, which starts the hand-beam animation.</summary>
     HandBeam,

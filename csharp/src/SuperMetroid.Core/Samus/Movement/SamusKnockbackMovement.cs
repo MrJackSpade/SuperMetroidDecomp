@@ -257,7 +257,7 @@ public static class SamusKnockbackMovement
     /// <summary>Installs the normal jump of the same facing that a damage boost's input selects.</summary>
     /// <param name="samus">The damage-boosting Samus.</param>
     /// <param name="targetPose">The neutral or forward normal jump the damage boost leaves by.</param>
-    /// <param name="controllerNewInput">This frame's newly pressed actions, which the normal-jump bookkeeping reads.</param>
+    /// <param name="controllerNewInput">This frame's newly pressed actions, which the normal jump reads.</param>
     public static void ApplyDamageBoostPoseTransition(
         SamusState samus,
         SamusPoseId targetPose,

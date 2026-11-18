@@ -19,7 +19,10 @@ public enum CrocomireBodySegment
     ProjectileAttackSpitting,
     /// <summary>A pause before his step forward.</summary>
     StepForwardAfterDelay,
-    /// <summary>His step forward.</summary>
+    /// <summary>
+    /// His roaring advance: his mouth opening wide with a cry, then a stride on alternate feet that raises dust and shakes
+    /// the screen, his mouth shutting at its end; it may first start his projectile attack.
+    /// </summary>
     StepForward,
     /// <summary>The start of his step back.</summary>
     StepBack,
@@ -74,7 +77,7 @@ public enum CrocomireBodySegment
     MeltingBareSkullTopFourRows,
     /// <summary>Sinking after the bridge collapses under him.</summary>
     BridgeCollapsed,
-    /// <summary>His skeleton falling.</summary>
+    /// <summary>His skeleton toppling, leaning and tipping over, ten updates each.</summary>
     SkeletonFalling,
     /// <summary>His skeleton falling apart.</summary>
     SkeletonFallsApart,
@@ -82,6 +85,6 @@ public enum CrocomireBodySegment
     SkeletonStable,
     /// <summary>His dead skeleton.</summary>
     Dead,
-    /// <summary>His skeleton flowing down the river.</summary>
+    /// <summary>The bubbles his sunken skeleton leaves as it is carried away: forming, bursting and fading, then adrift.</summary>
     SkeletonFlowingDownRiver,
 }

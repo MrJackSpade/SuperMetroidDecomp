@@ -112180,7 +112180,7 @@
     },
     {
       "type": "SuperMetroid.Core.Rooms.LevelData.BombBlockRestoreDraw",
-      "kind": "enum",
+      "kind": "record struct",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
@@ -113538,6 +113538,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Rooms.RoomObjects.AccessStationObject",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/AccessStationObject.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Rooms.RoomObjects.AccessStationSetup",
       "kind": "record",
       "scope": "product",
@@ -113549,6 +113562,32 @@
       ],
       "partial": "none",
       "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.RoomObjects.BlockArrangement",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/BlockArrangement.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.RoomObjects.BlockArrangementDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/BlockArrangementDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Rooms.RoomObjects.BlockBreakupStage",
@@ -114221,7 +114260,7 @@
     },
     {
       "type": "SuperMetroid.Core.Rooms.RoomObjects.ContactCrumbleRestoreDraw",
-      "kind": "enum",
+      "kind": "record struct",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
@@ -114661,17 +114700,43 @@
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.Core.Rooms.RoomObjects.DownwardGateTriggerBehavior",
+      "type": "SuperMetroid.Core.Rooms.RoomObjects.DownwardGateTrigger",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/DownwardGateTrigger.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.RoomObjects.DownwardGateTriggerColor",
       "kind": "enum",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/DownwardGateTriggerBehavior.cs"
+        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/DownwardGateTriggerColor.cs"
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.RoomObjects.DownwardGateTriggerDefinition",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/DownwardGateTriggerDefinition.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Core.Rooms.RoomObjects.DownwardGateTriggerDefinitions",
@@ -114685,6 +114750,19 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.RoomObjects.DownwardGateTriggerShots",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/DownwardGateTriggerShots.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Rooms.RoomObjects.DraygonCannonOrientation",
@@ -116314,61 +116392,16 @@
     },
     {
       "type": "SuperMetroid.Core.Rooms.RoomObjects.LinkedRestoreObjectFamily",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/LinkedRestoreObjectFamily.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.RoomObjects.LinkedRestoreObjectFamily.Draw",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/LinkedRestoreObjectFamily.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.RoomObjects.LinkedRestoreObjectFamilyAccess",
       "kind": "static class",
-      "scope": "test",
+      "scope": "product",
       "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
+        "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Rooms/RoomObjects/LinkedRestoreObjectFamilyAccess.cs"
+        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/LinkedRestoreObjectFamily.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.RoomObjects.LinkedRestoreObjectFamilyAccess.extension(SuperMetroid.Core.Rooms.RoomObjects.LinkedRestoreObjectFamily)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Rooms/RoomObjects/LinkedRestoreObjectFamilyAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Rooms.RoomObjects.LoadStationPlacement",
@@ -118248,19 +118281,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Rooms.RoomObjects.RoomObjectRestoreShape",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/RoomObjectRestoreShape.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Rooms.RoomObjects.RoomObjectRoom",
       "kind": "record",
       "scope": "product",
@@ -118401,32 +118421,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/RoomObjectSetupBlock.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.RoomObjects.RoomObjectShotBlockDrawDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/RoomObjectShotBlockDrawDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.RoomObjects.RoomObjectShotBlockDrawDefinitions.Shape",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/RoomObjectShotBlockDrawDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -118997,6 +118991,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Rooms.RoomObjects.SaveStationObject",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/SaveStationObject.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Rooms.RoomObjects.SaveStationPhase",
       "kind": "enum",
       "scope": "product",
@@ -119344,14 +119351,14 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Rooms.RoomObjects.StationAccessBehavior",
-      "kind": "enum",
+      "type": "SuperMetroid.Core.Rooms.RoomObjects.StationAccess",
+      "kind": "record struct",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/StationAccessBehavior.cs"
+        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/StationAccess.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -119394,51 +119401,6 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.RoomObjects.StationAccessObjectDefinitionsAccess",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Rooms/RoomObjects/StationAccessObjectDefinitionsAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.RoomObjects.StationAccessObjectDefinitionsAccess.extension(SuperMetroid.Core.Rooms.RoomObjects.StationAccessObjectDefinitions)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Rooms/RoomObjects/StationAccessObjectDefinitionsAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.RoomObjects.StationAccessObjects",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/StationAccessObjects.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Rooms.RoomObjects.StationAccessPose",
@@ -119632,19 +119594,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Rooms.RoomObjects.StationObject",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/StationObject.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
       "type": "SuperMetroid.Core.Rooms.RoomObjects.StationObjectDrawDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -119711,6 +119660,32 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.RoomObjects.StationRefill",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/StationRefill.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.RoomObjects.StationRefills",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/StationRefills.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Rooms.RoomObjects.TerrainChange",

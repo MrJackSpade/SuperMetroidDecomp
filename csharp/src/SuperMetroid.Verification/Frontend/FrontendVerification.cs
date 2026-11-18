@@ -11,7 +11,6 @@ using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.AssetExtraction.Cartridge;

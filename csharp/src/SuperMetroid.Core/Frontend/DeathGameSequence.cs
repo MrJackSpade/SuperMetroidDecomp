@@ -80,10 +80,8 @@ internal sealed class DeathGameSequence(FrontendSession session) : IGamePhase
         BeginDeathFade();
         SamusState dyingSamus = session.GameplayRuntime.Player.Samus
             ?? throw new InvalidOperationException("Death sequence lost its Samus owner.");
-        dyingSamus.SelectedHudItem = HudItem.Beam;
-        dyingSamus.AutoCancelledItem = HudItem.Beam;
-        dyingSamus.InvincibilityTimer = WrappingCountdown.Start(0);
-        dyingSamus.KnockbackTimer = 0;
+        dyingSamus.SelectBeam();
+        dyingSamus.ClearHurtTimers();
         dyingSamus.KnockbackActive = false;
         session.Enter(DeathSequenceStep.BlackingOutSurroundings);
     }
@@ -98,9 +96,7 @@ internal sealed class DeathGameSequence(FrontendSession session) : IGamePhase
         {
             // Death setup cancels all three sound libraries, then installs the death
             // music data and track through the ordinary delayed music queue.
-            session.audio.QueueSound(SamusSound.Silence, priority: SoundRequestPriority.Essential);
-            session.audio.QueueSound(EnemySound.Silence, priority: SoundRequestPriority.Essential);
-            session.audio.QueueSound(RoomSound.Silence, priority: SoundRequestPriority.Essential);
+            session.audio.QueueCancelSoundEffects(SoundRequestPriority.Essential);
             session.audio.QueueMusic(MusicRequest.Stop);
             session.audio.QueueMusic(MusicRequest.LoadDataSet(MusicDataSet.Death));
             session.audio.ScheduleMusic(MusicRequest.SelectTrack(SamusDeathDefinitions.FanfareTrack), SamusDeathDefinitions.FanfareDelay);

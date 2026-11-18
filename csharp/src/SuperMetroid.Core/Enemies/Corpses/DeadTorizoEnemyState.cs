@@ -32,8 +32,8 @@ public sealed class DeadTorizoEnemyState
     internal DeadTorizoPhase Phase { get; set; }
 
     /// <summary>
-    /// How fast the rotting corpse sinks, in 256ths of a pixel an update, downward positive: rotting increases it by one
-    /// 256th each update (#2432).
+    /// How fast the rotting corpse sinks, downward positive: rotting increases it by
+    /// <see cref="DeadTorizoCorpseDefinitions.RotGravity"/> each update (#2432).
     /// </summary>
     public SignedEightEight FallSpeed { get; internal set; }
 }

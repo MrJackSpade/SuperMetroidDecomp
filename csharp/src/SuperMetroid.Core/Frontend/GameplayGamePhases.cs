@@ -4,7 +4,6 @@ using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Frontend;
@@ -77,11 +76,10 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         if (session.Runtime?.Player.Samus is not SamusState samus || session.Runtime.Room.ActiveRoom is null)
             return false;
 
-        // The pause check only runs from Samus's normal input phase. The station lock
-        // replaces that phase with an inert one, so its entire insertion,
-        // message/data-load, and retraction sequence bypasses pause-check even though the game
-        // remains in main gameplay. The locked input mode installed with it stands for that
-        // replacement; the remaining clauses are the pause check's own predicate.
+        // The pause check runs only while Samus takes her normal input. A station's lock holds her input through its
+        // whole insertion, message or data load and retraction, so none of it can be paused even though the game
+        // remains in main gameplay. The locked input mode the lock sets stands for that hold; the remaining clauses are
+        // the pause check's own predicate.
         return session.GameState == SuperMetroidGameState.MainGameplay &&
                !messageBoxOwnedFrame &&
                !session.Runtime.MessageBox.IsActive &&
@@ -200,14 +198,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
     {
         if (session.Runtime?.MessageBoxes.ConsumeSaveStationPersistenceRequest() is not { } request)
             return;
-        SamusState samus = session.Runtime.Player.Samus
-            ?? throw new InvalidOperationException(
-                "A confirmed save station has no live Samus state.");
-        // Saving first stores the live explored map as the current area's.
-        session.Runtime.System.StoredExploredMaps.StoreLiveMap(request.Station.Area);
-        session.saves.SaveSlot(
-            session.SelectedSaveSlot,
-            SuperMetroidSaveSnapshot.Capture(samus, session.Runtime.System, new SaveSnapshotContext { Checkpoint = request.Station, GameTime = session.Runtime.GameTime, ControllerBindings = session.Runtime.Options.ControllerBindings, MoonwalkEnabled = session.Runtime.Options.MoonwalkEnabled, IconCancelEnabled = session.Runtime.Options.IconCancelEnabled, JapaneseText = session.Runtime.JapaneseText }));
+        session.saves.SaveSlot(session.SelectedSaveSlot, session.Runtime.SaveSnapshotAt(request.Station));
         session.RaiseSavesChanged();
     }
 }

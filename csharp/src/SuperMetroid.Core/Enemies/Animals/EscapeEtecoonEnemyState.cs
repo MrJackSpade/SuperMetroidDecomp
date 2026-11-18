@@ -14,7 +14,7 @@ public sealed class EscapeEtecoonEnemyState
     /// <summary>The way the Etecoon walks (#2369); a wall turns it around.</summary>
     public HorizontalDirection Direction { get; private set; }
 
-    /// <summary>How far, in 1/256 pixels, the Etecoon walks each update toward its <see cref="Direction"/>.</summary>
+    /// <summary>How far the Etecoon walks each update toward its <see cref="Direction"/>.</summary>
     public SignedEightEight Speed { get; private set; }
 
     /// <summary>The Etecoon's horizontal velocity: its <see cref="Speed"/> toward its <see cref="Direction"/>.</summary>

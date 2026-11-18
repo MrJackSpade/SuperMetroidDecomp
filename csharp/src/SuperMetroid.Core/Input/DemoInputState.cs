@@ -25,19 +25,16 @@ public sealed class DemoInputState
     /// Updates remaining in the active demo input: at least one while the recording plays, since every recorded input lasts
     /// at least one update (<see cref="DemoInput.Duration"/>), and zero once the recording has ended or been cleared.
     /// </summary>
-    public int FrameHold { get; private set; }
+    private int _frameHold;
+
+    /// <summary>The actions the demo newly pressed on the previous step, handed to the drawing-input history on the next.</summary>
+    private GameplayAction _previousNewlyPressed;
 
     /// <summary>The actions the demo currently holds in place of the player's held actions.</summary>
     public GameplayAction Held { get; private set; }
 
     /// <summary>The actions the demo currently presses anew in place of the player's newly pressed actions.</summary>
     public GameplayAction NewlyPressed { get; private set; }
-
-    /// <summary>The actions the demo held on the previous step.</summary>
-    public GameplayAction PreviousHeld { get; private set; }
-
-    /// <summary>The actions the demo newly pressed on the previous step.</summary>
-    public GameplayAction PreviousNewlyPressed { get; private set; }
 
     /// <summary>The newly pressed actions pressed before this step, which Samus's input filter reads as the previous new input.</summary>
     public GameplayAction PublishedPreviousNewlyPressed { get; private set; }
@@ -49,11 +46,10 @@ public sealed class DemoInputState
     {
         Enabled = false;
         Position = null;
-        FrameHold = 0;
+        _frameHold = 0;
         Held = GameplayAction.None;
         NewlyPressed = GameplayAction.None;
-        PreviousHeld = GameplayAction.None;
-        PreviousNewlyPressed = GameplayAction.None;
+        _previousNewlyPressed = GameplayAction.None;
         PublishedPreviousNewlyPressed = GameplayAction.None;
     }
 
@@ -74,7 +70,7 @@ public sealed class DemoInputState
     public void Load(DemoInputRecordingId recording)
     {
         Position = DemoPlaybackPosition.Start(recording);
-        FrameHold = 1;
+        _frameHold = 1;
     }
 
     /// <summary>
@@ -87,8 +83,8 @@ public sealed class DemoInputState
         if (!Enabled || Position is not { } position)
             return;
 
-        FrameHold--;
-        if (FrameHold == 0)
+        _frameHold--;
+        if (_frameHold == 0)
             PlayNextInput(position, cue);
         RememberPressed();
     }
@@ -99,9 +95,8 @@ public sealed class DemoInputState
     /// </summary>
     private void RememberPressed()
     {
-        PublishedPreviousNewlyPressed = PreviousNewlyPressed;
-        PreviousHeld = Held;
-        PreviousNewlyPressed = NewlyPressed;
+        PublishedPreviousNewlyPressed = _previousNewlyPressed;
+        _previousNewlyPressed = NewlyPressed;
     }
 
     /// <summary>
@@ -131,7 +126,7 @@ public sealed class DemoInputState
         }
 
         DemoInput input = recording.Inputs[position.NextInput];
-        FrameHold = input.Duration;
+        _frameHold = input.Duration;
         Held = input.Held;
         NewlyPressed = input.NewlyPressed;
         Position = position with { NextInput = position.NextInput + 1 };

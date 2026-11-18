@@ -202,7 +202,7 @@ internal static class CinematicSpriteNativeListAddresses
         },
         new Dictionary<ushort, EndingRewardJumpCue>
         {
-            [CinematicActorNativeMotions.RewardBody[EndingRewardBodyMotion.Rising]] = EndingRewardJumpCue.StartBodyFlight,
+            [CinematicActorNativeMotions.RewardBody[EndingRewardJumpMotion.Rising]] = EndingRewardJumpCue.StartBodyFlight,
             [CinematicActorNativeMotions.RewardHeadFlight] = EndingRewardJumpCue.StartHeadFlight,
         });
 

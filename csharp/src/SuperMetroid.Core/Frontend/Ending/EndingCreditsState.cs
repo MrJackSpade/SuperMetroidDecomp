@@ -43,13 +43,18 @@ internal sealed class EndingCreditsState : IFrontendScreen
     /// <summary>The ending's actors in their running order, in which they step and draw (<see cref="EndingCastOrderDefinitions"/>).</summary>
     internal readonly List<EndingSprite> sprites = [];
     /// <summary>The credits scroll, which exists while that phase runs.</summary>
-    internal CreditsScroll Credits => InstalledArtwork.CurrentCredits ??
+    internal CreditsScroll Credits => CreditsRoll.CurrentCredits ??
         throw new InvalidOperationException("The credits scroll is not running.");
     /// <summary>The post-credits typed text the ending advances, which exists while its phases run.</summary>
     private EndingTypewriter PostCreditsTyping => InstalledArtwork.PostCreditsText.Typing ??
         throw new InvalidOperationException("The post-credits text is not running.");
     /// <summary>Waiting updates the ending setup has made so far.</summary>
     private int setupFrameWaits;
+    /// <summary>
+    /// The ending's updates so far, counted at the end of each. Only its parity and quarter phase are read: the turning
+    /// floor's every-other-update turn and the planet's every-fourth-update turn.
+    /// </summary>
+    private int cinematicFrame;
     /// <summary>Post-credits suitless or helmet-removal gesture actor.</summary>
     internal EndingRewardGesture? CurrentRewardGesture { get; private set; }
     /// <summary>The state of the reward gesture, which exists while that phase runs.</summary>
@@ -238,7 +243,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
 
             case EndingCreditsPhase.PlanetEscapeAccelerating:
                 EscapeScenes.StepSprites();
-                Flyaway.StepPlanetEscapeAccelerating();
+                Flyaway.StepPlanetEscapeAccelerating(cinematicFrame);
                 break;
 
             case EndingCreditsPhase.OperationSuccessfulText:
@@ -410,7 +415,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
         // The credits' end enables the already-started colour effects when the credits finish.
         if (EndingCreditsPhaseGroups.PostCredits.Contains(Stage.Phase))
             (CreditsRoll.ShootingStars ??= new EndingShootingStars()).Step();
-        Flyaway.CinematicFrame++;
+        cinematicFrame++;
     }
 
     /// <summary>
@@ -419,7 +424,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
     private void StepAtmosphericTransform(FloorZoomStep zoomStep)
     {
         // The floor turns during both fades as well as the fully visible interval.
-        if (EndingCadenceDefinitions.AtmosphereFloorTurnEverySecondUpdate.IsDue(Flyaway.CinematicFrame))
+        if (EndingCadenceDefinitions.AtmosphereFloorTurnEverySecondUpdate.IsDue(cinematicFrame))
             Stage.FloorAngle = Stage.FloorAngle.TurnedBySteps(EndingMotionDefinitions.AtmosphereTurnSteps);
         Stage.FloorZoom = Stage.FloorZoom.Widened(zoomStep);
     }

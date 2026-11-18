@@ -40,7 +40,7 @@ internal static class RioLaunchDefinitions
     /// <summary>How close horizontally Samus comes, in pixels and exclusive, before a Rio dives.</summary>
     internal const int RioTriggerDistance = 160;
 
-    /// <summary>How much a Rio's vertical speed falls each update of its dive and rebound, 24 256ths of a pixel.</summary>
+    /// <summary>How much a Rio's vertical speed falls each update of its dive and rebound.</summary>
     internal static SignedEightEight RioGravity { get; } = SignedEightEight.FromParts(0, 24);
 
     /// <summary>How close horizontally Samus comes, in pixels and exclusive, before a Norfair Rio may dive.</summary>
@@ -56,7 +56,7 @@ internal static class RioLaunchDefinitions
     internal static SignedEightEight LowerNorfairGravity { get; } = SignedEightEight.FromParts(0, 32);
 
     /// <summary>
-    /// The vertical speed every Rio family starts back up to its perch at, a 256th of a pixel an update upward: a Rio as it
+    /// The vertical speed every Rio family starts back up to its perch at, the slowest rise there is: a Rio as it
     /// stops homing on Samus, a Norfair or Lower Norfair Rio as its dive ends.
     /// </summary>
     internal static SignedEightEight ReturnYVelocity { get; } = -SignedEightEight.FromParts(0, 1);

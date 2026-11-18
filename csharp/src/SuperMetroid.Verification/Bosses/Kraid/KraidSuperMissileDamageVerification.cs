@@ -47,7 +47,7 @@ internal static class KraidSuperMissileDamageVerification
         SamusPoseMetadata.RefreshCollisionRadii(samus);SamusPresentation.InitializeAnimation(samus);samus.CommitPoseHistory();
         samus.Position = samus.Position.WithWhole(new(120, (ushort)(512-samus.Kinematics.Radius.Y)));samus.Control.Unlock();
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(0, 384));
-        game.GameState = SuperMetroidGameState.MainGameplay;
+        game.Session.Enter(SuperMetroidGameState.MainGameplay);
         if (collisionReport) return VerifyKraidReportedCollisions(game, runtime, body, state);
         // Kraid's arm swipes reach this standing position from its sixth frame; contact knockback would move Samus off
         // the mouth's height before the second missile. Contact protection keeps the check on the missiles alone.

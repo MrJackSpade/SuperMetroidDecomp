@@ -7,8 +7,10 @@ public enum FileSelectPhase
     FadeIn,
     /// <summary>Accept slot, Copy, Clear and Exit navigation; data-management items are skipped when all slots are empty.</summary>
     Main,
-    /// <summary>Fade the screen to black, then initialize the selected Copy or Clear page.</summary>
-    FadeOutToDataManagement,
+    /// <summary>Fade the screen to black, then build the Copy page on the first occupied slot.</summary>
+    FadeOutToCopy,
+    /// <summary>Fade the screen to black, then build the Clear page on the first occupied slot.</summary>
+    FadeOutToClear,
     /// <summary>Brighten the newly built Copy, Clear or main page; covers both the submenu and the return-to-main fade-ins.</summary>
     FadeInFromDataManagement,
     /// <summary>Choose an occupied source slot for copying, or leave through Exit/B.</summary>

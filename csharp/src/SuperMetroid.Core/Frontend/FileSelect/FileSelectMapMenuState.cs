@@ -39,20 +39,22 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
     private FileSelectStationMarker marker;
     /// <summary>The saved station, which restores the marker and scroll anchor.</summary>
     private readonly LoadStation station;
-    /// <summary>Suppresses marker display until the room-map entry animation reaches it.</summary>
-    private bool markerDrawn;
     /// <summary>Advances map icon arrows and highlight colours independently of rendering.</summary>
     private readonly FileSelectMapAnimations animations;
-    /// <summary>Controls whether room-map scrolling arrows are included in a frame.</summary>
-    private bool drawArrows;
+    /// <summary>
+    /// The phase the last update began in, whose step ran on it: an update that began on the room map stepped its arrows
+    /// and its marker, so the frame shows them; the room map's first update, which began as the room was set up, shows
+    /// neither, and the update that leaves the room map for a load or a return still shows both.
+    /// </summary>
+    private FileSelectMapNavigationPhase lastUpdateBeganIn = FileSelectMapNavigationPhase.EnteringArea;
     /// <summary>Reads latched input and owns area/room navigation phases.</summary>
     private readonly FileSelectMapNavigation navigation;
     /// <summary>Owns the initial reveal and fade before navigation can consume input.</summary>
     private readonly FileSelectMapEntry entry;
     /// <summary>Active clipping window for the room-to-area return transition.</summary>
     private FileSelectMapWindow? returnWindow;
-    /// <summary>Remaining transition updates before load or return handoff.</summary>
-    private int pendingFrames;
+    /// <summary>The updates the current load or return has run since the update that requested it.</summary>
+    private int requestUpdates;
     /// <summary>The screen's brightness: fully lit, and one level darker on every update of the exit fades, stopping at black.</summary>
     private readonly ScreenFade fade = new(DisplayBrightness.Full);
 
@@ -131,22 +133,21 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
             return;
         }
         FileSelectMapNavigationPhase before = Phase;
-        drawArrows = before == FileSelectMapNavigationPhase.Room;
-        if (drawArrows) animations.StepArrows(Scroll.CanScroll);
+        lastUpdateBeganIn = before;
+        if (before == FileSelectMapNavigationPhase.Room) animations.StepArrows(Scroll.CanScroll);
         // The game draws/advances map icons before testing input, including the frame
         // that requests load/cancel and the following load fade.
         if (before is FileSelectMapNavigationPhase.Room or FileSelectMapNavigationPhase.LoadRequested)
         {
             if (animations.StepHighlight()) Queue(RoomSound.PauseBeep);
             marker.Step();
-            markerDrawn = true;
         }
         if (before == FileSelectMapNavigationPhase.Room && Scroll.Step(input))
             Queue(SamusSound.MapScroll);
         navigation.Step(input);
         if (Phase != before)
         {
-            pendingFrames = 0;
+            requestUpdates = 0;
             if (Phase is FileSelectMapNavigationPhase.PreparingWindow or FileSelectMapNavigationPhase.LoadRequested)
                 Queue(SamusSound.MenuConfirm);
             if (Phase == FileSelectMapNavigationPhase.ExpandingWindow) Queue(SamusSound.MapExpand);
@@ -155,7 +156,6 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
             {
                 Scroll = CreateScrollForCurrentContent();
                 marker = new FileSelectStationMarker(station, InstalledScreenContent.Maps.SaveMarkers);
-                markerDrawn = false;
                 animations.ResetHighlight();
             }
             return;
@@ -163,7 +163,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
         switch (Phase)
         {
             case FileSelectMapNavigationPhase.AreaReturnRequested:
-                if (++pendingFrames < FileSelectMapDefinitions.ReturnSetupFrames) break;
+                if (++requestUpdates < FileSelectMapDefinitions.ReturnSetupFrames) break;
                 if (returnWindow is null)
                 {
                     returnWindow = FileSelectMapWindow.CreateReturn(area, InstalledScreenContent.Maps.Labels);
@@ -179,14 +179,14 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
                 OptionsRequested = fade.Darken();
                 break;
             case FileSelectMapNavigationPhase.LoadRequested:
-                pendingFrames++;
-                if (pendingFrames <= FileSelectMapDefinitions.LoadPreludeFrames) break;
+                requestUpdates++;
+                if (requestUpdates <= FileSelectMapDefinitions.LoadPreludeFrames) break;
                 if (!fade.IsBlack)
                 {
                     _ = fade.Darken();
                     break;
                 }
-                LoadRequested = pendingFrames >= FileSelectMapDefinitions.LoadPreludeFrames + FileSelectMapDefinitions.LoadFadeFrames + FileSelectMapDefinitions.LoadBlackFrames;
+                LoadRequested = requestUpdates >= FileSelectMapDefinitions.LoadPreludeFrames + FileSelectMapDefinitions.LoadFadeFrames + FileSelectMapDefinitions.LoadBlackFrames;
                 break;
             // Navigation itself advances these phases; no menu countdown runs.
             case FileSelectMapNavigationPhase.Area:
@@ -209,8 +209,9 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
     {
         LayeredScene Area(AreaMapBackgroundGlow glow = AreaMapBackgroundGlow.WholeScreen) => areaGraphics.CaptureRenderSnapshot(savedProgress, glow);
         LayeredScene Frame() => roomGraphics.CaptureRenderSnapshot(content: RoomMapContent.FrameOnly);
+        bool roomMapStepped = lastUpdateBeganIn == FileSelectMapNavigationPhase.Room;
         LayeredScene Room(FileSelectStationMarker? shownMarker) => roomGraphics.CaptureRenderSnapshot(Scroll.Scroll,
-            shownMarker, drawArrows ? animations : null);
+            shownMarker, roomMapStepped ? animations : null);
         if (!entry.IsComplete)
         {
             LayeredScene areaScene = Area();
@@ -222,10 +223,10 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
         {
             FileSelectMapNavigationPhase.ExpandingWindow or FileSelectMapNavigationPhase.InitializingRoom =>
                 Window(Area(AreaMapBackgroundGlow.ForegroundOnly), Frame(), navigation.ActiveWindow),
-            FileSelectMapNavigationPhase.Room when !markerDrawn => Room(null),
+            FileSelectMapNavigationPhase.Room when !roomMapStepped => Room(null),
             FileSelectMapNavigationPhase.Room or FileSelectMapNavigationPhase.LoadRequested => Room(marker),
-            FileSelectMapNavigationPhase.AreaReturnRequested when pendingFrames == 0 => Room(marker),
-            FileSelectMapNavigationPhase.AreaReturnRequested when pendingFrames == FileSelectMapDefinitions.ReturnSetupFrames - 1 =>
+            FileSelectMapNavigationPhase.AreaReturnRequested when roomMapStepped => Room(marker),
+            FileSelectMapNavigationPhase.AreaReturnRequested when requestUpdates == FileSelectMapDefinitions.ReturnSetupFrames - 1 =>
                 Insert(Frame(), Area(), FileSelectMapDefinitions.EntryWindowLeft, FileSelectMapDefinitions.EntryWindowTop,
                     FileSelectMapDefinitions.EntryWindowRight + 1, ScreenGeometry.ScreenHeightPixels - FileSelectMapDefinitions.EntryWindowTop),
             FileSelectMapNavigationPhase.AreaReturnRequested when returnWindow is not null => Window(Area(), Frame(), returnWindow),

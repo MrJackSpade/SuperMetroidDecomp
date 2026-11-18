@@ -64,7 +64,7 @@ internal static class PauseDoorShinesparkVerification
             samus.Shinespark.BeginDirectionalLaunch(samus, SamusPoseId.ShinesparkHorizontalRightPose);
             samus.CommitPoseHistory();
             samus.Position = samus.Position.WithWhole(new(128, 128));
-            game.GameState = SuperMetroidGameState.MainGameplay;
+            game.Session.Enter(SuperMetroidGameState.MainGameplay);
             game.Step(ControllerButton.Start);
             AssertTrue(game.IsAt(PauseStep.DarkeningGameplay), "Start begins darkening before reaching the open door");
             AssertTrue(!runtime.RoomLoader.HasPendingDoorTransition, "initial Start frame is short of the door");

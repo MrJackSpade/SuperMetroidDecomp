@@ -137,8 +137,7 @@ internal sealed class DraygonShots
             goop.BlocksSamusProjectiles = false;
             goop.CanDamageSamus = false;
             goop.PersistsOnSamusContact = true;
-            samus.InvincibilityTimer = WrappingCountdown.Start(0);
-            samus.KnockbackTimer = 0;
+            samus.ClearHurtTimers();
         }
 
         /// <summary>Follows Samus with attached goop and counts down its removal timer.</summary>

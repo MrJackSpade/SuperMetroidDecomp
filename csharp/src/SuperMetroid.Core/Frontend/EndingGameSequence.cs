@@ -72,9 +72,7 @@ internal sealed class EndingGameSequence(FrontendSession session) : IGamePhase
             // cancels all three SFX libraries, and enters the credits. The credits
             // perform their own setup on the following update.
             session.audio.QueueMusic(MusicRequest.Stop);
-            session.audio.QueueSound(SamusSound.Silence, priority: SoundRequestPriority.Essential);
-            session.audio.QueueSound(EnemySound.Silence, priority: SoundRequestPriority.Essential);
-            session.audio.QueueSound(RoomSound.Silence, priority: SoundRequestPriority.Essential);
+            session.audio.QueueCancelSoundEffects(SoundRequestPriority.Essential);
             SamusState endingSamus = session.GameplayRuntime.Player.Samus ??
                 throw new InvalidOperationException(
                     "Ending inventory calculation requires the live Samus state.");

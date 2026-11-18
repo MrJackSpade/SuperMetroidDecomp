@@ -42,7 +42,7 @@ internal static class DoorEntryShotBindingVerification
             samus.Control.LockOutPlayer();
             game.AdoptRuntime(runtime);
             game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;
-            game.GameState = SuperMetroidGameState.MainGameplay;
+            game.Session.Enter(SuperMetroidGameState.MainGameplay);
 
             var level = runtime.Room.LoadedLevelData;
             bool selected = false;

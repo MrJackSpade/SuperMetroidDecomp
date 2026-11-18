@@ -32,7 +32,7 @@ internal static class SuperMetroidGameAccess
             if (!self.Session.SetupSelectedGame())
                 throw new InvalidOperationException(
                     "New-game runtime setup did not select the Ceres arrival path.");
-            self.GameState = SuperMetroidGameState.MainGameplay;
+            self.Session.Enter(SuperMetroidGameState.MainGameplay);
         }
 
         /// <summary>
@@ -51,7 +51,7 @@ internal static class SuperMetroidGameAccess
                 throw new InvalidOperationException(
                     "A prepared runtime must be built over its game's random-number word; pass the game's word to the runtime fixture.");
             self.Session.audio.Reset();
-            self.Session.Runtime = runtime;
+            PrivateState.SetField(self.Session, "runtime", runtime);
         }
 
         /// <summary>
@@ -68,7 +68,7 @@ internal static class SuperMetroidGameAccess
             RoomStateSettings roomState = runtime.Room.LoadedRoom.State;
             self.AdoptRuntime(runtime);
             self.Session.LastAudioRoomState = roomState;
-            self.GameState = SuperMetroidGameState.MainGameplay;
+            self.Session.Enter(SuperMetroidGameState.MainGameplay);
         }
 
         /// <summary>

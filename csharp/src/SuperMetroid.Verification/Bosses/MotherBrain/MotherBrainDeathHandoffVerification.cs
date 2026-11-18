@@ -32,7 +32,7 @@ internal static class MotherBrainDeathHandoffVerification
         AssertEqual(new Position16<PlanePixels>(2 * EscapeTypewriterDefinitions.GlyphAdvance, 0), text.Corner, "space advances cursor a glyph's width without a tile");
         text.StepInto(vram);
         text.StepInto(vram);
-        AssertEqual(1, text.GlyphsWritten, "delay applies before next visible glyph");
+        AssertEqual((ushort)0, vram.ReadWord(2), "delay applies before next visible glyph");
         EscapeTypewriterStep second = text.StepInto(vram);
         AssertEqual((ushort)(EscapeTypewriterTileDefinitions.ZebesTileBase.PackedWord + 26), vram.ReadWord(2), "exclamation uses native remap");
         AssertTrue(second is EscapeTypewriterStep.TypedWithClick, "second visible glyph clicks despite intervening space");

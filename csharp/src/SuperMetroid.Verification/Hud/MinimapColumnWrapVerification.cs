@@ -48,6 +48,7 @@ internal static class MinimapColumnWrapVerification
         RoomSize = new Extent16<RoomBlocks>(32, 16),
         Samus = new Position16<RoomPixels>(300, 100),
         FrameCounter = 0,
+        MapRevealMode = MapRevealMode.None,
         PresentationMap = new DiscoverableMap(),
     };
 

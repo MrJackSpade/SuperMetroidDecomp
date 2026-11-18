@@ -32,10 +32,10 @@ internal sealed class EndingRewardJump
     private readonly CinematicActor<EndingRewardAnimation, CinematicSpritePose, EndingRewardJumpCue> body;
     /// <summary>Separate head actor present for the two suited ending rewards.</summary>
     private readonly CinematicActor<EndingRewardAnimation, CinematicSpritePose, EndingRewardJumpCue>? head;
-    /// <summary>Whether the suited jump's head flies, as its animation starts it doing ahead of the body.</summary>
-    private bool headFlying;
+    /// <summary>How the suited jump's head moves: rising once its animation starts it flying ahead of the body, or none before.</summary>
+    private EndingRewardJumpMotion? headMotion;
     /// <summary>How Samus's body moves: rising on her jump, falling back, or none before the jump and after landing.</summary>
-    private EndingRewardBodyMotion? bodyMotion;
+    private EndingRewardJumpMotion? bodyMotion;
     /// <summary>Shared vertical velocity; each active actor movement applies gravity to it.</summary>
     internal SignedSixteenSixteen Velocity { get; private set; }
     /// <summary>Whether the shooting cue has requested the ending screen capture.</summary>
@@ -61,14 +61,14 @@ internal sealed class EndingRewardJump
         // Both motions use the shared Samus velocity, so each update accelerates it.
         if (head is { IsActive: true })
         {
-            if (headFlying)
+            if (headMotion == EndingRewardJumpMotion.Rising)
             {
                 head.Position = Accelerated(head.Position);
                 if (head.ScreenPlace.Y < EndingRewardJumpDefinitions.FallStartY) head.Delete();
             }
             head.Step(HandleCue);
         }
-        if (bodyMotion == EndingRewardBodyMotion.Rising)
+        if (bodyMotion == EndingRewardJumpMotion.Rising)
         {
             body.Position = Accelerated(body.Position);
             if (BodyY < EndingRewardJumpDefinitions.FallStartY)
@@ -76,10 +76,10 @@ internal sealed class EndingRewardJump
                 Falling = true;
                 body.SetColouring(EndingShades.Drawn(FallingColouring));
                 body.Start(FallingAnimation);
-                bodyMotion = EndingRewardBodyMotion.Falling;
+                bodyMotion = EndingRewardJumpMotion.Falling;
             }
         }
-        else if (bodyMotion == EndingRewardBodyMotion.Falling)
+        else if (bodyMotion == EndingRewardJumpMotion.Falling)
         {
             body.Position = Accelerated(body.Position);
             if (BodyY >= EndingRewardJumpDefinitions.LandingY)
@@ -129,10 +129,10 @@ internal sealed class EndingRewardJump
                 ShotRequested = true;
                 return;
             case EndingRewardJumpCue.StartBodyFlight:
-                bodyMotion = EndingRewardBodyMotion.Rising;
+                bodyMotion = EndingRewardJumpMotion.Rising;
                 return;
             case EndingRewardJumpCue.StartHeadFlight:
-                headFlying = true;
+                headMotion = EndingRewardJumpMotion.Rising;
                 return;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(EndingRewardJumpCue)} {cue}.");

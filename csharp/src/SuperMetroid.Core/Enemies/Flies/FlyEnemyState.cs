@@ -34,7 +34,7 @@ public sealed class FlyEnemyState
     /// <summary>Samus's whole room-pixel Y captured when the attack begins. It determines the turnaround rather than tracking Samus's later movement.</summary>
     public int TargetY { get; internal set; }
 
-    /// <summary>The circular flight's phase, advanced sixteen 256ths of a turn per circling update and wrapping after a full turn.</summary>
+    /// <summary>The circular flight's phase, advanced a sixteenth of a turn each circling update and wrapping after a full turn.</summary>
     public RotationAngle Angle { get; internal set; }
 
     /// <summary>The current circling, attacking or retreating behaviour.</summary>

@@ -36,10 +36,7 @@ internal static class SaveSnapshotFixtures
         HudItem = HudItem.Beam,
         MaxReserveEnergy = 0,
         ReserveEnergy = 0,
-        GameTimeFrames = 0,
-        GameTimeSeconds = 0,
-        GameTimeMinutes = 0,
-        GameTimeHours = 0,
+        GameTime = default,
         StartupRoute = SaveLoadingGameState.MainGame,
         Checkpoint = LoadStationDefinitions.Gunship,
         Progress = new(),
@@ -49,7 +46,7 @@ internal static class SaveSnapshotFixtures
     internal static SaveSnapshotContext At(LoadStation checkpoint) => new()
     {
         Checkpoint = checkpoint,
-        GameTime = new GameTimeState(),
+        GameTime = default,
         ControllerBindings = ControllerBindings.Default,
         MoonwalkEnabled = false,
         IconCancelEnabled = false,

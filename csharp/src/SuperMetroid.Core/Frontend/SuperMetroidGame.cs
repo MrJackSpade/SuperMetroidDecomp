@@ -109,8 +109,8 @@ public sealed class SuperMetroidGame
     public void CopyAudioFrame(Span<short> destination) => Session.audioSession.CopyFrame(destination);
 
 
-    /// <summary>The sequence the game is running. Setting it enters the sequence at its first step.</summary>
-    public SuperMetroidGameState GameState { get => Session.GameState; internal set => Session.Enter(value); }
+    /// <summary>The sequence the game is running.</summary>
+    public SuperMetroidGameState GameState => Session.GameState;
 
     /// <summary>
     /// The number of updates the game has run. Hosts and diagnostics name frames by it; no gameplay reads it, so it counts
@@ -171,7 +171,7 @@ public sealed class SuperMetroidGame
         // own cursor and saving sounds. A loaded active message is not an entry and
         // must not queue a new cancellation merely because the host resumed.
         if (!messageWasActive && Session.Runtime?.MessageBox.IsActive == true)
-            Session.audio.QueueCancelSoundEffects();
+            Session.audio.QueueCancelSoundEffects(SoundRequestPriority.Normal);
         bool runsMusicQueue = false;
         int soundQueuePasses = runsAudioProcessing && (!doorAudioUpdate || !leavesDoorLoadRunning) ? 1 : 0;
         if (messageWasActive)

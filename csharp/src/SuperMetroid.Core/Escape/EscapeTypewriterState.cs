@@ -29,16 +29,16 @@ public sealed class EscapeTypewriterState
     private int _updatesBeforeNextCharacter;
     /// <summary>The updates that have typed a character, space or line end, and the one that found the warning complete.</summary>
     private int _typingUpdates;
-    /// <summary>Total non-space glyphs typed; spaces advance the typing position but do not increment this count.</summary>
-    public int GlyphsWritten { get; private set; }
+    /// <summary>Total non-space glyphs typed, whose count paces the clicks; spaces advance the typing position but are not counted.</summary>
+    private int _glyphsWritten;
     /// <summary>True once an update ready to type passes the end of all lines; later updates report completion without typing or requesting a sound.</summary>
     public bool Completed { get; private set; }
     /// <summary>The Ceres or Zebes warning the typewriter types, which any text bound to it again must be.</summary>
     public EscapeTypewriterMessageId MessageId { get; private set; }
     /// <summary>The installed line being typed, from zero; moves past exhausted lines on an eligible update and reaches the line count when typing completes.</summary>
-    public int MessageLineIndex { get; private set; }
+    private int _lineIndex;
     /// <summary>The next character to type in the current line, from zero, including spaces; resets to zero when the typewriter advances to another line.</summary>
-    public int MessageCharacterIndex { get; private set; }
+    private int _characterIndex;
 
     /// <summary>Binds the installed text of the warning the typewriter types, as when the host installs new text mid-warning.</summary>
     /// <exception cref="InvalidDataException"><paramref name="message"/> is the other warning's text.</exception>
@@ -75,18 +75,18 @@ public sealed class EscapeTypewriterState
     /// <summary>Moves on to the next line and character, consuming at most one character.</summary>
     private EscapeTypewriterStep StepInstalled(EscapeTypewriterMessage message)
     {
-        while (MessageLineIndex < message.Lines.Count)
+        while (_lineIndex < message.Lines.Count)
         {
-            EscapeTypewriterLine line = message.Lines[MessageLineIndex];
-            if (MessageCharacterIndex >= line.Text.Length)
+            EscapeTypewriterLine line = message.Lines[_lineIndex];
+            if (_characterIndex >= line.Text.Length)
             {
-                MessageLineIndex++;
-                MessageCharacterIndex = 0;
+                _lineIndex++;
+                _characterIndex = 0;
                 continue;
             }
-            if (MessageCharacterIndex == 0)
+            if (_characterIndex == 0)
                 Corner = line.Start;
-            return TypeCharacter(line.Text[MessageCharacterIndex++]);
+            return TypeCharacter(line.Text[_characterIndex++]);
         }
         Completed = true;
         return EscapeTypewriterStep.Complete.Instance;
@@ -99,8 +99,8 @@ public sealed class EscapeTypewriterState
         if (EscapeTypewriterGlyph.Types(character))
         {
             var glyph = new EscapeTypewriterGlyph(Corner, EscapeTypewriterGlyph.PictureOf(MessageId, character));
-            GlyphsWritten++;
-            step = EscapeTypewriterDefinitions.ClickEverySecondGlyph.IsDue(GlyphsWritten)
+            _glyphsWritten++;
+            step = EscapeTypewriterDefinitions.ClickEverySecondGlyph.IsDue(_glyphsWritten)
                 ? new EscapeTypewriterStep.TypedWithClick(glyph)
                 : new EscapeTypewriterStep.Typed(glyph);
         }

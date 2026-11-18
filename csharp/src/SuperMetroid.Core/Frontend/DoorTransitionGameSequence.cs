@@ -94,15 +94,14 @@ internal sealed class DoorTransitionGameSequence(FrontendSession session) : IGam
         // enemy/draw owners while sounds are still admitted, so an enemy cue's
         // sound on this frame is queued, as it runs, before the door's cancels.
         session.doorTransition.Begin(session.GameplayRuntime);
-        session.GameplayRuntime.DoorTransition.DrawDoorTransitionActors(enemyProjectiles: DoorTransitionEnemyProjectiles.Held, session.GameplayRuntime.Room.LoadedScope, session.GameplayRuntime.Player.IntroducedSamus);
+        SamusState doorSamus = session.GameplayRuntime.Player.IntroducedSamus;
+        session.GameplayRuntime.DoorTransition.DrawDoorTransitionActors(enemyProjectiles: DoorTransitionEnemyProjectiles.Held, session.GameplayRuntime.Room.LoadedScope, doorSamus);
         // The door queues Samus's door-entry sound stop, then queues
         // the enemy library's silence so movement/charge loops terminate rather than leaking
         // into the next room.
-        SamusState doorSamus = session.GameplayRuntime.Player.Samus
-            ?? throw new InvalidOperationException("Door transition requires live Samus state.");
         SamusMovementType doorMovementType = SamusPoseMetadata.ReadMovementType(doorSamus);
-        // A live power-bomb explosion turns all three requests away in the queues' own test, so neither ring holds
-        // anything for the door to wait on.
+        // A live power-bomb explosion turns all three sound requests away, so no sound is left waiting for the door to
+        // play.
         if (doorMovementType is
             SamusMovementType.SpinJumping or SamusMovementType.WallJumping)
         {

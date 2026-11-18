@@ -54,7 +54,7 @@ public sealed class HudState
     public bool IsInitialized { get; private set; }
 
     /// <summary>Binds current host-owned HUD artwork; the HUD's images are chosen from its values whenever it is shown.</summary>
-    public void BindPresentation(GameplayHudPresentation? value) => Presentation = value;
+    public void BindPresentation(GameplayHudPresentation value) => Presentation = Ensure.NotNull(value);
 
     /// <summary>Sets the HUD up showing <paramref name="snapshot"/>'s values, the minimap showing the template's starter picture.</summary>
     public void Initialize(HudSnapshot snapshot)
@@ -110,11 +110,10 @@ public sealed class HudState
     public void UpdateMinimap(SharedGameState system, MinimapFrame frame)
     {
         Ensure.NotNull(system);
+        Ensure.NotNull(frame);
         if (!IsInitialized)
             throw new InvalidOperationException("Initialize the HUD before updating its minimap.");
-        if (frame.PresentationMap is null)
-            throw new InvalidOperationException("Minimap updates require an installed area-map definition.");
-        if (frame.PresentationMap.Area != frame.Area)
+        if (Ensure.NotNull(frame.PresentationMap).Area != frame.Area)
             throw new ArgumentException("Map presentation belongs to a different area.", nameof(frame.PresentationMap));
         if (frame.RoomSize.X == 0 || frame.RoomSize.Y == 0)
             throw new ArgumentOutOfRangeException(nameof(frame.RoomSize));

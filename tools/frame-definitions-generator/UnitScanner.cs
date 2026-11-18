@@ -482,6 +482,11 @@ internal sealed class UnitScanner(CoreModel model)
     /// </summary>
     private void RecordConstructorFlow(UnitScan scan, SemanticModel semantic, SimpleNameSyntax name, ISymbol symbol, int before)
     {
+        // A positional record's property is its primary constructor's parameter, so reading the property, by a member access
+        // or a property pattern's name, reads that parameter (#2499): the escape explosion's draw hands each explosion to its
+        // named outcome's constructor, and the spawn reading the outcome's explosion is what spawns it.
+        if (PositionalParameterOf(symbol) is { } positional)
+            scan.ConstructorParameterReads.Add(positional);
         if (name.Parent is NameColonSyntax)
             return;
         if (symbol is IParameterSymbol { ContainingSymbol: IMethodSymbol { MethodKind: MethodKind.Constructor } } parameter)
@@ -497,6 +502,25 @@ internal sealed class UnitScanner(CoreModel model)
         }
         foreach (Unit member in scan.Targets.Skip(before).Where(unit => unit.Kind == UnitKind.Member).ToList())
             scan.HandToConstructor(handed, member);
+    }
+
+    /// <summary>
+    /// The primary constructor parameter a positional record's property <paramref name="symbol"/> is declared by, or null
+    /// for any other symbol: such a property has no code of its own and holds what its constructor was handed.
+    /// </summary>
+    private IParameterSymbol? PositionalParameterOf(ISymbol symbol)
+    {
+        if (symbol is not IPropertySymbol { ContainingType.IsRecord: true } property || !model.IsSource(property))
+            return null;
+        foreach (SyntaxReference reference in property.OriginalDefinition.DeclaringSyntaxReferences)
+        {
+            if (reference.GetSyntax() is ParameterSyntax parameter
+                && model.ModelOf(parameter.SyntaxTree).GetDeclaredSymbol(parameter) is IParameterSymbol declared)
+            {
+                return declared.OriginalDefinition;
+            }
+        }
+        return null;
     }
 
     /// <summary>Whether <paramref name="name"/> is the method an invocation calls, rather than a method group passed on.</summary>

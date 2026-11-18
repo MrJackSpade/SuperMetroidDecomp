@@ -7,7 +7,7 @@ public static class TitleGradientFormat
     public const int VariantCount = 16;
 
     /// <summary>
-    /// How wide a zoom range each gradient covers, in 256ths of a floor pixel per screen pixel (#1781): the sixteen ranges
+    /// How wide a zoom range each gradient covers (#1781): the sixteen ranges
     /// together cover every zoom from no zoom up to just below the floor's own size.
     /// </summary>
     public static FloorZoomStep ZoomRangeWidth { get; } = FloorZoomStep.FromTwoHundredFiftySixths(16);

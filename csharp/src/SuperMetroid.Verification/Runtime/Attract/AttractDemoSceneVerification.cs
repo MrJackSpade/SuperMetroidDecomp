@@ -19,6 +19,7 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Checks attract-scene setup records and compiled input scripts against native data and playback.</summary>
 internal static class AttractDemoSceneVerification
@@ -32,7 +33,7 @@ internal static class AttractDemoSceneVerification
         WriteRomWord(rom, AttractDemoSceneSources.EquipmentSetPointers, 0xa000);
         WriteRomWord(rom, AttractDemoSceneSources.SamusSetupSetPointers, 0xb000);
         ushort[] room = [0x91f8, 0x896a, 1, 0x100, 0x200, 0x40, 0xffd2, 0x151, AttractDemoNativeWords.NoRoomSetup];
-        ushort inputObject = AttractDemoInputDefinitions.NativeHeaderOf(AttractDemoInputDefinitions.AttractLandingSite);
+        ushort inputObject = AttractDemoInputDefinition.NativeHeaderOf(new(DemoInputRecordingId.AttractLandingSite));
         ushort[] equipment = [0x3105, 10, 5, 2, 399, 0x100f, 0x100b, inputObject];
         for (int word = 0; word < room.Length; word++) WriteRomWord(rom, 0x829000 + word * 2, room[word]);
         for (int word = 0; word < equipment.Length; word++) WriteRomWord(rom, 0x91a000 + word * 2, equipment[word]);
@@ -50,8 +51,8 @@ internal static class AttractDemoSceneVerification
         WriteRomWord(rom, (DemoInputRomData.BankBase | DemoInputNativeListAddresses.Entry(DemoInputRecordingId.AttractDiagonalShinesparkContinuation)) + 2,
             ControllerWordCodec.ToJoypadWord(ControllerButton.Right));
         var bus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
-        var expected = new AttractDemoScene(RoomDefinitions.LandingSite, CrateriaDoorDefinitions.ParlorToLandingSite, new(0x100, 0x200), new(338, 576),
-            0x151, null, AttractDemoSamusSetup.StandingRight, (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.HiJumpBoots | SamusEquipmentFlags.Bombs | SamusEquipmentFlags.SpeedBooster), 10, 5, 2, 399, SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma, SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Plasma, AttractDemoInputDefinitions.AttractLandingSite);
+        var expected = new AttractDemoScene(RoomDefinitions.LandingSite, CrateriaDoorDefinitions.ParlorToLandingSite, new(0x100, 0x200),
+            AttractDemoSamusSetups.StandingRight.At(new(338, 576)), 0x151, null, (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.HiJumpBoots | SamusEquipmentFlags.Bombs | SamusEquipmentFlags.SpeedBooster), 10, 5, 2, 399, SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma, SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Plasma, new(DemoInputRecordingId.AttractLandingSite));
         if (SuperMetroid.TestSupport.VerificationImporters.AttractDemoSceneImporter.Read(bus, 0, 0) != expected)
             throw new InvalidDataException("Demo room/equipment/setup tables did not join at the same scene index, or its offsets lost their native X-centre/Y-top placement.");
         if (SuperMetroid.TestSupport.VerificationImporters.AttractDemoSceneImporter.Read(bus, 0, 1) is not null)
@@ -115,7 +116,62 @@ internal static class AttractDemoSceneVerification
                 $"{sets[set]} ends where the cartridge's set ends");
         }
         Suite(nameof(VerifyAttractPlayback), () => VerifyAttractPlayback(sets));
+        VerifySamusSetupRoutines(retail);
+        Suite(nameof(VerifyAttractSamusStaging), VerifyAttractSamusStaging);
         Console.WriteLine($"Compiled attract scenes: {total} records in {sets.Count} sets match cartridge data and end with it.");
+    }
+
+    /// <summary>
+    /// Each setup's pose, and the low-health setup's energy, is the immediate its cartridge routine loads (#2500): the pseudo
+    /// Screw Attack's routine starts Samus rolling left in the morph ball, not at rest, and the shinesparks launch her in
+    /// the poses their routines load.
+    /// </summary>
+    private static void VerifySamusSetupRoutines(ISnesAddressSpace bus)
+    {
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
+        SamusPoseId PoseLoadedAt(int immediate, string setup)
+        {
+            AssertEqual(LoadImmediateOpcode, cartridge.ReadCartridgeByte(immediate - 1), $"{setup}'s routine loads its pose as an immediate");
+            return SuperMetroid.AssetExtraction.Samus.SamusPoseNumbering.FromNumber(cartridge.ReadCartridgeWord(immediate));
+        }
+        foreach ((AttractDemoSamusSetup.Posed setup, int poseImmediate, int? energyImmediate) in AttractDemoNativeWords.PosedImmediates)
+        {
+            AssertEqual(PoseLoadedAt(poseImmediate, setup.ToString()), setup.Pose, $"{setup} starts Samus in the pose its routine loads");
+            int? energy = null;
+            if (energyImmediate is { } energyAt)
+            {
+                AssertEqual(LoadImmediateOpcode, cartridge.ReadCartridgeByte(energyAt - 1), $"{setup}'s routine loads its energy as an immediate");
+                energy = cartridge.ReadCartridgeWord(energyAt);
+            }
+            AssertEqual(energy, setup.Energy, $"{setup} starts Samus with the energy its routine loads");
+        }
+        foreach ((AttractDemoSamusSetup.Shinespark setup, int poseImmediate) in AttractDemoNativeWords.ShinesparkImmediates)
+            AssertEqual(PoseLoadedAt(poseImmediate, setup.ToString()), setup.LaunchPose, $"{setup} launches Samus in the pose its routine loads");
+    }
+
+    /// <summary>The opcode of a load of the accumulator from the immediate that follows it.</summary>
+    private const byte LoadImmediateOpcode = 0xa9;
+
+    /// <summary>
+    /// A demonstration's staging gives Samus its setup's pose and energy (#2500): the pseudo Screw Attack's Samus starts
+    /// rolling left in the morph ball, and the Crystal Flash's with its setup's energy of her full capacity.
+    /// </summary>
+    private static void VerifyAttractSamusStaging()
+    {
+        AttractDemoScene pseudoScrewAttack = StockAttractDemoScenes.FirstSet.Scenes[5];
+        AttractDemoScene crystalFlash = StockAttractDemoScenes.CompletionSet.Scenes[4];
+        AssertEqual(AttractDemoSamusSetups.MorphLeft, pseudoScrewAttack.Samus.Setup, "the pseudo Screw Attack stages the rolling morph ball");
+        AssertEqual(AttractDemoSamusSetups.LowHealthLeft, crystalFlash.Samus.Setup, "the Crystal Flash stages low energy");
+        foreach (AttractDemoScene scene in new[] { pseudoScrewAttack, crystalFlash })
+        {
+            var setup = (AttractDemoSamusSetup.Posed)scene.Samus.Setup;
+            SuperMetroid.Core.Runtime.SuperMetroidRuntime runtime = SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification.CreateRetailRuntimeFixture();
+            runtime.AttractDemo.InitializeAttractDemo(scene);
+            SuperMetroid.Core.Samus.SamusState samus = runtime.Player.IntroducedSamus;
+            AssertEqual(setup.Pose, samus.Pose, $"{scene.Input.Recording} starts Samus in its setup's pose");
+            AssertEqual(setup.Energy ?? scene.Health, samus.Health, $"{scene.Input.Recording} starts Samus with its setup's energy");
+            AssertEqual(scene.Health, samus.MaxHealth, $"{scene.Input.Recording} gives Samus its energy capacity");
+        }
     }
 
     /// <summary>Runs each scene's production input owner for its displayed duration; <c>--demo-input-programs</c> checks the programs.</summary>
@@ -149,7 +205,7 @@ internal static class AttractDemoSceneVerification
             reference.Step(titleLeaving: false, SamusMovementType.Standing);
             compiled.Step();
             AssertEqual(reference.Script.Snapshot(), NativeDemoInputReference.Of(compiled.Script, DemoInputNativeListAddresses.WatchAddress(scene.Input, compiled.Script)),
-                $"compiled attract {scene.Input.Animation}, frame {frame}");
+                $"compiled attract {scene.Input.Recording}, frame {frame}");
         }
     }
 

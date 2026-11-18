@@ -277,9 +277,8 @@ internal sealed class MotherBrainBody
             // Clamps shallow contact up to the push's least distance. The resulting displacement is
             // consumed by Samus movement later in the frame, so overwrite rather than add.
             samus.Kinematics.ExtraDisplacement = FixedVector<RoomPixels>.FromWholePixels(new(Math.Max(xOverlap, MotherBrainFightDefinitions.BodyPush.X), MotherBrainFightDefinitions.BodyPush.Y));
-            samus.InvincibilityTimer = WrappingCountdown.Start(EnemyCollisionDefinitions.SamusTouchInvincibilityUpdates);
-            samus.KnockbackTimer = EnemyCollisionDefinitions.SamusTouchKnockbackUpdates;
-            samus.KnockbackXDirection = KnockbackHorizontalDirection.Right;
+            samus.RequestKnockback(EnemyCollisionDefinitions.SamusTouchInvincibilityUpdates,
+                EnemyCollisionDefinitions.SamusTouchKnockbackUpdates, KnockbackHorizontalDirection.Right);
             if (samus.Position.Y.Whole < MotherBrainFightDefinitions.BodyPushDownAboveY)
                 samus.Kinematics.YDirection = SamusVerticalDirection.Down;
 

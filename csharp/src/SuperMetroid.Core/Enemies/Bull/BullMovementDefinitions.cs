@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Bull;
 /// <summary>How a Bull accelerates, waits, retargets and reacts to a shot (#2279); live timers remain enemy state.</summary>
 public static class BullMovementDefinitions
 {
-    /// <summary>How much each acceleration or deceleration tick changes a Bull's acceleration: 24 256ths of a pixel an update.</summary>
+    /// <summary>How much each acceleration or deceleration tick changes a Bull's acceleration.</summary>
     internal static readonly SignedEightEight AccelerationStep = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(24);
 
     /// <summary>The acceleration an immune shot's kick starts the Bull's braking with: a pixel an update.</summary>

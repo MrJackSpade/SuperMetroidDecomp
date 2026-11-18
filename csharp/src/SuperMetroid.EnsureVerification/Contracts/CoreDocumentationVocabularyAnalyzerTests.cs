@@ -1981,6 +1981,31 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         // and a hardware owner are English.
         Expect("class P { /// <summary>A table of rooms; Samus's collision with the floor; the pose's input transitions; a turn of the pose; the room's entry; the speed table's next entry; the setup it invoked; <see cref=\"Run\"/>.</summary>\nvoid Run() { } }");
         Expect(CompatibilityService + "/// <summary>Evidence: one invocation of the pose table's no-transition entry.</summary>\n[CompatibilityService(\"table\")] class Table { }");
+        // The original's timer and handler installation told in frontend and effect prose, outside hardware owners and markup
+        // (#2491): an animation timer numbered one and a handler installed and replaced.
+        Expect("class P { void Run() { // This ordering makes a newly spawned timer-one actor select its first frame.\n } }", "('timer-one')");
+        Expect("class P { /// <summary>Starts the caret's animation and primes timer one.</summary>\nvoid Run() { } }", "('timer one')");
+        Expect("/// <summary>The door's wait: every door hit installs an immediate finish, and a downward elevator replaces it.</summary>\nclass P { }",
+            "('installs an immediate finish, and a downward elevator replaces')");
+        Expect("class P { void Run() { // The station lock replaces that phase with an inert one.\n } }", "('replaces that phase with an inert one')");
+        Expect("class P { void Run() { // The locked input mode installed with it stands for that.\n } }", "('installed with it')");
+        // A timer alone, a timer one update on, a thing replaced or installed alone, an inert thing and a hardware owner are
+        // English.
+        Expect("class P { /// <summary>Steps the phase timer one update; the wait's timer runs out; the new pose replaces the old; the installed pictures; an inert enemy.</summary>\nvoid Run() { } }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the cue primes timer one and installs a handler that replaces it.</summary>\n[CompatibilityService(\"timer\")] class Timer { }");
+        // A storage unit told on a member whose type already measures it, outside hardware owners and markup (#2491): a count
+        // of 256ths of a turn, a step, a pixel or a floor pixel, and a fraction written 1/N of one.
+        const string Measures = "struct RotationAngle { }\nstruct FloorZoom { }\nstruct SignedSixteenSixteen { }\nstruct FixedVector<T> { }\n";
+        Expect(Measures + "class P { /// <summary>Turning-floor angle, in 256ths of a turn, shared by the scenes.</summary>\nRotationAngle Angle { get; set; } }", "('256ths of a turn')");
+        Expect(Measures + "class P { /// <summary>The floor's zoom in 256ths of a floor pixel per screen pixel.</summary>\nFloorZoom? Zoom { get; set; } }", "('256ths of a floor pixel')");
+        Expect(Measures + "class P { /// <summary>The pod drifts down 1/512 of a pixel each update.</summary>\nstatic readonly SignedSixteenSixteen Drift = default; }", "('1/512 of a pixel')");
+        Expect(Measures + "class P { /// <summary>The velocity decrease per update: 1/256 pixel per update squared.</summary>\n[System.Obsolete] SignedSixteenSixteen Step => default; }", "('1/256 pixel')");
+        Expect(Measures + "class P { /// <summary>Where the floor lies, in 65536ths of a pixel.</summary>\nFixedVector<int> Pan { get; set; } }", "('65536ths of a pixel')");
+        // The same unit on a member typed as a number or on a method, a fraction told in words, a typed member's other prose
+        // and a hardware owner are English.
+        Expect(Measures + "class P { /// <summary>The angle in 256ths of a turn.</summary>\nint Steps { get; set; }\n/// <summary>A zoom of 256ths of a floor pixel.</summary>\nFloorZoom From(int steps) => default;\n" +
+            "/// <summary>The pod drifts down half a pixel, then a quarter pixel.</summary>\nSignedSixteenSixteen Drift => default;\n/// <summary>The turning floor's angle.</summary>\nRotationAngle Angle => default; }");
+        Expect(CompatibilityService + "struct RotationAngle { }\n/// <summary>Evidence: the angle in 256ths of a turn.</summary>\n[CompatibilityService(\"angle\")] class Angle { /// <summary>In 256ths of a turn.</summary>\nRotationAngle Value => default; }");
         // The species-owner template on a type that owns no species (#2427), read on the type's own summary; a type that
         // implements or is a species owner's interface owns a species, and an entity's parameter names its owner.
         const string SpeciesOwners = "interface IEnemySpecies { }\ninterface IEnemyEntityFactory { }\n";

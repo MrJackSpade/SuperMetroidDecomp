@@ -34,12 +34,12 @@ internal sealed class DoorObjects
     /// and the room do on entry has run.
     /// </summary>
     /// <remarks>
-    /// The first object at the door's block, in the room's update order, closes unless it stays open
-    /// (<see cref="IDoorKeptOpen"/>, #2091): a cap or eye door whose door has been opened for good stays open, and so does a
+    /// The first door at the door's block, in the room's update order (<see cref="IDoorBehindSamus"/>, #2493), closes
+    /// unless it stays open (#2091): a cap or eye door's body whose door has been opened for good stays open, and so does a
     /// blue cap a shot opened while the room's <see cref="ShotOpenedCapClosing{TDoor}"/> rule keeps it open (#1906).
-    /// Otherwise a coloured or grey cap, an eye door's body or Mother Brain's escape gate closes from its next update.
-    /// With no object there, the door's closing behaviour may place a blue cap closing toward the travel direction or the
-    /// escape gate closing, in the first free place, like any other room object.
+    /// Otherwise a coloured or grey cap, a blue cap a shot opened, an eye door's body or Mother Brain's escape gate closes
+    /// from its next update. With no door there, or one that stays open, the door's closing behaviour may place a blue cap
+    /// closing toward the travel direction or the escape gate closing, in the first free place, like any other room object.
     /// </remarks>
     /// <returns>
     /// True when an object at the door closes or a closer was placed; false for a door that does not close or a full
@@ -53,17 +53,16 @@ internal sealed class DoorObjects
         Position16<RoomBlocks> block = level.GridBlock(door.RoomObjectBlock);
         foreach (RoomObjectPlace resident in _places.InUpdateOrder)
         {
-            if (!resident.Active || resident.Block != block)
+            if (resident.Door is not { } standing || resident.Block != block)
                 continue;
 
             // A cap whose opening never persists always closes. The escape entrance's cap never persists, so it
             // always selects its closing sequence. Ordinary coloured caps consult the doors opened for good.
-            if (resident.Behaviour is IDoorKeptOpen kept && kept.StaysOpenBehindSamus(_system.HasOpenedDoor, _shotCapClosing))
+            if (standing.StaysOpenBehindSamus(_system.HasOpenedDoor))
                 break;
 
             // The closing keeps everything else the object holds: a cap that waits for a shot still does.
-            (resident.Behaviour as IClosingDoor ?? throw new InvalidDataException(
-                $"The room object at the door's block {block} has no closing behind Samus.")).CloseBehindSamus();
+            standing.CloseBehindSamus();
             return true;
         }
 
@@ -110,7 +109,7 @@ internal sealed class DoorObjects
         LockedDoorArgument door)
     {
         ApplyColoredDoorSetup(level, place.Block);
-        place.Become(new ColoredDoorObject(variant, new PlacedDoor(door)));
+        place.BecomeDoor(new ColoredDoorObject(variant, new PlacedDoor(door)));
     }
 
     /// <summary>Queues the dud sound a shot a cap does not take makes.</summary>
@@ -163,8 +162,9 @@ internal sealed class DoorObjects
             return false;
 
         place.Block = position;
-        // A later closing behind Samus at this block asks the room's shot-cap rule whether the cap stays open (#1906).
-        place.Become(BlueDoorCapObject.Opening(orientation));
+        // A later closing behind Samus at this block asks the room's shot-cap rule whether the cap stays open (#1906), and
+        // closes it otherwise (#2493).
+        place.BecomeDoor(BlueDoorCapObject.Opening(orientation, _shotCapClosing));
 
         // The block turns solid at once, before the cap is drawn. The cap's first draw comes on its next update, while collision
         // sees the solid block at once.

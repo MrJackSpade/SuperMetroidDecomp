@@ -21,16 +21,29 @@ internal static class CeresSelfDestructWarningVerification
         enemies.Room.Session.JapaneseText = true;
         CeresEscape escape = enemies.CeresEscape;
         escape.BeginSelfDestruct();
+        // Every character the typewriter types, a space or a line's first among them, moves the corner the next is typed at.
+        int typedCharacters = 0;
+        // Before the typewriter exists, and on a new one, the corner is the origin, which no typed character leaves it at.
+        Position16<PlanePixels> corner = escape.Warning.Typewriter?.Corner ?? default;
+        void CountTypedCharacter()
+        {
+            Position16<PlanePixels> next = escape.Warning.Typewriter?.Corner ?? default;
+            if (next != corner)
+                typedCharacters++;
+            corner = next;
+        }
         for (int update = 0; escape.Warning.Phase != CeresSelfDestructPhase.JapaneseSubtitle; update++)
         {
             if (update == 4096)
                 throw new InvalidOperationException("The Japanese warning never reached its subtitle phase.");
             escape.RunRidleysStep(0);
+            CountTypedCharacter();
         }
 
         for (int update = 1; update <= CeresSelfDestructWarningDefinitions.JapaneseSubtitleWaitUpdates; update++)
         {
             escape.RunRidleysStep(0);
+            CountTypedCharacter();
             bool last = update == CeresSelfDestructWarningDefinitions.JapaneseSubtitleWaitUpdates;
             AssertEqual(last, ShowsSubtitle(escape.Warning),
                 $"the Japanese subtitle shows on the 32nd update of its wait only, not on update {update}");
@@ -38,8 +51,7 @@ internal static class CeresSelfDestructWarningVerification
                 $"the warning types on after the subtitle shows, on update {update}");
         }
         // Over the 32 updates the typewriter typed its first two characters on consecutive updates and every third after.
-        int typedCharacters = escape.Warning.Typewriter?.MessageCharacterIndex
-            ?? throw new InvalidOperationException("The Japanese warning types its text.");
+        AssertTrue(escape.Warning.Typewriter is not null, "The Japanese warning types its text.");
         AssertEqual(2 + (CeresSelfDestructWarningDefinitions.JapaneseSubtitleWaitUpdates - 2) / 3, typedCharacters,
             "the typewriter keeps its own schedule through the subtitle's wait");
         Console.WriteLine("Ceres Japanese subtitle: it shows on the 32nd update after the title's hold while the warning types.");

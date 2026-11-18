@@ -7,10 +7,10 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 internal static class MotherBrainBombBounceDefinitions
 {
-    /// <summary>The ordinary fall gravity, used before the first bounce: seven 256ths of a pixel an update.</summary>
+    /// <summary>The ordinary fall gravity, used before the first bounce.</summary>
     internal static readonly SignedEightEight FallAcceleration = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(7);
 
-    /// <summary>The bomb's sideways speed as it leaves her mouth: 224 256ths of a pixel an update, rightward.</summary>
+    /// <summary>The bomb's sideways speed as it leaves her mouth: seven eighths of a pixel an update, rightward.</summary>
     internal static readonly SignedEightEight LaunchSpeedX = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(224);
 
     /// <summary>The bomb's vertical speed as it leaves her mouth: a pixel an update, downward.</summary>

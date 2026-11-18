@@ -35,6 +35,8 @@ public enum TitleSequencePhase
     TitleScreenFadeIn,
     /// <summary>Waits up to 900 title updates for a new B, Start, or A press; countdown expiration takes precedence and selects a demo.</summary>
     TitleScreen,
-    /// <summary>Combines the file-select and demo transitions, reducing brightness by one level every two updates and requesting the selected destination at black.</summary>
-    TitleScreenFadeOut,
+    /// <summary>The confirmation's fade to file select, one brightness level every two updates; at black it requests file select.</summary>
+    TitleScreenFadeOutToFileSelect,
+    /// <summary>The idle timeout's fade to the attract demo, one brightness level every two updates; at black it requests the demo.</summary>
+    TitleScreenFadeOutToDemo,
 }

@@ -20,7 +20,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
     public EightEightVector<RoomPixels> CustomVelocity { get; private set; }
 
     /// <summary>
-    /// The beam angle, in 256ths of a turn, stored by the aim step; zero points down and the
+    /// The beam angle the aim step sets; zero points down and the
     /// positive direction is anti-clockwise, matching the shared trigonometry.
     /// </summary>
     public RotationAngle RainbowBeamAngle { get; set; }

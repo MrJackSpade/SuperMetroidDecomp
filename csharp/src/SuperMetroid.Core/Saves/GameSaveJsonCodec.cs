@@ -120,10 +120,10 @@ public static class GameSaveJsonCodec
             slot.CollectedBeams,
             slot.EquippedBeams),
         GameTime = new SaveGameTimeJsonDocument(
-            slot.GameTimeHours,
-            slot.GameTimeMinutes,
-            slot.GameTimeSeconds,
-            slot.GameTimeFrames),
+            slot.GameTime.Hours,
+            slot.GameTime.Minutes,
+            slot.GameTime.Seconds,
+            slot.GameTime.Frames),
         Controller = new SaveControllerJsonDocument(
             slot.ControllerBindings.Shoot,
             slot.ControllerBindings.Jump,
@@ -191,10 +191,7 @@ public static class GameSaveJsonCodec
             HudItem = slot.HudItem,
             MaxReserveEnergy = slot.Resources.MaxReserveEnergy,
             ReserveEnergy = slot.Resources.ReserveEnergy,
-            GameTimeFrames = slot.GameTime.Frames,
-            GameTimeSeconds = slot.GameTime.Seconds,
-            GameTimeMinutes = slot.GameTime.Minutes,
-            GameTimeHours = slot.GameTime.Hours,
+            GameTime = new GameClockReading(slot.GameTime.Frames, slot.GameTime.Seconds, slot.GameTime.Minutes, slot.GameTime.Hours),
             Checkpoint = Checkpoint(slot.Checkpoint, $"slots[{slot.Slot}].checkpoint"),
             Progress = DecodeProgression(slot.Progression, "progression"),
         };
@@ -276,7 +273,7 @@ public static class GameSaveJsonCodec
             throw new InvalidDataException(
                 $"slots[{expectedSlot}].resources contains a current value above its maximum");
         }
-        if (!GameTimeState.IsInDomain(slot.GameTime.Frames, slot.GameTime.Seconds, slot.GameTime.Minutes, slot.GameTime.Hours))
+        if (!GameClockReading.IsReading(slot.GameTime.Frames, slot.GameTime.Seconds, slot.GameTime.Minutes, slot.GameTime.Hours))
             throw new InvalidDataException($"slots[{expectedSlot}].gameTime is not a reading of the game clock");
         if ((slot.Inventory.CollectedItems & ~AllEquipmentFlags) != SamusEquipmentFlags.None ||
             (slot.Inventory.EquippedItems & ~AllEquipmentFlags) != SamusEquipmentFlags.None ||

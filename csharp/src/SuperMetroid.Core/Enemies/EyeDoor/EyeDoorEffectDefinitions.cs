@@ -23,7 +23,7 @@ internal static class EyeDoorEffectDefinitions
     /// <summary>A right-facing eye's sweat drifts right a quarter pixel and falls two pixels per update.</summary>
     internal static readonly EightEightVector<RoomPixels> RightSweatLaunch = new(SignedEightEight.FromParts(0, 64), SignedEightEight.FromPixels(2));
 
-    /// <summary>A falling sweat drop's downward acceleration per update: twelve 256ths of a pixel per update.</summary>
+    /// <summary>A falling sweat drop's downward acceleration each update.</summary>
     internal static readonly SignedEightEight SweatGravity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(12);
 
     /// <summary>How far a sweat drop that lands on the floor rises, in pixels, as it splashes.</summary>

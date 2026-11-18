@@ -68,7 +68,7 @@ internal static class TitleSequenceRomDataVerification
             "natural title arms NTSC demo countdown");
 
         state.Step(ControllerButton.Start);
-        AssertEqual(TitleSequencePhase.TitleScreenFadeOut, state.Phase,
+        AssertEqual(TitleSequencePhase.TitleScreenFadeOutToFileSelect, state.Phase,
             "title confirmation begins cadence fade");
         StepUntil(
             () => state.FileSelectRequested,

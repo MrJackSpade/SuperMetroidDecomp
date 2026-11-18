@@ -12,8 +12,8 @@ public sealed class FileSelectMapNavigation
 {
     /// <summary>The saved Zebes area, which the area map shows: without the game's debug mode its directions never change areas.</summary>
     private readonly AreaId area;
-    /// <summary>The buttons held on the previous update, used to detect new confirm and cancel presses.</summary>
-    private ControllerButton previousInput;
+    /// <summary>The controller as the map last read it, whose newly pressed buttons confirm and cancel.</summary>
+    private readonly ControllerInputState controller = new();
     /// <summary>The installed world-map label positions the room map's window opens from.</summary>
     private SuperMetroid.Core.Frontend.Map.Artwork.WorldMapLabelPositions labels;
     /// <summary>Rebinds room-map labels before a pending window is constructed.</summary>
@@ -30,7 +30,7 @@ public sealed class FileSelectMapNavigation
         if (!AreaIds.IsZebes(area))
             throw new ArgumentOutOfRangeException(nameof(area), area, "Only the six Zebes areas have world-map selections.");
         this.area = area;
-        previousInput = initialHeldInput;
+        controller.Latch(initialHeldInput);
     }
 
     /// <summary>Gets the current mutually exclusive navigation or transition-request phase.</summary>
@@ -42,7 +42,7 @@ public sealed class FileSelectMapNavigation
     public FileSelectMapWindow ActiveWindow => Window ??
         throw new InvalidOperationException("The file-select map window has not been prepared.");
     /// <summary>Entry/fade owners consume controller samples without executing menu actions.</summary>
-    public void LatchInputWithoutNavigation(ControllerButton heldInput) => previousInput = heldInput;
+    public void LatchInputWithoutNavigation(ControllerButton heldInput) => controller.Latch(heldInput);
 
     /// <summary>
     /// Consumes one held-controller sample. Edges are latched even during transitions:
@@ -50,9 +50,8 @@ public sealed class FileSelectMapNavigation
     /// </summary>
     public void Step(ControllerButton heldInput)
     {
-        // Same edge rule as ControllerInputState.NewlyPressed, over the held buttons.
-        ControllerButton pressed = heldInput & ~previousInput;
-        previousInput = heldInput;
+        controller.Latch(heldInput);
+        ControllerButton pressed = controller.NewlyPressed;
         bool cancel = (pressed & ControllerButton.B) != ControllerButton.None;
         bool confirm = (pressed & (ControllerButton.Start | ControllerButton.A)) != ControllerButton.None;
         switch (Phase)

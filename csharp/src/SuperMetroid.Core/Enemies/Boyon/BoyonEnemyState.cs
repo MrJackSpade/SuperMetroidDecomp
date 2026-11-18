@@ -11,8 +11,8 @@ public sealed class BoyonEnemyState
     internal AnimationPlayback<BoyonSegment> Playback { get; set; }
 
     /// <summary>
-    /// The latest product of the curve sample and the multiplier, read as a speed in 256ths of a pixel per update; the
-    /// Boyon moves by its whole pixels.
+    /// The latest product of the curve sample and the multiplier, read as a speed each update; the Boyon moves by its whole
+    /// pixels.
     /// </summary>
     public UnsignedSixteenSixteen Speed { get; internal set; }
 

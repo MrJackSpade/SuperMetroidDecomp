@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Text;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Fx;
@@ -184,6 +185,84 @@ internal static class RoomFxRecordCatalogSource
         $"{Effects(record.BlockAnimations)}, {Member(record.Tint)})";
 
     /// <summary>
+    /// The summary the generated catalog gives a selection (#2491): what its rooms show entered through a door no door
+    /// effect names, and how many entry doors select an effect of their own. A selection with no default effect loads none,
+    /// so the overlay and the HUD keep their own colours; one whose default shows nothing still lays its tint.
+    /// </summary>
+    private static string SelectionSummary(RoomEffectDefinition? defaultEffect, int doorEffects)
+    {
+        string shown = defaultEffect is null
+            ? "no room effect, the overlay and the HUD keeping their own colours"
+            : EffectSummary(defaultEffect);
+        string doors = doorEffects switch
+        {
+            0 => string.Empty,
+            1 => " unless entered through the one door that selects an effect of its own",
+            _ => $" unless entered through one of the {doorEffects.ToString(System.Globalization.CultureInfo.InvariantCulture)} doors that each select an effect of their own",
+        };
+        return $"A selection whose rooms show {shown}{doors}.";
+    }
+
+    /// <summary>What a room effect shows (#2491): its overlay and liquid surface, the colour effects and block animations it starts, its tint and Samus's visor.</summary>
+    private static string EffectSummary(RoomEffectDefinition effect)
+    {
+        var parts = new List<string> { OverlaySummary(effect.Type) + SurfaceSummary(effect) };
+        if (effect.ColourEffects.Length > 0)
+            parts.Add("starting " + CrefList(effect.ColourEffects));
+        if (effect.BlockAnimations.Length > 0)
+            parts.Add((effect.ColourEffects.Length > 0 ? "and animating " : "animating ") + CrefList(effect.BlockAnimations));
+        parts.Add(effect.Tint == RoomEffectTint.None ? "in the untinted look" : $"in the {Cref(effect.Tint)} tint");
+        if (effect.VisorAnimation == RoomVisorAnimation.Animated)
+            parts.Add("Samus's visor cycling its room shades");
+        return string.Join(", ", parts);
+    }
+
+    /// <summary>What a room effect of <paramref name="type"/> shows on the overlay.</summary>
+    /// <exception cref="InvalidDataException">The type is no room-effect type the catalog describes.</exception>
+    private static string OverlaySummary(RoomFxType type) => type switch
+    {
+        RoomFxType.None => "no effect of their own",
+        RoomFxType.Lava => "lava",
+        RoomFxType.Acid => "acid",
+        RoomFxType.Water => "water",
+        RoomFxType.Spores => "spores",
+        RoomFxType.Rain => "rain",
+        RoomFxType.Fog => "fog",
+        RoomFxType.ScrollingSky => "the sky outside",
+        RoomFxType.Fireflea => "the Fireflea rooms' darkness",
+        RoomFxType.TourianEntranceStatue => "the statue room's surface",
+        RoomFxType.CeresRidley => "Ceres Ridley's turning floor",
+        RoomFxType.CeresElevator => "the Ceres elevator shaft",
+        RoomFxType.CeresHaze => "the haze of Ceres's destruction",
+        _ => throw new InvalidDataException($"{type} is no room-effect type the catalog describes."),
+    };
+
+    /// <summary>Where a room effect's liquid surface starts and the line it rises or falls to; nothing for an effect with no surface.</summary>
+    private static string SurfaceSummary(RoomEffectDefinition effect)
+    {
+        if (effect.LiquidStartLevel is not int start)
+            return string.Empty;
+        string surface = $", the liquid level starting at line {start.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
+        if (effect.LiquidTargetLevel is not int target)
+            return surface;
+        return surface + (effect.LiquidLevelSpeed.IsNegative ? " and rising to line " : " and falling to line ") +
+            target.ToString(System.Globalization.CultureInfo.InvariantCulture);
+    }
+
+    /// <summary>A reference to one member of a closed identity, as the generated documentation links it.</summary>
+    private static string Cref<TIdentity>(TIdentity value)
+        where TIdentity : struct, Enum => $"<see cref=\"{Member(value)}\"/>";
+
+    /// <summary>References to <paramref name="values"/>, in order, joined as English joins a list.</summary>
+    private static string CrefList<TIdentity>(ImmutableArray<TIdentity> values)
+        where TIdentity : struct, Enum
+    {
+        string[] references = [.. values.Select(Cref)];
+        return references.Length == 1 ? references[0]
+            : string.Join(", ", references[..^1]) + " and " + references[^1];
+    }
+
+    /// <summary>
     /// Renders the named headers for the generated Core catalog, each as its door records and its default record (#1546),
     /// then the records Mother Brain's fight applies by itself, which follow her room's default record.
     /// </summary>
@@ -218,7 +297,7 @@ internal static class RoomFxRecordCatalogSource
             if ((rest.Length > 0 && MotherBrainRecordNames.ContainsKey(rest[0])) ||
                 rest.Skip(1).Any(pointer => !MotherBrainRecordNames.ContainsKey(pointer)))
                 throw new InvalidDataException($"Room FX header {name} lists a record after its default that Mother Brain's fight does not apply.");
-            source.AppendLine($"    /// <summary>The {name} room FX.</summary>");
+            source.AppendLine($"    /// <summary>{SelectionSummary(rest.Length == 0 ? null : capture.Records[rest[0]], doorRecords.Length)}</summary>");
             if (doorRecords.Length == 0)
                 source.AppendLine($"    public static RoomFxSelection {name} {{ get; }} = new(nameof({name}), [],");
             else
@@ -234,7 +313,7 @@ internal static class RoomFxRecordCatalogSource
         foreach ((ushort pointer, string name) in MotherBrainRecordNames)
         {
             source.AppendLine();
-            source.AppendLine($"    /// <summary>The {name} room effect, which Mother Brain's fight applies to her room after its default effect.</summary>");
+            source.AppendLine($"    /// <summary>An effect Mother Brain's fight applies to her room after its default effect: {EffectSummary(capture.Records[pointer])}.</summary>");
             source.AppendLine($"    public static RoomEffectDefinition {name} {{ get; }} = {RenderRecord(capture.Records[pointer])};");
         }
         source.AppendLine("}");

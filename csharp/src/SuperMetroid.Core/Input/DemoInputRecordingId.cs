@@ -1,62 +1,68 @@
 namespace SuperMetroid.Core.Input;
 
-/// <summary>The demos' recordings (#1300, #1600), one per recorded input a demo or its owner starts.</summary>
+/// <summary>
+/// The demos' recordings (#1300, #1600), one per recorded input a demo or its owner starts: the title's demonstrations play
+/// one each in the player's place, and the intro plays its own.
+/// </summary>
 public enum DemoInputRecordingId
 {
-    /// <summary>The AdvancedGrappleBeam title demonstration's input.</summary>
+    /// <summary>Samus swings across Maridia's Mt. Everest on the Grapple Beam, in the completion set.</summary>
     AttractAdvancedGrappleBeam,
-    /// <summary>The BrinstarDiagonalRoom title demonstration's input.</summary>
+    /// <summary>Samus crosses the Green Hill Zone, Brinstar's long diagonal room.</summary>
     AttractBrinstarDiagonalRoom,
-    /// <summary>The CrystalFlash title demonstration's input.</summary>
+    /// <summary>Samus, nearly out of energy at the Landing Site, refills it with a Crystal Flash, in the completion set.</summary>
     AttractCrystalFlash,
-    /// <summary>The Dachora title demonstration's input.</summary>
+    /// <summary>Samus drops into Brinstar's Dachora room.</summary>
     AttractDachora,
-    /// <summary>The DiagonalShinespark title demonstration's input.</summary>
+    /// <summary>
+    /// Samus's diagonal shinespark across the Landing Site, until the shinespark is released into
+    /// <see cref="AttractDiagonalShinesparkContinuation"/>.
+    /// </summary>
     AttractDiagonalShinespark,
-    /// <summary>The DiagonalShinespark demonstration's input after its per-frame check lets the shinespark continue.</summary>
+    /// <summary>The rest of the diagonal shinespark's demonstration, once its release lets the shinespark continue.</summary>
     AttractDiagonalShinesparkContinuation,
-    /// <summary>The EyeDoor title demonstration's input.</summary>
+    /// <summary>Samus opens the eye door on the way to Kraid's room.</summary>
     AttractEyeDoor,
-    /// <summary>The FirefleaRoom title demonstration's input.</summary>
+    /// <summary>Samus crosses Green Brinstar's Fireflea room.</summary>
     AttractFirefleaRoom,
-    /// <summary>The GauntletEntrance title demonstration's input.</summary>
+    /// <summary>Samus shinesparks across the Landing Site toward the Gauntlet's entrance, in the completion set.</summary>
     AttractGauntletEntrance,
-    /// <summary>The GrappleBeam title demonstration's input.</summary>
+    /// <summary>Samus crosses Norfair's Spiky Acid Snakes Tunnel on the Grapple Beam.</summary>
     AttractGrappleBeam,
-    /// <summary>The IceBeam title demonstration's input.</summary>
+    /// <summary>Samus fires the Ice Beam in the room below Maridia's Spazer.</summary>
     AttractIceBeam,
-    /// <summary>The InfiniteBombJump title demonstration's input.</summary>
+    /// <summary>Samus climbs the Landing Site by an infinite bomb jump, in the completion set.</summary>
     AttractInfiniteBombJump,
-    /// <summary>The Kraid title demonstration's input.</summary>
+    /// <summary>Samus fights Kraid.</summary>
     AttractKraid,
-    /// <summary>The LandingSite title demonstration's input.</summary>
+    /// <summary>Samus sets out from her ship at the Landing Site, the first demonstration after power-on.</summary>
     AttractLandingSite,
-    /// <summary>The LowerNorfairEntrance title demonstration's input.</summary>
+    /// <summary>Samus crosses Norfair's Lava Dive toward the entrance to Lower Norfair.</summary>
     AttractLowerNorfairEntrance,
-    /// <summary>The MissileDoor title demonstration's input.</summary>
+    /// <summary>Samus opens a missile door in Brinstar's Construction Zone.</summary>
     AttractMissileDoor,
-    /// <summary>The PrePhantoonHall title demonstration's input.</summary>
+    /// <summary>Samus runs the Wrecked Ship's Basement, the hall before Phantoon.</summary>
     AttractPrePhantoonHall,
-    /// <summary>The PreSporeSpawnHall title demonstration's input.</summary>
+    /// <summary>Samus fights through the Kihunters' hall before Spore Spawn.</summary>
     AttractPreSporeSpawnHall,
-    /// <summary>The PseudoScrewAttack title demonstration's input.</summary>
+    /// <summary>Samus spin-jumps through Brinstar's Big Pink with a charged beam, a pseudo Screw Attack.</summary>
     AttractPseudoScrewAttack,
-    /// <summary>The RedBrinstarElevator title demonstration's input.</summary>
+    /// <summary>Samus climbs Red Brinstar's Caterpillar room toward its elevator.</summary>
     AttractRedBrinstarElevator,
-    /// <summary>The ScrewAttack title demonstration's input.</summary>
+    /// <summary>Samus Screw Attacks along Crateria's Flyway.</summary>
     AttractScrewAttack,
-    /// <summary>The SpecialBeamAttack title demonstration's input.</summary>
+    /// <summary>Samus fires a special beam attack in Green Brinstar's main shaft, in the completion set.</summary>
     AttractSpecialBeamAttack,
-    /// <summary>The SpeedBooster title demonstration's input.</summary>
+    /// <summary>Samus runs Norfair's Frog Speedway with the Speed Booster.</summary>
     AttractSpeedBooster,
-    /// <summary>The TourianEntrance title demonstration's input.</summary>
+    /// <summary>Samus enters the statue room at Tourian's entrance, Kraid already defeated.</summary>
     AttractTourianEntrance,
-    /// <summary>The intro Baby-discovery input's ending.</summary>
+    /// <summary>The input that ends the intro's discovery of the Baby, once Samus has looked at it.</summary>
     IntroBabyDiscoveryEnd,
-    /// <summary>The intro Baby-discovery input that runs Samus left.</summary>
+    /// <summary>The intro's discovery of the Baby: the input that runs Samus left toward it.</summary>
     IntroBabyDiscoveryRunningLeft,
-    /// <summary>The intro Baby-discovery input that stops Samus and has her look.</summary>
+    /// <summary>The intro's discovery of the Baby: the input that stops Samus and has her look.</summary>
     IntroBabyDiscoveryStopAndLook,
-    /// <summary>The intro Mother Brain flashback's input.</summary>
+    /// <summary>The input Samus fires with in the intro's flashback of her fight with Mother Brain.</summary>
     IntroMotherBrainFlashback,
 }

@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
@@ -10,9 +9,10 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
-/// The room objects of the opening cinematic's collision rooms, which have none (#2049). The discovery and Mother Brain
-/// flashback rooms hold only air, solid and sloped blocks, so neither the flashback Samus's movement nor her shots ever
-/// touch a block whose reaction reaches a room object; reaching one fails, naming what was reached.
+/// The room objects of the opening cinematic's collision rooms, which have none (#2049): the reactions Samus's terrain
+/// reaches (#2490), and nothing else. The discovery and Mother Brain flashback rooms hold only air, solid and sloped
+/// blocks, so neither the flashback Samus's movement nor her shots ever touch a block whose reaction reaches a room
+/// object; reaching one fails, naming what was reached.
 /// </summary>
 internal sealed class IntroCollisionRoomObjects : ISamusRoomObjects
 {
@@ -28,15 +28,6 @@ internal sealed class IntroCollisionRoomObjects : ISamusRoomObjects
     public BlockReactionObjects BlockReactions => throw Reached(nameof(BlockReactions));
 
     /// <inheritdoc/>
-    public IGlobalEventFlags Events => throw Reached(nameof(Events));
-
-    /// <inheritdoc/>
-    public RoomObjectSoundQueue Sounds => throw Reached(nameof(Sounds));
-
-    /// <inheritdoc/>
-    public IRoomObjectDrawing Drawing => throw Reached(nameof(Drawing));
-
-    /// <inheritdoc/>
     public CollectibleObjects CollectibleObjects => throw Reached(nameof(CollectibleObjects));
 
     /// <inheritdoc/>
@@ -44,12 +35,6 @@ internal sealed class IntroCollisionRoomObjects : ISamusRoomObjects
 
     /// <inheritdoc/>
     public DoorObjects DoorObjects => throw Reached(nameof(DoorObjects));
-
-    /// <inheritdoc/>
-    public EyeDoorObjects EyeDoors => throw Reached(nameof(EyeDoors));
-
-    /// <inheritdoc/>
-    public GreyDoorObjects GreyDoors => throw Reached(nameof(GreyDoors));
 
     /// <inheritdoc/>
     public GateObjects Gates => throw Reached(nameof(Gates));
@@ -71,9 +56,6 @@ internal sealed class IntroCollisionRoomObjects : ISamusRoomObjects
 
     /// <inheritdoc/>
     public bool EveryPlaceHeld => throw Reached(nameof(EveryPlaceHeld));
-
-    /// <inheritdoc/>
-    public void DeleteObject(RoomObjectPlace place) => throw Reached(nameof(DeleteObject));
 
     /// <summary>The failure of a touch that reached <paramref name="family"/>, which the intro's rooms do not have.</summary>
     private static InvalidOperationException Reached(string family) =>

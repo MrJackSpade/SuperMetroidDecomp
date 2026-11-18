@@ -24,7 +24,7 @@ public sealed class AttractDemoInput
     {
         Ensure.NotNull(scene);
         _continuation = scene.Input.Continuation;
-        Script.Load(scene.Input.Animation);
+        Script.Load(scene.Input.Recording);
         Script.Enable();
     }
 

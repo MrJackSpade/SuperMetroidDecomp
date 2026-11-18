@@ -50,7 +50,7 @@ internal static class NativeSnapshotPauseImport
         VerificationAssertions.AssertEqual(PauseCadenceDefinitions.HeldInputRepeatDelay, delay, "native pause held-input reset");
         ControllerButton repeating = ControllerWordCodec.FromJoypadWord(W(PauseMemory.TimedHeldInput), "native timed held input");
         int countdown = Ensure.BetweenInclusive(0, delay, W(PauseMemory.TimedHeldTimer));
-        PrivateState.Set(runtime.PauseHeldButtonRepeat, nameof(HeldButtonRepeat.UnchangedUpdates),
+        PrivateState.SetField(runtime.PauseHeldButtonRepeat, "_unchangedUpdates",
             repeating == ControllerButton.None ? delay - countdown : delay + 1);
         PrivateState.Set(runtime.PauseHeldButtonRepeat, nameof(HeldButtonRepeat.Repeating), repeating);
     }

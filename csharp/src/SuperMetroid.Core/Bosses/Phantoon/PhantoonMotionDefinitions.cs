@@ -15,10 +15,10 @@ public static class PhantoonMotionDefinitions
     /// <summary>The vertical swoop velocity, six pixels an update, at which the downward pull stops.</summary>
     public static SignedEightEight SwoopPositiveYLimit { get; } = SignedEightEight.FromPixels(6);
 
-    /// <summary>The swoop's horizontal pull toward its target, in 256ths of a pixel an update, each update.</summary>
+    /// <summary>The swoop's horizontal pull toward its target, each update.</summary>
     public static SignedEightEight SwoopHorizontalPull { get; } = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(32);
 
-    /// <summary>The swoop's vertical pull toward its target, in 256ths of a pixel an update, each update.</summary>
+    /// <summary>The swoop's vertical pull toward its target, each update.</summary>
     public static SignedEightEight SwoopVerticalPull { get; } = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(64);
     /// <summary>The swoop target's far X position: once the target reaches it, the target counts back toward zero.</summary>
     public const int SwoopTargetTurnX = 256;

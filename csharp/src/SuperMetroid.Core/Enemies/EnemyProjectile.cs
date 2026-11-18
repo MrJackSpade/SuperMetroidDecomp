@@ -43,7 +43,7 @@ public sealed class EnemyProjectile
     /// subtitle's fixed place included (#1851).
     /// </summary>
     public FixedPosition<RoomPixels> Position { get; internal set; }
-    /// <summary>How far the projectile moves each update, in 256ths of a pixel, for the shared movements and the families that move by it.</summary>
+    /// <summary>How far the projectile moves each update, for the shared movements and the families that move by it.</summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
     /// <summary>
     /// What the projectile leaves in its place for the next projectile spawned there: its whole position and velocity

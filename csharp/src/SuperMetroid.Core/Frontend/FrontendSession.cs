@@ -131,7 +131,7 @@ internal sealed class FrontendSession
     /// <summary>Live gameplay runtime, absent during frontend-only phases.</summary>
     private SuperMetroidRuntime? runtime;
     /// <summary>Live gameplay runtime, absent during frontend-only phases.</summary>
-    internal SuperMetroidRuntime? Runtime { get => runtime; set => runtime = value; }
+    internal SuperMetroidRuntime? Runtime => runtime;
     /// <summary>The state of the opening title sequence, which exists only while that phase runs.</summary>
     internal TitleSequenceState ActiveTitle => RequireScreen<TitleSequenceState>("opening title sequence");
     /// <summary>The state of the file-select menu, which exists only while that phase runs.</summary>
@@ -169,7 +169,7 @@ internal sealed class FrontendSession
     /// <summary>The save slot the frontend has selected.</summary>
     internal SaveSlot SelectedSaveSlot { get; private set; }
     /// <summary>Distinguishes a saved-game load from fresh Ceres setup.</summary>
-    internal bool LoadingExistingSave { get; set; }
+    internal bool LoadingExistingSave { get; private set; }
     /// <summary>Selects <paramref name="slot"/>, which holds a save to load when <paramref name="existing"/>.</summary>
     internal void SelectSaveSlot(SaveSlot slot, bool existing)
     {
@@ -533,13 +533,10 @@ internal sealed class FrontendSession
             runtime.FrameBoundary.PublishWhileLoading();
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
-            SamusState restartedSamus = runtime.Player.Samus
-                ?? throw new InvalidOperationException(
-                    "SpaceTime restart did not create the Ceres Samus state.");
+            SamusState restartedSamus = runtime.Player.IntroducedSamus;
             RestoreSpacetimeRestartInventory(restartedSamus, restartSlot);
-            runtime.Assists.GrantLoadoutToRestoredSamus();
-            restartedSamus.SelectedHudItem = HudItem.Beam;
-            restartedSamus.AutoCancelledItem = HudItem.Beam;
+            runtime.Assists.GrantLoadoutToRestoredSamus(restartedSamus);
+            restartedSamus.SelectBeam();
             AutomaticCheckpointSaver.SaveCeresArrival(saves, runtime, SelectedSaveSlot);
             RaiseSavesChanged();
             spacetimeIntroRestartSlot = null;
@@ -553,8 +550,6 @@ internal sealed class FrontendSession
                 ?? throw new InvalidDataException(
                     $"Selected save slot {SelectedSaveSlot} became invalid during startup.");
             InitializeSelectedGameHud(slot);
-            runtime.GameTime.Load(slot.GameTimeFrames, slot.GameTimeSeconds,
-                slot.GameTimeMinutes, slot.GameTimeHours);
             runtime.FrameBoundary.PublishWhileLoading();
 
             // A Ceres elevator save starts with the Ceres elevator's arrival, as a new game does; every other station
@@ -565,11 +560,10 @@ internal sealed class FrontendSession
                 runtime.RoomLoader.RestoreSavedPlayerState(slot);
                 runtime.RoomLoader.InitializeStartingCeresRoom();
                 runtime.RoomLoader.InitializeCeresStartSamus();
-                slot.ApplyTo(runtime.Player.Samus ?? throw new InvalidOperationException(
-                    "Ceres initialization did not create Samus."));
-                runtime.Assists.GrantLoadoutToRestoredSamus();
-                runtime.Player.Samus.SelectedHudItem = HudItem.Beam;
-                runtime.Player.Samus.AutoCancelledItem = HudItem.Beam;
+                SamusState ceresSamus = runtime.Player.IntroducedSamus;
+                slot.ApplyTo(ceresSamus);
+                runtime.Assists.GrantLoadoutToRestoredSamus(ceresSamus);
+                ceresSamus.SelectBeam();
                 ApplySelectedGameOptions();
                 return true;
             }

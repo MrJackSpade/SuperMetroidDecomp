@@ -26,8 +26,7 @@ internal static class SamusHudSelection
 
         if ((controllerNewInput & cancelMask) != GameplayAction.None)
         {
-            samus.AutoCancelledItem = HudItem.Beam;
-            samus.SelectedHudItem = HudItem.Beam;
+            samus.SelectBeam();
         }
         else if ((controllerNewInput & switchMask) != GameplayAction.None)
         {
@@ -57,8 +56,7 @@ internal static class SamusHudSelection
     {
         if (samus.AutoCancelledItem == HudItem.Beam)
             return;
-        samus.SelectedHudItem = HudItem.Beam;
-        samus.AutoCancelledItem = HudItem.Beam;
+        samus.SelectBeam();
     }
 
     /// <summary>Whether Samus can select <paramref name="item"/>: the ammunition she has left and the equipment she has equipped.</summary>

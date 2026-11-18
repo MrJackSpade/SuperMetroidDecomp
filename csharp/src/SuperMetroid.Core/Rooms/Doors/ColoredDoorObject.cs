@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// opened for good, stops the shots and opens the cap, which then leaves the room. A cap closing behind Samus plays the
 /// shared closing, then looks at its door again.
 /// </summary>
-internal sealed class ColoredDoorObject : DoorCapObject, IClosingDoor, IShootableRoomObject
+internal sealed class ColoredDoorObject : DoorCapObject, IShootableRoomObject
 {
     /// <summary>A cap of <paramref name="variant"/>'s colour and facing, just placed in <paramref name="door"/>.</summary>
     internal ColoredDoorObject(ColoredDoorVariant variant, PlacedDoor door)
@@ -28,7 +28,7 @@ internal sealed class ColoredDoorObject : DoorCapObject, IClosingDoor, IShootabl
     internal PlacedDoor Door { get; }
 
     /// <summary>A cap whose door has been opened for good stays open behind Samus.</summary>
-    public override bool StaysOpenBehindSamus(Func<LockedDoor, bool> openedForGood, ShotOpenedCapClosing<LockedDoor> shotCapClosing) =>
+    public override bool StaysOpenBehindSamus(Func<LockedDoor, bool> openedForGood) =>
         Door.IsOpenedForGood(openedForGood);
 
     /// <summary>The cap's colour, which selects the projectile that opens it.</summary>
@@ -62,7 +62,7 @@ internal sealed class ColoredDoorObject : DoorCapObject, IClosingDoor, IShootabl
     public void Strike(ResidentObjectProjectileHit hit) => PendingHit = hit;
 
     /// <inheritdoc/>
-    public void CloseBehindSamus()
+    public override void CloseBehindSamus()
     {
         Phase = ColoredDoorPhase.Closing;
         PlayFromNextUpdate(DoorCapSequenceDefinitions.CapClosing);

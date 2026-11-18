@@ -107,13 +107,13 @@ internal static class CeresDestructionSceneDefinitions
         internal static FloorZoom ZebesApproachZoomLimit { get; } = FloorZoom.FromTwoHundredFiftySixths(1152);
         /// <summary>The zoom that separates the far Zebes approach: thirty-two floor pixels per screen pixel.</summary>
         internal static FloorZoom FarZebesZoomLimit { get; } = FloorZoom.FromFloorPixelsPerScreenPixel(32);
-        /// <summary>The initial Ceres zoom's change each update, in 256ths of a floor pixel per screen pixel.</summary>
+        /// <summary>The initial Ceres zoom's change each update.</summary>
         internal static FloorZoomStep CeresZoomStep { get; } = FloorZoomStep.FromTwoHundredFiftySixths(1);
-        /// <summary>The near Zebes approach's zoom change each update, in 256ths of a floor pixel per screen pixel.</summary>
+        /// <summary>The near Zebes approach's zoom change each update.</summary>
         internal static FloorZoomStep NearZebesZoomStep { get; } = FloorZoomStep.FromTwoHundredFiftySixths(4);
-        /// <summary>The slow per-update zoom change, in 256ths of a floor pixel per screen pixel.</summary>
+        /// <summary>The slow zoom change each update.</summary>
         internal static FloorZoomStep SlowZoomStep { get; } = FloorZoomStep.FromTwoHundredFiftySixths(16);
-        /// <summary>The fast per-update zoom change, in 256ths of a floor pixel per screen pixel.</summary>
+        /// <summary>The fast zoom change each update.</summary>
         internal static FloorZoomStep FastZoomStep { get; } = FloorZoomStep.FromTwoHundredFiftySixths(32);
         /// <summary>How far the floor scrolls right each update as the gunship flies away from the exploding station.</summary>
         internal static SignedSixteenSixteen FlyAwayScroll { get; } = SignedSixteenSixteen.FromWholePixels(2);

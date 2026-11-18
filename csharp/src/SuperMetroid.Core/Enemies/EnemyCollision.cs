@@ -985,8 +985,7 @@ internal sealed class EnemyCollision
         // cleared, because Samus touching it this way is Samus attacking the enemy.
         enemy.FlashTimer = enemy.HurtFlashFrames;
         enemy.AiStates = enemy.AiStates | EnemyAiStates.Hurt;
-        samus.InvincibilityTimer = WrappingCountdown.Start(0);
-        samus.KnockbackTimer = 0;
+        samus.ClearHurtTimers();
         enemy.Health = damage >= enemy.Health
             ? 0
             : enemy.Health - damage;
@@ -1026,13 +1025,12 @@ internal sealed class EnemyCollision
         // The suit's damage division quarters the source definition's damage for Gravity or halves
         // it for Varia before normal touch publishes the invincibility/hurt request.
         SamusSuitDamage.Hurt(samus, damageBeforeSuit);
-        samus.InvincibilityTimer = WrappingCountdown.Start(EnemyCollisionDefinitions.SamusTouchInvincibilityUpdates);
         KnockbackHorizontalDirection direction = samus.Position.X.Whole >= damageSourceX ? KnockbackHorizontalDirection.Right : KnockbackHorizontalDirection.Left;
         // The contact publishes a hit request; Samus admits it only when no
         // knockback direction is installed. Damage can recur after invincibility
         // expires even if the old movement owner remains active (e.g. a boss grab).
-        samus.KnockbackTimer = EnemyCollisionDefinitions.SamusTouchKnockbackUpdates;
-        samus.KnockbackXDirection = direction;
+        samus.RequestKnockback(EnemyCollisionDefinitions.SamusTouchInvincibilityUpdates,
+            EnemyCollisionDefinitions.SamusTouchKnockbackUpdates, direction);
         // The enemy pass only publishes the request. The common post-animation
         // interruption owns pose/handler initialization later in this frame.
     }

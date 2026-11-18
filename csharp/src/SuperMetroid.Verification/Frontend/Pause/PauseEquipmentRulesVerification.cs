@@ -157,7 +157,7 @@ internal static class PauseEquipmentRulesVerification
         }
         Console.WriteLine("Compiled pause rules: 14 native masks, 104 subsets, actual toggles, 65,536 wireframe selectors/rendered patches and manual transfer frames pass with rule ROM reads blocked.");
         // Create a pause menu backed by guarded ROM reads and the supplied Samus inventory.
-        PauseMenuState Create(SamusState samus) => new(new PauseMenuEntry { Audio = AudioQueues.Standalone(), Samus = samus, System = new SharedGameState(new SharedRandom()), Area = AreaId.Crateria, RoomMapPosition = new(0, 1), ScreenContent = catalog, SpriteSheets = MenuSheetFixtures.For(catalog) });
+        PauseMenuState Create(SamusState samus) => new(new PauseMenuEntry { Audio = AudioQueues.Standalone(), Samus = samus, System = new SharedGameState(new SharedRandom()), Area = AreaId.Crateria, RoomMapPosition = new(0, 1), ScreenContent = catalog, SpriteSheets = MenuSheetFixtures.For(catalog), GameplayHud = global::SuperMetroid.Core.Hud.ShownHud.Nothing, MapRevealMode = global::SuperMetroid.Core.Map.MapRevealMode.None });
         // Collect and equip exactly the owned beams and items for a category fixture.
         static SamusState Inventory(PauseOwnedUpgrades owned) =>
             new(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), artwork: global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { CollectedBeams = owned.Beams, EquippedBeams = owned.Beams, CollectedItems = owned.Items, EquippedItems = owned.Items };

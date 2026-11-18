@@ -387,7 +387,7 @@ internal static class EndingSnapshotTestsVerification
                 }
                 audio.AdvanceFrame(default); otherAudio.AdvanceFrame(default);
                 AssertEqual(legacy.Stage.Phase, captured.Stage.Phase, "ending capture preserves phase");
-                AssertEqual(legacy.Flyaway.CinematicFrame, captured.Flyaway.CinematicFrame, "ending capture preserves timer");
+                AssertEqual(legacy.CinematicFrame, captured.CinematicFrame, "ending capture preserves timer");
                 AssertEqual(legacy.CreditsVerticalScroll, captured.CreditsVerticalScroll, "ending capture preserves half-pixel scroll result");
                 previousPacket = packet;
                 previousHeld = held;

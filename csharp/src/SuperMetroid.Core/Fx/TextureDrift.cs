@@ -1,10 +1,10 @@
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>
-/// How far a drifting effect overlay texture (rain, fog, spores, a water surface) has moved (#2141): on each axis the whole
-/// pixels it has moved, kept within <see cref="RepeatPixels"/>, and the 256ths of a pixel it has carried toward the next
-/// whole pixel. Every effect overlay picture repeats across and down at a size dividing <see cref="RepeatPixels"/>, so a
-/// texture moved a whole repeat further shows the same picture, and the drift keeps only where it lies within one.
+/// How far a drifting effect overlay texture (rain, fog, spores, a water surface) has moved (#2141, #2491): on each axis a
+/// position whose whole pixels are kept within <see cref="RepeatPixels"/> and whose part of a pixel carries toward the next
+/// whole pixel. Every effect overlay picture repeats across and down at a size dividing <see cref="RepeatPixels"/>, so
+/// a texture moved a whole repeat further shows the same picture, and the drift keeps only where it lies within one.
 /// </summary>
 internal readonly record struct TextureDrift
 {
@@ -14,20 +14,14 @@ internal readonly record struct TextureDrift
     /// </summary>
     internal const int RepeatPixels = 256;
 
-    /// <summary>The 256ths of a pixel in one pixel: the precision the drift speeds are authored in.</summary>
-    private const int FractionsPerPixel = 256;
+    /// <summary>The drift across, its whole pixels 0 through one repeat less one.</summary>
+    private readonly FixedCoordinate across;
 
-    /// <summary>The 256ths of a pixel in one repeat, past which the drift continues from the repeat's start.</summary>
-    private const int RepeatFractions = RepeatPixels * FractionsPerPixel;
+    /// <summary>The drift down, its whole pixels 0 through one repeat less one.</summary>
+    private readonly FixedCoordinate down;
 
-    /// <summary>The drift across, in 256ths of a pixel, 0 through one repeat less one.</summary>
-    private readonly int across;
-
-    /// <summary>The drift down, in 256ths of a pixel, 0 through one repeat less one.</summary>
-    private readonly int down;
-
-    /// <summary>A drift <paramref name="across"/> and <paramref name="down"/> 256ths of a pixel, taken within one repeat.</summary>
-    private TextureDrift(int across, int down)
+    /// <summary>A drift <paramref name="across"/> and <paramref name="down"/>, each taken within one repeat.</summary>
+    private TextureDrift(FixedCoordinate across, FixedCoordinate down)
     {
         this.across = WithinRepeat(across);
         this.down = WithinRepeat(down);
@@ -37,12 +31,16 @@ internal readonly record struct TextureDrift
     internal static TextureDrift None => default;
 
     /// <summary>The whole pixels the texture has moved across and down, each 0 through <see cref="RepeatPixels"/> less one.</summary>
-    internal Offset16<OverlayPixels> Whole => new(across / FractionsPerPixel, down / FractionsPerPixel);
+    internal Offset16<OverlayPixels> Whole => new(across.Whole, down.Whole);
 
     /// <summary>The drift moved one update further by <paramref name="velocity"/>, its fractions carried.</summary>
     public static TextureDrift operator +(TextureDrift drift, EightEightVector<OverlayPixels> velocity) =>
-        new(drift.across + velocity.X.InTwoHundredFiftySixthsOfPixel, drift.down + velocity.Y.InTwoHundredFiftySixthsOfPixel);
+        new(drift.across.MovedBy(velocity.X), drift.down.MovedBy(velocity.Y));
 
-    /// <summary><paramref name="fractions"/> taken within one repeat, a drift before its start continuing from its end.</summary>
-    private static int WithinRepeat(int fractions) => (fractions % RepeatFractions + RepeatFractions) % RepeatFractions;
+    /// <summary>
+    /// <paramref name="position"/> taken within one repeat, its fraction kept: a drift moved before the repeat's start,
+    /// which the position's wrap carries round to the coordinate range's end, continues from the repeat's end, as the
+    /// range is a whole number of repeats.
+    /// </summary>
+    private static FixedCoordinate WithinRepeat(FixedCoordinate position) => position.WithWhole(position.Whole % RepeatPixels);
 }

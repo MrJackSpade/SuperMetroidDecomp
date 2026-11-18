@@ -23,9 +23,6 @@ internal sealed class EndingArtwork
         Sheets = Ensure.NotNull(sheets);
     }
 
-    /// <summary>The credits scroll, which exists during the credits phase.</summary>
-    internal CreditsScroll? CurrentCredits { get; set; }
-
     /// <summary>Whether the staff handoff has shown the credits' colours, which it does once.</summary>
     private bool creditsColoursShown;
 
@@ -70,9 +67,6 @@ internal sealed class EndingArtwork
         _stage.BindBackdrops(value);
         SpaceBackdrops = value.Space;
     }
-
-    /// <summary>Final logo actor created after the white flash.</summary>
-    internal EndingLogo? CurrentEndingLogo { get; set; }
 
     /// <summary>The installed backdrops of the space behind the exploding planet, one for each step of its colour effect.</summary>
     internal EndingSpaceBackdrops SpaceBackdrops { get; private set; }

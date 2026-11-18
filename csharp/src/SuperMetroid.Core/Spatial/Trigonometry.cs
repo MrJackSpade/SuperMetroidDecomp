@@ -46,6 +46,14 @@ public static class Trigonometry
         SignedEightEight.FromTwoHundredFiftySixthsOfPixel(peakPixels * SignedSine(angle));
 
     /// <summary>
+    /// The displacement <paramref name="angle"/>'s sine gives at <paramref name="peakPixels"/> pixels (#2491), as a liquid's
+    /// tide lifts and lowers its surface: the signed sine's 256ths of its peak taken as 256ths of a pixel, times the peak,
+    /// exactly with nothing dropped. A negative cosine is the sine a quarter-turn back.
+    /// </summary>
+    public static SignedSixteenSixteen SineDisplacement(TrigonometryAngle angle, int peakPixels) =>
+        SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(peakPixels * SignedSine(angle));
+
+    /// <summary>
     /// <paramref name="magnitude"/>, 0 through 65535 in any unit, times <paramref name="angle"/>'s sine, a signed number of 256ths: the
     /// product of the magnitude and the sine's size with its 256ths dropped, then the sine's sign restored, so the result
     /// rounds toward zero in the magnitude's own unit.

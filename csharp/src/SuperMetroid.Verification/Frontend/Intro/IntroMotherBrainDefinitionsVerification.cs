@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Animation;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.Intro;
@@ -169,7 +170,7 @@ internal static class IntroMotherBrainDefinitionsVerification
             AssertEqual(hit == 4, fourth, $"missile {hit} starts the explosion only on the fourth hit");
             AssertEqual(hit <= 4, missile.Type.IsFamily(SamusProjectileFamily.MissileExplosion),
                 $"missile {hit} is killed only while $8B:B786 tests missiles");
-            AssertEqual(Math.Min(hit, 4), motherBrain.HitCount, $"missile {hit} leaves the hit count at most four");
+            AssertEqual(Math.Min(hit, 4), PrivateState.Field<IntroMotherBrainSpriteState, int>(motherBrain, "hitCount"), $"missile {hit} leaves the hit count at most four");
         }
         Console.WriteLine("Intro Mother Brain: four missiles hit and the fourth starts the explosion; a fifth passes through uncounted.");
     }

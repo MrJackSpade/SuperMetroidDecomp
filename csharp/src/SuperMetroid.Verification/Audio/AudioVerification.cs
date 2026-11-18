@@ -239,7 +239,7 @@ internal static class AudioVerification
 
         var cancellation = AudioQueues.Standalone();
         cancellation.AdvanceFrame(default);
-        cancellation.QueueCancelSoundEffects();
+        cancellation.QueueCancelSoundEffects(SoundRequestPriority.Normal);
         IReadOnlyList<AudioRequest> cancelWrites =
             cancellation.AdvanceFrame(default);
         AssertEqual(SoundEffectLibraries.Count, cancelWrites.Count,

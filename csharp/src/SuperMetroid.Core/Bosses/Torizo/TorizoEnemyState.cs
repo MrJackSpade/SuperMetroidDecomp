@@ -38,19 +38,22 @@ public sealed class TorizoEnemyState
     internal TorizoColours Colours { get; } = new();
 
     /// <summary>The body animation playing and where it stands in it (#1600).</summary>
-    internal AnimationPlayback<TorizoAnimation> BodyPlayback { get; set; }
+    internal AnimationPlayback<TorizoBodySegment> BodyPlayback { get; set; }
 
-    /// <summary>The animation the Torizo's jump or fall lands it in, as the jump or fall names it (#2028); null before its first.</summary>
+    /// <summary>
+    /// The animation the Torizo's jump or fall continues in, as the jump or fall names it (#2028, #2411): a jump's fall, which
+    /// its rise ends in, or a fall's landing; null before its first.
+    /// </summary>
     internal TorizoAnimation? Landing { get; set; }
 
     /// <summary>
     /// Where an attack or a stagger interrupted the Torizo's walk, which resumes there when it ends (#2028); null before the
     /// first interruption.
     /// </summary>
-    internal AnimationPlayback<TorizoAnimation>? InterruptedWalk { get; set; }
+    internal AnimationPlayback<TorizoBodySegment>? InterruptedWalk { get; set; }
 
     /// <summary>Where the gut explosion interrupted the body's play, resumed afterwards.</summary>
-    internal AnimationPlayback<TorizoAnimation> InterruptedPlayback { get; set; }
+    internal AnimationPlayback<TorizoBodySegment> InterruptedPlayback { get; set; }
 
     /// <summary>
     /// Updates until the walking Torizo turns toward Samus, or zero while no turn is due: a walking step arms it when

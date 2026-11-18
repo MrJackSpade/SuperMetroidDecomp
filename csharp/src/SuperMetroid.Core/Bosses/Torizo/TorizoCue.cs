@@ -31,10 +31,11 @@ internal abstract record TorizoCue
     internal sealed record Choice(TorizoChoiceKind Kind, TorizoAnimation Target, TorizoAnimation Alternate) : TorizoCue;
 
     /// <summary>
-    /// Names the animation the Torizo's jump or fall lands it in (#2028): its leaping motion starts it when the Torizo meets
-    /// the ground.
+    /// Names the animation the Torizo's jump or fall continues in (#2028, #2411): its leaping motion starts it when the Torizo
+    /// meets the ground or the ceiling, and a jump's owner starts it once the Torizo no longer rises. A jump names its fall,
+    /// a fall its landing.
     /// </summary>
-    /// <param name="Landing">The landing animation.</param>
+    /// <param name="Landing">The fall or landing animation.</param>
     internal sealed record LandIn(TorizoAnimation Landing) : TorizoCue;
 
     /// <summary>Ends an attack chosen on landing: the Torizo walks on in <paramref name="Walking"/>, from its start (#2028).</summary>
@@ -45,13 +46,6 @@ internal abstract record TorizoCue
     /// <param name="WhenFacingRight">The turn of a Torizo facing right.</param>
     /// <param name="WhenFacingLeft">The turn of a Torizo facing left.</param>
     internal sealed record Turn(TorizoAnimation WhenFacingRight, TorizoAnimation WhenFacingLeft) : TorizoCue;
-
-    /// <summary>
-    /// Plays the run of steps the cue is in again, from that run's first step, while its condition holds (#1788): a jump's
-    /// rising pose while it rises, Golden Torizo's drop while it is airborne, its open chest while its eggs remain.
-    /// </summary>
-    /// <param name="Kind">The condition the replay tests.</param>
-    internal sealed record Replay(TorizoReplayKind Kind) : TorizoCue;
 
     /// <summary>Stands a Torizo up or sits it down, moving it as its body rises or settles (#1891).</summary>
     /// <param name="Kind">Which way the posture changes.</param>

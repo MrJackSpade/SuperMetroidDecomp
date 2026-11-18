@@ -17,10 +17,11 @@ namespace SuperMetroid.TestSupport.MovieReplay;
 /// Whether a family command is a flicker: it shows a frame for one update itself, its operand words being that frame's
 /// pose and any reflected pose, so the port follows its cue with a one-update show; null when no command does.
 /// </param>
-/// <param name="Replays">
-/// Whether a cue replays the run of steps it is in, from that run's first step, while its condition holds (#1788), as the
-/// native conditional goto to its own list does: its operand word is its own list's entry, and its run begins that list;
-/// null when no cue does.
+/// <param name="LoopMarks">
+/// Whether a cue marks the end of a run its animation loops on while the owner waits for its condition to change (#2411),
+/// as the native conditional goto to its own list replays the run while the condition holds: its operand word is its own
+/// list's entry, its run begins that list, the animation loops from that run's phase, and the animation the owner then
+/// starts by name starts just past the goto; null when no cue does.
 /// </param>
 /// <param name="Omitted">
 /// Whether a family command has no event in the typed animations because it has no effect (#1870): an operand-less
@@ -38,7 +39,7 @@ internal sealed record NativeEnemyProjectileCueRules<TCue>(
     Func<TCue, bool>? EndsList = null,
     Func<ushort, bool>? ShowsFrame = null,
     Func<ushort, bool>? EndsAt = null,
-    Func<TCue, bool>? Replays = null,
+    Func<TCue, bool>? LoopMarks = null,
     Func<ushort, bool>? Omitted = null,
     Func<ushort, ushort>? PicturedAt = null)
     where TCue : notnull

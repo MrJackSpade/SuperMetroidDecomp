@@ -1,6 +1,6 @@
 ﻿namespace SuperMetroid.Core.Bosses.Torizo;
 
-/// <summary>What a cue of Torizo's projectile animations does: start or stop its movement, delete, return or aim the projectile, raise a dust cloud, request an orb's drop, stop it blocking or damaging, continue in a hatched egg, or replay a run while the eye beam's explosions are disabled.</summary>
+/// <summary>What a cue of Torizo's projectile animations does: start or stop its movement, delete, return or aim the projectile, raise a dust cloud, request an orb's drop, stop it blocking or damaging, continue in a hatched egg, or mark the eye beam's floor impact's wait over, on which its owner starts its flames once the eye beam's explosions are enabled.</summary>
 internal enum TorizoProjectileCueKind
 {
     /// <summary>Stops the projectile's movement.</summary>
@@ -51,8 +51,8 @@ internal enum TorizoProjectileCueKind
     /// </summary>
     MayTurnToSmoke,
     /// <summary>
-    /// Plays the run of steps the cue is in again, from that run's first step, while Golden Torizo's eye-beam explosions are
-    /// disabled (#1788): the eye beam's floor spark sparks again.
+    /// The eye beam's floor impact has waited out its pause (#2411): once Golden Torizo's eye-beam explosions are enabled, its
+    /// owner starts its flames; until then it waits again.
     /// </summary>
-    ReplayWhileEyeBeamExplosionsDisabled,
+    FloorImpactWaited,
 }

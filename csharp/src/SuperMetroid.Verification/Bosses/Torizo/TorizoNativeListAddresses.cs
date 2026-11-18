@@ -1,4 +1,5 @@
 using SuperMetroid.TestSupport.MovieReplay;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Bosses.Torizo;
 
@@ -45,7 +46,12 @@ internal static class TorizoNativeListAddresses
         0xd1f1, 0xd203, 0xd20d, 0xd259, 0xd2ad, 0xd2bf, 0xd2c9, 0xd315,
     ];
 
-    /// <summary>The native list each body animation starts at (#1788); the walks the attacks chosen on landing end in start at their step lists (#2028).</summary>
+    /// <summary>
+    /// The native place each body animation starts at (#1788): a list's entry; the walks the attacks chosen on landing end in
+    /// start at their step lists (#2028), and the animations an owner starts once the run another loops on has marked its
+    /// moment start just past that mark's conditional goto (#2411), Golden Torizo's settling at $C9EE and its chest's closing
+    /// at $D08F.
+    /// </summary>
     internal static readonly IReadOnlyDictionary<TorizoAnimation, ushort> AnimationEntries = new Dictionary<TorizoAnimation, ushort>
     {
         [TorizoAnimation.BombTorizoGutBlowingUp] = 0xb0e5,
@@ -98,6 +104,7 @@ internal static class TorizoNativeListAddresses
         [TorizoAnimation.FacingRightFacelessWalkingRightLegMoving] = 0xc1cc,
         [TorizoAnimation.GoldenTorizoDormant] = 0xc9cb,
         [TorizoAnimation.GoldenTorizoAwakening] = 0xc9e2,
+        [TorizoAnimation.GoldenTorizoSettling] = 0xc9ee,
         [TorizoAnimation.GoldenFacingLeftSpewingChozoOrbsRightFootForward] = 0xcaff,
         [TorizoAnimation.GoldenFacingLeftSpewingChozoOrbsLeftFootForward] = 0xcb41,
         [TorizoAnimation.GoldenFacingLeftSonicBoomsRightFootForward] = 0xcb83,
@@ -117,6 +124,7 @@ internal static class TorizoNativeListAddresses
         [TorizoAnimation.GoldenFacingLeftSittingDownAttack] = 0xcf59,
         [TorizoAnimation.GoldenFacingRightSittingDownAttack] = 0xcfc5,
         [TorizoAnimation.GoldenReleasingEggs] = 0xd031,
+        [TorizoAnimation.GoldenChestClosing] = 0xd08f,
         [TorizoAnimation.GoldenEyeBeamAttack] = 0xd10d,
         [TorizoAnimation.GoldenDodgeTurningLeft] = 0xd1f1,
         [TorizoAnimation.GoldenTurningLeft] = 0xd203,
@@ -168,7 +176,8 @@ internal static class TorizoNativeListAddresses
         [0xc41e] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Of<TorizoCue.Posture>("", "Posture SitDown", cue => cue.Kind == TorizoPostureKind.SitDown), [TorizoOperand.Value]),
         [0xc470] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Of<TorizoCue.Walk>("", "Walk WalkBombTorizo", cue => cue.Kind == TorizoWalkKind.WalkBombTorizo), [TorizoOperand.Value]),
         [0xc4e5] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Of<TorizoCue.Walk>("", "Walk WalkFacelessBombTorizo", cue => cue.Kind == TorizoWalkKind.WalkFacelessBombTorizo), [TorizoOperand.Value]),
-        [0xc55a] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Of<TorizoCue.Replay>("", "Replay WhileRising", cue => cue.Kind == TorizoReplayKind.WhileRising), [TorizoOperand.ReplayedRun]),
+        // The conditional gotos to their own lists are the marks the runs their animations loop on end in (#2411).
+        [0xc55a] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Signal(TorizoCueKind.LeapingPoseShown)), [TorizoOperand.ReplayedRun]),
         [0xc567] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Of<TorizoCue.Interrupt>("", "Interrupt BombSwipeAtSamusBehind", cue => cue.Kind == TorizoInterruptKind.BombSwipeAtSamusBehind), [TorizoOperand.Target]),
         [0xc58b] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Of<TorizoCue.Branch>("", "Branch BombJumpBackFromSamusInFront", cue => cue.Kind == TorizoBranchKind.BombJumpBackFromSamusInFront), [TorizoOperand.Target]),
         [0xc5a4] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Of<TorizoCue.Choice>("", "Choice BombAttack", cue => cue.Kind == TorizoChoiceKind.BombAttack), [TorizoOperand.Target, TorizoOperand.Alternate]),
@@ -178,12 +187,12 @@ internal static class TorizoNativeListAddresses
         [0xc601] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Of<TorizoCue.Swipe>(""), [TorizoOperand.SwipePlacement]),
         [0xc610] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Signal(TorizoCueKind.PlayShotSound)), []),
         [0xc618] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Signal(TorizoCueKind.PlayFootstepSound)), []),
-        [0xcace] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Of<TorizoCue.Replay>("", "Replay WhileAirborne", cue => cue.Kind == TorizoReplayKind.WhileAirborne), [TorizoOperand.ReplayedRun]),
+        [0xcace] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Signal(TorizoCueKind.DroppingPoseShown)), [TorizoOperand.ReplayedRun]),
         [0xcade] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Signal(TorizoCueKind.FadeToGoldenColors)), []),
         [0xcae2] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Signal(TorizoCueKind.StartGoldenTorizoFight)), []),
         [0xcdd7] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Signal(TorizoCueKind.ClearCaughtSuperMissile)), []),
         [0xd0e9] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Signal(TorizoCueKind.SpawnEgg)), []),
-        [0xd0f3] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Of<TorizoCue.Replay>("", "Replay WhileEggsRemain", cue => cue.Kind == TorizoReplayKind.WhileEggsRemain), [TorizoOperand.ReplayedRun]),
+        [0xd0f3] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Signal(TorizoCueKind.ChestHeldOpen)), [TorizoOperand.ReplayedRun]),
         [0xd17b] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Signal(TorizoCueKind.DisableEyeBeamExplosions)), []),
         [0xd187] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Signal(TorizoCueKind.EnableEyeBeamExplosions)), []),
         [0xd1e7] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Signal(TorizoCueKind.UnmarkStunned)), []),
@@ -202,6 +211,12 @@ internal static class TorizoNativeListAddresses
         [0xd526] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Of<TorizoCue.Choice>("", "Choice GoldenAttack", cue => cue.Kind == TorizoChoiceKind.GoldenAttack), [TorizoOperand.Target, TorizoOperand.Alternate]),
         [0xd54d] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Of<TorizoCue.Walk>("", "Walk WalkGoldenTorizo", cue => cue.Kind == TorizoWalkKind.WalkGoldenTorizo), [TorizoOperand.Value]),
     };
+
+    /// <summary>
+    /// The bank-$AA conditional gotos to their own lists, which replayed a jump's rising pose, Golden Torizo's drop and its
+    /// open chest while their conditions held: the marks the runs their typed animations loop on end in (#2411).
+    /// </summary>
+    internal static readonly HashSet<ushort> LoopMarkInstructions = [0xc55a, 0xcace, 0xd0f3];
 
     /// <summary>The bank-$AA instruction that returned to the place a call saved: an attack's, a stagger's or the face blow-up's end.</summary>
     internal const ushort ReturnInstruction = 0xc2f7;
@@ -256,8 +271,6 @@ internal static class TorizoNativeListAddresses
         [TorizoProjectileSegment.LowHealthExplosion] = 0xa3cb,
         [TorizoProjectileSegment.DeathExplosion] = 0xa3fa,
         [TorizoProjectileSegment.DeathSmoke] = 0xa431,
-        [TorizoProjectileSegment.DroolFourFrameDelay] = 0xa46a,
-        [TorizoProjectileSegment.DroolTwoFrameDelay] = 0xa46e,
         [TorizoProjectileSegment.DroolNoDelay] = 0xa472,
         [TorizoProjectileSegment.DroolWallImpact] = 0xa48a,
         [TorizoProjectileSegment.DroolFloorImpact] = 0xa48e,
@@ -293,8 +306,27 @@ internal static class TorizoNativeListAddresses
         [TorizoProjectileSegment.SuperMissileImpact] = 0xb2ef,
         [TorizoProjectileSegment.EyeBeamWallImpact] = 0xb3cd,
         [TorizoProjectileSegment.EyeBeamFloorImpact] = 0xb3e5,
+        // The flames start just past the floor impact's loop mark, as its conditional goto continues there once the eye beam's
+        // explosions are enabled (#2411).
+        [TorizoProjectileSegment.EyeBeamFloorFlames] = 0xb3ef,
         [TorizoProjectileSegment.EyeBeam] = 0xb410,
     };
+
+    /// <summary>
+    /// The projectile animations the drool's spawn starts by their own names (#2411), at the native lists the cartridge's drool
+    /// delay table names: a drool forming for four updates plays the forming list, then its copy, as its forming twice.
+    /// </summary>
+    internal static IReadOnlyList<NativeNamedAnimationEntry<TorizoProjectileSegment>> NamedProjectileAnimationEntries { get; } =
+    [
+        new(nameof(TorizoProjectileAnimations.DroolFormingForFourUpdates), TorizoProjectileAnimations.DroolFormingForFourUpdates, 0xa46a),
+        new(nameof(TorizoProjectileAnimations.DroolFormingForTwoUpdates), TorizoProjectileAnimations.DroolFormingForTwoUpdates, 0xa46e),
+    ];
+
+    /// <summary>The native place a projectile animation started by a segment or by its own name starts at.</summary>
+    internal static ushort ProjectileEntryOf(Animation<TorizoProjectileSegment> animation) =>
+        ProjectileAnimationEntries.Where(pair => ReferenceEquals(TorizoProjectileAnimations.StartingWith(pair.Key), animation)).Select(pair => pair.Value)
+            .Concat(NamedProjectileAnimationEntries.Where(named => ReferenceEquals(named.Animation, animation)).Select(named => named.Entry))
+            .Single();
 
     /// <summary>The native list <paramref name="animation"/> starts at.</summary>
     internal static ushort Entry(TorizoAnimation animation) =>

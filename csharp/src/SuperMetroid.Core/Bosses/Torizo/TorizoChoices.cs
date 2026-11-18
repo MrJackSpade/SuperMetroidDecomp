@@ -35,7 +35,7 @@ internal sealed class TorizoChoices
         TorizoCadenceDefinitions.FirstAttackPhase.IsSetIn(frameCounter + ((samusX + 1) >> 1));
 
     /// <summary>Branches to the grounded-ball response only when Samus is four to 39 pixels away behind the statue.</summary>
-    internal static AnimationContinuation<TorizoAnimation>? SelectGoldenTorizoMorphBallBranch(
+    internal static AnimationContinuation<TorizoBodySegment>? SelectGoldenTorizoMorphBallBranch(
         RoomEnemyPlace torizo,
         TorizoEnemyState state,
         SamusState samus,
@@ -58,11 +58,11 @@ internal sealed class TorizoChoices
     }
 
     /// <summary>Uses the room RNG to interrupt the walk with an attack forward at medium horizontal range, keeping the walk's place.</summary>
-    internal AnimationContinuation<TorizoAnimation>? SelectGoldenTorizoMediumRangeBranch(
+    internal AnimationContinuation<TorizoBodySegment>? SelectGoldenTorizoMediumRangeBranch(
         RoomEnemyPlace torizo,
         TorizoEnemyState state,
         SamusState samus,
-        AnimationPlayback<TorizoAnimation> continuation,
+        AnimationPlayback<TorizoBodySegment> continuation,
         TorizoAnimation target)
     {
         int distance = Math.Abs(samus.Position.X.Whole - torizo.Position.X.Whole);
@@ -78,7 +78,7 @@ internal sealed class TorizoChoices
     }
 
     /// <summary>Launches the forward leap when distant Samus movement or sustained space jumping breaks the wait.</summary>
-    internal AnimationContinuation<TorizoAnimation>? SelectGoldenTorizoSpaceJumpCounter(
+    internal AnimationContinuation<TorizoBodySegment>? SelectGoldenTorizoSpaceJumpCounter(
         RoomEnemyPlace torizo,
         TorizoEnemyState state,
         SamusState samus,
@@ -101,7 +101,7 @@ internal sealed class TorizoChoices
     }
 
     /// <summary>Starts a backward jump after enough decisions or when Samus closes inside 32 pixels.</summary>
-    internal static AnimationContinuation<TorizoAnimation>? SelectGoldenTorizoRepeatedJump(
+    internal static AnimationContinuation<TorizoBodySegment>? SelectGoldenTorizoRepeatedJump(
         RoomEnemyPlace torizo,
         TorizoEnemyState state,
         SamusState samus,
@@ -123,7 +123,7 @@ internal sealed class TorizoChoices
     /// Moves the Torizo by the walking step's <paramref name="stepPixels"/>, turns it as <paramref name="walker"/> turns at a
     /// wall in its way, and otherwise arms its turn toward a Samus behind it (#2335).
     /// </summary>
-    internal AnimationContinuation<TorizoAnimation>? ProcessTorizoWalkStep(
+    internal AnimationContinuation<TorizoBodySegment>? ProcessTorizoWalkStep(
         RoomEnemyPlace torizo,
         TorizoEnemyState state,
         SamusState samus,
@@ -169,11 +169,11 @@ internal sealed class TorizoChoices
     }
 
     /// <summary>Interrupts the walk with the swipe, keeping the walk's place, when Samus is within 56 pixels behind the statue.</summary>
-    internal static AnimationContinuation<TorizoAnimation>? SelectBombTorizoCloseBehindBranch(
+    internal static AnimationContinuation<TorizoBodySegment>? SelectBombTorizoCloseBehindBranch(
         RoomEnemyPlace torizo,
         TorizoEnemyState state,
         SamusState samus,
-        AnimationPlayback<TorizoAnimation> continuation,
+        AnimationPlayback<TorizoBodySegment> continuation,
         TorizoAnimation target)
     {
         if (Math.Abs(samus.Position.X.Whole - torizo.Position.X.Whole) >= TorizoDecisionDefinitions.CloseBehindDistance)
@@ -185,7 +185,7 @@ internal sealed class TorizoChoices
     }
 
     /// <summary>Launches the reverse jump when Samus is within 32 pixels in the selected facing half-plane.</summary>
-    internal static AnimationContinuation<TorizoAnimation>? SelectBombTorizoCloseFrontJump(
+    internal static AnimationContinuation<TorizoBodySegment>? SelectBombTorizoCloseFrontJump(
         RoomEnemyPlace torizo,
         TorizoEnemyState state,
         SamusState samus,

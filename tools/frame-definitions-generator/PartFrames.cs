@@ -20,7 +20,7 @@ namespace SuperMetroid.FrameDefinitionsGenerator;
 /// </param>
 /// <param name="AnimationsType">
 /// The type declaring the parts' <c>Segments</c> (<c>[P.X] = [beats]</c> entries, or segments joining tables it spreads in,
-/// as Torizo's join four, whose entries are read from those tables) and <c>StartingAt</c> (the animation starting at each
+/// as Torizo's join three, whose entries are read from those tables) and <c>StartingAt</c> (the animation starting at each
 /// segment, <c>[P.X] = new([phases], end)</c>), or null when parts select by key.
 /// </param>
 /// <param name="StartCue">The cue record starting every part's program at once, or null.</param>
@@ -320,7 +320,8 @@ internal sealed record PartFrameConfiguration(
         // Torizo blows up its gut and face and turns and lands with and without its face; Golden Torizo turns, dodges and
         // catches Super Missiles; both fall and die. A walking Torizo's decisions continue in the animation the owner picks
         // for the posture its step left (#2175, TorizoBranches): Bomb Torizo's jump back, Golden Torizo's jump back, leap
-        // and sit, each way and onto either foot. Every other branch and choice an animation names is followed, so Golden
+        // and sit, each way and onto either foot. Golden Torizo's owner settles it once its drop reaches the floor and closes
+        // its chest once its eggs are gone (#2411). Every other branch and choice an animation names is followed, so Golden
         // Torizo shows every pose but Bomb Torizo's dormant statue, which only Bomb Torizo's animations show.
         new("TorizoBehavior", null, null, "TorizoAnimations", null, [],
             new Dictionary<string, string[]>(StringComparer.Ordinal)
@@ -334,7 +335,8 @@ internal sealed record PartFrameConfiguration(
                 ],
                 ["GoldenTorizo"] =
                 [
-                    "GoldenTorizoDormant", "GoldenTorizoAwakening", "GoldenTurningLeft", "GoldenTurningRight", "GoldenDodgeTurningLeft",
+                    "GoldenTorizoDormant", "GoldenTorizoAwakening", "GoldenTorizoSettling", "GoldenChestClosing", "GoldenTurningLeft",
+                    "GoldenTurningRight", "GoldenDodgeTurningLeft",
                     "GoldenDodgeTurningRight", "GoldenFacingLeftCatchingSuperMissileLeftLegForward",
                     "GoldenFacingLeftCatchingSuperMissileRightLegForward", "GoldenFacingRightCatchingSuperMissileLeftLegForward",
                     "GoldenFacingRightCatchingSuperMissileRightLegForward", "FacingLeftFalling", "FacingRightFalling", "Dying",
@@ -540,6 +542,12 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
                 foreach (string frame in model.EnemyFramesNamed(initializer))
                     entries.TryAdd($"{model.EnemyFrameId.Name}={frame}", frame);
             }
+            // So does every frame a segment shows through a helper written once over a side's poses (#2411); the segments'
+            // own problems are reported as their closures are read.
+            (Dictionary<AnimationNode, PartProgram> programs, _) = Programs([]);
+            string prefix = $"{model.EnemyFrameId.Name}=";
+            foreach (string key in programs.Values.SelectMany(program => program.Keys).Where(key => key.StartsWith(prefix, StringComparison.Ordinal)))
+                entries.TryAdd(key, key[prefix.Length..]);
             if (entries.Count == 0)
                 problems.Add($"{TableName} names no frame");
             return entries;
@@ -733,15 +741,30 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
     {
         var programs = new Dictionary<AnimationNode, PartProgram>();
         INamedTypeSymbol? programType = null;
+        INamedTypeSymbol? startType = StartType();
         foreach (ExpressionSyntax initializer in SegmentInitializers())
-            programType = ReadSegments(initializer, programs, programType, problems);
+            programType = ReadSegments(initializer, programs, programType, startType, problems);
         if (programType is null)
             throw new InvalidDataException($"{configuration.AnimationsType}.Segments has no [Segment] = [beats] entries.");
-        ReadAnimations(StartingAtInitializer(), programs, programType, problems);
+        startType ??= programType;
+        ReadAnimations(StartingAtInitializer(), programs, programType, startType, problems);
         foreach (ISymbol named in NamedAnimations())
             ReadNamedAnimation(named, programs, programType, problems);
-        return (programs, programType);
+        return (programs, startType);
     }
+
+    /// <summary>
+    /// The identity <c>StartingAt</c> keys its animations by: the segment type, or, for a family whose animations are named
+    /// apart from their segments (#2399, #2411: Torizo's <c>TorizoAnimation</c> over its <c>TorizoBodySegment</c>s), the
+    /// animations' own enum. Cues and code start the animations by that identity.
+    /// </summary>
+    private INamedTypeSymbol? StartType() =>
+        model.Member(configuration.AnimationsType!, "StartingAt") switch
+        {
+            IPropertySymbol { Type: INamedTypeSymbol { TypeArguments: [INamedTypeSymbol { TypeKind: TypeKind.Enum } key, ..] } } => key,
+            IFieldSymbol { Type: INamedTypeSymbol { TypeArguments: [INamedTypeSymbol { TypeKind: TypeKind.Enum } key, ..] } } => key,
+            _ => null,
+        };
 
     /// <summary>
     /// The animations the configured animations type holds by a name of their own (#2399): its static properties and fields
@@ -812,23 +835,191 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
     }
 
     /// <summary>
-    /// The beats of a segment's collection, each with the semantic model of its tree: its own beats, and the beats of each run
-    /// of shared steps it spreads in, in order.
+    /// A helper's parameter bound to the argument a call of it passes (#2411): the argument, read in the caller's semantic
+    /// model with the caller's own bindings, as a faced animation written once over a side's poses is called for each side.
     /// </summary>
-    private IEnumerable<(SemanticModel Semantic, CollectionElementSyntax Beat)> BeatsOf(SemanticModel semantic, CollectionExpressionSyntax beats)
+    /// <param name="Semantic">The caller's semantic model.</param>
+    /// <param name="Argument">The argument passed.</param>
+    /// <param name="Outer">The caller's bindings, which the argument's own parameter names read.</param>
+    private sealed record BoundArgument(SemanticModel Semantic, ExpressionSyntax Argument, IReadOnlyDictionary<IParameterSymbol, BoundArgument> Outer);
+
+    /// <summary>No bindings: an initializer read outside any helper.</summary>
+    private static readonly IReadOnlyDictionary<IParameterSymbol, BoundArgument> Unbound = new Dictionary<IParameterSymbol, BoundArgument>(SymbolEqualityComparer.Default);
+
+    /// <summary>
+    /// The beats <paramref name="beats"/> holds, each with the semantic model and bindings it is read in: a collection's own
+    /// beats, the beats of each run of shared steps it spreads in, and the beats a helper written once over a side's or a
+    /// stance's poses returns (#2411), its parameters bound to the call's arguments, in order. Null for an expression this
+    /// generator cannot read as beats.
+    /// </summary>
+    private List<(SemanticModel Semantic, ExpressionSyntax Beat, IReadOnlyDictionary<IParameterSymbol, BoundArgument> Bindings)>? BeatsOf(
+        SemanticModel semantic, ExpressionSyntax beats, IReadOnlyDictionary<IParameterSymbol, BoundArgument> bindings, int depth = 0)
     {
-        foreach (CollectionElementSyntax element in beats.Elements)
+        if (depth > 16)
+            return null;
+        switch (beats)
         {
-            if (element is SpreadElementSyntax { Expression: var spread } && semantic.GetTypeInfo(spread).Type is IArrayTypeSymbol
-                && semantic.GetSymbolInfo(spread).Symbol is (IFieldSymbol or IPropertySymbol) and var run
-                && CoreModel.InitializerOf(run.OriginalDefinition) is CollectionExpressionSyntax shared)
+            case CollectionExpressionSyntax collection:
             {
-                foreach ((SemanticModel, CollectionElementSyntax) inner in BeatsOf(model.ModelOf(shared.SyntaxTree), shared))
-                    yield return inner;
-                continue;
+                var read = new List<(SemanticModel, ExpressionSyntax, IReadOnlyDictionary<IParameterSymbol, BoundArgument>)>();
+                foreach (CollectionElementSyntax element in collection.Elements)
+                {
+                    switch (element)
+                    {
+                        case SpreadElementSyntax { Expression: var spread }:
+                            if (BeatsOf(semantic, spread, bindings, depth + 1) is not { } inner)
+                                return null;
+                            read.AddRange(inner);
+                            break;
+                        case ExpressionElementSyntax { Expression: var beat }:
+                            read.Add((semantic, beat, bindings));
+                            break;
+                        default:
+                            return null;
+                    }
+                }
+                return read;
             }
-            yield return (semantic, element);
+            case InvocationExpressionSyntax invocation when semantic.GetSymbolInfo(invocation).Symbol is IMethodSymbol helper
+                && model.IsSource(helper) && HelperBody(helper) is { } body:
+                return BeatsOf(model.ModelOf(body.SyntaxTree), body, Bind(semantic, invocation, helper, bindings), depth + 1);
         }
+        switch (semantic.GetSymbolInfo(beats).Symbol)
+        {
+            case IParameterSymbol parameter when bindings.TryGetValue(parameter, out BoundArgument? bound):
+                return BeatsOf(bound.Semantic, bound.Argument, bound.Outer, depth + 1);
+            case IFieldSymbol or IPropertySymbol when semantic.GetTypeInfo(beats).Type is IArrayTypeSymbol:
+                ExpressionSyntax shared = CoreModel.InitializerOf(semantic.GetSymbolInfo(beats).Symbol!.OriginalDefinition);
+                return BeatsOf(model.ModelOf(shared.SyntaxTree), shared, Unbound, depth + 1);
+            default:
+                return null;
+        }
+    }
+
+    /// <summary>The expression <paramref name="helper"/>'s body returns, when it is one expression; null otherwise.</summary>
+    private static ExpressionSyntax? HelperBody(IMethodSymbol helper) =>
+        helper.DeclaringSyntaxReferences.Select(reference => reference.GetSyntax()).OfType<MethodDeclarationSyntax>()
+            .Select(declaration => declaration.ExpressionBody?.Expression
+                ?? (declaration.Body is { Statements: [ReturnStatementSyntax { Expression: { } returned }] } ? returned : null))
+            .FirstOrDefault(body => body is not null);
+
+    /// <summary>The bindings a call of <paramref name="helper"/> makes: each parameter bound to the argument the call passes it.</summary>
+    private static Dictionary<IParameterSymbol, BoundArgument> Bind(SemanticModel caller, InvocationExpressionSyntax invocation, IMethodSymbol helper,
+        IReadOnlyDictionary<IParameterSymbol, BoundArgument> callerBindings)
+    {
+        var bound = new Dictionary<IParameterSymbol, BoundArgument>(SymbolEqualityComparer.Default);
+        for (int index = 0; index < invocation.ArgumentList.Arguments.Count; index++)
+        {
+            ArgumentSyntax argument = invocation.ArgumentList.Arguments[index];
+            IParameterSymbol? parameter = argument.NameColon is { } named
+                ? helper.Parameters.FirstOrDefault(candidate => candidate.Name == named.Name.Identifier.Text)
+                : index < helper.Parameters.Length ? helper.Parameters[index] : null;
+            if (parameter is not null)
+                bound[parameter.OriginalDefinition] = new BoundArgument(caller, argument.Expression, callerBindings);
+        }
+        return bound;
+    }
+
+    /// <summary>
+    /// The enum members <paramref name="expression"/> stands for through its bindings and the records it reads (#2411): a
+    /// bound parameter's argument's, or a record member's, read through the construction that gave the record its value (a
+    /// side's poses read through <c>TorizoSide.Left</c>'s initializer). An expression standing for an enum member directly is
+    /// read by the beat itself.
+    /// </summary>
+    private IEnumerable<IFieldSymbol> BoundMembers(SemanticModel semantic, ExpressionSyntax expression, IReadOnlyDictionary<IParameterSymbol, BoundArgument> bindings)
+    {
+        foreach (SyntaxNode node in expression.DescendantNodesAndSelf())
+        {
+            switch (node)
+            {
+                case IdentifierNameSyntax identifier when !IsAccessedRecord(identifier):
+                    if (semantic.GetSymbolInfo(identifier).Symbol is IParameterSymbol parameter && bindings.TryGetValue(parameter.OriginalDefinition, out BoundArgument? bound))
+                    {
+                        foreach (IFieldSymbol member in ValueMembers(bound.Semantic, bound.Argument, bound.Outer, depth: 0))
+                            yield return member;
+                    }
+                    break;
+                case MemberAccessExpressionSyntax access when semantic.GetSymbolInfo(access).Symbol is IPropertySymbol { IsStatic: false }
+                    && !IsAccessedRecord(access):
+                    foreach (IFieldSymbol member in ValueMembers(semantic, access, bindings, depth: 0))
+                        yield return member;
+                    break;
+            }
+        }
+    }
+
+    /// <summary>Whether <paramref name="expression"/> is the record a member access reads a member of, which the access stands for whole.</summary>
+    private static bool IsAccessedRecord(ExpressionSyntax expression) =>
+        expression.Parent is MemberAccessExpressionSyntax access && access.Expression == expression;
+
+    /// <summary>
+    /// The enum members the value of <paramref name="expression"/> is: an enum member itself, or what a bound parameter's
+    /// argument or a record member read through its construction is.
+    /// </summary>
+    private IEnumerable<IFieldSymbol> ValueMembers(SemanticModel semantic, ExpressionSyntax expression, IReadOnlyDictionary<IParameterSymbol, BoundArgument> bindings, int depth)
+    {
+        if (depth > 16)
+            yield break;
+        ISymbol? symbol = semantic.GetSymbolInfo(expression).Symbol;
+        switch (symbol)
+        {
+            case IFieldSymbol { ContainingType.TypeKind: TypeKind.Enum } member:
+                yield return member;
+                yield break;
+            case IParameterSymbol parameter when bindings.TryGetValue(parameter.OriginalDefinition, out BoundArgument? bound):
+                foreach (IFieldSymbol member in ValueMembers(bound.Semantic, bound.Argument, bound.Outer, depth + 1))
+                    yield return member;
+                yield break;
+            case IPropertySymbol { IsStatic: false } property when expression is MemberAccessExpressionSyntax { Expression: var record }
+                && RecordValue(semantic, record, bindings, depth + 1) is { } construction
+                && ConstructionArgument(construction.Semantic, construction.Creation, property.Name) is { } argument:
+                foreach (IFieldSymbol member in ValueMembers(construction.Semantic, argument, construction.Bindings, depth + 1))
+                    yield return member;
+                yield break;
+        }
+    }
+
+    /// <summary>
+    /// The construction that gave <paramref name="expression"/>'s record its value: the construction itself, a bound
+    /// parameter's argument's, a static member's initializer's, or a record member's argument's in its own construction.
+    /// </summary>
+    private (SemanticModel Semantic, BaseObjectCreationExpressionSyntax Creation, IReadOnlyDictionary<IParameterSymbol, BoundArgument> Bindings)? RecordValue(
+        SemanticModel semantic, ExpressionSyntax expression, IReadOnlyDictionary<IParameterSymbol, BoundArgument> bindings, int depth)
+    {
+        if (depth > 16)
+            return null;
+        if (expression is BaseObjectCreationExpressionSyntax creation)
+            return (semantic, creation, bindings);
+        switch (semantic.GetSymbolInfo(expression).Symbol)
+        {
+            case IParameterSymbol parameter when bindings.TryGetValue(parameter.OriginalDefinition, out BoundArgument? bound):
+                return RecordValue(bound.Semantic, bound.Argument, bound.Outer, depth + 1);
+            case IFieldSymbol { IsStatic: true } or IPropertySymbol { IsStatic: true } when model.IsSource(semantic.GetSymbolInfo(expression).Symbol!):
+                ExpressionSyntax initializer = CoreModel.InitializerOf(semantic.GetSymbolInfo(expression).Symbol!.OriginalDefinition);
+                return RecordValue(model.ModelOf(initializer.SyntaxTree), initializer, Unbound, depth + 1);
+            case IPropertySymbol { IsStatic: false } property when expression is MemberAccessExpressionSyntax { Expression: var record }
+                && RecordValue(semantic, record, bindings, depth + 1) is { } construction
+                && ConstructionArgument(construction.Semantic, construction.Creation, property.Name) is { } argument:
+                return RecordValue(construction.Semantic, argument, construction.Bindings, depth + 1);
+            default:
+                return null;
+        }
+    }
+
+    /// <summary>The argument <paramref name="creation"/> passes its constructor's parameter <paramref name="name"/>: a positional record's member's value.</summary>
+    private static ExpressionSyntax? ConstructionArgument(SemanticModel semantic, BaseObjectCreationExpressionSyntax creation, string name)
+    {
+        if (semantic.GetSymbolInfo(creation).Symbol is not IMethodSymbol { MethodKind: MethodKind.Constructor } constructor || creation.ArgumentList is not { } arguments)
+            return null;
+        for (int index = 0; index < arguments.Arguments.Count; index++)
+        {
+            ArgumentSyntax argument = arguments.Arguments[index];
+            string? parameter = argument.NameColon is { } named ? named.Name.Identifier.Text
+                : index < constructor.Parameters.Length ? constructor.Parameters[index].Name : null;
+            if (parameter == name)
+                return argument.Expression;
+        }
+        return null;
     }
 
     /// <summary>The initializer of the configured <c>StartingAt</c>.</summary>
@@ -843,25 +1034,26 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
     /// returns the segment identity type.
     /// </summary>
     private INamedTypeSymbol? ReadSegments(ExpressionSyntax initializer, Dictionary<AnimationNode, PartProgram> programs, INamedTypeSymbol? programType,
-        List<string> problems)
+        INamedTypeSymbol? startType, List<string> problems)
     {
         SemanticModel semantic = model.ModelOf(initializer.SyntaxTree);
         foreach (AssignmentExpressionSyntax entry in initializer.DescendantNodes().OfType<AssignmentExpressionSyntax>())
         {
-            if (entry is not { Left: ImplicitElementAccessSyntax { ArgumentList.Arguments: [var name] }, Right: CollectionExpressionSyntax beats }
+            if (entry is not { Left: ImplicitElementAccessSyntax { ArgumentList.Arguments: [var name] }, Right: var beats }
                 || semantic.GetSymbolInfo(name.Expression).Symbol is not IFieldSymbol { ContainingType.TypeKind: TypeKind.Enum } identity)
                 continue;
+            // A segment is its collection of beats, or a helper's beats written once over a side's poses (#2411); any other
+            // entry is no segment.
+            if (BeatsOf(semantic, beats, Unbound) is not { } read)
+            {
+                if (beats is CollectionExpressionSyntax)
+                    problems.Add($"segment {identity.Name} has beats this generator cannot read: {beats}");
+                continue;
+            }
             programType ??= identity.ContainingType;
             var program = new PartProgram(new HashSet<string>(StringComparer.Ordinal), [], []);
-            foreach ((SemanticModel beatSemantic, CollectionElementSyntax element) in BeatsOf(semantic, beats))
-            {
-                if (element is not ExpressionElementSyntax { Expression: var beat })
-                {
-                    problems.Add($"segment {identity.Name} has a beat this generator cannot read: {element}");
-                    continue;
-                }
-                ReadBeat(beatSemantic, beat, identity.ContainingType, program, problems);
-            }
+            foreach ((SemanticModel beatSemantic, ExpressionSyntax beat, IReadOnlyDictionary<IParameterSymbol, BoundArgument> bindings) in read)
+                ReadBeat(beatSemantic, beat, bindings, startType ?? identity.ContainingType, program, problems);
             if (!programs.TryAdd(AnimationNode.Segment(identity.Name), program))
                 problems.Add($"segment {identity.Name} is listed twice");
         }
@@ -870,9 +1062,11 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
 
     /// <summary>
     /// Reads the <c>[P.X] = new([phases], end)</c> entries of <paramref name="initializer"/> into <paramref name="programs"/>:
-    /// the animation starting at each segment plays the segments its phases name.
+    /// the animation starting at each segment, or named by <paramref name="startType"/>'s member (#2411), plays the segments
+    /// its phases name, there or in the animations type's helpers it calls.
     /// </summary>
-    private void ReadAnimations(ExpressionSyntax initializer, Dictionary<AnimationNode, PartProgram> programs, INamedTypeSymbol programType, List<string> problems)
+    private void ReadAnimations(ExpressionSyntax initializer, Dictionary<AnimationNode, PartProgram> programs, INamedTypeSymbol programType,
+        INamedTypeSymbol startType, List<string> problems)
     {
         SemanticModel semantic = model.ModelOf(initializer.SyntaxTree);
         int read = 0;
@@ -880,13 +1074,13 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
         {
             if (entry is not { Left: ImplicitElementAccessSyntax { ArgumentList.Arguments: [var name] } }
                 || semantic.GetSymbolInfo(name.Expression).Symbol is not IFieldSymbol identity
-                || !SymbolEqualityComparer.Default.Equals(identity.ContainingType, programType))
+                || !SymbolEqualityComparer.Default.Equals(identity.ContainingType, startType))
                 continue;
             read++;
             var animation = new PartProgram(new HashSet<string>(StringComparer.Ordinal), [], []);
-            foreach (IdentifierNameSyntax named in entry.Right.DescendantNodesAndSelf().OfType<IdentifierNameSyntax>())
+            foreach (IFieldSymbol segment in NamedIn(semantic, entry.Right, depth: 0))
             {
-                if (semantic.GetSymbolInfo(named).Symbol is IFieldSymbol segment && SymbolEqualityComparer.Default.Equals(segment.ContainingType, programType))
+                if (SymbolEqualityComparer.Default.Equals(segment.ContainingType, programType))
                     animation.Continuations.Add(AnimationNode.Segment(segment.Name));
             }
             if (!programs.TryAdd(AnimationNode.Start(identity.Name), animation))
@@ -897,10 +1091,31 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
     }
 
     /// <summary>
-    /// Reads one beat: the keys it shows, the segments it names (whose animations it continues in), the programs its start
-    /// cue starts.
+    /// The fields <paramref name="expression"/> names, and those named in the bodies of the animations type's own helpers it
+    /// calls (#2411: a volley of sonic booms stands its ground in the segment its helper names).
     /// </summary>
-    private void ReadBeat(SemanticModel semantic, ExpressionSyntax beat, INamedTypeSymbol programType, PartProgram program, List<string> problems)
+    private IEnumerable<IFieldSymbol> NamedIn(SemanticModel semantic, ExpressionSyntax expression, int depth)
+    {
+        foreach (SyntaxNode node in expression.DescendantNodesAndSelf())
+        {
+            ISymbol? symbol = node is IdentifierNameSyntax or InvocationExpressionSyntax ? semantic.GetSymbolInfo(node).Symbol : null;
+            if (symbol is IFieldSymbol field)
+                yield return field;
+            if (depth < 8 && node is InvocationExpressionSyntax && symbol is IMethodSymbol helper && helper.ContainingType.Name == configuration.AnimationsType
+                && HelperBody(helper) is { } body)
+            {
+                foreach (IFieldSymbol named in NamedIn(model.ModelOf(body.SyntaxTree), body, depth + 1))
+                    yield return named;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Reads one beat, read with <paramref name="bindings"/> when a helper written once over a side's poses holds it (#2411):
+    /// the keys it shows, the animations it names (which it continues in), the programs its start cue starts.
+    /// </summary>
+    private void ReadBeat(SemanticModel semantic, ExpressionSyntax beat, IReadOnlyDictionary<IParameterSymbol, BoundArgument> bindings,
+        INamedTypeSymbol programType, PartProgram program, List<string> problems)
     {
         var startArguments = new HashSet<SyntaxNode>();
         foreach (BaseObjectCreationExpressionSyntax creation in beat.DescendantNodesAndSelf().OfType<BaseObjectCreationExpressionSyntax>())
@@ -933,6 +1148,15 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
             if (SymbolEqualityComparer.Default.Equals(field.ContainingType, programType))
                 program.Continuations.Add(AnimationNode.Start(field.Name));
             // A beat shows an enum key (a frame the segments name) by naming it.
+            else if (keyType.TypeKind == TypeKind.Enum && SymbolEqualityComparer.Default.Equals(field.ContainingType, keyType))
+                program.Keys.Add($"{keyType.Name}={field.Name}");
+        }
+        // A beat a helper holds names what its bound parameters and the records it reads stand for (#2411): a side's pose, the
+        // walk an attack ends in.
+        foreach (IFieldSymbol field in BoundMembers(semantic, beat, bindings))
+        {
+            if (SymbolEqualityComparer.Default.Equals(field.ContainingType, programType))
+                program.Continuations.Add(AnimationNode.Start(field.Name));
             else if (keyType.TypeKind == TypeKind.Enum && SymbolEqualityComparer.Default.Equals(field.ContainingType, keyType))
                 program.Keys.Add($"{keyType.Name}={field.Name}");
         }

@@ -127,14 +127,13 @@ internal sealed class TorizoAttacks
         /// <inheritdoc/>
         public AnimationContinuation<TorizoProjectileSegment>? RunCue(EnemyProjectileCueContext context, TorizoProjectileCue cue,
             AnimationPlayback<TorizoProjectileSegment> pastCue) =>
-            ApplyTorizoProjectileCue(context.Projectile, context.Samus, cue, pastCue);
+            ApplyTorizoProjectileCue(context.Projectile, context.Samus, cue);
 
         /// <summary>
-        /// Carries out one cue of a Torizo projectile's animation, returning where a conditional cue continues the play from
-        /// <paramref name="pastCue"/>, the place just past it, or null to run on.
+        /// Carries out one cue of a Torizo projectile's animation, returning the animation a cue continues the play in, or null
+        /// to run on.
         /// </summary>
-        private AnimationContinuation<TorizoProjectileSegment>? ApplyTorizoProjectileCue(EnemyProjectile projectile, SamusState samus, TorizoProjectileCue cue,
-            AnimationPlayback<TorizoProjectileSegment> pastCue)
+        private AnimationContinuation<TorizoProjectileSegment>? ApplyTorizoProjectileCue(EnemyProjectile projectile, SamusState samus, TorizoProjectileCue cue)
         {
             switch (cue)
             {
@@ -183,10 +182,12 @@ internal sealed class TorizoAttacks
                 case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.Hatch }:
                     return TorizoProjectileAnimations.ContinueWith(
                         projectile.StateOf<GoldenTorizoEggState>().Facing == HorizontalDirection.Right ? TorizoProjectileSegment.EggHatchedRight : TorizoProjectileSegment.EggHatchedLeft);
-                case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.ReplayWhileEyeBeamExplosionsDisabled }:
+                case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.FloorImpactWaited }:
                 {
+                    // The floor impact waits while Golden Torizo's eye-beam explosions are disabled; once they are enabled,
+                    // it bursts into flames.
                     TorizoEnemyState state = projectile.StateOf<TorizoOwnedProjectileState>().Owner.RequireSpeciesState<TorizoEnemyState>();
-                    return state.EyeBeamExplosionsEnabled ? null : TorizoProjectileAnimations.ReplayPhase(pastCue);
+                    return state.EyeBeamExplosionsEnabled ? TorizoProjectileAnimations.ContinueWith(TorizoProjectileSegment.EyeBeamFloorFlames) : null;
                 }
                 case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.MayTurnToSmoke }:
                     return projectiles.TakeOneInFourBranch() ? TorizoProjectileAnimations.ContinueWith(TorizoProjectileSegment.DeathSmoke) : null;
@@ -370,7 +371,7 @@ internal sealed class TorizoAttacks
     /// The drool a low-health drool starts: the entry of <see cref="TorizoRandomDefinitions.LowHealthDroolAnimations"/>
     /// the sample's <see cref="TorizoRandomDefinitions.LowHealthDroolDelay"/> draws.
     /// </summary>
-    internal static TorizoProjectileSegment SelectLowHealthDroolAnimation(int random) =>
+    internal static Animation<TorizoProjectileSegment> SelectLowHealthDroolAnimation(int random) =>
         TorizoRandomDefinitions.LowHealthDroolAnimations[TorizoRandomDefinitions.LowHealthDroolDelay.Of(random)];
 
     /// <summary>Places a swipe explosion at the left-facing hand placement <paramref name="placement"/>, mirroring it for right-facing Torizo.</summary>
@@ -443,8 +444,7 @@ internal sealed class TorizoAttacks
         InitializeTorizoRandomizedProjectile(
             projectile,
             torizo,
-            TorizoRandomizedProjectiles.BombChozoOrb(
-                facing: TorizoFacing.Posture(torizo).Facing));
+            TorizoRandomizedProjectileDefinitions.BombChozoOrb.Toward(TorizoFacing.Posture(torizo).Facing));
     }
 
     /// <summary>Starts Bomb Torizo's sonic-boom animation at one of two randomized body heights.</summary>
@@ -505,8 +505,7 @@ internal sealed class TorizoAttacks
         InitializeTorizoRandomizedProjectile(
             projectile,
             torizo,
-            TorizoRandomizedProjectiles.GoldenChozoOrb(
-                facing: TorizoFacing.Posture(torizo).Facing));
+            TorizoRandomizedProjectileDefinitions.GoldenChozoOrb.Toward(TorizoFacing.Posture(torizo).Facing));
     }
 
     /// <summary>Starts a Golden egg with the game's fixed hatch timer and randomized launch speed.</summary>
@@ -528,8 +527,7 @@ internal sealed class TorizoAttacks
         InitializeTorizoRandomizedProjectile(
             projectile,
             torizo,
-            TorizoRandomizedProjectiles.GoldenEgg(
-                launch: state.Posture.Facing));
+            TorizoRandomizedProjectileDefinitions.GoldenEgg.Toward(state.Posture.Facing));
     }
 
     /// <summary>Attaches a caught super missile above the active hand and selects its facing-dependent animation.</summary>

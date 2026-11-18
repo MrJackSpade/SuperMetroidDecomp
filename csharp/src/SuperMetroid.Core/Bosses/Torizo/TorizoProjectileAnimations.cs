@@ -62,8 +62,7 @@ internal static class TorizoProjectileAnimations
             Show(EnemyProjectileFrameId.TorizoExplosionFireCloudBreaking, 8),
             Show(EnemyProjectileFrameId.TorizoExplosionFireCloudEmbers, 8),
         ],
-        [P.DroolFourFrameDelay] = [Show(EnemyProjectileFrameId.TorizoDroolBlank, 2)],
-        [P.DroolTwoFrameDelay] = [Show(EnemyProjectileFrameId.TorizoDroolBlank, 2)],
+        [P.DroolForming] = [Show(EnemyProjectileFrameId.TorizoDroolBlank, 2)],
         [P.DroolNoDelay] =
         [
             Cue(new TorizoProjectileCue.Signal(K.StartDroolFall)),
@@ -107,13 +106,7 @@ internal static class TorizoProjectileAnimations
         [P.ChozoOrbMovingRight] = [Hold(EnemyProjectileFrameId.TorizoChozoOrbFacingRight)],
         [P.ChozoOrbWallImpact] =
         [
-            Cue(new TorizoProjectileCue.Signal(K.StopMoving)),
-            Cue(new TorizoProjectileCue.Signal(K.PersistOnContactAndDrawInFront)),
-            Show(EnemyProjectileFrameId.TorizoChozoOrbSpark, 4),
-            Show(EnemyProjectileFrameId.TorizoChozoOrbFlareBall, 4),
-            Show(EnemyProjectileFrameId.TorizoChozoOrbFlareRingCored, 4),
-            Show(EnemyProjectileFrameId.TorizoChozoOrbFlareRing, 4),
-            Show(EnemyProjectileFrameId.TorizoChozoOrbFlareRingFading, 4),
+            .. ChozoOrbBursting,
             Cue(new TorizoProjectileCue.Signal(K.Delete)),
         ],
         [P.ChozoOrbFloorImpact] =
@@ -132,13 +125,7 @@ internal static class TorizoProjectileAnimations
         ],
         [P.ChozoOrbShot] =
         [
-            Cue(new TorizoProjectileCue.Signal(K.StopMoving)),
-            Cue(new TorizoProjectileCue.Signal(K.PersistOnContactAndDrawInFront)),
-            Show(EnemyProjectileFrameId.TorizoChozoOrbSpark, 4),
-            Show(EnemyProjectileFrameId.TorizoChozoOrbFlareBall, 4),
-            Show(EnemyProjectileFrameId.TorizoChozoOrbFlareRingCored, 4),
-            Show(EnemyProjectileFrameId.TorizoChozoOrbFlareRing, 4),
-            Show(EnemyProjectileFrameId.TorizoChozoOrbFlareRingFading, 4),
+            .. ChozoOrbBursting,
             Cue(new TorizoProjectileCue.Signal(K.SpawnOrbDrops)),
             Cue(new TorizoProjectileCue.Signal(K.Delete)),
         ],
@@ -318,10 +305,13 @@ internal static class TorizoProjectileAnimations
         [
             Cue(new TorizoProjectileCue.Signal(K.StopMoving)),
         ],
-        [P.EyeBeamFloorImpactFlames] =
+        [P.EyeBeamFloorImpactWaiting] =
         [
             Show(EnemyProjectileFrameId.GoldenTorizoEyeBeamBlank, 8),
-            Cue(new TorizoProjectileCue.Signal(K.ReplayWhileEyeBeamExplosionsDisabled)),
+            Mark(K.FloorImpactWaited),
+        ],
+        [P.EyeBeamFloorFlames] =
+        [
             Cue(new TorizoProjectileCue.PlaySound(Sound: RoomSound.ProjectileImpact, Priority: SoundRequestPriority.Normal)),
             Show(EnemyProjectileFrameId.GoldenTorizoEyeBeamFlameBurst, 4),
             Show(EnemyProjectileFrameId.GoldenTorizoEyeBeamFlameDome, 5),
@@ -359,8 +349,6 @@ internal static class TorizoProjectileAnimations
         [P.LowHealthExplosion] = new([Segments.Whole(P.LowHealthExplosion), Segments.Repeated(P.LowHealthExplosionBurst, 3), Segments.Whole(P.Deletion)], AnimationEnd.Holds),
         [P.DeathExplosion] = new([Segments.Whole(P.DeathExplosion), Segments.Repeated(P.DeathExplosionBurst, 2), Segments.Whole(P.Deletion)], AnimationEnd.Holds),
         [P.DeathSmoke] = new([Segments.Repeated(P.DeathSmoke, 2), Segments.Whole(P.Deletion)], AnimationEnd.Holds),
-        [P.DroolFourFrameDelay] = new([Segments.Whole(P.DroolFourFrameDelay), Segments.Whole(P.DroolTwoFrameDelay), Segments.Whole(P.DroolNoDelay), Segments.Whole(P.DroolFalling)], AnimationEnd.Holds),
-        [P.DroolTwoFrameDelay] = new([Segments.Whole(P.DroolTwoFrameDelay), Segments.Whole(P.DroolNoDelay), Segments.Whole(P.DroolFalling)], AnimationEnd.Holds),
         [P.DroolNoDelay] = new([Segments.Whole(P.DroolNoDelay), Segments.Whole(P.DroolFalling)], AnimationEnd.Holds),
         [P.DroolWallImpact] = new([Segments.Whole(P.DroolWallImpact)], AnimationEnd.Holds),
         [P.DroolFloorImpact] = new([Segments.Whole(P.DroolFloorImpact)], AnimationEnd.Holds),
@@ -395,7 +383,8 @@ internal static class TorizoProjectileAnimations
         [P.SuperMissileLeft] = Animation<P>.LeadingInto([Segments.Whole(P.SuperMissileLeft)], [Segments.Whole(P.SuperMissileSpinningLeft)]),
         [P.SuperMissileImpact] = new([Segments.Whole(P.SuperMissileImpact)], AnimationEnd.Holds),
         [P.EyeBeamWallImpact] = new([Segments.Whole(P.EyeBeamWallImpact)], AnimationEnd.Holds),
-        [P.EyeBeamFloorImpact] = new([Segments.Whole(P.EyeBeamFloorImpact), Segments.Whole(P.EyeBeamFloorImpactFlames)], AnimationEnd.Holds),
+        [P.EyeBeamFloorImpact] = Animation<P>.LeadingInto([Segments.Whole(P.EyeBeamFloorImpact)], [Segments.Whole(P.EyeBeamFloorImpactWaiting)]),
+        [P.EyeBeamFloorFlames] = new([Segments.Whole(P.EyeBeamFloorFlames)], AnimationEnd.Holds),
         [P.EyeBeam] = Animation<P>.Looping([Segments.Whole(P.EyeBeam)]),
     };
 
@@ -407,12 +396,30 @@ internal static class TorizoProjectileAnimations
         new(StartingWith(animation), AnimationPlace.StartOfAnimation);
 
     /// <summary>
-    /// A replay cue's continuation (<see cref="TorizoProjectileCueKind.ReplayWhileEyeBeamExplosionsDisabled"/>): the start of
-    /// the phase <paramref name="pastCue"/>, the place just past the cue, stands in, so the run the cue is in plays again from
-    /// its first step.
+    /// A low-health drool that forms unseen for two updates before it is released and falls, holding its falling pose: one of
+    /// the drools <see cref="TorizoRandomDefinitions.LowHealthDroolAnimations"/> chooses among.
     /// </summary>
-    internal static AnimationContinuation<TorizoProjectileSegment> ReplayPhase(AnimationPlayback<TorizoProjectileSegment> pastCue) =>
-        new(Ensure.NotNull(pastCue.Animation), AnimationPlace.Before(pastCue.Place.Phase));
+    internal static Animation<TorizoProjectileSegment> DroolFormingForTwoUpdates { get; } =
+        new([Segments.Whole(P.DroolForming), Segments.Whole(P.DroolNoDelay), Segments.Whole(P.DroolFalling)], AnimationEnd.Holds);
+
+    /// <summary>A low-health drool that forms unseen for four updates, its forming played twice, before it is released and falls.</summary>
+    internal static Animation<TorizoProjectileSegment> DroolFormingForFourUpdates { get; } =
+        new([Segments.Repeated(P.DroolForming, 2), Segments.Whole(P.DroolNoDelay), Segments.Whole(P.DroolFalling)], AnimationEnd.Holds);
+
+    /// <summary>
+    /// A Chozo orb bursting (#2411), on a wall or shot: it stops, survives touching Samus in front of her, and plays its five
+    /// poses; a shot orb's burst then drops its pickup.
+    /// </summary>
+    private static AnimationBeat<EnemyProjectileFrameId, TorizoProjectileCue>[] ChozoOrbBursting =>
+    [
+        Cue(new TorizoProjectileCue.Signal(K.StopMoving)),
+        Cue(new TorizoProjectileCue.Signal(K.PersistOnContactAndDrawInFront)),
+        Show(EnemyProjectileFrameId.TorizoChozoOrbSpark, 4),
+        Show(EnemyProjectileFrameId.TorizoChozoOrbFlareBall, 4),
+        Show(EnemyProjectileFrameId.TorizoChozoOrbFlareRingCored, 4),
+        Show(EnemyProjectileFrameId.TorizoChozoOrbFlareRing, 4),
+        Show(EnemyProjectileFrameId.TorizoChozoOrbFlareRingFading, 4),
+    ];
 
     /// <summary>
     /// A piece of the breaking statue hand (#2240), every piece alike: it shows <paramref name="fragment"/>, resting for
@@ -439,4 +446,8 @@ internal static class TorizoProjectileAnimations
     /// <summary>Publishes <paramref name="cue"/>.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, TorizoProjectileCue> Cue(TorizoProjectileCue cue) =>
         new AnimationBeat<EnemyProjectileFrameId, TorizoProjectileCue>.Event(cue);
+
+    /// <summary>Marks the moment <paramref name="kind"/> names (#2411), which the projectile's owner reacts to and which plays nothing.</summary>
+    private static AnimationBeat<EnemyProjectileFrameId, TorizoProjectileCue> Mark(TorizoProjectileCueKind kind) =>
+        new AnimationBeat<EnemyProjectileFrameId, TorizoProjectileCue>.Marker(new TorizoProjectileCue.Signal(kind));
 }

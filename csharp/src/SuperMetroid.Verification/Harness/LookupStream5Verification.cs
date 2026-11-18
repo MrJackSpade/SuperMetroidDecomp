@@ -98,7 +98,7 @@ internal static class LookupStream5Verification
             native[phase] = Enumerable.Range(0, 256).Select(i => ReadVerificationWord(oracle, SuperMetroid.AssetExtraction.Enemies.CrocomireMeltingSources.Tilemap(source) + i * 2)).ToArray();
             AssertTrue(BackgroundTileWordBytes.Words((art ?? throw new InvalidOperationException("Verification requires art.")).Tilemap(source)).SequenceEqual(native[phase]), "Installed melt words");
             VerifyInstalledCrocomireMeltingTilemap(oracle, catalog, source, phase == 0
-                ? CrocomireBodySegment.MeltingFleshTopRow : CrocomireBodySegment.MeltingBareSkullTopRow);
+                ? CrocomireBodyAnimation.MeltingFleshTopRow : CrocomireBodyAnimation.MeltingBareSkullTopRow);
         }
         var first = art.first;
         var second = art.second;

@@ -62,9 +62,9 @@ internal static class KraidGrowthCommandCursorVerification
             ushort word = LittleEndianBytes.Word(KraidGrowthCommandCursorRomByte(rom, address), KraidGrowthCommandCursorRomByte(rom, address + 1));
             (ushort pointer, ushort timer) = KraidContourCaseMappingsVerification.NativeKraidGrowthResume(rom, word);
             KraidHeadGrowthResume resume = KraidHeadAnimations.ReadsAt(record.Playback).Growth;
-            AssertEqual(pointer, native.PointerAt(KraidHeadAnimations.GrowthResumePlayback(resume)),
-                $"native growth resume cursor from ${record.Pointer:X4}");
-            AssertEqual(timer, KraidHeadAnimations.GrowthResumeDelay(resume), $"native growth resume delay from ${record.Pointer:X4}");
+            KraidHeadEntry resumed = KraidHeadAnimations.GrowthResume(resume);
+            AssertEqual(pointer, native.PointerAt(resumed.Playback), $"native growth resume cursor from ${record.Pointer:X4}");
+            AssertEqual(timer, resumed.Delay, $"native growth resume delay from ${record.Pointer:X4}");
         }
         Console.WriteLine("Kraid growth command cursor: reported foot-lunge transition, native 64-frame delay, retained display, and the growth resume of every native cursor pass.");
     }

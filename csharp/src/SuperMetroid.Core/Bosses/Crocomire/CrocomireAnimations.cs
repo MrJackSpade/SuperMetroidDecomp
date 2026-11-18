@@ -38,9 +38,9 @@ internal static class CrocomireAnimations
     internal static IReadOnlyDictionary<CrocomireTongueSegment, Animation<CrocomireTongueSegment>> TongueStartingAt { get; } =
         new Dictionary<CrocomireTongueSegment, Animation<CrocomireTongueSegment>>
         {
-            [CrocomireTongueSegment.Fight] = new([new(CrocomireTongueSegment.Fight, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+            [CrocomireTongueSegment.Fight] = new([TongueSegments.Whole(CrocomireTongueSegment.Fight)], AnimationEnd.LoopsFrom(0)),
             [CrocomireTongueSegment.Hidden] = new([], AnimationEnd.Holds),
-            [CrocomireTongueSegment.Melting] = new([new(CrocomireTongueSegment.Melting, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
+            [CrocomireTongueSegment.Melting] = new([TongueSegments.Whole(CrocomireTongueSegment.Melting)], AnimationEnd.LoopsFrom(0)),
         };
 
     /// <summary>The tongue animation that starts at <paramref name="segment"/>.</summary>
@@ -87,18 +87,14 @@ internal static class CrocomireAnimations
     internal static IReadOnlyDictionary<CrocomireProjectileSegment, Animation<CrocomireProjectileSegment>> ProjectileStartingAt { get; } =
         new Dictionary<CrocomireProjectileSegment, Animation<CrocomireProjectileSegment>>
         {
-            [CrocomireProjectileSegment.Mouth] = new([WholeProjectile(CrocomireProjectileSegment.Mouth)], AnimationEnd.LoopsFrom(0)),
-            [CrocomireProjectileSegment.BridgeFragment] = new([WholeProjectile(CrocomireProjectileSegment.BridgeFragment)], AnimationEnd.Holds),
-            [CrocomireProjectileSegment.SpikeWallPiece] = new([WholeProjectile(CrocomireProjectileSegment.SpikeWallPiece)], AnimationEnd.Holds),
-            [CrocomireProjectileSegment.Shot] = new([WholeProjectile(CrocomireProjectileSegment.Shot)], AnimationEnd.Holds),
+            [CrocomireProjectileSegment.Mouth] = new([ProjectileSegments.Whole(CrocomireProjectileSegment.Mouth)], AnimationEnd.LoopsFrom(0)),
+            [CrocomireProjectileSegment.BridgeFragment] = new([ProjectileSegments.Whole(CrocomireProjectileSegment.BridgeFragment)], AnimationEnd.Holds),
+            [CrocomireProjectileSegment.SpikeWallPiece] = new([ProjectileSegments.Whole(CrocomireProjectileSegment.SpikeWallPiece)], AnimationEnd.Holds),
+            [CrocomireProjectileSegment.Shot] = new([ProjectileSegments.Whole(CrocomireProjectileSegment.Shot)], AnimationEnd.Holds),
         };
 
     /// <summary>The projectile animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<CrocomireProjectileSegment> ProjectileStartingWith(CrocomireProjectileSegment segment) => ProjectileStartingAt[segment];
-
-    /// <summary>One play of every beat of projectile segment <paramref name="segment"/>.</summary>
-    private static AnimationPhase<CrocomireProjectileSegment> WholeProjectile(CrocomireProjectileSegment segment) =>
-        new(segment, 0, ProjectileSegments.Beats(segment).Count, 1);
 
     /// <summary>Shows tongue frame <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, NoAnimationCue> TongueFrame(EnemyFrameId frame, int duration) =>

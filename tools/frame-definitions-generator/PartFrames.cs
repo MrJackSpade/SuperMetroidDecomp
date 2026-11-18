@@ -738,7 +738,46 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
         if (programType is null)
             throw new InvalidDataException($"{configuration.AnimationsType}.Segments has no [Segment] = [beats] entries.");
         ReadAnimations(StartingAtInitializer(), programs, programType, problems);
+        foreach (ISymbol named in NamedAnimations())
+            ReadNamedAnimation(named, programs, programType, problems);
         return (programs, programType);
+    }
+
+    /// <summary>
+    /// The animations the configured animations type holds by a name of their own (#2399): its static properties and fields
+    /// holding one animation over the segment type its <c>Segments</c> plays, each an animation an owner starts by that name,
+    /// as Draygon's tail starts his final whips.
+    /// </summary>
+    private IEnumerable<ISymbol> NamedAnimations()
+    {
+        ISymbol segments = model.Member(configuration.AnimationsType!, "Segments");
+        if (TypeOf(segments) is not INamedTypeSymbol { TypeArguments: [var segmentType, ..] })
+            throw new InvalidDataException($"{configuration.AnimationsType}.Segments names no segment type.");
+        return segments.ContainingType.GetMembers().Where(member => member.IsStatic && member.CanBeReferencedByName
+            && TypeOf(member) is INamedTypeSymbol { Name: "Animation", TypeArguments: [var played] }
+            && SymbolEqualityComparer.Default.Equals(played, segmentType));
+
+        static ITypeSymbol? TypeOf(ISymbol member) => member switch
+        {
+            IPropertySymbol property => property.Type,
+            IFieldSymbol field => field.Type,
+            _ => null,
+        };
+    }
+
+    /// <summary>Reads the animation <paramref name="named"/> holds into <paramref name="programs"/>, started by its own name: it plays the segments it names.</summary>
+    private void ReadNamedAnimation(ISymbol named, Dictionary<AnimationNode, PartProgram> programs, INamedTypeSymbol programType, List<string> problems)
+    {
+        ExpressionSyntax initializer = CoreModel.InitializerOf(named);
+        SemanticModel semantic = model.ModelOf(initializer.SyntaxTree);
+        var animation = new PartProgram(new HashSet<string>(StringComparer.Ordinal), [], []);
+        foreach (IdentifierNameSyntax name in initializer.DescendantNodesAndSelf().OfType<IdentifierNameSyntax>())
+        {
+            if (semantic.GetSymbolInfo(name).Symbol is IFieldSymbol segment && SymbolEqualityComparer.Default.Equals(segment.ContainingType, programType))
+                animation.Continuations.Add(AnimationNode.Segment(segment.Name));
+        }
+        if (!programs.TryAdd(AnimationNode.Start(named.Name), animation))
+            problems.Add($"the animation {named.Name} shares its name with another start of {configuration.AnimationsType}");
     }
 
     /// <summary>
@@ -795,8 +834,9 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
     /// <summary>The initializer of the configured <c>StartingAt</c>.</summary>
     private ExpressionSyntax StartingAtInitializer() => Initializer(configuration.AnimationsType!, "StartingAt");
 
-    /// <summary>Every initializer the segments and animations are read from.</summary>
-    private List<ExpressionSyntax> AnimationInitializers() => [.. SegmentInitializers(), StartingAtInitializer()];
+    /// <summary>Every initializer the segments and animations are read from, the animations held by name (#2399) included.</summary>
+    private List<ExpressionSyntax> AnimationInitializers() =>
+        [.. SegmentInitializers(), StartingAtInitializer(), .. NamedAnimations().Select(CoreModel.InitializerOf)];
 
     /// <summary>
     /// Reads the <c>[P.X] = [beats]</c> entries of <paramref name="initializer"/> into <paramref name="programs"/>, and

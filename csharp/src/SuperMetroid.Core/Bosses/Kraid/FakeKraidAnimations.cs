@@ -77,12 +77,12 @@ internal static class FakeKraidAnimations
     /// </summary>
     internal static IReadOnlyDictionary<FakeKraidSegment, Animation<FakeKraidSegment>> StartingAt { get; } = new Dictionary<FakeKraidSegment, Animation<FakeKraidSegment>>
     {
-        [P.StepForwardsFacingLeft] = new([new(P.StepForwardsFacingLeft, 0, 5, 1), new(P.ChooseAction, 0, 1, 1)], AnimationEnd.Holds),
-        [P.StepBackwardsFacingLeft] = new([new(P.StepBackwardsFacingLeft, 0, 5, 1), new(P.ChooseAction, 0, 1, 1)], AnimationEnd.Holds),
-        [P.FireSpitFacingLeft] = new([new(P.FireSpitFacingLeft, 0, 6, 1), new(P.ChooseAction, 0, 1, 1)], AnimationEnd.Holds),
-        [P.StepForwardsFacingRight] = new([new(P.StepForwardsFacingRight, 0, 5, 1), new(P.ChooseAction, 0, 1, 1)], AnimationEnd.Holds),
-        [P.StepBackwardsFacingRight] = new([new(P.StepBackwardsFacingRight, 0, 5, 1), new(P.ChooseAction, 0, 1, 1)], AnimationEnd.Holds),
-        [P.FireSpitFacingRight] = new([new(P.FireSpitFacingRight, 0, 6, 1), new(P.ChooseAction, 0, 1, 1)], AnimationEnd.Holds),
+        [P.StepForwardsFacingLeft] = new([Segments.Whole(P.StepForwardsFacingLeft), Segments.Whole(P.ChooseAction)], AnimationEnd.Holds),
+        [P.StepBackwardsFacingLeft] = new([Segments.Whole(P.StepBackwardsFacingLeft), Segments.Whole(P.ChooseAction)], AnimationEnd.Holds),
+        [P.FireSpitFacingLeft] = new([Segments.Whole(P.FireSpitFacingLeft), Segments.Whole(P.ChooseAction)], AnimationEnd.Holds),
+        [P.StepForwardsFacingRight] = new([Segments.Whole(P.StepForwardsFacingRight), Segments.Whole(P.ChooseAction)], AnimationEnd.Holds),
+        [P.StepBackwardsFacingRight] = new([Segments.Whole(P.StepBackwardsFacingRight), Segments.Whole(P.ChooseAction)], AnimationEnd.Holds),
+        [P.FireSpitFacingRight] = new([Segments.Whole(P.FireSpitFacingRight), Segments.Whole(P.ChooseAction)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

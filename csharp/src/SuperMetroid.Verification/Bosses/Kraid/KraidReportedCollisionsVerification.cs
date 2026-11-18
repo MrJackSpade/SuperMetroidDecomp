@@ -3,6 +3,7 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Bosses.Kraid;
+using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
@@ -37,8 +38,8 @@ internal static class KraidReportedCollisionsVerification
             state.ThinkingTimer = 100;
             // The closed case starts the roar; the open case stands just past the roar cry, on the fully open pose.
             state.HeadPlayback = closed
-                ? KraidHeadAnimations.At(KraidHeadSegment.Roar, 0)
-                : KraidHeadAnimations.At(KraidHeadSegment.Roar, 4);
+                ? KraidHeadNativeCursors.PlaybackAtStep(KraidHeadSegment.Roar, 0)
+                : KraidHeadNativeCursors.PlaybackAtStep(KraidHeadSegment.Roar, 4);
             runtime.Enemies.KraidBehavior.Head.RunKraidHeadAnimationStep(state);
             bool marked = false;
             bool spawned = false;
@@ -105,7 +106,7 @@ internal static class KraidReportedCollisionsVerification
             state.BodyState.RisePhase = KraidRisePhase.RaiseBody;
             state.DisplayedHeadFrame = null;
             runtime.Enemies.KraidBehavior.Rise.RunKraidRisePhase(body, state, samus);
-            AssertEqual((AnimationPlayback<KraidHeadSegment>?)KraidHeadAnimations.RoarAfterEntryFrame, state.HeadPlayback, "Rise selects native next head cursor");
+            AssertEqual((AnimationPlayback<KraidHeadSegment>?)KraidHeadAnimations.Starting(KraidHeadSegment.Roar).Playback, state.HeadPlayback, "Rise selects native next head cursor");
             var shot = runtime.Projectiles.Shots[0];
             shot.Type = SamusProjectileType.Beam(SamusBeamCombination.Spazer, charged: false); shot.Damage = 40;
             shot.Position = shot.Position.WithWhole(new(200, (ushort)(body.Position.Y.Whole - 106)));

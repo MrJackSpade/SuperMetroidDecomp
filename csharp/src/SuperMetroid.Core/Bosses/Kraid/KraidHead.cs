@@ -209,8 +209,7 @@ internal sealed class KraidHead
     internal void InitializeKraidEyeGlow(KraidEnemyState state)
     {
         state.BodyState.FightPhase = KraidFightPhase.GlowEye;
-        state.HeadPlayback = KraidHeadAnimations.EyeGlowAfterEntryFrame;
-        state.BodyState.HeadTimer = KraidHeadAnimations.EyeGlowEntryDuration;
+        state.StartHeadAnimation(KraidHeadSegment.EyeGlow);
         GlowKraidEye(state);
     }
 
@@ -231,8 +230,7 @@ internal sealed class KraidHead
         if (unglowed)
         {
             state.BodyState.FightPhase = KraidFightPhase.MouthOpenReaction;
-            state.HeadPlayback = KraidHeadAnimations.RoarAfterEntryFrame;
-            state.BodyState.HeadTimer = KraidHeadAnimations.RoarEntryDuration;
+            state.StartHeadAnimation(KraidHeadSegment.Roar);
         }
     }
 

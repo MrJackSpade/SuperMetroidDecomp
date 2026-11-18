@@ -21,7 +21,7 @@ internal static class MotherBrainTubeAnimations
     /// <summary>Each piece's animation: its pose, which it then keeps.</summary>
     internal static IReadOnlyDictionary<MotherBrainTubePiece, Animation<MotherBrainTubePiece>> StartingAt { get; } =
         Enum.GetValues<MotherBrainTubePiece>().ToDictionary(piece => piece,
-            piece => new Animation<MotherBrainTubePiece>([new(piece, 0, 1, 1)], AnimationEnd.Holds));
+            piece => new Animation<MotherBrainTubePiece>([Segments.Whole(piece)], AnimationEnd.Holds));
 
     /// <summary>The animation of <paramref name="piece"/>, before its first play.</summary>
     internal static AnimationPlayback<MotherBrainTubePiece> Starting(MotherBrainTubePiece piece) =>

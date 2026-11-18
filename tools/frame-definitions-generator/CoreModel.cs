@@ -182,6 +182,23 @@ internal sealed class CoreModel
 
     private HashSet<ISymbol>? _familySegments;
 
+    /// <summary>
+    /// Whether <paramref name="unit"/>'s reference to <paramref name="target"/> only counts the beats of its own type's
+    /// segments, which runs none of their cues and shows none of their frames: a projectile family's animation data reading
+    /// its segments (#2275), or an animation table of any animation data reading its own segments to play them whole or
+    /// repeated (#2399: Crocomire's tongue animations, which the body's state names for the tongue's first playback, show
+    /// nothing of the body's). The code that plays the segments reaches them.
+    /// </summary>
+    public bool CountsOwnSegments(Unit unit, Unit target) =>
+        target.Kind == UnitKind.Member && SymbolEqualityComparer.Default.Equals(unit.Type, target.Type)
+        && (FamilySegments.Contains(target.Symbol)
+            || ((unit.Kind == UnitKind.StaticInitialization || unit.Symbol is IPropertySymbol or IFieldSymbol) && IsAnimationSegments(target.Symbol)));
+
+    /// <summary>Whether <paramref name="member"/> is a property or field holding a family's segments: an <c>AnimationSegments</c>.</summary>
+    private bool IsAnimationSegments(ISymbol member) =>
+        (member switch { IPropertySymbol property => property.Type, IFieldSymbol field => field.Type, _ => null })
+            is INamedTypeSymbol type && SymbolEqualityComparer.Default.Equals(type.OriginalDefinition, AnimationSegments);
+
     /// <summary>The programs motion handlers restart only the objects of some kinds in, read once (#1854, #1843).</summary>
     public KindRestarts KindRestarts => _kindRestarts ??= new KindRestarts(this);
 

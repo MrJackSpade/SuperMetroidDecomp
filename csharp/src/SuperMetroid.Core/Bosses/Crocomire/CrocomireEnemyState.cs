@@ -34,7 +34,7 @@ public sealed class CrocomireEnemyState : SuperMetroid.Core.Enemies.BossBodies.I
     public RoomEnemyPlace Body { get; }
     /// <summary>The body's playing animation and where it stands; before the first start, the initial animation.</summary>
     internal AnimationPlayback<CrocomireBodySegment> BodyPlayback { get; set; } =
-        new(CrocomireBodyAnimations.StartingWith(CrocomireBodySegment.IdleSway), AnimationPlace.StartOfAnimation);
+        new(CrocomireBodyAnimations.StartingWith(CrocomireBodyAnimation.IdleSway), AnimationPlace.StartOfAnimation);
 
     /// <summary>The body frame shown last, or null before the first frame.</summary>
     internal EnemyFrameId? BodyFrame { get; set; }

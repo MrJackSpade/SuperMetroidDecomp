@@ -22,7 +22,7 @@ internal static class MotherBrainTopTubeAnimations
 
     /// <summary>Each tube's animation: its pose, held.</summary>
     internal static IReadOnlyDictionary<MotherBrainTopTubeSegment, Animation<MotherBrainTopTubeSegment>> StartingAt { get; } =
-        Enum.GetValues<P>().ToDictionary(tube => tube, tube => new Animation<P>([new(tube, 0, 1, 1)], AnimationEnd.Holds));
+        Enum.GetValues<P>().ToDictionary(tube => tube, tube => new Animation<P>([Segments.Whole(tube)], AnimationEnd.Holds));
 
     /// <summary>A still picture (#2250): <paramref name="frame"/>, held from the update it shows.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, NoAnimationCue> Show(EnemyProjectileFrameId frame) =>

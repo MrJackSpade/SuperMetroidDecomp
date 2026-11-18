@@ -146,7 +146,7 @@ internal sealed class CrocomireSkeleton
         _access.PublishCrocomireObject(CrocomireArenaDefinitions.SpikeWallBlock, CrocomireArenaMutation.CreateInvisibleWall);
         _access.PublishCrocomireObject(CrocomireArenaDefinitions.BreakThroughBridgeBlock, CrocomireArenaMutation.ClearBridge);
         _access.RequestCrocomireSound(CrocomireSoundDefinitions.Crumble);
-        CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, CrocomireBodySegment.SkeletonFallsApart);
+        CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, CrocomireBodyAnimation.SkeletonFallsApart);
         // The skeleton draws in the common colours with its arm's laid over them (#1512).
         state.Colours.ShowSkeletonArm();
         body.Shading = state.Colours.OverSprites(EnemyShades.HurtFlashLook);
@@ -174,7 +174,7 @@ internal sealed class CrocomireSkeleton
         if (--death.SkeletonFallDelay != 0)
             return;
         state.SkeletonVelocity = state.SkeletonVelocity.WithoutFraction();
-        CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, CrocomireBodySegment.SkeletonFalling);
+        CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, CrocomireBodyAnimation.SkeletonFalling);
         state.DeathPhase = state.DeathPhase.Next();
     }
 
@@ -191,7 +191,7 @@ internal sealed class CrocomireSkeleton
 
         _access.RequestCrocomireSound(CrocomireSoundDefinitions.BigExplosion);
         state.Tongue.Shading = state.Body.Shading;
-        CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, CrocomireBodySegment.SkeletonFallsApart);
+        CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, CrocomireBodyAnimation.SkeletonFallsApart);
         state.DeathPhase = state.DeathPhase.Next();
     }
 
@@ -204,7 +204,7 @@ internal sealed class CrocomireSkeleton
             return;
         }
 
-        CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, CrocomireBodySegment.Dead);
+        CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, CrocomireBodyAnimation.Dead);
         state.Body.Position += CrocomireSkeletonDefinitions.CorpseOffset;
         state.Body.Radius = CrocomireArenaDefinitions.CorpseRadius;
         _access.PublishCrocomireObject(CrocomireArenaDefinitions.SkeletonWallBlock, CrocomireArenaMutation.ClearInvisibleWall);

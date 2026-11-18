@@ -33,7 +33,7 @@ internal sealed class FakeKraidProjectileAnimation(FakeKraidProjectilePose pose)
     /// <summary>Each pose's animation: its segment once, then a hold.</summary>
     private static Dictionary<FakeKraidProjectilePose, Animation<FakeKraidProjectilePose>> PoseAnimations { get; } =
         Enum.GetValues<FakeKraidProjectilePose>().ToDictionary(pose => pose,
-            pose => new Animation<FakeKraidProjectilePose>([new(pose, 0, 1, 1)], AnimationEnd.Holds));
+            pose => new Animation<FakeKraidProjectilePose>([PoseSegments.Whole(pose)], AnimationEnd.Holds));
 
     /// <summary>The projectile frame each frame of the family shows.</summary>
     internal static IReadOnlyDictionary<FakeKraidProjectilePose, EnemyProjectileFrameId> ShownProjectileFrames { get; } =

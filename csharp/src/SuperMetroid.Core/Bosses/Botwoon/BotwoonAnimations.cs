@@ -44,7 +44,7 @@ internal static class BotwoonAnimations
     /// <summary>The head animation that starts at each of the head's segments: it plays that segment's beats once and holds its last frame.</summary>
     internal static IReadOnlyDictionary<BotwoonHeadAnimationSegment, Animation<BotwoonHeadAnimationSegment>> HeadStartingAt { get; } =
         HeadAnimationKeys.ToDictionary(segment => segment, segment => new Animation<BotwoonHeadAnimationSegment>(
-            [new(segment, 0, HeadSegments.Beats(segment).Count, 1)], AnimationEnd.Holds));
+            [HeadSegments.Whole(segment)], AnimationEnd.Holds));
 
     /// <summary>
     /// The segments a body segment plays, each beat the installed <see cref="EnemyProjectileFrameId"/> it shows (#2036): a

@@ -196,13 +196,13 @@ internal static class EnemyDefinitionBoundaryVerification
         for (int index = 0; index < CrocomireBodyVisualDefinitions.BodyFrameCount; index++)
         {
             EnemyFrameId frame = CrocomireBodyFramesTooling.BodyOrder[index];
-            CrocomireBodySegment expected = CrocomireBodySegment.PowerBombReactionMouthNotOpen;
+            CrocomireBodyAnimation expected = CrocomireBodyAnimation.PowerBombReactionMouthNotOpen;
             int count = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xa40000 | CrocomireBodyFramesTooling.Spritemap(frame)));
             for (int i = 0; i < count; i++)
             {
                 ushort sprite = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xa40000 | (CrocomireBodyFramesTooling.Spritemap(frame) + 6 + i * 8)));
-                if (sprite == 0xd600) { expected = CrocomireBodySegment.PowerBombReactionMouthFullyOpen; break; }
-                if (sprite == 0xd51c) { expected = CrocomireBodySegment.PowerBombReactionMouthPartiallyOpen; break; }
+                if (sprite == 0xd600) { expected = CrocomireBodyAnimation.PowerBombReactionMouthFullyOpen; break; }
+                if (sprite == 0xd51c) { expected = CrocomireBodyAnimation.PowerBombReactionMouthPartiallyOpen; break; }
             }
             AssertEqual(expected, CrocomirePowerBombReactions.ForFrame(frame), "Crocomire mechanical mouth admission");
             tested++;

@@ -28,16 +28,16 @@ internal static class CrocomireFirstMeltHeightVerification
     /// The heights either side of each band's edge, with the animation and the picture the cartridge selects at each: his
     /// top four rows above 248, three from 248, two from 264 and his top row alone from 280.
     /// </summary>
-    private static readonly (int Y, CrocomireBodySegment Animation, EnemyFrameId Frame)[] HeightBands =
+    private static readonly (int Y, CrocomireBodyAnimation Animation, EnemyFrameId Frame)[] HeightBands =
     [
-        (220, CrocomireBodySegment.MeltingFleshTopFourRows, EnemyFrameId.CrocomireBodyMeltingFleshTopFourRows),
-        (247, CrocomireBodySegment.MeltingFleshTopFourRows, EnemyFrameId.CrocomireBodyMeltingFleshTopFourRows),
-        (248, CrocomireBodySegment.MeltingFleshTopThreeRows, EnemyFrameId.CrocomireBodyMeltingFleshTopThreeRows),
-        (263, CrocomireBodySegment.MeltingFleshTopThreeRows, EnemyFrameId.CrocomireBodyMeltingFleshTopThreeRows),
-        (264, CrocomireBodySegment.MeltingFleshTopTwoRows, EnemyFrameId.CrocomireBodyMeltingFleshTopTwoRows),
-        (279, CrocomireBodySegment.MeltingFleshTopTwoRows, EnemyFrameId.CrocomireBodyMeltingFleshTopTwoRows),
-        (280, CrocomireBodySegment.MeltingFleshTopRow, EnemyFrameId.CrocomireBodyMeltingFleshTopRow),
-        (290, CrocomireBodySegment.MeltingFleshTopRow, EnemyFrameId.CrocomireBodyMeltingFleshTopRow),
+        (220, CrocomireBodyAnimation.MeltingFleshTopFourRows, EnemyFrameId.CrocomireBodyMeltingFleshTopFourRows),
+        (247, CrocomireBodyAnimation.MeltingFleshTopFourRows, EnemyFrameId.CrocomireBodyMeltingFleshTopFourRows),
+        (248, CrocomireBodyAnimation.MeltingFleshTopThreeRows, EnemyFrameId.CrocomireBodyMeltingFleshTopThreeRows),
+        (263, CrocomireBodyAnimation.MeltingFleshTopThreeRows, EnemyFrameId.CrocomireBodyMeltingFleshTopThreeRows),
+        (264, CrocomireBodyAnimation.MeltingFleshTopTwoRows, EnemyFrameId.CrocomireBodyMeltingFleshTopTwoRows),
+        (279, CrocomireBodyAnimation.MeltingFleshTopTwoRows, EnemyFrameId.CrocomireBodyMeltingFleshTopTwoRows),
+        (280, CrocomireBodyAnimation.MeltingFleshTopRow, EnemyFrameId.CrocomireBodyMeltingFleshTopRow),
+        (290, CrocomireBodyAnimation.MeltingFleshTopRow, EnemyFrameId.CrocomireBodyMeltingFleshTopRow),
     ];
 
     /// <summary>
@@ -63,14 +63,14 @@ internal static class CrocomireFirstMeltHeightVerification
 
         int updates = 0;
         foreach (CrocomireDeathPhase phase in FirstMeltHops)
-        foreach ((int y, CrocomireBodySegment animation, EnemyFrameId frame) in HeightBands.Concat(HeightBands.Reverse()))
+        foreach ((int y, CrocomireBodyAnimation animation, EnemyFrameId frame) in HeightBands.Concat(HeightBands.Reverse()))
         {
             string at = $"{phase} from height {y}";
             state.DeathPhase = phase;
             state.VerticalSpeed = SignedEightEight.FromPixels(1);
             body.Position = body.Position.WithWholeY(y);
             fixture.Enemies.CrocomireBehavior.RunCrocomireMain(body, samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), camera);
-            AssertEqual(animation, state.BodyPlayback.PlayingSegment, $"{at}: animation");
+            AssertEqual(CrocomireBodyAnimations.StartingWith(animation), state.BodyPlayback.Animation, $"{at}: animation");
             AssertEqual(AnimationPlace.StartOfAnimation, state.BodyPlayback.Place, $"{at}: the animation starts afresh");
             AssertEqual(WrappingCountdown.Start(1), body.AnimationClock.Hold, $"{at}: its first picture is due this update");
 

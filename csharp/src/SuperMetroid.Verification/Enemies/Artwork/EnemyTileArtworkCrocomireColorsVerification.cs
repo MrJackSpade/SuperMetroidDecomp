@@ -68,7 +68,7 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
         CrocomireEnemyState state = body.RequireSpeciesState<CrocomireEnemyState>();
         AssertEqual(CrocomireDeathPhase.Fighting, state.DeathPhase,
             "installed Crocomire colors leave living fight phase unchanged");
-        AssertEqual(new AnimationPlayback<CrocomireBodySegment>(CrocomireBodyAnimations.StartingWith(CrocomireBodySegment.IdleSway), AnimationPlace.StartOfAnimation),
+        AssertEqual(new AnimationPlayback<CrocomireBodySegment>(CrocomireBodyAnimations.StartingWith(CrocomireBodyAnimation.IdleSway), AnimationPlace.StartOfAnimation),
             state.BodyPlayback,
             "installed Crocomire colors leave the initial program unchanged");
         // The import pre-colours his pictures in each load of his colours, which his colour state names (#1512).

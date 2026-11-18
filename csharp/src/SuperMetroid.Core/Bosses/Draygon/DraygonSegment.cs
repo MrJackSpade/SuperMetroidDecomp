@@ -3,7 +3,8 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// <summary>
 /// Draygon's body, eye, tail and arms animation segments, in authored order. The four parts
 /// run animations of one set: a body cue starts all four, and the arms' dying animation runs on into the body's.
-/// Each segment holds beats and is played whole; the eye's dying and the tail's final whips play their first segment four times (#1938, #2296).
+/// Each segment holds beats and is played whole; the eye's dying plays its first segment four times, and the tail's final
+/// whips play its whip four times (#1938, #2296, #2399).
 /// </summary>
 public enum DraygonSegment
 {
@@ -57,11 +58,9 @@ public enum DraygonSegment
     TailFacingLeftIdle,
     /// <summary>Draygon tail animation: facing left, fake tail whip.</summary>
     TailFacingLeftInitialFakeWhip,
-    /// <summary>Draygon tail animation: facing left, a final tail whip, which the final whips play four times.</summary>
-    TailFacingLeftFinalWhips,
     /// <summary>Draygon tail animation: facing left, the release of Samus after the final whips.</summary>
     TailFacingLeftReleaseSamus,
-    /// <summary>Draygon tail animation: facing left, tail whip.</summary>
+    /// <summary>Draygon tail animation: facing left, tail whip, which the final whips play four times.</summary>
     TailFacingLeftWhip,
     /// <summary>Draygon tail animation: facing left, tail flail.</summary>
     TailFacingLeftFlail,
@@ -97,11 +96,9 @@ public enum DraygonSegment
     EyeFacingRightLookingDown,
     /// <summary>Draygon tail animation: facing right, idle.</summary>
     TailFacingRightIdle,
-    /// <summary>Draygon tail animation: facing right, a final tail whip, which the final whips play four times.</summary>
-    TailFacingRightFinalWhips,
     /// <summary>Draygon tail animation: facing right, the release of Samus after the final whips.</summary>
     TailFacingRightReleaseSamus,
-    /// <summary>Draygon tail animation: facing right, tail whip.</summary>
+    /// <summary>Draygon tail animation: facing right, tail whip, which the final whips play four times.</summary>
     TailFacingRightWhip,
     /// <summary>Draygon tail animation: facing right, tail flail.</summary>
     TailFacingRightFlail,

@@ -133,7 +133,7 @@ internal static class KraidSuperMissileDamageVerification
     private static KraidHeadFrame FullyOpenRoarFrame() => KraidHeadFrame.Open;
 
     /// <summary>The roar cursor just past its fully open pose, where the native cursor stands during the open-mouth attack.</summary>
-    private static SuperMetroid.Core.Animation.AnimationPlayback<KraidHeadSegment> RoarPastOpenPose => KraidHeadAnimations.At(KraidHeadSegment.Roar, 5);
+    private static SuperMetroid.Core.Animation.AnimationPlayback<KraidHeadSegment> RoarPastOpenPose => SuperMetroid.TestSupport.MovieReplay.KraidHeadNativeCursors.PlaybackAtStep(KraidHeadSegment.Roar, 5);
 
     /// <summary>Checks count-bounded traversal, inactive slot handling, scratch-word rejection, and adjacent bomb slots.</summary>
     private static void VerifyKraidCollisionPlaceOrder(

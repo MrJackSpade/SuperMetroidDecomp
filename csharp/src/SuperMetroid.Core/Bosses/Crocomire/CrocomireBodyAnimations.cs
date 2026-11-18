@@ -1,14 +1,16 @@
 using F = SuperMetroid.Core.Enemies.Artwork.EnemyFrameId;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Animation;
+using A = SuperMetroid.Core.Bosses.Crocomire.CrocomireBodyAnimation;
 using K = SuperMetroid.Core.Bosses.Crocomire.CrocomireBodyCueKind;
 using P = SuperMetroid.Core.Bosses.Crocomire.CrocomireBodySegment;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>
-/// Crocomire's typed body animations (#641, #1600): each body, melting and skeleton segment's beats, and the animation
-/// starting at each, which plays each of its segments whole (#2296). Where he shows one picture twice in a row (his damage
+/// Crocomire's typed body animations (#641, #1600): each body, melting and skeleton segment's beats, and each animation his
+/// fight and death start, which plays its segments whole or repeated (#2296, #2399): a run several animations show is one
+/// segment each plays, and a run shown again and again is one segment played that often. Where he shows one picture twice in a row (his damage
 /// wait's open mouth) the showings stay two beats: an uncharged beam on his mouth holds the frame shown for a fixed count,
 /// after which the second showing still plays its own duration, and each showing raises the new-frame flag from which his
 /// body shows the picture.
@@ -24,7 +26,7 @@ internal static class CrocomireBodyAnimations
             Show(F.CrocomireBodyArmUprightMouthOpen, 1),
             Cue(K.FightAi),
         ],
-        [P.ProjectileAttack] =
+        [P.ClawSwing] =
         [
             Dust(16),
             Show(F.CrocomireBodySwingingArmBent, 5),
@@ -51,6 +53,9 @@ internal static class CrocomireBodyAnimations
             Show(F.CrocomireBodySwingingArmReturning, 5),
             Cue(K.BigExplosionSound),
             Dust(-16),
+        ],
+        [P.ProjectileAttackOpenMouth] =
+        [
             Show(F.CrocomireBodyFarFootForwardArmUprightMouthShut, 5),
             Cue(K.Cry),
             Show(F.CrocomireBodyFarFootForwardArmUprightMouthParted, 5),
@@ -162,66 +167,23 @@ internal static class CrocomireBodyAnimations
             Show(F.CrocomireBodyArmUprightMouthOpen, 1),
             Cue(K.FightAi),
         ],
-        [P.MovingClaws] =
+        [P.ClawSwingFightCue] =
         [
-            Dust(16),
-            Show(F.CrocomireBodySwingingArmBent, 5),
-            Show(F.CrocomireBodySwingingArmRaised, 5),
-            Dust(0),
-            Show(F.CrocomireBodySwingingArmOutstretched, 5),
-            Show(F.CrocomireBodySwingingArmLowering, 5),
-            Show(F.CrocomireBodySwingingArmReturning, 5),
-            Cue(K.BigExplosionSound),
-            Dust(-32),
-            Show(F.CrocomireBodySwingingArmBent, 5),
-            Show(F.CrocomireBodySwingingArmRaised, 5),
-            Dust(-16),
-            Show(F.CrocomireBodySwingingArmOutstretched, 5),
-            Show(F.CrocomireBodySwingingArmLowering, 5),
-            Show(F.CrocomireBodySwingingArmReturning, 5),
-            Cue(K.BigExplosionSound),
-            Dust(0),
-            Show(F.CrocomireBodySwingingArmBent, 5),
-            Show(F.CrocomireBodySwingingArmRaised, 5),
-            Dust(40),
-            Show(F.CrocomireBodySwingingArmOutstretched, 5),
-            Show(F.CrocomireBodySwingingArmLowering, 5),
-            Show(F.CrocomireBodySwingingArmReturning, 5),
-            Cue(K.BigExplosionSound),
-            Dust(-16),
             Cue(K.FightAi),
         ],
-        [P.Roar] =
+        [P.RoarOpenMouth] =
         [
             Show(F.CrocomireBodyFarFootForwardArmUprightMouthShut, 48),
             Cue(K.Cry),
             Show(F.CrocomireBodyFarFootForwardArmUprightMouthParted, 5),
+        ],
+        [P.Gaping] =
+        [
             Show(F.CrocomireBodyFarFootForwardArmUprightMouthGaping, 2),
             Cue(K.FightAi),
-            Show(F.CrocomireBodyFarFootForwardArmUprightMouthGaping, 2),
-            Cue(K.FightAi),
-            Show(F.CrocomireBodyFarFootForwardArmUprightMouthGaping, 2),
-            Cue(K.FightAi),
-            Show(F.CrocomireBodyFarFootForwardArmUprightMouthGaping, 2),
-            Cue(K.FightAi),
-            Show(F.CrocomireBodyFarFootForwardArmUprightMouthGaping, 2),
-            Cue(K.FightAi),
-            Show(F.CrocomireBodyFarFootForwardArmUprightMouthGaping, 2),
-            Cue(K.FightAi),
-            Show(F.CrocomireBodyFarFootForwardArmUprightMouthGaping, 2),
-            Cue(K.FightAi),
-            Show(F.CrocomireBodyFarFootForwardArmUprightMouthGaping, 2),
-            Cue(K.FightAi),
-            Show(F.CrocomireBodyFarFootForwardArmUprightMouthGaping, 2),
-            Cue(K.FightAi),
-            Show(F.CrocomireBodyFarFootForwardArmUprightMouthGaping, 2),
-            Cue(K.FightAi),
-            Show(F.CrocomireBodyFarFootForwardArmUprightMouthGaping, 2),
-            Cue(K.FightAi),
-            Show(F.CrocomireBodyFarFootForwardArmUprightMouthGaping, 2),
-            Cue(K.FightAi),
-            Show(F.CrocomireBodyFarFootForwardArmUprightMouthGaping, 2),
-            Cue(K.FightAi),
+        ],
+        [P.RoarGapingHold] =
+        [
             Show(F.CrocomireBodyFarFootForwardArmUprightMouthGaping, 32),
             Cue(K.FightAi),
             Show(F.CrocomireBodyFarFootForwardArmUprightMouthGaping, 1),
@@ -240,8 +202,6 @@ internal static class CrocomireBodyAnimations
         [
             Show(F.CrocomireBodyFarFootForwardArmUprightMouthShut, 1),
             Cue(K.FightAi),
-            Show(F.CrocomireBodyFarFootForwardArmUprightMouthShut, 1),
-            Cue(K.FightAi),
         ],
         [P.PowerBombReactionMouthFullyOpen] =
         [
@@ -250,34 +210,6 @@ internal static class CrocomireBodyAnimations
         [P.PowerBombReactionMouthPartiallyOpen] =
         [
             Show(F.CrocomireBodyFarFootForwardArmUprightMouthShut, 2),
-        ],
-        [P.PowerBombReactionMouthNotOpen] =
-        [
-            Dust(16),
-            Show(F.CrocomireBodySwingingArmBent, 5),
-            Show(F.CrocomireBodySwingingArmRaised, 5),
-            Dust(0),
-            Show(F.CrocomireBodySwingingArmOutstretched, 5),
-            Show(F.CrocomireBodySwingingArmLowering, 5),
-            Show(F.CrocomireBodySwingingArmReturning, 5),
-            Cue(K.BigExplosionSound),
-            Dust(-32),
-            Show(F.CrocomireBodySwingingArmBent, 5),
-            Show(F.CrocomireBodySwingingArmRaised, 5),
-            Dust(-16),
-            Show(F.CrocomireBodySwingingArmOutstretched, 5),
-            Show(F.CrocomireBodySwingingArmLowering, 5),
-            Show(F.CrocomireBodySwingingArmReturning, 5),
-            Cue(K.BigExplosionSound),
-            Dust(0),
-            Show(F.CrocomireBodySwingingArmBent, 5),
-            Show(F.CrocomireBodySwingingArmRaised, 5),
-            Dust(40),
-            Show(F.CrocomireBodySwingingArmOutstretched, 5),
-            Show(F.CrocomireBodySwingingArmLowering, 5),
-            Show(F.CrocomireBodySwingingArmReturning, 5),
-            Cue(K.BigExplosionSound),
-            Dust(-16),
         ],
         [P.PowerBombReactionCharge] =
         [
@@ -308,39 +240,16 @@ internal static class CrocomireBodyAnimations
             Show(F.CrocomireBodyFarFootForwardArmUpright, 4),
             Cue(K.FightAi),
         ],
-        [P.NearSpikeWallCharge] =
+        [P.NearSpikeWallChargeOpenMouth] =
         [
             Show(F.CrocomireBodyFarFootForwardArmUprightMouthShut, 5),
             Cue(K.Cry),
             Cue(K.FightAi),
             Show(F.CrocomireBodyFarFootForwardArmUprightMouthParted, 5),
             Cue(K.FightAi),
-            Show(F.CrocomireBodyFarFootForwardArmUprightMouthGaping, 2),
-            Cue(K.FightAi),
-            Show(F.CrocomireBodyFarFootForwardArmUprightMouthGaping, 2),
-            Cue(K.FightAi),
-            Show(F.CrocomireBodyFarFootForwardArmUprightMouthGaping, 2),
-            Cue(K.FightAi),
-            Show(F.CrocomireBodyFarFootForwardArmUprightMouthGaping, 2),
-            Cue(K.FightAi),
-            Show(F.CrocomireBodyFarFootForwardArmUprightMouthGaping, 2),
-            Cue(K.FightAi),
-            Show(F.CrocomireBodyFarFootForwardArmUprightMouthGaping, 2),
-            Cue(K.FightAi),
-            Show(F.CrocomireBodyFarFootForwardArmUprightMouthGaping, 2),
-            Cue(K.FightAi),
-            Show(F.CrocomireBodyFarFootForwardArmUprightMouthGaping, 2),
-            Cue(K.FightAi),
-            Show(F.CrocomireBodyFarFootForwardArmUprightMouthGaping, 2),
-            Cue(K.FightAi),
-            Show(F.CrocomireBodyFarFootForwardArmUprightMouthGaping, 2),
-            Cue(K.FightAi),
-            Show(F.CrocomireBodyFarFootForwardArmUprightMouthGaping, 2),
-            Cue(K.FightAi),
-            Show(F.CrocomireBodyFarFootForwardArmUprightMouthGaping, 2),
-            Cue(K.FightAi),
-            Show(F.CrocomireBodyFarFootForwardArmUprightMouthGaping, 2),
-            Cue(K.FightAi),
+        ],
+        [P.NearSpikeWallChargeCloseMouth] =
+        [
             Show(F.CrocomireBodyFarFootForwardArmUprightMouthParted, 5),
             Cue(K.FightAi),
             Show(F.CrocomireBodyFarFootForwardArmUprightMouthParted, 8),
@@ -500,58 +409,75 @@ internal static class CrocomireBodyAnimations
         ],
     });
 
+    /// <summary>How many times his roar shows his gaping mouth, each time with its fight cue, before its long gaping hold.</summary>
+    private const int RoarGapings = 13;
+
+    /// <summary>How many times his charge near the spike wall shows his gaping mouth, each time with its fight cue, before closing it.</summary>
+    private const int NearSpikeWallChargeGapings = 13;
+
     /// <summary>
-    /// The animation that starts at each segment an owner can start or restart at, each listing only its own segments
-    /// (#1938). The step back and the damage wait roar again and again until he is hit (#2180): once the roar has closed
-    /// his mouth he shows it closed for an update, and after that update's fight cue, which steps him back on a hit, he
-    /// roars again. The wait never runs on into the Power Bomb reaction authored after it.
+    /// His roar while he waits for a hit (#2180): it opens his mouth, gapes, holds it gaping and closes it; once the roar has
+    /// closed his mouth he shows it closed for an update, and after that update's fight cue, which steps him back on a hit,
+    /// he roars again. The wait never runs on into the Power Bomb reaction authored after it.
     /// </summary>
-    internal static IReadOnlyDictionary<CrocomireBodySegment, Animation<CrocomireBodySegment>> StartingAt { get; } = new Dictionary<CrocomireBodySegment, Animation<CrocomireBodySegment>>
+    private static AnimationPhase<CrocomireBodySegment>[] Roaring { get; } =
+    [
+        Segments.Whole(P.RoarOpenMouth),
+        Segments.Repeated(P.Gaping, RoarGapings),
+        Segments.Whole(P.RoarGapingHold),
+        Segments.Whole(P.RoarCloseMouth),
+        Segments.Whole(P.RoarCloseMouthLoop),
+    ];
+
+    /// <summary>
+    /// Each animation his fight and death can start or restart, each listing only its own segments (#1938, #2399). The step
+    /// back and the damage wait lead into his roar, which plays again and again until he is hit.
+    /// </summary>
+    internal static IReadOnlyDictionary<CrocomireBodyAnimation, Animation<CrocomireBodySegment>> StartingAt { get; } = new Dictionary<CrocomireBodyAnimation, Animation<CrocomireBodySegment>>
     {
-        [P.IdleSway] = new([Segments.Whole(P.IdleSway)], AnimationEnd.LoopsFrom(0)),
-        [P.ProjectileAttack] = new([Segments.Whole(P.ProjectileAttack), Segments.Whole(P.ProjectileAttackSpitting)], AnimationEnd.LoopsFrom(1)),
-        [P.StepForwardAfterDelay] = new([Segments.Whole(P.StepForwardAfterDelay), Segments.Whole(P.StepForward)], AnimationEnd.LoopsFrom(1)),
-        [P.StepForward] = new([Segments.Whole(P.StepForward)], AnimationEnd.LoopsFrom(0)),
-        [P.StepBack] = new([Segments.Whole(P.StepBack), Segments.Whole(P.SteppingBack), Segments.Whole(P.WaitForFirstSecondDamage), Segments.Whole(P.MovingClaws), Segments.Whole(P.Roar), Segments.Whole(P.RoarCloseMouth), ClosedMouthToFightCue], AnimationEnd.LoopsFrom(4)),
-        [P.SteppingBack] = new([Segments.Whole(P.SteppingBack), Segments.Whole(P.WaitForFirstSecondDamage), Segments.Whole(P.MovingClaws), Segments.Whole(P.Roar), Segments.Whole(P.RoarCloseMouth), ClosedMouthToFightCue], AnimationEnd.LoopsFrom(3)),
-        [P.WaitForFirstSecondDamage] = new([Segments.Whole(P.WaitForFirstSecondDamage), Segments.Whole(P.MovingClaws), Segments.Whole(P.Roar), Segments.Whole(P.RoarCloseMouth), ClosedMouthToFightCue], AnimationEnd.LoopsFrom(2)),
-        [P.MovingClaws] = new([Segments.Whole(P.MovingClaws), Segments.Whole(P.Roar), Segments.Whole(P.RoarCloseMouth), ClosedMouthToFightCue], AnimationEnd.LoopsFrom(1)),
-        [P.Roar] = new([Segments.Whole(P.Roar), Segments.Whole(P.RoarCloseMouth), ClosedMouthToFightCue], AnimationEnd.LoopsFrom(0)),
-        [P.RoarCloseMouth] = new([Segments.Whole(P.RoarCloseMouth), ClosedMouthToFightCue, Segments.Whole(P.Roar), Segments.Whole(P.RoarCloseMouth), ClosedMouthToFightCue], AnimationEnd.LoopsFrom(2)),
-        [P.PowerBombReactionMouthFullyOpen] = new([Segments.Whole(P.PowerBombReactionMouthFullyOpen), Segments.Whole(P.PowerBombReactionMouthPartiallyOpen), Segments.Whole(P.PowerBombReactionMouthNotOpen), Segments.Whole(P.PowerBombReactionCharge)], AnimationEnd.LoopsFrom(3)),
-        [P.PowerBombReactionMouthPartiallyOpen] = new([Segments.Whole(P.PowerBombReactionMouthPartiallyOpen), Segments.Whole(P.PowerBombReactionMouthNotOpen), Segments.Whole(P.PowerBombReactionCharge)], AnimationEnd.LoopsFrom(2)),
-        [P.PowerBombReactionMouthNotOpen] = new([Segments.Whole(P.PowerBombReactionMouthNotOpen), Segments.Whole(P.PowerBombReactionCharge)], AnimationEnd.LoopsFrom(1)),
-        [P.NearSpikeWallCharge] = new([Segments.Whole(P.NearSpikeWallCharge), Segments.Whole(P.NearSpikeWallChargeSteps)], AnimationEnd.LoopsFrom(1)),
-        [P.BackOffFromSpikeWall] = new([Segments.Whole(P.BackOffFromSpikeWall)], AnimationEnd.LoopsFrom(0)),
-        [P.MeltingFleshTopRow] = new([Segments.Whole(P.MeltingFleshTopRow)], AnimationEnd.LoopsFrom(0)),
-        [P.MeltingFleshTopTwoRows] = new([Segments.Whole(P.MeltingFleshTopTwoRows)], AnimationEnd.Holds),
-        [P.MeltingFleshTopThreeRows] = new([Segments.Whole(P.MeltingFleshTopThreeRows)], AnimationEnd.Holds),
-        [P.MeltingFleshTopFourRows] = new([Segments.Whole(P.MeltingFleshTopFourRows)], AnimationEnd.Holds),
-        [P.MeltingBareSkullTopRow] = new([Segments.Whole(P.MeltingBareSkullTopRow)], AnimationEnd.LoopsFrom(0)),
-        [P.MeltingBareSkullTopTwoRows] = new([Segments.Whole(P.MeltingBareSkullTopTwoRows)], AnimationEnd.Holds),
-        [P.MeltingBareSkullTopThreeRows] = new([Segments.Whole(P.MeltingBareSkullTopThreeRows)], AnimationEnd.Holds),
-        [P.MeltingBareSkullTopFourRows] = new([Segments.Whole(P.MeltingBareSkullTopFourRows)], AnimationEnd.Holds),
-        [P.BridgeCollapsed] = new([Segments.Whole(P.BridgeCollapsed)], AnimationEnd.Holds),
-        [P.SkeletonFalling] = new([Segments.Whole(P.SkeletonFalling)], AnimationEnd.Holds),
-        [P.SkeletonFallsApart] = new([Segments.Whole(P.SkeletonFallsApart), Segments.Whole(P.SkeletonStable)], AnimationEnd.Holds),
-        [P.SkeletonStable] = new([Segments.Whole(P.SkeletonStable)], AnimationEnd.Holds),
-        [P.Dead] = new([Segments.Whole(P.Dead)], AnimationEnd.Holds),
-        [P.SkeletonFlowingDownRiver] = new([Segments.Whole(P.SkeletonFlowingDownRiver)], AnimationEnd.LoopsFrom(0)),
+        [A.IdleSway] = new([Segments.Whole(P.IdleSway)], AnimationEnd.LoopsFrom(0)),
+        [A.ProjectileAttack] = Animation<CrocomireBodySegment>.LeadingInto(
+            [Segments.Whole(P.ClawSwing), Segments.Whole(P.ProjectileAttackOpenMouth)], [Segments.Whole(P.ProjectileAttackSpitting)]),
+        [A.StepForwardAfterDelay] = Animation<CrocomireBodySegment>.LeadingInto([Segments.Whole(P.StepForwardAfterDelay)], [Segments.Whole(P.StepForward)]),
+        [A.StepForward] = new([Segments.Whole(P.StepForward)], AnimationEnd.LoopsFrom(0)),
+        [A.StepBack] = Animation<CrocomireBodySegment>.LeadingInto(
+            [Segments.Whole(P.StepBack), Segments.Whole(P.SteppingBack), Segments.Whole(P.WaitForFirstSecondDamage), Segments.Whole(P.ClawSwing), Segments.Whole(P.ClawSwingFightCue)],
+            Roaring),
+        [A.SteppingBack] = Animation<CrocomireBodySegment>.LeadingInto(
+            [Segments.Whole(P.SteppingBack), Segments.Whole(P.WaitForFirstSecondDamage), Segments.Whole(P.ClawSwing), Segments.Whole(P.ClawSwingFightCue)], Roaring),
+        [A.WaitForFirstSecondDamage] = Animation<CrocomireBodySegment>.LeadingInto(
+            [Segments.Whole(P.WaitForFirstSecondDamage), Segments.Whole(P.ClawSwing), Segments.Whole(P.ClawSwingFightCue)], Roaring),
+        [A.MovingClaws] = Animation<CrocomireBodySegment>.LeadingInto([Segments.Whole(P.ClawSwing), Segments.Whole(P.ClawSwingFightCue)], Roaring),
+        [A.Roar] = Animation<CrocomireBodySegment>.Looping(Roaring),
+        [A.RoarCloseMouth] = Animation<CrocomireBodySegment>.LeadingInto([Segments.Whole(P.RoarCloseMouth), Segments.Whole(P.RoarCloseMouthLoop)], Roaring),
+        [A.PowerBombReactionMouthFullyOpen] = Animation<CrocomireBodySegment>.LeadingInto(
+            [Segments.Whole(P.PowerBombReactionMouthFullyOpen), Segments.Whole(P.PowerBombReactionMouthPartiallyOpen), Segments.Whole(P.ClawSwing)],
+            [Segments.Whole(P.PowerBombReactionCharge)]),
+        [A.PowerBombReactionMouthPartiallyOpen] = Animation<CrocomireBodySegment>.LeadingInto(
+            [Segments.Whole(P.PowerBombReactionMouthPartiallyOpen), Segments.Whole(P.ClawSwing)], [Segments.Whole(P.PowerBombReactionCharge)]),
+        [A.PowerBombReactionMouthNotOpen] = Animation<CrocomireBodySegment>.LeadingInto([Segments.Whole(P.ClawSwing)], [Segments.Whole(P.PowerBombReactionCharge)]),
+        [A.NearSpikeWallCharge] = Animation<CrocomireBodySegment>.LeadingInto(
+            [Segments.Whole(P.NearSpikeWallChargeOpenMouth), Segments.Repeated(P.Gaping, NearSpikeWallChargeGapings), Segments.Whole(P.NearSpikeWallChargeCloseMouth)],
+            [Segments.Whole(P.NearSpikeWallChargeSteps)]),
+        [A.BackOffFromSpikeWall] = new([Segments.Whole(P.BackOffFromSpikeWall)], AnimationEnd.LoopsFrom(0)),
+        [A.MeltingFleshTopRow] = new([Segments.Whole(P.MeltingFleshTopRow)], AnimationEnd.LoopsFrom(0)),
+        [A.MeltingFleshTopTwoRows] = new([Segments.Whole(P.MeltingFleshTopTwoRows)], AnimationEnd.Holds),
+        [A.MeltingFleshTopThreeRows] = new([Segments.Whole(P.MeltingFleshTopThreeRows)], AnimationEnd.Holds),
+        [A.MeltingFleshTopFourRows] = new([Segments.Whole(P.MeltingFleshTopFourRows)], AnimationEnd.Holds),
+        [A.MeltingBareSkullTopRow] = new([Segments.Whole(P.MeltingBareSkullTopRow)], AnimationEnd.LoopsFrom(0)),
+        [A.MeltingBareSkullTopTwoRows] = new([Segments.Whole(P.MeltingBareSkullTopTwoRows)], AnimationEnd.Holds),
+        [A.MeltingBareSkullTopThreeRows] = new([Segments.Whole(P.MeltingBareSkullTopThreeRows)], AnimationEnd.Holds),
+        [A.MeltingBareSkullTopFourRows] = new([Segments.Whole(P.MeltingBareSkullTopFourRows)], AnimationEnd.Holds),
+        [A.BridgeCollapsed] = new([Segments.Whole(P.BridgeCollapsed)], AnimationEnd.Holds),
+        [A.SkeletonFalling] = new([Segments.Whole(P.SkeletonFalling)], AnimationEnd.Holds),
+        [A.SkeletonFallsApart] = new([Segments.Whole(P.SkeletonFallsApart), Segments.Whole(P.SkeletonStable)], AnimationEnd.Holds),
+        [A.SkeletonStable] = new([Segments.Whole(P.SkeletonStable)], AnimationEnd.Holds),
+        [A.Dead] = new([Segments.Whole(P.Dead)], AnimationEnd.Holds),
+        [A.SkeletonFlowingDownRiver] = new([Segments.Whole(P.SkeletonFlowingDownRiver)], AnimationEnd.LoopsFrom(0)),
     };
 
-    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<CrocomireBodySegment> StartingWith(CrocomireBodySegment segment) => StartingAt[segment];
-
-    /// <summary>
-    /// The roar's closed mouth played up to and with its first fight cue, after which the animations that play it roar again
-    /// (#2180). The segment shows the closed mouth and runs the fight cue once more after that cue, which no play reaches.
-    /// </summary>
-    private static AnimationPhase<CrocomireBodySegment> ClosedMouthToFightCue =>
-        new(P.RoarCloseMouthLoop, 0, Segments.Beats(P.RoarCloseMouthLoop).ToList().FindIndex(IsFightCue) + 1, 1);
-
-    /// <summary>Whether <paramref name="beat"/> runs his fight AI.</summary>
-    private static bool IsFightCue(AnimationBeat<EnemyFrameId, CrocomireBodyCue> beat) =>
-        beat is AnimationBeat<EnemyFrameId, CrocomireBodyCue>.Event { Raised: CrocomireBodyCue.Signal { Kind: K.FightAi } };
+    /// <summary>The animation <paramref name="animation"/> names.</summary>
+    internal static Animation<CrocomireBodySegment> StartingWith(CrocomireBodyAnimation animation) => StartingAt[animation];
 
     /// <summary>
     /// Shows <paramref name="frame"/> for good (#1627): the body rests on it until its owner starts another animation. A shot

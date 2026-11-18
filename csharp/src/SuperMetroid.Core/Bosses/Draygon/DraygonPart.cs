@@ -40,9 +40,12 @@ public sealed class DraygonPart
     internal void SetAnimation(DraygonSegment segment) => Playback = Starting(segment);
 
     /// <summary>Restarts the part's animation at <paramref name="segment"/>, stepping it on its next update.</summary>
-    internal void StartAnimation(DraygonSegment segment)
+    internal void StartAnimation(DraygonSegment segment) => StartAnimation(DraygonAnimations.StartingWith(segment));
+
+    /// <summary>Restarts the part's animation with <paramref name="animation"/>, before its first play, stepping it on its next update.</summary>
+    internal void StartAnimation(Animation<DraygonSegment> animation)
     {
-        SetAnimation(segment);
+        Playback = new(Ensure.NotNull(animation), AnimationPlace.StartOfAnimation);
         Place.AnimationClock.StepOnNextUpdate();
     }
 }

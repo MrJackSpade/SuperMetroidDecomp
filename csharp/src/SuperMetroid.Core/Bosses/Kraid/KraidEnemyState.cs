@@ -145,6 +145,31 @@ public sealed class KraidEnemyState
     /// </summary>
     internal AnimationPlayback<KraidHeadSegment>? HeadPlayback { get; set; }
 
+    /// <summary>
+    /// Starts the head animation that starts at <paramref name="animation"/> (#2399): the head enters its opening pose without
+    /// showing it, and the head timer holds that pose's duration.
+    /// </summary>
+    internal void StartHeadAnimation(KraidHeadSegment animation) => EnterHead(KraidHeadAnimations.Starting(animation));
+
+    /// <summary>
+    /// Selects the head animation that starts at <paramref name="animation"/> (#2399): the head stands past its opening pose,
+    /// as starting it leaves it, while the head timer runs on as it is.
+    /// </summary>
+    internal void SelectHeadAnimation(KraidHeadSegment animation) => HeadPlayback = KraidHeadAnimations.Starting(animation).Playback;
+
+    /// <summary>
+    /// Resumes the roar as growth does from <paramref name="resume"/> (#2399): the head enters the resumed pose without
+    /// showing it, and the head timer holds that pose's duration.
+    /// </summary>
+    internal void ResumeHeadRoar(KraidHeadGrowthResume resume) => EnterHead(KraidHeadAnimations.GrowthResume(resume));
+
+    /// <summary>Stands the head past the pose <paramref name="entry"/> entered, its timer holding that pose's duration.</summary>
+    private void EnterHead(KraidHeadEntry entry)
+    {
+        HeadPlayback = entry.Playback;
+        BodyState.HeadTimer = entry.Delay;
+    }
+
     /// <summary>Arms three mouth reopens, whatever number of them was still pending (#1890).</summary>
     internal void ArmMouthReopens() => PendingMouthReopens = ArmedMouthReopens;
 

@@ -259,10 +259,9 @@ internal sealed class Walk
                 Record(unit, scan, member, context);
             foreach (Unit target in scan.Targets)
             {
-                // A family's animation data counting its own segments' beats (a starting animation's whole phase) runs none
-                // of their cues (#2275); the family's code that plays them reaches them.
-                if (target.Kind == UnitKind.Member && SymbolEqualityComparer.Default.Equals(unit.Type, target.Type)
-                    && _model.FamilySegments.Contains(target.Symbol))
+                // Animation data counting its own segments' beats (a starting animation's whole phase) runs none of their
+                // cues (#2275, #2399); the code that plays them reaches them.
+                if (_model.CountsOwnSegments(unit, target))
                     continue;
                 Reach(target, context, viaDispatch: false, origin: unit);
             }

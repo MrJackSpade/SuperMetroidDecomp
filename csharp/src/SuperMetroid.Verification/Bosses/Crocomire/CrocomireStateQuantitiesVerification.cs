@@ -58,7 +58,7 @@ internal static class CrocomireStateQuantitiesVerification
             (RoomEnemySystem enemies, CrocomireEnemyState state) = NewCrocomire();
             state.Phase = CrocomirePhase.PowerBombCharge;
             state.StepCounter = start;
-            state.BodyPlayback = new AnimationPlayback<CrocomireBodySegment>(CrocomireBodyAnimations.StartingWith(CrocomireBodySegment.IdleSway), AnimationPlace.StartOfAnimation);
+            state.BodyPlayback = new AnimationPlayback<CrocomireBodySegment>(CrocomireBodyAnimations.StartingWith(CrocomireBodyAnimation.IdleSway), AnimationPlace.StartOfAnimation);
             state.Body.AnimationClock.StepOnNextUpdate();
             // The initial program shows its frame on the first update and runs its fight-AI cue on every later one.
             Pass(enemies, state);
@@ -279,7 +279,7 @@ internal static class CrocomireStateQuantitiesVerification
         AssertEqual(CrocomireDeathPhase.WaitForSkeletonTerminalImage, state.DeathPhase, "the arc ends past X 576");
 
         // The collapse keeps accelerating the speed, clamped at six pixels, while the skeleton falls apart.
-        state.BodyPlayback = new AnimationPlayback<CrocomireBodySegment>(CrocomireBodyAnimations.StartingWith(CrocomireBodySegment.SkeletonFallsApart), AnimationPlace.StartOfAnimation);
+        state.BodyPlayback = new AnimationPlayback<CrocomireBodySegment>(CrocomireBodyAnimations.StartingWith(CrocomireBodyAnimation.SkeletonFallsApart), AnimationPlace.StartOfAnimation);
         for (int frame = 1; frame <= 20; frame++)
         {
             NativeAccelerate(ref fraction, ref whole, (uint)SixteenSixteen.FromEightEight(16), 6);

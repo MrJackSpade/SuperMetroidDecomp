@@ -207,8 +207,8 @@ internal sealed class DraygonGrab
     {
         MoveSamusWithDraygon(state, samus);
         state.TailPart.StartAnimation(state.Facing == HorizontalDirection.Right
-                ? DraygonSegment.TailFacingRightFinalWhips
-                : DraygonSegment.TailFacingLeftFinalWhips);
+                ? DraygonAnimations.TailFacingRightFinalWhips
+                : DraygonAnimations.TailFacingLeftFinalWhips);
         state.Phase = DraygonPhase.FinalTailWhipsWait;
     }
 

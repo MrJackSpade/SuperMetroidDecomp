@@ -100,7 +100,7 @@ internal static class KraidHeadInstructionsVerification
             state.BodyState.HeadTimer = 999;
             combat(body, state, 0);
             AssertEqual(raw == 1
-                    ? (ushort)KraidHeadAnimations.RoarEntryDuration
+                    ? (ushort)KraidHeadAnimations.Starting(KraidHeadSegment.Roar).Delay
                     : (ushort)999,
                 state.BodyState.HeadTimer, "Roar timer loads only on thinker expiry");
 
@@ -109,18 +109,18 @@ internal static class KraidHeadInstructionsVerification
             state.BodyState.HeadTimer = 999;
             combat(body, state, 0);
             AssertEqual(raw == 1
-                    ? (ushort)KraidHeadAnimations.RoarEntryDuration
+                    ? (ushort)KraidHeadAnimations.Starting(KraidHeadSegment.Roar).Delay
                     : (ushort)999,
                 state.BodyState.HeadTimer, "Second-phase roar timer loads only on thinker expiry");
         }
 
         glow(state);
         AssertEqual(
-            unchecked(KraidHeadAnimations.EyeGlowEntryDuration - 1),
+            unchecked(KraidHeadAnimations.Starting(KraidHeadSegment.EyeGlow).Delay - 1),
             state.BodyState.HeadTimer, "Eye glow consumes one timer tick on initialization");
         state.BodyState.HeadTimer = 999;
         death(state);
-        AssertEqual(KraidHeadAnimations.DeathEntryDuration, state.BodyState.HeadTimer,
+        AssertEqual(KraidHeadAnimations.Starting(KraidHeadSegment.Death).Delay, state.BodyState.HeadTimer,
             "Death initialization installs native timer without ticking");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "Kraid timer/growth consumers avoid compiled head programs");

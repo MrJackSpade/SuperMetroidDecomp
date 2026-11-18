@@ -123,8 +123,7 @@ internal sealed class KraidLimbs
         if (state.ThinkingTimer != 0 && --state.ThinkingTimer == 0)
         {
             state.BodyState.FightPhase = KraidFightPhase.MouthOpenReaction;
-            state.HeadPlayback = KraidHeadAnimations.RoarAfterEntryFrame;
-            state.BodyState.HeadTimer = KraidHeadAnimations.RoarEntryDuration;
+            state.StartHeadAnimation(KraidHeadSegment.Roar);
         }
     }
 
@@ -137,9 +136,7 @@ internal sealed class KraidLimbs
         state.BodyState.FightPhase = KraidFightPhase.HeadAnimationBeforeGrowth;
         state.BodyState.PhaseTimer = KraidArenaDefinitions.GrowthHeadAnimationUpdates;
 
-        KraidHeadGrowthResume resume = KraidHeadAnimations.ReadsAt(state.HeadPlayback).Growth;
-        state.HeadPlayback = KraidHeadAnimations.GrowthResumePlayback(resume);
-        state.BodyState.HeadTimer = KraidHeadAnimations.GrowthResumeDelay(resume);
+        state.ResumeHeadRoar(KraidHeadAnimations.ReadsAt(state.HeadPlayback).Growth);
         _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Medium, EarthquakeDirection.Vertical, EarthquakeReach.Foreground), KraidArenaDefinitions.GrowthShakeUpdates);
         state.FootState.StartAnimation(KraidPartSegment.FootInitial);
         state.FootState.Phase = KraidFootPhase.Resting;

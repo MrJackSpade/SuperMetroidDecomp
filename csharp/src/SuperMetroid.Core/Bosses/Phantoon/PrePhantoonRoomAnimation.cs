@@ -26,7 +26,7 @@ internal sealed class PrePhantoonRoomAnimation()
 
     /// <summary>The blank frame and deletion, played once; the deleted projectile then rests.</summary>
     private static readonly Animation<PrePhantoonRoomSegment> BlankThenDelete =
-        new([new(PrePhantoonRoomSegment.BlankThenDelete, 0, RoomSegments.Beats(PrePhantoonRoomSegment.BlankThenDelete).Count, 1)], AnimationEnd.Holds);
+        new([RoomSegments.Whole(PrePhantoonRoomSegment.BlankThenDelete)], AnimationEnd.Holds);
 
     /// <summary>The one animation, by the segment it starts at.</summary>
     private static readonly Dictionary<PrePhantoonRoomSegment, Animation<PrePhantoonRoomSegment>> RoomStartingAt = new()

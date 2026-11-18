@@ -119,7 +119,7 @@ internal static class MotherBrainGlassAnimations
     /// <summary>Each glass animation: a shard's spin loops for good, and the deleted sparkle rests.</summary>
     internal static IReadOnlyDictionary<MotherBrainGlassSegment, Animation<MotherBrainGlassSegment>> StartingAt { get; } =
         Enum.GetValues<MotherBrainGlassSegment>().ToDictionary(segment => segment, segment => new Animation<MotherBrainGlassSegment>(
-            [new(segment, 0, Segments.Beats(segment).Count, 1)],
+            [Segments.Whole(segment)],
             segment == P.Sparkle ? AnimationEnd.Holds : AnimationEnd.LoopsFrom(0)));
 
     /// <summary>

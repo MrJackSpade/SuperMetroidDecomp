@@ -162,8 +162,7 @@ internal sealed class KraidDeath
         state.Colours.ShowDeathArm();
         state.ArmState.StartAnimation(KraidPartSegment.ArmDyingOrPreparingToLunge);
         state.BodyState.DeathPhase = KraidDeathPhase.FadeOut;
-        state.HeadPlayback = KraidHeadAnimations.DeathAfterEntryFrame;
-        state.BodyState.HeadTimer = KraidHeadAnimations.DeathEntryDuration;
+        state.StartHeadAnimation(KraidHeadSegment.Death);
         // The death clears the fingernails' respawn bit, then kills the
         // nails, then the three lints. The death runs without choosing an explosion, so each
         // part leaves the first death explosion.

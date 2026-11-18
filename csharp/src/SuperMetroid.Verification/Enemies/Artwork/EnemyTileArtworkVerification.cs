@@ -218,10 +218,10 @@ internal static class EnemyTileArtworkVerification
                 "one indexed page per distinct retail enemy graphics definition and per artwork a set loads for no enemy");
             _ = VerifyInstalledCrocomireMeltingTilemap(
                 bus, stock, CrocomireMeltingIllustration.Flesh,
-                CrocomireBodySegment.MeltingFleshTopRow);
+                CrocomireBodyAnimation.MeltingFleshTopRow);
             _ = VerifyInstalledCrocomireMeltingTilemap(
                 bus, stock, CrocomireMeltingIllustration.BareSkull,
-                CrocomireBodySegment.MeltingBareSkullTopRow);
+                CrocomireBodyAnimation.MeltingBareSkullTopRow);
             foreach (CrocomireMeltingIllustration pass in Enum.GetValues<CrocomireMeltingIllustration>())
             {
                 byte[] actual = VerifyInstalledCrocomireMeltingPass(stock, pass);

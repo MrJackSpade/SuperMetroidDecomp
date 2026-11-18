@@ -2,6 +2,7 @@ using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Enemies.EffectActors;
+using SuperMetroid.TestSupport.MovieReplay;
 
 namespace SuperMetroid.Verification.Bosses.Draygon;
 
@@ -45,7 +46,6 @@ internal static class DraygonNativeListAddresses
         new DraygonNativeListAddressesEntry(DraygonSegment.EyeFacingLeftLookingDown, 0x99c0),
         new DraygonNativeListAddressesEntry(DraygonSegment.TailFacingLeftIdle, 0x99c6),
         new DraygonNativeListAddressesEntry(DraygonSegment.TailFacingLeftInitialFakeWhip, 0x99fc),
-        new DraygonNativeListAddressesEntry(DraygonSegment.TailFacingLeftFinalWhips, 0x9a6c),
         new DraygonNativeListAddressesEntry(DraygonSegment.TailFacingLeftReleaseSamus, 0x9ade),
         new DraygonNativeListAddressesEntry(DraygonSegment.TailFacingLeftWhip, 0x9ae8),
         new DraygonNativeListAddressesEntry(DraygonSegment.TailFacingLeftFlail, 0x9b5a),
@@ -65,22 +65,32 @@ internal static class DraygonNativeListAddresses
         new DraygonNativeListAddressesEntry(DraygonSegment.EyeFacingRightLookingUp, 0x9d5c),
         new DraygonNativeListAddressesEntry(DraygonSegment.EyeFacingRightLookingDown, 0x9d62),
         new DraygonNativeListAddressesEntry(DraygonSegment.TailFacingRightIdle, 0x9d68),
-        new DraygonNativeListAddressesEntry(DraygonSegment.TailFacingRightFinalWhips, 0x9e25),
         new DraygonNativeListAddressesEntry(DraygonSegment.TailFacingRightReleaseSamus, 0x9e97),
         new DraygonNativeListAddressesEntry(DraygonSegment.TailFacingRightWhip, 0x9ea1),
         new DraygonNativeListAddressesEntry(DraygonSegment.TailFacingRightFlail, 0x9f15),
     ];
 
     /// <summary>
-    /// The native lists that only load the counter and run on into a counted segment (#1938): the animation starting at
-    /// that segment plays its first run as many times as the counter says. They hold no beats, so no segment names them.
+    /// The copies of a segment's list the cartridge writes out again elsewhere (#2399): each tail whip's list, written out
+    /// before its own for the final whips to count, which go on into the release of Samus. Each copy holds the segment's
+    /// beats and is read as a repeat of the segment's list.
     /// </summary>
-    internal static readonly DraygonNativeListAddressesEntry[] CounterPreambles =
+    internal static readonly DraygonNativeListAddressesEntry[] Copies =
     [
-        new DraygonNativeListAddressesEntry(DraygonSegment.EyeFacingLeftDying, 0x997a),
-        new DraygonNativeListAddressesEntry(DraygonSegment.TailFacingLeftFinalWhips, 0x9a68),
-        new DraygonNativeListAddressesEntry(DraygonSegment.EyeFacingRightDying, 0x9d1c),
-        new DraygonNativeListAddressesEntry(DraygonSegment.TailFacingRightFinalWhips, 0x9e21),
+        new DraygonNativeListAddressesEntry(DraygonSegment.TailFacingLeftWhip, 0x9a6c),
+        new DraygonNativeListAddressesEntry(DraygonSegment.TailFacingRightWhip, 0x9e25),
+    ];
+
+    /// <summary>
+    /// The native lists that only load the counter and run on into a counted list (#1938, #2399): the animation started there
+    /// plays that list's run as many times as the counter says. They hold no beats, so no segment names them.
+    /// </summary>
+    internal static readonly NativeCountedEntry<DraygonSegment>[] CounterPreambles =
+    [
+        new(nameof(DraygonSegment.EyeFacingLeftDying), DraygonAnimations.StartingWith(DraygonSegment.EyeFacingLeftDying), 0x997a),
+        new(nameof(DraygonAnimations.TailFacingLeftFinalWhips), DraygonAnimations.TailFacingLeftFinalWhips, 0x9a68),
+        new(nameof(DraygonSegment.EyeFacingRightDying), DraygonAnimations.StartingWith(DraygonSegment.EyeFacingRightDying), 0x9d1c),
+        new(nameof(DraygonAnimations.TailFacingRightFinalWhips), DraygonAnimations.TailFacingRightFinalWhips, 0x9e21),
     ];
 
     /// <summary>The operand words each bank-$A5 Draygon callback takes.</summary>
@@ -103,9 +113,9 @@ internal static class DraygonNativeListAddresses
             ? count
             : throw new InvalidDataException($"Draygon callback ${callback:X4} is not a known callback.");
 
-    /// <summary>The program whose native list starts at <paramref name="address"/>, if one does.</summary>
+    /// <summary>The program whose native list, or a copy of it, starts at <paramref name="address"/>, if one does.</summary>
     internal static DraygonSegment? ProgramAt(ushort address) =>
-        Entries.Where(item => item.Entry == address).Select(item => (DraygonSegment?)item.Program).SingleOrDefault();
+        Entries.Concat(Copies).Where(item => item.Entry == address).Select(item => (DraygonSegment?)item.Program).SingleOrDefault();
 
     /// <summary>The native entry point of <paramref name="program"/>.</summary>
     internal static ushort Entry(DraygonSegment program) => Entries.Single(item => item.Program == program).Entry;

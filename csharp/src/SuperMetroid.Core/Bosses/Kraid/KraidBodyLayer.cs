@@ -82,7 +82,7 @@ internal sealed class KraidBodyLayer : IBossBodyDisplay
         if (DepthOf(appearance) is not { } depth)
             return BossBodyLayer.Empty;
         return new BossBodyLayer([sheet.Frame(KraidBodyFrameNames.Body).At(depth),
-            head is { } pose ? sheet.Frame(KraidBodyFrameNames.Head(pose.MouthStage)) : sheet.Frame(KraidBodyFrameNames.RestingHead).At(depth)]);
+            head is { } pose ? sheet.Frame(pose.FrameName) : sheet.Frame(KraidBodyFrameNames.RestingHead).At(depth)]);
     }
 
     /// <summary>

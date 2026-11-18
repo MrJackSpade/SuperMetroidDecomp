@@ -250,7 +250,6 @@ internal sealed class KraidLimbs
         state.ArmState.StartAnimation(KraidPartSegment.ArmDyingOrPreparingToLunge);
         state.FootState.StartAnimation(KraidPartSegment.FootLungeForward);
         part.Phase = KraidFootPhase.FirstPhaseLunge;
-        part.PhaseTimer = 0;
     }
 
     /// <summary>Moves the small-form foot and body through the forward lunge.</summary>

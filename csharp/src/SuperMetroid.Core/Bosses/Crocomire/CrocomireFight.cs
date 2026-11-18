@@ -368,7 +368,7 @@ internal sealed class CrocomireFight
                 }
                 if (state.ShotsSpat < CrocomireProjectileDefinitions.VolleyShotCount)
                 {
-                    int gradient = CrocomireVolley.GradientOf(state.ShotsSpat, _access.TenthShotGradient);
+                    int gradient = CrocomireVolley.GradientOf(state.ShotsSpat, _access.LastShotGradient);
                     state.ShotsSpat++;
                     SpawnCrocomireProjectile(state.Body, gradient);
                     _access.RequestCrocomireSound(CrocomireSoundDefinitions.ProjectileSpit);

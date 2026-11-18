@@ -131,7 +131,7 @@ internal sealed class CrocomireCombat
 
             // The shot keeps the gradient its volley fires it along. The angle starts at up, not right: Y uses negative cosine.
             int gradient = projectile.StateOf<CrocomireProjectileState>().Gradient;
-            projectile.Velocity = CalculateCrocomireProjectileVelocity(EnemyMath.CalculateBearing(new(-64, gradient)));
+            projectile.Velocity = CalculateCrocomireProjectileVelocity(EnemyMath.CalculateBearing(new(-CrocomireProjectileDefinitions.AimReachLeft, gradient)));
             projectile.StartMotion(CrocomireProjectileMotion.ShotFlying);
         }
 
@@ -162,7 +162,7 @@ internal sealed class CrocomireCombat
             projectile.Position = projectile.Position.WithFractionX(x.Fraction).WithWholeX(x.Whole);
 
             // The piece falls by its speed, which gains three sixteenths of a pixel of gravity per update.
-            piece.FallSpeed += SpikeWallPieceGravity;
+            piece.FallSpeed += CrocomireSpikeMotionDefinitions.PieceGravity;
             projectile.Position = projectile.Position.AdvanceY(piece.FallSpeed);
 
             if (projectile.Position.Y.Whole < CrocomireSpikeMotionDefinitions.LandingY)
@@ -266,12 +266,6 @@ internal sealed class CrocomireCombat
     }
 
     /// <summary>
-    /// The frames a mouth shot holds Crocomire's current animation frame (#2182): an uncharged beam holds it this long, and a
-    /// shot that starts a damage reaction adds this to its hold, whatever his fight is doing.
-    /// </summary>
-    internal const int MouthShotReactionHoldFrames = 8;
-
-    /// <summary>
     /// Resolves Crocomire's mouth reaction. Whether his body's left edge is on screen reads <paramref name="camera"/>, the
     /// camera as the shot or bomb pass runs, as the game reads the live camera there (#1875).
     /// </summary>
@@ -296,7 +290,7 @@ internal sealed class CrocomireCombat
             {
                 if (!projectileType.IsChargedBeam)
                 {
-                    body.AnimationClock.HoldFor(MouthShotReactionHoldFrames);
+                    body.AnimationClock.HoldFor(CrocomireFightDefinitions.MouthShotReactionHoldFrames);
                     SpawnCrocomireShotDust(projectileType, projectile);
                     return;
                 }
@@ -317,7 +311,7 @@ internal sealed class CrocomireCombat
             state.StepCounter += stepCount;
             if (!state.DamageReactionPending)
             {
-                body.AnimationClock.Extend(MouthShotReactionHoldFrames);
+                body.AnimationClock.Extend(CrocomireFightDefinitions.MouthShotReactionHoldFrames);
             }
             state.DamageReactionPending = true;
         }
@@ -385,9 +379,6 @@ internal sealed class CrocomireCombat
             Trigonometry.SignedSine(heading) * CrocomireProjectileDefinitions.VelocityMultiplier,
             Trigonometry.SignedSine(heading - TrigonometryAngle.QuarterTurn) * CrocomireProjectileDefinitions.VelocityMultiplier);
     }
-
-    /// <summary>The gravity a falling spike-wall piece gains each update.</summary>
-    private static readonly SignedSixteenSixteen SpikeWallPieceGravity = SignedSixteenSixteen.FromSixteenthsOfPixel(3);
 
     /// <summary>Runs bridge-fragment vertical collision and gravity.</summary>
     internal static void RunCrocomireBridgeFragment(

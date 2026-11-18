@@ -142,7 +142,7 @@ internal static class KraidHeadAnimations
     };
 
     /// <summary>What collision and growth read where <paramref name="playback"/> stands; a head that never started has no pose to read.</summary>
-    internal static KraidHeadCursorReads ReadsAt(AnimationPlayback<KraidHeadSegment>? playback)
+    internal static KraidHeadAnimationReads ReadsAt(AnimationPlayback<KraidHeadSegment>? playback)
     {
         AnimationPlayback<KraidHeadSegment> started = playback ?? throw new InvalidDataException(
             "Kraid's head animation has not started, so its mouth and growth reads have no pose to look at.");

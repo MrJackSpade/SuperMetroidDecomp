@@ -34,7 +34,7 @@ internal static class KraidBodyFixtures
         foreach (string name in new[]
         {
             KraidBodyFrameNames.Body,
-            state.DisplayedHeadFrame is { } head ? KraidBodyFrameNames.Head(head.MouthStage) : KraidBodyFrameNames.RestingHead,
+            state.DisplayedHeadFrame is { } head ? head.FrameName : KraidBodyFrameNames.RestingHead,
         })
         {
             foreach ((int cell, BackgroundTile tile) in frames[name].Cells)

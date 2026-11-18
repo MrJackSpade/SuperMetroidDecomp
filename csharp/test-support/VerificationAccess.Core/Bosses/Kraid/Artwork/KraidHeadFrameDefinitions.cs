@@ -6,18 +6,18 @@ namespace SuperMetroid.Core.Bosses.Kraid.Artwork;
 internal static class KraidHeadFrameDefinitions
 {
     /// <summary>The bank-$A7 address of the head image <paramref name="frame"/> shows.</summary>
-    internal static ushort PresentationKey(KraidHeadFrame frame) => KraidHeadArtworkDefinitions.Address(frame.MouthStage);
+    internal static ushort PresentationKey(KraidHeadFrame frame) => KraidHeadArtworkDefinitions.Address(frame);
 
     /// <summary>Every head image's address, from the closed mouth to the fully open one.</summary>
     internal static IEnumerable<ushort> PresentationKeys => KraidHeadTilemapFormat.HeadsByMouthStage.Select(PresentationKey);
 
-    /// <summary>The mouth stage of the head image stored at <paramref name="address"/>.</summary>
+    /// <summary>The head pose whose image is stored at <paramref name="address"/>.</summary>
     /// <exception cref="InvalidDataException">No head image is stored at <paramref name="address"/>.</exception>
-    internal static int MouthStageAt(ushort address)
+    internal static KraidHeadFrame HeadAt(ushort address)
     {
         foreach (KraidHeadFrame head in KraidHeadTilemapFormat.HeadsByMouthStage)
             if (PresentationKey(head) == address)
-                return head.MouthStage;
+                return head;
         throw new InvalidDataException($"No Kraid head tilemap is stored at $A7:{address:X4}.");
     }
 }

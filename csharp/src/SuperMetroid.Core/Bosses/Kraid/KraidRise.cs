@@ -247,7 +247,6 @@ internal sealed class KraidRise
             randomOffset = -(randomOffset + KraidRandomDefinitions.RisingRockLeftExtraPixels);
         rock.Position = FixedPosition<RoomPixels>.FromWhole(new(body.Position.X.Whole + randomOffset, KraidArenaDefinitions.RisingRockY));
         rock.Velocity = new(SignedEightEight.FromSixteenthsOfPixel(KraidRandomDefinitions.RisingRockXSpeedSixteenths.Of(random)), KraidRockLaunchDefinitions.RisingRockRise);
-        rock.Graphics = SpriteGraphics.SharedIn(KraidColours.RocksShading);
         _access.RequestKraidSound(KraidSoundDefinitions.RockSpit);
     }
 
@@ -312,7 +311,7 @@ internal sealed class KraidRise
                     RequestKraidRisingRock(body);
                 body.Position = body.Position.WithWholeX(body.Position.X.Whole +
                     (KraidCadenceDefinitions.RiseSwayPhase.IsSetIn(body.Position.Y.Whole) ? 1 : -1));
-                body.Position = body.Position.AdvanceY(RisingBodyLift);
+                body.Position = body.Position.AdvanceY(KraidArenaDefinitions.RisingBodyLift);
                 if (body.Position.Y.Whole < KraidArenaDefinitions.RisenY)
                 {
                     body.Position = body.Position.WithWholeX(KraidArenaDefinitions.FirstPhaseX);
@@ -349,6 +348,4 @@ internal sealed class KraidRise
         }
     }
 
-    /// <summary>How far Kraid's body rises each update while it raises itself: half a pixel upward.</summary>
-    private static readonly SignedSixteenSixteen RisingBodyLift = SignedSixteenSixteen.FromSixteenthsOfPixel(-8);
 }

@@ -14,7 +14,7 @@ internal static class KraidHeadArtworkAccess
         /// codec as the cartridge's tilemap entry.
         /// </summary>
         internal ReadOnlySpan<ushort> HeadWords(ushort address) => BackgroundTileWordBytes.Words(
-            artwork.HeadTiles(KraidHeadTilemapFormat.HeadsByMouthStage[KraidHeadFrameDefinitions.MouthStageAt(address)]));
+            artwork.HeadTiles(KraidHeadFrameDefinitions.HeadAt(address)));
     }
 
     /// <summary>Installed head file names by address.</summary>
@@ -22,6 +22,6 @@ internal static class KraidHeadArtworkAccess
     {
         /// <summary>The installed JSON file of the head tilemap stored at <paramref name="address"/>.</summary>
         internal static string HeadFileNameAt(ushort address) =>
-            KraidBackgroundArtworkFormat.HeadFileName(KraidHeadFrameDefinitions.MouthStageAt(address));
+            KraidBackgroundArtworkFormat.HeadFileName(KraidHeadTilemapFormat.ImportKey(KraidHeadFrameDefinitions.HeadAt(address)));
     }
 }

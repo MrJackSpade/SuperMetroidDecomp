@@ -55,10 +55,10 @@ internal static class RetailKraidCaptureTests
                 _ => throw new InvalidOperationException($"Undefined {nameof(KraidBodyStage)} {state.Stage}."),
             };
         }
-        // The death has played out once the background fade hands the body to either finished entry.
+        // The death has played out once the background fade hands the body to the finished phase.
         static bool DeathFinished(KraidEnemyState kraid) =>
             kraid.BodyState.Stage == KraidBodyStage.Dying &&
-            kraid.BodyState.DeathPhase is KraidDeathPhase.FinishedWasAlive or KraidDeathPhase.FinishedWasDead;
+            kraid.BodyState.DeathPhase is KraidDeathPhase.Finished;
         var phases = new HashSet<Enum>();
         int samples = 0;
         bool completed = false, ownedBackground = false;

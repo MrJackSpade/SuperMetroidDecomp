@@ -48,9 +48,12 @@ public sealed class BotwoonEnemyState
     /// Head-fall place along the quadratic speed curve: each still-airborne update moves it on three quarters of a mark,
     /// and the whole marks choose the fall speed. The head reaches the floor before the curve ends, well below mark 95.
     /// </summary>
-    public QuadraticSpeedCurvePlace DeathFallAccumulator { get; internal set; }
-    /// <summary>Elapsed wall-explosion update count 0 through 192, also used as the vertical progression of randomized explosion positions.</summary>
-    public int WallExplosionFrame { get; internal set; }
+    public QuadraticSpeedCurvePlace FallPlace { get; internal set; }
+    /// <summary>
+    /// The updates the wall sequence has run, 0 through <see cref="BotwoonDeathDefinitions.WallExplosionDuration"/>; the
+    /// band its explosions burst in moves down the wall with it.
+    /// </summary>
+    public int WallExplosionUpdates { get; internal set; }
     /// <summary>
     /// The wait for the next large wall explosion (#2267): from the wall sequence's update 64 one bursts at once, then one
     /// every <see cref="BotwoonDeathDefinitions.LargeExplosionInterval"/>.

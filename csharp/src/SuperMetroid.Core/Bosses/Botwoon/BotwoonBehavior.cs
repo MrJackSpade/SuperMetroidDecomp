@@ -163,12 +163,13 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         }
 
         state.PathComplete = false;
-        int choice = 0;
-        if (!state.InsideHole && !state.InitialAction && state.SpeedStage == BotwoonSpeedStageDefinitions.Full)
-            choice = _room.Random.Next(BotwoonNavigationDefinitions.ActionChoice);
+        bool followsPath = state.InsideHole
+            || state.InitialAction
+            || state.SpeedStage != BotwoonSpeedStageDefinitions.Full
+            || BotwoonNavigationDefinitions.FollowsAuthoredPath.IsTakenBy(_room.Random.Generate());
         state.InitialAction = false;
 
-        if (choice < BotwoonNavigationDefinitions.AuthoredPathActions)
+        if (followsPath)
         {
             state.Phase = BotwoonPhase.FollowAuthoredPath;
             state.HeadAction = BotwoonHeadAction.AnimateFromMovement;
@@ -606,11 +607,11 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     /// <summary>Accelerates the defeated head down to the floor, then hides it and waits for body landing.</summary>
     private void RunBotwoonHeadFall(RoomEnemyPlace head, BotwoonEnemyState state)
     {
-        SignedSixteenSixteen displacement = state.DeathFallAccumulator.Speed.Positive;
+        SignedSixteenSixteen displacement = state.FallPlace.Speed.Positive;
         head.Position = head.Position.AdvanceY(displacement);
         if (head.Position.Y.Whole < BotwoonFightDefinitions.FloorY)
         {
-            state.DeathFallAccumulator += BotwoonDeathDefinitions.FallAcceleration;
+            state.FallPlace += BotwoonDeathDefinitions.FallAcceleration;
             return;
         }
 
@@ -641,7 +642,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
                 head.Definition.DropChances,
                 samus);
         }
-        state.WallExplosionFrame = 0;
+        state.WallExplosionUpdates = 0;
         state.LargeExplosionWait.LastFor(1);
         state.SmallExplosionWait.LastFor(1);
     }
@@ -649,7 +650,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     /// <summary>Runs the 192-frame wall sequence, then records the boss's defeat and queues delayed music.</summary>
     private void RunBotwoonWallExplosions(RoomEnemyPlace head, BotwoonEnemyState state)
     {
-        if (state.WallExplosionFrame >= BotwoonDeathDefinitions.WallExplosionDuration)
+        if (state.WallExplosionUpdates >= BotwoonDeathDefinitions.WallExplosionDuration)
         {
             head.Presence = head.Presence.With(EnemyPresence.Deleted);
             _room.Services.Bosses.SetDefeated(DefeatedBosses.AreaMiniBoss);
@@ -661,14 +662,14 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
             return;
         }
 
-        if (state.WallExplosionFrame >= BotwoonDeathDefinitions.WallExplosionsBegin)
+        if (state.WallExplosionUpdates >= BotwoonDeathDefinitions.WallExplosionsBegin)
         {
             if (state.LargeExplosionWait.StepRunsOut())
             {
                 state.LargeExplosionWait.LastFor(BotwoonDeathDefinitions.LargeExplosionInterval);
                 _effectActors.SpawnRoomEffectActor(
                     new(_room.Random.Next(BotwoonDeathDefinitions.LargeExplosionX) + BotwoonDeathDefinitions.LargeExplosionLeft,
-                        state.WallExplosionFrame + _room.Random.Next(BotwoonDeathDefinitions.ExplosionYJitter) - BotwoonDeathDefinitions.ExplosionRise),
+                        WallExplosionBandTop(state) + _room.Random.Next(BotwoonDeathDefinitions.ExplosionYJitter)),
                     RoomEffectActorKind.BigExplosion,
                     graphics: SpriteGraphics.SharedIn(EnemyShades.InProjectileLook));
                 RequestBotwoonSound(BotwoonSoundDefinitions.Explosion);
@@ -681,14 +682,22 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
                 {
                     _effectActors.SpawnRoomEffectActor(
                         new(_room.Random.Next(BotwoonDeathDefinitions.SmallExplosionX) + BotwoonDeathDefinitions.SmallExplosionLeft,
-                            state.WallExplosionFrame + _room.Random.Next(BotwoonDeathDefinitions.ExplosionYJitter) - BotwoonDeathDefinitions.ExplosionRise),
+                            WallExplosionBandTop(state) + _room.Random.Next(BotwoonDeathDefinitions.ExplosionYJitter)),
                         RoomEffectActorKind.SmokePuff,
                         graphics: SpriteGraphics.SharedIn(EnemyShades.InProjectileLook));
                 }
             }
         }
-        state.WallExplosionFrame++;
+        state.WallExplosionUpdates++;
     }
+
+    /// <summary>
+    /// The top of the band the wall explosions burst in, before each one's jitter (#2464): it moves down the wall
+    /// <see cref="BotwoonDeathDefinitions.ExplosionBandDescent"/> each update of the sequence from
+    /// <see cref="BotwoonDeathDefinitions.ExplosionRise"/> above the room's top.
+    /// </summary>
+    private static int WallExplosionBandTop(BotwoonEnemyState state) =>
+        state.WallExplosionUpdates * BotwoonDeathDefinitions.ExplosionBandDescent - BotwoonDeathDefinitions.ExplosionRise;
 
     /// <summary>
     /// Finishes Botwoon's contact, shot and
@@ -838,7 +847,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     /// <summary>Moves a body segment for one update through its four movement states.</summary>
     internal void MoveBotwoonBodySegment(
         EnemyProjectile projectile,
-        int randomEnemyCounter)
+        int hurtFlashCadence)
     {
         BotwoonSegmentState segment = projectile.StateOf<BotwoonSegmentState>();
         if (segment.Phase == BotwoonBodyPhase.Main && Encounter(segment).BodyDeathStarted)
@@ -847,7 +856,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         switch (segment.Phase)
         {
             case BotwoonBodyPhase.Main:
-                AnimateBotwoonBodySegment(projectile, randomEnemyCounter);
+                AnimateBotwoonBodySegment(projectile, hurtFlashCadence);
                 return;
 
             case BotwoonBodyPhase.BeginDying:
@@ -862,11 +871,11 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
                 if (segment.DeathDelay >= BotwoonSegmentState.FallAt)
                     segment.Phase = BotwoonBodyPhase.Falling;
                 projectile.FrameHold = WrappingCountdown.Start(0);
-                ShowBotwoonBodyHurtFlash(projectile, randomEnemyCounter);
+                ShowBotwoonBodyHurtFlash(projectile, hurtFlashCadence);
                 return;
 
             case BotwoonBodyPhase.Falling:
-                RunBotwoonBodyFall(segment, randomEnemyCounter);
+                RunBotwoonBodyFall(segment, hurtFlashCadence);
                 return;
 
             case BotwoonBodyPhase.Landed:
@@ -884,21 +893,21 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     /// <summary>Installs a segment animation for its angle and applies the head's hurt flash.</summary>
     internal static void AnimateBotwoonBodySegment(
         EnemyProjectile segment,
-        int randomEnemyCounter)
+        int hurtFlashCadence)
     {
         BotwoonSegmentState state = segment.StateOf<BotwoonSegmentState>();
         if (state.Animation.Install(state.Pose))
             segment.FrameHold = WrappingCountdown.Start(1);
-        ShowBotwoonBodyHurtFlash(segment, randomEnemyCounter);
+        ShowBotwoonBodyHurtFlash(segment, hurtFlashCadence);
     }
 
     /// <summary>Shows his body in his health band's colours, or in the hurt flash on the updates his flashing head shows it.</summary>
     private static void ShowBotwoonBodyHurtFlash(
         EnemyProjectile projectile,
-        int randomEnemyCounter)
+        int hurtFlashCadence)
     {
         BotwoonSegmentState segment = projectile.StateOf<BotwoonSegmentState>();
-        projectile.Graphics = projectile.Graphics.In(segment.Head.FlashTimer != 0 && EnemyDrawPhaseDefinitions.HurtFlashShown.IsSetIn(randomEnemyCounter)
+        projectile.Graphics = projectile.Graphics.In(segment.Head.FlashTimer != 0 && EnemyDrawPhaseDefinitions.HurtFlashShown.IsSetIn(hurtFlashCadence)
             ? EnemyShades.HurtFlashLook
             : Encounter(segment).BodyShading);
     }
@@ -906,7 +915,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     /// <summary>Accelerates a dying segment to Y=200 and marks the tail cap's final landing.</summary>
     private void RunBotwoonBodyFall(
         BotwoonSegmentState segment,
-        int randomEnemyCounter)
+        int hurtFlashCadence)
     {
         EnemyProjectile projectile = segment.Projectile;
         projectile.Position = projectile.Position.AdvanceY(segment.FallPlace.Speed.Positive);
@@ -915,7 +924,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
             // A place past the table's last row fails when its row is read, long before the place could grow large.
             segment.FallPlace += BotwoonDeathDefinitions.FallAcceleration;
             projectile.FrameHold = WrappingCountdown.Start(0);
-            ShowBotwoonBodyHurtFlash(projectile, randomEnemyCounter);
+            ShowBotwoonBodyHurtFlash(projectile, hurtFlashCadence);
             return;
         }
 

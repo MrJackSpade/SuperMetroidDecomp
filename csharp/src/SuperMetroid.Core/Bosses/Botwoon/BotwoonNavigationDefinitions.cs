@@ -4,13 +4,10 @@ internal static class BotwoonNavigationDefinitions
 {
 
     /// <summary>
-    /// The random selection of one of eight actions when Botwoon leaves a hole outside its health
-    /// phases; the first <see cref="AuthoredPathActions"/> follow an authored path and the rest spit from the hole.
+    /// Whether Botwoon, leaving a hole at full speed after his first action, follows an authored path rather than spitting
+    /// from the hole: three chances in eight.
     /// </summary>
-    internal static readonly RandomSampleField ActionChoice = new(1, 3);
-
-    /// <summary>How many of the <see cref="ActionChoice"/> actions, counted from the first, follow an authored path.</summary>
-    internal const int AuthoredPathActions = 3;
+    internal static readonly RandomChance FollowsAuthoredPath = RandomChance.Lowest(3, new(1, 3));
 
     /// <summary>Whether Botwoon starts its next path inside the hole: taken by an odd sample.</summary>
     internal static readonly RandomSampleField StartsInsideHole = new(0, 1);

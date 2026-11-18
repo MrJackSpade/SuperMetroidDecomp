@@ -126,7 +126,7 @@ internal sealed class EnemyTileArtworkReader
         // The compiled graphics sets must name the same pinned identities the installation was built from.
         EnemyTileArtworkFiles.ValidateDefinitionIds(EnemyTileSourceDefinitions.All.Select(source => (int)EnemyDefinitionIds.HeaderPointer(source.DefinitionId))
             .Concat(EnemyTileSourceDefinitions.Unplaced.Select(artwork => (int)EnemyHeaderWords.UnplacedArtworkHeaders.WordsByIdentity[artwork].Single())));
-        if (!manifest.KraidHeadsSha256.Keys.Order().SequenceEqual(KraidHeadTilemapFormat.HeadsByMouthStage.Select(head => head.MouthStage)))
+        if (!manifest.KraidHeadsSha256.Keys.Order().SequenceEqual(KraidHeadTilemapFormat.HeadsByMouthStage.Select(KraidHeadTilemapFormat.ImportKey)))
             throw new InvalidDataException("Enemy tile manifest omits or substitutes a Kraid head frame.");
         if (!manifest.TorizoInstructionTilesSha256.Keys.Order(StringComparer.Ordinal)
                 .SequenceEqual(TorizoSwapArtworkDefinitions.All

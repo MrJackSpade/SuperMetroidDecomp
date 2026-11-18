@@ -1,11 +1,10 @@
 namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
-/// The gradient Crocomire's tenth spit shot is fired along (#1500). A volley fires up to nine shots, each aimed by the
-/// gradient its place in the volley selects, and the gradients are authored for the first nine places; the volley
-/// counts its shots from the second place, so its last shot selects the tenth place and the game reads its
-/// gradient from the data that follows the nine. The import pipeline decodes that gradient once from the player's game
-/// data; it aims the volley's last shot steeply, unlike any authored gradient.
+/// The gradient Crocomire's last spit shot is fired along (#1500, #2464). A volley fires nine shots; the first eight are
+/// aimed by the gradients authored for them (<see cref="Bosses.Crocomire.CrocomireProjectileDefinitions.AuthoredGradients"/>),
+/// and the game reads the last shot's gradient from the data that follows them. The import pipeline decodes that gradient
+/// once from the player's game data; it aims the volley's last shot steeply, unlike any authored gradient.
 /// </summary>
 /// <remarks>
 /// Consulted as the last shot of each volley spawns, which keeps the gradient its aim turns into a velocity on the update after.
@@ -14,12 +13,12 @@ namespace SuperMetroid.Core.Compatibility;
 /// check decodes the word after the table from the cartridge and compares it with this service.
 /// </remarks>
 [CompatibilityService("Crocomire's last spit shot is aimed by the gradient read past the volley's nine")]
-public sealed class CrocomireTenthShotGradient
+public sealed class CrocomireLastShotGradient
 {
     /// <summary>Keeps the decoded gradient.</summary>
     /// <param name="gradient">The aim's vertical component, paired with 64 pixels to the left, -32768 through 32767.</param>
     /// <exception cref="ArgumentOutOfRangeException">The gradient lies outside -32768 through 32767.</exception>
-    public CrocomireTenthShotGradient(int gradient) =>
+    public CrocomireLastShotGradient(int gradient) =>
         Gradient = Ensure.BetweenInclusive(short.MinValue, short.MaxValue, gradient);
 
     /// <summary>The aim's vertical component, paired with 64 pixels to the left, -32768 through 32767.</summary>

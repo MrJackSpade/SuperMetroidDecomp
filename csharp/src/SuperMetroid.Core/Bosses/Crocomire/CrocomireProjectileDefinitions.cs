@@ -10,10 +10,13 @@ public static class CrocomireProjectileDefinitions
 
     /// <summary>
     /// The gradients the volley's shots are fired along, in firing order, every shot but the last (#2303); the last shot is
-    /// fired along the installed <see cref="CrocomireTenthShotGradient"/> (#1500).
+    /// fired along the installed <see cref="CrocomireLastShotGradient"/> (#1500).
     /// </summary>
     public static ImmutableArray<int> AuthoredGradients { get; } = [0, 32, -16, 0, 32, -16, 0, 32];
 
     /// <summary>The shots the projectile attack spits before Crocomire steps forward: the authored ones and the last.</summary>
     public const int VolleyShotCount = 9;
+
+    /// <summary>How far to the left a shot's aim reaches, in pixels, its gradient giving the aim's vertical reach.</summary>
+    public const int AimReachLeft = 64;
 }

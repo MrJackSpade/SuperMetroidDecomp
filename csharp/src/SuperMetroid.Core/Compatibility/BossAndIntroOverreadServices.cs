@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// <remarks>
 /// Evidence: in the original game Kraid's fingernail contour walk, Crocomire's spit-shot aiming and a falling egg-shell
 /// fragment's gravity curve each index their authored table with no count, so a nail above every ledge, the volley's
-/// tenth shot and a fragment that falls past the curve read the data after it; the Kraid nail contour, Crocomire tenth
+/// last shot and a fragment that falls past the curve read the data after it; the Kraid nail contour, Crocomire last
 /// shot and intro egg motion checks decode that data from the player's game and compare it with the services held here.
 /// </remarks>
 [CompatibilityService("Kraid's fingernails, Crocomire's volley and the intro egg shell read what lies past their authored data")]
@@ -18,15 +18,15 @@ public sealed class BossAndIntroOverreadServices
 {
     /// <summary>Keeps every decoded service.</summary>
     /// <param name="kraidNailPastLedges">Where Kraid's body pushes back a fingernail higher than his contour ledges.</param>
-    /// <param name="crocomireTenthShotGradient">The gradient Crocomire's last spit shot is aimed by.</param>
+    /// <param name="crocomireLastShotGradient">The gradient Crocomire's last spit shot is aimed by.</param>
     /// <param name="shellFragmentFallPastCurve">How far egg-shell fragments fall after their gravity curve ends.</param>
     public BossAndIntroOverreadServices(
         KraidNailPastLedges kraidNailPastLedges,
-        CrocomireTenthShotGradient crocomireTenthShotGradient,
+        CrocomireLastShotGradient crocomireLastShotGradient,
         ShellFragmentFallPastCurve shellFragmentFallPastCurve)
     {
         KraidNailPastLedges = Ensure.NotNull(kraidNailPastLedges);
-        CrocomireTenthShotGradient = Ensure.NotNull(crocomireTenthShotGradient);
+        CrocomireLastShotGradient = Ensure.NotNull(crocomireLastShotGradient);
         ShellFragmentFallPastCurve = Ensure.NotNull(shellFragmentFallPastCurve);
     }
 
@@ -34,7 +34,7 @@ public sealed class BossAndIntroOverreadServices
     public KraidNailPastLedges KraidNailPastLedges { get; }
 
     /// <summary>The gradient Crocomire's last spit shot is aimed by.</summary>
-    public CrocomireTenthShotGradient CrocomireTenthShotGradient { get; }
+    public CrocomireLastShotGradient CrocomireLastShotGradient { get; }
 
     /// <summary>How far egg-shell fragments fall after their gravity curve ends.</summary>
     public ShellFragmentFallPastCurve ShellFragmentFallPastCurve { get; }

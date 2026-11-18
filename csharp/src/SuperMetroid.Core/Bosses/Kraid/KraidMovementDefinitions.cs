@@ -36,20 +36,58 @@ internal static class KraidMovementDefinitions
     private const int ShortPause = 44;
 
     /// <summary>
-    /// The walks from the starting destination, by random choice; the last also serves every choice past it, so it is taken
-    /// half the time.
+    /// The walks from the starting destination, by random choice: each of the first four takes one value of
+    /// <see cref="KraidRandomDefinitions.MovementChoice"/> and the last the other four, so it is taken half the time.
     /// </summary>
-    internal static readonly KraidMovementRow Starting = new(StartingX,
-        [new(LeftX, MediumPause), new(RightmostX, LongPause), new(LeftmostX, ShortPause), new(MiddleX, ShortPause), new(RightX, ShortPause)]);
+    internal static readonly KraidMovementRow Starting = new(StartingX, new(
+        KraidRandomDefinitions.MovementChoice,
+        new(1, new(LeftX, MediumPause)),
+        new(1, new(RightmostX, LongPause)),
+        new(1, new(LeftmostX, ShortPause)),
+        new(1, new(MiddleX, ShortPause)),
+        new(4, new(RightX, ShortPause))));
 
-    /// <summary>Each destination's walks, by random choice, the last serving every choice past it, in the order he looks them up.</summary>
+    /// <summary>
+    /// Each destination's walks, by random choice, in the order he looks them up: each of the first four takes one value of
+    /// <see cref="KraidRandomDefinitions.MovementChoice"/> and the last the other four.
+    /// </summary>
     internal static readonly ImmutableArray<KraidMovementRow> Rows =
     [
-        new(LeftmostX, [new(LeftX, MediumPause), new(StartingX, LongPause), new(RightmostX, LongPause), new(MiddleX, ShortPause), new(RightX, ShortPause)]),
-        new(LeftX, [new(RightmostX, LongPause), new(RightmostX, LongPause), new(LeftmostX, ShortPause), new(RightX, ShortPause), new(RightX, ShortPause)]),
-        new(MiddleX, [new(LeftX, MediumPause), new(StartingX, LongPause), new(RightmostX, LongPause), new(LeftmostX, ShortPause), new(RightX, ShortPause)]),
+        new(LeftmostX, new(
+            KraidRandomDefinitions.MovementChoice,
+            new(1, new(LeftX, MediumPause)),
+            new(1, new(StartingX, LongPause)),
+            new(1, new(RightmostX, LongPause)),
+            new(1, new(MiddleX, ShortPause)),
+            new(4, new(RightX, ShortPause)))),
+        new(LeftX, new(
+            KraidRandomDefinitions.MovementChoice,
+            new(1, new(RightmostX, LongPause)),
+            new(1, new(RightmostX, LongPause)),
+            new(1, new(LeftmostX, ShortPause)),
+            new(1, new(RightX, ShortPause)),
+            new(4, new(RightX, ShortPause)))),
+        new(MiddleX, new(
+            KraidRandomDefinitions.MovementChoice,
+            new(1, new(LeftX, MediumPause)),
+            new(1, new(StartingX, LongPause)),
+            new(1, new(RightmostX, LongPause)),
+            new(1, new(LeftmostX, ShortPause)),
+            new(4, new(RightX, ShortPause)))),
         Starting,
-        new(RightX, [new(LeftX, MediumPause), new(RightmostX, LongPause), new(RightX, LongPause), new(LeftmostX, ShortPause), new(MiddleX, ShortPause)]),
-        new(RightmostX, [new(LeftX, MediumPause), new(StartingX, LongPause), new(LeftmostX, ShortPause), new(MiddleX, ShortPause), new(RightX, ShortPause)]),
+        new(RightX, new(
+            KraidRandomDefinitions.MovementChoice,
+            new(1, new(LeftX, MediumPause)),
+            new(1, new(RightmostX, LongPause)),
+            new(1, new(RightX, LongPause)),
+            new(1, new(LeftmostX, ShortPause)),
+            new(4, new(MiddleX, ShortPause)))),
+        new(RightmostX, new(
+            KraidRandomDefinitions.MovementChoice,
+            new(1, new(LeftX, MediumPause)),
+            new(1, new(StartingX, LongPause)),
+            new(1, new(LeftmostX, ShortPause)),
+            new(1, new(MiddleX, ShortPause)),
+            new(4, new(RightX, ShortPause)))),
     ];
 }

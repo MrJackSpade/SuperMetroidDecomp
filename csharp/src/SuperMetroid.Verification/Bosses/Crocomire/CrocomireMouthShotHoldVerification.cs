@@ -65,7 +65,7 @@ internal static class CrocomireMouthShotHoldVerification
             Position = FixedPosition<RoomPixels>.FromWhole(body.Position.Whole),
         };
 
-        int expected = WrappingCountdown.Start(StartingHold).AddFrames(CrocomireCombat.MouthShotReactionHoldFrames).RemainingFrames;
+        int expected = WrappingCountdown.Start(StartingHold).AddFrames(CrocomireFightDefinitions.MouthShotReactionHoldFrames).RemainingFrames;
         foreach ((string place, int cameraX, bool reacts) in new[] { ("off screen", 0, true), ("on screen", 400, false) })
         {
             state.DamageReactionPending = false;

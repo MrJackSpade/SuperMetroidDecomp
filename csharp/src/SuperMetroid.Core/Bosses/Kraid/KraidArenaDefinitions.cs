@@ -39,6 +39,9 @@ internal static class KraidArenaDefinitions
     /// <summary>The height Kraid's rising body rises above before his first phase starts.</summary>
     internal const int RisenY = 457;
 
+    /// <summary>How far Kraid's body rises each update while it raises itself: half a pixel upward.</summary>
+    internal static readonly SignedSixteenSixteen RisingBodyLift = SignedSixteenSixteen.FromSixteenthsOfPixel(-8);
+
     /// <summary>The height the rocks thrown up during the rise start from.</summary>
     internal const int RisingRockY = 432;
 
@@ -160,6 +163,9 @@ internal static class KraidArenaDefinitions
 
     /// <summary>The updates the foreground shakes as Kraid starts to sink.</summary>
     internal const int SinkShakeUpdates = 256;
+
+    /// <summary>The updates the room stays dark between hiding Kraid's body and fading the room back in (#1888).</summary>
+    internal const int DeathDarkUpdates = 5;
 
     /// <summary>The height Kraid's sinking body reaches when he has sunk below the floor.</summary>
     internal const int SunkY = 608;

@@ -94,13 +94,6 @@ public sealed class DraygonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBo
     /// </summary>
     public SignedEightEight SwoopAcceleration { get; internal set; }
 
-    /// <summary>
-    /// How many updates the intro dance has run: zero when the encounter starts and one more after each of the dance's
-    /// 1,232 updates. Each Evir takes the traced path's step this far past its own start delay, and waits while it has
-    /// not reached the delay.
-    /// </summary>
-    public int IntroDanceStep { get; internal set; }
-
     /// <summary>The Evirs the intro spawned for its dance, in the order they spawned, each with its own start delay.</summary>
     internal List<DraygonIntroDancer> IntroDancers { get; } = [];
 
@@ -188,7 +181,9 @@ public sealed class DraygonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBo
 
     /// <summary>
     /// The updates the current intro stage has run: zero when the opening delay starts and when the dance starts, and
-    /// one more after each of that stage's updates. The opening delay ends at 256 and the dance at its duration.
+    /// one more after each of that stage's updates. The opening delay ends at 256 and the dance at its duration. In the
+    /// dance, each Evir takes the traced path's step this far past its own start delay, and waits while it has not reached
+    /// the delay.
     /// </summary>
     public int IntroFrames
     {

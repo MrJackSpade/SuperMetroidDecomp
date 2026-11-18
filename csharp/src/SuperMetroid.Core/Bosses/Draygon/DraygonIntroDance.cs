@@ -14,9 +14,8 @@ internal static class DraygonIntroDance
             : throw new ArgumentOutOfRangeException(nameof(dancer), dancer, "The Draygon dance spawns four Evirs.");
 
     /// <summary>
-    /// Step <paramref name="step"/> of the traced path. The dance's updates and the Evirs' delays reach every step; an
-    /// Evir stops at the first delete step it takes, but the steps after the deletes stay part of the path. A step
-    /// outside the path is corrupt state.
+    /// Step <paramref name="step"/> of the traced path. Every Evir takes every step, the last ending it by deleting it,
+    /// before the dance ends. A step outside the path is corrupt state.
     /// </summary>
     /// <exception cref="InvalidDataException">The step is outside the traced path.</exception>
     public static DraygonIntroMovement Movement(int step) =>

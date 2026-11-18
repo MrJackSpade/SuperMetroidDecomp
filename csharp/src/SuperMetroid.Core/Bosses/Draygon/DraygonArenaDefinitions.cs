@@ -37,6 +37,9 @@ internal static class DraygonArenaDefinitions
     /// <summary>The goops one goop pass fires.</summary>
     internal const int GoopsPerPass = 16;
 
+    /// <summary>The updates a blob of goop stays stuck to Samus before it falls off.</summary>
+    internal const int GoopAttachedLifetime = 256;
+
     /// <summary>The updates of Draygon's intro, while its Evirs dance before he enters.</summary>
     internal const int IntroUpdates = 256;
 
@@ -105,6 +108,13 @@ internal static class DraygonArenaDefinitions
 
     /// <summary>Arena Y coordinate at which the death drift hands off to burial.</summary>
     internal const int DeathTargetY = 480;
+
+    /// <summary>
+    /// The pixels along each axis of one cell of the coarse grid the burial drift aims across. Draygon aims from his cell to
+    /// the burial point's, so each coordinate's place within its cell is discarded and near the burial point the drift takes
+    /// slightly different directions than an aim across whole pixels would.
+    /// </summary>
+    internal const int BurialAimCellPixels = 4;
 
     /// <summary>Y threshold below the room where Draygon's burial is complete.</summary>
     internal const int BurialFinishedY = 576;

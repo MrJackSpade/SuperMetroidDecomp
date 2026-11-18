@@ -44,8 +44,11 @@ internal static class BotwoonDeathDefinitions
     /// <summary>The small wall explosions each burst of them sets off (#2182).</summary>
     internal const int SmallExplosionsPerBurst = 2;
 
-    /// <summary>How far above the wall sequence's frame, before its jitter, a wall explosion bursts.</summary>
+    /// <summary>How far above the room's top the band the wall explosions burst in starts, in pixels.</summary>
     internal const int ExplosionRise = 8;
+
+    /// <summary>How far down the wall the band the wall explosions burst in moves each update of the sequence, in pixels.</summary>
+    internal const int ExplosionBandDescent = 1;
 
     /// <summary>The updates from one large wall explosion to the next once they run: one bursts every thirteenth update.</summary>
     internal const int LargeExplosionInterval = 13;
@@ -66,7 +69,7 @@ internal static class BotwoonDeathDefinitions
     internal static readonly RandomSampleField SmallExplosionX = new(0, 6);
 
     /// <summary>
-    /// A wall explosion's height jitter, 0 through 31 pixels added to the wall sequence's frame less eight, drawn for large and small explosions alike.
+    /// A wall explosion's height jitter, 0 through 31 pixels below the top of the band it bursts in, drawn for large and small explosions alike.
     /// </summary>
     internal static readonly RandomSampleField ExplosionYJitter = new(0, 5);
 }

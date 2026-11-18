@@ -480,7 +480,7 @@ internal sealed class SuperMetroidRuntime
         }
         BeginAcceptedGameplayFrame(playerInput, frameRequest, room);
         RunLiquidWaveAndStatueDescent(room, samus);
-        AdvanceMainLoopRandom();
+        DrawUpdateRandomNumber();
         RunEffectsBeforePhase(room, samus);
         var context = new GameplayFrameContext(samus.Position);
         PrepareEnemyProcessingList(room);
@@ -511,10 +511,10 @@ internal sealed class SuperMetroidRuntime
         ScreenLayers.Choose(room);
     }
 
-    /// <summary>Advances the liquid wave and statue descent and the power bomb's shape step before the main loop draws its random number.</summary>
+    /// <summary>Advances the liquid wave and statue descent and the power bomb's shape step before the update draws its random number.</summary>
     private void RunLiquidWaveAndStatueDescent(RoomScope room, SamusState samus)
     {
-        // The liquid wave and the statues read the random number before the main loop draws the next one. A
+        // The liquid wave and the statues read the random number before the update draws the next one. A
         // message box's wait does not run them.
         if (!MessageBox.IsActive)
         {
@@ -528,7 +528,7 @@ internal sealed class SuperMetroidRuntime
     }
 
     /// <summary>Draws the update's random number.</summary>
-    private void AdvanceMainLoopRandom()
+    private void DrawUpdateRandomNumber()
     {
         // Every update draws a random number right after the liquid wave and statue descent
         // (LiquidWaveAndStatueDescentOrder) and before the game state's own work, whatever else runs. Several room
@@ -615,7 +615,7 @@ internal sealed class SuperMetroidRuntime
     /// <summary>Starts the frame's sprite list for its draw pass.</summary>
     private void BeginSpriteFrame()
     {
-        // The main loop starts the sprite list before running the game state and closes it
+        // The update starts the sprite list before running the game state and closes it
         // afterward. Samus is drawn before the escape timer so she keeps her normal overlap
         // precedence.
         Sprites.BeginFrame();
@@ -821,7 +821,7 @@ internal sealed class SuperMetroidRuntime
             camera.ApplyFloor(room.Enemies.RoomMainHooks.CameraFloor);
             camera.FinishSamusScrolling(currentCameraPoint);
 
-            // The layer scrolls follow the camera in the same main-loop pass, so the
+            // The layer scrolls follow the camera in the same update, so the
             // following frame shows the room from level data at the new position.
             BackgroundPhase.UpdateBackgroundScrollingFromCamera(camera, Freeze.TimeIsFrozen);
 

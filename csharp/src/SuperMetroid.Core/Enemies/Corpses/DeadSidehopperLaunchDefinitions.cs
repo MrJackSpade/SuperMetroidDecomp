@@ -1,11 +1,11 @@
 namespace SuperMetroid.Core.Enemies.Corpses;
 
-/// <summary>Four-phase signed 1/256-pixel launch cycle for the Tourian sidehopper corpse.</summary>
+/// <summary>The Tourian dead Sidehopper's hops: the cycle of launches it takes after each landing, and its gravity.</summary>
 public static class DeadSidehopperLaunchDefinitions
 {
     /// <summary>
-    /// Post-landing launch velocities indexed by the modulo-four jump phase: X and Y speeds from
-    /// the authored X and Y tables.
+    /// The launches after each landing, one for each jump of the cycle in turn: 1.75, 1.125 and 1.125 pixels an update
+    /// rightward and 2 upward, then 3 rightward and 4 upward.
     /// </summary>
     private static readonly EightEightVector<RoomPixels>[] Launches =
     [
@@ -25,9 +25,10 @@ public static class DeadSidehopperLaunchDefinitions
     /// <summary>How much a falling hop speeds up each update: half a pixel an update.</summary>
     public static SignedEightEight FallingGravity { get; } = SignedEightEight.FromParts(0, 128);
 
-    /// <summary>The number of launches in the cycle; the jump phase advances modulo this count.</summary>
+    /// <summary>The number of jumps in the cycle, after which it starts again.</summary>
     public static int PhaseCount => Launches.Length;
 
-    /// <summary>The launch velocity for one modulo-four jump phase.</summary>
+    /// <summary>The launch for jump <paramref name="phase"/> of the cycle.</summary>
+    /// <param name="phase">The jump's place in the cycle, from zero.</param>
     public static EightEightVector<RoomPixels> Velocity(int phase) => Launches[phase];
 }

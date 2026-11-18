@@ -5,7 +5,10 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Areas.Ceres;
 
-/// <summary>The Ceres steam species owner: its per-room state, behaviour and the interactions it registers.</summary>
+/// <summary>
+/// Ceres's steam vents: each puffs its plume after its own random wait, and the plume touches Samus by the rectangle its
+/// frame shows.
+/// </summary>
 /// <remarks>
 /// The steam cannot be destroyed (#2019): its definition takes no damage from any weapon or contact
 /// (<see cref="EnemyVulnerabilityDefinitions.Invulnerable"/>) and withholds its plume from shots, so its health never
@@ -94,7 +97,6 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
         place.CollidesByFrameHitboxes = true;
         place.AnimationClock.Restart();
-        // The setup selects the enemy projectiles' colours, which the import colours the steam's sheets in (#1512).
 
         // Each vent waits a random 1 to 32 updates before its first plume, counted down by its animation's wait, so the
         // vents puff out of step.

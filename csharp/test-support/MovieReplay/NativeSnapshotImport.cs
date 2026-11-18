@@ -137,12 +137,10 @@ internal static class NativeSnapshotImport
                         ?? throw new InvalidDataException("The native snapshot greys a sprite statue in a room with no statues."))
                         .SpriteStatueGreyOut(ColourEffectAnimations.Definition(effect).Colours)
                     : litTorizo;
-            var imported = new RoomColourEffect(effect, resumed.FramesOf, litTorizo, glowingEnemy)
-            {
-                Place = NativeEnemyAnimationOracle.WithNativePlaysLeft(new AnimationPlayback<ColourEffectSegment>(resumed.Animation, resumed.Place),
-                    W(NativeSnapshotMemory.PaletteFxTimer + slot * 2)).Place,
-                UpdatesUntilNextStep = W(NativeSnapshotMemory.PaletteFxFrameHold + slot * 2),
-            };
+            var imported = new RoomColourEffect(effect, resumed.FramesOf, litTorizo, glowingEnemy);
+            PrivateState.Set(imported, nameof(RoomColourEffect.Place), NativeEnemyAnimationOracle.WithNativePlaysLeft(
+                new AnimationPlayback<ColourEffectSegment>(resumed.Animation, resumed.Place), W(NativeSnapshotMemory.PaletteFxTimer + slot * 2)).Place);
+            PrivateState.Set(imported, nameof(RoomColourEffect.UpdatesUntilNextStep), W(NativeSnapshotMemory.PaletteFxFrameHold + slot * 2));
             // The effect's colours and condition are its definition's (#1982). The native colour index names the colours the
             // object animates once its set-up has run, of the colour groups its programs name the one starting there; zero
             // before.
@@ -162,8 +160,8 @@ internal static class NativeSnapshotImport
             }
             importedEffects.Add(imported);
         }
-        runtime.ColourEffectSession.PublishedHeatPhase = new SuperMetroid.Core.Fx.ColourEffects.HeatPhase(W(NativeSnapshotMemory.HeatPalettePhase));
-        runtime.ColourEffectSession.ShimmerHeatPhase = new SuperMetroid.Core.Fx.ColourEffects.HeatPhase(W(NativeSnapshotMemory.PreviousHeatPalettePhase));
+        runtime.ColourEffectSession.PublishedHeatPhase = SuperMetroid.Core.Fx.ColourEffects.HeatPhase.InOrder[W(NativeSnapshotMemory.HeatPalettePhase)];
+        runtime.ColourEffectSession.ShimmerHeatPhase = SuperMetroid.Core.Fx.ColourEffects.HeatPhase.InOrder[W(NativeSnapshotMemory.PreviousHeatPalettePhase)];
         ushort[] hudWords = [.. Enumerable.Range(0, HudStateConstants.MutableTileCount).Select(index => W(NativeSnapshotMemory.HudTilemap + index * 2))];
         HudItem highlightedHudItem = SaveSlotNumbering.SavedHudItem(W(NativeSnapshotMemory.PreviousHudSelection));
         // Each recorded scroll byte becomes the kept cell the camera reads it as.
@@ -451,7 +449,7 @@ internal static class NativeSnapshotImport
             ColourEffectColours colours = effect.Colours;
             if (LastShownFrame(effect.FramesOf, effect.Animation, effect.Place) is not { } frame)
                 continue;
-            effect.Frame = frame;
+            PrivateState.Set(effect, nameof(RoomColourEffect.Frame), frame);
             if (ColourEffectRoomColourDefinitions.RoomColours.Contains(colours))
                 continue;
             if (ColourEffectSamusColourDefinitions.SuitColours.Contains(colours))

@@ -28,7 +28,7 @@ internal sealed record AcceptedFrameBoundaryDependencies
     /// <summary>The shown layers the accepted frame latches.</summary>
     public required GameplayScreenLayers ScreenLayers { get; init; }
 
-    /// <summary>Sprite frame the main loop finalized.</summary>
+    /// <summary>Sprite frame the update finalized.</summary>
     public required SpriteFrameBuffer Sprites { get; init; }
 
     /// <summary>Samus, whose look the shown frame captures.</summary>

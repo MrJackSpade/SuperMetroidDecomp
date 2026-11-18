@@ -375,6 +375,32 @@ the tool before:
   sentence to be reworded. The cref would otherwise become code text naming nothing, which SME6454 rejects in Core
   (`<c>LastMark</c>` in `QuadraticSpeedCurvePlace`). A labelled cref becomes its label and holds nothing back.
 
+The record-equality fixtures hold the shape of the 2026-11-18 failure at a0a6e3b3a5 (#2434), where the prune removed
+`Row` from the three `GameOptionsRow` cases as unread: the cases are keys of a dictionary typed by their abstract base,
+nothing names `Row`, and with it gone every row of a page compared equal and reading the options layout threw on a
+duplicate key, while the pruned tree compiled. A record's synthesized equality, hashing and text read every value it
+declares and have no source to walk, so the audit counts those values as read wherever a value is compared, hashed or
+formatted (`ValueEqualityReads` in `csharp/src/SuperMetroid.ReachabilityAudit/Analysis`), through every type that can
+stand behind the compared one. Each fixture keeps every file as written, and each failed on the tool before:
+
+- `derived-record-key`: a closed hierarchy's base record keys a dictionary, and its nested cases differ only in the row
+  each names (the a0a6e3b3a5 shape; the prune emptied the cases' parameter lists and the copy still built).
+- `deep-record-key`: the value telling two keys apart is held five records deep (a case, its row's hierarchy, a case
+  there, its button's hierarchy, a numbered button); the audit followed records four deep.
+- `derived-record-elsewhere`: the derived record is declared in another project than the base record keying the
+  dictionary; the audit looked only in the base record's own assembly.
+- `interface-record-key`: the key is an interface the records implement.
+- `held-record-key`: records held in the framework's value holders, whose equality compares what they hold: a tuple
+  key, tuple equality (`==` on tuples, which has no symbol of its own), a nullable record struct in a set and a
+  key-value pair `Distinct` compares.
+- `object-record-equality`: `object.Equals(a, b)` on two records, and `Equals` called on a record held by an
+  interface, both of which dispatch to the record's synthesized equality.
+- `record-concatenation`: a record concatenated with text, which formats it.
+
+A value typed `object` names no type, so what is compared through it is not followed. A `with` expression copies a
+record without comparing it, and a pattern names each value it tests (a property pattern by name, a positional one
+through the synthesized `Deconstruct`), so neither needs a rule of its own.
+
 Every modifier the prune writes is one its declaration takes (`RelocationModifiers` in
 `csharp/src/SuperMetroid.ReachabilityAudit/Removal`): a moved declaration, and a staying one moved code uses, become
 internal; an extension block, an explicit interface implementation and an operator keep their declarations as written. A

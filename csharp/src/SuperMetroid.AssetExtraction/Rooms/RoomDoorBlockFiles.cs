@@ -43,6 +43,13 @@ internal static class RoomDoorBlockFiles
     };
 
     /// <summary>
+    /// Every retail room's use of each level its states use, the complete domain of installed door blocks: the document
+    /// names each, and the catalog requires each (<see cref="InstalledRoomLevelStreams"/>).
+    /// </summary>
+    internal static IEnumerable<RoomLevelUse> RetailUses => RetailRooms.All.SelectMany(room =>
+        RoomStateLists.GetStates(room).Select(state => state.Level).Distinct().Select(level => new RoomLevelUse(room, level)));
+
+    /// <summary>
     /// Writes where every retail room's door blocks lead in each level its states use, from each level's door blocks and the
     /// position in the room's door list each leads through.
     /// </summary>
@@ -54,12 +61,12 @@ internal static class RoomDoorBlockFiles
     {
         Ensure.NotNull(doorLinks);
         var rooms = new SortedDictionary<string, SortedDictionary<string, SortedDictionary<string, DoorBlockDocument[]>>>(StringComparer.Ordinal);
-        foreach (RoomDefinition room in RetailRooms.All)
+        foreach (IGrouping<RoomDefinition, RoomLevelUse> room in RetailUses.GroupBy(use => use.Room))
         {
             var levels = new SortedDictionary<string, SortedDictionary<string, DoorBlockDocument[]>>(StringComparer.Ordinal);
-            foreach (RoomLevelId level in RoomStateLists.GetStates(room).Select(state => state.Level).Distinct())
-                levels.Add(level.Name, Exits(room, level, doorLinks[level]));
-            rooms.Add(room.Name, levels);
+            foreach (RoomLevelUse use in room)
+                levels.Add(use.Level.Name, Exits(room.Key, use.Level, doorLinks[use.Level]));
+            rooms.Add(room.Key.Name, levels);
         }
         using var output = new FileStream(Path.Combine(directory, FileName), FileMode.CreateNew, FileAccess.Write);
         JsonSerializer.Serialize(output, new RoomDoorBlocksDocument(FormatVersion, rooms), JsonOptions);
@@ -83,12 +90,15 @@ internal static class RoomDoorBlockFiles
         return exits;
     }
 
-    /// <summary>Reads the document: each retail room's door blocks in each level its states use.</summary>
+    /// <summary>
+    /// Reads the document: each retail room's door blocks in each level it names. The catalog it is loaded into requires
+    /// exactly <see cref="RetailUses"/>.
+    /// </summary>
     /// <param name="directory">The family directory holding the document.</param>
     /// <returns>Each room's door blocks, keyed by the room and the level.</returns>
     /// <exception cref="InvalidDataException">
-    /// The document is missing, of another version, or names an unknown room, level or door, leaves out a retail room's level,
-    /// or names a block twice; the message names the file.
+    /// The document is missing, of another version, or names an unknown room or door, or names a block twice; the message
+    /// names the file.
     /// </exception>
     /// <exception cref="IOException">The document cannot be read.</exception>
     internal static IReadOnlyDictionary<RoomLevelUse, IReadOnlyList<RoomDoorBlock>> Load(string directory)
@@ -114,12 +124,9 @@ internal static class RoomDoorBlockFiles
             RoomDefinition room = roomsByName.TryGetValue(roomName, out RoomDefinition? named)
                 ? named
                 : throw new InvalidDataException($"Room door blocks {path} name unknown room '{roomName}'.");
-            HashSet<RoomLevelId> roomLevels = [.. RoomStateLists.GetStates(room).Select(state => state.Level)];
             foreach ((string levelName, SortedDictionary<string, DoorBlockDocument[]> exits) in levels)
             {
                 var level = new RoomLevelId(levelName);
-                if (!roomLevels.Contains(level))
-                    throw new InvalidDataException($"Room door blocks {path} name level '{levelName}', which no state of {roomName} uses.");
                 var blocks = new List<RoomDoorBlock>();
                 foreach ((string exitName, DoorBlockDocument[] positions) in exits)
                 {
@@ -132,12 +139,6 @@ internal static class RoomDoorBlockFiles
                     throw new InvalidDataException($"Room door blocks {path} name a block of {roomName} in level '{levelName}' twice.");
                 doorBlocks.Add(new RoomLevelUse(room, level), blocks);
             }
-        }
-        foreach (RoomDefinition room in RetailRooms.All)
-        {
-            foreach (RoomLevelId level in RoomStateLists.GetStates(room).Select(state => state.Level).Distinct())
-                if (!doorBlocks.ContainsKey(new RoomLevelUse(room, level)))
-                    throw new InvalidDataException($"Room door blocks {path} leave out {room.Name}'s level {level}.");
         }
         return doorBlocks;
     }

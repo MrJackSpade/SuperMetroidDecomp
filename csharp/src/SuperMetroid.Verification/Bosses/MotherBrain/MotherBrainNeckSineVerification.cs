@@ -88,6 +88,6 @@ internal static class MotherBrainNeckSineVerification
     {
         int address = EnemyMathReferenceData.SignedSine + angle * 2;
         short sine = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
-        return unchecked((short)(EightEight.Multiply(sine, (sbyte)distance)));
+        return unchecked((short)(EightEightOracle.Multiply(sine, (sbyte)distance)));
     }
 }

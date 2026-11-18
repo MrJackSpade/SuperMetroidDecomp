@@ -21,8 +21,11 @@ namespace SuperMetroid.Core.Fx;
 [RoomLifetime]
 public sealed class RoomFxOverlayState : IGameplayShadingSource
 {
-    /// <summary>Tracks frame selection for the liquid, rain, fog, and spore block animations.</summary>
-    private readonly BlockAnimationPlayer blockAnimations = new();
+    /// <summary>
+    /// The loop of the effect's own block animation (lava, acid, rain or spores), selecting the frame its pictures show, or
+    /// null for an effect that shows none (<see cref="BlockAnimationLoops.OnEffectOverlay"/>).
+    /// </summary>
+    private SuperMetroid.Core.Animation.AnimationPlayer<BlockAnimation, ArtworkFrame, SuperMetroid.Core.Animation.NoAnimationCue>? effectOverlayAnimation;
 
     /// <summary>
     /// The room's Fireflea darkness, which its Fireflea effect starts as the room loads and which lasts as long as the
@@ -97,8 +100,8 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     private WaveCycle lavaAcidHaze;
     /// <summary>
     /// Whether the liquid's motion has begun (<see cref="LiquidMotionStart"/>): a room's liquid begins moving on its
-    /// second motion pass after the room loads, and each pass from then moves the lava, acid or water before the main
-    /// loop's random number, until the next room load.
+    /// second motion pass after the room loads, and each pass from then moves the lava, acid or water before the update
+    /// draws its random number, until the next room load.
     /// </summary>
     internal LiquidMotionStart MotionStart { get; private set; }
     /// <summary>
@@ -155,7 +158,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// </summary>
     public int? TargetSurface { get; private set; }
 
-    /// <summary>The liquid's signed 1/256-pixel level speed in room pixels per update while it moves toward its target: negative rises.</summary>
+    /// <summary>The liquid's level speed in room pixels per update while it moves toward its target: negative rises.</summary>
     public SignedEightEight LiquidLevelSpeed { get; private set; }
 
     /// <summary>
@@ -245,7 +248,9 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         Type = definition.Type;
         Blend = definition.EffectBlend;
         VisorAnimation = definition.VisorAnimation;
-        blockAnimations.Play(BlockAnimationLoops.OnEffectOverlay(Type));
+        if (effectOverlayAnimation is not null)
+            throw new InvalidOperationException($"The room's effect already plays {effectOverlayAnimation.Playback.PlayingSegment}: each room builds its own.");
+        effectOverlayAnimation = BlockAnimationLoops.OnEffectOverlay(Type) is { } overlayAnimation ? BlockAnimationLoops.Start(overlayAnimation) : null;
         Tint = definition.Tint;
 
         if (Type == RoomFxType.Fireflea)
@@ -280,7 +285,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// True for the liquids whose surface motion step moves the surface: lava and
     /// acid and water. That motion belongs to the liquid's motion pass.
     /// </summary>
-    public bool MovesLiquidBeforeMainLoop =>
+    public bool HasMovingLiquid =>
         Type is RoomFxType.Lava or RoomFxType.Acid || RoomFxTypes.UsesWater(Type);
 
     /// <summary>
@@ -319,7 +324,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
 
     /// <summary>
     /// Runs liquid motion and shared-state writes for lava, acid and water before
-    /// main-loop random-number generation. The liquid's first motion pass after the room loads only begins its
+    /// the update draws its random number. The liquid's first motion pass after the room loads only begins its
     /// motion (<see cref="LiquidMotionStart"/>); lava/acid's motion then swaps the shared random state on
     /// subsequent unfrozen passes, even off screen. Rising/tidal motion also runs during
     /// door fades and pause entry. Visual updates remain in <see cref="Step"/>, which places the surface this pass left.
@@ -327,7 +332,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     public void AdvanceLiquidMotion(SharedGameState system, bool timeIsFrozen)
     {
         Ensure.NotNull(system);
-        if (!MovesLiquidBeforeMainLoop || LiquidMotionStopped)
+        if (!HasMovingLiquid || LiquidMotionStopped)
             return;
         bool lavaOrAcid = Type is RoomFxType.Lava or RoomFxType.Acid;
         SustainedEarthquake = null;
@@ -384,9 +389,10 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         // The shared block animations run independently of the liquid motion's
         // per-frame step. In particular, lava and acid select the animation frame their pictures
         // show here, before the surface step that follows.
-        blockAnimations.Step(frames);
+        if (effectOverlayAnimation is not null)
+            BlockAnimationLoops.Pass(effectOverlayAnimation, frames);
 
-        if (LiquidMotionStopped && MovesLiquidBeforeMainLoop)
+        if (LiquidMotionStopped && HasMovingLiquid)
             return;
 
         if (Type is RoomFxType.Lava or RoomFxType.Acid)
@@ -528,7 +534,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     }
 
     /// <summary>
-    /// Reapplying a room effect restores motion, blending and three colors, but does not restart
+    /// Reapplying a room effect restores its motion, blending, visor animation and tint, but does not restart
     /// the room effect's screen waves, block animations, or the liquid's current motion phase as a room load would.
     /// </summary>
     internal void ApplyEntry(RoomEffectDefinition definition)
@@ -623,8 +629,8 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// <summary>
     /// Runs the parallel three-phase motions for lava/acid
     /// and for water. A nonzero velocity first arms the wait phase,
-    /// the liquid's move delay then expires, and only then does the signed 1/256-pixel velocity move the
-    /// 1/65536-pixel base position toward the target. Door-specific Norfair entries rely on this
+    /// the liquid's move delay then expires, and only then does the liquid's speed move its
+    /// surface toward the target. Door-specific Norfair entries rely on this
     /// sequence to raise lava into the visible viewport.
     /// </summary>
     private void StepLiquidRise(int randomNumber, PowerOnEarthquakeSoundDelay earthquakeSoundDelay)
@@ -667,8 +673,8 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     }
 
     /// <summary>
-    /// Runs the earthquake sound clock and the shared
-    /// writes used while lava or acid waits and moves. Sound cadence and screen shake are
+    /// Plays the earthquake sound and shakes the screen
+    /// while lava or acid waits and moves. Sound cadence and screen shake are
     /// separate results of the room's liquid effect; the display derives neither from the other.
     /// </summary>
     private void PublishRisingLiquidFeedback(int randomNumber, PowerOnEarthquakeSoundDelay earthquakeSoundDelay)
@@ -744,8 +750,8 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     }
 
     /// <summary>
-    /// Moves the tide. The scaled sine is a 1/256-pixel displacement, which becomes the 1/65536-pixel offset. The asymmetric phase
-    /// deltas deliberately spend different durations in each half-wave.
+    /// Moves the tide: the surface's offset is the tide's scaled wave in 256ths of a pixel, and the phase advances by a
+    /// different step in each half-wave, so the tide spends longer in one half than in the other.
     /// </summary>
     private void StepLiquidTide()
     {
@@ -858,7 +864,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     {
         /// <summary>Waits until signed velocity points from the current base toward the target.</summary>
         Dormant,
-        /// <summary>Counts down the room FX timer while publishing rising-liquid sound and shake.</summary>
+        /// <summary>Counts down the liquid's move delay, while rising lava or acid rumbles and shakes the screen.</summary>
         Waiting,
         /// <summary>Advances the liquid base each update until it reaches the target and clears velocity.</summary>
         Moving,

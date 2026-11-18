@@ -131,7 +131,7 @@ internal static class TilemapJsonContractsEnvironmentVerification
             TilemapContractMutate(overlayJson, root => root["duration"] = 7),
             overlayJson.Replace("\"emergency\":", "\"emergency\":[],\"emergency\":", StringComparison.Ordinal),
             TilemapContractMutate(overlayJson, root => root.Required("pages").AsObject().Remove("emergency")),
-            TilemapContractMutate(overlayJson, root => root.Required("pages")["japanese_0"] = new JsonArray()) })
+            TilemapContractMutate(overlayJson, root => root.Required("pages")["japanese_self_destruct"] = new JsonArray()) })
             Reject("Ceres warning", corrupt, text => CeresEscapeOverlays.Load(TilemapContractStream(text)));
 
         AssertEqual(0, accepted.Count, "tilemap loaders must reject ambiguous/unknown content:\n" + string.Join('\n', accepted));

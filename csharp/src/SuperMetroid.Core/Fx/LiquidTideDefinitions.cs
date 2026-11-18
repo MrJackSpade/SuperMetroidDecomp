@@ -16,14 +16,14 @@ public static class LiquidTideDefinitions
     public const int LargeTideScale = 32;
 
     /// <summary>How far a small tide turns each update while its surface is at or below its base line: 1 1/8 steps.</summary>
-    public static readonly RotationAngle SmallTidePositivePhaseDelta = RotationAngle.FromSteps(1, 32);
+    public static readonly RotationAngle SmallTidePositivePhaseDelta = RotationAngle.FromEighthsOfStep(9);
 
     /// <summary>How far a small tide turns each update while its surface is above its base line: 3/4 of a step.</summary>
-    public static readonly RotationAngle SmallTideNegativePhaseDelta = RotationAngle.FromSteps(0, 192);
+    public static readonly RotationAngle SmallTideNegativePhaseDelta = RotationAngle.FromEighthsOfStep(6);
 
     /// <summary>How far a large tide turns each update while its surface is at or below its base line: 7/8 of a step.</summary>
-    public static readonly RotationAngle LargeTidePositivePhaseDelta = RotationAngle.FromSteps(0, 224);
+    public static readonly RotationAngle LargeTidePositivePhaseDelta = RotationAngle.FromEighthsOfStep(7);
 
     /// <summary>How far a large tide turns each update while its surface is above its base line: half a step.</summary>
-    public static readonly RotationAngle LargeTideNegativePhaseDelta = RotationAngle.FromSteps(0, 128);
+    public static readonly RotationAngle LargeTideNegativePhaseDelta = RotationAngle.FromEighthsOfStep(4);
 }

@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Earthquakes;
 
@@ -6,8 +7,13 @@ namespace SuperMetroid.Core.Fx;
 /// <summary>How the room's earthquake shakes, how rising lava and acid rumble, and the rooms whose quakes are silent (#1415).</summary>
 public static class RoomEarthquakeDefinitions
 {
-    /// <summary>Frames the shake shows on one side of the origin before it switches to the other.</summary>
-    public const int StepsPerShakeSide = 2;
+    /// <summary>
+    /// The sides a shaking room shows in turn, one each frame (#2421): two frames on the far side, then two on its shake's
+    /// own, over and over. A shake for a length runs through them as its frames run down, and a continuous shake goes on
+    /// from where they stood.
+    /// </summary>
+    public static ImmutableArray<EarthquakeSide> ShakeSides { get; } =
+        [EarthquakeSide.Far, EarthquakeSide.Far, EarthquakeSide.Near, EarthquakeSide.Near];
 
     /// <summary>Updates for which an enemy retains one applied shake displacement.</summary>
     public const int EnemyShakeDuration = 2;

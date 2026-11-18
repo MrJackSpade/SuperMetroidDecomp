@@ -6,18 +6,18 @@ using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 
-/// <summary>Editable tiles for Ceres's five fixed warning overlays.</summary>
+/// <summary>Editable tiles for Ceres's three fixed warning overlays: the title and the Japanese subtitle's two lines.</summary>
 public sealed class CeresEscapeOverlays
 {
 
     /// <summary>Every page's installed tiles in tilemap order, keyed by the page's installed name.</summary>
     private readonly Dictionary<string, BackgroundTile[]> pages;
-    /// <summary>Retains the five complete installed warning pages.</summary>
+    /// <summary>Retains the three complete installed warning pages.</summary>
     private CeresEscapeOverlays(Dictionary<string, BackgroundTile[]> pages) => this.pages = pages;
 
     /// <summary>One page's installed tiles, in tilemap order.</summary>
     internal BackgroundTile[] PageTiles(CeresEscapeWarningPicture page) => pages[page.Name];
-    /// <summary>Validates the five-page JSON document and keeps every page's tiles.</summary>
+    /// <summary>Validates the three-page JSON document and keeps every page's tiles.</summary>
     internal static CeresEscapeOverlays Load(Stream json)
     {
         Ensure.NotNull(json);
@@ -33,7 +33,7 @@ public sealed class CeresEscapeOverlays
         return JsonSerializer.SerializeToUtf8Bytes(document, Options);
     }
 
-    /// <summary>Provides a page's tiles only when <paramref name="page"/> is one of the five overlays.</summary>
+    /// <summary>Provides a page's tiles only when <paramref name="page"/> is one of the three overlays.</summary>
     /// <param name="page">The overlay.</param>
     /// <param name="tiles">Its tiles, or empty when it is not one of the overlays.</param>
     internal bool TryResolve(CeresEscapeWarningPicture page, out ReadOnlyMemory<BackgroundTile> tiles)
@@ -47,7 +47,7 @@ public sealed class CeresEscapeOverlays
         return false;
     }
 
-    /// <summary>Requires the exact five page names and dimensions and copies every page's tiles.</summary>
+    /// <summary>Requires the exact three page names and dimensions and copies every page's tiles.</summary>
     private static Dictionary<string, BackgroundTile[]> Compile(
         CeresEscapeOverlayTilemapDocument document)
     {
@@ -56,7 +56,7 @@ public sealed class CeresEscapeOverlays
             document.Pages is null ||
             document.Pages.Count != CeresEscapeOverlayPages.All.Length)
             throw new InvalidDataException(
-                $"Ceres escape overlay requires version {CeresWarningGlyphDefinitions.Version} and five named tilemaps.");
+                $"Ceres escape overlay requires version {CeresWarningGlyphDefinitions.Version} and three named tilemaps.");
         var compiled = new Dictionary<string, BackgroundTile[]>(StringComparer.Ordinal);
         foreach (CeresEscapeWarningPicture definition in
                  CeresEscapeOverlayPages.All)

@@ -18,11 +18,10 @@ public static class ExploredMapStorage
     /// <param name="progress">The progress being saved; it is not changed.</param>
     /// <param name="maps">Installed stock map rules; the runs they occupy decide what is kept.</param>
     /// <returns>A detached copy of the progress as the save keeps it.</returns>
-    /// <exception cref="InvalidOperationException">No map rules are bound.</exception>
-    public static PersistentProgress Retained(PersistentProgress progress, IAreaMapSource? maps)
+    public static PersistentProgress Retained(PersistentProgress progress, IAreaMapSource maps)
     {
         Ensure.NotNull(progress);
-        IAreaMapSource stock = maps ?? throw new InvalidOperationException("Saving explored maps requires bound immutable stock map rules.");
+        IAreaMapSource stock = Ensure.NotNull(maps);
         PersistentProgress kept = progress.Copy();
         foreach (AreaId area in AreaIds.All)
         {

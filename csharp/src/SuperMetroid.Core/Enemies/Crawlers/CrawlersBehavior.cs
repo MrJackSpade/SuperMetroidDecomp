@@ -209,7 +209,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             }
 
-            bool samusBelow = CoordinateAxis.Difference(samus.Position.Y.Whole, place.Position.Y.Whole) >= 0;
+            bool samusBelow = samus.Position.Y.Whole >= place.Position.Y.Whole;
             bool movingDown = !state.Velocity.Y.IsNegative;
             if (samusBelow != movingDown)
                 state.Velocity = state.Velocity.ReversedY();
@@ -246,7 +246,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             }
 
             EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, place);
-            bool samusRight = CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole) >= 0;
+            bool samusRight = samus.Position.X.Whole >= place.Position.X.Whole;
             bool movingRight = !state.Velocity.X.IsNegative;
             if (samusRight != movingRight)
                 state.Velocity = state.Velocity.ReversedX();
@@ -401,7 +401,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         CrawlerSurfaceOrientation orientation = state.Velocity.Y.IsNegative
             ? CrawlerSurfaceOrientation.UpsideDown
             : CrawlerSurfaceOrientation.UpsideUp;
-        SetCrawlerAnimationFromTable(place, state, orientation);
+        PutCrawlerOnSurface(place, state, orientation);
     }
 
     /// <summary>Turns a crawler off a floor or ceiling onto the wall its horizontal tangent leads to.</summary>
@@ -412,14 +412,14 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         CrawlerSurfaceOrientation orientation = state.Velocity.X.IsNegative
             ? CrawlerSurfaceOrientation.UpsideRight
             : CrawlerSurfaceOrientation.UpsideLeft;
-        SetCrawlerAnimationFromTable(place, state, orientation);
+        PutCrawlerOnSurface(place, state, orientation);
     }
 
     /// <summary>
     /// Puts the crawler on <paramref name="orientation"/>: it starts its family's animation for that surface with a fresh
     /// frame timer and crawls along it.
     /// </summary>
-    private static void SetCrawlerAnimationFromTable(
+    private static void PutCrawlerOnSurface(
         RoomEnemyPlace place,
         CrawlerEnemyState state,
         CrawlerSurfaceOrientation orientation)

@@ -64,7 +64,7 @@ internal sealed class IntroEggSlimeDrop
     public void Draw(ScreenSprites screenSprites, IIntroCinematicSpritePresentation installedArt) =>
         sprite.Draw(screenSprites, installedArt: installedArt);
 
-    /// <summary>Adds 1/65536-pixel motion to one screen coordinate while preserving its fractional part.</summary>
+    /// <summary>Moves one screen coordinate by a velocity, carrying its fraction of a pixel.</summary>
     private void AddVelocity(Axis axis, SignedSixteenSixteen velocity)
     {
         sprite.Position = axis == Axis.Horizontal

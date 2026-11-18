@@ -85,6 +85,11 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Converts the signed displacement to Samus into Bull's bearing, a quarter turn behind the game's zero-up angle.</summary>
+    /// <remarks>
+    /// The displacement is a <see cref="CoordinateAxis.Difference"/>, the short way to Samus. A Bull flies through terrain and carries its speed past Samus
+    /// while it brakes, so one charging at Samus near the room's top or left edge passes above or left of the room's origin
+    /// and must still turn back toward her the short way.
+    /// </remarks>
     private static RotationAngle CalculateBullAngleToSamus(RoomEnemyPlace place, SamusState samus) =>
         (EnemyMath.CalculateBearing(
             new(CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, place.Position.Y.Whole)))
@@ -127,16 +132,16 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         state.AccelerationDelta = BullMovementDefinitions.AccelerationStep;
     }
 
-    /// <summary>Integrates both 1/65536-pixel position components from the committed angle and 1/256-pixel speed.</summary>
+    /// <summary>Moves the Bull along both axes by its speed in the direction of its committed angle.</summary>
     internal static void MoveBull(RoomEnemyPlace place, BullEnemyState state)
     {
         place.Position = place.Position.WithX(AddBullComponent(
             place.Position.X,
-            ReadBullSignedSine(state.Angle.TurnedBy(TrigonometryAngle.QuarterTurn)),
+            state.Angle.TurnedBy(TrigonometryAngle.QuarterTurn),
             state.Speed));
         place.Position = place.Position.WithY(AddBullComponent(
             place.Position.Y,
-            ReadBullSignedSine(state.Angle),
+            state.Angle,
             state.Speed));
     }
 
@@ -145,20 +150,19 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         Trigonometry.FineSignedSine(angle);
 
     /// <summary>
-    /// Moves one axis of the Bull by its speed along the sine: the sine's magnitude in whole 256ths (its finer part
-    /// dropped) times the speed in 256ths of a pixel, never below zero (<see cref="BullEnemyState.Speed"/>), a step up or
-    /// left reversed as <see cref="BullBackwardStep"/> reverses it.
+    /// Moves one axis of the Bull by its speed along the sine of <paramref name="angle"/>: the fine sine's coarse size
+    /// (<see cref="Trigonometry.CoarseSizeOfFineSine"/>) taken as 256ths times the speed in 256ths of a pixel, never below
+    /// zero (<see cref="BullEnemyState.Speed"/>), a step up or left reversed as <see cref="BullBackwardStep"/> reverses it.
     /// </summary>
     private static FixedCoordinate AddBullComponent(
         FixedCoordinate position,
-        int sine,
+        TrigonometryAngle angle,
         SignedEightEight speed)
     {
-        // The sine's magnitude is below 128 256ths and the speed at most 2880 256ths, so the step fits a 1/65536-pixel displacement.
-        int sineTwoFiftySixths = UnsignedEightEight.Whole(Math.Abs(sine));
+        // The sine's coarse size is below 128 and the speed at most 2880 256ths, so the step is under six pixels.
         SignedSixteenSixteen forward = UnsignedSixteenSixteen.ProductOfTwoFiftySixths(
-            sineTwoFiftySixths, speed.InTwoHundredFiftySixthsOfPixel).AsDisplacement();
-        SignedSixteenSixteen displacement = sine < 0 ? BullBackwardStep.Of(forward) : forward;
+            Trigonometry.CoarseSizeOfFineSine(angle), speed.InTwoHundredFiftySixthsOfPixel).AsDisplacement();
+        SignedSixteenSixteen displacement = ReadBullSignedSine(angle) < 0 ? BullBackwardStep.Of(forward) : forward;
 
         // A fraction that passes a whole pixel moves the Bull one more whole pixel.
         return position.MovedBy(displacement);

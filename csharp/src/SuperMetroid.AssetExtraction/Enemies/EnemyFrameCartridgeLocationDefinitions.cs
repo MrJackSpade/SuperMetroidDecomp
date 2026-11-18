@@ -260,7 +260,6 @@ internal static class EnemyFrameCartridgeLocationDefinitions
         [EnemyFrameId.CeresDoorFacingRightHalfOpen] = new(0xa6, 0xfa67),
         [EnemyFrameId.CeresDoorFacingRightThreeQuartersOpen] = new(0xa6, 0xfa87),
         [EnemyFrameId.CeresDoorFacingRightOpen] = new(0xa6, 0xfaa7),
-        [EnemyFrameId.CeresDoorOrWallSmallSquare] = new(0xa6, 0xfac7),
         [EnemyFrameId.CeresGetawayChamberLeftWall] = new(0xa6, 0xface),
         [EnemyFrameId.CeresGetawayChamberRightWall] = new(0xa6, 0xfb2f),
         [EnemyFrameId.CeresRidleyRoomDoorClosed] = new(0xa6, 0xa329),

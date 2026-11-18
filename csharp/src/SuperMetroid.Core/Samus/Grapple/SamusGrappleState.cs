@@ -73,7 +73,7 @@ public sealed class SamusGrappleState
     public Offset16<RoomPixels> OriginOffset { get; set; }
     /// <summary>The drawn flare's offset from Samus.</summary>
     public Offset16<RoomPixels> FlareOffset { get; set; }
-    /// <summary>The endpoint's signed 1/65536-pixel offset from the rope origin.</summary>
+    /// <summary>The endpoint's offset from the rope origin, its fraction of a pixel included.</summary>
     public FixedVector<RoomPixels> EndpointOffset { get; set; }
     /// <summary>The grapple angle.</summary>
     public RotationAngle Angle { get; set; }

@@ -16,6 +16,9 @@ internal static class CeresEscapeNativeSources
     /// <summary>Where overlay <paramref name="page"/>'s words start on the bus.</summary>
     internal static int OverlaySource(CeresEscapeWarningPicture page) => (int)CeresEscapeOverlayTilemapFiles.Source(page);
 
+    /// <summary>Where row <paramref name="row"/> of overlay <paramref name="page"/>'s words starts on the bus, its rows stored top first.</summary>
+    internal static int RowSource(CeresEscapeWarningPicture page, int row) => OverlaySource(page) + row * page.Width * sizeof(ushort);
+
     /// <summary>Resolves a native transfer from the bus against the installed Ceres escape character pages.</summary>
     extension(CeresEscapeTileArtwork self)
     {
@@ -33,16 +36,23 @@ internal static class CeresEscapeNativeSources
     /// <summary>Resolves a native transfer from the bus against the installed Ceres escape overlays.</summary>
     extension(CeresEscapeOverlays self)
     {
-        /// <summary>The installed words a native transfer of <paramref name="byteCount"/> bytes from <paramref name="sourceAddress"/> copies, when it is exactly one overlay page.</summary>
+        /// <summary>
+        /// The installed words a native transfer of <paramref name="byteCount"/> bytes from <paramref name="sourceAddress"/>
+        /// copies, when it is exactly one row of one overlay page: the cartridge copies each row on its own (#2425).
+        /// </summary>
         internal bool TryResolveNative(int sourceAddress, int byteCount, out ReadOnlyMemory<byte> data)
         {
             foreach (CeresEscapeWarningPicture page in CeresEscapeOverlayPages.All)
-                if (OverlaySource(page) == sourceAddress && page.WordCount * sizeof(ushort) == byteCount)
+            {
+                for (int row = 0; row < page.RowCount; row++)
                 {
+                    if (RowSource(page, row) != sourceAddress || page.Width * sizeof(ushort) != byteCount)
+                        continue;
                     bool resolved = self.TryResolve(page, out ReadOnlyMemory<SuperMetroid.AssetExtraction.Artwork.BackgroundTile> tiles);
-                    data = SuperMetroid.Core.Assets.BackgroundTileWordBytes.Of(tiles.Span);
+                    data = resolved ? SuperMetroid.Core.Assets.BackgroundTileWordBytes.Of(tiles.Span.Slice(row * page.Width, page.Width)) : default;
                     return resolved;
                 }
+            }
             data = default;
             return false;
         }

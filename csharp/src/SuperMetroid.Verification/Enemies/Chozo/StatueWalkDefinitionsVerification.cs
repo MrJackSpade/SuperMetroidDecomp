@@ -63,8 +63,8 @@ internal static class StatueWalkDefinitionsVerification
             place.Position = new(new(256, 0x8123), new(256, 0x8123));
             uint start = 0x01008123;
             carry(place, samus, level, step);
-            uint x = unchecked(start + (uint)(SixteenSixteen.FromEightEight(velocity)));
-            uint y = start + (uint)(SixteenSixteen.FromEightEight(Math.Abs((int)velocity)));
+            uint x = unchecked(start + (uint)(EightEightOracle.ToSixteenSixteen(velocity)));
+            uint y = start + (uint)(EightEightOracle.ToSixteenSixteen(Math.Abs((int)velocity)));
             AssertEqual((ushort)SixteenSixteenWords.WholeOf(x), place.Position.X.Whole, "Chozo real signed X movement");
             AssertEqual((ushort)x, place.Position.X.Fraction, "Chozo real fractional X");
             AssertEqual((ushort)SixteenSixteenWords.WholeOf(y), place.Position.Y.Whole, "Chozo real absolute Y movement");

@@ -18,7 +18,7 @@ internal static class FileSelectSoundVerification
     internal static void VerifyFileSelectSound()
     {
         var audio = AudioQueues.Standalone();
-        var menu = new FileSelectMenuState(new SuperMetroid.Core.Saves.SaveSlotStore(), audio, RetailPresentationFixture(), MenuSheetFixtures.For(RetailPresentationFixture()));
+        var menu = new FileSelectMenuState(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), audio, RetailPresentationFixture(), MenuSheetFixtures.For(RetailPresentationFixture()));
         var renderer = AudioSessionAccess.CreateSynthesizing(InstalledFixtures.Audio);
         int writes = 0, nonzero = 0;
         bool accepted = false;

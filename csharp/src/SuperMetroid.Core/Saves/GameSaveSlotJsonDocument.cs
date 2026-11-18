@@ -25,7 +25,7 @@ public sealed record GameSaveSlotJsonDocument
     /// <summary>The four-component gameplay clock.</summary>
     public required SaveGameTimeJsonDocument GameTime { get; init; }
 
-    /// <summary>The seven configurable gameplay actions as controller button masks.</summary>
+    /// <summary>The button bound to each of the seven configurable actions.</summary>
     public required SaveControllerJsonDocument Controller { get; init; }
 
     /// <summary>
@@ -49,6 +49,6 @@ public sealed record GameSaveSlotJsonDocument
     /// <summary>Whether the alternate Japanese text setting is active.</summary>
     public required bool JapaneseText { get; init; }
 
-    /// <summary>The startup route the save resumes by; a save without one resumes the main game.</summary>
-    public SaveLoadingGameState StartupRoute { get; init; } = SaveLoadingGameState.MainGame;
+    /// <summary>The startup route the save resumes by.</summary>
+    public required SaveLoadingGameState StartupRoute { get; init; }
 }

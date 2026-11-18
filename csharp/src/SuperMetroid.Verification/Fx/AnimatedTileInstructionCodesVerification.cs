@@ -72,33 +72,32 @@ internal static class AnimatedTileInstructionCodesVerification
         WreckedShipTreadmillDirection direction,
         int[] expectedSources)
     {
-        BlockAnimationLoop definition =
-            BlockAnimationLoops.Of(BlockAnimationLoops.Treadmill(direction));
+        BlockAnimation definition = BlockAnimationLoops.Treadmill(direction);
         var guarded = NewWreckedShipTreadmillMechanicsForbiddenBus(bus, definition, out StrongBox<int> guardedPresentationReads);
         var state = new RoomBlockAnimations(null, null);
         var frames = new ArtworkFrameSelections();
         state.StartDoorTreadmill(direction);
         state.Step(areaBossDefeated: false, frames);
-        AssertTrue(!frames.TryShown(BlockAnimationFrames.Of(definition.Animation), out _), $"{direction} retail boss wait");
+        AssertTrue(!frames.TryShown(BlockAnimationFrames.Of(definition), out _), $"{direction} retail boss wait");
 
         // Each pass selects into fresh selections, so a selection read back is the one this pass made.
         for (int frame = 0; frame < expectedSources.Length; frame++)
         {
             frames = new ArtworkFrameSelections();
             state.Step(areaBossDefeated: true, frames);
-            AssertTrue(frames.TryShown(BlockAnimationFrames.Of(definition.Animation), out ArtworkFrame shown) &&
-                    shown == BlockAnimationLoops.Of(definition.Animation).Frames[frame].Frame,
+            AssertTrue(frames.TryShown(BlockAnimationFrames.Of(definition), out ArtworkFrame shown) &&
+                    shown == BlockAnimationLoops.Frames(definition)[frame].Frame,
                 $"{direction} retail frame {frame} is the frame the treadmill shows");
-            AssertEqual(expectedSources[frame], AnimatedTileImageSources.OfShown(frames, definition.Animation),
+            AssertEqual(expectedSources[frame], AnimatedTileImageSources.OfShown(frames, definition),
                 $"{direction} retail source frame {frame}");
         }
 
         frames = new ArtworkFrameSelections();
         state.Step(areaBossDefeated: true, frames);
-        AssertTrue(frames.TryShown(BlockAnimationFrames.Of(definition.Animation), out ArtworkFrame wrapped) &&
-                wrapped == BlockAnimationLoops.Of(definition.Animation).Frames[0].Frame,
+        AssertTrue(frames.TryShown(BlockAnimationFrames.Of(definition), out ArtworkFrame wrapped) &&
+                wrapped == BlockAnimationLoops.Frames(definition)[0].Frame,
             $"{direction} compiled goto returns to frame zero");
-        AssertEqual(expectedSources[0], AnimatedTileImageSources.OfShown(frames, definition.Animation),
+        AssertEqual(expectedSources[0], AnimatedTileImageSources.OfShown(frames, definition),
             $"{direction} compiled goto returns to frame zero's source");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             $"{direction} performs no treadmill mechanics ROM reads");
@@ -138,7 +137,7 @@ internal static class AnimatedTileInstructionCodesVerification
     /// <summary>Rejects compiled treadmill control reads and counts obsolete frame-source operand reads.</summary>
     private static CartridgeReadGuard NewWreckedShipTreadmillMechanicsForbiddenBus(
         ISnesAddressSpace inner,
-        BlockAnimationLoop definition,
+        BlockAnimation definition,
         out StrongBox<int> presentationReads)
     {
         var reads = new StrongBox<int>();

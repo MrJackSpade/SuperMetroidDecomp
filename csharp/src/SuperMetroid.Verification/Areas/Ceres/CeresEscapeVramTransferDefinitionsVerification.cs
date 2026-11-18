@@ -99,9 +99,9 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
         AssertTrue(system.Presentation.Looks.Shows(CeresEscapeReadyingDefinitions.WarningLook),
             "readying the backgrounds shows nothing new over the sprites");
 
-        // The Japanese subtitle rows are written over BG1 at exactly the four compiled records' destinations.
-        foreach (CeresEscapeWarningPicture page in CeresEscapeWarningPictures.Japanese)
-            escape.ShowWarningPicture(page);
+        // The Japanese subtitle's lines are written over BG1 at exactly the four compiled records' destinations, two rows each.
+        foreach (CeresEscapeWarningPicture line in CeresEscapeWarningPictures.JapaneseSubtitle)
+            escape.ShowWarningPicture(line);
         var written = new bool[TwoScreenTilemapCells.Count];
         for (int index = 0; index < 4; index++)
         {

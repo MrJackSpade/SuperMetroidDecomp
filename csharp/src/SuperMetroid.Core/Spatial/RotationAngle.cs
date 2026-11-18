@@ -22,7 +22,7 @@ public readonly record struct RotationAngle : IComparable<RotationAngle>
     public ushort RawValue { get; }
 
     /// <summary>The whole steps of the angle, 0 through 255.</summary>
-    private int Steps => EightEight.WholeOf(RawValue);
+    private int Steps => RawValue / FractionsPerStep;
 
     /// <summary>The angle as the trigonometry angle the sine and cosine lookups read: its whole steps.</summary>
     public TrigonometryAngle ToTrigonometryAngle() => new(Steps);
@@ -58,6 +58,14 @@ public readonly record struct RotationAngle : IComparable<RotationAngle>
 
     /// <summary>The angle halfway through whole step <paramref name="step"/>: the step with half a step's fraction.</summary>
     public static RotationAngle MiddleOfStep(TrigonometryAngle step) => FromSteps(step.RawValue, FractionsPerStep / 2);
+
+    /// <summary>
+    /// The angle <paramref name="eighths"/> eighths of a step round from zero, 0 through 2047 (#2422): the precision a tide's
+    /// turn each update is authored in.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="eighths"/> lies outside one turn.</exception>
+    public static RotationAngle FromEighthsOfStep(int eighths) =>
+        FromSteps(Ensure.BetweenInclusive(0, 8 * StepsPerTurn - 1, eighths) / 8, eighths % 8 * (FractionsPerStep / 8));
 
     /// <summary>The angle <paramref name="halfSteps"/> half steps round from zero, 0 through 511: a whole or a half step.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="halfSteps"/> lies outside one turn.</exception>

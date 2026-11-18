@@ -362,8 +362,8 @@ internal static class WrittenPictureSheetComposer
     };
 
     /// <summary>
-    /// The pages of the warning Ceres Ridley's getaway writes over BG1: its EMERGENCY title and the Japanese subtitle's rows,
-    /// each a row of words.
+    /// The pages of the warning Ceres Ridley's getaway writes over BG1: its EMERGENCY title, a row of words, and the Japanese
+    /// subtitle's two lines, each two rows of words (#2425).
     /// </summary>
     /// <exception cref="InvalidDataException">The installed area artwork has no Ceres warning pages, or a page runs past its row.</exception>
     private static IEnumerable<WrittenSubject> CeresWarningPages(RoomBlockSheetInputs inputs)
@@ -372,11 +372,11 @@ internal static class WrittenPictureSheetComposer
             ?? throw new InvalidDataException("The installed area artwork has no Ceres warning tilemaps.");
         foreach (CeresEscapeWarningPicture page in CeresEscapeOverlayPages.All)
         {
-            if (page.Corner.X / ScreenGeometry.BackgroundCellSizePixels % SheetTiles + page.WordCount > SheetTiles)
+            if (page.Corner.X / ScreenGeometry.BackgroundCellSizePixels % SheetTiles + page.Width > SheetTiles)
                 throw new InvalidDataException($"The Ceres warning page {page.Name} runs past the end of its row.");
             if (!overlays.TryResolve(page, out ReadOnlyMemory<BackgroundTile> tiles))
                 throw new InvalidDataException($"The installed Ceres warning tilemaps hold no {page.Name} page.");
-            yield return new WrittenSubject(page.Picture, Rows(BackgroundTileWords.ToWords(tiles.Span)));
+            yield return new WrittenSubject(page.Picture, Rows(BackgroundTileWords.ToWords(tiles.Span), page.Width));
         }
     }
 

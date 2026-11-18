@@ -22,9 +22,8 @@ internal static class TourianStatueSoulExitVerification
     /// <summary>The original's 256-pixel screen row of a stored height.</summary>
     private static int ScreenRow(int y) => y / 256;
 
-    /// <summary>Whether <paramref name="effect"/> has started deleting itself.</summary>
-    private static bool IsDeleting(EnemyProjectile effect) =>
-        effect.Animation is TourianStatueProjectileAnimation { PlayingSegment: TourianStatueProjectileSegment.Delete };
+    /// <summary>Whether <paramref name="effect"/> has left the room: its motion ends it (#2424).</summary>
+    private static bool IsDeleting(EnemyProjectile effect) => !effect.IsActive;
 
     /// <summary>Follows every soul and particle from the statues' eyes to its deletion.</summary>
     internal static void VerifyTourianStatueSoulExit()

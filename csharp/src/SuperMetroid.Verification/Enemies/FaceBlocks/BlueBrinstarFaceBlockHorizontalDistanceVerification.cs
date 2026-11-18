@@ -14,16 +14,13 @@ internal static class BlueBrinstarFaceBlockHorizontalDistanceVerification
     /// <summary>Room X of the face block in the ordinary cases.</summary>
     private const int BlockX = 256;
 
-    /// <summary>Room X of the face block in the wrapping case, near the left edge of the coordinate word.</summary>
-    private const int WrappingBlockX = 8;
-
     /// <summary>Room Y shared by the face block and Samus, so the vertical range test always passes.</summary>
     private const int RowY = 256;
 
     /// <summary>
-    /// Main AI finds Samus's side from her X minus the block's X as a signed distance: to the left, to the right, and to
-    /// the left when Samus's room X wraps below zero behind a block at the left edge of the coordinate word. A block
-    /// wakes only for Samus on the side it faces, so each side is seen by whether the block wakes.
+    /// Main AI finds Samus's side from her X minus the block's X: to the left and to the right. Samus never lies left of
+    /// the room's origin (#2430), so the distance is a plain one. A block wakes only for Samus on the side it faces, so
+    /// each side is seen by whether the block wakes.
     /// </summary>
     internal static void VerifyBlueBrinstarFaceBlockHorizontalDistance()
     {
@@ -31,9 +28,7 @@ internal static class BlueBrinstarFaceBlockHorizontalDistanceVerification
         AssertEqual(!facesRight, leftWoke, "face block finds Samus 32 pixels left on its left");
         (bool rightWoke, _) = Wakes(BlockX, BlockX + 32);
         AssertEqual(facesRight, rightWoke, "face block finds Samus 32 pixels right on its right");
-        (bool wrappedWoke, _) = Wakes(WrappingBlockX, ushort.MaxValue + 1 + WrappingBlockX - 16);
-        AssertEqual(!facesRight, wrappedWoke, "face block finds Samus 16 pixels left across the wrap on its left");
-        Console.WriteLine("  Face block horizontal distance: left, right and wrapped room-coordinate sides pass.");
+        Console.WriteLine("  Face block horizontal distance: left and right sides pass.");
     }
 
     /// <summary>
@@ -48,14 +43,14 @@ internal static class BlueBrinstarFaceBlockHorizontalDistanceVerification
         place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
         place.SetSpawnParameter1(EnemyDefinitionId.FaceBlock, 64);
         place.SetSpawnParameter2(EnemyDefinitionId.FaceBlock, 0);
-        place.Position = place.Position.WithWhole(new(checked((ushort)blockX), RowY));
+        place.Position = place.Position.WithWhole(new(blockX, RowY));
         enemies.BlueBrinstarFaceBlockBehavior.InitializeBlueBrinstarFaceBlock(place, RoomEnemyFrameFixtures.StandaloneSamus());
         BlueBrinstarFaceBlockEnemyState state = enemies.BlueBrinstarFaceBlockStates[0]
             ?? throw new InvalidOperationException("The face block has no state.");
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
             CollectedItems = SamusEquipmentFlags.MorphBall,
-            Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)samusX), RowY)),
+            Position = FixedPosition<RoomPixels>.FromWhole(new(samusX, RowY)),
         };
         enemies.BlueBrinstarFaceBlockBehavior.RunBlueBrinstarFaceBlockMain(place, state, samus);
         return (state.Activated, state.Facing == HorizontalDirection.Right);

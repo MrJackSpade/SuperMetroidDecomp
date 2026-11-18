@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Spatial;
 
 /// <summary>
-/// Marks a spatial value type, or a narrow storage/hardware/serialization adapter, that may declare
+/// Marks a spatial value type, or a narrow storage or serialization adapter, that may declare
 /// paired X/Y, width/height or horizontal/vertical scalar components (#628).
 /// </summary>
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Method | AttributeTargets.Constructor,

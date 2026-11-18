@@ -35,7 +35,8 @@ internal static class ReachabilityAnalysis
         foreach (var (_, compilation) in solution.Projects)
             foreach (var tree in compilation.SyntaxTrees)
                 treeOwners.TryAdd(tree, compilation);
-        var references = new ReferenceCollector(identity, graph, roots, json, reflection, treeOwners);
+        var valueReads = new ValueEqualityReads(solution.Projects.Select(p => p.Compilation));
+        var references = new ReferenceCollector(identity, graph, roots, json, reflection, treeOwners, valueReads);
         var analyzed = solution.Projects.Where(p => !VerificationProjects.Contains(p.Project.Name)).ToList();
         // The walks below are serial, since what they record depends on their order; binding the code they query on
         // every processor first leaves them only the bound answers to read.

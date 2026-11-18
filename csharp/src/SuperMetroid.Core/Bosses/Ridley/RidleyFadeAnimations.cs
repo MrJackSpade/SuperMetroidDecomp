@@ -28,6 +28,8 @@ internal static class RidleyFadeAnimations
                 [.. Shown(RidleyFadeDefinitions.ArenaReveal.Images, NorfairRidleyRevealDefinitions.RevealStepUpdates)],
             [RidleyFadeSegment.AlarmCycling] =
                 [.. Shown(RidleyFadeDefinitions.SelfDestructAlarm.Images, CeresRidleyShadeDefinitions.AlarmStepsPerColouring)],
+            [RidleyFadeSegment.AlarmFirstCycle] =
+                [.. Shown(RidleyFadeDefinitions.SelfDestructAlarm.Images.Skip(1), CeresRidleyShadeDefinitions.AlarmStepsPerColouring)],
         });
 
     /// <summary>His eyes' fade in: its shades, then its hold, after which it rests and his body's fade begins.</summary>
@@ -44,7 +46,7 @@ internal static class RidleyFadeAnimations
     /// counts on from its first before it shows any, and every later step the next, its first after its last.
     /// </summary>
     internal static Animation<RidleyFadeSegment> Alarm { get; } = Animation<RidleyFadeSegment>.LeadingInto(
-        [new AnimationPhase<RidleyFadeSegment>(RidleyFadeSegment.AlarmCycling, FirstBeat: 1, BeatCount: RidleyFadeDefinitions.SelfDestructAlarm.Images.Count - 1, Plays: 1)],
+        [Segments.Whole(RidleyFadeSegment.AlarmFirstCycle)],
         [Segments.Whole(RidleyFadeSegment.AlarmCycling)]);
 
     /// <summary>His eyes' fade in as it starts: its first update shows its darkest shade.</summary>

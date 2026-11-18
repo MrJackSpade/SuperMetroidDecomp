@@ -6,7 +6,7 @@ using SuperMetroid.Core.Rooms.Doors;
 
 namespace SuperMetroid.Core.Enemies.EyeDoor;
 
-/// <summary>The eye door species owner: its per-room state, behaviour and the interactions it registers.</summary>
+/// <summary>The eye doors' projectiles: the shots the eye fires, the sweat it drips and the smoke it leaves.</summary>
 [RoomLifetime]
 internal sealed class EyeDoorBehavior
 {
@@ -270,7 +270,7 @@ internal sealed class EyeDoorBehavior
     {
         EyeDoorShotState shot = projectile.StateOf<EyeDoorShotState>();
         shot.Heading = EnemyMath.CalculateBearing(
-            new(CoordinateAxis.Difference(samus.Position.X.Whole, projectile.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, projectile.Position.Y.Whole))).ToMirroredTrigonometryAngle();
+            new(samus.Position.X.Whole - projectile.Position.X.Whole, samus.Position.Y.Whole - projectile.Position.Y.Whole)).ToMirroredTrigonometryAngle();
         projectile.Velocity = projectile.Velocity.WithX(EnemyMath.SineVelocity(shot.Heading, 1));
         projectile.Velocity = projectile.Velocity.WithY(EnemyMath.SineVelocity(shot.Heading - TrigonometryAngle.QuarterTurn, 1));
     }

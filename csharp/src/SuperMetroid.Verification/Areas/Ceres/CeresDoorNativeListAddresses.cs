@@ -41,6 +41,17 @@ internal static class CeresDoorNativeListAddresses
         CeresDoorSegment.OpenFacingLeft,
     };
 
+    /// <summary>
+    /// The frame records the lists show while the door or wall is unseen (#2424), each straight after the instruction that
+    /// hides it or in a list only a hidden door plays: the opening frames of Ridley's room's door, its wait, both ordinary
+    /// doors' starts and open waits, and the elevator room's wall once Ridley has escaped. The typed segments name no
+    /// picture there.
+    /// </summary>
+    internal static readonly IReadOnlySet<ushort> UnseenFrames = new HashSet<ushort>
+    {
+        0xf53e, 0xf55e, 0xf570, 0xf578, 0xf5c2, 0xf5ca, 0xf622,
+    };
+
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
     internal static readonly Dictionary<ushort, CeresDoorNativeListAddressesInstruction> Instructions = new()
     {

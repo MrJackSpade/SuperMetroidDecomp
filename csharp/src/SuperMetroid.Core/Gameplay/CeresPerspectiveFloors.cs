@@ -5,7 +5,7 @@ using SuperMetroid.Core.Samus.Drawing;
 
 namespace SuperMetroid.Core.Gameplay;
 
-/// <summary>The perspective floors Ceres shows, made from the turns its rooms compute during the main loop (#1407).</summary>
+/// <summary>The perspective floors Ceres shows, made from the turns its rooms compute during the update (#1407).</summary>
 internal static class CeresPerspectiveFloors
 {
     /// <summary>

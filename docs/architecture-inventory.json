@@ -10367,6 +10367,19 @@
       "disposition": "record"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Enemies.Artwork.CeresElevatorArrivalCommonSpawner",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Artwork/CeresElevatorArrivalCommonSpawner.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Enemies.Artwork.ChozoAndTubeColorCatalog",
       "kind": "class",
       "scope": "product",
@@ -22986,7 +22999,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Fx.RoomFxBlockAnimationLoops.extension(SuperMetroid.Core.Fx.BlockAnimationLoop)",
+      "type": "SuperMetroid.AssetExtraction.Fx.RoomFxBlockAnimationLoops.extension(SuperMetroid.Core.Fx.BlockAnimation)",
       "kind": "class",
       "scope": "product",
       "assemblies": [
@@ -35716,6 +35729,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Areas.Ceres.Artwork.CeresElevatorArrivalPictures",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Areas/Ceres/Artwork/CeresElevatorArrivalPictures.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Areas.Ceres.Artwork.CeresElevatorShades",
       "kind": "static class",
       "scope": "product",
@@ -36385,7 +36411,7 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Areas.Ceres.CeresElevatorArrivalState.CeresElevatorProjectile",
+      "type": "SuperMetroid.Core.Areas.Ceres.CeresElevatorArrivalState.CeresElevatorArrivalActor",
       "kind": "class",
       "scope": "product",
       "assemblies": [
@@ -36479,7 +36505,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Areas.Ceres.CeresElevatorProjectileAccess.extension(SuperMetroid.Core.Areas.Ceres.CeresElevatorArrivalState.CeresElevatorProjectile)",
+      "type": "SuperMetroid.Core.Areas.Ceres.CeresElevatorProjectileAccess.extension(SuperMetroid.Core.Areas.Ceres.CeresElevatorArrivalState.CeresElevatorArrivalActor)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -36693,6 +36719,19 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Areas.Ceres.CeresFallingDebrisLook",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Areas/Ceres/CeresFallingDebrisLook.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Areas.Ceres.CeresFallingDebrisRoomMainState",
@@ -37807,7 +37846,7 @@
     },
     {
       "type": "SuperMetroid.Core.Areas.Tourian.TourianStatueBlockAnimations",
-      "kind": "static class",
+      "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
@@ -37816,7 +37855,7 @@
         "csharp/src/SuperMetroid.Core/Areas/Tourian/TourianStatueBlockAnimations.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Areas.Tourian.TourianStatueBlockCue",
@@ -62327,6 +62366,19 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.Core.Earthquakes.EarthquakeSide",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Earthquakes/EarthquakeSide.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Earthquakes.EarthquakeStrength",
       "kind": "enum",
       "scope": "product",
@@ -85685,7 +85737,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.WreckedShip.WreckedShipTreadmillObjectDefinitionAccess.extension(SuperMetroid.Core.Fx.BlockAnimationLoop)",
+      "type": "SuperMetroid.Core.Enemies.WreckedShip.WreckedShipTreadmillObjectDefinitionAccess.extension(SuperMetroid.Core.Fx.BlockAnimation)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -86909,32 +86961,6 @@
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.Core.Escape.Artwork.EscapeTypewriterLineKey",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Escape/Artwork/EscapeTypewriterLineKey.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Escape.Artwork.EscapeTypewriterLines",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Escape/Artwork/EscapeTypewriterLines.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Core.Escape.Artwork.EscapeTypewriterMessage",
       "kind": "record",
       "scope": "product",
@@ -86962,19 +86988,6 @@
     },
     {
       "type": "SuperMetroid.Core.Escape.Artwork.EscapeTypewriterPresentation",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Escape/Artwork/EscapeTypewriterPresentation.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Escape.Artwork.EscapeTypewriterPresentation.LineSequence",
       "kind": "class",
       "scope": "product",
       "assemblies": [
@@ -97904,19 +97917,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.BlockAnimationLoop",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/BlockAnimationLoop.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
       "type": "SuperMetroid.Core.Fx.BlockAnimationLoopDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -97941,32 +97941,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.BlockAnimationPlayer",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/BlockAnimationPlayer.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.BlockAnimationStart",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/BlockAnimationStart.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Fx.CeresHazeDefinitions",
@@ -102063,7 +102037,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.RoomFxBlockAnimationDefinitionAccess.extension(SuperMetroid.Core.Fx.BlockAnimationLoop)",
+      "type": "SuperMetroid.Core.Fx.RoomFxBlockAnimationDefinitionAccess.extension(SuperMetroid.Core.Fx.BlockAnimation)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -102095,7 +102069,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.RoomFxBlockAnimationFrameDefinitionAccess.extension(SuperMetroid.Core.Fx.BlockAnimationLoop)",
+      "type": "SuperMetroid.Core.Fx.RoomFxBlockAnimationFrameDefinitionAccess.extension(SuperMetroid.Core.Fx.BlockAnimation)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -130934,14 +130908,17 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Spatial.EightEight",
+      "type": "SuperMetroid.Core.Spatial.EightEightOracle",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Spatial/EightEight.cs"
+        "csharp/test-support/VerificationAccess.Core/Spatial/EightEightOracle.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -131620,19 +131597,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Spatial.SixteenSixteen",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Spatial/SixteenSixteen.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Core.Spatial.SixteenSixteenConstants",
       "kind": "static class",
       "scope": "test",
@@ -131773,19 +131737,6 @@
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Spatial.UnsignedEightEight",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Spatial/UnsignedEightEight.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Spatial.UnsignedSixteenSixteen",
@@ -139914,6 +139865,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.ReachabilityAudit/Analysis/RootCollector.cs"
+      ],
+      "partial": "none",
+      "disposition": "constructor-parameters"
+    },
+    {
+      "type": "SuperMetroid.ReachabilityAudit.Analysis.ValueEqualityReads",
+      "kind": "class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.ReachabilityAudit"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.ReachabilityAudit/Analysis/ValueEqualityReads.cs"
       ],
       "partial": "none",
       "disposition": "constructor-parameters"
@@ -155925,6 +155889,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Verification.Bosses.Torizo.LivingTorizo",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Bosses/Torizo/LivingTorizo.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.Verification.Bosses.Torizo.LookupBombTorizoHandDrawVerification",
       "kind": "static class",
       "scope": "test",
@@ -169657,19 +169634,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Verification.Fx.Artwork.RoomPaletteFxPresentationVerification.LivingTorizo",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Fx/Artwork/RoomPaletteFxPresentationVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
       "type": "SuperMetroid.Verification.Fx.Configuration",
       "kind": "record struct",
       "scope": "test",
@@ -180507,6 +180471,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Spatial/TypedDirectionBucketsVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Spatial.TypedSineProductsVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Spatial/TypedSineProductsVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"

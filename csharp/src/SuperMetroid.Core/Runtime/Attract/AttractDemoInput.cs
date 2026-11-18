@@ -38,7 +38,7 @@ public sealed class AttractDemoInput
         if (Script.IsPlaying && _continuation is { } continuation)
         {
             _continuation = null;
-            Script.SwitchTo(continuation);
+            Script.Load(continuation);
         }
         Script.Step(cue => throw new InvalidOperationException($"Title demonstrations handle no {cue} cue."));
     }

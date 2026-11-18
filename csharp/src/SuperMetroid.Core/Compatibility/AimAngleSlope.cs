@@ -17,6 +17,9 @@ namespace SuperMetroid.Core.Compatibility;
 [CompatibilityService("the aim-angle slope: the short side in 256ths over the long side, each counting only its part past a multiple of 65536 and 256, a long side of nothing giving the steepest slope")]
 public static class AimAngleSlope
 {
+    /// <summary>The 256ths in each pixel of the short side.</summary>
+    private const int RisePerPixel = 256;
+
     /// <summary>The 256ths of the short side past whose multiple it counts.</summary>
     private const int RiseSpan = 65536;
 
@@ -33,7 +36,7 @@ public static class AimAngleSlope
     /// <exception cref="ArgumentOutOfRangeException">A side is negative.</exception>
     public static int Of(int shortSide, int longSide)
     {
-        int rise = EightEight.FromWhole(Ensure.AtLeastZero(shortSide)) % RiseSpan;
+        int rise = unchecked(Ensure.AtLeastZero(shortSide) * RisePerPixel) % RiseSpan;
         int run = Ensure.AtLeastZero(longSide) % RunSpan;
         return run == 0 ? Steepest : rise / run;
     }

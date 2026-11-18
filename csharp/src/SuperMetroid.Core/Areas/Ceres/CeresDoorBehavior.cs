@@ -6,7 +6,6 @@ using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Core.Areas.Ceres;
@@ -71,12 +70,12 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IGameplayShadingSource
     }
 
     /// <summary>
-    /// Starts <paramref name="place"/>'s door or wall in <paramref name="animation"/>, in the colours of the escape's stage.
+    /// Starts <paramref name="place"/>'s door or wall in <paramref name="animation"/>, in the colours of the escape's stage:
+    /// the animation's first step, on the next update, shows its own first picture (#2424).
     /// </summary>
     internal void Start(RoomEnemyPlace place, CeresDoorSegment animation)
     {
         Ensure.NotNull(place);
-        place.Frame = EnemyFrameId.CeresDoorOrWallSmallSquare;
         place.AnimationClock.Restart();
         place.SetSpeciesState(new CeresDoorAnimationState
         {

@@ -8,7 +8,7 @@ namespace SuperMetroid.Verification.Enemies.Cacatac;
 /// <summary>Compares compiled Cacatac travel distances and initialized movement bounds with the pinned retail table.</summary>
 internal static class CacatacMovementDefinitionsVerification
 {
-    /// <summary>Checks six native distances and wrapped min/max positions while a guard forbids the migrated table read in production initialization.</summary>
+    /// <summary>Checks six native distances and the min/max positions they set while a guard forbids the migrated table read in production initialization.</summary>
     internal static void VerifyCacatacMovementDefinitions(CartridgeImportAddressSpace rom)
     {
         const int distanceTable = 0xa29f36;
@@ -18,7 +18,8 @@ internal static class CacatacMovementDefinitionsVerification
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Bind(EnemyDefinitionId.Cacatac, place.Definition);
 
-        foreach (ushort spawnX in new ushort[] { 0, 0x100, ushort.MaxValue })
+        // Spawn columns from the shipped placements' range: the left edge's nearest, a middle one and the farthest right.
+        foreach (int spawnX in new[] { 72, 0x100, 3240 })
         {
             for (byte distanceIndex = 0; distanceIndex < 6; distanceIndex++)
             {
@@ -31,10 +32,10 @@ internal static class CacatacMovementDefinitionsVerification
                 place.Position = place.Position.WithWholeX(spawnX);
                 initialize(place);
                 CacatacEnemyState state = (enemies.CacatacStates[0] ?? throw new InvalidOperationException("Verification requires enemies.CacatacStates[0]."));
-                AssertEqual(unchecked((ushort)(spawnX - native)), state.LeftPatrolX,
-                    $"Cacatac minimum X {spawnX:X4}/{distanceIndex}");
-                AssertEqual(unchecked((ushort)(spawnX + native)), state.RightPatrolX,
-                    $"Cacatac maximum X {spawnX:X4}/{distanceIndex}");
+                AssertEqual(spawnX - native, state.LeftPatrolX,
+                    $"Cacatac minimum X {spawnX}/{distanceIndex}");
+                AssertEqual(spawnX + native, state.RightPatrolX,
+                    $"Cacatac maximum X {spawnX}/{distanceIndex}");
             }
         }
 
@@ -44,7 +45,7 @@ internal static class CacatacMovementDefinitionsVerification
             "Cacatac import rejects a travel selector that would read adjacent code");
 
         Console.WriteLine(
-            "Cacatac travel distances: six native words and 18 wrapped production initializers pass with table reads forbidden.");
+            "Cacatac travel distances: six native words and 18 production initializers pass with table reads forbidden.");
     }
 
 }

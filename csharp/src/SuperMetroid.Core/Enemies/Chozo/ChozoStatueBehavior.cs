@@ -282,8 +282,8 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         EnableChozoStatueSamusControls();
 
-        // The release's overlapping writes leave five screens of the second row closed, then the third row's second
-        // screen open with the camera aligned to its top and its third closed.
+        // The release leaves five screens of the second row closed, then the third row's second screen open with the
+        // camera aligned to its top and its third closed.
         foreach (Position16<RoomScreens> screen in ChozoStatueRoomDefinitions.ReleaseClosedScreens)
             _room.Services.RoomScroll.Write(screen, RoomScrollState.Closed);
         _room.Services.RoomScroll.Write(ChozoStatueRoomDefinitions.ReleaseTopAlignedScreen, RoomScrollState.OpenAlignedToTop);

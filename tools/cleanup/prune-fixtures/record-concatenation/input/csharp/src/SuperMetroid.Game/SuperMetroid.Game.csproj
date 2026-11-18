@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Reachability prune fixture (tools/cleanup/check-prune-fixtures.ps1): the player host, the root of production
+       reachability. The check's Directory.Build.props names the repository's test-support as RepositoryTestSupport. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../SuperMetroid.Core/SuperMetroid.Core.csproj" />
+  </ItemGroup>
+  <Import Project="$(RepositoryTestSupport)/WindowsConsole.projitems" />
+</Project>

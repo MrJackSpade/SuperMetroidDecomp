@@ -79,7 +79,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         SetBeetomAnimation(
             place,
             state,
-            CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole) < 0
+            samus.Position.X.Whole < place.Position.X.Whole
                 ? BeetomSegment.CrawlingLeft
                 : BeetomSegment.CrawlingRight);
     }
@@ -95,7 +95,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (state.Action)
         {
             case BeetomAction.DecideAction:
-                state.Action = CoordinateAxis.Distance(samus.Position.X.Whole, place.Position.X.Whole) < BeetomMotionDefinitions.ProximityDistance
+                state.Action = Math.Abs(samus.Position.X.Whole - place.Position.X.Whole) < BeetomMotionDefinitions.ProximityDistance
                     ? BeetomAction.DecideActionSamusInProximity
                     : BeetomAction.DecideActionSamusNotInProximity;
                 return;
@@ -212,7 +212,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Aims the lunge toward Samus using the signed horizontal difference.</summary>
     private static void StartBeetomLunge(RoomEnemyPlace place, BeetomEnemyState state, SamusState samus)
     {
-        HorizontalDirection towardSamus = CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole) < 0
+        HorizontalDirection towardSamus = samus.Position.X.Whole < place.Position.X.Whole
             ? HorizontalDirection.Left
             : HorizontalDirection.Right;
         state.YSpeedCurvePlace = BeetomLeapDefinitions.Lunge.StartPlace;
@@ -418,9 +418,8 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         if (BeetomCadenceDefinitions.DrainSoundEveryEighthEnemyPass.IsDue(_frameContext.RandomEnemyCounter) && samus.Health >= BeetomCadenceDefinitions.DrainSoundLeastHealth)
             _audio.QueueEnemySound(RoomSound.IncrementalEnergy, priority: SoundRequestPriority.Normal);
 
-        // Unlike ordinary touch damage, the once-per-64-frame drain explicitly cancels the
-        // invincibility and knockback installed by common AI. Apply the suit-scaled health
-        // subtraction directly, then reproduce those two clearing stores.
+        // Unlike ordinary touch damage, the drain every 64th update hurts Samus by her suit-scaled damage and then
+        // cancels the invincibility and knockback that touch gives her.
         if (!BeetomCadenceDefinitions.DrainDamageEverySixtyFourthUpdate.IsDue(place.FrameCounter))
             return;
         SamusSuitDamage.Hurt(samus, place.Definition.Damage);

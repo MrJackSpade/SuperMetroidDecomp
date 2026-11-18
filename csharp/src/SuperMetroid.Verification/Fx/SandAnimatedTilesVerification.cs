@@ -22,10 +22,9 @@ internal static class SandAnimatedTilesVerification
         BlockAnimation[] definitions = [BlockAnimation.MaridiaSandCeiling, BlockAnimation.MaridiaSandFalling];
         for (int slot = 0; slot < 2; slot++)
         {
-            AssertTrue(BlockAnimationLoops.TryResolve(
-                    definitions[slot], out BlockAnimationLoop? definition),
-                $"sand animation {slot} resolves compiled mechanics");
-            for (int frame = 0; frame < (definition ?? throw new InvalidOperationException("Verification requires definition.")).Frames.Count; frame++)
+            BlockAnimation definition = definitions[slot];
+            AssertTrue(BlockAnimationLoops.HasLoop(definition), $"sand animation {slot} resolves compiled mechanics");
+            for (int frame = 0; frame < definition.Frames.Count; frame++)
             {
                 int source = AnimatedTileImageSources.OfCursor(
                     definition, definition.FrameInstructionPointer(frame));
@@ -49,7 +48,7 @@ internal static class SandAnimatedTilesVerification
                 var animation = definitions[slot];
                 AssertTrue(frames.TryShown(BlockAnimationFrames.Of(animation), out ArtworkFrame shown),
                     $"sand animation {slot} shows a frame from its first update");
-                AssertEqual(BlockAnimationLoops.Of(animation).Frames[tick / 10 % 4].Frame, shown,
+                AssertEqual(BlockAnimationLoops.Frames(animation)[tick / 10 % 4].Frame, shown,
                     "sand ceiling/fall frames loop independently on the compiled cartridge durations");
                 AssertEqual(tick % 10 != 0, before[slot] == shown,
                     "sand frames change only on the updates their durations end");

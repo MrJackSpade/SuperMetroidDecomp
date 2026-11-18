@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 /// </summary>
 /// <remarks>
 /// The cinematic owns this sequence. The state deliberately retains the
-/// game's phase boundaries, counters, 1/65536-pixel camera motion, turning-floor rotation values, and
+/// game's phase boundaries, counters, camera motion, turning-floor rotation values, and
 /// compiled sprite animations, so the scene's progress is game state:
 /// there is no separately authored video or timer that merely happens to end at the
 /// same gameplay room.
@@ -110,7 +110,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>The Japanese text option, which makes the PLANET ZEBES title spawn its Japanese subtitle (#1733).</summary>
     private readonly bool japaneseText;
 
-    /// <summary>Signed 1/65536-pixel camera offset applied to the turning-floor Ceres or Zebes scene.</summary>
+    /// <summary>The camera offset applied to the turning-floor Ceres or Zebes scene.</summary>
     internal FixedVector<FloorPixels> Background { get; private set; } = new(
         SignedSixteenSixteen.FromWholePixels(CeresDestructionSceneDefinitions.Sprites.CeresInitialBackgroundX),
         SignedSixteenSixteen.FromWholePixels(CeresDestructionSceneDefinitions.Sprites.CeresAndFlightBackgroundY));

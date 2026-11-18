@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Progression;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Verification.Rooms;
@@ -17,7 +18,7 @@ internal static class CartridgeRoomHeaderVerification
         int isolated = 0;
         foreach (RoomDefinition definition in RetailRooms.All)
         {
-            SelectedRoom room = SelectedRoom.LoadUsingCompiledSelection(definition, default);
+            SelectedRoom room = SelectedRoom.LoadUsingCompiledSelection(definition, new RoomStateSelectionContext(new PersistentProgress().Events, DefeatedBosses.None, false, false));
             AssertEqual(definition.UsesIsolatedDoorTransition, room.UsesIsolatedDoorTransition,
                 $"room ${definition.Pointer:X4} isolated door transition");
             AssertEqual(definition.UpScroller, room.UpScroller, $"room ${definition.Pointer:X4} up scroller");

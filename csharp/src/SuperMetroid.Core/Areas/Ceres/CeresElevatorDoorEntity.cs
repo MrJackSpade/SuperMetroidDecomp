@@ -47,7 +47,7 @@ internal sealed class CeresElevatorDoorEntity(CeresDoorBehavior doors, RoomEnemy
                     state.RumbleUpdatesLeft = RumbleDuration;
                     // The first explosion bursts on the destruction's first update.
                     state.ExplosionIntervalLeft = 1;
-                    state.LastExplosionPlace = 0;
+                    state.NextExplosion = CyclingSequence<Offset16<RoomPixels>>.StartOf(CeresDoorRumbleGeometryDefinitions.ExplosionOffsets);
                 }
                 return;
 
@@ -86,10 +86,8 @@ internal sealed class CeresElevatorDoorEntity(CeresDoorBehavior doors, RoomEnemy
             return;
 
         state.ExplosionIntervalLeft = RumbleInterval;
-        IReadOnlyList<Offset16<RoomPixels>> offsets = CeresDoorRumbleGeometryDefinitions.ExplosionOffsets;
-        state.LastExplosionPlace = state.LastExplosionPlace == 0 ? offsets.Count - 1 : state.LastExplosionPlace - 1;
-
-        Position16<RoomPixels> explosion = Place.Position.Whole + offsets[state.LastExplosionPlace];
+        Position16<RoomPixels> explosion = Place.Position.Whole + state.NextExplosion.Current;
+        state.NextExplosion = state.NextExplosion.Next;
 
         // The shared random sequence advances exactly once per explosion; its explosion chance selects the animation.
         DustExplosionAnimation animation = CeresDoorQuakeDefinitions.RumbleExplosion.IsTakenBy(doors.Room.Random.Generate())
@@ -104,8 +102,7 @@ internal sealed class CeresElevatorDoorEntity(CeresDoorBehavior doors, RoomEnemy
 
     /// <summary>
     /// Cycles the elevator room's glow and the room's turning-floor elevator frame by the door's own update count. The glow
-    /// and the platform strip are only drawn, so the door clocks them itself; the game read the room's first enemy's count,
-    /// which only shifts the drawn phase where another enemy is listed first.
+    /// and the platform strip are only drawn, so the door clocks them itself.
     /// </summary>
     internal void CycleGlowAndPlatform()
     {

@@ -3,9 +3,6 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// <summary>The Tourian statue projectile animations (#641), in authored order.</summary>
 internal enum TourianStatueProjectileSegment
 {
-    /// <summary>The private delete animation.</summary>
-    Delete,
-
     /// <summary>A particle's water splash.</summary>
     Splash,
 

@@ -25,7 +25,7 @@ internal sealed class DoorOpeningScrollState
     /// <summary>Travel axis and sign selected by the destination door definition.</summary>
     public DoorDirection Direction { get; }
 
-    /// <summary>Samus's signed 1/65536-pixel displacement for one scroll update, along the travel axis.</summary>
+    /// <summary>Samus's displacement for one scroll update, along the travel axis.</summary>
     public FixedVector<RoomPixels> SamusScrollStep { get; }
 
     /// <summary>Scroll updates still required before the scroll can snap to its destination.</summary>

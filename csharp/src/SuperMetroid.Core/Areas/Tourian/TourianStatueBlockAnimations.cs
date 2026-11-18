@@ -6,14 +6,40 @@ using F = SuperMetroid.Core.Fx.Artwork.TourianStatueBlockPicture;
 namespace SuperMetroid.Core.Areas.Tourian;
 
 /// <summary>
-/// The typed animations a Tourian boss statue's animated pictures play (#1600).
+/// The typed animations one Tourian boss statue's animated pictures play (#1600, #2424).
 /// All four statues share the layout; only the first idle frame's duration differs, and every other value a cue acts on is read
-/// from the statue's <see cref="TourianStatueAnimationDefinition"/> when an event is reached.
+/// from the statue's <see cref="TourianStatueAnimationDefinition"/> when an event is reached. Each statue builds its own, and
+/// each of its animations plays every beat of the segments it names.
 /// </summary>
-internal static class TourianStatueBlockAnimations
+internal sealed class TourianStatueBlockAnimations
 {
-    /// <summary>Builds one statue's segments, whose first idle frame lasts <paramref name="firstFrameDuration"/> updates.</summary>
-    internal static AnimationSegments<P, F, TourianStatueBlockCue> SegmentsFor(int firstFrameDuration) => new(
+    /// <summary>Builds one statue's animations, whose first idle frame lasts <paramref name="firstFrameDuration"/> updates.</summary>
+    internal TourianStatueBlockAnimations(int firstFrameDuration)
+    {
+        Segments = Layout(firstFrameDuration);
+        StartingAt = new Dictionary<P, Animation<P>>
+        {
+            [P.Entry] = Animation<P>.LeadingInto([Segments.Whole(P.Entry)], [Segments.Whole(P.Oscillate)]),
+            [P.Oscillate] = Animation<P>.Looping([Segments.Whole(P.Oscillate)]),
+            [P.Release] = new([Segments.Whole(P.Release)], AnimationEnd.Stops),
+            [P.AlreadyGrey] = new([Segments.Whole(P.AlreadyGrey)], AnimationEnd.Stops),
+        };
+    }
+
+    /// <summary>The statue's segments.</summary>
+    internal AnimationSegments<P, F, TourianStatueBlockCue> Segments { get; }
+
+    /// <summary>
+    /// The animation that starts at each segment: the entry runs on into the oscillation, which loops; a release and the
+    /// already-grey finish end the statue's animation, ending its picture animation.
+    /// </summary>
+    internal IReadOnlyDictionary<P, Animation<P>> StartingAt { get; }
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal Animation<P> StartingWith(P segment) => StartingAt[segment];
+
+    /// <summary>The statue's segments, whose first idle frame lasts <paramref name="firstFrameDuration"/> updates.</summary>
+    private static AnimationSegments<P, F, TourianStatueBlockCue> Layout(int firstFrameDuration) => new(
         new Dictionary<P, AnimationBeat<F, TourianStatueBlockCue>[]>
         {
             [P.Entry] =
@@ -52,21 +78,6 @@ internal static class TourianStatueBlockAnimations
                 Cue(new(K.TurnGrey)),
             ],
         });
-
-    /// <summary>
-    /// The animation that starts at each segment: the entry runs on into the oscillation, which loops; a release and the
-    /// already-grey finish end the statue's animation, ending its picture animation.
-    /// </summary>
-    internal static IReadOnlyDictionary<P, Animation<P>> StartingAt { get; } = new Dictionary<P, Animation<P>>
-    {
-        [P.Entry] = Animation<P>.LeadingInto([new(P.Entry, 0, 3, 1)], [new(P.Oscillate, 0, 6, 1)]),
-        [P.Oscillate] = Animation<P>.Looping([new(P.Oscillate, 0, 6, 1)]),
-        [P.Release] = new([new(P.Release, 0, 12, 1)], AnimationEnd.Stops),
-        [P.AlreadyGrey] = new([new(P.AlreadyGrey, 0, 2, 1)], AnimationEnd.Stops),
-    };
-
-    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<P> StartingWith(P segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="picture"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<F, TourianStatueBlockCue> Show(F picture, int duration) =>

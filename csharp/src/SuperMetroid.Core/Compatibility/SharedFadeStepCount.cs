@@ -33,7 +33,7 @@ public sealed class SharedFadeStepCount
 {
     /// <summary>
     /// The current step: zero once a fade completes, then one more per step taken. Every fade resets it once it passes the
-    /// fade's length plus one, so it never exceeds the longest fade's length plus two.
+    /// fade's last step, so it never exceeds the longest fade's last step plus one.
     /// </summary>
     public int Step { get; private set; }
 

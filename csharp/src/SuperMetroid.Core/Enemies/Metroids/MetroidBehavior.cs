@@ -116,7 +116,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         PositionMetroidOuterBody(state.Shell, place, SpriteGraphics.SpawnedBy(place));
     }
 
-    /// <summary>Runs the Metroid's proportional 1/65536-pixel attraction toward Samus.</summary>
+    /// <summary>Pulls the Metroid's velocity toward Samus, harder the farther she is.</summary>
     private void RunMetroidHoming(
         RoomEnemyPlace place,
         MetroidEnemyState state,

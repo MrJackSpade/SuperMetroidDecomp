@@ -27,7 +27,7 @@ internal static class CrocomirePresentation1193Verification
     /// <summary>Runs the retail Crocomire room and checks either NMI spike uploads or displayed BG1 rumble ordering.</summary>
     internal static int VerifyCrocomirePresentation(bool spikes)
     {
-        var game=new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
+        var game=new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
         var maps = InstalledFixtures.Maps;
         InstalledFixtures.BindGame(game);
         game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);
@@ -117,7 +117,7 @@ internal static class CrocomirePresentation1193Verification
             PrivateState.Set(samus.Xray, nameof(SamusXrayState.SuspendedSubsystems), XraySuspendedSubsystems.None);
             game.Step(0);
             AssertTrue(runtime.Room.LoadedScope.ArtworkFrames.TryShown(spikeTiles, out ArtworkFrame resumed) &&
-                    resumed == BlockAnimationLoops.Of(BlockAnimation.HorizontalSpikes).Frames[0].Frame,
+                    resumed == BlockAnimationLoops.Frames(BlockAnimation.HorizontalSpikes)[0].Frame,
                 "Re-enabled spikes resume the pending first frame");
             var unselected = new RoomBlockAnimations(null, null);
             var cleared = new ArtworkFrameSelections();

@@ -395,7 +395,7 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
 
     /// <summary>
     /// Where the hand beam's next projectile starts. Every fired child
-    /// starts from this exact 1/65536-pixel position, moves this position on by the aimed velocity,
+    /// starts from this exact position, fraction of a pixel included, moves this position on by the aimed velocity,
     /// then receives its own randomized secondary velocity.
     /// </summary>
     /// <remarks>Charging starts it at the beam position with zero subpixels (body Y minus 48).</remarks>

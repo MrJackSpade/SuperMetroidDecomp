@@ -119,8 +119,8 @@ public sealed class HudState
         if (frame.RoomSize.X == 0 || frame.RoomSize.Y == 0)
             throw new ArgumentOutOfRangeException(nameof(frame.RoomSize));
 
-        // The minimap does nothing while Samus is outside the active room. The 16-pixel comparison consumes the same
-        // positions as collision.
+        // The minimap does nothing while the block Samus stands in lies outside the room, the same blocks collision
+        // places her in.
         if (MinimapDisabled || !frame.RoomSize.Contains(frame.Samus.ToRoomBlock()))
             return;
 

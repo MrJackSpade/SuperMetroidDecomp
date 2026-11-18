@@ -51,8 +51,8 @@ internal static class StatueSplashVerification
             for (int frame = 0; frame < 200 && particle.IsActive; frame++)
             {
                 int previousY = unchecked((ushort)SixteenSixteenConstants.WholeOf(y));
-                x = unchecked(x + SixteenSixteen.FromEightEight(unchecked((short)nativeX)));
-                y = unchecked(y + SixteenSixteen.FromEightEight(vy));
+                x = unchecked(x + EightEightOracle.ToSixteenSixteen(unchecked((short)nativeX)));
+                y = unchecked(y + EightEightOracle.ToSixteenSixteen(vy));
                 bool crosses = (((216 - previousY) ^ (216 - unchecked((ushort)SixteenSixteenConstants.WholeOf(y)))) & 0x8000) != 0;
                 enemies.StepEnemyProjectiles(assets.LevelData, RoomEnemyFrameFixtures.StandaloneSamus());
                 if (crosses)

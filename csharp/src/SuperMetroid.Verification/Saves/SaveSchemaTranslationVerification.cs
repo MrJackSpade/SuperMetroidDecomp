@@ -85,17 +85,19 @@ internal static class SaveSchemaTranslationVerification
             SaveRamCodec.Encode(ram, RetailPresentationFixture()), "a schema-twelve save upgrades to the same saves, dropping its reserve-missile count");
 
         // A schema-three save keeps the cartridge's loading-state word; it upgrades to the startup route that word selects
-        // (#1523), and a word the cartridge does not name resumes the main game.
+        // (#1523), and a word the cartridge does not name, or no word at all, resumes the main game.
         UpgradesSchemaThree(0x0022, SaveLoadingGameState.CeresDestruction);
         UpgradesSchemaThree(0x0880, SaveLoadingGameState.MainGame);
-        void UpgradesSchemaThree(int word, SaveLoadingGameState route)
+        UpgradesSchemaThree(null, SaveLoadingGameState.MainGame);
+        void UpgradesSchemaThree(int? word, SaveLoadingGameState route)
         {
             JsonObject schemaThree = RequiredJson.Parse(json).AsObject();
             schemaThree["schemaVersion"] = 3;
             ToSchemaFourProgression(schemaThree);
             JsonObject threeSlot = schemaThree.Required("slots").Required(0).AsObject();
             threeSlot.Remove("startupRoute");
-            threeSlot["loadingGameState"] = word;
+            if (word is { } loadingState)
+                threeSlot["loadingGameState"] = loadingState;
             GameSaveJsonDocument upgradedThree = LegacyGameSaveJson.Deserialize(schemaThree.ToJsonString(), "game save", out bool migratedThree);
             AssertTrue(migratedThree, "a schema-three save is upgraded");
             AssertEqual(route, (upgradedThree.Slots[0] ?? throw new InvalidOperationException("The upgraded save lost slot 0.")).StartupRoute,

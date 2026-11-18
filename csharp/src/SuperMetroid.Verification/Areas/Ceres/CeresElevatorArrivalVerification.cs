@@ -18,7 +18,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Areas.Ceres;
 using SuperMetroid.Verification.Harness;
 
-/// <summary>Checks Ceres elevator arrival graphics indexing and projectile OAM against native definitions.</summary>
+/// <summary>Checks Ceres elevator arrival graphics indexing and the pad's and platform's OAM against native definitions.</summary>
 internal static class CeresElevatorArrivalVerification
 {
     /// <summary>
@@ -50,9 +50,9 @@ internal static class CeresElevatorArrivalVerification
             camera: Position16<RoomPixels>.Zero);
         var expected = new OamBuffer();
         expected.BeginFrame();
-        foreach (CeresElevatorArrivalState.CeresElevatorProjectile actor in new[] { arrival.Pad, arrival.Platform })
-            expected.AddEnemySpritemap(artwork.Get(CeresElevatorArrivalAnimations.Frame(actor.Pose
-                    ?? throw new InvalidOperationException("Verification requires a shown arrival pose."))).Span,
+        foreach (CeresElevatorArrivalState.CeresElevatorArrivalActor actor in new[] { arrival.Pad, arrival.Platform })
+            expected.AddEnemySpritemap(artwork.GetElevatorArrival(actor.Pose
+                    ?? throw new InvalidOperationException("Verification requires a shown arrival pose.")).Span,
                 new Position16<ScreenPixels>(actor.Position.X, actor.Position.Y), 0, 0);
         VerificationAssertions.AssertTrue(expected.NextByteOffset > 0 && expected.ImageEquals(oam),
             "Ceres pad and level-data concealer draw their compositions at tile base zero in their own palettes");
@@ -63,7 +63,7 @@ internal static class CeresElevatorArrivalVerification
         while (!arrival.IsComplete && frames++ < 200)
             arrival.Step(samus);
         VerificationAssertions.AssertTrue(arrival.IsComplete,
-            "Ceres arrival's compiled instruction programs delete both projectiles");
+            "Ceres arrival's pad and platform both leave");
         VerificationAssertions.AssertEqual(
             CeresElevatorArrivalDefinitions.LandingSamusY,
             samus.Position.Y.Whole,
@@ -153,7 +153,7 @@ internal static class CeresElevatorArrivalVerification
     /// <summary>The colour buffer's first sprite colour.</summary>
     private const int SpriteColoursFirst = 128;
 
-    /// <summary>Matches the arrival projectiles' definitions and typed programs (#641) to the retail bank-$86 lists.</summary>
+    /// <summary>Matches the arrival actors' typed programs (#641) to the retail bank-$86 projectile definitions and lists the cartridge runs them as.</summary>
     private static void VerifyCompiledDefinitions(ISnesAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
@@ -181,11 +181,6 @@ internal static class CeresElevatorArrivalVerification
                 ushort word = cartridge.ReadCartridgeWord(address);
                 ushort operand = cartridge.ReadCartridgeWord(address + 2);
                 string at = $"Ceres elevator {program} at $86:{cursor:X4}";
-                if (word == CeresElevatorArrivalDefinitions.DeleteOpcode)
-                {
-                    VerificationAssertions.AssertEqual(AnimationEnd.Stops, animation.End, $"{at}: delete");
-                    break;
-                }
                 if (word == CeresElevatorArrivalDefinitions.GotoOpcode)
                 {
                     // Each arrival list jumps back to its own start: the animation loops its one phase, or, where the list's
@@ -206,20 +201,18 @@ internal static class CeresElevatorArrivalVerification
                             && cartridge.ReadCartridgeWord(address + 4) == CeresElevatorArrivalDefinitions.GotoOpcode
                             && cartridge.ReadCartridgeWord(address + 6) == entry,
                         $"{at}: a held frame is its list's only frame, followed by the goto back to the list");
-                    VerificationAssertions.AssertEqual(operand, EnemyProjectileCompositionSources.Spritemap(CeresElevatorArrivalAnimations.Frame(held.Shown)), $"{at}: held frame's spritemap");
+                    VerificationAssertions.AssertEqual(operand, EnemyProjectileCompositionSources.ElevatorArrivalSpritemap(held.Shown), $"{at}: held frame's spritemap");
                 }
                 else
                 {
                     var frame = VerificationAssertions.AssertIs<AnimationBeat<CeresElevatorArrivalPose, NoAnimationCue>.Frame>(beat, $"{at}: frame");
                     VerificationAssertions.AssertEqual(word, frame.Duration, $"{at}: duration");
-                    VerificationAssertions.AssertEqual(operand, EnemyProjectileCompositionSources.Spritemap(CeresElevatorArrivalAnimations.Frame(frame.Shown)), $"{at}: spritemap");
+                    VerificationAssertions.AssertEqual(operand, EnemyProjectileCompositionSources.ElevatorArrivalSpritemap(frame.Shown), $"{at}: spritemap");
                 }
                 cursor = unchecked((ushort)(cursor + 4));
             }
             VerificationAssertions.AssertEqual(beats.Count, index, $"Ceres elevator {program} ends where its native list does");
-            VerificationAssertions.AssertTrue(animation.Phases.SequenceEqual(index == 0
-                    ? Array.Empty<AnimationPhase<CeresElevatorArrivalSegment>>()
-                    : new[] { new AnimationPhase<CeresElevatorArrivalSegment>(program, 0, index, 1) }),
+            VerificationAssertions.AssertTrue(animation.Phases.SequenceEqual([new AnimationPhase<CeresElevatorArrivalSegment>(program, 0, index, 1)]),
                 $"Ceres elevator {program} plays its list once per pass");
         }
     }

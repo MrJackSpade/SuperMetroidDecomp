@@ -32,7 +32,7 @@ internal static class MotherBrainTubeDescentVerification
         for (frame = 0; frame < 200; frame++)
         {
             speed += 6;
-            expectedPosition += (uint)SixteenSixteen.FromEightEight(speed);
+            expectedPosition += (uint)EightEightOracle.ToSixteenSixteen(speed);
             ushort expectedY = (ushort)SixteenSixteenWords.WholeOf(expectedPosition);
             ushort expectedHead = (ushort)Math.Min(expectedY - 56, 196);
             step(tube);

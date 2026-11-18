@@ -17,11 +17,11 @@ public sealed class SaveSlotStore
     private SaveSlot selectedSlot;
 
     /// <summary>Installed stock map rules that pack and unpack explored maps; the host binds them with its artwork.</summary>
-    private IAreaMapSource? maps;
+    private IAreaMapSource maps;
 
     /// <summary>Creates an empty store: no saved slot, slot A selected, no history.</summary>
-    /// <param name="maps">Installed stock map rules; saving a slot requires them.</param>
-    public SaveSlotStore(IAreaMapSource? maps = null) => this.maps = maps;
+    /// <param name="maps">Installed stock map rules, which decide what a saved slot keeps of the explored maps.</param>
+    public SaveSlotStore(IAreaMapSource maps) => this.maps = Ensure.NotNull(maps);
 
     /// <summary>A store imported from a save file a host decoded: its slots, the menu's selection and the file's history.</summary>
     /// <param name="saved">The slots holding a save, each in the slot it names; a slot not among them is empty or invalid.</param>

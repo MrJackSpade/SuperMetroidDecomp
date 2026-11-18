@@ -63,7 +63,7 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
         // the pulse steps on the fade's first update, holds while the fade is under way and steps again once it completes.
         var fadeStepCount = new SharedFadeStepCount();
         RoomEnemySystem selected = Create(guard, stock, fadeStepCount);
-        var doorFade = new GradualFadeSteps(DoorTransitionColourDefinitions.FadeDenominator, fadeStepCount);
+        var doorFade = new GradualFadeSteps(DoorTransitionColourDefinitions.FadeLastStep, fadeStepCount);
         int counterBeforeGate = Counter(selected);
         Cycle(selected);
         AssertEqual((counterBeforeGate + 1) % ZebetitePulse.All.Count, Counter(selected),

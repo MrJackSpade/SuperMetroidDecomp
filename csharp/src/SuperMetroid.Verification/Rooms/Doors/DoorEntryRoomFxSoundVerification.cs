@@ -40,7 +40,7 @@ internal static class DoorEntryRoomFxSoundVerification
                 return candidate.RoomFxOverlay.SustainedEarthquake.HasValue;
             });
         var random = new SharedRandom();
-        var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false, random: random);
+        var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), renderGameplayFrames: false, random: random);
         var runtime = LoadRisingTide(entry, random, game.AudioForVerification);
         var samus = runtime.Player.IntroducedSamus;
         game.AdoptRuntime(runtime);

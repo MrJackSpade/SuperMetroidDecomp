@@ -170,7 +170,7 @@ internal sealed class PhantoonPatterns
         }
     }
 
-    /// <summary>Adds a 1/65536-pixel speed change to the figure-eight's speed, or subtracts it when slowing.</summary>
+    /// <summary>Adds a speed change to the figure-eight's speed, or subtracts it when slowing.</summary>
     private static void ChangePhantoonSpeed(PhantoonFigureEightState figureEight, SignedSixteenSixteen change, PhantoonSpeedChange direction)
     {
         figureEight.Speed = direction == PhantoonSpeedChange.Decelerate

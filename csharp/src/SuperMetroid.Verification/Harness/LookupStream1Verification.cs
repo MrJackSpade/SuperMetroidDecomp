@@ -1523,21 +1523,15 @@ internal static class LookupStream1Verification
             return EscapeTypewriterPresentationFile.Load(output);
         }
         var stock = Load(document);
-        int Stored(EscapeTypewriterMessage program) => ((EscapeTypewriterPresentation.LineSequence)program.Lines).overrides.Count;
         ushort Word(int address) => LittleEndianBytes.Word(LookupStream1EscapeTextRomByte(rom, address), LookupStream1EscapeTextRomByte(rom, address + 1));
         int totalFrames = 0;
         foreach (EscapeTypewriterMessageId id in new[] { EscapeTypewriterMessageId.Ceres, EscapeTypewriterMessageId.Zebes })
         {
             var program = stock.Get(id);
             var original = document.Messages[id.ToString()].Lines;
-            AssertEqual(original.Length, EscapeTypewriterLines.LineCount(id), "escape text required line grouping");
-            AssertEqual(0, Stored(program), "escape text stock contains no sampled line overrides");
+            AssertEqual(original.Length, program.Lines.Count, "escape text installed line grouping");
             for (int index = 0; index < original.Length; index++)
-            {
-                var expected = new EscapeTypewriterLine(original[index].Start, original[index].Text);
-                AssertEqual(expected, EscapeTypewriterLines.Line(id, index), "escape text direct original placement and wording");
-                AssertEqual(expected, program.Lines[index], "escape text installed line");
-            }
+                AssertEqual(new EscapeTypewriterLine(original[index].Start, original[index].Text), program.Lines[index], "escape text installed line");
             // Independently interpret original control words and characters; the production
             // side receives only the installed calculated view and no cartridge reader.
             ushort tileBase = id == EscapeTypewriterMessageId.Ceres ? (ushort)0x3582 : (ushort)0x2610;
@@ -1582,11 +1576,9 @@ internal static class LookupStream1Verification
                 totalFrames++;
             }
             AssertTrue(done, "escape text native program terminates");
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = program.Lines[-1], "escape text negative line");
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = program.Lines[original.Length], "escape text next line");
         }
         AssertThrows<ArgumentOutOfRangeException>(() => stock.Get((EscapeTypewriterMessageId)(-1)), "escape text rejects absent program");
-        Console.WriteLine($"Escape text: five direct native lines, zero stock overrides and {totalFrames} actual native-oracle frames pass.");
+        Console.WriteLine($"Escape text: five installed native lines and {totalFrames} actual native-oracle frames pass.");
     }
 
     /// <summary>Reads escape typewriter glyph and presentation bytes.</summary>

@@ -6,7 +6,7 @@ internal sealed record DoorOpeningScrollSetup
     /// <summary>The direction the door scrolls the screen.</summary>
     public required DoorDirection Direction { get; init; }
 
-    /// <summary>Samus's signed 1/65536-pixel displacement for one scroll update, along the travel axis.</summary>
+    /// <summary>Samus's displacement for one scroll update, along the travel axis.</summary>
     public required FixedVector<RoomPixels> SamusScrollStep { get; init; }
 
     /// <summary>The scroll updates left before the scroll reaches its destination.</summary>

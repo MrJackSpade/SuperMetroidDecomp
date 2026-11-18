@@ -104,9 +104,6 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
         Run(soul, 3);
         AssertEqual((ushort)0xb852, NativePointer(soul),
             "statue soul loops through both authored poses");
-        soul.StartAnimation(new TourianStatueProjectileAnimation(TourianStatueProjectileSegment.Delete));
-        Run(soul, 1);
-        AssertTrue(!soul.IsActive, "private Tourian delete list clears a soul actor");
 
         EnemyProjectile baseDecoration = SpawnStatue(
             RoomEnemyProjectileKind.TourianStatueBaseDecoration);

@@ -17,9 +17,14 @@ internal static class EnemyProjectileSpritemapNative
         /// <summary>The empty bank-$8D projectile spritemap, which draws nothing.</summary>
         internal static ushort BlankSpritemap => EnemyProjectileCompositionDefinitions.BlankSpritemap;
 
-        /// <summary>Each composition's bank-$8D spritemap and installed name, in schema order.</summary>
+        /// <summary>
+        /// Each composition's bank-$8D spritemap and installed name, in schema order: the projectile compositions, then the
+        /// Ceres elevator arrival's pictures (#2425).
+        /// </summary>
         internal static SpritemapFrameDefinition[] Frames => [.. EnemyProjectileSpritemapDefinitions.FrameNames.Select(name =>
-            new SpritemapFrameDefinition(EnemyProjectileCompositionSources.Spritemap(EnemyProjectileFrames.Identity(name)), name))];
+            new SpritemapFrameDefinition(EnemyProjectileCompositionSources.Spritemap(EnemyProjectileFrames.Identity(name)), name)),
+            .. EnemyProjectileSpritemapDefinitions.ElevatorArrivalFrameNames.Select(entry =>
+                new SpritemapFrameDefinition(EnemyProjectileCompositionSources.ElevatorArrivalSpritemap(entry.Key), entry.Value))];
     }
 
     /// <summary>The composition frame stored at bank-$8D spritemap <paramref name="spritemap"/>.</summary>
@@ -28,11 +33,19 @@ internal static class EnemyProjectileSpritemapNative
         : EnemyProjectileSpritemapDefinitions.FrameNames.Select(EnemyProjectileFrames.Identity)
             .Single(frame => EnemyProjectileCompositionSources.Spritemap(frame) == spritemap);
 
+    /// <summary>The Ceres elevator arrival's pose whose picture is stored at bank-$8D spritemap <paramref name="spritemap"/>, if any.</summary>
+    private static SuperMetroid.Core.Areas.Ceres.CeresElevatorArrivalPose? ElevatorArrivalPoseAt(ushort spritemap) =>
+        EnemyProjectileSpritemapDefinitions.ElevatorArrivalFrameNames.Keys
+            .Where(pose => EnemyProjectileCompositionSources.ElevatorArrivalSpritemap(pose) == spritemap)
+            .Select(pose => (SuperMetroid.Core.Areas.Ceres.CeresElevatorArrivalPose?)pose).SingleOrDefault();
+
     /// <summary>Native lookups of an installed catalog.</summary>
     extension(EnemyProjectileSpritemapCatalog catalog)
     {
         /// <summary>The parts of the composition stored at bank-$8D spritemap <paramref name="spritemap"/>.</summary>
-        internal ReadOnlyMemory<SpritePart> Get(ushort spritemap) => catalog.Get(FrameAt(spritemap));
+        internal ReadOnlyMemory<SpritePart> Get(ushort spritemap) => ElevatorArrivalPoseAt(spritemap) is { } pose
+            ? catalog.GetElevatorArrival(pose)
+            : catalog.Get(FrameAt(spritemap));
     }
 
     /// <summary>Native locations of an installed program frame.</summary>

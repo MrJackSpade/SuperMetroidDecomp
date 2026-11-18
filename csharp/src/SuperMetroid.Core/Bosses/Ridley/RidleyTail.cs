@@ -271,8 +271,8 @@ internal sealed class RidleyTail
         // Each link's offset is its rotated distance in whole pixels, rounded down:
         // a negative fractional pixel rounds toward the more negative whole pixel.
         link.Offset = new Offset16<RoomPixels>(
-            EightEight.Multiply(distanceInPixels, Trigonometry.SignedSine(angle)),
-            EightEight.Multiply(distanceInPixels, Trigonometry.SignedSine(angle.TurnedBy(TrigonometryAngle.QuarterTurn))));
+            UnitComponent.SineOf(angle).ReachRoundedDownOf(distanceInPixels),
+            UnitComponent.SineOf(angle.TurnedBy(TrigonometryAngle.QuarterTurn)).ReachRoundedDownOf(distanceInPixels));
     }
 
     /// <summary>Ends a link's active whip and flips its swing for the next activation.</summary>

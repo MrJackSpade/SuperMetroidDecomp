@@ -32,7 +32,7 @@ public static class DebuggerSaveStateSmokeTest
             GameInstallation installation = RepositoryInstallation.Installation;
             var maps = installation.LoadMaps();
             var content = new InstalledSessionContent(installation.LoadGameArtwork(maps, installation.LoadProjectiles(), installation.LoadEnemyTiles(), installation.LoadSamusBody()), installation.LoadAudioClips().Clips);
-            var game = GameSessionComposer.Create(new SuperMetroid.Core.Saves.SaveSlotStore(), SuperMetroid.Core.Gameplay.GameplayAssists.None, content, storage: null);
+            var game = GameSessionComposer.Create(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), SuperMetroid.Core.Gameplay.GameplayAssists.None, content, storage: null);
             for (int frame = 0; frame < 90; frame++)
                 game.Step(0);
             GameContentIdentity contentIdentity = GameContentIdentity.Create(

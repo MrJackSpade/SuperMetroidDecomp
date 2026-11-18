@@ -148,7 +148,7 @@ public sealed class CrocomireEnemyState : SuperMetroid.Core.Enemies.BossBodies.I
     }
 
     /// <summary>
-    /// While the skeleton breaks out and collapses: its 1/65536-pixel horizontal speed in room pixels per frame, zero when the
+    /// While the skeleton breaks out and collapses: its horizontal speed in room pixels per frame, zero when the
     /// skeleton breaks through the wall.
     /// </summary>
     internal SignedSixteenSixteen SkeletonVelocity { get; set; }

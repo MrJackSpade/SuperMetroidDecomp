@@ -32,9 +32,12 @@ internal static class RoomWrittenOverlayAccess
             int[] words = [.. Enumerable.Repeat(UnwrittenWord, TwoScreenTilemapCells.Count)];
             foreach (WrittenPicture written in overlay.Pictures)
             {
-                BackgroundTile[] tiles = TilesOf(written.Picture, pages);
+                (BackgroundTile[] tiles, int width) = TilesOf(written.Picture, pages);
                 for (int index = 0; index < tiles.Length; index++)
-                    words[TwoScreenTilemapCells.IndexOf(written.Corner) + index] = tiles[index].PackedWord;
+                {
+                    Position16<PlanePixels> row = written.Corner + new Offset16<PlanePixels>(0, index / width * TilePixels);
+                    words[TwoScreenTilemapCells.IndexOf(row) + index % width] = tiles[index].PackedWord;
+                }
             }
             return [.. words];
         }
@@ -47,8 +50,11 @@ internal static class RoomWrittenOverlayAccess
         internal static int Unwritten => UnwrittenWord;
     }
 
-    /// <summary>The tiles, along one row, the cartridge writes for <paramref name="picture"/>.</summary>
-    private static BackgroundTile[] TilesOf(string picture, CeresEscapeOverlays? pages)
+    /// <summary>The height of a row of tile words, in pixels.</summary>
+    private const int TilePixels = 8;
+
+    /// <summary>The tiles the cartridge writes for <paramref name="picture"/>, row by row, and the tiles across each row.</summary>
+    private static (BackgroundTile[] Tiles, int Width) TilesOf(string picture, CeresEscapeOverlays? pages)
     {
         foreach (CeresEscapeWarningPicture page in CeresEscapeOverlayPages.All)
         {
@@ -56,7 +62,7 @@ internal static class RoomWrittenOverlayAccess
                 continue;
             if (pages is null || !pages.TryResolve(page, out ReadOnlyMemory<BackgroundTile> tiles))
                 throw new InvalidOperationException($"No installed Ceres warning page gives the words of {picture}.");
-            return tiles.ToArray();
+            return (tiles.ToArray(), page.Width);
         }
         foreach (EscapeTypewriterMessageId program in new[] { EscapeTypewriterMessageId.Ceres, EscapeTypewriterMessageId.Zebes })
         {
@@ -65,7 +71,7 @@ internal static class RoomWrittenOverlayAccess
             {
                 if (EscapeTypewriterGlyph.PictureOf(program, (char)character) == picture
                     && EscapeTypewriterGlyphTiles.GlyphOf(character, tileBase) is { } glyph)
-                    return [glyph];
+                    return ([glyph], 1);
             }
         }
         throw new InvalidOperationException($"No writer writes a picture named {picture}.");

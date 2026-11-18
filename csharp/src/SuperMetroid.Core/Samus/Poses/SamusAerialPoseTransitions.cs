@@ -590,7 +590,7 @@ internal static class SamusAerialPoseTransitions
 
     /// <summary>
     /// Applies a same-facing input/fallback transition within <see cref="SamusMovementType.NormalJumping"/> or
-    /// <see cref="SamusMovementType.Falling"/> without replacing the live 1/65536-pixel velocities: aiming, firing or
+    /// <see cref="SamusMovementType.Falling"/> without replacing the live velocities: aiming, firing or
     /// releasing forward, including the horizontal gun-extended jumping and falling poses.
     /// </summary>
     public static void ApplySameFacingAerialTransition(SamusState samus, SamusPoseId targetPose)

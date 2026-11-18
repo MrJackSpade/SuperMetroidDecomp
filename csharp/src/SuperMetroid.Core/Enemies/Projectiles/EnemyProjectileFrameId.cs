@@ -1645,10 +1645,4 @@ public enum EnemyProjectileFrameId
     FallingSparkUprightSmall,
     /// <summary>A falling spark: nothing; it draws no picture.</summary>
     FallingSparkBlank,
-    /// <summary>The Ceres elevator pad: unlit.</summary>
-    CeresElevatorPadUnlit,
-    /// <summary>The Ceres elevator pad: lit.</summary>
-    CeresElevatorPadLit,
-    /// <summary>The Ceres elevator platform, one composed picture.</summary>
-    CeresElevatorPlatform,
 }

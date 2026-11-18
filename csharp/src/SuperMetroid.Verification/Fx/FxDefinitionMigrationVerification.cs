@@ -56,10 +56,10 @@ internal static class FxDefinitionMigrationVerification
             "Draygon released statue picture source");
         AssertEqual(0x40, RoomFxBlockAnimationPictures.TourianStatuePictureByteCount(SuperMetroid.Core.Areas.Tourian.TourianGreyStatues.Ridley),
             "Ridley statue picture size");
-        BlockAnimationLoop spikes = RoomFxBlockAnimationLoops.Require(BlockAnimation.HorizontalSpikes);
+        BlockAnimation spikes = RoomFxBlockAnimationLoops.Require(BlockAnimation.HorizontalSpikes);
         AssertEqual(new AnimatedTileImage(BlockAnimation.HorizontalSpikes, 1), spikes.Image(3), "the fourth spike step repeats the second picture");
         AssertEqual(new AnimatedTileImage(BlockAnimation.WreckedShipTreadmillRightwards, 3),
-            BlockAnimationLoops.Of(BlockAnimation.WreckedShipTreadmillLeftwards).TreadmillImage(0),
+            BlockAnimation.WreckedShipTreadmillLeftwards.TreadmillImage(0),
             "the leftward treadmill starts on the rightward loop's last picture");
         AssertEqual(0x20, RoomFxBlockAnimationLoops.TreadmillFrameByteCount, "treadmill frame size");
         AssertEqual(0x40, RoomFxBlockAnimationLoops.Require(BlockAnimation.Lava).PictureByteCount, "liquid frame size");

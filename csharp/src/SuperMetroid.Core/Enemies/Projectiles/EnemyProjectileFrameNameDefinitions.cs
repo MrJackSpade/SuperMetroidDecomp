@@ -828,8 +828,5 @@ internal static class EnemyProjectileFrameNameDefinitions
         [EnemyProjectileFrameId.FallingSparkDiagonal] = "falling_spark_diagonal",
         [EnemyProjectileFrameId.FallingSparkUprightSmall] = "falling_spark_upright_small",
         [EnemyProjectileFrameId.FallingSparkBlank] = "falling_spark_blank",
-        [EnemyProjectileFrameId.CeresElevatorPadUnlit] = "ceres_elevator_pad_unlit",
-        [EnemyProjectileFrameId.CeresElevatorPadLit] = "ceres_elevator_pad_lit",
-        [EnemyProjectileFrameId.CeresElevatorPlatform] = "ceres_elevator_platform",
     }.ToFrozenDictionary();
 }

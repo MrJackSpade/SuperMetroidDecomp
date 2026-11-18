@@ -8,10 +8,9 @@ namespace SuperMetroid.Core.Areas.Ceres;
 internal static class CeresDoorRumbleGeometryDefinitions
 {
     /// <summary>
-    /// The four burst places relative to the door, in list order; the rumble bursts at them from the last to the first and
-    /// then starts again from the last: high and left, just below the door's middle, low and left of it, and below it on
-    /// the right.
+    /// The four burst places relative to the door, in the order the rumble bursts at them, starting again from the first
+    /// after the last (#2424): below the door on the right, low and left of it, just below its middle, and high and left.
     /// </summary>
     internal static IReadOnlyList<Offset16<RoomPixels>> ExplosionOffsets { get; } =
-        [new(-4, -8), new(0, 4), new(-2, 22), new(2, 12)];
+        [new(2, 12), new(-2, 22), new(0, 4), new(-4, -8)];
 }

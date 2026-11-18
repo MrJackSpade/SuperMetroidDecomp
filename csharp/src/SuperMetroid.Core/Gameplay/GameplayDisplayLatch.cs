@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Gameplay;
 /// The scene one shown (or loading) frame shows (#1407): the camera's layer scrolls and room shake, the layers
 /// shown, the Ceres perspective floor, the room's and the bosses' backgrounds, the effects' tints and the
 /// effects' latched state. Gameplay latches it at the frame boundary, before the update's controller latch, so a change
-/// the main loop makes shows from the next shown frame. An update without a frame boundary leaves the previous latch in place. Arrays are owned copies;
+/// an update makes shows from the next shown frame. An update without a frame boundary leaves the previous latch in place. Arrays are owned copies;
 /// simulation cannot change them.
 /// </summary>
 /// <param name="Scrolls">The foreground's and the background's scrolls and the room shake.</param>

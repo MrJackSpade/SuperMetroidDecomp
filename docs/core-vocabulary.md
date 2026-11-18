@@ -385,7 +385,7 @@ helper`, `in signed 1/65536-pixel form`); paired additions, adds, subtractions o
 paired additions`); and a routine run or called as a helper or controller (`Runs the linked-segment placement helper`,
 `runs the last segment's collision/reversal controller`, `calls the previous-pose helper`). Core says what the value or
 the step does: the speed moves the position, a fraction past a whole pixel carries into the whole pixels, the segment is
-placed on its orbit, the chain reverses. A unit of measure (`a speed in 1/65536 pixels`, `a 1/65536-pixel velocity`),
+placed on its orbit, the chain reverses. A unit of measure (`a speed in 1/65536 pixels`; #2427 reads the hyphenated form),
 things the game pairs, an addition alone, the player's controller with its input, buttons or port, and a helper or
 controller nothing runs or calls stay English.
 
@@ -630,6 +630,37 @@ shows, each thing's own colours, the flashbacks' scroll, the page's opening paus
 request handshake. A first colour in a sequence (`the flash's first colours`), a colour group, inheriting anything but a
 scroll, a marker and a handler stay English.
 
+#2423 widens SME6454, outside hardware owners, to the original's main loop, storage and colour slots as effects, HUD,
+map and escape prose tells them: the main loop, spaced or hyphenated (`before the main loop's random number`,
+`main-loop random state`), and `MainLoop` as a word of a declared name (`MovesLiquidBeforeMainLoop`); a `multibit`
+value; a value's middle part or a half of its fraction (`the probe's middle part`, `the middle of the displacement`,
+`the upper half of its fraction`, `the fractional half`); the colours a tint sets (`the last of the three colours a tint
+sets`, `the last of the three a tint sets`); a value's bits by count or end (`rain reads two of its bits`, `its top
+bits`); and `save bits`. Core says what the game does: the update draws its random number (`HasMovingLiquid`,
+`PublishHeldInput`), a binding holds several buttons, a probe is limited in 256ths of a pixel, an untinted look shows
+one colour black, the random number chooses one of rain's four winds, nothing is marked explored. The middle of a room,
+the upper half of the screen, a tint's colours, a bit and a save stay English.
+
+#2427 widens SME6454, outside hardware owners, to the original's setup and storage as area prose tells them: a setup,
+initialization or spawn that selects colours (`the setup selects the enemy projectiles' colours`, `statue initialization
+selects the common sprite colours`), and a value named by its hyphenated 1/65536-pixel storage (`Samus's 1/65536-pixel
+position`, `a signed 1/65536-pixel velocity`), which #2172 had left as a unit of measure. It also reads the species-owner
+template (`The Ceres steam species owner: its per-room state, behaviour and the interactions it registers`) on the
+summary of a type that neither is nor implements `IEnemyEntityFactory` or `IEnemySpecies`. Core says what the game
+does: pictures arrive pre-coloured, a position or speed carries its fraction of a pixel in its type, and a type that owns
+no species says what it is (`The Zebes escape's explosions`, `The falling sparks`). A speed in 1/65536 pixels, a setup
+that selects anything but colours and an entity's parameter naming its species owner stay English.
+
+#2433 widens SME6454, outside hardware owners, to the machine's coordinate wrap and the original's stores, calls and
+writes as enemy prose tells them: a comparison across the room's wrap or on either side of it (`the coordinate difference
+across the room's wrap`, `on either side of the wrap`); a distance measured as an encoding owner measures it (`measured
+across the room as CoordinateAxis.Difference measures it`); `clearing stores` or writes; a thing that issues calls
+(`leaving the room issues both calls`); and `overlapping writes` or stores. Core says what the game does: an Atomic
+moves towards Samus, Samus lies to the block's left or right, the drain cancels her invincibility and knockback, leaving
+queues the departure sound and then the spin-end sound, the release leaves five screens closed; `CoordinateAxis` states
+the wrap once. A turn's wrap, a thing wrapped across something, clearing a thing, an issue, a call and overlapping things
+that are not writes stay English.
+
 `Tilemap` is matched as the one word the cartridge's sources spell. A room layer named as the destination engine names
 it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as does `MapTiles`; so does
 `SpriteSheet` beside `Spritemap`, and `Scan`, `Scanned` or `FirstLine` beside `Scanline` (#1694). Documentation prose is
@@ -656,7 +687,7 @@ There is no identifier allowance. A type marked `[CompatibilityService]` (#1401)
 hardware behaviour it reproduces (for example "as the SPC port handshake did"); documentation is not an identifier, so
 the rule never reads it. Its documentation counterpart, SME6454, exempts compatibility services and encoding owners in
 the same way, except for the machine's provenance, which it reads in every type: native words and bit patterns, the
-cartridge's routines and values written as the machine's hexadecimal fixed-point (`0.1000`, `7.0000`) (#1743). It reads the original program's call structure and the C reimplementation in every type too: dispatchers, callables, a routine's labels (a merge or inverted label) and the upstream C rewrite (#1754). Outside the owners it also reads the original's data and number encodings: decompression, colour indexes, two's complement, unsigned compares and the `8.8` and `16.16` format names (#1754); an encoding owner such as `EightEight` names the format it owns. Every other occurrence is renamed for the game or removed with the thing it named. No baseline,
+cartridge's routines and values written as the machine's hexadecimal fixed-point (`0.1000`, `7.0000`) (#1743). It reads the original program's call structure and the C reimplementation in every type too: dispatchers, callables, a routine's labels (a merge or inverted label) and the upstream C rewrite (#1754). Outside the owners it also reads the original's data and number encodings: decompression, colour indexes, two's complement, unsigned compares and the `8.8` and `16.16` format names (#1754); an encoding owner such as `SignedEightEight` names the format it owns. Every other occurrence is renamed for the game or removed with the thing it named. No baseline,
 allowlist, count, severity change or scope change (project manifesto, section 6).
 
 ## Status

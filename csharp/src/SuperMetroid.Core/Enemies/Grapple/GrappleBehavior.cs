@@ -3,7 +3,7 @@ using SuperMetroid.Core.Samus.Grapple;
 
 namespace SuperMetroid.Core.Enemies.Grapple;
 
-/// <summary>The Grapple species owner: its per-room state, behaviour and the interactions it registers.</summary>
+/// <summary>The grapple beam's hold on enemies: the enemy its end catches and what a caught enemy does.</summary>
 [RoomLifetime]
 internal sealed class GrappleBehavior : IGrappleTargets
 {
@@ -31,6 +31,9 @@ internal sealed class GrappleBehavior : IGrappleTargets
             if (enemy.InvincibilityTimer != 0)
                 continue;
 
+            // The endpoint tested lies in the room's grid, but an interactive enemy need not: a fly that has climbed through
+            // the ceiling or a Bull braking past Samus can lie above or left of the room's origin, and the beam measures its
+            // distance to one the short way, as CoordinateAxis.Distance gives it.
             int xDistance = CoordinateAxis.Distance(enemy.Position.X.Whole, endpoint.X);
             int yDistance = CoordinateAxis.Distance(enemy.Position.Y.Whole, endpoint.Y);
             if (xDistance >= enemy.Radius.X + GrappleTargetDefinitions.BeamPointRadius || yDistance >= enemy.Radius.Y + GrappleTargetDefinitions.BeamPointRadius)

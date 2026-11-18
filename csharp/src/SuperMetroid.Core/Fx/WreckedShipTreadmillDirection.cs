@@ -5,9 +5,9 @@ namespace SuperMetroid.Core.Fx;
 /// </summary>
 public enum WreckedShipTreadmillDirection
 {
-    /// <summary>The four frames in forward order, selected by the rightward treadmill.</summary>
+    /// <summary>The treadmill whose belt runs right, which shows its own animation.</summary>
     Rightwards,
 
-    /// <summary>The four frames in reverse order, selected by the leftward treadmill.</summary>
+    /// <summary>The treadmill whose belt runs left, which shows its own animation.</summary>
     Leftwards,
 }

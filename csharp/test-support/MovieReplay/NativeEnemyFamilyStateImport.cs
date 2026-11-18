@@ -187,7 +187,13 @@ internal static class NativeEnemyFamilyStateImport
             elevatorDoorRecord.Phase = CeresNativeWords.ElevatorDoorPhases.Decode(words.A, "recorded Ceres elevator door phase");
             elevatorDoorRecord.RumbleUpdatesLeft = TrueDuration(words.D);
             elevatorDoorRecord.ExplosionIntervalLeft = TrueDuration(words.E);
-            elevatorDoorRecord.LastExplosionPlace = words.F;
+            // The recorded word is the native table place of the last burst, which the rumble walks from the table's last
+            // place to its first; the port lists the places in burst order, so the next burst is the one after it (#2424).
+            IReadOnlyList<Offset16<RoomPixels>> bursts = CeresDoorRumbleGeometryDefinitions.ExplosionOffsets;
+            int lastBurst = words.F < bursts.Count
+                ? words.F
+                : throw new InvalidDataException($"Recorded Ceres elevator door burst place {words.F} is not one of its {bursts.Count}.");
+            elevatorDoorRecord.NextExplosion = CyclingSequence<Offset16<RoomPixels>>.At(bursts, (bursts.Count - lastBurst) % bursts.Count);
         }
         else if (enemy.SpeciesState<CeresDoorAnimationState>() is not null && words.A != CeresNativeWords.MainBehaviourWord(enemy))
         {

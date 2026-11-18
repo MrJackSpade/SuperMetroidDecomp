@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Compatibility;
-using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>
@@ -410,12 +409,12 @@ public sealed class ManagedSnesDsp
                     voice.Gain = SnesDspRegisterLayout.EnvelopeMaximum;
                 break;
             case EnvelopeState.Decay:
-                voice.Gain = unchecked((ushort)(voice.Gain - (EightEight.WholeOf(voice.Gain - 1) + 1)));
+                voice.Gain = unchecked((ushort)(voice.Gain - ExponentialDecayStep(voice.Gain)));
                 if (voice.Gain < voice.SustainLevel)
                     voice.AdsrState = EnvelopeState.Sustain;
                 break;
             case EnvelopeState.Sustain:
-                voice.Gain = unchecked((ushort)(voice.Gain - (EightEight.WholeOf(voice.Gain - 1) + 1)));
+                voice.Gain = unchecked((ushort)(voice.Gain - ExponentialDecayStep(voice.Gain)));
                 break;
             case EnvelopeState.Gain:
                 switch (voice.GainMode)
@@ -426,7 +425,7 @@ public sealed class ManagedSnesDsp
                             voice.Gain = 0;
                         break;
                     case 1:
-                        voice.Gain = unchecked((ushort)(voice.Gain - (EightEight.WholeOf(voice.Gain - 1) + 1)));
+                        voice.Gain = unchecked((ushort)(voice.Gain - ExponentialDecayStep(voice.Gain)));
                         break;
                     case 2:
                         voice.Gain = unchecked((ushort)(voice.Gain + 32));
@@ -629,6 +628,12 @@ public sealed class ManagedSnesDsp
 
     /// <summary>Writes a wrapped little-endian echo word into shared audio RAM.</summary>
     private void WriteWord(int address, ushort value) => SpcRamWords.Write(apuRam, address, value);
+
+    /// <summary>
+    /// How far an exponential envelope falls in one step from <paramref name="gain"/>: a 256th of the level below it,
+    /// rounded toward negative infinity, plus one, so a level of zero stays where it is.
+    /// </summary>
+    private static int ExponentialDecayStep(int gain) => ((gain - 1) >> 8) + 1;
 
     /// <summary>Clamps an intermediate mix or echo sum to signed 16-bit amplitude.</summary>
     private static int Clamp16(int value) => Math.Clamp(value, short.MinValue, short.MaxValue);

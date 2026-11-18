@@ -1,9 +1,14 @@
+using System.Collections.Frozen;
+using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Assets;
+using Idle = SuperMetroid.Core.Animation.AnimationBeat<SuperMetroid.Core.Assets.ArtworkFrame, SuperMetroid.Core.Animation.NoAnimationCue>.Frame;
+
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>
-/// The looping block animations (#1988, #2361): each loop's frames, authored in the order it shows them with the passes
-/// each is shown for, and when the loop starts; the animation a room effect's type shows on the effect overlay; and the treadmill animation a Wrecked
-/// Ship entrance door starts for each direction.
+/// The looping block animations (#1988, #2361, #2422): each animation's idle loop, its frames authored in the order it shows
+/// them with the passes each is shown for; the loops that wait for the area's boss; the animation a room effect's type shows
+/// on the effect overlay; and the treadmill animation a Wrecked Ship entrance door starts for each direction.
 /// </summary>
 /// <remarks>
 /// Each loop is its animation's idle loop, the one a block animation always plays (#2370): its frames are named idle 0,
@@ -12,76 +17,84 @@ namespace SuperMetroid.Core.Fx;
 /// </remarks>
 public static class BlockAnimationLoopDefinitions
 {
-    /// <summary>The nine loops, by animation (<see cref="BlockAnimationLoops"/>).</summary>
-    internal static readonly IReadOnlyDictionary<BlockAnimation, BlockAnimationLoop> Loops =
-        new Dictionary<BlockAnimation, BlockAnimationLoop>
+    /// <summary>The nine idle loops, by animation, each the one segment its animation loops through (<see cref="BlockAnimationLoops"/>).</summary>
+    internal static readonly FrozenDictionary<BlockAnimation, AnimationBeat<ArtworkFrame, NoAnimationCue>[]> IdleLoops =
+        new Dictionary<BlockAnimation, AnimationBeat<ArtworkFrame, NoAnimationCue>[]>
     {
-        [BlockAnimation.HorizontalSpikes] = new(BlockAnimation.HorizontalSpikes, BlockAnimationStart.Immediately,
+        [BlockAnimation.HorizontalSpikes] =
         [
-            new(BlockAnimationFrames.Frame(BlockAnimation.HorizontalSpikes, "idle 0"), 8),
-            new(BlockAnimationFrames.Frame(BlockAnimation.HorizontalSpikes, "idle 1"), 8),
-            new(BlockAnimationFrames.Frame(BlockAnimation.HorizontalSpikes, "idle 2"), 8),
-            new(BlockAnimationFrames.Frame(BlockAnimation.HorizontalSpikes, "idle 3"), 8),
-        ]),
-        [BlockAnimation.MaridiaSandCeiling] = new(BlockAnimation.MaridiaSandCeiling, BlockAnimationStart.Immediately,
+            new Idle(BlockAnimationFrames.Frame(BlockAnimation.HorizontalSpikes, "idle 0"), 8),
+            new Idle(BlockAnimationFrames.Frame(BlockAnimation.HorizontalSpikes, "idle 1"), 8),
+            new Idle(BlockAnimationFrames.Frame(BlockAnimation.HorizontalSpikes, "idle 2"), 8),
+            new Idle(BlockAnimationFrames.Frame(BlockAnimation.HorizontalSpikes, "idle 3"), 8),
+        ],
+        [BlockAnimation.MaridiaSandCeiling] =
         [
-            new(BlockAnimationFrames.Frame(BlockAnimation.MaridiaSandCeiling, "idle 0"), 10),
-            new(BlockAnimationFrames.Frame(BlockAnimation.MaridiaSandCeiling, "idle 1"), 10),
-            new(BlockAnimationFrames.Frame(BlockAnimation.MaridiaSandCeiling, "idle 2"), 10),
-            new(BlockAnimationFrames.Frame(BlockAnimation.MaridiaSandCeiling, "idle 3"), 10),
-        ]),
-        [BlockAnimation.MaridiaSandFalling] = new(BlockAnimation.MaridiaSandFalling, BlockAnimationStart.Immediately,
+            new Idle(BlockAnimationFrames.Frame(BlockAnimation.MaridiaSandCeiling, "idle 0"), 10),
+            new Idle(BlockAnimationFrames.Frame(BlockAnimation.MaridiaSandCeiling, "idle 1"), 10),
+            new Idle(BlockAnimationFrames.Frame(BlockAnimation.MaridiaSandCeiling, "idle 2"), 10),
+            new Idle(BlockAnimationFrames.Frame(BlockAnimation.MaridiaSandCeiling, "idle 3"), 10),
+        ],
+        [BlockAnimation.MaridiaSandFalling] =
         [
-            new(BlockAnimationFrames.Frame(BlockAnimation.MaridiaSandFalling, "idle 0"), 10),
-            new(BlockAnimationFrames.Frame(BlockAnimation.MaridiaSandFalling, "idle 1"), 10),
-            new(BlockAnimationFrames.Frame(BlockAnimation.MaridiaSandFalling, "idle 2"), 10),
-            new(BlockAnimationFrames.Frame(BlockAnimation.MaridiaSandFalling, "idle 3"), 10),
-        ]),
-        [BlockAnimation.WreckedShipTreadmillRightwards] = new(BlockAnimation.WreckedShipTreadmillRightwards, BlockAnimationStart.OnceAreaBossIsDefeated,
+            new Idle(BlockAnimationFrames.Frame(BlockAnimation.MaridiaSandFalling, "idle 0"), 10),
+            new Idle(BlockAnimationFrames.Frame(BlockAnimation.MaridiaSandFalling, "idle 1"), 10),
+            new Idle(BlockAnimationFrames.Frame(BlockAnimation.MaridiaSandFalling, "idle 2"), 10),
+            new Idle(BlockAnimationFrames.Frame(BlockAnimation.MaridiaSandFalling, "idle 3"), 10),
+        ],
+        [BlockAnimation.WreckedShipTreadmillRightwards] =
         [
-            new(BlockAnimationFrames.Frame(BlockAnimation.WreckedShipTreadmillRightwards, "idle 0"), 1),
-            new(BlockAnimationFrames.Frame(BlockAnimation.WreckedShipTreadmillRightwards, "idle 1"), 1),
-            new(BlockAnimationFrames.Frame(BlockAnimation.WreckedShipTreadmillRightwards, "idle 2"), 1),
-            new(BlockAnimationFrames.Frame(BlockAnimation.WreckedShipTreadmillRightwards, "idle 3"), 1),
-        ]),
-        [BlockAnimation.WreckedShipTreadmillLeftwards] = new(BlockAnimation.WreckedShipTreadmillLeftwards, BlockAnimationStart.OnceAreaBossIsDefeated,
+            new Idle(BlockAnimationFrames.Frame(BlockAnimation.WreckedShipTreadmillRightwards, "idle 0"), 1),
+            new Idle(BlockAnimationFrames.Frame(BlockAnimation.WreckedShipTreadmillRightwards, "idle 1"), 1),
+            new Idle(BlockAnimationFrames.Frame(BlockAnimation.WreckedShipTreadmillRightwards, "idle 2"), 1),
+            new Idle(BlockAnimationFrames.Frame(BlockAnimation.WreckedShipTreadmillRightwards, "idle 3"), 1),
+        ],
+        [BlockAnimation.WreckedShipTreadmillLeftwards] =
         [
-            new(BlockAnimationFrames.Frame(BlockAnimation.WreckedShipTreadmillLeftwards, "idle 0"), 1),
-            new(BlockAnimationFrames.Frame(BlockAnimation.WreckedShipTreadmillLeftwards, "idle 1"), 1),
-            new(BlockAnimationFrames.Frame(BlockAnimation.WreckedShipTreadmillLeftwards, "idle 2"), 1),
-            new(BlockAnimationFrames.Frame(BlockAnimation.WreckedShipTreadmillLeftwards, "idle 3"), 1),
-        ]),
-        [BlockAnimation.Lava] = new(BlockAnimation.Lava, BlockAnimationStart.Immediately,
+            new Idle(BlockAnimationFrames.Frame(BlockAnimation.WreckedShipTreadmillLeftwards, "idle 0"), 1),
+            new Idle(BlockAnimationFrames.Frame(BlockAnimation.WreckedShipTreadmillLeftwards, "idle 1"), 1),
+            new Idle(BlockAnimationFrames.Frame(BlockAnimation.WreckedShipTreadmillLeftwards, "idle 2"), 1),
+            new Idle(BlockAnimationFrames.Frame(BlockAnimation.WreckedShipTreadmillLeftwards, "idle 3"), 1),
+        ],
+        [BlockAnimation.Lava] =
         [
-            new(BlockAnimationFrames.Frame(BlockAnimation.Lava, "idle 0"), 13),
-            new(BlockAnimationFrames.Frame(BlockAnimation.Lava, "idle 1"), 13),
-            new(BlockAnimationFrames.Frame(BlockAnimation.Lava, "idle 2"), 13),
-            new(BlockAnimationFrames.Frame(BlockAnimation.Lava, "idle 3"), 13),
-            new(BlockAnimationFrames.Frame(BlockAnimation.Lava, "idle 4"), 13),
-        ]),
-        [BlockAnimation.Acid] = new(BlockAnimation.Acid, BlockAnimationStart.Immediately,
+            new Idle(BlockAnimationFrames.Frame(BlockAnimation.Lava, "idle 0"), 13),
+            new Idle(BlockAnimationFrames.Frame(BlockAnimation.Lava, "idle 1"), 13),
+            new Idle(BlockAnimationFrames.Frame(BlockAnimation.Lava, "idle 2"), 13),
+            new Idle(BlockAnimationFrames.Frame(BlockAnimation.Lava, "idle 3"), 13),
+            new Idle(BlockAnimationFrames.Frame(BlockAnimation.Lava, "idle 4"), 13),
+        ],
+        [BlockAnimation.Acid] =
         [
-            new(BlockAnimationFrames.Frame(BlockAnimation.Acid, "idle 0"), 10),
-            new(BlockAnimationFrames.Frame(BlockAnimation.Acid, "idle 1"), 10),
-            new(BlockAnimationFrames.Frame(BlockAnimation.Acid, "idle 2"), 10),
-            new(BlockAnimationFrames.Frame(BlockAnimation.Acid, "idle 3"), 10),
-            new(BlockAnimationFrames.Frame(BlockAnimation.Acid, "idle 4"), 10),
-        ]),
-        [BlockAnimation.Rain] = new(BlockAnimation.Rain, BlockAnimationStart.Immediately,
+            new Idle(BlockAnimationFrames.Frame(BlockAnimation.Acid, "idle 0"), 10),
+            new Idle(BlockAnimationFrames.Frame(BlockAnimation.Acid, "idle 1"), 10),
+            new Idle(BlockAnimationFrames.Frame(BlockAnimation.Acid, "idle 2"), 10),
+            new Idle(BlockAnimationFrames.Frame(BlockAnimation.Acid, "idle 3"), 10),
+            new Idle(BlockAnimationFrames.Frame(BlockAnimation.Acid, "idle 4"), 10),
+        ],
+        [BlockAnimation.Rain] =
         [
-            new(BlockAnimationFrames.Frame(BlockAnimation.Rain, "idle 0"), 10),
-            new(BlockAnimationFrames.Frame(BlockAnimation.Rain, "idle 1"), 10),
-            new(BlockAnimationFrames.Frame(BlockAnimation.Rain, "idle 2"), 10),
-            new(BlockAnimationFrames.Frame(BlockAnimation.Rain, "idle 3"), 10),
-            new(BlockAnimationFrames.Frame(BlockAnimation.Rain, "idle 4"), 10),
-        ]),
-        [BlockAnimation.Spores] = new(BlockAnimation.Spores, BlockAnimationStart.Immediately,
+            new Idle(BlockAnimationFrames.Frame(BlockAnimation.Rain, "idle 0"), 10),
+            new Idle(BlockAnimationFrames.Frame(BlockAnimation.Rain, "idle 1"), 10),
+            new Idle(BlockAnimationFrames.Frame(BlockAnimation.Rain, "idle 2"), 10),
+            new Idle(BlockAnimationFrames.Frame(BlockAnimation.Rain, "idle 3"), 10),
+            new Idle(BlockAnimationFrames.Frame(BlockAnimation.Rain, "idle 4"), 10),
+        ],
+        [BlockAnimation.Spores] =
         [
-            new(BlockAnimationFrames.Frame(BlockAnimation.Spores, "idle 0"), 10),
-            new(BlockAnimationFrames.Frame(BlockAnimation.Spores, "idle 1"), 10),
-            new(BlockAnimationFrames.Frame(BlockAnimation.Spores, "idle 2"), 10),
-        ]),
-    };
+            new Idle(BlockAnimationFrames.Frame(BlockAnimation.Spores, "idle 0"), 10),
+            new Idle(BlockAnimationFrames.Frame(BlockAnimation.Spores, "idle 1"), 10),
+            new Idle(BlockAnimationFrames.Frame(BlockAnimation.Spores, "idle 2"), 10),
+        ],
+    }.ToFrozenDictionary();
+
+    /// <summary>
+    /// The loops that wait, showing nothing, until a pass on which the area's boss is recorded defeated, and show their first
+    /// frame on that pass, never testing the boss again: the Wrecked Ship treadmills wait for Phantoon. Every other loop
+    /// shows its first frame on its first pass.
+    /// </summary>
+    internal static readonly FrozenSet<BlockAnimation> AwaitingAreaBoss =
+        [BlockAnimation.WreckedShipTreadmillRightwards, BlockAnimation.WreckedShipTreadmillLeftwards];
 
     /// <summary>
     /// The animation a room effect of each type shows on the effect overlay; an effect of any other type shows none

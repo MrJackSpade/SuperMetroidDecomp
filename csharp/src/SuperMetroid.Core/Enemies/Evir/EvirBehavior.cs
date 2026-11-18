@@ -142,8 +142,6 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         };
         place.SetSpeciesState(state);
         RequestEvirAnimation(place, state, EvirSegment.ProjectileNormal);
-
-        // The spit has no graphics-set entry of its own: its sheet pictures it in the Evir's art and colours.
         ResetEvirProjectilePosition(place, state);
 
         // The spit's first request, at its first launch, starts its normal animation afresh, refreshing the frame timer once.
@@ -275,7 +273,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         EvirSpitState state,
         SamusState samus)
     {
-        if (CoordinateAxis.Distance(samus.Position.X.Whole, state.Body.Position.X.Whole) >= EvirMotionDefinitions.SpitActivationDistance)
+        if (Math.Abs(samus.Position.X.Whole - state.Body.Position.X.Whole) >= EvirMotionDefinitions.SpitActivationDistance)
         {
             return;
         }
@@ -283,7 +281,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         // Samus's bearing from the spit, zero up and clockwise, aims the spit's speed along the circle
         // (EnemyMath.CircleSine).
         TrigonometryAngle transformedAngle = EnemyMath.CalculateBearing(
-            new(CoordinateAxis.Difference(samus.Position.X.Whole, projectile.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, projectile.Position.Y.Whole))).ToTrigonometryAngle();
+            new(samus.Position.X.Whole - projectile.Position.X.Whole, samus.Position.Y.Whole - projectile.Position.Y.Whole)).ToTrigonometryAngle();
         SignedSixteenSixteen x = EnemyMath.CircleCosine(
             transformedAngle,
             EvirMotionDefinitions.SpitSpeed);

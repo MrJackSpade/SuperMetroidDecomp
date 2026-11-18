@@ -59,7 +59,7 @@ public sealed class SamusBomb
     /// <summary>The spread bomb's horizontal velocity, negative leftward; a wall reverses it.</summary>
     public SignedSixteenSixteen BombSpreadHorizontalVelocity { get; internal set; }
 
-    /// <summary>The spread bomb's signed 1/65536-pixel vertical velocity; Samus's gravity accelerates it every frame.</summary>
+    /// <summary>The spread bomb's vertical velocity, negative upward; Samus's gravity accelerates it every frame.</summary>
     public SignedSixteenSixteen BombSpreadVerticalVelocity { get; internal set; }
 
     /// <summary>The upward launch velocity, signed and in 1/65536 pixels, that a floor bounce restores.</summary>

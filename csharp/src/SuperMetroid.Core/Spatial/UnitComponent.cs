@@ -7,8 +7,11 @@ namespace SuperMetroid.Core.Spatial;
 /// </summary>
 public readonly record struct UnitComponent
 {
+    /// <summary>The 256ths in the whole of a direction, as a power of two.</summary>
+    private const int WholeExponent = 8;
+
     /// <summary>The 256ths in the whole of a direction.</summary>
-    private const int Whole = 256;
+    private const int Whole = 1 << WholeExponent;
 
     /// <summary>The component of <paramref name="twoFiftySixths"/> 256ths of the whole, minus one through one.</summary>
     private UnitComponent(int twoFiftySixths) => TwoFiftySixths = Ensure.BetweenInclusive(-Whole, Whole, twoFiftySixths);
@@ -31,9 +34,17 @@ public readonly record struct UnitComponent
     /// <param name="length">The length in whole pixels, zero or more.</param>
     public int ReachOf(int length)
     {
-        int reach = EightEight.Multiply(Math.Abs(TwoFiftySixths), Ensure.BetweenInclusive(0, int.MaxValue, length));
+        int reach = Math.Abs(TwoFiftySixths) * Ensure.BetweenInclusive(0, int.MaxValue, length) / Whole;
         return IsNegative ? -reach : reach;
     }
+
+    /// <summary>
+    /// How far along the axis a length of <paramref name="length"/> whole pixels laid along the direction reaches, in
+    /// whole pixels rounded toward negative infinity: a reach toward the axis's decreasing side that falls short of a
+    /// whole pixel lies a whole pixel further out, unlike <see cref="ReachOf"/>, which rounds toward zero.
+    /// </summary>
+    /// <param name="length">The length in whole pixels, negative for a length laid the other way along the direction.</param>
+    public int ReachRoundedDownOf(int length) => TwoFiftySixths * length >> WholeExponent;
 
     /// <summary>
     /// How far along the axis a length of <paramref name="length"/> whole pixels laid along the direction reaches, every

@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// State for stored Speed Booster shine and the shinespark that moves Samus (<see cref="SamusMovementOwner.Shinespark"/>).
 /// </summary>
 /// <remarks>
-/// Its timers count whole updates and its movement keeps 1/65536-pixel fractions; the stored shine and the spark show
+/// Its timers count whole updates and its movement keeps fractions of a pixel; the stored shine and the spark show
 /// Samus's full-body cycle shades. Block collision uses the shared step; solid enemies stop a sideways spark through it,
 /// and an upward spark tests them before its block move.
 /// </remarks>
@@ -23,7 +23,7 @@ public sealed class SamusShinesparkState
     internal GameplayAudioRequests AudioRequests { get; }
 
     /// <summary>
-    /// The upward spark's 1/65536-pixel acceleration in pixels per frame per frame: 7.0 when windup begins, raised by Samus's
+    /// The upward spark's acceleration in pixels per frame per frame: 7.0 when windup begins, raised by Samus's
     /// vertical acceleration on every vertical or diagonal spark call, and cleared when the crash finishes. A suit pickup
     /// during a suspended windup replaces it with the light beam's progress.
     /// </summary>

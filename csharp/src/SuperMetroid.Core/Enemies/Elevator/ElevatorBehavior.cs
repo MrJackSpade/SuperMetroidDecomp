@@ -199,8 +199,8 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
             return;
         }
 
-        // Leaving the room issues both calls in this order before changing Samus's pose. Keeping
-        // them as two requests matters because each sound library plays independently.
+        // Leaving the room queues the departure sound and then the spin-end sound before Samus's pose changes; they
+        // stay two requests because each sound library plays independently.
         _audio.QueueEnemySound(EnemySoundEffectDefinitions.ElevatorDepartureSound, priority: SoundRequestPriority.Normal);
         _audio.QueueEnemySound(EnemySoundEffectDefinitions.ElevatorDepartureSpinEndSound, priority: SoundRequestPriority.Normal);
         SamusPoseMetadata.SetupForElevator(samus);
@@ -266,6 +266,9 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
     /// <summary>Pins Samus to the elevator.</summary>
     private static void PinSamusToElevator(RoomEnemyPlace place, SamusState samus)
     {
+        // A departing up-elevator leaves through the door blocks in the room's top row, which only the ride's one-pixel
+        // downward probe meets: Samus's feet reach the top row once her centre has risen above the room's top, so her
+        // height wraps for the last updates before the door.
         samus.Position = samus.Position.WithWrappedWholeY(place.Position.Y.Whole - ElevatorActorDefinitions.SamusYOffset);
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0);
         samus.Position = samus.Position.WithWholeX(place.Position.X.Whole);

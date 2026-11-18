@@ -159,7 +159,7 @@ internal static class ProjectileDamageVerification
                 bool negative = phase >= 128;
                 int index = negative ? unchecked((byte)(phase + 128)) : phase;
                 int address = BeamComboDefinitions.PositiveSine + index * 2;
-                int magnitude = (EightEight.Multiply(rom.ReadCartridgeByte(address), (byte)amplitude)) +
+                int magnitude = (EightEightOracle.Multiply(rom.ReadCartridgeByte(address), (byte)amplitude)) +
                     rom.ReadCartridgeByte(address + 1) * (byte)amplitude;
                 return unchecked((short)(negative ? -magnitude : magnitude));
             }

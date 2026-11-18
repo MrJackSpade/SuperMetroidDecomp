@@ -1,0 +1,141 @@
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Bosses.Phantoon;
+using SuperMetroid.Core.Enemies.YappingMaws;
+using SuperMetroid.Core.Samus.Projectiles;
+
+namespace SuperMetroid.Verification.Spatial;
+
+/// <summary>
+/// Confirms the #2428 conversions of the hand-written "length times the game's sine" products: the reach rounded toward
+/// negative infinity (Mother Brain's neck, Ridley's tail), the reach rounded toward zero (Phantoon's flames, the charged
+/// beam combos) and the fine sine's coarse reading (the Bull, the Yapping Maw) each equal the raw 8.8 arithmetic they
+/// replace over every angle and every length their callers pass.
+/// </summary>
+internal static class TypedSineProductsVerification
+{
+    /// <summary>The shortest length compared: the most negative whole-pixel distance a signed 8.8 distance holds.</summary>
+    private const int ShortestLength = sbyte.MinValue;
+
+    /// <summary>The longest length compared: past the short circle product's radius span, so its wrap is covered too.</summary>
+    private const int LongestLength = 511;
+
+    /// <summary>Runs every comparison of the typed sine products with the arithmetic they replace.</summary>
+    internal static void VerifyTypedSineProducts()
+    {
+        int compared = VerifyReachRoundedDown() + VerifyReachTowardZero() + VerifyCoarseSizeOfFineSine();
+        Console.WriteLine($"  Typed sine products: {compared} rounded-down, toward-zero and coarse fine-sine products equal the raw 8.8 arithmetic they replace.");
+    }
+
+    /// <summary>
+    /// The reach rounded toward negative infinity equals the signed sine times the length with its 256ths shifted out, as
+    /// Mother Brain's neck and Ridley's tail computed it, for every angle and every length, negative lengths included.
+    /// </summary>
+    private static int VerifyReachRoundedDown()
+    {
+        int compared = 0;
+        for (int raw = 0; raw <= byte.MaxValue; raw++)
+        {
+            var angle = new TrigonometryAngle(raw);
+            int sine = Trigonometry.SignedSine(angle);
+            UnitComponent component = UnitComponent.SineOf(angle);
+            for (int length = ShortestLength; length <= LongestLength; length++)
+            {
+                int neckProduct = EightEightOracle.WholeOf(sine * length);
+                int tailProduct = EightEightOracle.Multiply(length, sine);
+                int reach = component.ReachRoundedDownOf(length);
+                if (reach != neckProduct || reach != tailProduct)
+                    throw new InvalidDataException(
+                        $"Angle {raw}, length {length}: the rounded-down reach {reach} differs from the neck's {neckProduct} or the tail's {tailProduct}.");
+                if (length >= 0 && MotherBrainNeckKinematics.CalculateSignedComponent(angle, length) != neckProduct)
+                    throw new InvalidDataException($"Angle {raw}, distance {length}: Mother Brain's neck component differs from {neckProduct}.");
+                compared++;
+            }
+        }
+
+        return compared;
+    }
+
+    /// <summary>
+    /// The reach rounded toward zero equals Phantoon's flame product (the radius times the half-turn sample's fraction and
+    /// whole part, negated over the second half turn) and the combos' product (the radius times the sample's size, its
+    /// sign restored) for every angle and every non-negative length, and the two call sites read it.
+    /// </summary>
+    private static int VerifyReachTowardZero()
+    {
+        int compared = 0;
+        for (int raw = 0; raw <= byte.MaxValue; raw++)
+        {
+            var angle = new TrigonometryAngle(raw);
+            UnitComponent component = UnitComponent.SineOf(angle);
+            for (int length = 0; length <= LongestLength; length++)
+            {
+                int flame = OldFlameComponent(angle, length);
+                int combo = OldComboComponent(angle, length);
+                int reach = component.ReachOf(length);
+                if (reach != flame || reach != combo)
+                    throw new InvalidDataException(
+                        $"Angle {raw}, length {length}: the toward-zero reach {reach} differs from the flame's {flame} or the combo's {combo}.");
+                int flameAtSite = PhantoonCombat.ReadPhantoonFlameComponent(angle, length);
+                int expectedAtSite = OldFlameComponent(angle, ShortCircleProduct.RadiusInUse(length));
+                if (flameAtSite != expectedAtSite)
+                    throw new InvalidDataException($"Angle {raw}, radius {length}: Phantoon's flame component {flameAtSite} differs from {expectedAtSite}.");
+                if (length <= ComboRingCollapse.LargestRadius)
+                {
+                    Offset16<RoomPixels> offset = SamusComboMechanics.GetSineOffset(angle, length);
+                    var expected = new Offset16<RoomPixels>(combo, OldComboComponent(angle - TrigonometryAngle.QuarterTurn, length));
+                    if (offset != expected)
+                        throw new InvalidDataException($"Angle {raw}, amplitude {length}: the combo offset {offset} differs from {expected}.");
+                }
+
+                compared++;
+            }
+        }
+
+        return compared;
+    }
+
+    /// <summary>
+    /// The fine sine's coarse size equals the fine sine's magnitude with its low eight bits shifted out, as the Bull and the
+    /// Yapping Maw read it, for every angle, and the Maw's offset equals its replaced arithmetic for every angle and length.
+    /// </summary>
+    private static int VerifyCoarseSizeOfFineSine()
+    {
+        int compared = 0;
+        for (int raw = 0; raw <= byte.MaxValue; raw++)
+        {
+            var angle = new TrigonometryAngle(raw);
+            int expected = EightEightOracle.UnsignedWhole(Math.Abs(Trigonometry.FineSignedSine(angle)));
+            AssertEqual(expected, Trigonometry.CoarseSizeOfFineSine(angle), $"the fine sine's coarse size at angle {raw}");
+            compared++;
+            for (int length = 0; length <= LongestLength; length++)
+            {
+                int signedSample = -Trigonometry.FineSignedSine(angle);
+                int sampleWhole = EightEightOracle.UnsignedWhole(Math.Abs(signedSample));
+                SignedEightEight offset = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(sampleWhole * ShortCircleProduct.RadiusInUse(length));
+                int old = 2 * (signedSample < 0 ? -offset : offset).WholePixels;
+                int actual = YappingMawBehavior.CalculateYappingMawY(angle, length);
+                if (actual != old)
+                    throw new InvalidDataException($"Angle {raw}, length {length}: the Yapping Maw offset {actual} differs from {old}.");
+                compared++;
+            }
+        }
+
+        return compared;
+    }
+
+    /// <summary>Phantoon's replaced flame product: the half-turn sample's fraction and whole part each times the radius.</summary>
+    private static int OldFlameComponent(TrigonometryAngle angle, int radius)
+    {
+        int sample = Trigonometry.SignedSine(angle.InFirstHalfTurn());
+        int magnitude = EightEightOracle.Multiply(EightEightOracle.FractionOf(sample), radius) + EightEightOracle.WholeOf(sample) * radius;
+        return angle.IsInSecondHalf ? -magnitude : magnitude;
+    }
+
+    /// <summary>The combos' replaced product: the sample's size times the amplitude, its 256ths dropped, the sign restored.</summary>
+    private static int OldComboComponent(TrigonometryAngle angle, int amplitude)
+    {
+        int sample = Trigonometry.SignedSine(angle);
+        int magnitude = EightEightOracle.Multiply(Math.Abs(sample), amplitude);
+        return sample < 0 ? -magnitude : magnitude;
+    }
+}

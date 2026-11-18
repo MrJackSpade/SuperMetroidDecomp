@@ -75,11 +75,10 @@ public sealed class SharedGameState
     internal void SwapRandomHalves() => Random.SwapHalves();
 
     /// <summary>
-    /// Advances the shared RNG seed exactly as the game's generator
-    /// does, preserving the two half-by-half products, the overflow into the upper half,
-    /// and the final addition wrapping past 65535. Every later draw observes the updated seed.
+    /// Draws the shared random sequence's next value (<see cref="SharedRandom.Generate"/>); every later draw follows on
+    /// from it.
     /// </summary>
-    /// <returns>The new RNG state as a sample, 0 through 65535, also stored in <see cref="Random"/>.</returns>
+    /// <returns>The value drawn, 0 through 65535, which <see cref="Random"/> now holds.</returns>
     public int NextRandom() => Random.Generate();
 
     /// <summary>Records <paramref name="bosses"/> as defeated in <paramref name="area"/>.</summary>

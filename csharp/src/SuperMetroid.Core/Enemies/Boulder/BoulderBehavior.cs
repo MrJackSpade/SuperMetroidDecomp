@@ -116,11 +116,11 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Starts the bounce chain or direct roll only when Samus enters the direction-specific X window below the boulder.</summary>
     private static void RunBoulderWaiting(RoomEnemyPlace place, BoulderEnemyState state, SamusState samus)
     {
-        int deltaY = CoordinateAxis.Difference(samus.Position.Y.Whole, place.Position.Y.Whole);
+        int deltaY = samus.Position.Y.Whole - place.Position.Y.Whole;
         if (deltaY < 0 || deltaY >= state.TriggerReach.Y)
             return;
 
-        int deltaX = CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole);
+        int deltaX = samus.Position.X.Whole - place.Position.X.Whole;
         bool enteredHorizontalWindow = state.Roll != BoulderRoll.Right
             ? deltaX < 0 && deltaX >= state.TriggerReach.X
             : deltaX >= 0 && deltaX < state.TriggerReach.X;

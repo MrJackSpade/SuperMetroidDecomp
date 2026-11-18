@@ -86,7 +86,7 @@ public sealed class SamusKinematicsState
     public FixedPosition<RoomPixels> Position { get; set; }
 
     /// <summary>
-    /// External signed 1/65536-pixel displacement.
+    /// The displacement things outside Samus give her.
     /// Enemy/room-object producers write it independently of Samus's own speeds;
     /// it persists until its producer clears it, and Samus's movement neither consumes nor zeroes it.
     /// </summary>

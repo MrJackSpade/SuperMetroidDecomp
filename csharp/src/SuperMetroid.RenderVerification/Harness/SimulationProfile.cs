@@ -43,7 +43,7 @@ internal static class SimulationProfile
     /// <summary>Warms one installed room, captures unpaced frames with desktop audio, and summarizes their timing samples.</summary>
     private static object Measure(RoomDefinition room, bool paused)
     {
-        var game = InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(),
+        var game = InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps),
             new SuperMetroid.Core.Gameplay.GameplayAssists { SkipOpeningCinematic = true, SamusCannotDie = true });
         game.BindAudio(DesktopAccess.LoadAudioClips());
         var pcm = new short[AudioSession.PcmSamplesPerFrame];

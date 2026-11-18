@@ -99,6 +99,20 @@ public readonly record struct WrappingCountdown
     public int CyclePhase(int phaseFrames, int phases) => count / Ensure.BetweenInclusive(1, ushort.MaxValue, phaseFrames) % Ensure.BetweenInclusive(1, ushort.MaxValue, phases);
 
     /// <summary>
+    /// The place in <paramref name="looks"/>, one shown each frame in turn as the countdown runs down, that the frames left
+    /// select (#2421): a countdown at a multiple of their count stands at the last, so running down from there takes them
+    /// from the first. A shaking room's sides follow its earthquake's frames so.
+    /// </summary>
+    /// <param name="looks">The looks in the order they are shown, one or more.</param>
+    /// <exception cref="ArgumentException">There are no looks.</exception>
+    internal CyclingSequence<T> PlaceIn<T>(IReadOnlyList<T> looks)
+    {
+        if (Ensure.NotNull(looks).Count == 0)
+            throw new ArgumentException("A countdown selects a place among one or more looks.", nameof(looks));
+        return CyclingSequence<T>.At(looks, looks.Count - 1 - CyclePhase(1, looks.Count));
+    }
+
+    /// <summary>
     /// The countdown renewed by a producer that keeps it running for at least <paramref name="frames"/> without restarting
     /// it. The countdown runs in rounds of twice <paramref name="frames"/>: one in the first <paramref name="frames"/> of its
     /// round moves on by <paramref name="frames"/>, and one in the later half is left as it is. It never shortens a running

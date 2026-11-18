@@ -161,7 +161,7 @@ internal sealed class CrocomireCombat
                 .MovedBy(xVelocity);
             projectile.Position = projectile.Position.WithFractionX(x.Fraction).WithWholeX(x.Whole);
 
-            // The fall is ordinary signed 1/65536-pixel motion, with three sixteenths of a pixel of gravity per update.
+            // The piece falls by its speed, which gains three sixteenths of a pixel of gravity per update.
             piece.FallSpeed += SpikeWallPieceGravity;
             projectile.Position = projectile.Position.AdvanceY(piece.FallSpeed);
 

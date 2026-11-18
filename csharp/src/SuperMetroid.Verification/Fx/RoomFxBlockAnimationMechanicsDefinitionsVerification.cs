@@ -41,7 +41,7 @@ internal static class RoomFxBlockAnimationMechanicsDefinitionsVerification
         Suite(nameof(VerifyRoomFxAtlasSegmentRoles), () => VerifyRoomFxAtlasSegmentRoles());
         int mechanicsWordCount = 0;
         int frameCount = 0;
-        foreach (BlockAnimationLoop definition in
+        foreach (BlockAnimation definition in
                  RoomFxBlockAnimationLoops.All)
         {
             mechanicsWordCount += 3;
@@ -51,7 +51,7 @@ internal static class RoomFxBlockAnimationMechanicsDefinitionsVerification
                 ushort operand = definition.FrameSourceOperandPointer(index);
                 AssertTrue(!definition.TryReadMechanicsWord(
                         operand, out _),
-                    $"object {definition.Animation} leaves source operand " +
+                    $"object {definition} leaves source operand " +
                     $"$87:{operand:X4} presentation-owned");
                 mechanicsWordCount++;
                 frameCount++;
@@ -61,8 +61,7 @@ internal static class RoomFxBlockAnimationMechanicsDefinitionsVerification
 
             int presentationReadCount = 0;
             var guarded = NewRoomFxBlockAnimationMechanicsForbiddenBus(bus, definition, () => presentationReadCount++);
-            var state = new BlockAnimationPlayer();
-            state.Play(definition);
+            var state = BlockAnimationLoops.Start(definition);
 
             int steps = definition.Frames.Sum(frame => frame.Duration) + 1;
             int observedFrames = 0;
@@ -70,17 +69,17 @@ internal static class RoomFxBlockAnimationMechanicsDefinitionsVerification
             {
                 // Each pass selects into fresh selections, so a selection read back is the one this pass made.
                 var frames = new ArtworkFrameSelections();
-                state.Step(frames);
-                if (frames.TryShown(BlockAnimationFrames.Of(definition.Animation), out _))
+                BlockAnimationLoops.Pass(state, frames);
+                if (frames.TryShown(BlockAnimationFrames.Of(definition), out _))
                     observedFrames++;
             }
 
             AssertEqual(definition.Frames.Count + 1, observedFrames,
-                $"object {definition.Animation} executes one complete loop");
+                $"object {definition} executes one complete loop");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
-                $"object {definition.Animation} performs no mechanics ROM reads");
+                $"object {definition} performs no mechanics ROM reads");
             AssertEqual(0, presentationReadCount,
-                $"object {definition.Animation} reads no compiled artwork-source operands");
+                $"object {definition} reads no compiled artwork-source operands");
         }
 
         AssertEqual(7, RoomFxBlockAnimationLoops.All.Count(),
@@ -94,7 +93,7 @@ internal static class RoomFxBlockAnimationMechanicsDefinitionsVerification
 
     /// <summary>Rejects compiled mechanics reads and counts unexpected artwork operand reads in bank $87.</summary>
     private static CartridgeReadGuard NewRoomFxBlockAnimationMechanicsForbiddenBus(
-        ISnesAddressSpace inner, BlockAnimationLoop definition, Action presentationRead)
+        ISnesAddressSpace inner, BlockAnimation definition, Action presentationRead)
     {
         bool InAnimatedTileBank(int address) =>
             SnesAddress.FromBusAddress(address).Bank == SnesLittleEndianConstants.BankByte(RoomFxNativeSources.AnimatedTilesBank);
@@ -123,7 +122,7 @@ internal static class RoomFxBlockAnimationMechanicsDefinitionsVerification
     /// </summary>
     private static void VerifySimpleAnimationLoopWrapsToFirstFrame()
     {
-        foreach (BlockAnimationLoop definition in RoomFxBlockAnimationLoops.All)
+        foreach (BlockAnimation definition in RoomFxBlockAnimationLoops.All)
         {
             var expected = new List<RoomFxBlockAnimationMechanicsDefinitionsExpected>();
             int update = 0;
@@ -135,19 +134,18 @@ internal static class RoomFxBlockAnimationMechanicsDefinitionsVerification
                 update += definition.Frames[frame].Duration;
             }
 
-            var state = new BlockAnimationPlayer();
-            state.Play(definition);
+            var state = BlockAnimationLoops.Start(definition);
             var observed = new List<RoomFxBlockAnimationMechanicsDefinitionsExpected>();
             for (int step = 0; step <= expected[^1].Update; step++)
             {
                 // Each pass selects into fresh selections, so a selection read back is the one this pass made.
                 var frames = new ArtworkFrameSelections();
-                state.Step(frames);
-                if (AnimatedTileImageSources.OfShown(frames, definition.Animation) is int source)
+                BlockAnimationLoops.Pass(state, frames);
+                if (AnimatedTileImageSources.OfShown(frames, definition) is int source)
                     observed.Add(new RoomFxBlockAnimationMechanicsDefinitionsExpected(step, source));
             }
             AssertTrue(expected.SequenceEqual(observed),
-                $"{definition.Animation} shows each frame on its update and returns to the first after the last");
+                $"{definition} shows each frame on its update and returns to the first after the last");
         }
     }
 

@@ -401,7 +401,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         CrawlerSurfaceOrientation orientation = state.Velocity.Y.IsNegative
             ? CrawlerSurfaceOrientation.UpsideDown
             : CrawlerSurfaceOrientation.UpsideUp;
-        SetCrawlerAnimationFromTable(place, state, orientation);
+        PutCrawlerOnSurface(place, state, orientation);
     }
 
     /// <summary>Turns a crawler off a floor or ceiling onto the wall its horizontal tangent leads to.</summary>
@@ -412,14 +412,14 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         CrawlerSurfaceOrientation orientation = state.Velocity.X.IsNegative
             ? CrawlerSurfaceOrientation.UpsideRight
             : CrawlerSurfaceOrientation.UpsideLeft;
-        SetCrawlerAnimationFromTable(place, state, orientation);
+        PutCrawlerOnSurface(place, state, orientation);
     }
 
     /// <summary>
     /// Puts the crawler on <paramref name="orientation"/>: it starts its family's animation for that surface with a fresh
     /// frame timer and crawls along it.
     /// </summary>
-    private static void SetCrawlerAnimationFromTable(
+    private static void PutCrawlerOnSurface(
         RoomEnemyPlace place,
         CrawlerEnemyState state,
         CrawlerSurfaceOrientation orientation)

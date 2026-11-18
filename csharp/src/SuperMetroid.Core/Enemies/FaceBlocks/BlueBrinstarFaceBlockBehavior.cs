@@ -90,7 +90,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
             place.SpawnSettings<FaceBlockSpawnSettings>().TriggerDistance)
             return;
 
-        // Samus's horizontal distance from the block, measured across the room as CoordinateAxis.Difference measures it.
+        // How far Samus lies to the block's left or right.
         int horizontalDelta = CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole);
         if (Math.Abs(horizontalDelta) >= place.SpawnSettings<FaceBlockSpawnSettings>().TriggerDistance)
             return;

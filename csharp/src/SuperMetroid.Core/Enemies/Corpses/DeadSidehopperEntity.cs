@@ -36,7 +36,7 @@ internal sealed class DeadSidehopperEntity(DeadSidehopperBehavior species, RoomE
     /// <summary>The dead Sidehopper's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
     public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? DeadSidehopperBehavior.DeadSidehopperShotReaction : base.ShotReaction;
 
-    /// <summary>Runs the dead Sidehopper's its own bomb reaction in place of common bomb damage, for a bomb that selects its own shot reaction.</summary>
+    /// <summary>Runs the dead Sidehopper's own bomb reaction in place of common bomb damage, for a bomb whose hit selects the corpse's own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
     public override bool TryReplaceCommonBombDamage(EnemyBombContext context)
     {

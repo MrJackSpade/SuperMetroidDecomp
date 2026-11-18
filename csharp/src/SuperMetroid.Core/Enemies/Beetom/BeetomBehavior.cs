@@ -418,9 +418,8 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         if (BeetomCadenceDefinitions.DrainSoundEveryEighthEnemyPass.IsDue(_frameContext.RandomEnemyCounter) && samus.Health >= BeetomCadenceDefinitions.DrainSoundLeastHealth)
             _audio.QueueEnemySound(RoomSound.IncrementalEnergy, priority: SoundRequestPriority.Normal);
 
-        // Unlike ordinary touch damage, the once-per-64-frame drain explicitly cancels the
-        // invincibility and knockback installed by common AI. Apply the suit-scaled health
-        // subtraction directly, then reproduce those two clearing stores.
+        // Unlike ordinary touch damage, the drain every 64th update hurts Samus by her suit-scaled damage and then
+        // cancels the invincibility and knockback that touch gives her.
         if (!BeetomCadenceDefinitions.DrainDamageEverySixtyFourthUpdate.IsDue(place.FrameCounter))
             return;
         SamusSuitDamage.Hurt(samus, place.Definition.Damage);

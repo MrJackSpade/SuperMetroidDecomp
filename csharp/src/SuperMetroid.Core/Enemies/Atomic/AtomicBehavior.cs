@@ -38,9 +38,8 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
         AtomicEnemyState state,
         SamusState samus)
     {
-        // Being level with Samus counts as her being below or to the right, so it moves down or right. The comparison is
-        // by whether the coordinate difference across the room's wrap is negative, so an Atomic and Samus on either side
-        // of the wrap still chase the short way.
+        // The Atomic moves towards Samus on each axis; being level with her counts as her being below or to the right, so
+        // it moves down or right.
         SignedSixteenSixteen vertical = CoordinateAxis.Difference(samus.Position.Y.Whole, place.Position.Y.Whole) < 0
             ? -state.Speed
             : state.Speed;

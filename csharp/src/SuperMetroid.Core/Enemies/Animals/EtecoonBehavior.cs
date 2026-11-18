@@ -501,7 +501,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = EtecoonAnimations.LeftHopFromCrest;
     }
 
-    /// <summary>Counts teaching hops and takes the return run after four on nonlooping routes.</summary>
+    /// <summary>Counts teaching hops and takes the return run after a lesson's hops on nonlooping routes.</summary>
     private void RunEtecoonIdleBetweenTeachingJumps(
         RoomEnemyPlace place,
         EtecoonEnemyState state,
@@ -511,17 +511,16 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!DecrementEtecoonTimerAndTestExpired(state))
             return;
 
-        // Four teaching hops are counted. Then clears only the count, keeping the
-        // heading used by the airborne states. The count is cleared on reaching four, so it never leaves 0 through 4.
+        // Each hop counts towards the lesson. When the lesson's hops are done the count empties, and only the count:
+        // the heading the airborne states use stays.
         state.TeachingHops++;
-        bool fewerThanFourTeachingJumps = state.TeachingHops < EtecoonRouteDefinitions.TeachingHopsPerLesson;
-        if (!fewerThanFourTeachingJumps)
+        bool lessonContinues = state.TeachingHops < EtecoonRouteDefinitions.TeachingHopsPerLesson;
+        if (!lessonContinues)
         {
-            // The hop count is cleared once complete before testing for the teach-at-once route,
-            // which therefore loops in groups of four rather than counting on forever.
+            // The count empties before the teach-at-once route is tested, so that route hops lesson after lesson.
             state.TeachingHops = 0;
         }
-        if (fewerThanFourTeachingJumps || state.Route == EtecoonRoute.TeachAtOnce)
+        if (lessonContinues || state.Route == EtecoonRoute.TeachAtOnce)
         {
             state.Action = EtecoonAction.TeachingJump;
             state.Playback = new(EtecoonAnimations.StartingWith(EtecoonSegment.ContinueHoppingFacingLeft), AnimationPlace.StartOfAnimation);

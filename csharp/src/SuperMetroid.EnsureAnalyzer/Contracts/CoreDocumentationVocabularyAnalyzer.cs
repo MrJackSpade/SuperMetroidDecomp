@@ -138,6 +138,9 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// #2427 adds, outside hardware owners, the original's setup and storage as area prose tells them: a setup that selects
 /// colours and a value named by its 1/65536-pixel storage, and the species-owner template on a type's summary where the
 /// type owns no species.
+/// #2433 adds, outside hardware owners, the machine's coordinate wrap and the original's stores, calls and writes as enemy
+/// prose tells them: a comparison across the room's wrap or on either side of it, a distance measured as an encoding
+/// owner measures it, clearing stores, a thing that issues calls and overlapping writes.
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -1908,6 +1911,26 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
+    /// The machine's coordinate wrap and the original program's stores, calls and writes told in enemy prose (#2433),
+    /// outside hardware owners and markup: a comparison across the room's wrap or with things on either side of it (the
+    /// difference across the room's wrap, on either side of the wrap); a distance measured as an encoding owner measures
+    /// it (measured across the room as <c>CoordinateAxis.Difference</c> measures it); clearing stores or writes; a thing
+    /// that issues calls, with up to two words between (leaving the room issues both calls); and overlapping writes or
+    /// stores. Core says which way and how far apart two things lie, what the game cancels, which requests it queues in
+    /// which order and what the room is left showing; the wrap is <c>CoordinateAxis</c>'s to state. English stays legal:
+    /// a turn's wrap, a thing wrapped across something, clearing a thing, an issue, a call alone and overlapping things
+    /// that are not writes.
+    /// </summary>
+    private static readonly Regex EnemyWrapCallAndWriteNarrationProse = new(
+        @"\bacross\s+the\s+(?:room(?:'|’)s\s+)?wrap\b" +
+        @"|\b(?:either|both|opposite)\s+sides?\s+of\s+the\s+(?:room(?:'|’)s\s+)?wrap\b" +
+        @"|\bmeasured\s+(?:[\w'’-]+\s+){0,4}?as\s+(?:[\w.]+\s+)?measures\s+(?:it|them)\b" +
+        @"|\bclearing\s+(?:stores?|writes?)\b" +
+        @"|\bissu(?:e|es|ed|ing)\s+(?:[\w'’-]+\s+){0,2}?calls?\b" +
+        @"|\boverlapping\s+(?:writes?|stores?)\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
     /// A type's summary that calls the type a species owner (#2427): the species-owner template (its per-room state,
     /// behaviour and the interactions it registers). Only a type that creates or keeps a species' enemies
     /// (<see cref="SpeciesOwnerInterfaces"/>) is one; any other type says what it is.
@@ -2465,6 +2488,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : FrontendColourScrollAndProgramProse.Match(Markup.Replace(text, " ")) is { Success: true } frontendProse ? frontendProse.Value
             : EffectsHudMapAndEscapeStorageProse.Match(Markup.Replace(text, " ")) is { Success: true } effectsStorage ? effectsStorage.Value
             : AreaSetupColourAndStorageProse.Match(Markup.Replace(text, " ")) is { Success: true } areaStorage ? areaStorage.Value
+            : EnemyWrapCallAndWriteNarrationProse.Match(Markup.Replace(text, " ")) is { Success: true } enemyWrap ? enemyWrap.Value
             : TileCharacterFinding(text, owner) is { } character ? character
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;

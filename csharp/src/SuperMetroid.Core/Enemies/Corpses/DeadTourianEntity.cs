@@ -36,7 +36,7 @@ internal sealed class DeadTourianEntity(DeadTourianBehavior species, RoomEnemyPl
     /// <summary>The dead Tourian corpse's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
     public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? DeadTourianBehavior.DeadTourianShotReaction : base.ShotReaction;
 
-    /// <summary>Runs the dead Tourian corpse's its own bomb reaction in place of common bomb damage, for a bomb that selects its own shot reaction.</summary>
+    /// <summary>Runs the dead Tourian corpse's own bomb reaction in place of common bomb damage, for a bomb whose hit selects the corpse's own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
     public override bool TryReplaceCommonBombDamage(EnemyBombContext context)
     {

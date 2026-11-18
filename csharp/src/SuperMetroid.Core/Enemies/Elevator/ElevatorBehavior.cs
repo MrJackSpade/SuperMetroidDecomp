@@ -199,8 +199,8 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
             return;
         }
 
-        // Leaving the room issues both calls in this order before changing Samus's pose. Keeping
-        // them as two requests matters because each sound library plays independently.
+        // Leaving the room queues the departure sound and then the spin-end sound before Samus's pose changes; they
+        // stay two requests because each sound library plays independently.
         _audio.QueueEnemySound(EnemySoundEffectDefinitions.ElevatorDepartureSound, priority: SoundRequestPriority.Normal);
         _audio.QueueEnemySound(EnemySoundEffectDefinitions.ElevatorDepartureSpinEndSound, priority: SoundRequestPriority.Normal);
         SamusPoseMetadata.SetupForElevator(samus);

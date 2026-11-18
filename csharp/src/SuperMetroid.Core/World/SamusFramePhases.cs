@@ -303,7 +303,7 @@ internal sealed class SamusFramePhases
                 _player.ClearProspectivePoses();
             }
 
-            // X-ray's freeze disables enemy room.Projectiles, room objects, block animations,
+            // X-ray's freeze stops the enemy projectiles, room objects, block animations
             // and colour effects while time is frozen. Normal bombs cannot be placed or
             // advanced through this producer during the X-ray interval.
             // The bombs' share of the HUD item's step runs the shared cooldown, then the morph ball's producer.
@@ -326,7 +326,7 @@ internal sealed class SamusFramePhases
             // pass, so the rest of this update, and a save, see the change.
             var shotTerrain = new SamusTerrain { Level = room.LevelData, RoomObjects = room.RoomObjects };
             room.Projectiles.FireFromHud(shotTerrain, samus, new ProjectileButtonInput { ControllerInput = _playerActions.Current, ControllerNewInput = _playerActions.NewlyPressed, ControllerPreviousNewInput = samus.InputSnapshot.PreviousDrawNewInput }, room.BombProjectiles, projectileProducerEnabled: !frame.InputHandlingLocked(samus));
-            _ = room.BombProjectiles.HandleBombs(shotTerrain, samus, overlap: BombJumpOverlapPublication.Deferred);
+            room.BombProjectiles.HandleBombs(shotTerrain, samus, overlap: BombJumpOverlapPublication.Deferred);
             room.Projectiles.HandleShots(shotTerrain, samus, room.Camera.PixelPosition, room.BombProjectiles, _system);
 
             if (!_freeze.TimeIsFrozen)
@@ -689,7 +689,7 @@ internal sealed class SamusFramePhases
         Action<PoseMove> step = PoseMovements.TryGetValue(movement, out Action<PoseMove>? found) ? found
             : throw new InvalidDataException(
                 $"Runtime movement step received pose {samus.Pose}, whose movement type {movement} has no movement its pose owns.");
-        step(new PoseMove(samus, room.RoomObjects, room, room.LevelData));
+        step(new PoseMove(samus, room));
     }
 
     /// <summary>
@@ -705,7 +705,7 @@ internal sealed class SamusFramePhases
             SamusGroundedMovement.StepMoonwalking(move.Level, move.Samus, _clock.Counter, move.RoomObjects),
         [SamusMovementType.RanIntoWall] = move => _player.LastGroundedSamusMovement =
             SamusGroundedMovement.StepRanIntoWall(move.Level, move.Samus, _clock.Counter, move.RoomObjects),
-        [SamusMovementType.TurningOnGround] = move => StepTurningPoseMovement(move.Samus, move.Room),
+        [SamusMovementType.TurningOnGround] = StepTurningOnGround,
         [SamusMovementType.TurningWhileJumping] = StepTurningWhileJumpingPose,
         [SamusMovementType.TurningWhileFalling] = StepTurningInAir,
         [SamusMovementType.MorphBallGround] = StepMorphBallGrounded,
@@ -750,16 +750,23 @@ internal sealed class SamusFramePhases
     }
 
     /// <summary>
-    /// The turning-while-jumping movement type's movement: the aimed crouched turns take the turning step that reads her
-    /// vertical direction, every jumping turn the turn in the air.
+    /// The turning-while-jumping movement type's movement: an aimed crouched turn with no vertical direction turns on the
+    /// ground, and every other jumping turn, an aimed crouched one moving up or down among them, turns in the air.
     /// </summary>
     private void StepTurningWhileJumpingPose(PoseMove move)
     {
-        if (SamusPoseMetadata.IsAimedCrouchingTurnPose(move.Samus.Pose))
-            StepTurningPoseMovement(move.Samus, move.Room);
+        // Y direction is data the aimed crouched turn's movement reads, never a replacement of its movement type. A crouched
+        // left-to-right turn can retain a downward direction; it then takes the aerial turn's movement.
+        if (SamusPoseMetadata.IsAimedCrouchingTurnPose(move.Samus.Pose) &&
+            move.Samus.Kinematics.YDirection == SamusVerticalDirection.None)
+            StepTurningOnGround(move);
         else
             StepTurningInAir(move);
     }
+
+    /// <summary>The turn on the ground.</summary>
+    private void StepTurningOnGround(PoseMove move) => _player.LastGroundedSamusMovement =
+        SamusGroundedMovement.StepTurningOnGround(move.Level, move.Samus, _clock.Counter, move.RoomObjects);
 
     /// <summary>The turn in the air.</summary>
     private void StepTurningInAir(PoseMove move) => _player.LastAerialSamusMovement =
@@ -796,11 +803,16 @@ internal sealed class SamusFramePhases
 
     /// <summary>What a pose's movement runs against on one update (#2291).</summary>
     /// <param name="Samus">Samus.</param>
-    /// <param name="RoomObjects">The room's room objects her movement collides with.</param>
     /// <param name="Room">The loaded room.</param>
-    /// <param name="Level">The room's level data.</param>
     [RoomScopeBoundary("A per-call input, built for one call and never kept.")]
-    private readonly record struct PoseMove(SamusState Samus, ISamusRoomObjects RoomObjects, RoomScope Room, RoomLevelData Level);
+    private readonly record struct PoseMove(SamusState Samus, RoomScope Room)
+    {
+        /// <summary>The room's level data her movement collides with.</summary>
+        public RoomLevelData Level => Room.LevelData;
+
+        /// <summary>The room's room objects her movement collides with.</summary>
+        public ISamusRoomObjects RoomObjects => Room.RoomObjects;
+    }
 
     /// <summary>Runs the forward-facing poses' movement, including the elevator's one-pixel downward block scan.</summary>
     private void StepForwardFacingMovement(SamusState samus, RoomScope room)
@@ -819,44 +831,6 @@ internal sealed class SamusFramePhases
             publishDoorSideEffects:
                 RoomMainRoutines.ShouldPublishFacingForwardElevatorDoorSideEffects(
                     room.Enemies.Elevator.ElevatorStatus));
-    }
-
-    /// <summary>Runs a turn pose's movement through its movement type: ground turning, or turning in the air.</summary>
-    private void StepTurningPoseMovement(SamusState samus, RoomScope room)
-    {
-        // The movement is selected strictly by the pose definition's
-        // movement type. Y direction is data consumed by the selected
-        // movement, never a replacement step. In particular, crouched
-        // left-to-right turn can retain downward direction while its type remains
-        // turning on the ground; treating it as turning while jumping would send it into the aerial turn's
-        // movement.
-        SamusMovementType turnMovementType = SamusPoseMetadata.ReadMovementType(samus);
-        if (turnMovementType == SamusMovementType.TurningOnGround ||
-            (turnMovementType == SamusMovementType.TurningWhileJumping &&
-             samus.Kinematics.YDirection == SamusVerticalDirection.None))
-        {
-            _player.LastGroundedSamusMovement = SamusGroundedMovement.StepTurningOnGround(
-                room.LevelData,
-                samus,
-                _clock.Counter,
-                room.RoomObjects);
-        }
-        else if (turnMovementType is
-            SamusMovementType.TurningWhileJumping or
-            SamusMovementType.TurningWhileFalling)
-        {
-            _player.LastAerialSamusMovement = SamusAerialMovement.StepTurningInAir(
-                room.LevelData,
-                samus,
-                _clock.Counter,
-                room.RoomObjects);
-        }
-        else
-        {
-            throw new InvalidDataException(
-                $"Turn pose {samus.Pose} has unsupported movement type " +
-                $"{turnMovementType}.");
-        }
     }
 
     /// <summary>Runs the knockback movement type's normal movement: the one-frame grounding probe before the knockback ending's target.</summary>
@@ -1061,7 +1035,7 @@ internal sealed class SamusFramePhases
         else if (frame.Mode.Movement is not (SamusMovementMode.ScriptLocked or SamusMovementMode.RefillStation or SamusMovementMode.SuitPickup))
         {
             SamusPresentation.Animate(samus, new SamusAnimationStep { BossPresent = room.Enemies.RoomStatus.Boss is not null, ControllerInput = _playerActions.Current, FrameCounter = _clock.Counter, Random = _system.Random, ProspectiveInputPose = _player.ProspectiveSamusPose?.ProspectivePose ?? _player.ProspectiveSamusFallbackPose, DemoPoseInput = _attractDemo.IsAttractDemo });
-            StepSamusLoadAppearance(samus, room);
+            StepSamusLoadAppearance(samus);
         }
 
         _transitions.Apply(frame, samus, new SamusTerrain { Level = room.LevelData, RoomObjects = room.RoomObjects });
@@ -1094,25 +1068,18 @@ internal sealed class SamusFramePhases
     /// earlier in this frame; this step counts down the fanfare's lifetime
     /// (<see cref="SavedGameAppearanceDefinitions.FrameCount"/>) and gives her back her normal control when it ends.
     /// </summary>
-    private void StepSamusLoadAppearance(SamusState samus, RoomScope room)
+    private void StepSamusLoadAppearance(SamusState samus)
     {
         if (!_player.LoadAppearanceActive)
             return;
 
         if (!_player.AdvanceLoadAppearance())
             return;
-        if (_player.LoadAppearanceColourEffect is { } loadAppearance && room.ColourEffects.IsRunning(loadAppearance))
-        {
-            throw new InvalidDataException(
-                $"Samus load colour effect {loadAppearance} " +
-                $"outlived the {SavedGameAppearanceDefinitions.FrameCount}-frame load appearance.");
-        }
 
         // The item fanfare publishes its same-pose history shift only on the
         // update it ends, before her ordinary input and movement modes regain control.
         samus.CommitPoseHistory();
         samus.Control.Unlock();
         _player.GroundedSamusMovementEnabled = true;
-        _player.EndLoadAppearance();
     }
 }

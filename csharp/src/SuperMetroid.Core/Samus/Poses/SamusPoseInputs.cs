@@ -26,7 +26,10 @@ internal static class SamusPoseInputs
     internal static bool Has(GameplayAction input, GameplayAction required) =>
         (input & required) == required;
 
-    /// <summary>Marks a selected target as a matched condition, distinct from an empty transition list.</summary>
-    internal static SamusPoseInputMatch Accept(SamusPoseId target) =>
-        new(new SamusPoseTransition(target), HasConditions: true);
+    /// <summary>
+    /// Marks a selected target, installed by <paramref name="setup"/>, as a matched condition, distinct from an empty
+    /// transition list.
+    /// </summary>
+    internal static SamusPoseInputMatch Accept(SamusPoseId target, SamusPoseTransitionSetup setup) =>
+        new(new SamusPoseTransition(target, setup), HasConditions: true);
 }

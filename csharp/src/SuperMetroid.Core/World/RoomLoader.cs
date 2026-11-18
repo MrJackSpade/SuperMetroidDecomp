@@ -237,7 +237,7 @@ internal sealed class RoomLoader
                 : _player.IntroducedSamus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
                     ? SavedGameAppearanceDefinitions.VariaSuitGlow
                     : SavedGameAppearanceDefinitions.PowerSuitGlow;
-        _player.BeginLoadAppearance(loadAppearance, SavedGameAppearanceDefinitions.FrameCount);
+        _player.BeginLoadAppearance(SavedGameAppearanceDefinitions.FrameCount);
         _room.LoadedScope.ColourEffects.Start(
             loadAppearance,
             _player.IntroducedSamus.EquippedItems,

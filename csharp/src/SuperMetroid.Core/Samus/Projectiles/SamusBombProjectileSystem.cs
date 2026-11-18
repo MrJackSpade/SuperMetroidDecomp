@@ -177,7 +177,7 @@ public sealed class SamusBombProjectileSystem
         if (explosion == PowerBombExplosionStep.Advance)
             AdvancePowerBombExplosion(samus, controllerInput);
         _ = RunHudProducer(samus, controllerInput, controllerNewInput);
-        _ = HandleBombs(terrain, samus, overlap);
+        HandleBombs(terrain, samus, overlap);
     }
 
     /// <summary>
@@ -222,14 +222,10 @@ public sealed class SamusBombProjectileSystem
     /// Handles the bombs in update order, the bombs' share of the game's projectile handling, which runs after
     /// every HUD producer and before the shots (<see cref="SamusProjectileSystem.HandleShots"/>).
     /// </summary>
-    /// <returns>The bomb jump direction published, or none when <paramref name="overlap"/> defers it.</returns>
-    internal SamusBombJumpDirection HandleBombs(SamusTerrain terrain, SamusState samus, BombJumpOverlapPublication overlap)
+    internal void HandleBombs(SamusTerrain terrain, SamusState samus, BombJumpOverlapPublication overlap)
     {
         Ensure.NotNull(terrain.Level);
         Ensure.NotNull(samus);
-
-        bool explosionStarted = false;
-        bool projectileDeleted = false;
 
         // Bombs run in update order. X-ray may have frozen time in this same HUD pass: the cooldown above still runs, but
         // no projectile is handled after admission.
@@ -246,7 +242,6 @@ public sealed class SamusBombProjectileSystem
                 bomb,
                 terrain.RoomObjects,
                 samus.Kinematics);
-            explosionStarted |= bombExplosionStarted;
             if (bombExplosionStarted && wasNormalBomb)
             {
                 // The fuse requests this sound at normal priority for every normal bomb
@@ -257,12 +252,9 @@ public sealed class SamusBombProjectileSystem
 
             // A bomb its own update ended this pass shows nothing more.
             if (!bomb.IsActive)
-            {
-                projectileDeleted = true;
                 continue;
-            }
 
-            projectileDeleted |= AdvanceProjectileAnimation(bomb);
+            _ = AdvanceProjectileAnimation(bomb);
         }
 
         // Main gameplay runs the bomb overlap check after the input phase (which placed/updated the
@@ -270,9 +262,8 @@ public sealed class SamusBombProjectileSystem
         // same frame's hit-interruption phase can arm the bomb jump's movement.
         // Runtime defers this until the humanoid shot producer has also run: a
         // shot this frame may suppress overlap before the bomb direction is stored.
-        SamusBombJumpDirection publishedDirection = overlap == BombJumpOverlapPublication.Deferred ? SamusBombJumpDirection.None : PublishBombJumpOverlap(samus);
-
-        return publishedDirection;
+        if (overlap == BombJumpOverlapPublication.Immediate)
+            PublishBombJumpOverlap(samus);
     }
 
     /// <summary>Runs the bomb subset of the post-input-phase Samus/projectile interaction pass.</summary>
@@ -280,7 +271,7 @@ public sealed class SamusBombProjectileSystem
     {
         Ensure.NotNull(samus);
         if (projectileInvincibilityTimer == 0 && samus.HorizontalSpeed.BodyAttack == SamusBodyAttack.None)
-            _ = PublishBombJumpOverlap(samus);
+            PublishBombJumpOverlap(samus);
     }
 
     /// <summary>
@@ -1002,10 +993,8 @@ public sealed class SamusBombProjectileSystem
     }
 
     /// <summary>Scans bombs from the first place up and publishes the last overlapping bomb's Samus launch direction.</summary>
-    private SamusBombJumpDirection PublishBombJumpOverlap(SamusState samus)
+    private void PublishBombJumpOverlap(SamusState samus)
     {
-        SamusBombJumpDirection publishedDirection = SamusBombJumpDirection.None;
-
         // The bomb-jump scan runs from the first place up. Only live placed bombs that have not
         // struck an enemy reach the geometric test; spread bombs never launch Samus.
         for (int place = 0; place < PlaceCount; place++)
@@ -1036,15 +1025,13 @@ public sealed class SamusBombProjectileSystem
             // Samus's X against the bomb's: equal is straight; Samus left of the bomb launches left;
             // Samus right of the bomb launches right. Later overlapping bombs, in place order, overwrite
             // earlier ones.
-            publishedDirection = samus.Position.X.Whole == bomb.Position.X.Whole
+            SamusBombJumpDirection publishedDirection = samus.Position.X.Whole == bomb.Position.X.Whole
                 ? SamusBombJumpDirection.Straight
                 : CoordinateAxis.Difference(samus.Position.X.Whole, bomb.Position.X.Whole) < 0
                     ? SamusBombJumpDirection.Left
                     : SamusBombJumpDirection.Right;
             SamusPoseMetadata.PublishBombJumpDirection(samus, publishedDirection);
         }
-
-        return publishedDirection;
     }
 
     /// <summary>Deletes a bomb, ending it, and decrements the bomb count, clamping a count below zero to zero.</summary>

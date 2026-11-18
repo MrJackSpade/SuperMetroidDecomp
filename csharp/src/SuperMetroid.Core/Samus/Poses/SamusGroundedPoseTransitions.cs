@@ -215,23 +215,6 @@ internal static class SamusGroundedPoseTransitions
         ApplySimpleGroundedPoseChange(samus, samus.Pose, targetPose, "Ran into wall");
     }
 
-    /// <summary>Applies a ran-into-wall pose's same-facing exit to a running pose.</summary>
-    public static void ApplyRanIntoWallToRunning(SamusState samus, SamusPoseId targetPose)
-    {
-        bool rightRoute = SamusPoseMetadata.IsRightFacingRanIntoWallPose(samus.Pose) &&
-            SamusPoseMetadata.IsRightFacingRunningPose(targetPose);
-        bool leftRoute = SamusPoseMetadata.IsLeftFacingRanIntoWallPose(samus.Pose) &&
-            SamusPoseMetadata.IsLeftFacingRunningPose(targetPose);
-        if (!rightRoute && !leftRoute)
-        {
-            // Running exits are a strict same-facing subset of the wall stop's input transitions.
-            throw new InvalidOperationException(
-                $"Ran-into-wall running exit {samus.Pose} -> {targetPose} is not one of the game's routes.");
-        }
-
-        ApplySimpleGroundedPoseChange(samus, samus.Pose, targetPose, "Ran into wall to running");
-    }
-
     /// <summary>
     /// Applies the moonwalk option gate and stable-pose changes surrounding
     /// the moonwalking pose setup.
@@ -356,24 +339,25 @@ internal static class SamusGroundedPoseTransitions
         SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left) ? SamusPoseMirror.Of(rightFacing) : rightFacing;
 
     /// <summary>
-    /// Applies the shared standing/landing input-transition route from any right-facing
-    /// landing (including the firing landing) to running right, or from the mirrored left
-    /// family to running left. Landing movement has already cleared momentum in
-    /// this frame; the new running pose begins accelerating on the next frame.
+    /// Starts Samus running the way she faces from standing, a landing or a wall stop, whatever her aim or firing: the
+    /// running pose's ordinary installation, which starts its animation. A landing's movement has already cleared her
+    /// momentum this update; the run begins accelerating on the next.
     /// </summary>
-    public static void ApplyLandingToRunning(SamusState samus, SamusPoseId targetPose)
+    public static void StartRunning(SamusState samus, SamusPoseId targetPose)
     {
-        bool right = SamusPoseMetadata.IsRightFacingLandingPose(samus.Pose) &&
+        bool right = (SamusPoseMetadata.IsRightFacingStandingPose(samus.Pose) || SamusPoseMetadata.IsRightFacingLandingPose(samus.Pose) ||
+                SamusPoseMetadata.IsRightFacingRanIntoWallPose(samus.Pose)) &&
             targetPose == SamusPoseId.MovingRightNormalPose;
-        bool left = SamusPoseMetadata.IsLeftFacingLandingPose(samus.Pose) &&
+        bool left = (SamusPoseMetadata.IsLeftFacingStandingPose(samus.Pose) || SamusPoseMetadata.IsLeftFacingLandingPose(samus.Pose) ||
+                SamusPoseMetadata.IsLeftFacingRanIntoWallPose(samus.Pose)) &&
             targetPose == SamusPoseId.MovingLeftNormalPose;
         if (!right && !left)
         {
             throw new InvalidOperationException(
-                $"Landing-to-run transition {samus.Pose} -> {targetPose} is not one the game makes.");
+                $"Running start {samus.Pose} -> {targetPose} is not one the game makes.");
         }
 
-        ApplySimpleGroundedPoseChange(samus, samus.Pose, targetPose, "Landing-to-run");
+        ApplySimpleGroundedPoseChange(samus, samus.Pose, targetPose, "Running start");
     }
 
     /// <summary>

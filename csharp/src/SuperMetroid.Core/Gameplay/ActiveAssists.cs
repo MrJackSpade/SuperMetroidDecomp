@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Gameplay;
 /// </summary>
 internal sealed class ActiveAssists
 {
-    /// <summary>The current Samus, who receives the granted loadout.</summary>
+    /// <summary>The current Samus's owner: a loadout granted mid-play reaches her, and the grant shows on her colours.</summary>
     private readonly SamusFrameState _player;
     /// <summary>The item, event, boss and door progress the loadout and the encounter reset change.</summary>
     private readonly SharedGameState _system;
@@ -34,6 +34,10 @@ internal sealed class ActiveAssists
     /// Changes the assists in the middle of play. A loadout newly granted reaches the current Samus at once, even if an
     /// earlier grant already reached her; nothing else about the game changes.
     /// </summary>
+    /// <remarks>
+    /// Assists change between updates, where every runtime has its Samus: each runtime's setup (a selected game's start or
+    /// load, a saved Ceres destruction, an attract scene) introduces her in the update that creates it.
+    /// </remarks>
     /// <param name="assists">The assists to play under from now on.</param>
     internal void Rebind(GameplayAssists assists)
     {
@@ -41,7 +45,7 @@ internal sealed class ActiveAssists
         if (Current.GrantedLoadout is null && assists.GrantedLoadout is not null)
             _loadoutRecipient = null;
         Current = assists;
-        GrantLoadoutToNewSamus();
+        GrantLoadoutToNewSamus(_player.IntroducedSamus);
     }
 
     /// <summary>
@@ -67,19 +71,18 @@ internal sealed class ActiveAssists
             _loadoutRecipient = replacement;
     }
 
-    /// <summary>Grants the loadout to the current Samus once; a Samus already granted keeps her later damage, ammunition use and equipment choices.</summary>
-    internal void GrantLoadoutToNewSamus()
+    /// <summary>Grants the loadout to <paramref name="samus"/> once; a Samus already granted keeps her later damage, ammunition use and equipment choices.</summary>
+    /// <param name="samus">The current Samus.</param>
+    internal void GrantLoadoutToNewSamus(SamusState samus)
     {
-        if (_player.Samus is { } samus && !ReferenceEquals(_loadoutRecipient, samus))
+        Ensure.NotNull(samus);
+        if (!ReferenceEquals(_loadoutRecipient, samus))
             GrantLoadout(samus);
     }
 
-    /// <summary>Grants the loadout to the current Samus whose inventory a save has just restored, every time.</summary>
-    internal void GrantLoadoutToRestoredSamus()
-    {
-        if (_player.Samus is { } samus)
-            GrantLoadout(samus);
-    }
+    /// <summary>Grants the loadout to <paramref name="samus"/>, whose inventory a save has just restored, every time.</summary>
+    /// <param name="samus">The current Samus.</param>
+    internal void GrantLoadoutToRestoredSamus(SamusState samus) => GrantLoadout(Ensure.NotNull(samus));
 
     /// <summary>Fills <paramref name="samus"/>'s inventory from the granted loadout, if one is granted, and loads her suit's colours.</summary>
     private void GrantLoadout(SamusState samus)

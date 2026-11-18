@@ -527,11 +527,9 @@ internal sealed class FrontendSession
             runtime.FrameBoundary.PublishWhileLoading();
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
-            SamusState restartedSamus = runtime.Player.Samus
-                ?? throw new InvalidOperationException(
-                    "SpaceTime restart did not create the Ceres Samus state.");
+            SamusState restartedSamus = runtime.Player.IntroducedSamus;
             RestoreSpacetimeRestartInventory(restartedSamus, restartSlot);
-            runtime.Assists.GrantLoadoutToRestoredSamus();
+            runtime.Assists.GrantLoadoutToRestoredSamus(restartedSamus);
             restartedSamus.SelectBeam();
             AutomaticCheckpointSaver.SaveCeresArrival(saves, runtime, SelectedSaveSlot);
             RaiseSavesChanged();
@@ -558,10 +556,10 @@ internal sealed class FrontendSession
                 runtime.RoomLoader.RestoreSavedPlayerState(slot);
                 runtime.RoomLoader.InitializeStartingCeresRoom();
                 runtime.RoomLoader.InitializeCeresStartSamus();
-                slot.ApplyTo(runtime.Player.Samus ?? throw new InvalidOperationException(
-                    "Ceres initialization did not create Samus."));
-                runtime.Assists.GrantLoadoutToRestoredSamus();
-                runtime.Player.Samus.SelectBeam();
+                SamusState ceresSamus = runtime.Player.IntroducedSamus;
+                slot.ApplyTo(ceresSamus);
+                runtime.Assists.GrantLoadoutToRestoredSamus(ceresSamus);
+                ceresSamus.SelectBeam();
                 ApplySelectedGameOptions();
                 return true;
             }

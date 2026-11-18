@@ -93,9 +93,9 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             Links = [.. bodies.Select(body => new YappingMawLink(body))],
             // The root's kind follows the Maw's attack direction; the Maw holds the root it spawned.
             RootEffectActor = _effectActors.SpawnRoomEffectActor(
-                new(place.Position.X.Whole, CoordinateAxis.Wrap(place.Position.Y.Whole + (place.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Down
+                new(place.Position.X.Whole, place.Position.Y.Whole + (place.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Down
                     ? -YappingMawAttackDefinitions.RootDistance
-                    : YappingMawAttackDefinitions.RootDistance))),
+                    : YappingMawAttackDefinitions.RootDistance)),
                 place.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Down
                     ? RoomEffectActorKind.YappingMawBaseFacingDown
                     : RoomEffectActorKind.YappingMawBaseFacingUp,
@@ -483,12 +483,12 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         Position16<RoomPixels> origin,
         Position16<RoomPixels> samus)
     {
-        int deltaX = CoordinateAxis.Difference(samus.X, origin.X);
+        int deltaX = samus.X - origin.X;
         int absoluteX = Math.Abs(deltaX);
         if (absoluteX >= ShortProductReach)
             return new YappingMawTarget(absoluteX, default);
 
-        int deltaY = CoordinateAxis.Difference(samus.Y, origin.Y);
+        int deltaY = samus.Y - origin.Y;
         int absoluteY = Math.Abs(deltaY);
         if (absoluteY >= ShortProductReach)
             return new YappingMawTarget(absoluteY, default);

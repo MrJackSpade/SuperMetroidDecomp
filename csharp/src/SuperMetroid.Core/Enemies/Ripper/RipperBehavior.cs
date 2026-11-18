@@ -68,11 +68,11 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
             displacement);
         if (!reverse && state.Heading == HorizontalDirection.Left)
         {
-            reverse = CoordinateAxis.Difference(place.Position.X.Whole, state.MinimumXPosition) < 0;
+            reverse = place.Position.X.Whole < state.MinimumXPosition;
         }
         if (!reverse && state.Heading == HorizontalDirection.Right)
         {
-            reverse = CoordinateAxis.Difference(place.Position.X.Whole, state.MaximumXPosition) >= 0;
+            reverse = place.Position.X.Whole >= state.MaximumXPosition;
         }
         if (reverse)
         {

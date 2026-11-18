@@ -59,7 +59,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (state.Action)
         {
             case RioAction.WaitingForSamus:
-                if (CoordinateAxis.Distance(samus.Position.X.Whole, place.Position.X.Whole) >= RioLaunchDefinitions.RioTriggerDistance)
+                if (Math.Abs(samus.Position.X.Whole - place.Position.X.Whole) >= RioLaunchDefinitions.RioTriggerDistance)
                 {
                     return;
                 }
@@ -67,7 +67,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.Velocity = new EightEightVector<RoomPixels>(
                     RioLaunchDefinitions.RioXVelocity,
                     RioLaunchDefinitions.RioYVelocity);
-                if (CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole) < 0)
+                if (samus.Position.X.Whole < place.Position.X.Whole)
                     state.Velocity = state.Velocity.ReversedX();
                 StartRioAnimation(
                     place,
@@ -156,7 +156,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
             case RioAction.HoveringTowardSamus:
                 // Once Rio reaches Samus's Y coordinate from above, it restores the saved
                 // horizontal dive speed and starts the upward/bounce phase at -1/256 px.
-                if (CoordinateAxis.Difference(place.Position.Y.Whole, samus.Position.Y.Whole) >= 0)
+                if (place.Position.Y.Whole >= samus.Position.Y.Whole)
                 {
                     state.Velocity = new EightEightVector<RoomPixels>(
                         state.SavedHorizontalVelocity,
@@ -166,7 +166,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                 }
 
                 TrigonometryAngle angle = EnemyMath.CalculateBearing(
-                    new(CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, place.Position.Y.Whole))).ToMirroredTrigonometryAngle();
+                    new(samus.Position.X.Whole - place.Position.X.Whole, samus.Position.Y.Whole - place.Position.Y.Whole)).ToMirroredTrigonometryAngle();
                 state.Velocity = state.Velocity.WithX(HoverVelocity(
                     angle + TrigonometryAngle.QuarterTurn));
                 state.Velocity = state.Velocity.WithY(HoverVelocity(angle));

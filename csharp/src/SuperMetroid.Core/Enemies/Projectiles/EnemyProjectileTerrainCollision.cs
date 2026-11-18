@@ -29,11 +29,8 @@ internal sealed class EnemyProjectileTerrainCollision : EnemyProjectileBlockColl
         out int? alignedPosition)
     {
         alignedPosition = null;
-        if (block.X >= (uint)level.Size.X ||
-            block.Y >= (uint)level.Size.Y)
-        {
+        if (!level.Size.Contains(block))
             return true;
-        }
 
         // Resolve horizontal- and vertical-extension links before reacting to the final block kind, just as
         // the projectile collision loop does. Air is open, while a door

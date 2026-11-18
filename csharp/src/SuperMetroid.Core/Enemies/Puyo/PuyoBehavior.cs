@@ -101,7 +101,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         // deliberately bypass this proximity rewrite.
         if (IsNormalHop(state.HopType))
         {
-            int distance = CoordinateAxis.Distance(samus.Position.X.Whole, place.Position.X.Whole);
+            int distance = Math.Abs(samus.Position.X.Whole - place.Position.X.Whole);
             state.HopType = distance < place.SpawnSettings<PuyoSpawnSettings>().HopDistance
                 ? PuyoHopType.NormalBig
                 : PuyoHopType.NormalSmall;
@@ -109,7 +109,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Aim toward Samus unless the preceding terrain collision latched the opposite
         // direction. Equality follows the game's non-negative path and therefore aims right.
-        HorizontalDirection direction = CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole) < 0
+        HorizontalDirection direction = samus.Position.X.Whole < place.Position.X.Whole
             ? HorizontalDirection.Left
             : HorizontalDirection.Right;
         if (state.InvertDirection)

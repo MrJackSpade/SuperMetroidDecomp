@@ -270,7 +270,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         state.ResetOrientation();
         RoomEnemyPlace owner = OwnerPlace(place);
         RotationAngle target = EnemyMath.CalculateBearing(
-            new(CoordinateAxis.Difference(place.Position.X.Whole, owner.Position.X.Whole), CoordinateAxis.Difference(place.Position.Y.Whole, owner.Position.Y.Whole))).ToMirroredTrigonometryAngle().ToAngle();
+            new(place.Position.X.Whole - owner.Position.X.Whole, place.Position.Y.Whole - owner.Position.Y.Whole)).ToMirroredTrigonometryAngle().ToAngle();
         target = (state.MotionFlags & ShaktoolMotionFlags.Clockwise) != ShaktoolMotionFlags.None
             ? target - RotationAngle.QuarterTurn
             : target + RotationAngle.QuarterTurn;

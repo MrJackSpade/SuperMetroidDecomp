@@ -81,9 +81,9 @@ internal static class EnemyMath
 
     /// <summary>
     /// The point on a circle at a trigonometry angle: the cosine distance in pixels as X and the negative sine distance
-    /// as Y, each wrapped to 0 through 65535.
+    /// as Y, each no farther from the centre than the radius, a few blocks at most for every circling enemy.
     /// </summary>
-    internal static Offset16<RoomPixels> CircleOffset(TrigonometryAngle angle, int radius) => Offset16<RoomPixels>.Wrapped(
+    internal static Offset16<RoomPixels> CircleOffset(TrigonometryAngle angle, int radius) => Offset16<RoomPixels>.Of(
         CircleCosinePixels(angle, radius),
         CircleNegativeSinePixels(angle, radius));
 

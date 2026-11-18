@@ -77,7 +77,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
         {
             case LowerNorfairRioAction.WaitForAttackOpportunity:
                 if (RioLaunchDefinitions.AttackHeldBack.IsTakenBy(random) ||
-                    CoordinateAxis.Distance(samus.Position.X.Whole, place.Position.X.Whole) >= RioLaunchDefinitions.LowerNorfairTriggerDistance)
+                    Math.Abs(samus.Position.X.Whole - place.Position.X.Whole) >= RioLaunchDefinitions.LowerNorfairTriggerDistance)
                 {
                     // Unlike the Norfair Rio, a Lower Norfair Rio that does not attack forgets that its animation finished
                     // and asks for its idle animation on every such update; the idle animation already playing does not
@@ -93,7 +93,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
                 state.Velocity = new(
                     RioLaunchDefinitions.LowerNorfairXVelocity,
                     RioLaunchDefinitions.LowerNorfairYVelocity);
-                if (CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole) < 0)
+                if (samus.Position.X.Whole < place.Position.X.Whole)
                     NegateLowerNorfairRioXVelocity(state);
                 StartLowerNorfairRioAnimation(
                     place,
@@ -213,7 +213,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
         // rather than a signed offset. The follower takes the parent's live position and
         // this variant adds the flames' drop.
         follower.Presence = follower.Presence.Without(EnemyPresence.Hidden);
-        follower.Position = follower.Position.WithWhole(new(parent.Position.X.Whole, CoordinateAxis.Wrap(parent.Position.Y.Whole + RioLaunchDefinitions.LowerNorfairFlameDrop)));
+        follower.Position = follower.Position.WithWhole(new(parent.Position.X.Whole, parent.Position.Y.Whole + RioLaunchDefinitions.LowerNorfairFlameDrop));
     }
 
     /// <summary>Sets upward return velocity, animation, action, and its enemy-library sound event.</summary>

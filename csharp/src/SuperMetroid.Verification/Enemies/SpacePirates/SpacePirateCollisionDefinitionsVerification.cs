@@ -156,10 +156,8 @@ internal static class SpacePirateCollisionDefinitionsVerification
                          new VerifySpacePirateCollisionDefinitionsCase(0x0100, 0x0100), new VerifySpacePirateCollisionDefinitionsCase(0x0004, 0x0006), new VerifySpacePirateCollisionDefinitionsCase(0xfffc, 0xfffa),
                      })
             {
-                var native = CreateSystem(rom, frame.Pointer, originX,
-                    originY, compiledPirate: false);
-                var compiled = CreateSystem(guard, frame.Pointer, originX,
-                    originY, compiledPirate: true);
+                var native = CreateSystem(frame.Pointer, originX, originY);
+                var compiled = CreateSystem(frame.Pointer, originX, originY);
                 foreach (EnemyCollisionHitbox hitbox in frame.Hitboxes)
                 {
                     ushort left = unchecked((ushort)(originX + hitbox.Left));
@@ -181,11 +179,11 @@ internal static class SpacePirateCollisionDefinitionsVerification
                         ushort radiusX = unchecked((ushort)((xi + yi) & 1));
                         ushort radiusY = unchecked((ushort)((xi + yi * 2) & 1));
                         (bool nativeHit, EnemyReaction? nativeReaction) = Invoke(
-                            native.Enemies, native.Place, xs[xi], ys[yi],
-                            radiusX, radiusY, mode);
+                            native.Place, xs[xi], ys[yi],
+                            radiusX, radiusY, mode, nativePath: true);
                         (bool compiledHit, EnemyReaction? compiledReaction) = Invoke(
-                            compiled.Enemies, compiled.Place, xs[xi], ys[yi],
-                            radiusX, radiusY, mode);
+                            compiled.Place, xs[xi], ys[yi],
+                            radiusX, radiusY, mode, nativePath: false);
                         AssertEqual(nativeHit, compiledHit,
                             $"Space Pirate frame $B2:{frame.Pointer:X4} native overlap");
                         AssertEqual(nativeReaction, compiledReaction,
@@ -209,23 +207,18 @@ internal static class SpacePirateCollisionDefinitionsVerification
                 nativeRanges.Add(0xb20000 | unchecked((ushort)(pointer + offset)));
         }
 
-        DachoraInstructionProgramDefinitionsNewDachoraResult CreateSystem(
-            ISnesAddressSpace bus, ushort pointer, ushort x, ushort y,
-            bool compiledPirate)
+        // Both places name the Pirate whose frame they show, whose header lies in the Pirates' bank: the reference walk
+        // reads the frame's record there, the compiled one its hitboxes.
+        DachoraInstructionProgramDefinitionsNewDachoraResult CreateSystem(ushort pointer, ushort x, ushort y)
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             bool wallFrame = pointer != EnemyB2ExtendedSpritemaps.EmptyExtendedSpritemap &&
                 !ninjaFramePointers.Contains(pointer) &&
                 !walkingFramePointers.Contains(pointer);
-            place.Bind(compiledPirate switch
-            {
-                false => EnemyDefinitionId.None,
-                true when ninjaFramePointers.Contains(pointer) =>
-                    EnemyDefinitionId.PirateSilverNinja,
-                true when wallFrame => EnemyDefinitionId.PirateGreyWall,
-                _ => EnemyDefinitionId.PirateGreyWalking,
-            }, place.Definition);
+            place.Bind(ninjaFramePointers.Contains(pointer)
+                ? EnemyDefinitionId.PirateSilverNinja
+                : wallFrame ? EnemyDefinitionId.PirateGreyWall : EnemyDefinitionId.PirateGreyWalking, place.Definition);
             place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
             // Space Pirates collide by their frames' hitboxes, so the empty frame is the point-hitbox record.
             place.CollidesByFrameHitboxes = true;
@@ -234,13 +227,12 @@ internal static class SpacePirateCollisionDefinitionsVerification
             return new DachoraInstructionProgramDefinitionsNewDachoraResult(enemies, place);
         }
 
-        HitboxResult Invoke(RoomEnemySystem enemies,
-            RoomEnemyPlace place, ushort x, ushort y, ushort radiusX,
-            ushort radiusY, bool shot)
+        HitboxResult Invoke(RoomEnemyPlace place, ushort x, ushort y, ushort radiusX,
+            ushort radiusY, bool shot, bool nativePath)
         {
             object?[] arguments =
                 [place, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>(radiusX, radiusY), shot, default(GameplayAction)];
-            bool native = place.DefinitionId == EnemyDefinitionId.None;
+            bool native = nativePath;
             bool hit = native
                 ? ReferenceExtendedCollision(rom, SpacePirateFrameBank, arguments)
                 : ExtendedHitboxWalker.Find(arguments);

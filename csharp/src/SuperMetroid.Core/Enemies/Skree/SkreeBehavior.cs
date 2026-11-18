@@ -51,7 +51,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (state.Action)
         {
             case SkreeAction.Idling:
-                if (CoordinateAxis.Distance(place.Position.X.Whole, samus.Position.X.Whole) < SkreeMotionDefinitions.WindUpDistance)
+                if (Math.Abs(place.Position.X.Whole - samus.Position.X.Whole) < SkreeMotionDefinitions.WindUpDistance)
                 {
                     StartSkreeAnimation(place, state, SkreeMetareeSegment.SkreePreparingAttack);
                     state.Action = SkreeAction.PreparingAttack;
@@ -103,9 +103,11 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        place.Position = place.Position.WithWrappedWholeY(place.Position.Y.Whole + SkreeMotionDefinitions.DiveStep);
-        place.Position = place.Position.WithWrappedWholeX(place.Position.X.Whole +
-            (CoordinateAxis.Difference(place.Position.X.Whole, samus.Position.X.Whole) >= 0 ? -SkreeMotionDefinitions.DiveDrift : SkreeMotionDefinitions.DiveDrift));
+        // The probe above ends the dive before a step would take the Skree past the room's bottom row, and each step
+        // drifts it a pixel toward Samus, so the dive stays in the room.
+        place.Position = place.Position.WithWholeY(place.Position.Y.Whole + SkreeMotionDefinitions.DiveStep);
+        place.Position = place.Position.WithWholeX(place.Position.X.Whole +
+            (place.Position.X.Whole >= samus.Position.X.Whole ? -SkreeMotionDefinitions.DiveDrift : SkreeMotionDefinitions.DiveDrift));
     }
 
     /// <summary>Advances the 21-frame burrow, spawning debris at eight and deleting the place at zero.</summary>
@@ -119,7 +121,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (state.BurrowTimer == SkreeMotionDefinitions.DebrisBurstAt)
             SkreeMetareeParticles.SpawnBurst(_projectiles, place, SkreeMetareeParticleSegment.Skree);
-        place.Position = place.Position.WithWrappedWholeY(place.Position.Y.Whole + SkreeMotionDefinitions.BurrowSink);
+        place.Position = place.Position.WithWholeY(place.Position.Y.Whole + SkreeMotionDefinitions.BurrowSink);
     }
 
     /// <summary>Starts <paramref name="animation"/> unless it is the one playing, which keeps playing (#2145).</summary>

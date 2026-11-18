@@ -139,8 +139,8 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void RunSbugWait(RoomEnemyPlace place, SbugEnemyState state, SamusState samus)
     {
         int threshold = state.ActivationRadius;
-        int xDistance = CoordinateAxis.Distance(place.Position.X.Whole, samus.Position.X.Whole);
-        int yDistance = CoordinateAxis.Distance(place.Position.Y.Whole, samus.Position.Y.Whole);
+        int xDistance = Math.Abs(place.Position.X.Whole - samus.Position.X.Whole);
+        int yDistance = Math.Abs(place.Position.Y.Whole - samus.Position.Y.Whole);
         if (xDistance >= threshold || yDistance >= threshold)
             return;
 
@@ -156,7 +156,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // The Sbug heads along its bearing to Samus, or, moving away from her, the opposite way.
         TrigonometryAngle heading = EnemyMath.CalculateBearing(
-            new(CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, place.Position.Y.Whole))).ToTrigonometryAngle();
+            new(samus.Position.X.Whole - place.Position.X.Whole, samus.Position.Y.Whole - place.Position.Y.Whole)).ToTrigonometryAngle();
         state.FaceCustomHeading((relativeHeading == SbugHeading.Away ? heading.TurnedBy(TrigonometryAngle.HalfTurn) : heading).ToAngle());
         RecalculateSbugCustomDirection(place, state);
         state.Action = relativeHeading == SbugHeading.Away
@@ -237,8 +237,8 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
 
             // The branch reverses only when both coordinate differences are at
             // least six blocks. This is a rectangular test, not Euclidean distance.
-            int xDistance = CoordinateAxis.Distance(place.Position.X.Whole, samus.Position.X.Whole);
-            int yDistance = CoordinateAxis.Distance(place.Position.Y.Whole, samus.Position.Y.Whole);
+            int xDistance = Math.Abs(place.Position.X.Whole - samus.Position.X.Whole);
+            int yDistance = Math.Abs(place.Position.Y.Whole - samus.Position.Y.Whole);
             if (xDistance >= SbugMovementDefinitions.ReverseDistance && yDistance >= SbugMovementDefinitions.ReverseDistance)
                 ReverseSbugCustomDirection(place, state);
         }

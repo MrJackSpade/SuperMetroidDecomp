@@ -10,8 +10,9 @@ namespace SuperMetroid.Verification.Enemies.SpacePirates;
 internal static class NinjaSpacePiratePostsVerification
 {
     /// <summary>
-    /// #2065: for every post distance whose half-span the setup accepts, from either start post and at a placement near
-    /// the room's wrap, the production setup puts the posts where the original's sixteen-bit arithmetic does: midway
+    /// #2065: for every post distance whose half-span the setup accepts, from either start post and at placements whose
+    /// posts lie in the room, as every shipped placement's do (#2449), the production setup puts the posts where the
+    /// original's arithmetic does: midway
     /// between the requested posts, half the requested distance (rounded down) apart from it, then widened to the
     /// whole pixels of the spin's distance, its speed growing by 32 256ths an update until the distance reaches the
     /// half-span.
@@ -22,7 +23,7 @@ internal static class NinjaSpacePiratePostsVerification
         RoomEnemyPlace slot = enemies.Places.InUpdateOrder[0];
         slot.Bind(EnemyDefinitionId.PirateSilverNinja, slot.Definition);
         int cases = 0;
-        foreach (int x in new[] { 256, 40 })
+        foreach (int x in new[] { 512, 300 })
         foreach (NinjaSpacePirateStartPost start in new[] { NinjaSpacePirateStartPost.Left, NinjaSpacePirateStartPost.Right })
         for (int distance = 0; distance <= 255; distance++)
         {

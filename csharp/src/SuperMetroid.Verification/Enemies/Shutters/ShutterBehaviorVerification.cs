@@ -171,17 +171,17 @@ internal static class ShutterBehaviorVerification
 
     /// <summary>
     /// A vertical shutter's travel endpoints are room positions offset from its spawn position by the travel
-    /// distance, wrapping at sixteen bits: an upward shutter spawned five pixels below the room's top edge ends its
-    /// travel at the wrapped Y, and a downward one spawned near the bottom limit wraps past zero. Its two velocities
-    /// are the selected linear-speed record's downward and upward entries.
+    /// distance, which every placement keeps inside the room: an upward shutter's travel ends above its spawn and a
+    /// downward one's below it, the downward one spawned eight pixels below the room's top edge as the Spiky Platforms
+    /// Tunnel's is. Its two velocities are the selected linear-speed record's downward and upward entries.
     /// </summary>
     internal static void VerifyVerticalShutterEndpoints()
     {
         const byte travelDistance = 16;
         const byte speedIndex = 3;
         const ushort spawnX = 100;
-        Confirm(primaryDirection: 0, spawnY: 5, expectedUpperY: 65525, expectedLowerY: 5);
-        Confirm(primaryDirection: 1, spawnY: 65530, expectedUpperY: 65530, expectedLowerY: 10);
+        Confirm(primaryDirection: 0, spawnY: 37, expectedUpperY: 21, expectedLowerY: 37);
+        Confirm(primaryDirection: 1, spawnY: 8, expectedUpperY: 8, expectedLowerY: 24);
 
         static void Confirm(byte primaryDirection, ushort spawnY, ushort expectedUpperY, ushort expectedLowerY)
         {

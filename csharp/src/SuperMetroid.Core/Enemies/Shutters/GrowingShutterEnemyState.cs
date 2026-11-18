@@ -20,7 +20,7 @@ public sealed class GrowingShutterEnemyState
     internal GrowingShutterEnemyState(GrowingShutterAction action, int spawnY, VerticalDirection growth)
     {
         Action = action;
-        SpawnY = CoordinateAxis.Wrap(spawnY);
+        SpawnY = spawnY;
         Growth = growth;
     }
 
@@ -50,14 +50,14 @@ public sealed class GrowingShutterEnemyState
 
     /// <summary>
     /// The origin row of the section grown at <paramref name="level"/>, derived from the spawn row (#2183): level 0 is the
-    /// spawn row and each later level is eight pixels further along the growth direction, wrapping around
-    /// the room. A growing shutter only ever moves vertically, so a section's origin is a row
+    /// spawn row and each later level is eight pixels further along the growth direction. Every placement grows down
+    /// from inside the room. A growing shutter only ever moves vertically, so a section's origin is a row
     /// in the shutter's own column.
     /// </summary>
     /// <param name="level">The growth level, 0 through 3.</param>
     public int SectionOriginY(int level) =>
-        CoordinateAxis.Wrap(SpawnY + Ensure.BetweenInclusive(0, SectionCount - 1, level) *
-            (Growth == VerticalDirection.Up ? -SectionOriginSpacing : SectionOriginSpacing));
+        SpawnY + Ensure.BetweenInclusive(0, SectionCount - 1, level) *
+            (Growth == VerticalDirection.Up ? -SectionOriginSpacing : SectionOriginSpacing);
 
     /// <summary>Number of completed growth sections: zero through four, where four is the fully grown terminal state.</summary>
     public int GrowthLevel

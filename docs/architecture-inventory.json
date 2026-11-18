@@ -81163,6 +81163,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Rios.NorfairRioFlames",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Rios/NorfairRioFlames.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Rios.NorfairRioFollowerEntity",
       "kind": "class",
       "scope": "product",
@@ -82375,6 +82388,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Sbug.SbugLeg",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Sbug/SbugLeg.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Sbug.SbugMovement",
       "kind": "static class",
       "scope": "product",
@@ -82440,7 +82466,7 @@
         "csharp/src/SuperMetroid.Core/Enemies/Sbug/SbugSpawnSettings.cs"
       ],
       "partial": "none",
-      "disposition": "constructor-parameters"
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Shaktool.Artwork.ShaktoolFrameToolingDefinitions",
@@ -82966,19 +82992,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Shutters.ShutterHeading",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Shutters/ShutterHeading.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Shutters.ShutterRest",
@@ -84914,6 +84927,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Waver.WaverAction",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Waver/WaverAction.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Waver.WaverAnimationChoices",
       "kind": "static class",
       "scope": "product",
@@ -86108,6 +86134,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/YappingMaws/YappingMawCueKind.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.YappingMaws.YappingMawCurlPhase",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/YappingMaws/YappingMawCurlPhase.cs"
       ],
       "partial": "none",
       "disposition": "value"

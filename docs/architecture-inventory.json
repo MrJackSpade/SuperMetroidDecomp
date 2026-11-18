@@ -11383,6 +11383,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Enemies.CrocomireMeltDissolveDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/CrocomireMeltDissolveDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Enemies.CrocomireMeltDissolveWords",
       "kind": "static class",
       "scope": "test",
@@ -24348,6 +24361,45 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Installation.BossBodyDissolveMapFile",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Installation/BossBodyDissolveMapFile.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Installation.BossBodyDissolveMapFile.Document",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Installation/BossBodyDissolveMapFile.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Installation.BossBodyDissolveMapFile.MapDocument",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Installation/BossBodyDissolveMapFile.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Installation.BossBodySheetFiles",
@@ -38493,19 +38545,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Assets.CellColumns",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Assets/CellColumns.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Assets.CharacterSpriteDraw",
       "kind": "record",
       "scope": "test",
@@ -38823,17 +38862,17 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Assets.HiddenPictureColumns",
-      "kind": "record",
+      "type": "SuperMetroid.Core.Assets.HiddenPicturePixels",
+      "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Assets/HiddenPictureColumns.cs"
+        "csharp/src/SuperMetroid.Core/Assets/HiddenPicturePixels.cs"
       ],
       "partial": "none",
-      "disposition": "record"
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Assets.IEncounterLookView",
@@ -42953,19 +42992,6 @@
       "disposition": "constructor-parameters"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Crocomire.CrocomireMeltDissolveDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Crocomire/CrocomireMeltDissolveDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
       "type": "SuperMetroid.Core.Bosses.Crocomire.CrocomireMeltDistortion",
       "kind": "record",
       "scope": "product",
@@ -42977,19 +43003,6 @@
       ],
       "partial": "none",
       "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.Crocomire.CrocomireMeltMask",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Crocomire/CrocomireMeltMask.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Crocomire.CrocomireMelting",
@@ -58801,19 +58814,6 @@
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Torizo.TorizoRandomDecision",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Torizo/TorizoRandomDecision.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
       "type": "SuperMetroid.Core.Bosses.Torizo.TorizoRandomDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -60701,7 +60701,7 @@
     },
     {
       "type": "SuperMetroid.Core.Compatibility.RandomClearBitsChance",
-      "kind": "record struct",
+      "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
@@ -60710,7 +60710,7 @@
         "csharp/src/SuperMetroid.Core/Compatibility/RandomClearBitsChance.cs"
       ],
       "partial": "none",
-      "disposition": "value"
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Compatibility.RandomSampleField",
@@ -65738,14 +65738,14 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.BossBodies.DissolvingCell",
+      "type": "SuperMetroid.Core.Enemies.BossBodies.DissolvingPixel",
       "kind": "record struct",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/BossBodies/DissolvingCell.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/BossBodies/DissolvingPixel.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -65775,6 +65775,19 @@
       ],
       "partial": "none",
       "disposition": "contract"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.BossBodies.PictureDissolve",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/BossBodies/PictureDissolve.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Enemies.BossBodies.ShownBossBody",
@@ -149478,6 +149491,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Verification.Areas.Ceres.CeresFallingDebrisChanceVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Areas/Ceres/CeresFallingDebrisChanceVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Verification.Areas.Ceres.CeresFallingDebrisNativeListAddresses",
       "kind": "static class",
       "scope": "test",
@@ -151636,6 +151662,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Verification.Bosses.Botwoon.BotwoonRandomChancesVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Bosses/Botwoon/BotwoonRandomChancesVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Verification.Bosses.Botwoon.BotwoonSpeedsVerification",
       "kind": "static class",
       "scope": "test",
@@ -151972,6 +152011,19 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Bosses.Crocomire.CrocomireMeltMaskVerification.ShownCharacter",
+      "kind": "record struct",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Bosses/Crocomire/CrocomireMeltMaskVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Verification.Bosses.Crocomire.CrocomireMeltingDefinitionsVerification",
@@ -153425,6 +153477,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Bosses/Kraid/KraidPaletteDefinitionsVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Bosses.Kraid.KraidRandomChancesVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Bosses/Kraid/KraidRandomChancesVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -158370,6 +158435,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Verification.Enemies.Beetom.BeetomRandomChancesVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/Beetom/BeetomRandomChancesVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Verification.Enemies.Beetom.CreateBeetomDistantSelectionFixtureResult",
       "kind": "record struct",
       "scope": "test",
@@ -161529,6 +161607,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Verification.Enemies.Hoppers.HopperRandomChancesVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/Hoppers/HopperRandomChancesVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Verification.Enemies.Hoppers.VerifyHopperHopArcRecordCase",
       "kind": "record struct",
       "scope": "test",
@@ -161618,6 +161709,19 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.Kago.KagoRandomChancesVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/Kago/KagoRandomChancesVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Verification.Enemies.KiHunters.CreatePairResult",
@@ -162985,6 +163089,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Verification.Enemies.Owtch.OwtchSurfacingChanceVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/Owtch/OwtchSurfacingChanceVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Verification.Enemies.Owtch.VerifyOwtchBehaviorCase",
       "kind": "record struct",
       "scope": "test",
@@ -163461,6 +163578,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Enemies/Projectiles/EnemyProjectileProgramOracleVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.Projectiles.EnemyProjectileScatterChancesVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/Projectiles/EnemyProjectileScatterChancesVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -164766,6 +164896,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Verification.Enemies.SpacePirates.SpacePirateRandomChancesVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/SpacePirates/SpacePirateRandomChancesVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Verification.Enemies.SpacePirates.VerifySpacePirateCollisionDefinitionsCase",
       "kind": "record struct",
       "scope": "test",
@@ -166016,6 +166159,19 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.Yard.YardRandomChancesVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/Yard/YardRandomChancesVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Verification.Enemies.Yard.YardShotLaunchFractionsVerification",
@@ -178727,6 +178883,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Samus/Movement/SamusBallBounceDefinitionsVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Samus.Movement.SamusBreathBubbleSoundVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Samus/Movement/SamusBreathBubbleSoundVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"

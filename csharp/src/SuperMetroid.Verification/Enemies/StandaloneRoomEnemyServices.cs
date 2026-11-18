@@ -4,7 +4,6 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Verification.Enemies;
 

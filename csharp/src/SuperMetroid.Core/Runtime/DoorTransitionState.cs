@@ -5,7 +5,6 @@ using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Areas.Ceres;
-using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Core.Runtime;

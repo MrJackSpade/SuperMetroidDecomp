@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// </summary>
 public static class PhantoonTimerDefinitions
 {
-    /// <summary>The initial flame countdown is 120 frames; the European release uses 96.</summary>
+    /// <summary>The updates before his first flame.</summary>
     public const int InitialFlameDelayFrames = 120;
 
     /// <summary>

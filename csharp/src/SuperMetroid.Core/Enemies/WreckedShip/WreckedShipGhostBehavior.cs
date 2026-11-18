@@ -247,7 +247,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
         state.Fade = state.Fade.Vanishing();
     }
 
-    /// <summary>Finishes whitening, hides, and restarts the 120-frame delay.</summary>
+    /// <summary>Finishes whitening, hides, and starts its 120-update wait again.</summary>
     private static void RunWreckedShipGhostWhiteFade(
         RoomEnemyPlace place,
         WreckedShipGhostEnemyState state)

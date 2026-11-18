@@ -14,7 +14,7 @@ internal static class ElevatorAnimations
     internal static AnimationSegments<ElevatorSegment, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
         new Dictionary<ElevatorSegment, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
     {
-        [P.Loop] =
+        [P.Idle] =
         [
             Show(EnemyFrameId.ElevatorPadUnlit, 2),
             Show(EnemyFrameId.ElevatorPadLit, 2),
@@ -24,7 +24,7 @@ internal static class ElevatorAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<ElevatorSegment, Animation<ElevatorSegment>> StartingAt { get; } = new Dictionary<ElevatorSegment, Animation<ElevatorSegment>>
     {
-        [P.Loop] = Animation<ElevatorSegment>.Looping([Segments.Whole(P.Loop)]),
+        [P.Idle] = Animation<ElevatorSegment>.Looping([Segments.Whole(P.Idle)]),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

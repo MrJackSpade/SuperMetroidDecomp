@@ -131,16 +131,15 @@ internal static class OrdinarySmokeTests
             PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: ordinary {count}, BG1 overlay pictures");
         }
-        // A boss body part hiding pixels (#1652), as Crocomire's melt image hides its dissolve's erased columns: hiding none
+        // A boss body part hiding pixels (#1652, #2478), as Crocomire's melt image hides its dissolve's erased pixels: hiding none
         // draws as hiding nothing does, and hiding a seeded set, or every pixel, draws as the part's picture with those pixels
         // clear does.
         ShownBossBody seeded = RoomBackgroundsFixtures.SeededBody(random, colors, 128, new Extent16<BackgroundPixels>(512, 512));
         ShownBossBodyPart first = seeded.Parts[0];
-        int cellsAcross = first.Picture.Size.X / HiddenPictureColumns.CellPixels, cellsDown = first.Picture.Size.Y / HiddenPictureColumns.CellPixels;
-        HiddenPictureColumns none = new(cellsAcross, cellsDown, [.. Enumerable.Repeat(CellColumns.None, cellsAcross * cellsDown)]);
-        HiddenPictureColumns every = new(cellsAcross, cellsDown, [.. Enumerable.Repeat(HiddenPictureColumns.Columns.Aggregate((all, column) => all | column), cellsAcross * cellsDown)]);
-        HiddenPictureColumns some = new(cellsAcross, cellsDown, [.. Enumerable.Range(0, cellsAcross * cellsDown)
-            .Select(_ => HiddenPictureColumns.Columns.Where(_ => random.Next(2) == 0).Aggregate(CellColumns.None, (all, column) => all | column))]);
+        int pixelCount = first.Picture.Size.X * first.Picture.Size.Y;
+        HiddenPicturePixels none = new(first.Picture.Size, [.. Enumerable.Repeat(false, pixelCount)]);
+        HiddenPicturePixels every = new(first.Picture.Size, [.. Enumerable.Repeat(true, pixelCount)]);
+        HiddenPicturePixels some = new(first.Picture.Size, [.. Enumerable.Range(0, pixelCount).Select(_ => random.Next(2) == 0)]);
         foreach ((string name, ShownBossBodyPart masked, ShownBossBodyPart expected) in new[]
         {
             ("hiding none", first with { Hidden = none }, first),
@@ -166,7 +165,7 @@ internal static class OrdinarySmokeTests
     /// <paramref name="picture"/> on a copy of its sheet whose pixels <paramref name="hidden"/> hides are clear, as a picture
     /// that never had them shows (#1652).
     /// </summary>
-    private static SpriteSheetFrame WithPixelsCleared(SpriteSheetFrame picture, HiddenPictureColumns hidden)
+    private static SpriteSheetFrame WithPixelsCleared(SpriteSheetFrame picture, HiddenPicturePixels hidden)
     {
         SpriteImage sheet = picture.Sheet;
         RgbaPixel[] pixels = sheet.Pixels.ToArray();

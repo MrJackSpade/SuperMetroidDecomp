@@ -12,6 +12,7 @@ using SuperMetroid.Core.Enemies.Chozo.Artwork;
 using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.Core.Enemies.Corpses.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Enemies.FaceBlocks;
 using SuperMetroid.Core.Enemies.FaceBlocks.Artwork;
 using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Enemies.Magdollite;
@@ -298,12 +299,10 @@ internal sealed class EnemySheetShades
             case EnemyDefinitionId.FaceBlock:
             {
                 EnemyAuxiliaryColorCatalog auxiliary = inputs.Enemies.AuxiliaryColors ?? throw Missing("face-block glow colours");
-                foreach (FaceBlockGlowFrame frame in FaceBlockGlowFrame.All)
-                {
-                    int step = frame.Frame;
-                    shades.Add(SheetShade.Run(FaceBlockShades.Glow(frame), first + EnemySheetRowDefinitions.GlowFirstColour,
-                        Frame(4, colour => auxiliary.Resolve(EnemyAuxiliaryPalette.FaceBlock, step, colour))));
-                }
+                // The cartridge's colour records are the glow's steps in the order the glow shows them. The steps that show
+                // one level show it in one colouring, so each level installs one shade (#2477).
+                foreach (FaceBlockGlowLevel level in FaceBlockGlowAnimations.Levels)
+                    shades.Add(SheetShade.Run(FaceBlockShades.Glow(level), first + EnemySheetRowDefinitions.GlowFirstColour, FaceBlockGlowColours(auxiliary, level)));
                 break;
             }
             case EnemyDefinitionId.Magdollite:
@@ -647,6 +646,21 @@ internal sealed class EnemySheetShades
             .Select(step => Frame(WorkRobotPaletteDefinitions.ColorCount, colour => cycle.Resolve(step, colour)))];
         if (showing.Any(colours => !colours.SequenceEqual(showing[0])))
             throw new InvalidDataException($"The Work Robot glow colour records for {place} differ; each place has one colouring.");
+        return showing[0];
+    }
+
+    /// <summary>
+    /// The colours of face-block glow level <paramref name="level"/> (#2477): those of every colour record of a step showing
+    /// it, which must agree.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The records of the steps showing the level differ.</exception>
+    private static RgbColor[] FaceBlockGlowColours(EnemyAuxiliaryColorCatalog auxiliary, FaceBlockGlowLevel level)
+    {
+        RgbColor[][] showing = [.. Enumerable.Range(0, FaceBlockGlowAnimations.Cycle.Count)
+            .Where(step => FaceBlockGlowAnimations.Cycle[step] == level)
+            .Select(step => Frame(4, colour => auxiliary.Resolve(EnemyAuxiliaryPalette.FaceBlock, step, colour)))];
+        if (showing.Any(colours => !colours.SequenceEqual(showing[0])))
+            throw new InvalidDataException($"The face-block glow colour records for {level} differ; each level has one colouring.");
         return showing[0];
     }
 

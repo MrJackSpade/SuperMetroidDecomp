@@ -26,12 +26,6 @@ public sealed class EtecoonEnemyState
         internal set => field = Ensure.BetweenInclusive(0, EtecoonTimingDefinitions.FlexDuration, value);
     }
 
-    /// <summary>
-    /// Whether the Etecoon still lies dormant, waiting for Samus to come level with it (#1627): from its initialization
-    /// until she does, when it starts flexing and <see cref="ActionTimer"/> counts the flex down.
-    /// </summary>
-    public bool AwaitingSamus { get; internal set; }
-
     /// <summary>The main-AI behaviour.</summary>
     public EtecoonAction Action { get; internal set; }
 

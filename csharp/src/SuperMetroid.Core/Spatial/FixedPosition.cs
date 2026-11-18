@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Spatial;
 /// movement from the fractions its last one left, and those fractions decide on which update that movement reaches each
 /// next whole pixel. Only <see cref="FromWhole"/> and the fraction writes clear or set them.
 /// </remarks>
-[SpatialComponents("Spatial value type: owns its X and Y fixed-point axes.")]
+[SpatialComponents("Spatial value type: owns its X and Y axes, each a whole pixel and its fraction.")]
 public readonly record struct FixedPosition<TSpace>(FixedCoordinate X, FixedCoordinate Y)
     where TSpace : ISpatialSpace
 {

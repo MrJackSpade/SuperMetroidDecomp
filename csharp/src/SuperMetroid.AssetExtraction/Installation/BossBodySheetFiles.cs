@@ -13,7 +13,8 @@ namespace SuperMetroid.AssetExtraction.Installation;
 /// <summary>
 /// Installs the pre-assembled boss body sheets (#1466, #1515, #1540, #1635): each boss's sheet manifest, its pictures held in
 /// the installation's picture store, and the manifest naming each frame's whole picture and where it lies against its boss
-/// (#2031), which names the sheets (#1693). A player edits a sheet's installed files in place.
+/// (#2031), which names the sheets (#1693), and the dissolve map of each picture a dissolve erases, apart from the pictures
+/// (<see cref="BossBodyDissolveMapFile"/>, #2478). A player edits a sheet's installed files in place.
 /// </summary>
 public static class BossBodySheetFiles
 {
@@ -29,9 +30,10 @@ public static class BossBodySheetFiles
     /// animation segment or table key that first shows it (#1623); 10 places Crocomire's lowered charging and clawing poses
     /// where they lie on his body's area (#1802); 11 places Mother Brain's posture poses where they lie on her body's area,
     /// which follows her (#1949); 12 places each frame against its boss's position rather than on its body's area (#2031); 13 keys each frame by
-    /// what its picture shows (#2069).
+    /// what its picture shows (#2069); 14 names each dissolving picture's dissolve map, where 13 listed the 8x8 cells its
+    /// dissolve erased (#2478).
     /// </summary>
-    private const int ManifestVersion = 13;
+    private const int ManifestVersion = 14;
 
     /// <summary>
     /// Composes every boss's body sheet and writes their manifest; the sheets are returned for the picture store to write
@@ -52,10 +54,14 @@ public static class BossBodySheetFiles
     {
         Ensure.NotNull(sheets);
         Directory.CreateDirectory(directory);
+        var dissolves = new List<KeyValuePair<string, PictureDissolve>>();
         var manifest = new Manifest(ManifestVersion, sheets.ToDictionary(sheet => sheet.Owner.ToString(), sheet => (SheetDocument?)new SheetDocument(
-            sheet.Frames.ToDictionary(frame => frame.Key, frame => (FrameDocument?)Document(frame.Value), StringComparer.Ordinal)),
+            sheet.Frames.ToDictionary(frame => frame.Key, frame => (FrameDocument?)Document(sheet.Owner, frame.Key, frame.Value, dissolves), StringComparer.Ordinal)),
             StringComparer.Ordinal));
         File.WriteAllBytes(Path.Combine(directory, ManifestFileName), JsonSerializer.SerializeToUtf8Bytes(manifest, JsonOptions));
+        string content = ContentOf(directory);
+        Directory.CreateDirectory(Path.Combine(content, GameInstallationLayout.DissolveMapDirectoryName));
+        File.WriteAllBytes(BossBodyDissolveMapFile.PathIn(content), BossBodyDissolveMapFile.Encode(dissolves));
         return InstalledSheetFamily.Install(directory,
             [.. sheets.Select(sheet => new NamedComposedSheet(BossBodySheetComposer.SheetNameOf(sheet.Owner), sheet.Sheet))]);
     }
@@ -75,6 +81,8 @@ public static class BossBodySheetFiles
         if (manifest.Version != ManifestVersion || manifest.Sheets is null)
             throw new InvalidDataException($"Boss body manifest {manifestPath} is not revision {ManifestVersion}.");
         SpriteSheetStore store = SpriteSheetStore.Open(directory);
+        string dissolveMapsPath = BossBodyDissolveMapFile.PathIn(ContentOf(directory));
+        Dictionary<string, PictureDissolve> dissolves = BossBodyDissolveMapFile.Decode(File.ReadAllBytes(dissolveMapsPath), dissolveMapsPath);
         return [.. manifest.Sheets.Select(entry =>
         {
             BossBodyOwner owner = Enum.TryParse(entry.Key, out BossBodyOwner parsed) && Enum.IsDefined(parsed) ? parsed
@@ -83,13 +91,34 @@ public static class BossBodySheetFiles
             SpriteSheet sheet = store.Read(BossBodySheetComposer.SheetNameOf(owner));
             return new BossBodySheet(owner, sheet,
                 (document.Frames ?? throw new InvalidDataException($"Boss body manifest {manifestPath} lists no frames for {owner}."))
-                    .Select(frame => Frame(sheet, frame.Key, frame.Value, manifestPath)));
+                    .Select(frame => Frame(sheet, frame.Key, frame.Value, manifestPath, dissolves)));
         })];
     }
 
-    /// <summary>The manifest entry of <paramref name="frame"/>.</summary>
-    private static FrameDocument Document(ComposedBossBodyFrame frame) =>
-        new(frame.Picture, frame.Anchor, frame.Depth, frame.Dissolving.Count == 0 ? null : [.. frame.Dissolving]);
+    /// <summary>
+    /// The content directory a family's <paramref name="directory"/> lies in, under which the dissolve maps lie apart from
+    /// the sheets.
+    /// </summary>
+    /// <exception cref="ArgumentException">The directory has no installation above it.</exception>
+    private static string ContentOf(string directory) =>
+        Path.GetDirectoryName(Path.TrimEndingDirectorySeparator(Path.GetFullPath(directory)))
+            ?? throw new ArgumentException($"Boss body sheet directory {directory} has no installation above it.", nameof(directory));
+
+    /// <summary>
+    /// The manifest entry of <paramref name="frame"/>, <paramref name="owner"/>'s frame keyed <paramref name="key"/>; a frame
+    /// whose picture dissolves names its map's tag, and its map joins <paramref name="dissolves"/> (#2478).
+    /// </summary>
+    private static FrameDocument Document(BossBodyOwner owner, string key, ComposedBossBodyFrame frame,
+        List<KeyValuePair<string, PictureDissolve>> dissolves)
+    {
+        string? tag = null;
+        if (frame.Dissolve is { } dissolve)
+        {
+            tag = $"{owner} {key}";
+            dissolves.Add(KeyValuePair.Create(tag, dissolve));
+        }
+        return new(frame.Picture, frame.Anchor, frame.Depth, tag);
+    }
 
     /// <summary>
     /// The frame named <paramref name="name"/> that <paramref name="document"/> describes, its picture cut from
@@ -97,16 +126,20 @@ public static class BossBodySheetFiles
     /// depth, and the part showing it is not drawn (#1513).
     /// </summary>
     /// <exception cref="InvalidDataException">
-    /// The entry is missing, places its picture nowhere, names a picture without a defined depth, or a depth without a picture.
+    /// The entry is missing, places its picture nowhere, names a picture without a defined depth, a depth without a picture,
+    /// or a dissolve map <paramref name="dissolves"/> does not hold.
     /// </exception>
-    private static BossBodyFrame Frame(SpriteSheet sheet, string name, FrameDocument? document, string manifestPath)
+    private static BossBodyFrame Frame(SpriteSheet sheet, string name, FrameDocument? document, string manifestPath,
+        Dictionary<string, PictureDissolve> dissolves)
     {
         if (document is not { Anchor: { } anchor })
             throw new InvalidDataException($"Boss body manifest {manifestPath} frame {name} is incomplete.");
         if (document.Picture is null != document.Depth is null || document.Depth is { } depth && !Enum.IsDefined(depth))
             throw new InvalidDataException($"Boss body manifest {manifestPath} frame {name} needs a defined depth exactly when it names a picture.");
-        return new BossBodyFrame(name, document.Picture is null ? null : sheet.Frame(document.Picture), anchor, document.Depth,
-            document.Dissolving is null ? [] : [.. document.Dissolving]);
+        PictureDissolve? dissolve = document.Dissolve is null ? null
+            : dissolves.TryGetValue(document.Dissolve, out PictureDissolve? map) ? map
+            : throw new InvalidDataException($"Boss body manifest {manifestPath} frame {name} names dissolve map {document.Dissolve}, which the dissolve maps do not hold.");
+        return new BossBodyFrame(name, document.Picture is null ? null : sheet.Frame(document.Picture), anchor, document.Depth, dissolve);
     }
 
     /// <summary>The manifest: each boss's sheet, by boss.</summary>
@@ -122,11 +155,11 @@ public static class BossBodySheetFiles
     /// <param name="Picture">The sheet frame of its picture, or null for a frame that paints nothing.</param>
     /// <param name="Anchor">Where its picture's top-left corner lies from its boss's position (#2031).</param>
     /// <param name="Depth">The depth its picture is drawn at, by name (#1634), or null for a frame that paints nothing.</param>
-    /// <param name="Dissolving">The picture's cells a column dissolve erases (#1652), or null for a frame no dissolve erases.</param>
+    /// <param name="Dissolve">The tag of the dissolve map its picture dissolves by (#2478), or null for a frame no dissolve erases.</param>
     private sealed record FrameDocument(string? Picture, Offset16<RoomPixels>? Anchor,
         [property: JsonConverter(typeof(JsonStringEnumConverter<BossBodyDepth>))]
         [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] BossBodyDepth? Depth,
-        [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] DissolvingCell[]? Dissolving = null);
+        [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? Dissolve = null);
 
     /// <summary>Stable camel-case manifest fields.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()

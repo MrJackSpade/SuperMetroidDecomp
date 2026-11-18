@@ -112,14 +112,12 @@ internal sealed class GreyDoorObject : DoorCapObject, IClosingDoor
                 Play(GreyDoorDefinitions.BombTorizoClosing, place, context);
                 return;
             case GreyDoorPhase.Locked:
+                // Once it has looked, the cap rests on its closed image until its condition holds.
                 if (Waits == GreyDoorWait.Nothing)
                     Look(place, context);
-                else
-                    Rest();
                 return;
             case GreyDoorPhase.Flashing:
-                Play(GreyDoorDefinitions.Flash, place, context);
-                return;
+                throw new InvalidOperationException("An unlocked grey cap flashes until a shot opens it; its flash never ends.");
             case GreyDoorPhase.Opening:
                 context.RoomObjects.DeleteObject(place);
                 return;

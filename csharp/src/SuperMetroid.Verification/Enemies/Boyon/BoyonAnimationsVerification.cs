@@ -22,7 +22,7 @@ internal static class BoyonAnimationsVerification
                     AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
                     AssertEqual(0, operands.Length, $"{at}: operands");
                 },
-                Omitted: OmittedInstructions.Contains),
+                Omitted: (word, _) => OmittedInstructions.Contains(word)),
             onlyRunOnInto: new HashSet<BoyonSegment> { BoyonSegment.IdleRest, BoyonSegment.BouncingStar });
         Console.WriteLine($"  Boyon animations: {Entries.Length} segments ({beats} beats) and {BoyonAnimations.StartingAt.Count} animations match bank $A2.");
     }

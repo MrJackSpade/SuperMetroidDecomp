@@ -9,8 +9,8 @@ internal static class BotwoonNavigationDefinitions
     /// </summary>
     internal static readonly RandomChance FollowsAuthoredPath = RandomChance.Lowest(3, new(1, 3));
 
-    /// <summary>Whether Botwoon starts its next path inside the hole: taken by an odd sample.</summary>
-    internal static readonly RandomSampleField StartsInsideHole = new(0, 1);
+    /// <summary>Whether Botwoon starts its next path inside the hole (#2479): taken by an odd sample, one path in two.</summary>
+    internal static readonly RandomChance StartsInsideHole = RandomChance.Highest(1, new RandomSampleField(0, 1));
 
     /// <summary>The random draw of one of the four destinations a hole's walks lead to.</summary>
     internal static readonly RandomSampleField PathDraw = new(3, 2);

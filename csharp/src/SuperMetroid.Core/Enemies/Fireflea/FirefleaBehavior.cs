@@ -48,14 +48,12 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Starts a circling Fireflea on its circle about where it spawned, at the circle's zero angle.</summary>
     private static CirclingFirefleaState StartCircling(RoomEnemyPlace place, FirefleaFlight.Circling circling, int radius)
     {
-        var flight = new CirclingFirefleaState
+        var flight = new CirclingFirefleaState(circling)
         {
-            AngularSpeed = circling.TurnPerUpdate,
-            Radius = radius,
             Center = place.Position.Whole,
             Angle = RotationAngle.Zero,
         };
-        place.Position = place.Position.WithWhole(flight.Center + EnemyMath.CircleOffset(flight.Angle.ToTrigonometryAngle(), flight.Radius));
+        place.Position = place.Position.WithWhole(flight.Center + EnemyMath.CircleOffset(flight.Angle.ToTrigonometryAngle(), radius));
         return flight;
     }
 
@@ -63,9 +61,8 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     private static BobbingFirefleaState StartBobbing(RoomEnemyPlace place, FirefleaFlight.Bobbing bobbing, int radius)
     {
         int spawnY = place.Position.Y.Whole;
-        return new BobbingFirefleaState
+        return new BobbingFirefleaState(bobbing)
         {
-            Speed = bobbing.Speed,
             Direction = bobbing.StartDirection,
             MinimumY = spawnY - radius,
             MaximumY = spawnY + radius,
@@ -78,8 +75,9 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (state.Flight)
         {
             case CirclingFirefleaState circling:
-                place.Position = place.Position.WithWhole(circling.Center + EnemyMath.CircleOffset(circling.Angle.ToTrigonometryAngle(), circling.Radius));
-                circling.Angle = circling.Angle.TurnedBy(circling.AngularSpeed);
+                place.Position = place.Position.WithWhole(circling.Center
+                    + EnemyMath.CircleOffset(circling.Angle.ToTrigonometryAngle(), place.SpawnSettings<FirefleaSpawnSettings>().Radius));
+                circling.Angle = circling.Angle.TurnedBy(circling.Definition.TurnPerUpdate);
                 return;
 
             case BobbingFirefleaState bobbing:
@@ -98,7 +96,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Runs Fireflea touch AI, including its double death. The
+    /// Runs the Fireflea's reaction to Samus's touch, including its double death. The
     /// own touch reaction runs the common touch reaction and then kills the Fireflea unconditionally:
     /// normal contact therefore kills an otherwise healthy Fireflea, while Screw Attack and
     /// similar contact attacks can increment the room kill count twice.

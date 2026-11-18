@@ -19,49 +19,19 @@ internal static class EscapeEtecoonAnimations
         [
             Cue(new EscapeEtecoonCue.LowTideRunStarts(Running: HorizontalDirection.Left)),
         ],
-        [P.RunningLeftLowTideStride] =
-        [
-            Show(EnemyFrameId.EtecoonRunningLeftStretched, 5),
-            Show(EnemyFrameId.EtecoonRunningLeftBunched, 5),
-            Show(EnemyFrameId.EtecoonRunningLeftPushingOff, 5),
-            Show(EnemyFrameId.EtecoonRunningLeftBunched, 5),
-        ],
-        [P.RunningLeftHighTide] =
-        [
-            Show(EnemyFrameId.EtecoonRunningLeftStretched, 3),
-            Show(EnemyFrameId.EtecoonRunningLeftBunched, 3),
-            Show(EnemyFrameId.EtecoonRunningLeftPushingOff, 3),
-            Show(EnemyFrameId.EtecoonRunningLeftBunched, 3),
-        ],
+        [P.RunningLeftLowTideStride] = Stride(EtecoonStride.Left, 5),
+        [P.RunningLeftHighTide] = Stride(EtecoonStride.Left, 3),
         [P.RunningRightLowTide] =
         [
             Cue(new EscapeEtecoonCue.LowTideRunStarts(Running: HorizontalDirection.Right)),
         ],
-        [P.RunningRightLowTideStride] =
-        [
-            Show(EnemyFrameId.EtecoonRunningRightStretched, 6),
-            Show(EnemyFrameId.EtecoonRunningRightBunched, 6),
-            Show(EnemyFrameId.EtecoonRunningRightPushingOff, 6),
-            Show(EnemyFrameId.EtecoonRunningRightBunched, 6),
-        ],
-        [P.RunningRightHighTide] =
-        [
-            Show(EnemyFrameId.EtecoonRunningRightStretched, 3),
-            Show(EnemyFrameId.EtecoonRunningRightBunched, 3),
-            Show(EnemyFrameId.EtecoonRunningRightPushingOff, 3),
-            Show(EnemyFrameId.EtecoonRunningRightBunched, 3),
-        ],
+        [P.RunningRightLowTideStride] = Stride(EtecoonStride.Right, 6),
+        [P.RunningRightHighTide] = Stride(EtecoonStride.Right, 3),
         [P.RunningForEscape] =
         [
             Cue(new EscapeEtecoonCue.Signal(K.Escapes)),
         ],
-        [P.RunningForEscapeStride] =
-        [
-            Show(EnemyFrameId.EtecoonRunningRightStretched, 3),
-            Show(EnemyFrameId.EtecoonRunningRightBunched, 3),
-            Show(EnemyFrameId.EtecoonRunningRightPushingOff, 3),
-            Show(EnemyFrameId.EtecoonRunningRightBunched, 3),
-        ],
+        [P.RunningForEscapeStride] = Stride(EtecoonStride.Right, 3),
         [P.Stationary] =
         [
             Show(EnemyFrameId.EscapeEtecoonLookingRight, 64),
@@ -73,17 +43,7 @@ internal static class EscapeEtecoonAnimations
         [
             Cue(new EscapeEtecoonCue.Signal(K.ExpressesGratitude)),
         ],
-        [P.ThankingSteps] =
-        [
-            Show(EnemyFrameId.EtecoonRunningLeftStretched, 8),
-            Cue(new EscapeEtecoonCue.Move(Offset: -3)),
-            Show(EnemyFrameId.EtecoonRunningLeftBunched, 8),
-            Cue(new EscapeEtecoonCue.Move(Offset: -3)),
-            Show(EnemyFrameId.EtecoonRunningLeftPushingOff, 8),
-            Cue(new EscapeEtecoonCue.Move(Offset: -3)),
-            Show(EnemyFrameId.EtecoonRunningLeftBunched, 8),
-            Cue(new EscapeEtecoonCue.Move(Offset: -3)),
-        ],
+        [P.ThankingSteps] = SteppingStride(EtecoonStride.Left, 8, -ThankingStepPixels),
         [P.ThankingLook] =
         [
             Show(EnemyFrameId.EscapeEtecoonLookingRight, 64),
@@ -93,6 +53,9 @@ internal static class EscapeEtecoonAnimations
 
     /// <summary>How many times a thanking Etecoon takes its four steps to the left.</summary>
     private const int ThankingStepRuns = 8;
+
+    /// <summary>The pixels a thanking Etecoon steps left with each pose of its stride.</summary>
+    private const int ThankingStepPixels = 3;
 
     /// <summary>
     /// The animation that starts at each segment an owner can start or restart at (#2275): a low-tide or escape run raises
@@ -114,6 +77,17 @@ internal static class EscapeEtecoonAnimations
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<EscapeEtecoonSegment> StartingWith(EscapeEtecoonSegment segment) => StartingAt[segment];
+
+    /// <summary>One <paramref name="stride"/> (#2477), each of its poses shown for <paramref name="updates"/> updates.</summary>
+    private static AnimationBeat<EnemyFrameId, EscapeEtecoonCue>[] Stride(EtecoonStride stride, int updates) =>
+        [.. stride.Poses.Select(pose => Show(pose, updates))];
+
+    /// <summary>
+    /// One <paramref name="stride"/> taken a step at a time (#2477): each pose shown for <paramref name="updates"/> updates
+    /// and followed by a step of <paramref name="step"/> pixels.
+    /// </summary>
+    private static AnimationBeat<EnemyFrameId, EscapeEtecoonCue>[] SteppingStride(EtecoonStride stride, int updates, int step) =>
+        [.. stride.Poses.SelectMany(pose => new[] { Show(pose, updates), Cue(new EscapeEtecoonCue.Move(Offset: step)) })];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, EscapeEtecoonCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, EscapeEtecoonCue>.Frame(frame, duration);

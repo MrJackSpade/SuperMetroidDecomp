@@ -40,9 +40,8 @@ public sealed class MaridiaLargeSnailEnemyState
     public bool AttackAllowsRotation { get; internal set; }
 
     /// <summary>
-    /// Movement suppression produced after AI and consumed on the next frame.
-    /// This one-frame pipeline is intentional game ordering, not input latency invented
-    /// on top of it.
+    /// Whether the snail stops moving on its next update: set after its update and read by the next, as the game
+    /// stops it one update later.
     /// </summary>
     public bool StopMovementNextFrame { get; internal set; }
 

@@ -211,7 +211,7 @@ internal sealed class KraidProjectiles
         part.SetAnimation(KraidPartSegment.NailLoop);
         part.Phase = KraidNailPhase.Fire;
 
-        if (!KraidRandomDefinitions.NailWaitsForLint.IsSetIn(random) || siblingPart is { AlternateSpawn: true })
+        if (!KraidRandomDefinitions.NailWaitsForLint.IsTakenBy(random) || siblingPart is { AlternateSpawn: true })
         {
             part.AlternateSpawn = false;
             RoomEnemyPlace body = _parts.Body;

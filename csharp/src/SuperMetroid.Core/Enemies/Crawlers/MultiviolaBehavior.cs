@@ -29,13 +29,12 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new MultiviolaEnemyState
         {
             Heading = place.SpawnSettings<MultiviolaSpawnSettings>().Heading,
-            Speed = place.SpawnSettings<MultiviolaSpawnSettings>().Speed,
         };
         place.SetSpeciesState(state);
 
         // The speeds along each axis are set as the room loads, before the first update, as each update
         // sets them again.
-        CalculateMultiviolaVelocityMagnitudes(state);
+        CalculateMultiviolaVelocityMagnitudes(place, state);
         state.Playback = new(MultiviolaAnimations.StartingWith(MultiviolaSegment.Flying), AnimationPlace.StartOfAnimation);
     }
 
@@ -47,7 +46,7 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // Each update sets the speeds along each axis afresh from the heading the bounces turn; a bounce turns the
         // heading, never the velocity.
-        CalculateMultiviolaVelocityMagnitudes(state);
+        CalculateMultiviolaVelocityMagnitudes(place, state);
 
         // The products are magnitudes; the signs of the heading's cosine and sine give each axis its direction.
         if (!EnemyMath.CosineIsNegative(state.Heading))
@@ -77,12 +76,12 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Sets the Multiviola's speed along each axis from its heading and speed, without direction: the heading's signs
-    /// turn each speed left or up before it moves.
+    /// Sets the Multiviola's speed along each axis from its heading and its spawn settings' speed in whole pixels per
+    /// update, without direction: the heading's signs turn each speed left or up before it moves.
     /// </summary>
-    private static void CalculateMultiviolaVelocityMagnitudes(MultiviolaEnemyState state)
+    private static void CalculateMultiviolaVelocityMagnitudes(RoomEnemyPlace place, MultiviolaEnemyState state)
     {
-        int magnitude = state.Speed;
+        int magnitude = place.SpawnSettings<MultiviolaSpawnSettings>().Speed;
         state.Velocity = new FixedVector<RoomPixels>(
             EnemyMath.AbsoluteCosineSpeed(state.Heading, magnitude).AsDisplacement(),
             EnemyMath.AbsoluteSineSpeed(state.Heading, magnitude).AsDisplacement());

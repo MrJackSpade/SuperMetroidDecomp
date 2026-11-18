@@ -41,33 +41,29 @@ public sealed class RoomEffectActor
     /// <summary>The animation the object plays and where it stands in it (#1600), or null once it has ended.</summary>
     internal AnimationPlayback<RoomEffectActorSegment>? Playback { get; private set; }
 
-    /// <summary>Updates left showing <see cref="Frame"/> before the animation moves on; not counted while the object <see cref="Holds"/>.</summary>
-    public int Timer { get; private set; }
-
-    /// <summary>Whether the animation has reached its hold: the object shows <see cref="Frame"/> from then on until it ends.</summary>
-    public bool Holds { get; private set; }
+    /// <summary>
+    /// The object's animation clock (#2477), as an enemy's is: how long <see cref="Frame"/> holds before the animation moves
+    /// on. A still picture, or the animation resting at its hold, stops it, so the object shows that frame until it ends; its
+    /// owner suspends it while the object must keep its frame where it stands, drawing it still.
+    /// </summary>
+    public EnemyAnimationClock AnimationClock { get; } = new();
 
     /// <summary>The frame the object shows.</summary>
     internal RoomEffectActorPicture Frame { get; private set; }
 
-    /// <summary>Suppresses animation updates but leaves drawing intact.</summary>
-    public bool UpdatesDisabled { get; internal set; }
-
     /// <summary>Ends the object: it stops running and showing.</summary>
     internal void End() => Playback = null;
 
-    /// <summary>Counts one update off the shown frame and moves the animation on when it runs out, unless updates are disabled or the object holds.</summary>
+    /// <summary>Counts one update off the shown frame on the object's clock and moves the animation on when it runs out.</summary>
     internal void Step()
     {
-        if (!IsActive || UpdatesDisabled || Holds)
-            return;
-        if (--Timer == 0)
+        if (IsActive && AnimationClock.Expire())
             AdvanceAnimation();
     }
 
     /// <summary>
-    /// Plays the animation to its next frame: a frame installs itself and its duration, the hold keeps the frame for good,
-    /// and the animation's end ends the object. The animations count no repeats and raise no events.
+    /// Plays the animation to its next frame: a frame shows for its duration, a still picture or the hold keeps the frame for
+    /// good, stopping the clock, and the animation's end ends the object. The animations count no repeats and raise no events.
     /// </summary>
     private void AdvanceAnimation()
     {
@@ -83,17 +79,17 @@ public sealed class RoomEffectActor
             case AnimationShown<RoomEffectActorSegment, RoomEffectActorPicture>.Frame frame:
                 Playback = new(animation, place);
                 Frame = frame.Shown;
-                Timer = frame.Duration;
+                AnimationClock.Show(frame.Duration);
                 return;
             case AnimationShown<RoomEffectActorSegment, RoomEffectActorPicture>.HeldFrame held:
                 // A still picture shows from now on (#2275).
                 Playback = new(animation, place);
                 Frame = held.Shown;
-                Holds = true;
+                AnimationClock.ShowForGood();
                 return;
             case AnimationShown<RoomEffectActorSegment, RoomEffectActorPicture>.Held:
                 Playback = new(animation, place);
-                Holds = true;
+                AnimationClock.Stop();
                 return;
             case AnimationShown<RoomEffectActorSegment, RoomEffectActorPicture>.Ended:
                 End();
@@ -105,13 +101,12 @@ public sealed class RoomEffectActor
 
     /// <summary>
     /// Restarts the object's own animation from its first frame, as its spawn started it (#2047): a frozen Metroid's
-    /// electricity and shell restart theirs in their frozen colours.
+    /// electricity and shell restart theirs in their frozen colours. A suspended clock stays suspended.
     /// </summary>
     internal void RestartAnimation()
     {
         if (!IsActive)
             throw new InvalidOperationException($"Effect actor {Kind} has ended and shows no frame.");
-        Holds = false;
         Playback = new(RoomEffectActorAnimations.StartingWith(Kind), AnimationPlace.StartOfAnimation);
         AdvanceAnimation();
     }

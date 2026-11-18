@@ -16,7 +16,7 @@ internal sealed class MetroidEntity(MetroidBehavior species, RoomEnemyPlace plac
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceMetroidTypedAnimation(Place, context);
 
-    /// <summary>The Metroid's own hurt behaviour, ahead of frozen AI when both states are active; the animation still advances.</summary>
+    /// <summary>The Metroid's own hurt behaviour, ahead of its frozen behaviour when it is both hurt and frozen; the animation still advances.</summary>
     /// <param name="frame">The enemy frame.</param>
     public override bool RunHurt(RoomEnemyFrame frame)
     {

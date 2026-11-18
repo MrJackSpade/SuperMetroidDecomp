@@ -546,7 +546,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs contact as a grab that locks Samus without ordinary touch damage.</summary>
     internal static void ReactToYappingMawTouch(EnemyTouchContext context) =>
-        // The Maw's touch deals no contact damage: once the grab cooldown has passed zero, a touch catches Samus,
+        // The Maw's touch deals no contact damage: once its grab cooldown has run out, a touch catches Samus,
         // taking her input and holding her in the mouth.
         ResolveYappingMawTouch(context.Place.RequireSpeciesState<YappingMawEnemyState>(), context.Samus);
 }

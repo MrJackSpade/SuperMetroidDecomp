@@ -299,13 +299,10 @@ internal static class TorizoAnimationsVerification
             if (role == TorizoOperand.Value && cue is TorizoCue.Walk walk)
             {
                 // The cartridge's operand is the byte offset of the cue's entry in its walking table (#1891).
-                int table = walk.Kind switch
-                {
-                    TorizoWalkKind.WalkBombTorizo => BombWalkTable,
-                    TorizoWalkKind.WalkFacelessBombTorizo => FacelessWalkTable,
-                    TorizoWalkKind.WalkGoldenTorizo => GoldenWalkTable,
-                    _ => throw new InvalidOperationException($"Undefined {nameof(TorizoWalkKind)} {walk.Kind}."),
-                };
+                int table = walk.Walker == TorizoWalkerDefinitions.BombTorizo ? BombWalkTable
+                    : walk.Walker == TorizoWalkerDefinitions.FacelessBombTorizo ? FacelessWalkTable
+                    : walk.Walker == TorizoWalkerDefinitions.GoldenTorizo ? GoldenWalkTable
+                    : throw new InvalidOperationException($"{at}: a walk by no Torizo's walker, {walk.Walker}.");
                 AssertEqual(unchecked((short)cartridge.ReadCartridgeWord(table + value)), walk.Velocity, $"{at}: walking velocity");
                 continue;
             }

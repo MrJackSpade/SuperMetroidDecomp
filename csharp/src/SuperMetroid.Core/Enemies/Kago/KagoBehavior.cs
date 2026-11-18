@@ -72,7 +72,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         // The shell withstands as many shots as its placement names and dies of the next (#2340).
         if (++state.HitsTaken > place.SpawnSettings<KagoSpawnSettings>().HitCount)
         {
-            // A shot's common damage may already have killed the 1600-health shell, which counts its death once.
+            // The shot's damage may already have killed the 1600-health shell, which counts its death once.
             if (!place.Presence.HasAny(EnemyPresence.Deleted))
             {
                 place.Presence = place.Presence.With(EnemyPresence.Deleted);
@@ -225,7 +225,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
             projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + KagoDefinitions.BugGravity);
         }
 
-        /// <summary>Animation cue: starts the bug's jump, including its unusual RNG reuse.</summary>
+        /// <summary>Animation cue: starts the bug's jump, one random number choosing its height and, near its shell, its direction.</summary>
         private void StartKagoBugJump(EnemyProjectile projectile)
         {
             StepKagoBugSound(projectile);
@@ -247,7 +247,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
             else
             {
                 // Inside that band the random number that chose the jump's height also chooses its direction.
-                jumpLeft = KagoDefinitions.LeftJump.IsSetIn(random);
+                jumpLeft = KagoDefinitions.BugJumpsLeft.IsTakenBy(random);
             }
 
             projectile.Velocity = projectile.Velocity.WithX(jumpLeft
@@ -337,7 +337,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         projectile.StartAnimation(new KagoBugProjectileAnimation(KagoBugProjectileSegment.Falling));
     }
 
-    /// <summary>Samples the shared random number without consuming a new value, matching the bugs' seed reuse.</summary>
+    /// <summary>Reads the room's current random number without drawing a new one, as the bugs read it.</summary>
     private int ReadKagoRandomNumber() =>
         _room.Random.Read();
 }

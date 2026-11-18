@@ -43,7 +43,7 @@ internal static class BombTorizoMovementDefinitionsVerification
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         var level = new RoomLevelData(new Extent16<RoomBlocks>(64, 64), new RoomLevelPlanes(new RoomTerrainBlock[4096], new RoomBlockBehavior[4096], new RoomBlockAppearance[4096]), RoomLevelData.NothingBeyondGrid(), []);
-        int[] velocities = [.. cues.OfType<TorizoCue.Walk>().Where(cue => cue.Kind != TorizoWalkKind.WalkGoldenTorizo).Select(cue => cue.Velocity).Distinct()];
+        int[] velocities = [.. cues.OfType<TorizoCue.Walk>().Where(cue => cue.Walker != TorizoWalkerDefinitions.GoldenTorizo).Select(cue => cue.Velocity).Distinct()];
         AssertTrue(velocities.Length > 1, "Bomb Torizo's animations carry walking velocities");
         foreach (int velocity in velocities)
         {

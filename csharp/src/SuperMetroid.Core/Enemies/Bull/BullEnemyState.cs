@@ -52,8 +52,11 @@ public sealed class BullEnemyState
     /// </summary>
     public SignedEightEight Speed { get; internal set; }
 
-    /// <summary>Whether flight is still below <see cref="MaxSpeed"/>; an overshooting update is not clamped.</summary>
-    internal bool IsBelowMaximumSpeed => Speed < MaxSpeed;
+    /// <summary>
+    /// Whether flight is still below <paramref name="maximumSpeed"/>, its spawn settings' 1023 through 2815 256ths of a
+    /// pixel an update; an overshooting update is not clamped.
+    /// </summary>
+    internal bool IsBelow(SignedEightEight maximumSpeed) => Speed < maximumSpeed;
 
     /// <summary>Whether a decelerating update stops the flight: the speed is zero or the acceleration has run out.</summary>
     internal bool HasStopped => Speed.IsZero || Acceleration <= SignedEightEight.Zero;
@@ -83,9 +86,6 @@ public sealed class BullEnemyState
     /// from the current phase's reset value on exact-zero expiry.
     /// </summary>
     public int AccelerationIntervalTimer { get; internal set; }
-
-    /// <summary>Maximum-speed threshold, 1023 through 2815 256ths of a pixel an update, selected by the spawn's speed setting; prevents further acceleration when reached but does not clamp an overshooting update.</summary>
-    public SignedEightEight MaxSpeed { get; internal set; }
 
     /// <summary>Latest bearing toward Samus with zero pointing right; compared with the captured flight angle rather than continuously steering it.</summary>
     public RotationAngle AngleToSamus { get; internal set; }

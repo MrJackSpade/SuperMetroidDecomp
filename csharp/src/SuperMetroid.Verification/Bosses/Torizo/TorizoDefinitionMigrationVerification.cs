@@ -26,13 +26,10 @@ internal static class TorizoDefinitionMigrationVerification
             TorizoParameterFlagWords.PostureOf(0xe123), "posture of an authored word");
         AssertEqual(0x0123, TorizoParameterFlagWords.PostureLowBitsOf(0xe123), "low bits of an authored word");
 
-        // The random decisions read the bits the cartridge's masks do, and are taken by exactly the samples the masks
-        // leave clear (#1632).
-        static int MaskOf(TorizoRandomDecision decision) =>
-            decision.Chances.Aggregate(0, (mask, chance) => mask | (chance.Field.Outcomes - 1) << chance.Field.Shift);
-        static void AssertMaskedDecision(int mask, TorizoRandomDecision decision, string name)
+        // The random decisions are taken by exactly the samples the cartridge's masks leave clear (#1632), so they read the
+        // masks' bits (#2479).
+        static void AssertMaskedDecision(int mask, RandomClearBitsChance decision, string name)
         {
-            AssertEqual(mask, MaskOf(decision), $"{name} mask");
             int mismatches = 0;
             for (int sample = 0; sample <= ushort.MaxValue; sample++)
                 mismatches += decision.IsTakenBy(sample) == ((sample & mask) == 0) ? 0 : 1;

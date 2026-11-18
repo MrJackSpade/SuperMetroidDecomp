@@ -75,7 +75,8 @@ internal static class CacatacBehaviorVerification
         AssertEqual(24, state.LeftPatrolX, "Cacatac left limit is one block left of spawn");
         AssertEqual(56, state.RightPatrolX, "Cacatac right limit is one block right of spawn");
 
-        state.Speed = oneAndAHalfPixels;
+        // The Cacatac walks at its spawn settings' speed, which it reads where it moves (#2476).
+        place.SetSpawnSettings(place.SpawnSettings<CacatacSpawnSettings>() with { Speed = oneAndAHalfPixels });
         place.Position = place.Position.WithFractionX(checked(halfPixel));
         enemies.CacatacBehavior.RunCacatacMainAi(place, Frame());
         AssertEqual(new FixedCoordinate(39, 0), place.Position.X, "Cacatac leftward step borrows its fraction");

@@ -133,9 +133,9 @@ internal static class BossBodySheetComposer
     }
 
     /// <summary>
-    /// Crocomire's melt image <paramref name="image"/> as his body shows it, once (#1652): the image before its dissolve
-    /// erases a column, every band of its characters unerased, with the cells of the picture the dissolve erases. Each step
-    /// of the dissolve hides columns of those cells as Core shows the image (CrocomireMeltMask), so no step is pictured.
+    /// Crocomire's melt image <paramref name="image"/> as his body shows it, once (#1652, #2478): the image before its
+    /// dissolve erases a column, every band of its characters unerased, with how the dissolve erases each of its pixels.
+    /// Core hides the pixels each band's steps have erased as it shows the image, so no step is pictured.
     /// </summary>
     private static List<BossBodyFrameSource> CrocomireMeltStates(CrocomireMeltingArtwork melting, CrocomireMeltingIllustration image)
     {
@@ -144,31 +144,55 @@ internal static class BossBodySheetComposer
             selected.Add(CrocomireMeltBands.Animation(band), CrocomireMeltBands.Undissolved(image, band));
         BossBodyFrameSource source = BossBodyFrameSource.Written(CrocomireMeltingFrameNames.Of(image),
             BossBodySourceDefinitions.CrocomireMeltFirstCell, melting.Tilemap(image));
-        return [source with { Selected = selected, Dissolving = DissolvingCells(source, image) }];
+        return [source with { Selected = selected, Dissolve = DissolveOf(source, image) }];
     }
 
     /// <summary>
-    /// The cells of melt image <paramref name="image"/>'s picture, written as <paramref name="source"/> writes them, that show
-    /// a character of one of the image's bands: each cell's place in the picture, the band, and the group of eight pixel
-    /// columns of the melt image the character holds, which the dissolve erases within (#1652).
+    /// How the dissolve erases melt image <paramref name="image"/>'s picture, written as <paramref name="source"/> writes it
+    /// (#1652, #2478). A cell showing a character of one of the bands the dissolve erases shows that band, and each of its
+    /// pixels is erased after the first step whose column lies in the character's group of eight pixel columns and whose
+    /// place among each eight steps is the pixel's column in the character
+    /// (<see cref="CrocomireMeltDissolveDefinitions.ColumnOrder"/>), down every row of the character. Every other pixel is
+    /// kept: a cell showing another character, or a character of the band the dissolve never erases.
     /// </summary>
-    /// <exception cref="InvalidDataException">A cell shows a band's character flipped, so its erased columns would lie mirrored.</exception>
-    private static List<DissolvingCell> DissolvingCells(BossBodyFrameSource source, CrocomireMeltingIllustration image)
+    private static PictureDissolve DissolveOf(BossBodyFrameSource source, CrocomireMeltingIllustration image)
     {
+        const int cell = RoomTileCanvas.CharacterPixels;
         Position16<BackgroundPixels> corner = BossBodyPainter.CornerOf(source.Cells);
-        int bands = CrocomireMelting.BandCount(image);
-        var cells = new List<DissolvingCell>();
+        Extent16<ImagePixels> size = BossBodyPainter.PictureSizeOf(source.Cells);
+        var pixels = new DissolvingPixel?[size.X * size.Y];
+        int bands = Math.Min(CrocomireMelting.BandCount(image), CrocomireMeltDissolveDefinitions.ErasedBands);
         foreach ((int layerCell, BackgroundTile tile) in source.Cells)
         {
             int band = tile.Tile / CrocomireMeltDissolve.BandRowCharacters, group = tile.Tile % CrocomireMeltDissolve.BandRowCharacters;
             if (band >= bands || group >= CrocomireMeltDissolve.BandCharacterCount)
                 continue;
-            if (tile.FlipHorizontally)
-                throw new InvalidDataException($"Crocomire's {image} melt image shows band {band} character {group} flipped at layer cell {layerCell}.");
             Position16<BackgroundPixels> at = BossBodyPainter.PixelOf(layerCell);
-            cells.Add(new DissolvingCell((at.X - corner.X) / RoomTileCanvas.CharacterPixels, (at.Y - corner.Y) / RoomTileCanvas.CharacterPixels, band, group));
+            int left = at.X - corner.X, top = at.Y - corner.Y;
+            for (int x = 0; x < cell; x++)
+            {
+                if (ErasingStep(group, tile.FlipHorizontally ? cell - 1 - x : x) is not { } step)
+                    continue;
+                for (int y = 0; y < cell; y++)
+                    pixels[((top + y) * size.X) + left + x] = new DissolvingPixel(band, step + 1);
+            }
         }
-        return cells;
+        return new PictureDissolve(size, [.. pixels]);
+    }
+
+    /// <summary>
+    /// The first step of the dissolve that erases pixel column <paramref name="column"/> of a character of group
+    /// <paramref name="group"/>, counted from zero, or null when no step does.
+    /// </summary>
+    private static int? ErasingStep(int group, int column)
+    {
+        ReadOnlySpan<int> order = CrocomireMeltDissolveDefinitions.ColumnOrder;
+        for (int step = 0; step < order.Length; step++)
+        {
+            if (order[step] / CrocomireMeltDissolveDefinitions.GroupColumns == group && step % CrocomireMeltDissolveDefinitions.GroupColumns == column)
+                return step;
+        }
+        return null;
     }
 
     /// <summary>

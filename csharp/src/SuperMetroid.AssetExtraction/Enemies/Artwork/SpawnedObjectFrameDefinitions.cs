@@ -525,7 +525,7 @@ internal static class SpawnedObjectFrameDefinitions
     /// <summary>The room effect actors <c>Areas/Ceres/CeresElevatorDoorFactory.cs</c> spawns onto its sets' shared sheet.</summary>
     private static readonly RoomEffectActorKind[] CeresElevatorDoorSharedEffectActors = [];
 
-    /// <summary>The projectile frames <c>Areas/Ceres/CeresSteamBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
+    /// <summary>The projectile frames <c>Areas/Ceres/CeresSteamFactory.cs</c> spawns onto its sets' shared sheet.</summary>
     private static readonly EnemyProjectileFrameId[] CeresSteamSharedProjectiles =
     [
         EnemyProjectileFrameId.EnemyDeathFireballSmall,
@@ -569,7 +569,7 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.EnemyDeathFourAshDispersing,
     ];
 
-    /// <summary>The room effect actors <c>Areas/Ceres/CeresSteamBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
+    /// <summary>The room effect actors <c>Areas/Ceres/CeresSteamFactory.cs</c> spawns onto its sets' shared sheet.</summary>
     private static readonly RoomEffectActorKind[] CeresSteamSharedEffectActors =
     [
         RoomEffectActorKind.BigDustCloud,

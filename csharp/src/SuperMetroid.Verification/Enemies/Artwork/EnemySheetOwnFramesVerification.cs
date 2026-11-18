@@ -130,9 +130,10 @@ internal static class EnemySheetOwnFramesVerification
         AssertTrue(Placements(definition).Any(), $"a room places {definition}");
         bool[] both = [false, true];
         return both.SelectMany(active => both.Select(right =>
-            FuneNamiheBehavior.SelectFuneNamiheAnimation(definition == EnemyDefinitionId.Namihe
-                ? new NamiheEnemyState(active ? NamiheAction.Spitting : NamiheAction.WaitForSamus) { Facing = right ? HorizontalDirection.Right : HorizontalDirection.Left }
-                : new FuneEnemyState(active ? FuneAction.Spitting : FuneAction.WaitForCooldown) { Facing = right ? HorizontalDirection.Right : HorizontalDirection.Left })));
+            (definition == EnemyDefinitionId.Namihe
+                ? (FuneNamiheEnemyState)new NamiheEnemyState(active ? NamiheAction.Spitting : NamiheAction.WaitForSamus)
+                : new FuneEnemyState(active ? FuneAction.Spitting : FuneAction.WaitForCooldown))
+            .Animation(right ? HorizontalDirection.Right : HorizontalDirection.Left)));
     }
 
     /// <summary>
@@ -159,7 +160,7 @@ internal static class EnemySheetOwnFramesVerification
             [EnemyDefinitionId.Evir] = Reach(EvirAnimations.Segments, EvirAnimations.StartingAt,
                 [EvirSegment.BodyFacingLeft, EvirSegment.BodyFacingRight, EvirSegment.ArmsFacingLeft, EvirSegment.ArmsFacingRight]),
             [EnemyDefinitionId.EvirProjectile] = Reach(EvirAnimations.Segments, EvirAnimations.StartingAt,
-                [EvirSegment.ProjectileNormal, EvirSegment.ProjectileRegenerating]),
+                [EvirSegment.ProjectileIdle, EvirSegment.ProjectileRegenerating]),
         });
 
     /// <summary>The gunship's top is its top hull; its bottom is the bottom hull or the entrance pad, which opens and closes.</summary>

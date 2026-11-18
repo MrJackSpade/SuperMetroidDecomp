@@ -119,8 +119,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         place.SetSpeciesState(state);
 
         place.Frame = EnemyFrameId.Empty;
-        state.Playback = EnemyAnimationPlayback.Start(place, ElevatorAnimations.StartingWith(ElevatorSegment.Loop));
-        state.Direction = place.SpawnSettings<ElevatorSpawnSettings>().Direction;
+        state.Playback = EnemyAnimationPlayback.Start(place, ElevatorAnimations.StartingWith(ElevatorSegment.Idle));
         state.RestingY = place.Position.Y.Whole;
 
         if (ElevatorStatus != ElevatorActorStatus.BeginArrivalReturn)
@@ -158,14 +157,13 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
             case ElevatorActorStatus.Inactive:
                 WaitForElevatorDirectionInput(
                     place,
-                    state,
                     samus,
                     newlyPressedControllerInput,
                     samusProjectiles);
                 return;
 
             case ElevatorActorStatus.Departing:
-                MoveDepartingElevator(place, state, samus);
+                MoveDepartingElevator(place, samus);
                 return;
 
             case ElevatorActorStatus.BeginArrivalReturn:
@@ -187,12 +185,11 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
     /// <summary>Waits for the travel direction input.</summary>
     internal void WaitForElevatorDirectionInput(
         RoomEnemyPlace place,
-        ElevatorEnemyState state,
         SamusState samus,
         GameplayAction newlyPressedControllerInput,
         SamusProjectileSystem samusProjectiles)
     {
-        GameplayAction requiredInput = ElevatorActorDefinitions.RequiredDirectionInputs[state.Direction];
+        GameplayAction requiredInput = ElevatorActorDefinitions.RequiredDirectionInputs[place.SpawnSettings<ElevatorSpawnSettings>().Direction];
         if (!newlyPressedControllerInput.HasAny(requiredInput))
         {
             ElevatorFlags = ElevatorJourneyFlag.None;
@@ -214,11 +211,10 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
     /// <summary>Moves the departing elevator.</summary>
     private void MoveDepartingElevator(
         RoomEnemyPlace place,
-        ElevatorEnemyState state,
         SamusState samus)
     {
-        ElevatorTravel = state.Direction;
-        AddElevatorYVelocity(place, state.Direction is ElevatorTravelDirection.Up
+        ElevatorTravel = place.SpawnSettings<ElevatorSpawnSettings>().Direction;
+        AddElevatorYVelocity(place, ElevatorTravel is ElevatorTravelDirection.Up
             ? -ElevatorActorDefinitions.TravelSpeed
             : ElevatorActorDefinitions.TravelSpeed);
         PinSamusToElevator(place, samus);
@@ -231,7 +227,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         SamusState samus)
     {
         bool stillReturning;
-        if (state.Direction is ElevatorTravelDirection.Up)
+        if (place.SpawnSettings<ElevatorSpawnSettings>().Direction is ElevatorTravelDirection.Up)
         {
             AddElevatorYVelocity(place, ElevatorActorDefinitions.TravelSpeed);
             stillReturning = place.Position.Y.Whole < state.RestingY;

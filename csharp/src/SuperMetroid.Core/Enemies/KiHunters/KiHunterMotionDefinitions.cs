@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.KiHunters;
 
-/// <summary>Ki-Hunter trigger, fixed-point acceleration and detached-wing orbit constants.</summary>
+/// <summary>How near Samus a Ki-Hunter swoops, how fast it accelerates and how its detached wings orbit.</summary>
 public static class KiHunterMotionDefinitions
 {
     /// <summary>How near, in pixels, Samus must come horizontally for a flying Ki-Hunter to swoop at her.</summary>
@@ -31,7 +31,7 @@ public static class KiHunterMotionDefinitions
 
     /// <summary>
     /// The upward speed a grounded Ki-Hunter's jump starts at, in whole pixels an update, before
-    /// <see cref="ShallowerGroundJump"/> may take one off it.
+    /// <see cref="GroundJumpSpeedTakenOff"/> may take one off it.
     /// </summary>
     public const int GroundJumpUpwardSpeed = 8;
 
@@ -86,10 +86,10 @@ public static class KiHunterMotionDefinitions
     public const int DetachedWingRadius = 48;
 
     /// <summary>
-    /// The random choice that takes one pixel per update off a grounded Ki-Hunter's upward jump speed, added to
-    /// the jump's eight pixels upward.
+    /// The whole pixels per update, none or one, the random sample takes off a grounded Ki-Hunter's upward jump speed
+    /// (#2479): its lowest bit, added to the jump's eight pixels upward.
     /// </summary>
-    internal static readonly RandomSampleField ShallowerGroundJump = new(0, 1);
+    internal static readonly RandomSampleField GroundJumpSpeedTakenOff = new(0, 1);
 
 
 

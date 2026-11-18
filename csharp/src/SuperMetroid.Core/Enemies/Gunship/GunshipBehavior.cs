@@ -394,8 +394,8 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         {
             RoomEnemyPlace pad = Pieces(top).EntrancePad;
             State(top).Phase = GunshipPhase.WaitForEntranceToOpen;
-            // The alignment stores the ship's X as both Samus's current and previous X, so the camera sees
-            // no horizontal motion from this alignment.
+            // Samus is set at the ship's X, her previous X with her, so the camera follows no horizontal motion
+            // from this alignment.
             if (samus.Position.X.Whole != GunshipMotionDefinitions.LandedX)
             {
                 samus.Position = samus.Position.WithWholeX(top.Position.X.Whole);

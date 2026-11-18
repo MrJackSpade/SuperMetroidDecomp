@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Escape;
 /// </summary>
 public static class EscapeTimerDrawing
 {
-    /// <summary>Draws "TIME mm:ss:cc" using the timer's current fixed-point position.</summary>
+    /// <summary>Draws "TIME mm:ss:cc" where the timer stands now, to a fraction of a pixel.</summary>
     public static void Draw(EscapeTimer timer, SpriteFrameBuffer sprites,
         EscapeTimerPresentation presentation, SpriteSheet sheet)
     {

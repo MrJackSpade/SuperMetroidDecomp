@@ -9,9 +9,15 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// <param name="Center">The center subtracted on each axis.</param>
 internal readonly record struct EnemyProjectileScatter(RandomSampleField XRange, RandomSampleField YRange, Extent16<RoomPixels> Center)
 {
-    /// <summary>The random choice of the scatter's first sample that turns the X offset leftward: taken when the sample is 32768 or more.</summary>
-    internal static readonly RandomSampleField NegativeX = new(15, 1);
+    /// <summary>
+    /// Whether the scatter's first sample turns the X offset leftward (#2479): taken when the sample is 32768 or more, one
+    /// scatter in two.
+    /// </summary>
+    internal static readonly RandomChance XOffsetTurnsLeft = RandomChance.Highest(1, new RandomSampleField(15, 1));
 
-    /// <summary>The random choice of the scatter's first sample that turns the Y offset upward: taken for half the random numbers.</summary>
-    internal static readonly RandomSampleField NegativeY = new(14, 1);
+    /// <summary>
+    /// Whether the scatter's first sample turns the Y offset upward (#2479): taken when the sample's fifteenth bit is set,
+    /// half the random numbers.
+    /// </summary>
+    internal static readonly RandomChance YOffsetTurnsUp = RandomChance.Highest(1, new RandomSampleField(14, 1));
 }

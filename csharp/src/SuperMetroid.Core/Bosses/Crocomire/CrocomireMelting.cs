@@ -181,9 +181,8 @@ internal sealed class CrocomireMelting
         if (death.NextMeltBand == BandCount(death.MeltPass))
             death.NextMeltBand = 0;
         ShowMeltBand(death, death.NextMeltBand++);
-        // The image is stored once; each band hides the columns its step had erased when it was last shown (#1652).
-        BossBodyFrame image = RequireCrocomireMeltingImage(death.MeltPass);
-        _bodyLayer.ShowCrocomireBodyFrame(image.Hiding(CrocomireMeltMask.Of(image, death.MeltBandSteps)));
+        // The image is stored once; each band hides the pixels its steps had erased when it was last shown (#1652, #2478).
+        _bodyLayer.ShowCrocomireBodyFrame(RequireCrocomireMeltingImage(death.MeltPass).Dissolved(death.MeltBandSteps));
     }
 
     /// <summary>

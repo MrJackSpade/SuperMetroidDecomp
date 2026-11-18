@@ -10,7 +10,7 @@ public enum PowampAction
     DeflatedResting,
     /// <summary>Waits ten AI updates, then selects fast body animation and upward velocity of half a pixel per update.</summary>
     Inflating,
-    /// <summary>Rises with horizontal wiggle toward 64 pixels above the balloon's spawn Y, switching immediately to grappled rise if grapple AI activates.</summary>
+    /// <summary>Rises with horizontal wiggle toward 64 pixels above the balloon's spawn Y, switching immediately to grappled rise once the grapple beam holds it.</summary>
     InflatedRiseToTargetHeight,
     /// <summary>Completes the wiggle to a centered phase before deflating, continuing terrain-clipped upward movement while off center.</summary>
     InflatedFinishWiggle,
@@ -18,7 +18,7 @@ public enum PowampAction
     GrappledRiseToTargetHeight,
     /// <summary>Centers the wiggle before resting at the grapple target, or hands off to ordinary finish-wiggle when released.</summary>
     GrappledFinishWiggle,
-    /// <summary>Holds the raised body while grapple AI remains active and starts deflation on release.</summary>
+    /// <summary>Holds the raised body while the grapple beam holds it and starts deflation on release.</summary>
     GrappledResting,
     /// <summary>Waits ten AI updates for balloon deflation, then selects downward velocity of one pixel per update.</summary>
     Deflating,

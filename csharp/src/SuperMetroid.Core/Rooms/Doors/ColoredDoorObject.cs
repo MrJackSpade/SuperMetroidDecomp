@@ -83,14 +83,13 @@ internal sealed class ColoredDoorObject : DoorCapObject, IClosingDoor
                 Look(place, context);
                 return;
             case ColoredDoorPhase.Waiting:
+                // Once it has looked, the cap rests on its closed image until a hit wakes it.
                 if (!TakesShots)
                     Look(place, context);
-                else
-                    Rest();
                 return;
             case ColoredDoorPhase.Flashing:
+                // The cap rests on its closed image again until the next hit wakes it.
                 Phase = ColoredDoorPhase.Waiting;
-                Rest();
                 return;
             case ColoredDoorPhase.Opening:
                 context.RoomObjects.DeleteObject(place);

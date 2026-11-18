@@ -23,31 +23,10 @@ internal static class AlcoonAnimations
             Show(EnemyFrameId.AlcoonWalkingLeftNearLegPlanted, 10),
             Cue(new AlcoonCue.Signal(K.Move)),
             Show(EnemyFrameId.AlcoonWalkingLeftFarLegStepping, 10),
-            Cue(new AlcoonCue.Signal(K.Step)),
+            Cue(new AlcoonCue.Signal(K.CompleteWalkCycle)),
             Show(EnemyFrameId.AlcoonWalkingLeftFarLegPlanted, 10),
         ],
-        [P.FireLeft] =
-        [
-            Show(EnemyFrameId.AlcoonFacingLeftMouthClosed, 20),
-            Show(EnemyFrameId.AlcoonFacingLeftMouthOpening, 9),
-            Show(EnemyFrameId.AlcoonFacingLeftThroatGlowing, 16),
-            Show(EnemyFrameId.AlcoonFacingLeftMouthOpening, 3),
-            Cue(new AlcoonCue.Fire(AlcoonFireballLaunchDefinitions.Level)),
-            Show(EnemyFrameId.AlcoonFacingLeftMouthWide, 10),
-            Show(EnemyFrameId.AlcoonFacingLeftMouthClosed, 10),
-            Show(EnemyFrameId.AlcoonFacingLeftMouthOpening, 9),
-            Show(EnemyFrameId.AlcoonFacingLeftThroatGlowing, 16),
-            Show(EnemyFrameId.AlcoonFacingLeftMouthOpening, 3),
-            Cue(new AlcoonCue.Fire(AlcoonFireballLaunchDefinitions.Upward)),
-            Show(EnemyFrameId.AlcoonFacingLeftMouthWide, 10),
-            Show(EnemyFrameId.AlcoonFacingLeftMouthClosed, 10),
-            Show(EnemyFrameId.AlcoonFacingLeftMouthOpening, 9),
-            Show(EnemyFrameId.AlcoonFacingLeftThroatGlowing, 16),
-            Show(EnemyFrameId.AlcoonFacingLeftMouthOpening, 3),
-            Cue(new AlcoonCue.Fire(AlcoonFireballLaunchDefinitions.Downward)),
-            Show(EnemyFrameId.AlcoonFacingLeftMouthWide, 40),
-            Cue(new AlcoonCue.Signal(K.StartWalking)),
-        ],
+        [P.FireLeft] = Fire(AlcoonSpitPoses.Left),
         [P.AirborneLeftLookingUp] =
         [
             Hold(EnemyFrameId.AlcoonLeapingFacingLeft),
@@ -64,31 +43,10 @@ internal static class AlcoonAnimations
             Show(EnemyFrameId.AlcoonWalkingRightNearLegPlanted, 10),
             Cue(new AlcoonCue.Signal(K.Move)),
             Show(EnemyFrameId.AlcoonWalkingRightFarLegStepping, 10),
-            Cue(new AlcoonCue.Signal(K.Step)),
+            Cue(new AlcoonCue.Signal(K.CompleteWalkCycle)),
             Show(EnemyFrameId.AlcoonWalkingRightFarLegPlanted, 10),
         ],
-        [P.FireRight] =
-        [
-            Show(EnemyFrameId.AlcoonFacingRightMouthClosed, 20),
-            Show(EnemyFrameId.AlcoonFacingRightMouthOpening, 9),
-            Show(EnemyFrameId.AlcoonFacingRightThroatGlowing, 16),
-            Show(EnemyFrameId.AlcoonFacingRightMouthOpening, 3),
-            Cue(new AlcoonCue.Fire(AlcoonFireballLaunchDefinitions.Level)),
-            Show(EnemyFrameId.AlcoonFacingRightMouthWide, 10),
-            Show(EnemyFrameId.AlcoonFacingRightMouthClosed, 10),
-            Show(EnemyFrameId.AlcoonFacingRightMouthOpening, 9),
-            Show(EnemyFrameId.AlcoonFacingRightThroatGlowing, 16),
-            Show(EnemyFrameId.AlcoonFacingRightMouthOpening, 3),
-            Cue(new AlcoonCue.Fire(AlcoonFireballLaunchDefinitions.Upward)),
-            Show(EnemyFrameId.AlcoonFacingRightMouthWide, 10),
-            Show(EnemyFrameId.AlcoonFacingRightMouthClosed, 10),
-            Show(EnemyFrameId.AlcoonFacingRightMouthOpening, 9),
-            Show(EnemyFrameId.AlcoonFacingRightThroatGlowing, 16),
-            Show(EnemyFrameId.AlcoonFacingRightMouthOpening, 3),
-            Cue(new AlcoonCue.Fire(AlcoonFireballLaunchDefinitions.Downward)),
-            Show(EnemyFrameId.AlcoonFacingRightMouthWide, 40),
-            Cue(new AlcoonCue.Signal(K.StartWalking)),
-        ],
+        [P.FireRight] = Fire(AlcoonSpitPoses.Right),
         [P.AirborneRightLookingUp] =
         [
             Hold(EnemyFrameId.AlcoonLeapingFacingRight),
@@ -126,6 +84,33 @@ internal static class AlcoonAnimations
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<AlcoonSegment> StartingWith(AlcoonSegment segment) => StartingAt[segment];
+
+    /// <summary>
+    /// The Alcoon's fire facing the way <paramref name="poses"/> show (#2477): three spits, level, upward and downward, then
+    /// its start-walking cue. It waits longer with its mouth closed before its first spit and holds its mouth wide longer
+    /// after its last.
+    /// </summary>
+    private static AnimationBeat<EnemyFrameId, AlcoonCue>[] Fire(AlcoonSpitPoses poses) =>
+    [
+        .. Spit(poses, 20, AlcoonFireballLaunchDefinitions.Level, 10),
+        .. Spit(poses, 10, AlcoonFireballLaunchDefinitions.Upward, 10),
+        .. Spit(poses, 10, AlcoonFireballLaunchDefinitions.Downward, 40),
+        Cue(new AlcoonCue.Signal(K.StartWalking)),
+    ];
+
+    /// <summary>
+    /// One spit (#2477): its mouth closed for <paramref name="closedUpdates"/> updates, opening, its throat glowing, opening
+    /// wider, the fireball leaving by <paramref name="launch"/>, and its mouth wide for <paramref name="wideUpdates"/> updates.
+    /// </summary>
+    private static AnimationBeat<EnemyFrameId, AlcoonCue>[] Spit(AlcoonSpitPoses poses, int closedUpdates, AlcoonFireballLaunch launch, int wideUpdates) =>
+    [
+        Show(poses.MouthClosed, closedUpdates),
+        Show(poses.MouthOpening, 9),
+        Show(poses.ThroatGlowing, 16),
+        Show(poses.MouthOpening, 3),
+        Cue(new AlcoonCue.Fire(launch)),
+        Show(poses.MouthWide, wideUpdates),
+    ];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, AlcoonCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, AlcoonCue>.Frame(frame, duration);

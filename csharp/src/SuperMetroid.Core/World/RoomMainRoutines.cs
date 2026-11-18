@@ -96,7 +96,7 @@ internal sealed class RoomMainRoutines
             return;
 
         int random = _system.RandomNumber;
-        CeresFallingDebrisSegment look = CeresFallingDebrisDefinitions.Dark.IsSetIn(random)
+        CeresFallingDebrisSegment look = CeresFallingDebrisDefinitions.PieceIsDark.IsTakenBy(random)
             ? CeresFallingDebrisSegment.Dark
             : CeresFallingDebrisSegment.Light;
         room.Enemies.CeresFallingTiles.Spawn(

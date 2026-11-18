@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
@@ -9,12 +10,12 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// (<see cref="EyeDoorSequenceDefinitions.Still"/>); once she is near (<see cref="EyeDoorSequenceDefinitions.PulseReach"/>)
 /// it waits for its door to open and pulses while she stays near. Once it waits, the update its door has been opened for
 /// good it leaves the room, before its images count down. The body at the door Samus arrives through closes behind her
-/// by leaving the room on its next update.
+/// by leaving the room on its next update. A part only draws its poses: its animations raise nothing (#2481).
 /// </summary>
 /// <param name="part">Which part this is, the body's middle or its bottom, and the way its door faces.</param>
 /// <param name="door">The door the part's placement named; null for none.</param>
 internal sealed class EyeDoorPartObject(EyeDoorPart part, PlacedDoor? door)
-    : SequencedRoomObject<EyeDoorPartStep>, IClosingDoor, IDoorKeptOpen
+    : SequencedRoomObject<EyeDoorPartSegment, EyeDoorPartPose, NoAnimationCue>(EyeDoorSequenceDefinitions.PartSegments), IClosingDoor, IDoorKeptOpen
 {
     /// <summary>Which part this is and the way its door faces.</summary>
     internal EyeDoorPart Part { get; } = part;
@@ -70,11 +71,8 @@ internal sealed class EyeDoorPartObject(EyeDoorPart part, PlacedDoor? door)
     }
 
     /// <inheritdoc/>
-    private protected override int Show(EyeDoorPartStep step, RoomObjectPlace place, RoomObjectStepContext context)
-    {
-        context.Draw(place, EyeDoorDraws.Of(Part, step.Pose));
-        return step.Updates;
-    }
+    private protected override void Show(EyeDoorPartPose frame, RoomObjectPlace place, RoomObjectStepContext context) =>
+        context.Draw(place, EyeDoorDraws.Of(Part, frame));
 
     /// <inheritdoc/>
     private protected override void SequenceEnded(RoomObjectPlace place, RoomObjectStepContext context)

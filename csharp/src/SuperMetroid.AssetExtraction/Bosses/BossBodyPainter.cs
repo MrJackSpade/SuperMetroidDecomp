@@ -65,7 +65,7 @@ internal sealed class BossBodyPainter(BossBodyOwner owner, BossRoomCharacters ro
         Position16<BackgroundPixels> corner = CornerOf(frame.Cells) + frame.PictureShift;
         Offset16<RoomPixels> area = BossBodySourceDefinitions.AreaFromBoss[owner];
         var anchor = Offset16<RoomPixels>.Of(corner.X + area.X, corner.Y + area.Y);
-        if (!frames.TryAdd(frame.Name, new ComposedBossBodyFrame(frame.Name, picture, anchor, depth) { Dissolving = frame.Dissolving }))
+        if (!frames.TryAdd(frame.Name, new ComposedBossBodyFrame(frame.Name, picture, anchor, depth) { Dissolve = frame.Dissolve }))
             throw new InvalidDataException($"{owner}'s body sheet repeats frame {frame.Name}.");
     }
 
@@ -176,6 +176,15 @@ internal sealed class BossBodyPainter(BossBodyOwner owner, BossRoomCharacters ro
             screen / BossBodySourceDefinitions.ScreensAcross * screenPixels + row % BossBodySourceDefinitions.ScreenRows * RoomTileCanvas.CharacterPixels);
     }
 
+    /// <summary>The size of the rectangle bounding <paramref name="cells"/>, which a frame's picture fills.</summary>
+    internal static Extent16<ImagePixels> PictureSizeOf(SortedDictionary<int, BackgroundTile> cells)
+    {
+        const int cell = RoomTileCanvas.CharacterPixels;
+        Position16<BackgroundPixels> corner = CornerOf(cells);
+        Position16<BackgroundPixels>[] corners = [.. cells.Keys.Select(PixelOf)];
+        return new Extent16<ImagePixels>(corners.Max(at => at.X) - corner.X + cell, corners.Max(at => at.Y) - corner.Y + cell);
+    }
+
     /// <summary>The body pixel the top-left corner of the rectangle bounding <paramref name="cells"/> lies on.</summary>
     internal static Position16<BackgroundPixels> CornerOf(SortedDictionary<int, BackgroundTile> cells)
     {
@@ -212,7 +221,8 @@ internal sealed class BossBodyPainter(BossBodyOwner owner, BossRoomCharacters ro
             painted.Add(new BossBodyPaintedCell((at.X - corner.X) / cell, (at.Y - corner.Y) / cell, tile,
                 Character(tile.Tile, ShownUnder(frame, tile.Tile))));
         }
-        pictures.Add(new BossBodyPicture(frame.Name, painted.Max(entry => entry.Column) + 1, painted.Max(entry => entry.Row) + 1, painted));
+        Extent16<ImagePixels> size = PictureSizeOf(frame.Cells);
+        pictures.Add(new BossBodyPicture(frame.Name, size.X / cell, size.Y / cell, painted));
         return frame.Name;
     }
 

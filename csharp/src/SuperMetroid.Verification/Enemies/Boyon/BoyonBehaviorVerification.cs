@@ -78,9 +78,9 @@ internal static class BoyonBehaviorVerification
         for (int selector = 0; selector < BouncedHeightSelectors; selector++)
             derivations += CheckBaseline(samples, multiplier, rom.ReadCartridgeWord(0xa286ef + selector * 2));
 
-        AssertThrows<ArgumentOutOfRangeException>(() => new BoyonEnemyState { JumpHeight = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(-1) },
+        AssertThrows<ArgumentOutOfRangeException>(() => BoyonBehavior.DeriveBoyonArcBaseline(new BoyonEnemyState(), 1, SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(-1)),
             "a negative arc is refused");
-        AssertThrows<ArgumentOutOfRangeException>(() => new BoyonEnemyState { SpeedMultiplier = 0 }, "a Boyon with multiplier 0 is refused");
+        AssertThrows<ArgumentOutOfRangeException>(() => BoyonBounceCurve.Multiply(BoyonCurvePlace.Top, 0), "a Boyon with multiplier 0 is refused");
         Console.WriteLine($"  Boyon arc baseline: {derivations} derivations end at the original's entry and distance.");
     }
 
@@ -138,8 +138,8 @@ internal static class BoyonBehaviorVerification
     /// <summary>Checks one derivation against the original's; returns one.</summary>
     private static int CheckBaseline(int[] samples, int multiplier, int height)
     {
-        var state = new BoyonEnemyState { SpeedMultiplier = multiplier, JumpHeight = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(height) };
-        BoyonBehavior.DeriveBoyonArcBaseline(state);
+        var state = new BoyonEnemyState();
+        BoyonBehavior.DeriveBoyonArcBaseline(state, multiplier, SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(height));
         (int entry, int distance) = OriginalBaseline(samples, multiplier, height);
         // The arc's distance is the derivation's working sum; the entry it ends at is what the Boyon keeps (#2432).
         if (state.BaselineCurvePlace != BoyonCurvePlaceConstants.AtEntry(entry) || state.CurvePlace != state.BaselineCurvePlace ||

@@ -41,7 +41,7 @@ internal sealed class TorizoMovement
     {
         var state = new TorizoEnemyState(variant)
         {
-            // Every Torizo population entry starts it standing, with no behaviour latch set.
+            // Every Torizo placement starts it standing, unstunned and whole, its face and gut not yet blown up.
             Posture = TorizoPosture.Initial,
         };
         torizo.SetSpeciesState(state);
@@ -83,8 +83,8 @@ internal sealed class TorizoMovement
     {
         _body.MaybeSpawnLowHealthDrool(torizo);
 
-        // Two of its latches are the death sequence's. Before they are set,
-        // health thresholds interrupt the current authored animation with the core/head bursts.
+        // Until its gut and face are blown up, which its death also does, health thresholds interrupt the current
+        // authored animation with the core/head bursts.
         if (!state.GutBlownUp &&
             torizo.Health < TorizoDecisionDefinitions.GutBlowUpHealth)
         {
@@ -179,8 +179,8 @@ internal sealed class TorizoMovement
 
     /// <summary>
     /// Walks on (#1931): once its wait to turn runs out the Torizo turns toward Samus, and while the ground under it has given
-    /// way it starts its fall. Both statues walk alike; the turns are their definition's, and a faceless Bomb Torizo turns
-    /// faceless.
+    /// way it starts its fall. Both statues walk alike; the turn is the turn about of the walk it now walks
+    /// (<see cref="TorizoEnemyState.Walker"/>), faceless for a faceless Bomb Torizo.
     /// </summary>
     private void Walk(
         RoomEnemyPlace torizo,
@@ -190,7 +190,7 @@ internal sealed class TorizoMovement
         if (state.TurnTowardSamus is { } turn && turn.StepRunsOut())
         {
             state.TurnTowardSamus = null;
-            TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(TurnTowardSamus(torizo, state)));
+            TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(state.Walker.TurnAbout(torizo)));
             return;
         }
 
@@ -204,19 +204,6 @@ internal sealed class TorizoMovement
             state.Velocity = EightEightVector<RoomPixels>.Zero;
             state.FallAtRestingSpeed();
         }
-    }
-
-    /// <summary>
-    /// The animation a walking Torizo turns toward Samus with: a faceless Bomb Torizo's faceless turn, otherwise its
-    /// definition's turn away from the way it faces.
-    /// </summary>
-    private static TorizoAnimation TurnTowardSamus(RoomEnemyPlace torizo, TorizoEnemyState state)
-    {
-        bool facesRight = TorizoFacing.FacesRight(torizo);
-        if (state.FaceBlownUp)
-            return facesRight ? TorizoAnimation.FacelessTurningLeft : TorizoAnimation.FacelessTurningRight;
-        TorizoInitializationDefinition definition = state.Variant.Start;
-        return facesRight ? definition.TurningLeft : definition.TurningRight;
     }
 
     /// <summary>Runs either Torizo's initialization AI.</summary>

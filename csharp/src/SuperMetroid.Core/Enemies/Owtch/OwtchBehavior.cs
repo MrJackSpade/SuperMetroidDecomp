@@ -85,7 +85,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
                 {
                     // Surfacing reads the current random number without advancing it.
                     int random = _room.Random.Read();
-                    state.Behavior = OwtchMovementDefinitions.MoveRightChoice.IsSetIn(random)
+                    state.Behavior = OwtchMovementDefinitions.SurfacesMovingRight.IsTakenBy(random)
                         ? OwtchBehaviorState.MovingRight
                         : OwtchBehaviorState.MovingLeft;
                 }
@@ -104,9 +104,9 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// The walking animation an Owtch starts in for its first behaviour. The game alternates the facing along its order
-    /// of first behaviours, so walking left and buried start facing left, and walking right and sinking start facing
-    /// right. No placement starts an Owtch rising (#2474): it rises only out of a burial, and no room places one rising.
+    /// The walking animation an Owtch starts in for its first behaviour: walking left and buried start facing left, and
+    /// walking right and sinking start facing right. No placement starts an Owtch rising (#2474): it rises only out of a
+    /// burial, and no room places one rising.
     /// </summary>
     /// <exception cref="InvalidDataException"><paramref name="initial"/> is the turn at the left bound or the rise, which no placement starts in.</exception>
     private static OwtchSegment InitialAnimation(OwtchBehaviorState initial) => initial switch

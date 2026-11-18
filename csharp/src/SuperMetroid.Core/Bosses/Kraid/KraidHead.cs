@@ -98,8 +98,8 @@ internal sealed class KraidHead
             SetupKraidFirstPhaseThinking(body, state);
             state.BodyState.HeadTimer = KraidArenaDefinitions.MouthClosedHeadDelayUpdates;
 
-            // The reopen latch and the pending reopen count are set by body/mouth shot handling. Keep
-            // the game's order exactly so adding collision cannot change sequencing.
+            // A hit on his mouth or body marks a reopen: the closing mouth then spends one pending reopen and, while any
+            // remain, waits to glow his eye again; otherwise every mark is forgotten.
             if (state.MouthReopenPending)
             {
                 state.RemoveOneMouthReopen();

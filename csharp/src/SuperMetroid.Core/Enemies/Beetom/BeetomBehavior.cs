@@ -170,7 +170,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Begin(choice.Action, heading);
         else
             state.Action = choice.Action;
-        state.Facing = BeetomDecisions.FaceRight.IsSetIn(random) ? HorizontalDirection.Right : HorizontalDirection.Left;
+        state.Facing = BeetomDecisions.FacesRight.IsTakenBy(random) ? HorizontalDirection.Right : HorizontalDirection.Left;
     }
 
     /// <summary>Starts the crawl toward <paramref name="direction"/> and its animation.</summary>

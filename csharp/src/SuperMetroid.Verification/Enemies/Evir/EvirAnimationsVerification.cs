@@ -24,7 +24,7 @@ internal static class EvirAnimationsVerification
                 }),
             onlyRunOnInto: new HashSet<EvirSegment>
             {
-                EvirSegment.ArmsFoldedFacingLeft, EvirSegment.ArmsFoldedFacingRight, EvirSegment.ProjectileRegeneratingSound,
+                EvirSegment.ArmsFoldedFacingLeft, EvirSegment.ArmsFoldedFacingRight,
                 EvirSegment.ProjectileRegrown,
             });
         Console.WriteLine($"  Evir animations: {Entries.Length} segments ({beats} beats) and {EvirAnimations.StartingAt.Count} animations match bank $A8.");

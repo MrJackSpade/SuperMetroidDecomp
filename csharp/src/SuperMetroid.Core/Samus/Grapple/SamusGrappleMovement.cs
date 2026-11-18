@@ -571,8 +571,8 @@ public static class SamusGrappleMovement
         Position16<RoomPixels> previousPosition,
         out GrappleMovementResult result)
     {
-        // Preserve the reverse scan and exact angle equality, not a tolerance
-        // around a wall-grab angle. These connections govern collision positioning.
+        // The connections are scanned last to first, and an angle matches only exactly, with no
+        // tolerance around a wall-grab angle. These connections govern collision positioning.
         IReadOnlyList<GrappleConnectionDefinitions.SpecialConnection> connections = GrappleConnections.SpecialConnections;
         for (int place = connections.Count - 1; place >= 0; place--)
         {

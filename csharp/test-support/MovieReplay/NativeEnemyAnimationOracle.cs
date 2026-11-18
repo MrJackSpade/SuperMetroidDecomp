@@ -552,13 +552,19 @@ internal static class NativeEnemyAnimationOracle
         {
             foreach (NativeEnemyControl<TSegment> control in current.Controls)
             {
-                if (control.AfterBeat > runStart)
+                // A counter load is no beat and no turn in the play (#2477): the list's run goes on through it, and the
+                // count it loads is the plays of the next counted list the play reaches. The Evir's regenerating spit loads
+                // its regrowth's count between its two entry cues, which are one run.
+                if (control.Kind != NativeEnemyControlKind.SetCounter)
                 {
-                    phases.Add(new(segment, runStart, control.AfterBeat - runStart, plays));
-                    played.Add(current);
+                    if (control.AfterBeat > runStart)
+                    {
+                        phases.Add(new(segment, runStart, control.AfterBeat - runStart, plays));
+                        played.Add(current);
+                    }
+                    runStart = control.AfterBeat;
+                    plays = 1;
                 }
-                runStart = control.AfterBeat;
-                plays = 1;
                 switch (control.Kind)
                 {
                     case NativeEnemyControlKind.SetCounter:
@@ -701,7 +707,7 @@ internal static class NativeEnemyAnimationOracle
         where TFrame : struct
         where TEvent : notnull
     {
-        (Func<ushort, int?> operandWords, Action<ushort, ushort[], TEvent, string> compareCue, Func<TEvent, bool>? endsList, Func<ushort, bool>? omitted,
+        (Func<ushort, int?> operandWords, Action<ushort, ushort[], TEvent, string> compareCue, Func<TEvent, bool>? endsList, Func<ushort, IReadOnlyList<ushort>, bool>? omitted,
             Func<ushort, ushort?>? goesTo, Func<ushort, bool>? showsPoseAgain, Func<ushort, ushort>? picturedAt, Func<ushort, bool>? ownerLeavesAt,
             Func<ushort, bool>? shownUnseen) = rules;
         var addresses = new List<ushort>();
@@ -857,13 +863,13 @@ internal static class NativeEnemyAnimationOracle
                 {
                     VerificationAssertions.AssertTrue(operandWords(word) is not null, $"{at}: native instruction ${word:X4} is known");
                     int count = operandWords(word) ?? 0;
-                    if (omitted?.Invoke(word) == true)
+                    ushort[] operands = [.. Enumerable.Range(0, count).Select(item => cartridge.ReadCartridgeWord(address + 2 + 2 * item))];
+                    if (omitted?.Invoke(word, operands) == true)
                     {
                         cursor = unchecked((ushort)(cursor + 2 + 2 * count));
                         continue;
                     }
                     var raised = VerificationAssertions.AssertIs<AnimationBeat<TFrame, TEvent>.Event>(Beat(beat, at), $"{at}: instruction");
-                    ushort[] operands = [.. Enumerable.Range(0, count).Select(item => cartridge.ReadCartridgeWord(address + 2 + 2 * item))];
                     compareCue(word, operands, raised.Raised, at);
                     addresses.Add(cursor);
                     cursor = unchecked((ushort)(cursor + 2 + 2 * count));

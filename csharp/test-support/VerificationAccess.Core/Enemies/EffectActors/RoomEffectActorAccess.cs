@@ -43,9 +43,9 @@ internal static class RoomEffectActorAccess
             : (ushort)0;
 
         /// <summary>The native timer word while the object counts down; a holding object counts none.</summary>
-        internal ushort FrameHold => self.Holds
+        internal ushort FrameHold => self.AnimationClock.IsStopped
             ? throw new InvalidOperationException($"Sprite object {self.Kind} holds its frame and counts no timer.")
-            : checked((ushort)self.Timer);
+            : checked((ushort)self.AnimationClock.Hold.RemainingFrames);
 
         /// <summary>The bank-$B4 spritemap the object shows, or zero once it has ended.</summary>
         internal ushort SpritemapPointer => self.IsActive ? RoomEffectActorVisualDefinitionsConstants.Spritemap(self.Frame) : (ushort)0;
@@ -58,6 +58,6 @@ internal static class RoomEffectActorAccess
             SnesObjAttributeWord.Create(self.Graphics.NativeTileBaseIn(enemies), self.Graphics.PaletteRowIn(enemies), priority: 0).Raw;
 
         /// <summary>The native disable word.</summary>
-        internal int DisableFlags => self.UpdatesDisabled ? 1 : 0;
+        internal int DisableFlags => self.AnimationClock.IsSuspended ? 1 : 0;
     }
 }

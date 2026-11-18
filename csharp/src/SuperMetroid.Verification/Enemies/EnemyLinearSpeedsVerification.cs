@@ -47,8 +47,8 @@ internal static class EnemyLinearSpeedsVerification
             place.SetSpawnParameter2(EnemyDefinitionId.Cacatac, LittleEndianBytes.Word(0, unchecked((byte)index)));
             place.Bind(EnemyDefinitionId.Cacatac, place.Definition);
             cacatac(place);
-            var c = enemies.CacatacStates[0] ?? throw new InvalidOperationException("Verification requires c.");
-            AssertEqual((positive, negative), (c.Speed, -c.Speed), "Cacatac native speed setup, negated for walking left");
+            SignedSixteenSixteen cacatacSpeed = place.SpawnSettings<CacatacSpawnSettings>().Speed;
+            AssertEqual((positive, negative), (cacatacSpeed, -cacatacSpeed), "Cacatac spawn speed, negated for walking left");
             place.SetSpawnParameter2(EnemyDefinitionId.Owtch, (ushort)index);
             place.Bind(EnemyDefinitionId.Owtch, place.Definition);
             owtch(place);

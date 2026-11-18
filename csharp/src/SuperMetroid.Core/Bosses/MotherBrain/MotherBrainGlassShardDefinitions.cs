@@ -24,7 +24,7 @@ internal static class MotherBrainGlassShardDefinitions
     /// The chance a falling shard sparkles each update, one in four: two even choices of the random number must both
     /// come up.
     /// </summary>
-    internal static readonly RandomClearBitsChance ShardSparkles = new(new RandomSampleField(5, 1), new RandomSampleField(10, 1));
+    internal static readonly RandomClearBitsChance ShardSparkles = RandomClearBitsChance.WhenAllClear(new RandomSampleField(5, 1), new RandomSampleField(10, 1));
 
     /// <summary>
     /// A sparkle's offset from its shard on each axis, 0 through 31 pixels less <see cref="SparkleOffsetCentre"/>.

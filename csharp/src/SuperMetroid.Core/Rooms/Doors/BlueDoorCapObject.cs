@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
@@ -27,7 +28,7 @@ internal sealed class BlueDoorCapObject : DoorCapObject
     /// <param name="orientation">The cap's facing.</param>
     /// <param name="phase">Whether it opens or closes.</param>
     /// <param name="sequence">The opening or the closing it plays.</param>
-    private BlueDoorCapObject(ColoredDoorOrientation orientation, BlueDoorCapPhase phase, IReadOnlyList<DoorCapStep> sequence)
+    private BlueDoorCapObject(ColoredDoorOrientation orientation, BlueDoorCapPhase phase, Animation<DoorCapSegment> sequence)
         : base(orientation, DoorCapPaint.Blue, door: null)
     {
         Phase = phase;

@@ -15,7 +15,7 @@ internal static class BullNativeListAddresses
     /// <summary>Each typed program's native entry point, in authored order.</summary>
     internal static readonly NativeProgramEntry<BullSegment>[] Entries =
     [
-        new NativeProgramEntry<BullSegment>(BullSegment.Normal, 0xd841),
+        new NativeProgramEntry<BullSegment>(BullSegment.Idle, 0xd841),
         new NativeProgramEntry<BullSegment>(BullSegment.Shot, 0xd859),
     ];
 

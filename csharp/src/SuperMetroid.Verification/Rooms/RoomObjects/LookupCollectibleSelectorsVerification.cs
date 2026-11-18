@@ -16,15 +16,14 @@ internal static class LookupCollectibleSelectorsVerification
     /// <summary>Checks the orb animation's four images, in order, against the native orb draws.</summary>
     internal static void VerifyCollectibleOrbSelector(CartridgeImportAddressSpace rom)
     {
-        IReadOnlyList<AnimationBeat<CollectibleDraw, NoAnimationCue>> images = CollectibleOrbAnimation.Segments.Beats(CollectibleOrbSegment.Pulsing);
+        IReadOnlyList<RoomObjectDraw> images = SequenceDraws(CollectibleSequence.OrbPulsing);
         AssertEqual(4, images.Count, "the orb's animation shows four images");
         for (int phase = 0; phase < images.Count; phase++)
         {
-            var image = AssertIs<AnimationBeat<CollectibleDraw, NoAnimationCue>.Frame>(images[phase], $"orb image {phase}");
             AssertEqual(ReadCollectibleDrawWord(rom, (ushort)(0xdfb5 + phase * 4)),
-                RoomObjectDrawAddressCodec.Of(CollectibleObjectDraws.Family.Of(image.Shown)), "Collectible native orb phase draw");
+                RoomObjectDrawAddressCodec.Of(images[phase]), "Collectible native orb phase draw");
         }
-        AssertEqual(new AnimationEnd.Loop(0), CollectibleOrbAnimation.Pulsing.End, "the orb's animation starts again after its fourth image");
+        AssertEqual(new AnimationEnd.Loop(0), CollectibleSequenceAnimations.OrbPulsing.End, "the orb's animation starts again after its fourth image");
     }
 
     /// <summary>
@@ -49,7 +48,8 @@ internal static class LookupCollectibleSelectorsVerification
     /// <summary>The draws of <paramref name="sequence"/>'s images, in order.</summary>
     private static IReadOnlyList<RoomObjectDraw> SequenceDraws(CollectibleSequence sequence) =>
         [.. CollectibleSequenceAnimations.Segments.Beats(sequence).Select((beat, index) =>
-            AssertIs<AnimationBeat<CollectibleImage, NoAnimationCue>.Frame>(beat, $"{sequence} image {index}").Shown.Draw)];
+            AssertIs<AnimationBeat<CollectibleImage, CollectiblePhase>.Frame>(beat, $"{sequence} image {index}").Shown.Draw
+                ?? throw new InvalidOperationException($"{sequence} image {index} is a look, not a draw."))];
 
     /// <summary>Checks four tank kinds against native frames regardless of the unused block pair.</summary>
     internal static void VerifyCollectibleTankSelector(CartridgeImportAddressSpace rom)

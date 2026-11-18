@@ -374,11 +374,8 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 ApplyTorizoPosture(torizo, posture.Displacement, posture.Kind);
                 return null;
 
-            case TorizoCue.Walk { Kind: TorizoWalkKind.WalkBombTorizo } walk:
-                return Choices.ProcessTorizoWalkStep(torizo, state, inputs.Samus, inputs.Level, TorizoWalkerDefinitions.BombTorizo, walk.Velocity);
-
-            case TorizoCue.Walk { Kind: TorizoWalkKind.WalkFacelessBombTorizo } walk:
-                return Choices.ProcessTorizoWalkStep(torizo, state, inputs.Samus, inputs.Level, TorizoWalkerDefinitions.FacelessBombTorizo, walk.Velocity);
+            case TorizoCue.Walk walk:
+                return Choices.ProcessTorizoWalkStep(torizo, state, inputs.Samus, inputs.Level, walk.Walker, walk.Velocity);
 
             case TorizoCue.Signal { Kind: TorizoCueKind.LeapingPoseShown }:
                 // The jump holds its leaping pose while the Torizo rises; once it no longer rises, it falls in the fall its
@@ -408,9 +405,8 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             }
 
             case TorizoCue.Signal { Kind: TorizoCueKind.SpawnBombTorizoChozoOrbs }:
-                Attacks.SpawnBombTorizoChozoOrb(torizo);
-                Attacks.SpawnBombTorizoChozoOrb(torizo);
-                Attacks.SpawnBombTorizoChozoOrb(torizo);
+                for (int orb = 0; orb < TorizoChozoOrbDefinitions.BombTorizoOrbsPerBurst; orb++)
+                    Attacks.SpawnBombTorizoChozoOrb(torizo);
                 return null;
 
             case TorizoCue.Signal { Kind: TorizoCueKind.SpawnBombTorizoSonicBoom }:
@@ -545,9 +541,6 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                     TorizoChoices.InFirstAttackPhase(inputs.FrameCounter, inputs.Samus.Position.X.Whole);
                 return TorizoAnimations.ContinueWith(chooseFirst ? choice.Target : choice.Alternate);
             }
-
-            case TorizoCue.Walk { Kind: TorizoWalkKind.WalkGoldenTorizo } walk:
-                return Choices.ProcessTorizoWalkStep(torizo, state, inputs.Samus, inputs.Level, TorizoWalkerDefinitions.GoldenTorizo, walk.Velocity);
 
             case TorizoCue.ShowArtwork showArtwork:
                 ShowTorizoArtwork(state, showArtwork.Look);

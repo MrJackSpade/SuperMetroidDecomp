@@ -36,7 +36,7 @@ internal sealed class KraidCombat
     internal void ReactToArmBomb(EnemyBombContext c)
     {
         if (c.SelectedShot != EnemyReaction.Ignore && c.SelectedShot != KraidReactions.ArmShot)
-            throw new InvalidDataException($"Kraid's arm selected normal-bomb shot AI {c.SelectedShot?.ToString() ?? "(unnamed)"}.");
+            throw new InvalidDataException($"Kraid's arm selected the bomb reaction {c.SelectedShot?.ToString() ?? "(unnamed)"}.");
 
         // The arm's shot reaction raises dust where the shot struck; the hit's direction is already recorded.
         // Protected arm frames ignore the shot.
@@ -48,7 +48,7 @@ internal sealed class KraidCombat
     internal static void ReactToFootBomb(EnemyBombContext c)
     {
         if (c.SelectedShot != EnemyReaction.Ignore)
-            throw new InvalidDataException($"Kraid's foot selected normal-bomb shot AI {c.SelectedShot?.ToString() ?? "(unnamed)"}.");
+            throw new InvalidDataException($"Kraid's foot selected the bomb reaction {c.SelectedShot?.ToString() ?? "(unnamed)"}.");
     }
 
     /// <summary>The arm's shot reaction, which its hitboxes decide behind its definition's ignoring one.</summary>
@@ -59,7 +59,7 @@ internal sealed class KraidCombat
         AfterSuperMissileQuake = (in EnemyShotContext c) =>
         {
             if (!c.UsesFrameHitboxes || (c.HitboxShot != EnemyReaction.Ignore && c.HitboxShot != KraidReactions.ArmShot))
-                throw new InvalidDataException($"Kraid's arm selected shot AI {c.HitboxShot?.ToString() ?? "(unnamed)"}.");
+                throw new InvalidDataException($"Kraid's arm selected the shot reaction {c.HitboxShot?.ToString() ?? "(unnamed)"}.");
 
             c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
             if (c.HitboxShot == KraidReactions.ArmShot)
@@ -74,7 +74,7 @@ internal sealed class KraidCombat
         AfterSuperMissileQuake = (in EnemyShotContext c) =>
         {
             if (!c.UsesFrameHitboxes || c.HitboxShot != EnemyReaction.Ignore)
-                throw new InvalidDataException($"Kraid's foot selected shot AI {c.HitboxShot?.ToString() ?? "(unnamed)"}.");
+                throw new InvalidDataException($"Kraid's foot selected the shot reaction {c.HitboxShot?.ToString() ?? "(unnamed)"}.");
 
             c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
             return true;

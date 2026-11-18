@@ -14,33 +14,9 @@ internal static class DachoraAnimations
     internal static AnimationSegments<DachoraSegment, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
         new Dictionary<DachoraSegment, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
     {
-        [P.RunningLeft] =
-        [
-            Show(EnemyFrameId.DachoraRunningLeftFarLegBack, 5),
-            Show(EnemyFrameId.DachoraRunningLeftFarLegPassing, 5),
-            Show(EnemyFrameId.DachoraRunningLeftFarLegReaching, 5),
-            Show(EnemyFrameId.DachoraRunningLeftNearLegBack, 5),
-            Show(EnemyFrameId.DachoraRunningLeftNearLegPassing, 5),
-            Show(EnemyFrameId.DachoraRunningLeftNearLegReaching, 5),
-        ],
-        [P.RunningLeftFast] =
-        [
-            Show(EnemyFrameId.DachoraRunningLeftFarLegBack, 3),
-            Show(EnemyFrameId.DachoraRunningLeftFarLegPassing, 3),
-            Show(EnemyFrameId.DachoraRunningLeftFarLegReaching, 3),
-            Show(EnemyFrameId.DachoraRunningLeftNearLegBack, 3),
-            Show(EnemyFrameId.DachoraRunningLeftNearLegPassing, 3),
-            Show(EnemyFrameId.DachoraRunningLeftNearLegReaching, 3),
-        ],
-        [P.RunningLeftVeryFast] =
-        [
-            Show(EnemyFrameId.DachoraRunningLeftFarLegBack, 1),
-            Show(EnemyFrameId.DachoraRunningLeftFarLegPassing, 1),
-            Show(EnemyFrameId.DachoraRunningLeftFarLegReaching, 1),
-            Show(EnemyFrameId.DachoraRunningLeftNearLegBack, 1),
-            Show(EnemyFrameId.DachoraRunningLeftNearLegPassing, 1),
-            Show(EnemyFrameId.DachoraRunningLeftNearLegReaching, 1),
-        ],
+        [P.RunningLeft] = Stride(DachoraStride.Left, 5),
+        [P.RunningLeftFast] = Stride(DachoraStride.Left, 3),
+        [P.RunningLeftVeryFast] = Stride(DachoraStride.Left, 1),
         [P.IdleLeft] =
         [
             Show(EnemyFrameId.DachoraStandingFacingLeftHeadUp, 48),
@@ -68,33 +44,9 @@ internal static class DachoraAnimations
         ],
         [P.EchoLeft] = [Hold(EnemyFrameId.DachoraStretchedUpFacingLeft)],
         [P.FallingLeft] = [Hold(EnemyFrameId.DachoraRunningLeftNearLegPassing)],
-        [P.RunningRight] =
-        [
-            Show(EnemyFrameId.DachoraRunningRightFarLegBack, 5),
-            Show(EnemyFrameId.DachoraRunningRightFarLegPassing, 5),
-            Show(EnemyFrameId.DachoraRunningRightFarLegReaching, 5),
-            Show(EnemyFrameId.DachoraRunningRightNearLegBack, 5),
-            Show(EnemyFrameId.DachoraRunningRightNearLegPassing, 5),
-            Show(EnemyFrameId.DachoraRunningRightNearLegReaching, 5),
-        ],
-        [P.RunningRightFast] =
-        [
-            Show(EnemyFrameId.DachoraRunningRightFarLegBack, 3),
-            Show(EnemyFrameId.DachoraRunningRightFarLegPassing, 3),
-            Show(EnemyFrameId.DachoraRunningRightFarLegReaching, 3),
-            Show(EnemyFrameId.DachoraRunningRightNearLegBack, 3),
-            Show(EnemyFrameId.DachoraRunningRightNearLegPassing, 3),
-            Show(EnemyFrameId.DachoraRunningRightNearLegReaching, 3),
-        ],
-        [P.RunningRightVeryFast] =
-        [
-            Show(EnemyFrameId.DachoraRunningRightFarLegBack, 1),
-            Show(EnemyFrameId.DachoraRunningRightFarLegPassing, 1),
-            Show(EnemyFrameId.DachoraRunningRightFarLegReaching, 1),
-            Show(EnemyFrameId.DachoraRunningRightNearLegBack, 1),
-            Show(EnemyFrameId.DachoraRunningRightNearLegPassing, 1),
-            Show(EnemyFrameId.DachoraRunningRightNearLegReaching, 1),
-        ],
+        [P.RunningRight] = Stride(DachoraStride.Right, 5),
+        [P.RunningRightFast] = Stride(DachoraStride.Right, 3),
+        [P.RunningRightVeryFast] = Stride(DachoraStride.Right, 1),
         [P.IdleRight] =
         [
             Show(EnemyFrameId.DachoraStandingFacingRightHeadUp, 48),
@@ -154,6 +106,13 @@ internal static class DachoraAnimations
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<DachoraSegment> StartingWith(DachoraSegment segment) => StartingAt[segment];
+
+    /// <summary>
+    /// One <paramref name="stride"/> (#2477), each of its poses shown for <paramref name="updates"/> updates: the runs at every
+    /// pace play the same poses, so a run that quickens keeps its place in them.
+    /// </summary>
+    private static AnimationBeat<EnemyFrameId, NoAnimationCue>[] Stride(DachoraStride stride, int updates) =>
+        [.. stride.Poses.Select(pose => Show(pose, updates))];
 
     /// <summary>A still picture (#2275): <paramref name="frame"/>, held from the update it shows.</summary>
     private static AnimationBeat<EnemyFrameId, NoAnimationCue> Hold(EnemyFrameId frame) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.HeldFrame(frame);

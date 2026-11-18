@@ -50,7 +50,8 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         switch (cue)
         {
             case WalkingSpacePirateCue.FireLaser fireLaser:
-                SpawnWalkingSpacePirateLaser(place, direction: fireLaser.Direction, fireLaser.LaserHeight);
+                _ = SpawnSpacePirateLaser(place, fireLaser.Direction, fireLaser.LaserHeight,
+                    place.SpawnSettings<WalkingSpacePirateSpawnSettings>().LaserSpeed);
                 return null;
             case WalkingSpacePirateCue.Signal { Kind: WalkingSpacePirateCueKind.ChooseMovement }:
                 return SelectWalkingSpacePirateMovement(place, samus);
@@ -124,7 +125,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
 
         // A pirate placed to flinch looks for Samus's shots after its normal AI, and a flinch may replace an animation
         // selected just above.
-        if (place.SpawnSettings<WalkingSpacePirateSpawnSettings>().FlinchesFromShots)
+        if (place.SpawnSettings<WalkingSpacePirateSpawnSettings>().ShotWatch == WalkingSpacePirateShotWatch.FlinchesFromShots)
             TryTriggerWalkingSpacePirateFlinch(place, state, samus, samusProjectiles);
     }
 
@@ -287,24 +288,17 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         place.AnimationClock.StepOnNextUpdate();
     }
 
-    /// <summary>Runs the firing cues and the laser setup.</summary>
-    private void SpawnWalkingSpacePirateLaser(
-        RoomEnemyPlace source,
-        HorizontalDirection direction,
-        int laserHeight)
-    {
-        _ = SpawnSpacePirateLaser(source, direction, laserHeight);
-    }
-
     /// <summary>
     /// Runs the common laser setup. Wall and walking Pirates
     /// use different actor animation steps and muzzle offsets, but the allocated projectile is the
-    /// same definition and therefore belongs in one shared implementation.
+    /// same definition and therefore belongs in one shared implementation. The firing Pirate hands over the speed its
+    /// placement names for its lasers (#2453).
     /// </summary>
     internal bool SpawnSpacePirateLaser(
         RoomEnemyPlace source,
         HorizontalDirection direction,
-        int laserHeight)
+        int laserHeight,
+        PirateLaserSpeed speed)
     {
         EnemyProjectile? projectile = SpawnPirateMotherBrainLaser(
             source,
@@ -313,24 +307,13 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
                     (direction == HorizontalDirection.Right ? SpacePirateMotionDefinitions.WalkingLaserMuzzleAhead : -SpacePirateMotionDefinitions.WalkingLaserMuzzleAhead),
                 source.Position.Y.Whole - laserHeight),
             direction,
-            LaserSpeedOf(source));
+            speed);
         if (projectile is null)
             return false;
 
         RequestSpacePirateSound(EnemySoundEffectDefinitions.PirateMotherBrainLaserSound);
         return true;
     }
-
-    /// <summary>
-    /// The speed of a pirate's laser: the setup reads the firing pirate's placement, where walking and wall
-    /// pirates name their laser's speed.
-    /// </summary>
-    private static PirateLaserSpeed LaserSpeedOf(RoomEnemyPlace pirate) => pirate.Spawn.Population.SpawnSettings switch
-    {
-        WalkingSpacePirateSpawnSettings walking => walking.LaserSpeed,
-        WallSpacePirateSpawnSettings wall => wall.LaserSpeed,
-        _ => throw new InvalidOperationException($"{pirate.DefinitionId} is not a pirate that fires lasers."),
-    };
 
     /// <summary>
     /// Runs the common laser setup once the firing enemy has chosen
@@ -524,8 +507,14 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     /// <summary>Uses shared Pirate shot logic, including the hitbox quake and the big death explosion, on every Pirate but the gold Ninja.</summary>
     internal EnemyShotReaction SpacePirateShotReaction => field ??= new()
     {
+        // Every Pirate but the gold Ninja goes on to its normal shot reaction from every hitbox, the Ninja's body reactions
+        // included; the stage only refuses a reaction no Pirate hitbox names.
         AfterSuperMissileQuake = (in EnemyShotContext c) =>
-            c.UsesFrameHitboxes && ResolveSpacePirateHitboxShot(c, PirateHitboxShotActions.SelectPirateHitboxShotAction(c.HitboxShot)),
+        {
+            if (c.UsesFrameHitboxes)
+                PirateHitboxShotActions.RequirePirateShotReaction(c.HitboxShot);
+            return false;
+        },
         ShowsHitBurst = c => PirateHitboxShotActions.ShowsHitBurst(c.HitboxShot),
         ReplacesGenericDeath = c =>
         {

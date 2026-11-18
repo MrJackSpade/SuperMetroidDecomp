@@ -111,6 +111,18 @@ public readonly record struct SignedSixteenSixteen : IComparable<SignedSixteenSi
     public SignedSixteenSixteen ScaledBy(SpeedShare share) => new(checked(InTwoFiftySixths * share.TwoHundredFiftySixths));
 
     /// <summary>
+    /// The displacement divided by <paramref name="divisor"/> as one amount in 256ths of a pixel (<see cref="InTwoFiftySixths"/>,
+    /// #2453): the fraction's part finer than a 256th drops out first, and the quotient is rounded toward negative infinity
+    /// to the 256th, so a share backward that falls short of a 256th reads a whole 256th further back.
+    /// </summary>
+    /// <param name="divisor">The divisor, one or more.</param>
+    public SignedSixteenSixteen DividedInTwoFiftySixths(int divisor)
+    {
+        int quotient = Math.DivRem(InTwoFiftySixths, Ensure.BetweenInclusive(1, int.MaxValue, divisor), out int remainder);
+        return FromTwoHundredFiftySixthsOfPixel(remainder < 0 ? quotient - 1 : quotient);
+    }
+
+    /// <summary>
     /// The displacement limited to <paramref name="limit"/> counted in 256ths of a pixel, as a quicksand surface limits a
     /// stationary Samus's probe: when its count in 256ths (<see cref="InTwoFiftySixths"/>) lies above the limit's, the
     /// limit's count replaces it and the displacement's fraction finer than a 256th is kept; otherwise it is unchanged.

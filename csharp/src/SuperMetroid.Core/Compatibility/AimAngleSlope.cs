@@ -40,4 +40,15 @@ public static class AimAngleSlope
         int run = Ensure.AtLeastZero(longSide) % RunSpan;
         return run == 0 ? Steepest : rise / run;
     }
+
+    /// <summary>The 256ths of slope in each step the aim turns: a slope of one turns an eighth of a turn.</summary>
+    private const int SlopePerStep = RisePerPixel / (RotationAngle.StepsPerTurn / 8);
+
+    /// <summary>
+    /// The whole steps the aim at an offset turns from the long side's direction toward the short side's (#2453): the
+    /// slope (<see cref="Of"/>) in steps, a slope of one turning an eighth of a turn and any part of a step dropped. The
+    /// steepest slope turns far past the octant, as it always has.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">A side is negative.</exception>
+    public static int TurnSteps(int shortSide, int longSide) => Of(shortSide, longSide) / SlopePerStep;
 }

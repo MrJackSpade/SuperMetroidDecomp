@@ -514,21 +514,15 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         CalculateYappingMawY(angle - TrigonometryAngle.QuarterTurn, length);
 
     /// <summary>
-    /// The offset of a link <paramref name="length"/> along the turn <paramref name="angle"/>, -254 through 254 pixels:
-    /// twice the length the short product uses (<see cref="ShortCircleProduct.RadiusInUse"/>) times the fine sine's coarse
-    /// size (<see cref="Trigonometry.CoarseSizeOfFineSine"/>), counted in 256ths of a pixel and rounded down to whole
-    /// pixels, so a point on the negative side with a fraction lies a whole pixel further out (#1620);
-    /// its consumers wrap it onto the room's axis.
+    /// The offset of a link <paramref name="length"/> along the turn <paramref name="angle"/>, -254 through 254 pixels: the
+    /// reach of the length the short product uses (<see cref="ShortCircleProduct.RadiusInUse"/>) along the fine sine read
+    /// coarsely (<see cref="UnitComponent.CoarseFineSineOf"/>), in whole pairs of pixels rounded down
+    /// (<see cref="UnitComponent.ReachRoundedDownToPixelPairsOf"/>), so a point on the negative side short of a pair lies a
+    /// whole pair further out (#1620, #2453); its consumers wrap it onto the room's axis.
     /// </summary>
-    internal static int CalculateYappingMawY(TrigonometryAngle angle, int length)
-    {
+    internal static int CalculateYappingMawY(TrigonometryAngle angle, int length) =>
         // The game samples the angle reflected below zero, whose sine is this angle's sine reversed.
-        bool negative = Trigonometry.FineSignedSine(angle) > 0;
-        // The product of a coarse size below 128 and a radius below 256 stays below 128 pixels either way.
-        SignedEightEight offset = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(
-            Trigonometry.CoarseSizeOfFineSine(angle) * ShortCircleProduct.RadiusInUse(length));
-        return 2 * (negative ? -offset : offset).WholePixels;
-    }
+        UnitComponent.CoarseFineSineOf(angle).Reversed.ReachRoundedDownToPixelPairsOf(ShortCircleProduct.RadiusInUse(length));
 
     /// <summary>Routes bomb hits through the Maw's shared shot reaction.</summary>
     internal static EnemyBombReaction YappingMawBombReaction { get; } = new()

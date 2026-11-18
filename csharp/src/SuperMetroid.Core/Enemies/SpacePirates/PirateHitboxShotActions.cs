@@ -7,22 +7,12 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 internal static class PirateHitboxShotActions
 {
     /// <summary>
-    /// Runs the common and Pirate-specific shot reactions of hitboxes on every Pirate but the gold Ninja
-    /// (<see cref="SelectGoldNinjaHitboxShotAction"/>), which alone gives the two Ninja body reactions special meaning:
-    /// every other Pirate deliberately goes on to normal shot AI even when it shows one of the frames it shares
-    /// with the Ninja.
-    /// </summary>
-    internal static PirateHitboxShotAction SelectPirateHitboxShotAction(EnemyReaction? hitboxShot)
-    {
-        RequirePirateShotReaction(hitboxShot);
-        return PirateHitboxShotAction.Normal;
-    }
-
-    /// <summary>
     /// Fails for a reaction no Pirate hitbox names. The empty frame still has a real point hitbox for a pirate, whose
-    /// common reaction bypasses the Ninja-specific armor tests; it is not rejected as unknown.
+    /// common reaction bypasses the Ninja-specific armor tests; it is not rejected as unknown. Only the gold Ninja
+    /// (<see cref="SelectGoldNinjaHitboxShotAction"/>) gives the two Ninja body reactions special meaning: every other
+    /// Pirate deliberately goes on to normal shot AI even when it shows one of the frames it shares with the Ninja (#2453).
     /// </summary>
-    private static void RequirePirateShotReaction(EnemyReaction? hitboxShot)
+    internal static void RequirePirateShotReaction(EnemyReaction? hitboxShot)
     {
         if (hitboxShot != SpacePirateReactions.Shot && hitboxShot != EnemyReaction.NormalEnemyShot &&
             hitboxShot != SpacePirateReactions.GoldNinjaVulnerableHitboxShot && hitboxShot != SpacePirateReactions.GoldNinjaInvincibleHitboxShot)

@@ -20,13 +20,17 @@ internal static class EnemyMath
         return velocity;
     }
 
+    /// <summary>The share of its distance from its target a homing Metroid or Mochtroid pulls by each update: a 1024th.</summary>
+    private const int HomingPullShare = 1024;
+
     /// <summary>
     /// The proportional pull a Metroid or Mochtroid takes from its velocity for a signed distance of
-    /// <paramref name="distance"/> pixels from its target: a quarter of the distance, rounded
-    /// toward minus infinity, in 256ths of a pixel.
+    /// <paramref name="distance"/> pixels from its target: a 1024th of the distance, a quarter of its pixels in 256ths of a
+    /// pixel, rounded toward minus infinity to the 256th (<see cref="SignedSixteenSixteen.DividedInTwoFiftySixths"/>).
     /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">The distance lies outside a signed distance's whole pixels.</exception>
     internal static SignedSixteenSixteen HomingPull(int distance) =>
-        SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(distance >> 2);
+        SignedSixteenSixteen.FromWholePixels(distance).DividedInTwoFiftySixths(HomingPullShare);
 
     /// <summary>
     /// Calculates the bearing of an offset. Zero points upward and the
@@ -47,11 +51,11 @@ internal static class EnemyMath
         {
             // The octant is chosen from the full distances; the slope keeps the game's limits, so offsets
             // beyond 255 pixels bend the angle (AimAngleSlope).
-            int turn = AimAngleSlope.Of(absoluteY, absoluteX) >> 3;
+            int turn = AimAngleSlope.TurnSteps(absoluteY, absoluteX);
             return (left ? Bearing.Left : Bearing.Right).TurnedBySteps(turnsClockwiseFromSide ? turn : -turn);
         }
 
-        int inverseTurn = AimAngleSlope.Of(absoluteX, absoluteY) >> 3;
+        int inverseTurn = AimAngleSlope.TurnSteps(absoluteX, absoluteY);
         return (up ? Bearing.Up : Bearing.Down).TurnedBySteps(turnsClockwiseFromSide ? -inverseTurn : inverseTurn);
     }
 

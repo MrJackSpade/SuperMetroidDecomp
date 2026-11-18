@@ -66,7 +66,6 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             ? NinjaSpacePirateSegment.AwaitingSamusFacingRight
             : NinjaSpacePirateSegment.AwaitingSamusFacingLeft;
         state.Playback = new(NinjaSpacePirateAnimations.StartingWith(initial), AnimationPlace.StartOfAnimation);
-        state.ActiveAnimation = initial;
 
         // The post distance describes the requested distance between posts. The setup
         // first establishes those requested posts around the population X coordinate, then
@@ -160,7 +159,6 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         NinjaSpacePirateSegment active = place.Position.X.Whole < samus.Position.X.Whole
             ? NinjaSpacePirateSegment.ActiveFacingRight
             : NinjaSpacePirateSegment.ActiveFacingLeft;
-        state.ActiveAnimation = active;
         StartNinjaPirateAnimation(place, state, active);
     }
 
@@ -320,14 +318,14 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         HorizontalDirection direction,
         VerticalDirection vertical)
     {
-        int xPixels = state.Speed.WholePixels;
+        int xPixels = state.SpinSpeed.WholePixels;
         place.Position = place.Position.WithWholeX(place.Position.X.Whole + (direction == HorizontalDirection.Right ? xPixels : -xPixels));
         place.Position = place.Position.WithWholeY(place.Position.Y.Whole +
             (vertical == VerticalDirection.Up ? -SpacePirateMotionDefinitions.NinjaSpinClimbStep : SpacePirateMotionDefinitions.NinjaSpinClimbStep));
 
         if (vertical == VerticalDirection.Up)
         {
-            state.Speed += SpacePirateMotionDefinitions.NinjaSpinSpeedChange;
+            state.SpinSpeed += SpacePirateMotionDefinitions.NinjaSpinSpeedChange;
             bool crossedMidpoint = direction == HorizontalDirection.Right
                 ? place.Position.X.Whole >= state.PostsMidpointX
                 : place.Position.X.Whole < state.PostsMidpointX;
@@ -338,8 +336,8 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             return;
         }
 
-        state.Speed -= SpacePirateMotionDefinitions.NinjaSpinSpeedChange;
-        if (!state.Speed.IsZero)
+        state.SpinSpeed -= SpacePirateMotionDefinitions.NinjaSpinSpeedChange;
+        if (!state.SpinSpeed.IsZero)
             return;
 
         state.Action = NinjaSpacePirateAction.StandingStill;
@@ -357,7 +355,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     /// Sets the divekick's initial rising speed.
     /// </summary>
     private static void InitializeNinjaPirateDive(NinjaSpacePirateEnemyState state) =>
-        state.Speed = SpacePirateMotionDefinitions.NinjaDiveStartSpeed;
+        state.DiveSpeed = SpacePirateMotionDefinitions.NinjaDiveStartSpeed;
 
     /// <summary>Rises until signed speed turns negative, then switches to the descent animation.</summary>
     private static void StepNinjaPirateDiveJump(
@@ -365,9 +363,9 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         NinjaSpacePirateEnemyState state,
         HorizontalDirection direction)
     {
-        place.Position = place.Position.WithWholeY(place.Position.Y.Whole - state.Speed.WholePixels);
-        state.Speed -= SpacePirateMotionDefinitions.NinjaDiveSpeedChange;
-        if (!state.Speed.IsNegative)
+        place.Position = place.Position.WithWholeY(place.Position.Y.Whole - state.DiveSpeed.WholePixels);
+        state.DiveSpeed -= SpacePirateMotionDefinitions.NinjaDiveSpeedChange;
+        if (!state.DiveSpeed.IsNegative)
             return;
 
         state.Action = NinjaSpacePirateAction.DivekickDive;
@@ -378,7 +376,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             direction == HorizontalDirection.Right
                 ? NinjaSpacePirateSegment.DivekickRightDive
                 : NinjaSpacePirateSegment.DivekickLeftDive);
-        state.Speed = SpacePirateMotionDefinitions.NinjaDiveStartSpeed;
+        state.DiveSpeed = SpacePirateMotionDefinitions.NinjaDiveStartSpeed;
     }
 
     /// <summary>
@@ -394,11 +392,11 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         place.Position = place.Position.WithWholeX(place.Position.X.Whole +
             (direction == HorizontalDirection.Right ? SpacePirateMotionDefinitions.NinjaDiveStep : -SpacePirateMotionDefinitions.NinjaDiveStep));
 
-        bool landed = _terrain.MoveEnemyVertically(level, place, NinjaPirateDiveFallStep.Of(state.Speed));
+        bool landed = _terrain.MoveEnemyVertically(level, place, NinjaPirateDiveFallStep.Of(state.DiveSpeed));
         if (!landed)
         {
-            state.Speed -= SpacePirateMotionDefinitions.NinjaDiveSpeedChange;
-            landed = state.Speed.IsNegative || state.Speed.WholePixels == 0;
+            state.DiveSpeed -= SpacePirateMotionDefinitions.NinjaDiveSpeedChange;
+            landed = state.DiveSpeed.IsNegative || state.DiveSpeed.WholePixels == 0;
         }
         if (!landed)
             return;
@@ -520,16 +518,18 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
                 SpawnNinjaPirateClaw(place, throwClaw.Throw, throwClaw.Offset);
                 return null;
             case NinjaSpacePirateCue.Signal { Kind: NinjaSpacePirateCueKind.StartActive }:
-                state.ActiveAnimation = place.Position.X.Whole < samus.Position.X.Whole
+            {
+                NinjaSpacePirateSegment active = place.Position.X.Whole < samus.Position.X.Whole
                     ? NinjaSpacePirateSegment.ActiveFacingRight
                     : NinjaSpacePirateSegment.ActiveFacingLeft;
                 place.AnimationClock.StepOnNextUpdate();
                 // The cue returns the selected animation, not its next step.
                 // Re-entering that animation runs its action cue and restores decision AI
                 // after the idle animation set the action that waits for it.
-                return state.ActiveAnimation;
-            case NinjaSpacePirateCue.Signal { Kind: NinjaSpacePirateCueKind.ResetSpeed }:
-                state.Speed = default;
+                return active;
+            }
+            case NinjaSpacePirateCue.Signal { Kind: NinjaSpacePirateCueKind.ResetSpinSpeed }:
+                state.SpinSpeed = SignedEightEight.Zero;
                 return null;
             case NinjaSpacePirateCue.Signal { Kind: NinjaSpacePirateCueKind.StartDivekick }:
                 InitializeNinjaPirateDive(state);

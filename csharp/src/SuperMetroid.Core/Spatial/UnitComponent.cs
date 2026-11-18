@@ -23,6 +23,22 @@ public readonly record struct UnitComponent
     /// <summary>The game's sine of <paramref name="angle"/>: the share of its direction along the axis a quarter turn on from zero.</summary>
     public static UnitComponent SineOf(TrigonometryAngle angle) => new(Trigonometry.SignedSine(angle));
 
+    /// <summary>The 256ths of the whole in each step of the fine sine's coarse reading, which counts 128ths of it.</summary>
+    private const int TwoFiftySixthsPerCoarseStep = 2;
+
+    /// <summary>
+    /// The fine sine (<see cref="Trigonometry.FineSignedSine"/>) of <paramref name="angle"/> read coarsely (#2453): its size
+    /// as <see cref="Trigonometry.CoarseSizeOfFineSine"/> reads it, 128ths of the whole, with the fine sine's sign.
+    /// </summary>
+    public static UnitComponent CoarseFineSineOf(TrigonometryAngle angle)
+    {
+        int size = Trigonometry.CoarseSizeOfFineSine(angle) * TwoFiftySixthsPerCoarseStep;
+        return new(Trigonometry.FineSignedSine(angle) < 0 ? -size : size);
+    }
+
+    /// <summary>The component pointing the other way along the axis.</summary>
+    public UnitComponent Reversed => new(-TwoFiftySixths);
+
     /// <summary>Whether the component points toward the axis's decreasing side.</summary>
     public bool IsNegative => TwoFiftySixths < 0;
 
@@ -45,6 +61,19 @@ public readonly record struct UnitComponent
     /// </summary>
     /// <param name="length">The length in whole pixels, negative for a length laid the other way along the direction.</param>
     public int ReachRoundedDownOf(int length) => TwoFiftySixths * length >> WholeExponent;
+
+    /// <summary>The pixels in each pair a reach in whole pairs (<see cref="ReachRoundedDownToPixelPairsOf"/>) counts, as a power of two.</summary>
+    private const int PairExponent = 1;
+
+    /// <summary>
+    /// How far along the axis a length of <paramref name="length"/> whole pixels laid along the direction reaches, in whole
+    /// pairs of pixels rounded toward negative infinity (#2453): the reach halved and rounded down, then doubled, so it is
+    /// always an even count of pixels and a reach toward the decreasing side lies a pair further out than the pairs it
+    /// fills.
+    /// </summary>
+    /// <param name="length">The length in whole pixels, negative for a length laid the other way along the direction.</param>
+    public int ReachRoundedDownToPixelPairsOf(int length) =>
+        TwoFiftySixths * length >> (WholeExponent + PairExponent) << PairExponent;
 
     /// <summary>
     /// How far along the axis a length of <paramref name="length"/> whole pixels laid along the direction reaches, every

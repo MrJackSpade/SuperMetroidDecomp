@@ -45,7 +45,12 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
 
         // Angles are 256ths of a turn. A slow jump turns two steps a frame for 63 frames; a fast one turns four steps a
         // frame for 32 frames, to endpoints two steps further round.
-        WallSpacePirateJump jump = settings.JumpsSlowly ? SpacePirateMotionDefinitions.SlowWallJump : SpacePirateMotionDefinitions.FastWallJump;
+        WallSpacePirateJump jump = settings.JumpSpeed switch
+        {
+            WallSpacePirateJumpSpeed.Slow => SpacePirateMotionDefinitions.SlowWallJump,
+            WallSpacePirateJumpSpeed.Fast => SpacePirateMotionDefinitions.FastWallJump,
+            _ => throw new InvalidDataException($"Undefined {nameof(WallSpacePirateJumpSpeed)} {settings.JumpSpeed}."),
+        };
         state.RightJumpTargetAngle = jump.RightTarget;
         state.LeftJumpTargetAngle = jump.LeftTarget;
         state.JumpAngleDelta = jump.StepsPerUpdate;
@@ -221,7 +226,8 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     {
         // The laser setup queues the laser sound for every successful allocation. The later wall-jump cue
         // independently queues the wall-jump sound; both are observable, distinct requests.
-        if (Walking.SpawnSpacePirateLaser(place, direction, SpacePirateMotionDefinitions.WallLaserMuzzleAbove))
+        if (Walking.SpawnSpacePirateLaser(place, direction, SpacePirateMotionDefinitions.WallLaserMuzzleAbove,
+            place.SpawnSettings<WallSpacePirateSpawnSettings>().LaserSpeed))
             Walking.RequestSpacePirateSound(EnemySoundEffectDefinitions.WallPirateLaserSound);
     }
 

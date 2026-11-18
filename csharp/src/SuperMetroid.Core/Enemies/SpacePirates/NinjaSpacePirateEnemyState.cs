@@ -2,7 +2,7 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>
-/// The state of one ninja Pirate. The speed and spawn position are the ninja's own state, which nothing else reads.
+/// The state of one ninja Pirate. The speeds and spawn position are the ninja's own state, which nothing else reads.
 /// </summary>
 public sealed class NinjaSpacePirateEnemyState
 {
@@ -17,9 +17,6 @@ public sealed class NinjaSpacePirateEnemyState
 
     /// <summary>The way the Pirate spin jumps, divekicks or walks back to its post (#2165).</summary>
     public HorizontalDirection Heading { get; internal set; }
-
-    /// <summary>The active stance animation, facing Samus, that becoming active continues at.</summary>
-    internal NinjaSpacePirateSegment ActiveAnimation { get; set; }
 
     /// <summary>
     /// The room column midway between the adjusted posts, which every placement sets inside the room: the Pirate's spin
@@ -37,11 +34,17 @@ public sealed class NinjaSpacePirateEnemyState
     public int RightPostX { get; internal set; }
 
     /// <summary>
-    /// The current signed 1/256-pixel speed in 1/256 pixel per update: the spin jump's horizontal speed, which rises by 32 per
-    /// update until the midpoint and falls back to zero, or the divekick's vertical speed, which starts at 1,536 and
-    /// falls by 64 per update. Its sign is load-bearing: the divekick rise ends on the update the speed turns negative.
+    /// The spin jump's horizontal speed (#2453): none as the spin jump starts, rising by its speed change each update until
+    /// the Pirate crosses the posts' midpoint, then falling back by it to nothing, where the Pirate lands.
     /// </summary>
-    public SignedEightEight Speed { get; internal set; }
+    public SignedEightEight SpinSpeed { get; internal set; }
+
+    /// <summary>
+    /// The divekick's vertical speed (#2453): its start speed as the divekick's jump and its dive begin, falling by its speed
+    /// change each update. The jump rises by it and ends on the update it turns negative; the dive falls by it and ends at
+    /// the floor or when it runs out.
+    /// </summary>
+    public SignedEightEight DiveSpeed { get; internal set; }
 
     /// <summary>
     /// The room position recorded at initialization, once the Pirate stands at its starting post; a divekick landing

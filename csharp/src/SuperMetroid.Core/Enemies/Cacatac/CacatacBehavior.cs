@@ -69,11 +69,9 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
             _ => throw new InvalidOperationException($"Undefined {nameof(CacatacStart)} {settings.Start}."),
         })
         {
-            Speed = settings.Speed,
             PatrolDirection = settings.Direction,
             RightPatrolX = spawnX + settings.TravelDistance,
             LeftPatrolX = spawnX - settings.TravelDistance,
-            Mounting = settings.Mounting,
         };
         place.SetSpeciesState(state);
         SetCacatacAnimation(place, state, upsideUp ? CacatacSegment.UpsideUpIdle : CacatacSegment.UpsideDownIdle);
@@ -103,7 +101,8 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void MoveCacatac(RoomEnemyPlace place, CacatacEnemyState state)
     {
         bool right = state.PatrolDirection == HorizontalDirection.Right;
-        place.Position = place.Position.AdvanceX(right ? state.Speed : -state.Speed);
+        SignedSixteenSixteen speed = place.SpawnSettings<CacatacSpawnSettings>().Speed;
+        place.Position = place.Position.AdvanceX(right ? speed : -speed);
 
         if (!right)
         {
@@ -123,7 +122,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.Action = CacatacAction.Stopped;
-        SetCacatacAnimation(place, state, state.Mounting == CacatacMounting.Floor ? CacatacSegment.UpsideUpAttack : CacatacSegment.UpsideDownAttack);
+        SetCacatacAnimation(place, state, place.SpawnSettings<CacatacSpawnSettings>().Mounting == CacatacMounting.Floor ? CacatacSegment.UpsideUpAttack : CacatacSegment.UpsideDownAttack);
     }
 
     /// <summary>Animation cue: restore patrol the way it last patrolled.</summary>

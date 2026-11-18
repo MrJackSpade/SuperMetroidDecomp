@@ -26,8 +26,6 @@ internal enum ChozoStatueSegment
     WreckedShipActivated,
     /// <summary>The Wrecked Ship statue's finger flex, which its activation repeats.</summary>
     WreckedShipFlexing,
-    /// <summary>The end of the Wrecked Ship statue's flexing: it stops awaiting the hand.</summary>
-    WreckedShipFlexEnd,
     /// <summary>The Wrecked Ship statue's four strides with Samus in its hand (#2061), which its walk repeats.</summary>
     WreckedShipWalkingWithSamus,
     /// <summary>The Wrecked Ship statue's last strides, lowering Samus and letting her go.</summary>

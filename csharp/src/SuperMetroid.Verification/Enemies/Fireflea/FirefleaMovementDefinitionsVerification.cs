@@ -28,9 +28,9 @@ internal static class FirefleaMovementDefinitionsVerification
                 $"imported Fireflea radius {radiusIndex}");
             place.Position = place.Position.WithWhole(new(0x100, 0x100));
             initialize(place);
-            AssertEqual(native, ((enemies.FirefleaStates[0] ?? throw new InvalidOperationException("Verification requires enemies.FirefleaStates[0].")).Flight as CirclingFirefleaState
-                ?? throw new InvalidOperationException("Verification requires a circling Fireflea.")).Radius,
-                $"Fireflea initializer radius {radiusIndex}");
+            // The circling Fireflea reads its radius from its spawn settings where it moves (#2476).
+            AssertTrue((enemies.FirefleaStates[0] ?? throw new InvalidOperationException("Verification requires enemies.FirefleaStates[0].")).Flight is CirclingFirefleaState,
+                $"Fireflea initializer circles at radius {radiusIndex}");
         }
 
         AssertThrows<InvalidDataException>(() => place.SetSpawnParameter2(EnemyDefinitionId.Fireflea, 8 << 8),

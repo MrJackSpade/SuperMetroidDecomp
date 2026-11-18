@@ -41,13 +41,19 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         _audio = audio;
     }
 
-    /// <summary>Carries out the Dragon body's animation cue: the attack marks its animation complete for main AI.</summary>
+    /// <summary>
+    /// Carries out the Dragon body's animation cue: the attack's last cue finishes the attack, which the body's next update
+    /// answers with a fireball (#2476).
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The body is not attacking.</exception>
     private static void ApplyDragonCue(DragonEnemyState body, DragonCue cue)
     {
         switch (cue.Kind)
         {
             case DragonCueKind.FinishAttack:
-                body.AnimationFinished = true;
+                if (body.Action != DragonAction.Attacking)
+                    throw new InvalidOperationException($"A Dragon's attack finished while it was {body.Action}, not attacking.");
+                body.Action = DragonAction.AttackFinished;
                 return;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(DragonCueKind)} {cue.Kind}.");
@@ -74,7 +80,6 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         // A body finds its wing, which its room lists right after it.
         place.SetSpeciesState(new DragonEnemyState(DragonAction.WaitToRise, wing: _places.ListedAfter(place, 1))
         {
-            AnimationFinished = false,
             Playback = new(DragonAnimations.StartingWith(DragonSegment.IdleFacingLeft), AnimationPlace.StartOfAnimation),
         });
     }
@@ -83,7 +88,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     private void PlaceFollowUpRecipient(RoomEnemyPlace place) =>
         _followUpRecipients.Place(place, FollowUpAfterStruckPart.Recipients(distance => _places.ListedAfter(place, distance), reach: 1)[0]);
 
-    /// <summary>Runs the Dragon body's five actions; the body moves its cosmetic wing with it.</summary>
+    /// <summary>Runs the Dragon body's actions; the body moves its cosmetic wing with it.</summary>
     internal void RunDragonMain(RoomEnemyPlace place, DragonEnemyState state, SamusState samus)
     {
         switch (state.Action)
@@ -96,7 +101,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
                 RunDragonRising(place, state);
                 return;
 
-            case DragonAction.Attacking:
+            case DragonAction.Attacking or DragonAction.AttackFinished or DragonAction.RestartingAttack:
                 RunDragonAttacking(place, state);
                 return;
 
@@ -132,7 +137,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         bodyState.Facing = samus.Position.X.Whole < body.Position.X.Whole
             ? HorizontalDirection.Left
             : HorizontalDirection.Right;
-        StartDragonIdle(body, bodyState);
+        StartDragonAnimation(body, bodyState, DragonPhases.Idle(bodyState.Facing));
         StartDragonAnimation(wing, wingState, DragonPhases.Wings(bodyState.Facing));
     }
 
@@ -151,28 +156,46 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         wing.Position = wing.Position.WithWholeY(wing.Position.Y.Whole - 1);
     }
 
-    /// <summary>Attacks, spitting fireballs.</summary>
+    /// <summary>
+    /// Attacks, spitting fireballs: the attack animation plays until its finishing cue; the next update spits a fireball
+    /// while the attack rests on its last pose, and the update after that starts the attack over (#2145, #2476).
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The body is in none of the attack's phases.</exception>
     internal void RunDragonAttacking(RoomEnemyPlace body, DragonEnemyState bodyState)
     {
-        // The attack faces the way the body turned before rising. The update after each fireball, the attack its spit
-        // played out starts over: that restart is what spaces the three fireballs by a whole attack animation (#2145).
+        // The attack faces the way the body turned before rising.
         Animation<DragonSegment> attack = DragonAnimations.StartingWith(DragonPhases.Attacking(bodyState.Facing));
-        bodyState.Playback = bodyState.PlaysAttack && bodyState.Playback.HasShownPhaseEnd && !bodyState.AnimationFinished
-            ? EnemyAnimationPlayback.Start(body, attack)
-            : EnemyAnimationPlayback.StartUnlessPlaying(body, bodyState.Playback, attack);
-        bodyState.PlaysAttack = true;
-        if (!bodyState.AnimationFinished)
-            return;
+        switch (bodyState.Action)
+        {
+            case DragonAction.Attacking:
+                bodyState.Playback = EnemyAnimationPlayback.StartUnlessPlaying(body, bodyState.Playback, attack);
+                return;
 
-        bodyState.AnimationFinished = false;
-        SpawnDragonFireball(body, bodyState);
-        // Each fireball queues one sound; two Dragons attacking in one frame queue two.
-        _audio.QueueEnemySound(EnemySoundEffectDefinitions.DragonFireballSound, priority: SoundRequestPriority.Normal);
-        if (--bodyState.AttackCounter != 0)
-            return;
+            case DragonAction.RestartingAttack:
+                bodyState.Playback = EnemyAnimationPlayback.Start(body, attack);
+                bodyState.Action = DragonAction.Attacking;
+                return;
 
-        bodyState.ActionTimer = DragonTimingDefinitions.WaitBeforeSink;
-        bodyState.Action = DragonAction.WaitToSink;
+            case DragonAction.AttackFinished:
+                SpawnDragonFireball(body, bodyState);
+                // Each fireball queues one sound; two Dragons attacking in one frame queue two.
+                _audio.QueueEnemySound(EnemySoundEffectDefinitions.DragonFireballSound, priority: SoundRequestPriority.Normal);
+                if (--bodyState.AttackCounter != 0)
+                {
+                    bodyState.Action = DragonAction.RestartingAttack;
+                    return;
+                }
+
+                bodyState.ActionTimer = DragonTimingDefinitions.WaitBeforeSink;
+                bodyState.Action = DragonAction.WaitToSink;
+                return;
+
+            case DragonAction.WaitToRise or DragonAction.Rising or DragonAction.WaitToSink or DragonAction.Sinking:
+                throw new InvalidOperationException($"A Dragon {bodyState.Action} is not attacking.");
+
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(DragonAction)} {bodyState.Action}.");
+        }
     }
 
     /// <summary>Waits before sinking, the attack resting on its last pose; the sink starts the idle pose.</summary>
@@ -185,7 +208,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         bodyState.ActionTimer = DragonTimingDefinitions.RiseOrSinkDuration;
         bodyState.Action = DragonAction.Sinking;
-        StartDragonIdle(body, bodyState);
+        StartDragonAnimation(body, bodyState, DragonPhases.Idle(bodyState.Facing));
     }
 
     /// <summary>Sinks back into the lava.</summary>
@@ -204,8 +227,8 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Runs after a touch, shot or power bomb. A dead body deletes its wing; a surviving body shows its hurt flash and
-    /// freeze on that wing too, which only shows.
+    /// Runs after a touch, shot or power bomb. A dead part deletes the enemy placed after it; a surviving part gives that
+    /// enemy its shake, invincibility, hurt flash, freeze and AI states.
     /// </summary>
     private void ResolveDragonCombatAfterCommon(RoomEnemyPlace actor)
     {
@@ -218,18 +241,16 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
+        // The wing keeps copies of its body's timers and states rather than reading the body's, as the Ki-Hunter's wings
+        // do (#2375, #2476): the copies are observable. A power bomb hits the wing on its own, and a copied invincibility
+        // never counts down on a wing that ignores Samus, so it keeps every later power bomb off the wing and its
+        // follow-up off the enemy placed after it. Each part also counts its copied freeze and flash down on its own
+        // turn, and the wing's own power-bomb hit sets them on the wing alone.
         following.ShakeTimer = actor.ShakeTimer;
         following.InvincibilityTimer = actor.InvincibilityTimer;
         following.FlashTimer = actor.FlashTimer;
         following.FrozenTimer = actor.FrozenTimer;
         following.AiStates = actor.AiStates;
-    }
-
-    /// <summary>Starts the body's idle pose for the side it faces unless it already plays it; the body no longer attacks (#2168).</summary>
-    private static void StartDragonIdle(RoomEnemyPlace body, DragonEnemyState bodyState)
-    {
-        StartDragonAnimation(body, bodyState, DragonPhases.Idle(bodyState.Facing));
-        bodyState.PlaysAttack = false;
     }
 
     /// <summary>Starts <paramref name="segment"/>'s animation unless the part already plays it, restarting its frame timer.</summary>

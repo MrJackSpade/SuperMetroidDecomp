@@ -22,7 +22,7 @@ internal static class SkulteraAnimationsVerification
                     AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
                     AssertEqual(0, operands.Length, $"{at}: operands");
                 },
-                Omitted: OmittedInstructions.Contains));
+                Omitted: (word, _) => OmittedInstructions.Contains(word)));
         Console.WriteLine($"  Skultera animations: {Entries.Length} segments ({beats} beats) and {SkulteraAnimations.StartingAt.Count} animations match bank $A3.");
     }
 }

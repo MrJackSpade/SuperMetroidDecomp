@@ -59,31 +59,18 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
         return null;
     }
 
-    /// <summary>Takes the facing, cooldown and launch speed from the Fune's spawn settings, then starts its idle animation.</summary>
+    /// <summary>Starts the Fune waiting on its cooldown and its idle animation, facing as its spawn settings say.</summary>
     internal static void InitializeFune(RoomEnemyPlace place)
     {
-        FuneSpawnSettings settings = place.SpawnSettings<FuneSpawnSettings>();
-        var state = new FuneEnemyState(FuneAction.WaitForCooldown)
-        {
-            CooldownTime = settings.CooldownTime,
-            CooldownTimer = 0,
-            Facing = settings.Facing,
-            LaunchSpeed = settings.LaunchSpeed,
-        };
+        var state = new FuneEnemyState(FuneAction.WaitForCooldown) { CooldownTimer = 0 };
         place.SetSpeciesState(state);
         StartFuneNamiheAnimation(place, state);
     }
 
-    /// <summary>Takes the facing, wake distance and launch speed from the Namihe's spawn settings, then starts its idle animation.</summary>
+    /// <summary>Starts the Namihe waiting for Samus and its idle animation, facing as its spawn settings say.</summary>
     internal static void InitializeNamihe(RoomEnemyPlace place)
     {
-        NamiheSpawnSettings settings = place.SpawnSettings<NamiheSpawnSettings>();
-        var state = new NamiheEnemyState(NamiheAction.WaitForSamus)
-        {
-            YProximity = settings.YProximity,
-            Facing = settings.Facing,
-            LaunchSpeed = settings.LaunchSpeed,
-        };
+        var state = new NamiheEnemyState(NamiheAction.WaitForSamus);
         place.SetSpeciesState(state);
         StartFuneNamiheAnimation(place, state);
     }
@@ -96,7 +83,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
             case FuneAction.WaitForCooldown:
                 // The count steps before the comparison; a cooldown of nothing spits on the first waiting update.
                 state.CooldownTimer++;
-                if (state.CooldownTimer < state.CooldownTime)
+                if (state.CooldownTimer < place.SpawnSettings<FuneSpawnSettings>().CooldownTime)
                     return;
 
                 state.Action = FuneAction.Spitting;
@@ -121,7 +108,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             case NamiheAction.WaitForSamus:
                 // Samus exactly at the proximity distance does not wake the Namihe.
-                if (Math.Abs(samus.Position.Y.Whole - place.Position.Y.Whole) >= state.YProximity)
+                if (Math.Abs(samus.Position.Y.Whole - place.Position.Y.Whole) >= place.SpawnSettings<NamiheSpawnSettings>().YProximity)
                 {
                     return;
                 }
@@ -148,11 +135,12 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyPlace place,
         FuneNamiheEnemyState state)
     {
-        state.Playback = EnemyAnimationPlayback.Start(place, FuneNamiheAnimations.StartingWith(SelectFuneNamiheAnimation(state)));
+        state.Playback = EnemyAnimationPlayback.Start(place, FuneNamiheAnimations.StartingWith(SelectFuneNamiheAnimation(place, state)));
     }
 
-    /// <summary>The animation for <paramref name="state"/>'s species, activity and facing.</summary>
-    internal static FuneNamiheSegment SelectFuneNamiheAnimation(FuneNamiheEnemyState state) => Ensure.NotNull(state).Animation;
+    /// <summary>The animation for <paramref name="state"/>'s species and activity, facing as <paramref name="place"/>'s spawn settings say.</summary>
+    internal static FuneNamiheSegment SelectFuneNamiheAnimation(RoomEnemyPlace place, FuneNamiheEnemyState state) =>
+        Ensure.NotNull(state).Animation(Ensure.NotNull(place).SpawnSettings<FuneNamiheSpawnSettings>().Facing);
 
     /// <summary>Publishes the shared enemy-library spit cue for the outer enemy audio queue.</summary>
     private void QueueFuneNamiheSpitSound() =>
@@ -171,8 +159,8 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
                 : null);
 
     /// <summary>
-    /// Runs the shared projectile setup. The fireball flies at the spitter's launch speed in its direction, from its
-    /// mouth (<see cref="FuneNamiheEnemyState.MouthDrop"/>).
+    /// Runs the shared projectile setup. The fireball flies at the spitter's spawn settings' launch speed in its direction,
+    /// from its mouth (<see cref="FuneNamiheEnemyState.MouthDrop"/>).
     /// </summary>
     internal void SpawnFuneNamiheFireball(
         RoomEnemyPlace source,
@@ -197,8 +185,9 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.MouthDrop != 0)
             projectile.Position = projectile.Position.WithWholeY(projectile.Position.Y.Whole + state.MouthDrop);
 
+        SignedEightEight launchSpeed = source.SpawnSettings<FuneNamiheSpawnSettings>().LaunchSpeed;
         projectile.Velocity = new(
-            direction == HorizontalDirection.Right ? state.LaunchSpeed : state.LaunchSpeed.Negated(),
+            direction == HorizontalDirection.Right ? launchSpeed : launchSpeed.Negated(),
             SignedEightEight.Zero);
     }
 

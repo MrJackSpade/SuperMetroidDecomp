@@ -18,7 +18,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void InitializeChoot(RoomEnemyPlace place)
     {
         ChootFallingPath fallingPath = place.SpawnSettings<ChootSpawnSettings>().FallingPath;
-        var state = new ChootEnemyState(ChootAction.WaitingForSamus, fallingPath);
+        var state = new ChootEnemyState(ChootAction.WaitingForSamus);
         place.SetSpeciesState(state);
 
         SetChootAnimation(place, state, ChootSegment.Idle);
@@ -108,7 +108,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Follows authored path offsets, advancing its origin at each loop's end and restoring the exact spawn state after the final loop.</summary>
     internal static void RunChootFall(RoomEnemyPlace place, ChootEnemyState state)
     {
-        Offset16<RoomPixels>? offset = ChootFalls.At(state.FallingPath, state.FallingPatternFrame);
+        Offset16<RoomPixels>? offset = ChootFalls.At(place.SpawnSettings<ChootSpawnSettings>().FallingPath, state.FallingPatternFrame);
         if (offset is not { } pathOffset)
         {
             state.FallingOrigin = state.FallingOrigin.WithY(state.FallingOrigin.Y + state.FallingPatternYDistance);

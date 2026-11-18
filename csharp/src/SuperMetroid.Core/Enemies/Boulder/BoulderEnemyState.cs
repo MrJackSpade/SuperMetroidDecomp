@@ -54,20 +54,6 @@ public sealed class BoulderEnemyState
         internal set => field = Ensure.BetweenInclusive(0, BoulderBounces.ImpactCount, value);
     }
 
-    /// <summary>How the boulder rolls, as its population entry names it.</summary>
-    public BoulderRoll Roll { get; internal set; }
-
-    /// <summary>
-    /// How far toward its roll, in pixels, Samus may stand from the boulder to start it, from its authored trigger reach
-    /// (#2432): up to this far to the left of a boulder that rolls left, and nearer than this to the right of one that
-    /// rolls right.
-    /// </summary>
-    public int TriggerReach { get; internal set => field = Ensure.AtLeastZero(value); }
-
-    /// <summary>
-    /// How far below the boulder, in pixels, Samus must stand nearer than to start it, from its authored trigger height.
-    /// </summary>
-    public int TriggerHeight { get; internal set => field = Ensure.AtLeastZero(value); }
     /// <summary>Extra downward collision reach during rolling, in pixels, subtracted from the Y position afterward. Initially two pixels, then zero once the full Y position stops changing.</summary>
     public int VerticalCompensation { get; internal set; }
     /// <summary>Saved Y position with its subpixel, compared with the current Y to detect stationary rolling; captured at initialization and on the final bounce, then refreshed after each rolling update.</summary>
@@ -77,6 +63,4 @@ public sealed class BoulderEnemyState
     /// rebounding (#2432).
     /// </summary>
     public int RestingY { get; internal set; }
-    /// <summary>True when it rolls at once: it hangs a pixel above its resting place and activation bypasses the falling and bounce sequence.</summary>
-    public bool StartsRollingWithoutBounce { get; internal set; }
 }

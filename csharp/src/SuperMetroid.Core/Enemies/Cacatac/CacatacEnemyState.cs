@@ -2,7 +2,8 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Cacatac;
 
 /// <summary>
-/// The state of a Cacatac: its patrol speed, direction and action, plus its two patrol bounds.
+/// The state of a Cacatac: its patrol direction and action, plus its two patrol bounds. It walks at its spawn settings'
+/// speed and hangs or stands as they mount it, which it reads where it uses them (#2476).
 /// </summary>
 public sealed class CacatacEnemyState
 {
@@ -11,12 +12,6 @@ public sealed class CacatacEnemyState
 
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<CacatacSegment> Playback { get; set; }
-
-    /// <summary>
-    /// The distance it patrols each update, in pixels: added to X while it walks right and subtracted while it walks
-    /// left.
-    /// </summary>
-    public SignedSixteenSixteen Speed { get; internal set; }
 
     /// <summary>
     /// The way it patrols (#2277). A Cacatac placed to stop at first patrols right once its first idle step starts it, the
@@ -37,7 +32,4 @@ public sealed class CacatacEnemyState
     /// Right patrol limit's room X. Rightward patrol turns left once the whole X position reaches or passes it.
     /// </summary>
     public int RightPatrolX { get; internal set; }
-
-    /// <summary>Whether it hangs from a ceiling or stands on a floor, as its spawn settings name it (#2369).</summary>
-    internal CacatacMounting Mounting { get; set; }
 }

@@ -7,15 +7,28 @@ public sealed class ChozoStatueState
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<ChozoStatueSegment> Playback { get; set; }
 
-    /// <summary>
-    /// Whether the statue awaits Samus at its hand: from its idle animation's start until its activation starts. Lower
-    /// Norfair's wakes once Samus triggers the hand, the Wrecked Ship's once Phantoon is also defeated.
-    /// </summary>
-    public bool AwaitingHand { get; internal set; }
+    /// <summary>Where the statue stands in its wait for Samus at its hand and its activation (#2476).</summary>
+    public ChozoStatuePhase Phase { get; internal set; }
 
-    /// <summary>Which of the two statues this is (#2369), as its placement names it.</summary>
-    public ChozoStatueSite Site { get; internal set; }
+    /// <summary>Samus has triggered the statue's hand: a waiting statue's next update starts its activation.</summary>
+    /// <exception cref="InvalidOperationException">The phase is undefined.</exception>
+    internal void TriggerHand() => Phase = Phase switch
+    {
+        ChozoStatuePhase.Placed => ChozoStatuePhase.HandTriggeredBeforeWaiting,
+        ChozoStatuePhase.AwaitingHand => ChozoStatuePhase.HandTriggered,
+        // A statue the hand has already woken keeps on with its wake.
+        ChozoStatuePhase.HandTriggeredBeforeWaiting or ChozoStatuePhase.HandTriggered or ChozoStatuePhase.Activated => Phase,
+        _ => throw new InvalidOperationException($"Undefined {nameof(ChozoStatuePhase)} {Phase}."),
+    };
 
-    /// <summary>Whether Samus has triggered the statue's hand, which its waiting phase wakes on.</summary>
-    public bool HandTriggered { get; internal set; }
+    /// <summary>The statue's idle animation starts its wait for Samus at its hand, or its wake if she is already there.</summary>
+    /// <exception cref="InvalidOperationException">The statue has already waited, or the phase is undefined.</exception>
+    internal void AwaitHand() => Phase = Phase switch
+    {
+        ChozoStatuePhase.Placed => ChozoStatuePhase.AwaitingHand,
+        ChozoStatuePhase.HandTriggeredBeforeWaiting => ChozoStatuePhase.HandTriggered,
+        ChozoStatuePhase.AwaitingHand or ChozoStatuePhase.HandTriggered or ChozoStatuePhase.Activated =>
+            throw new InvalidOperationException($"A Chozo statue {Phase} started its wait for Samus again."),
+        _ => throw new InvalidOperationException($"Undefined {nameof(ChozoStatuePhase)} {Phase}."),
+    };
 }

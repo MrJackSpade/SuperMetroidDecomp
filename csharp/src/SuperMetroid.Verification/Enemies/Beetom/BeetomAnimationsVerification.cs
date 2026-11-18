@@ -22,7 +22,7 @@ internal static class BeetomAnimationsVerification
                     AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
                     AssertEqual(0, operands.Length, $"{at}: operands");
                 },
-                Omitted: OmittedInstructions.Contains),
+                Omitted: (word, _) => OmittedInstructions.Contains(word)),
             onlyRunOnInto: new HashSet<BeetomSegment>
             {
                 BeetomSegment.CrawlingLeftStride, BeetomSegment.DrainingLeftRed, BeetomSegment.CrawlingRightStride, BeetomSegment.DrainingRightRed,

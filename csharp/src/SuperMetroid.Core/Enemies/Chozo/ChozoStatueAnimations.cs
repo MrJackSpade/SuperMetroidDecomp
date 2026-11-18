@@ -22,7 +22,6 @@ internal static class ChozoStatueAnimations
         ],
         [P.LowerNorfairActivated] =
         [
-            Cue(new ChozoStatueCue.Signal(K.StopAwaitingHand)),
             Cue(new ChozoStatueCue.Move(new(HorizontalDirection.Right, ChozoCarryPose.Reaching))),
             Show(EnemyFrameId.ChozoStatueLowerNorfairHandsCupped, 32),
             Cue(new ChozoStatueCue.Move(new(HorizontalDirection.Right, ChozoCarryPose.Closing))),
@@ -49,7 +48,6 @@ internal static class ChozoStatueAnimations
         ],
         [P.LowerNorfairRelease] =
         [
-            Cue(new ChozoStatueCue.Signal(K.StopAwaitingHand)),
             Cue(new ChozoStatueCue.Move(new(HorizontalDirection.Right, ChozoCarryPose.Holding))),
             Show(EnemyFrameId.ChozoStatueLowerNorfairHandOpen, 128),
             Cue(new ChozoStatueCue.Move(new(HorizontalDirection.Right, ChozoCarryPose.Gripping))),
@@ -68,7 +66,6 @@ internal static class ChozoStatueAnimations
         ],
         [P.WreckedShipActivated] =
         [
-            Cue(new ChozoStatueCue.Signal(K.StopAwaitingHand)),
             Cue(new ChozoStatueCue.Move(new(HorizontalDirection.Left, ChozoCarryPose.Reaching))),
             Show(EnemyFrameId.ChozoStatueWreckedShipHandsCupped, 32),
             Cue(new ChozoStatueCue.Move(new(HorizontalDirection.Left, ChozoCarryPose.Closing))),
@@ -91,10 +88,6 @@ internal static class ChozoStatueAnimations
             Show(EnemyFrameId.ChozoStatueWreckedShipFingersClenched, 8),
             Show(EnemyFrameId.ChozoStatueWreckedShipFingersCurled, 6),
             Show(EnemyFrameId.ChozoStatueWreckedShipFingersCurling, 8),
-        ],
-        [P.WreckedShipFlexEnd] =
-        [
-            Cue(new ChozoStatueCue.Signal(K.StopAwaitingHand)),
         ],
         [P.WreckedShipWalkingWithSamus] =
         [
@@ -139,7 +132,6 @@ internal static class ChozoStatueAnimations
             Cue(new ChozoStatueCue.Move(new(HorizontalDirection.Left, ChozoCarryPose.StrideSwing))),
             Cue(new ChozoStatueCue.Footstep(OffsetX: 0)),
             Show(EnemyFrameId.ChozoStatueWreckedShipWalkingNearLegPlanted, 6),
-            Cue(new ChozoStatueCue.Signal(K.StopAwaitingHand)),
             Cue(new ChozoStatueCue.Move(new(HorizontalDirection.Left, ChozoCarryPose.Holding))),
             Show(EnemyFrameId.ChozoStatueWreckedShipHandOpen, 128),
             Cue(new ChozoStatueCue.Move(new(HorizontalDirection.Left, ChozoCarryPose.Gripping))),
@@ -174,7 +166,7 @@ internal static class ChozoStatueAnimations
             AnimationEnd.Holds),
         [P.WreckedShipInitial] = new([Segments.Whole(P.WreckedShipInitial)], AnimationEnd.Holds),
         [P.WreckedShipActivated] = new(
-            [Segments.Whole(P.WreckedShipActivated), Segments.Repeated(P.WreckedShipFlexing, WreckedShipFlexes), Segments.Whole(P.WreckedShipFlexEnd),
+            [Segments.Whole(P.WreckedShipActivated), Segments.Repeated(P.WreckedShipFlexing, WreckedShipFlexes),
                 Segments.Repeated(P.WreckedShipWalkingWithSamus, WreckedShipStrideRuns), Segments.Whole(P.WreckedShipSettingSamusDown)],
             AnimationEnd.Holds),
     };

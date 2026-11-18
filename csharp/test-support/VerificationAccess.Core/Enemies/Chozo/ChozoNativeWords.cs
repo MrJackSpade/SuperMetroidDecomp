@@ -15,19 +15,26 @@ internal static class ChozoNativeWords
     /// <summary>The routine word of the wait for Samus at its hand of the Wrecked Ship statue, or of Lower Norfair's.</summary>
     internal static ushort HandWaitWord(bool wreckedShip) => wreckedShip ? WreckedShipHandWaitWord : LowerNorfairHandWaitWord;
 
-    /// <summary>
-    /// The routine words of the statue's frame routines that return at once (#1803): the initializer's, the cleared one
-    /// and the one installed while the Wrecked Ship statue walks. A statue running one waits for nothing.
-    /// </summary>
-    internal static readonly HashSet<ushort> NoFrameBehaviorWords = [0x807b, 0xe7a6, 0xe7da];
+    /// <summary>The routine word of the frame routine the statue's initializer installs, which returns at once (#1803).</summary>
+    internal const ushort InitializerFrameRoutineWord = 0xe7a6;
 
-    /// <summary>Whether a recorded routine word of the statue's site has it awaiting Samus at its hand.</summary>
-    /// <exception cref="InvalidDataException">The word is neither the site's wait nor a routine that returns at once.</exception>
-    internal static bool AwaitingHandAt(ushort word, bool wreckedShip) =>
-        word == HandWaitWord(wreckedShip) ||
-        (word == 0 || NoFrameBehaviorWords.Contains(word)
-            ? false
-            : throw new InvalidDataException($"Recorded Chozo statue routine ${word:X4} is not one its site runs."));
+    /// <summary>
+    /// The routine words of the frame routines that return at once which the statue's activation installs (#1803, #2476): the
+    /// cleared one and the one installed while the Wrecked Ship statue walks. A statue running one has started its
+    /// activation, whose phase says it from the update that starts it, so the oracle reads their installs as nothing.
+    /// </summary>
+    internal static readonly HashSet<ushort> ActivatedFrameRoutineWords = [0x807b, 0xe7da];
+
+    /// <summary>
+    /// The phase a recorded routine word of the statue's site names: the site's wait, nothing yet or the initializer's
+    /// routine before the idle animation's first beat installs the wait, or a routine the activation installs.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The word is none of the routines the statue's site runs.</exception>
+    internal static ChozoStatuePhase PhaseAt(ushort word, bool wreckedShip) =>
+        word == HandWaitWord(wreckedShip) ? ChozoStatuePhase.AwaitingHand
+        : word is 0 or InitializerFrameRoutineWord ? ChozoStatuePhase.Placed
+        : ActivatedFrameRoutineWords.Contains(word) ? ChozoStatuePhase.Activated
+        : throw new InvalidDataException($"Recorded Chozo statue routine ${word:X4} is not one its site runs.");
 
     /// <summary>The cartridge's carry-motion records per facing: sixteen facing left, then their sixteen mirrors facing right.</summary>
     internal const int CarryRecordsPerFacing = 16;

@@ -29,7 +29,7 @@ internal static class BullMovementDefinitionsVerification
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa8d895 + interval * 4)), intervals.Acceleration, "Bull compiled acceleration");
             AssertEqual(intervals.Acceleration, state.AccelerationIntervalTimer, "Bull live timer initialization");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa8d897 + interval * 4)), intervals.Deceleration, "Bull compiled deceleration");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa8d885 + speed * 2)), state.MaxSpeed.InTwoHundredFiftySixthsOfPixel, "Bull compiled speed");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa8d885 + speed * 2)), place.SpawnSettings<BullSpawnSettings>().MaximumSpeed.InTwoHundredFiftySixthsOfPixel, "Bull compiled speed");
             AssertEqual(BullAction.MovementDelay, state.Action, "Bull initial function");
             AssertEqual(16, state.ActivationTimer, "Bull native activation delay");
             AssertEqual(1, place.AnimationClock.Hold.RawValue, "Bull instruction timer");

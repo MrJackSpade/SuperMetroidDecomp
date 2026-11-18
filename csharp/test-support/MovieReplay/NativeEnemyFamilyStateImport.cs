@@ -446,7 +446,7 @@ internal static class NativeEnemyFamilyStateImport
             enemies.ZebetiteBehavior.SharedPulse = ListStep<ZebetitePulse>.At(ZebetitePulse.All, words.C);
         if (enemy.SpeciesState<ChozoStatueState>() is { } chozoStatueRecord)
         {
-            chozoStatueRecord.AwaitingHand = ChozoNativeWords.AwaitingHandAt(words.F, chozoStatueRecord.Site == ChozoStatueSite.WreckedShip);
+            chozoStatueRecord.Phase = ChozoNativeWords.PhaseAt(words.F, enemy.SpawnSettings<ChozoStatueSpawnSettings>().Site == ChozoStatueSite.WreckedShip);
         }
         if (enemy.SpeciesState<YardEnemyState>() is { } yardRecord)
         {
@@ -510,9 +510,13 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (enemy.SpeciesState<BoyonEnemyState>() is { } boyonRecord)
         {
-            boyonRecord.SpeedMultiplier = words.A;
+            // The Boyon scales its curve and bounces as its placement says (#2476), which the recording's copies must be.
+            BoyonSpawnSettings boyonSettings = enemy.SpawnSettings<BoyonSpawnSettings>();
+            if (words.A != boyonSettings.SpeedMultiplier)
+                throw new InvalidDataException($"Recorded Boyon multiplier {words.A} is not its placement's {boyonSettings.SpeedMultiplier}.");
             boyonRecord.Speed = UnsignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(words.B);
-            boyonRecord.JumpHeight = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(words.C);
+            if (SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(words.C) != SignedSixteenSixteen.FromWholePixels(boyonSettings.JumpHeight))
+                throw new InvalidDataException($"Recorded Boyon height ${words.C:X4} is not its placement's {boyonSettings.JumpHeight} pixels.");
             // The arc's distance is only the first update's working sum (#2432): a Boyon still to derive its arc has summed
             // nothing, and one that has derived it no longer reads it.
             if (boyonRecord.Phase == BoyonPhase.DerivingArc && words.D != 0)
@@ -541,8 +545,12 @@ internal static class NativeEnemyFamilyStateImport
         // A bobbing Fireflea keeps none of these words.
         if (enemy.SpeciesState<FirefleaEnemyState>() is { Flight: CirclingFirefleaState firefleaRecord })
         {
-            firefleaRecord.AngularSpeed = SuperMetroid.AssetExtraction.Enemies.EnemySpawnSelectors.FirefleaTurnPerUpdate(SignedSixteenSixteen.FromParts(unchecked((short)words.B), words.A));
-            firefleaRecord.Radius = words.C;
+            // The Fireflea circles as its placement chose (#2476), which the recording's turn and radius must be.
+            AngularSpeed firefleaTurn = SuperMetroid.AssetExtraction.Enemies.EnemySpawnSelectors.FirefleaTurnPerUpdate(SignedSixteenSixteen.FromParts(unchecked((short)words.B), words.A));
+            if (firefleaTurn != firefleaRecord.Definition.TurnPerUpdate)
+                throw new InvalidDataException($"Recorded Fireflea turn {firefleaTurn} is not its placement's {firefleaRecord.Definition.TurnPerUpdate}.");
+            if (words.C != enemy.SpawnSettings<FirefleaSpawnSettings>().Radius)
+                throw new InvalidDataException($"Recorded Fireflea radius {words.C} is not its placement's {enemy.SpawnSettings<FirefleaSpawnSettings>().Radius}.");
             firefleaRecord.Angle = RotationAngleConstants.FromRaw(words.D);
             firefleaRecord.Center = new(words.E, words.F);
         }
@@ -562,8 +570,10 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (enemy.SpeciesState<CacatacEnemyState>() is { } cacatacRecord)
         {
-            // The record holds the speed and its negation for walking left; the speed alone is the state.
-            cacatacRecord.Speed = cacatacRecord.Speed.WithWholePixels(unchecked((short)words.A));
+            // The record holds the speed's whole pixels and their negation for walking left; the Cacatac walks at its
+            // placement's speed (#2476), whose whole pixels the recording's must be.
+            if (unchecked((short)words.A) != enemy.SpawnSettings<CacatacSpawnSettings>().Speed.WholePixels)
+                throw new InvalidDataException($"Recorded Cacatac speed {unchecked((short)words.A)} is not its placement's {enemy.SpawnSettings<CacatacSpawnSettings>().Speed}.");
             // Every recorded direction but left patrols right, as the game's restore-patrol cue reads it (#2277).
             HorizontalDirection cacatacPatrol = CacatacNativeWords.Directions.Decode(words.D, "recorded Cacatac direction").Direction;
             (CacatacAction cacatacAction, HorizontalDirection? cacatacPatrolling) = CacatacNativeWords.CacatacActions.Decode(words.E, "recorded CacatacAction");
@@ -657,13 +667,16 @@ internal static class NativeEnemyFamilyStateImport
             boulderRecord.BounceSpeedAccumulator = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(words.C);
             // The record counts the bounces left, two before the first impact and minus one once rolling.
             boulderRecord.ImpactsSoFar = BoulderBounces.ImpactCount - 1 - unchecked((short)words.D);
-            boulderRecord.Roll = words.E switch
+            // The Boulder rolls as its placement names (#2476), which the recording's roll must be.
+            BoulderRoll boulderRoll = words.E switch
             {
                 0 => BoulderRoll.Right,
                 1 => BoulderRoll.Left,
                 2 => BoulderRoll.LeftBreakingOnImpact,
                 _ => throw new InvalidDataException($"Recorded Boulder roll {words.E} is not a roll."),
             };
+            if (boulderRoll != enemy.SpawnSettings<BoulderSpawnSettings>().Roll)
+                throw new InvalidDataException($"Recorded Boulder roll {boulderRoll} is not its placement's {enemy.SpawnSettings<BoulderSpawnSettings>().Roll}.");
         }
         if (enemy.SpeciesState<RinkaEnemyState>() is { } rinkaRecord)
         {
@@ -681,10 +694,12 @@ internal static class NativeEnemyFamilyStateImport
         {
             etecoonRecord.Velocity = FixedVector<RoomPixels>.FromStoredParts(words.C, words.D, words.A, words.B);
             etecoonRecord.Action = AnimalsNativeWords.EtecoonActions.Decode(words.F, "recorded EtecoonAction");
-            // A dormant Etecoon's record holds its countdown below zero while it waits for Samus; the port's dormant
-            // Etecoon waits without one, and every other record's countdown is the wait it has left.
-            etecoonRecord.AwaitingSamus = etecoonRecord.Action == EtecoonAction.WaitingForSamus && unchecked((short)words.E) < 0;
-            if (!etecoonRecord.AwaitingSamus)
+            // A dormant Etecoon's record holds its countdown below zero while it waits for Samus; the same routine flexes
+            // once the countdown holds the flex's (#2476). The port's dormant Etecoon waits without one, and every other
+            // record's countdown is the wait it has left.
+            if (etecoonRecord.Action == EtecoonAction.Dormant && unchecked((short)words.E) >= 0)
+                etecoonRecord.Action = EtecoonAction.Flexing;
+            if (etecoonRecord.Action != EtecoonAction.Dormant)
                 etecoonRecord.ActionTimer = words.E;
         }
         if (enemy.SpeciesState<MochtroidEnemyState>() is { } mochtroidRecord)
@@ -768,7 +783,10 @@ internal static class NativeEnemyFamilyStateImport
                 ? words.C >> 8
                 : throw new InvalidDataException($"Recorded Choot falling cursor ${words.C:X4} is not a whole frame.");
             choot.FallingPatternLoopCounter = TrueDuration(words.D);
-            PrivateState.Set(choot, nameof(ChootEnemyState.FallingPath), ChootNativeWords.ChootFallingPaths.Decode(words.E, "recorded Choot falling pattern"));
+            // The Choot falls along its placement's path (#2476), which the recording's must be.
+            ChootFallingPath chootPath = ChootNativeWords.ChootFallingPaths.Decode(words.E, "recorded Choot falling pattern");
+            if (chootPath != enemy.SpawnSettings<ChootSpawnSettings>().FallingPath)
+                throw new InvalidDataException($"Recorded Choot falling path {chootPath} is not its placement's {enemy.SpawnSettings<ChootSpawnSettings>().FallingPath}.");
             choot.FallingPatternYDistance = words.F;
         }
         if (enemies.SkulteraStates[index] is { } skultera)
@@ -821,7 +839,14 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (enemy.DefinitionId == EnemyDefinitionId.FaceBlock && enemy.SpeciesState<BlueBrinstarFaceBlockEnemyState>() is { } faceBlock)
         {
-            faceBlock.Activated = words.A != 0;
+            // The game keeps a woken face as a flag beside the turn its wake installed; the port's face is awake while it
+            // plays that turn (#2476). The recording's place in the turn is not imported: a woken face holds its turn's end.
+            if (words.A != 0)
+            {
+                Animation<BlueBrinstarFaceBlockSegment> turn = BlueBrinstarFaceBlockAnimations.StartingWith(
+                    BlueBrinstarFaceBlockBehavior.Wake(enemy.SpawnSettings<FaceBlockSpawnSettings>().Facing));
+                faceBlock.Playback = new(turn, AnimationPlace.HoldingIn(0, turn.Phases[0].BeatCount));
+            }
         }
         if (enemy.DefinitionId == EnemyDefinitionId.NuclearWaffle && enemy.SpeciesState<NuclearWaffleEnemyState>() is { } waffle)
         {
@@ -980,19 +1005,25 @@ internal static class NativeEnemyFamilyStateImport
             if (Index(words.D, 15, "Fune/Namihe behaviour") != 0)
                 throw new InvalidDataException($"Recorded Fune/Namihe behaviour ${words.D:X4} names a Namihe.");
             fune.CooldownTimer = words.E;
-            fune.CooldownTime = Index(words.F, byte.MaxValue, "Fune cooldown time");
+            // The Fune waits its placement's cooldown (#2476), which the recording's must be.
+            if (Index(words.F, byte.MaxValue, "Fune cooldown time") != enemy.SpawnSettings<FuneSpawnSettings>().CooldownTime)
+                throw new InvalidDataException($"Recorded Fune cooldown {words.F} is not its placement's {enemy.SpawnSettings<FuneSpawnSettings>().CooldownTime}.");
             (bool namihe, bool active, bool right) = FuneNamiheSelectorOracle.Decode(words.A);
             if (namihe)
                 throw new InvalidDataException($"Recorded Fune/Namihe selector ${words.A:X4} names a Namihe.");
             // The selector's activity is the spit the recorded action names (#2432).
             if (active != fune.IsSpitting)
                 throw new InvalidDataException($"Recorded Fune selector ${words.A:X4} disagrees with its recorded action {fune.Action}.");
-            fune.Facing = right ? HorizontalDirection.Right : HorizontalDirection.Left;
+            // The Fune faces as its placement says (#2476), which the recording's selector must.
+            if ((right ? HorizontalDirection.Right : HorizontalDirection.Left) != enemy.SpawnSettings<FuneSpawnSettings>().Facing)
+                throw new InvalidDataException($"Recorded Fune selector ${words.A:X4} does not face its placement's {enemy.SpawnSettings<FuneSpawnSettings>().Facing}.");
         }
         if (enemies.NamiheStates[index] is { } namiheState)
         {
             namiheState.Action = FuneNamiheNativeWords.NamiheActions.Decode(words.B, "recorded NamiheAction");
-            namiheState.YProximity = Index(words.C, byte.MaxValue, "Namihe wake distance");
+            // The Namihe wakes at its placement's distance (#2476), which the recording's must be.
+            if (Index(words.C, byte.MaxValue, "Namihe wake distance") != enemy.SpawnSettings<NamiheSpawnSettings>().YProximity)
+                throw new InvalidDataException($"Recorded Namihe wake distance {words.C} is not its placement's {enemy.SpawnSettings<NamiheSpawnSettings>().YProximity}.");
             if (Index(words.D, 15, "Fune/Namihe behaviour") == 0)
                 throw new InvalidDataException($"Recorded Fune/Namihe behaviour ${words.D:X4} names a Fune.");
             (bool namihe, bool active, bool right) = FuneNamiheSelectorOracle.Decode(words.A);
@@ -1001,7 +1032,9 @@ internal static class NativeEnemyFamilyStateImport
             // The selector's activity is the spit the recorded action names (#2432).
             if (active != namiheState.IsSpitting)
                 throw new InvalidDataException($"Recorded Namihe selector ${words.A:X4} disagrees with its recorded action {namiheState.Action}.");
-            namiheState.Facing = right ? HorizontalDirection.Right : HorizontalDirection.Left;
+            // The Namihe faces as its placement says (#2476), which the recording's selector must.
+            if ((right ? HorizontalDirection.Right : HorizontalDirection.Left) != enemy.SpawnSettings<NamiheSpawnSettings>().Facing)
+                throw new InvalidDataException($"Recorded Namihe selector ${words.A:X4} does not face its placement's {enemy.SpawnSettings<NamiheSpawnSettings>().Facing}.");
         }
         if (enemy.DefinitionId is EnemyDefinitionId.GrappleRipper or EnemyDefinitionId.Ripper or EnemyDefinitionId.JetRipper &&
             enemy.SpeciesState<RipperEnemyState>() is { } ripperVariant)

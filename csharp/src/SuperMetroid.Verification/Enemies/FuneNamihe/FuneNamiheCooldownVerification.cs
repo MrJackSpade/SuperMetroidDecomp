@@ -27,7 +27,7 @@ internal static class FuneNamiheCooldownVerification
         FuneEnemyState reached = Wait(CooldownTime - 1);
         AssertEqual(0, reached.CooldownTimer, "ending the wait resets the count");
         AssertEqual(FuneAction.Spitting, reached.Action, "a count reaching the cooldown time ends the wait");
-        AssertTrue(reached.IsSpitting && reached.Facing == HorizontalDirection.Left, "ending the wait selects the active animation for the same facing");
+        AssertTrue(reached.IsSpitting, "ending the wait selects the active animation");
         AssertEqual(new AnimationPlayback<FuneNamiheSegment>(FuneNamiheAnimations.StartingWith(FuneNamiheSegment.FuneActiveLeft), AnimationPlace.StartOfAnimation), reached.Playback,
             "ending the wait installs the active program for the same facing");
 
@@ -42,12 +42,8 @@ internal static class FuneNamiheCooldownVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Bind(EnemyDefinitionId.Fune, place.Definition);
-        var state = new FuneEnemyState(FuneAction.WaitForCooldown)
-        {
-            Facing = HorizontalDirection.Left,
-            CooldownTime = CooldownTime,
-            CooldownTimer = count,
-        };
+        place.SetSpawnSettings(new FuneSpawnSettings(Facing: HorizontalDirection.Left, CooldownTime: CooldownTime, LaunchSpeed: SignedEightEight.Zero));
+        var state = new FuneEnemyState(FuneAction.WaitForCooldown) { CooldownTimer = count };
         place.SetSpeciesState(state);
         FuneNamiheBehavior.RunFuneMain(place, state);
         return state;

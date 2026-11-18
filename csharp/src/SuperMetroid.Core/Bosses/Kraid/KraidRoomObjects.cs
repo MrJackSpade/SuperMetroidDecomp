@@ -28,8 +28,8 @@ internal sealed class KraidRoomObjects(RoomObjectPlaceList places)
         place.Block = block;
         place.Become(new TerrainChangeObject(change));
 
-        // The deactivating setup keeps a solid block solid and turns every other block to air.
-        level.SetTerrain(block, level.GetCollisionBlock(block).Terrain.Deactivated());
+        // The deactivating setup keeps a solid block solid and turns every other block to air, keeping what it shows (#2502).
+        level.Deactivate(block);
         return true;
     }
 }

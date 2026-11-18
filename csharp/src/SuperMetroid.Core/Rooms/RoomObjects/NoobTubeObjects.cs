@@ -29,18 +29,15 @@ internal sealed class NoobTubeObjects
     }
 
     /// <summary>
-    /// Runs the tube's setup: its origin block becomes a solid block whose reaction is the tube's, keeping what it shows
-    /// (#1580).
+    /// Runs the tube's setup: its origin block becomes a solid block whose reaction is the tube's, keeping its picture and
+    /// what it shows (#1580, #2502), as the setup rewrites only the block's type and parameter.
     /// </summary>
     internal void SetupNoobTube(RoomLevelData level, RoomObjectPlace place)
     {
         Ensure.NotNull(level);
         Ensure.NotNull(place);
         place.Become(new NoobTubeObject(this));
-        RoomTerrainBlock origin = level.GetCollisionBlock(place.Block).Terrain;
-        level.SetTerrain(
-            place.Block,
-            origin.WithCollision(NoobTubeObjectDefinitions.OriginCollision));
+        level.SetCollision(place.Block, NoobTubeObjectDefinitions.OriginCollision);
         level.SetBehavior(
             place.Block,
             RoomBlockBehavior.Reacting(ShootableReaction.ResidentObjectTrigger));

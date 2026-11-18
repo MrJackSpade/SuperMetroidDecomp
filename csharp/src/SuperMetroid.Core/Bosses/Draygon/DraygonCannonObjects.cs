@@ -49,16 +49,13 @@ internal sealed class DraygonCannonObjects
         WriteDraygonCannonTerrain(level, block + CoreLowerHalf, DraygonCannonDefinitions.DestroyedCannon);
     }
 
-    /// <summary>Changes a cannon block's collision kind and behavior while preserving its appearance.</summary>
+    /// <summary>
+    /// Changes a cannon block's collision kind and behaviour, keeping its picture and what it shows, as the cannon's setup
+    /// and its destruction rewrite only each block's type and parameter (#2502).
+    /// </summary>
     private static void WriteDraygonCannonTerrain(
         RoomLevelData level,
         Position16<RoomBlocks> block,
-        DraygonCannonTerrain terrain)
-    {
-        RoomTerrainBlock original = level.GetObjectCollisionBlock(block).Terrain;
-        level.SetObjectTerrain(
-            block,
-            original.WithCollision(terrain.Type));
-        level.SetObjectBehavior(block, terrain.Behavior);
-    }
+        DraygonCannonTerrain terrain) =>
+        level.SetObjectCollisionAndBehavior(block, terrain.Type, terrain.Behavior);
 }

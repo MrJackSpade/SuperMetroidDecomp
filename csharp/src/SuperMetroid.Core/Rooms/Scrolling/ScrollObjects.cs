@@ -64,9 +64,8 @@ internal sealed class ScrollObjects
     {
         Ensure.NotNull(level);
         Ensure.NotNull(place);
-        level.SetTerrain(
-            place.Block,
-            level.GetCollisionBlock(place.Block).Terrain.WithCollision(extension.CollisionType));
+        // The setup rewrites only the block's type and parameter, so it keeps its picture and what it shows (#2502).
+        level.SetCollision(place.Block, extension.CollisionType);
         level.SetBehavior(place.Block, RoomBlockBehavior.Extending(extension.Offset));
 
         // An extension's whole effect is its setup, which removes it at once, freeing its place for the room's next object.

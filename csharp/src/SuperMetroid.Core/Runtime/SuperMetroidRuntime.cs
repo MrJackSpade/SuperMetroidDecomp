@@ -336,8 +336,7 @@ internal sealed class SuperMetroidRuntime
     internal SuperMetroidSaveSnapshot SaveSnapshotAt(LoadStation station)
     {
         Ensure.NotNull(station);
-        SamusState samus = Player.Samus
-            ?? throw new InvalidOperationException($"A save at {station} has no live Samus state.");
+        SamusState samus = Player.IntroducedSamus;
         System.StoredExploredMaps.StoreLiveMap(station.Area);
         return SuperMetroidSaveSnapshot.Capture(samus, System, new SaveSnapshotContext
         {

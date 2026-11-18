@@ -23,11 +23,11 @@ internal sealed class FixtureObjectEnemyEffects : IRoomObjectEnemyEffects
     public Action<DraygonWallCannon>? DraygonCannonDisabled { get; init; }
 
     /// <summary>Observes Chozo statue hand activations.</summary>
-    public Action<RoomLevelData, Position16<RoomBlocks>>? ChozoStatueHandActivated { get; init; }
+    public Action<RoomLevelData>? ChozoStatueHandActivated { get; init; }
 
     /// <summary>Invokes the installed Chozo hand observer or fails at the missing dependency.</summary>
-    public void ActivateChozoStatueHand(RoomLevelData level, Position16<RoomBlocks> handBlock) =>
-        (ChozoStatueHandActivated ?? throw Missing("Chozo statue hand"))(level, handBlock);
+    public void ActivateChozoStatueHand(RoomLevelData level) =>
+        (ChozoStatueHandActivated ?? throw Missing("Chozo statue hand"))(level);
 
     /// <summary>Invokes the installed N00b tube projectile observer or fails at the missing dependency.</summary>
     public void SpawnNoobTubeProjectile(NoobTubeProjectileRequest request) =>

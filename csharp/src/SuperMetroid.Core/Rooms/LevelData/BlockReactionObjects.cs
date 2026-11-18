@@ -112,6 +112,7 @@ internal sealed class BlockReactionObjects
         RoomCollisionBlock block = level.GetCollisionBlock(position);
         place.Block = position;
         // The struck block keeps only its collision; the parent shows unmirrored, whatever the block's mirroring (#1581).
+        // The setup writes the whole block, its picture becoming the parent's, so it shows the parent (#2502).
         RoomTerrainBlock restore = block.Terrain.WithAppearance(_drawing.SetupBlock(RoomObjectSetupBlock.CrumbleBlockParent));
         place.Become(new BlockReactionObject(change, restore));
         level.SetTerrain(position, restore.WithCollision(RoomCollisionType.SolidBlock));
@@ -159,6 +160,7 @@ internal sealed class BlockReactionObjects
         RoomCollisionBlock block = level.GetCollisionBlock(position);
         place.Block = position;
         // The struck block keeps only its collision; the parent shows unmirrored, whatever the block's mirroring (#1581).
+        // The setup writes the whole block, its picture becoming the parent's, so it shows the parent (#2502).
         RoomTerrainBlock restore = block.Terrain.WithAppearance(_drawing.SetupBlock(RoomObjectSetupBlock.SpeedBoosterBlockParent));
         place.Become(new BlockReactionObject(crumble, restore));
         level.SetTerrain(position, restore.WithCollision(RoomCollisionType.Air));
@@ -275,9 +277,10 @@ internal sealed class BlockReactionObjects
 
             case ShotBlockReaction.PermanentBreak:
                 // The deactivating setup keeps no restore block: these breaks are permanent. The current block loses its
-                // shootable collision before the first animated breaking frame runs later in this pass.
+                // shootable collision before the first animated breaking frame runs later in this pass, keeping what it
+                // shows until then, as the setup rewrites only the block's type (#2502).
                 place.Become(new BlockReactionObject(BlockReactionChanges.PermanentShot(behavior.Shootable)));
-                level.SetTerrain(position, block.Terrain.Deactivated());
+                level.SetCollision(position, block.Terrain.Deactivated().Collision);
                 return true;
 
             case ShotBlockReaction.RespawningPowerBombBreak:

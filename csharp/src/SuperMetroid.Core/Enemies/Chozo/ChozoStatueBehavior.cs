@@ -93,24 +93,13 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Represents the exact enemy-place side effect produced by the Chozo hand
-    /// trigger. Collision/pose/item admission remains the room object's responsibility; once
+    /// trigger. Collision/pose/item admission and the hand block's terrain remain the room object's responsibility; once
     /// admitted, both trigger setups advance the statue's wait (<see cref="ChozoStatueState.TriggerHand"/>) and disable
     /// Samus controls.
     /// </summary>
-    /// <param name="level">The room's level, whose hand block loses its collision.</param>
-    /// <param name="handBlock">The hand block the room object that admitted the trigger stands on.</param>
-    public void ActivateChozoStatueHandTrigger(RoomLevelData level, Position16<RoomBlocks> handBlock)
+    public void ActivateChozoStatueHandTrigger()
     {
-        Ensure.NotNull(level);
         RoomEnemyPlace statue = _statue ?? throw new InvalidOperationException("A Chozo hand triggered in a room whose statue was never placed.");
-        Position16<RoomBlocks> triggerPosition = handBlock;
-        RoomCollisionBlock triggerBlock = level.GetCollisionBlock(triggerPosition);
-
-        // Both setup steps clear only the block's collision kind. Its behaviour and
-        // appearance survive until the room object the statue then spawns runs.
-        level.SetTerrain(
-            triggerPosition,
-            triggerBlock.Terrain.WithCollision(RoomCollisionType.Air));
         statue.RequireSpeciesState<ChozoStatueState>().TriggerHand();
         DisableChozoStatueSamusControls();
         if (statue.SpawnSettings<ChozoStatueSpawnSettings>().Site == ChozoStatueSite.LowerNorfair)

@@ -57,10 +57,10 @@ internal sealed class RoomObjectRuntimeServices(
     public void DisableDraygonCannon(DraygonWallCannon cannon) => Enemies.RoomObjectSpawns.DisableDraygonCannon(cannon);
 
     /// <summary>Starts the room's Chozo statue hand sequence, then applies the room-object work it requests at once.</summary>
-    public void ActivateChozoStatueHand(RoomLevelData level, Position16<RoomBlocks> handBlock)
+    public void ActivateChozoStatueHand(RoomLevelData level)
     {
         RoomEnemySystem enemies = Enemies;
-        enemies.RoomObjectRequests.ActivateChozoStatueHandTrigger(level, handBlock);
+        enemies.RoomObjectRequests.ActivateChozoStatueHandTrigger();
         enemies.RoomObjectRequests.ApplyPendingChozoStatueObjects(level, (destination.RoomObjects
             ?? throw new InvalidOperationException("A Chozo hand activated before the room's room objects were built.")).ChozoStatue);
     }

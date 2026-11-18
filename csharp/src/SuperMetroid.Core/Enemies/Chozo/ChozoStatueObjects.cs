@@ -39,7 +39,10 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
         _places = places;
     }
 
-    /// <summary>Runs the one-shot special-block setup; Samus's collision still clips her to the solid block.</summary>
+    /// <summary>
+    /// Runs the one-shot special-block setup; Samus's collision still clips her to the solid block. An admitted trigger
+    /// turns the hand block to air, then wakes the statue.
+    /// </summary>
     public void NotifyChozoStatueHandCollision(RoomLevelData level,
         Position16<RoomBlocks> block, SamusState samus, SamusPoseId collisionPose, bool movingDown)
     {
@@ -63,7 +66,12 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
             return;
 
         if (eligible)
-            _hands.ActivateChozoStatueHand(level, block);
+        {
+            // Both trigger setups clear only the hand block's type before waking the statue (#2502). Its behaviour, picture
+            // and what it shows survive until the room object the statue then spawns runs.
+            level.SetCollision(block, RoomCollisionType.Air);
+            _hands.ActivateChozoStatueHand(level);
+        }
         check.Delete();
     }
 
@@ -129,12 +137,14 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
         return RoomTerrainBlock.Of(left.Number, mirroring, RoomCollisionType.Air);
     }
 
-    /// <summary>Changes a hand or plug block's collision kind and behaviour while preserving its appearance.</summary>
+    /// <summary>
+    /// Changes a hand, trigger or slope block's collision kind and behaviour, keeping its picture and what it shows, as the
+    /// hands' setups and the slopes' changes rewrite only each block's type and parameter (#2502).
+    /// </summary>
     internal static void WriteChozoBlock(RoomLevelData level, Position16<RoomBlocks> block,
         RoomCollisionType type, RoomBlockBehavior behavior)
     {
-        RoomTerrainBlock terrain = level.GetCollisionBlock(block).Terrain;
-        level.SetTerrain(block, terrain.WithCollision(type));
+        level.SetCollision(block, type);
         level.SetBehavior(block, behavior);
     }
 

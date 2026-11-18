@@ -171,7 +171,8 @@ internal sealed class CollectibleObjects
 
         RoomTerrainBlock setup = original.Terrain.WithCollision(
             presentation == CollectiblePresentation.ShotBlock ? RoomCollisionType.ShootableBlock : RoomCollisionType.Air);
-        level.SetTerrain(place.Block, setup);
+        // The setup rewrites only the block's type and parameter, so it keeps its picture and what it shows (#2502).
+        level.SetCollision(place.Block, setup.Collision);
         level.SetBehavior(place.Block, RoomBlockBehavior.Reacting(ShootableReaction.CollectibleTrigger));
 
         CollectiblePhase phase = collected

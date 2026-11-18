@@ -84,6 +84,7 @@ using static SuperMetroid.Verification.Areas.Ceres.CeresHazeVerification;
 using static SuperMetroid.Verification.Areas.Ceres.CeresElevatorDoorSealVerification;
 using static SuperMetroid.Verification.Enemies.Animals.CrittersEscapeWallSetupVerification;
 using static SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectTypeAndBehaviorWritesVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectCollisionOnlyWritesVerification;
 using static SuperMetroid.Verification.Bosses.Ridley.CeresRidleyWallVerification;
 using static SuperMetroid.Verification.Areas.Ceres.CeresSteamCollisionDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.ChainsawFiringVerification;
@@ -872,6 +873,13 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyEyeDoorSetupsKeepWhatTheirBlocksShow), () => VerifyEyeDoorSetupsKeepWhatTheirBlocksShow()),
         new(nameof(VerifyDestroyedEyeBlueCapKeepsWhatItsBlocksShow), () => VerifyDestroyedEyeBlueCapKeepsWhatItsBlocksShow()),
         new(nameof(VerifyDownwardGateTriggerKeepsWhatItsBlockShows), () => VerifyDownwardGateTriggerKeepsWhatItsBlockShows()),
+        new(nameof(VerifyDoorSetupsKeepWhatTheirBlocksShow), () => VerifyDoorSetupsKeepWhatTheirBlocksShow()),
+        new(nameof(VerifyBossRoomSetupsKeepWhatTheirBlocksShow), () => VerifyBossRoomSetupsKeepWhatTheirBlocksShow()),
+        new(nameof(VerifyChozoStatueSetupsKeepWhatTheirBlocksShow), () => VerifyChozoStatueSetupsKeepWhatTheirBlocksShow()),
+        new(nameof(VerifyTerrainBreakSetupsKeepWhatTheirBlocksShow), () => VerifyTerrainBreakSetupsKeepWhatTheirBlocksShow()),
+        new(nameof(VerifyItemAndTubeSetupsKeepWhatTheirBlocksShow), () => VerifyItemAndTubeSetupsKeepWhatTheirBlocksShow()),
+        new(nameof(VerifyStationSetupsKeepWhatTheirBlocksShow), () => VerifyStationSetupsKeepWhatTheirBlocksShow()),
+        new(nameof(VerifyScrollSetupsKeepWhatTheirBlocksShow), () => VerifyScrollSetupsKeepWhatTheirBlocksShow()),
         new(nameof(VerifyCeresRidleyWallImpact), () => VerifyCeresRidleyWallImpact()),
         new(nameof(VerifySamusKnockbackAndDamageBoost), () => VerifySamusKnockbackAndDamageBoost()),
         new(nameof(VerifyYappingMawGrappleRelease), () => VerifyYappingMawGrappleRelease()),

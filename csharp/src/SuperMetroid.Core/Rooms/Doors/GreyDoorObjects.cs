@@ -58,10 +58,9 @@ internal sealed class GreyDoorObjects
     /// <summary>Installs the resident projectile-trigger collision type while preserving the block's appearance.</summary>
     private static void ApplyGreyDoorSetup(RoomLevelData level, Position16<RoomBlocks> block)
     {
-        // Grey and coloured doors' setups share the exact same collision write.
-        // The authored appearance stays; only collision and behaviour change.
-        level.SetTerrain(block,
-            level.GetCollisionBlock(block).Terrain.WithCollision(RoomCollisionType.ShootableBlock));
+        // Grey and coloured doors' setups share the exact same collision write. Only collision and behaviour change, so the
+        // block keeps its picture and what it shows (#2502).
+        level.SetCollision(block, RoomCollisionType.ShootableBlock);
         level.SetBehavior(block, RoomBlockBehavior.Reacting(ShootableReaction.ResidentObjectTrigger));
     }
 

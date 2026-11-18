@@ -75,7 +75,8 @@ internal sealed class CeresDestructionGameSequence(FrontendSession session) : IG
     /// <summary>One update of the destruction with Samus aboard, which goes to the death black-out once finished.</summary>
     private void StepWithSamusAboard(ControllerButton controllerInput)
     {
-        session.Runtime?.FrameBoundary.BeginAcceptedFrame(controllerInput);
+        // Samus is lost with Ceres only from the escape's time-up, which ends a gameplay runtime's updates with her (#2503).
+        session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
         CeresDestructionCinematicState fatalDestruction = session.ActiveCeresDestruction;
         fatalDestruction.Step();
         session.display.PublishCeresDestruction(fatalDestruction);
@@ -83,8 +84,7 @@ internal sealed class CeresDestructionGameSequence(FrontendSession session) : IG
         {
             // The fatal cinematic's fade-out ends already
             // fully black, after clearing Samus's HUD selection and hurt timers.
-            SamusState lostSamus = session.Runtime?.Player.Samus ?? throw new InvalidOperationException(
-                "Ceres destruction with Samus requires her gameplay state.");
+            SamusState lostSamus = session.GameplayRuntime.Player.IntroducedSamus;
             lostSamus.SelectBeam();
             lostSamus.ClearHurtTimers();
             session.Close<CeresDestructionCinematicState>();

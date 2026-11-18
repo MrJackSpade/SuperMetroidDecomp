@@ -279,6 +279,8 @@ public sealed class SuperMetroidGame
         Room = GameplayActiveRoom?.Name,
         RoomState = GameplayActiveRoomState?.Name,
         Door = GameplayActiveDoor?.Name,
+        // A host also takes a snapshot when an update fails, which may be the update that creates the gameplay runtime before
+        // it gives the runtime its Samus, so a missing Samus is kept here (#2503).
         Samus = Session.Runtime is { Player.Samus: { } samus } runtime
             ? new SamusSnapshot
             {

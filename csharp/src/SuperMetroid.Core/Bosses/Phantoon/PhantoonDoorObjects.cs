@@ -28,8 +28,8 @@ internal sealed class PhantoonDoorObjects(RoomObjectPlaceList places)
 
         place.Block = block;
         place.Become(new TerrainChangeObject(terrainChange));
-        // The deactivating setup holds the door's top block solid, keeping its picture, until the change draws.
-        level.SetTerrain(block, level.GetCollisionBlock(block).Terrain.Deactivated());
+        // The deactivating setup holds the door's top block solid, keeping what it shows, until the change draws (#2502).
+        level.Deactivate(block);
         return true;
     }
 }

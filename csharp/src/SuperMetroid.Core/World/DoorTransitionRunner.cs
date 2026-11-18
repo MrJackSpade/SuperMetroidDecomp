@@ -31,7 +31,7 @@ internal sealed class DoorTransitionRunner
     private readonly AcceptedFrameBoundary _frameBoundary;
     /// <summary>Sprite frame begun and finalized around each drawn frame.</summary>
     private readonly SpriteFrameBuffer _sprites;
-    /// <summary>Provides defeated bosses and advances main-loop random state.</summary>
+    /// <summary>Provides defeated bosses and draws each update's random number.</summary>
     private readonly SharedGameState _system;
 
     /// <summary>Captures the runtime services used by the door's setup and its wait updates.</summary>
@@ -211,7 +211,7 @@ internal sealed class DoorTransitionRunner
         if (_liquidWaveAndStatueDescent.RunsThisUpdate)
         {
             _liquidWaveAndStatueDescent.Advance(room.RoomObjects, room);
-            if (room.FxOverlay.MovesLiquidBeforeMainLoop)
+            if (room.FxOverlay.HasMovingLiquid)
                 samus.LiquidPhysics.ConfigureFor(room.FxOverlay);
         }
         _system.NextRandom();

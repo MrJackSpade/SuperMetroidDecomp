@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Gameplay;
 
 /// <summary>
 /// The room's part of the scene an accepted frame shows: the room's blending, and the scrolling sky's vertical
-/// scroll. A change the main loop makes shows one frame later.
+/// scroll. A change an update makes shows one frame later.
 /// </summary>
 /// <param name="FxType">The room effect whose blending the frame shows.</param>
 /// <param name="Blend">How the room effect's overlay blends with the room (#1545), or null when it describes none.</param>

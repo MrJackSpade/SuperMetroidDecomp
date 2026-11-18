@@ -50,7 +50,7 @@ public static class QuicksandDefinitions
 
     /// <summary>
     /// The most a stationary Samus's downward probe may sink into a quicksand surface: 0.1875 pixels. The surface
-    /// compares and replaces only the probe's middle part (its whole pixels and the upper half of its fraction).
+    /// limits the probe counted in 256ths of a pixel, so any finer part of the probe is kept as it was.
     /// </summary>
     internal static readonly SignedSixteenSixteen StationarySurfaceProbeLimit = SignedSixteenSixteen.FromSixteenthsOfPixel(3);
 }

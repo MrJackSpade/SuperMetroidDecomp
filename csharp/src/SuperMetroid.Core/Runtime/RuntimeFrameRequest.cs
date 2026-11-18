@@ -15,7 +15,7 @@ public sealed record RuntimeFrameRequest
     public RuntimeFrameAudio Audio { get; init; } = RuntimeFrameAudio.WithoutLowHealthCheck;
 
     /// <summary>
-    /// Host work immediately after the ordinary frame boundary and before the liquid wave, statue descent and main-loop owners;
+    /// Host work immediately after the ordinary frame boundary and before the liquid wave, statue descent and the update's owners;
     /// the suspended message-box frame path does not run it.
     /// </summary>
     public Action AfterFrameBoundary { get; init; } = static () => { };

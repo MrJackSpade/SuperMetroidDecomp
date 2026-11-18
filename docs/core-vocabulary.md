@@ -630,6 +630,17 @@ shows, each thing's own colours, the flashbacks' scroll, the page's opening paus
 request handshake. A first colour in a sequence (`the flash's first colours`), a colour group, inheriting anything but a
 scroll, a marker and a handler stay English.
 
+#2423 widens SME6454, outside hardware owners, to the original's main loop, storage and colour slots as effects, HUD,
+map and escape prose tells them: the main loop, spaced or hyphenated (`before the main loop's random number`,
+`main-loop random state`), and `MainLoop` as a word of a declared name (`MovesLiquidBeforeMainLoop`); a `multibit`
+value; a value's middle part or a half of its fraction (`the probe's middle part`, `the middle of the displacement`,
+`the upper half of its fraction`, `the fractional half`); the colours a tint sets (`the last of the three colours a tint
+sets`, `the last of the three a tint sets`); a value's bits by count or end (`rain reads two of its bits`, `its top
+bits`); and `save bits`. Core says what the game does: the update draws its random number (`HasMovingLiquid`,
+`PublishHeldInput`), a binding holds several buttons, a probe is limited in 256ths of a pixel, an untinted look shows
+one colour black, the random number chooses one of rain's four winds, nothing is marked explored. The middle of a room,
+the upper half of the screen, a tint's colours, a bit and a save stay English.
+
 `Tilemap` is matched as the one word the cartridge's sources spell. A room layer named as the destination engine names
 it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as does `MapTiles`; so does
 `SpriteSheet` beside `Spritemap`, and `Scan`, `Scanned` or `FirstLine` beside `Scanline` (#1694). Documentation prose is

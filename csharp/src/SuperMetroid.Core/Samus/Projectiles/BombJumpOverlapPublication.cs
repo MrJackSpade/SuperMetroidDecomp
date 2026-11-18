@@ -6,6 +6,6 @@ public enum BombJumpOverlapPublication
     /// <summary>During the bomb frame.</summary>
     Immediate,
 
-    /// <summary>At the main loop's later overlap pass.</summary>
+    /// <summary>At the update's later overlap pass.</summary>
     Deferred,
 }

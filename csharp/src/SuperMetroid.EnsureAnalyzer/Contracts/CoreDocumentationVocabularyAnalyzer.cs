@@ -132,6 +132,9 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// #2417 adds, outside hardware owners, the original's colour sets, colour groups, scroll and program as frontend prose
 /// tells them: a colour by its place in a set, a colour group drawn in or shared by two things, a scroll or offset told
 /// as inherited, a marker told as executing or empty, and a library's or queue's handler.
+/// #2423 adds, outside hardware owners, the original's main loop, storage and colour slots as effects, HUD, map and
+/// escape prose tells them: the main loop, in prose and in declared names, a multibit value, a value's middle part or a
+/// half of its fraction, the colours a tint sets, a value's bits by count or end, and save bits.
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -1860,6 +1863,39 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
+    /// The original's main loop, storage and colour slots told in effects, HUD, map and escape prose (#2423), outside
+    /// hardware owners and markup: the main loop, spaced or hyphenated (before the main loop's random number, main-loop
+    /// random state); a multibit value (a malformed multibit binding); a value's middle part or a half of its fraction (the
+    /// probe's middle part, the middle of the displacement, the upper half of its fraction, the fractional half); the
+    /// colours a tint sets, by noun or count (the last of the three colours a tint sets, the last of the three a tint sets);
+    /// a value's bits by count or end (rain reads two of its bits, its top bits); and save bits. Core says what the game
+    /// does: the update draws its random number, a binding holds several buttons, a probe counted in 256ths of a pixel, the
+    /// colours a tint shows, the choice a random number makes and what is explored. English stays legal: the middle of a
+    /// room or an arena, the upper half of the screen, a tint's colours, a bit alone, a save and a hardware owner.
+    /// </summary>
+    private static readonly Regex EffectsHudMapAndEscapeStorageProse = new(
+        @"\bmain[-\s]+loops?\b" +
+        @"|\bmulti-?bits?\b" +
+        @"|\bmiddle\s+(?:parts?|bytes?|bits?|words?)\b" +
+        @"|\bmiddle\s+of\s+(?:the|its|a|their)\s+(?:[\w'’-]+\s+)?(?:displacements?|values?|probes?|positions?|speeds?" +
+        @"|velocit(?:y|ies)|numbers?|sums?|products?|fractions?|coordinates?|words?|samples?)\b" +
+        @"|\b(?:upper|lower|high|low|top|bottom)\s+half\s+of\s+(?:the|its|a|their)\s+(?:[\w'’-]+\s+)?fractions?\b" +
+        @"|\bfraction(?:al)?\s+hal(?:f|ves)\b|\bhalf\s+of\s+(?:the|its|a|their)\s+fraction\b" +
+        @"|\bcolou?rs?\s+(?:that\s+|which\s+)?(?:a|the|its|each|every|any)\s+(?:[\w'’-]+\s+)?tints?\s+sets?\b" +
+        @"|\b(?:two|three|four)\s+(?:that\s+|which\s+)?(?:a|the|its|each|every|any)\s+tints?\s+sets?\b" +
+        @"|\b(?:one|two|three|four|five|six|seven|eight|some|several|both|[0-9]+)\s+of\s+(?:its|their|the\s+(?:[\w'’-]+\s+){0,2}?" +
+        @"[\w’-]+(?:'s|s'|’s))\s+bits\b" +
+        @"|\b(?:its|their)\s+(?:low|high|lowest|highest|top|bottom|upper|lower)\s+(?:(?:[0-9]+|two|three|four|eight)\s+)?bits\b" +
+        @"|\bsave[-\s]+bits?\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// A camel-case word pair of a declared name that names the original's main loop (#2423): MainLoop at any word
+    /// boundary (<c>MovesLiquidBeforeMainLoop</c>, <c>mainLoopRandom</c>). Core names what the update does.
+    /// </summary>
+    private static readonly Regex MainLoopNameWord = new(@"(?:^|_|(?<=[a-z0-9])(?=[A-Z]))[Mm]ainLoops?(?![a-z])", RegexOptions.CultureInvariant);
+
+    /// <summary>
     /// A camel-case word of a declared name that tells the port as a translation (#2398): Translated or Untranslated at
     /// any word boundary (<c>CaptureTranslatedRenderSnapshot</c>, <c>hasTranslatedBodyChange</c>). Core names what the
     /// member captures, collects or tests.
@@ -2144,7 +2180,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         {
             if (DeclaredName(node) is { } name &&
                 (CallNameWord.IsMatch(name.ValueText) || ExecutionCounterNameWord.IsMatch(name.ValueText) ||
-                    TranslatedNameWord.IsMatch(name.ValueText)) && !IsInHardwareOwner(node))
+                    TranslatedNameWord.IsMatch(name.ValueText) || MainLoopNameWord.IsMatch(name.ValueText)) && !IsInHardwareOwner(node))
                 context.ReportDiagnostic(Diagnostic.Create(Rule, name.GetLocation(), name.ValueText));
         }
     }
@@ -2369,6 +2405,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : BossBranchAndReasoningProse.Match(Markup.Replace(text, " ")) is { Success: true } bossReasoning ? bossReasoning.Value
             : RoomCallAreaAndLayerProse.Match(Markup.Replace(text, " ")) is { Success: true } roomCallAreaAndLayer ? roomCallAreaAndLayer.Value
             : FrontendColourScrollAndProgramProse.Match(Markup.Replace(text, " ")) is { Success: true } frontendProse ? frontendProse.Value
+            : EffectsHudMapAndEscapeStorageProse.Match(Markup.Replace(text, " ")) is { Success: true } effectsStorage ? effectsStorage.Value
             : TileCharacterFinding(text, owner) is { } character ? character
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;

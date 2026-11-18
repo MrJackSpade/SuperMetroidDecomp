@@ -13,7 +13,7 @@ internal sealed record RoomFxLoadSource
     public required DoorDefinition? Door { get; init; }
 
     /// <summary>
-    /// The shared random number when the room's FX loads; rain reads two of its bits to choose its drift. A copy of
+    /// The shared random number when the room's FX loads, which chooses one of rain's four winds. A copy of
     /// the shared random sequence's value (0 through <see cref="SharedRandomState.LargestValue"/>, the values that
     /// sequence wraps through) that nothing does arithmetic on, so a value it never holds is rejected (#1627).
     /// </summary>

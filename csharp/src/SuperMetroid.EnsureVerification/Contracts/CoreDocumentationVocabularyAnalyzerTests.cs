@@ -1720,5 +1720,33 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         // alone and a hardware owner are English.
         Expect("class P { /// <summary>The flash's first colours; the cycle's first colour; the colour group of each colouring; each frame inherits its actor's colours; the map marker; the grapple beam's handler.</summary>\nint F => 0; }");
         Expect(CompatibilityService + "/// <summary>Evidence: the original replies to each library's handler.</summary>\n[CompatibilityService(\"reply\")] class Reply { }");
+        // The original's main loop, storage and colour slots in effects, HUD, map and escape prose, outside hardware owners
+        // and markup (#2423): the main loop in prose and in declared names, a multibit value, a value's middle part or a
+        // half of its fraction, the colours a tint sets, a value's bits by count or end, and save bits.
+        Expect("class P { /// <summary>Moves the lava before the main loop's random number.</summary>\nint F => 0; }",
+            "('main loop')");
+        Expect("class P { void Run() { // advances main-loop random state\n } }", "('main-loop')");
+        Expect("class P { bool MovesLiquidBeforeMainLoop => true; }", "('MovesLiquidBeforeMainLoop')");
+        Expect("class P { void Run() { int mainLoopRandom = 0; _ = mainLoopRandom; } }", "('mainLoopRandom')");
+        Expect("class P { /// <summary>The first matching button wins even for a malformed multibit binding.</summary>\nint F => 0; }",
+            "('multibit')");
+        Expect("class P { /// <summary>The surface replaces only the probe's middle part.</summary>\nint F => 0; }", "('middle part')");
+        Expect("class P { void Run() { // the game's reading of the middle of the displacement\n } }",
+            "('middle of the displacement')");
+        Expect("class P { /// <summary>Its whole pixels and the upper half of its fraction.</summary>\nint F => 0; }",
+            "('upper half of its fraction')");
+        Expect("class P { void Run() { // clipping clears the fractional half\n } }", "('fractional half')");
+        Expect("class P { /// <summary>The overlay keeps its colours, except the last of the three colours a tint sets.</summary>\nint F => 0; }",
+            "('colours a tint sets')");
+        Expect("class P { /// <summary>Except the last of the three a tint sets, which shows black.</summary>\nint F => 0; }",
+            "('three a tint sets')");
+        Expect("class P { /// <summary>The random number when the room loads; rain reads two of its bits.</summary>\nint F => 0; }",
+            "('two of its bits')");
+        Expect("class P { void Run() { // gameplay that samples its top bits\n } }", "('its top bits')");
+        Expect("class P { /// <summary>No exploration or save bits are changed.</summary>\nint F => 0; }", "('save bits')");
+        // The middle of a room, the upper half of the screen, a tint's colours, a bit alone, a save, a loop alone and a
+        // hardware owner are English.
+        Expect("class P { /// <summary>The middle of the arena; the upper half of the screen; the colours a tint shows; a bit of the floor; the save; the main room; the loop of the track.</summary>\nint F => 0; }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the original main loop draws its random number.</summary>\n[CompatibilityService(\"loop\")] class MainLoopDraw { bool MovesBeforeMainLoop => true; }");
     }
 }

@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Animation;
-using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Rooms.Doors;
@@ -9,26 +8,32 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// at its door: one opened for good leaves the room. Otherwise it looks for Samus every eight updates, standing still
 /// (<see cref="EyeDoorSequenceDefinitions.Still"/>); once she is near (<see cref="EyeDoorSequenceDefinitions.PulseReach"/>)
 /// it waits for its door to open and pulses while she stays near. Once it waits, the update its door has been opened for
-/// good it leaves the room, before its images count down. The body at the door Samus arrives through closes behind her
-/// by leaving the room on its next update. A part only draws its poses: its animations raise nothing (#2481).
+/// good it leaves the room, before its images count down. The body (<see cref="EyeDoorBodyObject"/>) stands in the door
+/// and closes behind Samus as she arrives through it by leaving the room on its next update; the bottom
+/// (<see cref="EyeDoorBottomObject"/>) stands in no door (#2493). A part only draws its poses: its animations raise
+/// nothing (#2481).
 /// </summary>
-/// <param name="part">Which part this is, the body's middle or its bottom, and the way its door faces.</param>
-/// <param name="door">The door the part's placement named.</param>
-internal sealed class EyeDoorPartObject(EyeDoorPart part, PlacedDoor door)
-    : SequencedRoomObject<EyeDoorPartSegment, EyeDoorPartPose, NoAnimationCue>(EyeDoorSequenceDefinitions.PartSegments), IClosingDoor, IDoorKeptOpen
+internal abstract class EyeDoorPartObject
+    : SequencedRoomObject<EyeDoorPartSegment, EyeDoorPartPose, NoAnimationCue>
 {
+    /// <summary>A part of <paramref name="part"/>'s kind and facing, just placed in <paramref name="door"/>.</summary>
+    /// <param name="part">Which part this is, the body's middle or its bottom, and the way its door faces.</param>
+    /// <param name="door">The door the part's placement named.</param>
+    private protected EyeDoorPartObject(EyeDoorPart part, PlacedDoor door)
+        : base(EyeDoorSequenceDefinitions.PartSegments)
+    {
+        Part = part;
+        Door = Ensure.NotNull(door);
+    }
+
     /// <summary>Which part this is and the way its door faces.</summary>
-    internal EyeDoorPart Part { get; } = part;
+    internal EyeDoorPart Part { get; }
 
     /// <summary>The eye door's facing.</summary>
     internal EyeDoorOrientation Orientation => Part.Orientation;
 
     /// <summary>The door the part stands in, as its placement named it.</summary>
-    internal PlacedDoor Door { get; } = Ensure.NotNull(door);
-
-    /// <summary>A part whose door has been opened for good stays open behind Samus.</summary>
-    public bool StaysOpenBehindSamus(Func<LockedDoor, bool> openedForGood, ShotOpenedCapClosing<LockedDoor> shotCapClosing) =>
-        Door.IsOpenedForGood(openedForGood);
+    internal PlacedDoor Door { get; }
 
     /// <summary>What the part is doing (#2482).</summary>
     internal EyeDoorPartPhase Phase { get; private set; } = EyeDoorPartPhase.Placed;
@@ -39,12 +44,9 @@ internal sealed class EyeDoorPartObject(EyeDoorPart part, PlacedDoor door)
     /// </summary>
     internal bool WaitsForOpenedDoor { get; private set; }
 
-    /// <inheritdoc/>
-    /// <exception cref="InvalidDataException">The part is the bottom, which no door closes.</exception>
-    public void CloseBehindSamus()
+    /// <summary>Leaves the room on the part's next update, as the body closing behind Samus does.</summary>
+    private protected void LeaveOnNextUpdate()
     {
-        if (Part.BodyPart != EyeDoorBodyPart.Middle)
-            throw new InvalidDataException($"An eye door's {Part.BodyPart} has no closing behind Samus.");
         Phase = EyeDoorPartPhase.ClosingBehindSamus;
         EndOnNextUpdate();
     }

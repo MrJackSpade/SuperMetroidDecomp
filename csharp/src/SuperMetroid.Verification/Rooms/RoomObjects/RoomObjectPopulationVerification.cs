@@ -163,7 +163,8 @@ internal static class RoomObjectPopulationVerification
     /// Verifies the fixed header+4 closing list of every resident door: a typed cap's or the escape gate's closing begins
     /// exactly there, and an eye door's body, whose closing list is the delete, leaves the room on its next update. Each
     /// then runs the real room-population load and transition redirect with that source word absent from the sparse bus.
-    /// A room object at the door that has no closing fails loudly.
+    /// A blue cap a shot opened at the door closes with the list its header names after its first two, the blue closer's
+    /// (#2493).
     /// </summary>
     internal static void VerifyResidentDoorClosingDefinitions(CartridgeImportAddressSpace rom)
     {
@@ -222,7 +223,8 @@ internal static class RoomObjectPopulationVerification
             definitionIndex++;
         }
 
-        // A shot blue cap at the door's block has no closing: the transition fails loudly rather than skipping it.
+        // #2493: a shot blue cap at the door's block closes behind Samus with the closing its header names after its first
+        // two lists, which is the list the door's own blue closer plays, and no closer joins it.
         RoomLevelData blueLevel = CreateRoom(new(8, 8), new RoomTerrainBlock[64], new RoomBlockBehavior[64]);
         var blueObjects = RoomObjectFixtures.Bound(new RoomObjectRoom(blueLevel, new SharedGameState(new SharedRandom()), AreaId.Crateria),
             RoomObjectServiceFixtures.Uninstalled, RoomObjectFixtures.Unbound());
@@ -237,9 +239,15 @@ internal static class RoomObjectPopulationVerification
             DestinationScreen: new(0, 0),
             SamusSpeed: DoorSamusSpeed.None,
             Setup: DoorSetupDefinitions.None);
-        AssertThrows<InvalidDataException>(
-            () => blueObjects.DoorObjects.TrySpawnDoorClosingObject(blueLevel, blueDoor),
-            "a shot blue cap at the door is outside the resident closing domain");
+        AssertTrue(blueObjects.DoorObjects.TrySpawnDoorClosingObject(blueLevel, blueDoor),
+            "a shot blue cap at the door's block closes behind Samus");
+        AssertEqual(1, blueObjects.Places.ActiveCount, "no closer joins the shot cap that closes");
+        const int ShotLeftBlueCapHeader = 0x84c8a2;
+        ushort shotCapClosing = CartridgeImportSource.Require(rom).ReadCartridgeWord(ShotLeftBlueCapHeader + 4);
+        AssertEqual(shotCapClosing, TypedDoorObjectOracle.StartListOf(blueObjects.Places.InUpdateOrder[0].Behaviour),
+            "the shot cap starts the closing its header names after its opening and closed lists");
+        AssertEqual(shotCapClosing, DoorObjectNativeListAddresses.Blue(ColoredDoorOrientation.Left).Closing,
+            "the closing a shot cap's header names is the blue closer's list");
 
         // #1906: once the Landing Site's green door is open for good, a shot blue cap at the door stays open and the door's
         // own blue closer is placed instead.

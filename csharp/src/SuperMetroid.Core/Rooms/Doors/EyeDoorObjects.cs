@@ -50,13 +50,23 @@ internal sealed class EyeDoorObjects
     /// <summary>
     /// Places the eye door's body or bottom, <paramref name="part"/>, in <paramref name="door"/>, which takes its first look
     /// on its first update, and installs its closed collision block unless its door has been opened for good; the part's
-    /// first look then removes it.
+    /// first look then removes it. The body stands in the door, which Samus's arrival through it asks to close (#2493).
     /// </summary>
     internal void SetupEyeDoorPart(RoomLevelData level, RoomObjectPlace place, EyeDoorPart part, LockedDoorArgument door)
     {
         Ensure.NotNull(place);
         var placedDoor = new PlacedDoor(door);
-        place.Become(new EyeDoorPartObject(part, placedDoor));
+        switch (part.BodyPart)
+        {
+            case EyeDoorBodyPart.Middle:
+                place.BecomeDoor(new EyeDoorBodyObject(part.Orientation, placedDoor));
+                break;
+            case EyeDoorBodyPart.Bottom:
+                place.Become(new EyeDoorBottomObject(part.Orientation, placedDoor));
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(part), part, $"Undefined {nameof(EyeDoorBodyPart)} {part.BodyPart}.");
+        }
         if (placedDoor.IsOpenedForGood(_system.HasOpenedDoor))
             return;
         RoomObjectLevelWrites.WriteObjectCollisionAndBehavior(level, place.Block, EyeDoorDefinitions.ClosedComponentCollision,

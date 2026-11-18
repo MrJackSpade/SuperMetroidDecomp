@@ -16,17 +16,13 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// </summary>
 /// <param name="orientation">The eye door's facing.</param>
 /// <param name="door">The door the eye's placement named, which its attacks keep to burst once it opens.</param>
-internal sealed class EyeDoorEyeObject(EyeDoorOrientation orientation, PlacedDoor door) : SequencedRoomObject<EyeDoorSegment, EyeDoorObjectFrame, EyeDoorAction>(EyeDoorSequenceDefinitions.Segments), IDoorKeptOpen
+internal sealed class EyeDoorEyeObject(EyeDoorOrientation orientation, PlacedDoor door) : SequencedRoomObject<EyeDoorSegment, EyeDoorObjectFrame, EyeDoorAction>(EyeDoorSequenceDefinitions.Segments)
 {
     /// <summary>The eye door's facing.</summary>
     internal EyeDoorOrientation Orientation { get; } = orientation;
 
     /// <summary>The door the eye stands in, as its placement named it.</summary>
     internal PlacedDoor Door { get; } = Ensure.NotNull(door);
-
-    /// <summary>An eye whose door has been opened for good stays open behind Samus.</summary>
-    public bool StaysOpenBehindSamus(Func<LockedDoor, bool> openedForGood, ShotOpenedCapClosing<LockedDoor> shotCapClosing) =>
-        Door.IsOpenedForGood(openedForGood);
 
     /// <summary>What the eye is doing.</summary>
     internal EyeDoorEyePhase Phase { get; private set; } = EyeDoorEyePhase.Placed;

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
@@ -29,6 +30,12 @@ internal sealed class RoomObjectPlace
     /// </summary>
     internal RoomObjectBehaviour? Behaviour { get; private set; }
     /// <summary>
+    /// The door the object at this place stands in, which Samus's arrival through it asks to stay open or close behind her
+    /// (#2493): the same object as <see cref="Behaviour"/> when its owner placed it as a door (<see cref="BecomeDoor{TDoor}"/>
+    /// or <see cref="Replace{TDoor}"/>), and null for an object that stands in no door or a free place.
+    /// </summary>
+    internal IDoorBehindSamus? Door { get; private set; }
+    /// <summary>
     /// Whether this place holds a room object and takes part in the room update. Only <see cref="RoomObjectPlaceList.Spawn"/>
     /// takes a place; <see cref="Delete"/> frees it.
     /// </summary>
@@ -59,16 +66,30 @@ internal sealed class RoomObjectPlace
     }
 
     /// <summary>
-    /// Makes the object at this place turn into <paramref name="next"/>, which holds the place from now on: a door that
-    /// turns into its blue cap. Whatever the place held before is gone.
+    /// Makes this freshly taken place hold <paramref name="door"/>, which advances it from the next update on and stands in
+    /// the door at its block: Samus's arrival through that door asks it to stay open or close (#2493).
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The place is free, or already holds a typed object.</exception>
+    internal void BecomeDoor<TDoor>(TDoor door)
+        where TDoor : RoomObjectBehaviour, IDoorBehindSamus
+    {
+        Become(door);
+        Door = door;
+    }
+
+    /// <summary>
+    /// Makes the door at this place turn into <paramref name="next"/>, which holds the place from now on and stands in the
+    /// same door: a door that turns into its blue cap. Whatever the place held before is gone.
     /// </summary>
     /// <exception cref="InvalidOperationException">The place is free.</exception>
-    internal void Replace(RoomObjectBehaviour next)
+    internal void Replace<TDoor>(TDoor next)
+        where TDoor : RoomObjectBehaviour, IDoorBehindSamus
     {
         Ensure.NotNull(next);
         if (!Active)
             throw new InvalidOperationException("Only an occupied room-object place can turn into another typed room object.");
         Behaviour = next;
+        Door = next;
     }
 
     /// <summary>
@@ -101,5 +122,6 @@ internal sealed class RoomObjectPlace
         RestoreTerrain = null;
         ProjectileHit = null;
         Behaviour = null;
+        Door = null;
     }
 }

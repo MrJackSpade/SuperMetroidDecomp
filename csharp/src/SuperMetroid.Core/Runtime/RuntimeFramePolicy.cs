@@ -23,4 +23,11 @@ public sealed record RuntimeFramePolicy
     /// attract playback and an ordinary host frame do not.
     /// </summary>
     public bool RunsLowHealthCheck { get; init; }
+
+    /// <summary>
+    /// Whether the update shows a running escape timer that Samus's movement mode holds (#2504): the Ceres departure's
+    /// elevator hold and blackout show the timer as it stands while the elevator holds Samus, and neither counts it down.
+    /// Under Samus's normal movement mode the timer counts and shows whatever this says.
+    /// </summary>
+    public bool ShowsHeldEscapeTimer { get; init; }
 }

@@ -62,8 +62,9 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         // normal-priority request joins.
         session.GameplayRuntime.Player.IntroducedSamus.HealthWarning.Update(session.GameplayRuntime.Player.IntroducedSamus.Health,
             session.GameplayRuntime.AudioRequests);
-        // The escape timer counts on through the refill's gameplay, so its countdown can run out during the refill; the
-        // time-up it starts begins after the refill's update, as main gameplay's begins after its own.
+        // The refill's locked Samus holds the escape timer (#2504); only the completion update, whose gameplay runs with
+        // her control restored, counts it, so a countdown can run out only there, and the time-up it starts begins after
+        // that update, as main gameplay's begins after its own.
         if (outcome == RuntimeFrameOutcome.TimeUp)
             session.BeginTimeUp();
     }

@@ -710,7 +710,7 @@ internal sealed class SuperMetroidRuntime
         StepCeresElevatorArrival(room, samus, deathOwnsSamus);
         RunMainScrolling(room, samus, tail.PreviousCameraPoint, deathOwnsSamus);
         DrawGameplayActors(room, samus, tail, deathOwnsSamus);
-        RuntimeFrameOutcome outcome = RunEscapeTimer(tail);
+        RuntimeFrameOutcome outcome = RunEscapeTimer(tail, policy);
         Sprites.FinalizeFrame();
 
         UpdateHud(infiniteAmmoGuard, room, samus);
@@ -854,14 +854,20 @@ internal sealed class SuperMetroidRuntime
             tail.Mode.Movement is SamusMovementMode.SuitPickup or SamusMovementMode.ScriptLocked ? SamusColourEffects.Hold : SamusColourEffects.Advance);
     }
 
-    /// <summary>Counts the escape timer down and draws it, unless the gunship's movement mode owns the frame.</summary>
+    /// <summary>
+    /// Counts the escape timer down and draws it when Samus's normal movement mode runs the update, and only draws it when
+    /// the update's state shows the timer Samus is held under (<see cref="RuntimeFramePolicy.ShowsHeldEscapeTimer"/>).
+    /// </summary>
     /// <returns>The time-up when the countdown ran out on this update, otherwise nothing.</returns>
-    private RuntimeFrameOutcome RunEscapeTimer(SuspendedGameplayFrameTail tail)
+    private RuntimeFrameOutcome RunEscapeTimer(SuspendedGameplayFrameTail tail, RuntimeFramePolicy policy)
     {
-        // The enemy phase can install the gunship's movement mode on this frame.
-        // Then the timer neither counts down nor shows: boarding hides it, even though the escape stays timed. Decide after the
-        // actor transition, before liftoff can repurpose the timer's sprite pictures as dust.
-        bool escapeTimerRuns = tail.Mode.Movement != SamusMovementMode.Gunship;
+        // Only Samus's normal movement mode runs the escape timer (#2504). Every other mode, held for the reserve refill,
+        // the death, the Ceres elevator, an elevator ride, a station, the rainbow beam, a suit pickup or the gunship,
+        // neither counts it down nor shows it, so a countdown cannot run out while she is held. The escape stays timed,
+        // and the update that restores her control counts on. The enemy phase can install the gunship's movement mode on
+        // this frame, which boarding hides the timer with; the mode is decided after the actor transition, before liftoff
+        // can repurpose the timer's sprite pictures as dust.
+        bool escapeTimerRuns = tail.Mode.Movement == SamusMovementMode.Normal;
         RuntimeFrameOutcome outcome = RuntimeFrameOutcome.Ordinary;
         if (escapeTimerRuns && EscapeTimer.Process(Clock.Counter, Assists.Current.EscapeTimerHoldsAtOneSecond))
         {
@@ -870,7 +876,8 @@ internal sealed class SuperMetroidRuntime
             outcome = RuntimeFrameOutcome.TimeUp;
             ColourEffectSession.StopColourEffects();
         }
-        if (escapeTimerRuns && EscapeTimer.IsActive)
+        // The Ceres elevator's hold and blackout show the timer themselves while the elevator holds Samus, as it stands.
+        if ((escapeTimerRuns || policy.ShowsHeldEscapeTimer) && EscapeTimer.IsActive)
         {
             EscapeTimerDrawing.Draw(EscapeTimer, Sprites, Artwork.ScreenContent.EscapeTimer, Artwork.SpriteSheets.Get(SpriteSheetId.EscapeTimer));
         }

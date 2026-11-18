@@ -84,7 +84,7 @@ internal sealed class RoomObjectFamilySetups(RoomObjectSetupContext context) : I
     public void SetUpMotherBrainEscapeRoomGate()
     {
         DoorObjects.SetupPassableBlock(context.Room.Level, context.Place);
-        context.Place.Become(new MotherBrainEscapeGateObject(MotherBrainEscapeGateDefinitions.Shut));
+        context.Place.BecomeDoor(new MotherBrainEscapeGateObject(MotherBrainEscapeGateDefinitions.Shut));
     }
 
     /// <inheritdoc/>

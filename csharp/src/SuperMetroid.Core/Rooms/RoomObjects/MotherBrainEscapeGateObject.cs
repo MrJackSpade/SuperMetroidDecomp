@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Doors;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
@@ -9,8 +10,12 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// instead, from its next update.
 /// </summary>
 /// <param name="change">The gate's change, shut or closing.</param>
-internal sealed class MotherBrainEscapeGateObject(TerrainChange change) : TerrainChangeObject(change), IClosingDoor
+internal sealed class MotherBrainEscapeGateObject(TerrainChange change) : TerrainChangeObject(change), IDoorBehindSamus
 {
+    /// <summary>The gate never stays open behind Samus: its placement names no door opened for good.</summary>
+    public bool StaysOpenBehindSamus(Func<LockedDoor, bool> openedForGood) =>
+        false;
+
     /// <inheritdoc/>
     public void CloseBehindSamus() => Restart(MotherBrainEscapeGateDefinitions.Closing);
 }

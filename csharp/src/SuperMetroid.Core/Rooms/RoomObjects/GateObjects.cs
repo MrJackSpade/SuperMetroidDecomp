@@ -55,8 +55,9 @@ internal sealed class GateObjects
 
     /// <summary>
     /// Installs the trigger its placement (<paramref name="placed"/>) selects: its shot-block draw, and the block on the
-    /// trigger's own side of the gate made a shootable block whose reaction sets the trigger off. The block keeps what it
-    /// shows (#1580): the trigger's shot-block draw covers it on the object's first update.
+    /// trigger's own side of the gate made a shootable block whose reaction sets the trigger off. Only the block's collision
+    /// kind and behaviour change, so it keeps its picture and what it shows (#1580, #2496): the trigger's shot-block draw
+    /// covers it on the object's first update.
     /// </summary>
     internal static void SetupDownwardGateShotBlock(RoomLevelData level, RoomObjectPlace place, GateTriggerArgument placed)
     {
@@ -64,7 +65,7 @@ internal sealed class GateObjects
         place.Become(new TerrainChangeObject(DownwardGateTriggerDefinitions.Triggers[trigger].Change));
         Position16<RoomBlocks> triggerBlock = level.ObjectBlockStep(place.Block, new Offset16<RoomBlocks>(ColumnsFromGate(trigger), 0));
         _ = level.GetCollisionBlock(triggerBlock);
-        RoomObjectLevelWrites.WriteObjectCollisionAndBehavior(level, triggerBlock, DownwardGateDefinitions.TriggerCollision,
+        level.SetObjectCollisionAndBehavior(triggerBlock, DownwardGateDefinitions.TriggerCollision,
             RoomBlockBehavior.Reacting(BlockReactionDefinitions.DownwardGateTriggers.ReactionFor(trigger)));
     }
 

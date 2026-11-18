@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// for that room (#2486).
 /// </summary>
 [RoomLifetime]
-internal sealed class GreyDoorObject : DoorCapObject, IClosingDoor, IShootableRoomObject
+internal sealed class GreyDoorObject : DoorCapObject, IShootableRoomObject
 {
     /// <summary>A grey cap of <paramref name="variant"/>, locked by <paramref name="doorLock"/>, just placed in <paramref name="door"/>.</summary>
     internal GreyDoorObject(GreyDoorVariant variant, GreyDoorLock doorLock, PlacedDoor door)
@@ -30,7 +30,7 @@ internal sealed class GreyDoorObject : DoorCapObject, IClosingDoor, IShootableRo
     internal PlacedDoor Door { get; }
 
     /// <summary>A cap whose door has been opened for good stays open behind Samus.</summary>
-    public override bool StaysOpenBehindSamus(Func<LockedDoor, bool> openedForGood, ShotOpenedCapClosing<LockedDoor> shotCapClosing) =>
+    public override bool StaysOpenBehindSamus(Func<LockedDoor, bool> openedForGood) =>
         Door.IsOpenedForGood(openedForGood);
 
     /// <summary>Which grey cap this is.</summary>
@@ -59,7 +59,7 @@ internal sealed class GreyDoorObject : DoorCapObject, IClosingDoor, IShootableRo
 
     /// <inheritdoc/>
     /// <remarks>Bomb Torizo's door is held open until Samus has Bombs; every other cap closes at once.</remarks>
-    public void CloseBehindSamus()
+    public override void CloseBehindSamus()
     {
         if (Variant.Closing == GreyDoorClosing.AfterBombs)
         {

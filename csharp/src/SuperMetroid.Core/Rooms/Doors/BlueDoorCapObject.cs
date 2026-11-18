@@ -16,23 +16,26 @@ internal sealed class BlueDoorCapObject : DoorCapObject
 {
     /// <summary>A cap a shot opens, from its next update.</summary>
     /// <param name="orientation">The cap's facing.</param>
-    internal static BlueDoorCapObject Opening(ColoredDoorOrientation orientation) =>
-        new(orientation, BlueDoorCapPhase.Opening, DoorCapSequenceDefinitions.BlueOpening);
+    /// <param name="shotCapClosing">The room's rule for whether a cap a shot opened closes behind Samus (#1906).</param>
+    internal static BlueDoorCapObject Opening(ColoredDoorOrientation orientation, ShotOpenedCapClosing<LockedDoor> shotCapClosing) =>
+        new(orientation, BlueDoorCapPhase.Opening, DoorCapSequenceDefinitions.BlueOpening, Ensure.NotNull(shotCapClosing));
 
     /// <summary>A cap closing behind Samus, from its next update.</summary>
     /// <param name="orientation">The cap's facing.</param>
     internal static BlueDoorCapObject Closing(ColoredDoorOrientation orientation) =>
-        new(orientation, BlueDoorCapPhase.Closing, DoorCapSequenceDefinitions.BlueClosing);
+        new(orientation, BlueDoorCapPhase.Closing, DoorCapSequenceDefinitions.BlueClosing, shotCapClosing: null);
 
     /// <summary>A cap that plays <paramref name="sequence"/> from its next update, standing in no door of its own.</summary>
     /// <param name="orientation">The cap's facing.</param>
     /// <param name="phase">Whether it opens or closes.</param>
     /// <param name="sequence">The opening or the closing it plays.</param>
-    private BlueDoorCapObject(ColoredDoorOrientation orientation, BlueDoorCapPhase phase, Animation<DoorCapSegment> sequence)
+    /// <param name="shotCapClosing">The room's shot-cap rule for a cap a shot opens; null for a closing cap.</param>
+    private BlueDoorCapObject(ColoredDoorOrientation orientation, BlueDoorCapPhase phase, Animation<DoorCapSegment> sequence,
+        ShotOpenedCapClosing<LockedDoor>? shotCapClosing)
         : base(orientation, DoorCapPaint.Blue)
     {
         Phase = phase;
-        OpenedByShot = phase == BlueDoorCapPhase.Opening;
+        _shotCapClosing = shotCapClosing;
         PlayFromNextUpdate(sequence);
     }
 
@@ -56,17 +59,34 @@ internal sealed class BlueDoorCapObject : DoorCapObject
     internal BlueDoorCapPhase Phase { get; private set; }
 
     /// <summary>
-    /// Whether a shot opened the cap: it names no door of its own, and whether it closes behind Samus is the room's
-    /// <see cref="ShotOpenedCapClosing{TDoor}"/> rule's (#1906).
+    /// The room's rule for whether the cap closes behind Samus when a shot opened it (#1906): such a cap names no door of its
+    /// own. Null for a cap no shot opened.
     /// </summary>
-    internal bool OpenedByShot { get; }
+    private readonly ShotOpenedCapClosing<LockedDoor>? _shotCapClosing;
+
+    /// <summary>Whether a shot opened the cap, so whether it closes behind Samus is the room's shot-cap rule's (#1906).</summary>
+    internal bool OpenedByShot => _shotCapClosing is not null;
 
     /// <inheritdoc/>
-    /// <remarks>A cap another door turns into stays open once that door has been opened for good; a closing cap never does.</remarks>
-    public override bool StaysOpenBehindSamus(Func<LockedDoor, bool> openedForGood, ShotOpenedCapClosing<LockedDoor> shotCapClosing) =>
-        OpenedByShot
-            ? Ensure.NotNull(shotCapClosing).StaysOpen(openedForGood)
+    /// <remarks>
+    /// A cap a shot opened stays open as the room's <see cref="ShotOpenedCapClosing{TDoor}"/> rule says; a cap another door
+    /// turns into stays open once that door has been opened for good; a closing cap never does.
+    /// </remarks>
+    public override bool StaysOpenBehindSamus(Func<LockedDoor, bool> openedForGood) =>
+        _shotCapClosing is { } rule
+            ? rule.StaysOpen(openedForGood)
             : Door?.IsOpenedForGood(openedForGood) == true;
+
+    /// <inheritdoc/>
+    /// <remarks>
+    /// The cap plays the blue closing from its next update, then makes its block shootable again, shows its closed image and
+    /// leaves the room, as a cap closing behind Samus does (#2493): a cap a shot opened closes as the door's own closer does.
+    /// </remarks>
+    public override void CloseBehindSamus()
+    {
+        Phase = BlueDoorCapPhase.Closing;
+        PlayFromNextUpdate(DoorCapSequenceDefinitions.BlueClosing);
+    }
 
     /// <summary>
     /// Turns the door at <paramref name="place"/>, placed in <paramref name="door"/>, into its closed blue cap facing

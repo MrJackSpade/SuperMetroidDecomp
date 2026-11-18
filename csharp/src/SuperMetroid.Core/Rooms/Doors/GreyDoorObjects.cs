@@ -81,6 +81,6 @@ internal sealed class GreyDoorObjects
         Ensure.NotNull(placed);
         GreyDoorLock doorLock = LockFor(placed.Condition);
         ApplyGreyDoorSetup(level, place.Block);
-        place.Become(new GreyDoorObject(variant, doorLock, new PlacedDoor(placed.Door)));
+        place.BecomeDoor(new GreyDoorObject(variant, doorLock, new PlacedDoor(placed.Door)));
     }
 }

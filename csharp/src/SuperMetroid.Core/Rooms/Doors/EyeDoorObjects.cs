@@ -33,7 +33,8 @@ internal sealed class EyeDoorObjects
     /// <summary>
     /// Places the eye of the eye door facing <paramref name="orientation"/> that locks <paramref name="door"/>, which takes
     /// its first look on its first update, and installs its closed collision blocks unless its door has been opened for
-    /// good; the eye's first look then turns it into the ordinary blue cap.
+    /// good; the eye's first look then turns it into the ordinary blue cap. The setup changes only each block's collision
+    /// kind and behaviour, so each keeps what it shows (#2496).
     /// </summary>
     internal void SetupEyeDoorEye(RoomLevelData level, RoomObjectPlace place, EyeDoorOrientation orientation, LockedDoorArgument door)
     {
@@ -42,24 +43,34 @@ internal sealed class EyeDoorObjects
         place.Become(new EyeDoorEyeObject(orientation, placedDoor));
         if (placedDoor.IsOpenedForGood(_system.HasOpenedDoor))
             return;
-        RoomObjectLevelWrites.WriteObjectCollisionAndBehavior(level, place.Block, EyeDoorDefinitions.EyeCollision,
-            EyeDoorDefinitions.EyeBehavior);
+        level.SetObjectCollisionAndBehavior(place.Block, EyeDoorDefinitions.EyeCollision, EyeDoorDefinitions.EyeBehavior);
         WriteExtensionRows(level, place.Block, EyeDoorDefinitions.EyeExtensionRows);
     }
 
     /// <summary>
     /// Places the eye door's body or bottom, <paramref name="part"/>, in <paramref name="door"/>, which takes its first look
     /// on its first update, and installs its closed collision block unless its door has been opened for good; the part's
-    /// first look then removes it.
+    /// first look then removes it. The body stands in the door, which Samus's arrival through it asks to close (#2493). The
+    /// setup changes only the block's collision kind and behaviour, so it keeps what it shows (#2496).
     /// </summary>
     internal void SetupEyeDoorPart(RoomLevelData level, RoomObjectPlace place, EyeDoorPart part, LockedDoorArgument door)
     {
         Ensure.NotNull(place);
         var placedDoor = new PlacedDoor(door);
-        place.Become(new EyeDoorPartObject(part, placedDoor));
+        switch (part.BodyPart)
+        {
+            case EyeDoorBodyPart.Middle:
+                place.BecomeDoor(new EyeDoorBodyObject(part.Orientation, placedDoor));
+                break;
+            case EyeDoorBodyPart.Bottom:
+                place.Become(new EyeDoorBottomObject(part.Orientation, placedDoor));
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(part), part, $"Undefined {nameof(EyeDoorBodyPart)} {part.BodyPart}.");
+        }
         if (placedDoor.IsOpenedForGood(_system.HasOpenedDoor))
             return;
-        RoomObjectLevelWrites.WriteObjectCollisionAndBehavior(level, place.Block, EyeDoorDefinitions.ClosedComponentCollision,
+        level.SetObjectCollisionAndBehavior(place.Block, EyeDoorDefinitions.ClosedComponentCollision,
             EyeDoorDefinitions.ClosedComponentBehavior);
     }
 
@@ -106,19 +117,15 @@ internal sealed class EyeDoorObjects
         SpawnEyeDoorProjectile(place, EyeDoorProjectileDefinition.CenteredSmoke, facing);
 
     /// <summary>
-    /// Moves the eye up one block and writes the blue cap facing
-    /// <paramref name="orientation"/> with its extension rows.
+    /// Moves the eye up one block and writes the blue cap facing <paramref name="orientation"/> with its extension rows,
+    /// changing only each block's collision kind and behaviour, so each keeps what it shows (#2496).
     /// </summary>
     internal static void ConvertEyeToBlueDoor(RoomLevelData level, RoomObjectPlace place, EyeDoorOrientation orientation)
     {
         RoomBlockBehavior facing = RoomBlockBehavior.Reacting(
             BlockReactionDefinitions.BlueDoorCaps.ReactionFor(EyeDoorDraws.BlueCapFacing(orientation)));
         place.Block += new Offset16<RoomBlocks>(0, -1);
-        RoomObjectLevelWrites.WriteObjectCollisionAndBehavior(
-            level,
-            place.Block,
-            RoomCollisionType.ShootableBlock,
-            facing);
+        level.SetObjectCollisionAndBehavior(place.Block, RoomCollisionType.ShootableBlock, facing);
         WriteExtensionRows(level, place.Block, EyeDoorDefinitions.BlueDoorExtensionCount);
     }
 
@@ -130,10 +137,7 @@ internal sealed class EyeDoorObjects
     {
         for (int row = 1; row <= rows; row++)
         {
-            RoomObjectLevelWrites.WriteObjectCollisionAndBehavior(
-                level,
-                origin + new Offset16<RoomBlocks>(0, row),
-                RoomCollisionType.VerticalExtension,
+            level.SetObjectCollisionAndBehavior(origin + new Offset16<RoomBlocks>(0, row), RoomCollisionType.VerticalExtension,
                 RoomBlockBehavior.Extending(-row));
         }
     }

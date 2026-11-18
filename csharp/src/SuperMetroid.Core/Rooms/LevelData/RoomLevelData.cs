@@ -259,6 +259,27 @@ public sealed class RoomLevelData
     }
 
     /// <summary>
+    /// A room object's write of only a block's collision kind and behaviour at its block, inside the grid or in the terrain
+    /// beyond the room (#2496): the block keeps its picture and what it shows, as a room object that rewrites nothing but a
+    /// block's type and its parameter does. A block of the grid no longer leads where its earlier behaviour did.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">The block is past the terrain beyond the room.</exception>
+    internal void SetObjectCollisionAndBehavior(Position16<RoomBlocks> block, RoomCollisionType collision, RoomBlockBehavior behavior)
+    {
+        int place = Size.RowMajorIndex(block);
+        if (place >= terrain.Length)
+        {
+            int beyond = BeyondPlace(place);
+            BeyondRoom.SetTerrain(beyond, BeyondRoom.TerrainAt(beyond).WithCollision(collision));
+            BeyondRoom.SetBehavior(beyond, behavior);
+            return;
+        }
+
+        terrain[place] = terrain[place].WithCollision(collision);
+        WriteBehavior(place, behavior);
+    }
+
+    /// <summary>
     /// Makes a block of the grid lead through <paramref name="exit"/> as a door block, as Mother Brain's escape door is set
     /// up (#2090); the block's collision kind and behaviour are written first.
     /// </summary>

@@ -31,15 +31,15 @@ internal sealed class MotherBrainRoomObjects(RoomObjectPlaceList places)
         if (request is MotherBrainMutationRequest { Mutation: MotherBrainRoomMutation.EscapeDoor })
         {
             // The escape door's setup installs the door block and its extensions at once, before the first draw changes
-            // their artwork. Each block is written once, so the order of the writes is unobservable.
+            // their artwork. Each block is written once, so the order of the writes is unobservable. The setup rewrites only
+            // each block's type and parameter, so each keeps what it shows until that draw (#2496).
             foreach (RoomBlockShapeCell cell in EscapeDoorSetup.Cells)
             {
                 Position16<RoomBlocks> block = place.Block + cell.Cell;
                 if (cell.Collision == RoomCollisionType.DoorBlock)
                     RoomObjectLevelWrites.WriteDoorBlock(level, block, MotherBrainDeathDefinitions.EscapeDoor);
                 else
-                    RoomObjectLevelWrites.WriteObjectCollisionAndBehavior(level, block, cell.Collision,
-                        EscapeDoorSetupBehaviors[cell.Collision]);
+                    level.SetObjectCollisionAndBehavior(block, cell.Collision, EscapeDoorSetupBehaviors[cell.Collision]);
             }
         }
         return true;

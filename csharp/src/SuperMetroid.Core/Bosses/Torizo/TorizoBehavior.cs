@@ -36,7 +36,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Queues the statue-break sound with the enemy audio limits.</summary>
     private readonly EnemyAudioQueue _audio;
-    /// <summary>Exposes the two live colour sets occupied by Torizo's body.</summary>
+    /// <summary>Shows the colours of Torizo's body.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>Provides the frame counter used by Torizo animation choices.</summary>
     private readonly EnemyFrameContext _frameContext;

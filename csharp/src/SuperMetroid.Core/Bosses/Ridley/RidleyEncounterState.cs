@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
@@ -65,11 +66,17 @@ public abstract class RidleyEncounterState
         internal set => field = !LiftedOff ? value : throw LiftedOffAlready();
     }
 
-    /// <summary>How far his eye fade has gone; it starts before its first shade (#2228, #2247).</summary>
-    public RidleyEyeFadeProgress EyeFade { get; internal set; }
+    /// <summary>
+    /// His eyes' fade in (#2228, #2247, #2409), played an update at a time while his reveal fades them in; it starts before
+    /// its first shade, and his body's fade begins once it rests.
+    /// </summary>
+    internal AnimationPlayer<RidleyFadeSegment, RidleyFadeImage, NoAnimationCue> EyeFade { get; } = RidleyFadeAnimations.EyesFadingIn();
 
-    /// <summary>How far his body fade has gone; it starts at black (#2228).</summary>
-    public RidleyBodyFadeProgress BodyFade { get; internal set; }
+    /// <summary>
+    /// His body's fade in (#2228, #2409), played an update at a time while his reveal fades it in; it starts before its
+    /// first shade, black, and rests on its last, his own colours.
+    /// </summary>
+    internal AnimationPlayer<RidleyFadeSegment, RidleyFadeImage, NoAnimationCue> BodyFade { get; } = RidleyFadeAnimations.BodyFadingIn();
 
     /// <summary>Ends the reveal as the encounter's phase is set.</summary>
     private protected void LiftOff() => LiftedOff = true;

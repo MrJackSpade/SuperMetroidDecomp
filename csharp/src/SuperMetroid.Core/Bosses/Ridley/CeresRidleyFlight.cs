@@ -320,8 +320,7 @@ internal sealed class CeresRidleyFlight
 
     /// <summary>
     /// Steers both 1/256-pixel velocity axes toward <paramref name="target"/>, where it lies from the room's origin, which
-    /// may be above the chamber; the target is held as positions are, a place above the chamber at the coordinate range's
-    /// far end.
+    /// may be above the chamber, at a negative height.
     /// </summary>
     internal static void AccelerateRidleyToward(
         RoomEnemyPlace place,

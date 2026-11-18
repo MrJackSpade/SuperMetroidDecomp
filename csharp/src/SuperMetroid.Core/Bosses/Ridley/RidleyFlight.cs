@@ -67,7 +67,7 @@ internal sealed class RidleyFlight
         int maximum)
     {
         // Ridley's velocity moves him in 256ths of a pixel.
-        // A bound above the room's top is stored as positions are, continuing from the far end of the coordinate range.
+        // A bound above the room's top lies at a negative height, as SignedPlace reads his place.
         FixedCoordinate moved = position.MovedBy(velocity);
 
         if (SignedPlace(moved) < minimum)
@@ -109,8 +109,8 @@ internal sealed class RidleyFlight
         flight.SwoopSpeed = speed;
 
         RotationAngle angle = turn.Turn(flight.SwoopAngleAccumulator);
-        // The comparison checks whether the difference is negative, not signed less-than. The heading wraps around the
-        // turn, particularly onto the half-turn recovery target after a rightward swoop.
+        // The heading stops at the target once it has turned past it, measured the short way round the turn, as it
+        // does onto the half-turn recovery target after a rightward swoop.
         bool negativeDifference = angle.TurnFrom(targetAngle) < 0;
         if (turn.Direction == RotationDirection.Clockwise ? negativeDifference : !negativeDifference)
             angle = targetAngle;
@@ -126,8 +126,7 @@ internal sealed class RidleyFlight
         Position16<RoomPixels> center,
         Extent16<RoomPixels> radius)
     {
-        // The hover check tests overlap with the actor's rectangle, including its boundary.
-        // A center-only test delays flight and attack handoffs until Ridley gets too close.
+        // Ridley reaches the point once his rectangle and the point's overlap, touching edges included.
         Offset16<RoomPixels> fromCenter = SignedPlace(place) - SignedPlace(center);
         return Math.Abs(fromCenter.X) < place.Radius.X + radius.X + 1 &&
             Math.Abs(fromCenter.Y) < place.Radius.Y + radius.Y + 1;

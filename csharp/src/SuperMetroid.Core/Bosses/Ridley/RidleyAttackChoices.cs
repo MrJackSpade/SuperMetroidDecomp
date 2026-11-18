@@ -10,7 +10,7 @@ public static class RidleyAttackChoices
     /// and the rest pogo. The pogo-zone, spin-jumping and zero-health situations always take one attack.
     /// </summary>
     /// <param name="situation">The situation already chosen from Ridley's health and Samus's movement and position.</param>
-    /// <param name="sample">The random sample his choice draws, 0 through 65535.</param>
+    /// <param name="sample">The random number his choice draws.</param>
     /// <returns>The phase his attack starts in; choosing it draws no random number and starts nothing.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The situation is not a defined situation.</exception>
     public static NorfairRidleyPhase Resolve(RidleyAttackSituation situation, int sample)

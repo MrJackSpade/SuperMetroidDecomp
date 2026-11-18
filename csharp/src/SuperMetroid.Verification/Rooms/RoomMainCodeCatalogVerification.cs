@@ -127,16 +127,17 @@ internal static class RoomMainCodeCatalogVerification
     /// <summary>Constructs boss, event, and item contexts that expose conditional room states.</summary>
     internal static RoomStateSelectionContext[] BuildRoomStateAuditContexts()
     {
+        ProgressSet<StoryEvent> noEvents = new PersistentProgress().Events;
         var contexts = new List<RoomStateSelectionContext>
         {
-            default,
-            new(null, DefeatedBosses.None, HasMorphBallAndMissiles: true, HasPowerBombs: false),
-            new(null, DefeatedBosses.None, HasMorphBallAndMissiles: false, HasPowerBombs: true),
+            new(noEvents, DefeatedBosses.None, HasMorphBallAndMissiles: false, HasPowerBombs: false),
+            new(noEvents, DefeatedBosses.None, HasMorphBallAndMissiles: true, HasPowerBombs: false),
+            new(noEvents, DefeatedBosses.None, HasMorphBallAndMissiles: false, HasPowerBombs: true),
         };
         for (int bit = 0; bit < 8; bit++)
         {
             contexts.Add(new RoomStateSelectionContext(
-                null,
+                noEvents,
                 ProgressionTableCodec.StoredBosses(1 << bit),
                 false,
                 false));

@@ -9,8 +9,8 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>
 /// Golden Torizo's own animations. A pose shown twice running, with nothing between, is one beat of both durations
-/// (#2331): a Torizo is no boss-body part, so nothing reads the new-frame flag a second showing would raise, and no owner
-/// resumes a catch partway.
+/// (#2331): a Torizo is no boss-body part, so nothing waits on a second showing of a picture, and no owner resumes a catch
+/// partway.
 /// </summary>
 internal static class GoldenTorizoAnimations
 {

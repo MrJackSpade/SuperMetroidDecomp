@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Rooms.Backgrounds;
 
@@ -21,10 +22,10 @@ public sealed class CeresSelfDestructWarning
     /// <summary>Gets the installed warning typewriter state, created after the initial delay; null before then.</summary>
     public EscapeTypewriterState? Typewriter { get; internal set; }
     /// <summary>
-    /// Gets the image of the warning's cycling alarm it last took (#2316), its first before it takes any; each step takes
-    /// the next, the first after the last.
+    /// The warning's cycling alarm (#2316, #2409), which shows nothing before its first step; each step, every fourth
+    /// update, plays it on to its next colouring, the first after the last.
     /// </summary>
-    public RidleyFadeImage AlarmStep { get; internal set; } = RidleyFadeDefinitions.SelfDestructAlarm.Images[0];
+    internal AnimationPlayer<RidleyFadeSegment, RidleyFadeImage, NoAnimationCue> Alarm { get; } = RidleyFadeAnimations.AlarmCycling();
     /// <summary>
     /// What the warning shows over the arena's foreground (#1555): its EMERGENCY title, the Japanese subtitle and the glyphs
     /// its typewriter has typed, in the order shown, each at its foreground cell; nothing before it shows any.

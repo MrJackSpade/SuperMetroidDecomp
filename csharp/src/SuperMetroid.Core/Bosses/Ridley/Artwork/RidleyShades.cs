@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Assets;
 
@@ -11,6 +12,19 @@ namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 /// </summary>
 public static class RidleyShades
 {
+    /// <summary>
+    /// The installed name of each of the Ceres Baby's shades (#2409), written out so renaming a shade's identity never
+    /// changes a name on disk.
+    /// </summary>
+    private static readonly FrozenDictionary<CeresBabyShade, string> BabyKeys =
+        new Dictionary<CeresBabyShade, string>
+        {
+            [CeresBabyShade.Resting] = "ridley-baby-Resting",
+            [CeresBabyShade.HorizontalSquish] = "ridley-baby-HorizontalSquish",
+            [CeresBabyShade.Round] = "ridley-baby-Round",
+            [CeresBabyShade.VerticalSquish] = "ridley-baby-VerticalSquish",
+        }.ToFrozenDictionary();
+
     /// <summary>The Ceres door's, container's and Baby's colours Ceres Ridley's initialization loads.</summary>
     public static PictureShade CeresStart { get; } = new("ridley-ceres-start", 0);
 
@@ -33,8 +47,8 @@ public static class RidleyShades
     public static PictureShade RetreatRoom { get; } = new("ridley-retreat-room", 0);
 
     /// <summary>The Baby's and its container's <paramref name="shade"/>.</summary>
-    public static PictureShade Baby(CeresBabyShade shade) => new($"ridley-baby-{shade}", 0);
-
+    /// <exception cref="ArgumentOutOfRangeException">The shade has no installed name.</exception>
+    public static PictureShade Baby(CeresBabyShade shade) => new(Ensure.Listed(BabyKeys, shade), 0);
 
     /// <summary>The colours Norfair Ridley's initialization loads.</summary>
     public static PictureShade NorfairStart { get; } = new("ridley-norfair-start", 0);

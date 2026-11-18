@@ -428,7 +428,7 @@ internal static void VerifyRoomScrollGridAndBoundaryCamera()
 
     // Right: the screen to the right is red, so the attempted +16 is rejected and the
     // routine's deliberate extra two-pixel retreat clamps the signed underflow to zero.
-    grid.SetLogicalState(new(1, 0), RoomScrollState.Closed);
+    grid.SetRoomScreen(new(1, 0), RoomScrollState.Closed);
     camera.SetPosition(new Position16<RoomPixels>(0, 0));
     camera.MoveRight(16);
     AssertEqual(0, camera.PixelPosition.X, "$80:A641 red boundary moving right");
@@ -441,8 +441,8 @@ internal static void VerifyRoomScrollGridAndBoundaryCamera()
 
     // Down: a blue current cell over a red lower cell rejects the move and retreats two
     // pixels above the pre-move position (224 -> proposed 240 -> result 222).
-    grid.SetLogicalState(new(0, 0), RoomScrollState.OpenAlignedToTop);
-    grid.SetLogicalState(new(0, 1), RoomScrollState.Closed);
+    grid.SetRoomScreen(new(0, 0), RoomScrollState.OpenAlignedToTop);
+    grid.SetRoomScreen(new(0, 1), RoomScrollState.Closed);
     camera.SetPosition(new Position16<RoomPixels>(0, 224));
     camera.MoveDown(16);
     AssertEqual(222, camera.PixelPosition.Y, "$80:A893 red boundary moving down");
@@ -453,7 +453,7 @@ internal static void VerifyRoomScrollGridAndBoundaryCamera()
     AssertEqual(274, camera.PixelPosition.Y, "$80:A936 red boundary moving up");
 
     // Physical right edge is (width-1)*$100 regardless of the scroll padding bytes.
-    grid.SetLogicalState(new(1, 0), RoomScrollState.OpenAlignedToTop);
+    grid.SetRoomScreen(new(1, 0), RoomScrollState.OpenAlignedToTop);
     camera.SetPosition(new Position16<RoomPixels>(0x01f8, 0));
     camera.MoveRight(16);
     AssertEqual(0x0200, camera.PixelPosition.X, "scroll camera physical room maximum");
@@ -463,15 +463,15 @@ internal static void VerifyRoomScrollGridAndBoundaryCamera()
     // `$8F:BE25`, which must replace that pair with `[green, blue]` before camera tracking.
     // A door setup names its screens by column and row in the room its doors lead into, so each runs over that room's grid.
     RoomScrollGrid constructionZone = LoadExplicitScrollFixture(source, RoomDefinitions.ConstructionZone.Size);
-    constructionZone.SetLogicalState(new(0, 0), RoomScrollState.OpenAlignedToTop);
-    constructionZone.SetLogicalState(new(0, 1), RoomScrollState.Closed);
+    constructionZone.SetRoomScreen(new(0, 0), RoomScrollState.OpenAlignedToTop);
+    constructionZone.SetRoomScreen(new(0, 1), RoomScrollState.Closed);
     DoorSetupDefinitions.ConstructionZoneOpensScreen0x0OpensScreen0x1TopAligned.ChangeScreens(constructionZone);
     AssertEqual(RoomScrollState.Open, constructionZone.ReadScreen(new(0, 0)),
         "$8F:BE25 opens Construction Zone screen (0, 0)");
     AssertEqual(RoomScrollState.OpenAlignedToTop, constructionZone.ReadScreen(new(0, 1)),
         "$8F:BE25 opens Construction Zone screen (0, 1), aligned to its top");
     RoomScrollGrid parlor = LoadExplicitScrollFixture(source, RoomDefinitions.Parlor.Size);
-    parlor.SetLogicalState(new(1, 1), RoomScrollState.Closed);
+    parlor.SetRoomScreen(new(1, 1), RoomScrollState.Closed);
     DoorSetupDefinitions.ParlorOpensScreen1x1.ChangeScreens(parlor);
     AssertEqual(RoomScrollState.Open, parlor.ReadScreen(new(1, 1)),
         "$8F:B981 opens the Parlor's screen (1, 1)");
@@ -543,8 +543,8 @@ internal static void VerifyMovedSamusCameraTracking()
     // Equal integer coordinates take $80:A528/$80:A731. With identical fixed-point
     // samples, the bank-$90 distance routine still produces speed 1; autoscroll then adds
     // its own two pixels. A red current cell with a blue neighbor therefore drifts +3.
-    grid.SetLogicalState(new(0, 0), RoomScrollState.Closed);
-    grid.SetLogicalState(new(1, 0), RoomScrollState.OpenAlignedToTop);
+    grid.SetRoomScreen(new(0, 0), RoomScrollState.Closed);
+    grid.SetRoomScreen(new(1, 0), RoomScrollState.OpenAlignedToTop);
     camera.SetPosition(new Position16<RoomPixels>(0x0020, 0));
     var stationary = FixedPosition<RoomPixels>.FromStoredParts(200, 0, 200, 0);
     camera.TrackMovedSamusHorizontally(
@@ -555,7 +555,7 @@ internal static void VerifyMovedSamusCameraTracking()
     AssertEqual(0x0023, camera.PixelPosition.X, "$80:A528 red-cell rightward drift");
 
     // Red on both sides cancels that drift by rounding back to the current screen edge.
-    grid.SetLogicalState(new(1, 0), RoomScrollState.Closed);
+    grid.SetRoomScreen(new(1, 0), RoomScrollState.Closed);
     camera.SetPosition(new Position16<RoomPixels>(0x0020, 0));
     camera.TrackMovedSamusHorizontally(
         stationary,
@@ -565,7 +565,7 @@ internal static void VerifyMovedSamusCameraTracking()
 
     // The time-frozen flag short-circuits autoscrolling after bank $90 has calculated the
     // speed. It is intentionally not a blanket prohibition on moved-axis handling.
-    grid.SetLogicalState(new(1, 0), RoomScrollState.OpenAlignedToTop);
+    grid.SetRoomScreen(new(1, 0), RoomScrollState.OpenAlignedToTop);
     camera.SetPosition(new Position16<RoomPixels>(0x0020, 0));
     camera.TrackMovedSamusHorizontally(
         stationary,
@@ -595,8 +595,8 @@ internal static void VerifyMovedSamusCameraTracking()
     RoomScrollGrid verticalGrid = LoadExplicitScrollFixture(
         source,
         new Extent16<RoomScreens>(3, 3));
-    verticalGrid.SetLogicalState(new(0, 0), RoomScrollState.Closed);
-    verticalGrid.SetLogicalState(new(0, 1), RoomScrollState.OpenAlignedToTop);
+    verticalGrid.SetRoomScreen(new(0, 0), RoomScrollState.Closed);
+    verticalGrid.SetRoomScreen(new(0, 1), RoomScrollState.OpenAlignedToTop);
     var verticalCamera = new ScrollBoundaryCamera(verticalGrid);
     verticalCamera.SetPosition(new Position16<RoomPixels>(0, 0x0020));
     verticalCamera.TrackMovedSamusVertically(
@@ -865,21 +865,22 @@ internal static void VerifyCartridgeRoomStateSelection()
 
     ProgressSet<StoryEvent> eventBytes = new PersistentProgress().Events;
     eventBytes.Add(StoryEvent.ZebesAwake);
+    ProgressSet<StoryEvent> noEvents = new PersistentProgress().Events;
     AssertEqual((ushort)0x9100,
         SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.SelectStatePointer(bus, roomPointer,
             new RoomStateSelectionContext(eventBytes, DefeatedBosses.None, false, false)),
         "room selector event branch");
     AssertEqual((ushort)0x9120,
         SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.SelectStatePointer(bus, roomPointer,
-            new RoomStateSelectionContext(null, DefeatedBosses.AreaTorizo, false, false)),
+            new RoomStateSelectionContext(noEvents, DefeatedBosses.AreaTorizo, false, false)),
         "room selector boss branch");
     AssertEqual((ushort)0x9140,
         SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.SelectStatePointer(bus, roomPointer,
-            new RoomStateSelectionContext(null, DefeatedBosses.None, true, false)),
+            new RoomStateSelectionContext(noEvents, DefeatedBosses.None, true, false)),
         "room selector Morph Ball and missiles branch");
     AssertEqual((ushort)0x9160,
         SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.SelectStatePointer(bus, roomPointer,
-            new RoomStateSelectionContext(null, DefeatedBosses.None, false, true)),
+            new RoomStateSelectionContext(noEvents, DefeatedBosses.None, false, true)),
         "room selector power-bomb branch");
 
     // The interpreter must return at the first successful command; later facts do not
@@ -897,8 +898,8 @@ internal static void VerifyCartridgeRoomStateSelection()
     AssertEqual((ushort)0x9180,
         SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.SelectStatePointer(bus, roomPointer,
             new RoomStateSelectionContext(
-                null,
-                RoomStateSelectorConditions.MainAreaBoss,
+                noEvents,
+                DefeatedBosses.AreaBoss,
                 false,
                 false)),
         "room selector main-area boss implicit operand");

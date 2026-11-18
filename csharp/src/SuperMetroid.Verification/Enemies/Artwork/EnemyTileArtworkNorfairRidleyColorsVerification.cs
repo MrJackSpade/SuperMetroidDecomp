@@ -61,14 +61,16 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
         installedLiquid.BindAudioRequests(GameplayAudioRequests.Standalone());
         AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(Shown(installedState, stock))),
             "Norfair Ridley initial palette matches all native CGRAM entries");
+        // The reference's pointer-table row, which its three-call cadence reaches; the production reveal plays its steps on
+        // the shared animation player (#2409), so the row it shows is compared, not a step count or a countdown.
+        int nativeRow = 0;
+        int? nativeShownRow = null;
         for (int call = 0; call <= NorfairRidleyRevealDefinitions.RevealStepCount * 3; call++)
         {
             TickReference(nativeCgram, nativeState);
             Tick(installed, installedPlace, installedState);
-            AssertEqual(nativeState.ArenaReveal, installedState.ArenaReveal,
-                $"Norfair Ridley reveal call {call} row/terminator position");
-            AssertEqual(nativeState.PhaseTimer.Count, installedState.PhaseTimer.Count,
-                $"Norfair Ridley reveal call {call} three-call cadence");
+            AssertEqual(nativeShownRow is { } row ? RidleyFadeDefinitions.ArenaReveal.Images[row] : null,
+                installedState.ArenaReveal.Shown, $"Norfair Ridley reveal call {call} shows the row the three-call cadence reaches");
             AssertEqual(nativeState.RevealPhase, installedState.RevealPhase,
                 $"Norfair Ridley reveal call {call} terminal function");
             AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(Shown(installedState, stock))),
@@ -121,12 +123,12 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
             if (state.PhaseTimer.StepKeepsRunning())
                 return;
             state.PhaseTimer.LastFor(3);
-            ushort pointer = ReadReferenceWord(0xa6a4eb + state.ArenaReveal.Step * 2);
-            state.ArenaReveal = state.ArenaReveal.Next();
+            ushort pointer = ReadReferenceWord(0xa6a4eb + nativeRow * 2);
             if (pointer != 0)
             {
                 for (int color = 0; color < 14; color++)
                     cgram.SetColor(113 + color, RgbColor.FromWord(checked(ReadReferenceWord(0xa60000 + pointer + color * 2))));
+                nativeShownRow = nativeRow++;
                 return;
             }
             // The cartridge clears its one shared fade step here; the reveal's own progress (#2228) needs no clearing.
@@ -149,7 +151,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
             NorfairRidleyState state = enemy.NorfairRidley() ??
                 throw new InvalidOperationException("Norfair Ridley initialization did not publish its state.");
             state.RevealPhase = RidleyRevealPhase.WaitBeforeLiftoff;
-            state.PhaseTimer.LastFor(1);
+            enemy.NorfairRidleyBehavior.BeginRoarHold(state);
             return new EnemyTileArtworkNorfairRidleyColorsCreateResult(enemy, place, state);
         }
 

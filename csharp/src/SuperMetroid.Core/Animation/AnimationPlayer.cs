@@ -168,9 +168,25 @@ internal sealed class AnimationPlayer<TSegment, TFrame, TEvent>
     /// </summary>
     /// <exception cref="InvalidOperationException">The animation raises an event, which this owner has nothing to act on.</exception>
     internal TFrame? StepToNewFrame() =>
-        IsResting || --UpdatesLeft > 0
-            ? null
-            : PlayOn(raised => throw new InvalidOperationException($"The animation raised {raised} with no owner to act on it."));
+        StepToNewFrame(raised => throw new InvalidOperationException($"The animation raised {raised} with no owner to act on it."));
+
+    /// <summary>
+    /// Runs one update as <see cref="Step(Action{TEvent})"/> does, raising the events it passes in <paramref name="raise"/>,
+    /// and returns the frame the update shows anew, as <see cref="StepToNewFrame()"/> does (#2404).
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The animation passes every beat without showing a frame.</exception>
+    internal TFrame? StepToNewFrame(Action<TEvent> raise)
+    {
+        Ensure.NotNull(raise);
+        return IsResting || --UpdatesLeft > 0 ? null : PlayOn(raise);
+    }
+
+    /// <summary>
+    /// Goes on playing <paramref name="animation"/>, of the same segments, in place of the animation playing (#2404): from
+    /// where the play stands, the shown frame keeping its updates left, so the frames after it take their timing from the
+    /// new animation, as the Shitroid's membrane pulse changes its pace.
+    /// </summary>
+    internal void GoOnIn(Animation<TSegment> animation) => Rebind(segments, animation);
 
     /// <summary>
     /// Plays the animation's segments as <paramref name="rebound"/> holds them from now on, keeping where the play stands,

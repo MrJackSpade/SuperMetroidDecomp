@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Corpses;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
@@ -30,8 +31,19 @@ public sealed class NorfairRidleyState : RidleyEncounterState
         }
     }
 
-    /// <summary>How far his arena's reveal, which he holds his roar through, has gone (#2228); it starts at its first step.</summary>
-    public NorfairArenaRevealProgress ArenaReveal { get; internal set; }
+    /// <summary>
+    /// His arena's reveal (#2228, #2409), which he holds his roar through: his roar's hold begins it, and he takes off once it
+    /// rests.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">His roar's hold has not begun it.</exception>
+    internal AnimationPlayer<RidleyFadeSegment, RidleyFadeImage, NoAnimationCue> ArenaReveal
+    {
+        get => field ?? throw new InvalidOperationException("Lower Norfair Ridley's arena reveal has not begun: his roar's hold begins it.");
+        private set;
+    }
+
+    /// <summary>Begins his arena's reveal as his roar's hold starts: its first step shows on the hold's first update.</summary>
+    internal void BeginArenaReveal() => ArenaReveal = RidleyFadeAnimations.ArenaRevealing();
 
     /// <summary>The countdown of the swoop phase he flies, apart from his phase timer: each stage of his swoop lasts its own updates.</summary>
     public BossCountdown SwoopPhaseTimer { get; } = new();

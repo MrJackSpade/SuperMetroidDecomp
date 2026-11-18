@@ -94,7 +94,7 @@ internal static class ScrollObjectsVerification
         // Place a seven-pixel-tall test body immediately left of the right extension. The
         // normal horizontal scanner reaches type five, follows signed BTS `$FF` to the
         // origin, and executes the same `$B393` wakeup—there is no route-specific callback.
-        scrolls.SetLogicalState(new(1, 0), RoomScrollState.Closed);
+        scrolls.SetRoomScreen(new(1, 0), RoomScrollState.Closed);
         var body = new SamusKinematicsState
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(56, 56)),
@@ -113,7 +113,7 @@ internal static class ScrollObjectsVerification
         // the composition seam that originally dropped RoomObjectSystem while ordinary Samus
         // movement passed it correctly: type-five resolves to the resident `$B703` owner,
         // and the ball remains controller/collision driven throughout the call.
-        scrolls.SetLogicalState(new(1, 0), RoomScrollState.Closed);
+        scrolls.SetRoomScreen(new(1, 0), RoomScrollState.Closed);
         WritePoseDefinition(bus, SamusPoseNumbers.Number(SamusPoseId.MorphBallGroundRightPose),
             [0x08, 0x04, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
         var ball = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
@@ -143,7 +143,7 @@ internal static class ScrollObjectsVerification
         // above the resident trigger and must resolve it back to the same `$B703` owner.
         // Ordinary Morph Ball movement already forwards that owner; this assertion guards
         // the special movement-handler composition seam used only during bomb-jump ascent.
-        scrolls.SetLogicalState(new(1, 0), RoomScrollState.Closed);
+        scrolls.SetRoomScreen(new(1, 0), RoomScrollState.Closed);
         var bombJump = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
             Pose = SamusPoseId.MorphBallGroundRightPose,

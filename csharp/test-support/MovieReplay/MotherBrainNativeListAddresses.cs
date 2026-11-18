@@ -48,6 +48,10 @@ internal static class MotherBrainNativeListAddresses
         new NativeProgramEntry<MotherBrainBodySegment>(MotherBrainBodySegment.CrouchSlow, 0x9a0a),
         new NativeProgramEntry<MotherBrainBodySegment>(MotherBrainBodySegment.CrouchFast, 0x9a26),
         new NativeProgramEntry<MotherBrainBodySegment>(MotherBrainBodySegment.HandBeam, 0x9a42),
+        // The hand beam's list writes its charge out four times (#2405): the first copy is the charge's entry, and the list
+        // runs on into the firing after the fourth.
+        new NativeProgramEntry<MotherBrainBodySegment>(MotherBrainBodySegment.HandBeamCharge, 0x9a50),
+        new NativeProgramEntry<MotherBrainBodySegment>(MotherBrainBodySegment.HandBeamFire, 0x9ab0),
     ];
 
     /// <summary>
@@ -105,6 +109,8 @@ internal static class MotherBrainNativeListAddresses
         new NativeProgramEntry<ShitroidSegment>(ShitroidSegment.Normal, 0xf90e),
         new NativeProgramEntry<ShitroidSegment>(ShitroidSegment.LatchedOn, 0xf924),
         new NativeProgramEntry<ShitroidSegment>(ShitroidSegment.Remorse, 0xf93a),
+        // The remorse's list writes its calm pulse out twice (#2405) and runs on into the quickening, at the random cry.
+        new NativeProgramEntry<ShitroidSegment>(ShitroidSegment.RemorseQuickening, 0xf95a),
     ];
 
     /// <summary>The bank-$A9 opcodes of body programs and the body steps each becomes, with its operand words.</summary>
@@ -222,9 +228,10 @@ internal static class MotherBrainNativeListAddresses
     /// <summary>
     /// Reads each segment's native list beside its typed beats (#1600): frames must show the native spritemap for the
     /// native duration, opcodes must raise the events <paramref name="ops"/> names, and the lists' sleeps, gotos and runs on
-    /// into the next authored entry are recorded as their control instructions. Every typed animation must then play the
-    /// phases the lists' control flow plays. Returns each segment's native list, which also maps a native snapshot's list
-    /// pointers to typed playbacks.
+    /// into the next authored entry are recorded as their control instructions, as is a list's whole run written out again
+    /// straight after it, one more play of its segment (#2337, #2405). Every typed animation must then play the phases the
+    /// lists' control flow plays. Returns each segment's native list, which also maps a native snapshot's list pointers to
+    /// typed playbacks.
     /// </summary>
     /// <param name="cartridge">The pinned cartridge.</param>
     /// <param name="bank">The lists' bank.</param>
@@ -261,7 +268,9 @@ internal static class MotherBrainNativeListAddresses
             var addresses = new List<ushort>();
             var controls = new List<NativeEnemyControl<TSegment>>();
             ushort cursor = entry;
-            for (int record = 0; controls.Count == 0; record++)
+            // The length of the run the list writes out again straight after itself, once its first copy is read (#2405).
+            int? writtenRun = null;
+            for (int record = 0; controls.TrueForAll(control => control.Kind == NativeEnemyControlKind.WrittenOutRepeat); record++)
             {
                 if (record > 256)
                     throw new InvalidDataException($"{segment} ran past its native list.");
@@ -270,6 +279,19 @@ internal static class MotherBrainNativeListAddresses
                 {
                     controls.Add(new(NativeEnemyControlKind.RunOnIntoNext, addresses.Count, next, null, cursor));
                     continue;
+                }
+                if (addresses.Count == beats.Count && addresses.Count > 0)
+                {
+                    // A list that writes its whole run out again straight after itself plays the segment once more (#2337):
+                    // the words from here repeat the run's word for word.
+                    int run = writtenRun ??= unchecked((ushort)(cursor - entry));
+                    if (Enumerable.Range(0, run / 2).All(offset => cartridge.ReadCartridgeWord(bank | unchecked((ushort)(cursor + 2 * offset)))
+                            == cartridge.ReadCartridgeWord(bank | unchecked((ushort)(entry + 2 * offset)))))
+                    {
+                        controls.Add(new(NativeEnemyControlKind.WrittenOutRepeat, addresses.Count, null, null, cursor));
+                        cursor = unchecked((ushort)(cursor + run));
+                        continue;
+                    }
                 }
                 ushort word = cartridge.ReadCartridgeWord(bank | cursor);
                 switch (NativeEnemyListDefinitions.Classify(word))
@@ -353,7 +375,7 @@ internal static class MotherBrainNativeListAddresses
                 }
             }
             VerificationAssertions.AssertEqual(beats.Count, addresses.Count, $"{segment}: its native list holds each of its beats");
-            lists[segment] = new NativeEnemyList<TSegment>([.. addresses], [.. controls]);
+            lists[segment] = new NativeEnemyList<TSegment>([.. addresses], [.. controls], entry);
         }
         NativeEnemyAnimationOracle.CompareAnimations(lists, startingAt, onlyRunOnInto: onlyRunOnInto);
         return lists;
@@ -408,7 +430,14 @@ internal static class MotherBrainNativeListAddresses
     /// <summary>Compares every typed body segment and animation with its native list; returns each body segment's native list.</summary>
     internal static Dictionary<MotherBrainBodySegment, NativeEnemyList<MotherBrainBodySegment>> CompareBody(IImportCartridgeSource cartridge) =>
         Lists(cartridge, MotherBrainBank, MotherBrainAnimations.BodySegments, MotherBrainAnimations.BodyStartingAt, BodyEntries,
-            frame => MotherBrainBodyVisualDefinitionsConstants.Frame(frame).Pointer, BodyNativeOps);
+            frame => MotherBrainBodyVisualDefinitionsConstants.Frame(frame).Pointer, BodyNativeOps, BodySegmentsOnlyRunOnInto);
+
+    /// <summary>The body segments only the hand beam runs on into, which start no animation (#2405).</summary>
+    private static readonly HashSet<MotherBrainBodySegment> BodySegmentsOnlyRunOnInto =
+    [
+        MotherBrainBodySegment.HandBeamCharge,
+        MotherBrainBodySegment.HandBeamFire,
+    ];
 
     /// <summary>Compares every typed brain segment and animation with its native list; returns each brain segment's native list.</summary>
     internal static Dictionary<MotherBrainHeadSegment, NativeEnemyList<MotherBrainHeadSegment>> CompareHead(IImportCartridgeSource cartridge) =>
@@ -446,7 +475,7 @@ internal static class MotherBrainNativeListAddresses
     /// <summary>Compares the Shitroid's typed segments and animations with their native lists.</summary>
     internal static void CompareShitroid(IImportCartridgeSource cartridge) =>
         Lists(cartridge, MotherBrainBank, ShitroidAnimations.Segments, ShitroidAnimations.StartingAt, ShitroidEntries,
-            frame => BabyMetroidVisualToolingDefinitions.Spritemap(frame), ShitroidNativeOps);
+            frame => BabyMetroidVisualToolingDefinitions.Spritemap(frame), ShitroidNativeOps, new HashSet<ShitroidSegment> { ShitroidSegment.RemorseQuickening });
 
     /// <summary>
     /// Compares the Zebetites' health pictures with their native lists (#2250): each list shows its picture and sleeps, so

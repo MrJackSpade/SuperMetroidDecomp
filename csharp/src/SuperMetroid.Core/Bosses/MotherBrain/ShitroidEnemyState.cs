@@ -26,18 +26,26 @@ public sealed class ShitroidEnemyState
     /// <summary>Signed 1/256-pixel velocity: X, Y.</summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
 
-    /// <summary>The phase of the membrane's pulse (#2259): each advance moves to the next of the eight phases.</summary>
-    public ShitroidMembranePulse MembranePulse { get; internal set; } = ShitroidMembranePulse.First;
+    /// <summary>
+    /// The membrane's pulse playing (#2259, #2404): its eight phases looping at its pace
+    /// (<see cref="ShitroidMembraneAnimations"/>). It starts on its first phase, which it leaves on its first update, so
+    /// the first phase it shows is its second.
+    /// </summary>
+    internal AnimationPlayer<ShitroidMembranePace, ShitroidMembranePulse, ShitroidMembraneCue> Membrane { get; set; } =
+        ShitroidMembraneAnimations.StandingOn(ShitroidMembranePace.Calm, ShitroidMembranePulse.First, 1);
+
+    /// <summary>The pace of the membrane's pulse: calm, or quick while it feeds.</summary>
+    public ShitroidMembranePace MembranePace { get; internal set; }
 
     /// <summary>
-    /// Updates left before the membrane colours advance to its next phase; each update decrements it until zero, and
-    /// the advance reloads it from <see cref="ColourDelay"/>. The decrement is guarded by the zero test, so it never
-    /// passes zero.
+    /// Sets the membrane's pulse to <paramref name="pace"/>: the phase showing keeps the updates it has left, and the phases
+    /// after it show at the new pace.
     /// </summary>
-    public int ColourTimer { get; internal set; }
-
-    /// <summary>Updates between colour-cycle phases: ten at the ordinary pace, one while draining quickly.</summary>
-    public int ColourDelay { get; internal set; }
+    internal void PaceMembrane(ShitroidMembranePace pace)
+    {
+        MembranePace = pace;
+        Membrane.GoOnIn(ShitroidMembraneAnimations.At(pace));
+    }
 
     /// <summary>
     /// The wait of the current action that counts past zero: the entrance delay, the rises after feeding and after

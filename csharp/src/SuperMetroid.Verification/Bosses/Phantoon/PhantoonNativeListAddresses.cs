@@ -54,19 +54,23 @@ internal static class PhantoonNativeListAddresses
     /// <summary>Whether the native part entries ascend, so the typed declaration order is the authored order.</summary>
     internal static bool PartEntriesAscend => PartEntries.Zip(PartEntries.Skip(1), (first, second) => first.Entry < second.Entry).All(ascends => ascends);
 
-    /// <summary>Each typed flame program's native entry point in bank $86.</summary>
+    /// <summary>
+    /// The native entry point in bank $86 of each flame list a flame's spawn or reaction starts, with the typed animation
+    /// it starts: the cartridge writes the burning loop out twice, as the destroyable flame's idle and the casual flame's
+    /// bounce, and the shot flame's list writes out the dying flame's poses again before its drop (#2405). The dying list a
+    /// resting or impacting flame runs on into starts no animation of its own.
+    /// </summary>
     internal static readonly FlameEntry[] FlameEntries =
     [
-        new FlameEntry(PhantoonFlameSegment.DestroyableIdle, 0x975c),
+        new FlameEntry(PhantoonFlameSegment.Burning, 0x975c),
         new FlameEntry(PhantoonFlameSegment.CasualHitGround, 0x976c),
-        new FlameEntry(PhantoonFlameSegment.CasualBouncing, 0x9772),
+        new FlameEntry(PhantoonFlameSegment.Burning, 0x9772),
         new FlameEntry(PhantoonFlameSegment.CasualResting, 0x9782),
-        new FlameEntry(PhantoonFlameSegment.Dying, 0x979a),
         new FlameEntry(PhantoonFlameSegment.RainImpact, 0x97ac),
         new FlameEntry(PhantoonFlameSegment.CasualFallingKindling, 0x97b4),
         new FlameEntry(PhantoonFlameSegment.StartingFlame, 0x97e8),
         new FlameEntry(PhantoonFlameSegment.Delete, 0x97f8),
-        new FlameEntry(PhantoonFlameSegment.DestroyableShot, 0x97fa),
+        new FlameEntry(PhantoonFlameSegment.Dying, 0x97fa),
     ];
 
     /// <summary><c>InstList_EnemyProjectile_PrePhantoonRoom</c> at $86:A3AA.</summary>

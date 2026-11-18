@@ -81,10 +81,8 @@ internal sealed class CeresRidleyBabyScene
     }
 
     /// <summary>
-    /// Replays the direct branch to the Baby and door draw taken while Ridley's movement and
-    /// animation are off. This is deliberately separate from the later draw below:
-    /// the game runs this path inside Ridley's main AI, before the ordinary
-    /// drawing queues, so the Baby appears with the room and before Ridley's composite.
+    /// Draws the Baby and the door while Ridley's movement and animation are off: as Ridley updates, before the
+    /// other enemies are drawn, so the Baby appears with the room and ahead of Ridley's own picture.
     /// </summary>
     public void DrawCeresRidleyImmediateBabyAndDoor(
         SpriteFrameBuffer sprites,
@@ -184,8 +182,7 @@ internal sealed class CeresRidleyBabyScene
         switch (cue)
         {
             case CeresBabyCue.Cries:
-                // While the baby is falling (its falling flag set) it always cries and
-                // continues. Otherwise it reads the current random number without
+                // While the Baby is falling it always cries and plays on. Otherwise it reads the current random number without
                 // drawing a new one; an odd number makes it jump silently.
                 if (ridley.Baby.VerticalVelocity.IsZero && RidleyRandomDefinitions.CeresBabySilentJump.IsTakenBy(_room.Random.Read()))
                     return SilentAnimation;

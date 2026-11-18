@@ -48,8 +48,8 @@ internal sealed class TorizoAttacks
     /// One of the Torizos' projectiles: every motion of the statue fragments, orbs, sonic booms, drool, eggs,
     /// super missiles and eye beam, and the Torizo projectile animations' cues, which may continue an animation elsewhere.
     /// </summary>
-    /// <param name="room">The loaded room, whose definitions name the orbs' drops.</param>
-    /// <param name="projectiles">The enemy projectiles: their first place, the one-in-four branch and the scatter.</param>
+    /// <param name="room">The loaded room, whose random numbers the projectiles draw.</param>
+    /// <param name="projectiles">The enemy projectiles: their first place, the one-in-four chance of death smoke and the scatter.</param>
     /// <param name="audio">The enemy sound queue the projectiles' sounds join.</param>
     /// <param name="deathsAndDrops">The drops a shot Chozo orb leaves.</param>
     /// <param name="shot">The animation a destroying shot starts, or null for the shared delete animation.</param>
@@ -819,7 +819,7 @@ internal sealed class TorizoAttacks
             samus.Position.Whole - projectile.Position.Whole).ToMirroredTrigonometryAngle();
         TrigonometryAngle angle = awayFromSamus ? bearing.InSecondHalfTurn() : bearing.InFirstHalfTurn();
 
-        // The up-zero heading: X is its sine, Y its negative cosine. Starting both reads at sine rotates the shot.
+        // The angle is measured from straight up: the missile's X speed follows its sine and its Y speed its negative cosine.
         projectile.Velocity = VelocityAlong(TorizoMotionDefinitions.ThrownSuperMissileSpeed, angle);
     }
 
@@ -842,8 +842,8 @@ internal sealed class TorizoAttacks
     }
 
     /// <summary>
-    /// Allocates the room-graphics enemy projectile a room object's script requests, then runs the statue fragment's
-    /// setup against the publishing room object's block coordinates.
+    /// Spawns the piece of Bomb Torizo's breaking statue hand that the hand asks for, placed from the hand's block and
+    /// falling as its definition says; nothing spawns when the room has no place left for an enemy projectile.
     /// </summary>
     public EnemyProjectile? SpawnBombTorizoStatueBreakingProjectile(
         BombTorizoStatueProjectileRequest request)

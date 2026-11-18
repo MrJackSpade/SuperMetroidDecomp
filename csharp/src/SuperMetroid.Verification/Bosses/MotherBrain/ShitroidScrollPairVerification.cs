@@ -58,7 +58,7 @@ internal static class ShitroidScrollPairVerification
     private static void Seed(RoomScrollGrid scrolls, RoomScrollState[] states)
     {
         foreach ((Position16<RoomScreens> screen, RoomScrollState state) in scrolls.Screens.Zip(states))
-            scrolls.SetLogicalState(screen, state);
+            scrolls.SetRoomScreen(screen, state);
         scrolls.SetScreen(new(0, scrolls.Size.Y), states[^1]);
     }
 

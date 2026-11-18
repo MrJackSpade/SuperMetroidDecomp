@@ -148,7 +148,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Angle = RotationAngle.ThreeQuarterTurn;
     }
 
-    /// <summary>Runs Spore Spawn's table-backed ellipse movement.</summary>
+    /// <summary>Sways Spore Spawn round his ellipse about his movement's centre.</summary>
     private static void RunSporeSpawnMovement(RoomEnemyPlace body, SporeSpawnEnemyState state)
     {
         UpdateSporeSpawnStalks(body, state);

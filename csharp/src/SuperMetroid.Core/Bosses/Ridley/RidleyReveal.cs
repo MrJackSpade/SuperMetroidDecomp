@@ -60,7 +60,7 @@ internal sealed class RidleyReveal
                 if (ridley.PhaseTimer.StepRunsOut())
                 {
                     RidleyFlight.StartAnimation(ridley.Flight, place, RidleyAnimations.OpeningRoar);
-                    ridley.PhaseTimer.LastFor(encounter.RoarHoldUpdates);
+                    encounter.BeginRoarHold(ridley);
                     ridley.RevealPhase = RidleyRevealPhase.WaitBeforeLiftoff;
                 }
                 return;
@@ -89,43 +89,30 @@ internal sealed class RidleyReveal
     }
 
     /// <summary>
-    /// Advances Ridley's eye fade an update on each AI update: its sixteen shades, then its hold; once it has held, his body
-    /// fade starts.
+    /// Plays Ridley's eye fade an update on each AI update (#2409): its sixteen shades, then its hold; on the update it rests,
+    /// his body fade starts.
     /// </summary>
     internal static void TickEyeFadeIn(RidleyEncounterState ridley)
     {
-        if (ridley.EyeFade.IsComplete)
-        {
-            ridley.RevealPhase = RidleyRevealPhase.FadeInBody;
-            ridley.MovementAnimationEnabled = true;
-            return;
-        }
-
         // Each of the fade's first updates shows its next, lighter shade; its hold keeps the last, his own eye colours.
-        if (ridley.EyeFade.NextImage is { } image)
+        if (ridley.EyeFade.StepToNewFrame() is { } image)
             ridley.Colours.ShowEyeFade(image);
-        ridley.EyeFade = ridley.EyeFade.Next();
+        if (!ridley.EyeFade.IsResting)
+            return;
+
+        ridley.RevealPhase = RidleyRevealPhase.FadeInBody;
+        ridley.MovementAnimationEnabled = true;
     }
 
     /// <summary>
-    /// Reveals Ridley's body one shade every second update; after the final shade he stops ignoring Samus, waits before his
-    /// opening roar, and the battle music starts.
+    /// Plays Ridley's body fade an update on each AI update (#2409), one shade every second update from black to his own
+    /// colours; as the final shade shows he stops ignoring Samus, waits before his opening roar, and the battle music starts.
     /// </summary>
     internal void TickBodyFadeIn(RoomEnemyPlace place, RidleyEncounterState ridley)
     {
-        // The first of each shade's two updates only waits.
-        if (!ridley.BodyFade.WaitedForShade)
-        {
-            ridley.BodyFade = ridley.BodyFade.Waited();
-            return;
-        }
-
-        // Each step of the body fade shows the next shade, from black to the full body colours.
-        if (ridley.BodyFade.IsComplete)
-            throw new InvalidOperationException($"Ridley body-fade shade {ridley.BodyFade.Shade} is outside the installed shades.");
-        ridley.Colours.ShowBodyFade(RidleyFadeDefinitions.BodyFade.Images[ridley.BodyFade.Shade]);
-        ridley.BodyFade = ridley.BodyFade.Next();
-        if (!ridley.BodyFade.IsComplete)
+        if (ridley.BodyFade.StepToNewFrame() is { } image)
+            ridley.Colours.ShowBodyFade(image);
+        if (!ridley.BodyFade.IsResting)
             return;
 
         // After the final shade Ridley stops ignoring Samus, so the ordinary touch check meets his body again; he waits,
@@ -133,9 +120,7 @@ internal sealed class RidleyReveal
         place.Contact = place.Contact.Without(EnemyContact.IgnoresSamus);
         ridley.RevealPhase = RidleyRevealPhase.WaitBeforeRoar;
         ridley.PhaseTimer.LastFor(RidleyShadeDefinitions.BeforeRoarUpdates);
-        // The fade queues the battle music immediately after the final body shade. It
-        // intentionally continues after Ridley retreats, so omitting this single publication
-        // silences both scenes.
+        // The battle music starts right after the final body shade and plays on after Ridley retreats.
         _audio.RequestRidleyMusic(MusicRequest.SelectTrack(MusicTrack.RidleyAndDraygonBattle));
     }
 

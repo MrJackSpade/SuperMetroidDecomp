@@ -10,8 +10,8 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// Draygon's typed animations (#641, #1600): each body, eye, tail and arms segment's beats, the animation starting at
 /// each, which plays each of its segments whole (#2296), and his tail's final whips, which play its whip four times and
 /// which his grab starts by name (#2399). The idle eye shows its open and narrowing pictures twice in a row
-/// each, and the two showings stay two beats: each raises the eye's new-frame flag, which his body reads to show the eye's
-/// picture on an update the draw pass reaches the eye, so the second showing shows it again where the first was missed.
+/// each, and the two showings stay two beats: his body shows the eye's picture as a showing begins on an update the draw
+/// pass reaches the eye, so the second showing shows it again where the first was missed.
 /// </summary>
 internal static class DraygonAnimations
 {

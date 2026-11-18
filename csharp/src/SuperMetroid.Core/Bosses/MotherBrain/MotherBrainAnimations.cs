@@ -62,12 +62,48 @@ internal static class MotherBrainAnimations
         ],
         [B.CrouchSlow] = [.. Crouch(8, 8)],
         [B.CrouchFast] = [.. Crouch(2, 2)],
-        [B.HandBeam] = HandBeam(),
+        [B.HandBeam] =
+        [
+            Pose(MotherBrainBodyPose.DeathBeam),
+            BodyShow(EnemyFrameId.MotherBrainBodyStanding, 1),
+            BodyShow(EnemyFrameId.MotherBrainBodyHandCurling, 1),
+            BodyShow(EnemyFrameId.MotherBrainBodyArmDrawnBack, 1),
+        ],
+        [B.HandBeamCharge] =
+        [
+            BodyCue(ChargeParticle),
+            BodyShow(EnemyFrameId.MotherBrainBodyArmDrawnBack, 1),
+            BodyCue(ChargeEnergy),
+            BodyShow(EnemyFrameId.MotherBrainBodyArmDrawnBack, 1),
+        ],
+        [B.HandBeamFire] =
+        [
+            BodyShow(EnemyFrameId.MotherBrainBodyArmDrawnBack, 1),
+            BodyCue(MotherBrainBodyCue.FireHandBeam),
+            BodyShow(EnemyFrameId.MotherBrainBodyArmFlungOut, 1),
+            BodyShow(EnemyFrameId.MotherBrainBodyArmReturning, 1),
+            BodyShow(EnemyFrameId.MotherBrainBodyStanding, 240),
+            BodyCue(MotherBrainBodyCue.AdvanceHandBeamPhase),
+            Pose(MotherBrainBodyPose.Standing),
+        ],
     });
 
-    /// <summary>Each body segment's animation: its segment played once, then held.</summary>
-    internal static IReadOnlyDictionary<B, Animation<B>> BodyStartingAt { get; } =
-        Enum.GetValues<B>().ToDictionary(segment => segment, segment => new Animation<B>([BodySegments.Whole(segment)], AnimationEnd.Holds));
+    /// <summary>How many times the hand beam charges at her elbow before it fires.</summary>
+    private const int HandBeamCharges = 4;
+
+    /// <summary>
+    /// Each body animation, by the segment it starts at: every segment but the hand beam's charge and firing is played once,
+    /// then held. The red hand beam raises her arm, charges four times and fires; the arm drawn back shows twice running
+    /// before the beam fires: her body shows each new frame of its own on her body layer, so the second showing is a frame
+    /// of its own (#2318).
+    /// </summary>
+    internal static IReadOnlyDictionary<B, Animation<B>> BodyStartingAt { get; } = new Dictionary<B, Animation<B>>(
+        Enum.GetValues<B>().Except([B.HandBeam, B.HandBeamCharge, B.HandBeamFire])
+            .Select(segment => KeyValuePair.Create(segment, new Animation<B>([BodySegments.Whole(segment)], AnimationEnd.Holds))))
+    {
+        [B.HandBeam] = new([BodySegments.Whole(B.HandBeam), BodySegments.Repeated(B.HandBeamCharge, HandBeamCharges), BodySegments.Whole(B.HandBeamFire)],
+            AnimationEnd.Holds),
+    };
 
     /// <summary>The body animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<B> BodyStartingWith(B segment) => BodyStartingAt[segment];
@@ -148,43 +184,6 @@ internal static class MotherBrainAnimations
         Pose(MotherBrainBodyPose.Standing),
     ];
 
-    /// <summary>
-    /// The red hand beam: the arm rises, eight charge particles alternate between the particle and the energy spark at the
-    /// hand, each followed by the arm drawn back, and the beam fires; the body holds the standing pose before the next
-    /// phase. The arm drawn back shows twice running before the beam fires: her body shows each new frame of its own on her
-    /// body layer, so the second showing is a frame of its own (#2318).
-    /// </summary>
-    private static AnimationBeat<EnemyFrameId, MotherBrainBodyCue>[] HandBeam() =>
-    [
-        Pose(MotherBrainBodyPose.DeathBeam),
-        BodyShow(EnemyFrameId.MotherBrainBodyStanding, 1),
-        BodyShow(EnemyFrameId.MotherBrainBodyHandCurling, 1),
-        BodyShow(EnemyFrameId.MotherBrainBodyArmDrawnBack, 1),
-        BodyCue(ChargeParticle),
-        BodyShow(EnemyFrameId.MotherBrainBodyArmDrawnBack, 1),
-        BodyCue(ChargeEnergy),
-        BodyShow(EnemyFrameId.MotherBrainBodyArmDrawnBack, 1),
-        BodyCue(ChargeParticle),
-        BodyShow(EnemyFrameId.MotherBrainBodyArmDrawnBack, 1),
-        BodyCue(ChargeEnergy),
-        BodyShow(EnemyFrameId.MotherBrainBodyArmDrawnBack, 1),
-        BodyCue(ChargeParticle),
-        BodyShow(EnemyFrameId.MotherBrainBodyArmDrawnBack, 1),
-        BodyCue(ChargeEnergy),
-        BodyShow(EnemyFrameId.MotherBrainBodyArmDrawnBack, 1),
-        BodyCue(ChargeParticle),
-        BodyShow(EnemyFrameId.MotherBrainBodyArmDrawnBack, 1),
-        BodyCue(ChargeEnergy),
-        BodyShow(EnemyFrameId.MotherBrainBodyArmDrawnBack, 1),
-        BodyShow(EnemyFrameId.MotherBrainBodyArmDrawnBack, 1),
-        BodyCue(MotherBrainBodyCue.FireHandBeam),
-        BodyShow(EnemyFrameId.MotherBrainBodyArmFlungOut, 1),
-        BodyShow(EnemyFrameId.MotherBrainBodyArmReturning, 1),
-        BodyShow(EnemyFrameId.MotherBrainBodyStanding, 240),
-        BodyCue(MotherBrainBodyCue.AdvanceHandBeamPhase),
-        Pose(MotherBrainBodyPose.Standing),
-    ];
-
     /// <summary>The hand beam's charge particle, at her elbow.</summary>
     private static MotherBrainBodyCue ChargeParticle => new MotherBrainBodyCue.SpawnHandDust(new(36, -40), DustExplosionAnimation.MotherBrainElbowChargeParticle);
 
@@ -204,48 +203,16 @@ internal static class MotherBrainAnimations
         BodyCue(new MotherBrainBodyCue.SetPose(pose));
 
     /// <summary>
-    /// Every brain segment, as its list shows it (#2318). Her brain shows no new-frame flag to anything, so a picture its
+    /// Every brain segment, as its list shows it (#2318). Nothing waits on her brain showing a new frame, so a picture its
     /// list shows twice running with nothing between is one frame of both: the Hyper Beam recoil opens her mouth as the
     /// stretch does without drooling, so its wide and its widest mouth each show as one frame. Her still pictures hold.
     /// </summary>
     internal static AnimationSegments<H, EnemyFrameId, MotherBrainHeadCue> HeadSegments { get; } = new(
         new Dictionary<H, AnimationBeat<EnemyFrameId, MotherBrainHeadCue>[]>
     {
-        [H.StretchingPhase2] =
-        [
-            Cue(MotherBrainHeadCueKind.ShakeBrain),
-            Show(EnemyFrameId.MotherBrainHeadEyeGlaring, 3),
-            Show(EnemyFrameId.MotherBrainHeadJawDropping, 3),
-            Cue(MotherBrainHeadCueKind.SpawnDrool),
-            Show(EnemyFrameId.MotherBrainHeadJawDropping, 3),
-            Cue(MotherBrainHeadCueKind.SpawnBigPurpleBreath),
-            HeadCue(MotherBrainHeadCue.Sound(MotherBrainSoundDefinitions.Roar)),
-            Cue(MotherBrainHeadCueKind.SpawnDrool),
-            Show(EnemyFrameId.MotherBrainHeadJawDropped, 17),
-            Cue(MotherBrainHeadCueKind.SpawnDrool),
-            Show(EnemyFrameId.MotherBrainHeadJawDropped, 17),
-            Cue(MotherBrainHeadCueKind.SpawnDrool),
-            Show(EnemyFrameId.MotherBrainHeadJawDropped, 33),
-            Show(EnemyFrameId.MotherBrainHeadJawDropping, 5),
-        ],
+        [H.StretchingPhase2] = Stretching(WholeHead),
         [H.StretchingPhase2Held] = [Held(EnemyFrameId.MotherBrainHeadEyeGlaring)],
-        [H.StretchingPhase3] =
-        [
-            Cue(MotherBrainHeadCueKind.ShakeBrain),
-            Show(EnemyFrameId.MotherBrainDarkHeadEyeGlaring, 3),
-            Show(EnemyFrameId.MotherBrainDarkHeadJawDropping, 3),
-            Cue(MotherBrainHeadCueKind.SpawnDrool),
-            Show(EnemyFrameId.MotherBrainDarkHeadJawDropping, 3),
-            Cue(MotherBrainHeadCueKind.SpawnBigPurpleBreath),
-            HeadCue(MotherBrainHeadCue.Sound(MotherBrainSoundDefinitions.Roar)),
-            Cue(MotherBrainHeadCueKind.SpawnDrool),
-            Show(EnemyFrameId.MotherBrainDarkHeadJawDropped, 17),
-            Cue(MotherBrainHeadCueKind.SpawnDrool),
-            Show(EnemyFrameId.MotherBrainDarkHeadJawDropped, 17),
-            Cue(MotherBrainHeadCueKind.SpawnDrool),
-            Show(EnemyFrameId.MotherBrainDarkHeadJawDropped, 33),
-            Show(EnemyFrameId.MotherBrainDarkHeadJawDropping, 5),
-        ],
+        [H.StretchingPhase3] = Stretching(DamagedHead),
         [H.StretchingPhase3Held] = [Held(EnemyFrameId.MotherBrainDarkHeadEyeGlaring)],
         [H.HyperBeamRecoil] =
         [
@@ -268,31 +235,21 @@ internal static class MotherBrainAnimations
             Show(EnemyFrameId.MotherBrainDarkHeadJawDropping, 5),
             HeadCue(MotherBrainHeadCue.Sound(MotherBrainSoundDefinitions.Roar)),
         ],
-        [H.DyingDroolBurst] =
-        [
-            Show(EnemyFrameId.MotherBrainDarkHeadJawDropped, 3),
-            Cue(MotherBrainHeadCueKind.SpawnDrool),
-            Show(EnemyFrameId.MotherBrainDarkHeadJawDropped, 3),
-            Cue(MotherBrainHeadCueKind.SpawnDrool),
-            Show(EnemyFrameId.MotherBrainDarkHeadJawDropped, 3),
-            Cue(MotherBrainHeadCueKind.SpawnDrool),
-            Show(EnemyFrameId.MotherBrainDarkHeadJawDropped, 3),
-            Cue(MotherBrainHeadCueKind.SpawnDrool),
-        ],
+        [H.DyingDroolBurst] = [Show(EnemyFrameId.MotherBrainDarkHeadJawDropped, 3), Cue(MotherBrainHeadCueKind.SpawnDrool)],
         [H.DyingDroolLoop] =
         [
             Show(EnemyFrameId.MotherBrainDarkHeadJawDropped, 3),
             Cue(MotherBrainHeadCueKind.MaybeDroolAgain),
         ],
         [H.FiringRainbowBeam] = [Held(EnemyFrameId.MotherBrainHeadEyeGlaring)],
-        [H.NeutralPhase2] = [Show(EnemyFrameId.MotherBrainHeadEyeShut, 5), Show(EnemyFrameId.MotherBrainHeadEyeOpen, 5), Show(EnemyFrameId.MotherBrainHeadEyeGlaring, 9), Show(EnemyFrameId.MotherBrainHeadEyeOpen, 5), Show(EnemyFrameId.MotherBrainHeadEyeShut, 5), Show(EnemyFrameId.MotherBrainHeadEyeOpen, 5)],
+        [H.NeutralPhase2] = Neutral(WholeHead),
         [H.NeutralPhase2Hold] =
         [
             Show(EnemyFrameId.MotherBrainHeadEyeGlaring, 9),
             Cue(MotherBrainHeadCueKind.MaybeHoldNeutralPhase2),
             Show(EnemyFrameId.MotherBrainHeadEyeOpen, 5),
         ],
-        [H.NeutralPhase3] = [Show(EnemyFrameId.MotherBrainDarkHeadEyeShut, 5), Show(EnemyFrameId.MotherBrainDarkHeadEyeOpen, 5), Show(EnemyFrameId.MotherBrainDarkHeadEyeGlaring, 9), Show(EnemyFrameId.MotherBrainDarkHeadEyeOpen, 5), Show(EnemyFrameId.MotherBrainDarkHeadEyeShut, 5), Show(EnemyFrameId.MotherBrainDarkHeadEyeOpen, 5)],
+        [H.NeutralPhase3] = Neutral(DamagedHead),
         [H.NeutralPhase3Hold] =
         [
             Show(EnemyFrameId.MotherBrainDarkHeadEyeGlaring, 9),
@@ -400,9 +357,10 @@ internal static class MotherBrainAnimations
     });
 
     /// <summary>
-    /// The brain animations, by the segment each starts at (#1948): each lists its own segments, played once in turn,
-    /// and the one it loops from, or rests on the still picture it ends at (#2353). Only the segments she starts an animation at, or a random hold or drool continues at,
-    /// start one; the segments an animation only runs on into are listed in it and start none.
+    /// The brain animations, by the segment each starts at (#1948): each lists its own segments, played once in turn but
+    /// for the dying drool's four bursts, and the one it loops from, or rests on the still picture it ends at (#2353). Only
+    /// the segments she starts an animation at, or a random hold or drool continues at, start one; the segments an
+    /// animation only runs on into are listed in it and start none.
     /// </summary>
     internal static IReadOnlyDictionary<H, Animation<H>> HeadStartingAt { get; } = new Dictionary<H, Animation<H>>
     {
@@ -411,8 +369,8 @@ internal static class MotherBrainAnimations
         [H.HyperBeamRecoil] = Resting(H.HyperBeamRecoil, H.HyperBeamRecoilHeld),
         [H.WholeHeadMouthClosed] = Resting(H.WholeHeadMouthClosed),
         [H.Decapitated] = Resting(H.Decapitated, H.DecapitatedHeld),
-        [H.DyingDrool] = Looping(2, H.DyingDrool, H.DyingDroolBurst, H.DyingDroolLoop),
-        [H.DyingDroolBurst] = Looping(1, H.DyingDroolBurst, H.DyingDroolLoop),
+        [H.DyingDrool] = new([HeadSegments.Whole(H.DyingDrool), DroolBursts, HeadSegments.Whole(H.DyingDroolLoop)], AnimationEnd.LoopsFrom(2)),
+        [H.DyingDroolBurst] = new([DroolBursts, HeadSegments.Whole(H.DyingDroolLoop)], AnimationEnd.LoopsFrom(1)),
         [H.FiringRainbowBeam] = Resting(H.FiringRainbowBeam),
         [H.NeutralPhase2] = Looping(0, H.NeutralPhase2, H.NeutralPhase2Hold),
         [H.NeutralPhase2Hold] = Looping(0, H.NeutralPhase2Hold, H.NeutralPhase2),
@@ -431,6 +389,49 @@ internal static class MotherBrainAnimations
 
     /// <summary>The brain animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<H> HeadStartingWith(H segment) => HeadStartingAt[segment];
+
+    /// <summary>How many times her dying head drools from its widest mouth in one burst.</summary>
+    private const int DroolsPerBurst = 4;
+
+    /// <summary>Her dying head's burst of drool: the widest mouth and a drool, four times.</summary>
+    private static AnimationPhase<H> DroolBursts => HeadSegments.Repeated(H.DyingDroolBurst, DroolsPerBurst);
+
+    /// <summary>
+    /// A stretch of <paramref name="head"/>: it shakes, opens wide and drools, lets out a big purple breath with a roar, and
+    /// drools three times more from its widest mouth before it begins to close. Phase two stretches the whole head, phase
+    /// three the damaged one.
+    /// </summary>
+    private static AnimationBeat<EnemyFrameId, MotherBrainHeadCue>[] Stretching(HeadMouth head) =>
+    [
+        Cue(MotherBrainHeadCueKind.ShakeBrain),
+        Show(head.Open, 3),
+        Show(head.Wide, 3),
+        Cue(MotherBrainHeadCueKind.SpawnDrool),
+        Show(head.Wide, 3),
+        Cue(MotherBrainHeadCueKind.SpawnBigPurpleBreath),
+        HeadCue(MotherBrainHeadCue.Sound(MotherBrainSoundDefinitions.Roar)),
+        Cue(MotherBrainHeadCueKind.SpawnDrool),
+        Show(head.Widest, 17),
+        Cue(MotherBrainHeadCueKind.SpawnDrool),
+        Show(head.Widest, 17),
+        Cue(MotherBrainHeadCueKind.SpawnDrool),
+        Show(head.Widest, 33),
+        Show(head.Wide, 5),
+    ];
+
+    /// <summary>
+    /// <paramref name="head"/> idling: its mouth opens and closes again. Phase two idles with the whole head, phase three
+    /// with the damaged one.
+    /// </summary>
+    private static AnimationBeat<EnemyFrameId, MotherBrainHeadCue>[] Neutral(HeadMouth head) =>
+    [
+        Show(head.Closed, 5),
+        Show(head.Opening, 5),
+        Show(head.Open, 9),
+        Show(head.Opening, 5),
+        Show(head.Closed, 5),
+        Show(head.Opening, 5),
+    ];
 
     /// <summary>
     /// A bomb lob from <paramref name="head"/>: phase two lobs a seven-afterburn bomb from the whole head, phase three a

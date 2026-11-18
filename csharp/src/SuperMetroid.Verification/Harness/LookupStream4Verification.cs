@@ -397,8 +397,9 @@ internal static class LookupStream4Verification
             IReadOnlyList<SheetShade> shades = RidleySheetShades.CeresSprites(stock);
             for (int row = 0; row < 16; row++)
             {
-                ushort[] cgram = BossShadeColours.Lay(BossShadeColours.Filled(0), shades,
-                    RidleyShades.Fade((eyes ? RidleyFadeDefinitions.EyeFade : RidleyFadeDefinitions.BodyFade).Images[row]), BossShadeColours.Sprites);
+                // The eye fade's images run in the order it shows them, from the cartridge's last row back to its first (#2409).
+                RidleyFadeImage image = eyes ? RidleyFadeDefinitions.EyeFade.Images[^(row + 1)] : RidleyFadeDefinitions.BodyFade.Images[row];
+                ushort[] cgram = BossShadeColours.Lay(BossShadeColours.Filled(0), shades, RidleyShades.Fade(image), BossShadeColours.Sprites);
                 for (int color = 0; color < count; color++)
                 {
                     ushort expected = Native(row, color);
@@ -436,13 +437,15 @@ internal static class LookupStream4Verification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         CeresEscape escape = enemies.CeresEscape;
         var ridley = new CeresRidleyState(Position16<RoomPixels>.Zero);
-        escape.Warning.AlarmStep = RidleyFadeDefinitions.SelfDestructAlarm.Images[15];
-        for (ushort nmi = 0; nmi < 64; nmi++)
+        // The alarm shows nothing before its first step; that step shows its second row, and each step every fourth NMI the
+        // next, its first after its last (#2409).
+        AssertEqual<RidleyFadeImage?>(null, escape.Warning.Alarm.Shown, "the alarm shows nothing before its first step");
+        for (ushort nmi = 0; nmi < 72; nmi++)
         {
             escape.StepAlarm(nmi);
             ushort[] laid = RidleyLaidColours.Of(ridley, escape, [], room, 0x1234);
-            int row = nmi / 4;
-            AssertEqual(row, escape.Warning.AlarmStep.Step, "actual alarm advances only every fourth NMI and wraps");
+            int row = (nmi / 4 + 1) % 16;
+            AssertEqual(RidleyFadeDefinitions.SelfDestructAlarm.Images[row], escape.Warning.Alarm.Shown, "actual alarm advances only every fourth NMI and wraps");
             for (int color = 0; color < 256; color++)
                 AssertEqual(color is >= 97 and <= 99 ? Native(row, color - 97) : (ushort)0x1234, laid[color], "actual gated producer preserves exact row and other CGRAM colors");
         }
@@ -460,7 +463,7 @@ internal static class LookupStream4Verification
             AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveAlarm(row, 0), "alarm row bounds");
         foreach (int color in new[] { -1, 3, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveAlarm(0, color), "alarm color bounds");
-        Console.WriteLine("Ceres alarm:48 native colors,16 actual row writes,64 gated producer calls and bounds pass.");
+        Console.WriteLine("Ceres alarm:48 native colors,16 actual row writes,72 gated producer calls and bounds pass.");
     }
 
     /// <summary>Checks Maridia palette definition pointers and their imported color rows.</summary>
@@ -1941,7 +1944,7 @@ internal static class LookupStream4Verification
                 RoomEnemyPlace place = enemies.Places.InUpdateOrder[0]; place.Bind(EnemyDefinitionId.Ridley, place.Definition);
                 new Action<RoomEnemyPlace>(enemies.NorfairRidleyBehavior.Combat.InitializeNorfairRidley)(place);
                 NorfairRidleyState state = enemies.NorfairRidley() ?? throw new InvalidOperationException("Verification requires Lower Norfair Ridley.");
-                state.RevealPhase = RidleyRevealPhase.WaitBeforeLiftoff; state.PhaseTimer.LastFor(1);
+                state.RevealPhase = RidleyRevealPhase.WaitBeforeLiftoff; enemies.NorfairRidleyBehavior.BeginRoarHold(state);
                 RoomFxOverlayState liquid = enemies.RoomFx.FxOverlay;
                 liquid.BindAudioRequests(GameplayAudioRequests.Standalone());
                 // The hold before take-off runs the arena reveal; the reveal's end takes him off (#2229).
@@ -1950,8 +1953,9 @@ internal static class LookupStream4Verification
                     enemies.NorfairRidleyBehavior.Body.Reveal.Run(place, state, enemies.NorfairRidleyBehavior);
                     ushort[] cgram = RidleyLaidColours.Of(state, RidleySheetShades.NorfairSprites(selected), RidleySheetShades.NorfairRoom(selected), 0x1234);
                     int row = Math.Min(call / 3, 14);
-                    AssertEqual(2 - call % 3, state.PhaseTimer.Count, "Actual three-call producer cadence preserved");
-                    AssertEqual(call < 45 ? row + 1 : NorfairRidleyRevealDefinitions.RevealStepCount + 1, state.ArenaReveal.Step, "Actual row and terminator progression");
+                    // Each row shows on the first of its three calls and the reveal ends on the call after the last row's (#2409).
+                    AssertEqual(RidleyFadeDefinitions.ArenaReveal.Images[row], state.ArenaReveal.Shown, "Actual three-call row progression");
+                    AssertEqual(call < 45 ? RidleyRevealPhase.WaitBeforeLiftoff : RidleyRevealPhase.TakingOff, state.RevealPhase, "Actual terminator progression");
                     for (int color = 0; color < 256; color++)
                         AssertEqual(color is >= 113 and < 127 ? Pack(document.Reveal[row][color - 113])
                             : color is >= 160 and < 192 ? Pack(document.Initial[color - 160])

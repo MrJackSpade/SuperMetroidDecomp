@@ -293,9 +293,10 @@ internal static class NativeEnemyFamilyStateImport
                     shitroidRecord.DepartureSide = departureSide;
             }
             shitroidRecord.Velocity = new(new SignedEightEight(words.B), new SignedEightEight(words.C));
-            shitroidRecord.MembranePulse = ShitroidMembranePulse.All[LittleEndianBytes.LowByte(words.D)];
-            shitroidRecord.ColourTimer = LittleEndianBytes.HighByte(words.D);
-            shitroidRecord.ColourDelay = words.E;
+            // Word D holds the membrane's phase and the updates before it moves on, less one; word E its pace, as the
+            // updates each phase holds less one (#2404).
+            shitroidRecord.ResumeMembrane(MotherBrainNativeWords.ShitroidMembranePaces.Decode(words.E, "recorded Shitroid membrane pace"),
+                ShitroidMembranePulse.All[LittleEndianBytes.LowByte(words.D)], LittleEndianBytes.HighByte(words.D) + 1);
             // The cartridge keeps the Sidehopper drain's updates in the same word as every other wait's count.
             if (shitroidRecord.Action == ShitroidAction.DrainSidehopper)
                 shitroidRecord.SidehopperDrainTimer = words.F;

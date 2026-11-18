@@ -250,7 +250,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Shows a half's chosen picture where the shared enemy animation runs (#2250): a still picture, which shows for good on
-    /// the update its clock runs out, raising the new-frame flag, until the half chooses again.
+    /// the update its clock runs out, until the half chooses again.
     /// </summary>
     /// <exception cref="InvalidOperationException">The half shows a picture before its setup chose one.</exception>
     internal static void AdvanceZebetiteAnimation(RoomEnemyPlace place)

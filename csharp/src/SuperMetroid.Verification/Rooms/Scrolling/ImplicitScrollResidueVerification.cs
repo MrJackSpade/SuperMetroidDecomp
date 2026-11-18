@@ -29,7 +29,7 @@ internal static class ImplicitScrollResidueVerification
         RoomScrollState[] previousTail = before.KeptStates;
         RoomScrollGrid grid = RoomScrollGrid.FromDefinition(storage, room.State.Scroll, room.Size, pastScreens);
 
-        AssertEqual(6, grid.LogicalCellCount, "$A7B3 is three screens by two");
+        AssertEqual(6, grid.ScreenCount, "$A7B3 is three screens by two");
         // #1336, #1500: past the 50 cells the scroll reads land in the stored explored maps, unexplored at power-on, and
         // past every stored map they are rejected.
         AssertEqual(RoomScrollState.Closed, grid.ReadCameraState(grid.Size.CellAtRowMajorIndex(RoomScrollGrid.KeptCellCount)),
@@ -38,7 +38,7 @@ internal static class ImplicitScrollResidueVerification
             "the last index a 16-bit register selects lies past every stored map");
         AssertEqual(RoomScrollState.OpenAlignedToTop, grid.ReadScreen(new(0, 1)), "the bottom row is blue");
         RoomScrollState[] kept = grid.KeptStates;
-        for (int index = grid.LogicalCellCount; index < RoomScrollGrid.KeptCellCount; index++)
+        for (int index = grid.ScreenCount; index < RoomScrollGrid.KeptCellCount; index++)
             AssertEqual(previousTail[index], kept[index], $"scroll cell {index} keeps the previous room's value");
         AssertEqual(RoomScrollState.OpenAlignedToTop, grid.ReadCameraState(new(0, room.Size.Y)),
             "the cell below the bottom row is $A7DE's blue, not red");

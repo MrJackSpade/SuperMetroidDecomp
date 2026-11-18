@@ -41,7 +41,7 @@ internal static class CompiledScrollObjectProgramsVerification
         RoomScrollGrid scrolls = RoomScrollGrid.CreateImplicit(RoomScrollGrid.PowerOnCells(),
             size: new Extent16<RoomScreens>(4, 4),
             lastRowState: RoomScrollState.Closed);
-        scrolls.SetLogicalState(new(0, 0), RoomScrollState.Closed);
+        scrolls.SetRoomScreen(new(0, 0), RoomScrollState.Closed);
         AssertTrue(roomObjects.Scrolls.TryNotifyScrollTouch(new(8, 13)),
             "retail scroll trigger wakes at its authored coordinate");
         roomObjects.Step(level, scrolls);

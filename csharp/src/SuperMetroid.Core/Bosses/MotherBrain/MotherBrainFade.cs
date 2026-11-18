@@ -1,19 +1,29 @@
+using SuperMetroid.Core.Animation;
+
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// One of the authored colour fades of Mother Brain's encounter (#2270): a run of installed images shown one a step, in
-/// order. Each image is a colouring of its own that the import supplies, not a blend of the fade's
-/// ends, so a fade is its images rather than a typed blend.
+/// One of the authored colour fades of Mother Brain's encounter (#2270): a run of installed images, each held for the
+/// fade's hold and shown in order, played through the shared animation player (#2404). Each image is a colouring of its own
+/// that the import supplies, not a blend of the fade's ends, so a fade is its images rather than a typed blend. The fade is
+/// over once its last image has shown its hold out.
 /// </summary>
 public sealed class MotherBrainFade
 {
     /// <summary>Defines a fade.</summary>
     /// <param name="key">The name of its installed shades.</param>
-    /// <param name="imageCount">The images it shows, one a step.</param>
-    internal MotherBrainFade(string key, int imageCount)
+    /// <param name="imageCount">The images it shows, in order.</param>
+    /// <param name="imageUpdates">The updates each image shows for before the next, or before the fade is over.</param>
+    internal MotherBrainFade(string key, int imageCount, int imageUpdates)
     {
         Key = Ensure.NotNull(key);
         Images = [.. Enumerable.Range(0, Ensure.BetweenInclusive(1, int.MaxValue, imageCount)).Select(step => new MotherBrainFadeImage(this, step))];
+        ImageUpdates = Ensure.BetweenInclusive(1, int.MaxValue, imageUpdates);
+        Segments = new(new Dictionary<MotherBrainFadeSegment, AnimationBeat<MotherBrainFadeImage, NoAnimationCue>[]>
+        {
+            [MotherBrainFadeSegment.Images] = [.. Images.Select(image => new AnimationBeat<MotherBrainFadeImage, NoAnimationCue>.Frame(image, imageUpdates))],
+        });
+        Animation = new([Segments.Whole(MotherBrainFadeSegment.Images)], AnimationEnd.Stops);
     }
 
     /// <summary>The name of its installed shades.</summary>
@@ -22,12 +32,14 @@ public sealed class MotherBrainFade
     /// <summary>Its images, in the order it shows them.</summary>
     public IReadOnlyList<MotherBrainFadeImage> Images { get; }
 
-    /// <summary>
-    /// The image the fade shows at its step <paramref name="step"/>, counting from zero, or null at the step after its
-    /// last, which shows no new colours and completes the fade.
-    /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException">The step is negative.</exception>
-    internal MotherBrainFadeImage? ImageAt(int step) => Ensure.AtLeastZero(step) < Images.Count ? Images[step] : null;
+    /// <summary>The updates each image shows for.</summary>
+    public int ImageUpdates { get; }
+
+    /// <summary>The fade's run of images.</summary>
+    internal AnimationSegments<MotherBrainFadeSegment, MotherBrainFadeImage, NoAnimationCue> Segments { get; }
+
+    /// <summary>The fade played once: its images in order, and then it is over.</summary>
+    internal Animation<MotherBrainFadeSegment> Animation { get; }
 
     /// <inheritdoc/>
     public override string ToString() => Key;

@@ -190,7 +190,7 @@ internal static class GreyDoorObjectDrawDefinitionsVerification
             "Bomb Torizo closing list loops while Samus has no Bombs");
         for (int frame = 0; frame < 80 &&
              room.RoomObjects.GreyDoorSnapshots.Single().Phase == GreyDoorPhase.Closing; frame++)
-            room.RoomObjects.Step(room.Level, new RoomObjectFrameInputs { Scrolls = SuperMetroid.Core.Rooms.RoomObjects.RoomObjectFixtures.UnreadScrolls(), EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0, CollectedItems = SamusEquipmentFlags.Bombs });
+            room.RoomObjects.Step(room.Level, new RoomObjectFrameInputs { Scrolls = SuperMetroid.Core.Rooms.RoomObjects.RoomObjectFixtures.UnreadScrolls(), EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0, CollectedItems = SamusEquipmentFlags.Bombs, PowerBombExplosionActive = false });
         AssertEqual(GreyDoorPhase.Locked, room.RoomObjects.GreyDoorSnapshots.Single().Phase,
             "collected Bombs let the special closing list rejoin its resident owner");
         room.System.RecordBossesDefeated(AreaId.Crateria, DefeatedBosses.AreaTorizo);

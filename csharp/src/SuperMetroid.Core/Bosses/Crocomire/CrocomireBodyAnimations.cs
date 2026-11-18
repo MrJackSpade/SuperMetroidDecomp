@@ -12,8 +12,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// fight and death start, which plays its segments whole or repeated (#2296, #2399): a run several animations show is one
 /// segment each plays, and a run shown again and again is one segment played that often. Where he shows one picture twice in a row (his damage
 /// wait's open mouth) the showings stay two beats: an uncharged beam on his mouth holds the frame shown for a fixed count,
-/// after which the second showing still plays its own duration, and each showing raises the new-frame flag from which his
-/// body shows the picture.
+/// after which the second showing still plays its own duration, and his body shows the picture as each showing begins.
 /// </summary>
 internal static class CrocomireBodyAnimations
 {
@@ -488,8 +487,8 @@ internal static class CrocomireBodyAnimations
 
     /// <summary>
     /// The updates each melting pass's first-row frame shows before its animation shows it again, the longest duration a
-    /// frame can have, kept exact (#1627): these two animations loop on their frame, so the frame shows anew, raising the new-frame flag,
-    /// each time the count runs out, and a shot's added updates move when.
+    /// frame can have, kept exact (#1627): these two animations loop on their frame, so the frame shows anew each time the
+    /// count runs out, and a shot's added updates move when.
     /// </summary>
     private const int LoopingMeltFrameDuration = 32767;
 

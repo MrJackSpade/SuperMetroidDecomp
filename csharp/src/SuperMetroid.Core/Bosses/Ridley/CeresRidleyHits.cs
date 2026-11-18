@@ -57,17 +57,15 @@ internal sealed class CeresRidleyHits
     }
 
     /// <summary>
-    /// Executes the Ceres half of Ridley's shot reaction after the projectile collision has accepted and marked an
-    /// overlapping projectile. A shot and a normal bomb both run this exact reaction; keeping the reaction here prevents
-    /// those two collisions from acquiring subtly different cinematic rules.
+    /// What a shot or a normal bomb that strikes Ceres Ridley does to him, once it has exploded on him: both react
+    /// alike.
     /// </summary>
     /// <param name="place">Ceres Ridley's body.</param>
     /// <param name="ridley">His encounter.</param>
     internal static void ResolveCeresRidleyShotAfterCollision(RoomEnemyPlace place, CeresRidleyState ridley)
     {
-        // The hurt flash starts at 13 and selects 14 only when the old nonzero timer is odd.
-        // Testing any other property of it (or simply toggling the new value) changes repeated-hit
-        // timing and eventually moves the escape threshold relative to the hurt flash.
+        // A hit restarts his hurt flash; a hit while the flash runs on an odd count restarts it one update longer,
+        // so repeated hits keep the flash's place in its alternation.
         place.FlashTimer = place.FlashTimer != 0 && RidleyCadenceDefinitions.CeresHurtFlashOddCount.IsSetIn(place.FlashTimer)
             ? CeresRidleyFightDefinitions.HurtFlashKeepingPhase
             : CeresRidleyFightDefinitions.HurtFlash;

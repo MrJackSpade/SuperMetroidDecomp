@@ -16,6 +16,6 @@ internal sealed class BotwoonWallCrumbleObject() : TerrainChangeObject(BotwoonWa
         RoomScrollGrid scrolls = context.Frame.Scrolls;
         // The game's opening step sets the first two cells of the scroll grid together.
         foreach (Position16<RoomScreens> cell in BotwoonWallMutationDefinitions.OpenedScrollCells)
-            scrolls.SetLogicalState(cell, RoomScrollState.OpenAlignedToTop);
+            scrolls.SetRoomScreen(cell, RoomScrollState.OpenAlignedToTop);
     }
 }

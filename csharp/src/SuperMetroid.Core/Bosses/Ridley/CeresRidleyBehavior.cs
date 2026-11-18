@@ -45,8 +45,9 @@ internal sealed class CeresRidleyBehavior : IRidleyRevealEncounter<CeresRidleySt
     /// <summary>Ceres Ridley's wait once Samus's door has finished, its first update the one the door finishes on.</summary>
     public int InitialDelayUpdates => CeresRidleyFightDefinitions.RevealDelayUpdates;
 
-    /// <summary>Ceres Ridley's hold after his roar, on whose last update he takes off.</summary>
-    public int RoarHoldUpdates => CeresRidleyFightDefinitions.RoarHoldUpdates;
+    /// <summary>Begins Ceres Ridley's hold after his roar, on whose last update he takes off.</summary>
+    /// <param name="ridley">His encounter.</param>
+    public void BeginRoarHold(CeresRidleyState ridley) => Ensure.NotNull(ridley).PhaseTimer.LastFor(CeresRidleyFightDefinitions.RoarHoldUpdates);
 
     /// <summary>Steps his roar's hold; he takes off as it runs out.</summary>
     /// <param name="place">Ridley's body.</param>
@@ -71,10 +72,7 @@ internal sealed class CeresRidleyBehavior : IRidleyRevealEncounter<CeresRidleySt
     {
         place.Health = BossHealthDefinitions.RefilledFullHealth;
 
-        // The colour selection runs after the boss step and before movement. None of the
-        // step branches mutate the flash timer, so selecting the two
-        // draw colours here is equivalent while keeping their decision ahead of the
-        // shared movement/composition continuation below.
+        // His hurt flash picks his two draw colours after his step and before he moves; no step changes the flash.
         if (state.MovementAnimationEnabled && _ridleyEncounter.CeresStatus == CeresEscapeStatus.RidleyNotEscaped)
             RidleyBodyContact.UpdateHurtFlash(place, state, place.FrameCounter);
 
@@ -176,10 +174,8 @@ internal sealed class CeresRidleyBehavior : IRidleyRevealEncounter<CeresRidleySt
                     nextUpdates: CeresRidleyFlightDefinitions.SwoopClimbUpdates);
                 if (state.Phase == CeresRidleyPhase.SwoopAscendingAimingUp)
                 {
-                    // The swoop requests one aimed tail fling at the exact bottom
-                    // of the swoop. Neutral tail AI consumes and clears it later this same
-                    // enemy-main pass; treating it as a persistent animation mode makes the
-                    // tail lag an entire attack behind Ridley.
+                    // At the bottom of the swoop his tail flings once, aimed: the neutral tail takes the request
+                    // later this update and clears it.
                     state.Tail.WhipRequested = true;
                 }
                 return true;

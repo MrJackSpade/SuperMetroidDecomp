@@ -15,7 +15,7 @@ internal sealed record DoorOpeningScrollSetup
     /// <summary>The camera's position as the scroll carries it.</summary>
     public required Position16<RoomPixels> CameraPosition { get; init; }
 
-    /// <summary>The second background layer's position as the scroll carries it.</summary>
+    /// <summary>The background's position as the scroll carries it.</summary>
     public required Position16<BackgroundPixels> BackgroundPosition { get; init; }
 
     /// <summary>Samus's position, fractions of a pixel included, as the scroll carries her.</summary>

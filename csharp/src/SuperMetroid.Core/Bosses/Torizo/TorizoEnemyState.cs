@@ -71,8 +71,8 @@ public sealed class TorizoEnemyState
     /// <summary>
     /// Stepping cues counted since a decision last reset it. Golden Torizo's repeated-jump decision fires once it reaches
     /// <see cref="TorizoDecisionDefinitions.RepeatedJumpSteps"/> and resets it, and that decision follows every one of its
-    /// stepping cues; Bomb Torizo never reads it. It never nears the 65536 counts at which the original game's count wrapped
-    /// (#1945), so it counts on.
+    /// stepping cues; Bomb Torizo never reads it. No fight steps a Torizo anywhere near the end of its range (#1945), so it
+    /// counts on.
     /// </summary>
     public int DecisionCounter { get; internal set; }
 
@@ -119,8 +119,8 @@ public sealed class TorizoEnemyState
     /// <summary>
     /// Whether the Torizo falls at <see cref="TorizoMotionDefinitions.RestingFallSpeed"/>, as its setup, a landing and a
     /// walk off a ledge leave it, its vertical speed unchanged since (#1945): a Torizo that meets the ground falling so
-    /// lands without a quake. The original game marked this by the speed alone; no other fall reaches it exactly, since
-    /// gravity and the leaps add forty 256ths an update to a rest or to a leap's rise, neither of which comes back to it.
+    /// lands without a quake. Only that fall moves at that speed exactly: gravity and the leaps add forty 256ths an update
+    /// to a rest or to a leap's rise, neither of which comes back to it.
     /// </summary>
     internal bool FallsAtRestingSpeed { get; private set; }
 
@@ -136,7 +136,7 @@ public sealed class TorizoEnemyState
     /// <summary>How the body moves itself each update while it fights, or null while it holds still (#1931).</summary>
     internal TorizoBodyMotion? Motion { get; set; }
 
-    /// <summary>Latch preventing repeat entry into the death script after lethal damage; remains set for this state instance.</summary>
+    /// <summary>Whether the Torizo has started dying: lethal damage starts its death once, and it stays dying while it lasts.</summary>
     public bool DeathStarted { get; internal set; }
 
     /// <summary>Counts one stepping cue.</summary>

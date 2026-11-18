@@ -755,8 +755,9 @@ internal sealed class SamusFramePhases
     /// </summary>
     private void StepTurningWhileJumpingPose(PoseMove move)
     {
-        // Y direction is data the aimed crouched turn's movement reads, never a replacement of its movement type. A crouched
-        // left-to-right turn can retain a downward direction; it then takes the aerial turn's movement.
+        // Only these turns read the vertical direction to choose their movement. Elsewhere it is data the chosen movement
+        // reads: the plain crouched turns, which turn on the ground, can retain a downward direction and still turn on the
+        // ground.
         if (SamusPoseMetadata.IsAimedCrouchingTurnPose(move.Samus.Pose) &&
             move.Samus.Kinematics.YDirection == SamusVerticalDirection.None)
             StepTurningOnGround(move);

@@ -11,8 +11,8 @@ internal sealed class OldTourianWallExplosionAnimation(OldTourianWallExplosionSe
     : EnemyProjectileTypedAnimation<OldTourianWallExplosionSegment, EnemyProjectileFrameId, OldTourianWallExplosionCue>(AllAnimations[segment])
 {
     /// <summary>
-    /// The segments' beats: the setup that stops the movement, the burst that scatters, sounds and plays its six poses
-    /// small explosions, and the deletion after its last play (#2276).
+    /// The segments' beats: the setup that stops the movement, the burst that scatters, plays its sound and shows the six
+    /// pictures of a small explosion, and the deletion after the burst's last picture (#2276).
     /// </summary>
     internal static AnimationSegments<OldTourianWallExplosionSegment, EnemyProjectileFrameId, OldTourianWallExplosionCue> AllSegments { get; } = new(
         new Dictionary<OldTourianWallExplosionSegment, Beat[]>

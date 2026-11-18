@@ -220,7 +220,7 @@ public sealed class SamusCrystalFlashState
     /// <summary>Raises Samus two whole pixels for ten updates, then starts the drain phase and requests the bubble effect.</summary>
     private void StepRaising(SamusState samus)
     {
-        // The raise changes only the whole pixels. The subposition survives.
+        // The raise changes only the whole pixels; where Samus lies within a pixel stays.
         samus.Position -= new Offset16<RoomPixels>(0, CrystalFlashDefinitions.RaiseStep);
 
         // The count starts one below the raise's updates and falls by one each update; the raise's last update takes

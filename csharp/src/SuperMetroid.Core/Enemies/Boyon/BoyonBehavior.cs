@@ -138,8 +138,8 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.FallOneEntry();
         state.Speed = MultiplyBoyonCurveEntry(state);
 
-        // Taking the product's whole pixels discards its fraction. Boyon has no Y subposition
-        // integration here: each frame moves by exactly the product's whole pixels.
+        // Taking the product's whole pixels discards its fraction. Boyon keeps no fraction of a pixel
+        // here: each frame moves by exactly the product's whole pixels.
         place.Position = place.Position.WithWholeY(place.Position.Y.Whole + state.Speed.Whole);
         if (state.CurvePlace < state.BaselineCurvePlace)
             return;

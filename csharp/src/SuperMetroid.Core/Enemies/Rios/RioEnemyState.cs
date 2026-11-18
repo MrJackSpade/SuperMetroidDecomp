@@ -19,6 +19,6 @@ public sealed class RioEnemyState
     /// <summary>The Rio's velocity in 256ths of a pixel an update, positive right and down.</summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
 
-    /// <summary>Handshake set by the animation-finished cue and consumed by main AI.</summary>
+    /// <summary>Whether its animation has finished: set by the animation's finishing cue and cleared as its main AI moves on.</summary>
     public bool AnimationFinished { get; internal set; }
 }

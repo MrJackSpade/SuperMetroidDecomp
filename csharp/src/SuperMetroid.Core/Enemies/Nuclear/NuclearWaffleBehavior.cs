@@ -193,9 +193,8 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
 
             (NuclearWaffleSweepAngle clampedAngle, bool linkFinished) = ClampNuclearWaffleAngle(state, angle);
             segment.Position = segment.Position.WithWhole(NuclearWaffleOrbitPoint(state, clampedAngle));
-            // The sweep tests the flag left by the final link's second clamp. It is
-            // deliberately not an OR across the chain: the head and leading links can sit
-            // at the endpoint while the final projectile link is still unfurling.
+            // The sweep ends when its last damaging link reaches the sweep's end, not when any link does: the head
+            // and the leading links can rest at the end while the last link is still unfurling.
             finished = linkFinished;
         }
 
@@ -306,15 +305,15 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// The whole-pixel point on the orbit at <paramref name="angle"/>, wrapping around the room. The orbit reads only the
-    /// angle's direction within one turn.
+    /// The whole-pixel point on the orbit at <paramref name="angle"/>. The orbit reads only the angle's direction within
+    /// one turn.
     /// </summary>
     private static Position16<RoomPixels> NuclearWaffleOrbitPoint(NuclearWaffleEnemyState state, NuclearWaffleSweepAngle angle) =>
         NuclearWaffleOrbitPoint(state.Origin, state.OrbitRadius, angle);
 
     /// <summary>
     /// The whole-pixel point at <paramref name="angle"/> on the orbit of <paramref name="radius"/> around
-    /// <paramref name="origin"/>, wrapping around the room.
+    /// <paramref name="origin"/>.
     /// </summary>
     private static Position16<RoomPixels> NuclearWaffleOrbitPoint(Position16<RoomPixels> origin, int radius, NuclearWaffleSweepAngle angle) =>
         origin + EnemyMath.CircleOffset(angle.ToRotationAngle().ToTrigonometryAngle(), radius);

@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// <remarks>
 /// The game does not treat the ball as a generic circular rigid body. Grounded,
 /// falling, bouncing, and transition poses enter different movements which share only a few
-/// steps. This class keeps those entry points separate while reusing their exact
+/// steps. This class keeps those movements separate while reusing their exact
 /// collision moves and their air, water and lava speeds. Solid enemies stop the ball through the shared block
 /// collision, conveyors carry it as inside-block reactions, and bomb-jump displacement lives
 /// in <see cref="SamusBombJumpMovement"/>.

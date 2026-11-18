@@ -138,7 +138,7 @@ public sealed class ScrollBoundaryCamera
 
     /// <summary>
     /// Applies the direct camera X write the Shitroid's AI makes. Unlike
-    /// entry placement, the game does not clear subposition or replace either ideal
+    /// entry placement, the game does not clear the camera's fraction of a pixel or replace either ideal
     /// camera coordinate at this point in the gameplay frame.
     /// </summary>
     public void SetCameraXFromEnemyAi(int xPosition) => SetWholeX(xPosition);

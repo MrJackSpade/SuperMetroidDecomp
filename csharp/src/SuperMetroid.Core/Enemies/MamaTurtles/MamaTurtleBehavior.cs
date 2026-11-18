@@ -686,7 +686,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         WakeMamaTurtle(baby);
     }
 
-    /// <summary>Private tail of the Baby Turtle's shot AI on <paramref name="baby"/>.</summary>
+    /// <summary>Finishes the Baby Turtle's reaction to a shot on <paramref name="baby"/>: its mother wakes.</summary>
     private void ResolveBabyTurtleShotAfterCommon(RoomEnemyPlace baby) =>
         WakeMamaTurtle(baby);
 

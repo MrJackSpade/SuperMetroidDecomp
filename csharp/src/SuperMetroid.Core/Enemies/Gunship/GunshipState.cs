@@ -47,15 +47,16 @@ internal sealed class GunshipState
 
     /// <summary>
     /// The ship's upward escape speed, raised each update up to its cap (<see cref="AccelerateEscape"/>). It
-    /// starts at two pixels an update, grows by a quarter pixel and never passes ten pixels and three quarters.
+    /// starts at two pixels an update and grows by a quarter pixel each update; reaching ten pixels sets it back to nine,
+    /// so it never passes nine pixels and three quarters.
     /// </summary>
     public SignedEightEight EscapeVelocity { get; internal set; }
 
     /// <summary>
     /// One update of the escape's acceleration: the speed grows by <see cref="GunshipMotionDefinitions.EscapeAcceleration"/>,
     /// and an update whose speed's whole pixels reach <see cref="GunshipMotionDefinitions.EscapeVelocityCapTriggerPixels"/>
-    /// sets it back to <see cref="GunshipMotionDefinitions.EscapeVelocityCap"/>, so the speed saws between nine and ten
-    /// pixels an update once it first gets there.
+    /// sets it back to <see cref="GunshipMotionDefinitions.EscapeVelocityCap"/>, so once it first gets there the speed
+    /// saws between nine pixels an update and nine and three quarters.
     /// </summary>
     internal void AccelerateEscape()
     {

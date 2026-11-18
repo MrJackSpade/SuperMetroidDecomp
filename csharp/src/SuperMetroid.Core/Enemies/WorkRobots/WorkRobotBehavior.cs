@@ -197,7 +197,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
             return null;
 
         // The game moves only whole X/Y pixels for this temporary foot probe. In particular,
-        // the downward move's collision-produced Y subposition survives after Y is restored.
+        // where the downward move's collision left it within a pixel vertically stays after Y is restored.
         Position16<RoomPixels> walkingPosition = place.Position.Whole;
         place.Position = place.Position.WithWrappedWholeX(
             place.Position.X.Whole + (ledge.ProbeSide == HorizontalDirection.Left ? -WorkRobotMotionDefinitions.LedgeProbeRadii : WorkRobotMotionDefinitions.LedgeProbeRadii) * place.Radius.X);
@@ -256,7 +256,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Runs the private tail of a powered robot's shot AI after common shot handling. The
+    /// Finishes a powered robot's reaction to a shot after common shot handling. The
     /// indestructible vulnerability table leaves health unchanged, but the accepted impact
     /// still chooses an ahead/behind recoil animation and delays the next laser by 64 frames.
     /// </summary>

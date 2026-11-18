@@ -25,7 +25,7 @@ public sealed class AudioQueues
     /// <summary>Each sound library's own queue of waiting requests.</summary>
     internal readonly Dictionary<SoundEffectLibrary, SoundQueue> SoundQueues =
         SoundEffectLibraries.InQueueOrder.ToDictionary(library => library, _ => new SoundQueue());
-    /// <summary>The handshake each sound queue runs with its library, injected by the session's composition root.</summary>
+    /// <summary>The request cycle each sound queue runs with its library, injected by the session's composition root.</summary>
     internal readonly SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId> SoundHandshakes;
 
     /// <summary>The sound each of the three sound queues last asked its library for, as an acknowledgement of it, or none.</summary>
@@ -44,9 +44,9 @@ public sealed class AudioQueues
     /// <summary>The gameplay states every sound request is tested against as it is made (<see cref="SoundSuppression"/>).</summary>
     private readonly IGameplaySoundState _gameplay;
 
-    /// <summary>Creates empty music and sound queues with every library's handshake ready, scheduling the power-on data set and requests for the next <see cref="AdvanceFrame"/> rather than executing them immediately.</summary>
+    /// <summary>Creates empty music and sound queues with every library's request cycle ready, scheduling the power-on data set and requests for the next <see cref="AdvanceFrame"/> rather than executing them immediately.</summary>
     /// <param name="soundHandshakes">
-    /// The handshakes the sound queues run, covering every library of <see cref="SoundEffectLibraries.InQueueOrder"/>;
+    /// The request cycles the sound queues run, covering every library of <see cref="SoundEffectLibraries.InQueueOrder"/>;
     /// the queues reset them with their own state.
     /// </param>
     /// <param name="gameplay">
@@ -331,7 +331,7 @@ public sealed class AudioQueues
         ? AreaThemeDefinitions.Themes[loaded]
         : throw new InvalidOperationException("An area theme was requested with no music data set loaded.");
 
-    /// <summary>Either withdraws all three libraries' requests during music downtime or advances their independent handshakes.</summary>
+    /// <summary>Either withdraws all three libraries' requests during music downtime or advances their independent request cycles.</summary>
     private void HandleSoundEffects(
         SoundAcknowledgements<SoundEffectLibrary, SoundEffectId> acknowledgements,
         List<AudioRequest> requests)
@@ -350,7 +350,7 @@ public sealed class AudioQueues
             HandleSoundEffectQueue(library, acknowledgements[library], requests);
     }
 
-    /// <summary>Runs one pass of <paramref name="library"/>'s handshake and does what the pass asks of its queue.</summary>
+    /// <summary>Runs one pass of <paramref name="library"/>'s request cycle and does what the pass asks of its queue.</summary>
     private void HandleSoundEffectQueue(
         SoundEffectLibrary library,
         SoundAcknowledgement<SoundEffectId> acknowledgement,
@@ -375,7 +375,7 @@ public sealed class AudioQueues
                 break;
 
             default:
-                throw new InvalidDataException($"Sound library {library}'s handshake asked for unknown step {step}.");
+                throw new InvalidDataException($"Sound library {library}'s request cycle asked for unknown step {step}.");
         }
     }
 

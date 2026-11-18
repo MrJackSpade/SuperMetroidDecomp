@@ -1782,6 +1782,24 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         // are not writes and a hardware owner are English.
         Expect("class P { /// <summary>The angle wraps around the turn; the scarf wrapped across the statue; clearing the room; an issue; overlapping shots.</summary>\nint F => 0; }");
         Expect(CompatibilityService + "/// <summary>Evidence: the release's overlapping writes and clearing stores, across the room's wrap.</summary>\n[CompatibilityService(\"writes\")] class Writes { }");
+        // The original's storage and program in enemy prose, outside hardware owners and markup (#2440): subpositions,
+        // handshakes, entry points, a shared, common, private or species tail and a value told by its type's range.
+        Expect("class P { void Run() { // Metaree leaves both subpositions untouched.\n } }", "('subpositions')");
+        Expect("class P { /// <summary>Leaves the live Y sub-position unchanged.</summary>\nint F => 0; }", "('sub-position')");
+        Expect("class P { /// <summary>Animation-to-AI handshake: set by the finishing cue.</summary>\nbool F => true; }", "('handshake')");
+        Expect("class P { string Name => \"the library's handshake asked for an unknown step\"; }", "('handshake')");
+        Expect("class P { /// <summary>Runs the two entry points and common setup.</summary>\nvoid Run() { } }", "('entry points')");
+        Expect("class P { void Run() { // This entry point is the crouching exit.\n } }", "('entry point')");
+        Expect("class P { /// <summary>Runs the shared post-combat tail.</summary>\nvoid Run() { } }", "('shared post-combat tail')");
+        Expect("class P { /// <summary>The species tail after common damage.</summary>\nint F => 0; }", "('species tail')");
+        Expect("class P { void Run() { // the connection's common tail clamps the camera\n } }", "('common tail')");
+        Expect("class P { /// <summary>Runs the private post-common-shot tail.</summary>\nvoid Run() { } }", "('private post-common-shot tail')");
+        Expect("class P { /// <summary>A velocity past the type's range fails loudly.</summary>\nint F => 0; }", "('type's range')");
+        Expect("class P { void Run() { // so the velocity stays far inside its type\n } }", "('inside its type')");
+        // A thing's or a place's entry point, a sub-pixel position, a fraction of a pixel, a body's tail, a type alone or of
+        // something and a hardware owner are English.
+        Expect("class P { /// <summary>Near his entry point; the room's entry point; its sub-pixel position; a fraction of a pixel; Draygon's tail; its tail whips; the shared arena; a type of enemy; inside the type of shot.</summary>\nint F => 0; }");
+        Expect(EncodingOwner + "/// <summary>The speed lies outside the type's range; the handshake keeps both subpositions.</summary>\n[EncodingOwner(\"speed\")] struct Speed { }");
         // The species-owner template on a type that owns no species (#2427), read on the type's own summary; a type that
         // implements or is a species owner's interface owns a species, and an entity's parameter names its owner.
         const string SpeciesOwners = "interface IEnemySpecies { }\ninterface IEnemyEntityFactory { }\n";

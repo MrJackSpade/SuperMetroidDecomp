@@ -177,7 +177,7 @@ internal sealed class BeamFiring
     }
 
     /// <summary>
-    /// Applies the shared tail of uncharged and charged beam firing. A
+    /// Finishes firing a beam, uncharged or charged. A
     /// successful shot's own essential-priority sound replaces the charging sound. If allocation or
     /// muzzle initialization rejects a release after counter sixteen, the game queues
     /// the charge-silencing sound instead so the sustained charge cannot remain audible; that rejection first cancels a
@@ -189,7 +189,7 @@ internal sealed class BeamFiring
     {
         // Charged firing's success path queues the combination's charged sound even when the
         // combination has none. Allocation, not a sound request, distinguishes that success from
-        // the shared failure tail which cancels an audible charge. Murder Beam is the observable
+        // a failed release, which cancels an audible charge. Murder Beam is the observable
         // case: it allocates a persistent projectile while requesting no new sound.
         if (firing is { } fired)
             return new(fired.Sound, Priority: SoundRequestPriority.Essential);
@@ -559,7 +559,7 @@ internal sealed class BeamFiring
 
     /// <summary>
     /// The interaction-immunity timer; humanoid shots temporarily suppress Samus/projectile
-    /// interaction, including bomb jumps. Decremented by the shared gameplay tail.
+    /// interaction, including bomb jumps. Counted down once each gameplay update, after Samus and the enemies have moved.
     /// </summary>
     public int ProjectileInvincibilityTimer { get; internal set; }
 

@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// <remarks>
 /// Solid spike blocks are handled synchronously by the directional movement step.
 /// Spike-air is deliberately different: the inside-block reaction samples Samus's bottom, center, and
-/// top points during the input phase, before movement. Keeping both entry points
+/// top points during the input phase, before movement. Keeping both checks
 /// here prevents their similar damage values from erasing that timing distinction.
 /// </remarks>
 public static class SamusTerrainHazardCollision

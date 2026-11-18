@@ -95,7 +95,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         // The apex transition snaps only the whole positions to precalculated origins;
-        // subpositions deliberately survive until the final spawn reset, just as in the game.
+        // where it lies within a pixel stays until the final spawn reset, just as in the game.
         place.Position = place.Position.WithWhole(state.InitialFallingPosition);
         state.FallingOrigin = state.InitialFallingPosition;
         state.FallingPatternFrame = 0;
@@ -116,7 +116,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
             if (--state.FallingPatternLoopCounter > 0)
                 return;
 
-            // The last loop's end restores exact spawn coordinates/subpositions, reinstalls
+            // The last loop's end restores the exact spawn position, with no fraction of a pixel, reinstalls
             // the idle animation, and rearms the same calculated ascent for the next activation.
             state.YSpeedCurvePlace = state.InitialYSpeedCurvePlace;
             place.Position = FixedPosition<RoomPixels>.FromWhole(state.SpawnPosition);

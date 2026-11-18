@@ -339,7 +339,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Distinguishes Mother Brain's parameterized spawn-sharing actors from ordinary room Rinkas.</summary>
     private static bool IsSpecialRinka(RoomEnemyPlace place) => place.SpawnSettings<RinkaSpawnSettings>().SharedSpawnPoint is not null;
 
-    /// <summary>Runs the private lethal-health tail after common bomb damage without generic death.</summary>
+    /// <summary>Rinka's reaction to a bomb: the common damage without the generic death, then, when the hit kills it, Rinka's own death.</summary>
     internal EnemyBombReaction RinkaBombReaction => field ??= new()
     {
         RunsGenericDeath = false,
@@ -372,10 +372,10 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         AfterCommon = c => ResolveRinkaCombatAfterCommon(c.Enemy),
     };
 
-    /// <summary>Applies the private death tail after projectile damage but not immediate freezing.</summary>
+    /// <summary>Rinka's reaction to a shot: its own death follows the damage, but not a shot that freezes it at once.</summary>
     internal EnemyShotReaction RinkaShotReaction => field ??= new()
     {
-        // Rinka's tail follows the damage path only; the immediate-freeze path skips it.
+        // Rinka's own death follows damage only; a shot that freezes it at once skips it.
         ExemptFromGenericDeath = true,
         // Rinka's shot reaction runs the common damage without the hit burst.
         ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,

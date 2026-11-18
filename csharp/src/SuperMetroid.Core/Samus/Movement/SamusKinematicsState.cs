@@ -4,7 +4,7 @@ using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>
-/// Samus's position, subposition, radius and vertical speed, which room collision
+/// Samus's position, to a fraction of a pixel, her radius and vertical speed, which room collision
 /// reads.
 /// </summary>
 /// <remarks>

@@ -92,7 +92,7 @@ internal sealed class SamusControlFrame
     /// <summary>Samples Samus's camera point carried across the frame boundary.</summary>
     internal void SampleCameraPoint(FixedPosition<RoomPixels> point) => PreviousCameraPoint = point;
 
-    /// <summary>Replaces the camera point's whole pixels with a grapple snap's corrected position, keeping its subpositions.</summary>
+    /// <summary>Replaces the camera point's whole pixels with a grapple snap's corrected position, keeping its fractions of a pixel.</summary>
     internal void SnapCameraPoint(Position16<RoomPixels> whole) => PreviousCameraPoint = PreviousCameraPoint.WithWhole(whole);
 
     /// <summary>Samples the pose the input phase reads, which the movement phase also moves her by until the enemy update replaces it.</summary>

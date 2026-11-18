@@ -188,11 +188,9 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
                 return null;
             });
 
-    /// <summary>Preserves collision marking while rejecting ordinary shots against Owtch's shell.</summary>
-    /// <remarks>Owtch's private shot reaction returns before common shot AI unless it is walking left. The
-    /// collision prelude has already marked ordinary non-plasma shots as collided at this point, but it has not
-    /// converted them into an impact animation. Preserve that split so the shell is genuinely immune while moving
-    /// right, sinking, buried, or rising.</remarks>
+    /// <summary>Turns ordinary shots away from Owtch's shell unless it is walking left.</summary>
+    /// <remarks>A shot the shell turns away does no damage, and a non-Plasma shot still ends where it struck, so the
+    /// shell is immune while Owtch moves right, sinks, is buried or rises.</remarks>
     internal static EnemyShotReaction OwtchShotReaction { get; } = new()
     {
         AfterSuperMissileQuake = (in EnemyShotContext c) =>

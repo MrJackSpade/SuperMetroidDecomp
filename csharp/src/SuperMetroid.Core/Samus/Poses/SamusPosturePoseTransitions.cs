@@ -34,7 +34,7 @@ internal static class SamusPosturePoseTransitions
             targetPose == SamusPoseId.FacingLeftNormalPose;
         if (!rightRoute && !leftRoute)
         {
-            // This entry point is the exact crouching-to-normal-standing direct-exit route.
+            // This route is only the direct exit from crouching to normal standing.
             // Animated stand-ups and cross-facing changes have separate setups.
             throw new InvalidOperationException(
                 $"Direct crouch exit {samus.Pose} -> {targetPose} is not one of its input transitions.");

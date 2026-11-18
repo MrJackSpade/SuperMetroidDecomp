@@ -462,7 +462,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Runs the post-common lethal-shot tail for bomb hits.</summary>
+    /// <summary>Shaktool's reaction to a bomb: after the common damage, a lethal hit ends the whole Shaktool.</summary>
     internal EnemyBombReaction ShaktoolBombReaction => field ??= new()
     {
         AfterCommon = c => ResolveShaktoolShotAfterCommon(c.Enemy),
@@ -501,7 +501,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void ReactToShaktoolTouch(EnemyTouchContext context) =>
         _collision.ResolveNormalEnemyTouch(context);
 
-    /// <summary>Runs the post-common lethal-shot tail for regular projectile hits.</summary>
+    /// <summary>Shaktool's reaction to a shot: after the common damage, a lethal hit ends the whole Shaktool.</summary>
     internal EnemyShotReaction ShaktoolShotReaction => field ??= new()
     {
         AfterCommon = c => ResolveShaktoolShotAfterCommon(c.Enemy),

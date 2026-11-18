@@ -30,7 +30,10 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void ApplyPlatformCue(RoomEnemyPlace place, PlatformCue cue) =>
         SetPlatformHorizontalMovementFromCue(place, cue.Movement);
 
-    /// <summary>Runs the two entry points and common setup.</summary>
+    /// <summary>
+    /// Sets up a Tripper or a suspensor platform: its direction and speed from its spawn settings, its first rise and the
+    /// height it rests at below where it was placed.
+    /// </summary>
     internal static void InitializePlatform(RoomEnemyPlace place)
     {
         var state = new PlatformEnemyState
@@ -281,8 +284,8 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
             });
 
     /// <summary>Applies Tripper's direction-specific frozen frame after a successful common shot freeze.</summary>
-    /// <remarks>Tripper's private tail runs after common shot AI on the immediate-freeze path and replaces the current
-    /// frame with its direction's frozen frame.</remarks>
+    /// <remarks>After common shot AI freezes a Tripper at once, its current frame is replaced with its direction's
+    /// frozen frame.</remarks>
     internal static EnemyShotReaction TripperShotReaction { get; } = new()
     {
         AfterCommon = c =>

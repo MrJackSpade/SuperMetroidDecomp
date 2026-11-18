@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// The room's stations' service (#1554): their setup, the touch that triggers one, the save handshake with the frontend,
+/// The room's stations' service (#1554): their setup, the touch that triggers one, the save a station asks the frontend for,
 /// the room-entry save lockout, and the activation events an update publishes. Each station is a typed room object
 /// (<see cref="StationObject"/>) that holds and advances its own state.
 /// </summary>

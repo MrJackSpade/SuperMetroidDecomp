@@ -22,6 +22,6 @@ internal sealed class EnemyPowerBombReaction
     /// <summary>Replaces the generic death animation on a lethal hit.</summary>
     internal EnemyPowerBombStage? ReplacesGenericDeath { get; init; }
 
-    /// <summary>The species tail after common power-bomb damage.</summary>
+    /// <summary>What the species does after the common power-bomb damage.</summary>
     internal EnemyPowerBombStage? AfterCommon { get; init; }
 }

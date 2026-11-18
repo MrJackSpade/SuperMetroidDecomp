@@ -251,7 +251,7 @@ internal sealed class GameplayActorDrawing
                         });
                 }
 
-                // The shared drawing tail begins here for all three routes: ordinary, active grapple,
+                // The drawing all three routes share begins here: ordinary, active grapple,
                 // and grapple teardown. Samus's effects animate here, so this is where the waits her breath bubbles
                 // and lava spray keep count one update, and where her particles update and draw: earlier in the sprite
                 // list than cannon/body, but later than either applicable flare.

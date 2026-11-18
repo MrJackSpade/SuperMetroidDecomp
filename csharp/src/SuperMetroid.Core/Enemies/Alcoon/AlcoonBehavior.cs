@@ -80,7 +80,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The setup really executes every half-pixel-accelerated ascent
         // step, then every collision-aware descent step. It ultimately restores only the
-        // whole Y coordinate; the collision-produced subposition deliberately survives.
+        // whole Y coordinate; where the collision left it within a pixel stays.
         int iterations = 0;
         do
         {
@@ -262,7 +262,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Action = AlcoonAction.HidingFalling;
     }
 
-    /// <summary>Returns the retreating actor to its whole-pixel spawn position while retaining subpositions.</summary>
+    /// <summary>Returns the retreating actor to its whole-pixel spawn position, keeping where it lies within a pixel.</summary>
     private static void RunAlcoonHidingFall(RoomEnemyPlace place, AlcoonEnemyState state)
     {
         AddAlcoonYVelocity(place, state);
@@ -272,8 +272,8 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        // The reset snaps only whole coordinates. Both subpositions and
-        // the last animation frame remain live while the actor waits underground.
+        // The reset snaps only whole coordinates. Where it lies within a pixel and the last animation frame stay as
+        // they are while the actor waits underground.
         place.Position = place.Position.WithWhole(state.SpawnPosition);
         state.Action = AlcoonAction.WaitingForSamus;
     }
@@ -396,7 +396,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         bool movingLeft = FacesLeft(state);
 
         // Spawning copies the fireball's complete authored
-        // definition before its setup touches position, subposition, and velocity.
+        // definition before its setup touches its position, to a fraction of a pixel, and its velocity.
         // Keeping that division exact makes radii, damage, persistence, shot blocking,
         // animation, and frame behaviour owned by the definition instead of duplicating them here.
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(

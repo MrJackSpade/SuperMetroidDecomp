@@ -27,7 +27,7 @@ public sealed class AlcoonEnemyState
 
     /// <summary>
     /// The population's whole-pixel spawn position. Y is restored after the initialization floor search and after
-    /// retreat, leaving the live Y subposition unchanged; X enforces the 112-pixel walking range and is restored when
+    /// retreat, leaving where it lies within a pixel vertically unchanged; X enforces the 112-pixel walking range and is restored when
     /// hiding completes.
     /// </summary>
     public Position16<RoomPixels> SpawnPosition { get; internal set; }

@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// remain separate actor phases. This class owns the neck extension, both charge waits, body
 /// walks and posture changes, active beam, low-energy attack selection, final charge, the four
 /// updates readying the Baby's arrival, spawn request, final-beam hold, painful stagger, live neck
-/// angles/brain coordinates, rear-room retreat, crouch, grey transition, and corpse handshake.
+/// angles/brain coordinates, rear-room retreat, crouch, grey transition, and the corpse the Baby watches for.
 /// Its colour, beam-effect, projectile, earthquake, graphics, spawn and sound changes are requests other systems
 /// fulfil; it makes its coordinate, resource, timer, animation and Samus-control changes itself.
 /// </remarks>

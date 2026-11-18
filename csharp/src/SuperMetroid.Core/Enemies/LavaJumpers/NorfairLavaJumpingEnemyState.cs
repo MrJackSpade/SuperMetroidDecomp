@@ -8,8 +8,8 @@ public sealed class NorfairLavaJumpingEnemyState
     internal NorfairLavaJumpingEnemyState(NorfairLavaJumpingEnemyAction action) => Action = action;
 
     /// <summary>
-    /// Whether the jump animation has finished. The flip animation's cue sets this handshake after the
-    /// jump animation reaches the frame where main AI may begin the final falling phase.
+    /// Whether the flip animation has finished: its cue after the claws fold sets it, and the jumper then falls back
+    /// into the lava.
     /// </summary>
     public bool AnimationFinished { get; internal set; }
 
@@ -30,8 +30,8 @@ public sealed class NorfairLavaJumpingEnemyState
 
     /// <summary>
     /// One update's gravity: adds <paramref name="gravity"/> to the velocity. A jump launches at about eight pixels an update
-    /// and falls back into the lava's row at about that speed, so the velocity stays far inside its type; a velocity
-    /// past the type's range fails loudly.
+    /// and falls back into the lava's row at about that speed, so the jumper never moves much faster than eight pixels an
+    /// update either way.
     /// </summary>
     /// <param name="gravity">The 1/256-pixel gravity step.</param>
     internal void ApplyGravity(SignedEightEight gravity) => YVelocity = YVelocity.Accelerated(gravity);

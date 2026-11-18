@@ -37,7 +37,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     /// first, which each found when it was placed. The spit has no follow-up.
     /// </summary>
     private readonly EnemyPartLinks<IReadOnlyList<RoomEnemyPlace>> _followUpRecipients = new();
-    /// <summary>Runs normal touch handling before Evir's shared combat tail.</summary>
+    /// <summary>Runs normal touch handling before Evir's follow-up to the hit.</summary>
     private readonly EnemyCollision _collision;
 
     /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
@@ -467,7 +467,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Preserves power-bomb reactions on both body and arms, including relative aliases.</summary>
     internal EnemyPowerBombReaction EvirPowerBombReaction => field ??= new()
     {
-        // Touch and shot collision skip the arms, which are intangible, but a Power Bomb's blast does not. Both body and arms therefore run the shared tail, whose follow-up deliberately reaches the enemy after
+        // Touch and shot collision skip the arms, which are intangible, but a Power Bomb's blast does not. Both body and arms therefore finish with the same follow-up, which reaches the enemy after
         // them in the room's list.
         AfterCommon = c => ResolveEvirCombatAfterCommon(c.Enemy),
     };

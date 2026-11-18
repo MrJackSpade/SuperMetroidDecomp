@@ -610,7 +610,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Rejects a cue: no Pipe Bug animation raises one.</summary>
     private static AnimationContinuation<PipeBugSegment>? RaisesNoCues(NoAnimationCue cue) =>
-        throw new InvalidOperationException($"A Pipe Bug animation raised {cue}, though its lists raise no events.");
+        throw new InvalidOperationException($"A Pipe Bug animation raised {cue}, though no Pipe Bug animation has a cue.");
 
     /// <summary>Runs a Brinstar Pipe Bug's main AI.</summary>
     internal static void RunBrinstarPipeBugMainAi(RoomEnemyPlace place, IEnemyAiFrame frame) =>

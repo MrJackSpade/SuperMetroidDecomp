@@ -142,8 +142,8 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Heading = state.Heading == HorizontalDirection.Left ? HorizontalDirection.Right : HorizontalDirection.Left;
 
     /// <summary>
-    /// Runs the common post-shot tail. Normal shot AI owns health, death,
-    /// impact, and freeze timers; this family-specific tail only pins the direction-specific
+    /// Finishes a Ripper's reaction to a shot. The common shot AI deals with health, death,
+    /// impact and freeze timers; this only pins the direction-specific
     /// frozen frame when the projectile that hit it actually froze it.
     /// </summary>
     private static void ResolveGrappleRipperJetRipperShotAfterCommon(RoomEnemyPlace place)

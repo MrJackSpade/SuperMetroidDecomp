@@ -28,6 +28,6 @@ internal sealed class EnemyBombReaction
     /// <summary>Runs immediately before common damage.</summary>
     internal Action<EnemyBombContext>? BeforeCommon { get; init; }
 
-    /// <summary>The species tail after common damage.</summary>
+    /// <summary>What the species does after the common damage.</summary>
     internal Action<EnemyBombContext>? AfterCommon { get; init; }
 }

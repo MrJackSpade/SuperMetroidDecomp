@@ -345,7 +345,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static EnemyDeathExplosion ExplosionAfterBurst(int? lastSpikePlace) =>
         LeftoverNumberDeathExplosion.Named(lastSpikePlace * 2, EnemyDeathExplosionDefinitions.AuthoredOrder);
 
-    /// <summary>Resolves the body-only private tail of a Powamp's touch.</summary>
+    /// <summary>Finishes a touch on a Powamp's body: when it kills the Powamp, its balloon goes and its spikes burst out.</summary>
     private void ResolvePowampTouch(RoomEnemyPlace body, SamusState samus, PseudoScrewCharge pseudoScrew)
     {
         // The spikes take the body's colours from before the touch, which may change them.

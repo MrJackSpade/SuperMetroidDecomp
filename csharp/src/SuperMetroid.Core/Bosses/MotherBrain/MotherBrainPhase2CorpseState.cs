@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// The corpse handshake between Mother Brain and the Baby Metroid at the end of the second phase. The Baby stops
+/// Whether Mother Brain lies as a corpse at the end of the second phase, which the Baby Metroid watches for. The Baby stops
 /// draining once Mother Brain is a corpse, and the health colours resume only once she has revived and walked back
 /// to her target.
 /// </summary>

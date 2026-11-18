@@ -2,12 +2,12 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Hibashi;
 
 /// <summary>
-/// The state of one Hibashi part. Every shipped pillar lists two consecutive parts: the visible flame owns the art and
-/// timing, and the collision part after it is the invisible body the flame moves.
+/// The state of a Hibashi's visible flame, which holds the pillar's pictures and timing and moves and sizes the invisible
+/// collision part listed right after it (<see cref="HibashiCollisionPartState"/>).
 /// </summary>
 public sealed class HibashiEnemyState
 {
-    /// <summary>Starts the graphics part in <paramref name="action"/>.</summary>
+    /// <summary>Starts the flame in <paramref name="action"/>.</summary>
     internal HibashiEnemyState(HibashiAction action) => Action = action;
 
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
@@ -22,10 +22,13 @@ public sealed class HibashiEnemyState
     /// </summary>
     public int InactiveTimer { get; internal set; }
 
-    /// <summary>Animation-to-AI handshake: cleared when an eruption starts, set by the finishing cue after the hitbox is disabled, and awaited by active AI.</summary>
+    /// <summary>
+    /// Whether the eruption has finished: cleared as an eruption starts and set by its last cue, which shrinks the
+    /// collision part to nothing and hides the flame; the active flame rests again once it is set.
+    /// </summary>
     public bool ActivityFinished { get; internal set; }
 
-    /// <summary>The flame's room Y captured at initialization. Activity frames place the collision part relative to it and the finishing cue restores the art owner to it.</summary>
+    /// <summary>The flame's room Y where it was placed. The eruption's steps raise the collision part from it and its last cue returns the flame to it.</summary>
     public int SpawnY { get; internal set; }
 
     /// <summary>

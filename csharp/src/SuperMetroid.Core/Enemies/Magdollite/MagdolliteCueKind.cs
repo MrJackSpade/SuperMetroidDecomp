@@ -16,7 +16,7 @@ internal enum MagdolliteCueKind
     SinkAndShowParts,
     /// <summary>Throws a lava projectile.</summary>
     SpawnLava,
-    /// <summary>Starts the 256-frame attack cooldown.</summary>
+    /// <summary>Starts the attack cooldown (<see cref="MagdolliteMotionDefinitions.AttackCooldown"/>).</summary>
     StartCooldown,
     /// <summary>Puts the head and body 4 pixels below the origin and hides the body and overlay.</summary>
     SurfaceAndHideParts,

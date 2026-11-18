@@ -55,8 +55,8 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
         };
         place.SetSpeciesState(state);
 
-        // The jumping parent returns to exactly these population coordinates after every
-        // arc. Subpositions are deliberately not saved or cleared by the jump.
+        // The jumping parent returns to exactly these whole population coordinates after every arc; where it lies
+        // within a pixel carries over from one jump to the next.
         state.SpawnPosition = place.Position.Whole;
         state.Playback = new(NorfairLavaJumperAnimations.StartingWith(NorfairLavaJumperSegment.Hidden), AnimationPlace.StartOfAnimation);
     }
@@ -139,7 +139,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
         }
     }
 
-    /// <summary>Carries out the jump animation's finishing cue, the private handshake.</summary>
+    /// <summary>Carries out the flip animation's finishing cue: the jumper may fall back into the lava.</summary>
     private static void ApplyNorfairLavaJumperCue(NorfairLavaJumpingEnemyState state, NorfairLavaJumperCue cue)
     {
         if (cue.Kind != NorfairLavaJumperCueKind.FinishAnimation)
@@ -148,8 +148,8 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
     }
 
     /// <summary>
-    /// Shows the cosmetic follower at the preceding parent's height while the parent rises unfrozen, and hides it otherwise;
-    /// the follower reads the parent's freeze rather than keeping a copy, which it showed only while hidden.
+    /// Shows the cosmetic follower at the preceding parent's height while the parent rises and is not frozen, and hides
+    /// it otherwise.
     /// </summary>
     private void FollowNorfairLavaJumpingEnemyParent(RoomEnemyPlace follower)
     {
@@ -196,7 +196,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
         }
     }
 
-    /// <summary>Advances position by the parent's signed 1/256-pixel vertical velocity.</summary>
+    /// <summary>Moves the jumper up or down by one update of its vertical speed.</summary>
     private static void MoveNorfairLavaJumpingEnemyVertically(
         RoomEnemyPlace place,
         NorfairLavaJumpingEnemyState state)

@@ -141,6 +141,8 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// #2433 adds, outside hardware owners, the machine's coordinate wrap and the original's stores, calls and writes as enemy
 /// prose tells them: a comparison across the room's wrap or on either side of it, a distance measured as an encoding
 /// owner measures it, clearing stores, a thing that issues calls and overlapping writes.
+/// #2440 adds, outside hardware owners, the original's storage and program as enemy prose tells them: subpositions,
+/// handshakes, entry points, a shared, common or species tail and a value told by its type's range.
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -1931,6 +1933,27 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
+    /// The original's storage and program told in enemy prose (#2440), outside hardware owners and markup: a subposition,
+    /// spaced, hyphenated or run on (both subpositions, the live Y sub-position); a handshake in any word form (the
+    /// animation-to-AI handshake, the corpse handshake, handshakes); an entry point not owned by a thing or a place (the
+    /// two entry points, this entry point, the gameplay entry point); a tail of the program, shared, common, private, a
+    /// species' or after something (the shared post-combat tail, the species tail, the common tail); and a value told by
+    /// the range of its type (past the type's range, far inside its type). The original kept a position's fraction as its
+    /// own word, passed a finished animation to the AI through a flag, entered routines at several points and shared their
+    /// endings; Core says where within a pixel a thing lies, what an animation's end lets the enemy do, what a setup or
+    /// reaction does and which values a quantity reaches. English stays legal: a thing's or a place's entry point (his entry
+    /// point, the room's entry point), a sub-pixel position or a fraction of a pixel, a body's tail (Draygon's tail, its
+    /// tail), a type alone and a hardware owner, whose encoding states its own range.
+    /// </summary>
+    private static readonly Regex EnemyStorageAndProgramNarrationProse = new(
+        @"\bsub[-\s]?positions?\b" +
+        @"|\bhandshak\w*" +
+        @"|(?<!(?:\b(?:his|her|its|their)|(?:'s|s'|’s))\s+)\bentry[-\s]+points?\b" +
+        @"|\b(?:shared|common|private|species)\s+(?:[\w-]+\s+)?tails?\b|\bpost-[\w-]+\s+(?:[\w-]+\s+)?tails?\b" +
+        @"|\btype(?:'|’)s\s+(?:range|limits?|bounds)\b|\b(?:inside|within|outside|past)\s+(?:the|its)\s+type\b(?!['’]|\s+of\b)",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
     /// A type's summary that calls the type a species owner (#2427): the species-owner template (its per-room state,
     /// behaviour and the interactions it registers). Only a type that creates or keeps a species' enemies
     /// (<see cref="SpeciesOwnerInterfaces"/>) is one; any other type says what it is.
@@ -2489,6 +2512,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : EffectsHudMapAndEscapeStorageProse.Match(Markup.Replace(text, " ")) is { Success: true } effectsStorage ? effectsStorage.Value
             : AreaSetupColourAndStorageProse.Match(Markup.Replace(text, " ")) is { Success: true } areaStorage ? areaStorage.Value
             : EnemyWrapCallAndWriteNarrationProse.Match(Markup.Replace(text, " ")) is { Success: true } enemyWrap ? enemyWrap.Value
+            : EnemyStorageAndProgramNarrationProse.Match(Markup.Replace(text, " ")) is { Success: true } enemyStorage ? enemyStorage.Value
             : TileCharacterFinding(text, owner) is { } character ? character
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;

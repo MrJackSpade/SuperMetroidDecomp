@@ -911,10 +911,10 @@ internal sealed class SuperMetroidRuntime
     private static void DecrementHurtTimers(RoomScope room, SamusState samus)
     {
         // Main gameplay decrements these timers after Samus, enemies, drawing, HUD/background
-        // bookkeeping, the room's own update, the energy-zero check, and room shaking. Keep this
-        // shared tail out of individual movement owners: in particular, grapple spike
+        // bookkeeping, the room's own update, the energy-zero check, and room shaking. Keep these
+        // countdowns out of individual movement owners: in particular, grapple spike
         // reactions set the knockback timers without handing her movement to the knockback.
-        // Death game states do not execute the gameplay-state tail at all.
+        // Death game states do not count them down at all.
         if (!samus.DeathSequence.IsActive)
         {
             samus.DecrementHurtTimers();

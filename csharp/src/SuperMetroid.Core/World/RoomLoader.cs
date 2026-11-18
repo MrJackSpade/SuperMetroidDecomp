@@ -144,11 +144,11 @@ internal sealed class RoomLoader
         _scrollCells = RoomScrollGrid.KeepCellsAcrossRooms(_system.StoredExploredMaps);
 
     }
-    /// <summary>The door's four-pixel scroll trajectory, retained across atomic room construction.</summary>
+    /// <summary>The door's four-pixel scroll trajectory, kept while the destination loads and scrolls in.</summary>
     private DoorOpeningScrollState? _doorOpeningScroll;
     /// <summary>
-    /// Elevator placement produced by the atomic room load but deferred until room loading
-    /// has progressed to that enemy's initialization (<see cref="IRoomLoadProgress"/>).
+    /// Where an arriving elevator places Samus, set up on the destination's loading update but applied only once loading
+    /// has reached that enemy's setup (<see cref="IRoomLoadProgress"/>).
     /// </summary>
     private LoaderSamusPlacement? _pendingLoaderSamusPlacement;
     /// <summary>What the source room showed, kept until the door-opening scroll's offsets are installed.</summary>
@@ -440,8 +440,8 @@ internal sealed class RoomLoader
     }
 
     /// <summary>
-    /// Publishes setup's Samus displacement before destination-coordinate rebasing.
-    /// The later atomic room constructor uses the captured pre-setup coordinates.
+    /// Moves Samus and the camera by the door scroll's first movement, before her position is rebased into the destination;
+    /// the destination's load starts the scroll from where she stood before this movement.
     /// </summary>
     internal void ApplyDoorScrollingSetupMovement()
     {
@@ -472,15 +472,14 @@ internal sealed class RoomLoader
     }
 
     /// <summary>
-    /// Rewinds an atomically loaded destination to the position established by the
-    /// scroll's setup and Samus's placement for the destination's loading.
+    /// Starts the door's opening scroll in the loaded destination from where the scroll's first movement and Samus's
+    /// placement for the destination's loading left it.
     /// </summary>
     /// <remarks>
-    /// The room constructor loads the room's blocks, room objects, FX and enemies in one operation, while the
-    /// door's scroll is already moving. Capturing the source fixed coordinates before that
-    /// constructor and rewinding only the four scroll-owned coordinate pairs preserves the
-    /// same observable trajectory; how far loading had progressed on each scroll update is
-    /// <see cref="IRoomLoadProgress"/>'s.
+    /// The destination's blocks, room objects, FX and enemies are set up on its loading update, while the door's scroll is
+    /// already moving: the scroll starts from Samus's place in the source room and takes the steps it took while loading
+    /// ran, so Samus, the camera and both layers follow the same path; how far loading had progressed on each scroll update
+    /// is <see cref="IRoomLoadProgress"/>'s.
     /// </remarks>
     internal void BeginDoorOpeningScroll(
         DoorDefinition door,
@@ -522,8 +521,7 @@ internal sealed class RoomLoader
             _backgroundScroll.CalculateLayerScrolls();
         samus.Position = _doorOpeningScroll.SamusPosition;
         camera.PublishDoorSamusPosition(samus.Position.Whole);
-        // Replay the scroll updates already shown before the atomic destination load.
-        // Those steps do not consume more input.
+        // The scroll takes the steps it took while the destination loaded; they read no input.
         for (int step = 0; step < completedLoadingScrollUpdates; step++)
             StepDoorOpeningScroll(loaderProgress);
     }
@@ -894,7 +892,7 @@ internal sealed class RoomLoader
         // Site's green door before it closes behind Samus.
         var roomObjects = new RoomObjectSystem(roomObjectRoom, roomObjectBindings, _roomObjectVisuals, new CollectibleBlockPairs(),
             new RoomObjectPlaces(),
-            new ShotOpenedCapClosing<LockedDoor>(LockedDoorDefinitions.LandingSiteDefaultOrWhenZebesAwakeOrWithPowerBombsGreenDoorFacingLeft),
+            new ShotOpenedCapClosing<LockedDoor>(LockedDoorDefinitions.LandingSiteGreenDoorFacingLeft),
             _audioRequests);
         scope.RoomObjects = roomObjects;
         var areaServices = new RoomEnemyRuntimeServices(_system, destinationCamera.Scrolls, _player, roomObjects, _display, progress);

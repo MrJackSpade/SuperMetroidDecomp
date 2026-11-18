@@ -45,8 +45,9 @@ public static class EarthquakeShakeDefinitions
     };
 
     /// <summary>
-    /// The reaches that shake the enemies, every update for the enemy shake duration
-    /// updates, and draw the enemies' projectiles displaced with them.
+    /// The reaches that shake the enemies, each update giving them another
+    /// <see cref="SuperMetroid.Core.Fx.RoomEarthquakeDefinitions.EnemyShakeDuration"/> updates of shaking, and draw the
+    /// enemies' projectiles displaced with them.
     /// </summary>
     public static IReadOnlySet<EarthquakeReach> EnemyReaches { get; } = new HashSet<EarthquakeReach>
     {

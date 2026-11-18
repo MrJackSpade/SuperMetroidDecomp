@@ -2006,6 +2006,20 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect(Measures + "class P { /// <summary>The angle in 256ths of a turn.</summary>\nint Steps { get; set; }\n/// <summary>A zoom of 256ths of a floor pixel.</summary>\nFloorZoom From(int steps) => default;\n" +
             "/// <summary>The pod drifts down half a pixel, then a quarter pixel.</summary>\nSignedSixteenSixteen Drift => default;\n/// <summary>The turning floor's angle.</summary>\nRotationAngle Angle => default; }");
         Expect(CompatibilityService + "struct RotationAngle { }\n/// <summary>Evidence: the angle in 256ths of a turn.</summary>\n[CompatibilityService(\"angle\")] class Angle { /// <summary>In 256ths of a turn.</summary>\nRotationAngle Value => default; }");
+        // The port's loading and its layers yet to come told in runtime and gameplay prose, outside hardware owners and markup
+        // (#2501): a load, loader, construction or operation called atomic, a constructor doing something atomically, the
+        // setup call, and a thing that waits until it gets its own.
+        Expect("class P { void Run() { // Capture before the scroll's setup. The atomic loader must not apply this step twice.\n } }", "('atomic loader')");
+        Expect("class P { /// <summary>Rewinds an atomically loaded destination to the scroll's start.</summary>\nvoid Run() { } }", "('atomically loaded')");
+        Expect("class P { /// <summary>The door's scroll, retained across atomic room construction.</summary>\nint Scroll; }", "('atomic room construction')");
+        Expect("class P { void Run() { // The marker belongs inside the atomic checkpoint operation.\n } }", "('atomic checkpoint operation')");
+        Expect("class P { void Run() { // Loading above is atomic, but the menu's opening steps are not.\n } }", "('Loading above is atomic')");
+        Expect("class P { void Run() { // The room constructor performs that setup\n // atomically; the following updates move the scroll.\n } }", "('atomically')");
+        Expect("class P { void Run() { // Capture immediately before the setup call.\n } }", "('the setup call')");
+        Expect("/// <summary>The picture its owner loaded, until that owner gets its own layer.</summary>\nclass P { }", "('until that owner gets its own')");
+        // The Atomic and what it hits, a setup alone, a thing of its own and a hardware owner are English.
+        Expect("class P { /// <summary>An Atomic, the Wrecked Ship's floating atom; the Atomic's hit; the scroll's setup; a heading of its own; a load until the room has its own; the elevator's own load.</summary>\nvoid Run() { } }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the setup call runs atomically in the constructor until the copy gets its own end.</summary>\n[CompatibilityService(\"load\")] class Load { }");
         // The species-owner template on a type that owns no species (#2427), read on the type's own summary; a type that
         // implements or is a species owner's interface owns a species, and an entity's parameter names its owner.
         const string SpeciesOwners = "interface IEnemySpecies { }\ninterface IEnemyEntityFactory { }\n";

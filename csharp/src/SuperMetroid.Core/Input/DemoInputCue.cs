@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Input;
 
-/// <summary>The private steps a demo input recording calls (#1300); each object's owner runs its own.</summary>
+/// <summary>What a demo recording signals as it ends (#1300): the intro scene that plays it ends on its cue.</summary>
 public enum DemoInputCue
 {
     /// <summary>The Baby Metroid discovery stops Samus's input and movement and disables demo input.</summary>

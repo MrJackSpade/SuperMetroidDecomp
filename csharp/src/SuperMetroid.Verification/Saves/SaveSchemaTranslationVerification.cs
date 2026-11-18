@@ -180,6 +180,23 @@ internal static class SaveSchemaTranslationVerification
                 .SequenceEqual([ItemLocationDefinitions.WreckedShipEastSuperExposedSuperMissileTank.Name]),
             "schema ten's abbreviated, state-named item location becomes its room's name");
 
+        // A schema-fourteen save names some doors after the room states that place them (#2501); the current schema's
+        // strict reader rejects those names, and the save upgrades to the rooms' names: the Attic's two grey doors on one
+        // block are told apart by their conditions, and the Climb's escape door by its state.
+        JsonObject schemaFourteen = RequiredJson.Parse(json).AsObject();
+        schemaFourteen["schemaVersion"] = 14;
+        schemaFourteen.Required("slots").Required(0).Required("progression")["openedDoors"] = new JsonArray(
+            "ClimbWhenZebesTimebombSetGreyDoorFacingLeftAt46x6", "AtticDefaultGreyDoorFacingRight", "AtticWhenAreaBossDeadGreyDoorFacingRight");
+        JsonObject fourteenAsCurrent = RequiredJson.Parse(schemaFourteen.ToJsonString()).AsObject();
+        fourteenAsCurrent["schemaVersion"] = GameSaveJsonFormat.SchemaVersion;
+        AssertInvalidJsonSave(fourteenAsCurrent.ToJsonString(), "ClimbWhenZebesTimebombSetGreyDoorFacingLeftAt46x6");
+        GameSaveJsonDocument upgradedFourteen = LegacyGameSaveJson.Deserialize(schemaFourteen.ToJsonString(), "game save", out bool migratedFourteen);
+        AssertTrue(migratedFourteen, "a schema-fourteen save is upgraded");
+        AssertTrue((upgradedFourteen.Slots[0] ?? throw new InvalidOperationException("The upgraded save lost slot 0.")).Progression.OpenedDoors
+                .SequenceEqual([LockedDoorDefinitions.ClimbGreyDoorFacingLeftAt46x6WhenZebesTimebombSet.Name,
+                    LockedDoorDefinitions.AtticGreyDoorFacingRightUntilAreaBossDead.Name, LockedDoorDefinitions.AtticGreyDoorFacingRightUntilEnemiesKilled.Name]),
+            "schema fourteen's doors named for room states become their rooms' names");
+
         // A schema-seven save carries the count of item set-ups, which nothing in the game reads (#1691); the current
         // schema's strict reader rejects it, and the save upgrades to the same saves without it.
         JsonObject schemaSeven = RequiredJson.Parse(json).AsObject();

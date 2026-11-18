@@ -209,7 +209,7 @@ internal static class RoomObjectRoomArgumentWords
     private static ushort? PlacedWord(RoomObjectBehaviour? behaviour) => behaviour switch
     {
         // A shot-opened cap's argument is the cleared word, which names the door its closing rule consults.
-        BlueDoorCapObject { OpenedByShot: true } => checked((ushort)SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Number(LockedDoorDefinitions.LandingSiteDefaultOrWhenZebesAwakeOrWithPowerBombsGreenDoorFacingLeft)),
+        BlueDoorCapObject { OpenedByShot: true } => checked((ushort)SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Number(LockedDoorDefinitions.LandingSiteGreenDoorFacingLeft)),
         ColoredDoorObject cap => DoorWord(cap.Door),
         GreyDoorObject cap => DoorWord(cap.Door),
         BlueDoorCapObject cap => DoorWord(cap.Door),

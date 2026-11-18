@@ -26,7 +26,7 @@ public sealed class ClipPlaybackState(BeatLength initialBeat)
     internal MusicClipEntry? Song { get; private set; }
 
     /// <summary>The track of the song playing, or null when none plays.</summary>
-    internal MusicTrack? PlayingTrack { get; private set; }
+    internal MusicTrack? PlayingTrack => Song?.Track;
 
     /// <summary>Absolute frame of the song's frame zero.</summary>
     internal long SongStart { get; private set; }
@@ -66,18 +66,13 @@ public sealed class ClipPlaybackState(BeatLength initialBeat)
         StopSong();
     }
 
-    /// <summary>Plays <paramref name="song"/>, the clip of <paramref name="track"/>, from <paramref name="now"/>.</summary>
-    internal void PlaySong(MusicTrack track, MusicClipEntry song, long now)
+    /// <summary>Plays <paramref name="song"/> from <paramref name="now"/>.</summary>
+    internal void PlaySong(MusicClipEntry song, long now)
     {
-        PlayingTrack = track;
-        Song = song;
+        Song = Ensure.NotNull(song);
         SongStart = now;
     }
 
     /// <summary>Stops the song; none plays until the next change.</summary>
-    internal void StopSong()
-    {
-        PlayingTrack = null;
-        Song = null;
-    }
+    internal void StopSong() => Song = null;
 }

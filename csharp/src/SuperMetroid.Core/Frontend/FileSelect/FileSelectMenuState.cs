@@ -79,8 +79,8 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
 
         ShowMainPage();
 
-        // Loading above is atomic, but the menu's opening steps are not: the
-        // blanking and unblanking steps each wait out one more update.
+        // The slots are read at once, but the menu opens over updates: the blanking and unblanking steps each wait out one
+        // more update.
         Phase = FileSelectPhase.EnterBlankScreen;
     }
 

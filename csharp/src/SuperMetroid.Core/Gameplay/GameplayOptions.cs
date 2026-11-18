@@ -16,9 +16,8 @@ internal sealed class GameplayOptions
     public bool MoonwalkEnabled { get; set; }
 
     /// <summary>
-    /// The Icon Cancel option. Projectile-data teardown clears the selected HUD icon
-    /// when this option is set; retaining it beside Moonwalk keeps both special options
-    /// available to their actual gameplay owners.
+    /// The Icon Cancel option: when it is set, a door's transition selects the beam on the HUD again as it clears Samus's
+    /// projectiles.
     /// </summary>
     public bool IconCancelEnabled { get; set; }
 

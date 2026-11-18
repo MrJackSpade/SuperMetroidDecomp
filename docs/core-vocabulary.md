@@ -788,6 +788,14 @@ sprite shows its first frame on this update, an ordinary door goes straight on. 
 number, a fraction told in words, a timer alone or one update on, a thing replaced or installed alone, an inert thing and
 a hardware owner stay English.
 
+#2501 widens SME6454, outside hardware owners, to the port's loading and its layers yet to come as runtime and gameplay
+prose tells them: a load, loader, construction or operation called atomic (`the atomic loader`, `an atomically loaded
+destination`, `atomic room construction`, `Loading above is atomic`), anything done atomically (`the room constructor
+performs that setup atomically`, read line by line), `the setup call`, and a thing that waits until it gets its own
+(`until that owner gets its own layer`). Core says what the game does: the destination's enemies, objects and effects are
+set up on the loading update, and each following update moves the door's scroll. The Atomic, the Wrecked Ship's floating
+atom, a setup or a call alone, a thing of its own and a hardware owner stay English.
+
 SME6459 (#2309) reads the summary of every member of a Core `*Segment` enum, one run of an actor's animation, and rejects
 one that only restates the member's name: `The facing left shooting animation.`, `The idle.`, `The loop.`, and (#2465)
 any summary whose words are all the name's, the actor's the enum is named for, articles, possessives or `animation`,

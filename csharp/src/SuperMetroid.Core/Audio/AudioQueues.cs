@@ -123,10 +123,10 @@ public sealed class AudioQueues
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="delay"/> is shorter than the shortest delay.</exception>
     public void ScheduleMusic(MusicRequest request, MusicQueueDelay delay)
     {
-        if (delay.Updates < AudioQueueDefinitions.MinimumMusicDelayFrames)
+        if (delay.Updates < AudioQueueDefinitions.MinimumMusicDelayPasses)
         {
             throw new ArgumentOutOfRangeException(
-                nameof(delay), delay, "Effective music queue delay must be at least eight frames.");
+                nameof(delay), delay, $"A music delay waits at least {AudioQueueDefinitions.MinimumMusicDelayPasses} music-queue passes.");
         }
         Music.Enqueue(new QueuedMusic(request, delay));
     }
@@ -193,10 +193,11 @@ public sealed class AudioQueues
     /// </summary>
     /// <remarks>
     /// Every exposed, Chozo, and shot-block item reaches the item fanfare
-    /// (<see cref="MusicTrack.ItemFanfare"/>) before its pickup step schedules the room track's return.
-    /// That step snapshots the currently playing room track, queues silence after 360
-    /// frames, then restores that snapshot eight frames later. Queue clearing is part of
-    /// the first step: retaining an older delayed room-track request can pre-empt the fanfare.
+    /// (<see cref="AudioQueueDefinitions.PermanentItemTrack"/>) before its pickup step schedules the room track's return.
+    /// That step keeps the room track playing, queues silence after
+    /// <see cref="AudioQueueDefinitions.PermanentItemFanfareDelay"/>, then that room track after the shortest delay
+    /// (<see cref="MusicQueueDelay.Shortest"/>). Clearing the queue comes first: an older delayed room-track request left
+    /// waiting could pre-empt the fanfare.
     /// </remarks>
     public void QueuePermanentItemFanfare()
     {
@@ -244,9 +245,9 @@ public sealed class AudioQueues
         if (!admission.Joins(new SoundSuppression(DoorTransitionSoundsDisabled, _gameplay.AttractDemoPlaying, _gameplay.PowerBombExploding)))
             return admission;
 
-        // Every priority turns a request away once fifteen wait, so an admitted request always finds room: the game's
-        // handling of a request arriving at a queue with no room, which keeps the higher-priority of the two, is never
-        // reached.
+        // Every priority turns a request away once the queue holds its most (SoundQueueAdmission.MaximumOccupancy), so an
+        // admitted request always finds room: the game's handling of a request arriving at a queue with no room, which
+        // keeps the higher-priority of the two, is never reached.
         queue.Add(soundEffect);
         return admission;
     }

@@ -47,9 +47,8 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
     }
     # The import decodes each placement's room argument into what the PLM's setup reads (#1452): a collectible's item
     # location, a door, a grey door's condition and door, a save station's load station, a Metroid room's cleared event or a gate trigger's colour and side. Doors and
-    # item locations are named identities (#1553): a door is named for the first population that places it and its kind, an
-    # item location for the room that places it and its item (#2491),
-    # with its block where two would share a name; the room-data number stays in the import pipeline's numbering. Scroll
+    # item locations are named identities (#1553), each named for the room that places it and its kind (#2491, #2501),
+    # with what tells two apart where they would share a name; the room-data number stays in the import pipeline's numbering. Scroll
     # triggers carry their program and Draygon cannons their control word instead; filler and fixed unread words become
     # the absence of an argument.
     $fixedArgumentWords = @{ 'NoobTube' = 0x0080; 'BombTorizoHand' = 0x0000 }
@@ -119,25 +118,65 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
     # Each population's rooms, from the room states that load it and the rooms whose state selection offers those states,
     # and each room's size in screens (#1624): a scroll change is named for the room whose populations place it and the
     # screens of that room it closes and opens.
+    # Each state's summary says which room it belongs to and when the room loads it ("The Landing Site room's state once
+    # Zebes is awake"); the catalogs' summaries reuse both phrases.
     $statePopulations = @{}
+    $statePhrases = @{}
+    $roomPhrases = @{}
     foreach ($stateFile in Get-ChildItem (Join-Path $repoRoot 'csharp/src/SuperMetroid.Core/World/RoomStates') -Filter '*RoomStateDefinitions.cs') {
-        foreach ($match in [regex]::Matches([IO.File]::ReadAllText($stateFile.FullName), 'public static RoomStateSettings (\w+) \{ get; \} =\s*new\(nameof\(\1\)[^;]*?RoomObjectPopulationDefinitions\.(\w+)')) {
-            $statePopulations[$match.Groups[1].Value] = $match.Groups[2].Value
+        foreach ($match in [regex]::Matches([IO.File]::ReadAllText($stateFile.FullName), '/// <summary>The ([^<]+?)''s ([^<]+)\.</summary>\s*public static RoomStateSettings (\w+) \{ get; \} =\s*new\(nameof\(\3\)[^;]*?RoomObjectPopulationDefinitions\.(\w+)')) {
+            $statePopulations[$match.Groups[3].Value] = $match.Groups[4].Value
+            $statePhrases[$match.Groups[3].Value] = [pscustomobject]@{ Room = 'the ' + $match.Groups[1].Value; State = $match.Groups[2].Value }
         }
     }
+    # Each population's rooms and states, each room's states in its selection's order, the first its default.
     $populationRooms = @{}
+    $populationStates = @{}
+    $roomStates = @{}
     $selectionText = [IO.File]::ReadAllText((Join-Path $repoRoot 'csharp/src/SuperMetroid.Core/World/RoomStates/RoomStateSelectionDefinitions.cs'))
     $roomChoices = [regex]::Matches($selectionText, '\[RoomDefinitions\.(\w+)\] = new\(')
     for ($choice = 0; $choice -lt $roomChoices.Count; $choice++) {
         $choiceEnd = if ($choice + 1 -lt $roomChoices.Count) { $roomChoices[$choice + 1].Index } else { $selectionText.Length }
         $room = $roomChoices[$choice].Groups[1].Value
+        $roomStates[$room] = [Collections.Generic.List[string]]::new()
         foreach ($state in [regex]::Matches($selectionText.Substring($roomChoices[$choice].Index, $choiceEnd - $roomChoices[$choice].Index), '\w+RoomStateDefinitions\.(\w+)')) {
-            if (-not $statePopulations.ContainsKey($state.Groups[1].Value)) { throw "Room $room offers state $($state.Groups[1].Value), which names no room-object population." }
-            $statePopulation = $statePopulations[$state.Groups[1].Value]
-            if (-not $populationRooms.ContainsKey($statePopulation)) { $populationRooms[$statePopulation] = [Collections.Generic.HashSet[string]]::new() }
+            $stateName = $state.Groups[1].Value
+            if (-not $statePopulations.ContainsKey($stateName)) { throw "Room $room offers state $stateName, which names no room-object population or has no summary naming its room." }
+            if ($roomStates[$room].Contains($stateName)) { throw "Room $room offers state $stateName twice." }
+            $roomStates[$room].Add($stateName)
+            $phrase = $statePhrases[$stateName]
+            if ($roomPhrases.ContainsKey($room) -and $roomPhrases[$room] -cne $phrase.Room) { throw "Room $room's states name it both $($roomPhrases[$room]) and $($phrase.Room)." }
+            $roomPhrases[$room] = $phrase.Room
+            $statePopulation = $statePopulations[$stateName]
+            if (-not $populationRooms.ContainsKey($statePopulation)) {
+                $populationRooms[$statePopulation] = [Collections.Generic.HashSet[string]]::new()
+                $populationStates[$statePopulation] = [Collections.Generic.List[string]]::new()
+            }
             [void] $populationRooms[$statePopulation].Add($room)
+            $populationStates[$statePopulation].Add($stateName)
         }
     }
+    # A population is named for its room, or for its room and the state that loads it; one that several, but not all, of a
+    # room's states share is named for what they have in common (#2501), never for a list of those states.
+    foreach ($population in $populationNames.Values) {
+        if ($population -cmatch '(Default|When[A-Z]\w*|With[A-Z]\w*)Or[A-Z]|Or[A-Z]\w*(Default|When[A-Z]\w*)$') {
+            throw "Population $population is named for a list of room states, not for what they share."
+        }
+    }
+    # A sentence's list of phrases: "a", "a and b", "a, b and c".
+    function Join-Phrases([string[]] $phrases) {
+        if ($phrases.Count -le 2) { return $phrases -join ' and ' }
+        return '{0} and {1}' -f ($phrases[0..($phrases.Count - 2)] -join ', '), $phrases[$phrases.Count - 1]
+    }
+    # Which of a room's states load any of the populations, said as "its default state and its state once ...", or empty
+    # when every state of the room does.
+    function Get-StatesClause([string] $room, [string[]] $populations) {
+        [string[]] $states = @($roomStates[$room] | Where-Object { $populations -ccontains $statePopulations[$_] })
+        if ($states.Count -eq 0) { throw "No state of room $room loads $($populations -join ', ')." }
+        if ($states.Count -eq $roomStates[$room].Count) { return '' }
+        return Join-Phrases @($states | ForEach-Object { 'its ' + $statePhrases[$_].State })
+    }
+    function Get-Capitalised([string] $text) { return $text.Substring(0, 1).ToUpperInvariant() + $text.Substring(1) }
     $roomScreens = @{}
     foreach ($match in [regex]::Matches([IO.File]::ReadAllText((Join-Path $repoRoot 'csharp/src/SuperMetroid.Core/Rooms/RoomDefinitions.cs')), 'new\(nameof\((\w+)\), AreaId\.\w+, new\(\d+, \d+\), new\((\d+), (\d+)\)')) {
         $roomScreens[$match.Groups[1].Value] = [pscustomobject]@{ Width = [int]$match.Groups[2].Value; Height = [int]$match.Groups[3].Value }
@@ -154,7 +193,8 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
     $lines.Add('namespace SuperMetroid.Core.Rooms.RoomObjects;')
     $lines.Add('')
     $lines.Add('/// <summary>')
-    $lines.Add('/// The game''s room-object populations, each named for its room state. Each holds its placements')
+    $lines.Add('/// The game''s room-object populations, each named for its room, for the state that loads it or for what the states')
+    $lines.Add('/// that share it have in common. Each holds its placements')
     $lines.Add('/// in authored order: the object''s identity, block X and Y, and its family''s setup with the room argument decoded into what it reads; regenerate with')
     $lines.Add('/// tools/generate-room-object-population-definitions.ps1.')
     $lines.Add('/// </summary>')
@@ -232,7 +272,13 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
     foreach ($pointer in $ordered) {
         $offset = 0x78000 + ($pointer - 0x8000)
         $name = $populationNames[$pointer]
-        $lines.Add(('    /// <summary>The {0} room-object population.</summary>' -f $name))
+        if (-not $populationRooms.ContainsKey($name)) { throw "Population $name is loaded by no room state." }
+        [string[]] $loaders = @($roomStates.Keys | Where-Object { $populationRooms[$name].Contains($_) } | Sort-Object | ForEach-Object {
+            $clause = Get-StatesClause $_ @($name)
+            '{0} places in {1}' -f $roomPhrases[$_], $(if ($clause -eq '') { 'every state' } else { $clause })
+        })
+        $summaryIndex = $lines.Count
+        $lines.Add(('    /// <summary>The room objects {0}.</summary>' -f (Join-Phrases $loaders)))
         $lines.Add(('    public static RoomObjectPopulation {0} {{ get; }} = RoomObjectPopulation.FromPlacements(nameof({0}),' -f $name))
         $lines.Add('    [')
         $count = 0
@@ -264,6 +310,28 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
             if (-not $kindNames.ContainsKey($kindWord)) { throw ('Retail header word {0:X4} names no room-object kind.' -f $kindWord) }
             $placedKind = $kindNames[$kindWord]
             $argument = [int]$rom[$offset + 4] -bor ([int]$rom[$offset + 5] -shl 8)
+            # The import decodes each placement to the block it occupies (#2034): the game finds it as its row times the
+            # room's width plus its column, so a column past the width is the block that many columns into the following
+            # rows, and a row past the room's last is a block of the terrain beyond the room.
+            $blockX = [int]$rom[$offset + 2]
+            $blockY = [int]$rom[$offset + 3]
+            $site = ''
+            [string[]] $placedRooms = @()
+            if ($populationRooms.ContainsKey($name)) { $placedRooms = [string[]] @($populationRooms[$name]) }
+            $decoded = @($placedRooms | ForEach-Object {
+                $screens = $roomScreens[$_]
+                $width = $screens.Width * 16
+                $index = $blockY * $width + $blockX
+                $row = [int][Math]::Floor($index / $width)
+                '{0},{1},{2}' -f ($index % $width), $row, ($row -ge $screens.Height * 16)
+            } | Sort-Object -Unique)
+            if ($decoded.Count -gt 1) { throw "Population $name places $($kindNames[$kindWord]) at ($blockX,$blockY), which its rooms decode to different blocks." }
+            if ($decoded.Count -eq 1) {
+                $parts = $decoded[0].Split(',')
+                $blockX = [int]$parts[0]
+                $blockY = [int]$parts[1]
+                if ($parts[2] -eq 'True') { $site = ', Site: RoomObjectSite.BeyondTheRoom' }
+            }
             if ($kindNames[$kindWord].StartsWith('DraygonCannon')) {
                 if (-not $draygonCannonControls.ContainsKey($argument)) {
                     throw ('Draygon cannon argument {0:X4} names no control word.' -f $argument)
@@ -289,48 +357,34 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
                 foreach ($token in [regex]::Matches($argumentText, '@@(DOOR|ITEM):(\d+)@@')) {
                     $placements = if ($token.Groups[1].Value -eq 'DOOR') { $doorPlacements } else { $itemPlacements }
                     $number = [int]$token.Groups[2].Value
+                    # A door or item location stands in one room, whichever of its states places it (#2491, #2501): it is
+                    # named for that room and its kind, never for the states that load the population; a kind named for its
+                    # room (Bomb Torizo's grey door) is not named for the room twice.
+                    if ($placedRooms.Count -ne 1) { throw "Population $name places $($token.Groups[1].Value) $number but is loaded by $($placedRooms.Count) rooms, not one." }
                     if (-not $placements.ContainsKey($number)) {
-                        $base = $name
-                        if ($token.Groups[1].Value -eq 'ITEM') {
-                            # An item location stands in one room, whichever of its states places it (#2491): it is named for
-                            # that room, never for the states that load the population. Doors keep their population's name: two
-                            # states of one room place distinct doors on the same block.
-                            [string[]] $placingRooms = @()
-                            if ($populationRooms.ContainsKey($name)) { $placingRooms = [string[]] @($populationRooms[$name]) }
-                            if ($placingRooms.Count -ne 1) { throw "Population $name places item location $number but is loaded by $($placingRooms.Count) rooms, not one." }
-                            $base = $placingRooms[0]
+                        $condition = if ($argumentText -match 'GreyDoorCondition\.(\w+)') { $Matches[1] } else { $null }
+                        $persistence = if ($argumentText -match 'DoorOpeningPersistence\.(\w+)') { $Matches[1] } else { $null }
+                        $placedKindName = $kindNames[$kindWord]
+                        $base = if ($placedKindName.StartsWith($placedRooms[0], [StringComparison]::Ordinal)) { $placedKindName } else { $placedRooms[0] + $placedKindName }
+                        $placements[$number] = [pscustomobject]@{
+                            Base = $base; Room = $placedRooms[0]; Kind = $placedKindName
+                            X = $rom[$offset + 2]; Y = $rom[$offset + 3]; BlockX = $blockX; BlockY = $blockY
+                            Condition = $condition; Persistence = $persistence
+                            Populations = [Collections.Generic.List[string]]::new()
                         }
-                        $placements[$number] = [pscustomobject]@{ Base = $base + $kindNames[$kindWord]; X = $rom[$offset + 2]; Y = $rom[$offset + 3] }
                     }
+                    elseif ($placements[$number].Room -cne $placedRooms[0]) {
+                        throw "$($token.Groups[1].Value) $number is placed in both $($placements[$number].Room) and $($placedRooms[0])."
+                    }
+                    if (-not $placements[$number].Populations.Contains($name)) { $placements[$number].Populations.Add($name) }
                 }
-            }
-            # The import decodes each placement to the block it occupies (#2034): the game finds it as its row times the
-            # room's width plus its column, so a column past the width is the block that many columns into the following
-            # rows, and a row past the room's last is a block of the terrain beyond the room.
-            $blockX = [int]$rom[$offset + 2]
-            $blockY = [int]$rom[$offset + 3]
-            $site = ''
-            [string[]] $placedRooms = @()
-            if ($populationRooms.ContainsKey($name)) { $placedRooms = [string[]] @($populationRooms[$name]) }
-            $decoded = @($placedRooms | ForEach-Object {
-                $screens = $roomScreens[$_]
-                $width = $screens.Width * 16
-                $index = $blockY * $width + $blockX
-                $row = [int][Math]::Floor($index / $width)
-                '{0},{1},{2}' -f ($index % $width), $row, ($row -ge $screens.Height * 16)
-            } | Sort-Object -Unique)
-            if ($decoded.Count -gt 1) { throw "Population $name places $($kindNames[$kindWord]) at ($blockX,$blockY), which its rooms decode to different blocks." }
-            if ($decoded.Count -eq 1) {
-                $parts = $decoded[0].Split(',')
-                $blockX = [int]$parts[0]
-                $blockY = [int]$parts[1]
-                if ($parts[2] -eq 'True') { $site = ', Site: RoomObjectSite.BeyondTheRoom' }
             }
             $setupText = Format-PlacementSetup $placedKind $argumentText $scrollProgram
             $lines.Add(('        new(RoomObjectKind.{0}, new({1}, {2}), {3}{4}),' -f $placedKind, $blockX, $blockY, $setupText, $site))
             $offset += 6
         }
         $recordTotal += $count
+        if ($count -eq 0) { $lines[$summaryIndex] = $lines[$summaryIndex] -replace '\.</summary>$', ': none.</summary>' }
         $lines.Add('    ]);')
         $lines.Add('')
     }
@@ -422,20 +476,93 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
         throw "Expected 743 scroll-program bytes/285 pairs, found $scrollByteTotal/$scrollPairTotal."
     }
 
+    # A door or item location is named for its room and kind (#2501). Where two would share that name, each is told apart by
+    # the first of these that differs among them: a grey door's condition, the block it stands on, and last the one state
+    # of the room that places it, which only the Climb's escape needs: its grey doors stand where the doors its other states
+    # place do, with the same condition.
+    $greyConditionNames = @{
+        AreaBossDefeated = 'UntilAreaBossDead'; AreaMiniBossDefeated = 'UntilAreaMiniBossDead'; AreaTorizoDefeated = 'UntilAreaTorizoDead'
+        EnemyDeathQuota = 'UntilEnemiesKilled'; Never = 'NeverOpening'; TourianStatueFinished = 'UntilStatuesFinished'; CrittersEscaped = 'UntilCrittersEscaped'
+    }
+    function Get-PlacementPart($entry, [string] $step) {
+        if ($step -eq 'Condition') {
+            if ($null -eq $entry.Condition) { return '' }
+            if (-not $greyConditionNames.ContainsKey($entry.Condition)) { throw "Grey door condition $($entry.Condition) has no name." }
+            return $greyConditionNames[$entry.Condition]
+        }
+        if ($step -eq 'Block') { return 'At{0}x{1}' -f $entry.X, $entry.Y }
+        [string[]] $states = @($roomStates[$entry.Room] | Where-Object { $entry.Populations -ccontains $statePopulations[$_] })
+        if ($states -ccontains $roomStates[$entry.Room][0]) { return '' }
+        if ($states.Count -ne 1 -or -not $states[0].StartsWith($entry.Room, [StringComparison]::Ordinal)) {
+            throw "$($entry.Base) at ($($entry.X),$($entry.Y)) is told apart only by the states $($states -join ', ') that place it."
+        }
+        return $states[0].Substring($entry.Room.Length)
+    }
     function Get-PlacementNames($placements) {
-        $counts = @{}
-        foreach ($entry in $placements.Values) { $counts[$entry.Base] = 1 + [int]$counts[$entry.Base] }
         $names = @{}
+        foreach ($number in $placements.Keys) { $names[$number] = $placements[$number].Base }
+        foreach ($step in @('Condition', 'Block', 'State')) {
+            $groups = [Collections.Generic.Dictionary[string, Collections.Generic.List[int]]]::new([StringComparer]::Ordinal)
+            foreach ($number in $placements.Keys) {
+                if (-not $groups.ContainsKey($names[$number])) { $groups[$names[$number]] = [Collections.Generic.List[int]]::new() }
+                $groups[$names[$number]].Add($number)
+            }
+            foreach ($group in $groups.Values) {
+                if ($group.Count -lt 2) { continue }
+                $parts = @{}
+                foreach ($number in $group) { $parts[$number] = Get-PlacementPart $placements[$number] $step }
+                if (@($parts.Values | Sort-Object -Unique -CaseSensitive).Count -lt 2) { continue }
+                foreach ($number in $group) { $names[$number] += $parts[$number] }
+            }
+        }
         $seen = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
         foreach ($number in $placements.Keys) {
-            $entry = $placements[$number]
-            $names[$number] = if ($counts[$entry.Base] -eq 1) { $entry.Base } else { '{0}At{1}x{2}' -f $entry.Base, $entry.X, $entry.Y }
             if (-not $seen.Add($names[$number])) { throw "Two placements share the name $($names[$number])." }
         }
         return $names
     }
     $doorNames = Get-PlacementNames $doorPlacements
     $itemNames = Get-PlacementNames $itemPlacements
+    # Each placement's summary says what it is, where it stands and, when not every state of its room places it, which do.
+    function Get-PlacedAt($entry) {
+        $clause = Get-StatesClause $entry.Room @($entry.Populations)
+        $states = if ($clause -eq '') { '' } else { ', in {0}' -f $clause }
+        return 'at column {0}, row {1} of {2}{3}' -f $entry.BlockX, $entry.BlockY, $roomPhrases[$entry.Room], $states
+    }
+    $greyConditionPhrases = @{
+        AreaBossDefeated = 'the area''s boss is dead'; AreaMiniBossDefeated = 'the area''s mini-boss is dead'; AreaTorizoDefeated = 'the area''s Torizo is dead'
+        EnemyDeathQuota = 'enough of the room''s enemies are killed'; TourianStatueFinished = 'the Tourian statues have finished'; CrittersEscaped = 'the critters have escaped'
+    }
+    $doorSummaries = @{}
+    foreach ($number in $doorPlacements.Keys) {
+        $entry = $doorPlacements[$number]
+        $door = if ($entry.Kind -cmatch '^(Red|Green|Yellow|Grey|Eye)DoorFacing(Left|Right|Up|Down)$') {
+            '{0} door facing {1}' -f $Matches[1].ToLowerInvariant(), $Matches[2].ToLowerInvariant()
+        }
+        elseif ($entry.Kind -ceq 'BombTorizoGreyDoor') { 'Bomb Torizo''s grey door' }
+        else { throw "Door kind $($entry.Kind) has no description." }
+        $kept = switch ($entry.Persistence) {
+            'Persistent' { 'once opened, it stays open for good' }
+            'Transient' { 'the room shuts it again whenever it loads' }
+            default { throw "Door $($entry.Base) has no opening persistence." }
+        }
+        $opens = if ($null -eq $entry.Condition) { $kept }
+            elseif ($entry.Condition -ceq 'Never') { 'it never opens' }
+            elseif ($greyConditionPhrases.ContainsKey($entry.Condition)) { 'it stays shut until {0}, and {1}' -f $greyConditionPhrases[$entry.Condition], $kept }
+            else { throw "Grey door condition $($entry.Condition) has no description." }
+        $doorSummaries[$number] = 'The {0} {1}: {2}.' -f $door, (Get-PlacedAt $entry), $opens
+    }
+    # An item location is what its kind places: "A Missile Tank lying in the open" becomes "The Missile Tank lying in the open".
+    $kindSummaries = @{}
+    foreach ($match in [regex]::Matches([IO.File]::ReadAllText((Join-Path $repoRoot 'csharp/src/SuperMetroid.Core/Rooms/RoomObjects/RoomObjectKind.cs')), '/// <summary>(?:An?|The) ([^<]+)\.</summary>\s*(\w+),')) {
+        $kindSummaries[$match.Groups[2].Value] = $match.Groups[1].Value
+    }
+    $itemSummaries = @{}
+    foreach ($number in $itemPlacements.Keys) {
+        $entry = $itemPlacements[$number]
+        if (-not $kindSummaries.ContainsKey($entry.Kind)) { throw "Item kind $($entry.Kind) has no summary saying what it places." }
+        $itemSummaries[$number] = 'The {0} {1}.' -f $kindSummaries[$entry.Kind], (Get-PlacedAt $entry)
+    }
     $evaluator = [Text.RegularExpressions.MatchEvaluator] {
         param($match)
         if ($match.Groups[1].Value -eq 'DOOR') { 'LockedDoorDefinitions.' + $doorNames[[int]$match.Groups[2].Value] }
@@ -446,7 +573,7 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
         $lines[$index] = [regex]::Replace($lines[$index], '@@(DOOR|ITEM|SCROLL):(\d+)@@', $evaluator)
     }
 
-    function New-PlacementCatalog([string] $typeName, [string] $catalogName, [string[]] $summary, [string] $memberSummary, [string] $numberedReason, $names) {
+    function New-PlacementCatalog([string] $typeName, [string] $catalogName, [string[]] $summary, $memberSummaries, [string] $allSummary, [string] $numberedReason, $names) {
         $catalog = [Collections.Generic.List[string]]::new()
         $catalog.Add('// <auto-generated/>')
         $catalog.Add('#nullable enable')
@@ -459,11 +586,11 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
         $catalog.Add(('public static class {0}' -f $catalogName))
         $catalog.Add('{')
         foreach ($number in @($names.Keys | Sort-Object)) {
-            $catalog.Add(('    /// <summary>{0}</summary>' -f ($memberSummary -f $names[$number])))
+            $catalog.Add(('    /// <summary>{0}</summary>' -f $memberSummaries[$number]))
             $catalog.Add(('    public static {0} {1} {{ get; }} = new(nameof({1}));' -f $typeName, $names[$number]))
             $catalog.Add('')
         }
-        $catalog.Add(('    /// <summary>Every {0}, in the order room data lists them.</summary>' -f $typeName))
+        $catalog.Add(('    /// <summary>{0}</summary>' -f $allSummary))
         $catalog.Add(('    public static IReadOnlyList<{0}> All {{ get; }} =' -f $typeName))
         $catalog.Add('    [')
         foreach ($number in @($names.Keys | Sort-Object)) { $catalog.Add(('        {0},' -f $names[$number])) }
@@ -473,14 +600,15 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
     }
     $doorCatalog = New-PlacementCatalog 'LockedDoor' 'LockedDoorDefinitions' @(
         'Every door of the game''s room populations that a cap keeps shut: each coloured, grey and eye door, named for the',
-        'first room-state population that places it and its cap and, where two would share that name, its block; an eye',
-        "door's three parts are one door. Regenerate with tools/generate-room-object-population-definitions.ps1."
-    ) 'The {0} door.' 'Each door named with its block is one distinct door of its population, told apart by where it stands; nothing indexes them.' $doorNames
+        'room that places it, whichever of its states does, and its cap and, where two would share that name, the grey door''s',
+        'condition, its block or, for the Climb''s escape, the state that places it; an eye door''s three parts are one door.',
+        'Regenerate with tools/generate-room-object-population-definitions.ps1.'
+    ) $doorSummaries 'Every door, in the order saves list them.' 'Each door named with its block is one distinct door of its room, told apart by where it stands; nothing indexes them.' $doorNames
     $itemCatalog = New-PlacementCatalog 'ItemLocation' 'ItemLocationDefinitions' @(
         'Every item location of the game''s room populations, named for the room that places it, whichever of its states does,',
         'and its item and, where two would share that name, its block. Regenerate with',
         'tools/generate-room-object-population-definitions.ps1.'
-    ) 'The {0} item location.' 'Each item location named with its block is one distinct location of its population, told apart by where it stands; nothing indexes them.' $itemNames
+    ) $itemSummaries 'Every item location, in the order saves list them.' 'Each item location named with its block is one distinct location of its room, told apart by where it stands; nothing indexes them.' $itemNames
     $numberLines = [Collections.Generic.List[string]]::new()
     $numberLines.Add('// <auto-generated/>')
     $numberLines.Add('#nullable enable')

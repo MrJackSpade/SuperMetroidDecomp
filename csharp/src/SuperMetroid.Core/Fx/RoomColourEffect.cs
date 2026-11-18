@@ -33,7 +33,7 @@ internal sealed class RoomColourEffect
     }
 
     /// <summary>The effect's animation as it plays: due on its first turn, and on each turn its shown frame's updates run out.</summary>
-    private readonly AnimationPlayer<ColourEffectSegment, int, ColourEffectCue> play;
+    internal readonly AnimationPlayer<ColourEffectSegment, int, ColourEffectCue> play;
 
     /// <summary>What the effect shows.</summary>
     internal ColourEffectId Effect { get; }
@@ -73,9 +73,6 @@ internal sealed class RoomColourEffect
 
     /// <summary>The animation the effect plays: that of the effect whose frames it shows.</summary>
     internal Animation<ColourEffectSegment> Animation => play.Playback.Animation;
-
-    /// <summary>Where the effect stands in its animation: the phase, and the phase's next beat.</summary>
-    internal AnimationPlace Place => play.Playback.Place;
 
     /// <summary>
     /// The frame the effect shows now (#1597, #1598): the last its animation reached, held for that frame's duration and

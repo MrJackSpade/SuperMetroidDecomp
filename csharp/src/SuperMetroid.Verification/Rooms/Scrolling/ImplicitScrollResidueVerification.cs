@@ -1,5 +1,4 @@
 using SuperMetroid.TestSupport.RoomHeaderImport;
-using SuperMetroid.Core.Progression;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Scrolling;

@@ -138,6 +138,7 @@ internal static class CrocomireAnimationsVerification
         body.Position = body.Position.WithWhole(new(576, 144));
         var state = new CrocomireEnemyState(body);
         body.SetSpeciesState(state);
+        state.JoinFixtureTongue(enemies.Places.InUpdateOrder[1]);
         enemies.VerificationServices().ReadRandom = () => ushort.MaxValue;
         enemies.VerificationServices().NextRandom = () => ushort.MaxValue;
         return new NewCrocomireResult(enemies, state);
@@ -260,7 +261,7 @@ internal static class CrocomireAnimationsVerification
             RoomEnemyPlace tongue = enemies.Places.InUpdateOrder[1];
             tongue.Bind(EnemyDefinitionId.CrocomireTongue, tongue.Definition);
             tongue.SetSpeciesState(new CrocomireTongueState(state));
-            state.Tongue = tongue;
+            state.JoinTongue(tongue);
             state.TonguePlayback = new AnimationPlayback<CrocomireTongueSegment>(CrocomireAnimations.TongueStartingWith(program), AnimationPlace.StartOfAnimation);
             tongue.AnimationClock.StepOnNextUpdate();
             var native = new NativeEnemyListReader(BodyBankNumber, entry, 1, _ => 0);

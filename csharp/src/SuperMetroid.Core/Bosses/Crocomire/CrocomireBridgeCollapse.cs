@@ -60,11 +60,8 @@ internal sealed class CrocomireBridgeCollapse
 
         PublishCrocomireBridgeCollapseObjects();
 
-        if (state.Tongue is { } tongue)
-        {
-            CrocomireBodyLayer.StartCrocomireTongueAnimation(state, CrocomireTongueSegment.Hidden, CrocomireBridgeCollapseDefinitions.TongueHoldsUntilHidden);
-            tongue.Presence = tongue.Presence.With(EnemyPresence.Hidden);
-        }
+        CrocomireBodyLayer.StartCrocomireTongueAnimation(state, CrocomireTongueSegment.Hidden, CrocomireBridgeCollapseDefinitions.TongueHoldsUntilHidden);
+        state.Tongue.Presence = state.Tongue.Presence.With(EnemyPresence.Hidden);
     }
 
     /// <summary>
@@ -341,8 +338,7 @@ internal sealed class CrocomireBridgeCollapse
         CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, CrocomireBodySegment.SkeletonFlowingDownRiver);
         _room.Services.RoomScroll.Write(CrocomireCameraDefinitions.BridgeLeftScreen, RoomScrollState.OpenAlignedToTop);
         _room.Services.RoomScroll.Write(CrocomireCameraDefinitions.BridgeScreen, RoomScrollState.OpenAlignedToTop);
-        if (state.Tongue is { } tongue)
-            tongue.Presence = tongue.Presence.With(EnemyPresence.Deleted);
+        state.Tongue.Presence = state.Tongue.Presence.With(EnemyPresence.Deleted);
         _access.PublishCrocomireObject(CrocomireArenaDefinitions.BridgeWallBlock, CrocomireArenaMutation.ClearInvisibleWall);
         _cameraDistance.Request(CameraDistanceMode.NormalTracking);
         state.Death.SkeletonBaringElapsed = 0;

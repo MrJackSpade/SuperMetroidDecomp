@@ -70,11 +70,8 @@ internal sealed class CrocomireSkeleton
         _cameraDistance.Request(CameraDistanceMode.RightEdge);
         RoomEnemyPlace body = state.Body;
         body.Contact = body.Contact.Replace(EnemyContact.SolidToSamus | EnemyContact.IgnoresSamus, EnemyContact.IgnoresSamus);
-        if (state.Tongue is { } tongue)
-        {
-            tongue.Contact = tongue.Contact.With(EnemyContact.IgnoresSamus);
-            tongue.Presence = tongue.Presence.With(EnemyPresence.Hidden);
-        }
+        state.Tongue.Contact = state.Tongue.Contact.With(EnemyContact.IgnoresSamus);
+        state.Tongue.Presence = state.Tongue.Presence.With(EnemyPresence.Hidden);
         state.RumbleOscillation = 0;
         state.RumbleTowardExtreme = false;
 
@@ -95,8 +92,7 @@ internal sealed class CrocomireSkeleton
             state.DeathPhaseDelay = CrocomireSkeletonDefinitions.SpikedWallDuration;
             state.Colours.ShowWallSpikes();
             state.Body.Shading = state.Colours.OverSprites(EnemyShades.HurtFlashLook);
-            if (state.Tongue is { } spikedTongue)
-                spikedTongue.Shading = state.Body.Shading;
+            state.Tongue.Shading = state.Body.Shading;
             state.DeathPhase = state.DeathPhase.Next();
             return;
         }
@@ -194,8 +190,7 @@ internal sealed class CrocomireSkeleton
             return;
 
         _access.RequestCrocomireSound(CrocomireSoundDefinitions.BigExplosion);
-        if (state.Tongue is { } tongue)
-            tongue.Shading = state.Body.Shading;
+        state.Tongue.Shading = state.Body.Shading;
         CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, CrocomireBodySegment.SkeletonFallsApart);
         state.DeathPhase = state.DeathPhase.Next();
     }

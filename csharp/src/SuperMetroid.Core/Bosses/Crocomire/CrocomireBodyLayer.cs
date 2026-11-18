@@ -32,10 +32,8 @@ internal sealed class CrocomireBodyLayer
     /// <summary>Starts the tongue's <paramref name="segment"/> from its first step after <paramref name="updates"/> updates.</summary>
     internal static void StartCrocomireTongueAnimation(CrocomireEnemyState state, CrocomireTongueSegment segment, int updates)
     {
-        RoomEnemyPlace tongue = state.Tongue ??
-            throw new InvalidOperationException("Crocomire's tongue animation started without a tongue.");
         state.TonguePlayback = new AnimationPlayback<CrocomireTongueSegment>(CrocomireAnimations.TongueStartingWith(segment), AnimationPlace.StartOfAnimation);
-        tongue.AnimationClock.RestartAfter(updates);
+        state.Tongue.AnimationClock.RestartAfter(updates);
     }
 
     /// <summary>
@@ -67,13 +65,10 @@ internal sealed class CrocomireBodyLayer
     internal static void PlaceCrocomireTongue(CrocomireEnemyState state)
     {
         RoomEnemyPlace body = state.Body;
-        if (state.Tongue is { } tongue)
-        {
-            int offset = (tongue.SpeciesState<CrocomireTongueState>()
-                ?? throw new InvalidOperationException("Crocomire's tongue has no state.")).BodyXOffset;
-            tongue.Position = tongue.Position.WithWhole(new(body.Position.X.Whole + offset, body.Position.Y.Whole));
-            tongue.DrawOffset = Offset16<RoomPixels>.Zero;
-        }
+        RoomEnemyPlace tongue = state.Tongue;
+        int offset = tongue.RequireSpeciesState<CrocomireTongueState>().BodyXOffset;
+        tongue.Position = tongue.Position.WithWhole(new(body.Position.X.Whole + offset, body.Position.Y.Whole));
+        tongue.DrawOffset = Offset16<RoomPixels>.Zero;
     }
 
     /// <summary>Emits smoke at the acid surface during Crocomire's death presentation.</summary>

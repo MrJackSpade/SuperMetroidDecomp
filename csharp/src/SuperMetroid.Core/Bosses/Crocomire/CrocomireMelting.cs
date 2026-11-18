@@ -31,14 +31,12 @@ internal sealed class CrocomireMelting
         _ = RequireCrocomireMeltingImage(CrocomireMeltingIllustration.Flesh);
         StartCrocomireMeltingBodyAnimation(state, CrocomireBodySegment.MeltingFleshTopRow);
 
-        if (state.Tongue is { } tongue)
-        {
-            CrocomireBodyLayer.StartCrocomireTongueAnimation(state, CrocomireTongueSegment.Melting, 1);
-            tongue.Processing = tongue.Processing.With(EnemyProcessing.Animates | EnemyProcessing.OffScreen);
-            tongue.Contact = tongue.Contact.With(EnemyContact.IgnoresSamus);
-            tongue.Presence = tongue.Presence.Without(EnemyPresence.Hidden);
-            tongue.Position = tongue.Position.WithWhole(new(state.Body.Position.X.Whole, state.Body.Position.Y.Whole + CrocomireMeltingDefinitions.TongueBelowBody));
-        }
+        CrocomireBodyLayer.StartCrocomireTongueAnimation(state, CrocomireTongueSegment.Melting, 1);
+        RoomEnemyPlace tongue = state.Tongue;
+        tongue.Processing = tongue.Processing.With(EnemyProcessing.Animates | EnemyProcessing.OffScreen);
+        tongue.Contact = tongue.Contact.With(EnemyContact.IgnoresSamus);
+        tongue.Presence = tongue.Presence.Without(EnemyPresence.Hidden);
+        tongue.Position = tongue.Position.WithWhole(new(state.Body.Position.X.Whole, state.Body.Position.Y.Whole + CrocomireMeltingDefinitions.TongueBelowBody));
 
         ShowCrocomireMeltingImage(CrocomireMeltingIllustration.Flesh);
     }
@@ -203,7 +201,7 @@ internal sealed class CrocomireMelting
         CrocomireEnemyState state,
         CrocomireDeathState death)
     {
-        int firstLine = Math.Clamp((state.Tongue?.Position.Y.Whole ?? state.Body.Position.Y.Whole) - CrocomireMeltingDefinitions.BandAboveTongue, 0,
+        int firstLine = Math.Clamp(state.Tongue.Position.Y.Whole - CrocomireMeltingDefinitions.BandAboveTongue, 0,
             CrocomireMeltingDefinitions.DistortionLines);
         int rows = death.LowestDistortionSourceRow - death.DistortionSourceRow;
         // The source row rises a whole row less the slope each line, so it first reaches the lowest row on the line after

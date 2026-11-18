@@ -52,9 +52,9 @@ internal static class EnemyEffectsFixtureVerification
         {
             if (art is not null)
                 Enemies.BossArtwork = new BossSourceArtwork { CrocomireMelting = art };
-            Actor = new CrocomireEnemyState(Enemies.Places.InUpdateOrder[0]) { Tongue = Enemies.Places.InUpdateOrder[1] };
-            var tongueState = new CrocomireTongueState(Actor);
-            Enemies.Places.InUpdateOrder[1].SetSpeciesState(tongueState);
+            Actor = new CrocomireEnemyState(Enemies.Places.InUpdateOrder[0]);
+            Enemies.Places.InUpdateOrder[1].SetSpeciesState(new CrocomireTongueState(Actor));
+            Actor.JoinTongue(Enemies.Places.InUpdateOrder[1]);
             Actor.Body.Position = Actor.Body.Position.WithWhole(new(400, 144));
             Actor.Tongue.Position = Actor.Tongue.Position.WithWholeY(160);
             // The fight's initialization attaches the cleared body canvases the melting body is drawn on (#1466).

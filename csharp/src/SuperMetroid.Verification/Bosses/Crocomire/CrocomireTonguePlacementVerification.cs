@@ -39,7 +39,7 @@ internal static class CrocomireTonguePlacementVerification
         RoomEnemyPlace tongue = enemies.Places.InUpdateOrder[1];
         tongue.Bind(EnemyDefinitionId.CrocomireTongue, RoomEnemyDefinitionLookup.Get(EnemyDefinitionId.CrocomireTongue));
         tongue.SetSpeciesState(new CrocomireTongueState(state) { BodyXOffset = CrocomireFightDefinitions.TongueBodyXOffset });
-        state.Tongue = tongue;
+        state.JoinTongue(tongue);
         body.AnimationClock.StepOnNextUpdate();
 
         var tongueOffset = new Offset16<RoomPixels>(CrocomireFightDefinitions.TongueBodyXOffset, 0);

@@ -104,6 +104,10 @@ internal sealed class CrocomireFight
     /// <summary>Sets Crocomire's tongue up when the room spawns it.</summary>
     internal void InitializeCrocomireTongue(RoomEnemyPlace place)
     {
+        // The room lists the tongue right after its body, which has set the encounter up; the tongue joins it in a
+        // defeated room too, where it is deleted at once (#2400).
+        CrocomireEnemyState state = _places.ListedBefore(place, 1).RequireSpeciesState<CrocomireEnemyState>();
+        state.JoinTongue(place);
         if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaMiniBoss))
         {
             place.Processing = place.Processing.Without(EnemyProcessing.Animates);
@@ -111,9 +115,6 @@ internal sealed class CrocomireFight
             return;
         }
 
-        // The room lists the tongue right after its body, which has set the encounter up.
-        CrocomireEnemyState state = _places.ListedBefore(place, 1).RequireSpeciesState<CrocomireEnemyState>();
-        state.Tongue = place;
         CrocomireBodyLayer.StartCrocomireTongueAnimation(state, CrocomireTongueSegment.Fight, 1);
         place.CollidesByFrameHitboxes = true;
         var tongueState = new CrocomireTongueState(state) { BodyXOffset = CrocomireFightDefinitions.TongueBodyXOffset };
@@ -186,8 +187,7 @@ internal sealed class CrocomireFight
         // His steps move him after his update has placed his tongue, and his body's picture shows where they leave him:
         // the tongue's picture follows them so that it stays against the body's. The tongue itself, which Samus touches,
         // stays where it was placed until its next placement.
-        if (state.Tongue is { } tongue)
-            tongue.DrawOffset += body.Position.Whole - placedAt;
+        state.Tongue.DrawOffset += body.Position.Whole - placedAt;
         // A hold rests the animation: the timer wraps from zero and the last frame stays. A held frame (#1627) shows its
         // frame for good, its timer left to wrap from zero as a hold's is. The body animations have no pauses or ends.
         switch (outcome)

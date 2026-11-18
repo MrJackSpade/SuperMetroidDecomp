@@ -500,7 +500,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
     /// (the exact two's complement, two's-complement form), an unsigned compare or comparison, and the 8.8 and 16.16
     /// fixed-point format names (an 8.8 velocity, a 16.16 position, promoted to 16.16). Core states a value in the game's
     /// units: a speed in 1/256 pixels, a position in 1/65536 pixels, a value negated, a comparison by which side lies
-    /// higher. An encoding owner such as <c>EightEight</c> owns its format and names it, and a compatibility service
+    /// higher. An encoding owner such as <c>SignedEightEight</c> owns its format and names it, and a compatibility service
     /// describes the arithmetic it reproduces. English stays legal: a decimal (<c>0.125</c>, <c>8.25</c>), a version
     /// (<c>0.8.8</c>), an unsigned value, a complement that is not two's.
     /// </summary>

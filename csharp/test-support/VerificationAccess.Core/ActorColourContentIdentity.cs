@@ -62,9 +62,9 @@ internal static class ActorColourContentIdentity
         /// <summary>Canonical selected RGB5 colors and ordered cycle frames, independent of JSON encoding.</summary>
         public string ContentIdentity => SelectedPresentationHash.Create("WorkRobotPaletteCycle-v1", content =>
             {
-                content.Append("frames", WorkRobotGlowDefinitions.StepCount);
+                content.Append("frames", WorkRobotGlowAnimations.Cycle.Count);
                 Span<RgbColor> frameColours = stackalloc RgbColor[WorkRobotPaletteDefinitions.ColorCount];
-                for (int frame = 0; frame < WorkRobotGlowDefinitions.StepCount; frame++)
+                for (int frame = 0; frame < WorkRobotGlowAnimations.Cycle.Count; frame++)
                 {
                     for (int color = 0; color < frameColours.Length; color++)
                         frameColours[color] = cycle.Resolve(frame, color);

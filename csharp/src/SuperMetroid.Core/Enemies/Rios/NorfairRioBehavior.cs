@@ -77,10 +77,10 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (state.Action)
         {
             case NorfairRioAction.WaitForAttackOpportunity:
-                // The Rio attacks on three chances in four of the newly generated random number, and only when Samus
-                // is horizontally closer than its trigger distance. Otherwise it also consumes a pending
-                // animation signal and restores the idle animation without starting an attack.
-                if ((!RioLaunchDefinitions.AttackChanceLowBit.IsSetIn(random) && !RioLaunchDefinitions.AttackChanceHighBit.IsSetIn(random)) ||
+                // The Rio attacks only when Samus is horizontally within its trigger distance and this update's random
+                // number does not hold it back. A Rio that does not attack, and whose swoop's start has finished, rests
+                // idle again.
+                if (RioLaunchDefinitions.AttackHeldBack.IsTakenBy(random) ||
                     CoordinateAxis.Distance(samus.Position.X.Whole, place.Position.X.Whole) >= RioLaunchDefinitions.NorfairTriggerDistance)
                 {
                     if (state.AnimationSignal)
@@ -167,7 +167,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Carries out one cue of the Norfair Rio's animations: the swoop-start handshake or a flame placement.</summary>
+    /// <summary>Carries out one cue of the Norfair Rio's animations: the end of its swoop's start, or a flame placement.</summary>
     private static void ApplyNorfairRioCue(NorfairRioEnemyState state, NorfairRioCue cue)
     {
         switch (cue)

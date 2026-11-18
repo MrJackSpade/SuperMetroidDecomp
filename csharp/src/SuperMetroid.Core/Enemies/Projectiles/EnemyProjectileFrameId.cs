@@ -26,30 +26,30 @@ public enum EnemyProjectileFrameId
     DraygonGoopCurled,
     /// <summary>Draygon's goop: scattered scraps.</summary>
     DraygonGoopScattered,
-    /// <summary>Draygon's wall turret shot: four sparks closing in, 32 pixels across.</summary>
-    DraygonWallTurretSparksApart32,
-    /// <summary>Draygon's wall turret shot: four sparks closing in, 28 pixels across.</summary>
-    DraygonWallTurretSparksApart28,
-    /// <summary>Draygon's wall turret shot: four sparks closing in, 24 pixels across.</summary>
-    DraygonWallTurretSparksApart24,
-    /// <summary>Draygon's wall turret shot: four sparks closing in, 20 pixels across.</summary>
-    DraygonWallTurretSparksApart20,
-    /// <summary>Draygon's wall turret shot: four sparks closing in, 16 pixels across.</summary>
-    DraygonWallTurretSparksApart16,
-    /// <summary>Draygon's wall turret shot: four sparks closing in, 14 pixels across.</summary>
-    DraygonWallTurretSparksApart14,
-    /// <summary>Draygon's wall turret shot: four sparks set the other way round, closing in, 32 pixels across.</summary>
-    DraygonWallTurretSparksTwistedApart32,
-    /// <summary>Draygon's wall turret shot: four sparks set the other way round, closing in, 28 pixels across.</summary>
-    DraygonWallTurretSparksTwistedApart28,
-    /// <summary>Draygon's wall turret shot: four sparks set the other way round, closing in, 24 pixels across.</summary>
-    DraygonWallTurretSparksTwistedApart24,
-    /// <summary>Draygon's wall turret shot: four sparks set the other way round, closing in, 20 pixels across.</summary>
-    DraygonWallTurretSparksTwistedApart20,
-    /// <summary>Draygon's wall turret shot: four sparks set the other way round, closing in, 16 pixels across.</summary>
-    DraygonWallTurretSparksTwistedApart16,
-    /// <summary>Draygon's wall turret shot: four sparks set the other way round, closing in, 14 pixels across.</summary>
-    DraygonWallTurretSparksTwistedApart14,
+    /// <summary>Draygon's wall turret shot: four sparks gathering in from their widest spread.</summary>
+    DraygonWallTurretSparksGathering,
+    /// <summary>Draygon's wall turret shot: four sparks drawing in.</summary>
+    DraygonWallTurretSparksDrawingIn,
+    /// <summary>Draygon's wall turret shot: four sparks closing in.</summary>
+    DraygonWallTurretSparksClosingIn,
+    /// <summary>Draygon's wall turret shot: four sparks converging.</summary>
+    DraygonWallTurretSparksConverging,
+    /// <summary>Draygon's wall turret shot: four sparks nearly met.</summary>
+    DraygonWallTurretSparksNearing,
+    /// <summary>Draygon's wall turret shot: four sparks meeting at their closest.</summary>
+    DraygonWallTurretSparksMeeting,
+    /// <summary>Draygon's wall turret shot: four sparks set the other way round, gathering in from their widest spread.</summary>
+    DraygonWallTurretSparksTwistedGathering,
+    /// <summary>Draygon's wall turret shot: four sparks set the other way round, drawing in.</summary>
+    DraygonWallTurretSparksTwistedDrawingIn,
+    /// <summary>Draygon's wall turret shot: four sparks set the other way round, closing in.</summary>
+    DraygonWallTurretSparksTwistedClosingIn,
+    /// <summary>Draygon's wall turret shot: four sparks set the other way round, converging.</summary>
+    DraygonWallTurretSparksTwistedConverging,
+    /// <summary>Draygon's wall turret shot: four sparks set the other way round, nearly met.</summary>
+    DraygonWallTurretSparksTwistedNearing,
+    /// <summary>Draygon's wall turret shot: four sparks set the other way round, meeting at their closest.</summary>
+    DraygonWallTurretSparksTwistedMeeting,
     /// <summary>Draygon's wall turret shot: a faint green glow.</summary>
     DraygonWallTurretGlowFaint,
     /// <summary>Draygon's wall turret shot: a dim green glow.</summary>
@@ -1275,30 +1275,30 @@ public enum EnemyProjectileFrameId
     MagdolliteLavaLeft,
     /// <summary>A Magdollite's lava: thrown right.</summary>
     MagdolliteLavaRight,
-    /// <summary>Misc dust: four sparks closing in, 32 pixels across.</summary>
-    MiscDustSparksApart32,
-    /// <summary>Misc dust: four sparks closing in, 28 pixels across.</summary>
-    MiscDustSparksApart28,
-    /// <summary>Misc dust: four sparks closing in, 24 pixels across.</summary>
-    MiscDustSparksApart24,
-    /// <summary>Misc dust: four sparks closing in, 20 pixels across.</summary>
-    MiscDustSparksApart20,
-    /// <summary>Misc dust: four sparks closing in, 16 pixels across.</summary>
-    MiscDustSparksApart16,
-    /// <summary>Misc dust: four sparks closing in, 14 pixels across.</summary>
-    MiscDustSparksApart14,
-    /// <summary>Misc dust: four sparks set the other way round, closing in, 32 pixels across.</summary>
-    MiscDustSparksTwistedApart32,
-    /// <summary>Misc dust: four sparks set the other way round, closing in, 28 pixels across.</summary>
-    MiscDustSparksTwistedApart28,
-    /// <summary>Misc dust: four sparks set the other way round, closing in, 24 pixels across.</summary>
-    MiscDustSparksTwistedApart24,
-    /// <summary>Misc dust: four sparks set the other way round, closing in, 20 pixels across.</summary>
-    MiscDustSparksTwistedApart20,
-    /// <summary>Misc dust: four sparks set the other way round, closing in, 16 pixels across.</summary>
-    MiscDustSparksTwistedApart16,
-    /// <summary>Misc dust: four sparks set the other way round, closing in, 14 pixels across.</summary>
-    MiscDustSparksTwistedApart14,
+    /// <summary>Misc dust: four sparks gathering in from their widest spread.</summary>
+    MiscDustSparksGathering,
+    /// <summary>Misc dust: four sparks drawing in.</summary>
+    MiscDustSparksDrawingIn,
+    /// <summary>Misc dust: four sparks closing in.</summary>
+    MiscDustSparksClosingIn,
+    /// <summary>Misc dust: four sparks converging.</summary>
+    MiscDustSparksConverging,
+    /// <summary>Misc dust: four sparks nearly met.</summary>
+    MiscDustSparksNearing,
+    /// <summary>Misc dust: four sparks meeting at their closest.</summary>
+    MiscDustSparksMeeting,
+    /// <summary>Misc dust: four sparks set the other way round, gathering in from their widest spread.</summary>
+    MiscDustSparksTwistedGathering,
+    /// <summary>Misc dust: four sparks set the other way round, drawing in.</summary>
+    MiscDustSparksTwistedDrawingIn,
+    /// <summary>Misc dust: four sparks set the other way round, closing in.</summary>
+    MiscDustSparksTwistedClosingIn,
+    /// <summary>Misc dust: four sparks set the other way round, converging.</summary>
+    MiscDustSparksTwistedConverging,
+    /// <summary>Misc dust: four sparks set the other way round, nearly met.</summary>
+    MiscDustSparksTwistedNearing,
+    /// <summary>Misc dust: four sparks set the other way round, meeting at their closest.</summary>
+    MiscDustSparksTwistedMeeting,
     /// <summary>Misc dust: a small spark.</summary>
     MiscDustSpark,
     /// <summary>Misc dust: a small fireball.</summary>

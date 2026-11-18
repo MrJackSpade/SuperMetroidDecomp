@@ -12,7 +12,9 @@ namespace SuperMetroid.Core.Enemies;
 /// <remarks>
 /// Lifetime: the occupant's. A place gets a stopped clock when a new occupant is bound or its occupant is killed, and
 /// keeps a deleted occupant's clock with the rest of what that occupant left. The hold wraps from zero as every
-/// countdown of the game does, so a held animation, whose clock nothing restarts, never steps again.
+/// countdown of the game does: a hold left at zero, as a frame shown for good leaves it, runs out again 65536 updates
+/// later, when the animation takes its next step. A held animation's step plays nothing; an owner that shows a picture it
+/// chose shows that picture again (#2380). An owner whose animation must take no step stops the clock (<see cref="Stop"/>).
 /// </remarks>
 public sealed class EnemyAnimationClock
 {
@@ -46,7 +48,10 @@ public sealed class EnemyAnimationClock
     /// </summary>
     internal void StepOnNextUpdate() => Run(WrappingCountdown.Start(1));
 
-    /// <summary>Holds the frame shown for <paramref name="updates"/> more updates, 0 through 65535; zero wraps on the next.</summary>
+    /// <summary>
+    /// Holds the frame shown for <paramref name="updates"/> more updates, 0 through 65535: a hold of zero wraps on the next
+    /// update and runs out 65536 updates later (#2380).
+    /// </summary>
     internal void HoldFor(int updates) => Run(WrappingCountdown.Start(updates));
 
     /// <summary>
@@ -95,8 +100,8 @@ public sealed class EnemyAnimationClock
     }
 
     /// <summary>
-    /// The animation's step showed a new frame for good: the hold is left to wrap from zero, so no later step plays
-    /// anything.
+    /// The animation's step showed a new frame for good: the hold is left at zero, so it wraps on the next update and the
+    /// animation's next step comes 65536 updates later, where a held animation plays nothing (#2380).
     /// </summary>
     internal void ShowForGood() => ShowsNewFrame = true;
 

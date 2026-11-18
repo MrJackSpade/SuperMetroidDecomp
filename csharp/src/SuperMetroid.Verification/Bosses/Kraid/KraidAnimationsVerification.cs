@@ -364,9 +364,9 @@ internal static class KraidAnimationsVerification
                 AssertEqual(!native.Deleted, rock.IsActive, $"{at}: deletion");
                 if (native.Deleted)
                     break;
-                // The still poses are held frames (#1627), whose timer rests apart from the native list's longest frame.
-                if (!SuperMetroid.Verification.Enemies.NativeEnemyProjectileParity.RestsOnHeldFrame(native.Timer, rock.FrameHold))
-                    AssertEqual(native.Timer, rock.FrameHold.RawValue, $"{at}: timer");
+                // The still poses are held frames (#1627), which stop the hold (#2380) while the native list counts its
+                // longest frame down.
+                SuperMetroid.Verification.Enemies.NativeEnemyProjectileParity.AssertFrameHold(native.Timer, rock, at);
                 AssertEqual(native.Operand, rock.PresentationOperandAddress, $"{at}: frame");
                 if (native.FrameBehavior is { } frameBehavior)
                     AssertEqual(EnemyProjectileMotionAccess.FromWord(frameBehavior), rock.Motion, $"{at}: pre-instruction");

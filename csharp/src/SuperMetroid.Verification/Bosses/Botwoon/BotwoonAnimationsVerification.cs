@@ -307,7 +307,7 @@ internal static class BotwoonAnimationsVerification
                 }
             }
             string at = $"Botwoon {label} pass {update}";
-            AssertEqual(timer, projectile.FrameHold.RawValue, $"{at}: timer");
+            SuperMetroid.Verification.Enemies.NativeEnemyProjectileParity.AssertFrameHold(timer, projectile, at);
             AssertEqual(operand, projectile.PresentationOperandAddress, $"{at}: frame");
         }
     }

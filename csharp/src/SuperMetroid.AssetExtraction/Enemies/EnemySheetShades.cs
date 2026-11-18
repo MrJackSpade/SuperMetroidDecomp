@@ -319,10 +319,11 @@ internal sealed class EnemySheetShades
             case EnemyDefinitionId.WorkRobot:
             {
                 WorkRobotPaletteCycle cycle = inputs.Enemies.WorkRobotPaletteCycle ?? throw Missing("Work Robot glow colours");
-                for (int record = 0; record < WorkRobotGlowDefinitions.StepCount; record++)
+                // The cartridge's colour records are the glow's steps in the order the glow shows them.
+                for (int record = 0; record < WorkRobotGlowAnimations.Cycle.Count; record++)
                 {
                     int step = record;
-                    shades.Add(SheetShade.Run(WorkRobotShades.Glow(step), first + WorkRobotPaletteDefinitions.FirstAnimatedColor,
+                    shades.Add(SheetShade.Run(WorkRobotShades.Glow(WorkRobotGlowAnimations.Cycle[step]), first + WorkRobotPaletteDefinitions.FirstAnimatedColor,
                         Frame(WorkRobotPaletteDefinitions.ColorCount, colour => cycle.Resolve(step, colour))));
                 }
                 break;

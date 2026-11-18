@@ -26,28 +26,43 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Shows <paramref name="frame"/> of the escape's red shutter flash on every destroyable shutter among
-    /// <paramref name="places"/> (#1512): the first escape room's shutters draw in the colours the flash recolours, and
-    /// each frame of the flash replaces the one before it.
+    /// The destroyable shutters the room has set up, in the order it set them up (#2380): each shows the escape's red
+    /// shutter flash while it holds the place it was set up in.
     /// </summary>
-    internal static void ShowEscapeShutterFlash(IReadOnlyList<RoomEnemyPlace> places, ColourEffectFrame frame)
+    private readonly List<DestroyableShutterEntity> _destroyableShutters = [];
+
+    /// <summary>Keeps <paramref name="shutter"/>, a destroyable shutter the room has just set up, to show the escape's shutter flash.</summary>
+    internal void KeepDestroyableShutter(DestroyableShutterEntity shutter) => _destroyableShutters.Add(Ensure.NotNull(shutter));
+
+    /// <summary>
+    /// Shows <paramref name="frame"/> of the escape's red shutter flash on every destroyable shutter the room set up that
+    /// still holds its place (#1512, #2380): the first escape room's shutters draw in the colours the flash recolours, and
+    /// each frame of the flash replaces the one before it. A destroyed shutter, and any enemy that took its place since,
+    /// shows no flash.
+    /// </summary>
+    internal void ShowEscapeShutterFlash(ColourEffectFrame frame)
     {
-        Ensure.NotNull(places);
         PictureShade flash = ColourEffectShades.Of(ColourEffectColours.TourianShutters, frame);
-        foreach (RoomEnemyPlace place in places)
+        foreach (DestroyableShutterEntity shutter in _destroyableShutters)
+            shutter.ShowEscapeShutterFlash(flash);
+    }
+
+    /// <summary>
+    /// Shows <paramref name="flash"/>, a frame of the escape's red shutter flash, on the shutter in <paramref name="place"/>
+    /// in place of the frame it showed before, keeping its other shades and colour effects.
+    /// </summary>
+    internal static void LayEscapeShutterFlash(RoomEnemyPlace place, PictureShade flash)
+    {
+        Ensure.NotNull(place);
+        PictureShading shown = PictureShading.Standard;
+        foreach (PictureShade shade in place.Shading.Shades)
         {
-            if (place.DefinitionId != EnemyDefinitionId.ShutterDestroyable)
-                continue;
-            PictureShading shown = PictureShading.Standard;
-            foreach (PictureShade shade in place.Shading.Shades)
-            {
-                if (shade.Effect != flash.Effect)
-                    shown = shown.With(shade);
-            }
-            foreach (ColourEffect effect in place.Shading.Effects)
-                shown = shown.With(effect);
-            place.Shading = shown.With(flash);
+            if (shade.Effect != flash.Effect)
+                shown = shown.With(shade);
         }
+        foreach (ColourEffect effect in place.Shading.Effects)
+            shown = shown.With(effect);
+        place.Shading = shown.With(flash);
     }
 
     /// <inheritdoc/>

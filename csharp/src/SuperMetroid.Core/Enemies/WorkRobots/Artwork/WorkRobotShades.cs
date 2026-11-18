@@ -11,7 +11,6 @@ internal static class WorkRobotShades
     /// <summary>The effect name of the powered robots' glow.</summary>
     internal const string GlowEffect = "work-robot-glow";
 
-    /// <summary>The shade of glow step <paramref name="step"/>.</summary>
-    internal static PictureShade Glow(int step) =>
-        new(GlowEffect, Ensure.BetweenInclusive(0, WorkRobotGlowDefinitions.StepCount - 1, step));
+    /// <summary>The shade of glow step <paramref name="step"/>, keyed by its place in the glow's cycle (#2380).</summary>
+    internal static PictureShade Glow(WorkRobotGlowStep step) => new(GlowEffect, WorkRobotGlowAnimations.PlaceInCycle(step));
 }

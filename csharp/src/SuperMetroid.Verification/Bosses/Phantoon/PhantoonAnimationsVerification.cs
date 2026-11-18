@@ -170,7 +170,7 @@ internal static class PhantoonAnimationsVerification
                 AssertEqual(!native.Deleted, flame.IsActive, $"{at}: deletion");
                 if (native.Deleted)
                     break;
-                AssertEqual(native.Timer, flame.FrameHold.RawValue, $"{at}: timer");
+                SuperMetroid.Verification.Enemies.NativeEnemyProjectileParity.AssertFrameHold(native.Timer, flame, at);
                 // A list that shows a pose again from an operand of its own shows the pose's one installed frame (#2249).
                 AssertEqual<EnemyProjectileFrameId?>(EnemyProjectileProgramFrameOperands.Frame(native.Operand, flame.Graphics.Owner), flame.Frame, $"{at}: frame");
                 if (NativeEnemyAnimationOracle.NativePlaysLeft(AssertIs<PhantoonFlameAnimation>(flame.Animation, $"{at}: flame animation").Playback) is { } playsLeft)
@@ -241,7 +241,7 @@ internal static class PhantoonAnimationsVerification
             AssertEqual(!native.Deleted, projectile.IsActive, $"pre-Phantoon room update {update}: deletion");
             if (native.Deleted)
                 break;
-            AssertEqual(native.Timer, projectile.FrameHold.RawValue, $"pre-Phantoon room update {update}: timer");
+            SuperMetroid.Verification.Enemies.NativeEnemyProjectileParity.AssertFrameHold(native.Timer, projectile, $"pre-Phantoon room update {update}");
             // The native operand selects the empty projectile spritemap, which has no installed program frame.
             AssertEqual(cartridge.ReadCartridgeWord(NativeEnemyProjectileListDefinitions.ProjectileBank | native.Operand), projectile.SpritemapPointer,
                 $"pre-Phantoon room update {update}: spritemap");

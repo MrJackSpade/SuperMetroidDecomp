@@ -68,6 +68,7 @@ List:FakeKraidProjectileInstructionProgramDefinitionsConstants.SpikeLeft),
 List:FakeKraidProjectileInstructionProgramDefinitionsConstants.SpikeRight),
         };
 
+        var restingSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         foreach (var testCase in cases)
         {
             // Both spikes are one kind, their poses their way (#2278).
@@ -89,6 +90,15 @@ List:FakeKraidProjectileInstructionProgramDefinitionsConstants.SpikeRight),
             AssertEqual((ushort)0, projectile.FrameHold.RawValue,
                 $"{testCase.Kind} held pose leaves the timer stopped, as the native sleep does");
             AssertEqual(operand, projectile.PresentationOperandAddress, $"{testCase.Kind} held pose keeps showing");
+
+            // The rest stops the hold (#2380): later passes count nothing, where a hold left at zero would wrap and run out
+            // again a countdown's whole range later, until the shot reaction below starts another animation.
+            AssertTrue(projectile.IsFrameHoldStopped, $"{testCase.Kind} held pose stops its hold");
+            for (int pass = 0; pass < 2; pass++)
+                enemies.Projectiles.AdvanceEnemyProjectileAnimations(projectile, restingSamus, Position16<RoomPixels>.Zero, shortCounter: 0);
+            AssertTrue(projectile.IsFrameHoldStopped && projectile.FrameHold.IsZero,
+                $"{testCase.Kind} held pose's hold counts nothing on later passes");
+            AssertEqual(operand, projectile.PresentationOperandAddress, $"{testCase.Kind} held pose still shows on later passes");
 
             projectile.StartAnimation(EnemyProjectileDeleteAnimation.Instance);
             RunForcedTick(projectile);

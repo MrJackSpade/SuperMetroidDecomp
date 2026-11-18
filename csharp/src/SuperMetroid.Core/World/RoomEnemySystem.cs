@@ -537,7 +537,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     /// nothing once both are destroyed (#1512, #2288). Mother Brain's exploded door's fragments are pre-coloured in their
     /// own colours and do not show it (#1544).
     /// </summary>
-    internal void ShowEscapeShutterFlash(ColourEffectFrame frame) => ShuttersBehavior.ShowEscapeShutterFlash(Places.InUpdateOrder, frame);
+    internal void ShowEscapeShutterFlash(ColourEffectFrame frame) => ShuttersBehavior.ShowEscapeShutterFlash(frame);
 
     /// <summary>The live enemy state the display latch and drawing read.</summary>
     internal IEnemyDisplaySources DisplaySources => this;

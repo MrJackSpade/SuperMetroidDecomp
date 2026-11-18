@@ -21,10 +21,10 @@ public static class WorkRobotPaletteCycleFile
 
         if (document.Version != WorkRobotPaletteCycleFormat.Version ||
             document.Frames is null ||
-            document.Frames.Length != WorkRobotGlowDefinitions.StepCount)
+            document.Frames.Length != WorkRobotGlowAnimations.Cycle.Count)
             throw new InvalidDataException("Work Robot palette cycle requires six version-one frames.");
 
-        var compiled = new RgbColor[WorkRobotGlowDefinitions.StepCount][];
+        var compiled = new RgbColor[WorkRobotGlowAnimations.Cycle.Count][];
         for (int frame = 0; frame < compiled.Length; frame++)
         {
             PaletteRgb5[]? source = document.Frames[frame];
@@ -41,7 +41,7 @@ public static class WorkRobotPaletteCycleFile
                 compiled[frame][color] = rgb.ToRgbColor();
             }
         }
-        return new WorkRobotPaletteCycle(new InstalledColourRows(compiled, WorkRobotGlowDefinitions.StepCount,
+        return new WorkRobotPaletteCycle(new InstalledColourRows(compiled, WorkRobotGlowAnimations.Cycle.Count,
             WorkRobotPaletteDefinitions.ColorCount, "Work Robot palette cycle"));
     }
 

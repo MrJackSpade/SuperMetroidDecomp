@@ -9,13 +9,16 @@ internal abstract class EnemyProjectileAnimation
     /// <summary>
     /// Advances one projectile pass: the frame expires on the update its timer would. A cue published
     /// on the way may end the animation (deleting the projectile or handing it to another segment); the pass
-    /// then stops, as the cue that did so would.
+    /// then stops, as the cue that did so would. An animation that has shown a frame for good, or rests where its timeline
+    /// holds, has stopped its hold and takes no step (#2380).
     /// </summary>
     /// <param name="context">The projectile, Samus and the pass's camera, for cues that act on them.</param>
     /// <param name="projectiles">The projectile engine, which carries out the shared cues.</param>
     internal void Advance(EnemyProjectileCueContext context, EnemyProjectileEngine projectiles)
     {
         EnemyProjectile projectile = context.Projectile;
+        if (projectile.IsFrameHoldStopped)
+            return;
         CountdownStep frameStep = projectile.FrameHold.Decrement();
         projectile.FrameHold = frameStep.Remaining;
         if (!frameStep.IsZero)
@@ -30,14 +33,15 @@ internal abstract class EnemyProjectileAnimation
                 projectile.Frame = shown.Frame;
                 return;
             case EnemyProjectileFrameStep.ShowForGood held:
-                // A frame shown for good rests as a held timeline does: the timer stays zero and wraps, and no later
-                // expiry shows anything.
-                projectile.FrameHold = WrappingCountdown.Start(0);
+                // A frame shown for good stops the hold: the projectile shows it until its owner sets the hold again or
+                // starts another animation.
+                projectile.StopFrameHold();
                 projectile.Frame = held.Frame;
                 return;
             case EnemyProjectileFrameStep.Rest:
-                // A held timeline rests: the timer stays zero and wraps, never expiring again.
-                projectile.FrameHold = WrappingCountdown.Start(0);
+                // A held timeline rests on the frame it shows: the hold stops until the projectile's owner sets it again or
+                // starts another animation.
+                projectile.StopFrameHold();
                 return;
             default:
                 throw new InvalidOperationException($"A projectile animation took an undefined step {step}.");

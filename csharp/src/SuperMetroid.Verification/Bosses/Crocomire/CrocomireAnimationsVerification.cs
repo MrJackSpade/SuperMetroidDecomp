@@ -346,10 +346,9 @@ internal static class CrocomireAnimationsVerification
                 $"{at}: drops");
             if (native.Deleted)
                 break;
-            // The bridge fragment and spike-wall piece hold their still frame for good (#1627), whose timer rests apart
-            // from the native list's longest frame.
-            if (!SuperMetroid.Verification.Enemies.NativeEnemyProjectileParity.RestsOnHeldFrame(native.Timer, projectile.FrameHold))
-                AssertEqual(native.Timer, projectile.FrameHold.RawValue, $"{at}: timer");
+            // The bridge fragment and spike-wall piece hold their still frame for good (#1627), which stops their hold
+            // (#2380) while the native list counts its longest frame down.
+            SuperMetroid.Verification.Enemies.NativeEnemyProjectileParity.AssertFrameHold(native.Timer, projectile, at);
             // An operand that stores a pose's picture again shows that pose (#2268).
             AssertEqual(SuperMetroid.AssetExtraction.Enemies.EnemyProjectileProgramFrameOperands.OwnOperand(native.Operand),
                 projectile.PresentationOperandAddress, $"{at}: frame");

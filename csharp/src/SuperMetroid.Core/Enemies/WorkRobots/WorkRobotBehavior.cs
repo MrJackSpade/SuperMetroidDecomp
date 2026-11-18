@@ -57,13 +57,23 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         _projectiles = projectiles;
     }
 
-    /// <summary>Updates left before the powered robots' glow steps; zero while the glow is stopped.</summary>
-    internal int GlowStepCountdown { get; private set; }
     /// <summary>
-    /// The step of the glow every powered robot shows, 0 through <see cref="WorkRobotGlowDefinitions.StepCount"/> minus
-    /// one; after the last step the cycle starts again at the first.
+    /// The powered robots' glow (#2380): the step it shows and the updates that step has left. A room starts it on its last
+    /// step, stopped.
     /// </summary>
-    internal int GlowStep { get; private set; } = WorkRobotGlowDefinitions.StepCount - 1;
+    private readonly AnimationPlayer<WorkRobotGlowSegment, WorkRobotGlowStep, NoAnimationCue> _glow =
+        AnimationPlayer<WorkRobotGlowSegment, WorkRobotGlowStep, NoAnimationCue>.StartShowing(
+            WorkRobotGlowAnimations.Segments, WorkRobotGlowAnimations.Restarted, 1);
+
+    /// <summary>Whether the glow runs: a powered robot's setup starts it, and an unpowered robot's stops it.</summary>
+    internal bool GlowRuns { get; private set; }
+
+    /// <summary>The updates the glow's step has left before the glow shows its next, while it runs.</summary>
+    internal int UpdatesUntilNextGlowStep => _glow.UpdatesLeft;
+
+    /// <summary>The step of the glow every powered robot shows; after the last step the cycle starts again at the first.</summary>
+    internal WorkRobotGlowStep GlowStep => _glow.Showing;
+
     /// <summary>The glow every powered robot in the room shows now (#1512).</summary>
     internal PictureShading Glow => PictureShading.Shaded(WorkRobotShades.Glow(GlowStep));
 
@@ -95,8 +105,8 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private void RestartGlow()
     {
-        GlowStepCountdown = 1;
-        GlowStep = WorkRobotGlowDefinitions.StepCount - 1;
+        _glow.Show(WorkRobotGlowAnimations.Restarted, 1);
+        GlowRuns = true;
     }
 
     /// <summary>
@@ -114,7 +124,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // An unpowered robot stops the room's glow, an earlier powered robot's too: in a room placing both, the order
         // they are placed in decides whether the glow runs.
-        GlowStepCountdown = 0;
+        GlowRuns = false;
         state.FallVelocity = WorkRobotMotionDefinitions.FallStartSpeed;
         return state;
     }
@@ -275,18 +285,19 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Counts down the powered robots' glow after the enemies' update unless it is stopped; when the step's time is up
-    /// the glow shows its next step on every powered robot still in the place it set up and holds it for that step's
-    /// duration.
+    /// Plays the powered robots' glow on after the enemies' update unless it is stopped; when the step's time is up the
+    /// glow shows its next step on every powered robot still in the place it set up and holds it for that step's hold.
     /// </summary>
     internal void StepGlow()
     {
-        if (GlowStepCountdown == 0)
+        if (!GlowRuns)
             return;
-        if (--GlowStepCountdown != 0)
+        WorkRobotGlowStep shown = GlowStep;
+        _glow.Step();
+        // No step of the glow follows itself, so a step that differs from the one shown is the next step, shown now.
+        if (GlowStep == shown)
             return;
 
-        GlowStep = (GlowStep + 1) % WorkRobotGlowDefinitions.StepCount;
         PictureShading glow = Glow;
         foreach (RoomEnemyPlace robot in _poweredRobots)
         {
@@ -294,7 +305,6 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
             if (robot.SpeciesState<WorkRobotEnemyState>() is not null)
                 robot.Shading = glow;
         }
-        GlowStepCountdown = WorkRobotGlowDefinitions.Durations[GlowStep];
     }
 
     /// <summary>Applies a powered robot's recoil after the bomb damage it takes, which it never rejects once powered.</summary>

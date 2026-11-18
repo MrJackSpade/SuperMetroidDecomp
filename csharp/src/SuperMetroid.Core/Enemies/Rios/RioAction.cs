@@ -8,7 +8,7 @@ public enum RioAction
 {
     /// <summary>Starts a dive when Samus is within a strict 160-world-pixel horizontal distance, selecting launch direction toward her.</summary>
     WaitingForSamus,
-    /// <summary>Waits for the swoop animation's handshake, then installs the post-swoop idle animation and resumes proximity waiting.</summary>
+    /// <summary>Waits for its swoop's animation to finish, then plays the idle animation that follows and waits for Samus again.</summary>
     WaitingForLandingAnimation,
     /// <summary>Moves with signed 1/256-pixel velocities, subtracting 24 from Y velocity per AI update until homing begins or collision starts the bounce.</summary>
     Diving,

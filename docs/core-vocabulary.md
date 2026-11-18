@@ -134,8 +134,8 @@ game's own.
 
 A name that says `Ntsc` or `Pal` names the video standard and is reported too (#1848,
 `CoreVocabularyAnalyzer.VideoStandardWords`), matched as a whole word case-sensitively in the casings `Ntsc`, `NTSC`,
-`ntsc`, `Pal` and `PAL` (`IsPal`, `MetareeNtscSpeed`, `PALTiming`, an `ntsc` local). Core names the release whose value
-differs (the Japanese and North American release, the European release), as SME6454 asks of prose. A lower-case `pal`
+`ntsc`, `Pal` and `PAL` (`IsPal`, `MetareeNtscSpeed`, `PALTiming`, an `ntsc` local). Core holds the one game's values and
+names no release (#2472), as SME6454 asks of prose. A lower-case `pal`
 (English, or a palette's abbreviation) is not read, and whole-word matching keeps `Palette`, `Pale`, `Palm` and `Opal`.
 
 The original's table positions and enemy record are reported too (#1765, `CoreVocabularyAnalyzer.TablePositionPhrases`),
@@ -207,7 +207,7 @@ tables and records (#1797): a frame, artwork, graphics, sprite, palette, picture
 transfer and a transfer queue, buffer or slot; a staging buffer, a foreground or scroll staging, staging the foreground
 and a scroll or position staged; `NTSC` and `PAL`, read case-sensitively; the common room elements; a selector table or
 row; and a record table, an input-table record, an input record and a pose record. Core publishes whole frames, places
-its views where they stand, names the release (the Japanese and North American release, the European release), names
+its views where they stand, plays the one game whose values it holds (no release is named, #2472), names
 the door, item and block pictures every room shares, and names the choice, the entry, the input transition or the pose.
 The reserve tanks' transfer, transferring a value, a stage of an animation, a staged fight, a staging point, a common
 room, a selector alone and a record of something stay English. The grapple rope's installed frames name their mirroring
@@ -400,8 +400,9 @@ debug mode, its debug flag, its debug-only save icons and an area change with de
 English) and the port's C# construction (`the C# room constructor`). Core states what the game does and gives every path it holds a gameplay
 reason. A thing the game shows wrong, Samus falling through a platform, an order alone, a stranded X-ray beam, a name,
 text or identity for diagnostics and C# alone stay English. Outside hardware owners SME6454 also reads the Japanese and
-North American release named for what the game does when the comment's paragraph, its line comments up to a blank line,
-names no European release (`The Japanese and North American release measures angles in 256ths of a turn`); a speed row
+North American release named for what the game does (`The Japanese and North American release measures angles in 256ths
+of a turn`), and since #2472 the European release and a Japan/USA region too, with or without the other release beside
+it; a speed row
 (`the population's linear speed row`); a variable label cited in backticks (`` `ranActorAi` ``); a sort order (`a normal
 bomb's family sorts after the Power Bomb family`); a scroll table (`resets the background scroll table`); colours loaded
 into a row (`which his fight loads into the projectiles' row`); a state, boss, encounter or death extension, extended
@@ -731,6 +732,17 @@ bubble whether or not its gaze turns, a deleted part's animation stays where it 
 Shitroid moves the camera, a hit leaves the mouth's bounds as it left them. A frame alone and a behaviour alone, a
 return to a place, a count that wraps, a value kept, a bit of a thing, an authored path, a direct hit, a branch alone
 and a hardware owner, which describes the program it reproduces, stay English.
+
+#2472 widens SME6454, outside hardware owners, to any release named (the Japanese and North American release, the
+European release, `the Japan/USA layout`), the two set side by side too (`the Japanese and North American release takes
+80; the European release takes 99`): Core plays one game and holds its values. It also reads the original's waits,
+screen lines and storage as late-fight boss prose tells them: a delay counted in frames by number (`the ordinary
+eight-frame delay`, `a 16-frame delay`); the screen's first lines by number (`the first 256 lines`); a cross-enemy or
+cross-actor write; a one-shot flag (`the one-shot cry flag`); indices that reach zero and a raise/lower pair of indices;
+the room adapter; the requests other systems fulfil; and a graphics/animation state. Core says how long a wait lasts in
+updates, where in the room a thing goes, what one enemy does to another, what a count or a state stands for and how a
+neck moves. An animation frame's delay, a first line of text, a one-shot animation, a list's indices, an adapter or a
+request alone, a state alone, the Japanese text and a hardware owner stay English.
 
 SME6459 (#2309) reads the summary of every member of a Core `*Segment` enum, one run of an actor's animation, and rejects
 one that only restates the member's name: `The facing left shooting animation.`, `The idle.`, `The loop.`, and (#2465)

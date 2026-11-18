@@ -56,12 +56,12 @@ internal abstract record TorizoCue
     internal sealed record Posture(TorizoPostureKind Kind, Offset16<RoomPixels> Displacement) : TorizoCue;
 
     /// <summary>One walking step of a Torizo (#1891).</summary>
-    /// <param name="Kind">Which Torizo walks.</param>
+    /// <param name="Walker">How the Torizo walks in the state whose walk takes the step, and turns about at a wall (#2472).</param>
     /// <param name="Velocity">
     /// The whole pixels the step moves the Torizo, negative to the left; the animations of each facing carry that facing's
     /// velocity.
     /// </param>
-    internal sealed record Walk(TorizoWalkKind Kind, int Velocity) : TorizoCue;
+    internal sealed record Walk(TorizoWalker Walker, int Velocity) : TorizoCue;
 
     /// <summary>Spawns an explosive swipe at Bomb Torizo's hand.</summary>
     /// <param name="Hand">Where the hand is relative to a left-facing Torizo; a right-facing Torizo mirrors it.</param>

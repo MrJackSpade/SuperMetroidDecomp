@@ -8,7 +8,8 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// arena in the upper room, plays on from a landing past both of the choice's targets, and answers no secret code.
 /// </summary>
 internal sealed class BombTorizoVariant()
-    : TorizoVariant(TorizoInitializationDefinitions.Bomb, TorizoDeathDefinitions.BombTorizoArena, EncounterArtwork.BombTorizo, TorizoLookKind.BombStatue,
+    : TorizoVariant(TorizoInitializationDefinitions.Bomb, TorizoWalkerDefinitions.BombTorizo, TorizoDeathDefinitions.BombTorizoArena,
+        EncounterArtwork.BombTorizo, TorizoLookKind.BombStatue,
         secretCode: null)
 {
     /// <summary>Bomb Torizo plays on past both of the choice's targets.</summary>

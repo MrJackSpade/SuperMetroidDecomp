@@ -104,10 +104,7 @@ internal static class TorizoMotionDefinitions
     /// </summary>
     internal const int InitialDroolSlowestFall = 49;
 
-    /// <summary>
-    /// The pixels the initial drool is placed to the facing side of the jittered spawn position (the game
-    /// adds eight facing right and minus eight facing left).
-    /// </summary>
+    /// <summary>The pixels ahead of the jittered spawn position, the way the Torizo faces, the initial drool is placed.</summary>
     internal const int InitialDroolSideOffset = 8;
 
     /// <summary>

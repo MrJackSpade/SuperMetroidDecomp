@@ -1,3 +1,5 @@
+using System.Collections.Frozen;
+
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>
@@ -6,6 +8,18 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// </summary>
 public readonly record struct PhantoonBodyLook
 {
+    /// <summary>
+    /// Each colouring's name in its installed shades' names (#2472), written out so renaming a colouring's identity never
+    /// changes a name on disk, as Torizo's are (#2409). A health colouring is named by its band instead.
+    /// </summary>
+    private static readonly FrozenDictionary<PhantoonBodyLookKind, string> Keys =
+        new Dictionary<PhantoonBodyLookKind, string>
+        {
+            [PhantoonBodyLookKind.Black] = "black",
+            [PhantoonBodyLookKind.White] = "white",
+            [PhantoonBodyLookKind.FadedOut] = "fadedout",
+        }.ToFrozenDictionary();
+
     /// <summary>The colouring of <paramref name="kind"/>, showing <paramref name="band"/>'s colours for a health colouring.</summary>
     private PhantoonBodyLook(PhantoonBodyLookKind kind, PhantoonHealthBand? band)
     {
@@ -32,5 +46,6 @@ public readonly record struct PhantoonBodyLook
     public static PhantoonBodyLook Health(PhantoonHealthBand band) => new(PhantoonBodyLookKind.Health, Ensure.NotNull(band));
 
     /// <summary>The colouring's name in its shades' names.</summary>
-    public string Key => Band is { } band ? $"health-{band.Key}" : Kind.ToString().ToLowerInvariant();
+    /// <exception cref="ArgumentOutOfRangeException">The colouring is a health colouring that names no band.</exception>
+    public string Key => Band is { } band ? $"health-{band.Key}" : Ensure.Listed(Keys, Kind);
 }

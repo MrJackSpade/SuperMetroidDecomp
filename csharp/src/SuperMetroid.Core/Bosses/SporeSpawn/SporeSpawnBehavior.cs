@@ -368,10 +368,16 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         !projectileType.IsFamily(SamusProjectileFamily.Beam) && !projectileType.IsFamily(SamusProjectileFamily.MissileExplosion) ||
         projectileType.IsChargedBeam;
 
-    /// <summary>Resolves the rest of a shot on Spore Spawn's <paramref name="body"/>, of encounter <paramref name="state"/>, after the common reaction.</summary>
+    /// <summary>
+    /// Resolves the rest of a shot or bomb on Spore Spawn's <paramref name="body"/>, of encounter <paramref name="state"/>,
+    /// after the common reaction: while his hurt flash shows he reacts as to a hit.
+    /// </summary>
     private void ResolveSporeSpawnShotAfterCommon(RoomEnemyPlace body, SporeSpawnEnemyState state)
     {
-        if (body.FlashTimer != 0)
+        // He reacts to whatever strikes his core while he flashes hurt, by this hit or by an earlier one whose flash still
+        // shows: a bomb, which does him no damage, still sets him swaying inside a missile's flash.
+        bool flashingHurt = body.FlashTimer != 0;
+        if (flashingHurt)
         {
             state.Movement = SporeSpawnMovement.Moving;
 
@@ -439,7 +445,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         switch (cue)
         {
-            case SporeSpawnCue.Signal { Kind: SporeSpawnCueKind.IncreaseMaxXRadius }:
+            case SporeSpawnCue.Signal { Kind: SporeSpawnCueKind.WidenSway }:
                 state.SwayRadius = state.SwayRadius.Widened();
                 return;
             case SporeSpawnCue.Signal { Kind: SporeSpawnCueKind.ReopenToHits }:

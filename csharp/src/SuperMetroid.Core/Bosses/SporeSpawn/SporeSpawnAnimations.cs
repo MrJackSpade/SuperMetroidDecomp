@@ -101,7 +101,7 @@ internal static class SporeSpawnAnimations
             Show(F.SporeSpawnShut, 1),
             SelectMovement(SporeSpawnMovement.Moving),
             Cue(new SporeSpawnCue.SetSporeGeneration(SporeGenerationSuppressed: false)),
-            Cue(new SporeSpawnCue.Signal(K.IncreaseMaxXRadius)),
+            Cue(new SporeSpawnCue.Signal(K.WidenSway)),
             Show(F.SporeSpawnShut, ClosedSway),
             Cue(new SporeSpawnCue.SetSporeGeneration(SporeGenerationSuppressed: true)),
             Show(F.SporeSpawnShut, SporingSway),
@@ -131,13 +131,7 @@ internal static class SporeSpawnAnimations
         ],
         [P.DeathFade] =
         [
-            .. FadeStep(SporeSpawnDeathFadeStep.Unhardened),
-            .. FadeStep(SporeSpawnDeathFadeStep.SixthHardened),
-            .. FadeStep(SporeSpawnDeathFadeStep.ThirdHardened),
-            .. FadeStep(SporeSpawnDeathFadeStep.HalfHardened),
-            .. FadeStep(SporeSpawnDeathFadeStep.TwoThirdsHardened),
-            .. FadeStep(SporeSpawnDeathFadeStep.FiveSixthsHardened),
-            .. FadeStep(SporeSpawnDeathFadeStep.Husk),
+            .. SporeSpawnDeathFadeStep.All.SelectMany(FadeStep),
             Cue(new SporeSpawnCue.Signal(K.RequestDeathDrops)),
         ],
     });

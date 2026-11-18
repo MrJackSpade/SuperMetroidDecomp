@@ -2,7 +2,7 @@ using System.Collections.Immutable;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>Where Mother Brain's eleven Rinka spawn points lie (Japan/USA layout), in the order a moving Rinka tries them.</summary>
+/// <summary>Where Mother Brain's eleven Rinka spawn points lie, in the order a moving Rinka tries them.</summary>
 internal static class RinkaSpawnPointDefinitions
 {
     /// <summary>

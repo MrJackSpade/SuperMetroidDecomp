@@ -9,7 +9,8 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// secret chord.
 /// </summary>
 internal sealed class GoldenTorizoVariant()
-    : TorizoVariant(TorizoInitializationDefinitions.Golden, TorizoDeathDefinitions.GoldenTorizoArena, EncounterArtwork.GoldenTorizo, TorizoLookKind.GoldenInitial,
+    : TorizoVariant(TorizoInitializationDefinitions.Golden, TorizoWalkerDefinitions.GoldenTorizo, TorizoDeathDefinitions.GoldenTorizoArena,
+        EncounterArtwork.GoldenTorizo, TorizoLookKind.GoldenInitial,
         GoldenTorizoCodeDefinitions.Code)
 {
     /// <summary>Golden Torizo walks on by the choice's walk.</summary>

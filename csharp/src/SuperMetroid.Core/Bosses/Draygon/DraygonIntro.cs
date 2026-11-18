@@ -21,7 +21,7 @@ internal sealed class DraygonIntro
         _turrets = turrets;
     }
 
-    /// <summary>Runs the opening 256-frame delay.</summary>
+    /// <summary>Waits out the opening 256 updates.</summary>
     internal void RunDraygonIntroInitialDelay(
         DraygonEnemyState state,
         SamusState samus,

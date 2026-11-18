@@ -25,9 +25,6 @@ public readonly record struct CountdownStep(WrappingCountdown Remaining)
     /// <summary>Whether the step ran the countdown past zero: the expiry of a timer that ends on running past zero.</summary>
     public bool IsNegative => Remaining.IsNegative;
 
-    /// <summary>Whether the countdown has not yet run past zero: a timer that ends on running past zero is still waiting.</summary>
-    public bool IsNonNegative => !IsNegative;
-
     /// <summary>Whether the step left no frames or ran past zero: the expiry of a timer that ends on either.</summary>
     public bool IsZeroOrNegative => Remaining.IsZeroOrNegative;
 }

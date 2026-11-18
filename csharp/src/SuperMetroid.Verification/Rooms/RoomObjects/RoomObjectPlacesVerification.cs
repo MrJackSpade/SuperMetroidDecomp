@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Verification.Harness;
 

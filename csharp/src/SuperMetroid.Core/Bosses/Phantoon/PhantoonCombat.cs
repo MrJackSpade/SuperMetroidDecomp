@@ -566,7 +566,7 @@ internal sealed class PhantoonCombat
     {
         reaction = null;
 
-        // Phantoon's frames' hitboxes are the compiled definitions', never his editable background frames'; the
+        // Phantoon's frames' hitboxes are his collision definitions', never his editable background frames'; the
         // invulnerable body's centre point is a compatibility rule (PhantoonSolidifyingCentre).
         foreach (EnemyCollisionComponent component in
                  PhantoonCollision.ComponentsAt(enemy.Frame))

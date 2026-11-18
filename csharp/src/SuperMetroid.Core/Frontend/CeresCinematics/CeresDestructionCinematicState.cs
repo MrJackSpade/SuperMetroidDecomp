@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 /// <remarks>
 /// The cinematic owns this sequence. The state deliberately retains the
 /// game's phase boundaries, counters, camera motion, turning-floor rotation values, and
-/// compiled sprite animations, so the scene's progress is game state:
+/// sprite animations, so the scene's progress is game state:
 /// there is no separately authored video or timer that merely happens to end at the
 /// same gameplay room.
 /// </remarks>

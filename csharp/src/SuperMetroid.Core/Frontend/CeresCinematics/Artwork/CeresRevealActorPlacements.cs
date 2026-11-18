@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 /// <summary>
 /// The installed initial screen positions of the six Ceres-to-Zebes reveal actors and of the Japanese PLANET ZEBES
 /// subtitle, as the player left them, keyed by role (#1768); the installation is their only source (#1596, #1733). Their
-/// animations, slide acceleration, deletion, and phase handoffs remain in compiled game mechanics.
+/// animations, slide acceleration, deletion, and phase handoffs are the game's own.
 /// </summary>
 public sealed class CeresRevealActorPlacements
 {

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// <remarks>
 /// The game tells them apart by the destination: the pseudo-door leads to no room, so collision treats the block as solid
 /// and arms the elevator instead of publishing a transition. Nothing else of the pseudo-door is ever read, so no definition
-/// is modeled for it, and every elevator's door blocks lead to the same one.
+/// is kept for it, and every elevator's door blocks lead to the same one.
 /// </remarks>
 public readonly record struct DoorBlockExit
 {

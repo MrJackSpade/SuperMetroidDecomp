@@ -4,7 +4,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Frontend.Pause.Artwork;
 
 /// <summary>
-/// The installed equipment-selector anchors, visual animation and timing; selection rules stay compiled. The installation
+/// The installed equipment-selector anchors, visual animation and timing; selection rules are the game's own. The installation
 /// is the anchors', frames' and timing's only source (#1596, #1615): each step of the animation names, for each category,
 /// the frame of the installed pause sheet it shows, and how long it holds (#2359). The frames' compositions belong to the
 /// import pipeline that reads the installed presentation and never reach the game (#1463, #1616).

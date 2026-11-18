@@ -15,5 +15,5 @@ internal static class SporeSpawnCollision
     internal static ReadOnlySpan<EnemyCollisionComponent> ComponentsAt(EnemyFrameId? frame) =>
         frame is { } shown && FrameComponents.TryGetValue(shown, out EnemyCollisionComponent[]? components)
             ? components
-            : throw new InvalidDataException($"Spore Spawn frame {frame} has no compiled collision identity.");
+            : throw new InvalidDataException($"Spore Spawn frame {frame} has no collision identity.");
 }

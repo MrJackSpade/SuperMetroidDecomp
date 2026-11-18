@@ -3,7 +3,7 @@ using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>Compiled placement, rotation and bullet-physics definitions.</summary>
+/// <summary>The turrets' placement, rotation and bullet-physics definitions.</summary>
 internal static class MotherBrainTurretDefinitions
 {
     /// <summary>

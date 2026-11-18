@@ -2,7 +2,7 @@ using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
-/// <summary>Compiled spawn geometry and movement mechanics for Spore Spawn projectiles.</summary>
+/// <summary>The spawn geometry and movement of Spore Spawn's projectiles.</summary>
 internal static class SporeSpawnProjectileDefinitions
 {
     /// <summary>

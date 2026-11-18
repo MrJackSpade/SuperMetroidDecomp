@@ -785,7 +785,7 @@ public static class SamusGrappleMovement
                             throw new UnmodeledBehaviorException(
                                 $"grapple-shootable/type-{block.CollisionType}/behaviour-{block.Behavior.Shootable}",
                                 $"Grapple shootable reaction type {block.CollisionType}/behaviour ({block.Behavior}) " +
-                                $"at block {block.Position} has no modeled reaction.",
+                                $"at block {block.Position} has no grapple reaction.",
                                 error);
                         }
                     }

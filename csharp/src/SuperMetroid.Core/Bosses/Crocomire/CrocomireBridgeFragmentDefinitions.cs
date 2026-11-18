@@ -2,7 +2,7 @@ using System.Collections.Immutable;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
-/// <summary>Compiled physical launch positions for Crocomire's crumbling bridge actors.</summary>
+/// <summary>The launch positions of Crocomire's crumbling bridge actors.</summary>
 internal static class CrocomireBridgeFragmentDefinitions
 {
     /// <summary>

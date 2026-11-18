@@ -275,7 +275,7 @@ internal sealed class IntroCeresFlightState
         angle = CeresFlightSceneDefinitions.RearViewAngle;
 
         // The actors spawn, update and draw in their spawn order. Their visual animations
-        // remain authored scripts; the compiled definitions supply behaviour identity,
+        // remain authored scripts; the flight's definitions supply behaviour identity,
         // each actor's start and the physical motion applied by StepRearViewActors.
         // Each actor starts at its role's installed placement (#1596).
         CeresFlightActorPlacements layout = actorLayout;
@@ -377,7 +377,7 @@ internal sealed class IntroCeresFlightState
             Phase = IntroCeresFlightPhase.StartGameAtCeres;
     }
 
-    /// <summary>Moves each rear-view actor according to its compiled motion before stepping its sprite animation.</summary>
+    /// <summary>Moves each rear-view actor according to its defined motion before stepping its sprite animation.</summary>
     private void StepRearViewActors()
     {
         foreach ((CeresRearViewActorRole role, CinematicActor<CeresAnimation, CinematicSpritePose, CeresCue> actor) in RearViewActors)

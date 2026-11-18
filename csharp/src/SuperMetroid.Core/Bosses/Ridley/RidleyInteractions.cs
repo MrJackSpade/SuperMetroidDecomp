@@ -66,7 +66,7 @@ internal static class RidleyInteractions
     /// collision (#2335): true with his touch or shot reaction, as the probe selects, or false when none of his body's
     /// hitboxes overlaps it.
     /// </summary>
-    /// <exception cref="InvalidDataException">Ridley's frame has no compiled collision.</exception>
+    /// <exception cref="InvalidDataException">Ridley's frame has no collision.</exception>
     internal static bool FindRidleyHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
     {
         reaction = !BodyOverlaps(enemy, probe) ? null
@@ -75,7 +75,7 @@ internal static class RidleyInteractions
     }
 
     /// <summary>Whether <paramref name="probe"/> overlaps a hitbox of the body frame Ridley shows (#2410).</summary>
-    /// <exception cref="InvalidDataException">Ridley's frame has no compiled collision.</exception>
+    /// <exception cref="InvalidDataException">Ridley's frame has no collision.</exception>
     internal static bool BodyOverlaps(RoomEnemyPlace enemy, EnemyHitboxProbe probe)
     {
         // An installed picture's composition may be edited; touch and shots still meet the hitboxes of the eleven

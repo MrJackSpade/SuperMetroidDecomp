@@ -9,7 +9,7 @@ internal static class CrocomireCorpseCollision
     /// <summary>Whether <paramref name="frame"/> is one of the corpse frames.</summary>
     internal static bool HasFrame(EnemyFrameId? frame) => frame is { } shown && CrocomireCorpseCollisionDefinitions.Frames.ContainsKey(shown);
 
-    /// <summary>Returns physical component placement for a compiled corpse frame.</summary>
+    /// <summary>Returns where a corpse frame places its collision components.</summary>
     internal static ReadOnlySpan<EnemyCollisionComponent> ComponentsAt(EnemyFrameId? frame) =>
         frame is { } shown && CrocomireCorpseCollisionDefinitions.Frames.TryGetValue(shown, out var parts)
             ? parts

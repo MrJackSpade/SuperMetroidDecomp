@@ -1024,7 +1024,7 @@ internal sealed class SamusFramePhases
         // the checks after her movement, liquid animation, prospective-pose selection, and velocity
         // cleanup. Knockback clears its vertical speed on landing before the landing effects read it, so they see no
         // speed.
-        // Drained movement retains its separately modeled impact publication.
+        // Drained movement publishes its impact separately.
         bool ordinaryOrBallLanded =
             _player.LastAerialSamusMovement is { Landed: true } ||
             _player.LastMorphBallMovement is { Landed: true };

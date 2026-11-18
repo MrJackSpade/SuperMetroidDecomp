@@ -688,6 +688,19 @@ blocks. A body's tail (`Ridley's tail`, `the tail cap`), an entry that is a plac
 entry`, `the entry door`), a number that is nonzero (`a nonzero timer`), a unit of measure (`a speed in 1/65536 pixels`), a
 turn that records, a sprite list alone and a hardware owner stay English.
 
+#2461 widens SME6454, outside hardware owners, to the port's narration of its build and its scope and to the original's
+animation layout: anything compiled in any word form (`compiled fixed values`, `the import compiles them`, `the
+compilation`); anything modelled or modeled but the noun (`a newly modelled landing`, `the modeled shade`, `an unmodeled
+reaction`); the port named as itself (`the port's scope`, `every behaviour the port reproduces`); and an animation laid out
+against another (`an animation laid out before it`, `laid out after hers`), laid out by the animation that holds it (`as
+the plain fall lays it out`) or told by its layout (`identical four-frame layouts`). Core says what the game does: an
+animation no pose animates by is reached only by a frame read past another animation's end, the fast fall's first frame
+is a place in the fall's animation, the fuse switches a bomb to the same frame of its fast animation, an attack that runs
+the game's live state as code is outside the emulation scope limit. Where an animation lies against another is
+`FramesBeyondAnimation`'s to describe, as the compatibility service that reproduces it. A model (`the display model`), a
+body's or a controller's port (`the top port's spike`, `port 2`), a layout alone (`a room's scroll layout`), laying a
+picture out (`lays out the caption`) and a hardware owner stay English.
+
 `Tilemap` is matched as the one word the cartridge's sources spell. A room layer named as the destination engine names
 it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as does `MapTiles`; so does
 `SpriteSheet` beside `Spritemap`, and `Scan`, `Scanned` or `FirstLine` beside `Scanline` (#1694). Documentation prose is

@@ -24,9 +24,9 @@ internal static class KraidArmCollision
     internal static ImmutableArray<EnemyCollisionHitbox> HitboxesAt(KraidArmHitboxList list) =>
         HitboxLists.TryGetValue(list, out ImmutableArray<EnemyCollisionHitbox> rectangles)
             ? rectangles
-            : throw new InvalidDataException($"Kraid-arm hitbox list {list} is not compiled.");
+            : throw new InvalidDataException($"Kraid's arm has no hitbox list {list}.");
 
-    /// <summary>Each compiled hitbox list's rectangles in collision order, with their touch and shot reactions.</summary>
+    /// <summary>Each arm hitbox list's rectangles in collision order, with their touch and shot reactions.</summary>
     private static readonly Dictionary<KraidArmHitboxList, ImmutableArray<EnemyCollisionHitbox>> HitboxLists = HitboxListShapes.ToDictionary(
         entry => entry.Key,
         entry => entry.Value.Rectangles

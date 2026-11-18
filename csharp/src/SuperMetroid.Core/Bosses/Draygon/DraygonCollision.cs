@@ -13,5 +13,5 @@ internal static class DraygonCollision
     internal static ImmutableArray<EnemyCollisionComponent> ComponentsAt(EnemyFrameId? frame) =>
         frame is { } shown && FrameComponents.TryGetValue(shown, out ImmutableArray<EnemyCollisionComponent> components)
             ? components
-            : throw new InvalidDataException($"Draygon frame {frame} has no compiled collision identity.");
+            : throw new InvalidDataException($"Draygon frame {frame} has no collision identity.");
 }

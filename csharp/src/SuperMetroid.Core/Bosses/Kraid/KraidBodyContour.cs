@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
-/// <summary>Compiled staircase used by Kraid's private body/projectile collision path.</summary>
+/// <summary>The staircase outline of Kraid's body that his body and projectile collision test against.</summary>
 public static class KraidBodyContour
 {
     /// <summary>

@@ -13,5 +13,5 @@ internal static class PhantoonCollision
     internal static ImmutableArray<EnemyCollisionComponent> ComponentsAt(EnemyFrameId? frame) =>
         frame is { } shown && FrameComponents.TryGetValue(shown, out ImmutableArray<EnemyCollisionComponent> components)
             ? components
-            : throw new InvalidDataException($"Phantoon frame {frame} has no compiled hitbox identity.");
+            : throw new InvalidDataException($"Phantoon frame {frame} has no hitbox identity.");
 }

@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Frontend.Pause.Artwork;
 
-/// <summary>Four mutually exclusive visuals selected by the compiled Varia/Hi-Jump rule.</summary>
+/// <summary>Four mutually exclusive visuals selected by the Varia/Hi-Jump rule.</summary>
 public enum PauseWireframeKind
 {
     /// <summary>Power Suit artwork with regular boots.</summary>

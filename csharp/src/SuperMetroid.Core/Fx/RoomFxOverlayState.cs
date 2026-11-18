@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Fx;
 /// with its own operations (<see cref="SetLiquidLevel"/>, <see cref="SetLiquidSpeed"/>, <see cref="MoveLiquidAfter"/>,
 /// <see cref="MoveLiquidTo"/>, <see cref="EndLiquidWaitNextUpdate"/>, <see cref="HaltLiquid"/>), whatever the effect
 /// shows on its overlay; the liquid's motion acts on them on its next pass.
-/// The modelled effect overlay effects are lava, acid, water, spores, Landing Site rain, and Climb fog.
+/// The overlay effects are lava, acid, water, spores, Landing Site rain, and Climb fog.
 /// </remarks>
 [RoomLifetime]
 public sealed class RoomFxOverlayState : IGameplayShadingSource

@@ -15,5 +15,5 @@ internal static class CrocomirePowerBombReactions
                 CrocomireMouth.FullyOpen => CrocomireBodyAnimation.PowerBombReactionMouthFullyOpen,
                 _ => throw new InvalidOperationException($"Undefined {nameof(CrocomireMouth)} {mouth}."),
             }
-            : throw new InvalidDataException($"Crocomire power-bomb frame {frame} has no compiled reaction.");
+            : throw new InvalidDataException($"Crocomire power-bomb frame {frame} has no reaction.");
 }

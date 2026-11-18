@@ -168,7 +168,7 @@ public static class RoomEnemyDefinitionCatalog
 
     /// <summary>
     /// Each referenced identity's definition, looked up by identity rather than by ordering the identities (#1452);
-    /// the compiled count and each identity's single compilation are checked when it is built.
+    /// the count and each identity's single definition are checked when it is built.
     /// </summary>
     internal static readonly FrozenDictionary<EnemyDefinitionId, RoomEnemyDefinition> ById =
         RoomEnemyDefinitionLookup.Index(Definitions, Count);

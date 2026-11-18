@@ -2,7 +2,7 @@ using System.Collections.Frozen;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>Compiled beam speeds and beam/missile acceleration definitions.</summary>
+/// <summary>The beam speeds and beam/missile acceleration definitions.</summary>
 internal static class SamusProjectileMotionDefinitions
 {
     /// <summary>

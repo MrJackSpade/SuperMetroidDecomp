@@ -32,7 +32,7 @@ public static class SamusGrappleSwing
         grapple.FlareOrigin = ropeStart.Pixel;
 
         // Body placement and displayed art both follow the swing direction nearest the mirrored angle.
-        // Keep the authored physical mapping compiled so a visual-frame override cannot
+        // The body placement keeps its authored mapping, so a visual-frame override cannot
         // move the collision body. Stock art still selects the same frame.
         var direction = GrappleSwingDirection.Nearest(grapple.MirroredAngle.ToTrigonometryAngle());
         GrappleSwingPicture picture = grapple.Artwork.GrappleSwingFrames.Resolve(direction);

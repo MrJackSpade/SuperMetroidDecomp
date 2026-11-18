@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Yard;
 
-/// <summary>Compiled turn geometry and behaviour metadata for the Maridia Yard.</summary>
+/// <summary>The Maridia Yard's turn geometry and behaviour.</summary>
 internal static class YardTurnDefinitions
 {
     /// <summary>

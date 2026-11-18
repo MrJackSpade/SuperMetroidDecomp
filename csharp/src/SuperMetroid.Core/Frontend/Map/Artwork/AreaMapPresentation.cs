@@ -31,7 +31,7 @@ public sealed class AreaMapPresentation : IAreaMapSource
     public MapHighlightCycle HighlightCycle { get; }
     /// <summary>World-map area-name drawing anchors, independent of area selection and map exploration.</summary>
     public WorldMapLabelPositions Labels { get; }
-    /// <summary>Map-station label drawing positions; moving these does not change compiled discovery cells or station reveal masks.</summary>
+    /// <summary>Map-station label drawing positions; moving these does not change discovery cells or station reveal masks.</summary>
     public MapStationPositions Stations { get; }
     /// <summary>Boss, elevator, and gunship drawing anchors, independent of progression and destination rules.</summary>
     public MapLandmarkPositions Landmarks { get; }
@@ -42,7 +42,7 @@ public sealed class AreaMapPresentation : IAreaMapSource
 
     /// <summary>Returns an area's selected map presentation with its stock exploration and station-reveal rules.</summary>
     /// <param name="area">One of the seven areas, including Ceres.</param>
-    /// <returns>The immutable view compiled when this catalog was loaded.</returns>
+    /// <returns>The immutable view built when this catalog was loaded.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The value is not an area.</exception>
     public IAreaMapView Get(AreaId area) => areas[AreaIds.Require(area)];
 }

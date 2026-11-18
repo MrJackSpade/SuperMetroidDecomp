@@ -287,7 +287,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
         GameOverBabySound.FirstCry => GameOverMenuDefinitions.FirstCry,
         GameOverBabySound.SecondCry => GameOverMenuDefinitions.SecondCry,
         GameOverBabySound.ThirdCry => GameOverMenuDefinitions.ThirdCry,
-        _ => throw new InvalidDataException($"Unknown compiled game-over Baby sound {sound}."),
+        _ => throw new InvalidDataException($"Unknown game-over Baby sound {sound}."),
     };
 
 }

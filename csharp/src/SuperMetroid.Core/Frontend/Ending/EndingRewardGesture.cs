@@ -51,7 +51,7 @@ internal sealed class EndingRewardGesture
         }
     }
 
-    /// <summary>Creates an actor from its compiled start and animation.</summary>
+    /// <summary>Creates an actor from its defined start and animation.</summary>
     private void Spawn(EndingRewardActor definition)
     {
         EndingRewardActorDefinition authored = EndingRewardActors.Get(definition);

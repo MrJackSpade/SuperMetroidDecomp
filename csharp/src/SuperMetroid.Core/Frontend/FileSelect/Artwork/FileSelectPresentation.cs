@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Frontend.FileSelect.Artwork;
 /// the cursor and helmet anchors and the frame durations. The pages, field patches and glyphs are pictures the import
 /// composes once (#1467); the actors are drawn from the installed file-select sheet, whose compositions belong to the
 /// import pipeline that reads the installed presentation and never reach the game (#1463, #1616). Save-file validation,
-/// menu navigation, copy/clear operations and fades remain compiled.
+/// menu navigation, copy/clear operations and fades are the game's own.
 /// </summary>
 public sealed class FileSelectPresentation
 {

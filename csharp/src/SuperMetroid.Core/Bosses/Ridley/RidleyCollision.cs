@@ -59,5 +59,5 @@ internal static class RidleyCollision
     internal static ImmutableArray<RidleyCollisionComponent> ComponentsAt(EnemyFrameId? frame) =>
         frame is { } shown && FrameComponents.TryGetValue(shown, out ImmutableArray<RidleyCollisionComponent> components)
             ? components
-            : throw new InvalidDataException($"Ridley frame {frame} has no compiled collision.");
+            : throw new InvalidDataException($"Ridley frame {frame} has no collision.");
 }

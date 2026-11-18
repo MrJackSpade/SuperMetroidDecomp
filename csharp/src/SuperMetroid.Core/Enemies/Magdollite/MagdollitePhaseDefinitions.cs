@@ -2,7 +2,7 @@ using S = SuperMetroid.Core.Enemies.Magdollite.MagdolliteRiseStage;
 
 namespace SuperMetroid.Core.Enemies.Magdollite;
 
-/// <summary>Compiled physical phase definitions for Magdollite's rising body.</summary>
+/// <summary>The phase definitions of Magdollite's rising body.</summary>
 internal static class MagdollitePhaseDefinitions
 {
     /// <summary>

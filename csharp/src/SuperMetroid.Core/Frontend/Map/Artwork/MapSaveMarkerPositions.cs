@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>
 /// The installed selected-save marker drawing anchors; neither load targets nor scroll origins are content. The
-/// installation is the anchors' only source (#1596): imported artwork changes never feed back into compiled load targets or
+/// installation is the anchors' only source (#1596): imported artwork changes never feed back into load targets or
 /// scrolling.
 /// </summary>
 public sealed class MapSaveMarkerPositions

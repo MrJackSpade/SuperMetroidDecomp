@@ -29,7 +29,7 @@ internal sealed class IntroNarrationActors
     private IntroNarrationPresentation narrationPresentation;
     /// <summary>The eye frame the portrait shows, as an installed picture over it (#1467); null before the first frame.</summary>
     internal IntroEyeFrame? EyeFrame { get; private set; }
-    /// <summary>The page glyphs, compiled from the installed presentation when it is bound.</summary>
+    /// <summary>The page glyphs, built from the installed presentation when it is bound.</summary>
     private IntroNarrationCharacter[]? narrationAnimation;
     /// <summary>The bound narration page's characters.</summary>
     private IntroNarrationCharacter[] NarrationAnimation => narrationAnimation ??
@@ -208,7 +208,7 @@ internal sealed class IntroNarrationActors
         }
     }
 
-    /// <summary>Compiles an installed page, which shows its subtitle after its opening pause and before its first glyph.</summary>
+    /// <summary>Builds the glyphs of an installed page, which shows its subtitle after its opening pause and before its first glyph.</summary>
     private void StartNarration(IntroNarrationPageId page)
     {
         textFrameHold = IntroNarrationDefinitions.PageOpeningPauseFrames;

@@ -19,7 +19,7 @@ public sealed class InstalledGrappleSwingFrames
         this.pictures = pictures.ToDictionary();
     }
 
-    /// <summary>Selects the editable displayed picture for one swing direction, independently of the compiled body-placement offset and the runtime's separate straight-down animation handling.</summary>
+    /// <summary>Selects the editable displayed picture for one swing direction, independently of the body-placement offset and the runtime's separate straight-down animation handling.</summary>
     /// <param name="direction">The swing direction nearest the mirrored rope angle.</param>
     /// <returns>The swing picture the direction shows, within the current facing's swing artwork.</returns>
     public GrappleSwingPicture Resolve(GrappleSwingDirection direction) => pictures[direction];

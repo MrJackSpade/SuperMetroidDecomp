@@ -6,10 +6,10 @@ namespace SuperMetroid.Core;
 /// </summary>
 public sealed class UnmodeledBehaviorException : InvalidOperationException
 {
-    /// <summary>Gets the stable identity of the behavior that is not modeled.</summary>
+    /// <summary>Gets the stable identity of the behavior the game does not cover.</summary>
     public string BehaviorIdentity { get; }
 
-    /// <summary>Creates an unmodeled-behavior failure with a stable diagnostic identity.</summary>
+    /// <summary>Creates the failure for an uncovered behavior, with a stable diagnostic identity.</summary>
     public UnmodeledBehaviorException(string behaviorIdentity, string message, Exception? innerException = null)
         : base(message, innerException)
     {

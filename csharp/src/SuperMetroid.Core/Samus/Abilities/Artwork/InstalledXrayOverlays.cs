@@ -25,7 +25,7 @@ public sealed class InstalledXrayOverlays
     /// </remarks>
     internal readonly Dictionary<XrayRoomOverlayDefinition, XrayRoomOverlayVisual[]> rooms;
 
-    /// <summary>Copies tank blocks and ordered special-room blocks, requiring all compiled overlay sources without changing item collection or room object state.</summary>
+    /// <summary>Copies tank blocks and ordered special-room blocks, requiring every overlay source without changing item collection or room object state.</summary>
     /// <param name="tankBlocks">The block the X-ray reveals for each tank kind, keyed by the kind: one for each of <see cref="TankKinds"/> and no other.</param>
     /// <param name="rooms">Nonempty ordered block lists keyed by overlay; each list is copied.</param>
     /// <exception cref="ArgumentNullException">An input sequence or overlay is null.</exception>

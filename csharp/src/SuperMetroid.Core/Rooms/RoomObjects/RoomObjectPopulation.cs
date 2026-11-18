@@ -29,7 +29,7 @@ public sealed class RoomObjectPopulation
         this.placements = placements.Select(Validated).ToArray();
     }
 
-    /// <summary>Builds a room's population from its compiled placements, each with its family's typed setup.</summary>
+    /// <summary>Builds a room's population from its placements, each with its family's typed setup.</summary>
     /// <param name="name">The population's name.</param>
     /// <param name="placements">Each placement's room-object kind, block coordinates and setup, in authored order.</param>
     internal static RoomObjectPopulation FromPlacements(string name, RoomObjectPlacementDefinition[] placements) =>

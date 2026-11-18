@@ -607,10 +607,10 @@ public static class DoorDefinitions
         Door(nameof(CeresDoorDefinitions.CeresRidley), RoomDefinitions.CeresRidleyHallway, new(DoorDirection.Left, DoorClosingBehavior.None), new(0, 0), new(1, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None),
     ];
 
-    /// <summary>Every compiled door by its name.</summary>
+    /// <summary>Every door by its name.</summary>
     private static readonly Dictionary<string, DoorDefinition> ByName = Definitions.ToDictionary(door => door.Name);
 
-    /// <summary>The compiled door named <paramref name="name"/>.</summary>
+    /// <summary>The door named <paramref name="name"/>.</summary>
     internal static DoorDefinition Find(string name) => ByName[name];
 
     /// <summary>Builds the door named <paramref name="name"/> from its fields.</summary>

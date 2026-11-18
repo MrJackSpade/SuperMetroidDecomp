@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Runtime;
 public static class GameplayDisplayCapture
 {
     /// <summary>
-    /// Captures the full currently modeled gameplay composition, including the HUD band above the room,
+    /// Captures the full gameplay composition, including the HUD band above the room,
     /// room FX, X-ray ownership, message glyphs, and the final suit/power-bomb color effects.
     /// </summary>
     public static LayeredScene Capture(GameplayDisplayFrame frame)

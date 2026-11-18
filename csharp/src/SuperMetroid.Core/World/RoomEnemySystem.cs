@@ -96,7 +96,7 @@ namespace SuperMetroid.Core.World;
 
 /// <summary>
 /// Room-enemy loader, scheduler, shared animation, and draw queues. The game's
-/// gameplay definitions are compiled; installed artwork supplies pixels and colors.
+/// gameplay definitions are its own; installed artwork supplies pixels and colors.
 /// </summary>
 /// <remarks>
 /// The room keeps a fixed set of enemy places in <see cref="EnemyPlaceOrder"/>, each with a stable ordinal. The ordinals

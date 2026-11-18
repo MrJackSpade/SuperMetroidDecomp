@@ -87,7 +87,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
                 place.Position += moveBy.Offset;
                 return null;
             case YardCue.Signal { Kind: YardCueKind.ShellClosedUpdateEnds }:
-                if (state.Behavior != YardBehavior.Hiding && !YardDecisions.HoldShellClosedAgain.IsSetIn(_room.Random.Generate()))
+                if (state.Behavior != YardBehavior.Hiding && !YardDecisions.HoldsShellClosedAgain.IsTakenBy(_room.Random.Generate()))
                     return null;
                 return HoldShellClosedAgain(playing);
             default:

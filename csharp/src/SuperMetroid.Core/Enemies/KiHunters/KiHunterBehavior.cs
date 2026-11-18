@@ -372,7 +372,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Heading = body.Position.X.Whole >= samus.Position.X.Whole ? HorizontalDirection.Left : HorizontalDirection.Right;
         state.HorizontalSpeed = KiHunterMotionDefinitions.GroundJumpHorizontalSpeed;
         state.VerticalVelocity = SignedSixteenSixteen.FromWholePixels(
-            KiHunterMotionDefinitions.ShallowerGroundJump.Of(random) - KiHunterMotionDefinitions.GroundJumpUpwardSpeed);
+            KiHunterMotionDefinitions.GroundJumpSpeedTakenOff.Of(random) - KiHunterMotionDefinitions.GroundJumpUpwardSpeed);
         StartKiHunterAnimation(
             body,
             body.RequireSpeciesState<KiHunterBodyState>(),

@@ -236,12 +236,12 @@ internal sealed class KraidRise
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(rock, RoomEnemyProjectileKind.KraidRisingRock, KraidProjectiles.Rocks,
             graphics: SpriteGraphics.SharedIn(KraidColours.RocksShading));
         // The random sample's side chooses the rock's pose (#2278).
-        rock.StartAnimation(new KraidRockAnimation(KraidRandomDefinitions.RisingRockRight.IsSetIn(random)
+        rock.StartAnimation(new KraidRockAnimation(KraidRandomDefinitions.RisingRockFliesRight.IsTakenBy(random)
             ? KraidRockSegment.RisingRightPose
             : KraidRockSegment.SharedPose));
         // A rock on the left starts one pixel further from the body than its mirror on the right.
         int randomOffset = KraidRandomDefinitions.RisingRockOffset.Of(random);
-        if (!KraidRandomDefinitions.RisingRockOffsetRight.IsSetIn(random))
+        if (!KraidRandomDefinitions.RisingRockStartsOnRight.IsTakenBy(random))
             randomOffset = -(randomOffset + KraidRandomDefinitions.RisingRockLeftExtraPixels);
         rock.Position = FixedPosition<RoomPixels>.FromWhole(new(body.Position.X.Whole + randomOffset, KraidArenaDefinitions.RisingRockY));
         rock.Velocity = new(SignedEightEight.FromSixteenthsOfPixel(KraidRandomDefinitions.RisingRockXSpeedSixteenths.Of(random)), KraidRockLaunchDefinitions.RisingRockRise);

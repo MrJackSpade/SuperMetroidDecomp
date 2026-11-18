@@ -81,7 +81,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             case HopperAction.ChooseHopSize:
                 // Choosing between the two hops takes a whole update.
-                state.HopSize = HopperDecisions.BigHop.IsSetIn(_room.Random.Generate()) ? HopperHopSize.Big : HopperHopSize.Small;
+                state.HopSize = HopperDecisions.HopsBig.IsTakenBy(_room.Random.Generate()) ? HopperHopSize.Big : HopperHopSize.Small;
                 state.Action = HopperAction.PrepareHop;
                 return;
             case HopperAction.PrepareHop:

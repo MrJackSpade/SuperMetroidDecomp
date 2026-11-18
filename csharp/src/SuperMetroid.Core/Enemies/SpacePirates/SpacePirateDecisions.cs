@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
-/// <summary>The random fields the ninja and wall Space Pirates read to choose their moves.</summary>
+/// <summary>The random field and chance the ninja and wall Space Pirates read to choose their moves.</summary>
 internal static class SpacePirateDecisions
 {
     /// <summary>
@@ -9,6 +9,6 @@ internal static class SpacePirateDecisions
     /// </summary>
     internal static readonly RandomSampleField DivekickChoice = new(0, 2);
 
-    /// <summary>The random choice that sends a wall Space Pirate climbing up rather than down: taken by an odd sample.</summary>
-    internal static readonly RandomSampleField ClimbUp = new(0, 1);
+    /// <summary>Whether a wall Space Pirate climbs up rather than down (#2479): taken by an odd sample, one climb in two.</summary>
+    internal static readonly RandomChance ClimbsUp = RandomChance.Highest(1, new RandomSampleField(0, 1));
 }

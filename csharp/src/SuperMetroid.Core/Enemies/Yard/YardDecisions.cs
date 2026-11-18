@@ -1,11 +1,11 @@
 namespace SuperMetroid.Core.Enemies.Yard;
 
-/// <summary>The random field a Yard reads as it hides.</summary>
+/// <summary>The random chance a Yard takes as it hides.</summary>
 internal static class YardDecisions
 {
     /// <summary>
-    /// The random choice that keeps a Yard no longer hiding in its closed shell for another update (#2180): taken by an odd
-    /// sample.
+    /// Whether a Yard no longer hiding keeps its closed shell for another update (#2180, #2479): taken by an odd sample, one
+    /// update in two.
     /// </summary>
-    internal static readonly RandomSampleField HoldShellClosedAgain = new(0, 1);
+    internal static readonly RandomChance HoldsShellClosedAgain = RandomChance.Highest(1, new RandomSampleField(0, 1));
 }

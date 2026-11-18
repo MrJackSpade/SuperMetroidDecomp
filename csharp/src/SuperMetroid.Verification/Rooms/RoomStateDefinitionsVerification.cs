@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RoomHeaderImport;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Rooms.LookupRoomStateSettingsVerification;
@@ -24,7 +25,7 @@ internal static class RoomStateDefinitionsVerification
 
         RoomDefinition ceres = SuperMetroid.Core.Progression.LoadStationDefinitions.CeresElevator.Placement.Room;
         ushort ceresStatePointer = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, ceres.Pointer).State.Pointer;
-        SelectedRoom compiledRoom = SelectedRoom.LoadUsingCompiledSelection(ceres, new RoomStateSelectionContext(new PersistentProgress().Events, DefeatedBosses.None, false, false));
+        SelectedRoom compiledRoom = SelectedRoom.LoadUsingCompiledSelection(ceres, RoomStateSelectionContexts.NoProgress);
         AssertEqual(RoomStateDefinitions.Get(ceresStatePointer), compiledRoom.State,
             "production Ceres header construction uses its compiled room-state settings without a cartridge capability");
         Console.WriteLine(

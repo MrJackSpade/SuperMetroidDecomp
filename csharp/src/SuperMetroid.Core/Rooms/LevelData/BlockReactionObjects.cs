@@ -20,7 +20,7 @@ internal sealed class BlockReactionObjects
     /// <summary>What the parent blocks the setups write show: their installed pictures (#1580).</summary>
     private readonly IRoomObjectDrawing _drawing;
 
-    /// <summary>Connects block reactions to the active room, escape-animal branch, shared room-object pool and installed pictures.</summary>
+    /// <summary>Builds the block reactions from the escaping animals' reaction, the room's places and the installed pictures.</summary>
     internal BlockReactionObjects(ICrittersEscapeReaction escapeAnimals, RoomObjectPlaceList places, IRoomObjectDrawing drawing)
     {
         _escapeAnimals = escapeAnimals;
@@ -72,9 +72,8 @@ internal sealed class BlockReactionObjects
                 "Collision bomb-block behaviour must be one of the eight bomb-block breaks.");
         }
 
-        // The reaction spawn takes the first free place in update order, as every other
-        // gameplay-spawned room object does. Do not coalesce neighboring pieces: one collision scan
-        // can allocate more than one independently timed object in a single movement call.
+        // The reaction takes the first free place in update order, as every room object spawned in play does, and a full
+        // room loses the spawn. One movement can set off several neighbouring blocks, each timed on its own.
         if (_places.Spawn() is not { } place)
             return false;
 
@@ -247,10 +246,8 @@ internal sealed class BlockReactionObjects
 
         SamusProjectileFamily projectileFamily = projectileType.Family;
 
-        // The power-bomb and Super Missile setups clear the newly allocated room object when the weapon family is wrong.
-        // Observably that is identical to returning with no place taken: setup never changes the live block, and the
-        // room objects have nothing to run. Perform this
-        // gate before the room-object allocation loop while preserving every accepted path.
+        // A Power Bomb or Super Missile block breaks only for its own weapon or a bomb; any other shot leaves the block as it
+        // is and takes no place.
         if (reaction is ShotBlockReaction.RespawningPowerBombBreak or ShotBlockReaction.PermanentPowerBombBreak &&
             projectileFamily is not (SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb))
             return false;

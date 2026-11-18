@@ -37,7 +37,7 @@ internal sealed class ShaktoolObjects
         place.Block = Position16<RoomBlocks>.Zero;
         place.Become(new ShaktoolRoomControllerObject(_samus, _events));
         foreach (Position16<RoomScreens> screen in scrolls.Screens)
-            scrolls.SetLogicalState(screen, screen == Position16<RoomScreens>.Zero ? RoomScrollState.OpenAlignedToTop : RoomScrollState.Closed);
+            scrolls.SetRoomScreen(screen, screen == Position16<RoomScreens>.Zero ? RoomScrollState.OpenAlignedToTop : RoomScrollState.Closed);
         return true;
     }
 }

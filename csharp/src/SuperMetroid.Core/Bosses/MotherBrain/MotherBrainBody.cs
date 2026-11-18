@@ -349,9 +349,8 @@ internal sealed class MotherBrainBody
     }
 
     /// <summary>
-    /// Makes the twelve turret spawns
-    /// the body's setup requests. Allocation scans the pool from its highest place down, so the first turret takes
-    /// the highest place and each later one the next place below.
+    /// Makes the twelve turret spawns the body's setup requests. Each turret takes the highest free place, so the first
+    /// takes the highest place and each later one the next place below.
     /// </summary>
     private void SpawnMotherBrainInitialTurrets(MotherBrainEnemyState state)
     {

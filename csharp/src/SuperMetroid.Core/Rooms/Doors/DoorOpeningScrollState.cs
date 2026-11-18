@@ -1,13 +1,11 @@
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>
-/// Pure coordinate owner for a door's opening scroll in each of the four directions.
+/// Where a door's opening scroll carries the camera, Samus and the background, in each of the four directions.
 /// </summary>
 /// <remarks>
-/// Keeping the arithmetic independent of room loading makes every directional trace
-/// exhaustively testable. The runtime merely publishes these values to the camera, Samus and
-/// the background scroll; it never substitutes interpolation. Each scroll update moves only
-/// the travel axis, so whole-value steps carry a zero component on the other.
+/// The camera, Samus and the background take these positions as they are, with nothing between one step and the next.
+/// Each scroll update moves them along the travel direction only.
 /// </remarks>
 internal sealed class DoorOpeningScrollState
 {
@@ -36,7 +34,7 @@ internal sealed class DoorOpeningScrollState
     /// <summary>The camera's position as the scroll carries it.</summary>
     public Position16<RoomPixels> CameraPosition { get; private set; }
 
-    /// <summary>The second background layer's position as the scroll carries it.</summary>
+    /// <summary>The background's position as the scroll carries it.</summary>
     public Position16<BackgroundPixels> BackgroundPosition { get; private set; }
 
     /// <summary>Samus's position, fractions of a pixel included, as the scroll carries her.</summary>
@@ -77,7 +75,7 @@ internal sealed class DoorOpeningScrollState
     internal static Position16<RoomPixels> GetDestination(DoorDefinition door) =>
         door.DestinationScreen.ToRoomPixels();
 
-    /// <summary>Camera origin after the directional setup's initial call.</summary>
+    /// <summary>Where the camera stands after the scroll setup's first update.</summary>
     internal static Position16<RoomPixels> GetSetupCamera(DoorDefinition door) =>
         GetDestination(door) + Ensure.Listed(DoorOpeningScrollDefinitions.SetupCameraOffsets, door.Orientation.Direction);
 

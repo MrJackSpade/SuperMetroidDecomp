@@ -127,6 +127,8 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// #2412 adds, outside hardware owners, the original's branches and storage and the port's reasoning as boss prose tells
 /// them: the branch after a comparison, a choice told as equivalent, the new-frame flag, the coordinate range's far end,
 /// colour sets occupied and a setup meant to do one thing but reading another.
+/// #2413 adds, outside hardware owners, the original's calls, areas, allocation and layers as room prose tells them: an
+/// initial call, an area by its number, an allocation loop or a thing newly allocated, and a background layer by ordinal.
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -1816,6 +1818,22 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
+    /// The original's calls, areas, allocation and layers told in room prose (#2413), outside hardware owners and markup:
+    /// an initial call (the camera after the setup's initial call); an area by its number, spaced or hyphenated (the
+    /// area-seven room, area 7), unless a unit follows; an allocation loop, routine, scan or search, and a thing newly
+    /// allocated (the newly allocated room object); and a background layer or plane by ordinal (the second background
+    /// layer, background layer 2). Core says what the game does: the camera after the setup's first update, the developers'
+    /// debug room, a full room losing the spawn, the background's position. English stays legal: a call alone, an area
+    /// with a unit (a hit area eight pixels wide), an allocation alone, the background and a hardware owner.
+    /// </summary>
+    private static readonly Regex RoomCallAreaAndLayerProse = new(
+        @"\binitial\s+calls?\b" +
+        @"|\barea[\s-](?:zero|one|two|three|four|five|six|seven|eight|[0-9])\b(?![\s-]+(?:pixels?|blocks?|tiles?|screens?|updates?|wide|high|tall|deep)\b)" +
+        @"|\ballocation\s+(?:loop|routine|scan|search)s?\b|\bnewly[\s-]allocated\b" +
+        @"|\b(?:first|second|third|fourth)\s+background\s+(?:layer|plane)s?\b|\bbackground\s+(?:layer|plane)\s+(?:one|two|three|four|[1-4])\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
     /// A camel-case word of a declared name that tells the port as a translation (#2398): Translated or Untranslated at
     /// any word boundary (<c>CaptureTranslatedRenderSnapshot</c>, <c>hasTranslatedBodyChange</c>). Core names what the
     /// member captures, collects or tests.
@@ -2323,6 +2341,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : SharedStorageProse.Match(Markup.Replace(text, " ")) is { Success: true } sharedStorage ? sharedStorage.Value
             : OriginalAndPortReasoningProse.Match(Markup.Replace(text, " ")) is { Success: true } reasoning ? reasoning.Value
             : BossBranchAndReasoningProse.Match(Markup.Replace(text, " ")) is { Success: true } bossReasoning ? bossReasoning.Value
+            : RoomCallAreaAndLayerProse.Match(Markup.Replace(text, " ")) is { Success: true } roomCallAreaAndLayer ? roomCallAreaAndLayer.Value
             : TileCharacterFinding(text, owner) is { } character ? character
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;

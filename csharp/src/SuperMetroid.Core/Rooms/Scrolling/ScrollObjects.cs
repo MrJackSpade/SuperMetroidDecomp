@@ -63,8 +63,8 @@ internal sealed class ScrollObjects
                 level.GetCollisionBlock(place.Block).Terrain.WithCollision(collisionType));
             level.SetBehavior(place.Block, RoomBlockBehavior.Extending(offset));
 
-            // An extension's whole effect is its setup, which removes it at once: the following authored record takes
-            // its place.
+            // An extension's whole effect is its setup, which removes it at once, freeing its place for the room's next
+            // object.
             place.Delete();
             return;
         }

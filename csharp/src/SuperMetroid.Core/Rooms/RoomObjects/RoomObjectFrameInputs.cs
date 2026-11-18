@@ -19,8 +19,8 @@ public readonly record struct RoomObjectFrameInputs
     public required GameplayAction ControllerNewInput { get; init; }
 
     /// <summary>The items Samus has collected, which a grey door that closes for good once she has the Bombs reads.</summary>
-    public SuperMetroid.Core.Progression.SamusEquipmentFlags CollectedItems { get; init; }
+    public required SuperMetroid.Core.Progression.SamusEquipmentFlags CollectedItems { get; init; }
 
     /// <summary>Whether a power-bomb explosion is under way.</summary>
-    public bool PowerBombExplosionActive { get; init; }
+    public required bool PowerBombExplosionActive { get; init; }
 }

@@ -360,7 +360,7 @@ internal static class NoobTubeObjectVerification
         RoomObjectSystem roomObjects,
         RoomLevelData level,
         GameplayAction controllerNewInput = GameplayAction.None) =>
-        roomObjects.Step(level, new RoomObjectFrameInputs { Scrolls = SuperMetroid.Core.Rooms.RoomObjects.RoomObjectFixtures.UnreadScrolls(), EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = controllerNewInput });
+        roomObjects.Step(level, new RoomObjectFrameInputs { Scrolls = SuperMetroid.Core.Rooms.RoomObjects.RoomObjectFixtures.UnreadScrolls(), EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = controllerNewInput, CollectedItems = SamusEquipmentFlags.None, PowerBombExplosionActive = false });
 
     /// <summary>Writes the exact n00b-tube list words plus intentionally tiny draw data.</summary>
     internal static void SeedNoobTubeRom(TestAddressSpace bus)

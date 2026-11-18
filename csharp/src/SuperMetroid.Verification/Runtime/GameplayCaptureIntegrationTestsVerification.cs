@@ -74,7 +74,7 @@ internal static class GameplayCaptureIntegrationTestsVerification
             FrontendFrame reference = legacy.Step(input);
             CapturedFrontendFrame actual = packets.StepCaptured(input);
             Compare(reference, actual);
-            if (packets.RuntimeForVerification?.Room.ActiveDoor?.EntersCeresElevatorShaft == true)
+            if (packets.RuntimeForVerification?.Room.ActiveDoor?.Setup.RoomEvent == SuperMetroid.Core.Rooms.Doors.DoorRoomEvent.ShowsTurningFloor)
             {
                 sawMode7Packet = true;
             }

@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Fx;
+namespace SuperMetroid.Core.Rooms;
 
 /// <summary>
 /// The direction of Wrecked Ship's two treadmill block animations.

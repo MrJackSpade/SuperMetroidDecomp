@@ -119,7 +119,8 @@ internal static class RoomBlockWriters
         RoomObjectSetupBlock.SuperMissileBlockParent => static state => state.HoldsSuperMissileBlocks,
         RoomObjectSetupBlock.CritterWallStruck => BuildsEscapeAnimalWall,
         RoomObjectSetupBlock.TreadmillIdle or RoomObjectSetupBlock.TreadmillRunning => static state => state.Entrances.Any(static door =>
-            door.Setup.RoomEvent is DoorRoomEvent.StartsTreadmillRightwards or DoorRoomEvent.StartsTreadmillLeftwards),
+            door.Setup == DoorSetupDefinitions.WreckedShipEntranceStartsTreadmillRightwards ||
+            door.Setup == DoorSetupDefinitions.WreckedShipEntranceStartsTreadmillLeftwards),
         _ => throw new InvalidDataException($"Room-object setup block {block} has no writer."),
     };
 

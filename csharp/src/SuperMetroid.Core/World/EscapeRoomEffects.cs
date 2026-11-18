@@ -34,7 +34,6 @@ internal sealed class EscapeRoomEffects
     internal void StepEscapeRoom(RoomScope room, EscapeExplosionSite site, EscapeDiagonalQuake? diagonal)
     {
         RoomEnemySystem enemies = room.Enemies;
-        bool outdoors = site == EscapeExplosionSite.Outdoors;
         if (diagonal is { Shaking: var shaking, Countdown: var countdown })
         {
             if (!countdown.Countdown.IsZero)
@@ -49,23 +48,18 @@ internal sealed class EscapeRoomEffects
                 enemies.Earthquake.ChangeShake(shaking.Diagonal);
             }
         }
-        UpdateCadence explosionCadence = outdoors
-            ? ZebesEscapeDefinitions.OutdoorExplosionEverySecondUpdate
-            : ZebesEscapeDefinitions.IndoorExplosionEveryFourthUpdate;
-        if (!_freeze.TimeIsFrozen && explosionCadence.IsDue(_clock.Counter))
+        if (!_freeze.TimeIsFrozen && site.Cadence.IsDue(_clock.Counter))
         {
             int random = _system.NextRandom();
             Position16<RoomPixels> explosion = new(
                 room.Camera.PixelPosition.X + ZebesEscapeDefinitions.ExplosionScreenX.Of(random),
                 room.Camera.PixelPosition.Y + ZebesEscapeDefinitions.ExplosionScreenY.Of(random));
             Position16<RoomBlocks> block = explosion.ToRoomBlock();
-            // Outdoors an explosion goes off only over scenery, and one whose random draw leaves its kind open takes the kind
-            // its block's column phase gives it; indoors such an explosion is a small explosion.
-            if (!outdoors || !room.LevelData.GetObjectCollisionBlock(block).Terrain.Appearance.ShowsNothing)
-                enemies.RoomObjectSpawns.SpawnEscapeExplosion(explosion, _system.NextRandom(), outdoors
-                    ? ZebesEscapeExplosions.OutdoorKindLeftOpen(block)
-                    : ZebesEscapeExplosionDefinitions.IndoorKindLeftOpen);
+            // The site decides which blocks an explosion goes off over and the kind one whose random draw leaves its kind
+            // open shows (#2485).
+            if (site.GoesOffOver(room.LevelData, block))
+                enemies.RoomObjectSpawns.SpawnEscapeExplosion(explosion, _system.NextRandom(), site.KindLeftOpen(block));
         }
-        if (outdoors) enemies.Earthquake.KeepShaking();
+        site.AfterExplosions(enemies.Earthquake);
     }
 }

@@ -21,7 +21,7 @@ public static class DoorSetupDefinitions
     /// treadmill object of its west entrance.
     /// </summary>
     public static DoorSetup WreckedShipEntranceStartsTreadmillRightwards { get; } =
-        new(nameof(WreckedShipEntranceStartsTreadmillRightwards), [], DoorRoomEvent.StartsTreadmillRightwards);
+        new(nameof(WreckedShipEntranceStartsTreadmillRightwards), [], DoorRoomEvent.StartsTreadmill(WreckedShipTreadmillDirection.Rightwards));
 
     /// <summary>Entering the Parlor room, opens screen (1, 1).</summary>
     public static DoorSetup ParlorOpensScreen1x1 { get; } =
@@ -315,7 +315,7 @@ public static class DoorSetupDefinitions
     /// treadmill object of its east entrance.
     /// </summary>
     public static DoorSetup WreckedShipEntranceStartsTreadmillLeftwards { get; } =
-        new(nameof(WreckedShipEntranceStartsTreadmillLeftwards), [], DoorRoomEvent.StartsTreadmillLeftwards);
+        new(nameof(WreckedShipEntranceStartsTreadmillLeftwards), [], DoorRoomEvent.StartsTreadmill(WreckedShipTreadmillDirection.Leftwards));
 
     /// <summary>
     /// Entering the SpongeBath room, opens screen (1, 0) with the camera aligned to the screen's top.
@@ -355,14 +355,14 @@ public static class DoorSetupDefinitions
     /// starting height, speed and acceleration for a ride from the bottom.
     /// </summary>
     public static DoorSetup ToiletStartsElevatubeRideFromSouth { get; } =
-        new(nameof(ToiletStartsElevatubeRideFromSouth), [], DoorRoomEvent.StartsElevatubeRideFromSouth);
+        new(nameof(ToiletStartsElevatubeRideFromSouth), [], DoorRoomEvent.StartsElevatubeRide(ElevatubeEntry.FromSouth));
 
     /// <summary>
     /// Entering the Toilet room from the north, starts the elevatube ride: holds Samus still and sets the tube's
     /// starting height, speed and acceleration for a ride from the top.
     /// </summary>
     public static DoorSetup ToiletStartsElevatubeRideFromNorth { get; } =
-        new(nameof(ToiletStartsElevatubeRideFromNorth), [], DoorRoomEvent.StartsElevatubeRideFromNorth);
+        new(nameof(ToiletStartsElevatubeRideFromNorth), [], DoorRoomEvent.StartsElevatubeRide(ElevatubeEntry.FromNorth));
 
     /// <summary>
     /// Entering the PlasmaSpark room from the elevatube, ends the ride: releases Samus and stops the tube.

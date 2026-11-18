@@ -10,12 +10,18 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// </summary>
 public sealed class DoorSetup
 {
+    /// <summary>Keeps a setup's name and its screen changes in order; it starts no room event.</summary>
+    internal DoorSetup(string name, IReadOnlyList<ScreenScrollChange> screenChanges)
+        : this(name, screenChanges, DoorRoomEvent.None)
+    {
+    }
+
     /// <summary>Keeps a setup's name, its screen changes in order and its room event.</summary>
-    internal DoorSetup(string name, IReadOnlyList<ScreenScrollChange> screenChanges, DoorRoomEvent roomEvent = DoorRoomEvent.None)
+    internal DoorSetup(string name, IReadOnlyList<ScreenScrollChange> screenChanges, DoorRoomEvent roomEvent)
     {
         Name = Ensure.NotNull(name);
         ScreenChanges = Ensure.NotNull(screenChanges);
-        RoomEvent = roomEvent;
+        RoomEvent = Ensure.NotNull(roomEvent);
     }
 
     /// <summary>The setup's name: the room its doors lead into, then what it does there.</summary>
@@ -33,6 +39,17 @@ public sealed class DoorSetup
         Ensure.NotNull(scrolls);
         foreach (ScreenScrollChange change in ScreenChanges)
             scrolls.SetScreen(change.Screen, change.State);
+    }
+
+    /// <summary>
+    /// Runs the setup in the room the door leads into, once its own room objects are placed and before its enemies and
+    /// first view are set up: its screen changes in <paramref name="scrolls"/>, then its room event in
+    /// <paramref name="room"/>. The first view already stands within the changed screens' limits.
+    /// </summary>
+    internal void Run(RoomScrollGrid scrolls, IDoorEventRoom room)
+    {
+        ChangeScreens(scrolls);
+        RoomEvent.Run(room);
     }
 
     /// <inheritdoc/>

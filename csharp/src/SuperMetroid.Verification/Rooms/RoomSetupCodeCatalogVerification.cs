@@ -20,8 +20,8 @@ internal static class RoomSetupCodeCatalogVerification
     /// <summary>
     /// Audits every state reachable from the retail room headers and proves every nonzero setup callback the cartridge
     /// stores belongs to the import's bank-$8F catalog, every catalogued routine occurs, each acting behaviour has one
-    /// routine, and exactly the routines that return at once or act only on the room's display decode to
-    /// <see cref="RoomSetupBehavior.None"/> (#1787, #1827).
+    /// routine except the two whose routines nothing the simulation does tells apart (#2485), and exactly the routines that
+    /// return at once or act only on the room's display decode to <see cref="RoomSetupBehavior.None"/> (#1787, #1827).
     /// </summary>
     internal static void VerifyRoomSetupCodeCatalog()
     {
@@ -29,8 +29,9 @@ internal static class RoomSetupCodeCatalogVerification
         ushort[] catalog = [.. routines.Keys];
         foreach (RoomSetupBehavior acting in RoomSetupBehaviorConstants.All.Where(callback => callback != RoomSetupBehavior.None))
         {
-            AssertEqual(1, routines.Values.Count(callback => callback == acting),
-                $"room-setup behaviour {acting} is one routine");
+            AssertEqual(RoomSetupBehaviorConstants.SharedRoutineCounts.GetValueOrDefault(acting, 1),
+                routines.Values.Count(callback => callback == acting),
+                $"room-setup behaviour {acting} is its routines");
         }
 
         string romPath = Path.GetFullPath("Super Metroid.smc");
@@ -88,10 +89,6 @@ internal static class RoomSetupCodeCatalogVerification
             AssertTrue(retailSetupPointers.Contains(pointer),
                 $"catalogued room-setup callback $8F:{pointer:X4} occurs in a retail state");
         }
-        AssertTrue(RoomSetupBehavior.SealCeresDoorAndSpawnHaze.SpawnsCeresHaze,
-            "Ceres solid-door setup declares haze side effect");
-        AssertTrue(!RoomSetupBehavior.SetMediumHorizontalRoomShaking.SpawnsCeresHaze,
-            "unrelated setup does not acquire Ceres haze");
 
         Console.WriteLine(
             $"  Room setup: all {retailSetupPointers.Count} nonzero retail callback kinds are catalogued.");

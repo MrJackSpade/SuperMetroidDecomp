@@ -7,12 +7,13 @@ namespace SuperMetroid.Core.World.RoomStates;
 
 /// <summary>
 /// What a room state does while its room loads (#2287): a behaviour object, run once at each point of the load it acts at.
-/// While the room's objects are placed, once its own room objects and the door's setup are in and before the door closes
-/// behind Samus and the room's enemies load, it may place a room object or hand Samus the area's map
+/// Once the room's effect is loaded and before the room composes its main, it composes its own parts into the room: the
+/// scrolling sky's drifting bands, the Ceres haze or the Tourian statues' room (<see cref="Compose"/>, #2485). While the
+/// room's objects are placed, once its own room objects and the door's setup are in and before the door closes behind
+/// Samus and the room's enemies load, it may place a room object or hand Samus the area's map
 /// (<see cref="PlaceRoomObjects"/>). Its earthquakes and the projectile one spawns belong to the room's enemies, so they
-/// start once the enemies are loaded (<see cref="StartWithRoomEnemies"/>). The scrolling skies' bands, the Ceres haze and
-/// the statues' unlocking are parts the room's load composes only for the setups that spawn them. <see cref="None"/> does
-/// nothing. Only the import oracle relates each to the original game.
+/// start once the enemies are loaded (<see cref="StartWithRoomEnemies"/>). <see cref="None"/> does nothing. Only the
+/// import oracle relates each to the original game.
 /// </summary>
 public abstract class RoomSetupBehavior
 {
@@ -23,14 +24,9 @@ public abstract class RoomSetupBehavior
     /// <summary>The behaviour's name, as the room states author it.</summary>
     public string Name { get; }
 
-    /// <summary>Whether the setup spawns the scrolling sky's drifting bands, whichever door the room is entered through.</summary>
-    public virtual bool SpawnsSkyBands => false;
-
-    /// <summary>Whether the setup spawns the Ceres haze, which the room's load then composes.</summary>
-    public virtual bool SpawnsCeresHaze => false;
-
-    /// <summary>Whether the setup starts the Tourian statues' unlocking, whose sequence the room's load then composes.</summary>
-    public virtual bool UnlocksTourianStatues => false;
+    /// <summary>Composes the setup's own parts into the room being loaded, before the room composes its main.</summary>
+    /// <param name="composition">The room being loaded and the owners the setup reaches as it composes its parts.</param>
+    internal virtual void Compose(RoomSetupComposition composition) => Ensure.NotNull(composition);
 
     /// <summary>Runs the part of the setup that acts while the room's objects are placed.</summary>
     /// <param name="placing">The room and the owners the setup reaches while its objects are placed.</param>
@@ -65,11 +61,11 @@ public abstract class RoomSetupBehavior
     /// <summary>Starts the landing site's escape quake and sets up the land scrolling sky with its bands.</summary>
     public static RoomSetupBehavior LandSkyWithLandingSiteQuake { get; } = new LandingSiteEscapeSetup();
 
-    /// <summary>Initializes the land scrolling sky when the room loads.</summary>
-    public static RoomSetupBehavior ScrollingSkyLand { get; } = new SkyBandsSetup(nameof(ScrollingSkyLand));
-
-    /// <summary>Initializes the ocean scrolling sky when the room loads.</summary>
-    public static RoomSetupBehavior ScrollingSkyOcean { get; } = new SkyBandsSetup(nameof(ScrollingSkyOcean));
+    /// <summary>
+    /// Spawns the scrolling sky's drifting bands, whichever door the room is entered through. The land and the ocean
+    /// skies' setups are this one: which sky the bands drift over is the room's main's (#2485).
+    /// </summary>
+    public static RoomSetupBehavior SpawnScrollingSkyBands { get; } = new SkyBandsSetup();
 
     /// <summary>Starts the statue-unlocking animations during room setup.</summary>
     public static RoomSetupBehavior RunStatueUnlockingAnimations { get; } = new StatueUnlockingSetup();
@@ -104,41 +100,48 @@ public abstract class RoomSetupBehavior
     /// </summary>
     public static RoomSetupBehavior MediumHorizontalShakingWithRisingAcid { get; } = new RisingAcidEscapeSetup();
 
-    /// <summary>Seals the Ceres door and spawns haze.</summary>
-    public static RoomSetupBehavior SealCeresDoorAndSpawnHaze { get; } = new CeresHazeSetup(nameof(SealCeresDoorAndSpawnHaze));
-
-    /// <summary>Spawns the Ceres room haze during setup.</summary>
-    public static RoomSetupBehavior SpawnCeresHaze { get; } = new CeresHazeSetup(nameof(SpawnCeresHaze));
-
     /// <summary>
-    /// Spawns the Ceres haze in Ceres Ridley's arena. The arena's walls show the artwork its room loads for his fight, the
-    /// Ceres doors' among it, since its tileset's own artwork is the turning floor of his getaway; the import pictures its
-    /// blocks so, and nothing the simulation does tells this setup from <see cref="SpawnCeresHaze"/> (#1791).
+    /// Spawns the Ceres room haze during setup. Ceres Ridley's arena and the elevator shaft after his escape run this setup
+    /// too: the arena's walls show the artwork its room loads for his fight, which the import pictures for the arena's
+    /// states, and nothing the simulation does tells either from this one (#1791, #2485).
     /// </summary>
-    public static RoomSetupBehavior SpawnCeresRidleyArenaHaze { get; } = new CeresHazeSetup(nameof(SpawnCeresRidleyArenaHaze));
+    public static RoomSetupBehavior SpawnCeresHaze { get; } = new CeresHazeSetup();
 
     /// <summary>The setup that does nothing.</summary>
     private sealed class NoRoomSetup() : RoomSetupBehavior(nameof(None));
 
     /// <summary>A scrolling sky's setup, which spawns its bands.</summary>
-    private sealed class SkyBandsSetup(string name) : RoomSetupBehavior(name)
+    private sealed class SkyBandsSetup() : RoomSetupBehavior(nameof(SpawnScrollingSkyBands))
     {
         /// <inheritdoc/>
-        public override bool SpawnsSkyBands => true;
+        internal override void Compose(RoomSetupComposition composition) => Ensure.NotNull(composition).Scope.ComposeSkyBands();
     }
 
-    /// <summary>A Ceres room's setup, which spawns its haze.</summary>
-    private sealed class CeresHazeSetup(string name) : RoomSetupBehavior(name)
+    /// <summary>
+    /// A Ceres room's setup, which spawns its haze: red once Ceres Ridley is dead, and shown at once in a room loaded on its
+    /// first view rather than through a door.
+    /// </summary>
+    private sealed class CeresHazeSetup() : RoomSetupBehavior(nameof(SpawnCeresHaze))
     {
         /// <inheritdoc/>
-        public override bool SpawnsCeresHaze => true;
+        internal override void Compose(RoomSetupComposition composition)
+        {
+            RoomScopeConstruction scope = Ensure.NotNull(composition).Scope;
+            scope.ComposeCeresHaze(
+                ridleyIsDead: composition.System.HasDefeatedAnyOf(scope.Room.Area, DefeatedBosses.AreaBoss),
+                immediateViewport: composition.DisplaysInitialViewport);
+        }
     }
 
-    /// <summary>The statue room's setup, which starts the statues' unlocking.</summary>
+    /// <summary>
+    /// The statue room's setup, which starts the statues' unlocking: it composes their room, whose statues' enemies take it
+    /// and whose sequence the room's load builds once its enemies are in (#2287, #2382).
+    /// </summary>
     private sealed class StatueUnlockingSetup() : RoomSetupBehavior(nameof(RunStatueUnlockingAnimations))
     {
         /// <inheritdoc/>
-        public override bool UnlocksTourianStatues => true;
+        internal override void Compose(RoomSetupComposition composition) =>
+            Ensure.NotNull(composition).Scope.ComposeTourianStatueRoom(composition.FxOverlay);
     }
 
     /// <summary>An escape room's setup that starts its quake once the room's enemies are loaded.</summary>
@@ -167,7 +170,7 @@ public abstract class RoomSetupBehavior
     private sealed class LandingSiteEscapeSetup() : RoomSetupBehavior(nameof(LandSkyWithLandingSiteQuake))
     {
         /// <inheritdoc/>
-        public override bool SpawnsSkyBands => true;
+        internal override void Compose(RoomSetupComposition composition) => Ensure.NotNull(composition).Scope.ComposeSkyBands();
 
         /// <inheritdoc/>
         internal override void StartWithRoomEnemies(RoomSetupEnemiesLoaded loaded) =>

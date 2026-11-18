@@ -13,6 +13,16 @@ internal readonly record struct EnemyHitboxProbe(
     Position16<RoomPixels> TopLeft, Position16<RoomPixels> BottomRight, bool SelectsShot)
 {
     /// <summary>
+    /// The edges of a target at <paramref name="position"/> reaching <paramref name="radius"/> each way, for the
+    /// <paramref name="contactKind"/> the test selects.
+    /// </summary>
+    internal static EnemyHitboxProbe Around(Position16<RoomPixels> position, Extent16<RoomPixels> radius, HitboxContactKind contactKind) =>
+        new(
+            TopLeft: new(CoordinateAxis.Wrap(position.X - radius.X), CoordinateAxis.Wrap(position.Y - radius.Y)),
+            BottomRight: new(CoordinateAxis.Wrap(position.X + radius.X), CoordinateAxis.Wrap(position.Y + radius.Y)),
+            SelectsShot: contactKind == HitboxContactKind.Shot);
+
+    /// <summary>
     /// The shared frame-hitbox rectangle test. Shots and touch meet the rectangle's edges differently in the game:
     /// strictly and inclusively.
     /// </summary>

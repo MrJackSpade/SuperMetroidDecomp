@@ -89,7 +89,6 @@ internal sealed class CeresEscape : IGameplayShadingSource
         _status.CeresStatus = CeresEscapeStatus.RidleyEscaped;
         Stage = CeresEscapeStage.Getaway;
         Floor.Active = true;
-        Floor.Finished = false;
         Floor.GetawayUpdate = 0;
         Floor.Angle = CeresRidleyGetawayDefinitions.InitialAngle;
         Floor.Offset = CeresRidleyGetawayDefinitions.InitialFloorOffset;
@@ -101,27 +100,18 @@ internal sealed class CeresEscape : IGameplayShadingSource
     }
 
     /// <summary>
-    /// Runs the getaway while it flies. It runs after the frame's enemy AI and Samus processing, so the getaway's first
-    /// step shares the frame in which Ridley's escape handoff publishes <see cref="CeresEscapeStatus.RidleyEscaped"/>.
+    /// Runs the getaway while it flies, until its motion ends. It runs after the frame's enemy AI and Samus processing, so
+    /// the getaway's first step shares the frame in which Ridley's escape handoff publishes
+    /// <see cref="CeresEscapeStatus.RidleyEscaped"/>. This step owns presentation only: ordinary Ridley has already been
+    /// hidden, while Samus remains in room-world coordinates exactly as she does during the boss-room getaway.
     /// </summary>
-    /// <param name="samus">Samus, whom the getaway's floor carries.</param>
-    /// <param name="floor">The arena's turning floor, whose capsule and wings the getaway animates; null in a state that shows none.</param>
+    /// <param name="samus">Samus, whom Ridley's departure shoves.</param>
+    /// <param name="floor">The arena's turning floor, whose capsule and wings the getaway animates.</param>
     /// <param name="frameCounter">The game's frame counter, which beats the capsule and the wings.</param>
-    /// <exception cref="InvalidDataException">The getaway flies in a room that shows no turning floor.</exception>
-    public void RunGetawayRoomMain(SamusState? samus, RoomFloor? floor, int frameCounter)
+    public void RunGetawayRoomMain(SamusState samus, RoomFloor floor, int frameCounter)
     {
         if (Stage != CeresEscapeStage.Getaway)
             return;
-        TickGetawayFloor(samus, floor ?? throw new InvalidDataException("Ceres Ridley's getaway flies in a room that shows no turning floor."),
-            frameCounter);
-    }
-
-    /// <summary>
-    /// Runs the getaway room main until its motion ends. This step owns presentation only: ordinary Ridley has already been
-    /// hidden, while Samus remains in room-world coordinates exactly as she does during the boss-room getaway.
-    /// </summary>
-    private void TickGetawayFloor(SamusState? samus, RoomFloor floor, int frameCounter)
-    {
         int update = Floor.GetawayUpdate;
         Floor.GetawayUpdate = update + 1;
 
@@ -131,7 +121,7 @@ internal sealed class CeresEscape : IGameplayShadingSource
 
         // Ridley's shove takes Samus's movement so the rotating boss image cannot overlap her from the following update
         // onward.
-        if (update == CeresRidleyGetawayDefinitions.SamusShoveUpdate && samus is not null)
+        if (update == CeresRidleyGetawayDefinitions.SamusShoveUpdate)
             samus.CeresRidleyEjection.Request(samus);
 
         // The update after the curves' last ends the getaway.
@@ -139,7 +129,6 @@ internal sealed class CeresEscape : IGameplayShadingSource
         {
             // The getaway's end restores the ordinary view and clears all rotation and scroll values, so the
             // self-destruct warning shows over the room, not the turning floor.
-            Floor.Finished = true;
             Floor.Active = false;
             Floor.Offset = Offset16<FloorPixels>.Zero;
             Floor.Center = Position16<FloorPixels>.Zero;

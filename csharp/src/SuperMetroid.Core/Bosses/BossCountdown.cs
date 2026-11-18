@@ -12,6 +12,15 @@ public sealed class BossCountdown
     /// <summary>The count before the step that runs the countdown out: the updates it lasts are one more.</summary>
     public int Count { get; private set; }
 
+    /// <summary>A countdown started to run out on the step of its <paramref name="updates"/>th update.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The countdown would last no update.</exception>
+    internal static BossCountdown Lasting(int updates)
+    {
+        var countdown = new BossCountdown();
+        countdown.LastFor(updates);
+        return countdown;
+    }
+
     /// <summary>Starts the countdown so that it runs out on the step of its <paramref name="updates"/>th update.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The countdown would last no update.</exception>
     internal void LastFor(int updates) => Count = Ensure.BetweenInclusive(1, int.MaxValue, updates) - 1;

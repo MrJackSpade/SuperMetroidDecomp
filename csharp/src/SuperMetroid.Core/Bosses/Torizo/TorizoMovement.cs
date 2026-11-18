@@ -37,9 +37,9 @@ internal sealed class TorizoMovement
     /// Sets up Crateria's Bomb Torizo or Norfair's Golden Torizo as he spawns; which Torizo he is, not the room's area,
     /// chooses his values.
     /// </summary>
-    internal void InitializeTorizo(RoomEnemyPlace torizo, bool isGolden, SamusState samus, GameplayAction controllerInput)
+    internal void InitializeTorizo(RoomEnemyPlace torizo, TorizoVariant variant, SamusState samus, GameplayAction controllerInput)
     {
-        var state = new TorizoEnemyState(isGolden)
+        var state = new TorizoEnemyState(variant)
         {
             // Every Torizo population entry starts it standing, with no behaviour latch set.
             Posture = TorizoPosture.Initial,
@@ -54,8 +54,7 @@ internal sealed class TorizoMovement
             return;
         }
 
-        TorizoInitializationDefinition definition = isGolden
-            ? TorizoInitializationDefinitions.Golden : TorizoInitializationDefinitions.Bomb;
+        TorizoInitializationDefinition definition = variant.Start;
         torizo.Position = torizo.Position.WithWhole(definition.Position);
         state.BodyPlayback = TorizoAnimations.Start(definition.Animation);
         torizo.Processing = torizo.Processing.With(definition.Processing);
@@ -70,24 +69,10 @@ internal sealed class TorizoMovement
         state.FallAtRestingSpeed();
 
         // Both statues show the colours they share with their own body colours over them (#1512).
-        if (isGolden)
-        {
-            TorizoBody.LoadTorizoBodyColours(torizo, state, new TorizoLook(TorizoLookKind.GoldenInitial));
-            if (controllerInput == GoldenTorizoCodeDefinitions.ControllerChord)
-            {
-                // The loadout replaces both the collected and equipped items, even if this lowers a capacity or
-                // equips beams that are normally incompatible.
-                samus.Health = samus.MaxHealth = GoldenTorizoCodeDefinitions.Energy;
-                samus.ReserveEnergy = samus.MaxReserveEnergy = GoldenTorizoCodeDefinitions.ReserveEnergy;
-                samus.Missiles = samus.MaxMissiles = GoldenTorizoCodeDefinitions.Missiles;
-                samus.SuperMissiles = samus.MaxSuperMissiles = GoldenTorizoCodeDefinitions.SuperMissiles;
-                samus.PowerBombs = samus.MaxPowerBombs = GoldenTorizoCodeDefinitions.PowerBombs;
-                samus.EquippedItems = samus.CollectedItems = GoldenTorizoCodeDefinitions.Items;
-                samus.EquippedBeams = samus.CollectedBeams = GoldenTorizoCodeDefinitions.Beams;
-            }
-        }
-        else
-            TorizoBody.LoadTorizoBodyColours(torizo, state, new TorizoLook(TorizoLookKind.BombStatue));
+        TorizoBody.LoadTorizoBodyColours(torizo, state, variant.StatueColouring);
+        // A Torizo with a secret code grants its loadout as it appears while the player holds its chord.
+        if (variant.SecretCode is { } code && controllerInput == code.Chord)
+            code.GrantTo(samus);
     }
 
     /// <summary>Interrupts Bomb Torizo's fight at its gut and face health thresholds; otherwise its body moves by its motion.</summary>
@@ -183,8 +168,7 @@ internal sealed class TorizoMovement
                 torizo,
                 state.Velocity.Y.ToSixteenSixteenDelta()))
         {
-            TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(state.Landing
-                ?? throw new InvalidOperationException("A Torizo's leap lands it in no landing its jump or fall named.")));
+            TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(state.Landing));
             state.FallAtRestingSpeed();
             _earthquake.Start(LandingShake, TorizoMotionDefinitions.LandingQuakeUpdates);
             return;
@@ -194,7 +178,7 @@ internal sealed class TorizoMovement
     }
 
     /// <summary>
-    /// Walks on (#1931): once the turn timer runs out the Torizo turns toward Samus, and while the ground under it has given
+    /// Walks on (#1931): once its wait to turn runs out the Torizo turns toward Samus, and while the ground under it has given
     /// way it starts its fall. Both statues walk alike; the turns are their definition's, and a faceless Bomb Torizo turns
     /// faceless.
     /// </summary>
@@ -203,8 +187,9 @@ internal sealed class TorizoMovement
         TorizoEnemyState state,
         RoomLevelData level)
     {
-        if (state.TurnTimer != 0 && --state.TurnTimer == 0)
+        if (state.TurnTowardSamus is { } turn && turn.StepRunsOut())
         {
+            state.TurnTowardSamus = null;
             TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(TurnTowardSamus(torizo, state)));
             return;
         }
@@ -230,13 +215,13 @@ internal sealed class TorizoMovement
         bool facesRight = TorizoFacing.FacesRight(torizo);
         if (state.FaceBlownUp)
             return facesRight ? TorizoAnimation.FacelessTurningLeft : TorizoAnimation.FacelessTurningRight;
-        TorizoInitializationDefinition definition = state.Definition;
+        TorizoInitializationDefinition definition = state.Variant.Start;
         return facesRight ? definition.TurningLeft : definition.TurningRight;
     }
 
     /// <summary>Runs either Torizo's initialization AI.</summary>
-    internal void RunTorizoInitializationAi(RoomEnemyPlace place, bool isGolden, EnemySpawnSurroundings surroundings)
+    internal void RunTorizoInitializationAi(RoomEnemyPlace place, TorizoVariant variant, EnemySpawnSurroundings surroundings)
     {
-        InitializeTorizo(place, isGolden, surroundings.IntroducedSamus, surroundings.ControllerInput);
+        InitializeTorizo(place, variant, surroundings.IntroducedSamus, surroundings.ControllerInput);
     }
 }

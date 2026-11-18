@@ -8,10 +8,10 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// </summary>
 public sealed class TorizoEnemyState
 {
-    /// <summary>Creates the state of a Bomb or Golden Torizo.</summary>
-    internal TorizoEnemyState(bool isGolden)
+    /// <summary>Creates the state of a Torizo of <paramref name="variant"/>, Bomb or Golden Torizo.</summary>
+    internal TorizoEnemyState(TorizoVariant variant)
     {
-        IsGolden = isGolden;
+        Variant = Ensure.NotNull(variant);
     }
 
     /// <summary>Which way Torizo faces, which foot leads and whether it is turning around (#2237).</summary>
@@ -31,8 +31,8 @@ public sealed class TorizoEnemyState
 
     /// <summary>Whether Bomb Torizo's gut is blown up, which its first low-health interruption sets, and its death too.</summary>
     internal bool GutBlownUp { get; set; }
-    /// <summary>Whether the owning definition is Golden Torizo, rather than Bomb Torizo; fixed at initialization.</summary>
-    public bool IsGolden { get; }
+    /// <summary>Which Torizo this is, Bomb or Golden Torizo, whose values its fight reads (#1931, #2410); fixed at initialization.</summary>
+    internal TorizoVariant Variant { get; }
 
     /// <summary>His colours: the colouring shown, the fade his awakening or death runs toward it and his belly's glow (#2236).</summary>
     internal TorizoColours Colours { get; } = new();
@@ -42,24 +42,24 @@ public sealed class TorizoEnemyState
 
     /// <summary>
     /// The animation the Torizo's jump or fall continues in, as the jump or fall names it (#2028, #2411): a jump's fall, which
-    /// its rise ends in, or a fall's landing; null before its first.
+    /// its rise ends in, or a fall's landing. Every jump and fall names it as it starts to leap, before its leap moves it.
     /// </summary>
-    internal TorizoAnimation? Landing { get; set; }
+    internal TorizoAnimation Landing { get; set; }
 
     /// <summary>
-    /// Where an attack or a stagger interrupted the Torizo's walk, which resumes there when it ends (#2028); null before the
-    /// first interruption.
+    /// Where an attack or a stagger interrupted the Torizo's walk, which resumes there when it ends (#2028): only an attack
+    /// that interrupted the walk resumes it.
     /// </summary>
-    internal AnimationPlayback<TorizoBodySegment>? InterruptedWalk { get; set; }
+    internal AnimationPlayback<TorizoBodySegment> InterruptedWalk { get; set; }
 
     /// <summary>Where the gut explosion interrupted the body's play, resumed afterwards.</summary>
     internal AnimationPlayback<TorizoBodySegment> InterruptedPlayback { get; set; }
 
     /// <summary>
-    /// Updates until the walking Torizo turns toward Samus, or zero while no turn is due: a walking step arms it when
-    /// Samus is behind the Torizo, and its walking motion counts it down (#1931).
+    /// The wait before the walking Torizo turns toward Samus, or null while no turn is due (#1931, #2410): a walking step
+    /// loads it when Samus is behind the Torizo, a wall in its way clears it, and its walking motion steps it.
     /// </summary>
-    public int TurnTimer { get; internal set; }
+    public BossCountdown? TurnTowardSamus { get; internal set; }
 
     /// <summary>
     /// Whether the body's animation is locked: the awakening animation locks it and
@@ -135,10 +135,6 @@ public sealed class TorizoEnemyState
 
     /// <summary>How the body moves itself each update while it fights, or null while it holds still (#1931).</summary>
     internal TorizoBodyMotion? Motion { get; set; }
-
-    /// <summary>The definition of this Torizo, Bomb or Golden, whose values its motions read (#1931).</summary>
-    internal TorizoInitializationDefinition Definition =>
-        IsGolden ? TorizoInitializationDefinitions.Golden : TorizoInitializationDefinitions.Bomb;
 
     /// <summary>Whether the Torizo has started dying: lethal damage starts its death once, and it stays dying while it lasts.</summary>
     public bool DeathStarted { get; internal set; }

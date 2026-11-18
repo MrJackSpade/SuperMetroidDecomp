@@ -50,22 +50,8 @@ internal sealed class RidleyBodyContact
             return false;
         }
 
-        if (!EnemyCollision.TryFindFrameHitboxReaction(
-                place,
-                samus.Position.Whole,
-                samus.Kinematics.Radius,
-                contactKind: HitboxContactKind.Touch,
-                out EnemyReaction? bodyTouch))
-        {
+        if (!RidleyInteractions.BodyOverlaps(place, EnemyHitboxProbe.Around(samus.Position.Whole, samus.Kinematics.Radius, HitboxContactKind.Touch)))
             return false;
-        }
-
-        if (bodyTouch != RidleyReactions.FrameHitboxTouch)
-        {
-            throw new InvalidDataException(
-                $"Ridley extended body selected touch reaction {bodyTouch?.ToString() ?? "(unnamed)"}, expected " +
-                $"{RidleyReactions.FrameHitboxTouch} from map {place.Frame}.");
-        }
 
         // Ridley's touch enters the common touch response that does not check for death. That distinction matters for
         // Screw Attack: a lethal body touch leaves Lower Norfair Ridley alive long enough

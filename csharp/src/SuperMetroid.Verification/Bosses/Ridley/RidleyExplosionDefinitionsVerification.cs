@@ -102,7 +102,9 @@ internal static class RidleyExplosionDefinitionsVerification
 
         for (int index = 0; index < 10; index++)
         {
-            Offset16<RoomPixels> placement = DeathExplosionScatterDefinitions.Offsets[index];
+            // The scatter is authored in the order the deaths burst at it; the cartridge's table starts one point earlier,
+            // since each death steps its index before the first read.
+            Offset16<RoomPixels> placement = DeathExplosionScatterDefinitions.Offsets[(index + 9) % 10];
             AssertEqual(
                 unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c66e + index * 4))),
                 placement.X,
@@ -131,8 +133,9 @@ internal static class RidleyExplosionDefinitionsVerification
     private static void VerifyRidleyDeathExplosionProductionSpawns(
         CartridgeImportAddressSpace rom)
     {
-        // A fresh death, as the cartridge clears its index and steps it before reading, bursts first at the second point.
-        AssertEqual(1, new NorfairRidleyState().NextDeathExplosion.Place, "Ridley's first death explosion takes the scatter's second point");
+        // A fresh death, as the cartridge clears its index and steps it before reading, bursts first at its table's second
+        // point, the scatter's first.
+        AssertEqual(0, new NorfairRidleyState().NextDeathExplosion.Place, "Ridley's first death explosion takes the scatter's first point");
         for (int selectedIndex = 0; selectedIndex < 10; selectedIndex++)
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
@@ -146,8 +149,9 @@ internal static class RidleyExplosionDefinitionsVerification
             spawn(body, state);
 
             EnemyProjectile effect = enemies.Projectiles.EnemyProjectiles.Single(p => p.IsActive);
-            short xOffset = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c66e + selectedIndex * 4)));
-            short yOffset = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c670 + selectedIndex * 4)));
+            int tableIndex = (selectedIndex + 1) % 10;
+            short xOffset = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c66e + tableIndex * 4)));
+            short yOffset = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c670 + tableIndex * 4)));
             AssertEqual((selectedIndex + 1) % 10, state.NextDeathExplosion.Place,
                 $"Ridley death explosion {selectedIndex} cyclic next point");
             AssertEqual(4, state.DeathExplosionTimer.Count,

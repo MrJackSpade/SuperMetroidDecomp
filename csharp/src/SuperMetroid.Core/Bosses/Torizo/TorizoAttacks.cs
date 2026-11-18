@@ -235,25 +235,14 @@ internal sealed class TorizoAttacks
         }
 
         /// <summary>
-        /// Runs the orb's drop step: the orb's own kind, Bomb or Golden Torizo's (#2030), rolls its own drop chances (#2332).
+        /// Runs the orb's drop step: the orb rolls the drop chances of the Torizo that threw it, Bomb or Golden Torizo's (#2030,
+        /// #2332, #2410).
         /// </summary>
-        private void RequestTorizoChozoOrbDrop(EnemyProjectile projectile, SamusState samus)
-        {
-            if (projectile.Kind is not (
-                    RoomEnemyProjectileKind.BombTorizoChozoOrb or
-                    RoomEnemyProjectileKind.GoldenTorizoChozoOrb))
-            {
-                throw new InvalidOperationException(
-                    $"Projectile {projectile.Kind} reached the Torizo-orb drop.");
-            }
-
+        private void RequestTorizoChozoOrbDrop(EnemyProjectile projectile, SamusState samus) =>
             deathsAndDrops.SpawnEnemyDropFromChanceTable(
                 projectile.Position.Whole,
-                projectile.Kind == RoomEnemyProjectileKind.GoldenTorizoChozoOrb
-                    ? TorizoChozoOrbDefinitions.GoldenTorizoOrbDropChances
-                    : TorizoChozoOrbDefinitions.BombTorizoOrbDropChances,
+                projectile.StateOf<TorizoChozoOrbState>().DropChances,
                 samus);
-        }
 
         /// <summary>
         /// Drops the statue fragment: a rising or still-airborne piece accelerates by
@@ -281,56 +270,22 @@ internal sealed class TorizoAttacks
         }
     }
 
-    /// <summary>Requests the recurring hurt-state drool variant with randomized flight.</summary>
-    internal void SpawnBombTorizoLowHealthDrool(RoomEnemyPlace torizo) =>
-        SpawnDrool(torizo, RoomEnemyProjectileKind.BombTorizoLowHealthDrool);
-
-    /// <summary>Allocates either drool animation and consumes room RNG in the variant-specific order.</summary>
-    internal void SpawnDrool(
-        RoomEnemyPlace torizo,
-        RoomEnemyProjectileKind kind)
+    /// <summary>
+    /// Spawns the recurring low-health drool (#2410): its delay drawn at random, then a second random number that aims its
+    /// launch.
+    /// </summary>
+    internal void SpawnBombTorizoLowHealthDrool(RoomEnemyPlace torizo)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return;
-
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
-            kind,
+            RoomEnemyProjectileKind.BombTorizoLowHealthDrool,
             TorizoProjectiles,
             SpriteGraphics.SpawnedBy(torizo));
-        projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectileSegment.DroolNoDelay));
-
-        int random;
-        if (kind == RoomEnemyProjectileKind.BombTorizoLowHealthDrool)
-        {
-            projectile.StartAnimation(new TorizoProjectileAnimation(SelectLowHealthDroolAnimation(_room.Random.Generate())));
-            random = _room.Random.Generate();
-        }
-        else
-        {
-            random = _room.Random.Generate();
-        }
-        if (kind == RoomEnemyProjectileKind.TorizoInitialDrool)
-        {
-            // Every vertical and horizontal move of a Torizo is tested against the room's terrain, solid past its edges,
-            // so a Torizo's centre lies at least its half-height (41 pixels) below the room's top and its half-width
-            // (18 pixels) inside either side: the lifted drool lies inside the room and its side offset never leaves it.
-            int jitteredY = TorizoRandomDefinitions.InitialDroolYJitter.Of(random) + torizo.Position.Y.Whole;
-            projectile.Position = projectile.Position.WithWholeY(jitteredY - TorizoMotionDefinitions.InitialDroolLift);
-            // The jitter is one of thirty-two, so the fall speed lies between 49 and 80 256ths of a pixel.
-            projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(
-                TorizoRandomDefinitions.DroolFallJitter.Of(random) + TorizoMotionDefinitions.InitialDroolSlowestFall));
-            // The drool has no sideways speed.
-            int jitteredX = _room.Random.Next(TorizoRandomDefinitions.InitialDroolXJitter) + torizo.Position.X.Whole;
-            projectile.Position = projectile.Position.WithWholeX(TorizoFacing.Posture(torizo).IsTurning
-                ? jitteredX
-                : TorizoFacing.FacesRight(torizo)
-                    ? jitteredX + TorizoMotionDefinitions.InitialDroolSideOffset
-                    : jitteredX - TorizoMotionDefinitions.InitialDroolSideOffset);
-            projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.Zero);
-            return;
-        }
+        projectile.StartAnimation(new TorizoProjectileAnimation(SelectLowHealthDroolAnimation(_room.Random.Generate())));
+        int random = _room.Random.Generate();
         Offset16<RoomPixels> drool = TorizoProjectilePlacementDefinitions.LowHealthDrool;
         projectile.Position = projectile.Position.WithWhole(torizo.Position.Whole + (TorizoFacing.FacesRight(torizo) ? drool : drool.MirroredX()));
 
@@ -340,6 +295,40 @@ internal sealed class TorizoAttacks
             ? new(TorizoRandomDefinitions.DroolTurningAngle.Of(random))
             : DroolHeading(TorizoFacing.Posture(torizo).Facing, TorizoRandomDefinitions.DroolFacingSpread.Of(random));
         projectile.Velocity = VelocityAlong(TorizoMotionDefinitions.DroolLaunchSpeed, heading);
+    }
+
+    /// <summary>
+    /// Spawns the drool a Torizo drips as it wakes and while its health is low (#2410): one random number jitters its
+    /// height and fall speed, a second its side.
+    /// </summary>
+    internal void SpawnTorizoInitialDrool(RoomEnemyPlace torizo)
+    {
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
+        if (projectile is null)
+            return;
+        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
+            projectile,
+            RoomEnemyProjectileKind.TorizoInitialDrool,
+            TorizoProjectiles,
+            SpriteGraphics.SpawnedBy(torizo));
+        projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectileSegment.DroolNoDelay));
+        int random = _room.Random.Generate();
+        // Every vertical and horizontal move of a Torizo is tested against the room's terrain, solid past its edges,
+        // so a Torizo's centre lies at least its half-height (41 pixels) below the room's top and its half-width
+        // (18 pixels) inside either side: the lifted drool lies inside the room and its side offset never leaves it.
+        int jitteredY = TorizoRandomDefinitions.InitialDroolYJitter.Of(random) + torizo.Position.Y.Whole;
+        projectile.Position = projectile.Position.WithWholeY(jitteredY - TorizoMotionDefinitions.InitialDroolLift);
+        // The jitter is one of thirty-two, so the fall speed lies between 49 and 80 256ths of a pixel.
+        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(
+            TorizoRandomDefinitions.DroolFallJitter.Of(random) + TorizoMotionDefinitions.InitialDroolSlowestFall));
+        // The drool has no sideways speed.
+        int jitteredX = _room.Random.Next(TorizoRandomDefinitions.InitialDroolXJitter) + torizo.Position.X.Whole;
+        projectile.Position = projectile.Position.WithWholeX(TorizoFacing.Posture(torizo).IsTurning
+            ? jitteredX
+            : TorizoFacing.FacesRight(torizo)
+                ? jitteredX + TorizoMotionDefinitions.InitialDroolSideOffset
+                : jitteredX - TorizoMotionDefinitions.InitialDroolSideOffset);
+        projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.Zero);
     }
 
     /// <summary>
@@ -440,6 +429,7 @@ internal sealed class TorizoAttacks
             RoomEnemyProjectileKind.BombTorizoChozoOrb,
             ChozoOrb,
             SpriteGraphics.SpawnedBy(torizo));
+        projectile.State = new TorizoChozoOrbState(TorizoChozoOrbDefinitions.BombTorizoOrbDropChances);
 
         InitializeTorizoRandomizedProjectile(
             projectile,
@@ -473,7 +463,7 @@ internal sealed class TorizoAttacks
             TorizoProjectiles,
             SpriteGraphics.SpawnedBy(torizo));
 
-        Offset16<RoomPixels> placement = TorizoRandomDefinitions.SonicBoomHigh.IsSetIn(_room.Random.Generate())
+        Offset16<RoomPixels> placement = TorizoRandomDefinitions.SonicBoomFliesHigh.IsTakenBy(_room.Random.Generate())
             ? TorizoProjectilePlacementDefinitions.HighSonicBoom
             : TorizoProjectilePlacementDefinitions.LowSonicBoom;
         if (TorizoFacing.FacesRight(torizo))
@@ -502,6 +492,7 @@ internal sealed class TorizoAttacks
             RoomEnemyProjectileKind.GoldenTorizoChozoOrb,
             ChozoOrb,
             SpriteGraphics.SpawnedBy(torizo));
+        projectile.State = new TorizoChozoOrbState(TorizoChozoOrbDefinitions.GoldenTorizoOrbDropChances);
         InitializeTorizoRandomizedProjectile(
             projectile,
             torizo,

@@ -36,7 +36,7 @@ internal sealed class MotherBrainGlassObject(MotherBrainGlassObjects owner) : Ro
     internal ResidentObjectProjectileHit? PendingHit { get; private set; }
 
     /// <summary>How long the glass holds before its next step: its first update, then each image's own updates.</summary>
-    private readonly BossCountdown _holdBeforeNextStep = HoldFor(1);
+    private readonly BossCountdown _holdBeforeNextStep = BossCountdown.Lasting(1);
 
     /// <inheritdoc/>
     public void Strike(ResidentObjectProjectileHit hit) => PendingHit = hit;
@@ -119,13 +119,5 @@ internal sealed class MotherBrainGlassObject(MotherBrainGlassObjects owner) : Ro
         context.Draw(place, MotherBrainGlassDraws.Family, image);
         _holdBeforeNextStep.LastFor(updates);
         Phase = phase;
-    }
-
-    /// <summary>A hold that lasts <paramref name="updates"/> updates.</summary>
-    private static BossCountdown HoldFor(int updates)
-    {
-        var hold = new BossCountdown();
-        hold.LastFor(updates);
-        return hold;
     }
 }

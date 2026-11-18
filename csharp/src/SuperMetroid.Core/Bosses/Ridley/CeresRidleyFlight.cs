@@ -91,9 +91,16 @@ internal sealed class CeresRidleyFlight
         state.Flight.Velocity = state.Flight.Velocity.WithY(state.Flight.Velocity.Y + CeresRidleyFlightDefinitions.LiftoffSlowingStep);
         if (RidleyFlight.SignedPlace(place).Y < CeresRidleyArenaDefinitions.HoverLineY)
         {
-            state.Phase = CeresRidleyPhase.Hovering;
+            BeginHover(state);
             state.FightMode = RidleyFightMode.Fighting;
         }
+    }
+
+    /// <summary>Starts his hover, which waits its updates outside the hover box before he attacks anyway.</summary>
+    internal static void BeginHover(CeresRidleyState state)
+    {
+        state.Phase = CeresRidleyPhase.Hovering;
+        state.HoverWait.LastFor(CeresRidleyFlightDefinitions.HoverWaitUpdates);
     }
 
     /// <summary>Tests the scripted shot-count and Samus-energy exits, then admits attacks only inside the hover box.</summary>
@@ -126,14 +133,14 @@ internal sealed class CeresRidleyFlight
         AccelerateRidleyToward(place, state.Flight, target: CeresRidleyArenaDefinitions.HoverPoint, divisor: CeresRidleyFlightDefinitions.HoverDivisor);
         if (!RidleyFlight.IsWithinRectangle(place, CeresRidleyArenaDefinitions.HoverPoint, CeresRidleyArenaDefinitions.HoverReach))
         {
-            // The hover waits only while Ridley is still outside the hover box, for at most its wait limit.
-            state.HoverCounter++;
-            if (state.HoverCounter < CeresRidleyFlightDefinitions.HoverWaitLimit)
+            // The hover waits only while Ridley is still outside the hover box, for at most its wait.
+            if (state.HoverWait.StepKeepsRunning())
                 return;
         }
 
         state.Phase = CeresRidleyAttackDefinitions.SelectAttack(_room.Random.Read());
-        state.HoverCounter = 0;
+        // A move into his fireball position counts its wait above the hover line from the choice.
+        state.FireballMoveWait.LastFor(CeresRidleyFlightDefinitions.FireballMoveGiveUpUpdates);
     }
 
     /// <summary>Steers Ridley into his fireball position and installs the mouth/fireball animation.</summary>
@@ -148,8 +155,7 @@ internal sealed class CeresRidleyFlight
         int height = RidleyFlight.SignedPlace(place).Y;
         if (height < CeresRidleyArenaDefinitions.HoverLineY)
         {
-            state.HoverCounter++;
-            if (state.HoverCounter >= CeresRidleyFlightDefinitions.FireballMoveGiveUp)
+            if (state.FireballMoveWait.StepRunsOut())
                 state.Phase = CeresRidleyPhase.SwoopSetup;
             return;
         }
@@ -175,10 +181,7 @@ internal sealed class CeresRidleyFlight
         Position16<RoomPixels> target = CeresRidleyFireballTarget.Around(state.FireballBasePosition, jitter);
         AccelerateRidleyToward(place, state.Flight, target, CeresRidleyFlightDefinitions.HoverDivisor);
         if (state.PhaseTimer.StepRunsOut())
-        {
-            state.HoverCounter = 0;
-            state.Phase = CeresRidleyPhase.Hovering;
-        }
+            BeginHover(state);
     }
 
     /// <summary>Advances the attack lunge until its position threshold hands control to the swoop.</summary>
@@ -194,10 +197,7 @@ internal sealed class CeresRidleyFlight
         bool reached = RidleyFlight.IsWithinRectangle(place, target, CeresRidleyArenaDefinitions.LungeReach);
         bool ranOut = state.PhaseTimer.StepRunsOut();
         if (reached || ranOut)
-        {
-            state.HoverCounter = 0;
-            state.Phase = CeresRidleyPhase.Hovering;
-        }
+            BeginHover(state);
     }
 
     /// <summary>Steers Ridley toward the swoop start point with the shared acceleration.</summary>

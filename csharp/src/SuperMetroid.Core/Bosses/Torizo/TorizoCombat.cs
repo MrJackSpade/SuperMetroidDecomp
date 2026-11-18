@@ -32,8 +32,6 @@ internal sealed class TorizoCombat
         TorizoEnemyState state = torizo.RequireSpeciesState<TorizoEnemyState>();
         if (c.SelectedShot == TorizoReactions.StandUpSitDownShot)
             return;
-        if (c.SelectedShot != TorizoReactions.Shot)
-            throw new InvalidDataException($"Bomb Torizo has no response to normal-bomb reaction {c.SelectedShot?.ToString() ?? "(unnamed)"}.");
         // The reaction returns during the hurt flash, and rejects the bomb while the animation is locked.
         if (torizo.FlashTimer != 0 || state.AnimationLocked)
             return;
@@ -56,8 +54,6 @@ internal sealed class TorizoCombat
             DamageByNormalBomb(torizo, state, c.Bomb);
             return;
         }
-        if (c.SelectedShot != TorizoReactions.Shot && c.SelectedShot != TorizoReactions.GoldenShot)
-            throw new InvalidDataException($"Golden Torizo has no response to normal-bomb reaction {c.SelectedShot?.ToString() ?? "(unnamed)"}.");
         if (torizo.FlashTimer != 0)
             return;
         // A bomb is neither Missile nor Super Missile, so it stuns him before the common damage, whether or not he has
@@ -134,15 +130,6 @@ internal sealed class TorizoCombat
     /// </summary>
     private static EnemyShotReaction ShotReaction(EnemyShotStage beforeImpact) => new()
     {
-        AfterSuperMissileQuake = (in EnemyShotContext c) =>
-        {
-            if (!c.UsesFrameHitboxes || (c.HitboxShot != TorizoReactions.Shot && c.HitboxShot != TorizoReactions.StandUpSitDownShot))
-            {
-                throw new InvalidDataException(
-                    $"Torizo has no response to shot reaction {c.HitboxShot?.ToString() ?? "(unnamed)"}.");
-            }
-            return false;
-        },
         BeforeImpact = beforeImpact,
         ExemptFromGenericDeath = true,
         // Both Torizos' shot reactions run the common damage without the hit burst.
@@ -157,11 +144,6 @@ internal sealed class TorizoCombat
     /// <summary>Runs extended body touch damage without invoking the generic death animation.</summary>
     internal void ReactToTorizoTouch(EnemyTouchContext context)
     {
-        if (!context.UsesFrameHitboxes || context.HitboxTouch != TorizoReactions.Touch)
-        {
-            throw new InvalidDataException(
-                $"Torizo has no response to touch reaction {context.HitboxTouch?.ToString() ?? "(unnamed)"}.");
-        }
         _collision.ResolveNormalEnemyTouch(context, TouchDeathAnimation.Skip);
         if (context.Place.Health == 0)
             BeginTorizoDeath(context.Place, context.Place.RequireSpeciesState<TorizoEnemyState>());

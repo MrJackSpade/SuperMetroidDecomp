@@ -9,13 +9,9 @@ internal sealed class SporeSpawnSporeState(HorizontalDirection drift) : EnemyPro
     /// <summary>The way the spore first drifts: right along its drift path as authored, left along it mirrored.</summary>
     internal HorizontalDirection Drift { get; } = drift;
 
-    /// <summary>The spore's step along its drift path.</summary>
-    internal int PathStep
-    {
-        get;
-        set => field = Ensure.BetweenInclusive(0, SporeSpawnProjectiles.DriftStepCount - 1, value);
-    }
-
-    /// <summary>Moves the spore on to the next step of its path, repeating the path after its last step.</summary>
-    internal void AdvancePath() => PathStep = (PathStep + 1) % SporeSpawnProjectiles.DriftStepCount;
+    /// <summary>
+    /// The step of its drift path the spore takes next (#2410): it starts at the path's first and repeats the path after
+    /// its last.
+    /// </summary>
+    internal ListStep<Offset16<RoomPixels>> PathStep { get; set; } = ListStep<Offset16<RoomPixels>>.FirstOf(SporeSpawnProjectileDefinitions.Drift);
 }

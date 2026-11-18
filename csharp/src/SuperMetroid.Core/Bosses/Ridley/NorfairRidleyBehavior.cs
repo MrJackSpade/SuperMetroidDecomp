@@ -379,8 +379,7 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
     {
         SamusState samus = frame.Samus;
         SamusProjectileSystem samusProjectiles = frame.SamusProjectiles;
-        SamusBombProjectileSystem sharedProjectiles = frame.SharedProjectiles ?? throw new InvalidOperationException(
-            "Ridley's power-bomb check requires the shared projectile owner.");
+        SamusBombProjectileSystem sharedProjectiles = frame.SharedProjectiles;
         if (RidleyCadenceDefinitions.NorfairRidleyActsEverySecondUpdate.IsDue(body.FrameCounter))
         {
             RidleyInteractions.UpdateNorfairRidleyIntangibility(body, state, frame.Camera);

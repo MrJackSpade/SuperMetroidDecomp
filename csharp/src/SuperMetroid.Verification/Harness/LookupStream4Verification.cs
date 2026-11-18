@@ -30,6 +30,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Bosses.Botwoon;
 using SuperMetroid.Core.Bosses.Draygon;
+using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Verification.Bosses.Ridley;
 using SuperMetroid.Core.Bosses.SporeSpawn;
@@ -868,7 +869,8 @@ internal static class LookupStream4Verification
         CeresEscape escape = enemies.CeresEscape;
         escape.BeginGetaway();
         escape.Floor.GetawayUpdate = 1;
-        void tick(SamusState? samus, int frameCounter) => escape.RunGetawayRoomMain(samus, map, frameCounter);
+        SamusState samus = RoomEnemyFrameFixtures.StandaloneSamus();
+        void tick(int frameCounter) => escape.RunGetawayRoomMain(samus, map, frameCounter);
         byte[] untouched = new byte[SnesVram.ByteCount];
         Array.Fill(untouched, (byte)0x5a);
         CeresFloorAnimationFrame? Capsule() => map.Shown.TryGetValue(CeresFloorPart.BabyCapsule, out CeresFloorAnimationFrame capsule) ? capsule : null;
@@ -879,7 +881,7 @@ internal static class LookupStream4Verification
             CeresFloorAnimationFrame? before = Capsule();
             bool advances = (nmi & 3) == 0;
             if (advances) expectedPhase = (expectedPhase + 1) & 3;
-            tick(null, nmi);
+            tick(nmi);
             AssertTrue(vram.Bytes.SequenceEqual(untouched), "The getaway leaves VRAM to the published floor");
             AssertEqual(expectedPhase, escape.Floor.Capsule.Place, "Actual getaway advances Baby before selection only on every fourth NMI");
             AssertEqual(advances ? CeresFloorAnimationDefinitions.CapsuleCycle[expectedPhase] : before, Capsule(),
@@ -1239,9 +1241,10 @@ internal static class LookupStream4Verification
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseNumbering.FromNumber(pose) };
             byte flags = rom.ReadCartridgeByte(0xa6bd04 + rom.ReadCartridgeByte(0x91b62a + pose * 8));
             AssertEqual((flags & 0x80) != 0, canGrab(samus), "Actual grab policy preserves each native real-pose classification");
-            var state = new NorfairRidleyState { GrabState = RidleyGrabState.CarryingSamus, Tail = { WhipRequested = false, Action = RidleyTailAction.Pogo }, IntangibilityTimer = 99 };
+            var state = new NorfairRidleyState { GrabState = RidleyGrabState.CarryingSamus, Tail = { WhipRequested = false, Action = RidleyTailAction.Pogo }, ReleaseIntangibility = BossCountdown.Lasting(99) };
             release(state, samus);
-            AssertEqual((flags & 0x40) != 0 ? morphedFrames : ordinaryFrames, state.IntangibilityTimer, "Actual release preserves native movement-dependent intangibility");
+            // The release's intangibility lasts its frames: the countdown runs out on the step of the last.
+            AssertEqual((flags & 0x40) != 0 ? morphedFrames - 1 : ordinaryFrames - 1, state.ReleaseIntangibility?.Count, "Actual release preserves native movement-dependent intangibility");
             AssertEqual(RidleyGrabState.Released, state.GrabState, "Actual release clears grab");
             AssertTrue(state.Tail.WhipRequested, "Actual release requests tail whip");
             AssertEqual(RidleyTailAction.Neutral, state.Tail.Action, "Actual release resets tail controller");
@@ -1261,7 +1264,7 @@ internal static class LookupStream4Verification
             AssertEqual(RidleyTailNativeWords.AngleOf(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6d38a + 2 * index))), segments[index].Angle, "Actual initialized link angle matches native progression");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6d37c + 2 * index)), segments[index].Distance.RawValue, "Unresolved independent tail distance remains unchanged");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6d36e + 2 * index)), segments[index].SwingDirection == RotationDirection.Clockwise ? (ushort)0x8000 : (ushort)0, "Initial rotation direction remains unchanged");
-            AssertEqual<RidleyTailTurn?>(RidleyTailTurn.OfSteps(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6d2fe) + 1), segments[index].Stagger, "Initial stagger remains ideal separation plus one");
+            AssertEqual(RidleyTailTurn.OfSteps(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6d2fe) + 1), segments[index].Stagger, "Initial stagger remains ideal separation plus one");
         }
         var expectedFrames = new SortedSet<ushort> { 0xdc90, 0xdc97, 0xdc9e };
         for (int direction = 0; direction < 16; direction++)
@@ -2158,7 +2161,6 @@ internal static class LookupStream4Verification
             if (freeSlots < expected.Length)
                 AssertThrows<InvalidOperationException>(Spawn, "Breakup preserves partial allocation before pool exhaustion");
             else Spawn();
-            AssertTrue(state.DeathBreakupSpawned, "Breakup commits its one-shot guard before allocation");
             AssertEqual(freeSlots, randomCalls, "Breakup consumes RNG once per successfully allocated fragment only");
             for (int index = 0; index < freeSlots; index++)
             {
@@ -2169,10 +2171,8 @@ internal static class LookupStream4Verification
                 AssertEqual((ushort)((0x100 + 0x10 * index) & 0x130), fragmentState.Velocity.X.RawValue, "Actual breakup maps each random draw to its original fragment");
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c6ce + expected[index])), fragmentState.Lifetime.Count, "Actual breakup preserves each unresolved native lifetime");
             }
-            Spawn();
-            AssertEqual(freeSlots, randomCalls, "Breakup retry after success or failure does not repeat allocation or RNG");
         }
-        Console.WriteLine("Ridley ordered spawning: native twelve-call order, exact RNG assignment, partial/full pool exhaustion and one-shot retry behavior pass.");
+        Console.WriteLine("Ridley ordered spawning: native twelve-call order, exact RNG assignment, partial/full pool exhaustion pass.");
     }
 
     /// <summary>Checks the installed beam tiles and their VRAM words against the native uploads.</summary>

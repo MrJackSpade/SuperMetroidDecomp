@@ -124,7 +124,7 @@ internal static class EnemyRomTablePointersVerification
             var system = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork);
             RoomEnemyPlace torizo = system.Places.InUpdateOrder[0];
             torizo.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128));
-            torizo.BindTorizoFixtureState(facingRight ? 0x8000 : 0, isGolden: true);
+            torizo.BindTorizoFixtureState(facingRight ? 0x8000 : 0, TorizoVariant.Golden);
             system.TorizoBehavior.Attacks.SpawnGoldenTorizoSuperMissile(torizo);
             EnemyProjectile projectile = system.Projectiles.EnemyProjectiles.Single(
                 candidate => candidate.IsActive);

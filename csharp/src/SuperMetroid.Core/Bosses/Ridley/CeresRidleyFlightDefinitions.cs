@@ -27,11 +27,11 @@ internal static class CeresRidleyFlightDefinitions
     /// <summary>The seek divisor of his hand's flight to the falling Baby.</summary>
     internal const int RetrievalDivisor = 4;
 
-    /// <summary>The updates his hover waits outside the hover point before he attacks anyway.</summary>
-    internal const int HoverWaitLimit = 124;
+    /// <summary>The updates his hover waits outside the hover box before he attacks anyway.</summary>
+    internal const int HoverWaitUpdates = 124;
 
     /// <summary>The updates above the hover line after which his move into his fireball position gives up for a swoop.</summary>
-    internal const int FireballMoveGiveUp = 48;
+    internal const int FireballMoveGiveUpUpdates = 48;
 
     /// <summary>The updates of his fireballing, during which he hovers about his fireball position.</summary>
     internal const int FireballingUpdates = 225;

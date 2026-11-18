@@ -108,7 +108,7 @@ public sealed class BabyMetroidCutsceneState
     public ListStep<Offset16<RoomPixels>> NextDeathExplosion { get; private set; } = FirstDeathExplosion;
 
     /// <summary>Where the Baby's first death explosion bursts: the shared scatter's second point.</summary>
-    private static ListStep<Offset16<RoomPixels>> FirstDeathExplosion => ListStep<Offset16<RoomPixels>>.At(DeathExplosionScatterDefinitions.Offsets, 1);
+    private static ListStep<Offset16<RoomPixels>> FirstDeathExplosion => ListStep<Offset16<RoomPixels>>.FirstOf(DeathExplosionScatterDefinitions.Offsets);
 
     /// <summary>
     /// The updates the cutscene has spent readying Mother Brain's attacks again so far, zero through

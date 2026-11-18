@@ -273,142 +273,14 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         AfterCommon = c => ResolveSporeSpawnShotAfterCommon(c.Enemy),
     };
 
-    /// <summary>A spore (#1760): its spawner starts its animation, and a shot spore runs its typed shot animation.</summary>
-    internal SporeSpawnProjectileBehavior Spore => field ??= new SporeSpawnProjectileBehavior(_room, _projectiles, _deathsAndDrops,
-        releasedSpores: null, shot: () => new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.SporeShot));
+    /// <summary>A spore (#1760, #2410): it drifts from its spawn, and a shot one bursts, harmless, then drops and deletes itself.</summary>
+    internal SporeSpawnSporeBehavior Spore => field ??= new SporeSpawnSporeBehavior(_deathsAndDrops);
 
-    /// <summary>A ceiling spore spawner (#1760): its spawner starts its animation, and a shot one restarts it closed.</summary>
-    internal SporeSpawnProjectileBehavior Spawner => field ??= new SporeSpawnProjectileBehavior(_room, _projectiles, _deathsAndDrops,
-        releasedSpores: Spore, shot: () => new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.SpawnerClosed));
+    /// <summary>A ceiling spore spawner (#1760, #2410): it releases spores on its random cadence, and a shot one restarts closed.</summary>
+    internal SporeSpawnSpawnerBehavior Spawner => field ??= new SporeSpawnSpawnerBehavior(_room, _projectiles, Spore);
 
-    /// <summary>A link of Spore Spawn's stalk (#1760): its spawner starts its animation, and a shot one restarts it.</summary>
-    internal EnemyProjectileBehavior Stalk => field ??= new SporeSpawnProjectileBehavior(_room, _projectiles, _deathsAndDrops,
-        releasedSpores: null, shot: () => new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.Stalk));
-
-    /// <summary>A spore, spawner or stalk link: the spores' drift and the spawners' cadence, and their animations' cues.</summary>
-    /// <param name="room">The loaded room, whose random numbers time the spawners' releases.</param>
-    /// <param name="projectiles">The enemy projectiles, which hold the spores a spawner releases.</param>
-    /// <param name="deathsAndDrops">The killed sound and the drops a shot spore leaves.</param>
-    /// <param name="releasedSpores">
-    /// The spores' behaviour, which the spores a ceiling spawner releases run; none for a spore or a stalk link, which release
-    /// none (#2335).
-    /// </param>
-    /// <param name="shot">The animation a destroying shot starts.</param>
-    internal sealed class SporeSpawnProjectileBehavior(
-        EnemyRoomBinding room,
-        EnemyProjectileEngine projectiles,
-        EnemyDeathsAndDrops deathsAndDrops,
-        SporeSpawnProjectileBehavior? releasedSpores,
-        Func<EnemyProjectileAnimation> shot)
-        : EnemyProjectileMotionBehavior<SporeSpawnProjectileMotion>(StartingMotions, shot), IEnemyProjectileCues<SporeSpawnProjectileCue>
-    {
-        /// <summary>The behaviour the spores a ceiling spawner releases run: the spores' own.</summary>
-        /// <exception cref="InvalidOperationException">The behaviour is a spore's or a stalk link's, which release no spores.</exception>
-        private SporeSpawnProjectileBehavior Spores => releasedSpores
-            ?? throw new InvalidOperationException("Only a ceiling spore spawner releases spores.");
-
-        /// <summary>A spore drifts and a spawner releases spores from its spawn; a stalk link holds still.</summary>
-        private static readonly Dictionary<RoomEnemyProjectileKind, SporeSpawnProjectileMotion?> StartingMotions = new()
-        {
-            [RoomEnemyProjectileKind.SporeSpawnSpore] = SporeSpawnProjectileMotion.SporeDrifting,
-            [RoomEnemyProjectileKind.SporeSpawnSpawner] = SporeSpawnProjectileMotion.SpawnerReleasing,
-            [RoomEnemyProjectileKind.SporeSpawnStalk] = null,
-        };
-
-        /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileMotionContext context, SporeSpawnProjectileMotion motion)
-        {
-            switch (motion)
-            {
-                case SporeSpawnProjectileMotion.SporeDrifting:
-                    DriftSpore(context.Projectile);
-                    break;
-                case SporeSpawnProjectileMotion.SpawnerReleasing:
-                    ReleaseSpores(context.Projectile);
-                    break;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(SporeSpawnProjectileMotion)} {motion}.");
-            }
-        }
-
-        /// <summary>Carries out a cue of the spores' and spawners' animations: spores, impact properties, the killed sound, drops and deletion.</summary>
-        public void RunCue(EnemyProjectileCueContext context, SporeSpawnProjectileCue cue)
-        {
-            EnemyProjectile projectile = context.Projectile;
-            switch (cue)
-            {
-                case SporeSpawnProjectileCue.SpawnSpore:
-                    // Only a ceiling spawner's release spawns a spore, which takes the colours of the Spore Spawn that set the spawner up.
-                    SporeSpawnEmitterState emitter = projectile.StateOf<SporeSpawnEmitterState>();
-                    SpawnSporeSpawnSpore(projectile.Position.Whole, emitter.Drift, emitter.SporeSpawn);
-                    return;
-                case SporeSpawnProjectileCue.SetImpactProperties:
-                    SetSporeSpawnImpactProperties(projectile);
-                    return;
-                case SporeSpawnProjectileCue.QueueKilledSound:
-                    deathsAndDrops.QueueEnemyKilledSound();
-                    return;
-                case SporeSpawnProjectileCue.RequestDrop:
-                    RequestSporeSpawnSporeDrop(projectile, context.Samus);
-                    return;
-                case SporeSpawnProjectileCue.Delete:
-                    projectile.Delete();
-                    return;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(SporeSpawnProjectileCue)} {cue}.");
-            }
-        }
-
-        /// <summary>
-        /// Spawns one spore projectile and runs its setup. The spore shares <paramref name="sporeSpawn"/>'s body's
-        /// colours as they show now (#1512).
-        /// </summary>
-        internal void SpawnSporeSpawnSpore(Position16<RoomPixels> position, HorizontalDirection drift, SporeSpawnEnemyState sporeSpawn)
-        {
-            EnemyProjectile? spore = projectiles.AllocateEnemyProjectile();
-            if (spore is null)
-                return;
-
-            EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-                spore,
-                RoomEnemyProjectileKind.SporeSpawnSpore,
-                Spores,
-                SpriteGraphics.SharedIn(sporeSpawn.Colours.Sprites));
-            spore.StartAnimation(new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.Spore));
-            spore.Position = spore.Position.WithWhole(position);
-
-            spore.State = new SporeSpawnSporeState(drift);
-        }
-
-        /// <summary>Releases spores from a ceiling spawner on its random cadence while Spore Spawn lets it.</summary>
-        private void ReleaseSpores(EnemyProjectile spawner)
-        {
-            SporeSpawnEmitterState emitter = spawner.StateOf<SporeSpawnEmitterState>();
-            if (emitter.SporeSpawn.SporeGenerationSuppressed)
-                return;
-
-            if (emitter.ReleaseWait.IsZero)
-            {
-                spawner.StartAnimation(new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.SpawnerRelease));
-                emitter.ReleaseWait = WrappingCountdown.Start(room.Random.Next(SporeSpawnRandomDefinitions.SporeReleaseWait));
-            }
-            emitter.ReleaseWait = emitter.ReleaseWait.Decrement().Remaining;
-        }
-
-        /// <summary>Runs the spore's drop-request step.</summary>
-        private void RequestSporeSpawnSporeDrop(EnemyProjectile spore, SamusState samus)
-        {
-            if (spore.Kind != RoomEnemyProjectileKind.SporeSpawnSpore)
-            {
-                throw new InvalidOperationException(
-                    $"Projectile {spore.Kind} reached Spore Spawn's spore drop step.");
-            }
-            deathsAndDrops.SpawnEnemyDropFromChanceTable(
-                spore.Position.Whole,
-                SporeSpawnProjectileDefinitions.SporeDropChances,
-                samus);
-        }
-    }
+    /// <summary>A link of Spore Spawn's stalk (#1760): it holds still, and a shot one restarts its pose.</summary>
+    internal EnemyProjectileBehavior Stalk => field ??= new EnemyProjectileBehavior(shot: () => new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.Stalk));
 
     /// <summary>Runs SporeSpawn's main AI with the encounter his <paramref name="place"/> holds.</summary>
     internal void RunSporeSpawnMainAi(RoomEnemyPlace place, SporeSpawnEnemyState state) => RunSporeSpawnMain(place, state);
@@ -444,18 +316,12 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         AfterSuperMissileQuake = (in EnemyShotContext c) =>
         {
-            if (!c.UsesFrameHitboxes)
-                throw new InvalidDataException("Spore Spawn requires its frames' hitboxes.");
+            // His frames' hitboxes meet a shot with his shell's dud or his core's own reaction.
             if (c.HitboxShot == EnemyReaction.DudShot)
             {
                 c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
                 _projectiles.CreateEnemyProjectileDudShot(c.Projectile);
                 return true;
-            }
-            if (c.HitboxShot != SporeSpawnReactions.Shot)
-            {
-                throw new InvalidDataException(
-                    $"Spore Spawn has no response to shot reaction {c.HitboxShot?.ToString() ?? "(unnamed)"}.");
             }
             if (!SporeSpawnAcceptsProjectile(c.ProjectileType))
             {
@@ -472,15 +338,9 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Routes vulnerable hitbox touch through common damage; a touch on a hitbox that does nothing does nothing.</summary>
     internal void ReactToSporeSpawnTouch(EnemyTouchContext context)
     {
-        if (!context.UsesFrameHitboxes)
-            throw new InvalidDataException("Spore Spawn requires its frames' hitboxes.");
+        // His frames' hitboxes meet a touch with his hardened husk's shell, which does nothing, or his own reaction.
         if (context.HitboxTouch == EnemyReaction.Ignore)
             return;
-        if (context.HitboxTouch != SporeSpawnReactions.Touch)
-        {
-            throw new InvalidDataException(
-                $"Spore Spawn has no response to touch reaction {context.HitboxTouch?.ToString() ?? "(unnamed)"}.");
-        }
         _collision.ResolveNormalEnemyTouch(context, TouchDeathAnimation.Skip);
         ResolveSporeSpawnDeathAfterCommon(context.Place, SporeSpawnEntity.EncounterOf(context.Place));
     }
@@ -688,39 +548,6 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         spawner.StartAnimation(new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.SpawnerClosed));
         spawner.Position = spawner.Position.WithWhole(emitter.Place);
         spawner.State = new SporeSpawnEmitterState(state, emitter.Drift);
-    }
-
-    /// <summary>Drifts a spore one step along its path, deleting it once it falls below the room.</summary>
-    internal static void DriftSpore(EnemyProjectile spore)
-    {
-        SporeSpawnSporeState drift = spore.StateOf<SporeSpawnSporeState>();
-        Offset16<RoomPixels> movement = SporeSpawnProjectiles.DriftAt(drift.PathStep);
-        int xDelta = movement.X;
-        if (drift.Drift == HorizontalDirection.Left)
-            xDelta = -xDelta;
-        spore.Position = spore.Position.WithWholeX(spore.Position.X.Whole + xDelta);
-
-        spore.Position = spore.Position.WithWholeY(spore.Position.Y.Whole + movement.Y);
-        if (spore.Position.Y.Whole >= SporeSpawnArenaDefinitions.SporeFloorY)
-            spore.Delete();
-
-        drift.AdvancePath();
-    }
-
-    /// <summary>Runs the spore's impact step, which replaces its whole property set.</summary>
-    internal static void SetSporeSpawnImpactProperties(EnemyProjectile spore)
-    {
-        if (spore.Kind != RoomEnemyProjectileKind.SporeSpawnSpore)
-        {
-            throw new InvalidOperationException(
-                $"Projectile {spore.Kind} reached Spore Spawn's spore impact step.");
-        }
-
-        // A shot spore does no damage and is gone when it touches Samus, and Samus's shots pass through it.
-        spore.Damage = 0;
-        spore.CanDamageSamus = true;
-        spore.PersistsOnSamusContact = false;
-        spore.BlocksSamusProjectiles = false;
     }
 
     /// <summary>

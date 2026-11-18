@@ -134,7 +134,14 @@ internal sealed class RidleyFlight
 
     /// <summary>Restarts Ridley's body animation and frame timer at a selected segment.</summary>
     internal static void StartAnimation(RidleyFlightState flight, RoomEnemyPlace place, RidleyBodySegment segment) =>
-        flight.BodyPlayback = EnemyAnimationPlayback.Start(place, RidleyAnimations.StartingWith(segment));
+        StartAnimationAfter(flight, place, segment, 1);
+
+    /// <summary>
+    /// Restarts Ridley's body animation at a selected segment whose first step plays after <paramref name="updates"/>
+    /// updates: the pose he shows holds until then.
+    /// </summary>
+    internal static void StartAnimationAfter(RidleyFlightState flight, RoomEnemyPlace place, RidleyBodySegment segment, int updates) =>
+        flight.BodyPlayback = EnemyAnimationPlayback.StartAfter(place, RidleyAnimations.StartingWith(segment), updates);
 
     /// <summary>Restarts Ridley's body animation and frame timer at <paramref name="animation"/> for the way he faces (#2175).</summary>
     internal static void StartAnimation(RidleyFlightState flight, RoomEnemyPlace place, RidleyFacedAnimation animation) =>

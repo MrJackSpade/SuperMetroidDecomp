@@ -17,16 +17,6 @@ internal static class RidleyExplosionDefinitions
     /// <summary>The selection of a whole pixel per frame or none that a fragment's horizontal speed adds.</summary>
     internal static readonly RandomSampleField FragmentSpeedWholePixel = new(8, 1);
     /// <summary>
-    /// The tail tip's breakup pose for each sixteenth of the turn its direction can point into, in turn order: each pose's
-    /// sixteenth is centred on it, so the first opens half a pose before straight down.
-    /// </summary>
-    internal static readonly TurnArcs<EnemyFrameId> TailTipBreakupFrames = new(TrigonometryAngle.Wrapped(-8),
-        EnemyFrameId.RidleyTailTipPointingToward180, EnemyFrameId.RidleyTailTipPointingToward157, EnemyFrameId.RidleyTailTipPointingToward135, EnemyFrameId.RidleyTailTipPointingToward112,
-        EnemyFrameId.RidleyTailTipPointingToward90, EnemyFrameId.RidleyTailTipPointingToward67, EnemyFrameId.RidleyTailTipPointingToward45, EnemyFrameId.RidleyTailTipPointingToward22,
-        EnemyFrameId.RidleyTailTipPointingToward0, EnemyFrameId.RidleyTailTipPointingToward337, EnemyFrameId.RidleyTailTipPointingToward315, EnemyFrameId.RidleyTailTipPointingToward292,
-        EnemyFrameId.RidleyTailTipPointingToward270, EnemyFrameId.RidleyTailTipPointingToward247, EnemyFrameId.RidleyTailTipPointingToward225, EnemyFrameId.RidleyTailTipPointingToward202);
-
-    /// <summary>
     /// The breakup's spawn order: the tail from tip to base, then wings, legs, torso, head and claw. The places the
     /// pieces take and the draw order make this sequence observable.
     /// </summary>

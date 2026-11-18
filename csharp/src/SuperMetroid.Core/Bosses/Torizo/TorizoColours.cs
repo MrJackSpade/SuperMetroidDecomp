@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// <see cref="TorizoShadeDefinitions.FadeLastStep"/> parts. A hurt colouring written in the middle of a fade restarts it
 /// from that colouring. An animation names a new target only while the colours rest on a whole colouring (his awakening
 /// and his death each name theirs before their steps, and the awakening's last update takes only a fade's first step, which
-/// moves nothing), so a target named while a fade has moved the colours is not a state the game reaches and is refused.
+/// moves nothing), so a target named while a fade has moved the colours is not a state the game reaches.
 /// Once his fight starts, his belly glows: its glowing colours show the glow's current step over every colouring but his
 /// white flash, and a fade moves them from the step shown, so the glow keeps its own part of the fade from the step at
 /// which it last changed. The colours never reach gameplay; only when a fade completes does, through the shared counter
@@ -84,13 +84,9 @@ internal sealed class TorizoColours
     }
 
     /// <summary>Names the colouring the fade runs toward; the fade starts from the colours shown.</summary>
-    /// <exception cref="InvalidOperationException">A fade toward another colouring has already moved the colours.</exception>
     internal void FadeToward(TorizoLook look)
     {
-        bool moved = fade is { Moved: > 0 };
-        if (target is { } running && running != look && moved)
-            throw new InvalidOperationException($"A Torizo's animation names {look.Key} while its fade toward {running.Key} has moved the colours.");
-        if (!moved)
+        if (fade is not { Moved: > 0 })
         {
             fade = null;
             glowFadeFrom = null;

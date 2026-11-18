@@ -13,7 +13,7 @@ internal sealed class BombTorizoEntity(TorizoBehavior species, RoomEnemyPlace pl
     public override void RunMainAi(IEnemyAiFrame frame) => Species.RunBombTorizoMainAi(Place, frame);
 
     /// <summary>He is Crateria's Bomb Torizo.</summary>
-    protected override bool IsGolden => false;
+    protected override TorizoVariant Variant => TorizoVariant.Bomb;
 
     /// <summary>Bomb Torizo's shot reaction, which its definition leaves to it.</summary>
     public override EnemyReaction? SpeciesShot => TorizoReactions.Shot;

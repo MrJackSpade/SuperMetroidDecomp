@@ -49,7 +49,7 @@ internal static class RetailRidleyEscapeTests
                     mixedFrames++;
                     floorViews.Add(runtime.Enemies.CeresEscape.ShownFloor ?? throw new InvalidOperationException("An active getaway shows its floor."));
                 }
-                finished = triggered && runtime.Enemies.RidleyEncounter.CeresStatus == SuperMetroid.Core.Enemies.CeresEscapeStatus.SelfDestructStarted && runtime.Enemies.CeresEscape.Floor.Finished &&
+                finished = triggered && runtime.Enemies.RidleyEncounter.CeresStatus == SuperMetroid.Core.Enemies.CeresEscapeStatus.SelfDestructStarted &&
                     !runtime.Enemies.CeresEscape.Floor.Active && !samus.CeresRidleyEjection.IsActive;
                 // Capture every mixed-mode frame, every AI boundary and periodic startup
                 // frames. Completion is captured before leaving the room-local fixture.

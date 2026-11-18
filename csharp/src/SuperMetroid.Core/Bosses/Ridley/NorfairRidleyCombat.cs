@@ -453,13 +453,13 @@ internal sealed class NorfairRidleyCombat
         bool rightHalf = place.Position.X.Whole >= NorfairRidleyArenaDefinitions.CentreX;
         if (state.Flight.FacingDirection == RidleyFacing.Left ? rightHalf : !rightHalf)
             return;
-        RidleyFlight.StartAnimation(
+        RidleyFlight.StartAnimationAfter(
             state.Flight,
             place,
             state.Flight.FacingDirection == RidleyFacing.Left
                 ? RidleyBodySegment.TurnFromLeftToRight
-                : RidleyBodySegment.TurnFromRightToLeft);
-        place.AnimationClock.HoldFor(NorfairRidleyMotionDefinitions.TurnStartUpdates);
+                : RidleyBodySegment.TurnFromRightToLeft,
+            NorfairRidleyMotionDefinitions.TurnStartUpdates);
     }
 
     /// <summary>The hover acceleration divisor of Ridley's health band.</summary>

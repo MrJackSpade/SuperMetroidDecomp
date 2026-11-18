@@ -59,7 +59,7 @@ internal static class TorizoOwnershipVerification
         RoomLevelData level = CreateEmptyRoom(new(64, 64));
         RoomEnemyPlace torizo = enemies.Places.InUpdateOrder[0];
         torizo.Position = torizo.Position.WithWhole(new(400, 400));
-        TorizoEnemyState state = torizo.BindTorizoFixtureState(0, isGolden: true);
+        TorizoEnemyState state = torizo.BindTorizoFixtureState(0, TorizoVariant.Golden);
         enemies.TorizoBehavior.Attacks.SpawnGoldenTorizoSuperMissile(torizo);
         EnemyProjectile missile = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
 
@@ -80,7 +80,7 @@ internal static class TorizoOwnershipVerification
         RoomLevelData level = CreateEmptyRoom(new(64, 64));
         RoomEnemyPlace torizo = enemies.Places.InUpdateOrder[0];
         torizo.Position = torizo.Position.WithWhole(new(400, 400));
-        TorizoEnemyState state = torizo.BindTorizoFixtureState(0, isGolden: true);
+        TorizoEnemyState state = torizo.BindTorizoFixtureState(0, TorizoVariant.Golden);
         state.EyeBeamExplosionsEnabled = explosionsEnabled;
         enemies.TorizoBehavior.Attacks.SpawnGoldenTorizoEyeBeam(torizo);
         EnemyProjectile beam = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);

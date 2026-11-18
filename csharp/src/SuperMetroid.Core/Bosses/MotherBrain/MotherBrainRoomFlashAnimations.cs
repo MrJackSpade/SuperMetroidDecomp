@@ -27,16 +27,4 @@ internal static class MotherBrainRoomFlashAnimations
     internal static AnimationPlayer<MotherBrainRoomFlashSegment, MotherBrainRoomFlashImage, NoAnimationCue> Starting() =>
         AnimationPlayer<MotherBrainRoomFlashSegment, MotherBrainRoomFlashImage, NoAnimationCue>.StartShowing(
             Segments, Flash, MotherBrainRoomFlashDefinitions.FlashImageTicks);
-
-    /// <summary>
-    /// The flash standing on <paramref name="image"/> with <paramref name="updates"/> more updates of it to show, as a
-    /// recording resumes it partway.
-    /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="updates"/> is below one.</exception>
-    internal static AnimationPlayer<MotherBrainRoomFlashSegment, MotherBrainRoomFlashImage, NoAnimationCue> ShowingFor(MotherBrainRoomFlashImage image, int updates)
-    {
-        AnimationPlayer<MotherBrainRoomFlashSegment, MotherBrainRoomFlashImage, NoAnimationCue> flash = Starting();
-        flash.ShowAt(Flash, new AnimationPlace(0, image.Step), updates);
-        return flash;
-    }
 }

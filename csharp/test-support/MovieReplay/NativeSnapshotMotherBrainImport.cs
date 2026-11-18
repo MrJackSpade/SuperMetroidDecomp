@@ -47,7 +47,7 @@ internal static class NativeSnapshotMotherBrainImport
         // The recorded hold counts the updates the flash's image has shown; the image moves on once the count has reached
         // its two updates, so it has the updates up to its two and one more left (#2404).
         state.RoomFlash = flash == 0 ? null
-            : MotherBrainRoomFlashAnimations.ShowingFor(
+            : MotherBrainRoomFlashAnimationsConstants.ShowingFor(
                 MotherBrainRoomFlashImage.All[MotherBrainNativeListAddresses.RoomFlashRecords.Single(record => unchecked((ushort)record.Record) == flash).Frame],
                 MotherBrainRoomFlashDefinitions.FlashImageTicks - W(MotherBrainMemory.RoomPaletteFrameHold) + 1);
         // The sub-function word is shared: outside the tube collapse it holds the death-explosion interval timer

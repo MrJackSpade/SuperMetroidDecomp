@@ -31,11 +31,11 @@ public sealed class ShitroidEnemyState
     /// (<see cref="ShitroidMembraneAnimations"/>). It starts on its first phase, which it leaves on its first update, so
     /// the first phase it shows is its second.
     /// </summary>
-    internal AnimationPlayer<ShitroidMembranePace, ShitroidMembranePulse, ShitroidMembraneCue> Membrane { get; private set; } =
+    internal AnimationPlayer<ShitroidMembranePace, ShitroidMembranePulse, ShitroidMembraneCue> Membrane { get; set; } =
         ShitroidMembraneAnimations.StandingOn(ShitroidMembranePace.Calm, ShitroidMembranePulse.First, 1);
 
     /// <summary>The pace of the membrane's pulse: calm, or quick while it feeds.</summary>
-    public ShitroidMembranePace MembranePace { get; private set; }
+    public ShitroidMembranePace MembranePace { get; internal set; }
 
     /// <summary>
     /// Sets the membrane's pulse to <paramref name="pace"/>: the phase showing keeps the updates it has left, and the phases
@@ -45,17 +45,6 @@ public sealed class ShitroidEnemyState
     {
         MembranePace = pace;
         Membrane.GoOnIn(ShitroidMembraneAnimations.At(pace));
-    }
-
-    /// <summary>
-    /// Sets the membrane's pulse at <paramref name="pace"/> standing on <paramref name="phase"/>, which it moves on from
-    /// after <paramref name="updates"/> more updates, as a recording resumes it.
-    /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="updates"/> is below one.</exception>
-    internal void ResumeMembrane(ShitroidMembranePace pace, ShitroidMembranePulse phase, int updates)
-    {
-        MembranePace = pace;
-        Membrane = ShitroidMembraneAnimations.StandingOn(pace, phase, updates);
     }
 
     /// <summary>

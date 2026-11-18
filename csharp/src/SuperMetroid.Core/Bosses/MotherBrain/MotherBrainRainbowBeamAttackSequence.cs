@@ -21,7 +21,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     /// Where the beam's explosions burst from Samus, whom each then follows, in the order they burst: the first beam explosion takes the
     /// first, and the last is followed by the first again (#2258).
     /// </summary>
-    internal static readonly Offset16<RoomPixels>[] ExplosionOffsets =
+    internal static IReadOnlyList<Offset16<RoomPixels>> ExplosionOffsets { get; } =
         [new(6, 2), new(-4, 5), new(2, -4), new(3, 6), new(-6, -2), new(8, -6), new(0, 7), new(-8, -7)];
 
     /// <summary>Owns the forced Samus movement during beam capture and the later drain sequence.</summary>

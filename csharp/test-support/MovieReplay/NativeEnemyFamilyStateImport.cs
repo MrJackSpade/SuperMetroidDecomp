@@ -2,6 +2,7 @@ using SuperMetroid.TestSupport.SamusNativeCodecs;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Bosses.Ridley;
@@ -110,17 +111,25 @@ internal static class NativeEnemyFamilyStateImport
                 // The record names the burst by its place in the casual-flame update's choices.
                 phantoon.CasualFlames.Schedule = Ensure.Element(PhantoonCasualFlameDefinitions.Choices, words.A);
                 phantoon.CasualFlames.Hold = CoordinateAxis.AsSigned(words.B);
-                // The record's count reads below zero while no burst is under way, which the burst holds as no count.
+                // The record counts the burst's flames still to come; it reads below zero while no burst is under way, which
+                // the burst holds as no next flame. A count of zero spits a last flame as a count of one does.
                 short casualFlames = unchecked((short)words.C);
-                phantoon.CasualFlames.Remaining = casualFlames < 0 ? null : casualFlames;
+                IReadOnlyList<PhantoonCasualFlame> flames = phantoon.CasualFlames.Schedule.Flames;
+                phantoon.CasualFlames.NextFlame = casualFlames < 0
+                    ? null
+                    : SuperMetroid.Core.Bosses.ListStep<PhantoonCasualFlame>.At(flames, flames.Count - Math.Max(1, (int)casualFlames));
                 phantoon.Wave.Amplitude = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(words.D);
                 phantoon.Wave.AmplitudeShrinking = words.E != 0;
                 phantoon.Wave.PhaseStep = RotationAngle.WrappedSteps(words.F);
             }
             else if (part == EnemyDefinitionId.PhantoonBody)
             {
-                phantoon.StartingFlames.NextFlame = words.A;
-                phantoon.FigureEight.PathCursor = words.A;
+                // Word A is the place of the walk his phase is on: the intro's starting flames while they spawn, his
+                // figure-eight path while he runs it, and his death explosions' passes once he is dying. Only the starting
+                // flames' spawning reads the intro's place.
+                if (words.F != 0 && PhantoonNativeWords.Phases.Decode(words.F, "recorded PhantoonPhase") == PhantoonPhase.SpawnStartingFlames)
+                    phantoon.StartingFlames.NextFlame = SuperMetroid.Core.Bosses.ListStep<TrigonometryAngle>.At(PhantoonFlameSpawns.StartingFlameStarts, words.A);
+                phantoon.FigureEight.PathPlace = PhantoonPath.At(words.A);
                 phantoon.Death.ExplosionPasses = words.A;
                 phantoon.StartingFlames.Orbiting = words.B != 0;
                 phantoon.FigureEight.Speed = SignedSixteenSixteen.FromParts(CoordinateAxis.AsSigned(words.C), words.B);
@@ -191,13 +200,13 @@ internal static class NativeEnemyFamilyStateImport
                 fallingTubeRecord.Action = MotherBrainNativeWords.MotherBrainTubeActions.Decode(words.A, "recorded MotherBrainTubeAction");
             fallingTubeRecord.FloorY = words.B;
             fallingTubeRecord.FallSpeed = new SignedEightEight(words.C);
-            fallingTubeRecord.SmokeDelay.Count = CoordinateAxis.AsSigned(words.D);
-            fallingTubeRecord.SmokePositionIndex = words.E;
+            PrivateState.Set(fallingTubeRecord.SmokeDelay, nameof(BossCountdown.Count), CoordinateAxis.AsSigned(words.D));
+            fallingTubeRecord.SmokePuff = SuperMetroid.Core.Bosses.ListStep<int>.At(MotherBrainTubeCollapseDefinitions.SmokeXOffsets, words.E);
         }
         if (enemy.SpeciesState<RidleyExplosionFragmentState>() is { } ridleyFragmentRecord)
         {
             ridleyFragmentRecord.Velocity = new(new SignedEightEight(words.B), new SignedEightEight(words.C));
-            ridleyFragmentRecord.Lifetime.Count = CoordinateAxis.AsSigned(words.F);
+            PrivateState.Set(ridleyFragmentRecord.Lifetime, nameof(BossCountdown.Count), CoordinateAxis.AsSigned(words.F));
         }
         if (enemy.SpeciesState<DraygonEnemyState>() is { } draygonRecord)
         {
@@ -291,7 +300,7 @@ internal static class NativeEnemyFamilyStateImport
             if (shitroidRecord.Action == ShitroidAction.DrainSidehopper)
                 shitroidRecord.SidehopperDrainTimer = words.F;
             else
-                shitroidRecord.StateTimer.Count = CoordinateAxis.AsSigned(words.F);
+                PrivateState.Set(shitroidRecord.StateTimer, nameof(BossCountdown.Count), CoordinateAxis.AsSigned(words.F));
         }
         if (enemy.SpeciesState<DachoraEchoState>() is { } dachoraEcho)
         {
@@ -625,7 +634,7 @@ internal static class NativeEnemyFamilyStateImport
             // A special Rinka holding a point was placed at it, which makes it the point it respawns at (#2256).
             if (rinkaRecord.HeldSpawnPoint is { } heldPoint)
                 rinkaRecord.SpawnPoint = heldPoint;
-            rinkaRecord.DelayTimer.Count = CoordinateAxis.AsSigned(words.F);
+            PrivateState.Set(rinkaRecord.DelayTimer, nameof(BossCountdown.Count), CoordinateAxis.AsSigned(words.F));
         }
         if (enemy.SpeciesState<EtecoonEnemyState>() is { } etecoonRecord)
         {

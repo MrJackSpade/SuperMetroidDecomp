@@ -28,7 +28,7 @@ public static class PhantoonFlameSpawnDefinitions
     ];
 
     /// <summary>The rain's nine screen-X columns, 48 through 208, spaced twenty pixels apart.</summary>
-    internal static readonly int[] RainXs = [48, 68, 88, 108, 128, 148, 168, 188, 208];
+    internal static IReadOnlyList<int> RainXs { get; } = [48, 68, 88, 108, 128, 148, 168, 188, 208];
 
     /// <summary>
     /// The spiral's eight flames' start angles in the order they spawn, an eighth of a turn apart: from up and to the
@@ -40,5 +40,5 @@ public static class PhantoonFlameSpawnDefinitions
     /// The intro's eight starting flames' start angles in the order they appear, an eighth of a turn apart: from straight
     /// up clockwise round the body.
     /// </summary>
-    internal static readonly TrigonometryAngle[] StartingFlameStarts = [new(0), new(32), new(64), new(96), new(128), new(160), new(192), new(224)];
+    internal static IReadOnlyList<TrigonometryAngle> StartingFlameStarts { get; } = [new(0), new(32), new(64), new(96), new(128), new(160), new(192), new(224)];
 }

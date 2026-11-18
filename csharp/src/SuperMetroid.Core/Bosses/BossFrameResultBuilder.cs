@@ -56,7 +56,7 @@ internal sealed class BossFrameResultBuilder
     internal RoomEffectDefinition? MotherBrainAcidChange { get; set; }
 
     /// <summary>Mother Brain's room mutations, in publication order.</summary>
-    internal List<RoomObjectSpawnRequest<MotherBrainRoomMutation>> MotherBrainObjects { get; } = [];
+    internal List<MotherBrainRoomChangeRequest> MotherBrainObjects { get; } = [];
 
     /// <summary>The Shitroid's wall mutations, in publication order.</summary>
     internal List<RoomObjectSpawnRequest<ShitroidWallMutation>> ShitroidObjects { get; } = [];

@@ -391,9 +391,9 @@ internal sealed class MotherBrainProjectiles
         {
             shard.Position = shard.Position.Advance(shard.Velocity.ToSixteenSixteen());
 
-            // Tests which screen of the room its Y lies on rather than camera visibility. A shard
-            // is deleted as soon as wrapped Y leaves the top screen; X may freely leave the viewport.
-            if (RoomGridConversions.PixelToScreen(shard.Position.Y.Whole) != 0)
+            // A shard is deleted as soon as it falls out of the room's top screen, rather than by camera visibility; X may
+            // freely leave the viewport. It flies at most sixty-four pixels above its emitter, far below the room's top.
+            if (shard.Position.Y.Whole >= MotherBrainGlassShardDefinitions.TopScreenBottomY)
             {
                 shard.Delete();
                 return;
@@ -751,9 +751,9 @@ internal sealed class MotherBrainProjectiles
 
         // Position jitter consumes two additional RNG samples in this order. It is not
         // cosmetic randomness: later turret and sparkle behavior observes the advanced seed.
-        shard.Position = shard.Position.WithWrappedWholeX(
+        shard.Position = shard.Position.WithWholeX(
             shard.Position.X.Whole + _room.Random.Next(MotherBrainGlassShardDefinitions.ShardJitter) - MotherBrainGlassShardDefinitions.ShardJitterCentre);
-        shard.Position = shard.Position.WithWrappedWholeY(
+        shard.Position = shard.Position.WithWholeY(
             shard.Position.Y.Whole + _room.Random.Next(MotherBrainGlassShardDefinitions.ShardJitter) - MotherBrainGlassShardDefinitions.ShardJitterCentre);
     }
 

@@ -56,8 +56,8 @@ internal static class BossRoomObjectProgramsVerification
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         const string family = "Mother Brain fake death";
-        AssertEqual(Enum.GetValues<MotherBrainRoomMutation>().Length - 1, MotherBrainFakeDeathEntries.Count,
-            $"every {family} mutation but the mural row's reveal has a native list");
+        AssertEqual(Enum.GetValues<MotherBrainRoomMutation>().Length, MotherBrainFakeDeathEntries.Count,
+            $"every {family} mutation has a native list");
         AssertEqual(MotherBrainFakeDeathEntries.Count, MotherBrainRoomMutationDefinitions.Changes.Count, $"every {family} mutation has a typed change");
         AssertEqual(MotherBrainMuralDefinitions.RowCount, MotherBrainMuralRowEntries.Count, "every mural row has a native list");
         int frames = 0;
@@ -69,8 +69,7 @@ internal static class BossRoomObjectProgramsVerification
         }
         for (int row = 0; row < MotherBrainMuralRowEntries.Count; row++)
         {
-            TerrainChange reveal = MotherBrainRoomObjects.Change(new(
-                new(MotherBrainMuralDefinitions.Column, MotherBrainMuralDefinitions.TopBlockRow + row), MotherBrainRoomMutation.RevealMuralRow));
+            TerrainChange reveal = new MotherBrainMuralRowReveal(MotherBrainMuralRow.All[row]).Change;
             frames += NativeTerrainChanges.Compare(cartridge, reveal, MotherBrainMuralRowEntries[row], NativeTerrainChanges.NoSteps,
                 $"{family} mural row {row + 1}", out bool began);
             AssertTrue(!began, $"{family} mural row {row + 1} opens nothing as it starts");

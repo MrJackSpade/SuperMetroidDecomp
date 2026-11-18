@@ -33,12 +33,11 @@ internal sealed class MotherBrainFallingTubeState
     /// <summary>The wait before the next smoke puff (<see cref="BossCountdown"/>).</summary>
     public BossCountdown SmokeDelay { get; } = new();
 
-    /// <summary>The smoke puff's horizontal position, cycling through the four authored offsets.</summary>
-    public int SmokePositionIndex
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, 3, value);
-    }
+    /// <summary>
+    /// The last smoke puff's offset among <see cref="MotherBrainTubeCollapseDefinitions.SmokeXOffsets"/>: each puff shows
+    /// at the next, the first again after the last, so the first puff shows at the second.
+    /// </summary>
+    public ListStep<int> SmokePuff { get; internal set; } = ListStep<int>.FirstOf(MotherBrainTubeCollapseDefinitions.SmokeXOffsets);
 
     /// <summary>The main tube's wait before it falls (<see cref="BossCountdown"/>).</summary>
     public BossCountdown FallDelay { get; } = new();

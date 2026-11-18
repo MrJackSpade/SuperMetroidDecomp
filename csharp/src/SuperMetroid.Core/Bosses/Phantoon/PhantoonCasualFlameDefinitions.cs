@@ -7,16 +7,32 @@ public static class PhantoonCasualFlameDefinitions
     private const int BurstCooldown = 180;
 
     /// <summary>Five flames, 32 updates apart.</summary>
-    public static PhantoonCasualFlameSchedule SteadyFive { get; } = new() { Cooldown = BurstCooldown, Intervals = [32, 32, 32, 32, 32] };
+    public static PhantoonCasualFlameSchedule SteadyFive { get; } = new()
+    {
+        Cooldown = BurstCooldown,
+        Flames = [new(32), new(32), new(32), new(32), new(32)],
+    };
 
     /// <summary>Three flames in quick succession, 16 updates apart.</summary>
-    public static PhantoonCasualFlameSchedule QuickThree { get; } = new() { Cooldown = BurstCooldown, Intervals = [16, 16, 16] };
+    public static PhantoonCasualFlameSchedule QuickThree { get; } = new()
+    {
+        Cooldown = BurstCooldown,
+        Flames = [new(16), new(16), new(16)],
+    };
 
     /// <summary>Seven flames, slowly, 48 updates apart.</summary>
-    public static PhantoonCasualFlameSchedule SlowSeven { get; } = new() { Cooldown = BurstCooldown, Intervals = [48, 48, 48, 48, 48, 48, 48] };
+    public static PhantoonCasualFlameSchedule SlowSeven { get; } = new()
+    {
+        Cooldown = BurstCooldown,
+        Flames = [new(48), new(48), new(48), new(48), new(48), new(48), new(48)],
+    };
 
-    /// <summary>Seven flames at uneven waits, the mouth's waits listed first flame first.</summary>
-    public static PhantoonCasualFlameSchedule UnevenSeven { get; } = new() { Cooldown = BurstCooldown, Intervals = [32, 16, 32, 64, 32, 64, 16] };
+    /// <summary>Seven flames at uneven waits, first flame first.</summary>
+    public static PhantoonCasualFlameSchedule UnevenSeven { get; } = new()
+    {
+        Cooldown = BurstCooldown,
+        Flames = [new(32), new(16), new(32), new(64), new(32), new(64), new(16)],
+    };
 
     /// <summary>The bursts the casual-flame update chooses from, by its random draw, each as likely as the others.</summary>
     public static IReadOnlyList<PhantoonCasualFlameSchedule> Choices { get; } = [SteadyFive, QuickThree, SlowSeven, UnevenSeven];

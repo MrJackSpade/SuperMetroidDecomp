@@ -114,7 +114,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     private void InitializeRinkaLife(RoomEnemyPlace place, RinkaEnemyState state)
     {
         state.Action = RinkaAction.WatchForLeavingViewport;
-        state.DelayTimer.Count = RinkaLifeDefinitions.AimDelay;
+        state.DelayTimer.LastFor(RinkaLifeDefinitions.AimDelayUpdates);
         state.Velocity = default;
 
         if (IsSpecialRinka(place) && _rinkaTerminationFlag)
@@ -237,7 +237,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         place.Presence = place.Presence.With(EnemyPresence.Hidden);
         SpawnRinkaDustExplosion(place.Position.Whole);
         state.Action = RinkaAction.DeathRespawnDelay;
-        state.DelayTimer.Count = RinkaLifeDefinitions.RespawnDelay;
+        state.DelayTimer.LastFor(RinkaLifeDefinitions.RespawnDelayUpdates);
     }
 
     /// <summary>Runs Rinka's private frozen-AI prelude/tail around common frozen handling.</summary>

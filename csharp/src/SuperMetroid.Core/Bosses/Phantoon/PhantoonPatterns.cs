@@ -49,13 +49,13 @@ internal sealed class PhantoonPatterns
         {
             state.FigureEight.Speed = SignedSixteenSixteen.Zero;
             state.FigureEight.Reversed = true;
-            state.FigureEight.PathCursor = PhantoonPathDefinitions.LastPlace;
+            state.FigureEight.PathPlace = PhantoonPath.At(PhantoonPathDefinitions.LastPlace);
         }
         else
         {
             state.FigureEight.Speed = PhantoonMotionDefinitions.FigureEightStartSpeed;
             state.FigureEight.Reversed = false;
-            state.FigureEight.PathCursor = 0;
+            state.FigureEight.PathPlace = PhantoonPath.At(0);
         }
     }
 
@@ -89,16 +89,16 @@ internal sealed class PhantoonPatterns
             : figureEight.Speed.WholePixels;
         for (int step = 0; step < steps; step++)
         {
-            Offset16<RoomPixels> pathStep = PhantoonPath.Step(figureEight.PathCursor);
+            Offset16<RoomPixels> pathStep = figureEight.PathPlace.Entry;
             if (figureEight.Reversed)
             {
                 body.Position -= pathStep;
-                figureEight.PathCursor = figureEight.PathCursor == 0 ? PhantoonPathDefinitions.Length - 1 : figureEight.PathCursor - 1;
+                figureEight.PathPlace = figureEight.PathPlace.PreviousInCycle;
             }
             else
             {
                 body.Position += pathStep;
-                figureEight.PathCursor = figureEight.PathCursor >= PhantoonPathDefinitions.Length - 1 ? 0 : figureEight.PathCursor + 1;
+                figureEight.PathPlace = figureEight.PathPlace.NextInCycle;
             }
         }
     }
@@ -184,22 +184,22 @@ internal sealed class PhantoonPatterns
         if (--state.CasualFlames.Hold > 0)
             return;
 
-        if (state.CasualFlames.Remaining is { } count)
+        if (state.CasualFlames.NextFlame is { } flame)
         {
-            int remaining = count - 1;
-            // A burst with no flame left after this one ends and starts its cooldown; one at zero spits a last flame too.
-            bool exhausted = remaining <= 0;
-            PhantoonCasualFlameSchedule schedule = state.CasualFlames.Schedule;
-            state.CasualFlames.Remaining = exhausted ? null : remaining;
-            state.CasualFlames.Hold = exhausted ? schedule.Cooldown : schedule.IntervalBefore(remaining);
+            // The mouth spits the flame; the next waits its own wait, and once the last is spat the burst ends and its
+            // cooldown starts.
+            ListStep<PhantoonCasualFlame>? next = flame.Following;
+            state.CasualFlames.NextFlame = next;
+            state.CasualFlames.Hold = next is { } following ? following.Entry.WaitBeforeUpdates : state.CasualFlames.Schedule.Cooldown;
             state.MouthPart.StartAnimation(PhantoonPartSegment.MouthSpawnFlame);
             return;
         }
 
         PhantoonCasualFlameSchedule burst = Ensure.Element(PhantoonCasualFlameDefinitions.Choices, _room.Random.Next(PhantoonRandomDefinitions.CasualFlamePattern));
+        ListStep<PhantoonCasualFlame> first = ListStep<PhantoonCasualFlame>.FirstOf(burst.Flames);
         state.CasualFlames.Schedule = burst;
-        state.CasualFlames.Remaining = burst.FlameCount;
-        state.CasualFlames.Hold = burst.IntervalBefore(burst.FlameCount);
+        state.CasualFlames.NextFlame = first;
+        state.CasualFlames.Hold = first.Entry.WaitBeforeUpdates;
     }
 
     /// <summary>Starts the spiral-flame pattern around the body.</summary>
@@ -304,12 +304,12 @@ internal sealed class PhantoonPatterns
     {
         if (PhantoonRandomDefinitions.FigureEightStartsRight.IsSetIn(_room.Random.Generate()))
         {
-            state.FigureEight.PathCursor = PhantoonPathDefinitions.RightAppearance;
+            state.FigureEight.PathPlace = PhantoonPath.At(PhantoonPathDefinitions.RightAppearance);
             body.Position = body.Position.WithWholeX(PhantoonPathDefinitions.RightAppearancePosition.X);
         }
         else
         {
-            state.FigureEight.PathCursor = PhantoonPathDefinitions.LeftAppearance;
+            state.FigureEight.PathPlace = PhantoonPath.At(PhantoonPathDefinitions.LeftAppearance);
             body.Position = body.Position.WithWholeX(PhantoonPathDefinitions.LeftAppearancePosition.X);
         }
         body.Position = body.Position.WithWholeY(PhantoonPathDefinitions.AppearanceY);
@@ -405,7 +405,7 @@ internal sealed class PhantoonPatterns
             return;
 
         PhantoonRainPattern pattern = Ensure.Element(PhantoonRainPatternDefinitions.Choices, _room.Random.Next(PhantoonRandomDefinitions.FlameRainPattern));
-        state.FigureEight.PathCursor = pattern.PathCursor;
+        state.FigureEight.PathPlace = PhantoonPath.At(pattern.PathPlace);
         body.Position = body.Position.WithWhole(pattern.BodyPosition);
         state.FigureEight.Reversed = false;
         state.Phase = PhantoonPhase.BecomeSolidAfterFlameRain;
@@ -615,14 +615,12 @@ internal sealed class PhantoonPatterns
     /// <summary>Places the rain's delayed flames in rotating room columns, each falling a delay step after the last.</summary>
     private void SpawnPhantoonFlameRain(RoomEnemyPlace body, PhantoonRainPattern pattern)
     {
-        int column = pattern.FirstColumn;
+        ListStep<int> column = pattern.FirstColumn;
         int fallDelay = PhantoonArenaDefinitions.RainFallDelayStep;
         for (int flame = 0; flame < PhantoonArenaDefinitions.RainFlameCount; flame++)
         {
-            SpawnPhantoonRainFlame(body, column, fallDelay);
-            column++;
-            if (column >= PhantoonPatternDefinitions.RainColumnCount)
-                column = 0;
+            SpawnPhantoonRainFlame(body, column.Entry, fallDelay);
+            column = column.NextInCycle;
             fallDelay += PhantoonArenaDefinitions.RainFallDelayStep;
         }
     }
@@ -636,7 +634,7 @@ internal sealed class PhantoonPatterns
         if (PhantoonCadenceDefinitions.FigureEightReverses.IsSetIn(_frameContext.FrameCounter))
         {
             if (!state.FigureEight.Reversed)
-                state.FigureEight.PathCursor = state.FigureEight.PathCursor == 0 ? PhantoonPathDefinitions.LastPlace : state.FigureEight.PathCursor - 1;
+                state.FigureEight.PathPlace = state.FigureEight.PathPlace.PreviousInCycle;
             state.FigureEight.Speed = SignedSixteenSixteen.Zero;
             state.FigureEight.Stage = PhantoonFigureEightStage.EasingIn;
             state.FigureEight.Reversed = true;
@@ -644,7 +642,7 @@ internal sealed class PhantoonPatterns
         else
         {
             if (state.FigureEight.Reversed)
-                state.FigureEight.PathCursor = state.FigureEight.PathCursor >= PhantoonPathDefinitions.LastPlace ? 0 : state.FigureEight.PathCursor + 1;
+                state.FigureEight.PathPlace = state.FigureEight.PathPlace.NextInCycle;
             state.FigureEight.Speed = PhantoonMotionDefinitions.FigureEightStartSpeed;
             state.FigureEight.Stage = PhantoonFigureEightStage.EasingIn;
             state.FigureEight.Reversed = false;
@@ -712,15 +710,15 @@ internal sealed class PhantoonPatterns
 
     /// <summary>Initializes a rain flame over a room column, falling after a delay.</summary>
     /// <param name="body">Phantoon's body.</param>
-    /// <param name="column">The room column the flame falls in, 0 through 8.</param>
+    /// <param name="columnX">The screen X of the rain column the flame falls in (<see cref="PhantoonFlameSpawns.RainXs"/>).</param>
     /// <param name="fallDelay">The updates the flame waits before it falls.</param>
-    internal bool SpawnPhantoonRainFlame(RoomEnemyPlace body, int column, int fallDelay)
+    internal bool SpawnPhantoonRainFlame(RoomEnemyPlace body, int columnX, int fallDelay)
     {
         EnemyProjectile? flame = AllocateDestroyableFlame(body);
         if (flame is null)
             return false;
         flame.State = new PhantoonRainFlameState(fallDelay);
-        flame.Position = flame.Position.WithWholeX(PhantoonFlameSpawns.RainX(column));
+        flame.Position = flame.Position.WithWholeX(columnX);
         flame.Position = flame.Position.WithWholeY(PhantoonArenaDefinitions.RainStartY);
         flame.StartMotion(PhantoonFlameMotion.RainFalling);
         return true;

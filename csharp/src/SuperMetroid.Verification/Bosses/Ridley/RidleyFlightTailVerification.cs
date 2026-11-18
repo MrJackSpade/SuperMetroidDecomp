@@ -65,7 +65,8 @@ internal static class RidleyFlightTailVerification
         var place = enemies.Places.InUpdateOrder[0];
         place.Position = place.Position.WithWhole(new(128, 128));
         // Ridley faces left, the side this fixture's native hip coordinates were taken from.
-        state = new NorfairRidleyState { Phase = NorfairRidleyPhase.PogoMoveToHeight, PhaseTimer = { Count = 0 }, Flight = { FacingDirection = RidleyFacing.Left } };
+        state = new NorfairRidleyState { Phase = NorfairRidleyPhase.PogoMoveToHeight, Flight = { FacingDirection = RidleyFacing.Left } };
+        state.PhaseTimer.LastFor(1);
         RidleyTailFixtures.BlankLinks(state.Tail);
         foreach (RidleyTailLink link in state.Tail.Links)
         {

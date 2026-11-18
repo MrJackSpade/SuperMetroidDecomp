@@ -133,7 +133,7 @@ internal static class CeresRidleyColorsVerification
         CeresRidleyState activeRidley = enemies.CeresRidley() ??
             throw new InvalidOperationException("Ceres Ridley initialization did not publish state.");
         activeRidley.Phase = CeresRidleyPhase.RetreatDelay;
-        activeRidley.PhaseTimer.Count = 0;
+        activeRidley.PhaseTimer.LastFor(1);
         activeRidley.MovementAnimationEnabled = false;
         enemies.CeresRidleyBehavior.RunCeresRidleyMain(place, activeRidley, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), InstalledFixtures.CreateProjectileSystem());
         AssertEqual(CeresRidleyPhase.PublishEscapeHandoff, activeRidley.Phase,

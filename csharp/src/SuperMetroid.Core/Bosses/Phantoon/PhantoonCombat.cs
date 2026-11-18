@@ -209,7 +209,7 @@ internal sealed class PhantoonCombat
                 return;
             flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameSegment.RainImpact));
             flame.FrameHold = WrappingCountdown.Start(1);
-            flame.Position = flame.Position.WithWrappedWholeY(flame.Position.Y.Whole + PhantoonArenaDefinitions.FlameLandingDrop);
+            flame.Position = flame.Position.WithWholeY(flame.Position.Y.Whole + PhantoonArenaDefinitions.FlameLandingDrop);
             flame.HoldStill();
             audio.QueueEnemySound(PhantoonFlameMotionDefinitions.RainFallSound, PhantoonFlameMotionDefinitions.RainSoundPriority);
         }
@@ -460,7 +460,7 @@ internal sealed class PhantoonCombat
         flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameSegment.CasualHitGround));
         flame.FrameHold = WrappingCountdown.Start(1);
         flame.State = new PhantoonCasualFlameState();
-        flame.Position = flame.Position.WithWrappedWholeY(flame.Position.Y.Whole + PhantoonArenaDefinitions.FlameLandingDrop);
+        flame.Position = flame.Position.WithWholeY(flame.Position.Y.Whole + PhantoonArenaDefinitions.FlameLandingDrop);
     }
 
     /// <summary>Holds the flame briefly at the floor after impact.</summary>
@@ -476,7 +476,7 @@ internal sealed class PhantoonCombat
         flame.StartMotion(PhantoonFlameMotion.CasualBouncing);
         flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameSegment.CasualBouncing));
         flame.FrameHold = WrappingCountdown.Start(1);
-        flame.Position = flame.Position.WithWrappedWholeY(flame.Position.Y.Whole - PhantoonArenaDefinitions.FlameLandingDrop);
+        flame.Position = flame.Position.WithWholeY(flame.Position.Y.Whole - PhantoonArenaDefinitions.FlameLandingDrop);
         flame.Velocity = flame.Velocity.WithY(PhantoonArenaDefinitions.CasualRiseSpeed);
         // The flame drifts left or right by the game's frame counter.
         flame.Velocity = flame.Velocity.WithX(

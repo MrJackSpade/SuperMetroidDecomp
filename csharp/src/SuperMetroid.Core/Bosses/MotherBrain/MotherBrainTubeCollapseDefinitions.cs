@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
@@ -12,59 +13,43 @@ internal static class MotherBrainTubeCollapseDefinitions
     /// <summary>The free enemy projectiles the collapse waits for before it starts.</summary>
     internal const int FreeProjectilesNeeded = 4;
 
-    /// <summary>The updates the collapse waits after clearing a tube's blocks before the next tube falls.</summary>
+    /// <summary>The updates the collapse waits after clearing a tube's blocks before the next tube falls, the last being the update it falls on.</summary>
     internal const int StepWaitUpdates = 33;
 
-    /// <summary>The updates the collapse waits after clearing the last side tube's blocks before the main tube falls.</summary>
+    /// <summary>
+    /// The updates the collapse waits after clearing the last side tube's blocks before the main tube falls, the last being
+    /// the update it falls on.
+    /// </summary>
     internal const int MainTubeWaitUpdates = 3;
 
-    /// <summary>The blocks the bottom left tube leaves as it falls.</summary>
-    internal static readonly RoomObjectSpawnRequest<MotherBrainRoomMutation> BottomLeftTubeBlocks =
-        new(new(5, 9), MotherBrainRoomMutation.ClearBottomLeftTube);
+    /// <summary>The updates the collapse's wait is loaded with once the main tube's place is cleared; no tube follows to wait them out.</summary>
+    internal const int AfterLastClearUpdates = 1;
 
-    /// <summary>The ceiling block the top right tube leaves.</summary>
-    internal static readonly RoomObjectSpawnRequest<MotherBrainRoomMutation> TopRightTubeCeiling =
-        new(new(9, 2), MotherBrainRoomMutation.ClearCeilingBlock);
-
-    /// <summary>The ceiling block the top left tube leaves.</summary>
-    internal static readonly RoomObjectSpawnRequest<MotherBrainRoomMutation> TopLeftTubeCeiling =
-        new(new(6, 2), MotherBrainRoomMutation.ClearCeilingBlock);
-
-    /// <summary>The blocks the bottom right tube leaves as it falls.</summary>
-    internal static readonly RoomObjectSpawnRequest<MotherBrainRoomMutation> BottomRightTubeBlocks =
-        new(new(10, 9), MotherBrainRoomMutation.ClearBottomRightTube);
-
-    /// <summary>The blocks the bottom middle-left tube leaves as it falls.</summary>
-    internal static readonly RoomObjectSpawnRequest<MotherBrainRoomMutation> BottomMiddleLeftTubeBlocks =
-        new(new(6, 10), MotherBrainRoomMutation.ClearBottomMiddleSideTube);
-
-    /// <summary>The ceiling tube block the top middle-left tube leaves.</summary>
-    internal static readonly RoomObjectSpawnRequest<MotherBrainRoomMutation> TopMiddleLeftTubeCeiling =
-        new(new(7, 2), MotherBrainRoomMutation.ClearCeilingTube);
-
-    /// <summary>The ceiling tube block the top middle-right tube leaves.</summary>
-    internal static readonly RoomObjectSpawnRequest<MotherBrainRoomMutation> TopMiddleRightTubeCeiling =
-        new(new(8, 2), MotherBrainRoomMutation.ClearCeilingTube);
-
-    /// <summary>The blocks the bottom middle-right tube leaves as it falls.</summary>
-    internal static readonly RoomObjectSpawnRequest<MotherBrainRoomMutation> BottomMiddleRightTubeBlocks =
-        new(new(9, 10), MotherBrainRoomMutation.ClearBottomMiddleSideTube);
-
-    /// <summary>The blocks the main tube and the tubes beside it leave as it falls.</summary>
-    internal static readonly RoomObjectSpawnRequest<MotherBrainRoomMutation> BottomMiddleTubesBlocks =
-        new(new(7, 7), MotherBrainRoomMutation.ClearBottomMiddleTubes);
-
-    /// <summary>Where the top right tube starts falling.</summary>
-    internal static readonly Position16<RoomPixels> TopRightTubeStart = new(152, 47);
-
-    /// <summary>Where the top left tube starts falling.</summary>
-    internal static readonly Position16<RoomPixels> TopLeftTubeStart = new(104, 47);
-
-    /// <summary>Where the top middle-left tube starts falling.</summary>
-    internal static readonly Position16<RoomPixels> TopMiddleLeftTubeStart = new(120, 59);
-
-    /// <summary>Where the top middle-right tube starts falling.</summary>
-    internal static readonly Position16<RoomPixels> TopMiddleRightTubeStart = new(136, 59);
+    /// <summary>
+    /// The tubes the collapse drops, in the order they fall (#2258): what falls, the blocks clearing its place leaves, and
+    /// the wait after the clear before the next tube falls.
+    /// </summary>
+    internal static IReadOnlyList<MotherBrainTubeDrop> Drops { get; } =
+    [
+        new MotherBrainBottomTubeDrop(MotherBrainTubePiece.BottomLeft,
+            new(new(5, 9), MotherBrainRoomMutation.ClearBottomLeftTube), StepWaitUpdates),
+        new MotherBrainTopTubeDrop(RoomEnemyProjectileKind.MotherBrainTopRightTube, MotherBrainTopTubeSegment.TopRight, new(152, 47),
+            new(new(9, 2), MotherBrainRoomMutation.ClearCeilingBlock), StepWaitUpdates),
+        new MotherBrainTopTubeDrop(RoomEnemyProjectileKind.MotherBrainTopLeftTube, MotherBrainTopTubeSegment.TopLeft, new(104, 47),
+            new(new(6, 2), MotherBrainRoomMutation.ClearCeilingBlock), StepWaitUpdates),
+        new MotherBrainBottomTubeDrop(MotherBrainTubePiece.BottomRight,
+            new(new(10, 9), MotherBrainRoomMutation.ClearBottomRightTube), StepWaitUpdates),
+        new MotherBrainBottomTubeDrop(MotherBrainTubePiece.BottomMiddleLeft,
+            new(new(6, 10), MotherBrainRoomMutation.ClearBottomMiddleSideTube), StepWaitUpdates),
+        new MotherBrainTopTubeDrop(RoomEnemyProjectileKind.MotherBrainTopMiddleLeftTube, MotherBrainTopTubeSegment.TopMiddleLeft, new(120, 59),
+            new(new(7, 2), MotherBrainRoomMutation.ClearCeilingTube), StepWaitUpdates),
+        new MotherBrainTopTubeDrop(RoomEnemyProjectileKind.MotherBrainTopMiddleRightTube, MotherBrainTopTubeSegment.TopMiddleRight, new(136, 59),
+            new(new(8, 2), MotherBrainRoomMutation.ClearCeilingTube), StepWaitUpdates),
+        new MotherBrainBottomTubeDrop(MotherBrainTubePiece.BottomMiddleRight,
+            new(new(9, 10), MotherBrainRoomMutation.ClearBottomMiddleSideTube), MainTubeWaitUpdates),
+        new MotherBrainBottomTubeDrop(MotherBrainTubePiece.Main,
+            new(new(7, 7), MotherBrainRoomMutation.ClearBottomMiddleTubes), AfterLastClearUpdates),
+    ];
 
     /// <summary>The gravity a falling tube gains each update.</summary>
     internal static readonly SignedEightEight TubeGravity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(6);

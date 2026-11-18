@@ -111,7 +111,7 @@ internal static class RidleyMovementTargetsVerification
             AssertEqual(Expected(x, pogoSide[RidleyNativeWords.Facings.Word(facing)], 16), state.Flight.Velocity.X.RawValue, "Pogo side target reaches motion");
             state.Flight.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(0), new SignedEightEight(0));
             state.Phase = NorfairRidleyPhase.CarryRelease;
-            state.PhaseTimer.Count = 1;
+            state.PhaseTimer.LastFor(2);
             run(place, state, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), 0, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
             AssertEqual(Expected(x, release[RidleyNativeWords.Facings.Word(facing)], 16), state.Flight.Velocity.X.RawValue, "Carry release target reaches motion");
         }

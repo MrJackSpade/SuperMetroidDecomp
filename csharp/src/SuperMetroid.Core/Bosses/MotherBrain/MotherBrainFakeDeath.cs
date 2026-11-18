@@ -102,122 +102,48 @@ internal sealed class MotherBrainFakeDeath
         _motherBrainEncounter.RequestBodySound(EnemySound.SmallExplosion);
     }
 
-    /// <summary>Schedules glass and tube collapse phases with their authored waits.</summary>
-    /// <remarks>Every spawn after the first waits until its timer runs out, so each waits out the
-    /// wait its preceding clear step started.</remarks>
+    /// <summary>
+    /// Drops the tubes about her tank in turn (<see cref="MotherBrainTubeCollapseDefinitions.Drops"/>): each tube falls,
+    /// and on the next update the room is cleared where it stood and the wait before the next tube starts.
+    /// </summary>
+    /// <remarks>
+    /// The first tube falls once enough enemy projectiles are free; every later tube waits out the wait its predecessor's
+    /// clear started.
+    /// </remarks>
+    /// <exception cref="InvalidOperationException">Her fake death has not started the collapse.</exception>
     internal void RunMotherBrainTubeCollapse(MotherBrainEnemyState state)
     {
-        switch (state.TubeCollapseStep)
+        MotherBrainTubeCollapseProgress progress = state.TubeCollapse ??
+            throw new InvalidOperationException("Mother Brain's tube collapse ran before her fake death started it.");
+        if (progress.Tube is not { } tube)
+            return;
+
+        MotherBrainTubeDrop drop = tube.Entry;
+        if (progress.Stage == MotherBrainTubeDropStage.Standing)
         {
-            case MotherBrainTubeCollapseStep.SpawnBottomLeftTube:
-                if (_projectiles.EnemyProjectiles.Count(projectile => !projectile.IsActive) < MotherBrainTubeCollapseDefinitions.FreeProjectilesNeeded)
-                    return;
-                SpawnMotherBrainFallingTube(state, MotherBrainTubePiece.BottomLeft);
-                state.TubeCollapseStep = MotherBrainTubeCollapseStep.ClearBottomLeftTube;
+            bool falls = tube.Place == 0
+                ? _projectiles.EnemyProjectiles.Count(projectile => !projectile.IsActive) >= MotherBrainTubeCollapseDefinitions.FreeProjectilesNeeded
+                : state.TubeCollapseTimer.StepRunsOut();
+            if (!falls)
                 return;
-
-            case MotherBrainTubeCollapseStep.ClearBottomLeftTube:
-                RequestMotherBrainTubeObject(state, MotherBrainTubeCollapseDefinitions.BottomLeftTubeBlocks,
-                    MotherBrainTubeCollapseStep.SpawnTopRightTube, MotherBrainTubeCollapseDefinitions.StepWaitUpdates);
-                return;
-            case MotherBrainTubeCollapseStep.SpawnTopRightTube:
-                if (!state.TubeCollapseTimer.StepRunsOut())
-                    return;
-                SpawnMotherBrainTopTube(RoomEnemyProjectileKind.MotherBrainTopRightTube, MotherBrainTopTubeSegment.TopRight, MotherBrainTubeCollapseDefinitions.TopRightTubeStart);
-                state.TubeCollapseStep = MotherBrainTubeCollapseStep.ClearTopRightTube;
-                return;
-            case MotherBrainTubeCollapseStep.ClearTopRightTube:
-                RequestMotherBrainTubeObject(state, MotherBrainTubeCollapseDefinitions.TopRightTubeCeiling,
-                    MotherBrainTubeCollapseStep.SpawnTopLeftTube, MotherBrainTubeCollapseDefinitions.StepWaitUpdates);
-                return;
-            case MotherBrainTubeCollapseStep.SpawnTopLeftTube:
-                if (!state.TubeCollapseTimer.StepRunsOut())
-                    return;
-                SpawnMotherBrainTopTube(RoomEnemyProjectileKind.MotherBrainTopLeftTube, MotherBrainTopTubeSegment.TopLeft, MotherBrainTubeCollapseDefinitions.TopLeftTubeStart);
-                state.TubeCollapseStep = MotherBrainTubeCollapseStep.ClearTopLeftTube;
-                return;
-            case MotherBrainTubeCollapseStep.ClearTopLeftTube:
-                RequestMotherBrainTubeObject(state, MotherBrainTubeCollapseDefinitions.TopLeftTubeCeiling,
-                    MotherBrainTubeCollapseStep.SpawnBottomRightTube, MotherBrainTubeCollapseDefinitions.StepWaitUpdates);
-                return;
-            case MotherBrainTubeCollapseStep.SpawnBottomRightTube:
-                if (!state.TubeCollapseTimer.StepRunsOut())
-                    return;
-                SpawnMotherBrainFallingTube(state, MotherBrainTubePiece.BottomRight);
-                state.TubeCollapseStep = MotherBrainTubeCollapseStep.ClearBottomRightTube;
-                return;
-            case MotherBrainTubeCollapseStep.ClearBottomRightTube:
-                RequestMotherBrainTubeObject(state, MotherBrainTubeCollapseDefinitions.BottomRightTubeBlocks,
-                    MotherBrainTubeCollapseStep.SpawnBottomMiddleLeftTube, MotherBrainTubeCollapseDefinitions.StepWaitUpdates);
-                return;
-            case MotherBrainTubeCollapseStep.SpawnBottomMiddleLeftTube:
-                if (!state.TubeCollapseTimer.StepRunsOut())
-                    return;
-                SpawnMotherBrainFallingTube(state, MotherBrainTubePiece.BottomMiddleLeft);
-                state.TubeCollapseStep = MotherBrainTubeCollapseStep.ClearBottomMiddleLeftTube;
-                return;
-            case MotherBrainTubeCollapseStep.ClearBottomMiddleLeftTube:
-                RequestMotherBrainTubeObject(state, MotherBrainTubeCollapseDefinitions.BottomMiddleLeftTubeBlocks,
-                    MotherBrainTubeCollapseStep.SpawnTopMiddleLeftTube, MotherBrainTubeCollapseDefinitions.StepWaitUpdates);
-                return;
-            case MotherBrainTubeCollapseStep.SpawnTopMiddleLeftTube:
-                if (!state.TubeCollapseTimer.StepRunsOut())
-                    return;
-                SpawnMotherBrainTopTube(RoomEnemyProjectileKind.MotherBrainTopMiddleLeftTube, MotherBrainTopTubeSegment.TopMiddleLeft, MotherBrainTubeCollapseDefinitions.TopMiddleLeftTubeStart);
-                state.TubeCollapseStep = MotherBrainTubeCollapseStep.ClearTopMiddleLeftTube;
-                return;
-            case MotherBrainTubeCollapseStep.ClearTopMiddleLeftTube:
-                RequestMotherBrainTubeObject(state, MotherBrainTubeCollapseDefinitions.TopMiddleLeftTubeCeiling,
-                    MotherBrainTubeCollapseStep.SpawnTopMiddleRightTube, MotherBrainTubeCollapseDefinitions.StepWaitUpdates);
-                return;
-            case MotherBrainTubeCollapseStep.SpawnTopMiddleRightTube:
-                if (!state.TubeCollapseTimer.StepRunsOut())
-                    return;
-                SpawnMotherBrainTopTube(RoomEnemyProjectileKind.MotherBrainTopMiddleRightTube, MotherBrainTopTubeSegment.TopMiddleRight, MotherBrainTubeCollapseDefinitions.TopMiddleRightTubeStart);
-                state.TubeCollapseStep = MotherBrainTubeCollapseStep.ClearTopMiddleRightTube;
-                return;
-            case MotherBrainTubeCollapseStep.ClearTopMiddleRightTube:
-                RequestMotherBrainTubeObject(state, MotherBrainTubeCollapseDefinitions.TopMiddleRightTubeCeiling,
-                    MotherBrainTubeCollapseStep.SpawnBottomMiddleRightTube, MotherBrainTubeCollapseDefinitions.StepWaitUpdates);
-                return;
-            case MotherBrainTubeCollapseStep.SpawnBottomMiddleRightTube:
-                if (!state.TubeCollapseTimer.StepRunsOut())
-                    return;
-                SpawnMotherBrainFallingTube(state, MotherBrainTubePiece.BottomMiddleRight);
-                state.TubeCollapseStep = MotherBrainTubeCollapseStep.ClearBottomMiddleRightTube;
-                return;
-            case MotherBrainTubeCollapseStep.ClearBottomMiddleRightTube:
-                RequestMotherBrainTubeObject(state, MotherBrainTubeCollapseDefinitions.BottomMiddleRightTubeBlocks,
-                    MotherBrainTubeCollapseStep.SpawnMainTube, MotherBrainTubeCollapseDefinitions.MainTubeWaitUpdates);
-                return;
-            case MotherBrainTubeCollapseStep.SpawnMainTube:
-                if (!state.TubeCollapseTimer.StepRunsOut())
-                    return;
-                SpawnMotherBrainFallingTube(state, MotherBrainTubePiece.Main);
-                state.TubeCollapseStep = MotherBrainTubeCollapseStep.ClearBottomMiddleTubes;
-                return;
-            case MotherBrainTubeCollapseStep.ClearBottomMiddleTubes:
-                RequestMotherBrainTubeObject(state, MotherBrainTubeCollapseDefinitions.BottomMiddleTubesBlocks,
-                    MotherBrainTubeCollapseStep.Finished, 1);
-                return;
-            case MotherBrainTubeCollapseStep.Finished:
-                return;
-            default:
-                throw new InvalidDataException(
-                    $"Mother Brain tube has no behaviour for tube collapse step {state.TubeCollapseStep}.");
+            switch (drop)
+            {
+                case MotherBrainBottomTubeDrop bottom:
+                    SpawnMotherBrainFallingTube(state, bottom.Piece);
+                    break;
+                case MotherBrainTopTubeDrop top:
+                    SpawnMotherBrainTopTube(top.Kind, top.Segment, top.Start);
+                    break;
+                default:
+                    throw new InvalidOperationException($"Mother Brain's tube collapse cannot drop {drop}.");
+            }
+            state.TubeCollapse = new(tube, MotherBrainTubeDropStage.Fallen);
+            return;
         }
-    }
 
-    /// <summary>Queues the room block change at the tube's location.</summary>
-    private void RequestMotherBrainTubeObject(
-        MotherBrainEnemyState state,
-        RoomObjectSpawnRequest<MotherBrainRoomMutation> blocks,
-        MotherBrainTubeCollapseStep next,
-        int updates)
-    {
-        _access.RequestMotherBrainObject(blocks.Block, blocks.RoomObject);
-        state.TubeCollapseStep = next;
-        state.TubeCollapseTimer.LastFor(updates);
+        _access.RequestMotherBrainObject(drop.Clears.Block, drop.Clears.RoomObject);
+        state.TubeCollapseTimer.LastFor(drop.WaitAfterUpdates);
+        state.TubeCollapse = new(tube.Following, MotherBrainTubeDropStage.Standing);
     }
 
     /// <summary>Spawns the top tube projectile of <paramref name="kind"/>, falling as <paramref name="tube"/> shows, for the scripted collapse.</summary>
@@ -243,12 +169,6 @@ internal sealed class MotherBrainFakeDeath
     {
         // The bound source supplies the fixed cutscene placement; rooms resolve it from the loaded definitions.
         RoomEnemyPlacement population = _room.Definitions.ReadFallingTubePopulation(piece);
-        if (population.DefinitionId != EnemyDefinitionId.MotherBrainTubes)
-        {
-            throw new InvalidDataException(
-                $"Mother Brain tube population entry for {piece} names enemy " +
-                $"{population.DefinitionId}, not the falling tube.");
-        }
 
         // A spawn quietly does nothing when all 32 enemy places are occupied.
         // Each tube holds the encounter that spawned it from its setup (#2218).
@@ -262,13 +182,14 @@ internal sealed class MotherBrainFakeDeath
         MotherBrainTubePiece piece = settings.Piece;
         MotherBrainFallingTubeDefinition tubeBody = MotherBrainFallingTubeBody(piece);
         tube.Radius = tubeBody.Radius;
-        var state = new MotherBrainFallingTubeState(piece, piece == MotherBrainTubePiece.Main
-            ? MotherBrainTubeAction.WaitingToFall
-            : MotherBrainTubeAction.NonMainTube)
+        bool main = piece == MotherBrainTubePiece.Main;
+        var state = new MotherBrainFallingTubeState(piece, main ? MotherBrainTubeAction.WaitingToFall : MotherBrainTubeAction.NonMainTube)
         {
             FloorY = tubeBody.Floor,
-            FallDelay = { Count = settings.FallDelay },
         };
+        // Only the main tube waits before it falls; the side tubes fall from their first update.
+        if (main)
+            state.FallDelay.LastFor(MotherBrainFallingTubePopulationDefinitions.MainFallWaitUpdates);
         tube.SetSpeciesState(state);
     }
 
@@ -348,7 +269,7 @@ internal sealed class MotherBrainFakeDeath
         state.UpperNeckAngle = MotherBrainNeckJointDefinitions.InitialUpperAngle;
         state.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Steady;
         state.AscentPhase = MotherBrainAscentPhase.DrawMural;
-        state.MuralRowsDrawn = 0;
+        state.NextMuralRow = MotherBrainMuralRow.First;
         ExplodeMotherBrainTube(tube);
     }
 
@@ -361,9 +282,9 @@ internal sealed class MotherBrainFakeDeath
             return;
 
         tubeState.SmokeDelay.LastFor(MotherBrainTubeCollapseDefinitions.SmokeIntervalUpdates);
-        tubeState.SmokePositionIndex = (tubeState.SmokePositionIndex + 1) % MotherBrainTubeCollapseDefinitions.SmokeXOffsets.Count;
+        tubeState.SmokePuff = tubeState.SmokePuff.NextInCycle;
         _projectiles.SpawnDustOrExplosion(
-            new(tube.Position.X.Whole + MotherBrainTubeCollapseDefinitions.SmokeXOffsets[tubeState.SmokePositionIndex], MotherBrainTubeCollapseDefinitions.SmokeY),
+            new(tube.Position.X.Whole + tubeState.SmokePuff.Entry, MotherBrainTubeCollapseDefinitions.SmokeY),
             DustExplosionAnimation.SmallDustCloud);
     }
 
@@ -382,15 +303,14 @@ internal sealed class MotherBrainFakeDeath
     /// </summary>
     internal void DrawNextMuralRows(MotherBrainEnemyState state)
     {
-        int drawn = state.MuralRowsDrawn;
-        for (int row = drawn; row < drawn + MotherBrainMuralDefinitions.RowsEachUpdate; row++)
+        ListStep<MotherBrainMuralRow>? row = state.NextMuralRow;
+        for (int drawn = 0; drawn < MotherBrainMuralDefinitions.RowsEachUpdate && row is { } shown; drawn++)
         {
-            _access.RequestMotherBrainObject(
-                new(MotherBrainMuralDefinitions.Column, MotherBrainMuralDefinitions.TopBlockRow + row),
-                MotherBrainRoomMutation.RevealMuralRow);
+            _access.RequestMuralRowReveal(shown.Entry);
+            row = shown.Following;
         }
-        state.MuralRowsDrawn = drawn + MotherBrainMuralDefinitions.RowsEachUpdate;
-        if (state.MuralRowsDrawn == MotherBrainMuralDefinitions.RowCount)
+        state.NextMuralRow = row;
+        if (row is null)
             state.AscentPhase = MotherBrainAscentPhase.SetupPhase2Graphics;
     }
 

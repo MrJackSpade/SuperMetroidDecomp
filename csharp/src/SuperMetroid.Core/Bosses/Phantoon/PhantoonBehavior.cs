@@ -96,7 +96,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Colours.Show(PhantoonBodyLook.Black);
 
         state.PhaseTimer = PhantoonTimerDefinitions.InitialFlameDelayFrames;
-        state.StartingFlames.NextFlame = 0;
+        state.StartingFlames.NextFlame = PhantoonStartingFlamesState.First;
         state.StartingFlames.Orbiting = false;
         body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
         StartPhantoonPart(state.BodyPart);
@@ -164,7 +164,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void ResetPhantoonMouthControls(PhantoonEnemyState state)
     {
         state.BodyVisibilityRequest = PhantoonBodyVisibilityRequest.Hide;
-        state.CasualFlames.Remaining = null;
+        state.CasualFlames.NextFlame = null;
     }
 
     /// <summary>Runs Phantoon's encounter phase for one update.</summary>
@@ -346,8 +346,8 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (cue)
         {
             case PhantoonPartCue.PlayMaterializationSound:
-                _audio.RequestPhantoonMaterializationSound(state.NextMaterializationSound);
-                state.NextMaterializationSound = PhantoonSounds.MaterializationSoundAfter(state.NextMaterializationSound);
+                _audio.RequestPhantoonMaterializationSound(state.NextMaterializationSound.Entry);
+                state.NextMaterializationSound = state.NextMaterializationSound.NextInCycle;
                 return;
 
             case PhantoonPartCue.BeginEyeTracking:

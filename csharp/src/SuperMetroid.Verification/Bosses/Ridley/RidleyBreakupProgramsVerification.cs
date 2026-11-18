@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.World.Artwork;
@@ -34,7 +35,8 @@ internal static class RidleyBreakupProgramsVerification
         var process = new Action<RoomEnemyPlace, SamusState, RoomLevelData, Position16<RoomPixels>, GameplayAction>(EnemyAnimationPlayer.AdvanceAnimation);
         var body = enemies.Places.InUpdateOrder[0];
         body.Bind(EnemyDefinitionId.Ridley, body.Definition);
-        var state = new NorfairRidleyState { GrabState = RidleyGrabState.CarryingSamus, PhaseTimer = { Count = 0 } };
+        var state = new NorfairRidleyState { GrabState = RidleyGrabState.CarryingSamus };
+        state.PhaseTimer.LastFor(1);
         RidleyTailFixtures.BlankLinks(state.Tail);
         foreach (RidleyTailLink link in state.Tail.Links)
             link.Position = new Position16<RoomPixels>(128, 128);
@@ -63,7 +65,9 @@ internal static class RidleyBreakupProgramsVerification
             ushort expectedPointer = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(RidleyNativeListAddresses.BodyBankNumber << 16 | operand);
             var fragment = fragments[0];
             RidleyExplosionFragmentState spawned = fragment.RequireSpeciesState<RidleyExplosionFragmentState>();
-            fragment.SetSpeciesState(new RidleyExplosionFragmentState { Velocity = spawned.Velocity, Lifetime = { Count = spawned.Lifetime.Count }, Picture = frame });
+            var copied = new RidleyExplosionFragmentState { Velocity = spawned.Velocity, Picture = frame };
+            PrivateState.Set(copied.Lifetime, nameof(BossCountdown.Count), spawned.Lifetime.Count);
+            fragment.SetSpeciesState(copied);
             fragment.AnimationClock.StepOnNextUpdate();
             process(fragment, RoomEnemyFrameFixtures.StandaloneSamus(), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Position16<RoomPixels>.Zero, 0);
             AssertEqual(expectedPointer, fragment.SpritemapPointer, "breakup selects native sprite");
@@ -85,7 +89,7 @@ internal static class RidleyBreakupProgramsVerification
         ushort deathX = expiring.Position.X.Whole, deathY = expiring.Position.Y.Whole;
         RidleyExplosionFragmentState expiringState = expiring.SpeciesState<RidleyExplosionFragmentState>()
             ?? throw new InvalidOperationException("The spawned fragment has no state.");
-        expiringState.Lifetime.Count = 0;
+        expiringState.Lifetime.LastFor(1);
         expiringState.Velocity = default;
         expiring.Position = expiring.Position.WithFractionX(0).WithFractionY(0);
         enemies.NorfairRidleyBehavior.Death.RunNorfairRidleyExplosionMain(expiring, RoomEnemyFrameFixtures.StandaloneSamus());

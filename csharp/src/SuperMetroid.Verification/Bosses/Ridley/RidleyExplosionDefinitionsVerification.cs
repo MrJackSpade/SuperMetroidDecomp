@@ -140,7 +140,8 @@ internal static class RidleyExplosionDefinitionsVerification
 
             RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
             body.Position = body.Position.WithWhole(new(0xfff8, 0x0008));
-            var state = new NorfairRidleyState { DeathExplosionTimer = { Count = 0 }, NextDeathExplosion = ListStep<Offset16<RoomPixels>>.At(DeathExplosionScatterDefinitions.Offsets, selectedIndex) };
+            var state = new NorfairRidleyState { NextDeathExplosion = ListStep<Offset16<RoomPixels>>.At(DeathExplosionScatterDefinitions.Offsets, selectedIndex) };
+            state.DeathExplosionTimer.LastFor(1);
 
             spawn(body, state);
 

@@ -42,18 +42,18 @@ internal static class NativeSnapshotMotherBrainImport
         state.BodyPlacement = BodyPlacementOf(state);
         state.HitboxesEnabled = MotherBrainHitboxPartsCodec.FromNativeWord(W(MotherBrainMemory.HitboxesEnabled));
         state.BrainAction = MotherBrainNativeListAddresses.NativeBrainActions[W(MotherBrainMemory.BrainFunction)];
-        state.PhaseTimer.Count = CoordinateAxis.AsSigned(W(MotherBrainMemory.BodyFunctionTimer));
+        PrivateState.Set(state.PhaseTimer, nameof(BossCountdown.Count), CoordinateAxis.AsSigned(W(MotherBrainMemory.BodyFunctionTimer)));
         ushort flash = W(MotherBrainMemory.RoomPaletteAnimationScript);
         state.RoomFlashImage = flash == 0 ? null
             : MotherBrainRoomFlashImage.All[MotherBrainNativeListAddresses.RoomFlashRecords.Single(record => unchecked((ushort)record.Record) == flash).Frame];
         state.RoomFlashTimer = W(MotherBrainMemory.RoomPaletteFrameHold);
         // The sub-function word is shared: outside the tube collapse it holds the death-explosion interval timer
         // (imported below), so only a collapse routine pointer decodes to a collapse function.
-        if (MotherBrainNativeListAddresses.NativeTubeCollapseSteps.TryGetValue(W(MotherBrainMemory.BrainSubFunction), out MotherBrainTubeCollapseStep collapse))
-            state.TubeCollapseStep = collapse;
-        state.TubeCollapseTimer.Count = CoordinateAxis.AsSigned(W(MotherBrainMemory.BrainSubFunctionTimer));
+        if (MotherBrainNativeListAddresses.DecodeTubeCollapse(W(MotherBrainMemory.BrainSubFunction)) is { } collapse)
+            state.TubeCollapse = collapse;
+        PrivateState.Set(state.TubeCollapseTimer, nameof(BossCountdown.Count), CoordinateAxis.AsSigned(W(MotherBrainMemory.BrainSubFunctionTimer)));
         PrivateState.Set(state.Bursts, nameof(MotherBrainBurstCycle.Place), CoordinateAxis.AsSigned(W(MotherBrainMemory.BrainSubFunctionTimer)));
-        state.FakeDeathExplosionTimer.Count = CoordinateAxis.AsSigned(W(MotherBrainMemory.FakeDeathExplosionTimer));
+        PrivateState.Set(state.FakeDeathExplosionTimer, nameof(BossCountdown.Count), CoordinateAxis.AsSigned(W(MotherBrainMemory.FakeDeathExplosionTimer)));
         // The recorded place is the position the last explosion took, counted in the order the game stepped back through
         // them; the positions are listed in the order they burst, so the next is the one after it there.
         int lastExplosion = W(MotherBrainMemory.FakeDeathExplosionIndex);

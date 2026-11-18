@@ -7,9 +7,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal static class MotherBrainRoomMutationDefinitions
 {
     /// <summary>
-    /// The change each mutation other than <see cref="MotherBrainRoomMutation.RevealMuralRow"/> makes: its layout, drawn on the
-    /// mutation's first update; it is gone on the next. A mural row's reveal draws the row at its block
-    /// (<see cref="MotherBrainRoomObjects.Change"/>).
+    /// The change each mutation makes: its layout, drawn on the mutation's first update; it is gone on the next.
     /// </summary>
     internal static readonly IReadOnlyDictionary<MotherBrainRoomMutation, TerrainChange> Changes =
         new Dictionary<MotherBrainRoomMutation, TerrainChange>

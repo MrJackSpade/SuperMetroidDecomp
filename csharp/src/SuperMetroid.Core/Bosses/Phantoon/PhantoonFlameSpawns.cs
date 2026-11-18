@@ -12,15 +12,11 @@ public static class PhantoonFlameSpawns
     /// <summary>The spiral flames' start angles, in the order they spawn.</summary>
     internal static IReadOnlyList<TrigonometryAngle> SpiralStarts => PhantoonFlameSpawnDefinitions.SpiralStarts;
 
-    /// <summary>The intro's starting flames.</summary>
-    internal static int StartingFlameCount => PhantoonFlameSpawnDefinitions.StartingFlameStarts.Length;
+    /// <summary>The intro's starting flames' start angles, in the order they appear.</summary>
+    internal static IReadOnlyList<TrigonometryAngle> StartingFlameStarts => PhantoonFlameSpawnDefinitions.StartingFlameStarts;
 
-    /// <summary>The start angle of the intro's starting flame <paramref name="order"/>, zero (the first to appear) through seven.</summary>
-    internal static TrigonometryAngle StartingFlameStart(int order) =>
-        At(PhantoonFlameSpawnDefinitions.StartingFlameStarts, order, nameof(order));
-
-    /// <summary>The screen X of rain column <paramref name="column"/>, zero through eight.</summary>
-    public static int RainX(int column) => At(PhantoonFlameSpawnDefinitions.RainXs, column, nameof(column));
+    /// <summary>The rain columns' screen Xs, left to right.</summary>
+    internal static IReadOnlyList<int> RainXs => PhantoonFlameSpawnDefinitions.RainXs;
 
     /// <summary>
     /// The turn a rage flame starting at <paramref name="start"/> makes each update: the rage turn clockwise, or the same
@@ -32,8 +28,4 @@ public static class PhantoonFlameSpawns
         RotationDirection.Counterclockwise => TrigonometryAngle.Zero - PhantoonFlameMotionDefinitions.RageTurnPerUpdate,
         _ => throw new ArgumentOutOfRangeException(nameof(start), start.Turn, $"Undefined {nameof(RotationDirection)}."),
     };
-
-    /// <summary>Reads one authored value, rejecting a position outside the table.</summary>
-    private static T At<T>(T[] table, int position, string name) =>
-        (uint)position < (uint)table.Length ? table[position] : throw new ArgumentOutOfRangeException(name);
 }

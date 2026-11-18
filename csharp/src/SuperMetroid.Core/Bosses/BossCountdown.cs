@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses;
 public sealed class BossCountdown
 {
     /// <summary>The count before the step that runs the countdown out: the updates it lasts are one more.</summary>
-    public int Count { get; internal set; }
+    public int Count { get; private set; }
 
     /// <summary>Starts the countdown so that it runs out on the step of its <paramref name="updates"/>th update.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The countdown would last no update.</exception>

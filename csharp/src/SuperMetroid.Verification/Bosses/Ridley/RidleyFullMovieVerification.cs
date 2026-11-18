@@ -52,7 +52,7 @@ internal static class RidleyFullMovieVerification
         {
             runtime.System.SetRandomNumber((ushort)sample.First);
             (state ?? throw new InvalidOperationException("Verification requires state.")).Flight.Roaring = sample.Second; state.Flight.FacingDirection = sample.Third;
-            state.PhaseTimer.Count = 20; samus.Pose = SamusPoseId.SpinJumpRightPose;
+            state.PhaseTimer.LastFor(21); samus.Pose = SamusPoseId.SpinJumpRightPose;
             state.Flight.BodyPlayback = pointers.BodyPlaybackAt(NativeSnapshotMemory.RidleyRightFlyingSleep, state.Flight.FacingDirection);
             body.AnimationClock.HoldFor(9);
             runtime.Enemies.NorfairRidleyBehavior.Combat.TickNorfairRidleyWallSweep(body, state, samus, RidleyWallSweepTarget.WallBehind);
@@ -78,7 +78,7 @@ internal static class RidleyFullMovieVerification
         body.Processing = EnemyProcessing.OffScreen | EnemyProcessing.Animates;
         body.Presence = EnemyPresence.None;
         (state ?? throw new InvalidOperationException("Verification requires state.")).FightMode = RidleyFightMode.Fighting; state.MovementAnimationEnabled = true; state.Flight.FacingDirection = RidleyFacing.Left;
-        state.Phase = NorfairRidleyPhase.CarryRelease; state.PhaseTimer.Count = 10;
+        state.Phase = NorfairRidleyPhase.CarryRelease; state.PhaseTimer.LastFor(11);
         state.Flight.Velocity = state.Flight.Velocity.WithX(new SignedEightEight(0xfc00)); state.Flight.Velocity = state.Flight.Velocity.WithY(new SignedEightEight(0x0300));
         state.Tail.Action = RidleyTailAction.None;
         samus.Position = samus.Position.WithWhole(new(110, 300)); samus.Pose = SamusPoseId.NormalJumpAimDiagonalUpRightPose;
@@ -102,7 +102,7 @@ internal static class RidleyFullMovieVerification
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Ridley);
         var body = runtime.Enemies.Places.InUpdateOrder[0]; var state = runtime.Enemies.NorfairRidley();
-        (state ?? throw new InvalidOperationException("Verification requires state.")).Phase = NorfairRidleyPhase.SwoopSetup; state.PhaseTimer.Count = 112;
+        (state ?? throw new InvalidOperationException("Verification requires state.")).Phase = NorfairRidleyPhase.SwoopSetup; state.PhaseTimer.LastFor(113);
         body.Position = body.Position.WithWhole(new(212, 200)); state.Flight.FacingDirection = RidleyFacing.Right;
         runtime.Enemies.NorfairRidleyBehavior.RunNorfairRidleyPhase(body, state, runtime.Player.IntroducedSamus, 0, runtime.Room.LevelData ?? throw new InvalidOperationException("The runtime has no loaded room."), runtime.BombProjectiles.PowerBombExplosion);
         AssertEqual(112, state.PhaseTimer.Count, "native swoop setup retains general AI timer");
@@ -125,7 +125,7 @@ internal static class RidleyFullMovieVerification
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Ridley);
         var body = runtime.Enemies.Places.InUpdateOrder[0]; var state = runtime.Enemies.NorfairRidley();
-        (state ?? throw new InvalidOperationException("Verification requires state.")).Phase = NorfairRidleyPhase.DeathFinish; state.PhaseTimer.Count = 0;
+        (state ?? throw new InvalidOperationException("Verification requires state.")).Phase = NorfairRidleyPhase.DeathFinish; state.PhaseTimer.LastFor(1);
         runtime.Enemies.NorfairRidleyBehavior.RunNorfairRidleyPhase(body, state, runtime.Player.IntroducedSamus, 0, runtime.Room.LevelData ?? throw new InvalidOperationException("The runtime has no loaded room."), runtime.BombProjectiles.PowerBombExplosion);
         AssertEqual(NorfairRidleyPhase.DeathComplete, state.Phase, "death finish selects native C600 return");
         AssertTrue(body.Presence.HasAny(EnemyPresence.Deleted), "death finish publishes deletion");
@@ -182,7 +182,7 @@ internal static class RidleyFullMovieVerification
         // Source10132 takes the zero-health branch, whose JMP executes C538 immediately.
         body.Position = new(new(134, 0x7d00), new(356, 0xec00)); body.Health = 0;
         state.Flight.Velocity = state.Flight.Velocity.WithX(new SignedEightEight(0x1de)); state.Flight.Velocity = state.Flight.Velocity.WithY(new SignedEightEight(0x419));
-        state.FightMode = RidleyFightMode.Fighting; state.GrabState = RidleyGrabState.Released; state.PhaseTimer.Count = 0x29;
+        state.FightMode = RidleyFightMode.Fighting; state.GrabState = RidleyGrabState.Released; state.PhaseTimer.LastFor(0x2A);
         samus.Position = samus.Position.WithWhole(new(134, 411)); samus.Pose = SamusPoseId.FacingRightNormalPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         NorfairRidleyCombat.TickNorfairRidleyGrabApproach(body, state, samus, runtime.BombProjectiles.PowerBombExplosion);
@@ -192,7 +192,7 @@ internal static class RidleyFullMovieVerification
         AssertEqual(0x29, state.PhaseTimer.Count, "death entry retains existing general countdown");
         foreach (var phase in new[] { NorfairRidleyPhase.CarryRise, NorfairRidleyPhase.CarryRelease })
         {
-            state.Phase = phase; state.PhaseTimer.Count = 0;
+            state.Phase = phase; state.PhaseTimer.LastFor(1);
             state.Flight.Velocity = state.Flight.Velocity.WithX(new SignedEightEight(0xffca)); state.Flight.Velocity = state.Flight.Velocity.WithY(new SignedEightEight(0xfecb));
             state.Target = state.Target.WithX(208); body.Position = body.Position.WithWhole(new(212, 142));
             runtime.Enemies.NorfairRidleyBehavior.RunNorfairRidleyPhase(body, state, samus, 0, runtime.Room.LevelData, runtime.BombProjectiles.PowerBombExplosion);
@@ -620,7 +620,8 @@ internal static class RidleyFullMovieVerification
             AssertEqual(expected, pointers.Body(state.Flight), $"native center-facing instruction at {sample.X:X4}, facing {sample.Facing}");
             AssertEqual(sample.Turn ? (ushort)2 : (ushort)7, place.AnimationClock.Hold.RawValue, "turn timer changes only when native condition is met");
         }
-        var hoverState = new NorfairRidleyState { PhaseTimer = { Count = 0 }, Phase = NorfairRidleyPhase.Hover };
+        var hoverState = new NorfairRidleyState { Phase = NorfairRidleyPhase.Hover };
+        hoverState.PhaseTimer.LastFor(1);
         NorfairRidleyCombat.TickNorfairRidleyHover(new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()), hoverState);
         AssertEqual(-1, hoverState.PhaseTimer.Count, "native hover counts zero one update past it before selecting next attack");
         AssertEqual(NorfairRidleyPhase.SelectAttack, hoverState.Phase, "negative hover timer exits before movement");

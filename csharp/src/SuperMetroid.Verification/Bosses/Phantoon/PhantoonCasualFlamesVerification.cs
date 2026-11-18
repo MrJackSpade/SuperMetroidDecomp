@@ -19,12 +19,12 @@ internal static class PhantoonCasualFlamesVerification
             int pointer = 0xa70000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7ccfd + pattern * 2));
             PhantoonCasualFlameSchedule compiled = PhantoonCasualFlameDefinitions.Choices[pattern];
             int flames = CartridgeImportSource.Require(rom).ReadCartridgeWord(pointer);
-            AssertEqual(flames, compiled.FlameCount, "Native casual flame count");
+            AssertEqual(flames, compiled.Flames.Count, "Native casual flame count");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(pointer + 2), compiled.Cooldown, "Native casual flame cooldown");
             // The native table stores the intervals last flame first; the burst lists them first flame first.
             for (int flame = 0; flame < flames; flame++)
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(pointer + (flames + 1 - flame) * 2),
-                    compiled.Intervals[flame], "Native casual flame interval");
+                    compiled.Flames[flame].WaitBeforeUpdates, "Native casual flame interval");
         }
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
         var body = enemies.Places.InUpdateOrder[0];
@@ -40,12 +40,12 @@ internal static class PhantoonCasualFlamesVerification
         {
             random = (ushort)raw;
             state.CasualFlames.Hold = 0;
-            state.CasualFlames.Remaining = null;
+            state.CasualFlames.NextFlame = null;
             int before = calls;
             step(mouth);
             int pointer = 0xa70000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7ccfd + (raw & 3) * 2));
             AssertEqual(PhantoonCasualFlameDefinitions.Choices[raw & 3], state.CasualFlames.Schedule, "Actual casual RNG burst selector");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(pointer), state.CasualFlames.Remaining, "Actual casual initial remaining count");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(pointer), FlamesToCome(state), "Actual casual initial remaining count");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + (CartridgeImportSource.Require(rom).ReadCartridgeWord(pointer) + 1) * 2)), state.CasualFlames.Hold, "Actual casual reverse initial timer");
             AssertEqual(before + 1, calls, "Casual selection consumes exactly one RNG call");
         }
@@ -56,7 +56,7 @@ internal static class PhantoonCasualFlamesVerification
             random = (ushort)pattern;
             state.CasualFlames.Schedule = PhantoonCasualFlameDefinitions.Choices[pattern];
             state.CasualFlames.Hold = 0;
-            state.CasualFlames.Remaining = null;
+            state.CasualFlames.NextFlame = null;
             ushort timer = 0, count = 0xffff;
             int pointer = 0xa70000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7ccfd + pattern * 2));
             for (int frame = 0; frame < 2048; frame++)
@@ -89,7 +89,7 @@ internal static class PhantoonCasualFlamesVerification
                 AssertEqual(timer, state.CasualFlames.Hold, "Actual casual frame timer");
                 // The cartridge's word holds the count, or a value below zero while no burst is under way, which the
                 // mouth holds as no count (#1627).
-                AssertEqual(unchecked((short)count) < 0 ? null : unchecked((short)count), state.CasualFlames.Remaining,
+                AssertEqual(unchecked((short)count) < 0 ? null : (int?)unchecked((short)count), FlamesToCome(state),
                     "Actual casual frame remaining count");
                 AssertEqual(PhantoonPart.Starting(draw ? PhantoonPartSegment.MouthSpawnFlame : PhantoonPartSegment.MouthInitial), mouth.RequireSpeciesState<PhantoonPart>().Playback,
                     "Exact casual mouth animation trigger frame");
@@ -98,6 +98,13 @@ internal static class PhantoonCasualFlamesVerification
         }
         Console.WriteLine("Phantoon casual schedules: 30 native words, 65536 RNG selections and 8192 frame-exact mouth transitions match without a bus.");
     }
+
+    /// <summary>
+    /// The flames of the burst still to come, the next among them, as the cartridge counts them; null while no burst is
+    /// under way.
+    /// </summary>
+    private static int? FlamesToCome(PhantoonEnemyState state) =>
+        state.CasualFlames.NextFlame is { } next ? state.CasualFlames.Schedule.Flames.Count - next.Place : null;
 
     /// <summary>Runs the casual flame schedule and Phantoon sound-definition checks.</summary>
     [VerificationCommand("--lookup-stream5-phantoon-schedules")]

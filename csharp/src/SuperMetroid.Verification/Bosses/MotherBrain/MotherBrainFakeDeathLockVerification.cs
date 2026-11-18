@@ -30,7 +30,7 @@ internal static class MotherBrainFakeDeathLockVerification
         samus.Control.Unlock();
         MotherBrainEnemyState state = (runtime.Enemies.BossEncounters.MotherBrain ?? throw new InvalidOperationException("Verification requires runtime.Enemies.BossEncounters.MotherBrain."));
         state.DescentPhase = MotherBrainDescentPhase.PauseBeforeLock;
-        state.PhaseTimer.Count = 0;
+        state.PhaseTimer.LastFor(1);
         // The original's lock stores to the room's second cell: in Mother Brain's row of four screens, the second screen.
         RoomScrollGrid scrolls = runtime.Room.LoadedCamera.Scrolls;
         AssertEqual(new Extent16<RoomScreens>(4, 1), scrolls.Size, "Mother Brain's room is one row of four screens");
@@ -45,7 +45,7 @@ internal static class MotherBrainFakeDeathLockVerification
                 $"the arena lock closes only the second screen, leaving screen {screen} as it was");
 
         state.DescentPhase = MotherBrainDescentPhase.PauseBeforeUnlock;
-        state.PhaseTimer.Count = 0;
+        state.PhaseTimer.LastFor(1);
         runtime.Enemies.MotherBrainBehavior.RunMotherBrainFakeDeath(state, samus);
         AssertTrue(!samus.Control.InputLocked && samus.Control.Mode.Movement != SamusMovementMode.ScriptLocked,
             "command one restores the normal handlers");
@@ -66,8 +66,8 @@ internal static class MotherBrainFakeDeathLockVerification
         MotherBrainEnemyState state = runtime.Enemies.BossEncounters.MotherBrain ??
             throw new InvalidOperationException("Verification requires runtime.Enemies.BossEncounters.MotherBrain.");
         state.DescentPhase = MotherBrainDescentPhase.FadeToGray;
-        state.PhaseTimer.Count = 100;
-        state.TubeCollapseStep = MotherBrainTubeCollapseStep.Finished;
+        state.PhaseTimer.LastFor(101);
+        state.TubeCollapse = new MotherBrainTubeCollapseProgress(Tube: null, MotherBrainTubeDropStage.Standing);
         IReadOnlyList<Position16<RoomPixels>> positions = MotherBrainTubeCollapseDefinitions.FakeDeathExplosionPositions;
         state.NextFakeDeathExplosion = SuperMetroid.Core.Bosses.ListStep<Position16<RoomPixels>>.At(positions, positions.Count - 1);
 
@@ -75,7 +75,7 @@ internal static class MotherBrainFakeDeathLockVerification
         int[] expectedNext = [0, 1];
         foreach (int expected in expectedNext)
         {
-            state.FakeDeathExplosionTimer.Count = 0;
+            state.FakeDeathExplosionTimer.LastFor(1);
             runtime.Enemies.MotherBrainBehavior.FakeDeath.RunMotherBrainFadeToGray(state);
             AssertEqual(expected, state.NextFakeDeathExplosion.Place,
                 $"an expired explosion timer moves on to position {expected}");

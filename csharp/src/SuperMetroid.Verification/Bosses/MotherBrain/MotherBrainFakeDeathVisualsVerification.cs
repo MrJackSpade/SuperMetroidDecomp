@@ -33,7 +33,7 @@ internal static class MotherBrainFakeDeathVisualsVerification
             InstalledMotherBrainFakeDeathFrames stock =
                 installation.LoadRoomObjectMotherBrainFakeDeathVisuals();
             VerifyMotherBrainStockMapping(rom, stock);
-            VerifyMotherBrainVisualDraw(new(new(MotherBrainMuralDefinitions.Column, MotherBrainMuralDefinitions.TopBlockRow + MotherBrainMuralDefinitions.RowCount - 1), MotherBrainRoomMutation.RevealMuralRow),
+            VerifyMotherBrainVisualDraw(new MotherBrainMuralRowReveal(MotherBrainMuralRow.All[^1]),
                 new(12, 0), RoomTerrainBlock.Of(0x249, BlockMirroring.None, RoomCollisionType.Slope), RoomTerrainBlock.Of(0x249, BlockMirroring.None, RoomCollisionType.Slope).Appearance,
                 stock);
 
@@ -51,7 +51,7 @@ internal static class MotherBrainFakeDeathVisualsVerification
     }
 
     /// <summary>Checks a selected mutation's physical block and redrawn visual tile with source reads guarded.</summary>
-    private static void VerifyMotherBrainVisualDraw(RoomObjectSpawnRequest<MotherBrainRoomMutation> mutation,
+    private static void VerifyMotherBrainVisualDraw(MotherBrainRoomChangeRequest mutation,
         Offset16<RoomBlocks> blockOffset, RoomTerrainBlock physical, RoomBlockAppearance visual,
         InstalledMotherBrainFakeDeathFrames visuals)
     {

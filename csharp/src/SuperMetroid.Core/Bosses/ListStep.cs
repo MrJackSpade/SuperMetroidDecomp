@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Bosses;
 
 /// <summary>
 /// One entry of an authored list a boss walks in the order the list shows (#2315): the entry, the entry after it, and the
-/// entry after it when the walk cycles, the first following the last.
+/// entries after and before it when the walk cycles, the first following the last.
 /// </summary>
 /// <typeparam name="T">The list's entries.</typeparam>
 public readonly record struct ListStep<T>
@@ -28,6 +28,9 @@ public readonly record struct ListStep<T>
 
     /// <summary>The entry after this one in a cycling walk: the list's first follows its last.</summary>
     public ListStep<T> NextInCycle => new(_list, (Place + 1) % _list.Count);
+
+    /// <summary>The entry before this one in a cycling walk run backwards: the list's last precedes its first.</summary>
+    public ListStep<T> PreviousInCycle => new(_list, (Place == 0 ? _list.Count : Place) - 1);
 
     /// <summary>The first entry of <paramref name="list"/>.</summary>
     /// <exception cref="ArgumentException">The list is empty.</exception>

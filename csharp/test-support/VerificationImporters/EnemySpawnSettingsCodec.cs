@@ -82,6 +82,23 @@ internal static class EnemySpawnSettingsCodec
 
     /// <summary>A Rinka's settings: its own placement, or the shared spawn point whose centre places a room-wide Rinka.</summary>
     /// <exception cref="InvalidDataException">A room-wide Rinka is placed at none of the spawn points.</exception>
+    /// <summary>
+    /// A falling tube's piece. Its second parameter is the count its fall wait is loaded with, which only the main tube reads:
+    /// it must be the main tube's own wait less its last update, and zero for every other piece.
+    /// </summary>
+    private static MotherBrainTubeSpawnSettings DecodeMotherBrainTube(PopulationWords words)
+    {
+        MotherBrainTubePiece piece = Bits(words.Parameter1, 1, 15) switch { 0 => MotherBrainTubePiece.BottomLeft, 1 => MotherBrainTubePiece.BottomRight, 2 => MotherBrainTubePiece.BottomMiddleLeft, 3 => MotherBrainTubePiece.BottomMiddleRight, 4 => MotherBrainTubePiece.Main, var other => throw Unmapped("Piece", other) };
+        int fallWaitCount = Bits(words.Parameter2, 0, 16);
+        if (fallWaitCount != MotherBrainTubeFallWaitCount(piece))
+            throw Unmapped("FallDelay", fallWaitCount);
+        return new MotherBrainTubeSpawnSettings(piece);
+    }
+
+    /// <summary>The count a falling tube's population entry loads its fall wait with: the main tube's wait less its last update, zero for the others.</summary>
+    private static int MotherBrainTubeFallWaitCount(MotherBrainTubePiece piece) =>
+        piece == MotherBrainTubePiece.Main ? MotherBrainFallingTubePopulationDefinitions.MainFallWaitUpdates - 1 : 0;
+
     private static RinkaSpawnSettings DecodeRinka(PopulationWords words, Position16<RoomPixels> position)
     {
         if ((words.Parameter1 & 65535) == 0)
@@ -101,7 +118,7 @@ internal static class EnemySpawnSettingsCodec
         [EnemyDefinitionId.CeresGetawayChamberWall] = words => CeresDoorHeaderSettings(EnemyDefinitionId.CeresGetawayChamberWall, words.Parameter1),
         [EnemyDefinitionId.CeresSteam] = words => new CeresSteamSpawnSettings(Variant: Bits(words.Parameter1, 0, 16) switch { 0 => CeresSteamVariant.Up, 1 => CeresSteamVariant.Left, 2 => CeresSteamVariant.Down, 3 => CeresSteamVariant.Right, 4 => CeresSteamVariant.RotatingElevatorLeft, 5 => CeresSteamVariant.RotatingElevatorRight, var other => throw Unmapped("Variant", other) }),
         [EnemyDefinitionId.TourianStatue] = words => new TourianEntranceStatueSpawnSettings(Role: Bits(words.Parameter1, 0, 16) switch { 0 => TourianEntranceStatueRole.SpawnsDecorations, 2 or 4 => TourianEntranceStatueRole.Inert, var other => throw Unmapped("Role", other) }),
-        [EnemyDefinitionId.MotherBrainTubes] = words => new MotherBrainTubeSpawnSettings(Piece: Bits(words.Parameter1, 1, 15) switch { 0 => MotherBrainTubePiece.BottomLeft, 1 => MotherBrainTubePiece.BottomRight, 2 => MotherBrainTubePiece.BottomMiddleLeft, 3 => MotherBrainTubePiece.BottomMiddleRight, 4 => MotherBrainTubePiece.Main, var other => throw Unmapped("Piece", other) }, FallDelay: Bits(words.Parameter2, 0, 16)),
+        [EnemyDefinitionId.MotherBrainTubes] = DecodeMotherBrainTube,
         [EnemyDefinitionId.Zebetite] = words => new ZebetiteSpawnSettings(Half: Bits(words.Parameter1, 0, 16) switch { 0 => ZebetiteHalf.Primary, _ => ZebetiteHalf.Linked }),
         [EnemyDefinitionId.RidleyBreakupPiece] = words => new RidleyExplosionSpawnSettings(Part: Bits(words.Parameter1, 0, 16) switch { 0 => RidleyExplosionPart.TailBase, 2 => RidleyExplosionPart.TailFirstShaftLink, 4 => RidleyExplosionPart.TailSecondShaftLink, 6 => RidleyExplosionPart.TailThirdShaftLink, 8 => RidleyExplosionPart.TailFourthShaftLink, 10 => RidleyExplosionPart.TailInnerJoint, 12 => RidleyExplosionPart.TailTip, 14 => RidleyExplosionPart.Wings, 16 => RidleyExplosionPart.Legs, 18 => RidleyExplosionPart.OpenHeadAndNeck, 20 => RidleyExplosionPart.Torso, 22 => RidleyExplosionPart.Claw, var other => throw Unmapped("Part", other) }),
         [EnemyDefinitionId.Dachora] = words => new DachoraSpawnSettings(Facing: Bits(words.Parameter1, 0, 1) switch { 0 => HorizontalDirection.Left, 1 => HorizontalDirection.Right, var other => throw Unmapped("Facing", other) }, Role: (words.Parameter1 & 32768) != 0 ? DachoraRole.SpeedBoostEcho : DachoraRole.Runner),
@@ -291,7 +308,7 @@ internal static class EnemySpawnSettingsCodec
         CeresGetawayChamberWallSpawnSettings => Checked(EnemyDefinitionId.CeresGetawayChamberWall, settings, PopulationWords.Parameters(CeresDoorHeaderSelector(EnemyDefinitionId.CeresGetawayChamberWall, settings), 0)),
         CeresSteamSpawnSettings s => Checked(EnemyDefinitionId.CeresSteam, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: ((s.Variant switch { CeresSteamVariant.Up => 0, CeresSteamVariant.Left => 1, CeresSteamVariant.Down => 2, CeresSteamVariant.Right => 3, CeresSteamVariant.RotatingElevatorLeft => 4, CeresSteamVariant.RotatingElevatorRight => 5, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0), Parameter2: 0)),
         TourianEntranceStatueSpawnSettings s => Checked(EnemyDefinitionId.TourianStatue, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: s.Role == TourianEntranceStatueRole.SpawnsDecorations ? 0 : 2, Parameter2: 0)),
-        MotherBrainTubeSpawnSettings s => Checked(EnemyDefinitionId.MotherBrainTubes, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: ((s.Piece switch { MotherBrainTubePiece.BottomLeft => 0, MotherBrainTubePiece.BottomRight => 1, MotherBrainTubePiece.BottomMiddleLeft => 2, MotherBrainTubePiece.BottomMiddleRight => 3, MotherBrainTubePiece.Main => 4, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 1), Parameter2: Place(s.FallDelay, 0, 16))),
+        MotherBrainTubeSpawnSettings s => Checked(EnemyDefinitionId.MotherBrainTubes, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: ((s.Piece switch { MotherBrainTubePiece.BottomLeft => 0, MotherBrainTubePiece.BottomRight => 1, MotherBrainTubePiece.BottomMiddleLeft => 2, MotherBrainTubePiece.BottomMiddleRight => 3, MotherBrainTubePiece.Main => 4, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 1), Parameter2: Place(MotherBrainTubeFallWaitCount(s.Piece), 0, 16))),
         // A Rinka's shared spawn point is its placement's, not its words': the words say only that it takes one.
         RinkaSpawnSettings s => new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: s.SharedSpawnPoint is null ? 0 : 1, Parameter2: 0),
         ZebetiteSpawnSettings s => Checked(EnemyDefinitionId.Zebetite, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: ((s.Half switch { ZebetiteHalf.Primary => 0, ZebetiteHalf.Linked => 2, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0), Parameter2: 0)),

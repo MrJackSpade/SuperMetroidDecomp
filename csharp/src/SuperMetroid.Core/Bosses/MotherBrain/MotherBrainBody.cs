@@ -139,8 +139,8 @@ internal sealed class MotherBrainBody
 
     /// <summary>
     /// Plays the body's animation where the shared enemy animation runs: the frame expires on the update its timer would,
-    /// and the clock notes each newly shown frame. A held animation rests: the timer wraps from zero and the last
-    /// frame stays. Before its first animation the body shows her brain's hit area for good (#2220).
+    /// and the clock notes each newly shown frame. A held animation rests: the last frame stays and the clock stops.
+    /// Before its first animation the body shows her brain's hit area for good (#2220).
     /// </summary>
     internal void AdvanceMotherBrainBodyAnimation(MotherBrainEnemyState state, SamusState samus)
     {

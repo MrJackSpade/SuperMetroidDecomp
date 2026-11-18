@@ -156,8 +156,9 @@ internal sealed class DraygonParts
                 part.AnimationClock.Pause(paused.Duration);
                 return;
             case AnimationShown<DraygonSegment, EnemyFrameId>.Held:
-                // A rest: the timer wraps from zero and the last frame stays.
+                // A rest: the last frame stays and the clock stops (#2454).
                 running.Playback = new AnimationPlayback<DraygonSegment>(animation, place);
+                part.AnimationClock.Stop();
                 return;
             case AnimationShown<DraygonSegment, EnemyFrameId>.Ended:
                 // The end deletes the part and leaves its animation's place unwritten.

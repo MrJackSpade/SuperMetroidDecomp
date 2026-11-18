@@ -37,8 +37,7 @@ internal static class EnemyDropChanceDefinitionsVerification
             AssertEqual(new EnemyDropChances(bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5]), chances,
                 $"enemy drop table ${word:X4} chances in column order");
 
-            projectile.DropChancesOverride = chances;
-            EnemyPickupKind selected = fixture.System.DeathsAndDrops.SelectRandomEnemyDrop(projectile, fixture.Samus);
+            EnemyPickupKind selected = fixture.System.DeathsAndDrops.SelectRandomEnemyDrop(chances, fixture.Samus);
             AssertTrue(Enum.IsDefined(selected), $"production enemy drop table ${word:X4} returns a defined kind");
         }
 

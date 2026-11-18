@@ -264,7 +264,7 @@ and named parameters alike (#1374). **SME6427** reports a method whose whole bod
 own type, passing a strict subset of its parameters unchanged. Both mean a delegate, interface or base shape is wider
 than the method needs, so the shape is narrowed and the real method is registered directly. An enemy's initialization
 AI takes only its slot; the few species that read the room, Samus, the controller or the camera implement
-`IEnemySurroundingsInitialization` and receive the spawn's `EnemySpawnSurroundings`. A main AI or typed animation that
+`IEnemySurroundingsInitialization` and receive the population load's `EnemyPopulationSurroundings`. A main AI or typed animation that
 needs only the slot is bound with a lambda at its entity, literal-RTL routines share `EnemyNoOpAi`, and cueless PLM
 programs derive from `RoomObjectCuelessProgramAnimation`. A method fulfilling a contract outside the repository, such as a
 `System.Text.Json` converter, says so with `[ExternalContract(reason)]`.

@@ -337,12 +337,12 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>
     /// The explosion a Powamp shot dead dies in after a burst whose last spike took pool place
     /// <paramref name="lastSpikePlace"/>, or whose spikes found the pool full when it is null: the explosion twice that
-    /// place names (<see cref="LeftoverNumberDeathExplosion"/>), so the first three places give the small, normal and big
+    /// place names (<see cref="LeftoverNumberDeathExplosion{TExplosion}"/>), so the first three places give the small, normal and big
     /// explosions and any later place, or a full pool, which leaves no explosion's number, the small one.
     /// </summary>
     /// <param name="lastSpikePlace">The zero-based pool place of the burst's last spike, or null when the pool was full.</param>
     internal static EnemyDeathExplosion ExplosionAfterBurst(int? lastSpikePlace) =>
-        LeftoverNumberDeathExplosion.Named(lastSpikePlace * 2, EnemyDeathExplosionDefinitions.AuthoredOrder);
+        EnemyDeathExplosionDefinitions.LeftoverNumbered.Named(lastSpikePlace * 2);
 
     /// <summary>Finishes a touch on a Powamp's body: when it kills the Powamp, its balloon goes and its spikes burst out.</summary>
     private void ResolvePowampTouch(RoomEnemyPlace body, SamusState samus, PseudoScrewCharge pseudoScrew)

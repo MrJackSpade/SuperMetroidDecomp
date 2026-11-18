@@ -117,7 +117,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
         // top-left corner for whatever the place now holds (nothing, or the respawn placeholder), clears that placeholder,
         // and counts a second kill.
         _deathsAndDrops.StartGenericEnemyDeath(place,
-            LeftoverNumberDeathExplosion.Named(place.Health, EnemyDeathExplosionDefinitions.AuthoredOrder), samus);
+            EnemyDeathExplosionDefinitions.LeftoverNumbered.Named(place.Health), samus);
         AdvanceFirefleaDarkness();
     }
 

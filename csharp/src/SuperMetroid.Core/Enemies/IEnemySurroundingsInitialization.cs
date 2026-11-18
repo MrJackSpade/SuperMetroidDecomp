@@ -8,5 +8,5 @@ internal interface IEnemySurroundingsInitialization : IEnemyEntity
 {
     /// <summary>Sets up the enemy just installed in the place the entity is bound to, from its surroundings.</summary>
     /// <param name="surroundings">The room, Samus, controller and camera the spawn sees.</param>
-    void Initialize(EnemySpawnSurroundings surroundings);
+    void Initialize(EnemyPopulationSurroundings surroundings);
 }

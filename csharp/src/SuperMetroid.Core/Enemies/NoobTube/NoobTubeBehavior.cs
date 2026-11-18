@@ -67,6 +67,7 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
         switch (piece.Definition)
         {
             case NoobTubeProjectileDefinition.Crack:
+                projectile.State = new NoobTubeCrackState();
                 projectile.Position = projectile.Position.WithWhole(place);
                 return;
 
@@ -200,7 +201,7 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
         /// whichever its flicker last chose once it falls.
         /// </summary>
         private static void FlickerNoobTubeCrack(EnemyProjectile projectile, int shortCounter) =>
-            projectile.IsHidden = NoobTubeCadenceDefinitions.CrackHidden.IsSetIn(shortCounter);
+            projectile.StateOf<NoobTubeCrackState>().IsHidden = NoobTubeCadenceDefinitions.CrackHidden.IsSetIn(shortCounter);
 
         /// <summary>Carries out one cue of the crack, shard and bubble animations; <paramref name="shortCounter"/> times the flicker.</summary>
         private void ApplyNoobTubeProjectileCue(EnemyProjectile projectile, int shortCounter, NoobTubeProjectileCue cue)
@@ -219,7 +220,7 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
                 case NoobTubeProjectileCueKind.FlickerHidden:
                     // The shard shows at its column on odd updates and is hidden on even ones.
                     projectile.Position = projectile.Position.WithWholeX(projectile.StateOf<NoobTubeDebrisState>().X.Whole);
-                    projectile.IsHidden = !atOwnColumn;
+                    projectile.StateOf<NoobTubeDebrisState>().IsHidden = !atOwnColumn;
                     break;
                 case NoobTubeProjectileCueKind.AssignShardFallingAngle:
                     projectile.StateOf<NoobTubeDebrisState>().StartSway(room.Random.Next(NoobTubeDebrisDefinitions.FallingSwayStart));

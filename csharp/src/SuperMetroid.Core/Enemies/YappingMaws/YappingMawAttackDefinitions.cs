@@ -15,7 +15,10 @@ internal static class YappingMawAttackDefinitions
     /// <summary>The curl, in whole angle units, per angle step each link of the chain bends by: the bend step is a quarter of the curl.</summary>
     internal const int CurlPerBendStep = 4;
 
-    /// <summary>How long after it releases Samus the Maw waits before it can grab again, in updates.</summary>
+    /// <summary>
+    /// How long the Maw holds off grabbing once its grab cooldown starts, in updates: it may grab from the update after
+    /// them (<see cref="Compatibility.YappingMawGrabCooldown"/>).
+    /// </summary>
     internal const int GrabCooldown = 48;
 
     /// <summary>

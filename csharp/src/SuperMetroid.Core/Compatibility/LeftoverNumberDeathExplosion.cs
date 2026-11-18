@@ -2,9 +2,9 @@ namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
 /// Which explosion an enemy dies in when its death takes the explosion from a number left over by what ran before it,
-/// rather than one the enemy chose (#2131). Zero through four name the death explosions in their authored order (small,
-/// Samus contact, normal, Fake Kraid's, big), and any other number, or a leftover that is no number at all, names the
-/// first, the small explosion. Three deaths take their explosion so: a Fireflea Samus touches and a Kraid fingernail
+/// rather than one the enemy chose (#2131). The service owns the order the numbers count in (#2455): zero names the small
+/// explosion, one Samus's contact's, two the normal one, three Fake Kraid's and four the big one, and any other number, or
+/// a leftover that is no number at all, names the small explosion. The enemies give it their five explosions by name. Three deaths take their explosion so: a Fireflea Samus touches and a Kraid fingernail
 /// Samus's touch leaves in its place die in the explosion their health left by the touch names, so one with one to four
 /// health left dies in the contact, normal, Fake Kraid or big explosion and one with none or more in the small one; and a
 /// Powamp shot dead dies in the explosion twice its burst's last spike's place in the enemy projectile pool names, so the
@@ -22,27 +22,24 @@ namespace SuperMetroid.Core.Compatibility;
 /// (#1512); the death routine takes zero through four as its explosions in their authored order and any other number as
 /// the first.
 /// </remarks>
+/// <typeparam name="TExplosion">An enemy's death explosion.</typeparam>
+/// <param name="small">The small explosion, which zero, any number past four and no number name.</param>
+/// <param name="samusContact">The explosion of an enemy Samus's contact kills, which one names.</param>
+/// <param name="normal">The normal explosion, which two names.</param>
+/// <param name="fakeKraid">Fake Kraid's explosion, which three names.</param>
+/// <param name="big">The big explosion, which four names.</param>
 [CompatibilityService("an enemy death that takes its explosion from a leftover number dies in the explosion the number names in the authored order, or in the small explosion past the last")]
-public static class LeftoverNumberDeathExplosion
+public sealed class LeftoverNumberDeathExplosion<TExplosion>(TExplosion small, TExplosion samusContact, TExplosion normal, TExplosion fakeKraid, TExplosion big)
 {
-    /// <summary>The number of authored death explosions, which the leftover numbers zero through four name.</summary>
-    private const int AuthoredExplosionCount = 5;
+    /// <summary>The death explosions in the order the leftover numbers zero through four name them.</summary>
+    private readonly TExplosion[] _numbered = [small, samusContact, normal, fakeKraid, big];
 
     /// <summary>
-    /// The explosion <paramref name="leftoverNumber"/> names: the one at that place in <paramref name="authoredOrder"/>,
-    /// or the first, the small explosion, past the last or when the leftover is no number.
+    /// The explosion <paramref name="leftoverNumber"/> names: zero through four the small, Samus contact, normal, Fake
+    /// Kraid and big explosions, and any later number, or a leftover that is no number, the small one.
     /// </summary>
-    /// <typeparam name="TExplosion">An enemy's death explosion.</typeparam>
     /// <param name="leftoverNumber">The number left over for the death, zero or more, or null when what is left is no number.</param>
-    /// <param name="authoredOrder">The five death explosions in their authored order, the small explosion first.</param>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="leftoverNumber"/> is negative.</exception>
-    /// <exception cref="ArgumentException"><paramref name="authoredOrder"/> does not hold the five explosions.</exception>
-    public static TExplosion Named<TExplosion>(int? leftoverNumber, IReadOnlyList<TExplosion> authoredOrder)
-    {
-        if (Ensure.NotNull(authoredOrder).Count != AuthoredExplosionCount)
-            throw new ArgumentException("The death explosions are the five authored ones.", nameof(authoredOrder));
-        return leftoverNumber is int number && Ensure.AtLeastZero(number) < AuthoredExplosionCount
-            ? authoredOrder[number]
-            : authoredOrder[0];
-    }
+    public TExplosion Named(int? leftoverNumber) =>
+        leftoverNumber is int number && Ensure.AtLeastZero(number) < _numbered.Length ? _numbered[number] : _numbered[0];
 }

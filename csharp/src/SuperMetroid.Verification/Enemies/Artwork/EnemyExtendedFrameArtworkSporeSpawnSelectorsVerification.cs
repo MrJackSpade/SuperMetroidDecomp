@@ -48,8 +48,9 @@ internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification
                     installedTrace.Add(CaptureSporeSpawnProgramFrame(system, place, steps)));
             AssertEqual(nativeTrace.Count, installedTrace.Count,
                 $"Spore Spawn program {pointer:X4} installed frame count");
+            // A stopped clock (#2454) counts nothing, while the native timer counts on from its sleep; the rest is compared.
             for (int frame = 0; frame < frames; frame++)
-                AssertEqual(nativeTrace[frame], installedTrace[frame],
+                AssertEqual(installedTrace[frame].Timer is null ? nativeTrace[frame] with { Timer = null } : nativeTrace[frame], installedTrace[frame],
                     $"Spore Spawn program {pointer:X4} installed mechanics/frame at tick {frame}");
             AssertEqual(0, installedBus.ObservedWords.Count,
                 $"Spore Spawn program {pointer:X4} installs every frame selector");
@@ -145,16 +146,19 @@ internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification
         var properties = new SuperMetroid.AssetExtraction.Enemies.EnemyPropertyState(
             place.Contact, place.Processing, place.Presence, place.CollidesByFrameHitboxes, place.AnimationClock.ShowsNewFrame);
         return new SporeSpawnProgramFrame(
-            NativeBodyInstruction(steps, state), place.AnimationClock.Hold.RawValue,
+            NativeBodyInstruction(steps, state), place.AnimationClock.IsStopped ? null : place.AnimationClock.Hold.RawValue,
             place.SpritemapPointer, place.Position.Whole,
             checked((ushort)place.Health), checked((ushort)SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.EncodePropertyWord(properties)), checked((ushort)SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.EncodeExtraPropertyWord(properties)),
             state.Movement, state.Angle.ToTrigonometryAngle().RawValue, checked((ushort)state.SwayRadius.Pixels),
             state.DeathStarted, system.ActiveEnemyDropPickups > 0);
     }
 
-    /// <summary>Instruction, frame, position, health, and fight-state values compared across Spore Spawn program ticks.</summary>
+    /// <summary>
+    /// Instruction, frame, position, health, and fight-state values compared across Spore Spawn program ticks; the timer is
+    /// none while the port's clock is stopped.
+    /// </summary>
     internal readonly record struct SporeSpawnProgramFrame(
-        ushort Instruction, ushort Timer, ushort VisualFrame,
+        ushort Instruction, ushort? Timer, ushort VisualFrame,
         Position16<RoomPixels> Position, ushort Health,
         ushort Properties, ushort ExtraProperties,
         SporeSpawnMovement Movement, ushort Angle, ushort MaximumXRadius,

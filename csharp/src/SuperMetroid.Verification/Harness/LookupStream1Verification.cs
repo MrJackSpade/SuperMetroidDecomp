@@ -242,7 +242,9 @@ internal static class LookupStream1Verification
                 for (int held = 0; held < duration; held++)
                 {
                     EnemyInstructionRunner.Process(arguments); calls++;
-                    AssertEqual((ushort)(duration - held), place.AnimationClock.Hold.RawValue, "Every uninterrupted Powamp hold tick");
+                    // A balloon's last pose is shown for good, its clock stopped while the native timer counts it down (#2454).
+                    SuperMetroid.Verification.Enemies.NativeEnemyProjectileParity.AssertClockHold((ushort)(duration - held), place.AnimationClock,
+                        $"Every uninterrupted Powamp hold tick (program {root:X4}, pose {pose}, tick {held})");
                     AssertEqual(sprite, place.SpritemapPointer, "Native Powamp held visual");
                     if (!isBody)
                     {
@@ -266,7 +268,7 @@ internal static class LookupStream1Verification
                 PowampBehavior.AlignPowampBalloonY(body, pair);
                 AssertEqual(terminalY, balloon.Position.Y.Whole, "Sleep preserves terminal balloon collision center");
                 EnemyInstructionRunner.Process(arguments);
-                AssertEqual(ushort.MaxValue, place.AnimationClock.Hold.RawValue, "Sleeping Powamp retains native timer underflow");
+                AssertTrue(place.AnimationClock.IsStopped, "Sleeping Powamp keeps its clock stopped");
             }
         }
         Console.WriteLine("Powamp cadence:12 native holds,376 uninterrupted exposure ticks,both Goto/Sleep boundaries and native balloon centers pass.");

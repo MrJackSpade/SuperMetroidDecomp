@@ -4,7 +4,6 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Sbug;
 using SuperMetroid.Core.Animation;
-using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Enemies.Sbug;
@@ -22,7 +21,7 @@ internal static class SbugMovementDefinitionsVerification
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemyPlace> initialize = SbugBehavior.InitializeSbug;
-        Action<RoomEnemyPlace, SamusState, RoomLevelData> runMain = enemies.SbugBehavior.RunSbugMain;
+        Action<RoomEnemyPlace, SamusState> runMain = SbugBehavior.RunSbugMain;
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Bind(EnemyDefinitionId.Sbug, place.Definition);
 
@@ -35,7 +34,7 @@ internal static class SbugMovementDefinitionsVerification
                 $"compiled Sbug facing selector {facing}");
         }
 
-        for (int behavior = 0; behavior < SbugActivationBehaviorCount; behavior++)
+        foreach (int behavior in AuthoredActivationSelectors)
         {
             int address = activationTable + behavior * 2;
             var native = SbugNativeWords.SbugActions.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord(address), "Sbug activation function");
@@ -44,10 +43,14 @@ internal static class SbugMovementDefinitionsVerification
             AssertEqual(native, SbugMovement.ActivationAction(placed.Behavior),
                 $"compiled Sbug activation selector {behavior}");
         }
-        AssertThrows<InvalidDataException>(
-            () => SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Decode(
-                EnemyDefinitionId.Sbug, SuperMetroid.AssetExtraction.Enemies.PopulationWords.Parameters(0, SbugActivationBehaviorCount << 8)),
-            "a placement selecting past the seven activation behaviours fails to decode");
+        // No room places an Sbug with any other selector, so none decodes (#2454).
+        foreach (int behavior in Enumerable.Range(0, 8).Except(AuthoredActivationSelectors))
+        {
+            AssertThrows<InvalidDataException>(
+                () => SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Decode(
+                    EnemyDefinitionId.Sbug, SuperMetroid.AssetExtraction.Enemies.PopulationWords.Parameters(0, behavior << 8)),
+                $"a placement selecting unplaced activation behaviour {behavior} fails to decode");
+        }
 
         for (ushort selector = 0; selector < 8; selector++)
         {
@@ -76,7 +79,7 @@ internal static class SbugMovementDefinitionsVerification
             Position = FixedPosition<RoomPixels>.FromWhole(new(0x1234, 0x5678)),
         };
         place.Position = place.Position.WithWhole(samus.Position.Whole);
-        for (int behavior = 0; behavior < SbugActivationBehaviorCount; behavior++)
+        foreach (int behavior in AuthoredActivationSelectors)
         {
             // The Sbug takes its activation behaviour from its placement when it is placed (#2063).
             place.SetSpawnParameter2(EnemyDefinitionId.Sbug, (ushort)(behavior << 8 | 1));
@@ -84,7 +87,7 @@ internal static class SbugMovementDefinitionsVerification
             place.Position = place.Position.WithWhole(samus.Position.Whole);
             SbugEnemyState state = (enemies.SbugStates[0] ?? throw new InvalidOperationException("Verification requires enemies.SbugStates[0]."));
             state.Action = SbugAction.WaitForSamus;
-            runMain(place, samus, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
+            runMain(place, samus);
 
             int address = activationTable + behavior * 2;
             var native = SbugNativeWords.SbugActions.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord(address), "Sbug activation function");
@@ -92,80 +95,20 @@ internal static class SbugMovementDefinitionsVerification
         }
 
         AssertThrows<InvalidDataException>(
-            () => SbugMovement.ActivationAction((SbugActivationBehavior)7),
+            () => SbugMovement.ActivationAction((SbugActivationBehavior)3),
             "Sbug activation selector beyond authored table");
 
         Console.WriteLine(
-            "Sbug movement definitions: eight facing loops, seven activation callbacks and every loop's run pass " +
+            "Sbug movement definitions: eight facing loops, the three placed activation callbacks and every loop's run pass " +
             "with the selector tables forbidden.");
     }
 
-    /// <summary>
-    /// The production random-direction chooser adds an unsigned byte turn to the custom heading: from heading 240,
-    /// random 96 turns by 32, so the heading wraps around the turn to 16, facing down-right. A later reversal, with Samus at least six blocks away on
-    /// both axes, turns that facing a quarter turn counter-clockwise and folds it into the four facings from right to
-    /// up-left: down-right becomes up-right.
-    /// </summary>
-    internal static void VerifySbugCustomHeadingCarriesAndFolds()
-    {
-        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
-        enemies.VerificationServices().NextRandom = () => 96;
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Sbug, place.Definition);
-        place.SetSpawnParameter1(EnemyDefinitionId.Sbug, 1);
-        place.SetSpawnParameter2(EnemyDefinitionId.Sbug, 1);
-        place.Position = place.Position.WithWhole(new(512, 512));
-        SbugBehavior.InitializeSbug(place);
-        SbugEnemyState state = place.RequireSpeciesState<SbugEnemyState>();
-        state.FaceCustomHeading(RotationAngle.FromSteps(240));
-        state.Action = SbugAction.ChooseRandomDirectionAndReverseWhenFar;
-        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(Position16<RoomPixels>.Zero) };
-
-        enemies.SbugBehavior.RunSbugMain(place, samus, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
-        AssertEqual(RotationAngle.FromSteps(16), state.CustomHeading, "the turn wraps the heading around the turn");
-        AssertEqual(CompassDirection.DownRight, state.CustomFacing, "heading 16 faces down-right");
-        AssertEqual(SbugAction.MoveStraightAndReverseWhenFar, state.Action, "the chooser starts a reversal-aware leg");
-
-        state.StraightMovementTimer = WrappingCountdown.Start(512);
-        enemies.SbugBehavior.RunSbugMain(place, samus, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
-        AssertEqual(CompassDirection.UpRight, state.CustomFacing, "the reversal folds down-right into up-right");
-        AssertEqual(new AnimationPlayback<SbugSegment>(SbugAnimations.StartingWith(SbugMovement.FacingAnimation(CompassDirection.UpRight)), AnimationPlace.StartOfAnimation), state.Playback,
-            "the folded facing installs its loop");
-
-        // Every random turn, less a quarter turn, carries around the turn and keeps the heading's fraction.
-        RotationAngle start = RotationAngle.FromSteps(240, 77);
-        for (int random = 0; random <= byte.MaxValue; random++)
-        {
-            ushort turn = checked((ushort)random);
-            enemies.VerificationServices().NextRandom = () => turn;
-            state.FaceCustomHeading(start);
-            state.Action = SbugAction.ChooseRandomDirectionAndReverseWhenFar;
-            enemies.SbugBehavior.RunSbugMain(place, samus, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
-            AssertEqual(RotationAngleConstants.FromRaw(unchecked((ushort)(start.RawValue + (random - 64) * 256))), state.CustomHeading,
-                $"Sbug random turn {random}");
-        }
-        Console.WriteLine("  Sbug custom heading: turns carry into the heading word and a reversal folds the facing.");
-    }
 
     /// <summary>
-    /// Each facing's reversal is the facing two eighths of a turn counter-clockwise, folded into the four facings from
-    /// right to up-left: the game advances the facing's place in the counter-clockwise order by two and keeps its
-    /// place within the first four.
+    /// The activation selectors the game's rooms place Sbugs with: forward, zigzag and forward-then-wait, the first, second
+    /// and sixth of the cartridge's seven.
     /// </summary>
-    internal static void VerifySbugReversedFacings()
-    {
-        for (int place = 0; place < 8; place++)
-        {
-            CompassDirection facing = SbugMovementDefinitions.Facings.InTurnOrder[place];
-            AssertEqual(SbugMovementDefinitions.Facings.InTurnOrder[(place + 2) % 4], SbugMovement.ReversedFacing(facing),
-                $"Sbug reversal of {facing}");
-        }
-        Console.WriteLine("  Sbug reversed facings: all eight fold as the game's reversal does.");
-    }
-
-
-    /// <summary>The number of activation behaviours a placement can select.</summary>
-    private const int SbugActivationBehaviorCount = 7;
+    private static readonly int[] AuthoredActivationSelectors = [0, 1, 5];
 
     /// <summary>Runs the retail-backed Sbug movement checks and program oracle.</summary>
     [VerificationCommand("--sbug-instruction-mechanics")]
@@ -174,8 +117,6 @@ internal static class SbugMovementDefinitionsVerification
         CartridgeImportAddressSpace rom =
             SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifySbugMovementDefinitions), () => VerifySbugMovementDefinitions(rom));
-        Suite(nameof(VerifySbugCustomHeadingCarriesAndFolds), () => VerifySbugCustomHeadingCarriesAndFolds());
-        Suite(nameof(VerifySbugReversedFacings), VerifySbugReversedFacings);
         Suite(nameof(SbugAnimationsVerification.VerifySbugAnimations), () => SbugAnimationsVerification.VerifySbugAnimations(rom));
         return 0;
     }

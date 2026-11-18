@@ -54,11 +54,11 @@ internal sealed class EnemyLifecycle : IEnemyLifecycle
         place.Shading = PictureShading.Standard;
     }
 
-    /// <summary>Runs the definition's initialization for the newly loaded place.</summary>
-    internal static void RunInitializationAi(RoomEnemyPlace place, EnemySpawnSurroundings surroundings)
+    /// <summary>Runs the definition's initialization for a place the room's population load has just placed.</summary>
+    internal static void RunInitializationAi(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings)
     {
         Ensure.NotNull(surroundings);
-        switch (place.Entity)
+        switch (Ensure.NotNull(place).Entity)
         {
             case IEnemySurroundingsInitialization entity:
                 entity.Initialize(surroundings);
@@ -66,6 +66,28 @@ internal sealed class EnemyLifecycle : IEnemyLifecycle
             case IEnemyInitialization entity:
                 entity.Initialize();
                 break;
+            default:
+                throw NoInitialization(place);
+        }
+    }
+
+    /// <summary>
+    /// Runs the definition's initialization for a place spawned on another enemy's behalf, or rebuilt by a respawn, which
+    /// has no population load's surroundings (#2455).
+    /// </summary>
+    /// <exception cref="InvalidDataException">
+    /// The place's enemy initializes from a population load's surroundings, which no such spawn has, or has no initialization.
+    /// </exception>
+    internal static void RunSpawnedInitializationAi(RoomEnemyPlace place)
+    {
+        switch (Ensure.NotNull(place).Entity)
+        {
+            case IEnemyInitialization entity:
+                entity.Initialize();
+                break;
+            case IEnemySurroundingsInitialization:
+                throw new InvalidDataException(
+                    $"Enemy {place.DefinitionId} initializes from a population load's surroundings, but was spawned on another enemy's behalf.");
             default:
                 throw NoInitialization(place);
         }
@@ -81,8 +103,11 @@ internal sealed class EnemyLifecycle : IEnemyLifecycle
         InitializePlaceFromDefinition(place, population, definition);
 
     /// <summary>Lets the population loader run the place's species initialization.</summary>
-    void IEnemyLifecycle.RunInitializationAi(RoomEnemyPlace place, EnemySpawnSurroundings surroundings) =>
+    void IEnemyLifecycle.RunInitializationAi(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings) =>
         RunInitializationAi(place, surroundings);
+
+    /// <summary>Lets a species run the initialization of an enemy it spawned on another enemy's behalf.</summary>
+    void IEnemyLifecycle.RunSpawnedInitializationAi(RoomEnemyPlace place) => RunSpawnedInitializationAi(place);
 
     /// <inheritdoc/>
     RoomEnemyPlace? IEnemyLifecycle.SpawnEnemyJoining<TEncounter>(RoomEnemyPlacement population, TEncounter encounter) =>
@@ -98,7 +123,7 @@ internal sealed class EnemyLifecycle : IEnemyLifecycle
             return null;
         InitializePlaceFromDefinition(place, population, _room.Definitions.ReadEnemyDefinition(population.DefinitionId));
         joining(place);
-        RunInitializationAi(place, EnemySpawnSurroundings.None);
+        RunSpawnedInitializationAi(place);
         // Spawning writes the empty frame after initialization, before the first animation tick.
         place.Frame = place.Processing.HasAny(EnemyProcessing.Animates)
             ? EnemyFrameId.Empty

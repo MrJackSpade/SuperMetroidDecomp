@@ -100,7 +100,7 @@ internal sealed class RidleyBodyAnimation
     /// <summary>
     /// Shows a breakup fragment's picture where the shared enemy animation runs (#2235): a still picture, which the
     /// fragment shows on the update its clock first runs out, for
-    /// <see cref="RidleyBreakupFrameDefinitions.PictureShowingUpdates"/>; it then rests on it.
+    /// <see cref="RidleyBreakupFrameDefinitions.PictureShowingUpdates"/>; it then rests on it, its clock stopped (#2454).
     /// </summary>
     internal static void AdvanceRidleyBreakupAnimation(RoomEnemyPlace fragment)
     {
@@ -108,7 +108,10 @@ internal sealed class RidleyBodyAnimation
             return;
         RidleyExplosionFragmentState state = fragment.RequireSpeciesState<RidleyExplosionFragmentState>();
         if (state.ShowsPicture)
+        {
+            fragment.AnimationClock.Stop();
             return;
+        }
         fragment.Frame = state.Picture;
         fragment.AnimationClock.Show(RidleyBreakupFrameDefinitions.PictureShowingUpdates);
         state.ShowsPicture = true;

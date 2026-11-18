@@ -142,7 +142,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
             enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
             enemies.VerificationServices().NextRandom = () => 0;
             enemies.VerificationServices().ReadRandom = () => 0;
-            // The powered work robot's definition decides its power as it is placed (#2179); either power answers alike.
+            // A species that asks whether its area's boss is dead sees it alive.
             enemies.VerificationServices().IsAreaBossDefeated = () => false;
 
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
@@ -174,7 +174,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
             bool translatedRecord = true;
             try
             {
-                EnemyLifecycle.RunInitializationAi(place, EnemySpawnSurroundings.None with { Samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) });
+                EnemyLifecycle.RunInitializationAi(place, new EnemyPopulationSurroundings(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), GameplayAction.None, default));
             }
             catch (Exception exception)
                 when (IsUntranslatedEnemyInitializer(

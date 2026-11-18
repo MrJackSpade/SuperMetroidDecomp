@@ -59,8 +59,11 @@ public enum RoomObjectKind
     /// <summary>Bomb Torizo's right-facing grey door, which opens once Bomb Torizo is defeated.</summary>
     BombTorizoGreyDoor,
 
-    /// <summary>The Wrecked Ship attic's watcher, which does nothing while it waits.</summary>
-    WreckedShipAttic,
+    /// <summary>
+    /// Holds one of the Wrecked Ship attic's room-object places for as long as the room is loaded and does nothing else
+    /// (<see cref="Compatibility.RoomObjectPlaces"/>).
+    /// </summary>
+    WreckedShipAtticHeldPlace,
 
     /// <summary>A five-block gate that slides down out of the way when its trigger is shot or Samus stands below it.</summary>
     DownwardGate,

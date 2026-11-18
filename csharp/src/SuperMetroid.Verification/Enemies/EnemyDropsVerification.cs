@@ -380,7 +380,7 @@ internal static class EnemyDropsVerification
 
         // A Fireflea touched with health nine left dies in the small explosion.
         fixture.System.DeathsAndDrops.StartGenericEnemyDeath(enemy,
-            deathAnimation: LeftoverNumberDeathExplosion.Named(9, EnemyDeathExplosionDefinitions.AuthoredOrder), fixture.Samus);
+            deathAnimation: EnemyDeathExplosionDefinitions.LeftoverNumbered.Named(9), fixture.Samus);
         AssertTrue(enemy.AwaitsRespawn && enemy.DefinitionId == EnemyDefinitionId.None,
             "respawning death leaves the enemy's place awaiting its respawn");
         AssertEqual(1, fixture.System.RoomStatus.EnemiesKilled,
@@ -389,13 +389,13 @@ internal static class EnemyDropsVerification
         EnemyProjectile explosion = fixture.System.Projectiles.EnemyProjectiles[17];
         AssertEqual(RoomEnemyProjectileKind.EnemyDeathExplosion, explosion.Kind,
             "generic death allocates projectile definition F345");
-        AssertEqual(EnemyPlaceFixtures.StandIn, explosion.DropDefinitionId,
+        AssertEqual(EnemyPlaceFixtures.StandIn, explosion.StateOf<EnemyDeathExplosionState>().DropDefinitionId,
             "death actor retains killed enemy header for later chance lookup");
         AssertEqual((ushort)321, explosion.Position.X.Whole,
             "death actor retains killed enemy X position");
         AssertEqual((ushort)123, explosion.Position.Y.Whole,
             "death actor retains killed enemy Y position");
-        AssertEqual(KilledEnemy.Of(enemy, respawns: true), explosion.KilledEnemy,
+        AssertEqual(KilledEnemy.Of(enemy, respawns: true), explosion.StateOf<EnemyDeathExplosionState>().KilledEnemy,
             "respawning slot zero is retained as the killed enemy, marked to respawn");
         AssertEqual(
             EnemyDeathExplosions.Animation(EnemyDeathExplosion.Small),

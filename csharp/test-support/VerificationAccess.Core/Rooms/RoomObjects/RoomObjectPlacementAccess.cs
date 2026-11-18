@@ -83,7 +83,7 @@ internal static class RoomObjectPlacementAccess
         [RoomObjectKind.MotherBrainGlass] = new MotherBrainGlassSetup(),
         [RoomObjectKind.BombTorizoHand] = new BombTorizoHandSetup(),
         [RoomObjectKind.SpeedBoosterEscape] = new SpeedBoosterEscapeSetup(),
-        [RoomObjectKind.WreckedShipAttic] = new WreckedShipAtticSetup(),
+        [RoomObjectKind.WreckedShipAtticHeldPlace] = new WreckedShipAtticHeldPlaceSetup(),
         [RoomObjectKind.NoobTube] = new NoobTubeSetup(),
         [RoomObjectKind.MotherBrainEscapeRoomGate] = new MotherBrainEscapeRoomGateSetup(),
         [RoomObjectKind.DownwardGate] = new DownwardGateSetup(),

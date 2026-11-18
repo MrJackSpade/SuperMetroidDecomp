@@ -21,15 +21,13 @@ internal static class EnemyDeathExplosionDefinitions
     internal static readonly EnemyDeathSpriteSpread NarrowSpriteSpread = new(HorizontalScatter: new(0, 5), VerticalScatter: new(8, 5), Radius: 16);
 
     /// <summary>
-    /// The death explosions in their authored order, the small explosion first: the order the deaths that take their
-    /// explosion from a leftover number count in (<see cref="LeftoverNumberDeathExplosion"/>).
+    /// The explosion a death that takes it from a leftover number dies in (<see cref="LeftoverNumberDeathExplosion{TExplosion}"/>),
+    /// given the enemies' five explosions by name.
     /// </summary>
-    internal static readonly IReadOnlyList<EnemyDeathExplosion> AuthoredOrder =
-    [
-        EnemyDeathExplosion.Small,
-        EnemyDeathExplosion.SamusContact,
-        EnemyDeathExplosion.Normal,
-        EnemyDeathExplosion.FakeKraid,
-        EnemyDeathExplosion.Big,
-    ];
+    internal static readonly LeftoverNumberDeathExplosion<EnemyDeathExplosion> LeftoverNumbered = new(
+        small: EnemyDeathExplosion.Small,
+        samusContact: EnemyDeathExplosion.SamusContact,
+        normal: EnemyDeathExplosion.Normal,
+        fakeKraid: EnemyDeathExplosion.FakeKraid,
+        big: EnemyDeathExplosion.Big);
 }

@@ -365,7 +365,11 @@ internal static class NativeSnapshotImport
             enemy.SpritemapPointer = W(address) == 0 ? (ushort)0 : W(address + 22);
             // The timer word at +$18 is the loop counter of the occupant's animation; the imported playbacks play no repeated
             // phase, so it counts nothing the port keeps (#2006).
-            enemy.AnimationClock.HoldFor(W(address + 28));
+            // A native timer at none is a list that has just slept or shown its frame for good: the port's clock stops.
+            if (W(address + 28) == 0)
+                enemy.AnimationClock.Stop();
+            else
+                enemy.AnimationClock.HoldFor(W(address + 28));
             // The native palette word names a row; the colouring it denotes is decoded under the room's loaded set.
             enemy.SetPaletteRow(runtime.Enemies, NativeSpriteGraphicsWords.PaletteRow(W(address + 30)));
             // The native tile index word is where the import composes the occupant's sheet, not slot state (#1513).

@@ -19,7 +19,7 @@ internal static partial class RoomObjectKindDefinitions
         RoomObjectKind.SaveStation,
         RoomObjectKind.SpeedBoosterEscape,
         RoomObjectKind.BombTorizoGreyDoor,
-        RoomObjectKind.WreckedShipAttic,
+        RoomObjectKind.WreckedShipAtticHeldPlace,
         RoomObjectKind.DownwardGate,
         RoomObjectKind.DownwardGateShotBlock,
         RoomObjectKind.GreyDoorFacingLeft,

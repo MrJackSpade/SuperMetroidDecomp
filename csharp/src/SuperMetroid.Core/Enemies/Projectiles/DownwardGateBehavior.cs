@@ -10,6 +10,12 @@ internal sealed class DownwardGateBehavior
     /// <summary>Shared finite projectile pool holding moving and closed gate actors.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
+    /// <summary>
+    /// Each gate's own projectile, by the gate's room block (#2455): the last one spawned for it, which its wake takes on.
+    /// A room has one gate per block.
+    /// </summary>
+    private readonly Dictionary<Position16<RoomBlocks>, EnemyProjectile> _gateProjectiles = [];
+
     /// <summary>Binds gate room-object requests to the current room's projectile owner.</summary>
     internal DownwardGateBehavior(EnemyProjectileEngine projectiles)
     {
@@ -65,28 +71,20 @@ internal sealed class DownwardGateBehavior
                 ? DownwardGateDefinitions.ClosedPositionOffsetPixels
                 : 0)));
 
-        // The gate's block ties the actor to its gate; the gate's room object searches for it when the gate needs to open again.
+        // The gate's block ties the actor to its gate, which keeps it to wake it when the gate opens again.
         projectile.State = new DownwardGateState(request.RoomObjectBlock,
             closed ? DownwardGateProjectileAnimations.ClosedStage : DownwardGateProjectileAnimations.SlidingDownStage);
+        _gateProjectiles[request.RoomObjectBlock] = projectile;
     }
 
-    /// <summary>Finds the matching gate actor from the pool's end and takes it on to its next stage, a closed gate rising.</summary>
+    /// <summary>Takes the gate's own projectile on to its next stage, a closed gate rising.</summary>
+    /// <exception cref="InvalidDataException">The gate's projectile has gone or now holds something else.</exception>
     private void WakeDownwardGateProjectile(Position16<RoomBlocks> roomObjectBlock)
     {
-        EnemyProjectile? projectile = null;
-        for (int index = _projectiles.EnemyProjectiles.Count - 1; index >= 0; index--)
-        {
-            EnemyProjectile candidate = _projectiles.EnemyProjectiles[index];
-            if (candidate.IsActive &&
-                candidate.Kind is (RoomEnemyProjectileKind.DownwardGateMoving or
-                    RoomEnemyProjectileKind.DownwardGateClosed) &&
-                candidate.StateOf<DownwardGateState>().RoomObjectBlock == roomObjectBlock)
-            {
-                projectile = candidate;
-                break;
-            }
-        }
-        if (projectile is null)
+        if (!_gateProjectiles.TryGetValue(roomObjectBlock, out EnemyProjectile? projectile) ||
+            !projectile.IsActive ||
+            projectile.Kind is not (RoomEnemyProjectileKind.DownwardGateMoving or RoomEnemyProjectileKind.DownwardGateClosed) ||
+            projectile.StateOf<DownwardGateState>().RoomObjectBlock != roomObjectBlock)
         {
             throw new InvalidDataException(
                 $"Downward gate room object at block {roomObjectBlock} has no associated gate projectile.");

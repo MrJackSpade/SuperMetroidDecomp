@@ -16,7 +16,7 @@ internal static class CeresDoorOrWallPlaces
     internal static void StartCeresDoorOrWall(this RoomEnemyPlace place, EnemyDefinitionId actor, EnemySpawnSettings settings)
     {
         place.BindCeresDoorOrWall(actor, settings);
-        EnemyLifecycle.RunInitializationAi(place, EnemySpawnSurroundings.None);
+        EnemyLifecycle.RunSpawnedInitializationAi(place);
     }
 
     /// <summary>The elevator door <paramref name="place"/> holds.</summary>

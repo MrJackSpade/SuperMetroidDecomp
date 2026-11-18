@@ -133,7 +133,7 @@ internal static class NoobTubeProjectileBehaviorVerification
                     expectedOperand = unchecked((ushort)(entry + 2));
                     AssertEqual(projectile.StateOf<NoobTubeDebrisState>().X.Whole, projectile.Position.X.Whole,
                         $"hiding flicker at $86:{entry:X4} column");
-                    AssertEqual(!oddFrame, projectile.IsHidden, $"hiding flicker at $86:{entry:X4} hides the shard on even frames");
+                    AssertEqual(!oddFrame, projectile.StateOf<NoobTubeDebrisState>().IsHidden, $"hiding flicker at $86:{entry:X4} hides the shard on even frames");
                 }
             }
             VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands, expectedOperand);

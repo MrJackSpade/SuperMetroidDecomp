@@ -462,9 +462,9 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     };
 
     /// <summary>Runs Beetom's initialization AI.</summary>
-    internal void RunBeetomInitializationAi(RoomEnemyPlace place, EnemySpawnSurroundings surroundings)
+    internal void RunBeetomInitializationAi(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings)
     {
-        InitializeBeetom(place, surroundings.IntroducedSamus, surroundings.ControllerInput);
+        InitializeBeetom(place, surroundings.Samus, surroundings.ControllerInput);
     }
 
     /// <summary>Runs Beetom's main AI.</summary>

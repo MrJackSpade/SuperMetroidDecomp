@@ -507,7 +507,7 @@ internal static class EnemySpritemapArtworkVerification
             Action<RoomEnemyPlace, RoomEnemySystem>? inspect = null, byte? spritemapBank = null)
         {
             var enemies = EnemySystemFixtures.PlacingAnyEnemy(EnemySessionFixtures.WithInstalledServices(art.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: art.Bosses);
-            // The powered work robot's definition decides its power as it is placed (#2179); either power answers alike.
+            // A species that asks whether its area's boss is dead sees it alive.
             enemies.VerificationServices().IsAreaBossDefeated = () => false;
             // The enemy draws as a room drawing it loads it: at its tile base and in its palette there.
             enemies.DrawUnder(SpawnedObjectFixtures.SetDrawing(definition));

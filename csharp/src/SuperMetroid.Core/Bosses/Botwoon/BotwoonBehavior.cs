@@ -547,9 +547,13 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         AnimationShown<BotwoonHeadAnimationSegment, BotwoonHeadFrame> advance = BotwoonAnimations.HeadSegments.PlayToNextFrame(
             state.HeadPlayback.Animation, ref place, cue => ApplyBotwoonHeadCue(head, state, cue));
         state.HeadPlayback = state.HeadPlayback with { Place = place };
-        // A hold keeps the last frame shown: the head waits on it until a new animation is installed.
+        // A hold keeps the last frame shown and stops the clock (#2454): the head waits on it until a new animation is
+        // installed.
         if (advance is AnimationShown<BotwoonHeadAnimationSegment, BotwoonHeadFrame>.Held)
+        {
+            head.AnimationClock.Stop();
             return;
+        }
         if (advance is not AnimationShown<BotwoonHeadAnimationSegment, BotwoonHeadFrame>.Frame shown)
             throw new InvalidOperationException($"Botwoon's head animation ended an update with {advance}.");
         head.Frame = BotwoonVisualDefinitions.HeadFrames.Of(shown.Shown);
@@ -637,10 +641,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
             var position = new Position16<RoomPixels>(
                 BotwoonDeathDefinitions.DropX.Of(random) + BotwoonDeathDefinitions.DropLeft,
                 BotwoonDeathDefinitions.DropY.Of(random) + BotwoonDeathDefinitions.DropTop);
-            _deathsAndDrops.SpawnEnemyDropFromChanceTable(
-                position,
-                head.Definition.DropChances,
-                samus);
+            _deathsAndDrops.SpawnEnemyDropFromDefinition(position, head.DefinitionId, samus);
         }
         state.WallExplosionUpdates = 0;
         state.LargeExplosionWait.LastFor(1);

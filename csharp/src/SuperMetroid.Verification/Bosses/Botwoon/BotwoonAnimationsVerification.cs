@@ -279,7 +279,7 @@ internal static class BotwoonAnimationsVerification
             EnemyAnimationPlayer.AdvanceAnimation(head, samus: inputs.Samus, level: inputs.Level, Position16<RoomPixels>.Zero, controllerInput: 0);
             bool nativeSound = native.Step(rom);
             string at = $"Botwoon {label} update {update}";
-            AssertEqual(native.Timer, head.AnimationClock.Hold.RawValue, $"{at}: timer");
+            SuperMetroid.Verification.Enemies.NativeEnemyProjectileParity.AssertClockHold(native.Timer, head.AnimationClock, at);
             AssertEqual(native.Spritemap, head.SpritemapPointer, $"{at}: frame");
             if (native.NewFrame)
                 drawn?.Add(head.SpritemapPointer);

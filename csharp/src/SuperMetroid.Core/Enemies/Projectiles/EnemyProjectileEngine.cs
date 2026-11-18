@@ -303,7 +303,7 @@ internal sealed class EnemyProjectileEngine
             EnemyProjectile projectile = _places[place];
 
             if (!projectile.IsActive ||
-                projectile.IsHidden ||
+                projectile.State is IFlickeringProjectileState { IsHidden: true } ||
                 projectile.Depth != depth ||
                 projectile.Frame is not { } frame)
                 continue;

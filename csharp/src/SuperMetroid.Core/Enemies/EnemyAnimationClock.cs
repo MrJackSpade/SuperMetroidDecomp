@@ -11,10 +11,10 @@ namespace SuperMetroid.Core.Enemies;
 /// </summary>
 /// <remarks>
 /// Lifetime: the occupant's. A place gets a stopped clock when a new occupant is bound or its occupant is killed, and
-/// keeps a deleted occupant's clock with the rest of what that occupant left. The hold wraps from zero as every
-/// countdown of the game does: a hold left at zero, as a frame shown for good leaves it, runs out again 65536 updates
-/// later, when the animation takes its next step. A held animation's step plays nothing; an owner that shows a picture it
-/// chose shows that picture again (#2380). An owner whose animation must take no step stops the clock (<see cref="Stop"/>);
+/// keeps a deleted occupant's clock with the rest of what that occupant left. A frame shown for good, and an animation
+/// resting at its end, stop the clock (#2454): the frame shown stays, and the animation takes no step until its owner
+/// starts or steps it again, as an owner that chooses another picture does. An owner whose animation must take no step
+/// stops the clock itself (<see cref="Stop"/>);
 /// one whose animation must wait a while where it stands, its hold kept, suspends it (<see cref="Suspend"/>).
 /// </remarks>
 public sealed class EnemyAnimationClock
@@ -52,9 +52,9 @@ public sealed class EnemyAnimationClock
 
     /// <summary>
     /// Starts the clock for a newly started animation whose first step plays after <paramref name="updates"/> updates,
-    /// 0 through 65535.
+    /// 1 through 65535.
     /// </summary>
-    internal void RestartAfter(int updates) => Run(WrappingCountdown.Start(updates));
+    internal void RestartAfter(int updates) => Run(WrappingCountdown.Start(Ensure.BetweenInclusive(1, WrappingCountdown.LongestStart, updates)));
 
     /// <summary>
     /// Brings the animation's next step to the next update: the playback goes on from where it stands, or from where its
@@ -63,10 +63,10 @@ public sealed class EnemyAnimationClock
     internal void StepOnNextUpdate() => Run(WrappingCountdown.Start(1));
 
     /// <summary>
-    /// Holds the frame shown for <paramref name="updates"/> more updates, 0 through 65535: a hold of zero wraps on the next
-    /// update and runs out 65536 updates later (#2380).
+    /// Holds the frame shown for <paramref name="updates"/> more updates, 1 through 65535: the animation takes its next
+    /// step on the last of them. A frame held for good stops the clock instead (<see cref="Stop"/>).
     /// </summary>
-    internal void HoldFor(int updates) => Run(WrappingCountdown.Start(updates));
+    internal void HoldFor(int updates) => Run(WrappingCountdown.Start(Ensure.BetweenInclusive(1, WrappingCountdown.LongestStart, updates)));
 
     /// <summary>
     /// Stops the clock (#2213): the frame shown stays and the animation waits, without counting, until its owner starts or
@@ -114,10 +114,14 @@ public sealed class EnemyAnimationClock
     }
 
     /// <summary>
-    /// The animation's step showed a new frame for good: the hold is left at zero, so it wraps on the next update and the
-    /// animation's next step comes 65536 updates later, where a held animation plays nothing (#2380).
+    /// The animation's step showed a new frame for good (#2454): the clock stops, so the frame stays and the animation takes
+    /// no step until its owner starts or steps it again.
     /// </summary>
-    internal void ShowForGood() => ShowsNewFrame = true;
+    internal void ShowForGood()
+    {
+        Stop();
+        ShowsNewFrame = true;
+    }
 
     /// <summary>The animation's step paused on its frame for <paramref name="duration"/> updates.</summary>
     internal void Pause(int duration) => Run(WrappingCountdown.Start(duration));

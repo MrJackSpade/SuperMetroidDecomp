@@ -45,8 +45,8 @@ internal interface IRoomObjectFamilySetups
     /// <summary>Sets up the Speed Booster's escape.</summary>
     void SetUpSpeedBoosterEscape();
 
-    /// <summary>Sets up the Wrecked Ship attic.</summary>
-    void SetUpWreckedShipAttic();
+    /// <summary>Sets up the Wrecked Ship attic's held place.</summary>
+    void SetUpWreckedShipAtticHeldPlace();
 
     /// <summary>Sets up Maridia's glass tube.</summary>
     void SetUpNoobTube();

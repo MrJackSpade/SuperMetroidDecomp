@@ -167,9 +167,8 @@ internal static class CrocomireAnimationsVerification
             Pass(enemies, state);
             List<ushort> callbacks = [.. native.Step(cartridge).Select(callback => callback.Word)];
             string at = $"Crocomire skeleton collapse update {update}";
-            // The stable skeleton is a held frame (#1627), whose timer rests apart from the native list's longest frame.
-            if (!SuperMetroid.Verification.Enemies.NativeEnemyProjectileParity.RestsOnHeldFrame(native.Timer, state.Body.AnimationClock.Hold))
-                AssertEqual(native.Timer, state.Body.AnimationClock.Hold.RawValue, $"{at}: timer");
+            // The stable skeleton is a held frame (#1627), which stops the body's clock (#2454).
+            SuperMetroid.Verification.Enemies.NativeEnemyProjectileParity.AssertClockHold(native.Timer, state.Body.AnimationClock, at);
             AssertEqual(native.Spritemap, state.Body.SpritemapPointer, $"{at}: frame");
             AssertEqual(native.NewFrame, state.Body.AnimationClock.ShowsNewFrame, $"{at}: new-frame flag");
             AssertEqual(EnemyAudioQueueAccess.SoundList(callbacks.Select(BodySound).OfType<SoundEffectId>()), enemies.Audio.QueuedSoundList,
@@ -247,7 +246,7 @@ internal static class CrocomireAnimationsVerification
                 List<NativeEnemyListDefinitions.Callback> callbacks = native.Step(cartridge);
                 string at = $"Crocomire tongue {program} update {update}";
                 AssertEqual(0, callbacks.Count, $"{at}: the tongue lists have no callbacks");
-                AssertEqual(native.Timer, tongue.AnimationClock.Hold.RawValue, $"{at}: timer");
+                SuperMetroid.Verification.Enemies.NativeEnemyProjectileParity.AssertClockHold(native.Timer, tongue.AnimationClock, at);
                 AssertEqual(native.Spritemap, tongue.SpritemapPointer, $"{at}: frame");
                 AssertEqual(native.NewFrame, tongue.AnimationClock.ShowsNewFrame, $"{at}: new-frame flag");
             }

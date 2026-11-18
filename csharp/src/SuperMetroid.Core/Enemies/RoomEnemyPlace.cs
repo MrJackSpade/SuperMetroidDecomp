@@ -233,13 +233,14 @@ public sealed class RoomEnemyPlace : ISolidEnemy
     void ISolidEnemy.ShakeFromWallJumpLaunch() => ShakeTimer = EnemyDrawPhaseDefinitions.WallJumpLaunchShakeDraws;
 
     /// <summary>
-    /// The enemy's own update count, 0 through 65535, wrapping; its behaviour and drawing read it, independently of the
-    /// game's frame counter.
+    /// The enemy's own update count, independent of the game's frame counter: its behaviour and drawing read it only
+    /// through power-of-two cadences (an <see cref="UpdateCadence"/>, an <see cref="UpdateCounterField"/> or a random field
+    /// advanced by it), so it is a plain count (#2454).
     /// </summary>
     public int FrameCounter
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, WrappingCounter.LargestCount, value);
+        internal set => field = Ensure.AtLeastZero(value);
     }
     /// <summary>
     /// The updates a hurt flash runs before any weapon's extension: the definition's, which the import resolves for every

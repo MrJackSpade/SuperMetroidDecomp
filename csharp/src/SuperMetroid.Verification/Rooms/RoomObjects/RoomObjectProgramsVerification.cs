@@ -398,7 +398,7 @@ internal static class RoomObjectProgramsVerification
     }
 
     /// <summary>
-    /// The Wrecked Ship attic's native list does what <see cref="WreckedShipAtticObject"/> does (#1554): it installs a
+    /// The Wrecked Ship attic's native list does what <see cref="WreckedShipAtticHeldPlaceObject"/> does (#1554): it installs a
     /// routine that changes nothing and sleeps for good, so the object only holds its place.
     /// </summary>
     internal static void VerifyWreckedShipAtticPrograms(ISnesAddressSpace rom)

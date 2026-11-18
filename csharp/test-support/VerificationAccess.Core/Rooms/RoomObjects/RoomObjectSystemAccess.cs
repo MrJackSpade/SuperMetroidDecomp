@@ -33,7 +33,7 @@ internal static class RoomObjectSystemAccess
                 RoomObjectKind.MissileStation or RoomObjectKind.ElevatorPlatform or
                 RoomObjectKind.SaveStation or
                 RoomObjectKind.SpeedBoosterEscape or
-                RoomObjectKind.WreckedShipAttic or
+                RoomObjectKind.WreckedShipAtticHeldPlace or
                 RoomObjectKind.NoobTube or
                 RoomObjectKind.MetroidRoomClearance or RoomObjectKind.EscapeRoomHeldPlace or
                 RoomObjectKind.MotherBrainEscapeRoomGate or

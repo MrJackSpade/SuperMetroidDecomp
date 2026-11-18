@@ -282,9 +282,9 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
             static (_, cue) => throw new InvalidOperationException($"A cue-free Elevator animation raised {cue}."));
 
     /// <summary>Runs Elevator's initialization AI.</summary>
-    internal void RunElevatorInitializationAi(RoomEnemyPlace place, EnemySpawnSurroundings surroundings)
+    internal void RunElevatorInitializationAi(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings)
     {
-        InitializeElevator(place, surroundings.IntroducedSamus);
+        InitializeElevator(place, surroundings.Samus);
     }
 
     /// <summary>Runs Elevator's main AI.</summary>

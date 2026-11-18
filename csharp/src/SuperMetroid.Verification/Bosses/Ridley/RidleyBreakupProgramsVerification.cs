@@ -74,7 +74,7 @@ internal static class RidleyBreakupProgramsVerification
             AssertEqual((ushort)RidleyBreakupFrameDefinitions.PictureShowingUpdates, fragment.AnimationClock.Hold.RawValue,
                 "breakup holds its picture's native frame duration before it sleeps");
             process(fragment, RoomEnemyFrameFixtures.StandaloneSamus(), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Position16<RoomPixels>.Zero, 0);
-            AssertEqual((ushort)0, fragment.AnimationClock.Hold.RawValue, "breakup sleeps on its picture, its clock left to wrap");
+            AssertTrue(fragment.AnimationClock.IsStopped, "breakup sleeps on its picture, its clock stopped");
             AssertEqual(expectedPointer, fragment.SpritemapPointer, "breakup holds its picture");
             AssertEqual((ushort)(RidleyNativeProgramOracle.BreakupList(frame) + 4), RidleyNativeProgramOracle.BreakupPointer(fragment), "breakup sleeps after its one frame");
             var actual = new OamBuffer();
@@ -97,7 +97,7 @@ internal static class RidleyBreakupProgramsVerification
         var explosion = enemies.Projectiles.EnemyProjectiles.Single(p => p.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion);
         AssertEqual(deathX, explosion.Position.X.Whole, "fragment death effect retains final X");
         AssertEqual(deathY, explosion.Position.Y.Whole, "fragment death effect retains final Y");
-        AssertEqual(EnemyDefinitionId.RidleyBreakupPiece, explosion.DropDefinitionId, "fragment drop retains native header");
+        AssertEqual(EnemyDefinitionId.RidleyBreakupPiece, explosion.StateOf<EnemyDeathExplosionState>().DropDefinitionId, "fragment drop retains native header");
         AssertEqual(EnemyDeathAndDropSegment.SmallExplosion,
             ProgramOf(explosion), "fragment expiry selects native small death animation");
         AssertEqual(1, enemies.RoomStatus.EnemiesKilled, "fragment death updates shared kill count");

@@ -80,7 +80,7 @@ internal static class RoomObjectRoomArgumentWords
         RoomObjectKind.DownwardGate, RoomObjectKind.RightwardsScrollExtension, RoomObjectKind.LeftwardsScrollExtension,
         RoomObjectKind.DownwardsScrollExtension, RoomObjectKind.UpwardsScrollExtension, RoomObjectKind.ElevatorPlatform,
         RoomObjectKind.MapStation, RoomObjectKind.MotherBrainEscapeRoomGate, RoomObjectKind.MotherBrainGlass,
-        RoomObjectKind.SpeedBoosterEscape, RoomObjectKind.WreckedShipAttic,
+        RoomObjectKind.SpeedBoosterEscape, RoomObjectKind.WreckedShipAtticHeldPlace,
     ];
 
     /// <summary>

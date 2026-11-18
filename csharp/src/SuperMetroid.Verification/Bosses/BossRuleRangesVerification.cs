@@ -41,7 +41,7 @@ internal static class BossRuleRangesVerification
     /// </summary>
     internal static void VerifyDeathExplosionRules()
     {
-        IReadOnlyList<EnemyDeathExplosion> order = EnemyDeathExplosionDefinitions.AuthoredOrder;
+        LeftoverNumberDeathExplosion<EnemyDeathExplosion> leftover = EnemyDeathExplosionDefinitions.LeftoverNumbered;
         EnemyDeathExplosion[] expectedByNumber =
         [
             EnemyDeathExplosion.Small, EnemyDeathExplosion.SamusContact, EnemyDeathExplosion.Normal,
@@ -50,9 +50,9 @@ internal static class BossRuleRangesVerification
         for (int number = 0; number < 1024; number++)
         {
             EnemyDeathExplosion expected = number < expectedByNumber.Length ? expectedByNumber[number] : EnemyDeathExplosion.Small;
-            AssertEqual(expected, LeftoverNumberDeathExplosion.Named(number, order), $"a leftover number {number}");
+            AssertEqual(expected, leftover.Named(number), $"a leftover number {number}");
         }
-        AssertEqual(EnemyDeathExplosion.Small, LeftoverNumberDeathExplosion.Named(null, order), "a leftover that is no number");
+        AssertEqual(EnemyDeathExplosion.Small, leftover.Named(null), "a leftover that is no number");
         AssertEqual(EnemyDeathExplosion.Small, PowampBehavior.ExplosionAfterBurst(null), "a burst into a full pool");
         for (int place = 0; place < 18; place++)
         {
@@ -65,8 +65,7 @@ internal static class BossRuleRangesVerification
             };
             AssertEqual(expected, PowampBehavior.ExplosionAfterBurst(place), $"a last spike in place {place}");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => LeftoverNumberDeathExplosion.Named(-1, order), "a negative number is refused");
-        AssertThrows<ArgumentException>(() => LeftoverNumberDeathExplosion.Named(0, order.Take(4).ToArray()), "the five explosions are required");
+        AssertThrows<ArgumentOutOfRangeException>(() => leftover.Named(-1), "a negative number is refused");
         Console.WriteLine("  Death explosion rules: every leftover number and spike place selects the original's explosion.");
     }
 }

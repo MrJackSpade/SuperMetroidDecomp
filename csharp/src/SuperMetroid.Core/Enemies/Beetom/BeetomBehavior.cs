@@ -263,8 +263,8 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         // The ledge probe temporarily moves the center ahead, then performs a real downward
-        // collision move. Restore only the whole pixels, preserving collision-produced
-        // subposition just as the game does.
+        // collision move. Restore only the whole pixels: where the collision left it within a pixel stays, just as
+        // the game does.
         int reach = direction == HorizontalDirection.Left ? -BeetomMotionDefinitions.LedgeProbeReach : BeetomMotionDefinitions.LedgeProbeReach;
         place.Position = place.Position.WithWholeX(place.Position.X.Whole + reach);
         if (!_terrain.MoveEnemyVertically(level, place, SignedSixteenSixteen.FromWholePixels(BeetomMotionDefinitions.LedgeProbeDrop)))
@@ -428,9 +428,9 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Runs the private post-common-shot tail: a surviving Beetom frozen while draining drops, and lets go of Samus. A
-    /// hit that killed the Beetom took it from its place with its state, and the place's next Beetom starts detached, so
-    /// the tail has nothing left to change.
+    /// Finishes Beetom's reaction to a shot, after its ordinary damage: a surviving Beetom frozen while draining drops,
+    /// and lets go of Samus. A hit that killed the Beetom took it from its place with its state, and the place's next
+    /// Beetom starts detached, so there is nothing left to change.
     /// </summary>
     private static void ResolveBeetomShotAfterCommon(RoomEnemyPlace place)
     {
@@ -453,8 +453,8 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = EnemyAnimationPlayback.Start(place, BeetomAnimations.StartingWith(segment));
     }
 
-    /// <summary>Runs Beetom's attachment-clearing tail after common bomb damage.</summary>
-    /// <remarks>Common damage can kill the Beetom before this private tail runs, so the identity is matched before the
+    /// <summary>Beetom's reaction to a bomb: after the common damage, it lets go of Samus.</summary>
+    /// <remarks>Common damage can kill the Beetom before it lets go, so the identity is matched before the
     /// reaction runs.</remarks>
     internal static EnemyBombReaction BeetomBombReaction { get; } = new()
     {
@@ -482,7 +482,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
                 : null);
 
     /// <summary>Clears attachment after every accepted common shot, including zero damage.</summary>
-    /// <remarks>Beetom's private tail runs after common shot AI for every accepted hit, including immune/zero-damage
+    /// <remarks>Beetom lets go after common shot AI for every accepted hit, including immune/zero-damage
     /// vulnerability results.</remarks>
     internal static EnemyShotReaction BeetomShotReaction { get; } = new()
     {

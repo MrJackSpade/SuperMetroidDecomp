@@ -21,7 +21,7 @@ public enum MotherBrainRevivalPhase
     /// <summary>After the wait repeatedly requests forward walking until X passes 80, then enables health-based colours and prepares the neck.</summary>
     WalkUpToBaby,
 
-    /// <summary>Clears the baby attack counter and configures both neck targets before falling into the stand-up handshake.</summary>
+    /// <summary>Clears the baby attack counter and configures both neck targets before she stands up.</summary>
     PrepareNeckForBabyDeath,
 
     /// <summary>Waits for standing, requests really-slow forward walking, and immediately enters the baby-attack chooser.</summary>

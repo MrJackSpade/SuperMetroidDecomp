@@ -49,7 +49,7 @@ public static class SamusBlockCollision
             state.Position = state.Position.WithFractionX(probe.Position.X.Fraction);
 
         // The step preceding the block scan has a separate
-        // real side effect: its touching path clears Samus's Y subposition. Copy that single
+        // real side effect: its touching path clears Samus's vertical fraction of a pixel. Copy that single
         // write back without committing the probe's X movement or slope alignment.
         if (result.EnemyCollision is { WasTouching: true })
             state.Position = state.Position.WithFractionY(0);
@@ -62,7 +62,7 @@ public static class SamusBlockCollision
     /// without solid-enemy collision, and the subsequent non-square slope alignment.
     /// </summary>
     /// <param name="terrain">The room terrain the move collides with and reacts to.</param>
-    /// <param name="state">Live or probe kinematics whose position, subposition, and collision-related motion values are updated.</param>
+    /// <param name="state">Live or probe kinematics whose position, to a fraction of a pixel, and collision-related motion values are updated.</param>
     /// <param name="owner">The Samus whose collision reactions (spikes, boost blocks, bomb blocks) act, or null for an ownerless probe.</param>
     /// <param name="pose">
     /// The pose Samus moves in, which the elevator's pseudo-doors, the stations and the Chozo statue's hand admit by, or
@@ -368,7 +368,7 @@ public static class SamusBlockCollision
     /// fixed-point step to her position when nothing solid stops her.
     /// </summary>
     /// <param name="terrain">The room terrain the move collides with and reacts to.</param>
-    /// <param name="state">Live or probe kinematics whose position, subposition, and collision-related motion values are updated.</param>
+    /// <param name="state">Live or probe kinematics whose position, to a fraction of a pixel, and collision-related motion values are updated.</param>
     /// <param name="owner">The Samus whose collision reactions act, or null for an ownerless probe.</param>
     /// <param name="pose">The pose Samus moves in, which pose-gated block reactions admit by, or null for a probe with no pose.</param>
     /// <param name="move">One vertical block move: the displacement and which collision side effects it publishes.</param>

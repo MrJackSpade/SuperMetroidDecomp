@@ -10,7 +10,7 @@ internal static class PowampMotion
     internal static int BalloonHeight(PowampBalloonPose pose) =>
         BalloonHeights.TryGetValue(pose, out int height) ? height : throw new ArgumentOutOfRangeException(nameof(pose), pose, "Not a Powamp balloon pose.");
 
-    /// <summary>The signed 1/256-pixel acceleration of a spike flying in <paramref name="direction"/>.</summary>
+    /// <summary>The acceleration of a spike flying in <paramref name="direction"/>.</summary>
     /// <exception cref="InvalidDataException"><paramref name="direction"/> is not one of the eight directions.</exception>
     internal static EightEightVector<RoomPixels> SpikeAcceleration(CompassDirection direction) =>
         SpikeAccelerations.TryGetValue(direction, out EightEightVector<RoomPixels> acceleration)

@@ -259,7 +259,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Action = MagdolliteHeadAction.WaitingForBodyLanding;
     }
 
-    /// <summary>Starts the Samus-facing emerge animation once the falling body releases the head's landing latch.</summary>
+    /// <summary>Starts the Samus-facing emerge animation once the falling body has landed back at its origin.</summary>
     private static void RunMagdolliteHeadWaitingForBodyLanding(
         RoomEnemyPlace head,
         MagdolliteHeadState state,
@@ -337,7 +337,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         StartMagdolliteAnimation(body, state, state.BodyPhase.Phase.BodyAnimation);
     }
 
-    /// <summary>Retraces the body's growth phases and releases the head's landing latch at its origin.</summary>
+    /// <summary>Retraces the body's growth phases; once the body is back at its origin it rests and the head may emerge.</summary>
     internal void RunMagdolliteBodyFalling(
         RoomEnemyPlace body,
         MagdolliteBodyState state)
@@ -587,7 +587,10 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Runs the shared post-combat tail.</summary>
+    /// <summary>
+    /// Passes a struck part's fate to the two enemies listed after it, once any hit's ordinary damage is done: a part
+    /// killed deletes them, and a frozen part freezes them for as long.
+    /// </summary>
     private void ResolveMagdolliteCombatAfterCommon(RoomEnemyPlace current)
     {
         // The follow-up reaches the two enemies listed after the part that was hit (FollowUpAfterStruckPart): a power
@@ -619,7 +622,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Attaches the species tail after common bomb damage when the shot AI selects Magdollite's reaction.</summary>
+    /// <summary>Magdollite's reaction to a bomb: after its ordinary damage, the struck part's fate passes to the enemies listed after it.</summary>
     internal EnemyBombReaction MagdolliteBombReaction => field ??= new()
     {
         AfterCommon = c => ResolveMagdolliteCombatAfterCommon(c.Enemy),

@@ -447,7 +447,7 @@ internal sealed class EnemyProjectileEngine
         if (collision.Stops(level, new EnemyProjectileScannedMove(projectile, scan, movingNegative, movementEdge), out int? alignedPosition))
         {
             // The horizontal and vertical block scans do not merely reject the
-            // attempted movement. They clear the subposition and place the
+            // attempted movement. They clear the fraction of a pixel and place the
             // projectile flush against the 16-pixel block boundary it reached.
             // Without this correction a fast downward projectile retains its last
             // pre-collision coordinate and visibly hovers above the floor.

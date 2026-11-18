@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// Samus's grounded movement types from her ordinary movement step.
 /// </summary>
 /// <remarks>
-/// This is deliberately not a generic platformer controller. The entry points below
+/// This is deliberately not a generic platformer controller. The movements below
 /// correspond only to the standing, running, turning-on-ground, moonwalking and ran-into-wall movement types, with
 /// their speeds in air, water and lava (<see cref="SamusHorizontalSpeedDefinitions"/>), submerged Dash gating, and ordinary Dash and equipped-Speed-Booster accumulation and
 /// staging. Solid enemies stop Samus through the shared block collision, conveyors carry her as inside-block reactions,

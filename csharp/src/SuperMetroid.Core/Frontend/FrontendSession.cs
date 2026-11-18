@@ -35,7 +35,7 @@ internal sealed class FrontendSession
         Random = Ensure.NotNull(random);
         Assists = assists ?? GameplayAssists.None;
         display = new FrontendDisplay(hostServices.GameplayFrames);
-        // One set of request handshakes for the session's whole lifetime, like the clock: each library's handshake keeps its
+        // One set of request cycles for the session's whole lifetime, like the clock: each library's cycle keeps its
         // phase across menus and gameplay runtimes, and a soft reset returns it to ready with the queues. Every sound request
         // is tested against the live runtime's demo and power bomb as it is made.
         audio = new AudioQueues(new SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>(SoundEffectLibraries.InQueueOrder),

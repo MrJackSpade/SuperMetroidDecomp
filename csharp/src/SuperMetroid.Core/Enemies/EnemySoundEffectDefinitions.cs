@@ -92,7 +92,7 @@ internal static class EnemySoundEffectDefinitions
     /// <summary>Enemy-library sound requested on Mama's hover collision with a wall.</summary>
     internal static readonly SoundEffectId MamaTurtleWallSound = EnemySound.HeavyClank;
 
-    /// <summary>Enemy-library sound from the private tail of Oum shot handling.</summary>
+    /// <summary>Enemy-library sound an Oum plays once a shot has hit it.</summary>
     internal static readonly SoundEffectId MaridiaLargeSnailShotSound = EnemySound.DudShot;
 
     /// <summary>Enemy-library splash sound emitted at the water collision.</summary>

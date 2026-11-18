@@ -118,7 +118,7 @@ internal sealed class EnemyFramePhase
             // The camera's and the foreground's positions hold the written X to the room's coordinates (#1627).
             // The Shitroid writes the camera X position during the enemy pass, before the ordinary
             // scrolling later in this frame. Do not route it through entry
-            // placement, which would clear subposition and ideal-camera state.
+            // placement, which would clear the camera's fraction of a pixel and its ideal position.
             room.Camera.SetCameraXFromEnemyAi(shitroidCameraX);
             _backgroundScroll.ForegroundPosition = _backgroundScroll.ForegroundPosition.WithX(shitroidCameraX);
         }

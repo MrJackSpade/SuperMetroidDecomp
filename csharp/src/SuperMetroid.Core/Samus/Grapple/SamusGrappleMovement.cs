@@ -125,7 +125,7 @@ public static class SamusGrappleMovement
         if (HandleFiringPoseChange(level, samus, controllerInput) is { } poseChange)
             return poseChange;
 
-        // The connection's common tail clamps the camera's previous position after
+        // Finishing the connection clamps the camera's previous position after
         // the connection pose snaps Samus to the accepted rope geometry. Retain the pre-snap body
         // position even though most firing frames return without consuming this sample.
         Position16<RoomPixels> previousPosition = samus.Position.Whole;
@@ -933,9 +933,9 @@ public static class SamusGrappleMovement
             grapple.Phase = GrapplePhase.ConnectedLocked;
         }
 
-        // The swinging and locked connections share one tail: it cancels the speed boost, the echoes leaving the way
-        // the connection pose faces, then clears the base, extra-run and vertical speeds. AccelerationMode is
-        // deliberately retained: the common tail does not write it.
+        // A swinging and a locked connection finish connecting the same way: the speed boost is cancelled, the echoes
+        // leaving the way the connection pose faces, then the base, extra-run and vertical speeds are cleared.
+        // AccelerationMode is kept: connecting does not change it.
         samus.HorizontalSpeed.CancelRunningMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
         samus.HorizontalSpeed.BaseSpeed = default;
         samus.HorizontalSpeed.ExtraRunSpeed = default;

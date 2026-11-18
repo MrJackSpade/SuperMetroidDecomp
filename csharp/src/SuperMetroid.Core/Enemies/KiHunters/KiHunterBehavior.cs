@@ -487,7 +487,10 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Advances the detached wings' orbit, including its odd authored speed read.</summary>
+    /// <summary>
+    /// Turns the detached wings back along their orbit by the coarse speed of their place on the speed curve
+    /// (<see cref="DetachedWingCoarseSpeed"/>).
+    /// </summary>
     internal static void RunDetachedKiHunterWingOrbit(RoomEnemyPlace wings, KiHunterWingState state)
     {
         state.WingArcAngle = state.WingArcAngle.TurnedByFractionsOfStep(DetachedWingCoarseSpeed(

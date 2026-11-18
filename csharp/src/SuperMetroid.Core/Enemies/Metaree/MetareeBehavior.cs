@@ -127,9 +127,9 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        // Unlike common movement, Metaree applies whole-pixel speeds directly and leaves both subpositions untouched.
-        // Even the fastest dive, when Samus lies above it, stays in the room: the probe above ends the dive before a step
-        // would take the Metaree past the room's bottom row. Horizontal steering re-evaluates Samus every frame.
+        // The dive moves Metaree by whole pixels, so where it lies within a pixel never changes. Even the fastest dive,
+        // when Samus lies above it, stays in the room: the probe above ends the dive before a step would take the Metaree
+        // past the room's bottom row. It steers towards Samus anew every update.
         place.Position = place.Position.WithWholeY(place.Position.Y.Whole + state.YVelocity);
         bool metareeIsLeftOfSamus = place.Position.X.Whole < samus.Position.X.Whole;
         place.Position = place.Position.WithWholeX(place.Position.X.Whole +

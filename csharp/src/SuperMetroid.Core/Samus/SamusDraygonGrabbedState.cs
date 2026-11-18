@@ -109,9 +109,8 @@ public sealed class SamusDraygonGrabbedState
             draygonFacing == HorizontalDirection.Right ? SamusDraygonHoldDefinitions.HeldAhead : -SamusDraygonHoldDefinitions.HeldAhead,
             SamusDraygonHoldDefinitions.HeldBelow));
 
-        // The placement writes whole positions only. It does not clear subpositions,
-        // so preserving the subpositions is intentional even though the actor overwrites
-        // the visible whole coordinates on every owner update.
+        // The placement writes whole positions only. Where Samus lies within a pixel stays, even though the actor
+        // overwrites the visible whole coordinates on every owner update.
     }
 
     /// <summary>

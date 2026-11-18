@@ -209,10 +209,10 @@ internal sealed class BlockReactionObjects
         }
 
         // The setup discards the earlier appearance rather than preserving the visible block. Dimension-specific final
-        // draws reconstruct linked extension blocks; the 1x1 respawn tail uses this exact restore block.
+        // draws reconstruct linked extension blocks; a 1x1 block respawns with this exact restore block.
         RoomTerrainBlock restore = block.Terrain.WithAppearance(_drawing.SetupBlock(RoomObjectSetupBlock.BombBlockParent));
         place.RestoreTerrain = restore;
-        // Only normal bombs skip the reaction sound: a normal bomb starts the shared break tail.
+        // Only normal bombs skip the reaction sound: a normal bomb sets off the block's break directly.
         place.Become(new BlockReactionObject(projectileFamily == SamusProjectileFamily.Bomb
             ? BlockReactionChanges.BombBreak(bombable)
             : BlockReactionChanges.ReactionBomb(bombable)));

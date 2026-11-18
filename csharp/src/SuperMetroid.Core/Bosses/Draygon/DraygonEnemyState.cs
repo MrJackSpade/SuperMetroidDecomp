@@ -51,7 +51,7 @@ public sealed class DraygonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBo
     /// <summary>His eye, which tracks Samus using coordinates copied from the body.</summary>
     public DraygonPart EyePart { get; }
 
-    /// <summary>His tail, whose animations drive whips and the final release handshake.</summary>
+    /// <summary>His tail, whose animations drive his whips and his release of Samus after the final whips.</summary>
     public DraygonPart TailPart { get; }
 
     /// <summary>His arms, whose animation follows the body's authoritative coordinates.</summary>

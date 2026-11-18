@@ -18,6 +18,6 @@ public enum AlcoonAction
     WaitingForFireAnimation,
     /// <summary>Integrates the retreat jump's upward motion until acceleration changes its whole velocity to nonnegative.</summary>
     HidingRising,
-    /// <summary>Falls without terrain collision until reaching spawn Y, then restores the whole spawn coordinates and proximity-wait state while preserving subpositions.</summary>
+    /// <summary>Falls without terrain collision until reaching spawn Y, then restores the whole spawn coordinates and proximity-wait state, keeping where it lies within a pixel.</summary>
     HidingFalling,
 }

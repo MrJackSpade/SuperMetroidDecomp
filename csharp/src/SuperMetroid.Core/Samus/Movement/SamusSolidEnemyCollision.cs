@@ -25,7 +25,7 @@ public static class SamusSolidEnemyCollision
     /// <param name="distance">Whole pixels of the requested collision distance.</param>
     /// <param name="distanceSubposition">Fraction of the requested collision distance.</param>
     /// <returns>The first qualifying body's current leading-edge gap, or the requested whole distance with no enemy when no collision is found.</returns>
-    /// <remarks>No whole position or enemy body is changed. Exact current-edge contact clears <paramref name="state"/>'s Y subposition even for horizontal probes. The distance is a magnitude; direction supplies its sign.</remarks>
+    /// <remarks>No whole position or enemy body is changed. Exact current-edge contact clears <paramref name="state"/>'s vertical fraction of a pixel even for horizontal probes. The distance is a magnitude; direction supplies its sign.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="state"/> or <paramref name="interactiveEnemies"/> is null.</exception>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="direction"/> is not one of the four directions; NonDirectionalProbe is not accepted here.</exception>
     public static SolidEnemyCollisionResult Probe(

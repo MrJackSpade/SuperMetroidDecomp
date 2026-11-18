@@ -661,6 +661,16 @@ queues the departure sound and then the spin-end sound, the release leaves five 
 the wrap once. A turn's wrap, a thing wrapped across something, clearing a thing, an issue, a call and overlapping things
 that are not writes stay English.
 
+#2440 widens SME6454, outside hardware owners, to the original's storage and program as enemy prose tells them: a
+subposition (`both subpositions`, `the live Y sub-position`); a handshake in any word form (`the animation-to-AI
+handshake`, `the corpse handshake`); an entry point no thing or place owns (`the two entry points`, `this entry point`);
+a tail of the program (`the shared post-combat tail`, `the species tail`, `the common tail`); and a value told by its
+type's range (`past the type's range`, `far inside its type`). Core says what the game does: only the whole pixels are
+restored and the place within the pixel carries over, the animation's last frame lets the enemy rest or fall, the setup
+places the platform, the reaction freezes the parts listed after it, a jump's speed stays within a few pixels an update.
+A thing's or a place's entry point (`his entry point`), a sub-pixel position, a fraction of a pixel, a body's tail and a
+hardware owner's own range stay English.
+
 `Tilemap` is matched as the one word the cartridge's sources spell. A room layer named as the destination engine names
 it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as does `MapTiles`; so does
 `SpriteSheet` beside `Spritemap`, and `Scan`, `Scanned` or `FirstLine` beside `Scanline` (#1694). Documentation prose is

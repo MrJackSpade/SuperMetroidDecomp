@@ -9,6 +9,6 @@ public enum StationKind
     Energy,
     /// <summary>Refills ordinary Missiles to their current maximum after the access arm's extension hold.</summary>
     Missile,
-    /// <summary>Uses the floor trigger to request confirmation, then runs the save-pod animation and completion-message handshake.</summary>
+    /// <summary>Uses the floor trigger to request confirmation, then runs the save-pod animation and the save's completion message.</summary>
     Save,
 }

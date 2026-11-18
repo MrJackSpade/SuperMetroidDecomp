@@ -232,7 +232,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         return spawned;
     }
 
-    /// <summary>Resolves the private tail of a shot on a Zebetite.</summary>
+    /// <summary>Finishes a Zebetite's reaction to a shot, after its common damage.</summary>
     private void ResolveZebetiteShotAfterCommon(RoomEnemyPlace struck)
     {
         _audio.QueueEnemySound(ZebetiteDefinitions.ShotSound, SoundRequestPriority.Normal);

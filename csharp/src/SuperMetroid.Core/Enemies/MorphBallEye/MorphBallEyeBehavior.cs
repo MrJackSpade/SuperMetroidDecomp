@@ -135,7 +135,10 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Angle = CalculateMorphBallEyeAngle(eye, samus);
     }
 
-    /// <summary>Aims one of sixteen active frames at Samus or starts closing after the wider horizontal/vertical range fails.</summary>
+    /// <summary>
+    /// Looks at Samus in one of its fourteen open poses (<see cref="MorphBallEyeAnimations.AimFrames"/>), or starts closing
+    /// once she leaves the wider reach on either axis.
+    /// </summary>
     private void TrackSamusWithMorphBallEye(
         RoomEnemyPlace eye,
         MorphBallEyeEnemyState state,

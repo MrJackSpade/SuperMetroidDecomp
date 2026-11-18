@@ -15,6 +15,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// Its colour, beam-effect, projectile, earthquake, graphics, spawn and sound changes are requests other systems
 /// fulfil; it makes its coordinate, resource, timer, animation and Samus-control changes itself.
 /// </remarks>
+[ArchitectureReview("back-reference", "Mother Brain's late fight (#2471): her encounter begins and owns it for the rest of the room once her phase-two health runs out, and its phases read and write that encounter in place (#2209), so the two share one lifetime.")]
 public sealed class MotherBrainRainbowBeamAttackSequence
 {
     /// <summary>

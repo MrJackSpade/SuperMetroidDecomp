@@ -18,6 +18,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// (<see cref="Trigonometry.MultiplySignedSine"/>). Those steps decide the update on which the Baby's hit area reaches
 /// Mother Brain's brain, so a smooth curve that looks the same would change it.
 /// </remarks>
+[ArchitectureReview("back-reference", "The Baby of Mother Brain's late fight (#2471): the late fight makes and owns its Baby for the rest of the room, and the Baby's steps move the late fight that made it on, so the two share one lifetime.")]
 public sealed class BabyMetroidCutsceneState
 {
     /// <summary>Makes the Baby of <paramref name="lateFight"/>, which it holds from here, before the final beam spawns it.</summary>

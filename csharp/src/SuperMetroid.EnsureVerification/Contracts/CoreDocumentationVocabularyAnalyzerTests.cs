@@ -1618,5 +1618,21 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         // A name that holds no Translated word and a hardware owner are English.
         Expect("class P { int TranslateBy() => 0; int Translation; }");
         Expect(CompatibilityService + "/// <summary>Evidence: the turn.</summary>\n[CompatibilityService(\"turn\")] class Turn { bool isTranslatedTurnPose; }");
+        // One value told as storage for several meanings in boss prose, outside hardware owners and markup (#2402): shared
+        // storage, a count of 65536ths, one value kept for several things or read under another meaning, and a marker
+        // left in a value.
+        Expect("class P { /// <summary>Its three shared storage values.</summary>\nint F => 0; }", "('shared storage')");
+        Expect("class P { /// <summary>Forty-eight 65536ths of a pixel an update.</summary>\nint F => 0; }", "('Forty-eight 65536ths')");
+        Expect("class P { void Run() { // a ramp of 544 65536ths\n } }", "('544 65536ths')");
+        Expect("class P { /// <summary>The game keeps one value for the projectile attack.</summary>\nint F => 0; }",
+            "('keeps one value for')");
+        Expect("class P { /// <summary>The queued steps and the rumble step are kept in one value.</summary>\nint F => 0; }",
+            "('in one value')");
+        Expect("class P { void Run() { // the one value a phase reads under another meaning\n } }", "('under another meaning')");
+        Expect("class P { /// <summary>The rumble later leaves a marker in the same value.</summary>\nint F => 0; }",
+            "('leaves a marker in')");
+        // A unit of measure, one 65536th, a value alone, a marker the game shows and a hardware owner are English.
+        Expect("class P { /// <summary>Where it stands, in pixels and 65536ths; one 65536th of a pixel further; the map marker.</summary>\nint F => 0; }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the original keeps one counter for both.</summary>\n[CompatibilityService(\"count\")] class Count { }");
     }
 }

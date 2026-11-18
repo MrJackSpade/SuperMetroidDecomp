@@ -109,7 +109,7 @@ public sealed class KraidEnemyState
     public int WalkTargetX { get; internal set; }
     /// <summary>Gets the hurt-flash phase, from zero to six: started at six by a vulnerable mouth hit and stepped down by its frame timer.</summary>
     public int HurtFrame { get; internal set; }
-    /// <summary>Gets the countdown pacing hurt-flash phases, normally reloaded to two and reused by background fades during death.</summary>
+    /// <summary>Gets the countdown pacing hurt-flash phases, reloaded to <see cref="KraidArenaDefinitions.HurtFlashStepUpdates"/> after each.</summary>
     public int HurtFrameTimer { get; internal set; }
     /// <summary>The head pose Kraid is showing, which selects the head image; null until the head animation shows its first pose.</summary>
     internal KraidHeadFrame? DisplayedHeadFrame { get; set; }
@@ -139,7 +139,7 @@ public sealed class KraidEnemyState
         ? PendingMouthReopens - 1
         : throw new InvalidOperationException("Removing a mouth reopen from none breaks Kraid's mouth-reopen order.");
 
-    /// <summary>Clears every mouth latch and the pending reopen count together, as the game clears them at once.</summary>
+    /// <summary>Clears every mouth latch and the pending reopen count.</summary>
     internal void ClearMouthReactions()
     {
         MouthFlags = KraidMouthFlags.None;

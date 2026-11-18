@@ -120,6 +120,8 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// calls) and the super-special name.
 /// #2398 adds, outside hardware owners, the port's narration of itself (inspectable things, patches told as fixes and
 /// Translated in a declared name), tables told as the original's storage and, outside generated text, repository paths.
+/// #2402 adds, outside hardware owners, one value told as storage for several meanings: shared storage, a count of
+/// 65536ths, one value kept for several things or read under another meaning, and a marker left in a value.
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -1751,6 +1753,25 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
+    /// The original's storage of one value under several meanings told in boss prose (#2402), outside hardware owners and
+    /// markup: shared or common storage and storage slots; a value counted as a number of 65536ths (forty-eight 65536ths of
+    /// a pixel, 544 65536ths, 65535 65536ths); the game keeping, holding or storing one value for several things (the game
+    /// keeps one value for the projectile attack and one for every other phase), things kept in one, a second or a third
+    /// value, and a value read under another's or each other's meaning; and a step leaving a marker in a value (the rumble
+    /// leaves a marker in the same value). Core keeps each meaning on its own and says what the game does with it. English
+    /// stays legal: a unit of measure (in pixels and 65536ths, one 65536th of a pixel further), a value alone and a
+    /// marker the game shows.
+    /// </summary>
+    private static readonly Regex SharedStorageProse = new(
+        @"\b(?:shared|common)\s+storage\b|\bstorage\s+slots?\b" +
+        @"|\b(?:[0-9]+|" + NumberWordsOnly + @"(?:-" + NumberWordsOnly + @")?)\s+65536ths\b" +
+        @"|\b(?:keeps?|kept|holds?|held|stores?|stored)\s+(?:one|a\s+single|the\s+same)\s+(?:value|counter|count|timer|variable)\s+for\b" +
+        @"|\bin\s+(?:one|a\s+single|the\s+same|a\s+second|a\s+third)\s+value\b" +
+        @"|\bunder\s+(?:each\s+other(?:'|’)s|another(?:'s|’s)?|one\s+another(?:'|’)s)\s+meaning\b" +
+        @"|\b(?:leaves?|left|leaving)\s+(?:a|an|its|the)\s+(?:[\w-]+\s+)?marker\s+in\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
     /// A camel-case word of a declared name that tells the port as a translation (#2398): Translated or Untranslated at
     /// any word boundary (<c>CaptureTranslatedRenderSnapshot</c>, <c>hasTranslatedBodyChange</c>). Core names what the
     /// member captures, collects or tests.
@@ -2255,6 +2276,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : PortSelfNarrationProse.Match(Markup.Replace(text, " ")) is { Success: true } selfNarration ? selfNarration.Value
             : TableStorageProse.Match(Markup.Replace(text, " ")) is { Success: true } tableStorage ? tableStorage.Value
             : !generated && RepositoryPathProse.Match(text) is { Success: true } repositoryPath ? repositoryPath.Value
+            : SharedStorageProse.Match(Markup.Replace(text, " ")) is { Success: true } sharedStorage ? sharedStorage.Value
             : TileCharacterFinding(text, owner) is { } character ? character
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;

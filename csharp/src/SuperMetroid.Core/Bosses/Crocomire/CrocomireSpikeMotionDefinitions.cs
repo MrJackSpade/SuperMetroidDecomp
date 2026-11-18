@@ -11,8 +11,8 @@ internal static class CrocomireSpikeMotionDefinitions
 
     /// <summary>
     /// How much each piece's sideways acceleration grows each update, in pixels per update per update, by its place from
-    /// the top (#2181): a descending eight-step ramp of 544 65536ths, saturated at 4080. The peak is deliberately capped
-    /// rather than extrapolated to 4352.
+    /// the top (#2181): a ramp rising by the same step from the bottom piece up, the top piece's held just below a
+    /// sixteenth of a pixel instead of taking the ramp's next step.
     /// </summary>
     internal static readonly SignedSixteenSixteen[] AccelerationDeltas =
     [
@@ -23,8 +23,8 @@ internal static class CrocomireSpikeMotionDefinitions
     ];
 
     /// <summary>
-    /// Each piece's acceleration limit is this many times its acceleration's growth. The saturated growth keeps the largest
-    /// limit at 65280 65536ths, under a pixel per update per update.
+    /// Each piece's acceleration limit is this many times its acceleration's growth. The top piece's held growth keeps the
+    /// largest limit just under a pixel per update per update.
     /// </summary>
     internal const int MaximumAccelerationPerIncrement = 16;
 

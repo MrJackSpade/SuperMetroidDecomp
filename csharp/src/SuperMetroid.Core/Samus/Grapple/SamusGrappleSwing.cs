@@ -54,7 +54,7 @@ public static class SamusGrappleSwing
 
         // Samus leaves at twice the swing's speed, each step of turn a pixel, along each axis's share of the rope's
         // direction. The swing speed is at most four and a half steps and the component at most one, so each speed
-        // stays below 2^24 65536ths of a pixel and never wraps.
+        // stays below 256 pixels and never wraps.
         samus.Kinematics.YSpeed = cosine.SizeTimes(releaseSpeed);
 
         // The release's vertical direction depends on which way the swing turns and which side of its anchor's

@@ -2,8 +2,9 @@ namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
 /// How many shots Samus has out, as firing counts them (#2051). The count is kept apart from the shot places the
-/// projectiles hold, and the two drift: firing counts a shot before it looks for a free place and takes the count back
-/// when it finds none; a special attack sets the count to its particle count whatever its fifth place holds; a Super
+/// projectiles hold, and the two drift: a beam is counted before it takes its place and taken back when Samus's pose
+/// cannot fire it, and with every place held it replaces the last place's shot, which is never uncounted
+/// (<see cref="BeamFiredOverLastShot"/>); a special attack sets the count to its particle count whatever its fifth place holds; a Super
 /// Missile counts its collision link; a deleted projectile takes one off, but a deletion at zero leaves zero. The count,
 /// not occupancy, admits firing (no beam, missile or Super Missile is fired while it is at the limit) and the
 /// shinespark crash's echoes (each echo is released only while the count leaves room for it), and Kraid's and Ridley's
@@ -29,7 +30,7 @@ public sealed class SamusShotCount
     /// <summary>A shot is fired or released, or a Super Missile's link takes a place: one more is counted.</summary>
     internal void CountShot() => Count++;
 
-    /// <summary>A shot counted before its place was found is refused: the count is taken back.</summary>
+    /// <summary>A beam counted before its place was taken is refused, as Samus's pose cannot fire it: the count is taken back.</summary>
     internal void TakeBackRefusedShot() => Count--;
 
     /// <summary>A projectile is deleted: one less is counted, but a count of zero stays zero.</summary>

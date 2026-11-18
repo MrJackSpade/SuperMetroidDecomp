@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// flashback's reset), each place keeps the sub-pixel position of the projectile holding it, and a place no projectile
 /// holds keeps what it was already keeping. The next projectile to take the place starts from what it kept, and the place
 /// then keeps nothing more: a projectile deleted from its place leaves zero. A projectile that takes over a place another
-/// projectile still holds (a special attack's particles, a crash echo) continues from that projectile's sub-pixel
+/// projectile still holds (a special attack's particles, a crash echo, a beam fired with every place held) continues from that projectile's sub-pixel
 /// position, so a clear while it holds the place keeps the earlier projectile's fraction; the Super Missile's collision
 /// link alone starts from zero.
 /// </para>

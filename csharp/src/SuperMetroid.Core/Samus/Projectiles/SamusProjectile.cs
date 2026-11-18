@@ -7,9 +7,10 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// One of Samus's ordinary projectiles: a beam, missile, special-attack particle, echo or explosion. Each is created
 /// fresh when it takes its place in Samus's shot pool (<see cref="SamusShotPool.Occupy"/>), keeps its own state,
 /// and ends when it is deleted, replaced, or Samus's shots are cleared. Nothing it holds reaches the next projectile in
-/// its place; the one value gameplay carries from place to place, the horizontal sub-pixel position, is
-/// <see cref="LeftMuzzleSubpixelCarry"/>'s. A place no projectile holds reads as the projectile that last ended there,
-/// or one never fired: no type, no damage, at rest at the room's origin.
+/// its place but two values gameplay carries over: the horizontal sub-pixel position, which is
+/// <see cref="LeftMuzzleSubpixelCarry"/>'s, and, for a beam fired with every place held over the shot in the last place,
+/// the count that shot leaves (<see cref="BeamFiredOverLastShot"/>). A place no projectile holds reads as the projectile
+/// that last ended there, or one never fired: no type, no damage, at rest at the room's origin.
 /// </summary>
 public sealed class SamusProjectile
 {
@@ -127,6 +128,24 @@ public sealed class SamusProjectile
     internal SamusShotKindState? KindState { get; private set; }
 
     /// <summary>
+    /// The Power Bomb fuse a beam carries, in updates (#2468): none for a beam fired into a free place, and for one fired
+    /// with every place held the count the shot it replaced left (<see cref="BeamFiredOverLastShot"/>). The Chainsaw shot
+    /// burns it down (<see cref="ChainsawFuse"/>); every other beam, its reflection and its explosion keep it for a beam
+    /// fired over it in turn. None for every other projectile, whose kind keeps its own count.
+    /// </summary>
+    internal int BeamFuse
+    {
+        get;
+        set => field = Ensure.AtLeastZero(value);
+    }
+
+    /// <summary>
+    /// The Power Bomb fuse, in updates, a beam fired over this projectile while it holds its place starts with
+    /// (<see cref="BeamFiredOverLastShot"/>): the count its kind leaves, or for a beam or an explosion the fuse it carries.
+    /// </summary>
+    internal int FuseLeftForBeamFiredOver => KindState?.FuseLeftForBeamFiredOver ?? BeamFuse;
+
+    /// <summary>
     /// Gives the projectile its kind's behaviour with the state the kind starts with: firing, a special attack, an
     /// echo's release, a Super Missile's link and a reflection install one. A particle moving on to its next behaviour
     /// keeps its state and changes only <see cref="Behavior"/>.
@@ -174,5 +193,6 @@ public sealed class SamusProjectile
         TrailUpdatesLeft = null;
         Behavior = null;
         KindState = null;
+        BeamFuse = 0;
     }
 }

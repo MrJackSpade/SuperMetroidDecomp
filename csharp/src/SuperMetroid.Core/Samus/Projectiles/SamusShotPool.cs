@@ -4,7 +4,8 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <remarks>
 /// Place order: Samus has <see cref="SamusProjectileSystem.PlaceCount"/> shot places. A shot takes the lowest place no
 /// projectile holds; the projectile update and drawing run in update order, from the highest place down, and enemy
-/// collision from the lowest up. Gameplay names some places: a special attack's particles replace the shots in the first
+/// collision from the lowest up. With every place held a beam takes the last place over the shot holding it
+/// (<see cref="PlaceForBeam"/>). Gameplay names some places: a special attack's particles replace the shots in the first
 /// four (<see cref="SpecialAttackReplacesFirstShots"/>), each playing its part (<see cref="SpecialAttackParticleDefinitions"/>); the crash echoes take the last two (<see cref="FirstEchoPlace"/>, <see cref="SecondEchoPlace"/>); an unlinked Super Missile names
 /// the first (<see cref="UnlinkedSuperMissileLink"/>); and some enemies react to the first place's projectile or to the
 /// highest one.
@@ -50,6 +51,27 @@ internal sealed class SamusShotPool
     internal SamusProjectile HolderOfPlaceOf(SamusProjectile projectile) => _places[Ensure.NotNull(projectile).Place];
     /// <summary>The lowest place no projectile holds, which firing and the Super Missile's link take, or null when all are held.</summary>
     internal int? FindFreePlace() => _places.FirstOrDefault(projectile => !projectile.IsOccupied)?.Place;
+
+    /// <summary>
+    /// The place a beam takes (#2468): the lowest free one, or with every place held the last, over the shot holding it
+    /// (<see cref="BeamFiredOverLastShot"/>).
+    /// </summary>
+    internal int PlaceForBeam() => BeamFiredOverLastShot.Place(FindFreePlace(), _places.Length);
+
+    /// <summary>
+    /// Creates the new beam of <paramref name="place"/> as <see cref="Occupy"/> does, ending the shot there, and gives
+    /// it the Power Bomb fuse that shot leaves: none from a free place (<see cref="BeamFiredOverLastShot"/>).
+    /// </summary>
+    /// <param name="place">The zero-based shot place, which <see cref="PlaceForBeam"/> chose.</param>
+    /// <returns>The new beam, holding no damage until its setup gives it some.</returns>
+    internal SamusProjectile OccupyWithBeam(int place)
+    {
+        SamusProjectile replaced = _places[place];
+        int fuse = replaced.IsOccupied ? replaced.FuseLeftForBeamFiredOver : 0;
+        SamusProjectile beam = Occupy(place);
+        beam.BeamFuse = fuse;
+        return beam;
+    }
 
     /// <summary>
     /// Creates the new projectile of <paramref name="place"/>, ending the one there. It starts at the room's origin with

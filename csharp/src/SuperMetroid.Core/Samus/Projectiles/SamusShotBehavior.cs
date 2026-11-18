@@ -24,10 +24,4 @@ internal abstract class SamusShotBehavior
     internal virtual void AdmitFiring()
     {
     }
-
-    /// <summary>
-    /// The state a beam shot fired with this behaviour starts keeping (#2346): none for every beam's behaviour but the
-    /// Chainsaw shot's, which runs a Power Bomb fuse over itself (<see cref="ChainsawPowerBombShot"/>).
-    /// </summary>
-    internal virtual SamusShotKindState? FiredKindState() => null;
 }

@@ -84,6 +84,7 @@ using static SuperMetroid.Verification.Areas.Ceres.CeresHazeVerification;
 using static SuperMetroid.Verification.Bosses.Ridley.CeresRidleyWallVerification;
 using static SuperMetroid.Verification.Areas.Ceres.CeresSteamCollisionDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.ChainsawFiringVerification;
+using static SuperMetroid.Verification.Samus.Projectiles.BeamFiredOverLastShotVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.PowerBombRadiusVerification;
 using static SuperMetroid.Verification.Frontend.Intro.CinematicCrystalFlashVerification;
 using static SuperMetroid.Verification.Frontend.Intro.CinematicSnapshotTestsVerification;
@@ -1030,6 +1031,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyIntroCrossfade), () => VerifyIntroCrossfade()),
         new(nameof(VerifyPowerBombColorMathWindow), () => VerifyPowerBombColorMathWindow()),
         new(nameof(VerifyChainsawFiring), () => VerifyChainsawFiring()),
+        new(nameof(VerifyBeamFiredOverLastShot), () => VerifyBeamFiredOverLastShot()),
         new(nameof(VerifySpacetimeBeam), () => VerifySpacetimeBeam()),
         new(nameof(VerifyMurderBeam), () => VerifyMurderBeam()),
         new(nameof(VerifyPowerBombRuntimeRendererIntegration), () => VerifyPowerBombRuntimeRendererIntegration()),

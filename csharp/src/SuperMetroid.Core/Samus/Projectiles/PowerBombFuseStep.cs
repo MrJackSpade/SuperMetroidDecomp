@@ -7,4 +7,12 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <param name="DeleteProjectile">Whether the bomb is deleted.</param>
 [IndependentFlag("independent outcomes of one fuse step")]
 public readonly record struct PowerBombFuseStep(
-    int UpdatesLeft, bool FastAnimation, bool SpawnExplosion, bool DeleteProjectile);
+    int UpdatesLeft, bool FastAnimation, bool SpawnExplosion, bool DeleteProjectile)
+{
+    /// <summary>
+    /// Whether the Power Bomb's boundary reactions follow this step: only from a fuse that had already burned out. A fuse
+    /// still burning reacts with nothing, and so does the step that burns it out (#2468; the evidence is
+    /// <see cref="BeamFiredOverLastShot"/>'s).
+    /// </summary>
+    public bool BoundaryReacts => UpdatesLeft == 0 && !SpawnExplosion;
+}

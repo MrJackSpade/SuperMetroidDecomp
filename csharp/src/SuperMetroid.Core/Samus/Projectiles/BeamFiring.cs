@@ -178,7 +178,7 @@ internal sealed class BeamFiring
 
     /// <summary>
     /// Finishes firing a beam, uncharged or charged. A
-    /// successful shot's own essential-priority sound replaces the charging sound. If allocation or
+    /// successful shot's own essential-priority sound replaces the charging sound. If admission or
     /// muzzle initialization rejects a release after counter sixteen, the game queues
     /// the charge-silencing sound instead so the sustained charge cannot remain audible; that rejection first cancels a
     /// pending resume of the charging sound, as a shot does (#1689).
@@ -227,12 +227,8 @@ internal sealed class BeamFiring
         _pool.ShotCount.CountShot();
 
         // The shot count can read lower than the places held: a special attack sets it to its particle count whatever
-        // the fifth place holds. With every place held the shot is refused and the count is taken back.
-        if (_pool.FindFreePlace() is not { } place)
-        {
-            _pool.ShotCount.TakeBackRefusedShot();
-            return null;
-        }
+        // the fifth place holds. With every place held the shot takes the last place over the shot there (#2468).
+        int place = _pool.PlaceForBeam();
 
         SamusProjectileDirection? direction = samus.PendingTransitionShot is { } transitionShot
             ? transitionShot.Aim
@@ -246,8 +242,9 @@ internal sealed class BeamFiring
         }
 
         // The shot starts from the horizontal sub-pixel position its place hands on (LeftMuzzleSubpixelCarry): the left
-        // muzzle check's -1 speed can carry it back into the same whole pixel before the velocity setup clears it.
-        SamusProjectile projectile = _pool.Occupy(place);
+        // muzzle check's -1 speed can carry it back into the same whole pixel before the velocity setup clears it. Over a
+        // held place it also starts from the Power Bomb fuse the shot there leaves (BeamFiredOverLastShot).
+        SamusProjectile projectile = _pool.OccupyWithBeam(place);
         projectile.Direction = aim;
         InitializePosition(samus, projectile);
         projectile.TrailUpdatesLeft = ProjectileTimingDefinitions.TrailInterval;
@@ -305,7 +302,7 @@ internal sealed class BeamFiring
             // that, which is outside the emulation scope limit (#1500).
             SamusShotBehavior behavior = SamusBeamShotBehaviors.Resolve(charged, beamType);
             behavior.AdmitFiring();
-            projectile.Install(behavior, behavior.FiredKindState());
+            projectile.Install(behavior, kindState: null);
             InitializePowerBeamVelocity(samus.ProjectileInheritance, projectile, _unauthoredFiring);
         }
         return new BeamShot(sound);
@@ -318,7 +315,7 @@ internal sealed class BeamFiring
         SamusBombProjectileSystem sharedProjectiles,
         ISamusRoomObjects roomObjects)
     {
-        // Allocation is shared with normal beams: five counted shots and a running cooldown reject firing before any
+        // Admission is shared with normal beams: five counted shots and a running cooldown reject firing before any
         // projectile is created.
         if (_pool.ShotCount.Count >= SamusProjectileSystem.PlaceCount ||
             sharedProjectiles.CooldownTimer != 0)
@@ -328,11 +325,8 @@ internal sealed class BeamFiring
 
         sharedProjectiles.SetSharedCooldown(SamusProjectileCooldownDefinitions.FireAttempt);
         _pool.ShotCount.CountShot();
-        if (_pool.FindFreePlace() is not { } place)
-        {
-            _pool.ShotCount.TakeBackRefusedShot();
-            return null;
-        }
+        // As for ordinary beams, with every place held the shot takes the last place over the shot there (#2468).
+        int place = _pool.PlaceForBeam();
 
         if (SamusPoseMetadata.ReadAimDirection(samus) is not { } aim)
         {
@@ -340,8 +334,9 @@ internal sealed class BeamFiring
             return null;
         }
 
-        // As for ordinary beams, the shot starts from the sub-pixel position its place hands on (LeftMuzzleSubpixelCarry).
-        SamusProjectile projectile = _pool.Occupy(place);
+        // As for ordinary beams, the shot starts from the sub-pixel position its place hands on (LeftMuzzleSubpixelCarry)
+        // and the Power Bomb fuse a shot there leaves (BeamFiredOverLastShot).
+        SamusProjectile projectile = _pool.OccupyWithBeam(place);
         projectile.Direction = aim;
 
         InitializePosition(samus, projectile);

@@ -9,6 +9,10 @@ internal static class SamusDeathDefinitions
     /// <summary>How long the death fanfare waits on the music queue: fourteen passes.</summary>
     public static MusicQueueDelay FanfareDelay { get; } = new(14);
 
-    /// <summary>The steps of the gradual colour change in which the display fades to black as Samus dies.</summary>
-    public const int FadeDenominator = 6;
+    /// <summary>
+    /// The shared fade counter's last value at which a step of the death fade moves the display toward black: the step
+    /// after it completes the fade. The display darkens in this many parts, one for each of the fade's own steps after its
+    /// first (#2421).
+    /// </summary>
+    public const int FadeLastStep = 7;
 }

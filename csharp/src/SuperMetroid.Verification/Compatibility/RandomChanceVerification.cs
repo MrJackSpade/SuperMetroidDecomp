@@ -50,6 +50,15 @@ internal static class RandomChanceVerification
         AssertThrows<ArgumentException>(() => new WeightedRandomChoice<char>(MiddleField, new(3, 'a'), new(60, 'b')), "shares leaving a value undecided");
         AssertThrows<ArgumentException>(() => new WeightedRandomChoice<char>(MiddleField, new WeightedRandomOutcome<char>(64, 'a')), "a choice with one outcome");
         AssertThrows<ArgumentException>(() => new WeightedRandomChoice<char>(MiddleField, new(0, 'a'), new(64, 'b')), "an outcome with no values");
+
+        // A choice taken in turn gives each of the field's values the next outcome (#2421): lava's bubbling sounds go 1, 2, 3,
+        // 1, 2, 3, 1, 2 over the eight values of its field, the lowest three bits.
+        SoundEffectId[] bubbling = [EnemySound.LavaBubbling1, EnemySound.LavaBubbling2, EnemySound.LavaBubbling3,
+            EnemySound.LavaBubbling1, EnemySound.LavaBubbling2, EnemySound.LavaBubbling3, EnemySound.LavaBubbling1, EnemySound.LavaBubbling2];
+        for (int sample = 0; sample <= ushort.MaxValue; sample++)
+            AssertSameAt(bubbling[sample & 7], SuperMetroid.Core.Fx.LavaAcidWaveDefinitions.AmbientSound.Choose(sample), "lava's bubbling sound", sample);
+        AssertThrows<ArgumentException>(() => WeightedRandomChoice<char>.InTurn(new RandomSampleField(0, 1), 'a', 'b', 'c'), "more outcomes than values");
+        AssertThrows<ArgumentException>(() => WeightedRandomChoice<char>.InTurn(MiddleField, 'a'), "a choice in turn with one outcome");
         Console.WriteLine("Random chance rules: every sample takes its chances and choices as their threshold expressions, and undecided shares are rejected.");
     }
 }

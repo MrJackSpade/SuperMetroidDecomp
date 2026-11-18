@@ -162,8 +162,8 @@ internal static class NativeSnapshotImport
             }
             importedEffects.Add(imported);
         }
-        runtime.ColourEffectSession.PublishedHeatPhase = new SuperMetroid.Core.Fx.ColourEffects.HeatPhase(W(NativeSnapshotMemory.HeatPalettePhase));
-        runtime.ColourEffectSession.ShimmerHeatPhase = new SuperMetroid.Core.Fx.ColourEffects.HeatPhase(W(NativeSnapshotMemory.PreviousHeatPalettePhase));
+        runtime.ColourEffectSession.PublishedHeatPhase = SuperMetroid.Core.Fx.ColourEffects.HeatPhase.InOrder[W(NativeSnapshotMemory.HeatPalettePhase)];
+        runtime.ColourEffectSession.ShimmerHeatPhase = SuperMetroid.Core.Fx.ColourEffects.HeatPhase.InOrder[W(NativeSnapshotMemory.PreviousHeatPalettePhase)];
         ushort[] hudWords = [.. Enumerable.Range(0, HudStateConstants.MutableTileCount).Select(index => W(NativeSnapshotMemory.HudTilemap + index * 2))];
         HudItem highlightedHudItem = SaveSlotNumbering.SavedHudItem(W(NativeSnapshotMemory.PreviousHudSelection));
         // Each recorded scroll byte becomes the kept cell the camera reads it as.

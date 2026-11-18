@@ -413,7 +413,7 @@ internal sealed class FrontendSession
     internal void BeginTimeUp()
     {
         SuperMetroidRuntime live = runtime ?? throw new InvalidOperationException("Time-up requires a gameplay runtime.");
-        live.FadeOut.Begin(RgbColor.White, TimeUpDefinitions.WhiteOutDenominator, GameplayFadeSpares.Nothing);
+        live.FadeOut.Begin(RgbColor.White, TimeUpDefinitions.WhiteOutLastStep, GameplayFadeSpares.Nothing);
         Enter(TimeUpStep.WhiteningOut);
     }
     /// <summary>

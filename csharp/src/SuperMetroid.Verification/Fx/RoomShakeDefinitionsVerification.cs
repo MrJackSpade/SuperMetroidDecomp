@@ -88,10 +88,8 @@ internal static class RoomShakeDefinitionsVerification
         {
             enemies.Earthquake.KeepShaking();
             RoomShakeFrameResult continuous = enemies.HandleRoomShaking(timeIsFrozen: false);
-            // Frames left 3, 2, 1, 0, then 65535, 65534... as the countdown would wrap: the far side shows while the frames
-            // left, counted in pairs, are odd.
-            int framesLeft = (3 - frame) & ushort.MaxValue;
-            bool farSide = framesLeft / RoomEarthquakeDefinitions.StepsPerShakeSide % 2 != 0;
+            // Frames left 3, 2, 1, 0, then on through the sides as the countdown would wrap: two far frames, then two near.
+            bool farSide = frame % 4 < 2;
             AssertEqual(farSide ? -lightDefinition.Foreground : lightDefinition.Foreground, continuous.Foreground,
                 $"a continuous shake alternates its sides at frame {frame}");
             AssertTrue(enemies.Earthquake.IsShaking, $"a continuous shake keeps shaking at frame {frame}");
@@ -107,8 +105,7 @@ internal static class RoomShakeDefinitionsVerification
         for (int frame = 0; frame < 12; frame++)
         {
             RoomShakeFrameResult indefinite = enemies.HandleRoomShaking(timeIsFrozen: false);
-            int framesLeft = SuperMetroid.Core.Compatibility.WrappingCountdown.LongestStart - frame;
-            bool farSide = framesLeft / RoomEarthquakeDefinitions.StepsPerShakeSide % 2 != 0;
+            bool farSide = frame % 4 < 2;
             AssertEqual(farSide ? -lightDefinition.Foreground : lightDefinition.Foreground, indefinite.Foreground,
                 $"an indefinite shake alternates its sides as the escape's longest quake did at frame {frame}");
             AssertTrue(enemies.Earthquake.IsShaking, $"an indefinite shake keeps shaking at frame {frame}");

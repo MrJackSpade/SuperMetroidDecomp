@@ -16,6 +16,13 @@ namespace SuperMetroid.Core.Fx.ColourEffects;
 internal static class ColourEffectAnimations
 {
     /// <summary>
+    /// The frame of a heat pulse that shows each heat phase's look (#2421): a pulse's frames are the heat phases' looks, in
+    /// phase order.
+    /// </summary>
+    private static readonly FrozenDictionary<HeatPhase, int> HeatLooks =
+        HeatPhase.InOrder.Select((phase, look) => KeyValuePair.Create(phase, look)).ToFrozenDictionary();
+
+    /// <summary>
     /// The updates the heat pulse shows each heat phase's look for, in phase order (<see cref="HeatPhase.InOrder"/>):
     /// longest at the coolest and quickest between.
     /// </summary>
@@ -635,10 +642,10 @@ internal static class ColourEffectAnimations
     internal static ColourEffectDefinition Definition(ColourEffectId effect) => Definitions[effect];
 
     /// <summary>
-    /// The frame of a heat pulse that shows <paramref name="phase"/>'s look: a pulse's frames are the heat phases' looks, in
-    /// phase order.
+    /// The frame of a heat pulse that shows <paramref name="phase"/>'s look (<see cref="HeatLooks"/>).
     /// </summary>
-    internal static int HeatLook(HeatPhase phase) => phase.Index;
+    /// <exception cref="KeyNotFoundException">The pulse has no such phase.</exception>
+    internal static int HeatLook(HeatPhase phase) => HeatLooks[phase];
 
     /// <summary>Shows frame <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<int, ColourEffectCue> F(int frame, int duration) => new AnimationBeat<int, ColourEffectCue>.Frame(frame, duration);

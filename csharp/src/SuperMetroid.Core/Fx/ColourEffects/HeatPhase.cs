@@ -13,14 +13,18 @@ public readonly record struct HeatPhase
     /// <summary>The phase the pulse starts at, and the one the session holds before any room publishes a phase.</summary>
     public static HeatPhase First { get; } = new(0);
 
-    /// <summary>Every phase, in the order the heat pulse shows their looks, from <see cref="First"/> (#2366).</summary>
-    internal static IReadOnlyList<HeatPhase> InOrder { get; } = [.. Enumerable.Range(0, Count).Select(index => new HeatPhase(index))];
+    /// <summary>
+    /// Every phase, in the order the heat pulse shows their looks, from <see cref="First"/> (#2366); a phase is named by its
+    /// place here (#2421).
+    /// </summary>
+    internal static IReadOnlyList<HeatPhase> InOrder { get; } = [.. Enumerable.Range(0, Count).Select(place => new HeatPhase(place))];
 
-    /// <summary>Names phase <paramref name="index"/> of the pulse.</summary>
-    /// <param name="index">The phase's place in the pulse, from zero.</param>
-    /// <exception cref="ArgumentOutOfRangeException">The pulse has no such phase.</exception>
-    public HeatPhase(int index) => Index = Ensure.BetweenInclusive(0, Count - 1, index);
+    /// <summary>The phase's place in <see cref="InOrder"/>, which tells the phases apart and is read nowhere else.</summary>
+    private readonly int place;
 
-    /// <summary>The phase's place among the pulse's phases, from zero.</summary>
-    public int Index { get; }
+    /// <summary>Names the phase at <paramref name="place"/> of <see cref="InOrder"/>.</summary>
+    private HeatPhase(int place) => this.place = place;
+
+    /// <summary>The phase's place in the pulse, for diagnostics.</summary>
+    public override string ToString() => $"heat phase {place}";
 }

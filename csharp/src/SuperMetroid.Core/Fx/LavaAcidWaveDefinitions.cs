@@ -32,13 +32,11 @@ public static class LavaAcidWaveDefinitions
     public const int AmbientSoundPeriod = 112;
 
     /// <summary>
-    /// The bubbling sound lava plays each time it bubbles (#2367): the eight values of its random choice take the three
-    /// bubbling sounds in turn, so the first two play three times in eight and the third twice.
+    /// The bubbling sound lava plays each time it bubbles (#2367, #2421): the eight values of its random choice take the
+    /// three bubbling sounds in turn, so the first two play three times in eight and the third twice.
     /// </summary>
-    internal static readonly WeightedRandomChoice<SoundEffectId> AmbientSound = new(new RandomSampleField(0, 3),
-        new(1, EnemySound.LavaBubbling1), new(1, EnemySound.LavaBubbling2), new(1, EnemySound.LavaBubbling3),
-        new(1, EnemySound.LavaBubbling1), new(1, EnemySound.LavaBubbling2), new(1, EnemySound.LavaBubbling3),
-        new(1, EnemySound.LavaBubbling1), new(1, EnemySound.LavaBubbling2));
+    internal static readonly WeightedRandomChoice<SoundEffectId> AmbientSound = WeightedRandomChoice<SoundEffectId>.InTurn(
+        new RandomSampleField(0, 3), EnemySound.LavaBubbling1, EnemySound.LavaBubbling2, EnemySound.LavaBubbling3);
 
     /// <summary>The request priority of lava's ambient sound.</summary>
     public static readonly SoundRequestPriority AmbientSoundPriority = SoundRequestPriority.Normal;

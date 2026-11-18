@@ -23,19 +23,19 @@ internal static class DoorFadeSamusLitVerification
         var counter = new SharedFadeStepCount();
         var fade = new DoorFade(colours);
 
-        fade.FadeOut(new GradualFadeSteps(DoorTransitionColourDefinitions.FadeDenominator, counter), commonRooms: false);
+        fade.FadeOut(new GradualFadeSteps(DoorTransitionColourDefinitions.FadeLastStep, counter), commonRooms: false);
         AssertEqual(0, LitOnSamus(fade).Length, "the room being left fades out with nothing of Samus's kept lit");
         fade.Darken();
         AssertEqual(0, LitOnSamus(fade).Length, "the dark display keeps nothing of Samus's lit");
 
-        fade.FadeIn(new GradualFadeSteps(DoorTransitionColourDefinitions.FadeDenominator, counter));
+        fade.FadeIn(new GradualFadeSteps(DoorTransitionColourDefinitions.FadeLastStep, counter));
         AssertTrue(LitOnSamus(fade).SequenceEqual([SamusShades.Beam(SamusBeamCombination.IceWave)]),
             "the room being entered fades in with Samus's beams lit");
         fade.DoorOpened();
         AssertTrue(LitOnSamus(fade).SequenceEqual([SamusShades.Beam(SamusBeamCombination.IceWave), SamusShades.DoorCompletionVisor]),
             "once the door has opened her visor's door-completion green stays lit after her beams");
 
-        fade.FadeOut(new GradualFadeSteps(DoorTransitionColourDefinitions.FadeDenominator, counter), commonRooms: false);
+        fade.FadeOut(new GradualFadeSteps(DoorTransitionColourDefinitions.FadeLastStep, counter), commonRooms: false);
         AssertEqual(0, LitOnSamus(fade).Length, "the next door's fade out keeps nothing of Samus's lit");
         Console.WriteLine("  Door fade: Samus's beams stay lit through the fade in and her visor once the door has opened.");
     }
@@ -50,7 +50,7 @@ internal static class DoorFadeSamusLitVerification
     {
         var counter = new SharedFadeStepCount();
         var fade = new DoorFade(new SamusColours());
-        var leaving = new GradualFadeSteps(DoorTransitionColourDefinitions.FadeDenominator, counter);
+        var leaving = new GradualFadeSteps(DoorTransitionColourDefinitions.FadeLastStep, counter);
         fade.FadeOut(leaving, commonRooms: false);
         for (int call = 0; call < 7; call++)
             AssertTrue(!leaving.Step(), "the fade out takes a step on each of its first seven calls");
@@ -72,7 +72,7 @@ internal static class DoorFadeSamusLitVerification
         AssertTrue(Shown(fade).Of(GameplayPictures.Hud).Shades.SequenceEqual([DoorFadeShades.HudDark]),
             "the dark display shows the HUD's dark shade");
 
-        var entering = new GradualFadeSteps(DoorTransitionColourDefinitions.FadeDenominator, counter);
+        var entering = new GradualFadeSteps(DoorTransitionColourDefinitions.FadeLastStep, counter);
         fade.FadeIn(entering);
         AssertTrue(!entering.Step() && !entering.Step(), "the fade in takes a step on each of its first two calls");
         shown = Shown(fade);

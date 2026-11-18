@@ -21,8 +21,11 @@ namespace SuperMetroid.Core.Fx;
 [RoomLifetime]
 public sealed class RoomFxOverlayState : IGameplayShadingSource
 {
-    /// <summary>Tracks frame selection for the liquid, rain, fog, and spore block animations.</summary>
-    private readonly BlockAnimationPlayer blockAnimations = new();
+    /// <summary>
+    /// The loop of the effect's own block animation (lava, acid, rain or spores), selecting the frame its pictures show, or
+    /// null for an effect that shows none (<see cref="BlockAnimationLoops.OnEffectOverlay"/>).
+    /// </summary>
+    private SuperMetroid.Core.Animation.AnimationPlayer<BlockAnimation, ArtworkFrame, SuperMetroid.Core.Animation.NoAnimationCue>? effectOverlayAnimation;
 
     /// <summary>
     /// The room's Fireflea darkness, which its Fireflea effect starts as the room loads and which lasts as long as the
@@ -245,7 +248,9 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         Type = definition.Type;
         Blend = definition.EffectBlend;
         VisorAnimation = definition.VisorAnimation;
-        blockAnimations.Play(BlockAnimationLoops.OnEffectOverlay(Type));
+        if (effectOverlayAnimation is not null)
+            throw new InvalidOperationException($"The room's effect already plays {effectOverlayAnimation.Playback.PlayingSegment}: each room builds its own.");
+        effectOverlayAnimation = BlockAnimationLoops.OnEffectOverlay(Type) is { } overlayAnimation ? BlockAnimationLoops.Start(overlayAnimation) : null;
         Tint = definition.Tint;
 
         if (Type == RoomFxType.Fireflea)
@@ -384,7 +389,8 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         // The shared block animations run independently of the liquid motion's
         // per-frame step. In particular, lava and acid select the animation frame their pictures
         // show here, before the surface step that follows.
-        blockAnimations.Step(frames);
+        if (effectOverlayAnimation is not null)
+            BlockAnimationLoops.Pass(effectOverlayAnimation, frames);
 
         if (LiquidMotionStopped && MovesLiquidBeforeMainLoop)
             return;

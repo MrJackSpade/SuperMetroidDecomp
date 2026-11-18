@@ -29,14 +29,14 @@ public static class RoomFxBlockAnimationAtlasFile
     private static IEnumerable<RoomFxAtlasSegment> EnumerateSegments()
     {
         int total = 0;
-        foreach (BlockAnimationLoop definition in RoomFxBlockAnimationLoops.All)
-            if (definition.Animation is not (BlockAnimation.Spores or BlockAnimation.HorizontalSpikes))
+        foreach (BlockAnimation definition in RoomFxBlockAnimationLoops.All)
+            if (definition is not (BlockAnimation.Spores or BlockAnimation.HorizontalSpikes))
                 foreach (var segment in Frames(definition))
                 {
                     total += segment.ByteCount;
                     yield return segment;
                 }
-        BlockAnimationLoop treadmill = BlockAnimationLoops.Of(BlockAnimation.WreckedShipTreadmillRightwards);
+        BlockAnimation treadmill = BlockAnimation.WreckedShipTreadmillRightwards;
         for (int frame = 0; frame < RoomFxBlockAnimationAtlasFormat.TreadmillFrameCount; frame++)
         {
             total += RoomFxBlockAnimationLoops.TreadmillFrameByteCount;
@@ -59,7 +59,7 @@ public static class RoomFxBlockAnimationAtlasFile
             throw new InvalidOperationException("Compiled room-FX atlas segments do not match the PNG geometry.");
 
         // Each distinct picture once: the last spike step reuses a picture already present in the strip.
-        static IEnumerable<RoomFxAtlasSegment> Frames(BlockAnimationLoop definition) =>
+        static IEnumerable<RoomFxAtlasSegment> Frames(BlockAnimation definition) =>
             definition.Images.Select(image => new RoomFxAtlasSegment.Image(image, definition.PictureByteCount));
     }
 }

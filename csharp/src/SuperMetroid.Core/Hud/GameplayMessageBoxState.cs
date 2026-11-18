@@ -192,14 +192,8 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
                     }
                     else
                     {
-                        // The four completion notices hold for only ten updates; equipment descriptions hold for 360.
-                        MinimumDisplayFramesRemaining = MessageId is
-                            GameplayMessageId.MapDataAccessCompleted or
-                            GameplayMessageId.EnergyRechargeCompleted or
-                            GameplayMessageId.MissileRechargeCompleted or
-                            GameplayMessageId.SaveCompleted
-                            ? GameplayMessageBoxDefinitions.Timing.StationMinimumDisplayFrames
-                            : GameplayMessageBoxDefinitions.Timing.ItemMinimumDisplayFrames;
+                        MinimumDisplayFramesRemaining = Ensure.Listed(GameplayMessageBoxDefinitions.Timing.MinimumDisplayFrames,
+                            MessageId ?? throw new InvalidOperationException("An opening message box shows a message."));
                         Phase = GameplayMessageBoxPhase.MinimumDisplay;
                     }
                 }

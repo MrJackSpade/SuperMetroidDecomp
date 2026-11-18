@@ -73,20 +73,20 @@ internal sealed class RoomColourEffect
     internal Animation<ColourEffectSegment> Animation { get; private set; }
 
     /// <summary>Where the effect stands in its animation: the phase, and the phase's next beat.</summary>
-    internal AnimationPlace Place { get; set; }
+    internal AnimationPlace Place { get; private set; }
 
     /// <summary>
     /// Updates until the effect plays on to its next frame. It counts down before it is compared with zero; every frame
     /// lasts at least one update and a started or restarted effect stands at one, so a running effect never counts down
     /// from zero.
     /// </summary>
-    internal int UpdatesUntilNextStep { get; set; }
+    internal int UpdatesUntilNextStep { get; private set; }
 
     /// <summary>
     /// The frame the effect shows now (#1597, #1598): the last its animation reached, held for that frame's duration and
     /// until its next one; none before its first.
     /// </summary>
-    internal ColourEffectFrame? Frame { get; set; }
+    internal ColourEffectFrame? Frame { get; private set; }
 
     /// <summary>Whether the effect has ended; its system drops it from the turns at the end of the update.</summary>
     internal bool Ended { get; private set; }

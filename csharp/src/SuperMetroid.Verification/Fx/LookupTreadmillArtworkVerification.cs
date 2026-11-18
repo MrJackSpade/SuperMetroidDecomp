@@ -12,8 +12,8 @@ internal static class LookupTreadmillArtworkVerification
     /// <summary>Checks four source aliases, invalid frame indices, and every 16-bit instruction pointer for both directions.</summary>
     internal static void VerifyTreadmillArtworkSources(ISnesAddressSpace rom)
     {
-        var right = BlockAnimationLoops.Of(BlockAnimationLoops.Treadmill(WreckedShipTreadmillDirection.Rightwards));
-        var left = BlockAnimationLoops.Of(BlockAnimationLoops.Treadmill(WreckedShipTreadmillDirection.Leftwards));
+        BlockAnimation right = BlockAnimationLoops.Treadmill(WreckedShipTreadmillDirection.Rightwards);
+        BlockAnimation left = BlockAnimationLoops.Treadmill(WreckedShipTreadmillDirection.Leftwards);
         int[] aliases = [AnimatedTileImageSources.Treadmill(0), AnimatedTileImageSources.Treadmill(1),
             AnimatedTileImageSources.Treadmill(2), AnimatedTileImageSources.Treadmill(3)];
         for (int index = 0; index < 4; index++)

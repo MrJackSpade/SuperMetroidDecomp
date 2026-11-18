@@ -9,13 +9,13 @@ public static class AtmosphereDriftDefinitions
     public static SignedEightEight RainFallSpeed { get; } = SignedEightEight.FromPixels(6);
 
     /// <summary>Spores rise a quarter pixel a frame.</summary>
-    public static SignedEightEight SporesRiseSpeed { get; } = SignedEightEight.FromParts(0, 64);
+    public static SignedEightEight SporesRiseSpeed { get; } = SignedEightEight.FromSixteenthsOfPixel(4);
 
     /// <summary>Fog rises a quarter pixel a frame.</summary>
-    public static SignedEightEight FogRiseSpeed { get; } = SignedEightEight.FromParts(0, 64);
+    public static SignedEightEight FogRiseSpeed { get; } = SignedEightEight.FromSixteenthsOfPixel(4);
 
     /// <summary>Fog drifts right five sixteenths of a pixel a frame.</summary>
-    public static SignedEightEight FogDriftSpeed { get; } = SignedEightEight.FromParts(0, 80);
+    public static SignedEightEight FogDriftSpeed { get; } = SignedEightEight.FromSixteenthsOfPixel(5);
 
     /// <summary>The winds a rainy room's load chooses among, in the order its random choice (<see cref="RainWindChoice"/>) counts them.</summary>
     internal static ImmutableArray<RainWind> RainWinds { get; } =

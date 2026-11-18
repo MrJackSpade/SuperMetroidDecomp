@@ -3,18 +3,18 @@ using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Enemies.WreckedShip;
 
-/// <summary>Verification access to the bank-$87 program a Wrecked Ship treadmill's <see cref="BlockAnimationLoop"/> replaces.</summary>
+/// <summary>Verification access to the bank-$87 program a Wrecked Ship treadmill's loop replaces.</summary>
 internal static class WreckedShipTreadmillObjectDefinitionAccess
 {
     /// <summary>Reads the boss wait and the four timed frame-control pointers of one Wrecked Ship treadmill's program.</summary>
-    extension(BlockAnimationLoop self)
+    extension(BlockAnimation self)
     {
         /// <summary>The boss-wait command installed by the object header.</summary>
         /// <exception cref="InvalidDataException">The loop is not a treadmill's.</exception>
         public ushort WaitInstructionPointer =>
-            self.Animation == BlockAnimation.WreckedShipTreadmillRightwards ? AnimatedTileAnimationScriptPointers.WreckedShipTreadmillRightwardsWait
-            : self.Animation == BlockAnimation.WreckedShipTreadmillLeftwards ? AnimatedTileAnimationScriptPointers.WreckedShipTreadmillLeftwardsWait
-            : throw new InvalidDataException($"{self.Animation} is not a Wrecked Ship treadmill.");
+            self == BlockAnimation.WreckedShipTreadmillRightwards ? AnimatedTileAnimationScriptPointers.WreckedShipTreadmillRightwardsWait
+            : self == BlockAnimation.WreckedShipTreadmillLeftwards ? AnimatedTileAnimationScriptPointers.WreckedShipTreadmillLeftwardsWait
+            : throw new InvalidDataException($"{self} is not a Wrecked Ship treadmill.");
         /// <summary>The first timed frame reached after Phantoon is defeated.</summary>
         public ushort LoopInstructionPointer => unchecked((ushort)(self.WaitInstructionPointer + 2));
         /// <summary>The four timed frame-control addresses in execution order.</summary>
@@ -35,7 +35,7 @@ internal static class WreckedShipTreadmillObjectDefinitionAccess
             int listIndex = self.FrameIndex(instructionPointer);
             if (listIndex < 0)
                 throw new InvalidDataException(
-                    $"Treadmill {self.Animation} has no frame at $87:{instructionPointer:X4}.");
+                    $"Treadmill {self} has no frame at $87:{instructionPointer:X4}.");
             return AnimatedTileImageSources.Of(self.TreadmillImage(listIndex));
         }
     }

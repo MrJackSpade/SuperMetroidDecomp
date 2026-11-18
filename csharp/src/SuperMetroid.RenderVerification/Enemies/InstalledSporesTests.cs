@@ -52,9 +52,9 @@ internal static class InstalledSporesTests
     private static void CheckOwners(ImportAreaMapPresentation stock, List<DisplayPacket> packets)
     {
         var mechanics = RoomFxBlockAnimationLoops.All.Single(
-            value => value.Animation == BlockAnimation.Spores);
+            value => value == BlockAnimation.Spores);
         Require(mechanics.InstructionPointer == 0x82ed && mechanics.PictureByteCount == 48 &&
-            AnimatedTileVramDestinations.WordOf(mechanics.Animation) == 0x4280 && mechanics.GotoInstructionPointer == 0x82f9 &&
+            AnimatedTileVramDestinations.WordOf(mechanics) == 0x4280 && mechanics.GotoInstructionPointer == 0x82f9 &&
             mechanics.Frames.Count == 3 && mechanics.Frames.All(frame => frame.Duration == 10),
             "Compiled spores controls differ from pinned $87:82ED-$8302.");
         int records = 0, comparisons = 0;
@@ -91,7 +91,7 @@ internal static class InstalledSporesTests
                         mechanics.FrameInstructionPointer(tick / 10 % 3));
                     Require(stock.BlockAnimationAtlas.TryResolve(source, 48, out var expected), "Missing stock spores frame.");
                     // Animated frames are selected, and the room's BG3 pictures show the selected frame (#1406).
-                    ArtworkFrame cadence = BlockAnimationLoops.Of(BlockAnimation.Spores).Frames[tick / 10 % 3].Frame;
+                    ArtworkFrame cadence = BlockAnimationLoops.Frames(BlockAnimation.Spores)[tick / 10 % 3].Frame;
                     Require(baselineFrames.TryShown(BlockAnimationFrames.Of(BlockAnimation.Spores), out ArtworkFrame stockShown) && stockShown == cadence,
                         "Stock spore cadence differs.");
                     tick++;
@@ -157,7 +157,7 @@ internal static class InstalledSporesTests
         Require(segmentOffset == planar.Length, "Installed sheet length differs from its native segment list.");
         int sporesOffset = RoomFxBlockAnimationAtlasFormat.PreSporesTileCount * 16;
         var controls = RoomFxBlockAnimationLoops.All.Single(
-            value => value.Animation == BlockAnimation.Spores);
+            value => value == BlockAnimation.Spores);
         for (int frame = 0; frame < 3; frame++)
         {
             int source = AnimatedTileImageSources.OfCursor(controls, controls.FrameInstructionPointer(frame));

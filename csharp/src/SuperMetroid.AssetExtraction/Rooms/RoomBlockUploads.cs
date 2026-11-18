@@ -359,7 +359,7 @@ internal static class RoomBlockUploads
             yield break;
         for (int frame = 0; frame < mechanics.Frames.Count; frame++)
             yield return Animated(inputs, mechanics.Frames[frame].Frame, mechanics.Image(frame),
-                mechanics.PictureByteCount, AnimatedTileVramDestinations.WordOf(mechanics.Animation));
+                mechanics.PictureByteCount, AnimatedTileVramDestinations.WordOf(mechanics));
     }
 
     /// <summary>Bindings holding the HUD's characters and what a room of <paramref name="tileset"/> binds as it loads.</summary>
@@ -415,7 +415,7 @@ internal static class RoomBlockUploads
     {
         if (animatedObject is BlockAnimation.WreckedShipTreadmillRightwards or BlockAnimation.WreckedShipTreadmillLeftwards)
         {
-            BlockAnimationLoop treadmill = BlockAnimationLoops.Of(animatedObject);
+            BlockAnimation treadmill = RoomFxBlockAnimationLoops.Require(animatedObject);
             for (int frame = 0; frame < treadmill.Frames.Count; frame++)
                 yield return Animated(inputs, treadmill.Frames[frame].Frame, treadmill.TreadmillImage(frame),
                     RoomFxBlockAnimationLoops.TreadmillFrameByteCount, AnimatedTileVramDestinations.WordOf(animatedObject));
@@ -423,7 +423,7 @@ internal static class RoomBlockUploads
         }
         if (animatedObject is not (BlockAnimation.HorizontalSpikes or BlockAnimation.MaridiaSandCeiling or BlockAnimation.MaridiaSandFalling))
             yield break;
-        BlockAnimationLoop mechanics = RoomFxBlockAnimationLoops.Require(animatedObject);
+        BlockAnimation mechanics = RoomFxBlockAnimationLoops.Require(animatedObject);
         for (int frame = 0; frame < mechanics.Frames.Count; frame++)
             yield return Animated(inputs, mechanics.Frames[frame].Frame, mechanics.Image(frame),
                 mechanics.PictureByteCount, AnimatedTileVramDestinations.WordOf(animatedObject));

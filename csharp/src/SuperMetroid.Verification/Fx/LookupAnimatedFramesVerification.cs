@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using SuperMetroid.Core.Fx;
@@ -30,10 +31,10 @@ internal static class LookupAnimatedFramesVerification
         int total = 0;
         foreach (var original in OriginalSimpleAnimationLoops(rom))
         {
-            AssertTrue(BlockAnimationLoops.TryResolve(FxNativeWords.AnimatedTileObjects.Decode(original.Object, "animated-tile object"), out var definition),
-                "Original animation object resolves");
+            BlockAnimation definition = FxNativeWords.AnimatedTileObjects.Decode(original.Object, "animated-tile object");
+            AssertTrue(BlockAnimationLoops.HasLoop(definition), "Original animation object resolves");
             int count = (original.End - original.First) / 4;
-            AssertEqual(count, (definition ?? throw new InvalidOperationException("Verification requires definition.")).Frames.Count, "Native frame count");
+            AssertEqual(count, definition.Frames.Count, "Native frame count");
             for (int index = 0; index < count; index++)
             {
                 ushort cursor = (ushort)(original.First + 4 * index);
@@ -58,8 +59,8 @@ internal static class LookupAnimatedFramesVerification
     {
         foreach (var original in OriginalSimpleAnimationLoops(rom))
         {
-            AssertTrue(BlockAnimationLoops.TryResolve(FxNativeWords.AnimatedTileObjects.Decode(original.Object, "animated-tile object"), out var definition), "Animation resolves");
-            ArgumentNullException.ThrowIfNull(definition);
+            BlockAnimation definition = FxNativeWords.AnimatedTileObjects.Decode(original.Object, "animated-tile object");
+            AssertTrue(BlockAnimationLoops.HasLoop(definition), "Animation resolves");
             for (int index = 0; index < definition.Frames.Count; index++)
             {
                 ushort expected = ReadVerificationWord(rom, 0x870000 | (original.First + 4 * index));

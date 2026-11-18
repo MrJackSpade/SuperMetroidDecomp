@@ -117,7 +117,7 @@ internal static class CrocomirePresentation1193Verification
             PrivateState.Set(samus.Xray, nameof(SamusXrayState.SuspendedSubsystems), XraySuspendedSubsystems.None);
             game.Step(0);
             AssertTrue(runtime.Room.LoadedScope.ArtworkFrames.TryShown(spikeTiles, out ArtworkFrame resumed) &&
-                    resumed == BlockAnimationLoops.Of(BlockAnimation.HorizontalSpikes).Frames[0].Frame,
+                    resumed == BlockAnimationLoops.Frames(BlockAnimation.HorizontalSpikes)[0].Frame,
                 "Re-enabled spikes resume the pending first frame");
             var unselected = new RoomBlockAnimations(null, null);
             var cleared = new ArtworkFrameSelections();

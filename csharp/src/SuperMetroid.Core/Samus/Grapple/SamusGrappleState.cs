@@ -10,10 +10,10 @@ namespace SuperMetroid.Core.Samus.Grapple;
 public sealed class SamusGrappleState
 {
     /// <summary>Starts an inactive grapple whose flare, swing pictures and rope draw from <paramref name="artwork"/>.</summary>
-    internal SamusGrappleState(SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding artwork) => Artwork = Ensure.NotNull(artwork);
+    internal SamusGrappleState(SamusArtworkBinding artwork) => Artwork = Ensure.NotNull(artwork);
 
     /// <summary>The installed artwork the flare's placement, the swing's pictures and the rope draw from.</summary>
-    internal SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding Artwork { get; }
+    internal SamusArtworkBinding Artwork { get; }
     /// <summary>The current grapple phase.</summary>
     public GrapplePhase Phase { get; set; }
     /// <summary>The grapple anchor (beam endpoint) in room pixels.</summary>
@@ -57,7 +57,7 @@ public sealed class SamusGrappleState
     /// The direction the beam was fired in: one of the ten projectile directions, which select the launch velocity,
     /// the hand and flare origins and the connection record. Firing admits only those ten directions.
     /// </summary>
-    public SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection FireDirection { get; set; }
+    public SamusProjectileDirection FireDirection { get; set; }
     /// <summary>The pose-change auto-fire timer; permits early pose-directed refiring.</summary>
     public int PoseChangeAutoFireTimer { get; set; }
     /// <summary>The signed 1/256-pixel endpoint extension velocity.</summary>

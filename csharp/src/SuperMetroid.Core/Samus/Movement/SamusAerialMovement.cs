@@ -71,8 +71,7 @@ public static class SamusAerialMovement
         samus.Kinematics.YSpeed = SpeedBoosterJumpBonus.Boosted(samus.Kinematics.YSpeed, samus.HorizontalSpeed.ExtraRunSpeed);
     }
 
-
-    /// <summary>
+/// <summary>
     /// Chooses Samus's vertical acceleration for the medium she moves in (<see cref="SamusLiquidMedium"/>).
     /// </summary>
     public static void ConfigureEnvironmentGravity(SamusState samus)

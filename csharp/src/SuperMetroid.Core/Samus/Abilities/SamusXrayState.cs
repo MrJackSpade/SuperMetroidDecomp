@@ -6,6 +6,7 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Abilities;
 
@@ -125,8 +126,7 @@ public sealed class SamusXrayState
     internal AnimationPlayer<SamusGlowSegment, PictureShade, NoAnimationCue> Visor { get; } =
         SamusGlowPlay.Starting(SamusGlowSegment.XrayVisorWidening);
 
-
-    /// <summary>
+/// <summary>
     /// Runs the admission tests and pose selection of the X-ray setup.
     /// The X-ray scope is already the selected and equipped HUD item; item ownership is
     /// checked by the HUD selector one layer above this. An admitted beam begins at once; its pose and Samus's control
@@ -149,7 +149,7 @@ public sealed class SamusXrayState
         if (SamusPoseMetadata.IsLandingPose(samus.Pose))
             return false;
 
-        if (conditions.GameState != SuperMetroid.Core.Progression.SuperMetroidGameState.MainGameplay || conditions.PowerBombExplosionActive ||
+        if (conditions.GameState != SuperMetroidGameState.MainGameplay || conditions.PowerBombExplosionActive ||
             !samus.Kinematics.YSpeed.IsZero)
         {
             return false;
@@ -474,7 +474,7 @@ public sealed class SamusXrayState
     /// <summary>Runs the X-ray visor's colouring, which changes only the visor's shade until restoration.</summary>
     public bool UpdateColouring(
         SamusColours colours,
-        SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems)
+        SamusEquipmentFlags equippedItems)
     {
         Ensure.NotNull(colours);
 

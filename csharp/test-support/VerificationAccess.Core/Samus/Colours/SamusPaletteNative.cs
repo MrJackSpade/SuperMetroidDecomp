@@ -15,6 +15,8 @@ internal static class SamusPaletteNative
     private const int SuitStride = 0x200;
     /// <summary>Byte distance between adjacent sixteen-color shades.</summary>
     private const int ShadeStride = 0x20;
+    /// <summary>The steps of the charge and pseudo-Screw colour cycles; the cycle wraps to its first step after the last.</summary>
+    private const int ChargeSteps = 6;
 
     /// <summary>Every cycle palette the catalog installs.</summary>
     internal static IEnumerable<SamusFullBodyCycleShade> All =>
@@ -167,53 +169,49 @@ internal static class SamusPaletteNative
     /// <summary>Shows the shade of the cycle palette at bank-$9B <paramref name="pointer"/> as Samus's suit's (#1512).</summary>
     internal static void ShowFullBodyCycle(SamusColours colours, ushort pointer) => colours.ShowSuit(SamusShades.FullBodyCycle(Palette(pointer)));
 
-    /// <summary>The charge and Hyper-shot lists by bank-$9B palette address.</summary>
-    extension(SamusChargeShadeDefinitions)
+    /// <summary>$91:D7D5: the charged-beam palette pointer for a suit and phase, shade sequence 0/1/2/3/2/1.</summary>
+    internal static bool TryChargedBeam(ushort suitOffset, ushort phaseOffset, out ushort pointer)
     {
-        /// <summary>$91:D7D5: the charged-beam palette pointer for a suit and phase, shade sequence 0/1/2/3/2/1.</summary>
-        internal static bool TryChargedBeam(ushort suitOffset, ushort phaseOffset, out ushort pointer)
+        if (!IsNativeChargePhase(suitOffset, phaseOffset))
         {
-            if (!IsNativeChargePhase(suitOffset, phaseOffset))
-            {
-                pointer = 0;
-                return false;
-            }
-            int phase = phaseOffset / sizeof(ushort);
-            pointer = (ushort)(0x9820 + suitOffset / sizeof(ushort) * 0x100 + Math.Min(phase, 6 - phase) * ShadeStride);
-            return true;
+            pointer = 0;
+            return false;
         }
+        int phase = phaseOffset / sizeof(ushort);
+        pointer = (ushort)(0x9820 + suitOffset / sizeof(ushort) * 0x100 + Math.Min(phase, 6 - phase) * ShadeStride);
+        return true;
+    }
 
-        /// <summary>$91:D7FF: the pseudo-screw palette pointer, the active-shinespark shade three then the normal suit.</summary>
-        internal static bool TryPseudoScrew(ushort suitOffset, ushort phaseOffset, out ushort pointer)
+    /// <summary>$91:D7FF: the pseudo-screw palette pointer, the active-shinespark shade three then the normal suit.</summary>
+    internal static bool TryPseudoScrew(ushort suitOffset, ushort phaseOffset, out ushort pointer)
+    {
+        if (!IsNativeChargePhase(suitOffset, phaseOffset))
         {
-            if (!IsNativeChargePhase(suitOffset, phaseOffset))
-            {
-                pointer = 0;
-                return false;
-            }
-            pointer = phaseOffset / sizeof(ushort) < 3
-                ? Address(new(SamusFullBodyCycleFamily.ActiveShinespark, SuitAtTableByteOffset(suitOffset), 3))
-                : SamusPaletteNative.NormalSuitPalettePointer(suitOffset);
-            return true;
+            pointer = 0;
+            return false;
         }
+        pointer = phaseOffset / sizeof(ushort) < 3
+            ? Address(new(SamusFullBodyCycleFamily.ActiveShinespark, SuitAtTableByteOffset(suitOffset), 3))
+            : SamusPaletteNative.NormalSuitPalettePointer(suitOffset);
+        return true;
+    }
 
-        /// <summary>Whether a native suit offset and charge byte offset name one of the six steps of a suit's list.</summary>
-        private static bool IsNativeChargePhase(ushort suitOffset, ushort phaseOffset) =>
-            suitOffset <= 4 && (suitOffset & 1) == 0 && (phaseOffset & 1) == 0 &&
-            phaseOffset / sizeof(ushort) < SamusChargeShadeDefinitionsConstants.ChargeSteps;
+    /// <summary>Whether a native suit offset and charge byte offset name one of the six steps of a suit's list.</summary>
+    private static bool IsNativeChargePhase(ushort suitOffset, ushort phaseOffset) =>
+        suitOffset <= 4 && (suitOffset & 1) == 0 && (phaseOffset & 1) == 0 &&
+        phaseOffset / sizeof(ushort) < ChargeSteps;
 
-        /// <summary>$91:D829: the Hyper-shot glow palette pointer, frames nine down to zero.</summary>
-        internal static bool TryHyperShot(ushort tableOffset, out ushort pointer)
+    /// <summary>$91:D829: the Hyper-shot glow palette pointer, frames nine down to zero.</summary>
+    internal static bool TryHyperShot(ushort tableOffset, out ushort pointer)
+    {
+        // The native table offset is the glow step in words.
+        if ((tableOffset & 1) != 0 || tableOffset / sizeof(ushort) is < 1 or > SamusChargeColorFormat.HyperFrameCount)
         {
-            // The native table offset is the glow step in words.
-            if ((tableOffset & 1) != 0 || tableOffset / sizeof(ushort) is < 1 or > SamusChargeShadeDefinitions.HyperShotSteps)
-            {
-                pointer = 0;
-                return false;
-            }
-            int frame = SamusChargeShadeDefinitions.HyperShotSteps - tableOffset / sizeof(ushort);
-            pointer = (ushort)(0xa240 + frame * ShadeStride);
-            return true;
+            pointer = 0;
+            return false;
         }
+        int frame = SamusChargeColorFormat.HyperFrameCount - tableOffset / sizeof(ushort);
+        pointer = (ushort)(0xa240 + frame * ShadeStride);
+        return true;
     }
 }

@@ -19,8 +19,7 @@ public sealed class SamusParticles
     /// <summary>The particles, oldest first.</summary>
     private readonly List<SamusParticle> _particles = [];
 
-
-    /// <summary>Removes every particle, as room and Samus initialization do.</summary>
+/// <summary>Removes every particle, as room and Samus initialization do.</summary>
     public void Clear() => _particles.Clear();
 
     /// <summary>Starts a particle on its first step; dust rises as it shows, and every other kind but lava spray stays put.</summary>

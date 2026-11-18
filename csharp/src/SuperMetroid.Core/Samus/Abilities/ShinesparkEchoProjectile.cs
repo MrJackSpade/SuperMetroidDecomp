@@ -25,8 +25,7 @@ internal sealed class ShinesparkEchoProjectile
         _pool = pool;
     }
 
-
-    /// <summary>
+/// <summary>
     /// Releases a finishing crash's echoes as far as Samus's shot count leaves room: the second echo while the count
     /// is below the pool's size, and the first only while it is below that by two, so both are released, only the
     /// second, or neither. Each released echo adds one to the count. An echo that is not released leaves its place and

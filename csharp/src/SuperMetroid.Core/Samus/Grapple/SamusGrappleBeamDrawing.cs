@@ -62,17 +62,16 @@ public static class SamusGrappleBeamDrawing
 
         // The grapple shows the main flare's pictures alone, the same for either facing. The flare is Samus's own, so it
         // shows the sheet of the beams she has equipped (#1586).
-        SuperMetroid.Core.Samus.Artwork.ProjectileSpriteId picture =
-            SuperMetroid.Core.Samus.Artwork.ChargeFlarePictures.Of(ChargeFlareComponent.MainFlare, facingLeft: false,
+        ProjectileSpriteId picture =
+            ChargeFlarePictures.Of(ChargeFlareComponent.MainFlare, facingLeft: false,
                 grapple.Flare.Picture ?? throw new InvalidOperationException("The grapple's flare plays only forward, so it always shows a picture."));
-        SpriteSheetFrame image = sheets.SheetOf(SamusBeamCombinations.Of(samus.EquippedBeams)).Frame(SuperMetroid.Core.Samus.Artwork.ProjectileSheetFrames.FlareFrame(
+        SpriteSheetFrame image = sheets.SheetOf(SamusBeamCombinations.Of(samus.EquippedBeams)).Frame(ProjectileSheetFrames.FlareFrame(
             picture));
         sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusGrappleFlare), image, place, SpriteMirror.None));
         return true;
     }
 
-
-    /// <summary>Seeds the first flare and point frames and the rope's animation.</summary>
+/// <summary>Seeds the first flare and point frames and the rope's animation.</summary>
     internal static void InitializeBeamAnimation(SamusGrappleState grapple)
     {
         // Firing marks the flare just fired after starting the rope's animation.
@@ -86,8 +85,7 @@ public static class SamusGrappleBeamDrawing
         grapple.Rope.Show(GrappleAnimations.Rope, GrappleBeamDefinitions.Rendering.FirstSegmentAnimationDelay);
     }
 
-
-    /// <summary>Recomputes visual beam origins from the final pose while retaining the separate physical endpoint offset.</summary>
+/// <summary>Recomputes visual beam origins from the final pose while retaining the separate physical endpoint offset.</summary>
     internal static void RefreshFiringDrawOrigins(
         SamusState samus,
         SamusGrappleState grapple)
@@ -106,8 +104,7 @@ public static class SamusGrappleBeamDrawing
             flare.X, flare.Y - artOrigin);
     }
 
-
-    /// <summary>
+/// <summary>
     /// Draws the grapple beam after Samus: the rope as a chain of rope pictures from the muzzle toward the anchor,
     /// animated as one, and the beam's endpoint at the anchor. Every picture is published wherever it lies, and the
     /// display clips it to the view.
@@ -126,8 +123,8 @@ public static class SamusGrappleBeamDrawing
         // Each six-draw interval moves the endpoint on to the next of its four pictures.
         grapple.Endpoint.Step();
         SpriteSheet installed = Ensure.NotNull(sheet);
-        SuperMetroid.Core.Samus.Artwork.GrappleRopeOrientation orientation =
-            SuperMetroid.Core.Samus.Artwork.GrappleRopeOrientations.For(grapple.Angle);
+        GrappleRopeOrientation orientation =
+            GrappleRopeOrientations.For(grapple.Angle);
 
         // The beam's draw moves the flare on a stage before it draws any rope. It happens even
         // at zero rope length; only the rope below is conditional. This is why a newly fired
@@ -177,8 +174,7 @@ public static class SamusGrappleBeamDrawing
             grapple.Anchor.RelativeToCamera(cameraPosition), SpriteMirror.None));
     }
 
-
-    /// <summary>
+/// <summary>
     /// The displacement along one axis from one rope picture's centre to the next: one segment's spacing scaled by the
     /// draw direction's share <paramref name="component"/> along the axis, keeping the fraction so diagonal and backward
     /// steps add up exactly.
@@ -194,9 +190,7 @@ public static class SamusGrappleBeamDrawing
         (angle >= RotationAngle.HalfTurn ? SpriteMirror.Horizontal : SpriteMirror.None) |
         (angle < RotationAngle.QuarterTurn || angle >= RotationAngle.ThreeQuarterTurn ? SpriteMirror.Vertical : SpriteMirror.None);
 
-
-
-    /// <summary>Clears the three charge-flare values shared by grapple cancellation and connection cleanup.</summary>
+/// <summary>Clears the three charge-flare values shared by grapple cancellation and connection cleanup.</summary>
     internal static void ClearFlareAnimation(SamusGrappleState grapple)
     {
         // Every grapple teardown clears these same shared charge/grapple

@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Artwork;
 
@@ -31,7 +30,7 @@ public static class SamusChargeColorExtractor
         for (int frame = 0; frame < hyper.Length; frame++)
         {
             // The list is read backward from its last pointer, skipping the padding word before its first.
-            int tableOffset = (SamusChargeShadeDefinitions.HyperShotSteps - frame) * sizeof(ushort);
+            int tableOffset = (SamusChargeColorFormat.HyperFrameCount - frame) * sizeof(ushort);
             int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 SamusSourceDefinitions.HyperBeamShotPointers.Value + tableOffset);
             hyper[frame] = ReadColors(pointer);

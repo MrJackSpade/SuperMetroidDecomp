@@ -49,15 +49,15 @@ public static class SamusGroundedMovement
         BlockMoveResult? vertical = null;
         if (elevatorIsMoving)
         {
-            // Calls the downward mover with one whole pixel; the collision direction the game
-            // sets first is read by nothing before the next move sets its own. That entry deliberately skips
+            // A moving elevator carries Samus down one whole pixel through the downward mover; the collision direction
+            // the game sets first is read by nothing before the next move sets its own. That move deliberately skips
             // solid-enemy collision but retains ordinary room-block and behaviour scanning and the
             // alternating left/right order selected from the frame counter's parity.
             vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromParts(1, 0), ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter), IncludeSolidEnemies = false, PublishDoorSideEffects = publishDoorSideEffects });
         }
 
-        // Is the only write in the ordinary no-elevator path. In particular,
-        // stale base/extra X speed is retained; facing forward clears those speeds at
+        // Clearing the vertical collision result is all front-view movement does without a moving elevator. In
+        // particular, stale base/extra X speed is retained; facing forward clears those speeds at
         // setup time, not every frame in this movement step.
         samus.SolidVerticalCollisionResult = SamusVerticalCollisionResult.None;
         return vertical;
@@ -86,8 +86,8 @@ public static class SamusGroundedMovement
         ResetStandingShotAnimation(samus, controllerInput);
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
 
-        // Moves Samus with no base speed, which still passes zero through
-        // horizontal movement and the pose direction's displacement calculator. That
+        // Standing moves Samus with no base speed, which still passes zero through
+        // horizontal movement and the pose direction's displacement calculation. That
         // calculation publishes total-X speed before collision; do not skip it merely because
         // a freshly spawned standing Samus normally has zero base/extra speed. A left-facing
         // pose's direction is left, so the displacement is leftward even though its
@@ -103,8 +103,8 @@ public static class SamusGroundedMovement
             frameCounter,
             roomObjects);
 
-        // Cancels speed boost and clears extra speed, base speed, and
-        // acceleration mode after both movement calls, whichever way Samus faces.
+        // Standing then cancels the speed boost and clears extra speed, base speed, and
+        // acceleration mode after both moves, whichever way Samus faces.
         speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
         return new GroundedMovementResult(horizontal, vertical);
     }
@@ -139,12 +139,12 @@ public static class SamusGroundedMovement
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
 
-        // Can replace the block reaction's ordinary speeds with the water or lava
-        // speeds after comparing Samus's bottom boundary.
+        // The liquid Samus's bottom boundary lies in can replace her ordinary speeds with the water or lava
+        // speeds.
         SamusLiquidMedium liquidMedium = samus.LiquidPhysics.DetermineMovementMedium(samus);
         speed.SelectSpeedsFor(liquidMedium);
 
-        // Handles Dash before calculating base speed. With no Speed Booster equipped, Dash establishes momentum, adds
+        // Running handles Dash before calculating base speed. With no Speed Booster equipped, Dash establishes momentum, adds
         // exactly a sixteenth of a pixel per frame, and caps the extra component at two pixels. The flag retains that
         // component after Dash is released.
         speed.HandleExtraRunSpeed(
@@ -165,7 +165,7 @@ public static class SamusGroundedMovement
         var requestedHorizontal = SamusHorizontalDisplacement.Toward(movesLeft, samus, baseSpeed);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
 
-        // Clears X speed on a collision immediately after block collision. Total
+        // A wall clears X speed immediately after block collision. Total
         // speed deliberately remains published: the following grounding probe reads it
         // even if base speed was just cleared by a wall.
         if (horizontal.Collided)
@@ -235,7 +235,7 @@ public static class SamusGroundedMovement
         // the calculation clears both speed halves AND mode before the direction selector chooses direction.
         UnsignedSixteenSixteen baseSpeed = speed.CalculateBaseSpeed(movementType);
 
-        // Reads the pose's facing rather than its name; the acceleration mode then chooses
+        // The turn's direction comes from the pose's facing rather than its name; the acceleration mode then chooses
         // whether she moves the way she faces or against it.
         var requestedHorizontal = SamusHorizontalDisplacement.ForPoseDirection(samus, baseSpeed);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
@@ -248,7 +248,7 @@ public static class SamusGroundedMovement
             frameCounter,
             roomObjects);
 
-        // Cancels the speed boost on every turn frame. This matters even
+        // The turn cancels the speed boost on every turn frame. This matters even
         // without the Speed Booster item: the turn setup folded the numeric extra component but
         // deliberately left the running-momentum flag set until this movement. Then the movement
         // cancels that momentum and zeroes the extra run speed, each separately observable.
@@ -280,8 +280,8 @@ public static class SamusGroundedMovement
         SamusLiquidMedium liquidMedium = samus.LiquidPhysics.DetermineMovementMedium(samus);
         speed.SelectSpeedsFor(liquidMedium);
 
-        // Runs horizontal movement, whose first operation is the Dash acceleration.
-        // Moonwalking can never enter that step's Dash-acceleration arm, but an
+        // Moonwalking's horizontal movement starts with the Dash acceleration.
+        // Moonwalking never gains Dash speed there, but an
         // existing momentum flag deliberately carries the extra pair through moonwalking;
         // without the flag the pair is cleared before displacement is calculated.
         speed.HandleExtraRunSpeed(
@@ -299,8 +299,8 @@ public static class SamusGroundedMovement
         if (horizontal.Collided)
             speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
 
-        // Is the same no-speed-calculation grounding probe used by running.
-        // It deliberately scales the downward probe by the total horizontal magnitude.
+        // Moonwalking then runs the same no-speed-calculation grounding probe as running.
+        // The probe deliberately scales the downward probe by the total horizontal magnitude.
         BlockMoveResult vertical = RunNoSpeedCalculationGroundingProbe(
             level,
             samus,
@@ -329,7 +329,7 @@ public static class SamusGroundedMovement
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
 
-        // Calls the same no-base-speed X movement as standing. Direction still
+        // Ran-into-wall movement uses the same no-base-speed X movement as standing. Direction still
         // comes from the pose's own facing. Extra speed is included in the requested move
         // before the movement's unconditional cleanup, in the game's order.
         var requestedHorizontal = SamusHorizontalDisplacement.Toward(SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left), samus, baseSpeed: default);
@@ -346,7 +346,7 @@ public static class SamusGroundedMovement
             frameCounter,
             roomObjects);
 
-        // Cancels speed boost and clears both run/base components plus
+        // Ran-into-wall movement then cancels the speed boost and clears both run/base components plus
         // acceleration mode on every frame.
         speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
         return new GroundedMovementResult(horizontal, vertical);
@@ -439,7 +439,7 @@ public static class SamusGroundedMovement
             samus.Kinematics,
             samus.HorizontalSpeed);
 
-        // Alternates its left-to-right and right-to-left horizontal scan order on
+        // The probe alternates its left-to-right and right-to-left horizontal scan order on
         // the frame counter's parity. That parity can affect which simultaneous
         // collision side effect wins.
         return SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter) });

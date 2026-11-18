@@ -750,7 +750,7 @@ internal sealed class SamusFramePhases
         // still instead (SamusMovementOwner.DraygonHold). The Draygon-held ball the Hyper Beam freeze installs (#1535) has no
         // Draygon, so it stays put.
         [SamusMovementType.DraygonHeld] = move => SamusDraygonGrabbedState.StepMovement(move.Samus),
-        // The glitch-ball knockback's movement type has an empty normal entry: once its knockback ends, Samus holds still in
+        // The glitch-ball knockback's movement type has no movement of its own: once its knockback ends, Samus holds still in
         // it (#1535).
         [SamusMovementType.GlitchBallKnockback] = static _ => { },
     };
@@ -805,7 +805,7 @@ internal sealed class SamusFramePhases
     }
 
     /// <summary>
-    /// The glitch ball's normal entry, which only clears the vertical solid-collision result, as does the posture transition's
+    /// The glitch ball's normal movement, which only clears the vertical solid-collision result, as does the posture transition's
     /// for the compact Draygon-held stand-up, which skips its horizontal and vertical movement; nothing lands them, so the
     /// landed cleanup never runs. Both hold Samus where the over-read installed them (#1535).
     /// </summary>
@@ -876,7 +876,7 @@ internal sealed class SamusFramePhases
         }
     }
 
-    /// <summary>Runs the knockback movement type's normal entry: the one-frame grounding tail before the knockback ending's target.</summary>
+    /// <summary>Runs the knockback movement type's normal movement: the one-frame grounding probe before the knockback ending's target.</summary>
     private void StepKnockbackEndingMovement(SamusState samus, RoomScope room)
     {
         // The knockback movement type's normal movement is this one. Active

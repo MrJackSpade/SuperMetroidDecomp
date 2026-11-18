@@ -11,8 +11,8 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// The fixed-point horizontal speeds used by Samus's movement code.
 /// </summary>
 /// <remarks>
-/// Every property is one value of Samus's state, and every operation below keeps the game's wraps and
-/// comparisons. Room/enemy collision consumes
+/// Every property is one value of Samus's state, and every operation below gives the speeds the game gives them. Room/enemy
+/// collision consumes
 /// the resulting displacement later; it is not guessed here.
 /// </remarks>
 public sealed class SamusHorizontalSpeedState
@@ -181,21 +181,21 @@ public sealed class SamusHorizontalSpeedState
         bool liquidImpeded = false)
     {
         const GameplayAction dashButton = GameplayAction.Dash;
-        // Diverts a non-Gravity submerged body to the same no-acceleration
-        // branch as releasing Dash. Existing momentum retains its numeric extra component;
+        // A submerged body without the Gravity Suit gains no Dash speed, just as when Dash is
+        // released. Existing momentum retains its numeric extra component;
         // without momentum, both values are cleared. This is not a multiplier or hard reset.
         bool activelyDashing = !liquidImpeded &&
             movementType == SamusMovementType.Running &&
             controllerInput.HasAny(dashButton);
         if (!activelyDashing)
         {
-            // Clears the extra pair only before momentum has been established.
-            // A true flag carries the pair through airborne movement and a released button.
+            // The extra run speed is cleared only before momentum has been established.
+            // Established momentum carries it through airborne movement and a released button.
             if (!HasRunningMomentum)
             {
                 ExtraRunSpeed = default;
             }
-            // The common epilogue also runs when Dash is released,
+            // Boost contact damage is published on every move, including when Dash is released,
             // movement becomes airborne, or liquid suppresses acceleration.
             PublishBoostContactDamage();
             return;
@@ -205,7 +205,7 @@ public sealed class SamusHorizontalSpeedState
         {
             if (!HasRunningMomentum)
             {
-                // Starts the running momentum and the boost's colour timer and step.
+                // Dashing with the Speed Booster starts the running momentum and the boost's colour timer and step.
                 // Showing the colours remains drawing work, but their
                 // frame/timer state is movement-visible and therefore retained here.
                 HasRunningMomentum = true;
@@ -307,8 +307,8 @@ public sealed class SamusHorizontalSpeedState
         animationFrameTimer = WrappingCountdown.Start(extraAnimationDelay)
             .AddFrames(SamusRunningCadences.Delay(unauthoredBoostCadence, cadence, frame: 0)).RemainingFrames;
         // Animation runs after movement. Stage advancement changes cadence
-        // and sound, not contact damage; the next movement epilogue publishes that.
-        // Publishing here enables boost damage one frame before the game.
+        // and sound, not contact damage; the next move publishes that.
+        // Publishing it here would enable boost damage one frame before the game does.
         return true;
     }
 
@@ -337,14 +337,14 @@ public sealed class SamusHorizontalSpeedState
         if (frame.SuppressActiveSpeedBoosterGlow)
             return shadeCopied;
 
-        // Tests for the Gravity Suit before it asks whether
+        // The glow tests for the Gravity Suit before it asks whether
         // Samus's *bottom* boundary lies under water or lava/acid. Power and Varia Samus
-        // return at once when submerged: the current colours, common
-        // timer, and cycle shade step all remain untouched. Gravity Suit bypasses this
-        // gate and continues into the ordinary Screw Attack / Speed Booster logic even
-        // though the raw room-FX comparison still says the body is underwater. Her movement
-        // supplies the raw boundary result so this state owner does not invent a second,
-        // subtly different reading of the room's FX values.
+        // stop at once when submerged: the current colours, common
+        // timer, and cycle shade step all remain untouched. The Gravity Suit passes this
+        // test and goes on to the ordinary Screw Attack / Speed Booster glow even
+        // though her bottom boundary still lies under the liquid. Her movement
+        // supplies whether the bottom boundary is submerged, so the glow reads the liquid's surface exactly as
+        // movement does.
         bool gravitySuitEquipped = frame.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit);
         if (!gravitySuitEquipped && frame.BottomBoundarySubmerged)
             return shadeCopied;
@@ -354,7 +354,7 @@ public sealed class SamusHorizontalSpeedState
         {
             if (frame.AnimationOnSpinStart)
             {
-                // Restarts only the colour cycle's step. The spin's first frame keeps the normal suit colours
+                // The spin's first frame restarts only the colour cycle's step. That frame keeps the normal suit colours
                 // already shown; it shows no Screw Attack shade.
                 FullBodyCycle = FullBodyCycleStart;
                 return shadeCopied;
@@ -575,8 +575,8 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>
-    /// Clears the five horizontal velocity/acceleration values without canceling
-    /// boost bookkeeping. Crouching's cleanup performs only these stores;
+    /// Clears the extra run speed, the base speed and the acceleration mode without cancelling the
+    /// boost's bookkeeping. Crouching's cleanup clears only these;
     /// its angle-held input route can therefore preserve a temporary Blue Suit.
     /// </summary>
     public void ClearHorizontalVelocity()

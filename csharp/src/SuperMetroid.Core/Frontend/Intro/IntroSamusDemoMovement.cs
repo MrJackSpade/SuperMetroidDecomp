@@ -116,7 +116,7 @@ internal static class IntroSamusDemoMovement
             ApplyPoseTransition(samus, poseAtFrameStart, fallbackPose);
         }
 
-        // The transition epilogue shifts history for an accepted pose even
+        // Finishing the transition shifts history for an accepted pose even
         // when deceleration retains the same pose. Idle frames accept no pose and
         // must preserve the older history used by subsequent movement decisions.
         if (fallback.HasValue)

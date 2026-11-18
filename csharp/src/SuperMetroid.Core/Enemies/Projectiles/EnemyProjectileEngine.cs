@@ -684,7 +684,7 @@ internal sealed class EnemyProjectileEngine
     /// Dragon's fireball and both n00b-tube shard frame behaviours.
     /// </summary>
     /// <remarks>
-    /// A position above the camera's top row (signed-negative difference) is kept; only a
+    /// A position above the camera's top row is kept; only a
     /// difference of <see cref="EnemyProjectileOffScreenDefinitions.VerticalDeletionDepth"/>
     /// or more below it deletes the projectile.
     /// </remarks>

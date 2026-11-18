@@ -40,9 +40,9 @@ public sealed class SamusProjectileOverreads
     /// <summary>Whether the posture-transition weapon admission admits weapons for a pose outside its table.</summary>
     internal PostureAdmissionBeyondTransitions<SamusPoseId> PostureAdmission { get; }
 
-    /// <summary>The speeds a Spazer and Plasma beam launches at and the cooldowns it waits, read past the firing tables.</summary>
+    /// <summary>The speeds a Spazer and Plasma beam launches at and the cooldowns it waits, which no beam's firing authors.</summary>
     internal UnauthoredBeamFiring<SamusBeamCombination> UnauthoredBeamFiring { get; }
 
-    /// <summary>The angles a Shinespark crash finishing in a drained pose releases its echoes at, read past its table.</summary>
+    /// <summary>The angles a Shinespark crash finishing in a drained pose releases its echoes at, which no crash pose authors.</summary>
     internal DrainedCrashEchoDepartures<SamusPoseId, ShinesparkDepartureAngles> DrainedCrashDepartures { get; }
 }

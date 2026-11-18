@@ -197,7 +197,7 @@ public sealed class SuperMetroidGame
         // samples; its acknowledgements become visible to the next update's sound queues.
         AudioFrameEvents audio = new(Session.audioSession.Advance(audioRequests));
         // The pause phases publish held input after they return, even though Samus's
-        // draw-time epilogue did not run. Preserve its held-only publication;
+        // drawing step, which ends by publishing it, did not run. Publish only the held input;
         // updating the press edge or auto-jump timer here would invent gameplay.
         if (pauseInputEpilogue)
             Session.GameplayRuntime.Player.IntroducedSamus.InputSnapshot.PublishHeldInput(Session.GameplayRuntime.PlayerActions.Current);

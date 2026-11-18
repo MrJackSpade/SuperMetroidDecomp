@@ -28,8 +28,7 @@ internal static class SamusAtmosphericEffectDefinitions
     /// <summary>
     /// The Brinstar and Tourian rooms where Samus's landings raise dust; a landing in any other room of those two areas
     /// shows nothing. Tourian's dusty rooms are Blue Hopper, Dust Torizo, Big Boy, Seaweed and the Eye Door room.
-    /// Brinstar applies Tourian's choice of rooms to its own, so Brinstar's dust shows in the Green Brinstar map
-    /// station, the Green Brinstar Firefleas room, the Green Brinstar missile refill, Dachora's room and Spore Spawn's
+    /// Brinstar's dust shows in the Green Brinstar map station, the Green Brinstar Firefleas room, the Green Brinstar missile refill, Dachora's room and Spore Spawn's
     /// room.
     /// </summary>
     internal static readonly FrozenSet<RoomDefinition> BrinstarAndTourianLandingDustRooms =

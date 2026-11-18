@@ -444,7 +444,7 @@ public sealed class SamusState
 
     /// <summary>
     /// The general Samus invincibility timer tested by enemy, projectile,
-    /// ordinary spike, spike-air, and grapple-swing damage producers. The gameplay tail
+    /// ordinary spike, spike-air, and grapple-swing damage producers. The gameplay update
     /// decrements it once near the end of every gameplay frame, after all those producers
     /// have had an opportunity to reject or publish damage.
     /// </summary>
@@ -461,7 +461,7 @@ public sealed class SamusState
     /// Decrements Samus's two own hurt timers.
     /// This deliberately lives outside every individual movement
     /// owner: grapple spikes can start the timers without installing knockback movement,
-    /// and the gameplay tail ages them even while time is frozen.
+    /// and the end of the gameplay update ages them even while time is frozen.
     /// </summary>
     public void DecrementHurtTimers()
     {

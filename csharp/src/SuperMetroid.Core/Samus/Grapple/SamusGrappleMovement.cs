@@ -19,8 +19,8 @@ namespace SuperMetroid.Core.Samus.Grapple;
 /// blocks. Firing, persistent and breakable
 /// grapple blocks, enemy anchors, per-pixel rope adjustment, and the six-point angular terrain sweep are
 /// here; solid/frozen-enemy wall-jump probing is shared with ordinary movement and asks the next enemy
-/// pass to shake the enemy launched from. The firing-only Draygon-turret damage and both behaviour-indexed swing
-/// spike-damage tables are applied through the shared periodic damage.
+/// pass to shake the enemy launched from. The firing-only Draygon-turret damage and the swing's spike damage, which
+/// depends on the kind of spike block, are applied through the shared periodic damage.
 /// Grapple's narrower water flag and persistent environment-selected
 /// release are kept apart from ordinary aerial movement.
 /// </remarks>
@@ -58,8 +58,8 @@ public static class SamusGrappleMovement
         grapple.MirroredAngle = grapple.Angle;
 
         // Firing selects run offsets solely for <see cref="SamusMovementType.Running"/>. Moonwalking is
-        // distinct moonwalking type, so every stable/aimed moonwalk pose naturally takes the
-        // no-run origin and flare tables without a pose-number exception.
+        // its own movement type, so every stable/aimed moonwalk pose fires from the standing beam origin and flare,
+        // with no exception for any pose.
         bool useRunOffsets = SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.Running;
         var origin = GrappleFiring.Origin(direction, useRunOffsets);
         var flare = ReadFlareOrigin(grapple, direction, useRunOffsets);
@@ -224,9 +224,8 @@ public static class SamusGrappleMovement
     /// </summary>
     /// <remarks>
     /// Grapple physics reads this flag during a phase and the grapple beam's step rewrites it only
-    /// afterward, so it runs exactly once at the end of the pass. The
-    /// explicit phase set mirrors the phase-range test: release, cancel, dropped,
-    /// wall-jump, and inactive phases all clear liquid physics immediately.
+    /// afterward, so it runs exactly once at the end of the pass. Only a firing, connected or wall-grabbing beam can stay
+    /// submerged: release, cancel, dropped, wall-jump, and inactive phases all clear liquid physics immediately.
     /// </remarks>
     public static void RefreshLiquidPhysicsFlag(SamusState samus)
     {
@@ -382,9 +381,8 @@ public static class SamusGrappleMovement
     }
 
     /// <summary>
-    /// Replays the connected-beam enemy test. Any nonzero common
-    /// reaction keeps the connection alive for this frame; attach reactions additionally
-    /// follow a moving actor's center.
+    /// Repeats the connected beam's enemy test. Any reaction of the enemy at the anchor to the grapple beam keeps the
+    /// connection alive for this frame; attach reactions additionally follow a moving actor's center.
     /// </summary>
     private static bool TryRetainEnemyAnchor(
         SamusGrappleState grapple,
@@ -566,7 +564,7 @@ public static class SamusGrappleMovement
         return GrappleConnections.DroppedPose(shotDirection, compact: samus.Kinematics.Radius.Y < GrappleBeamDefinitions.Connection.StandingDropRadius);
     }
 
-    /// <summary>Applies an exact special-angle connection record, including its pose and bounded camera displacement.</summary>
+    /// <summary>Applies an exact special-angle connection, including its pose and bounded camera displacement.</summary>
     internal static bool TryHandleSpecialAngle(
         SamusState samus,
         SamusGrappleState grapple,
@@ -574,7 +572,7 @@ public static class SamusGrappleMovement
         out GrappleMovementResult result)
     {
         // Preserve the reverse scan and exact angle equality, not a tolerance
-        // around a wall-grab angle. These records govern collision positioning.
+        // around a wall-grab angle. These connections govern collision positioning.
         IReadOnlyList<GrappleConnectionDefinitions.SpecialConnection> connections = GrappleConnections.SpecialConnections;
         for (int place = connections.Count - 1; place >= 0; place--)
         {
@@ -616,7 +614,7 @@ public static class SamusGrappleMovement
         Position16<RoomPixels> current, Position16<RoomPixels> previous) =>
         new(ClampPreviousAxis(current.X, previous.X), ClampPreviousAxis(current.Y, previous.Y));
 
-    /// <summary>Limits one axis of the previous position to twelve pixels using displacement wrapped at 65536.</summary>
+    /// <summary>Limits one axis of the previous position to twelve pixels either way of the current one.</summary>
     private static int ClampPreviousAxis(int current, int previous)
     {
         int displacement = CoordinateAxis.Difference(current, previous);
@@ -641,9 +639,8 @@ public static class SamusGrappleMovement
     /// <summary>Publishes rope, physical endpoint, and flare origins with the fraction's overflow from the firing offset.</summary>
     private static void PublishFiringGeometry(SamusState samus, SamusGrappleState grapple)
     {
-        // Whole endpoint offsets are the signed whole parts of the two summed offsets. The signed halving is
-        // intentional: a left/up beam must retain sign after fractional accumulation, as the endpoint offsets
-        // are displacements either way.
+        // The rope start and the flare sit at whole-pixel offsets from Samus's whole position. The endpoint offsets are
+        // displacements either way, so a left or upward beam keeps its direction as its fraction accumulates.
         grapple.RopeStart = samus.Position.Whole + grapple.OriginOffset;
         // The endpoint adds the offset to Samus's subpixel-inclusive position, so the
         // fraction's overflow reaches the endpoint before the whole origin offset is added.
@@ -862,7 +859,7 @@ public static class SamusGrappleMovement
 
         // The connection publishes the grapple-beam Start pair from the accepted endpoint,
         // angle, and possibly shortened rope. This is the hand attachment point, not the
-        // independently authored Flare pair from the firing tables.
+        // flare position authored separately for each firing direction.
         GrappleCollisionPoint ropeStart = SamusGrappleSwing.CalculateCollisionPoint(
             grapple,
             angle.ToTrigonometryAngle(),
@@ -887,8 +884,8 @@ public static class SamusGrappleMovement
         // both block and enemy connections, never for an arbitrary restored swing state.
         grapple.RopeLengthDelta = GrappleBeamDefinitions.Physics.InitialConnectionRetraction;
 
-        // The swinging and stuck tails publish the pending connection pose. They do not
-        // install that pose inline. The animation's pending transition pose can therefore keep
+        // A swinging or locked connection publishes the pending connection pose. It does not
+        // install that pose at once. The animation's pending transition pose can therefore keep
         // the old pose and every one of Samus's speeds while the grapple phase remains live.
         return new GrappleMovementResult(
             grapple.Phase,
@@ -947,7 +944,7 @@ public static class SamusGrappleMovement
     /// <summary>
     /// The direction of <paramref name="delta"/> as an angle, worked out in whole numbers one octant at a time.
     /// The returned angle is measured clockwise from negative Y: zero up, 64 right, 128 down,
-    /// and 192 left. Division truncates exactly as the game's unsigned divide does.
+    /// and 192 left. Each octant's steps are truncated toward zero, as the game's are.
     /// </summary>
     internal static RotationAngle CalculateAngleFromXY(Offset16<RoomPixels> delta)
     {
@@ -1136,7 +1133,7 @@ public static class SamusGrappleMovement
     /// <summary>Resets grapple-owned movement and rendering state so a later shot cannot inherit connection state.</summary>
     private static void ClearConnectedGrapple(SamusGrappleState grapple)
     {
-        // The drop and wall-jump teardowns share the same long cleanup tail. Every owned movement/rendering value is
+        // The drop and wall-jump teardowns end with the same long cleanup. Every owned movement/rendering value is
         // reset here so a later firing edge cannot inherit wall-grace or collision state; both teardowns end an
         // auto-cancelled selection, and the frame's grapple phase shows the equipped beams' colours again.
         grapple.Phase = GrapplePhase.Inactive;

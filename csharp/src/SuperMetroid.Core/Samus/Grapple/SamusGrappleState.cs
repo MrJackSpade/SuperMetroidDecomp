@@ -55,12 +55,12 @@ public sealed class SamusGrappleState
     }
     /// <summary>
     /// The direction the beam was fired in: one of the ten projectile directions, which select the launch velocity,
-    /// the hand and flare origins and the connection record. Firing admits only those ten directions.
+    /// the hand and flare origins and the connection. Firing admits only those ten directions.
     /// </summary>
     public SamusProjectileDirection FireDirection { get; set; }
     /// <summary>The pose-change auto-fire timer; permits early pose-directed refiring.</summary>
     public int PoseChangeAutoFireTimer { get; set; }
-    /// <summary>The signed 1/256-pixel endpoint extension velocity.</summary>
+    /// <summary>The velocity the beam's end extends at, either way on each axis, to a 256th of a pixel.</summary>
     public EightEightVector<RoomPixels> ExtensionVelocity { get; set; }
 
     /// <summary>

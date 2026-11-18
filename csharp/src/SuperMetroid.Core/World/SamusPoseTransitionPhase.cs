@@ -99,7 +99,7 @@ internal sealed class SamusPoseTransitionPhase
 
         // The normal-jump setup publishes the fresh Shoot direction
         // for every accepted route, including aim changes within a jump. The
-        // earlier projectile epilogue cleared the previous update's handoff.
+        // projectile step earlier in this update cleared the previous update's handoff.
         if (samus.Pose != samus.PoseHistory.PreviousPose)
             SamusAerialPoseTransitions.ArmNormalJumpTransitionShot(samus, _playerActions.NewlyPressed);
 

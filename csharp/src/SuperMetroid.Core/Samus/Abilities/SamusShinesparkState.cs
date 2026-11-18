@@ -24,7 +24,7 @@ public sealed class SamusShinesparkState
 
     /// <summary>
     /// The upward spark's acceleration in pixels per frame per frame: 7.0 when windup begins, raised by Samus's
-    /// vertical acceleration on every vertical or diagonal spark call, and cleared when the crash finishes. A suit pickup
+    /// vertical acceleration on every update of a vertical or diagonal spark, and cleared when the crash finishes. A suit pickup
     /// during a suspended windup replaces it with the light beam's progress.
     /// </summary>
     private readonly SuitPickupSparkCarryover<SamusSuitPickupStage> _acceleration;
@@ -255,8 +255,7 @@ public sealed class SamusShinesparkState
     }
 
     /// <summary>
-    /// Starts the launch the shinespark's direction selects
-    /// for <see cref="SamusPoseId.ShinesparkHorizontalRightPose"/> through <see cref="SamusPoseId.ShinesparkDiagonalLeftPose"/>,
+    /// Starts the launch the shinespark's direction selects for a horizontal, vertical or diagonal shinespark pose,
     /// taking its pose at once.
     /// </summary>
     public void BeginDirectionalLaunch(SamusState samus, SamusPoseId targetPose)
@@ -389,7 +388,7 @@ public sealed class SamusShinesparkState
 
     /// <summary>
     /// Runs the stored shine's or the shinespark's suit colouring, restoring Samus's
-    /// normal colours when its signed countdown expires.
+    /// normal colours when its countdown runs out.
     /// </summary>
     public bool UpdateColouring(SamusColours colours, SamusEquipmentFlags equippedItems)
     {

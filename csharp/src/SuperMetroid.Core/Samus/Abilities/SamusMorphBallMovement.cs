@@ -58,8 +58,8 @@ public static class SamusMorphBallMovement
         else
         {
             // The rolling morph-ball poses, plus either stable pose carrying the turning acceleration mode, enter
-            // the full deceleration-allowed horizontal movement. Its run-momentum
-            // call retains established run momentum and republishes boost contact damage.
+            // the full deceleration-allowed horizontal movement. That movement keeps established run momentum and
+            // publishes boost contact damage again.
             speed.HandleExtraRunSpeed(
                 movementType, controllerInput: GameplayAction.None,
                 speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
@@ -139,7 +139,7 @@ public static class SamusMorphBallMovement
 
     /// <summary>
     /// Executes the morph ball's fall or, while
-    /// <see cref="SamusState.MorphBallBounceState"/> is nonzero,
+    /// the ball is bouncing (<see cref="SamusState.MorphBallBounceState"/>),
     /// its bounce. Morph-ball falling
     /// and both Spring Ball air movements run here.
     /// </summary>
@@ -182,7 +182,7 @@ public static class SamusMorphBallMovement
         {
             // The bounce gives an external producer priority over the rebound arc.
             // It cancels the stored bounce velocity, forces direction down, and executes
-            // the downward move; a signed-negative producer can still make the actual scan upward.
+            // the downward move; an upward external displacement can still make the actual scan upward.
             samus.Kinematics.YDirection = SamusVerticalDirection.Down;
             samus.Kinematics.YSpeed = default;
             SignedSixteenSixteen displacement = SamusExtraDisplacement.CalculateExtraOnlyVerticalDisplacement(samus.Kinematics) ??
@@ -223,7 +223,7 @@ public static class SamusMorphBallMovement
                 $"Spring-Ball powered jump requires a rising Spring Ball jump pose, not {samus.Pose}.");
         }
 
-        // A nonzero bounce state selects the bouncing step instead of the
+        // A ball that is bouncing takes the bouncing step instead of the
         // powered jump, so a rebound's upward speed survives a released Jump button.
         if (samus.MorphBallBounceState != SamusBallBounceState.None)
         {

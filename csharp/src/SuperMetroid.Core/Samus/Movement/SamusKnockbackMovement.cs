@@ -36,8 +36,8 @@ public static class SamusKnockbackMovement
     {
         Ensure.NotNull(samus);
 
-        // Requires a live producer timer, unfrozen time, and zero in the
-        // installed direction. A nonzero direction means a previous request already
+        // A knockback starts only with a live producer timer, unfrozen time, and no
+        // knockback direction installed. An installed direction means a previous request already
         // holds her movement; it must finish instead of being restarted.
         if (samus.KnockbackTimer == 0 ||
             timeIsFrozen ||
@@ -122,7 +122,7 @@ public static class SamusKnockbackMovement
         if (suppressesKnockback)
             return false;
 
-        // Replaces an ordinary body with a knockback pose. A ball, by contrast, keeps its exact Morph or Spring Ball
+        // A hit replaces an ordinary body with a knockback pose. A ball, by contrast, keeps its exact Morph or Spring Ball
         // pose; since Samus's pose update sees no pose change, the rolling animation frame and timer survive.
         bool facingLeft = SamusPoseMetadata.IsFacingLeft(samus.Pose);
         if (humanoid)
@@ -186,7 +186,7 @@ public static class SamusKnockbackMovement
         samus.BombJumpActive = false;
         samus.HorizontalSpeed.BodyAttack = SamusBodyAttack.None;
 
-        // Starts the hurt flash after cancelling bomb-jump/contact damage. This is an independent
+        // The hurt flash starts after bomb-jump/contact damage is cancelled. This is an independent
         // 60-update shade/audio lifetime, not the five-frame knockback timer established above.
         samus.HurtFlash.Start();
 
@@ -233,14 +233,13 @@ public static class SamusKnockbackMovement
             ? MoveWithSharedVerticalSpeedCalculation(level, samus, frameCounter, roomObjects)
             : MoveDownWithoutSpeedCalculation(level, samus, frameCounter, roomObjects);
 
-        // Observes these values inside downward collision, before the landing
-        // clears them. Preserve the impact snapshot in the typed result so the runtime can
-        // execute the shared landing-presentation step at the same logical seam.
+        // A downward knockback's landing is read here, before the landing clears these values. The result keeps the
+        // impact so the runtime can run the shared landing presentation at the same point of the update.
         bool landed = samus.KnockbackDirection is SamusKnockbackDirection.DownLeft or SamusKnockbackDirection.DownRight && vertical.Collided;
 
         if (vertical.Collided)
         {
-            // Is reached only after the vertical step, so horizontal wall
+            // Only a vertical collision stops the knockback, so horizontal wall
             // contact alone does not clear these vertical values. Bottom alignment is already
             // represented by the block collision's accepted displacement against the current radius.
             speed.AccelerationMode = SamusAccelerationMode.Accelerating;
@@ -274,7 +273,7 @@ public static class SamusKnockbackMovement
                 $"Damage boost {sourcePose} -> {targetPose} is not a transition.");
         }
 
-        // Returns only her movement to her pose. The conditional jump
+        // The damage boost returns only her movement to her pose. The conditional jump
         // reset in the pose handling does not run for a merely prospective type change.
         // Preserve velocity and hurt values until the common expiry handoff consumes them.
         samus.Pose = targetPose;
@@ -369,7 +368,7 @@ public static class SamusKnockbackMovement
         // Knockback's expiry restores the normal input mode as well as
         // movement, including when hurt interrupted a still-input-locked bomb rise.
         samus.BombJumpPoseInputLocked = false;
-        // Returns her movement to her pose. A Shinespark windup can
+        // The expiry returns her movement to her pose. A Shinespark windup can
         // have been initialized after the knockback check latched this expiry, so end that
         // spark's hold while retaining its independently owned shade and timer.
         SamusMovementHandOver.BackToPose(samus, SamusMovementOwner.Knockback);
@@ -402,8 +401,8 @@ public static class SamusKnockbackMovement
         int frameCounter,
         ISamusRoomObjects roomObjects)
     {
-        // Gives nonzero external Y priority over its normal total-X-plus-one
-        // slope-following probe. This down-knockback path takes the exact same step.
+        // Any external Y displacement takes priority over the normal total-X-plus-one
+        // slope-following probe, as in every no-speed vertical move; a downward knockback takes the exact same step.
         SignedSixteenSixteen requested = SamusExtraDisplacement.CalculateNoSpeedVerticalDisplacement(
             samus.Kinematics,
             samus.HorizontalSpeed);

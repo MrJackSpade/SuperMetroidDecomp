@@ -458,7 +458,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
 
     /// <summary>Draws a map sprite sheet frame in the map's colours <paramref name="colouring"/>.</summary>
     private void DrawMapSprite(MapSpriteId id, Offset16<ScreenPixels> origin, MapSpriteColouring colouring) =>
-        // Map compositions use this shared entry. Extracted equipment selectors
+        // Every map composition draws its map sprites here. Extracted equipment selectors
         // and reserve tanks draw through their semantic presentation owners.
         MapSpriteSheet.Draw(MapSheet, id, screen.Sprites, origin, MapSpriteScreen.Pause, colouring);
 

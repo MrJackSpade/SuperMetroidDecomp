@@ -591,8 +591,8 @@ internal sealed class EnemyCollision
         owner.OwnsPrivateShotReaction(reaction);
 
     /// <summary>
-    /// Runs the common damage a normal bomb does through the shot reaction, without the hit burst or the death tail: the
-    /// part of the reaction a species' own bomb handling calls before deciding the enemy's death itself.
+    /// Runs the common damage a normal bomb does through the shot reaction, without the hit burst or the death that
+    /// follows: the part of the reaction a species' own bomb handling runs before deciding the enemy's death itself.
     /// </summary>
     internal void ApplyNormalBombDamage(RoomEnemyPlace enemy, SamusBomb bomb) => _ = HurtByNormalBomb(enemy, bomb);
 
@@ -627,7 +627,7 @@ internal sealed class EnemyCollision
         return hurtUnfrozen ? NormalBombHit.HurtUnfrozen : NormalBombHit.HurtFrozen;
     }
 
-    /// <summary>The ordinary shot reaction's death tail after a bomb's damage: a killed enemy starts its death.</summary>
+    /// <summary>How the ordinary shot reaction ends after a bomb's damage: a killed enemy starts its death.</summary>
     private void StartNormalBombDeathIfKilled(RoomEnemyPlace enemy, SamusState samus)
     {
         if (enemy.Health != 0)

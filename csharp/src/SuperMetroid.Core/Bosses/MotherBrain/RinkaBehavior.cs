@@ -16,7 +16,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new RinkaEntity(this, place, common);
 
-    /// <summary>Applies normal Samus contact damage before the Rinka-specific death tail.</summary>
+    /// <summary>Applies normal Samus contact damage before the Rinka's own death.</summary>
     private readonly EnemyCollision _collision;
     /// <summary>Indicates when door loading must defer camera-sensitive spawn selection.</summary>
     private readonly EnemyFrameContext _frameContext;

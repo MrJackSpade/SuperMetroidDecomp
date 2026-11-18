@@ -89,7 +89,7 @@ public static class SamusHurtFlash
     /// </summary>
     /// <param name="samus">Owner of the resume-charging flag, which is cleared whenever set regardless of the held buttons.</param>
     /// <param name="controllerInput">Current held actions; Shoot must still be held to queue the resume-charging sound.</param>
-    /// <returns>Whether the nonzero latch caused a resume-charging sound request; this is not confirmation of playback.</returns>
+    /// <returns>Whether a pending resume made a resume-charging sound request; this is not confirmation of playback.</returns>
     public static bool ConsumeResumeChargingBeamSound(SamusState samus, GameplayAction controllerInput)
     {
         Ensure.NotNull(samus);

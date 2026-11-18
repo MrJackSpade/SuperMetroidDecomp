@@ -11,8 +11,8 @@ namespace SuperMetroid.Core.Samus.Death;
 
 /// <summary>
 /// Owns Samus's fatal-damage pose, picture, shade, flashing, whiteout, and suit-
-/// explosion sequence. This is deliberately not folded into knockback merely because poses
-/// the death-sequence poses advertise the knockback movement type: the death game states stop Samus's normal input
+/// explosion sequence. This is deliberately not folded into knockback merely because the
+/// death-sequence poses have the knockback movement type: the death game states stop Samus's normal input
 /// and movement phases and run this independent state machine instead.
 /// </summary>
 public sealed class SamusDeathSequenceState : IGameplayShadingSource
@@ -64,7 +64,7 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
 
     /// <summary>
     /// The colour the explosion's whiteout shows every picture and sprite in but Samus's body, or null before the
-    /// whiteout's first shade. Each whiteout step selects the installed shade of its index; the last saturates.
+    /// whiteout's first shade. Each whiteout step shows the next installed shade, and the last one stays.
     /// </summary>
     public RgbColor? Whiteout { get; private set; }
 

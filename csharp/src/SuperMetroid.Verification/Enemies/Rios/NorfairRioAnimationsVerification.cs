@@ -21,7 +21,9 @@ internal static class NorfairRioAnimationsVerification
                     var instruction = Instructions[word];
                     AssertEqual(instruction.Cue, cue, $"{at}: cue");
                     AssertEqual(0, operands.Length, $"{at}: operands");
-                }));
+                },
+                // Only the flame cues and the setup place the flames (#2512), so placing them again restates the place.
+                Restates: cue => cue is NorfairRioCue.PlaceFlames));
         Console.WriteLine($"  Norfair Rio animations: {Entries.Length} segments ({beats} beats) and {NorfairRioAnimations.StartingAt.Count} animations match bank $A2.");
     }
 }

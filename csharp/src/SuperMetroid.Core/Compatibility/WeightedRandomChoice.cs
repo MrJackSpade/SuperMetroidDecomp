@@ -41,6 +41,29 @@ public sealed class WeightedRandomChoice<TOutcome>
         _outcomes = [.. outcomes];
     }
 
+    /// <summary>
+    /// A choice whose field's values, from the lowest, take <paramref name="outcomes"/> in turn, the first again after the
+    /// last (#2421): each value chooses one outcome, so when the outcomes do not divide the values the earlier ones take
+    /// one value more. Lava's bubbling sounds are chosen so.
+    /// </summary>
+    /// <param name="field">The field of the sample the choice reads.</param>
+    /// <param name="outcomes">The outcomes in the order the field's values take them, two or more.</param>
+    /// <exception cref="ArgumentException">There are fewer than two outcomes, or more than the field has values.</exception>
+    public static WeightedRandomChoice<TOutcome> InTurn(RandomSampleField field, params ReadOnlySpan<TOutcome> outcomes)
+    {
+        if (outcomes.Length < 2 || outcomes.Length > field.Outcomes)
+        {
+            throw new ArgumentException(
+                $"A choice taken in turn gives the {field.Outcomes} values of its field to two through that many outcomes, not {outcomes.Length}.",
+                nameof(outcomes));
+        }
+        var shares = new WeightedRandomOutcome<TOutcome>[field.Outcomes];
+        CyclingSequence<TOutcome> next = CyclingSequence<TOutcome>.StartOf([.. outcomes]);
+        for (int value = 0; value < shares.Length; value++, next = next.Next)
+            shares[value] = new(1, next.Current);
+        return new(field, shares);
+    }
+
     /// <summary>The field of the sample the choice reads.</summary>
     public RandomSampleField Field { get; }
 

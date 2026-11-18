@@ -30,6 +30,41 @@ public static class GameplayMessageBoxDefinitions
         public const int ItemMinimumDisplayFrames = 360;
         /// <summary>Minimum updates a station message remains displayed.</summary>
         public const int StationMinimumDisplayFrames = 10;
+
+        /// <summary>
+        /// The updates each message stays displayed at least once its window has opened, before it takes input (#2422): an
+        /// item's description holds for <see cref="ItemMinimumDisplayFrames"/>, the four completion notices for
+        /// <see cref="StationMinimumDisplayFrames"/>. The save confirmations take input as soon as their window opens and
+        /// are not listed.
+        /// </summary>
+        public static IReadOnlyDictionary<GameplayMessageId, int> MinimumDisplayFrames { get; } = new Dictionary<GameplayMessageId, int>
+        {
+            [GameplayMessageId.EnergyTank] = ItemMinimumDisplayFrames,
+            [GameplayMessageId.MissileTank] = ItemMinimumDisplayFrames,
+            [GameplayMessageId.SuperMissileTank] = ItemMinimumDisplayFrames,
+            [GameplayMessageId.PowerBombTank] = ItemMinimumDisplayFrames,
+            [GameplayMessageId.GrappleBeam] = ItemMinimumDisplayFrames,
+            [GameplayMessageId.XrayScope] = ItemMinimumDisplayFrames,
+            [GameplayMessageId.VariaSuit] = ItemMinimumDisplayFrames,
+            [GameplayMessageId.SpringBall] = ItemMinimumDisplayFrames,
+            [GameplayMessageId.MorphBall] = ItemMinimumDisplayFrames,
+            [GameplayMessageId.ScrewAttack] = ItemMinimumDisplayFrames,
+            [GameplayMessageId.HiJumpBoots] = ItemMinimumDisplayFrames,
+            [GameplayMessageId.SpaceJump] = ItemMinimumDisplayFrames,
+            [GameplayMessageId.SpeedBooster] = ItemMinimumDisplayFrames,
+            [GameplayMessageId.ChargeBeam] = ItemMinimumDisplayFrames,
+            [GameplayMessageId.IceBeam] = ItemMinimumDisplayFrames,
+            [GameplayMessageId.WaveBeam] = ItemMinimumDisplayFrames,
+            [GameplayMessageId.SpazerBeam] = ItemMinimumDisplayFrames,
+            [GameplayMessageId.PlasmaBeam] = ItemMinimumDisplayFrames,
+            [GameplayMessageId.Bombs] = ItemMinimumDisplayFrames,
+            [GameplayMessageId.ReserveTank] = ItemMinimumDisplayFrames,
+            [GameplayMessageId.GravitySuit] = ItemMinimumDisplayFrames,
+            [GameplayMessageId.MapDataAccessCompleted] = StationMinimumDisplayFrames,
+            [GameplayMessageId.EnergyRechargeCompleted] = StationMinimumDisplayFrames,
+            [GameplayMessageId.MissileRechargeCompleted] = StationMinimumDisplayFrames,
+            [GameplayMessageId.SaveCompleted] = StationMinimumDisplayFrames,
+        };
     }
 
     /// <summary>Which button an item panel names for its action.</summary>

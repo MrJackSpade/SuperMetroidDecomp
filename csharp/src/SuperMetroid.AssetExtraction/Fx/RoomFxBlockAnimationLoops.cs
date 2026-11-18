@@ -1,11 +1,12 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>
-/// The import's view of the simple room-FX block-animation loops (#1502): the seven loops the atlas holds, in atlas order,
-/// each loop's distinct pictures and their sizes, and the byte lengths of the treadmill frames and the Tourian statue strip. The game
-/// resolves one loop at a time and draws the installed pictures.
+/// The import's view of the simple room-FX block-animation loops (#1502, #2422): the seven loops the atlas holds, in atlas
+/// order, each loop's frames, its distinct pictures and their sizes, and the byte lengths of the treadmill frames and the
+/// Tourian statue strip. The game plays one loop at a time and draws the installed pictures.
 /// </summary>
 public static class RoomFxBlockAnimationLoops
 {
@@ -15,12 +16,14 @@ public static class RoomFxBlockAnimationLoops
     /// <summary>The Tourian statue strip's length in bytes.</summary>
     public const int TourianStatueStripByteCount = RoomFxBlockAnimationAtlasFormat.StatueTileCount * TourianStatueTileStripDefinitions.CharacterByteCount;
 
-    /// <summary>The loop of an animation the atlas holds.</summary>
+    /// <summary><paramref name="animation"/>, an animation the atlas holds a loop of.</summary>
     /// <exception cref="InvalidOperationException"><paramref name="animation"/> has no loop.</exception>
-    internal static BlockAnimationLoop Require(BlockAnimation animation) => BlockAnimationLoops.Of(animation);
+    internal static BlockAnimation Require(BlockAnimation animation) => BlockAnimationLoops.HasLoop(animation)
+        ? animation
+        : throw new InvalidOperationException($"{animation} has no block animation loop.");
 
     /// <summary>Enumerates the seven loops whose every picture the atlas holds as its own, in atlas order.</summary>
-    public static IEnumerable<BlockAnimationLoop> All
+    public static IEnumerable<BlockAnimation> All
     {
         get
         {
@@ -34,9 +37,13 @@ public static class RoomFxBlockAnimationLoops
         }
     }
 
-    /// <summary>The distinct pictures one loop's frames show, as the installed atlas stores them (#1527).</summary>
-    extension(BlockAnimationLoop loop)
+    /// <summary>One loop's frames and the distinct pictures they show, as the installed atlas stores them (#1527).</summary>
+    extension(BlockAnimation loop)
     {
+        /// <summary>The frames the loop shows, in order, each with the passes it is shown for (<see cref="BlockAnimationLoops.Frames"/>).</summary>
+        /// <exception cref="InvalidOperationException">The animation has no loop.</exception>
+        internal IReadOnlyList<TimedArtworkFrame> Frames => BlockAnimationLoops.Frames(loop);
+
         /// <summary>The distinct pictures the object's frames show, each held once in the installed atlas.</summary>
         /// <exception cref="InvalidDataException">
         /// The object has no pictures in the atlas, or its picture count is not between one and its frame count.
@@ -45,11 +52,11 @@ public static class RoomFxBlockAnimationLoops
         {
             get
             {
-                if (!RoomFxBlockAnimationPictureCountDefinitions.PictureCounts.TryGetValue(loop.Animation, out int count))
-                    throw new InvalidDataException($"{loop.Animation} has no pictures in the room-FX atlas.");
+                if (!RoomFxBlockAnimationPictureCountDefinitions.PictureCounts.TryGetValue(loop, out int count))
+                    throw new InvalidDataException($"{loop} has no pictures in the room-FX atlas.");
                 if (count <= 0 || count > loop.Frames.Count)
                     throw new InvalidDataException(
-                        $"{loop.Animation} shows {count} pictures over {loop.Frames.Count} frames.");
+                        $"{loop} shows {count} pictures over {loop.Frames.Count} frames.");
                 return count;
             }
         }
@@ -57,12 +64,12 @@ public static class RoomFxBlockAnimationLoops
         /// <summary>The bytes of characters each of the object's pictures holds.</summary>
         /// <exception cref="InvalidDataException">The object has no pictures in the atlas.</exception>
         internal int PictureByteCount =>
-            RoomFxBlockAnimationPictureSizeDefinitions.PictureByteCounts.TryGetValue(loop.Animation, out int byteCount) ? byteCount
-                : throw new InvalidDataException($"{loop.Animation} has no pictures in the room-FX atlas.");
+            RoomFxBlockAnimationPictureSizeDefinitions.PictureByteCounts.TryGetValue(loop, out int byteCount) ? byteCount
+                : throw new InvalidDataException($"{loop} has no pictures in the room-FX atlas.");
 
         /// <summary>The distinct pictures the object's frames show, in order.</summary>
         internal IEnumerable<AnimatedTileImage> Images =>
-            Enumerable.Range(0, loop.ImageCount).Select(index => new AnimatedTileImage(loop.Animation, index));
+            Enumerable.Range(0, loop.ImageCount).Select(index => new AnimatedTileImage(loop, index));
 
         /// <summary>
         /// The picture the loop's frame <paramref name="frameIndex"/> shows: past the last picture, the loop plays its
@@ -73,10 +80,10 @@ public static class RoomFxBlockAnimationLoops
         {
             if ((uint)frameIndex >= (uint)loop.Frames.Count)
                 throw new InvalidDataException(
-                    $"Room-FX object {loop.Animation} has no artwork frame {frameIndex}.");
+                    $"Room-FX object {loop} has no artwork frame {frameIndex}.");
             int count = loop.ImageCount;
             int index = frameIndex < count ? frameIndex : 2 * (count - 1) - frameIndex;
-            return new(loop.Animation, index);
+            return new(loop, index);
         }
 
         /// <summary>
@@ -89,11 +96,11 @@ public static class RoomFxBlockAnimationLoops
         {
             if ((uint)frameIndex >= (uint)loop.Frames.Count)
                 throw new ArgumentOutOfRangeException(nameof(frameIndex));
-            if (loop.Animation == BlockAnimation.WreckedShipTreadmillRightwards)
+            if (loop == BlockAnimation.WreckedShipTreadmillRightwards)
                 return new(BlockAnimation.WreckedShipTreadmillRightwards, frameIndex);
-            if (loop.Animation == BlockAnimation.WreckedShipTreadmillLeftwards)
+            if (loop == BlockAnimation.WreckedShipTreadmillLeftwards)
                 return new(BlockAnimation.WreckedShipTreadmillRightwards, loop.Frames.Count - 1 - frameIndex);
-            throw new InvalidDataException($"{loop.Animation} is not a Wrecked Ship treadmill.");
+            throw new InvalidDataException($"{loop} is not a Wrecked Ship treadmill.");
         }
     }
 }

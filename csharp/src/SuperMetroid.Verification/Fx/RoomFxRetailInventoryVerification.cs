@@ -354,7 +354,7 @@ internal static class RoomFxRetailInventoryVerification
         var liquidFrames = new ArtworkFrameSelections();
         actual.Step(liquidFrames, new RoomFxOverlayFrame { Camera = new Position16<RoomPixels>(0, cameraY), TimeIsFrozen = false });
         // The liquid's frames are selected, and BG3's pictures show the selected frame: the render reads it where the cartridge copies it.
-        if (BlockAnimationLoops.OnEffectOverlay(expectedType)?.Animation is { } liquidTiles)
+        if (BlockAnimationLoops.OnEffectOverlay(expectedType) is { } liquidTiles)
             AnimatedTileFrameArtwork.ShowIn(vram, liquidFrames, AnimatedTiles, liquidTiles);
 
         if (expectedType is RoomFxType.Lava or RoomFxType.Acid)

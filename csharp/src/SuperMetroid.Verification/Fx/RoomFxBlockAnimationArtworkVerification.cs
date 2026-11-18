@@ -23,11 +23,10 @@ internal static class RoomFxBlockAnimationArtworkVerification
         RoomFxBlockAnimationAtlas atlas = RoomFxBlockAnimationAtlasPng.Read(new MemoryStream(png));
         var guarded = NewRoomFxArtworkForbiddenBus(rom);
         int frameCount = 0;
-        foreach (BlockAnimationLoop definition in
+        foreach (BlockAnimation definition in
                  RoomFxBlockAnimationLoops.All)
         {
-            var state = new BlockAnimationPlayer();
-            state.Play(definition);
+            var state = BlockAnimationLoops.Start(definition);
             for (int frameIndex = 0; frameIndex < definition.Frames.Count; frameIndex++)
             {
                 ushort cursor = definition.FrameInstructionPointer(frameIndex);
@@ -41,13 +40,13 @@ internal static class RoomFxBlockAnimationArtworkVerification
                 int ticksUntilFrame = frameIndex == 0 ? 1 : definition.Frames[frameIndex - 1].Duration;
                 // The frame's pass selects into fresh selections, so the selection read back is the one that pass made.
                 for (int tick = 1; tick < ticksUntilFrame; tick++)
-                    state.Step(new ArtworkFrameSelections());
+                    BlockAnimationLoops.Pass(state, new ArtworkFrameSelections());
                 var frames = new ArtworkFrameSelections();
-                state.Step(frames);
-                AssertTrue(frames.TryShown(BlockAnimationFrames.Of(definition.Animation), out ArtworkFrame shown) &&
+                BlockAnimationLoops.Pass(state, frames);
+                AssertTrue(frames.TryShown(BlockAnimationFrames.Of(definition), out ArtworkFrame shown) &&
                         shown == definition.Frames[frameIndex].Frame,
                     $"room-FX frame $87:{cursor:X4} is the frame its animation shows from this update");
-                AssertEqual(source, AnimatedTileImageSources.OfShown(frames, definition.Animation),
+                AssertEqual(source, AnimatedTileImageSources.OfShown(frames, definition),
                     $"room-FX frame $87:{cursor:X4} selects its compiled art source");
                 frameCount++;
             }
@@ -60,7 +59,7 @@ internal static class RoomFxBlockAnimationArtworkVerification
             var waitFrames = new ArtworkFrameSelections();
             treadmill.StartDoorTreadmill(direction);
             treadmill.Step(areaBossDefeated: false, waitFrames);
-            BlockAnimation treadmillObject = BlockAnimationLoops.Of(BlockAnimationLoops.Treadmill(direction)).Animation;
+            BlockAnimation treadmillObject = BlockAnimationLoops.Treadmill(direction);
             AssertTrue(!waitFrames.TryShown(BlockAnimationFrames.Of(treadmillObject), out _),
                 $"{direction} waits for Phantoon's area-boss bit before presenting art");
             for (int frame = 0; frame < RoomFxBlockAnimationAtlasFormat.TreadmillFrameCount;
@@ -79,7 +78,7 @@ internal static class RoomFxBlockAnimationArtworkVerification
                 var treadmillFrames = new ArtworkFrameSelections();
                 treadmill.Step(areaBossDefeated: true, treadmillFrames);
                 AssertTrue(treadmillFrames.TryShown(BlockAnimationFrames.Of(treadmillObject), out ArtworkFrame shown) &&
-                        shown == BlockAnimationLoops.Of(treadmillObject).Frames[frame].Frame,
+                        shown == BlockAnimationLoops.Frames(treadmillObject)[frame].Frame,
                     $"{direction} frame {frame} is the frame the treadmill shows from this update");
                 AssertEqual(source, AnimatedTileImageSources.OfShown(treadmillFrames, treadmillObject),
                     $"{direction} frame {frame} selects the compiled artwork identity");

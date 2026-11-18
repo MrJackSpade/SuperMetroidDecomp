@@ -23,17 +23,14 @@ internal sealed class RoomEarthquake
     private WrappingCountdown _remaining;
 
     /// <summary>
-    /// Where a continuous shake (<see cref="KeepShaking"/>) stands in its alternation between the two sides, from zero
-    /// through one less than <see cref="AlternationFrames"/>, counting down one each frame it shakes; null while the
-    /// earthquake shakes for a length. It shakes until a producer gives it a new length.
+    /// Where a continuous shake (<see cref="KeepShaking"/>) stands in the sides it shows in turn
+    /// (<see cref="RoomEarthquakeDefinitions.ShakeSides"/>), moving on one each frame it shakes; null while the earthquake
+    /// shakes for a length. It shakes until a producer gives it a new length.
     /// </summary>
-    private int? _continuousAlternation;
-
-    /// <summary>The frames of one whole alternation: the shake's frames on one side, then on the other.</summary>
-    private const int AlternationFrames = 2 * RoomEarthquakeDefinitions.StepsPerShakeSide;
+    private CyclingSequence<EarthquakeSide>? _continuousSides;
 
     /// <summary>Whether the room shakes continuously (<see cref="KeepShaking"/>).</summary>
-    private bool IsContinuous => _continuousAlternation is not null;
+    private bool IsContinuous => _continuousSides is not null;
 
     /// <summary>
     /// The shake the earthquake shows while it runs: the one its last producer gave it, or
@@ -85,7 +82,7 @@ internal sealed class RoomEarthquake
     internal void RunFor(int frames)
     {
         _remaining = WrappingCountdown.Start(frames);
-        _continuousAlternation = null;
+        _continuousSides = null;
     }
 
     /// <summary>Stops the earthquake; its shake stays for a producer that runs it on.</summary>
@@ -107,14 +104,14 @@ internal sealed class RoomEarthquake
 
     /// <summary>
     /// Shakes the room with <paramref name="shake"/> until a producer gives the earthquake a length (#2013): the Zebes
-    /// escape's room quakes and Mother Brain's escape rumble. The sides alternate from the start of a whole alternation,
-    /// the far side first, as those quakes have always shown it.
+    /// escape's room quakes and Mother Brain's escape rumble. The sides alternate from the first of them, the far side, as
+    /// those quakes have always shown it.
     /// </summary>
     internal void ShakeIndefinitely(EarthquakeShake shake)
     {
         Shake = shake;
         _remaining = default;
-        _continuousAlternation = AlternationFrames - 1;
+        _continuousSides = CyclingSequence<EarthquakeSide>.StartOf(RoomEarthquakeDefinitions.ShakeSides);
     }
 
     /// <summary>
@@ -122,16 +119,15 @@ internal sealed class RoomEarthquake
     /// on every update. The earthquake then shakes until a producer gives it a new length, its sides alternating on from
     /// where the frames it had left put them.
     /// </summary>
-    internal void KeepShaking() => _continuousAlternation ??= _remaining.CyclePhase(1, AlternationFrames);
+    internal void KeepShaking() => _continuousSides ??= _remaining.PlaceIn(RoomEarthquakeDefinitions.ShakeSides);
 
     /// <summary>
-    /// Whether the shake shows the side of the origin opposite its displacement: the sides alternate every
-    /// <see cref="RoomEarthquakeDefinitions.StepsPerShakeSide"/> frames as the earthquake runs down, starting from the far
-    /// side.
+    /// Whether the shake shows the side of the origin opposite its displacement this frame: the side a continuous shake
+    /// stands at, or the one the frames left select as the earthquake runs down
+    /// (<see cref="RoomEarthquakeDefinitions.ShakeSides"/>).
     /// </summary>
-    private bool ShowsOppositeSide => _continuousAlternation is int alternation
-        ? alternation / RoomEarthquakeDefinitions.StepsPerShakeSide != 0
-        : _remaining.IsInAlternatePhase(RoomEarthquakeDefinitions.StepsPerShakeSide);
+    private bool ShowsOppositeSide =>
+        (_continuousSides ?? _remaining.PlaceIn(RoomEarthquakeDefinitions.ShakeSides)).Current == EarthquakeSide.Far;
 
     /// <summary>The room-shake offset for projectiles, evaluated at each projectile draw pass before the earthquake's frame step.</summary>
     internal Offset16<RoomPixels> GetEnemyProjectileShake(bool timeIsFrozen)
@@ -168,8 +164,8 @@ internal sealed class RoomEarthquake
             background = -background;
         }
 
-        if (_continuousAlternation is int alternation)
-            _continuousAlternation = (alternation + AlternationFrames - 1) % AlternationFrames;
+        if (_continuousSides is { } sides)
+            _continuousSides = sides.Next;
         else
             _remaining = _remaining.Decrement().Remaining;
         LastRoomShake = new RoomShakeFrameResult(foreground, background);

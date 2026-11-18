@@ -18,22 +18,18 @@ internal static class LookupAnimatedHeadersVerification
     internal static void VerifySimpleAnimationObjectDomain()
     {
         AssertTrue(OriginalSimpleAnimationObjects.SequenceEqual(
-            RoomFxBlockAnimationLoops.All.Select(x => FxNativeWords.AnimatedTileObjects.Word(x.Animation))),
+            RoomFxBlockAnimationLoops.All.Select(x => FxNativeWords.AnimatedTileObjects.Word(x))),
             "Original seven-object enumeration order");
         var original = OriginalSimpleAnimationObjects.ToHashSet();
         foreach (BlockAnimation header in Enum.GetValues<BlockAnimation>())
         {
             ushort pointer = FxNativeWords.AnimatedTileObjects.Word(header);
-            bool resolved = BlockAnimationLoops.TryResolve(header, out var definition);
+            bool resolved = BlockAnimationLoops.HasLoop(header);
             AssertEqual(original.Contains(pointer) || pointer is 0x8275 or 0x827b, resolved, "Looping animation full identity domain");
-            if (resolved)
-                AssertEqual(pointer, FxNativeWords.AnimatedTileObjects.Word((definition ?? throw new InvalidOperationException("Verification requires definition.")).Animation), "Selected native object identity");
-            else
-                AssertTrue(definition is null, "Unknown looping animation preserves null output");
         }
         foreach (ushort undefined in UndefinedAnimatedTileObjects)
             AssertThrows<InvalidOperationException>(
-                () => BlockAnimationLoops.TryResolve((BlockAnimation)undefined, out _),
+                () => BlockAnimationLoops.HasLoop((BlockAnimation)undefined),
                 "Undefined animated-tile object is rejected at the typed boundary");
     }
 
@@ -45,19 +41,19 @@ internal static class LookupAnimatedHeadersVerification
         Suite(nameof(VerifySimpleAnimationHeaderField), () => VerifySimpleAnimationHeaderField(rom, 2, definition => definition.PictureByteCount));
     /// <summary>Compares each encoded VRAM destination with its native header.</summary>
     internal static void VerifySimpleAnimationVramDestinations(CartridgeImportAddressSpace rom) =>
-        Suite(nameof(VerifySimpleAnimationHeaderField), () => VerifySimpleAnimationHeaderField(rom, 4, definition => AnimatedTileVramDestinations.WordOf(definition.Animation)));
+        Suite(nameof(VerifySimpleAnimationHeaderField), () => VerifySimpleAnimationHeaderField(rom, 4, definition => AnimatedTileVramDestinations.WordOf(definition)));
 
     /// <summary>Checks a header word through lookup, enumeration, and mechanics-word views.</summary>
     private static void VerifySimpleAnimationHeaderField(CartridgeImportAddressSpace rom, int offset,
-        Func<BlockAnimationLoop, int> field)
+        Func<BlockAnimation, int> field)
     {
-        var enumerated = RoomFxBlockAnimationLoops.All.ToDictionary(x => x.Animation);
+        var enumerated = RoomFxBlockAnimationLoops.All.ToDictionary(x => x);
         foreach (ushort pointer in OriginalSimpleAnimationObjects)
         {
             ushort expected = ReadVerificationWord(rom, (0x870000 | pointer) + offset);
-            AssertTrue(BlockAnimationLoops.TryResolve(FxNativeWords.AnimatedTileObjects.Decode(pointer, "animated-tile object"), out var definition),
-                "Original object resolves");
-            AssertEqual(expected, field((definition ?? throw new InvalidOperationException("Verification requires definition."))), "Native selected header field");
+            BlockAnimation definition = FxNativeWords.AnimatedTileObjects.Decode(pointer, "animated-tile object");
+            AssertTrue(BlockAnimationLoops.HasLoop(definition), "Original object resolves");
+            AssertEqual(expected, field(definition), "Native selected header field");
             AssertEqual(expected, field(enumerated[FxNativeWords.AnimatedTileObjects.Decode(pointer, "animated-tile object")]), "Native enumeration header view");
             AssertTrue(definition.TryReadMechanicsWord((ushort)(pointer + offset), out ushort word),
                 "Header mechanics word is available");

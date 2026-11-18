@@ -7,6 +7,6 @@ internal static class RoomBlockAnimationsAccess
     extension(RoomBlockAnimations self)
     {
         /// <summary>The animations the room effect the entry door selected started, in the effect's order.</summary>
-        internal IReadOnlyList<BlockAnimation> EffectAnimations => [.. self.effectAnimations.Select(player => player.Loop.Animation)];
+        internal IReadOnlyList<BlockAnimation> EffectAnimations => [.. self.effectAnimations.Select(player => player.Playback.PlayingSegment)];
     }
 }

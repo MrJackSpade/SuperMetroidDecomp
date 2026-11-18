@@ -2,7 +2,7 @@ using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.Core.Enemies.WreckedShip;
 namespace SuperMetroid.Core.Fx;
 
-/// <summary>Verification access to the bank-$87 program a <see cref="BlockAnimationLoop"/> replaces.</summary>
+/// <summary>Verification access to the bank-$87 program a block animation's loop replaces.</summary>
 internal static class RoomFxBlockAnimationDefinitionAccess
 {
     /// <summary>The bank-$87 cursor of <paramref name="animation"/>'s first timed frame.</summary>
@@ -23,12 +23,12 @@ internal static class RoomFxBlockAnimationDefinitionAccess
         _ => throw new InvalidDataException($"Undefined block animation {animation}."),
     };
 
-    extension(BlockAnimationLoop self)
+    extension(BlockAnimation self)
     {
         /// <summary>Whether the loop is a Wrecked Ship treadmill's, whose program waits for the area's boss first.</summary>
-        internal bool IsTreadmill => self.Start == BlockAnimationStart.OnceAreaBossIsDefeated;
+        internal bool IsTreadmill => BlockAnimationLoops.WaitsForAreaBoss(self);
         /// <summary>The first timed instruction in the object's bank-$87 loop.</summary>
-        public ushort InstructionPointer => FirstCursor(self.Animation);
+        public ushort InstructionPointer => FirstCursor(self);
         /// <summary>The address of the terminal <c>goto</c> command after the final frame.</summary>
         public ushort GotoInstructionPointer =>
             unchecked((ushort)(self.InstructionPointer + self.Frames.Count * 4));
@@ -38,13 +38,13 @@ internal static class RoomFxBlockAnimationDefinitionAccess
         /// </summary>
         public bool TryReadMechanicsWord(ushort pointer, out ushort value)
         {
-            ushort header = FxNativeWords.AnimatedTileObjects.Word(self.Animation);
+            ushort header = FxNativeWords.AnimatedTileObjects.Word(self);
             if (pointer == header)
                 value = self.IsTreadmill ? self.WaitInstructionPointer : self.InstructionPointer;
             else if (pointer == unchecked((ushort)(header + 2)))
                 value = self.IsTreadmill ? (ushort)RoomFxBlockAnimationLoops.TreadmillFrameByteCount : checked((ushort)self.PictureByteCount);
             else if (pointer == unchecked((ushort)(header + 4)))
-                value = AnimatedTileVramDestinations.WordOf(self.IsTreadmill ? BlockAnimation.WreckedShipTreadmillRightwards : self.Animation);
+                value = AnimatedTileVramDestinations.WordOf(self.IsTreadmill ? BlockAnimation.WreckedShipTreadmillRightwards : self);
             else if (self.IsTreadmill && pointer == self.WaitInstructionPointer)
                 value = (ushort)AnimatedTileInstruction.WaitUntilAreaBossIsDead;
             else if (pointer == self.GotoInstructionPointer)

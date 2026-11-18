@@ -152,18 +152,18 @@ internal sealed class DeathGameSequence(FrontendSession session) : IGamePhase
     }
 
     /// <summary>
-    /// Begins the death fade: the whole gameplay display but Samus fades to black over six steps of the shared gradual
-    /// colour change (#1512), so her suit stays lit as the game keeps it.
+    /// Begins the death fade: the whole gameplay display but Samus fades to black on the shared gradual colour change
+    /// (#1512, <see cref="SamusDeathDefinitions.FadeLastStep"/>), so her suit stays lit as the game keeps it.
     /// </summary>
     private void BeginDeathFade()
     {
         SuperMetroidRuntime runtime = session.Runtime ?? throw new InvalidOperationException("The death fade requires a runtime.");
-        runtime.FadeOut.Begin(RgbColor.Black, SamusDeathDefinitions.FadeDenominator, GameplayFadeSpares.Samus);
+        runtime.FadeOut.Begin(RgbColor.Black, SamusDeathDefinitions.FadeLastStep, GameplayFadeSpares.Samus);
     }
 
     /// <summary>
-    /// Takes one step of the death fade. Each step moves the display one step of six further toward black, counting its
-    /// first step, which changes nothing, and the update after its last step reaches black, which completes the fade.
+    /// Takes one step of the death fade. Each step after its first, which changes nothing, moves the display one part
+    /// further toward black, and the update after the shared counter passes the fade's last step completes the fade.
     /// </summary>
     /// <returns>Whether the fade completed on this update.</returns>
     private bool StepDeathFade()

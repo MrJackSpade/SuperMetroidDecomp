@@ -27,9 +27,6 @@ public sealed class MotherBrainFadeProgress
     /// <summary>The image the fade shows, or null before its first.</summary>
     public MotherBrainFadeImage? Shown => player.Shown;
 
-    /// <summary>The updates the shown image, or the wait before the first, has left.</summary>
-    public int UpdatesLeft => player.UpdatesLeft;
-
     /// <summary>Whether the fade is over: its last image has shown its hold out.</summary>
     public bool IsOver => player.HasStopped;
 

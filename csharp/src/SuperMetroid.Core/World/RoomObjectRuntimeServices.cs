@@ -9,14 +9,14 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.World;
 
 /// <summary>
-/// The runtime's Samus, Tourian statue, room shake and enemy pool as the services resident room
-/// room objects call (#633). Every member reads the runtime when called, never a load-time snapshot.
+/// The runtime's Samus, room shake and enemy pool as the services resident room room objects call (#633). Every member
+/// reads the runtime when called, never a load-time snapshot.
 /// </summary>
 internal sealed class RoomObjectRuntimeServices(
     RoomScopeConstruction destination,
     SamusFrameState player,
     SharedGameState system) :
-    IRoomSamusAccess, ITourianStatueProgress, IRoomEarthquakeWriter, IRoomObjectEnemyEffects
+    IRoomSamusAccess, IRoomEarthquakeWriter, IRoomObjectEnemyEffects
 {
     /// <summary>
     /// The destination room's enemies. The room-object population runs before the enemy step builds them; a room object that reached them
@@ -30,9 +30,6 @@ internal sealed class RoomObjectRuntimeServices(
     /// reading her before the scenario introduces her fails there.
     /// </summary>
     public IRoomSamus Current => player.IntroducedSamus.RoomView;
-
-    /// <summary>Reads the live Tourian entrance statue completion state.</summary>
-    public bool IsFinished => Enemies.TourianEntranceStatueFinished;
 
     /// <summary>Starts the room's earthquake for a room object.</summary>
     public void Start(EarthquakeShake shake, int frames) => Enemies.Earthquake.Start(shake, frames);

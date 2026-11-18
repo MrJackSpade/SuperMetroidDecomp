@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
@@ -9,8 +10,9 @@ using SuperMetroid.Core.Hud;
 namespace SuperMetroid.Core.World;
 
 /// <summary>
-/// Message box outcomes: selection sounds, save-station persistence, suit pickups and the gunship exit sound that
-/// follow a box closing.
+/// Message box outcomes: what waits for an open box to close (<see cref="MessageBoxOutcome"/>), the save-station
+/// persistence and suit transformation that follow a box closing, and the sounds a box's updates make outside gameplay's
+/// own requests.
 /// </summary>
 internal sealed class MessageBoxFlow
 {
@@ -37,45 +39,48 @@ internal sealed class MessageBoxFlow
         _system = dependencies.System;
         _audioRequests = Ensure.NotNull(dependencies.AudioRequests);
     }
-    /// <summary>Suit transformation to start when its item message returns to the room object.</summary>
-    private SamusSuitPickupKind? _pendingSuitPickup;
-    /// <summary>Station prompt waiting for the save confirmation's yes/no result.</summary>
-    private SaveStationActivation? _pendingSaveStation;
-    /// <summary>Station animation to finish after its confirmation message closes.</summary>
-    private SaveStationActivation? _pendingSaveStationCompletion;
 
-    /// <summary>Whether a suit transformation waits for its item message to close.</summary>
-    internal bool HasPendingSuitPickup => _pendingSuitPickup is not null;
+    /// <summary>What waits for the open message box to close, or null when the box waits for nothing or none is open.</summary>
+    private MessageBoxOutcome? _pending;
 
-    /// <summary>Whether a save station waits for its confirmation or completion message.</summary>
-    internal bool HasPendingSaveStationWork => _pendingSaveStation is not null || _pendingSaveStationCompletion is not null;
-
-    /// <summary>Holds a suit transformation until its item message returns to the room object.</summary>
-    internal void AwaitSuitPickup(SamusSuitPickupKind suit) => _pendingSuitPickup = suit;
-
-    /// <summary>Holds a save station until the save confirmation's yes/no answer.</summary>
-    internal void AwaitSaveConfirmation(SaveStationActivation station) => _pendingSaveStation = station;
-
-    /// <summary>Holds a save station's animation until its completion message closes.</summary>
-    internal void AwaitSaveCompletion(SaveStationActivation station) => _pendingSaveStationCompletion = station;
     /// <summary>Confirmed area and station identity awaiting the frontend's save to the selected file.</summary>
     private SaveStationPersistenceRequest? _completedSaveStation;
 
-    /// <summary>One-update request for the save choice's move sound.</summary>
-    public bool MessageBoxSelectionSoundRequestedThisFrame { get; internal set; }
+    /// <summary>
+    /// The sounds the message box's updates made outside gameplay's own requests since the frontend last took them, in
+    /// the order they happened: the save choice's move and the gunship's entrance pad opening as its prompt returns.
+    /// </summary>
+    private readonly List<SoundRequest> _sounds = [];
+
+    /// <summary>Whether an outcome waits for the open message box to close.</summary>
+    internal bool HasPendingOutcome => _pending is not null;
+
+    /// <summary>Holds <paramref name="outcome"/> until the message box it opens with closes.</summary>
+    /// <exception cref="InvalidDataException">Another outcome already waits: two message boxes opened at once.</exception>
+    internal void Await(MessageBoxOutcome outcome)
+    {
+        Ensure.NotNull(outcome);
+        if (_pending is not null)
+            throw new InvalidDataException($"{outcome} attempted to replace {_pending}, which still waits for its message box.");
+        _pending = outcome;
+    }
+
+    /// <summary>The save choice moved on this update, which plays the menu cursor's sound.</summary>
+    internal void SaveChoiceMoved() =>
+        _sounds.Add(new SoundRequest(SamusSound.MenuCursor, SoundRequestPriority.Normal));
 
     /// <summary>
-    /// Returns and clears the message selector's momentary sound publication.
+    /// Takes the sounds the message box's updates have made since the last take, in the order they were made.
     /// </summary>
     /// <remarks>
-    /// Message-box updates run no gameplay; the frontend queues this request at the update's end, and consuming it keeps
-    /// it audible once.
+    /// Message-box updates run no gameplay; the frontend queues these at the update's end, after the room's music, as its
+    /// own boundary's requests.
     /// </remarks>
-    public bool ConsumeMessageBoxSelectionSoundRequest()
+    public IReadOnlyList<SoundRequest> TakeSounds()
     {
-        bool requested = MessageBoxSelectionSoundRequestedThisFrame;
-        MessageBoxSelectionSoundRequestedThisFrame = false;
-        return requested;
+        SoundRequest[] taken = [.. _sounds];
+        _sounds.Clear();
+        return taken;
     }
 
     /// <summary>
@@ -93,44 +98,24 @@ internal sealed class MessageBoxFlow
     /// <summary>Applies the effects that follow a message box closing.</summary>
     internal void ResolveClosedMessageBox(bool frameSuspended, RoomScope room, SamusState samus)
     {
-        if (room.Enemies.Gunship.SavePromptPending)
+        MessageBoxOutcome? outcome = _pending;
+        _pending = null;
+        switch (outcome)
         {
-            bool accepted = _messageBox.ConsumeConfirmationResult()
-                ?? throw new InvalidDataException("Gunship message closed without a save selection.");
-            room.Enemies.Gunship.AnswerSavePrompt();
-            _gunshipExitSoundRequested = true;
-            if (accepted)
-            {
-                LoadStation gunship = LoadStationDefinitions.Gunship;
-                _system.MarkSaveStationUsed(gunship);
-                _completedSaveStation = new SaveStationPersistenceRequest(gunship);
-            }
-            return;
-        }
-
-        if (_pendingSaveStation is { } saveStation)
-        {
-            bool? accepted = _messageBox.ConsumeConfirmationResult();
-            if (accepted is null)
-            {
-                throw new InvalidDataException(
-                    "The save station's save-confirmation message closed without publishing a selection.");
-            }
-            _pendingSaveStation = null;
-            bool saving = room.RoomObjects.Stations.ResolveSaveStationConfirmation(saveStation, accepted.Value, room.LevelData);
-            if (saving)
-            {
-                room.Enemies.SaveStationElectricity.Spawn(saveStation.Block);
-                _system.MarkSaveStationUsed(saveStation.Station);
-                _completedSaveStation = new SaveStationPersistenceRequest(saveStation.Station);
-            }
-            return;
-        }
-
-        if (_pendingSaveStationCompletion is { } completedStation)
-        {
-            room.RoomObjects.Stations.CompleteSaveStation(completedStation);
-            _pendingSaveStationCompletion = null;
+            case MessageBoxOutcome.GunshipSaveAnswer:
+                ResolveGunshipSaveAnswer(room);
+                return;
+            case MessageBoxOutcome.SaveConfirmation confirmation:
+                ResolveSaveConfirmation(room, confirmation.Station);
+                return;
+            case MessageBoxOutcome.SaveCompletion completion:
+                room.RoomObjects.Stations.CompleteSaveStation(completion.Station);
+                break;
+            case MessageBoxOutcome.SuitTransformation:
+            case null:
+                break;
+            default:
+                throw new InvalidOperationException($"Undefined message-box outcome {outcome}.");
         }
 
         room.RoomObjects.CollectibleObjects.CompleteCollectibleMessage(room.LevelData);
@@ -142,29 +127,47 @@ internal sealed class MessageBoxFlow
         // Closing the message resumes the item pickup that opened it.
         // Varia/Gravity immediately call their shared setup; for other items the
         // rest of the pickup already ran when the box opened.
-        if (_pendingSuitPickup is { } pendingSuit)
+        if (outcome is MessageBoxOutcome.SuitTransformation suit)
         {
             room.Enemies.Elevator.ResetStatus();
             _suitPickup.Begin(
                 samus,
                 room.Camera.PixelPosition,
-                pendingSuit);
-            _pendingSuitPickup = null;
+                suit.Suit);
         }
-        return;
     }
 
-    /// <summary>Entrance-pad sound pending after the suspended gunship prompt returns.</summary>
-    private bool _gunshipExitSoundRequested;
-
     /// <summary>
-    /// Consumes the gunship's entrance-pad sound queued when the suspended gunship message
-    /// returns. Message-box updates do not publish the ordinary enemy sound list.
+    /// The gunship's prompt returns with its answer: the gunship lets Samus out, its entrance pad opening, and a YES
+    /// saves at the gunship.
     /// </summary>
-    public bool ConsumeGunshipExitSoundRequest()
+    private void ResolveGunshipSaveAnswer(RoomScope room)
     {
-        bool requested = _gunshipExitSoundRequested;
-        _gunshipExitSoundRequested = false;
-        return requested;
+        SaveChoice choice = _messageBox.ConsumeConfirmationResult()
+            ?? throw new InvalidDataException("Gunship message closed without a save selection.");
+        room.Enemies.Gunship.AnswerSavePrompt();
+        // Message-box updates do not publish the ordinary enemy sound list, so the pad's sound goes with the box's.
+        _sounds.Add(new SoundRequest(RoomSound.GunshipPadOpening, SoundRequestPriority.Normal));
+        if (choice == SaveChoice.Yes)
+        {
+            LoadStation gunship = LoadStationDefinitions.Gunship;
+            _system.MarkSaveStationUsed(gunship);
+            _completedSaveStation = new SaveStationPersistenceRequest(gunship);
+        }
+    }
+
+    /// <summary>A save station's confirmation returns with its answer: the station saves on YES, starting its electricity.</summary>
+    private void ResolveSaveConfirmation(RoomScope room, SaveStationActivation station)
+    {
+        SaveChoice choice = _messageBox.ConsumeConfirmationResult()
+            ?? throw new InvalidDataException(
+                "The save station's save-confirmation message closed without publishing a selection.");
+        bool saving = room.RoomObjects.Stations.ResolveSaveStationConfirmation(station, choice, room.LevelData);
+        if (saving)
+        {
+            room.Enemies.SaveStationElectricity.Spawn(station.Block);
+            _system.MarkSaveStationUsed(station.Station);
+            _completedSaveStation = new SaveStationPersistenceRequest(station.Station);
+        }
     }
 }

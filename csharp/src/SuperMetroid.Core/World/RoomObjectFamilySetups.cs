@@ -28,7 +28,7 @@ internal sealed class RoomObjectFamilySetups(RoomObjectSetupContext context) : I
     {
         GreyDoorVariant door = DoorObjectKindDefinitions.GreyDoors.TryGetValue(kind, out GreyDoorVariant found) ? found
             : throw new InvalidDataException($"Room-object kind {kind} installs no grey door.");
-        GreyDoorObjects.SetupGreyDoor(context.Room.Level, context.Place, door, opening);
+        context.Families.GreyDoors.SetupGreyDoor(context.Room.Level, context.Place, door, opening);
     }
 
     /// <inheritdoc/>

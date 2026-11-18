@@ -82,7 +82,7 @@ internal static class RoomObjectSystemAccess
                     entry.Place.Block,
                     entry.Place.NativeRoomArgument,
                     (entry.Door ?? throw new InvalidOperationException("Verification requires entry.door.")).Orientation,
-                    entry.Door.Condition,
+                    entry.Door.Lock.Condition,
                     // A grey cap counts only the one shot that opens it, so an opening cap has counted its hit.
                     entry.Door.Phase, entry.Door.Phase == GreyDoorPhase.Opening ? (byte)1 : (byte)0, entry.Door)),
         ];

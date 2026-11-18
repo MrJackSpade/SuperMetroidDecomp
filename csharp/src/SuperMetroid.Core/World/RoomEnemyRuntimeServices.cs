@@ -11,12 +11,13 @@ namespace SuperMetroid.Core.World;
 /// <summary>
 /// The runtime's state as the services one room's enemy AI calls (#633): the shared
 /// RNG, events and defeated bosses, the room's scroll zones, Samus's control lock, Mother Brain's room
-/// effects and the active room-object population. Defeated bosses belong to the room's area.
+/// effects and the room's room-object population. Defeated bosses belong to the room's area; the scroll zones are those of
+/// the room the services are built for (#2486), and the control lock acts on the introduced Samus.
 /// </summary>
 [RoomLifetime]
 internal sealed class RoomEnemyRuntimeServices(
     SharedGameState system,
-    ActiveRoomState room,
+    RoomScrollGrid scrolls,
     SamusFrameState player,
     RoomObjectSystem roomObjects,
     GameplayDisplayState display,
@@ -51,28 +52,24 @@ internal sealed class RoomEnemyRuntimeServices(
     public void Reseed(SpeciesRandomReseed reseed) => system.Random.Reseed(reseed);
 
     /// <inheritdoc/>
-    RoomScrollState IRoomScrollZoneAccess.Read(Position16<RoomScreens> screen) => room.LoadedCamera.Scrolls.ReadScreen(screen);
+    RoomScrollState IRoomScrollZoneAccess.Read(Position16<RoomScreens> screen) => scrolls.ReadScreen(screen);
 
     /// <inheritdoc/>
-    public void Write(Position16<RoomScreens> screen, RoomScrollState state) => room.LoadedCamera.Scrolls.SetRoomScreen(screen, state);
+    public void Write(Position16<RoomScreens> screen, RoomScrollState state) => scrolls.SetRoomScreen(screen, state);
 
     /// <summary>Releases Samus's stationary script lock and reopens the player's grounded-movement gate.</summary>
     public void EnableControls()
     {
-        ControlledSamus.Control.Unlock();
+        player.IntroducedSamus.Control.Unlock();
         player.GroundedSamusMovementEnabled = true;
     }
 
     /// <summary>Locks Samus stationary and closes the player's grounded-movement gate.</summary>
     public void DisableControls()
     {
-        ControlledSamus.Control.LockStationary();
+        player.IntroducedSamus.Control.LockStationary();
         player.GroundedSamusMovementEnabled = false;
     }
-
-    /// <summary>The Samus actor a Chozo statue's control lock acts on.</summary>
-    private SamusState ControlledSamus => player.Samus ?? throw new InvalidOperationException(
-        "Chozo control lock requires an active Samus actor.");
 
     /// <inheritdoc/>
     public void CountHeadShotOnGlass() => roomObjects.MotherBrainGlass.CountHeadShotOnGlass();

@@ -1215,7 +1215,7 @@ internal static class RoomObjectPopulationVerification
         RoomTerrainBlock[] levelBeforeSave = Enumerable.Range(0, level.Size.X * level.Size.Y)
             .Select(block => level.GetCollisionBlock(new(checked((ushort)(block % level.Size.X)), checked((ushort)(block / level.Size.X)))).Terrain)
             .ToArray();
-        bool saving = roomObjects.Stations.ResolveSaveStationConfirmation(saveRequest, accepted: true, level: level);
+        bool saving = roomObjects.Stations.ResolveSaveStationConfirmation(saveRequest, SaveChoice.Yes, level: level);
         AssertTrue(saving, "accepted save resumes the sleeping cartridge PLM");
         // #1269: $84:AFF4-$AFFA run in the PLM pass the message returned into. That pass resumes at the message-close
         // boundary, and the pass queues the sound as it runs (#1390, #1620).
@@ -1407,9 +1407,9 @@ internal static class RoomObjectPopulationVerification
         // $85:84BA waits two lag frames before its first ReadControllerInput.
         message.Step(0);
         message.Step(ControllerButton.Left);
-        AssertTrue(message.ConfirmationSelectionYes, "save selector does not read during its lag waits");
+        AssertEqual(SaveChoice.Yes, message.ConfirmationSelection, "save selector does not read during its lag waits");
         message.Step(ControllerButton.Left);
-        AssertTrue(!message.ConfirmationSelectionYes,
+        AssertEqual(SaveChoice.No, message.ConfirmationSelection,
             "save cursor changes the shared confirmation selection");
         AssertEqual(BackgroundTileWords.ToTile(0x5200), message.Tilemap(messages)[128],
             "save cursor redraws the native selected-NO row");
@@ -1419,7 +1419,7 @@ internal static class RoomObjectPopulationVerification
         message.Step(ControllerButton.Left);
         message.Step(ControllerButton.Left);
         message.Step(ControllerButton.Left);
-        AssertTrue(!message.ConfirmationSelectionYes,
+        AssertEqual(SaveChoice.No, message.ConfirmationSelection,
             "holding a direction does not toggle the newly-pressed save cursor repeatedly");
         message.Step(ControllerButton.A);
         AssertEqual(GameplayMessageBoxPhase.AwaitingInput, message.Phase, "A is read on the next read frame");
@@ -1427,7 +1427,7 @@ internal static class RoomObjectPopulationVerification
         AssertEqual(GameplayMessageBoxPhase.Closing, message.Phase, "A confirms on a read frame");
         for (int guard = 0; message.IsActive && guard < 32; guard++)
             message.Step(0);
-        AssertEqual(false, message.ConsumeConfirmationResult(),
+        AssertEqual(SaveChoice.No, message.ConsumeConfirmationResult(),
             "save confirmation publishes selected no result after close");
 
         message.Begin(GameplayMessageId.SaveConfirmation, 0, SuperMetroid.Core.Input.ControllerBindings.Default);
@@ -1442,7 +1442,7 @@ internal static class RoomObjectPopulationVerification
         message.Step(ControllerButton.A);
         for (int guard = 0; message.IsActive && guard < 32; guard++)
             message.Step(0);
-        AssertEqual(true, message.ConsumeConfirmationResult(),
+        AssertEqual(SaveChoice.Yes, message.ConsumeConfirmationResult(),
             "save confirmation defaults to yes and publishes acceptance");
     }
 

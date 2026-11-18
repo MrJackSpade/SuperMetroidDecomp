@@ -36,16 +36,16 @@ internal static class MessageSnapshotTestsVerification
             AssertTrue(MessageBoxLayer.Capture(state, messages) is null, "inactive message has no overlay");
             state.Begin(id, 0, SuperMetroid.Core.Input.ControllerBindings.Default);
             int previousRadius = -1;
-            bool previousYes = true;
+            SaveChoice previousChoice = SaveChoice.Yes;
             bool toggledSave = false, releasedSave = false;
             DisplayPacket? held = null;
             RgbaPixel[]? heldPixels = null;
             for (int tick = 0; tick < 600 && state.IsActive; tick++)
             {
-                if (previousRadius != state.RadiusPixels || previousYes != state.ConfirmationSelectionYes)
+                if (previousRadius != state.RadiusPixels || previousChoice != state.ConfirmationSelection)
                 {
                     previousRadius = state.RadiusPixels;
-                    previousYes = state.ConfirmationSelectionYes;
+                    previousChoice = state.ConfirmationSelection;
                     MessageBoxLayer? layer = MessageBoxLayer.Capture(state, messages);
                     DisplayLayer[] layers = layer is null ? [] : [layer];
                     samples++;

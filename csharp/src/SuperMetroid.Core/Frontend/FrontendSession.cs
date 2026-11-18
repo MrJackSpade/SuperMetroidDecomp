@@ -387,14 +387,14 @@ internal sealed class FrontendSession
             foreach (MusicRequest request in scope.Enemies.Audio.ConsumeRoomEnemyStartMusic())
                 audio.QueueMusic(request);
 
-        // The message-box save choice runs outside gameplay. Its one-shot request is consumed
-        // once, so updates that only show the box cannot repeat it.
-        if (runtime?.MessageBoxes.ConsumeMessageBoxSelectionSoundRequest() == true)
-            audio.QueueSound(SamusSound.MenuCursor, priority: SoundRequestPriority.Normal);
+        // The message box runs outside gameplay: the save choice's move and the gunship's pad opening as its prompt returns
+        // are events of the box's updates, taken once, so updates that only show the box cannot repeat them. The save choice
+        // never moves on the update the gunship's prompt returns, nor on the one its accepted save starts the saving sound.
+        if (runtime is not null)
+            foreach (SoundRequest sound in runtime.MessageBoxes.TakeSounds())
+                audio.QueueSound(sound);
         if (runtime?.MessageBox.ConsumeSavingSoundRequest() == true)
             audio.QueueSound(SamusSound.Saving, priority: SoundRequestPriority.Normal);
-        if (runtime?.MessageBoxes.ConsumeGunshipExitSoundRequest() == true)
-            audio.QueueSound(RoomSound.GunshipPadOpening, priority: SoundRequestPriority.Normal);
     }
     /// <summary>
     /// The game leaves Zebes once the gunship's top hull has risen past Y=256, starting the screen fade from full

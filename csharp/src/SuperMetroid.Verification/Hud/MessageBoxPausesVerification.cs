@@ -71,7 +71,7 @@ internal static class MessageBoxPausesVerification
         box.Step(ControllerButton.A);
         StepWhile(box, () => box.Phase == GameplayMessageBoxPhase.Closing, ControllerButton.None, 13, "completion notice closing");
         AssertPause(box, GameplayMessageBoxPhase.PausedAfterClosing, AfterClosing, GameplayMessageBoxPhase.Inactive, "completion notice after closing");
-        AssertEqual(true, box.ConsumeConfirmationResult(), "the accepted gunship save reports YES once its notice closes");
+        AssertEqual(SaveChoice.Yes, box.ConsumeConfirmationResult(), "the accepted gunship save reports YES once its notice closes");
         Console.WriteLine("Message box pauses: eight updates before an item box opens, five before the gunship's completion notice, one before its saving wait and six after a box closes, each with its music, sound and liquid advance.");
     }
 

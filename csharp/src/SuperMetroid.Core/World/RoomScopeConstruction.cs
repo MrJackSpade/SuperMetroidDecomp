@@ -15,6 +15,7 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus.Drawing;
+using SuperMetroid.Core.Bosses.Crocomire;
 
 namespace SuperMetroid.Core.World;
 
@@ -184,8 +185,8 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
     /// <summary>Composes Ceres Ridley's arena's main, his getaway over the arena's turning <paramref name="floor"/> (#2287).</summary>
     internal void ComposeRidleyGetawayMain(RoomFloor floor) => Main = new CeresRidleyGetawayMain(floor);
 
-    /// <summary>Composes the Crocomire room's main, the rumble while his death uncovers the hidden wall (#2287).</summary>
-    internal void ComposeCrocomireRumbleMain() => Main = new CrocomireRoomShakingMain();
+    /// <summary>Composes the Crocomire room's main, the rumble while <paramref name="crocomire"/>'s death uncovers the hidden wall (#2287, #2486).</summary>
+    internal void ComposeCrocomireRumbleMain(CrocomireEnemyState crocomire) => Main = new CrocomireRoomShakingMain(crocomire);
 
     /// <summary>Composes the Dachora room's main, which moves the camera toward its shaft while the shaft stands open (#2293).</summary>
     internal void ComposeDachoraShaftCameraMain() => Main = new DachoraShaftCameraMain();

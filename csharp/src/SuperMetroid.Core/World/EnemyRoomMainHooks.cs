@@ -14,9 +14,6 @@ internal sealed class EnemyRoomMainHooks(RoomBossEncounters encounters, RoomCame
     public CrocomireEnemyState? Crocomire => encounters.Crocomire;
 
     /// <inheritdoc/>
-    public CrocomireDeathState? CrocomireDeath => encounters.Crocomire?.Death;
-
-    /// <inheritdoc/>
     public RoomCameraFloor CameraFloor => cameraFloor;
 
     /// <inheritdoc/>

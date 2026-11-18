@@ -143,12 +143,6 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
         _sceneProjectiles.Add(projectile);
     }
 
-    /// <summary>
-    /// The statues' shared animation state, set and cleared by the statue animations, the descent and the decorations,
-    /// whether the statue's sinking has finished among it.
-    /// </summary>
-    public TourianStatueAnimation TourianEntranceStatueAnimation { get; } = new();
-
 
     /// <summary>
     /// Initializes one of the statue scene's three placements (#2014): the first spawns the scene's decorations, and each
@@ -214,7 +208,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     /// The behaviour of the statue's base decoration, Ridley and Phantoon (#1760, #2382): their spawner starts their
     /// animations, and they follow the statue room's statue down.
     /// </summary>
-    internal EnemyProjectileBehavior Decorations() => new DecorationBehavior(TourianEntranceStatueAnimation, StatueRoom);
+    internal EnemyProjectileBehavior Decorations() => new DecorationBehavior(StatueRoom.Animation, StatueRoom);
 
     /// <summary>A decoration: it follows the statue's reveal and descent, and settles at its place.</summary>
     /// <param name="statue">The statues' shared animation state, whose rest finishes the statue's sinking.</param>

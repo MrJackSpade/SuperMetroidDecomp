@@ -211,7 +211,7 @@ internal sealed class SuperMetroidRuntime
         BeamCharge = new BeamChargeState();
         Freeze = new GameplayTimeFreeze(Player);
         Assists = new ActiveAssists(Player, System, assists);
-        TourianStatueDependencies = new TourianStatueSequenceDependencies { Player = Player, Room = Room, System = System, Assists = Assists, Freeze = Freeze };
+        TourianStatueDependencies = new TourianStatueSequenceDependencies { Player = Player, System = System, Assists = Assists, Freeze = Freeze };
         BossArtwork = new BossArtworkBinding(artwork.ScreenContent.CeresRidleyGetawayBoostDelays, artwork.ScreenContent.EscapeTypewriter,
             artwork.ScreenContent.MotherBrainRainbowBeamColours, artwork.KraidEyes, artwork.BossBodySheets);
         Artwork = new RuntimeArtwork(new RuntimeArtworkDependencies
@@ -239,7 +239,7 @@ internal sealed class SuperMetroidRuntime
         DeathSequence = new DeathSequenceRunner(new DeathSequenceRunnerDependencies { Display = Display, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player});
         MessageBoxes = new MessageBoxFlow(new MessageBoxFlowDependencies { AudioRequests = AudioRequests, Freeze = Freeze, Hud = Hud, MessageBox = MessageBox, SuitPickup = SuitPickup, System = System });
         RoomObjectPhase = new RoomObjectFramePhase(new RoomObjectFramePhaseDependencies { PlayerActions = PlayerActions, PlayerButtons = PlayerButtons, Options = Options, Freeze = Freeze, MessageBox = MessageBox, MessageBoxes = MessageBoxes, Player = Player, SuitPickup = SuitPickup});
-        RoomMains = new RoomMainRoutines(new RoomMainRoutinesDependencies { BackgroundScroll = BackgroundScroll, Player = Player, Room = Room, System = System});
+        RoomMains = new RoomMainRoutines(new RoomMainRoutinesDependencies { BackgroundScroll = BackgroundScroll, System = System });
         SamusPhases = new SamusFramePhases(new SamusFramePhasesDependencies { AttractDemo = AttractDemo, PlayerActions = PlayerActions, Freeze = Freeze, GameTime = GameTime, Clock = Clock, Options = Options, Assists = Assists, Player = Player, System = System, DoorPassage = DoorTransition.Passage });
 
         // Gameplay starts with Samus in her starting shades; every other picture shows its standard colours (#1512).
@@ -542,8 +542,6 @@ internal sealed class SuperMetroidRuntime
     {
         room.CeresHaze?.Step();
 
-        MessageBoxes.MessageBoxSelectionSoundRequestedThisFrame = false;
-
         // The suit transformation's light beam advances once near the start of each
         // ordinary gameplay update. A transformation spawned when the preceding message
         // returned therefore receives its first stage update on this following update, while
@@ -668,6 +666,7 @@ internal sealed class SuperMetroidRuntime
                     "A room object's message box and the gunship save prompt opened in one gameplay frame.");
             }
             MessageBox.Begin(GameplayMessageId.GunshipSaveConfirmation, PlayerButtons.Current, Options.ControllerBindings);
+            MessageBoxes.Await(new MessageBoxOutcome.GunshipSaveAnswer());
         }
     }
 
@@ -703,7 +702,7 @@ internal sealed class SuperMetroidRuntime
         Sprites.FinalizeFrame();
 
         UpdateHud(infiniteAmmoGuard, room, samus);
-        RunRoomMains(policy, room);
+        RunRoomMains(policy, room, samus);
         // The game-time step advances the gameplay clock after
         // room main and before shaking. Message-box frames returned above, exactly as the
         // suspended frame does, so item fanfare time is not counted here.
@@ -886,9 +885,9 @@ internal sealed class SuperMetroidRuntime
     }
 
     /// <summary>Runs the block animations and the room's main behaviour.</summary>
-    private void RunRoomMains(RuntimeFramePolicy policy, RoomScope room)
+    private void RunRoomMains(RuntimeFramePolicy policy, RoomScope room, SamusState samus)
     {
-        RoomMains.RunBlockAnimations(room);
+        RoomMains.RunBlockAnimations(room, samus);
 
         // The room's main runs after gameplay drawing and the HUD, and before the room shakes (#2287). The Ceres elevator
         // shaft's main publishes a tilt for the following frame's presentation and may change the outer game-state loop to
@@ -1047,7 +1046,6 @@ internal sealed class SuperMetroidRuntime
         RoomScope room,
         SamusState samus)
     {
-        MessageBoxes.MessageBoxSelectionSoundRequestedThisFrame = false;
         // The box reads the controller directly; the frame boundary latches none.
         MessageBox.Step(playerInput);
         if (MessageBox.LastFrameAudio.AdvancesLiquidWaveAndStatueDescent)
@@ -1057,7 +1055,7 @@ internal sealed class SuperMetroidRuntime
             room.BombProjectiles.AdvancePowerBombExplosion(samus, PlayerActions.Current, RunningGameState);
         }
         if (MessageBox.ConfirmationSelectionChangedThisFrame)
-            MessageBoxes.MessageBoxSelectionSoundRequestedThisFrame = true;
+            MessageBoxes.SaveChoiceMoved();
         if (MessageBox.IsActive)
         {
             ApplyEndOfUpdateAssists(infiniteAmmoGuard);

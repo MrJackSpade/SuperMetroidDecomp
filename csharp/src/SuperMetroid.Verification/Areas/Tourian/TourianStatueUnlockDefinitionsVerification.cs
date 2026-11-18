@@ -46,7 +46,7 @@ internal static class TourianStatueUnlockDefinitionsVerification
             bool soul = soulValue != 0;
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork,
                 statueRoom: new FixedTourianStatueRoom(WaterSurface: 216, StatueOffset: 0));
-            TourianUnlockBehavior unlock = enemies.UnlockEffects();
+            TourianUnlockBehavior unlock = EnemySystemFixtures.UnlockEffects(enemies);
             if (soul) unlock.SpawnTourianSoul(TourianStatueNativeWords.Eye(parameter));
             else unlock.SpawnTourianEyeGlow(TourianStatueNativeWords.Eye(parameter));
 

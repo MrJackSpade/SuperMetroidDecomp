@@ -92,7 +92,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         foreach (ushort parameter in new ushort[] { 0, 2, 4, 6 })
         {
             RoomEnemySystem installed = CreateEnemy(stock);
-            installed.UnlockEffects().SpawnTourianEyeGlow(TourianStatueNativeWords.Eye(parameter));
+            EnemySystemFixtures.UnlockEffects(installed).SpawnTourianEyeGlow(TourianStatueNativeWords.Eye(parameter));
             AssertNativeWrites(NativeColouredPictures.ShownIn(composedStatueSheet, EnemySystemFixtures.StatueScene(installed).SceneShading), sceneHeld,
                 0x86b91e + parameter * 4, TourianStatuePaletteConstants.EyeCgramIndex, TourianStatueColorDefinitions.EyeColorCount,
                 $"Tourian eye parameter {parameter} shows the native eye glow colours");

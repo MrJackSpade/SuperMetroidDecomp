@@ -4,7 +4,8 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// The Tourian statue room's shared animation state (#1549): which boss statues are still animating, whether one statue
 /// is playing its release, whether all four have released and whether the entrance statue's sinking has finished. The
 /// statue animations, the descent and the entrance statue's decorations set and clear each part independently; how far
-/// the statue has sunk is the descent's own (<see cref="Enemies.ITourianStatueRoom.StatueOffset"/>, #2033).
+/// the statue has sunk is the descent's own (<see cref="ITourianStatueRoom.StatueOffset"/>, #2033). The statue room holds it
+/// (<see cref="ITourianStatueRoom.Animation"/>, #2486).
 /// </summary>
 public sealed class TourianStatueAnimation
 {

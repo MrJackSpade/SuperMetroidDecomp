@@ -156,26 +156,26 @@ internal sealed class RoomObjectFramePhase
         /// <inheritdoc/>
         public void AwaitSuitTransformation(SamusSuitPickupKind suit)
         {
-            if (phase._messageBoxes.HasPendingSuitPickup || phase._suitPickup.IsActive)
+            if (phase._suitPickup.IsActive)
                 throw new InvalidDataException("A second suit pickup attempted to replace an active transformation.");
-            phase._messageBoxes.AwaitSuitPickup(suit);
+            phase._messageBoxes.Await(new MessageBoxOutcome.SuitTransformation(suit));
         }
 
         /// <inheritdoc/>
         public void RequestSaveConfirmation(SaveStationActivation save)
         {
-            if (phase._messageBoxes.HasPendingSaveStationWork || phase._messageBox.IsActive)
+            if (phase._messageBoxes.HasPendingOutcome || phase._messageBox.IsActive)
                 throw new InvalidDataException("A save station attempted to replace an active room-object message owner.");
-            phase._messageBoxes.AwaitSaveConfirmation(save);
+            phase._messageBoxes.Await(new MessageBoxOutcome.SaveConfirmation(save));
             phase.BeginMessage(GameplayMessageId.SaveConfirmation);
         }
 
         /// <inheritdoc/>
         public void ShowSaveCompleted(SaveStationActivation save)
         {
-            if (phase._messageBoxes.HasPendingSaveStationWork || phase._messageBox.IsActive)
+            if (phase._messageBoxes.HasPendingOutcome || phase._messageBox.IsActive)
                 throw new InvalidDataException("A completed save station attempted to replace an active message owner.");
-            phase._messageBoxes.AwaitSaveCompletion(save);
+            phase._messageBoxes.Await(new MessageBoxOutcome.SaveCompletion(save));
             phase.BeginMessage(GameplayMessageId.SaveCompleted);
         }
 

@@ -21,6 +21,9 @@ internal sealed record RoomObjectPopulationLoaderDependencies
     /// <summary>The eye doors, which set up once they have taken their places.</summary>
     public required EyeDoorObjects EyeDoors { get; init; }
 
+    /// <summary>The grey door caps, which set up their locks as they are placed (#2486).</summary>
+    public required GreyDoorObjects GreyDoors { get; init; }
+
     /// <summary>The gates, which set up their blocks as they are placed.</summary>
     public required GateObjects Gates { get; init; }
 

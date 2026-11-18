@@ -34,8 +34,8 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
     private int _nextOpeningRadiusPixels;
     /// <summary>Radius to publish on the next closing frame.</summary>
     private int _nextClosingRadiusPixels;
-    /// <summary>YES or NO selected before the confirmation window starts closing.</summary>
-    private bool? _closingConfirmationResult;
+    /// <summary>The answer chosen before the confirmation window starts closing; null for a message offering no choice.</summary>
+    private SaveChoice? _closingConfirmationResult;
     /// <summary>Keeps an accepted gunship save result through its saving sound and completion notice.</summary>
     private bool _gunshipCompletion;
     /// <summary>One-shot request for the sound queued by the accepted gunship save branch.</summary>
@@ -83,16 +83,16 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
     /// shoot or run binding, and the save choice a confirmation highlights; null while no message has begun.
     /// </summary>
     public ShownMessage? Shown => MessageId is not { } message ? null
-        : new ShownMessage(message, PanelButton(message), IsSaveConfirmation ? ConfirmationSelectionYes : null);
+        : new ShownMessage(message, PanelButton(message), IsSaveConfirmation ? ConfirmationSelection : null);
 
-    /// <summary>Current yes/no choice for save confirmation message.</summary>
-    public bool ConfirmationSelectionYes { get; private set; } = true;
+    /// <summary>The answer a save confirmation highlights.</summary>
+    public SaveChoice ConfirmationSelection { get; private set; } = SaveChoice.Yes;
 
     /// <summary>
     /// Result published after confirmation has completely closed. Consumers clear it
     /// through <see cref="ConsumeConfirmationResult"/> when the suspended room object that opened the box resumes.
     /// </summary>
-    public bool? CompletedConfirmationResult { get; private set; }
+    public SaveChoice? CompletedConfirmationResult { get; private set; }
 
     /// <summary>
     /// True only on the update that shows a moved save choice, on which the runtime plays the game's menu-move sound.
@@ -135,7 +135,7 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
         _closingConfirmationResult = null;
         _gunshipCompletion = false;
         CompletedConfirmationResult = null;
-        ConfirmationSelectionYes = true;
+        ConfirmationSelection = SaveChoice.Yes;
         _controller.Latch(controllerRead);
         // The pause's first update is the gameplay update that opened the box.
         _pauses.BeginBeforeOpening();
@@ -143,9 +143,9 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
     }
 
     /// <summary>Consumes the completed result of the save confirmation.</summary>
-    public bool? ConsumeConfirmationResult()
+    public SaveChoice? ConsumeConfirmationResult()
     {
-        bool? result = CompletedConfirmationResult;
+        SaveChoice? result = CompletedConfirmationResult;
         CompletedConfirmationResult = null;
         return result;
     }
@@ -230,19 +230,19 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
                     ControllerButton newlyPressed = _controller.NewlyPressed;
                     if ((newlyPressed & ControllerButton.A) != ControllerButton.None)
                     {
-                        BeginClosing(ConfirmationSelectionYes);
+                        BeginClosing(ConfirmationSelection);
                         return;
                     }
                     if ((newlyPressed & ControllerButton.B) != ControllerButton.None)
                     {
-                        BeginClosing(false);
+                        BeginClosing(SaveChoice.No);
                         return;
                     }
                     ControllerButton horizontal = newlyPressed & (ControllerButton.Left | ControllerButton.Right | ControllerButton.Select);
                     if (horizontal != ControllerButton.None)
                     {
                         // The redrawn row shows the other choice from this update on.
-                        ConfirmationSelectionYes = !ConfirmationSelectionYes;
+                        ConfirmationSelection = ConfirmationSelection == SaveChoice.Yes ? SaveChoice.No : SaveChoice.Yes;
                         _saveChoiceInput.ChoiceMoved();
                     }
                     return;
@@ -277,7 +277,7 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
     }
 
     /// <summary>Accepts the interaction; the window's first closing step runs in the same update.</summary>
-    private void BeginClosing(bool? confirmationResult)
+    private void BeginClosing(SaveChoice? confirmationResult)
     {
         _closingConfirmationResult = confirmationResult;
         _nextClosingRadiusPixels = GameplayMessageBoxDefinitions.Timing.MaximumRadiusPixels;
@@ -292,7 +292,7 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
         _nextClosingRadiusPixels -= GameplayMessageBoxDefinitions.Timing.RadiusStepPixels;
         if (_nextClosingRadiusPixels >= 0)
             return;
-        if (MessageId == GameplayMessageId.GunshipSaveConfirmation && _closingConfirmationResult == true)
+        if (MessageId == GameplayMessageId.GunshipSaveConfirmation && _closingConfirmationResult == SaveChoice.Yes)
         {
             // The accepted gunship save pauses one update after closing, then waits out the saving sound.
             Phase = GameplayMessageBoxPhase.GunshipSavingSound;
@@ -309,7 +309,7 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
     private void Finish()
     {
         Phase = GameplayMessageBoxPhase.Inactive;
-        CompletedConfirmationResult = _gunshipCompletion ? true : _closingConfirmationResult;
+        CompletedConfirmationResult = _gunshipCompletion ? SaveChoice.Yes : _closingConfirmationResult;
         _gunshipCompletion = false;
         _closingConfirmationResult = null;
         MessageId = null;

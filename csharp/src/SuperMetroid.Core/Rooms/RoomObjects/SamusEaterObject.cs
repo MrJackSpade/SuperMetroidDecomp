@@ -46,8 +46,8 @@ internal sealed class SamusEaterObject : SequencedRoomObject<SamusEaterSegment, 
     /// <summary>Where the plant is in its course.</summary>
     internal SamusEaterPhase Phase { get; private set; } = SamusEaterPhase.Biting;
 
-    /// <summary>Whether the plant holds Samus: from its first update until it releases her.</summary>
-    internal bool Holding { get; private set; }
+    /// <summary>Whether the plant holds Samus: while it chews, from the end of its first update's bite until it releases her.</summary>
+    internal bool Holding => Phase == SamusEaterPhase.Chewing;
 
     /// <inheritdoc/>
     internal override void Update(RoomObjectPlace place, RoomObjectStepContext context)
@@ -63,13 +63,11 @@ internal sealed class SamusEaterObject : SequencedRoomObject<SamusEaterSegment, 
         switch (Phase)
         {
             case SamusEaterPhase.Biting:
-                Holding = true;
                 Phase = SamusEaterPhase.Chewing;
                 Play(_animations.Chewing, place, context);
                 return;
             case SamusEaterPhase.Chewing:
                 _owner.ReleaseSamus();
-                Holding = false;
                 Phase = SamusEaterPhase.Released;
                 Play(_animations.Released, place, context);
                 return;

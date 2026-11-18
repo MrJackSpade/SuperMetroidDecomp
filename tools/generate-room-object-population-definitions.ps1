@@ -160,8 +160,10 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
     $lines.Add('internal static class RoomObjectPopulationDefinitions')
     $lines.Add('{')
     # Each placed kind's family setup (#2383), carrying what the kind places (#2481): the coloured, grey and eye doors,
-    # the items, the stations and the scroll extensions are the kinds verification's kind-variant tables list, each with
-    # the door, item, station or extension it places; the scroll trigger and each other kind are named for it.
+    # the items, the map and refill stations and the scroll extensions are the kinds verification's kind-variant tables
+    # list, each with the door, item, station access rule or extension it places; the scroll trigger and each other kind
+    # are named for it. A setup carries every argument its family requires (#2483), so a placement of a family that
+    # requires one and gives none is refused.
     $familySetups = @{}
     $familyVariants = @{}
     $variantSource = [IO.File]::ReadAllText((Join-Path $repoRoot 'csharp/test-support/VerificationAccess.Core/Rooms/RoomObjects/RoomObjectKindVariants.cs'))
@@ -202,11 +204,12 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
                 if ($argumentText -ne 'null') { throw "Room-object kind $name reads no argument, but its placement gives $argumentText." }
                 return 'new {0}({1})' -f $setup, $familyVariants[$name]
             }
-            if ($setup -eq 'EyeDoorEyeSetup' -and $argumentText -eq 'null') { throw "Eye-door eye $name names no door." }
+            if ($argumentText -eq 'null') { throw "Room-object kind $name requires its argument, but its placement gives none." }
             return 'new {0}({1}, {2})' -f $setup, $familyVariants[$name], $argumentText
         }
         $setup = $name + 'Setup'
         if ($setup -in @('MetroidRoomClearanceSetup', 'DownwardGateShotBlockSetup', 'SaveStationSetup')) {
+            if ($argumentText -eq 'null') { throw "Room-object kind $name requires its argument, but its placement gives none." }
             return 'new {0}({1})' -f $setup, $argumentText
         }
         if ($argumentText -ne 'null') { throw "Room-object kind $name reads no argument, but its placement gives $argumentText." }
@@ -567,7 +570,7 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
     $nativeLines.Add('        }.ToFrozenDictionary();')
     $nativeLines.Add('}')
     [IO.File]::WriteAllLines($scrollNativeFile, $nativeLines, [Text.UTF8Encoding]::new($false))
-    Write-Output "Generated $($ordered.Count) PLM populations, $recordTotal records, $($placedKindWords.Count) placed kinds and $($orderedScrollPrograms.Count) scroll programs."
+    Write-Output "Generated $($ordered.Count) PLM populations, $recordTotal records, $($placedWords.Count) placed kinds and $($orderedScrollPrograms.Count) scroll programs."
 }
 catch {
     [Console]::Error.WriteLine($_.Exception.ToString())

@@ -10,11 +10,11 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// (<see cref="StationAnimationDefinitions"/>) and then publishes the saved-game message, and the save is over once the
 /// message closes or the answer is no. The pod and its flash each play on the shared animation player (#2480).
 /// </summary>
-/// <param name="savedAt">The load station the station saves at, as its placement named it; null for a station placed without one.</param>
-internal sealed class SaveStationObject(LoadStation? savedAt) : RoomObjectBehaviour
+/// <param name="savedAt">The load station the station saves at, as its placement named it.</param>
+internal sealed class SaveStationObject(LoadStation savedAt) : RoomObjectBehaviour
 {
-    /// <summary>The load station the station saves at, which its activation events carry; null for a station placed without one.</summary>
-    internal LoadStation? SavedAt { get; } = savedAt;
+    /// <summary>The load station the station saves at, which its activation events carry.</summary>
+    internal LoadStation SavedAt { get; } = Ensure.NotNull(savedAt);
 
     /// <summary>The pod playing: its first image shows on the station's first update, and the pod stays still after it.</summary>
     private readonly AnimationPlayer<StationAnimation, StationDraw, NoAnimationCue> _pod =
@@ -101,7 +101,5 @@ internal sealed class SaveStationObject(LoadStation? savedAt) : RoomObjectBehavi
     }
 
     /// <summary>The save station's activation: the station itself, the load station it saves at and its block.</summary>
-    /// <exception cref="InvalidDataException">The save station was placed without its load station.</exception>
-    private SaveStationActivation SaveActivation(RoomObjectPlace place) => new(this, SavedAt
-        ?? throw new InvalidDataException($"Save station at block {place.Block} was placed without its load station."), place.Block);
+    private SaveStationActivation SaveActivation(RoomObjectPlace place) => new(this, SavedAt, place.Block);
 }

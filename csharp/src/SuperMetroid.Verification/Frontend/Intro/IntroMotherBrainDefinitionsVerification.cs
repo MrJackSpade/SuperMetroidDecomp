@@ -81,10 +81,10 @@ internal static class IntroMotherBrainDefinitionsVerification
             motherBrain.RunBehavior(frame, crossfadeFinishing: false);
             motherBrain.Step();
             if (frame < 128)
-                AssertTrue(!motherBrain.PageTwoRequested,
+                AssertTrue(!motherBrain.NextPageRequested,
                     $"intro Mother Brain does not request page two before explosion frame {frame}");
         }
-        AssertTrue(motherBrain.PageTwoRequested,
+        AssertTrue(motherBrain.NextPageRequested,
             "intro Mother Brain page-two callback runs at explosion frame 128");
         for (int frame = 0; frame < 64; frame++)
         {
@@ -92,7 +92,7 @@ internal static class IntroMotherBrainDefinitionsVerification
                 crossfadeFinishing: false);
             motherBrain.Step();
             // Page two's list follows the page-two start's owner instruction and cross-fade install, six bytes in, and loops by itself.
-            int record = CinematicSpriteNativeListAddresses.Start(IntroMotherBrainAnimation.StartingPageTwo) + 6 +
+            int record = CinematicSpriteNativeListAddresses.Start(IntroMotherBrainAnimation.StartingNextPage) + 6 +
                 (((frame + 1) / 16) % 4) * 4;
             ushort expected = CartridgeImportSource.Require(retail).ReadCartridgeWord((IntroMotherBrainDefinitions.NativeBank | (record + 2)));
             AssertEqual(expected, CinematicSpritePoseSpritemaps.Of(motherBrain.Pose),

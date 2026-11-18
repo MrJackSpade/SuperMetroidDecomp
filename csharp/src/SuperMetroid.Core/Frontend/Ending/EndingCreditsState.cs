@@ -137,14 +137,14 @@ internal sealed class EndingCreditsState : IFrontendScreen
 
             case EndingCreditsPhase.FadeInSideCloudEscape:
                 StepAtmosphericTransform(EndingMotionDefinitions.SideCloudEscapeZoomStep);
-                EscapeScenes.StepEscapeClouds();
+                EscapeScenes.StepSprites();
                 if (Stage.Fade.Brighten())
                     Stage.Phase = EndingCreditsPhase.SideCloudEscape;
                 break;
 
             case EndingCreditsPhase.SideCloudEscape:
                 StepAtmosphericTransform(EndingMotionDefinitions.SideCloudEscapeZoomStep);
-                EscapeScenes.StepEscapeClouds();
+                EscapeScenes.StepSprites();
                 if (Stage.FloorZoom >= EndingMotionDefinitions.EscapeEndZoom)
                 {
                     Stage.StartFastFade();
@@ -154,21 +154,21 @@ internal sealed class EndingCreditsState : IFrontendScreen
 
             case EndingCreditsPhase.FadeOutSideCloudEscape:
                 StepAtmosphericTransform(EndingMotionDefinitions.SideCloudEscapeZoomStep);
-                EscapeScenes.StepEscapeClouds();
+                EscapeScenes.StepSprites();
                 if (Stage.Fade.Darken())
                     EscapeScenes.SetupTopAndBottomCloudEscape();
                 break;
 
             case EndingCreditsPhase.FadeInTopAndBottomCloudEscape:
                 StepAtmosphericTransform(EndingMotionDefinitions.TopAndBottomCloudEscapeZoomStep);
-                EscapeScenes.StepEscapeClouds();
+                EscapeScenes.StepSprites();
                 if (Stage.Fade.Brighten())
                     Stage.Phase = EndingCreditsPhase.TopAndBottomCloudEscape;
                 break;
 
             case EndingCreditsPhase.TopAndBottomCloudEscape:
                 StepAtmosphericTransform(EndingMotionDefinitions.TopAndBottomCloudEscapeZoomStep);
-                EscapeScenes.StepEscapeClouds();
+                EscapeScenes.StepSprites();
                 if (Stage.FloorZoom >= EndingMotionDefinitions.EscapeEndZoom)
                 {
                     Stage.StartFastFade();
@@ -178,7 +178,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
 
             case EndingCreditsPhase.FadeOutTopAndBottomCloudEscape:
                 StepAtmosphericTransform(EndingMotionDefinitions.TopAndBottomCloudEscapeZoomStep);
-                EscapeScenes.StepEscapeClouds();
+                EscapeScenes.StepSprites();
                 if (Stage.Fade.Darken())
                     Explosion.SetupZebesExplosion();
                 break;

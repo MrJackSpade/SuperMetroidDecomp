@@ -16,12 +16,20 @@ namespace SuperMetroid.Core.Rooms.Doors;
 internal sealed class GreyDoorObject : DoorCapObject, IClosingDoor, IShootableRoomObject
 {
     /// <summary>A grey cap of <paramref name="variant"/>, locked by <paramref name="condition"/>, just placed in <paramref name="door"/>.</summary>
-    internal GreyDoorObject(GreyDoorVariant variant, GreyDoorCondition condition, PlacedDoor? door)
-        : base(variant.Orientation, DoorCapPaint.Grey, door)
+    internal GreyDoorObject(GreyDoorVariant variant, GreyDoorCondition condition, PlacedDoor door)
+        : base(variant.Orientation, DoorCapPaint.Grey)
     {
         Variant = variant;
         Condition = condition;
+        Door = Ensure.NotNull(door);
     }
+
+    /// <summary>The door the cap stands in, as its placement named it.</summary>
+    internal PlacedDoor Door { get; }
+
+    /// <summary>A cap whose door has been opened for good stays open behind Samus.</summary>
+    public override bool StaysOpenBehindSamus(Func<LockedDoor, bool> openedForGood, ShotOpenedCapClosing<LockedDoor> shotCapClosing) =>
+        Door.IsOpenedForGood(openedForGood);
 
     /// <summary>Which grey cap this is.</summary>
     internal GreyDoorVariant Variant { get; }

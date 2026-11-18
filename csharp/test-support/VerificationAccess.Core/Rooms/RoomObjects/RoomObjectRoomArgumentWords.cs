@@ -210,11 +210,13 @@ internal static class RoomObjectRoomArgumentWords
     {
         // A shot-opened cap's argument is the cleared word, which names the door its closing rule consults.
         BlueDoorCapObject { OpenedByShot: true } => checked((ushort)SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Number(LockedDoorDefinitions.LandingSiteDefaultOrWhenZebesAwakeOrWithPowerBombsGreenDoorFacingLeft)),
-        DoorCapObject cap => DoorWord(cap.Door),
+        ColoredDoorObject cap => DoorWord(cap.Door),
+        GreyDoorObject cap => DoorWord(cap.Door),
+        BlueDoorCapObject cap => DoorWord(cap.Door),
         EyeDoorEyeObject eye => DoorWord(eye.Door),
         EyeDoorPartObject part => DoorWord(part.Door),
-        CollectibleObject { Location: { } location } => ArgumentWord(new CollectedItemArgument(location)),
-        SaveStationObject { SavedAt: { } station } => ArgumentWord(new SaveStationArgument(station)),
+        CollectibleObject item => ArgumentWord(new CollectedItemArgument(item.Location)),
+        SaveStationObject station => ArgumentWord(new SaveStationArgument(station.SavedAt)),
         MetroidRoomClearanceObject watch => ArgumentWord(new MetroidRoomArgument(watch.Cleared)),
         TerrainChangeObject { Change: var change } when GateTriggerDrawing(change) is { } trigger =>
             ArgumentWord(new GateTriggerArgument(trigger)),
@@ -238,9 +240,11 @@ internal static class RoomObjectRoomArgumentWords
     /// <summary>Whether a live object is a door object that recorded its door opened for good, whose word keeps only its spent mark.</summary>
     internal static bool IsSpentDoor(RoomObjectBehaviour? behaviour) => behaviour switch
     {
-        DoorCapObject cap => cap.Door?.Spent == true,
-        EyeDoorEyeObject eye => eye.Door?.Spent == true,
-        EyeDoorPartObject part => part.Door?.Spent == true,
+        ColoredDoorObject cap => cap.Door.Spent,
+        GreyDoorObject cap => cap.Door.Spent,
+        BlueDoorCapObject cap => cap.Door?.Spent == true,
+        EyeDoorEyeObject eye => eye.Door.Spent,
+        EyeDoorPartObject part => part.Door.Spent,
         _ => false,
     };
 

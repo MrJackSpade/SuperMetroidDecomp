@@ -352,7 +352,7 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The CrateriaMap room-object population.</summary>
     public static RoomObjectPopulation CrateriaMap { get; } = RoomObjectPopulation.FromPlacements(nameof(CrateriaMap),
     [
-        new(RoomObjectKind.MapStation, new(11, 10), new AccessStationSetup(StationKind.Map)),
+        new(RoomObjectKind.MapStation, new(11, 10), new AccessStationSetup(StationAccessRuleDefinitions.Map)),
     ]);
 
     /// <summary>The GreenPiratesShaft room-object population.</summary>
@@ -450,7 +450,7 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The GreenBrinstarMap room-object population.</summary>
     public static RoomObjectPopulation GreenBrinstarMap { get; } = RoomObjectPopulation.FromPlacements(nameof(GreenBrinstarMap),
     [
-        new(RoomObjectKind.MapStation, new(5, 10), new AccessStationSetup(StationKind.Map)),
+        new(RoomObjectKind.MapStation, new(5, 10), new AccessStationSetup(StationAccessRuleDefinitions.Map)),
     ]);
 
     /// <summary>The GreenBrinstarFirefleas room-object population.</summary>
@@ -462,7 +462,7 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The GreenBrinstarMissileRefill room-object population.</summary>
     public static RoomObjectPopulation GreenBrinstarMissileRefill { get; } = RoomObjectPopulation.FromPlacements(nameof(GreenBrinstarMissileRefill),
     [
-        new(RoomObjectKind.MissileStation, new(4, 10), new AccessStationSetup(StationKind.Missile)),
+        new(RoomObjectKind.MissileStation, new(4, 10), new AccessStationSetup(StationAccessRuleDefinitions.Missile)),
     ]);
 
     /// <summary>The Dachora room-object population.</summary>
@@ -640,7 +640,7 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The DachoraEnergyRefill room-object population.</summary>
     public static RoomObjectPopulation DachoraEnergyRefill { get; } = RoomObjectPopulation.FromPlacements(nameof(DachoraEnergyRefill),
     [
-        new(RoomObjectKind.EnergyStation, new(4, 10), new AccessStationSetup(StationKind.Energy)),
+        new(RoomObjectKind.EnergyStation, new(4, 10), new AccessStationSetup(StationAccessRuleDefinitions.Energy)),
     ]);
 
     /// <summary>The SporeSpawnFarming room-object population.</summary>
@@ -873,14 +873,14 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The RedTowerRefill room-object population.</summary>
     public static RoomObjectPopulation RedTowerRefill { get; } = RoomObjectPopulation.FromPlacements(nameof(RedTowerRefill),
     [
-        new(RoomObjectKind.EnergyStation, new(4, 10), new AccessStationSetup(StationKind.Energy)),
+        new(RoomObjectKind.EnergyStation, new(4, 10), new AccessStationSetup(StationAccessRuleDefinitions.Energy)),
     ]);
 
     /// <summary>The KraidRefill room-object population.</summary>
     public static RoomObjectPopulation KraidRefill { get; } = RoomObjectPopulation.FromPlacements(nameof(KraidRefill),
     [
-        new(RoomObjectKind.MissileStation, new(9, 10), new AccessStationSetup(StationKind.Missile)),
-        new(RoomObjectKind.EnergyStation, new(7, 10), new AccessStationSetup(StationKind.Energy)),
+        new(RoomObjectKind.MissileStation, new(9, 10), new AccessStationSetup(StationAccessRuleDefinitions.Missile)),
+        new(RoomObjectKind.EnergyStation, new(7, 10), new AccessStationSetup(StationAccessRuleDefinitions.Energy)),
     ]);
 
     /// <summary>The Statues room-object population.</summary>
@@ -1250,7 +1250,7 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The UpperNorfairRefill room-object population.</summary>
     public static RoomObjectPopulation UpperNorfairRefill { get; } = RoomObjectPopulation.FromPlacements(nameof(UpperNorfairRefill),
     [
-        new(RoomObjectKind.EnergyStation, new(7, 10), new AccessStationSetup(StationKind.Energy)),
+        new(RoomObjectKind.EnergyStation, new(7, 10), new AccessStationSetup(StationAccessRuleDefinitions.Energy)),
     ]);
 
     /// <summary>The PurpleFarming room-object population.</summary>
@@ -1274,7 +1274,7 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The NorfairMap room-object population.</summary>
     public static RoomObjectPopulation NorfairMap { get; } = RoomObjectPopulation.FromPlacements(nameof(NorfairMap),
     [
-        new(RoomObjectKind.MapStation, new(5, 10), new AccessStationSetup(StationKind.Map)),
+        new(RoomObjectKind.MapStation, new(5, 10), new AccessStationSetup(StationAccessRuleDefinitions.Map)),
     ]);
 
     /// <summary>The BubbleMountainSave room-object population.</summary>
@@ -1356,7 +1356,7 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The GoldenTorizoEnergyRefill room-object population.</summary>
     public static RoomObjectPopulation GoldenTorizoEnergyRefill { get; } = RoomObjectPopulation.FromPlacements(nameof(GoldenTorizoEnergyRefill),
     [
-        new(RoomObjectKind.EnergyStation, new(8, 10), new AccessStationSetup(StationKind.Energy)),
+        new(RoomObjectKind.EnergyStation, new(8, 10), new AccessStationSetup(StationAccessRuleDefinitions.Energy)),
     ]);
 
     /// <summary>The Ridley room-object population.</summary>
@@ -1737,7 +1737,7 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The WreckedShipMapWhenAreaBossDead room-object population.</summary>
     public static RoomObjectPopulation WreckedShipMapWhenAreaBossDead { get; } = RoomObjectPopulation.FromPlacements(nameof(WreckedShipMapWhenAreaBossDead),
     [
-        new(RoomObjectKind.MapStation, new(5, 10), new AccessStationSetup(StationKind.Map)),
+        new(RoomObjectKind.MapStation, new(5, 10), new AccessStationSetup(StationAccessRuleDefinitions.Map)),
     ]);
 
     /// <summary>The SpongeBathWhenAreaBossDead room-object population.</summary>
@@ -1957,7 +1957,7 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The MaridiaMap room-object population.</summary>
     public static RoomObjectPopulation MaridiaMap { get; } = RoomObjectPopulation.FromPlacements(nameof(MaridiaMap),
     [
-        new(RoomObjectKind.MapStation, new(11, 10), new AccessStationSetup(StationKind.Map)),
+        new(RoomObjectKind.MapStation, new(11, 10), new AccessStationSetup(StationAccessRuleDefinitions.Map)),
     ]);
 
     /// <summary>The ForgottenHighwaySave room-object population.</summary>
@@ -2145,7 +2145,7 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The MaridiaMissileRefill room-object population.</summary>
     public static RoomObjectPopulation MaridiaMissileRefill { get; } = RoomObjectPopulation.FromPlacements(nameof(MaridiaMissileRefill),
     [
-        new(RoomObjectKind.MissileStation, new(8, 10), new AccessStationSetup(StationKind.Missile)),
+        new(RoomObjectKind.MissileStation, new(8, 10), new AccessStationSetup(StationAccessRuleDefinitions.Missile)),
     ]);
 
     /// <summary>The PlasmaBeachQuicksand room-object population.</summary>
@@ -2190,7 +2190,7 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The MaridiaEnergyRefill room-object population.</summary>
     public static RoomObjectPopulation MaridiaEnergyRefill { get; } = RoomObjectPopulation.FromPlacements(nameof(MaridiaEnergyRefill),
     [
-        new(RoomObjectKind.EnergyStation, new(8, 10), new AccessStationSetup(StationKind.Energy)),
+        new(RoomObjectKind.EnergyStation, new(8, 10), new AccessStationSetup(StationAccessRuleDefinitions.Energy)),
     ]);
 
     /// <summary>The WestCactusAlley room-object population.</summary>
@@ -2275,8 +2275,8 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The TourianRecharge room-object population.</summary>
     public static RoomObjectPopulation TourianRecharge { get; } = RoomObjectPopulation.FromPlacements(nameof(TourianRecharge),
     [
-        new(RoomObjectKind.MissileStation, new(8, 10), new AccessStationSetup(StationKind.Missile)),
-        new(RoomObjectKind.EnergyStation, new(6, 10), new AccessStationSetup(StationKind.Energy)),
+        new(RoomObjectKind.MissileStation, new(8, 10), new AccessStationSetup(StationAccessRuleDefinitions.Missile)),
+        new(RoomObjectKind.EnergyStation, new(6, 10), new AccessStationSetup(StationAccessRuleDefinitions.Energy)),
     ]);
 
     /// <summary>The MotherBrain room-object population.</summary>

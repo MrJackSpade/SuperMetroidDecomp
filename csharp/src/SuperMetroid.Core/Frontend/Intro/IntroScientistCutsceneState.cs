@@ -32,11 +32,8 @@ internal sealed class IntroScientistCutsceneState
     /// </summary>
     public IntroLaboratoryScene Scene { get; }
 
-    /// <summary>Set when delivery's actor cue hands the intro to page four.</summary>
-    public bool PageFourRequested { get; private set; }
-
-    /// <summary>Set when examination's actor cue hands the intro to page five.</summary>
-    public bool PageFiveRequested { get; private set; }
+    /// <summary>Set when the Baby's cue hands the intro to the page the scene leads into.</summary>
+    public bool NextPageRequested { get; private set; }
 
     /// <summary>Starts the delivered-Baby page with a leftward camera pan and page-four handoff.</summary>
     public static IntroScientistCutsceneState CreateDelivery() => new(IntroLaboratoryScene.Delivery);
@@ -90,13 +87,9 @@ internal sealed class IntroScientistCutsceneState
     {
         switch (cue)
         {
-            case IntroLaboratoryCue.StartPageFour:
-                // The delivery loop ends by selecting page four.
-                PageFourRequested = true;
-                return;
-            case IntroLaboratoryCue.StartPageFive:
-                // The examination loop ends by selecting page five.
-                PageFiveRequested = true;
+            case IntroLaboratoryCue.StartNextPage:
+                // The Baby's tenth pulse ends by selecting the next page.
+                NextPageRequested = true;
                 return;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(IntroLaboratoryCue)} {cue}.");

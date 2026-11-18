@@ -52,7 +52,7 @@ internal static class IntroNarrationPresentationVerification
             var installed = new IntroNarrationActors(
                 installedText, new IntroJapaneseSubtitles(enabled: false), AudioQueues.Standalone(),
                 narrationPresentation: presentation);
-            StartPage(installed, page);
+            installed.StartPage(page);
             for (int frame = 0; !IsPageComplete(installed, page); frame++)
             {
                 if (frame == 2048)
@@ -67,7 +67,7 @@ internal static class IntroNarrationPresentationVerification
         var saved = new IntroNarrationActors(
             PagesText(), new IntroJapaneseSubtitles(enabled: false), AudioQueues.Standalone(),
             narrationPresentation: presentation);
-        saved.StartEnglishPageSix();
+        saved.StartPage(IntroNarrationPageId.CeresUnderAttack);
         saved.Step(0);
         // A debugger state names the bound narration by its path in the installed presentation.
         var restored = SuperMetroid.Verification.Harness.GraphDigestVerification.RoundTrip(saved, presentation);
@@ -76,7 +76,7 @@ internal static class IntroNarrationPresentationVerification
             "restored opening narration resumes at its saved character");
 
         JsonObject malformedDocument = RequiredJson.Parse(extracted).AsObject();
-        malformedDocument.Required("pages").Required(IntroNarrationPageId.Page6.ToString()).Required("lines").Required(0)["text"] =
+        malformedDocument.Required("pages").Required(IntroNarrationPageId.CeresUnderAttack.ToString()).Required("lines").Required(0)["text"] =
             "lowercase";
         byte[] malformed = Encoding.UTF8.GetBytes(
             malformedDocument.ToJsonString(ArtworkJson.Options));
@@ -107,31 +107,13 @@ internal static class IntroNarrationPresentationVerification
         return false;
     }
 
-    /// <summary>Calls the cinematic entry point for one of its six English story pages.</summary>
-    private static void StartPage(IntroNarrationActors state, IntroNarrationPageId page)
-    {
-        switch (page)
-        {
-            case IntroNarrationPageId.Page1: state.StartEnglishPageOne(); break;
-            case IntroNarrationPageId.Page2: state.StartEnglishPageTwo(); break;
-            case IntroNarrationPageId.Page3: state.StartEnglishPageThree(); break;
-            case IntroNarrationPageId.Page4: state.StartEnglishPageFour(); break;
-            case IntroNarrationPageId.Page5: state.StartEnglishPageFive(); break;
-            case IntroNarrationPageId.Page6: state.StartEnglishPageSix(); break;
-            default: throw new ArgumentOutOfRangeException(nameof(page), page, null);
-        }
-    }
-
-    /// <summary>Recognizes the page-specific wait or finish state after all typewriter characters display.</summary>
+    /// <summary>Recognizes the page's wait or the intro's finish after all typewriter characters display.</summary>
     private static bool IsPageComplete(
         IntroNarrationActors state,
-        IntroNarrationPageId page) => page switch
-    {
-        IntroNarrationPageId.Page1 or IntroNarrationPageId.Page2 or IntroNarrationPageId.Page3 or IntroNarrationPageId.Page4
-            or IntroNarrationPageId.Page5 => state.AwaitingInputPage == page,
-        IntroNarrationPageId.Page6 => state.IntroFinishRequested,
-        _ => throw new ArgumentOutOfRangeException(nameof(page), page, null),
-    };
+        IntroNarrationPageId page) =>
+        IntroNarrationPageDefinitions.Pages[page].Closing == IntroNarrationPageClosing.EndsIntro
+            ? state.IntroFinishRequested
+            : state.AwaitingInputPage == page;
 
     /// <summary>Checks that the installed opening narration is the deterministic cartridge extraction.</summary>
     internal static void VerifyIntroNarrationAssets(

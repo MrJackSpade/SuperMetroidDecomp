@@ -160,16 +160,9 @@ internal sealed class RoomLoader
     /// </summary>
     public void InitializeStartingCeresRoom()
     {
-        // A new game loads at the Ceres start; the station names the room, door and placement.
+        // A new game loads at the Ceres start; the station names the door into its room and the placement.
         LoadStation station = LoadStationDefinitions.CeresElevator;
         DoorDefinition door = station.Placement.Door;
-        if (door.DestinationRoom != station.Placement.Room)
-        {
-            throw new InvalidDataException(
-                $"Ceres station room {station.Placement.Room.Name} disagrees with door " +
-                $"{door.Name}'s destination {door.DestinationRoom.Name}.");
-        }
-
         SelectedRoom room = LoadSelectedRoom(door.DestinationRoom);
         if (room.Area != AreaId.Ceres)
         {
@@ -204,13 +197,6 @@ internal sealed class RoomLoader
         LoadStation station = slot.Checkpoint;
         AreaId requestedArea = station.Area;
         DoorDefinition door = station.Placement.Door;
-        if (door.DestinationRoom != station.Placement.Room)
-        {
-            throw new InvalidDataException(
-                $"Load station {station} room {station.Placement.Room.Name} " +
-                $"disagrees with door {door.Name}'s destination " +
-                $"{door.DestinationRoom.Name}.");
-        }
 
         // Apply progression before room construction. Enemy and room-object initialization query
         // boss/event/item flags synchronously, while room-state selection and beam graphics
@@ -328,13 +314,6 @@ internal sealed class RoomLoader
         // not the checkpoint until the gunship's landing finishes and performs the save.
         LoadStation station = LoadStationDefinitions.ZebesArrival;
         DoorDefinition door = station.Placement.Door;
-        if (door.DestinationRoom != station.Placement.Room)
-        {
-            throw new InvalidDataException(
-                $"Post-Ceres station room {station.Placement.Room.Name} disagrees with " +
-                $"door {door.Name}'s destination {door.DestinationRoom.Name}.");
-        }
-
         SelectedRoom room = LoadSelectedRoom(door.DestinationRoom);
         if (room.Area != AreaId.Crateria)
         {

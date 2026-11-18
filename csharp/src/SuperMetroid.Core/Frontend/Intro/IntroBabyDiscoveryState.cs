@@ -81,8 +81,8 @@ internal sealed class IntroBabyDiscoveryState
     /// <summary>The 32 by 16 discovery room's collision: its two authored strips and air elsewhere.</summary>
     public RoomLevelData Level { get; }
 
-    /// <summary>Signals the outer cinematic owner to start page three's colour transition.</summary>
-    public bool PageThreeRequested { get; private set; }
+    /// <summary>Signals the outer cinematic owner to start the next page's colour transition.</summary>
+    public bool NextPageRequested { get; private set; }
 
     /// <summary>
     /// How this scene shows Samus. Scene setup shows her under the cinematic actors; the egg's and the dancing
@@ -237,10 +237,10 @@ internal sealed class IntroBabyDiscoveryState
                     priority: IntroCinematicDefinitions.Sounds.SoundPriority);
                 return;
 
-            case IntroDiscoveryCue.StartPageThree:
+            case IntroDiscoveryCue.StartNextPage:
                 // This cue switches the outer cinematic phase to page three. The state
                 // owner performs the colour transition; the actor merely reports the request.
-                PageThreeRequested = true;
+                NextPageRequested = true;
                 return;
 
             case IntroDiscoveryCue.DeleteEggAfterCrossFade:

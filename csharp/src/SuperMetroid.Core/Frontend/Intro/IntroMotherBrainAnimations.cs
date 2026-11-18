@@ -20,16 +20,16 @@ internal static class IntroMotherBrainAnimations
                 B.Show(S.MotherBrainPulseHigh, 16),
                 B.Show(S.MotherBrainPulseMiddle, 16),
             ],
-            [A.StartingPageTwo] =
+            [A.StartingNextPage] =
             [
-                B.Raise(K.StartPageTwo),
+                B.Raise(K.StartNextPage),
                 B.Raise(K.StartCrossFade),
             ],
         },
         plays => new Dictionary<IntroMotherBrainAnimation, Animation<IntroMotherBrainAnimation>>
         {
             [A.Pulsing] = plays.Looping(A.Pulsing),
-            [A.StartingPageTwo] = plays.LeadingInto(A.StartingPageTwo, A.Pulsing),
+            [A.StartingNextPage] = plays.LeadingInto(A.StartingNextPage, A.Pulsing),
         });
 
     /// <summary>Mother Brain's explosions: each burns through its pictures and a blank pause, over and over.</summary>

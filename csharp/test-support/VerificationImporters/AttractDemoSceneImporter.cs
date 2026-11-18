@@ -31,8 +31,8 @@ internal static class AttractDemoSceneImporter
         return new(
             RoomHeaderSources.Room(Room(AttractDemoSceneRoomFields.Room)), DoorHeaderSources.Door(Room(AttractDemoSceneRoomFields.Door)),
             new(Room(AttractDemoSceneRoomFields.CameraX), Room(AttractDemoSceneRoomFields.CameraY)),
-            new(unchecked((short)Room(AttractDemoSceneRoomFields.SamusXFromCenter)),
-                unchecked((short)Room(AttractDemoSceneRoomFields.SamusYFromTop))),
+            NativeSamusPlacement.RoomPosition(new(Room(AttractDemoSceneRoomFields.CameraX), Room(AttractDemoSceneRoomFields.CameraY)),
+                new(unchecked((short)Room(AttractDemoSceneRoomFields.SamusXFromCenter)), unchecked((short)Room(AttractDemoSceneRoomFields.SamusYFromTop)))),
             Room(AttractDemoSceneRoomFields.Duration),
             Room(AttractDemoSceneRoomFields.Setup) is AttractDemoNativeWords.NoRoomSetup or AttractDemoNativeWords.SkyTilemapSetup
                 ? null

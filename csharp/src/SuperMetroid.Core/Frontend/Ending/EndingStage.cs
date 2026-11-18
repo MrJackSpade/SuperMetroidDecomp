@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>What every ending scene draws on: brightness, the phase timer, the turning-floor view, colours, the shared sprites and stars, and the artwork they share.</summary>
 [RoomScopeBoundary("A cinematic scene that owns its own colour effects for the scene's lifetime; no gameplay room is loaded.")]
-internal sealed class EndingStage
+internal sealed class EndingStage : IEndingActorScene
 {
     /// <summary>Saved clear-time hours, as the game clock or the configured override supplies them, used to select the post-credits reward.</summary>
     private readonly int gameTimeHours;
@@ -44,7 +44,7 @@ internal sealed class EndingStage
     /// The turning floor's zoom, initially its own size. Every scene starts it at an authored zoom and moves it by a few
     /// 256ths an update toward a bound it stops at, so it stays positive and small.
     /// </summary>
-    internal FloorZoom FloorZoom { get; set; } = FloorZoom.OwnSize;
+    public FloorZoom FloorZoom { get; internal set; } = FloorZoom.OwnSize;
 
     /// <summary>Turning-floor angle, in 256ths of a turn, shared by the escape and planet scenes.</summary>
     internal RotationAngle FloorAngle { get; set; }
@@ -85,16 +85,12 @@ internal sealed class EndingStage
     private EndingSprite Place(EndingSprite added)
     {
         EndingSpriteRole role = added.Role;
-        if (!Enum.IsDefined(role))
-            throw new ArgumentOutOfRangeException(nameof(added), role, "Undefined ending sprite role.");
         int rank = SoleActorRank(role);
         if (rank >= 0)
             sprites.RemoveAll(actor => actor.Role == role);
         // A sole actor stands before the first sole actor ranked after it; any other actor before the first sole actor.
         int place = sprites.FindIndex(actor => SoleActorRank(actor.Role) > rank && SoleActorRank(actor.Role) >= 0);
         sprites.Insert(place >= 0 ? place : sprites.Count, added);
-        if (role == EndingSpriteRole.ExplosionStarsLeft)
-            added.StarsMotion = EndingStarsMotion.WaitingForFlyaway;
         return added;
     }
 
@@ -135,83 +131,15 @@ internal sealed class EndingStage
     });
 
 
-    /// <summary>Moves animal and star actors and deletes subordinate explosion layers at their handoffs.</summary>
+    /// <summary>Runs <paramref name="wrapper"/>'s own motion for this update, before its animation steps (#2489).</summary>
     internal void StepEndingSpriteMotion(EndingSprite wrapper)
     {
-        ICinematicActor<EndingSceneCue> sprite = wrapper.Sprite;
-        switch (wrapper.Role)
-        {
-            case EndingSpriteRole.AnimalEscape:
-                sprite.Position = new(
-                    sprite.Position.X.WithWholePixels(sprite.Position.X.WholePixels + EndingAnimalEscapeDefinitions.XVelocity),
-                    sprite.Position.Y + EndingAnimalEscapeDefinitions.YVelocity);
-                if (sprite.ScreenPlace.X >= EndingAnimalEscapeDefinitions.DeleteX)
-                    sprite.Delete();
-                break;
-            case EndingSpriteRole.ExplosionGlow:
-            case EndingSpriteRole.ExplosionStars:
-            case EndingSpriteRole.ExplosionLava:
-                // The layers follow the planet actor's animation, not a
-                // cinematic timer. These subordinate layers disappear with that actor.
-                if (!sprites.Any(actor => actor.Role == EndingSpriteRole.ExplodingZebes && actor.Sprite.IsActive))
-                    sprite.Delete();
-                break;
-            case EndingSpriteRole.ExplosionStarsRight:
-            case EndingSpriteRole.ExplosionStarsLeft:
-                // The right starfield does not wait for the flyaway until its animation has it wait.
-                if (wrapper.StarsMotion is { } starsMotion)
-                    StepFlyawayStars(wrapper, starsMotion);
-                if (Phase == EndingCreditsPhase.OperationSuccessfulText)
-                    sprite.Delete();
-                break;
-            case EndingSpriteRole.ExplosionAfterglow:
-                // The finale deletes the afterglow at the same handoff out of the last phase.
-                if (Phase == EndingCreditsPhase.OperationSuccessfulText)
-                    sprite.Delete();
-                break;
-            // These actors have no motion of their own.
-            case EndingSpriteRole.SideCloudRightLeading:
-            case EndingSpriteRole.SideCloudLeftLeading:
-            case EndingSpriteRole.SideCloudRightTrailing:
-            case EndingSpriteRole.SideCloudLeftTrailing:
-            case EndingSpriteRole.TopCloudPattern:
-            case EndingSpriteRole.TopCloudEdge:
-            case EndingSpriteRole.BottomCloudEdge:
-            case EndingSpriteRole.BottomCloudPattern:
-            case EndingSpriteRole.ExplodingZebes:
-            case EndingSpriteRole.ExplosionSilhouette:
-            case EndingSpriteRole.OperationWasText:
-            case EndingSpriteRole.CompletedSuccessfullyText:
-            case EndingSpriteRole.ClearTimeText:
-            case EndingSpriteRole.ClearTimeDigit:
-            case EndingSpriteRole.RewardSamus:
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined ending sprite role {wrapper.Role}.");
-        }
+        Ensure.NotNull(wrapper);
+        wrapper.Motion?.Step(wrapper.Sprite, this);
     }
 
-    /// <summary>Starts starfield motion at flyaway and advances its velocity, which slows on every update.</summary>
-    private void StepFlyawayStars(EndingSprite stars, EndingStarsMotion motion)
-    {
-        ICinematicActor<EndingSceneCue> sprite = stars.Sprite;
-        switch (motion)
-        {
-            case EndingStarsMotion.WaitingForFlyaway:
-                if (Phase == EndingCreditsPhase.PlanetEscapeFast)
-                {
-                    stars.StarsMotion = EndingStarsMotion.Moving;
-                    stars.FlyawayVelocity = EndingMotionDefinitions.StarsFlyawayInitialVelocity;
-                }
-                break;
-            case EndingStarsMotion.Moving:
-                stars.FlyawayVelocity -= EndingMotionDefinitions.StarsFlyawayDeceleration;
-                sprite.Position = sprite.Position.WithX(sprite.Position.X + stars.FlyawayVelocity);
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(EndingStarsMotion)} {motion}.");
-        }
-    }
+    /// <inheritdoc/>
+    public bool ShowsExplodingPlanet => sprites.Any(actor => actor.Role == EndingSpriteRole.ExplodingZebes && actor.Sprite.IsActive);
 
     /// <summary>The colour effects the ending runs, which its colours own (#1597).</summary>
     internal ColourEffectSystem ColourEffects => screen.Colours.ColourEffects;

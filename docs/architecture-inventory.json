@@ -6718,7 +6718,7 @@
         "csharp/src/SuperMetroid.AssetExtraction/Bosses/KraidHeadTilemapFormat.cs"
       ],
       "partial": "none",
-      "disposition": "definition-catalog"
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Bosses.KraidPaletteSources",
@@ -43790,7 +43790,7 @@
         "csharp/src/SuperMetroid.Core/Bosses/Draygon/DraygonCannonData.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Draygon.DraygonCannonDefinitions",
@@ -43921,19 +43921,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Bosses/Draygon/DraygonCannonSegment.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.Draygon.DraygonCannonTarget",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Draygon/DraygonCannonTarget.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -44300,19 +44287,6 @@
       ],
       "partial": "none",
       "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.Draygon.DraygonFiringCannon",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Draygon/DraygonFiringCannon.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Draygon.DraygonGoop",
@@ -45899,7 +45873,7 @@
         "csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidBodyFrameNames.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Kraid.KraidBodyLayer",
@@ -46344,6 +46318,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Bosses.Kraid.KraidHeadAnimationReads",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidHeadAnimationReads.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Bosses.Kraid.KraidHeadAnimationResult",
       "kind": "enum",
       "scope": "product",
@@ -46378,19 +46365,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidHeadCue.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.Kraid.KraidHeadCursorReads",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidHeadCursorReads.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -59426,6 +59400,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Compatibility.CrocomireLastShotGradient",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/CrocomireLastShotGradient.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Compatibility.CrocomireSpeedGain",
       "kind": "static class",
       "scope": "product",
@@ -59450,19 +59437,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Compatibility.CrocomireTenthShotGradient",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Compatibility/CrocomireTenthShotGradient.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Compatibility.CrumblePlugLeftBlock",
@@ -60102,8 +60076,8 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Compatibility.LeftoverNumberDeathExplosion",
-      "kind": "static class",
+      "type": "SuperMetroid.Core.Compatibility.LeftoverNumberDeathExplosion\u003CTExplosion\u003E",
+      "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
@@ -60112,7 +60086,7 @@
         "csharp/src/SuperMetroid.Core/Compatibility/LeftoverNumberDeathExplosion.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Compatibility.LiquidMotionStart",
@@ -62004,6 +61978,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Compatibility/YappingMawBendChain.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.YappingMawGrabCooldown",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/YappingMawGrabCooldown.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -70074,6 +70061,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.EnemyDeathAndDropState",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/EnemyDeathAndDropState.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.EnemyDeathExplosion",
       "kind": "enum",
       "scope": "product",
@@ -70098,6 +70098,19 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.EnemyDeathExplosionState",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/EnemyDeathExplosionState.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Enemies.EnemyDeathExplosions",
@@ -70664,6 +70677,19 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.EnemyPopulationSurroundings",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/EnemyPopulationSurroundings.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Core.Enemies.EnemyPowerBombContext",
@@ -71254,19 +71280,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/EnemySpawnSettings.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.EnemySpawnSurroundings",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/EnemySpawnSurroundings.cs"
       ],
       "partial": "none",
       "disposition": "record"
@@ -77742,6 +77755,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.NoobTube.NoobTubeCrackState",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/NoobTube/NoobTubeCrackState.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.NoobTube.NoobTubeDebrisState",
       "kind": "class",
       "scope": "product",
@@ -80443,6 +80469,19 @@
       "disposition": "contract"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Projectiles.IFlickeringProjectileState",
+      "kind": "interface",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Projectiles/IFlickeringProjectileState.cs"
+      ],
+      "partial": "none",
+      "disposition": "contract"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Projectiles.KraidRockAnimation",
       "kind": "class",
       "scope": "product",
@@ -82359,20 +82398,7 @@
         "csharp/src/SuperMetroid.Core/Enemies/Sbug/SbugEntity.cs"
       ],
       "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Sbug.SbugHeading",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Sbug/SbugHeading.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Sbug.SbugLeg",
@@ -85235,19 +85261,6 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.WorkRobots.PowerlessWorkRobotEntity",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/WorkRobots/PowerlessWorkRobotEntity.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.WorkRobots.UnpoweredWorkRobotEnemyState",
       "kind": "class",
       "scope": "product",
@@ -85758,19 +85771,6 @@
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.WreckedShip.WreckedShipAtticObject",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/WreckedShip/WreckedShipAtticObject.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Enemies.WreckedShip.WreckedShipAtticObjectRomData",
@@ -118468,14 +118468,27 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Rooms.RoomObjects.WreckedShipAtticSetup",
+      "type": "SuperMetroid.Core.Rooms.RoomObjects.WreckedShipAtticHeldPlaceObject",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/WreckedShipAtticHeldPlaceObject.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.RoomObjects.WreckedShipAtticHeldPlaceSetup",
       "kind": "record",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/WreckedShipAtticSetup.cs"
+        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/WreckedShipAtticHeldPlaceSetup.cs"
       ],
       "partial": "none",
       "disposition": "record"
@@ -151765,6 +151778,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Verification.Bosses.Crocomire.CrocomireLastShotGradientVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Bosses/Crocomire/CrocomireLastShotGradientVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Verification.Bosses.Crocomire.CrocomireMeltFrameSelectionVerification",
       "kind": "static class",
       "scope": "test",
@@ -151942,19 +151968,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Bosses/Crocomire/CrocomireStateQuantitiesVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Verification.Bosses.Crocomire.CrocomireTenthShotGradientVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Bosses/Crocomire/CrocomireTenthShotGradientVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -152891,6 +152904,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Bosses/Kraid/KraidContourCaseMappingsVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Bosses.Kraid.KraidDeathFinishedVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Bosses/Kraid/KraidDeathFinishedVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -160462,6 +160488,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Verification.Enemies.EnemyUpdateCountVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/EnemyUpdateCountVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Verification.Enemies.EnemyViewVerification",
       "kind": "static class",
       "scope": "test",
@@ -163881,19 +163920,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Verification.Enemies.Sbug.SbugReversalVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/Sbug/SbugReversalVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Verification.Enemies.Shaktool.ShaktoolAnimationsVerification",
       "kind": "static class",
       "scope": "test",
@@ -164162,6 +164188,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Enemies/Shutters/ShutterScrewContactVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.Skree.SkreeBurrowVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/Skree/SkreeBurrowVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -165583,6 +165622,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Enemies/YappingMaws/YappingMawExtensionVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.YappingMaws.YappingMawGrabCooldownVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/YappingMaws/YappingMawGrabCooldownVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"

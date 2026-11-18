@@ -26,7 +26,6 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Enemies.Shaktool;
-using SuperMetroid.Core.Enemies.WreckedShip;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;

@@ -2,7 +2,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.WorkRobots.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms;

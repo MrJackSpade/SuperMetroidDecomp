@@ -484,6 +484,6 @@ internal sealed class MotherBrainAttacks
         var sequence = new MotherBrainRainbowBeamAttackSequence(state);
         sequence.StartAttackCycle();
         state.RainbowBeamSequence = sequence;
-        state.NextRainbowImage = MotherBrainRainbowImage.First;
+        state.NextRainbowImage = MotherBrainRainbowImage.CycleStart;
     }
 }

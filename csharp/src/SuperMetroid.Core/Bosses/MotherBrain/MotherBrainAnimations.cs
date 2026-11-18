@@ -259,48 +259,10 @@ internal static class MotherBrainAnimations
         ],
         [H.Corpse] = [Show(EnemyFrameId.MotherBrainDarkHeadEyeShut, 3), Show(EnemyFrameId.MotherBrainDarkHeadEyeOpen, 3), Show(EnemyFrameId.MotherBrainDarkHeadEyeGlaring, 65), Show(EnemyFrameId.MotherBrainHeadCorpseSlumping, 65)],
         [H.CorpseHeld] = [Held(EnemyFrameId.MotherBrainHeadCorpseSlumped)],
-        [H.FourOnionRingsPhase2] =
-        [
-            Cue(MotherBrainHeadCueKind.DisableNeckMovement),
-            Show(EnemyFrameId.MotherBrainHeadEyeGlaring, 5),
-            Show(EnemyFrameId.MotherBrainHeadJawDropping, 5),
-            HeadCue(MotherBrainHeadCue.Sound(MotherBrainSoundDefinitions.AttackCry)),
-            Show(EnemyFrameId.MotherBrainHeadJawDropped, 9),
-            Cue(MotherBrainHeadCueKind.AimOnionRingsAtSamus),
-            Cue(MotherBrainHeadCueKind.SpawnOnionRing),
-            HeadCue(MotherBrainHeadCue.Sound(MotherBrainSoundDefinitions.OnionRings)),
-            Show(EnemyFrameId.MotherBrainHeadJawDropped, 4),
-            Cue(MotherBrainHeadCueKind.AimOnionRingsAtSamus),
-            Cue(MotherBrainHeadCueKind.SpawnOnionRing),
-            Show(EnemyFrameId.MotherBrainHeadJawDropped, 4),
-            Cue(MotherBrainHeadCueKind.AimOnionRingsAtSamus),
-            Cue(MotherBrainHeadCueKind.SpawnOnionRing),
-            Show(EnemyFrameId.MotherBrainHeadJawDropped, 4),
-            Cue(MotherBrainHeadCueKind.AimOnionRingsAtSamus),
-            Cue(MotherBrainHeadCueKind.SpawnOnionRing),
-            Show(EnemyFrameId.MotherBrainHeadJawDropped, 17),
-            Show(EnemyFrameId.MotherBrainHeadJawDropping, 5),
-            Show(EnemyFrameId.MotherBrainHeadEyeGlaring, 17),
-            Cue(MotherBrainHeadCueKind.EnableNeckMovement),
-        ],
-        [H.TwoOnionRingsPhase2] =
-        [
-            Cue(MotherBrainHeadCueKind.DisableNeckMovement),
-            Show(EnemyFrameId.MotherBrainHeadEyeGlaring, 5),
-            Show(EnemyFrameId.MotherBrainHeadJawDropping, 5),
-            HeadCue(MotherBrainHeadCue.Sound(MotherBrainSoundDefinitions.AttackCry)),
-            Show(EnemyFrameId.MotherBrainHeadJawDropped, 9),
-            Cue(MotherBrainHeadCueKind.AimOnionRingsAtSamus),
-            Cue(MotherBrainHeadCueKind.SpawnOnionRing),
-            HeadCue(MotherBrainHeadCue.Sound(MotherBrainSoundDefinitions.OnionRings)),
-            Show(EnemyFrameId.MotherBrainHeadJawDropped, 4),
-            Cue(MotherBrainHeadCueKind.AimOnionRingsAtSamus),
-            Cue(MotherBrainHeadCueKind.SpawnOnionRing),
-            Show(EnemyFrameId.MotherBrainHeadJawDropped, 17),
-            Show(EnemyFrameId.MotherBrainHeadJawDropping, 5),
-            Show(EnemyFrameId.MotherBrainHeadEyeGlaring, 17),
-            Cue(MotherBrainHeadCueKind.EnableNeckMovement),
-        ],
+        [H.FourOnionRingsPhase2] = Phase2VolleyOpening,
+        [H.OnionRingShotPhase2] = OnionRingShot(WholeHead, RingAimedAtSamus),
+        [H.OnionRingVolleyEndPhase2] = OnionRingVolleyEnd(WholeHead),
+        [H.TwoOnionRingsPhase2] = Phase2VolleyOpening,
         [H.AttackingBabyMetroid] =
         [
             Cue(MotherBrainHeadCueKind.CountBabyMetroidAttack),
@@ -313,25 +275,10 @@ internal static class MotherBrainAnimations
             Cue(MotherBrainHeadCueKind.DisableNeckMovement),
             Cue(MotherBrainHeadCueKind.AimOnionRingsAtSamus),
         ],
-        [H.FourOnionRingsPhase3] =
-        [
-            Show(EnemyFrameId.MotherBrainDarkHeadEyeGlaring, 5),
-            Show(EnemyFrameId.MotherBrainDarkHeadJawDropping, 5),
-            Cue(MotherBrainHeadCueKind.QueueBabyMetroidAttackSound),
-            Show(EnemyFrameId.MotherBrainDarkHeadJawDropped, 9),
-            Cue(MotherBrainHeadCueKind.SpawnOnionRing),
-            HeadCue(MotherBrainHeadCue.Sound(MotherBrainSoundDefinitions.OnionRings)),
-            Show(EnemyFrameId.MotherBrainDarkHeadJawDropped, 4),
-            Cue(MotherBrainHeadCueKind.SpawnOnionRing),
-            Show(EnemyFrameId.MotherBrainDarkHeadJawDropped, 4),
-            Cue(MotherBrainHeadCueKind.SpawnOnionRing),
-            Show(EnemyFrameId.MotherBrainDarkHeadJawDropped, 4),
-            Cue(MotherBrainHeadCueKind.SpawnOnionRing),
-            Show(EnemyFrameId.MotherBrainDarkHeadJawDropped, 17),
-            Show(EnemyFrameId.MotherBrainDarkHeadJawDropping, 5),
-            Show(EnemyFrameId.MotherBrainDarkHeadEyeGlaring, 17),
-            Cue(MotherBrainHeadCueKind.EnableNeckMovement),
-        ],
+        [H.FourOnionRingsPhase3] = OnionRingVolleyOpening(DamagedHead, [],
+            Cue(MotherBrainHeadCueKind.QueueBabyMetroidAttackSound), RingAimedBefore),
+        [H.OnionRingShotPhase3] = OnionRingShot(DamagedHead, RingAimedBefore),
+        [H.OnionRingVolleyEndPhase3] = OnionRingVolleyEnd(DamagedHead),
         [H.BombPhase2] = Bomb(WholeHead, afterburns: 7),
         [H.BombPhase3] = Bomb(DamagedHead, afterburns: 1),
         [H.Laser] =
@@ -358,7 +305,8 @@ internal static class MotherBrainAnimations
 
     /// <summary>
     /// The brain animations, by the segment each starts at (#1948): each lists its own segments, played once in turn but
-    /// for the dying drool's four bursts, and the one it loops from, or rests on the still picture it ends at (#2353). Only
+    /// for the dying drool's four bursts and the onion rings each volley fires after its first (#2470), and the one it loops
+    /// from, or rests on the still picture it ends at (#2353). Only
     /// the segments she starts an animation at, or a random hold or drool continues at, start one; the segments an
     /// animation only runs on into are listed in it and start none.
     /// </summary>
@@ -377,10 +325,14 @@ internal static class MotherBrainAnimations
         [H.NeutralPhase3] = Looping(H.NeutralPhase3, H.NeutralPhase3Hold),
         [H.NeutralPhase3Hold] = Looping(H.NeutralPhase3Hold, H.NeutralPhase3),
         [H.Corpse] = Resting(H.Corpse, H.CorpseHeld),
-        [H.FourOnionRingsPhase2] = LeadingInto([H.FourOnionRingsPhase2], H.NeutralPhase2, H.NeutralPhase2Hold),
-        [H.TwoOnionRingsPhase2] = LeadingInto([H.TwoOnionRingsPhase2], H.NeutralPhase2, H.NeutralPhase2Hold),
-        [H.AttackingBabyMetroid] = LeadingInto([H.AttackingBabyMetroid, H.FourOnionRingsPhase3], H.NeutralPhase3, H.NeutralPhase3Hold),
-        [H.AttackingSamusFourOnionRingsPhase3] = LeadingInto([H.AttackingSamusFourOnionRingsPhase3, H.FourOnionRingsPhase3], H.NeutralPhase3, H.NeutralPhase3Hold),
+        [H.FourOnionRingsPhase2] = OnionRingVolley([H.FourOnionRingsPhase2], H.OnionRingShotPhase2, RingsOfFour, H.OnionRingVolleyEndPhase2,
+            H.NeutralPhase2, H.NeutralPhase2Hold),
+        [H.TwoOnionRingsPhase2] = OnionRingVolley([H.TwoOnionRingsPhase2], H.OnionRingShotPhase2, RingsOfTwo, H.OnionRingVolleyEndPhase2,
+            H.NeutralPhase2, H.NeutralPhase2Hold),
+        [H.AttackingBabyMetroid] = OnionRingVolley([H.AttackingBabyMetroid, H.FourOnionRingsPhase3], H.OnionRingShotPhase3, RingsOfFour,
+            H.OnionRingVolleyEndPhase3, H.NeutralPhase3, H.NeutralPhase3Hold),
+        [H.AttackingSamusFourOnionRingsPhase3] = OnionRingVolley([H.AttackingSamusFourOnionRingsPhase3, H.FourOnionRingsPhase3], H.OnionRingShotPhase3,
+            RingsOfFour, H.OnionRingVolleyEndPhase3, H.NeutralPhase3, H.NeutralPhase3Hold),
         [H.BombPhase2] = LeadingInto([H.BombPhase2], H.NeutralPhase2, H.NeutralPhase2Hold),
         [H.BombPhase3] = LeadingInto([H.BombPhase3], H.NeutralPhase3, H.NeutralPhase3Hold),
         [H.Laser] = LeadingInto([H.Laser], H.NeutralPhase2, H.NeutralPhase2Hold),
@@ -395,6 +347,76 @@ internal static class MotherBrainAnimations
 
     /// <summary>Her dying head's burst of drool: the widest mouth and a drool, four times.</summary>
     private static AnimationPhase<H> DroolBursts => HeadSegments.Repeated(H.DyingDroolBurst, DroolsPerBurst);
+
+    /// <summary>The onion rings each of her four-ring volleys fires.</summary>
+    private const int RingsOfFour = 4;
+
+    /// <summary>The onion rings her two-ring volley fires.</summary>
+    private const int RingsOfTwo = 2;
+
+    /// <summary>
+    /// An onion-ring volley of <paramref name="rings"/> rings (#2470): <paramref name="opening"/>, which fires the first, then
+    /// <paramref name="ringShot"/> for each ring after it and <paramref name="end"/>, each played once in turn; then each of
+    /// <paramref name="cycle"/> in turn, over and over.
+    /// </summary>
+    private static Animation<H> OnionRingVolley(H[] opening, H ringShot, int rings, H end, params H[] cycle) =>
+        Animation<H>.LeadingInto(
+            [.. opening.Select(HeadSegments.Whole), HeadSegments.Repeated(ringShot, rings - 1), HeadSegments.Whole(end)],
+            [.. cycle.Select(HeadSegments.Whole)]);
+
+    /// <summary>
+    /// A volley's opening from <paramref name="head"/> (#2470): after <paramref name="beforeOpening"/> its mouth opens wide
+    /// with <paramref name="cry"/> and, at its widest, fires the volley's first ring, <paramref name="ring"/>, whose sound
+    /// the volley plays once. Phase two's volleys first hold her neck still and cry out; phase three's held it as they
+    /// aimed and cry unless she has attacked the Baby eleven times.
+    /// </summary>
+    private static AnimationBeat<EnemyFrameId, MotherBrainHeadCue>[] OnionRingVolleyOpening(HeadMouth head,
+        AnimationBeat<EnemyFrameId, MotherBrainHeadCue>[] beforeOpening, AnimationBeat<EnemyFrameId, MotherBrainHeadCue> cry,
+        AnimationBeat<EnemyFrameId, MotherBrainHeadCue>[] ring) =>
+    [
+        .. beforeOpening,
+        Show(head.Open, 5),
+        Show(head.Wide, 5),
+        cry,
+        Show(head.Widest, 9),
+        .. ring,
+        HeadCue(MotherBrainHeadCue.Sound(MotherBrainSoundDefinitions.OnionRings)),
+    ];
+
+    /// <summary>One more ring of a volley from <paramref name="head"/> (#2470): its widest mouth, then <paramref name="ring"/>.</summary>
+    private static AnimationBeat<EnemyFrameId, MotherBrainHeadCue>[] OnionRingShot(HeadMouth head,
+        AnimationBeat<EnemyFrameId, MotherBrainHeadCue>[] ring) =>
+    [
+        Show(head.Widest, 4),
+        .. ring,
+    ];
+
+    /// <summary>
+    /// A volley's end from <paramref name="head"/> (#2470): its widest mouth holds after the last ring, closes, and lets her
+    /// neck move again.
+    /// </summary>
+    private static AnimationBeat<EnemyFrameId, MotherBrainHeadCue>[] OnionRingVolleyEnd(HeadMouth head) =>
+    [
+        Show(head.Widest, 17),
+        Show(head.Wide, 5),
+        Show(head.Open, 17),
+        Cue(MotherBrainHeadCueKind.EnableNeckMovement),
+    ];
+
+    /// <summary>
+    /// The opening of phase two's volleys, of four rings or two (#2470): her neck held still, her whole head cries out and
+    /// fires the first ring at Samus.
+    /// </summary>
+    private static AnimationBeat<EnemyFrameId, MotherBrainHeadCue>[] Phase2VolleyOpening =>
+        OnionRingVolleyOpening(WholeHead, [Cue(MotherBrainHeadCueKind.DisableNeckMovement)],
+            HeadCue(MotherBrainHeadCue.Sound(MotherBrainSoundDefinitions.AttackCry)), RingAimedAtSamus);
+
+    /// <summary>A ring of phase two's volleys: aimed at Samus as it is fired.</summary>
+    private static AnimationBeat<EnemyFrameId, MotherBrainHeadCue>[] RingAimedAtSamus =>
+        [Cue(MotherBrainHeadCueKind.AimOnionRingsAtSamus), Cue(MotherBrainHeadCueKind.SpawnOnionRing)];
+
+    /// <summary>A ring of phase three's volley: fired where her head aimed the volley, at Samus or the Baby, before it opened.</summary>
+    private static AnimationBeat<EnemyFrameId, MotherBrainHeadCue>[] RingAimedBefore => [Cue(MotherBrainHeadCueKind.SpawnOnionRing)];
 
     /// <summary>
     /// A stretch of <paramref name="head"/>: it shakes, opens wide and drools, lets out a big purple breath with a roar, and

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
@@ -14,13 +15,14 @@ internal static class BabyMetroidRouteDefinitionsVerification
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         IReadOnlyList<BabyMetroidRouteLeg> legs = BabyMetroidRouteDefinitions.Legs;
-        AssertEqual(BabyMetroidRoute.FirstLeg, legs[0], "the route starts on its first leg");
+        AssertEqual(ListStep<BabyMetroidRouteLeg>.At(legs, 0), BabyMetroidRoute.FirstLeg, "the route starts on its first leg");
         for (int index = 0; index < legs.Count; index++)
         {
             int address = BabyMetroidRouteDefinitionsConstants.SourceAddress +
                 index * BabyMetroidRouteDefinitionsConstants.RecordByteLength;
-            BabyMetroidRouteLeg record = legs[index];
-            BabyMetroidRouteLeg? next = BabyMetroidRoute.LegAfter(record);
+            ListStep<BabyMetroidRouteLeg> leg = ListStep<BabyMetroidRouteLeg>.At(legs, index);
+            BabyMetroidRouteLeg record = leg.Entry;
+            BabyMetroidRouteLeg? next = leg.Following?.Entry;
             bool endsWithLatchOntoSamus = next is null;
 
             AssertEqual(ReadRomWord(rom, address), record.Target.X,
@@ -46,10 +48,6 @@ internal static class BabyMetroidRouteDefinitionsVerification
                 AssertEqual(BabyMetroidRouteDefinitionsConstants.LatchOntoSamusFunction, following,
                     $"Baby route {index} is followed by the latch-onto-Samus function");
         }
-
-        AssertThrows<InvalidDataException>(
-            () => BabyMetroidRoute.LegAfter(new BabyMetroidRouteLeg(new(0, 0), SignedEightEight.Zero)),
-            "Baby route rejects a leg it does not hold");
 
         Console.WriteLine(
             "  Baby route definitions: 33 overlapping native words, the legs' wrong-way speeds and the route's end agree.");

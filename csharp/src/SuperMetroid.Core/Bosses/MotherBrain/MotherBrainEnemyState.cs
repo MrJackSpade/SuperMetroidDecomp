@@ -240,9 +240,9 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
 
     /// <summary>
     /// The rainbow image Mother Brain's body and sprites take the next time the rainbow attack's alternate-frame colour
-    /// step fires (#2259); the step advances it and returns to the first image after the last.
+    /// step fires (#2259), at its place in the cycle (#2470); the step moves it on, the first image after the last.
     /// </summary>
-    public MotherBrainRainbowImage NextRainbowImage { get; internal set; } = MotherBrainRainbowImage.First;
+    public ListStep<MotherBrainRainbowImage> NextRainbowImage { get; internal set; } = MotherBrainRainbowImage.CycleStart;
 
     /// <summary>Whether her brain's draw appends five articulated neck joints.</summary>
     public bool DrawNeck { get; internal set; }

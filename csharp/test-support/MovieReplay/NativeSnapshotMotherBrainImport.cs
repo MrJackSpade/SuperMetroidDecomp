@@ -97,7 +97,8 @@ internal static class NativeSnapshotMotherBrainImport
         }
         state.BrainMainShakeTimer = W(MotherBrainMemory.BrainMainShakeTimer);
         state.DeleteTurretsAndRinkas = W(MotherBrainMemory.DeleteTurretsAndRinkas) != 0;
-        state.NextRainbowImage = MotherBrainRainbowImage.All[DecodeNextRainbowFrame(W(MotherBrainMemory.RainbowPaletteIndex))];
+        state.NextRainbowImage = ListStep<MotherBrainRainbowImage>.At(MotherBrainRainbowImage.All,
+            DecodeNextRainbowFrame(W(MotherBrainMemory.RainbowPaletteIndex)));
         state.DrawNeck = state.BrainAction == MotherBrainBrainAction.SetupBrainAndNeckToBeDrawn;
         // Each joint's distance is the neck's own; only where each lies is imported.
         for (int joint = 0; joint < state.Neck.Joints.Count; joint++)

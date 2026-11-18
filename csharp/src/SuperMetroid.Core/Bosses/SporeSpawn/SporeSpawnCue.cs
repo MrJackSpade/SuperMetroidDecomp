@@ -26,7 +26,7 @@ internal abstract record SporeSpawnCue
     /// <summary>Sets how wide he sways and how his sway's phase turns.</summary>
     /// <param name="Radius">How wide a <see cref="SetSway"/> cue makes him sway.</param>
     /// <param name="Step">How a <see cref="SetSway"/> cue makes his sway's phase turn each movement update.</param>
-    internal sealed record SetSway(SporeSpawnSwayRadius Radius, SporeSpawnSwayStep Step) : SporeSpawnCue;
+    internal sealed record SetSway(SporeSpawnSwayRadius Radius, TurnStep Step) : SporeSpawnCue;
 
     /// <summary>Starts or stops spore generation.</summary>
     /// <param name="SporeGenerationSuppressed">Whether a <see cref="SetSporeGeneration"/> cue stops the ceiling spore emitters.</param>

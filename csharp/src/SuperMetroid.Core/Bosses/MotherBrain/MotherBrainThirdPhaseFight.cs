@@ -85,7 +85,7 @@ internal sealed class MotherBrainThirdPhaseFight
                     return;
 
                 Phase3TargetXPosition = _state.BodyPosition.X + 1;
-                MotherBrainWalkSpeed forwardSpeed = randomNumberSeed.IsSet(MotherBrainRandomDefinitions.ForwardInchLongerDelay)
+                MotherBrainWalkSpeed forwardSpeed = randomNumberSeed.Takes(MotherBrainRandomDefinitions.ForwardInchWaitsLonger)
                     ? MotherBrainWalkSpeed.Medium
                     : MotherBrainWalkSpeed.Fast;
 

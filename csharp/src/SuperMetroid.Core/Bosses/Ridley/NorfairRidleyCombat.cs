@@ -132,7 +132,7 @@ internal sealed class NorfairRidleyCombat
     /// <summary>Advances the swoop velocity arc and changes phase, for <paramref name="nextUpdates"/>, as its countdown runs out.</summary>
     internal static bool TickNorfairRidleySwoopPhase(
         NorfairRidleyState state,
-        RidleySwoopTurn turn,
+        TurnStep turn,
         RotationAngle targetAngle,
         SignedEightEight targetSpeed,
         NorfairRidleyPhase nextPhase,

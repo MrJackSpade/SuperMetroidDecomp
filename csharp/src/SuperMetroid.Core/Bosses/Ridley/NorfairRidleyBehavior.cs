@@ -198,7 +198,7 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
                 return;
 
             case NorfairRidleyPhase.SwoopRecover:
-                RidleyFlight.UpdateSwoopVelocity(state.Flight, RidleySwoopTurn.None, RotationAngle.HalfTurn, NorfairRidleyMotionDefinitions.SwoopRecoverySpeed);
+                RidleyFlight.UpdateSwoopVelocity(state.Flight, TurnStep.None, RotationAngle.HalfTurn, NorfairRidleyMotionDefinitions.SwoopRecoverySpeed);
                 if (state.SwoopPhaseTimer.StepKeepsRunning())
                     return;
                 state.Phase = NorfairRidleyCombat.SamusMovementUsesRidleyGrab(samus)
@@ -414,6 +414,6 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
     /// A Norfair swoop's turn of <paramref name="perUpdate"/> each update: counterclockwise, toward the right, for a Ridley
     /// facing right or forward, and clockwise for one facing left.
     /// </summary>
-    private static RidleySwoopTurn SwoopTurn(NorfairRidleyState state, RotationAngle perUpdate) =>
+    private static TurnStep SwoopTurn(NorfairRidleyState state, RotationAngle perUpdate) =>
         new(perUpdate, state.Flight.FacingDirection != RidleyFacing.Left ? RotationDirection.Counterclockwise : RotationDirection.Clockwise);
 }

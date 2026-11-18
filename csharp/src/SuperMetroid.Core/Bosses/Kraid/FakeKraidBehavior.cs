@@ -179,7 +179,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         if (reverse)
-            state.Walking = state.Walking == HorizontalDirection.Right ? HorizontalDirection.Left : HorizontalDirection.Right;
+            state.Walking = state.Walking.Reversed();
 
         state.Facing = SideOfSamus(place, samus);
     }

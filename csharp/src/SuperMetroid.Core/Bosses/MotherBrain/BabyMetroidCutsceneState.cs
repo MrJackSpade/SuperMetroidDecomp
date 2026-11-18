@@ -70,10 +70,10 @@ public sealed class BabyMetroidCutsceneState
     public BossCountdown PhaseTimer { get; } = new();
 
     /// <summary>
-    /// The leg of the ceiling-to-Samus route the Baby is steering along, the route's first once it reaches the ceiling;
-    /// null before then.
+    /// The leg of the ceiling-to-Samus route the Baby is steering along, at its place on the route (#2470): the route's first
+    /// once it reaches the ceiling; null before then.
     /// </summary>
-    internal BabyMetroidRouteLeg? RouteLeg { get; private set; }
+    internal ListStep<BabyMetroidRouteLeg>? RouteLeg { get; private set; }
 
     /// <summary>
     /// Enemy health. The Baby's enemy definition supplies 3,200; Mother Brain later drains
@@ -356,14 +356,14 @@ public sealed class BabyMetroidCutsceneState
                 ambientCrySoundQueued = MotherBrainRandomDefinitions.BabyMetroidCries.IsTakenBy(randomNumber);
 
                 // The route is its authored legs, each steered to its waypoint with its own wrong-way speed.
-                BabyMetroidRouteLeg leg = RouteLeg ?? throw new InvalidOperationException(
+                ListStep<BabyMetroidRouteLeg> leg = RouteLeg ?? throw new InvalidOperationException(
                     "The Baby is moving to Samus without a route leg.");
-                Position16<RoomPixels> target = leg.Target;
+                Position16<RoomPixels> target = leg.Entry.Target;
 
                 GraduallyAccelerateTowardsPoint(
                     target,
                     BabyMetroidRouteDefinitions.AccelerationDivisor,
-                    leg.WrongWayOffScreenXSpeed,
+                    leg.Entry.WrongWayOffScreenXSpeed,
                     cameraPosition);
 
                 // The route's 4x4 rectangle test occurs before the common velocity mover.
@@ -371,7 +371,7 @@ public sealed class BabyMetroidCutsceneState
                 // last leg's target starts the latch-onto-Samus phase instead.
                 if (CollidesWithRectangle(target, BabyMetroidCutsceneFlightDefinitions.TargetReach))
                 {
-                    if (BabyMetroidRoute.LegAfter(leg) is { } next)
+                    if (leg.Following is { } next)
                         RouteLeg = next;
                     else
                         Phase = BabyMetroidCutscenePhase.LatchOntoSamus;

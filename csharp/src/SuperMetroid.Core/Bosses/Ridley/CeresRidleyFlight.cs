@@ -217,7 +217,7 @@ internal sealed class CeresRidleyFlight
     /// <summary>Runs the swoop arc and publishes the one-frame tail-fling request at its bottom.</summary>
     internal static void TickCeresRidleySwoopPhase(
         CeresRidleyState state,
-        RidleySwoopTurn turn,
+        TurnStep turn,
         RotationAngle targetAngle,
         SignedEightEight targetSpeed,
         CeresRidleyPhase nextPhase,

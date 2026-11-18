@@ -90423,19 +90423,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.Ending.EndingRewardBodyMotion",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Ending/EndingRewardBodyMotion.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Frontend.Ending.EndingRewardCast",
       "kind": "static class",
       "scope": "product",
@@ -90576,6 +90563,19 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Ending.EndingRewardJumpMotion",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Ending/EndingRewardJumpMotion.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Frontend.Ending.EndingRewardNativeWords",
@@ -94317,6 +94317,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Frontend.Intro.IntroEggSlimeDropPhase",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Intro/IntroEggSlimeDropPhase.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Frontend.Intro.IntroEggSlimeLaunch",
       "kind": "record struct",
       "scope": "product",
@@ -94700,6 +94713,19 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Intro.IntroMotherBrainPhase",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Intro/IntroMotherBrainPhase.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Frontend.Intro.IntroMotherBrainSpriteState",
@@ -110123,6 +110149,38 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Rooms.Doors.BlueDoorCapObjectAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Rooms/Doors/BlueDoorCapObjectAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.Doors.BlueDoorCapObjectAccess.extension(SuperMetroid.Core.Rooms.Doors.BlueDoorCapObject)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Rooms/Doors/BlueDoorCapObjectAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.Core.Rooms.Doors.BlueDoorCapPhase",
       "kind": "enum",
       "scope": "product",
@@ -111155,6 +111213,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Rooms.Doors.EyeDoorBodyObject",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/Doors/EyeDoorBodyObject.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.Core.Rooms.Doors.EyeDoorBodyPart",
       "kind": "enum",
       "scope": "product",
@@ -111166,6 +111237,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.Doors.EyeDoorBottomObject",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/Doors/EyeDoorBottomObject.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Rooms.Doors.EyeDoorComponent",
@@ -111829,14 +111913,14 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Rooms.Doors.IClosingDoor",
+      "type": "SuperMetroid.Core.Rooms.Doors.IDoorBehindSamus",
       "kind": "interface",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/Doors/IClosingDoor.cs"
+        "csharp/src/SuperMetroid.Core/Rooms/Doors/IDoorBehindSamus.cs"
       ],
       "partial": "none",
       "disposition": "contract"
@@ -111863,19 +111947,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Rooms/Doors/IDoorEventRoom.cs"
-      ],
-      "partial": "none",
-      "disposition": "contract"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.Doors.IDoorKeptOpen",
-      "kind": "interface",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/Doors/IDoorKeptOpen.cs"
       ],
       "partial": "none",
       "disposition": "contract"
@@ -177260,6 +177331,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Rooms/RoomObjects/RoomObjectRunHeaderAssertions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectTypeAndBehaviorWritesVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Rooms/RoomObjects/RoomObjectTypeAndBehaviorWritesVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"

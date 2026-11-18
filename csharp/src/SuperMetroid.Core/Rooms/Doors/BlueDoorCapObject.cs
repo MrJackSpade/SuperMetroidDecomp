@@ -35,7 +35,7 @@ internal sealed class BlueDoorCapObject : DoorCapObject
         : base(orientation, DoorCapPaint.Blue)
     {
         Phase = phase;
-        _shotCapClosing = shotCapClosing;
+        this.shotCapClosing = shotCapClosing;
         PlayFromNextUpdate(sequence);
     }
 
@@ -62,10 +62,7 @@ internal sealed class BlueDoorCapObject : DoorCapObject
     /// The room's rule for whether the cap closes behind Samus when a shot opened it (#1906): such a cap names no door of its
     /// own. Null for a cap no shot opened.
     /// </summary>
-    private readonly ShotOpenedCapClosing<LockedDoor>? _shotCapClosing;
-
-    /// <summary>Whether a shot opened the cap, so whether it closes behind Samus is the room's shot-cap rule's (#1906).</summary>
-    internal bool OpenedByShot => _shotCapClosing is not null;
+    internal readonly ShotOpenedCapClosing<LockedDoor>? shotCapClosing;
 
     /// <inheritdoc/>
     /// <remarks>
@@ -73,7 +70,7 @@ internal sealed class BlueDoorCapObject : DoorCapObject
     /// turns into stays open once that door has been opened for good; a closing cap never does.
     /// </remarks>
     public override bool StaysOpenBehindSamus(Func<LockedDoor, bool> openedForGood) =>
-        _shotCapClosing is { } rule
+        shotCapClosing is { } rule
             ? rule.StaysOpen(openedForGood)
             : Door?.IsOpenedForGood(openedForGood) == true;
 

@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Scrolling;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
@@ -38,21 +37,6 @@ internal interface IRoomObjects
 
     /// <summary>Handles grey door conditions and opening animation.</summary>
     GreyDoorObjects GreyDoors { get; }
-
-    /// <summary>Opens and closes colored gates after their matching triggers.</summary>
-    GateObjects Gates { get; }
-
-    /// <summary>Runs Samus Eater plant damage, release, and room object state.</summary>
-    SamusEaterObjects SamusEater { get; }
-
-    /// <summary>Applies room-object-driven room scroll grid changes.</summary>
-    ScrollObjects Scrolls { get; }
-
-    /// <summary>
-    /// True when every one of the room's room-object places is held. A block contact whose reaction would take a place then
-    /// runs none of its setup, so even a block whose setup would stop Samus lets her pass.
-    /// </summary>
-    bool EveryPlaceHeld { get; }
 
     /// <summary>Releases the place.</summary>
     void DeleteObject(RoomObjectPlace place);

@@ -83,7 +83,7 @@ internal static class MotherBrainPlasmaImpactVerification
         {
             shot.Type = SamusProjectileType.Beam(SamusBeamCombination.Plasma, charged: true); shot.Damage = 450; shot.Direction = SamusProjectileDirection.Right;
             shot.Position = shot.Position.WithWhole(new(128, 128)); shot.Radius = new(4, 4);
-            shot.Playback = ProjectileFixturePlaybacks.Active; shot.FrameHold = WrappingCountdown.Start(1);
+            shot.Animation = ProjectileFixturePlaybacks.Active();
             shot.Behavior = SamusShotBehaviors.Beam;
         }
     }

@@ -11,6 +11,6 @@ internal static class SamusBombAccess
         /// True after a normal bomb selects `$93:A06B`, or while a Power Bomb's timer-zero
         /// slot owns the expanding bank-$88 terrain scan, and before native-style deletion.
         /// </summary>
-        internal bool IsExploding => self.IsActive && self.BombTimer.IsZero;
+        internal bool IsExploding => self.IsActive && self.HasBurnedOut;
     }
 }

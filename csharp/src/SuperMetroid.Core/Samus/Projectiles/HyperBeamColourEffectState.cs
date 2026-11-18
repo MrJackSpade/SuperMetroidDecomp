@@ -9,62 +9,37 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// started when Samus receives the Hyper Beam.
 /// </summary>
 /// <remarks>
-/// The effect keeps its place in the beams' colour animation and the hold of the shade it shows; the installed colours
-/// change only what each shade looks like, never when it shows.
+/// The effect plays the beams' colour cycle through the shared animation player (#2458), which counts each shade's
+/// updates; the installed colours change only what each shade looks like, never when it shows.
 /// </remarks>
 public sealed class HyperBeamColourEffectState
 {
-    /// <summary>True once equipping the Hyper Beam has started the effect.</summary>
-    private bool active;
-
     /// <summary>
-    /// The current shade's remaining hold. Spawn initializes it to one; the effect
-    /// decrements before testing, so the first shade shows on its first update.
+    /// The play of the Hyper Beam's colour cycle: the shade it shows and the updates that shade has left; null until
+    /// equipping the Hyper Beam starts the effect.
     /// </summary>
-    private int frameHold;
-
-    /// <summary>Where the Hyper Beam's colour animation resumes between updates.</summary>
-    internal AnimationPlace Place { get; private set; }
+    internal AnimationPlayer<SamusGlowSegment, PictureShade, NoAnimationCue>? Cycle { get; private set; }
 
     /// <summary>
     /// Starts the Hyper Beam's colour effect. No colour is shown until its first update
-    /// (<see cref="Step"/>).
+    /// (<see cref="Step"/>), which shows the cycle's first shade.
     /// </summary>
-    public void Spawn()
-    {
-        // Starting the effect starts its colour animation with a hold of one update.
-        active = true;
-        frameHold = 1;
-        Place = AnimationPlace.StartOfAnimation;
-    }
+    public void Spawn() => Cycle = SamusGlowPlay.Starting(SamusGlowSegment.HyperBeamCycle);
 
-    /// <summary>Runs one update of the Hyper Beam's colour effect.</summary>
+    /// <summary>
+    /// Runs one update of the Hyper Beam's colour effect: once the shade shown has held its updates, the next shade is laid
+    /// over Samus's beams.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The cycle comes to rest, which a cycle that only shows shades never does.</exception>
     public void Step(SamusColours colours)
     {
         Ensure.NotNull(colours);
-
-        if (!active)
-        {
+        if (Cycle is not { } cycle)
             return;
-        }
 
-        // The effect decrements before testing. A timer of two therefore displays a frame
-        // on the starting update and one following update, then advances on the third update.
-        frameHold--;
-        if (frameHold != 0)
-        {
-            return;
-        }
-
-        AnimationPlace place = Place;
-        AnimationShown<SamusGlowSegment, PictureShade> next = SamusGlowAnimationDefinitions.Segments.PlayToNextFrame(
-            SamusGlowAnimationDefinitions.Animations[SamusGlowSegment.HyperBeamCycle], ref place, static _ => { });
-        Place = place;
-        if (next is not AnimationShown<SamusGlowSegment, PictureShade>.Frame shown)
-            throw new InvalidOperationException($"The Hyper Beam's colour cycle reached {next}; it only shows shades.");
-
-        colours.LayOverBeams(shown.Shown);
-
-        frameHold = shown.Duration;
+        if (cycle.StepToNewFrame() is { } shade)
+            colours.LayOverBeams(shade);
+        if (cycle.IsResting)
+            throw new InvalidOperationException("The Hyper Beam's colour cycle came to rest; it only shows shades, for ever.");
     }
 }

@@ -3,41 +3,35 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
-/// Plays the Samus projectiles' typed animations (#1301, #1600) as the game's projectile animation plays them: each
-/// frame installs its duration, picture and radii.
+/// Plays the Samus projectiles' typed animations (#1301, #1600, #2458) through the shared animation player, as the game's
+/// projectile animation plays them: each frame shows for its duration, a still picture is kept for good (#2347), and an
+/// animation that ends deletes the projectile.
 /// </summary>
 internal static class SamusProjectilePlayback
 {
     /// <summary>
-    /// Plays <paramref name="playback"/> on to its next frame and returns it with its duration, or no duration for a still
-    /// picture the projectile keeps from now on (#2347), leaving the playback past it; returns null when the animation
-    /// ends, as the game's animation deletes the projectile.
+    /// A player of the animation starting at <paramref name="segment"/>, showing nothing until its first update shows its
+    /// first frame; no animation is a projectile with no animation.
     /// </summary>
-    internal static SamusProjectileFrameId? PlayToNextFrame(ref AnimationPlayback<SamusProjectileSegment> playback, out int? duration)
-    {
-        AnimationPlace place = playback.Place;
-        AnimationShown<SamusProjectileSegment, SamusProjectileFrameId> shown =
-            SamusProjectileAnimations.Segments.PlayToNextFrame(playback.Animation, ref place, static _ => { });
-        playback = playback with { Place = place };
-        switch (shown)
-        {
-            case AnimationShown<SamusProjectileSegment, SamusProjectileFrameId>.Frame frame:
-                duration = frame.Duration;
-                return frame.Shown;
-            case AnimationShown<SamusProjectileSegment, SamusProjectileFrameId>.HeldFrame held:
-                duration = null;
-                return held.Shown;
-            case AnimationShown<SamusProjectileSegment, SamusProjectileFrameId>.Ended:
-                duration = null;
-                return null;
-            default:
-                throw new InvalidOperationException($"Samus projectile animation at {BeatOf(playback)} ended a play with {shown}.");
-        }
-    }
+    internal static AnimationPlayer<SamusProjectileSegment, SamusProjectileFrameId, NoAnimationCue>? Start(SamusProjectileSegment? segment) =>
+        segment is { } selected
+            ? AnimationPlayer<SamusProjectileSegment, SamusProjectileFrameId, NoAnimationCue>.Starting(
+                SamusProjectileAnimations.Segments, SamusProjectileAnimations.StartingWith(selected))
+            : null;
 
-    /// <summary>A playback of the animation starting at <paramref name="segment"/>; no animation is a projectile with no animation.</summary>
-    internal static AnimationPlayback<SamusProjectileSegment>? Start(SamusProjectileSegment? segment) =>
-        segment is { } selected ? new AnimationPlayback<SamusProjectileSegment>(SamusProjectileAnimations.StartingWith(selected), AnimationPlace.StartOfAnimation) : null;
+    /// <summary>
+    /// Runs one update of a projectile's <paramref name="animation"/> and returns the frame the update shows anew: the next
+    /// frame once the shown one has held its updates, or null while it holds, while a still picture is kept and on the
+    /// update the animation ends (<see cref="AnimationPlayer{TSegment, TFrame, TEvent}.HasStopped"/>).
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The animation comes to rest showing no frame, which no projectile animation does.</exception>
+    internal static SamusProjectileFrameId? StepToNewFrame(AnimationPlayer<SamusProjectileSegment, SamusProjectileFrameId, NoAnimationCue> animation)
+    {
+        SamusProjectileFrameId? shown = Ensure.NotNull(animation).StepToNewFrame();
+        if (animation.IsResting && !animation.HasStopped && animation.Shown is null)
+            throw new InvalidOperationException($"Samus projectile animation at {BeatOf(animation.Playback)} came to rest showing no frame.");
+        return shown;
+    }
 
     /// <summary>
     /// Where <paramref name="playback"/> stands: before its first play, at the start of the segment its animation starts

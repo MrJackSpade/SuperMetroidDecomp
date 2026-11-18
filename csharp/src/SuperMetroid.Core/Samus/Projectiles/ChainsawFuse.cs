@@ -30,12 +30,12 @@ internal sealed class ChainsawFuse
     {
         // The shot runs the Power Bomb fuse over itself, from a zero fuse.
         ChainsawFuseShotState fuseState = shot.KindStateAs<ChainsawFuseShotState>();
-        PowerBombFuseStep fuse = SamusPowerBombFuse.Step(fuseState.Fuse, sharedProjectiles.PowerBombExplosion.IsArmed);
-        fuseState.Fuse = fuse.Timer;
+        PowerBombFuseStep fuse = SamusPowerBombFuse.Step(fuseState.FuseUpdatesLeft, sharedProjectiles.PowerBombExplosion.IsArmed);
+        fuseState.FuseUpdatesLeft = fuse.UpdatesLeft;
         // On a beam the fuse's switch to the fast animation moves the beam's own animation as far as a bomb's fast
         // animation lies from its slow one, which lands wherever the game's animations lie there.
-        if (fuse.FastAnimation && shot.Playback is { } live)
-            shot.Playback = SamusProjectilePlayback.PlaybackAt(_fuseShift.Shift(SamusProjectilePlayback.BeatOf(live)));
+        if (fuse.FastAnimation && shot.Animation is { } live)
+            live.GoOnFrom(SamusProjectilePlayback.PlaybackAt(_fuseShift.Shift(SamusProjectilePlayback.BeatOf(live.Playback))));
 
         // The borrowed fuse starts the explosion as a Power Bomb's does, its sound included.
         if (fuse.SpawnExplosion)

@@ -55,6 +55,51 @@ internal static class SamusProjectileProgramAddresses
     /// <summary>The playback the bank position <paramref name="address"/> names, or none for zero.</summary>
     internal static AnimationPlayback<SamusProjectileSegment>? PlaybackAt(ushort address) => Layout.PlaybackAt(address);
 
+    /// <summary>
+    /// A projectile animation standing at the bank position <paramref name="address"/>, as a native slot whose pointer names
+    /// it: it shows nothing new until its <paramref name="updates"/>th update plays on from there (#2458).
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">The address names no playback.</exception>
+    internal static AnimationPlayer<SamusProjectileSegment, SamusProjectileFrameId, NoAnimationCue> PlayerAt(ushort address, int updates = 1)
+    {
+        AnimationPlayback<SamusProjectileSegment> playback = PlaybackAt(address)
+            ?? throw new ArgumentOutOfRangeException(nameof(address), address, "The address names no projectile animation.");
+        var player = AnimationPlayer<SamusProjectileSegment, SamusProjectileFrameId, NoAnimationCue>.StartingAfter(
+            SamusProjectileAnimations.Segments, playback.Animation, updates);
+        player.GoOnFrom(playback);
+        return player;
+    }
+
+    /// <summary>
+    /// A projectile animation standing at the bank position <paramref name="address"/>, as a native slot whose pointer names
+    /// it (#2458): just after showing the record before it in its list, which it shows for <paramref name="updates"/>
+    /// updates, or, at a list's start, having shown nothing yet.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">The address names no playback.</exception>
+    internal static AnimationPlayer<SamusProjectileSegment, SamusProjectileFrameId, NoAnimationCue> StandingAt(ushort address, int updates = 1)
+    {
+        AnimationPlayback<SamusProjectileSegment> playback = PlaybackAt(address)
+            ?? throw new ArgumentOutOfRangeException(nameof(address), address, "The address names no projectile animation.");
+        return playback.Place.Beat >= 1 ? ShowingBeatBefore(playback, updates) : PlayerAt(address, updates);
+    }
+
+    /// <summary>
+    /// A projectile animation standing at <paramref name="playback"/> just after showing the beat before it, which it shows
+    /// for <paramref name="updates"/> updates (#2458).
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">The playback has no beat before it.</exception>
+    internal static AnimationPlayer<SamusProjectileSegment, SamusProjectileFrameId, NoAnimationCue> ShowingBeatBefore(
+        AnimationPlayback<SamusProjectileSegment> playback, int updates = 1)
+    {
+        AnimationPlace place = playback.Place;
+        if (place.Beat < 1)
+            throw new ArgumentOutOfRangeException(nameof(playback), playback, "The playback has shown no beat.");
+        var player = AnimationPlayer<SamusProjectileSegment, SamusProjectileFrameId, NoAnimationCue>.Starting(
+            SamusProjectileAnimations.Segments, playback.Animation);
+        player.ShowAt(playback.Animation, place with { Beat = place.Beat - 1 }, updates);
+        return player;
+    }
+
     /// <inheritdoc cref="SamusProjectileListLayout.RecordPosition"/>
     internal static ushort RecordAddress(SamusProjectileFrameId record) => Layout.RecordPosition(record);
 

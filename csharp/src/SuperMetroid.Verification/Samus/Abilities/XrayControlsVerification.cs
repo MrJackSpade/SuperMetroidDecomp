@@ -55,13 +55,12 @@ internal static class XrayControlsVerification
             // ten-slot update gate. Its long instruction delay avoids consuming data.
             var pendingBomb = runtime.BombProjectiles.Bombs[0];
             pendingBomb.Type = SamusBombProjectileSystem.NormalBombType;
-            pendingBomb.Playback = SamusProjectilePlayback.Start(SamusProjectileSegment.Bomb);
+            pendingBomb.Animation = SuperMetroid.Verification.Samus.Projectiles.ProjectileFixturePlaybacks.StartingAfter(SamusProjectileSegment.Bomb, 100);
             pendingBomb.SpritemapPointer = (runtime.Artwork.ProjectileFrameBindings ?? throw new InvalidOperationException("Verification requires runtime.Artwork.ProjectileFrameBindings.")).Resolve(checked((ushort)pendingBomb.InstructionPointer));
-            pendingBomb.FrameHold = WrappingCountdown.Start(100);
-            pendingBomb.BombTimer = WrappingCountdown.Start(60);
+            pendingBomb.FuseUpdatesLeft = 60;
             runtime.StepFrame((runtime.Options.ControllerBindings.Dash | runtime.Options.ControllerBindings.Shoot));
-            AssertEqual(60, pendingBomb.BombTimer.RawValue, "X-ray activation freezes an existing bomb fuse immediately");
-            AssertEqual(100, pendingBomb.FrameHold.RawValue, "X-ray activation skips existing bomb animation immediately");
+            AssertEqual(60, pendingBomb.FuseUpdatesLeft, "X-ray activation freezes an existing bomb fuse immediately");
+            AssertEqual(100, pendingBomb.Animation!.UpdatesLeft, "X-ray activation skips existing bomb animation immediately");
             pendingBomb.End();
             AssertTrue(samus.Xray.IsActive && runtime.Freeze.TimeIsFrozen,
                 "configured Run takes priority over Shoot and activates scanning");

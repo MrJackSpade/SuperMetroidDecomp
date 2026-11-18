@@ -952,7 +952,7 @@ internal static class LookupStream2Verification
         var catalog = InstalledProjectileTrails.Load(new MemoryStream(json));
         var encountered = new HashSet<ushort>();
         // The cartridge's retained tile words, which the native interpreter keeps beside the port's sides.
-        var nativeWords = new Dictionary<SamusProjectileTrailSide, ushort>();
+        var nativeWords = new Dictionary<SuperMetroid.Verification.Samus.Projectiles.NativeTrailSide, ushort>();
         foreach (ushort start in new[] { ProjectileTrailDefinitions.LeftIce, ProjectileTrailDefinitions.RightIce, ProjectileTrailDefinitions.Wave, ProjectileTrailDefinitions.Missile })
         {
             ushort cursor = start;
@@ -965,14 +965,13 @@ internal static class LookupStream2Verification
             }
             var authoredSystem = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
             // The native interpreter's own trail, run beside the port's.
-            var nativeTrail = new SamusProjectileTrail(SamusBeamCombination.Power);
+            var nativeTrail = new SuperMetroid.Verification.Samus.Projectiles.NativeTrail(
+                SuperMetroid.Verification.Samus.Projectiles.NativeTrailSide.StartingAt(start, Position16<RoomPixels>.Of(100, 100)),
+                SuperMetroid.Verification.Samus.Projectiles.NativeTrailSide.StartingAt(start, Position16<RoomPixels>.Of(100, 100)));
             SamusProjectileTrail authoredTrail = authoredSystem.AddTrail();
             nativeWords.Clear();
-            foreach (var pair in new[] { nativeTrail, authoredTrail })
-            {
-                foreach (var side in new[] { pair.Left, pair.Right })
-                { side.InstructionPointer = start; side.FrameHold = 1; side.Position = side.Position.WithX(100).WithY(100); }
-            }
+            foreach (var side in new[] { authoredTrail.Left, authoredTrail.Right })
+            { side.RestoreNative(start, 1, shownPose: null); side.Position = side.Position.WithX(100).WithY(100); }
             for (int frame = 0; frame < 80; frame++)
             {
                 var nativeOam = new OamBuffer();
@@ -1016,7 +1015,7 @@ internal static class LookupStream2Verification
         AssertThrows<InvalidDataException>(() => ProjectileTrailSparkleAnimations.Read(0x91b4c9), "Trail program rejects a wrong-bank alias");
         Console.WriteLine("Stream 2 trail programs: 67 native mechanics words,42 visual record addresses, all four actual paired trail lifetimes/freeze states and mutable alias pass.");
         // A side that has read no tile word yet draws nothing, as the port's sparkle that has shown no pose (#1625).
-        void StepNative(SamusProjectileTrail pair, SamusProjectileTrailSide side, OamBuffer oam, bool frozen)
+        void StepNative(SuperMetroid.Verification.Samus.Projectiles.NativeTrail pair, SuperMetroid.Verification.Samus.Projectiles.NativeTrailSide side, OamBuffer oam, bool frozen)
         {
             if (side.FrameHold == 0) return;
             if (!frozen && --side.FrameHold == 0)
@@ -1065,7 +1064,7 @@ internal static class LookupStream2Verification
             var projectile = new SamusProjectile(0)
             {
                 Type = trailingType,
-                Playback = SamusProjectileProgramAddresses.PlaybackAt(0x86e3),
+                Animation = SamusProjectileProgramAddresses.StandingAt(0x86e3),
                 Position = new(new(100, 0), new(200, 0)),
             };
             projectiles.Trails.SpawnTrail(projectile);
@@ -1470,7 +1469,7 @@ internal static class LookupStream2Verification
         for (int direction = 0; direction < 8; direction++)
         {
             ushort pointer = (ushort)(0x86db + direction * 12);
-            var shot = new SamusProjectile(0) { Playback = SamusProjectileProgramAddresses.PlaybackAt(pointer), FrameHold = WrappingCountdown.Start(1) };
+            var shot = new SamusProjectile(0) { Animation = SamusProjectileProgramAddresses.PlayerAt(pointer) };
             var system = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: stock), new global::SuperMetroid.Core.Fx.RoomEarthquake());
             _ = system.Animation.AdvanceProjectileAnimation(shot);
             AssertEqual(global::SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.FirstStored(ReadVerificationWord(rom, (0x930000 | pointer) + 2)), shot.SpritemapPointer, "Actual projectile handler selects calculated compass pose");
@@ -1494,7 +1493,7 @@ internal static class LookupStream2Verification
                 checkedAxialEndPairs++;
             if (pointer is >= 0x8bfb and < 0x8c4f)
                 checkedCappedSweep++;
-            var shot = new SamusProjectile(0) { Playback = SamusProjectileProgramAddresses.PlaybackAt(pointer), FrameHold = WrappingCountdown.Start(1) };
+            var shot = new SamusProjectile(0) { Animation = SamusProjectileProgramAddresses.PlayerAt(pointer) };
             var system = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: stock), new global::SuperMetroid.Core.Fx.RoomEarthquake());
             _ = system.Animation.AdvanceProjectileAnimation(shot);
             AssertEqual(global::SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.FirstStored(ReadVerificationWord(rom, (0x930000 | pointer) + 2)), shot.SpritemapPointer, "Actual handler uses native Wave/Ice traversal pose");
@@ -1507,7 +1506,7 @@ internal static class LookupStream2Verification
         foreach (ushort pointer in SamusProjectileFrameDefinitions.TimedRecordAddresses)
         {
             if (pointer is < 0x9f87 or >= 0xa007) continue;
-            var bomb = new SamusBomb(0) { Playback = SamusProjectileProgramAddresses.PlaybackAt(pointer), FrameHold = WrappingCountdown.Start(1), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500) };
+            var bomb = new SamusBomb(0) { Animation = SamusProjectileProgramAddresses.PlayerAt(pointer), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500) };
             var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: stock));
             _ = bombs.AdvanceProjectileAnimation(bomb);
             AssertEqual(global::SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.FirstStored(ReadVerificationWord(rom, (0x930000 | pointer) + 2)), bomb.SpritemapPointer, "Actual bomb handler uses sequential normal/fast pose");

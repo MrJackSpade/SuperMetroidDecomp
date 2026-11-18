@@ -35,14 +35,11 @@ internal static class ProjectileTrailArtworkVerification
             }
             var authoredSystem = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
             // The native interpreter's own trail, run beside the port's, and the cartridge's retained tile words it keeps.
-            var nativeTrail = new SamusProjectileTrail(SuperMetroid.Core.Progression.SamusBeamCombination.Power);
+            var nativeTrail = new NativeTrail(NativeTrailSide.StartingAt(start, Position16<RoomPixels>.Of(100, 100)), NativeTrailSide.StartingAt(start, Position16<RoomPixels>.Of(100, 100)));
             SamusProjectileTrail authoredTrail = authoredSystem.AddTrail();
-            var nativeWords = new Dictionary<SamusProjectileTrailSide, ushort>();
-            foreach (var pair in new[] { nativeTrail, authoredTrail })
-            {
-                foreach (var side in new[] { pair.Left, pair.Right })
-                { side.InstructionPointer = start; side.FrameHold = 1; side.Position = side.Position.WithX(100).WithY(100); }
-            }
+            var nativeWords = new Dictionary<NativeTrailSide, ushort>();
+            foreach (var side in new[] { authoredTrail.Left, authoredTrail.Right })
+            { side.RestoreNative(start, 1, shownPose: null); side.Position = side.Position.WithX(100).WithY(100); }
             for (int frame = 0; frame < 80; frame++)
             {
                 var nativeOam = new OamBuffer();
@@ -91,8 +88,8 @@ internal static class ProjectileTrailArtworkVerification
             ushort attributes = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusSourceDefinitions.MovementBank.Value | (frame + 2));
             var system = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
             var side = system.AddTrail().Left;
-            side.InstructionPointer = (ushort)(frame + 4); side.FrameHold = 3;
-            side.Position = side.Position.WithX(coordinate).WithY(coordinate); side.ShownPose = pose;
+            side.RestoreNative((ushort)(frame + 4), 3, pose);
+            side.Position = side.Position.WithX(coordinate).WithY(coordinate);
             // The OAM capacity stop is a dropped presentation quirk (#1308), and so is the off-screen cull (#1541):
             // a trail on the screen draws its native sprite, and one off it is published where it lies for the
             // display to clip.
@@ -119,7 +116,7 @@ internal static class ProjectileTrailArtworkVerification
         ProjectileTrailFrame first = ProjectileTrailFrame.IceSparkleClustered;
         var animation = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
         var trail = animation.AddTrail().Left;
-        trail.InstructionPointer = ProjectileTrailNative.Address(first); trail.FrameHold = 1; trail.Position = trail.Position.WithX(100).WithY(100);
+        trail.RestoreNative(ProjectileTrailNative.Address(first), 1, shownPose: null); trail.Position = trail.Position.WithX(100).WithY(100);
         OamBuffer frozen = SpriteFrameBuffer.DrawnOam(sprites =>
         {
             animation.AdvanceTrails(true);
@@ -146,9 +143,9 @@ internal static class ProjectileTrailArtworkVerification
     /// that has read no tile word yet draws nothing, as the port's sparkle that has shown no pose (#1625).
     /// </summary>
     private static void DrawNativeTrailFrame(ISnesAddressSpace rom,
-        SamusProjectileTrail pair, Dictionary<SamusProjectileTrailSide, ushort> words, OamBuffer oam, bool frozen)
+        NativeTrail pair, Dictionary<NativeTrailSide, ushort> words, OamBuffer oam, bool frozen)
     {
-        foreach (SamusProjectileTrailSide side in new[] { pair.Left, pair.Right })
+        foreach (NativeTrailSide side in new[] { pair.Left, pair.Right })
         {
             if (side.FrameHold == 0) continue;
             if (!frozen && --side.FrameHold == 0)

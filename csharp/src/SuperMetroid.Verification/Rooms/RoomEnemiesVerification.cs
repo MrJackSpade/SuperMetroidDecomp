@@ -334,8 +334,7 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
     owner.Damage = 0x012c;
     owner.Direction = SamusProjectileDirection.Right;
     owner.Position = owner.Position.WithWhole(new(0x01b7, 0x0196));
-    owner.Playback = SamusProjectileProgramAddresses.PlaybackAt(0x9f3b);
-    owner.FrameHold = WrappingCountdown.Start(15);
+    owner.Animation = SamusProjectileProgramAddresses.PlayerAt(0x9f3b, updates: 15);
     owner.SpritemapPointer = 0xae0f;
     owner.Install(SamusShotBehaviors.SuperMissile, new SuperMissileShotState(SamusMissileIgnition.Pending, UnlinkedSuperMissileLink.Place));
 
@@ -344,8 +343,7 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
     link.Damage = 0x012c;
     link.Direction = SamusProjectileDirection.Right;
     link.Position = link.Position.WithWhole(new(0x01af, 0x0196));
-    link.Playback = SamusProjectileProgramAddresses.PlaybackAt(0x9f7b);
-    link.FrameHold = WrappingCountdown.Start(1);
+    link.Animation = SamusProjectileProgramAddresses.PlayerAt(0x9f7b);
     link.SpritemapPointer = 0;
     link.Install(SamusShotBehaviors.SuperMissileLink, new SuperMissileShotState(SamusMissileIgnition.Pending, UnlinkedSuperMissileLink.Place));
 
@@ -588,8 +586,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
         projectile.Direction = SamusProjectileDirection.Right;
         projectile.Position = projectile.Position.WithWhole(target.Position.Whole);
         projectile.Radius = new(4, 4);
-        projectile.Playback = ProjectileFixturePlaybacks.Active;
-        projectile.FrameHold = WrappingCountdown.Start(1);
+        projectile.Animation = ProjectileFixturePlaybacks.Active();
         return projectile;
     }
 

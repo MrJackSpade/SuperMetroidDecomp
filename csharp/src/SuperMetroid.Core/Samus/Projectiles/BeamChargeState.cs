@@ -52,8 +52,8 @@ internal sealed class BeamChargeState
     /// <summary>The charge sampled before the current charge-input update.</summary>
     public BeamChargeLevel PreviousCharge { get; internal set; }
 
-    /// <summary>The glow Samus's suit shows after a charged shot, or none.</summary>
-    public ChargedShotGlow ChargedShotGlow { get; internal set; }
+    /// <summary>The glow Samus's suit shows after a charged shot, or null while it shows none.</summary>
+    public ChargedShotGlow? ChargedShotGlow { get; internal set; }
 
     /// <summary>
     /// Where the charge pulse stands (#2351): just past the shade it showed last, or its start. Every pulse runs its six
@@ -68,14 +68,10 @@ internal sealed class BeamChargeState
     /// </summary>
     internal PictureShade PlayChargePulse(SamusChargeKind kind, SamusSuit suit)
     {
-        SamusGlowSegment pulse = SamusGlowAnimationDefinitions.ChargePulses[kind][suit];
         AnimationPlace place = ChargePulse;
-        AnimationShown<SamusGlowSegment, PictureShade> shown = SamusGlowAnimationDefinitions.Segments.PlayToNextFrame(
-            SamusGlowAnimationDefinitions.Animations[pulse], ref place, static _ => { });
+        PictureShade shown = SamusGlowPlay.NextShade(SamusGlowAnimationDefinitions.ChargePulses[kind][suit], ref place).Shown;
         ChargePulse = place;
-        return shown is AnimationShown<SamusGlowSegment, PictureShade>.Frame frame
-            ? frame.Shown
-            : throw new InvalidOperationException($"The {pulse} pulse reached {shown}; a pulse only shows shades.");
+        return shown;
     }
 
     /// <summary>Restarts the charge pulse, so its next update shows its first shade.</summary>

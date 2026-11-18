@@ -5,29 +5,35 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 public static class SamusPowerBombFuse
 {
     /// <summary>
-    /// Computes the timer and animation changes and asks for the bomb's
-    /// explosion or deletion. The step that runs the fuse out starts the explosion; the bomb's
-    /// boundary reactions wait for the update after it, because other frame behaviours can reach this step.
+    /// Computes the fuse and animation changes and asks for the bomb's explosion or deletion. The step that burns the fuse
+    /// out starts the explosion; the bomb's boundary reactions wait for the update after it, because other frame behaviours
+    /// can reach this step.
     /// </summary>
-    public static PowerBombFuseStep Step(WrappingCountdown timer, bool explosionArmed)
+    /// <param name="fuseUpdatesLeft">The updates the fuse has left, zero once it has burned out.</param>
+    /// <param name="explosionArmed">Whether a Power Bomb's blast is under way.</param>
+    public static PowerBombFuseStep Step(int fuseUpdatesLeft, bool explosionArmed)
     {
-        // A stopped fuse is left alone. Otherwise the fuse counts down: reaching zero
-        // runs the fuse out and starts the explosion, and the fast-animation switch tests the decremented count.
-        if (timer.IsZero)
-            return new(timer, FastAnimation: false, SpawnExplosion: false, DeleteProjectile: !explosionArmed);
-        CountdownStep fuse = timer.Decrement();
-        if (fuse.IsZero)
-            return new(fuse.Remaining, FastAnimation: false, SpawnExplosion: true, DeleteProjectile: false);
-        return new(fuse.Remaining, FastAnimation: fuse.Remaining.IsAt(SamusPowerBombFuseData.FastAnimationTimer),
+        // A burned-out fuse is left alone. Otherwise the fuse counts down: reaching zero burns it out and starts the
+        // explosion, and the fast-animation switch tests the count left.
+        if (Ensure.AtLeastZero(fuseUpdatesLeft) == 0)
+            return new(0, FastAnimation: false, SpawnExplosion: false, DeleteProjectile: !explosionArmed);
+        int left = fuseUpdatesLeft - 1;
+        if (left == 0)
+            return new(0, FastAnimation: false, SpawnExplosion: true, DeleteProjectile: false);
+        return new(left, FastAnimation: left == SamusPowerBombFuseData.FastAnimationTimer,
             SpawnExplosion: false, DeleteProjectile: false);
     }
 
-    /// <summary>Switches a bomb or Power Bomb to the same frame of its fast animation.</summary>
-    /// <exception cref="InvalidDataException">The playback is not at a slow bomb or Power Bomb place.</exception>
-    internal static AnimationPlayback<SamusProjectileSegment>? FastAnimation(AnimationPlayback<SamusProjectileSegment>? playback) =>
-        playback is { } live
-            ? SamusPowerBombFuseData.FastCounterparts.TryGetValue(SamusProjectilePlayback.BeatOf(live), out SamusProjectileSegmentBeat fast)
-                ? SamusProjectilePlayback.PlaybackAt(fast)
-                : throw new InvalidDataException($"{SamusProjectilePlayback.BeatOf(live)} has no fast-animation counterpart.")
-            : null;
+    /// <summary>Switches a bomb or Power Bomb's live animation onto the same frame of its fast animation.</summary>
+    /// <exception cref="InvalidOperationException">The bomb has no animation.</exception>
+    /// <exception cref="InvalidDataException">The animation is not at a slow bomb or Power Bomb place.</exception>
+    internal static void SwitchToFastAnimation(AnimationPlayer<SamusProjectileSegment, SamusProjectileFrameId, NoAnimationCue>? animation)
+    {
+        AnimationPlayer<SamusProjectileSegment, SamusProjectileFrameId, NoAnimationCue> live = animation
+            ?? throw new InvalidOperationException("A bomb with no animation has no fast animation to switch to.");
+        SamusProjectileSegmentBeat at = SamusProjectilePlayback.BeatOf(live.Playback);
+        live.GoOnFrom(SamusPowerBombFuseData.FastCounterparts.TryGetValue(at, out SamusProjectileSegmentBeat fast)
+            ? SamusProjectilePlayback.PlaybackAt(fast)
+            : throw new InvalidDataException($"{at} has no fast-animation counterpart."));
+    }
 }

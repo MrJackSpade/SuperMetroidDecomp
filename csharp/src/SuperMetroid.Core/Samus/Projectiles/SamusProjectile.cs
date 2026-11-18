@@ -74,17 +74,44 @@ public sealed class SamusProjectile
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
     /// <summary>Collision half-extents in pixels.</summary>
     public Extent16<RoomPixels> Radius { get; internal set; }
-    /// <summary>The projectile's animation and where it stands in it (#1600); null while it has none to animate.</summary>
-    internal AnimationPlayback<SamusProjectileSegment>? Playback { get; set; }
     /// <summary>
-    /// Updates remaining before the projectile's animation shows its next frame; none once it shows a still picture it keeps
-    /// until its animation changes (#2347).
+    /// The projectile's animation (#1600, #2458): the frame it shows, the updates that frame has left, or a still picture it
+    /// keeps until its animation changes (#2347), and where its play stands; null while it has none to animate.
     /// </summary>
-    public WrappingCountdown? FrameHold { get; internal set; }
+    internal AnimationPlayer<SamusProjectileSegment, SamusProjectileFrameId, NoAnimationCue>? Animation { get; set; }
+    /// <summary>The projectile's animation and where it stands in it; null while it has none to animate.</summary>
+    internal AnimationPlayback<SamusProjectileSegment>? Playback => Animation?.Playback;
     /// <summary>The composition the projectile shows, selected by the timed-frame animation or installed frame binding; none before its first frame.</summary>
     public ProjectileSpriteId? Sprite { get; internal set; }
-    /// <summary>Countdown controlling projectile-trail emission.</summary>
-    public WrappingCountdown TrailTimer { get; internal set; }
+
+    /// <summary>
+    /// The updates left before the shot next leaves a trail (#2458): set when a trailing shot is fired or a special attack's
+    /// particle starts to trail, counted down by its flight, and set again to the flight's interval on each update it leaves
+    /// one; null for a shot that leaves no trail, as the Hyper Beam's.
+    /// </summary>
+    public int? TrailUpdatesLeft
+    {
+        get;
+        internal set => field = value is { } updates ? Ensure.BetweenInclusive(1, int.MaxValue, updates) : null;
+    }
+
+    /// <summary>
+    /// Counts one update of the shot's flight toward its next trail: whether the shot leaves one on this update, after which
+    /// the next waits <paramref name="interval"/> updates. A shot that leaves no trail never leaves one.
+    /// </summary>
+    /// <param name="interval">The updates from this trail to the next, at least one.</param>
+    internal bool CountsDownToTrail(int interval)
+    {
+        if (TrailUpdatesLeft is not { } left)
+            return false;
+        if (left > 1)
+        {
+            TrailUpdatesLeft = left - 1;
+            return false;
+        }
+        TrailUpdatesLeft = interval;
+        return true;
+    }
 
     /// <summary>
     /// What the projectile does on its update (#1923), installed when it is fired, released or changed; null for an
@@ -119,7 +146,7 @@ public sealed class SamusProjectile
             $"The projectile in place {Place} keeps no {typeof(TState).Name}; it keeps {KindState?.GetType().Name ?? "nothing"}.");
 
     /// <summary>A live projectile animation marks the projectile drawable and updated.</summary>
-    public bool IsActive => Playback is not null;
+    public bool IsActive => Animation is not null;
 
     /// <summary>
     /// Enemy collision admits a beam, missile, or Super Missile even when it has no animation to play. This
@@ -142,10 +169,9 @@ public sealed class SamusProjectile
         Position = FixedPosition<RoomPixels>.Zero;
         Velocity = default(EightEightVector<RoomPixels>);
         Radius = Extent16<RoomPixels>.Zero;
-        Playback = null;
-        FrameHold = WrappingCountdown.Start(0);
+        Animation = null;
         Sprite = null;
-        TrailTimer = WrappingCountdown.Start(0);
+        TrailUpdatesLeft = null;
         Behavior = null;
         KindState = null;
     }

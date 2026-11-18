@@ -55,7 +55,7 @@ internal static class RidleyShotHealthStageVerification
             shot.Type = SamusProjectileType.Of(SamusProjectileFamily.SuperMissile); shot.Damage = 300; shot.Direction = SamusProjectileDirection.Right;
             shot.Position = shot.Position.WithWhole(new(0x00c5, 0x0164));
             shot.Radius = new(8, 8);
-            shot.Playback = ProjectileFixturePlaybacks.Active; shot.FrameHold = WrappingCountdown.Start(1);
+            shot.Animation = ProjectileFixturePlaybacks.Active();
         }
         runtime.Enemies.Collision.ResolveOrdinaryProjectileHit(runtime.Projectiles, runtime.BombProjectiles, runtime.Room.LoadedRoom.Area, samus,
             ridley, Position16<RoomPixels>.Zero);

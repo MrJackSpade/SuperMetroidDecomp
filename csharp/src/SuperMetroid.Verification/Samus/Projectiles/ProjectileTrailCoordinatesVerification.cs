@@ -130,7 +130,7 @@ internal static class ProjectileTrailCoordinatesVerification
             {
                 Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type),
                 Direction = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeDirection(direction),
-                Playback = SamusProjectileProgramAddresses.PlaybackAt(unchecked((ushort)(record +
+                Animation = SamusProjectileProgramAddresses.StandingAt(unchecked((ushort)(record +
                     SuperMetroid.AssetExtraction.CartridgeTables.SamusProjectileListLayout.TimedRecordByteCount))),
                 Position = new(new(origin, 0), new(origin, 0)),
             };
@@ -167,7 +167,7 @@ internal static class ProjectileTrailCoordinatesVerification
             system.Reset();
             var shot = new SamusProjectile(0)
             {
-                Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type), Direction = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeDirection(direction), Playback = SamusProjectileProgramAddresses.PlaybackAt(listStart), Position = new(new(0x0100, 0), new(0x0100, 0)),
+                Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type), Direction = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeDirection(direction), Animation = SamusProjectileProgramAddresses.PlayerAt(listStart), Position = new(new(0x0100, 0), new(0x0100, 0)),
             };
             spawn(shot);
             AssertEqual(0, system.LiveTrails.Count, $"reflected type ${type:X4} direction {direction} leaves no trail at its list's start");

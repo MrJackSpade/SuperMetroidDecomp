@@ -63,6 +63,15 @@ internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
     internal AnimationPhase<TSegment> Repeated(TSegment segment, int plays) => new(segment, 0, beats[segment].Length, plays);
 
     /// <summary>
+    /// The beats one play of <paramref name="animation"/> passes from its start to the end of its last phase, each phase's
+    /// run laid out as many times as it plays (#2458); a loop back is not followed.
+    /// </summary>
+    internal IReadOnlyList<AnimationBeat<TFrame, TEvent>> PlayedBeats(Animation<TSegment> animation) =>
+        [.. Ensure.NotNull(animation).Phases
+            .SelectMany(phase => Enumerable.Repeat(phase, phase.Plays))
+            .SelectMany(phase => beats[phase.Segment].Skip(phase.FirstBeat).Take(phase.BeatCount))];
+
+    /// <summary>
     /// Whether <paramref name="animation"/> opens with a frame (#2317): played from its start, it shows a frame or a held
     /// frame before it raises any event.
     /// </summary>

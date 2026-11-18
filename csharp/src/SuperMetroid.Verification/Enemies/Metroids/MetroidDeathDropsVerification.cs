@@ -47,7 +47,7 @@ internal static class MetroidDeathDropsVerification
         shot.Type = SamusProjectileType.Of(SamusProjectileFamily.Missile); shot.Damage = 100; shot.Direction = SamusProjectileDirection.Right; shot.IsSpent = alreadyMarked;
         shot.Position = shot.Position.WithWhole(metroid.Position.Whole);
         shot.Radius = new(4, 4);
-        shot.Playback = ProjectileFixturePlaybacks.Active; shot.FrameHold = WrappingCountdown.Start(1);
+        shot.Animation = ProjectileFixturePlaybacks.Active();
         runtime.Enemies.ResolveShotsOnInteractiveEnemies(runtime.Projectiles, runtime.BombProjectiles, runtime.Room.LoadedRoom.Area, samus);
         AssertEqual(0, metroid.Health, $"the missile kills the frozen Metroid (already marked: {alreadyMarked})");
 

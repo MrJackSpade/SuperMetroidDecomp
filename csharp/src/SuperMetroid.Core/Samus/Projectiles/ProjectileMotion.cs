@@ -40,12 +40,8 @@ internal sealed class ProjectileMotion
         }
 
         // A beam leaves its trail where it is before it accelerates and moves, so the trail falls behind it.
-        shot.TrailTimer = shot.TrailTimer.Decrement().Remaining;
-        if (shot.TrailTimer.IsZero)
-        {
-            shot.TrailTimer = WrappingCountdown.Start(ProjectileTimingDefinitions.TrailInterval);
+        if (shot.CountsDownToTrail(ProjectileTimingDefinitions.TrailInterval))
             _trails.SpawnTrail(shot);
-        }
 
         Accelerate(shot, SamusProjectileAccelerations.For(shot.Direction).Beam);
 
@@ -95,12 +91,8 @@ internal sealed class ProjectileMotion
         // The Wave shots differ only in the interval reloaded after a trail timer expires. Firing always starts it at
         // four; an uncharged Wave or Ice and Wave shot reloads three only after its first trail. Spawning precedes
         // acceleration and movement, so the trail samples the old world position just like a beam without Wave.
-        shot.TrailTimer = shot.TrailTimer.Decrement().Remaining;
-        if (shot.TrailTimer.IsZero)
-        {
-            shot.TrailTimer = WrappingCountdown.Start(trailInterval);
+        if (shot.CountsDownToTrail(trailInterval))
             _trails.SpawnTrail(shot);
-        }
 
         RunWaveBeamShared(level, shot, cameraPosition, roomObjects);
     }
@@ -165,12 +157,8 @@ internal sealed class ProjectileMotion
             return;
         }
 
-        shot.TrailTimer = shot.TrailTimer.Decrement().Remaining;
-        if (shot.TrailTimer.IsZero)
-        {
-            shot.TrailTimer = WrappingCountdown.Start(ProjectileTimingDefinitions.TrailInterval);
+        if (shot.CountsDownToTrail(ProjectileTimingDefinitions.TrailInterval))
             _trails.SpawnTrail(shot);
-        }
 
         SamusProjectileDirection direction = shot.Direction;
         MissileShotState missile = shot.KindStateAs<MissileShotState>();
@@ -230,12 +218,8 @@ internal sealed class ProjectileMotion
         // The Super Missile trail first waits the four updates its firing sets, then two after every
         // expiry. Super Missiles therefore emit twice as frequently as ordinary missiles;
         // both families still select the same trail art.
-        shot.TrailTimer = shot.TrailTimer.Decrement().Remaining;
-        if (shot.TrailTimer.IsZero)
-        {
-            shot.TrailTimer = WrappingCountdown.Start(ProjectileTimingDefinitions.SuperMissileTrailInterval);
+        if (shot.CountsDownToTrail(ProjectileTimingDefinitions.SuperMissileTrailInterval))
             _trails.SpawnTrail(shot);
-        }
 
         SamusProjectileDirection direction = shot.Direction;
         SuperMissileShotState superMissile = shot.KindStateAs<SuperMissileShotState>();
@@ -355,8 +339,7 @@ internal sealed class ProjectileMotion
         BeamFiring.InitializePosition(samus, link);
         const SamusProjectileKind kind = SamusProjectileKind.SuperMissileLink;
         link.Damage = SamusProjectileDamage.Read(kind);
-        link.Playback = SamusProjectilePlayback.Start(SamusProjectileKinds.SoleAnimation(kind));
-        link.FrameHold = WrappingCountdown.Start(1);
+        link.Animation = SamusProjectilePlayback.Start(SamusProjectileKinds.SoleAnimation(kind));
         link.Install(SamusShotBehaviors.SuperMissileLink,
             new SuperMissileShotState(SamusMissileIgnition.Pending, UnlinkedSuperMissileLink.Place));
 

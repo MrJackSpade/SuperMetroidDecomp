@@ -215,7 +215,7 @@ level, SamusRoomObjectFixtures.Uninstalled, right, unchecked((ushort)(frame + 1)
         "controller three spawns Hyper Beam palette-FX object");
     AssertEqual(1, left.Drained.HyperBeamColourEffect.FrameHold,
         "palette-FX spawn installs native timer one");
-    AssertEqual(SuperMetroid.Core.Animation.AnimationPlace.StartOfAnimation, left.Drained.HyperBeamColourEffect.Place,
+    AssertEqual(SuperMetroid.Core.Animation.AnimationPlace.StartOfAnimation, left.Drained.HyperBeamColourEffect.Cycle!.Playback.Place,
         "palette-FX spawn starts the object's program");
 
     // Seed both neighboring colors so the test can distinguish the exact eight-color

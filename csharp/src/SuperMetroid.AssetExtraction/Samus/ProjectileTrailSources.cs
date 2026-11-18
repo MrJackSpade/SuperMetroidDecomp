@@ -21,7 +21,7 @@ internal static class ProjectileTrailSources
     /// </summary>
     internal static ushort Address(ProjectileTrailSegment program, int beat)
     {
-        IReadOnlyList<AnimationBeat<ProjectileTrailFrame, ProjectileTrailCue>> beats = ProjectileTrailSparkleAnimations.Segments.Beats(program);
+        IReadOnlyList<AnimationBeat<ProjectileTrailFrame, ProjectileTrailCue>> beats = ProjectileTrailSparkleAnimations.PlayedBeats(program);
         if (beat < 0 || beat > beats.Count)
             throw new ArgumentOutOfRangeException(nameof(beat), beat, $"Trail program {program} has no beat there.");
         int address = Start(program);
@@ -42,7 +42,7 @@ internal static class ProjectileTrailSources
         var records = new List<KeyValuePair<ushort, ProjectileTrailFrame>>();
         foreach (ProjectileTrailSegment program in Enum.GetValues<ProjectileTrailSegment>())
         {
-            IReadOnlyList<AnimationBeat<ProjectileTrailFrame, ProjectileTrailCue>> beats = ProjectileTrailSparkleAnimations.Segments.Beats(program);
+            IReadOnlyList<AnimationBeat<ProjectileTrailFrame, ProjectileTrailCue>> beats = ProjectileTrailSparkleAnimations.PlayedBeats(program);
             for (int beat = 0; beat < beats.Count; beat++)
             {
                 if (beats[beat] is AnimationBeat<ProjectileTrailFrame, ProjectileTrailCue>.Frame frame)

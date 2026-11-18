@@ -49,8 +49,7 @@ internal static class OverlappingEnemyShotsVerification
         shot.Direction = SamusProjectileDirection.Right;
         shot.Position = shot.Position.WithWhole(new(128, 128));
         shot.Radius = new(4, 4);
-        shot.Playback = ProjectileFixturePlaybacks.Active;
-        shot.FrameHold = WrappingCountdown.Start(1);
+        shot.Animation = ProjectileFixturePlaybacks.Active();
         shot.Behavior = SamusShotBehaviors.Missile;
 
         AssertEqual(3, enemies.ResolveShotsOnInteractiveEnemies(shots, bombs, SuperMetroid.Core.Progression.AreaId.Crateria, samus),

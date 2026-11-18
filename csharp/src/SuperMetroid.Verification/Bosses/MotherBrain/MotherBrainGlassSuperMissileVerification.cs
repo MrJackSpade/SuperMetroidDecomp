@@ -47,7 +47,7 @@ internal static class MotherBrainGlassSuperMissileVerification
             var shot = shots.Shots[slot];
             shot.Type = SamusProjectileType.Of(SamusProjectileFamily.SuperMissile); shot.Damage = 300; shot.Direction = SamusProjectileDirection.Left;
             shot.Position = shot.Position.WithWhole(new(128, 128)); shot.Radius = new(pair[slot].Radius, pair[slot].Radius);
-            shot.Playback = SamusProjectileProgramAddresses.PlaybackAt(pair[slot].List); shot.FrameHold = WrappingCountdown.Start(1);
+            shot.Animation = SamusProjectileProgramAddresses.PlayerAt(pair[slot].List);
             shot.Behavior = pair[slot].Pre;
         }
 

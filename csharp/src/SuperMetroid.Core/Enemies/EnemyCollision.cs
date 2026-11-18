@@ -497,7 +497,7 @@ internal sealed class EnemyCollision
             // pass also admits a spread bomb. The frame-hitbox pass is narrower,
             // and passes over a bomb on the room's leftmost column (LeftEdgeBombMissesFrameHitboxes).
             if (bomb.Type.IsNone ||
-                !bomb.BombTimer.IsZero ||
+                !bomb.HasBurnedOut ||
                 (usesFrameHitboxes
                     ? family != SamusProjectileFamily.Bomb ||
                       LeftEdgeBombMissesFrameHitboxes.Misses(bomb.Position.X.Whole)

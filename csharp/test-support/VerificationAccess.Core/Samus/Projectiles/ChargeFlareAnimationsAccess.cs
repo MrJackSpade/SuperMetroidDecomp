@@ -14,12 +14,11 @@ internal static class ChargeFlareAnimationsAccess
     {
         /// <summary>How many pictures <paramref name="component"/> has across its phases.</summary>
         internal static int PictureCount(ChargeFlareComponent component) =>
-            ChargeFlareAnimationDefinitions.Animations[component].Phases.Sum(phase => phase.BeatCount);
+            ChargeFlareAnimationDefinitions.Animations[component].Phases.Sum(phase => phase.BeatCount * phase.Plays);
 
         /// <summary>Every picture of <paramref name="component"/>, its phases in order.</summary>
         internal static IReadOnlyList<AnimationBeat<ChargeFlarePicture, NoAnimationCue>> Pictures(ChargeFlareComponent component) =>
-            [.. ChargeFlareAnimationDefinitions.Animations[component].Phases.SelectMany(phase =>
-                ChargeFlareAnimationDefinitions.Segments.Beats(phase.Segment).Skip(phase.FirstBeat).Take(phase.BeatCount))];
+            ChargeFlareAnimationDefinitions.Segments.PlayedBeats(ChargeFlareAnimationDefinitions.Animations[component]);
 
         /// <summary>The picture of <paramref name="component"/> numbered <paramref name="number"/>.</summary>
         /// <exception cref="ArgumentOutOfRangeException">The component has no picture of that number.</exception>
@@ -37,9 +36,12 @@ internal static class ChargeFlareAnimationsAccess
             int left = number;
             for (int phase = 0; phase < phases.Count; phase++)
             {
-                if (left >= 0 && left < phases[phase].BeatCount)
-                    return new(phase, left);
-                left -= phases[phase].BeatCount;
+                // A repeated phase's pictures are numbered through each of its plays in turn.
+                AnimationPhase<ChargeFlareSegment> numbered = phases[phase];
+                if (left >= 0 && left < numbered.BeatCount * numbered.Plays)
+                    return new AnimationPlace(phase, left % numbered.BeatCount)
+                        .WithPlaysLeft(numbered.IsRepeated ? numbered.Plays - left / numbered.BeatCount : 0);
+                left -= numbered.BeatCount * numbered.Plays;
             }
             throw new ArgumentOutOfRangeException(nameof(number), number, $"Charge-flare {component} has no picture {number}.");
         }
@@ -60,7 +62,11 @@ internal static class ChargeFlareAnimationsAccess
                     return null;
                 // The place stands just past the beat shown.
                 AnimationPlace place = self.player.Playback.Place;
-                return self.player.Playback.Animation.Phases.Take(place.Phase).Sum(phase => phase.BeatCount) + place.Beat - 1;
+                IReadOnlyList<AnimationPhase<ChargeFlareSegment>> phases = self.player.Playback.Animation.Phases;
+                AnimationPhase<ChargeFlareSegment> playing = phases[place.Phase];
+                int playsBefore = playing.IsRepeated ? playing.Plays - place.PlaysLeft : 0;
+                return phases.Take(place.Phase).Sum(phase => phase.BeatCount * phase.Plays) +
+                    playsBefore * playing.BeatCount + place.Beat - 1;
             }
         }
 

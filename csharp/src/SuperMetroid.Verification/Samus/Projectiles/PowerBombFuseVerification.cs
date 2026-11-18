@@ -18,21 +18,21 @@ internal static class PowerBombFuseVerification
         // The fuse is a countdown: zero stays stopped, and one runs out and starts the explosion.
         foreach (bool flag in new[] { false, true })
         {
-            AssertEqual(new PowerBombFuseStep(WrappingCountdown.Start(0), false, false, !flag),
-                SamusPowerBombFuse.Step(WrappingCountdown.Start(0), flag), "zero fuse follows native flag equality");
-            AssertEqual(new PowerBombFuseStep(WrappingCountdown.Start(0), false, true, false),
-                SamusPowerBombFuse.Step(WrappingCountdown.Start(1), flag), "expiration runs the fuse out and starts the explosion");
-            AssertEqual(new PowerBombFuseStep(WrappingCountdown.Start(15), true, false, false),
-                SamusPowerBombFuse.Step(WrappingCountdown.Start(16), flag), "the fuse reaching fifteen switches to the fast list");
-            AssertEqual(new PowerBombFuseStep(WrappingCountdown.Start(14), false, false, false),
-                SamusPowerBombFuse.Step(WrappingCountdown.Start(15), flag), "fast threshold is tested after decrement");
+            AssertEqual(new PowerBombFuseStep(0, false, false, !flag),
+                SamusPowerBombFuse.Step(0, flag), "zero fuse follows native flag equality");
+            AssertEqual(new PowerBombFuseStep(0, false, true, false),
+                SamusPowerBombFuse.Step(1, flag), "expiration runs the fuse out and starts the explosion");
+            AssertEqual(new PowerBombFuseStep(15, true, false, false),
+                SamusPowerBombFuse.Step(16, flag), "the fuse reaching fifteen switches to the fast list");
+            AssertEqual(new PowerBombFuseStep(14, false, false, false),
+                SamusPowerBombFuse.Step(15, flag), "fast threshold is tested after decrement");
         }
-        WrappingCountdown timer = WrappingCountdown.Start(60);
+        int timer = 60;
         int spawns = 0;
         for (int frame = 0; frame < 60; frame++)
         {
             PowerBombFuseStep result = SamusPowerBombFuse.Step(timer, true);
-            timer = result.Timer;
+            timer = result.UpdatesLeft;
             spawns += result.SpawnExplosion ? 1 : 0;
             AssertEqual(false, result.DeleteProjectile, "live fuse never requests deletion");
             AssertEqual(frame == 44, result.FastAnimation, "native fast-list transition frame");
@@ -42,9 +42,13 @@ internal static class PowerBombFuseVerification
         // The fast lists lie $1C bytes on: each slow Power Bomb position lands on its fast counterpart.
         foreach (var (slow, fast) in new[] { new VerifyPowerBombFuseCase(SamusProjectileSegment.PowerBomb, SamusProjectileSegment.FastPowerBomb) })
             for (int position = 0; position <= SamusProjectileAnimations.Segments.Beats(slow).Count; position++)
-                AssertEqual(SamusProjectilePlayback.PlaybackAt(new SamusProjectileSegmentBeat(fast, position)),
-                    SamusPowerBombFuse.FastAnimation(SamusProjectilePlayback.PlaybackAt(new SamusProjectileSegmentBeat(slow, position))),
+            {
+                var live = ProjectileFixturePlaybacks.StartingAfter(slow, 1);
+                live.GoOnFrom(SamusProjectilePlayback.PlaybackAt(new SamusProjectileSegmentBeat(slow, position)));
+                SamusPowerBombFuse.SwitchToFastAnimation(live);
+                AssertEqual(SamusProjectilePlayback.PlaybackAt(new SamusProjectileSegmentBeat(fast, position)), live.Playback,
                     $"{slow} position {position} switches to the same fast position");
+            }
         // Each counterpart is the position the native fuse reaches by adding its offset to the live list pointer.
         foreach (var counterpart in SamusPowerBombFuseData.FastCounterparts)
             AssertEqual(unchecked((ushort)(SamusProjectileProgramAddresses.Address(counterpart.Key) + SamusOverreadSourceDefinitions.FastAnimationOffset)),

@@ -42,7 +42,7 @@ internal static class BombSpreadLaunchDefinitionsVerification
             {
                 var slot=bombs.Bombs[i]; var expected=reference[i];
                 BombSpreadFlight flight = slot.SpreadFlight ?? throw new InvalidOperationException($"Spread slot {i} has no flight.");
-                AssertEqual(expected.FuseTimer,slot.BombTimer.RawValue,"Spread fuse by physical slot");
+                AssertEqual(expected.FuseTimer,slot.FuseUpdatesLeft,"Spread fuse by physical slot");
                 AssertEqual(expected.HorizontalVelocity,flight.HorizontalVelocity,"Spread horizontal velocity");
                 AssertEqual(Word(MorphBallBombDefinitions.XVelocities+i*2), flight.PackedHorizontalVelocity,"Spread horizontal velocity re-encodes the native direction/magnitude word");
                 // The cartridge's hold bonus is bits six and seven of the hold count, added to the speed word before it is negated.

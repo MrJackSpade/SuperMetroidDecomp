@@ -81,12 +81,15 @@ internal static void VerifyTypedNativeWords()
     // round-trips, and every other word is rejected.
     for (ushort word = 0; word <= 4; word++)
         AssertEqual(word, SamusSnapshotWords.EncodeChargedShotGlow(SamusSnapshotWords.DecodeChargedShotGlow(word)), $"charged-shot glow word {word} round-trips");
-    AssertEqual(ChargedShotGlow.ChargedShotFlash, SamusSnapshotWords.DecodeChargedShotGlow(4), "a charged shot's glow word four is its flash's start");
+    AssertEqual(ChargedShotGlowKind.ChargedShotFlash, SamusSnapshotWords.DecodeChargedShotGlow(4)?.Kind, "a charged shot's glow word four is a flash");
+    AssertEqual(ChargedShotGlow.StartChargedShotFlash().Play.Playback, SamusSnapshotWords.DecodeChargedShotGlow(4)!.Play.Playback, "a charged shot's glow word four is its flash's start");
     for (ushort word = 1 << 15; word <= (1 << 15) + 20; word++)
         AssertEqual(word, SamusSnapshotWords.EncodeChargedShotGlow(SamusSnapshotWords.DecodeChargedShotGlow(word)), $"Hyper Beam glow word {word:X4} round-trips");
-    AssertEqual(ChargedShotGlow.HyperBeamGlow, SamusSnapshotWords.DecodeChargedShotGlow((1 << 15) + 20), "the Hyper Beam shot's glow word is its glow's start");
-    AssertEqual(ChargedShotGlow.None, SamusSnapshotWords.DecodeChargedShotGlow(1 << 15).Played(out _),
-        "the Hyper Beam glow's marker alone is its last update before it ends");
+    AssertEqual(ChargedShotGlowKind.HyperBeamGlow, SamusSnapshotWords.DecodeChargedShotGlow((1 << 15) + 20)?.Kind, "the Hyper Beam shot's glow word is a Hyper Beam glow");
+    AssertEqual(ChargedShotGlow.StartHyperBeamGlow().Play.Playback, SamusSnapshotWords.DecodeChargedShotGlow((1 << 15) + 20)!.Play.Playback, "the Hyper Beam shot's glow word is its glow's start");
+    ChargedShotGlow lastHyperBeamGlow = SamusSnapshotWords.DecodeChargedShotGlow(1 << 15)!;
+    _ = lastHyperBeamGlow.PlayUpdate();
+    AssertTrue(lastHyperBeamGlow.HasEnded, "the Hyper Beam glow's marker alone is its last update before it ends");
     AssertThrows<InvalidDataException>(() => SamusSnapshotWords.DecodeChargedShotGlow(5), "a glow word past the flash is rejected");
     AssertThrows<InvalidDataException>(() => SamusSnapshotWords.DecodeChargedShotGlow((1 << 15) + 21), "a glow word past the Hyper Beam glow is rejected");
     for (ushort word = 0; word <= BeamChargeDefinitions.SpecialAttackCounter; word++)

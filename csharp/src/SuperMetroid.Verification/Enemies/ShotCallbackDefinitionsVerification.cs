@@ -164,8 +164,7 @@ internal static class ShotCallbackDefinitionsVerification
             projectile.Direction = SamusProjectileDirection.Right;
             projectile.Position = projectile.Position.WithWhole(enemy.Position.Whole);
             projectile.Radius = new(4, 4);
-            projectile.Playback = ProjectileFixturePlaybacks.Active;
-            projectile.FrameHold = WrappingCountdown.Start(1);
+            projectile.Animation = ProjectileFixturePlaybacks.Active();
 
             AssertEqual(1, enemies.ResolveShotsOnInteractiveEnemies(
                     projectiles,

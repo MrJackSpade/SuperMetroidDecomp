@@ -194,8 +194,7 @@ public sealed class SamusProjectileSystem
         Ensure.NotNull(colours);
         Ensure.NotNull(samus);
 
-        ChargedShotGlow glow = Charge.ChargedShotGlow;
-        if (glow.Kind == ChargedShotGlowKind.None)
+        if (Charge.ChargedShotGlow is not { } glow)
         {
             // The charge glow admits the continuously cycling charge glow only while
             // grapple is inactive and the charge, a count that never passes its 120-update clamp or the Hyper Beam's
@@ -226,10 +225,10 @@ public sealed class SamusProjectileSystem
         // A charged shot's glow plays its sequence, painting each shade as it shows it: an ordinary shot's flash paints the
         // yellow glow on each of its three updates; the Hyper Beam shot's glow shows each frame for two updates.
         // On the update after its last shade the glow ends and the suit's own shade returns.
-        ChargedShotGlow played = glow.Played(out PictureShade? shown);
-        Charge.ChargedShotGlow = played;
-        if (played.Kind == ChargedShotGlowKind.None)
+        PictureShade? shown = glow.PlayUpdate();
+        if (glow.HasEnded)
         {
+            Charge.ChargedShotGlow = null;
             ProjectileAnimation.ShowSuitShade(colours, samus);
             return true;
         }
@@ -510,7 +509,7 @@ public sealed class SamusProjectileSystem
         ClearProjectileData();
         Charge.ClearCount();
         Charge.PreviousCharge = BeamChargeLevel.None;
-        Charge.ChargedShotGlow = ChargedShotGlow.None;
+        Charge.ChargedShotGlow = null;
         Charge.ClearFlare();
         Charge.RestartChargePulse();
     }

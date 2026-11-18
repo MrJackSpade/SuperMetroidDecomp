@@ -60,7 +60,7 @@ internal static class GroundedBombSpreadVerification
                     AssertEqual((ushort)expectedX, slot.Position.X.Fraction, $"spread X fraction: {context}");
                     AssertEqual((ushort)SixteenSixteenConstants.WholeOf(unchecked((int)expectedY)), slot.Position.Y.Whole, $"spread Y: {context}");
                     AssertEqual((ushort)expectedY, slot.Position.Y.Fraction, $"spread Y fraction: {context}");
-                    AssertEqual((ushort)(Read(MorphBallBombDefinitions.FuseTimers) - tick), slot.BombTimer.RawValue, $"individual spread fuse: {context}");
+                    AssertEqual((ushort)(Read(MorphBallBombDefinitions.FuseTimers) - tick), slot.FuseUpdatesLeft, $"individual spread fuse: {context}");
                 }
             }
         }

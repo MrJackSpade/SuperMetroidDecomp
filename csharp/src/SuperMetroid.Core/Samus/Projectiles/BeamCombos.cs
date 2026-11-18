@@ -94,7 +94,7 @@ internal sealed class BeamCombos
                 // Every particle but a Plasma ring leaves trails, the Spazer beam pair only once the attack falls
                 // (SpazerParticleState.LeavesTrails), which starts its countdown then.
                 if (kind is SamusComboKind.Wave or SamusComboKind.Ice || (kind == SamusComboKind.Spazer && part.SpazerTrail))
-                    shot.TrailTimer = WrappingCountdown.Start(ProjectileTimingDefinitions.TrailInterval);
+                    shot.TrailUpdatesLeft = ProjectileTimingDefinitions.TrailInterval;
                 if (kind is SamusComboKind.Wave or SamusComboKind.Spazer)
                     shot.Position = shot.Position.WithFractionX(0).WithFractionY(0);
                 if (kind == SamusComboKind.Wave)
@@ -145,8 +145,7 @@ internal sealed class BeamCombos
         SamusProjectileSegment segment = shotKind == BeamComboShotKind.Combo
             ? SamusProjectileKinds.SoleAnimation(projectileKind)
             : SamusProjectileKinds.Animation(projectileKind, shot.Direction);
-        shot.Playback = SamusProjectilePlayback.Start(segment);
-        shot.FrameHold = WrappingCountdown.Start(1);
+        shot.Animation = SamusProjectilePlayback.Start(segment);
         if (shotKind == BeamComboShotKind.Charged)
             shot.Radius = SamusProjectilePlayback.InitialRadius(segment);
     }
@@ -164,13 +163,8 @@ internal sealed class BeamCombos
             _animation.ClearProjectile(shot);
             return outward ? null : SamusSound.IceSpecialAttackEnd;
         }
-        CountdownStep trailStep = shot.TrailTimer.Decrement();
-        shot.TrailTimer = trailStep.Remaining;
-        if (trailStep.IsZero)
-        {
-            shot.TrailTimer = WrappingCountdown.Start(ProjectileTimingDefinitions.TrailInterval);
+        if (shot.CountsDownToTrail(ProjectileTimingDefinitions.TrailInterval))
             _trails.SpawnTrail(shot);
-        }
         Offset16<RoomPixels> orbit = SamusComboMechanics.GetSineOffset(ice.Angle, ice.Radius);
         shot.Position = shot.Position.WithWrappedWholeX(samus.Position.X.Whole + orbit.X);
         if (outward && LeftViewHorizontally(shot, camera))
@@ -293,13 +287,8 @@ internal sealed class BeamCombos
         }
         if (spazer.LeavesTrails)
         {
-            CountdownStep trailStep = shot.TrailTimer.Decrement();
-            shot.TrailTimer = trailStep.Remaining;
-            if (trailStep.IsZero)
-            {
-                shot.TrailTimer = WrappingCountdown.Start(ProjectileTimingDefinitions.TrailInterval);
+            if (shot.CountsDownToTrail(ProjectileTimingDefinitions.TrailInterval))
                 _trails.SpawnTrail(shot);
-            }
         }
         if (falling)
         {
@@ -387,7 +376,7 @@ internal sealed class BeamCombos
             (spazer.Part.SpazerTrail ? -BeamComboDefinitions.SpazerFallSideStep : BeamComboDefinitions.SpazerFallSideStep));
         shot.Direction = SamusProjectileDirection.DownFacingLeft;
         shot.IsSpent = false;
-        shot.TrailTimer = WrappingCountdown.Start(ProjectileTimingDefinitions.TrailInterval);
+        shot.TrailUpdatesLeft = ProjectileTimingDefinitions.TrailInterval;
         spazer.LeavesTrails = true;
         shot.Behavior = SamusShotBehaviors.SpazerSpecialAttackFalling;
         if (!spazer.Part.SpazerTrail)
@@ -419,13 +408,8 @@ internal sealed class BeamCombos
             return BeamComboDefinitions.WaveRemovalSound;
         }
         SignedEightEight oldXSpeed = shot.Velocity.X;
-        CountdownStep trailStep = shot.TrailTimer.Decrement();
-        shot.TrailTimer = trailStep.Remaining;
-        if (trailStep.IsZero)
-        {
-            shot.TrailTimer = WrappingCountdown.Start(ProjectileTimingDefinitions.TrailInterval);
+        if (shot.CountsDownToTrail(ProjectileTimingDefinitions.TrailInterval))
             _trails.SpawnTrail(shot);
-        }
         shot.Velocity = shot.Velocity.WithX(AccelerateWaveAxis(shot.Velocity.X, CoordinateAxis.Difference(samus.Position.X.Whole, shot.Position.X.Whole)));
         shot.Position = shot.Position.AdvanceX(shot.Velocity.X.ToSixteenSixteenDelta());
         shot.Velocity = shot.Velocity.WithY(AccelerateWaveAxis(shot.Velocity.Y, CoordinateAxis.Difference(samus.Position.Y.Whole, shot.Position.Y.Whole)));

@@ -72,8 +72,7 @@ internal sealed class ProjectileTrails
     /// </summary>
     private static void StartSide(SamusProjectileTrailSide side, ProjectileTrailSegment segment, Position16<RoomPixels> origin, Offset16<RoomPixels> offset)
     {
-        side.FrameHold = 1;
-        side.Playback = ProjectileTrailSparkleAnimations.Start(segment);
+        side.Animation = ProjectileTrailSparkleAnimations.Start(segment);
         side.Position = Position16<RoomPixels>.Of(AddOffset(origin.X, offset.X), AddOffset(origin.Y, offset.Y));
     }
 
@@ -82,8 +81,7 @@ internal sealed class ProjectileTrails
     /// its animation has shown one.
     /// </summary>
     internal static SamusProjectileFrameId? GetTrailFrame(SamusProjectile projectile) =>
-        SamusProjectilePlayback.ShownFrame(projectile.Playback
-            ?? throw new InvalidOperationException("A trail read the frame of an inactive projectile."));
+        (projectile.Animation ?? throw new InvalidOperationException("A trail read the frame of an inactive projectile.")).Shown;
 
     /// <summary>Places a sparkle <paramref name="offset"/> pixels from <paramref name="origin"/>, drawn four pixels up and left, with the position wrapping at 65536.</summary>
     private static int AddOffset(int origin, int offset) => CoordinateAxis.Wrap(origin + offset - 4);
@@ -113,29 +111,16 @@ internal sealed class ProjectileTrails
         HorizontalDirection direction)
     {
         SamusProjectileTrailSide side = direction == HorizontalDirection.Left ? pair.Left : pair.Right;
-        if (side.Playback is not { } playback)
+        if (side.Animation is not { } animation || animation.HasStopped)
             return;
 
         if (!timeIsFrozen)
         {
-            side.FrameHold--;
-            if (side.FrameHold == 0)
-            {
-                AnimationPlace place = playback.Place;
-                switch (ProjectileTrailSparkleAnimations.Segments.PlayToNextFrame(playback.Animation, ref place, cue => Move(pair, cue)))
-                {
-                    case AnimationShown<ProjectileTrailSegment, ProjectileTrailFrame>.Frame frame:
-                        side.FrameHold = frame.Duration;
-                        side.ShownPose = frame.Shown;
-                        side.Playback = playback with { Place = place };
-                        break;
-                    case AnimationShown<ProjectileTrailSegment, ProjectileTrailFrame>.Ended:
-                        side.Playback = null;
-                        return;
-                    case var shown:
-                        throw new InvalidOperationException($"Trail sparkle animation {playback.PlayingSegment} played {shown}.");
-                }
-            }
+            animation.Step(cue => Move(pair, cue));
+            if (animation.HasStopped)
+                return;
+            if (animation.IsResting)
+                throw new InvalidOperationException($"Trail sparkle animation came to rest at {animation.Playback.Place}; a sparkle shows frames and ends.");
         }
 
         side.DisplayedPosition = side.Position;

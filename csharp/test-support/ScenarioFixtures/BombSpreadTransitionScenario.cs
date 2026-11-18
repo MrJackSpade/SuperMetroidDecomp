@@ -135,7 +135,7 @@ internal sealed class BombSpreadTransitionScenario
             var slot = Runtime.Room.LoadedScope.BombProjectiles.Bombs[slotIndex];
             string bomb = $"bomb,{slotIndex},{(slot.IsActive ? 1 : 0)}";
             if (slot.IsActive)
-                bomb += $",{SuperMetroid.AssetExtraction.Samus.SamusProjectileWordEncoder.EncodeBombType(slot.Type, slot.IsBombSpread, slot.HasReactedToTerrain):X4},{slot.Position.X.Whole:X4},{slot.Position.X.Fraction:X4},{slot.Position.Y.Whole:X4},{slot.Position.Y.Fraction:X4},{FlightColumns(slot.SpreadFlight)},{slot.BombTimer.RemainingFrames:X4},{slot.Radius.X:X4},{slot.Radius.Y:X4},{(slot.Playback is { } playback ? Lists.Position(SuperMetroid.Core.Samus.Projectiles.SamusProjectilePlayback.BeatOf(playback)) : 0):X4},{slot.FrameHold.RemainingFrames:X4},{slot.Sprite?.Name}";
+                bomb += $",{SuperMetroid.AssetExtraction.Samus.SamusProjectileWordEncoder.EncodeBombType(slot.Type, slot.IsBombSpread, slot.HasReactedToTerrain):X4},{slot.Position.X.Whole:X4},{slot.Position.X.Fraction:X4},{slot.Position.Y.Whole:X4},{slot.Position.Y.Fraction:X4},{FlightColumns(slot.SpreadFlight)},{slot.FuseUpdatesLeft:X4},{slot.Radius.X:X4},{slot.Radius.Y:X4},{(slot.Playback is { } playback ? Lists.Position(SuperMetroid.Core.Samus.Projectiles.SamusProjectilePlayback.BeatOf(playback)) : 0):X4},{slot.Animation!.UpdatesLeft:X4},{slot.Sprite?.Name}";
             yield return bomb;
         }
     }

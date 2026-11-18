@@ -84,7 +84,7 @@ internal static class SamusChargeColorsVerification
         }
         AssertEqual(0, projectiles.Charge.ChargeGlowStep, "six charge phases wrap");
         samus.HyperBeamEnabled = true;
-        projectiles.Charge.ChargedShotGlow = ChargedShotGlow.HyperBeamGlow;
+        projectiles.Charge.ChargedShotGlow = ChargedShotGlow.StartHyperBeamGlow();
         for (int call = 0; call < 20; call++)
         {
             PictureShade before = samusColours.Suit;

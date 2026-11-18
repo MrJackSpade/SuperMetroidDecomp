@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Enemies.EffectActors;
-
 namespace SuperMetroid.Core.Escape;
 
 /// <summary>Chooses a Zebes escape explosion from its random draw (<see cref="ZebesEscapeExplosionDefinitions"/>).</summary>

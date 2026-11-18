@@ -132,10 +132,10 @@ internal static class SamusAnimationProgramCodec
             0xf7 => new SamusAnimationInstallDrainedFall(),
             0xf8 => new SamusAnimationTurnTransition(PoseAt(1)),
             0xf9 => new SamusAnimationItemAirborneTransition(Items(), PoseAt(3), PoseAt(4), PoseAt(5), PoseAt(6)),
-            0xfb => new SamusAnimationWallJumpSelect(SamusAnimationNumbers.Target(animation, frame + 1), SamusAnimationNumbers.Target(animation, frame + 11), SamusAnimationNumbers.Target(animation, frame + 21)),
+            0xfb => new SamusAnimationWallJumpSelect(SamusAnimationNumbers.Frame(animation, frame + 1), SamusAnimationNumbers.Frame(animation, frame + 11), SamusAnimationNumbers.Frame(animation, frame + 21)),
             0xfc => new SamusAnimationItemTransition(Items(), PoseAt(3), PoseAt(4)),
             0xfd => new SamusAnimationTransition(PoseAt(1)),
-            0xfe => new SamusAnimationRepeat(SamusAnimationNumbers.Target(animation, frame - Byte(cartridge, position + 1))),
+            0xfe => new SamusAnimationRepeat(SamusAnimationNumbers.Frame(animation, frame - Byte(cartridge, position + 1))),
             0xff => new SamusAnimationRestart(),
             _ => throw new InvalidDataException($"Animation byte ${value:X2} at $91:{position:X4} is no instruction a retail program holds."),
         };

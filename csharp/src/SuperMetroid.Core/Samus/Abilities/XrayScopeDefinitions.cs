@@ -59,15 +59,15 @@ public static class XrayScopeDefinitions
     internal static class Aims
     {
         /// <summary>The scope aimed up.</summary>
-        internal static SamusAnimationTarget Up { get; } = new(SamusAnimationSegmentName.Main, 0);
+        internal static SamusAnimationFrame Up { get; } = new(SamusAnimationSegmentName.Main, 0);
         /// <summary>The scope aimed raised, between up and level.</summary>
-        internal static SamusAnimationTarget Raised { get; } = new(SamusAnimationSegmentName.Main, 1);
+        internal static SamusAnimationFrame Raised { get; } = new(SamusAnimationSegmentName.Main, 1);
         /// <summary>The scope aimed level, the aim its activation starts on.</summary>
-        internal static SamusAnimationTarget Level { get; } = new(SamusAnimationSegmentName.Main, 2);
+        internal static SamusAnimationFrame Level { get; } = new(SamusAnimationSegmentName.Main, 2);
         /// <summary>The scope aimed lowered, between level and down.</summary>
-        internal static SamusAnimationTarget Lowered { get; } = new(SamusAnimationSegmentName.Main, 3);
+        internal static SamusAnimationFrame Lowered { get; } = new(SamusAnimationSegmentName.Main, 3);
         /// <summary>The scope aimed down.</summary>
-        internal static SamusAnimationTarget Down { get; } = new(SamusAnimationSegmentName.Main, 4);
+        internal static SamusAnimationFrame Down { get; } = new(SamusAnimationSegmentName.Main, 4);
     }
 
     /// <summary>How the X-ray scope's cone widens.</summary>

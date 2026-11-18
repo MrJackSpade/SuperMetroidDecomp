@@ -14,8 +14,8 @@ internal static class SamusDeathSequenceFrames
     /// </summary>
     /// <param name="movement">The movement type before the death pose.</param>
     /// <returns>The initial death-pose animation frame.</returns>
-    internal static SamusAnimationTarget InitialFrame(SamusMovementType movement) =>
-        InitialFrames.TryGetValue(movement, out SamusAnimationTarget frame)
+    internal static SamusAnimationFrame InitialFrame(SamusMovementType movement) =>
+        InitialFrames.TryGetValue(movement, out SamusAnimationFrame frame)
             ? frame
             : throw new InvalidDataException($"Death-pose frame table has no movement type {movement}.");
 }

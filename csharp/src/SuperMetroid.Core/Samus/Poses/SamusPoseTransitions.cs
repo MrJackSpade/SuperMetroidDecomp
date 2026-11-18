@@ -181,7 +181,9 @@ internal static class SamusPoseTransitions
         // setup's poses aim straight up, including landing and its completion.
         return SamusPoseMetadata.ReadMovementType(targetPose) == SamusMovementType.Standing &&
             SamusPoseMetadata.ReadAim(sourcePose).AimsStraightUp &&
-            SamusPoseMetadata.ReadAim(targetPose).AimsStraightUp ? SamusAnimationFrame.AfterStart : SamusAnimationFrame.Start;
+            SamusPoseMetadata.ReadAim(targetPose).AimsStraightUp
+            ? SamusAnimationDelays.AnimationForPose(targetPose).AfterStart
+            : SamusAnimationDelays.AnimationForPose(targetPose).Start;
     }
 
     /// <summary>Chooses the landing transition's prospective landing pose.</summary>

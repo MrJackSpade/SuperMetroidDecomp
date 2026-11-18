@@ -16,8 +16,4 @@ internal sealed record SamusAnimationItemAirborneTransition(
     SamusPoseId UnequippedGrounded,
     SamusPoseId UnequippedAirborne,
     SamusPoseId EquippedGrounded,
-    SamusPoseId EquippedAirborne) : SamusAnimationCue
-{
-    /// <inheritdoc/>
-    internal override int CarriedValues => 6;
-}
+    SamusPoseId EquippedAirborne) : SamusAnimationCue;

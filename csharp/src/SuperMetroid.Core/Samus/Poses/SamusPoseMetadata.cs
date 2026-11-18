@@ -137,7 +137,7 @@ internal static class SamusPoseMetadata
         samus.Pose = samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.GravitySuit)
             ? SamusPoseId.ForwardFacingSuitedPose
             : SamusPoseId.ForwardFacingPowerSuitPose;
-        samus.AnimationFrame = SamusAnimationFrame.Start;
+        samus.AnimationFrame = SamusAnimationDelays.AnimationForPose(samus.Pose).Start;
     }
 
     /// <summary>

@@ -224,8 +224,6 @@ internal static class SamusAnimationDelayDefinitions
     internal static SamusPoseAnimation KnockbackAnimation { get; } = new(SamusAnimationName.Knockback,
     [
         new(SamusAnimationSegmentName.Knockback, [2, 16], new SamusAnimationRepeat(SamusAnimationSegmentName.Knockback, 1)),
-        new(SamusAnimationSegmentName.SlowRecoil, [6, 6, 6, 8], new SamusAnimationRestart()),
-        new(SamusAnimationSegmentName.SlowerRecoil, [8, 8], new SamusAnimationRestart()),
         new(SamusAnimationSegmentName.RecoilHold, [10], new SamusAnimationRestart()),
     ]);
 

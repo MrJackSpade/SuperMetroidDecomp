@@ -57,8 +57,12 @@ internal static class SamusAnimationDelays
             : null;
     }
 
-    /// <summary>The frame after <paramref name="frame"/> of <paramref name="pose"/>'s animation, past its end included.</summary>
-    internal static SamusAnimationFrame Next(SamusPoseId pose, SamusAnimationFrame frame) => AnimationOf(pose).Next(frame);
+    /// <summary>
+    /// The frame after <paramref name="frame"/> of <paramref name="pose"/>'s animation, past its end and past a segment's cue
+    /// included (<see cref="SamusPoseAnimation.Next"/>).
+    /// </summary>
+    internal static SamusAnimationFrame Next(SamusPoseId pose, SamusAnimationFrame frame, SamusFramesBeyondAnimation framesBeyondAnimation) =>
+        AnimationOf(pose).Next(frame, framesBeyondAnimation);
 
     /// <summary>
     /// The frame of <paramref name="pose"/>'s animation a cue read at <paramref name="at"/> moves it to when it names
@@ -69,16 +73,16 @@ internal static class SamusAnimationDelays
     internal static SamusAnimationFrame Target(
         SamusPoseId pose,
         SamusAnimationFrame at,
-        SamusAnimationTarget target,
+        SamusAnimationFrame target,
         SamusFramesBeyondAnimation framesBeyondAnimation)
     {
         Ensure.NotNull(framesBeyondAnimation);
         SamusPoseAnimation animation = AnimationOf(pose);
         if (OwnStep(animation, at, framesBeyondAnimation) is not null)
-            return animation.Resolve(target);
+            return animation.Require(target);
         SamusFramesBeyondAnimation.Read read = framesBeyondAnimation.ReadPast(animation.Name, at) ?? throw new InvalidDataException(
             $"Samus animation frame {at} of pose {pose} reads no step whose cue could name a frame.");
-        SamusAnimationFrame named = AnimationNamed(read.Animation).Resolve(target);
+        SamusAnimationFrame named = AnimationNamed(read.Animation).Require(target);
         return read.Moves.TryGetValue(named, out SamusAnimationFrame moved)
             ? moved
             : throw new InvalidDataException(
@@ -106,7 +110,7 @@ internal static class SamusAnimationDelays
         SamusAnimationFrame frame,
         SamusAnimationPlace place,
         SamusFramesBeyondAnimation framesBeyondAnimation) =>
-        frame >= Land(pose, place, framesBeyondAnimation);
+        AnimationOf(pose).Compare(frame, Land(pose, place, framesBeyondAnimation)) >= 0;
 
     /// <summary>Whether <paramref name="frame"/> of <paramref name="pose"/>'s animation lies past <paramref name="place"/>.</summary>
     internal static bool HasPassed(
@@ -114,7 +118,7 @@ internal static class SamusAnimationDelays
         SamusAnimationFrame frame,
         SamusAnimationPlace place,
         SamusFramesBeyondAnimation framesBeyondAnimation) =>
-        frame > Land(pose, place, framesBeyondAnimation);
+        AnimationOf(pose).Compare(frame, Land(pose, place, framesBeyondAnimation)) > 0;
 
     /// <summary>
     /// The step <paramref name="frame"/> of <paramref name="animation"/> names itself: one of its delays or cues, or a value

@@ -285,7 +285,7 @@ internal sealed class RoomLoader
         Ensure.NotNull(slot);
         SamusState samus = InitializeSamus();
         samus.Pose = SamusPoseId.FacingRightNormalPose;
-        samus.AnimationFrame = SamusAnimationFrame.Start;
+        samus.AnimationFrame = SamusAnimationDelays.AnimationForPose(samus.Pose).Start;
         _player.Samus = samus;
         slot.ApplyTo(_player.Samus, _system);
         // Loading the save sets the stored explored maps from it; the live map is loaded only at file select.
@@ -320,7 +320,7 @@ internal sealed class RoomLoader
         // Initialization faces Samus forward in the power suit; the model's constructor defaults to the right-facing pose.
         SamusState samus = InitializeSamus();
         samus.Pose = SamusPoseId.ForwardFacingPowerSuitPose;
-        samus.AnimationFrame = SamusAnimationFrame.Start;
+        samus.AnimationFrame = SamusAnimationDelays.AnimationForPose(samus.Pose).Start;
         samus.CopyInventoryFrom(carried);
         _player.Samus = samus;
         _assists.CarryLoadoutGrant(carried, samus);
@@ -1120,7 +1120,7 @@ internal sealed class RoomLoader
 
         SamusState samus = InitializeSamus();
         samus.Pose = SamusPoseId.ForwardFacingPowerSuitPose;
-        samus.AnimationFrame = SamusAnimationFrame.Start;
+        samus.AnimationFrame = SamusAnimationDelays.AnimationForPose(samus.Pose).Start;
         samus.Position = FixedPosition<RoomPixels>.FromWhole(_room.ActiveLoadStation.Placement.SamusPosition.WithY(0));
         _player.Samus = samus;
         SuperMetroid.Core.Samus.Colours.SamusSuitShade.ShowPower(_player.Colours);

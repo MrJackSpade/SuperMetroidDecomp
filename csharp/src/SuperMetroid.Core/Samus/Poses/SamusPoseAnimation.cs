@@ -1,11 +1,12 @@
 using System.Globalization;
+using SamusFramesBeyondAnimation = SuperMetroid.Core.Compatibility.FramesBeyondAnimation<SuperMetroid.Core.Samus.Poses.SamusAnimationName, SuperMetroid.Core.Samus.Poses.SamusAnimationFrame, SuperMetroid.Core.Samus.Poses.SamusAnimationPlaceName, SuperMetroid.Core.Samus.Poses.SamusPoseAnimationStep>;
 
 namespace SuperMetroid.Core.Samus.Poses;
 
 /// <summary>
-/// A Samus pose's animation (#1473, #2048): named segments, each frames held for their delays and the cue that ends the
-/// segment. Samus's animation stands on a frame of one segment (<see cref="SamusAnimationFrame"/>) and plays on from
-/// segment to segment by name and frame; a frame on a value a cue carries, or past the last segment, names no step of the
+/// A Samus pose's animation (#1473, #2048, #2395): named segments, each frames held for their delays and the cue that ends
+/// the segment. Samus's animation stands on a frame of one segment (<see cref="SamusAnimationFrame"/>) and plays on from
+/// segment to segment by name and frame; a frame past a segment's end cue, or past the last segment, names no step of the
 /// animation and reads the outcome the import decoded for it (<see cref="SamusAnimationDelays.TryStepFor"/>).
 /// </summary>
 internal sealed class SamusPoseAnimation
@@ -24,6 +25,7 @@ internal sealed class SamusPoseAnimation
         if (segments.Select(segment => segment.Name).Distinct().Count() != segments.Count)
             throw new ArgumentException("Two segments of an animation share a name.", nameof(segments));
         this.segments = [.. segments];
+        FrameOrder = Comparer<SamusAnimationFrame>.Create(Compare);
     }
 
     /// <summary>The animation's name, which the installation keys its outcomes by.</summary>
@@ -32,40 +34,47 @@ internal sealed class SamusPoseAnimation
     /// <summary>The segments, in order.</summary>
     internal IReadOnlyList<SamusAnimationSegment> Segments => segments;
 
+    /// <summary>The animation's first frame, which starting or restarting it sets.</summary>
+    internal SamusAnimationFrame Start => new(segments[0].Name, 0);
+
+    /// <summary>
+    /// The frame after the animation's first: a spin starts on it, skipping its still first frame, and a standing pose aiming
+    /// up entered from one keeps the gun raised on it.
+    /// </summary>
+    internal SamusAnimationFrame AfterStart => new(segments[0].Name, 1);
+
+    /// <summary>Orders frames of this animation as it plays them: an earlier segment first, then an earlier frame.</summary>
+    internal IComparer<SamusAnimationFrame> FrameOrder { get; }
+
     /// <summary>The segment named <paramref name="name"/>.</summary>
     /// <exception cref="ArgumentException">The animation has no such segment.</exception>
-    internal SamusAnimationSegment Segment(SamusAnimationSegmentName name) =>
-        Array.Find(segments, candidate => candidate.Name == name) ??
-        throw new ArgumentException($"Animation {Name} has no segment {name}.", nameof(name));
+    internal SamusAnimationSegment Segment(SamusAnimationSegmentName name) => segments[IndexOf(name)];
 
     /// <summary>Frame <paramref name="frame"/> of the segment named <paramref name="segment"/>.</summary>
-    /// <exception cref="ArgumentException">The animation has no such segment, or the frame lies past a segment that is not its last.</exception>
-    internal SamusAnimationFrame Frame(SamusAnimationSegmentName segment, int frame)
+    /// <exception cref="ArgumentException">The animation has no such segment, or the frame is negative.</exception>
+    internal SamusAnimationFrame Frame(SamusAnimationSegmentName segment, int frame) => Require(new SamusAnimationFrame(segment, frame));
+
+    /// <summary><paramref name="frame"/>, which must be a frame of one of this animation's segments.</summary>
+    /// <exception cref="ArgumentException">The animation has no such segment, or the frame is negative.</exception>
+    internal SamusAnimationFrame Require(SamusAnimationFrame frame)
     {
-        int index = Array.FindIndex(segments, candidate => candidate.Name == segment);
-        if (index < 0)
-            throw new ArgumentException($"The animation has no segment {segment}.", nameof(segment));
-        if (frame < 0 || (index < segments.Length - 1 && frame >= segments[index].Length))
-            throw new ArgumentException($"Segment {segment} has no frame {frame}.", nameof(frame));
-        return new SamusAnimationFrame(index, frame);
+        _ = IndexOf(frame.Segment);
+        return frame.Frame >= 0 ? frame : throw new ArgumentException($"Animation {Name} has no frame {frame}.", nameof(frame));
     }
 
     /// <summary>The place named <paramref name="name"/>: frame <paramref name="frame"/> of the segment named <paramref name="segment"/>.</summary>
     internal SamusAnimationPlace Place(SamusAnimationPlaceName name, SamusAnimationSegmentName segment, int frame) =>
         new(name, this, Frame(segment, frame));
 
-    /// <summary>The frame <paramref name="target"/> names in this animation.</summary>
-    internal SamusAnimationFrame Resolve(SamusAnimationTarget target) => Frame(target.Segment, target.Frame);
-
-    /// <summary>The name of the segment <paramref name="frame"/> is a frame of.</summary>
-    internal SamusAnimationSegmentName SegmentName(SamusAnimationFrame frame) => SegmentOf(frame).Name;
-
     /// <summary>
     /// <paramref name="frame"/>'s name, as the installation keys a frame of this animation: its segment's name and the frame
     /// within the segment.
     /// </summary>
-    internal string NameOf(SamusAnimationFrame frame) =>
-        $"{SegmentName(frame)}.{frame.Frame.ToString(CultureInfo.InvariantCulture)}";
+    internal string NameOf(SamusAnimationFrame frame)
+    {
+        SamusAnimationFrame named = Require(frame);
+        return $"{named.Segment}.{named.Frame.ToString(CultureInfo.InvariantCulture)}";
+    }
 
     /// <summary>The frame of this animation the installation names <paramref name="name"/> (<see cref="NameOf"/>).</summary>
     /// <exception cref="InvalidDataException">The name names no frame of this animation.</exception>
@@ -76,38 +85,51 @@ internal sealed class SamusPoseAnimation
             !Enum.TryParse(name.AsSpan(0, separator), ignoreCase: false, out SamusAnimationSegmentName segment) || !Enum.IsDefined(segment) ||
             !int.TryParse(name.AsSpan(separator + 1), NumberStyles.None, CultureInfo.InvariantCulture, out int frame))
             throw new InvalidDataException($"'{name}' names no animation frame.");
-        int index = Array.FindIndex(segments, candidate => candidate.Name == segment);
-        return index >= 0 && (index == segments.Length - 1 || frame < segments[index].Length)
-            ? new SamusAnimationFrame(index, frame)
-            : throw new InvalidDataException($"'{name}' names no frame of the animation.");
+        return Array.Exists(segments, candidate => candidate.Name == segment)
+            ? new SamusAnimationFrame(segment, frame)
+            : throw new InvalidDataException($"'{name}' names no frame of the {Name} animation.");
     }
 
-    /// <summary>The step of the animation <paramref name="frame"/> is on, or null when it is on a cue's value or past the animation.</summary>
+    /// <summary>The step of the animation <paramref name="frame"/> is on, or null when it lies past its segment's end cue.</summary>
     internal SamusPoseAnimationStep? TryStepAt(SamusAnimationFrame frame)
     {
-        SamusAnimationSegment segment = SegmentOf(frame);
+        SamusAnimationSegment segment = Segment(Require(frame).Segment);
         return frame.Frame < segment.Delays.Count ? new SamusAnimationDelay(segment.Delays[frame.Frame])
             : frame.Frame == segment.CueFrame ? segment.End
             : null;
     }
 
     /// <summary>
-    /// The frame after <paramref name="frame"/>: the next of its segment, or the next segment's first once the segment's
-    /// frames, its cue and the values the cue carries are behind it. Past the last segment the frames run on.
+    /// The frame after <paramref name="frame"/>: the next of its segment up to its end cue, and from a cue that continues
+    /// the next segment's first. Past the last segment's cue the frames run on past the animation; past any other segment's
+    /// cue the frame after is the one the import decoded (<see cref="SamusFramesBeyondAnimation.FrameAfterCue"/>).
     /// </summary>
-    internal SamusAnimationFrame Next(SamusAnimationFrame frame)
+    /// <exception cref="InvalidDataException">The installation holds no frame after a frame past a segment's cue.</exception>
+    internal SamusAnimationFrame Next(SamusAnimationFrame frame, SamusFramesBeyondAnimation framesBeyondAnimation)
     {
-        SamusAnimationSegment segment = SegmentOf(frame);
-        return frame.Segment < segments.Length - 1 && frame.Frame + 1 == segment.Length
-            ? new SamusAnimationFrame(frame.Segment + 1, 0)
-            : frame with { Frame = frame.Frame + 1 };
+        Ensure.NotNull(framesBeyondAnimation);
+        int index = IndexOf(Require(frame).Segment);
+        SamusAnimationSegment segment = segments[index];
+        if (frame.Frame < segment.CueFrame || index == segments.Length - 1)
+            return frame with { Frame = frame.Frame + 1 };
+        return frame.Frame == segment.CueFrame && segment.End.ContinuesToNextSegment
+            ? new SamusAnimationFrame(segments[index + 1].Name, 0)
+            : framesBeyondAnimation.FrameAfterCue(Name, frame);
     }
 
-    /// <summary>The segment <paramref name="frame"/> is a frame of.</summary>
-    /// <exception cref="ArgumentException">The animation has no such segment, or the frame lies past a segment that is not its last.</exception>
-    private SamusAnimationSegment SegmentOf(SamusAnimationFrame frame) =>
-        frame.Segment >= 0 && frame.Segment < segments.Length && frame.Frame >= 0 &&
-        (frame.Segment == segments.Length - 1 || frame.Frame < segments[frame.Segment].Length)
-            ? segments[frame.Segment]
-            : throw new ArgumentException($"The animation has no frame {frame}.", nameof(frame));
+    /// <summary>Orders two frames of this animation as it plays them: an earlier segment first, then an earlier frame.</summary>
+    /// <exception cref="ArgumentException">Either frame names a segment the animation does not have.</exception>
+    internal int Compare(SamusAnimationFrame left, SamusAnimationFrame right)
+    {
+        int bySegment = IndexOf(left.Segment).CompareTo(IndexOf(right.Segment));
+        return bySegment != 0 ? bySegment : left.Frame.CompareTo(right.Frame);
+    }
+
+    /// <summary>The place of the segment named <paramref name="name"/> among the animation's segments, in play order.</summary>
+    /// <exception cref="ArgumentException">The animation has no such segment.</exception>
+    private int IndexOf(SamusAnimationSegmentName name)
+    {
+        int index = Array.FindIndex(segments, candidate => candidate.Name == name);
+        return index >= 0 ? index : throw new ArgumentException($"Animation {Name} has no segment {name}.", nameof(name));
+    }
 }

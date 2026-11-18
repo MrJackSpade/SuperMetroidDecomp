@@ -37,29 +37,29 @@ internal static class SamusAnimationFrames
     internal static SamusAnimationPlace ScrewAttackSpinStart { get; } = SamusAnimationDelayDefinitions.ScrewAttackAnimation.Place(SamusAnimationPlaceName.ScrewAttackSpinStart, Spin, 0);
 
     /// <summary>The fall's first fast-fall frame.</summary>
-    internal static SamusAnimationTarget FastFall { get; } = new(SamusAnimationSegmentName.FastFall, 0);
+    internal static SamusAnimationFrame FastFall { get; } = new(SamusAnimationSegmentName.FastFall, 0);
 
     /// <summary>The fast fall's first frame as the plain fall lays it out, below which the movement starts the fast fall.</summary>
     internal static SamusAnimationPlace FastFallStart { get; } = SamusAnimationDelayDefinitions.FallingAnimation.Place(SamusAnimationPlaceName.FastFallStart, SamusAnimationSegmentName.FastFall, 0);
 
     /// <summary>The front-facing pose's appearance at the Zebes start.</summary>
-    internal static SamusAnimationTarget ZebesAppearance { get; } = new(Appearance, 0);
+    internal static SamusAnimationFrame ZebesAppearance { get; } = new(Appearance, 0);
 
     /// <summary>The Crystal Flash's glow, which its raise starts.</summary>
-    internal static SamusAnimationTarget CrystalFlashGlow { get; } = new(Glow, 0);
+    internal static SamusAnimationFrame CrystalFlashGlow { get; } = new(Glow, 0);
 
     /// <summary>The Crystal Flash's finish, which its ammunition drain starts.</summary>
-    internal static SamusAnimationTarget CrystalFlashFinish { get; } = new(Finish, 0);
+    internal static SamusAnimationFrame CrystalFlashFinish { get; } = new(Finish, 0);
 
     /// <summary>The X-ray scope's middle aim, which its activation starts on.</summary>
-    internal static SamusAnimationTarget XrayActivation { get; } = Abilities.XrayScopeDefinitions.Aims.Level;
+    internal static SamusAnimationFrame XrayActivation { get; } = Abilities.XrayScopeDefinitions.Aims.Level;
 
     /// <summary>A ground turn's last frame, whose last tick completes an X-ray turn.</summary>
-    internal static SamusAnimationTarget TurnEnd { get; } = new(Main, 2);
+    internal static SamusAnimationFrame TurnEnd { get; } = new(Main, 2);
 
     /// <summary>The run stride's first foot contact, on whose last tick a running footstep lands.</summary>
-    internal static SamusAnimationTarget RunFirstFootContact { get; } = new(Run, 2);
+    internal static SamusAnimationFrame RunFirstFootContact { get; } = new(Run, 2);
 
     /// <summary>The run stride's second foot contact, on whose last tick the other running footstep lands.</summary>
-    internal static SamusAnimationTarget RunSecondFootContact { get; } = new(Run, 7);
+    internal static SamusAnimationFrame RunSecondFootContact { get; } = new(Run, 7);
 }

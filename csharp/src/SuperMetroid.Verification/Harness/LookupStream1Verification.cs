@@ -453,7 +453,7 @@ internal static class LookupStream1Verification
         var stock = Create(native);
         AssertTrue(stock.Frames.SequenceEqual(Decode(native)), "All supplied frame components preserved");
         AssertEqual(CanonicalBodyHash(template, top, bottom, SamusBodyNative.Frames(poses), Decode(native)), stock.ContentIdentity, "Original canonical frame hash");
-        AssertThrows<InvalidDataException>(() => stock.Gameplay.OriginRise(SamusPoseNumbering.FromNumber(0xfd), SamusAnimationFrame.Start), "Original pose bound preserved");
+        AssertThrows<InvalidDataException>(() => stock.Gameplay.OriginRise(SamusPoseNumbering.FromNumber(0xfd), default(SamusAnimationFrame)), "Original pose bound preserved");
         Console.WriteLine($"Body frame basis:{count} native components preserved, canonical hash and pose bound pass.");
     }
 
@@ -482,7 +482,7 @@ internal static class LookupStream1Verification
         }
         foreach (SamusPoseId pose in new[] { SamusPoseNumbering.FromNumber(0xfd), SamusPoseNumbering.FromNumber(0xfe), SamusPoseNumbering.FromNumber(0xff) })
         {
-            AssertThrows<InvalidDataException>(() => stock.Gameplay.OriginRise(pose, SamusAnimationFrame.Start), "Installed pose domain stays bounded");
+            AssertThrows<InvalidDataException>(() => stock.Gameplay.OriginRise(pose, default(SamusAnimationFrame)), "Installed pose domain stays bounded");
         }
         ushort[] invalid = (ushort[])native.Clone(); invalid[0] = SamusBodyNative.FramePointer(SamusBodySources.FrameCount);
         AssertThrows<InvalidDataException>(() => Create(invalid), "A pose frame list past the frames is rejected");
@@ -1336,7 +1336,7 @@ internal static class LookupStream1Verification
         AssertThrows<ArgumentOutOfRangeException>(() => SamusHudObservations.SelectionMode(undefinedMovement), "HUD movement exact domain");
         AssertThrows<InvalidDataException>(() => SamusAtmosphericEffects.WaterSplashFor(undefinedMovement), "splash exact movement domain");
         foreach (ushort invalid in new ushort[] { 10, ushort.MaxValue })
-            AssertThrows<InvalidDataException>(() => SamusAtmosphericEffects.IsRunningFootContact(new SamusAnimationTarget(SamusAnimationSegmentName.Run, invalid)), "foot-contact exact frame domain");
+            AssertThrows<InvalidDataException>(() => SamusAtmosphericEffects.IsRunningFootContact(new SamusAnimationFrame(SamusAnimationSegmentName.Run, invalid)), "foot-contact exact frame domain");
         foreach (var (header, room) in new[] { new VerifyLookupStream1SamusPolicyDomainsCase(0x91f8, 0), new VerifyLookupStream1SamusPolicyDomainsCase(0x93fe, 5), new VerifyLookupStream1SamusPolicyDomainsCase(0x948c, 7), new VerifyLookupStream1SamusPolicyDomainsCase(0x94fd, 9), new VerifyLookupStream1SamusPolicyDomainsCase(0x9552, 10), new VerifyLookupStream1SamusPolicyDomainsCase(0x957d, 11), new VerifyLookupStream1SamusPolicyDomainsCase(0x95a8, 12), new VerifyLookupStream1SamusPolicyDomainsCase(0x95ff, 14) })
             AssertEqual((byte)room, LookupStream1SamusPolicyDomainsRomByte(rom, 0x8f0000 | header), "native atmospheric room header identity");
     }

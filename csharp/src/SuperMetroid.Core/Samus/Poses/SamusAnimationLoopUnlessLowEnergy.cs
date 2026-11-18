@@ -7,5 +7,5 @@ namespace SuperMetroid.Core.Samus.Poses;
 internal sealed record SamusAnimationLoopUnlessLowEnergy : SamusAnimationCue
 {
     /// <inheritdoc/>
-    internal override int CarriedValues => 0;
+    internal override bool ContinuesToNextSegment => true;
 }

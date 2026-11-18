@@ -82,14 +82,16 @@ internal sealed class SamusAnimationLayout
     }
 
     /// <summary>How far into the game's layout of <paramref name="animation"/> <paramref name="frame"/> lies.</summary>
-    /// <exception cref="ArgumentException">The animation has no such frame.</exception>
+    /// <exception cref="ArgumentException">The animation has no such frame, or the frame lies past its segment's span.</exception>
     internal static int Offset(SamusPoseAnimation animation, SamusAnimationFrame frame)
     {
         Ensure.NotNull(animation);
-        _ = animation.SegmentName(frame);
+        int index = IndexOf(animation, animation.Require(frame).Segment);
+        if (index < animation.Segments.Count - 1 && frame.Frame >= Span(animation, index))
+            throw new ArgumentException($"Segment {frame.Segment} of the {animation.Name} animation spans no frame {frame.Frame}.", nameof(frame));
         int start = 0;
-        for (int segment = 0; segment < frame.Segment; segment++)
-            start += animation.Segments[segment].Length;
+        for (int segment = 0; segment < index; segment++)
+            start += Span(animation, segment);
         return start + frame.Frame;
     }
 
@@ -105,12 +107,12 @@ internal sealed class SamusAnimationLayout
         int start = 0;
         for (int segment = 0; segment < animation.Segments.Count - 1; segment++)
         {
-            int length = animation.Segments[segment].Length;
-            if (offset < start + length)
-                return new SamusAnimationFrame(segment, offset - start);
-            start += length;
+            int span = Span(animation, segment);
+            if (offset < start + span)
+                return new SamusAnimationFrame(animation.Segments[segment].Name, offset - start);
+            start += span;
         }
-        return new SamusAnimationFrame(animation.Segments.Count - 1, offset - start);
+        return new SamusAnimationFrame(animation.Segments[^1].Name, offset - start);
     }
 
     /// <summary>How many frames <paramref name="animation"/>'s own steps span in its layout, its last end cue included.</summary>
@@ -118,11 +120,61 @@ internal sealed class SamusAnimationLayout
     {
         Ensure.NotNull(animation);
         SamusAnimationSegment last = animation.Segments[^1];
-        return Offset(animation, new SamusAnimationFrame(animation.Segments.Count - 1, last.CueFrame)) + 1;
+        return Offset(animation, new SamusAnimationFrame(last.Name, last.CueFrame)) + 1;
     }
 
     /// <summary>How many frames <paramref name="animation"/>'s segments span in its layout, the values its last cue carries included.</summary>
-    internal static int Length(SamusPoseAnimation animation) => Ensure.NotNull(animation).Segments.Sum(segment => segment.Length);
+    internal static int Length(SamusPoseAnimation animation) =>
+        Enumerable.Range(0, Ensure.NotNull(animation).Segments.Count).Sum(segment => Span(animation, segment));
+
+    /// <summary>
+    /// How many frames of the game's layout the segment of <paramref name="animation"/> at <paramref name="index"/> spans
+    /// (#2395): its delays, its end cue, the frames its cue's operands take and the runs no segment names laid out after it.
+    /// </summary>
+    private static int Span(SamusPoseAnimation animation, int index)
+    {
+        SamusAnimationSegment segment = animation.Segments[index];
+        return segment.CueFrame + 1 + SamusAnimationCueValueDecoding.OperandFrames(segment.End) + SamusAnimationUnnamedRunDefinitions.All
+            .Where(run => run.Animation == animation.Name && run.After == segment.Name)
+            .Sum(run => run.Delays + 1 + SamusAnimationCueValueDecoding.OperandFrames(run.End));
+    }
+
+    /// <summary>The place of the segment named <paramref name="name"/> among <paramref name="animation"/>'s segments.</summary>
+    /// <exception cref="ArgumentException">The animation has no such segment.</exception>
+    private static int IndexOf(SamusPoseAnimation animation, SamusAnimationSegmentName name)
+    {
+        for (int index = 0; index < animation.Segments.Count; index++)
+        {
+            if (animation.Segments[index].Name == name)
+                return index;
+        }
+        throw new ArgumentException($"The {animation.Name} animation has no segment {name}.", nameof(name));
+    }
+
+    /// <summary>
+    /// The frame every frame on or past the cue ending a segment other than an animation's last goes on to, by the
+    /// animation's name and the frame's name (#2395): the next value the cue carries, an unnamed run's frame, or the next
+    /// segment's first frame once they are behind it. A cue that continues into the next segment goes on without one.
+    /// </summary>
+    /// <exception cref="InvalidDataException">A cue that continues into the next segment has frames laid out after it.</exception>
+    internal Dictionary<string, IReadOnlyDictionary<string, string>> FramesAfterCues() =>
+        programs.ToDictionary(animation => animation.Name.ToString(), animation =>
+        {
+            var after = new Dictionary<string, string>(StringComparer.Ordinal);
+            int start = 0;
+            for (int index = 0; index < animation.Segments.Count - 1; index++)
+            {
+                SamusAnimationSegment segment = animation.Segments[index];
+                int cue = start + segment.CueFrame;
+                int next = start + Span(animation, index);
+                if (segment.End.ContinuesToNextSegment && next != cue + 1)
+                    throw new InvalidDataException($"The {animation.Name} animation's {segment.Name} cue continues into the next segment past frames laid out after it.");
+                for (int offset = segment.End.ContinuesToNextSegment ? cue + 1 : cue; offset < next; offset++)
+                    after.Add(animation.NameOf(FrameAt(animation, offset)), animation.NameOf(FrameAt(animation, offset + 1)));
+                start = next;
+            }
+            return (IReadOnlyDictionary<string, string>)after;
+        }, StringComparer.Ordinal);
 
     /// <summary>The step of <paramref name="animation"/>'s own at <paramref name="offset"/>, or null for a cue's value or a frame past it.</summary>
     internal static SamusPoseAnimationStep? OwnStepAt(SamusPoseAnimation animation, int offset) =>
@@ -156,11 +208,11 @@ internal sealed class SamusAnimationLayout
     /// animation lies after the one read.
     /// </summary>
     /// <exception cref="InvalidDataException">The frame reads no step.</exception>
-    internal int TargetOffset(SamusPoseAnimation animation, int offset, SamusAnimationTarget target)
+    internal int TargetOffset(SamusPoseAnimation animation, int offset, SamusAnimationFrame target)
     {
         StepRead read = Read(animation, offset) ?? throw new InvalidDataException(
             $"Samus animation frame {offset} of the {animation.Name} animation reads no step whose cue could name a frame.");
-        return Offset(read.Animation, read.Animation.Resolve(target)) + read.Shift;
+        return Offset(read.Animation, read.Animation.Require(target)) + read.Shift;
     }
 
     /// <summary>Every program's cue-value steps as the installation holds them, by the animation's name and frame name.</summary>
@@ -251,16 +303,16 @@ internal sealed class SamusAnimationLayout
     private static SamusOverreadDocument.ReadPast ReadPast(SamusPoseAnimation animation, StepRead read)
     {
         SamusPoseAnimation readAnimation = read.Animation;
-        SamusAnimationTarget[] targets = read.Step switch
+        SamusAnimationFrame[] targets = read.Step switch
         {
             SamusAnimationRepeat repeat => [repeat.Target],
             SamusAnimationWallJumpSelect select => [select.OrdinaryFrame, select.SpaceJumpFrame, select.ScrewAttackFrame],
             _ => [],
         };
         var moves = new Dictionary<string, string>(StringComparer.Ordinal);
-        foreach (SamusAnimationTarget target in targets)
+        foreach (SamusAnimationFrame target in targets)
         {
-            SamusAnimationFrame named = readAnimation.Resolve(target);
+            SamusAnimationFrame named = readAnimation.Require(target);
             moves[readAnimation.NameOf(named)] = animation.NameOf(FrameAt(animation, Offset(readAnimation, named) + read.Shift));
         }
         return new SamusOverreadDocument.ReadPast(readAnimation.Name.ToString(), readAnimation.NameOf(FrameAt(readAnimation, read.Frame)), moves);

@@ -45,7 +45,7 @@ public sealed class SamusArmCannonLayout
             content.AppendName("later direction", placement.LaterDirection?.ToString() ?? string.Empty);
             content.Append("displacement count", placement.Offsets.Count);
             SamusPoseAnimation animation = SamusAnimationDelays.AnimationForPose(pose);
-            foreach ((SamusAnimationFrame frame, Offset16<RoomPixels> offset) in placement.Offsets)
+            foreach ((SamusAnimationFrame frame, Offset16<RoomPixels> offset) in placement.Offsets.OrderBy(pair => pair.Key, animation.FrameOrder))
             {
                 content.AppendName("animation frame", animation.NameOf(frame));
                 content.Append("x", offset.X);
@@ -80,7 +80,7 @@ public sealed class SamusArmCannonLayout
                 DrawOrder = placement.DrawOrder,
                 Direction = placement.FirstDirection,
                 LaterDirection = placement.LaterDirection,
-                Displacements = placement.Offsets.ToDictionary(
+                Displacements = placement.Offsets.OrderBy(pair => pair.Key, SamusAnimationDelays.AnimationForPose(pose).FrameOrder).ToDictionary(
                     pair => SamusAnimationDelays.AnimationForPose(pose).NameOf(pair.Key), pair => pair.Value, StringComparer.Ordinal),
             };
         }),

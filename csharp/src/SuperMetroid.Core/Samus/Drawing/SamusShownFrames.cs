@@ -71,6 +71,6 @@ public sealed class SamusShownFrames
     /// <summary>The picture frames of <paramref name="pose"/>, in its animation's order: the frames the pose shows as their own pictures.</summary>
     internal IEnumerable<SamusAnimationFrame> Pictures(SamusPoseId pose) =>
         pictureFrames.TryGetValue(pose, out IReadOnlyDictionary<SamusAnimationFrame, SamusAnimationFrame>? frames)
-            ? frames.Where(pair => pair.Key == pair.Value).Select(pair => pair.Key).Order()
+            ? frames.Where(pair => pair.Key == pair.Value).Select(pair => pair.Key).Order(SamusAnimationDelays.AnimationForPose(pose).FrameOrder)
             : [];
 }

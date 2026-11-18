@@ -91,7 +91,7 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
         SamusPoseId deathPose = FacingLeft
             ? SamusPoseId.DeathSequenceLeftPose
             : SamusPoseId.DeathSequenceRightPose;
-        SamusAnimationTarget initialFrame = SamusDeathSequenceFrames.InitialFrame(sourceMovementType);
+        SamusAnimationFrame initialFrame = SamusDeathSequenceFrames.InitialFrame(sourceMovementType);
 
         // The game initializes DeathSequenceRightPose and DeathSequenceLeftPose normally, then overwrites only the visible frame
         // with the movement-type table result. All six delays are two, so the timer produced

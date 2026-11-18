@@ -2,6 +2,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Samus.Movement.RunningCadenceVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -28,6 +29,8 @@ internal static class SamusAnimationDelayDefinitionsVerification
             checkedAnimations.Add(actual.Name);
             SamusPoseAnimationStep? StepNumbered(int number) => actual.TryStepAt(SamusAnimationNumbers.Frame(actual, number));
             int nextFrame = 0;
+            int namedRuns = 0;
+            var unnamedRuns = new List<SamusAnimationUnnamedRun>();
             foreach (SamusAnimationProgramRun run in SamusAnimationProgramCodec.Decode(cartridge, number))
             {
                 // Frame numbers between two runs name no step: they held the previous instruction's operands.
@@ -36,12 +39,27 @@ internal static class SamusAnimationDelayDefinitionsVerification
                     int gap = nextFrame;
                     AssertTrue(StepNumbered(gap) is null, $"pose {pose} frame {gap} is no step");
                 }
+                SamusAnimationFrame first = SamusAnimationNumbers.Frame(actual, run.FirstFrame);
+                if (first.Frame != 0)
+                {
+                    // A run that starts no named segment lies past the previous segment's cue: the import's unnamed run,
+                    // whose frames name no step of the animation (#2395).
+                    for (int frame = run.FirstFrame; frame <= run.FirstFrame + run.Delays.Count; frame++)
+                        AssertTrue(StepNumbered(frame) is null, $"pose {pose} frame {frame} of an unnamed run is no step");
+                    unnamedRuns.Add(new SamusAnimationUnnamedRun(actual.Name, first.Segment, run.Delays.Count, run.End));
+                    nextFrame = run.FirstFrame + run.Delays.Count + 1;
+                    continue;
+                }
+                namedRuns++;
                 for (int index = 0; index < run.Delays.Count; index++, nextFrame++)
                     AssertEqual<SamusPoseAnimationStep?>(new SamusAnimationDelay(run.Delays[index]), StepNumbered(nextFrame),
                         $"pose {pose} frame {nextFrame} delay");
                 AssertEqual<SamusPoseAnimationStep?>(run.End, StepNumbered(nextFrame), $"pose {pose} frame {nextFrame} instruction");
                 nextFrame++;
             }
+            AssertEqual(actual.Segments.Count, namedRuns, $"pose {pose}: every named segment is one of the cartridge's runs");
+            AssertSequenceEqual(SamusAnimationUnnamedRunDefinitions.All.Where(run => run.Animation == actual.Name).ToArray(), unnamedRuns.ToArray(),
+                $"pose {pose}: the import's unnamed runs are the cartridge's runs no segment names");
             int past = nextFrame;
             AssertTrue(StepNumbered(past) is null, $"pose {pose} has no step past its program");
         }
@@ -115,6 +133,31 @@ internal static class SamusAnimationDelayDefinitionsVerification
         AssertEqual(SamusAnimationName.DrainedStandingLeft, drained.Animation, "drained standing right reads into drained standing left");
         AssertEqual(SamusAnimationNumbers.Frame(SamusPoseId.DrainedStandingLeftPose, 3), drained.Frame,
             "Mother Brain glitch movie update 1947 plays the left program's frame 3");
+
+        // Every frame after a segment's cue goes on to the frame the cartridge numbers next, whether the next value the cue
+        // carries, an unnamed run's frame or the next segment's first frame (#2395).
+        int stepsPastCues = 0;
+        foreach (SamusPoseAnimation animation in SamusAnimationDelayDefinitions.All)
+        {
+            for (int index = 0; index < animation.Segments.Count - 1; index++)
+            {
+                SamusAnimationSegment segment = animation.Segments[index];
+                SamusAnimationFrame frame = new(segment.Name, segment.CueFrame);
+                SamusAnimationFrame nextStart = new(animation.Segments[index + 1].Name, 0);
+                while (frame != nextStart)
+                {
+                    SamusAnimationFrame after = animation.Next(frame, InstalledFixtures.FramesBeyondAnimation);
+                    AssertEqual(SamusAnimationNumbers.Number(animation, frame) + 1, SamusAnimationNumbers.Number(animation, after),
+                        $"the {animation.Name} animation goes on from {animation.NameOf(frame)} to the frame the cartridge numbers next");
+                    frame = after;
+                    stepsPastCues++;
+                }
+            }
+        }
+        AssertTrue(stepsPastCues > 0, "Samus's animations go on past their segments' cues");
+        AssertEqual(new SamusAnimationFrame(SamusAnimationSegmentName.RecoilHold, 0),
+            SamusAnimationDelayDefinitions.KnockbackAnimation.Next(new SamusAnimationFrame(SamusAnimationSegmentName.Knockback, 11), InstalledFixtures.FramesBeyondAnimation),
+            "the knockback's recoil hold follows its slow recoil, which no segment names");
     }
 
     /// <summary>Runs pose-program and running-cadence checks against the retail ROM.</summary>

@@ -51,7 +51,7 @@ internal sealed class SamusPresentation
     /// Starts the pose's animation on its first frame and seeds the animation frame timer as a pose change does, including
     /// its bottom-minus-one liquid boundary test.
     /// </summary>
-    public static void InitializeAnimation(SamusState samus) => InitializeAnimation(samus, SamusAnimationFrame.Start);
+    public static void InitializeAnimation(SamusState samus) => InitializeAnimation(samus, SamusAnimationDelays.AnimationForPose(samus.Pose).Start);
 
     /// <summary>
     /// Starts the pose's animation on <paramref name="initialFrame"/>, a place named for another animation landing on the
@@ -129,7 +129,7 @@ internal sealed class SamusPresentation
         // Both drained sequences store only the pose; the prior movement and collision radii stay.
         samus.WritePoseWithoutInitialization(pose);
         samus.AnimatedPose = pose;
-        samus.AnimationFrame = frame;
+        samus.AnimationFrame = SamusAnimationDelays.AnimationForPose(pose).Require(frame);
         samus.AnimationFrameTimer = WrappingCountdown.Start(timer);
         samus.PendingTransitionalPose = null;
     }
@@ -147,7 +147,7 @@ internal sealed class SamusPresentation
         SamusPoseAnimation swing = SamusAnimationDelayDefinitions.GrappleSwingAnimation;
         if (!ReferenceEquals(SamusAnimationDelays.AnimationForPose(samus.AnimationPose), swing))
             throw new InvalidOperationException($"Grapple swing art cannot be assigned while Samus animates by pose {samus.AnimationPose}'s animation.");
-        samus.AnimationFrame = swing.Resolve(picture.AnimationFrame);
+        samus.AnimationFrame = swing.Require(picture.AnimationFrame);
         samus.AnimationFrameTimer = WrappingCountdown.Start(SamusAnimationDelayDefinitions.GrappleSwingPictureHold);
     }
 
@@ -226,19 +226,9 @@ internal sealed class SamusPresentation
     /// Publishes a frame of the animation Samus animates by, named by its segment, with its timer, as
     /// <see cref="SetAnimationFrameFromMovementOwner(SamusState, SamusAnimationPlace, int)"/> does.
     /// </summary>
-    internal static void SetAnimationFrameFromMovementOwner(SamusState samus, SamusAnimationTarget frame, int timer)
-    {
-        samus.AnimationFrame = SamusAnimationDelays.AnimationForPose(samus.AnimationPose).Resolve(frame);
-        samus.AnimationFrameTimer = WrappingCountdown.Start(timer);
-    }
-
-    /// <summary>
-    /// Publishes a frame of the animation Samus animates by with its timer, as
-    /// <see cref="SetAnimationFrameFromMovementOwner(SamusState, SamusAnimationPlace, int)"/> does.
-    /// </summary>
     internal static void SetAnimationFrameFromMovementOwner(SamusState samus, SamusAnimationFrame frame, int timer)
     {
-        samus.AnimationFrame = frame;
+        samus.AnimationFrame = SamusAnimationDelays.AnimationForPose(samus.AnimationPose).Require(frame);
         samus.AnimationFrameTimer = WrappingCountdown.Start(timer);
     }
 
@@ -280,7 +270,7 @@ internal sealed class SamusPresentation
                     // The echo joins Samus's audio requests, whose queue's answer selects the boost's cadence.
                     () => samus.AudioRequests.QueueSound(RoomSound.SpeedBooster, SoundRequestPriority.Normal)))
                 {
-                    samus.AnimationFrame = SamusAnimationFrame.Start;
+                    samus.RestartAnimation();
                     samus.AnimationFrameTimer = WrappingCountdown.Start(stagedTimer);
                     return;
                 }
@@ -289,7 +279,7 @@ internal sealed class SamusPresentation
             }
             else
             {
-                samus.AnimationFrame = SamusAnimationFrame.Start;
+                samus.RestartAnimation();
                 samus.AnimationFrameTimer = WrappingCountdown.Start(samus.ExtraAnimationDelay).AddFrames(
                     SamusRunningCadences.Delay(samus.UnauthoredBoostCadence, SamusRunningCadence.Ordinary, frame: 0));
                 return;
@@ -308,7 +298,7 @@ internal sealed class SamusPresentation
                 if (samus.Health < SamusAnimationDelayDefinitions.LowEnergyBreathingBelow)
                     samus.AdvanceAnimationFrame();
                 else
-                    samus.AnimationFrame = SamusAnimationFrame.Start;
+                    samus.RestartAnimation();
                 break;
 
             case SamusAnimationInstallDrainedFall:
@@ -369,7 +359,7 @@ internal sealed class SamusPresentation
                 break;
 
             case SamusAnimationRestart:
-                samus.AnimationFrame = SamusAnimationFrame.Start;
+                samus.RestartAnimation();
                 break;
 
             default:

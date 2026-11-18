@@ -46,7 +46,8 @@ public sealed class InstalledSamusBody
             !SamusPoseNumbers.CoversRecordedPoses(shownFrames.PictureFrames) || frames.Values.Any(pose => pose is null))
             throw new InvalidDataException("Samus body art origins, frames and shown frames do not cover exactly the poses with records.");
         this.artOrigins = artOrigins.ToDictionary();
-        this.frames = frames.ToDictionary(pose => pose.Key, pose => new SortedDictionary<SamusAnimationFrame, int>(pose.Value.ToDictionary()));
+        this.frames = frames.ToDictionary(pose => pose.Key, pose => new SortedDictionary<SamusAnimationFrame, int>(pose.Value.ToDictionary(),
+            SamusAnimationDelays.AnimationForPose(pose.Key).FrameOrder));
         Frames = [.. SamusPoseNumbers.RecordedPoses.OrderBy(SamusPoseNumbers.Number)
             .SelectMany(pose => this.frames[pose].Keys.Select(frame => new SamusBodyFrame(pose, frame)))];
         Gameplay = new InstalledSamusBodyArtwork(new SamusBodyArtworkContent
@@ -107,7 +108,7 @@ public sealed class InstalledSamusBody
             }
             IReadOnlyDictionary<SamusAnimationFrame, SamusAnimationFrame> shown = ShownFrames.PictureFrames[pose];
             content.Append("shown frame count", shown.Count);
-            foreach ((SamusAnimationFrame frame, SamusAnimationFrame picture) in shown.OrderBy(pair => pair.Key))
+            foreach ((SamusAnimationFrame frame, SamusAnimationFrame picture) in shown.OrderBy(pair => pair.Key, animation.FrameOrder))
             {
                 content.AppendName("shown frame", animation.NameOf(frame));
                 content.AppendName("picture frame", animation.NameOf(picture));

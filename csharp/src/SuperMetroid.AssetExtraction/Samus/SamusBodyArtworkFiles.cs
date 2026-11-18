@@ -154,7 +154,7 @@ public static class SamusBodyArtworkFiles
                     SamusPoseAnimation animation = SamusAnimationDelays.AnimationForPose(pose);
                     return new PoseFrames(installed.ArtOrigin(pose),
                         installed.FramesOf(pose).ToDictionary(pair => animation.NameOf(pair.Key), pair => pair.Value, StringComparer.Ordinal),
-                        installed.ShownFrames.PictureFrames[pose].OrderBy(pair => pair.Key).ToDictionary(
+                        installed.ShownFrames.PictureFrames[pose].OrderBy(pair => pair.Key, animation.FrameOrder).ToDictionary(
                             pair => animation.NameOf(pair.Key), pair => animation.NameOf(pair.Value), StringComparer.Ordinal));
                 })), JsonOptions));
     }

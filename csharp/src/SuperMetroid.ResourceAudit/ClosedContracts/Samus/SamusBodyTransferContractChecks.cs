@@ -41,9 +41,9 @@ internal static class SamusBodyTransferContractChecks
         SamusBodyFrameSelection[] invalidAdjacent = new SamusBodyFrameSelection[SamusBodySources.FrameCount];
         invalidAdjacent[1] = new(byte.MaxValue, 0, byte.MaxValue, 0);
         InstalledSamusBodyArtwork body = Body(shortFirstGroup: false, invalidAdjacent).Body.Gameplay;
-        _ = body.OriginRise(0, SamusAnimationFrame.Start);
+        _ = body.OriginRise(0, SamusAnimationDelays.AnimationForPose(0).Start);
         rejected = false;
-        try { _ = body.OriginRise(0, SamusAnimationFrame.AfterStart); }
+        try { _ = body.OriginRise(0, SamusAnimationDelays.AnimationForPose(0).AfterStart); }
         catch (InvalidDataException) { rejected = true; }
         Require(rejected, "unselected backing bytes are accepted but invalid frame selection still fails loudly");
         ConfirmStaticCalls();
@@ -101,7 +101,7 @@ internal static class SamusBodyTransferContractChecks
             class SamusTransferConsumer {
                 void Inspect(InstalledSamusBodyArtwork body, SuperMetroid.Core.Samus.Poses.SamusPoseId pose, SuperMetroid.Core.Samus.Poses.SamusAnimationFrame frame) {
                     body.OriginRise(pose, frame);
-                    body.OriginRise(SuperMetroid.Core.Samus.Poses.SamusPoseId.TallStillRightPose, SuperMetroid.Core.Samus.Poses.SamusAnimationFrame.Start);
+                    body.OriginRise(SuperMetroid.Core.Samus.Poses.SamusPoseId.TallStillRightPose, default(SuperMetroid.Core.Samus.Poses.SamusAnimationFrame));
                 }
             }
             """, path: "fixture-samus-transfer-consumer.cs");

@@ -303,8 +303,7 @@ internal enum SamusAnimationName
 
     /// <summary>
     /// The animation <see cref="SamusPoseId.KnockbackRightPose"/> and <see cref="SamusPoseId.KnockbackLeftPose"/> play:
-    /// its knockback of two frames, its slow recoil of four frames, its slower recoil of two frames and its recoil hold
-    /// of one frame (<see cref="SamusAnimationDelayDefinitions.KnockbackAnimation"/>).
+    /// its knockback of two frames and its recoil hold of one frame (<see cref="SamusAnimationDelayDefinitions.KnockbackAnimation"/>).
     /// </summary>
     Knockback,
 

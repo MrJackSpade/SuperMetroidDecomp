@@ -64,6 +64,8 @@ internal static class SamusOverreadServicesReader
     {
         IReadOnlyDictionary<string, IReadOnlyDictionary<string, SamusOverreadDocument.CueValueStep>> cueValueSteps =
             Require(document.AnimationCueValueSteps, nameof(document.AnimationCueValueSteps));
+        IReadOnlyDictionary<string, IReadOnlyDictionary<string, string>> framesAfterCues =
+            Require(document.AnimationFramesAfterCues, nameof(document.AnimationFramesAfterCues));
         IReadOnlyDictionary<string, IReadOnlyDictionary<string, SamusOverreadDocument.ReadPast>> readsPast =
             Require(document.AnimationReadsPast, nameof(document.AnimationReadsPast));
         IReadOnlyDictionary<string, IReadOnlyDictionary<string, string>> landings =
@@ -71,6 +73,8 @@ internal static class SamusOverreadServicesReader
         IReadOnlyList<SamusPoseAnimation> animations = SamusAnimationDelayDefinitions.All;
         if (cueValueSteps.Count != animations.Count)
             throw new InvalidDataException($"Samus overread file holds cue-value steps for {cueValueSteps.Count} animations, not {animations.Count}.");
+        if (framesAfterCues.Count != animations.Count)
+            throw new InvalidDataException($"Samus overread file holds frames after cues for {framesAfterCues.Count} animations, not {animations.Count}.");
         if (readsPast.Count != animations.Count)
             throw new InvalidDataException($"Samus overread file holds reads past {readsPast.Count} animations, not {animations.Count}.");
         var animationCueValues = new Dictionary<SamusAnimationName, IReadOnlyDictionary<SamusAnimationFrame, SamusPoseAnimationStep>>();
@@ -81,6 +85,14 @@ internal static class SamusOverreadServicesReader
             animationCueValues.Add(animation.Name, Require(steps, $"cue-value steps for the {animation.Name} animation").ToDictionary(
                 pair => NoStepOf(animation, animation.FrameNamed(pair.Key), "cue-value frame"),
                 pair => CueValueStep(animation, Require(pair.Value, $"{animation.Name} cue-value step"))));
+        }
+        var animationFramesAfterCues = new Dictionary<SamusAnimationName, IReadOnlyDictionary<SamusAnimationFrame, SamusAnimationFrame>>();
+        foreach (SamusPoseAnimation animation in animations)
+        {
+            if (!framesAfterCues.TryGetValue(animation.Name.ToString(), out IReadOnlyDictionary<string, string>? frames))
+                throw new InvalidDataException($"Samus overread file has no frames after the {animation.Name} animation's cues.");
+            animationFramesAfterCues.Add(animation.Name, Require(frames, $"frames after the {animation.Name} animation's cues").ToDictionary(
+                pair => PastCueOf(animation, animation.FrameNamed(pair.Key)), pair => animation.FrameNamed(pair.Value)));
         }
         SamusPoseAnimationStep? StepAt(SamusPoseAnimation animation, SamusAnimationFrame frame) =>
             animation.TryStepAt(frame) ??
@@ -120,8 +132,18 @@ internal static class SamusOverreadServicesReader
         }
         if (landings.Count != places.Count)
             throw new InvalidDataException($"Samus overread file holds landings of {landings.Count} places, not {places.Count}.");
-        return new SamusFramesBeyondAnimation(animationCueValues, animationReads, places);
+        return new SamusFramesBeyondAnimation(animationCueValues, animationFramesAfterCues, animationReads, places);
     }
+
+    /// <summary>
+    /// <paramref name="frame"/>, which must lie on or past the cue ending one of <paramref name="animation"/>'s segments other
+    /// than its last.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The frame is one of the segment's delays, or a frame of the last segment.</exception>
+    private static SamusAnimationFrame PastCueOf(SamusPoseAnimation animation, SamusAnimationFrame frame) =>
+        frame.Segment != animation.Segments[^1].Name && frame.Frame >= animation.Segment(frame.Segment).CueFrame
+            ? frame
+            : throw new InvalidDataException($"Samus overread file names a frame after {animation.NameOf(frame)} of the {animation.Name} animation, which lies on no segment's cue.");
 
     /// <summary><paramref name="frame"/>, which must name no step of <paramref name="animation"/>'s own.</summary>
     /// <exception cref="InvalidDataException">The frame names one of the animation's own steps.</exception>
@@ -144,13 +166,12 @@ internal static class SamusOverreadServicesReader
             Require(step.Poses, $"{kind} poses") is { } poses && poses.Count == count
                 ? Parse<SamusPoseId>(poses[index], $"{kind} pose")
                 : throw new InvalidDataException($"Samus overread file's {kind} cue-value step names {step.Poses?.Count} poses, not {count}.");
-        SamusAnimationTarget Frame(int index, int count)
+        SamusAnimationFrame Frame(int index, int count)
         {
             IReadOnlyList<string> frames = Require(step.Frames, $"{kind} frames");
             if (frames.Count != count)
                 throw new InvalidDataException($"Samus overread file's {kind} cue-value step names no valid frame {index} of {count}.");
-            SamusAnimationFrame frame = animation.FrameNamed(frames[index]);
-            return new SamusAnimationTarget(animation.SegmentName(frame), frame.Frame);
+            return animation.FrameNamed(frames[index]);
         }
         SamusEquipmentFlags Items() => Require(step.Items, $"{kind} items")
             .Aggregate(SamusEquipmentFlags.None, (items, name) => items | Parse<SamusEquipmentFlags>(name, "cue-value step item"));

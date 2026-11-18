@@ -19,8 +19,8 @@ internal static class SamusArtOriginRangeVerification
         {
             OriginRises = new Dictionary<SamusPoseId, IReadOnlyDictionary<SamusAnimationFrame, int>>
             {
-                [high] = new Dictionary<SamusAnimationFrame, int> { [SamusAnimationFrame.Start] = 0 },
-                [low] = new Dictionary<SamusAnimationFrame, int> { [SamusAnimationFrame.Start] = 0 },
+                [high] = new Dictionary<SamusAnimationFrame, int> { [SamusAnimationDelays.AnimationForPose(high).Start] = 0 },
+                [low] = new Dictionary<SamusAnimationFrame, int> { [SamusAnimationDelays.AnimationForPose(low).Start] = 0 },
             },
             ArtOrigins = new Dictionary<SamusPoseId, int> { [high] = 200, [low] = -200 },
             DeathSteps = installed.DeathSteps,

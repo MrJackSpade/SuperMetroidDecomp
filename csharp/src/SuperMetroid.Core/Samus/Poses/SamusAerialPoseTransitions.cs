@@ -229,7 +229,7 @@ internal static class SamusAerialPoseTransitions
 
         // The spin jump's initialization writes frame one, skipping the static first spin frame. This
         // is easy to miss because an ordinary ground jump initializes the pose elsewhere.
-        SamusPresentation.InitializeAnimation(samus, SamusAnimationFrame.AfterStart);
+        SamusPresentation.InitializeAnimation(samus, SamusAnimationDelays.AnimationForPose(samus.Pose).AfterStart);
     }
 
     /// <summary>

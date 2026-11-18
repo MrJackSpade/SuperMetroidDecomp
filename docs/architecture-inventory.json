@@ -130869,14 +130869,17 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Spatial.EightEight",
+      "type": "SuperMetroid.Core.Spatial.EightEightOracle",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Spatial/EightEight.cs"
+        "csharp/test-support/VerificationAccess.Core/Spatial/EightEightOracle.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -131555,19 +131558,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Spatial.SixteenSixteen",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Spatial/SixteenSixteen.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Core.Spatial.SixteenSixteenConstants",
       "kind": "static class",
       "scope": "test",
@@ -131708,19 +131698,6 @@
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Spatial.UnsignedEightEight",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Spatial/UnsignedEightEight.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Spatial.UnsignedSixteenSixteen",
@@ -139849,6 +139826,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.ReachabilityAudit/Analysis/RootCollector.cs"
+      ],
+      "partial": "none",
+      "disposition": "constructor-parameters"
+    },
+    {
+      "type": "SuperMetroid.ReachabilityAudit.Analysis.ValueEqualityReads",
+      "kind": "class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.ReachabilityAudit"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.ReachabilityAudit/Analysis/ValueEqualityReads.cs"
       ],
       "partial": "none",
       "disposition": "constructor-parameters"
@@ -180442,6 +180432,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Spatial/TypedDirectionBucketsVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Spatial.TypedSineProductsVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Spatial/TypedSineProductsVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rendering;

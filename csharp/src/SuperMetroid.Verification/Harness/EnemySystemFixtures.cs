@@ -56,8 +56,7 @@ internal static class EnemySystemFixtures
             DoorPassage = doorPassage ?? new DoorPassage(),
             RoomFx = roomFx ?? new RoomFxOverlayState(),
             Earthquake = new RoomEarthquake(),
-            Floor = floor,
-            TourianStatueRoom = statueRoom,
+            Scenery = new RoomEnemyScenery(floor, statueRoom),
         });
         system.BossArtwork = installedBosses;
         return system;

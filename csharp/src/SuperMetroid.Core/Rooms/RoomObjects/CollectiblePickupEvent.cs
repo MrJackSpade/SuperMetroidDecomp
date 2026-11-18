@@ -1,6 +1,4 @@
-﻿using SuperMetroid.Core.Samus.Abilities;
-
-namespace SuperMetroid.Core.Rooms.RoomObjects;
+﻿namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>One defined permanent pickup completed by the current room-object pass.</summary>
 /// <param name="Kind">The item whose inventory effect and collected-item persistence have been applied.</param>

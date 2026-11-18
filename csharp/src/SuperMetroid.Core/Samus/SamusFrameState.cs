@@ -23,27 +23,18 @@ internal sealed class SamusFrameState : IRoomSamusAccess
 
     /// <summary>Remaining load-appearance updates before ordinary Samus drawing resumes.</summary>
     internal int LoadAppearanceFramesRemaining { get; private set; }
-    /// <summary>Colour effect selected while Samus's load appearance is active.</summary>
-    internal ColourEffectId? LoadAppearanceColourEffect { get; private set; }
 
     /// <summary>Whether Samus's saved-game load appearance is still running.</summary>
     internal bool LoadAppearanceActive => LoadAppearanceFramesRemaining != 0;
 
-    /// <summary>Starts the saved-game load appearance with its colour effect and length.</summary>
-    internal void BeginLoadAppearance(ColourEffectId colourEffects, int frames)
-    {
-        LoadAppearanceColourEffect = colourEffects;
-        LoadAppearanceFramesRemaining = frames;
-    }
+    /// <summary>Starts the saved-game load appearance with its length.</summary>
+    internal void BeginLoadAppearance(int frames) => LoadAppearanceFramesRemaining = frames;
 
     /// <summary>Counts one load-appearance update; returns whether that was its last.</summary>
     internal bool AdvanceLoadAppearance()
     {
         return --LoadAppearanceFramesRemaining == 0;
     }
-
-    /// <summary>Ends the load appearance, releasing its colour effect.</summary>
-    internal void EndLoadAppearance() => LoadAppearanceColourEffect = null;
 
     /// <summary>
     /// Normal-gameplay Samus rendering state. Null means the current scenario has not

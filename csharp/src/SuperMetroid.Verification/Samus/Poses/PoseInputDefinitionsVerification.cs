@@ -98,7 +98,8 @@ internal static class PoseInputDefinitionsVerification
                         GameplayAction input = heldInputs[held * 2 + heldNoise];
                         if (heldNoise == 0 || held == 0)
                             actual = SamusPoseInputTransitions.Lookup(pose, input, edges);
-                        AssertEqual(NativeLookup(native, nativeHeld, nativeNew, pose, input, edges), actual,
+                        AssertEqual(NativeLookup(native, nativeHeld, nativeNew, pose, input, edges),
+                            new NativeResult(actual.Transition?.ProspectivePose, actual.UsesPoseDefinitionFallback),
                             "Compiled input graph preserves native first-match, self-match and fallback result");
                     }
                 }
@@ -161,8 +162,16 @@ internal static class PoseInputDefinitionsVerification
                 (earlier.New & ~condition.New) == 0 && (earlier.Held & ~condition.Held) == 0))
             .Select(condition => $"{condition.New:X4} {condition.Held:X4} {condition.Target:X2}"));
 
+    /// <summary>
+    /// The pose a lookup chooses, if any, and whether it fell through to the pose-definition fallback: what the native
+    /// transition lists decide. The setup each compiled transition names is the pose update's, which they do not hold.
+    /// </summary>
+    /// <param name="Pose">The pose chosen, or none.</param>
+    /// <param name="UsesPoseDefinitionFallback">Whether the lookup fell through to the pose-definition fallback.</param>
+    private readonly record struct NativeResult(SamusPoseId? Pose, bool UsesPoseDefinitionFallback);
+
     /// <summary>The native transition list's first-match, self-match and fallback result for one held and new input.</summary>
-    private static SamusPoseTransitionLookup NativeLookup(List<PoseInputDefinitionsNative> native, GameplayAction[] nativeHeld,
+    private static NativeResult NativeLookup(List<PoseInputDefinitionsNative> native, GameplayAction[] nativeHeld,
         GameplayAction[] nativeNew, SamusPoseId pose, GameplayAction input, GameplayAction edges)
     {
         if (input == 0) return new(null, true);
@@ -171,7 +180,7 @@ internal static class PoseInputDefinitionsVerification
             if ((input & nativeHeld[i]) == nativeHeld[i] && (edges & nativeNew[i]) == nativeNew[i])
             {
                 return native[i].Target == SamusPoseNumbers.Number(pose) ? new(null, false)
-                    : new(new SamusPoseTransition(SamusPoseNumbering.FromNumber(native[i].Target)), false);
+                    : new(SamusPoseNumbering.FromNumber(native[i].Target), false);
             }
         }
         return new(null, native.Count != 0);

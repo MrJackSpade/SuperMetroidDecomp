@@ -464,6 +464,9 @@ public sealed class SamusState
     /// </summary>
     public int KnockbackTimer { get; set; }
 
+    /// <summary>Whether no hit holds Samus: her knockback hold has run out and no knockback is pending or moving her.</summary>
+    public bool HasNoKnockback => KnockbackTimer == 0 && KnockbackDirection == Movement.SamusKnockbackDirection.None;
+
     /// <summary>Clears Samus's two own hurt timers: no invincibility is left and no knockback is held.</summary>
     public void ClearHurtTimers()
     {

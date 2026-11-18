@@ -836,6 +836,8 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifySamusVisorPalette), () => VerifySamusVisorPalette()),
         new(nameof(VerifySamusHurtFlashPalette), () => VerifySamusHurtFlashPalette()),
         new(nameof(VerifySamusPoseTransitionMatching), () => VerifySamusPoseTransitionMatching()),
+        new(nameof(SuperMetroid.Verification.Samus.Poses.PoseTransitionSetupVerification.VerifyPoseTransitionSetups),
+            SuperMetroid.Verification.Samus.Poses.PoseTransitionSetupVerification.VerifyPoseTransitionSetups),
         new(nameof(VerifySamusHorizontalSpeed), () => VerifySamusHorizontalSpeed()),
         new(nameof(VerifySamusExtraDisplacement), () => VerifySamusExtraDisplacement()),
         new(nameof(VerifySamusStoredShineAndShinespark), () => VerifySamusStoredShineAndShinespark()),

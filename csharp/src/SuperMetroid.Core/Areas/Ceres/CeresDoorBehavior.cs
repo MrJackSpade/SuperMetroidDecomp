@@ -6,7 +6,6 @@ using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Core.Areas.Ceres;

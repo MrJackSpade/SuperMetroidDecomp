@@ -10367,6 +10367,19 @@
       "disposition": "record"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Enemies.Artwork.CeresElevatorArrivalCommonSpawner",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Artwork/CeresElevatorArrivalCommonSpawner.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Enemies.Artwork.ChozoAndTubeColorCatalog",
       "kind": "class",
       "scope": "product",
@@ -35716,6 +35729,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Areas.Ceres.Artwork.CeresElevatorArrivalPictures",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Areas/Ceres/Artwork/CeresElevatorArrivalPictures.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Areas.Ceres.Artwork.CeresElevatorShades",
       "kind": "static class",
       "scope": "product",
@@ -36385,7 +36411,7 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Areas.Ceres.CeresElevatorArrivalState.CeresElevatorProjectile",
+      "type": "SuperMetroid.Core.Areas.Ceres.CeresElevatorArrivalState.CeresElevatorArrivalActor",
       "kind": "class",
       "scope": "product",
       "assemblies": [
@@ -36479,7 +36505,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Areas.Ceres.CeresElevatorProjectileAccess.extension(SuperMetroid.Core.Areas.Ceres.CeresElevatorArrivalState.CeresElevatorProjectile)",
+      "type": "SuperMetroid.Core.Areas.Ceres.CeresElevatorProjectileAccess.extension(SuperMetroid.Core.Areas.Ceres.CeresElevatorArrivalState.CeresElevatorArrivalActor)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -36693,6 +36719,19 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Areas.Ceres.CeresFallingDebrisLook",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Areas/Ceres/CeresFallingDebrisLook.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Areas.Ceres.CeresFallingDebrisRoomMainState",
@@ -37807,7 +37846,7 @@
     },
     {
       "type": "SuperMetroid.Core.Areas.Tourian.TourianStatueBlockAnimations",
-      "kind": "static class",
+      "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
@@ -37816,7 +37855,7 @@
         "csharp/src/SuperMetroid.Core/Areas/Tourian/TourianStatueBlockAnimations.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Areas.Tourian.TourianStatueBlockCue",

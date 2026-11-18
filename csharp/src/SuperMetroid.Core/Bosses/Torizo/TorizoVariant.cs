@@ -52,5 +52,5 @@ internal abstract class TorizoVariant
     /// Where a landing Torizo that still has its face walks on, given the choice's walk <paramref name="alternate"/>: its
     /// own walk, or null where it plays on past both of the choice's targets.
     /// </summary>
-    internal abstract AnimationContinuation<TorizoAnimation>? WalkOnFromLanding(TorizoAnimation alternate);
+    internal abstract AnimationContinuation<TorizoBodySegment>? WalkOnFromLanding(TorizoAnimation alternate);
 }

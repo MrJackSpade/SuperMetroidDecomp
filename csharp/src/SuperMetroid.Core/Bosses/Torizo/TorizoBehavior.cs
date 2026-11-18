@@ -384,8 +384,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             case TorizoCue.Signal { Kind: TorizoCueKind.LeapingPoseShown }:
                 // The jump holds its leaping pose while the Torizo rises; once it no longer rises, it falls in the fall its
                 // jump named.
-                return state.Velocity.Y.IsNegative ? null : TorizoAnimations.ContinueWith(state.Landing
-                    ?? throw new InvalidOperationException("A Torizo's rise ends in no fall its jump named."));
+                return state.Velocity.Y.IsNegative ? null : TorizoAnimations.ContinueWith(state.Landing);
 
             case TorizoCue.Interrupt { Kind: TorizoInterruptKind.BombSwipeAtSamusBehind } interrupt:
                 return TorizoChoices.SelectBombTorizoCloseBehindBranch(

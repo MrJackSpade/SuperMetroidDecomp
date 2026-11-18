@@ -14,6 +14,6 @@ internal sealed class GoldenTorizoVariant()
 {
     /// <summary>Golden Torizo walks on by the choice's walk.</summary>
     /// <param name="alternate">The choice's walk.</param>
-    internal override AnimationContinuation<TorizoAnimation>? WalkOnFromLanding(TorizoAnimation alternate) =>
+    internal override AnimationContinuation<TorizoBodySegment>? WalkOnFromLanding(TorizoAnimation alternate) =>
         TorizoAnimations.ContinueWith(alternate);
 }

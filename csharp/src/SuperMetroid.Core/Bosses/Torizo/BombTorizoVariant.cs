@@ -13,5 +13,5 @@ internal sealed class BombTorizoVariant()
 {
     /// <summary>Bomb Torizo plays on past both of the choice's targets.</summary>
     /// <param name="alternate">The choice's walk, which Bomb Torizo does not take.</param>
-    internal override AnimationContinuation<TorizoAnimation>? WalkOnFromLanding(TorizoAnimation alternate) => null;
+    internal override AnimationContinuation<TorizoBodySegment>? WalkOnFromLanding(TorizoAnimation alternate) => null;
 }

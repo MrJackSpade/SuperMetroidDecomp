@@ -267,7 +267,11 @@ internal sealed class ReferenceCollector(SymbolIdentity identity, ReachabilityGr
         "Remove", "CountBy", "AggregateBy", "ToFrozenDictionary", "ToFrozenSet", "Equals",
     ];
 
-    /// <summary>Accounts for synthesized record equality by reaching instance values through nested records.</summary>
+    /// <summary>
+    /// Accounts for synthesized record equality by reaching instance values through nested records, and through the
+    /// records derived from the one compared: equality is virtual, so comparing or hashing two values by a base record
+    /// reads what each derived record adds (a closed hierarchy used as a dictionary key tells its cases apart by those).
+    /// </summary>
     private static void AddRecordMembers(ITypeSymbol? type, List<ISymbol?> targets, int depth = 0)
     {
         if (depth > 4 || type is not INamedTypeSymbol { IsRecord: true } record)
@@ -279,6 +283,41 @@ internal sealed class ReferenceCollector(SymbolIdentity identity, ReachabilityGr
                 // Value equality is structural: a nested record member compares its own members.
                 AddRecordMembers(member is IPropertySymbol property ? property.Type : ((IFieldSymbol)member).Type, targets, depth + 1);
             }
+        foreach (INamedTypeSymbol derived in DerivedRecords(record))
+            AddRecordMembers(derived, targets, depth + 1);
+    }
+
+    /// <summary>Per record, the records its own assembly declares directly deriving from it.</summary>
+    private static readonly System.Collections.Concurrent.ConcurrentDictionary<INamedTypeSymbol, ImmutableArray<INamedTypeSymbol>> DirectlyDerivedRecords =
+        new(SymbolEqualityComparer.Default);
+
+    /// <summary>The records <paramref name="record"/>'s assembly declares directly deriving from it; a sealed record or a record struct has none.</summary>
+    private static ImmutableArray<INamedTypeSymbol> DerivedRecords(INamedTypeSymbol record)
+    {
+        if (record.IsSealed || record.IsValueType)
+            return [];
+        return DirectlyDerivedRecords.GetOrAdd(record.OriginalDefinition, static definition =>
+            [.. TypesIn(definition.ContainingAssembly.GlobalNamespace).Where(candidate => candidate.IsRecord &&
+                SymbolEqualityComparer.Default.Equals(candidate.BaseType?.OriginalDefinition, definition))]);
+    }
+
+    /// <summary>Every type <paramref name="container"/> declares, nested types and nested namespaces' types included.</summary>
+    private static IEnumerable<INamedTypeSymbol> TypesIn(INamespaceOrTypeSymbol container)
+    {
+        foreach (ISymbol member in container.GetMembers())
+        {
+            if (member is INamespaceSymbol inner)
+            {
+                foreach (INamedTypeSymbol type in TypesIn(inner))
+                    yield return type;
+            }
+            else if (member is INamedTypeSymbol declared)
+            {
+                yield return declared;
+                foreach (INamedTypeSymbol type in TypesIn(declared))
+                    yield return type;
+            }
+        }
     }
 
     /// <summary>

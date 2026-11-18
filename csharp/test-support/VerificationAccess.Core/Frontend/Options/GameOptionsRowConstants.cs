@@ -7,9 +7,9 @@ internal static class GameOptionsRowConstants
     /// <exception cref="ArgumentOutOfRangeException">The page is not one of the three options pages.</exception>
     internal static IReadOnlyList<GameOptionsRow> OnPage(GameOptionsPage page) => page switch
     {
-        GameOptionsPage.Primary => [.. GameOptionsPageRows.Primary.Select(row => new GameOptionsRow.OnPrimaryPage())],
-        GameOptionsPage.Controller => [.. GameOptionsPageRows.Controller.Select(row => new GameOptionsRow.OnControllerPage())],
-        GameOptionsPage.Special => [.. GameOptionsPageRows.Special.Select(row => new GameOptionsRow.OnSpecialPage())],
+        GameOptionsPage.Primary => [.. GameOptionsPageRows.Primary.Select(row => new GameOptionsRow.OnPrimaryPage(row))],
+        GameOptionsPage.Controller => [.. GameOptionsPageRows.Controller.Select(row => new GameOptionsRow.OnControllerPage(row))],
+        GameOptionsPage.Special => [.. GameOptionsPageRows.Special.Select(row => new GameOptionsRow.OnSpecialPage(row))],
         _ => throw new ArgumentOutOfRangeException(nameof(page), page, "Options rows exist only on the three menu pages."),
     };
 }

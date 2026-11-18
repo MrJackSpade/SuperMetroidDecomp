@@ -96,9 +96,9 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     /// <summary>The row the cursor is on: the selected row of the page the menu shows (#2206).</summary>
     public GameOptionsRow SelectedRow => page switch
     {
-        GameOptionsPage.Primary => new GameOptionsRow.OnPrimaryPage(),
-        GameOptionsPage.Controller => new GameOptionsRow.OnControllerPage(),
-        GameOptionsPage.Special => new GameOptionsRow.OnSpecialPage(),
+        GameOptionsPage.Primary => new GameOptionsRow.OnPrimaryPage(primaryRow),
+        GameOptionsPage.Controller => new GameOptionsRow.OnControllerPage(controllerRow),
+        GameOptionsPage.Special => new GameOptionsRow.OnSpecialPage(specialRow),
         _ => throw new InvalidOperationException($"Unknown options page {page}."),
     };
 

@@ -1,4 +1,5 @@
 ﻿using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Samus.Movement;
 
 namespace SuperMetroid.Core.World;
 
@@ -10,23 +11,14 @@ internal sealed class BackgroundScrollPhase
 {
     /// <summary>Layer scroll owner driven by the camera.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
-    /// <summary>Active room camera and door mode.</summary>
-    private readonly ActiveRoomState _room;
 
-    /// <summary>Binds the background phase to shared scroll state and room ownership.</summary>
-    internal BackgroundScrollPhase(BackgroundScrollState backgroundScroll, ActiveRoomState room)
+    /// <summary>Binds the background phase to shared scroll state.</summary>
+    internal BackgroundScrollPhase(BackgroundScrollState backgroundScroll) => _backgroundScroll = backgroundScroll;
+
+    /// <summary>Copies the loaded room's camera into the background scroll bookkeeping and steps the scroll offsets.</summary>
+    public void UpdateBackgroundScrollingFromCamera(ScrollBoundaryCamera camera, bool timeIsFrozen)
     {
-        _backgroundScroll = backgroundScroll;
-        _room = room;
-    }
-
-    /// <summary>Copies the camera into the background scroll bookkeeping and steps the scroll offsets.</summary>
-    public void UpdateBackgroundScrollingFromCamera(bool timeIsFrozen)
-    {
-        if (_room.Camera is null)
-            throw new InvalidOperationException("A room camera must be initialized before the backgrounds scroll.");
-
-        _backgroundScroll.ForegroundPosition = _room.Camera.PixelPosition;
+        _backgroundScroll.ForegroundPosition = camera.PixelPosition;
         _backgroundScroll.StepScrolling(timeIsFrozen);
     }
 }

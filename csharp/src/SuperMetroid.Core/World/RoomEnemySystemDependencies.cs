@@ -5,6 +5,7 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Core.World;
 
@@ -53,4 +54,7 @@ internal sealed record RoomEnemySystemDependencies
 
     /// <summary>The room's earthquake, composed with the room: its enemies and Samus's Super Missile impacts start it.</summary>
     public required RoomEarthquake Earthquake { get; init; }
+
+    /// <summary>The room's Ceres turning floor and Tourian statue room, which the enemies that use them take at their placement (#2382).</summary>
+    public required RoomEnemyScenery Scenery { get; init; }
 }

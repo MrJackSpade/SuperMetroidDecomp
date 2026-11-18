@@ -28,12 +28,6 @@ internal static class LookupScrollProgramsVerification
             var compiled = RoomObjectPopulationDefinitions.Get(0x8230);
             RoomScrollChange retail = RoomObjectScrollChangeDefinitions.ProgramAt(0x94fa);
             AssertEqual(retail, compiled.Placements.Span[0].ScrollChange,"Retail scroll binds identity");
-            var rebound = new RoomObjectPopulation($"$8F:{0x8230:X4}",
-                [compiled.Placements.Span[0] with { Argument = new GateTriggerArgument(DownwardGateTriggerBehavior.YellowRight) }]);
-            AssertEqual(retail, rebound.Placements.Span[0].ScrollChange,"Copied placement preserves its bound program independently of argument");
-            AssertThrows<InvalidDataException>(() => new RoomObjectPopulation($"$8F:{0x9000:X4}",
-                [new RoomObjectPlacement(RoomObjectKinds.RequirePlaced(RoomObjectKind.ScrollTrigger),new(0, 0),null)]),
-                "A scroll trigger requires its scroll change");
         }
         int totalPairs = 0, totalBytes = 0;
         foreach (ushort pointer in pointers)

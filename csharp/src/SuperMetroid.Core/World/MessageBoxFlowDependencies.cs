@@ -21,11 +21,6 @@ internal sealed record MessageBoxFlowDependencies
     /// <summary>The message box, whose yes-or-no answer a save station and the gunship read.</summary>
     public required GameplayMessageBoxState MessageBox { get; init; }
 
-    /// <summary>Samus, whose items the HUD shows and whose suit a pickup changes.</summary>
-    public required SamusFrameState Player { get; init; }
-
-    /// <summary>The loaded room, whose level and camera the resumed room objects draw with.</summary>
-    public required ActiveRoomState Room { get; init; }
 
     /// <summary>The suit transformation a Varia or Gravity Suit pickup starts once its message closes.</summary>
     public required SamusSuitPickupState SuitPickup { get; init; }

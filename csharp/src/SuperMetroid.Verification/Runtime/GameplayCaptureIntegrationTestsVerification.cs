@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Assets;

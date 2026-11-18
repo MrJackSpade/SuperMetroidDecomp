@@ -7,6 +7,7 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Core.Areas.Ceres;
 
@@ -43,7 +44,10 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
         if (actor == EnemyDefinitionId.CeresRidleyRoomDoor)
             return new CeresRidleyRoomDoorEntity(this, place, common);
         if (actor == EnemyDefinitionId.CeresElevatorDoor)
-            return new CeresElevatorDoorEntity(this, place, common);
+        {
+            return new CeresElevatorDoorEntity(this, place, common, _floor ?? throw new InvalidDataException(
+                "The Ceres elevator door is placed in a room that shows no turning floor for its platform."));
+        }
         if (actor == EnemyDefinitionId.CeresElevatorRoomWall)
             return new CeresElevatorRoomWallEntity(this, place, common);
         if (actor == EnemyDefinitionId.CeresGetawayChamberWall)
@@ -68,11 +72,15 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
         Projectiles = dependencies.Projectiles;
         Escape = dependencies.CeresEscape;
         RidleyScene = dependencies.RidleyScene;
+        _floor = dependencies.Floor;
         EscapeQuake = new CeresEscapeQuake(dependencies.Room, dependencies.Earthquake, dependencies.CeresEscape);
     }
 
-    /// <summary>Provides Ceres room artwork, boss status, the floor and the gameplay RNG.</summary>
+    /// <summary>Provides Ceres room artwork, boss status and the gameplay RNG.</summary>
     internal EnemyRoomBinding Room { get; }
+
+    /// <summary>The room's turning floor, whose elevator platform the elevator door cycles; null in a room that shows none.</summary>
+    private readonly RoomFloor? _floor;
 
     /// <summary>Queues the doors' opening sound and the elevator door's explosions.</summary>
     internal EnemyAudioQueue Audio { get; }

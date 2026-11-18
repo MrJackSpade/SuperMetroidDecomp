@@ -147,7 +147,7 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
         Main = new CeresFallingDebrisMain(new CeresFallingDebrisRoomMainState(_carryover));
 
     /// <summary>Composes Ceres Ridley's arena's main, his getaway (#2287).</summary>
-    internal void ComposeRidleyGetawayMain() => Main = new CeresRidleyGetawayMain();
+    internal void ComposeRidleyGetawayMain() => Main = new CeresRidleyGetawayMain(Floor);
 
     /// <summary>Composes the Crocomire room's main, the rumble while his death uncovers the hidden wall (#2287).</summary>
     internal void ComposeCrocomireRumbleMain() => Main = new CrocomireRoomShakingMain();

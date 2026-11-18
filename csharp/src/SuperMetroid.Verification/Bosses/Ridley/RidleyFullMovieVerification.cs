@@ -85,7 +85,7 @@ internal static class RidleyFullMovieVerification
         samus.Health = 399; samus.EquippedItems = SamusEquipmentFlags.GravitySuit;
         samus.InvincibilityTimer = WrappingCountdown.Start(0); SamusPoseMetadata.RefreshCollisionRadii(samus);
         // One EnemyMain pass outside the frame loop, as the door-transition wait runs it: no prepared processing list.
-        runtime.EnemyPhase.RunEnemyUpdatePhase(processingList: EnemyProcessingList.Unprepared, runtime.Room.Camera?.PreviousSamusPoint, runtime.Room.LoadedScope);
+        runtime.EnemyPhase.RunEnemyUpdatePhase(processingList: EnemyProcessingList.Unprepared, runtime.Room.LoadedScope.Camera.PreviousSamusPoint, runtime.Room.LoadedScope, runtime.Player.IntroducedSamus);
         AssertEqual(399, samus.Health, "source4234 body entering overlap cannot damage before next contact pass");
         AssertTrue(body.Position.X.Whole < 139, "fixture advances body into collision boundary");
         body.SpritemapPointer = 0xe9e9;

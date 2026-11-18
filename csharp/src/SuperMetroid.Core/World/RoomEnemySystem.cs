@@ -203,9 +203,6 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     /// <summary>The space pirates that walk the floors and fire at Samus.</summary>
     internal WalkingSpacePirateBehavior WalkingSpacePirateBehavior { get; }
 
-    /// <summary>The Tourian statues' unlock effects: the eyes' glows, the released souls and particles, their splashes and the descent's dust.</summary>
-    internal TourianUnlockBehavior TourianUnlockBehavior { get; }
-
     /// <summary>The Tourian entrance statue scene: its decorations, which follow the statue down, and its look as each boss statue releases.</summary>
     internal TourianEntranceStatueBehavior TourianEntranceStatueBehavior { get; }
 
@@ -529,8 +526,22 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     /// <summary>The room-object work the Chozo statues and downward gates exchange with their room objects each frame.</summary>
     internal IEnemyObjectRequests RoomObjectRequests => field ??= new EnemyObjectRequests(ChozoStatueBehavior, DownwardGateBehavior);
 
-    /// <summary>The Tourian statue sequence's operations.</summary>
-    internal ITourianStatueActors TourianStatue => field ??= new TourianStatueActors(TourianEntranceStatueBehavior, TourianUnlockBehavior);
+    /// <summary>
+    /// The Tourian statues' unlock effects in <paramref name="statueRoom"/>: the eyes' glows, the released souls and
+    /// particles, their splashes at its water and the descent's dust (#2382).
+    /// </summary>
+    internal TourianUnlockBehavior UnlockEffectsIn(ITourianStatueRoom statueRoom) =>
+        new(Room, Projectiles, Earthquake, Audio, TourianEntranceStatueBehavior, statueRoom);
+
+    /// <summary>
+    /// The Tourian statue sequence's operations in <paramref name="statueRoom"/>: the entrance statue and the unlock effects
+    /// that splash at its water (#2382). The statue room's sequence makes them.
+    /// </summary>
+    internal ITourianStatueActors TourianStatueIn(ITourianStatueRoom statueRoom) =>
+        new TourianStatueActors(TourianEntranceStatueBehavior, UnlockEffectsIn(statueRoom));
+
+    /// <summary>Whether the Tourian entrance statue's sinking has finished.</summary>
+    internal bool TourianEntranceStatueFinished => TourianEntranceStatueBehavior.TourianEntranceStatueAnimation.Finished;
 
     /// <summary>
     /// Shows <paramref name="frame"/> of the escape's shutter flash on the destroyable shutters the room holds, and on
@@ -654,8 +665,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         WaverBehavior = new WaverBehavior(Terrain);
         WalkingSpacePirateBehavior = new WalkingSpacePirateBehavior(Terrain, Projectiles, Audio, Collision, DeathsAndDrops);
         WallSpacePirateBehavior = new WallSpacePirateBehavior(Room, Terrain, WalkingSpacePirateBehavior);
-        TourianEntranceStatueBehavior = new TourianEntranceStatueBehavior(Projectiles, Room);
-        TourianUnlockBehavior = new TourianUnlockBehavior(Room, Projectiles, Earthquake, Audio, TourianEntranceStatueBehavior);
+        TourianEntranceStatueBehavior = new TourianEntranceStatueBehavior(Projectiles, dependencies.Scenery.TourianStatueRoom);
         SporeSpawnBehavior = new SporeSpawnBehavior(new SporeSpawnBehaviorDependencies { Audio = Audio, Room = Room, Presentation = Presentation, Projectiles = Projectiles, EffectActors = EffectActors, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, FrameResults = BossFrameResults, CameraFloor = CameraFloor });
         FallingSparksBehavior = new FallingSparksBehavior(Room, Projectiles, EffectActors, compatibility.FallingSparkFloorProbe);
         SparkBehavior = new SparkBehavior(FallingSparksBehavior);
@@ -725,7 +735,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         CeresSteamBehavior = new CeresSteamBehavior(Room, Collision);
         CeresFallingTiles = new CeresFallingTiles(Projectiles, Audio);
         SaveStationElectricity = new SaveStationElectricity(Projectiles);
-        CeresDoorBehavior = new CeresDoorBehavior(new CeresDoorBehaviorDependencies { Room = Room, Earthquake = Earthquake, Audio = Audio, Presentation = Presentation, Projectiles = Projectiles, CeresEscape = RidleyEncounter, RidleyScene = RidleyEncounter });
+        CeresDoorBehavior = new CeresDoorBehavior(new CeresDoorBehaviorDependencies { Room = Room, Earthquake = Earthquake, Audio = Audio, Presentation = Presentation, Projectiles = Projectiles, CeresEscape = RidleyEncounter, RidleyScene = RidleyEncounter, Floor = dependencies.Scenery.Floor });
         CacatacBehavior = new CacatacBehavior(Room, Projectiles, Audio);
         BullBehavior = new BullBehavior(compatibility.BullInheritance);
         BoyonBehavior = new BoyonBehavior(Audio);

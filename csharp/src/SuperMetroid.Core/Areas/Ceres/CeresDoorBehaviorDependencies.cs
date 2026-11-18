@@ -2,6 +2,7 @@
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Core.Areas.Ceres;
 
@@ -29,4 +30,7 @@ internal sealed record CeresDoorBehaviorDependencies
 
     /// <summary>Ceres Ridley's scene, which the door of his room attaches itself to (#1877).</summary>
     public required ICeresRidleyScene RidleyScene { get; init; }
+
+    /// <summary>The room's turning floor, which the elevator door's platform shows on; null in a room that shows none (#2382).</summary>
+    public required RoomFloor? Floor { get; init; }
 }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Samus.Colours;

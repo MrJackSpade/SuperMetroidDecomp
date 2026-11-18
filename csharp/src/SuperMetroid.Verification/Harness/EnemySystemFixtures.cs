@@ -5,6 +5,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -33,10 +34,13 @@ internal static class EnemySystemFixtures
     /// <param name="area">The area the room is in.</param>
     /// <param name="doorPassage">Samus's passage through a door, or null for one of its own that never starts.</param>
     /// <param name="roomFx">The room's effect state, or null for an effect of its own with no liquid.</param>
+    /// <param name="floor">The room's turning floor, or null for a room that shows none.</param>
+    /// <param name="statueRoom">The Tourian statue room, or null for any other room.</param>
     internal static RoomEnemySystem New(EnemySession session, RoomEnemyCompatibility compatibility,
         IRoomEnemyDefinitionSource? definitions = null, IRoomEnemyServices? services = null,
         BossSourceArtwork? installedBosses = null, EnemyBreakableTerrainObjects? breakableTerrain = null,
-        AreaId area = AreaId.Crateria, DoorPassage? doorPassage = null, RoomFxOverlayState? roomFx = null)
+        AreaId area = AreaId.Crateria, DoorPassage? doorPassage = null, RoomFxOverlayState? roomFx = null,
+        RoomFloor? floor = null, ITourianStatueRoom? statueRoom = null)
     {
         var system = new RoomEnemySystem(new RoomEnemySystemDependencies
         {
@@ -52,6 +56,7 @@ internal static class EnemySystemFixtures
             DoorPassage = doorPassage ?? new DoorPassage(),
             RoomFx = roomFx ?? new RoomFxOverlayState(),
             Earthquake = new RoomEarthquake(),
+            Scenery = new RoomEnemyScenery(floor, statueRoom),
         });
         system.BossArtwork = installedBosses;
         return system;

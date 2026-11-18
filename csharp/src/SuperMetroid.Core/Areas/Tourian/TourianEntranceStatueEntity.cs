@@ -14,11 +14,13 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// <param name="species">The Tourian entrance statue species owner.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class TourianEntranceStatueEntity(TourianEntranceStatueBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
+/// <param name="statueRoom">The statue room, whose statue the scene's decorations follow down (#2382).</param>
+internal sealed class TourianEntranceStatueEntity(TourianEntranceStatueBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common,
+    ITourianStatueRoom statueRoom)
     : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public void Initialize() => species.InitializeTourianEntranceStatue(Place);
+    public void Initialize() => species.InitializeTourianEntranceStatue(Place, statueRoom);
 
     /// <inheritdoc/>
     /// <remarks>A placement has no behaviour of its own before it leaves.</remarks>

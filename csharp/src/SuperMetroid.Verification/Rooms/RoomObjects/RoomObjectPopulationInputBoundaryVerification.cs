@@ -29,10 +29,10 @@ internal static class RoomObjectPopulationInputBoundaryVerification
     internal static void VerifyObjectPopulationInputBoundary()
     {
         // A scroll trigger applies its compiled scroll change; no room builds another kind of scroll write (#2355).
-        var trigger = new RoomObjectPlacement(RoomObjectKinds.RequirePlaced(RoomObjectKind.ScrollTrigger),
-            new(3, 3), null) { ScrollChange = TriggerChange };
-        var extension = new RoomObjectPlacement(RoomObjectKinds.RequirePlaced(RoomObjectKind.RightwardsScrollExtension),
-            new(4, 3), null);
+        var trigger = RoomObjectPlacementAccess.Placed(RoomObjectKinds.RequirePlaced(RoomObjectKind.ScrollTrigger),
+            new(3, 3), scrollChange: TriggerChange);
+        var extension = RoomObjectPlacementAccess.Placed(RoomObjectKinds.RequirePlaced(RoomObjectKind.RightwardsScrollExtension),
+            new(4, 3));
         var second = trigger with { Block = new(5, trigger.Block.Y) };
         RoomObjectPlacement[] records = [trigger, extension, second];
         var population = new RoomObjectPopulation($"$8F:{0xfffa:X4}", records);
@@ -62,8 +62,6 @@ internal static class RoomObjectPopulationInputBoundaryVerification
         AssertEqual(300, large.Placements.Length, "a population keeps more than 255 placements");
         AssertTrue(large.Placements.ToArray().Select(placement => placement.Block).SequenceEqual(many.Select(placement => placement.Block)),
             "a large population keeps its placements in authored order");
-        AssertThrows<InvalidDataException>(() => new RoomObjectPopulation($"$8F:{0x9000:X4}",
-            [extension with { ScrollChange = TriggerChange }]), "an extension cannot apply a scroll change");
 
         int count = 0;
         foreach (ushort pointer in RoomObjectPopulationDefinitions.Pointers)

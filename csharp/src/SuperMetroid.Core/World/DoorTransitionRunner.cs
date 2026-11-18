@@ -32,10 +32,6 @@ internal sealed class DoorTransitionRunner
     private readonly AcceptedFrameBoundary _frameBoundary;
     /// <summary>Sprite frame begun and finalized around each drawn frame.</summary>
     private readonly SpriteFrameBuffer _sprites;
-    /// <summary>Provides the locked Samus state and its presentation during transitions.</summary>
-    private readonly SamusFrameState _player;
-    /// <summary>Holds the destination room, its level data and its camera.</summary>
-    private readonly ActiveRoomState _room;
     /// <summary>Provides defeated bosses and advances main-loop random state.</summary>
     private readonly SharedGameState _system;
 
@@ -49,8 +45,6 @@ internal sealed class DoorTransitionRunner
         _clock = dependencies.Clock;
         _frameBoundary = dependencies.FrameBoundary;
         _sprites = dependencies.Sprites;
-        _player = dependencies.Player;
-        _room = dependencies.Room;
         _system = dependencies.System;
     }
 
@@ -69,12 +63,9 @@ internal sealed class DoorTransitionRunner
     /// behaviour, not room-name patches: every door that names a setup receives the same
     /// screen changes and room event.
     /// </remarks>
-    internal void RunDoorSetup(DoorDefinition door, RoomObjectSystem roomObjects, RoomBlockAnimations blockAnimations, MaridiaElevatubeRoomMainState? maridiaElevatube)
+    internal void RunDoorSetup(DoorDefinition door, DoorSetupRoom room)
     {
-        if (_room.Camera is null)
-            throw new InvalidOperationException("Door setup requires the destination scroll grid.");
-
-        door.Setup.ChangeScreens(_room.Camera.Scrolls);
+        door.Setup.ChangeScreens(room.Scrolls);
 
         switch (door.Setup.RoomEvent)
         {
@@ -105,26 +96,25 @@ internal sealed class DoorTransitionRunner
                 return;
 
             case DoorRoomEvent.StartsTreadmillRightwards:
-                StartWreckedShipTreadmill(WreckedShipTreadmillDirection.Rightwards, roomObjects, blockAnimations);
+                StartWreckedShipTreadmill(WreckedShipTreadmillDirection.Rightwards, room);
                 return;
 
             case DoorRoomEvent.StartsTreadmillLeftwards:
-                StartWreckedShipTreadmill(WreckedShipTreadmillDirection.Leftwards, roomObjects, blockAnimations);
+                StartWreckedShipTreadmill(WreckedShipTreadmillDirection.Leftwards, room);
                 return;
 
             case DoorRoomEvent.StartsElevatubeRideFromSouth:
-                SetUpMaridiaElevatube(entry: ElevatubeEntry.FromSouth, roomObjects, maridiaElevatube);
+                SetUpMaridiaElevatube(entry: ElevatubeEntry.FromSouth, room);
                 return;
 
             case DoorRoomEvent.StartsElevatubeRideFromNorth:
-                SetUpMaridiaElevatube(entry: ElevatubeEntry.FromNorth, roomObjects, maridiaElevatube);
+                SetUpMaridiaElevatube(entry: ElevatubeEntry.FromNorth, room);
                 return;
 
             case DoorRoomEvent.EndsElevatubeRide:
                 // Both exit doors lead out of the tube, so the destination has no ride to end; the setup only restores
                 // Samus's control (#2287).
-                (_player.Samus ?? throw new InvalidOperationException(
-                    "Maridia elevatube exit setup requires an active Samus state.")).Control.Unlock();
+                room.Samus.Control.Unlock();
                 return;
 
             default:
@@ -134,48 +124,37 @@ internal sealed class DoorTransitionRunner
     }
 
     /// <summary>Starts the room's entrance treadmill animation and attempts the matching entrance room-object spawn.</summary>
-    private void StartWreckedShipTreadmill(WreckedShipTreadmillDirection direction, RoomObjectSystem roomObjects, RoomBlockAnimations blockAnimations)
+    private void StartWreckedShipTreadmill(WreckedShipTreadmillDirection direction, DoorSetupRoom room)
     {
-        if (_room.LevelData is null || _room.ActiveRoom is null)
-        {
-            throw new InvalidOperationException(
-                "Wrecked Ship treadmill door setup requires an active destination room.");
-        }
-
-        blockAnimations.StartDoorTreadmill(direction);
+        room.BlockAnimations.StartDoorTreadmill(direction);
         // The spawn reports whether the room had a free room-object place, and the door setup ignores it: with
         // every place held, the treadmill's blocks still animate and the entrance treadmill does not appear.
-        _ = roomObjects.WreckedShipTreadmill.TrySpawnWreckedShipEntranceTreadmill(
-            _room.LevelData,
+        _ = room.RoomObjects.WreckedShipTreadmill.TrySpawnWreckedShipEntranceTreadmill(
+            room.Level,
             direction,
-            _system.HasDefeatedAnyOf(_room.ActiveRoom.Area, DefeatedBosses.AreaBoss));
+            _system.HasDefeatedAnyOf(room.Area, DefeatedBosses.AreaBoss));
     }
 
     /// <summary>Positions Samus for the selected elevatube entrance and attempts its room-object spawn.</summary>
-    private void SetUpMaridiaElevatube(ElevatubeEntry entry, RoomObjectSystem roomObjects, MaridiaElevatubeRoomMainState? maridiaElevatube)
+    private static void SetUpMaridiaElevatube(ElevatubeEntry entry, DoorSetupRoom room)
     {
-        if (_room.LevelData is null)
-            throw new InvalidOperationException("Maridia elevatube setup requires active level data.");
-        if (maridiaElevatube is null)
-            throw new InvalidDataException(
-                $"Door setup event {entry} drives the elevatube in a room whose room behaviour is not the elevatube.");
-        SamusState samus = _player.Samus ?? throw new InvalidOperationException(
-            "Maridia elevatube setup requires an active Samus state.");
+        MaridiaElevatubeRoomMainState maridiaElevatube = room.MaridiaElevatube ?? throw new InvalidDataException(
+            $"Door setup event {entry} drives the elevatube in a room whose room behaviour is not the elevatube.");
 
         if (entry == ElevatubeEntry.FromSouth)
-            maridiaElevatube.SetUpFromSouth(samus);
+            maridiaElevatube.SetUpFromSouth(room.Samus);
         else
-            maridiaElevatube.SetUpFromNorth(samus);
+            maridiaElevatube.SetUpFromNorth(room.Samus);
 
         // The door setup ignores whether the spawn found a free room-object place: with all forty held, Samus is
         // still placed for the ride and the elevatube does not appear.
-        _ = roomObjects.MaridiaElevatube.TrySpawnMaridiaElevatube(_room.LevelData);
+        _ = room.RoomObjects.MaridiaElevatube.TrySpawnMaridiaElevatube(room.Level);
     }
     /// <summary>Runs one update of the door's wait for its sounds to finish: enemies and drawing, without Samus's movement.</summary>
-    public void RunDoorSoundWaitFrame(ControllerButton controllerInput, RoomScope room)
+    public void RunDoorSoundWaitFrame(ControllerButton controllerInput, RoomScope room, SamusState samus)
     {
-        RunDoorSoundWaitPrologue(controllerInput, room.RoomObjects, room);
-        DrawDoorTransitionActors(enemyProjectiles: DoorTransitionEnemyProjectiles.Held, room);
+        RunDoorSoundWaitPrologue(controllerInput, room, samus);
+        DrawDoorTransitionActors(enemyProjectiles: DoorTransitionEnemyProjectiles.Held, room, samus);
     }
 
     /// <summary>
@@ -184,10 +163,10 @@ internal sealed class DoorTransitionRunner
     /// precedes the door's own step, so its room-FX sound requests are queued before the door cancels and disables
     /// sounds.
     /// </summary>
-    public void RunDoorSoundWaitPrologue(ControllerButton controllerInput, RoomObjectSystem roomObjects, RoomScope room)
+    public void RunDoorSoundWaitPrologue(ControllerButton controllerInput, RoomScope room, SamusState samus)
     {
         _frameBoundary.BeginAcceptedFrame(controllerInput);
-        AdvanceEffectsAndRandom(roomObjects, room);
+        AdvanceEffectsAndRandom(room, samus);
     }
 
     /// <summary>The enemy and draw pass shared by the source door's waits and the fades.</summary>
@@ -196,19 +175,20 @@ internal sealed class DoorTransitionRunner
     /// the enemy projectiles.
     /// </param>
     /// <param name="room">The loaded room.</param>
-    internal void DrawDoorTransitionActors(DoorTransitionEnemyProjectiles enemyProjectiles, RoomScope room)
+    /// <param name="samus">Samus, whom the enemies touch and the pass draws.</param>
+    internal void DrawDoorTransitionActors(DoorTransitionEnemyProjectiles enemyProjectiles, RoomScope room, SamusState samus)
     {
         _sprites.BeginFrame();
-        _enemyPhase.RunEnemyUpdatePhase(processingList: EnemyProcessingList.Unprepared, _room.Camera?.PreviousSamusPoint, room);
+        _enemyPhase.RunEnemyUpdatePhase(processingList: EnemyProcessingList.Unprepared, room.Camera.PreviousSamusPoint, room, samus);
         // The Samus-collision pass belongs to gameplay only.
         if (enemyProjectiles == DoorTransitionEnemyProjectiles.Run)
-            RunEnemyProjectiles(room.BombProjectiles, room);
-        _actorDrawing.DrawGameplayActors(room, SamusDrawOwner.Gameplay, SamusColourEffects.Hold);
+            RunEnemyProjectiles(room, samus);
+        _actorDrawing.DrawGameplayActors(room, samus, SamusDrawOwner.Gameplay, SamusColourEffects.Hold);
         // Drawing Samus every frame bypasses ordinary hurt flicker after the shared
         // draw. Elevator-owned drawing retains its separate alternating cadence.
-        if (room.Enemies.Elevator.ElevatorStatus == ElevatorActorStatus.Inactive && _player.Samus is not null && _room.Camera is not null)
-            _player.Samus.Presentation.DrawWithoutFlicker(_player.Samus, _sprites,
-                _room.Camera.PixelPosition, _display.ActiveTurningFloor);
+        if (room.Enemies.Elevator.ElevatorStatus == ElevatorActorStatus.Inactive)
+            samus.Presentation.DrawWithoutFlicker(samus, _sprites,
+                room.Camera.PixelPosition, _display.ActiveTurningFloor);
         _sprites.FinalizeFrame();
     }
     /// <summary>
@@ -216,25 +196,25 @@ internal sealed class DoorTransitionRunner
     /// suspension X-ray applies, so their animations keep running while time is frozen for
     /// a reserve refill.
     /// </summary>
-    internal void RunEnemyProjectiles(SamusBombProjectileSystem bombProjectiles, RoomScope room)
+    internal void RunEnemyProjectiles(RoomScope room, SamusState samus)
     {
-        if (_player.Samus?.Xray.AreEnemyProjectilesSuspended == true || _room.LevelData is null || _room.Camera is null)
+        if (samus.Xray.AreEnemyProjectilesSuspended)
             return;
         room.Enemies.AdvanceEnemyProjectileAnimations(
-            _room.LevelData, _player.IntroducedSamus, _room.Camera.PixelPosition, _clock.ShortCounter, bombProjectiles, _clock.Counter);
+            room.LevelData, samus, room.Camera.PixelPosition, _clock.ShortCounter, room.BombProjectiles, _clock.Counter);
     }
 
     /// <summary>
     /// The opening of an update without gameplay: the liquid wave and statue descent, unless a door transition has stopped them
     /// (<see cref="LiquidWaveAndStatueDescentOrder"/>), then the update's random draw.
     /// </summary>
-    internal void AdvanceEffectsAndRandom(RoomObjectSystem roomObjects, RoomScope room)
+    internal void AdvanceEffectsAndRandom(RoomScope room, SamusState samus)
     {
         if (_liquidWaveAndStatueDescent.RunsThisUpdate)
         {
-            _liquidWaveAndStatueDescent.Advance(roomObjects, room);
-            if (_player.Samus is not null && room.FxOverlay.MovesLiquidBeforeMainLoop)
-                _player.Samus.LiquidPhysics.ConfigureFor(room.FxOverlay);
+            _liquidWaveAndStatueDescent.Advance(room.RoomObjects, room);
+            if (room.FxOverlay.MovesLiquidBeforeMainLoop)
+                samus.LiquidPhysics.ConfigureFor(room.FxOverlay);
         }
         _system.NextRandom();
     }

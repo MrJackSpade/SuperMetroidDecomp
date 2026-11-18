@@ -39,12 +39,10 @@ internal static class RoomObjectPopulationImporter
                 throw new InvalidDataException(
                     $"PLM population $8F:{pointer:X4} record {index} names unlabelled header $84:{headerWord:X4} " +
                     $"at block ({blockX},{blockY}) with argument ${argument:X4}.");
-            records.Add(new RoomObjectPlacement(header,
+            records.Add(RoomObjectPlacementAccess.Placed(header,
                 new(blockX, blockY), RoomObjectRoomArgumentWords.Decode(header, argument, area),
-                DraygonCannonObjectsConstants.IsDraygonCannonKind(header) ? DraygonWallCannonAddresses.Decode(argument) : null)
-            {
-                ScrollChange = header == RoomObjectKind.ScrollTrigger ? RetailScrollProgram(argument, StoredScroll(argument)) : null,
-            });
+                DraygonCannonObjectsConstants.IsDraygonCannonKind(header) ? DraygonWallCannonAddresses.Decode(argument) : null,
+                header == RoomObjectKind.ScrollTrigger ? RetailScrollProgram(argument, StoredScroll(argument)) : null));
             cursor = unchecked((ushort)(cursor + RoomObjectPopulationFormatConstants.RecordByteCount));
         }
         // A population whose records run round its whole bank has no terminator.

@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Core.Areas.Ceres;
 
@@ -11,7 +12,8 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// <param name="doors">The room's owner of the Ceres doors and walls.</param>
 /// <param name="place">The place the door occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class CeresElevatorDoorEntity(CeresDoorBehavior doors, RoomEnemyPlace place, EnemyCommonParticipation common)
+/// <param name="floor">The room's turning floor, whose elevator platform the door cycles (#2382).</param>
+internal sealed class CeresElevatorDoorEntity(CeresDoorBehavior doors, RoomEnemyPlace place, EnemyCommonParticipation common, RoomFloor floor)
     : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
 {
     /// <summary>How many updates the door's destruction lasts, the last the one it ends on (#2281).</summary>
@@ -112,7 +114,7 @@ internal sealed class CeresElevatorDoorEntity(CeresDoorBehavior doors, RoomEnemy
         // The elevator platform's animation does not belong to either arrival projectile: the elevator door alternates the
         // turning floor's platform frames for as long as the room runs, so the landed platform keeps flashing after the
         // projectiles' touchdown deletes them. The import pictures both strips (#1467).
-        doors.Room.Services.ShowFloorFrame(CeresFloorAnimation.ElevatorPlatformFrameForPhase(CeresDoorCadenceDefinitions.PlatformPicture.Of(frame)));
+        floor.Show(CeresFloorAnimation.ElevatorPlatformFrameForPhase(CeresDoorCadenceDefinitions.PlatformPicture.Of(frame)));
 
         // The glow takes its next step every eight updates.
         doors.ElevatorRoomGlowStep = CeresDoorCadenceDefinitions.GlowStep.Of(frame);

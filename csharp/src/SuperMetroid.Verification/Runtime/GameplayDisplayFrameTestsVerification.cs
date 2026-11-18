@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Assets;

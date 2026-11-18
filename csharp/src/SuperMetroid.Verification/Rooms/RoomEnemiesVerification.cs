@@ -673,7 +673,7 @@ internal static void VerifyCeresElevatorPlatformAnimation()
 
     // The platform frames are drawn over the room's turning floor as its installed pictures (#1349, #1467).
     RoomFloor map = RoomBackgroundsFixtures.CeresFloor();
-    var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0) { Floor = map });
+    var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0), floor: map);
     enemies.Load(RoomEnemyFrameFixtures.StandaloneLoad(bus.ReadEnemyPopulation(populationPointer, tilesetPointer), BgArtworkFixtures.For(vram), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), RoomEnemyFrameFixtures.StandaloneSamus()));
     enemies.StepStandaloneFrame(enemies.StandaloneFrame(openRoom) with { Camera = new(0, 0), TimeIsFrozen = false });
     AssertEqual(CeresFloorAnimationFrame.ElevatorLight, map.Shown.Values.Single(),
@@ -818,6 +818,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     ushort generatedRandom = 0x1234;
     ushort currentRandom = 0x1234;
     int generatedRandomCalls = 0;
+    RoomFloor ceresFloor = RoomBackgroundsFixtures.CeresFloor();
     // The escape writes its warning text over BG1 (#1346).
     var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>
             {
@@ -840,7 +841,7 @@ internal static void VerifyCeresRidleyRoomEntry()
             }, Spritemaps = EnemySpritemapDocuments.Load(fixtureSpriteJson), ExtendedFrames = InstalledFixtures.EnemyTiles.ExtendedFrames,
             ProjectileSpritemaps = InstalledFixtures.EnemyTiles.ProjectileSpritemaps,
             // Every character-zero spawned-object sheet takes the n00b tube's crack shade (#1512).
-            ChozoAndTubeColors = InstalledFixtures.EnemyTiles.ChozoAndTubeColors })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => { generatedRandomCalls++; return generatedRandom; }) { ReadRandom = () => currentRandom, Bosses = new FixtureAreaBossFlags { IsBossDefeated = () => ceresBossDefeated, SetBossDefeated = () => ceresBossDefeated = true }, Floor = RoomBackgroundsFixtures.CeresFloor() });
+            ChozoAndTubeColors = InstalledFixtures.EnemyTiles.ChozoAndTubeColors })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => { generatedRandomCalls++; return generatedRandom; }) { ReadRandom = () => currentRandom, Bosses = new FixtureAreaBossFlags { IsBossDefeated = () => ceresBossDefeated, SetBossDefeated = () => ceresBossDefeated = true } }, floor: ceresFloor);
     // The synthetic cartridge seeds no floor update lists; the getaway's boost delays are the installed ones (#1492).
     enemies.BossArtworkBinding.CeresRidleyGetawayBoostDelays = InstalledFixtures.Maps.CeresRidleyGetawayBoostDelays;
     using (var escapeText = new MemoryStream(
@@ -1090,7 +1091,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         if (state.Phase == CeresRidleyPhase.PublishEscapeHandoff)
             retreatBackgroundColor ??= RgbColor.FromWord(Shown()[0x51]);
         // Room main follows enemy AI, so the handoff frame also takes getaway step zero.
-        enemies.CeresEscape.RunGetawayRoomMain(samus, 0);
+        enemies.CeresEscape.RunGetawayRoomMain(samus, ceresFloor, 0);
         observedFakeRetreat |= state.Phase is
             CeresRidleyPhase.FakeRetreatMoveToPosition or
             CeresRidleyPhase.FakeRetreatRising or
@@ -1125,7 +1126,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     void GetawayFrame()
     {
         enemies.StepStandaloneFrame(enemies.StandaloneFrame(openRoom) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
-        enemies.CeresEscape.RunGetawayRoomMain(samus, 0);
+        enemies.CeresEscape.RunGetawayRoomMain(samus, ceresFloor, 0);
     }
     ushort expectedX = 0xff80, expectedY = 0x20;
     for (int curveIndex = 0; curveIndex < 112; curveIndex++)

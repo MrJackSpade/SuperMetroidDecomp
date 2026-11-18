@@ -20,8 +20,6 @@ internal sealed class DeathSequenceRunner
     private readonly SpriteFrameBuffer _sprites;
     /// <summary>Owns Samus and records the last death-sequence step result.</summary>
     private readonly SamusFrameState _player;
-    /// <summary>Supplies the active camera for death drawing.</summary>
-    private readonly ActiveRoomState _room;
 
     /// <summary>Binds the display, frame boundary, sprites, Samus and room the death sequence runs with.</summary>
     internal DeathSequenceRunner(DeathSequenceRunnerDependencies dependencies)
@@ -30,24 +28,20 @@ internal sealed class DeathSequenceRunner
         _frameBoundary = dependencies.FrameBoundary;
         _sprites = dependencies.Sprites;
         _player = dependencies.Player;
-        _room = dependencies.Room;
     }
 
     /// <summary>
     /// Enters the death animation once the death game state has waited for its music. Detecting the fatal damage,
     /// the blackout and waiting for the music are the death game state's.
     /// </summary>
-    public void BeginDeathSequenceAfterMusicWait()
+    public void BeginDeathSequenceAfterMusicWait(RoomScope room, SamusState samus)
     {
-        if (_player.Samus is null || _room.Camera is null || !_player.GroundedSamusMovementEnabled)
-        {
-            throw new InvalidOperationException(
-                "Death sequence requires initialized gameplay Samus and a room camera.");
-        }
+        if (!_player.GroundedSamusMovementEnabled)
+            throw new InvalidOperationException("Death sequence requires Samus's gameplay movement.");
 
-        _player.Samus.DeathSequence.Begin(
-            _player.Samus,
-            _room.Camera.PixelPosition);
+        samus.DeathSequence.Begin(
+            samus,
+            room.Camera.PixelPosition);
     }
 
     /// <summary>
@@ -55,16 +49,13 @@ internal sealed class DeathSequenceRunner
     /// room main, or the gameplay clock. It draws Samus alone while she is neither animating nor dying,
     /// not a shortened main-gameplay update.
     /// </summary>
-    public void DrawFatalSamusFrame(ControllerButton controllerInput)
+    public void DrawFatalSamusFrame(ControllerButton controllerInput, RoomScope room, SamusState samus)
     {
-        if (_player.Samus is null || _room.Camera is null)
-            throw new InvalidOperationException("Fatal Samus drawing requires an active room.");
-
         _frameBoundary.BeginAcceptedFrame(controllerInput);
         _sprites.BeginFrame();
-        _player.Samus.Presentation.DrawWithoutFlicker(_player.Samus,
+        samus.Presentation.DrawWithoutFlicker(samus,
             _sprites,
-            _room.Camera.PixelPosition,
+            room.Camera.PixelPosition,
             _display.ActiveTurningFloor);
         _sprites.FinalizeFrame();
     }
@@ -74,27 +65,27 @@ internal sealed class DeathSequenceRunner
     /// The selected pose or explosion frame becomes visible through the ordinary frame
     /// boundary, while every gameplay actor remains stopped.
     /// </summary>
-    public SamusDeathSequenceStepResult StepDeathSequenceFrame(ControllerButton controllerInput)
+    public SamusDeathSequenceStepResult StepDeathSequenceFrame(ControllerButton controllerInput, RoomScope room, SamusState samus)
     {
-        if (_player.Samus is null || _room.Camera is null || !_player.Samus.DeathSequence.IsActive)
+        if (!samus.DeathSequence.IsActive)
             throw new InvalidOperationException("The death sequence is not active.");
 
         _frameBoundary.BeginAcceptedFrame(controllerInput);
         _sprites.BeginFrame();
-        _player.LastDeathSequenceStep = _player.Samus.DeathSequence.Step(
-            _player.Samus,
+        _player.LastDeathSequenceStep = samus.DeathSequence.Step(
+            samus,
             _player.Colours,
-            _player.Samus.Artwork.Body.DeathSteps);
+            samus.Artwork.Body.DeathSteps);
         if (_player.LastDeathSequenceStep.Value.DrawPose)
         {
-            _player.Samus.Presentation.DrawWithoutFlicker(_player.Samus,
+            samus.Presentation.DrawWithoutFlicker(samus,
                 _sprites,
-                _room.Camera.PixelPosition,
+                room.Camera.PixelPosition,
                 _display.ActiveTurningFloor);
         }
         else if (_player.LastDeathSequenceStep.Value.DrawExplosion)
         {
-            _player.Samus.DeathSequence.DrawExplosion(_sprites, _player.Samus.Artwork.Sheets);
+            samus.DeathSequence.DrawExplosion(_sprites, samus.Artwork.Sheets);
         }
         _sprites.FinalizeFrame();
         return _player.LastDeathSequenceStep.Value;

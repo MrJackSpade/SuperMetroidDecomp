@@ -59,10 +59,6 @@ internal sealed class VerificationRoomEnemyServices(IRoomEnemyServices? loaded) 
     public ISamusControlLock SamusControls => this;
     /// <summary>Exposes this fixture's Mother Brain overrides through the enemy service contract.</summary>
     public IMotherBrainRoomEffects MotherBrain => this;
-    /// <summary>Optional case-owned Tourian statue room: its water and the entrance statue's descent.</summary>
-    public ITourianStatueRoom? FixedTourianStatueRoom { get; set; }
-    /// <summary>Uses the case's Tourian statue room, or the loaded room services' one.</summary>
-    public ITourianStatueRoom TourianStatueRoom => FixedTourianStatueRoom ?? Loaded("read the Tourian statue room").TourianStatueRoom;
 
     /// <summary>Advances RNG through a case callback or the services installed by room loading.</summary>
     public int Generate() => NextRandom is { } next ? next() : Loaded("generate a random number").Random.Generate();
@@ -143,10 +139,6 @@ internal sealed class VerificationRoomEnemyServices(IRoomEnemyServices? loaded) 
         else
             Loaded("count a head shot on Mother Brain's glass").MotherBrain.CountHeadShotOnGlass();
     }
-
-    /// <summary>Shows a frame on the part of the loaded room's turning floor it animates.</summary>
-    public void ShowFloorFrame(CeresFloorAnimationFrame frame) =>
-        Loaded("animate the room's turning floor").ShowFloorFrame(frame);
 
     /// <summary>Whether the loaded room's Bomb Torizo statue hand still stands.</summary>
     public bool BombTorizoHandRemains => Loaded("ask whether the statue's hand still stands").RoomObjects.BombTorizoHandRemains;

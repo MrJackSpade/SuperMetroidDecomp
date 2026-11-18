@@ -45,8 +45,8 @@ internal sealed class GreyDoorObject : DoorCapObject, IClosingDoor
     public void CloseBehindSamus()
     {
         Phase = GreyDoorPhase.Closing;
-        _closingForGood = !Variant.BombTorizo;
-        PlayFromNextUpdate(Variant.BombTorizo ? GreyDoorDefinitions.BombTorizoHeldOpen : DoorCapSequenceDefinitions.CapClosing);
+        _closingForGood = Variant.Closing == GreyDoorClosing.AtOnce;
+        PlayFromNextUpdate(Variant.Closing == GreyDoorClosing.AfterBombs ? GreyDoorDefinitions.BombTorizoHeldOpen : DoorCapSequenceDefinitions.CapClosing);
     }
 
     /// <summary>Reacts to what the object waits for, then, unless the reaction took this update, counts its steps down.</summary>

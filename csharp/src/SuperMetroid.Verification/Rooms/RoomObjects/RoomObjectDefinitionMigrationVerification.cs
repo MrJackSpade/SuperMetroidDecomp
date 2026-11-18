@@ -28,10 +28,10 @@ internal static class RoomObjectDefinitionMigrationVerification
         AssertTrue(DoorObjectsConstants.TryIdentifyColoredDoor(RoomObjectKind.GreenDoorFacingUp, out ColoredDoorColor color, out ColoredDoorOrientation orientation)
             && color == ColoredDoorColor.Green && orientation == ColoredDoorOrientation.Up, "green door facing up");
         AssertTrue(!DoorObjectsConstants.TryIdentifyColoredDoor(RoomObjectKind.MotherBrainEscapeRoomGate, out _, out _), "the escape gate is not a colored door");
-        AssertTrue(GreyDoorObjectsConstants.TryIdentifyGreyDoor(RoomObjectKind.BombTorizoGreyDoor, out ColoredDoorOrientation torizo)
-            && torizo == ColoredDoorOrientation.Right, "Bomb Torizo grey door faces right");
-        AssertTrue(GreyDoorObjectsConstants.TryIdentifyGreyDoor(RoomObjectKind.GreyDoorFacingDown, out ColoredDoorOrientation down)
-            && down == ColoredDoorOrientation.Down, "grey door facing down");
+        AssertTrue(GreyDoorObjectsConstants.TryIdentifyGreyDoor(RoomObjectKind.BombTorizoGreyDoor, out GreyDoorVariant torizo)
+            && torizo == new GreyDoorVariant(ColoredDoorOrientation.Right, GreyDoorClosing.AfterBombs), "Bomb Torizo grey door faces right and waits for Bombs");
+        AssertTrue(GreyDoorObjectsConstants.TryIdentifyGreyDoor(RoomObjectKind.GreyDoorFacingDown, out GreyDoorVariant down)
+            && down == new GreyDoorVariant(ColoredDoorOrientation.Down, GreyDoorClosing.AtOnce), "grey door facing down");
         AssertEqual(new PermanentCollectibleObject(InWorldCollectibleKind.Bombs, CollectiblePresentation.ChozoOrb),
             PermanentCollectibleObjectDefinitions.Items[RoomObjectKind.ChozoBombs], "Chozo Bombs");
         AssertEqual(new PermanentCollectibleObject(InWorldCollectibleKind.SuperMissileTank, CollectiblePresentation.ShotBlock),

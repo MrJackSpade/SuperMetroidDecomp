@@ -32,7 +32,7 @@ internal sealed class RoomObjectRuntimeServices(
     public IRoomSamus Current => player.IntroducedSamus.RoomView;
 
     /// <summary>Reads the live Tourian entrance statue completion state.</summary>
-    public bool IsFinished => Enemies.TourianStatue.Finished;
+    public bool IsFinished => Enemies.TourianEntranceStatueFinished;
 
     /// <summary>Starts the room's earthquake for a room object.</summary>
     public void Start(EarthquakeShake shake, int frames) => Enemies.Earthquake.Start(shake, frames);

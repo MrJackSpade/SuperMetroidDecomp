@@ -109,11 +109,11 @@ internal static class EnemyRomTablePointersVerification
         Type type = typeof(RoomEnemySystem);
         foreach (ushort parameter in new ushort[] { 0, 2, 4 })
         {
-            var system = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork);
+            var system = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork, statueRoom: new SuperMetroid.Verification.Areas.Tourian.FixedTourianStatueRoom(WaterSurface: 216, StatueOffset: 0));
             RoomEnemyPlace place = system.Places.InUpdateOrder[0];
             place.SetSpawnParameter1(EnemyDefinitionId.TourianStatue, parameter);
             place.Bind(EnemyDefinitionId.TourianStatue, place.Definition);
-            system.TourianEntranceStatueBehavior.InitializeTourianEntranceStatue(place);
+            system.TourianEntranceStatueBehavior.InitializeTourianEntranceStatue(place, new SuperMetroid.Verification.Areas.Tourian.FixedTourianStatueRoom(WaterSurface: 216, StatueOffset: 0));
             AssertEqual(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.TourianStatueSpawnsDecorations(parameter) ? 3 : 0,
                 system.Projectiles.EnemyProjectiles.Count(projectile => projectile.IsActive),
                 $"Tourian statue production initializer {parameter} avoids selector ROM");

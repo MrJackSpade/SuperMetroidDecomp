@@ -36,8 +36,6 @@ internal sealed class GameplayActorDrawing
     private readonly SpriteFrameBuffer _sprites;
     /// <summary>Supplies Samus pose, colours, grapple state, and movement effects.</summary>
     private readonly SamusFrameState _player;
-    /// <summary>Provides the camera and Ceres arrival actors for this draw pass.</summary>
-    private readonly ActiveRoomState _room;
 
     /// <summary>Binds the shared runtime owners whose state determines each actor drawing pass.</summary>
     internal GameplayActorDrawing(GameplayActorDrawingDependencies dependencies)
@@ -50,38 +48,36 @@ internal sealed class GameplayActorDrawing
         _clock = dependencies.Clock;
         _sprites = dependencies.Sprites;
         _player = dependencies.Player;
-        _room = dependencies.Room;
     }
 
     /// <summary>What Samus's projectile, bomb, flare and trail draws show: each the sheet of its own beams (#1586).</summary>
     private ProjectileDrawArtwork ProjectileArtwork => new(_artwork.ProjectileSheets);
     /// <summary>Shared enemy-layer/Samus/projectile drawing, independently of movement.</summary>
-    internal void DrawGameplayActors(RoomScope room, SamusDrawOwner owner, SamusColourEffects colourEffects = SamusColourEffects.Advance)
+    internal void DrawGameplayActors(RoomScope room, SamusState samus, SamusDrawOwner owner, SamusColourEffects colourEffects = SamusColourEffects.Advance)
     {
         bool deathOwnsSamus = owner == SamusDrawOwner.DeathSequence;
-        if (_player.Samus is null || _room.Camera is null) return;
         // The frame draws bomb/projectile explosions before reaching the enemy-layer
         // phase that draws Samus and her projectiles. Preserve that sprite ordering.
         if (!deathOwnsSamus)
         {
-            room.BombProjectiles.Draw(_sprites, _room.Camera.PixelPosition, ProjectileArtwork);
-            room.Projectiles.DrawExplosions(_sprites, _room.Camera.PixelPosition, ProjectileArtwork);
+            room.BombProjectiles.Draw(_sprites, room.Camera.PixelPosition, ProjectileArtwork);
+            room.Projectiles.DrawExplosions(_sprites, room.Camera.PixelPosition, ProjectileArtwork);
         }
 
         // Enemy projectiles in front of Samus follow bomb/projectile explosions and precede Samus's
         // draw. Room-specific actors may draw in front of Samus
         // here without teaching the reusable Landing Site runtime how to own enemies.
-        if (!deathOwnsSamus && !_player.Samus.Xray.AreEnemyProjectilesSuspended)
+        if (!deathOwnsSamus && !samus.Xray.AreEnemyProjectilesSuspended)
         {
             // The Ceres elevator is drawn in front of Samus, as both its definitions are. Projectiles in front of
             // Samus are drawn here, before Samus.
-            _room.CeresElevatorArrival?.Draw(_sprites, room.Enemies.Presentation, _room.Camera.PixelPosition);
+            room.CeresElevatorArrival?.Draw(_sprites, room.Enemies.Presentation, room.Camera.PixelPosition);
             // A hit burst among the effect actors is one of Samus's weapon effects: it shows the sheet of the beams she
             // has equipped as it is drawn, as her charge flare does (#1713).
             room.Enemies.Projectiles.DrawEnemyProjectilesInFrontOfSamus(
                 _sprites,
-                _room.Camera.PixelPosition,
-                new SamusHitBurstArtwork(ProjectileArtwork, SamusBeamCombinations.Of(_player.Samus.EquippedBeams)),
+                room.Camera.PixelPosition,
+                new SamusHitBurstArtwork(ProjectileArtwork, SamusBeamCombinations.Of(samus.EquippedBeams)),
                 _freeze.TimeIsFrozen);
         }
 
@@ -95,10 +91,10 @@ internal sealed class GameplayActorDrawing
             // A cancelled move or a new pose asks for the normal suit during movement, before this colour step. That
             // shade shows first, so the charge and drained colourings of the same update show over it.
             if (!deathOwnsSamus)
-                _player.Samus.HorizontalSpeed.ApplyPendingSuitShadeRestore(
-                    _player.Colours, _player.Samus.EquippedItems);
+                samus.HorizontalSpeed.ApplyPendingSuitShadeRestore(
+                    _player.Colours, samus.EquippedItems);
             bool drainedOwnsSamusColours = !deathOwnsSamus &&
-                _player.Samus.Drained.UpdateColouring(_player.Colours, _player.Samus.EquippedItems);
+                samus.Drained.UpdateColouring(_player.Colours, samus.EquippedItems);
             bool chargeGlowRestoredSuitShade = false;
             if (!deathOwnsSamus && !drainedOwnsSamusColours)
             {
@@ -111,48 +107,48 @@ internal sealed class GameplayActorDrawing
                 // or overwrite the restored suit on this frame.
                 chargeGlowRestoredSuitShade = room.Projectiles.UpdateBeamChargeGlow(
                     _player.Colours,
-                    _player.Samus,
+                    samus,
                     room.FxOverlay.VisorAnimation);
 
                 if (!chargeGlowRestoredSuitShade)
-                    _player.Samus.HorizontalSpeed.UpdateSpeedBoosterGlow(_player.Colours, new SpeedBoosterGlowFrame { MovementType = SamusPoseMetadata.ReadMovementType(_player.Samus), AnimationOnSpinStart = _player.Samus.AnimationIsOn(SamusAnimationFrames.ScrewAttackSpinStart), AnimationPastScrewAttackSpin = _player.Samus.AnimationHasReached(SamusAnimationFrames.ScrewAttackWallJumpReady), AnimationBeforeWallJumpSpin = !_player.Samus.AnimationHasReached(SamusAnimationFrames.WallJumpOrdinarySpinStart), EquippedItems = _player.Samus.EquippedItems, SuppressActiveSpeedBoosterGlow = _player.Samus.SpecialColouring.Holder != SamusSpecialColouringKind.None, BottomBoundarySubmerged = _player.Samus.LiquidPhysics.IsBottomBoundarySubmerged(_player.Samus) });
+                    samus.HorizontalSpeed.UpdateSpeedBoosterGlow(_player.Colours, new SpeedBoosterGlowFrame { MovementType = SamusPoseMetadata.ReadMovementType(samus), AnimationOnSpinStart = samus.AnimationIsOn(SamusAnimationFrames.ScrewAttackSpinStart), AnimationPastScrewAttackSpin = samus.AnimationHasReached(SamusAnimationFrames.ScrewAttackWallJumpReady), AnimationBeforeWallJumpSpin = !samus.AnimationHasReached(SamusAnimationFrames.WallJumpOrdinarySpinStart), EquippedItems = samus.EquippedItems, SuppressActiveSpeedBoosterGlow = samus.SpecialColouring.Holder != SamusSpecialColouringKind.None, BottomBoundarySubmerged = samus.LiquidPhysics.IsBottomBoundarySubmerged(samus) });
             }
             // The shinespark colouring runs at the same point of the colour step. It
             // executes only when charge handling did not restore the suit.
             if (!deathOwnsSamus && !drainedOwnsSamusColours && !chargeGlowRestoredSuitShade)
             {
-                _player.Samus.Shinespark.UpdateColouring(
+                samus.Shinespark.UpdateColouring(
                     _player.Colours,
-                    _player.Samus.EquippedItems);
+                    samus.EquippedItems);
             }
             // The Crystal Flash colouring owns the colours of Samus's shots and bombs during Crystal
             // Flash. It is mutually exclusive with the shinespark and X-ray colouring but
             // intentionally runs at the same point of the colour step.
             if (!deathOwnsSamus && !drainedOwnsSamusColours && !chargeGlowRestoredSuitShade)
             {
-                _player.Samus.CrystalFlash.UpdateColouring(
+                samus.CrystalFlash.UpdateColouring(
                     _player.Colours,
-                    _player.Samus);
+                    samus);
             }
             // The X-ray colouring changes only one of the visor's colours while active; its teardown
             // restores the complete Power/Varia/Gravity suit colours once.
             if (!deathOwnsSamus && !drainedOwnsSamusColours && !chargeGlowRestoredSuitShade)
             {
-                _player.Samus.Xray.UpdateColouring(
+                samus.Xray.UpdateColouring(
                     _player.Colours,
-                    _player.Samus.EquippedItems);
+                    samus.EquippedItems);
             }
             // The Metroid-drain colour step runs after every charge and special-colouring family. A Metroid
             // holding Samus makes her alternate between the boost glow and the normal suit, and the ordinary hurt
             // flash does not run, just as it does not under the drained or rainbow colouring.
             bool metroidOwnsSamusColours = !deathOwnsSamus &&
                 !drainedOwnsSamusColours &&
-                SamusMetroidAttachmentFlash.Update(_player.Colours, _player.Samus);
+                SamusMetroidAttachmentFlash.Update(_player.Colours, samus);
             if (!deathOwnsSamus && !drainedOwnsSamusColours && !metroidOwnsSamusColours)
             {
                 SamusHurtFlash.Update(
                     _player.Colours,
-                    _player.Samus,
+                    samus,
                     _playerActions.Current);
             }
 
@@ -162,13 +158,13 @@ internal sealed class GameplayActorDrawing
         {
             if (_player.LastDeathSequenceStep is { DrawPose: true })
             {
-                _player.Samus.Presentation.DrawWithoutFlicker(_player.Samus,
+                samus.Presentation.DrawWithoutFlicker(samus,
                     _sprites,
-                    _room.Camera.PixelPosition,
+                    room.Camera.PixelPosition,
                     _display.ActiveTurningFloor);
             }
             else if (_player.LastDeathSequenceStep is { DrawExplosion: true })
-                _player.Samus.DeathSequence.DrawExplosion(_sprites, _player.Samus.Artwork.Sheets);
+                samus.DeathSequence.DrawExplosion(_sprites, samus.Artwork.Sheets);
         }
         else
         {
@@ -176,7 +172,7 @@ internal sealed class GameplayActorDrawing
             // drawing. HUD-selection stability, cover transition, and the
             // pose-authored before/after-body mode must therefore settle before charge
             // flare, atmospheric, or body sprites are appended.
-            _player.Samus.ArmCannon.Update(_player.Samus);
+            samus.ArmCannon.Update(samus);
 
             // The elevator's drawing replaces Samus's ordinary drawing while an
             // elevator owns a front-facing body. It still arrives after the cover update, so
@@ -185,20 +181,20 @@ internal sealed class GameplayActorDrawing
             // other pictures (atmosphere, charge flare, arm cannon, speed and shinespark echoes, grapple). Projectile drawing remains in the shared
             // tail below, exactly as the game draws them after this drawing.
             bool elevatorOwnsSamusDrawing =
-                room.Enemies.Elevator.ElevatorStatus != ElevatorActorStatus.Inactive && SamusPoseMetadata.IsForwardFacingPose(_player.Samus.Pose);
+                room.Enemies.Elevator.ElevatorStatus != ElevatorActorStatus.Inactive && SamusPoseMetadata.IsForwardFacingPose(samus.Pose);
             if (elevatorOwnsSamusDrawing)
             {
                 if (RoomMainRoutines.ShouldDrawSamusOnElevator(_clock.Counter))
                 {
                     // The elevator ride draws the body without the ordinary invincibility
                     // flicker, so this path cannot flicker twice.
-                    _player.Samus.Presentation.DrawWithoutFlicker(_player.Samus,
+                    samus.Presentation.DrawWithoutFlicker(samus,
                         _sprites,
-                        _room.Camera.PixelPosition,
+                        room.Camera.PixelPosition,
                         _display.ActiveTurningFloor);
                 }
             }
-            else if (_player.Samus.Shinespark.Phase is
+            else if (samus.Shinespark.Phase is
                      ShinesparkPhase.Crash or ShinesparkPhase.CrashHold)
             {
                 // The shinespark crash's drawing takes over at the instant an active
@@ -207,19 +203,19 @@ internal sealed class GameplayActorDrawing
                 // paths, ordinary departing speed echoes, and grapple graphics. It
                 // draws the live body first, then the crash's second echo before its
                 // first on odd frames. The shared projectile/trail tail below still follows.
-                _player.Samus.Presentation.Draw(_player.Samus, 
+                samus.Presentation.Draw(samus, 
                     _sprites,
-                    _room.Camera.PixelPosition,
+                    room.Camera.PixelPosition,
                     _clock.Counter,
                     _display.ActiveTurningFloor);
-                _player.Samus.Presentation.DrawShinesparkCrashEchoes(_player.Samus, 
+                samus.Presentation.DrawShinesparkCrashEchoes(samus, 
                     _sprites,
-                    _room.Camera.PixelPosition,
+                    room.Camera.PixelPosition,
                     _clock.Counter);
             }
             else
             {
-                SamusGrappleDrawing grappleDrawing = SamusGrappleBeamDrawing.DrawingFor(_player.Samus.Grapple.Phase);
+                SamusGrappleDrawing grappleDrawing = SamusGrappleBeamDrawing.DrawingFor(samus.Grapple.Phase);
 
                 if (grappleDrawing == SamusGrappleDrawing.Beam)
                 {
@@ -227,9 +223,9 @@ internal sealed class GameplayActorDrawing
                     // its hand origins here from Samus's post-movement position. This
                     // flare is a different animation owner from the charge flare below.
                     SamusGrappleBeamDrawing.DrawFlareBeforeSamus(
-                        _player.Samus,
+                        samus,
                         _sprites,
-                        _room.Camera.PixelPosition,
+                        room.Camera.PixelPosition,
                         ProjectileArtwork);
                 }
                 else if (grappleDrawing == SamusGrappleDrawing.Ordinary)
@@ -238,14 +234,14 @@ internal sealed class GameplayActorDrawing
                     // drawing. The grapple's drawing never does this,
                     // including its cancel/release fallback frames.
                     // The flare animates as a simulation phase, then shows what it advanced to.
-                    ChargeFlareComponents flare = room.Projectiles.AdvanceChargeFlare(_player.Samus);
+                    ChargeFlareComponents flare = room.Projectiles.AdvanceChargeFlare(samus);
                     // Drawing any flare component sets the value a Puyo's ceiling strike reads.
                     if (flare.ShowsAny)
                         room.Enemies.PuyoCeilingTurn.ChargeFlareDrawn();
                     room.Projectiles.DrawChargeFlare(
                         _sprites,
-                        _player.Samus,
-                        _room.Camera.PixelPosition,
+                        samus,
+                        room.Camera.PixelPosition,
                         flare,
                         _display.ActiveTurningFloor,
                         new ChargeFlareArtwork
@@ -259,34 +255,34 @@ internal sealed class GameplayActorDrawing
                 // and grapple teardown. Samus's effects animate here, so this is where the waits her breath bubbles
                 // and lava spray keep count one update, and where her particles update and draw: earlier in the sprite
                 // list than cannon/body, but later than either applicable flare.
-                _player.Samus.LiquidPhysics.EffectWaits.Advance();
-                _player.Samus.Presentation.Particles.UpdateAndDraw(
+                samus.LiquidPhysics.EffectWaits.Advance();
+                samus.Presentation.Particles.UpdateAndDraw(
                     _sprites,
-                    _room.Camera.PixelPosition,
-                    _player.Samus.LiquidPhysics.UntestedWaterSurfaceLine,
-                    _player.Samus.Artwork.Sheets);
+                    room.Camera.PixelPosition,
+                    samus.LiquidPhysics.UntestedWaterSurfaceLine,
+                    samus.Artwork.Sheets);
 
                 // BeforeBody draws the arm cannon behind her body and AfterBody in front of it. Hidden draws no arm
                 // cannon, even while the HUD's selection holds its cover open.
-                if (_player.Samus.ArmCannon.DrawOrder == SamusArmCannonDrawOrder.BeforeBody)
+                if (samus.ArmCannon.DrawOrder == SamusArmCannonDrawOrder.BeforeBody)
                 {
-                    _player.Samus.ArmCannon.Draw(
+                    samus.ArmCannon.Draw(
                         _sprites,
-                        _player.Samus,
-                        _room.Camera.PixelPosition,
+                        samus,
+                        room.Camera.PixelPosition,
                         _clock.Counter);
                 }
-                _player.Samus.Presentation.Draw(_player.Samus, 
+                samus.Presentation.Draw(samus, 
                     _sprites,
-                    _room.Camera.PixelPosition,
+                    room.Camera.PixelPosition,
                     _clock.Counter,
                     _display.ActiveTurningFloor);
-                if (_player.Samus.ArmCannon.DrawOrder == SamusArmCannonDrawOrder.AfterBody)
+                if (samus.ArmCannon.DrawOrder == SamusArmCannonDrawOrder.AfterBody)
                 {
-                    _player.Samus.ArmCannon.Draw(
+                    samus.ArmCannon.Draw(
                         _sprites,
-                        _player.Samus,
-                        _room.Camera.PixelPosition,
+                        samus,
+                        room.Camera.PixelPosition,
                         _clock.Counter);
                 }
 
@@ -296,21 +292,21 @@ internal sealed class GameplayActorDrawing
                     // the endpoint's animation after Samus, moves the flare on, and only
                     // then draws the rope and endpoint when length is nonzero.
                     SamusGrappleBeamDrawing.DrawConnectedBeam(
-                        _player.Samus.Grapple,
+                        samus.Grapple,
                         _sprites,
-                        _room.Camera.PixelPosition,
-                        _player.Samus.Artwork.Sheets.Get(SpriteSheetId.Grapple));
+                        room.Camera.PixelPosition,
+                        samus.Artwork.Sheets.Get(SpriteSheetId.Grapple));
                 }
                 else
                 {
                     // The ordinary drawing and the grapple's teardown frame both end with Samus's echoes. The teardown
                     // frame shows no charge flare and no rope: it draws neither the ordinary flare nor the grapple's beam.
-                    _player.Samus.Presentation.DrawSpeedBoosterEchoes(_player.Samus, 
+                    samus.Presentation.DrawSpeedBoosterEchoes(samus, 
                         _sprites,
-                        _room.Camera.PixelPosition);
-                    _player.Samus.Presentation.DrawReleasedShinesparkCrashEchoes(_player.Samus, 
+                        room.Camera.PixelPosition);
+                    samus.Presentation.DrawReleasedShinesparkCrashEchoes(samus, 
                         _sprites,
-                        _room.Camera.PixelPosition,
+                        room.Camera.PixelPosition,
                         _clock.Counter);
                 }
             }
@@ -319,28 +315,28 @@ internal sealed class GameplayActorDrawing
             // lies in front of her body.
             room.Projectiles.DrawLiveProjectiles(
                 _sprites,
-                _room.Camera.PixelPosition,
+                room.Camera.PixelPosition,
                 ProjectileArtwork);
             // The ordinary projectile draw is immediately followed by the projectile
             // trails. Trails are detached world-space objects, so they must keep
             // animating after their source beam has collided or left the viewport.
             // Trails animate as a simulation phase, under time freeze too, then show where they are.
             room.Projectiles.AdvanceTrails(_freeze.TimeIsFrozen);
-            room.Projectiles.DrawTrails(_sprites, _room.Camera.PixelPosition, ProjectileArtwork);
+            room.Projectiles.DrawTrails(_sprites, room.Camera.PixelPosition, ProjectileArtwork);
 
             // The post-draw input snapshot survives the next input phase. In
             // particular, Fire can first cancel a spin and then start Grapple without
             // requiring another physical press after the prospective pose is applied.
-            _player.Samus.InputSnapshot.SnapshotDrawInput(_playerActions.Current, _playerActions.NewlyPressed);
-            SamusInputSnapshot.UpdateHurtFlashFromHealthLoss(_player.Samus);
+            samus.InputSnapshot.SnapshotDrawInput(_playerActions.Current, _playerActions.NewlyPressed);
+            SamusInputSnapshot.UpdateHurtFlashFromHealthLoss(samus);
             // The demo's input is never replaced with auto-jump.
-            if (_attractSession.IsAttractDemo) _player.Samus.InputSnapshot.AutoJumpInputPending = false;
+            if (_attractSession.IsAttractDemo) samus.InputSnapshot.AutoJumpInputPending = false;
 
             // The charge-sound latch follows the drawing of Samus and her projectiles. A hurt flash's sound-recovery update
             // may have armed this latch above; consuming it here preserves both the
             // same-frame charging sound and ordering after projectile drawing.
             SamusPostDrawAudio.Step(
-                _player.Samus,
+                samus,
                 _player.PreviousMovementTypeForXray,
                 _playerActions.Current);
         }
@@ -348,15 +344,15 @@ internal sealed class GameplayActorDrawing
         if (!deathOwnsSamus)
         {
             // The enemies draw after Samus and her projectiles, each at its frame's depth.
-            room.Enemies.Drawing.Advance(_room.Camera.PixelPosition);
-            room.Enemies.Drawing.Draw(_sprites, _room.Camera.PixelPosition, _player.Samus);
+            room.Enemies.Drawing.Advance(room.Camera.PixelPosition);
+            room.Enemies.Drawing.Draw(_sprites, room.Camera.PixelPosition, samus);
         }
 
-        if (!deathOwnsSamus && !_player.Samus.Xray.AreEnemyProjectilesSuspended)
+        if (!deathOwnsSamus && !samus.Xray.AreEnemyProjectilesSuspended)
         {
             room.Enemies.Projectiles.DrawEnemyProjectilesBehindSamus(
                 _sprites,
-                _room.Camera.PixelPosition, _freeze.TimeIsFrozen);
+                room.Camera.PixelPosition, _freeze.TimeIsFrozen);
         }
 
         if (!deathOwnsSamus)
@@ -366,7 +362,7 @@ internal sealed class GameplayActorDrawing
             // enemies preserves the Baby's actual position instead of inventing an enemy for the Baby.
             room.Enemies.Ceres.DrawCeresRidleyBabyAndDoorOverEnemies(
                 _sprites,
-                _room.Camera.PixelPosition);
+                room.Camera.PixelPosition);
         }
     }
 }

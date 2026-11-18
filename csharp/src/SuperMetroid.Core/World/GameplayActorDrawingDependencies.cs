@@ -31,7 +31,4 @@ internal sealed record GameplayActorDrawingDependencies
 
     /// <summary>Samus: her pose, colours, grapple beam and movement effects.</summary>
     public required SamusFrameState Player { get; init; }
-
-    /// <summary>The loaded room: its camera and the actors of the Ceres elevator's arrival.</summary>
-    public required ActiveRoomState Room { get; init; }
 }

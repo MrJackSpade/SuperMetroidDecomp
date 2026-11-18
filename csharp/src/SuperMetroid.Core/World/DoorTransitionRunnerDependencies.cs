@@ -29,12 +29,6 @@ internal sealed record DoorTransitionRunnerDependencies
     /// <summary>Sprite frame the runner begins, draws into and finalizes.</summary>
     public required SpriteFrameBuffer Sprites { get; init; }
 
-    /// <summary>Samus, held still and shown during the transition.</summary>
-    public required SamusFrameState Player { get; init; }
-
-    /// <summary>The loaded room, which becomes the room the door leads to.</summary>
-    public required ActiveRoomState Room { get; init; }
-
     /// <summary>The session's shared game state: the defeated bosses the door's setup reads and each update's random number.</summary>
     public required SharedGameState System { get; init; }
 }

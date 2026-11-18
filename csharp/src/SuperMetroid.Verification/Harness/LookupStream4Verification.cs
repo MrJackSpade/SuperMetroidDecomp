@@ -857,7 +857,7 @@ internal static class LookupStream4Verification
         // The getaway draws the capsule's frames over the room's turning floor, which each NMI publishes; it writes no VRAM (#1349, #1467).
         RoomFloor map = RoomBackgroundsFixtures.CeresFloor();
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance,
-            services: new StandaloneRoomEnemyServices(() => 0) { Floor = map });
+            services: new StandaloneRoomEnemyServices(() => 0), floor: map);
         enemies.BossArtworkBinding.CeresRidleyGetawayBoostDelays = CeresRidleyGetawayBoostDelayFiles.Read(new MemoryStream(CeresRidleyGetawayBoostDelayFiles.Extract(rom)));
         var vram = new SnesVram();
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
@@ -865,7 +865,7 @@ internal static class LookupStream4Verification
         CeresEscape escape = enemies.CeresEscape;
         escape.BeginGetaway();
         escape.Floor.GetawayUpdate = 1;
-        Action<SamusState?, int> tick = escape.RunGetawayRoomMain;
+        void tick(SamusState? samus, int frameCounter) => escape.RunGetawayRoomMain(samus, map, frameCounter);
         byte[] untouched = new byte[SnesVram.ByteCount];
         Array.Fill(untouched, (byte)0x5a);
         CeresFloorAnimationFrame? Capsule() => map.Shown.TryGetValue(CeresFloorPart.BabyCapsule, out CeresFloorAnimationFrame capsule) ? capsule : null;

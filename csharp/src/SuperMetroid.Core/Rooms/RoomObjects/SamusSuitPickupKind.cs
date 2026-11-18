@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Samus.Abilities;
+namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>The two suits the shared transformation equips.</summary>
 public enum SamusSuitPickupKind

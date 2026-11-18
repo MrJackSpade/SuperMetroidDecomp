@@ -98,7 +98,7 @@ internal static class ChargeFlareProductionVerification
         static IEnumerable<ImageSpriteDraw> FlareDraws(SuperMetroidRuntime target)
         {
             target.Sprites.BeginFrame();
-            target.ActorDrawing.DrawGameplayActors(target.Room.LoadedScope, SamusDrawOwner.Gameplay, SamusColourEffects.Hold);
+            target.ActorDrawing.DrawGameplayActors(target.Room.LoadedScope, target.Player.IntroducedSamus, SamusDrawOwner.Gameplay, SamusColourEffects.Hold);
             target.Sprites.FinalizeFrame();
             ImageSpriteDraw[] flare = [.. target.Sprites.Draws.Where(draw => draw.Source.Kind == SpriteSourceKind.SamusChargeFlare).Cast<ImageSpriteDraw>()];
             AssertTrue(flare.Length > 0, "The actor pass draws the charge flare");

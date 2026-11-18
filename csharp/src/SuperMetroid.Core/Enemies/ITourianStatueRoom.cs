@@ -8,9 +8,9 @@ public interface ITourianStatueRoom
 {
     /// <summary>
     /// The room line of the room effect's water surface, which the released statues' particles splash through and their
-    /// splashes ride; null while the room's effect names no surface.
+    /// splashes ride.
     /// </summary>
-    int? WaterSurface { get; }
+    int WaterSurface { get; }
 
     /// <summary>
     /// The entrance statue's vertical offset as it sinks: minus the whole pixels of its descent, zero until it starts and

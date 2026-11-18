@@ -92,7 +92,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         foreach (ushort parameter in new ushort[] { 0, 2, 4, 6 })
         {
             RoomEnemySystem installed = CreateEnemy(stock);
-            installed.TourianUnlockBehavior.SpawnTourianEyeGlow(TourianStatueNativeWords.Eye(parameter));
+            installed.UnlockEffectsIn(new SuperMetroid.Verification.Areas.Tourian.FixedTourianStatueRoom(WaterSurface: 216, StatueOffset: 0)).SpawnTourianEyeGlow(TourianStatueNativeWords.Eye(parameter));
             AssertNativeWrites(NativeColouredPictures.ShownIn(composedStatueSheet, installed.TourianEntranceStatueBehavior.SceneShading), sceneHeld,
                 0x86b91e + parameter * 4, TourianStatuePaletteConstants.EyeCgramIndex, TourianStatueColorDefinitions.EyeColorCount,
                 $"Tourian eye parameter {parameter} shows the native eye glow colours");
@@ -171,14 +171,14 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
             LittleEndianBytes.Word(CpuBusRegionRead.Read(bus, address), CpuBusRegionRead.Read(bus, address + 1));
 
         static RoomEnemySystem CreateEnemy(ImportEnemyArtwork artwork) =>
-            EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
+            EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses, statueRoom: new SuperMetroid.Verification.Areas.Tourian.FixedTourianStatueRoom(WaterSurface: 216, StatueOffset: 0));
 
         static void Initialize(RoomEnemySystem enemy, ushort parameter)
         {
             RoomEnemyPlace place = enemy.Places.InUpdateOrder[0];
             place.SetSpawnParameter1(EnemyDefinitionId.TourianStatue, parameter);
             place.Bind(EnemyDefinitionId.TourianStatue, place.Definition);
-            enemy.TourianEntranceStatueBehavior.InitializeTourianEntranceStatue(place);
+            enemy.TourianEntranceStatueBehavior.InitializeTourianEntranceStatue(place, new SuperMetroid.Verification.Areas.Tourian.FixedTourianStatueRoom(WaterSurface: 216, StatueOffset: 0));
         }
 
         static SuperMetroidRuntime CreateGreyRoom(

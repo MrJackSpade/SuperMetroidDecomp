@@ -17,6 +17,4 @@ internal sealed record SamusPoseTransitionPhaseDependencies
     public required GameplayOptions Options { get; init; }
     /// <summary>Samus, her input and movement modes and her pose.</summary>
     public required SamusFrameState Player { get; init; }
-    /// <summary>The loaded room, whose level Samus's pose changes check against.</summary>
-    public required ActiveRoomState Room { get; init; }
 }

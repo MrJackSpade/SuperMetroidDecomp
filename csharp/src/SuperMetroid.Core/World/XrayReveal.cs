@@ -15,17 +15,14 @@ internal sealed class XrayReveal
 {
     /// <summary>Supplies the camera position, which places the reveal.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
-    /// <summary>Supplies the active room, its level data and its area.</summary>
-    private readonly ActiveRoomState _room;
     /// <summary>Supplies the collected items, which uncollected-item overlays leave out.</summary>
     private readonly SharedGameState _system;
 
     /// <summary>Binds the gameplay owners the reveal is built from and the installation's reveal pictures.</summary>
-    internal XrayReveal(BackgroundScrollState backgroundScroll, ActiveRoomState room, SharedGameState system,
+    internal XrayReveal(BackgroundScrollState backgroundScroll, SharedGameState system,
         InstalledXrayReveals visuals)
     {
         _backgroundScroll = backgroundScroll;
-        _room = room;
         _system = system;
         XrayRevealVisuals = Ensure.NotNull(visuals);
     }
@@ -41,17 +38,14 @@ internal sealed class XrayReveal
     /// terrain reveals, then the item and special-room overlays, placed over the room's own blocks. Building it reads the
     /// room and changes nothing.
     /// </summary>
-    /// <exception cref="InvalidOperationException">No room or level data is loaded.</exception>
-    internal XrayRevealedBlocks Reveal(IRoomObjects roomObjects)
+    internal XrayRevealedBlocks Reveal(RoomScope room)
     {
-        Ensure.NotNull(roomObjects);
-        var room = _room.ActiveRoom ?? throw new InvalidOperationException("The X-ray reveals no room.");
-        var level = _room.LevelData ?? throw new InvalidOperationException("The X-ray reveals a room with no level data.");
+        Ensure.NotNull(room);
         InstalledXrayReveals visuals = XrayRevealVisuals;
         Position16<RoomPixels> foregroundPosition = _backgroundScroll.ForegroundPosition;
-        RevealedBlock?[] blocks = XrayRevealMap.Build(level, foregroundPosition, room.Area, visuals);
-        XrayRevealOverlays.Apply(blocks, roomObjects.CollectibleObjects.Collectibles, _system,
-            room.State.XrayOverlay, foregroundPosition, visuals);
+        RevealedBlock?[] blocks = XrayRevealMap.Build(room.LevelData, foregroundPosition, room.Room.Area, visuals);
+        XrayRevealOverlays.Apply(blocks, room.RoomObjects.CollectibleObjects.Collectibles, _system,
+            room.Room.State.XrayOverlay, foregroundPosition, visuals);
         return new(XrayRevealMap.OriginOf(foregroundPosition), [.. blocks]);
     }
 }

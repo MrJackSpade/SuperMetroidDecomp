@@ -39,11 +39,10 @@ internal static class SpeedBoosterStageFiveResidueVerification
         }
 
         // The getaway writes its transfer lists into the room's Mode 7 map (#1349).
+        RoomFloor ceresFloor = RoomBackgroundsFixtures.CeresFloor();
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(new SharedFadeStepCount(), cadence), definitions: CompiledRoomEnemyDefinitions.Instance,
-            services: new StandaloneRoomEnemyServices(() => throw new InvalidOperationException("The getaway draws no random numbers here."))
-            {
-                Floor = RoomBackgroundsFixtures.CeresFloor(),
-            });
+            services: new StandaloneRoomEnemyServices(() => throw new InvalidOperationException("The getaway draws no random numbers here.")),
+            floor: ceresFloor);
         enemies.BossArtworkBinding.CeresRidleyGetawayBoostDelays = CeresRidleyGetawayBoostDelayFiles.Read(new MemoryStream(CeresRidleyGetawayBoostDelayFiles.Extract(bus)));
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
         // The station's escape flies the getaway (#2228), from its second frame.
@@ -52,16 +51,16 @@ internal static class SpeedBoosterStageFiveResidueVerification
         escape.Floor.GetawayUpdate = 1;
 
         // The first NMI advances both: capsule phase one, then wing frame one.
-        escape.RunGetawayRoomMain(null, 0);
+        escape.RunGetawayRoomMain(null, ceresFloor, 0);
         byte[] expected = NativeQueueImage(bus, CeresFloorAnimationFrame.BabyRound, CeresFloorAnimationFrame.WingsLowered);
         AssertStageFive(cadence, stageFiveQueueOffset, expected, "after the getaway queues wing frame one");
 
         // Four NMIs later only the capsule queues; the wing residue at $0303 is untouched.
-        escape.RunGetawayRoomMain(null, 4);
+        escape.RunGetawayRoomMain(null, ceresFloor, 4);
         AssertStageFive(cadence, stageFiveQueueOffset, expected, "after a capsule-only frame");
 
         // Eight NMIs in, capsule phase three (frame one again) and wing frame zero queue together.
-        escape.RunGetawayRoomMain(null, 8);
+        escape.RunGetawayRoomMain(null, ceresFloor, 8);
         AssertStageFive(cadence, stageFiveQueueOffset,
             NativeQueueImage(bus, CeresFloorAnimationFrame.BabyRound, CeresFloorAnimationFrame.WingsRaised),
             "after the getaway queues wing frame zero");

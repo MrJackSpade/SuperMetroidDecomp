@@ -12,8 +12,7 @@ namespace SuperMetroid.Core.World;
 /// <summary>
 /// The runtime's state as the services one room's enemy AI calls (#633): the shared
 /// RNG, events and defeated bosses, the room's scroll zones, Samus's control lock, Mother Brain's room
-/// effects, the Tourian statue room's water and descent, and the active room-object population. Defeated bosses belong
-/// to the room's area.
+/// effects and the active room-object population. Defeated bosses belong to the room's area.
 /// </summary>
 [RoomLifetime]
 internal sealed class RoomEnemyRuntimeServices(
@@ -24,7 +23,7 @@ internal sealed class RoomEnemyRuntimeServices(
     GameplayDisplayState display,
     RoomAreaProgress progress) : IRoomEnemyServices,
     IEnemyRandomNumbers, IRoomScrollZoneAccess, ISamusControlLock,
-    IMotherBrainRoomEffects, ITourianStatueRoom, IRoomObjectPresence
+    IMotherBrainRoomEffects, IRoomObjectPresence
 {
     /// <summary>Exposes the system-owned RNG to enemy AI without a raw system-state dependency.</summary>
     public IEnemyRandomNumbers Random => this;
@@ -42,8 +41,6 @@ internal sealed class RoomEnemyRuntimeServices(
     public ISamusControlLock SamusControls => this;
     /// <summary>Exposes Mother Brain's glass, blending, and the background room effects.</summary>
     public IMotherBrainRoomEffects MotherBrain => this;
-    /// <summary>Exposes the loaded room's water surface and the Tourian statues' descent.</summary>
-    public ITourianStatueRoom TourianStatueRoom => this;
 
     /// <summary>Advances the shared system RNG once for an enemy request.</summary>
     public int Generate() => system.NextRandom();
@@ -80,20 +77,6 @@ internal sealed class RoomEnemyRuntimeServices(
 
     /// <inheritdoc/>
     public void CountHeadShotOnGlass() => roomObjects.MotherBrainGlass.CountHeadShotOnGlass();
-
-    /// <inheritdoc />
-    public void ShowFloorFrame(CeresFloorAnimationFrame frame) =>
-        (room.LoadedScope.Floor ?? throw new InvalidOperationException("Only a room that shows a turning floor has its parts to animate."))
-            .Show(frame);
-
-    /// <inheritdoc/>
-    /// <remarks>Read live from the loaded room's effect, which the update's liquid step has already moved.</remarks>
-    int? ITourianStatueRoom.WaterSurface => room.LoadedScope.FxOverlay.Surface;
-
-    /// <inheritdoc/>
-    /// <remarks>Read live from the loaded room's statue sequence, whose descent step runs at the start of the update.</remarks>
-    int ITourianStatueRoom.StatueOffset => (room.LoadedScope.TourianStatues ?? throw new InvalidOperationException(
-        "Only the statue room, whose setup unlocks the statues, has their descent.")).VerticalOffset;
 
     /// <summary>Checks whether a requested Bomb Torizo hand room object remains active.</summary>
     public bool BombTorizoHandRemains => roomObjects.BombTorizoHand.HandRemains;

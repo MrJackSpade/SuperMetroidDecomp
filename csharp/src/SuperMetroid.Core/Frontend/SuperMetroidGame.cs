@@ -342,7 +342,7 @@ public sealed class SuperMetroidGame
             case PhaseRandomStep.LiquidWaveAndStatueDescentThenAdvance:
                 // The liquid wave and the statues' descent still advance on the update before the pause screen; a lava or
                 // acid wave swaps the halves of the random number.
-                Session.GameplayRuntime.DoorTransition.AdvanceEffectsAndRandom(Session.GameplayRuntime.Room.LoadedScope.RoomObjects, Session.GameplayRuntime.Room.LoadedScope);
+                Session.GameplayRuntime.DoorTransition.AdvanceEffectsAndRandom(Session.GameplayRuntime.Room.LoadedScope, Session.GameplayRuntime.Player.IntroducedSamus);
                 break;
             case PhaseRandomStep.Advance:
                 if (DisplayFrameWaitContinuation.DrawsRandom(PhaseIsWaitingOutDisplayFrame))

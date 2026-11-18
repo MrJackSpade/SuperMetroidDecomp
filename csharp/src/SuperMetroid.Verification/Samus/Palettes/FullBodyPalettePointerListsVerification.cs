@@ -66,7 +66,8 @@ internal static class FullBodyPalettePointerListsVerification
                 items.HasAny(SamusEquipmentFlags.VariaSuit) ? 1 : 0;
             for (int phase = 0; phase < 6; phase++)
             {
-                var speed = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { CycleShadeStep = phase };
+                var speed = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus());
+                speed.CycleShadeStep = phase;
                 var actual = new SamusColours();
                 AssertTrue(speed.UpdateSpeedBoosterGlow(actual, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.SpinJumping, AnimationOnSpinStart = (1) == 0, AnimationPastScrewAttackSpin = (1) >= 27, AnimationBeforeWallJumpSpin = (1) < 3, EquippedItems = (items | SamusEquipmentFlags.ScrewAttack) }),
                     "Screw Attack copies a palette without reading either pointer table");
@@ -82,8 +83,8 @@ internal static class FullBodyPalettePointerListsVerification
                 var speed = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())
                 {
                     SpeedBoostCounter = new SamusSpeedBoostCounter(4, 0),
-                    CycleShadeStep = phase,
                 };
+                speed.CycleShadeStep = phase;
                 PrivateState.Set(speed, nameof(SamusHorizontalSpeedState.CycleShadeTimer), 1);
                 var actual = new SamusColours();
                 AssertTrue(speed.UpdateSpeedBoosterGlow(actual, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.Running, AnimationOnSpinStart = (0) == 0, AnimationPastScrewAttackSpin = (0) >= 27, AnimationBeforeWallJumpSpin = (0) < 3, EquippedItems = items }),

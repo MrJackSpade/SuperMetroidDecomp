@@ -223,8 +223,8 @@ public sealed class SamusProjectileSystem
             return false;
         }
 
-        // A charged shot's glow plays its sequence: an ordinary shot's flash repaints the yellow glow on each of its
-        // three updates; the Hyper Beam shot's glow shows each frame for two updates, repainting only as it shows it.
+        // A charged shot's glow plays its sequence, painting each shade as it shows it: an ordinary shot's flash shows the
+        // yellow glow for three updates; the Hyper Beam shot's glow shows each frame for two updates.
         // On the update after its last shade the glow ends and the suit's own shade returns.
         ChargedShotGlow played = glow.Played(out PictureShade? shown);
         Charge.ChargedShotGlow = played;

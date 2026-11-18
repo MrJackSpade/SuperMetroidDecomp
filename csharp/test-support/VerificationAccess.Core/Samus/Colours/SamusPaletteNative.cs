@@ -47,7 +47,7 @@ internal static class SamusPaletteNative
     /// first shade for ping-pong cycles; false for offsets outside the compiled lists.
     /// </summary>
     private static bool TryCycle(ushort suitByteOffset, ushort phaseByteOffset, ushort lastPhaseByteOffset,
-        SamusFullBodyCycleFamily family, ShadeCycleShape shape, out ushort pointer)
+        SamusFullBodyCycleFamily family, bool pingPong, out ushort pointer)
     {
         if (suitByteOffset > 4 || (suitByteOffset & 1) != 0 ||
             phaseByteOffset > lastPhaseByteOffset || (phaseByteOffset & 1) != 0)
@@ -57,7 +57,7 @@ internal static class SamusPaletteNative
         }
         int phase = phaseByteOffset / 2;
         pointer = Address(new(family, SuitAtTableByteOffset(suitByteOffset),
-            shape == ShadeCycleShape.PingPong ? Math.Min(phase, 6 - phase) : phase));
+            pingPong ? Math.Min(phase, 6 - phase) : phase));
         return true;
     }
 
@@ -109,30 +109,26 @@ internal static class SamusPaletteNative
 
         /// <summary>The Screw Attack palette pointer for a bounded suit and phase.</summary>
         internal static bool TryScrewAttackPalettePointer(ushort suitByteOffset, ushort phaseByteOffset, out ushort pointer) =>
-            TryCycle(suitByteOffset, phaseByteOffset, 10, SamusFullBodyCycleFamily.ScrewAttack, ShadeCycleShape.PingPong,
-                out pointer);
+            TryCycle(suitByteOffset, phaseByteOffset, 10, SamusFullBodyCycleFamily.ScrewAttack, pingPong: true, out pointer);
 
         /// <summary>The active Speed Booster palette pointer for a bounded suit and phase.</summary>
         internal static bool TryActiveSpeedBoosterPalettePointer(ushort suitByteOffset, ushort phaseByteOffset, out ushort pointer) =>
-            TryCycle(suitByteOffset, phaseByteOffset, 6, SamusFullBodyCycleFamily.SpeedBooster, ShadeCycleShape.Linear,
-                out pointer);
+            TryCycle(suitByteOffset, phaseByteOffset, 6, SamusFullBodyCycleFamily.SpeedBooster, pingPong: false, out pointer);
 
         /// <summary>The stored-shine palette pointer for a bounded suit and phase.</summary>
         internal static bool TryStoredShinePalettePointer(ushort suitByteOffset, ushort phaseByteOffset, out ushort pointer)
         {
-            SamusFullBodyCycleShade palette = default;
             bool found = TryNativeSuitAndStep(suitByteOffset, phaseByteOffset, out SamusSuit suit, out int step) &&
-                SamusFullBodyCycleShades.TryStoredShineShade(suit, step, out palette);
-            return Pointer(found, palette, out pointer);
+                (uint)step < SamusShadeDefinitions.FullBodyCycles.StoredShineSteps;
+            return Pointer(found, new(SamusFullBodyCycleFamily.StoredShine, suit, Math.Min(step, 6 - step)), out pointer);
         }
 
         /// <summary>The active-shinespark palette pointer for a bounded suit and phase.</summary>
         internal static bool TryActiveShinesparkPalettePointer(ushort suitByteOffset, ushort phaseByteOffset, out ushort pointer)
         {
-            SamusFullBodyCycleShade palette = default;
             bool found = TryNativeSuitAndStep(suitByteOffset, phaseByteOffset, out SamusSuit suit, out int step) &&
-                SamusFullBodyCycleShades.TryActiveShinesparkShade(suit, step, out palette);
-            return Pointer(found, palette, out pointer);
+                (uint)step < SamusShadeDefinitions.FullBodyCycles.ActiveShinesparkSteps;
+            return Pointer(found, new(SamusFullBodyCycleFamily.ActiveShinespark, suit, step), out pointer);
         }
 
         /// <summary>The bank-$9B source of the ten Hyper Beam frames $91:D99E selects, descending from $9B:A360.</summary>

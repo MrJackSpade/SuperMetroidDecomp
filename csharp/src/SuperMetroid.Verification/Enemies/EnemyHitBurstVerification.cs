@@ -209,11 +209,11 @@ internal static class EnemyHitBurstVerification
             colours => colours.ShowBeams(SamusShades.Beam(GrappleBeamDefinitions.BeamShades.FiringSelection))));
         cases.Add(("the Crystal Flash", SamusBeamCombination.Plasma, colours =>
         {
-            colours.LayOverBeams(SamusShades.CrystalFlashBody(1));
-            colours.LayOverBeams(SamusShades.CrystalFlashBubble(2));
+            colours.LayOverBeams(SamusShades.CrystalFlashBody[1]);
+            colours.LayOverBeams(SamusShades.CrystalFlashBubble[2]);
         }));
         cases.Add(("the Hyper Beam cycle", SamusBeamCombination.Power, colours => colours.LayOverBeams(SamusShades.HyperBeamCycle(3))));
-        cases.Add(("the death whiteout", SamusBeamCombination.Wave, colours => colours.ShowBeams(SamusShades.DeathWhiteout(5))));
+        cases.Add(("the death whiteout", SamusBeamCombination.Wave, colours => colours.ShowBeams(SamusShades.DeathWhiteout(new SuperMetroid.Core.Samus.Death.SamusWhiteoutShade(5)))));
         var shownBy = new Dictionary<string, RgbColor[]>(StringComparer.Ordinal);
         foreach ((string name, SamusBeamCombination equipped, Action<SamusColours> lay) in cases)
         {

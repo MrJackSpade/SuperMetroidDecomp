@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Samus.Colours;
@@ -29,8 +30,12 @@ public static class SamusShades
     /// <summary>The suit under one step of a charged beam's pulse or the pseudo Screw Attack's hold.</summary>
     public static PictureShade Charge(SamusChargeShade shade) => new($"Charge{shade.Kind}{shade.Suit}", shade.Step);
 
-    /// <summary>The suit under one frame of the Hyper Beam's full-body glow, which the drained Samus and the Hyper shot show.</summary>
-    public static PictureShade HyperBeamSuit(int frame) => new("HyperBeamSuit", frame);
+    /// <summary>
+    /// The suit under each frame of the Hyper Beam's full-body glow, in the order the drained Samus's rainbow shows them
+    /// (#2387).
+    /// </summary>
+    public static IReadOnlyList<PictureShade> HyperBeamSuit { get; } =
+        Run("HyperBeamSuit", SamusShadeDefinitions.FullBodyCycles.HyperBeamShadeCount);
 
     /// <summary>The suit under one frame of a Hyper shot's glow, which walks the charge colours' copy of the Hyper Beam glow.</summary>
     public static PictureShade HyperShot(int frame) => new("HyperShot", frame);
@@ -45,11 +50,15 @@ public static class SamusShades
     /// <summary>The suit's visible colours under an ordinary charged shot's yellow glow.</summary>
     public static PictureShade ChargedShotGlow { get; } = new("ChargedShotGlow", 0);
 
-    /// <summary>The visor under one shade of the X-ray widening glow (#2285).</summary>
-    public static PictureShade XrayWideningVisor(int shade) => new("VisorXrayWidening", shade);
+    /// <summary>The visor under each shade of the X-ray widening glow (#2285), in the order the glow shows them (#2387).</summary>
+    public static IReadOnlyList<PictureShade> XrayWideningVisor { get; } =
+        Run("VisorXrayWidening", SamusShadeDefinitions.Visor.XrayWideningShades);
 
-    /// <summary>The visor under one shade of the steady visor cycle, which the full X-ray beam and the room both show (#2285).</summary>
-    public static PictureShade VisorCycle(int shade) => new("VisorCycle", shade);
+    /// <summary>
+    /// The visor under each shade of the steady visor cycle, which the full X-ray beam and the room both show (#2285), in the
+    /// order the cycle shows them (#2387).
+    /// </summary>
+    public static IReadOnlyList<PictureShade> VisorCycle { get; } = Run("VisorCycle", SamusShadeDefinitions.Visor.CycleShades);
 
     /// <summary>The visor's green as a door transition finishes loading the next room.</summary>
     public static PictureShade DoorCompletionVisor { get; } = new("VisorDoorCompletion", 0);
@@ -67,21 +76,27 @@ public static class SamusShades
     internal static SamusBeamCombination ShownBeamShade(SamusBeamCombination combination) =>
         combination == ChainsawBeamGraphicsDefinitions.Selection ? ChainsawBeamGraphicsDefinitions.ShownBeamShade : combination;
 
-    /// <summary>The Crystal Flash's body colours at one step of its pulse.</summary>
-    public static PictureShade CrystalFlashBody(int step) => new("CrystalFlashBody", step);
+    /// <summary>The Crystal Flash's body colours at each step of its pulse, in the order the pulse shows them (#2387).</summary>
+    public static IReadOnlyList<PictureShade> CrystalFlashBody { get; } =
+        Run("CrystalFlashBody", SamusShadeDefinitions.CrystalFlash.BodyStepCount);
 
-    /// <summary>The Crystal Flash's bubble colours at one step of their rotation.</summary>
-    public static PictureShade CrystalFlashBubble(int step) => new("CrystalFlashBubble", step);
+    /// <summary>The Crystal Flash's bubble colours at each step of their rotation, in the order it shows them (#2387).</summary>
+    public static IReadOnlyList<PictureShade> CrystalFlashBubble { get; } =
+        Run("CrystalFlashBubble", SamusShadeDefinitions.CrystalFlash.BubbleShadeCount);
 
     /// <summary>The beams' colours under one frame of the Hyper Beam's own colour cycle.</summary>
     public static PictureShade HyperBeamCycle(int frame) => new("HyperBeamCycle", frame);
 
-    /// <summary>The suit as her death sequence shows it in <paramref name="suit"/> at one of its steps.</summary>
-    public static PictureShade DeathSuit(SamusSuit suit, int step) => new($"Death{suit}", step);
+    /// <summary>The suit as her death sequence shows it in <paramref name="suit"/> under <paramref name="shade"/>.</summary>
+    public static PictureShade DeathSuit(SamusSuit suit, SamusDeathShade shade) => new($"Death{suit}", shade.Step);
 
-    /// <summary>Her body without the suit as her death sequence shows it at one of its steps.</summary>
-    public static PictureShade DeathSuitless(int step) => new("DeathSuitless", step);
+    /// <summary>Her body without the suit as her death sequence shows it under <paramref name="shade"/>.</summary>
+    public static PictureShade DeathSuitless(SamusDeathShade shade) => new("DeathSuitless", shade.Step);
 
-    /// <summary>Her beams' and grapple flare's colours under one step of the death sequence's whiteout.</summary>
-    public static PictureShade DeathWhiteout(int step) => new("DeathWhiteout", step);
+    /// <summary>Her beams' and grapple flare's colours under <paramref name="shade"/> of the death sequence's whiteout.</summary>
+    public static PictureShade DeathWhiteout(SamusWhiteoutShade shade) => new("DeathWhiteout", shade.Step);
+
+    /// <summary>The <paramref name="count"/> shades of the run <paramref name="effect"/>, in the order the run shows them.</summary>
+    private static PictureShade[] Run(string effect, int count) =>
+        [.. Enumerable.Range(0, count).Select(step => new PictureShade(effect, step))];
 }

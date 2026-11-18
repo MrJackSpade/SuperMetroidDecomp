@@ -101,7 +101,7 @@ public sealed class InstalledSamusDeathPalettes
     /// suit and suitless colours stay here, where the import pre-colours her death shades from them.
     /// </summary>
     public SamusDeathSteps Steps => new(
-        [.. Enumerable.Range(0, SamusDeathExplosionTimingDefinitions.StepCount).Select(ExplosionPaletteIndex)],
+        [.. Enumerable.Range(0, SamusDeathExplosionTimingDefinitions.StepCount).Select(frame => new SamusDeathShade(ExplosionPaletteIndex(frame)))],
         [.. Enumerable.Range(0, SamusShadeDefinitions.Death.WhiteoutShadeCount).Select(WhiteoutColor)]);
 
     /// <summary>The colour at <paramref name="palette"/> and <paramref name="color"/> of one family's death-flash steps.</summary>

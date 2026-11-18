@@ -99,8 +99,8 @@ internal static void VerifySamusStoredShineAndShinespark()
         "stored shine copies first ROM palette");
     AssertEqual(0x1100, samusColours.ShownSuit(shineSources)[0], "stored shine follows double pointer");
     AssertEqual(179, shine.Shinespark.ShineTimer, "stored palette decrements every frame");
-    AssertEqual(1, shine.Shinespark.ShadeStep,
-        "stored palette advances one cycle step");
+    AssertEqual(1, shine.Shinespark.ShineGlow.Place.Beat,
+        "stored palette stands past the cycle's first shade");
 
     // Ten further calls arrive with timer 170 on the final call and publish the warning.
     for (int tick = 0; tick < 10; tick++)

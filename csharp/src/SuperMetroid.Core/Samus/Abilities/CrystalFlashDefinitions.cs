@@ -26,10 +26,4 @@ internal static class CrystalFlashDefinitions
     /// spent, shows for: the flash sets each picture directly rather than waiting for its animation to reach it.
     /// </summary>
     public const int PhasePictureHold = 3;
-
-    /// <summary>The colouring updates each bubble colour step shows for.</summary>
-    public const int BubbleStepUpdates = 5;
-
-    /// <summary>The colouring updates before the bubble's first colour step: it starts on the next.</summary>
-    public const int FirstBubbleStepWait = 1;
 }

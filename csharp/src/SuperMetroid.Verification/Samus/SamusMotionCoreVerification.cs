@@ -168,7 +168,7 @@ internal static void VerifySamusHorizontalSpeed()
     // Ordinary Dash uses the compiled native ten-frame, two-tick cadence. Do not
     // rewrite the cartridge pointer/delay ROM in the fake bus: gameplay now reads
     // those immutable definitions from SamusRunningCadenceDefinitions.
-    var dashAnimation = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.MovingRightNormalPose };
+    var dashAnimation = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.MovingRightNormalPose, Room = SuperMetroid.Core.Rooms.RoomDefinitions.LandingSite };
     SamusPresentation.InitializeAnimation(dashAnimation);
     dashAnimation.HorizontalSpeed.HandleExtraRunSpeed(
         movementType: SamusMovementType.Running,

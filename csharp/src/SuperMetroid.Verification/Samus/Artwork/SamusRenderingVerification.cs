@@ -637,8 +637,8 @@ internal static void VerifySamusVisorPalette()
     state.Update(
         samusColours, specialColouringKind: SamusSpecialColouringKind.None,
         roomVisorAnimation: RoomVisorAnimation.Steady);
-    AssertEqual(new VerifySamusVisorPaletteCase(1, 0), new VerifySamusVisorPaletteCase(state.Timer, state.NextShade),
-        "ordinary room resets visor animation, priming timer one and the cycle's first shade");
+    AssertEqual(new VerifySamusVisorPaletteCase(1, null), VerifySamusVisorPaletteCase.Of(state),
+        "ordinary room resets visor animation, priming timer one before the cycle's first shade");
     AssertEqual(SamusShades.DoorCompletionVisor, samusColours.VisorShade,
         "ordinary room reset does not overwrite current visor shade");
 
@@ -647,48 +647,48 @@ internal static void VerifySamusVisorPalette()
         samusColours, 0, RoomVisorAnimation.Animated);
     AssertTrue(samusColours.VisorShade != SamusShades.DoorCompletionVisor,
         "backdrop room shows the first visor shade immediately");
-    AssertEqual(SamusShades.VisorCycle(0), samusColours.VisorShade, "first visor shade is the cycle's first");
+    AssertEqual(SamusShades.VisorCycle[0], samusColours.VisorShade, "first visor shade is the cycle's first");
     AssertEqual(0x2000, samusColours.ShownVisor(sources), "first backdrop visor color");
-    AssertEqual(new VerifySamusVisorPaletteCase(5, 1), new VerifySamusVisorPaletteCase(state.Timer, state.NextShade),
-        "first write reloads five and advances to the cycle's second shade");
+    AssertEqual(new VerifySamusVisorPaletteCase(5, SamusShades.VisorCycle[0]), VerifySamusVisorPaletteCase.Of(state),
+        "first write holds the cycle's first shade for five updates");
 
     // Four calls retain timers 4/3/2/1. The fifth reaches zero, writes, and reloads five.
     for (ushort expectedTimer = 4; expectedTimer >= 1; expectedTimer--)
     {
         PictureShade? shadeShownBeforeCountdown = samusColours.VisorShade;
-        int shadeBeforeCountdown = state.NextShade;
+        PictureShade? cycleShadeBeforeCountdown = state.Cycle.Shown;
         state.Update(
             samusColours, 0, RoomVisorAnimation.Animated);
         AssertTrue(samusColours.VisorShade == shadeShownBeforeCountdown &&
-                state.NextShade == shadeBeforeCountdown,
+                state.Cycle.Shown == cycleShadeBeforeCountdown,
             $"visor countdown timer {expectedTimer} writes no color and keeps its shade");
-        AssertEqual(expectedTimer, state.Timer,
+        AssertEqual(expectedTimer, state.Cycle.UpdatesLeft,
             $"visor countdown reaches {expectedTimer}");
         if (expectedTimer == 1)
             break;
     }
     state.Update(
         samusColours, 0, RoomVisorAnimation.Animated);
-    AssertEqual(SamusShades.VisorCycle(1), samusColours.VisorShade, "second visor shade is the cycle's second");
+    AssertEqual(SamusShades.VisorCycle[1], samusColours.VisorShade, "second visor shade is the cycle's second");
     AssertEqual(0x2001, samusColours.ShownVisor(sources), "second backdrop visor color");
-    AssertEqual(new VerifySamusVisorPaletteCase(5, 2), new VerifySamusVisorPaletteCase(state.Timer, state.NextShade),
-        "second write advances to the cycle's last shade");
+    AssertEqual(new VerifySamusVisorPaletteCase(5, SamusShades.VisorCycle[1]), VerifySamusVisorPaletteCase.Of(state),
+        "second write holds the cycle's second shade");
 
     for (int call = 0; call < 5; call++)
         state.Update(samusColours, SamusSpecialColouringKind.None, RoomVisorAnimation.Animated);
     AssertEqual(0x2002, samusColours.ShownVisor(sources), "third backdrop visor color");
-    AssertEqual(new VerifySamusVisorPaletteCase(5, 0), new VerifySamusVisorPaletteCase(state.Timer, state.NextShade),
-        "third write wraps only to the room cycle's first shade");
+    AssertEqual(new VerifySamusVisorPaletteCase(5, SamusShades.VisorCycle[2]), VerifySamusVisorPaletteCase.Of(state),
+        "third write holds the room cycle's last shade");
 
-    VerifySamusVisorPaletteCase beforeXray = new VerifySamusVisorPaletteCase(state.Timer, state.NextShade);
-    samusColours.ShowVisor(SamusShades.XrayWideningVisor(1));
+    VerifySamusVisorPaletteCase beforeXray = VerifySamusVisorPaletteCase.Of(state);
+    samusColours.ShowVisor(SamusShades.XrayWideningVisor[1]);
     state.Update(
         samusColours, SamusSpecialColouringKind.Xray, RoomVisorAnimation.Animated);
-    AssertTrue(new VerifySamusVisorPaletteCase(state.Timer, state.NextShade) == beforeXray && samusColours.VisorShade == SamusShades.XrayWideningVisor(1),
+    AssertTrue(VerifySamusVisorPaletteCase.Of(state) == beforeXray && samusColours.VisorShade == SamusShades.XrayWideningVisor[1],
         "X-ray special handler suppresses ordinary visor cycle");
-    AssertEqual(beforeXray, new VerifySamusVisorPaletteCase(state.Timer, state.NextShade),
+    AssertEqual(beforeXray, VerifySamusVisorPaletteCase.Of(state),
         "X-ray suppression freezes the countdown and the shade");
-    AssertEqual(SamusShades.XrayWideningVisor(1), samusColours.VisorShade,
+    AssertEqual(SamusShades.XrayWideningVisor[1], samusColours.VisorShade,
         "X-ray suppression preserves its independently owned shade");
 
     // `HandleBeamChargePalettes` reaches the visor only through its no-charge branch.
@@ -697,7 +697,7 @@ internal static void VerifySamusVisorPalette()
     var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
     AssertTrue(!projectiles.UpdateBeamChargeGlow(samusColours, integratedSamus, RoomVisorAnimation.Animated),
         "inactive charging restores no suit");
-    AssertEqual(new VerifySamusVisorPaletteCase(5, 1), new VerifySamusVisorPaletteCase(integratedSamus.VisorShades.Timer, integratedSamus.VisorShades.NextShade),
+    AssertEqual(new VerifySamusVisorPaletteCase(5, SamusShades.VisorCycle[0]), VerifySamusVisorPaletteCase.Of(integratedSamus.VisorShades),
         "inactive charging falls through to visor handler, which writes and advances");
     AssertEqual(0x2000, samusColours.ShownVisor(sources),
         "integrated visor call reads bank-$9B room-cycle color");

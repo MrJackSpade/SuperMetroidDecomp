@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Samus.Movement;
@@ -59,12 +61,11 @@ public sealed class SamusCrystalFlashState
     /// </summary>
     internal void RelinquishMovement() => Phase = CrystalFlashPhase.Inactive;
 
-    /// <summary>Another special suit colouring takes over from Crystal Flash's, along with its running timer.</summary>
-    internal void RelinquishSuitColouring()
-    {
-        BubbleTimer = 0;
-        BeamShadeRestoreRequested = false;
-    }
+    /// <summary>
+    /// Another special suit colouring takes over from Crystal Flash's, along with its running timer. Its pulse and bubble
+    /// play no more until Crystal Flash starts them again.
+    /// </summary>
+    internal void RelinquishSuitColouring() => BeamShadeRestoreRequested = false;
 
     /// <summary>
     /// The room line Samus's whole Y reached at the end of the complete 20-pixel rise: the finishing phase walks her down
@@ -72,36 +73,25 @@ public sealed class SamusCrystalFlashState
     /// </summary>
     public int RaisedHeight { get; private set; }
 
-    /// <summary>The countdown to the next step of Samus's colours: one when the flash starts.</summary>
-    public int CrystalPulseTimer { get; private set; }
+    /// <summary>
+    /// The body's colour pulse (#2387), its ten shades of ten colouring updates each played over and over: activation
+    /// starts it, and its first shade shows on the flash's first colouring update.
+    /// </summary>
+    internal AnimationPlayer<SamusGlowSegment, PictureShade, NoAnimationCue> BodyPulse { get; } =
+        SamusGlowPlay.Starting(SamusGlowSegment.CrystalFlashBody);
 
     /// <summary>
-    /// The bubble colour step shown next, 0 through the bubble-set count minus one. Each bubble-timer expiry advances
-    /// it by one and wraps it to zero after the last set.
+    /// The bubble's colours turning (#2387), its six shades of five colouring updates each played over and over on their
+    /// own count beside the body's: activation starts it, and its first shade shows on the flash's first colouring update.
     /// </summary>
-    public int BubbleStep { get; private set; }
-
-    /// <summary>
-    /// The colouring updates until the bubble shows its next colour step, one through five while Crystal Flash's shade
-    /// runs (it is reloaded on reaching zero), and zero once it stops; other values are rejected.
-    /// </summary>
-    public int BubbleTimer
-    {
-        get;
-        private set => field = Ensure.BetweenInclusive(0, CrystalFlashDefinitions.BubbleStepUpdates, value);
-    }
+    internal AnimationPlayer<SamusGlowSegment, PictureShade, NoAnimationCue> BubbleTurn { get; } =
+        SamusGlowPlay.Starting(SamusGlowSegment.CrystalFlashBubble);
 
     /// <summary>
     /// Whether the flash has finished and asks its next colouring update to show the equipped beams' colours again and
     /// release the shade.
     /// </summary>
     public bool BeamShadeRestoreRequested { get; private set; }
-
-    /// <summary>
-    /// The step of the body's colour pulse shown next, zero through nine (#1512): activation starts it at the first, and
-    /// each body-timer expiry shows it and advances it, wrapping to the first after the last.
-    /// </summary>
-    public int BodyStep { get; private set; }
 
     /// <summary>Set when the raise finishes and the bubble's explosion and its glow start.</summary>
     public bool BubbleEffectRequested { get; private set; }
@@ -169,12 +159,10 @@ public sealed class SamusCrystalFlashState
         DrainingAmmo = CrystalFlashAmmoKind.Missiles;
         _ammoCountdown.StartAmmoCountdown(CrystalFlashDefinitions.AmmunitionPerKind);
         RaisedHeight = 0;
-        CrystalPulseTimer = CrystalFlashPulseTimingDefinitions.FirstStepWait;
         _colouring.Take(SamusSpecialColouringKind.CrystalFlash);
-        BubbleStep = 0;
-        BubbleTimer = CrystalFlashDefinitions.FirstBubbleStepWait;
+        SamusGlowPlay.Restart(BodyPulse, SamusGlowSegment.CrystalFlashBody);
+        SamusGlowPlay.Restart(BubbleTurn, SamusGlowSegment.CrystalFlashBubble);
         BeamShadeRestoreRequested = false;
-        BodyStep = 0;
         BubbleEffectRequested = false;
         // Activation discards existing hit immunity; Crystal Flash is not a damage shield.
         samus.InvincibilityTimer = WrappingCountdown.Start(0);
@@ -349,36 +337,15 @@ public sealed class SamusCrystalFlashState
             SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem.ShowBeamShade(colours, samus.EquippedBeams);
 
             _colouring.Release(SamusSpecialColouringKind.CrystalFlash);
-            BubbleStep = 0;
-            BodyStep = 0;
-            BubbleTimer = 0;
             BeamShadeRestoreRequested = false;
-            CrystalPulseTimer = 0;
             return true;
         }
 
-        // The bubble countdown runs one through five while the colouring runs, so its decrement reaches zero, never past it.
-        if (--BubbleTimer == 0)
-        {
-            BubbleTimer = CrystalFlashDefinitions.BubbleStepUpdates;
-            colours.LayOverBeams(SamusShades.CrystalFlashBubble(BubbleStep));
-
-            // The step was validated below the set count above, so this advance stays far below any wrap.
-            int nextBubbleStep = BubbleStep + 1;
-            BubbleStep = nextBubbleStep < SamusShadeDefinitions.CrystalFlash.BubbleShadeCount
-                ? nextBubbleStep
-                : 0;
-        }
-
-        if (--CrystalPulseTimer <= 0)
-        {
-            CrystalPulseTimer = CrystalFlashPulseTiming.DurationForStep(BodyStep);
-            colours.LayOverBeams(SamusShades.CrystalFlashBody(BodyStep));
-
-            // The step was validated as one of the pulse's above, so this advance cannot wrap.
-            int nextStep = BodyStep + 1;
-            BodyStep = nextStep < SamusShadeDefinitions.CrystalFlash.BodyStepCount ? nextStep : 0;
-        }
+        // Each runs on its own count; on an update that reaches the next shade of both, the bubble's is laid first.
+        if (BubbleTurn.StepToNewFrame() is { } bubble)
+            colours.LayOverBeams(bubble);
+        if (BodyPulse.StepToNewFrame() is { } body)
+            colours.LayOverBeams(body);
 
         // Every active update reports the shade handled, including frames on which neither timer
         // expires. The outer colouring step must therefore suppress its normal copy.

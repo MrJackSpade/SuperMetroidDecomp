@@ -16,7 +16,7 @@ internal static class SamusBodyColouringDefinitions
     /// starts both at and its first palette call lays over her beams' colours. The bubble, and her body where it shows
     /// inside it, ink her beams' colours, which show her beam's colours only outside the Crystal Flash.
     /// </summary>
-    private static readonly PictureShade[] CrystalFlash = [SamusShades.CrystalFlashBody(0), SamusShades.CrystalFlashBubble(0)];
+    private static readonly PictureShade[] CrystalFlash = [SamusShades.CrystalFlashBody[0], SamusShades.CrystalFlashBubble[0]];
 
     /// <summary>The shades each pose's frames are pre-coloured in, in laying order, a later one winning where they overlap.</summary>
     internal static IReadOnlyDictionary<SamusPoseId, PictureShade[]> Poses { get; } = new Dictionary<SamusPoseId, PictureShade[]>

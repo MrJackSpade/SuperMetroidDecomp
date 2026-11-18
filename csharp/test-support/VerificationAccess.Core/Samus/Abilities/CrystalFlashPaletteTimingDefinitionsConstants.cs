@@ -1,7 +1,9 @@
-
 namespace SuperMetroid.Core.Samus.Abilities;
 
-/// <summary>Cartridge values of <see cref="CrystalFlashPulseTimingDefinitions"/> that only verification reads.</summary>
+/// <summary>
+/// Cartridge places of the Crystal Flash body pulse's timing that only verification reads; the port plays the pulse as a
+/// named shade sequence (#2387).
+/// </summary>
 internal static class CrystalFlashPaletteTimingDefinitionsConstants
 {
     /// <summary>
@@ -10,16 +12,9 @@ internal static class CrystalFlashPaletteTimingDefinitionsConstants
     /// </summary>
     public const int NativeFirstTimerAddress = 0x91dc02;
 
-    /// <summary>The bytes of one native pointer/timer record; the port counts body steps instead (#1512).</summary>
+    /// <summary>The bytes of one native pointer/timer record; the port plays the pulse's shades instead (#1512, #2387).</summary>
     public const int RecordByteCount = 4;
 
-    /// <summary>Provides the native first timer address for Crystal Flash palette timing verification.</summary>
-    extension(CrystalFlashPulseTimingDefinitions)
-    {
-        /// <inheritdoc cref="CrystalFlashPaletteTimingDefinitionsConstants.NativeFirstTimerAddress"/>
-        internal static int NativeFirstTimerAddress => CrystalFlashPaletteTimingDefinitionsConstants.NativeFirstTimerAddress;
-
-        /// <inheritdoc cref="CrystalFlashPaletteTimingDefinitionsConstants.RecordByteCount"/>
-        internal static int RecordByteCount => CrystalFlashPaletteTimingDefinitionsConstants.RecordByteCount;
-    }
+    /// <summary>The native pulse's records, one per body shade.</summary>
+    public const int RecordCount = 10;
 }

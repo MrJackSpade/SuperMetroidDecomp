@@ -23,8 +23,8 @@ internal static class PauseMomentumVerification
                 BaseSpeed = new UnsignedSixteenSixteen(1, 0x4000),
                 ExtraRunSpeed = new UnsignedSixteenSixteen(2, 0x8000),
                 SpeedBoostCounter = new SamusSpeedBoostCounter(4, 2),
-                CycleShadeStep = 3,
             };
+            speed.CycleShadeStep = 3;
             PrivateState.Set(speed, nameof(SamusHorizontalSpeedState.CycleShadeTimer), 3);
             // Populate both echo slots through their production capture path, then
             // put them in departure mode. Unpause must erase rather than restart it.

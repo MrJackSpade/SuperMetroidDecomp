@@ -56,7 +56,7 @@ internal static class CrystalFlashColorsVerification
         var samusColours = new SamusColours();
         // Crystal Flash names body and bubble shades (#1512); the import resolves them from the installed colours.
         var installedSources = InstalledFixtures.SamusShadeSources with { CrystalFlash = InstalledFixtures.ImportOf(original).SamusColours.CrystalFlash };
-        int duration = CrystalFlashPulseTimingDefinitions.AuthoredDuration;
+        const int duration = 10;
         int calls = CrystalFlashColorFormat.BodyFrameCount * duration;
         for (int call = 0; call < calls; call++)
         {

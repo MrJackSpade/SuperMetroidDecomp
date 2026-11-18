@@ -48,12 +48,15 @@ internal static class ChargeFlareAnimationDefinitions
         [C.FastSparks] = [S.FastSparks],
     };
 
-    /// <summary>Each component's animation: the main flare's opening once and then its loop repeated, each spark ring's cycle repeated.</summary>
+    /// <summary>
+    /// Each component's animation, its phases read from its runs (#2387): the main flare's opening once and then its loop
+    /// repeated, each spark ring's cycle repeated.
+    /// </summary>
     internal static IReadOnlyDictionary<C, Animation<S>> Animations { get; } = new Dictionary<C, Animation<S>>
     {
-        [C.MainFlare] = new([new(S.MainFlareOpening, 0, 16, 1), new(S.MainFlareLoop, 0, 14, 1)], AnimationEnd.LoopsFrom(1)),
-        [C.SlowSparks] = new([new(S.SlowSparks, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
-        [C.FastSparks] = new([new(S.FastSparks, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
+        [C.MainFlare] = Animation<S>.LeadingInto([Segments.Whole(S.MainFlareOpening)], [Segments.Whole(S.MainFlareLoop)]),
+        [C.SlowSparks] = Animation<S>.Looping([Segments.Whole(S.SlowSparks)]),
+        [C.FastSparks] = Animation<S>.Looping([Segments.Whole(S.FastSparks)]),
     };
 
     /// <summary>Shows <paramref name="picture"/> for <paramref name="updates"/> updates.</summary>

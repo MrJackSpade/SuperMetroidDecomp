@@ -85,8 +85,8 @@ public static class SamusDeathPaletteArtworkFiles
         // The game works with the death steps and the whiteout colours alone: they are installed by purpose.
         SamusDeathSteps steps = Build(document).Steps;
         File.WriteAllBytes(Path.Combine(directory, StepFileName), JsonSerializer.SerializeToUtf8Bytes(new StepDocument(FormatVersion,
-            [.. Enumerable.Range(0, SamusDeathExplosionTimingDefinitions.StepCount).Select(steps.ExplosionStep)],
-            [.. Enumerable.Range(0, SamusShadeDefinitions.Death.WhiteoutShadeCount).Select(step => PaletteRgb5.From(steps.WhiteoutColour(step)))]),
+            [.. Enumerable.Range(0, SamusDeathExplosionTimingDefinitions.StepCount).Select(frame => steps.ExplosionStep(frame).Step)],
+            [.. SamusWhiteoutShade.All.Select(shade => PaletteRgb5.From(steps.WhiteoutColour(shade)))]),
             JsonOptions));
     }
 
@@ -135,7 +135,7 @@ public static class SamusDeathPaletteArtworkFiles
     {
         if (document.Version != FormatVersion || document.ExplosionSteps is null || document.Whiteout is null)
             throw new InvalidDataException("Samus death steps have an invalid structure.");
-        return new SamusDeathSteps([.. document.ExplosionSteps], [.. document.Whiteout.Select((levels, step) =>
+        return new SamusDeathSteps([.. document.ExplosionSteps.Select(shade => new SamusDeathShade(shade))], [.. document.Whiteout.Select((levels, step) =>
             levels is not null && (uint)levels.Red <= 31 && (uint)levels.Green <= 31 && (uint)levels.Blue <= 31
                 ? levels.ToRgbColor()
                 : throw new InvalidDataException($"Samus death whiteout step {step} requires channels 0..31."))]);

@@ -308,21 +308,21 @@ level, SamusRoomObjectFixtures.Uninstalled, right, unchecked((ushort)(frame + 1)
         "rainbow handler owns palette dispatcher");
     AssertEqual(0x1000, drainedColours.ShownSuit(drainedSources)[0],
         "rainbow first call loads Hyper Beam palette zero");
-    AssertEqual(1, unable.Drained.HyperBeamGlowStep,
+    AssertEqual(SuperMetroid.Core.Samus.Colours.SamusShades.HyperBeamSuit[1], unable.Drained.RainbowShade,
         "one-call rainbow cadence advances immediately");
     unable.Drained.HoldRainbowGlowLonger(longestHold: 10);
     unable.Drained.UpdateColouring(drainedColours, unable.EquippedItems);
     AssertEqual(2, unable.Drained.RainbowGlowStepCountdown,
         "Baby-raised rainbow delay reloads two");
-    AssertEqual(2, unable.Drained.HyperBeamGlowStep,
+    AssertEqual(SuperMetroid.Core.Samus.Colours.SamusShades.HyperBeamSuit[2], unable.Drained.RainbowShade,
         "rainbow second palette advances into delayed index");
     unable.Drained.UpdateColouring(drainedColours, unable.EquippedItems);
     AssertEqual(0x1040, drainedColours.ShownSuit(drainedSources)[0],
         "rainbow delayed index loads before timer decrement");
-    AssertEqual(2, unable.Drained.HyperBeamGlowStep,
+    AssertEqual(SuperMetroid.Core.Samus.Colours.SamusShades.HyperBeamSuit[2], unable.Drained.RainbowShade,
         "rainbow delay holds palette index for first call");
     unable.Drained.UpdateColouring(drainedColours, unable.EquippedItems);
-    AssertEqual(3, unable.Drained.HyperBeamGlowStep,
+    AssertEqual(SuperMetroid.Core.Samus.Colours.SamusShades.HyperBeamSuit[3], unable.Drained.RainbowShade,
         "rainbow delay advances on second call");
 
     unable.Drained.DisableRainbowAndStartStandingAnimation(unable);

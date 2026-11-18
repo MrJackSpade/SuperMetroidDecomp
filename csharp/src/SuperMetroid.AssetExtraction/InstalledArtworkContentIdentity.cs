@@ -269,10 +269,10 @@ internal static class InstalledArtworkContentIdentity
         public string ContentIdentity => SelectedPresentationHash.Create(nameof(SuperMetroid.Core.Samus.Death.SamusDeathSteps), content =>
         {
             Span<int> explosion = stackalloc int[SamusDeathExplosionTimingDefinitions.StepCount];
-            for (int frame = 0; frame < explosion.Length; frame++) explosion[frame] = steps.ExplosionStep(frame);
+            for (int frame = 0; frame < explosion.Length; frame++) explosion[frame] = steps.ExplosionStep(frame).Step;
             content.AppendWords("explosion steps", explosion);
             Span<RgbColor> whiteout = stackalloc RgbColor[SamusShadeDefinitions.Death.WhiteoutShadeCount];
-            for (int step = 0; step < whiteout.Length; step++) whiteout[step] = steps.WhiteoutColour(step);
+            for (int step = 0; step < whiteout.Length; step++) whiteout[step] = steps.WhiteoutColour(SuperMetroid.Core.Samus.Death.SamusWhiteoutShade.All[step]);
             content.AppendColors("whiteout", whiteout);
         });
     }

@@ -380,7 +380,7 @@ internal static class MapPresentationVerification
     private static void VerifyPauseWireframeAssets() =>
         VerifyPauseWireframes(RetailBus(), InstalledFixtures.Maps);
 
-    /// <summary>Checks installed HUD, menu, message, typewriter, narration, ending and file-select presentation assets.</summary>
+    /// <summary>Checks installed HUD, menu, message, typewriter, narration and ending presentation assets; the file select's run on their own.</summary>
     private static void VerifyFrontendPresentationAssets()
     {
         var bus = RetailBus();
@@ -391,7 +391,6 @@ internal static class MapPresentationVerification
         Suite(nameof(VerifyGameOverPresentationAssets), () => VerifyGameOverPresentationAssets(bus, original));
         Suite(nameof(VerifyGameOverMenuNativeIndexes), () => VerifyGameOverMenuNativeIndexes(original));
         Suite(nameof(VerifyGameOptionsPresentationAssets), () => VerifyGameOptionsPresentationAssets(bus, original));
-        Suite(nameof(VerifyFileSelectPresentationAssets), () => VerifyFileSelectPresentationAssets(bus, original));
         Suite(nameof(VerifyEscapeTypewriterAssets), () => VerifyEscapeTypewriterAssets(bus, stock));
         Suite(nameof(VerifyIntroNarrationAssets), () => VerifyIntroNarrationAssets(bus, stock));
         Suite(nameof(VerifyMapLoadAnchors), () => VerifyMapLoadAnchors(bus, original));
@@ -694,6 +693,7 @@ internal static class MapPresentationVerification
         new(nameof(VerifyPauseBackdropAssets), () => VerifyPauseBackdropAssets()),
         new(nameof(VerifyPauseWireframeAssets), () => VerifyPauseWireframeAssets()),
         new(nameof(VerifyFrontendPresentationAssets), () => VerifyFrontendPresentationAssets()),
+        new(nameof(VerifyFileSelectPresentationAssets), () => VerifyFileSelectPresentationAssets(RetailBus(), InstalledFixtures.Maps)),
     ];
 
 }

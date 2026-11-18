@@ -13,7 +13,7 @@ internal sealed record ShownFileSelectSave(int Health, int MaxHealth, int Hours,
     internal static ShownFileSelectSave Of(SuperMetroidSaveSlot slot)
     {
         Ensure.NotNull(slot);
-        return new(slot.Health, slot.MaxHealth, Math.Min(slot.GameTimeHours, FileSelectFieldDefinitions.MaximumTimePart),
-            Math.Min(slot.GameTimeMinutes, FileSelectFieldDefinitions.MaximumTimePart));
+        return new(slot.Health, slot.MaxHealth, Math.Min(slot.GameTime.Hours, FileSelectFieldDefinitions.MaximumTimePart),
+            Math.Min(slot.GameTime.Minutes, FileSelectFieldDefinitions.MaximumTimePart));
     }
 }

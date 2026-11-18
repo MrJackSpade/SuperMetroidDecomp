@@ -9,8 +9,8 @@ public sealed record SaveSnapshotContext
     /// <summary>The load station the save resumes at.</summary>
     public required LoadStation Checkpoint { get; init; }
 
-    /// <summary>The gameplay clock the save keeps.</summary>
-    public required GameTimeState GameTime { get; init; }
+    /// <summary>The reading of the gameplay clock the save keeps.</summary>
+    public required GameClockReading GameTime { get; init; }
 
     /// <summary>The buttons of the seven configurable actions.</summary>
     public required ControllerBindings ControllerBindings { get; init; }

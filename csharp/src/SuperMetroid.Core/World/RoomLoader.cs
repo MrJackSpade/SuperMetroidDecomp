@@ -284,8 +284,7 @@ internal sealed class RoomLoader
         _options.ControllerBindings = slot.ControllerBindings;
         _options.MoonwalkEnabled = slot.MoonwalkEnabled;
         _options.IconCancelEnabled = slot.IconCancelEnabled;
-        _gameTime.Load(slot.GameTimeFrames, slot.GameTimeSeconds,
-            slot.GameTimeMinutes, slot.GameTimeHours);
+        _gameTime.Load(slot.GameTime);
     }
 
     /// <summary>

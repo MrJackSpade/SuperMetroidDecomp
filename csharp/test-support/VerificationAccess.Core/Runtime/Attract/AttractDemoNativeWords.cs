@@ -29,16 +29,37 @@ internal static class AttractDemoNativeWords
         [AttractDemoRoomSetup.DefeatedKraid] = 0x8932,
     });
 
-    /// <summary>The bank-$91 Samus setup function naming each <see cref="AttractDemoSamusSetup"/>.</summary>
+    /// <summary>The bank-$91 Samus setup function naming each of the <see cref="AttractDemoSamusSetups"/>.</summary>
     internal static readonly NativeWordIdentities<AttractDemoSamusSetup> SamusSetups = new(new Dictionary<AttractDemoSamusSetup, ushort>
     {
-        [AttractDemoSamusSetup.LandingSite] = 0x8a33,
-        [AttractDemoSamusSetup.MorphLeft] = 0x8a3e,
-        [AttractDemoSamusSetup.LowHealthLeft] = 0x8a43,
-        [AttractDemoSamusSetup.StandingLeft] = 0x8a49,
-        [AttractDemoSamusSetup.FallingLeft] = 0x8a4e,
-        [AttractDemoSamusSetup.StandingRight] = 0x8a53,
-        [AttractDemoSamusSetup.DiagonalShinespark] = 0x8a68,
-        [AttractDemoSamusSetup.HorizontalShinespark] = 0x8a81,
+        [AttractDemoSamusSetups.LandingSite] = 0x8a33,
+        [AttractDemoSamusSetups.MorphLeft] = 0x8a3e,
+        [AttractDemoSamusSetups.LowHealthLeft] = 0x8a43,
+        [AttractDemoSamusSetups.StandingLeft] = 0x8a49,
+        [AttractDemoSamusSetups.FallingLeft] = 0x8a4e,
+        [AttractDemoSamusSetups.StandingRight] = 0x8a53,
+        [AttractDemoSamusSetups.DiagonalShinespark] = 0x8a68,
+        [AttractDemoSamusSetups.HorizontalShinespark] = 0x8a81,
     });
+
+    /// <summary>
+    /// Where each posed setup's routine loads the pose it starts Samus in, as the immediate of an <c>LDA #</c> whose opcode
+    /// byte comes just before it, and, for the low-health setup, where it loads her energy: the pose and energy each
+    /// <see cref="AttractDemoSamusSetup.Posed"/> holds are those immediates (#2500).
+    /// </summary>
+    internal static readonly IReadOnlyList<(AttractDemoSamusSetup.Posed Setup, int PoseImmediate, int? EnergyImmediate)> PosedImmediates =
+    [
+        (AttractDemoSamusSetups.MorphLeft, 0x918a3f, null),
+        (AttractDemoSamusSetups.LowHealthLeft, 0x918a4a, 0x918a44),
+        (AttractDemoSamusSetups.StandingLeft, 0x918a4a, null),
+        (AttractDemoSamusSetups.FallingLeft, 0x918a4f, null),
+        (AttractDemoSamusSetups.StandingRight, 0x918a54, null),
+    ];
+
+    /// <summary>Where each shinespark setup's routine loads the pose it launches Samus in, as an <c>LDA #</c> immediate.</summary>
+    internal static readonly IReadOnlyList<(AttractDemoSamusSetup.Shinespark Setup, int PoseImmediate)> ShinesparkImmediates =
+    [
+        (AttractDemoSamusSetups.DiagonalShinespark, 0x918a73),
+        (AttractDemoSamusSetups.HorizontalShinespark, 0x918a8c),
+    ];
 }

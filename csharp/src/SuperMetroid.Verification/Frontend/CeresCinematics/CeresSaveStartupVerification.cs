@@ -43,9 +43,7 @@ internal static class CeresSaveStartupVerification
             StartupRoute = SaveLoadingGameState.CeresDestruction,
             Progress = departureProgress,
             Health = 77,
-            GameTimeMinutes = 2,
-            GameTimeSeconds = 11,
-            GameTimeFrames = 44,
+            GameTime = new SuperMetroid.Core.Progression.GameClockReading(frames: 44, seconds: 11, minutes: 2, hours: 0),
         };
         var saves = new SaveSlotStore(RetailPresentationFixture());
         saves.SaveSlot(SaveSlot.A, departure);

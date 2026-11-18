@@ -21,39 +21,36 @@ internal static class GameTimeVerification
         AssertEqual(0, time.Frames, "game time frame rollover");
         AssertEqual(1, time.Seconds, "game time second increment");
 
-        time.Load(frames: 59, seconds: 59, minutes: 59, hours: 98);
+        time.Load(new GameClockReading(frames: 59, seconds: 59, minutes: 59, hours: 98));
         time.Step();
         AssertEqual(0, time.Frames, "game time hour rollover frames");
         AssertEqual(0, time.Seconds, "game time hour rollover seconds");
         AssertEqual(0, time.Minutes, "game time hour rollover minutes");
         AssertEqual(99, time.Hours, "game time hour rollover hours");
 
-        time.Load(frames: 59, seconds: 59, minutes: 59, hours: 99);
+        time.Load(new GameClockReading(frames: 59, seconds: 59, minutes: 59, hours: 99));
         time.Step();
         AssertEqual(59, time.Frames, "game time saturation frames");
         AssertEqual(59, time.Seconds, "game time saturation seconds");
         AssertEqual(59, time.Minutes, "game time saturation minutes");
         AssertEqual(99, time.Hours, "game time saturation hours");
 
-        SuperMetroidSaveSnapshot snapshot = SuperMetroidSaveSnapshot.Capture(new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), new SharedGameState(new SharedRandom()), SaveSnapshotFixtures.At(SuperMetroid.Core.Progression.LoadStationDefinitions.Gunship) with { GameTime = time });
-        AssertEqual(59, snapshot.GameTimeFrames, "save captures game-time frames");
-        AssertEqual(59, snapshot.GameTimeSeconds, "save captures game-time seconds");
-        AssertEqual(59, snapshot.GameTimeMinutes, "save captures game-time minutes");
-        AssertEqual(99, snapshot.GameTimeHours, "save captures game-time hours");
+        SuperMetroidSaveSnapshot snapshot = SuperMetroidSaveSnapshot.Capture(new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), new SharedGameState(new SharedRandom()), SaveSnapshotFixtures.At(SuperMetroid.Core.Progression.LoadStationDefinitions.Gunship) with { GameTime = time.Reading });
+        AssertEqual(new GameClockReading(frames: 59, seconds: 59, minutes: 59, hours: 99), snapshot.GameTime, "save captures the game clock's reading");
 
-        // The clock holds its own domain (#1692): a component outside it is rejected, never stepped.
+        // The clock holds its own domain (#1692, #2500): a reading with a component outside it cannot be made, so the clock
+        // never loads one.
         foreach (OriginalClock outside in OutsideDomain)
         {
             string reading = $"{outside.Hours}:{outside.Minutes}:{outside.Seconds}.{outside.Frames}";
-            AssertTrue(!GameTimeState.IsInDomain(outside.Frames, outside.Seconds, outside.Minutes, outside.Hours), $"{reading} is no clock reading");
-            AssertThrows<ArgumentOutOfRangeException>(() => time.Load(outside.Frames, outside.Seconds, outside.Minutes, outside.Hours),
+            AssertTrue(!GameClockReading.IsReading(outside.Frames, outside.Seconds, outside.Minutes, outside.Hours), $"{reading} is no clock reading");
+            AssertThrows<ArgumentOutOfRangeException>(() => new GameClockReading(outside.Frames, outside.Seconds, outside.Minutes, outside.Hours),
                 $"game time rejects {reading}");
         }
-        AssertEqual(59, time.Frames, "a rejected load leaves the clock unchanged");
 
         // Every reading of the clock steps as the original's clock does: from 0:00:00.00 the clock passes through each reading
         // once, in order, and saturates at the last.
-        time.Load(frames: 0, seconds: 0, minutes: 0, hours: 0);
+        time.Load(default);
         var original = new OriginalClock(0, 0, 0, 0);
         int readings = 0;
         bool saturated = false;
@@ -72,7 +69,7 @@ internal static class GameTimeVerification
                 expected.Seconds == original.Seconds && expected.Minutes == original.Minutes;
             original = expected;
         }
-        AssertTrue(GameTimeState.IsInDomain(original.Frames, original.Seconds, original.Minutes, original.Hours),
+        AssertTrue(GameClockReading.IsReading(original.Frames, original.Seconds, original.Minutes, original.Hours),
             "the clock saturates at a reading of its domain");
         AssertEqual(100 * 60 * 60 * 60, readings, "every reading of the clock was stepped");
 

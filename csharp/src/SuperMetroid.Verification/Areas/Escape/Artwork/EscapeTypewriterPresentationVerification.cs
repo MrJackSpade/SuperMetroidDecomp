@@ -33,14 +33,16 @@ internal static class EscapeTypewriterPresentationVerification
             // The installed program runs to completion without any cartridge text read;
             // extraction copied its stream from the ROM at program.SourceAddress.
             var installed = new EscapeTypewriterState(program);
-            var installedVram = new SnesVram();
+            int glyphs = 0;
             for (int frame = 0; ; frame++)
             {
                 if (frame == 2048) throw new InvalidOperationException($"{id} typewriter did not terminate.");
                 comparedFrames++;
-                if (installed.StepInto(installedVram)) break;
+                bool completed = installed.Step(out EscapeTypewriterGlyph? glyph);
+                if (glyph is not null) glyphs++;
+                if (completed) break;
             }
-            AssertTrue(installed.GlyphsWritten > 0, $"{id} installed typewriter writes its glyphs");
+            AssertTrue(glyphs > 0, $"{id} installed typewriter writes its glyphs");
         }
 
         var saved = new EscapeTypewriterState(

@@ -67,17 +67,8 @@ public sealed record SuperMetroidSaveSnapshot
     /// <summary>The energy-point total currently stored in reserve tanks.</summary>
     public required int ReserveEnergy { get; init; }
 
-    /// <summary>The sub-second gameplay counter, normally in the inclusive range 0 through 59.</summary>
-    public required int GameTimeFrames { get; init; }
-
-    /// <summary>The gameplay clock's seconds component, normally in the inclusive range 0 through 59.</summary>
-    public required int GameTimeSeconds { get; init; }
-
-    /// <summary>The gameplay clock's minutes component, normally in the inclusive range 0 through 59.</summary>
-    public required int GameTimeMinutes { get; init; }
-
-    /// <summary>The gameplay clock's hours component, saturated by gameplay at 99.</summary>
-    public required int GameTimeHours { get; init; }
+    /// <summary>The gameplay clock's reading.</summary>
+    public required GameClockReading GameTime { get; init; }
 
     /// <summary>The startup route the save resumes by.</summary>
     public required SaveLoadingGameState StartupRoute { get; init; }
@@ -120,10 +111,7 @@ public sealed record SuperMetroidSaveSnapshot
             MaxReserveEnergy = samus.MaxReserveEnergy,
             ReserveEnergy = samus.ReserveEnergy,
             JapaneseText = context.JapaneseText,
-            GameTimeFrames = context.GameTime.Frames,
-            GameTimeSeconds = context.GameTime.Seconds,
-            GameTimeMinutes = context.GameTime.Minutes,
-            GameTimeHours = context.GameTime.Hours,
+            GameTime = context.GameTime,
             StartupRoute = system.SavedStartupRoute,
             Checkpoint = Ensure.NotNull(context.Checkpoint),
             Progress = system.Progress.Copy(),

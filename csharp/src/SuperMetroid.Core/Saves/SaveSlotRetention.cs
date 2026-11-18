@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Saves;
 
 /// <summary>
 /// What a saved slot keeps of a snapshot (#1421): every value is checked against the range its save field keeps, so a
-/// slot never holds what a save could not, and the explored map keeps only the Zebes areas' runs of cells the stock map
+/// slot never holds what a save could not (the clock is a reading, checked when it was made), and the explored map keeps only the Zebes areas' runs of cells the stock map
 /// occupies (<see cref="ExploredMapStorage"/>, <see cref="SavedMapExplorationRuns"/>).
 /// </summary>
 internal static class SaveSlotRetention
@@ -24,11 +24,6 @@ internal static class SaveSlotRetention
         int powerBombs = Kept(snapshot.PowerBombs), maxPowerBombs = Kept(snapshot.MaxPowerBombs);
         HudItem hudItem = Defined(snapshot.HudItem, nameof(snapshot.HudItem));
         int maxReserveEnergy = Kept(snapshot.MaxReserveEnergy), reserveEnergy = Kept(snapshot.ReserveEnergy);
-        if (!GameTimeState.IsInDomain(snapshot.GameTimeFrames, snapshot.GameTimeSeconds, snapshot.GameTimeMinutes, snapshot.GameTimeHours))
-        {
-            throw new InvalidOperationException(
-                $"Save clock {snapshot.GameTimeHours}:{snapshot.GameTimeMinutes}:{snapshot.GameTimeSeconds}.{snapshot.GameTimeFrames} is not a reading of the game clock.");
-        }
 
         LoadStation checkpoint = Ensure.NotNull(snapshot.Checkpoint);
         PersistentProgress progression = ExploredMapStorage.Retained(snapshot.Progress, maps);
@@ -51,10 +46,7 @@ internal static class SaveSlotRetention
             HudItem: hudItem,
             MaxReserveEnergy: maxReserveEnergy,
             ReserveEnergy: reserveEnergy,
-            GameTimeFrames: snapshot.GameTimeFrames,
-            GameTimeSeconds: snapshot.GameTimeSeconds,
-            GameTimeMinutes: snapshot.GameTimeMinutes,
-            GameTimeHours: snapshot.GameTimeHours,
+            GameTime: snapshot.GameTime,
             Progression: progression,
             StartupRoute: snapshot.StartupRoute,
             Checkpoint: checkpoint)

@@ -31,18 +31,18 @@ internal static class AttractDemoSceneImporter
         return new(
             RoomHeaderSources.Room(Room(AttractDemoSceneRoomFields.Room)), DoorHeaderSources.Door(Room(AttractDemoSceneRoomFields.Door)),
             new(Room(AttractDemoSceneRoomFields.CameraX), Room(AttractDemoSceneRoomFields.CameraY)),
-            NativeSamusPlacement.RoomPosition(new(Room(AttractDemoSceneRoomFields.CameraX), Room(AttractDemoSceneRoomFields.CameraY)),
-                new(unchecked((short)Room(AttractDemoSceneRoomFields.SamusXFromCenter)), unchecked((short)Room(AttractDemoSceneRoomFields.SamusYFromTop)))),
+            AttractDemoNativeWords.SamusSetups.Decode(setup, "demo Samus setup").At(
+                NativeSamusPlacement.RoomPosition(new(Room(AttractDemoSceneRoomFields.CameraX), Room(AttractDemoSceneRoomFields.CameraY)),
+                    new(unchecked((short)Room(AttractDemoSceneRoomFields.SamusXFromCenter)), unchecked((short)Room(AttractDemoSceneRoomFields.SamusYFromTop))))),
             Room(AttractDemoSceneRoomFields.Duration),
             Room(AttractDemoSceneRoomFields.Setup) is AttractDemoNativeWords.NoRoomSetup or AttractDemoNativeWords.SkyTilemapSetup
                 ? null
                 : AttractDemoNativeWords.RoomSetups.Decode(Room(AttractDemoSceneRoomFields.Setup), "demo room setup"),
-            AttractDemoNativeWords.SamusSetups.Decode(setup, "demo Samus setup"),
             SamusEquipmentWordCodec.FromEquipmentWord(Equipment(AttractDemoSceneEquipmentFields.Items)), Equipment(AttractDemoSceneEquipmentFields.Missiles),
             Equipment(AttractDemoSceneEquipmentFields.SuperMissiles), Equipment(AttractDemoSceneEquipmentFields.PowerBombs),
             Equipment(AttractDemoSceneEquipmentFields.Health), SamusEquipmentWordCodec.FromBeamWord(Equipment(AttractDemoSceneEquipmentFields.CollectedBeams)),
             SamusEquipmentWordCodec.FromBeamWord(Equipment(AttractDemoSceneEquipmentFields.EquippedBeams)),
-            AttractDemoInputDefinitions.FromNativeHeader(Equipment(AttractDemoSceneEquipmentFields.InputObject)));
+            AttractDemoInputDefinition.FromNativeHeader(Equipment(AttractDemoSceneEquipmentFields.InputObject)));
     }
 
     /// <summary>Bounds a fixed-stride scene record within its native cartridge data bank.</summary>

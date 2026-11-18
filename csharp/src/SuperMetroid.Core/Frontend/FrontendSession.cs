@@ -544,8 +544,6 @@ internal sealed class FrontendSession
                 ?? throw new InvalidDataException(
                     $"Selected save slot {SelectedSaveSlot} became invalid during startup.");
             InitializeSelectedGameHud(slot);
-            runtime.GameTime.Load(slot.GameTimeFrames, slot.GameTimeSeconds,
-                slot.GameTimeMinutes, slot.GameTimeHours);
             runtime.FrameBoundary.PublishWhileLoading();
 
             // A Ceres elevator save starts with the Ceres elevator's arrival, as a new game does; every other station

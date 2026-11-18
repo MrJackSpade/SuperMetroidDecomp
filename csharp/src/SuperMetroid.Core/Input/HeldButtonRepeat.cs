@@ -11,13 +11,13 @@ namespace SuperMetroid.Core.Input;
 public sealed class HeldButtonRepeat
 {
     /// <summary>The held buttons the previous update saw, newly pressed buttons excluded.</summary>
-    public ControllerButton PreviousHeld { get; private set; }
+    private ControllerButton _previousHeld;
 
     /// <summary>
     /// The updates in a row the held buttons have stayed unchanged, counting stops one past the delay, where the repeat
     /// fires on every further update.
     /// </summary>
-    public int UnchangedUpdates { get; private set; }
+    private int _unchangedUpdates;
 
     /// <summary>The held buttons that repeat on this update; none until the delay has passed.</summary>
     public ControllerButton Repeating { get; private set; }
@@ -30,9 +30,9 @@ public sealed class HeldButtonRepeat
     {
         int delay = Ensure.AtLeastZero(repeatDelay);
         ControllerButton held = buttonsDown & ~newlyPressed;
-        bool unchanged = held == PreviousHeld;
-        PreviousHeld = held;
-        UnchangedUpdates = unchanged ? Math.Min(UnchangedUpdates + 1, delay + 1) : 0;
-        Repeating = UnchangedUpdates > delay ? held : ControllerButton.None;
+        bool unchanged = held == _previousHeld;
+        _previousHeld = held;
+        _unchangedUpdates = unchanged ? Math.Min(_unchangedUpdates + 1, delay + 1) : 0;
+        Repeating = _unchangedUpdates > delay ? held : ControllerButton.None;
     }
 }

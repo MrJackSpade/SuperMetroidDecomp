@@ -25,10 +25,7 @@ namespace SuperMetroid.Core.Saves;
 /// <param name="HudItem">The selected HUD item.</param>
 /// <param name="MaxReserveEnergy">The reserve tanks' capacity.</param>
 /// <param name="ReserveEnergy">The energy stored in reserve tanks.</param>
-/// <param name="GameTimeFrames">The game clock's frames.</param>
-/// <param name="GameTimeSeconds">The game clock's seconds.</param>
-/// <param name="GameTimeMinutes">The game clock's minutes.</param>
-/// <param name="GameTimeHours">The game clock's hours.</param>
+/// <param name="GameTime">The game clock's reading.</param>
 /// <param name="Progression">The persistent progress the save keeps; the slot owns this copy.</param>
 /// <param name="StartupRoute">The startup route the save resumes by.</param>
 /// <param name="Checkpoint">The load station the save resumes at.</param>
@@ -50,10 +47,7 @@ public sealed record SuperMetroidSaveSlot(
     HudItem HudItem,
     int MaxReserveEnergy,
     int ReserveEnergy,
-    int GameTimeFrames,
-    int GameTimeSeconds,
-    int GameTimeMinutes,
-    int GameTimeHours,
+    GameClockReading GameTime,
     PersistentProgress Progression,
     SaveLoadingGameState StartupRoute,
     LoadStation Checkpoint)

@@ -1536,10 +1536,9 @@ internal static class LookupStream1Verification
                     }
                 }
                 // The typewriter's schedule shows in which update types each character: the oracle's reloaded countdown
-                // is compared through the cell, glyph count, click and image of every update, not as a counter.
+                // and glyph count are compared through the cell, click and image of every update, not as counters.
                 AssertEqual(done, actual.StepInto(actualVram), "escape text native completion");
                 AssertEqual(destination - tilemapWord, SuperMetroid.Core.Rooms.Backgrounds.TwoScreenTilemapCells.IndexOf(actual.Corner), "escape text native cell");
-                AssertEqual(glyphs, actual.GlyphsWritten, "escape text native glyph count");
                 AssertEqual(click, actual.ClickRequested, "escape text native click order");
                 AssertTrue(expectedVram.ImageEquals(actualVram), "escape text native per-character VRAM");
                 totalFrames++;

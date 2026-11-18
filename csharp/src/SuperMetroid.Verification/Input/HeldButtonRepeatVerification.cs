@@ -18,8 +18,8 @@ internal static class HeldButtonRepeatVerification
         repeat.Update(3, button, button);
         AssertEqual(ControllerButton.None, repeat.Repeating, "a fresh press is not held");
 
+        // The first held update is a change: the delay's three unchanged updates follow it before the button repeats.
         repeat.Update(3, button, ControllerButton.None);
-        AssertEqual(0, repeat.UnchangedUpdates, "the first held update is a change");
         AssertEqual(ControllerButton.None, repeat.Repeating, "a change does not repeat");
 
         for (int unchanged = 1; unchanged <= 3; unchanged++)

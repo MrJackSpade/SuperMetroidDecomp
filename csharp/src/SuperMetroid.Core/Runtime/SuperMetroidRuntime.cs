@@ -21,6 +21,7 @@ using SuperMetroid.Core.Runtime.Attract;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Saves;
 
 namespace SuperMetroid.Core.Runtime;
 
@@ -326,6 +327,28 @@ internal sealed class SuperMetroidRuntime
 
     /// <summary>The game time, which each save slot also records.</summary>
     public GameTimeState GameTime { get; } = new();
+
+    /// <summary>
+    /// The save made at <paramref name="station"/> now (#2500): saving first stores the live explored map as the station's
+    /// area's, then keeps Samus, the progress, the clock's reading, the controls and the options.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">No Samus is live to save.</exception>
+    internal SuperMetroidSaveSnapshot SaveSnapshotAt(LoadStation station)
+    {
+        Ensure.NotNull(station);
+        SamusState samus = Player.Samus
+            ?? throw new InvalidOperationException($"A save at {station} has no live Samus state.");
+        System.StoredExploredMaps.StoreLiveMap(station.Area);
+        return SuperMetroidSaveSnapshot.Capture(samus, System, new SaveSnapshotContext
+        {
+            Checkpoint = station,
+            GameTime = GameTime.Reading,
+            ControllerBindings = Options.ControllerBindings,
+            MoonwalkEnabled = Options.MoonwalkEnabled,
+            IconCancelEnabled = Options.IconCancelEnabled,
+            JapaneseText = JapaneseText,
+        });
+    }
 
     /// <summary>
     /// The player's gameplay actions as the frame boundary latched them: the configured bindings read the buttons as

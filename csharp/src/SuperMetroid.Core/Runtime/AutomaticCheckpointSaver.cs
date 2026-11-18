@@ -30,12 +30,8 @@ internal static class AutomaticCheckpointSaver
     {
         Ensure.NotNull(saves);
         Ensure.NotNull(runtime);
-        // Both Ceres checkpoints save the game's Samus: the Ceres start's, and the escape's, which she outlives.
-        SamusState samus = runtime.Player.IntroducedSamus;
         runtime.System.LoadSavedStartupRoute(route);
-        // Saving first stores the live explored map as Ceres's.
-        runtime.System.StoredExploredMaps.StoreLiveMap(AreaId.Ceres);
-        saves.SaveSlot(slot, SuperMetroidSaveSnapshot.Capture(samus, runtime.System, new SaveSnapshotContext { Checkpoint = LoadStationDefinitions.CeresElevator, GameTime = runtime.GameTime, ControllerBindings = runtime.Options.ControllerBindings, MoonwalkEnabled = runtime.Options.MoonwalkEnabled, IconCancelEnabled = runtime.Options.IconCancelEnabled, JapaneseText = runtime.JapaneseText }));
+        saves.SaveSlot(slot, runtime.SaveSnapshotAt(LoadStationDefinitions.CeresElevator));
     }
 
     /// <summary>
@@ -52,18 +48,12 @@ internal static class AutomaticCheckpointSaver
         if (runtime.EnemyFrameResults.LastEnemyFrame.Gunship != GunshipFrameEvent.LandingCompleted)
             return false;
 
-        SamusState samus = runtime.Player.IntroducedSamus;
-
         // The gunship sets the ship-landed marker before moving the checkpoint from the Zebes arrival to
         // the gunship and saving the game. The marker controls ship/save-point display
         // after reload and therefore belongs inside the atomic checkpoint operation.
         runtime.System.LoadSavedStartupRoute(SaveLoadingGameState.MainGame);
         runtime.System.MarkSaveStationUsed(LoadStationDefinitions.Gunship);
-        // Saving first stores the live explored map as Crateria's.
-        runtime.System.StoredExploredMaps.StoreLiveMap(AreaId.Crateria);
-        saves.SaveSlot(
-            selectedSaveSlot,
-            SuperMetroidSaveSnapshot.Capture(samus, runtime.System, new SaveSnapshotContext { Checkpoint = LoadStationDefinitions.Gunship, GameTime = runtime.GameTime, ControllerBindings = runtime.Options.ControllerBindings, MoonwalkEnabled = runtime.Options.MoonwalkEnabled, IconCancelEnabled = runtime.Options.IconCancelEnabled, JapaneseText = runtime.JapaneseText }));
+        saves.SaveSlot(selectedSaveSlot, runtime.SaveSnapshotAt(LoadStationDefinitions.Gunship));
         return true;
     }
 }

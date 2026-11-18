@@ -120,10 +120,7 @@ internal static class SaveRamCodecVerification
         SuperMetroidSaveSnapshot extremes = Snapshot(health: 61, area: AreaId.Brinstar) with
         {
             StartupRoute = SaveLoadingGameState.CeresDestruction,
-            GameTimeFrames = 59,
-            GameTimeSeconds = 0,
-            GameTimeMinutes = 59,
-            GameTimeHours = 99,
+            GameTime = new GameClockReading(frames: 59, seconds: 0, minutes: 59, hours: 99),
         };
         written.SaveSlot(SaveSlot.A, extremes);
         byte[] image = SaveRamCodec.Encode(written, maps);
@@ -154,10 +151,7 @@ internal static class SaveRamCodecVerification
         AssertTrue(ReferenceEquals(SuperMetroid.Core.Progression.LoadStationDefinitions.GreenBrinstarSave, slot.Checkpoint), "the checkpoint decodes to the station it was saved at");
         AssertEqual(1, SaveRamCodec.ReadSlotWord(image, 0, SaveRamLayout.AreaOffset), "the checkpoint's area word holds Brinstar's number");
         AssertEqual(1, SaveRamCodec.ReadSlotWord(image, 0, SaveRamLayout.SaveStationOffset), "the checkpoint's station word holds its number in Brinstar's list");
-        AssertEqual(99, slot.GameTimeHours, "the clock's hours decode their largest reading");
-        AssertEqual(59, slot.GameTimeMinutes, "the clock's minutes decode their largest reading");
-        AssertEqual(59, slot.GameTimeFrames, "the clock's frames decode their largest reading");
-        AssertEqual(0, slot.GameTimeSeconds, "the clock's seconds decode zero");
+        AssertEqual(extremes.GameTime, slot.GameTime, "the clock decodes its largest hours, minutes and frames and zero seconds");
         int[] clockOffsets =
         [
             SaveRamLayout.GameTimeFramesOffset, SaveRamLayout.GameTimeSecondsOffset,
@@ -178,17 +172,13 @@ internal static class SaveRamCodecVerification
             }
         }
 
-        foreach ((string field, SuperMetroidSaveSnapshot outOfRange) in new VerifyWidenedSlotFieldsRoundTripCase[]
-                 {
-                     new VerifyWidenedSlotFieldsRoundTripCase("clock minutes", extremes with { GameTimeMinutes = -1 }),
-                     new VerifyWidenedSlotFieldsRoundTripCase("clock frames", extremes with { GameTimeFrames = 60 }),
-                     new VerifyWidenedSlotFieldsRoundTripCase("clock hours", extremes with { GameTimeHours = 100 }),
-                 })
-        {
-            AssertThrows<InvalidOperationException>(() => written.SaveSlot(SaveSlot.B, outOfRange),
-                $"a {field} past its domain is rejected instead of wrapping");
-        }
-        AssertTrue(written.ReadSlot(SaveSlot.B) is null, "a rejected save leaves its slot unchanged");
+        // A clock past its domain is no reading (#2500), so no snapshot can hold one to save.
+        AssertThrows<ArgumentOutOfRangeException>(() => new GameClockReading(frames: 59, seconds: 0, minutes: -1, hours: 99),
+            "a clock minutes past its domain is rejected instead of wrapping");
+        AssertThrows<ArgumentOutOfRangeException>(() => new GameClockReading(frames: 60, seconds: 0, minutes: 59, hours: 99),
+            "a clock frames past its domain is rejected instead of wrapping");
+        AssertThrows<ArgumentOutOfRangeException>(() => new GameClockReading(frames: 59, seconds: 0, minutes: 59, hours: 100),
+            "a clock hours past its domain is rejected instead of wrapping");
         Console.WriteLine("Save slot fields: full-domain values round-trip through SRAM exactly; out-of-domain values are rejected.");
     }
 
@@ -232,8 +222,7 @@ internal static class SaveRamCodecVerification
         system.SetCollectedItemBit(health % 64);
         system.MarkSaveStationUsed(LoadStationNumberCodec.Decode(area, 1, "save fixture"));
         system.MarkExploredMapTile(area, new(9, 1));
-        var time = new GameTimeState();
-        time.Load(frames: 12, seconds: 34, minutes: 5, hours: 1);
+        var time = new GameClockReading(frames: 12, seconds: 34, minutes: 5, hours: 1);
         return SuperMetroidSaveSnapshot.Capture(samus, system,
             SaveSnapshotFixtures.At(SuperMetroid.AssetExtraction.Progression.LoadStationNumberCodec.Decode(area, 1, "save fixture")) with { GameTime = time });
     }

@@ -230,9 +230,8 @@ internal sealed class MotherBrainThirdPhaseDeath
             style: MotherBrainDeathExplosionStyle.Mixed, frame.NextRandomNumber, requests.DeathExplosions);
         if (Encounter.PhaseTimer.StepRunsOut())
         {
-            Encounter.DeathBodyFade.Restart();
+            Encounter.DeathBodyFade.StartAfter(1);
             Encounter.DeathPhase = MotherBrainDeathPhase.FadeOutBody;
-            Encounter.PhaseTimer.LastFor(1);
             return true;
         }
         return false;
@@ -244,27 +243,23 @@ internal sealed class MotherBrainThirdPhaseDeath
     /// </summary>
     internal bool FadeOutBody(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
     {
-        // The body flickers on every update, apart from the fade's steps. The fade's steps show its blackening colourings; the
-        // step after them shows none and completes it.
+        // The body flickers on every update. The fade shows its blackening colourings; the update it is over shows none
+        // and hides the body.
         GenerateDeathExplosions(
             style: MotherBrainDeathExplosionStyle.Mixed, frame.NextRandomNumber, requests.DeathExplosions);
         requests.BodyFlickers = true;
-        if (Encounter.PhaseTimer.StepRunsOut())
+        if (Encounter.DeathBodyFade.Step() is { } image)
+            requests.DeathFadeImage = image;
+        else if (Encounter.DeathBodyFade.IsOver)
         {
-            Encounter.PhaseTimer.LastFor(MotherBrainLateFightDefinitions.BodyFadeStepUpdates);
-            if (MotherBrainFadeDefinitions.DeathBody.ImageAt(Encounter.DeathBodyFade.TakeStep()) is { } image)
-                requests.DeathFadeImage = image;
-            else
-            {
-                requests.BodyClearRequested = true;
-                RoomEnemyPlace body = Encounter.Body;
-                body.Presence = body.Presence.With(EnemyPresence.Hidden);
-                body.Processing = body.Processing.Without(EnemyProcessing.Animates);
-                body.CollidesByFrameHitboxes = false;
-                body.AnimationClock.ShowsNewFrame = false;
-                Encounter.DeathPhase = MotherBrainDeathPhase.FinalFewExplosions;
-                Encounter.PhaseTimer.LastFor(MotherBrainLateFightDefinitions.FinalExplosionsUpdates);
-            }
+            requests.BodyClearRequested = true;
+            RoomEnemyPlace body = Encounter.Body;
+            body.Presence = body.Presence.With(EnemyPresence.Hidden);
+            body.Processing = body.Processing.Without(EnemyProcessing.Animates);
+            body.CollidesByFrameHitboxes = false;
+            body.AnimationClock.ShowsNewFrame = false;
+            Encounter.DeathPhase = MotherBrainDeathPhase.FinalFewExplosions;
+            Encounter.PhaseTimer.LastFor(MotherBrainLateFightDefinitions.FinalExplosionsUpdates);
         }
         return false;
     }
@@ -345,32 +340,25 @@ internal sealed class MotherBrainThirdPhaseDeath
     {
         if (Encounter.PhaseTimer.StepRunsOut())
         {
-            Encounter.CorpseGreying.Restart();
+            Encounter.CorpseGreying.StartAfter(1);
             Encounter.DeathPhase = MotherBrainDeathPhase.FadeToGrey;
-            Encounter.PhaseTimer.LastFor(1);
         }
         return false;
     }
 
     /// <summary>
-    /// Greys her corpse one step each time the wait runs out, then shows the corpse and starts the wait before it tips
-    /// over. True when her next phase runs on in this same update.
+    /// Greys her corpse through its fade, then shows the corpse and starts the wait before it tips over. True when her
+    /// next phase runs on in this same update.
     /// </summary>
     internal bool GreyCorpse(MotherBrainRainbowBeamStepRequests requests)
     {
-        if (Encounter.PhaseTimer.StepRunsOut())
+        if (Encounter.CorpseGreying.Step() is { } image)
+            requests.CorpseFadeImage = image;
+        else if (Encounter.CorpseGreying.IsOver)
         {
-            if (MotherBrainFadeDefinitions.CorpseFade.ImageAt(Encounter.CorpseGreying.TakeStep()) is { } image)
-            {
-                requests.CorpseFadeImage = image;
-                Encounter.PhaseTimer.LastFor(MotherBrainFightDefinitions.GreyStepUpdates);
-            }
-            else
-            {
-                _state.SetHeadAnimation(MotherBrainHeadSegment.Corpse);
-                Encounter.DeathPhase = MotherBrainDeathPhase.CorpseTipsOver;
-                Encounter.PhaseTimer.LastFor(MotherBrainLateFightDefinitions.CorpseTipsOverUpdates);
-            }
+            _state.SetHeadAnimation(MotherBrainHeadSegment.Corpse);
+            Encounter.DeathPhase = MotherBrainDeathPhase.CorpseTipsOver;
+            Encounter.PhaseTimer.LastFor(MotherBrainLateFightDefinitions.CorpseTipsOverUpdates);
         }
         return false;
     }

@@ -58,13 +58,10 @@ internal static class MotherBrainBeamWindowVerification
         {
             Step();
             AssertEqual((ushort)(frame % 2 == 0 ? 31 : 992), beam.Color,
-                $"beam installed cycle color {frame}");
-            AssertEqual(frame + 1, beam.ColourStep,
-                "beam advances one cycle colour per update");
+                $"beam installed cycle color {frame}, one cycle colour per update");
         }
         Step();
         AssertEqual(31, beam.Color, "past the cycle's end the beam starts over at colour zero");
-        AssertEqual(1, beam.ColourStep, "the update that starts the cycle over advances it");
         Step();
         AssertEqual(992, beam.Color, "colour zero does not repeat: the next update shows colour one (#2251)");
         MotherBrainRainbowBeamRenderSnapshot snapshot = beam.RenderSnapshot
@@ -73,9 +70,10 @@ internal static class MotherBrainBeamWindowVerification
             "the shown beam publishes its colour and cone by value");
         ColourAddWindowLayer capture = GameplayEffectCapture.CaptureMotherBrainRainbowBeam(snapshot, default);
         AssertEqual(snapshot.Color, capture.Colour, "the captured layer adds the beam's colour");
-        int cursor = beam.ColourStep;
         _ = GameplayEffectCapture.CaptureMotherBrainRainbowBeam(snapshot, default);
-        AssertEqual(cursor, beam.ColourStep, "repainting cannot advance beam simulation");
+        AssertEqual(snapshot.Color, beam.Color, "repainting cannot advance beam simulation");
+        Step();
+        AssertEqual(31, beam.Color, "the update after the repaints shows the cycle's next colour");
         beam.Hide();
         AssertTrue(beam.RenderSnapshot is null, "a hidden beam shows nothing");
         Step();

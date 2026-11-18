@@ -40,6 +40,11 @@ internal static class MotherBrainFakeDeathPaletteVerification
                 : MotherBrainFakeDeath.TransitionMotherBrainFromGray;
             int table = toGrey ? MotherBrainSourceDefinitions.Palettes.FakeDeathToGreyPointerTable :
                 MotherBrainSourceDefinitions.Palettes.RevivalFromGreyPointerTable;
+            MotherBrainFadeProgress fade = toGrey ? state.FakeDeathGreying : state.FromFakeDeathGrey;
+            // Each image holds as the native function timer reloaded at each step lasts (#2404): eight below the hold to
+            // grey, four below the hold back. The fresh fade shows its first image on its first update.
+            int hold = (toGrey ? 8 : 4) + 1;
+            AssertEqual(hold, fade.Fade.ImageUpdates, "each image of the fade holds as long as the native function timer");
             for (int frame = 0; frame < MotherBrainRainbowPaletteGeometry.GreyFrameCount; frame++)
             {
                 int pointerAddress = table + frame * sizeof(ushort);
@@ -48,19 +53,25 @@ internal static class MotherBrainFakeDeathPaletteVerification
                 SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(expected, rom, MotherBrainSourceDefinitions.Palettes.PaletteBank | pointer,
                     MotherBrainRainbowPaletteGeometry.FakeDeathColors,
                     MotherBrainColorDestinations.BrainColor);
-                state.PhaseTimer.Count = 0;
+                for (int update = 1; update < (frame == 0 ? 1 : hold); update++)
+                {
+                    step(state);
+                    AssertEqual(frame - 1, fade.Shown?.Step, $"the fade holds image {frame - 1} on its update {update}");
+                }
                 step(state);
                 AssertTrue(new CgramPalettes(expected).ImageEquals(new CgramPalettes(Shown(state, installed))),
                     $"installed Mother Brain fake-death {(toGrey ? "descent" : "ascent")} frame {frame} matches full native CGRAM");
-                AssertEqual(frame + 1, toGrey ? state.FakeDeathGreying.Steps : state.FromFakeDeathGrey.Steps,
-                    "native grey fade cursor increments once per selected frame");
-                AssertEqual(toGrey ? 8 : 4, state.PhaseTimer.Count,
-                    "installed color frame preserves native function timer");
+                AssertEqual(frame, fade.Shown?.Step, "the fade moves on to its next image once the image before has held");
             }
 
-            // The ninth selection is the native zero-terminator, not an editable color.
-            state.PhaseTimer.Count = 0;
+            // The update after the last image's hold is the native zero-terminator, not an editable color.
+            for (int update = 1; update < hold; update++)
+            {
+                step(state);
+                AssertTrue(!fade.IsOver, $"the fade holds its last image on its update {update}");
+            }
             step(state);
+            AssertTrue(fade.IsOver, "the fade is over once its last image has held");
             AssertTrue(new CgramPalettes(expected).ImageEquals(new CgramPalettes(Shown(state, installed))),
                 "fake-death grey terminator leaves every CGRAM word unchanged");
             AssertTrue(toGrey

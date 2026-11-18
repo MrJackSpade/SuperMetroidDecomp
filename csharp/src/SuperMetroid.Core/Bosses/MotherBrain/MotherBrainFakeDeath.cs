@@ -50,23 +50,19 @@ internal sealed class MotherBrainFakeDeath
     internal static MotherBrainFallingTubeDefinition MotherBrainFallingTubeBody(MotherBrainTubePiece piece) =>
         MotherBrainFallingTubePopulationDefinitions.Bodies[piece];
 
-    /// <summary>Steps Mother Brain's fake-death gray fade and advances when its colour cycle completes.</summary>
+    /// <summary>Steps Mother Brain's fake-death grey fade and moves on once the fade is over.</summary>
     internal void RunMotherBrainFadeToGray(MotherBrainEnemyState state)
     {
-        if (state.PhaseTimer.StepRunsOut())
+        if (state.FakeDeathGreying.Step() is { } image)
         {
-            state.PhaseTimer.LastFor(MotherBrainWaitDefinitions.FakeDeathGreyStepUpdates);
-            if (MotherBrainFadeDefinitions.FakeDeathToGrey.ImageAt(state.FakeDeathGreying.TakeStep()) is { } image)
-            {
-                // Fake-death fade greys her brain's three colours only. Copying a convenient
-                // whole colour set would visibly alter unrelated room art and is not what
-                // the fake-death fade does.
-                state.Colours.ShowFakeDeathToGrey(image);
-            }
-            else
-            {
-                state.DescentPhase = MotherBrainDescentPhase.CollapseTubes;
-            }
+            // Fake-death fade greys her brain's three colours only. Copying a convenient
+            // whole colour set would visibly alter unrelated room art and is not what
+            // the fake-death fade does.
+            state.Colours.ShowFakeDeathToGrey(image);
+        }
+        else if (state.FakeDeathGreying.IsOver)
+        {
+            state.DescentPhase = MotherBrainDescentPhase.CollapseTubes;
         }
 
         // Every update of the grey fade also runs the tube collapse and the explosion, so tube sequencing and dust
@@ -78,8 +74,7 @@ internal sealed class MotherBrainFakeDeath
     /// <summary>Stops her room's flash and shows its steady grey.</summary>
     internal static void StopMotherBrainRoomFlash(MotherBrainEnemyState state)
     {
-        state.RoomFlashImage = null;
-        state.RoomFlashTimer = 0;
+        state.RoomFlash = null;
         state.Colours.ShowRoomGrey();
     }
 
@@ -397,16 +392,14 @@ internal sealed class MotherBrainFakeDeath
     /// <summary>Restores the combat colours after the gray fake-death phase.</summary>
     internal static void TransitionMotherBrainFromGray(MotherBrainEnemyState state)
     {
-        if (!state.PhaseTimer.StepRunsOut())
-            return;
-
-        state.PhaseTimer.LastFor(MotherBrainWaitDefinitions.FromGreyStepUpdates);
-        if (MotherBrainFadeDefinitions.FakeDeathFromGrey.ImageAt(state.FromFakeDeathGrey.TakeStep()) is { } image)
+        if (state.FromFakeDeathGrey.Step() is { } image)
         {
             // The restoration from grey recolours only three of the brain's colours.
             state.Colours.ShowFakeDeathFromGrey(image);
             return;
         }
+        if (!state.FromFakeDeathGrey.IsOver)
+            return;
 
         state.Form = MotherBrainForm.SecondPhase;
         state.DroolGenerationEnabled = true;

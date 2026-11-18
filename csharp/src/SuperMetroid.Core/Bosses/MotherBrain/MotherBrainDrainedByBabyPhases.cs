@@ -187,36 +187,28 @@ internal sealed class MotherBrainDrainedByBabyPhases
     {
         if (Encounter.PhaseTimer.StepRunsOut())
         {
-            Encounter.DrainedGreying.Restart();
+            Encounter.DrainedGreying.StartAfter(MotherBrainFightDefinitions.GreyStepUpdates);
             Encounter.DrainedPhase = MotherBrainDrainedPhase.TransitionToGrey;
-            Encounter.PhaseTimer.LastFor(MotherBrainFightDefinitions.GreyStepUpdates);
             return true;
         }
         return false;
     }
 
     /// <summary>
-    /// Greys her one step each time the wait runs out; the step after the last leaves her a grey corpse with her third
-    /// phase's health. True when her next phase runs on in this same update.
+    /// Greys her through the drain's fade; the update the fade is over leaves her a grey corpse with her third phase's
+    /// health. True when her next phase runs on in this same update.
     /// </summary>
     internal bool GreyOut(MotherBrainRainbowBeamStepRequests requests)
     {
-        if (Encounter.PhaseTimer.StepRunsOut())
+        if (Encounter.DrainedGreying.Step() is { } image)
+            requests.DrainColourImage = image;
+        else if (Encounter.DrainedGreying.IsOver)
         {
-            Encounter.PhaseTimer.LastFor(MotherBrainFightDefinitions.GreyStepUpdates);
-
-            // The body greys over its grey steps, one each time the timer runs out; the ninth finishes the transition
-            // without new colours.
-            if (MotherBrainFadeDefinitions.DrainToGrey.ImageAt(Encounter.DrainedGreying.TakeStep()) is { } image)
-                requests.DrainColourImage = image;
-            else
-            {
-                Encounter.Head.Health = MotherBrainFightDefinitions.ThirdPhaseHealth;
-                _state.Phase2CorpseState = MotherBrainPhase2CorpseState.Corpse;
-                Encounter.SmallPurpleBreathGenerationEnabled = false;
-                Encounter.Form = MotherBrainForm.SecondPhase;
-                Encounter.RevivalPhase = MotherBrainRevivalPhase.InanimateGrey;
-            }
+            Encounter.Head.Health = MotherBrainFightDefinitions.ThirdPhaseHealth;
+            _state.Phase2CorpseState = MotherBrainPhase2CorpseState.Corpse;
+            Encounter.SmallPurpleBreathGenerationEnabled = false;
+            Encounter.Form = MotherBrainForm.SecondPhase;
+            Encounter.RevivalPhase = MotherBrainRevivalPhase.InanimateGrey;
         }
         return false;
     }

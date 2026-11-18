@@ -188,14 +188,12 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
 
                 // The fake-death flash starts the looping room flash, drains the room's acid,
                 // arms the head's independent tube sequence, and clears both fade timers.
-                state.RoomFlashImage = MotherBrainRoomFlashImage.First;
-                state.RoomFlashTimer = MotherBrainRoomFlashDefinitions.FirstImageStartingTicks;
+                state.RoomFlash = MotherBrainRoomFlashAnimations.Starting();
                 _frameResults.MotherBrainAcidChange = MotherBrainRoomFxDefinitions.AcidDrains;
                 state.TubeCollapseStep = MotherBrainTubeCollapseStep.SpawnBottomLeftTube;
                 state.TubeCollapseTimer.LastFor(1);
                 state.DescentPhase = MotherBrainDescentPhase.FadeToGray;
-                state.PhaseTimer.LastFor(1);
-                state.FakeDeathGreying.Restart();
+                state.FakeDeathGreying.StartAfter(1);
                 Access.RequestMotherBrainObject(MotherBrainTubeCollapseDefinitions.CeilingBlock.Block, MotherBrainTubeCollapseDefinitions.CeilingBlock.RoomObject);
                 return;
 
@@ -233,22 +231,16 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Runs Mother Brain's room flash: each of its fourteen images stays two updates, the timer counting
-    /// up from one, and the last loops to the first.
+    /// Runs one update of Mother Brain's room flash, while it runs: it plays on through its fourteen images, each shown two
+    /// updates, looping (<see cref="MotherBrainRoomFlashAnimations"/>), and her room shows the image it stands on.
     /// </summary>
     internal static void RunMotherBrainRoomFlash(MotherBrainEnemyState state)
     {
-        if (state.RoomFlashImage is not { } image)
+        if (state.RoomFlash is not { } flash)
             return;
 
-        if (state.RoomFlashTimer == MotherBrainRoomFlashDefinitions.FlashImageTicks)
-        {
-            image = image.Next;
-            state.RoomFlashImage = image;
-            state.RoomFlashTimer = 0;
-        }
-        state.RoomFlashTimer++;
-        state.Colours.ShowRoomFlash(image);
+        flash.Step();
+        state.Colours.ShowRoomFlash(flash.Showing);
     }
 
     /// <summary>Runs the phase of her rise out of the fake death her body is in, from the mural to her colours' return.</summary>

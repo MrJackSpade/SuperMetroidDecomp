@@ -70,7 +70,6 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new ShitroidEnemyState(dormant ? ShitroidAction.Dormant : ShitroidAction.WaitForCamera, ShitroidSegment.Normal)
         {
             Velocity = default,
-            ColourDelay = ShitroidFightDefinitions.CalmPulseDelay,
         };
         if (dormant)
         {
@@ -351,7 +350,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         place.Position = place.Position.WithWhole(latch);
         SetShitroidAnimation(place, ShitroidSegment.LatchedOn);
         state.Action = ShitroidAction.DrainSidehopper;
-        state.ColourDelay = ShitroidFightDefinitions.FeedingPulseDelay;
+        state.PaceMembrane(ShitroidMembranePace.Feeding);
         state.ReactsToSamus = false;
         state.SidehopperDrainTimer = ShitroidFightDefinitions.SidehopperDrainUpdates;
     }
@@ -367,7 +366,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             state.Action = ShitroidAction.ActivateSidehopperCorpse;
             SetShitroidAnimation(place, ShitroidSegment.FinishDraining);
-            state.ColourDelay = ShitroidFightDefinitions.CalmPulseDelay;
+            state.PaceMembrane(ShitroidMembranePace.Calm);
         }
     }
 
@@ -421,7 +420,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Action = ShitroidAction.BeginPostDrainPause;
             state.Velocity = default;
             SetShitroidAnimation(place, ShitroidSegment.FinishDraining);
-            state.ColourDelay = ShitroidFightDefinitions.CalmPulseDelay;
+            state.PaceMembrane(ShitroidMembranePace.Calm);
             samus.MetroidAttachmentShade = SamusMetroidAttachmentShade.Inactive;
             samus.Drained.LetFall(samus);
             state.CryEnabled = false;
@@ -615,7 +614,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 samus.Position.Whole + ShitroidFightDefinitions.LatchOffset))
             {
                 SetShitroidAnimation(place, ShitroidSegment.LatchedOn);
-                state.ColourDelay = ShitroidFightDefinitions.FeedingPulseDelay;
+                state.PaceMembrane(ShitroidMembranePace.Feeding);
                 state.ReactsToSamus = false;
                 state.Velocity = default;
                 state.Action = ShitroidAction.BeginDrainingSamus;
@@ -659,33 +658,33 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Advances the eight-phase membrane colors of the Shitroid in <paramref name="place"/> and paces its cries.
+    /// Plays one update of the eight-phase membrane pulse of the Shitroid in <paramref name="place"/>, which paces its cries,
+    /// and shows the phase it moves on to.
     /// </summary>
     internal void StepShitroidMembranePulse(RoomEnemyPlace place, ShitroidEnemyState state)
     {
-        if (state.ColourTimer != 0)
-        {
-            state.ColourTimer--;
+        if (state.Membrane.StepToNewFrame(_ => CountShitroidCry(state)) is not { } pulse)
             return;
-        }
-
-        ShitroidMembranePulse pulse = state.MembranePulse.Next;
-        state.MembranePulse = pulse;
-        state.ColourTimer = state.ColourDelay;
-        if (pulse == ShitroidMembranePulse.CryPhase && state.CryEnabled)
-        {
-            state.CryCounter++;
-            if (state.CryCounter >= ShitroidFightDefinitions.PulsesPerCry)
-            {
-                state.CryCounter = 0;
-                RequestShitroidSound(state.ColourDelay < ShitroidFightDefinitions.CalmPulseDelay
-                    ? ShitroidSoundDefinitions.QuickDrainCry
-                    : ShitroidSoundDefinitions.DrainCry);
-            }
-        }
 
         state.MembraneShown = pulse;
         place.Shading = state.Shading;
+    }
+
+    /// <summary>
+    /// Counts a pulse reaching its cry phase toward the Shitroid's periodic cry while its cry is enabled: every fourth
+    /// cries, quickly while it feeds.
+    /// </summary>
+    private void CountShitroidCry(ShitroidEnemyState state)
+    {
+        if (!state.CryEnabled)
+            return;
+        state.CryCounter++;
+        if (state.CryCounter < ShitroidFightDefinitions.PulsesPerCry)
+            return;
+        state.CryCounter = 0;
+        RequestShitroidSound(state.MembranePace == ShitroidMembranePace.Feeding
+            ? ShitroidSoundDefinitions.QuickDrainCry
+            : ShitroidSoundDefinitions.DrainCry);
     }
 
     /// <summary>Starts <paramref name="segment"/> with both animation timers reset.</summary>

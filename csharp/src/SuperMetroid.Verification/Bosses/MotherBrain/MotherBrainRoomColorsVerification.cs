@@ -43,17 +43,18 @@ internal static class MotherBrainRoomColorsVerification
         RoomEnemySystem enemies = CreateEnemy();
         MotherBrainEnemyState state = StagedState(enemies);
         enemies.MotherBrainEncounter.BeginAsSetUp(state);
-        state.RoomFlashImage = MotherBrainRoomFlashImage.First;
+        state.RoomFlash = MotherBrainRoomFlashAnimations.Starting();
         for (int frame = 0; frame < 48; frame++)
         {
             MotherBrainBehavior.RunMotherBrainRoomFlash(state);
-            MotherBrainRoomFlashImage shown = state.RoomFlashImage ?? throw new InvalidOperationException("The room flash stopped on its own.");
+            // The flash shows its first image on its first update alone, then each image for two updates, looping (#2404).
+            MotherBrainRoomFlashImage shown = MotherBrainRoomFlashImage.All[(frame + 1) / 2 % MotherBrainRoomFlashDefinitions.FlashFrameCount];
             AssertEqual(MotherBrainShades.Flash(shown), state.Colours.RoomShading.Shades[^1],
                 $"Mother Brain's room flash shows its image {shown.Step} on update {frame}");
         }
         MotherBrainFakeDeath.StopMotherBrainRoomFlash(state);
         AssertEqual(MotherBrainShades.FinalRoom, state.Colours.RoomShading.Shades[^1], "stopping the flash shows the steady grey room");
-        AssertEqual(null, state.RoomFlashImage, "stopping the flash clears its image");
+        AssertTrue(state.RoomFlash is null, "stopping the flash stops it playing");
         enemies.MotherBrainBehavior.Ascent.SetupMotherBrainPhaseTwoGraphics(state);
         AssertEqual(MotherBrainShades.PhaseTwo, state.Colours.OwnShading.Shades[^1], "the ascent loads the phase-two attack and rear-leg colours");
         Suite(nameof(VerifyMotherBrainRecoveryLights), () => VerifyMotherBrainRecoveryLights(state));

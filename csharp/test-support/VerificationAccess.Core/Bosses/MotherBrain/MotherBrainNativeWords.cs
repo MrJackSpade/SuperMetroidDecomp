@@ -29,6 +29,16 @@ internal static class MotherBrainNativeWords
         [MotherBrainAttackPhase.EndAttack] = 2,
     });
 
+    /// <summary>
+    /// The Shitroid's membrane colour delay naming each <see cref="ShitroidMembranePace"/> (#2404): the updates each phase of
+    /// the pulse holds at that pace, less one.
+    /// </summary>
+    internal static readonly NativeWordIdentities<ShitroidMembranePace> ShitroidMembranePaces = new(new Dictionary<ShitroidMembranePace, ushort>
+    {
+        [ShitroidMembranePace.Calm] = 10,
+        [ShitroidMembranePace.Feeding] = 1,
+    });
+
     /// <summary>The hand-beam dispatcher's index naming each <see cref="MotherBrainHandBeamPhase"/>.</summary>
     internal static readonly NativeWordIdentities<MotherBrainHandBeamPhase> HandBeamPhases = new(new Dictionary<MotherBrainHandBeamPhase, ushort>
     {

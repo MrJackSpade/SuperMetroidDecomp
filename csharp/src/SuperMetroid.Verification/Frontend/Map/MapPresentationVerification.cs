@@ -501,9 +501,8 @@ internal static class MapPresentationVerification
             installedBeamSequence.Show(new(100, 95),
                 RotationAngle.QuarterTurn, RotationAngle.FromSteps(64), original.MotherBrainRainbowBeamColours);
             AssertTrue(nativeBeamSequence.Color == installedBeamSequence.Color &&
-                nativeBeamSequence.ColourStep == installedBeamSequence.ColourStep &&
                 nativeBeamSequence.Geometry == installedBeamSequence.Geometry,
-                $"installed beam frame {frame} matches native color, cursor, and geometry through loop reset");
+                $"installed beam frame {frame} matches native color and geometry through loop reset");
         }
 
         AssertThrows<InvalidDataException>(() => MotherBrainRainbowPaletteFile.Read(

@@ -197,9 +197,8 @@ internal sealed class MotherBrainAscent
         if (state.Pose != MotherBrainBodyPose.Standing)
             return;
 
-        state.FromFakeDeathGrey.Restart();
+        state.FromFakeDeathGrey.StartAfter(1);
         state.AscentPhase = MotherBrainAscentPhase.TransitionFromGray;
-        state.PhaseTimer.LastFor(1);
     }
 
     /// <summary>Applies the phase-two head shake before normal combat begins.</summary>

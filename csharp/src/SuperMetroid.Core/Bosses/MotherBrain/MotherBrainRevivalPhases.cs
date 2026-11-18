@@ -46,32 +46,26 @@ internal sealed class MotherBrainRevivalPhases
             Encounter.SmallPurpleBreathGenerationEnabled = true;
             Encounter.DroolGenerationEnabled = true;
             Encounter.RevivalPhase = MotherBrainRevivalPhase.TransitionFromGrey;
-            Encounter.PhaseTimer.LastFor(MotherBrainLateFightDefinitions.RevivalFirstGreyStepUpdates);
-            Encounter.RevivalFromGrey.Restart();
+            Encounter.RevivalFromGrey.StartAfter(MotherBrainLateFightDefinitions.RevivalFirstGreyStepUpdates);
             return true;
         }
         return false;
     }
 
     /// <summary>
-    /// Brings her colour back one step each time the wait runs out; the step after the last wakes her. True when her
-    /// next phase runs on in this same update.
+    /// Brings her colour back through the revival's fade; the update the fade is over wakes her. True when her next phase
+    /// runs on in this same update.
     /// </summary>
     internal bool RegainColour(MotherBrainRainbowBeamStepRequests requests)
     {
-        if (Encounter.PhaseTimer.StepRunsOut())
+        // The revival reverses the greying the drain showed; the update after its last image's hold shows no new colours
+        // and completes the revival into her waking up.
+        if (Encounter.RevivalFromGrey.Step() is { } image)
+            requests.RevivalColourImage = image;
+        else if (Encounter.RevivalFromGrey.IsOver)
         {
-            Encounter.PhaseTimer.LastFor(MotherBrainFightDefinitions.GreyStepUpdates);
-
-            // The revival reverses the same greying steps used by the corpse transition. Its ninth step shows no
-            // new colours and completes the revival into her waking up.
-            if (MotherBrainFadeDefinitions.RevivalFromGrey.ImageAt(Encounter.RevivalFromGrey.TakeStep()) is { } image)
-                requests.RevivalColourImage = image;
-            else
-            {
-                Encounter.RevivalPhase = MotherBrainRevivalPhase.WakeUp;
-                return true;
-            }
+            Encounter.RevivalPhase = MotherBrainRevivalPhase.WakeUp;
+            return true;
         }
         return false;
     }

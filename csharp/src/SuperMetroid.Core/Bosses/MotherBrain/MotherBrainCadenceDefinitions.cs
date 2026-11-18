@@ -13,16 +13,10 @@ internal static class MotherBrainCadenceDefinitions
     internal static readonly UpdateCounterField BabyShakeStep = new(1, 2);
 
     /// <summary>
-    /// The phase of the Baby Metroid's hit-flash timer that steps its doubled shake while it is struck: four steps, each
-    /// held for two updates, indexing its shaking offsets.
+    /// The phase of the Baby Metroid's hit timer that steps its doubled shake while it is struck: four steps, each held for
+    /// two updates, indexing its shaking offsets.
     /// </summary>
     internal static readonly UpdateCounterField BabyHitShakeStep = new(1, 2);
-
-    /// <summary>
-    /// The phase of the Baby Metroid's hit-flash timer on which it shows its hurt flash: set for two updates of every
-    /// four, while its own colours show for the other two.
-    /// </summary>
-    internal static readonly UpdateCounterField BabyHurtFlashShown = new(1, 1);
 
     /// <summary>
     /// The phase of the Baby Metroid's own update count on which the dying Baby Metroid is shown: set on odd updates, so

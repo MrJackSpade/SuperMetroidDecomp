@@ -23,7 +23,4 @@ public readonly record struct ShitroidMembranePulse
 
     /// <summary>Every phase of the cycle, in order: the eight its membrane pulses through.</summary>
     public static IReadOnlyList<ShitroidMembranePulse> All { get; } = [.. Enumerable.Range(0, PulsePhases).Select(step => new ShitroidMembranePulse(step))];
-
-    /// <summary>The phase after this one; the last is followed by the first.</summary>
-    public ShitroidMembranePulse Next => new((Step + 1) % PulsePhases);
 }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
@@ -23,7 +24,23 @@ public sealed class MotherBrainRainbowBeamColours
         this.beamCycle = [.. Ensure.NotNull(beamCycle)];
         if (this.beamCycle.Length == 0)
             throw new InvalidDataException("Mother Brain's installed beam colour cycle holds no colour.");
+        BeamSegments = new(new Dictionary<MotherBrainRainbowBeamSegment, AnimationBeat<RgbColor, NoAnimationCue>[]>
+        {
+            [MotherBrainRainbowBeamSegment.FirstColour] = [new AnimationBeat<RgbColor, NoAnimationCue>.Frame(beamInitial, 1)],
+            [MotherBrainRainbowBeamSegment.HueCycle] = [.. this.beamCycle.Select(colour => new AnimationBeat<RgbColor, NoAnimationCue>.Frame(colour, 1))],
+        });
+        BeamAnimation = Animation<MotherBrainRainbowBeamSegment>.LeadingInto(
+            [BeamSegments.Whole(MotherBrainRainbowBeamSegment.FirstColour)], [BeamSegments.Whole(MotherBrainRainbowBeamSegment.HueCycle)]);
     }
+
+    /// <summary>The backdrop's colours as the beam shows them (#2404), each for one update.</summary>
+    internal AnimationSegments<MotherBrainRainbowBeamSegment, RgbColor, NoAnimationCue> BeamSegments { get; }
+
+    /// <summary>
+    /// The backdrop's colour sequence while the beam fires (#2404): its first colour, then its hue cycle, looping without
+    /// showing any colour twice running.
+    /// </summary>
+    internal Animation<MotherBrainRainbowBeamSegment> BeamAnimation { get; }
 
     /// <summary>The backdrop colour the beam shows on its first active frame.</summary>
     public RgbColor BeamInitialColor { get; }

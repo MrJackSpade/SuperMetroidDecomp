@@ -53,7 +53,7 @@ internal static class BotwoonWallObjectsVerification
         }
         foreach (Offset16<RoomBlocks> outside in new Offset16<RoomBlocks>[] { new(0, -1), new(0, 9), new(-1, 0), new(1, 0) })
             AssertThrows<ArgumentOutOfRangeException>(() => shape.CollisionAt(outside), "Botwoon clear shape covers only its column");
-        AssertTrue(!RoomObjectDrawIdentity.TryShape(BotwoonWallObjectDraws.Family, ShotBlockObjectDraws.Breakup(RoomObjectShotBlockDrawDefinitions.Shape.Single, BlockBreakupStage.Rock), out _),
+        AssertTrue(!RoomObjectDrawIdentity.TryShape(BotwoonWallObjectDraws.Family, ShotBlockObjectDraws.Breakup(BlockArrangement.Single, BlockBreakupStage.Rock), out _),
             "Botwoon's crumble frames are shot-block draws, not the wall's own");
         AssertEqual(rom.ReadCartridgeByte(0x840000 | cursor++),
             unchecked((byte)RoomObjectRunContinuationCodecConstants.X(draw, 0)),

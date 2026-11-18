@@ -47,7 +47,7 @@ internal sealed class RoomObjectFamilySetups(RoomObjectSetupContext context) : I
 
     /// <inheritdoc/>
     public void SetUpSaveStation(SaveStationArgument savesAt) =>
-        StationObjects.SetupSaveStation(context.Room.Level, context.Room.Area, context.Place, savesAt.Station);
+        StationObjects.SetupSaveStation(context.Room.Level, context.Place, Ensure.NotNull(savesAt).Station);
 
     /// <inheritdoc/>
     public void SetUpAccessStation(StationAccessRule station) =>

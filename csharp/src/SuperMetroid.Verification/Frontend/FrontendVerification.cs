@@ -354,7 +354,7 @@ internal static void VerifySavedGameLoadAppearance()
     AssertTrue(runtime.Player.Samus is { Control.InputLocked: true } &&
         SamusPoseMetadata.IsForwardFacingPose(runtime.Player.Samus.Pose),
         "saved-game appearance begins locked and front-facing");
-    AssertTrue(runtime.RoomObjects.StationSnapshots.Where(station => station.Kind == StationKind.Save)
+    AssertTrue(runtime.RoomObjects.StationSnapshots.Where(station => station.IsSaveStation)
         .All(station => station.SaveStationLockedOut),
         "loading onto a save room sets the native room-entry lockout");
 

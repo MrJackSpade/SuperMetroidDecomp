@@ -1,34 +1,20 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// The six station-access behaviours, named for their station and side.
-/// Each case selects its retracted/extended arm draws.
-/// Energy and missile stations share access artwork on each side. The save station's floor
-/// (<see cref="StationAccessBehavior.SaveFloor"/>) moves no arm and has no access draws.
+/// What the access arm draws at each of the six station accesses, one per station and side (#2484). Energy and missile
+/// stations share access artwork on each side. The save station's floor moves no arm and has no access draws.
 /// </summary>
 internal static class StationAccessObjectDefinitions
 {
-    /// <summary>Map-station access from its right side.</summary>
-    public static StationAccessObjectDefinition MapRight =>
-        new(StationDraw.MapRightRetracted, StationDraw.MapRightExtended);
-
-    /// <summary>Map-station access from its left side.</summary>
-    public static StationAccessObjectDefinition MapLeft =>
-        new(StationDraw.MapLeftRetracted, StationDraw.MapLeftExtended);
-
-    /// <summary>Energy-station access from its right side.</summary>
-    public static StationAccessObjectDefinition EnergyRight =>
-        new(StationDraw.ResourceRightRetracted, StationDraw.ResourceRightExtended);
-
-    /// <summary>Energy-station access from its left side.</summary>
-    public static StationAccessObjectDefinition EnergyLeft =>
-        new(StationDraw.ResourceLeftRetracted, StationDraw.ResourceLeftExtended);
-
-    /// <summary>Missile-station access from its right side.</summary>
-    public static StationAccessObjectDefinition MissileRight =>
-        new(StationDraw.ResourceRightRetracted, StationDraw.ResourceRightExtended);
-
-    /// <summary>Missile-station access from its left side.</summary>
-    public static StationAccessObjectDefinition MissileLeft =>
-        new(StationDraw.ResourceLeftRetracted, StationDraw.ResourceLeftExtended);
+    /// <summary>The arm's retracted and extended draws at each station access.</summary>
+    internal static IReadOnlyDictionary<StationAccess, StationAccessObjectDefinition> Arms { get; } =
+        new Dictionary<StationAccess, StationAccessObjectDefinition>
+        {
+            [new(StationKind.Map, HorizontalDirection.Right)] = new(StationDraw.MapRightRetracted, StationDraw.MapRightExtended),
+            [new(StationKind.Map, HorizontalDirection.Left)] = new(StationDraw.MapLeftRetracted, StationDraw.MapLeftExtended),
+            [new(StationKind.Energy, HorizontalDirection.Right)] = new(StationDraw.ResourceRightRetracted, StationDraw.ResourceRightExtended),
+            [new(StationKind.Energy, HorizontalDirection.Left)] = new(StationDraw.ResourceLeftRetracted, StationDraw.ResourceLeftExtended),
+            [new(StationKind.Missile, HorizontalDirection.Right)] = new(StationDraw.ResourceRightRetracted, StationDraw.ResourceRightExtended),
+            [new(StationKind.Missile, HorizontalDirection.Left)] = new(StationDraw.ResourceLeftRetracted, StationDraw.ResourceLeftExtended),
+        };
 }

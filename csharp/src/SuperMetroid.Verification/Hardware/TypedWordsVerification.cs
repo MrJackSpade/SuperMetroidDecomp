@@ -534,11 +534,11 @@ internal static void VerifyTypedNativeWords()
     AssertTrue(!RoomBlockBehavior.Reacting(ShootableReaction.CollectibleTrigger).TryGetBlueDoorOrientation(out _),
         "non-door BTS rejects blue-door view");
 
-    foreach (StationAccessBehavior expectedAccess in Enum.GetValues<StationAccessBehavior>())
+    foreach (StationAccess expectedAccess in RoomObjectBlockBehaviorNativeWords.StationAccesses.WordsByIdentity.Keys)
     {
         ushort stationValue = RoomObjectBlockBehaviorNativeWords.StationAccesses.Word(expectedAccess);
         var stationBehavior = RoomBlockBehaviorCodec.Decode(stationValue);
-        AssertTrue(stationBehavior.TryGetStationAccess(out StationAccessBehavior access),
+        AssertTrue(stationBehavior.TryGetStationAccess(out StationAccess access),
             $"station BTS ${stationValue:X2} decodes");
         AssertEqual(expectedAccess, access,
             $"station BTS ${stationValue:X2} decodes to its access");

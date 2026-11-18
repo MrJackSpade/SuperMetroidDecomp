@@ -11,7 +11,7 @@ internal static class DownwardGateDefinitions
     public static readonly RoomBlockBehavior ClosedGateBehavior = RoomBlockBehavior.Reacting(ShootableReaction.CollisionProbe);
     /// <summary>The collision kind a trigger's setup gives the block on the trigger's side of its gate, which a shot sets off.</summary>
     public const RoomCollisionType TriggerCollision = RoomCollisionType.ShootableBlock;
-    /// <summary>The sound queued for a rejected non-blue gate trigger shot.</summary>
+    /// <summary>The sound a red, green or yellow gate trigger makes as it turns a shot away.</summary>
     public static readonly SoundEffectId RejectedShotSound = EnemySound.DudShot;
     /// <summary>The sound the gate's movement plays.</summary>
     public static readonly SoundEffectId MovementSound = RoomSound.GateMoving;

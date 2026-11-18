@@ -6,7 +6,6 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using static SuperMetroid.Verification.Rooms.RoomObjects.CollectiblesVerification;
-using Shape = SuperMetroid.Core.Rooms.RoomObjects.RoomObjectShotBlockDrawDefinitions.Shape;
 
 namespace SuperMetroid.Verification.Rooms.RoomObjects;
 
@@ -31,7 +30,7 @@ internal static class CollectibleTimelinesVerification
         InstalledRoomObjectShotBlockVisuals shotBlocks = InstalledRoomObjectShotBlockVisuals.Stock();
         RoomBlockAppearance Collectible(CollectibleDraw draw) => collectibles.Image(CollectibleObjectDraws.Family.Of(draw)).At(Offset16<RoomBlocks>.Zero);
         RoomBlockAppearance Breakup(BlockBreakupStage stage) =>
-            shotBlocks.Image(ShotBlockObjectDraws.Breakup(Shape.Single, stage)).At(Offset16<RoomBlocks>.Zero);
+            shotBlocks.Image(ShotBlockObjectDraws.Breakup(BlockArrangement.Single, stage)).At(Offset16<RoomBlocks>.Zero);
 
         // A shot Chozo orb shows the empty block, its burst and the empty block, three updates each, then its item's
         // first look.

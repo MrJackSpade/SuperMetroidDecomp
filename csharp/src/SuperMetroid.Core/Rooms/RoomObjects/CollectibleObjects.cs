@@ -173,7 +173,6 @@ internal sealed class CollectibleObjects
             presentation == CollectiblePresentation.ShotBlock ? RoomCollisionType.ShootableBlock : RoomCollisionType.Air);
         level.SetTerrain(place.Block, setup);
         level.SetBehavior(place.Block, RoomBlockBehavior.Reacting(ShootableReaction.CollectibleTrigger));
-        place.RestoreTerrain = setup;
 
         CollectiblePhase phase = collected
             ? presentation == CollectiblePresentation.ShotBlock
@@ -188,7 +187,7 @@ internal sealed class CollectibleObjects
                 CollectiblePresentation.ShotBlock => CollectiblePhase.ShotBlock,
                 _ => throw new ArgumentOutOfRangeException(nameof(presentation)),
             };
-        place.Become(new CollectibleObject(kind, presentation, blockPair, phase, placed.Location));
+        place.Become(new CollectibleObject(kind, presentation, blockPair, phase, placed.Location, setup));
     }
 
     /// <summary>

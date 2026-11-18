@@ -4,17 +4,22 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 internal static class StationAccessRuleDefinitions
 {
     /// <summary>The map station: access blocks one to the right and two to the left, and an acquired animation once the area map is held.</summary>
-    internal static StationAccessRule Map { get; } = new(StationKind.Map, 1, -2, StationAccessBehavior.MapRight, StationAccessBehavior.MapLeft,
-        StationAnimation.MapIdle, StationAnimation.MapAcquired);
+    internal static StationAccessRule Map { get; } = new(StationKind.Map, 1, -2,
+        StationAnimation.MapIdle, StationAnimation.MapAcquired, GameplayMessageId.MapDataAccessCompleted, Refill: null);
 
-    /// <summary>The energy station: access blocks either side.</summary>
-    internal static StationAccessRule Energy { get; } = new(StationKind.Energy, 1, -1, StationAccessBehavior.EnergyRight, StationAccessBehavior.EnergyLeft,
-        StationAnimation.Energy, AcquiredAnimation: null);
+    /// <summary>The energy station: access blocks either side, and Samus's energy refilled.</summary>
+    internal static StationAccessRule Energy { get; } = new(StationKind.Energy, 1, -1,
+        StationAnimation.Energy, AcquiredAnimation: null, GameplayMessageId.EnergyRechargeCompleted, StationRefill.Energy);
 
-    /// <summary>The missile station: access blocks either side.</summary>
-    internal static StationAccessRule Missile { get; } = new(StationKind.Missile, 1, -1, StationAccessBehavior.MissileRight, StationAccessBehavior.MissileLeft,
-        StationAnimation.Missile, AcquiredAnimation: null);
+    /// <summary>The missile station: access blocks either side, and Samus's Missiles refilled.</summary>
+    internal static StationAccessRule Missile { get; } = new(StationKind.Missile, 1, -1,
+        StationAnimation.Missile, AcquiredAnimation: null, GameplayMessageId.MissileRechargeCompleted, StationRefill.Missiles);
 
-    /// <summary>Every station's access rule: the map, energy and missile stations'.</summary>
-    internal static IReadOnlyList<StationAccessRule> All { get; } = [Map, Energy, Missile];
+    /// <summary>Each station's access rule.</summary>
+    internal static IReadOnlyDictionary<StationKind, StationAccessRule> Rules { get; } = new Dictionary<StationKind, StationAccessRule>
+    {
+        [StationKind.Map] = Map,
+        [StationKind.Energy] = Energy,
+        [StationKind.Missile] = Missile,
+    };
 }

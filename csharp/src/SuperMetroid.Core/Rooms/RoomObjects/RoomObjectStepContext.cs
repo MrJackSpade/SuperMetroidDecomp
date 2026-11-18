@@ -21,13 +21,11 @@ internal readonly record struct RoomObjectStepContext(
         Ensure.NotNull(family).Draw(Level, place.Block, RoomObjects.Drawing, frame);
 
     /// <summary>
-    /// Redraws the place's saved terrain at its block, as the draw-block step restores a
-    /// respawning block.
+    /// Redraws <paramref name="saved"/>, the terrain the place's object saved at its setup, at the place's block, as a
+    /// respawning block grows back.
     /// </summary>
-    /// <exception cref="InvalidOperationException">The place's object saved no block to restore.</exception>
-    internal void DrawRestoredBlock(RoomObjectPlace place) =>
-        RoomObjectLevelWrites.DrawTerrain(Level, place.Block, place.RestoreTerrain
-            ?? throw new InvalidOperationException($"The room object at block {place.Block} restores a block its setup never saved."));
+    internal void DrawSavedTerrain(RoomObjectPlace place, RoomTerrainBlock saved) =>
+        RoomObjectLevelWrites.DrawTerrain(Level, place.Block, saved);
 
     /// <summary>Queues <paramref name="sound"/> at <paramref name="priority"/>.</summary>
     internal void QueueSound(SoundEffectId sound, SoundRequestPriority priority) =>

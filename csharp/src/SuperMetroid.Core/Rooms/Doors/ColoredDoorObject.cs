@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// opened for good, stops the shots and opens the cap, which then leaves the room. A cap closing behind Samus plays the
 /// shared closing, then looks at its door again.
 /// </summary>
-internal sealed class ColoredDoorObject : DoorCapObject, IClosingDoor
+internal sealed class ColoredDoorObject : DoorCapObject, IClosingDoor, IShootableRoomObject
 {
     /// <summary>A cap of <paramref name="variant"/>'s colour and facing, just placed in <paramref name="door"/>.</summary>
     internal ColoredDoorObject(ColoredDoorVariant variant, PlacedDoor door)
@@ -52,6 +52,15 @@ internal sealed class ColoredDoorObject : DoorCapObject, IClosingDoor
     /// <summary>The colour and facing's sequences.</summary>
     private readonly ColoredDoorSequences _sequences;
 
+    /// <summary>
+    /// The shot at the cap's block it has yet to take, or null for none (#2484). A shot that arrives before the cap takes shots waits for
+    /// it; a later shot before the cap takes it replaces it.
+    /// </summary>
+    internal ResidentObjectProjectileHit? PendingHit { get; private set; }
+
+    /// <inheritdoc/>
+    public void Strike(ResidentObjectProjectileHit hit) => PendingHit = hit;
+
     /// <inheritdoc/>
     public void CloseBehindSamus()
     {
@@ -70,9 +79,9 @@ internal sealed class ColoredDoorObject : DoorCapObject, IClosingDoor
     /// <inheritdoc/>
     private bool React(RoomObjectPlace place, RoomObjectStepContext context)
     {
-        if (!TakesShots || place.ProjectileHit is not { Family: var family })
+        if (!TakesShots || PendingHit is not { Family: var family })
             return false;
-        place.ProjectileHit = null;
+        PendingHit = null;
         if (!Accepts(family))
         {
             context.RoomObjects.DoorObjects.QueueDudSound();

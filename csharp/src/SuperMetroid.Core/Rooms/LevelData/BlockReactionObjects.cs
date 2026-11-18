@@ -46,10 +46,9 @@ internal sealed class BlockReactionObjects
 
         RoomCollisionBlock block = level.GetCollisionBlock(position);
         place.Block = position;
-        place.RestoreTerrain = block.Terrain;
         place.Become(respawning
-            ? new RespawningGrappleBlockObject()
-            : new BlockReactionObject(BlockReactionChangeDefinitions.PermanentBreakableGrappleBlock));
+            ? new RespawningGrappleBlockObject(block.Terrain)
+            : new BlockReactionObject(BlockReactionChangeDefinitions.PermanentBreakableGrappleBlock, block.Terrain));
 
         // The setup saves the complete original block but clears only its behaviour. It deliberately leaves the
         // Grapple-block collision intact until the first room-object pass later in this same gameplay frame draws the intact
@@ -83,8 +82,8 @@ internal sealed class BlockReactionObjects
         // This is not the block's earlier appearance. The setup deliberately replaces the block and its mirroring with the
         // bomb-block parent; multi-block restorations then add extension blocks around this parent.
         RoomBlockAppearance parent = _drawing.SetupBlock(RoomObjectSetupBlock.BombBlockParent);
-        place.RestoreTerrain = new RoomTerrainBlock(parent, block.CollisionType);
-        place.Become(new BlockReactionObject(BlockReactionChanges.CollisionBomb(behavior.Bombable)));
+        place.Become(new BlockReactionObject(BlockReactionChanges.CollisionBomb(behavior.Bombable),
+            new RoomTerrainBlock(parent, block.CollisionType)));
         level.SetTerrain(position, new RoomTerrainBlock(parent, RoomCollisionType.Air));
         return true;
     }
@@ -114,8 +113,7 @@ internal sealed class BlockReactionObjects
         place.Block = position;
         // The struck block keeps only its collision; the parent shows unmirrored, whatever the block's mirroring (#1581).
         RoomTerrainBlock restore = block.Terrain.WithAppearance(_drawing.SetupBlock(RoomObjectSetupBlock.CrumbleBlockParent));
-        place.RestoreTerrain = restore;
-        place.Become(new BlockReactionObject(change));
+        place.Become(new BlockReactionObject(change, restore));
         level.SetTerrain(position, restore.WithCollision(RoomCollisionType.SolidBlock));
         return true;
     }
@@ -162,8 +160,7 @@ internal sealed class BlockReactionObjects
         place.Block = position;
         // The struck block keeps only its collision; the parent shows unmirrored, whatever the block's mirroring (#1581).
         RoomTerrainBlock restore = block.Terrain.WithAppearance(_drawing.SetupBlock(RoomObjectSetupBlock.SpeedBoosterBlockParent));
-        place.RestoreTerrain = restore;
-        place.Become(new BlockReactionObject(crumble));
+        place.Become(new BlockReactionObject(crumble, restore));
         level.SetTerrain(position, restore.WithCollision(RoomCollisionType.Air));
         return true;
     }
@@ -209,11 +206,10 @@ internal sealed class BlockReactionObjects
         // The setup discards the earlier appearance rather than preserving the visible block. Dimension-specific final
         // draws reconstruct linked extension blocks; a 1x1 block respawns with this exact restore block.
         RoomTerrainBlock restore = block.Terrain.WithAppearance(_drawing.SetupBlock(RoomObjectSetupBlock.BombBlockParent));
-        place.RestoreTerrain = restore;
         // Only normal bombs skip the reaction sound: a normal bomb sets off the block's break directly.
         place.Become(new BlockReactionObject(projectileFamily == SamusProjectileFamily.Bomb
             ? BlockReactionChanges.BombBreak(bombable)
-            : BlockReactionChanges.ReactionBomb(bombable)));
+            : BlockReactionChanges.ReactionBomb(bombable), restore));
 
         level.SetTerrain(position, restore.Deactivated());
         return true;
@@ -274,7 +270,7 @@ internal sealed class BlockReactionObjects
                 // The setup keeps the collision kind with the shot-block parent's appearance for the 384-frame
                 // restoration, and deactivates the live block immediately.
                 RestoreAsParent(level, place, block, RoomObjectSetupBlock.ShotBlockParent,
-                    new BlockReactionObject(BlockReactionChanges.RespawningShot(behavior.Shootable)));
+                    BlockReactionChanges.RespawningShot(behavior.Shootable));
                 return true;
 
             case ShotBlockReaction.PermanentBreak:
@@ -298,9 +294,9 @@ internal sealed class BlockReactionObjects
                 // block, and runs its definition's change. The respawning block uses the ordinary four-frame breakup; the
                 // permanent one its shorter 3/2/1-frame counterpart.
                 RestoreAsParent(level, place, block, RoomObjectSetupBlock.PowerBombBlockParent,
-                    new BlockReactionObject(reaction == ShotBlockReaction.RespawningPowerBombBreak
+                    reaction == ShotBlockReaction.RespawningPowerBombBreak
                         ? BlockReactionChangeDefinitions.RespawningPowerBombBlock
-                        : BlockReactionChangeDefinitions.PermanentPowerBombBlock));
+                        : BlockReactionChangeDefinitions.PermanentPowerBombBlock);
                 return true;
 
             case ShotBlockReaction.RespawningSuperMissileBreak:
@@ -316,9 +312,9 @@ internal sealed class BlockReactionObjects
                 // Super Missiles keep the collision kind with the Super Missile parent's appearance; one definition owns the
                 // respawning change and the other the permanent one.
                 RestoreAsParent(level, place, block, RoomObjectSetupBlock.SuperMissileBlockParent,
-                    new BlockReactionObject(reaction == ShotBlockReaction.RespawningSuperMissileBreak
+                    reaction == ShotBlockReaction.RespawningSuperMissileBreak
                         ? BlockReactionChangeDefinitions.RespawningSuperMissileBlock
-                        : BlockReactionChangeDefinitions.PermanentSuperMissileBlock));
+                        : BlockReactionChangeDefinitions.PermanentSuperMissileBlock);
                 return true;
 
             case ShotBlockReaction.Nothing:
@@ -382,14 +378,14 @@ internal sealed class BlockReactionObjects
 
     /// <summary>
     /// Runs a breaking shot reaction's setup that keeps the struck block's collision kind under <paramref name="parent"/>'s
-    /// installed picture as the block to restore, and deactivates the live block until the reaction's first image.
+    /// installed picture as the block <paramref name="change"/>'s reaction restores, and deactivates the live block until
+    /// the reaction's first image.
     /// </summary>
     private void RestoreAsParent(RoomLevelData level, RoomObjectPlace place, RoomCollisionBlock block, RoomObjectSetupBlock parent,
-        BlockReactionObject reaction)
+        BlockReactionChange change)
     {
         RoomTerrainBlock restore = block.Terrain.WithAppearance(_drawing.SetupBlock(parent));
-        place.RestoreTerrain = restore;
-        place.Become(reaction);
+        place.Become(new BlockReactionObject(change, restore));
         level.SetTerrain(place.Block, restore.Deactivated());
     }
 }

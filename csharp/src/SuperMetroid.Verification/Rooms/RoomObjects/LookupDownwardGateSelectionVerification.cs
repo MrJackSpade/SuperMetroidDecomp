@@ -36,13 +36,13 @@ internal static class LookupDownwardGateSelectionVerification
                 continue;
             }
             // The import decodes the word into the trigger's colour and side (#1746).
-            DownwardGateTriggerBehavior trigger = (RoomObjectRoomArgumentWords.Decode(RoomObjectKind.DownwardGateShotBlock, argument)
+            DownwardGateTrigger trigger = (RoomObjectRoomArgumentWords.Decode(RoomObjectKind.DownwardGateShotBlock, argument)
                 as GateTriggerArgument ?? throw new InvalidDataException($"Argument ${argument:X4} names no trigger.")).Trigger;
             ushort native = ReadSamusEaterObjectWord(rom, source + raw);
             if (field == 0)
             {
                 // The trigger's native list draws its shot block once and ends, as its typed change does (#1554).
-                NativeTerrainChanges.Compare(CartridgeImportSource.Require(rom), DownwardGateTriggerDefinitions.Changes[trigger], native,
+                NativeTerrainChanges.Compare(CartridgeImportSource.Require(rom), DownwardGateTriggerDefinitions.Triggers[trigger].Change, native,
                     NativeTerrainChanges.NoSteps, $"Downward gate argument {raw}", out bool began);
                 AssertTrue(!began, $"Downward gate argument {raw} trigger opens nothing");
                 continue;
@@ -51,7 +51,7 @@ internal static class LookupDownwardGateSelectionVerification
             // kind (the high nibble) and a behaviour (the low byte) and keep what the block shows (#1580): the setup
             // writes the trigger's own side alone (#2128).
             RoomCollisionType? nativeCollision = native == 0 ? null : RoomLevelWordCodec.Decode(native).Collision;
-            bool triggerSide = (field == 1) == GateObjects.IsLeftTrigger(trigger);
+            bool triggerSide = (field == 1) == (trigger.Side == HorizontalDirection.Left);
             AssertEqual(nativeCollision, triggerSide ? DownwardGateDefinitions.TriggerCollision : null,
                 $"Downward gate original field {field}, argument {raw} collision");
             if (native != 0)

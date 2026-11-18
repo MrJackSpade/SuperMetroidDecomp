@@ -31,7 +31,7 @@ internal static class RetailSaveCaptureTests
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame); runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.CrateriaSave, new Position16<RoomPixels>(0, 0));
-        var station = runtime.RoomObjects.StationSnapshots.Single(s => s.Kind == StationKind.Save);
+        var station = runtime.RoomObjects.StationSnapshots.Single(s => s.IsSaveStation);
         var level = runtime.Room.LoadedLevelData;
         var samus = runtime.Player.IntroducedSamus;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
@@ -39,7 +39,7 @@ internal static class RetailSaveCaptureTests
         SamusPoseMetadata.RefreshCollisionRadii(samus); SamusPresentation.InitializeAnimation(samus);
         samus.Position = samus.Position.WithWhole(new((ushort)(station.Block.X * 16 + 13), (ushort)(station.Block.Y * 16 - samus.Kinematics.Radius.Y)));
         samus.Control.Unlock();
-        if (!runtime.RoomObjects.Stations.TryNotifyStationCollision(level, station.Block, RoomBlockBehavior.Reacting(BlockReactionDefinitions.StationAccesses.ReactionFor(StationAccessBehavior.SaveFloor)),
+        if (!runtime.RoomObjects.Stations.TryNotifyStationCollision(level, station.Block, RoomBlockBehavior.Reacting(SpecialBlockReaction.SaveStationFloor),
             samus.Pose.ForRoomCollision(), Axis.Vertical, movingPositive: true))
             throw new InvalidOperationException("Save fixture could not trigger resident station.");
         bool confirmation = false, electricity = false, completion = false, finished = false;
@@ -67,7 +67,7 @@ internal static class RetailSaveCaptureTests
             var expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
             var packet = new DisplayPacket((ushort)frames, GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
             PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), $"{device.Kind}: save animation frame {frames}");
-            var current = runtime.RoomObjects.StationSnapshots.Single(s => s.Kind == StationKind.Save);
+            var current = runtime.RoomObjects.StationSnapshots.Single(s => s.IsSaveStation);
             if (completion && current.SaveStationLockedOut && current.SavePhase == SaveStationPhase.Idle && !samus.Control.InputLocked)
             { finished = true; break; }
         }

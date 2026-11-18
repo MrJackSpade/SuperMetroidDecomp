@@ -25,9 +25,9 @@ internal static class RoomObjectDrawSourceDefinitions
     /// <summary>The address of each <see cref="BombBlockRestoreDraw"/>.</summary>
     internal static IReadOnlyDictionary<BombBlockRestoreDraw, SnesAddress> BombBlockRestore { get; } = new Dictionary<BombBlockRestoreDraw, SnesAddress>
     {
-        [BombBlockRestoreDraw.Horizontal] = new(Bank, 0xa4c7),
-        [BombBlockRestoreDraw.Vertical] = new(Bank, 0xa4cf),
-        [BombBlockRestoreDraw.Square] = new(Bank, 0xa4d7),
+        [new BombBlockRestoreDraw(BlockArrangement.Horizontal)] = new(Bank, 0xa4c7),
+        [new BombBlockRestoreDraw(BlockArrangement.Vertical)] = new(Bank, 0xa4cf),
+        [new BombBlockRestoreDraw(BlockArrangement.Square)] = new(Bank, 0xa4d7),
     };
 
     /// <summary>The address of each <see cref="BombTorizoHandDraw"/>.</summary>
@@ -54,9 +54,9 @@ internal static class RoomObjectDrawSourceDefinitions
     /// <summary>The address of each <see cref="ContactCrumbleRestoreDraw"/>.</summary>
     internal static IReadOnlyDictionary<ContactCrumbleRestoreDraw, SnesAddress> ContactCrumbleRestore { get; } = new Dictionary<ContactCrumbleRestoreDraw, SnesAddress>
     {
-        [ContactCrumbleRestoreDraw.Horizontal] = new(Bank, 0xa4a1),
-        [ContactCrumbleRestoreDraw.Vertical] = new(Bank, 0xa4a9),
-        [ContactCrumbleRestoreDraw.Square] = new(Bank, 0xa4b1),
+        [new ContactCrumbleRestoreDraw(BlockArrangement.Horizontal)] = new(Bank, 0xa4a1),
+        [new ContactCrumbleRestoreDraw(BlockArrangement.Vertical)] = new(Bank, 0xa4a9),
+        [new ContactCrumbleRestoreDraw(BlockArrangement.Square)] = new(Bank, 0xa4b1),
     };
 
     /// <summary>The address of each <see cref="CrocomireArenaDraw"/>.</summary>

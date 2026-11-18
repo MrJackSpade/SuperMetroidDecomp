@@ -266,7 +266,7 @@ public static class SamusBlockCollision
                         // parent. An observational scan still clips against the access
                         // block, but must not activate the station or demand an owner.
                         if (move.BlockReactionDirection != SamusCollisionDirection.NonDirectionalProbe &&
-                            block.Behavior.TryGetStationAccess(out _) &&
+                            block.Behavior.IsStationTrigger &&
                             !terrain.RoomObjects.Stations.TryNotifyStationCollision(
                                  terrain.Level,
                                  block.At,
@@ -641,7 +641,7 @@ public static class SamusBlockCollision
                     // Pose expansion carries the both-ways direction, not a downward
                     // landing. Keep solidity without waking the save-station owner.
                     if (move.BlockReactionDirection != SamusCollisionDirection.NonDirectionalProbe &&
-                        block.Behavior.TryGetStationAccess(out _) &&
+                        block.Behavior.IsStationTrigger &&
                         !terrain.RoomObjects.Stations.TryNotifyStationCollision(
                              terrain.Level,
                              block.At,

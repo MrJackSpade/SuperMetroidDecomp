@@ -322,7 +322,7 @@ internal static class RoomObjectPopulationVerification
         AssertEqual(1, places[1].UpdatePosition, "post-delete record reuses the next slot in processing order");
         AssertTrue(places[1].Behaviour is ElevatorPlatformObject, "elevator follows ROM order, not family order");
         AssertEqual(2, places[2].UpdatePosition, "later station is processed after them");
-        AssertTrue(places[2].Behaviour is StationObject { Kind: StationKind.Energy }, "the later record's energy station is resident");
+        AssertTrue(places[2].Behaviour is AccessStationObject { Kind: StationKind.Energy }, "the later record's energy station is resident");
         AssertEqual(1, roomObjects.ElevatorPlatforms.Count, "elevator platform family is resident");
         AssertEqual(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.Air), level.GetCollisionBlock(new(12, 8)).Terrain,
             "elevator setup clears collision bits through shared setup dispatcher");
@@ -1259,7 +1259,7 @@ internal static class RoomObjectPopulationVerification
             : throw new InvalidOperationException("The save animation publishes the game-saved message only after its draw loop.");
         roomObjects.Stations.CompleteSaveStation(completed);
         AssertTrue(!samus.Control.InputLocked, "game-saved message return unlocks Samus");
-        AssertTrue(roomObjects.StationSnapshots.Single(station => station.Kind == StationKind.Save)
+        AssertTrue(roomObjects.StationSnapshots.Single(station => station.IsSaveStation)
             .SaveStationLockedOut,
             "save completion installs once-per-room-entry lockout");
 

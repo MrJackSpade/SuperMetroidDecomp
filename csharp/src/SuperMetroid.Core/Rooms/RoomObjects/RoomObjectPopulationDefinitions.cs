@@ -537,7 +537,7 @@ internal static class RoomObjectPopulationDefinitions
     public static RoomObjectPopulation GreenHillZone { get; } = RoomObjectPopulation.FromPlacements(nameof(GreenHillZone),
     [
         new(RoomObjectKind.DownwardGate, new(100, 55), new DownwardGateSetup()),
-        new(RoomObjectKind.DownwardGateShotBlock, new(100, 55), new DownwardGateShotBlockSetup(new GateTriggerArgument(DownwardGateTriggerBehavior.BlueLeft))),
+        new(RoomObjectKind.DownwardGateShotBlock, new(100, 55), new DownwardGateShotBlockSetup(new GateTriggerArgument(new DownwardGateTrigger(DownwardGateTriggerColor.Blue, HorizontalDirection.Left)))),
         new(RoomObjectKind.YellowDoorFacingLeft, new(30, 6), new ColoredDoorSetup(new(ColoredDoorColor.Yellow, ColoredDoorOrientation.Left), new LockedDoorArgument(LockedDoorDefinitions.GreenHillZoneYellowDoorFacingLeft, DoorOpeningPersistence.Persistent))),
         new(RoomObjectKind.ExposedMissileTank, new(61, 24), new CollectibleSetup(new(InWorldCollectibleKind.MissileTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.GreenHillZoneExposedMissileTank))),
     ]);
@@ -668,7 +668,7 @@ internal static class RoomObjectPopulationDefinitions
     public static RoomObjectPopulation PinkBrinstarHoppers { get; } = RoomObjectPopulation.FromPlacements(nameof(PinkBrinstarHoppers),
     [
         new(RoomObjectKind.DownwardGate, new(17, 4), new DownwardGateSetup()),
-        new(RoomObjectKind.DownwardGateShotBlock, new(17, 4), new DownwardGateShotBlockSetup(new GateTriggerArgument(DownwardGateTriggerBehavior.BlueRight))),
+        new(RoomObjectKind.DownwardGateShotBlock, new(17, 4), new DownwardGateShotBlockSetup(new GateTriggerArgument(new DownwardGateTrigger(DownwardGateTriggerColor.Blue, HorizontalDirection.Right)))),
         new(RoomObjectKind.GreyDoorFacingRight, new(1, 22), new GreyDoorSetup(new(ColoredDoorOrientation.Right, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.EnemyDeathQuota, new LockedDoorArgument(LockedDoorDefinitions.PinkBrinstarHoppersGreyDoorFacingRight, DoorOpeningPersistence.Persistent)))),
         new(RoomObjectKind.GreyDoorFacingLeft, new(30, 22), new GreyDoorSetup(new(ColoredDoorOrientation.Left, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.EnemyDeathQuota, new LockedDoorArgument(LockedDoorDefinitions.PinkBrinstarHoppersGreyDoorFacingLeft, DoorOpeningPersistence.Persistent)))),
     ]);
@@ -744,7 +744,7 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectKind.ScrollTrigger, new(13, 55), new ScrollTriggerSetup(RoomScrollChange.CaterpillarClosesScreen1x3)),
         new(RoomObjectKind.ElevatorPlatform, new(6, 44), new ElevatorPlatformSetup()),
         new(RoomObjectKind.DownwardGate, new(38, 53), new DownwardGateSetup()),
-        new(RoomObjectKind.DownwardGateShotBlock, new(38, 53), new DownwardGateShotBlockSetup(new GateTriggerArgument(DownwardGateTriggerBehavior.GreenRight))),
+        new(RoomObjectKind.DownwardGateShotBlock, new(38, 53), new DownwardGateShotBlockSetup(new GateTriggerArgument(new DownwardGateTrigger(DownwardGateTriggerColor.Green, HorizontalDirection.Right)))),
         new(RoomObjectKind.GreenDoorFacingRight, new(1, 54), new ColoredDoorSetup(new(ColoredDoorColor.Green, ColoredDoorOrientation.Right), new LockedDoorArgument(LockedDoorDefinitions.CaterpillarGreenDoorFacingRightAt1x54, DoorOpeningPersistence.Persistent))),
         new(RoomObjectKind.YellowDoorFacingRight, new(1, 86), new ColoredDoorSetup(new(ColoredDoorColor.Yellow, ColoredDoorOrientation.Right), new LockedDoorArgument(LockedDoorDefinitions.CaterpillarYellowDoorFacingRight, DoorOpeningPersistence.Persistent))),
         new(RoomObjectKind.GreenDoorFacingRight, new(1, 118), new ColoredDoorSetup(new(ColoredDoorColor.Green, ColoredDoorOrientation.Right), new LockedDoorArgument(LockedDoorDefinitions.CaterpillarGreenDoorFacingRightAt1x118, DoorOpeningPersistence.Persistent))),
@@ -1025,7 +1025,7 @@ internal static class RoomObjectPopulationDefinitions
     public static RoomObjectPopulation CrocomireEscape { get; } = RoomObjectPopulation.FromPlacements(nameof(CrocomireEscape),
     [
         new(RoomObjectKind.DownwardGate, new(6, 5), new DownwardGateSetup()),
-        new(RoomObjectKind.DownwardGateShotBlock, new(6, 5), new DownwardGateShotBlockSetup(new GateTriggerArgument(DownwardGateTriggerBehavior.GreenRight))),
+        new(RoomObjectKind.DownwardGateShotBlock, new(6, 5), new DownwardGateShotBlockSetup(new GateTriggerArgument(new DownwardGateTrigger(DownwardGateTriggerColor.Green, HorizontalDirection.Right)))),
         new(RoomObjectKind.ExposedMissileTank, new(13, 9), new CollectibleSetup(new(InWorldCollectibleKind.MissileTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.CrocomireEscapeExposedMissileTank))),
     ]);
 
@@ -1075,7 +1075,7 @@ internal static class RoomObjectPopulationDefinitions
     public static RoomObjectPopulation GrappleTutorial3 { get; } = RoomObjectPopulation.FromPlacements(nameof(GrappleTutorial3),
     [
         new(RoomObjectKind.DownwardGate, new(42, 5), new DownwardGateSetup()),
-        new(RoomObjectKind.DownwardGateShotBlock, new(42, 5), new DownwardGateShotBlockSetup(new GateTriggerArgument(DownwardGateTriggerBehavior.GreenLeft))),
+        new(RoomObjectKind.DownwardGateShotBlock, new(42, 5), new DownwardGateShotBlockSetup(new GateTriggerArgument(new DownwardGateTrigger(DownwardGateTriggerColor.Green, HorizontalDirection.Left)))),
     ]);
 
     /// <summary>The PostCrocomireJump room-object population.</summary>
@@ -1151,7 +1151,7 @@ internal static class RoomObjectPopulationDefinitions
     public static RoomObjectPopulation DoubleChamber { get; } = RoomObjectPopulation.FromPlacements(nameof(DoubleChamber),
     [
         new(RoomObjectKind.DownwardGate, new(26, 5), new DownwardGateSetup()),
-        new(RoomObjectKind.DownwardGateShotBlock, new(26, 5), new DownwardGateShotBlockSetup(new GateTriggerArgument(DownwardGateTriggerBehavior.BlueLeft))),
+        new(RoomObjectKind.DownwardGateShotBlock, new(26, 5), new DownwardGateShotBlockSetup(new GateTriggerArgument(new DownwardGateTrigger(DownwardGateTriggerColor.Blue, HorizontalDirection.Left)))),
         new(RoomObjectKind.ExposedMissileTank, new(31, 9), new CollectibleSetup(new(InWorldCollectibleKind.MissileTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.DoubleChamberExposedMissileTank))),
         new(RoomObjectKind.RedDoorFacingLeft, new(62, 6), new ColoredDoorSetup(new(ColoredDoorColor.Red, ColoredDoorOrientation.Left), new LockedDoorArgument(LockedDoorDefinitions.DoubleChamberRedDoorFacingLeft, DoorOpeningPersistence.Persistent))),
     ]);
@@ -1194,7 +1194,7 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectKind.UpwardsScrollExtension, new(8, 23), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
         new(RoomObjectKind.ScrollTrigger, new(8, 24), new ScrollTriggerSetup(RoomScrollChange.KronicBoostClosesScreen1x1)),
         new(RoomObjectKind.DownwardGate, new(7, 20), new DownwardGateSetup()),
-        new(RoomObjectKind.DownwardGateShotBlock, new(7, 20), new DownwardGateShotBlockSetup(new GateTriggerArgument(DownwardGateTriggerBehavior.BlueLeft))),
+        new(RoomObjectKind.DownwardGateShotBlock, new(7, 20), new DownwardGateShotBlockSetup(new GateTriggerArgument(new DownwardGateTrigger(DownwardGateTriggerColor.Blue, HorizontalDirection.Left)))),
         new(RoomObjectKind.YellowDoorFacingRight, new(17, 38), new ColoredDoorSetup(new(ColoredDoorColor.Yellow, ColoredDoorOrientation.Right), new LockedDoorArgument(LockedDoorDefinitions.KronicBoostYellowDoorFacingRight, DoorOpeningPersistence.Persistent))),
     ]);
 
@@ -1229,7 +1229,7 @@ internal static class RoomObjectPopulationDefinitions
     public static RoomObjectPopulation UpperNorfairFarming { get; } = RoomObjectPopulation.FromPlacements(nameof(UpperNorfairFarming),
     [
         new(RoomObjectKind.DownwardGate, new(6, 21), new DownwardGateSetup()),
-        new(RoomObjectKind.DownwardGateShotBlock, new(6, 21), new DownwardGateShotBlockSetup(new GateTriggerArgument(DownwardGateTriggerBehavior.BlueLeft))),
+        new(RoomObjectKind.DownwardGateShotBlock, new(6, 21), new DownwardGateShotBlockSetup(new GateTriggerArgument(new DownwardGateTrigger(DownwardGateTriggerColor.Blue, HorizontalDirection.Left)))),
     ]);
 
     /// <summary>The RisingTide room-object population.</summary>
@@ -1350,7 +1350,7 @@ internal static class RoomObjectPopulationDefinitions
     public static RoomObjectPopulation FastRipper { get; } = RoomObjectPopulation.FromPlacements(nameof(FastRipper),
     [
         new(RoomObjectKind.DownwardGate, new(52, 5), new DownwardGateSetup()),
-        new(RoomObjectKind.DownwardGateShotBlock, new(52, 5), new DownwardGateShotBlockSetup(new GateTriggerArgument(DownwardGateTriggerBehavior.GreenLeft))),
+        new(RoomObjectKind.DownwardGateShotBlock, new(52, 5), new DownwardGateShotBlockSetup(new GateTriggerArgument(new DownwardGateTrigger(DownwardGateTriggerColor.Green, HorizontalDirection.Left)))),
     ]);
 
     /// <summary>The GoldenTorizoEnergyRefill room-object population.</summary>
@@ -1810,7 +1810,7 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectKind.UpwardsScrollExtension, new(10, 8), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
         new(RoomObjectKind.ScrollTrigger, new(10, 9), new ScrollTriggerSetup(RoomScrollChange.EastTunnelOpensScreen1x0TopAligned)),
         new(RoomObjectKind.DownwardGate, new(22, 5), new DownwardGateSetup()),
-        new(RoomObjectKind.DownwardGateShotBlock, new(22, 5), new DownwardGateShotBlockSetup(new GateTriggerArgument(DownwardGateTriggerBehavior.GreenRight))),
+        new(RoomObjectKind.DownwardGateShotBlock, new(22, 5), new DownwardGateShotBlockSetup(new GateTriggerArgument(new DownwardGateTrigger(DownwardGateTriggerColor.Green, HorizontalDirection.Right)))),
     ]);
 
     /// <summary>The MainStreet room-object population.</summary>
@@ -1847,7 +1847,7 @@ internal static class RoomObjectPopulationDefinitions
     public static RoomObjectPopulation CrabTunnel { get; } = RoomObjectPopulation.FromPlacements(nameof(CrabTunnel),
     [
         new(RoomObjectKind.DownwardGate, new(14, 7), new DownwardGateSetup()),
-        new(RoomObjectKind.DownwardGateShotBlock, new(14, 7), new DownwardGateShotBlockSetup(new GateTriggerArgument(DownwardGateTriggerBehavior.GreenLeft))),
+        new(RoomObjectKind.DownwardGateShotBlock, new(14, 7), new DownwardGateShotBlockSetup(new GateTriggerArgument(new DownwardGateTrigger(DownwardGateTriggerColor.Green, HorizontalDirection.Left)))),
     ]);
 
     /// <summary>The MtEverest room-object population.</summary>

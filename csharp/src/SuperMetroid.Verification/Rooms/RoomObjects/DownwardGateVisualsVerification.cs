@@ -29,7 +29,7 @@ internal static class DownwardGateVisualsVerification
             Render()
         {
             (TestAddressSpace bus, RoomLevelData level, RoomObjectSystem roomObjects, int gateBlockIndex) = CreateDownwardGateFixture(
-                    DownwardGateTriggerBehavior.BlueLeft);
+                    new DownwardGateTrigger(DownwardGateTriggerColor.Blue, HorizontalDirection.Left));
             StepDownwardGateObject(roomObjects, level);
             AssertEqual(RoomBlockAppearance.Nothing,
                 level.DisplayedAppearance(gateBlockIndex + level.Size.X),

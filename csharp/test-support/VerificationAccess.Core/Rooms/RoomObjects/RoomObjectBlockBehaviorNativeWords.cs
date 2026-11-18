@@ -9,28 +9,30 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// </summary>
 internal static class RoomObjectBlockBehaviorNativeWords
 {
-    /// <summary>The special-solid block behaviour naming each <see cref="StationAccessBehavior"/>.</summary>
-    internal static readonly NativeWordIdentities<StationAccessBehavior> StationAccesses = new(new Dictionary<StationAccessBehavior, ushort>
+    /// <summary>The special-solid block behaviour naming each <see cref="StationAccess"/>.</summary>
+    internal static readonly NativeWordIdentities<StationAccess> StationAccesses = new(new Dictionary<StationAccess, ushort>
     {
-        [StationAccessBehavior.MapRight] = 0x47,
-        [StationAccessBehavior.MapLeft] = 0x48,
-        [StationAccessBehavior.EnergyRight] = 0x49,
-        [StationAccessBehavior.EnergyLeft] = 0x4a,
-        [StationAccessBehavior.MissileRight] = 0x4b,
-        [StationAccessBehavior.MissileLeft] = 0x4c,
-        [StationAccessBehavior.SaveFloor] = 0x4d,
+        [new(StationKind.Map, HorizontalDirection.Right)] = 0x47,
+        [new(StationKind.Map, HorizontalDirection.Left)] = 0x48,
+        [new(StationKind.Energy, HorizontalDirection.Right)] = 0x49,
+        [new(StationKind.Energy, HorizontalDirection.Left)] = 0x4a,
+        [new(StationKind.Missile, HorizontalDirection.Right)] = 0x4b,
+        [new(StationKind.Missile, HorizontalDirection.Left)] = 0x4c,
     });
 
-    /// <summary>The shootable block behaviour naming each <see cref="DownwardGateTriggerBehavior"/>.</summary>
-    internal static readonly NativeWordIdentities<DownwardGateTriggerBehavior> DownwardGateTriggers = new(new Dictionary<DownwardGateTriggerBehavior, ushort>
+    /// <summary>The special-solid block behaviour of the save station's floor, a reaction of its own.</summary>
+    internal const ushort SaveStationFloor = 0x4d;
+
+    /// <summary>The shootable block behaviour naming each <see cref="DownwardGateTrigger"/>.</summary>
+    internal static readonly NativeWordIdentities<DownwardGateTrigger> DownwardGateTriggers = new(new Dictionary<DownwardGateTrigger, ushort>
     {
-        [DownwardGateTriggerBehavior.BlueLeft] = 0x46,
-        [DownwardGateTriggerBehavior.BlueRight] = 0x47,
-        [DownwardGateTriggerBehavior.RedLeft] = 0x48,
-        [DownwardGateTriggerBehavior.RedRight] = 0x49,
-        [DownwardGateTriggerBehavior.GreenLeft] = 0x4a,
-        [DownwardGateTriggerBehavior.GreenRight] = 0x4b,
-        [DownwardGateTriggerBehavior.YellowLeft] = 0x4c,
-        [DownwardGateTriggerBehavior.YellowRight] = 0x4d,
+        [new DownwardGateTrigger(DownwardGateTriggerColor.Blue, HorizontalDirection.Left)] = 0x46,
+        [new DownwardGateTrigger(DownwardGateTriggerColor.Blue, HorizontalDirection.Right)] = 0x47,
+        [new DownwardGateTrigger(DownwardGateTriggerColor.Red, HorizontalDirection.Left)] = 0x48,
+        [new DownwardGateTrigger(DownwardGateTriggerColor.Red, HorizontalDirection.Right)] = 0x49,
+        [new DownwardGateTrigger(DownwardGateTriggerColor.Green, HorizontalDirection.Left)] = 0x4a,
+        [new DownwardGateTrigger(DownwardGateTriggerColor.Green, HorizontalDirection.Right)] = 0x4b,
+        [new DownwardGateTrigger(DownwardGateTriggerColor.Yellow, HorizontalDirection.Left)] = 0x4c,
+        [new DownwardGateTrigger(DownwardGateTriggerColor.Yellow, HorizontalDirection.Right)] = 0x4d,
     });
 }

@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// </summary>
 /// <param name="orientation">The eye door's facing.</param>
 /// <param name="door">The door the eye's placement named, which its attacks keep to burst once it opens.</param>
-internal sealed class EyeDoorEyeObject(EyeDoorOrientation orientation, PlacedDoor door) : SequencedRoomObject<EyeDoorSegment, EyeDoorObjectFrame, EyeDoorAction>(EyeDoorSequenceDefinitions.Segments), IDoorKeptOpen
+internal sealed class EyeDoorEyeObject(EyeDoorOrientation orientation, PlacedDoor door) : SequencedRoomObject<EyeDoorSegment, EyeDoorObjectFrame, EyeDoorAction>(EyeDoorSequenceDefinitions.Segments), IDoorKeptOpen, IShootableRoomObject
 {
     /// <summary>The eye door's facing.</summary>
     internal EyeDoorOrientation Orientation { get; } = orientation;
@@ -40,6 +40,15 @@ internal sealed class EyeDoorEyeObject(EyeDoorOrientation orientation, PlacedDoo
     /// <summary>Whether a shot at the eye's block reaches it: from its opening until the hit that destroys it.</summary>
     internal bool TakesShots { get; private set; }
 
+    /// <summary>
+    /// The shot at the eye's block it has yet to take, or null for none (#2484). A shot that arrives before the eye takes shots waits for
+    /// it; a later shot before the eye takes it replaces it.
+    /// </summary>
+    internal ResidentObjectProjectileHit? PendingHit { get; private set; }
+
+    /// <inheritdoc/>
+    public void Strike(ResidentObjectProjectileHit hit) => PendingHit = hit;
+
     /// <summary>The blue cap the eye turns into: the one facing its own side.</summary>
     private ColoredDoorOrientation CapFacing => EyeDoorDraws.BlueCapFacing(Orientation);
 
@@ -54,9 +63,9 @@ internal sealed class EyeDoorEyeObject(EyeDoorOrientation orientation, PlacedDoo
     /// <inheritdoc/>
     private bool React(RoomObjectPlace place, RoomObjectStepContext context)
     {
-        if (!TakesShots || place.ProjectileHit is not { Family: var family })
+        if (!TakesShots || PendingHit is not { Family: var family })
             return false;
-        place.ProjectileHit = null;
+        PendingHit = null;
         if (family is not (SamusProjectileFamily.SuperMissile or SamusProjectileFamily.Missile))
         {
             context.RoomObjects.EyeDoors.QueueRejectedShotSound();

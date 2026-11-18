@@ -35,12 +35,12 @@ public static class RoomObjectShotBlockVisualFiles
     };
 
     /// <summary>A shape's word in a shot-block draw's identity.</summary>
-    private static string ShapeName(RoomObjectShotBlockDrawDefinitions.Shape shape) => shape switch
+    private static string ShapeName(BlockArrangement shape) => shape switch
     {
-        RoomObjectShotBlockDrawDefinitions.Shape.Single => "single",
-        RoomObjectShotBlockDrawDefinitions.Shape.Horizontal => "horizontal",
-        RoomObjectShotBlockDrawDefinitions.Shape.Vertical => "vertical",
-        RoomObjectShotBlockDrawDefinitions.Shape.Square => "square",
+        BlockArrangement.Single => "single",
+        BlockArrangement.Horizontal => "horizontal",
+        BlockArrangement.Vertical => "vertical",
+        BlockArrangement.Square => "square",
         _ => throw new InvalidOperationException($"Undefined shot-block shape {shape}."),
     };
 
@@ -74,14 +74,14 @@ public static class RoomObjectShotBlockVisualFiles
         {
             foreach (BlockBreakupStage stage in Enum.GetValues<BlockBreakupStage>())
             {
-                yield return ShotBlockObjectDraws.Breakup(RoomObjectShotBlockDrawDefinitions.Shape.Single, stage);
-                yield return ShotBlockObjectDraws.Breakup(RoomObjectShotBlockDrawDefinitions.Shape.Horizontal, stage);
-                yield return ShotBlockObjectDraws.Breakup(RoomObjectShotBlockDrawDefinitions.Shape.Vertical, stage);
-                yield return ShotBlockObjectDraws.Breakup(RoomObjectShotBlockDrawDefinitions.Shape.Square, stage);
+                yield return ShotBlockObjectDraws.Breakup(BlockArrangement.Single, stage);
+                yield return ShotBlockObjectDraws.Breakup(BlockArrangement.Horizontal, stage);
+                yield return ShotBlockObjectDraws.Breakup(BlockArrangement.Vertical, stage);
+                yield return ShotBlockObjectDraws.Breakup(BlockArrangement.Square, stage);
             }
-            yield return ShotBlockObjectDraws.Restoration(RoomObjectShotBlockDrawDefinitions.Shape.Horizontal);
-            yield return ShotBlockObjectDraws.Restoration(RoomObjectShotBlockDrawDefinitions.Shape.Vertical);
-            yield return ShotBlockObjectDraws.Restoration(RoomObjectShotBlockDrawDefinitions.Shape.Square);
+            yield return ShotBlockObjectDraws.Restoration(BlockArrangement.Horizontal);
+            yield return ShotBlockObjectDraws.Restoration(BlockArrangement.Vertical);
+            yield return ShotBlockObjectDraws.Restoration(BlockArrangement.Square);
         }
     }
 }

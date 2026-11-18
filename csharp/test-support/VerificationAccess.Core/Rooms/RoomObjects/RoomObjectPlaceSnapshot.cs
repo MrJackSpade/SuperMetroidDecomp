@@ -10,14 +10,12 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// The word native memory holds for the PLM's argument, or null for an object whose record carries no argument, hit count
 /// or scroll program, whose word is its placement's filler or its spawner's, which the port does not keep.
 /// </param>
-/// <param name="ProjectileHit">The projectile hit the PLM recorded, if any.</param>
 /// <param name="Behaviour">The typed room object the place holds, if any (#1554); it runs no animation.</param>
 /// <param name="SpentCap">Whether the PLM is a door cap opened for good, whose word keeps only its spent mark.</param>
 internal readonly record struct RoomObjectPlaceSnapshot(
     int UpdatePosition,
     Position16<RoomBlocks> Block,
     ushort? RoomArgument,
-    ResidentObjectProjectileHit? ProjectileHit,
     RoomObjectBehaviour? Behaviour,
     bool SpentCap)
 {
@@ -26,5 +24,5 @@ internal readonly record struct RoomObjectPlaceSnapshot(
     /// which draws the trigger's shot block once before it leaves the room.
     /// </summary>
     internal bool HoldsDownwardGateShotBlock => Behaviour is TerrainChangeObject { Change: var change }
-        && DownwardGateTriggerDefinitions.Changes.Values.Contains(change);
+        && DownwardGateTriggerDefinitions.Triggers.Values.Any(trigger => trigger.Change == change);
 }

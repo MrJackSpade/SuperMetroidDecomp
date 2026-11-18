@@ -32,10 +32,10 @@ internal static class BotwoonWallMutationDefinitions
     /// </summary>
     private static TerrainChangeFrame[] CrumbleRow(Offset16<RoomBlocks> moveBefore) =>
     [
-        new(ShotBlockObjectDraws.Breakup(RoomObjectShotBlockDrawDefinitions.Shape.Single, BlockBreakupStage.Rock), CrumbleFrameDuration, moveBefore, CrumbleSound),
-        new(ShotBlockObjectDraws.Breakup(RoomObjectShotBlockDrawDefinitions.Shape.Single, BlockBreakupStage.Pieces), CrumbleFrameDuration),
-        new(ShotBlockObjectDraws.Breakup(RoomObjectShotBlockDrawDefinitions.Shape.Single, BlockBreakupStage.Dust), CrumbleFrameDuration),
-        new(ShotBlockObjectDraws.Breakup(RoomObjectShotBlockDrawDefinitions.Shape.Single, BlockBreakupStage.Gone), CrumbleFrameDuration),
+        new(ShotBlockObjectDraws.Breakup(BlockArrangement.Single, BlockBreakupStage.Rock), CrumbleFrameDuration, moveBefore, CrumbleSound),
+        new(ShotBlockObjectDraws.Breakup(BlockArrangement.Single, BlockBreakupStage.Pieces), CrumbleFrameDuration),
+        new(ShotBlockObjectDraws.Breakup(BlockArrangement.Single, BlockBreakupStage.Dust), CrumbleFrameDuration),
+        new(ShotBlockObjectDraws.Breakup(BlockArrangement.Single, BlockBreakupStage.Gone), CrumbleFrameDuration),
     ];
 
     /// <summary>How long the crumble's setup holds it before the wall begins to fall, in updates (#2182).</summary>

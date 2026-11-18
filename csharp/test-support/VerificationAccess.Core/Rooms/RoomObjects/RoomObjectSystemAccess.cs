@@ -164,12 +164,12 @@ internal static class RoomObjectSystemAccess
         {
             foreach (var place in ActivePlaces(self))
             {
-                if (place.Block != block || place.Behaviour is not EyeDoorEyeObject)
+                if (place.Block != block || place.Behaviour is not EyeDoorEyeObject eye)
                     continue;
 
                 // The pending hit is single. A later collision before the eye's update replaces it rather than
                 // accumulating a host-side queue.
-                place.ProjectileHit = new ResidentObjectProjectileHit(projectileType.Family);
+                eye.Strike(new ResidentObjectProjectileHit(projectileType.Family));
                 return true;
             }
             return false;
@@ -190,7 +190,6 @@ internal static class RoomObjectSystemAccess
                     UpdatePosition: entry.Index,
                     Block: entry.Place.Block,
                     RoomArgument: entry.Place.NativeRoomArgument,
-                    ProjectileHit: entry.Place.ProjectileHit,
                     Behaviour: entry.Place.Behaviour,
                     SpentCap: RoomObjectRoomArgumentWords.IsSpentDoor(entry.Place.Behaviour))),
         ];
@@ -209,17 +208,13 @@ internal static class RoomObjectSystemAccess
         /// </summary>
         internal bool TryNotifyStationTouch(RoomLevelData level, Position16<RoomBlocks> accessBlock, RoomBlockBehavior behavior)
         {
-            (SamusCollisionPose pose, Axis axis, bool movingPositive) = behavior.TryGetStationAccess(out StationAccessBehavior access)
-                ? access switch
-                {
-                    StationAccessBehavior.MapRight or StationAccessBehavior.EnergyRight or StationAccessBehavior.MissileRight =>
-                        (SamusCollisionPose.RanIntoWallLeft, Axis.Horizontal, false),
-                    StationAccessBehavior.MapLeft or StationAccessBehavior.EnergyLeft or StationAccessBehavior.MissileLeft =>
-                        (SamusCollisionPose.RanIntoWallRight, Axis.Horizontal, true),
-                    StationAccessBehavior.SaveFloor => (SamusCollisionPose.StandingNormal, Axis.Vertical, true),
-                    _ => throw new InvalidOperationException($"Undefined station access {access}."),
-                }
-                : throw new ArgumentException($"Block behaviour {behavior} is no station access.", nameof(behavior));
+            (SamusCollisionPose pose, Axis axis, bool movingPositive) = behavior.IsSaveStationFloor
+                ? (SamusCollisionPose.StandingNormal, Axis.Vertical, true)
+                : behavior.TryGetStationAccess(out StationAccess access)
+                    ? access.Side == HorizontalDirection.Right
+                        ? (SamusCollisionPose.RanIntoWallLeft, Axis.Horizontal, false)
+                        : (SamusCollisionPose.RanIntoWallRight, Axis.Horizontal, true)
+                    : throw new ArgumentException($"Block behaviour {behavior} is no station access.", nameof(behavior));
             return self.Stations.TryNotifyStationCollision(level, accessBlock, behavior, pose, axis, movingPositive);
         }
 
@@ -362,8 +357,7 @@ internal static class RoomObjectSystemAccess
                 // The setup throws away the original appearance. The shot-block parent with the block's collision kind
                 // is both the restore block and the source of the deactivated live block.
                 RoomTerrainBlock restore = block.Terrain.WithAppearance(self.Drawing.SetupBlock(RoomObjectSetupBlock.ShotBlockParent));
-                place.RestoreTerrain = restore;
-                place.Become(new BlockReactionObject(BlockReactionChanges.RespawningShot(bts.Shootable)));
+                place.Become(new BlockReactionObject(BlockReactionChanges.RespawningShot(bts.Shootable), restore));
                 level.SetTerrain(position, restore.Deactivated());
                 return true;
             }

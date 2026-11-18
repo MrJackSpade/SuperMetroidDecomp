@@ -11,7 +11,21 @@ public static class RoomObjectLinkedRestoreVisualFiles
     /// <summary>Family-relative JSON filename for the six bomb/contact-crumble horizontal, vertical, and square restoration layouts.</summary>
     public const string VisualFileName = "linked-restores.json";
 
-    /// <summary>The linked restoration as the import pictures them: every frame's geometry and published name.</summary>
+    /// <summary>The arrangements of each kind's restorations in the order the import publishes them: side by side, stacked, square.</summary>
+    private static readonly BlockArrangement[] ExportOrder = [BlockArrangement.Horizontal, BlockArrangement.Vertical, BlockArrangement.Square];
+
+    /// <summary>The bomb blocks' restorations, in the order the import publishes them.</summary>
+    internal static IReadOnlyList<RoomObjectFrameDraw<BombBlockRestoreDraw>> BombBlockRestorations { get; } =
+        [.. ExportOrder.Select(layout => LinkedRestoreObjectFamily.BombBlockDraws.Of(new BombBlockRestoreDraw(layout)))];
+
+    /// <summary>The contact crumble blocks' restorations, in the order the import publishes them.</summary>
+    internal static IReadOnlyList<RoomObjectFrameDraw<ContactCrumbleRestoreDraw>> ContactCrumbleRestorations { get; } =
+        [.. ExportOrder.Select(layout => LinkedRestoreObjectFamily.ContactCrumbleDraws.Of(new ContactCrumbleRestoreDraw(layout)))];
+
+    /// <summary>
+    /// The linked restoration as the import pictures them: every frame's geometry and published name. It reads the
+    /// restorations as it is built, so they are declared before it.
+    /// </summary>
     internal static RoomObjectFrameFamily<RoomObjectDraw> Family { get; } =
         RoomObjectFrameImageFiles.DrawFamily(VisualFileName, "Linked restore", All, VisualId);
 
@@ -30,31 +44,25 @@ public static class RoomObjectLinkedRestoreVisualFiles
 
     /// <summary>The three bomb-block and three contact-crumble restoration layouts, bomb blocks first.</summary>
     internal static IEnumerable<RoomObjectDrawLists.DrawList> All =>
-        LinkedRestoreObjectFamily.Families.SelectMany(AllOf);
+        BombBlockRestorations.Select(Export).Concat(ContactCrumbleRestorations.Select(Export));
 
-    /// <summary>The horizontal, vertical and square restoration layouts of <paramref name="family"/>, in that order.</summary>
-    internal static IEnumerable<RoomObjectDrawLists.DrawList> AllOf(LinkedRestoreObjectFamily family) =>
-        Ensure.NotNull(family).Draws.Select(shape => Export(shape.Value, family.Describe(shape.Key)));
+    /// <summary>Builds the draw list of the bomb-block restoration <paramref name="draw"/>.</summary>
+    internal static RoomObjectDrawLists.DrawList Export(RoomObjectFrameDraw<BombBlockRestoreDraw> draw) =>
+        RoomObjectShapeRun.DrawList(Ensure.NotNull(draw), draw.Frame.Blocks, RoomObjectShapeRun.Arrangement(draw.Frame.Layout));
 
-    /// <summary>Builds the draw list of the restoration <paramref name="request"/>, whose shape is <paramref name="draw"/>.</summary>
-    internal static RoomObjectDrawLists.DrawList Export(RoomObjectDraw request, LinkedRestoreObjectFamily.Draw draw) =>
-        RoomObjectShapeRun.DrawList(request, draw.Blocks, RoomObjectShapeRun.Arrangement(draw.Shape switch
-        {
-            RoomObjectRestoreShape.Horizontal => RoomObjectShotBlockDrawDefinitions.Shape.Horizontal,
-            RoomObjectRestoreShape.Vertical => RoomObjectShotBlockDrawDefinitions.Shape.Vertical,
-            RoomObjectRestoreShape.Square => RoomObjectShotBlockDrawDefinitions.Shape.Square,
-            _ => throw new InvalidOperationException($"Undefined {nameof(RoomObjectRestoreShape)} {draw.Shape}."),
-        }));
+    /// <summary>Builds the draw list of the contact crumble restoration <paramref name="draw"/>.</summary>
+    internal static RoomObjectDrawLists.DrawList Export(RoomObjectFrameDraw<ContactCrumbleRestoreDraw> draw) =>
+        RoomObjectShapeRun.DrawList(Ensure.NotNull(draw), draw.Frame.Blocks, RoomObjectShapeRun.Arrangement(draw.Frame.Layout));
 
     /// <summary>Maps a restoration draw to its bomb or crumble artwork key and rejects other draws.</summary>
     internal static string VisualId(RoomObjectDraw draw) => draw switch
     {
-        RoomObjectFrameDraw<BombBlockRestoreDraw> { Frame: BombBlockRestoreDraw.Horizontal } => "bomb-horizontal",
-        RoomObjectFrameDraw<BombBlockRestoreDraw> { Frame: BombBlockRestoreDraw.Vertical } => "bomb-vertical",
-        RoomObjectFrameDraw<BombBlockRestoreDraw> { Frame: BombBlockRestoreDraw.Square } => "bomb-square",
-        RoomObjectFrameDraw<ContactCrumbleRestoreDraw> { Frame: ContactCrumbleRestoreDraw.Horizontal } => "crumble-horizontal",
-        RoomObjectFrameDraw<ContactCrumbleRestoreDraw> { Frame: ContactCrumbleRestoreDraw.Vertical } => "crumble-vertical",
-        RoomObjectFrameDraw<ContactCrumbleRestoreDraw> { Frame: ContactCrumbleRestoreDraw.Square } => "crumble-square",
+        RoomObjectFrameDraw<BombBlockRestoreDraw> { Frame.Layout: BlockArrangement.Horizontal } => "bomb-horizontal",
+        RoomObjectFrameDraw<BombBlockRestoreDraw> { Frame.Layout: BlockArrangement.Vertical } => "bomb-vertical",
+        RoomObjectFrameDraw<BombBlockRestoreDraw> { Frame.Layout: BlockArrangement.Square } => "bomb-square",
+        RoomObjectFrameDraw<ContactCrumbleRestoreDraw> { Frame.Layout: BlockArrangement.Horizontal } => "crumble-horizontal",
+        RoomObjectFrameDraw<ContactCrumbleRestoreDraw> { Frame.Layout: BlockArrangement.Vertical } => "crumble-vertical",
+        RoomObjectFrameDraw<ContactCrumbleRestoreDraw> { Frame.Layout: BlockArrangement.Square } => "crumble-square",
         _ => throw new InvalidDataException($"{draw} is not a linked restoration draw."),
     };
 

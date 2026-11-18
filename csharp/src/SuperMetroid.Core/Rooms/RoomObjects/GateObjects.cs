@@ -60,9 +60,9 @@ internal sealed class GateObjects
     /// </summary>
     internal static void SetupDownwardGateShotBlock(RoomLevelData level, RoomObjectPlace place, GateTriggerArgument placed)
     {
-        DownwardGateTriggerBehavior trigger = Ensure.NotNull(placed).Trigger;
-        place.Become(new TerrainChangeObject(DownwardGateTriggerDefinitions.Changes[trigger]));
-        Position16<RoomBlocks> triggerBlock = level.ObjectBlockStep(place.Block, new Offset16<RoomBlocks>(IsLeftTrigger(trigger) ? -1 : 1, 0));
+        DownwardGateTrigger trigger = Ensure.NotNull(placed).Trigger;
+        place.Become(new TerrainChangeObject(DownwardGateTriggerDefinitions.Triggers[trigger].Change));
+        Position16<RoomBlocks> triggerBlock = level.ObjectBlockStep(place.Block, new Offset16<RoomBlocks>(ColumnsFromGate(trigger), 0));
         _ = level.GetCollisionBlock(triggerBlock);
         RoomObjectLevelWrites.WriteObjectCollisionAndBehavior(level, triggerBlock, DownwardGateDefinitions.TriggerCollision,
             RoomBlockBehavior.Reacting(BlockReactionDefinitions.DownwardGateTriggers.ReactionFor(trigger)));
@@ -76,8 +76,9 @@ internal sealed class GateObjects
         SamusProjectileType projectileType)
     {
         Ensure.NotNull(level);
-        if (!behavior.TryGetDownwardGateTrigger(out DownwardGateTriggerBehavior trigger))
+        if (!behavior.TryGetDownwardGateTrigger(out DownwardGateTrigger trigger))
             return false;
+        DownwardGateTriggerDefinition definition = DownwardGateTriggerDefinitions.Triggers[trigger];
 
         // Spawning the trigger still takes a room-object place even though every trigger setup frees it again
         // at once. A full room therefore drops the collision just
@@ -86,20 +87,16 @@ internal sealed class GateObjects
             return true;
         temporary.Block = position;
 
-        bool accepted = GateTriggerAcceptsProjectile(trigger, projectileType);
-        if (!accepted)
+        if (!definition.SetOffBy.Accepts(projectileType.Family))
         {
-            if (trigger is not DownwardGateTriggerBehavior.BlueLeft and
-                not DownwardGateTriggerBehavior.BlueRight)
-            {
-                // The trigger's setup queues the rejection at once, inside the shot's collision (#1620).
-                _sounds.Queue(DownwardGateDefinitions.RejectedShotSound, Priority: SoundRequestPriority.Normal);
-            }
+            // The trigger's setup queues the rejection at once, inside the shot's collision (#1620).
+            if (definition.RejectionSound is { } rejection)
+                _sounds.Queue(rejection, Priority: SoundRequestPriority.Normal);
             temporary.Delete();
             return true;
         }
 
-        Position16<RoomBlocks> gateBlock = level.ObjectBlockStep(temporary.Block, new Offset16<RoomBlocks>(IsLeftTrigger(trigger) ? 1 : -1, 0));
+        Position16<RoomBlocks> gateBlock = level.ObjectBlockStep(temporary.Block, new Offset16<RoomBlocks>(-ColumnsFromGate(trigger), 0));
         DownwardGateObject? gate = null;
         foreach (RoomObjectPlace candidate in _places.InUpdateOrder)
         {
@@ -142,30 +139,15 @@ internal sealed class GateObjects
             rowsBelowGateTop >= 0 && rowsBelowGateTop < DownwardGateDefinitions.GateHeightInBlocks;
     }
 
-    /// <summary>Whether <paramref name="trigger"/> lies left of its gate; every other trigger lies right of it.</summary>
-    internal static bool IsLeftTrigger(DownwardGateTriggerBehavior trigger) =>
-        trigger is DownwardGateTriggerBehavior.BlueLeft or DownwardGateTriggerBehavior.RedLeft or
-            DownwardGateTriggerBehavior.GreenLeft or DownwardGateTriggerBehavior.YellowLeft;
-
-    /// <summary>Applies projectile-family rules, including the right-yellow acceptance asymmetry.</summary>
-    private static bool GateTriggerAcceptsProjectile(
-        DownwardGateTriggerBehavior trigger,
-        SamusProjectileType projectileType)
+    /// <summary>
+    /// The columns from a gate to its <paramref name="trigger"/>'s block: one to the left for a trigger on the gate's left
+    /// side, one to the right for one on its right (#2128).
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The trigger's side is undefined.</exception>
+    internal static int ColumnsFromGate(DownwardGateTrigger trigger) => trigger.Side switch
     {
-        bool plainMissile = projectileType.IsFamily(SamusProjectileFamily.Missile);
-        bool plainSuper = projectileType.IsFamily(SamusProjectileFamily.SuperMissile);
-        bool plainPowerBomb = projectileType.IsFamily(SamusProjectileFamily.PowerBomb);
-        return trigger switch
-        {
-            DownwardGateTriggerBehavior.GreenLeft or DownwardGateTriggerBehavior.GreenRight => plainSuper,
-            DownwardGateTriggerBehavior.RedLeft or DownwardGateTriggerBehavior.RedRight => plainMissile || plainSuper,
-            DownwardGateTriggerBehavior.BlueLeft or DownwardGateTriggerBehavior.BlueRight => !plainPowerBomb,
-            DownwardGateTriggerBehavior.YellowLeft => plainPowerBomb,
-
-            // The right-yellow gate triggers on everything but a power bomb, the opposite of the
-            // left one.
-            DownwardGateTriggerBehavior.YellowRight => !plainPowerBomb,
-            _ => throw new InvalidOperationException($"Undefined gate trigger {trigger}."),
-        };
-    }
+        HorizontalDirection.Left => -1,
+        HorizontalDirection.Right => 1,
+        _ => throw new InvalidOperationException($"Undefined {nameof(HorizontalDirection)} {trigger.Side}."),
+    };
 }

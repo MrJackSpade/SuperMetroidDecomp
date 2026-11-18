@@ -1,6 +1,9 @@
 ﻿namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>The resident station family that owns access animation, resource changes, and frontend activation events.</summary>
+/// <summary>
+/// The stations Samus uses through an access arm (<see cref="AccessStationObject"/>): each has its access rule
+/// (<see cref="StationAccessRuleDefinitions"/>). The save station is a room object of its own (<see cref="SaveStationObject"/>).
+/// </summary>
 public enum StationKind
 {
     /// <summary>Acquires the current area's map and keeps Samus input locked until map-screen unpause releases it.</summary>
@@ -9,6 +12,4 @@ public enum StationKind
     Energy,
     /// <summary>Refills ordinary Missiles to their current maximum after the access arm's extension hold.</summary>
     Missile,
-    /// <summary>Uses the floor trigger to request confirmation, then runs the save-pod animation and the save's completion message.</summary>
-    Save,
 }

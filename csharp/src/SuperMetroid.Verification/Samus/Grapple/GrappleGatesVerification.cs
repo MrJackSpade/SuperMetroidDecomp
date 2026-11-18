@@ -26,7 +26,7 @@ internal static class GrappleGatesVerification
     internal static void VerifyGrappleGreenGateVisibility()
     {
         var retail = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        foreach (var trigger in new[] { DownwardGateTriggerBehavior.GreenLeft, DownwardGateTriggerBehavior.GreenRight })
+        foreach (var trigger in new[] { new DownwardGateTrigger(DownwardGateTriggerColor.Green, HorizontalDirection.Left), new DownwardGateTrigger(DownwardGateTriggerColor.Green, HorizontalDirection.Right) })
         {
             var (bus, level, roomObjects, gateIndex) = CreateDownwardGateFixture(trigger);
             // Use the cartridge's actual gate sprite maps for the observable OAM check.
@@ -42,7 +42,7 @@ internal static class GrappleGatesVerification
             enemies.DrawEnemyProjectiles(oam, Position16<RoomPixels>.Zero);
             AssertTrue(oam.NextByteOffset > 0, "closed gate has visible OAM before grapple impact");
             byte[] expected = oam.LowTable[..oam.NextByteOffset].ToArray();
-            int hitIndex = gateIndex + (trigger == DownwardGateTriggerBehavior.GreenLeft ? -1 : 1);
+            int hitIndex = gateIndex + (trigger == new DownwardGateTrigger(DownwardGateTriggerColor.Green, HorizontalDirection.Left) ? -1 : 1);
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {
                 Position = new(new((ushort)(hitIndex % level.Size.X * 16 + 8), 0), new((ushort)(hitIndex / level.Size.X * 16 + 8), 0)),

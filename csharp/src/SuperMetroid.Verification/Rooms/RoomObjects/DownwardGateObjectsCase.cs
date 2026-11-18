@@ -6,4 +6,4 @@ namespace SuperMetroid.Verification.Rooms.RoomObjects;
 /// <param name="Trigger">The trigger.</param>
 /// <param name="Projectile">The projectile.</param>
 /// <param name="Accepted">The accepted.</param>
-internal readonly record struct DownwardGateObjectsCase(DownwardGateTriggerBehavior Trigger, ushort Projectile, bool Accepted);
+internal readonly record struct DownwardGateObjectsCase(DownwardGateTrigger Trigger, ushort Projectile, bool Accepted);

@@ -256,7 +256,7 @@ internal sealed class EnemyDeathsAndDrops
 
     /// <summary>
     /// Rolls a direct drop's <paramref name="dropChances"/>, none when its enemy drops nothing, and either starts its
-    /// pickup animation or the no-drop tail.
+    /// pickup animation or the ending it plays when nothing drops.
     /// </summary>
     private void InitializeDirectEnemyPickup(EnemyProjectile pickup, EnemyDropChances? dropChances, SamusState samus)
     {

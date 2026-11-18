@@ -94,7 +94,7 @@ internal static class CeresDestructionSceneDefinitions
         internal const int CoarsestBlockWidth = 16;
     }
 
-    /// <summary>The floor's zoom thresholds and the scenes' fixed-point velocities.</summary>
+    /// <summary>The floor's zoom thresholds and the scenes' velocities.</summary>
     internal static class Motion
     {
         /// <summary>The zoom that ends the initial Ceres zoom: two and a half floor pixels per screen pixel.</summary>

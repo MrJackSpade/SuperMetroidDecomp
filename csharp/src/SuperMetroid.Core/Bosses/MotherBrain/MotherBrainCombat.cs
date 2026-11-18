@@ -47,7 +47,7 @@ internal sealed class MotherBrainCombat
             if (c.HitboxShot != MotherBrainReactions.BodyShot)
             {
                 throw new InvalidDataException(
-                    $"Mother Brain's body selected shot AI {c.HitboxShot?.ToString() ?? "(unnamed)"} from " +
+                    $"Mother Brain's body selected the shot reaction {c.HitboxShot?.ToString() ?? "(unnamed)"} from " +
                     $"frame {c.Enemy.Frame}; every body rectangle's shot reaction is the dud shot.");
             }
             // The common collision prelude still owns Super-Missile quake first.
@@ -100,7 +100,7 @@ internal sealed class MotherBrainCombat
             projectile,
             head.Contact.HasAny(EnemyContact.BlocksPlasmaBeam) ||
                 !projectileType.BeamCombination.HasPlasma);
-        // The head's shot AI lets only missiles and Super Missiles reach the glass.
+        // Only missiles and Super Missiles that strike her head reach the glass.
         if (family is not (SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile))
             return;
 

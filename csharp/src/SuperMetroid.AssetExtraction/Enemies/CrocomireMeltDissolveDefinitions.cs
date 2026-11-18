@@ -1,6 +1,10 @@
-namespace SuperMetroid.Core.Bosses.Crocomire;
+namespace SuperMetroid.AssetExtraction.Enemies;
 
-/// <summary>Crocomire's melt dissolve (#1652): which pixel column each step erases, and how much of the image it erases.</summary>
+/// <summary>
+/// Crocomire's melt dissolve as the cartridge erases his melt images' characters (#1652, #2478): which pixel column each
+/// step erases, and how much of the image it erases. The import turns it into each melt picture's dissolve, which Core
+/// shows; Core holds none of it.
+/// </summary>
 internal static class CrocomireMeltDissolveDefinitions
 {
     /// <summary>
@@ -23,7 +27,7 @@ internal static class CrocomireMeltDissolveDefinitions
         39,
     ];
 
-    /// <summary>Pixel columns in one group the dissolve erases within.</summary>
+    /// <summary>Pixel columns in one group the dissolve erases within: one character's width.</summary>
     internal const int GroupColumns = 8;
 
     /// <summary>The bands the dissolve erases: the six rows of eight pixels the erase runs down; a second pass's seventh band never dissolves.</summary>

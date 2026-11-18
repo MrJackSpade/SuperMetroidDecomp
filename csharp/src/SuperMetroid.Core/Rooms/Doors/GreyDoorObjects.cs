@@ -64,7 +64,7 @@ internal sealed class GreyDoorObjects
     private static void ApplyGreyDoorSetup(RoomLevelData level, Position16<RoomBlocks> block)
     {
         // Grey and coloured doors' setups share the exact same collision write.
-        // Preserve the authored appearance while replacing only collision and behaviour.
+        // The authored appearance stays; only collision and behaviour change.
         level.SetTerrain(block,
             level.GetCollisionBlock(block).Terrain.WithCollision(RoomCollisionType.ShootableBlock));
         level.SetBehavior(block, RoomBlockBehavior.Reacting(ShootableReaction.ResidentObjectTrigger));

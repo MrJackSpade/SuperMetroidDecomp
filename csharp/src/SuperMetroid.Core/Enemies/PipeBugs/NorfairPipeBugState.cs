@@ -25,7 +25,7 @@ public sealed class NorfairPipeBugState
     /// <summary>
     /// The member's stagger count, the updates it has risen and waited. It returns to zero only when the member departs
     /// on reaching its <see cref="Role"/>'s target, so a member reset off screen keeps its count into the next rise; it
-    /// never passes the largest target by more than its rise, far short of where the game's count would go round (#1846).
+    /// never passes the largest target by more than its rise (#1846).
     /// </summary>
     public int FormationCounter { get; internal set; }
 

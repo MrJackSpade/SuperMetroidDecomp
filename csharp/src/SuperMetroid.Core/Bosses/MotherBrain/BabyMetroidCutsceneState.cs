@@ -213,7 +213,7 @@ public sealed class BabyMetroidCutsceneState
         MotherBrainBabySegment? startedAnimation = null;
         BabyMetroidVisibilityRequest visibility = BabyMetroidVisibilityRequest.Unchanged;
 
-        // Enemy collision handling runs touch AI before main AI, against the Baby's
+        // The Baby's touch is tested before its movement, against the Baby's
         // position from the previous frame. The Baby's touch is active only while it latches onto Samus; broad
         // Samus/enemy hitboxes gate it, then its own divisor-16 acceleration decides when
         // both axes have reached the latch point. Main AI and its mover follow this frame.

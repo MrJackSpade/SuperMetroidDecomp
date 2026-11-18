@@ -14,6 +14,6 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// <param name="Depth">The depth its picture is drawn at, or null when it paints nothing.</param>
 internal sealed record ComposedBossBodyFrame(string Name, string? Picture, Offset16<RoomPixels> Anchor, BossBodyDepth? Depth)
 {
-    /// <summary>The picture's cells a column dissolve erases (#1652): Crocomire's melt images'; empty for every other frame.</summary>
-    internal IReadOnlyList<DissolvingCell> Dissolving { get; init; } = [];
+    /// <summary>How a dissolve erases the picture step by step (#1652, #2478): Crocomire's melt images'; null for every other frame.</summary>
+    internal PictureDissolve? Dissolve { get; init; }
 }

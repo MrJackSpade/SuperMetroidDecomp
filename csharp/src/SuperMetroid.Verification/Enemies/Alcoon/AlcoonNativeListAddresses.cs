@@ -33,7 +33,7 @@ internal static class AlcoonNativeListAddresses
         [0xdf33] = new AlcoonNativeListAddressesInstruction(new AlcoonCue.Fire(AlcoonFireballLaunchDefinitions.Level), ""),
         [0xdf39] = new AlcoonNativeListAddressesInstruction(new AlcoonCue.Fire(AlcoonFireballLaunchDefinitions.Downward), ""),
         [0xdf3f] = new AlcoonNativeListAddressesInstruction(new AlcoonCue.Signal(AlcoonCueKind.StartWalking), ""),
-        [0xdf63] = new AlcoonNativeListAddressesInstruction(new AlcoonCue.Signal(AlcoonCueKind.Step), ""),
+        [0xdf63] = new AlcoonNativeListAddressesInstruction(new AlcoonCue.Signal(AlcoonCueKind.CompleteWalkCycle), ""),
         [0xdf71] = new AlcoonNativeListAddressesInstruction(new AlcoonCue.Signal(AlcoonCueKind.Move), ""),
     };
 }

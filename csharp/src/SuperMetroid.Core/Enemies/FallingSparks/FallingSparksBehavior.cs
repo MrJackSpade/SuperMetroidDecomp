@@ -65,7 +65,7 @@ internal sealed class FallingSparksBehavior
         // enemy projectiles' block collision, slope reactions included, and the creep stays on top of the spark's own
         // fall below.
         FallingSparkState spark = projectile.StateOf<FallingSparkState>();
-        if (spark.VerticalSpeed.WholePixels >= 0)
+        if (!spark.VerticalSpeed.IsNegative)
         {
             if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, Axis.Vertical, _floorProbe.CreepFor(spark.VerticalSpeed)))
             {
@@ -114,8 +114,8 @@ internal sealed class FallingSparksBehavior
         FallingSparkState spark = projectile.StateOf<FallingSparkState>();
         spark.HorizontalStep *= FallingSparkMotionDefinitions.ImpactDriftScale;
 
-        // Because the bounce's whole part is negative, later frames skip collision and gravity while the
-        // impact spark arcs upward through its eleven-frame blinking animation.
+        // While the bounce carries the spark upward, later updates skip collision and gravity as the
+        // impact spark arcs through its eleven-frame blinking animation.
         spark.VerticalSpeed = FallingSparkMotionDefinitions.ImpactBounce;
         projectile.Position = projectile.Position.WithWholeY(projectile.Position.Y.Whole - FallingSparkMotionDefinitions.ImpactLift);
     }

@@ -136,7 +136,7 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
         if (!context.UsesFrameHitboxes || context.HitboxTouch != CeresSteamReactions.Touch)
         {
             throw new InvalidDataException(
-                $"Ceres steam requires extended touch AI {CeresSteamReactions.Touch}; " +
+                $"Ceres steam requires its frame hitboxes' touch reaction {CeresSteamReactions.Touch}; " +
                 $"extended={context.UsesFrameHitboxes}, selected={context.HitboxTouch?.ToString() ?? "(unnamed)"}, " +
                 $"frame={context.Place.Frame}.");
         }

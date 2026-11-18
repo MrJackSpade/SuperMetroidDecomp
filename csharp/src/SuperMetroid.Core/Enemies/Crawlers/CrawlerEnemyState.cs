@@ -50,17 +50,17 @@ public sealed class CrawlerEnemyState
 
     /// <summary>
     /// Falling Y velocity per AI update, separate from the speed it crawls at while attached: gravity adds half a pixel per
-    /// update while the whole pixels are below four, and landing clears it.
+    /// update while it falls slower than four pixels per update, and landing clears it.
     /// </summary>
     public SignedSixteenSixteen FallingYVelocity { get; internal set; }
 
     /// <summary>
-    /// One falling update's gravity: adds half a pixel per update while the whole pixels, positive downward,
-    /// are below four.
+    /// One falling update's gravity: adds half a pixel per update while the crawler falls slower than
+    /// <see cref="CrawlerMotionDefinitions.FallingSpeedCap"/>.
     /// </summary>
     internal void ApplyFallingGravity()
     {
-        if (FallingYVelocity.WholePixels < CrawlerMotionDefinitions.FallingSpeedCap)
+        if (FallingYVelocity < CrawlerMotionDefinitions.FallingSpeedCap)
             FallingYVelocity += CrawlerMotionDefinitions.FallingGravity;
     }
     /// <summary>Attached AI target saved when an earthquake or repeated outside turns start a fall; restored on terrain landing for either shared crawlers or orange Zoomer.</summary>

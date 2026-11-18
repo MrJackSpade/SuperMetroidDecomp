@@ -21,7 +21,7 @@ public sealed class MorphBallEyeEnemyState
     internal EnemyFrameId? Aim { get; set; }
 
     /// <summary>
-    /// Whether the eye is activated: set once the beam object has initialized, cleared once
+    /// Whether the eye is activated: set once its beam appears, cleared once
     /// the body starts closing. The beam keeps cycling its colours only while it is set.
     /// </summary>
     public bool IsActivated { get; internal set; }

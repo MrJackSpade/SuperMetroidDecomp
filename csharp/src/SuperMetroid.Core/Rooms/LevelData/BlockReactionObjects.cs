@@ -148,7 +148,7 @@ internal sealed class BlockReactionObjects
 
         // The special-block response reports a pass-through contact before spawning. When every place is held the
         // spawn returns that result unchanged: setup never runs, so its no-Speed-Booster rejection cannot make this
-        // contact solid. Preserve the block; this is not a break animation.
+        // contact solid. The block stays; this is not a break animation.
         if (_places.IsFull)
             return true;
 

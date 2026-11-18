@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Nuclear;
 /// </summary>
 public enum NuclearWaffleTurnState
 {
-    /// <summary>Neither threshold crossed; every latch returns here when a new sweep starts.</summary>
+    /// <summary>Neither threshold crossed; the head and every link return here when a new sweep starts.</summary>
     BeforeTurns,
     /// <summary>Past the rising threshold (<see cref="NuclearWaffleSweepDefinition.RisingTurnThreshold"/>); the turn queues its sound.</summary>
     PastRisingThreshold,

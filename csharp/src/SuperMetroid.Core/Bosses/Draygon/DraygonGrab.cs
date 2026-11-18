@@ -127,7 +127,7 @@ internal sealed class DraygonGrab
 
     /// <summary>
     /// Runs the expanding, rising spiral. Radius growth, angular
-    /// deceleration, and center lift stay separate fixed-point values.
+    /// deceleration, and center lift each keep their own fraction of a pixel.
     /// </summary>
     internal void CarrySamusInDraygonSpiral(DraygonEnemyState state, SamusState samus)
     {

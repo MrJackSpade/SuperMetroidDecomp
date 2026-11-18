@@ -19,10 +19,10 @@ internal sealed record BossBodyFrameSource(string Name, SortedDictionary<int, Ba
     internal IReadOnlyDictionary<ArtworkAnimation, ArtworkFrame> Selected { get; init; } = new Dictionary<ArtworkAnimation, ArtworkFrame>();
 
     /// <summary>
-    /// The frame's picture cells a column dissolve erases (#1652), in the picture's cells: Crocomire's melt images'. Empty
-    /// for every other frame.
+    /// How a dissolve erases the frame's picture step by step (#1652, #2478): Crocomire's melt images'. Null for every other
+    /// frame.
     /// </summary>
-    internal IReadOnlyList<DissolvingCell> Dissolving { get; init; } = [];
+    internal PictureDissolve? Dissolve { get; init; }
 
     /// <summary>
     /// How far the frame's picture lies from its cells on the body's area (#1802, #1949): the rows Crocomire's charging and

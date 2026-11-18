@@ -405,8 +405,8 @@ public sealed class SamusBombProjectileSystem
             return;
         }
 
-        // HUD selection cannot normally point at an empty ammo class. Preserve the
-        // game's ordering nonetheless: the reservation has already counted the bomb when
+        // HUD selection cannot normally point at an empty ammo class. The game's ordering
+        // still holds: the reservation has already counted the bomb when
         // Power Bombs are selected with none left.
         if (placingPowerBomb && samus.PowerBombs == 0)
             return;

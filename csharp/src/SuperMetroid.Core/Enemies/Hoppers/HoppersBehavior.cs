@@ -235,7 +235,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
     private static HopperSegment ReadHopperAnimation(RoomEnemyPlace place, HopperEnemyState state, HopperPhase phase) =>
         HopperAnimationChoices.Animation(state.Kind, SurfaceOf(place), phase);
 
-    /// <summary>Starts a new animation with a one-tick countdown.</summary>
+    /// <summary>Starts a new animation, its first step playing on the next update.</summary>
     private static void SetHopperAnimation(
         RoomEnemyPlace place,
         HopperEnemyState state,

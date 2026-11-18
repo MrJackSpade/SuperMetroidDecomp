@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// <summary>The planet explosion's shared colour and camera transition constants.</summary>
 internal static class EndingExplosionFadeDefinitions
 {
-    /// <summary>The explosion's countdown starts at 63; its hold begins once the countdown passes zero.</summary>
+    /// <summary>The explosion's countdown starts at 63, so its crossfade lasts 64 updates before its hold begins.</summary>
     public const int InitialCountdown = 63;
     /// <summary>The explosion widens the turning floor's zoom by four 256ths of a floor pixel per screen pixel each update.</summary>
     public static FloorZoomStep ZoomStep { get; } = FloorZoomStep.FromTwoHundredFiftySixths(4);

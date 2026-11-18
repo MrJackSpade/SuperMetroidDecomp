@@ -41,7 +41,7 @@ public sealed record WindowCone : WindowShape
 
     /// <summary>
     /// The way an edge at <paramref name="edge"/>, clockwise from straight up, leaves the apex: the game's fine sine of
-    /// the angle across and its fine cosine up, the game's own fixed-point steps rather than any device's sine.
+    /// the angle across and its fine cosine up, the game's own steps rather than any device's sine.
     /// </summary>
     public static ConeEdgeDirection EdgeDirection(TrigonometryAngle edge) =>
         new(Trigonometry.FineSignedSine(edge), -Trigonometry.FineSignedSine(edge + TrigonometryAngle.QuarterTurn));

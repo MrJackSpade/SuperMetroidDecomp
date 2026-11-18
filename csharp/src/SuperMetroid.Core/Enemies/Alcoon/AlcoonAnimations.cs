@@ -23,7 +23,7 @@ internal static class AlcoonAnimations
             Show(EnemyFrameId.AlcoonWalkingLeftNearLegPlanted, 10),
             Cue(new AlcoonCue.Signal(K.Move)),
             Show(EnemyFrameId.AlcoonWalkingLeftFarLegStepping, 10),
-            Cue(new AlcoonCue.Signal(K.Step)),
+            Cue(new AlcoonCue.Signal(K.CompleteWalkCycle)),
             Show(EnemyFrameId.AlcoonWalkingLeftFarLegPlanted, 10),
         ],
         [P.FireLeft] =
@@ -64,7 +64,7 @@ internal static class AlcoonAnimations
             Show(EnemyFrameId.AlcoonWalkingRightNearLegPlanted, 10),
             Cue(new AlcoonCue.Signal(K.Move)),
             Show(EnemyFrameId.AlcoonWalkingRightFarLegStepping, 10),
-            Cue(new AlcoonCue.Signal(K.Step)),
+            Cue(new AlcoonCue.Signal(K.CompleteWalkCycle)),
             Show(EnemyFrameId.AlcoonWalkingRightFarLegPlanted, 10),
         ],
         [P.FireRight] =

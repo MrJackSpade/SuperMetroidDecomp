@@ -162,6 +162,12 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// tells them: a delay counted in frames by number, the screen's first lines by number, cross-enemy writes, one-shot
 /// flags, indices that reach zero or pair as raise/lower, the room adapter, requests other systems fulfil and a
 /// graphics/animation state.
+/// #2475 adds, outside hardware owners, the original's program, labels and storage as enemy prose tells them: a
+/// developer's instruction to preserve something, a flag told as a latch, a graphics part, the tatori family, an enemy's
+/// hurt, shot, touch, bomb, frozen or grapple AI, a random number's reuse, a beam object, units per turn, a count that would
+/// go round and anything fixed-point.
+/// #2478 adds, outside hardware owners, a count's end, a velocity's sign and a placement's direction told by the
+/// original's storage: a count that passes zero, a sign told through a whole part and every placement but one.
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -2146,6 +2152,61 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
+    /// The original's program, labels and storage told in enemy prose (#2475), outside hardware owners and markup: a
+    /// developer's instruction to keep something (Preserve that ordering, Preserve the start, must preserve the history),
+    /// read with its capital so a thing that preserves something stays English; a flag told as a latch (the swipe-animation
+    /// latch, the wingless latch, the sweep and joint-orientation latches, every latch, an attachment, reaction, behaviour,
+    /// mouth or reopen latch, a latch set or cleared, its latches); a sprite's graphics part; the original's name for Mama
+    /// Turtle (the tatori family); the original's per-state routines named as their AI (hurt, shot, touch, contact, bomb,
+    /// frozen or grapple AI, its custom hurt AI); a random number's or seed's reuse; a beam object; an angle's units per turn
+    /// (in 256 units per turn); a count that would go round or a counter that goes round; and anything fixed-point. The
+    /// original kept its flags in latches, ran a routine for each state an enemy is in and kept its values in fixed-point
+    /// words; Core says what the game does: whether the swipe has started, what a hurt enemy does, which shots pass
+    /// through, that one random number chooses two things, which way an aim turns and how far a thing moves, to a fraction
+    /// of a pixel. English stays legal: a thing that preserves another (art preserves the charge), latching onto Samus, the
+    /// display latch, an enemy's main AI, a beam alone, a unit of measure alone, a fixed point (a target at a fixed point)
+    /// and a hardware owner, which describes the encoding it keeps.
+    /// </summary>
+    private static readonly Regex EnemyProgramLatchAndPrecisionProse = new(
+        @"(?-i:\bPreserve\s+(?:that|this|these|those|the|it|its)\b)" +
+        @"|\bmust\s+preserve\b" +
+        @"|\b(?:every|one-shot|attachment|reaction|behaviou?r|mouth|reopen|wingless|sweep|swipe|\w+-(?:animation|orientation))\s+" +
+        @"(?:and\s+[\w-]+\s+)?latch(?:es)?\b" +
+        @"|\blatch(?:es)?\s+(?:is\s+|are\s+)?(?:set|cleared)\b" +
+        @"|\b(?:its|their)\s+latches\b" +
+        @"|\bgraphics\s+parts?\b" +
+        @"|\btatori\b" +
+        @"|\b(?:hurt|shot|touch|contact|bomb|power[-\s]bomb|frozen|grapple)\s+AI\b" +
+        @"|\bcustom\s+(?:[\w-]+\s+){0,2}AI\b" +
+        @"|\b(?:RNG|seed|random(?:[-\s]number)?)\s+reuse\b" +
+        @"|\bbeam\s+objects?\b" +
+        @"|\bunits\s+(?:per|a|each|to\s+the)\s+turn\b" +
+        @"|\b(?:would|will|could|might|can|never)\s+go\s+round\b" +
+        @"|\b(?:counts?|counters?|countdowns?|timers?|values?|words?|sums?)\s+(?:goes|go|went)\s+round\b" +
+        @"|\bfixed-point\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// A count's end, a velocity's sign and a placement's direction told by the original's storage in enemy prose (#2478),
+    /// outside hardware owners and markup: a counter, count, countdown, delay, timer, cooldown or wait that passes, has
+    /// passed or is passing zero, and a count that runs until it passes zero (counts the jump delay down until it passes
+    /// zero); a velocity's, part's or speed's sign told through its whole part (until the whole velocity becomes nonnegative,
+    /// the bounce's whole part is negative); and every placement but one (sends every placement but a left one to the
+    /// right). The original counted its waits in words it tested for a sign, read a velocity's sign from its whole half and
+    /// kept a placement's direction as a value only one of which reads left; Core says what the game does: how long the wait
+    /// lasts or which impact ends it, that the jump stops rising, that the bounce carries the spark upward, and which way the
+    /// placement patrols. English stays legal: a speed or a width that passes zero (a speed passing zero at the apex), a
+    /// count that runs out, whole pixels (the speed in whole pixels, never negative), a placement alone and a hardware owner,
+    /// which describes the storage it keeps.
+    /// </summary>
+    private static readonly Regex EnemyCountSignAndPlacementProse = new(
+        @"\b(?:counters?|counts?|countdowns?|delays?|timers?|cooldowns?|waits?)\s+(?:has\s+|have\s+)?pass(?:es|ed|ing)?\s+zero\b" +
+        @"|\bcounts?\b[^.;]*?\buntil\s+it\s+(?:passes|has\s+passed)\s+zero\b" +
+        @"|\bwhole\s+(?:velocit(?:y|ies)|parts?|speeds?)\b[^.;]*?\b(?:non-?negative|negative|positive)\b" +
+        @"|\bevery\s+placement\s+but\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
     /// A type's summary that calls the type a species owner (#2427): the species-owner template (its per-room state,
     /// behaviour and the interactions it registers). Only a type that creates or keeps a species' enemies
     /// (<see cref="SpeciesOwnerInterfaces"/>) is one; any other type says what it is.
@@ -2648,6 +2709,8 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : RoutineTailFrameBehaviourAndPrecisionProse.Match(Markup.Replace(text, " ")) is { Success: true } routineTail ? routineTail.Value
             : BossProgramStorageAndRepositoryProse.Match(Markup.Replace(text, " ")) is { Success: true } bossProgram ? bossProgram.Value
             : LateFightWaitLineAndStorageProse.Match(Markup.Replace(text, " ")) is { Success: true } lateFight ? lateFight.Value
+            : EnemyProgramLatchAndPrecisionProse.Match(Markup.Replace(text, " ")) is { Success: true } enemyLatch ? enemyLatch.Value
+            : EnemyCountSignAndPlacementProse.Match(Markup.Replace(text, " ")) is { Success: true } countSign ? countSign.Value
             : TileCharacterFinding(text, owner) is { } character ? character
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;

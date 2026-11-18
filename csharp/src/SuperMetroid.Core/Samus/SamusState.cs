@@ -524,7 +524,7 @@ public sealed class SamusState
     /// </remarks>
     public SamusPoseId? PendingTransitionalPose { get; internal set; }
 
-    /// <summary>Exact fixed-point position and radius values consumed by collision.</summary>
+    /// <summary>The position, to a fraction of a pixel, and the radii that collision reads.</summary>
     public SamusKinematicsState Kinematics { get; }
 
     /// <summary>
@@ -775,12 +775,12 @@ public sealed class SamusState
             BlockMoveResult result = SamusBlockCollision.ProbeChangedPoseVertical(
                 level, probe, this, targetPose, amount, scanLeftToRight, roomObjects);
             // Submerging sand clears speed/gravity even during an observation.
-            // Preserve these reaction writes without committing the probe's position.
+            // Those reactions take hold without the probe's position becoming hers.
             Kinematics.YSpeed = probe.YSpeed;
             Kinematics.YAcceleration = probe.YAcceleration;
             // The block reaction clamps the live fractional Y even for a
-            // changed-pose observation. Preserve that write, but never copy the
-            // probe's whole-position movement into the live body.
+            // changed-pose observation; the probe's whole-pixel movement never
+            // becomes hers.
             if (result.Collided)
                 Kinematics.Position = Kinematics.Position.WithFractionY(probe.Position.Y.Fraction);
             return result;

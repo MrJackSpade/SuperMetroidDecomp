@@ -744,6 +744,30 @@ updates, where in the room a thing goes, what one enemy does to another, what a 
 neck moves. An animation frame's delay, a first line of text, a one-shot animation, a list's indices, an adapter or a
 request alone, a state alone, the Japanese text and a hardware owner stay English.
 
+#2475 widens SME6454, outside hardware owners, to the original's program, labels and storage as enemy prose tells them:
+a developer's instruction to keep something, read with its capital (`Preserve that ordering`, `Preserve the start`,
+`must preserve the history`); a flag told as a latch (`the swipe-animation latch`, `the wingless latch`, `the sweep and
+joint-orientation latches`, `every latch`, an attachment, reaction, behaviour, mouth or reopen latch, a latch set or
+cleared, `its latches`); a sprite's `graphics part`; the original's name for Mama Turtle (`the tatori family`); the
+original's per-state routines named as their AI (hurt, shot, touch, contact, bomb, frozen or grapple AI, `its custom
+hurt AI`); a random number's or seed's reuse; a `beam object`; an angle's units per turn (`in 256 units per turn`); a
+count that would go round or a counter that goes round; and anything `fixed-point`. Core says what the game does: whether
+the swoop's swipe has started, whether the Ki-Hunter has lost its wings, what a hurt enemy does, which shots and touches
+pass through, that one random number chooses a jump's height and direction, which way an aim turns and how far a thing
+moves, to a fraction of a pixel. A thing that preserves another (`morph art preserves the charge`), latching onto Samus,
+the display latch, an enemy's main AI, a beam alone, a unit of measure alone, a fixed point (`a target at a fixed
+point`) and a hardware owner, which describes the encoding it keeps, stay English.
+
+#2478 widens SME6454, outside hardware owners, to a count's end, a velocity's sign and a placement's direction told by
+the original's storage: a counter, count, countdown, delay, timer, cooldown or wait that passes zero (`the bounce counter
+passes zero`, `the grab cooldown has passed zero`) or a count run until it passes zero (`counts the jump delay down until
+it passes zero`); a velocity's, part's or speed's sign told through its whole part (`until the whole velocity becomes
+nonnegative`, `the bounce's whole part is negative`); and every placement but one (`every placement but a left one`).
+Core says what the game does: how long a wait lasts or which impact ends it, that a jump stops rising, that a bounce
+carries the spark upward and which way a placement patrols. A speed or a width that passes zero (`a speed passing zero
+at the apex`), a count that runs out, whole pixels, a placement alone and a hardware owner, which describes the storage
+it keeps, stay English.
+
 SME6459 (#2309) reads the summary of every member of a Core `*Segment` enum, one run of an actor's animation, and rejects
 one that only restates the member's name: `The facing left shooting animation.`, `The idle.`, `The loop.`, and (#2465)
 any summary whose words are all the name's, the actor's the enum is named for, articles, possessives or `animation`,

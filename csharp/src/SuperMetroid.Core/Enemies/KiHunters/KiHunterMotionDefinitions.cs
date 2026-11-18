@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.KiHunters;
 
-/// <summary>Ki-Hunter trigger, fixed-point acceleration and detached-wing orbit constants.</summary>
+/// <summary>How near Samus a Ki-Hunter swoops, how fast it accelerates and how its detached wings orbit.</summary>
 public static class KiHunterMotionDefinitions
 {
     /// <summary>How near, in pixels, Samus must come horizontally for a flying Ki-Hunter to swoop at her.</summary>

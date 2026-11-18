@@ -135,7 +135,7 @@ internal static class SoundEffectCommandDefinitions
         [EnemySound.StationEngaged] = 0x37,
         [EnemySound.StationDisengaged] = 0x38,
         [EnemySound.SpeedBooster] = 0x39,
-        [EnemySound.TatoriSpinning] = 0x3a,
+        [EnemySound.MamaTurtleSpinning] = 0x3a,
         [EnemySound.Shinespark] = 0x3b,
         [EnemySound.ShinesparkEnd] = 0x3c,
         [EnemySound.StoredShinespark] = 0x3d,

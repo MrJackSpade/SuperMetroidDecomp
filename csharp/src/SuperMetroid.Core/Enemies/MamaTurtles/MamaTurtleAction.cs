@@ -8,7 +8,7 @@ public enum MamaTurtleAction
 {
     /// <summary>
     /// Placed and not yet updated: her first update leaves her dormant in her shell. Until it, her babies crawl without
-    /// following the shell's contour, as in the original, whose first update links them to her.
+    /// following the shell's contour; her first update links them to her.
     /// </summary>
     Placed,
     /// <summary>

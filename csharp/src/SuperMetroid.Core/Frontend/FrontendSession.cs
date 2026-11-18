@@ -579,7 +579,7 @@ internal sealed class FrontendSession
             // (SavedGameAppearanceMusicDefinitions). This room state is marked as already handled, so the room's
             // change of music does not replace the fanfare with the room's track at once.
             // Loading from file select still has the title's music data set loaded.
-            // Preserve the appearance track sequence, but switch to the room's data set first
+            // The appearance tracks still play in their order, but the room's data set loads first,
             // just as ordinary room loading does; a set's own songs belong to that data set.
             audio.QueueRoomMusicData(loadedState.Music.DataSet);
             audio.ScheduleMusic(MusicRequest.SelectTrack(MusicTrack.SamusFanfare), SavedGameAppearanceMusicDefinitions.FanfareDelay);

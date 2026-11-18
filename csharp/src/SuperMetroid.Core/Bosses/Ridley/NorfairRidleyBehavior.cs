@@ -368,7 +368,7 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
     }
 
     /// <summary>
-    /// Runs Ridley's hurt AI. Phase, movement, wing, and tail updates execute only on
+    /// Updates Ridley while he is hurt. Phase, movement, wing, and tail updates run only on
     /// even actor frames; tail armor, flash/colour work, and the grabbed-Samus lag counter
     /// remain active on every hurt frame.
     /// </summary>

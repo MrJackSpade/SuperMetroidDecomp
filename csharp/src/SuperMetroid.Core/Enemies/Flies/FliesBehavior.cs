@@ -155,7 +155,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
         place.Position = place.Position.AdvanceY(step.Y.ToSixteenSixteenDelta());
     }
 
-    /// <summary>Applies the fixed-point dive or retreat velocity to the enemy position.</summary>
+    /// <summary>Moves the fly by its dive or retreat velocity, to a fraction of a pixel.</summary>
     private static void MoveFlyAccordingToVelocities(RoomEnemyPlace place, FlyEnemyState state)
     {
         place.Position = place.Position.Advance(state.Velocity.ToSixteenSixteen());

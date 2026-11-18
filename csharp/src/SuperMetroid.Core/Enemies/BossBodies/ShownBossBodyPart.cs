@@ -13,4 +13,4 @@ namespace SuperMetroid.Core.Enemies.BossBodies;
 /// <param name="Depth">The depth the picture is drawn at.</param>
 /// <param name="Hidden">The picture's pixels that show nothing, as Crocomire's melt dissolve leaves them (#1652); null where all show.</param>
 public sealed record ShownBossBodyPart(SpriteSheetFrame Picture, Offset16<RoomPixels> Anchor, Extent16<BackgroundPixels> Size,
-    BossBodyDepth Depth, HiddenPictureColumns? Hidden = null);
+    BossBodyDepth Depth, HiddenPicturePixels? Hidden = null);

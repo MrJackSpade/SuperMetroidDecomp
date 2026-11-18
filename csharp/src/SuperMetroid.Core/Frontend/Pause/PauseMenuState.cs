@@ -669,8 +669,8 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // (#1515, #1597), so the rebound sheets' pictures show it again.
         // The live button highlight, including a Start/fade highlight, is state the frame's pictures show again; do not
         // rerun controls.
-        // Preserve the live scroll position and transition timing. Only refresh
-        // the map page when it is shown; the equipment page shares its layer.
+        // The scroll position and transition timing stay as they are. Only the map page
+        // refreshes, and only when it is shown; the equipment page shares its layer.
         if (ScreenMode == PauseScreenMode.Map) LoadMapPage();
     }
 
@@ -778,7 +778,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         }
 
         // The refill drains every reserve even when only a small top-up was needed.
-        // Preserve that behavior: the reserves empty and the selector returns to the reserve mode switch.
+        // The reserves empty and the selector returns to the reserve mode switch.
         samus.ReserveEnergy = 0;
         ReserveRefillSoundDelay = 0;
         SelectedControl = PauseEquipmentControls.ReserveMode;

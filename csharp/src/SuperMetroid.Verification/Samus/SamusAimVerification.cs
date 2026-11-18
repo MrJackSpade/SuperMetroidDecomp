@@ -263,7 +263,7 @@ level, samus, GameplayAction.Jump, frameCounter: 0, roomObjects: SamusRoomObject
     AssertEqual(launchY, samus.Position.Y.Whole, "aimed transition frame does not move vertically");
 
     SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom() });
-    AssertTrue(SamusPoseTransitions.ApplyPendingVerifiedAnimationTransition(samus), "aimed transition FD applies");
+    AssertTrue(SamusPoseTransitions.ApplyPendingAnimationTransition(samus), "aimed transition FD applies");
     AssertEqual(SamusPoseId.NormalJumpAimDiagonalUpRightPose, samus.Pose, "aimed transition FD target");
 
     int speedBeforeAimChange = samus.Kinematics.YSpeed.Whole;
@@ -320,7 +320,7 @@ level, samus, GameplayAction.Jump, unchecked((ushort)index), roomObjects: SamusR
     // animation ticks reach the return-to-aim command.
     for (int tick = 0; tick < 7; tick++)
         SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom() });
-    AssertTrue(SamusPoseTransitions.ApplyPendingVerifiedAnimationTransition(samus), "aimed landing F8 applies");
+    AssertTrue(SamusPoseTransitions.ApplyPendingAnimationTransition(samus), "aimed landing F8 applies");
     AssertEqual(SamusPoseId.StandingAimDiagonalDownRightPose, samus.Pose, "E4 landing returns to down-right aim");
 
     // Falling `$2D` uses the movement-type-six dispatcher with the same radius-ten body.
@@ -710,7 +710,7 @@ internal static void VerifySamusGunExtendedMovement()
     // follows seven animation ticks, independent of held-Shot selection.
     for (int tick = 0; tick < 7; tick++)
         SamusPresentation.Animate(falling, new SamusAnimationStep { Random = new SharedRandom() });
-    AssertTrue(SamusPoseTransitions.ApplyPendingVerifiedAnimationTransition(falling), "$E6 F8 transition applies");
+    AssertTrue(SamusPoseTransitions.ApplyPendingAnimationTransition(falling), "$E6 F8 transition applies");
     AssertEqual(SamusPoseId.FacingRightNormalPose, falling.Pose, "$E6 returns to standing right");
 
     var releasedLanding = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FallingGunExtendedRightPose };

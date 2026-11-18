@@ -43,7 +43,7 @@ public sealed class SamusPeriodicDamage
         if (WrappingCounter.ReadsBelowZero(applied.Whole))
             throw new InvalidDataException("Periodic whole damage grew so large that the game reads it as below zero and crashes.");
 
-        samus.TakeFractionalEnergyDamage(applied.Fraction, applied.Whole);
+        samus.TakeFractionalEnergyDamage(applied);
 
         Pending = default;
     }

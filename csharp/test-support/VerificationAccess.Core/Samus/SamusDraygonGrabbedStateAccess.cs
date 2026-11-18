@@ -12,6 +12,7 @@ internal static class SamusDraygonGrabbedStateAccess
         /// wrapped countdown. A press continues from zero past 65535, and the release test is the shared count's own
         /// (<see cref="SharedEscapeAndDrainCount{TStage}.EscapePressesReach"/>).
         /// </summary>
-        public int EscapeButtonCounter => self.escapePresses.EscapePresses;
+        public int EscapeButtonCounter =>
+            PrivateState.Field<SamusDraygonGrabbedState, SharedEscapeAndDrainCount<Abilities.SamusSuitPickupStage>>(self, "escapePresses").EscapePresses;
     }
 }

@@ -29,7 +29,7 @@ internal sealed class ChargeFlareComponentState
     private readonly Animation<ChargeFlareSegment> animation;
 
     /// <summary>The play of the component's animation: the picture it shows and the updates that picture has left.</summary>
-    internal readonly AnimationPlayer<ChargeFlareSegment, ChargeFlarePicture, NoAnimationCue> player;
+    private readonly AnimationPlayer<ChargeFlareSegment, ChargeFlarePicture, NoAnimationCue> player;
 
     /// <summary>Whether the Hyper Beam's backward count plays the component, rather than the ordinary flare.</summary>
     internal bool PlaysBackward { get; private set; }

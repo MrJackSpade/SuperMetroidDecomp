@@ -18,7 +18,10 @@ public static class ProjectileTrailSelection
         SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile => ProjectileTrailDefinitions.MissileTrail,
         SamusProjectileFamily.Beam => trailing.Echo switch
         {
-            null => new(Left(trailing.BeamCombination, trailing.IsChargedBeam), Right(trailing.BeamCombination, trailing.IsChargedBeam)),
+            null => (trailing.IsChargedBeam ? ProjectileTrailDefinitions.ChargedBeamTrails : ProjectileTrailDefinitions.UnchargedBeamTrails)
+                .TryGetValue(trailing.BeamCombination, out ProjectileTrailAnimations beamTrail)
+                    ? beamTrail
+                    : throw new ArgumentOutOfRangeException(nameof(trailing), trailing, "Undefined beam combination."),
             SamusBeamEcho.SpazerComboTrail => ProjectileTrailDefinitions.SpazerAttackTrail,
             SamusBeamEcho.ShinesparkEcho => throw new ArgumentOutOfRangeException(nameof(trailing), trailing, "A Shinespark crash's echo spawns no trail."),
             _ => throw new ArgumentOutOfRangeException(nameof(trailing), trailing, "Undefined beam echo."),
@@ -26,38 +29,5 @@ public static class ProjectileTrailSelection
         SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb or SamusProjectileFamily.BeamExplosion or
             SamusProjectileFamily.MissileExplosion => throw new ArgumentOutOfRangeException(nameof(trailing), trailing, "The projectile leaves no trail."),
         _ => throw new ArgumentOutOfRangeException(nameof(trailing), trailing, "Undefined projectile family."),
-    };
-
-    /// <summary>The left trail of a beam shot: Wave's own trail, otherwise Ice draws its sparkle, and so does a charged Power shot.</summary>
-    private static ProjectileTrailSegment Left(SamusBeamCombination beams, bool charged) => beams switch
-    {
-        SamusBeamCombination.Wave => ProjectileTrailSegment.Wave,
-        SamusBeamCombination.Power => charged ? ProjectileTrailSegment.LeftIce : ProjectileTrailSegment.Empty,
-        SamusBeamCombination.Ice or SamusBeamCombination.IceWave or SamusBeamCombination.SpazerIce or
-            SamusBeamCombination.SpazerIceWave or SamusBeamCombination.PlasmaIce or
-            SamusBeamCombination.PlasmaIceWave => ProjectileTrailSegment.LeftIce,
-        SamusBeamCombination.Spazer or SamusBeamCombination.SpazerWave or SamusBeamCombination.Plasma or
-            SamusBeamCombination.PlasmaWave or SamusBeamCombination.SpazerPlasma or
-            SamusBeamCombination.SpazerPlasmaWave or SamusBeamCombination.SpazerPlasmaIce or
-            SamusBeamCombination.SpazerPlasmaIceWave => ProjectileTrailSegment.Empty,
-        _ => throw new ArgumentOutOfRangeException(nameof(beams), beams, "Undefined beam combination."),
-    };
-
-    /// <summary>
-    /// The right trail of a beam shot: a charged Wave or Ice-Wave shot's, and Ice's sparkle where Spazer or Plasma
-    /// joins it, unless both do.
-    /// </summary>
-    private static ProjectileTrailSegment Right(SamusBeamCombination beams, bool charged) => beams switch
-    {
-        SamusBeamCombination.Wave => charged ? ProjectileTrailSegment.Wave : ProjectileTrailSegment.Empty,
-        SamusBeamCombination.IceWave => charged ? ProjectileTrailSegment.RightIce : ProjectileTrailSegment.Empty,
-        SamusBeamCombination.SpazerIce or SamusBeamCombination.SpazerIceWave or
-            SamusBeamCombination.PlasmaIceWave => ProjectileTrailSegment.RightIce,
-        SamusBeamCombination.Power or SamusBeamCombination.Ice or SamusBeamCombination.Spazer or
-            SamusBeamCombination.SpazerWave or SamusBeamCombination.Plasma or
-            SamusBeamCombination.PlasmaWave or SamusBeamCombination.PlasmaIce or
-            SamusBeamCombination.SpazerPlasma or SamusBeamCombination.SpazerPlasmaWave or
-            SamusBeamCombination.SpazerPlasmaIce or SamusBeamCombination.SpazerPlasmaIceWave => ProjectileTrailSegment.Empty,
-        _ => throw new ArgumentOutOfRangeException(nameof(beams), beams, "Undefined beam combination."),
     };
 }

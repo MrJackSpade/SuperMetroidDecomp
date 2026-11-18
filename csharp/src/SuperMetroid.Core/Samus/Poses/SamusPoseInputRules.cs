@@ -29,20 +29,14 @@ internal static class SamusPoseInputRules
         SpaceJumpLeft => MatchSpaceJumpRight(MirrorButtons(held), MirrorButtons(newlyPressed)).Mirrored(),
         ScrewAttackRight => MatchScrewAttackRight(held, newlyPressed),
         ScrewAttackLeft => MatchScrewAttackRight(MirrorButtons(held), MirrorButtons(newlyPressed)).Mirrored(),
-        MorphBallGroundRight => MatchMorphBallGroundRight(held, newlyPressed),
-        MorphBallMovingRight => MatchMorphBallMovingRight(held, newlyPressed),
-        MorphBallMovingLeft => MatchMorphBallMovingLeft(held, newlyPressed),
-        MorphBallGroundLeft => MatchMorphBallGroundLeft(held, newlyPressed),
-        GlitchBallRight => MatchGlitchBallRight(),
-        GlitchBallLeft => MatchGlitchBallRight().Mirrored(),
+        MorphBallRight => MatchMorphBallRight(held, newlyPressed),
+        MorphBallLeft => MatchMorphBallLeft(held, newlyPressed),
         CrouchingRight => MatchCrouchingRight(held, newlyPressed),
         CrouchingLeft => MatchCrouchingLeft(held, newlyPressed),
         FallingRight => MatchFallingRight(held),
         FallingLeft => MatchFallingRight(MirrorButtons(held)).Mirrored(),
         MorphBallFallingRight => MatchMorphBallFallingRight(held, newlyPressed),
         MorphBallFallingLeft => MatchMorphBallFallingRight(MirrorButtons(held), MirrorButtons(newlyPressed)).Mirrored(),
-        GlitchBallKnockbackRight => MatchGlitchBallKnockbackRight(),
-        GlitchBallKnockbackLeft => MatchGlitchBallKnockbackRight().Mirrored(),
         MoonwalkLeft => MatchMoonwalkLeft(held, newlyPressed),
         MoonwalkRight => MatchMoonwalkRight(held, newlyPressed),
         KnockbackRight => MatchKnockbackRight(held),
@@ -310,8 +304,6 @@ internal static class SamusPoseInputRules
     {
         if (Has(newlyPressed, Shoot))
             return Accept(SamusPoseId.NormalJumpGunExtendedRightPose);
-        if (Has(newlyPressed, Shoot) && Has(held, Right))
-            return Accept(SamusPoseId.NormalJumpGunExtendedRightPose);
         if (Has(held, Shoot | Up))
             return Accept(SamusPoseId.NormalJumpAimUpRightPose);
         if (Has(held, Shoot | Down))
@@ -341,8 +333,6 @@ internal static class SamusPoseInputRules
     private static SamusPoseInputMatch MatchSpaceJumpRight(GameplayAction held, GameplayAction newlyPressed)
     {
         if (Has(newlyPressed, Shoot))
-            return Accept(SamusPoseId.NormalJumpGunExtendedRightPose);
-        if (Has(newlyPressed, Shoot) && Has(held, Right))
             return Accept(SamusPoseId.NormalJumpGunExtendedRightPose);
         if (Has(held, Shoot | Up))
             return Accept(SamusPoseId.NormalJumpAimUpRightPose);
@@ -374,8 +364,6 @@ internal static class SamusPoseInputRules
     {
         if (Has(newlyPressed, Shoot))
             return Accept(SamusPoseId.NormalJumpGunExtendedRightPose);
-        if (Has(newlyPressed, Shoot) && Has(held, Right))
-            return Accept(SamusPoseId.NormalJumpGunExtendedRightPose);
         if (Has(held, Shoot | Up))
             return Accept(SamusPoseId.NormalJumpAimUpRightPose);
         if (Has(held, Shoot | Down))
@@ -401,8 +389,8 @@ internal static class SamusPoseInputRules
         return new(null, HasConditions: true);
     }
 
-    /// <summary>The priority order of the morph ball ground right input list.</summary>
-    private static SamusPoseInputMatch MatchMorphBallGroundRight(GameplayAction held, GameplayAction newlyPressed)
+    /// <summary>The priority order of the right-facing morph ball's input list on the ground, still or rolling.</summary>
+    private static SamusPoseInputMatch MatchMorphBallRight(GameplayAction held, GameplayAction newlyPressed)
     {
         if (Has(newlyPressed, Up))
             return Accept(SamusPoseId.UnmorphingTransitionRightPose);
@@ -415,8 +403,8 @@ internal static class SamusPoseInputRules
         return new(null, HasConditions: true);
     }
 
-    /// <summary>The priority order of the morph ball ground left input list.</summary>
-    private static SamusPoseInputMatch MatchMorphBallGroundLeft(GameplayAction held, GameplayAction newlyPressed)
+    /// <summary>The priority order of the left-facing morph ball's input list on the ground, still or rolling.</summary>
+    private static SamusPoseInputMatch MatchMorphBallLeft(GameplayAction held, GameplayAction newlyPressed)
     {
         if (Has(newlyPressed, Up))
             return Accept(SamusPoseId.UnmorphingTransitionLeftPose);
@@ -427,40 +415,6 @@ internal static class SamusPoseInputRules
         if (Has(held, Left))
             return Accept(SamusPoseId.MorphBallMovingLeftPose);
         return new(null, HasConditions: true);
-    }
-
-    /// <summary>The priority order of the morph ball moving right input list.</summary>
-    private static SamusPoseInputMatch MatchMorphBallMovingRight(GameplayAction held, GameplayAction newlyPressed)
-    {
-        if (Has(newlyPressed, Up))
-            return Accept(SamusPoseId.UnmorphingTransitionRightPose);
-        if (Has(newlyPressed, Jump))
-            return Accept(SamusPoseId.UnmorphingTransitionRightPose);
-        if (Has(held, Right))
-            return Accept(SamusPoseId.MorphBallMovingRightPose);
-        if (Has(held, Left))
-            return Accept(SamusPoseId.MorphBallMovingLeftPose);
-        return new(null, HasConditions: true);
-    }
-
-    /// <summary>The priority order of the morph ball moving left input list.</summary>
-    private static SamusPoseInputMatch MatchMorphBallMovingLeft(GameplayAction held, GameplayAction newlyPressed)
-    {
-        if (Has(newlyPressed, Up))
-            return Accept(SamusPoseId.UnmorphingTransitionLeftPose);
-        if (Has(newlyPressed, Jump))
-            return Accept(SamusPoseId.UnmorphingTransitionLeftPose);
-        if (Has(held, Right))
-            return Accept(SamusPoseId.MorphBallMovingRightPose);
-        if (Has(held, Left))
-            return Accept(SamusPoseId.MorphBallMovingLeftPose);
-        return new(null, HasConditions: true);
-    }
-
-    /// <summary>The input-transition list of <see cref="SamusPoseId.GlitchBallRightPose"/>: priority order.</summary>
-    private static SamusPoseInputMatch MatchGlitchBallRight()
-    {
-        return new(null, HasConditions: false);
     }
 
     /// <summary>The priority order of the crouching right input list.</summary>
@@ -570,12 +524,6 @@ internal static class SamusPoseInputRules
         return new(null, HasConditions: true);
     }
 
-    /// <summary>The input-transition list of <see cref="SamusPoseId.GlitchBallKnockbackRightPose"/>: priority order; the input-transition list of <see cref="SamusPoseId.GlitchBallKnockbackLeftPose"/> is the same list mirrored.</summary>
-    private static SamusPoseInputMatch MatchGlitchBallKnockbackRight()
-    {
-        return new(null, HasConditions: false);
-    }
-
     /// <summary>The priority order of the left-facing moonwalk poses' input list, whatever their aim.</summary>
     private static SamusPoseInputMatch MatchMoonwalkLeft(GameplayAction held, GameplayAction newlyPressed)
     {
@@ -583,10 +531,6 @@ internal static class SamusPoseInputRules
             return Accept(SamusPoseId.CrouchingTransitionLeftPose);
         if (Has(newlyPressed, Jump))
             return Accept(SamusPoseId.MoonwalkTurnJumpRightPose);
-        if (Has(newlyPressed, Jump) && Has(held, AimUp))
-            return Accept(SamusPoseId.MoonwalkTurnJumpAimUpRightPose);
-        if (Has(newlyPressed, Jump) && Has(held, AimDown))
-            return Accept(SamusPoseId.MoonwalkTurnJumpAimDownRightPose);
         if (Has(held, AimDown | Shoot | Right))
             return Accept(SamusPoseId.MoonwalkAimDownLeftPose);
         if (Has(held, AimUp | Shoot | Right))
@@ -608,10 +552,6 @@ internal static class SamusPoseInputRules
             return Accept(SamusPoseId.CrouchingTransitionRightPose);
         if (Has(newlyPressed, Jump))
             return Accept(SamusPoseId.MoonwalkTurnJumpLeftPose);
-        if (Has(newlyPressed, Jump) && Has(held, AimUp))
-            return Accept(SamusPoseId.MoonwalkTurnJumpAimUpLeftPose);
-        if (Has(newlyPressed, Jump) && Has(held, AimDown))
-            return Accept(SamusPoseId.MoonwalkTurnJumpAimDownLeftPose);
         if (Has(held, AimUp | Shoot | Left))
             return Accept(SamusPoseId.MoonwalkAimUpRightPose);
         if (Has(held, AimDown | Shoot | Left))
@@ -851,8 +791,6 @@ internal static class SamusPoseInputRules
             return Accept(SamusPoseId.NormalJumpAimDiagonalDownLeftPose);
         if (Has(held, AimUp | Jump | Left))
             return Accept(SamusPoseId.NormalJumpAimDiagonalUpLeftPose);
-        if (Has(held, AimDown | Jump | Left))
-            return Accept(SamusPoseId.NormalJumpAimDiagonalDownLeftPose);
         if (Has(held, AimDown | Jump | Left))
             return Accept(SamusPoseId.NormalJumpAimDiagonalDownLeftPose);
         if (Has(held, Left | Up))

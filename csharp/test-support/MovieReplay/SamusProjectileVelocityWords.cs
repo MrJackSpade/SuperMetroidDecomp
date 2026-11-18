@@ -14,7 +14,7 @@ internal static class SamusProjectileVelocityWords
     /// <summary>The native X velocity word of <paramref name="slot"/>.</summary>
     internal static ushort X(SamusProjectile slot)
     {
-        if (slot.Behavior is IceSpecialAttackSpread or PlasmaSpecialAttackRing or SpazerSpecialAttackFlight or SpazerSpecialAttackFall)
+        if (slot.Behavior is IceSpecialAttackSpread or PlasmaSpecialAttackRing or SpazerSpecialAttackFlight)
             return checked((ushort)slot.KindStateAs<OrbitingParticleState>().Radius);
         if (slot.Behavior is ShinesparkEchoFlight)
             return (ushort)(slot.KindStateAs<ShinesparkEchoShotState>().Radius % 65536); // The game kept the growing radius in a 16-bit word.
@@ -30,7 +30,7 @@ internal static class SamusProjectileVelocityWords
             return checked((ushort)slot.KindStateAs<WaveParticleState>().Lifetime);
         if (slot.Behavior is PlasmaSpecialAttackRing)
             return PlasmaPhaseWord(slot.KindStateAs<PlasmaParticleState>().Phase);
-        if (slot.Behavior is SpazerSpecialAttackFlight or SpazerSpecialAttackFall)
+        if (slot.Behavior is SpazerSpecialAttackFlight)
             return SignedStepWord(slot.KindStateAs<SpazerParticleState>().TurnPerUpdate);
         return slot.Velocity.Y.RawValue;
     }

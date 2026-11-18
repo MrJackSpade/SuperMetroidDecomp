@@ -9,9 +9,7 @@ internal static class SamusAnimationDelays
     private static readonly Dictionary<SamusAnimationName, SamusPoseAnimation> ByName = NameEveryAnimation();
 
     /// <summary>The animation <paramref name="pose"/> animates by.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">
-    /// The pose is one of the three unauthored poses, which no gameplay path gives Samus.
-    /// </exception>
+    /// <exception cref="InvalidOperationException">The pose is undefined.</exception>
     internal static SamusPoseAnimation AnimationForPose(SamusPoseId pose) => AnimationOf(pose);
 
     /// <summary>The animation named <paramref name="name"/>.</summary>
@@ -138,7 +136,6 @@ internal static class SamusAnimationDelays
     }
 
     /// <summary>The animation of <paramref name="pose"/>.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The pose is unauthored.</exception>
     /// <exception cref="InvalidOperationException">The pose is undefined.</exception>
-    private static SamusPoseAnimation AnimationOf(SamusPoseId pose) => SamusPoseTraits.Authored(pose).Animation;
+    private static SamusPoseAnimation AnimationOf(SamusPoseId pose) => SamusPoseTraits.Of(pose).Animation;
 }

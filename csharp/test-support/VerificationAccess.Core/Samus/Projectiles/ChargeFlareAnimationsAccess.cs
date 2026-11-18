@@ -48,6 +48,10 @@ internal static class ChargeFlareAnimationsAccess
     /// <summary>A component's animation as the original counts it.</summary>
     extension(ChargeFlareComponentState self)
     {
+        /// <summary>The play of the component's animation, which only the component's own updates step.</summary>
+        internal AnimationPlayer<ChargeFlareSegment, ChargeFlarePicture, NoAnimationCue> Player() =>
+            PrivateState.Field<ChargeFlareComponentState, AnimationPlayer<ChargeFlareSegment, ChargeFlarePicture, NoAnimationCue>>(self, "player");
+
         /// <summary>
         /// The number of the picture the component shows among its pictures, or null once the Hyper Beam's count has
         /// stepped back past its first.
@@ -59,8 +63,8 @@ internal static class ChargeFlareAnimationsAccess
                 if (self.Picture is null)
                     return null;
                 // The place stands just past the beat shown.
-                AnimationPlace place = self.player.Playback.Place;
-                return self.player.Playback.Animation.Phases.Take(place.Phase).Sum(phase => phase.BeatCount) + place.Beat - 1;
+                AnimationPlace place = self.Player().Playback.Place;
+                return self.Player().Playback.Animation.Phases.Take(place.Phase).Sum(phase => phase.BeatCount) + place.Beat - 1;
             }
         }
 
@@ -68,7 +72,7 @@ internal static class ChargeFlareAnimationsAccess
         /// The ordinary flare's wait as the original keeps it: the updates its picture still shows less one, so the update
         /// that takes it below zero shows the next picture.
         /// </summary>
-        internal WrappingCountdown NativeWait => WrappingCountdown.Start(self.player.UpdatesLeft - 1);
+        internal WrappingCountdown NativeWait => WrappingCountdown.Start(self.Player().UpdatesLeft - 1);
 
         /// <summary>
         /// Shows the ordinary flare's picture numbered <paramref name="number"/> with the original's wait
@@ -78,7 +82,7 @@ internal static class ChargeFlareAnimationsAccess
         /// The component has no picture of that number, or the wait has run past zero.
         /// </exception>
         internal void ShowNative(int number, WrappingCountdown wait) =>
-            self.player.ShowAt(ChargeFlareAnimationDefinitions.Animations[self.Component],
+            self.Player().ShowAt(ChargeFlareAnimationDefinitions.Animations[self.Component],
                 ChargeFlareAnimationDefinitions.PlaceOfPicture(self.Component, number),
                 wait.IsNegative
                     ? throw new ArgumentOutOfRangeException(nameof(wait), wait, "The ordinary flare never leaves a wait run past zero.")

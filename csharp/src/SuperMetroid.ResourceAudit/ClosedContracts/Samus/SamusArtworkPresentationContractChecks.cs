@@ -25,13 +25,13 @@ internal static class SamusArtworkPresentationContractChecks
                 void Inspect(InstalledSamusBodyArtwork body, SamusSpritemapSources compositions,
                     SamusAtmosphericSourceArtwork atmosphere, SamusArmCannonSourceArtwork arm) {
                     body.ArtOrigin(SuperMetroid.Core.Samus.Poses.SamusPoseId.StandingTransitionAimDiagonalDownLeftPose);
-                    body.ArtOrigin(SuperMetroid.Core.Samus.Poses.SamusPoseId.TallStillRightPose);
+                    body.ArtOrigin((SuperMetroid.Core.Samus.Poses.SamusPoseId)(-1));
                     body.OriginRise(0, default(SuperMetroid.Core.Samus.Poses.SamusAnimationFrame));
                     compositions.TryGetComposition(new SamusBodyHalfFrame(SuperMetroid.Core.Samus.Poses.SamusPoseId.StandingTransitionAimDiagonalDownLeftPose, SamusBodyHalf.Top, 0), out _);
-                    compositions.TryGetComposition(new SamusBodyHalfFrame(SuperMetroid.Core.Samus.Poses.SamusPoseId.TallStillRightPose, SamusBodyHalf.Top, 0), out _);
+                    compositions.TryGetComposition(new SamusBodyHalfFrame((SuperMetroid.Core.Samus.Poses.SamusPoseId)(-1), SamusBodyHalf.Top, 0), out _);
                     atmosphere.TryResolve(byte.MaxValue, byte.MaxValue, out _);
                     arm.PoseDescriptor(SuperMetroid.Core.Samus.Poses.SamusPoseId.StandingTransitionAimDiagonalDownLeftPose);
-                    arm.PoseDescriptor(SuperMetroid.Core.Samus.Poses.SamusPoseId.TallStillRightPose);
+                    arm.PoseDescriptor((SuperMetroid.Core.Samus.Poses.SamusPoseId)(-1));
                     arm.ReadDrawingByte(SamusArmCannonArtworkFormat.DrawingDataByteCount - 1);
                     arm.ReadDrawingByte(SamusArmCannonArtworkFormat.DrawingDataByteCount);
                     arm.CoverTileIndex(9, 3);

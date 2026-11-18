@@ -131,10 +131,6 @@ internal static void VerifyTypedNativeWords()
     AssertTrue(SamusPoseMetadata.IsFacingLeft(SamusPoseId.FacingLeftNormalPose), "typed left-facing pose query");
     AssertEqual(SamusFacingDirection.Right, SamusPoseMetadata.ReadFacingDirection(SamusPoseId.FacingRightNormalPose),
         "typed right-facing pose query");
-    AssertEqual(SamusFacingDirection.ForwardOrSpecial, SamusPoseMetadata.ReadFacingDirection(SamusPoseNumbering.FromNumber(0xfe)),
-        "typed facing query faces an unnamed adjacent-code record neither way");
-    AssertEqual(41, SamusPoseRecordCodecTooling.FacingByte(SamusPoseNumbering.FromNumber(0xfe)),
-        "pose-record codec writes the unnamed adjacent-code record's own facing byte");
 
     // Fixed-bank pointer arithmetic must wrap only the low word. A host addition would
     // incorrectly cross from bank $91 into $92 and read unrelated cartridge data.
@@ -553,9 +549,6 @@ internal static void VerifyTypedNativeWords()
     typedPose.PoseId = SamusPoseId.ScrewAttackLeftPose;
     AssertEqual(SamusPoseId.ScrewAttackLeftPose, typedPose.Pose,
         "typed Samus pose writes the native byte");
-    typedPose.Pose = SamusPoseNumbering.FromNumber(0xfe);
-    AssertEqual(SamusPoseNumbering.FromNumber(0xfe), typedPose.PoseId,
-        "undefined Samus pose byte remains observable for diagnostics");
 
     var bgEntry = new SnesBgTilemapWord(0xf555);
     AssertEqual(0x155, bgEntry.CharacterIndex, "BG tile character field");

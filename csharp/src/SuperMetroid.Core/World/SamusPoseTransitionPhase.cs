@@ -59,7 +59,7 @@ internal sealed class SamusPoseTransitionPhase
         bool hitInterruptionExpiryPending =
             SamusKnockbackMovement.IsExpiredHitInterruptionPending(samus);
         bool animationTransitionApplied =
-            SamusPoseTransitions.ApplyPendingVerifiedAnimationTransition(samus);
+            SamusPoseTransitions.ApplyPendingAnimationTransition(samus);
 
         animationTransitionApplied = ApplyInterruptionTransitions(frame, samus, animationTransitionApplied,
             hitInterruptionExpiryPending, terrain);
@@ -669,10 +669,8 @@ internal sealed class SamusPoseTransitionPhase
                 SamusAerialPoseTransitions.ApplySameFacingAerialTransition(samus, targetPose);
                 return true;
             case (SamusPoseId.FacingRightNormalPose, SamusPoseId.MovingRightNormalPose):
-                SamusGroundedPoseTransitions.ApplyStandingRightToRunningRight(samus);
-                return true;
             case (SamusPoseId.FacingLeftNormalPose, SamusPoseId.MovingLeftNormalPose):
-                SamusGroundedPoseTransitions.ApplyStandingLeftToRunningLeft(samus);
+                SamusGroundedPoseTransitions.ApplyStandingToRunning(samus);
                 return true;
             case var (source, target)
                 when SamusPoseMetadata.IsRanIntoWallPose(source) &&
@@ -1005,7 +1003,7 @@ internal sealed class SamusPoseTransitionPhase
         {
             samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
             if (frame.PoseAtFrameStart == SamusPoseId.MovingRightNormalPose)
-                SamusGroundedPoseTransitions.ApplyRunningRightToStandingRight(samus);
+                SamusGroundedPoseTransitions.ApplyRunningToStanding(samus);
             else
                 SamusGroundedPoseTransitions.ApplyGroundedAimTransition(samus, SamusPoseId.FacingRightNormalPose);
         }
@@ -1014,7 +1012,7 @@ internal sealed class SamusPoseTransitionPhase
         {
             samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
             if (frame.PoseAtFrameStart == SamusPoseId.MovingLeftNormalPose)
-                SamusGroundedPoseTransitions.ApplyRunningLeftToStandingLeft(samus);
+                SamusGroundedPoseTransitions.ApplyRunningToStanding(samus);
             else
                 SamusGroundedPoseTransitions.ApplyGroundedAimTransition(samus, SamusPoseId.FacingLeftNormalPose);
         }

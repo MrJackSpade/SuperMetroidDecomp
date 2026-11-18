@@ -179,7 +179,7 @@ level, SamusRoomObjectFixtures.Uninstalled, right, unchecked((ushort)(frame + 1)
         SamusPresentation.Animate(right, new SamusAnimationStep { Random = new SharedRandom() });
     AssertEqual<SamusPoseId?>(SamusPoseId.FacingRightNormalPose, right.PendingTransitionalPose,
         "standing drained release reaches ROM FD operand");
-    AssertTrue(SamusPoseTransitions.ApplyPendingVerifiedAnimationTransition(right),
+    AssertTrue(SamusPoseTransitions.ApplyPendingAnimationTransition(right),
         "right drained release applies standing transition");
     AssertEqual(DrainedSamusPhase.Inactive, right.Drained.Phase,
         "right drained release clears host handler marker");
@@ -203,7 +203,7 @@ level, SamusRoomObjectFixtures.Uninstalled, right, unchecked((ushort)(frame + 1)
         SamusPresentation.Animate(left, new SamusAnimationStep { Random = new SharedRandom() });
     AssertEqual<SamusPoseId?>(SamusPoseId.FacingLeftNormalPose, left.PendingTransitionalPose,
         "left crouched release reaches asymmetric FD operand");
-    AssertTrue(SamusPoseTransitions.ApplyPendingVerifiedAnimationTransition(left),
+    AssertTrue(SamusPoseTransitions.ApplyPendingAnimationTransition(left),
         "left drained release applies standing transition");
 
     left.Drained.EnableHyperBeam(left);

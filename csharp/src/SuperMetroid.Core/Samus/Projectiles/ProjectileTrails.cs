@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 internal sealed class ProjectileTrails
 {
     /// <summary>The live trails, oldest first.</summary>
-    internal readonly List<SamusProjectileTrail> trails = [];
+    private readonly List<SamusProjectileTrail> trails = [];
 
     /// <summary>Removes every trail, as clearing Samus's shots does.</summary>
     internal void Clear() => trails.Clear();

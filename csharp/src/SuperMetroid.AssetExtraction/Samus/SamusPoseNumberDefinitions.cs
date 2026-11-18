@@ -6,10 +6,11 @@ namespace SuperMetroid.AssetExtraction.Samus;
 internal static class SamusPoseNumberDefinitions
 {
     /// <summary>
-    /// Every pose in the order the game numbers them, from zero: the 253 records in the pose tables, then the three
-    /// numbers past them that read adjacent code. A record no gameplay path gives Samus, whether by input, animation
-    /// or an outside write, has no pose and is null (#1517, #2048); a read past an earlier animation reaching its animation
-    /// does not give Samus the record's pose (<see cref="AnimationsOfRecordsWithoutPose"/>).
+    /// Every pose in the order the game numbers them, from zero: the 253 records in the pose tables. A record no gameplay
+    /// path gives Samus, whether by input, animation or an outside write, has no pose and is null (#1517, #2048); a read
+    /// past an earlier animation reaching its animation does not give Samus the record's pose
+    /// (<see cref="AnimationsOfRecordsWithoutPose"/>). The numbers past the records read adjacent code, and no path gives
+    /// Samus one of them either (#2457).
     /// </summary>
     internal static readonly SamusPoseId?[] ByNumber =
     [
@@ -266,9 +267,6 @@ internal static class SamusPoseNumberDefinitions
         SamusPoseId.StandingTransitionAimDiagonalUpLeftPose,
         SamusPoseId.StandingTransitionAimDiagonalDownRightPose,
         SamusPoseId.StandingTransitionAimDiagonalDownLeftPose,
-        SamusPoseId.TallStillRightPose,
-        SamusPoseId.ForwardStandingPose,
-        SamusPoseId.ForwardStillCrouchHeightPose,
     ];
 
     /// <summary>

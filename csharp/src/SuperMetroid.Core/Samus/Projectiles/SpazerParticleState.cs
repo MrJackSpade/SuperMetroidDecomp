@@ -2,8 +2,8 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
 /// A Spazer special attack particle's flight (#2346): it circles Samus at
-/// <see cref="BeamComboDefinitions.SpazerCirclingRadius"/>, then flies up towards a point above her and away from it
-/// (<see cref="SpazerComboPhase"/>), until it falls.
+/// <see cref="BeamComboDefinitions.SpazerCirclingRadius"/>, then flies up towards a point above her and away from it,
+/// then falls (<see cref="SpazerComboPhase"/>).
 /// </summary>
 /// <param name="part">The part the particle plays in its attack.</param>
 /// <param name="turnPerUpdate">The particle's turn round Samus each update while it circles, its own way round.</param>
@@ -17,7 +17,7 @@ internal sealed class SpazerParticleState(SpecialAttackParticle part, Trigonomet
     /// Whether the particle leaves trails: the trailing pair from the start, the beam pair only once it falls, when its
     /// trail countdown starts.
     /// </summary>
-    internal bool LeavesTrails { get; set; } = part.SpazerTrail;
+    internal bool LeavesTrails => Part.SpazerTrail || Phase == SpazerComboPhase.Falling;
 
     /// <summary>
     /// The particle this one is paired with, set when the attack starts (#1683): a beam particle and the trailing particle

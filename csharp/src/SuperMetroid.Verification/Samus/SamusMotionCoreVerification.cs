@@ -35,8 +35,6 @@ internal static void VerifySamusPoseTransitionMatching()
         heldActions: GameplayAction.Up | GameplayAction.Right | GameplayAction.Jump,
         newlyPressedActions: GameplayAction.Jump) ?? throw new InvalidOperationException("Verification requires SamusPoseInputTransitions.Find( bus, currentPose: fixturePose, heldActions: 0x098...."));
     AssertEqual(0x55, SamusPoseNumbers.Number(jumpUp.ProspectivePose), "Samus transition required-new plus held chord");
-    AssertTrue(SamusPoseInputs.TryGetInputList(fixturePose, out _),
-        "Samus transition fixture pose has an authored table");
 
     SamusPoseTransition up = (SamusPoseInputTransitions.Find(
         currentPose: fixturePose,

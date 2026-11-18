@@ -210,7 +210,7 @@ internal static class ProjectileDamageVerification
             OrbitingParticleState orbit = first.KindStateAs<OrbitingParticleState>();
             Offset16<RoomPixels> offset = SamusComboMechanics.GetSineOffset(orbit.Angle, orbit.Radius);
             if (beam == 2)
-                projectiles.Combos.StepIceCombo(samus, first, shared, Position16<RoomPixels>.Zero);
+                projectiles.Combos.StepIceOrbit(samus, first, shared);
             else if (beam == 4)
                 projectiles.Combos.StepSpazerCombo(samus, first, shared, 0);
             else

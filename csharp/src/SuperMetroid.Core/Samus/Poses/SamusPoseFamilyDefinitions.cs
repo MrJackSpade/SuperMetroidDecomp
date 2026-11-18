@@ -89,8 +89,5 @@ internal static class SamusPoseFamilyDefinitions
         [SamusPoseId.StandingTransitionAimDiagonalUpLeftPose] = SamusPostureTransitionAdmission.AlwaysAdmits,
         [SamusPoseId.StandingTransitionAimDiagonalDownRightPose] = SamusPostureTransitionAdmission.AlwaysAdmits,
         [SamusPoseId.StandingTransitionAimDiagonalDownLeftPose] = SamusPostureTransitionAdmission.AlwaysAdmits,
-        [SamusPoseId.TallStillRightPose] = SamusPostureTransitionAdmission.AlwaysAdmits,
-        [SamusPoseId.ForwardStandingPose] = SamusPostureTransitionAdmission.AlwaysAdmits,
-        [SamusPoseId.ForwardStillCrouchHeightPose] = SamusPostureTransitionAdmission.AlwaysAdmits,
     };
 }

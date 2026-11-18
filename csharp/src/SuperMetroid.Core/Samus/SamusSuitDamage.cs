@@ -12,7 +12,7 @@ public static class SamusSuitDamage
     /// Gravity takes precedence over Varia; halving discards fractions. The damage is any amount of energy, zero or more
     /// (#1627).
     /// </summary>
-    public static int Reduce(int damage, SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems) =>
+    public static int Reduce(int damage, SamusEquipmentFlags equippedItems) =>
         Ensure.AtLeastZero(damage) / Divisor(equippedItems);
 
     /// <summary>What the equipped suit divides damage by: Gravity's divisor before Varia's, or one with neither.</summary>

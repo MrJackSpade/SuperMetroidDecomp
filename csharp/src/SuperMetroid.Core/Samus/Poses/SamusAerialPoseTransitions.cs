@@ -541,14 +541,9 @@ internal static class SamusAerialPoseTransitions
         SamusPresentation.InitializeAnimation(samus);
         SamusAerialMovement.InitializeJump(samus);
 
-        if (SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.NormalJumping &&
-            (controllerNewInput & GameplayAction.Shoot) != GameplayAction.None)
-        {
-            // Runs only in the normal-jumping setup. It reads the
-            // newly installed pose's direction and hands it to the weapon firing; spin-jump's separate
-            // setup never publishes this bridge even when Shoot and Jump share a frame.
-            samus.PendingTransitionShot = SamusTransitionShot.FromPose(samus);
-        }
+        // Only the normal-jumping setup hands the newly installed pose's direction to the weapon firing; spin-jump's
+        // separate setup never publishes this bridge even when Shoot and Jump share a frame.
+        ArmNormalJumpTransitionShot(samus, controllerNewInput);
     }
 
     /// <summary>

@@ -13,6 +13,9 @@ public static class RoomGridConversions
     /// <summary>Pixels along a block's side.</summary>
     public const int BlockPixels = 16;
 
+    /// <summary>The last room pixel coordinate along an axis, 65535: the farthest a block can be read at.</summary>
+    public const int LastPixel = ushort.MaxValue;
+
     /// <summary>Pixels along a half block's side.</summary>
     private const int HalfBlockPixels = 8;
 
@@ -163,7 +166,7 @@ public static class RoomGridConversions
     public static bool LiesOnScreensBottomBlockRow(int pixel) => BlockRowWithinScreen(pixel) == BlocksPerScreen - 1;
 
     /// <summary>A room pixel coordinate checked to be an unsigned sixteen-bit coordinate.</summary>
-    private static int RequirePixel(int pixel) => Ensure.BetweenInclusive(0, ushort.MaxValue, pixel);
+    private static int RequirePixel(int pixel) => Ensure.BetweenInclusive(0, LastPixel, pixel);
 
     /// <summary>A screen-grid size measured in blocks.</summary>
     public static Extent16<RoomBlocks> ToRoomBlocks(this Extent16<RoomScreens> size) =>

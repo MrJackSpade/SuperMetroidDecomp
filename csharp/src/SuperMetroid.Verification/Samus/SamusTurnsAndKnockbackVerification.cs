@@ -176,7 +176,7 @@ internal static void VerifySamusAerialTurnsAndWallJump()
         turn.LiquidPhysics.BeginFrameSoundRequests();
         SamusPresentation.Animate(turn, new SamusAnimationStep { Random = new SharedRandom() });
     }
-    AssertTrue(SamusPoseTransitions.ApplyPendingVerifiedAnimationTransition(turn), "aerial turn F8 applies");
+    AssertTrue(SamusPoseTransitions.ApplyPendingAnimationTransition(turn), "aerial turn F8 applies");
     AssertEqual(SamusPoseId.NormalJumpAimDiagonalUpLeftPose, turn.Pose, "aerial turn preserves diagonal-up aim endpoint");
     AssertEqual(SamusAccelerationMode.Accelerating, turn.HorizontalSpeed.AccelerationMode,
         "finished aerial turn reinitializes normal-jump acceleration instead of retaining reverse drift");
@@ -210,7 +210,7 @@ internal static void VerifySamusAerialTurnsAndWallJump()
             endpoint.LiquidPhysics.BeginFrameSoundRequests();
             SamusPresentation.Animate(endpoint, new SamusAnimationStep { Random = new SharedRandom() });
         }
-        AssertTrue(SamusPoseTransitions.ApplyPendingVerifiedAnimationTransition(endpoint), "turn endpoint command consumed");
+        AssertTrue(SamusPoseTransitions.ApplyPendingAnimationTransition(endpoint), "turn endpoint command consumed");
         AssertEqual(extra == 0 ? SamusAccelerationMode.Accelerating : SamusAccelerationMode.Decelerating, endpoint.HorizontalSpeed.AccelerationMode, "turn endpoint uses cartridge dash predicate");
         AssertEqual(0x4800u, endpoint.HorizontalSpeed.BaseSpeed.RawValue, "turn endpoint retains base speed");
         AssertEqual((ushort)SixteenSixteenWords.WholeOf(extra), endpoint.HorizontalSpeed.ExtraRunSpeed.Whole, "turn endpoint retains whole dash speed");
@@ -233,7 +233,7 @@ internal static void VerifySamusAerialTurnsAndWallJump()
         SamusPresentation.SetAnimationFrameFromMovementOwner(lavaEndpoint, lavaEndpoint.AnimationFrameNumbered(2), 1);
         lavaEndpoint.LiquidPhysics.BeginFrameSoundRequests();
         SamusPresentation.Animate(lavaEndpoint, new SamusAnimationStep { Random = new SharedRandom(), FrameCounter = 1 });
-        AssertTrue(SamusPoseTransitions.ApplyPendingVerifiedAnimationTransition(lavaEndpoint), "lava turn consumes command three");
+        AssertTrue(SamusPoseTransitions.ApplyPendingAnimationTransition(lavaEndpoint), "lava turn consumes command three");
         AssertEqual(falling ? 12 : 6, lavaEndpoint.AnimationFrameTimer.RawValue,
             "command three adds lava and pose-change buffers to native jump/fall target delay (2 or 8, plus 2+2)");
     }

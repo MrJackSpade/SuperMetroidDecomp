@@ -290,7 +290,7 @@ internal static void VerifySamusCrystalFlash()
     }
     AssertEqual<SamusPoseId?>(SamusPoseId.FacingRightNormalPose, samus.PendingTransitionalPose,
         "Crystal Flash ROM finish command publishes standing right");
-    AssertTrue(SamusPoseTransitions.ApplyPendingVerifiedAnimationTransition(samus),
+    AssertTrue(SamusPoseTransitions.ApplyPendingAnimationTransition(samus),
         "Crystal Flash standing transition is applied");
     AssertEqual(CrystalFlashPhase.Finishing, samus.CrystalFlash.Phase,
         "pose transition does not prematurely replace installed handler");

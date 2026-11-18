@@ -7,7 +7,8 @@ internal static class SamusProjectileSystemAccess
     extension(SamusProjectileSystem self)
     {
         /// <summary>The live trails, oldest first.</summary>
-        internal IReadOnlyList<SamusProjectileTrail> LiveTrails => self.Trails.trails;
+        internal IReadOnlyList<SamusProjectileTrail> LiveTrails =>
+            PrivateState.Field<ProjectileTrails, List<SamusProjectileTrail>>(self.Trails, "trails");
 
         /// <summary>Starts a trail already under way, as a restored game does, and returns it.</summary>
         /// <param name="picturedBeams">The beam combination whose pictures the trail shows.</param>

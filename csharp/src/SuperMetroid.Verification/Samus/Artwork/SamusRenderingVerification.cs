@@ -166,7 +166,7 @@ internal static void VerifySamusRenderingSlice()
     // The verified ordinary transition applies pose $09 after movement/animation and before
     // drawing. Its movement type one uses default position math and always draws both halves.
     SeedPoseNineSamusData(bus);
-    SamusGroundedPoseTransitions.ApplyStandingRightToRunningRight(samus);
+    SamusGroundedPoseTransitions.ApplyStandingToRunning(samus);
     AssertEqual(SamusPoseId.MovingRightNormalPose, samus.Pose, "standing-right transition applies running-right pose");
     AssertEqual(0, samus.AnimationNumber, "running transition resets animation frame");
     AssertEqual(2, samus.AnimationFrameTimer.RawValue, "running pose first delay byte");
@@ -182,7 +182,7 @@ internal static void VerifySamusRenderingSlice()
         "running pose's frame-zero picture is composed of its top and bottom halves");
     AssertEqual(2, oam.LastFinalizedSpriteCount, "synthetic running pose draws top and bottom pieces");
 
-    SamusGroundedPoseTransitions.ApplyRunningRightToStandingRight(samus);
+    SamusGroundedPoseTransitions.ApplyRunningToStanding(samus);
     AssertEqual(SamusPoseId.FacingRightNormalPose, samus.Pose, "running no-button fallback applies standing-right pose");
     AssertEqual(0, samus.AnimationNumber, "standing fallback resets animation frame");
     AssertEqual(10, samus.AnimationFrameTimer.RawValue, "standing fallback reloads frame-zero delay");
@@ -347,21 +347,6 @@ internal static void VerifySamusRenderingSlice()
         SamusBodyFrame drawn = samus.Presentation.DrawnFrame ?? throw new InvalidOperationException($"{name} published no body frame.");
         AssertEqual(expectedHalves, Composition(samus, drawn).Bottom is null ? 1 : 2, name);
     }
-
-    // `$90:864E` contains exactly 28 bottom-half handlers, and the complete retail
-    // `$91:B629-$BD0F` pose table never stores a movement byte above `$1B`. Pose `$FD`'s
-    // exact adjacent-code observation is `$8B`, so it is malformed metadata rather than
-    // an untranslated draw selector.
-    samus.Pose = SamusPoseNumbering.FromNumber(0xfd);
-    samus.AnimationNumber = 0;
-    AssertThrows<InvalidDataException>(
-        () => SamusPoseMetadata.ReadMovementType(samus),
-        "movement-type API rejects a discriminator outside the complete retail domain");
-    oamFrame.BeginFrame();
-    // The body is drawn by the pose's own halves rule, and no path of the game shows a pose past the records (#1513).
-    AssertThrows<InvalidOperationException>(
-        () => samus.Presentation.DrawWithoutFlicker(samus, oamFrame, cameraPosition: samus.Position.Whole),
-        "a pose past the records is rejected before its malformed movement type is read");
 
     // Positioning must consume those same ROM bytes instead of duplicating a convenient
     // host switch. `$37` proves signed -4/-2 values.

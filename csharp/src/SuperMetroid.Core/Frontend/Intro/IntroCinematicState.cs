@@ -960,7 +960,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         // delays. The intro demo's movement phase consumes that publication before the value following the step
         // can ever be misread as another animation duration. This completes landing art's
         // transition from NormalLandingLeftPose to FacingLeftNormalPose instead of walking beyond its pose animation.
-        bool animationTransitionApplied = SamusPoseTransitions.ApplyPendingVerifiedAnimationTransition(samus);
+        bool animationTransitionApplied = SamusPoseTransitions.ApplyPendingAnimationTransition(samus);
         animationTransitionApplied |= SamusKnockbackMovement.TryFinishExpiredHitInterruption(samus);
         transitionAccepted |= animationTransitionApplied;
 

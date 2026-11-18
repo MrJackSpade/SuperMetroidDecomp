@@ -9,6 +9,7 @@ using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Samus;
 
@@ -279,13 +280,12 @@ public sealed class SamusState
     /// (<see cref="PeriodicDamageEnergyFraction.Borrows"/>); the whole damage and that one energy then come off
     /// <see cref="Health"/>. A result below zero energy leaves no energy and no fraction instead.
     /// </summary>
-    /// <param name="fraction">Fractional damage, 0 through one part short of an energy, in <see cref="PeriodicDamageEnergyFraction.PartsPerEnergy"/>ths.</param>
-    /// <param name="wholeDamage">Whole damage in energy units, zero or more.</param>
-    internal void TakeFractionalEnergyDamage(int fraction, int wholeDamage)
+    /// <param name="damage">The damage, in energy and its <see cref="PeriodicDamageEnergyFraction.PartsPerEnergy"/>ths.</param>
+    internal void TakeFractionalEnergyDamage(UnsignedSixteenSixteen damage)
     {
+        int fraction = damage.Fraction;
         bool borrows = EnergyFraction.Borrows(fraction);
-        Ensure.AtLeastZero(wholeDamage);
-        int health = Health - wholeDamage - (borrows ? 1 : 0);
+        int health = Health - damage.Whole - (borrows ? 1 : 0);
         if (health < 0)
         {
             EnergyFraction = PeriodicDamageEnergyFraction.None;
@@ -354,7 +354,7 @@ public sealed class SamusState
     /// sounds and colourings read; at least 60 is a full charge, which makes her spin and wall jump a pseudo Screw Attack.
     /// Every clear, hers or the projectiles', clears it for every reader.
     /// </summary>
-    internal SuperMetroid.Core.Samus.Projectiles.BeamChargeState BeamCharge { get; }
+    internal BeamChargeState BeamCharge { get; }
 
     /// <summary>
     /// The shared bomb-spread charge timeout. The game clears this
@@ -561,7 +561,7 @@ public sealed class SamusState
     /// <param name="artwork">The installed artwork of whoever builds her, which outlives her and follows its rebinding.</param>
     internal SamusState(GameplayAudioRequests audioRequests,
         FramesBeyondAnimation<SamusAnimationName, SamusAnimationFrame, SamusAnimationPlaceName, SamusPoseAnimationStep> framesBeyondAnimation,
-        UnauthoredBoostCadence unauthoredBoostCadence, SamusCompatibility compatibility, SuperMetroid.Core.Samus.Projectiles.BeamChargeState beamCharge,
+        UnauthoredBoostCadence unauthoredBoostCadence, SamusCompatibility compatibility, BeamChargeState beamCharge,
         SamusArtworkBinding artwork)
     {
         AudioRequests = Ensure.NotNull(audioRequests);

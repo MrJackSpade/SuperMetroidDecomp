@@ -781,7 +781,7 @@ internal static class NativeEnemyAnimationOracle
                         return Finish();
                     }
                     var unseen = VerificationAssertions.AssertIs<AnimationBeat<TFrame, TEvent>.Pause>(Beat(beat, at), $"{at}: unseen frame's wait");
-                    VerificationAssertions.AssertEqual((int)word, unseen.Duration, $"{at}: unseen frame's wait length");
+                    VerificationAssertions.AssertEqual(word, unseen.Duration, $"{at}: unseen frame's wait length");
                     addresses.Add(cursor);
                     cursor = afterUnseenCursor;
                     continue;

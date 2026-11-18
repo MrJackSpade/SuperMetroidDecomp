@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Curves;
 /// <summary>The marks along the speed curve.</summary>
 internal static class CurveMarks
 {
-    /// <summary>The curve's last mark, which nothing reads.</summary>
+    /// <summary>The curve's last mark, which no code uses.</summary>
     internal static string LastMark => Last;
 
     /// <summary>The curve's first mark, which only checks read.</summary>

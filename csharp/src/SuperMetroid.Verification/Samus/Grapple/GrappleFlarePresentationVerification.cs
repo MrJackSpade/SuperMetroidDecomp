@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Samus.Drawing;

@@ -9,7 +9,6 @@ using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Frontend.Pause;

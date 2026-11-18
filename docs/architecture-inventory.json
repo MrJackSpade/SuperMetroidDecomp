@@ -31573,6 +31573,32 @@
       "disposition": "record"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Samus.SamusAnimationUnnamedRun",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Samus/SamusAnimationUnnamedRun.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Samus.SamusAnimationUnnamedRunDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Samus/SamusAnimationUnnamedRunDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Samus.SamusArmCannonArtworkDocument",
       "kind": "record",
       "scope": "product",
@@ -43576,7 +43602,7 @@
         "csharp/src/SuperMetroid.Core/Bosses/Draygon/DraygonCannonAnimationDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "definition-catalog"
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Draygon.DraygonCannonData",
@@ -43720,6 +43746,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Bosses/Draygon/DraygonCannonPhase.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Draygon.DraygonCannonSegment",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Draygon/DraygonCannonSegment.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -44024,19 +44063,6 @@
     },
     {
       "type": "SuperMetroid.Core.Bosses.Draygon.DraygonCue.TrackWithEye",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Draygon/DraygonCue.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.Draygon.DraygonCue.TrackWithOwnEye",
       "kind": "record",
       "scope": "product",
       "assemblies": [
@@ -120419,6 +120445,19 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.Core.Samus.Abilities.XrayScopeDefinitions.Cone",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Abilities/XrayScopeDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Samus.Abilities.XrayScopeDefinitions.Holds",
       "kind": "static class",
       "scope": "product",
@@ -120432,17 +120471,36 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Samus.Abilities.XrayScopeDefinitions.Window",
+      "type": "SuperMetroid.Core.Samus.Abilities.XrayScopeDefinitionsConeConstants",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Abilities/XrayScopeDefinitions.cs"
+        "csharp/test-support/VerificationAccess.Core/Samus/Abilities/XrayScopeDefinitionsConeConstants.cs"
       ],
       "partial": "none",
-      "disposition": "definition-catalog"
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Abilities.XrayScopeDefinitionsConeConstants.extension(SuperMetroid.Core.Samus.Abilities.XrayScopeDefinitions.Cone)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Samus/Abilities/XrayScopeDefinitionsConeConstants.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Samus.Abilities.XrayScopeDefinitionsConstants",
@@ -120504,38 +120562,6 @@
       ],
       "files": [
         "csharp/test-support/VerificationAccess.Core/Samus/Abilities/XrayScopeDefinitionsPaletteConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Samus.Abilities.XrayScopeDefinitionsWindowConstants",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Samus/Abilities/XrayScopeDefinitionsWindowConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Samus.Abilities.XrayScopeDefinitionsWindowConstants.extension(SuperMetroid.Core.Samus.Abilities.XrayScopeDefinitions.Window)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Samus/Abilities/XrayScopeDefinitionsWindowConstants.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
@@ -121482,7 +121508,11 @@
         "csharp/src/SuperMetroid.Core/Samus/Artwork/SamusArtworkBinding.cs"
       ],
       "partial": "none",
-      "disposition": "owner"
+      "disposition": "owner",
+      "flags": [
+        "context-bag"
+      ],
+      "justified": true
     },
     {
       "type": "SuperMetroid.Core.Samus.Artwork.SamusAtmosphereFrame",
@@ -124079,19 +124109,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Samus.Movement.DraygonEscapeResult",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Movement/DraygonEscapeResult.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Samus.Movement.GroundedMovementResult",
       "kind": "record struct",
       "scope": "product",
@@ -124782,19 +124799,6 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Samus.Movement.SamusLiquidDamageRate",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Movement/SamusLiquidDamageRate.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Samus.Movement.SamusLiquidMedium",
@@ -125857,19 +125861,6 @@
       ],
       "partial": "none",
       "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.Core.Samus.Poses.SamusAnimationTarget",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Poses/SamusAnimationTarget.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Samus.Poses.SamusAnimationTransition",
@@ -126993,19 +126984,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Samus.Projectiles.ChargeFlareAnimations",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Projectiles/ChargeFlareAnimations.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Core.Samus.Projectiles.ChargeFlareAnimationsAccess",
       "kind": "static class",
       "scope": "test",
@@ -127022,7 +127000,23 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Samus.Projectiles.ChargeFlareAnimationsAccess.extension(SuperMetroid.Core.Samus.Projectiles.ChargeFlareAnimations)",
+      "type": "SuperMetroid.Core.Samus.Projectiles.ChargeFlareAnimationsAccess.extension(SuperMetroid.Core.Samus.Projectiles.ChargeFlareAnimationDefinitions)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Samus/Projectiles/ChargeFlareAnimationsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Projectiles.ChargeFlareAnimationsAccess.extension(SuperMetroid.Core.Samus.Projectiles.ChargeFlareComponentState)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -127103,19 +127097,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Samus.Projectiles.ChargeFlarePlace",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Projectiles/ChargeFlarePlace.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Samus.Projectiles.ChargeFlarePose",
       "kind": "record struct",
       "scope": "product",
@@ -127137,19 +127118,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Samus/Projectiles/ChargeFlareSegment.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Samus.Projectiles.ChargeFlareStep",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Projectiles/ChargeFlareStep.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -127986,19 +127954,6 @@
       ],
       "partial": "none",
       "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Samus.Projectiles.SamusBeamIdentity",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusBeamIdentity.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Samus.Projectiles.SamusBeamShotBehaviorDefinitions",
@@ -133324,7 +133279,11 @@
         "csharp/src/SuperMetroid.Core/World/RuntimeArtwork.cs"
       ],
       "partial": "none",
-      "disposition": "owner"
+      "disposition": "owner",
+      "flags": [
+        "context-bag"
+      ],
+      "justified": true
     },
     {
       "type": "SuperMetroid.Core.World.RuntimeArtworkDependencies",

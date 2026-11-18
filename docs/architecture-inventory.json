@@ -155925,6 +155925,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Verification.Bosses.Torizo.LivingTorizo",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Bosses/Torizo/LivingTorizo.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.Verification.Bosses.Torizo.LookupBombTorizoHandDrawVerification",
       "kind": "static class",
       "scope": "test",
@@ -169655,19 +169668,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Verification.Fx.Artwork.RoomPaletteFxPresentationVerification.LivingTorizo",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Fx/Artwork/RoomPaletteFxPresentationVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Verification.Fx.Configuration",

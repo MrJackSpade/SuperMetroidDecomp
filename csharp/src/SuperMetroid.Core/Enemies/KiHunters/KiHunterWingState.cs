@@ -39,4 +39,10 @@ public sealed class KiHunterWingState
     /// </summary>
     public Position16<RoomPixels> OrbitCenter { get; internal set; }
 
+    /// <summary>
+    /// Where the wings detached (#2474): their first orbit's centre, and where the falling arc puts them back as it deletes
+    /// them on landing. The deleted wings keep that position until the next update clears their place, as the game's do.
+    /// </summary>
+    public Position16<RoomPixels> DetachedAt { get; internal set; }
+
 }

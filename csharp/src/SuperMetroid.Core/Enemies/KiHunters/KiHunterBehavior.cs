@@ -520,9 +520,9 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
                 wings,
                 SignedSixteenSixteen.FromWholePixels(desiredY - wings.Position.Y.Whole)))
         {
-            // The game also moves the deleted wings back to where they detached (#2474); nothing reads a deleted place's
-            // position before the next update clears the place, so the move is not kept.
+            // The landed wings are deleted where they detached, as the game puts them back there (#2474).
             wings.Presence = wings.Presence.With(EnemyPresence.Deleted);
+            wings.Position = wings.Position.WithWhole(state.DetachedAt);
             SlowDetachedKiHunterWing(state);
             return;
         }
@@ -586,7 +586,8 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         state.WingArcAngle = KiHunterMotionDefinitions.DetachedOrbitStartAngle;
         state.Action = KiHunterWingAction.Detached;
         state.WingMovement = KiHunterWingMovement.Orbit;
-        state.OrbitCenter = wings.Position.Whole;
+        state.DetachedAt = wings.Position.Whole;
+        state.OrbitCenter = state.DetachedAt;
         state.DetachedSpeedCurvePlace = KiHunterMotionDefinitions.DetachedWingClimb.StartPlace;
         StartKiHunterAnimation(
             wings,

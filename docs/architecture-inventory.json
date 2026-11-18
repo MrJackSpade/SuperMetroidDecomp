@@ -80386,7 +80386,7 @@
     },
     {
       "type": "SuperMetroid.Core.Enemies.Rios.NorfairRioCue",
-      "kind": "record struct",
+      "kind": "record",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
@@ -80395,20 +80395,33 @@
         "csharp/src/SuperMetroid.Core/Enemies/Rios/NorfairRioCue.cs"
       ],
       "partial": "none",
-      "disposition": "value"
+      "disposition": "record"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Rios.NorfairRioCueKind",
-      "kind": "enum",
+      "type": "SuperMetroid.Core.Enemies.Rios.NorfairRioCue.PlaceFlames",
+      "kind": "record",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Rios/NorfairRioCueKind.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/Rios/NorfairRioCue.cs"
       ],
       "partial": "none",
-      "disposition": "value"
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Rios.NorfairRioCue.SwoopStartFinished",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Rios/NorfairRioCue.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Rios.NorfairRioEnemyState",
@@ -84486,6 +84499,38 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.WorkRobots.WorkRobotBehaviorAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/WorkRobots/WorkRobotBehaviorAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.WorkRobots.WorkRobotBehaviorAccess.extension(SuperMetroid.Core.Enemies.WorkRobots.WorkRobotBehavior)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/WorkRobots/WorkRobotBehaviorAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.WorkRobots.WorkRobotCue",
       "kind": "record",
       "scope": "product",
@@ -84577,6 +84622,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.WorkRobots.WorkRobotGlowAnimations",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/WorkRobots/WorkRobotGlowAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.WorkRobots.WorkRobotGlowDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -84588,6 +84646,32 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.WorkRobots.WorkRobotGlowSegment",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/WorkRobots/WorkRobotGlowSegment.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.WorkRobots.WorkRobotGlowStep",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/WorkRobots/WorkRobotGlowStep.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Enemies.WorkRobots.WorkRobotLaser",
@@ -144920,7 +145004,7 @@
         "csharp/test-support/MovieReplay/NoobTubeProjectileNativeListAddresses.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.TestSupport.MovieReplay.NuclearWaffleProjectileNativeListAddresses",

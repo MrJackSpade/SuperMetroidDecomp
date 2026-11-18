@@ -31,14 +31,14 @@ public sealed record RoomEnemyLoadRequest : IRoomEnemyLoad
     public required SamusState Samus { get; init; }
 
     /// <inheritdoc />
-    public GameplayAction ControllerInput { get; init; }
+    public required GameplayAction ControllerInput { get; init; }
 
     /// <inheritdoc />
-    public Position16<RoomPixels> Camera { get; init; }
+    public required Position16<RoomPixels> Camera { get; init; }
 
     /// <inheritdoc />
-    public GunshipLoadScenario GunshipScenario { get; init; } = GunshipLoadScenario.Ordinary;
+    public required GunshipLoadScenario GunshipScenario { get; init; }
 
     /// <inheritdoc />
-    public bool DeferLoaderTimeCameraReads { get; init; }
+    public required bool DeferLoaderTimeCameraReads { get; init; }
 }

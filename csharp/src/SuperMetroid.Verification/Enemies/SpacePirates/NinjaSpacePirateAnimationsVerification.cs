@@ -29,7 +29,7 @@ internal static class NinjaSpacePirateAnimationsVerification
                     {
                         'V' => cue switch
                         {
-                            NinjaSpacePirateCue.PlaySound playSound => (ushort)SoundEffectCommands.Command(playSound.Sound ?? throw new InvalidOperationException($"{at}: a sound cue carries no sound.")),
+                            NinjaSpacePirateCue.PlaySound playSound => (ushort)SoundEffectCommands.Command(playSound.Sound),
                             // A look cue's operand is the palette word of the row the cartridge selects: the gold wall row for the
                             // gold wall flash, the row the Metal Pirates room loads the gold Ninja Pirates into for the stance (#1512).
                             NinjaSpacePirateCue.SetShading setShading => SuperMetroid.Core.Assets.NativeSpriteGraphicsWords.PaletteBits(

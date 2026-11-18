@@ -50,10 +50,10 @@ internal sealed class NoobTubeObjects
     internal bool IsBroken() => _events.Has(NoobTubeObjectDefinitions.BrokenEvent);
 
     /// <summary>Locks Samus in place for the break sequence.</summary>
-    internal void LockSamus() => RequireNoobTubeSamus().Control.LockStationary();
+    internal void LockSamus() => _samus.Current.Control.LockStationary();
 
     /// <summary>Releases Samus once the break sequence ends.</summary>
-    internal void UnlockSamus() => RequireNoobTubeSamus().Control.Unlock();
+    internal void UnlockSamus() => _samus.Current.Control.Unlock();
 
     /// <summary>Spawns the crack projectile at the tube.</summary>
     internal void SpawnCrack(RoomObjectPlace place) => SpawnNoobTubeProjectile(place, NoobTubeDebrisDefinitions.Crack);
@@ -76,11 +76,6 @@ internal sealed class NoobTubeObjects
 
     /// <summary>Enables the room's water physics, Samus's included.</summary>
     internal void EnableWaterPhysics() => _waterPhysics.EnableWaterPhysics();
-
-    /// <summary>Requires a live Samus actor for tube script locks or water-physics publication.</summary>
-    private IRoomSamus RequireNoobTubeSamus() =>
-        _samus.Current ?? throw new InvalidOperationException(
-            "N00b tube has no active Samus actor.");
 
     /// <summary>Routes a crack, shard, or bubble spawn to the enemy system at the tube's block.</summary>
     private void SpawnNoobTubeProjectile(RoomObjectPlace place, NoobTubePiece piece) =>

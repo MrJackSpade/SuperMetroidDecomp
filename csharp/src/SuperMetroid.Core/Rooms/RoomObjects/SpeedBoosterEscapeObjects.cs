@@ -44,7 +44,7 @@ internal sealed class SpeedBoosterEscapeObjects
     internal bool TryStartLavaquake()
     {
         IRoomFxMotion fx = _roomFx;
-        if (!LiveSamus().CollectedItems.HasAny(SamusEquipmentFlags.SpeedBooster))
+        if (!_samus.Current.CollectedItems.HasAny(SamusEquipmentFlags.SpeedBooster))
         {
             fx.HaltLiquid();
             _earthquake.Stop();
@@ -63,7 +63,7 @@ internal sealed class SpeedBoosterEscapeObjects
     internal bool TryStartLavaMoving()
     {
         IRoomFxMotion fx = _roomFx;
-        if (LiveSamus().Position.X.Whole > SpeedBoosterEscapeDefinitions.StartFxMotionSamusX)
+        if (_samus.Current.Position.X.Whole > SpeedBoosterEscapeDefinitions.StartFxMotionSamusX)
             return false;
         fx.EndLiquidWaitNextUpdate();
         return true;
@@ -74,7 +74,7 @@ internal sealed class SpeedBoosterEscapeObjects
     {
         IRoomFxMotion fx = _roomFx;
         // The rise waits while Samus remains right of its threshold.
-        if (rise.TargetSamusX < LiveSamus().Position.X.Whole)
+        if (rise.TargetSamusX < _samus.Current.Position.X.Whole)
             return false;
 
         // A lava with no surface lies below every line, so the rise gives it its highest line.
@@ -86,8 +86,4 @@ internal sealed class SpeedBoosterEscapeObjects
 
     /// <summary>Marks the lavaquake outrun.</summary>
     internal void MarkEscaped() => _events.Set(StoryEvent.OutranSpeedBoosterLavaquake);
-
-    /// <summary>The live Samus.</summary>
-    private IRoomSamus LiveSamus() => _samus.Current
-        ?? throw new InvalidOperationException("Resident Speed Booster escape room object has no live Samus owner.");
 }

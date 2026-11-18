@@ -33,8 +33,7 @@ internal sealed class ShaktoolRoomControllerObject(IRoomSamusAccess samus, IGlob
             return;
         }
         RoomScrollGrid scrolls = context.Frame.Scrolls;
-        if (_samus.Current is not { } current)
-            throw new InvalidOperationException("Shaktool room controller requires a Samus owner.");
+        IRoomSamus current = _samus.Current;
         if (context.Frame.PowerBombExplosionActive)
             foreach (Position16<RoomScreens> screen in scrolls.Screens)
                 scrolls.SetLogicalState(screen, RoomScrollState.OpenAlignedToTop);

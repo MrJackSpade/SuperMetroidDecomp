@@ -155,7 +155,7 @@ internal static void VerifyRoomEnemyLoading()
             EnemyPaletteSheetFile.Write(new EnemyPaletteSheetDocument { Version = 1, Colors = palette }))));
     }
     var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = stockSheets, Palettes = stockColors })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0x9999));
-    enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer, tilesetPointer), BgArtworkFixtures.For(vram)) { Level = RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Samus = RoomEnemyFrameFixtures.StandaloneSamus() });
+    enemies.Load(RoomEnemyFrameFixtures.StandaloneLoad(bus.ReadEnemyPopulation(populationPointer, tilesetPointer), BgArtworkFixtures.For(vram), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), RoomEnemyFrameFixtures.StandaloneSamus()));
 
     AssertEqual(1, enemies.Places.EnemyCount, "enemy population count");
     AssertEqual(enemies.Places.InUpdateOrder[1], enemies.Places.FindFreePlace(), "a spawn takes the slot after the population");
@@ -204,7 +204,7 @@ internal static void VerifyRoomEnemyLoading()
     EnemyTileSourceArtwork installedArtwork = EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = stockSheets, Palettes = stockColors });
     var installedEnemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(installedArtwork), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: new EnemyTileSourceReadGuard(bus), services: new StandaloneRoomEnemyServices(() => 0x9999));
     var installedVram = new SnesVram();
-    installedEnemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer, tilesetPointer), BgArtworkFixtures.For(installedVram)) { Level = RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Samus = RoomEnemyFrameFixtures.StandaloneSamus() });
+    installedEnemies.Load(RoomEnemyFrameFixtures.StandaloneLoad(bus.ReadEnemyPopulation(populationPointer, tilesetPointer), BgArtworkFixtures.For(installedVram), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), RoomEnemyFrameFixtures.StandaloneSamus()));
     AssertEqual(place.Position.X.Whole, installedEnemies.Places.InUpdateOrder[0].Position.X.Whole,
         "enemy tile overrides do not alter population coordinates");
     AssertEqual(place.Definition.Health, installedEnemies.Places.InUpdateOrder[0].Definition.Health,
@@ -229,7 +229,7 @@ internal static void VerifyRoomEnemyLoading()
     const ushort emptyPopulationPointer = 0x9400;
     SeedRoomEnemyPopulation(bus, emptyPopulationPointer, deathQuota: 0x7f);
     vram.LoadBytes(0xe000, new byte[] { 0x5a });
-    enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(emptyPopulationPointer), BgArtworkFixtures.For(vram)) { Level = RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Samus = RoomEnemyFrameFixtures.StandaloneSamus() });
+    enemies.Load(RoomEnemyFrameFixtures.StandaloneLoad(bus.ReadEnemyPopulation(emptyPopulationPointer), BgArtworkFixtures.For(vram), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), RoomEnemyFrameFixtures.StandaloneSamus()));
 
     AssertEqual(0, enemies.Places.EnemyCount, "empty population clears enemy count");
     AssertTrue(enemies.Presentation.DrawnPopulation is null, "an empty population loads no enemy artwork");
@@ -317,7 +317,7 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
     SeedRoomEnemyPopulation(bus, populationPointer, deathQuota: 0);
 
     var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0));
-    enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), BgArtworkFixtures.For(new SnesVram())) { Level = RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Samus = RoomEnemyFrameFixtures.StandaloneSamus() });
+    enemies.Load(RoomEnemyFrameFixtures.StandaloneLoad(bus.ReadEnemyPopulation(populationPointer), BgArtworkFixtures.For(new SnesVram()), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), RoomEnemyFrameFixtures.StandaloneSamus()));
 
     EnemyProjectile eyeShot = enemies.Projectiles.EnemyProjectiles[17];
     eyeShot.Kind = RoomEnemyProjectileKind.EyeDoorProjectile;
@@ -437,7 +437,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
 
     // The fixture's enemy draws from the installed artwork's sheets; its tiles and colours are not what it checks.
     var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0));
-    enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer, tilesetPointer), BgArtworkFixtures.For(vram)) { Level = RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Samus = RoomEnemyFrameFixtures.StandaloneSamus() });
+    enemies.Load(RoomEnemyFrameFixtures.StandaloneLoad(bus.ReadEnemyPopulation(populationPointer, tilesetPointer), BgArtworkFixtures.For(vram), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), RoomEnemyFrameFixtures.StandaloneSamus()));
     RoomEnemyPlace ripper = enemies.Places.InUpdateOrder[0];
     if (verifyXrayTimers)
     {
@@ -556,7 +556,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
         Health = 99,
         Position = FixedPosition<RoomPixels>.FromWhole(ripper.Position.Whole),
     };
-    AssertTrue(enemies.Collision.ResolveOrdinarySamusContact(samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), controllerInput: 0, RoomEnemyFrameFixtures.OpenRoom(new(64, 64))),
+    AssertTrue(enemies.Collision.ResolveOrdinarySamusContact(samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), controllerInput: 0, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), ripper, Position16<RoomPixels>.Zero),
         "Ripper radius contact reaches common touch AI");
     AssertEqual(94, samus.Health, "Ripper header contact damage");
     AssertEqual(0x60, samus.InvincibilityTimer.RawValue, "Ripper contact invincibility clock");
@@ -674,7 +674,7 @@ internal static void VerifyCeresElevatorPlatformAnimation()
     // The platform frames are drawn over the room's turning floor as its installed pictures (#1349, #1467).
     RoomFloor map = RoomBackgroundsFixtures.CeresFloor();
     var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0) { Floor = map });
-    enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer, tilesetPointer), BgArtworkFixtures.For(vram)) { Level = RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Samus = RoomEnemyFrameFixtures.StandaloneSamus() });
+    enemies.Load(RoomEnemyFrameFixtures.StandaloneLoad(bus.ReadEnemyPopulation(populationPointer, tilesetPointer), BgArtworkFixtures.For(vram), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), RoomEnemyFrameFixtures.StandaloneSamus()));
     enemies.StepStandaloneFrame(enemies.StandaloneFrame(openRoom) with { Camera = new(0, 0), TimeIsFrozen = false });
     AssertEqual(CeresFloorAnimationFrame.ElevatorLight, map.Shown.Values.Single(),
         "Ceres elevator landed platform light floor frame");
@@ -727,7 +727,7 @@ internal static void VerifyCeresDoorBossBranch()
             areaBossReads++;
             return areaBossDefeated;
         } } });
-    enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer, tilesetPointer), BgArtworkFixtures.For(vram)) { Level = RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Samus = samus });
+    enemies.Load(RoomEnemyFrameFixtures.StandaloneLoad(bus.ReadEnemyPopulation(populationPointer, tilesetPointer), BgArtworkFixtures.For(vram), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), samus));
     RoomEnemyPlace door = enemies.Places.InUpdateOrder[0];
     door.AnimationClock.StepOnNextUpdate();
 
@@ -847,7 +847,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         SuperMetroid.AssetExtraction.Areas.Escape.EscapeTypewriterExtractor.Extract(bus), writable: false))
         enemies.BossArtworkBinding.EscapeTypewriterPresentation = EscapeTypewriterPresentationFile.Load(escapeText);
     ClearCeresEscapeTypewriterSource(bus);
-    enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer, tilesetPointer), BgArtworkFixtures.For(vram)) { Level = RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Samus = RoomEnemyFrameFixtures.StandaloneSamus() });
+    enemies.Load(RoomEnemyFrameFixtures.StandaloneLoad(bus.ReadEnemyPopulation(populationPointer, tilesetPointer), BgArtworkFixtures.For(vram), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), RoomEnemyFrameFixtures.StandaloneSamus()));
 
     RoomEnemyPlace ridley = enemies.Places.InUpdateOrder[0];
     CeresRidleyState state = enemies.CeresRidley()

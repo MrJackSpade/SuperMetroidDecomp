@@ -26,7 +26,7 @@ internal static class StatueSplashVerification
         for (ushort random = 0; random < 64; random++)
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(FixtureEnemyTileArtwork()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => random) { TourianStatueRoom = new SuperMetroid.Verification.Areas.Tourian.FixedTourianStatueRoom(WaterSurface: 216, StatueOffset: 0) });
-            enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, BgArtworkFixtures.For(new SnesVram())) { Level = RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Samus = RoomEnemyFrameFixtures.StandaloneSamus() });
+            enemies.Load(RoomEnemyFrameFixtures.StandaloneLoad(room.State.EnemyPopulation, BgArtworkFixtures.For(new SnesVram()), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), RoomEnemyFrameFixtures.StandaloneSamus()));
             foreach (var actor in enemies.Projectiles.EnemyProjectiles) actor.Kind = 0;
             enemies.TourianUnlockBehavior.SpawnTourianEyeGlow(SuperMetroid.Core.Areas.Tourian.TourianStatueNativeWords.Eye(0));
             var eye = enemies.Projectiles.EnemyProjectiles.Single(p => p.IsActive);

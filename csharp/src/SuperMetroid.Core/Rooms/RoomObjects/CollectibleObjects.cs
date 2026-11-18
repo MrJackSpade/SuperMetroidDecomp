@@ -204,9 +204,7 @@ internal sealed class CollectibleObjects
     {
         Ensure.NotNull(item);
         Ensure.NotNull(place);
-        IRoomSamus samus = _samus.Current
-            ?? throw new InvalidOperationException(
-                "A live collectible was triggered before the room owned Samus state.");
+        IRoomSamus samus = _samus.Current;
         SharedGameState system = _system;
 
         if (item.Location is { } location)

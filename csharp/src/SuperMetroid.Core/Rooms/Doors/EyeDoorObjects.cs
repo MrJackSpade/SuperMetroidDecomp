@@ -78,8 +78,7 @@ internal sealed class EyeDoorObjects
     /// <summary>Whether Samus stands within <paramref name="reach"/> blocks across and up or down of the part.</summary>
     internal bool IsSamusNear(RoomObjectPlace place, Extent16<RoomBlocks> reach)
     {
-        IRoomSamus samus = _samus.Current
-            ?? throw new InvalidOperationException("Eye-door proximity requires Samus.");
+        IRoomSamus samus = _samus.Current;
         int roomObjectX = place.Block.X;
         int roomObjectY = place.Block.Y;
         int deltaX = Math.Abs(RoomGridConversions.PixelToBlock(samus.Position.X.Whole) - roomObjectX);

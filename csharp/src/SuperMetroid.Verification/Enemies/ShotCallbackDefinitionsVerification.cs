@@ -138,7 +138,7 @@ internal static class ShotCallbackDefinitionsVerification
                 Position = FixedPosition<RoomPixels>.FromWhole(enemy.Position.Whole),
             };
 
-            AssertTrue(enemies.Collision.ResolveOrdinarySamusContact(samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), 0, RoomEnemyFrameFixtures.OpenRoom(new(64, 64))),
+            AssertTrue(enemies.Collision.ResolveOrdinarySamusContact(samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), 0, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), enemy, Position16<RoomPixels>.Zero),
                 $"literal touch no-op ${callback:X6} is admitted by production collision");
             AssertEqual(99, samus.Health,
                 $"literal touch no-op ${callback:X6} does not damage Samus");

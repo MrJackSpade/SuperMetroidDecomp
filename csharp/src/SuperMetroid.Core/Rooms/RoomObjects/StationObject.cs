@@ -61,7 +61,7 @@ internal sealed class StationObject(
     {
         Ensure.NotNull(place);
         StationObjects stations = context.RoomObjects.Stations;
-        IRoomSamus samus = stations.RequireSamus($"{Kind} station");
+        IRoomSamus samus = stations.Samus;
 
         // The access's first draw starts its six-update countdown on the triggering update itself; the countdown only
         // runs on later updates.

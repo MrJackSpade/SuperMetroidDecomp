@@ -31,7 +31,7 @@ internal static class ElevatorPlatformVisualsVerification
             SeedSoleElevatorPlatformObject(bus, population, new(0x0c, 0x08), ElevatorPlatformObjectDefinitionsConstants.InstructionLoop);
             RoomLevelData level = CreateEmptyRoom(new(32, 16));
             var roomObjects = RoomObjectFixtures.Unbound(RoomObjectFixtures.Installed with { RoomObjectElevatorPlatformVisuals = visuals });
-            RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Crateria), RoomObjectPopulationImporter.Read(bus, population), RoomObjectServiceFixtures.Uninstalled with { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
+            RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Crateria), RoomObjectPopulationImporter.Read(bus, population), RoomObjectServiceFixtures.Uninstalled with { Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
             roomObjects.Step(level);
             int index = Enumerable.Range(0, 32 * 16).Single(block =>
                 level.GetCollisionBlockByIndex(block).Terrain == PlatformEdge);

@@ -14,8 +14,8 @@ internal static class RoomEnemyLoadContractsVerification
 {
     /// <summary>
     /// #633: the room-enemy load contract is the union of its children's contracts, each child contract
-    /// exposes only its own capabilities, the concrete request rejects missing required capabilities, and
-    /// standalone services fail at an uninstalled dependency instead of returning a default.
+    /// exposes only its own capabilities, and standalone services fail at an uninstalled dependency instead of returning a
+    /// default. Every member of the concrete request is required (#2379), which the compiler enforces.
     /// </summary>
     internal static void VerifyRoomEnemyLoadContracts()
     {
@@ -38,10 +38,6 @@ internal static class RoomEnemyLoadContractsVerification
             "the Tourian statue contract exposes only the statue room's water and descent");
 
         var services = new StandaloneRoomEnemyServices(() => 0x1234);
-        AssertEqual(GunshipLoadScenario.Ordinary, new RoomEnemyLoadRequest(
-            RoomEnemyPopulationDefinitions.DraygonWhenAreaBossDeadOrMotherBrainWhenMainAreaBossDead, BgArtworkFixtures.For(new SnesVram())) { Level = RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Samus = RoomEnemyFrameFixtures.StandaloneSamus() }.GunshipScenario,
-            "the ordinary gunship scenario is the named default");
-
         AssertEqual(0x1234, services.Random.Generate(), "the standalone RNG generates through its installed generator");
         AssertThrows<InvalidOperationException>(() => services.Random.Read(), "an uninstalled RNG read fails at the dependency");
         AssertThrows<InvalidOperationException>(() => services.Events.Has(StoryEvent.ZebesAwake), "uninstalled event bits fail at the dependency");

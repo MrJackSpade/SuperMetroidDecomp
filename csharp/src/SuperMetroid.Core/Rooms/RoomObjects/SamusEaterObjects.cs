@@ -38,14 +38,10 @@ internal sealed class SamusEaterObjects
         level.SetTerrain(block.At, block.Terrain.Deactivated());
     }
 
-    /// <summary>Requires the live Samus instance associated with the plant's room.</summary>
-    internal IRoomSamus RequirePlantSamus() => _samus.Current
-        ?? throw new InvalidOperationException("Samus Eater room object requires the live Samus owner.");
-
     /// <summary>Holds Samus at <paramref name="held"/> after her normal movement and sustains her invincibility.</summary>
     internal void HoldSamus(Position16<RoomPixels> held)
     {
-        var samus = RequirePlantSamus();
+        var samus = _samus.Current;
         samus.Position = samus.Position.WithWhole(new(held.X, held.Y));
         // The hold sustains the invincibility timer without restarting it, not a clamp or an input lock. Samus's normal
         // movement runs before this placement, preserving interactions.
@@ -53,9 +49,9 @@ internal sealed class SamusEaterObjects
     }
 
     /// <summary>One chew's periodic damage to the held Samus.</summary>
-    internal void DamageSamus() => RequirePlantSamus().TakePeriodicDamage(SamusEaterObjectDefinitions.ChewDamage);
+    internal void DamageSamus() => _samus.Current.TakePeriodicDamage(SamusEaterObjectDefinitions.ChewDamage);
 
     /// <summary>Gives the released Samus her release immunity.</summary>
     internal void ReleaseSamus() =>
-        RequirePlantSamus().InvincibilityTimer = WrappingCountdown.Start(SamusEaterObjectDefinitions.ReleaseInvincibilityFrames);
+        _samus.Current.InvincibilityTimer = WrappingCountdown.Start(SamusEaterObjectDefinitions.ReleaseInvincibilityFrames);
 }

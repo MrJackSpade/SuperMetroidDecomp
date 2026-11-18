@@ -127,7 +127,7 @@ internal static class YardAirborneVerification
         state.Behavior = YardBehavior.NormalCrawling;
         samus.Position = samus.Position.WithWhole(actor.Position.Whole);
         samus.InvincibilityTimer = WrappingCountdown.Start(0);
-        AssertTrue(enemies.Collision.ResolveOrdinarySamusContact(samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), 0, runtime.Room.LoadedLevelData, actor),
+        AssertTrue(enemies.Collision.ResolveOrdinarySamusContact(samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), 0, runtime.Room.LoadedLevelData, actor, Position16<RoomPixels>.Zero),
             "the touch reaches the loaded room's Yard");
         AssertEqual(YardBehavior.Kicked, state.Behavior, "the touch kicks the Yard");
         AssertEqual(measured, state.AirborneVelocity.X, "the kicked Yard flies right at the camera's measure, fraction and all");
@@ -149,7 +149,7 @@ internal static class YardAirborneVerification
         foreach (YardBehavior behavior in new[] { YardBehavior.Dropped, YardBehavior.Kicked, YardBehavior.BeamLaunched })
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(FixtureEnemyTileArtwork()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => 0));
-            enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, BgArtworkFixtures.For(new SnesVram())) { Level = RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Samus = RoomEnemyFrameFixtures.StandaloneSamus() });
+            enemies.Load(RoomEnemyFrameFixtures.StandaloneLoad(room.State.EnemyPopulation, BgArtworkFixtures.For(new SnesVram()), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), RoomEnemyFrameFixtures.StandaloneSamus()));
             var actor = enemies.Places.InUpdateOrder[0];
             var state = enemies.YardStates[0];
             actor.Position = new(new(512, 0xF000), new(512, 0xF000));

@@ -25,8 +25,11 @@ internal sealed class RoomObjectRuntimeServices(
     private RoomEnemySystem Enemies => destination.Enemies ?? throw new InvalidOperationException(
         "A room object reached the room's enemies before the enemy step built them.");
 
-    /// <summary>Reads the current player state each time a room object asks, including after a room transition.</summary>
-    public IRoomSamus? Current => player.Samus?.RoomView;
+    /// <summary>
+    /// Reads the current player state each time a room object asks, including after a room transition; a room object
+    /// reading her before the scenario introduces her fails there.
+    /// </summary>
+    public IRoomSamus Current => player.IntroducedSamus.RoomView;
 
     /// <summary>Reads the live Tourian entrance statue completion state.</summary>
     public bool IsFinished => Enemies.TourianStatue.Finished;

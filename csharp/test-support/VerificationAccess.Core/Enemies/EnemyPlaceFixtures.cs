@@ -7,10 +7,12 @@ namespace SuperMetroid.Core.Enemies;
 internal static class EnemyPlaceFixtures
 {
     /// <summary>
-    /// The species a check binds for an occupant whose own behaviour it does not exercise: the Tourian entrance statue,
-    /// a real species with no main behaviour. Binding it runs nothing; its initialization reads its placement's statue.
+    /// The species a check binds for an occupant whose own behaviour it does not exercise: the glass tube's crack, a real
+    /// species that needs nothing from its room and has no behaviour of its own (no main behaviour, no animation, an
+    /// initialization that does nothing), so binding it in any room runs nothing but the shared reactions its definition
+    /// names (#2420).
     /// </summary>
-    internal const EnemyDefinitionId StandIn = EnemyDefinitionId.TourianStatue;
+    internal const EnemyDefinitionId StandIn = EnemyDefinitionId.NoobTubeCrack;
 
     /// <summary>
     /// A registry with no species and no enemy system, for a slot a check never binds: binding any definition fails,

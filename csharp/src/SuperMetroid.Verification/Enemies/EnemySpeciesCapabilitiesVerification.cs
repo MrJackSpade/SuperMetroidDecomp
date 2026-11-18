@@ -184,7 +184,7 @@ internal static class EnemySpeciesCapabilitiesVerification
             .Where(definition => definition != EnemyDefinitionId.None)
             .Distinct();
 
-        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
+        var enemies = EnemySystemFixtures.PlacingAnyEnemy(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
             services: new VerificationRoomEnemyServices(null));
         // The powered work robot's definition decides its power as it is placed (#2179); either power answers alike.
         enemies.VerificationServices().IsAreaBossDefeated = () => true;

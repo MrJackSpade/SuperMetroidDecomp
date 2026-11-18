@@ -59,22 +59,25 @@ internal static class KraidRandomDefinitions
     internal static readonly RandomSampleField MovementChoice = new(2, 3);
 
     /// <summary>
-    /// Whether a launching nail waits for the lint at its parked position instead of launching beside Kraid's body: an
-    /// odd sample waits, unless its sibling took the alternate spawn last.
+    /// Whether a launching nail waits for the lint at its parked position instead of launching beside Kraid's body (#2479):
+    /// an odd sample waits, one launch in two, unless its sibling took the alternate spawn last.
     /// </summary>
-    internal static readonly RandomSampleField NailWaitsForLint = new(0, 1);
+    internal static readonly RandomChance NailWaitsForLint = RandomChance.Highest(1, new RandomSampleField(0, 1));
 
-    /// <summary>Whether a rising rock flies to the right: taken for half the random numbers.</summary>
-    internal static readonly RandomSampleField RisingRockRight = new(4, 1);
+    /// <summary>
+    /// Whether a rising rock takes its pose flying to the right (#2479): taken when the sample's fifth bit is set, half the
+    /// random numbers.
+    /// </summary>
+    internal static readonly RandomChance RisingRockFliesRight = RandomChance.Highest(1, new RandomSampleField(4, 1));
 
     /// <summary>A rising rock's offset from Kraid's body X, 0 through 63 pixels.</summary>
     internal static readonly RandomSampleField RisingRockOffset = new(0, 6);
 
     /// <summary>
-    /// Whether a rising rock keeps its offset to the right of Kraid's body: taken by an odd sample; otherwise the rock
-    /// rises to the left, <see cref="RisingRockLeftExtraPixels"/> further from the body than its offset.
+    /// Whether a rising rock keeps its offset to the right of Kraid's body (#2479): taken by an odd sample, one rock in two;
+    /// otherwise the rock rises to the left, <see cref="RisingRockLeftExtraPixels"/> further from the body than its offset.
     /// </summary>
-    internal static readonly RandomSampleField RisingRockOffsetRight = new(0, 1);
+    internal static readonly RandomChance RisingRockStartsOnRight = RandomChance.Highest(1, new RandomSampleField(0, 1));
 
     /// <summary>
     /// How much further from Kraid's body a rising rock on the left starts than one on the right with the same offset:

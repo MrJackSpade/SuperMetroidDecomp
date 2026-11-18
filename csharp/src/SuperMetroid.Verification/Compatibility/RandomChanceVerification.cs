@@ -59,6 +59,13 @@ internal static class RandomChanceVerification
             AssertSameAt(bubbling[sample & 7], SuperMetroid.Core.Fx.LavaAcidWaveDefinitions.AmbientSound.Choose(sample), "lava's bubbling sound", sample);
         AssertThrows<ArgumentException>(() => WeightedRandomChoice<char>.InTurn(new RandomSampleField(0, 1), 'a', 'b', 'c'), "more outcomes than values");
         AssertThrows<ArgumentException>(() => WeightedRandomChoice<char>.InTurn(MiddleField, 'a'), "a choice in turn with one outcome");
+
+        // A chance of clear bits is taken only when every one of its separate bits is clear (#2479), and reads single bits.
+        RandomClearBitsChance threeBitsClear = RandomClearBitsChance.WhenAllClear(new RandomSampleField(0, 1), new RandomSampleField(3, 1), new RandomSampleField(9, 1));
+        for (int sample = 0; sample <= ushort.MaxValue; sample++)
+            AssertSameAt((sample & 521) == 0, threeBitsClear.IsTakenBy(sample), "bits 0, 3 and 9 all clear", sample);
+        AssertThrows<ArgumentException>(() => RandomClearBitsChance.WhenAllClear(new RandomSampleField(0, 1)), "a chance of one clear bit");
+        AssertThrows<ArgumentException>(() => RandomClearBitsChance.WhenAllClear(new RandomSampleField(0, 1), new RandomSampleField(4, 2)), "a clear-bits chance of a wider field");
         Console.WriteLine("Random chance rules: every sample takes its chances and choices as their threshold expressions, and undecided shares are rejected.");
     }
 }

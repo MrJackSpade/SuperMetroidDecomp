@@ -35,7 +35,7 @@ internal static class RioLaunchDefinitions
     /// The chance, taken by one random number in four, that a Norfair or Lower Norfair Rio waiting for Samus holds back from
     /// attacking on its update, however near she is.
     /// </summary>
-    internal static readonly RandomClearBitsChance AttackHeldBack = new(new RandomSampleField(0, 1), new RandomSampleField(8, 1));
+    internal static readonly RandomClearBitsChance AttackHeldBack = RandomClearBitsChance.WhenAllClear(new RandomSampleField(0, 1), new RandomSampleField(8, 1));
 
     /// <summary>How close horizontally Samus comes, in pixels and exclusive, before a Rio dives.</summary>
     internal const int RioTriggerDistance = 160;

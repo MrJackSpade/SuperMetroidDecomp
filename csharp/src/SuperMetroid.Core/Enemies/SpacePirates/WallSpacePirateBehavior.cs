@@ -178,7 +178,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         WallSpacePirateEnemyState state,
         HorizontalDirection wall)
     {
-        state.ClimbDirection = SpacePirateDecisions.ClimbUp.IsSetIn(_room.Random.Generate())
+        state.ClimbDirection = SpacePirateDecisions.ClimbsUp.IsTakenBy(_room.Random.Generate())
             ? WallSpacePirateClimbDirection.Up
             : WallSpacePirateClimbDirection.Down;
         return ClimbAnimation(new WallSpacePirateClimb(wall, state.ClimbDirection));

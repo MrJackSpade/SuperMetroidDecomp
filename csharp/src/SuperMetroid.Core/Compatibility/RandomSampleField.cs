@@ -37,12 +37,5 @@ public readonly record struct RandomSampleField(int Shift, int Width)
 
     /// <summary>How many values the field can take.</summary>
     public int Outcomes => 1 << Width;
-
-    /// <summary>Whether the field, a single bit, is set in <paramref name="sample"/>.</summary>
-    /// <param name="sample">A random sample, 0 through 65535.</param>
-    /// <exception cref="InvalidOperationException">The field holds more than one bit.</exception>
-    public bool IsSetIn(int sample) => Width == 1
-        ? Of(sample) != 0
-        : throw new InvalidOperationException($"A {Width}-bit random field is a choice, not a flag.");
 }
 

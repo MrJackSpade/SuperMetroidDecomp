@@ -4,8 +4,9 @@ using static SuperMetroid.Verification.Compatibility.ReplacedExpressionAssertion
 namespace SuperMetroid.Verification.Bosses.Draygon;
 
 /// <summary>
-/// Confirms that Draygon's named random chances (#1619) decide every one of the 65536 samples exactly as the zero tests of
-/// the sample fields they replace did: his goop volley's step and the tail whip he inserts while he holds Samus.
+/// Confirms that Draygon's named random chances (#1619, #2479) decide every one of the 65536 samples exactly as the tests
+/// of the sample fields they replace did: his swoop rather than goop, his goop volley's step and the tail whip he inserts
+/// while he holds Samus.
 /// </summary>
 internal static class DraygonRandomChancesVerification
 {
@@ -14,6 +15,7 @@ internal static class DraygonRandomChancesVerification
     {
         for (int sample = 0; sample <= ushort.MaxValue; sample++)
         {
+            AssertSameAt((sample & 1) != 0, DraygonRandomDefinitions.SwoopsRatherThanSpitsGoop.IsTakenBy(sample), "swoop rather than goop", sample);
             AssertSameAt((sample & 15) == 0, DraygonRandomDefinitions.GoopVolleySteps.IsTakenBy(sample), "goop volley step", sample);
             AssertSameAt((sample & 255) == 0, DraygonRandomDefinitions.TailWhips.IsTakenBy(sample), "tail whip", sample);
         }

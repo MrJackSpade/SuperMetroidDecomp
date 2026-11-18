@@ -552,7 +552,7 @@ public sealed class SamusLiquidPhysicsState
         EffectWaits.HoldBubbles(SpawnParticle(SamusParticleKind.Bubbles,
             new(samus.Position.X.Whole, top + SamusLiquidParticleDefinitions.BubbleBelowTop), AtOnce));
         int sample = random.Generate();
-        QueueSound(SamusBreathBubbleDefinitions.LowSound.IsSetIn(sample) ? EnemySound.LowBubbles : EnemySound.HighBubbles, priority: SoundRequestPriority.Normal);
+        QueueSound(SamusBreathBubbleDefinitions.SoundsLow.IsTakenBy(sample) ? EnemySound.LowBubbles : EnemySound.HighBubbles, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>Starts the four-particle lava spray while Samus's top is above the surface and nothing holds the spray up.</summary>

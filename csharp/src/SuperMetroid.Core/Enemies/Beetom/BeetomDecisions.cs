@@ -22,6 +22,9 @@ internal static class BeetomDecisions
         new(BeetomAction.StartLongHop, HorizontalDirection.Right),
     ];
 
-    /// <summary>The random choice that turns a distant Beetom to face right: an odd sample, the parity of <see cref="NextAction"/>'s choice, so an odd action choice faces right.</summary>
-    internal static readonly RandomSampleField FaceRight = new(0, 1);
+    /// <summary>
+    /// Whether a distant Beetom turns to face right (#2479): an odd sample, the parity of <see cref="NextAction"/>'s choice,
+    /// so an odd action choice faces right.
+    /// </summary>
+    internal static readonly RandomChance FacesRight = RandomChance.Highest(1, new RandomSampleField(0, 1));
 }

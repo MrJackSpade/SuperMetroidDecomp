@@ -85,7 +85,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
                 {
                     // Surfacing reads the current random number without advancing it.
                     int random = _room.Random.Read();
-                    state.Behavior = OwtchMovementDefinitions.MoveRightChoice.IsSetIn(random)
+                    state.Behavior = OwtchMovementDefinitions.SurfacesMovingRight.IsTakenBy(random)
                         ? OwtchBehaviorState.MovingRight
                         : OwtchBehaviorState.MovingLeft;
                 }

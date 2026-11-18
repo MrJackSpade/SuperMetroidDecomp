@@ -3,8 +3,11 @@ namespace SuperMetroid.Core.Enemies.Owtch;
 /// <summary>Owtch's patrol rules.</summary>
 internal static class OwtchMovementDefinitions
 {
-    /// <summary>The random choice that sends a surfacing Owtch right rather than left: taken for half the random numbers.</summary>
-    internal static readonly RandomSampleField MoveRightChoice = new(8, 1);
+    /// <summary>
+    /// Whether a surfacing Owtch walks off right rather than left (#2479): taken when the sample's ninth bit is set, half the
+    /// random numbers.
+    /// </summary>
+    internal static readonly RandomChance SurfacesMovingRight = RandomChance.Highest(1, new RandomSampleField(8, 1));
 
     /// <summary>
     /// The random field a walking Owtch's burial roll starts from: the sample's lowest 256-value field, 0 through 255. The roll adds the

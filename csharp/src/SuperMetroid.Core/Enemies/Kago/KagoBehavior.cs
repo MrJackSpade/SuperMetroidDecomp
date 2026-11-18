@@ -247,7 +247,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
             else
             {
                 // Inside that band the random number that chose the jump's height also chooses its direction.
-                jumpLeft = KagoDefinitions.LeftJump.IsSetIn(random);
+                jumpLeft = KagoDefinitions.BugJumpsLeft.IsTakenBy(random);
             }
 
             projectile.Velocity = projectile.Velocity.WithX(jumpLeft

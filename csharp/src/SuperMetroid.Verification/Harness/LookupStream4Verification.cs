@@ -1136,7 +1136,7 @@ internal static class LookupStream4Verification
             AssertEqual(entry, spawned.InstructionPointer, "room sprite actual initial program");
             // A still picture holds from its spawn and counts no timer (#2275).
             // A picture the list shows in two records in a row is one frame of their summed durations.
-            if (!spawned.Holds)
+            if (!spawned.AnimationClock.IsStopped)
                 AssertEqual(Enumerable.Range(0, RoomEffectActorProgramAddresses.RecordsOf(RoomEffectActorSegment.Of(kind), 0))
                         .Sum(record => CartridgeImportSource.Require(rom).ReadCartridgeWord(0xb40000 | (entry + 4 * record))),
                     spawned.FrameHold, "room sprite actual initial native duration");

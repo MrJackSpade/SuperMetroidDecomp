@@ -17,11 +17,11 @@ internal static class ChozoStatueNativeListAddresses
     /// <summary>Each typed program's native entry point, in authored order.</summary>
     internal static readonly NativeProgramEntry<ChozoStatueSegment>[] Entries =
     [
-        new NativeProgramEntry<ChozoStatueSegment>(ChozoStatueSegment.LowerNorfairInitial, 0xe39d),
+        new NativeProgramEntry<ChozoStatueSegment>(ChozoStatueSegment.LowerNorfairIdle, 0xe39d),
         new NativeProgramEntry<ChozoStatueSegment>(ChozoStatueSegment.LowerNorfairActivated, 0xe3a7),
         new NativeProgramEntry<ChozoStatueSegment>(ChozoStatueSegment.LowerNorfairFlexing, 0xe3e5),
         new NativeProgramEntry<ChozoStatueSegment>(ChozoStatueSegment.LowerNorfairRelease, 0xe401),
-        new NativeProgramEntry<ChozoStatueSegment>(ChozoStatueSegment.WreckedShipInitial, 0xe457),
+        new NativeProgramEntry<ChozoStatueSegment>(ChozoStatueSegment.WreckedShipIdle, 0xe457),
         new NativeProgramEntry<ChozoStatueSegment>(ChozoStatueSegment.WreckedShipActivated, 0xe461),
         new NativeProgramEntry<ChozoStatueSegment>(ChozoStatueSegment.WreckedShipFlexing, 0xe49d),
         new NativeProgramEntry<ChozoStatueSegment>(ChozoStatueSegment.WreckedShipWalkingWithSamus, 0xe4c1),

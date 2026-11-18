@@ -28,7 +28,7 @@ internal static class CrawlerNativeListAddresses
         new NativeProgramEntry<CrawlerSegment>(CrawlerSegment.ZeroUpsideLeft, 0x988f),
         new NativeProgramEntry<CrawlerSegment>(CrawlerSegment.ZeroUpsideDown, 0x98af),
         new NativeProgramEntry<CrawlerSegment>(CrawlerSegment.ZeroUpsideUp, 0x990f),
-        new NativeProgramEntry<CrawlerSegment>(CrawlerSegment.ViolaNormal, 0xb5ef),
+        new NativeProgramEntry<CrawlerSegment>(CrawlerSegment.ViolaIdle, 0xb5ef),
         new NativeProgramEntry<CrawlerSegment>(CrawlerSegment.SpinyCrawlerUpsideRight, 0xdfcf),
         new NativeProgramEntry<CrawlerSegment>(CrawlerSegment.SpinyCrawlerUpsideLeft, 0xdfeb),
         new NativeProgramEntry<CrawlerSegment>(CrawlerSegment.SpinyCrawlerUpsideDown, 0xe007),

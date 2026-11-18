@@ -146,7 +146,7 @@ internal sealed record PartFrameConfiguration(
                 ["Sciser"] = CrawlerFamily("Sciser"),
                 ["Zero"] = CrawlerFamily("Zero"),
                 // The Viola crawls the same on every surface (#2061).
-                ["Viola"] = ["ViolaNormal"],
+                ["Viola"] = ["ViolaIdle"],
                 ["Zeela"] = CrawlerFamily("SpinyCrawler"),
                 ["Sova"] = CrawlerFamily("SpinyCrawler"),
                 ["Zoomer"] = CrawlerFamily("SpinyCrawler"),
@@ -239,7 +239,7 @@ internal sealed record PartFrameConfiguration(
             new Dictionary<string, string[]>(StringComparer.Ordinal)
             {
                 ["Evir"] = ["BodyFacingLeft", "BodyFacingRight", "ArmsFacingLeft", "ArmsFacingRight"],
-                ["EvirProjectile"] = ["ProjectileNormal", "ProjectileRegenerating"],
+                ["EvirProjectile"] = ["ProjectileIdle", "ProjectileRegenerating"],
             },
             new Dictionary<string, string[]>(StringComparer.Ordinal), null, null, []),
         // The gunship's top is its top hull; its bottom is the bottom hull or the entrance pad, which opens and closes.

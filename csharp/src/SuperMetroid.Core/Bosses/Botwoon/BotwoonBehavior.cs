@@ -510,7 +510,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         SamusState samus)
     {
         Bearing bearing = EnemyMath.CalculateBearing(
-            new(CoordinateAxis.Difference(samus.Position.X.Whole, head.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, head.Position.Y.Whole)));
+            new(samus.Position.X.Whole - head.Position.X.Whole, samus.Position.Y.Whole - head.Position.Y.Whole));
         StartBotwoonHeadAnimation(head, state, BotwoonHeadAnimationSegment.SpittingToward(bearing));
         state.SpitAngle = bearing.ToTrigonometryAngle().ToAngle();
         state.HeadAction = state.Phase == BotwoonPhase.SpitWhileHidden
@@ -608,7 +608,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     {
         SignedSixteenSixteen displacement = state.DeathFallAccumulator.Speed.Positive;
         head.Position = head.Position.AdvanceY(displacement);
-        if (CoordinateAxis.Difference(head.Position.Y.Whole, BotwoonFightDefinitions.FloorY) < 0)
+        if (head.Position.Y.Whole < BotwoonFightDefinitions.FloorY)
         {
             state.DeathFallAccumulator += BotwoonDeathDefinitions.FallAcceleration;
             return;
@@ -910,7 +910,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     {
         EnemyProjectile projectile = segment.Projectile;
         projectile.Position = projectile.Position.AdvanceY(segment.FallPlace.Speed.Positive);
-        if (CoordinateAxis.Difference(projectile.Position.Y.Whole, BotwoonFightDefinitions.FloorY) < 0)
+        if (projectile.Position.Y.Whole < BotwoonFightDefinitions.FloorY)
         {
             // A place past the table's last row fails when its row is read, long before the place could grow large.
             segment.FallPlace += BotwoonDeathDefinitions.FallAcceleration;

@@ -75,7 +75,7 @@ internal sealed class DraygonTurrets
         // The shot flies along the bearing from the turret to Samus at the wall turret's speed, its direction on
         // each axis taken from that bearing every update.
         TrigonometryAngle flightAngle = EnemyMath.CalculateBearing(
-            new(CoordinateAxis.Difference(samus.Position.X.Whole, turret.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, turret.Position.Y.Whole))).ToTrigonometryAngle();
+            new(samus.Position.X.Whole - turret.Position.X.Whole, samus.Position.Y.Whole - turret.Position.Y.Whole)).ToTrigonometryAngle();
         DraygonParts.SetDraygonProjectileVelocity(turret, flightAngle, DraygonProjectileSpeeds.WallTurret);
 
         // The shot holds still until its muzzle bloom reaches the step that sets it flying.

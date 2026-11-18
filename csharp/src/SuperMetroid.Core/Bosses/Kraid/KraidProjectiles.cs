@@ -329,7 +329,7 @@ internal sealed class KraidProjectiles
     /// <summary>Launches a lint projectile toward Samus from the part's position.</summary>
     private static void FireKraidLint(RoomEnemyPlace lint, KraidLintState part, SamusState samus)
     {
-        AddSignedKraidHorizontalDisplacement(lint, KraidPlatformMovement.FiringDisplacement);
+        lint.Position = lint.Position.AdvanceX(KraidPlatformMovement.FiringDisplacement);
         if (lint.Position.X.Whole < KraidArenaDefinitions.LintIntangibleX)
             lint.Contact = lint.Contact.With(EnemyContact.IgnoresSamus);
         if (lint.Position.X.Whole < KraidArenaDefinitions.LintReturnX)
@@ -349,14 +349,6 @@ internal sealed class KraidProjectiles
             samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(
                 carry.WithWholePixelsAtLeast(KraidPlatformMovement.MinimumCarryWholePixels));
         }
-    }
-
-    /// <summary>Adds signed horizontal motion to the body position, wrapping around the coordinate range.</summary>
-    private static void AddSignedKraidHorizontalDisplacement(
-        RoomEnemyPlace place,
-        SignedSixteenSixteen displacement)
-    {
-        place.Position = place.Position.WithX(place.Position.X.MovedBy(displacement));
     }
 
     /// <summary>Updates a spit rock's flight and removes it at its boundary.</summary>

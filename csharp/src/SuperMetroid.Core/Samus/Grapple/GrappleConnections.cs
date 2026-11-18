@@ -23,31 +23,12 @@ internal static class GrappleConnections
     internal static SpecialConnection Reflection(SpecialConnection stop) =>
         new(ReflectionTurn - stop.Angle, SamusPoseMirror.Of(stop.Pose), stop.SamusOffset.MirroredX(), stop.Kind);
 
-    /// <summary>Grapple cancellation policy for the 28 movement types.</summary>
-    internal static bool CancelsFiring(SamusMovementType movement) => movement switch
-    {
-        SamusMovementType.Standing or SamusMovementType.Running or SamusMovementType.NormalJumping
-            or SamusMovementType.Crouching or SamusMovementType.Falling or SamusMovementType.Moonwalking or SamusMovementType.RanIntoWall
-            or SamusMovementType.Grappling or SamusMovementType.DraygonHeld => false,
-        SamusMovementType.SpinJumping or
-            SamusMovementType.MorphBallGround or
-            SamusMovementType.GlitchBall or
-            SamusMovementType.MorphBallFalling or
-            SamusMovementType.GlitchBallKnockback or
-            SamusMovementType.Knockback or
-            SamusMovementType.CompactAirborne or
-            SamusMovementType.TurningOnGround or
-            SamusMovementType.PostureTransition or
-            SamusMovementType.SpringBallGround or
-            SamusMovementType.SpringBallInAir or
-            SamusMovementType.SpringBallFalling or
-            SamusMovementType.WallJumping or
-            SamusMovementType.TurningWhileJumping or
-            SamusMovementType.TurningWhileFalling or
-            SamusMovementType.DamageBoost or
-            SamusMovementType.Special => true,
-        _ => throw new ArgumentOutOfRangeException(nameof(movement)),
-    };
+    /// <summary>Whether <paramref name="movement"/> cancels firing the Grapple (<see cref="SamusMovementTypeDefinitions"/>).</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The movement type has no definition.</exception>
+    internal static bool CancelsFiring(SamusMovementType movement) =>
+        SamusMovementTypeDefinitions.Movements.TryGetValue(movement, out SamusMovementTypeDefinition? definition)
+            ? definition.GrappleFiring == GrappleFiringResponse.Cancelled
+            : throw new ArgumentOutOfRangeException(nameof(movement));
 
     /// <summary>Directional standing/crouching poses after the rope drops.</summary>
     internal static SamusPoseId DroppedPose(SamusProjectileDirection direction, bool compact) => direction switch

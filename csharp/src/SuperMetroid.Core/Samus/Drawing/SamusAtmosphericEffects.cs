@@ -9,26 +9,14 @@ namespace SuperMetroid.Core.Samus.Drawing;
 /// <summary>Which splash or footstep effect Samus's movement and room produce.</summary>
 internal static class SamusAtmosphericEffects
 {
-    /// <summary>Grounded postures produce the paired surface splash; other movement dives.</summary>
-    internal static WaterSplashKind WaterSplashFor(SamusMovementType movementType)
-    {
-        return movementType switch
-        {
-            SamusMovementType.Standing or SamusMovementType.MorphBallGround or SamusMovementType.Crouching or
-            SamusMovementType.TurningOnGround or SamusMovementType.PostureTransition or SamusMovementType.Moonwalking or
-            SamusMovementType.SpringBallGround or SamusMovementType.RanIntoWall => WaterSplashKind.GroundedPair,
-            SamusMovementType.Running or SamusMovementType.NormalJumping or SamusMovementType.SpinJumping or
-                SamusMovementType.Falling or SamusMovementType.GlitchBall or
-                SamusMovementType.MorphBallFalling or SamusMovementType.GlitchBallKnockback or
-                SamusMovementType.Knockback or
-                SamusMovementType.CompactAirborne or SamusMovementType.SpringBallInAir or
-                SamusMovementType.SpringBallFalling or SamusMovementType.WallJumping or
-                SamusMovementType.Grappling or SamusMovementType.TurningWhileJumping or
-                SamusMovementType.TurningWhileFalling or SamusMovementType.DamageBoost or
-                SamusMovementType.DraygonHeld or SamusMovementType.Special => WaterSplashKind.Diving,
-            _ => throw new InvalidDataException($"Water-splash movement type {movementType} is outside the 28 movement types."),
-        };
-    }
+    /// <summary>
+    /// The splash <paramref name="movementType"/> raises entering water (<see cref="SamusMovementTypeDefinitions"/>):
+    /// grounded postures produce the paired surface splash; other movement dives.
+    /// </summary>
+    internal static WaterSplashKind WaterSplashFor(SamusMovementType movementType) =>
+        SamusMovementTypeDefinitions.Movements.TryGetValue(movementType, out SamusMovementTypeDefinition? definition)
+            ? definition.Splash
+            : throw new InvalidDataException($"Water-splash movement type {movementType} is outside the movement types.");
 
     /// <summary>
     /// Whether <paramref name="strideFrame"/>, a frame of the run's stride, is one of its two foot contacts

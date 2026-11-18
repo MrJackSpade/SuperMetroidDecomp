@@ -76,50 +76,22 @@ public static class SamusKnockbackMovement
         if (samus.KnockbackActive || samus.KnockbackDirection != SamusKnockbackDirection.None)
             throw new InvalidOperationException("Normal knockback is already active or pending.");
 
+        // Every movement type is morphed, upright, the glitch ball or one that refuses knockback
+        // (SamusMovementTypeDefinitions). Any other cannot name another game behaviour; it means Samus carries
+        // corrupt pose metadata rather than an unmodelled movement family.
         SamusMovementType sourceMovementType = SamusPoseMetadata.ReadMovementType(samus);
-        bool morphed = sourceMovementType is
-            SamusMovementType.MorphBallGround or
-            SamusMovementType.MorphBallFalling or
-            SamusMovementType.GlitchBallKnockback or
-            SamusMovementType.SpringBallGround or
-            SamusMovementType.SpringBallInAir or
-            SamusMovementType.SpringBallFalling;
-        bool humanoid = sourceMovementType is
-            SamusMovementType.Standing or
-            SamusMovementType.Running or
-            SamusMovementType.NormalJumping or
-            SamusMovementType.SpinJumping or
-            SamusMovementType.Crouching or
-            SamusMovementType.Falling or
-            SamusMovementType.CompactAirborne or
-            SamusMovementType.Moonwalking or
-            SamusMovementType.WallJumping or
-            SamusMovementType.RanIntoWall;
-        bool glitchBall = sourceMovementType == SamusMovementType.GlitchBall;
-        bool suppressesKnockback = sourceMovementType is
-            SamusMovementType.Knockback or
-            SamusMovementType.TurningOnGround or
-            SamusMovementType.PostureTransition or
-            SamusMovementType.Grappling or
-            SamusMovementType.TurningWhileJumping or
-            SamusMovementType.TurningWhileFalling or
-            SamusMovementType.DamageBoost or
-            SamusMovementType.DraygonHeld or
-            SamusMovementType.Special;
-        if (!morphed && !humanoid && !glitchBall && !suppressesKnockback)
-        {
-            // Every movement type is morphed, humanoid, the glitch ball or one that suppresses knockback.
-            // Any other cannot name another game behaviour; it means Samus carries
-            // corrupt pose metadata rather than an unmodelled movement family.
-            throw new InvalidDataException(
-                $"Movement type {sourceMovementType} has no knockback response.");
-        }
+        SamusKnockbackResponse response =
+            SamusMovementTypeDefinitions.Movements.TryGetValue(sourceMovementType, out SamusMovementTypeDefinition? definition)
+                ? definition.Knockback
+                : throw new InvalidDataException($"Movement type {sourceMovementType} has no knockback response.");
+        bool morphed = response == SamusKnockbackResponse.Ball;
+        bool humanoid = response == SamusKnockbackResponse.Upright;
 
         // Enemy contact has already established the knockback timer before the knockback check selects a pose.
         // Turning, grapple, current knockback, damage boost, and special-movement bodies all
         // refuse knockback: they retain the timer/flicker but do not give the knockback her movement.
         samus.KnockbackTimer = launch.KnockbackTimer;
-        if (suppressesKnockback)
+        if (response == SamusKnockbackResponse.Refused)
             return false;
 
         // Replaces an ordinary body with a knockback pose. A ball, by contrast, keeps its exact Morph or Spring Ball
@@ -140,7 +112,7 @@ public static class SamusKnockbackMovement
             // The interrupted pose commits after movement. The input phase publishes its radius
             // next frame; keep the collision resolver's old live radius through this one.
         }
-        else if (glitchBall)
+        else if (response == SamusKnockbackResponse.GlitchBall)
         {
             // A hit on the glitch ball, unlike the ball path, installs the glitch ball's knockback pose, then continues
             // through the same knockback-start hurt setup as a humanoid pose.

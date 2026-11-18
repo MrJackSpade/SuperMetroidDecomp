@@ -634,26 +634,14 @@ public sealed class SamusXrayState
         samus.CommitPoseHistory();
     }
 
-    /// <summary>Admits standing-like and crouching movement types to different visor poses.</summary>
-    private static XrayPosture ClassifyAllowedMovement(SamusMovementType movementType) => movementType switch
-    {
-        SamusMovementType.Standing or
-            SamusMovementType.Running or
-            SamusMovementType.RanIntoWall => XrayPosture.Standing,
-        SamusMovementType.Crouching => XrayPosture.Crouching,
-        SamusMovementType.NormalJumping or SamusMovementType.SpinJumping or
-            SamusMovementType.MorphBallGround or SamusMovementType.Falling or
-            SamusMovementType.GlitchBall or SamusMovementType.MorphBallFalling or
-            SamusMovementType.GlitchBallKnockback or SamusMovementType.Knockback or
-            SamusMovementType.CompactAirborne or
-            SamusMovementType.TurningOnGround or SamusMovementType.PostureTransition or
-            SamusMovementType.Moonwalking or SamusMovementType.SpringBallGround or
-            SamusMovementType.SpringBallInAir or SamusMovementType.SpringBallFalling or
-            SamusMovementType.WallJumping or SamusMovementType.Grappling or
-            SamusMovementType.TurningWhileJumping or SamusMovementType.TurningWhileFalling or
-            SamusMovementType.DamageBoost or SamusMovementType.DraygonHeld or SamusMovementType.Special => XrayPosture.Disallowed,
-        _ => throw new InvalidOperationException($"Undefined SamusMovementType {movementType}."),
-    };
+    /// <summary>
+    /// The visor pose <paramref name="movementType"/> admits (<see cref="SamusMovementTypeDefinitions"/>): standing-like
+    /// and crouching movement types take different visor poses.
+    /// </summary>
+    private static XrayPosture ClassifyAllowedMovement(SamusMovementType movementType) =>
+        SamusMovementTypeDefinitions.Movements.TryGetValue(movementType, out SamusMovementTypeDefinition? definition)
+            ? definition.Xray
+            : throw new InvalidOperationException($"Undefined SamusMovementType {movementType}.");
 
     /// <summary>Starts the beam's closing on the update its step reads Run released.</summary>
     private void StartClosing()
@@ -674,16 +662,5 @@ public sealed class SamusXrayState
     {
         if (!IsActive)
             throw new InvalidOperationException("X-ray is not active, so it neither moves Samus nor reads her pose input.");
-    }
-
-    /// <summary>Posture categories used by visor admission and pose choice.</summary>
-    private enum XrayPosture
-    {
-        /// <summary>Movement type outside the visor's standing and crouching entry paths.</summary>
-        Disallowed,
-        /// <summary>Uses the standing right or left visor pose.</summary>
-        Standing,
-        /// <summary>Uses the crouching right or left visor pose.</summary>
-        Crouching,
     }
 }

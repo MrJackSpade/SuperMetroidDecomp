@@ -142,8 +142,6 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         };
         place.SetSpeciesState(state);
         RequestEvirAnimation(place, state, EvirSegment.ProjectileNormal);
-
-        // The spit has no graphics-set entry of its own: its sheet pictures it in the Evir's art and colours.
         ResetEvirProjectilePosition(place, state);
 
         // The spit's first request, at its first launch, starts its normal animation afresh, refreshing the frame timer once.

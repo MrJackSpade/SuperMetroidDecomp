@@ -651,6 +651,16 @@ does: pictures arrive pre-coloured, a position or speed carries its fraction of 
 no species says what it is (`The Zebes escape's explosions`, `The falling sparks`). A speed in 1/65536 pixels, a setup
 that selects anything but colours and an entity's parameter naming its species owner stay English.
 
+#2433 widens SME6454, outside hardware owners, to the machine's coordinate wrap and the original's stores, calls and
+writes as enemy prose tells them: a comparison across the room's wrap or on either side of it (`the coordinate difference
+across the room's wrap`, `on either side of the wrap`); a distance measured as an encoding owner measures it (`measured
+across the room as CoordinateAxis.Difference measures it`); `clearing stores` or writes; a thing that issues calls
+(`leaving the room issues both calls`); and `overlapping writes` or stores. Core says what the game does: an Atomic
+moves towards Samus, Samus lies to the block's left or right, the drain cancels her invincibility and knockback, leaving
+queues the departure sound and then the spin-end sound, the release leaves five screens closed; `CoordinateAxis` states
+the wrap once. A turn's wrap, a thing wrapped across something, clearing a thing, an issue, a call and overlapping things
+that are not writes stay English.
+
 `Tilemap` is matched as the one word the cartridge's sources spell. A room layer named as the destination engine names
 it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as does `MapTiles`; so does
 `SpriteSheet` beside `Spritemap`, and `Scan`, `Scanned` or `FirstLine` beside `Scanline` (#1694). Documentation prose is

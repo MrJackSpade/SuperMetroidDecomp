@@ -1763,6 +1763,25 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         // A unit of measure, a setup that selects anything but colours and a hardware owner are English.
         Expect("class P { /// <summary>A speed in 1/65536 pixels; the setup selects the vent's first plume.</summary>\nint F => 0; }");
         Expect(CompatibilityService + "/// <summary>Evidence: the setup selects the common sprite colours for Samus's 1/65536-pixel position.</summary>\n[CompatibilityService(\"setup\")] class Setup { }");
+        // The machine's coordinate wrap and the original's stores, calls and writes in enemy prose, outside hardware owners
+        // and markup (#2433): a comparison across the room's wrap or on either side of it, a distance measured as an encoding
+        // owner measures it, clearing stores, a thing that issues calls and overlapping writes.
+        Expect("class P { void Run() { // The comparison is by whether the coordinate difference across the room's wrap is negative.\n } }",
+            "('across the room's wrap')");
+        Expect("class P { void Run() { // An Atomic and Samus on either side of the wrap still chase the short way.\n } }",
+            "('either side of the wrap')");
+        Expect("class P { void Run() { // Samus's distance from the block, measured across the room as CoordinateAxis.Difference measures it.\n } }",
+            "('measured across the room as CoordinateAxis.Difference measures it')");
+        Expect("class P { /// <summary>Its distance, measured as <see cref=\"P\"/> measures it.</summary>\nint F => 0; }",
+            "('measured as   measures it')");
+        Expect("class P { void Run() { // Apply the damage directly, then reproduce those two clearing stores.\n } }", "('clearing stores')");
+        Expect("class P { void Run() { // Leaving the room issues both calls in this order.\n } }", "('issues both calls')");
+        Expect("class P { /// <summary>The release's overlapping writes leave five screens closed.</summary>\nint F => 0; }",
+            "('overlapping writes')");
+        // A turn's wrap, a thing wrapped across something, clearing a thing, an issue, a call alone, overlapping things that
+        // are not writes and a hardware owner are English.
+        Expect("class P { /// <summary>The angle wraps around the turn; the scarf wrapped across the statue; clearing the room; an issue; overlapping shots.</summary>\nint F => 0; }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the release's overlapping writes and clearing stores, across the room's wrap.</summary>\n[CompatibilityService(\"writes\")] class Writes { }");
         // The species-owner template on a type that owns no species (#2427), read on the type's own summary; a type that
         // implements or is a species owner's interface owns a species, and an entity's parameter names its owner.
         const string SpeciesOwners = "interface IEnemySpecies { }\ninterface IEnemyEntityFactory { }\n";

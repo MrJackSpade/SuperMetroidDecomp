@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Areas.Ceres;

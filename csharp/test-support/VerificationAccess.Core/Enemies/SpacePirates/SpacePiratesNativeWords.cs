@@ -16,7 +16,7 @@ internal static class SpacePiratesNativeWords
         new(new Dictionary<(NinjaSpacePirateAction Action, HorizontalDirection? Heading), ushort>
         {
             [(NinjaSpacePirateAction.StandingStill, null)] = 0x804b,
-            [(NinjaSpacePirateAction.Initial, null)] = 0xf6a9,
+            [(NinjaSpacePirateAction.AwaitingSamus, null)] = 0xf6a9,
             [(NinjaSpacePirateAction.Active, null)] = 0xf6e4,
             [(NinjaSpacePirateAction.SpinJumpRising, HorizontalDirection.Left)] = 0xf817,
             [(NinjaSpacePirateAction.SpinJumpFalling, HorizontalDirection.Left)] = 0xf84c,

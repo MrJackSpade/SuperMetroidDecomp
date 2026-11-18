@@ -133,28 +133,25 @@ internal static class DachoraAnimations
     /// </summary>
     internal static IReadOnlyDictionary<DachoraSegment, Animation<DachoraSegment>> StartingAt { get; } = new Dictionary<DachoraSegment, Animation<DachoraSegment>>
     {
-        [P.RunningLeft] = new([Whole(P.RunningLeft)], AnimationEnd.LoopsFrom(0)),
-        [P.RunningLeftFast] = new([Whole(P.RunningLeftFast)], AnimationEnd.LoopsFrom(0)),
-        [P.RunningLeftVeryFast] = new([Whole(P.RunningLeftVeryFast)], AnimationEnd.LoopsFrom(0)),
-        [P.IdleLeft] = new([Whole(P.IdleLeft)], AnimationEnd.LoopsFrom(0)),
-        [P.BlinkLeft] = new([Whole(P.BlinkLeft)], AnimationEnd.LoopsFrom(0)),
-        [P.EchoLeft] = new([Whole(P.EchoLeft)], AnimationEnd.Holds),
-        [P.FallingLeft] = new([Whole(P.FallingLeft)], AnimationEnd.Holds),
-        [P.RunningRight] = new([Whole(P.RunningRight)], AnimationEnd.LoopsFrom(0)),
-        [P.RunningRightFast] = new([Whole(P.RunningRightFast)], AnimationEnd.LoopsFrom(0)),
-        [P.RunningRightVeryFast] = new([Whole(P.RunningRightVeryFast)], AnimationEnd.LoopsFrom(0)),
-        [P.IdleRight] = new([Whole(P.IdleRight)], AnimationEnd.LoopsFrom(0)),
-        [P.BlinkRight] = new([Whole(P.BlinkRight)], AnimationEnd.LoopsFrom(0)),
-        [P.ChargeRight] = new([Whole(P.ChargeRight)], AnimationEnd.Holds),
-        [P.EchoRight] = new([Whole(P.EchoRight)], AnimationEnd.Holds),
-        [P.FallingRight] = new([Whole(P.FallingRight)], AnimationEnd.Holds),
+        [P.RunningLeft] = new([Segments.Whole(P.RunningLeft)], AnimationEnd.LoopsFrom(0)),
+        [P.RunningLeftFast] = new([Segments.Whole(P.RunningLeftFast)], AnimationEnd.LoopsFrom(0)),
+        [P.RunningLeftVeryFast] = new([Segments.Whole(P.RunningLeftVeryFast)], AnimationEnd.LoopsFrom(0)),
+        [P.IdleLeft] = new([Segments.Whole(P.IdleLeft)], AnimationEnd.LoopsFrom(0)),
+        [P.BlinkLeft] = new([Segments.Whole(P.BlinkLeft)], AnimationEnd.LoopsFrom(0)),
+        [P.EchoLeft] = new([Segments.Whole(P.EchoLeft)], AnimationEnd.Holds),
+        [P.FallingLeft] = new([Segments.Whole(P.FallingLeft)], AnimationEnd.Holds),
+        [P.RunningRight] = new([Segments.Whole(P.RunningRight)], AnimationEnd.LoopsFrom(0)),
+        [P.RunningRightFast] = new([Segments.Whole(P.RunningRightFast)], AnimationEnd.LoopsFrom(0)),
+        [P.RunningRightVeryFast] = new([Segments.Whole(P.RunningRightVeryFast)], AnimationEnd.LoopsFrom(0)),
+        [P.IdleRight] = new([Segments.Whole(P.IdleRight)], AnimationEnd.LoopsFrom(0)),
+        [P.BlinkRight] = new([Segments.Whole(P.BlinkRight)], AnimationEnd.LoopsFrom(0)),
+        [P.ChargeRight] = new([Segments.Whole(P.ChargeRight)], AnimationEnd.Holds),
+        [P.EchoRight] = new([Segments.Whole(P.EchoRight)], AnimationEnd.Holds),
+        [P.FallingRight] = new([Segments.Whole(P.FallingRight)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<DachoraSegment> StartingWith(DachoraSegment segment) => StartingAt[segment];
-
-    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<DachoraSegment> Whole(DachoraSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>A still picture (#2275): <paramref name="frame"/>, held from the update it shows.</summary>
     private static AnimationBeat<EnemyFrameId, NoAnimationCue> Hold(EnemyFrameId frame) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.HeldFrame(frame);

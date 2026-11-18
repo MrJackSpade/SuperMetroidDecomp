@@ -199,33 +199,27 @@ internal static class MagdolliteAnimations
     /// </summary>
     internal static IReadOnlyDictionary<MagdolliteSegment, Animation<MagdolliteSegment>> StartingAt { get; } = new Dictionary<MagdolliteSegment, Animation<MagdolliteSegment>>
     {
-        [P.LeftIdle] = new([Whole(P.LeftIdle)], AnimationEnd.LoopsFrom(0)),
-        [P.LeftThrow] = new([Whole(P.LeftThrow)], AnimationEnd.Holds),
-        [P.LeftSubmerge] = new([Whole(P.LeftSubmerge), Repeated(P.LeftRaisePillar, PillarTravel), Whole(P.LeftPillarRaised)], AnimationEnd.Holds),
-        [P.LeftEmerge] = new([Whole(P.LeftEmerge), Repeated(P.LeftLowerPillar, PillarTravel), Whole(P.LeftSurfacing)], AnimationEnd.Holds),
-        [P.RightIdle] = new([Whole(P.RightIdle)], AnimationEnd.LoopsFrom(0)),
-        [P.RightThrow] = new([Whole(P.RightThrow)], AnimationEnd.Holds),
-        [P.RightSubmerge] = new([Whole(P.RightSubmerge), Repeated(P.RightRaisePillar, PillarTravel), Whole(P.RightPillarRaised)], AnimationEnd.Holds),
-        [P.RightEmerge] = new([Whole(P.RightEmerge), Repeated(P.RightLowerPillar, PillarTravel), Whole(P.RightSurfacing)], AnimationEnd.Holds),
-        [P.OneSegmentPillar] = new([Whole(P.OneSegmentPillar)], AnimationEnd.Holds),
-        [P.TwoSegmentPillar] = new([Whole(P.TwoSegmentPillar)], AnimationEnd.Holds),
-        [P.ThreeSegmentPillar] = new([Whole(P.ThreeSegmentPillar)], AnimationEnd.Holds),
-        [P.FourSegmentPillar] = new([Whole(P.FourSegmentPillar)], AnimationEnd.Holds),
-        [P.FiveSegmentPillar] = new([Whole(P.FiveSegmentPillar)], AnimationEnd.Holds),
-        [P.SixSegmentPillar] = new([Whole(P.SixSegmentPillar)], AnimationEnd.Holds),
-        [P.SevenSegmentPillar] = new([Whole(P.SevenSegmentPillar)], AnimationEnd.Holds),
-        [P.EightSegmentPillar] = new([Whole(P.EightSegmentPillar)], AnimationEnd.Holds),
-        [P.PillarCap] = new([Whole(P.PillarCap)], AnimationEnd.Holds),
+        [P.LeftIdle] = new([Segments.Whole(P.LeftIdle)], AnimationEnd.LoopsFrom(0)),
+        [P.LeftThrow] = new([Segments.Whole(P.LeftThrow)], AnimationEnd.Holds),
+        [P.LeftSubmerge] = new([Segments.Whole(P.LeftSubmerge), Segments.Repeated(P.LeftRaisePillar, PillarTravel), Segments.Whole(P.LeftPillarRaised)], AnimationEnd.Holds),
+        [P.LeftEmerge] = new([Segments.Whole(P.LeftEmerge), Segments.Repeated(P.LeftLowerPillar, PillarTravel), Segments.Whole(P.LeftSurfacing)], AnimationEnd.Holds),
+        [P.RightIdle] = new([Segments.Whole(P.RightIdle)], AnimationEnd.LoopsFrom(0)),
+        [P.RightThrow] = new([Segments.Whole(P.RightThrow)], AnimationEnd.Holds),
+        [P.RightSubmerge] = new([Segments.Whole(P.RightSubmerge), Segments.Repeated(P.RightRaisePillar, PillarTravel), Segments.Whole(P.RightPillarRaised)], AnimationEnd.Holds),
+        [P.RightEmerge] = new([Segments.Whole(P.RightEmerge), Segments.Repeated(P.RightLowerPillar, PillarTravel), Segments.Whole(P.RightSurfacing)], AnimationEnd.Holds),
+        [P.OneSegmentPillar] = new([Segments.Whole(P.OneSegmentPillar)], AnimationEnd.Holds),
+        [P.TwoSegmentPillar] = new([Segments.Whole(P.TwoSegmentPillar)], AnimationEnd.Holds),
+        [P.ThreeSegmentPillar] = new([Segments.Whole(P.ThreeSegmentPillar)], AnimationEnd.Holds),
+        [P.FourSegmentPillar] = new([Segments.Whole(P.FourSegmentPillar)], AnimationEnd.Holds),
+        [P.FiveSegmentPillar] = new([Segments.Whole(P.FiveSegmentPillar)], AnimationEnd.Holds),
+        [P.SixSegmentPillar] = new([Segments.Whole(P.SixSegmentPillar)], AnimationEnd.Holds),
+        [P.SevenSegmentPillar] = new([Segments.Whole(P.SevenSegmentPillar)], AnimationEnd.Holds),
+        [P.EightSegmentPillar] = new([Segments.Whole(P.EightSegmentPillar)], AnimationEnd.Holds),
+        [P.PillarCap] = new([Segments.Whole(P.PillarCap)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<MagdolliteSegment> StartingWith(MagdolliteSegment segment) => StartingAt[segment];
-
-    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<MagdolliteSegment> Whole(MagdolliteSegment segment) => Repeated(segment, 1);
-
-    /// <summary><paramref name="plays"/> plays of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<MagdolliteSegment> Repeated(MagdolliteSegment segment, int plays) => new(segment, 0, Segments.Beats(segment).Count, plays);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, MagdolliteCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, MagdolliteCue>.Frame(frame, duration);

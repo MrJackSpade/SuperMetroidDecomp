@@ -298,13 +298,13 @@ internal static class EnemySheetOwnFramesVerification
         {
             [EnemyDefinitionId.Ridley] = Reach(RidleyAnimations.Segments, RidleyAnimations.StartingAt,
             [
-                .. EitherFacing(RidleyAnimations.Initial, RidleyAnimations.OpeningRoar, RidleyAnimations.TransitionToFlying, RidleyAnimations.Fireballing,
+                .. EitherFacing(RidleyAnimations.Standing, RidleyAnimations.OpeningRoar, RidleyAnimations.TransitionToFlying, RidleyAnimations.Fireballing,
                     RidleyAnimations.DeathRoar),
                 RidleyBodySegment.TurnFromLeftToRight, RidleyBodySegment.TurnFromRightToLeft,
             ], RidleyCueTargets),
             [EnemyDefinitionId.RidleyCeres] = Reach(RidleyAnimations.Segments, RidleyAnimations.StartingAt,
             [
-                .. EitherFacing(RidleyAnimations.Initial, RidleyAnimations.OpeningRoar, RidleyAnimations.TransitionToFlying, RidleyAnimations.CeresLunge,
+                .. EitherFacing(RidleyAnimations.Standing, RidleyAnimations.OpeningRoar, RidleyAnimations.TransitionToFlying, RidleyAnimations.CeresLunge,
                     RidleyAnimations.RetrieveBabyMetroid, RidleyAnimations.Fireballing),
             ], RidleyCueTargets),
             [EnemyDefinitionId.RidleyBreakupPiece] = new HashSet<EnemyFrameId>(),

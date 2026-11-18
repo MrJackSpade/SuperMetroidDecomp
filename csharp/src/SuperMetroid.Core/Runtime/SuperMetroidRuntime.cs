@@ -622,7 +622,7 @@ internal sealed class SuperMetroidRuntime
             Player.Samus?.Xray.AreColourEffectsSuspended != true)
         {
             Room.LoadedScope.ColourEffects.Step(new ColourEffectInputs { SamusY = Player.Samus?.Position.Y.Whole ?? 0, EquippedItems = Player.Samus?.EquippedItems ?? SamusEquipmentFlags.None, AreaMiniBossDefeated = Room.ActiveRoom is { } activeRoom &&
-                    System.HasDefeatedAnyOf(activeRoom.Area, DefeatedBosses.AreaMiniBoss), Samus = Player.Samus?.RoomView, FrameCounter = Clock.Counter });
+                    System.HasDefeatedAnyOf(activeRoom.Area, DefeatedBosses.AreaMiniBoss), Samus = Player, FrameCounter = Clock.Counter });
             // Her heat glow and her suit's loading show over her suit as the frames that wrote it (#1512).
             foreach ((ColourEffectColours colours, ColourEffectFrame frame) in Room.LoadedScope.ColourEffects.SuitShown)
                 Player.Colours.LayOverSuit(ColourEffectShades.Of(colours, frame));

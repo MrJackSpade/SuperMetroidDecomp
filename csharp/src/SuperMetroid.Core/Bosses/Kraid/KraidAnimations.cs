@@ -309,27 +309,23 @@ internal static class KraidAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<KraidPartSegment, Animation<KraidPartSegment>> StartingAt { get; } = new Dictionary<KraidPartSegment, Animation<KraidPartSegment>>
     {
-        [P.FootInitial] = new([Whole(P.FootInitial)], AnimationEnd.Holds),
-        [P.FootNeutral] = new([Whole(P.FootNeutral)], AnimationEnd.Holds),
-        [P.FootWalkingForward] = new([Whole(P.FootWalkingForward)], AnimationEnd.Holds),
-        [P.FootLungeForward] = new([Whole(P.FootLungeForward)], AnimationEnd.Holds),
-        [P.FootWalkingBackward] = new([Whole(P.FootWalkingBackward)], AnimationEnd.LoopsFrom(0)),
-        [P.ArmNormal] = new([Whole(P.ArmNormal), Whole(P.ArmNormalPause)], AnimationEnd.LoopsFrom(0)),
-        [P.ArmNormalPause] = new([Whole(P.ArmNormalPause), Whole(P.ArmNormal)], AnimationEnd.LoopsFrom(0)),
-        [P.ArmSlow] = new([Whole(P.ArmSlow)], AnimationEnd.LoopsFrom(0)),
-        [P.ArmRisingOrSinking] = new([Whole(P.ArmRisingOrSinking)], AnimationEnd.LoopsFrom(0)),
-        [P.ArmDyingOrPreparingToLunge] = new([Whole(P.ArmDyingOrPreparingToLunge)], AnimationEnd.Holds),
-        [P.LintInitial] = new([Whole(P.LintInitial)], AnimationEnd.Holds),
-        [P.LintPostGrowth] = new([Whole(P.LintPostGrowth)], AnimationEnd.Holds),
-        [P.NailLoop] = new([Whole(P.NailLoop)], AnimationEnd.LoopsFrom(0)),
+        [P.FootInitial] = new([Segments.Whole(P.FootInitial)], AnimationEnd.Holds),
+        [P.FootNeutral] = new([Segments.Whole(P.FootNeutral)], AnimationEnd.Holds),
+        [P.FootWalkingForward] = new([Segments.Whole(P.FootWalkingForward)], AnimationEnd.Holds),
+        [P.FootLungeForward] = new([Segments.Whole(P.FootLungeForward)], AnimationEnd.Holds),
+        [P.FootWalkingBackward] = new([Segments.Whole(P.FootWalkingBackward)], AnimationEnd.LoopsFrom(0)),
+        [P.ArmNormal] = new([Segments.Whole(P.ArmNormal), Segments.Whole(P.ArmNormalPause)], AnimationEnd.LoopsFrom(0)),
+        [P.ArmNormalPause] = new([Segments.Whole(P.ArmNormalPause), Segments.Whole(P.ArmNormal)], AnimationEnd.LoopsFrom(0)),
+        [P.ArmSlow] = new([Segments.Whole(P.ArmSlow)], AnimationEnd.LoopsFrom(0)),
+        [P.ArmRisingOrSinking] = new([Segments.Whole(P.ArmRisingOrSinking)], AnimationEnd.LoopsFrom(0)),
+        [P.ArmDyingOrPreparingToLunge] = new([Segments.Whole(P.ArmDyingOrPreparingToLunge)], AnimationEnd.Holds),
+        [P.LintInitial] = new([Segments.Whole(P.LintInitial)], AnimationEnd.Holds),
+        [P.LintPostGrowth] = new([Segments.Whole(P.LintPostGrowth)], AnimationEnd.Holds),
+        [P.NailLoop] = new([Segments.Whole(P.NailLoop)], AnimationEnd.LoopsFrom(0)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<KraidPartSegment> StartingWith(KraidPartSegment segment) => StartingAt[segment];
-
-    /// <summary>One play of every beat of <paramref name="segment"/> (#2296).</summary>
-    private static AnimationPhase<KraidPartSegment> Whole(KraidPartSegment segment) =>
-        new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>Shows <paramref name="picture"/> where the part stands for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<KraidPartPose, KraidPartCue> Show(EnemyFrameId picture, int duration) =>

@@ -45,21 +45,14 @@ internal static class ChozoTourianDustAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at: the footstep dust's.</summary>
     internal static IReadOnlyDictionary<ChozoTourianDustSegment, Animation<ChozoTourianDustSegment>> StartingAt { get; } = new Dictionary<ChozoTourianDustSegment, Animation<ChozoTourianDustSegment>>
     {
-        [P.Footsteps] = new([Whole(P.Footsteps)], AnimationEnd.Holds),
+        [P.Footsteps] = new([Segments.Whole(P.Footsteps)], AnimationEnd.Holds),
     };
 
     /// <summary>
     /// The dust the Tourian statue raises as it sinks (#2061): sixty-four puffs scattered about its origin, then deleted.
     /// </summary>
     internal static Animation<ChozoTourianDustSegment> TourianDescentDust { get; } =
-        new([Repeated(P.TourianDescentDust, DescentDustPuffs), Whole(P.TourianDescentDustEnd)], AnimationEnd.Holds);
-
-    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<ChozoTourianDustSegment> Whole(ChozoTourianDustSegment segment) => Repeated(segment, 1);
-
-    /// <summary><paramref name="plays"/> plays of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<ChozoTourianDustSegment> Repeated(ChozoTourianDustSegment segment, int plays) =>
-        new(segment, 0, Segments.Beats(segment).Count, plays);
+        new([Segments.Repeated(P.TourianDescentDust, DescentDustPuffs), Segments.Whole(P.TourianDescentDustEnd)], AnimationEnd.Holds);
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<ChozoTourianDustSegment> StartingWith(ChozoTourianDustSegment segment) => StartingAt[segment];

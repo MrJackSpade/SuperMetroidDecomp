@@ -57,8 +57,8 @@ internal static class RidleyShotHealthStageVerification
             shot.Radius = new(8, 8);
             shot.Playback = ProjectileFixturePlaybacks.Active; shot.FrameHold = WrappingCountdown.Start(1);
         }
-        runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(runtime.Projectiles, runtime.BombProjectiles, runtime.Room.LoadedRoom.Area, samus,
-            onlyEnemy: ridley);
+        runtime.Enemies.Collision.ResolveOrdinaryProjectileHit(runtime.Projectiles, runtime.BombProjectiles, runtime.Room.LoadedRoom.Area, samus,
+            ridley, Position16<RoomPixels>.Zero);
 
         AssertTrue(ridley.Health < 9000, "the hits cross 9000");
         AssertTrue(ReferenceEquals(NorfairRidleyHealthBandDefinitions.Unhurt, state.HealthBand), "the shot leaves the health band for his AI to update");

@@ -16,6 +16,9 @@ using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Fx.Artwork;
 using SuperMetroid.Verification.Fx.PaletteFx;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Samus;
@@ -80,9 +83,9 @@ internal static class RoomPaletteFxPresentationVerification
         int frames = NorfairEnvironmentalPaletteFxColorDefinitions.CycleFrames * 2;
         for (int frame = 0; frame < frames; frame++)
         {
-            native.Step(new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
+            native.Step(new ColourEffectInputs { Samus = FixtureRoomSamus.Uninstalled, SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
             PaletteFxRoomLook.LayShownShades(native, nativeCgram, new ReferencePaletteFxColorSource(bus));
-            installed.Step(new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
+            installed.Step(new ColourEffectInputs { Samus = FixtureRoomSamus.Uninstalled, SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
             PaletteFxRoomLook.LayShownShades(installed, installedCgram, presentation);
             AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                 $"installed Norfair palette equals native output on frame {frame}");
@@ -251,6 +254,11 @@ internal static class RoomPaletteFxPresentationVerification
                 _ => throw new InvalidOperationException(),
             };
             native.Start(RoomPaletteFxDefinitions.SamusInHeat, SamusEquipmentWordCodec.FromEquipmentWord(equipment));
+            // The Power Suit's shimmer burns Samus as it plays; each system burns a Samus of its own.
+            SamusState nativeBurned = RoomEnemyFrameFixtures.StandaloneSamus();
+            SamusState installedBurned = RoomEnemyFrameFixtures.StandaloneSamus();
+            var nativeSamus = new FixtureRoomSamus(() => nativeBurned);
+            var installedSamus = new FixtureRoomSamus(() => installedBurned);
             installed.Start(RoomPaletteFxDefinitions.SamusInHeat, SamusEquipmentWordCodec.FromEquipmentWord(equipment));
             var nativeCgram = new SnesCgram();
             var installedCgram = new SnesCgram();
@@ -258,9 +266,9 @@ internal static class RoomPaletteFxPresentationVerification
                 .Sum(phase => PaletteFxHeatProgramDefinitionConstants.Duration(definition.Suit, phase));
             for (int step = 0; step <= steps; step++)
             {
-                native.Step(new ColourEffectInputs { SamusY = 0, EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(equipment), AreaMiniBossDefeated = false });
+                native.Step(new ColourEffectInputs { Samus = nativeSamus, SamusY = 0, EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(equipment), AreaMiniBossDefeated = false });
                 PaletteFxRoomLook.LayShownShades(native, nativeCgram, new ReferencePaletteFxColorSource(bus));
-                installed.Step(new ColourEffectInputs { SamusY = 0, EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(equipment), AreaMiniBossDefeated = false });
+                installed.Step(new ColourEffectInputs { Samus = installedSamus, SamusY = 0, EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(equipment), AreaMiniBossDefeated = false });
                 PaletteFxRoomLook.LayShownShades(installed, installedCgram, presentation);
                 AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                     $"installed {definition.Suit} heat CGRAM matches native frame {step}");
@@ -307,7 +315,7 @@ internal static class RoomPaletteFxPresentationVerification
             var installedCgram = new SnesCgram();
             for (int frame = 0; frame < framesToRun; frame++)
             {
-                var conditions = new ColourEffectInputs { SamusY = samusY, EquippedItems = 0, AreaMiniBossDefeated = false };
+                var conditions = new ColourEffectInputs { Samus = FixtureRoomSamus.Uninstalled, SamusY = samusY, EquippedItems = 0, AreaMiniBossDefeated = false };
                 StepFamily(native, shape, conditions);
                 PaletteFxRoomLook.LayShownShades(native, nativeCgram, new ReferencePaletteFxColorSource(bus));
                 StepFamily(installed, shape, conditions);
@@ -373,9 +381,9 @@ internal static class RoomPaletteFxPresentationVerification
             const int frames = 160;
             for (int frame = 0; frame < frames; frame++)
             {
-                native.Step(new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
+                native.Step(new ColourEffectInputs { Samus = FixtureRoomSamus.Uninstalled, SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
                 PaletteFxRoomLook.LayShownShades(native, nativeCgram, new ReferencePaletteFxColorSource(bus));
-                installed.Step(new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
+                installed.Step(new ColourEffectInputs { Samus = FixtureRoomSamus.Uninstalled, SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
                 PaletteFxRoomLook.LayShownShades(installed, installedCgram, presentation);
                 AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                     $"installed Wrecked Ship definition ${definition:X4} equals native " +
@@ -433,9 +441,9 @@ internal static class RoomPaletteFxPresentationVerification
         const int frames = 80;
         for (int frame = 0; frame < frames; frame++)
         {
-            native.Step(new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
+            native.Step(new ColourEffectInputs { Samus = FixtureRoomSamus.Uninstalled, SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
             PaletteFxRoomLook.LayShownShades(native, nativeCgram, new ReferencePaletteFxColorSource(bus));
-            installed.Step(new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
+            installed.Step(new ColourEffectInputs { Samus = FixtureRoomSamus.Uninstalled, SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
             PaletteFxRoomLook.LayShownShades(installed, installedCgram, presentation);
             AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                 $"installed Maridia palette equals native output on frame {frame}");

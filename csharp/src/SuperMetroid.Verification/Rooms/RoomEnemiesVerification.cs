@@ -594,12 +594,12 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     }
 
     SamusProjectile shot = ArmProjectile(projectiles, ripper, type: 0x8000, damage: 20);
-    AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(projectiles, sharedProjectiles, SuperMetroid.Core.Progression.AreaId.Crateria, RoomEnemyFrameFixtures.StandaloneSamus()),
+    AssertEqual(1, enemies.ResolveShotsOnInteractiveEnemies(projectiles, sharedProjectiles, SuperMetroid.Core.Progression.AreaId.Crateria, RoomEnemyFrameFixtures.StandaloneSamus()),
         "Ripper ineffective power-beam collision");
     AssertEqual(200, ripper.Health, "Ripper power-beam immunity comes from ROM vulnerability");
 
     shot = ArmProjectile(projectiles, ripper, type: 0x8002, damage: 20);
-    AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(projectiles, sharedProjectiles, SuperMetroid.Core.Progression.AreaId.Crateria, RoomEnemyFrameFixtures.StandaloneSamus()),
+    AssertEqual(1, enemies.ResolveShotsOnInteractiveEnemies(projectiles, sharedProjectiles, SuperMetroid.Core.Progression.AreaId.Crateria, RoomEnemyFrameFixtures.StandaloneSamus()),
         "Ripper Ice Beam collision");
     AssertEqual(400, ripper.FrozenTimer, "Ripper Ice vulnerability freezes actor");
     ushort frozenX = ripper.Position.X.Whole;
@@ -622,7 +622,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     for (int hit = 0; hit < 2; hit++)
     {
         shot = ArmProjectile(projectiles, ripper, type: 0x0200, damage: 100);
-        AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(projectiles, sharedProjectiles, SuperMetroid.Core.Progression.AreaId.Crateria, RoomEnemyFrameFixtures.StandaloneSamus()),
+        AssertEqual(1, enemies.ResolveShotsOnInteractiveEnemies(projectiles, sharedProjectiles, SuperMetroid.Core.Progression.AreaId.Crateria, RoomEnemyFrameFixtures.StandaloneSamus()),
             $"Ripper Super Missile hit {hit + 1}");
         AssertEqual(criesBefore + hit + 1, enemies.Audio.SoundRequests.Count(request =>
             request.SoundEffect == expectedHurtCry && request.Priority.Requests == 3),
@@ -862,7 +862,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     ushort[] Shown() => SuperMetroid.Verification.Bosses.Ridley.RidleyLaidColours.Of(state, ridleySprites, ridleyRoom, 0);
     AssertEqual(0x00ba, ridley.Position.X.Whole, "Ceres Ridley init X");
     AssertEqual(0x00a9, ridley.Position.Y.Whole, "Ceres Ridley init Y overrides population Y");
-    AssertEqual(new AnimationPlayback<RidleyBodySegment>(RidleyAnimations.StartingWith(RidleyBodySegment.InitialFacingLeft), AnimationPlace.StartOfAnimation), state.Flight.BodyPlayback, "Ceres Ridley starts its initial animation");
+    AssertEqual(new AnimationPlayback<RidleyBodySegment>(RidleyAnimations.StartingWith(RidleyBodySegment.StandingFacingLeft), AnimationPlace.StartOfAnimation), state.Flight.BodyPlayback, "Ceres Ridley starts its initial animation");
     AssertEqual(state.Colours.SpriteShading(flashing: false), state.CommonDrawShading, "Ceres Ridley's own colours");
     AssertEqual(7, ridley.PaletteRowIn(enemies), "Ceres Ridley dedicated OBJ palette row");
     // Native $3C00: ignores Samus, blocks the Plasma Beam, and processes off screen with its animation script.

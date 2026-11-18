@@ -35,9 +35,9 @@ internal enum NinjaSpacePirateSegment
     /// <summary>The run to the left post, looped.</summary>
     RunningToLeftPost,
     /// <summary>Facing left where it waits at the start, then looking around.</summary>
-    InitialFacingLeft,
+    AwaitingSamusFacingLeft,
     /// <summary>The first pose facing left: looking at the viewer and away, looped.</summary>
-    InitialFacingLeftLookingAround,
+    LookingAroundFacingLeft,
     /// <summary>
     /// Landing facing left in its stance colours: standing, looking at the viewer and turning to face right, then
     /// holding ready to divekick.
@@ -77,9 +77,9 @@ internal enum NinjaSpacePirateSegment
     /// <summary>The run to the right post, looped.</summary>
     RunningToRightPost,
     /// <summary>Facing right where it waits at the start, then looking around.</summary>
-    InitialFacingRight,
+    AwaitingSamusFacingRight,
     /// <summary>The first pose facing right: looking at the viewer and away, looped.</summary>
-    InitialFacingRightLookingAround,
+    LookingAroundFacingRight,
     /// <summary>
     /// Landing facing right in its stance colours: standing, looking at the viewer and turning to face left, then
     /// holding ready to divekick.

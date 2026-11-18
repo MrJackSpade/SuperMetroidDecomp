@@ -64,7 +64,7 @@ internal static class RoomFxWidenedInputsVerification
         AssertThrows<ArgumentOutOfRangeException>(() => liquid.MoveLiquidTo(-1, SignedEightEight.Zero, 0), "a named target above the room's top");
 
         static ColourEffectInputs Conditions(int samusY) =>
-            new() { SamusY = samusY, EquippedItems = 0, AreaMiniBossDefeated = false };
+            new() { Samus = FixtureRoomSamus.Uninstalled, SamusY = samusY, EquippedItems = 0, AreaMiniBossDefeated = false };
         static RoomFxOverlayFrame Frame(int darkness) =>
             new() { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, FirefleaDarkness = new FirefleaDarkness(darkness) };
         static RoomFxLoadSource LoadSource(int randomNumber) =>

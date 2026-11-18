@@ -2,6 +2,7 @@ using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.ColourEffects;
+using SuperMetroid.Verification.Harness;
 using SuperMetroid.TestSupport.VerificationOracles;
 
 namespace SuperMetroid.Verification.Fx.PaletteFx;
@@ -34,7 +35,7 @@ internal static class NorfairGlowVerification
             for (int phase = 0; phase < holds.Length; phase++)
             for (int tick = 0; tick < holds[phase]; tick++)
             {
-                fx.Step(new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
+                fx.Step(new ColourEffectInputs { Samus = FixtureRoomSamus.Uninstalled, SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
                 // The glow's groups show their records over the room's pictures as the import's shades of them (#1512).
                 PaletteFxRoomLook.LayRoomShades(fx, colors, new ReferencePaletteFxColorSource(bus));
                 int rampIndex = phase < 8 ? phase : 15 - phase;

@@ -191,7 +191,7 @@ internal static class RoomPaletteFxDefinitionsVerification
             "the spores' condition is their definition's from the start");
         AssertEqual<ColourEffectCondition?>(null, spores.WatchedCondition, "nothing is watched before the first frame");
 
-        var defeated = new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = true };
+        var defeated = new ColourEffectInputs { Samus = FixtureRoomSamus.Uninstalled, SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = true };
         system.Step(defeated);
         AssertTrue(system.IsRunning(ColourEffectId.SporeSpawnBlueBackgroundSpores),
             "the first turn shows a frame without checking the condition");

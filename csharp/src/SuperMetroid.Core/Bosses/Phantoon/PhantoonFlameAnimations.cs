@@ -92,24 +92,21 @@ internal static class PhantoonFlameAnimations
     /// </summary>
     internal static IReadOnlyDictionary<PhantoonFlameSegment, Animation<PhantoonFlameSegment>> StartingAt { get; } = new Dictionary<PhantoonFlameSegment, Animation<PhantoonFlameSegment>>
     {
-        [P.DestroyableIdle] = new([Whole(P.DestroyableIdle)], AnimationEnd.LoopsFrom(0)),
-        [P.CasualHitGround] = new([Whole(P.CasualHitGround)], AnimationEnd.Holds),
-        [P.CasualBouncing] = new([Whole(P.CasualBouncing)], AnimationEnd.LoopsFrom(0)),
-        [P.CasualResting] = new([Whole(P.CasualResting), Whole(P.Dying)], AnimationEnd.Holds),
-        [P.RainImpact] = new([Whole(P.RainImpact), Whole(P.Dying)], AnimationEnd.Holds),
+        [P.DestroyableIdle] = new([Segments.Whole(P.DestroyableIdle)], AnimationEnd.LoopsFrom(0)),
+        [P.CasualHitGround] = new([Segments.Whole(P.CasualHitGround)], AnimationEnd.Holds),
+        [P.CasualBouncing] = new([Segments.Whole(P.CasualBouncing)], AnimationEnd.LoopsFrom(0)),
+        [P.CasualResting] = new([Segments.Whole(P.CasualResting), Segments.Whole(P.Dying)], AnimationEnd.Holds),
+        [P.RainImpact] = new([Segments.Whole(P.RainImpact), Segments.Whole(P.Dying)], AnimationEnd.Holds),
         [P.CasualFallingKindling] = new(
             [Repeated(P.CasualFallingKindling), Repeated(P.CasualFallingTeardrop), Repeated(P.CasualFallingSputtering)],
             AnimationEnd.LoopsFrom(0)),
-        [P.StartingFlame] = new([Whole(P.StartingFlame)], AnimationEnd.LoopsFrom(0)),
-        [P.Delete] = new([Whole(P.Delete)], AnimationEnd.Holds),
-        [P.DestroyableShot] = new([Whole(P.DestroyableShot)], AnimationEnd.Holds),
+        [P.StartingFlame] = new([Segments.Whole(P.StartingFlame)], AnimationEnd.LoopsFrom(0)),
+        [P.Delete] = new([Segments.Whole(P.Delete)], AnimationEnd.Holds),
+        [P.DestroyableShot] = new([Segments.Whole(P.DestroyableShot)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<PhantoonFlameSegment> StartingWith(PhantoonFlameSegment segment) => StartingAt[segment];
-
-    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<PhantoonFlameSegment> Whole(PhantoonFlameSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>A falling flicker, <paramref name="segment"/>, played four times.</summary>
     private static AnimationPhase<PhantoonFlameSegment> Repeated(PhantoonFlameSegment segment) =>

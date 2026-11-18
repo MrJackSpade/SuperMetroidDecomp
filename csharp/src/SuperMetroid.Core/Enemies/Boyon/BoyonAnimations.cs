@@ -48,12 +48,9 @@ internal static class BoyonAnimations
     /// </summary>
     internal static IReadOnlyDictionary<BoyonSegment, Animation<BoyonSegment>> StartingAt { get; } = new Dictionary<BoyonSegment, Animation<BoyonSegment>>
     {
-        [P.Idle] = new([Whole(P.Idle), Whole(P.IdleRest)], AnimationEnd.LoopsFrom(1)),
-        [P.Bouncing] = new([Whole(P.Bouncing), Whole(P.BouncingStar)], AnimationEnd.LoopsFrom(1)),
+        [P.Idle] = new([Segments.Whole(P.Idle), Segments.Whole(P.IdleRest)], AnimationEnd.LoopsFrom(1)),
+        [P.Bouncing] = new([Segments.Whole(P.Bouncing), Segments.Whole(P.BouncingStar)], AnimationEnd.LoopsFrom(1)),
     };
-
-    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<BoyonSegment> Whole(BoyonSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<BoyonSegment> StartingWith(BoyonSegment segment) => StartingAt[segment];

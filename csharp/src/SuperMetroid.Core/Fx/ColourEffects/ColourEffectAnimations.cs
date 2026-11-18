@@ -527,11 +527,11 @@ internal static class ColourEffectAnimations
     /// </summary>
     private static readonly Animation<ColourEffectSegment> SuitLoading = new(
         [
-            Repeated(S.SuitLoadingOpeningFlicker, 36),
-            Repeated(S.SuitLoadingSecondFlicker, 3),
-            Repeated(S.SuitLoadingThirdFlicker, 3),
-            Repeated(S.SuitLoadingLastFlicker, 2),
-            Whole(S.SuitLoaded),
+            Segments.Repeated(S.SuitLoadingOpeningFlicker, 36),
+            Segments.Repeated(S.SuitLoadingSecondFlicker, 3),
+            Segments.Repeated(S.SuitLoadingThirdFlicker, 3),
+            Segments.Repeated(S.SuitLoadingLastFlicker, 2),
+            Segments.Whole(S.SuitLoaded),
         ],
         AnimationEnd.Stops);
 
@@ -586,10 +586,10 @@ internal static class ColourEffectAnimations
             new ColourEffectCondition.RestartsWhileSamusIsHigh(CrateriaLightningDefinitions.SamusHighOnSurfaceHeight),
             Animation<ColourEffectSegment>.Looping(
             [
-                Whole(S.LandingSiteCalm),
-                Repeated(S.LandingSiteDoubleStrike, 2),
-                Whole(S.LandingSiteSecondCalm),
-                Whole(S.LandingSiteSingleStrike),
+                Segments.Whole(S.LandingSiteCalm),
+                Segments.Repeated(S.LandingSiteDoubleStrike, 2),
+                Segments.Whole(S.LandingSiteSecondCalm),
+                Segments.Whole(S.LandingSiteSingleStrike),
             ])),
         [A.WreckedShipGreenLights] = new(ColourEffectStart.Plain, ColourEffectColours.WreckedShipGreenLights, null, Looping(S.SlowGlow)),
         [A.BrinstarBlueBackgroundSpores] = new(ColourEffectStart.Plain, ColourEffectColours.BrinstarBlueSpores, null, Looping(S.SporeDrift)),
@@ -649,16 +649,9 @@ internal static class ColourEffectAnimations
     /// <summary>Raises <paramref name="cue"/> for the running effect.</summary>
     private static AnimationBeat<int, ColourEffectCue> E(ColourEffectCue cue) => new AnimationBeat<int, ColourEffectCue>.Event(cue);
 
-    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<ColourEffectSegment> Whole(ColourEffectSegment segment) => Repeated(segment, 1);
-
-    /// <summary><paramref name="plays"/> plays of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<ColourEffectSegment> Repeated(ColourEffectSegment segment, int plays) =>
-        new(segment, 0, Segments.Beats(segment).Count, plays);
-
     /// <summary>An animation that plays <paramref name="segment"/> once and is over.</summary>
-    private static Animation<ColourEffectSegment> Once(ColourEffectSegment segment) => new([Whole(segment)], AnimationEnd.Stops);
+    private static Animation<ColourEffectSegment> Once(ColourEffectSegment segment) => new([Segments.Whole(segment)], AnimationEnd.Stops);
 
     /// <summary>An animation that plays <paramref name="segment"/> over and over.</summary>
-    private static Animation<ColourEffectSegment> Looping(ColourEffectSegment segment) => Animation<ColourEffectSegment>.Looping([Whole(segment)]);
+    private static Animation<ColourEffectSegment> Looping(ColourEffectSegment segment) => Animation<ColourEffectSegment>.Looping([Segments.Whole(segment)]);
 }

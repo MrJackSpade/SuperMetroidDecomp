@@ -40,13 +40,10 @@ internal static class ChootAnimations
     /// </summary>
     internal static IReadOnlyDictionary<ChootSegment, Animation<ChootSegment>> StartingAt { get; } = new Dictionary<ChootSegment, Animation<ChootSegment>>
     {
-        [P.Idle] = new([Whole(P.Idle)], AnimationEnd.Holds),
-        [P.Jumping] = new([Whole(P.Jumping)], AnimationEnd.Holds),
-        [P.Falling] = new([Whole(P.Falling)], AnimationEnd.Holds),
+        [P.Idle] = new([Segments.Whole(P.Idle)], AnimationEnd.Holds),
+        [P.Jumping] = new([Segments.Whole(P.Jumping)], AnimationEnd.Holds),
+        [P.Falling] = new([Segments.Whole(P.Falling)], AnimationEnd.Holds),
     };
-
-    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<ChootSegment> Whole(ChootSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>A still picture (#2275): <paramref name="frame"/>, held from the update it shows.</summary>
     private static AnimationBeat<EnemyFrameId, ChootCue> Hold(EnemyFrameId frame) => new AnimationBeat<EnemyFrameId, ChootCue>.HeldFrame(frame);

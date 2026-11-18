@@ -33,7 +33,7 @@ internal static class RidleyNativeProgramOracle
     /// </summary>
     internal static readonly RidleyFacedAnimation[] OwnerStartedFacedAnimations =
     [
-        RidleyAnimations.Initial, RidleyAnimations.CeresLunge, RidleyAnimations.RetrieveBabyMetroid, RidleyAnimations.OpeningRoar,
+        RidleyAnimations.Standing, RidleyAnimations.CeresLunge, RidleyAnimations.RetrieveBabyMetroid, RidleyAnimations.OpeningRoar,
         RidleyAnimations.DeathRoar, RidleyAnimations.Fireballing, RidleyAnimations.TransitionToFlying,
     ];
 

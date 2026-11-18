@@ -89,21 +89,15 @@ internal static class EvirAnimations
     /// </summary>
     internal static IReadOnlyDictionary<EvirSegment, Animation<EvirSegment>> StartingAt { get; } = new Dictionary<EvirSegment, Animation<EvirSegment>>
     {
-        [P.BodyFacingLeft] = new([Whole(P.BodyFacingLeft)], AnimationEnd.LoopsFrom(0)),
-        [P.ArmsFacingLeft] = new([Repeated(P.ArmsFacingLeft, ArmWaves), Whole(P.ArmsFoldedFacingLeft)], AnimationEnd.LoopsFrom(0)),
-        [P.BodyFacingRight] = new([Whole(P.BodyFacingRight)], AnimationEnd.LoopsFrom(0)),
-        [P.ArmsFacingRight] = new([Repeated(P.ArmsFacingRight, ArmWaves), Whole(P.ArmsFoldedFacingRight)], AnimationEnd.LoopsFrom(0)),
-        [P.ProjectileNormal] = new([Whole(P.ProjectileNormal)], AnimationEnd.Holds),
+        [P.BodyFacingLeft] = new([Segments.Whole(P.BodyFacingLeft)], AnimationEnd.LoopsFrom(0)),
+        [P.ArmsFacingLeft] = new([Segments.Repeated(P.ArmsFacingLeft, ArmWaves), Segments.Whole(P.ArmsFoldedFacingLeft)], AnimationEnd.LoopsFrom(0)),
+        [P.BodyFacingRight] = new([Segments.Whole(P.BodyFacingRight)], AnimationEnd.LoopsFrom(0)),
+        [P.ArmsFacingRight] = new([Segments.Repeated(P.ArmsFacingRight, ArmWaves), Segments.Whole(P.ArmsFoldedFacingRight)], AnimationEnd.LoopsFrom(0)),
+        [P.ProjectileNormal] = new([Segments.Whole(P.ProjectileNormal)], AnimationEnd.Holds),
         [P.ProjectileRegenerating] = new(
-            [Whole(P.ProjectileRegenerating), Whole(P.ProjectileRegeneratingSound), Repeated(P.ProjectileRegrowing, RegrowthSteps), Whole(P.ProjectileRegrown)],
+            [Segments.Whole(P.ProjectileRegenerating), Segments.Whole(P.ProjectileRegeneratingSound), Segments.Repeated(P.ProjectileRegrowing, RegrowthSteps), Segments.Whole(P.ProjectileRegrown)],
             AnimationEnd.Holds),
     };
-
-    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<EvirSegment> Whole(EvirSegment segment) => Repeated(segment, 1);
-
-    /// <summary><paramref name="plays"/> plays of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<EvirSegment> Repeated(EvirSegment segment, int plays) => new(segment, 0, Segments.Beats(segment).Count, plays);
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<EvirSegment> StartingWith(EvirSegment segment) => StartingAt[segment];

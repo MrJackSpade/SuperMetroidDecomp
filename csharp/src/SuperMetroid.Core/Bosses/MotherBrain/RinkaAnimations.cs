@@ -49,15 +49,12 @@ internal static class RinkaAnimations
     /// </summary>
     internal static IReadOnlyDictionary<RinkaSegment, Animation<RinkaSegment>> StartingAt { get; } = new Dictionary<RinkaSegment, Animation<RinkaSegment>>
     {
-        [P.Ordinary] = new([Whole(P.Ordinary), Whole(P.Spin)], AnimationEnd.LoopsFrom(1)),
-        [P.Special] = new([Whole(P.Special), Whole(P.Spin)], AnimationEnd.LoopsFrom(1)),
+        [P.Ordinary] = new([Segments.Whole(P.Ordinary), Segments.Whole(P.Spin)], AnimationEnd.LoopsFrom(1)),
+        [P.Special] = new([Segments.Whole(P.Special), Segments.Whole(P.Spin)], AnimationEnd.LoopsFrom(1)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<RinkaSegment> StartingWith(RinkaSegment segment) => StartingAt[segment];
-
-    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<RinkaSegment> Whole(RinkaSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, RinkaCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, RinkaCue>.Frame(frame, duration);

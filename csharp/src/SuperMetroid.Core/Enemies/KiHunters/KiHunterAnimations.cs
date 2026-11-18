@@ -131,26 +131,23 @@ internal static class KiHunterAnimations
     /// </summary>
     internal static IReadOnlyDictionary<KiHunterSegment, Animation<KiHunterSegment>> StartingAt { get; } = new Dictionary<KiHunterSegment, Animation<KiHunterSegment>>
     {
-        [P.FlyingLeft] = new([Whole(P.FlyingLeft)], AnimationEnd.Holds),
-        [P.SwoopLeft] = new([Whole(P.SwoopLeft), Whole(P.FlyingLeft)], AnimationEnd.Holds),
-        [P.FlyingRight] = new([Whole(P.FlyingRight)], AnimationEnd.Holds),
-        [P.SwoopRight] = new([Whole(P.SwoopRight), Whole(P.FlyingRight)], AnimationEnd.Holds),
-        [P.WingsLeft] = new([Whole(P.WingsLeft)], AnimationEnd.LoopsFrom(0)),
-        [P.WingsRight] = new([Whole(P.WingsRight)], AnimationEnd.LoopsFrom(0)),
-        [P.DetachedWings] = new([Whole(P.DetachedWings)], AnimationEnd.Holds),
-        [P.JumpLeft] = new([Whole(P.JumpLeft)], AnimationEnd.Holds),
-        [P.JumpRight] = new([Whole(P.JumpRight)], AnimationEnd.Holds),
-        [P.LandLeft] = new([Whole(P.LandLeft)], AnimationEnd.Holds),
-        [P.LandRight] = new([Whole(P.LandRight)], AnimationEnd.Holds),
-        [P.SpitLeft] = new([Whole(P.SpitLeft)], AnimationEnd.Holds),
-        [P.SpitRight] = new([Whole(P.SpitRight)], AnimationEnd.Holds),
+        [P.FlyingLeft] = new([Segments.Whole(P.FlyingLeft)], AnimationEnd.Holds),
+        [P.SwoopLeft] = new([Segments.Whole(P.SwoopLeft), Segments.Whole(P.FlyingLeft)], AnimationEnd.Holds),
+        [P.FlyingRight] = new([Segments.Whole(P.FlyingRight)], AnimationEnd.Holds),
+        [P.SwoopRight] = new([Segments.Whole(P.SwoopRight), Segments.Whole(P.FlyingRight)], AnimationEnd.Holds),
+        [P.WingsLeft] = new([Segments.Whole(P.WingsLeft)], AnimationEnd.LoopsFrom(0)),
+        [P.WingsRight] = new([Segments.Whole(P.WingsRight)], AnimationEnd.LoopsFrom(0)),
+        [P.DetachedWings] = new([Segments.Whole(P.DetachedWings)], AnimationEnd.Holds),
+        [P.JumpLeft] = new([Segments.Whole(P.JumpLeft)], AnimationEnd.Holds),
+        [P.JumpRight] = new([Segments.Whole(P.JumpRight)], AnimationEnd.Holds),
+        [P.LandLeft] = new([Segments.Whole(P.LandLeft)], AnimationEnd.Holds),
+        [P.LandRight] = new([Segments.Whole(P.LandRight)], AnimationEnd.Holds),
+        [P.SpitLeft] = new([Segments.Whole(P.SpitLeft)], AnimationEnd.Holds),
+        [P.SpitRight] = new([Segments.Whole(P.SpitRight)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<KiHunterSegment> StartingWith(KiHunterSegment segment) => StartingAt[segment];
-
-    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<KiHunterSegment> Whole(KiHunterSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, KiHunterCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, KiHunterCue>.Frame(frame, duration);

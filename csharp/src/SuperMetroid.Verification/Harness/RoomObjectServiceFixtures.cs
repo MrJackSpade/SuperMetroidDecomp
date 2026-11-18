@@ -11,7 +11,7 @@ internal static class RoomObjectServiceFixtures
     /// <summary>Services that each fail at the exact dependency a check reaches without installing it.</summary>
     internal static RoomObjectServices Uninstalled { get; } = new()
     {
-        Samus = new FixtureRoomSamus(() => throw new InvalidOperationException("The room-object fixture did not install Samus.")),
+        Samus = FixtureRoomSamus.Uninstalled,
         Bosses = new FixtureAreaBossFlags(),
         Events = new FixtureEventFlags(),
         TourianStatue = new FixtureTourianStatue(),

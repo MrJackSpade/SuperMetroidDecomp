@@ -15,8 +15,8 @@ internal static class SporeSpawnNativeListAddresses
     /// <summary>Each typed body program's native entry point in bank $A5, in authored order.</summary>
     internal static readonly SporeSpawnNativeListAddressesBodyEntry[] BodyEntries =
     [
-        new SporeSpawnNativeListAddressesBodyEntry(SporeSpawnBodySegment.InitialDead, 0xe6b9),
-        new SporeSpawnNativeListAddressesBodyEntry(SporeSpawnBodySegment.InitialAlive, 0xe6c7),
+        new SporeSpawnNativeListAddressesBodyEntry(SporeSpawnBodySegment.Husk, 0xe6b9),
+        new SporeSpawnNativeListAddressesBodyEntry(SporeSpawnBodySegment.AwaitingDescent, 0xe6c7),
         new SporeSpawnNativeListAddressesBodyEntry(SporeSpawnBodySegment.FightStarted, 0xe6d5),
         new SporeSpawnNativeListAddressesBodyEntry(SporeSpawnBodySegment.OpenAndStop, 0xe6e3),
         new SporeSpawnNativeListAddressesBodyEntry(SporeSpawnBodySegment.OpenPulse, 0xe715),

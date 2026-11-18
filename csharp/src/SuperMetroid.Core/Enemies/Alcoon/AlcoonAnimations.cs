@@ -106,14 +106,14 @@ internal static class AlcoonAnimations
     /// </summary>
     internal static IReadOnlyDictionary<AlcoonSegment, Animation<AlcoonSegment>> StartingAt { get; } = new Dictionary<AlcoonSegment, Animation<AlcoonSegment>>
     {
-        [P.WalkingLeft] = new([Whole(P.WalkingLeft)], AnimationEnd.LoopsFrom(0)),
-        [P.FireLeft] = new([Whole(P.FireLeft)], AnimationEnd.Holds),
-        [P.AirborneLeftLookingUp] = new([Whole(P.AirborneLeftLookingUp)], AnimationEnd.Holds),
-        [P.AirborneLeftLookingForward] = new([Whole(P.AirborneLeftLookingForward)], AnimationEnd.Holds),
-        [P.WalkingRight] = new([Whole(P.WalkingRight)], AnimationEnd.LoopsFrom(0)),
-        [P.FireRight] = new([Whole(P.FireRight)], AnimationEnd.Holds),
-        [P.AirborneRightLookingUp] = new([Whole(P.AirborneRightLookingUp)], AnimationEnd.Holds),
-        [P.AirborneRightLookingForward] = new([Whole(P.AirborneRightLookingForward)], AnimationEnd.Holds),
+        [P.WalkingLeft] = new([Segments.Whole(P.WalkingLeft)], AnimationEnd.LoopsFrom(0)),
+        [P.FireLeft] = new([Segments.Whole(P.FireLeft)], AnimationEnd.Holds),
+        [P.AirborneLeftLookingUp] = new([Segments.Whole(P.AirborneLeftLookingUp)], AnimationEnd.Holds),
+        [P.AirborneLeftLookingForward] = new([Segments.Whole(P.AirborneLeftLookingForward)], AnimationEnd.Holds),
+        [P.WalkingRight] = new([Segments.Whole(P.WalkingRight)], AnimationEnd.LoopsFrom(0)),
+        [P.FireRight] = new([Segments.Whole(P.FireRight)], AnimationEnd.Holds),
+        [P.AirborneRightLookingUp] = new([Segments.Whole(P.AirborneRightLookingUp)], AnimationEnd.Holds),
+        [P.AirborneRightLookingForward] = new([Segments.Whole(P.AirborneRightLookingForward)], AnimationEnd.Holds),
     };
 
     /// <summary>The left walk entered at its first stride, past its move cue, as a wall turning the Alcoon left enters it.</summary>
@@ -126,9 +126,6 @@ internal static class AlcoonAnimations
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<AlcoonSegment> StartingWith(AlcoonSegment segment) => StartingAt[segment];
-
-    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<AlcoonSegment> Whole(AlcoonSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, AlcoonCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, AlcoonCue>.Frame(frame, duration);

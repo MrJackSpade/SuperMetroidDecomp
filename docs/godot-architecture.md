@@ -119,7 +119,7 @@ Preserve collision-before-AI within each enemy's turn. A global pass over all
 collisions followed by a global pass over all AI has a different mutation order.
 Likewise, phase numbers sorted ahead of slot numbers cannot represent every nested
 schedule. See [`RoomEnemySystem.StepFrame`](../csharp/src/SuperMetroid.Core/Enemies/RoomEnemySystem.cs)
-and [`ResolveOrdinaryProjectileHits`](../csharp/src/SuperMetroid.Core/Enemies/EnemyCollision.cs).
+and [`ResolveOrdinaryProjectileHit`](../csharp/src/SuperMetroid.Core/Enemies/EnemyCollision.cs).
 
 ### Immediate effects and retained observations
 

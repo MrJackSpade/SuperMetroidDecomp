@@ -29,8 +29,8 @@ internal static class RidleyAnimations
     internal static AnimationSegments<RidleyBodySegment, F, RidleyBodyCue> Segments { get; } = new(
         new Dictionary<RidleyBodySegment, AnimationBeat<F, RidleyBodyCue>[]>
     {
-        [P.InitialFacingLeft] = [Show(F.RidleyBodyLeft, StandingDuration)],
-        [P.InitialFacingRight] = [Show(F.RidleyBodyRight, StandingDuration)],
+        [P.StandingFacingLeft] = [Show(F.RidleyBodyLeft, StandingDuration)],
+        [P.StandingFacingRight] = [Show(F.RidleyBodyRight, StandingDuration)],
         [P.CeresLungeFacingLeft] = [.. Lunge(Side.Left, LungeExtendedDuration), .. Settle(Side.Left)],
         [P.CeresLungeFacingRight] = [.. Lunge(Side.Right, LungeExtendedDuration), .. Settle(Side.Right)],
         [P.RetrieveBabyMetroidFacingLeft] = [.. Lunge(Side.Left, 1)],
@@ -50,7 +50,7 @@ internal static class RidleyAnimations
     });
 
     /// <summary>The standing pose, which his owner starts as he is placed.</summary>
-    internal static RidleyFacedAnimation Initial { get; } = new(P.InitialFacingLeft, P.InitialFacingRight);
+    internal static RidleyFacedAnimation Standing { get; } = new(P.StandingFacingLeft, P.StandingFacingRight);
     /// <summary>Ceres Ridley's lunge.</summary>
     internal static RidleyFacedAnimation CeresLunge { get; } = new(P.CeresLungeFacingLeft, P.CeresLungeFacingRight);
     /// <summary>Ceres Ridley reaching for the Baby Metroid.</summary>
@@ -72,8 +72,8 @@ internal static class RidleyAnimations
     /// </summary>
     internal static IReadOnlyDictionary<RidleyBodySegment, Animation<RidleyBodySegment>> StartingAt { get; } = new Dictionary<RidleyBodySegment, Animation<RidleyBodySegment>>
     {
-        [P.InitialFacingLeft] = PlaysOnceAndHolds(P.InitialFacingLeft),
-        [P.InitialFacingRight] = PlaysOnceAndHolds(P.InitialFacingRight),
+        [P.StandingFacingLeft] = PlaysOnceAndHolds(P.StandingFacingLeft),
+        [P.StandingFacingRight] = PlaysOnceAndHolds(P.StandingFacingRight),
         [P.CeresLungeFacingLeft] = PlaysOnceAndHolds(P.CeresLungeFacingLeft),
         [P.CeresLungeFacingRight] = PlaysOnceAndHolds(P.CeresLungeFacingRight),
         [P.RetrieveBabyMetroidFacingLeft] = PlaysOnceAndHolds(P.RetrieveBabyMetroidFacingLeft),
@@ -84,9 +84,9 @@ internal static class RidleyAnimations
         [P.DeathRoarFacingRight] = PlaysOnceAndHolds(P.DeathRoarFacingRight),
         [P.TurnFromLeftToRight] = PlaysOnceAndHolds(P.TurnFromLeftToRight),
         [P.TurnFromRightToLeft] = PlaysOnceAndHolds(P.TurnFromRightToLeft),
-        [P.FireballingFacingLeft] = new([Whole(P.FireballingFacingLeft), Whole(P.FireballingEndFacingLeft)], AnimationEnd.Holds),
+        [P.FireballingFacingLeft] = new([Segments.Whole(P.FireballingFacingLeft), Segments.Whole(P.FireballingEndFacingLeft)], AnimationEnd.Holds),
         [P.FireballingEndFacingLeft] = PlaysOnceAndHolds(P.FireballingEndFacingLeft),
-        [P.FireballingFacingRight] = new([Whole(P.FireballingFacingRight), Whole(P.FireballingEndFacingRight)], AnimationEnd.Holds),
+        [P.FireballingFacingRight] = new([Segments.Whole(P.FireballingFacingRight), Segments.Whole(P.FireballingEndFacingRight)], AnimationEnd.Holds),
         [P.FireballingEndFacingRight] = PlaysOnceAndHolds(P.FireballingEndFacingRight),
         [P.TransitionToFlyingFacingLeft] = PlaysOnceAndHolds(P.TransitionToFlyingFacingLeft),
         [P.TransitionToFlyingFacingRight] = PlaysOnceAndHolds(P.TransitionToFlyingFacingRight),
@@ -95,11 +95,8 @@ internal static class RidleyAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<RidleyBodySegment> StartingWith(RidleyBodySegment segment) => StartingAt[segment];
 
-    /// <summary>A phase playing every beat of <paramref name="segment"/> once.</summary>
-    private static AnimationPhase<RidleyBodySegment> Whole(RidleyBodySegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
-
     /// <summary>The animation that plays <paramref name="segment"/> once and rests on its last frame.</summary>
-    private static Animation<RidleyBodySegment> PlaysOnceAndHolds(RidleyBodySegment segment) => new([Whole(segment)], AnimationEnd.Holds);
+    private static Animation<RidleyBodySegment> PlaysOnceAndHolds(RidleyBodySegment segment) => new([Segments.Whole(segment)], AnimationEnd.Holds);
 
     /// <summary>The poses of one facing.</summary>
     private readonly record struct Side(F Standing, F MouthHalfOpen, F MouthOpen, F LegsHalfExtended, F LegsExtended)

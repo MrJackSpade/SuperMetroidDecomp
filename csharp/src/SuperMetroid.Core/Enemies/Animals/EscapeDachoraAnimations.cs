@@ -134,20 +134,20 @@ internal static class EscapeDachoraAnimations
 
     /// <summary>Five laps left then five right at low tide, each lap counted, over and over (#2061).</summary>
     internal static Animation<P> RunningAroundLowTide { get; } =
-        new([Repeated(P.RunningAroundLowTideLeft, LapsEachWay), Repeated(P.RunningAroundLowTideRight, LapsEachWay)], AnimationEnd.LoopsFrom(0));
+        new([Segments.Repeated(P.RunningAroundLowTideLeft, LapsEachWay), Segments.Repeated(P.RunningAroundLowTideRight, LapsEachWay)], AnimationEnd.LoopsFrom(0));
 
     /// <summary>Five quicker laps left then five right at high tide, each lap counted, over and over (#2061).</summary>
     internal static Animation<P> RunningAroundHighTide { get; } =
-        new([Repeated(P.RunningAroundHighTideLeft, LapsEachWay), Repeated(P.RunningAroundHighTideRight, LapsEachWay)], AnimationEnd.LoopsFrom(0));
+        new([Segments.Repeated(P.RunningAroundHighTideLeft, LapsEachWay), Segments.Repeated(P.RunningAroundHighTideRight, LapsEachWay)], AnimationEnd.LoopsFrom(0));
 
     /// <summary>The pause, the acceleration, then the sprint at full speed for good.</summary>
     internal static Animation<P> RunningForEscape { get; } = new(
-        [Whole(P.RunningForEscape), Whole(P.RunningForEscapeAccelerating), Whole(P.RunningForEscapeMaximumSpeed)],
+        [Segments.Whole(P.RunningForEscape), Segments.Whole(P.RunningForEscapeAccelerating), Segments.Whole(P.RunningForEscapeMaximumSpeed)],
         AnimationEnd.LoopsFrom(2));
 
     /// <summary>The acceleration, then the sprint at full speed for good.</summary>
     internal static Animation<P> RunningForEscapeAccelerating { get; } = new(
-        [Whole(P.RunningForEscapeAccelerating), Whole(P.RunningForEscapeMaximumSpeed)], AnimationEnd.LoopsFrom(1));
+        [Segments.Whole(P.RunningForEscapeAccelerating), Segments.Whole(P.RunningForEscapeMaximumSpeed)], AnimationEnd.LoopsFrom(1));
 
     /// <summary>
     /// Where a rising tide takes a lap to the left (#2061): the high-tide laps at the end of a lap to the left, counting on
@@ -168,12 +168,6 @@ internal static class EscapeDachoraAnimations
 
     /// <summary>Where the critters' escape takes a lap to the right: the run for the escape, from its acceleration.</summary>
     internal static AnimationContinuation<P> EscapeAfterRightLap { get; } = new(RunningForEscapeAccelerating, AnimationPlace.StartOfAnimation);
-
-    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<P> Whole(P segment) => Repeated(segment, 1);
-
-    /// <summary><paramref name="plays"/> plays of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<P> Repeated(P segment, int plays) => new(segment, 0, Segments.Beats(segment).Count, plays);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, EscapeDachoraCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, EscapeDachoraCue>.Frame(frame, duration);

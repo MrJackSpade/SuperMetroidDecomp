@@ -58,18 +58,15 @@ internal static class KagoBugProjectileAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<KagoBugProjectileSegment, Animation<KagoBugProjectileSegment>> StartingAt { get; } = new Dictionary<KagoBugProjectileSegment, Animation<KagoBugProjectileSegment>>
     {
-        [P.Landed] = new([Whole(P.Landed)], AnimationEnd.LoopsFrom(0)),
-        [P.Falling] = new([Whole(P.Falling)], AnimationEnd.Holds),
-        [P.JumpStart] = new([Whole(P.JumpStart)], AnimationEnd.Holds),
-        [P.Shot] = new([Whole(P.Shot)], AnimationEnd.Holds),
-        [P.Waiting] = new([Whole(P.Waiting)], AnimationEnd.Holds),
+        [P.Landed] = new([Segments.Whole(P.Landed)], AnimationEnd.LoopsFrom(0)),
+        [P.Falling] = new([Segments.Whole(P.Falling)], AnimationEnd.Holds),
+        [P.JumpStart] = new([Segments.Whole(P.JumpStart)], AnimationEnd.Holds),
+        [P.Shot] = new([Segments.Whole(P.Shot)], AnimationEnd.Holds),
+        [P.Waiting] = new([Segments.Whole(P.Waiting)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<KagoBugProjectileSegment> StartingWith(KagoBugProjectileSegment segment) => StartingAt[segment];
-
-    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<KagoBugProjectileSegment> Whole(KagoBugProjectileSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, KagoBugProjectileCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, KagoBugProjectileCue>.Frame(frame, duration);

@@ -911,11 +911,11 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
                 // hit must publish Phantoon's hurt clock before this frame ticks it.
                 if (place.Entity is IEnemyContactHooks hooks)
                     hooks.ResolveBeforeOrdinaryHits(frame);
-                Collision.ResolveOrdinaryProjectileHits(frame.SamusProjectiles, frame.SharedProjectiles, Room.Area,
+                Collision.ResolveOrdinaryProjectileHit(frame.SamusProjectiles, frame.SharedProjectiles, Room.Area,
                     frame.Samus, place, frame.Camera);
                 // Samus's input phase has already moved her bombs. The enemy pass checks
                 // them before this enemy's touch and AI, so an escape a bomb starts begins this update.
-                Collision.ResolveOrdinaryBombHits(frame.SharedProjectiles, frame.SamusProjectiles, frame.Samus, place, frame.Camera);
+                Collision.ResolveOrdinaryBombHit(frame.SharedProjectiles, frame.SamusProjectiles, frame.Samus, place, frame.Camera);
                 if (place.IsFree)
                     continue;
                 Collision.ResolveOrdinarySamusContact(frame.Samus, frame.PseudoScrew, frame.ControllerInput, frame.Level, place, frame.Camera);

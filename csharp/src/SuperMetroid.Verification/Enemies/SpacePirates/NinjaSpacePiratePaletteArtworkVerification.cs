@@ -43,7 +43,7 @@ internal static class NinjaSpacePiratePaletteArtworkVerification
         AssertEqual(nativeX, stockPlace.Position.X.Whole,
             "Installing ninja palette does not change initial post placement");
         // Facing left, the ninja starts at the native initial list $B2:F2DA.
-        AssertEqual(new AnimationPlayback<NinjaSpacePirateSegment>(NinjaSpacePirateAnimations.StartingWith(NinjaSpacePirateSegment.InitialFacingLeft), AnimationPlace.StartOfAnimation), stockProgram,
+        AssertEqual(new AnimationPlayback<NinjaSpacePirateSegment>(NinjaSpacePirateAnimations.StartingWith(NinjaSpacePirateSegment.AwaitingSamusFacingLeft), AnimationPlace.StartOfAnimation), stockProgram,
             "Installing ninja palette does not change initial animation");
 
         Console.WriteLine("Ninja Pirate palette: the gold wall shade matches the native gold-Pirate colours; placement and animation pass.");

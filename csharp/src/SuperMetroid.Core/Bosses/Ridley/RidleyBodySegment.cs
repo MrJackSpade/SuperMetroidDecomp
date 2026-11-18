@@ -7,9 +7,9 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 internal enum RidleyBodySegment
 {
     /// <summary>The left-facing standing pose.</summary>
-    InitialFacingLeft,
+    StandingFacingLeft,
     /// <summary>The right-facing standing pose.</summary>
-    InitialFacingRight,
+    StandingFacingRight,
     /// <summary>Ceres Ridley's left-facing lunge.</summary>
     CeresLungeFacingLeft,
     /// <summary>The right-facing lunge.</summary>

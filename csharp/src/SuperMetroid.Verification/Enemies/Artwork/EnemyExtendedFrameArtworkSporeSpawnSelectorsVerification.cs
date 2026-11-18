@@ -26,8 +26,8 @@ internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification
 
         EnemyExtendedFrameArtworkSporeSpawnSelectorsProgram[] programs =
         [
-            new EnemyExtendedFrameArtworkSporeSpawnSelectorsProgram(SporeSpawnBodySegment.InitialDead, 4),
-            new EnemyExtendedFrameArtworkSporeSpawnSelectorsProgram(SporeSpawnBodySegment.InitialAlive, 260),
+            new EnemyExtendedFrameArtworkSporeSpawnSelectorsProgram(SporeSpawnBodySegment.Husk, 4),
+            new EnemyExtendedFrameArtworkSporeSpawnSelectorsProgram(SporeSpawnBodySegment.AwaitingDescent, 260),
             new EnemyExtendedFrameArtworkSporeSpawnSelectorsProgram(SporeSpawnBodySegment.FightStarted, 2200),
             new EnemyExtendedFrameArtworkSporeSpawnSelectorsProgram(SporeSpawnBodySegment.CloseAndMove, 1600),
             new EnemyExtendedFrameArtworkSporeSpawnSelectorsProgram(SporeSpawnBodySegment.Death, 500),

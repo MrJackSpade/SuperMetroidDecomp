@@ -50,16 +50,13 @@ internal static class NorfairLavaJumperAnimations
     /// </summary>
     internal static IReadOnlyDictionary<NorfairLavaJumperSegment, Animation<NorfairLavaJumperSegment>> StartingAt { get; } = new Dictionary<NorfairLavaJumperSegment, Animation<NorfairLavaJumperSegment>>
     {
-        [P.Hidden] = new([Whole(P.Hidden)], AnimationEnd.Holds),
-        [P.Jump] = new([Whole(P.Jump)], AnimationEnd.Holds),
-        [P.Follower] = new([Whole(P.Follower), Whole(P.FollowerFlickering)], AnimationEnd.LoopsFrom(0)),
+        [P.Hidden] = new([Segments.Whole(P.Hidden)], AnimationEnd.Holds),
+        [P.Jump] = new([Segments.Whole(P.Jump)], AnimationEnd.Holds),
+        [P.Follower] = new([Segments.Whole(P.Follower), Segments.Whole(P.FollowerFlickering)], AnimationEnd.LoopsFrom(0)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<NorfairLavaJumperSegment> StartingWith(NorfairLavaJumperSegment segment) => StartingAt[segment];
-
-    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<NorfairLavaJumperSegment> Whole(NorfairLavaJumperSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, NorfairLavaJumperCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NorfairLavaJumperCue>.Frame(frame, duration);

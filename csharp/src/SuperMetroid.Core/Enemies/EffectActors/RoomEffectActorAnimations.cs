@@ -297,8 +297,8 @@ internal static class RoomEffectActorAnimations
         [K.NuclearWaffleLeftExplosion] = Once(K.NuclearWaffleLeftExplosion),
         [K.NuclearWaffleSplash] = Once(K.NuclearWaffleSplash),
         [K.FallingSparkTrail] = Once(K.FallingSparkTrail),
-        [K.MetroidElectricity] = new([Whole(P.Of(K.MetroidElectricity)), Whole(P.MetroidElectricityCycle)], AnimationEnd.LoopsFrom(1)),
-        [K.MetroidShell] = new([Whole(P.Of(K.MetroidShell)), Whole(P.MetroidShellCycle)], AnimationEnd.LoopsFrom(1)),
+        [K.MetroidElectricity] = new([Segments.Whole(P.Of(K.MetroidElectricity)), Segments.Whole(P.MetroidElectricityCycle)], AnimationEnd.LoopsFrom(1)),
+        [K.MetroidShell] = new([Segments.Whole(P.Of(K.MetroidShell)), Segments.Whole(P.MetroidShellCycle)], AnimationEnd.LoopsFrom(1)),
         [K.YappingMawBaseFacingDown] = Still(K.YappingMawBaseFacingDown),
         [K.YappingMawBaseFacingUp] = Still(K.YappingMawBaseFacingUp),
         [K.EvirFacingLeft] = Looping(K.EvirFacingLeft),
@@ -310,16 +310,13 @@ internal static class RoomEffectActorAnimations
     internal static Animation<RoomEffectActorSegment> StartingWith(RoomEffectActorKind kind) => StartingAt[kind];
 
     /// <summary><paramref name="actor"/>'s own run, played once before the actor ends.</summary>
-    private static Animation<RoomEffectActorSegment> Once(RoomEffectActorKind actor) => new([Whole(P.Of(actor))], AnimationEnd.Stops);
+    private static Animation<RoomEffectActorSegment> Once(RoomEffectActorKind actor) => new([Segments.Whole(P.Of(actor))], AnimationEnd.Stops);
 
     /// <summary><paramref name="actor"/>'s own run, looping until its owner ends it.</summary>
-    private static Animation<RoomEffectActorSegment> Looping(RoomEffectActorKind actor) => new([Whole(P.Of(actor))], AnimationEnd.LoopsFrom(0));
+    private static Animation<RoomEffectActorSegment> Looping(RoomEffectActorKind actor) => new([Segments.Whole(P.Of(actor))], AnimationEnd.LoopsFrom(0));
 
     /// <summary><paramref name="actor"/>'s still picture, held until its owner ends it.</summary>
-    private static Animation<RoomEffectActorSegment> Still(RoomEffectActorKind actor) => new([Whole(P.Of(actor))], AnimationEnd.Holds);
-
-    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<RoomEffectActorSegment> Whole(RoomEffectActorSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
+    private static Animation<RoomEffectActorSegment> Still(RoomEffectActorKind actor) => new([Segments.Whole(P.Of(actor))], AnimationEnd.Holds);
 
     /// <summary>
     /// A Metroid's shell flickering <paramref name="times"/> times (#2369): <paramref name="frame"/> for an update, then

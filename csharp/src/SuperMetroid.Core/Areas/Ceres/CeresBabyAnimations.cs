@@ -41,15 +41,12 @@ internal static class CeresBabyAnimations
     /// </summary>
     internal static IReadOnlyDictionary<P, Animation<P>> StartingAt { get; } = new Dictionary<P, Animation<P>>
     {
-        [P.IdleSquish] = new([Whole(P.IdleSquish), Whole(P.ExpressiveLoop)], AnimationEnd.LoopsFrom(0)),
-        [P.ExpressiveLoop] = new([Whole(P.ExpressiveLoop), Whole(P.IdleSquish)], AnimationEnd.LoopsFrom(0)),
+        [P.IdleSquish] = new([Segments.Whole(P.IdleSquish), Segments.Whole(P.ExpressiveLoop)], AnimationEnd.LoopsFrom(0)),
+        [P.ExpressiveLoop] = new([Segments.Whole(P.ExpressiveLoop), Segments.Whole(P.IdleSquish)], AnimationEnd.LoopsFrom(0)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<P> StartingWith(P segment) => StartingAt[segment];
-
-    /// <summary>A phase playing every beat of <paramref name="segment"/> once.</summary>
-    private static AnimationPhase<P> Whole(P segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>The ten-update horizontal, round, vertical, round squish.</summary>
     private static AnimationBeat<F, CeresBabyCue>[] SquishCycle =>

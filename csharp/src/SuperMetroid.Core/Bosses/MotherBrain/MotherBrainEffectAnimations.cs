@@ -130,21 +130,17 @@ internal static class MotherBrainEffectAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<MotherBrainEffectSegment, Animation<MotherBrainEffectSegment>> StartingAt { get; } = new Dictionary<MotherBrainEffectSegment, Animation<MotherBrainEffectSegment>>
     {
-        [P.OnionRing] = new([Whole(P.OnionRing)], AnimationEnd.Holds),
-        [P.OnionRingHit] = new([Whole(P.OnionRingHit)], AnimationEnd.Holds),
-        [P.Bomb] = new([Whole(P.Bomb)], AnimationEnd.LoopsFrom(0)),
-        [P.RainbowBeamCharging] = new([Whole(P.RainbowBeamCharging)], AnimationEnd.Holds),
-        [P.Drool] = new([Whole(P.Drool)], AnimationEnd.Holds),
-        [P.DroolHitFloor] = new([Whole(P.DroolHitFloor)], AnimationEnd.Holds),
-        [P.EscapeDoorParticle] = new([Whole(P.EscapeDoorParticle)], AnimationEnd.LoopsFrom(0)),
-        [P.PurpleBreathBig] = new([Whole(P.PurpleBreathBig)], AnimationEnd.Holds),
-        [P.PurpleBreathSmall] = new([Whole(P.PurpleBreathSmall)], AnimationEnd.Holds),
-        [P.EscapeSubtitle] = new([Whole(P.EscapeSubtitle)], AnimationEnd.Holds),
+        [P.OnionRing] = new([Segments.Whole(P.OnionRing)], AnimationEnd.Holds),
+        [P.OnionRingHit] = new([Segments.Whole(P.OnionRingHit)], AnimationEnd.Holds),
+        [P.Bomb] = new([Segments.Whole(P.Bomb)], AnimationEnd.LoopsFrom(0)),
+        [P.RainbowBeamCharging] = new([Segments.Whole(P.RainbowBeamCharging)], AnimationEnd.Holds),
+        [P.Drool] = new([Segments.Whole(P.Drool)], AnimationEnd.Holds),
+        [P.DroolHitFloor] = new([Segments.Whole(P.DroolHitFloor)], AnimationEnd.Holds),
+        [P.EscapeDoorParticle] = new([Segments.Whole(P.EscapeDoorParticle)], AnimationEnd.LoopsFrom(0)),
+        [P.PurpleBreathBig] = new([Segments.Whole(P.PurpleBreathBig)], AnimationEnd.Holds),
+        [P.PurpleBreathSmall] = new([Segments.Whole(P.PurpleBreathSmall)], AnimationEnd.Holds),
+        [P.EscapeSubtitle] = new([Segments.Whole(P.EscapeSubtitle)], AnimationEnd.Holds),
     };
-
-    /// <summary>One play of every beat of <paramref name="segment"/> (#2318).</summary>
-    private static AnimationPhase<MotherBrainEffectSegment> Whole(MotherBrainEffectSegment segment) =>
-        new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<MotherBrainEffectSegment> StartingWith(MotherBrainEffectSegment segment) => StartingAt[segment];

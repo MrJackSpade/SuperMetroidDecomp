@@ -95,7 +95,7 @@ internal static class PhantoonAnimations
         [P.EyeLookingDownLeft] = Held(P.EyeLookingDownLeft),
         [P.EyeLookingLeft] = Held(P.EyeLookingLeft),
         [P.EyeLookingUpLeft] = Held(P.EyeLookingUpLeft),
-        [P.Tentacles] = new([Whole(P.Tentacles)], AnimationEnd.LoopsFrom(0)),
+        [P.Tentacles] = new([Segments.Whole(P.Tentacles)], AnimationEnd.LoopsFrom(0)),
         [P.MouthSpawnFlame] = HeldAfter(P.MouthSpawnFlame, P.MouthInitial),
         [P.MouthInitial] = Held(P.MouthInitial),
     };
@@ -104,14 +104,11 @@ internal static class PhantoonAnimations
     internal static Animation<PhantoonPartSegment> StartingWith(PhantoonPartSegment segment) => StartingAt[segment];
 
     /// <summary>Plays <paramref name="segment"/> once and holds its last frame.</summary>
-    private static Animation<PhantoonPartSegment> Held(PhantoonPartSegment segment) => new([Whole(segment)], AnimationEnd.Holds);
+    private static Animation<PhantoonPartSegment> Held(PhantoonPartSegment segment) => new([Segments.Whole(segment)], AnimationEnd.Holds);
 
     /// <summary>Plays <paramref name="first"/>, then <paramref name="then"/>, and holds the last frame.</summary>
     private static Animation<PhantoonPartSegment> HeldAfter(PhantoonPartSegment first, PhantoonPartSegment then) =>
-        new([Whole(first), Whole(then)], AnimationEnd.Holds);
-
-    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<PhantoonPartSegment> Whole(PhantoonPartSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
+        new([Segments.Whole(first), Segments.Whole(then)], AnimationEnd.Holds);
 
     /// <summary>A still picture (#2250): <paramref name="frame"/>, held from the update it shows.</summary>
     private static AnimationBeat<EnemyFrameId, PhantoonPartCue>[] Still(EnemyFrameId frame) =>

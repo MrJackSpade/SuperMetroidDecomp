@@ -67,7 +67,7 @@ internal static class MotherBrainAnimations
 
     /// <summary>Each body segment's animation: its segment played once, then held.</summary>
     internal static IReadOnlyDictionary<B, Animation<B>> BodyStartingAt { get; } =
-        Enum.GetValues<B>().ToDictionary(segment => segment, segment => new Animation<B>([Whole(segment)], AnimationEnd.Holds));
+        Enum.GetValues<B>().ToDictionary(segment => segment, segment => new Animation<B>([BodySegments.Whole(segment)], AnimationEnd.Holds));
 
     /// <summary>The body animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<B> BodyStartingWith(B segment) => BodyStartingAt[segment];
@@ -489,18 +489,12 @@ internal static class MotherBrainAnimations
     private static AnimationBeat<EnemyFrameId, MotherBrainHeadCue> HeadCue(MotherBrainHeadCue cue) =>
         new AnimationBeat<EnemyFrameId, MotherBrainHeadCue>.Event(cue);
 
-    /// <summary>One play of every beat of body segment <paramref name="segment"/>.</summary>
-    private static AnimationPhase<B> Whole(B segment) => new(segment, 0, BodySegments.Beats(segment).Count, 1);
-
-    /// <summary>One play of every beat of brain segment <paramref name="segment"/>.</summary>
-    private static AnimationPhase<H> Whole(H segment) => new(segment, 0, HeadSegments.Beats(segment).Count, 1);
-
     /// <summary>An animation of <paramref name="segments"/>, each played once in turn, that loops from phase <paramref name="loopsFrom"/>.</summary>
-    private static Animation<H> Looping(int loopsFrom, params H[] segments) => new([.. segments.Select(segment => Whole(segment))], AnimationEnd.LoopsFrom(loopsFrom));
+    private static Animation<H> Looping(int loopsFrom, params H[] segments) => new([.. segments.Select(HeadSegments.Whole)], AnimationEnd.LoopsFrom(loopsFrom));
 
     /// <summary>
     /// An animation of <paramref name="segments"/>, each played once in turn, that rests on the still picture the last one
     /// holds (#2353): her brain shows it for good, until she plays another.
     /// </summary>
-    private static Animation<H> Resting(params H[] segments) => new([.. segments.Select(segment => Whole(segment))], AnimationEnd.Holds);
+    private static Animation<H> Resting(params H[] segments) => new([.. segments.Select(HeadSegments.Whole)], AnimationEnd.Holds);
 }

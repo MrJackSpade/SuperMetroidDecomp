@@ -77,14 +77,11 @@ internal static class CacatacAnimations
     /// </summary>
     internal static IReadOnlyDictionary<CacatacSegment, Animation<CacatacSegment>> StartingAt { get; } = new Dictionary<CacatacSegment, Animation<CacatacSegment>>
     {
-        [P.UpsideUpIdle] = new([Whole(P.UpsideUpIdle)], AnimationEnd.LoopsFrom(0)),
-        [P.UpsideUpAttack] = new([Whole(P.UpsideUpAttack), Whole(P.UpsideUpIdle)], AnimationEnd.LoopsFrom(1)),
-        [P.UpsideDownIdle] = new([Whole(P.UpsideDownIdle), Whole(P.UpsideDownIdlePoses)], AnimationEnd.LoopsFrom(1)),
-        [P.UpsideDownAttack] = new([Whole(P.UpsideDownAttack), Whole(P.UpsideDownIdle), Whole(P.UpsideDownIdlePoses)], AnimationEnd.LoopsFrom(2)),
+        [P.UpsideUpIdle] = new([Segments.Whole(P.UpsideUpIdle)], AnimationEnd.LoopsFrom(0)),
+        [P.UpsideUpAttack] = new([Segments.Whole(P.UpsideUpAttack), Segments.Whole(P.UpsideUpIdle)], AnimationEnd.LoopsFrom(1)),
+        [P.UpsideDownIdle] = new([Segments.Whole(P.UpsideDownIdle), Segments.Whole(P.UpsideDownIdlePoses)], AnimationEnd.LoopsFrom(1)),
+        [P.UpsideDownAttack] = new([Segments.Whole(P.UpsideDownAttack), Segments.Whole(P.UpsideDownIdle), Segments.Whole(P.UpsideDownIdlePoses)], AnimationEnd.LoopsFrom(2)),
     };
-
-    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<CacatacSegment> Whole(CacatacSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<CacatacSegment> StartingWith(CacatacSegment segment) => StartingAt[segment];

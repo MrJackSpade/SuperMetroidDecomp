@@ -82,7 +82,7 @@ internal static class TorizoBellyGlowEndVerification
         var fx = new ColourEffectSystem(new ColourEffectSessionState());
         fx.BindAudioRequests(GameplayAudioRequests.Standalone());
         fx.StartTorizoBellyGlow(request.Glow, request.Torizo, equippedItems: 0);
-        var conditions = new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false };
+        var conditions = new ColourEffectInputs { Samus = FixtureRoomSamus.Uninstalled, SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false };
         bool originalEnded = false;
         for (int update = 0; update < Updates; update++)
         {

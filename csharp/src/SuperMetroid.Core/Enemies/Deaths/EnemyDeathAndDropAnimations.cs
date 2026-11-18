@@ -124,15 +124,15 @@ internal static class EnemyDeathAndDropAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<EnemyDeathAndDropSegment, Animation<EnemyDeathAndDropSegment>> StartingAt { get; } = new Dictionary<EnemyDeathAndDropSegment, Animation<EnemyDeathAndDropSegment>>
     {
-        [P.RespawnTail] = new([Whole(P.RespawnTail)], AnimationEnd.Holds),
-        [P.NormalExplosion] = new([Whole(P.NormalExplosion)], AnimationEnd.Holds),
-        [P.SmallExplosion] = new([Whole(P.SmallExplosion)], AnimationEnd.Holds),
-        [P.SmallEnergy] = new([Whole(P.SmallEnergy)], AnimationEnd.LoopsFrom(0)),
-        [P.BigEnergy] = new([Whole(P.BigEnergy)], AnimationEnd.LoopsFrom(0)),
-        [P.Missiles] = new([Whole(P.Missiles)], AnimationEnd.LoopsFrom(0)),
-        [P.SuperMissiles] = new([Whole(P.SuperMissiles)], AnimationEnd.LoopsFrom(0)),
-        [P.PowerBombs] = new([Whole(P.PowerBombs)], AnimationEnd.LoopsFrom(0)),
-        [P.KilledBySamusContact] = new([Whole(P.KilledBySamusContact)], AnimationEnd.Holds),
+        [P.RespawnTail] = new([Segments.Whole(P.RespawnTail)], AnimationEnd.Holds),
+        [P.NormalExplosion] = new([Segments.Whole(P.NormalExplosion)], AnimationEnd.Holds),
+        [P.SmallExplosion] = new([Segments.Whole(P.SmallExplosion)], AnimationEnd.Holds),
+        [P.SmallEnergy] = new([Segments.Whole(P.SmallEnergy)], AnimationEnd.LoopsFrom(0)),
+        [P.BigEnergy] = new([Segments.Whole(P.BigEnergy)], AnimationEnd.LoopsFrom(0)),
+        [P.Missiles] = new([Segments.Whole(P.Missiles)], AnimationEnd.LoopsFrom(0)),
+        [P.SuperMissiles] = new([Segments.Whole(P.SuperMissiles)], AnimationEnd.LoopsFrom(0)),
+        [P.PowerBombs] = new([Segments.Whole(P.PowerBombs)], AnimationEnd.LoopsFrom(0)),
+        [P.KilledBySamusContact] = new([Segments.Whole(P.KilledBySamusContact)], AnimationEnd.Holds),
     };
 
     /// <summary>How many bursts the big explosion makes before it becomes the drop.</summary>
@@ -154,16 +154,9 @@ internal static class EnemyDeathAndDropAnimations
             [EnemyDeathExplosion.Small] = StartingAt[P.SmallExplosion],
             [EnemyDeathExplosion.SamusContact] = StartingAt[P.KilledBySamusContact],
             [EnemyDeathExplosion.Normal] = StartingAt[P.NormalExplosion],
-            [EnemyDeathExplosion.FakeKraid] = new([Repeated(P.FakeKraidExplosion, FakeKraidExplosionBursts), Whole(P.FakeKraidExplosionEnd)], AnimationEnd.Holds),
-            [EnemyDeathExplosion.Big] = new([Repeated(P.BigExplosion, BigExplosionBursts), Whole(P.BigExplosionEnd)], AnimationEnd.Holds),
+            [EnemyDeathExplosion.FakeKraid] = new([Segments.Repeated(P.FakeKraidExplosion, FakeKraidExplosionBursts), Segments.Whole(P.FakeKraidExplosionEnd)], AnimationEnd.Holds),
+            [EnemyDeathExplosion.Big] = new([Segments.Repeated(P.BigExplosion, BigExplosionBursts), Segments.Whole(P.BigExplosionEnd)], AnimationEnd.Holds),
         };
-
-    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<EnemyDeathAndDropSegment> Whole(EnemyDeathAndDropSegment segment) => Repeated(segment, 1);
-
-    /// <summary><paramref name="plays"/> plays of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<EnemyDeathAndDropSegment> Repeated(EnemyDeathAndDropSegment segment, int plays) =>
-        new(segment, 0, Segments.Beats(segment).Count, plays);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, EnemyDeathAndDropCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyDeathAndDropCue>.Frame(frame, duration);

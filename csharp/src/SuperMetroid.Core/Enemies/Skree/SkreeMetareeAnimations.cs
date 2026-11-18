@@ -71,19 +71,16 @@ internal static class SkreeMetareeAnimations
     /// </summary>
     internal static IReadOnlyDictionary<SkreeMetareeSegment, Animation<SkreeMetareeSegment>> StartingAt { get; } = new Dictionary<SkreeMetareeSegment, Animation<SkreeMetareeSegment>>
     {
-        [P.MetareeIdling] = new([Whole(P.MetareeIdling)], AnimationEnd.LoopsFrom(0)),
-        [P.MetareePreparingAttack] = new([Whole(P.MetareePreparingAttack)], AnimationEnd.Holds),
-        [P.MetareeDiving] = new([Whole(P.MetareeDiving), Whole(P.MetareeDivingSpin)], AnimationEnd.LoopsFrom(1)),
-        [P.SkreeIdling] = new([Whole(P.SkreeIdling)], AnimationEnd.LoopsFrom(0)),
-        [P.SkreePreparingAttack] = new([Whole(P.SkreePreparingAttack)], AnimationEnd.Holds),
-        [P.SkreeDiving] = new([Whole(P.SkreeDiving), Whole(P.SkreeDivingSpin)], AnimationEnd.LoopsFrom(1)),
+        [P.MetareeIdling] = new([Segments.Whole(P.MetareeIdling)], AnimationEnd.LoopsFrom(0)),
+        [P.MetareePreparingAttack] = new([Segments.Whole(P.MetareePreparingAttack)], AnimationEnd.Holds),
+        [P.MetareeDiving] = new([Segments.Whole(P.MetareeDiving), Segments.Whole(P.MetareeDivingSpin)], AnimationEnd.LoopsFrom(1)),
+        [P.SkreeIdling] = new([Segments.Whole(P.SkreeIdling)], AnimationEnd.LoopsFrom(0)),
+        [P.SkreePreparingAttack] = new([Segments.Whole(P.SkreePreparingAttack)], AnimationEnd.Holds),
+        [P.SkreeDiving] = new([Segments.Whole(P.SkreeDiving), Segments.Whole(P.SkreeDivingSpin)], AnimationEnd.LoopsFrom(1)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<SkreeMetareeSegment> StartingWith(SkreeMetareeSegment segment) => StartingAt[segment];
-
-    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<SkreeMetareeSegment> Whole(SkreeMetareeSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, SkreeMetareeCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, SkreeMetareeCue>.Frame(frame, duration);

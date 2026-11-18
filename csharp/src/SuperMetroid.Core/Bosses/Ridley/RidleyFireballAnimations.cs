@@ -74,18 +74,15 @@ internal static class RidleyFireballAnimations
     internal static IReadOnlyDictionary<RidleyFireballSegment, Animation<RidleyFireballSegment>> StartingAt { get; } =
         new Dictionary<RidleyFireballSegment, Animation<RidleyFireballSegment>>
         {
-            [P.Fireball] = new([Whole(P.Fireball), Whole(P.FireballFlight)], AnimationEnd.LoopsFrom(1)),
-            [P.AfterburnFinal] = new([Whole(P.AfterburnFinal), Whole(P.AfterburnPuff)], AnimationEnd.Holds),
-            [P.HorizontalCenter] = new([Whole(P.HorizontalCenter), Whole(P.AfterburnPuff)], AnimationEnd.Holds),
-            [P.VerticalCenter] = new([Whole(P.VerticalCenter), Whole(P.AfterburnPuff)], AnimationEnd.Holds),
-            [P.DirectionalAfterburn] = new([Whole(P.DirectionalAfterburn), Whole(P.AfterburnPuff)], AnimationEnd.Holds),
+            [P.Fireball] = new([Segments.Whole(P.Fireball), Segments.Whole(P.FireballFlight)], AnimationEnd.LoopsFrom(1)),
+            [P.AfterburnFinal] = new([Segments.Whole(P.AfterburnFinal), Segments.Whole(P.AfterburnPuff)], AnimationEnd.Holds),
+            [P.HorizontalCenter] = new([Segments.Whole(P.HorizontalCenter), Segments.Whole(P.AfterburnPuff)], AnimationEnd.Holds),
+            [P.VerticalCenter] = new([Segments.Whole(P.VerticalCenter), Segments.Whole(P.AfterburnPuff)], AnimationEnd.Holds),
+            [P.DirectionalAfterburn] = new([Segments.Whole(P.DirectionalAfterburn), Segments.Whole(P.AfterburnPuff)], AnimationEnd.Holds),
         };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<RidleyFireballSegment> StartingWith(RidleyFireballSegment segment) => StartingAt[segment];
-
-    /// <summary>A phase playing every beat of <paramref name="segment"/> once.</summary>
-    private static AnimationPhase<RidleyFireballSegment> Whole(RidleyFireballSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> passes.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, RidleyFireballCue> Show(EnemyProjectileFrameId frame, int duration) =>

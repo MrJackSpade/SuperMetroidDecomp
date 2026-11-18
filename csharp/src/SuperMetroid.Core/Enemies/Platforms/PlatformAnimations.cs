@@ -81,19 +81,16 @@ internal static class PlatformAnimations
     /// </summary>
     internal static IReadOnlyDictionary<PlatformSegment, Animation<PlatformSegment>> StartingAt { get; } = new Dictionary<PlatformSegment, Animation<PlatformSegment>>
     {
-        [P.SuspensorPlatformHeadingLeft] = new([Whole(P.SuspensorPlatformHeadingLeft), Whole(P.SuspensorPlatformLights)], AnimationEnd.LoopsFrom(1)),
-        [P.SuspensorPlatformHeadingRight] = new([Whole(P.SuspensorPlatformHeadingRight), Whole(P.SuspensorPlatformLights)], AnimationEnd.LoopsFrom(1)),
-        [P.TripperMovingLeft] = new([Whole(P.TripperMovingLeft), Whole(P.TripperHoveringLeft)], AnimationEnd.LoopsFrom(1)),
-        [P.TripperMovingRight] = new([Whole(P.TripperMovingRight), Whole(P.TripperHoveringRight)], AnimationEnd.LoopsFrom(1)),
-        [P.TripperStillMovingLeft] = new([Whole(P.TripperStillMovingLeft), Whole(P.TripperThrustingLeft)], AnimationEnd.LoopsFrom(1)),
-        [P.TripperStillMovingRight] = new([Whole(P.TripperStillMovingRight), Whole(P.TripperThrustingRight)], AnimationEnd.LoopsFrom(1)),
+        [P.SuspensorPlatformHeadingLeft] = new([Segments.Whole(P.SuspensorPlatformHeadingLeft), Segments.Whole(P.SuspensorPlatformLights)], AnimationEnd.LoopsFrom(1)),
+        [P.SuspensorPlatformHeadingRight] = new([Segments.Whole(P.SuspensorPlatformHeadingRight), Segments.Whole(P.SuspensorPlatformLights)], AnimationEnd.LoopsFrom(1)),
+        [P.TripperMovingLeft] = new([Segments.Whole(P.TripperMovingLeft), Segments.Whole(P.TripperHoveringLeft)], AnimationEnd.LoopsFrom(1)),
+        [P.TripperMovingRight] = new([Segments.Whole(P.TripperMovingRight), Segments.Whole(P.TripperHoveringRight)], AnimationEnd.LoopsFrom(1)),
+        [P.TripperStillMovingLeft] = new([Segments.Whole(P.TripperStillMovingLeft), Segments.Whole(P.TripperThrustingLeft)], AnimationEnd.LoopsFrom(1)),
+        [P.TripperStillMovingRight] = new([Segments.Whole(P.TripperStillMovingRight), Segments.Whole(P.TripperThrustingRight)], AnimationEnd.LoopsFrom(1)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<PlatformSegment> StartingWith(PlatformSegment segment) => StartingAt[segment];
-
-    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<PlatformSegment> Whole(PlatformSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, PlatformCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, PlatformCue>.Frame(frame, duration);

@@ -260,7 +260,7 @@ internal static class LookupStream2Verification
             for (int tick = 0; tick <= cycle; tick++)
             {
                 if (elapsed == nativeDurations[frameIndex]) { frameIndex = (frameIndex + 1) % 15; elapsed = 0; }
-                actual.Step(new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
+                actual.Step(new ColourEffectInputs { Samus = FixtureRoomSamus.Uninstalled, SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
                 PaletteFxRoomLook.LayShownShades(actual, cgram, colors);
                 for (int color = 0; color < 3; color++)
                     AssertEqual(ReadVerificationWord(rom, 0x8d0000 | definition.ColorPointer(frameIndex, color)),

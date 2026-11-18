@@ -9,7 +9,7 @@ public enum NinjaSpacePirateAction
     /// <summary>Stands still, its main AI idle, while its animation poses it: a claw throw, a kick, a flinch or a landing.</summary>
     StandingStill,
     /// <summary>Waits for Samus to enter activation range.</summary>
-    Initial,
+    AwaitingSamus,
     /// <summary>Chooses flinch, kick, jump, or claw attacks.</summary>
     Active,
     /// <summary>Rises during a post-to-post spin jump its heading's way (<see cref="NinjaSpacePirateEnemyState.Heading"/>).</summary>

@@ -320,9 +320,9 @@ internal static class LookupStream4Verification
             installed.Start(definition.DefinitionPointer, 0);
             for (int step = 0; step <= definition.CycleFrames; step++)
             {
-                native.Step(new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
+                native.Step(new ColourEffectInputs { Samus = FixtureRoomSamus.Uninstalled, SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
                 PaletteFxRoomLook.LayShownShades(native, nativeCgram, new ReferencePaletteFxColorSource(nativeBus));
-                installed.Step(new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
+                installed.Step(new ColourEffectInputs { Samus = FixtureRoomSamus.Uninstalled, SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
                 PaletteFxRoomLook.LayShownShades(installed, installedCgram, stock);
                 AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)), "actual installed environmental cycle matches original colors each step");
             }

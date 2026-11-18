@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Enemies.Shutters;
 
 /// <summary>
@@ -12,6 +14,23 @@ internal sealed class DestroyableShutterEntity(ShuttersBehavior species, RoomEne
 {
     /// <summary>A destroyable shutter shows forty pixels of shutter.</summary>
     protected override ShutterSegment Pose => ShutterSegment.FortyPixels;
+
+    /// <summary>Sets the shutter up as vertical shutters are, and keeps it among the shutters the escape's flash shows on (#2380).</summary>
+    public override void Initialize()
+    {
+        base.Initialize();
+        Species.KeepDestroyableShutter(this);
+    }
+
+    /// <summary>
+    /// Shows <paramref name="flash"/>, a frame of the escape's red shutter flash, while the shutter holds the place it was
+    /// set up in (#2380): a destroyed shutter, and any enemy that took its place since, shows none.
+    /// </summary>
+    internal void ShowEscapeShutterFlash(PictureShade flash)
+    {
+        if (ReferenceEquals(Place.Entity, this))
+            ShuttersBehavior.LayEscapeShutterFlash(Place, flash);
+    }
 
     /// <summary>The destroyable shutter's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
     public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? Species.DestroyableShutterShotReaction : base.ShotReaction;

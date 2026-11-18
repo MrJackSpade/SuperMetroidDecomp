@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.WorkRobots.Artwork;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
@@ -16,17 +17,20 @@ using SuperMetroid.AssetExtraction.Enemies.Artwork;
 /// <summary>Checks the Work Robot's palette record timing and installed colors against bank A3.</summary>
 internal static class WorkRobotPaletteTimingDefinitionsVerification
 {
-    /// <summary>Compares the six glow steps' durations and colors with their native records, then follows a full production cycle through its glow shades.</summary>
+    /// <summary>Compares the six glow steps' holds and colors with their native records, then follows a full production cycle through its glow shades.</summary>
     internal static void VerifyWorkRobotPaletteTimingDefinitions(
         CartridgeImportAddressSpace rom)
     {
-        for (int glowStep = 0; glowStep < WorkRobotGlowDefinitions.StepCount; glowStep++)
+        int[] holds = [.. WorkRobotGlowAnimations.Segments.Beats(WorkRobotGlowSegment.Glowing)
+            .Select(beat => ((AnimationBeat<WorkRobotGlowStep, NoAnimationCue>.Frame)beat).Duration)];
+        AssertEqual(WorkRobotGlowAnimations.Cycle.Count, holds.Length, "every beat of the Work Robot glow shows a step for a hold");
+        for (int glowStep = 0; glowStep < WorkRobotGlowAnimations.Cycle.Count; glowStep++)
         {
             int address = WorkRobotGlowDefinitions.NativeFirstTimerAddress +
                 glowStep * WorkRobotGlowDefinitions.RecordByteCount;
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(address),
-                WorkRobotGlowDefinitions.Durations[glowStep],
-                $"Work Robot glow step {glowStep} duration");
+                holds[glowStep],
+                $"Work Robot glow step {WorkRobotGlowAnimations.Cycle[glowStep]} hold");
         }
         AssertEqual((ushort)0xffff,
             CartridgeImportSource.Require(rom).ReadCartridgeWord(WorkRobotGlowDefinitions.NativeTerminatorAddress),
@@ -35,7 +39,7 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
         byte[] extracted = WorkRobotPaletteCycleExtractor.Extract(rom);
         WorkRobotPaletteCycle stock = WorkRobotPaletteCycleFile.Read(
             new MemoryStream(extracted, writable: false));
-        for (int record = 0; record < WorkRobotGlowDefinitions.StepCount; record++)
+        for (int record = 0; record < WorkRobotGlowAnimations.Cycle.Count; record++)
         for (int color = 0; color < WorkRobotPaletteDefinitions.ColorCount; color++)
         {
             int source = EnemyRomTablePointers.WorkRobot.PaletteAnimationRecords +
@@ -61,16 +65,18 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
             if (call != loadCalls[nextLoad])
                 continue;
 
-            int record = nextLoad % WorkRobotGlowDefinitions.StepCount;
-            AssertEqual(record,
+            int record = nextLoad % WorkRobotGlowAnimations.Cycle.Count;
+            AssertEqual(WorkRobotGlowAnimations.Cycle[record],
                 enemies.WorkRobotBehavior.GlowStep,
                 $"production Work Robot glow load {nextLoad} shows the next step");
-            AssertEqual(WorkRobotGlowDefinitions.Durations[record],
-                enemies.WorkRobotBehavior.GlowStepCountdown,
+            AssertEqual(holds[record],
+                enemies.WorkRobotBehavior.UpdatesUntilNextGlowStep,
                 $"production Work Robot glow load {nextLoad} timer");
             // The robots draw in the record's glow shade, which the import pre-colours from the cycle's colours for the
-            // record (#1512); those colours are compared with bank $A3 above.
-            AssertEqual(PictureShading.Shaded(WorkRobotShades.Glow(record)), enemies.WorkRobotBehavior.Glow,
+            // record (#1512); those colours are compared with bank $A3 above. The shade's step is the record (#2380).
+            AssertEqual(new PictureShade(WorkRobotShades.GlowEffect, record), WorkRobotShades.Glow(WorkRobotGlowAnimations.Cycle[record]),
+                $"production Work Robot glow load {nextLoad} keys its shade by the record");
+            AssertEqual(PictureShading.Shaded(WorkRobotShades.Glow(WorkRobotGlowAnimations.Cycle[record])), enemies.WorkRobotBehavior.Glow,
                 $"production Work Robot palette load {nextLoad} shows the record's glow shade");
             AssertEqual(enemies.WorkRobotBehavior.Glow, robot.Shading,
                 $"production Work Robot palette load {nextLoad} shows on the robot it placed");
@@ -95,7 +101,7 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
                 int relative = address -
                     WorkRobotGlowDefinitions.NativeFirstTimerAddress;
                 bool timerByte = relative >= 0 &&
-                    relative < WorkRobotGlowDefinitions.StepCount *
+                    relative < WorkRobotGlowAnimations.Cycle.Count *
                         WorkRobotGlowDefinitions.RecordByteCount &&
                     relative % WorkRobotGlowDefinitions.RecordByteCount < 2;
                 bool terminatorByte = address is
@@ -104,7 +110,7 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
                 int colorRelative = address -
                     EnemyRomTablePointers.WorkRobot.PaletteAnimationRecords;
                 bool colorByte = colorRelative >= 0 &&
-                    colorRelative < WorkRobotGlowDefinitions.StepCount *
+                    colorRelative < WorkRobotGlowAnimations.Cycle.Count *
                         WorkRobotGlowDefinitions.RecordByteCount &&
                     colorRelative % WorkRobotGlowDefinitions.RecordByteCount <
                         WorkRobotPaletteDefinitions.ColorCount * sizeof(ushort);

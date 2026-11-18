@@ -76,11 +76,12 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
         switch (state.Action)
         {
             case LowerNorfairRioAction.WaitForAttackOpportunity:
-                if ((!RioLaunchDefinitions.AttackChanceLowBit.IsSetIn(random) && !RioLaunchDefinitions.AttackChanceHighBit.IsSetIn(random)) ||
+                if (RioLaunchDefinitions.AttackHeldBack.IsTakenBy(random) ||
                     CoordinateAxis.Distance(samus.Position.X.Whole, place.Position.X.Whole) >= RioLaunchDefinitions.LowerNorfairTriggerDistance)
                 {
-                    // Unlike upper Norfair Rio, this variant clears the handshake and asks for its attack animation on
-                    // every rejected frame; an attack animation already playing does not restart.
+                    // Unlike the Norfair Rio, a Lower Norfair Rio that does not attack forgets that its animation finished
+                    // and asks for its idle animation on every such update; the idle animation already playing does not
+                    // restart.
                     state.AnimationSignal = false;
                     StartLowerNorfairRioAnimation(
                         place,
@@ -171,7 +172,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
         }
     }
 
-    /// <summary>Carries out one cue of the Lower Norfair Rio's animations: the finished handshake and flame visibility.</summary>
+    /// <summary>Carries out one cue of the Lower Norfair Rio's animations: the end of an animation, or showing or hiding its flames.</summary>
     private static void ApplyLowerNorfairRioCue(LowerNorfairRioEnemyState state, LowerNorfairRioCue cue)
     {
         switch (cue.Kind)

@@ -34,8 +34,7 @@ internal static class NativeEnemyProjectileParity
             AssertEqual(!native.Deleted, projectile.IsActive, $"{at}: deletion");
             if (native.Deleted)
                 return new CompareResult(true, update + 1);
-            if (!RestsOnHeldFrame(native.Timer, projectile.FrameHold) && !RestsForGood(projectile.FrameHold))
-                AssertEqual(native.Timer, projectile.FrameHold.RawValue, $"{at}: timer");
+            AssertFrameHold(native.Timer, projectile, at);
             // An operand that stores a pose's picture again shows that pose (#2273).
             AssertEqual(SuperMetroid.AssetExtraction.Enemies.EnemyProjectileProgramFrameOperands.OwnOperand(native.Operand),
                 projectile.PresentationOperandAddress, $"{at}: frame");
@@ -48,18 +47,24 @@ internal static class NativeEnemyProjectileParity
     }
 
     /// <summary>
-    /// Whether <paramref name="hold"/> is the timer of a frame the typed animation holds for good (#1607) beside a native
-    /// list at <paramref name="nativeTimer"/>: the held frame rests on the hold's timer, counting on from zero, while the
-    /// native list counts its longest frame down before resting on the same frame, so within the updates a check runs the
-    /// two stay the longest frame's duration apart.
+    /// Whether <paramref name="hold"/>, an enemy's animation clock, is the timer of a frame the typed animation holds for
+    /// good (#1607) beside a native list at <paramref name="nativeTimer"/>: the held frame rests on the clock's hold,
+    /// counting on from zero, while the native list counts its longest frame down before resting on the same frame, so
+    /// within the updates a check runs the two stay the longest frame's duration apart. A projectile's held frame stops its
+    /// hold instead (#2380), which <see cref="AssertFrameHold"/> reads.
     /// </summary>
     internal static bool RestsOnHeldFrame(ushort nativeTimer, WrappingCountdown hold) =>
         hold.RawValue == unchecked((ushort)(nativeTimer - NativeHeldFrameDuration));
 
     /// <summary>
-    /// Whether <paramref name="hold"/> is the timer of a typed animation resting for good (#2068): it starts from zero and
-    /// wraps, past the longest duration a frame can name, while a native list that shows one frame again and again counts
-    /// that frame's leftover duration down and reloads it, a timer nothing reads. The frame is still compared.
+    /// Compares <paramref name="projectile"/>'s frame hold with the native list's timer, <paramref name="nativeTimer"/>,
+    /// while the hold runs. A stopped hold (#2380), where the typed animation shows a frame for good or rests, counts
+    /// nothing, while the native list's timer counts down its longest frame, toward its sleep, or toward the frame it shows
+    /// again and again, none of which shows anything new; the frame is compared on its own.
     /// </summary>
-    private static bool RestsForGood(WrappingCountdown hold) => hold.RawValue is 0 or > NativeHeldFrameDuration;
+    internal static void AssertFrameHold(ushort nativeTimer, EnemyProjectile projectile, string at)
+    {
+        if (!projectile.IsFrameHoldStopped)
+            AssertEqual(nativeTimer, projectile.FrameHold.RawValue, $"{at}: timer");
+    }
 }

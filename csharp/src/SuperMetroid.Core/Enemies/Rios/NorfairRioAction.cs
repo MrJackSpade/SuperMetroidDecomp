@@ -6,9 +6,9 @@ namespace SuperMetroid.Core.Enemies.Rios;
 /// </summary>
 public enum NorfairRioAction
 {
-    /// <summary>Admits an attack when either half of the random sample is odd and Samus is strictly within 192 horizontal room pixels, sampling a launch velocity from that sample.</summary>
+    /// <summary>Attacks when Samus is strictly within 192 horizontal room pixels and the update's random number does not hold it back, the same number choosing its launch velocity.</summary>
     WaitForAttackOpportunity,
-    /// <summary>Waits for the animation handshake, then installs descending artwork, enters the dive, and requests the enemy-library dive sound.</summary>
+    /// <summary>Waits for its swoop's start to finish, then plays its descent, enters the dive, and plays the dive sound.</summary>
     WaitForTakeoffAnimation,
     /// <summary>Moves down and horizontally with wall reversal, transitioning to return on vertical collision or when vertical velocity becomes negative.</summary>
     Dive,

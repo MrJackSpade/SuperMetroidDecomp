@@ -52,8 +52,36 @@ public sealed class EnemyProjectile
     internal EnemyProjectileHandOver LeftInPlace => new(Position.Whole, Velocity);
     /// <summary>The typed animation the projectile plays (#641), or null when it plays none.</summary>
     internal EnemyProjectileAnimation? Animation { get; private set; }
-    /// <summary>Gets the countdown to the animation's next frame; a spawn starts it at one so the animation's first frame shows on its first pass.</summary>
-    public WrappingCountdown FrameHold { get; internal set; }
+    /// <summary>
+    /// Gets the countdown to the animation's next frame; a spawn starts it at one so the animation's first frame shows on its
+    /// first pass. Setting it runs a stopped hold again (<see cref="IsFrameHoldStopped"/>).
+    /// </summary>
+    public WrappingCountdown FrameHold
+    {
+        get;
+        internal set
+        {
+            field = value;
+            IsFrameHoldStopped = false;
+        }
+    }
+
+    /// <summary>
+    /// Whether the frame hold is stopped (#2380): the animation shows a frame for good, or rests where its timeline holds, so
+    /// the hold counts nothing and the animation takes no further step until the projectile's owner sets the hold again or
+    /// starts an animation (<see cref="StopFrameHold"/>).
+    /// </summary>
+    public bool IsFrameHoldStopped { get; private set; }
+
+    /// <summary>
+    /// Stops the frame hold (#2380): the frame shown stays, and the animation takes no further step, until the projectile's
+    /// owner sets the hold again or starts an animation. The hold reads zero while it is stopped.
+    /// </summary>
+    internal void StopFrameHold()
+    {
+        FrameHold = WrappingCountdown.Start(0);
+        IsFrameHoldStopped = true;
+    }
     /// <summary>
     /// Whether the projectile is hidden: it is drawn only while shown. A flickering n00b tube crack or shard hides on
     /// alternate updates (#1839).

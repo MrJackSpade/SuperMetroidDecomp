@@ -855,7 +855,10 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     if (!SuperMetroid.Core.Rendering.PpuImageAccess.DrawsSamePicture(actualOam, expectedOam))
                         mismatches.Add(owner + $" composition differs from native ${nativeMap:X4}");
                 }
-                Check(owner + " FrameHold", projectile.FrameHold.RawValue, NativeSnapshotMemory.EnemyProjectileFrameHold + index);
+                // A stopped hold (#2380), where the animation shows a frame for good or rests, counts nothing, while the
+                // native timer counts toward a sleep or a repeated frame that shows nothing new.
+                if (!projectile.IsFrameHoldStopped)
+                    Check(owner + " FrameHold", projectile.FrameHold.RawValue, NativeSnapshotMemory.EnemyProjectileFrameHold + index);
                 Check(owner + " radii", LittleEndianBytes.Word(unchecked((byte)projectile.Radius.X), unchecked((byte)projectile.Radius.Y)), NativeSnapshotMemory.EnemyProjectileRadius + index);
                 ushort properties = checked((ushort)projectile.Damage);
                 if (projectile.Depth == EnemyProjectileDepth.InFrontOfSamus) properties |= NativeSnapshotMemory.EnemyProjectileInFrontOfSamus;

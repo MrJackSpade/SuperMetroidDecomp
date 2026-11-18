@@ -12,6 +12,8 @@ namespace SuperMetroid.Verification.Enemies.Shutters;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.TestSupport.ScenarioFixtures;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Fx.ColourEffects;
 
 /// <summary>Checks the shutters' and Kamer's typed animations, their initial function tables and their export frames.</summary>
 internal static class ShutterBehaviorVerification
@@ -203,6 +205,44 @@ internal static class ShutterBehaviorVerification
         }
     }
 
+    /// <summary>
+    /// The escape's shutter flash shows on the destroyable shutters the room set up, which the shutters' owner keeps
+    /// (#2380): a shootable shutter beside them shows none, and a destroyed one keeps the colours it last showed.
+    /// </summary>
+    internal static void VerifyEscapeShutterFlash()
+    {
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        RoomEnemyPlace destroyable = SetUp(0, EnemyDefinitionId.ShutterDestroyable);
+        RoomEnemyPlace shootable = SetUp(1, EnemyDefinitionId.ShutterShootable);
+
+        var first = new ColourEffectFrame(ColourEffectId.TourianShutterRedFlashing, 0);
+        enemies.ShowEscapeShutterFlash(first);
+        AssertEqual(PictureShading.Standard.With(ColourEffectShades.Of(ColourEffectColours.TourianShutters, first)), destroyable.Shading,
+            "the destroyable shutter shows the flash's frame");
+        AssertEqual(PictureShading.Standard, shootable.Shading, "the shootable shutter shows no flash");
+
+        var second = new ColourEffectFrame(ColourEffectId.TourianShutterRedFlashing, 1);
+        enemies.ShowEscapeShutterFlash(second);
+        AssertEqual(PictureShading.Standard.With(ColourEffectShades.Of(ColourEffectColours.TourianShutters, second)), destroyable.Shading,
+            "the flash's next frame replaces the one before it");
+
+        destroyable.Unbind();
+        enemies.ShowEscapeShutterFlash(first);
+        AssertEqual(PictureShading.Standard.With(ColourEffectShades.Of(ColourEffectColours.TourianShutters, second)), destroyable.Shading,
+            "a shutter that has left its place shows the flash no more");
+        Console.WriteLine("  Escape shutter flash: shows on the destroyable shutters the room set up while they hold their places.");
+
+        RoomEnemyPlace SetUp(int ordinal, EnemyDefinitionId definition)
+        {
+            RoomEnemyPlace place = enemies.Places.InUpdateOrder[ordinal];
+            place.Bind(definition, place.Definition);
+            place.SetSpawnWords(EnemyDefinitionId.ShutterShootable, _ => SuperMetroid.AssetExtraction.Enemies.PopulationWords.Parameters(2, 0));
+            ((IEnemyInitialization)(place.Entity ?? throw new InvalidOperationException("Verification requires a bound shutter."))).Initialize();
+            place.Shading = PictureShading.Standard;
+            return place;
+        }
+    }
+
     /// <summary>Number of authored growing-shutter speed records.</summary>
     private const int GrowingShutterSpeedRecordCount = 24;
 
@@ -215,6 +255,7 @@ internal static class ShutterBehaviorVerification
         Suite(nameof(VerifyGrowingShutterActivationTimer), () => VerifyGrowingShutterActivationTimer());
         Suite(nameof(VerifyGrowingShutterUpwardVelocity), () => VerifyGrowingShutterUpwardVelocity());
         Suite(nameof(VerifyVerticalShutterEndpoints), () => VerifyVerticalShutterEndpoints());
+        Suite(nameof(VerifyEscapeShutterFlash), () => VerifyEscapeShutterFlash());
         Suite(nameof(ShutterAnimationsVerification.VerifyShutterAnimations), () => ShutterAnimationsVerification.VerifyShutterAnimations(rom));
         Suite(nameof(VerifyShutterExportFrames), () => VerifyShutterExportFrames(rom));
         return 0;

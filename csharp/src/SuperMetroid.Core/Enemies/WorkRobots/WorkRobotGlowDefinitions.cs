@@ -1,19 +1,14 @@
 namespace SuperMetroid.Core.Enemies.WorkRobots;
 
 /// <summary>
-/// The cadence of the Work Robot's glow. The colours each step shows are the import's shades (#1512); this catalog
-/// owns how many steps the glow has and how long each shows.
+/// The holds of the Work Robot's glow (#2380). The colours each step shows are the import's shades (#1512); the order of the
+/// steps is <see cref="WorkRobotGlowAnimations"/>.
 /// </summary>
 internal static class WorkRobotGlowDefinitions
 {
-    /// <summary>Number of steps in the glow's cycle; after the last it starts again at the first.</summary>
-    public const int StepCount = 6;
+    /// <summary>The updates the glow rests at either end of its run.</summary>
+    internal const int EndHold = 64;
 
-    /// <summary>The updates each glow step shows for: a three-step cadence of 64 updates then 16 and 16.</summary>
-    /// <remarks>
-    /// The six steps' timers repeat a
-    /// three-step cadence, 64 ticks at i%3==0 and 16 otherwise. After the sixth step the cycle restarts at the first;
-    /// there is never a seventh duration.
-    /// </remarks>
-    internal static readonly int[] Durations = [64, 16, 16, 64, 16, 16];
+    /// <summary>The updates the glow shows each step between the ends of its run.</summary>
+    internal const int PassingHold = 16;
 }

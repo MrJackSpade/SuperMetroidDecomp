@@ -234,7 +234,7 @@ internal static class MotherBrainAnimationsVerification
             if (native.Deleted)
                 break;
             if (timesItsFrames)
-                AssertEqual(native.Timer, projectile.FrameHold.RawValue, $"{at}: timer");
+                SuperMetroid.Verification.Enemies.NativeEnemyProjectileParity.AssertFrameHold(native.Timer, projectile, at);
             AssertEqual(native.Operand, projectile.PresentationOperandAddress, $"{at}: frame");
             if (native.PaletteCleared)
                 AssertEqual(SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard, projectile.ShownGraphics, $"{at}: the frame after the cleared graphics word draws from the room's sheet in its standard colours");
@@ -278,7 +278,7 @@ internal static class MotherBrainAnimationsVerification
             AssertEqual(!native.Deleted, beam.IsActive, $"{at}: deletion");
             if (native.Deleted)
                 break;
-            AssertEqual(native.Timer, beam.FrameHold.RawValue, $"{at}: timer");
+            SuperMetroid.Verification.Enemies.NativeEnemyProjectileParity.AssertFrameHold(native.Timer, beam, at);
             // The second and third stages draw the first stage's pictures from operands of their own (#2210).
             AssertEqual<EnemyProjectileFrameId?>(EnemyProjectileProgramFrameOperands.Frame(native.Operand, beam.Graphics.Owner), beam.Frame, $"{at}: frame");
         }

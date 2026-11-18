@@ -158,10 +158,9 @@ internal static class SporeSpawnAnimationsVerification
                 AssertEqual(!native.Deleted, projectile.IsActive, $"{at}: deletion");
                 if (native.Deleted)
                     break;
-                // A held frame (#2235) shows its picture for good: the native timer running down to the list's sleep shows
-                // nothing else, so only the picture is compared once the typed animation rests.
-                if (!Rests(projectile))
-                    AssertEqual(native.Timer, projectile.FrameHold.RawValue, $"{at}: timer");
+                // A held frame (#2235) shows its picture for good and stops the hold (#2380): the native timer running down
+                // to the list's sleep shows nothing else, so only the picture is compared once the typed animation rests.
+                SuperMetroid.Verification.Enemies.NativeEnemyProjectileParity.AssertFrameHold(native.Timer, projectile, at);
                 // A list that shows a pose again from an operand of its own shows the pose's one installed frame (#2234).
                 AssertEqual<EnemyProjectileFrameId?>(EnemyProjectileProgramFrameOperands.Frame(native.Operand, projectile.Graphics.Owner), projectile.Frame, $"{at}: frame");
             }
@@ -170,11 +169,6 @@ internal static class SporeSpawnAnimationsVerification
         }
         return updates;
     }
-
-    /// <summary>Whether <paramref name="projectile"/>'s typed animation rests where it stands: its play is done for good.</summary>
-    private static bool Rests(EnemyProjectile projectile) =>
-        projectile.Animation is SporeSpawnProjectileAnimation { Playback: { Animation.Phases.Count: > 0 } playback }
-            && playback.Place.Beat > playback.Animation.Phases[playback.Place.Phase].BeatCount;
 
     /// <summary>
     /// A projectile system whose spore drops roll for the Samus each projectile pass hands them.

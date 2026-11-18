@@ -16,7 +16,7 @@ public sealed class NorfairRioEnemyState
     /// </summary>
     internal bool Idles { get; set; }
 
-    /// <summary>Animation handshake set by the swoop-start-finished cue.</summary>
+    /// <summary>Whether the Rio's swoop's start has finished, as its animation's cue says, and its main AI has not yet acted on it.</summary>
     public bool AnimationSignal { get; internal set; }
 
     /// <summary>

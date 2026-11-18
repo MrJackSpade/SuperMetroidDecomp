@@ -20,25 +20,22 @@ internal static class RioLaunchDefinitions
     /// <summary>Lower Norfair Rio horizontal speed, one pixel per update.</summary>
     internal static SignedEightEight LowerNorfairXVelocity { get; } = SignedEightEight.FromParts(1, 0);
 
-    /// <summary>The faster of the Norfair Rio's two downward launch velocities, seven pixels per update, chosen when <see cref="SlowLaunchBit"/> is clear.</summary>
+    /// <summary>The faster of the Norfair Rio's two downward launch velocities, seven pixels per update, chosen when <see cref="SlowLaunch"/> is not taken.</summary>
     internal static SignedEightEight NorfairFastYVelocity { get; } = SignedEightEight.FromParts(7, 0);
-    /// <summary>The slower Norfair Rio downward launch velocity, five and three quarter pixels per update, chosen when <see cref="SlowLaunchBit"/> is set.</summary>
+    /// <summary>The slower Norfair Rio downward launch velocity, five and three quarter pixels per update, chosen when <see cref="SlowLaunch"/> is taken.</summary>
     internal static SignedEightEight NorfairSlowYVelocity { get; } = SignedEightEight.FromParts(5, 192);
 
-    /// <summary>The random choice, taken for half the random numbers, that sends a diving Norfair Rio down at its slower launch velocity.</summary>
-    internal static readonly RandomSampleField SlowLaunchBit = new(2, 1);
+    /// <summary>
+    /// The chance, taken by half the random numbers, that sends a diving Norfair Rio down at its slower launch velocity; the
+    /// random number that let it attack decides it.
+    /// </summary>
+    internal static readonly RandomChance SlowLaunch = RandomChance.Highest(1, new RandomSampleField(2, 1));
 
     /// <summary>
-    /// One of the two random choices, an odd sample, of which at least one must be taken for a Norfair or Lower Norfair Rio to
-    /// attack.
+    /// The chance, taken by one random number in four, that a Norfair or Lower Norfair Rio waiting for Samus holds back from
+    /// attacking on its update, however near she is.
     /// </summary>
-    internal static readonly RandomSampleField AttackChanceLowBit = new(0, 1);
-
-    /// <summary>
-    /// The other of the two random choices, each taken for half the random numbers, of which at least one must be taken
-    /// for a Norfair or Lower Norfair Rio to attack.
-    /// </summary>
-    internal static readonly RandomSampleField AttackChanceHighBit = new(8, 1);
+    internal static readonly RandomClearBitsChance AttackHeldBack = new(new RandomSampleField(0, 1), new RandomSampleField(8, 1));
 
     /// <summary>How close horizontally Samus comes, in pixels and exclusive, before a Rio dives.</summary>
     internal const int RioTriggerDistance = 160;

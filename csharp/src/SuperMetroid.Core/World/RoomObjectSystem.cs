@@ -235,18 +235,6 @@ public sealed class RoomObjectSystem : IRoomObjects, ISamusRoomObjects
     GreyDoorObjects IRoomObjects.GreyDoors => GreyDoors;
 
     /// <inheritdoc/>
-    GateObjects IRoomObjects.Gates => Gates;
-
-    /// <inheritdoc/>
-    SamusEaterObjects IRoomObjects.SamusEater => SamusEater;
-
-    /// <inheritdoc/>
-    ScrollObjects IRoomObjects.Scrolls => Scrolls;
-
-    /// <inheritdoc/>
-    bool IRoomObjects.EveryPlaceHeld => Places.IsFull;
-
-    /// <inheritdoc/>
     void IRoomObjects.DeleteObject(RoomObjectPlace place) => DeleteObject(place);
 
     /// <inheritdoc/>

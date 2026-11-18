@@ -15,20 +15,20 @@ internal sealed class EnemyBreakableTerrainObjects
         _places = places;
     }
     /// <summary>
-    /// Spawns the breakable block's break: take a place, clear the block's collision at once and keep its artwork until
-    /// the break draws. A full room skips the setup and reports failure.
+    /// Spawns the breakable block's break: take a place, clear the block's collision at once and keep its picture and what
+    /// it shows until the break draws, as the setup rewrites only the block's type (#2502). A full room skips the setup and
+    /// reports failure.
     /// </summary>
     public bool TrySpawnEnemyBreakableBlock(RoomLevelData level, Position16<RoomBlocks> position)
     {
         Ensure.NotNull(level);
-        RoomCollisionBlock block = level.GetCollisionBlock(position);
         // A full room skips the setup, and the block is reported as not broken.
         if (_places.Spawn() is not { } place)
             return false;
 
         place.Block = position;
         place.Become(new TerrainChangeObject(ScriptedTerrainChangeDefinitions.EnemyBreakableBlockBreak));
-        level.SetTerrain(position, block.Terrain.WithCollision(RoomCollisionType.Air));
+        level.SetCollision(position, RoomCollisionType.Air);
         return true;
     }
 }

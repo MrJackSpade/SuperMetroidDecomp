@@ -35,7 +35,8 @@ internal sealed class SamusEaterObjects
         place.Block = block.At;
         place.Become(new SamusEaterObject(this, definition,
             samus.Position.Whole + new Offset16<RoomPixels>(0, definition.Ceiling ? 1 : -1)));
-        level.SetTerrain(block.At, block.Terrain.Deactivated());
+        // The deactivating setup rewrites only the block's type, so it keeps its picture and what it shows (#2502).
+        level.SetCollision(block.At, block.Terrain.Deactivated().Collision);
     }
 
     /// <summary>Holds Samus at <paramref name="held"/> after her normal movement and sustains her invincibility.</summary>

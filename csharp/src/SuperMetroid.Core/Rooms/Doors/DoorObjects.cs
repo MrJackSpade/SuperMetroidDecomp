@@ -81,21 +81,19 @@ internal sealed class DoorObjects
     }
 
     /// <summary>
-    /// The setup that makes a room object's block passable: a solid block stays solid and any other block becomes air,
-    /// keeping its appearance. The room object keeps its place.
+    /// The setup that makes a room object's block passable: a solid block stays solid and any other block becomes air. Only
+    /// its collision kind changes, so it keeps its picture and what it shows (#2502). The room object keeps its place.
     /// </summary>
-    internal static void SetupPassableBlock(RoomLevelData level, RoomObjectPlace place) =>
-        level.SetTerrain(place.Block, level.GetCollisionBlock(place.Block).Terrain.Deactivated());
+    internal static void SetupPassableBlock(RoomLevelData level, RoomObjectPlace place) => level.Deactivate(place.Block);
 
     /// <summary>Installs shootable-solid collision and the resident room-object projectile behaviour at a colored cap.</summary>
     private static void ApplyColoredDoorSetup(RoomLevelData level, Position16<RoomBlocks> block)
     {
-        // The colored-door setup keeps the block's appearance, installs shootable-solid collision, and selects the
-        // resident room-object projectile trigger so subsequent projectiles find this resident room object.
-        level.SetObjectTerrain(
-            block,
-            level.GetObjectCollisionBlock(block).Terrain.WithCollision(RoomCollisionType.ShootableBlock));
-        level.SetObjectBehavior(block, RoomBlockBehavior.Reacting(ShootableReaction.ResidentObjectTrigger));
+        // The colored-door setup installs shootable-solid collision and selects the resident room-object projectile trigger
+        // so subsequent projectiles find this resident room object. It rewrites only the block's type and parameter, so the
+        // block keeps its picture and what it shows (#2502).
+        level.SetObjectCollisionAndBehavior(block, RoomCollisionType.ShootableBlock,
+            RoomBlockBehavior.Reacting(ShootableReaction.ResidentObjectTrigger));
     }
 
     /// <summary>
@@ -167,9 +165,8 @@ internal sealed class DoorObjects
         place.BecomeDoor(BlueDoorCapObject.Opening(orientation, _shotCapClosing));
 
         // The block turns solid at once, before the cap is drawn. The cap's first draw comes on its next update, while collision
-        // sees the solid block at once.
-        level.SetTerrain(position,
-            level.GetCollisionBlock(position).Terrain.WithCollision(RoomCollisionType.SolidBlock));
+        // sees the solid block at once. Only its type changes, so it keeps what it shows until that draw (#2502).
+        level.SetCollision(position, RoomCollisionType.SolidBlock);
         return true;
     }
 }

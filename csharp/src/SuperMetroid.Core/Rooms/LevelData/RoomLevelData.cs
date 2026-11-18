@@ -324,6 +324,19 @@ public sealed class RoomLevelData
     }
 
     /// <summary>
+    /// The shared deactivating setup at one foreground block (#2502): a block of a solid kind becomes a plain solid block
+    /// and any other becomes air (<see cref="RoomTerrainBlock.Deactivated"/>). Only its collision kind changes, as the
+    /// original's setup rewrites nothing but the block's type, so it keeps its picture, what it shows, its behaviour and
+    /// where it leads; the block must lie in the grid.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">The block is outside the grid.</exception>
+    internal void Deactivate(Position16<RoomBlocks> block)
+    {
+        int place = GridPlace(block);
+        terrain[place] = terrain[place].Deactivated();
+    }
+
+    /// <summary>
     /// Replaces the behaviour of one foreground block, which no longer leads where its earlier behaviour did; the block must
     /// lie in the grid.
     /// </summary>

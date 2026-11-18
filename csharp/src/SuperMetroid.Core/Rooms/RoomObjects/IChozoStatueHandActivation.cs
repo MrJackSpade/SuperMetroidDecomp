@@ -2,12 +2,11 @@ using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>Starting a Chozo statue's hand sequence from the hand block Samus landed on (#2015).</summary>
+/// <summary>Starting a Chozo statue's hand sequence once Samus has triggered its hand (#2015).</summary>
 public interface IChozoStatueHandActivation
 {
     /// <summary>
-    /// Starts the statue's hand sequence from <paramref name="handBlock"/> and applies the room-object work it requests
-    /// at once.
+    /// Starts the statue's hand sequence and applies the room-object work it requests at once in <paramref name="level"/>.
     /// </summary>
-    void ActivateChozoStatueHand(RoomLevelData level, Position16<RoomBlocks> handBlock);
+    void ActivateChozoStatueHand(RoomLevelData level);
 }

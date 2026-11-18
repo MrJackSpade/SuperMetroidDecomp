@@ -10,8 +10,8 @@ internal sealed class ShitroidWallObjects(RoomObjectPlaceList places)
 {
     /// <summary>
     /// Spawns the wall room object performing the request's mutation at its block. The setup runs as it is spawned: it
-    /// gives each block of the mutation's shape on the wall column the shape's collision, keeping every block's
-    /// appearance, and the object leaves the room on its first update.
+    /// gives each block of the mutation's shape on the wall column the shape's collision, keeping every block's picture and
+    /// what it shows (#2502), and the object leaves the room on its first update.
     /// </summary>
     /// <returns>
     /// False when the room is full; no terrain is changed then (<see cref="Compatibility.RoomObjectPlaces"/>).
@@ -32,7 +32,7 @@ internal sealed class ShitroidWallObjects(RoomObjectPlaceList places)
         foreach (RoomBlockShapeCell cell in shape.Cells)
         {
             Position16<RoomBlocks> block = level.GridBlock(request.Block + cell.Cell);
-            level.SetTerrain(block, level.GetCollisionBlock(block).Terrain.WithCollision(cell.Collision));
+            level.SetCollision(block, cell.Collision);
         }
         return true;
     }

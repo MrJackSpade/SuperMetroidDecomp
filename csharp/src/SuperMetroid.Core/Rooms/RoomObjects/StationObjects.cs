@@ -123,7 +123,7 @@ internal sealed class StationObjects
         Ensure.NotNull(level);
         Ensure.NotNull(place);
         place.Become(new ElevatorPlatformObject());
-        level.SetTerrain(place.Block, level.GetCollisionBlock(place.Block).Terrain.Deactivated());
+        level.Deactivate(place.Block);
     }
 
     /// <summary>
@@ -137,7 +137,6 @@ internal sealed class StationObjects
         WriteStationBlock(
             level,
             place.Block,
-            level.GetCollisionBlock(place.Block).Terrain,
             RoomCollisionType.SpecialBlock,
             RoomBlockBehavior.Reacting(SpecialBlockReaction.SaveStationFloor));
         place.Become(new SaveStationObject(savedAt));
@@ -154,7 +153,7 @@ internal sealed class StationObjects
         Ensure.NotNull(level);
         Ensure.NotNull(place);
         Ensure.NotNull(rule);
-        WriteStationBlock(level, place.Block, level.GetCollisionBlock(place.Block).Terrain, RoomCollisionType.SolidBlock, behavior: null);
+        WriteStationBlock(level, place.Block, RoomCollisionType.SolidBlock, behavior: null);
         WriteAccessBlock(level, level.ObjectBlockStep(place.Block, new Offset16<RoomBlocks>(rule.RightOffset, 0)),
             new StationAccess(rule.Kind, HorizontalDirection.Right));
         WriteAccessBlock(level, level.ObjectBlockStep(place.Block, new Offset16<RoomBlocks>(rule.LeftOffset, 0)),
@@ -183,20 +182,21 @@ internal sealed class StationObjects
         WriteStationBlock(
             level,
             block,
-            level.GetCollisionBlock(block).Terrain,
             RoomCollisionType.SpecialBlock,
             RoomBlockBehavior.Reacting(BlockReactionDefinitions.StationAccesses.ReactionFor(access)));
     }
 
-    /// <summary>Changes a station block's collision kind while preserving its appearance, and sets its optional behaviour.</summary>
+    /// <summary>
+    /// Changes a station block's collision kind, and sets its optional behaviour, keeping its picture and what it shows, as
+    /// the stations' setups rewrite only each block's type, or type and parameter (#2502).
+    /// </summary>
     private static void WriteStationBlock(
         RoomLevelData level,
         Position16<RoomBlocks> block,
-        RoomTerrainBlock original,
         RoomCollisionType collisionType,
         RoomBlockBehavior? behavior)
     {
-        level.SetTerrain(block, original.WithCollision(collisionType));
+        level.SetCollision(block, collisionType);
         if (behavior is { } written)
             level.SetBehavior(block, written);
     }

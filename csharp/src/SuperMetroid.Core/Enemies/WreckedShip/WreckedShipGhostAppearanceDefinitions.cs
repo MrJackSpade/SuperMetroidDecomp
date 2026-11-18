@@ -41,13 +41,13 @@ public static class WreckedShipGhostAppearanceDefinitions
         };
 
     /// <summary>
-    /// The steps of a ghost's flicker as it appears, in order; flickering ends when the last step does, leaving the ghost
-    /// visible. The hidden steps shorten from eight updates to five and the shown steps lengthen from one to three, each
+    /// The timings of a ghost's flicker steps as it appears (<see cref="WreckedShipGhostFlickerStep"/>), in order; flickering
+    /// ends when the last step does, leaving the ghost visible. The hidden steps shorten from eight updates to five and the shown steps lengthen from one to three, each
     /// length held for two hidden and two shown steps; the ghost starts hidden. Once a step has shown the ghost, the hidden
     /// steps that follow leave it shown, so the steps' lengths decide when the ghost first appears and when its flicker
     /// ends, which the fade's completion waits for.
     /// </summary>
-    public static IReadOnlyList<WreckedShipGhostFlickerStep> FlickerSteps { get; } =
+    public static IReadOnlyList<WreckedShipGhostFlickerTiming> FlickerTimings { get; } =
     [
         new(8, WreckedShipGhostFlickerVisibility.Unchanged), new(1, WreckedShipGhostFlickerVisibility.Shown),
         new(8, WreckedShipGhostFlickerVisibility.Unchanged), new(1, WreckedShipGhostFlickerVisibility.Shown),

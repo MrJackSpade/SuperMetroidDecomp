@@ -15,21 +15,10 @@ internal static class RioAnimations
     internal static AnimationSegments<RioSegment, EnemyFrameId, RioCue> Segments { get; } = new(
         new Dictionary<RioSegment, AnimationBeat<EnemyFrameId, RioCue>[]>
     {
-        [P.Idle] =
+        [P.Idle] = TuckedWingbeat,
+        [P.PostSwoopIdle] = TuckedWingbeat,
+        [P.HangingWingbeat] =
         [
-            Show(EnemyFrameId.RioWingsUpLegsTucked, 4),
-            Show(EnemyFrameId.RioWingsLevelLegsTucked, 4),
-        ],
-        [P.PostSwoopIdle] =
-        [
-            Show(EnemyFrameId.RioWingsUpLegsTucked, 4),
-            Show(EnemyFrameId.RioWingsLevelLegsTucked, 4),
-            Show(EnemyFrameId.RioWingsUpLegsTucked, 4),
-            Show(EnemyFrameId.RioWingsLevelLegsTucked, 4),
-            Show(EnemyFrameId.RioWingsUpLegsTucked, 4),
-            Show(EnemyFrameId.RioWingsLevelLegsTucked, 4),
-            Show(EnemyFrameId.RioWingsUpLegsHanging, 4),
-            Show(EnemyFrameId.RioWingsLevelLegsHanging, 4),
             Show(EnemyFrameId.RioWingsUpLegsHanging, 4),
             Show(EnemyFrameId.RioWingsLevelLegsHanging, 4),
         ],
@@ -58,11 +47,14 @@ internal static class RioAnimations
         ],
     });
 
-    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    /// <summary>
+    /// The animation that starts at each segment an owner can start or restart at. The idle's hover is its tucked
+    /// wingbeat three times and its hanging wingbeat twice (#2451); no owner starts the hanging wingbeat itself.
+    /// </summary>
     internal static IReadOnlyDictionary<RioSegment, Animation<RioSegment>> StartingAt { get; } = new Dictionary<RioSegment, Animation<RioSegment>>
     {
-        [P.Idle] = Animation<RioSegment>.Looping([Segments.Whole(P.Idle), Segments.Whole(P.PostSwoopIdle)]),
-        [P.PostSwoopIdle] = Animation<RioSegment>.Looping([Segments.Whole(P.PostSwoopIdle), Segments.Whole(P.Idle)]),
+        [P.Idle] = Animation<RioSegment>.Looping([Segments.Whole(P.Idle), .. PostSwoopHover()]),
+        [P.PostSwoopIdle] = Animation<RioSegment>.Looping([.. PostSwoopHover(), Segments.Whole(P.Idle)]),
         [P.SwoopOpening] = new([Segments.Whole(P.SwoopOpening)], AnimationEnd.Holds),
         [P.SwoopLoop] = Animation<RioSegment>.Looping([Segments.Whole(P.SwoopLoop)]),
         [P.SwoopCooldown] = new([Segments.Whole(P.SwoopCooldown)], AnimationEnd.Holds),
@@ -70,6 +62,23 @@ internal static class RioAnimations
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<RioSegment> StartingWith(RioSegment segment) => StartingAt[segment];
+
+    /// <summary>The times the hover after a swoop beats its wings with its legs tucked before they hang.</summary>
+    private const int TuckedWingbeats = 3;
+
+    /// <summary>The times the hover beats its wings with its legs hanging before the idle starts again.</summary>
+    private const int HangingWingbeats = 2;
+
+    /// <summary>A wingbeat with the Rio's legs tucked, which the idle and the hover after a swoop play (#2451).</summary>
+    private static AnimationBeat<EnemyFrameId, RioCue>[] TuckedWingbeat =>
+    [
+        Show(EnemyFrameId.RioWingsUpLegsTucked, 4),
+        Show(EnemyFrameId.RioWingsLevelLegsTucked, 4),
+    ];
+
+    /// <summary>The hover after a swoop (#2451): its tucked wingbeats, then its hanging ones.</summary>
+    private static AnimationPhase<RioSegment>[] PostSwoopHover() =>
+        [Segments.Repeated(P.PostSwoopIdle, TuckedWingbeats), Segments.Repeated(P.HangingWingbeat, HangingWingbeats)];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, RioCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, RioCue>.Frame(frame, duration);

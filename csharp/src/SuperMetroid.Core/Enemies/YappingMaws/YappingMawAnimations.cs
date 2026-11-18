@@ -100,7 +100,6 @@ internal static class YappingMawAnimations
         [
             Cue(new YappingMawCue.HoldSamus(YappingMawAim.UpLeft)),
             Show(EnemyFrameId.YappingMawFacingUpLeftJawsShut, 4),
-            Cue(new YappingMawCue.HoldSamus(YappingMawAim.Up)),
         ],
         [P.CooldownDownRight] =
         [
@@ -123,13 +122,13 @@ internal static class YappingMawAnimations
         [
             Cue(new YappingMawCue.HoldSamus(YappingMawAim.DownLeft)),
             Show(EnemyFrameId.YappingMawFacingDownLeftJawsShut, 4),
-            Cue(new YappingMawCue.HoldSamus(YappingMawAim.Down)),
         ],
     });
 
     /// <summary>
     /// The animation that starts at each segment an owner starts, each segment played whole: an attack's snap, or a
-    /// cooldown's hold of Samus and then its aim's chewing, looped; no owner starts the chewing itself (#2276).
+    /// cooldown's hold of Samus and then its aim's chewing, looped; no owner starts the chewing itself (#2276). A cooldown
+    /// aimed off to one side holds Samus there and then straight up or down, as the straight cooldown does (#2451).
     /// </summary>
     internal static IReadOnlyDictionary<YappingMawSegment, Animation<YappingMawSegment>> StartingAt { get; } = new Dictionary<YappingMawSegment, Animation<YappingMawSegment>>
     {
@@ -143,10 +142,10 @@ internal static class YappingMawAnimations
         [P.AttackingUpLeft] = Animation<YappingMawSegment>.Looping([Segments.Whole(P.AttackingUpLeft)]),
         [P.CooldownUpRight] = Animation<YappingMawSegment>.LeadingInto([Segments.Whole(P.CooldownUpRight), Segments.Whole(P.CooldownUp)], [Segments.Whole(P.ChewingUp)]),
         [P.CooldownUp] = Animation<YappingMawSegment>.LeadingInto([Segments.Whole(P.CooldownUp)], [Segments.Whole(P.ChewingUp)]),
-        [P.CooldownUpLeft] = Animation<YappingMawSegment>.LeadingInto([Segments.Whole(P.CooldownUpLeft)], [Segments.Whole(P.ChewingUp)]),
+        [P.CooldownUpLeft] = Animation<YappingMawSegment>.LeadingInto([Segments.Whole(P.CooldownUpLeft), Segments.Whole(P.CooldownUp)], [Segments.Whole(P.ChewingUp)]),
         [P.CooldownDownRight] = Animation<YappingMawSegment>.LeadingInto([Segments.Whole(P.CooldownDownRight), Segments.Whole(P.CooldownDown)], [Segments.Whole(P.ChewingDown)]),
         [P.CooldownDown] = Animation<YappingMawSegment>.LeadingInto([Segments.Whole(P.CooldownDown)], [Segments.Whole(P.ChewingDown)]),
-        [P.CooldownDownLeft] = Animation<YappingMawSegment>.LeadingInto([Segments.Whole(P.CooldownDownLeft)], [Segments.Whole(P.ChewingDown)]),
+        [P.CooldownDownLeft] = Animation<YappingMawSegment>.LeadingInto([Segments.Whole(P.CooldownDownLeft), Segments.Whole(P.CooldownDown)], [Segments.Whole(P.ChewingDown)]),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

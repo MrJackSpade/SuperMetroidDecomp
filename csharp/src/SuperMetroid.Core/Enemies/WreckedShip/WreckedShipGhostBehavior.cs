@@ -84,7 +84,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
             return;
 
         state.PhaseTimer = 1;
-        state.NextFlickerStep = 0;
+        state.NextFlickerStep = WreckedShipGhostFlickerStep.First;
         state.Action = WreckedShipGhostAction.TrackingSamusForSpawn;
     }
 
@@ -214,7 +214,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
         state.Action = WreckedShipGhostAction.BobbingWhileVisible;
         state.BobbingOriginY = place.Position.Y.Whole;
         state.PhaseTimer = WreckedShipGhostAppearanceDefinitions.VisibleDuration;
-        state.NextFlickerStep = 0;
+        state.NextFlickerStep = WreckedShipGhostFlickerStep.First;
         state.VerticalVelocity = WreckedShipGhostAppearanceDefinitions.BobStartSpeed;
         state.SamusMotion = new(SamusAxisMotion.Still, SamusAxisMotion.Still);
         state.PreviousSamusPosition = samus.Position.Whole;
@@ -270,13 +270,11 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
             if (--state.PhaseTimer != 0)
                 return;
 
-            IReadOnlyList<WreckedShipGhostFlickerStep> steps = WreckedShipGhostAppearanceDefinitions.FlickerSteps;
-            if (state.NextFlickerStep == steps.Count)
+            if (state.NextFlickerStep is not { } step)
                 return;
 
-            WreckedShipGhostFlickerStep step = steps[state.NextFlickerStep];
             state.PhaseTimer = step.Duration;
-            state.NextFlickerStep++;
+            state.NextFlickerStep = step.Next;
             if (step.Visibility == WreckedShipGhostFlickerVisibility.Unchanged)
                 return;
         }

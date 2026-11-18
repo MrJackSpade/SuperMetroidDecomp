@@ -85,7 +85,7 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
             // The robots draw in the glow shade of the place the record shows, which the import pre-colours from the cycle's
             // colours for that place (#1512); those colours are compared with bank $A3 above. Records showing one place share
             // its shade (#2393).
-            AssertEqual(new PictureShade(WorkRobotShades.GlowEffect, shadeOfRecord[record]), WorkRobotShades.Glow(WorkRobotGlowAnimations.Cycle[record]),
+            AssertEqual(WorkRobotShades.Glow(WorkRobotGlowAnimations.Places[shadeOfRecord[record]]), WorkRobotShades.Glow(WorkRobotGlowAnimations.Cycle[record]),
                 $"production Work Robot glow load {nextLoad} keys its shade by the place it shows");
             AssertEqual(PictureShading.Shaded(WorkRobotShades.Glow(WorkRobotGlowAnimations.Cycle[record])), enemies.WorkRobotBehavior.Glow,
                 $"production Work Robot palette load {nextLoad} shows the record's glow shade");

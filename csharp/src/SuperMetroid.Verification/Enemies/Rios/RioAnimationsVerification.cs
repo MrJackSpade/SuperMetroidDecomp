@@ -21,7 +21,8 @@ internal static class RioAnimationsVerification
                     var instruction = Instructions[word];
                     AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
                     AssertEqual(0, operands.Length, $"{at}: operands");
-                }));
+                }),
+            onlyRunOnInto: new HashSet<RioSegment> { RioSegment.HangingWingbeat });
         Console.WriteLine($"  Rio animations: {Entries.Length} segments ({beats} beats) and {RioAnimations.StartingAt.Count} animations match bank $A2.");
     }
 }

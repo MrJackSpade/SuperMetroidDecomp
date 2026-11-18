@@ -41,10 +41,7 @@ internal static class NorfairRioAnimations
         [P.Descending] =
         [
             Cue(new NorfairRioCue.PlaceFlames(-12)),
-            Show(EnemyFrameId.NorfairRioDiving, 6),
-            Show(EnemyFrameId.NorfairRioDiving, 5),
-            Show(EnemyFrameId.NorfairRioDiving, 8),
-            Show(EnemyFrameId.NorfairRioDiving, 6),
+            Show(EnemyFrameId.NorfairRioDiving, FlameFlickerUpdates),
         ],
         [P.StartAscending] =
         [
@@ -69,10 +66,7 @@ internal static class NorfairRioAnimations
         [P.Ascending] =
         [
             Cue(new NorfairRioCue.PlaceFlames(12)),
-            Show(EnemyFrameId.NorfairRioClimbing, 6),
-            Show(EnemyFrameId.NorfairRioClimbing, 5),
-            Show(EnemyFrameId.NorfairRioClimbing, 8),
-            Show(EnemyFrameId.NorfairRioClimbing, 6),
+            Show(EnemyFrameId.NorfairRioClimbing, FlameFlickerUpdates),
         ],
         [P.FlamesAscending] =
         [
@@ -104,6 +98,12 @@ internal static class NorfairRioAnimations
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<NorfairRioSegment> StartingWith(NorfairRioSegment segment) => StartingAt[segment];
+
+    /// <summary>
+    /// The updates of one flicker of the Rio's flames, large, medium, small and medium again (#2451): a dive or a climb holds
+    /// its one pose that long before it places its flames again.
+    /// </summary>
+    private const int FlameFlickerUpdates = 25;
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, NorfairRioCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NorfairRioCue>.Frame(frame, duration);

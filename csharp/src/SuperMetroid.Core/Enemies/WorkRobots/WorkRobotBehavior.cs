@@ -63,7 +63,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal readonly AnimationPlayer<WorkRobotGlowSegment, WorkRobotGlowPlace, NoAnimationCue> glow =
         AnimationPlayer<WorkRobotGlowSegment, WorkRobotGlowPlace, NoAnimationCue>.StartShowing(
-            WorkRobotGlowAnimations.Segments, WorkRobotGlowAnimations.Restarted, 1);
+            WorkRobotGlowAnimations.Segments, WorkRobotGlowAnimations.Restarted);
 
     /// <summary>Whether the glow runs: a powered robot's setup starts it, and an unpowered robot's stops it.</summary>
     internal bool GlowRuns { get; private set; }
@@ -104,7 +104,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private void RestartGlow()
     {
-        glow.Show(WorkRobotGlowAnimations.Restarted, 1);
+        glow.Show(WorkRobotGlowAnimations.Restarted);
         GlowRuns = true;
     }
 

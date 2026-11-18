@@ -26,7 +26,7 @@ internal static class WallSpacePirateAnimations
             Cue(new WallSpacePirateCue.BeginOnWall(WallSpacePirateAction.WallJumping, HorizontalDirection.Left)),
             Cue(new WallSpacePirateCue.Signal(K.PlayAttackSound)),
             Show(EnemyFrameId.WallPirateReachingForLeftWall, 10),
-            Show(EnemyFrameId.WallPirateCurledLeapingLeft, 1),
+            Hold(EnemyFrameId.WallPirateCurledLeapingLeft),
         ],
         [P.LandedOnLeftWall] =
         [
@@ -37,24 +37,7 @@ internal static class WallSpacePirateAnimations
         [
             Cue(new WallSpacePirateCue.BeginOnWall(WallSpacePirateAction.Climbing, HorizontalDirection.Left)),
         ],
-        [P.ClimbingUpLeftWall] =
-        [
-            Show(EnemyFrameId.WallPirateOnLeftWallLegsHanging, 10),
-            Cue(new WallSpacePirateCue.Climb(Wall: HorizontalDirection.Left, ClimbPixels: -3)),
-            Show(EnemyFrameId.WallPirateOnLeftWallKneesBending, 8),
-            Cue(new WallSpacePirateCue.Climb(Wall: HorizontalDirection.Left, ClimbPixels: -3)),
-            Show(EnemyFrameId.WallPirateOnLeftWallKneesTucked, 5),
-            Cue(new WallSpacePirateCue.Climb(Wall: HorizontalDirection.Left, ClimbPixels: -3)),
-            Show(EnemyFrameId.WallPirateOnLeftWallLegsPushing, 8),
-            Cue(new WallSpacePirateCue.Climb(Wall: HorizontalDirection.Left, ClimbPixels: -3)),
-            Show(EnemyFrameId.WallPirateOnLeftWallLegsStretched, 10),
-            Cue(new WallSpacePirateCue.Climb(Wall: HorizontalDirection.Left, ClimbPixels: -3)),
-            Show(EnemyFrameId.WallPirateOnLeftWallLegsPushing, 8),
-            Cue(new WallSpacePirateCue.Climb(Wall: HorizontalDirection.Left, ClimbPixels: -3)),
-            Show(EnemyFrameId.WallPirateOnLeftWallKneesTucked, 5),
-            Cue(new WallSpacePirateCue.Climb(Wall: HorizontalDirection.Left, ClimbPixels: -3)),
-            Show(EnemyFrameId.WallPirateOnLeftWallKneesBending, 8),
-        ],
+        [P.ClimbingUpLeftWall] = Climbing(WallSpacePirateClimbPoses.LeftWall, -ClimbStepPixels),
         [P.ChooseLeftWallClimb] =
         [
             Cue(new WallSpacePirateCue.ChooseClimb(HorizontalDirection.Left)),
@@ -63,24 +46,7 @@ internal static class WallSpacePirateAnimations
         [
             Cue(new WallSpacePirateCue.BeginOnWall(WallSpacePirateAction.Climbing, HorizontalDirection.Left)),
         ],
-        [P.ClimbingDownLeftWall] =
-        [
-            Show(EnemyFrameId.WallPirateOnLeftWallLegsHanging, 10),
-            Cue(new WallSpacePirateCue.Climb(Wall: HorizontalDirection.Left, ClimbPixels: 3)),
-            Show(EnemyFrameId.WallPirateOnLeftWallKneesBending, 8),
-            Cue(new WallSpacePirateCue.Climb(Wall: HorizontalDirection.Left, ClimbPixels: 3)),
-            Show(EnemyFrameId.WallPirateOnLeftWallKneesTucked, 5),
-            Cue(new WallSpacePirateCue.Climb(Wall: HorizontalDirection.Left, ClimbPixels: 3)),
-            Show(EnemyFrameId.WallPirateOnLeftWallLegsPushing, 8),
-            Cue(new WallSpacePirateCue.Climb(Wall: HorizontalDirection.Left, ClimbPixels: 3)),
-            Show(EnemyFrameId.WallPirateOnLeftWallLegsStretched, 10),
-            Cue(new WallSpacePirateCue.Climb(Wall: HorizontalDirection.Left, ClimbPixels: 3)),
-            Show(EnemyFrameId.WallPirateOnLeftWallLegsPushing, 8),
-            Cue(new WallSpacePirateCue.Climb(Wall: HorizontalDirection.Left, ClimbPixels: 3)),
-            Show(EnemyFrameId.WallPirateOnLeftWallKneesTucked, 5),
-            Cue(new WallSpacePirateCue.Climb(Wall: HorizontalDirection.Left, ClimbPixels: 3)),
-            Show(EnemyFrameId.WallPirateOnLeftWallKneesBending, 8),
-        ],
+        [P.ClimbingDownLeftWall] = Climbing(WallSpacePirateClimbPoses.LeftWall, ClimbStepPixels),
         [P.FireAndJumpRight] =
         [
             Cue(new WallSpacePirateCue.Begin(WallSpacePirateAction.Attacking)),
@@ -92,7 +58,7 @@ internal static class WallSpacePirateAnimations
             Cue(new WallSpacePirateCue.BeginOnWall(WallSpacePirateAction.WallJumping, HorizontalDirection.Right)),
             Cue(new WallSpacePirateCue.Signal(K.PlayAttackSound)),
             Show(EnemyFrameId.WallPirateReachingForRightWall, 10),
-            Show(EnemyFrameId.WallPirateCurledLeapingRight, 1),
+            Hold(EnemyFrameId.WallPirateCurledLeapingRight),
         ],
         [P.LandedOnRightWall] =
         [
@@ -103,24 +69,7 @@ internal static class WallSpacePirateAnimations
         [
             Cue(new WallSpacePirateCue.BeginOnWall(WallSpacePirateAction.Climbing, HorizontalDirection.Right)),
         ],
-        [P.ClimbingDownRightWall] =
-        [
-            Show(EnemyFrameId.WallPirateOnRightWallLegsHanging, 10),
-            Cue(new WallSpacePirateCue.Climb(Wall: HorizontalDirection.Right, ClimbPixels: 3)),
-            Show(EnemyFrameId.WallPirateOnRightWallKneesBending, 8),
-            Cue(new WallSpacePirateCue.Climb(Wall: HorizontalDirection.Right, ClimbPixels: 3)),
-            Show(EnemyFrameId.WallPirateOnRightWallKneesTucked, 5),
-            Cue(new WallSpacePirateCue.Climb(Wall: HorizontalDirection.Right, ClimbPixels: 3)),
-            Show(EnemyFrameId.WallPirateOnRightWallLegsPushing, 8),
-            Cue(new WallSpacePirateCue.Climb(Wall: HorizontalDirection.Right, ClimbPixels: 3)),
-            Show(EnemyFrameId.WallPirateOnRightWallLegsStretched, 10),
-            Cue(new WallSpacePirateCue.Climb(Wall: HorizontalDirection.Right, ClimbPixels: 3)),
-            Show(EnemyFrameId.WallPirateOnRightWallLegsPushing, 8),
-            Cue(new WallSpacePirateCue.Climb(Wall: HorizontalDirection.Right, ClimbPixels: 3)),
-            Show(EnemyFrameId.WallPirateOnRightWallKneesTucked, 5),
-            Cue(new WallSpacePirateCue.Climb(Wall: HorizontalDirection.Right, ClimbPixels: 3)),
-            Show(EnemyFrameId.WallPirateOnRightWallKneesBending, 8),
-        ],
+        [P.ClimbingDownRightWall] = Climbing(WallSpacePirateClimbPoses.RightWall, ClimbStepPixels),
         [P.ChooseRightWallClimb] =
         [
             Cue(new WallSpacePirateCue.ChooseClimb(HorizontalDirection.Right)),
@@ -129,24 +78,7 @@ internal static class WallSpacePirateAnimations
         [
             Cue(new WallSpacePirateCue.BeginOnWall(WallSpacePirateAction.Climbing, HorizontalDirection.Right)),
         ],
-        [P.ClimbingUpRightWall] =
-        [
-            Show(EnemyFrameId.WallPirateOnRightWallLegsHanging, 10),
-            Cue(new WallSpacePirateCue.Climb(Wall: HorizontalDirection.Right, ClimbPixels: -3)),
-            Show(EnemyFrameId.WallPirateOnRightWallKneesBending, 8),
-            Cue(new WallSpacePirateCue.Climb(Wall: HorizontalDirection.Right, ClimbPixels: -3)),
-            Show(EnemyFrameId.WallPirateOnRightWallKneesTucked, 5),
-            Cue(new WallSpacePirateCue.Climb(Wall: HorizontalDirection.Right, ClimbPixels: -3)),
-            Show(EnemyFrameId.WallPirateOnRightWallLegsPushing, 8),
-            Cue(new WallSpacePirateCue.Climb(Wall: HorizontalDirection.Right, ClimbPixels: -3)),
-            Show(EnemyFrameId.WallPirateOnRightWallLegsStretched, 10),
-            Cue(new WallSpacePirateCue.Climb(Wall: HorizontalDirection.Right, ClimbPixels: -3)),
-            Show(EnemyFrameId.WallPirateOnRightWallLegsPushing, 8),
-            Cue(new WallSpacePirateCue.Climb(Wall: HorizontalDirection.Right, ClimbPixels: -3)),
-            Show(EnemyFrameId.WallPirateOnRightWallKneesTucked, 5),
-            Cue(new WallSpacePirateCue.Climb(Wall: HorizontalDirection.Right, ClimbPixels: -3)),
-            Show(EnemyFrameId.WallPirateOnRightWallKneesBending, 8),
-        ],
+        [P.ClimbingUpRightWall] = Climbing(WallSpacePirateClimbPoses.RightWall, -ClimbStepPixels),
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
@@ -175,8 +107,38 @@ internal static class WallSpacePirateAnimations
     /// <summary>The times a climb plays before the pirate chooses the next.</summary>
     private const int ClimbRepeats = 4;
 
+    /// <summary>The whole pixels each step of a climb moves the pirate along its wall.</summary>
+    private const int ClimbStepPixels = 3;
+
+    /// <summary>
+    /// A climb on <paramref name="poses"/>'s wall (#2451): its poses in order, each after the first a step of
+    /// <paramref name="climbPixels"/> down the wall (negative up) later, so a climb up and a climb down one wall show the
+    /// same poses.
+    /// </summary>
+    private static AnimationBeat<EnemyFrameId, WallSpacePirateCue>[] Climbing(WallSpacePirateClimbPoses poses, int climbPixels) =>
+    [
+        Show(poses.LegsHanging, 10),
+        Cue(new WallSpacePirateCue.Climb(poses.Wall, climbPixels)),
+        Show(poses.KneesBending, 8),
+        Cue(new WallSpacePirateCue.Climb(poses.Wall, climbPixels)),
+        Show(poses.KneesTucked, 5),
+        Cue(new WallSpacePirateCue.Climb(poses.Wall, climbPixels)),
+        Show(poses.LegsPushing, 8),
+        Cue(new WallSpacePirateCue.Climb(poses.Wall, climbPixels)),
+        Show(poses.LegsStretched, 10),
+        Cue(new WallSpacePirateCue.Climb(poses.Wall, climbPixels)),
+        Show(poses.LegsPushing, 8),
+        Cue(new WallSpacePirateCue.Climb(poses.Wall, climbPixels)),
+        Show(poses.KneesTucked, 5),
+        Cue(new WallSpacePirateCue.Climb(poses.Wall, climbPixels)),
+        Show(poses.KneesBending, 8),
+    ];
+
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, WallSpacePirateCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, WallSpacePirateCue>.Frame(frame, duration);
+
+    /// <summary>Shows <paramref name="frame"/> for good: a still picture rests on it until its owner plays another.</summary>
+    private static AnimationBeat<EnemyFrameId, WallSpacePirateCue> Hold(EnemyFrameId frame) => new AnimationBeat<EnemyFrameId, WallSpacePirateCue>.HeldFrame(frame);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
     private static AnimationBeat<EnemyFrameId, WallSpacePirateCue> Cue(WallSpacePirateCue cue) => new AnimationBeat<EnemyFrameId, WallSpacePirateCue>.Event(cue);

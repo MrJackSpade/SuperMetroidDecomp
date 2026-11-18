@@ -19,7 +19,7 @@ internal enum LowerNorfairRioSegment
     AscentOpening,
     /// <summary>The climb back to the perch's entry: the cue that shows the flames.</summary>
     Ascending,
-    /// <summary>The climb's swept-wing beat, looped.</summary>
+    /// <summary>The climb's one pose, its wings swept, shown again and again (#2451).</summary>
     AscendingWingbeat,
     /// <summary>Its flames showing, its wings sweeping and spreading open again after its swoop.</summary>
     Cooldown,

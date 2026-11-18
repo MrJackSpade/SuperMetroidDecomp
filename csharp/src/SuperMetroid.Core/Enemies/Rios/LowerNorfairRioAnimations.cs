@@ -43,7 +43,7 @@ internal static class LowerNorfairRioAnimations
         [P.Descending] =
         [
             Cue(new(K.HideFlames)),
-            Show(EnemyFrameId.LowerNorfairRioWingsFolded, 1),
+            Hold(EnemyFrameId.LowerNorfairRioWingsFolded),
         ],
         [P.AscentOpening] =
         [
@@ -59,9 +59,7 @@ internal static class LowerNorfairRioAnimations
         ],
         [P.AscendingWingbeat] =
         [
-            Show(EnemyFrameId.LowerNorfairRioWingsSwept, 2),
-            Show(EnemyFrameId.LowerNorfairRioWingsSwept, 2),
-            Show(EnemyFrameId.LowerNorfairRioWingsSwept, 2),
+            Show(EnemyFrameId.LowerNorfairRioWingsSwept, AscendingWingbeatUpdates),
         ],
         [P.Cooldown] =
         [
@@ -105,6 +103,12 @@ internal static class LowerNorfairRioAnimations
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, LowerNorfairRioCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, LowerNorfairRioCue>.Frame(frame, duration);
+
+    /// <summary>Shows <paramref name="frame"/> for good: a still picture rests on it until its owner plays another.</summary>
+    private static AnimationBeat<EnemyFrameId, LowerNorfairRioCue> Hold(EnemyFrameId frame) => new AnimationBeat<EnemyFrameId, LowerNorfairRioCue>.HeldFrame(frame);
+
+    /// <summary>The updates the climb shows its swept wings before showing them again (#2451).</summary>
+    private const int AscendingWingbeatUpdates = 6;
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
     private static AnimationBeat<EnemyFrameId, LowerNorfairRioCue> Cue(LowerNorfairRioCue cue) => new AnimationBeat<EnemyFrameId, LowerNorfairRioCue>.Event(cue);

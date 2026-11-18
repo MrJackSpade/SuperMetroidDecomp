@@ -9,7 +9,7 @@ public static class BoulderBounces
     /// <summary>The curve place the impact after <paramref name="impactsSoFar"/> earlier ones restarts the bounce from.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="impactsSoFar"/> is outside zero through two.</exception>
     public static QuadraticSpeedCurvePlace RestartPlace(int impactsSoFar) =>
-        (uint)impactsSoFar < (uint)BoulderBounceDefinitions.ImpactRestarts.Length
+        impactsSoFar >= 0 && impactsSoFar < BoulderBounceDefinitions.ImpactRestarts.Length
             ? BoulderBounceDefinitions.ImpactRestarts[impactsSoFar]
             : throw new ArgumentOutOfRangeException(nameof(impactsSoFar));
 }

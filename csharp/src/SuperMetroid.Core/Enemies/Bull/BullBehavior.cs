@@ -38,8 +38,8 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void RunBullMain(RoomEnemyPlace place, BullEnemyState state, SamusState samus)
     {
         // A kick's guard runs out on the update its countdown reaches zero.
-        if (state.ShotReactionDisableTimer > 0 && --state.ShotReactionDisableTimer == 0)
-            state.ShotReactionDisabled = false;
+        if (state.ShotReactionDisableTimer > 0)
+            state.ShotReactionDisableTimer--;
 
         switch (state.Action)
         {
@@ -181,7 +181,6 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Speed = BullMovementDefinitions.ShotKickSpeed;
         state.Action = BullAction.Decelerating;
         state.ShotReactionDisableTimer = BullMovementDefinitions.ShotReactionGuardDuration;
-        state.ShotReactionDisabled = true;
     }
 
     /// <summary>Runs Bull's normal and immune-shot animations (#641).</summary>

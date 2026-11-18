@@ -25,7 +25,6 @@ internal static class BullShotReactionGuardVerification
         {
             Action = BullAction.MovementDelay,
             ActivationTimer = 100,
-            ShotReactionDisabled = true,
         });
 
         state.ShotReactionDisableTimer = 2;

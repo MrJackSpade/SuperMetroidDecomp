@@ -165,7 +165,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
 
                 state.Action = DeadSidehopperAction.ActivatedMovement;
                 SetDeadSidehopperAnimation(place, state, DeadTourianSegment.SidehopperIdle);
-                state.Velocity = DeadSidehopperLaunchDefinitions.Velocity(state.JumpPhase);
+                state.Velocity = state.NextHop.Current;
                 return;
 
             case DeadSidehopperAction.Draining:
@@ -201,7 +201,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     {
         if (!MoveDeadSidehopper(place, state, level))
             return;
-        state.JumpPhase = (state.JumpPhase + 1) % DeadSidehopperLaunchDefinitions.PhaseCount;
+        state.NextHop = state.NextHop.Next;
         SetDeadSidehopperAnimation(place, state, DeadTourianSegment.SidehopperHopping);
         state.Action = DeadSidehopperAction.Landing;
     }

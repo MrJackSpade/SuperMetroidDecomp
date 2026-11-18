@@ -19,11 +19,12 @@ internal static class CacatacAnimationsVerification
                 (word, operands, cue, at) =>
                 {
                     var instruction = Instructions[word];
-                    AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
+                    // A signal command raises its signal; the spike's spawn, which names no signal, spits the spike its operand aims.
+                    AssertEqual(instruction.Kind, (cue as CacatacCue.Signal)?.Kind, $"{at}: cue");
                     for (int index = 0; index < operands.Length; index++)
                         AssertEqual(operands[index], instruction.Operands[index] switch
                     {
-                        'V' => CacatacNativeWords.SpikeDirections.Word(cue.Direction),
+                        'V' => CacatacNativeWords.SpikeDirections.Word(AssertIs<CacatacCue.SpawnSpike>(cue, $"{at}: spike cue").Direction),
                         _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),
                     }, $"{at}: operand {index}");
                 }),

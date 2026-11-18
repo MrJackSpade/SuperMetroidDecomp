@@ -41,7 +41,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         state.BounceSpeedAccumulator = QuadraticSpeedCurvePlace.Start;
         state.TravelSpeedAccumulator = QuadraticSpeedCurvePlace.Start;
         state.ImpactsSoFar = 0;
-        state.InitialPosition = place.Position.Whole;
+        state.RestingY = place.Position.Whole.Y;
         state.PreviousY = place.Position.Y;
 
         BoulderSpawnSettings settings = place.SpawnSettings<BoulderSpawnSettings>();
@@ -60,17 +60,14 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
             default:
                 throw new InvalidOperationException($"Undefined {nameof(BoulderStart)} {settings.Start}.");
         }
-        place.Position = place.Position.WithWholeY(state.InitialPosition.Y - initialYOffset);
+        place.Position = place.Position.WithWholeY(state.RestingY - initialYOffset);
 
-        int horizontalReach = -settings.TriggerReach;
-
-        // The population entry's trigger height is the strict Samus-Y threshold.
-        int verticalReach = settings.TriggerHeight;
+        state.TriggerReach = settings.TriggerReach;
+        state.TriggerHeight = settings.TriggerHeight;
         state.Roll = settings.Roll;
         switch (settings.Roll)
         {
             case BoulderRoll.Right:
-                horizontalReach = -horizontalReach;
                 state.Playback = new(BoulderAnimations.StartingWith(BoulderSegment.Right), AnimationPlace.StartOfAnimation);
                 break;
             case BoulderRoll.Left:
@@ -80,8 +77,6 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
             default:
                 throw new InvalidOperationException($"Undefined {nameof(BoulderRoll)} {settings.Roll}.");
         }
-        state.TriggerReach = Offset16<RoomPixels>.Of(horizontalReach, verticalReach);
-
         state.VerticalCompensation = BoulderMotionDefinitions.RollingGroundReach;
     }
 
@@ -113,17 +108,20 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Starts the bounce chain or direct roll only when Samus enters the direction-specific X window below the boulder.</summary>
+    /// <summary>
+    /// Starts the bounce chain or direct roll only when Samus stands below the boulder within its reach toward its roll:
+    /// up to the reach to the left of one that rolls left, nearer than the reach to the right of one that rolls right.
+    /// </summary>
     private static void RunBoulderWaiting(RoomEnemyPlace place, BoulderEnemyState state, SamusState samus)
     {
         int deltaY = CoordinateAxis.Difference(samus.Position.Y.Whole, place.Position.Y.Whole);
-        if (deltaY < 0 || deltaY >= state.TriggerReach.Y)
+        if (deltaY < 0 || deltaY >= state.TriggerHeight)
             return;
 
         int deltaX = CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole);
         bool enteredHorizontalWindow = state.Roll != BoulderRoll.Right
-            ? deltaX < 0 && deltaX >= state.TriggerReach.X
-            : deltaX >= 0 && deltaX < state.TriggerReach.X;
+            ? deltaX < 0 && -deltaX <= state.TriggerReach
+            : deltaX >= 0 && deltaX < state.TriggerReach;
         if (!enteredHorizontalWindow)
             return;
 
@@ -136,7 +134,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void RunBoulderInitialFall(RoomEnemyPlace place, BoulderEnemyState state)
     {
         AddBoulderVerticalVelocity(place, state.BounceSpeedAccumulator, direction: VerticalDirection.Down);
-        if (place.Position.Y.Whole < state.InitialPosition.Y)
+        if (place.Position.Y.Whole < state.RestingY)
         {
             state.BounceSpeedAccumulator = AddAndCap(
                 state.BounceSpeedAccumulator,
@@ -145,7 +143,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        place.Position = place.Position.WithWholeY(state.InitialPosition.Y);
+        place.Position = place.Position.WithWholeY(state.RestingY);
         state.Action = BoulderAction.Rebound;
         state.BounceSpeedAccumulator = BoulderMotionDefinitions.FirstReboundBounceSpeed;
     }

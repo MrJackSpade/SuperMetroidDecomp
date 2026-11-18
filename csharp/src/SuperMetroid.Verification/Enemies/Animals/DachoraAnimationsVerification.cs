@@ -17,7 +17,11 @@ internal static class DachoraAnimationsVerification
             DachoraAnimations.Segments, DachoraAnimations.StartingAt, DachoraFrameToolingDefinitions.Spritemap,
             new NativeEnemyCueRules<NoAnimationCue>(
                 word => null,
-                (word, operands, cue, at) => throw new InvalidDataException($"{at}: the lists use no owner instructions.")));
+                (word, operands, cue, at) => throw new InvalidDataException($"{at}: the lists use no owner instructions.")),
+            onlyRunOnInto: new HashSet<DachoraSegment>
+            {
+                DachoraSegment.PeckLeft, DachoraSegment.RisingFromPecksLeft, DachoraSegment.PeckRight, DachoraSegment.RisingFromPecksRight,
+            });
         Console.WriteLine($"  Dachora animations: {Entries.Length} segments ({beats} beats) and {DachoraAnimations.StartingAt.Count} animations match bank $A7.");
     }
 }

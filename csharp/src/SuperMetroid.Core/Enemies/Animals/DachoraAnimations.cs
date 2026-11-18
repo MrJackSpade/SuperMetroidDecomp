@@ -45,16 +45,15 @@ internal static class DachoraAnimations
         [
             Show(EnemyFrameId.DachoraStandingFacingLeftHeadUp, 48),
             Show(EnemyFrameId.DachoraStandingFacingLeftNeckStretched, 10),
-            Show(EnemyFrameId.DachoraStandingFacingLeftHeadLowered, 7),
-            Show(EnemyFrameId.DachoraStandingFacingLeftHeadToGround, 7),
-            Show(EnemyFrameId.DachoraStandingFacingLeftHeadRaising, 7),
-            Show(EnemyFrameId.DachoraStandingFacingLeftHeadToGround, 7),
-            Show(EnemyFrameId.DachoraStandingFacingLeftHeadLowered, 7),
-            Show(EnemyFrameId.DachoraStandingFacingLeftHeadToGround, 7),
-            Show(EnemyFrameId.DachoraStandingFacingLeftHeadRaising, 7),
-            Show(EnemyFrameId.DachoraStandingFacingLeftHeadToGround, 7),
-            Show(EnemyFrameId.DachoraStandingFacingLeftNeckStretched, 10),
         ],
+        [P.PeckLeft] =
+        [
+            Show(EnemyFrameId.DachoraStandingFacingLeftHeadLowered, 7),
+            Show(EnemyFrameId.DachoraStandingFacingLeftHeadToGround, 7),
+            Show(EnemyFrameId.DachoraStandingFacingLeftHeadRaising, 7),
+            Show(EnemyFrameId.DachoraStandingFacingLeftHeadToGround, 7),
+        ],
+        [P.RisingFromPecksLeft] = [Show(EnemyFrameId.DachoraStandingFacingLeftNeckStretched, 10)],
         [P.BlinkLeft] =
         [
             Show(EnemyFrameId.DachoraStandingFacingLeftHeadUp, 11),
@@ -100,16 +99,15 @@ internal static class DachoraAnimations
         [
             Show(EnemyFrameId.DachoraStandingFacingRightHeadUp, 48),
             Show(EnemyFrameId.DachoraStandingFacingRightNeckStretched, 10),
-            Show(EnemyFrameId.DachoraStandingFacingRightHeadLowered, 7),
-            Show(EnemyFrameId.DachoraStandingFacingRightHeadToGround, 7),
-            Show(EnemyFrameId.DachoraStandingFacingRightHeadRaising, 7),
-            Show(EnemyFrameId.DachoraStandingFacingRightHeadToGround, 7),
-            Show(EnemyFrameId.DachoraStandingFacingRightHeadLowered, 7),
-            Show(EnemyFrameId.DachoraStandingFacingRightHeadToGround, 7),
-            Show(EnemyFrameId.DachoraStandingFacingRightHeadRaising, 7),
-            Show(EnemyFrameId.DachoraStandingFacingRightHeadToGround, 7),
-            Show(EnemyFrameId.DachoraStandingFacingRightNeckStretched, 10),
         ],
+        [P.PeckRight] =
+        [
+            Show(EnemyFrameId.DachoraStandingFacingRightHeadLowered, 7),
+            Show(EnemyFrameId.DachoraStandingFacingRightHeadToGround, 7),
+            Show(EnemyFrameId.DachoraStandingFacingRightHeadRaising, 7),
+            Show(EnemyFrameId.DachoraStandingFacingRightHeadToGround, 7),
+        ],
+        [P.RisingFromPecksRight] = [Show(EnemyFrameId.DachoraStandingFacingRightNeckStretched, 10)],
         [P.BlinkRight] =
         [
             Show(EnemyFrameId.DachoraStandingFacingRightHeadUp, 11),
@@ -127,23 +125,27 @@ internal static class DachoraAnimations
         [P.FallingRight] = [Hold(EnemyFrameId.DachoraRunningRightNearLegPassing)],
     });
 
+    /// <summary>How many times an idle Dachora pecks at the ground before it stretches back up.</summary>
+    private const int IdlePecks = 2;
+
     /// <summary>
-    /// The animation that starts at each segment an owner can start or restart at. The echoes, the falls and the charge's
-    /// crouch are still pictures (#2275).
+    /// The animation that starts at each segment an owner can start or restart at. An idle Dachora stands, stretches its
+    /// neck, pecks <see cref="IdlePecks"/> times and stretches back up, repeating (#2432). The echoes, the falls and the
+    /// charge's crouch are still pictures (#2275).
     /// </summary>
     internal static IReadOnlyDictionary<DachoraSegment, Animation<DachoraSegment>> StartingAt { get; } = new Dictionary<DachoraSegment, Animation<DachoraSegment>>
     {
         [P.RunningLeft] = Animation<DachoraSegment>.Looping([Segments.Whole(P.RunningLeft)]),
         [P.RunningLeftFast] = Animation<DachoraSegment>.Looping([Segments.Whole(P.RunningLeftFast)]),
         [P.RunningLeftVeryFast] = Animation<DachoraSegment>.Looping([Segments.Whole(P.RunningLeftVeryFast)]),
-        [P.IdleLeft] = Animation<DachoraSegment>.Looping([Segments.Whole(P.IdleLeft)]),
+        [P.IdleLeft] = Animation<DachoraSegment>.Looping([Segments.Whole(P.IdleLeft), Segments.Repeated(P.PeckLeft, IdlePecks), Segments.Whole(P.RisingFromPecksLeft)]),
         [P.BlinkLeft] = Animation<DachoraSegment>.Looping([Segments.Whole(P.BlinkLeft)]),
         [P.EchoLeft] = new([Segments.Whole(P.EchoLeft)], AnimationEnd.Holds),
         [P.FallingLeft] = new([Segments.Whole(P.FallingLeft)], AnimationEnd.Holds),
         [P.RunningRight] = Animation<DachoraSegment>.Looping([Segments.Whole(P.RunningRight)]),
         [P.RunningRightFast] = Animation<DachoraSegment>.Looping([Segments.Whole(P.RunningRightFast)]),
         [P.RunningRightVeryFast] = Animation<DachoraSegment>.Looping([Segments.Whole(P.RunningRightVeryFast)]),
-        [P.IdleRight] = Animation<DachoraSegment>.Looping([Segments.Whole(P.IdleRight)]),
+        [P.IdleRight] = Animation<DachoraSegment>.Looping([Segments.Whole(P.IdleRight), Segments.Repeated(P.PeckRight, IdlePecks), Segments.Whole(P.RisingFromPecksRight)]),
         [P.BlinkRight] = Animation<DachoraSegment>.Looping([Segments.Whole(P.BlinkRight)]),
         [P.ChargeRight] = new([Segments.Whole(P.ChargeRight)], AnimationEnd.Holds),
         [P.EchoRight] = new([Segments.Whole(P.EchoRight)], AnimationEnd.Holds),

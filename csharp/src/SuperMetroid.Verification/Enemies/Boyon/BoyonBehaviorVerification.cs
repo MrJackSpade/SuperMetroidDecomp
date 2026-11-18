@@ -55,7 +55,7 @@ internal static class BoyonBehaviorVerification
         AssertTrue(bounce.Processing.HasAny(EnemyProcessing.OffScreen), "Boyon bounce processes off screen");
         AssertEqual((SoundEffectId?)BoyonNativeValues.BounceSound,
             bounceSystem.Audio.LatestSound, "Boyon bounce plays its library-two bounce sound");
-        AssertTrue(!bounceState.BounceDisabled, "Boyon bounce permits the movement arc");
+        AssertEqual(BoyonPhase.Bouncing, bounceState.Phase, "Boyon bounce permits the movement arc");
         Console.WriteLine("  Boyon behavior: the idle and bounce loops with their off-screen, sound and arc cues pass.");
     }
 
@@ -141,9 +141,10 @@ internal static class BoyonBehaviorVerification
         var state = new BoyonEnemyState { SpeedMultiplier = multiplier, JumpHeight = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(height) };
         BoyonBehavior.DeriveBoyonArcBaseline(state);
         (int entry, int distance) = OriginalBaseline(samples, multiplier, height);
+        // The arc's distance is the derivation's working sum; the entry it ends at is what the Boyon keeps (#2432).
         if (state.BaselineCurvePlace != BoyonCurvePlaceConstants.AtEntry(entry) || state.CurvePlace != state.BaselineCurvePlace ||
-            state.ArcDistance != SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(distance))
-            throw new InvalidOperationException($"A Boyon with multiplier {multiplier} and height {height} derives {state.BaselineCurvePlace} at {state.ArcDistance}, not entry {entry} at {distance} 256ths.");
+            state.Phase != BoyonPhase.Resting)
+            throw new InvalidOperationException($"A Boyon with multiplier {multiplier} and height {height} derives {state.BaselineCurvePlace} ({state.Phase}), not entry {entry}, reached at {distance} 256ths.");
         return 1;
     }
 

@@ -55,13 +55,9 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
             BounceMovement = BoyonBounceMovement.Rising,
             SpeedMultiplier = settings.SpeedMultiplier,
             JumpHeight = SignedSixteenSixteen.FromWholePixels(settings.JumpHeight),
-            ArcDistance = SignedSixteenSixteen.Zero,
             CurvePlace = BoyonCurvePlace.Top,
-            Bouncing = false,
             BaselineCurvePlace = BoyonCurvePlace.Top,
-            BounceDisabled = false,
-            IdleDisabled = false,
-            BounceSpeedCalculated = false,
+            Phase = BoyonPhase.DerivingArc,
         };
         place.SetSpeciesState(state);
         SetBoyonAnimation(place, state, BoyonSegment.Idle);
@@ -73,33 +69,29 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
         // The game spends Boyon's first active AI frame deriving the arc's baseline and
         // returns without moving or testing proximity. Preserving that frame is important:
         // animation and main AI otherwise become one frame early immediately after a load.
-        if (!state.BounceSpeedCalculated)
+        if (state.Phase == BoyonPhase.DerivingArc)
         {
             DeriveBoyonArcBaseline(state);
-            state.BounceSpeedCalculated = true;
             return;
         }
 
-        bool samusIsClose = IsBoyonSamusWithinHorizontalRange(place, samus);
-        if (samusIsClose)
+        if (IsBoyonSamusWithinHorizontalRange(place, samus))
         {
-            // Proximity continuously permits another bounce. The separate Bouncing latch
-            // prevents restarting the animation every frame during the current arc.
-            state.BounceDisabled = false;
-            state.IdleDisabled = false;
-            if (!state.Bouncing)
+            // Proximity permits another bounce: a resting Boyon starts bouncing and a landed one bounces again, its
+            // bouncing animation restarting; an arc already under way plays on.
+            if (state.Phase != BoyonPhase.Bouncing)
             {
-                state.Bouncing = true;
+                state.Phase = BoyonPhase.Bouncing;
                 SetBoyonAnimation(place, state, BoyonSegment.Bouncing);
             }
         }
-        else if (state.BounceDisabled)
+        else if (state.Phase != BoyonPhase.Bouncing)
         {
             // Boyon may only return to idle after the falling half has reached its baseline.
             // Leaving the trigger range in midair therefore finishes the current arc.
-            if (!state.IdleDisabled)
+            if (state.Phase == BoyonPhase.Landed)
             {
-                state.IdleDisabled = true;
+                state.Phase = BoyonPhase.Resting;
                 SetBoyonAnimation(place, state, BoyonSegment.Idle);
             }
             return;
@@ -121,23 +113,23 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Derives the arc's baseline: from the place it stands, the Boyon moves down its curve one entry at a time, adding
-    /// each entry's scaled sample to the arc's distance, until the distance reaches the jump height; the place it then
-    /// stands at is where every fall ends. Each entry past the top adds at least one 256th of a pixel, so the derivation
-    /// ends; the state holds no multiplier below one.
+    /// each entry's scaled sample to the arc's distance, until the distance reaches the jump height, compared plainly
+    /// (#2282); the place it then stands at is where every fall ends, and it rests there. Each entry past the top adds at
+    /// least one 256th of a pixel, so the derivation ends; the state holds no multiplier below one.
     /// </summary>
     internal static void DeriveBoyonArcBaseline(BoyonEnemyState state)
     {
+        SignedSixteenSixteen distance = SignedSixteenSixteen.Zero;
         do
         {
             state.Speed = MultiplyBoyonCurveEntry(state);
-            state.AccumulateArcDistance(state.Speed);
+            distance += state.Speed.AsDisplacement();
             state.FallOneEntry();
         }
-        while (!state.HasReachedJumpHeight);
+        while (distance.InTwoFiftySixths < state.JumpHeight.InTwoFiftySixths);
 
         state.BaselineCurvePlace = state.CurvePlace;
-        state.BounceDisabled = true;
-        state.IdleDisabled = true;
+        state.Phase = BoyonPhase.Resting;
     }
 
     /// <summary>Runs falling movement.</summary>
@@ -153,8 +145,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.BounceMovement = BoyonBounceMovement.Rising;
-        state.BounceDisabled = true;
-        state.Bouncing = false;
+        state.Phase = BoyonPhase.Landed;
     }
 
     /// <summary>Runs rising movement.</summary>
@@ -186,10 +177,15 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = EnemyAnimationPlayback.Start(place, BoyonAnimations.StartingWith(segment));
     }
 
-    /// <summary>The bounce cue: permit the arc and request the bounce sound.</summary>
+    /// <summary>
+    /// The bounce cue: request the bounce sound. The bouncing animation that raises it starts only as the Boyon starts
+    /// bouncing, so the arc it permits is already under way (#2432).
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The Boyon is not bouncing.</exception>
     private void StartBoyonBounce(BoyonEnemyState state)
     {
-        state.BounceDisabled = false;
+        if (state.Phase != BoyonPhase.Bouncing)
+            throw new InvalidOperationException($"A Boyon's bounce cue ran in its {state.Phase} phase.");
         _audio.QueueEnemySound(EnemySoundEffectDefinitions.BoyonBounceSound, priority: SoundRequestPriority.Normal);
     }
 

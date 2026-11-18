@@ -18,7 +18,7 @@ internal static class CacatacAnimations
     {
         [P.UpsideUpIdle] =
         [
-            Cue(new(K.RestorePatrol)),
+            Cue(new CacatacCue.Signal(K.RestorePatrol)),
             Show(EnemyFrameId.CacatacUprightSplayed, 8),
             Show(EnemyFrameId.CacatacUprightDrawingIn, 8),
             Show(EnemyFrameId.CacatacUprightDrawnIn, 8),
@@ -34,16 +34,16 @@ internal static class CacatacAnimations
             Show(EnemyFrameId.CacatacUprightPuffingUp, 5),
             Show(EnemyFrameId.CacatacUprightPuffedUp, 21),
             Show(EnemyFrameId.CacatacUprightPuffingUp, 5),
-            Cue(new(K.PlaySpikeSound)),
-            Cue(new(K.SpawnSpike, Direction: D.LeftFacingUp)),
-            Cue(new(K.SpawnSpike, Direction: D.UpLeft)),
-            Cue(new(K.SpawnSpike, Direction: D.Up)),
-            Cue(new(K.SpawnSpike, Direction: D.UpRight)),
-            Cue(new(K.SpawnSpike, Direction: D.RightFacingUp)),
+            Cue(new CacatacCue.Signal(K.PlaySpikeSound)),
+            Cue(new CacatacCue.SpawnSpike(D.LeftFacingUp)),
+            Cue(new CacatacCue.SpawnSpike(D.UpLeft)),
+            Cue(new CacatacCue.SpawnSpike(D.Up)),
+            Cue(new CacatacCue.SpawnSpike(D.UpRight)),
+            Cue(new CacatacCue.SpawnSpike(D.RightFacingUp)),
         ],
         [P.UpsideDownIdle] =
         [
-            Cue(new(K.RestorePatrol)),
+            Cue(new CacatacCue.Signal(K.RestorePatrol)),
         ],
         [P.UpsideDownIdlePoses] =
         [
@@ -62,12 +62,12 @@ internal static class CacatacAnimations
             Show(EnemyFrameId.CacatacUpsideDownPuffingUp, 5),
             Show(EnemyFrameId.CacatacUpsideDownPuffedUp, 21),
             Show(EnemyFrameId.CacatacUpsideDownPuffingUp, 5),
-            Cue(new(K.PlaySpikeSound)),
-            Cue(new(K.SpawnSpike, Direction: D.LeftFacingDown)),
-            Cue(new(K.SpawnSpike, Direction: D.DownLeft)),
-            Cue(new(K.SpawnSpike, Direction: D.Down)),
-            Cue(new(K.SpawnSpike, Direction: D.DownRight)),
-            Cue(new(K.SpawnSpike, Direction: D.RightFacingDown)),
+            Cue(new CacatacCue.Signal(K.PlaySpikeSound)),
+            Cue(new CacatacCue.SpawnSpike(D.LeftFacingDown)),
+            Cue(new CacatacCue.SpawnSpike(D.DownLeft)),
+            Cue(new CacatacCue.SpawnSpike(D.Down)),
+            Cue(new CacatacCue.SpawnSpike(D.DownRight)),
+            Cue(new CacatacCue.SpawnSpike(D.RightFacingDown)),
         ],
     });
 

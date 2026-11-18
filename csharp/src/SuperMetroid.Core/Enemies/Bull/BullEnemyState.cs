@@ -20,7 +20,6 @@ public sealed class BullEnemyState
     internal BullEnemyState(BullEnemyState? previous, BullAction action)
     {
         Action = action;
-        ShotReactionDisabled = previous?.ShotReactionDisabled ?? false;
         ShotReactionDisableTimer = previous?.ShotReactionDisableTimer ?? 0;
     }
 
@@ -95,15 +94,15 @@ public sealed class BullEnemyState
     public TrigonometryAngle Angle { get; internal set; }
 
     /// <summary>
-    /// Whether repeated no-damage projectile kicks are suppressed during the shot-reaction cooldown, inherited from the
-    /// place's previous Bull; it does not disable ordinary health processing.
+    /// Whether repeated no-damage projectile kicks are suppressed during the shot-reaction cooldown: while its countdown
+    /// runs (#2432). It does not disable ordinary health processing.
     /// </summary>
-    public bool ShotReactionDisabled { get; internal set; }
+    public bool ShotReactionDisabled => ShotReactionDisableTimer > 0;
 
     /// <summary>
     /// The main-AI updates left before a no-damage kick's guard runs out, inherited from the place's previous Bull: set to
-    /// 48 by the kick and counted down each main-AI update, clearing the guard on the update it reaches zero (#2282). Zero
-    /// while no guard counts; the guard is set only with its countdown.
+    /// 48 by the kick and counted down each main-AI update, the guard clearing on the update it reaches zero (#2282). Zero
+    /// while no guard counts.
     /// </summary>
     public int ShotReactionDisableTimer
     {

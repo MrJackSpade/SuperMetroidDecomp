@@ -94,7 +94,6 @@ internal static class FuneNamiheInstructionProgramDefinitionsVerification
         {
             enemies.Places.InUpdateOrder[0].SetSpeciesState(new NamiheEnemyState(program.Active ? NamiheAction.Spitting : NamiheAction.WaitForSamus)
             {
-                ShowsActiveAnimation = program.Active,
                 Facing = program.Right ? HorizontalDirection.Right : HorizontalDirection.Left,
                 LaunchSpeed = place.SpawnSettings<NamiheSpawnSettings>().LaunchSpeed,
                 Playback = playback,
@@ -104,7 +103,6 @@ internal static class FuneNamiheInstructionProgramDefinitionsVerification
         {
             enemies.Places.InUpdateOrder[0].SetSpeciesState(new FuneEnemyState(program.Active ? FuneAction.Spitting : FuneAction.WaitForCooldown)
             {
-                ShowsActiveAnimation = program.Active,
                 Facing = program.Right ? HorizontalDirection.Right : HorizontalDirection.Left,
                 LaunchSpeed = place.SpawnSettings<FuneSpawnSettings>().LaunchSpeed,
                 Playback = playback,

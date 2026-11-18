@@ -32,7 +32,7 @@ internal static class BeetomAnimations
             Show(EnemyFrameId.BeetomHoppingLeftLegPushing, 4),
             Show(EnemyFrameId.BeetomHoppingLeftLegStretched, 8),
             Show(EnemyFrameId.BeetomHoppingLeftLegPushing, 4),
-            Show(EnemyFrameId.BeetomCrawlingLeftLegsTucked, 1),
+            Hold(EnemyFrameId.BeetomCrawlingLeftLegsTucked),
         ],
         [P.DrainingLeft] =
         [
@@ -65,7 +65,7 @@ internal static class BeetomAnimations
             Show(EnemyFrameId.BeetomHoppingRightLegPushing, 4),
             Show(EnemyFrameId.BeetomHoppingRightLegStretched, 8),
             Show(EnemyFrameId.BeetomHoppingRightLegPushing, 4),
-            Show(EnemyFrameId.BeetomCrawlingRightLegsTucked, 1),
+            Hold(EnemyFrameId.BeetomCrawlingRightLegsTucked),
         ],
         [P.DrainingRight] =
         [
@@ -85,7 +85,8 @@ internal static class BeetomAnimations
 
     /// <summary>
     /// The animation that starts at each segment an owner can start or restart at (#2275): a crawl stops processing off
-    /// screen, its own entry cue, and then strides for good; a drain shows its green gem once and then pulses red for good.
+    /// screen, its own entry cue, and then strides for good; a hop ends on its tucked legs, held (#2432); a drain shows its
+    /// green gem once and then pulses red for good.
     /// </summary>
     internal static IReadOnlyDictionary<BeetomSegment, Animation<BeetomSegment>> StartingAt { get; } = new Dictionary<BeetomSegment, Animation<BeetomSegment>>
     {
@@ -99,6 +100,9 @@ internal static class BeetomAnimations
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<BeetomSegment> StartingWith(BeetomSegment segment) => StartingAt[segment];
+
+    /// <summary>A still picture (#2275): <paramref name="frame"/>, held from the update it shows.</summary>
+    private static AnimationBeat<EnemyFrameId, BeetomCue> Hold(EnemyFrameId frame) => new AnimationBeat<EnemyFrameId, BeetomCue>.HeldFrame(frame);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, BeetomCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, BeetomCue>.Frame(frame, duration);

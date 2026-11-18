@@ -16,12 +16,10 @@ internal static class EnemyRoomCountersVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
 
-        enemies.RoomStatus.FirefleaDarknessStep = EnemyRoomStatus.MaximumFirefleaDarknessStep;
-        AssertEqual(6, enemies.RoomStatus.FirefleaDarknessStep, "darkness reaches its last step");
-        AssertThrows<ArgumentOutOfRangeException>(() => enemies.RoomStatus.FirefleaDarknessStep = 7,
-            "darkness rejects the step the Fireflea advance never takes");
-        AssertThrows<ArgumentOutOfRangeException>(() => enemies.RoomStatus.FirefleaDarknessStep = -1,
-            "darkness rejects a negative step");
+        AssertEqual(0, enemies.RoomStatus.FirefleaDarkness.FirefleasKilled, "a room loads with no Fireflea darkness");
+        for (int death = 1; death <= 7; death++)
+            enemies.RoomStatus.RecordFirefleaDeath();
+        AssertEqual(6, enemies.RoomStatus.FirefleaDarkness.FirefleasKilled, "darkness reaches its last step, which a seventh death leaves");
 
         enemies.Places.EnemyCount = EnemyPlaceOrder.Capacity;
         AssertEqual(32, enemies.Places.EnemyCount, "a full population fills every slot");

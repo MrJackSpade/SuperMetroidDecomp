@@ -15,9 +15,9 @@ public sealed class FlyEnemyState
 
     /// <summary>
     /// The retreat's updates left (#2369): its dive's and <see cref="FlyMotionDefinitions.RetreatBeyondDive"/> more, the
-    /// last the one it turns back to circling on.
+    /// last the one it turns back to circling on, where the count reaches zero.
     /// </summary>
-    public int RetreatUpdatesLeft { get; internal set; }
+    public int RetreatUpdatesLeft { get; internal set => field = Ensure.AtLeastZero(value); }
 
     /// <summary>
     /// The circling updates left before the fly can dive again (#2369): <see cref="FlyMotionDefinitions.AttackCooldown"/>

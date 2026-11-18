@@ -23,16 +23,9 @@ internal static class FallingSparkAnimations
         ],
         [P.HitFloor] =
         [
-            Show(EnemyProjectileFrameId.FallingSparkUpright, 1),
-            Show(EnemyProjectileFrameId.Blank, 1),
-            Show(EnemyProjectileFrameId.FallingSparkUpright, 1),
-            Show(EnemyProjectileFrameId.Blank, 1),
-            Show(EnemyProjectileFrameId.FallingSparkDiagonal, 1),
-            Show(EnemyProjectileFrameId.Blank, 1),
-            Show(EnemyProjectileFrameId.FallingSparkDiagonal, 1),
-            Show(EnemyProjectileFrameId.Blank, 1),
-            Show(EnemyProjectileFrameId.FallingSparkUprightSmall, 1),
-            Show(EnemyProjectileFrameId.Blank, 1),
+            .. Flickering(EnemyProjectileFrameId.FallingSparkUpright, FloorFlickers),
+            .. Flickering(EnemyProjectileFrameId.FallingSparkDiagonal, FloorFlickers),
+            .. Flickering(EnemyProjectileFrameId.FallingSparkUprightSmall, 1),
             Show(EnemyProjectileFrameId.FallingSparkUprightSmall, 1),
             Cue(new EnemyProjectileCommonCue.Signal(CK.Delete)),
         ],
@@ -47,6 +40,20 @@ internal static class FallingSparkAnimations
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<FallingSparkSegment> StartingWith(FallingSparkSegment segment) => StartingAt[segment];
+
+    /// <summary>
+    /// How many times a spark that hits the floor flickers in each of its upright and diagonal shapes, before it flickers
+    /// once in its small shape and shows that shape once more as it goes.
+    /// </summary>
+    private const int FloorFlickers = 2;
+
+    /// <summary>
+    /// A spark flickering <paramref name="times"/> times (#2432): <paramref name="frame"/> for an update, then nothing for an
+    /// update.
+    /// </summary>
+    private static IEnumerable<AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>> Flickering(EnemyProjectileFrameId frame, int times) =>
+        Enumerable.Repeat<AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>[]>([Show(frame, 1), Show(EnemyProjectileFrameId.Blank, 1)], times)
+            .SelectMany(flicker => flicker);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Frame(frame, duration);

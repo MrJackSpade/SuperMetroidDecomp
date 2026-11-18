@@ -191,7 +191,10 @@ internal static class NativeEnemyFamilyStateImport
         if (enemy.SpeciesState<DeadTorizoEnemyState>() is { } deadTorizoRecord)
         {
             deadTorizoRecord.Phase = CorpsesNativeWords.DeadTorizoPhases.Decode(words.A, "recorded DeadTorizoPhase");
-            deadTorizoRecord.Velocity = new(new SignedEightEight(words.B), new SignedEightEight(words.C));
+            // The corpse only sinks: its recorded sideways speed is nothing (#2432).
+            if (words.B != 0)
+                throw new InvalidDataException($"Recorded dead Torizo sideways speed ${words.B:X4} is not nothing.");
+            deadTorizoRecord.FallSpeed = new SignedEightEight(words.C);
         }
         if (enemy.SpeciesState<MotherBrainFallingTubeState>() is { } fallingTubeRecord)
         {
@@ -486,10 +489,15 @@ internal static class NativeEnemyFamilyStateImport
             boyonRecord.SpeedMultiplier = words.A;
             boyonRecord.Speed = UnsignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(words.B);
             boyonRecord.JumpHeight = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(words.C);
-            boyonRecord.ArcDistance = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(words.D);
+            // The arc's distance is only the first update's working sum (#2432): a Boyon still to derive its arc has summed
+            // nothing, and one that has derived it no longer reads it.
+            if (boyonRecord.Phase == BoyonPhase.DerivingArc && words.D != 0)
+                throw new InvalidDataException($"Recorded Boyon arc distance ${words.D:X4} belongs to a derived arc, which the port's Boyon has still to derive.");
             // The rise leaves the curve index one below the top entry, the word's largest value, past the top.
             boyonRecord.CurvePlace = words.E == ushort.MaxValue ? BoyonCurvePlaceConstants.PastTheTop : BoyonCurvePlaceConstants.AtEntry(words.E);
-            boyonRecord.Bouncing = words.F != 0;
+            // The bouncing word is the phase's own: the record holds none of the latches the rest of the phase reads.
+            if ((words.F != 0) != (boyonRecord.Phase == BoyonPhase.Bouncing))
+                throw new InvalidDataException($"Recorded Boyon bouncing word ${words.F:X4} disagrees with its {boyonRecord.Phase} phase.");
         }
         if (enemy.SpeciesState<GrowingShutterEnemyState>() is { } growingShutterRecord)
         {
@@ -918,7 +926,9 @@ internal static class NativeEnemyFamilyStateImport
             (bool namihe, bool active, bool right) = FuneNamiheSelectorOracle.Decode(words.A);
             if (namihe)
                 throw new InvalidDataException($"Recorded Fune/Namihe selector ${words.A:X4} names a Namihe.");
-            fune.ShowsActiveAnimation = active;
+            // The selector's activity is the spit the recorded action names (#2432).
+            if (active != fune.IsSpitting)
+                throw new InvalidDataException($"Recorded Fune selector ${words.A:X4} disagrees with its recorded action {fune.Action}.");
             fune.Facing = right ? HorizontalDirection.Right : HorizontalDirection.Left;
         }
         if (enemies.NamiheStates[index] is { } namiheState)
@@ -930,7 +940,9 @@ internal static class NativeEnemyFamilyStateImport
             (bool namihe, bool active, bool right) = FuneNamiheSelectorOracle.Decode(words.A);
             if (!namihe)
                 throw new InvalidDataException($"Recorded Fune/Namihe selector ${words.A:X4} names a Fune.");
-            namiheState.ShowsActiveAnimation = active;
+            // The selector's activity is the spit the recorded action names (#2432).
+            if (active != namiheState.IsSpitting)
+                throw new InvalidDataException($"Recorded Namihe selector ${words.A:X4} disagrees with its recorded action {namiheState.Action}.");
             namiheState.Facing = right ? HorizontalDirection.Right : HorizontalDirection.Left;
         }
         if (enemy.DefinitionId is EnemyDefinitionId.GrappleRipper or EnemyDefinitionId.Ripper or EnemyDefinitionId.JetRipper &&

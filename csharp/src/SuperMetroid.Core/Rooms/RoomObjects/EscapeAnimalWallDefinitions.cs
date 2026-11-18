@@ -11,6 +11,9 @@ public static class EscapeAnimalWallDefinitions
     /// <summary>The block row the room's setup spawns the rescue wall at.</summary>
     public const int WallY = 10;
 
+    /// <summary>The rescue wall's height in blocks: its origin block and the extension blocks standing down from it (#2432).</summary>
+    public const int HeightInBlocks = 3;
+
     /// <summary>The block behaviour of the rescue wall's shootable origin block, which selects the critters-escape reaction.</summary>
     public static readonly RoomBlockBehavior ReactionBehavior = RoomBlockBehavior.Reacting(ShootableReaction.AnimalEscape);
 

@@ -28,6 +28,6 @@ internal static class CacatacNativeListAddresses
     {
         [0x9f2a] = new CacatacNativeListAddressesInstruction(CacatacCueKind.PlaySpikeSound, ""),
         [0xa095] = new CacatacNativeListAddressesInstruction(CacatacCueKind.RestorePatrol, ""),
-        [0xa0a7] = new CacatacNativeListAddressesInstruction(CacatacCueKind.SpawnSpike, "V"),
+        [0xa0a7] = new CacatacNativeListAddressesInstruction(null, "V"),
     };
 }

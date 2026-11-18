@@ -278,18 +278,17 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Action = AlcoonAction.WaitingForSamus;
     }
 
-    /// <summary>Resets the jump to a twelve-pixel upward velocity and half-pixel acceleration.</summary>
+    /// <summary>Resets the jump to a twelve-pixel upward velocity.</summary>
     private static void SetupAlcoonJumpMovement(AlcoonEnemyState state)
     {
         state.WalkingDirection = null;
         state.VerticalVelocity = AlcoonMotionDefinitions.EmergeJumpVelocity;
-        state.YAcceleration = AlcoonMotionDefinitions.Gravity;
     }
 
-    /// <summary>Adds the Alcoon's acceleration to its vertical velocity.</summary>
+    /// <summary>Adds the Alcoon's gravity, half a pixel an update downward, to its vertical velocity (#2432).</summary>
     private static void AccelerateAlcoonY(AlcoonEnemyState state)
     {
-        state.VerticalVelocity += state.YAcceleration;
+        state.VerticalVelocity += AlcoonMotionDefinitions.Gravity;
     }
 
     /// <summary>Integrates vertical velocity without collision during airborne ascent or retreat.</summary>

@@ -28,7 +28,7 @@ internal sealed class RottingCorpseRows
     /// <exception cref="ArgumentOutOfRangeException">The corpse has no such row.</exception>
     internal void MoveRow(int row, CorpseRowOperation operation)
     {
-        if ((uint)row >= (uint)rows.Length)
+        if (row < 0 || row >= rows.Length)
             throw new ArgumentOutOfRangeException(nameof(row), row, $"The rotting corpse has {rows.Length} pixel rows.");
         int landing = row + CorpseRotScheduleDefinitions.RowsFallenPerMove;
         if (landing < rows.Length)

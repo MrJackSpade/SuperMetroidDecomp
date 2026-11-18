@@ -196,7 +196,7 @@ public sealed class SamusState
     /// The update's audio requests every sound of hers, her movement's and her spark's among them, joins as it is made: her
     /// runtime's, or a cinematic's (#2057).
     /// </summary>
-    internal GameplayAudioRequests AudioRequests { get; }
+    internal GameplaySoundRequests AudioRequests { get; }
 
     /// <summary>
     /// Crystal Flash initiation, ammo cadence, energy restoration, and its hold on her
@@ -584,7 +584,7 @@ public sealed class SamusState
     /// <param name="compatibility">The compatibility services she owns, created with her by whoever builds her.</param>
     /// <param name="beamCharge">The session's beam charge, which outlives her and which the projectile pass advances.</param>
     /// <param name="artwork">The installed artwork of whoever builds her, which outlives her and follows its rebinding.</param>
-    internal SamusState(GameplayAudioRequests audioRequests,
+    internal SamusState(GameplaySoundRequests audioRequests,
         FramesBeyondAnimation<SamusAnimationName, SamusAnimationFrame, SamusAnimationPlaceName, SamusPoseAnimationStep> framesBeyondAnimation,
         UnauthoredBoostCadence unauthoredBoostCadence, SamusCompatibility compatibility, BeamChargeState beamCharge,
         SamusArtworkBinding artwork)

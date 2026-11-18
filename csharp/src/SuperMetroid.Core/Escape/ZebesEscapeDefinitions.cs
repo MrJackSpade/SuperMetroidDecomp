@@ -66,7 +66,7 @@ public static class ZebesEscapeDefinitions
 
     /// <summary>
     /// The random selection, from the explosion's own sample, of which explosion goes off and whether it sounds: 16
-    /// choices, of which the first eight name an explosion and the rest leave its kind to its place.
+    /// choices, which <see cref="ZebesEscapeExplosionDefinitions.Draw"/> names.
     /// </summary>
     internal static readonly RandomSampleField ExplosionChoice = new(0, 4);
 

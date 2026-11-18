@@ -75,7 +75,7 @@ internal sealed class DeathGameSequence(FrontendSession session) : IGamePhase
     {
         // The death sequence deliberately completes one final gameplay pass with the game clock held, then
         // begins fading the whole display to black, which Samus's own colours are spared (#1544).
-        session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false }, Audio = RuntimeFrameAudio.WithLowHealthCheck });
+        session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false, RunsLowHealthCheck = true } });
         session.display.PublishGameplay(session.GameplayRuntime);
         BeginDeathFade();
         SamusState dyingSamus = session.GameplayRuntime.Player.IntroducedSamus;
@@ -88,7 +88,7 @@ internal sealed class DeathGameSequence(FrontendSession session) : IGamePhase
     /// <summary>One update of the surroundings fading to black, which queues the death music once they are black.</summary>
     private void BlackOutSurroundings(ControllerButton controllerInput)
     {
-        session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false }, Audio = RuntimeFrameAudio.WithLowHealthCheck });
+        session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false, RunsLowHealthCheck = true } });
         bool fadeComplete = StepDeathFade();
         session.display.PublishGameplay(session.GameplayRuntime);
         if (fadeComplete)

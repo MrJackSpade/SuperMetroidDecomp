@@ -20,7 +20,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 public sealed class SamusShinesparkState
 {
     /// <summary>The update's audio requests the spark's sounds join as they are made: Samus's (#2057).</summary>
-    internal GameplayAudioRequests AudioRequests { get; }
+    internal GameplaySoundRequests AudioRequests { get; }
 
     /// <summary>
     /// The upward spark's acceleration in pixels per frame per frame: 7.0 when windup begins, raised by Samus's
@@ -45,7 +45,7 @@ public sealed class SamusShinesparkState
     /// <param name="colouring">Samus's special suit colouring, which the shine and the spark take.</param>
     /// <param name="audioRequests">Samus's audio requests, which the spark's sounds join.</param>
     internal SamusShinesparkState(SuitPickupSparkCarryover<SamusSuitPickupStage> acceleration, CrashOrbitTravelCarryover orbitTravel,
-        SamusSpecialColouring colouring, GameplayAudioRequests audioRequests)
+        SamusSpecialColouring colouring, GameplaySoundRequests audioRequests)
     {
         AudioRequests = Ensure.NotNull(audioRequests);
         _colouring = Ensure.NotNull(colouring);

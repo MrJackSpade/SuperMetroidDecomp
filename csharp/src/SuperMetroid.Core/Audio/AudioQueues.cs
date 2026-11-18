@@ -50,8 +50,8 @@ public sealed class AudioQueues
     /// the queues reset them with their own state.
     /// </param>
     /// <param name="gameplay">
-    /// The gameplay states the queues read as each sound request is made: whether an attract demo plays and whether a
-    /// power bomb explodes, which turn an admitted request away.
+    /// The gameplay states the queues read as each sound request is made: whether a door's transition has disabled sounds,
+    /// whether an attract demo plays and whether a power bomb explodes, which turn an admitted request away.
     /// </param>
     internal AudioQueues(SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId> soundHandshakes, IGameplaySoundState gameplay)
     {
@@ -59,14 +59,6 @@ public sealed class AudioQueues
         _gameplay = Ensure.NotNull(gameplay);
         Reset();
     }
-
-    /// <summary>
-    /// Door-owned part of the sound-disable switch: set after the entry stop
-    /// requests and cleared after the destination fade. The frontend sets it from the
-    /// door transition's phase before every frame.
-    /// It rejects new SFX only; queued sounds and music continue to advance.
-    /// </summary>
-    internal bool DoorTransitionSoundsDisabled { get; set; }
 
     /// <summary>The music data set most recently loaded by a dispatched request, or null while only the shared sounds are loaded.</summary>
     public MusicDataSet? DataSet { get; private set; }
@@ -89,7 +81,6 @@ public sealed class AudioQueues
     /// <summary>Restores the audio queue state the game starts with at power-on.</summary>
     public void Reset()
     {
-        DoorTransitionSoundsDisabled = false;
         Music.Clear();
         PendingMusic = null;
         foreach (SoundQueue queue in SoundQueues.Values)
@@ -243,7 +234,7 @@ public sealed class AudioQueues
     {
         SoundQueue queue = QueueOf(soundEffect.Library);
         SoundQueueAdmission admission = SoundQueueAdmission.For(queue.Count, priority);
-        if (!admission.Joins(new SoundSuppression(DoorTransitionSoundsDisabled, _gameplay.AttractDemoPlaying, _gameplay.PowerBombExploding)))
+        if (!admission.Joins(new SoundSuppression(_gameplay.DoorTransitionDisablesSounds, _gameplay.AttractDemoPlaying, _gameplay.PowerBombExploding)))
             return admission;
 
         // Every priority turns a request away once the queue holds its most (SoundQueueAdmission.MaximumOccupancy), so an

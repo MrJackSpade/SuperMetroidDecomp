@@ -248,6 +248,12 @@ internal sealed class FrontendSession
     internal GameDataLoadRoute LoadingRoute { get; private set; }
     /// <summary>The door transition's step; meaningful while <see cref="GameState"/> is <see cref="SuperMetroidGameState.DoorTransition"/>.</summary>
     internal DoorTransitionStep DoorTransitionStep { get; private set; }
+    /// <summary>
+    /// Whether a door's transition is loading, scrolling into and fading in the next room: the step the door enters once its
+    /// entry's stop requests are queued, during which it loads only the room's music data and sound effects are disabled.
+    /// </summary>
+    internal bool TransitioningThroughDoor =>
+        GameState == SuperMetroidGameState.DoorTransition && DoorTransitionStep == DoorTransitionStep.Transitioning;
     /// <summary>The pause's step; meaningful while <see cref="GameState"/> is <see cref="SuperMetroidGameState.Pause"/>.</summary>
     internal PauseStep PauseStep { get; private set; }
     /// <summary>The death sequence's step; meaningful while <see cref="GameState"/> is <see cref="SuperMetroidGameState.DeathSequence"/>.</summary>
@@ -375,7 +381,7 @@ internal sealed class FrontendSession
         {
             // Door setup loads music data. The track is selected
             // only after the opening scroll and this data queue have completed.
-            if (GameState == SuperMetroidGameState.DoorTransition && DoorTransitionStep == DoorTransitionStep.Transitioning)
+            if (TransitioningThroughDoor)
                 audio.QueueRoomMusicData(roomState.Music.DataSet);
             else
                 audio.QueueRoomMusic(roomState.Music);

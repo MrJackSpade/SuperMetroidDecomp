@@ -111,9 +111,10 @@ internal static class Layer3PlaneVerification
         int steps = 0;
         while (!completed)
         {
-            completed = text.Step(out EscapeTypewriterGlyph? glyph);
+            EscapeTypewriterStep step = text.Step();
+            completed = step is EscapeTypewriterStep.Complete;
             steps++;
-            if (glyph is { } written)
+            if (step is EscapeTypewriterStep.Typed { Glyph: var written })
                 typed.Add(written);
         }
         AssertEqual(4, typed.Count, "the space types no glyph");

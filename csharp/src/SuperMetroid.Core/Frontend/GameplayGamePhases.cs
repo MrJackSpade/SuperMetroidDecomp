@@ -18,7 +18,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
     /// <summary>Runs one update of <see cref="SuperMetroidGameState.GameplayFadeIn"/>.</summary>
     internal void RunGameplayFadeIn(ControllerButton controllerInput)
     {
-        session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Audio = RuntimeFrameAudio.WithLowHealthCheck });
+        session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { RunsLowHealthCheck = true } });
         session.display.PublishGameplay(session.GameplayRuntime);
         session.SetDisplayBrightness(session.GameplayFadeIn.Level);
         session.HandleGunshipLandingSave();
@@ -38,7 +38,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         // The refill begins from main gameplay, whose updates all run with Samus, and no update replaces her (#2503).
         SamusState samus = session.GameplayRuntime.Player.IntroducedSamus;
         SamusReserveAutoRecoveryStep reserveStep = default;
-        session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Audio = RuntimeFrameAudio.WithLowHealthCheck, AfterFrameBoundary = () =>
+        RuntimeFrameOutcome outcome = session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { RunsLowHealthCheck = true }, AfterFrameBoundary = () =>
             {
                 reserveStep = session.reserveRecovery.StepAfterFrame(
                     samus,
@@ -59,6 +59,10 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         // already queued; the queue occupancy they leave decides whether this final
         // normal-priority request joins.
         samus.HealthWarning.Update(samus.Health, session.GameplayRuntime.AudioRequests);
+        // The escape timer counts on through the refill's gameplay, so its countdown can run out during the refill; the
+        // time-up it starts begins after the refill's update, as main gameplay's begins after its own.
+        if (outcome == RuntimeFrameOutcome.TimeUp)
+            session.BeginTimeUp();
     }
 
     /// <summary>Checks the main-gameplay pause gate, including Samus's control locks and new Start input.</summary>
@@ -108,8 +112,8 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         // Every gameplay update runs with Samus, and no update replaces her (#2503).
         SamusState samus = session.GameplayRuntime.Player.IntroducedSamus;
         bool samusInputLockedAtFrameStart = samus.Control.InputLocked;
-        session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Audio = RuntimeFrameAudio.WithLowHealthCheck });
-        bool timeUp = session.GameplayRuntime.ConsumeTimeUpRequest();
+        RuntimeFrameOutcome outcome = session.GameplayRuntime.StepFrame(controllerInput,
+            new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { RunsLowHealthCheck = true } });
         HandleSaveStationPersistence();
         session.display.PublishGameplay(session.GameplayRuntime);
         session.HandleGunshipLandingSave();
@@ -119,10 +123,11 @@ internal sealed class GameplayGamePhases(FrontendSession session)
             // Nothing else may replace it on the trigger
             // frame—not pause, an elevator handoff, or a pending ordinary door.
         }
-        else if (timeUp)
+        else if (outcome == RuntimeFrameOutcome.TimeUp)
         {
             // The escape countdown started the time-up during Samus's update, after her movement's
             // door hits and before pause-check, which then sees the game no longer in main gameplay.
+            // A death trigger on the same update takes the frame, and the time-up it started never begins.
             session.BeginTimeUp();
         }
         else if (session.GameplayRuntime.EnemyFrameResults.LastEnemyFrame.Gunship == GunshipFrameEvent.EscapeTakeoffCompleted)

@@ -95,7 +95,8 @@ internal sealed class PauseGameSequence(FrontendSession session, GameplayGamePha
     {
         // The pause keeps running ordinary gameplay while the screen darkens, so enemies and projectiles keep
         // moving until the pause begins.
-        session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Audio = RuntimeFrameAudio.WithLowHealthCheck });
+        RuntimeFrameOutcome outcome = session.GameplayRuntime.StepFrame(controllerInput,
+            new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { RunsLowHealthCheck = true } });
         session.display.PublishGameplay(session.GameplayRuntime);
         // The finished fade moves on from what this update started: the pause preparation,
         // or the next step of a door hit or time-up gameplay wrote on this final fade update.
@@ -103,7 +104,7 @@ internal sealed class PauseGameSequence(FrontendSession session, GameplayGamePha
         bool doorEntered = session.GameplayRuntime.RoomLoader.HasPendingDoorTransition;
         if (doorEntered)
             session.Enter(DoorTransitionStep.EnteringDoor);
-        bool timeUp = session.GameplayRuntime.ConsumeTimeUpRequest();
+        bool timeUp = outcome == RuntimeFrameOutcome.TimeUp;
         if (timeUp)
             session.BeginTimeUp();
         if (!session.StepScreenFadeOut())

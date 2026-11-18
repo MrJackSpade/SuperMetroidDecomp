@@ -119,7 +119,7 @@ public sealed class SamusBombProjectileSystem
     /// The Samus artwork whose projectile frames the bombs draw and whose glow colours their blasts show, rebound with the
     /// host's artwork.
     /// </param>
-    internal SamusBombProjectileSystem(GameplayAudioRequests audioRequests, SamusArtworkBinding artwork)
+    internal SamusBombProjectileSystem(GameplaySoundRequests audioRequests, SamusArtworkBinding artwork)
     {
         AudioRequests = Ensure.NotNull(audioRequests);
         _artwork = Ensure.NotNull(artwork);
@@ -127,7 +127,7 @@ public sealed class SamusBombProjectileSystem
     }
 
     /// <summary>The update's audio requests the bombs' sounds join as they are made.</summary>
-    internal GameplayAudioRequests AudioRequests { get; }
+    internal GameplaySoundRequests AudioRequests { get; }
 
     /// <summary>
     /// Advances the Power Bomb explosion's shape independently of Samus's input phase.

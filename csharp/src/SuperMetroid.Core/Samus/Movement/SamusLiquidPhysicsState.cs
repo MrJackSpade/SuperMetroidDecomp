@@ -72,7 +72,7 @@ public sealed class SamusLiquidPhysicsState
     internal SamusLiquidPhysicsState(
         BreathBubbleAndLavaSprayWaits effectWaits,
         SamusParticles particles,
-        GameplayAudioRequests audioRequests,
+        GameplaySoundRequests audioRequests,
         SamusPeriodicDamage periodicDamage)
     {
         AudioRequests = Ensure.NotNull(audioRequests);
@@ -102,7 +102,7 @@ public sealed class SamusLiquidPhysicsState
     /// <summary>
     /// The update's audio requests her liquid, landing and footstep sounds join as they are made: Samus's (#2057).
     /// </summary>
-    internal GameplayAudioRequests AudioRequests { get; }
+    internal GameplaySoundRequests AudioRequests { get; }
 
     /// <summary>
     /// The room's effect: lava, acid or water, which Samus moves in, or one of the effects that are no liquid, or none.

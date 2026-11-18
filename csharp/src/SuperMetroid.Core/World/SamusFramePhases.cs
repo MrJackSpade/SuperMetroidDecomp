@@ -222,11 +222,15 @@ internal sealed class SamusFramePhases
     /// Runs the movement phase: movement when Samus movement is enabled, then
     /// the tail.
     /// </summary>
-    internal void RunMovementPhase(SamusControlFrame frame, SamusState samus, ISamusFrameAudio audio, RoomScope room)
+    /// <param name="frame">The frame's Samus control.</param>
+    /// <param name="samus">Samus.</param>
+    /// <param name="runsLowHealthCheck">Whether the frame's policy runs her low-health check after her periodic damage.</param>
+    /// <param name="room">The loaded room.</param>
+    internal void RunMovementPhase(SamusControlFrame frame, SamusState samus, bool runsLowHealthCheck, RoomScope room)
     {
         if (frame.MovementEnabled)
             RunMovement(frame, samus, room);
-        RunMovementPhaseTail(frame, samus, audio, room);
+        RunMovementPhaseTail(frame, samus, runsLowHealthCheck, room);
     }
 
     /// <summary>
@@ -993,7 +997,7 @@ internal sealed class SamusFramePhases
     /// her movement (the drained get-up and Draygon's escape), animation or the death sequence, the pose transitions, and
     /// periodic damage with the low-energy check.
     /// </summary>
-    private void RunMovementPhaseTail(SamusControlFrame frame, SamusState samus, ISamusFrameAudio audio, RoomScope room)
+    private void RunMovementPhaseTail(SamusControlFrame frame, SamusState samus, bool runsLowHealthCheck, RoomScope room)
     {
         // Samus's normal movement phase updates the speed echo after her movement owner has moved her
         // and before animation/pose transitions. Every fourth gameplay frame at the full boost stage, it alternates
@@ -1084,7 +1088,7 @@ internal sealed class SamusFramePhases
             // installs a dedicated checker. Automatic reserves invoke their external
             // check in the frontend.
             if (frame.Mode.Movement is SamusMovementMode.Normal or SamusMovementMode.Gunship && !samus.Xray.OwnsSamusControl &&
-                audio.ChecksLowHealth)
+                runsLowHealthCheck)
                 samus.HealthWarning.Update(samus.Health, samus.AudioRequests);
         }
     }

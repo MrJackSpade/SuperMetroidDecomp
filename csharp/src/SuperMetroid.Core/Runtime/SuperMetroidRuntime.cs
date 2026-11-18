@@ -204,7 +204,8 @@ internal sealed class SuperMetroidRuntime
         Room = new ActiveRoomState();
         Clock = Ensure.NotNull(clock);
         Options = new GameplayOptions();
-        AudioRequests = new GameplayAudioRequests(new SessionGameplayAudioQueues(session.Audio, AttractSession));
+        var sessionAudio = new SessionGameplayAudioQueues(session.Audio, AttractSession);
+        AudioRequests = new GameplayAudioRequests(sessionAudio, sessionAudio);
         EnemySession = new EnemySession(
             AudioRequests,artwork.EnemyOverreads, artwork.BossAndIntroOverreads, RainbowBeamCameraCheckpoint,
             artwork.EnemySheets, artwork.EnemyFrameDisplays);
@@ -306,20 +307,6 @@ internal sealed class SuperMetroidRuntime
 
         Bind(a => a.KraidEyes, value => BossArtwork.KraidEyes = value);
         Bind(a => a.BossBodySheets, value => BossArtwork.BodySheets = value);
-    }
-
-    /// <summary>
-    /// Set when the escape countdown expired during this runtime's frame: the countdown
-    /// writes the time-up game state from inside gameplay. The frontend game-state loop consumes it.
-    /// </summary>
-    public bool TimeUpRequested { get; private set; }
-
-    /// <summary>Takes the pending time-up publication; the game-state loop may still override it.</summary>
-    public bool ConsumeTimeUpRequest()
-    {
-        bool requested = TimeUpRequested;
-        TimeUpRequested = false;
-        return requested;
     }
 
     /// <summary>Shared random/event/input-filter state, over the session's random number generator.</summary>
@@ -458,8 +445,9 @@ internal sealed class SuperMetroidRuntime
 
     /// <summary>Runs one frame boundary followed by the update's gameplay, as <paramref name="request"/> asks.</summary>
     /// <param name="playerInput">The host's controller buttons, read as gameplay actions through the bindings when the frame boundary latches player input; attract playback publishes its independent scripted actions later.</param>
-    /// <param name="request">The state policy, the update's audio steps and the host's work after the frame boundary.</param>
-    public void StepFrame(ControllerButton playerInput, RuntimeFrameRequest request)
+    /// <param name="request">The state policy and the host's work after the frame boundary.</param>
+    /// <returns>What the update started for the game-state loop to act on after it: the time-up, or nothing.</returns>
+    public RuntimeFrameOutcome StepFrame(ControllerButton playerInput, RuntimeFrameRequest request)
     {
         Ensure.NotNull(request);
         // Every gameplay update runs with Samus: each game's start, a saved game's load and the attract demo create her
@@ -470,7 +458,7 @@ internal sealed class SuperMetroidRuntime
             AmmoLoanGuard.Begin(Assists.Current.AmmoNeverRunsOut, samus);
         try
         {
-            StepFrameGuarded(playerInput, request, infiniteAmmoGuard, samus);
+            return StepFrameGuarded(playerInput, request, infiniteAmmoGuard, samus);
         }
         finally
         {
@@ -486,7 +474,7 @@ internal sealed class SuperMetroidRuntime
     /// Advances one frame boundary and the corresponding gameplay update while the
     /// frame-exit ammo guard remains active through callbacks.
     /// </summary>
-    private void StepFrameGuarded(
+    private RuntimeFrameOutcome StepFrameGuarded(
         ControllerButton playerInput,
         RuntimeFrameRequest frameRequest,
         AmmoLoanGuard infiniteAmmoGuard,
@@ -500,10 +488,7 @@ internal sealed class SuperMetroidRuntime
         // An open message box runs its own updates inside the suspended gameplay update:
         // the frame boundary latches no input and no random number is drawn nor owner run.
         if (MessageBox.IsActive)
-        {
-            StepMessageBoxFrame(playerInput, frameRequest.Policy, infiniteAmmoGuard, room, samus);
-            return;
-        }
+            return StepMessageBoxFrame(playerInput, frameRequest.Policy, infiniteAmmoGuard, room, samus);
         BeginAcceptedGameplayFrame(playerInput, frameRequest, room);
         RunLiquidWaveAndStatueDescent(room, samus);
         DrawUpdateRandomNumber();
@@ -513,7 +498,7 @@ internal sealed class SuperMetroidRuntime
         RunColourEffects(room, samus);
         BeginSpriteFrame();
         PrepareEnemiesAndEarlyEnemyUpdate(context, room, samus);
-        RunSamusAndEnemyUpdate(context, samus, room, frameRequest.Audio);
+        RunSamusAndEnemyUpdate(context, samus, room, frameRequest.Policy.RunsLowHealthCheck);
         bool deathOwnsSamus = context.Samus.Mode.Movement == SamusMovementMode.Fatal;
         if (!deathOwnsSamus)
             DoorTransition.RunEnemyProjectiles(room, samus);
@@ -523,9 +508,9 @@ internal sealed class SuperMetroidRuntime
         if (SuspendTailForMessageBox(tail))
         {
             ApplyEndOfUpdateAssists(infiniteAmmoGuard, samus);
-            return;
+            return RuntimeFrameOutcome.Ordinary;
         }
-        FinishGameplayFrame(tail, frameRequest.Policy, infiniteAmmoGuard, room, samus);
+        return FinishGameplayFrame(tail, frameRequest.Policy, infiniteAmmoGuard, room, samus);
     }
 
     /// <summary>Marks the frame's impacts as gameplay's, runs the accepted-frame boundary and the host's post-boundary work, and chooses the screen layers.</summary>
@@ -663,14 +648,14 @@ internal sealed class SuperMetroidRuntime
     }
 
     /// <summary>Runs the input phase, the enemy phase, the resample after it and the movement phase, in the game's order.</summary>
-    private void RunSamusAndEnemyUpdate(GameplayFrameContext context, SamusState samus, RoomScope room, RuntimeFrameAudio audio)
+    private void RunSamusAndEnemyUpdate(GameplayFrameContext context, SamusState samus, RoomScope room, bool runsLowHealthCheck)
     {
         SamusControlFrame frame = context.Samus;
         SamusPhases.RunInputPhase(frame, RunningGameState, samus, context.SamusCameraPointAtFrameStart, room);
         if (frame.MovementEnabled && !frame.EnemyUpdateRanFirst)
             EnemyPhase.RunEnemyUpdatePhase(processingList: EnemyProcessingList.Prepared, frame.PreviousCameraPoint, room, samus);
         SamusPhases.RunPostEnemyUpdateResample(frame, samus, room);
-        SamusPhases.RunMovementPhase(frame, samus, audio, room);
+        SamusPhases.RunMovementPhase(frame, samus, runsLowHealthCheck, room);
     }
 
     /// <summary>Opens the gunship's save prompt at the shared suspension seam after the room objects.</summary>
@@ -709,7 +694,8 @@ internal sealed class SuperMetroidRuntime
     /// The remainder of a main-gameplay update after the room objects' step. A frame whose room-object
     /// pass opened a message box parks this state and resumes it when the box closes.
     /// </summary>
-    private void FinishGameplayFrame(
+    /// <returns>The time-up when the escape countdown ran out during the remainder, otherwise nothing.</returns>
+    private RuntimeFrameOutcome FinishGameplayFrame(
         SuspendedGameplayFrameTail tail,
         RuntimeFramePolicy policy,
         AmmoLoanGuard infiniteAmmoGuard,
@@ -721,7 +707,7 @@ internal sealed class SuperMetroidRuntime
         StepCeresElevatorArrival(room, samus, deathOwnsSamus);
         RunMainScrolling(room, samus, tail.PreviousCameraPoint, deathOwnsSamus);
         DrawGameplayActors(room, samus, tail, deathOwnsSamus);
-        RunEscapeTimer(tail);
+        RuntimeFrameOutcome outcome = RunEscapeTimer(tail);
         Sprites.FinalizeFrame();
 
         UpdateHud(infiniteAmmoGuard, room, samus);
@@ -739,6 +725,7 @@ internal sealed class SuperMetroidRuntime
 
         DecrementHurtTimers(room, samus);
         ApplyEndOfUpdateAssists(infiniteAmmoGuard, samus);
+        return outcome;
     }
 
     /// <summary>Resolves enemy-projectile hits on Samus and her projectiles, then ordinary power-bomb hits.</summary>
@@ -865,23 +852,26 @@ internal sealed class SuperMetroidRuntime
     }
 
     /// <summary>Counts the escape timer down and draws it, unless the gunship's movement mode owns the frame.</summary>
-    private void RunEscapeTimer(SuspendedGameplayFrameTail tail)
+    /// <returns>The time-up when the countdown ran out on this update, otherwise nothing.</returns>
+    private RuntimeFrameOutcome RunEscapeTimer(SuspendedGameplayFrameTail tail)
     {
         // The enemy phase can install the gunship's movement mode on this frame.
         // Then the timer neither counts down nor shows: boarding hides it, even though the escape stays timed. Decide after the
         // actor transition, before liftoff can repurpose the timer's sprite pictures as dust.
         bool escapeTimerRuns = tail.Mode.Movement != SamusMovementMode.Gunship;
+        RuntimeFrameOutcome outcome = RuntimeFrameOutcome.Ordinary;
         if (escapeTimerRuns && EscapeTimer.Process(Clock.Counter, Assists.Current.EscapeTimerHoldsAtOneSecond))
         {
-            // The expired countdown publishes the time-up game state for the
-            // game-state loop, whites the target colours and disables colour effects.
-            TimeUpRequested = true;
+            // The expired countdown starts the time-up from inside gameplay, which the
+            // game-state loop begins after the update, whites the target colours and disables colour effects.
+            outcome = RuntimeFrameOutcome.TimeUp;
             ColourEffectSession.StopColourEffects();
         }
         if (escapeTimerRuns && EscapeTimer.IsActive)
         {
             EscapeTimerDrawing.Draw(EscapeTimer, Sprites, Artwork.ScreenContent.EscapeTimer, Artwork.SpriteSheets.Get(SpriteSheetId.EscapeTimer));
         }
+        return outcome;
     }
 
     /// <summary>Rebuilds the HUD counters; the next accepted frame shows the rows as it latches them.</summary>
@@ -1065,7 +1055,8 @@ internal sealed class SuperMetroidRuntime
     /// One update of an open message box. Its completion returns into the suspended
     /// gameplay update, whose remaining owners already ran when the box opened.
     /// </summary>
-    private void StepMessageBoxFrame(
+    /// <returns>The resumed update's outcome when the box closed into it, otherwise nothing.</returns>
+    private RuntimeFrameOutcome StepMessageBoxFrame(
         ControllerButton playerInput,
         RuntimeFramePolicy policy,
         AmmoLoanGuard infiniteAmmoGuard,
@@ -1085,7 +1076,7 @@ internal sealed class SuperMetroidRuntime
         if (MessageBox.IsActive)
         {
             ApplyEndOfUpdateAssists(infiniteAmmoGuard, samus);
-            return;
+            return RuntimeFrameOutcome.Ordinary;
         }
 
         MessageBoxes.ResolveClosedMessageBox(frameSuspended: _suspendedFrameTail is not null, room, samus);
@@ -1094,9 +1085,9 @@ internal sealed class SuperMetroidRuntime
         if (!MessageBox.IsActive && _suspendedFrameTail is { } tail)
         {
             _suspendedFrameTail = null;
-            FinishGameplayFrame(tail, policy, infiniteAmmoGuard, room, samus);
-            return;
+            return FinishGameplayFrame(tail, policy, infiniteAmmoGuard, room, samus);
         }
         ApplyEndOfUpdateAssists(infiniteAmmoGuard, samus);
+        return RuntimeFrameOutcome.Ordinary;
     }
 }

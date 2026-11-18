@@ -16,12 +16,22 @@ public enum EscapeTimerPhase
     /// </summary>
     InitialDelay,
     /// <summary>
-    /// Counting down at the screen's centre until <see cref="EscapeTimerDefinitions.MovementDelayFrames"/> updates have
-    /// passed since the start.
+    /// Counting down at the screen's centre for <see cref="EscapeTimerDefinitions.CentreCountingFrames"/> updates, until
+    /// <see cref="EscapeTimerDefinitions.MovementDelayFrames"/> updates have passed since the start.
     /// </summary>
     CountingAtCentre,
     /// <summary>Counting down while moving toward its corner, until both axes reach it.</summary>
     MovingIntoPlace,
     /// <summary>Counting down in its corner.</summary>
     InPlace,
+    /// <summary>
+    /// The countdown has run out (#2499): the timer is only drawn, at zero where it stopped, and an update neither counts
+    /// it nor reports its expiry again.
+    /// </summary>
+    Expired,
+    /// <summary>
+    /// The time-up's black-out has stopped the expired timer (#2499): it is no longer drawn, and keeps its countdown and
+    /// place.
+    /// </summary>
+    StoppedAtTimeUp,
 }

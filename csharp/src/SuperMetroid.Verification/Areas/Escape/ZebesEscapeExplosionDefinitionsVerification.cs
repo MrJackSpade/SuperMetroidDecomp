@@ -29,7 +29,7 @@ internal static class ZebesEscapeExplosionDefinitionsVerification
     {
         for (int index = 0; index < 8; index++)
         {
-            ZebesEscapeExplosionDefinition definition = ZebesEscapeExplosionDefinitions.Drawn[index];
+            ZebesEscapeExplosionDefinition definition = NamedBy(index);
             AssertEqual(rom.ReadCartridgeByte(SpriteTable + index), RoomEffectActorNativeWords.Kinds.Word(definition.SpriteKind),
                 $"Zebes escape explosion sprite {index}");
             AssertEqual(SoundEffectCommands.DecodeOptional(SoundEffectLibrary.Enemies, rom.ReadCartridgeByte(SoundTable + index)), definition.SoundEffect,
@@ -53,8 +53,9 @@ internal static class ZebesEscapeExplosionDefinitionsVerification
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             enemies.EscapeExplosionsBehavior.SpawnEscapeExplosion(new(0x1234, 0x5678), random, kindLeftOpen);
 
-            ZebesEscapeExplosionDefinition? drawn = random < 8 ? ZebesEscapeExplosionDefinitions.Drawn[random] : null;
-            AssertEqual(drawn, ZebesEscapeExplosions.Drawn(random), $"draw {random}");
+            ZebesEscapeExplosionDefinition? drawn = random < 8 ? NamedBy(random) : null;
+            AssertTrue(random < 8 || ZebesEscapeExplosionDefinitions.Draw.Choose(random) is ZebesEscapeExplosionDraw.LeftOpen,
+                $"draw {random} leaves the kind open");
             RoomEffectActor sprite = enemies.RoomEffectActors.Single(slot => slot.IsActive);
             AssertEqual(drawn?.SpriteKind ?? kindLeftOpen, sprite.Kind,
                 $"production escape sprite draw {random}, kind left open {kindLeftOpen}");
@@ -75,6 +76,12 @@ internal static class ZebesEscapeExplosionDefinitionsVerification
         Console.WriteLine(
             "Zebes escape explosion definitions: sixteen native bytes, the kinds left open indoors and over 64 columns, and all 80 draw/kind-left-open spawns pass with source tables forbidden.");
     }
+
+    /// <summary>The explosion the draw's choice <paramref name="choice"/>, one of the first eight, names.</summary>
+    private static ZebesEscapeExplosionDefinition NamedBy(int choice) =>
+        ZebesEscapeExplosionDefinitions.Draw.Choose(choice) is ZebesEscapeExplosionDraw.Named { Explosion: var explosion }
+            ? explosion
+            : throw new InvalidOperationException($"Draw {choice} names no explosion.");
 
     /// <summary>Rejects runtime reads of the migrated sprite and sound bytes at $8F:C1D6-C1E5.</summary>
     private static CartridgeReadGuard NewZebesEscapeExplosionReadGuard(ISnesAddressSpace source) =>

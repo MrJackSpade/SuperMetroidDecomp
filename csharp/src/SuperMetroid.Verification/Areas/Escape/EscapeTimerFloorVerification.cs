@@ -41,7 +41,11 @@ internal static class EscapeTimerFloorVerification
                 bool expired = guarded.Process(frame, holdAtOneSecond: true);
                 retail.Process(frame, holdAtOneSecond: false);
                 AssertTrue(!expired, "guarded escape never publishes expiration");
-                AssertEqual(new VerifyEscapeTimerFloorCase(retail.Phase, retail.IsActive), new VerifyEscapeTimerFloorCase(guarded.Phase, guarded.IsActive), "escape phase unchanged by floor");
+                // The retail countdown's expiry is its own phase (#2499); the held one counts on in its corner instead.
+                VerifyEscapeTimerFloorCase retailCase = retail.Phase == EscapeTimerPhase.Expired
+                    ? new(EscapeTimerPhase.InPlace, retail.IsActive)
+                    : new(retail.Phase, retail.IsActive);
+                AssertEqual(retailCase, new VerifyEscapeTimerFloorCase(guarded.Phase, guarded.IsActive), "escape phase unchanged by floor");
                 AssertEqual(retail.Position, guarded.Position, "timer animation unchanged");
                 if (guarded.RemainingCentiseconds == EscapeTimerClock.Time(0, 1, 0))
                     reachedFloor = true;

@@ -682,8 +682,7 @@ public static class SamusAerialMovement
         GameplayAction controllerNewInput,
         ISamusRoomObjects roomObjects)
     {
-        // Rejects before either enemy or terrain observation. Probing
-        // first is not equivalent: block contact can mutate real X subposition.
+        // The check stops before she probes enemies or terrain: touching a block can move her by a fraction of a pixel.
         if (!samus.PoseHistory.AllowsWallJumpProbe)
             return false;
 

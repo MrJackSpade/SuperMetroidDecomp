@@ -24,7 +24,7 @@ internal sealed class RidleyBodyAnimation
 
     /// <summary>
     /// Plays Ridley's body animation where the shared enemy animation runs: the frame expires on the update its
-    /// timer would, and a newly shown frame raises the new-frame flag.
+    /// timer would, and the clock notes each newly shown frame.
     /// </summary>
     /// <param name="place">Ridley's body.</param>
     /// <param name="ridley">Ridley's encounter.</param>
@@ -99,8 +99,8 @@ internal sealed class RidleyBodyAnimation
 
     /// <summary>
     /// Shows a breakup fragment's picture where the shared enemy animation runs (#2235): a still picture, which the
-    /// fragment shows on the update its clock first runs out, raising the new-frame flag, for
-    /// <see cref="RidleyBreakupFrameDefinitions.PictureShowingUpdates"/>; it then rests on it, its clock left to wrap.
+    /// fragment shows on the update its clock first runs out, for
+    /// <see cref="RidleyBreakupFrameDefinitions.PictureShowingUpdates"/>; it then rests on it.
     /// </summary>
     internal static void AdvanceRidleyBreakupAnimation(RoomEnemyPlace fragment)
     {

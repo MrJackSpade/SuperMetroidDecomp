@@ -319,7 +319,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Runs a Phantoon part's animation where the shared enemy animation runs: the frame expires on the update
-    /// its timer would, and a newly shown frame raises the new-frame flag.
+    /// its timer would, and the clock notes each newly shown frame.
     /// </summary>
     internal void AdvancePhantoonPartAnimation(PhantoonPart part)
     {

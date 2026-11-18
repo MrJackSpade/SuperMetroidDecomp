@@ -13,6 +13,9 @@ internal static class BombTorizoStatueFragmentDefinitions
     /// <summary>Every piece's downward acceleration.</summary>
     internal static readonly SignedEightEight Acceleration = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(16);
 
+    /// <summary>The updates every piece falls once it cracks off, after which it is deleted.</summary>
+    internal const int FallUpdates = 112;
+
     /// <summary>
     /// Each piece: the animation it plays, named for the piece (#2240), and its place from the hand's block
     /// in room pixels, the centre of its sixteen-pixel cell.

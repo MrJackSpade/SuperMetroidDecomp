@@ -725,7 +725,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Plays the Shitroid's animation where the shared enemy animation runs: the frame expires on the update its
-    /// timer would, and a newly shown frame raises the new-frame flag. Its animations only cycle.
+    /// timer would, and the clock notes each newly shown frame. Its animations only cycle.
     /// </summary>
     internal void AdvanceShitroidAnimation(RoomEnemyPlace place)
     {

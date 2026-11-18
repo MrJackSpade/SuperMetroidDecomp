@@ -534,8 +534,8 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
 
     /// <summary>
     /// Runs Botwoon's head animation where the shared enemy animation runs: the frame
-    /// expires on the update its timer would, and a newly shown frame raises the
-    /// new-frame flag exactly as a timed frame does.
+    /// expires on the update its timer would, and the clock notes each newly shown frame
+    /// as it does a timed frame.
     /// </summary>
     internal void AdvanceBotwoonHeadAnimation(RoomEnemyPlace head, BotwoonEnemyState state)
     {

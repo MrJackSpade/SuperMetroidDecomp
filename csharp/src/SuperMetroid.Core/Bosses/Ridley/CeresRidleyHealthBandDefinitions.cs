@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
-/// Ceres Ridley's three health bands (#2242), by accepted hits. The game omits the branch after its ninety-hit
-/// comparison, so from his seventieth hit on he shows the nearly-dead colouring and never the badly wounded one.
+/// Ceres Ridley's three health bands (#2242), by accepted hits. He has no badly wounded band: from his seventieth hit on
+/// he shows the nearly-dead colouring.
 /// </summary>
 internal static class CeresRidleyHealthBandDefinitions
 {

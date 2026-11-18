@@ -1653,5 +1653,27 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         // are English.
         Expect("class P { /// <summary>The game keeps colours lit and gives it two choices; the speed is copied to the shot; an unused room. The cue a full queue selects is not authored.</summary>\nint F => 0; }");
         Expect(CompatibilityService + "/// <summary>Evidence: the original keeps the stage.</summary>\n[CompatibilityService(\"stage\")] class Stage { }");
+        // The original's branches and storage and the port's reasoning about them in boss prose, outside hardware owners
+        // and markup (#2412): the branch after a comparison, a choice told as equivalent, the new-frame flag, the coordinate
+        // range's far end, colour sets occupied and a thing meant to do one thing but reading another.
+        Expect("class P { /// <summary>The game omits the branch after its ninety-hit comparison.</summary>\nint F => 0; }",
+            "('branch after its ninety-hit comparison')");
+        Expect("class P { void Run() { // selecting the two draw colours here is equivalent\n } }", "('is equivalent')");
+        Expect("class P { void Run() { // reading it first is not equivalent: contact moves her\n } }", "('is not equivalent')");
+        Expect("class P { /// <summary>A newly shown frame raises the new-frame flag.</summary>\nint F => 0; }", "('new-frame flag')");
+        Expect("class P { void Run() { // nothing reads its new frame flag\n } }", "('new frame flag')");
+        Expect("class P { void Run() { // continuing from the far end of the coordinate range\n } }",
+            "('far end of the coordinate range')");
+        Expect("class P { /// <summary>A place above the chamber at the coordinate range's far end.</summary>\nint F => 0; }",
+            "('coordinate range's far end')");
+        Expect("class P { /// <summary>Exposes the two live colour sets occupied by Torizo's body.</summary>\nint F => 0; }",
+            "('colour sets occupied')");
+        Expect("class P { void Run() { // the colour sets it occupies\n } }", "('colour sets it occupies')");
+        Expect("class P { /// <summary>The egg's setup meant to draw the wait at random but reads a fixed value.</summary>\nint F => 0; }",
+            "('meant to draw the wait at random but reads')");
+        // A comparison alone, the equivalent of a thing, a new frame, a range's end, a set of colours, a thing
+        // meant to happen and a hardware owner are English.
+        Expect("class P { /// <summary>The comparison of two heights; the equivalent of a hit; it is equivalent to a hit; a newly shown frame; the far end of the room; the colours he shows occupy his body; the shot is meant to miss.</summary>\nint F => 0; }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the new-frame flag.</summary>\n[CompatibilityService(\"frame\")] class Frame { }");
     }
 }

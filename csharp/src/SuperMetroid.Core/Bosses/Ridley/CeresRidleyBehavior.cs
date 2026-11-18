@@ -71,10 +71,7 @@ internal sealed class CeresRidleyBehavior : IRidleyRevealEncounter<CeresRidleySt
     {
         place.Health = BossHealthDefinitions.RefilledFullHealth;
 
-        // The colour selection runs after the boss step and before movement. None of the
-        // step branches mutate the flash timer, so selecting the two
-        // draw colours here is equivalent while keeping their decision ahead of the
-        // shared movement/composition continuation below.
+        // His hurt flash picks his two draw colours after his step and before he moves; no step changes the flash.
         if (state.MovementAnimationEnabled && _ridleyEncounter.CeresStatus == CeresEscapeStatus.RidleyNotEscaped)
             RidleyBodyContact.UpdateHurtFlash(place, state, place.FrameCounter);
 
@@ -176,10 +173,8 @@ internal sealed class CeresRidleyBehavior : IRidleyRevealEncounter<CeresRidleySt
                     nextUpdates: CeresRidleyFlightDefinitions.SwoopClimbUpdates);
                 if (state.Phase == CeresRidleyPhase.SwoopAscendingAimingUp)
                 {
-                    // The swoop requests one aimed tail fling at the exact bottom
-                    // of the swoop. Neutral tail AI consumes and clears it later this same
-                    // enemy-main pass; treating it as a persistent animation mode makes the
-                    // tail lag an entire attack behind Ridley.
+                    // At the bottom of the swoop his tail flings once, aimed: the neutral tail takes the request
+                    // later this update and clears it.
                     state.Tail.WhipRequested = true;
                 }
                 return true;

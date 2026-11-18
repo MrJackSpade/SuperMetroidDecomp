@@ -415,16 +415,16 @@ internal static class TorizoProjectileAnimations
         new(Ensure.NotNull(pastCue.Animation), AnimationPlace.Before(pastCue.Place.Phase));
 
     /// <summary>
-    /// A piece of the breaking statue hand (#2240), every piece alike: it rests in <paramref name="resting"/> for
-    /// <paramref name="restUpdates"/>, cracks off with the impact sound and starts its fall, falls in
-    /// <paramref name="falling"/> for 112 updates, and is deleted.
+    /// A piece of the breaking statue hand (#2240), every piece alike: it shows <paramref name="fragment"/>, resting for
+    /// <paramref name="restUpdates"/>, cracks off with the impact sound and starts its fall, falls for
+    /// <see cref="BombTorizoStatueFragmentDefinitions.FallUpdates"/>, and is deleted.
     /// </summary>
     private static AnimationBeat<EnemyProjectileFrameId, TorizoProjectileCue>[] StatueFragment(EnemyProjectileFrameId fragment, int restUpdates) =>
     [
         Show(fragment, restUpdates),
         Cue(new TorizoProjectileCue.PlaySound(Sound: EnemySound.BeamImpact, Priority: SoundRequestPriority.Normal)),
         Cue(new TorizoProjectileCue.Signal(K.StartFragmentFall)),
-        Show(fragment, 112),
+        Show(fragment, BombTorizoStatueFragmentDefinitions.FallUpdates),
         Cue(new TorizoProjectileCue.Signal(K.Delete)),
     ];
 

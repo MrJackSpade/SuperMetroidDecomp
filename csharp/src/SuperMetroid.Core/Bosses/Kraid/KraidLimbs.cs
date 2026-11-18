@@ -62,7 +62,7 @@ internal sealed class KraidLimbs
 
     /// <summary>
     /// Runs a Kraid part's animation where the shared enemy animation runs: the frame expires on the update
-    /// its timer would, and a newly shown frame raises the new-frame flag.
+    /// its timer would, and the clock notes each newly shown frame.
     /// </summary>
     internal void AdvanceKraidPartAnimation(KraidAnimatedPartState partState)
     {

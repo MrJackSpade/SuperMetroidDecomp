@@ -62,7 +62,7 @@ public enum NorfairRidleyPhase
     DeathExplosions,
     /// <summary>Hides the intact body and disables shared wing/tail animation after breakup allocation.</summary>
     DeathBreakup,
-    /// <summary>Counts the deliberate thirty-two-frame wait before the terminal death delay.</summary>
+    /// <summary>Counts the wait after his breakup, <see cref="NorfairRidleyMotionDefinitions.BreakupWaitUpdates"/>, before his death's end.</summary>
     DeathWait,
     /// <summary>Completes the terminal wait, publishes boss persistence, scatters drops, requests music, and deletes the body.</summary>
     DeathFinish,

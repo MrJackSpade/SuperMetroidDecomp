@@ -141,8 +141,8 @@ internal sealed class CrocomireFight
     }
 
     /// <summary>
-    /// Runs the tongue's animation where the shared enemy animation runs, with the timer gate
-    /// and new-frame flag.
+    /// Runs the tongue's animation where the shared enemy animation runs: the frame changes when its timer
+    /// runs out, and the clock notes each newly shown frame.
     /// </summary>
     internal static void AdvanceCrocomireTongueAnimation(RoomEnemyPlace tongue)
     {
@@ -166,8 +166,8 @@ internal sealed class CrocomireFight
 
     /// <summary>
     /// Runs Crocomire's body animation where the shared enemy animation runs: the frame expires on the
-    /// update its timer would, and a newly shown frame raises the new-frame flag exactly as an
-    /// authored timed frame does.
+    /// update its timer would, and the clock notes each newly shown frame as it does an
+    /// authored timed frame.
     /// </summary>
     internal void AdvanceCrocomireBodyAnimation(RoomEnemyPlace body, SamusState samus, RoomLevelData level, int cameraX)
     {

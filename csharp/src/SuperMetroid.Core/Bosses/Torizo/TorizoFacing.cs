@@ -19,8 +19,8 @@ internal static class TorizoFacing
     /// <summary>Tests whether the Torizo faces the side Samus is on, as its attack branches do.</summary>
     internal static bool FacesSamus(RoomEnemyPlace torizo, SamusState samus)
     {
-        // The awakening facing check compares the facing with whether the enemy's X minus Samus's is negative, rather
-        // than the reverse difference the collision tests take.
+        // A Torizo facing right faces Samus when she stands right of it; one facing left faces her otherwise, also when
+        // she stands level with it.
         return FacesRight(torizo) == torizo.Position.X.Whole < Ensure.NotNull(samus).Position.X.Whole;
     }
 }

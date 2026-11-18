@@ -1,6 +1,7 @@
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
@@ -70,6 +71,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
         Suite(nameof(VerifyProductionRunningContacts), () => VerifyProductionRunningContacts(testPose));
         Suite(nameof(VerifyProductionCrateriaPolicies), () => VerifyProductionCrateriaPolicies(rom, testPose));
         Suite(nameof(VerifyBrinstarAndTourianLandingDust), () => VerifyBrinstarAndTourianLandingDust(rom, testPose));
+        Suite(nameof(VerifyFlashbackGround), () => VerifyFlashbackGround(testPose));
 
         AssertThrows<InvalidDataException>(
             () => SamusAtmosphericEffects.WaterSplashFor((SamusMovementType)(-1)),
@@ -129,7 +131,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
                 Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)),
                 Kinematics = { Radius = new(5, 12) },
             };
-            samus.Room = RoomDefinitions.FirstIn(AreaId.Maridia);
+            samus.Ground = SamusGround.Of(RoomDefinitions.FirstIn(AreaId.Maridia));
             SamusPresentation.InitializeAnimation(samus, samus.PoseFrameNumbered(frame));
             AdvanceToFootContactTick(samus);
             samus.LiquidPhysics.PrepareAnimationFrame(samus, new SharedRandom(), frameCounter: 1, bossPresent: false);
@@ -156,7 +158,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
                 Position = FixedPosition<RoomPixels>.FromWhole(new(100, 0x03b0)),
                 Kinematics = { Radius = new(5, 12) },
             };
-            runner.Room = room;
+            runner.Ground = SamusGround.Of(room);
             if (policy == CrateriaAtmosphericEffect.LandingSite)
                 runner.LiquidPhysics.ConfigureNonLiquidRoomFx(RoomFxType.Rain);
             SamusPresentation.InitializeAnimation(runner, runner.PoseFrameNumbered(2));
@@ -171,7 +173,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
                 Position = FixedPosition<RoomPixels>.FromWhole(new(100, 0x03b0)),
                 Kinematics = { Radius = new(5, 12) },
             };
-            landing.Room = room;
+            landing.Ground = SamusGround.Of(room);
             if (policy == CrateriaAtmosphericEffect.LandingSite)
                 landing.LiquidPhysics.ConfigureNonLiquidRoomFx(RoomFxType.Rain);
             landing.LiquidPhysics.BeginFrameSoundRequests();
@@ -212,7 +214,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
                 Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)),
                 Kinematics = { Radius = new(5, 12) },
             };
-            landing.Room = room;
+            landing.Ground = SamusGround.Of(room);
             landing.LiquidPhysics.EffectWaits.HoldBubbles(9);
             landing.LiquidPhysics.BeginFrameSoundRequests();
             landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
@@ -226,6 +228,45 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
                 $"production landing bubble wait in {room.Area} {room.Name}");
         }
         AssertEqual(10, dustyRooms, "Brinstar and Tourian have ten rooms whose landings raise dust");
+    }
+
+    /// <summary>
+    /// Checks the intro flashback's own ground (#2416), which loads no room, through a production landing and a running
+    /// foot contact in the cinematic: a landing raises nothing and ends the bubbles' landing wait, and an unboosted
+    /// footstep raises nothing, as the flashback showed when it borrowed the Landing Site.
+    /// </summary>
+    private static void VerifyFlashbackGround(SamusPoseId pose)
+    {
+        var landing = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
+        {
+            Pose = pose,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)),
+            Kinematics = { Radius = new(5, 12) },
+            Ground = IntroCinematicDefinitions.Flashback.Ground,
+        };
+        landing.Presentation.PresentInCinematic();
+        landing.LiquidPhysics.EffectWaits.HoldBubbles(9);
+        landing.LiquidPhysics.BeginFrameSoundRequests();
+        landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
+            landing,
+            previousMovementType: SamusMovementType.Falling,
+            previousPose: pose,
+            impactYSpeed: new UnsignedSixteenSixteen(1, 1));
+        AssertEqual("", ParticleKinds(landing), "the flashback's landing raises nothing");
+        AssertTrue(landing.LiquidPhysics.EffectWaits.BubbleCanForm, "the flashback's landing ends the bubbles' landing wait");
+
+        var runner = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
+        {
+            Pose = pose,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)),
+            Kinematics = { Radius = new(5, 12) },
+            Ground = IntroCinematicDefinitions.Flashback.Ground,
+        };
+        runner.Presentation.PresentInCinematic();
+        SamusPresentation.InitializeAnimation(runner, runner.PoseFrameNumbered(2));
+        AdvanceToFootContactTick(runner);
+        runner.LiquidPhysics.PrepareAnimationFrame(runner, new SharedRandom(), frameCounter: 1, bossPresent: false);
+        AssertEqual("", ParticleKinds(runner), "the flashback's unboosted footstep raises nothing");
     }
 
     /// <summary>Lets the compiled animation delay reach its final tick before checking footstep publication.</summary>

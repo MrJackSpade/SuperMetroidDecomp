@@ -38,8 +38,8 @@ internal sealed class IntroNarrationActors
     private IntroNarrationPageId? narrationPage;
     /// <summary>Next semantic glyph in the active narration page.</summary>
     private int narrationCharacterIndex;
-    /// <summary>Whether the page's subtitle creation marker has yet to execute.</summary>
-    private bool narrationInitialMarkerPending;
+    /// <summary>Whether the page has yet to show its subtitle, which it does once its opening pause has passed.</summary>
+    private bool narrationSubtitlePending;
     /// <summary>Whether page six entered its final 128-frame caret hold.</summary>
     private bool narrationFinalHoldStarted;
     /// <summary>The persistent text-caret actor, running its typed animation (#641); <see cref="Caret"/> places it.</summary>
@@ -208,29 +208,29 @@ internal sealed class IntroNarrationActors
         }
     }
 
-    /// <summary>Compiles an installed page and primes its subtitle marker before the first glyph.</summary>
+    /// <summary>Compiles an installed page, which shows its subtitle after its opening pause and before its first glyph.</summary>
     private void StartNarration(IntroNarrationPageId page)
     {
-        textFrameHold = IntroNarrationDefinitions.InitialMarkerDelayFrames;
+        textFrameHold = IntroNarrationDefinitions.PageOpeningPauseFrames;
         narrationCharacterIndex = 0;
-        narrationInitialMarkerPending = true;
+        narrationSubtitlePending = true;
         narrationFinalHoldStarted = false;
         narrationPage = page;
         narrationAnimation = narrationPresentation.Compile(page);
     }
 
-    /// <summary>Advances marker, glyph, typewriter sound, caret, and final-hold timing.</summary>
+    /// <summary>Advances the page's subtitle, glyph, typewriter sound, caret, and final-hold timing.</summary>
     private void StepInstalledNarration()
     {
         if (--textFrameHold != 0)
             return;
-        if (narrationInitialMarkerPending)
+        if (narrationSubtitlePending)
         {
-            // Each page's animation opens with the page's subtitle-creating cue.
+            // Each page opens by showing its subtitle.
             subtitles.BeginPage(narrationPage ?? throw new InvalidDataException(
                 "Installed narration started without an active page identity."));
-            narrationInitialMarkerPending = false;
-            textFrameHold = IntroNarrationDefinitions.InitialMarkerDelayFrames;
+            narrationSubtitlePending = false;
+            textFrameHold = IntroNarrationDefinitions.PageOpeningPauseFrames;
             return;
         }
 

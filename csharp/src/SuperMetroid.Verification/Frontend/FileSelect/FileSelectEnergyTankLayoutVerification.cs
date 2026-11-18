@@ -27,7 +27,8 @@ internal static class FileSelectEnergyTankLayoutVerification
             var page = new ShownFileSelectPage(FileSelectPage.MainWithData,
                 SaveSlots.All.ToImmutableDictionary(slot => slot, slot => slot == SaveSlot.A ? save : null), SaveSlot.A, SaveSlot.A);
             Position16<PlanePixels>[] shown = [.. page.Pictures(presentation)
-                .Where(picture => picture.Frame.StartsWith("FileSelect.Tank.", StringComparison.Ordinal))
+                .Where(picture => picture.Frame == FileSelectParts.TankFrame(filled: true)
+                    || picture.Frame == FileSelectParts.TankFrame(filled: false))
                 .Select(picture => picture.Origin)];
             Position16<PlanePixels> energy = presentation.Slot(dataManagement: false, SaveSlot.A).EnergyAnchor;
             Position16<PlanePixels>[] walked = WalkedTanks(energy, tanks);

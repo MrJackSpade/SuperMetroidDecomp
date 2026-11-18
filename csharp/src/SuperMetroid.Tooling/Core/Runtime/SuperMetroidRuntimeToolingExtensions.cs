@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
@@ -96,7 +97,7 @@ internal static class SuperMetroidRuntimeToolingExtensions
                 room,
                 camera,
                 RoomViewportLoadMode.DisplayInitialViewport);
-            self.Player.Samus.Room = room.Definition;
+            self.Player.Samus.Ground = SamusGround.Of(room.Definition);
             SamusPoseMetadata.RefreshCollisionRadii(self.Player.Samus);
             self.Player.GroundedSamusMovementEnabled = true;
         }

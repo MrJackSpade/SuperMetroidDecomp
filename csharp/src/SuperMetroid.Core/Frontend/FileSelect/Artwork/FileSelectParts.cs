@@ -38,12 +38,8 @@ public static class FileSelectParts
     /// <summary>The menus' picture of a slot field's <paramref name="patch"/>, placed at the patch's anchor (#1467).</summary>
     public static string PatchFrame(FileSelectPatch patch) => $"FileSelect.Patch.{PatchName(patch)}";
 
-    /// <summary>
-    /// The menus' picture of an energy tank, filled or empty, in the colours of the health tens digit
-    /// <paramref name="tensDigit"/> the field shows beside it (#1467).
-    /// </summary>
-    public static string TankFrame(bool filled, int tensDigit) =>
-        $"FileSelect.Tank.{(filled ? "Filled" : "Empty")}.{Ensure.BetweenInclusive(0, FileSelectPresentationDefinitions.DigitCount - 1, tensDigit)}";
+    /// <summary>The menus' picture of an energy tank, filled or empty (#1467, #2416).</summary>
+    public static string TankFrame(bool filled) => filled ? "FileSelect.Tank.Filled" : "FileSelect.Tank.Empty";
 
     /// <summary>The name the helmet picture <paramref name="frame"/> is installed under.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="frame"/> is not one of the helmet's pictures.</exception>

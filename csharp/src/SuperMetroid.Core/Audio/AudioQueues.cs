@@ -252,7 +252,7 @@ public sealed class AudioQueues
     }
 
     /// <summary>Runs selected audio dispatch owners and returns their requests, which only the session's audio advance consumes.</summary>
-    /// <param name="acknowledgements">What each library's handler has acknowledged, which its sound queue's pass reads.</param>
+    /// <param name="acknowledgements">What each sound library has acknowledged, which its sound queue's pass reads.</param>
     /// <param name="advanceMusicQueue">Whether the update runs the music queue's pass, which a message box's update may skip.</param>
     /// <param name="soundQueuePasses">How many passes the sound queues run: one in an ordinary update, as many as a message box's update runs.</param>
     internal IReadOnlyList<AudioRequest> AdvanceFrame(

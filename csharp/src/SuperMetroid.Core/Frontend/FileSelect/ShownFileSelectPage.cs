@@ -72,7 +72,7 @@ internal sealed record ShownFileSelectPage(FileSelectPage Page, ImmutableDiction
             int row = FileSelectEnergyTankDefinitions.RowOffset - tank / FileSelectEnergyTankDefinitions.TanksPerRow;
             int x = layout.EnergyAnchor.X + column * FileSelectEnergyTankDefinitions.TankPixels;
             int y = layout.EnergyAnchor.Y + row * FileSelectEnergyTankDefinitions.TankPixels;
-            yield return new PlacedFrame(FileSelectParts.TankFrame(tank < filled, tens), new(x, y));
+            yield return new PlacedFrame(FileSelectParts.TankFrame(tank < filled), new(x, y));
         }
         yield return new PlacedFrame(FileSelectParts.DigitFrame(save.Hours / FileSelectFieldDefinitions.DigitBase), layout.TimeValueAnchor);
         yield return new PlacedFrame(FileSelectParts.DigitFrame(save.Hours % FileSelectFieldDefinitions.DigitBase), Right(layout.TimeValueAnchor, 1));

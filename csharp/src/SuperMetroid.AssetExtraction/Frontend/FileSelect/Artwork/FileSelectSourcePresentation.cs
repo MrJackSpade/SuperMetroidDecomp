@@ -108,10 +108,6 @@ public sealed class FileSelectSourcePresentation
     /// <summary>The installed tile of save slot <paramref name="slot"/>'s letter.</summary>
     internal BackgroundTile SlotLetter(SaveSlot slot) => Ensure.Listed(slotLetters, slot);
 
-    /// <summary>The energy tank's tile, filled or empty, in the colour variant of health tens digit <paramref name="tensDigit"/>.</summary>
-    private BackgroundTile Tank(bool filled, int tensDigit) => new(filled ? FileSelectFieldTileDefinitions.FilledTankTile
-        : FileSelectFieldTileDefinitions.EmptyTankTile, Digit(tensDigit).ColourVariant, highPriority: false);
-
     /// <summary>
     /// Every picture of file select the menus' sheet holds (#1467): the backdrop and each page, then each field picture
     /// the game places at a field's anchor.
@@ -127,7 +123,7 @@ public sealed class FileSelectSourcePresentation
 
     /// <summary>
     /// The field pictures, each placed at its anchor: each patch with its cells where they lie from the anchor, each digit,
-    /// each slot letter, and each tank filled or empty in each health tens digit's colours.
+    /// the energy tank filled and empty, and each slot letter.
     /// </summary>
     internal IEnumerable<ScreenPictureSubject> FieldSubjects()
     {
@@ -145,11 +141,11 @@ public sealed class FileSelectSourcePresentation
             yield return new ScreenPictureSubject(FileSelectParts.PatchFrame(name), new(checked((short)left), checked((short)top)), size, tiles);
         }
         for (int digit = 0; digit < FileSelectPresentationDefinitions.DigitCount; digit++)
-        {
             yield return ScreenPictureSubject.Block(FileSelectParts.DigitFrame(digit), default, cell, new[] { Digit(digit) });
-            foreach (bool filled in new[] { false, true })
-                yield return ScreenPictureSubject.Block(FileSelectParts.TankFrame(filled, digit), default, cell, new[] { Tank(filled, digit) });
-        }
+        yield return ScreenPictureSubject.Block(FileSelectParts.TankFrame(filled: false), default, cell,
+            new[] { FileSelectFieldTileDefinitions.EmptyTankTile });
+        yield return ScreenPictureSubject.Block(FileSelectParts.TankFrame(filled: true), default, cell,
+            new[] { FileSelectFieldTileDefinitions.FilledTankTile });
         foreach (SaveSlot slot in SaveSlots.All)
             yield return ScreenPictureSubject.Block(FileSelectParts.LetterFrame(slot), default, cell, new[] { SlotLetter(slot) });
     }
@@ -166,11 +162,9 @@ public sealed class FileSelectSourcePresentation
         foreach (FileSelectPatch patch in FileSelectPresentationFormat.Patches)
             yield return FileSelectParts.PatchFrame(patch);
         for (int digit = 0; digit < FileSelectPresentationDefinitions.DigitCount; digit++)
-        {
             yield return FileSelectParts.DigitFrame(digit);
-            foreach (bool filled in new[] { false, true })
-                yield return FileSelectParts.TankFrame(filled, digit);
-        }
+        yield return FileSelectParts.TankFrame(filled: false);
+        yield return FileSelectParts.TankFrame(filled: true);
         foreach (SaveSlot slot in SaveSlots.All)
             yield return FileSelectParts.LetterFrame(slot);
     }

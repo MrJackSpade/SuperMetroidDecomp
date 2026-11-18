@@ -129,6 +129,9 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// colour sets occupied and a setup meant to do one thing but reading another.
 /// #2413 adds, outside hardware owners, the original's calls, areas, allocation and layers as room prose tells them: an
 /// initial call, an area by its number, an allocation loop or a thing newly allocated, and a background layer by ordinal.
+/// #2417 adds, outside hardware owners, the original's colour sets, colour groups, scroll and program as frontend prose
+/// tells them: a colour by its place in a set, a colour group drawn in or shared by two things, a scroll or offset told
+/// as inherited, a marker told as executing or empty, and a library's or queue's handler.
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -1834,6 +1837,29 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
+    /// The original's colour sets by place, shared colour groups, carried-over scroll and program told in frontend prose
+    /// (#2417), outside hardware owners and markup: a colour by its place in a set (its first background colour, the
+    /// cinematic's first sprite colours, the first of the narration's colours, the colours whose first is the space); a
+    /// colour group drawn in or shared by two things (both once drew in one colour group, the two share a colour group,
+    /// another actor's colour group); a scroll or offset told as inherited (the scroll both flashbacks inherit, the
+    /// inherited flashback offset); a marker told as executing, and the empty marker; and a library's or queue's handler
+    /// (each library's handler carries its phase). Core names the colour shown, each thing's own colours, the scroll's
+    /// value, the page's pause and the request handshake. English stays legal: a first colour in a sequence (the flash's
+    /// first colours, the cycle's first colour), a colour group alone, inheriting anything but a scroll, a marker alone, a
+    /// handler alone and a hardware owner.
+    /// </summary>
+    private static readonly Regex FrontendColourScrollAndProgramProse = new(
+        @"\bfirst\s+(?:background|sprite|layer|backdrop)\s+colou?rs?\b" +
+        @"|\bfirst\s+of\s+(?:the\s+|its\s+|their\s+|his\s+|her\s+)?(?:[\w'’-]+\s+){0,2}?colou?rs\b|\bcolou?rs\s+whose\s+first\b" +
+        @"|\b(?:drew|draws?|drawn|drawing)\s+in\s+(?:one|a\s+single|the\s+same)\s+colou?r[-\s]+groups?\b" +
+        @"|\bshar(?:e|es|ed|ing)\s+(?:a|one|the\s+same|their|its)\s+colou?r[-\s]+groups?\b" +
+        @"|\banother\s+(?:[\w'’-]+\s+){0,2}?colou?r[-\s]+groups?\b" +
+        @"|\binherit\w*[^.;]{0,80}?\b(?:scroll|offset)s?\b|\b(?:scroll|offset)s?\b[^.;]{0,80}?\binherit\w*" +
+        @"|\bmarkers?\b[^.;]{0,60}?\bexecut\w*|\bexecut\w*[^.;]{0,60}?\bmarkers?\b|\bempty\s+markers?\b" +
+        @"|\b(?:librar(?:y|ies)|queues?)(?:'s|s'|’s)\s+handlers?\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
     /// A camel-case word of a declared name that tells the port as a translation (#2398): Translated or Untranslated at
     /// any word boundary (<c>CaptureTranslatedRenderSnapshot</c>, <c>hasTranslatedBodyChange</c>). Core names what the
     /// member captures, collects or tests.
@@ -2342,6 +2368,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : OriginalAndPortReasoningProse.Match(Markup.Replace(text, " ")) is { Success: true } reasoning ? reasoning.Value
             : BossBranchAndReasoningProse.Match(Markup.Replace(text, " ")) is { Success: true } bossReasoning ? bossReasoning.Value
             : RoomCallAreaAndLayerProse.Match(Markup.Replace(text, " ")) is { Success: true } roomCallAreaAndLayer ? roomCallAreaAndLayer.Value
+            : FrontendColourScrollAndProgramProse.Match(Markup.Replace(text, " ")) is { Success: true } frontendProse ? frontendProse.Value
             : TileCharacterFinding(text, owner) is { } character ? character
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;

@@ -175,14 +175,14 @@ public sealed class SamusState
     public SamusPeriodicDamage PeriodicDamage { get; } = new();
 
     /// <summary>
-    /// The room Samus is in, which her footstep and landing effects read by area and room; null until the first room loads.
-    /// Every room load sets it.
+    /// The ground her footstep and landing effects go by (#2416): every room load sets its room's, and a scene that
+    /// loads no room sets its own; null until either does.
     /// </summary>
-    public RoomDefinition? Room { get; set; }
+    internal SamusGround? Ground { get; set; }
 
-    /// <summary>The room Samus is in, read by her footstep and landing effects once a room has loaded.</summary>
-    /// <exception cref="InvalidOperationException">No room has loaded yet.</exception>
-    internal RoomDefinition LoadedRoom => Room ?? throw new InvalidOperationException("Samus's room is read before any room has loaded.");
+    /// <summary>The ground her footstep and landing effects go by, once a room or a scene has set it.</summary>
+    /// <exception cref="InvalidOperationException">Nothing has set her ground yet.</exception>
+    internal SamusGround StandingGround => Ground ?? throw new InvalidOperationException("Samus's ground is read before any room or scene has set it.");
 
     /// <summary>
     /// Stored-shine colouring countdown and the shinespark's hold on her movement.

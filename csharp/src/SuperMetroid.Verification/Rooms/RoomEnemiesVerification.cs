@@ -886,7 +886,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         Path.GetFullPath("Super Metroid.smc"));
     ushort initialRidleyMap = CartridgeImportSource.Require(nativeRidleyRom).ReadCartridgeWord(0xa6e53e);
     AssertEqual(initialRidleyMap, ridley.SpritemapPointer, "Ceres Ridley left-facing initial map");
-    AssertEqual(0xe540, new SuperMetroid.TestSupport.MovieReplay.RidleyNativeInstructionPointers(
+    AssertEqual(0xe540, new SuperMetroid.TestSupport.MovieReplay.RidleyBodyNativeInstructionPointers(
         CartridgeImportSource.Require(nativeRidleyRom)).Body(state.Flight), "Ceres Ridley initial list sleeps");
 
     for (int frame = 0; frame < 512; frame++)
@@ -1021,11 +1021,12 @@ internal static void VerifyCeresRidleyRoomEntry()
 
     var sharedProjectiles = CreateBombFixture();
     var projectiles = CreateProjectileFixture();
+    // The power beam never runs the Spacetime overwrite, so one progression serves every projectile update.
+    var progression = new SharedGameState(new SharedRandom());
 
     bool observedNormalRidleyPalette = false;
     bool observedFlashRidleyPalette = false;
-    int nativeExplosionFrames = NativeProjectileLifetime(
-        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")), 0x93867b) + 1;
+    int nativeExplosionFrames = NativeProjectileLifetime(nativeRidleyRom, 0x93867b) + 1;
     SeedUnchargedNoWaveFrameBehavior(bus);
     for (int hit = 0; hit < 100; hit++)
     {
@@ -1038,7 +1039,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(ridley.Position.X.Whole + 8)), ridley.Position.Y.Whole));
         sharedProjectiles.StepFrame(new SamusTerrain { Level = openRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, 0, 0);
         SamusProjectileSlotObservation slotsBeforeFire = projectiles.ObserveSlots();
-        projectiles.StepFrame(new SamusTerrain { Level = openRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), sharedProjectiles, new SharedGameState(new SharedRandom()));
+        projectiles.StepFrame(new SamusTerrain { Level = openRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), sharedProjectiles, progression);
         AssertEqual(0, slotsBeforeFire.FiredSlot(projectiles),
             $"Ceres Ridley hit {hit + 1} allocates the power-beam slot");
         AssertTrue(projectiles.Shots[0].Position.X.Whole - projectiles.Shots[0].Radius.X > ridley.Position.X.Whole + 8,
@@ -1060,7 +1061,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         for (int explosionFrame = 0; explosionFrame < nativeExplosionFrames; explosionFrame++)
         {
             sharedProjectiles.StepFrame(new SamusTerrain { Level = openRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, 0, 0);
-            projectiles.StepFrame(new SamusTerrain { Level = openRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), sharedProjectiles, new SharedGameState(new SharedRandom()));
+            projectiles.StepFrame(new SamusTerrain { Level = openRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), sharedProjectiles, progression);
         }
 
         // This focused hit-counter test used to patch the cartridge cooldown to one.
@@ -1069,7 +1070,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         for (int cooldownFrame = 0; cooldownFrame < 15 && sharedProjectiles.CooldownTimer != 0; cooldownFrame++)
         {
             sharedProjectiles.StepFrame(new SamusTerrain { Level = openRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, 0, 0);
-            projectiles.StepFrame(new SamusTerrain { Level = openRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), sharedProjectiles, new SharedGameState(new SharedRandom()));
+            projectiles.StepFrame(new SamusTerrain { Level = openRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), sharedProjectiles, progression);
         }
         AssertEqual(0, sharedProjectiles.CooldownTimer, "Native cooldown expires before the next Ceres shot");
 

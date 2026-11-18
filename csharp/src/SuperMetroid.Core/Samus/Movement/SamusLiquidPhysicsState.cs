@@ -441,93 +441,33 @@ public sealed class SamusLiquidPhysicsState
         HandleLandingGraphics(samus);
     }
 
-    /// <summary>Selects landing dust or splash by area and room; the landing chooses its impact sound itself.</summary>
+    /// <summary>
+    /// Raises the landing's splash on wet ground and its dust on dry ground whose landings raise dust, and otherwise shows
+    /// nothing; the landing chooses its impact sound itself.
+    /// </summary>
     private void HandleLandingGraphics(SamusState samus)
     {
-        // Each area has its own landing graphics. An undefined area has none;
-        // fail loudly instead of manufacturing output.
-        switch (samus.LoadedRoom.Area)
-        {
-            case AreaId.Crateria:
-                HandleCrateriaLandingGraphics(samus);
-                return;
-
-            case AreaId.Brinstar:
-            case AreaId.Tourian:
-                if (SamusAtmosphericEffects.LandingRaisesDustInBrinstarOrTourian(samus.LoadedRoom))
-                    SpawnLandingPairUnlessSubmerged(samus, SamusParticleKind.Dust);
-                else
-                    EndLandingEffectWait();
-                return;
-
-            case AreaId.Norfair:
-            case AreaId.WreckedShip:
-                SpawnLandingPairUnlessSubmerged(samus, SamusParticleKind.Dust);
-                return;
-
-            case AreaId.Maridia:
-                SpawnLandingPairUnlessSubmerged(samus, SamusParticleKind.SurfaceSplash);
-                return;
-
-            case AreaId.Ceres:
-                EndLandingEffectWait();
-                return;
-
-            default:
-                throw new InvalidDataException($"Landing graphics area {samus.LoadedRoom.Area} is outside the seven areas.");
-        }
-    }
-
-    /// <summary>Applies Crateria's cinematic, rain, entrance-depth, and per-room landing particle branches.</summary>
-    private void HandleCrateriaLandingGraphics(SamusState samus)
-    {
-        // Crateria's cinematic path shows no landing effect, ending the bubbles' landing wait, before consulting room
-        // data. This is distinct from the landing's own sound suppression, already applied.
-        if (samus.Presentation.Mode == SamusPresentationMode.Cinematic)
-        {
-            EndLandingEffectWait();
-            return;
-        }
-
-        // The Green Pirates Shaft bypasses the room policy and always chooses the
-        // dry-dust step, still subject to live liquid submersion.
-        if (samus.LoadedRoom == RoomDefinitions.GreenPiratesShaft)
-        {
-            SpawnLandingPairUnlessSubmerged(samus, SamusParticleKind.Dust);
-            return;
-        }
-
-        // The game duplicates this room policy for running footsteps and landing effects.
-        CrateriaAtmosphericEffect? roomEffect = SamusAtmosphericEffects.ForCrateriaRoom(samus.LoadedRoom);
-        if (roomEffect == CrateriaAtmosphericEffect.LandingSite)
-        {
-            // Landing Site creates splashes only while it rains; its normal scrolling-sky
-            // effect deletes the pair. This exact comparison is not a generic water test.
-            if (FxType == RoomFxType.Rain)
-                SpawnLandingPairUnlessSubmerged(samus, SamusParticleKind.SurfaceSplash);
-            else
-                EndLandingEffectWait();
-            return;
-        }
-
-        if (roomEffect == CrateriaAtmosphericEffect.WreckedShipEntrance)
-        {
-            // Above the waterline the entrance is dry and deletes; at and below it, use wet splashes.
-            if (samus.Position.Y.Whole >= SamusAtmosphericEffectDefinitions.WreckedShipEntranceWaterlineY)
-                SpawnLandingPairUnlessSubmerged(samus, SamusParticleKind.SurfaceSplash);
-            else
-                EndLandingEffectWait();
-            return;
-        }
-
-        if (roomEffect == CrateriaAtmosphericEffect.WetFootsteps)
-        {
+        SamusGround ground = samus.StandingGround;
+        if (IsWet(samus, ground.Wetness))
             SpawnLandingPairUnlessSubmerged(samus, SamusParticleKind.SurfaceSplash);
-            return;
-        }
-
-        EndLandingEffectWait();
+        else if (ground.DryLandingsRaiseDust)
+            SpawnLandingPairUnlessSubmerged(samus, SamusParticleKind.Dust);
+        else
+            EndLandingEffectWait();
     }
+
+    /// <summary>
+    /// Whether ground of <paramref name="wetness"/> is wet where Samus stands: the Landing Site only while it rains, which
+    /// is not a generic water test, and the Wrecked Ship entrance at and below its waterline.
+    /// </summary>
+    private bool IsWet(SamusState samus, SamusGroundWetness wetness) => wetness switch
+    {
+        SamusGroundWetness.Dry => false,
+        SamusGroundWetness.Wet => true,
+        SamusGroundWetness.WetWhileRaining => FxType == RoomFxType.Rain,
+        SamusGroundWetness.WetBelowWaterline => samus.Position.Y.Whole >= SamusAtmosphericEffectDefinitions.WreckedShipEntranceWaterlineY,
+        _ => throw new InvalidOperationException($"Undefined ground wetness {wetness}."),
+    };
 
     /// <summary>
     /// Starts the landing's pair of dust or splash particles when Samus's last occupied pixel is above active liquid; the
@@ -642,7 +582,7 @@ public sealed class SamusLiquidPhysicsState
             QueueSound(EnemySound.LiquidDamage, priority: SoundRequestPriority.Normal);
     }
 
-    /// <summary>Emits room-dependent wet or boosted footstep art at running contact frames and applies the game's sound suppression.</summary>
+    /// <summary>Emits wet-ground or boosted footstep art at running contact frames and applies the game's sound suppression.</summary>
     private void TrySpawnRunningFootsteps(
         SamusState samus,
         SamusMovementType movementType,
@@ -656,28 +596,7 @@ public sealed class SamusLiquidPhysicsState
         }
 
         bool cinematic = samus.Presentation.Mode == SamusPresentationMode.Cinematic;
-        bool useWetFootsteps = samus.LoadedRoom.Area == AreaId.Maridia;
-        if (samus.LoadedRoom.Area == AreaId.Crateria)
-        {
-            if (cinematic)
-            {
-                useWetFootsteps = false;
-            }
-            else
-            {
-                useWetFootsteps = SamusAtmosphericEffects.ForCrateriaRoom(samus.LoadedRoom) switch
-                {
-                    CrateriaAtmosphericEffect.LandingSite => FxType == RoomFxType.Rain,
-                    CrateriaAtmosphericEffect.WreckedShipEntrance =>
-                        samus.Position.Y.Whole >= SamusAtmosphericEffectDefinitions.WreckedShipEntranceWaterlineY,
-                    CrateriaAtmosphericEffect.WetFootsteps => true,
-                    null => false,
-                    _ => throw new InvalidOperationException("Undefined Crateria atmospheric effect."),
-                };
-            }
-        }
-
-        if (useWetFootsteps)
+        if (IsWet(samus, samus.StandingGround.Wetness))
             SpawnFootstepPair(samus, SamusParticleKind.SurfaceSplash);
         else if (samus.HorizontalSpeed.IsActivelySpeedBoosting &&
                  DetermineRawMediumAtBoundary(samus.Kinematics.BottomBoundary) == SamusLiquidMedium.Air)

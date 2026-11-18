@@ -161,7 +161,7 @@ internal sealed class EndingColours
     /// <summary>
     /// The shading <paramref name="scenery"/>, a background picture or floor, shows (#1544): each shade shown that is
     /// authored for it (<see cref="EndingColourOwners"/>), in order. A shade authored for an actor or for other scenery is
-    /// not shown on it, even where the two share a colour group.
+    /// not shown on it.
     /// </summary>
     /// <exception cref="InvalidDataException">A shade shown is of no colour effect the ending shows.</exception>
     internal PictureShading SceneryShading(EndingScenery scenery)
@@ -180,7 +180,7 @@ internal sealed class EndingColours
     /// The shading an actor's frame shows when it draws in the colouring whose drawn shade is <paramref name="drawn"/>
     /// (#1544): that shade, then each shade shown that is authored for that colouring's actors
     /// (<see cref="EndingColourOwners"/>), under the colouring, in order. A shade authored for another actor is not shown on
-    /// the frame, even where the two once shared a colour group.
+    /// the frame.
     /// </summary>
     /// <exception cref="InvalidDataException">The shade is no ending actor colouring's drawn shade, or a shade shown is of no colour effect the ending shows.</exception>
     internal PictureShading Drawn(PictureShade drawn)

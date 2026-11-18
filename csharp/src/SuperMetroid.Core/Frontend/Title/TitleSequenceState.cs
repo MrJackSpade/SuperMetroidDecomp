@@ -15,9 +15,7 @@ namespace SuperMetroid.Core.Frontend.Title;
 /// Title-sequence state owned by the opening-cinematic game state.
 /// </summary>
 /// <remarks>
-/// This runs the visible title state chain. Installed sessions
-/// supply extracted graphics, colours, and gradient presentation. No original
-/// image is mapped during the title sequence.
+/// Runs the title's scenes in order, showing the installed pictures, colours and gradient.
 /// </remarks>
 [RoomScopeBoundary("A cinematic scene that owns its own colour effects for the scene's lifetime; no gameplay room is loaded.")]
 public sealed class TitleSequenceState : IFrontendScreen
@@ -130,8 +128,7 @@ public sealed class TitleSequenceState : IFrontendScreen
                 MusicRequest.SelectTrack(TitleSequenceDefinitions.Music.OpeningTrack));
         }
 
-        // Title setup expands the four artwork sets; the title binds that
-        // artwork and its capture places the turning floor, the sprites and the Baby's pose.
+        // The title shows its installed pictures: its capture places the turning floor, the sprites and the Baby's pose.
         screenSprites = new ScreenSprites();
         RestartColourEffects();
 
@@ -380,7 +377,7 @@ public sealed class TitleSequenceState : IFrontendScreen
     /// <summary>
     /// Builds the title's sprite list on the simulation owner and captures its display.
     /// No pixels are composed, and the returned value retains no live scene references.
-    /// Call at the same display boundary as Render, before subsequent state changes.
+    /// Captured once per shown frame, before the next update changes the state.
     /// </summary>
     public FloorScene CaptureRenderSnapshot()
     {
@@ -451,8 +448,8 @@ public sealed class TitleSequenceState : IFrontendScreen
     {
         SpriteSheet sheet = spriteSheets.Get(SpriteSheetId.Title);
         screenSprites.BeginFrame();
-        // Every part of the composition draws in the active colouring's shading, whatever colouring the part was stored
-        // with; the parts' pictures draw as the title sheet holds them.
+        // Every part of the composition draws in the active colouring's shading; the parts' pictures draw as the title
+        // sheet holds them.
         if (ActiveSprite is { } sprite)
             TitleSpriteDrawing.DrawSprite(sheet, sprite, screenSprites, ActiveOrigin, ActiveShading);
         if (ActiveCard is { } typed)

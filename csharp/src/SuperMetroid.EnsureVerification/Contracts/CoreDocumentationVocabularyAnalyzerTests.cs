@@ -1692,5 +1692,33 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         // A call alone, an area with a unit, an allocation alone, the background and a hardware owner are English.
         Expect("class P { /// <summary>A call to the setup; a hit area eight pixels wide; the room's area; an allocation; the background's position; its first update.</summary>\nint F => 0; }");
         Expect(CompatibilityService + "/// <summary>Evidence: the setup's initial call.</summary>\n[CompatibilityService(\"call\")] class Call { }");
+        // The original's colour sets by place, shared colour groups, carried-over scroll and program in frontend prose,
+        // outside hardware owners and markup (#2417): a colour by its place in a set, a colour group drawn in or shared by
+        // two things, a scroll or offset told as inherited, a marker told as executing or empty, and a library's handler.
+        Expect("class P { /// <summary>The colour the opening shows: its first background colour.</summary>\nint F => 0; }",
+            "('first background colour')");
+        Expect("class P { /// <summary>The title, in the cinematic's first sprite colours.</summary>\nint F => 0; }",
+            "('first sprite colours')");
+        Expect("class P { void Run() { // the backdrop is the first of the narration's colours\n } }",
+            "('first of the narration's colours')");
+        Expect("class P { /// <summary>The colours whose first is the space behind the planet.</summary>\nint F => 0; }",
+            "('colours whose first')");
+        Expect("class P { /// <summary>Nothing shows another's effect, even where both once drew in one colour group.</summary>\nint F => 0; }",
+            "('drew in one colour group')");
+        Expect("class P { void Run() { // even where the two share a colour group\n } }", "('share a colour group')");
+        Expect("class P { /// <summary>No frame keeps its own colours in another actor's colour group.</summary>\nint F => 0; }",
+            "('another actor's colour group')");
+        Expect("class P { /// <summary>The vertical scroll both flashbacks inherit from the first page.</summary>\nint F => 0; }",
+            "('scroll both flashbacks inherit')");
+        Expect("class P { void Run() { // alternates from the inherited flashback offset\n } }", "('inherited flashback offset')");
+        Expect("class P { /// <summary>Whether the page's subtitle creation marker has yet to execute.</summary>\nint F => 0; }",
+            "('marker has yet to execute')");
+        Expect("class P { /// <summary>One update of the empty marker at the start of each page.</summary>\nint F => 0; }",
+            "('empty marker')");
+        Expect("class P { void Run() { // each library's handler carries its phase across menus\n } }", "('library's handler')");
+        // A first colour in a sequence, a colour group alone, inheriting anything but a scroll, a marker alone, a handler
+        // alone and a hardware owner are English.
+        Expect("class P { /// <summary>The flash's first colours; the cycle's first colour; the colour group of each colouring; each frame inherits its actor's colours; the map marker; the grapple beam's handler.</summary>\nint F => 0; }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the original replies to each library's handler.</summary>\n[CompatibilityService(\"reply\")] class Reply { }");
     }
 }

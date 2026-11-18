@@ -118219,19 +118219,6 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Runtime.Attract.AttractDemoInputWatch",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Runtime/Attract/AttractDemoInputWatch.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Runtime.Attract.AttractDemoNativeWords",
       "kind": "static class",
       "scope": "test",

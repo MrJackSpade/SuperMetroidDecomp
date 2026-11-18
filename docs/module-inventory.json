@@ -333,7 +333,7 @@
     {
       "module": "csharp/src/SuperMetroid.Core/Runtime",
       "role": "production",
-      "files": 33,
+      "files": 32,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Areas",
@@ -72134,16 +72134,6 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Runtime/Attract/AttractDemoInputWatch.cs",
-      "module": "csharp/src/SuperMetroid.Core/Runtime",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Runtime.Attract",
-      "layer": "Runtime",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ]
-    },
-    {
       "path": "csharp/src/SuperMetroid.Core/Runtime/Attract/AttractDemoRoomSetup.cs",
       "module": "csharp/src/SuperMetroid.Core/Runtime",
       "role": "production",
@@ -80745,8 +80735,7 @@
         "csharp/src/SuperMetroid.Core/Fx",
         "csharp/src/SuperMetroid.Core/Progression",
         "csharp/src/SuperMetroid.Core/Rooms",
-        "csharp/src/SuperMetroid.Core/Samus",
-        "csharp/src/SuperMetroid.Core/Spatial"
+        "csharp/src/SuperMetroid.Core/Samus"
       ]
     },
     {

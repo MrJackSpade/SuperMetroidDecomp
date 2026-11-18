@@ -289,7 +289,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         }
         int revealOffset = reveal is null ? 0 : words;
         if (reveal is not null)
-            words += 1 + reveal.Blocks.Length * PartWords;
+            words += 1 + XrayRevealGrid.Size.Area * PartWords;
         int imageOffset = image is null ? 0 : words;
         if (image is not null)
             words += ImageHeaderWords + image.Pieces.Length * ImagePieceWords + image.CellCount * PartWords;
@@ -428,16 +428,16 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         if (reveal is not null)
         {
             upload[revealOffset] = D3D11ConstantPacking.Halves(reveal.Origin.X, reveal.Origin.Y);
-            ReadOnlySpan<RevealedBlock?> blocks = reveal.Blocks;
-            for (int block = 0; block < blocks.Length; block++)
+            foreach (Position16<RoomBlocks> place in XrayRevealGrid.Places)
             {
                 // A block copied from beyond the room has no picture, and a block that shows nothing none either (#2100):
                 // zero, which draws nothing.
-                if (blocks[block] is not { } shown || shown.Picture.ShowsNothing)
+                if (reveal[place] is not { } shown || shown.Picture.ShowsNothing)
                     continue;
                 LayeredPicture picture = reveal.Pictures.Picture(shown.Picture)
                     ?? throw new InvalidOperationException($"The X-ray reveal's {shown.Picture} has no picture.");
-                int record = revealOffset + 1 + block * PartWords;
+                // The shader finds each place's record row by row, RevealColumns to a row (Tiles.hlsl).
+                int record = revealOffset + 1 + XrayRevealGrid.Size.RowMajorIndex(place) * PartWords;
                 PackParts(upload, record, picture, D3D11PictureColouring.Room, pictureWords);
                 upload[record] |= ShaderArrangement(shown.Arrangement) << ArrangementShift;
             }

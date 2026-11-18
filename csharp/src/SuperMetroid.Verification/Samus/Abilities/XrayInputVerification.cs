@@ -101,7 +101,7 @@ internal static class XrayInputVerification
         AssertEqual(XrayRevealMap.OriginOf(runtime.BackgroundScroll.ForegroundPosition),
             shownReveal.Origin, "the captured reveal lies over the room's own blocks");
 
-        RevealedBlock?[] beforeRelease = shownReveal.Blocks.ToArray();
+        RevealedBlock?[] beforeRelease = XrayRevealFixtures.Shown(shownReveal);
         runtime.StepFrame(0);
         var releaseEdge = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         AssertTrue(releaseEdge.Layers[0] is GameplayBlendLayer,
@@ -130,7 +130,7 @@ internal static class XrayInputVerification
             "release removes the X-ray display window");
         AssertTrue(pixels.SequenceEqual(RenderForComparison(captured)),
             "a queued X-ray frame remains immutable after gameplay resumes");
-        AssertTrue(Enumerable.SequenceEqual(beforeRelease, captured.LayersOf<GameplayBlendLayer>().Single().Gameplay.Rooms.XrayReveal?.Blocks.ToArray() ?? []),
+        AssertTrue(Enumerable.SequenceEqual(beforeRelease, (captured.LayersOf<GameplayBlendLayer>().Single().Gameplay.Rooms.XrayReveal is { } kept ? XrayRevealFixtures.Shown(kept) : [])),
             "a queued X-ray frame retains its reveal after gameplay resumes");
         foreach (RoomDefinition excludedRoom in new[] { RoomDefinitions.Statues, RoomDefinitions.GlassTunnel })
         {

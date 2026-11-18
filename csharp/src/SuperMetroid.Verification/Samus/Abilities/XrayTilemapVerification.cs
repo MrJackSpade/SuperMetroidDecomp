@@ -55,8 +55,8 @@ internal static class XrayTilemapVerification
             squareBottomLeft = squareTopLeft + 2, squareBottomRight = squareTopLeft + 3;
         // Layer one, and BG1 with it, half a block into the room's second block: the camera's block is block 33.
         Position16<RoomPixels> cameraPosition = new(24, 24);
-        RevealedBlock?[] Build(AreaId area = AreaId.Brinstar) => XrayRevealMap.Build(level, cameraPosition, area, visuals);
-        RevealedBlock? Cell(RevealedBlock?[] map, int column, int row) => map[row * XrayRevealArea.Columns + column];
+        XrayRevealGrid Build(AreaId area = AreaId.Brinstar) => XrayRevealMap.Build(level, cameraPosition, area, visuals);
+        RevealedBlock? Cell(XrayRevealGrid map, int column, int row) => map[Position16<RoomBlocks>.Of(column, row)];
         // Changes a block's collision, leaving the block BG1 shows, so a cell no reveal writes keeps its copy. The behaviour
         // is held as a room of the area holds it: a room's load resolves what its area makes of the byte (#1805).
         void Set(int index, RoomCollisionType type, int behavior, AreaId area = AreaId.Brinstar)
@@ -64,18 +64,17 @@ internal static class XrayTilemapVerification
             level.SetObjectTerrain(index, RoomTerrainBlock.Of(0, BlockMirroring.None, type), foreground[index].Appearance);
             level.SetObjectBehavior(index, RoomBlockBehaviorCodec.Decode(area, behavior));
         }
-        RevealedBlock?[] basis = Build();
+        XrayRevealGrid basis = Build();
         AssertEqual(Copied(1, 1), Cell(basis, 0, 0), "base copy starts at the block holding the screen's top-left corner, mirrored as the level mirrors it");
         AssertEqual(Copied(2, 1), Cell(basis, 1, 0), "base copy's next column is the next block, mirrored its own way");
         AssertEqual(Copied(16, 1), Cell(basis, 15, 0), "base copy crosses BG1's 256-pixel screen boundary block for block");
         AssertEqual(Copied(17, 1), Cell(basis, 16, 0), "the seventeenth column copies the block a scrolled screen also shows");
         AssertEqual(Copied(1, 16), Cell(basis, 0, 15), "base copy continues past BG1's 256-pixel height into the room's next rows");
-        AssertTrue(Enumerable.Range(0, XrayRevealArea.BlockCount).All(cell => basis[cell] ==
-                Copied(1 + cell % XrayRevealArea.Columns, 1 + cell / XrayRevealArea.Columns)),
+        AssertTrue(XrayRevealGrid.Places.All(place => basis[place] == Copied(1 + place.X, 1 + place.Y)),
             "every cell copies the BG1 block at its scrolled position");
         // With layer one at the room's right edge the seventeenth column lies beyond the room, where the foreground shows nothing.
         cameraPosition = new(RoomSide * 16 - 256 + 8, 24);
-        RevealedBlock?[] rightEdge = Build();
+        XrayRevealGrid rightEdge = Build();
         AssertEqual(Copied(RoomSide - 1, 1), Cell(rightEdge, 15, 0), "the room's last column is copied");
         AssertEqual(null, Cell(rightEdge, 16, 0), "a cell beyond the room's right edge shows nothing");
         cameraPosition = new(24, 24);

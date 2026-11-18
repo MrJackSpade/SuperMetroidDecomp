@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Xray;
 using SuperMetroid.Core.Samus.Abilities.Artwork;
@@ -10,6 +11,18 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// </summary>
 internal static class XrayRevealFixtures
 {
+    /// <summary>A reveal grid showing what <paramref name="shown"/> chooses at each place.</summary>
+    internal static XrayRevealGrid Grid(Func<Position16<RoomBlocks>, RevealedBlock?> shown)
+    {
+        var grid = new XrayRevealGrid();
+        foreach (Position16<RoomBlocks> place in XrayRevealGrid.Places)
+            grid.Show(place, shown(place));
+        return grid;
+    }
+
+    /// <summary>Every block <paramref name="reveal"/> shows, in <see cref="XrayRevealGrid.Places"/> order.</summary>
+    internal static RevealedBlock?[] Shown(XrayRevealPlane reveal) => [.. XrayRevealGrid.Places.Select(place => reveal[place])];
+
     /// <summary>Every drawable collision kind and reaction, each showing the blocks <paramref name="shown"/> chooses for its command.</summary>
     internal static List<XrayRevealVisualDefinition> EveryDrawable(Func<XrayRevealShape, XrayRevealVisualBlocks> shown)
     {

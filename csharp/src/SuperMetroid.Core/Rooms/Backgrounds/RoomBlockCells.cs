@@ -26,4 +26,10 @@ public sealed class RoomBlockCells
 
     /// <summary>The blocks, row by row.</summary>
     public ImmutableArray<RoomBlockCell> Cells { get; }
+
+    /// <summary>The plane's block at <paramref name="block"/>.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="block"/> lies outside the plane.</exception>
+    public RoomBlockCell this[Position16<RoomBlocks> block] =>
+        Size.Contains(block) ? Cells[Size.RowMajorIndex(block)]
+            : throw new ArgumentOutOfRangeException(nameof(block), block, "The block lies outside the room plane.");
 }

@@ -219,7 +219,7 @@ internal sealed class AcceptedFrameBoundary
             ? RoomBlockPictureTable.NoneDrawn(scope.BlockPictures.Sheet)
             : scope.BlockPictures.Resolve(scope.LevelData.ForegroundPlane,
                 rooms.Background is null ? null : scope.LevelData.BackgroundPlane, appearance,
-                reveal?.Blocks.OfType<RevealedBlock>().Select(block => block.Picture) ?? []);
+                reveal?.Grid.Blocks.OfType<RevealedBlock>().Select(block => block.Picture) ?? []);
         // A sky room's background shows the sky's rows, drawn from their image (#1392, #1403), once the room has configured the
         // sky's bands; without them, background shows the room's own background.
         SkyPictures? sky = null;
@@ -269,7 +269,7 @@ internal sealed class AcceptedFrameBoundary
             },
             // The HUD's images draw from the HUD's own sheet, on the HUD's own layer (#1466, #1731).
             PicturedHud = HudPicturesIn(scope.HudPictures.Sheet).Pictured(latched.Hud ?? ShownHud.Nothing),
-            XrayReveal = reveal is { } revealed ? new XrayRevealPlane(revealed.Origin, revealed.Blocks.AsSpan(), pictures) : null,
+            XrayReveal = reveal is { } revealed ? new XrayRevealPlane(revealed.Origin, revealed.Grid, pictures) : null,
         };
     }
 

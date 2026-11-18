@@ -11,26 +11,25 @@ namespace SuperMetroid.Core.Samus.Abilities;
 public sealed class XrayRevealPlane
 {
 
-    /// <summary>The blocks, row by row, <see cref="XrayRevealArea.Columns"/> to a row; null beyond the room.</summary>
-    private readonly RevealedBlock?[] blocks;
+    /// <summary>The blocks by place; null beyond the room.</summary>
+    private readonly XrayRevealGrid blocks;
 
-    /// <summary>Keeps where the reveal lies, its blocks and the pictures they draw from.</summary>
+    /// <summary>Keeps where the reveal lies, a copy of its blocks and the pictures they draw from.</summary>
     /// <param name="origin">The foreground pixel the first block's top-left corner lies on.</param>
-    /// <param name="blocks">The blocks, row by row, <see cref="XrayRevealArea.Columns"/> to a row.</param>
+    /// <param name="blocks">The blocks by place.</param>
     /// <param name="pictures">The pictures the blocks draw from.</param>
-    /// <exception cref="ArgumentException">The blocks do not fill the reveal's rows and columns.</exception>
     /// <exception cref="InvalidDataException">A block that shows something draws a picture the pictures do not hold.</exception>
-    public XrayRevealPlane(Position16<RoomPixels> origin, ReadOnlySpan<RevealedBlock?> blocks, RoomBlockPictureTable pictures)
+    public XrayRevealPlane(Position16<RoomPixels> origin, XrayRevealGrid blocks, RoomBlockPictureTable pictures)
     {
-        Ensure.LengthEqual(blocks, XrayRevealArea.BlockCount);
+        Ensure.NotNull(blocks);
         Origin = origin;
         Pictures = Ensure.NotNull(pictures);
-        foreach (RevealedBlock? shown in blocks)
+        foreach (RevealedBlock? shown in blocks.Blocks)
         {
             if (shown is { } block && !block.Picture.ShowsNothing && pictures.Picture(block.Picture) is null)
                 throw new InvalidDataException($"The X-ray reveal draws {block.Picture}, which was not resolved.");
         }
-        this.blocks = blocks.ToArray();
+        this.blocks = blocks.Copy();
     }
 
     /// <summary>The foreground pixel the first block's top-left corner lies on; the blocks follow it 16 pixels apart.</summary>
@@ -39,6 +38,7 @@ public sealed class XrayRevealPlane
     /// <summary>The pictures the blocks draw from.</summary>
     public RoomBlockPictureTable Pictures { get; }
 
-    /// <summary>The blocks, row by row; null where a block lies beyond the room.</summary>
-    public ReadOnlySpan<RevealedBlock?> Blocks => blocks;
+    /// <summary>What the reveal shows at <paramref name="place"/>, counted from its first block; null beyond the room.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="place"/> lies outside the reveal.</exception>
+    public RevealedBlock? this[Position16<RoomBlocks> place] => blocks[place];
 }

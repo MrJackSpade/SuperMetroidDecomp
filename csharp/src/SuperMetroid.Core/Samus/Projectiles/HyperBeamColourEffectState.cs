@@ -14,17 +14,17 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// </remarks>
 public sealed class HyperBeamColourEffectState
 {
-    /// <summary>Where the Hyper Beam's colour animation resumes between updates.</summary>
-    internal AnimationPlace Place { get; private set; }
-
     /// <summary>True once equipping the Hyper Beam has started the effect.</summary>
-    public bool IsActive { get; private set; }
+    private bool active;
 
     /// <summary>
     /// The current shade's remaining hold. Spawn initializes it to one; the effect
     /// decrements before testing, so the first shade shows on its first update.
     /// </summary>
-    public int FrameHold { get; private set; }
+    private int frameHold;
+
+    /// <summary>Where the Hyper Beam's colour animation resumes between updates.</summary>
+    internal AnimationPlace Place { get; private set; }
 
     /// <summary>
     /// Starts the Hyper Beam's colour effect. No colour is shown until its first update
@@ -32,10 +32,9 @@ public sealed class HyperBeamColourEffectState
     /// </summary>
     public void Spawn()
     {
-        // Starting the effect clears its colour step and auxiliary timer and sets its timer to one; its setup does
-        // nothing more. This state keeps every observable field and delay.
-        IsActive = true;
-        FrameHold = 1;
+        // Starting the effect starts its colour animation with a hold of one update.
+        active = true;
+        frameHold = 1;
         Place = AnimationPlace.StartOfAnimation;
     }
 
@@ -44,15 +43,15 @@ public sealed class HyperBeamColourEffectState
     {
         Ensure.NotNull(colours);
 
-        if (!IsActive)
+        if (!active)
         {
             return;
         }
 
         // The effect decrements before testing. A timer of two therefore displays a frame
         // on the starting update and one following update, then advances on the third update.
-        FrameHold--;
-        if (FrameHold != 0)
+        frameHold--;
+        if (frameHold != 0)
         {
             return;
         }
@@ -66,8 +65,6 @@ public sealed class HyperBeamColourEffectState
 
         colours.LayOverBeams(shown.Shown);
 
-        FrameHold = shown.Duration;
-        _ = shown.Shown;
+        frameHold = shown.Duration;
     }
-
 }

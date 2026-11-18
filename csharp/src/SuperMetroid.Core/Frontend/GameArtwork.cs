@@ -255,5 +255,5 @@ public sealed record GameArtwork
     /// <summary>The installed Samus artwork the opening cinematic's flashback Samus draws from (#2049).</summary>
     internal SamusArtworkBinding FlashbackSamusArtwork() =>
         new(SamusBodyArt, SamusShownFrames, SpriteSheets, GrappleFlarePlacement, GrappleSwingFrames,
-            ProjectileFrameBindings);
+            ProjectileFrameBindings, ScreenContent.PowerBombGlowColors);
 }

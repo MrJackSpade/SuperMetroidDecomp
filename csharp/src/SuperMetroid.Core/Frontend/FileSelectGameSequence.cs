@@ -270,7 +270,7 @@ internal sealed class FileSelectGameSequence(FrontendSession session) : IGamePha
     {
         var cinematic = new IntroCinematicState(new IntroCinematicOverreads(
             session.Artwork.SamusOverreads, session.Artwork.BossAndIntroOverreads.ShellFragmentFallPastCurve),
-            session.audio, session.Artwork.FlashbackSamusArtwork(), session.Artwork.ScreenContent.PowerBombGlowColors,
+            session.audio, session.Artwork.FlashbackSamusArtwork(),
             session.Artwork.IntroCinematicArt, japaneseText)
         {
             Random = session.Random,

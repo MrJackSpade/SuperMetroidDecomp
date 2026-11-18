@@ -2,13 +2,13 @@ namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
 /// What a frame that is no step of its own animation reads, and where a frame named for one animation lands in another
-/// (#1473, #1474, #1535, #2048). The game lays a kind of animation out one after another and reads a frame as the
+/// (#1473, #1474, #1535, #2048, #2395). The game lays a kind of animation out one after another and reads a frame as the
 /// animation's start plus the frame, so a frame on a value one of an animation's cues carries reads that value as a step of
 /// its own, a frame past an animation's end reads a frame of an animation laid out after it, and a frame a path writes for
 /// one animation lands, on any other, wherever that number falls in it. The import pipeline decodes that layout once into
-/// named outcomes: the step each cue value's frame reads, the frame of the later animation each frame read past an
-/// animation reaches, and the frame each named place lands on in every other animation. No place in the layout reaches the
-/// game.
+/// named outcomes: the step each cue value's frame reads, the frame each frame past a segment's cue goes on to, the frame
+/// of the later animation each frame read past an animation reaches, and the frame each named place lands on in every
+/// other animation. No place in the layout reaches the game.
 /// </summary>
 /// <remarks>
 /// Consulted when Samus's animation frame names no step of its pose's animation, each time her animation step is read.
@@ -57,21 +57,32 @@ public sealed class FramesBeyondAnimation<TAnimation, TFrame, TPlace, TStep>
     /// <summary>What each frame read past an animation's end reaches, by animation and frame.</summary>
     private readonly IReadOnlyDictionary<TAnimation, IReadOnlyDictionary<TFrame, Read>> _readsPast;
 
+    /// <summary>The frame each frame on or past the cue ending one of an animation's segments goes on to, by animation and frame.</summary>
+    private readonly IReadOnlyDictionary<TAnimation, IReadOnlyDictionary<TFrame, TFrame>> _framesAfterCues;
+
     /// <summary>The frame each named place lands on in each animation it does not belong to.</summary>
     private readonly IReadOnlyDictionary<TPlace, IReadOnlyDictionary<TAnimation, TFrame>> _landings;
 
-    /// <summary>Keeps every animation's cue-value steps and read-past outcomes and every place's landings.</summary>
+    /// <summary>Keeps every animation's cue-value steps, frames after cues and read-past outcomes and every place's landings.</summary>
     /// <param name="cueValueSteps">Every animation of the layout, with the step each of its cue values' frames reads.</param>
+    /// <param name="framesAfterCues">
+    /// For animations of the layout, the frame each frame on or past the cue ending one of its segments other than its last
+    /// goes on to (<see cref="FrameAfterCue"/>).
+    /// </param>
     /// <param name="readsPast">What each frame read past an animation's end reaches, for animations of the layout.</param>
     /// <param name="landings">The frame each named place lands on in animations of the layout.</param>
     /// <exception cref="ArgumentException">An outcome or landing names an animation outside the layout.</exception>
     public FramesBeyondAnimation(IReadOnlyDictionary<TAnimation, IReadOnlyDictionary<TFrame, TStep>> cueValueSteps,
+        IReadOnlyDictionary<TAnimation, IReadOnlyDictionary<TFrame, TFrame>> framesAfterCues,
         IReadOnlyDictionary<TAnimation, IReadOnlyDictionary<TFrame, Read>> readsPast,
         IReadOnlyDictionary<TPlace, IReadOnlyDictionary<TAnimation, TFrame>> landings)
     {
         Ensure.NotNull(cueValueSteps);
+        Ensure.NotNull(framesAfterCues);
         Ensure.NotNull(readsPast);
         Ensure.NotNull(landings);
+        if (framesAfterCues.Keys.Any(animation => !cueValueSteps.ContainsKey(animation)))
+            throw new ArgumentException("Frames after cues name an animation outside the layout.", nameof(framesAfterCues));
         foreach (KeyValuePair<TAnimation, IReadOnlyDictionary<TFrame, Read>> pair in readsPast)
         {
             if (!cueValueSteps.ContainsKey(pair.Key))
@@ -85,6 +96,7 @@ public sealed class FramesBeyondAnimation<TAnimation, TFrame, TPlace, TStep>
                 throw new ArgumentException($"Place {pair.Key} lands in an animation outside the layout.", nameof(landings));
         }
         _cueValueSteps = cueValueSteps;
+        _framesAfterCues = framesAfterCues;
         _readsPast = readsPast;
         _landings = landings;
     }
@@ -98,6 +110,18 @@ public sealed class FramesBeyondAnimation<TAnimation, TFrame, TPlace, TStep>
         !_cueValueSteps.TryGetValue(animation, out IReadOnlyDictionary<TFrame, TStep>? steps)
             ? throw new ArgumentException($"Animation {animation} is not in the layout.", nameof(animation))
             : steps.TryGetValue(frame, out TStep? step) ? step : null;
+
+    /// <summary>
+    /// The frame <paramref name="frame"/> of <paramref name="animation"/>, on or past the cue ending one of its segments
+    /// other than its last, goes on to: the next value the cue carries, or the next segment's first frame once the cue's
+    /// values are behind it. A cue that continues into the next segment carries none, and the animation goes on from it
+    /// without this outcome.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The installation holds no frame after this one.</exception>
+    public TFrame FrameAfterCue(TAnimation animation, TFrame frame) =>
+        _framesAfterCues.TryGetValue(animation, out IReadOnlyDictionary<TFrame, TFrame>? frames) && frames.TryGetValue(frame, out TFrame? after)
+            ? after
+            : throw new InvalidDataException($"Animation {animation} has no installed frame after {frame}.");
 
     /// <summary>
     /// What <paramref name="frame"/> of <paramref name="animation"/>, read past the animation's end, reaches; null where the

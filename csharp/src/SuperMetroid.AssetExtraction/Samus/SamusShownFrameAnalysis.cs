@@ -371,12 +371,12 @@ internal sealed class SamusShownFrameAnalysis
         bool dying = pose is SamusPoseId.DeathSequenceRightPose or SamusPoseId.DeathSequenceLeftPose;
         // Pose initialization starts a pose on its first frame; the death setup overwrites that frame before any draw.
         if (!dying)
-            yield return SamusAnimationLayout.Offset(animation, SamusAnimationFrame.Start);
+            yield return SamusAnimationLayout.Offset(animation, animation.Start);
         // A spin jump starts on its second frame; a standing pose aiming up entered from one keeps the gun raised on it.
         if (SamusPoseMetadata.IsSpinJumpPose(pose) ||
             (SamusPoseMetadata.ReadMovementType(pose) == SamusMovementType.Standing &&
              SamusPoseMetadata.ReadAim(pose).AimsStraightUp))
-            yield return SamusAnimationLayout.Offset(animation, SamusAnimationFrame.AfterStart);
+            yield return SamusAnimationLayout.Offset(animation, animation.AfterStart);
         if (pose is SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose)
         {
             yield return Number(SamusDrainedAnimationDefinitions.FallInitialFrame);
@@ -389,7 +389,7 @@ internal sealed class SamusShownFrameAnalysis
         if (dying)
         {
             foreach (SamusMovementType movementType in InitializedMovementTypes)
-                yield return SamusAnimationLayout.Offset(animation, animation.Resolve(SamusDeathSequenceFrames.InitialFrame(movementType)));
+                yield return SamusAnimationLayout.Offset(animation, SamusDeathSequenceFrames.InitialFrame(movementType));
         }
         // The angle, the Crystal Flash's stages and the Zebes start select these poses' frames directly.
         if (pose is SamusPoseId.XrayingStandingRightPose or SamusPoseId.XrayingStandingLeftPose or

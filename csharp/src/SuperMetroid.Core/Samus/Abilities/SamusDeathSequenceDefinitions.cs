@@ -22,14 +22,14 @@ public static class SamusDeathSequenceDefinitions
     public const int InitialFrameHold = 2;
 
     /// <summary>The death pose's first frame, which the glitch-ball movements start it on.</summary>
-    internal static SamusAnimationTarget GlitchBallStart { get; } = new(SamusAnimationSegmentName.Main, 0);
+    internal static SamusAnimationFrame GlitchBallStart { get; } = new(SamusAnimationSegmentName.Main, 0);
     /// <summary>The death pose's ball frame, which the Morph Ball and Spring Ball movements start it on.</summary>
-    internal static SamusAnimationTarget BallStart { get; } = new(SamusAnimationSegmentName.Main, 1);
+    internal static SamusAnimationFrame BallStart { get; } = new(SamusAnimationSegmentName.Main, 1);
     /// <summary>The death pose's upright frame, which its repeat holds and every other movement starts it on.</summary>
-    internal static SamusAnimationTarget UprightStart { get; } = new(SamusAnimationSegmentName.Main, 5);
+    internal static SamusAnimationFrame UprightStart { get; } = new(SamusAnimationSegmentName.Main, 5);
 
     /// <summary>The death pose's frame each movement type starts it on; InitialFrame looks it up.</summary>
-    internal static readonly IReadOnlyDictionary<SamusMovementType, SamusAnimationTarget> InitialFrames = new Dictionary<SamusMovementType, SamusAnimationTarget>
+    internal static readonly IReadOnlyDictionary<SamusMovementType, SamusAnimationFrame> InitialFrames = new Dictionary<SamusMovementType, SamusAnimationFrame>
     {
         [SamusMovementType.MorphBallGround] = BallStart,
         [SamusMovementType.MorphBallFalling] = BallStart,

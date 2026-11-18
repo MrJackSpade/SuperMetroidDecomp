@@ -138,7 +138,7 @@ internal static void VerifySamusRenderingSlice()
     AssertEqual(128, samus.Presentation.DrawOrigin.X, "Samus default screen X calculation");
     AssertEqual(128, samus.Presentation.DrawOrigin.Y, "Samus signed graphics-Y offset calculation");
     // The body records the pose and picture frame it drew, not a table index (#1465), as one whole picture (#1513, #1585).
-    var poseOne = new SamusBodyFrame(SamusPoseId.FacingRightNormalPose, SamusAnimationFrame.Start);
+    var poseOne = new SamusBodyFrame(SamusPoseId.FacingRightNormalPose, SamusAnimationDelays.AnimationForPose(SamusPoseId.FacingRightNormalPose).Start);
     AssertEqual(poseOne, samus.Presentation.DrawnFrame, "Samus pose 1 draws its frame-zero picture");
     AssertEqual(2, Composition(samus, poseOne).Bottom is null ? 1 : 2, "Samus pose 1's frame-zero picture is composed of its top and bottom halves");
     // The published description: the whole body as one pre-coloured frame, the sheet frame of its pose and picture
@@ -176,9 +176,9 @@ internal static void VerifySamusRenderingSlice()
     BindSyntheticSamusRendering(bus, samus);
     samus.Presentation.DrawWithoutFlicker(samus, oamFrame, cameraPosition: new(0x0400, 0));
     oam = oamFrame.FinalizeAsOam();
-    AssertEqual(new SamusBodyFrame(SamusPoseId.MovingRightNormalPose, SamusAnimationFrame.Start), samus.Presentation.DrawnFrame,
+    AssertEqual(new SamusBodyFrame(SamusPoseId.MovingRightNormalPose, SamusAnimationDelays.AnimationForPose(SamusPoseId.MovingRightNormalPose).Start), samus.Presentation.DrawnFrame,
         "running pose draws its frame-zero picture");
-    AssertEqual(2, Composition(samus, new SamusBodyFrame(SamusPoseId.MovingRightNormalPose, SamusAnimationFrame.Start)).Bottom is null ? 1 : 2,
+    AssertEqual(2, Composition(samus, new SamusBodyFrame(SamusPoseId.MovingRightNormalPose, SamusAnimationDelays.AnimationForPose(SamusPoseId.MovingRightNormalPose).Start)).Bottom is null ? 1 : 2,
         "running pose's frame-zero picture is composed of its top and bottom halves");
     AssertEqual(2, oam.LastFinalizedSpriteCount, "synthetic running pose draws top and bottom pieces");
 
@@ -220,7 +220,7 @@ internal static void VerifySamusRenderingSlice()
     samus.Presentation.DrawWithoutFlicker(samus, oamFrame, cameraPosition: new(0x0400, 0));
     oam = oamFrame.FinalizeAsOam();
     SamusBodyFrame forward = samus.Presentation.DrawnFrame ?? throw new InvalidOperationException("Power-suit forward drew no body.");
-    AssertEqual(new SamusBodyFrame(SamusPoseId.ForwardFacingPowerSuitPose, SamusAnimationFrame.Start), forward, "power-suit forward draws its frame-zero picture");
+    AssertEqual(new SamusBodyFrame(SamusPoseId.ForwardFacingPowerSuitPose, SamusAnimationDelays.AnimationForPose(SamusPoseId.ForwardFacingPowerSuitPose).Start), forward, "power-suit forward draws its frame-zero picture");
     SamusBodyComposition forwardComposition = Composition(samus, forward);
     AssertEqual(new SamusBodyHalfFrame(SamusPoseId.ForwardFacingPowerSuitPose, SamusBodyHalf.Top, 0), forwardComposition.Top,
         "power-suit forward's picture is composed of its top half's frame-zero picture");
@@ -249,7 +249,7 @@ internal static void VerifySamusRenderingSlice()
     oam = oamFrame.FinalizeAsOam();
     // The suited forward frame selects bottom set $FF: no bottom transfer. Its whole picture is composed of its own
     // selection alone, with no bottom picture carried from an earlier frame (#1585).
-    var suited = new SamusBodyFrame(SamusPoseId.ForwardFacingSuitedPose, SamusAnimationFrame.Start);
+    var suited = new SamusBodyFrame(SamusPoseId.ForwardFacingSuitedPose, SamusAnimationDelays.AnimationForPose(SamusPoseId.ForwardFacingSuitedPose).Start);
     SamusBodyFramePictures suitedPictures = BoundArtwork(samus).Pictures(suited.Pose, SamusAnimationNumbers.Number(suited.Pose, suited.PictureFrame));
     AssertTrue(suitedPictures.Bottom is null, "the suited forward frame names no bottom record");
     AssertTrue(BoundArtwork(samus).Spritemaps.PictureKey(Composition(samus, suited), suitedPictures) is { BottomPicture: null },

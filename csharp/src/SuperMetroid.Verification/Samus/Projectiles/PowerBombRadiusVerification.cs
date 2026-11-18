@@ -36,7 +36,8 @@ internal static class PowerBombRadiusVerification
     /// </summary>
     internal static void VerifyPowerBombExplosionFollowsTheOriginal()
     {
-        var explosion = new SamusPowerBombExplosionState(RetailPresentationFixture().PowerBombGlowColors);
+        var explosionGlowColors = RetailPresentationFixture().PowerBombGlowColors;
+        var explosion = new SamusPowerBombExplosionState();
         explosion.Arm();
         explosion.Spawn(new(128, 128));
         var original = new OriginalExplosion();
@@ -44,7 +45,7 @@ internal static class PowerBombRadiusVerification
         bool completed;
         do
         {
-            completed = explosion.StepFrame();
+            completed = explosion.StepFrame(explosionGlowColors);
             original.StepPowerBomb();
             Compare(explosion, original, $"Power Bomb update {++updates}");
         }
@@ -57,7 +58,7 @@ internal static class PowerBombRadiusVerification
         updates = 0;
         do
         {
-            AssertTrue(!explosion.StepFrame(), "Crystal Flash's bubble does not clean up while it grows");
+            AssertTrue(!explosion.StepFrame(explosionGlowColors), "Crystal Flash's bubble does not clean up while it grows");
             original.StepCrystalFlash(explosion.Blast.Phase);
             Compare(explosion, original, $"Crystal Flash update {++updates}");
         }

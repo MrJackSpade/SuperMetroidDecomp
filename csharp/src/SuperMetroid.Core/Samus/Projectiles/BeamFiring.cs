@@ -37,20 +37,6 @@ internal sealed class BeamFiring
         _unauthoredFiring = Ensure.NotNull(unauthoredFiring);
     }
     /// <summary>
-    /// Applies the shared side effect of all six HUD weapon selections:
-    /// cancel beam charge and remove every live flare-animation layer before the newly
-    /// selected weapon producer runs.
-    /// </summary>
-    public void CancelChargeForHudSelection()
-        => CancelCharge();
-
-    /// <summary>
-    /// Applies the flare teardown shared by Morph-Ball charge cancellation and a completed
-    /// bomb spread.
-    /// </summary>
-    public void CancelChargeForBombSpread()
-        => CancelCharge();
-    /// <summary>
     /// The scripted charge end: consume Pseudo Screw charge,
     /// clear its visible flare and restore the normal suit colours. Unlike HUD
     /// cancellation, this does not rewrite the previous-charge sample.
@@ -63,8 +49,11 @@ internal sealed class BeamFiring
         ProjectileAnimation.ShowSuitShade(colours, samus);
     }
 
-    /// <summary>Clears the charge, its prior sample, and all flare animation layers.</summary>
-    private void CancelCharge()
+    /// <summary>
+    /// Clears the charge, its prior sample, and all flare animation layers: every HUD weapon selection does so before the
+    /// newly selected weapon producer runs, and so do the Morph Ball's charge cancellation and a completed bomb spread.
+    /// </summary>
+    public void CancelCharge()
     {
         _charge.ClearCount();
         _charge.PreviousCharge = BeamChargeLevel.None;
@@ -87,10 +76,10 @@ internal sealed class BeamFiring
         // and its own 21-frame cooldown paces a held button.
         if (samus.HyperBeamEnabled)
         {
-            (int? place, SoundEffectId? sound) = (controllerInput & shoot) != GameplayAction.None
-                ? TryFireHyperBeam(level, samus, sharedProjectiles, roomObjects)
-                : new BeamShot(null, null);
-            return new(place, sound, sound is null ? null : SoundRequestPriority.Essential);
+            SoundEffectId? sound = (controllerInput & shoot) != GameplayAction.None
+                ? TryFireHyperBeam(level, samus, sharedProjectiles, roomObjects)?.Sound
+                : null;
+            return new(sound, sound is null ? null : SoundRequestPriority.Essential);
         }
 
         bool chargeEquipped = samus.EquippedBeams.HasAny(SamusBeamFlags.Charge);
@@ -99,16 +88,16 @@ internal sealed class BeamFiring
         {
             _charge.ClearCount();
             _animation.ClearFlareAnimationState();
-            (int? place, SoundEffectId? sound) = held
+            SoundEffectId? sound = held
                 ? TryFireBeam(
                     level,
                     samus,
                     controllerNewInput,
                     sharedProjectiles,
                     roomObjects,
-                    charged: false)
-                : new BeamShot(null, null);
-            return new(place, sound, sound is null ? null : SoundRequestPriority.Essential);
+                    charged: false)?.Sound
+                : null;
+            return new(sound, sound is null ? null : SoundRequestPriority.Essential);
         }
 
         if (samus.PendingTransitionShot is not null)
@@ -141,21 +130,21 @@ internal sealed class BeamFiring
                 if (_charge.FlareCounter == 1)
                 {
                     _animation.ClearFlareAnimationState();
-                    (int? place, SoundEffectId? sound) = TryFireBeam(
+                    SoundEffectId? sound = TryFireBeam(
                         level,
                         samus,
                         controllerNewInput,
                         sharedProjectiles,
                         roomObjects,
-                        charged: false);
-                    return new(place, sound, sound is null ? null : SoundRequestPriority.Essential);
+                        charged: false)?.Sound;
+                    return new(sound, sound is null ? null : SoundRequestPriority.Essential);
                 }
 
                 // The charging sound starts once, on the input phase that advances the flare count to
                 // BeamChargeDefinitions.ChargeSoundStartCounter; drawing the flare queues nothing.
                 if (_charge.FlareCounter == BeamChargeDefinitions.ChargeSoundStartCounter)
                 {
-                    return new(null, SamusSound.ChargingBeam, Priority: SoundRequestPriority.High);
+                    return new(SamusSound.ChargingBeam, Priority: SoundRequestPriority.High);
                 }
             }
             else if (_combos.TryActivateCombo(samus, sharedProjectiles, out SoundEffectId? comboSound))
@@ -166,13 +155,13 @@ internal sealed class BeamFiring
                 _charge.ClearCount();
                 _animation.ClearFlareAnimationState();
                 samus.HorizontalSpeed.RequestSuitShadeRestore();
-                return new(null, comboSound, SoundRequestPriority.Normal);
+                return new(comboSound, SoundRequestPriority.Normal);
             }
-            return new(null, null, null);
+            return new(null, null);
         }
 
         if (!_charge.IsCharging)
-            return new(null, null, null);
+            return new(null, null);
 
         bool releaseCharged =
             _charge.HasCharged(BeamChargeDefinitions.FullyChargedCounter);
@@ -196,24 +185,24 @@ internal sealed class BeamFiring
     /// </summary>
     private BeamFiringResult CompleteBeamRelease(
         SamusState samus,
-        BeamShot firing)
+        BeamShot? firing)
     {
         // Charged firing's success path queues the combination's charged sound even when the
         // combination has none. Allocation, not a sound request, distinguishes that success from
         // the shared failure tail which cancels an audible charge. Murder Beam is the observable
         // case: it allocates a persistent projectile while requesting no new sound.
-        if (firing.Place is not null)
-            return new(firing.Place, firing.Sound, Priority: SoundRequestPriority.Essential);
+        if (firing is { } fired)
+            return new(fired.Sound, Priority: SoundRequestPriority.Essential);
 
         if (!_charge.PreviousCharge.HasCharged(BeamChargeDefinitions.ChargeSoundStartCounter))
-            return new(null, null, null);
+            return new(null, null);
         samus.ResumeChargingBeamSoundPending = false;
-        return new(null, SamusSound.Silence, Priority: SoundRequestPriority.Essential);
+        return new(SamusSound.Silence, Priority: SoundRequestPriority.Essential);
     }
 
 
     /// <summary>Attempts allocation and muzzle setup for an ordinary or charged beam shot.</summary>
-    internal BeamShot TryFireBeam(
+    internal BeamShot? TryFireBeam(
         RoomLevelData level,
         SamusState samus,
         GameplayAction controllerNewInput,
@@ -230,7 +219,7 @@ internal sealed class BeamFiring
         if (_pool.ShotCount.Count >= SamusProjectileSystem.PlaceCount ||
             sharedProjectiles.CooldownTimer != 0)
         {
-            return new BeamShot(null, null);
+            return null;
         }
 
         // A fire attempt sets the shared cooldown before it takes a place, so a shot count that disagrees
@@ -243,7 +232,7 @@ internal sealed class BeamFiring
         if (_pool.FindFreePlace() is not { } place)
         {
             _pool.ShotCount.TakeBackRefusedShot();
-            return new BeamShot(null, null);
+            return null;
         }
 
         SamusProjectileDirection? direction = samus.PendingTransitionShot is { } transitionShot
@@ -254,7 +243,7 @@ internal sealed class BeamFiring
         {
             // A pose that cannot shoot fires nothing; a transition shot always names an aim (SamusTransitionShot.FromPose).
             _pool.ShotCount.TakeBackRefusedShot();
-            return new BeamShot(null, null);
+            return null;
         }
 
         // The shot starts from the horizontal sub-pixel position its place hands on (LeftMuzzleSubpixelCarry): the left
@@ -321,11 +310,11 @@ internal sealed class BeamFiring
             projectile.Install(behavior, behavior.FiredKindState());
             InitializePowerBeamVelocity(samus.ProjectileInheritance, projectile, _unauthoredFiring);
         }
-        return new BeamShot(place, sound);
+        return new BeamShot(sound);
     }
 
     /// <summary>Allocates charged-Plasma art with Hyper damage, Wave collision, and a 21-frame cooldown.</summary>
-    internal BeamShot TryFireHyperBeam(
+    internal BeamShot? TryFireHyperBeam(
         RoomLevelData level,
         SamusState samus,
         SamusBombProjectileSystem sharedProjectiles,
@@ -336,7 +325,7 @@ internal sealed class BeamFiring
         if (_pool.ShotCount.Count >= SamusProjectileSystem.PlaceCount ||
             sharedProjectiles.CooldownTimer != 0)
         {
-            return new BeamShot(null, null);
+            return null;
         }
 
         sharedProjectiles.SetSharedCooldown(SamusProjectileCooldownDefinitions.FireAttempt);
@@ -344,13 +333,13 @@ internal sealed class BeamFiring
         if (_pool.FindFreePlace() is not { } place)
         {
             _pool.ShotCount.TakeBackRefusedShot();
-            return new BeamShot(null, null);
+            return null;
         }
 
         if (SamusPoseMetadata.ReadAimDirection(samus) is not { } aim)
         {
             _pool.ShotCount.TakeBackRefusedShot();
-            return new BeamShot(null, null);
+            return null;
         }
 
         // As for ordinary beams, the shot starts from the sub-pixel position its place hands on (LeftMuzzleSubpixelCarry).
@@ -363,14 +352,11 @@ internal sealed class BeamFiring
         samus.ResumeChargingBeamSoundPending = false;
 
         // The Hyper Beam is a charged Plasma beam for its projectile data and animation even though
-        // acquisition equips Wave and Plasma, whose pictures its shots show. It first reads the charged
-        // Plasma entry; Hyper's setup then deliberately replaces its damage with 1000 before the
-        // first animation step runs.
+        // acquisition equips Wave and Plasma, whose pictures its shots show; its damage is its own.
         projectile.Type = SamusProjectileType.Beam(SamusBeamCombination.Plasma, charged: true);
         projectile.PicturedBeams = SamusBeamCombinations.Of(samus.EquippedBeams);
         const SamusBeamCombination hyperBeamType = SamusBeamCombination.Plasma;
         SamusProjectileKind kind = SamusProjectileSelection.BeamShot(hyperBeamType, charged: true);
-        projectile.Damage = SamusProjectileDamage.Read(kind);
         SamusProjectileSegment segment = SamusProjectileKinds.Animation(kind, projectile.Direction);
         projectile.Playback = SamusProjectilePlayback.Start(segment);
         projectile.Radius = SamusProjectilePlayback.InitialRadius(segment);
@@ -395,11 +381,11 @@ internal sealed class BeamFiring
 
         SoundEffectId? sound = SamusProjectileSoundRouting.Resolve(
             charged: true, hyperBeamType);
-        return new BeamShot(place, sound);
+        return new BeamShot(sound);
     }
 
     /// <summary>Consumes a current or retained Shoot edge, ammo, and cooldown to launch a missile.</summary>
-    internal BeamShot TryFireMissile(
+    internal BeamShot? TryFireMissile(
         SamusState samus,
         GameplayAction controllerNewInput,
         GameplayAction controllerPreviousNewInput,
@@ -413,7 +399,7 @@ internal sealed class BeamFiring
         // Demo playback supplies the analogous scripted edge. Cooldown still
         // owns admission, so the delayed press cannot manufacture held-button auto-fire.
         if (((controllerNewInput | controllerPreviousNewInput) & shoot) == GameplayAction.None)
-            return new BeamShot(null, null);
+            return null;
 
         // Admission reserves room for a Super Missile's later collision link. Ammo/free-
         // projectile rejection rolls back the count, but does not undo its cooldown write.
@@ -423,18 +409,18 @@ internal sealed class BeamFiring
         if (_pool.ShotCount.Count >= admissionLimit ||
             sharedProjectiles.CooldownTimer != 0)
         {
-            return new BeamShot(null, null);
+            return null;
         }
 
         sharedProjectiles.SetSharedCooldown(SamusProjectileCooldownDefinitions.FireAttempt);
         if (ammo == 0)
-            return new BeamShot(null, null);
+            return null;
 
         if (_pool.FindFreePlace() is not { } place)
-            return new BeamShot(null, null);
+            return null;
 
         if (SamusPoseMetadata.ReadAimDirection(samus) is not { } aim)
-            return new BeamShot(null, null);
+            return null;
         SamusProjectile projectile = _pool.Occupy(place);
         projectile.Direction = aim;
 
@@ -451,10 +437,8 @@ internal sealed class BeamFiring
         projectile.Type = SamusProjectileType.Of(isSuperMissile ? SamusProjectileFamily.SuperMissile : SamusProjectileFamily.Missile);
         projectile.PicturedBeams = SamusBeamCombinations.Of(samus.EquippedBeams);
 
-        // A missile's velocity starts from base speed zero; its ignition replaces that zero with one pixel per update
-        // later in this same update's input phase.
-        InitializeDirectionalVelocity(samus.ProjectileInheritance, projectile, baseSpeed: SignedEightEight.Zero);
-
+        // The missile's velocity is set when it ignites, on its first update in this same input phase
+        // (ProjectileMotion.IgniteMissile), before anything reads it.
         // The selected HUD item chose the missile family above; the family selects the projectile kind.
         SamusProjectileKind kind = SamusProjectileSelection.NonBeam(projectile.Type.Family);
         projectile.Damage = SamusProjectileDamage.Read(kind);
@@ -485,7 +469,7 @@ internal sealed class BeamFiring
         }
         else if ((isSuperMissile ? samus.SuperMissiles : samus.Missiles) == 0)
             samus.SelectedHudItem = HudItem.Beam;
-        return new BeamShot(place, isSuperMissile
+        return new BeamShot(isSuperMissile
             ? SamusProjectileSoundRoutingDefinitions.SuperMissileRequest
             : SamusProjectileSoundRoutingDefinitions.MissileRequest);
     }

@@ -312,7 +312,7 @@ level, samus, GameplayAction.Jump, unchecked((ushort)index), roomObjects: SamusR
             break;
     }
     AssertTrue(frame.Landed, "aimed normal jump lands");
-    SamusPoseTransitions.ApplyAerialLanding(samus, wasSpinning: false);
+    SamusPoseTransitions.ApplyAerialLanding(samus, wasSpinning: false, controllerInput: GameplayAction.None);
     AssertEqual(SamusPoseId.LandingAimDiagonalDownRightPose, samus.Pose, "shot direction three selects E4 landing");
     AssertEqual(21, samus.Kinematics.Radius.Y, "aimed landing expands radius");
     AssertEqual(171, samus.Position.Y.Whole, "aimed landing retains floor-aligned feet");

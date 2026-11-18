@@ -10,5 +10,5 @@ internal sealed record SamusAnimationItemTransition(SamusEquipmentFlags Item, Sa
     : SamusAnimationCue
 {
     /// <inheritdoc/>
-    internal override int CarriedValues => 4;
+    internal override IReadOnlyList<SamusPoseId> PublishedPoses => [Unequipped, Equipped];
 }

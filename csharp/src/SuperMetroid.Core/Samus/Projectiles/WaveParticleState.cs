@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
-/// A Wave special attack particle's homing on Samus (#2346): its horizontal speed is the shot's velocity, its vertical
-/// speed its own.
+/// A Wave special attack particle's homing on Samus (#2346, #2397): how long it has left; its homing velocity, on both
+/// axes, is the shot's.
 /// </summary>
 /// <param name="part">The part the particle plays in its attack.</param>
 internal sealed class WaveParticleState(SpecialAttackParticle part) : SpecialAttackParticleState(part)
@@ -12,7 +12,4 @@ internal sealed class WaveParticleState(SpecialAttackParticle part) : SpecialAtt
     /// down each update. The particle ends when it reaches zero, so it never passes it.
     /// </summary>
     internal int Lifetime { get; set => field = Ensure.AtLeastZero(value); } = BeamComboDefinitions.WaveLifetime;
-
-    /// <summary>The particle's vertical homing speed.</summary>
-    internal SignedEightEight VerticalSpeed { get; set; }
 }

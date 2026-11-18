@@ -70,7 +70,7 @@ internal static class BeamChargeClearVerification
         SamusAerialPoseTransitions.ApplyGrappleWallJump(samus);
         if (alsoClearThroughHudSelection)
         {
-            runtime.Projectiles.Firing.CancelChargeForHudSelection();
+            runtime.Projectiles.Firing.CancelCharge();
         }
         runtime.StepFrame(shoot);
         return samus.BeamCharge.FlareCounter;

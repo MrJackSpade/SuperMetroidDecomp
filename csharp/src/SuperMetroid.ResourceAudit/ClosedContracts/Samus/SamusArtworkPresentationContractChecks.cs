@@ -26,7 +26,7 @@ internal static class SamusArtworkPresentationContractChecks
                     SamusAtmosphericSourceArtwork atmosphere, SamusArmCannonSourceArtwork arm) {
                     body.ArtOrigin(SuperMetroid.Core.Samus.Poses.SamusPoseId.StandingTransitionAimDiagonalDownLeftPose);
                     body.ArtOrigin(SuperMetroid.Core.Samus.Poses.SamusPoseId.TallStillRightPose);
-                    body.OriginRise(0, SuperMetroid.Core.Samus.Poses.SamusAnimationFrame.Start);
+                    body.OriginRise(0, default(SuperMetroid.Core.Samus.Poses.SamusAnimationFrame));
                     compositions.TryGetComposition(new SamusBodyHalfFrame(SuperMetroid.Core.Samus.Poses.SamusPoseId.StandingTransitionAimDiagonalDownLeftPose, SamusBodyHalf.Top, 0), out _);
                     compositions.TryGetComposition(new SamusBodyHalfFrame(SuperMetroid.Core.Samus.Poses.SamusPoseId.TallStillRightPose, SamusBodyHalf.Top, 0), out _);
                     atmosphere.TryResolve(byte.MaxValue, byte.MaxValue, out _);

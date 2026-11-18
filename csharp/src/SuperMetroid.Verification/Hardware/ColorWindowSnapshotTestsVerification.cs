@@ -55,7 +55,8 @@ internal static class ColorWindowSnapshotTestsVerification
 
         foreach (ushort centerX in new ushort[] { 128, 65500, 290 })
         {
-            var explosion = new SamusPowerBombExplosionState(RetailPresentationFixture().PowerBombGlowColors);
+            var explosionGlowColors = RetailPresentationFixture().PowerBombGlowColors;
+            var explosion = new SamusPowerBombExplosionState();
             AssertTrue(GameplayEffectCapture.CapturePowerBombGlow(PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0)) is null,
                 "inactive Power Bomb emits no operation");
             explosion.Arm(); explosion.Spawn(new(centerX, 120));
@@ -71,7 +72,7 @@ internal static class ColorWindowSnapshotTestsVerification
                         ?? throw new InvalidOperationException("An active Power Bomb captures its window.");
                     copy = GameplayEffectCapture.CapturePowerBombGlow(PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0));
                 }
-                explosion.StepFrame();
+                explosion.StepFrame(explosionGlowColors);
                 if (retained is not null) Compare(copy, retained);
             }
             AssertTrue(!explosion.IsActive && phases.Contains(PowerBombExplosionPhase.Afterglow),

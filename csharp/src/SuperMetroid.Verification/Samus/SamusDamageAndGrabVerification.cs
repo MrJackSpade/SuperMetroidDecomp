@@ -763,17 +763,16 @@ internal static void VerifySamusGrabbedByDraygon()
     AssertEqual(SamusPoseId.DraygonGrabbedNeutralRightPose, samus.Pose,
         "rejected cross-family Draygon input retains current pose");
 
-    DraygonEscapeResult locked = samus.DraygonGrabbed.CheckDraygonEscape(
-        samus, newlyPressedInput: 0, grappleLockedInPlace: true);
-    AssertTrue(locked.SuppressProspectivePose, "locked grapple suppresses grabbed pose transition");
+    AssertTrue(!samus.DraygonGrabbed.CheckDraygonEscape(samus, newlyPressedInput: 0),
+        "a check with no D-pad edge releases nothing");
     AssertEqual(0, samus.DraygonGrabbed.EscapeButtonCounter, "no D-pad edge does not count");
 
     samus.DraygonGrabbed.CheckDraygonEscape(
-        samus, newlyPressedInput: GameplayAction.Up, grappleLockedInPlace: false);
+        samus, newlyPressedInput: GameplayAction.Up);
     AssertEqual(1, samus.DraygonGrabbed.EscapeButtonCounter,
         "first Up edge increments escape counter");
-    DraygonEscapeResult repeatedUp = samus.DraygonGrabbed.CheckDraygonEscape(
-        samus, newlyPressedInput: GameplayAction.Up, grappleLockedInPlace: false);
+    bool repeatedUp = samus.DraygonGrabbed.CheckDraygonEscape(
+        samus, newlyPressedInput: GameplayAction.Up);
     AssertEqual(1, samus.DraygonGrabbed.EscapeButtonCounter,
         "repeated D-pad pattern is rejected and leaves escape counter unchanged");
 
@@ -784,14 +783,14 @@ internal static void VerifySamusGrabbedByDraygon()
     samus.Kinematics.YDirection = SamusVerticalDirection.Down;
     samus.MorphBallBounceState = SamusBallBounceState.SecondRebound;
 
-    DraygonEscapeResult release = repeatedUp;
+    bool release = repeatedUp;
     for (int inputNumber = 1; inputNumber < SamusDraygonHoldDefinitions.EscapePresses; inputNumber++)
     {
         GameplayAction direction = (inputNumber & 1) != 0 ? GameplayAction.Down : GameplayAction.Up;
         release = samus.DraygonGrabbed.CheckDraygonEscape(
-            samus, direction, grappleLockedInPlace: false);
+            samus, direction);
     }
-    AssertTrue(release.Released, "sixtieth alternating D-pad input releases Samus");
+    AssertTrue(release, "sixtieth alternating D-pad input releases Samus");
     AssertEqual(SamusPoseId.FacingRightNormalPose, samus.Pose,
         "right grabbed family releases to pose $01");
     AssertEqual(0, samus.HorizontalSpeed.BaseSpeed.Whole, "release clears base X speed");
@@ -830,9 +829,9 @@ internal static void VerifySamusGrabbedByDraygon()
     {
         samus.DraygonGrabbed.Begin(samus, draygonFacing: HorizontalDirection.Left);
         samus.EscapeAndDrainCount.StartAmmoCountdown(countLeft);
-        DraygonEscapeResult counted = samus.DraygonGrabbed.CheckDraygonEscape(samus, GameplayAction.Up, grappleLockedInPlace: false);
+        bool counted = samus.DraygonGrabbed.CheckDraygonEscape(samus, GameplayAction.Up);
         AssertEqual(countLeft + 1, samus.DraygonGrabbed.EscapeButtonCounter, $"a press counts onto the {countLeft} another sequence left");
-        AssertEqual(frees, counted.Released, $"a press counted onto {countLeft} {(frees ? "frees" : "does not free")} Samus");
+        AssertEqual(frees, counted, $"a press counted onto {countLeft} {(frees ? "frees" : "does not free")} Samus");
         if (!frees)
             samus.DraygonGrabbed.Release(samus);
     }

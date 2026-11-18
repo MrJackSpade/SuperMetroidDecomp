@@ -407,7 +407,7 @@ internal static class InstalledFixtures
 
     /// <summary>Creates a bomb system with installed frame bindings and explosion colors.</summary>
     internal static SamusBombProjectileSystem CreateBombSystem() =>
-        new(GameplayAudioRequests.Standalone(), Maps.PowerBombGlowColors, SamusArtwork());
+        new(GameplayAudioRequests.Standalone(), SamusArtwork());
 
     /// <summary>The arm cannon's cover characters, from the cartridge-derived extraction, as no installation holds them (#1636).</summary>
     internal static SamusArmCannonCoverCharacters SamusArmCannonCover => SamusBodySheetFixtures.Inputs.ArmCannonCover;
@@ -428,7 +428,8 @@ internal static class InstalledFixtures
     {
         var binding = new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding(body ?? SamusBody.Gameplay,
             RepositoryInstallation.SamusBody.ShownFrames, SpriteSheets,
-            Projectiles.Grapple.FlarePlacement, Projectiles.Grapple.SwingFrames, projectileFrames ?? Projectiles.FrameBindings);
+            Projectiles.Grapple.FlarePlacement, Projectiles.Grapple.SwingFrames, projectileFrames ?? Projectiles.FrameBindings,
+            Maps.PowerBombGlowColors);
         if (armCannon is not null)
             binding.ArmCannon = armCannon;
         return binding;
@@ -454,7 +455,7 @@ internal static class InstalledFixtures
         InstalledSamusBodyArtwork? samusBodyArtwork = null)
     {
         var intro = new IntroCinematicState(new IntroCinematicOverreads(SamusOverreads, BossAndIntroOverreads.ShellFragmentFallPastCurve), audio ?? AudioQueues.Standalone(),
-            SamusArtwork(samusBodyArtwork), Maps.PowerBombGlowColors, (characterArtwork ?? IntroArtwork).BoundCatalog)
+            SamusArtwork(samusBodyArtwork), (characterArtwork ?? IntroArtwork).BoundCatalog)
         {
             Random = new SharedRandom(),
             UnauthoredBoostCadence = new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),

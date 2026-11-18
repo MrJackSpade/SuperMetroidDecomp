@@ -82,6 +82,9 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     private readonly List<CinematicActor<CeresAnimation, CinematicSpritePose, CeresCue>> ceresActorsDrawnLast = [];
     /// <summary>The blast that destroys the station (#1981), centred on it in screen pixels.</summary>
     private readonly CeresStationBlast stationExplosion;
+
+    /// <summary>The installed Power Bomb glow colours the station blast glows in, bound again with the scene's artwork.</summary>
+    private InstalledPowerBombGlowColors glowColors;
     /// <summary>
     /// The scene's colour effects (#1733): none before the station is set up; from its setup the station's navigation
     /// lights; once the Zebes reveal's setup clears them, the gunship engine's flicker and the PLANET ZEBES caption's fades.
@@ -175,7 +178,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         WithSamus = outcome == CeresDestructionOutcome.SamusAboard;
         this.audio = Ensure.NotNull(audio);
         Artwork = Ensure.NotNull(artwork);
-        stationExplosion = new CeresStationBlast(glowColors);
+        stationExplosion = new CeresStationBlast();
+        this.glowColors = Ensure.NotNull(glowColors);
         screenSprites = new ScreenSprites();
     }
 
@@ -187,8 +191,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         initialFrameWaits is > 0 and <= CeresDestructionSceneDefinitions.InitialFrameWaits;
 
     /// <summary>Binds the installed station-blast colors when the game is bound to its installed content.</summary>
-    internal void BindGlowColors(InstalledPowerBombGlowColors colors) =>
-        stationExplosion.PresentationColors = colors;
+    internal void BindGlowColors(InstalledPowerBombGlowColors colors) => glowColors = Ensure.NotNull(colors);
 
     /// <summary>
     /// Binds installed artwork when the game is bound to its installed content. Only the
@@ -247,7 +250,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     {
         // The station blast steps before the cinematic's phase, so a blast the phase spawns does not advance until
         // the following update.
-        stationExplosion.StepFrame();
+        stationExplosion.StepFrame(glowColors);
         switch (Phase)
         {
             case CeresDestructionPhase.WaitForMusicQueue:

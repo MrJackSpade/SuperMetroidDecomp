@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 public sealed class SamusArmCannonPlacement
 {
     /// <summary>The displacement of each animation frame with one, by animation frame.</summary>
-    private readonly ImmutableSortedDictionary<SamusAnimationFrame, Offset16<RoomPixels>> offsets;
+    private readonly ImmutableDictionary<SamusAnimationFrame, Offset16<RoomPixels>> offsets;
 
     /// <summary>Creates a pose's placement.</summary>
     /// <param name="drawOrder">Whether the pose draws the cover, and before or after Samus's body.</param>
@@ -30,7 +30,7 @@ public sealed class SamusArmCannonPlacement
         DrawOrder = drawOrder;
         FirstDirection = firstDirection;
         LaterDirection = laterDirection;
-        this.offsets = Ensure.NotNull(offsets).ToImmutableSortedDictionary();
+        this.offsets = Ensure.NotNull(offsets).ToImmutableDictionary();
     }
 
     /// <summary>Whether the pose draws the cover, and before or after Samus's body.</summary>
@@ -42,12 +42,15 @@ public sealed class SamusArmCannonPlacement
     /// <summary>The aim direction shown at every animation frame after the first, or null when the pose shows one direction throughout.</summary>
     public SamusProjectileDirection? LaterDirection { get; }
 
-    /// <summary>The cover's displacement at each animation frame with one, in animation-frame order.</summary>
+    /// <summary>The cover's displacement at each animation frame with one, by animation frame.</summary>
     public IReadOnlyDictionary<SamusAnimationFrame, Offset16<RoomPixels>> Offsets => offsets;
 
-    /// <summary>The aim direction whose cover picture the pose shows at <paramref name="animationFrame"/>: the later one past its animation's first frame.</summary>
-    public SamusProjectileDirection Direction(SamusAnimationFrame animationFrame) =>
-        LaterDirection is { } later && animationFrame != SamusAnimationFrame.Start ? later : FirstDirection;
+    /// <summary>
+    /// The aim direction whose cover picture <paramref name="pose"/> shows at <paramref name="animationFrame"/> of its
+    /// animation: the later one past the animation's first frame.
+    /// </summary>
+    internal SamusProjectileDirection Direction(SamusPoseId pose, SamusAnimationFrame animationFrame) =>
+        LaterDirection is { } later && animationFrame != SamusAnimationDelays.AnimationForPose(pose).Start ? later : FirstDirection;
 
     /// <summary>The cover's displacement from Samus at <paramref name="animationFrame"/> of the pose's animation.</summary>
     /// <exception cref="InvalidDataException">The animation frame has no installed displacement.</exception>

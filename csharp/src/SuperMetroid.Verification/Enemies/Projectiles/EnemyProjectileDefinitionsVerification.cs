@@ -140,7 +140,7 @@ internal static class EnemyProjectileDefinitionsVerification
             shot.Position = shot.Position.WithWhole(new(0x0100, 0x0100));
             int hits = enemies.Projectiles.ResolveEnemyProjectileSamusProjectileHits(
                 shots,
-                new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors, global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()));
+                new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()));
             AssertEqual(1, hits, $"{kind} production shot admitted");
             if (kind == RoomEnemyProjectileKind.DraygonGoop)
             {

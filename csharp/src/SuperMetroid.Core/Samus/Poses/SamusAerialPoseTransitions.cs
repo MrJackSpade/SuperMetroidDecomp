@@ -229,7 +229,7 @@ internal static class SamusAerialPoseTransitions
 
         // The spin jump's initialization writes frame one, skipping the static first spin frame. This
         // is easy to miss because an ordinary ground jump initializes the pose elsewhere.
-        SamusPresentation.InitializeAnimation(samus, SamusAnimationFrame.AfterStart);
+        SamusPresentation.InitializeAnimation(samus, SamusAnimationDelays.AnimationForPose(samus.Pose).AfterStart);
     }
 
     /// <summary>
@@ -524,56 +524,11 @@ internal static class SamusAerialPoseTransitions
         SamusPoseId targetPose,
         GameplayAction controllerNewInput = GameplayAction.None)
     {
-        bool verified =
-            SamusPoseMetadata.IsStandingGroundTurnToJumpTransition(samus.Pose, targetPose) ||
-            new SamusPoseChange(samus.Pose, targetPose) is
-            (SamusPoseId.FacingRightNormalPose or SamusPoseId.StandingAimUpRightPose or
-                SamusPoseId.StandingAimDiagonalUpRightPose or SamusPoseId.StandingAimDiagonalDownRightPose,
-             SamusPoseId.NeutralJumpTransitionRightPose) or
-            (SamusPoseId.FacingLeftNormalPose or SamusPoseId.StandingAimUpLeftPose or
-                SamusPoseId.StandingAimDiagonalUpLeftPose or SamusPoseId.StandingAimDiagonalDownLeftPose,
-             SamusPoseId.NeutralJumpTransitionLeftPose) or
-            (SamusPoseId.FacingRightNormalPose or SamusPoseId.StandingAimUpRightPose or
-                SamusPoseId.StandingAimDiagonalUpRightPose or SamusPoseId.StandingAimDiagonalDownRightPose,
-             SamusPoseId.NormalJumpTransitionAimUpRightPose or
-                SamusPoseId.NormalJumpTransitionAimDiagonalUpRightPose or
-                SamusPoseId.NormalJumpTransitionAimDiagonalDownRightPose) or
-            (SamusPoseId.FacingLeftNormalPose or SamusPoseId.StandingAimUpLeftPose or
-                SamusPoseId.StandingAimDiagonalUpLeftPose or SamusPoseId.StandingAimDiagonalDownLeftPose,
-             SamusPoseId.NormalJumpTransitionAimUpLeftPose or
-                SamusPoseId.NormalJumpTransitionAimDiagonalUpLeftPose or
-                SamusPoseId.NormalJumpTransitionAimDiagonalDownLeftPose) or
-            (SamusPoseId.MovingRightNormalPose or SamusPoseId.MovingRightGunExtendedPose or
-                SamusPoseId.RunningAimDiagonalUpRightPose or SamusPoseId.RunningAimDiagonalDownRightPose,
-             SamusPoseId.SpinJumpRightPose) or
-            (SamusPoseId.MovingLeftNormalPose or SamusPoseId.MovingLeftGunExtendedPose or
-                SamusPoseId.RunningAimDiagonalUpLeftPose or SamusPoseId.RunningAimDiagonalDownLeftPose,
-             SamusPoseId.SpinJumpLeftPose) or
-            // A moonwalk turn reads its own input transitions, but a Jump from it enters the ordinary spin-jump
-            // setup: the turn has already folded in the run's momentum, and the setup gives it a run jump's speed,
-            // radius, equipment substitution and first frame. A fresh Jump with no horizontal direction selects the
-            // neutral jump transition, and holding the completed facing selects the spin jump; Jump can leave the
-            // turn's art early while the backward direction stays held. Both targets take the same dry-air jump
-            // setup after the pose changes and differ only in their authored body.
-            (SamusPoseId.MoonwalkTurnJumpLeftPose or SamusPoseId.MoonwalkTurnJumpAimUpLeftPose or
-                SamusPoseId.MoonwalkTurnJumpAimDownLeftPose,
-             SamusPoseId.SpinJumpLeftPose or SamusPoseId.NeutralJumpTransitionLeftPose) or
-            (SamusPoseId.MoonwalkTurnJumpRightPose or SamusPoseId.MoonwalkTurnJumpAimUpRightPose or
-                SamusPoseId.MoonwalkTurnJumpAimDownRightPose,
-             SamusPoseId.SpinJumpRightPose or SamusPoseId.NeutralJumpTransitionRightPose) or
-            (SamusPoseId.RanIntoWallRightPose or SamusPoseId.RanIntoWallAimUpRightPose or SamusPoseId.RanIntoWallAimDownRightPose,
-             SamusPoseId.NeutralJumpTransitionRightPose) or
-            (SamusPoseId.RanIntoWallLeftPose or SamusPoseId.RanIntoWallAimUpLeftPose or SamusPoseId.RanIntoWallAimDownLeftPose,
-             SamusPoseId.NeutralJumpTransitionLeftPose) ||
-            // Every landing body shares its facing's ordinary standing input transitions. The
-            // centralized predicate deliberately covers normal, spin, aimed, and firing
-            // landings, while still rejecting a corrupt cross-facing neutral jump-transition target.
-            SamusPoseMetadata.IsLandingToNormalJumpTransition(samus.Pose, targetPose);
-        if (!verified)
+        // The setup installs a jump transition or the spin jump that the current pose's input transitions select.
+        // Movement-specific launches (damage boost, grapple, bomb jump, wall jump, and Shinespark) own separate entry
+        // points.
+        if (!IsOrdinaryJumpTarget(targetPose) || !SamusPoseInputTransitions.CanSelect(samus.Pose, targetPose))
         {
-            // The pairs above exhaust the active input transitions that invoke
-            // the ordinary jump setup. Movement-specific launches (damage boost,
-            // grapple, bomb jump, wall jump, and Shinespark) own separate entry points.
             throw new InvalidOperationException(
                 $"Ordinary jump transition {samus.Pose} -> {targetPose} is not an active route for this setup.");
         }
@@ -764,4 +719,12 @@ internal static class SamusAerialPoseTransitions
         samus.HorizontalSpeed.CancelRunningMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
         samus.HorizontalSpeed.ExtraRunSpeed = default;
     }
+
+    /// <summary>Whether <paramref name="pose"/> is one the ordinary jump setup installs: a jump transition, neutral or aimed, or the spin jump.</summary>
+    private static bool IsOrdinaryJumpTarget(SamusPoseId pose) => pose is
+        SamusPoseId.NeutralJumpTransitionRightPose or SamusPoseId.NeutralJumpTransitionLeftPose or
+        SamusPoseId.NormalJumpTransitionAimUpRightPose or SamusPoseId.NormalJumpTransitionAimUpLeftPose or
+        SamusPoseId.NormalJumpTransitionAimDiagonalUpRightPose or SamusPoseId.NormalJumpTransitionAimDiagonalUpLeftPose or
+        SamusPoseId.NormalJumpTransitionAimDiagonalDownRightPose or SamusPoseId.NormalJumpTransitionAimDiagonalDownLeftPose or
+        SamusPoseId.SpinJumpRightPose or SamusPoseId.SpinJumpLeftPose;
 }

@@ -93,7 +93,7 @@ public sealed class SamusArmCannonState
 
         SamusArmCannonPlacement placement = Placement(samus.Pose);
         SamusAnimationFrame frame = samus.AnimationFrameOf(samus.Pose);
-        SamusProjectileDirection direction = placement.Direction(frame);
+        SamusProjectileDirection direction = placement.Direction(samus.Pose, frame);
 
         Offset16<RoomPixels> offset = placement.Offset(frame);
         int artOrigin = SamusPoseMetadata.ReadArtOrigin(samus);

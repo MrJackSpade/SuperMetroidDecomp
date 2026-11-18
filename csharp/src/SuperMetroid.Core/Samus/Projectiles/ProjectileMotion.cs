@@ -529,17 +529,11 @@ internal sealed class ProjectileMotion
             RoomCollisionType.Slope =>
                 MissileSlopePointReaction(block, shot),
 
-            // The cases above cover every collision kind left after following the extensions.
-            // Keep an explicit guard so a kind reaching here fails rather than silently
-            // inventing a collision result.
-            RoomCollisionType.ShootableAir or
-                RoomCollisionType.HorizontalExtension or
-                RoomCollisionType.BombableAir or
-                RoomCollisionType.ShootableBlock or
-                RoomCollisionType.VerticalExtension or
-                RoomCollisionType.BombableBlock => throw new InvalidDataException(
-                $"Invalid missile collision type {block.CollisionType} at block {block.Position}."),
-            _ => throw new InvalidDataException(
+            // The kinds above cover every collision kind left after following the extensions and answering the shootable
+            // and bombable blocks: one reaching here fails rather than inventing a collision result.
+            RoomCollisionType.ShootableAir or RoomCollisionType.HorizontalExtension or RoomCollisionType.BombableAir or
+                RoomCollisionType.ShootableBlock or RoomCollisionType.VerticalExtension or RoomCollisionType.BombableBlock or _ =>
+                throw new InvalidDataException(
                 $"Invalid missile collision type {block.CollisionType} at block {block.Position}."),
         };
     }

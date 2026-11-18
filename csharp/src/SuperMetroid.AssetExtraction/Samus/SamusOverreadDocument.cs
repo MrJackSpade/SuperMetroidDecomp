@@ -11,6 +11,10 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// within the segment (#1535, #2048). A place whose read would name a record no gameplay path
 /// gives Samus has no entry.
 /// </param>
+/// <param name="AnimationFramesAfterCues">
+/// For every animation, by its name, the frame each frame on or past the cue ending one of its segments other than its last
+/// goes on to, both by the frame's name in the animation (#2395).
+/// </param>
 /// <param name="AnimationReadsPast">
 /// For every animation, by its name, what each frame past its end that the animation can reach reads, by the frame's name
 /// in the animation (#2048).
@@ -31,6 +35,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 internal sealed record SamusOverreadDocument(
     int Version,
     IReadOnlyDictionary<string, IReadOnlyDictionary<string, SamusOverreadDocument.CueValueStep>> AnimationCueValueSteps,
+    IReadOnlyDictionary<string, IReadOnlyDictionary<string, string>> AnimationFramesAfterCues,
     IReadOnlyDictionary<string, IReadOnlyDictionary<string, SamusOverreadDocument.ReadPast>> AnimationReadsPast,
     IReadOnlyDictionary<string, IReadOnlyDictionary<string, string>> AnimationPlaceLandings,
     IReadOnlyDictionary<string, IReadOnlyDictionary<string, IReadOnlyList<SamusOverreadDocument.Overwrite?>>> SpaceTimeOverwrites,

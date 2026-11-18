@@ -5,5 +5,5 @@ namespace SuperMetroid.Core.Samus.Poses;
 internal sealed record SamusAnimationTransition(SamusPoseId Pose) : SamusAnimationCue
 {
     /// <inheritdoc/>
-    internal override int CarriedValues => 1;
+    internal override IReadOnlyList<SamusPoseId> PublishedPoses => [Pose];
 }

@@ -285,7 +285,7 @@ internal sealed class RoomLoader
         Ensure.NotNull(slot);
         SamusState samus = InitializeSamus();
         samus.Pose = SamusPoseId.FacingRightNormalPose;
-        samus.AnimationFrame = SamusAnimationFrame.Start;
+        samus.AnimationFrame = SamusAnimationDelays.AnimationForPose(samus.Pose).Start;
         _player.Samus = samus;
         slot.ApplyTo(_player.Samus, _system);
         // Loading the save sets the stored explored maps from it; the live map is loaded only at file select.
@@ -320,7 +320,7 @@ internal sealed class RoomLoader
         // Initialization faces Samus forward in the power suit; the model's constructor defaults to the right-facing pose.
         SamusState samus = InitializeSamus();
         samus.Pose = SamusPoseId.ForwardFacingPowerSuitPose;
-        samus.AnimationFrame = SamusAnimationFrame.Start;
+        samus.AnimationFrame = SamusAnimationDelays.AnimationForPose(samus.Pose).Start;
         samus.CopyInventoryFrom(carried);
         _player.Samus = samus;
         _assists.CarryLoadoutGrant(carried, samus);
@@ -882,7 +882,7 @@ internal sealed class RoomLoader
         // The held beam charge survives on the session; Samus's own echo storage is cleared.
         loadingSamus.HorizontalSpeed.ClearSpeedEchoes();
         loadingSamus.Shinespark.ResetProjectileEchoStorage();
-        var bombs = new SamusBombProjectileSystem(_audioRequests, _artwork.ScreenContent.PowerBombGlowColors, _artwork.SamusArtwork);
+        var bombs = new SamusBombProjectileSystem(_audioRequests, _artwork.SamusArtwork);
         // Each room's shot places start keeping nothing; TakeOverFrom then hands them what the outgoing room's kept.
         // The room's earthquake is composed with the room: Super Missile impacts and the room's enemies start it.
         var earthquake = new RoomEarthquake();
@@ -891,7 +891,6 @@ internal sealed class RoomLoader
         projectiles.TakeOverFrom(_room.HandOver);
         scope.BombProjectiles = bombs;
         scope.Projectiles = projectiles;
-        _artwork.BindProjectiles(bombs);
 
         // The room-object loader walks the room's placements once. Each placement takes the highest free place among the
         // room's room objects before its setup runs, so a room object its setup deletes at once frees that place for the
@@ -1133,7 +1132,7 @@ internal sealed class RoomLoader
 
         SamusState samus = InitializeSamus();
         samus.Pose = SamusPoseId.ForwardFacingPowerSuitPose;
-        samus.AnimationFrame = SamusAnimationFrame.Start;
+        samus.AnimationFrame = SamusAnimationDelays.AnimationForPose(samus.Pose).Start;
         samus.Position = FixedPosition<RoomPixels>.FromWhole(_room.ActiveLoadStation.Placement.SamusPosition.WithY(0));
         _player.Samus = samus;
         SuperMetroid.Core.Samus.Colours.SamusSuitShade.ShowPower(_player.Colours);

@@ -49,8 +49,8 @@ internal static class SamusProjectileDamageDefinitions
         [SamusProjectileKind.ShinesparkEcho] = ShinesparkEchoDamage,
     };
 
-    /// <summary>The beams each beam shot kind fires; Beam looks it up.</summary>
-    internal static readonly IReadOnlyDictionary<SamusProjectileKind, SamusBeamCombination> Beams = new Dictionary<SamusProjectileKind, SamusBeamCombination>
+    /// <summary>The beams each uncharged beam shot kind fires.</summary>
+    internal static readonly IReadOnlyDictionary<SamusProjectileKind, SamusBeamCombination> UnchargedBeams = new Dictionary<SamusProjectileKind, SamusBeamCombination>
     {
         [SamusProjectileKind.UnchargedPower] = SamusBeamCombination.Power,
         [SamusProjectileKind.UnchargedSpazer] = SamusBeamCombination.Spazer,
@@ -64,6 +64,11 @@ internal static class SamusProjectileDamageDefinitions
         [SamusProjectileKind.UnchargedSpazerWave] = SamusBeamCombination.SpazerWave,
         [SamusProjectileKind.UnchargedPlasmaWave] = SamusBeamCombination.PlasmaWave,
         [SamusProjectileKind.UnchargedPlasmaIce] = SamusBeamCombination.PlasmaIce,
+    };
+
+    /// <summary>The beams each charged beam shot kind fires.</summary>
+    internal static readonly IReadOnlyDictionary<SamusProjectileKind, SamusBeamCombination> ChargedBeams = new Dictionary<SamusProjectileKind, SamusBeamCombination>
+    {
         [SamusProjectileKind.ChargedPower] = SamusBeamCombination.Power,
         [SamusProjectileKind.ChargedSpazer] = SamusBeamCombination.Spazer,
         [SamusProjectileKind.ChargedSpazerIce] = SamusBeamCombination.SpazerIce,

@@ -11,5 +11,5 @@ public readonly record struct ProjectileButtonInput
     public required GameplayAction ControllerNewInput { get; init; }
 
     /// <summary>The previous frame's newly pressed actions, independently consulted by beam/missile firing rather than recomputed from held input.</summary>
-    public GameplayAction ControllerPreviousNewInput { get; init; }
+    public required GameplayAction ControllerPreviousNewInput { get; init; }
 }

@@ -88,6 +88,23 @@ internal static class SamusAnimationCueValueDecoding
         };
     }
 
+    /// <summary>
+    /// How many frames of a program the operands of <paramref name="cue"/>'s instruction take after its own byte (#2395): a
+    /// transition's poses, an item transition's item word, which takes two, and a repeat's step back. The game reads each
+    /// of them as a frame of its own when a frame lands there.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The cue is no instruction a program holds.</exception>
+    internal static int OperandFrames(SamusAnimationCue cue) => cue switch
+    {
+        SamusAnimationHold or SamusAnimationLoopUnlessLowEnergy or SamusAnimationInstallDrainedFall or SamusAnimationWallJumpSelect or
+            SamusAnimationRestart => 0,
+        SamusAnimationTurnTransition or SamusAnimationTransition or SamusAnimationRepeat => 1,
+        SamusAnimationVerticalSpeedTransition => 2,
+        SamusAnimationItemTransition => 4,
+        SamusAnimationItemAirborneTransition => 6,
+        _ => throw new InvalidDataException($"Samus animation cue {cue} is no instruction a program holds."),
+    };
+
     /// <summary>The names of every item in <paramref name="items"/>.</summary>
     private static string[] ItemNames(SamusEquipmentFlags items) =>
         [.. Enum.GetValues<SamusEquipmentFlags>().Where(item => item != SamusEquipmentFlags.None && items.HasFlag(item)).Select(item => item.ToString())];

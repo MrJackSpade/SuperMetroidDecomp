@@ -223,6 +223,7 @@ public static class SamusBlockCollision
                         if (owner is { } horizontalSamus)
                         {
                             SamusTerrainHazardCollision.ApplySolidSpikeCollision(
+                                terrain.Level,
                                 horizontalSamus,
                                 block);
                         }
@@ -583,6 +584,7 @@ public static class SamusBlockCollision
                     if (owner is { } verticalSamus)
                     {
                         SamusTerrainHazardCollision.ApplySolidSpikeCollision(
+                            terrain.Level,
                             verticalSamus,
                             block);
                     }

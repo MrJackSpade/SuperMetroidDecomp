@@ -35,7 +35,7 @@ internal static class SamusAtmosphericEffects
     /// (<see cref="SamusAnimationFrames.RunFirstFootContact"/>, <see cref="SamusAnimationFrames.RunSecondFootContact"/>).
     /// </summary>
     /// <exception cref="InvalidDataException">The frame is not one of the stride's pictures.</exception>
-    internal static bool IsRunningFootContact(SamusAnimationTarget strideFrame)
+    internal static bool IsRunningFootContact(SamusAnimationFrame strideFrame)
     {
         if (strideFrame.Segment != SamusAnimationSegmentName.Run ||
             strideFrame.Frame < 0 ||

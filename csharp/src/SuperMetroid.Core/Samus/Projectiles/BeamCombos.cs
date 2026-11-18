@@ -428,8 +428,8 @@ internal sealed class BeamCombos
         }
         shot.Velocity = shot.Velocity.WithX(AccelerateWaveAxis(shot.Velocity.X, CoordinateAxis.Difference(samus.Position.X.Whole, shot.Position.X.Whole)));
         shot.Position = shot.Position.AdvanceX(shot.Velocity.X.ToSixteenSixteenDelta());
-        wave.VerticalSpeed = AccelerateWaveAxis(wave.VerticalSpeed, CoordinateAxis.Difference(samus.Position.Y.Whole, shot.Position.Y.Whole));
-        shot.Position = shot.Position.AdvanceY(wave.VerticalSpeed.ToSixteenSixteenDelta());
+        shot.Velocity = shot.Velocity.WithY(AccelerateWaveAxis(shot.Velocity.Y, CoordinateAxis.Difference(samus.Position.Y.Whole, shot.Position.Y.Whole)));
+        shot.Position = shot.Position.AdvanceY(shot.Velocity.Y.ToSixteenSixteenDelta());
         shared.SetSharedCooldown(SamusProjectileCooldownDefinitions.SpecialAttackHold);
         _charge.ClearCount();
         return wave.Part.VoicesWavePulse && oldXSpeed.IsNegative != shot.Velocity.X.IsNegative ? BeamComboDefinitions.WavePulseSound : null;

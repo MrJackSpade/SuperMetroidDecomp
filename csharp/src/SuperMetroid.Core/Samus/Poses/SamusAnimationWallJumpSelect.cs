@@ -8,10 +8,6 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// <param name="SpaceJumpFrame">The first frame of the Space Jump wall-jump spin.</param>
 /// <param name="ScrewAttackFrame">The first frame of the Screw Attack wall-jump spin.</param>
 internal sealed record SamusAnimationWallJumpSelect(
-    SamusAnimationTarget OrdinaryFrame,
-    SamusAnimationTarget SpaceJumpFrame,
-    SamusAnimationTarget ScrewAttackFrame) : SamusAnimationCue
-{
-    /// <inheritdoc/>
-    internal override int CarriedValues => 0;
-}
+    SamusAnimationFrame OrdinaryFrame,
+    SamusAnimationFrame SpaceJumpFrame,
+    SamusAnimationFrame ScrewAttackFrame) : SamusAnimationCue;

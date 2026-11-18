@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// What a segment of a Samus animation is for (#2048): each segment of an animation has its own name, and a frame of the
 /// animation is a frame of one named segment (<see cref="SamusAnimationFrame"/>).
 /// </summary>
-internal enum SamusAnimationSegmentName
+public enum SamusAnimationSegmentName
 {
     /// <summary>The only segment of an animation that has one.</summary>
     Main,
@@ -26,19 +26,8 @@ internal enum SamusAnimationSegmentName
     StrideHold,
 
     /// <summary>
-    /// The knockback animation's slow recoil after its own frames, four frames that only a read past an earlier animation
-    /// would reach; no read reaches them, so they show nothing.
-    /// </summary>
-    SlowRecoil,
-
-    /// <summary>
-    /// The knockback animation's two slower recoil frames after the slow recoil, which no read reaches, so they show nothing.
-    /// </summary>
-    SlowerRecoil,
-
-    /// <summary>
-    /// The knockback animation's one long frame after the slower recoil, which only a read past an earlier animation
-    /// reaches; it shows the knockback's held recoil.
+    /// The knockback animation's one long frame after its own frames, which only a read past an earlier animation reaches;
+    /// it shows the knockback's held recoil.
     /// </summary>
     RecoilHold,
 

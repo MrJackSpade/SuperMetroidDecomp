@@ -7,9 +7,13 @@ namespace SuperMetroid.Core.Samus.Poses;
 internal abstract record SamusAnimationCue : SamusPoseAnimationStep
 {
     /// <summary>
-    /// How many values the cue carries, which follow it in its segment: the poses it publishes, the items it tests and the
-    /// frame it repeats from. A frame written onto one of them reads it as a step of its own
+    /// Whether the animation can go on from the cue to the frame after it, the first frame of the next segment: a hold, the
+    /// breathing's low-energy continuation and the drained fall's handover do. Every other cue moves the animation itself
+    /// or ends it, and a frame after one of them is no step of the animation
     /// (<see cref="Compatibility.FramesBeyondAnimation{TAnimation, TFrame, TPlace, TStep}"/>).
     /// </summary>
-    internal abstract int CarriedValues { get; }
+    internal virtual bool ContinuesToNextSegment => false;
+
+    /// <summary>The transitional poses the cue can publish; none for a cue that publishes no pose.</summary>
+    internal virtual IReadOnlyList<SamusPoseId> PublishedPoses => [];
 }

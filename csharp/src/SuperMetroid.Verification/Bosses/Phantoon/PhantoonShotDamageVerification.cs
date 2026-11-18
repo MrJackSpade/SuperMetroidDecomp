@@ -72,7 +72,7 @@ internal static class PhantoonShotDamageVerification
         shot.Behavior = SamusShotBehaviors.Beam;
 
         int hits = enemies.PhantoonBehavior.Combat.ResolvePhantoonProjectileHits(state, shots,
-            new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), InstalledFixtures.Maps.PowerBombGlowColors, InstalledFixtures.SamusArtwork()));
+            new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), InstalledFixtures.SamusArtwork()));
         return (enemies, body, shot, hits);
     }
 

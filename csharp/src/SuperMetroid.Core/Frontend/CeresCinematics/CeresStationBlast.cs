@@ -12,21 +12,10 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 internal sealed class CeresStationBlast
 {
     /// <summary>The blast's stages, radii and glow: the cinematic's own timeline, shared with no Power Bomb of Samus's.</summary>
-    private readonly PowerBombBlastTimeline timeline;
-
-    /// <summary>Prepares the blast, glowing in <paramref name="glowColors"/>.</summary>
-    /// <param name="glowColors">The installed Power Bomb glow colours.</param>
-    internal CeresStationBlast(InstalledPowerBombGlowColors glowColors) => timeline = new PowerBombBlastTimeline(glowColors);
+    private readonly PowerBombBlastTimeline timeline = new();
 
     /// <summary>Where on the screen the blast is centred.</summary>
     private Offset16<ScreenPixels> centre;
-
-    /// <summary>The installed glow colours the blast shows: installed content, bound again when a game is restored.</summary>
-    internal InstalledPowerBombGlowColors PresentationColors
-    {
-        get => timeline.PresentationColors;
-        set => timeline.PresentationColors = value;
-    }
 
     /// <summary>Starts the blast centred at <paramref name="screenCentre"/>.</summary>
     internal void Spawn(Offset16<ScreenPixels> screenCentre)
@@ -35,8 +24,11 @@ internal sealed class CeresStationBlast
         timeline.Start();
     }
 
-    /// <summary>Runs one update of the blast's stages; a blast that is not running stays still.</summary>
-    internal void StepFrame() => _ = timeline.StepFrame();
+    /// <summary>
+    /// Runs one update of the blast's stages, glowing in <paramref name="glowColors"/>; a blast that is not running stays
+    /// still.
+    /// </summary>
+    internal void StepFrame(InstalledPowerBombGlowColors glowColors) => _ = timeline.StepFrame(glowColors);
 
     /// <summary>The blast's oval of added colour as a screen layer from the screen's top line, or null while it is not running.</summary>
     internal ColourAddWindowLayer? Capture()

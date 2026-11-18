@@ -112,17 +112,18 @@ public sealed class SamusBombProjectileSystem
 
     /// <summary>
     /// Creates one room's bombs, whose sounds join <paramref name="audioRequests"/> (#2057) and whose Power Bomb blasts glow
-    /// in <paramref name="powerBombGlowColors"/> (#2049).
+    /// in <paramref name="artwork"/>'s glow colours (#2049, #2397).
     /// </summary>
     /// <param name="audioRequests">The update's audio requests the bombs' sounds join: the runtime's, or a cinematic's.</param>
-    /// <param name="powerBombGlowColors">The installed Power Bomb glow colours.</param>
-    /// <param name="artwork">The Samus artwork whose projectile frames the bombs draw, rebound with the host's artwork.</param>
-    internal SamusBombProjectileSystem(GameplayAudioRequests audioRequests,
-        InstalledPowerBombGlowColors powerBombGlowColors, SamusArtworkBinding artwork)
+    /// <param name="artwork">
+    /// The Samus artwork whose projectile frames the bombs draw and whose glow colours their blasts show, rebound with the
+    /// host's artwork.
+    /// </param>
+    internal SamusBombProjectileSystem(GameplayAudioRequests audioRequests, SamusArtworkBinding artwork)
     {
         AudioRequests = Ensure.NotNull(audioRequests);
         _artwork = Ensure.NotNull(artwork);
-        PowerBombExplosion = new SamusPowerBombExplosionState(powerBombGlowColors);
+        PowerBombExplosion = new SamusPowerBombExplosionState();
     }
 
     /// <summary>The update's audio requests the bombs' sounds join as they are made.</summary>
@@ -145,7 +146,7 @@ public sealed class SamusBombProjectileSystem
         bool crystalFlashBlastWasRunning = PowerBombExplosion.Blast.Phase is
             PowerBombExplosionPhase.CrystalFlashExplosion or
             PowerBombExplosionPhase.CrystalFlashAfterglow;
-        bool powerBombCleanup = PowerBombExplosion.StepFrame();
+        bool powerBombCleanup = PowerBombExplosion.StepFrame(_artwork.PowerBombGlowColors);
         if (powerBombCleanup && !crystalFlashBlastWasRunning)
         {
             // The explosion offers Crystal Flash only if Samus has remained on the exact bomb
@@ -374,7 +375,7 @@ public sealed class SamusBombProjectileSystem
     }
 
     /// <summary>Applies held/new Shoot admission, ammo and equipment gates, then initializes a normal or power bomb in the lowest free bomb place.</summary>
-    internal int? TryPlaceBomb(
+    internal void TryPlaceBomb(
         SamusState samus,
         GameplayAction controllerInput,
         GameplayAction controllerNewInput,
@@ -385,16 +386,16 @@ public sealed class SamusBombProjectileSystem
         // also needs Shoot newly pressed.
         const GameplayAction shoot = GameplayAction.Shoot;
         if ((controllerInput & shoot) == GameplayAction.None)
-            return null;
+            return;
 
         bool placingPowerBomb = samus.SelectedHudItem == HudItem.PowerBomb;
         if (placingPowerBomb && PowerBombExplosion.IsArmed)
-            return null;
+            return;
 
         // Normal bombs require the Bomb item. A selected Power Bomb skips this equipment
         // check and goes straight to the reservation.
         if (!placingPowerBomb && !samus.EquippedItems.HasAny(SamusEquipmentFlags.Bombs))
-            return null;
+            return;
 
         if (!TryReserveBomb(controllerNewInput, shoot))
         {
@@ -404,14 +405,14 @@ public sealed class SamusBombProjectileSystem
             // reject before the reservation and keep the charge. The runtime publishes the
             // cancellation's shade and sound.
             rejectedPlacementClearedCharge = samus.BeamCharge.IsCharging;
-            return null;
+            return;
         }
 
         // HUD selection cannot normally point at an empty ammo class. Preserve the
         // game's ordering nonetheless: the reservation has already counted the bomb when
         // Power Bombs are selected with none left.
         if (placingPowerBomb && samus.PowerBombs == 0)
-            return null;
+            return;
 
         if (placingPowerBomb)
         {
@@ -421,8 +422,7 @@ public sealed class SamusBombProjectileSystem
             PowerBombExplosion.Arm();
         }
 
-        int place = FindFreePlace();
-        SamusBomb bomb = Occupy(place);
+        SamusBomb bomb = Occupy(FindFreePlace());
         bomb.Type = placingPowerBomb ? PowerBombType : NormalBombType;
         bomb.PicturedBeams = SamusBeamCombinations.Of(samus.EquippedBeams);
         bomb.Position = bomb.Position.WithWhole(samus.Position.Whole);
@@ -446,8 +446,6 @@ public sealed class SamusBombProjectileSystem
                 samus.SelectedHudItem = HudItem.Beam;
             }
         }
-
-        return place;
     }
 
     /// <summary>Consumes Morph Ball charge input and either continues its Down hold or emits all five spread bombs.</summary>

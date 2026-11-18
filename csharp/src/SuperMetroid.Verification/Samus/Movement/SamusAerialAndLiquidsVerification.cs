@@ -101,7 +101,7 @@ level, samus, 0, unchecked((ushort)(frame + 3)), roomObjects: SamusRoomObjectFix
         context: "neutral jump solid-floor landing");
     AssertEqual(77, samus.Position.Y.Whole, "aerial radius rests at floor before pose expansion");
 
-    SamusPoseTransitions.ApplyAerialLanding(samus, wasSpinning: false);
+    SamusPoseTransitions.ApplyAerialLanding(samus, wasSpinning: false, controllerInput: GameplayAction.None);
     AssertEqual(SamusPoseId.NormalLandingRightPose, samus.Pose, "normal right-facing landing pose");
     AssertEqual(75, samus.Position.Y.Whole, "landing radius expansion keeps feet fixed");
     AssertEqual(SamusVerticalDirection.None, samus.Kinematics.YDirection, "landing clears vertical direction");
@@ -188,7 +188,7 @@ level, samus, 0, unchecked((ushort)(frame + 3)), roomObjects: SamusRoomObjectFix
         "right-to-left neutral turn jump launches upward");
 
     // Aimed standing turns do not become inert until their three-frame stream reaches
-    // `$F8`. They keep using `$91:8142`, so Jump may interrupt every one of the six records
+    // `$F8`. The aimed-up and diagonal-down ones keep their transition tables, so Jump may interrupt those four records
     // with the same spin/neutral pair as `$25/$26`. Exercise both outputs for both facings;
     // `$8D -> $1A` is the live Climb route which first exposed this omitted family.
     AimedTurnJump[] aimedTurnJumps =
@@ -201,11 +201,26 @@ level, samus, 0, unchecked((ushort)(frame + 3)), roomObjects: SamusRoomObjectFix
             SamusPoseId.SpinJumpLeftPose, SamusPoseId.NeutralJumpTransitionLeftPose),
         new AimedTurnJump(SamusPoseId.TurningLeftToRightAimDiagonalDownPose,
             SamusPoseId.SpinJumpRightPose, SamusPoseId.NeutralJumpTransitionRightPose),
+    ];
+    // The diagonal-up aimed turns $9C/$9D take no input transitions (their table entries are the terminator), so no Jump
+    // interrupts them and the ordinary jump setup admits neither jump from them (#2397).
+    foreach (AimedTurnJump unselectable in new[]
+    {
         new AimedTurnJump(SamusPoseId.TurningRightToLeftAimDiagonalUpPose,
             SamusPoseId.SpinJumpLeftPose, SamusPoseId.NeutralJumpTransitionLeftPose),
         new AimedTurnJump(SamusPoseId.TurningLeftToRightAimDiagonalUpPose,
             SamusPoseId.SpinJumpRightPose, SamusPoseId.NeutralJumpTransitionRightPose),
-    ];
+    })
+    {
+        foreach (SamusPoseId target in new[] { unselectable.SpinTarget, unselectable.NeutralTarget })
+        {
+            SamusState turning = InstalledFixtures.CreateSamus();
+            turning.Pose = unselectable.Source;
+            AssertThrows<InvalidOperationException>(
+                () => SamusAerialPoseTransitions.ApplyOrdinaryJumpTransition(turning, target),
+                $"diagonal-up aimed turn {unselectable.Source} admits no jump to {target}");
+        }
+    }
     foreach ((SamusPoseId source, SamusPoseId spinTarget, SamusPoseId neutralTarget) in aimedTurnJumps)
     {
         var spin = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = source };
@@ -250,7 +265,7 @@ level, fallLeft, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObje
 level, fallLeft, 0, unchecked((ushort)(frame + 1)), roomObjects: SamusRoomObjectFixtures.Uninstalled),
         maximumFrames: 199,
         context: "left falling pose floor landing");
-    SamusPoseTransitions.ApplyAerialLanding(fallLeft, wasSpinning: false);
+    SamusPoseTransitions.ApplyAerialLanding(fallLeft, wasSpinning: false, controllerInput: GameplayAction.None);
     AssertEqual(SamusPoseId.NormalLandingLeftPose, fallLeft.Pose, "left fall selects normal landing pose");
 
     // The standing transition table is shared by `$A4/$A5`, so Jump may interrupt normal
@@ -718,7 +733,7 @@ empty, screwRepeat, GameplayAction.Jump, 0, GameplayAction.Jump, roomObjects: Sa
     AssertEqual(0, palettes.CycleShadeStep, "six Screw palettes wrap to step zero");
 
     // A Screw landing requests the same normal palette reload performed by `$91:F433`.
-    SamusPoseTransitions.ApplyAerialLanding(screwRepeat, wasSpinning: true);
+    SamusPoseTransitions.ApplyAerialLanding(screwRepeat, wasSpinning: true, controllerInput: GameplayAction.None);
     AssertEqual(SamusPoseId.SpinLandingRightPose, screwRepeat.Pose, "Screw Attack lands through spin landing");
     AssertTrue(screwRepeat.HorizontalSpeed.SuitShadeRestoreRequested,
         "Screw Attack landing requests normal palette restore");
@@ -1619,28 +1634,28 @@ static void SeedLandingSiteInlineRoomByte(TestAddressSpace bus)
 
         samus.Health = 50;
         PrivateState.Set(samus, nameof(SamusState.EnergyFraction), PeriodicDamageEnergyFraction.Holding(ThreeQuarterUnits));
-        samus.PeriodicDamage.Accumulate(HalfUnit, 1);
+        samus.PeriodicDamage.Accumulate(new UnsignedSixteenSixteen(whole: 1, fraction: HalfUnit));
         samus.PeriodicDamage.Apply(samus, timeIsFrozen: false);
         AssertEqual(49, samus.Health, "a covered fraction takes only the whole damage");
         AssertEqual(QuarterUnit, samus.EnergyFraction.Parts, "a covered fraction keeps its remainder without borrowing");
 
         samus.Health = 50;
         PrivateState.Set(samus, nameof(SamusState.EnergyFraction), PeriodicDamageEnergyFraction.Holding(QuarterUnit));
-        samus.PeriodicDamage.Accumulate(HalfUnit, 1);
+        samus.PeriodicDamage.Accumulate(new UnsignedSixteenSixteen(whole: 1, fraction: HalfUnit));
         samus.PeriodicDamage.Apply(samus, timeIsFrozen: false);
         AssertEqual(48, samus.Health, "an uncovered fraction borrows one more whole unit");
         AssertEqual(ThreeQuarterUnits, samus.EnergyFraction.Parts, "an uncovered fraction wraps to the remainder");
 
         samus.Health = 0;
         PrivateState.Set(samus, nameof(SamusState.EnergyFraction), PeriodicDamageEnergyFraction.None);
-        samus.PeriodicDamage.Accumulate(HalfUnit, 0);
+        samus.PeriodicDamage.Accumulate(new UnsignedSixteenSixteen(whole: 0, fraction: HalfUnit));
         samus.PeriodicDamage.Apply(samus, timeIsFrozen: false);
         AssertEqual(0, samus.Health, "a borrow from zero energy clamps energy to zero");
         AssertEqual(0, samus.EnergyFraction.Parts, "a fatal borrow clears the fraction instead of wrapping it");
 
         samus.Health = 1;
         PrivateState.Set(samus, nameof(SamusState.EnergyFraction), PeriodicDamageEnergyFraction.Holding(HalfUnit));
-        samus.PeriodicDamage.Accumulate(0, 2);
+        samus.PeriodicDamage.Accumulate(new UnsignedSixteenSixteen(whole: 2, fraction: 0));
         samus.PeriodicDamage.Apply(samus, timeIsFrozen: false);
         AssertEqual(0, samus.Health, "whole damage beyond the remaining energy clamps energy to zero");
         AssertEqual(0, samus.EnergyFraction.Parts, "fatal whole damage clears the fraction too");

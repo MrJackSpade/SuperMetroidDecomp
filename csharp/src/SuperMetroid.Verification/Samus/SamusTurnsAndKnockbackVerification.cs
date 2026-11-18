@@ -720,7 +720,7 @@ floorLevel, downKnockback, frameCounter: 0, roomObjects: SamusRoomObjectFixtures
         Position = FixedPosition<RoomPixels>.FromWhole(new(96, 96)),
     };
     SamusPoseMetadata.RefreshCollisionRadii(boostLanding);
-    SamusPoseTransitions.ApplyAerialLanding(boostLanding, wasSpinning: false);
+    SamusPoseTransitions.ApplyAerialLanding(boostLanding, wasSpinning: false, controllerInput: GameplayAction.None);
     AssertEqual(SamusPoseId.NormalLandingLeftPose, boostLanding.Pose,
         "damage-boost FF shot direction selects ordinary metadata-direction landing");
     AssertEqual(94, boostLanding.Position.Y.Whole,

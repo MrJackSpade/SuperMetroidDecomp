@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Samus.Poses;
 
 namespace SuperMetroid.Core.Samus;
@@ -34,8 +35,9 @@ internal static class SamusAnimationNumberAccess
 }
 
 /// <summary>
-/// Verification access: frames of a pose's animation by the native game's numbers (#2048). The native game numbers an
-/// animation's frames from its start, through each segment's frames, its cue and the values the cue carries.
+/// Verification access: frames of a pose's animation by the native game's numbers (#2048, #2395). The native game numbers an
+/// animation's frames from its start, through each segment's frames, its cue, the values the cue carries and the runs no
+/// segment names; the import alone knows that layout (<see cref="SamusAnimationLayout"/>).
 /// </summary>
 internal static class SamusAnimationNumbers
 {
@@ -44,34 +46,11 @@ internal static class SamusAnimationNumbers
 
     /// <summary>The frame of <paramref name="animation"/> the native game numbers <paramref name="number"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The number is negative.</exception>
-    internal static SamusAnimationFrame Frame(SamusPoseAnimation animation, int number)
-    {
-        ArgumentOutOfRangeException.ThrowIfNegative(number);
-        int start = 0;
-        for (int segment = 0; segment < animation.Segments.Count - 1; segment++)
-        {
-            int length = animation.Segments[segment].Length;
-            if (number < start + length)
-                return new SamusAnimationFrame(segment, number - start);
-            start += length;
-        }
-        return new SamusAnimationFrame(animation.Segments.Count - 1, number - start);
-    }
+    internal static SamusAnimationFrame Frame(SamusPoseAnimation animation, int number) => SamusAnimationLayout.FrameAt(animation, number);
 
     /// <summary>The native number of <paramref name="frame"/> of <paramref name="pose"/>'s animation.</summary>
     internal static int Number(SamusPoseId pose, SamusAnimationFrame frame) => Number(SamusAnimationDelays.AnimationForPose(pose), frame);
 
     /// <summary>The native number of <paramref name="frame"/> of <paramref name="animation"/>.</summary>
-    internal static int Number(SamusPoseAnimation animation, SamusAnimationFrame frame)
-    {
-        _ = animation.SegmentName(frame);
-        return animation.Segments.Take(frame.Segment).Sum(segment => segment.Length) + frame.Frame;
-    }
-
-    /// <summary>The target naming the frame of <paramref name="animation"/> the native game numbers <paramref name="number"/>.</summary>
-    internal static SamusAnimationTarget Target(SamusPoseAnimation animation, int number)
-    {
-        SamusAnimationFrame frame = Frame(animation, number);
-        return new SamusAnimationTarget(animation.SegmentName(frame), frame.Frame);
-    }
+    internal static int Number(SamusPoseAnimation animation, SamusAnimationFrame frame) => SamusAnimationLayout.Offset(animation, frame);
 }

@@ -68,8 +68,10 @@ internal static class PowerBombGlowColorsVerification
         // The runtime no longer has a cartridge color fallback, so both timing owners
         // must receive the installed catalog; the guarded one also rejects any stray
         // gameplay request for those native color bytes.
-        var native = new SamusPowerBombExplosionState(catalog);
-        var installed = new SamusPowerBombExplosionState(catalog);
+        var nativeGlowColors = catalog;
+        var native = new SamusPowerBombExplosionState();
+        var installedGlowColors = catalog;
+        var installed = new SamusPowerBombExplosionState();
         var guarded = NewForbiddenPowerBombColorBus(rom);
         if (crystalFlash)
         {
@@ -87,8 +89,8 @@ internal static class PowerBombGlowColorsVerification
         int frames = 0;
         do
         {
-            bool nativeComplete = native.StepFrame();
-            bool installedComplete = installed.StepFrame();
+            bool nativeComplete = native.StepFrame(nativeGlowColors);
+            bool installedComplete = installed.StepFrame(installedGlowColors);
             string label = $"{(crystalFlash ? "Crystal Flash" : "Power Bomb")} frame {frames}";
             AssertEqual(nativeComplete, installedComplete, $"{label} completion");
             AssertEqual(native.Blast.Phase, installed.Blast.Phase, $"{label} next phase");

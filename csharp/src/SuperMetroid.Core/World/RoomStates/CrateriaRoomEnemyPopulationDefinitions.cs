@@ -152,8 +152,8 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.FinalMissileDefault),
         [
-            new(EnemyDefinitionId.MorphBallEye, new(50, 120), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new MorphBallEyeSpawnSettings(Facing: HorizontalDirection.Right, Part: MorphBallEyePart.BeamMount, MountSide: MorphBallEyeMountSide.Left)),
-            new(EnemyDefinitionId.MorphBallEye, new(50, 120), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new MorphBallEyeSpawnSettings(Facing: HorizontalDirection.Right, Part: MorphBallEyePart.Eye, MountSide: MorphBallEyeMountSide.Left)),
+            new(EnemyDefinitionId.MorphBallEye, new(50, 120), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new MorphBallEyeMountSpawnSettings(Side: MorphBallEyeMountSide.Left)),
+            new(EnemyDefinitionId.MorphBallEye, new(50, 120), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new MorphBallEyeBodySpawnSettings(Facing: HorizontalDirection.Right)),
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.CrateriaMap),
         [

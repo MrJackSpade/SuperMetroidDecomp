@@ -30,12 +30,6 @@ internal static class ChozoStatueAnimationsVerification
                             continue;
                         }
 
-                        if (instruction.Operands[index] == 'E' && cue is ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.StopAwaitingHand })
-                        {
-                            AssertTrue(ChozoNativeWords.NoFrameBehaviorWords.Contains(operands[index]), $"{at}: operand {index} is a frame routine that returns at once");
-                            continue;
-                        }
-
                         AssertEqual(operands[index], instruction.Operands[index] switch
                         {
                             // The other native operands are the footstep's signed X word and the hand wait's word.
@@ -45,10 +39,11 @@ internal static class ChozoStatueAnimationsVerification
                             _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),
                         }, $"{at}: operand {index}");
                     }
-                }),
+                },
+                Omitted: Omitted),
             onlyRunOnInto: new HashSet<ChozoStatueSegment>
             {
-                ChozoStatueSegment.LowerNorfairRelease, ChozoStatueSegment.WreckedShipFlexEnd, ChozoStatueSegment.WreckedShipSettingSamusDown,
+                ChozoStatueSegment.LowerNorfairRelease, ChozoStatueSegment.WreckedShipSettingSamusDown,
             });
         Console.WriteLine($"  Chozo statue animations: {Entries.Length} segments ({beats} beats) and {ChozoStatueAnimations.StartingAt.Count} animations match bank $AA.");
     }

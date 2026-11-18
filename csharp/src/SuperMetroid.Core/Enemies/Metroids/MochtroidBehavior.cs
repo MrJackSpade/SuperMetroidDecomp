@@ -40,7 +40,6 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // start every Mochtroid this way.
         var state = new MochtroidEnemyState
         {
-            AttachmentDamageTimer = 0,
             MovementMode = MochtroidMovementMode.NotTouchingSamus,
         };
         place.SetSpeciesState(state);
@@ -188,9 +187,9 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
             _collision.ResolveNormalEnemyTouch(place, samus, pseudoScrew);
         }
 
-        // Unlike every ordinary contact response, Mochtroid immediately cancels the timers
-        // its common contact damage started. Samus remains attached rather than entering a normal
-        // invincibility/knockback grace period, permitting another 80-contact drain cycle.
+        // Unlike any other enemy, the Mochtroid cancels at once the invincibility and knockback its
+        // touch's damage started: Samus stays attached rather than being knocked back with a grace
+        // period, so another 80-contact drain cycle can follow.
         samus.InvincibilityTimer = WrappingCountdown.Start(0);
         samus.KnockbackTimer = 0;
     }

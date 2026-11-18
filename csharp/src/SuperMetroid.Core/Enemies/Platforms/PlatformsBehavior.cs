@@ -49,11 +49,8 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = new(PlatformAnimations.StartingWith(PlatformAnimationChoices.SelectAnimation(
             state.Kind, axis: Axis.Horizontal, state.XMovement)), AnimationPlace.StartOfAnimation);
 
-        state.YMovement = PlatformVerticalMovement.Rising;
         state.PreviousYMovement = PlatformVerticalMovement.Rising;
-        state.VerticalArt = null;
         state.RestingY = place.Position.Y.Whole + PlatformMotionDefinitions.RestingDepthBelowPlacement;
-        state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
     }
 
     /// <summary>Runs the Tripper's and the suspensor platform's main AI.</summary>
@@ -65,22 +62,22 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // Every frame starts in the rising phase and changes to sinking only when the
         // exact asymmetric "Samus from below" test succeeds. This is also the solid-
-        // platform riding gate; ordinary radius overlap would trigger from the sides.
-        state.YMovement = EnemyCollision.IsSamusStandingOn(place, samus)
+        // platform riding gate; ordinary radius overlap would trigger from the sides. The choice is this update's own
+        // (#2473); only the last one carries to the next update.
+        PlatformVerticalMovement movement = EnemyCollision.IsSamusStandingOn(place, samus)
             ? PlatformVerticalMovement.Sinking
             : PlatformVerticalMovement.Rising;
 
         // The sinking carry measures the horizontal step from the position before it.
         int preHorizontalX = place.Position.X.Whole;
         MovePlatformHorizontally(place, state, level);
-        MovePlatformVertically(place, state, samus, level, preHorizontalX);
+        MovePlatformVertically(place, state, samus, level, movement, preHorizontalX);
 
-        // Main AI resets acceleration after running the first frame in a newly
-        // selected vertical state. Preserve that slightly surprising ordering: a new phase
-        // can use the curve's second mark now, then begins from the curve's start on its next frame.
-        if (state.YMovement != state.PreviousYMovement)
+        // A newly selected vertical movement restarts the speed curve only after its first update:
+        // that update can move by the curve's second mark, and the next starts from the curve's start.
+        if (movement != state.PreviousYMovement)
             state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
-        state.PreviousYMovement = state.YMovement;
+        state.PreviousYMovement = movement;
     }
 
     /// <summary>Applies horizontal movement, reversing the horizontal direction and still-art animation on wall collision.</summary>
@@ -95,13 +92,13 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, place, displacement))
             return;
 
-        // A wall collision reverses the horizontal direction and immediately installs the opposite
+        // A wall collision reverses the horizontal direction and immediately starts the opposite
         // vertically-still animation. The first step of that animation shows the same frame again
         // when the animations run later in this enemy frame.
         state.XMovement = state.XMovement == HorizontalDirection.Left
             ? HorizontalDirection.Right
             : HorizontalDirection.Left;
-        InstallPlatformVerticallyStillForCurrentDirection(place, state);
+        StartPlatformStillAnimationForHeading(place, state);
     }
 
     /// <summary>Routes the platform through rise or sink physics and carries a riding Samus by accepted motion.</summary>
@@ -109,15 +106,17 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <param name="state">The platform's state.</param>
     /// <param name="samus">Samus, carried while riding.</param>
     /// <param name="level">The room's collision data.</param>
+    /// <param name="movement">The vertical movement this update's rider test chose.</param>
     /// <param name="preHorizontalX">The platform's whole X before this update's horizontal movement.</param>
     private void MovePlatformVertically(
         RoomEnemyPlace place,
         PlatformEnemyState state,
         SamusState samus,
         RoomLevelData level,
+        PlatformVerticalMovement movement,
         int preHorizontalX)
     {
-        switch (state.YMovement)
+        switch (movement)
         {
             case PlatformVerticalMovement.Rising:
                 RaisePlatform(place, state, level);
@@ -127,7 +126,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Platform Y movement {state.YMovement} is neither rising nor falling.");
+                    $"Platform Y movement {movement} is neither rising nor falling.");
         }
     }
 
@@ -211,7 +210,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.VerticalArt == PlatformVerticalArt.Moving)
             return;
         state.VerticalArt = PlatformVerticalArt.Moving;
-        InstallPlatformVerticallyMovingForCurrentDirection(place, state);
+        StartPlatformMovingAnimationForHeading(place, state);
     }
 
     /// <summary>Starts stationary art once per resting phase (#2145).</summary>
@@ -222,11 +221,11 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.VerticalArt == PlatformVerticalArt.Still)
             return;
         state.VerticalArt = PlatformVerticalArt.Still;
-        InstallPlatformVerticallyStillForCurrentDirection(place, state);
+        StartPlatformStillAnimationForHeading(place, state);
     }
 
     /// <summary>Selects the moving animation from which platform it is and its current horizontal direction.</summary>
-    internal static void InstallPlatformVerticallyMovingForCurrentDirection(
+    internal static void StartPlatformMovingAnimationForHeading(
         RoomEnemyPlace place,
         PlatformEnemyState state)
     {
@@ -235,7 +234,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Selects the stationary animation from which platform it is and its current horizontal direction.</summary>
-    internal static void InstallPlatformVerticallyStillForCurrentDirection(
+    internal static void StartPlatformStillAnimationForHeading(
         RoomEnemyPlace place,
         PlatformEnemyState state)
     {
@@ -243,7 +242,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Kind, axis: Axis.Horizontal, state.XMovement));
     }
 
-    /// <summary>Starts the selected animation with a one-tick frame timer.</summary>
+    /// <summary>Starts the selected animation, its first step playing on the next update.</summary>
     private static void StartPlatformAnimation(RoomEnemyPlace place, PlatformEnemyState state, PlatformSegment segment)
     {
         state.Playback = EnemyAnimationPlayback.Start(place, PlatformAnimations.StartingWith(segment));

@@ -27,6 +27,15 @@ public readonly record struct QuadraticCurveSpeed(SignedSixteenSixteen Speed)
         _ => throw new ArgumentOutOfRangeException(nameof(sign), sign, "Undefined enemy speed sign."),
     };
 
+    /// <summary>The speed toward <paramref name="direction"/> (#2473): as it is downward, negated upward.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="direction"/> is neither up nor down.</exception>
+    internal SignedSixteenSixteen Toward(VerticalDirection direction) => direction switch
+    {
+        VerticalDirection.Down => Speed,
+        VerticalDirection.Up => -Speed,
+        _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, "Not a vertical direction."),
+    };
+
     /// <summary>
     /// The speed in the direction <paramref name="sign"/> names, in 256ths of a pixel per frame, negative toward
     /// decreasing coordinates.

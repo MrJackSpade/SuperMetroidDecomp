@@ -31,7 +31,8 @@ public sealed class SporeSpawnEnemyState
     /// </summary>
     public Position16<RoomPixels> StalkAnchor { get; internal set; }
     /// <summary>
-    /// Where his body spawned in room pixels, the centre of his sway, kept before the live fight raises him 128 pixels.
+    /// Where his body spawned in room pixels, the centre of his sway, kept before the live fight raises him
+    /// (<see cref="SporeSpawnArenaDefinitions.FightStartRise"/>).
     /// </summary>
     public Position16<RoomPixels> MovementCenter { get; internal set; }
     /// <summary>
@@ -52,7 +53,7 @@ public sealed class SporeSpawnEnemyState
     public bool Damaged { get; internal set; }
     /// <summary>
     /// His death drift in 1/65536 pixels per update on each axis, set once as his death begins: one pixel per update
-    /// shared between the axes along his bearing to the arena's centre at (128,624), each axis signed toward it.
+    /// shared between the axes along his bearing to the arena's centre, each axis signed toward it.
     /// </summary>
     public FixedVector<RoomPixels> DeathVelocity { get; internal set; }
     /// <summary>Guard recording that zero health has already triggered projectile cleanup, the defeated flag, the death animation, and the ceiling-crumble request.</summary>

@@ -16,8 +16,7 @@ public sealed class MorphBallEyeBeamState
     /// <summary>
     /// The angle from the beam's centre to each of its edges, with its fraction of a step: zero when the beam appears,
     /// grown by <see cref="AngularHalfWidthGrowth"/> each widening update with the fraction carrying into whole steps,
-    /// and set to four whole steps, keeping its fraction, on the update it reaches four. The growth step is a whole
-    /// number of 256ths of a step, so no finer fraction ever arises.
+    /// and set to four whole steps, keeping its fraction, on the update it reaches four.
     /// </summary>
     public RotationAngle AngularHalfWidth { get; internal set; }
 

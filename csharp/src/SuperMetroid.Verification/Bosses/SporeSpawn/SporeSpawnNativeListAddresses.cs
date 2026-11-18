@@ -38,7 +38,7 @@ internal static class SporeSpawnNativeListAddresses
     /// <summary>Each bank-$A5 Spore Spawn instruction the body lists use: the cue it must become and its operand words.</summary>
     internal static readonly Dictionary<ushort, SporeSpawnNativeListAddressesBodyInstruction> BodyInstructions = new()
     {
-        [0xe75f] = new SporeSpawnNativeListAddressesBodyInstruction(NativeCueShape<SporeSpawnCue>.Exactly(new SporeSpawnCue.Signal(SporeSpawnCueKind.IncreaseMaxXRadius)), 0),
+        [0xe75f] = new SporeSpawnNativeListAddressesBodyInstruction(NativeCueShape<SporeSpawnCue>.Exactly(new SporeSpawnCue.Signal(SporeSpawnCueKind.WidenSway)), 0),
         [0xe771] = new SporeSpawnNativeListAddressesBodyInstruction(NativeCueShape<SporeSpawnCue>.Exactly(new SporeSpawnCue.Signal(SporeSpawnCueKind.ReopenToHits)), 0),
         [0xe82d] = new SporeSpawnNativeListAddressesBodyInstruction(NativeCueShape<SporeSpawnCue>.Of<SporeSpawnCue.SetSway>(""), 2),
         [0xe872] = new SporeSpawnNativeListAddressesBodyInstruction(NativeCueShape<SporeSpawnCue>.Of<SporeSpawnCue.SetSporeGeneration>(""), 1),

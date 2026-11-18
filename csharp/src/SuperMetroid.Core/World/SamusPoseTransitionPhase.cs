@@ -54,7 +54,7 @@ internal sealed class SamusPoseTransitionPhase
         // The turn's cue leaves a turn-completion pose only if the input phase did not select one
         // of its four jump exceptions. When left pending, it still wins here.
         // The hurt-expiry check samples hurt expiry before the pose update installs the animation's
-        // pending pose. Preserve that decision even if Shinespark setup
+        // pending pose. That decision stands even if Shinespark setup
         // clears the live knockback direction while installing the shinespark windup poses.
         bool hitInterruptionExpiryPending =
             SamusKnockbackMovement.IsExpiredHitInterruptionPending(samus);
@@ -110,7 +110,7 @@ internal sealed class SamusPoseTransitionPhase
         // input phase's input. It still reaches this same history step, once, after the
         // forced launch pose.
         // X-ray's activation installs its pose and movement early and clears
-        // the ordinary input phase's targets. Preserve its final history commit here.
+        // the ordinary input phase's targets. Its final history commit happens here.
         if (animationTransitionApplied || frame.XrayActivatedThisFrame || _player.LastGrappleMovement is { WallJumpStarted: true } ||
             _player.ProspectiveSamusPose is not null ||
             _player.ProspectiveSamusFallbackPose is not null)

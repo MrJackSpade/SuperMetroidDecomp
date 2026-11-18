@@ -380,11 +380,17 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (enemy.SpeciesState<YellowPipeBugState>() is { } yellowPipeBug)
         {
-            // Each way a flight or arc goes has a routine of its own (#2165).
+            // Each way a flight or arc goes has a routine of its own (#2165); the bug flies the way its placement faces
+            // (#2474), which the recorded routine's way must be. An arc's dip direction word (F) is set while it dips and
+            // cleared once it climbs back (#2473).
             if (PipeBugsNativeWords.YellowPipeBugFlights.TryDecode(words.A, out (YellowPipeBugAction Action, HorizontalDirection Direction) yellowFlight))
             {
-                yellowPipeBug.Action = yellowFlight.Action;
-                yellowPipeBug.FlightDirection = yellowFlight.Direction;
+                HorizontalDirection yellowFacing = enemy.SpawnSettings<YellowPipeBugSpawnSettings>().Facing;
+                if (yellowFlight.Direction != yellowFacing)
+                    throw new InvalidDataException($"Recorded yellow Pipe Bug flies {yellowFlight.Direction}, not its placement's {yellowFacing}.");
+                yellowPipeBug.Action = yellowFlight.Action == YellowPipeBugAction.ArcDipping && words.F == 0
+                    ? YellowPipeBugAction.ArcClimbing
+                    : yellowFlight.Action;
             }
             else
             {
@@ -418,7 +424,7 @@ internal static class NativeEnemyFamilyStateImport
             kiHunterBodyRecord.Action = KiHuntersNativeWords.KiHunterActions.Decode(words.A, "recorded KiHunterAction");
             kiHunterBodyRecord.SwoopTargetX = words.B;
             kiHunterBodyRecord.SwoopOriginY = words.C;
-            kiHunterBodyRecord.AnimationChangeAngle = RotationAngle.FromSteps(words.E);
+            // The swipe's trigger angle follows from the way the body swoops (#2474); the game keeps it in an extra word.
             kiHunterBodyRecord.SwoopAngle = RotationAngle.WrappedSteps(words.F);
         }
         if (enemy.SpeciesState<KiHunterWingState>() is { } kiHunterWingRecord)
@@ -440,7 +446,7 @@ internal static class NativeEnemyFamilyStateImport
             enemies.ZebetiteBehavior.SharedPulse = ListStep<ZebetitePulse>.At(ZebetitePulse.All, words.C);
         if (enemy.SpeciesState<ChozoStatueState>() is { } chozoStatueRecord)
         {
-            chozoStatueRecord.AwaitingHand = ChozoNativeWords.AwaitingHandAt(words.F, chozoStatueRecord.Site == ChozoStatueSite.WreckedShip);
+            chozoStatueRecord.Phase = ChozoNativeWords.PhaseAt(words.F, enemy.SpawnSettings<ChozoStatueSpawnSettings>().Site == ChozoStatueSite.WreckedShip);
         }
         if (enemy.SpeciesState<YardEnemyState>() is { } yardRecord)
         {
@@ -504,9 +510,13 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (enemy.SpeciesState<BoyonEnemyState>() is { } boyonRecord)
         {
-            boyonRecord.SpeedMultiplier = words.A;
+            // The Boyon scales its curve and bounces as its placement says (#2476), which the recording's copies must be.
+            BoyonSpawnSettings boyonSettings = enemy.SpawnSettings<BoyonSpawnSettings>();
+            if (words.A != boyonSettings.SpeedMultiplier)
+                throw new InvalidDataException($"Recorded Boyon multiplier {words.A} is not its placement's {boyonSettings.SpeedMultiplier}.");
             boyonRecord.Speed = UnsignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(words.B);
-            boyonRecord.JumpHeight = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(words.C);
+            if (SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(words.C) != SignedSixteenSixteen.FromWholePixels(boyonSettings.JumpHeight))
+                throw new InvalidDataException($"Recorded Boyon height ${words.C:X4} is not its placement's {boyonSettings.JumpHeight} pixels.");
             // The arc's distance is only the first update's working sum (#2432): a Boyon still to derive its arc has summed
             // nothing, and one that has derived it no longer reads it.
             if (boyonRecord.Phase == BoyonPhase.DerivingArc && words.D != 0)
@@ -535,8 +545,12 @@ internal static class NativeEnemyFamilyStateImport
         // A bobbing Fireflea keeps none of these words.
         if (enemy.SpeciesState<FirefleaEnemyState>() is { Flight: CirclingFirefleaState firefleaRecord })
         {
-            firefleaRecord.AngularSpeed = SuperMetroid.AssetExtraction.Enemies.EnemySpawnSelectors.FirefleaTurnPerUpdate(SignedSixteenSixteen.FromParts(unchecked((short)words.B), words.A));
-            firefleaRecord.Radius = words.C;
+            // The Fireflea circles as its placement chose (#2476), which the recording's turn and radius must be.
+            AngularSpeed firefleaTurn = SuperMetroid.AssetExtraction.Enemies.EnemySpawnSelectors.FirefleaTurnPerUpdate(SignedSixteenSixteen.FromParts(unchecked((short)words.B), words.A));
+            if (firefleaTurn != firefleaRecord.Definition.TurnPerUpdate)
+                throw new InvalidDataException($"Recorded Fireflea turn {firefleaTurn} is not its placement's {firefleaRecord.Definition.TurnPerUpdate}.");
+            if (words.C != enemy.SpawnSettings<FirefleaSpawnSettings>().Radius)
+                throw new InvalidDataException($"Recorded Fireflea radius {words.C} is not its placement's {enemy.SpawnSettings<FirefleaSpawnSettings>().Radius}.");
             firefleaRecord.Angle = RotationAngleConstants.FromRaw(words.D);
             firefleaRecord.Center = new(words.E, words.F);
         }
@@ -556,8 +570,10 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (enemy.SpeciesState<CacatacEnemyState>() is { } cacatacRecord)
         {
-            // The record holds the speed and its negation for walking left; the speed alone is the state.
-            cacatacRecord.Speed = cacatacRecord.Speed.WithWholePixels(unchecked((short)words.A));
+            // The record holds the speed's whole pixels and their negation for walking left; the Cacatac walks at its
+            // placement's speed (#2476), whose whole pixels the recording's must be.
+            if (unchecked((short)words.A) != enemy.SpawnSettings<CacatacSpawnSettings>().Speed.WholePixels)
+                throw new InvalidDataException($"Recorded Cacatac speed {unchecked((short)words.A)} is not its placement's {enemy.SpawnSettings<CacatacSpawnSettings>().Speed}.");
             // Every recorded direction but left patrols right, as the game's restore-patrol cue reads it (#2277).
             HorizontalDirection cacatacPatrol = CacatacNativeWords.Directions.Decode(words.D, "recorded Cacatac direction").Direction;
             (CacatacAction cacatacAction, HorizontalDirection? cacatacPatrolling) = CacatacNativeWords.CacatacActions.Decode(words.E, "recorded CacatacAction");
@@ -651,13 +667,16 @@ internal static class NativeEnemyFamilyStateImport
             boulderRecord.BounceSpeedAccumulator = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(words.C);
             // The record counts the bounces left, two before the first impact and minus one once rolling.
             boulderRecord.ImpactsSoFar = BoulderBounces.ImpactCount - 1 - unchecked((short)words.D);
-            boulderRecord.Roll = words.E switch
+            // The Boulder rolls as its placement names (#2476), which the recording's roll must be.
+            BoulderRoll boulderRoll = words.E switch
             {
                 0 => BoulderRoll.Right,
                 1 => BoulderRoll.Left,
                 2 => BoulderRoll.LeftBreakingOnImpact,
                 _ => throw new InvalidDataException($"Recorded Boulder roll {words.E} is not a roll."),
             };
+            if (boulderRoll != enemy.SpawnSettings<BoulderSpawnSettings>().Roll)
+                throw new InvalidDataException($"Recorded Boulder roll {boulderRoll} is not its placement's {enemy.SpawnSettings<BoulderSpawnSettings>().Roll}.");
         }
         if (enemy.SpeciesState<RinkaEnemyState>() is { } rinkaRecord)
         {
@@ -675,10 +694,12 @@ internal static class NativeEnemyFamilyStateImport
         {
             etecoonRecord.Velocity = FixedVector<RoomPixels>.FromStoredParts(words.C, words.D, words.A, words.B);
             etecoonRecord.Action = AnimalsNativeWords.EtecoonActions.Decode(words.F, "recorded EtecoonAction");
-            // A dormant Etecoon's record holds its countdown below zero while it waits for Samus; the port's dormant
-            // Etecoon waits without one, and every other record's countdown is the wait it has left.
-            etecoonRecord.AwaitingSamus = etecoonRecord.Action == EtecoonAction.WaitingForSamus && unchecked((short)words.E) < 0;
-            if (!etecoonRecord.AwaitingSamus)
+            // A dormant Etecoon's record holds its countdown below zero while it waits for Samus; the same routine flexes
+            // once the countdown holds the flex's (#2476). The port's dormant Etecoon waits without one, and every other
+            // record's countdown is the wait it has left.
+            if (etecoonRecord.Action == EtecoonAction.Dormant && unchecked((short)words.E) >= 0)
+                etecoonRecord.Action = EtecoonAction.Flexing;
+            if (etecoonRecord.Action != EtecoonAction.Dormant)
                 etecoonRecord.ActionTimer = words.E;
         }
         if (enemy.SpeciesState<MochtroidEnemyState>() is { } mochtroidRecord)
@@ -762,7 +783,10 @@ internal static class NativeEnemyFamilyStateImport
                 ? words.C >> 8
                 : throw new InvalidDataException($"Recorded Choot falling cursor ${words.C:X4} is not a whole frame.");
             choot.FallingPatternLoopCounter = TrueDuration(words.D);
-            PrivateState.Set(choot, nameof(ChootEnemyState.FallingPath), ChootNativeWords.ChootFallingPaths.Decode(words.E, "recorded Choot falling pattern"));
+            // The Choot falls along its placement's path (#2476), which the recording's must be.
+            ChootFallingPath chootPath = ChootNativeWords.ChootFallingPaths.Decode(words.E, "recorded Choot falling pattern");
+            if (chootPath != enemy.SpawnSettings<ChootSpawnSettings>().FallingPath)
+                throw new InvalidDataException($"Recorded Choot falling path {chootPath} is not its placement's {enemy.SpawnSettings<ChootSpawnSettings>().FallingPath}.");
             choot.FallingPatternYDistance = words.F;
         }
         if (enemies.SkulteraStates[index] is { } skultera)
@@ -775,10 +799,6 @@ internal static class NativeEnemyFamilyStateImport
                 throw new InvalidDataException($"Recorded Skultera speed {skulteraSpeed} is not its placement's {enemy.SpawnSettings<SkulteraSpawnSettings>().Speed}.");
             // Only the angle word's low byte is ever read; movement discards its high byte.
             skultera.Angle = RotationAngle.FromSteps(LittleEndianBytes.LowByte(words.F));
-        }
-        if (enemy.EntityState<KagoEntity, KagoEnemyState>() is { } kago)
-        {
-            kago.UsesFastAnimation = words.B != 0;
         }
         if (enemy.DefinitionId == EnemyDefinitionId.Coven && enemy.SpeciesState<WreckedShipGhostEnemyState>() is { } ghost)
         {
@@ -819,7 +839,14 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (enemy.DefinitionId == EnemyDefinitionId.FaceBlock && enemy.SpeciesState<BlueBrinstarFaceBlockEnemyState>() is { } faceBlock)
         {
-            faceBlock.Activated = words.A != 0;
+            // The game keeps a woken face as a flag beside the turn its wake installed; the port's face is awake while it
+            // plays that turn (#2476). The recording's place in the turn is not imported: a woken face holds its turn's end.
+            if (words.A != 0)
+            {
+                Animation<BlueBrinstarFaceBlockSegment> turn = BlueBrinstarFaceBlockAnimations.StartingWith(
+                    BlueBrinstarFaceBlockBehavior.Wake(enemy.SpawnSettings<FaceBlockSpawnSettings>().Facing));
+                faceBlock.Playback = new(turn, AnimationPlace.HoldingIn(0, turn.Phases[0].BeatCount));
+            }
         }
         if (enemy.DefinitionId == EnemyDefinitionId.NuclearWaffle && enemy.SpeciesState<NuclearWaffleEnemyState>() is { } waffle)
         {
@@ -978,19 +1005,25 @@ internal static class NativeEnemyFamilyStateImport
             if (Index(words.D, 15, "Fune/Namihe behaviour") != 0)
                 throw new InvalidDataException($"Recorded Fune/Namihe behaviour ${words.D:X4} names a Namihe.");
             fune.CooldownTimer = words.E;
-            fune.CooldownTime = Index(words.F, byte.MaxValue, "Fune cooldown time");
+            // The Fune waits its placement's cooldown (#2476), which the recording's must be.
+            if (Index(words.F, byte.MaxValue, "Fune cooldown time") != enemy.SpawnSettings<FuneSpawnSettings>().CooldownTime)
+                throw new InvalidDataException($"Recorded Fune cooldown {words.F} is not its placement's {enemy.SpawnSettings<FuneSpawnSettings>().CooldownTime}.");
             (bool namihe, bool active, bool right) = FuneNamiheSelectorOracle.Decode(words.A);
             if (namihe)
                 throw new InvalidDataException($"Recorded Fune/Namihe selector ${words.A:X4} names a Namihe.");
             // The selector's activity is the spit the recorded action names (#2432).
             if (active != fune.IsSpitting)
                 throw new InvalidDataException($"Recorded Fune selector ${words.A:X4} disagrees with its recorded action {fune.Action}.");
-            fune.Facing = right ? HorizontalDirection.Right : HorizontalDirection.Left;
+            // The Fune faces as its placement says (#2476), which the recording's selector must.
+            if ((right ? HorizontalDirection.Right : HorizontalDirection.Left) != enemy.SpawnSettings<FuneSpawnSettings>().Facing)
+                throw new InvalidDataException($"Recorded Fune selector ${words.A:X4} does not face its placement's {enemy.SpawnSettings<FuneSpawnSettings>().Facing}.");
         }
         if (enemies.NamiheStates[index] is { } namiheState)
         {
             namiheState.Action = FuneNamiheNativeWords.NamiheActions.Decode(words.B, "recorded NamiheAction");
-            namiheState.YProximity = Index(words.C, byte.MaxValue, "Namihe wake distance");
+            // The Namihe wakes at its placement's distance (#2476), which the recording's must be.
+            if (Index(words.C, byte.MaxValue, "Namihe wake distance") != enemy.SpawnSettings<NamiheSpawnSettings>().YProximity)
+                throw new InvalidDataException($"Recorded Namihe wake distance {words.C} is not its placement's {enemy.SpawnSettings<NamiheSpawnSettings>().YProximity}.");
             if (Index(words.D, 15, "Fune/Namihe behaviour") == 0)
                 throw new InvalidDataException($"Recorded Fune/Namihe behaviour ${words.D:X4} names a Fune.");
             (bool namihe, bool active, bool right) = FuneNamiheSelectorOracle.Decode(words.A);
@@ -999,7 +1032,9 @@ internal static class NativeEnemyFamilyStateImport
             // The selector's activity is the spit the recorded action names (#2432).
             if (active != namiheState.IsSpitting)
                 throw new InvalidDataException($"Recorded Namihe selector ${words.A:X4} disagrees with its recorded action {namiheState.Action}.");
-            namiheState.Facing = right ? HorizontalDirection.Right : HorizontalDirection.Left;
+            // The Namihe faces as its placement says (#2476), which the recording's selector must.
+            if ((right ? HorizontalDirection.Right : HorizontalDirection.Left) != enemy.SpawnSettings<NamiheSpawnSettings>().Facing)
+                throw new InvalidDataException($"Recorded Namihe selector ${words.A:X4} does not face its placement's {enemy.SpawnSettings<NamiheSpawnSettings>().Facing}.");
         }
         if (enemy.DefinitionId is EnemyDefinitionId.GrappleRipper or EnemyDefinitionId.Ripper or EnemyDefinitionId.JetRipper &&
             enemy.SpeciesState<RipperEnemyState>() is { } ripperVariant)
@@ -1053,6 +1088,57 @@ internal static class NativeEnemyFamilyStateImport
             puyo.CurrentHop = PuyoNativeWords.HopRecordOffsets.Decode(words.E, "recorded Puyo hop record offset");
         }
     }
+
+    /// <summary>
+    /// Translates the family facts some enemies keep among their extra variables rather than their record words (#2473):
+    /// a Ki-Hunter body's swipe and wingless flags, a hopper's falling flag and a Kago's hits left.
+    /// </summary>
+    /// <param name="enemy">The imported slot, its record words already imported.</param>
+    /// <param name="words">The enemy's six recorded record words.</param>
+    /// <param name="extraWord">The enemy's extra variable word at a byte offset from the start of its extra variables.</param>
+    internal static void ImportExtraWords(RoomEnemyPlace enemy, NativeEnemyRecordWords words, Func<int, ushort> extraWord)
+    {
+        if (enemy.SpeciesState<KiHunterBodyState>() is { } kiHunterBody)
+        {
+            // The swipe flag ($7E:7820) marks a swoop whose swipe has started: the swipe half of the dive.
+            if (kiHunterBody.Action == KiHunterAction.Swooping && extraWord(KiHunterSwipeFlagOffset) != 0)
+                kiHunterBody.Action = KiHunterAction.Swiping;
+            // The wingless flag ($7E:7828) is the body's having lost its wings, which its routine already says.
+            if ((extraWord(KiHunterWinglessFlagOffset) != 0) == kiHunterBody.Flies)
+                throw new InvalidDataException($"Recorded Ki-Hunter {kiHunterBody.Action} disagrees with its wingless flag ${extraWord(KiHunterWinglessFlagOffset):X4}.");
+        }
+        if (enemy.SpeciesState<HopperEnemyState>() is { } hopper)
+        {
+            // The falling flag ($7E:7806) is set only while a hop returns to its surface (#2473).
+            bool returning = extraWord(HopperFallingFlagOffset) != 0;
+            hopper.Action = (hopper.Action, returning) switch
+            {
+                (HopperAction.HoppingAway, true) => HopperAction.Returning,
+                (_, false) => hopper.Action,
+                (var other, true) => throw new InvalidDataException($"Recorded hopper {other} has its falling flag set."),
+            };
+        }
+        if (enemy.EntityState<KagoEntity, KagoEnemyState>() is { } kago)
+        {
+            // The hit counter ($7E:7808) counts the shots left before the one that kills, from the placement's hit count; the
+            // fast animation flag (word B) is the shell's having been hit, which the hits taken say (#2473).
+            kago.HitsTaken = enemy.SpawnSettings<KagoSpawnSettings>().HitCount - unchecked((short)extraWord(KagoHitCounterOffset));
+            if ((words.B != 0) != (kago.HitsTaken > 0))
+                throw new InvalidDataException($"Recorded Kago fast animation flag ${words.B:X4} disagrees with its {kago.HitsTaken} hits taken.");
+        }
+    }
+
+    /// <summary>The byte offset of a Ki-Hunter body's swipe flag among its extra variables ($7E:7820).</summary>
+    private const int KiHunterSwipeFlagOffset = 0x20;
+
+    /// <summary>The byte offset of a Ki-Hunter body's wingless flag among its extra variables ($7E:7828).</summary>
+    private const int KiHunterWinglessFlagOffset = 0x28;
+
+    /// <summary>The byte offset of a hopper's falling flag among its extra variables ($7E:7806).</summary>
+    private const int HopperFallingFlagOffset = 0x06;
+
+    /// <summary>The byte offset of a Kago's hit counter among its extra variables ($7E:7808).</summary>
+    private const int KagoHitCounterOffset = 0x08;
 
     /// <summary>
     /// Imports one of Kraid's parts' record (#2208): word A names the phase the part runs, of its own part's type, and

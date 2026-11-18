@@ -6,8 +6,16 @@ namespace SuperMetroid.Core.Enemies.Animals;
 /// </summary>
 public enum EtecoonAction
 {
-    /// <summary>Waits for Samus within 128 vertical room pixels, runs the 256-frame wake/flex countdown, and defers activation during elevator-door transition.</summary>
-    WaitingForSamus,
+    /// <summary>
+    /// Lies dormant until Samus comes within 128 vertical room pixels (#1627), when it starts flexing; a door transition
+    /// defers the wake.
+    /// </summary>
+    Dormant,
+    /// <summary>
+    /// Flexes for <see cref="EtecoonTimingDefinitions.FlexDuration"/> updates after waking, then crouches for its first hop; a
+    /// door transition holds the countdown.
+    /// </summary>
+    Flexing,
     /// <summary>Waits for the eleven-update hop countdown, then starts the bottom-room jump upward at 3 pixels per update.</summary>
     PreJumpCountdown,
     /// <summary>Hops vertically, clears upward velocity on ceiling contact, and chooses a Samus-facing pause or another hop on downward collision.</summary>

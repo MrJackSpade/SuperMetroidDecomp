@@ -1,11 +1,10 @@
 namespace SuperMetroid.Core.Enemies.Magdollite;
 
-/// <summary>A Magdollite head's state: what it is doing and the speed its arm moves at.</summary>
+/// <summary>A Magdollite head's state: what it is doing. The speed its arm moves at is its spawn settings' (#2474).</summary>
 public sealed class MagdolliteHeadState : MagdollitePartState
 {
     /// <summary>Creates the head's state, starting in <paramref name="action"/>.</summary>
     internal MagdolliteHeadState(MagdolliteHeadAction action)
-        : base(MagdollitePart.Head)
     {
         Action = action;
     }
@@ -36,10 +35,4 @@ public sealed class MagdolliteHeadState : MagdollitePartState
     internal void FinishEmerge() => Action = Action == MagdolliteHeadAction.WaitingForReturnAnimation
         ? MagdolliteHeadAction.Surfaced
         : throw new InvalidOperationException($"A Magdollite head finished emerging while it was {Action}.");
-
-    /// <summary>
-    /// The head's speed in pixels per update, from its spawn settings, at which its arm rises and sinks: the arm reads
-    /// the head's, adding it as it sinks and negating it as it rises.
-    /// </summary>
-    public SignedSixteenSixteen Speed { get; internal set; }
 }

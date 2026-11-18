@@ -31,7 +31,6 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         BullSpawnSettings settings = place.SpawnSettings<BullSpawnSettings>();
         state.AccelerationIntervalTimer = settings.Intervals.Acceleration;
         state.ActivationTimer = BullMovementDefinitions.MovementDelay;
-        state.MaxSpeed = settings.MaximumSpeed;
     }
 
     /// <summary>Runs a Bull for one update through all four of its actions.</summary>
@@ -59,7 +58,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case BullAction.Accelerating:
-                if (state.IsBelowMaximumSpeed)
+                if (state.IsBelow(place.SpawnSettings<BullSpawnSettings>().MaximumSpeed))
                     AccelerateBull(place, state);
                 MoveBull(place, state);
                 TriggerBullDecelerationIfOffTarget(place, state, samus);
@@ -145,7 +144,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Speed));
     }
 
-    /// <summary>Reads the game's signed sine sample for one Bull heading, in 256ths of a turn.</summary>
+    /// <summary>The game's signed fine sine of a Bull's heading, whose sign says which way the Bull steps along an axis.</summary>
     internal static int ReadBullSignedSine(TrigonometryAngle angle) =>
         Trigonometry.FineSignedSine(angle);
 

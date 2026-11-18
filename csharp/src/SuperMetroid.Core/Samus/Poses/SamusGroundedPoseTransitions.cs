@@ -398,7 +398,7 @@ internal static class SamusGroundedPoseTransitions
         bool wasMoonwalking = sourceMovementType == SamusMovementType.Moonwalking;
 
         // The shot reads the PREVIOUS moonwalk pose, not the selected turn pose.
-        // Preserve the source aim now so its projectile direction is still available after
+        // The source aim is kept now so its projectile direction is still available after
         // ApplySimpleGroundedPoseChange replaces `Pose` below.
         SamusTransitionShot? moonwalkSourceShot = wasMoonwalking
             ? SamusTransitionShot.FromPose(samus)

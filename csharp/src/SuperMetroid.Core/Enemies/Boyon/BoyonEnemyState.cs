@@ -1,38 +1,20 @@
 using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Boyon;
 
-/// <summary>The state of a Boyon: its bounce, its speed and its animation.</summary>
+/// <summary>
+/// The state of a Boyon: its bounce, its speed and its animation. It scales its bounce curve by its spawn settings'
+/// multiplier and bounces as high as their jump height, which it reads where it uses them (#2476).
+/// </summary>
 public sealed class BoyonEnemyState
 {
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<BoyonSegment> Playback { get; set; }
-
-    /// <summary>The multiplier its bounce curve is scaled by, from its spawn settings: one or more (8 to 16 for the Boyons the game places).</summary>
-    public int SpeedMultiplier
-    {
-        get;
-        internal set => field = value >= 1
-            ? value
-            : throw new ArgumentOutOfRangeException(nameof(value), value, "A Boyon's curve is scaled by one or more.");
-    }
 
     /// <summary>
     /// The latest product of the curve sample and the multiplier, read as a speed in 256ths of a pixel per update; the
     /// Boyon moves by its whole pixels.
     /// </summary>
     public UnsignedSixteenSixteen Speed { get; internal set; }
-
-    /// <summary>
-    /// The height of the arc, from its spawn settings: 48 to 96 pixels for Boyons, compared plainly with the arc's
-    /// distance as the first update derives its baseline (<see cref="BoyonBehavior.DeriveBoyonArcBaseline"/>, #2282).
-    /// </summary>
-    public SignedSixteenSixteen JumpHeight
-    {
-        get;
-        internal set => field = value.IsNegative
-            ? throw new ArgumentOutOfRangeException(nameof(value), value, "A Boyon's arc is no lower than nothing.")
-            : value;
-    }
 
 
     /// <summary>

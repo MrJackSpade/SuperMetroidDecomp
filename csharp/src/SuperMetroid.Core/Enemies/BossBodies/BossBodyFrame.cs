@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Enemies.BossBodies;
@@ -16,28 +15,28 @@ public sealed class BossBodyFrame
     /// <param name="picture">The frame's whole picture, or null when the frame shows nothing.</param>
     /// <param name="anchor">Where the picture's top-left corner lies from where its boss places its body: its boss's position.</param>
     /// <param name="depth">The depth the picture is drawn at; null exactly when the frame shows nothing.</param>
-    /// <param name="dissolving">The picture's cells a column dissolve erases (#1652); empty for a frame no dissolve erases.</param>
+    /// <param name="dissolve">How a dissolve erases the picture step by step (#1652, #2478); null for a frame no dissolve erases.</param>
     /// <exception cref="ArgumentException">
-    /// The frame has no name, a depth without a picture or a picture without one, or dissolving cells but no picture.
+    /// The frame has no name, a depth without a picture or a picture without one, or a dissolve but no picture of its size.
     /// </exception>
     public BossBodyFrame(string name, SpriteSheetFrame? picture, Offset16<RoomPixels> anchor, BossBodyDepth? depth,
-        ImmutableArray<DissolvingCell> dissolving = default)
+        PictureDissolve? dissolve = null)
     {
         ArgumentException.ThrowIfNullOrEmpty(name);
         if (picture is null != depth is null)
             throw new ArgumentException($"Boss body frame {name} needs a depth exactly when it has a picture.", nameof(depth));
-        Dissolving = dissolving.IsDefault ? [] : dissolving;
-        if (picture is null && !Dissolving.IsEmpty)
-            throw new ArgumentException($"Boss body frame {name} dissolves cells but shows no picture.", nameof(dissolving));
+        if (dissolve is not null && (picture is null || dissolve.Size != picture.Size))
+            throw new ArgumentException($"Boss body frame {name} dissolves a picture it does not show at the dissolve's size.", nameof(dissolve));
         Name = name;
         Picture = picture;
         Anchor = anchor;
         Depth = depth;
+        Dissolve = dissolve;
     }
 
     /// <summary>This frame showing its picture with <paramref name="hidden"/>'s pixels hidden (#1652).</summary>
-    private BossBodyFrame(BossBodyFrame shown, BossBodyDepth? depth, HiddenPictureColumns? hidden)
-        : this(shown.Name, shown.Picture, shown.Anchor, depth, shown.Dissolving) =>
+    private BossBodyFrame(BossBodyFrame shown, BossBodyDepth? depth, HiddenPicturePixels? hidden)
+        : this(shown.Name, shown.Picture, shown.Anchor, depth, shown.Dissolve) =>
         Hidden = hidden;
 
     /// <summary>The frame's name in its sheet.</summary>
@@ -62,22 +61,37 @@ public sealed class BossBodyFrame
     public BossBodyDepth? Depth { get; }
 
     /// <summary>
-    /// The picture's cells a column dissolve erases (#1652), as the import found them: Crocomire's melt images. Empty for
+    /// How a dissolve erases the picture step by step (#1652, #2478), as the import found it: Crocomire's melt images. Null for
     /// every other frame.
     /// </summary>
-    public ImmutableArray<DissolvingCell> Dissolving { get; }
+    public PictureDissolve? Dissolve { get; }
 
     /// <summary>The pixels the picture hides as this frame shows it (#1652), or null where it shows them all.</summary>
-    public HiddenPictureColumns? Hidden { get; }
+    public HiddenPicturePixels? Hidden { get; }
 
     /// <summary>
     /// This frame with <paramref name="hidden"/>'s pixels of its picture hidden, as a dissolve's step leaves its picture
     /// (#1652).
     /// </summary>
     /// <exception cref="InvalidOperationException">The frame shows no picture.</exception>
-    public BossBodyFrame Hiding(HiddenPictureColumns hidden) => Picture is null
-        ? throw new InvalidOperationException($"Boss body frame {Name} shows no picture to hide pixels of.")
-        : new(this, Depth, Ensure.NotNull(hidden));
+    /// <exception cref="ArgumentException">The hidden pixels are not of the picture's size.</exception>
+    public BossBodyFrame Hiding(HiddenPicturePixels hidden)
+    {
+        if (Picture is null)
+            throw new InvalidOperationException($"Boss body frame {Name} shows no picture to hide pixels of.");
+        if (Ensure.NotNull(hidden).Size != Picture.Size)
+            throw new ArgumentException($"Boss body frame {Name} hides pixels of a picture of another size.", nameof(hidden));
+        return new(this, Depth, hidden);
+    }
+
+    /// <summary>
+    /// This frame as its dissolve leaves its picture once each band has shown the steps <paramref name="bandSteps"/> gives
+    /// it, by band (#1652, #2478).
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The frame has no dissolve.</exception>
+    public BossBodyFrame Dissolved(ReadOnlySpan<int> bandSteps) => Dissolve is { } dissolve
+        ? Hiding(dissolve.Hidden(bandSteps))
+        : throw new InvalidOperationException($"Boss body frame {Name} has no dissolve.");
 
     /// <summary>
     /// This frame drawn at <paramref name="depth"/> instead, as Kraid's growth brings his body and the head it rises with in

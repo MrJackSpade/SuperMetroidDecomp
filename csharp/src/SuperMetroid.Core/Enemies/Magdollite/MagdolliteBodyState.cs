@@ -5,7 +5,6 @@ public sealed class MagdolliteBodyState : MagdollitePartState
 {
     /// <summary>Creates the body's state, starting in <paramref name="action"/>.</summary>
     internal MagdolliteBodyState(MagdolliteBodyAction action)
-        : base(MagdollitePart.RisingBody)
     {
         Action = action;
     }

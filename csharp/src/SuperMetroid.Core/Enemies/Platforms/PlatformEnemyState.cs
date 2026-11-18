@@ -24,9 +24,6 @@ public sealed class PlatformEnemyState
     /// </summary>
     public QuadraticSpeedCurvePlace YSpeedCurvePlace { get; internal set; }
 
-    /// <summary>The rider-selected vertical movement, recomputed each actor update before horizontal then vertical motion.</summary>
-    public PlatformVerticalMovement YMovement { get; internal set; }
-
     /// <summary>The patrol direction: initialized from its spawn movement and changed by wall collisions or animation cues.</summary>
     public HorizontalDirection XMovement { get; internal set; }
 

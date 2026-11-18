@@ -23,6 +23,6 @@ internal static class EtecoonTimingDefinitions
     /// <summary>How long an Etecoon's hop holds its pose at the crest, in updates.</summary>
     internal const int CrestHold = 3;
 
-    /// <summary>The whole-pixel falling speed from which an Etecoon stops falling faster.</summary>
-    internal const int FallingSpeedCap = 5;
+    /// <summary>The falling speed, five pixels per update, from which an Etecoon stops falling faster.</summary>
+    internal static readonly SignedSixteenSixteen FallingSpeedCap = SignedSixteenSixteen.FromWholePixels(5);
 }

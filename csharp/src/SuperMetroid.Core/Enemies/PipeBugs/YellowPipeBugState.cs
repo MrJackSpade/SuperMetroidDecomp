@@ -16,9 +16,6 @@ public sealed class YellowPipeBugState
     /// <summary>The current action, one of the yellow actions.</summary>
     public YellowPipeBugAction Action { get; internal set; }
 
-    /// <summary>The way the bug flies and arcs (#2165): its placement's facing, taken as it emerges.</summary>
-    public HorizontalDirection FlightDirection { get; internal set; }
-
     /// <summary>The whole-pixel spawn position restored when the bug leaves the screen; its Y ends the arc.</summary>
     public Position16<RoomPixels> SpawnPosition { get; internal set; }
 
@@ -26,14 +23,11 @@ public sealed class YellowPipeBugState
     public int EmergenceDelay { get; internal set; }
 
     /// <summary>
-    /// The whole-mark place along the speed curve the bug's arc reads, from the curve's start through the curve's last
-    /// mark. The rising phase moves it back from mark 40 and ends when it would pass the curve's start; the returning
-    /// phase moves it back on.
+    /// The whole-mark place along the speed curve the bug's arc reads (#2473), from the curve's start through the curve's
+    /// last mark. The dip moves it back from mark 40 and ends when it would pass the curve's start; the climb back moves
+    /// it on.
     /// </summary>
-    public QuadraticSpeedCurvePlace ArcCounter { get; internal set; }
-
-    /// <summary>Whether the arc is in its rising phase rather than its returning one.</summary>
-    public bool ArcRising { get; internal set; }
+    public QuadraticSpeedCurvePlace ArcCurvePlace { get; internal set; }
 
     /// <summary>Whether the bug has completed its one authored arc.</summary>
     public bool ArcCompleted { get; internal set; }

@@ -115,13 +115,13 @@ internal sealed class TorizoChoices
         }
 
         state.DecisionCounter = 0;
-        StartGoldenTorizoBackwardJump(torizo, state);
+        StartBackwardJump(torizo, state);
         return TorizoAnimations.ContinueWith(target);
     }
 
     /// <summary>
-    /// Moves the Torizo by the walking step's <paramref name="stepPixels"/>, turns it as <paramref name="walker"/> turns at a
-    /// wall in its way, and otherwise arms its turn toward a Samus behind it (#2335).
+    /// Moves the Torizo by the walking step's <paramref name="stepPixels"/>, turns it about as <paramref name="walker"/> does
+    /// at a wall in its way, and otherwise arms its turn toward a Samus behind it (#2335).
     /// </summary>
     internal AnimationContinuation<TorizoBodySegment>? ProcessTorizoWalkStep(
         RoomEnemyPlace torizo,
@@ -136,7 +136,7 @@ internal sealed class TorizoChoices
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, torizo, displacement))
         {
             state.TurnTowardSamus = null;
-            return TorizoAnimations.ContinueWith(TorizoFacing.FacesRight(torizo) ? walker.WallTurnFacingRight : walker.WallTurnFacingLeft);
+            return TorizoAnimations.ContinueWith(walker.TurnAbout(torizo));
         }
 
         EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, torizo);
@@ -155,8 +155,11 @@ internal sealed class TorizoChoices
         state.JumpAcceleration = TorizoMotionDefinitions.LeapGravity;
     }
 
-    /// <summary>Sets the faster reverse leap velocity used by Golden Torizo's repeated-jump branch.</summary>
-    private static void StartGoldenTorizoBackwardJump(
+    /// <summary>
+    /// Launches a jump back, away from the way the Torizo faces (#2472): Bomb Torizo's from a Samus close in front and Golden
+    /// Torizo's repeated jump alike.
+    /// </summary>
+    private static void StartBackwardJump(
         RoomEnemyPlace torizo,
         TorizoEnemyState state)
     {
@@ -194,10 +197,7 @@ internal sealed class TorizoChoices
             return null;
         }
 
-        // The jump back launches away from the way Torizo faces.
-        SignedEightEight side = TorizoMotionDefinitions.BackwardJumpSideSpeed;
-        state.Velocity = new(TorizoFacing.FacesRight(torizo) ? -side : side, TorizoMotionDefinitions.BackwardJumpRise);
-        state.JumpAcceleration = TorizoMotionDefinitions.LeapGravity;
+        StartBackwardJump(torizo, state);
         return TorizoAnimations.ContinueWith(target);
     }
 

@@ -23,7 +23,8 @@ internal sealed record ProgramFrameSplit(IReadOnlySet<string> Spawned, IReadOnly
 /// poses rather than projectile frames, and the room pictures Core draws from the shared sheet (#2260). A family's
 /// programs are the segments its animations start at. An animation shows what the segments its phases play show; a
 /// segment shows the projectile frames its beats name, or the table entries of the poses they construct, inlining the
-/// segments' own beat helpers with their constant arguments; a pose argument no constant decides (a loop's phase) matches
+/// segments' own beat helpers with their constant arguments and the pose sets they are handed, whose frames are read from
+/// the pose set's construction (#2472); a pose argument no constant decides (a loop's phase) matches
 /// every entry the pose's other arguments do. A segment its beats name (a cue continuing the play in the animation starting
 /// there) is run on into. A family is started in the programs its start names, together with every one of its programs
 /// Core names outside its segments, animations and starts, since code naming a program can switch an object to it. A
@@ -104,7 +105,7 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
                         foreach (string program in (set.CueStarts.GetValueOrDefault(item.Value) ?? []).Concat(set.MotionStarts.GetValueOrDefault(item.Value) ?? []))
                             pending.Enqueue((AnimationNode.Start(program), switched));
                         break;
-                    case ProgramItemKind.ShowFrame:
+                    case ProgramItemKind.ShowFrame or ProgramItemKind.ShowPoseSetFrame:
                         Add(item.Value, switched);
                         break;
                     case ProgramItemKind.ShowPose:
@@ -199,6 +200,14 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
             Add(AnimationNode.Start(name), entry.Right);
         foreach ((ExpressionSyntax initializer, string name) in ownerNamed)
             Add(AnimationNode.Start(name), initializer);
+        // The frames a segment's beat helpers show are the family's too (#2472): those a helper's body names (a Torizo
+        // Super Missile's spin pointing up) and those it reads from the pose set it is handed (a Torizo projectile side's
+        // sonic boom poses), named where the pose set is constructed rather than in the segments.
+        if (direct)
+        {
+            tableFrames.UnionWith(nodes.Values.SelectMany(items => items)
+                .Where(item => item.Kind is ProgramItemKind.ShowFrame or ProgramItemKind.ShowPoseSetFrame).Select(item => item.Value));
+        }
         // An object's own cues can start it, or more of its family, in other programs (an afterburn spawning the next), so
         // whatever its cue handlers start is among the programs every start of the family runs: on the object itself, or on
         // one it spawns, which draws where the object does. One it spawns with the room's graphics draws from the room's
@@ -246,7 +255,7 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
         void Add(AnimationNode node, ExpressionSyntax played)
         {
             var items = new List<ProgramItem>();
-            Visit(played, model.ModelOf(played.SyntaxTree), new Dictionary<string, string>(StringComparer.Ordinal), items, segmentType, frameType,
+            Visit(played, model.ModelOf(played.SyntaxTree), new Dictionary<string, string>(StringComparer.Ordinal), NoPoseSets, items, segmentType, frameType,
                 direct, helpers, depth: 0);
             if (!nodes.TryAdd(node, items))
                 throw new InvalidDataException($"{family.ToDisplayString()} lists {(node.IsStart ? "the animation starting at" : "segment")} {node.Name} twice.");
@@ -346,9 +355,11 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
     /// <summary>
     /// Records, in source order, what <paramref name="node"/> contributes to a segment or animation: the projectile frames it
     /// names or the poses its key constructions show, the room-graphics cues it publishes, and the segments it names,
-    /// inlining calls of the segments' own beat helpers (<paramref name="helpers"/>) with their arguments bound.
+    /// inlining calls of the segments' own beat helpers (<paramref name="helpers"/>) with their arguments bound: constants in
+    /// <paramref name="bindings"/>, and in <paramref name="poseSets"/> the constructions of the pose sets handed to them (#2472).
     /// </summary>
-    private void Visit(SyntaxNode node, SemanticModel semantic, IReadOnlyDictionary<string, string> bindings, List<ProgramItem> items,
+    private void Visit(SyntaxNode node, SemanticModel semantic, IReadOnlyDictionary<string, string> bindings,
+        IReadOnlyDictionary<string, PoseSetConstruction> poseSets, List<ProgramItem> items,
         INamedTypeSymbol segmentType, INamedTypeSymbol frameType, bool direct, INamedTypeSymbol helpers, int depth)
     {
         switch (node)
@@ -360,7 +371,7 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
                 return;
             // A run of steps several animations share, spread into a segment's beats, is read where it is declared (#1788).
             case SpreadElementSyntax { Expression: var spread } when SharedRunOf(semantic, spread) is { } shared:
-                Visit(shared, model.ModelOf(shared.SyntaxTree), bindings, items, segmentType, frameType, direct, helpers, depth);
+                Visit(shared, model.ModelOf(shared.SyntaxTree), bindings, poseSets, items, segmentType, frameType, direct, helpers, depth);
                 return;
             case InvocationExpressionSyntax invocation
                 when semantic.GetSymbolInfo(invocation).Symbol is IMethodSymbol helper
@@ -368,6 +379,7 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
                 if (depth > 8)
                     throw new InvalidDataException($"{helpers.ToDisplayString()}'s beat helpers nest deeper than this generator inlines: {invocation}");
                 var bound = new Dictionary<string, string>(StringComparer.Ordinal);
+                var boundPoseSets = new Dictionary<string, PoseSetConstruction>(StringComparer.Ordinal);
                 for (int index = 0; index < invocation.ArgumentList.Arguments.Count; index++)
                 {
                     ArgumentSyntax argument = invocation.ArgumentList.Arguments[index];
@@ -377,11 +389,15 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
                     // A segment handed to a helper is read where the helper's body uses it: as part of the pose it shows,
                     // which continues nowhere, or in a cue naming where play goes on.
                     if (parameter is null || !SymbolEqualityComparer.Default.Equals(parameter.Type, segmentType))
-                        Visit(argument, semantic, bindings, items, segmentType, frameType, direct, helpers, depth);
-                    if (parameter is not null)
-                        bound[parameter.Name] = ValueOf(semantic, argument.Expression, bindings);
+                        Visit(argument, semantic, bindings, poseSets, items, segmentType, frameType, direct, helpers, depth);
+                    if (parameter is null)
+                        continue;
+                    bound[parameter.Name] = ValueOf(semantic, argument.Expression, bindings);
+                    // A pose set handed to a helper is read where the helper's body reads its poses.
+                    if (PoseSetOf(semantic, argument.Expression, poseSets) is { } poseSet)
+                        boundPoseSets[parameter.Name] = poseSet;
                 }
-                VisitBody(helper, bound, items, segmentType, frameType, direct, helpers, depth + 1);
+                VisitBody(helper, bound, boundPoseSets, items, segmentType, frameType, direct, helpers, depth + 1);
                 return;
             // A beat helper handed on as a method group (the hand beam's Stage in .SelectMany(Stage)) runs with arguments no
             // constant decides, so its parameters match every value.
@@ -390,7 +406,22 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
                      && IsBeatHelper(handedOn, helpers):
                 if (depth > 8)
                     throw new InvalidDataException($"{helpers.ToDisplayString()}'s beat helpers nest deeper than this generator inlines: {group}");
-                VisitBody(handedOn, new Dictionary<string, string>(StringComparer.Ordinal), items, segmentType, frameType, direct, helpers, depth + 1);
+                VisitBody(handedOn, new Dictionary<string, string>(StringComparer.Ordinal), NoPoseSets, items, segmentType, frameType, direct, helpers, depth + 1);
+                return;
+            // A projectile frame read from a pose set is the frame the pose set's construction passes for that pose (#2472:
+            // a Torizo projectile side's sonic boom, read through the side a helper is handed).
+            case MemberAccessExpressionSyntax access
+                when direct && semantic.GetSymbolInfo(access).Symbol is IPropertySymbol { IsStatic: false } pose
+                     && SymbolEqualityComparer.Default.Equals(pose.Type, model.EnemyProjectileFrameId)
+                     && PoseSetOf(semantic, access.Expression, poseSets) is { } poseSetRead:
+                ExpressionSyntax passed = ConstructionArgument(poseSetRead, pose.Name)
+                    ?? throw new InvalidDataException($"The pose set {access.Expression} is constructed without its {pose.Name}: {poseSetRead.Creation}");
+                foreach (IdentifierNameSyntax name in passed.DescendantNodesAndSelf().OfType<IdentifierNameSyntax>())
+                {
+                    if (poseSetRead.Semantic.GetSymbolInfo(name).Symbol is IFieldSymbol frame
+                        && SymbolEqualityComparer.Default.Equals(frame.ContainingType, model.EnemyProjectileFrameId))
+                        items.Add(new ProgramItem(ProgramItemKind.ShowPoseSetFrame, frame.Name));
+                }
                 return;
             case IdentifierNameSyntax name when semantic.GetSymbolInfo(name).Symbol is IFieldSymbol field:
                 // Any other enum member may name a cue whose handler's case continues the play.
@@ -416,8 +447,66 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
                 return;
         }
         foreach (SyntaxNode child in node.ChildNodes())
-            Visit(child, semantic, bindings, items, segmentType, frameType, direct, helpers, depth);
+            Visit(child, semantic, bindings, poseSets, items, segmentType, frameType, direct, helpers, depth);
     }
+
+    /// <summary>No pose sets bound: an initializer read outside any helper.</summary>
+    private static readonly IReadOnlyDictionary<string, PoseSetConstruction> NoPoseSets = new Dictionary<string, PoseSetConstruction>(StringComparer.Ordinal);
+
+    /// <summary>
+    /// The construction of the pose set <paramref name="expression"/> stands for (#2472): a helper parameter bound to one in
+    /// <paramref name="poseSets"/>, or a static member of Core's whose initializer constructs it (<c>TorizoProjectileSide.Left</c>);
+    /// null for any other expression.
+    /// </summary>
+    private PoseSetConstruction? PoseSetOf(SemanticModel semantic, ExpressionSyntax expression, IReadOnlyDictionary<string, PoseSetConstruction> poseSets)
+    {
+        switch (semantic.GetSymbolInfo(expression).Symbol)
+        {
+            case IParameterSymbol parameter:
+                return poseSets.GetValueOrDefault(parameter.Name);
+            case IPropertySymbol { IsStatic: true, Type: INamedTypeSymbol { IsRecord: true } } or IFieldSymbol { IsStatic: true, Type: INamedTypeSymbol { IsRecord: true } }:
+                ISymbol member = semantic.GetSymbolInfo(expression).Symbol!.OriginalDefinition;
+                if (!model.IsSource(member))
+                    return null;
+                foreach (SyntaxReference reference in member.DeclaringSyntaxReferences)
+                {
+                    SyntaxNode declaration = reference.GetSyntax();
+                    ExpressionSyntax? value = declaration switch
+                    {
+                        PropertyDeclarationSyntax { Initializer.Value: var initializer } => initializer,
+                        VariableDeclaratorSyntax { Initializer.Value: var initializer } => initializer,
+                        _ => null,
+                    };
+                    if (value is BaseObjectCreationExpressionSyntax creation)
+                        return new PoseSetConstruction(model.ModelOf(creation.SyntaxTree), creation);
+                }
+                return null;
+            default:
+                return null;
+        }
+    }
+
+    /// <summary>The argument <paramref name="poseSet"/>'s construction passes for its pose <paramref name="pose"/>, by position or by name.</summary>
+    private static ExpressionSyntax? ConstructionArgument(PoseSetConstruction poseSet, string pose)
+    {
+        if (poseSet.Semantic.GetSymbolInfo(poseSet.Creation).Symbol is not IMethodSymbol { MethodKind: MethodKind.Constructor } constructor
+            || poseSet.Creation.ArgumentList is not { } arguments)
+            return null;
+        for (int index = 0; index < arguments.Arguments.Count; index++)
+        {
+            ArgumentSyntax argument = arguments.Arguments[index];
+            string? parameter = argument.NameColon is { } named ? named.Name.Identifier.Text
+                : index < constructor.Parameters.Length ? constructor.Parameters[index].Name : null;
+            if (parameter == pose)
+                return argument.Expression;
+        }
+        return null;
+    }
+
+    /// <summary>A pose set's construction, read in its own semantic model (#2472): the record a beat helper reads its poses from.</summary>
+    /// <param name="Semantic">The semantic model of the construction's syntax tree.</param>
+    /// <param name="Creation">The construction.</param>
+    private sealed record PoseSetConstruction(SemanticModel Semantic, BaseObjectCreationExpressionSyntax Creation);
 
     /// <summary>
     /// The initializer of the run of shared steps <paramref name="spread"/> names: an array field or property Core declares,
@@ -450,9 +539,12 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
         return runs;
     }
 
-    /// <summary>Visits beat helper <paramref name="helper"/>'s body with its parameters bound as <paramref name="bound"/> says.</summary>
-    private void VisitBody(IMethodSymbol helper, IReadOnlyDictionary<string, string> bound, List<ProgramItem> items,
-        INamedTypeSymbol segmentType, INamedTypeSymbol frameType, bool direct, INamedTypeSymbol helpers, int depth)
+    /// <summary>
+    /// Visits beat helper <paramref name="helper"/>'s body with its parameters bound as <paramref name="bound"/> and
+    /// <paramref name="poseSets"/> say.
+    /// </summary>
+    private void VisitBody(IMethodSymbol helper, IReadOnlyDictionary<string, string> bound, IReadOnlyDictionary<string, PoseSetConstruction> poseSets,
+        List<ProgramItem> items, INamedTypeSymbol segmentType, INamedTypeSymbol frameType, bool direct, INamedTypeSymbol helpers, int depth)
     {
         foreach (SyntaxReference reference in helper.DeclaringSyntaxReferences)
         {
@@ -460,7 +552,7 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
                 continue;
             SyntaxNode? body = (SyntaxNode?)declaration.ExpressionBody ?? declaration.Body;
             if (body is not null)
-                Visit(body, model.ModelOf(declaration.SyntaxTree), bound, items, segmentType, frameType, direct, helpers, depth);
+                Visit(body, model.ModelOf(declaration.SyntaxTree), bound, poseSets, items, segmentType, frameType, direct, helpers, depth);
         }
     }
 
@@ -1082,6 +1174,8 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
     {
         /// <summary>It shows a projectile frame it names.</summary>
         ShowFrame,
+        /// <summary>It shows a projectile frame it reads from a pose set, named where the pose set is constructed (#2472).</summary>
+        ShowPoseSetFrame,
         /// <summary>It shows a pose, which the family's frame table presents.</summary>
         ShowPose,
         /// <summary>

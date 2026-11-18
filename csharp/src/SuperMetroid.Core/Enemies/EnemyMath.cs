@@ -34,7 +34,7 @@ internal static class EnemyMath
 
     /// <summary>
     /// Calculates the bearing of an offset. Zero points upward and the
-    /// result advances clockwise in 256 units per turn, as every enemy's aim reads it.
+    /// result turns clockwise, as every enemy's aim reads it.
     /// </summary>
     internal static Bearing CalculateBearing(Offset16<RoomPixels> delta)
     {
@@ -69,7 +69,7 @@ internal static class EnemyMath
     /// <summary>
     /// The whole pixels of the sine distance of the point <paramref name="radius"/> pixels along <paramref name="angle"/>
     /// (<see cref="CircleSine"/>): in the turn's second half the reversed whole pixels of the first half's distance, as
-    /// <see cref="ShortCircleProduct.Reversed"/> leaves them, so <c>Math.Sin</c> or a true fixed-point reversal would
+    /// <see cref="ShortCircleProduct.Reversed"/> leaves them, so <c>Math.Sin</c> or a reversal of the whole distance would
     /// disagree by one pixel.
     /// </summary>
     internal static int CircleSinePixels(TrigonometryAngle angle, int radius) =>

@@ -35,7 +35,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void InitializeNuclearWaffle(RoomEnemyPlace place)
     {
         NuclearWaffleSpawnSettings settings = place.SpawnSettings<NuclearWaffleSpawnSettings>();
-        NuclearWaffleSweepDefinition sweep = NuclearWaffleSweeps.Sweep(settings.Direction);
+        NuclearWaffleSweepDefinition sweep = settings.Sweep;
 
         // The head starts on the orbit at the sweep's start angle around the placement, and every link spawns there.
         Position16<RoomPixels> origin = place.Position.Whole;
@@ -48,8 +48,6 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
             ProjectileLinks = SpawnNuclearWaffleProjectileLinks(place, initialHead, graphics),
             SpriteLinks = SpawnNuclearWaffleSpriteLinks(place, graphics),
             WaitingTimer = settings.WaitTime + EnemyWaitDefinitions.RunOutUpdate,
-            Direction = settings.Direction,
-            Sweep = sweep,
             SweepAngle = sweep.StartAngle,
             Origin = origin,
             Graphics = graphics,
@@ -85,8 +83,9 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         if (--state.WaitingTimer > 0)
             return;
 
-        state.WaitingTimer = place.SpawnSettings<NuclearWaffleSpawnSettings>().WaitTime + EnemyWaitDefinitions.RunOutUpdate;
-        state.SweepAngle = state.Sweep.StartAngle;
+        NuclearWaffleSpawnSettings settings = place.SpawnSettings<NuclearWaffleSpawnSettings>();
+        state.WaitingTimer = settings.WaitTime + EnemyWaitDefinitions.RunOutUpdate;
+        state.SweepAngle = settings.Sweep.StartAngle;
         state.Action = NuclearWaffleAction.Sweeping;
         state.RestartTurns();
         place.Processing = place.Processing.With(EnemyProcessing.OffScreen);
@@ -97,7 +96,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         NuclearWaffleSpawnSettings settings = place.SpawnSettings<NuclearWaffleSpawnSettings>();
         NuclearWaffleOrientation headOrientation = GetNuclearWaffleOrientation(
-            state,
+            settings,
             state.CurrentAngle);
         if (headOrientation.State != state.HeadOrientationState)
         {
@@ -108,13 +107,13 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
             state.HeadOrientationState = headOrientation.State;
         }
 
-        (NuclearWaffleSweepAngle clampedHeadAngle, _) = ClampNuclearWaffleAngle(state, state.CurrentAngle);
+        (NuclearWaffleSweepAngle clampedHeadAngle, _) = ClampNuclearWaffleAngle(settings, state.CurrentAngle);
         place.Position = place.Position.WithWhole(NuclearWaffleOrbitPoint(state.Origin, settings.OrbitRadius, clampedHeadAngle));
 
-        bool sweepFinished = PositionNuclearWaffleProjectileSegments(state, settings.OrbitRadius);
-        PositionNuclearWaffleSpriteSegments(state, settings.OrbitRadius);
+        bool sweepFinished = PositionNuclearWaffleProjectileSegments(state, settings);
+        PositionNuclearWaffleSpriteSegments(state, settings);
         // The sweep turns at the placement's angular speed the way it runs.
-        state.SweepAngle = state.SweepAngle.TurnedOn(settings.AngularSpeed, state.Direction);
+        state.SweepAngle = state.SweepAngle.TurnedOn(settings.AngularSpeed, settings.Direction);
         if (!sweepFinished)
             return;
 
@@ -171,15 +170,15 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Places each damaging link along the sweep behind the head, and reports whether the last has reached the sweep's end.</summary>
-    private bool PositionNuclearWaffleProjectileSegments(NuclearWaffleEnemyState state, int orbitRadius)
+    private bool PositionNuclearWaffleProjectileSegments(NuclearWaffleEnemyState state, NuclearWaffleSpawnSettings settings)
     {
-        NuclearWaffleSweepAngle angle = state.CurrentAngle.TurnedAhead(state.Sweep.InterleavedSegmentOffset, state.Direction);
+        NuclearWaffleSweepAngle angle = state.CurrentAngle.TurnedAhead(settings.Sweep.InterleavedSegmentOffset, settings.Direction);
         bool finished = false;
         foreach (NuclearWaffleLink<EnemyProjectile> link in state.ProjectileLinks)
         {
-            angle = angle.TurnedBehind(state.Sweep.SegmentSpacing, state.Direction);
+            angle = angle.TurnedBehind(settings.Sweep.SegmentSpacing, settings.Direction);
             EnemyProjectile segment = link.Actor;
-            NuclearWaffleOrientation orientation = GetNuclearWaffleOrientation(state, angle);
+            NuclearWaffleOrientation orientation = GetNuclearWaffleOrientation(settings, angle);
             if (orientation.State != link.TurnState)
             {
                 SpawnNuclearWaffleTurnEffects(
@@ -189,8 +188,8 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
                 link.TurnState = orientation.State;
             }
 
-            (NuclearWaffleSweepAngle clampedAngle, bool linkFinished) = ClampNuclearWaffleAngle(state, angle);
-            segment.Position = segment.Position.WithWhole(NuclearWaffleOrbitPoint(state.Origin, orbitRadius, clampedAngle));
+            (NuclearWaffleSweepAngle clampedAngle, bool linkFinished) = ClampNuclearWaffleAngle(settings, angle);
+            segment.Position = segment.Position.WithWhole(NuclearWaffleOrbitPoint(state.Origin, settings.OrbitRadius, clampedAngle));
             // The sweep ends when its last damaging link reaches the sweep's end, not when any link does: the head
             // and the leading links can rest at the end while the last link is still unfurling.
             finished = linkFinished;
@@ -200,14 +199,14 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Places each cosmetic link along the sweep behind the head.</summary>
-    private void PositionNuclearWaffleSpriteSegments(NuclearWaffleEnemyState state, int orbitRadius)
+    private void PositionNuclearWaffleSpriteSegments(NuclearWaffleEnemyState state, NuclearWaffleSpawnSettings settings)
     {
         NuclearWaffleSweepAngle angle = state.CurrentAngle;
         foreach (NuclearWaffleLink<RoomEffectActor> link in state.SpriteLinks)
         {
-            angle = angle.TurnedBehind(state.Sweep.SegmentSpacing, state.Direction);
+            angle = angle.TurnedBehind(settings.Sweep.SegmentSpacing, settings.Direction);
             RoomEffectActor segment = link.Actor;
-            NuclearWaffleOrientation orientation = GetNuclearWaffleOrientation(state, angle);
+            NuclearWaffleOrientation orientation = GetNuclearWaffleOrientation(settings, angle);
             if (orientation.State != link.TurnState)
             {
                 SpawnNuclearWaffleTurnEffects(
@@ -217,8 +216,8 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
                 link.TurnState = orientation.State;
             }
 
-            (NuclearWaffleSweepAngle clampedAngle, _) = ClampNuclearWaffleAngle(state, angle);
-            segment.Position = segment.Position.WithWhole(NuclearWaffleOrbitPoint(state.Origin, orbitRadius, clampedAngle));
+            (NuclearWaffleSweepAngle clampedAngle, _) = ClampNuclearWaffleAngle(settings, angle);
+            segment.Position = segment.Position.WithWhole(NuclearWaffleOrbitPoint(state.Origin, settings.OrbitRadius, clampedAngle));
         }
     }
 
@@ -228,13 +227,13 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
     /// they compare in order along it.
     /// </summary>
     private static NuclearWaffleAngleClamp ClampNuclearWaffleAngle(
-        NuclearWaffleEnemyState state,
+        NuclearWaffleSpawnSettings settings,
         NuclearWaffleSweepAngle angle)
     {
-        NuclearWaffleSweepDefinition sweep = state.Sweep;
-        if (angle.HasReached(sweep.EndAngle, state.Direction))
+        NuclearWaffleSweepDefinition sweep = settings.Sweep;
+        if (angle.HasReached(sweep.EndAngle, settings.Direction))
             return new NuclearWaffleAngleClamp(sweep.EndAngle, true);
-        return angle.HasReached(sweep.StartAngle, state.Direction)
+        return angle.HasReached(sweep.StartAngle, settings.Direction)
             ? new NuclearWaffleAngleClamp(angle, false)
             : new NuclearWaffleAngleClamp(sweep.StartAngle, false);
     }
@@ -244,14 +243,14 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
     /// threshold it makes its rising turn, and before both it has turned clockwise, either way the sweep runs.
     /// </summary>
     private static NuclearWaffleOrientation GetNuclearWaffleOrientation(
-        NuclearWaffleEnemyState state,
+        NuclearWaffleSpawnSettings settings,
         NuclearWaffleSweepAngle angle)
     {
-        NuclearWaffleSweepDefinition sweep = state.Sweep;
-        RotationDirection risingTurn = RisingTurn(state.Direction);
-        if (angle.HasReached(sweep.FallingTurnThreshold, state.Direction))
+        NuclearWaffleSweepDefinition sweep = settings.Sweep;
+        RotationDirection risingTurn = RisingTurn(settings.Direction);
+        if (angle.HasReached(sweep.FallingTurnThreshold, settings.Direction))
             return new NuclearWaffleOrientation(risingTurn.Reversed(), NuclearWaffleTurnState.PastFallingThreshold);
-        if (angle.HasReached(sweep.RisingTurnThreshold, state.Direction))
+        if (angle.HasReached(sweep.RisingTurnThreshold, settings.Direction))
             return new NuclearWaffleOrientation(risingTurn, NuclearWaffleTurnState.PastRisingThreshold);
         return new NuclearWaffleOrientation(RotationDirection.Clockwise, NuclearWaffleTurnState.BeforeTurns);
     }

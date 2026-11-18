@@ -21,7 +21,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) =>
-        Ensure.NotNull(place).SpawnSettings<MorphBallEyeSpawnSettings>().Part == MorphBallEyePart.BeamMount
+        Ensure.NotNull(place).SpawnSettings<MorphBallEyeSpawnSettings>() is MorphBallEyeMountSpawnSettings
             ? new MorphBallEyeMountEntity(this, place, common)
             : new MorphBallEyeEntity(this, place, common);
 
@@ -36,7 +36,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         ShowNothingUntilAnimated(place);
 
         // The placement's facing is fixed by its mounting, not a live facing test.
-        state.Playback = new(MorphBallEyeAnimations.StartingWith(place.SpawnSettings<MorphBallEyeSpawnSettings>().Facing == HorizontalDirection.Right
+        state.Playback = new(MorphBallEyeAnimations.StartingWith(place.SpawnSettings<MorphBallEyeBodySpawnSettings>().Facing == HorizontalDirection.Right
             ? MorphBallEyeSegment.FacingRightClosed
             : MorphBallEyeSegment.FacingLeftClosed), AnimationPlace.StartOfAnimation);
     }
@@ -48,7 +48,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         place.SetSpeciesState(state);
         ShowNothingUntilAnimated(place);
 
-        var mount = MorphBallEyeGeometry.Mount(place.SpawnSettings<MorphBallEyeSpawnSettings>().MountSide);
+        var mount = MorphBallEyeGeometry.Mount(place.SpawnSettings<MorphBallEyeMountSpawnSettings>().Side);
         place.Position += mount.Offset;
         state.Playback = new(MorphBallEyeAnimations.StartingWith(mount.Animation), AnimationPlace.StartOfAnimation);
 
@@ -113,7 +113,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.ActionTimer = MorphBallEyeWatchDefinitions.TransitionDuration;
         eye.AnimationClock.StepOnNextUpdate();
-        state.Playback = new(MorphBallEyeAnimations.StartingWith(eye.SpawnSettings<MorphBallEyeSpawnSettings>().Facing == HorizontalDirection.Right
+        state.Playback = new(MorphBallEyeAnimations.StartingWith(eye.SpawnSettings<MorphBallEyeBodySpawnSettings>().Facing == HorizontalDirection.Right
             ? MorphBallEyeSegment.FacingRightActivating
             : MorphBallEyeSegment.FacingLeftActivating), AnimationPlace.StartOfAnimation);
         state.Action = MorphBallEyeAction.Activating;
@@ -153,7 +153,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
             state.IsActivated = false;
             state.ActionTimer = MorphBallEyeWatchDefinitions.TransitionDuration;
             state.Aim = null;
-            state.Playback = new(MorphBallEyeAnimations.StartingWith(eye.SpawnSettings<MorphBallEyeSpawnSettings>().Facing == HorizontalDirection.Right
+            state.Playback = new(MorphBallEyeAnimations.StartingWith(eye.SpawnSettings<MorphBallEyeBodySpawnSettings>().Facing == HorizontalDirection.Right
                 ? MorphBallEyeSegment.FacingRightDeactivating
                 : MorphBallEyeSegment.FacingLeftDeactivating), AnimationPlace.StartOfAnimation);
             state.Action = MorphBallEyeAction.Deactivating;
@@ -204,7 +204,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
             case MorphBallEyeBeamPhase.Inactive:
                 return;
             case MorphBallEyeBeamPhase.PendingInitialization:
-                InitializeMorphBallEyeBeamObject();
+                StartMorphBallEyeBeam();
                 return;
             case MorphBallEyeBeamPhase.Widening:
                 WidenMorphBallEyeBeam();
@@ -221,15 +221,15 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Seeds the beam's colour and zero angular width, then marks its body activated.</summary>
-    private void InitializeMorphBallEyeBeamObject()
+    /// <summary>
+    /// Seeds the beam's colour, then marks its body activated. The request a step earlier reset the beam to no width, no
+    /// widening and its first colour (#2474), which nothing changes before this step.
+    /// </summary>
+    private void StartMorphBallEyeBeam()
     {
         MorphBallEyeEnemyState state = BeamEyeState();
 
         MorphBallEyeBeam.Color = MorphBallEyeBeamDefinitions.InitialColor;
-        MorphBallEyeBeam.AngularHalfWidth = RotationAngle.Zero;
-        MorphBallEyeBeam.AngularHalfWidthGrowth = RotationAngle.Zero;
-        MorphBallEyeBeam.NextColour = MorphBallEyeBeamColour.First;
         state.IsActivated = true;
         MorphBallEyeBeam.Phase = MorphBallEyeBeamPhase.Widening;
     }

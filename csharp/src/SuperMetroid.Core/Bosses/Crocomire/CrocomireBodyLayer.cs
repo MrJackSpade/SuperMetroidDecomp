@@ -96,7 +96,7 @@ internal sealed class CrocomireBodyLayer
         int random = _access.ReadCrocomireRandom();
         // Smoke on the left rises one pixel further from the body than its mirror on the right.
         int xOffset = CrocomireRandomDefinitions.AcidSmokeXOffset.Of(random);
-        if (!CrocomireRandomDefinitions.AcidSmokeOnRight.IsSetIn(random))
+        if (!CrocomireRandomDefinitions.AcidSmokeRisesOnRight.IsTakenBy(random))
             xOffset = -(xOffset + CrocomireRandomDefinitions.AcidSmokeLeftExtraPixels);
         // Crocomire's room always has its acid surface, which its tide only moves; a surface above the room's top is none.
         RoomFxOverlayState roomFx = _roomFx.FxOverlay;

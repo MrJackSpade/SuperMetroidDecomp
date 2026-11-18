@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Enemies.Kzan;
 /// <summary>
 /// The state of a Kzan top. The bottom half has no state of its own: it follows the top just before it in the room's
 /// enemies. The top reads its fall's starting speed and its wait from its spawn settings where it uses them (#2439); each
-/// fall or rise records where the top stood before carrying Samus by the move, and landing sets the rise wait before it
-/// counts down.
+/// fall or rise carries Samus by the move it makes that update (#2473), and landing sets the rise wait before it counts
+/// down.
 /// </summary>
 public sealed class KzanEnemyState
 {
@@ -34,9 +34,6 @@ public sealed class KzanEnemyState
     /// The lowest room Y of the fall: the spawn Y plus the spawn settings' fall distance, inside the room.
     /// </summary>
     public int FallingTargetY { get; internal set; }
-
-    /// <summary>The top's room Y saved before a falling or rising update; the accepted whole-pixel movement since it determines rider displacement.</summary>
-    public int PreviousY { get; internal set; }
 
     /// <summary>
     /// The speed, in pixels per update, the fall moves at. It starts at the spawn settings' fall speed, grows by one

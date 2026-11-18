@@ -66,10 +66,6 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
         if (HasCollectedMorphBall(samus))
             StartGlow(place);
         RestartGlowStep();
-
-        // Keeps only the facing its spawn names: main AI wakes the block only for Samus on that side.
-        state.Facing = place.SpawnSettings<FaceBlockSpawnSettings>().Facing;
-        state.Activated = false;
     }
 
     /// <summary>Runs the Blue Brinstar face block's main AI.</summary>
@@ -95,14 +91,12 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
         if (Math.Abs(horizontalDelta) >= place.SpawnSettings<FaceBlockSpawnSettings>().TriggerDistance)
             return;
 
+        // The block wakes only for Samus on the side its spawn settings face it toward (#2277).
         HorizontalDirection samusSide = horizontalDelta < 0 ? HorizontalDirection.Left : HorizontalDirection.Right;
-        if (samusSide != state.Facing)
+        if (samusSide != place.SpawnSettings<FaceBlockSpawnSettings>().Facing)
             return;
 
-        state.Playback = EnemyAnimationPlayback.Start(place, BlueBrinstarFaceBlockAnimations.StartingWith(samusSide == HorizontalDirection.Left
-            ? BlueBrinstarFaceBlockSegment.SamusLeft
-            : BlueBrinstarFaceBlockSegment.SamusRight));
-        state.Activated = true;
+        state.Playback = EnemyAnimationPlayback.Start(place, BlueBrinstarFaceBlockAnimations.StartingWith(Wake(samusSide)));
 
         // Waking restarts the room's glow countdown at sixteen updates but keeps the glow's level.
         RestartGlowStep();
@@ -110,6 +104,10 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
 
     /// <summary>Shows the glow's level for a whole step's updates from now, as a block's setup and its waking do.</summary>
     private void RestartGlowStep() => _glow.HoldShownFrameFor(FaceBlockGlowDefinitions.FrameDuration);
+
+    /// <summary>The turn a face block wakes into for Samus on <paramref name="side"/>, the side it faces.</summary>
+    internal static BlueBrinstarFaceBlockSegment Wake(HorizontalDirection side) =>
+        side == HorizontalDirection.Left ? BlueBrinstarFaceBlockSegment.SamusLeft : BlueBrinstarFaceBlockSegment.SamusRight;
 
     /// <summary>Uses the collected items so unequipping Morph Ball does not put active blocks back to rest.</summary>
     private static bool HasCollectedMorphBall(SamusState samus) =>

@@ -25,18 +25,10 @@ public sealed class NuclearWaffleEnemyState
     /// </summary>
     public int WaitingTimer { get; internal set; }
 
-    /// <summary>The way the waffle sweeps around its orbit, as its spawn settings name it.</summary>
-    internal NuclearWaffleSweepDirection Direction { get; init; }
-
-    /// <summary>
-    /// The sweep its <see cref="Direction"/> runs: its start and end angles, the spacing of its links and the angles at which
-    /// they turn.
-    /// </summary>
-    internal NuclearWaffleSweepDefinition Sweep { get; init; }
-
     /// <summary>
     /// The sweep angle: its whole step is the head's angle and its fraction carries between updates. It restarts at the
-    /// <see cref="Sweep"/>'s start angle with no fraction and moves monotonically toward its end angle until the last
+    /// start angle of the sweep its spawn settings run (<see cref="NuclearWaffleSpawnSettings.Sweep"/>, #2474) with no
+    /// fraction and moves monotonically toward its end angle until the last
     /// damaging link reaches it, so it stays between 140 and 500 steps, counted on past the full turn rather than wrapping;
     /// the orbit reads only its direction within the turn.
     /// </summary>

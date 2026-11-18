@@ -59,7 +59,7 @@ internal sealed class DraygonCombat
     }
 
     /// <summary>
-    /// Runs Draygon's hurt AI. The body is drawn partly as a background layer and partly
+    /// Updates Draygon while he is hurt. The body is drawn partly as a background layer and partly
     /// as sprites, so a valid flash must update the colours of both surfaces.
     /// </summary>
     internal void ApplyDraygonHurt(
@@ -75,7 +75,7 @@ internal sealed class DraygonCombat
         state.ShadeSprites();
 
         // A grapple connected to the turrets is the game's electrocution channel. It is
-        // sampled only while hurt AI owns the body and subtracts its grapple-shock damage on every
+        // sampled only while he is hurt and subtracts its grapple-shock damage on every
         // eighth body frame before running the same fatal/nonfatal reaction as a shot.
         if (!DraygonGrab.IsDraygonGrappleConnected(samus) ||
             !DraygonCadenceDefinitions.GrappleShockEveryEighthUpdate.IsDue(body.FrameCounter))

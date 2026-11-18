@@ -57,7 +57,7 @@ internal sealed class GameplayActorDrawing
     {
         bool deathOwnsSamus = owner == SamusDrawOwner.DeathSequence;
         // The frame draws bomb/projectile explosions before reaching the enemy-layer
-        // phase that draws Samus and her projectiles. Preserve that sprite ordering.
+        // phase that draws Samus and her projectiles, so the explosions lie beneath them.
         if (!deathOwnsSamus)
         {
             room.BombProjectiles.Draw(_sprites, room.Camera.PixelPosition, ProjectileArtwork);

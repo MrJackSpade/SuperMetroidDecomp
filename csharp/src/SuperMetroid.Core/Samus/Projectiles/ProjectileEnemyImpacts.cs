@@ -155,7 +155,7 @@ internal sealed class ProjectileEnemyImpacts
 
     /// <summary>
     /// Converts one live beam or missile into its ordinary impact animation after
-    /// an enemy-owned overlap test accepts it. Enemy shot AI owns damage/counters; this
+    /// an enemy-owned overlap test accepts it. The enemy's shot reaction deals the damage; this
     /// projectile owner alone changes the shot and the shared cooldown.
     /// </summary>
     public bool TryStartEnemyImpact(

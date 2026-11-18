@@ -94,7 +94,7 @@ internal sealed class DoorOpeningScrollState
         samus.Advance(GetSamusStep(door));
 
     /// <summary>
-    /// Samus's fixed-point displacement for one scroll update: the door's speed (or the
+    /// Samus's displacement for one scroll update, to a fraction of a pixel: the door's speed (or the
     /// axis default), added along right/down and subtracted along left/up.
     /// </summary>
     internal static FixedVector<RoomPixels> GetSamusStep(DoorDefinition door)

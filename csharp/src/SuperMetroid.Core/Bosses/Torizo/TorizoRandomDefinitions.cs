@@ -4,24 +4,24 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>
 /// The fields of the room's random numbers Torizo's AI and spawns read. A decision that needs several single-bit fields
-/// is taken when every one of them reads zero, so the number of fields sets its odds.
+/// is a <see cref="RandomClearBitsChance"/>, taken when every one of them reads zero, so the number of fields sets its odds.
 /// </summary>
 internal static class TorizoRandomDefinitions
 {
     /// <summary>Bomb Torizo drools while hurt when four single-bit fields of the sample all read zero: one time in sixteen.</summary>
-    internal static readonly TorizoRandomDecision LowHealthDrool = TorizoRandomDecision.WhenAllClear(
+    internal static readonly RandomClearBitsChance LowHealthDrool = RandomClearBitsChance.WhenAllClear(
         new RandomSampleField(1, 1), new RandomSampleField(6, 1), new RandomSampleField(8, 1), new RandomSampleField(15, 1));
 
     /// <summary>Golden Torizo releases its eggs at low health when two single-bit fields of the sample both read zero: one time in four.</summary>
-    internal static readonly TorizoRandomDecision LowHealthEggs = TorizoRandomDecision.WhenAllClear(
+    internal static readonly RandomClearBitsChance LowHealthEggs = RandomClearBitsChance.WhenAllClear(
         new RandomSampleField(1, 1), new RandomSampleField(8, 1));
 
     /// <summary>Golden Torizo's medium-range attack is taken when two single-bit fields of the sample both read zero: one time in four.</summary>
-    internal static readonly TorizoRandomDecision MediumRangeAttack = TorizoRandomDecision.WhenAllClear(
+    internal static readonly RandomClearBitsChance MediumRangeAttack = RandomClearBitsChance.WhenAllClear(
         new RandomSampleField(4, 1), new RandomSampleField(8, 1));
 
     /// <summary>Golden Torizo's forward leap goes while held directions draw a sample whose two single-bit fields both read zero: one time in four.</summary>
-    internal static readonly TorizoRandomDecision ForwardLeap = TorizoRandomDecision.WhenAllClear(
+    internal static readonly RandomClearBitsChance ForwardLeap = RandomClearBitsChance.WhenAllClear(
         new RandomSampleField(0, 1), new RandomSampleField(8, 1));
 
     /// <summary>The initial drool's added fall speed, 0 through 31 256ths of a pixel an update.</summary>

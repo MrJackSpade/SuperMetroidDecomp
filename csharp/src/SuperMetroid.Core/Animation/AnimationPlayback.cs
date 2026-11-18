@@ -14,15 +14,6 @@ internal readonly record struct AnimationPlayback<TSegment>(Animation<TSegment> 
         : throw new InvalidOperationException("An animation of no phase plays no segment.");
 
     /// <summary>
-    /// Whether the play has shown the playing phase's last beat and rests after it (#1886): on its last frame until it plays
-    /// on, or where the animation holds for good.
-    /// </summary>
-    /// <exception cref="InvalidOperationException">The animation has no phase.</exception>
-    internal bool HasShownPhaseEnd => Animation.Phases.Count > Place.Phase
-        ? Place.Beat >= Animation.Phases[Place.Phase].BeatCount
-        : throw new InvalidOperationException("An animation of no phase has no phase to finish.");
-
-    /// <summary>
     /// The playback of <paramref name="other"/> going on from where this play stands (#2387), as two cycles sharing one
     /// place hand it to each other: its next beat is the one this play shows next, counted through its animation's phases
     /// from the first, or <paramref name="other"/>'s last beat when it has fewer. Samus's Screw Attack glow and Speed

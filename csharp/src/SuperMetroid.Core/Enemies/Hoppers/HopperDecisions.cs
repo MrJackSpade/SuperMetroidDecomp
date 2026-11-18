@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Enemies.Hoppers;
 
-/// <summary>The random field a Sidehopper reads to choose its next hop.</summary>
+/// <summary>The random chance a Sidehopper takes to choose its next hop.</summary>
 internal static class HopperDecisions
 {
-    /// <summary>The random choice that makes a Sidehopper prepare a big hop rather than a small one: taken by an odd sample.</summary>
-    internal static readonly RandomSampleField BigHop = new(0, 1);
+    /// <summary>Whether a Sidehopper prepares a big hop rather than a small one (#2479): taken by an odd sample, one hop in two.</summary>
+    internal static readonly RandomChance HopsBig = RandomChance.Highest(1, new RandomSampleField(0, 1));
 }

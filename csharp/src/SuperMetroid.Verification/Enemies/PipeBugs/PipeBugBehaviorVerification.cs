@@ -62,7 +62,7 @@ internal static class PipeBugBehaviorVerification
             Initialize(enemies, place, EnemyDefinitionId.Gamet, 0);
             NorfairPipeBugState state = place.RequireSpeciesState<NorfairPipeBugState>();
             state.Action = NorfairPipeBugAction.WaitForStagger;
-            state.Role = new NorfairPipeBugRole(StaggerTarget: 72, NorfairPipeBugAction.Stagger, StaggerOffset: 0);
+            state.Role = new NorfairPipeBugRole(StaggerTarget: 72, Stagger: null);
             state.FormationCounter = before;
             enemies.PipeBugsBehavior.RunNorfairPipeBugMainAi(place, Frame(new(200, 128)));
             AssertEqual(after, state.FormationCounter, $"Norfair Pipe Bug count after {before}");
@@ -97,19 +97,19 @@ internal static class PipeBugBehaviorVerification
             Initialize(enemies, place, EnemyDefinitionId.Geega, 0);
             YellowPipeBugState state = place.RequireSpeciesState<YellowPipeBugState>();
             AssertEqual(SixteenSixteenWords.ToDisplacement(onePixel + onePixel / 2), place.SpawnSettings<YellowPipeBugSpawnSettings>().Speed, "yellow Pipe Bug speed record 24 is 1.5 pixels");
-            state.Action = YellowPipeBugAction.Arc;
-            state.FlightDirection = HorizontalDirection.Right;
-            state.ArcRising = true;
-            state.ArcCounter = QuadraticSpeedCurvePlace.FromMarks(1);
+            // The arc goes the way the placement faces (#2474): parameter one's zero faces right.
+            AssertEqual(HorizontalDirection.Right, place.SpawnSettings<YellowPipeBugSpawnSettings>().Facing, "yellow Pipe Bug placement faces right");
+            state.Action = YellowPipeBugAction.ArcDipping;
+            state.ArcCurvePlace = QuadraticSpeedCurvePlace.FromMarks(1);
             PipeBugBehaviorExpected[] expected = [new PipeBugBehaviorExpected(0, true), new PipeBugBehaviorExpected(0, false), new PipeBugBehaviorExpected(1, false)];
             for (int update = 0; update < expected.Length; update++)
             {
                 PipeBugsBehavior.RunYellowPipeBugMainAi(place, Frame(new(200, 128)));
                 AssertEqual(SixteenSixteenWords.ToCoordinate(checked((uint)(128 * onePixel + (update + 1) * (onePixel + onePixel / 2)))), place.Position.X,
                     $"yellow Pipe Bug arc update {update} carries its 16.16 speed");
-                AssertEqual(QuadraticSpeedCurvePlace.FromMarks(expected[update].Counter), state.ArcCounter, $"yellow Pipe Bug arc record after update {update}");
+                AssertEqual(QuadraticSpeedCurvePlace.FromMarks(expected[update].Counter), state.ArcCurvePlace, $"yellow Pipe Bug arc record after update {update}");
                 if (update < 2)
-                    AssertEqual(expected[update].Rising, state.ArcRising, $"yellow Pipe Bug arc phase after update {update}");
+                    AssertEqual(expected[update].Rising ? YellowPipeBugAction.ArcDipping : YellowPipeBugAction.ArcClimbing, state.Action, $"yellow Pipe Bug arc phase after update {update}");
             }
         }
         Console.WriteLine("  Pipe Bug state: the formation count wraps and compares by sign, the direction bit stands alone, and the arc record never goes below zero.");
@@ -136,20 +136,23 @@ internal static class PipeBugBehaviorVerification
             slot.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128));
             Initialize(enemies, slot, EnemyDefinitionId.Gamet, 0);
             NorfairPipeBugState state = slot.RequireSpeciesState<NorfairPipeBugState>();
-            AssertEqual(NorfairPipeBugAction.Stagger, role.PostRiseAction, $"the member {role.StaggerOffset} pixels from the leader staggers by its offset");
+            NorfairPipeBugStagger stagger = role.Stagger ?? throw new InvalidOperationException("Every member but the leader staggers.");
+            // The member's place in the formation, from where its rise ended: up is toward smaller Y (#2473).
+            int offset = stagger.Direction == VerticalDirection.Up ? -stagger.Distance : stagger.Distance;
+            AssertEqual(NorfairPipeBugAction.Stagger, role.PostRiseAction, $"the member {offset} pixels from the leader staggers by its offset");
             state.Action = NorfairPipeBugAction.Stagger;
             state.Role = role;
             state.RiseEndY = 128;
             state.FormationCounter = 0;
             int updates = 0;
-            while (state.Action == NorfairPipeBugAction.Stagger && updates <= Math.Abs(role.StaggerOffset) + 1)
+            while (state.Action == NorfairPipeBugAction.Stagger && updates <= stagger.Distance + 1)
             {
                 enemies.PipeBugsBehavior.RunNorfairPipeBugMainAi(slot, frame);
                 updates++;
             }
-            AssertEqual(NorfairPipeBugAction.WaitForStagger, state.Action, $"the member staggering {role.StaggerOffset} pixels then waits");
-            AssertEqual(128 + role.StaggerOffset, slot.Position.Y.Whole, $"the member staggering {role.StaggerOffset} pixels stops there");
-            AssertEqual(updates, state.FormationCounter, $"the member staggering {role.StaggerOffset} pixels counts each update");
+            AssertEqual(NorfairPipeBugAction.WaitForStagger, state.Action, $"the member staggering {offset} pixels then waits");
+            AssertEqual(128 + offset, slot.Position.Y.Whole, $"the member staggering {offset} pixels stops there");
+            AssertEqual(updates, state.FormationCounter, $"the member staggering {offset} pixels counts each update");
         }
         Console.WriteLine("  Norfair Pipe Bug staggers: each member moves by its role's offset and then waits.");
     }

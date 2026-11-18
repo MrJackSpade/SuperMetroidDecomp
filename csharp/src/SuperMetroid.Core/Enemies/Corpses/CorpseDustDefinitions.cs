@@ -4,8 +4,9 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 internal static class CorpseDustDefinitions
 {
     /// <summary>
-    /// The random choice that moves a Tourian or Sidehopper corpse's dust cloud one <see cref="SpreadFineStep"/> to the
-    /// right: taken for half the random numbers. With <see cref="SpreadCoarseSteps"/> it spreads the cloud 0-26 pixels, even.
+    /// The random field that moves a Tourian or Sidehopper corpse's dust cloud zero or one <see cref="SpreadFineStep"/> to
+    /// the right (#2479): a count of steps, the sample's second bit. With <see cref="SpreadCoarseSteps"/> it spreads the
+    /// cloud 0-26 pixels, even.
     /// </summary>
     internal static readonly RandomSampleField SpreadFineSteps = new(1, 1);
 

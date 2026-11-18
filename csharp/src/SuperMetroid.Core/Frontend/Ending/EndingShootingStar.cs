@@ -12,7 +12,7 @@ internal struct EndingShootingStar
     /// <summary>The star's pictures through its flight (<see cref="EndingShootingStarAnimations"/>).</summary>
     internal AnimationPlayer<EndingShootingStarPace, EndingShootingStarLook, NoAnimationCue> Flight;
     /// <summary>
-    /// Fixed-point signed screen place before centering the sprite: left of or above the screen is negative, so a star
+    /// Signed screen place, to a fraction of a pixel, before centering the sprite: left of or above the screen is negative, so a star
     /// leaving by the top or left edge is tested against <see cref="EndingShootingStarDefinitions.SpriteOffset"/> as it is.
     /// </summary>
     internal FixedVector<ScreenPixels> Position;

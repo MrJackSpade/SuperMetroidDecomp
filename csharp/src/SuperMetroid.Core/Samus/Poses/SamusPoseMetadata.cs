@@ -655,7 +655,7 @@ internal static class SamusPoseMetadata
 
                 // The selected forward-jump poses are NOT the transition poses that
                 // initialize ordinary jump speed (or apply the crouch jump offset).
-                // Preserve this frame's velocity; bomb start replaces it next frame.
+                // This frame's velocity stays; bomb start replaces it next frame.
                 SamusPresentation.InitializeAnimation(samus);
                 ArmPublishedBombJump(samus);
                 return true;

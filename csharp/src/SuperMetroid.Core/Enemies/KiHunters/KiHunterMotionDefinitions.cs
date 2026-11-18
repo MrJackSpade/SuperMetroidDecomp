@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.KiHunters;
 
-/// <summary>Ki-Hunter trigger, fixed-point acceleration and detached-wing orbit constants.</summary>
+/// <summary>How near Samus a Ki-Hunter swoops, how fast it accelerates and how its detached wings orbit.</summary>
 public static class KiHunterMotionDefinitions
 {
     /// <summary>How near, in pixels, Samus must come horizontally for a flying Ki-Hunter to swoop at her.</summary>
@@ -31,7 +31,7 @@ public static class KiHunterMotionDefinitions
 
     /// <summary>
     /// The upward speed a grounded Ki-Hunter's jump starts at, in whole pixels an update, before
-    /// <see cref="ShallowerGroundJump"/> may take one off it.
+    /// <see cref="GroundJumpSpeedTakenOff"/> may take one off it.
     /// </summary>
     public const int GroundJumpUpwardSpeed = 8;
 
@@ -86,10 +86,10 @@ public static class KiHunterMotionDefinitions
     public const int DetachedWingRadius = 48;
 
     /// <summary>
-    /// The random choice that takes one pixel per update off a grounded Ki-Hunter's upward jump speed, added to
-    /// the jump's eight pixels upward.
+    /// The whole pixels per update, none or one, the random sample takes off a grounded Ki-Hunter's upward jump speed
+    /// (#2479): its lowest bit, added to the jump's eight pixels upward.
     /// </summary>
-    internal static readonly RandomSampleField ShallowerGroundJump = new(0, 1);
+    internal static readonly RandomSampleField GroundJumpSpeedTakenOff = new(0, 1);
 
 
 
@@ -123,11 +123,17 @@ public static class KiHunterMotionDefinitions
     /// </summary>
     public static RotationAngle LeftSwoopAnimationChangeAngle { get; } = RotationAngle.WrappedSteps(-RotationAngle.StepsPerTurn / 16);
 
-    /// <summary>The detached wing orbit's offset angle, seven-eighths of a turn.</summary>
-    public static TrigonometryAngle DetachedOrbitOffsetAngle { get; } = new(224);
+    /// <summary>
+    /// The detached wing orbit's correction (#2474): the point seven eighths of a turn round a circle of
+    /// <see cref="DetachedWingRadius"/>, which the orbit takes off its points so it starts where the wings stand.
+    /// </summary>
+    public static Offset16<RoomPixels> DetachedOrbitOffset { get; } = EnemyMath.CircleOffset(new TrigonometryAngle(224), DetachedWingRadius);
 
-    /// <summary>The detached wing's falling-arc offset angle, five-eighths of a turn.</summary>
-    public static TrigonometryAngle FallingArcOffsetAngle { get; } = new(160);
+    /// <summary>
+    /// The detached wing's falling-arc correction (#2474): the point five eighths of a turn round a circle of
+    /// <see cref="DetachedWingRadius"/>, which the falling arc takes off its points so it starts where the wings stand.
+    /// </summary>
+    public static Offset16<RoomPixels> FallingArcOffset { get; } = EnemyMath.CircleOffset(new TrigonometryAngle(160), DetachedWingRadius);
 
     /// <summary>The detached wing orbit's starting rotation angle, an eighth of a turn below zero.</summary>
     public static RotationAngle DetachedOrbitStartAngle { get; } = RotationAngle.WrappedSteps(-RotationAngle.StepsPerTurn / 8);

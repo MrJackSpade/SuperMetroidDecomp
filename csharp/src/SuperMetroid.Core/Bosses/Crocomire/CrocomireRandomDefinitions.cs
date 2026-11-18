@@ -7,10 +7,11 @@ internal static class CrocomireRandomDefinitions
     internal static readonly RandomSampleField AcidSmokeXOffset = new(0, 6);
 
     /// <summary>
-    /// Whether the acid smoke keeps its offset to the right of the body, taken for half the random numbers; otherwise the
-    /// smoke rises to the left, <see cref="AcidSmokeLeftExtraPixels"/> further from the body than its offset.
+    /// Whether the acid smoke keeps its offset to the right of the body (#2479), taken when the sample's second bit is set,
+    /// half the random numbers; otherwise the smoke rises to the left, <see cref="AcidSmokeLeftExtraPixels"/> further from
+    /// the body than its offset.
     /// </summary>
-    internal static readonly RandomSampleField AcidSmokeOnRight = new(1, 1);
+    internal static readonly RandomChance AcidSmokeRisesOnRight = RandomChance.Highest(1, new RandomSampleField(1, 1));
 
     /// <summary>
     /// How much further from the body acid smoke on the left rises than smoke on the right with the same offset: one

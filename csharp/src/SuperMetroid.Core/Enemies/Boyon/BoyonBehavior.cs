@@ -44,7 +44,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the Boyon.</summary>
     internal static void InitializeBoyon(RoomEnemyPlace place)
     {
-        BoyonSpawnSettings settings = place.SpawnSettings<BoyonSpawnSettings>();
+        _ = place.SpawnSettings<BoyonSpawnSettings>();
 
         // The Boyon shows nothing until its idle animation shows its first frame on its first update; the room's
         // enemy load leaves it showing nothing too.
@@ -53,8 +53,6 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new BoyonEnemyState
         {
             BounceMovement = BoyonBounceMovement.Rising,
-            SpeedMultiplier = settings.SpeedMultiplier,
-            JumpHeight = SignedSixteenSixteen.FromWholePixels(settings.JumpHeight),
             CurvePlace = BoyonCurvePlace.Top,
             BaselineCurvePlace = BoyonCurvePlace.Top,
             Phase = BoyonPhase.DerivingArc,
@@ -71,7 +69,8 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
         // animation and main AI otherwise become one frame early immediately after a load.
         if (state.Phase == BoyonPhase.DerivingArc)
         {
-            DeriveBoyonArcBaseline(state);
+            BoyonSpawnSettings settings = place.SpawnSettings<BoyonSpawnSettings>();
+            DeriveBoyonArcBaseline(state, settings.SpeedMultiplier, SignedSixteenSixteen.FromWholePixels(settings.JumpHeight));
             return;
         }
 
@@ -117,16 +116,24 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// (#2282); the place it then stands at is where every fall ends, and it rests there. Each entry past the top adds at
     /// least one 256th of a pixel, so the derivation ends; the state holds no multiplier below one.
     /// </summary>
-    internal static void DeriveBoyonArcBaseline(BoyonEnemyState state)
+    /// <param name="state">The Boyon.</param>
+    /// <param name="multiplier">Its spawn settings' curve multiplier, one or more.</param>
+    /// <param name="jumpHeight">
+    /// Its spawn settings' arc height, 48 to 96 pixels for Boyons, compared plainly with the arc's distance (#2282).
+    /// </param>
+    /// <exception cref="ArgumentOutOfRangeException">The arc is lower than nothing.</exception>
+    internal static void DeriveBoyonArcBaseline(BoyonEnemyState state, int multiplier, SignedSixteenSixteen jumpHeight)
     {
+        if (jumpHeight.IsNegative)
+            throw new ArgumentOutOfRangeException(nameof(jumpHeight), jumpHeight, "A Boyon's arc is no lower than nothing.");
         SignedSixteenSixteen distance = SignedSixteenSixteen.Zero;
         do
         {
-            state.Speed = MultiplyBoyonCurveEntry(state);
+            state.Speed = MultiplyBoyonCurveEntry(state, multiplier);
             distance += state.Speed.AsDisplacement();
             state.FallOneEntry();
         }
-        while (distance.InTwoFiftySixths < state.JumpHeight.InTwoFiftySixths);
+        while (distance < jumpHeight);
 
         state.BaselineCurvePlace = state.CurvePlace;
         state.Phase = BoyonPhase.Resting;
@@ -136,7 +143,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void MoveBoyonFalling(RoomEnemyPlace place, BoyonEnemyState state)
     {
         state.FallOneEntry();
-        state.Speed = MultiplyBoyonCurveEntry(state);
+        state.Speed = MultiplyBoyonCurveEntry(state, place.SpawnSettings<BoyonSpawnSettings>().SpeedMultiplier);
 
         // Taking the product's whole pixels discards its fraction. Boyon keeps no fraction of a pixel
         // here: each frame moves by exactly the product's whole pixels.
@@ -151,18 +158,19 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs rising movement.</summary>
     private static void MoveBoyonRising(RoomEnemyPlace place, BoyonEnemyState state)
     {
-        state.Speed = MultiplyBoyonCurveEntry(state);
+        state.Speed = MultiplyBoyonCurveEntry(state, place.SpawnSettings<BoyonSpawnSettings>().SpeedMultiplier);
         place.Position = place.Position.WithWholeY(place.Position.Y.Whole - state.Speed.Whole);
         if (state.RiseOneEntry())
             state.BounceMovement = BoyonBounceMovement.Falling;
     }
 
     /// <summary>
-    /// The Boyon's speed at its place: the curve sample there scaled by its multiplier, in 256ths of a pixel an update.
-    /// Entries after the stored curve use the explicit saturated sample rather than reading past it.
+    /// The Boyon's speed at its place: the curve sample there scaled by its spawn settings' <paramref name="multiplier"/>,
+    /// in 256ths of a pixel an update. Entries after the stored curve use the explicit saturated sample rather than
+    /// reading past it.
     /// </summary>
-    internal static UnsignedSixteenSixteen MultiplyBoyonCurveEntry(BoyonEnemyState state) =>
-        UnsignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(BoyonBounceCurve.Multiply(state.CurvePlace, state.SpeedMultiplier));
+    internal static UnsignedSixteenSixteen MultiplyBoyonCurveEntry(BoyonEnemyState state, int multiplier) =>
+        UnsignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(BoyonBounceCurve.Multiply(state.CurvePlace, multiplier));
 
     /// <summary>Whether Samus lies within Boyon's authored horizontal reach, in pixel columns, of the enemy.</summary>
     private static bool IsBoyonSamusWithinHorizontalRange(RoomEnemyPlace place, SamusState samus)

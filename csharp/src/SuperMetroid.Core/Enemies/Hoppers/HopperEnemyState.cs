@@ -49,8 +49,6 @@ public sealed class HopperEnemyState
 
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<HopperSegment> Playback { get; set; }
-    /// <summary>True selects motion back toward the attachment surface, downward for floor Hoppers or upward for ceiling Hoppers; collision or the apex ends the outward phase.</summary>
-    public bool Falling { get; internal set; }
     /// <summary>
     /// Whether the landing animation has readied the next hop: set by its ready cue and cleared by
     /// <see cref="HopperAction.WaitToHop"/> as it hops again, so authored animation cadence, not a separate jump timer,
@@ -63,7 +61,4 @@ public sealed class HopperEnemyState
 
     /// <summary>The kind of hopper its definition is, which selects its animations.</summary>
     public HopperKind Kind { get; internal set; }
-
-    /// <summary>The surface its placement mounts it on, which decides which way is up for its hops (#2338).</summary>
-    internal HopperSurface Surface { get; set; }
 }

@@ -8,7 +8,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>
-/// The fixed-point horizontal speeds used by Samus's movement code.
+/// Samus's horizontal speeds, each to a fraction of a pixel.
 /// </summary>
 /// <remarks>
 /// Every property is one value of Samus's state, and every operation below gives the speeds the game gives them. Room/enemy

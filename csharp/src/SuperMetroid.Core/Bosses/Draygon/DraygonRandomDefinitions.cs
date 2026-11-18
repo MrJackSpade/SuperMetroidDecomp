@@ -3,8 +3,8 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// <summary>The random choices of Draygon's fight and death: its attack, its goop, its turrets and its dying smoke.</summary>
 internal static class DraygonRandomDefinitions
 {
-    /// <summary>Whether Draygon swoops rather than spits goop when it reaches a side: an odd sample swoops.</summary>
-    internal static readonly RandomSampleField SwoopRatherThanGoop = new(0, 1);
+    /// <summary>Whether Draygon swoops rather than spits goop when it reaches a side (#2479): an odd sample swoops, one time in two.</summary>
+    internal static readonly RandomChance SwoopsRatherThanSpitsGoop = RandomChance.Highest(1, new RandomSampleField(0, 1));
 
     /// <summary>
     /// The goop volley's step (#1619): one random number in sixteen counts the volley down and fires the next goop.

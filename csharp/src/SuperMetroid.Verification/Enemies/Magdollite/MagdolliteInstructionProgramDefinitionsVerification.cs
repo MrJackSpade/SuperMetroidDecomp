@@ -46,10 +46,10 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
             MagdolliteSegment.EightSegmentPillar,
         ];
         for (int phase = 0; phase < pillarPrograms.Length; phase++)
-            VerifyStaticProgram(pillarPrograms[phase], MagdollitePart.RisingBody, $"pillar {phase}");
+            VerifyStaticProgram(pillarPrograms[phase], typeof(MagdolliteBodyState), $"pillar {phase}");
         Suite(nameof(VerifyStaticProgram), () => VerifyStaticProgram(
             MagdolliteSegment.PillarCap,
-            MagdollitePart.TrackingOverlay,
+            typeof(MagdolliteOverlayState),
             "pillar cap"));
 
         Suite(nameof(MagdolliteAnimationsVerification.VerifyMagdolliteAnimations), () => MagdolliteAnimationsVerification.VerifyMagdolliteAnimations(rom));
@@ -58,7 +58,7 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
         void VerifyIdle(MagdolliteSegment program, string direction)
         {
             (RoomEnemySystem enemies, RoomEnemyPlace place, MagdollitePartState state) =
-                CreateSystem(MagdollitePart.Head);
+                CreateSystem(typeof(MagdolliteHeadState));
             Install(place, state, program);
             RunFrames(enemies, place, 55);
             AssertEqual(program, state.Playback.Animation.Phases[state.Playback.Place.Phase].Segment,
@@ -68,7 +68,7 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
         void VerifyThrow(MagdolliteSegment program, string direction)
         {
             (RoomEnemySystem enemies, RoomEnemyPlace place, MagdollitePartState state) =
-                CreateSystem(MagdollitePart.TrackingOverlay);
+                CreateSystem(typeof(MagdolliteOverlayState));
             var overlay = (MagdolliteOverlayState)state;
             overlay.ThrowOrigin = place.Position.Whole;
             // The hand waits for the throw it starts (#2439).
@@ -88,7 +88,7 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
         void VerifySubmerge(MagdolliteSegment program, string direction)
         {
             (RoomEnemySystem enemies, RoomEnemyPlace head, MagdollitePartState state) =
-                CreateSystem(MagdollitePart.Head);
+                CreateSystem(typeof(MagdolliteHeadState));
             // The head waits for the submerge it starts (#2439).
             ((MagdolliteHeadState)state).Action = MagdolliteHeadAction.WaitingForAttackAnimation;
             Install(head, state, program);
@@ -104,7 +104,7 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
         void VerifyEmerge(MagdolliteSegment program, string direction)
         {
             (RoomEnemySystem enemies, RoomEnemyPlace head, MagdollitePartState state) =
-                CreateSystem(MagdollitePart.Head);
+                CreateSystem(typeof(MagdolliteHeadState));
             enemies.Places.InUpdateOrder[1].Presence = enemies.Places.InUpdateOrder[1].Presence.Without(EnemyPresence.Hidden);
             enemies.Places.InUpdateOrder[2].Presence = enemies.Places.InUpdateOrder[2].Presence.Without(EnemyPresence.Hidden);
             // The head waits for the emergence it starts (#2439).
@@ -119,7 +119,7 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
                 $"Magdollite {direction} emerge hides hand");
         }
 
-        void VerifyStaticProgram(MagdolliteSegment program, MagdollitePart part, string name)
+        void VerifyStaticProgram(MagdolliteSegment program, Type part, string name)
         {
             (RoomEnemySystem enemies, RoomEnemyPlace place, MagdollitePartState state) = CreateSystem(part);
             Install(place, state, program);
@@ -133,7 +133,7 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
         }
 
         CreateSystemResult CreateSystem(
-            MagdollitePart selectedPart)
+            Type selectedPart)
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             Action<RoomEnemyPlace, SamusState> initialize = static (place, samus) => place.InitializeAsPlaced(samus);
@@ -148,8 +148,9 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
                 initialize(member, RoomEnemyFrameFixtures.StandaloneSamus());
             }
 
-            // Each placement spawned as the part its parameter names; the selected part is the one whose state says so.
-            int position = Enumerable.Range(0, 3).Single(index => enemies.MagdolliteStates[index]?.Part == selectedPart);
+            // Each placement spawned as the part its parameter names; the selected part is the one whose state's type names
+            // it (#2474).
+            int position = Enumerable.Range(0, 3).Single(index => enemies.MagdolliteStates[index]?.GetType() == selectedPart);
             RoomEnemyPlace selected = enemies.Places.InUpdateOrder[position];
             return new CreateSystemResult(enemies, selected, (enemies.MagdolliteStates[position] ?? throw new InvalidOperationException("Verification requires the initialized Magdollite state.")));
         }

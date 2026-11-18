@@ -211,7 +211,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Flashes the Metroid's outer bodies while its custom hurt AI runs: its hit flash on alternate pairs of updates,
+    /// Flashes the Metroid's outer bodies while it is hurt: its hit flash on alternate pairs of updates,
     /// its own colours between.
     /// </summary>
     internal static void ApplyMetroidHurt(RoomEnemyPlace place)
@@ -337,7 +337,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         _audio.QueueEnemySound(EnemySoundEffectDefinitions.MetroidRecoilSoundEffect, priority: SoundRequestPriority.Normal);
     }
 
-    /// <summary>Releases an attached Metroid into its four-frame escape and clears Samus's drain colour flag.</summary>
+    /// <summary>Releases an attached Metroid into its four-frame escape and ends the shade its attachment gives Samus (<see cref="SamusMetroidAttachmentShade.Inactive"/>).</summary>
     private static void DetachMetroidWithPowerBomb(
         RoomEnemyPlace place,
         MetroidEnemyState state,
@@ -409,7 +409,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         outerBody.RestartAnimation();
     }
 
-    /// <summary>Restarts a Metroid animation at timer one after its movement changes.</summary>
+    /// <summary>Restarts a Metroid's animation after its movement changes, its first step playing on the next update.</summary>
     private static void SetMetroidAnimation(RoomEnemyPlace place, MetroidEnemyState state, MetroidSegment segment)
     {
         state.Playback = new(MetroidAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
@@ -417,8 +417,8 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Routes a bomb through Metroid's attachment and recoil rules: Metroid shot AI ignores bombs while frozen, detaches an
-    /// attached body for a power-bomb explosion, or applies its peculiar recoil from the first projectile otherwise
+    /// Routes a bomb through Metroid's attachment and recoil rules: a frozen Metroid ignores bombs, a power-bomb explosion
+    /// detaches an attached one, and any other bomb applies its peculiar recoil from the first projectile
     /// (MetroidRecoilOrigin).
     /// </summary>
     internal void ReactToMetroidBomb(EnemyBombContext c)

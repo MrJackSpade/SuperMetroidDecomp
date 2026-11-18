@@ -15,7 +15,7 @@ public sealed class AlcoonEnemyState
 
     /// <summary>
     /// The way it walks and faces, airborne and firing too; null from the start of each jump until it picks the side Samus
-    /// is on, while a movement step moves it nowhere and it faces right.
+    /// is on, while a stride moves it nowhere and it faces right.
     /// </summary>
     public HorizontalDirection? WalkingDirection { get; internal set; }
 
@@ -36,6 +36,6 @@ public sealed class AlcoonEnemyState
     /// <summary>The floor-aligned position the complete initialization jump lands at: the spawn X and the landing Y.</summary>
     public Position16<RoomPixels> LandingPosition { get; internal set; }
 
-    /// <summary>Number of four-step walking cycles remaining before another fire volley.</summary>
-    public int StepCounter { get; internal set; }
+    /// <summary>The walk cycles, each of four strides, the Alcoon still walks before another fire volley.</summary>
+    public int WalkCyclesBeforeVolley { get; internal set; }
 }

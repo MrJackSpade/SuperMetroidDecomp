@@ -64,7 +64,7 @@ public enum EnemySound
     TourianStatueParticle,
     /// <summary>The glass tube in Maridia shattering.</summary>
     GlassTubeShatter,
-    /// <summary>A two-pulse low clank near 125 Hz (0.44 s): a Kzan landing, or a Tatori hitting a wall.</summary>
+    /// <summary>A two-pulse low clank near 125 Hz (0.44 s): a Kzan landing, or a Mama Turtle hitting a wall.</summary>
     HeavyClank,
     /// <summary>
     /// Three quick low pulses (0.25 s): a Chozo statue grabbing Samus, also each Crocomire fight projectile leaving his
@@ -143,8 +143,8 @@ public enum EnemySound
     StationDisengaged,
     /// <summary>The Speed Booster's run, as the Dachora runs; its clip is Samus's Speed Booster's.</summary>
     SpeedBooster,
-    /// <summary>A Tatori spinning.</summary>
-    TatoriSpinning,
+    /// <summary>A Mama Turtle spinning in her shell.</summary>
+    MamaTurtleSpinning,
     /// <summary>A shinespark's launch, as the Dachora launches, also Crocomire's bridge collapsing under him.</summary>
     Shinespark,
     /// <summary>

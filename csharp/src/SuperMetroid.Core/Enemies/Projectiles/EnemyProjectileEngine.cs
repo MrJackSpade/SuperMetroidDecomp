@@ -605,7 +605,7 @@ internal sealed class EnemyProjectileEngine
             xOffset = _room.Random.Next(xRange) - xCenter;
         }
         while (xOffset < 0);
-        if (EnemyProjectileScatter.NegativeX.IsSetIn(signSample))
+        if (EnemyProjectileScatter.XOffsetTurnsLeft.IsTakenBy(signSample))
             xOffset = -xOffset;
         projectile.Position = projectile.Position.WithWrappedWholeX(projectile.Position.X.Whole + xOffset);
 
@@ -615,7 +615,7 @@ internal sealed class EnemyProjectileEngine
             yOffset = _room.Random.Next(yRange) - yCenter;
         }
         while (yOffset < 0);
-        if (EnemyProjectileScatter.NegativeY.IsSetIn(signSample))
+        if (EnemyProjectileScatter.YOffsetTurnsUp.IsTakenBy(signSample))
             yOffset = -yOffset;
         projectile.Position = projectile.Position.WithWrappedWholeY(projectile.Position.Y.Whole + yOffset);
     }

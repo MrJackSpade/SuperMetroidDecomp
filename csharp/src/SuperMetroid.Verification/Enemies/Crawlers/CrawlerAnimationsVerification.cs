@@ -14,7 +14,7 @@ internal static class CrawlerAnimationsVerification
     internal static NativeEnemyCueRules<NoAnimationCue> Rules { get; } = new(
         word => OmittedInstructions.Contains(word) ? 1 : null,
         (word, _, cue, at) => throw new InvalidDataException($"{at}: native instruction ${word:X4} became {cue}, but crawler animations raise no cue."),
-        Omitted: OmittedInstructions.Contains);
+        Omitted: (word, _) => OmittedInstructions.Contains(word));
 
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
     internal static void VerifyCrawlerAnimations(CartridgeImportAddressSpace rom)

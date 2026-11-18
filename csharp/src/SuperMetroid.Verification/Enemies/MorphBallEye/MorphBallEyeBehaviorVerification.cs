@@ -145,8 +145,8 @@ internal static class MorphBallEyeBehaviorVerification
             rooms++;
             AssertEqual(2, eyes.Length, $"{population.Name} places one beam mount and one eye");
             AssertEqual(eyes[0] + 1, eyes[1], $"{population.Name} lists its eye right after its beam mount");
-            AssertEqual(MorphBallEyePart.BeamMount, ((MorphBallEyeSpawnSettings)placements[eyes[0]].SpawnSettings).Part, $"{population.Name} lists its beam mount first");
-            AssertEqual(MorphBallEyePart.Eye, ((MorphBallEyeSpawnSettings)placements[eyes[1]].SpawnSettings).Part, $"{population.Name} lists its eye second");
+            AssertTrue(placements[eyes[0]].SpawnSettings is MorphBallEyeMountSpawnSettings, $"{population.Name} lists its beam mount first");
+            AssertTrue(placements[eyes[1]].SpawnSettings is MorphBallEyeBodySpawnSettings, $"{population.Name} lists its eye second");
         }
         AssertEqual(3, rooms, "the Morph Ball room, the Blue Brinstar energy tank room and the final missile room place the eye");
 

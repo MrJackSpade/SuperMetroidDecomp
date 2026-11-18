@@ -21,7 +21,7 @@ internal static class SporeSpawnCollisionDefinitions
     /// <summary>Builds the trailing vulnerable rectangle with active or dud shot response.</summary>
     private static EnemyCollisionHitbox InnerPoint(EnemyReaction shot) => new(-15, -24, 14, 23, Touch, shot);
 
-    /// <summary>Head rectangles shared by the husk's and the shut head's lists, which differ only in touch AI.</summary>
+    /// <summary>Head rectangles shared by the husk's and the shut head's lists, which differ only in how Samus's touch reacts.</summary>
     private static EnemyCollisionHitbox[] Head(EnemyReaction touch) =>
         [new(-41, -30, 41, 30, touch, Dud), new(-16, -45, 15, -30, touch, Dud)];
 

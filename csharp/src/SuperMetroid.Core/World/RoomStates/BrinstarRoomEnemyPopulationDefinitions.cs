@@ -135,8 +135,8 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.MorphBallDefault),
         [
-            new(EnemyDefinitionId.MorphBallEye, new(1032, 584), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new MorphBallEyeSpawnSettings(Facing: HorizontalDirection.Right, Part: MorphBallEyePart.BeamMount, MountSide: MorphBallEyeMountSide.Left)),
-            new(EnemyDefinitionId.MorphBallEye, new(1032, 584), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new MorphBallEyeSpawnSettings(Facing: HorizontalDirection.Left, Part: MorphBallEyePart.Eye, MountSide: MorphBallEyeMountSide.Left)),
+            new(EnemyDefinitionId.MorphBallEye, new(1032, 584), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new MorphBallEyeMountSpawnSettings(Side: MorphBallEyeMountSide.Left)),
+            new(EnemyDefinitionId.MorphBallEye, new(1032, 584), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new MorphBallEyeBodySpawnSettings(Facing: HorizontalDirection.Left)),
             new(EnemyDefinitionId.Elevator, new(1408, 706), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Up, ArrivalY: 24)),
             new(EnemyDefinitionId.FaceBlock, new(1352, 576), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 64, Facing: HorizontalDirection.Right)),
             new(EnemyDefinitionId.FaceBlock, new(1464, 576), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 64, Facing: HorizontalDirection.Left)),
@@ -224,8 +224,8 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.BlueBrinstarEnergyTankDefault),
         [
-            new(EnemyDefinitionId.MorphBallEye, new(552, 616), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new MorphBallEyeSpawnSettings(Facing: HorizontalDirection.Right, Part: MorphBallEyePart.BeamMount, MountSide: MorphBallEyeMountSide.Right)),
-            new(EnemyDefinitionId.MorphBallEye, new(552, 616), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new MorphBallEyeSpawnSettings(Facing: HorizontalDirection.Right, Part: MorphBallEyePart.Eye, MountSide: MorphBallEyeMountSide.Left)),
+            new(EnemyDefinitionId.MorphBallEye, new(552, 616), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new MorphBallEyeMountSpawnSettings(Side: MorphBallEyeMountSide.Right)),
+            new(EnemyDefinitionId.MorphBallEye, new(552, 616), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new MorphBallEyeBodySpawnSettings(Facing: HorizontalDirection.Right)),
             new(EnemyDefinitionId.FaceBlock, new(56, 552), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
             new(EnemyDefinitionId.FaceBlock, new(56, 680), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
             new(EnemyDefinitionId.FaceBlock, new(744, 696), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),

@@ -24,18 +24,28 @@ internal static class ChozoStatueNativeListAddresses
         new NativeProgramEntry<ChozoStatueSegment>(ChozoStatueSegment.WreckedShipIdle, 0xe457),
         new NativeProgramEntry<ChozoStatueSegment>(ChozoStatueSegment.WreckedShipActivated, 0xe461),
         new NativeProgramEntry<ChozoStatueSegment>(ChozoStatueSegment.WreckedShipFlexing, 0xe49d),
-        new NativeProgramEntry<ChozoStatueSegment>(ChozoStatueSegment.WreckedShipFlexEnd, 0xe4b9),
         new NativeProgramEntry<ChozoStatueSegment>(ChozoStatueSegment.WreckedShipWalkingWithSamus, 0xe4c1),
         new NativeProgramEntry<ChozoStatueSegment>(ChozoStatueSegment.WreckedShipSettingSamusDown, 0xe529),
     ];
 
+    /// <summary>The native routine that installs the frame routine that returns at once, which only the activation runs (#2476).</summary>
+    internal const ushort ClearsFrameRoutine = 0x8074;
+
+    /// <summary>
+    /// Whether the native instruction <paramref name="word"/> with <paramref name="operands"/> is one the typed animations
+    /// omit (#2476): installing a frame routine that returns at once, which only the activation does.
+    /// </summary>
+    internal static bool Omitted(ushort word, IReadOnlyList<ushort> operands) =>
+        word == ClearsFrameRoutine || word == 0x806b && ChozoNativeWords.ActivatedFrameRoutineWords.Contains(operands[0]);
+
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
     internal static readonly Dictionary<ushort, NativeCueShape<ChozoStatueCue>> Instructions = new()
     {
-        // Installing the hand wait starts awaiting Samus; installing a routine that returns at once stops it (#1803).
+        // Installing the hand wait starts awaiting Samus (#1803). Installing a routine that returns at once, which only the
+        // activation does, is omitted (Omitted): the statue's activation phase says it from the update that starts it (#2476).
         [0x806b] = new NativeCueShape<ChozoStatueCue>("an awaiting-hand cue",
-            cue => cue is ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.AwaitHand or ChozoStatueCueKind.StopAwaitingHand }, "E"),
-        [0x8074] = NativeCueShape<ChozoStatueCue>.Exactly(new ChozoStatueCue.Signal(ChozoStatueCueKind.StopAwaitingHand)),
+            cue => cue is ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.AwaitHand }, "E"),
+        [ClearsFrameRoutine] = new NativeCueShape<ChozoStatueCue>("no cue (omitted)", _ => false, ""),
         [0xe429] = NativeCueShape<ChozoStatueCue>.Exactly(new ChozoStatueCue.Signal(ChozoStatueCueKind.StartLoweringAcid)),
         [0xe436] = NativeCueShape<ChozoStatueCue>.Exactly(new ChozoStatueCue.Signal(ChozoStatueCueKind.SetLoweredAcidPosition)),
         [0xe43d] = NativeCueShape<ChozoStatueCue>.Exactly(new ChozoStatueCue.Signal(ChozoStatueCueKind.UnlockSamus)),

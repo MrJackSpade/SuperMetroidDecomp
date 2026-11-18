@@ -11,8 +11,10 @@ internal static class CeresFallingDebrisDefinitions
     /// <summary>The random selection of the column a piece falls in: one of sixteen.</summary>
     internal static readonly RandomSampleField Column = new(0, 4);
 
-    /// <summary>The random selection, set for a dark piece and clear for a light one.</summary>
-    internal static readonly RandomSampleField Dark = new(15, 1);
+    /// <summary>
+    /// Whether a falling piece is dark rather than light (#2479): taken by a sample of 32768 or more, one piece in two.
+    /// </summary>
+    internal static readonly RandomChance PieceIsDark = RandomChance.Highest(1, new RandomSampleField(15, 1));
 
     /// <summary>
     /// The room X each of the sixteen columns <see cref="Column"/> chooses drops its piece at (#2033): sixteen pixels apart

@@ -53,7 +53,7 @@ internal static class BlueBrinstarFaceBlockHorizontalDistanceVerification
             Position = FixedPosition<RoomPixels>.FromWhole(new(samusX, RowY)),
         };
         enemies.BlueBrinstarFaceBlockBehavior.RunBlueBrinstarFaceBlockMain(place, state, samus);
-        return (state.Activated, state.Facing == HorizontalDirection.Right);
+        return (state.Activated, place.SpawnSettings<FaceBlockSpawnSettings>().Facing == HorizontalDirection.Right);
     }
 
     /// <summary>Runs the face-block horizontal distance check through its dedicated command-line switch.</summary>

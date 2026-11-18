@@ -5,7 +5,7 @@ public enum XrayBeamPhase
 {
     /// <summary>No beam yet; the beam's first step widens it while Run is held and starts its closing once Run is released.</summary>
     NoBeam,
-    /// <summary>The beam widening; accelerates the 1/65536-step angular half-width until it clamps to ten of the 256 angle units per turn.</summary>
+    /// <summary>The beam widening; accelerates the angular half-width until it clamps at ten whole steps of angle.</summary>
     Widening,
     /// <summary>The full beam; held Run permits aiming, with Up taking priority over Down, and releasing Run starts the beam's closing.</summary>
     Full,

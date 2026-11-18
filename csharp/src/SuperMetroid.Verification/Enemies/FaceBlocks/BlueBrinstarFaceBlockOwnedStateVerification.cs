@@ -32,7 +32,7 @@ internal static class BlueBrinstarFaceBlockOwnedStateVerification
             Position = FixedPosition<RoomPixels>.FromWhole(new(224, 256)),
         };
         enemies.BlueBrinstarFaceBlockBehavior.RunBlueBrinstarFaceBlockMain(place, state, samus);
-        AssertEqual(state.Facing == HorizontalDirection.Left, state.Activated, "the face block wakes for Samus 32 pixels left only when it faces left");
+        AssertEqual(place.SpawnSettings<FaceBlockSpawnSettings>().Facing == HorizontalDirection.Left, state.Activated, "the face block wakes for Samus 32 pixels left only when it faces left");
         Console.WriteLine("Face block owned state: the block wakes for the side it faces.");
     }
 

@@ -343,8 +343,8 @@ public sealed class SamusDrainedState
         else if (samus.Pose is SamusPoseId.DrainedStandingRightPose or SamusPoseId.DrainedStandingLeftPose)
             SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusDrainedAnimationDefinitions.ReleaseStandingFrame, timer: SamusDrainedAnimationDefinitions.SetFrameTimer);
 
-        // The shared step runs even for an unexpected pose. Preserve that surprisingly
-        // broad behavior instead of rejecting a pose that the game accepts.
+        // The shared step runs for any pose, an unexpected one included: the game accepts
+        // every pose here.
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         ClearBaseAndVerticalSpeed(samus);
         samus.Kinematics.YDirection = SamusVerticalDirection.Down;

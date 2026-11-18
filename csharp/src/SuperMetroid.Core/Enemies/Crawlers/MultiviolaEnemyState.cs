@@ -18,7 +18,4 @@ public sealed class MultiviolaEnemyState
     /// (<see cref="MultiviolaQuarterBounce"/>); its velocity is rebuilt from it every update.
     /// </summary>
     public TrigonometryAngle Heading { get; internal set; }
-
-    /// <summary>The flight speed in whole pixels per update, from its spawn settings, split by the heading's sine and cosine.</summary>
-    public int Speed { get; internal set; }
 }

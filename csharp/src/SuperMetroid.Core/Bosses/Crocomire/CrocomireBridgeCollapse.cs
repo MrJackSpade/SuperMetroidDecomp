@@ -210,7 +210,7 @@ internal sealed class CrocomireBridgeCollapse
         state.VerticalSpeed = CrocomireBridgeCollapseDefinitions.MaximumSinkSpeed;
     }
 
-    /// <summary>Crocomire's exact fixed-point sinking fall, with the camera his main update runs with.</summary>
+    /// <summary>Crocomire's sinking fall to a fraction of a pixel, with the camera his main update runs with.</summary>
     internal void RunCrocomireSink(CrocomireEnemyState state, Position16<RoomPixels> camera)
     {
         CrocomireBodyLayer.LevelCrocomireMeltDistortion(state);
@@ -241,7 +241,7 @@ internal sealed class CrocomireBridgeCollapse
         HideCrocomireSunkenBody(state, camera);
     }
 
-    /// <summary>Runs Crocomire's fixed-point rise exactly as the game does.</summary>
+    /// <summary>Runs Crocomire's rise, to a fraction of a pixel, as the game does.</summary>
     internal static void RunCrocomireRise(CrocomireEnemyState state)
     {
         CrocomireBodyLayer.LevelCrocomireMeltDistortion(state);

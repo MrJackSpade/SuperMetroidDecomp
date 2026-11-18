@@ -44,7 +44,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
 
-    /// <summary>Connects the tatori family to room terrain, collision, places, and earthquake output.</summary>
+    /// <summary>Connects Mama Turtle and her babies to room terrain, collision, places, and earthquake output.</summary>
     internal MamaTurtleBehavior(EnemyTerrain terrain, RoomEarthquake earthquake, EnemyPlaces places, EnemyCollision collision, EnemyAudioQueue audio)
     {
         _audio = audio;
@@ -373,8 +373,8 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
 
         int cappedWhole = Math.Abs(newWhole) < MamaTurtleMotionDefinitions.FastestHover
             ? newWhole
-            // Chooses the cap's sign from the old velocity, before storing the
-            // just-computed result. Preserve that one-frame zero-crossing behavior.
+            // The cap takes its sign from the velocity before this update's acceleration, so a
+            // velocity crossing zero this update is capped toward its old side for one update.
             : oldWhole < 0
                 ? -MamaTurtleMotionDefinitions.FastestHover
                 : MamaTurtleMotionDefinitions.FastestHover;
@@ -451,6 +451,8 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!_terrain.MoveEnemyVertically(level, mama, state.Velocity.Y.WithoutFraction()))
             return;
 
+        // She lands facing the way her horizontal velocity carries her, which its sign says (#2473): her hover's
+        // acceleration and the wall reversal can each turn that velocity round, so no separate heading is kept.
         StartTurtleAnimation(
             mama,
             state,

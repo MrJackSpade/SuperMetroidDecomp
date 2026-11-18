@@ -25,29 +25,27 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
 
         AtomicSpawnSettings settings = place.SpawnSettings<AtomicSpawnSettings>();
         state.Playback = new(AtomicAnimations.StartingWith(settings.Spin), AnimationPlace.StartOfAnimation);
-
-        state.Speed = settings.Speed;
     }
 
     /// <summary>
-    /// Moves the Atomic one step toward Samus on each axis. It ignores terrain and chooses both directions again every
-    /// update.
+    /// Moves the Atomic one step toward Samus on each axis at its spawn settings' speed. It ignores terrain and chooses both
+    /// directions again every update.
     /// </summary>
     private static void RunAtomicMain(
         RoomEnemyPlace place,
-        AtomicEnemyState state,
         SamusState samus)
     {
         // The Atomic moves towards Samus on each axis; being level with her counts as her being below or to the right, so
         // it moves down or right.
+        SignedSixteenSixteen speed = place.SpawnSettings<AtomicSpawnSettings>().Speed;
         SignedSixteenSixteen vertical = samus.Position.Y.Whole < place.Position.Y.Whole
-            ? -state.Speed
-            : state.Speed;
+            ? -speed
+            : speed;
         place.Position = place.Position.WithY(place.Position.Y.MovedBy(vertical));
 
         SignedSixteenSixteen horizontal = samus.Position.X.Whole < place.Position.X.Whole
-            ? -state.Speed
-            : state.Speed;
+            ? -speed
+            : speed;
         place.Position = place.Position.WithX(place.Position.X.MovedBy(horizontal));
     }
 
@@ -60,6 +58,6 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs Atomic's main AI.</summary>
     internal static void RunAtomicMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
     {
-        RunAtomicMain(place, place.RequireSpeciesState<AtomicEnemyState>(), frame.Samus);
+        RunAtomicMain(place, frame.Samus);
     }
 }

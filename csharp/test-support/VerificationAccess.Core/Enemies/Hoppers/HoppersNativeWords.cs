@@ -12,7 +12,8 @@ internal static class HoppersNativeWords
     /// The routine words naming each <see cref="HopperAction"/>: the original kept a floor and a ceiling routine for the
     /// direction choice and each start, and a floor and a ceiling routine for each direction of the hop, which a
     /// hopper's placement tells apart (#1814). A preparing hop's routine names its size, and a starting hop's the heading
-    /// it takes (#2338).
+    /// it takes (#2338). A hop's routine names its way away from the surface; the game keeps its return as a falling flag
+    /// beside it, which the snapshot import reads (#2473).
     /// </summary>
     internal static readonly NativeWordIdentities<(HopperAction Action, HopperHopSize? Size, HorizontalDirection? Heading)> HopperActions =
         new(new Dictionary<ushort, (HopperAction Action, HopperHopSize? Size, HorizontalDirection? Heading)>
@@ -27,10 +28,10 @@ internal static class HoppersNativeWords
             [0xaca8] = (HopperAction.StartHop, null, HorizontalDirection.Left),
             [0xaccb] = (HopperAction.StartHop, null, HorizontalDirection.Right),
             [0xace4] = (HopperAction.Landed, null, null),
-            [0xad0e] = (HopperAction.Jumping, null, null),
-            [0xad20] = (HopperAction.Jumping, null, null),
-            [0xad32] = (HopperAction.Jumping, null, null),
-            [0xad44] = (HopperAction.Jumping, null, null),
+            [0xad0e] = (HopperAction.HoppingAway, null, null),
+            [0xad20] = (HopperAction.HoppingAway, null, null),
+            [0xad32] = (HopperAction.HoppingAway, null, null),
+            [0xad44] = (HopperAction.HoppingAway, null, null),
             [0xad56] = (HopperAction.WaitToHop, null, null),
         });
 

@@ -63,14 +63,11 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
 
         var state = new HopperEnemyState(HopperAction.ChooseHopSize)
         {
-            Falling = false,
-            ReadyToHop = false,
             Kind = kind,
-            Surface = place.SpawnSettings<HopperSpawnSettings>().Surface,
         };
         place.SetSpeciesState(state);
 
-        SetHopperAnimation(place, state, ReadHopperAnimation(state, HopperPhase.Landed));
+        SetHopperAnimation(place, state, ReadHopperAnimation(place, state, HopperPhase.Landed));
     }
 
     /// <summary>Runs the Hopper's current action.</summary>
@@ -84,7 +81,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             case HopperAction.ChooseHopSize:
                 // Choosing between the two hops takes a whole update.
-                state.HopSize = HopperDecisions.BigHop.IsSetIn(_room.Random.Generate()) ? HopperHopSize.Big : HopperHopSize.Small;
+                state.HopSize = HopperDecisions.HopsBig.IsTakenBy(_room.Random.Generate()) ? HopperHopSize.Big : HopperHopSize.Small;
                 state.Action = HopperAction.PrepareHop;
                 return;
             case HopperAction.PrepareHop:
@@ -99,8 +96,11 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
             case HopperAction.Landed:
                 LandHopper(place, state);
                 return;
-            case HopperAction.Jumping:
-                RunHopperMovement(place, state, level);
+            case HopperAction.HoppingAway:
+                RunHopperHopAway(place, state, level);
+                return;
+            case HopperAction.Returning:
+                RunHopperReturn(place, state, level);
                 return;
             case HopperAction.WaitToHop:
                 if (state.ReadyToHop)
@@ -142,75 +142,74 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Installs the jumping animation and starts the hop along the chosen heading.</summary>
     internal static void StartHopperJump(RoomEnemyPlace place, HopperEnemyState state)
     {
-        SetHopperAnimation(place, state, ReadHopperAnimation(state, HopperPhase.Jumping));
-        state.Action = HopperAction.Jumping;
+        SetHopperAnimation(place, state, ReadHopperAnimation(place, state, HopperPhase.Jumping));
+        state.Action = HopperAction.HoppingAway;
     }
 
     /// <summary>Starts the landed animation and returns the actor to its wait-for-hop action.</summary>
     internal static void LandHopper(RoomEnemyPlace place, HopperEnemyState state)
     {
-        SetHopperAnimation(place, state, ReadHopperAnimation(state, HopperPhase.Landed));
+        SetHopperAnimation(place, state, ReadHopperAnimation(place, state, HopperPhase.Landed));
         state.Action = HopperAction.WaitToHop;
     }
 
-    /// <summary>Advances a floor or ceiling hop with vertical-first collision and phase-dependent horizontal reversal.</summary>
-    private void RunHopperMovement(
+    /// <summary>
+    /// Advances the half of a hop away from the surface with vertical-first collision. Striking the room beyond the hop, or
+    /// a wall, turns the hopper around and back toward its surface; passing the apex turns it back from the curve's start.
+    /// </summary>
+    private void RunHopperHopAway(
         RoomEnemyPlace place,
         HopperEnemyState state,
         RoomLevelData level)
     {
-        bool movingAwayFromSurface = !state.Falling;
-        // A floor hopper rises while it hops away from the floor and drops back to it; a ceiling hopper drops away from
-        // the ceiling and rises back. Each moves away from its own surface first and returns to it.
-        bool useNegativeSpeed = (state.Surface == HopperSurface.Ceiling) != movingAwayFromSurface;
-        SignedSixteenSixteen verticalDisplacement = state.YSpeedCurvePlace.Speed.Toward(useNegativeSpeed ? EnemySpeedSign.Negative : EnemySpeedSign.Positive);
-
-        // Every movement entry resolves Y first. A collision while rising reverses
-        // X and changes to the falling half without performing horizontal motion that frame.
-        // A collision while falling installs Landed and likewise ends the frame immediately.
-        if (_terrain.MoveEnemyVertically(level, place, verticalDisplacement))
-        {
-            if (movingAwayFromSurface)
-            {
-                state.Heading = state.Heading.Reversed();
-                state.Falling = true;
-            }
-            else
-            {
-                state.Falling = false;
-                state.Action = HopperAction.Landed;
-            }
-            return;
-        }
-
-        SignedSixteenSixteen horizontalDisplacement = SignedSixteenSixteen.FromWholePixels(state.XVelocity);
-        if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, place, horizontalDisplacement))
+        // A floor hopper rises away from the floor; a ceiling hopper drops away from the ceiling.
+        VerticalDirection away = HopperSurfaces.AwayFrom(SurfaceOf(place));
+        // A collision with the room beyond reverses X and turns the hop back without horizontal motion that update.
+        if (_terrain.MoveEnemyVertically(level, place, state.YSpeedCurvePlace.Speed.Toward(away)))
         {
             state.Heading = state.Heading.Reversed();
-            if (movingAwayFromSurface)
-            {
-                // A rising hopper that meets a wall starts falling at once, as at a ceiling; a falling hopper
-                // only reverses.
-                state.Falling = true;
-                return;
-            }
-        }
-
-        if (movingAwayFromSurface)
-        {
-            // A step back past the curve's start is the apex: the hop turns back toward the surface from the curve's start.
-            QuadraticSpeedCurvePlace next = state.YSpeedCurvePlace - state.YSpeedCurvePlaceStep;
-            if (next.IsNegative)
-            {
-                state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
-                state.Falling = true;
-            }
-            else
-            {
-                state.YSpeedCurvePlace = next;
-            }
+            state.Action = HopperAction.Returning;
             return;
         }
+
+        if (MoveHopperHorizontally(place, state, level))
+        {
+            // A hopper that meets a wall on its way out turns back at once, as at the room beyond.
+            state.Action = HopperAction.Returning;
+            return;
+        }
+
+        // A step back past the curve's start is the apex: the hop turns back toward the surface from the curve's start.
+        QuadraticSpeedCurvePlace next = state.YSpeedCurvePlace - state.YSpeedCurvePlaceStep;
+        if (next.IsNegative)
+        {
+            state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
+            state.Action = HopperAction.Returning;
+        }
+        else
+        {
+            state.YSpeedCurvePlace = next;
+        }
+    }
+
+    /// <summary>
+    /// Advances the half of a hop back to the surface with vertical-first collision: meeting the surface lands the hopper
+    /// at once, and a wall only turns it around.
+    /// </summary>
+    private void RunHopperReturn(
+        RoomEnemyPlace place,
+        HopperEnemyState state,
+        RoomLevelData level)
+    {
+        // A floor hopper drops back to the floor; a ceiling hopper rises back to the ceiling.
+        VerticalDirection back = HopperSurfaces.AwayFrom(SurfaceOf(place)).Reversed();
+        if (_terrain.MoveEnemyVertically(level, place, state.YSpeedCurvePlace.Speed.Toward(back)))
+        {
+            state.Action = HopperAction.Landed;
+            return;
+        }
+
+        MoveHopperHorizontally(place, state, level);
 
         // The returning hop speeds up no further than its fastest mark.
         state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.Min(
@@ -218,11 +217,25 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
             HopperHopDefinitions.FastestReturnPlace);
     }
 
-    /// <summary>Selects the animation for this kind on its surface in its jumping or landing half.</summary>
-    private static HopperSegment ReadHopperAnimation(HopperEnemyState state, HopperPhase phase) =>
-        HopperAnimationChoices.Animation(state.Kind, state.Surface, phase);
+    /// <summary>Moves the hopper its hop's horizontal speed along its heading, turning it around at a wall it meets.</summary>
+    /// <returns>Whether the hopper met a wall.</returns>
+    private bool MoveHopperHorizontally(RoomEnemyPlace place, HopperEnemyState state, RoomLevelData level)
+    {
+        SignedSixteenSixteen horizontalDisplacement = SignedSixteenSixteen.FromWholePixels(state.XVelocity);
+        if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, place, horizontalDisplacement))
+            return false;
+        state.Heading = state.Heading.Reversed();
+        return true;
+    }
 
-    /// <summary>Starts a new animation with a one-tick countdown.</summary>
+    /// <summary>The surface the hopper's placement mounts it on (#2474), which decides which way is up for its hops.</summary>
+    private static HopperSurface SurfaceOf(RoomEnemyPlace place) => place.SpawnSettings<HopperSpawnSettings>().Surface;
+
+    /// <summary>Selects the animation for this kind on its surface in its jumping or landing half.</summary>
+    private static HopperSegment ReadHopperAnimation(RoomEnemyPlace place, HopperEnemyState state, HopperPhase phase) =>
+        HopperAnimationChoices.Animation(state.Kind, SurfaceOf(place), phase);
+
+    /// <summary>Starts a new animation, its first step playing on the next update.</summary>
     private static void SetHopperAnimation(
         RoomEnemyPlace place,
         HopperEnemyState state,

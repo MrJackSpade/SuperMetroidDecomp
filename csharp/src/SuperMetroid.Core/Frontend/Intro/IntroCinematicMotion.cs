@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Frontend.Intro;
 
-/// <summary>Exact fixed-point additions shared by opening-cinematic actors, on signed screen places (#2000).</summary>
+/// <summary>Moves shared by opening-cinematic actors, to a fraction of a pixel, on signed screen places (#2000).</summary>
 internal static class IntroCinematicMotion
 {
 

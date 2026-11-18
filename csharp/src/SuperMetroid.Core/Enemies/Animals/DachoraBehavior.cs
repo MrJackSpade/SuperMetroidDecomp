@@ -226,7 +226,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         DachoraEnemyState state,
         RoomLevelData level)
     {
-        if (state.Speed.WholePixels >= DachoraMotionDefinitions.MaximumSpeed.WholePixels)
+        if (state.Speed >= DachoraMotionDefinitions.MaximumSpeed)
         {
             if (state.GlowFrame == 0 && state.GlowTicks == 1)
                 _audio.QueueEnemySound(EnemySoundEffectDefinitions.DachoraSpeedBoosterSound, priority: SoundRequestPriority.Normal);
@@ -327,7 +327,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         state.Speed += SamusGravity(samus);
-        if (state.Speed.WholePixels >= DachoraMotionDefinitions.MaximumFallSpeed.WholePixels)
+        if (state.Speed >= DachoraMotionDefinitions.MaximumFallSpeed)
             state.Speed = DachoraMotionDefinitions.MaximumFallSpeed;
 
         if (!_terrain.MoveEnemyVertically(

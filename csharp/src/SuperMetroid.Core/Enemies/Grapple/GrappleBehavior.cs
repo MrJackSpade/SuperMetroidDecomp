@@ -54,7 +54,7 @@ internal sealed class GrappleBehavior : IGrappleTargets
     }
 
     /// <summary>
-    /// Executes the common grapple AI the grappled state selects. Returning true tells the
+    /// Moves the enemy the grapple beam holds, as the grappled state selects. Returning true tells the
     /// ordinary scheduler that this update replaced main AI for the current enemy frame.
     /// </summary>
     internal bool RunCommonGrappleAi(RoomEnemyPlace enemy, IEnemyAiFrame frame)

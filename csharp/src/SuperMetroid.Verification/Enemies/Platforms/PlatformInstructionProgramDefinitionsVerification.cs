@@ -30,8 +30,8 @@ internal static class PlatformInstructionProgramDefinitionsVerification
         Suite(nameof(VerifyPlatformInitialProgramSelection), () => VerifyPlatformInitialProgramSelection(rom));
         Suite(nameof(VerifyPlatformAnimationProgramSelection), () => VerifyPlatformAnimationProgramSelection(rom));
 
-        Action<RoomEnemyPlace, PlatformEnemyState> installMoving = PlatformsBehavior.InstallPlatformVerticallyMovingForCurrentDirection;
-        Action<RoomEnemyPlace, PlatformEnemyState> installStill = PlatformsBehavior.InstallPlatformVerticallyStillForCurrentDirection;
+        Action<RoomEnemyPlace, PlatformEnemyState> installMoving = PlatformsBehavior.StartPlatformMovingAnimationForHeading;
+        Action<RoomEnemyPlace, PlatformEnemyState> installStill = PlatformsBehavior.StartPlatformStillAnimationForHeading;
 
         PlatformProgramCase[] cases =
         [

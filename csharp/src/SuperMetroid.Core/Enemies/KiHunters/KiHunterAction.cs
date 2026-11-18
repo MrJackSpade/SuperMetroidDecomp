@@ -8,8 +8,16 @@ public enum KiHunterAction
 {
     /// <summary>Patrols within the spawn-height band, reflects movement on collision, and starts a swoop toward nearby Samus below.</summary>
     FlyingPatrol,
-    /// <summary>Follows an accelerating elliptic dive, changing art at the swipe angle and backing off on collision.</summary>
+    /// <summary>
+    /// Follows an accelerating elliptic dive toward Samus until its angle passes the swipe angle, where it starts its swipe
+    /// (<see cref="Swiping"/>) on the update that finds it past; it backs off on collision.
+    /// </summary>
     Swooping,
+    /// <summary>
+    /// Follows the rest of the dive with its swipe animation playing (#2473): the dive's angle moves one way only, so once
+    /// past the swipe angle it stays past, and the swipe starts once a swoop. It backs off on collision.
+    /// </summary>
+    Swiping,
     /// <summary>Moves upward away from a blocked dive until collision or passage above the spawn Y restores patrol.</summary>
     RecoveringFromSwoop,
     /// <summary>Applies gravity after clipping wings or a ground-bound spawn, then prepares a hop on landing.</summary>

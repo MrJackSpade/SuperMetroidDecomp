@@ -10,16 +10,10 @@ public sealed class FuneEnemyState : FuneNamiheEnemyState
     public FuneAction Action { get; internal set; }
 
     /// <summary>
-    /// The count of waiting updates, reset to zero when the wait ends: it counts up to <see cref="CooldownTime"/> (#2045).
+    /// The count of waiting updates, reset to zero when the wait ends: it counts up to its spawn settings' cooldown time
+    /// (#2045, #2476).
     /// </summary>
     public int CooldownTimer
-    {
-        get;
-        internal set => field = Ensure.AtLeastZero(value);
-    }
-
-    /// <summary>The number of updates the Fune waits, from the spawn settings, zero or more.</summary>
-    public int CooldownTime
     {
         get;
         internal set => field = Ensure.AtLeastZero(value);
@@ -35,9 +29,9 @@ public sealed class FuneEnemyState : FuneNamiheEnemyState
     internal override bool IsSpitting => Action == FuneAction.Spitting;
 
     /// <inheritdoc/>
-    internal override FuneNamiheSegment Animation => IsSpitting
-        ? Facing == HorizontalDirection.Right ? FuneNamiheSegment.FuneActiveRight : FuneNamiheSegment.FuneActiveLeft
-        : Facing == HorizontalDirection.Right ? FuneNamiheSegment.FuneIdleRight : FuneNamiheSegment.FuneIdleLeft;
+    internal override FuneNamiheSegment Animation(HorizontalDirection facing) => IsSpitting
+        ? facing == HorizontalDirection.Right ? FuneNamiheSegment.FuneActiveRight : FuneNamiheSegment.FuneActiveLeft
+        : facing == HorizontalDirection.Right ? FuneNamiheSegment.FuneIdleRight : FuneNamiheSegment.FuneIdleLeft;
 
     /// <inheritdoc/>
     internal override void FinishSpit()

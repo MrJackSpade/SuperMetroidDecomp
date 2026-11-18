@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// the boost's countdown at one for stages zero through three and at two for stage four. Which cadence the boost
 /// restarts on after its echo is <see cref="SuperMetroid.Core.Compatibility.BoostRestartAfterEcho"/>'s; the cadence a
 /// full sound queue selects is not authored, and <see cref="SuperMetroid.Core.Compatibility.UnauthoredBoostCadence"/>
-/// reproduces it (#1473). This is the Japanese and North American release's timing, not an interpolation of the European release's.
+/// reproduces it (#1473).
 /// </remarks>
 internal static class SamusRunningCadenceDefinitions
 {

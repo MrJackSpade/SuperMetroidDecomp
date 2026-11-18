@@ -22,14 +22,12 @@ internal static class ChozoStatueAnimations
         ],
         [P.LowerNorfairActivated] =
         [
-            Cue(new ChozoStatueCue.Signal(K.StopAwaitingHand)),
             .. Grab(ChozoStatueHand.LowerNorfair, outstretchedUpdates: 48, openUpdates: 70, clenchedUpdates: 96),
             Cue(new ChozoStatueCue.Signal(K.StartLoweringAcid)),
         ],
         [P.LowerNorfairFlexing] = Flex(ChozoStatueHand.LowerNorfair),
         [P.LowerNorfairRelease] =
         [
-            Cue(new ChozoStatueCue.Signal(K.StopAwaitingHand)),
             .. Release(ChozoStatueHand.LowerNorfair),
             Cue(new ChozoStatueCue.Signal(K.UnlockSamus)),
             Cue(new ChozoStatueCue.Signal(K.SetLoweredAcidPosition)),
@@ -39,16 +37,8 @@ internal static class ChozoStatueAnimations
             Cue(new ChozoStatueCue.Signal(K.AwaitHand)),
             Hold(EnemyFrameId.ChozoStatueWreckedShipHandsCupped),
         ],
-        [P.WreckedShipActivated] =
-        [
-            Cue(new ChozoStatueCue.Signal(K.StopAwaitingHand)),
-            .. Grab(ChozoStatueHand.WreckedShip, outstretchedUpdates: 80, openUpdates: 134, clenchedUpdates: 128),
-        ],
+        [P.WreckedShipActivated] = Grab(ChozoStatueHand.WreckedShip, outstretchedUpdates: 80, openUpdates: 134, clenchedUpdates: 128),
         [P.WreckedShipFlexing] = Flex(ChozoStatueHand.WreckedShip),
-        [P.WreckedShipFlexEnd] =
-        [
-            Cue(new ChozoStatueCue.Signal(K.StopAwaitingHand)),
-        ],
         [P.WreckedShipWalkingWithSamus] =
         [
             .. Step(ChozoStatueHand.WreckedShip.Carries, ChozoStatueLeg.WreckedShipNear),
@@ -57,7 +47,6 @@ internal static class ChozoStatueAnimations
         [P.WreckedShipSettingSamusDown] =
         [
             .. QuietStep(ChozoStatueHand.WreckedShip.Carries, ChozoStatueLeg.WreckedShipNear),
-            Cue(new ChozoStatueCue.Signal(K.StopAwaitingHand)),
             .. Release(ChozoStatueHand.WreckedShip),
             Cue(new ChozoStatueCue.Signal(K.ReleaseSamus)),
         ],
@@ -85,7 +74,7 @@ internal static class ChozoStatueAnimations
             AnimationEnd.Holds),
         [P.WreckedShipIdle] = new([Segments.Whole(P.WreckedShipIdle)], AnimationEnd.Holds),
         [P.WreckedShipActivated] = new(
-            [Segments.Whole(P.WreckedShipActivated), Segments.Repeated(P.WreckedShipFlexing, WreckedShipFlexes), Segments.Whole(P.WreckedShipFlexEnd),
+            [Segments.Whole(P.WreckedShipActivated), Segments.Repeated(P.WreckedShipFlexing, WreckedShipFlexes),
                 Segments.Repeated(P.WreckedShipWalkingWithSamus, WreckedShipStrideRuns), Segments.Whole(P.WreckedShipSettingSamusDown)],
             AnimationEnd.Holds),
     };

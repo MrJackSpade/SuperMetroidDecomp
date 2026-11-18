@@ -3,8 +3,8 @@ namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>
 /// The escape Dachora's state. Dachora owns no private values: all of its
-/// movement is authored directly in its three animations, so its state is the
-/// animation it is running.
+/// movement is authored directly in its four animations, its laps at either tide and its run for the escape, so its
+/// state is the animation it is running.
 /// </summary>
 public sealed class EscapeDachoraEnemyState
 {

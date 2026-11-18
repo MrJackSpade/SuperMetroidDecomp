@@ -38,7 +38,7 @@ internal static class EnemyCollisionDefinitions
     internal const int WeaponHurtFlashExtension = 8;
 
     /// <summary>
-    /// The hurt flash's updates still to run from which an enemy keeps its hurt AI state; the enemy pass clears the state
+    /// The hurt flash's updates still to run from which an enemy stays hurt; the enemy pass ends the hurt state
     /// once fewer remain.
     /// </summary>
     internal const int HurtStateMinimumFlashUpdates = 8;

@@ -8,15 +8,12 @@ namespace SuperMetroid.Core.Enemies.Magdollite.Artwork;
 /// </summary>
 internal static class MagdolliteShades
 {
-    /// <summary>The effect name of the Magdollites' glow.</summary>
-    internal const string GlowEffect = "magdollite-glow";
-
-    /// <summary>The glow's frames, in cycle order.</summary>
+    /// <summary>The glow's frames, in cycle order: the installed glow colours hold one row for each.</summary>
     internal const int GlowFrames = 4;
 
-    /// <summary>The shade of glow frame <paramref name="frame"/>, 0 through <see cref="GlowFrames"/> minus one.</summary>
-    internal static PictureShade Glow(int frame) => new(GlowEffect, Ensure.BetweenInclusive(0, GlowFrames - 1, frame));
-
-    /// <summary>The shade of <paramref name="glow"/>'s frame.</summary>
-    internal static PictureShade Glow(MagdolliteGlow glow) => Glow(glow.Step);
+    /// <summary>
+    /// The shade of glow frame <paramref name="glow"/>, named by the frame it shows (#2474), as the Work Robot's shades are
+    /// named by the place of its glow (#2451).
+    /// </summary>
+    internal static PictureShade Glow(MagdolliteGlow glow) => new($"magdollite-glow-{glow}", 0);
 }

@@ -8,7 +8,6 @@ public sealed class MagdolliteOverlayState : MagdollitePartState
 {
     /// <summary>Creates the overlay's state, starting in <paramref name="action"/>.</summary>
     internal MagdolliteOverlayState(MagdolliteOverlayAction action)
-        : base(MagdollitePart.TrackingOverlay)
     {
         Action = action;
     }

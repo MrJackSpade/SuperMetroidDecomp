@@ -15,7 +15,4 @@ public sealed class PowampBalloonState
 
     /// <summary>The balloon's original room position: X is both halves' horizontal wiggle center and Y feeds the body's resting and rise-target calculations.</summary>
     public Position16<RoomPixels> Spawn { get; internal set; }
-
-    /// <summary>Whether touch and shot AI are refused: from spawn for a balloon with a nonzero grapple travel distance.</summary>
-    public bool RefusesContact { get; internal set; }
 }

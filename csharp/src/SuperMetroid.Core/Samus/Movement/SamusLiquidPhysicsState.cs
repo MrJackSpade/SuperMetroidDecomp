@@ -46,8 +46,8 @@ public sealed class SamusLiquidPhysicsState
             case RoomFxType.CeresRidley:
             case RoomFxType.CeresElevator:
             case RoomFxType.CeresHaze:
-                // Non-liquid FX still own the FX type. Preserve that identity for atmospheric
-                // effects while the room has neither liquid surface.
+                // Non-liquid FX still own the FX type, which atmospheric effects keep while the
+                // room has neither liquid surface.
                 ConfigureNonLiquidRoomFx(fx.Type);
                 return;
             default:
@@ -284,7 +284,7 @@ public sealed class SamusLiquidPhysicsState
     /// <summary>
     /// Runs the animation's complete liquid step before the generic animation
     /// timer: liquid delay, medium changes, four particle producers, sound requests, and
-    /// lava/acid fixed-point damage accumulation.
+    /// lava/acid damage accumulation.
     /// </summary>
     [IndependentFlag("Boss presence is an independent fact of the room the frame runs in.")]
     public void PrepareAnimationFrame(
@@ -552,7 +552,7 @@ public sealed class SamusLiquidPhysicsState
         EffectWaits.HoldBubbles(SpawnParticle(SamusParticleKind.Bubbles,
             new(samus.Position.X.Whole, top + SamusLiquidParticleDefinitions.BubbleBelowTop), AtOnce));
         int sample = random.Generate();
-        QueueSound(SamusBreathBubbleDefinitions.LowSound.IsSetIn(sample) ? EnemySound.LowBubbles : EnemySound.HighBubbles, priority: SoundRequestPriority.Normal);
+        QueueSound(SamusBreathBubbleDefinitions.SoundsLow.IsTakenBy(sample) ? EnemySound.LowBubbles : EnemySound.HighBubbles, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>Starts the four-particle lava spray while Samus's top is above the surface and nothing holds the spray up.</summary>

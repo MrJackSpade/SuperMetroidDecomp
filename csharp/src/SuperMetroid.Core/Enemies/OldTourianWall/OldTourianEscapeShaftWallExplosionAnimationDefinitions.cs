@@ -3,9 +3,8 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Enemies.OldTourianWall;
 
 /// <summary>
-/// The old Tourian escape shaft fake-wall explosion, whose animation
-/// <see cref="OldTourianWallExplosionAnimation"/> plays typed. Its six small-explosion frames resolve
-/// through extracted presentation art.
+/// Where the old Tourian escape shaft's fake wall explodes, whose animation
+/// <see cref="OldTourianWallExplosionAnimation"/> plays its six small-explosion pictures.
 /// </summary>
 internal static class OldTourianEscapeShaftWallExplosionAnimationDefinitions
 {

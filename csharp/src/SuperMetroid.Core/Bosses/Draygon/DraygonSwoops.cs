@@ -142,7 +142,7 @@ internal sealed class DraygonSwoops
         {
             state.SwoopEntry = 0;
             int random = _room.Random.Read();
-            state.Phase = DraygonRandomDefinitions.SwoopRatherThanGoop.IsSetIn(random)
+            state.Phase = DraygonRandomDefinitions.SwoopsRatherThanSpitsGoop.IsTakenBy(random)
                 ? DraygonPhase.SwoopSetup
                 : DraygonPhase.GoopSetup;
             state.PassDirection = HorizontalDirection.Left;
@@ -151,7 +151,7 @@ internal sealed class DraygonSwoops
 
         int choice = _room.Random.Read();
         body.Position = body.Position.WithWholeX(state.LeftSideReset.X);
-        if (DraygonRandomDefinitions.SwoopRatherThanGoop.IsSetIn(choice))
+        if (DraygonRandomDefinitions.SwoopsRatherThanSpitsGoop.IsTakenBy(choice))
         {
             state.SwoopEntry = 0;
             body.Position = body.Position.WithWholeY(state.LeftSideReset.Y);

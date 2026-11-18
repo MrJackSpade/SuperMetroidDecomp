@@ -53,6 +53,8 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     internal FileSelectHelmetFrame HelmetAnimationFrame => selectedHelmet.Frame;
     /// <summary>The screen's brightness and the cadence of its entry and submenu fades; the menu opens black.</summary>
     private readonly ScreenFade screenFade = new(0);
+    /// <summary>Updates left of the opening's black hold (<see cref="FileSelectPhase.BlackHold"/>).</summary>
+    private int blackHoldUpdatesLeft = FileSelectLayout.BlackHoldUpdates;
     /// <summary>The page file select has selected, which it shows with its slots as they are now.</summary>
     private FileSelectPage selectedPage = FileSelectPage.MainEmpty;
     /// <summary>The page shown, with its slots' fields and the slots its prompt names (#1467).</summary>
@@ -134,12 +136,12 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
                 break;
 
             case FileSelectPhase.EnterBlankScreenAfterFrameWait:
-                Phase = FileSelectPhase.LoadBackground;
+                Phase = FileSelectPhase.BlackHold;
                 break;
 
-            case FileSelectPhase.LoadBackground:
-                // File select loads the Zebes and stars background.
-                Phase = FileSelectPhase.InitializeMain;
+            case FileSelectPhase.BlackHold:
+                if (--blackHoldUpdatesLeft == 0)
+                    Phase = FileSelectPhase.InitializeMain;
                 break;
 
             case FileSelectPhase.InitializeMain:
@@ -298,7 +300,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
 
     /// <summary>Suppresses cursor animation before the initialized main page begins fading in.</summary>
     private bool IsEntryPhase => Phase is FileSelectPhase.EnterBlankScreen or
-        FileSelectPhase.EnterBlankScreenAfterFrameWait or FileSelectPhase.LoadBackground or
+        FileSelectPhase.EnterBlankScreenAfterFrameWait or FileSelectPhase.BlackHold or
         FileSelectPhase.InitializeMain or FileSelectPhase.InitializeMainAfterFrameWait;
 
     /// <summary>Hides the selection missile during entry and on completed data-operation pages.</summary>
@@ -445,7 +447,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
             case FileSelectPhase.FadeOutToTitle:
             case FileSelectPhase.EnterBlankScreen:
             case FileSelectPhase.EnterBlankScreenAfterFrameWait:
-            case FileSelectPhase.LoadBackground:
+            case FileSelectPhase.BlackHold:
             case FileSelectPhase.InitializeMain:
             case FileSelectPhase.InitializeMainAfterFrameWait:
             default:

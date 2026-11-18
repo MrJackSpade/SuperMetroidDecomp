@@ -129,8 +129,8 @@ internal static class CeresDestructionSceneDefinitions
         internal static SignedSixteenSixteen SixteenthPixel { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(1);
         /// <summary>Minus one quarter pixel per update.</summary>
         internal static SignedSixteenSixteen NegativeQuarterPixel { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(-4);
-        /// <summary>The fleeing gunship's horizontal speed: a quarter pixel per update, of which only the fraction moves the blasts.</summary>
-        internal static SignedSixteenSixteen GunshipXSubvelocity { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(4);
+        /// <summary>The fleeing gunship's horizontal velocity: a quarter pixel rightward per update.</summary>
+        internal static SignedSixteenSixteen GunshipXVelocity { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(4);
         /// <summary>The fleeing gunship's vertical velocity: one sixteenth of a pixel upward per update.</summary>
         internal static SignedSixteenSixteen GunshipYVelocity { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(-1);
         /// <summary>The floor position, in pixels, that completes the gunship's exit.</summary>

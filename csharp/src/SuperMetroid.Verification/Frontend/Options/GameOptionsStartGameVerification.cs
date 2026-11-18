@@ -24,7 +24,7 @@ internal static class GameOptionsStartGameVerification
             new VerifyGameOptionsStartGameCase(SaveLoadingGameState.OpeningCinematic, GameOptionsPhase.FadeOutToIntro),
         })
         {
-            var options = new GameOptionsMenuState(AudioQueues.Standalone(), screenContent: RetailPresentationFixture(), spriteSheets: MenuSheetFixtures.For(RetailPresentationFixture())) { LoadingGameState = route };
+            var options = new GameOptionsMenuState(AudioQueues.Standalone(), screenContent: RetailPresentationFixture(), spriteSheets: MenuSheetFixtures.For(RetailPresentationFixture()), controllerBindings: SuperMetroid.Core.Input.ControllerBindings.Default, iconCancelEnabled: false, moonwalkEnabled: false, japaneseText: false) { StartupRoute = route };
             for (int frame = 0; frame < 80 && options.Phase != GameOptionsPhase.Main; frame++)
                 options.Step(ControllerButton.None);
             AssertEqual(GameOptionsPhase.Main, options.Phase, $"{route} save reaches the primary options page");

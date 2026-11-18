@@ -35,10 +35,10 @@ public enum FileSelectPhase
     FadeOutToTitle,
     /// <summary>Finish the entry fade-out and blank the display, then wait out one update.</summary>
     EnterBlankScreen,
-    /// <summary>Continuation of initialization after its frame wait; the next update advances to background loading without another per-update random advance.</summary>
+    /// <summary>Continuation of initialization after its frame wait; the next update advances to the black hold without another per-update random advance.</summary>
     EnterBlankScreenAfterFrameWait,
-    /// <summary>Represent the Zebes and starfield background's loading stage; installed graphics were loaded atomically by construction.</summary>
-    LoadBackground,
+    /// <summary>Holds the blanked screen black (<see cref="FileSelectLayout.BlackHoldUpdates"/>) before the screen's setup.</summary>
+    BlackHold,
     /// <summary>Sets the fades to step every second update, then waits out one update.</summary>
     InitializeMain,
     /// <summary>Continuation of the screen setup after its frame wait; advance to the screen's fade-in without another per-update random advance.</summary>

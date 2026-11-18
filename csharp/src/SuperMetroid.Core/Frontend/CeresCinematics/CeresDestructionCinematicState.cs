@@ -170,8 +170,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         InstalledPowerBombGlowColors glowColors,
         IntroCinematicArtwork artwork,
         InstalledSpriteSheets spriteSheets,
-        CeresDestructionOutcome outcome = CeresDestructionOutcome.SamusEscaped,
-        bool japaneseText = false)
+        CeresDestructionOutcome outcome,
+        bool japaneseText)
     {
         this.japaneseText = japaneseText;
         BindSpriteSheets(Ensure.NotNull(spriteSheets));
@@ -639,9 +639,9 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         actors.Add(actor);
     }
 
-    /// <summary>Where an explosion at <paramref name="position"/> drifts to with the fleeing gunship's X subvelocity and signed Y velocity.</summary>
+    /// <summary>Where an explosion at <paramref name="position"/> drifts to with the fleeing gunship's velocity.</summary>
     private static FixedVector<ScreenPixels> FleeingWithGunship(FixedVector<ScreenPixels> position) => new(
-        IntroCinematicMotion.AddFraction(position.X, CeresDestructionSceneDefinitions.Motion.GunshipXSubvelocity),
+        position.X + CeresDestructionSceneDefinitions.Motion.GunshipXVelocity,
         position.Y + CeresDestructionSceneDefinitions.Motion.GunshipYVelocity);
 
     /// <summary>Advances the planet and title objects, applying slide acceleration and finishing on star deletion.</summary>

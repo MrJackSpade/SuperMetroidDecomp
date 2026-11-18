@@ -504,7 +504,7 @@ internal static class SaveSchemaTranslationVerification
         var text = SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingTextPresentation.Load(new MemoryStream(
             SuperMetroid.AssetExtraction.Frontend.Ending.EndingTextExtractor.Extract(native), writable: false));
         // The game binds the installed sheets with the ending, which draws its stars from them.
-        var ending = new EndingCreditsState(SuperMetroid.Core.Audio.AudioQueues.Standalone(), new EndingCreditsSetup { GameTimeHours = 0, GameTimeMinutes = 0 },
+        var ending = new EndingCreditsState(SuperMetroid.Core.Audio.AudioQueues.Standalone(), new EndingCreditsSetup { GameTimeHours = 0, GameTimeMinutes = 0, Inventory = default, JapaneseText = false, CrittersEscaped = false },
             text.Typewriter(), InstalledFixtures.EndingBackdrops, InstalledFixtures.SpriteSheets);
         ending.Stage.Phase = EndingCreditsPhase.ItemPercentageScrollDown;
         ending.Stage.PhaseTimer = 1;

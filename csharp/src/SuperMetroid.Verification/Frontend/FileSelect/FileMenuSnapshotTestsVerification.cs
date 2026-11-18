@@ -49,7 +49,7 @@ internal static class FileMenuSnapshotTestsVerification
             Tick();
         }
 
-        var options = new GameOptionsMenuState(AudioQueues.Standalone(), screenContent: RetailPresentationFixture(), spriteSheets: MenuSheetFixtures.For(RetailPresentationFixture()));
+        var options = new GameOptionsMenuState(AudioQueues.Standalone(), screenContent: RetailPresentationFixture(), spriteSheets: MenuSheetFixtures.For(RetailPresentationFixture()), controllerBindings: SuperMetroid.Core.Input.ControllerBindings.Default, iconCancelEnabled: false, moonwalkEnabled: false, japaneseText: false);
         void OptionTick(ControllerButton input = 0) => Check(options.CaptureRenderSnapshot, () => options.Step(input));
         void OptionPress(ControllerButton input) { OptionTick(); OptionTick(input); }
         void OptionUntil(GameOptionsPhase phase)

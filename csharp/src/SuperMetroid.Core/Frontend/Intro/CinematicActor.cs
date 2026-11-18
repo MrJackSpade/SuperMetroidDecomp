@@ -158,18 +158,14 @@ internal sealed class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor
     internal int? DriftLoopWidth { get; init; }
 
     /// <summary>
-    /// Moves a looping actor right by the fraction of <paramref name="horizontalDelta"/> alone and carries it round its loop
+    /// Moves a looping actor by <paramref name="horizontalDelta"/> and carries it round its loop
     /// (<see cref="DriftLoopWidth"/>): its whole pixels stay within the loop, from zero up to the loop's width.
     /// </summary>
-    /// <remarks>
-    /// The looping field adds only the delta's fraction, with nothing in the whole pixel: a leftward delta, whose fraction is
-    /// the rest of a pixel, carries the actor right instead.
-    /// </remarks>
     /// <exception cref="InvalidOperationException">The actor travels no loop.</exception>
     internal void DriftRoundLoop(SignedSixteenSixteen horizontalDelta)
     {
         int loop = DriftLoopWidth ?? throw new InvalidOperationException("A cinematic actor with no loop drifted round one.");
-        SignedSixteenSixteen x = IntroCinematicMotion.AddFraction(Position.X, horizontalDelta);
+        SignedSixteenSixteen x = Position.X + horizontalDelta;
         Position = Position.WithX(x.WithWholePixels(AlongLoop(x.WholePixels, loop)));
     }
 
@@ -177,14 +173,14 @@ internal sealed class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor
     private static int AlongLoop(int x, int loop) => ((x % loop) + loop) % loop;
 
     /// <summary>
-    /// What the actor shows and where on the screen, at its screen place minus <paramref name="scroll"/> wherever that lies
-    /// (the display clips a frame off the screen, #1587); none for an actor that is deleted or has shown nothing yet.
+    /// What the actor shows and where on the screen, at its screen place wherever that lies (the display clips a frame off
+    /// the screen, #1587); none for an actor that is deleted or has shown nothing yet.
     /// </summary>
-    internal CinematicActorDrawing<TFrame>? Drawing(Offset16<ScreenPixels> scroll = default)
+    internal CinematicActorDrawing<TFrame>? Drawing()
     {
         if (!IsActive || Shown is not { } shown)
             return null;
-        Offset16<ScreenPixels> placed = ScreenPlace + -scroll;
+        Offset16<ScreenPixels> placed = ScreenPlace;
         if (DriftLoopWidth is int loop)
         {
             // The loop's second half is the stretch of space left of the screen, drawn at a negative screen X.

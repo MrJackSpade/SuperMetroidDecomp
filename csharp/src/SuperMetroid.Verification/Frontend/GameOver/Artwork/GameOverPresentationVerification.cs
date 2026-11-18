@@ -24,8 +24,8 @@ internal static class GameOverPresentationVerification
 
         var nativeAudio = AudioQueues.Standalone();
         var installedAudio = AudioQueues.Standalone();
-        var native = new GameOverMenuState(nativeAudio, original, MenuSheetFixtures.For(original));
-        var installed = new GameOverMenuState(installedAudio, original, MenuSheetFixtures.For(original));
+        var native = new GameOverMenuState(nativeAudio, original, MenuSheetFixtures.For(original), continueLoadsCeresArrival: false);
+        var installed = new GameOverMenuState(installedAudio, original, MenuSheetFixtures.For(original), continueLoadsCeresArrival: false);
         bool choseNo = false;
         bool released = false;
         int comparedFrames = 0;

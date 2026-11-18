@@ -28,7 +28,7 @@ internal static class CinematicSnapshotTestsVerification
         Suite(nameof(VerifyZebesDoesNotWrapDuringDescent), () => VerifyZebesDoesNotWrapDuringDescent());
         Suite(nameof(VerifyIntroDisplayCapture), () => VerifyIntroDisplayCapture());
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var flight = new IntroCeresFlightState(AudioQueues.Standalone(), InstalledFixtures.IntroArtwork.FlightCharacters.BoundCatalog, sheets: CinematicSheetFixtures.WithFlight(InstalledFixtures.IntroArtwork.FlightCharacters));
+        var flight = new IntroCeresFlightState(AudioQueues.Standalone(), InstalledFixtures.IntroArtwork.FlightCharacters.BoundCatalog, sheets: CinematicSheetFixtures.WithFlight(InstalledFixtures.IntroArtwork.FlightCharacters), japaneseText: false);
         var flightPhases = new HashSet<IntroCeresFlightPhase>();
         int flightSamples = 0;
         bool coloredRearView = false;
@@ -90,7 +90,7 @@ internal static class CinematicSnapshotTestsVerification
         foreach (bool chooseNo in new[] { false, true })
         {
             var audio = AudioQueues.Standalone();
-            var menu = new GameOverMenuState(audio, RetailPresentationFixture(), MenuSheetFixtures.For(RetailPresentationFixture()));
+            var menu = new GameOverMenuState(audio, RetailPresentationFixture(), MenuSheetFixtures.For(RetailPresentationFixture()), continueLoadsCeresArrival: false);
             bool toggled = false, released = false;
             GameOverMenuPhase? sampledPhase = null;
             for (int tick = 0; tick < 300 && !menu.ContinueRequested && !menu.TitleRequested; tick++)

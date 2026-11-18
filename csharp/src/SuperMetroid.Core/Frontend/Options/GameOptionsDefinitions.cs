@@ -6,6 +6,11 @@ namespace SuperMetroid.Core.Frontend.Options;
 /// </summary>
 public static class GameOptionsDefinitions
 {
+    /// <summary>
+    /// Updates the menu holds the black screen the previous menu leaves before fading in; the selection missile animates
+    /// from the second on.
+    /// </summary>
+    public const int BlackHoldUpdates = 2;
     /// <summary>How far, in pixels, the controller page scrolls down to show its Exit and Reset rows.</summary>
     public const int ControllerScrollLimit = 32;
     /// <summary>Pixels the controller page scrolls per update.</summary>

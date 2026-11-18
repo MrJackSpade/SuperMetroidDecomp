@@ -23,7 +23,6 @@ internal sealed record ShownFileSelectPage(FileSelectPage Page, ImmutableDiction
     /// The menus' pictures the page shows, in drawing order, each at the page pixel it is placed at: the page, then each
     /// slot's field, then the slot letters its copy or clear prompt names.
     /// </summary>
-    /// <exception cref="InvalidDataException">A slot's energy tanks run past the page.</exception>
     internal IEnumerable<PlacedFrame> Pictures(FileSelectPresentation presentation)
     {
         Ensure.NotNull(presentation);
@@ -73,8 +72,6 @@ internal sealed record ShownFileSelectPage(FileSelectPage Page, ImmutableDiction
             int row = FileSelectEnergyTankDefinitions.RowOffset - tank / FileSelectEnergyTankDefinitions.TanksPerRow;
             int x = layout.EnergyAnchor.X + column * FileSelectEnergyTankDefinitions.TankPixels;
             int y = layout.EnergyAnchor.Y + row * FileSelectEnergyTankDefinitions.TankPixels;
-            if ((uint)x >= FileSelectPresentationDefinitions.PageWidthPixels || (uint)y >= FileSelectPresentationDefinitions.PageHeightPixels)
-                throw new InvalidDataException("File-select energy tanks escaped the menu page.");
             yield return new PlacedFrame(FileSelectParts.TankFrame(tank < filled, tens), new(x, y));
         }
         yield return new PlacedFrame(FileSelectParts.DigitFrame(save.Hours / FileSelectFieldDefinitions.DigitBase), layout.TimeValueAnchor);

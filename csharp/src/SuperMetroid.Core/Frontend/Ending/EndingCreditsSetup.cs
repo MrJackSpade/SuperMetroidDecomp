@@ -10,11 +10,11 @@ internal sealed record EndingCreditsSetup
     public required int GameTimeMinutes { get; init; }
 
     /// <summary>The items and capacities Samus collected, from which the ending reckons her item percentage.</summary>
-    public EndingInventorySnapshot Inventory { get; init; } = default;
+    public required EndingInventorySnapshot Inventory { get; init; }
 
     /// <summary>Whether the game shows its Japanese text, which the credits' closing text follows.</summary>
-    public bool JapaneseText { get; init; } = false;
+    public required bool JapaneseText { get; init; }
 
     /// <summary>Whether Samus freed the animals, whose ship then escapes Zebes beside the gunship.</summary>
-    public bool CrittersEscaped { get; init; } = false;
+    public required bool CrittersEscaped { get; init; }
 }

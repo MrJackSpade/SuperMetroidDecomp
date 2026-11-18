@@ -3,30 +3,24 @@ using SuperMetroid.Core.Frontend.FileSelect;
 namespace SuperMetroid.Verification.Frontend.FileSelect;
 using SuperMetroid.Verification.Harness;
 
-/// <summary>Checks the file-select map entry's fade length, transfer boundaries, and opening window.</summary>
+/// <summary>Checks the file-select map entry's black hold and opening window.</summary>
 internal static class FileSelectMapEntryVerification
 {
     /// <summary>
-    /// Verifies the entry's fade lasts sixteen gradual steps, the setup's own call having taken the first, before the
-    /// exact twenty-eight-update reveal rectangle. The fade's colours are never shown (#1512), so only its length is checked.
+    /// Verifies the entry holds the screen black for twenty updates (#2415), the game's seventeen-update fade of colours
+    /// that are never shown (#1512) and its three setup updates, before the exact twenty-eight-update reveal rectangle.
     /// </summary>
     internal static void VerifyFileSelectMapEntry()
     {
         var entry = new FileSelectMapEntry();
-        AssertEqual(FileSelectMapEntryPhase.EntryFade, entry.Phase, "entry starts in its forced-black palette fade");
-        for (int tick = 1; tick <= 16; tick++)
+        AssertEqual(FileSelectMapEntryPhase.BlackHold, entry.Phase, "entry starts on its black hold");
+        for (int tick = 1; tick < 20; tick++)
         {
             entry.Step();
-            AssertEqual(FileSelectMapEntryPhase.EntryFade, entry.Phase, $"gradual step {tick} keeps the entry fading");
+            AssertEqual(FileSelectMapEntryPhase.BlackHold, entry.Phase, $"update {tick} keeps the screen black");
         }
         entry.Step();
-        AssertEqual(FileSelectMapEntryPhase.LoadForeground, entry.Phase, "seventeenth call completes gradual palette fade");
-        entry.Step();
-        AssertEqual(FileSelectMapEntryPhase.LoadBackground, entry.Phase, "foreground transfer has its own entry boundary");
-        entry.Step();
-        AssertEqual(FileSelectMapEntryPhase.SetupWindow, entry.Phase, "background transfer has its own entry boundary");
-        entry.Step();
-        AssertEqual(FileSelectMapEntryPhase.Revealing, entry.Phase, "window setup precedes first expansion update");
+        AssertEqual(FileSelectMapEntryPhase.Revealing, entry.Phase, "the twentieth update ends the black hold");
         for (int tick = 0; tick <= 27; tick++)
         {
             int left = 127 - 4 * tick, right = 129 + 4 * tick;

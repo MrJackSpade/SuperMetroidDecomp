@@ -60,7 +60,7 @@ internal sealed class CeresDestructionGameSequence(FrontendSession session) : IG
             session.Show(new CeresDestructionCinematicState(
                 session.audio, session.Artwork.ScreenContent.PowerBombGlowColors,
                 session.Artwork.IntroCinematicArt, session.Artwork.SpriteSheets,
-                japaneseText: session.Runtime?.JapaneseText == true));
+                CeresDestructionOutcome.SamusEscaped, japaneseText: session.Runtime?.JapaneseText == true));
         destruction.Step();
         session.display.PublishCeresDestruction(destruction);
         if (destruction.Finished)

@@ -1,6 +1,9 @@
 namespace SuperMetroid.Core.Frontend.Pause.Artwork;
 
-/// <summary>Reserve-strip visual identities and import-only bindings.</summary>
+/// <summary>
+/// The pause screen's reserve-tank strip: how many places it draws a tank at, the pictures its tanks show with the name
+/// each is installed under, and the partial tank each fill step shows.
+/// </summary>
 public static class PauseReserveTankDefinitions
 {
     /// <summary>Six origins, including the trailing cap position.</summary>

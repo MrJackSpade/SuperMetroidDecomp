@@ -49,6 +49,8 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     private int pageVerticalScroll;
     /// <summary>The selection missile's frame cycle.</summary>
     private readonly MenuMissileAnimation missile;
+    /// <summary>Updates left of the opening's black hold (<see cref="GameOptionsPhase.BlackHold"/>).</summary>
+    private int blackHoldUpdatesLeft = GameOptionsDefinitions.BlackHoldUpdates;
 
     /// <summary>Creates the complete primary, controller, and special options-menu state.</summary>
     /// <param name="audio">The audio queues the cursor and confirmation sounds join.</param>
@@ -63,10 +65,10 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
         AudioQueues audio,
         InstalledScreenContent screenContent,
         InstalledSpriteSheets spriteSheets,
-        ControllerBindings? controllerBindings = null,
-        bool iconCancelEnabled = false,
-        bool moonwalkEnabled = false,
-        bool japaneseText = false)
+        ControllerBindings controllerBindings,
+        bool iconCancelEnabled,
+        bool moonwalkEnabled,
+        bool japaneseText)
     {
         this.audio = Ensure.NotNull(audio);
         this.screenContent = Ensure.NotNull(screenContent);
@@ -74,13 +76,12 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
         screen = new MenuScreen(screenContent.Backdrops.Menus, Ensure.NotNull(spriteSheets));
         BindSpriteSheets(spriteSheets);
 
-        ControllerBindings = (controllerBindings ?? Input.ControllerBindings.Default)
-            .RequireUniquePermutation();
+        ControllerBindings = controllerBindings.RequireUniquePermutation();
         IconCancelEnabled = iconCancelEnabled;
         MoonwalkEnabled = moonwalkEnabled;
         JapaneseText = japaneseText;
         LoadVisiblePage();
-        Phase = GameOptionsPhase.FinishFadingOut;
+        Phase = GameOptionsPhase.BlackHold;
     }
 
     /// <summary>Binds the installed menu art when the game is bound to its installed content.</summary>
@@ -102,10 +103,10 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     };
 
     /// <summary>
-    /// The selected save's loading game state, loaded from the save by file select.
+    /// The selected save's startup route, loaded from the save by file select.
     /// A new game's is the opening-cinematic route.
     /// </summary>
-    public SaveLoadingGameState LoadingGameState { get; init; }
+    public SaveLoadingGameState StartupRoute { get; init; }
 
     /// <summary>Gets whether the Japanese-language options pages are selected.</summary>
     public bool JapaneseText { get; private set; }
@@ -133,22 +134,15 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     {
         controller.Latch(controllerInput);
         ControllerButton pressed = controller.NewlyPressed;
-        // The selection missile is spawned while the menu loads; it then animates
-        // after every step's work, including that first one.
-        if (Phase != GameOptionsPhase.FinishFadingOut)
+        // The selection missile animates from the black hold's second update on.
+        if (Phase != GameOptionsPhase.BlackHold || blackHoldUpdatesLeft < GameOptionsDefinitions.BlackHoldUpdates)
             missile.Step();
 
         switch (Phase)
         {
-            case GameOptionsPhase.FinishFadingOut:
-                // The previous menu already reached black, so
-                // the fade-out leaves it there and the menu moves on to loading.
-                Phase = GameOptionsPhase.LoadingMenu;
-                break;
-
-            case GameOptionsPhase.LoadingMenu:
-                // Loading puts the menu on a black screen; fading starts next update.
-                Phase = GameOptionsPhase.FadeIn;
+            case GameOptionsPhase.BlackHold:
+                if (--blackHoldUpdatesLeft == 0)
+                    Phase = GameOptionsPhase.FadeIn;
                 break;
 
             case GameOptionsPhase.FadeIn:
@@ -281,7 +275,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
             case GameOptionsPrimaryRow.StartGame:
                 // Starting: a save that resumes ordinary gameplay starts at once;
                 // a new game and the cinematic routes fade out first.
-                Phase = LoadingGameState == SaveLoadingGameState.MainGame
+                Phase = StartupRoute == SaveLoadingGameState.MainGame
                     ? GameOptionsPhase.StartGame
                     : GameOptionsPhase.FadeOutToIntro;
                 break;

@@ -36,7 +36,7 @@ internal sealed class MenuRowOrder<TRow> : IReadOnlyList<TRow>
     /// <exception cref="IndexOutOfRangeException"><paramref name="place"/> is not a place on the page.</exception>
     public TRow this[int place] => rows[place];
 
-    /// <summary>How many rows stand above <paramref name="row"/>: the place of its installed cursor anchor.</summary>
+    /// <summary>How many rows stand above <paramref name="row"/>.</summary>
     /// <exception cref="InvalidOperationException">The row is not on the page.</exception>
     internal int PlaceOf(TRow row)
     {

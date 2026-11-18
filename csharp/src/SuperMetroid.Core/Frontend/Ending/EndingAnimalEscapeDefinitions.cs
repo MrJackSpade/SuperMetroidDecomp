@@ -11,8 +11,8 @@ internal static class EndingAnimalEscapeDefinitions
     internal const EndingSceneAnimation Animation = EndingSceneAnimation.AnimalEscape;
     /// <summary>Both pod coordinates start at 128.</summary>
     internal const int Origin = 128;
-    /// <summary>The pod adds 1/512 of a pixel to its Y each actor update.</summary>
-    internal static SignedSixteenSixteen YFractionVelocity { get; } = SignedSixteenSixteen.FromParts(0, 128);
+    /// <summary>The pod drifts down 1/512 of a pixel each actor update.</summary>
+    internal static SignedSixteenSixteen YVelocity { get; } = SignedSixteenSixteen.FromParts(0, 128);
     /// <summary>The pod advances one horizontal pixel an update.</summary>
     internal const int XVelocity = 1;
     /// <summary>The pod deletes itself when its center reaches 272.</summary>

@@ -231,7 +231,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         AudioQueues audio,
         SamusArtworkBinding samusArtwork,
         IntroCinematicArtwork characterArtwork,
-        bool japaneseText = false)
+        bool japaneseText)
     {
         flashbackSamusArtwork = Ensure.NotNull(samusArtwork);
         SceneSheets = samusArtwork.Sheets;

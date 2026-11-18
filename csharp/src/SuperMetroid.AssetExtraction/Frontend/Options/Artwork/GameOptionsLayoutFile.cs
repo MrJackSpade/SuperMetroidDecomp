@@ -43,6 +43,9 @@ public static class GameOptionsLayoutFile
     }
 
     /// <summary>The presentation the anchors and duration name, once each is checked.</summary>
+    /// <remarks>
+    /// The layout lists each page's cursor anchors in its rows' order from the top, which keys them by row (#2415).
+    /// </remarks>
     /// <exception cref="InvalidDataException">A menu's anchors are missing or off screen, or the duration is below one update.</exception>
     internal static GameOptionsPresentation Presentation(Dictionary<string, Offset16<ScreenPixels>>? headingAnchors,
         Dictionary<string, Offset16<ScreenPixels>[]>? cursorAnchors, int cursorFrameDuration)
@@ -56,7 +59,7 @@ public static class GameOptionsLayoutFile
         {
             string name = GameOptionsPresentationFormat.MenuName(page);
             ValidatePoint(headingAnchors[name], $"{name} heading", byte.MaxValue);
-            int expected = GameOptionsNames.CursorCount(page);
+            int expected = RowsOn(page).Count;
             Offset16<ScreenPixels>[]? points = cursorAnchors[name];
             if (points is null || points.Length != expected)
                 throw new InvalidDataException($"Options {name} requires {expected} cursor anchors.");
@@ -67,11 +70,35 @@ public static class GameOptionsLayoutFile
         {
             HeadingAnchors = GameOptionsPresentationFormat.MenuPages.ToDictionary(
                 page => page, page => headingAnchors[GameOptionsPresentationFormat.MenuName(page)]),
-            CursorAnchors = GameOptionsPresentationFormat.MenuPages.ToDictionary(
-                page => page, page => cursorAnchors[GameOptionsPresentationFormat.MenuName(page)]),
+            CursorAnchors = CursorAnchorsByRow(cursorAnchors),
             CursorFrameDuration = cursorFrameDuration,
         });
     }
+
+    /// <summary>Each row's cursor anchor, from the checked lists of each page's anchors in its rows' order from the top.</summary>
+    private static Dictionary<GameOptionsRow, Offset16<ScreenPixels>> CursorAnchorsByRow(
+        Dictionary<string, Offset16<ScreenPixels>[]> cursorAnchors)
+    {
+        var byRow = new Dictionary<GameOptionsRow, Offset16<ScreenPixels>>();
+        foreach (GameOptionsPage page in GameOptionsPresentationFormat.MenuPages)
+        {
+            IReadOnlyList<GameOptionsRow> rows = RowsOn(page);
+            Offset16<ScreenPixels>[] points = cursorAnchors[GameOptionsPresentationFormat.MenuName(page)];
+            for (int place = 0; place < rows.Count; place++)
+                byRow.Add(rows[place], points[place]);
+        }
+        return byRow;
+    }
+
+    /// <summary>The rows of <paramref name="page"/> from the top, the order the layout lists the page's cursor anchors in.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="page"/> is not one of the three options pages.</exception>
+    private static IReadOnlyList<GameOptionsRow> RowsOn(GameOptionsPage page) => page switch
+    {
+        GameOptionsPage.Primary => [.. GameOptionsPageRows.Primary.Select(row => new GameOptionsRow.OnPrimaryPage(row))],
+        GameOptionsPage.Controller => [.. GameOptionsPageRows.Controller.Select(row => new GameOptionsRow.OnControllerPage(row))],
+        GameOptionsPage.Special => [.. GameOptionsPageRows.Special.Select(row => new GameOptionsRow.OnSpecialPage(row))],
+        _ => throw new ArgumentOutOfRangeException(nameof(page), page, "Options rows exist only on the three menu pages."),
+    };
 
     /// <summary>Requires exactly the names <paramref name="expected"/> in <paramref name="values"/>.</summary>
     /// <exception cref="InvalidDataException">A name is missing or another is present.</exception>

@@ -173,7 +173,7 @@ public static class FileSelectPresentationExtractor
                 .Select(y => new Offset16<ScreenPixels>(22, y)).ToArray(),
             ConfirmationCursorAnchors =
                 [new(94, 184), new(94, 208)],
-            HelmetAnchors = Enumerable.Range(0, FileSelectLayout.SaveSlotCount)
+            HelmetAnchors = Enumerable.Range(0, FileSelectCursorPositions.SaveSlotCount)
                 .Select(FileSelectCursorPositions.HelmetY)
                 .Select(y => new Offset16<ScreenPixels>(100, y)).ToArray(),
             DynamicAnchors = new(StringComparer.Ordinal)

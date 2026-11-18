@@ -3,8 +3,8 @@ using SuperMetroid.Core.Input;
 namespace SuperMetroid.Core.Frontend.Options.Artwork;
 
 /// <summary>
-/// Names the options document's pictures, headings, controller labels and toggles, and counts each menu page's
-/// cursor rows (<see cref="GameOptionsPresentationDefinitions"/>).
+/// Names the options document's pictures, headings, controller labels and toggles
+/// (<see cref="GameOptionsPresentationDefinitions"/>).
 /// </summary>
 public static class GameOptionsNames
 {
@@ -25,10 +25,6 @@ public static class GameOptionsNames
     public static string ToggleName(GameOptionsToggle toggle) =>
         Ensure.Listed(GameOptionsPresentationDefinitions.ToggleNames, toggle);
 
-    /// <summary>Returns the number of selection-row anchors required by a menu layout.</summary>
-    /// <returns>Five for primary, nine for controller including Exit and Reset, or three for special including Exit.</returns>
-    internal static int CursorCount(GameOptionsPage page) =>
-        Ensure.Listed(GameOptionsPresentationDefinitions.CursorCounts, page);
 
     /// <summary>The menus' picture of the options screen's backdrop page (#1467).</summary>
     public const string BackgroundFrame = "Options.Background";

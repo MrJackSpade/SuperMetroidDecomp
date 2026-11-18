@@ -190,7 +190,7 @@ internal static class CeresColourEffectsVerification
         string text = japaneseText ? "Japanese" : "English";
         var audio = AudioQueues.Standalone();
         CeresDestructionCinematicState scene = new(audio, InstalledFixtures.Maps.PowerBombGlowColors, InstalledFixtures.IntroArtwork.BoundCatalog,
-            spriteSheets: InstalledFixtures.SpriteSheets, japaneseText: japaneseText);
+            spriteSheets: InstalledFixtures.SpriteSheets, outcome: CeresDestructionOutcome.SamusEscaped, japaneseText: japaneseText);
         SpriteSheetFrame subtitleFrame = InstalledFixtures.SpriteSheets.Get(SpriteSheetId.ZebesRevealSprites)
             .Frame(CinematicSpriteSheet.FrameName(CinematicSpriteFamily.CeresDestruction, SubtitlePose));
         PictureShade drawn = CeresShades.Drawn(CeresSpriteColouring.ZebesTitle);
@@ -275,7 +275,7 @@ internal static class CeresColourEffectsVerification
     private static void VerifyFlightLights(IImportCartridgeSource cartridge)
     {
         var audio = AudioQueues.Standalone();
-        var flight = new IntroCeresFlightState(audio, InstalledFixtures.IntroArtwork.BoundCatalog.CeresFlight, sheets: InstalledFixtures.SpriteSheets);
+        var flight = new IntroCeresFlightState(audio, InstalledFixtures.IntroArtwork.BoundCatalog.CeresFlight, sheets: InstalledFixtures.SpriteSheets, japaneseText: false);
         PictureShade station = CeresShades.Drawn(CeresSpriteColouring.Station);
         NativeColourEffectRun? lights = null, engine = null;
         int stationDraws = 0;

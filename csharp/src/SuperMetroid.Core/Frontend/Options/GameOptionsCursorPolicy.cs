@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.Options;
 /// <remarks>
 /// The fade-in, main and fade-out-to-file-select phases show the primary page's cursor, and the controller and special
 /// settings phases their own. The dissolves, the controller page's scrolls, the start-game fade and handoff and the
-/// startup phases show no cursor (#1775). Undefined phases reject.
+/// opening black hold show no cursor (#1775). Undefined phases reject.
 /// </remarks>
 internal static class GameOptionsCursorPolicy
 {
@@ -17,7 +17,7 @@ internal static class GameOptionsCursorPolicy
         GameOptionsPhase.DissolveOut or GameOptionsPhase.DissolveIn or
             GameOptionsPhase.ScrollControllerDown or GameOptionsPhase.ScrollControllerUp or
             GameOptionsPhase.FadeOutToIntro or GameOptionsPhase.StartGame or
-            GameOptionsPhase.FinishFadingOut or GameOptionsPhase.LoadingMenu => null,
+            GameOptionsPhase.BlackHold => null,
         _ => throw new ArgumentOutOfRangeException(nameof(phase)),
     };
 }

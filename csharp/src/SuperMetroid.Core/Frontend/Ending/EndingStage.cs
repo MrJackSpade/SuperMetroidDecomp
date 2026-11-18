@@ -126,16 +126,14 @@ internal sealed class EndingStage
     /// <exception cref="ArgumentOutOfRangeException">The load is not one the ending makes.</exception>
     internal void LoadColours(EndingColourLoad load) => screen.Colours.Load(load, load switch
     {
-        EndingColourLoad.Escape => RequireBackdrops().Escape,
-        EndingColourLoad.Explosion => RequireBackdrops().Explosion,
-        EndingColourLoad.Credits => RequireBackdrops().Credits,
-        EndingColourLoad.PostCredits => RequireBackdrops().PostCredits,
+        EndingColourLoad.Escape => Backdrops.Escape,
+        EndingColourLoad.Explosion => Backdrops.Explosion,
+        EndingColourLoad.Credits => Backdrops.Credits,
+        EndingColourLoad.PostCredits => Backdrops.PostCredits,
         EndingColourLoad.ExplosionBackgrounds or EndingColourLoad.FinalGunship or EndingColourLoad.RestoredShot or EndingColourLoad.LogoInitial => null,
         _ => throw new ArgumentOutOfRangeException(nameof(load), load, "Undefined ending colour load."),
     });
 
-    /// <summary>The installed scene backdrops.</summary>
-    private EndingBackdrops RequireBackdrops() => Backdrops;
 
     /// <summary>Moves animal and star actors and deletes subordinate explosion layers at their handoffs.</summary>
     internal void StepEndingSpriteMotion(EndingSprite wrapper)
@@ -146,7 +144,7 @@ internal sealed class EndingStage
             case EndingSpriteRole.AnimalEscape:
                 sprite.Position = new(
                     sprite.Position.X.WithWholePixels(sprite.Position.X.WholePixels + EndingAnimalEscapeDefinitions.XVelocity),
-                    IntroCinematicMotion.AddFraction(sprite.Position.Y, EndingAnimalEscapeDefinitions.YFractionVelocity));
+                    sprite.Position.Y + EndingAnimalEscapeDefinitions.YVelocity);
                 if (sprite.ScreenPlace.X >= EndingAnimalEscapeDefinitions.DeleteX)
                     sprite.Delete();
                 break;

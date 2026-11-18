@@ -28,7 +28,7 @@ internal static class MapHudDefinitionMigrationVerification
         AssertEqual(111, FileSelectMapDefinitions.EntryWindowTop, "entry window top");
         AssertEqual(4, FileSelectMapDefinitions.EntryWindowSpeed, "entry window speed");
         AssertEqual(32, FileSelectMapDefinitions.LoadBlackFrames, "load black frames");
-        AssertEqual(15, FileSelectMapDefinitions.EntryFadeSteps, "entry fade steps");
+        AssertEqual(20, FileSelectMapDefinitions.EntryBlackHoldUpdates, "entry black hold: the seventeen-update fade of colours never shown and the three setup updates");
         AssertEqual(7, SuperMetroid.AssetExtraction.Frontend.Map.Artwork.MapSpriteColouringSets.SpriteSet(SuperMetroid.Core.Frontend.Map.Artwork.MapSpriteColouring.Markers), "markers' colouring is sprite set seven (the cartridge's $0E00 palette bits)");
         AssertEqual(6, SuperMetroid.AssetExtraction.Frontend.Map.Artwork.MapSpriteColouringSets.SpriteSet(SuperMetroid.Core.Frontend.Map.Artwork.MapSpriteColouring.DefeatedBossMarker), "defeated boss marker's colouring is sprite set six (the cartridge's $0C00 palette bits)");
         AssertEqual(4, MapScrollDefinitions.PulseTick, "scroll pulse tick");

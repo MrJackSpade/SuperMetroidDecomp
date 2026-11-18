@@ -401,14 +401,14 @@ internal static class FileSelectRoomMapVerification
             navigation.Step(ControllerButton.B);
             AssertEqual(FileSelectMapNavigationPhase.LoadRequested, navigation.Phase, "load request remains pending until frontend handles it");
         }
-        var cancel = new FileSelectMapNavigation(AreaId.Maridia, RetailPresentationFixture().Maps.Labels);
+        var cancel = new FileSelectMapNavigation(AreaId.Maridia, RetailPresentationFixture().Maps.Labels, initialHeldInput: SuperMetroid.Core.Input.ControllerButton.None);
         cancel.Step((ControllerButton.B | ControllerButton.Start | ControllerButton.Right | ControllerButton.A));
         AssertEqual(FileSelectMapNavigationPhase.Area, cancel.Phase,
             "native non-debug direction branch suppresses simultaneous cancel and confirm");
         cancel.Step(0);
         cancel.Step((ControllerButton.B | ControllerButton.Start | ControllerButton.A));
         AssertEqual(FileSelectMapNavigationPhase.OptionsRequested, cancel.Phase, "B takes precedence over confirm on area map");
-        var back = new FileSelectMapNavigation(AreaId.Maridia, RetailPresentationFixture().Maps.Labels);
+        var back = new FileSelectMapNavigation(AreaId.Maridia, RetailPresentationFixture().Maps.Labels, initialHeldInput: SuperMetroid.Core.Input.ControllerButton.None);
         back.Step(ControllerButton.Start);
         for (int frame = 0; frame < 54; frame++) back.Step(0);
         back.Step(ControllerButton.B);

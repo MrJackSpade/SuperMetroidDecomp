@@ -95,12 +95,12 @@ internal sealed class FileSelectGameSequence(FrontendSession session) : IGamePha
                 session.audio,
                 session.Artwork.ScreenContent,
                 session.Artwork.SpriteSheets,
-                optionSlot?.ControllerBindings,
+                optionSlot?.ControllerBindings ?? ControllerBindings.Default,
                 optionSlot?.IconCancelEnabled ?? false,
                 optionSlot?.MoonwalkEnabled ?? false,
                 japaneseText: optionSlot?.JapaneseText ?? false)
             {
-                LoadingGameState = optionSlot?.StartupRoute ?? SaveLoadingGameState.OpeningCinematic,
+                StartupRoute = optionSlot?.StartupRoute ?? SaveLoadingGameState.OpeningCinematic,
             });
             session.Enter(FileSelectStep.Options);
             session.display.PublishMenu(session.ActiveOptions);
@@ -260,7 +260,7 @@ internal sealed class FileSelectGameSequence(FrontendSession session) : IGamePha
         session.Show(new CeresDestructionCinematicState(
             session.audio, session.Artwork.ScreenContent.PowerBombGlowColors,
             session.Artwork.IntroCinematicArt, session.Artwork.SpriteSheets,
-            japaneseText: session.GameplayRuntime.JapaneseText));
+            CeresDestructionOutcome.SamusEscaped, japaneseText: session.GameplayRuntime.JapaneseText));
         session.Enter(CeresDestructionOutcome.SamusEscaped);
         session.display.PublishBlack();
     }

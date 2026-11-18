@@ -2,13 +2,9 @@ using SuperMetroid.Core.Saves;
 
 namespace SuperMetroid.Core.Frontend.FileSelect.Artwork;
 
-/// <summary>The file-select menu's page dimensions, glyph counts and the names its pieces are pictured under.</summary>
+/// <summary>The file-select menu's glyph counts and the names its pieces are pictured under.</summary>
 public static class FileSelectPresentationDefinitions
 {
-    /// <summary>The width in pixels of each page file select shows.</summary>
-    public const int PageWidthPixels = 256;
-    /// <summary>The height in pixels of each page file select shows.</summary>
-    public const int PageHeightPixels = 256;
     /// <summary>The decimal digits, zero through nine, file select writes its counts with.</summary>
     public const int DigitCount = 10;
     /// <summary>The name each save slot's letter is pictured under.</summary>

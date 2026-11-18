@@ -86,7 +86,7 @@ internal static class MenuScreenPublicationVerification
         AssertTrue(PaintedSpriteEntries.AreOwn(fileSelectScene.SpriteDraws, fileSelect.screen.Sprites.Draws), "file select draws its own sprite entries");
 
         InstalledSpriteSheets optionsSheets = MenuSheetFixtures.For(maps);
-        var options = new GameOptionsMenuState(AudioQueues.Standalone(), screenContent: maps, spriteSheets: optionsSheets);
+        var options = new GameOptionsMenuState(AudioQueues.Standalone(), screenContent: maps, spriteSheets: optionsSheets, controllerBindings: SuperMetroid.Core.Input.ControllerBindings.Default, iconCancelEnabled: false, moonwalkEnabled: false, japaneseText: false);
         for (int frame = 0; frame < 30; frame++)
             options.Step(0);
         // Options shows its backdrop's picture, then the primary page's picture with its language labels' English picture over it (#1467, #1780).
@@ -105,7 +105,7 @@ internal static class MenuScreenPublicationVerification
         AssertTrue(PaintedSpriteEntries.AreOwn(optionsScene.SpriteDraws, options.screen.Sprites.Draws), "options draws its own sprite entries");
 
         InstalledSpriteSheets gameOverSheets = MenuSheetFixtures.For(maps);
-        var gameOver = new GameOverMenuState(AudioQueues.Standalone(), maps, gameOverSheets);
+        var gameOver = new GameOverMenuState(AudioQueues.Standalone(), maps, gameOverSheets, continueLoadsCeresArrival: false);
         for (int frame = 0; frame < 30; frame++)
             gameOver.Step(0);
         // Game over shows one picture of its whole page at the page's corner, under the sprites (#1467).

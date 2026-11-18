@@ -21,10 +21,14 @@ public static class FileSelectPresentationFormat
     public const int ArtworkVersion = 1;
     /// <summary>Import-data JSON filename for the menu pages, field patches, glyphs and sprite compositions (#1638).</summary>
     public const string ArtworkFileName = "file-select-artwork.json";
+    /// <summary>The width in pixels of each menu page the import pictures.</summary>
+    public const int PageWidthPixels = 256;
+    /// <summary>The height in pixels of each menu page the import pictures.</summary>
+    public const int PageHeightPixels = 256;
     /// <summary>Cells across each menu page.</summary>
-    public const int PageColumns = FileSelectPresentationDefinitions.PageWidthPixels / CharacterCellConversions.CellPixels;
+    public const int PageColumns = PageWidthPixels / CharacterCellConversions.CellPixels;
     /// <summary>Cells down each menu page.</summary>
-    public const int PageRows = FileSelectPresentationDefinitions.PageHeightPixels / CharacterCellConversions.CellPixels;
+    public const int PageRows = PageHeightPixels / CharacterCellConversions.CellPixels;
     /// <summary>Number of row-major tile cells required in each menu page.</summary>
     public const int CellCount = PageColumns * PageRows;
     /// <summary>Size of each menu tilemap page in tile cells.</summary>

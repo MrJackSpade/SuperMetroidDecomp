@@ -20,15 +20,15 @@ internal static class GameOverMenuIndexesVerification
     internal static void VerifyGameOverMenuNativeIndexes(InstalledScreenContent presentation)
     {
         var audio = AudioQueues.Standalone();
-        var menu = new GameOverMenuState(audio, presentation, MenuSheetFixtures.For(presentation));
+        var menu = new GameOverMenuState(audio, presentation, MenuSheetFixtures.For(presentation), continueLoadsCeresArrival: false);
         GameOverMenuIndexesExpected[] expected =
         [
-            new GameOverMenuIndexesExpected(GameOverMenuPhase.ConfigureGraphics, true),
+            new GameOverMenuIndexesExpected(GameOverMenuPhase.BlackHold, true),
             new GameOverMenuIndexesExpected(GameOverMenuPhase.Initialize, false),
             new GameOverMenuIndexesExpected(GameOverMenuPhase.Initialize, true),
             new GameOverMenuIndexesExpected(GameOverMenuPhase.WaitForInitialMusic, false),
         ];
-        AssertEqual(GameOverMenuPhase.ConfigureGraphics, menu.Phase, "game-over menu starts at index zero");
+        AssertEqual(GameOverMenuPhase.BlackHold, menu.Phase, "game-over menu starts at index zero");
         for (int update = 0; update < expected.Length; update++)
         {
             menu.Step(0);

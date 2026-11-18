@@ -27,7 +27,7 @@ internal sealed class IntroCeresFlightState
     /// engine's flicker and the station's navigation lights.
     /// </summary>
     internal ColourEffectSystem ColourEffects { get; } = new(new ColourEffectSessionState());
-    /// <summary>Optional edited rear-view actor positions.</summary>
+    /// <summary>The rear view's actors' installed starting places (#1596).</summary>
     private CeresFlightActorPlacements actorLayout;
     /// <summary>Front-view star actor, whose rush also drives the diagonal background rush.</summary>
     private readonly CinematicActor<CeresAnimation, CinematicSpritePose, CeresCue> stars =
@@ -77,7 +77,7 @@ internal sealed class IntroCeresFlightState
     /// <param name="sheets">The installed sheets: the Ceres flight sheet the stars and rear-view actors draw from, and the caption's pictures.</param>
     /// <param name="japaneseText">The Japanese text option, which adds the katakana SPACE COLONY caption.</param>
     public IntroCeresFlightState(AudioQueues audio, CeresFlightArtwork artwork, InstalledSpriteSheets sheets,
-        bool japaneseText = false)
+        bool japaneseText)
     {
         this.japaneseText = japaneseText;
         this.audio = Ensure.NotNull(audio);

@@ -444,7 +444,8 @@ internal static class InstalledFixtures
     /// </summary>
     internal static CeresDestructionCinematicState CreateDestruction(AudioQueues audio, ImportIntroCinematicArtwork? artwork = null) =>
         new(audio, Maps.PowerBombGlowColors, (artwork ?? IntroArtwork).BoundCatalog,
-            spriteSheets: CinematicSheetFixtures.WithIntro(artwork ?? IntroArtwork));
+            spriteSheets: CinematicSheetFixtures.WithIntro(artwork ?? IntroArtwork),
+            outcome: SuperMetroid.Core.Frontend.CeresCinematics.CeresDestructionOutcome.SamusEscaped, japaneseText: false);
 
     /// <summary>
     /// Creates an intro scene with installed character, projectile, narration, and hurt-color art, queueing its music on
@@ -455,7 +456,7 @@ internal static class InstalledFixtures
         InstalledSamusBodyArtwork? samusBodyArtwork = null)
     {
         var intro = new IntroCinematicState(new IntroCinematicOverreads(SamusOverreads, BossAndIntroOverreads.ShellFragmentFallPastCurve), audio ?? AudioQueues.Standalone(),
-            SamusArtwork(samusBodyArtwork), (characterArtwork ?? IntroArtwork).BoundCatalog)
+            SamusArtwork(samusBodyArtwork), (characterArtwork ?? IntroArtwork).BoundCatalog, japaneseText: false)
         {
             Random = new SharedRandom(),
             UnauthoredBoostCadence = new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
@@ -469,7 +470,7 @@ internal static class InstalledFixtures
     internal static EndingCreditsState CreateEnding(AudioQueues audio,
         ushort gameTimeHours, ushort gameTimeMinutes, EndingInventorySnapshot inventory = default, bool japaneseText = false)
     {
-        return new EndingCreditsState(audio, new EndingCreditsSetup { GameTimeHours = gameTimeHours, GameTimeMinutes = gameTimeMinutes, Inventory = inventory, JapaneseText = japaneseText },
+        return new EndingCreditsState(audio, new EndingCreditsSetup { GameTimeHours = gameTimeHours, GameTimeMinutes = gameTimeMinutes, Inventory = inventory, JapaneseText = japaneseText, CrittersEscaped = false },
             Maps.EndingText, endingBackdrops.Value, EndingSheetFixtures.WithEnding(endingObjects.Value));
     }
 

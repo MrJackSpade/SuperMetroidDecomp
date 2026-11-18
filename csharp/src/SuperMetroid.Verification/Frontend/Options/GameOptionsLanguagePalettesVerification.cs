@@ -88,7 +88,7 @@ internal static class GameOptionsLanguagePalettesVerification
         for (int language = 0; language < 2; language++)
         {
             bool japanese = language != 0;
-            var menu = new GameOptionsMenuState(AudioQueues.Standalone(), japaneseText: japanese, screenContent: installed, spriteSheets: MenuSheetFixtures.For(installed));
+            var menu = new GameOptionsMenuState(AudioQueues.Standalone(), japaneseText: japanese, screenContent: installed, spriteSheets: MenuSheetFixtures.For(installed), controllerBindings: SuperMetroid.Core.Input.ControllerBindings.Default, iconCancelEnabled: false, moonwalkEnabled: false);
             ReadOnlySpan<byte> vram = menu.ShownPageBytes(RetailImportPresentationFixture());
             byte[] editablePage = presentation.CreatePageBytes(GameOptionsScreen.Primary);
             presentation.ApplyLanguage(editablePage, japanese);

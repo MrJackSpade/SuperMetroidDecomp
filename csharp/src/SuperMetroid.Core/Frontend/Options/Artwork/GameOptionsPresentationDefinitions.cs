@@ -63,12 +63,4 @@ public static class GameOptionsPresentationDefinitions
             [GameOptionsToggle.Moonwalk] = "Moonwalk",
         };
 
-    /// <summary>Returns the number of selection-row anchors required by a menu layout.</summary>
-    internal static readonly IReadOnlyDictionary<GameOptionsPage, int> CursorCounts =
-        new Dictionary<GameOptionsPage, int>
-        {
-            [GameOptionsPage.Primary] = GameOptionsPageRows.Primary.Count,
-            [GameOptionsPage.Controller] = GameOptionsPageRows.Controller.Count,
-            [GameOptionsPage.Special] = GameOptionsPageRows.Special.Count,
-        };
 }

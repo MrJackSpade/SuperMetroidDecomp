@@ -73972,6 +73972,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Hoppers.HopperSurfaces",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Hoppers/HopperSurfaces.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Hoppers.HoppersBehavior",
       "kind": "class",
       "scope": "product",
@@ -75721,6 +75734,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Magdollite.MagdolliteBodySpawnSettings",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Magdollite/MagdolliteBodySpawnSettings.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Magdollite.MagdolliteBodyState",
       "kind": "class",
       "scope": "product",
@@ -75839,7 +75865,7 @@
     },
     {
       "type": "SuperMetroid.Core.Enemies.Magdollite.MagdolliteGlow",
-      "kind": "record struct",
+      "kind": "enum",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
@@ -75903,14 +75929,14 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Magdollite.MagdolliteHeadRise",
+      "type": "SuperMetroid.Core.Enemies.Magdollite.MagdolliteHeadSpawnSettings",
       "kind": "record",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Magdollite/MagdolliteHeadRise.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/Magdollite/MagdolliteHeadSpawnSettings.cs"
       ],
       "partial": "none",
       "disposition": "record"
@@ -76049,6 +76075,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Magdollite.MagdolliteOverlaySpawnSettings",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Magdollite/MagdolliteOverlaySpawnSettings.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Magdollite.MagdolliteOverlayState",
       "kind": "class",
       "scope": "product",
@@ -76060,19 +76099,6 @@
       ],
       "partial": "none",
       "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Magdollite.MagdollitePart",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Magdollite/MagdollitePart.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Magdollite.MagdollitePartEntity",
@@ -77558,6 +77584,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.MorphBallEye.MorphBallEyeBodySpawnSettings",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/MorphBallEye/MorphBallEyeBodySpawnSettings.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.MorphBallEye.MorphBallEyeEnemyState",
       "kind": "class",
       "scope": "product",
@@ -77649,6 +77688,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.MorphBallEye.MorphBallEyeMountSpawnSettings",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/MorphBallEye/MorphBallEyeMountSpawnSettings.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.MorphBallEye.MorphBallEyeMountState",
       "kind": "class",
       "scope": "product",
@@ -77676,19 +77728,6 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.MorphBallEye.MorphBallEyePart",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/MorphBallEye/MorphBallEyePart.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Enemies.MorphBallEye.MorphBallEyeSegment",
@@ -78655,6 +78694,19 @@
       "disposition": "record"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.PipeBugs.NorfairPipeBugStagger",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/PipeBugs/NorfairPipeBugStagger.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.PipeBugs.NorfairPipeBugState",
       "kind": "class",
       "scope": "product",
@@ -79441,6 +79493,19 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Powamp.PowampContact",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Powamp/PowampContact.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Powamp.PowampHold",

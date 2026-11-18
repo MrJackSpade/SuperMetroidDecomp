@@ -147,7 +147,10 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
         state.AnimationFinished = true;
     }
 
-    /// <summary>Mirrors the preceding parent's frozen timer and upward Y position into the cosmetic follower.</summary>
+    /// <summary>
+    /// Shows the cosmetic follower at the preceding parent's height while the parent rises unfrozen, and hides it otherwise;
+    /// the follower reads the parent's freeze rather than keeping a copy, which it showed only while hidden.
+    /// </summary>
     private void FollowNorfairLavaJumpingEnemyParent(RoomEnemyPlace follower)
     {
         RoomEnemyPlace parent = GetPrecedingNorfairLavaJumpingEnemyPlace(follower);
@@ -162,7 +165,6 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
         }
 
         // The pair is checked when the follower is placed, not on every update.
-        follower.FrozenTimer = parent.FrozenTimer;
         NorfairLavaJumpingEnemyState parentState = parent.FoundState<NorfairLavaJumpingEnemyState>() ?? throw new InvalidOperationException(
             $"Lava jumper follower {follower.Ordinal} finds no lava jumper in its parent's place {parent.Ordinal}.");
         if (parent.FrozenTimer != 0 || !parentState.YVelocity.IsNegative)

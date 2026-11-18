@@ -16,8 +16,8 @@ public sealed class PowampBodyState
     /// <summary>The body's vertical displacement per AI update; negative values move upward.</summary>
     public SignedSixteenSixteen YVelocity { get; internal set; }
 
-    /// <summary>The body's phase 0 through 11 in the signed three-pixel wiggle wave; the wiggle is centred where its offset is zero.</summary>
-    public int WiggleIndex { get; internal set; }
+    /// <summary>The body's sideways offset in its wiggle, which it takes next; a new body starts at the centre.</summary>
+    public PowampWiggle Wiggle { get; internal set; } = PowampWiggle.First;
 
     /// <summary>The body's AI-update countdown, restarted at five for each horizontal wiggle offset.</summary>
     public int WiggleTimer { get; internal set; }

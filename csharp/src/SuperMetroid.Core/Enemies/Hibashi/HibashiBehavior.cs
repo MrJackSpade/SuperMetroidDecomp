@@ -30,7 +30,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Carries out one cue of the Hibashi's eruption: its sound, an eruption frame's hitbox, or finishing.</summary>
-    private HibashiSegment? ApplyHibashiCue(RoomEnemyPlace place, HibashiCue cue)
+    private void ApplyHibashiCue(RoomEnemyPlace place, HibashiCue cue)
     {
         switch (cue)
         {
@@ -46,7 +46,6 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
             default:
                 throw new InvalidOperationException($"Undefined Hibashi cue {cue}.");
         }
-        return null;
     }
 
     /// <summary>Initializes the collision part, which holds the one-frame hitbox animation.</summary>
@@ -57,18 +56,16 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
         });
 
     /// <summary>
-    /// Initializes the flame: it starts the one-frame hitbox animation as its collision part does, then replaces it with
-    /// the eruption animation and sets up its rest and the collision part it finds.
+    /// Initializes the flame: it sets up its rest and the collision part it finds, and starts the eruption animation,
+    /// whose first step plays on its first update.
     /// </summary>
     internal void InitializeHibashi(RoomEnemyPlace place)
     {
         HibashiSpawnSettings settings = place.SpawnSettings<HibashiSpawnSettings>();
-        _ = EnemyAnimationPlayback.Start(place, HibashiAnimations.StartingWith(HibashiSegment.Hitbox));
-
         var state = new HibashiEnemyState(HibashiAction.Inactive) { InactiveTimerReset = settings.InactiveTime + EnemyWaitDefinitions.RunOutUpdate };
         place.SetSpeciesState(state);
         _hitboxes.Place(place, _places.ListedAfter(place, 1));
-        state.Playback = new(HibashiAnimations.StartingWith(HibashiSegment.Flame), AnimationPlace.StartOfAnimation);
+        state.Playback = EnemyAnimationPlayback.Start(place, HibashiAnimations.StartingWith(HibashiSegment.Flame));
         state.SpawnY = place.Position.Y.Whole;
 
         // The visible part must never participate through its definition's radius.
@@ -86,7 +83,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case HibashiAction.Active:
-                RunHibashiActive(place, state);
+                RunHibashiActive(state);
                 return;
 
             default:
@@ -114,14 +111,13 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
         hitbox.Contact = hitbox.Contact.Without(EnemyContact.IgnoresSamus);
     }
 
-    /// <summary>Runs the active Hibashi.</summary>
-    private static void RunHibashiActive(RoomEnemyPlace flame, HibashiEnemyState state)
+    /// <summary>Runs the active Hibashi: once its eruption has finished, which hid the flame, it rests again.</summary>
+    private static void RunHibashiActive(HibashiEnemyState state)
     {
         if (!state.ActivityFinished)
             return;
 
         state.InactiveTimer = state.InactiveTimerReset;
-        flame.Presence = flame.Presence.With(EnemyPresence.Hidden);
         state.Action = HibashiAction.Inactive;
     }
 
@@ -176,7 +172,9 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AdvanceHibashiTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
         EnemyAnimationPlayback.Advance(place, HibashiAnimations.Segments,
             static (HibashiEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            (state, cue) => ApplyHibashiCue(place, cue) is { } target
-                ? new AnimationContinuation<HibashiSegment>(HibashiAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
-                : null);
+            (state, cue) =>
+            {
+                ApplyHibashiCue(place, cue);
+                return null;
+            });
 }

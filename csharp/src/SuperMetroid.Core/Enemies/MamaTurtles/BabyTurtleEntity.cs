@@ -8,7 +8,7 @@ internal sealed class BabyTurtleEntity(MamaTurtleBehavior species, RoomEnemyPlac
     : TurtleEntity(species, place, common)
 {
     /// <inheritdoc/>
-    public override void Initialize() => MamaTurtleBehavior.InitializeBabyTurtle(Place);
+    public override void Initialize() => Species.InitializeBabyTurtle(Place);
 
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) => Species.RunBabyTurtleMainAi(Place, frame);

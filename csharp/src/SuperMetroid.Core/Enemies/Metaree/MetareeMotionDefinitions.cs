@@ -14,4 +14,7 @@ internal static class MetareeMotionDefinitions
 
     /// <summary>The burrow countdown at which a Metaree bursts into particles.</summary>
     internal const int BurstCountdown = 8;
+
+    /// <summary>How far a burrowing Metaree sinks into the ground each update, in whole pixels (#2375).</summary>
+    internal const int BurrowSpeed = 1;
 }

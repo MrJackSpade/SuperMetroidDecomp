@@ -93,5 +93,6 @@ internal static class PipeBugsNativeWords
     });
 
     /// <summary>The animation-table indexes of a strong Zebbo's or an ordinary Zeb's animations.</summary>
-    internal static NativeWordIdentities<PipeBugSegment> BrinstarAnimations(bool strong) => strong ? ZebboAnimations : ZebAnimations;
+    internal static NativeWordIdentities<PipeBugSegment> BrinstarAnimations(BrinstarPipeBugKind kind) =>
+        kind == BrinstarPipeBugKind.Strong ? ZebboAnimations : ZebAnimations;
 }

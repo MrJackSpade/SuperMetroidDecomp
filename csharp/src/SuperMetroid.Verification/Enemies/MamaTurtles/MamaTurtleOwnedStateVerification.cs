@@ -15,7 +15,7 @@ internal static class MamaTurtleOwnedStateVerification
     /// </summary>
     internal static void VerifyMamaTurtleOwnedState()
     {
-        var state = new MamaTurtleEnemyState(MamaTurtleAction.Initial)
+        var state = new MamaTurtleEnemyState(MamaTurtleAction.Placed)
         {
             Velocity = new(SignedSixteenSixteen.FromParts(2, 0xf800), SignedSixteenSixteen.FromParts(1, 0x2000)),
             XAcceleration = SignedSixteenSixteen.FromParts(0, 0x1000),
@@ -33,19 +33,20 @@ internal static class MamaTurtleOwnedStateVerification
         AssertEqual(SignedSixteenSixteen.FromParts(0, 0), state.Velocity.X, "the carry-in wraps a -1 whole-pixel reversal to zero");
         AssertEqual(SignedSixteenSixteen.FromParts(-1, 0x1000), state.XAcceleration, "the carried reversal skips the acceleration's final increment");
 
-        // Mama links the four babies her room lists right after her when she is placed, wherever she is listed (#1816):
-        // one listed second still finds them on her first step and falls asleep.
+        // Mama links the four babies her room lists right after her when she is placed, wherever she is listed (#1816), and
+        // the last of them, placed after her as a room places them, completes the family (#2375): one listed second still
+        // finds them and falls asleep on her first step.
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        RoomEnemyPlace mama = enemies.Places.InUpdateOrder[1];
+        mama.Bind(EnemyDefinitionId.MamaTurtle, mama.Definition);
+        enemies.MamaTurtleBehavior.InitializeMamaTurtle(mama);
         for (int place = 2; place < 6; place++)
         {
             RoomEnemyPlace baby = enemies.Places.InUpdateOrder[place];
             baby.Bind(EnemyDefinitionId.BabyTurtle, baby.Definition);
             baby.SetSpawnSettings(new BabyTurtleSpawnSettings(Heading: HorizontalDirection.Right));
-            MamaTurtleBehavior.InitializeBabyTurtle(baby);
+            enemies.MamaTurtleBehavior.InitializeBabyTurtle(baby);
         }
-        RoomEnemyPlace mama = enemies.Places.InUpdateOrder[1];
-        mama.Bind(EnemyDefinitionId.MamaTurtle, mama.Definition);
-        enemies.MamaTurtleBehavior.InitializeMamaTurtle(mama);
         var samus = new SuperMetroid.Core.Samus.SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), artwork: global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         enemies.MamaTurtleBehavior.RunMamaTurtleMainAi(mama, new ClockedEnemyAiFrame(
             RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(16, 16)), 0) with { Samus = samus },

@@ -335,7 +335,7 @@ internal static class NativeEnemyFamilyStateImport
                 staggerRole.PostRiseAction == NorfairPipeBugAction.Stagger)
             {
                 norfairPipeBug.Action = NorfairPipeBugAction.Stagger;
-                norfairPipeBug.StaggerOffset = staggerRole.StaggerOffset;
+                norfairPipeBug.Role = staggerRole;
             }
             else if (PipeBugsNativeWords.NorfairPipeBugFlights.TryDecode(words.A, out HorizontalDirection flight))
             {
@@ -785,7 +785,7 @@ internal static class NativeEnemyFamilyStateImport
         if (enemy.DefinitionId == EnemyDefinitionId.Powamp && enemy.SpeciesState<PowampBodyState>() is { } powampBody)
         {
             powampBody.YVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.A), words.B);
-            powampBody.WiggleIndex = Index(words.C, 11, "Powamp wiggle phase");
+            powampBody.Wiggle = PowampWiggle.All[Index(words.C, PowampWiggle.All.Count - 1, "Powamp wiggle phase")];
             powampBody.WiggleTimer = unchecked((short)words.D);
             powampBody.ActionTimer = unchecked((short)words.E);
             powampBody.Action = PowampNativeWords.PowampActions.Decode(words.F, "recorded PowampAction");

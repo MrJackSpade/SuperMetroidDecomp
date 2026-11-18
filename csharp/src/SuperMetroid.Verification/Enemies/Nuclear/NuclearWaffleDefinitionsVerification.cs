@@ -55,20 +55,13 @@ internal static class NuclearWaffleDefinitionsVerification
             initialize(place);
 
             NuclearWaffleEnemyState state = (enemies.NuclearWaffleStates[0] ?? throw new InvalidOperationException("Verification requires enemies.NuclearWaffleStates[0]."));
-            AssertEqual(definition.StartAngle, state.SweepStartAngle,
-                $"Nuclear Waffle production start angle {direction}");
+            // The state holds the sweep its direction runs, endpoints, spacing and turn angles together (#2375).
+            AssertEqual(settings.Direction, state.Direction,
+                $"Nuclear Waffle production direction {direction}");
+            AssertEqual(definition, state.Sweep,
+                $"Nuclear Waffle production sweep {direction}");
             AssertEqual(definition.StartAngle, state.CurrentAngle,
                 $"Nuclear Waffle production current angle {direction}");
-            AssertEqual(definition.EndAngle, state.SweepEndAngle,
-                $"Nuclear Waffle production end angle {direction}");
-            AssertEqual(definition.SegmentSpacing, state.SegmentSpacing,
-                $"Nuclear Waffle production spacing {direction}");
-            AssertEqual(definition.InterleavedSegmentOffset, state.InterleavedSegmentOffset,
-                $"Nuclear Waffle production interleaved offset {direction}");
-            AssertEqual(definition.RisingTurnThreshold, state.RisingTurnThreshold,
-                $"Nuclear Waffle production second threshold {direction}");
-            AssertEqual(definition.FallingTurnThreshold, state.FallingTurnThreshold,
-                $"Nuclear Waffle production first threshold {direction}");
             AssertEqual(new AnimationPlayback<NuclearWaffleSegment>(NuclearWaffleAnimations.StartingWith(NuclearWaffleSegment.BodyLoop), AnimationPlace.StartOfAnimation), state.Playback,
                 $"Nuclear Waffle production initial animation {direction}");
             AssertEqual(4, state.ProjectileLinks.Count,
@@ -111,7 +104,7 @@ internal static class NuclearWaffleDefinitionsVerification
         place.Position = place.Position.WithWhole(new(384, 512));
         enemies.NuclearWaffleBehavior.InitializeNuclearWaffle(place);
         NuclearWaffleEnemyState state = enemies.NuclearWaffleStates[0] ?? throw new InvalidOperationException("Nuclear Waffle has no state.");
-        AssertTrue(state.SweepsForward, "Nuclear Waffle direction one sweeps forward");
+        AssertEqual(NuclearWaffleSweepDirection.Forward, state.Direction, "Nuclear Waffle direction one sweeps forward");
         AssertEqual(SixteenSixteenWords.ToDisplacement(oneUnit + oneUnit / 2), SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(state.AngularSpeed.FractionsOfStep), "Nuclear Waffle speed record 24 is 1.5 units per update");
 
         enemies.NuclearWaffleBehavior.RunNuclearWaffleMainAi(place, Frame());

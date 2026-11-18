@@ -71,7 +71,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case OwtchBehaviorState.Sinking:
-                place.Position = place.Position.WithWrappedWholeY(place.Position.Y.Whole + 1);
+                place.Position = place.Position.WithWrappedWholeY(place.Position.Y.Whole + OwtchMovementDefinitions.BurrowSpeed);
                 // Sinking starts from zero, so the depth stays within one through sixteen.
                 state.BurialDepth++;
                 if (state.BurialDepth >= OwtchMovementDefinitions.MaximumBurialDepth)
@@ -82,7 +82,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case OwtchBehaviorState.Rising:
-                place.Position = place.Position.WithWrappedWholeY(place.Position.Y.Whole - 1);
+                place.Position = place.Position.WithWrappedWholeY(place.Position.Y.Whole - OwtchMovementDefinitions.BurrowSpeed);
                 if (state.RiseOnePixel())
                 {
                     // Surfacing reads the current random number without advancing it.

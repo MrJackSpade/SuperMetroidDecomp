@@ -395,8 +395,8 @@ internal static class NativeSnapshotImport
             {
                 pipe.SpawnPosition = new(words.B, words.C);
                 pipe.RespawnDelay = unchecked((short)words.D);
-                bool strong = runtime.Enemies.Places.InUpdateOrder[index].SpawnSettings<SuperMetroid.Core.Enemies.PipeBugs.BrinstarPipeBugSpawnSettings>().Kind
-                    == SuperMetroid.Core.Enemies.PipeBugs.BrinstarPipeBugKind.Strong;
+                SuperMetroid.Core.Enemies.PipeBugs.BrinstarPipeBugKind kind =
+                    runtime.Enemies.Places.InUpdateOrder[index].SpawnSettings<SuperMetroid.Core.Enemies.PipeBugs.BrinstarPipeBugSpawnSettings>().Kind;
                 pipe.EmergenceTopY = W(NativeSnapshotMemory.EnemyExtra + index * 64);
                 // The game keeps the requested animation beside the installed one and installs a request in the same AI
                 // update, so a record whose two differ fails (#1810). Core keeps only the playing animation (#2145): the
@@ -405,7 +405,7 @@ internal static class NativeSnapshotImport
                 if (words.E != installed)
                     throw new InvalidDataException($"Recorded Pipe Bug {index} requests animation {words.E} while {installed} is installed.");
                 pipe.Playback = pipeBugPointers.PlaybackAt(W(address + MovieDesyncMemory.EnemyAnimationScriptOffset),
-                    PipeBugsNativeWords.BrinstarAnimations(strong).Decode(installed, "recorded Pipe Bug installed animation"));
+                    PipeBugsNativeWords.BrinstarAnimations(kind).Decode(installed, "recorded Pipe Bug installed animation"));
             }
         }
         if (runtime.Enemies.BossEncounters.MotherBrain is not null)

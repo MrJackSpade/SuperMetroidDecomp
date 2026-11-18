@@ -350,7 +350,6 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void FinishMetroidDeath(RoomEnemyPlace place, SamusState samus)
     {
         MetroidEnemyState state = place.RequireSpeciesState<MetroidEnemyState>();
-        state.Velocity = state.Velocity.WithWholeX(0);
         state.Electricity.End();
         state.Shell.End();
         samus.MetroidAttachmentShade = SamusMetroidAttachmentShade.Inactive;

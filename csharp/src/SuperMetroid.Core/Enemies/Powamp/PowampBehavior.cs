@@ -80,11 +80,9 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         PowampSpawnSettings settings = place.SpawnSettings<PowampSpawnSettings>();
         var state = new PowampBodyState(PowampAction.DeflatedResting) { RefusesContact = settings.GrappleTravelDistance != 0 };
         place.SetSpeciesState(state);
-        // The body's balloon is the enemy its room lists before it, whatever occupies that place.
-        // Reject malformed populations instead of accidentally
-        // binding a body to an unrelated actor.
+        // The body's balloon is the enemy its room lists before it, placed before it and checked once as the body is placed.
         _balloons.Place(place, _places.ListedBefore(place, 1));
-        RequirePowampBalloon(place);
+        CheckPowampBalloonPlaced(place);
         state.ActionTimer = PowampMotionDefinitions.RestDuration;
         state.Playback = StartPowampAnimation(place, PowampSegment.BodySlow);
     }
@@ -92,7 +90,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs every action of a Powamp's body; the balloon has none, its body moves it.</summary>
     internal void RunPowampMain(RoomEnemyPlace place, PowampBodyState state, RoomLevelData level, SamusState samus)
     {
-        PowampBalloon balloon = RequirePowampBalloon(place);
+        PowampBalloon balloon = BalloonOf(place);
         switch (state.Action)
         {
             case PowampAction.DeflatedResting:
@@ -191,7 +189,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         AdvancePowampWiggle(body, state, balloon, stop: PowampWiggleStop.Never);
-        bool collided = _terrain.MoveEnemyVertically(level, body, ComposePowampVerticalDisplacement(state));
+        bool collided = _terrain.MoveEnemyVertically(level, body, state.YVelocity);
         int travelDistance = hold == PowampHold.Grappled
             ? balloon.State.GrappleTravelDistance
             : PowampMotionDefinitions.UngrappledRise;
@@ -201,7 +199,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         bool reachedTarget = !CoordinateAxis.Precedes(balloon.State.Spawn.Y - travelDistance, body.Position.Y.Whole);
         if (collided || reachedTarget)
         {
-            if (IsPowampCentered(state.WiggleIndex))
+            if (state.Wiggle.IsCentered)
             {
                 if (hold == PowampHold.Grappled)
                     state.Action = PowampAction.GrappledResting;
@@ -245,7 +243,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             // Finish-wiggle ignores whether the move hit terrain; terrain clips the displacement
             // but does not select another action until the horizontal wiggle is centered.
-            _terrain.MoveEnemyVertically(level, body, ComposePowampVerticalDisplacement(state));
+            _terrain.MoveEnemyVertically(level, body, state.YVelocity);
         }
         AlignPowampBalloonY(body, balloon);
     }
@@ -282,7 +280,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         PowampBalloon balloon,
         RoomLevelData level)
     {
-        _terrain.MoveEnemyVertically(level, body, ComposePowampVerticalDisplacement(state));
+        _terrain.MoveEnemyVertically(level, body, state.YVelocity);
         if (!CoordinateAxis.Precedes(body.Position.Y.Whole, balloon.State.Spawn.Y))
         {
             body.Position = body.Position.WithWholeY(balloon.State.Spawn.Y);
@@ -356,7 +354,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         if (body.Health != 0)
             return;
 
-        PowampBalloon balloon = RequirePowampBalloon(body);
+        PowampBalloon balloon = BalloonOf(body);
         balloon.Place.Presence = balloon.Place.Presence.With(EnemyPresence.Deleted);
         SpawnPowampSpikeBurst(body, lookBeforeTouch);
         body.Shading = EnemyShades.InProjectileLook;
@@ -365,7 +363,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Copies common shot/freeze presentation from the body to its balloon.</summary>
     private void ResolvePowampShotAfterCommon(RoomEnemyPlace body)
     {
-        PowampBalloon balloon = RequirePowampBalloon(body);
+        PowampBalloon balloon = BalloonOf(body);
         if ((body.AiStates & EnemyAiStates.Frozen) != EnemyAiStates.None)
         {
             balloon.Place.FrozenTimer = body.FrozenTimer;
@@ -387,7 +385,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs the paired state propagation after a power bomb hits a Powamp.</summary>
     private void ResolvePowampPowerBombAfterCommon(RoomEnemyPlace body)
     {
-        PowampBalloon balloon = RequirePowampBalloon(body);
+        PowampBalloon balloon = BalloonOf(body);
         if (body.Health == 0)
         {
             balloon.Place.Presence = balloon.Place.Presence.With(EnemyPresence.Deleted);
@@ -412,22 +410,13 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
             return false;
 
         state.WiggleTimer = PowampMotionDefinitions.WiggleStepDuration;
-        if (state.WiggleIndex >= PowampMotionDefinitions.WigglePhaseCount)
-        {
-            throw new InvalidDataException(
-                $"Powamp wiggle index {state.WiggleIndex} exceeds the twelve authored wiggle offsets.");
-        }
-
-        int x = CoordinateAxis.Wrap(
-            balloon.State.Spawn.X + PowampMotion.WiggleOffset(state.WiggleIndex));
+        int x = CoordinateAxis.Wrap(balloon.State.Spawn.X + state.Wiggle.Offset);
         balloon.Place.Position = balloon.Place.Position.WithWholeX(x);
         body.Position = body.Position.WithWholeX(x);
-        if (stop == PowampWiggleStop.WhenCentered && IsPowampCentered(state.WiggleIndex))
+        if (stop == PowampWiggleStop.WhenCentered && state.Wiggle.IsCentered)
             return true;
 
-        state.WiggleIndex++;
-        if (state.WiggleIndex >= PowampMotionDefinitions.WigglePhaseCount)
-            state.WiggleIndex = 0;
+        state.Wiggle = state.Wiggle.Next;
         return false;
     }
 
@@ -453,12 +442,6 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         return --state.ActionTimer <= 0;
     }
 
-    /// <summary>The body's vertical displacement for terrain movement.</summary>
-    private static SignedSixteenSixteen ComposePowampVerticalDisplacement(PowampBodyState state) => state.YVelocity;
-
-    /// <summary>Whether the wiggle stands at its centre, where its offset is zero.</summary>
-    private static bool IsPowampCentered(int wiggleIndex) => PowampMotion.WiggleOffset(wiggleIndex) == 0;
-
     /// <summary>The playback of <paramref name="segment"/>'s animation, restarted on the next animation pass.</summary>
     private static AnimationPlayback<PowampSegment> StartPowampAnimation(RoomEnemyPlace place, PowampSegment segment) =>
         EnemyAnimationPlayback.Start(place, PowampAnimations.StartingWith(segment));
@@ -475,15 +458,21 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
             : throw new InvalidOperationException($"Powamp balloon started body animation {segment}.");
     }
 
-    /// <summary>Requires the balloon the body found when it was placed to be its initialized balloon half.</summary>
-    private PowampBalloon RequirePowampBalloon(RoomEnemyPlace body)
+    /// <summary>Checks, as the body is placed, that the enemy listed before it, placed before it, is its balloon half.</summary>
+    /// <exception cref="InvalidDataException">The body is not listed right after a Powamp balloon.</exception>
+    private void CheckPowampBalloonPlaced(RoomEnemyPlace body)
     {
-        RoomEnemyPlace balloon = _balloons.Of(body);
-        if (balloon.Entity is not PowampBalloonEntity)
+        if (_balloons.Of(body).Entity is not PowampBalloonEntity)
         {
             throw new InvalidDataException(
                 $"Powamp body place {body.Ordinal} is not preceded by its balloon half.");
         }
+    }
+
+    /// <summary>The balloon the body found, and checked, when it was placed.</summary>
+    private PowampBalloon BalloonOf(RoomEnemyPlace body)
+    {
+        RoomEnemyPlace balloon = _balloons.Of(body);
         return new(balloon, balloon.RequireSpeciesState<PowampBalloonState>());
     }
 

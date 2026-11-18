@@ -221,8 +221,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Seeds the beam's colour and zero angular width, then marks its body activated.</summary>
     private void InitializeMorphBallEyeBeamObject()
     {
-        RoomEnemyPlace body = RequireMorphBallEyeBeamBody();
-        MorphBallEyeEnemyState state = body.RequireSpeciesState<MorphBallEyeEnemyState>();
+        MorphBallEyeEnemyState state = BeamEyeState();
 
         MorphBallEyeBeam.Color = MorphBallEyeBeamDefinitions.InitialColor;
         MorphBallEyeBeam.AngularHalfWidth = RotationAngle.Zero;
@@ -251,7 +250,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Cycles the sixteen beam colors while the body stays activated, otherwise begins fading.</summary>
     internal void StepFullMorphBallEyeBeam()
     {
-        MorphBallEyeEnemyState bodyState = (RequireMorphBallEyeBeamBody()).RequireSpeciesState<MorphBallEyeEnemyState>();
+        MorphBallEyeEnemyState bodyState = BeamEyeState();
         if (!bodyState.IsActivated)
         {
             MorphBallEyeBeam.Phase = MorphBallEyeBeamPhase.Deactivating;
@@ -276,18 +275,13 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         MorphBallEyeBeam.FadeOneStep();
     }
 
-    /// <summary>Rejects a beam whose body is missing, of the wrong species, or a mount rather than the eye body.</summary>
-    private RoomEnemyPlace RequireMorphBallEyeBeamBody()
-    {
-        RoomEnemyPlace body = MorphBallEyeBeam.Body
-            ?? throw new InvalidDataException("Morph-ball eye beam has no eye body.");
-        if (body.Entity is not MorphBallEyeEntity)
-        {
-            throw new InvalidDataException(
-                $"Morph-ball eye beam lost its body in enemy place {body.Ordinal}.");
-        }
-        return body;
-    }
+    /// <summary>
+    /// The state of the eye that cast the live beam: the eye that opened, which its request names, so it is an eye body.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The beam steps without the eye that requested it.</exception>
+    private MorphBallEyeEnemyState BeamEyeState() =>
+        (MorphBallEyeBeam.Body ?? throw new InvalidOperationException("The Morph Ball eye beam steps without the eye that cast it."))
+            .RequireSpeciesState<MorphBallEyeEnemyState>();
 
     /// <summary>Advances a beam mount's typed animation: its mount pose, which raises no cue.</summary>
     internal static void AdvanceMorphBallEyeMountTypedAnimation(RoomEnemyPlace place) =>

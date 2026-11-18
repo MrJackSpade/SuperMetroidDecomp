@@ -20,6 +20,10 @@ internal static class MamaTurtleShellContourVerification
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         for (int index = 0; index < MamaTurtleShellContourDefinitions.EntryCount; index++)
         {
+            // The right contour's word for distance zero is never read: an actor at her origin takes the left contour, so
+            // the port keeps no offset for it (#2375); every other word is compared.
+            if (index == MamaTurtleShellContourDefinitions.UnreadRightOfOriginWord)
+                continue;
             int address = MamaTurtleShellContourDefinitions.SourceAddress + index * 2;
             short expected = unchecked((short)rom.ReadCartridgeWord(address));
             AssertEqual(expected, MamaTurtleShellContourDefinitions.GetRawOffset(index),
@@ -44,7 +48,7 @@ internal static class MamaTurtleShellContourVerification
             "Mama Turtle shell contour rejects right distance twenty-four");
 
         var mama = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0200, 0x0200))};
-        var state = new MamaTurtleEnemyState(MamaTurtleAction.Initial) { Asleep = true };
+        var state = new MamaTurtleEnemyState(MamaTurtleAction.Placed) { Asleep = true };
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0, 0)) };
         Action<RoomEnemyPlace, MamaTurtleEnemyState, SamusState> runAsleep = MamaTurtleBehavior.RunMamaTurtleAsleep;
 

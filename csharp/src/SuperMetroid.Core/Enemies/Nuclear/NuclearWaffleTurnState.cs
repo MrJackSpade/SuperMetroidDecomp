@@ -8,8 +8,8 @@ public enum NuclearWaffleTurnState
 {
     /// <summary>Neither threshold crossed; every latch returns here when a new sweep starts.</summary>
     BeforeTurns,
-    /// <summary>Past the rising threshold (<see cref="NuclearWaffleEnemyState.RisingTurnThreshold"/>); the turn queues its sound.</summary>
+    /// <summary>Past the rising threshold (<see cref="NuclearWaffleSweepDefinition.RisingTurnThreshold"/>); the turn queues its sound.</summary>
     PastRisingThreshold,
-    /// <summary>Past the falling threshold (<see cref="NuclearWaffleEnemyState.FallingTurnThreshold"/>); the second turn is silent.</summary>
+    /// <summary>Past the falling threshold (<see cref="NuclearWaffleSweepDefinition.FallingTurnThreshold"/>); the second turn is silent.</summary>
     PastFallingThreshold,
 }

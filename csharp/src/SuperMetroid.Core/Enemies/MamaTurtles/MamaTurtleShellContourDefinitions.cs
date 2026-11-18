@@ -17,10 +17,13 @@ internal static class MamaTurtleShellContourDefinitions
         -8, -7, -6, -5, -4, -4, 0, 0,
     ];
 
-    /// <summary>The shell's surface above an actor right of her origin, by the actor's distance from it, 1 through 23 pixels.</summary>
+    /// <summary>
+    /// The shell's surface above an actor right of her origin, by the actor's distance from it, 1 through 23 pixels; an
+    /// actor at her origin takes <see cref="LeftOfOrigin"/>.
+    /// </summary>
     internal static ReadOnlySpan<int> RightOfOrigin =>
     [
-        -16, -16, -16, -15, -15, -15, -14, -13,
+             -16, -16, -15, -15, -15, -14, -13,
         -12, -11, -10, -9, -8, -7, -6, -5,
         -4, -3, -3, -2, 0, 0, 0, 0,
     ];

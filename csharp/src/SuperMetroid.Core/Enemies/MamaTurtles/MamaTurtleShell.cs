@@ -15,6 +15,6 @@ internal static class MamaTurtleShell
         int distance = Math.Abs(parentMinusActorX);
         if (distance >= HalfWidth)
             throw new ArgumentOutOfRangeException(nameof(parentMinusActorX));
-        return parentMinusActorX < 0 ? RightOfOrigin[distance] : LeftOfOrigin[distance];
+        return parentMinusActorX < 0 ? RightOfOrigin[distance - 1] : LeftOfOrigin[distance];
     }
 }

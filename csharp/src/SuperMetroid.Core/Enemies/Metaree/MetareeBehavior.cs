@@ -150,7 +150,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (state.BurrowTimer == MetareeMotionDefinitions.BurstCountdown)
             SkreeMetareeParticles.SpawnBurst(_projectiles, place, SkreeMetareeParticleSegment.Metaree);
-        place.Position = place.Position.WithWholeY(place.Position.Y.Whole + 1);
+        place.Position = place.Position.WithWholeY(place.Position.Y.Whole + MetareeMotionDefinitions.BurrowSpeed);
     }
 
     /// <summary>Starts <paramref name="animation"/> unless it is the one playing, which keeps playing (#2145).</summary>

@@ -23,4 +23,10 @@ internal static class OwtchMovementDefinitions
     /// underground starts this deep.
     /// </summary>
     internal const int MaximumBurialDepth = 16;
+
+    /// <summary>
+    /// How far a sinking Owtch sinks, or a surfacing one rises, each update, in whole pixels (#2375): one pixel of its burial
+    /// depth.
+    /// </summary>
+    internal const int BurrowSpeed = 1;
 }

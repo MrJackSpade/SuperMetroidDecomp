@@ -64,8 +64,8 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Finds the partners of a part <paramref name="placesAfterHead"/> places after its head. The room lists each
-    /// Magdollite's head, body and overlay in a row; each part finds the others, the enemy listed after it and the two its
-    /// follow-up to a hit reaches. The overlay, placed last, completes the composite, which is checked once then.
+    /// Magdollite's head, body and overlay in a row; each part finds the others and the two enemies its follow-up to a hit
+    /// reaches. The overlay, placed last, completes the composite, which is checked once then.
     /// </summary>
     /// <exception cref="InvalidDataException">The overlay does not follow a head and a body.</exception>
     private void PlaceMagdollitePart(RoomEnemyPlace place, int placesAfterHead)
@@ -74,7 +74,6 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         var composite = new MagdolliteComposite(head, _places.ListedAfter(head, 1), _places.ListedAfter(head, 2));
         _partners.Place(place, new MagdollitePartners(
             Composite: composite,
-            Next: _places.ListedAfterOrNone(place, 1),
             FollowUpRecipients: FollowUpAfterStruckPart.Recipients(distance => _places.ListedAfterOrNone(place, distance), reach: 2)));
         if (place == composite.Overlay &&
             (composite.Head.Entity is not MagdolliteHeadEntity || composite.Body.Entity is not MagdolliteBodyEntity))
@@ -343,15 +342,14 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyPlace body,
         MagdolliteBodyState state)
     {
-        (RoomEnemyPlace speedHead, _, _) = RequireMagdolliteComposite(body);
-        MagdolliteHeadState speedOwner = speedHead.RequireSpeciesState<MagdolliteHeadState>();
-        state.RiseDisplacementY += AddMagdolliteY(body, speedOwner.Speed);
+        (RoomEnemyPlace head, _, _) = RequireMagdolliteComposite(body);
+        MagdolliteHeadState headState = head.RequireSpeciesState<MagdolliteHeadState>();
+        state.RiseDisplacementY += AddMagdolliteY(body, headState.Speed);
 
         if (state.RiseDisplacementY >= 0)
         {
             state.StaysDormant = true;
-            (RoomEnemyPlace head, _, _) = RequireMagdolliteComposite(body);
-            head.RequireSpeciesState<MagdolliteHeadState>().HeadWaitsForBodyLanding = false;
+            headState.HeadWaitsForBodyLanding = false;
             state.Action = MagdolliteBodyAction.Dormant;
             return;
         }
@@ -517,7 +515,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Carries out one cue of a Magdollite part's animations: each private cue the ten
     /// authored animations reference. Every cue runs on to the next step, so none redirects.
     /// </summary>
-    private MagdolliteSegment? ApplyMagdolliteCue(
+    private void ApplyMagdolliteCue(
         RoomEnemyPlace place,
         MagdollitePartState state,
         MagdolliteCue cue,
@@ -542,9 +540,10 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
                 break;
             case MagdolliteCue.MoveWithPillar moveWithPillar:
             {
-                RoomEnemyPlace next = NextMagdollitePlace(place);
+                // Only the head's submerge and emerge raise it, moving the head with the body's pillar.
+                (_, RoomEnemyPlace body, _) = RequireMagdolliteComposite(place);
                 place.Position += moveWithPillar.Offset;
-                next.Position += moveWithPillar.Offset;
+                body.Position += moveWithPillar.Offset;
                 break;
             }
             case MagdolliteCue.Signal { Kind: MagdolliteCueKind.SinkAndShowParts }:
@@ -586,12 +585,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
             default:
                 throw new InvalidOperationException($"Undefined {nameof(MagdolliteCue)} {cue}.");
         }
-        return null;
     }
-
-    /// <summary>The enemy listed after the part, which it found when it was placed, used by the paired pillar cues.</summary>
-    private RoomEnemyPlace NextMagdollitePlace(RoomEnemyPlace place) =>
-        _partners.Of(place).Next ?? throw new InvalidDataException($"Magdollite place {place.Ordinal} has no following component.");
 
     /// <summary>Runs the shared post-combat tail.</summary>
     private void ResolveMagdolliteCombatAfterCommon(RoomEnemyPlace current)
@@ -670,9 +664,11 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         where TState : MagdollitePartState =>
         EnemyAnimationPlayback.Advance(place, MagdolliteAnimations.Segments,
             static (TState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            (state, cue) => ApplyMagdolliteCue(place, state, cue, context.Camera) is { } target
-                ? new AnimationContinuation<MagdolliteSegment>(MagdolliteAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
-                : null);
+            (state, cue) =>
+            {
+                ApplyMagdolliteCue(place, state, cue, context.Camera);
+                return null;
+            });
 
     /// <summary>Propagates common power-bomb death and freezing effects to the composite's following parts.</summary>
     internal EnemyPowerBombReaction MagdollitePowerBombReaction => field ??= new()

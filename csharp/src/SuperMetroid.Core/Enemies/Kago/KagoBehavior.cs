@@ -83,7 +83,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The eleventh, lethal hit still spawns a bug, after Kago's death animation starts. With no place left for the
         // bug, none spawns, and the hit still counts, shakes the room and changes the animation.
-        _ = SpawnKagoBug(place);
+        SpawnKagoBug(place);
     }
 
     /// <summary>Routes bomb hits through common shot AI before applying Kago's quake, counter, and bug spawn.</summary>
@@ -297,12 +297,12 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         AfterCommon = c => ResolveKagoShotAfterCommon(c.Enemy, c.Enemy.RequireSpeciesState<KagoEnemyState>()),
     };
 
-    /// <summary>Spawns and initializes a Kago bug.</summary>
-    internal bool SpawnKagoBug(RoomEnemyPlace source)
+    /// <summary>Spawns and initializes a Kago bug; with no projectile place free, none spawns.</summary>
+    internal void SpawnKagoBug(RoomEnemyPlace source)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
-            return false;
+            return;
 
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
@@ -322,7 +322,6 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         };
         projectile.StartMotion(KagoBugMotion.Waiting);
         projectile.StartAnimation(new KagoBugProjectileAnimation(KagoBugProjectileSegment.Waiting));
-        return true;
     }
 
     /// <summary>

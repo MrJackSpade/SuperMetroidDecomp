@@ -61,18 +61,15 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     /// The powered robots' glow (#2380): the step it shows and the updates that step has left. A room starts it on its last
     /// step, stopped.
     /// </summary>
-    private readonly AnimationPlayer<WorkRobotGlowSegment, WorkRobotGlowStep, NoAnimationCue> _glow =
+    internal readonly AnimationPlayer<WorkRobotGlowSegment, WorkRobotGlowStep, NoAnimationCue> glow =
         AnimationPlayer<WorkRobotGlowSegment, WorkRobotGlowStep, NoAnimationCue>.StartShowing(
             WorkRobotGlowAnimations.Segments, WorkRobotGlowAnimations.Restarted, 1);
 
     /// <summary>Whether the glow runs: a powered robot's setup starts it, and an unpowered robot's stops it.</summary>
     internal bool GlowRuns { get; private set; }
 
-    /// <summary>The updates the glow's step has left before the glow shows its next, while it runs.</summary>
-    internal int UpdatesUntilNextGlowStep => _glow.UpdatesLeft;
-
     /// <summary>The step of the glow every powered robot shows; after the last step the cycle starts again at the first.</summary>
-    internal WorkRobotGlowStep GlowStep => _glow.Showing;
+    internal WorkRobotGlowStep GlowStep => glow.Showing;
 
     /// <summary>The glow every powered robot in the room shows now (#1512).</summary>
     internal PictureShading Glow => PictureShading.Shaded(WorkRobotShades.Glow(GlowStep));
@@ -105,7 +102,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private void RestartGlow()
     {
-        _glow.Show(WorkRobotGlowAnimations.Restarted, 1);
+        glow.Show(WorkRobotGlowAnimations.Restarted, 1);
         GlowRuns = true;
     }
 
@@ -293,7 +290,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!GlowRuns)
             return;
         WorkRobotGlowStep shown = GlowStep;
-        _glow.Step();
+        this.glow.Step();
         // No step of the glow follows itself, so a step that differs from the one shown is the next step, shown now.
         if (GlowStep == shown)
             return;

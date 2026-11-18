@@ -17,9 +17,6 @@ public sealed class SparkEnemyState
     /// <summary>The always-active, intermittent or falling-spark behaviour.</summary>
     public SparkAction Action { get; internal set; }
 
-    /// <summary>The updates the Spark waits between actions when it does not randomize them, from its spawn settings.</summary>
-    public int BaseActionTime { get; internal set; }
-
 
     /// <summary>
     /// The countdown to the Spark's next action, from its base time: the update whose step would reach zero expires it.

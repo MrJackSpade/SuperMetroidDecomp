@@ -52,12 +52,13 @@ internal static class ShutterNativeArc
     {
         var scenario = ShutterBombArcScenario.Reproduced(RepositoryInstallation.CreateRuntime(playerInvincibilityEnabled: true));
         var shutter = scenario.Runtime.Room.LoadedScope.Enemies.VerticalShutterStates[0];
+        ShutterSpawnSettings settings = scenario.Runtime.Room.LoadedScope.Enemies.Places.InUpdateOrder[0].SpawnSettings<ShutterSpawnSettings>();
         for (int frame = 0; frame < ShutterBombArcScenario.FrameCount; frame++)
         {
             scenario.Runtime.StepFrame(scenario.Input(frame), new RuntimeFrameRequest());
             if (frame >= ShutterBombArcScenario.FirstArcFrame)
                 Console.WriteLine($"frame {frame}: {scenario.ArcRow(frame)} pose={(int)SamusPoseNumbers.Number(scenario.Samus.Pose):X2} " +
-                    $"shutter={ShutterArcNativeWords.Action((shutter ?? throw new InvalidOperationException("Verification requires shutter.")).Action):X4} up={ShutterArcNativeWords.Rest(shutter.MovedUpRest):X4} down={ShutterArcNativeWords.Rest(shutter.MovedDownRest):X4} " +
+                    $"shutter={ShutterArcNativeWords.Action((shutter ?? throw new InvalidOperationException("Verification requires shutter.")).Action):X4} up={ShutterArcNativeWords.Rest(settings.RestAfterMovingUp):X4} down={ShutterArcNativeWords.Rest(settings.RestAfterMovingDown):X4} " +
                     $"rev={shutter.ReactionDirection} act={(shutter.ShotActivated ? 1 : 0):X4}");
         }
         return 0;
@@ -145,13 +146,16 @@ internal static class ShutterNativeArc
             Word(0xF84 + offset, place.Radius.Y); Word(0xF86 + offset, 0x8000);
         }
         var shutter = runtime.Room.LoadedScope.Enemies.VerticalShutterStates[0];
+        RoomEnemyPlace shutterPlace = runtime.Room.LoadedScope.Enemies.Places.InUpdateOrder[0];
+        ShutterSpawnSettings settings = shutterPlace.SpawnSettings<ShutterSpawnSettings>();
+        SignedSixteenSixteen upward = ShuttersBehavior.VerticalShutterVelocity(shutterPlace, VerticalDirection.Up);
         Word(0xFA8, ShutterArcNativeWords.Action((shutter ?? throw new InvalidOperationException("Verification requires shutter.")).Action));
-        Word(0xFB0, shutter.VelocityToward(VerticalDirection.Up).Fraction); Word(0xFB2, shutter.VelocityToward(VerticalDirection.Up).UnsignedWholePixels);
-        Word(0xFAC, shutter.Speed.Fraction); Word(0xFAE, shutter.Speed.UnsignedWholePixels);
-        Word(0x780E, ShutterTriggerModeCodec.ToNativeOffset(shutter.TriggerMode)); Word(0x7818, shutter.ShotActivated ? 1 : 0);
-        Word(0x7812, ShutterArcNativeWords.Rest(shutter.MovedDownRest)); Word(0x7820, shutter.LowerEndpointY);
-        Word(0x8000, shutter.ReactionDirection == ShutterHeading.LeftOrUp ? 0 : 1);
-        Word(0x781E, shutter.UpperEndpointY); Word(0x7810, ShutterArcNativeWords.Rest(shutter.MovedUpRest));
+        Word(0xFB0, upward.Fraction); Word(0xFB2, upward.UnsignedWholePixels);
+        Word(0xFAC, settings.Speed.Fraction); Word(0xFAE, settings.Speed.UnsignedWholePixels);
+        Word(0x780E, ShutterTriggerModeCodec.ToNativeOffset(settings.TriggerMode)); Word(0x7818, shutter.ShotActivated ? 1 : 0);
+        Word(0x7812, ShutterArcNativeWords.Rest(settings.RestAfterMovingDown)); Word(0x7820, shutter.LowerEndpointY);
+        Word(0x8000, shutter.ReactionDirection == VerticalDirection.Up ? 0 : 1);
+        Word(0x781E, shutter.UpperEndpointY); Word(0x7810, ShutterArcNativeWords.Rest(settings.RestAfterMovingUp));
         File.WriteAllBytes(path, ram);
 
         void Word(int address, int value) => BinaryPrimitives.WriteUInt16LittleEndian(ram.AsSpan(address, 2), unchecked((ushort)value));

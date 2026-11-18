@@ -118,13 +118,14 @@ internal static class EnemyQuadraticSpeedsVerification
             int speed = EnemySpeedTableCodec.QuadraticSpeedToward(cartridge, EnemySpeedTableCodec.QuadraticTable, row, sign).RawValue;
             maw.Extension = SixteenSixteenWords.ToDisplacement(unchecked((int)start));
             maw.SpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(row);
-            maw.QuadraticSpeedSign = sign;
+            maw.CurlPhase = sign == EnemySpeedSign.Negative ? YappingMawCurlPhase.Retracting : YappingMawCurlPhase.Extending;
             mawAdditions++;
             uint expected = unchecked(start + (uint)speed);
             addMaw(maw);
             AssertEqual(expected, unchecked((uint)maw.Extension.RawValue), "Yapping Maw real split-word integration");
             AssertEqual(QuadraticSpeedCurvePlace.FromMarks(row + 1), maw.SpeedCurvePlace, "Yapping Maw row advance");
-            AssertEqual(sign, maw.QuadraticSpeedSign, "Yapping Maw speed sign held across the addition");
+            AssertEqual(sign == EnemySpeedSign.Negative ? YappingMawCurlPhase.Retracting : YappingMawCurlPhase.Extending, maw.CurlPhase,
+                "Yapping Maw curl phase held across the addition");
         }
         Console.WriteLine("Compiled quadratic speeds: all 95 rows and their coarse speeds match both cartridge copies.");
         Console.WriteLine("Projectile quadratic copy: 570 real Polyp integrations match, including subpixel carry/wrap, without a loaded bus.");

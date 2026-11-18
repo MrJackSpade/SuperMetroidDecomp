@@ -19,6 +19,12 @@ public sealed class RioEnemyState
     /// <summary>The Rio's velocity in 256ths of a pixel an update, positive right and down.</summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
 
-    /// <summary>Whether its animation has finished: set by the animation's finishing cue and cleared as its main AI moves on.</summary>
+    /// <summary>
+    /// Whether its swoop's opening or its cooldown animation has finished: set by the animation's finishing cue and cleared
+    /// as its main AI moves on. It stays a mark beside the action rather than a phase of it (#2450): a wall or floor can
+    /// turn the dive into its rebound before the opening the dive waits for has finished, or on the update after; the
+    /// opening's finish then carries through the rebound and, as the Rio lands, ends its wait for the cooldown animation
+    /// at once.
+    /// </summary>
     public bool AnimationFinished { get; internal set; }
 }

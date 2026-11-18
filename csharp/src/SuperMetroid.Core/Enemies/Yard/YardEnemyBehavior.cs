@@ -115,7 +115,6 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             // first-frame hide can bypass it and keeps the first direction.
             Direction = YardDirection.UpsideRightMovingUp,
             Behavior = YardBehavior.NormalCrawling,
-            IdleCrawlSpeed = settings.CrawlSpeed,
             CrawlSpeed = settings.CrawlSpeed,
         };
         place.SetSpeciesState(state);
@@ -265,7 +264,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         bool movesVertically = YardDirections.IsOnWall(state.Crawl);
         YardTurnDefinition turn = YardTurns.ForCrawl(
             state.Crawl,
-            state.TurnTransitionDisabled);
+            state.TurnsSuppressed);
 
         // The lookahead offset is temporary, but the normal-axis probe movement is not.
         // Adds the offset, performs collision/alignment, then subtracts only the
@@ -306,7 +305,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         if (movesVertically)
         {
             bool slopeAdjusted = EnemyTerrain.AlignEnemyYWithNonSquareSlopeAndReportAdjustment(level, place);
-            HandleYardTurnTransitionDisabling(state, slopeAdjusted);
+            CountYardTurnSuppressionPass(state, slopeAdjusted);
             SignedSixteenSixteen tangent = state.CrawlingVelocity.Y.ToSixteenSixteenDelta();
             if (_terrain.MoveEnemyVertically(level, place, tangent))
             {
@@ -334,28 +333,22 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         bool adjusted = EnemyTerrain.AlignEnemyYWithNonSquareSlopeAndReportAdjustment(level, place);
-        HandleYardTurnTransitionDisabling(state, adjusted);
+        CountYardTurnSuppressionPass(state, adjusted);
     }
 
-    /// <summary>Keeps turn transitions disabled on a slope adjustment and reenables them after sixteen clear passes.</summary>
-    private static void HandleYardTurnTransitionDisabling(
+    /// <summary>Suppresses turns again on a slope adjustment, and otherwise counts one slope-free pass toward turning again.</summary>
+    private static void CountYardTurnSuppressionPass(
         YardEnemyState state,
         bool slopeAdjusted)
     {
         if (slopeAdjusted)
         {
-            state.TurnTransitionDisabled = true;
-            state.TurnTransitionDisableCounter = 0;
+            state.SuppressTurns();
             return;
         }
 
-        int next = state.TurnTransitionDisableCounter + 1;
-        if (next >= YardMotionDefinitions.TurnSuppressionPasses)
-        {
-            state.TurnTransitionDisabled = false;
-            return;
-        }
-        state.TurnTransitionDisableCounter = next;
+        if (state.TurnsSuppressed)
+            state.TurnSuppressionPassesLeft--;
     }
 
     /// <summary>Starts a turn animation immediately and resets the temporary turn suppression counter.</summary>
@@ -366,8 +359,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         state.Playback = new(YardAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
         place.AnimationClock.StepOnNextUpdate();
-        state.TurnTransitionDisabled = true;
-        state.TurnTransitionDisableCounter = 0;
+        state.SuppressTurns();
     }
 
     /// <summary>Runs the common detach path.</summary>
@@ -422,8 +414,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         state.AirborneVelocity = FixedVector<RoomPixels>.Zero;
         state.ConsecutiveTurnCounter = 0;
-        state.TurnTransitionDisableCounter = 0;
-        state.TurnTransitionDisabled = true;
+        state.SuppressTurns();
 
         if (state.Behavior == YardBehavior.Dropped)
         {
@@ -495,8 +486,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         SetYardCrawlingVelocities(state, state.Direction);
         state.Movement = YardMovement.Crawling;
         state.Crawl = definition.Crawl;
-        state.TurnTransitionDisabled = true;
-        state.TurnTransitionDisableCounter = 0;
+        state.SuppressTurns();
         return true;
     }
 
@@ -572,7 +562,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         _collision.ResolveNormalEnemyTouch(place, samus, pseudoScrew);
-        state.CrawlSpeed = state.IdleCrawlSpeed;
+        state.CrawlSpeed = place.SpawnSettings<YardSpawnSettings>().CrawlSpeed;
         if (state.Behavior != YardBehavior.NormalCrawling)
             TurnYardAround(state);
         state.Behavior = YardBehavior.NormalCrawling;

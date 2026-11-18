@@ -35,20 +35,16 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     internal static void InitializeWallSpacePirate(RoomEnemyPlace place)
     {
         WallSpacePirateSpawnSettings settings = place.SpawnSettings<WallSpacePirateSpawnSettings>();
-        var state = new WallSpacePirateEnemyState(WallSpacePirateAction.Climbing, settings.Wall);
+        // Angles are 256ths of a turn. A slow jump turns two steps a frame for 63 frames; a fast one turns four steps a
+        // frame for 32 frames, to endpoints two steps further round.
+        var state = new WallSpacePirateEnemyState(WallSpacePirateAction.Climbing, settings.Wall,
+            settings.JumpsSlowly ? SpacePirateMotionDefinitions.SlowWallJump : SpacePirateMotionDefinitions.FastWallJump);
         place.SetSpeciesState(state);
 
         state.Playback = new(WallSpacePirateAnimations.StartingWith(settings.Wall == HorizontalDirection.Right
             ? WallSpacePirateSegment.MovingDownRightWall
             : WallSpacePirateSegment.MovingDownLeftWall), AnimationPlace.StartOfAnimation);
         state.ClimbDirection = WallSpacePirateClimbDirection.Down;
-
-        // Angles are 256ths of a turn. A slow jump turns two steps a frame for 63 frames; a fast one turns four steps a
-        // frame for 32 frames, to endpoints two steps further round.
-        WallSpacePirateJump jump = settings.JumpsSlowly ? SpacePirateMotionDefinitions.SlowWallJump : SpacePirateMotionDefinitions.FastWallJump;
-        state.RightJumpTargetAngle = jump.RightTarget;
-        state.LeftJumpTargetAngle = jump.LeftTarget;
-        state.JumpAngleDelta = jump.StepsPerUpdate;
 
         SnapWallSpacePirateXToWallGrid(place);
     }
@@ -98,8 +94,8 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         HorizontalDirection direction)
     {
         PositionWallSpacePirateOnArc(place, state);
-        state.WallJumpArcAngle = state.WallJumpArcAngle.TurnedBySteps(direction == HorizontalDirection.Right ? -state.JumpAngleDelta : state.JumpAngleDelta);
-        if (state.WallJumpArcAngle != (direction == HorizontalDirection.Right ? state.RightJumpTargetAngle : state.LeftJumpTargetAngle))
+        state.WallJumpArcAngle = state.WallJumpArcAngle.TurnedBySteps(direction == HorizontalDirection.Right ? -state.Jump.StepsPerUpdate : state.Jump.StepsPerUpdate);
+        if (state.WallJumpArcAngle != (direction == HorizontalDirection.Right ? state.Jump.RightTarget : state.Jump.LeftTarget))
             return;
 
         StartWallSpacePirateAnimation(

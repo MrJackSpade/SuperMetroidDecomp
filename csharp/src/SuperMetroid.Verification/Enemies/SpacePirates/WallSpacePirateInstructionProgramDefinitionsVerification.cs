@@ -143,7 +143,7 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
         {
             (RoomEnemySystem enemies, RoomEnemyPlace place,
                 WallSpacePirateEnemyState state, SamusState samus) = CreateSystem();
-            AssertEqual(4, state.JumpAngleDelta, "the fixture Pirate makes fast jumps");
+            AssertEqual(SpacePirateMotionDefinitions.FastWallJump, state.Jump, "the fixture Pirate makes fast jumps");
             RotationAngle start = jumpingRight ? RotationAngle.QuarterTurn : RotationAngle.ThreeQuarterTurn;
             WallSpacePirateSegment landing = jumpingRight
                 ? WallSpacePirateSegment.LandedOnRightWall

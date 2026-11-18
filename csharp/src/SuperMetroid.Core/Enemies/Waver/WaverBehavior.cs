@@ -30,8 +30,10 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             case WaverCueKind.FinishSpin:
                 // The four-frame spin hands its completion back to main AI rather than
-                // going on to the steady animation itself.
-                state.SpinFinished = true;
+                // going on to the steady animation itself (#2450).
+                if (state.Action != WaverAction.Spinning)
+                    throw new InvalidOperationException($"A Waver's spin finished while it was {state.Action}.");
+                state.Action = WaverAction.SpinFinished;
                 return;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(WaverCueKind)} {cue.Kind}.");
@@ -46,7 +48,7 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             Facing = facing,
             Angle = RotationAngle.Zero,
-            SpinFinished = false,
+            Action = WaverAction.Gliding,
         };
         place.SetSpeciesState(state);
 
@@ -62,6 +64,8 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
         WaverEnemyState state,
         RoomLevelData level)
     {
+        // A finished spin gives way to the steady pose at the end of this update, whatever the flight does first.
+        bool spinFinished = state.Action == WaverAction.SpinFinished;
         SignedSixteenSixteen horizontalDisplacement = state.XVelocity;
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
@@ -94,18 +98,21 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
             SetWaverAnimation(place, state, WaverAnimationChoices.Spinning(state.Facing));
         }
 
-        // The spin animation sets this flag after 32 animation frames. Main AI owns
+        // The spin animation finishes after 32 animation frames. Main AI owns
         // the return to steady art, matching the cue/AI seam rather than timing it here.
-        if (state.SpinFinished)
-        {
-            state.SpinFinished = false;
+        if (spinFinished)
             SetWaverAnimation(place, state, WaverAnimationChoices.Steady(state.Facing));
-        }
     }
 
-    /// <summary>Starts a changed facing or spin animation and restarts its frame timer (#2145).</summary>
-    internal static void SetWaverAnimation(RoomEnemyPlace place, WaverEnemyState state, WaverSegment segment) =>
+    /// <summary>
+    /// Starts a changed facing or spin animation and restarts its frame timer (#2145); the Waver spins while a spin plays
+    /// and glides while a steady pose shows (#2450).
+    /// </summary>
+    internal static void SetWaverAnimation(RoomEnemyPlace place, WaverEnemyState state, WaverSegment segment)
+    {
         state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, WaverAnimations.StartingWith(segment));
+        state.Action = WaverAnimationChoices.IsSpin(segment) ? WaverAction.Spinning : WaverAction.Gliding;
+    }
 
     /// <summary>Runs Waver's main AI.</summary>
     internal void RunWaverMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)

@@ -43,9 +43,9 @@ internal static class SkulteraBehaviorVerification
             int[] holds = [13, 10, 8, 6, 6, 8, 10, 13];
             AssertEqual(EnemyInstructionRunner.ExpectedFrames(SkulteraAnimationsConstants.Spritemaps(turn), holds),
                 EnemyInstructionRunner.ShownFrames(place, holds.Sum()), $"Skultera {turn} poses");
-            AssertTrue(!state.TurnFinished, $"Skultera {turn} is unfinished while its last pose holds");
+            AssertEqual(SkulteraAction.Turning, state.Action, $"Skultera {turn} is unfinished while its last pose holds");
             EnemyInstructionRunner.ShownFrames(place, 1);
-            AssertTrue(state.TurnFinished, $"Skultera {turn} flags the turn finished");
+            AssertEqual(SkulteraAction.TurnFinished, state.Action, $"Skultera {turn} finishes the turn");
         }
         Console.WriteLine("  Skultera behavior: both swims with their layers and both turns with their completion cue pass.");
     }

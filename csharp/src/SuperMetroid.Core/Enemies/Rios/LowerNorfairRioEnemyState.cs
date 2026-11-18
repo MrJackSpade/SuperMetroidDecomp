@@ -13,7 +13,13 @@ public sealed class LowerNorfairRioEnemyState
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<LowerNorfairRioSegment> Playback { get; set; }
 
-    /// <summary>Set by a private animation cue.</summary>
+    /// <summary>
+    /// Whether its wind-up, its ascent's opening or its cooldown animation has finished: set by the animation's finishing
+    /// cue and cleared as its main AI moves on. It stays a mark beside the action rather than a phase of it (#2450): the
+    /// ascent's opening can finish on the update before the Rio lands, which carries the finish into its wait for the
+    /// cooldown animation and ends that wait at once; the cooldown animation, still playing then, can finish while the Rio
+    /// waits for Samus, and an attack it starts on its next update then takes off at once.
+    /// </summary>
     public bool AnimationSignal { get; internal set; }
 
     /// <summary>

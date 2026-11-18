@@ -3,7 +3,8 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 
 /// <summary>
 /// The state of a growing shutter: its behaviour, its spawn row and growth direction, from which its four 16-pixel growth
-/// sections' origins follow, its growth level and its extended movement state.
+/// sections' origins follow, its growth level and its extended movement state. It reads how near Samus must come and how
+/// fast it grows from its spawn settings where it uses them (#2450).
 /// </summary>
 public sealed class GrowingShutterEnemyState
 {
@@ -45,9 +46,6 @@ public sealed class GrowingShutterEnemyState
     /// </summary>
     public int ActivationTimer { get; internal set; }
 
-    /// <summary>The proximity-mode distance in pixels: the shutter activates once Samus is horizontally within it.</summary>
-    public int ActivationDistance { get; internal set; }
-
     /// <summary>
     /// The origin row of the section grown at <paramref name="level"/>, derived from the spawn row (#2183): level 0 is the
     /// spawn row and each later level is eight pixels further along the growth direction. Every placement grows down
@@ -65,9 +63,6 @@ public sealed class GrowingShutterEnemyState
         get;
         internal set => field = Ensure.BetweenInclusive(0, SectionCount, value);
     }
-
-    /// <summary>Positive growth speed in pixels per update; upward growth applies its exact negation.</summary>
-    public SignedSixteenSixteen GrowthSpeed { get; internal set; }
 
     /// <summary>
     /// The shutter's whole-pixel row immediately before its current upward move, used to derive Samus's carry (#2178): it

@@ -76,7 +76,13 @@ internal static class SkreeMetareeBehaviorVerification
         }
         SkreeBehavior.InitializeSkree(place);
         SkreeEnemyState skree = enemies.SkreeStates[0] ?? throw new InvalidOperationException("Skree has no state.");
-        return new SkreeMetareeBehaviorCreateResult(enemies, place, () => skree.Playback, program => Restart(place, () => skree.Playback = new(SkreeMetareeAnimations.StartingWith(program), AnimationPlace.StartOfAnimation)), () => skree.AttackReady);
+        // The Skree winds up as its AI starts the wind-up, and the wind-up's cue readies its dive (#2450).
+        return new SkreeMetareeBehaviorCreateResult(enemies, place, () => skree.Playback, program => Restart(place, () =>
+        {
+            skree.Playback = new(SkreeMetareeAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
+            if (program == SkreeMetareeSegment.SkreePreparingAttack)
+                skree.Action = SkreeAction.PreparingAttack;
+        }), () => skree.Action == SkreeAction.AttackReady);
     }
 
     /// <summary>Starts an animation with both instruction clocks reset, as the species' install routines do.</summary>

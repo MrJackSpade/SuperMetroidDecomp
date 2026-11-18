@@ -56,12 +56,24 @@ public sealed class YardEnemyState
     /// compatibility services describe; a downward collision lands it while it falls less than three pixels an update.
     /// </summary>
     public FixedVector<RoomPixels> AirborneVelocity { get; internal set; }
-    /// <summary>Slope/turn cooldown counter, 0 through 15, reset by adjustment or turning; an unadjusted crawl call whose increment reaches 16 reenables transitions without storing that increment.</summary>
-    public int TurnTransitionDisableCounter { get; internal set; }
-    /// <summary>Flag selecting the turn-disabled corner-probe definitions, set after slope alignment, a turn, or landing and cleared by the crawl cooldown.</summary>
-    public bool TurnTransitionDisabled { get; internal set; }
-    /// <summary>The placement's crawl speed, restored after ordinary touch in place of the aggressive post-kick speed.</summary>
-    public SignedEightEight IdleCrawlSpeed { get; internal set; }
+    /// <summary>
+    /// The slope-free crawl passes left before the Yard may turn at a corner again, the one that frees it included
+    /// (#2450): a slope alignment, a turn or a landing starts <see cref="YardMotionDefinitions.TurnSuppressionPasses"/> of
+    /// them, each unadjusted crawl pass uses one, and none left lets it turn. The game keeps a flag beside a count of the
+    /// passes made; the passes left say both.
+    /// </summary>
+    public int TurnSuppressionPassesLeft
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, YardMotionDefinitions.TurnSuppressionPasses, value);
+    }
+
+    /// <summary>Whether the Yard may not yet turn at a corner, crawling past it instead (<see cref="TurnSuppressionPassesLeft"/>).</summary>
+    internal bool TurnsSuppressed => TurnSuppressionPassesLeft > 0;
+
+    /// <summary>Starts a whole run of slope-free passes before the Yard may turn again.</summary>
+    internal void SuppressTurns() => TurnSuppressionPassesLeft = YardMotionDefinitions.TurnSuppressionPasses;
+
     /// <summary>The live crawl speed: the placement's, or the aggressive speed while crawling aggressively after a landing.</summary>
     public SignedEightEight CrawlSpeed { get; internal set; }
     /// <summary>The live surface direction; only direction cues or turns publish it.</summary>

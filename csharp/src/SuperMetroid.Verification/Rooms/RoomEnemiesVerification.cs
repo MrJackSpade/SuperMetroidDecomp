@@ -514,13 +514,13 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
         ?? throw new InvalidOperationException("The initialized Ripper has no state.");
     AssertEqual(new AnimationPlayback<RipperSegment>(RipperAnimations.StartingWith(RipperSegment.RipperMovingRight), AnimationPlace.StartOfAnimation),
         ripperState.Playback, "Ripper init right animation");
-    AssertEqual(1, ripperState.XVelocity.UnsignedWholePixels, "Ripper init signed whole X velocity");
-    AssertEqual(0, ripperState.XVelocity.Fraction, "Ripper init X subvelocity");
+    AssertEqual(1, RipperBehavior.FlyingVelocity(ripper, ripperState).UnsignedWholePixels, "Ripper init signed whole X velocity");
+    AssertEqual(0, RipperBehavior.FlyingVelocity(ripper, ripperState).Fraction, "Ripper init X subvelocity");
 
     for (int frame = 0; frame < 9; frame++)
         enemies.StepStandaloneFrame(enemies.StandaloneFrame(level) with { Camera = new(0, 0), TimeIsFrozen = false });
     AssertEqual(88, ripper.Position.X.Whole, "Ripper wall-aligned reversal X");
-    AssertEqual(0xffff, ripperState.XVelocity.UnsignedWholePixels, "Ripper reversal signed whole X velocity");
+    AssertEqual(0xffff, RipperBehavior.FlyingVelocity(ripper, ripperState).UnsignedWholePixels, "Ripper reversal signed whole X velocity");
     AssertEqual(0xe527, ripper.SpritemapPointer, "Ripper reversal selects left-facing frame");
 
     // WriteEnemyOAM `$A0:947B` applies enemy shake to the shared ordinary-spritemap origin: the reversed frame drawn

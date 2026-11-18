@@ -105,9 +105,10 @@ internal static class CrystalFlashCleanupVerification
                 // zero-only RNG would hang native-style drop selection on death.
                 var contactBus = new CrystalFlashContactPopulation(bus, samus.Position.Whole);
                 runtime.ReplaceRoomEnemiesForVerification(contactBus, new StandaloneRoomEnemyServices(() => 1), RoomEnemyFrameFixtures.StandaloneLoad(contactBus.ReadEnemyPopulation(CrystalFlashContactDefinitions.Pointer), BgArtworkFixtures.For(runtime.Vram), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), samus));
+                // Its placement selects the standing-still speed, so it stays at the contact position (#2450).
                 contactEnemy = runtime.Enemies.Places.InUpdateOrder[0];
-                (contactEnemy.SpeciesState<RipperEnemyState>()
-                    ?? throw new InvalidOperationException("The contact Ripper has no state.")).Speeds = new EnemyLinearSpeed(SignedSixteenSixteen.Zero);
+                AssertEqual(SignedSixteenSixteen.Zero, contactEnemy.SpawnSettings<RipperSpawnSettings>().Speed,
+                    "the contact Ripper's placement holds it still");
                 // Contact runs before AI publishes its first map. Seed that same
                 // authored map so this fixture tests contact on this exact frame.
                 contactEnemy.SpritemapPointer = RipperAnimationsConstants.Spritemaps(

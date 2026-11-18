@@ -57,8 +57,8 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             AnimationSignal = false,
             FollowerYOffset = 0,
+            Flames = NorfairRioFlames.Ascending,
             Playback = new(NorfairRioAnimations.StartingWith(NorfairRioSegment.Idle), AnimationPlace.StartOfAnimation),
-            Idles = true,
         });
     }
 
@@ -177,6 +177,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                 break;
             case NorfairRioCue.PlaceFlames placeFlames:
                 state.FollowerYOffset = placeFlames.Below;
+                state.Flames = placeFlames.Flames;
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(NorfairRioCue)} {cue}.");
@@ -205,11 +206,14 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        // The follower's spawn reads the parent's own state: its playing animation and its signed
-        // follower Y offset. Its drawing position follows the parent's live position.
-        NorfairRioSegment followerList = parentState.FollowerYOffset < 0
-            ? NorfairRioSegment.FlamesDescending
-            : NorfairRioSegment.FlamesAscending;
+        // The follower reads the parent's own state: the flames it placed and where. Its drawing position follows the
+        // parent's live position.
+        NorfairRioSegment followerList = parentState.Flames switch
+        {
+            NorfairRioFlames.Descending => NorfairRioSegment.FlamesDescending,
+            NorfairRioFlames.Ascending => NorfairRioSegment.FlamesAscending,
+            _ => throw new InvalidOperationException($"Undefined {nameof(NorfairRioFlames)} {parentState.Flames}."),
+        };
         StartNorfairRioAnimation(follower, followerState, followerList);
         follower.Presence = follower.Presence.Without(EnemyPresence.Hidden);
         follower.Position = follower.Position.WithWhole(parent.Position.Whole + new Offset16<RoomPixels>(0, parentState.FollowerYOffset));
@@ -243,12 +247,9 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Returns a parent to its idle animation, restarting it only when it changes (#2145), and hides its flames (#2168).</summary>
-    private static void RestNorfairRio(RoomEnemyPlace place, NorfairRioEnemyState state)
-    {
+    /// <summary>Returns a parent to its idle animation, restarting it only when it changes (#2145), which hides its flames (#2168).</summary>
+    private static void RestNorfairRio(RoomEnemyPlace place, NorfairRioEnemyState state) =>
         state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, NorfairRioAnimations.StartingWith(NorfairRioSegment.Idle));
-        state.Idles = true;
-    }
 
     /// <summary>
     /// Starts one of a parent's swoop animations, restarting it only when it changes (#2145); its flames show while it
@@ -257,11 +258,8 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void StartNorfairRioSwoopAnimation(
         RoomEnemyPlace place,
         NorfairRioEnemyState state,
-        NorfairRioSegment segment)
-    {
+        NorfairRioSegment segment) =>
         state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, NorfairRioAnimations.StartingWith(segment));
-        state.Idles = false;
-    }
 
     /// <summary>Restarts a flame follower's animation only when it changes (#2145).</summary>
     private static void StartNorfairRioAnimation(

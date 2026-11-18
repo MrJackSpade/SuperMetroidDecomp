@@ -42,7 +42,7 @@ internal static class ShutterBehaviorVerification
                     ((IEnemyInitialization)(place.Entity ?? throw new InvalidOperationException("Verification requires a bound shutter."))).Initialize();
                     VerticalShutterEnemyState state = place.SpeciesState<VerticalShutterEnemyState>()
                         ?? throw new InvalidOperationException("Verification requires the vertical shutter state.");
-                    AssertEqual(ShuttersBehavior.InitialAction(state.TriggerMode), state.Action,
+                    AssertEqual(ShuttersBehavior.InitialAction(place.SpawnSettings<ShutterSpawnSettings>().TriggerMode), state.Action,
                         $"shutter {definition} starts in its trigger's initial action (#2075)");
                 },
                 enemies => enemies.Places.InUpdateOrder[0].EntityState<ShuttersEntity, VerticalShutterEnemyState>()?.Playback);
@@ -198,9 +198,9 @@ internal static class ShutterBehaviorVerification
             AssertEqual(expectedLowerY, state.LowerEndpointY, $"{context}: lower endpoint");
             SignedSixteenSixteen down = EnemyLinearSpeedTable.Speed(speedIndex);
             SignedSixteenSixteen up = -down;
-            AssertEqual(down, state.VelocityToward(VerticalDirection.Down),
+            AssertEqual(down, ShuttersBehavior.VerticalShutterVelocity(place, VerticalDirection.Down),
                 $"{context}: downward velocity is the speed record's first entry");
-            AssertEqual(up, state.VelocityToward(VerticalDirection.Up),
+            AssertEqual(up, ShuttersBehavior.VerticalShutterVelocity(place, VerticalDirection.Up),
                 $"{context}: upward velocity is the speed record's second entry");
         }
     }

@@ -88,7 +88,6 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             Action = YappingMawAction.WaitingForSamus,
             Origin = place.Position.Whole,
-            ActivationDistance = place.SpawnSettings<YappingMawSpawnSettings>().ActivationDistance,
             RetractedDelayTimer = YappingMawAttackDefinitions.RetractedHold,
             Links = [.. bodies.Select(body => new YappingMawLink(body))],
             // The root's kind follows the Maw's attack direction; the Maw holds the root it spawned.
@@ -121,7 +120,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (state.Action)
         {
             case YappingMawAction.WaitingForSamus:
-                WaitForSamusWithYappingMaw(state, samus);
+                WaitForSamusWithYappingMaw(place, state, samus);
                 break;
             case YappingMawAction.BeginExtension:
                 BeginYappingMawExtension(place, state);
@@ -147,6 +146,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Waits for Samus, including the deliberately approximate distance check.</summary>
     private static void WaitForSamusWithYappingMaw(
+        RoomEnemyPlace place,
         YappingMawEnemyState state,
         SamusState samus)
     {
@@ -163,7 +163,10 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        if (!state.IsWithinActivationDistance(distance))
+        // An attack starts only strictly inside the placement's activation distance (#2450): every authored Maw's lies
+        // between 48 and 128 pixels, and the target distance is at most 32768, so the two never lie far enough apart for
+        // the plain comparison to differ from the game's.
+        if (distance >= place.SpawnSettings<YappingMawSpawnSettings>().ActivationDistance)
             return;
 
         // The game skips the assignment for a shorter target. Inflating a short
@@ -180,7 +183,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         state.Extension = SignedSixteenSixteen.Zero;
         state.SpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
-        state.QuadraticSpeedSign = EnemySpeedSign.Positive;
+        state.CurlPhase = YappingMawCurlPhase.Extending;
         state.SegmentRadius = state.DistanceToSamus / 2;
         state.CurlAngle = state.AimAngle.ToTrigonometryAngle().ToAngle();
         state.MirroredBend = state.CurlAngle >= RotationAngle.HalfTurn;
@@ -248,16 +251,16 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             if (state.Extension.WholePixels >= YappingMawAttackDefinitions.LargestCurl)
             {
                 state.Extension = SignedSixteenSixteen.FromParts(checked(YappingMawAttackDefinitions.LargestCurl), 0);
-                // The turn-around steps half a mark further than the update's own advance: from a positive speed to
-                // the same mark's negative speed, or from a negative speed on to the next mark's positive one.
-                if (state.QuadraticSpeedSign == EnemySpeedSign.Negative)
+                // The turn-around steps half a mark further than the update's own advance: from extending at a mark's
+                // speed to retracting at the same mark's, or from retracting on to extending at the next mark's.
+                if (state.CurlPhase == YappingMawCurlPhase.Retracting)
                 {
                     state.SpeedCurvePlace += QuadraticSpeedCurvePlace.OneMark;
-                    state.QuadraticSpeedSign = EnemySpeedSign.Positive;
+                    state.CurlPhase = YappingMawCurlPhase.Extending;
                 }
                 else
                 {
-                    state.QuadraticSpeedSign = EnemySpeedSign.Negative;
+                    state.CurlPhase = YappingMawCurlPhase.Retracting;
                 }
             }
 
@@ -304,7 +307,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Adds the current quadratic speed to the curl, carrying the fraction, then advances its place along the curve.</summary>
     internal static void AddYappingMawQuadraticSpeed(YappingMawEnemyState state)
     {
-        state.Extension += state.SpeedCurvePlace.Speed.Toward(state.QuadraticSpeedSign);
+        state.Extension += state.SpeedCurvePlace.Speed.Toward(state.CurlPhase == YappingMawCurlPhase.Retracting ? EnemySpeedSign.Negative : EnemySpeedSign.Positive);
         state.SpeedCurvePlace += QuadraticSpeedCurvePlace.OneMark;
     }
 

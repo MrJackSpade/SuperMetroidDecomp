@@ -104,7 +104,7 @@ internal static class YardTurnDefinitionsVerification
                 Playback = new(YardAnimations.StartingWith(YardSegment.HidingUpsideUpMovingLeft), AnimationPlace.StartOfAnimation),
                 Movement = YardMovement.Crawling,
                 Crawl = movement,
-                TurnTransitionDisabled = disabled,
+                TurnSuppressionPassesLeft = disabled ? YardMotionDefinitions.TurnSuppressionPasses : 0,
                 CrawlingVelocity = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(256, 256),
             };
 
@@ -112,10 +112,8 @@ internal static class YardTurnDefinitionsVerification
 
             AssertEqual(new AnimationPlayback<YardSegment>(YardAnimations.StartingWith(expectedProgram), AnimationPlace.StartOfAnimation), state.Playback,
                 $"{context} production instruction");
-            AssertTrue(state.TurnTransitionDisabled,
-                $"{context} disables the next turn transition");
-            AssertEqual(0, state.TurnTransitionDisableCounter,
-                $"{context} clears transition-disable counter");
+            AssertEqual(YardMotionDefinitions.TurnSuppressionPasses, state.TurnSuppressionPassesLeft,
+                $"{context} suppresses turns for a whole run of slope-free passes");
         }
     }
 

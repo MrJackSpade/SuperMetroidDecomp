@@ -54604,19 +54604,6 @@
       "disposition": "contract"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Ridley.NorfairArenaRevealProgress",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Ridley/NorfairArenaRevealProgress.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Bosses.Ridley.NorfairRidleyArenaDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -55052,19 +55039,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Ridley.RidleyBodyFadeProgress",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyBodyFadeProgress.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Bosses.Ridley.RidleyBodySegment",
       "kind": "enum",
       "scope": "product",
@@ -55473,19 +55447,6 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Ridley.RidleyEyeFadeProgress",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyEyeFadeProgress.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Bosses.Ridley.RidleyFacedAnimation",
       "kind": "record struct",
       "scope": "product",
@@ -55538,6 +55499,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Bosses.Ridley.RidleyFadeAnimations",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyFadeAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Bosses.Ridley.RidleyFadeDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -55559,6 +55533,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyFadeImage.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Ridley.RidleyFadeSegment",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyFadeSegment.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -118218,19 +118205,6 @@
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.RoomStateSelectorConditions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/RoomStateSelectorConditions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Rooms.RoomStaticPaletteFormatNative",

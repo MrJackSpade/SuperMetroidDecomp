@@ -69,7 +69,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
         {
             TickReference(nativeCgram, nativeState);
             Tick(installed, installedPlace, installedState);
-            AssertEqual(nativeShownRow is { } row ? RidleyFadeDefinitions.ArenaReveal.Images[row] : (RidleyFadeImage?)null,
+            AssertEqual(nativeShownRow is { } row ? RidleyFadeDefinitions.ArenaReveal.Images[row] : null,
                 installedState.ArenaReveal.Shown, $"Norfair Ridley reveal call {call} shows the row the three-call cadence reaches");
             AssertEqual(nativeState.RevealPhase, installedState.RevealPhase,
                 $"Norfair Ridley reveal call {call} terminal function");

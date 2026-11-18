@@ -104,7 +104,7 @@ internal static class CeresRidleyColorsVerification
         {
             // The first of each shade's two updates only waits; the second shows it (#2233, #2409).
             bodyTick(place, state);
-            AssertEqual(row == 0 ? (RidleyFadeImage?)null : RidleyFadeDefinitions.BodyFade.Images[row - 1], state.BodyFade.Shown,
+            AssertEqual(row == 0 ? null : RidleyFadeDefinitions.BodyFade.Images[row - 1], state.BodyFade.Shown,
                 $"installed body fade row {row} waits an update first");
             bodyTick(place, state);
             AssertEqual(RidleyFadeDefinitions.BodyFade.Images[row], state.BodyFade.Shown, $"installed body fade shows row {row}");

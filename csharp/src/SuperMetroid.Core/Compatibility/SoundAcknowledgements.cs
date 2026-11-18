@@ -22,7 +22,7 @@ public readonly struct SoundAcknowledgements<TLibrary, TSound> : IEquatable<Soun
     where TSound : struct, IEquatable<TSound>
 {
     /// <summary>Each listed library's acknowledgement.</summary>
-    private readonly PerSoundLibrary<TLibrary, SoundAcknowledgement<TSound>> byLibrary;
+    private readonly SoundAcceptanceClock<TLibrary, TSound>.ByLibrary<SoundAcknowledgement<TSound>> byLibrary;
 
     /// <summary>The acknowledgement of each of <paramref name="libraries"/>.</summary>
     /// <param name="libraries">The libraries, distinct.</param>
@@ -30,7 +30,7 @@ public readonly struct SoundAcknowledgements<TLibrary, TSound> : IEquatable<Soun
     /// <exception cref="ArgumentException"><paramref name="libraries"/> is default or holds a library twice.</exception>
     /// <exception cref="ArgumentNullException"><paramref name="acknowledgementOf"/> is null.</exception>
     public SoundAcknowledgements(ImmutableArray<TLibrary> libraries, Func<TLibrary, SoundAcknowledgement<TSound>> acknowledgementOf) =>
-        byLibrary = new PerSoundLibrary<TLibrary, SoundAcknowledgement<TSound>>(libraries, acknowledgementOf);
+        byLibrary = new SoundAcceptanceClock<TLibrary, TSound>.ByLibrary<SoundAcknowledgement<TSound>>(libraries, acknowledgementOf);
 
     /// <summary>The acknowledgement of <paramref name="library"/>; nothing for a library left unlisted.</summary>
     public SoundAcknowledgement<TSound> this[TLibrary library] => byLibrary[library];

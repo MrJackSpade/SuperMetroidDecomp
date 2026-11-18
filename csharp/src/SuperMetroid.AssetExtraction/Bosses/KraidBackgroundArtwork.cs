@@ -12,13 +12,13 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 public sealed class KraidBackgroundArtwork
 {
 
-    /// <summary>Immutable head tilemaps keyed by how far the head's mouth is open.</summary>
+    /// <summary>Immutable head tilemaps keyed by the import's key for each head pose (<see cref="KraidHeadTilemapFormat.ImportKey"/>).</summary>
     private readonly Dictionary<int, KraidHeadTilemapAtlas> heads;
 
     /// <summary>Groups installed Kraid BG2 maps, head frames, and revealed room characters without composing or uploading the boss's mutable working tilemap.</summary>
     /// <param name="upper">Upper-body source atlas with the native $1000-byte decompressed layout.</param>
     /// <param name="lower">Lower-body source atlas with the native $1000-byte decompressed layout.</param>
-    /// <param name="heads">Head-frame atlases keyed by mouth stage, as <see cref="KraidHeadFrame.MouthStage"/> counts it. The dictionary is copied; immutable atlas objects are shared.</param>
+    /// <param name="heads">Head-frame atlases keyed by the import's key for each head pose (<see cref="KraidHeadTilemapFormat.ImportKey"/>). The dictionary is copied; immutable atlas objects are shared.</param>
     /// <param name="roomBackgroundTiles">The $0200-byte 4-bpp character stream revealed after growth or defeat, separate from the boss's BG2 tile references.</param>
     /// <remarks>The caller supplies already validated atlases. Construction retains the upper, lower, and character objects and does not validate their lengths or the completeness of the head-frame set.</remarks>
     public KraidBackgroundArtwork(RoomBackgroundTilemapAtlas upper,
@@ -42,8 +42,8 @@ public sealed class KraidBackgroundArtwork
 
     /// <summary>The installed head image <paramref name="frame"/> shows, without changing its timing or hitboxes.</summary>
     internal ReadOnlySpan<BackgroundTile> HeadTiles(KraidHeadFrame frame) =>
-        heads.TryGetValue(frame.MouthStage, out KraidHeadTilemapAtlas? image)
+        heads.TryGetValue(KraidHeadTilemapFormat.ImportKey(frame), out KraidHeadTilemapAtlas? image)
             ? image.Tiles.Span
             : throw new InvalidDataException(
-                $"Kraid head mouth stage {frame.MouthStage} has no installed tilemap.");
+                $"Kraid head {frame.FrameName} has no installed tilemap.");
 }

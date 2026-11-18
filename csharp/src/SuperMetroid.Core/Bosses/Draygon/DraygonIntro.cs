@@ -74,7 +74,7 @@ internal sealed class DraygonIntro
         foreach (DraygonIntroDancer dancer in state.IntroDancers)
         {
             RoomEffectActor sprite = dancer.Sprite;
-            int step = state.IntroDanceStep - dancer.StartDelay;
+            int step = state.IntroFrames - dancer.StartDelay;
             if (step < 0 || !sprite.IsActive)
                 continue;
 
@@ -89,7 +89,6 @@ internal sealed class DraygonIntro
             sprite.Position += movement.Delta;
         }
 
-        state.IntroDanceStep++;
         state.IntroFrames++;
     }
 }

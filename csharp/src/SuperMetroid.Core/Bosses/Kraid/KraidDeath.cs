@@ -13,9 +13,6 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 [RoomLifetime]
 internal sealed class KraidDeath
 {
-    /// <summary>The updates the room stays dark between hiding Kraid's body and fading the room back in (#1888).</summary>
-    private const int DeathDarkUpdates = 5;
-
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     private readonly BossFrameResultBuilder _frameResults;
     /// <summary>Room services used throughout the Kraid fight.</summary>
@@ -110,7 +107,7 @@ internal sealed class KraidDeath
 
             case KraidDeathPhase.HideBody:
                 state.BodyState.DeathPhase = KraidDeathPhase.WaitBeforeFadeIn;
-                state.BodyState.PhaseTimer = DeathDarkUpdates;
+                state.BodyState.PhaseTimer = KraidArenaDefinitions.DeathDarkUpdates;
                 HideKraidBody(state);
                 return;
             case KraidDeathPhase.WaitBeforeFadeIn:
@@ -121,21 +118,12 @@ internal sealed class KraidDeath
                 if (!_background.AdvanceKraidRoomBackgroundFade(fade: KraidBackdropFade.ToKraidColours))
                     return;
                 _access.RequestKraidMusic(MusicRequest.SelectTrack(MusicTrack.Elevator));
-                if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss))
-                {
-                    state.BodyState.DeathPhase = KraidDeathPhase.FinishedWasDead;
-                }
-                else
-                {
-                    _room.Services.Bosses.SetDefeated(DefeatedBosses.AreaBoss);
-                    state.BodyState.DeathPhase = KraidDeathPhase.FinishedWasAlive;
-                }
+                _room.Services.Bosses.SetDefeated(DefeatedBosses.AreaBoss);
+                state.BodyState.DeathPhase = KraidDeathPhase.Finished;
                 return;
-            case KraidDeathPhase.FinishedWasAlive:
-                MarkKraidDeadUnlessDeadAtLeftEdge(body, cameraX);
-                return;
-            case KraidDeathPhase.FinishedWasDead:
-                MarkKraidDeadUnlessDeadAtLeftEdge(body, cameraX);
+            case KraidDeathPhase.Finished:
+                if (HasCameraLeftRoomLeftEdge(cameraX))
+                    KraidEncounterAccess.MarkKraidPartDead(body);
                 return;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(KraidDeathPhase)} {state.BodyState.DeathPhase}.");
@@ -143,15 +131,10 @@ internal sealed class KraidDeath
     }
 
     /// <summary>
-    /// Runs the shared body of both death-drop checks: a living Kraid, or a dead
-    /// one whose camera has left the room's left edge, is given a dead enemy's properties.
+    /// Whether the camera, at <paramref name="cameraX"/>, has left the room's left edge: until it does, a finished Kraid's
+    /// body keeps its properties; the first update it has, the body is given a dead enemy's.
     /// </summary>
-    private void MarkKraidDeadUnlessDeadAtLeftEdge(RoomEnemyPlace body, int cameraX)
-    {
-        if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss) && cameraX == 0)
-            return;
-        KraidEncounterAccess.MarkKraidPartDead(body);
-    }
+    private static bool HasCameraLeftRoomLeftEdge(int cameraX) => cameraX != 0;
 
     /// <summary>
     /// Starts the death animation and prepares its room mutation schedule. His health has run out, so the update's colour

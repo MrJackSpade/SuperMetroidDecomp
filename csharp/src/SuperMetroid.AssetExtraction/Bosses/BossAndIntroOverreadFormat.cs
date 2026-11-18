@@ -6,8 +6,11 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// <summary>Defines the installed boss and intro overread file.</summary>
 internal static class BossAndIntroOverreadFormat
 {
-    /// <summary>Supported schema revision. Revision one holds Kraid's, Crocomire's and the egg shell's decoded reads (#1500).</summary>
-    internal const int Version = 1;
+    /// <summary>
+    /// Supported schema revision. Revision one held Kraid's, Crocomire's and the egg shell's decoded reads (#1500); revision
+    /// two names Crocomire's for the volley's last shot (#2464).
+    /// </summary>
+    internal const int Version = 2;
     /// <summary>JSON filename holding the decoded over-read results.</summary>
     internal const string FileName = "boss-intro-overreads.json";
     /// <summary>Shared camel-case, case-insensitive JSON options that reject unknown fields; the file is written compactly.</summary>

@@ -48,8 +48,8 @@ internal sealed class CrocomireEncounterAccess
     /// <summary>Draws the room's next random number for Crocomire effects and choices.</summary>
     internal int ReadCrocomireRandom() => _room.Random.Read();
 
-    /// <summary>The session's installed gradient the volley's last shot reads past the authored nine.</summary>
-    internal CrocomireTenthShotGradient TenthShotGradient => _room.Session.BossOverreads.CrocomireTenthShotGradient;
+    /// <summary>The session's installed gradient the volley's last shot is fired along, past the authored ones.</summary>
+    internal CrocomireLastShotGradient LastShotGradient => _room.Session.BossOverreads.CrocomireLastShotGradient;
 
     /// <summary>Places a foot dust puff at the body offset with an additional random jitter of up to seven pixels.</summary>
     internal void SpawnCrocomireDust(CrocomireEnemyState state, int xOffset)

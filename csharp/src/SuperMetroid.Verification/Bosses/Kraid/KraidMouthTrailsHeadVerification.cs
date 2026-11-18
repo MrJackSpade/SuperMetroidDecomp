@@ -33,14 +33,14 @@ internal static class KraidMouthTrailsHeadVerification
 
         // At the eye glow's start, where the tests find the closed mouth before it.
         var eyeGlowStart = KraidHeadNativeCursors.PlaybackAtStep(KraidHeadSegment.EyeGlow, 0);
-        KraidHeadCursorReads atStart = KraidHeadAnimations.ReadsAt(eyeGlowStart);
+        KraidHeadAnimationReads atStart = KraidHeadAnimations.ReadsAt(eyeGlowStart);
         AssertEqual(KraidMouthShapeReadKind.NoShape, atStart.Outer.Kind, "at an animation's start the body test takes the closed mouth's missing inner shape");
         AssertEqual(KraidMouthShapeReadKind.NoPose, atStart.Inner.Kind, "at an animation's start the mouth test finds no pose");
         AssertThrows<InvalidDataException>(() => KraidHeadAnimations.OuterMouthAt(eyeGlowStart),
             "a body hit at an animation's start has no shape to test");
 
         // At the roar's start: nothing is laid out before it.
-        KraidHeadCursorReads atRoarStart = KraidHeadAnimations.ReadsAt(KraidHeadNativeCursors.PlaybackAtStep(KraidHeadSegment.Roar, 0));
+        KraidHeadAnimationReads atRoarStart = KraidHeadAnimations.ReadsAt(KraidHeadNativeCursors.PlaybackAtStep(KraidHeadSegment.Roar, 0));
         AssertEqual(KraidMouthShapeReadKind.NoPose, atRoarStart.Outer.Kind, "the roar's start finds no pose for the body test");
         AssertEqual(KraidMouthShapeReadKind.NoPose, atRoarStart.Inner.Kind, "the roar's start finds no pose for the mouth test");
         Console.WriteLine("Kraid's mouth trails his head: a pose's shapes after it, the wider pose's inner shape after the roar, the closed mouth at an eye glow's start.");

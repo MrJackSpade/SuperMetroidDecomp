@@ -7,12 +7,12 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// </summary>
 /// <param name="Version">The schema revision, <see cref="BossAndIntroOverreadFormat.Version"/>.</param>
 /// <param name="KraidNailPastLedges">The contour record a fingernail higher than Kraid's four ledges is pushed back at.</param>
-/// <param name="CrocomireTenthShotGradient">The vertical component of the aim of Crocomire's last spit shot, signed.</param>
+/// <param name="CrocomireLastShotGradient">The vertical component of the aim of Crocomire's last spit shot, signed.</param>
 /// <param name="ShellFragmentFallPastCurve">The steps an egg-shell fragment falls by on each update past its gravity curve.</param>
 internal sealed record BossAndIntroOverreadDocument(
     int Version,
     BossAndIntroOverreadDocument.ContourRecord KraidNailPastLedges,
-    int CrocomireTenthShotGradient,
+    int CrocomireLastShotGradient,
     IReadOnlyList<BossAndIntroOverreadDocument.FallStep> ShellFragmentFallPastCurve)
 {
     /// <summary>A contour record: where a nail is pushed back, and the bound it must lie below.</summary>

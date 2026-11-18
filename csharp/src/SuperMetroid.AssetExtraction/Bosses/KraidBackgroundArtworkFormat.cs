@@ -13,7 +13,7 @@ public static class KraidBackgroundArtworkFormat
     /// <summary>Import-data indexed PNG filename for $A7:A716, Tiles_KraidRoomBackground: sixteen 4-bpp characters uploaded to VRAM word $3F00 after growth or defeat.</summary>
     public const string RoomBackgroundFileName = "kraid-room-background.png";
 
-    /// <summary>Import-data JSON filename of the 32-by-11 head tilemap shown at <paramref name="mouthStage"/>, as <see cref="Core.Bosses.Kraid.KraidHeadFrame.MouthStage"/> counts it.</summary>
-    public static string HeadFileName(int mouthStage) => $"kraid-head-{mouthStage}.json";
+    /// <summary>Import-data JSON filename of the 32-by-11 head tilemap the import names by <paramref name="importKey"/> (<see cref="KraidHeadTilemapFormat.ImportKey"/>).</summary>
+    public static string HeadFileName(int importKey) => $"kraid-head-{importKey}.json";
 
 }

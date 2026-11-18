@@ -11,7 +11,7 @@ public static class CrocomireVolley
     /// <param name="shotsSpat">The shots the volley has spat before this one, 0 through one less than <see cref="CrocomireProjectileDefinitions.VolleyShotCount"/>.</param>
     /// <param name="last">The installed gradient the volley's last shot is fired along.</param>
     /// <exception cref="InvalidDataException">The volley has no such shot.</exception>
-    public static int GradientOf(int shotsSpat, CrocomireTenthShotGradient last)
+    public static int GradientOf(int shotsSpat, CrocomireLastShotGradient last)
     {
         if (shotsSpat is < 0 or >= CrocomireProjectileDefinitions.VolleyShotCount)
             throw new InvalidDataException(

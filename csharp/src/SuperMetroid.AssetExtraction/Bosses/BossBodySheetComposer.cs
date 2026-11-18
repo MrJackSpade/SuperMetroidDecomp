@@ -192,7 +192,7 @@ internal static class BossBodySheetComposer
         yield return body;
         // Each installed head pose holds exactly the head's rows (KraidHeadTilemapAtlas), so it shows there alone.
         foreach (KraidHeadFrame head in KraidHeadTilemapFormat.HeadsByMouthStage)
-            yield return BossBodyFrameSource.Written(KraidBodyFrameNames.Head(head.MouthStage), 0, art.HeadTiles(head));
+            yield return BossBodyFrameSource.Written(head.FrameName, 0, art.HeadTiles(head));
     }
 
     /// <summary>

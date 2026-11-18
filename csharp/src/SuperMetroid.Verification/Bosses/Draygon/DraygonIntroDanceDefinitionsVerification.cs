@@ -31,8 +31,8 @@ internal static class DraygonIntroDanceDefinitionsVerification
         Suite(nameof(VerifyCompleteDraygonIntroTrajectory), () => VerifyCompleteDraygonIntroTrajectory(rom));
 
         Console.WriteLine(
-            "Draygon intro dance definitions: all four start delays and all 1,104 " +
-            "reachable path steps match the pinned ROM; the complete 1,232-frame " +
+            "Draygon intro dance definitions: all four start delays and all 1,007 " +
+            "path steps the Evirs take match the pinned ROM; the complete 1,232-frame " +
             "production trajectory passes.");
     }
 
@@ -66,7 +66,10 @@ internal static class DraygonIntroDanceDefinitionsVerification
         Console.WriteLine("Evir start delays: all four native latencies and dancer bounds match.");
     }
 
-    /// <summary>Compares every step of the traced path, deletes included, and rejects steps outside it.</summary>
+    /// <summary>
+    /// Compares every step of the traced path with the cartridge's, its closing delete included, and rejects steps outside
+    /// it (#2464): the path ends at the cartridge's first delete record, which every Evir takes before the dance ends.
+    /// </summary>
     internal static void VerifyDraygonIntroMovementDefinitions(CartridgeImportAddressSpace rom)
     {
         int deletes = 0;
@@ -84,11 +87,14 @@ internal static class DraygonIntroDanceDefinitionsVerification
             if (expectedDelete)
                 deletes++;
         }
-        AssertEqual(2, deletes, "Draygon intro path has two native delete records");
+        AssertEqual(1, deletes, "Draygon intro path has one delete step");
+        AssertEqual(true, DraygonIntroDance.Movement(DraygonIntroDanceDefinitions.TracedPath.Length - 1).DeletesSprite,
+            "Draygon intro path ends at its delete step");
 
-        // The last Evir's delay and the dance's duration reach exactly the path's last step.
-        AssertEqual(DraygonIntroDanceDefinitions.DurationFrames - 1 - DraygonIntroDance.StartDelay(0),
-            DraygonIntroDanceDefinitions.TracedPath.Length - 1, "Draygon intro path ends at the last reachable step");
+        // The Evir that waits longest still takes the path's last step, its delete, before the dance ends.
+        int longestDelay = LongestEvirStartDelay();
+        AssertEqual(true, DraygonIntroDanceDefinitions.DurationFrames - 1 - longestDelay >= DraygonIntroDanceDefinitions.TracedPath.Length - 1,
+            "Every Draygon intro Evir reaches the path's delete step");
         foreach (int step in new[] { -1, DraygonIntroDanceDefinitions.TracedPath.Length, int.MaxValue })
             AssertThrows<InvalidDataException>(() => DraygonIntroDance.Movement(step),
                 "Draygon intro rejects a step outside the traced path");
@@ -146,7 +152,7 @@ internal static class DraygonIntroDanceDefinitionsVerification
             run(state, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), 1);
             expectedStreamOffset += DraygonIntroDanceDefinitionsConstants.NativeMovementRecordBytes;
 
-            AssertEqual(frame + 1, state.IntroDanceStep, $"Draygon intro frame {frame} dance step");
+            AssertEqual(frame + 1, state.IntroFrames, $"Draygon intro frame {frame} dance step");
             for (int slotIndex = 28; slotIndex <= 31; slotIndex++)
             {
                 int actor = slotIndex - 28;
@@ -180,7 +186,7 @@ internal static class DraygonIntroDanceDefinitionsVerification
         var malformedState = new DraygonEnemyState(malformedEnemies.Places.InUpdateOrder[0], malformedEnemies.Places.InUpdateOrder[1], malformedEnemies.Places.InUpdateOrder[2], malformedEnemies.Places.InUpdateOrder[3])
         {
             // The first Evir waits the shortest, so it reaches one step past the path's end first.
-            IntroDanceStep = DraygonIntroDanceDefinitions.TracedPath.Length + DraygonIntroDance.StartDelay(0),
+            IntroFrames = DraygonIntroDanceDefinitions.TracedPath.Length + DraygonIntroDance.StartDelay(0),
         };
         RoomEffectActor malformedSprite = malformedEnemies.EffectActors.SpawnRoomEffectActor(new(0x0100, 0x0180),
             RoomEffectActorKind.EvirFacingLeft, SuperMetroid.Core.Enemies.SpriteGraphics.SharedIn(DraygonColours.Evirs));
@@ -190,6 +196,10 @@ internal static class DraygonIntroDanceDefinitionsVerification
             "Production Draygon intro rejects a restored step past the traced path");
     }
 
+
+    /// <summary>The longest start delay of the Evirs the dance spawns.</summary>
+    private static int LongestEvirStartDelay() =>
+        Enumerable.Range(0, DraygonIntroDanceDefinitions.EvirCount).Max(DraygonIntroDance.StartDelay);
 
     /// <summary>Runs the Draygon intro dance suite through the verification command dispatcher.</summary>
     [VerificationCommand("--draygon-intro-dance-definitions")]

@@ -52,7 +52,7 @@ public static class BossAndIntroOverreadFiles
             throw new InvalidDataException("Boss and intro overread file has an unsupported version.");
         BossAndIntroOverreadDocument.ContourRecord contour = Require(document.KraidNailPastLedges, "Kraid nail contour record");
         IReadOnlyList<BossAndIntroOverreadDocument.FallStep> steps = Require(document.ShellFragmentFallPastCurve, "shell fragment steps");
-        if (!IsSignedWord(contour.LeftOffset) || !IsSignedWord(contour.Bound) || !IsSignedWord(document.CrocomireTenthShotGradient))
+        if (!IsSignedWord(contour.LeftOffset) || !IsSignedWord(contour.Bound) || !IsSignedWord(document.CrocomireLastShotGradient))
             throw new InvalidDataException("Boss and intro overread file holds a word outside its range.");
         var fall = new List<SignedSixteenSixteen>();
         foreach (BossAndIntroOverreadDocument.FallStep? step in steps)
@@ -66,7 +66,7 @@ public static class BossAndIntroOverreadFiles
             throw new InvalidDataException("Boss and intro overread file holds no shell fragment steps.");
         return new BossAndIntroOverreadServices(
             new KraidNailPastLedges(contour.LeftOffset, contour.Bound),
-            new CrocomireTenthShotGradient(document.CrocomireTenthShotGradient),
+            new CrocomireLastShotGradient(document.CrocomireLastShotGradient),
             new ShellFragmentFallPastCurve(fall));
     }
 

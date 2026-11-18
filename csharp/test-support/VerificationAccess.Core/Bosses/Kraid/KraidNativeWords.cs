@@ -50,19 +50,23 @@ internal static class KraidNativeWords
         [KraidGrowthPhase.ReleaseCamera] = 0xc0a1,
     });
 
-    /// <summary>The bank-$A7 routine word naming each <see cref="KraidDeathPhase"/>, the body's record word A (#2208).</summary>
-    internal static readonly NativeWordIdentities<KraidDeathPhase> DeathPhases = new(new Dictionary<KraidDeathPhase, ushort>
+    /// <summary>
+    /// The bank-$A7 routine words naming each <see cref="KraidDeathPhase"/>, the body's record word A (#2208); the
+    /// cartridge has two routines doing the finished phase, one for a Kraid it found alive and one for a Kraid it found
+    /// already defeated (#2464).
+    /// </summary>
+    internal static readonly NativeWordIdentities<KraidDeathPhase> DeathPhases = new(new Dictionary<ushort, KraidDeathPhase>
     {
-        [KraidDeathPhase.Initialize] = 0xc360,
-        [KraidDeathPhase.FadeOut] = 0xc3f9,
-        [KraidDeathPhase.ShowBody] = 0xc4a4,
-        [KraidDeathPhase.StartSinking] = 0xc4c8,
-        [KraidDeathPhase.Sink] = 0xc537,
-        [KraidDeathPhase.HideBody] = 0xc715,
-        [KraidDeathPhase.WaitBeforeFadeIn] = 0xc751,
-        [KraidDeathPhase.FadeInBackground] = 0xc815,
-        [KraidDeathPhase.FinishedWasAlive] = 0xc843,
-        [KraidDeathPhase.FinishedWasDead] = 0xc851,
+        [0xc360] = KraidDeathPhase.Initialize,
+        [0xc3f9] = KraidDeathPhase.FadeOut,
+        [0xc4a4] = KraidDeathPhase.ShowBody,
+        [0xc4c8] = KraidDeathPhase.StartSinking,
+        [0xc537] = KraidDeathPhase.Sink,
+        [0xc715] = KraidDeathPhase.HideBody,
+        [0xc751] = KraidDeathPhase.WaitBeforeFadeIn,
+        [0xc815] = KraidDeathPhase.FadeInBackground,
+        [0xc843] = KraidDeathPhase.Finished,
+        [0xc851] = KraidDeathPhase.Finished,
     });
 
     /// <summary>

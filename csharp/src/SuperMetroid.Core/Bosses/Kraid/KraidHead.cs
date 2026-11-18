@@ -116,7 +116,7 @@ internal sealed class KraidHead
 
         // The open mouth stays shown for 64 frames. Kraid spits a rock on
         // every sixteenth timer value, including the entry frame after the open-mouth setup reloads it.
-        if (state.DisplayedHeadFrame is { MouthStage: KraidHeadFrame.FullyOpenMouthStage } &&
+        if (state.DisplayedHeadFrame == KraidHeadFrame.Open &&
             KraidCadenceDefinitions.SpitRockEverySixteenthMouthUpdate.IsDue(state.BodyState.HeadTimer))
         {
             SpawnKraidSpitRock(body);
@@ -251,7 +251,6 @@ internal sealed class KraidHead
         rock.Position = FixedPosition<RoomPixels>.FromWhole(body.Position.Whole + KraidArenaDefinitions.SpitRockOffset);
         rock.Velocity = rock.Velocity.WithX(KraidRockLaunchDefinitions.FromRandom(random));
         rock.Velocity = rock.Velocity.WithY(KraidArenaDefinitions.SpitRockRise);
-        rock.Graphics = SpriteGraphics.SharedIn(KraidColours.RocksShading);
     }
 
     /// <summary>Derives a thinking delay of one or more 64-update steps from the room RNG; a roll of none takes two.</summary>

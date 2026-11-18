@@ -32,7 +32,7 @@ internal static class ImportOnlyLayoutsVerification
         yield return (enemyTiles, KraidBackgroundArtworkFormat.UpperFileName);
         yield return (enemyTiles, KraidBackgroundArtworkFormat.LowerFileName);
         foreach (KraidHeadFrame head in KraidHeadTilemapFormat.HeadsByMouthStage)
-            yield return (enemyTiles, KraidBackgroundArtworkFormat.HeadFileName(head.MouthStage));
+            yield return (enemyTiles, KraidBackgroundArtworkFormat.HeadFileName(KraidHeadTilemapFormat.ImportKey(head)));
         yield return (enemyTiles, CeresWarningGlyphDefinitions.FileName);
         yield return (enemyTiles, PhantoonBg2FrameDefinitions.FileName);
         yield return (enemyTiles, DraygonBg2FrameDefinitions.FileName);

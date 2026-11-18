@@ -4,6 +4,7 @@ using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Bosses;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidContourCaseMappingsVerification;
 
 namespace SuperMetroid.Verification.Bosses.Kraid;
@@ -24,10 +25,11 @@ internal static class KraidHeadCommandMappingVerification
         AssertEqual(19, native.Records.Count, "the started native head lists hold 19 records");
         AssertEqual(21, native.AllPoses.Count, "the four native head lists hold 21 poses, the unstarted roar's seven included");
 
-        // A pose's mouth stage is its tilemap's rank among the head's distinct tilemaps: the closed mouth is the lowest.
+        // A pose's place in the import's head order is its tilemap's rank among the head's distinct tilemaps: the closed
+        // mouth is the lowest.
         List<ushort> stageTilemaps = [.. native.Records.Where(record => record.IsPose)
             .Select(record => record.Tilemap).Distinct().Order()];
-        AssertEqual(KraidHeadFrame.FullyOpenMouthStage + 1, stageTilemaps.Count, "one native tilemap per mouth stage");
+        AssertEqual(KraidHeadTilemapFormat.HeadsByMouthStage.Count, stageTilemaps.Count, "one native tilemap per head pose");
 
         foreach (KraidHeadSegment program in KraidHeadAnimations.StartingAt.Keys)
         {
@@ -47,7 +49,7 @@ internal static class KraidHeadCommandMappingVerification
                 {
                     var show = AssertIs<AnimationBeat<KraidHeadFrame, KraidHeadCue>.Frame>(beats[position], $"{at} shows a pose");
                     AssertEqual(record.Opcode, show.Duration, $"{at} pose duration");
-                    AssertEqual(stageTilemaps.IndexOf(record.Tilemap), show.Shown.MouthStage, $"{at} mouth stage");
+                    AssertEqual(KraidHeadTilemapFormat.HeadsByMouthStage[stageTilemaps.IndexOf(record.Tilemap)], show.Shown, $"{at} head pose");
                     AssertEqual(record.Tilemap, KraidHeadFrameDefinitions.PresentationKey(show.Shown), $"{at} head image");
                     AssertEqual(record.OuterShape, KraidNativeWords.MouthHitboxes.Word(show.Shown.VulnerableShape), $"{at} vulnerable shape");
                     AssertEqual(record.InnerShape,
@@ -73,7 +75,7 @@ internal static class KraidHeadCommandMappingVerification
                         $"{at} cry sound: the import decodes the native byte to the definition's sound");
                 }
 
-                KraidHeadCursorReads reads = KraidHeadAnimations.ReadsAt(record.Playback);
+                KraidHeadAnimationReads reads = KraidHeadAnimations.ReadsAt(record.Playback);
                 AssertEqual(NativeMouthRead(native, record.Pointer - 4), reads.Outer, $"{at} outer mouth read four bytes back");
                 AssertEqual(NativeMouthRead(native, record.Pointer - 2), reads.Inner, $"{at} inner mouth read two bytes back");
                 (ushort resumePointer, ushort resumeTimer) = NativeKraidGrowthResume(rom, Word(record.Pointer + 2));

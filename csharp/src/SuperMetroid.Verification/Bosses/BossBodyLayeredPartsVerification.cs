@@ -113,7 +113,7 @@ internal static class BossBodyLayeredPartsVerification
                 BossBodyLayer layer = enemies.KraidBehavior.BodyLayer.CaptureBodyLayer()
                     ?? throw new InvalidOperationException("Kraid showing his body layer draws his body.");
                 AssertEqual(2, layer.Frames.Length, $"Kraid's {appearance} body shows his body and one head");
-                AssertLayered(layer, BossBodyOwner.Kraid, sources, KraidCanvas, $"Kraid's {appearance} body with head {head?.MouthStage.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "risen with it"}",
+                AssertLayered(layer, BossBodyOwner.Kraid, sources, KraidCanvas, $"Kraid's {appearance} body with head {head?.FrameName ?? "risen with it"}",
                     appearance == KraidBodyAppearance.InFrontOfSprites ? [KraidBodyFrameNames.Body, KraidBodyFrameNames.RestingHead] : []);
                 compared++;
             }

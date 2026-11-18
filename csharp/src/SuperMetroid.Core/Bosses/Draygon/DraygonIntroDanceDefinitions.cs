@@ -18,8 +18,8 @@ internal static class DraygonIntroDanceDefinitions
     internal static readonly int[] StartDelays = [128, 160, 192, 224];
 
     /// <summary>
-    /// The handwritten Keiko Love path every dancing Evir follows, one step per update. Two delete steps end each
-    /// Evir's dance part way through; the steps after them stay part of the path.
+    /// The handwritten Keiko Love path every dancing Evir follows, one step per update. It ends at the step that deletes
+    /// the Evir, which every Evir reaches before the dance ends.
     /// </summary>
     /// <remarks>Adding up the path's steps traces hidden lettering, so the path is kept as drawn: fitted splines,
     /// per-stroke corrections or a numeric switch would encode the same particular letter shapes and pen timing. This is
@@ -144,18 +144,6 @@ internal static class DraygonIntroDanceDefinitions
         Move(new(-1, 0)), Move(new(-1, 0)), Move(new(-1, 0)), Move(new(0, 1)), Move(new(-1, 1)), Move(new(0, 1)), Move(new(0, 1)), Move(new(0, 1)), Move(new(-1, 1)),
         Move(new(-1, 1)), Move(new(-1, 1)), Move(new(0, 1)), Move(new(0, 1)), Move(new(-1, 1)), Move(new(0, 1)), Move(new(0, 1)), Move(new(0, 2)), Move(new(0, 1)),
         Move(new(0, 2)), Move(new(0, 1)), Move(new(0, 1)), Move(new(0, 1)), Move(new(0, 2)), Move(new(0, 1)), Move(new(0, 1)), Move(new(0, 1)), Move(new(1, 1)),
-        Move(new(1, 1)), Move(new(1, 1)), Move(new(0, 1)), Delete, Delete, Move(new(1, -1)), Move(new(1, -1)), Move(new(1, -1)), Move(new(2, -1)),
-        Move(new(2, -1)), Move(new(1, -1)), Move(new(1, -2)), Move(new(2, -2)), Move(new(1, -1)), Move(new(1, -2)), Move(new(1, -2)), Move(new(1, -2)),
-        Move(new(1, -3)), Move(new(1, -2)), Move(new(1, -2)), Move(new(1, -2)), Move(new(1, -3)), Move(new(1, -2)), Move(new(1, -3)), Move(new(1, -3)),
-        Move(new(1, -3)), Move(new(1, -3)), Move(new(0, -3)), Move(new(1, -2)), Move(new(0, -1)), Move(new(-1, -1)), Move(new(-1, -1)), Move(new(-1, 0)),
-        Move(new(-1, 1)), Move(new(-1, 1)), Move(new(-1, 2)), Move(new(-2, 2)), Move(new(-2, 3)), Move(new(-2, 2)), Move(new(-2, 3)), Move(new(-2, 2)),
-        Move(new(-1, 3)), Move(new(-1, 4)), Move(new(-1, 3)), Move(new(-1, 3)), Move(new(0, 3)), Move(new(0, 3)), Move(new(0, 3)), Move(new(0, 3)), Move(new(1, 3)),
-        Move(new(0, 2)), Move(new(1, 3)), Move(new(1, 2)), Move(new(1, 2)), Move(new(1, 2)), Move(new(2, 1)), Move(new(2, 1)), Move(new(2, 1)), Move(new(2, 0)),
-        Move(new(1, 0)), Move(new(2, -1)), Move(new(1, -1)), Move(new(2, -1)), Move(new(1, -1)), Move(new(2, -1)), Move(new(2, -2)), Move(new(2, -2)),
-        Move(new(2, -2)), Move(new(1, -3)), Move(new(1, -2)), Move(new(1, -3)), Move(new(1, -3)), Move(new(1, -3)), Move(new(0, -4)), Move(new(0, -3)),
-        Move(new(0, -3)), Move(new(0, -3)), Move(new(0, -3)), Move(new(-1, -3)), Move(new(0, -2)), Move(new(-1, -2)), Move(new(-2, -2)), Move(new(-1, -2)),
-        Move(new(-2, -2)), Move(new(-1, -1)), Move(new(-1, -1)), Move(new(-1, 0)), Move(new(-1, 1)), Move(new(-2, 1)), Move(new(-2, 2)), Move(new(-1, 2)),
-        Move(new(-1, 3)), Move(new(0, 3)), Move(new(-1, 2)), Move(new(0, 2)), Move(new(0, 3)), Move(new(1, 2)), Move(new(1, 2)), Move(new(2, 2)), Move(new(1, 2)),
-        Move(new(2, 2)),
+        Move(new(1, 1)), Move(new(1, 1)), Move(new(0, 1)), Delete,
     ];
 }

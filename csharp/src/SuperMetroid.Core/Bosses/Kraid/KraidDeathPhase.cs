@@ -20,10 +20,8 @@ public enum KraidDeathPhase
     /// timer.
     /// </summary>
     WaitBeforeFadeIn,
-    /// <summary>Fades the ordinary background in, requests room music, and publishes boss persistence when newly defeated.</summary>
+    /// <summary>Fades the ordinary background in, requests room music, and records Kraid defeated.</summary>
     FadeInBackground,
-    /// <summary>The terminal death entry for a Kraid that was alive when this encounter loaded.</summary>
-    FinishedWasAlive,
-    /// <summary>The terminal death entry for a Kraid that was already defeated when this encounter loaded.</summary>
-    FinishedWasDead,
+    /// <summary>His death has played out: his body is given a dead enemy's properties once the camera leaves the room's left edge.</summary>
+    Finished,
 }

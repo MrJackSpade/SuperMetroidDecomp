@@ -262,12 +262,12 @@ public static class EnemyTileArtworkFiles
         foreach (KraidHeadFrame head in KraidHeadTilemapFormat.HeadsByMouthStage)
         {
             byte[] native = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
-                KraidSourceDefinitions.CodeBank | KraidHeadArtworkDefinitions.Address(head.MouthStage),
+                KraidSourceDefinitions.CodeBank | KraidHeadArtworkDefinitions.Address(head),
                 KraidWorkingMapDefinitions.HeadImageCells * sizeof(ushort));
             byte[] json = KraidHeadTilemapFiles.Encode(native);
             File.WriteAllBytes(Path.Combine(importData,
-                KraidBackgroundArtworkFormat.HeadFileName(head.MouthStage)), json);
-            kraidHeadHashes.Add(head.MouthStage, Convert.ToHexString(SHA256.HashData(json)));
+                KraidBackgroundArtworkFormat.HeadFileName(KraidHeadTilemapFormat.ImportKey(head))), json);
+            kraidHeadHashes.Add(KraidHeadTilemapFormat.ImportKey(head), Convert.ToHexString(SHA256.HashData(json)));
         }
         byte[] kraidRoomBackground = ExtractKraidRoomBackground(bus);
         File.WriteAllBytes(Path.Combine(importData,

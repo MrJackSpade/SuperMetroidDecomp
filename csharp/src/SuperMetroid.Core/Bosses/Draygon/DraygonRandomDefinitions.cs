@@ -14,7 +14,7 @@ internal static class DraygonRandomDefinitions
     /// <summary>A goop's angle within its quarter turn, 0 through 63 steps (256ths of a turn).</summary>
     internal static readonly RandomSampleField GoopAngleSpread = new(0, 6);
 
-    /// <summary>Which of the four entries of the turret firing order a turret cadence fires.</summary>
+    /// <summary>The part of the sample that chooses the cannon a turret cadence fires from (<see cref="DraygonCannonData.FiringCannon"/>).</summary>
     internal static readonly RandomSampleField TurretChoice = new(0, 2);
 
     /// <summary>A sinking Draygon's smoke X across its 128-pixel strip from X 192.</summary>

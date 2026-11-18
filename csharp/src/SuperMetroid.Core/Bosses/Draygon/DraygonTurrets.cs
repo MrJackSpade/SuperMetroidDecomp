@@ -54,10 +54,7 @@ internal sealed class DraygonTurrets
         SamusState samus,
         int random)
     {
-        if (DraygonCannonData.FiringOrder[DraygonRandomDefinitions.TurretChoice.Of(random)] is not { } cannon)
-            return;
-        DraygonCannonTarget target = DraygonCannonData.FiringTarget(cannon);
-        if (_disabledCannons.Contains(target.Cannon))
+        if (DraygonCannonData.FiringCannon.Choose(random) is not { } cannon || _disabledCannons.Contains(cannon))
             return;
 
         EnemyProjectile? turret = _projectiles.AllocateEnemyProjectile();
@@ -70,7 +67,7 @@ internal sealed class DraygonTurrets
             _shots.WallTurretShot,
             graphics: SpriteGraphics.SharedIn(EnemyShades.InProjectileLook));
         turret.StartAnimation(new DraygonProjectileAnimation(DraygonProjectileSegment.WallTurretBloom));
-        turret.Position = FixedPosition<RoomPixels>.FromWhole(target.Origin);
+        turret.Position = FixedPosition<RoomPixels>.FromWhole(DraygonCannonData.FiringOrigins[cannon]);
 
         // The shot flies along the bearing from the turret to Samus at the wall turret's speed, its direction on
         // each axis taken from that bearing every update.

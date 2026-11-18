@@ -30,6 +30,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Bosses.Botwoon;
 using SuperMetroid.Core.Bosses.Draygon;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Verification.Bosses.Ridley;
@@ -1628,21 +1629,21 @@ internal static class LookupStream4Verification
         AssertEqual(EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(NativeWord(0x86b6b1 + 4), NativeWord(0x86b6b1 + 6)), EyeDoorEffectDefinitions.RightSweatLaunch, "right eye-door sweat launch");
         // The fourth choice names the bottom cannon's word, $880A, which no room places and Draygon's setup disables: it fires
         // from none (#1686).
-        AssertEqual(4, DraygonCannonData.FiringOrder.Length, "Draygon firing choices");
-        AssertTrue(DraygonCannonData.FiringOrder[3] is null, "Draygon's fourth firing choice fires from no cannon");
+        AssertEqual(4, DraygonCannonData.FiringCannon.Field.Outcomes, "Draygon firing choices");
+        AssertTrue(DraygonCannonData.FiringCannon.Choose(3) is null, "Draygon's fourth firing choice fires from no cannon");
+        AssertEqual(3, DraygonCannonData.FiringOrigins.Count, "Draygon fires from three cannons");
         for (int index = 0; index < 3; index++)
         {
-            var target = DraygonCannonData.FiringTarget(DraygonCannonData.FiringOrder[index] ?? throw new InvalidOperationException("Verification requires a firing cannon."));
-            AssertEqual(DraygonWallCannonAddresses.Decode((ushort)(0x8804 + 2 * index)), target.Cannon, "Draygon original control-word selection");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa587e4 + 4 * index)), target.Origin.X, "Draygon original cannon X");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa587e6 + 4 * index)), target.Origin.Y, "Draygon original cannon Y");
+            DraygonWallCannon cannon = DraygonCannonData.FiringCannon.Choose(index) ?? throw new InvalidOperationException("Verification requires a firing cannon.");
+            Position16<RoomPixels> origin = DraygonCannonData.FiringOrigins[cannon];
+            AssertEqual(DraygonWallCannonAddresses.Decode((ushort)(0x8804 + 2 * index)), cannon, "Draygon original control-word selection");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa587e4 + 4 * index)), origin.X, "Draygon original cannon X");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa587e6 + 4 * index)), origin.Y, "Draygon original cannon Y");
         }
         for (ushort index = 0; index < 8; index++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2cb77 + index * 2)), NativeEnemyAnimationOracle.EntryOf(MaridiaLargeSnailNativeListAddresses.Entries, MaridiaSnailsNativeWords.MaridiaLargeSnailAnimations.Decode(index, "Oum animation index")), "Oum native action/facing dispatch");
         for (int slot = 0; slot < 3; slot++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x81812b + slot * 2)), SaveRamLayout.SlotOffset(slot), "native SRAM slot origins");
-        foreach (DraygonFiringCannon invalid in new[] { (DraygonFiringCannon)3, (DraygonFiringCannon)byte.MaxValue })
-            AssertThrows<InvalidOperationException>(() => DraygonCannonData.FiringTarget(invalid), "Draygon cannon role domain");
         foreach (int invalid in new[] { int.MinValue, -1, 3, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => SaveRamLayout.SlotOffset(invalid), "save slot exact domain");
         foreach (ushort invalid in new ushort[] { 8, 255, ushort.MaxValue })

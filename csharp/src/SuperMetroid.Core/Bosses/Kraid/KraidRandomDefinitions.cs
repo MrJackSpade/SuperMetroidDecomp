@@ -53,7 +53,8 @@ internal static class KraidRandomDefinitions
     internal static readonly RandomSampleField ThinkingDelaySteps = new(0, 3);
 
     /// <summary>
-    /// Kraid's second-phase movement choice, 0 through 7 with every choice past four taken as four.
+    /// The part of the sample Kraid's second-phase walk is chosen by, eight values his destination's walks share
+    /// (<see cref="KraidMovementDefinitions.Rows"/>).
     /// </summary>
     internal static readonly RandomSampleField MovementChoice = new(2, 3);
 

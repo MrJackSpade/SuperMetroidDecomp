@@ -11,7 +11,20 @@ public static class KraidHeadTilemapFormat
     public const int Width = 32;
     /// <summary>Eleven tile-reference rows in each head frame; with <see cref="Width"/> this yields 352 native words.</summary>
     public const int Height = 11;
-    /// <summary>The four head poses whose layouts are extracted as import data (#1638), from closed to fully open, indexed by mouth stage.</summary>
+    /// <summary>The four head poses whose layouts are extracted as import data (#1638), from closed to fully open, in the cartridge's order.</summary>
     internal static IReadOnlyList<KraidHeadFrame> HeadsByMouthStage { get; } =
         [KraidHeadFrame.Closed, KraidHeadFrame.Opening, KraidHeadFrame.Wider, KraidHeadFrame.Open];
+
+    /// <summary>
+    /// The number the import's head file and manifest entry name <paramref name="head"/> by (#2464): its place in
+    /// <see cref="HeadsByMouthStage"/>, the cartridge's order, from zero for the closed mouth.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="head"/> is no head pose the import extracts.</exception>
+    internal static int ImportKey(KraidHeadFrame head)
+    {
+        for (int key = 0; key < HeadsByMouthStage.Count; key++)
+            if (HeadsByMouthStage[key] == head)
+                return key;
+        throw new ArgumentOutOfRangeException(nameof(head), head, "Kraid's head has no such pose.");
+    }
 }

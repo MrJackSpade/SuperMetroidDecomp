@@ -51,6 +51,12 @@ internal static class CrocomireFightDefinitions
     /// <summary>How long a shot in his mouth flashes him, in updates.</summary>
     internal const int MouthShotFlash = 14;
 
+    /// <summary>
+    /// The frames a mouth shot holds Crocomire's current animation frame (#2182): an uncharged beam holds it this long, and a
+    /// shot that starts a damage reaction adds this to its hold, whatever his fight is doing.
+    /// </summary>
+    internal const int MouthShotReactionHoldFrames = 8;
+
     /// <summary>How long a Power Bomb flashes him, in updates.</summary>
     internal const int PowerBombFlash = 4;
 

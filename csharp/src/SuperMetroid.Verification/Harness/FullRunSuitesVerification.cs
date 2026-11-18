@@ -1251,6 +1251,8 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyTypewriterGlyphs), () => VerifyTypewriterGlyphs()),
         new(nameof(VerifyPublishedCeresMode7Map), () => VerifyPublishedCeresMode7Map()),
         new(nameof(VerifyKraidBodyPublication), () => VerifyKraidBodyPublication()),
+        new(nameof(SuperMetroid.Verification.Bosses.Kraid.KraidDeathFinishedVerification.VerifyKraidDeathFinished),
+            SuperMetroid.Verification.Bosses.Kraid.KraidDeathFinishedVerification.VerifyKraidDeathFinished),
         new(nameof(SuperMetroid.Verification.Bosses.Kraid.KraidMouthTrailsHeadVerification.VerifyKraidMouthTrailsHead),
             SuperMetroid.Verification.Bosses.Kraid.KraidMouthTrailsHeadVerification.VerifyKraidMouthTrailsHead),
         new(nameof(VerifyPhantoonBodyPublication), () => VerifyPhantoonBodyPublication()),

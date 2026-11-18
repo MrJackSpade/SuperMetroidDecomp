@@ -163,6 +163,31 @@ internal static class BotwoonNavigationDefinitionsVerification
         }
     }
 
+    /// <summary>The cartridge's jump table of the action Botwoon takes leaving a hole, one word per even random selector.</summary>
+    private const int LeaveHoleActionTable = 0xb3988d;
+
+    /// <summary>
+    /// Checks <see cref="BotwoonNavigationDefinitions.FollowsAuthoredPath"/> against the cartridge for every random sample
+    /// (#2464): the game masks the sample's bits one to three into an even selector and jumps through its leave-hole action
+    /// table, whose first entry, the authored path's setup, the chance must take exactly where the table holds it.
+    /// </summary>
+    private static void VerifyBotwoonLeaveHoleChance(CartridgeImportAddressSpace rom)
+    {
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        ushort followsPath = cartridge.ReadCartridgeWord(LeaveHoleActionTable);
+        int taken = 0;
+        for (int sample = 0; sample <= ushort.MaxValue; sample++)
+        {
+            bool expected = cartridge.ReadCartridgeWord(LeaveHoleActionTable + (sample & 0x0e)) == followsPath;
+            bool actual = BotwoonNavigationDefinitions.FollowsAuthoredPath.IsTakenBy(sample);
+            AssertEqual(expected, actual, $"Botwoon leaves a hole along an authored path on sample {sample}");
+            if (actual)
+                taken++;
+        }
+        AssertEqual(3 * 8192, taken, "Botwoon follows an authored path on three samples in eight");
+        Console.WriteLine("Botwoon leave-hole chance: every random sample chooses the cartridge's action.");
+    }
+
     /// <summary>
     /// Compares hole rectangles, the authored paths and every step's production movement in both directions against
     /// the retail tables.
@@ -171,6 +196,7 @@ internal static class BotwoonNavigationDefinitionsVerification
     {
         Suite(nameof(VerifyBotwoonHoleRightBounds), () => VerifyBotwoonHoleRightBounds(rom));
         Suite(nameof(VerifyBotwoonHoleBottomBounds), () => VerifyBotwoonHoleBottomBounds(rom));
+        Suite(nameof(VerifyBotwoonLeaveHoleChance), () => VerifyBotwoonLeaveHoleChance(rom));
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
 
         BotwoonHoleDefinition[] holes = BotwoonNavigationDefinitions.Holes;

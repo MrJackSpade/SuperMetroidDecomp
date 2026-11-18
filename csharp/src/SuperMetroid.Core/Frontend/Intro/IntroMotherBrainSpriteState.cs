@@ -158,11 +158,11 @@ internal sealed class IntroMotherBrainSpriteState
         }
     });
 
-    /// <summary>Alternates the room picture's scroll by four pixels from the inherited flashback offset.</summary>
+    /// <summary>Shakes the room picture: its scroll alternates between the flashback's scroll and four pixels further.</summary>
     private void ApplyScreenShake(int cinematicFrameCounter)
     {
         // The shake adds four on even cinematic frames and subtracts four on odd ones, so the room's scroll alternates
-        // between twelve and the inherited eight and never passes the room's top.
+        // between twelve and the flashback's eight and never passes the room's top.
         Background = Background.WithY(Background.Y +
             (IntroCadenceDefinitions.MotherBrainRoomShakesUp.IsSetIn(cinematicFrameCounter)
                 ? -IntroMotherBrainDefinitions.RoomShakePixels

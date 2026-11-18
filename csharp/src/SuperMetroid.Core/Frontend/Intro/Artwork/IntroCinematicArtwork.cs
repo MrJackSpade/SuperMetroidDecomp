@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 public sealed class IntroCinematicArtwork
 {
     /// <summary>Retains the selected opening backdrop and Ceres artwork.</summary>
-    /// <param name="backdrop">The colour the opening shows where nothing is drawn, at full brightness: its first background colour.</param>
+    /// <param name="backdrop">The colour the opening shows where nothing is drawn, at full brightness.</param>
     /// <param name="ceresFlight">The Ceres approach's backdrop and actor placements.</param>
     /// <param name="ceresDestruction">The destruction and Zebes-reveal actors' placements.</param>
     /// <exception cref="ArgumentNullException">The Ceres artwork is null.</exception>
@@ -24,7 +24,7 @@ public sealed class IntroCinematicArtwork
         CeresDestruction = Ensure.NotNull(ceresDestruction);
     }
 
-    /// <summary>The colour the opening shows where nothing is drawn, at full brightness: its first background colour (#1512).</summary>
+    /// <summary>The colour the opening shows where nothing is drawn, at full brightness (#1512).</summary>
     public RgbColor Backdrop { get; }
     /// <summary>The Ceres approach's backdrop and actor placements, used after the narration fades to Ceres.</summary>
     public CeresFlightArtwork CeresFlight { get; }

@@ -27,7 +27,7 @@ internal static class CeresDestructionActorDefinitions
         new(CeresAnimation.ZebesPlanet,
             CeresSpriteColouring.Zebes, SignedSixteenSixteen.Zero, false, SignedEightEight.FromParts(0, 64), false);
 
-    /// <summary>The PLANET ZEBES text actor: no motion and its animation, in the cinematic's first sprite colours.
+    /// <summary>The PLANET ZEBES text actor: no motion and its animation, in the title's own colouring.
     /// Its animation deletes before scene sliding, so it has no slide.</summary>
     internal static CeresDestructionActorDefinition ZebesTitle =>
         new(CeresAnimation.ZebesTitle,

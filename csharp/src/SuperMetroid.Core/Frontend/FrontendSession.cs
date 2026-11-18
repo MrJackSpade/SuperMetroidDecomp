@@ -35,7 +35,7 @@ internal sealed class FrontendSession
         Random = Ensure.NotNull(random);
         Assists = assists ?? GameplayAssists.None;
         display = new FrontendDisplay(hostServices.GameplayFrames);
-        // One set of handshakes for the session's whole lifetime, like the clock: each library's handler carries its
+        // One set of request handshakes for the session's whole lifetime, like the clock: each library's handshake keeps its
         // phase across menus and gameplay runtimes, and a soft reset returns it to ready with the queues. Every sound request
         // is tested against the live runtime's demo and power bomb as it is made.
         audio = new AudioQueues(new SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>(SoundEffectLibraries.InQueueOrder),
@@ -397,10 +397,9 @@ internal sealed class FrontendSession
             audio.QueueSound(RoomSound.GunshipPadOpening, priority: SoundRequestPriority.Normal);
     }
     /// <summary>
-    /// The gunship writes the liftoff game state only after the top hull has crossed
-    /// Y=256, zeroing the screen fade's delay and counter. It does not freeze time: the liftoff state keeps
-    /// running full gameplay, so Samus and the RNG advance behind the fade. The main-gameplay
-    /// update has already completed on this publication frame; the following update owns the fade.
+    /// The game leaves Zebes once the gunship's top hull has risen past Y=256, starting the screen fade from full
+    /// brightness. It does not freeze time: leaving Zebes keeps running full gameplay, so Samus and the RNG advance behind
+    /// the fade. This update's gameplay has already run; the fade's first step is the next update's.
     /// </summary>
     internal void BeginZebesEscapeFade()
     {

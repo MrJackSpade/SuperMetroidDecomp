@@ -41,7 +41,7 @@ public static class IntroNarrationExtractor
         int cursor = checked((ushort)page.InstructionPointer);
         RequireWord(bus, cursor, page.BeginOpcode, $"{page.Id} begin opcode");
         cursor = Add(cursor, 2);
-        RequireRecord(bus, cursor, IntroNarrationDefinitions.InitialMarkerDelayFrames,
+        RequireRecord(bus, cursor, IntroNarrationDefinitions.PageOpeningPauseFrames,
             IntroNarrationScriptDefinitions.MarkerPackedPosition,
             IntroNarrationScriptDefinitions.MarkerDataPointer,
             IntroNarrationScriptDefinitions.DoNothingFunction);

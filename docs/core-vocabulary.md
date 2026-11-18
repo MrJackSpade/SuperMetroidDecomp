@@ -619,6 +619,17 @@ background layer`, `background layer 2`). Core says what the game does: the came
 developers' debug room, a full room losing the spawn, each turret taking the highest free place, the background's
 position. A call, an area with a unit (`a hit area eight pixels wide`), an allocation and the background stay English.
 
+#2417 widens SME6454, outside hardware owners, to the original's colour sets, colour groups, scroll and program as
+frontend prose tells them: a colour by its place in a set (`its first background colour`, `the cinematic's first sprite
+colours`, `the first of the narration's colours`, `the colours whose first is the space`); a colour group drawn in or
+shared by two things (`both once drew in one colour group`, `the two share a colour group`, `another actor's colour
+group`); a scroll or offset told as inherited (`the scroll both flashbacks inherit`, `the inherited flashback offset`); a
+marker told as executing (`the subtitle creation marker has yet to execute`) and the `empty marker`; and a library's or
+queue's handler (`each library's handler carries its phase`). Core says what the game does: the colour the opening
+shows, each thing's own colours, the flashbacks' scroll, the page's opening pause and its subtitle, each library's
+request handshake. A first colour in a sequence (`the flash's first colours`), a colour group, inheriting anything but a
+scroll, a marker and a handler stay English.
+
 `Tilemap` is matched as the one word the cartridge's sources spell. A room layer named as the destination engine names
 it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as does `MapTiles`; so does
 `SpriteSheet` beside `Spritemap`, and `Scan`, `Scanned` or `FirstLine` beside `Scanline` (#1694). Documentation prose is

@@ -27,8 +27,8 @@ internal static class EndingColourEffectDefinitions
     public const ColourEffectId GunshipEmergence = ColourEffectId.GunshipEmergingFromZebesExplosion;
 
     /// <summary>
-    /// The colours whose first is the space behind the exploding planet (#1512): a frame of their effect that changes that
-    /// colour shows it as the ending's backdrop.
+    /// The colours of the space behind the exploding planet (#1512): while an effect shows a frame of them, the ending's
+    /// backdrop is that frame's space.
     /// </summary>
     public const ColourEffectColours SpaceColours = ColourEffectColours.SpaceDuringZebesExplosion;
 }

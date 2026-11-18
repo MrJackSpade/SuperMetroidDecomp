@@ -106,8 +106,8 @@ public sealed class IntroCinematicState : IFrontendScreen
     }
 
     /// <summary>
-    /// The room picture's vertical scroll both gameplay flashbacks inherit from the first illustrated page.
-    /// Their actor coordinates remain screen-relative and are not shifted with the background.
+    /// The room picture's vertical scroll in both gameplay flashbacks, in pixels: the screen shows the picture from this
+    /// row down. Their actors' places are on the screen and do not move with the picture.
     /// </summary>
     internal const int GameplayFlashbackVerticalScroll = 8;
 
@@ -1243,7 +1243,7 @@ public sealed class IntroCinematicState : IFrontendScreen
 
     /// <summary>
     /// The colour the opening shows where nothing is drawn (#1512): the installed backdrop at the narration's level, as the
-    /// backdrop is the first of the narration's colours.
+    /// backdrop fades with the narration.
     /// </summary>
     private RgbColor Backdrop
     {

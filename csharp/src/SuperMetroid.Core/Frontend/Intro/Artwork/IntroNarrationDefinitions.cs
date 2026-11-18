@@ -11,8 +11,10 @@ public static class IntroNarrationDefinitions
     public const int FirstTextRow = 4;
     /// <summary>Five cinematic updates between one typed character and the next, spaces included; independent of host elapsed time.</summary>
     public const int CharacterDelayFrames = 5;
-    /// <summary>One-update duration of the empty marker at the beginning of each page's text.</summary>
-    public const int InitialMarkerDelayFrames = 1;
+    /// <summary>
+    /// The updates each page waits before it shows its subtitle, and again before its first letter: one.
+    /// </summary>
+    public const int PageOpeningPauseFrames = 1;
     /// <summary>128 cinematic updates the final page holds once its caret starts blinking, before the narration finishes.</summary>
     public const int FinalPageHoldFrames = 128;
 }

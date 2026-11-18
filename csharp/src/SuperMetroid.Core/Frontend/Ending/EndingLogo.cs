@@ -26,7 +26,7 @@ internal sealed class EndingLogo
     /// <summary>Whether the logo has shown its crossfade's last step and hands off to the percentage text.</summary>
     public bool Completed { get; private set; }
 
-    /// <summary>Creates the four logo actors, blacks out the logo's background colours and shows its first sprite colours (#1512).</summary>
+    /// <summary>Creates the four logo actors, blacks out the logo's background colours and shows the assembling logo's first colours (#1512).</summary>
     /// <param name="stage">The stage whose colours the logo shows.</param>
     /// <param name="landed">Called once the upper S half lands.</param>
     public EndingLogo(EndingStage stage, Action landed)

@@ -1,13 +1,11 @@
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
 /// <summary>
-/// The file-select map's entry (#1512): the wait the game spends fading two colours of the still-black screen, its setup,
-/// and the centered area-map reveal.
+/// The file-select map's entry (#1512): a wait on the black screen, its setup, and the centered area-map reveal.
 /// </summary>
 /// <remarks>
-/// The game fades two background colours toward black with its gradual colour change while the screen shows only its
-/// black backdrop; the faded colours are never shown, and the area map's own colours replace them before the reveal. What
-/// the entry keeps is the fade's length: the number of colour-change steps it takes before the setup runs.
+/// Nothing shows during the entry fade: the screen stays black for as many updates as the fade's steps take, and the area
+/// map's own colours show from the reveal.
 /// </remarks>
 public sealed class FileSelectMapEntry
 {

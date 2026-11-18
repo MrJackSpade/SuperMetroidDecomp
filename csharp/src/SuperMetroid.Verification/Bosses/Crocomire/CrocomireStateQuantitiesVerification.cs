@@ -100,12 +100,14 @@ internal static class CrocomireStateQuantitiesVerification
     }
 
     /// <summary>
-    /// The rise matches the cartridge's byte-wise update every frame, from the submerged pause's start and from a
-    /// start whose deceleration stalls the speed below zero every frame.
+    /// The rise matches the cartridge's byte-wise update every frame, from the submerged pause's start, from a start
+    /// whose deceleration stalls the speed below zero every frame, and from the acceleration the cartridge's body carries
+    /// through a melt, whose part finer than a 256th the speed never loses (#2462).
     /// </summary>
     private static void VerifyRiseMatchesNativeBytes()
     {
         CompareRise(0, LittleEndianBytes.Word(0, 3), 0, 280, "resting rise");
+        CompareRise(LittleEndianBytes.Word(48, 0), LittleEndianBytes.Word(0, 3), 0, 280, "rise carrying a finer part");
         CompareRise(LittleEndianBytes.Word(0, 30), LittleEndianBytes.Word(5, 0), LittleEndianBytes.Word(77, 9), 400,
             "stalled rise");
     }
@@ -134,12 +136,23 @@ internal static class CrocomireStateQuantitiesVerification
                 AssertEqual(CrocomireDeathPhase.SecondSubmergedPause, state.DeathPhase, $"{name}: ends on the native frame");
                 return;
             }
-            AssertMotionWords(state, acceleration, speed, subposition, y, $"{name} frame {frame}");
+            AssertMotionWords(state, SinkAccelerationHeld(acceleration), speed, subposition, y, $"{name} frame {frame}");
             AssertEqual<int?>(288 - body.Position.Y.Whole, enemies.Presentation.RequireBossBody().Publish().ShownAbove,
                 $"{name} frame {frame}: the acid hides his body from room row 288 where he now lies");
         }
         throw new InvalidOperationException($"Verification failed: {name} did not reach the acid floor.");
     }
+
+    /// <summary>
+    /// The acceleration the sink holds for the cartridge's <paramref name="nativeAcceleration"/> word (#2462): the word
+    /// itself below the sink's most, and the most itself once the word's 256ths reach it. There the cartridge keeps a part
+    /// finer than a 256th beneath the most, which no speed reads (the speed gains only the 256ths, and the sink's end
+    /// replaces the acceleration); the speed, the carried fraction and Y are compared with the cartridge's every update.
+    /// </summary>
+    private static ushort SinkAccelerationHeld(ushort nativeAcceleration) =>
+        LittleEndianBytes.HighByte(nativeAcceleration) >= CrocomireBridgeCollapseDefinitions.MaximumSinkAcceleration.InTwoFiftySixths
+            ? checked((ushort)CrocomireBridgeCollapseDefinitions.MaximumSinkAcceleration.RawValue)
+            : nativeAcceleration;
 
     /// <summary>Runs the production rise beside the native reference until the reference clears the surface.</summary>
     private static void CompareRise(ushort acceleration, ushort speed, ushort subposition, ushort y, string name)
@@ -166,7 +179,7 @@ internal static class CrocomireStateQuantitiesVerification
         throw new InvalidOperationException($"Verification failed: {name} did not clear the surface.");
     }
 
-    /// <summary>Compares the acceleration, speed, subpixel and the body's Y with the native reference.</summary>
+    /// <summary>Compares the acceleration, speed, subpixel and the body's Y with the expected words.</summary>
     private static void AssertMotionWords(CrocomireEnemyState state, ushort acceleration, ushort speed,
         ushort subposition, ushort y, string at)
     {

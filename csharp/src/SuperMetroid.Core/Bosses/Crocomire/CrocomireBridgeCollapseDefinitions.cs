@@ -22,10 +22,7 @@ internal static class CrocomireBridgeCollapseDefinitions
     /// <summary>Acceleration the sink adds each update: three and a half 256ths of a pixel an update an update (#2299).</summary>
     internal static readonly SignedSixteenSixteen SinkAccelerationIncrement = SignedSixteenSixteen.FromParts(0, 896);
 
-    /// <summary>
-    /// The sink's acceleration stops growing at forty-eight 256ths of a pixel an update an update, keeping its part finer
-    /// than a 256th (#2299).
-    /// </summary>
+    /// <summary>The most the sink's acceleration grows to: forty-eight 256ths of a pixel an update an update (#2299).</summary>
     internal static readonly SignedSixteenSixteen MaximumSinkAcceleration = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(48);
 
     /// <summary>
@@ -37,7 +34,7 @@ internal static class CrocomireBridgeCollapseDefinitions
     /// <summary>The acceleration the rise adds each update: a 256th of a pixel an update an update (#2299).</summary>
     internal static readonly SignedSixteenSixteen RiseAccelerationIncrement = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(1);
 
-    /// <summary>The rise's acceleration stops growing at thirty-one 256ths of a pixel an update an update (#2299).</summary>
+    /// <summary>The most the rise's acceleration grows to: thirty-one 256ths of a pixel an update an update (#2299).</summary>
     internal static readonly SignedSixteenSixteen MaximumRiseAcceleration = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(31);
 
     /// <summary>The speed a rise keeps when its deceleration would take it below zero: 255/256 pixel per frame.</summary>

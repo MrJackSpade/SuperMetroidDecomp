@@ -234,10 +234,9 @@ internal sealed class CrocomireBridgeCollapse
 
         body.AnimationClock.ShowsNewFrame = false;
 
-        // The acceleration grows, its 256ths stopping at the sink's most with its finer part kept; the speed then gains it
-        // as the sinking speed gains (CrocomireSpeedGain).
-        SignedSixteenSixteen acceleration = (state.VerticalAcceleration + CrocomireBridgeCollapseDefinitions.SinkAccelerationIncrement)
-            .WithTwoFiftySixthsAtMost(CrocomireBridgeCollapseDefinitions.MaximumSinkAcceleration);
+        // The acceleration grows up to the sink's most; the speed then gains it (CrocomireSpeedGain).
+        SignedSixteenSixteen acceleration = SignedSixteenSixteen.Min(
+            state.VerticalAcceleration + CrocomireBridgeCollapseDefinitions.SinkAccelerationIncrement, CrocomireBridgeCollapseDefinitions.MaximumSinkAcceleration);
         state.VerticalAcceleration = acceleration;
         SignedEightEight speed = CrocomireSpeedGain.Gained(state.VerticalSpeed, acceleration, CrocomireBridgeCollapseDefinitions.MaximumSinkSpeed);
         state.VerticalSpeed = speed;
@@ -265,9 +264,9 @@ internal sealed class CrocomireBridgeCollapse
             state.VerticalAcceleration + CrocomireBridgeCollapseDefinitions.RiseAccelerationIncrement, CrocomireBridgeCollapseDefinitions.MaximumRiseAcceleration);
         state.VerticalAcceleration = acceleration;
 
-        // The speed loses the acceleration, which every rise starts from none and grows by whole 256ths of a pixel; a speed
-        // that would fall below zero stalls just under one pixel per update instead of reversing.
-        SignedEightEight speed = state.VerticalSpeed - SignedEightEight.FromTwoHundredFiftySixthsOfPixel(acceleration.InTwoFiftySixths);
+        // The speed loses the acceleration (CrocomireSpeedGain); a speed that would fall below zero stalls just under one
+        // pixel an update instead of reversing.
+        SignedEightEight speed = CrocomireSpeedGain.Lost(state.VerticalSpeed, acceleration);
         if (speed.IsNegative)
             speed = CrocomireBridgeCollapseDefinitions.RiseSpeedAfterStalling;
         state.VerticalSpeed = speed;

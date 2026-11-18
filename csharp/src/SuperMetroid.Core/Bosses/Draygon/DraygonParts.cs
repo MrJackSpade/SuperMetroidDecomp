@@ -296,7 +296,7 @@ internal sealed class DraygonParts
         _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Strong, EarthquakeDirection.Vertical, EarthquakeReach.Foreground), DraygonArenaDefinitions.TailHitShakeUpdates);
 
         _effectActors.SpawnRoomEffectActor(
-            new(samus.Position.X.Whole, CoordinateAxis.Wrap(samus.Position.Y.Whole + DraygonArenaDefinitions.TailHitDustBelowSamus)),
+            new(samus.Position.X.Whole, samus.Position.Y.Whole + DraygonArenaDefinitions.TailHitDustBelowSamus),
             RoomEffectActorKind.BigDustCloud,
             graphics: default);
     }

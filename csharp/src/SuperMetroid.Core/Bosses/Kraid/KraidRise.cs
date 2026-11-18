@@ -312,7 +312,7 @@ internal sealed class KraidRise
                     RequestKraidRisingRock(body);
                 body.Position = body.Position.WithWholeX(body.Position.X.Whole +
                     (KraidCadenceDefinitions.RiseSwayPhase.IsSetIn(body.Position.Y.Whole) ? 1 : -1));
-                AddSignedKraidVerticalDisplacement(body, RisingBodyLift);
+                body.Position = body.Position.AdvanceY(RisingBodyLift);
                 if (body.Position.Y.Whole < KraidArenaDefinitions.RisenY)
                 {
                     body.Position = body.Position.WithWholeX(KraidArenaDefinitions.FirstPhaseX);
@@ -351,12 +351,4 @@ internal sealed class KraidRise
 
     /// <summary>How far Kraid's body rises each update while it raises itself: half a pixel upward.</summary>
     private static readonly SignedSixteenSixteen RisingBodyLift = SignedSixteenSixteen.FromSixteenthsOfPixel(-8);
-
-    /// <summary>Adds signed vertical motion to the body position with fixed-point wraparound.</summary>
-    private static void AddSignedKraidVerticalDisplacement(
-        RoomEnemyPlace body,
-        SignedSixteenSixteen displacement)
-    {
-        body.Position = body.Position.WithY(body.Position.Y.MovedBy(displacement));
-    }
 }

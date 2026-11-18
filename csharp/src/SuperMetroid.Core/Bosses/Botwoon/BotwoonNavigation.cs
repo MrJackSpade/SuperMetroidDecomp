@@ -18,7 +18,7 @@ internal static class BotwoonNavigation
         BotwoonHole[] destinations = (insideWall
             ? BotwoonNavigationDefinitions.WallDestinations
             : BotwoonNavigationDefinitions.OpenDestinations)[from];
-        if ((uint)draw >= (uint)destinations.Length)
+        if (draw < 0 || draw >= destinations.Length)
             throw new InvalidDataException($"Botwoon path draw {draw} is not one of the {destinations.Length} draws.");
 
         BotwoonHole to = destinations[draw];
@@ -59,7 +59,7 @@ internal static class BotwoonNavigation
 
     /// <summary>The movement of step <paramref name="step"/> of authored path <paramref name="path"/>, as authored.</summary>
     internal static Offset16<RoomPixels> Step(BotwoonPathDefinition path, int step) =>
-        (uint)step < (uint)path.Steps.Length
+        step >= 0 && step < path.Steps.Length
             ? Movement(path.Steps[step])
             : throw new InvalidDataException($"Botwoon's path from {path.From} to {path.To} has no step {step}.");
 

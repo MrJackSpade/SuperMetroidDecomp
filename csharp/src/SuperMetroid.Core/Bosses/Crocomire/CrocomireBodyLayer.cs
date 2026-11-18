@@ -80,8 +80,7 @@ internal sealed class CrocomireBodyLayer
         death.AcidSmokeTimer = CrocomireBridgeCollapseDefinitions.AcidSmokeInterval;
 
         int random = _access.ReadCrocomireRandom();
-        // Smoke on the left rises one pixel further from the body than its mirror on the right; the smoke's X keeps
-        // its wrap around the room where the offset is added.
+        // Smoke on the left rises one pixel further from the body than its mirror on the right.
         int xOffset = CrocomireRandomDefinitions.AcidSmokeXOffset.Of(random);
         if (!CrocomireRandomDefinitions.AcidSmokeOnRight.IsSetIn(random))
             xOffset = -(xOffset + CrocomireRandomDefinitions.AcidSmokeLeftExtraPixels);

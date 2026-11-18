@@ -105,9 +105,8 @@ internal sealed class ProjectileEnemyImpacts
         }
 
         shot.Damage = SamusProjectileDamage.Read(kind);
-        shot.Playback = SamusProjectilePlayback.Start(segment);
+        shot.Animation = SamusProjectilePlayback.Start(segment);
         shot.Radius = SamusProjectilePlayback.InitialRadius(segment);
-        shot.FrameHold = WrappingCountdown.Start(1);
 
         if (family == SamusProjectileFamily.Missile)
             shot.Install(SamusShotBehaviors.Missile, new MissileShotState(SamusMissileIgnition.PendingAfterReflection));

@@ -22,8 +22,7 @@ internal static class PlasmaPenetrationVerification
             slot.Type = type;
             slot.Damage = 100;
             slot.Direction = SamusProjectileDirection.Right;
-            slot.Playback = ProjectileFixturePlaybacks.Active;
-            slot.FrameHold = WrappingCountdown.Start(7);
+            slot.Animation = ProjectileFixturePlaybacks.Active(updates: 7);
             var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
             for (int hit = 0; hit < 2; hit++)
             {
@@ -31,8 +30,8 @@ internal static class PlasmaPenetrationVerification
                 AssertEqual(type, slot.Type, "Plasma preserves live beam type instead of explosion");
                 AssertEqual(100, slot.Damage, "Plasma preserves original damage");
                 AssertTrue(!slot.IsSpent, "Plasma is not marked spent");
-                AssertEqual(ProjectileFixturePlaybacks.Active, slot.Playback, "Plasma retains its animation");
-                AssertEqual<ushort?>(7, slot.FrameHold?.RawValue, "Plasma retains animation timing");
+                AssertEqual(ProjectileFixturePlaybacks.ActivePlayback, slot.Playback, "Plasma retains its animation");
+                AssertEqual(7, slot.Animation!.UpdatesLeft, "Plasma retains animation timing");
             }
         }
     }

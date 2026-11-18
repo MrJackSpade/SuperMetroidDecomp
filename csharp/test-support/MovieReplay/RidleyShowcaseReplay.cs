@@ -794,8 +794,8 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     : throw new InvalidDataException($"Movie projectile behaviour {behavior.GetType().Name} needs a native identity mapping");
                 Check(owner + " FrameBehavior", callback, NativeSnapshotMemory.ProjectileFrameBehavior + index);
                 // A shot holding a still picture has no timer: the native timer only re-shows the same picture (#2347).
-                if (projectile.FrameHold is { } hold)
-                    Check(owner + " FrameHold", unchecked(hold.RawValue), NativeSnapshotMemory.ProjectileFrameHold + index);
+                if (projectile.Animation is { IsResting: false } animation)
+                    Check(owner + " FrameHold", animation.UpdatesLeft, NativeSnapshotMemory.ProjectileFrameHold + index);
                 // Only missiles keep state in the variable word that this movie reaches: their ignition, and a Super
                 // Missile's link, which no other projectile has (UnlinkedSuperMissileLink).
                 if (projectile.Type.Family is SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile)
@@ -811,7 +811,9 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 // A Super Missile's link never sets or reads its trail timer, on the cartridge or here; the cartridge's word is
                 // whatever the place's previous projectile left, which a fresh link does not inherit (#1590).
                 if (projectile.Behavior != SamusShotBehaviors.SuperMissileLink)
-                    Check(owner + " TrailTimer", unchecked(projectile.TrailTimer.RawValue), NativeSnapshotMemory.ProjectileTrailTimer + index);
+                    Check(owner + " TrailTimer", projectile.TrailUpdatesLeft
+                        ?? throw new InvalidDataException($"{owner} leaves no trail, which no projectile this movie reaches does."),
+                        NativeSnapshotMemory.ProjectileTrailTimer + index);
                 // No Spazer phase is compared: only a Spazer special attack's particles have one, they set it before
                 // reading it, and the callback mapping above rejects them in this movie.
                 // A record storing a composition again, byte for byte, shows that composition (#2295).

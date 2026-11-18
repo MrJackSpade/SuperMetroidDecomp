@@ -51,9 +51,9 @@ internal static class ChargeFlareDefinitionsVerification
             Animation<ChargeFlareSegment> animation = ChargeFlareAnimationDefinitions.Animations[component];
             var loop = (AnimationEnd.Loop)animation.End;
             AnimationPhase<ChargeFlareSegment> repeated = animation.Phases[loop.Phase];
-            int repeatedFrom = animation.Phases.Take(loop.Phase).Sum(phase => phase.BeatCount) + repeated.FirstBeat;
+            int repeatedFrom = animation.Phases.Take(loop.Phase).Sum(phase => phase.BeatCount * phase.Plays) + repeated.FirstBeat;
             AssertEqual(continuesAt, repeatedFrom, $"{component} continues past its last picture where the original program does");
-            AssertEqual(beats.Count, repeatedFrom + repeated.BeatCount, $"{component}'s repeated run ends at its last picture");
+            AssertEqual(beats.Count, repeatedFrom + repeated.BeatCount * repeated.Plays, $"{component}'s repeated run ends at its last picture");
             if (component == ChargeFlareComponent.MainFlare)
             {
                 var grappleFlare = new ChargeFlareComponentState(component);

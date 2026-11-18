@@ -33,7 +33,7 @@ internal static class IntroProjectileArtworkVerification
         {
             projectiles.Reset();
             var shot = projectiles.Shots[0];
-            shot.Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(family); shot.Playback = ProjectileFixturePlaybacks.Active; shot.SpritemapPointer = sprite;
+            shot.Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(family); shot.Animation = ProjectileFixturePlaybacks.Active(); shot.SpritemapPointer = sprite;
             shot.Position = shot.Position.WithWhole(new(100, 100));
             AssertEqual(sheet.Frame(ProjectileSheetFrames.ProjectileFrame(ProjectileSpriteNative.Projectile(sprite))),
                 Shown(intro, SpriteSourceKind.SamusProjectile).Image, $"Intro family ${family:X} shows its frame of the intro's projectile sheet");
@@ -41,8 +41,8 @@ internal static class IntroProjectileArtworkVerification
         projectiles.Reset();
         ProjectileTrailFrame frame = ProjectileTrailFrame.IceSparkleClustered;
         var side = projectiles.AddTrail().Left;
-        side.InstructionPointer = (ushort)(ProjectileTrailNative.Address(frame) + 4); side.FrameHold = 100;
-        side.Position = side.Position.WithX(100).WithY(100); side.ShownPose = frame;
+        side.RestoreNative((ushort)(ProjectileTrailNative.Address(frame) + 4), 100, frame);
+        side.Position = side.Position.WithX(100).WithY(100);
         AssertEqual(sheet.Frame(ProjectileSheetFrames.TrailFrame(frame)), Shown(intro, SpriteSourceKind.SamusProjectileTrail).Image,
             "Intro trail shows its pose's frame of the intro's projectile sheet");
         AssertEqual(99, side.FrameHold, "Intro preparation advances trail exactly once per call");

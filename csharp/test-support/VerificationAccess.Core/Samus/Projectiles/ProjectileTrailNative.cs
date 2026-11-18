@@ -52,7 +52,7 @@ internal static class ProjectileTrailNative
                 return false;
             foreach (ProjectileTrailSegment program in Enum.GetValues<ProjectileTrailSegment>())
             {
-                IReadOnlyList<AnimationBeat<ProjectileTrailFrame, ProjectileTrailCue>> beats = ProjectileTrailSparkleAnimations.Segments.Beats(program);
+                IReadOnlyList<AnimationBeat<ProjectileTrailFrame, ProjectileTrailCue>> beats = ProjectileTrailSparkleAnimations.PlayedBeats(program);
                 for (int beat = 0; beat <= beats.Count; beat++)
                 {
                     if (ProjectileTrailSources.Address(program, beat) != (ushort)address)

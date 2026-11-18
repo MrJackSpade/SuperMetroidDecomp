@@ -250,7 +250,7 @@ internal sealed class BeamFiring
         SamusProjectile projectile = _pool.Occupy(place);
         projectile.Direction = aim;
         InitializePosition(samus, projectile);
-        projectile.TrailTimer = WrappingCountdown.Start(ProjectileTimingDefinitions.TrailInterval);
+        projectile.TrailUpdatesLeft = ProjectileTimingDefinitions.TrailInterval;
         projectile.Type = SamusProjectileType.Beam(SamusBeamCombinations.Of(samus.EquippedBeams), charged);
         projectile.PicturedBeams = projectile.Type.BeamCombination;
         ProjectileInvincibilityTimer = ProjectileTimingDefinitions.BeamInteractionImmunity;
@@ -267,9 +267,8 @@ internal sealed class BeamFiring
         SamusProjectileKind kind = SamusProjectileSelection.BeamShot(beamType, charged);
         projectile.Damage = SamusProjectileDamage.Read(kind);
         SamusProjectileSegment? segment = SamusProjectileSelection.BeamShotAnimation(beamType, charged, aim);
-        projectile.Playback = SamusProjectilePlayback.Start(segment);
+        projectile.Animation = SamusProjectilePlayback.Start(segment);
         projectile.Radius = SamusProjectilePlayback.InitialRadius(segment);
-        projectile.FrameHold = WrappingCountdown.Start(1);
 
         // The cooldown selection checks Charge equipment and both input-edge latches before
         // selecting ordinary cooldown. Only uncharged auto-fire without those
@@ -286,7 +285,7 @@ internal sealed class BeamFiring
 
         SoundEffectId? sound = SamusProjectileSoundRouting.Resolve(charged, beamType);
         if (charged)
-            _charge.ChargedShotGlow = ChargedShotGlow.ChargedShotFlash;
+            _charge.ChargedShotGlow = ChargedShotGlow.StartChargedShotFlash();
 
         // Uncharged and charged firing explicitly zero both speeds and call
         // the directional or Wave beam collision check before installing the shot's behaviour and
@@ -357,9 +356,8 @@ internal sealed class BeamFiring
         const SamusBeamCombination hyperBeamType = SamusBeamCombination.Plasma;
         SamusProjectileKind kind = SamusProjectileSelection.BeamShot(hyperBeamType, charged: true);
         SamusProjectileSegment segment = SamusProjectileKinds.Animation(kind, projectile.Direction);
-        projectile.Playback = SamusProjectilePlayback.Start(segment);
+        projectile.Animation = SamusProjectilePlayback.Start(segment);
         projectile.Radius = SamusProjectilePlayback.InitialRadius(segment);
-        projectile.FrameHold = WrappingCountdown.Start(1);
         projectile.Damage = SamusProjectileDamageDefinitions.HyperBeamDamage;
 
         // Hyper uses the Wave beam collision check at this same producer seam. It publishes door and
@@ -375,7 +373,7 @@ internal sealed class BeamFiring
 
         // The shot starts the Hyper Beam's own suit glow, and its flare in place of the charge.
         sharedProjectiles.SetSharedCooldown(SamusProjectileCooldownDefinitions.HyperBeamShot);
-        _charge.ChargedShotGlow = ChargedShotGlow.HyperBeamGlow;
+        _charge.ChargedShotGlow = ChargedShotGlow.StartHyperBeamGlow();
         _charge.StartHyperBeamFlare();
 
         SoundEffectId? sound = SamusProjectileSoundRouting.Resolve(
@@ -432,7 +430,7 @@ internal sealed class BeamFiring
             samus.SuperMissiles = CountsRunBelowZero.DecrementWrapping(samus.SuperMissiles);
         else
             samus.Missiles = CountsRunBelowZero.DecrementWrapping(samus.Missiles);
-        projectile.TrailTimer = WrappingCountdown.Start(ProjectileTimingDefinitions.TrailInterval);
+        projectile.TrailUpdatesLeft = ProjectileTimingDefinitions.TrailInterval;
         projectile.Type = SamusProjectileType.Of(isSuperMissile ? SamusProjectileFamily.SuperMissile : SamusProjectileFamily.Missile);
         projectile.PicturedBeams = SamusBeamCombinations.Of(samus.EquippedBeams);
 
@@ -442,9 +440,8 @@ internal sealed class BeamFiring
         SamusProjectileKind kind = SamusProjectileSelection.NonBeam(projectile.Type.Family);
         projectile.Damage = SamusProjectileDamage.Read(kind);
         SamusProjectileSegment segment = SamusProjectileKinds.Animation(kind, projectile.Direction);
-        projectile.Playback = SamusProjectilePlayback.Start(segment);
+        projectile.Animation = SamusProjectilePlayback.Start(segment);
         projectile.Radius = SamusProjectilePlayback.InitialRadius(segment);
-        projectile.FrameHold = WrappingCountdown.Start(1);
         if (isSuperMissile)
         {
             projectile.Install(SamusShotBehaviors.SuperMissile,

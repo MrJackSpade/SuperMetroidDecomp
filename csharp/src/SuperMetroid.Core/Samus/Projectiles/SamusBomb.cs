@@ -44,32 +44,42 @@ public sealed class SamusBomb
         get;
         internal set => field = Ensure.AtLeastZero(value);
     }
-    /// <summary>The bomb's animation and where it stands in it (#1600); null while no bomb is placed here, and a timed frame that has run out plays it on past that frame.</summary>
-    internal AnimationPlayback<SamusProjectileSegment>? Playback { get; set; }
-    /// <summary>Wrapping duration countdown, decremented once per unfrozen projectile update; reaching zero runs the next animation cue.</summary>
-    public WrappingCountdown FrameHold { get; internal set; }
+    /// <summary>
+    /// The bomb's animation (#1600, #2458): the frame it shows, the updates that frame has left and where its play stands;
+    /// null while no bomb is placed here.
+    /// </summary>
+    internal AnimationPlayer<SamusProjectileSegment, SamusProjectileFrameId, NoAnimationCue>? Animation { get; set; }
+    /// <summary>The bomb's animation and where it stands in it; null while no bomb is placed here.</summary>
+    internal AnimationPlayback<SamusProjectileSegment>? Playback => Animation?.Playback;
     /// <summary>The composition the bomb shows, selected by the timed-frame animation or installed frame binding; none before its first frame.</summary>
     public ProjectileSpriteId? Sprite { get; internal set; }
     /// <summary>Collision half-extents in whole pixels, loaded from the timed frames; not the global Power Bomb blast radius.</summary>
     public Extent16<RoomPixels> Radius { get; internal set; }
 
+    /// <summary>
+    /// The flight of a bomb spread's bomb (#2459), created when the spread places it; null for a placed bomb or a Power
+    /// Bomb, which do not fly.
+    /// </summary>
+    public BombSpreadFlight? SpreadFlight { get; internal set; }
+
     /// <summary>Whether the bomb is one of a bomb spread's five.</summary>
-    public bool IsBombSpread { get; internal set; }
+    public bool IsBombSpread => SpreadFlight is not null;
 
-    /// <summary>The spread bomb's horizontal velocity, negative leftward; a wall reverses it.</summary>
-    public SignedSixteenSixteen BombSpreadHorizontalVelocity { get; internal set; }
+    /// <summary>
+    /// The updates the bomb's fuse has left (#2458): set when the bomb is placed, counted down once per update while it
+    /// burns, and zero from the update it burns out, where nothing counts it again.
+    /// </summary>
+    public int FuseUpdatesLeft
+    {
+        get;
+        internal set => field = Ensure.AtLeastZero(value);
+    }
 
-    /// <summary>The spread bomb's vertical velocity, negative upward; Samus's gravity accelerates it every frame.</summary>
-    public SignedSixteenSixteen BombSpreadVerticalVelocity { get; internal set; }
-
-    /// <summary>The upward launch velocity, signed and in 1/65536 pixels, that a floor bounce restores.</summary>
-    public SignedSixteenSixteen BombSpreadLaunchVelocity { get; internal set; }
-
-    /// <summary>The bomb's fuse, and after detonation its explosion phase counter.</summary>
-    public WrappingCountdown BombTimer { get; internal set; }
+    /// <summary>Whether the bomb's fuse has burned out: a normal bomb explodes, and a Power Bomb's blast has begun.</summary>
+    public bool HasBurnedOut => FuseUpdatesLeft == 0;
 
     /// <summary>Whether the bomb is live: a placed bomb runs its animation until it ends.</summary>
-    public bool IsActive => Playback is not null;
+    public bool IsActive => Animation is not null;
 
     /// <summary>
     /// Ends the bomb: it reads as no bomb, at rest at the room's origin, to whatever still holds it and to anything that
@@ -83,14 +93,10 @@ public sealed class SamusBomb
         PicturedBeams = SamusBeamCombination.Power;
         HasReactedToTerrain = false;
         Damage = 0;
-        Playback = null;
-        FrameHold = WrappingCountdown.Start(0);
+        Animation = null;
         Sprite = null;
         Radius = Extent16<RoomPixels>.Zero;
-        BombTimer = WrappingCountdown.Start(0);
-        IsBombSpread = false;
-        BombSpreadHorizontalVelocity = SignedSixteenSixteen.Zero;
-        BombSpreadVerticalVelocity = SignedSixteenSixteen.Zero;
-        BombSpreadLaunchVelocity = SignedSixteenSixteen.Zero;
+        FuseUpdatesLeft = 0;
+        SpreadFlight = null;
     }
 }

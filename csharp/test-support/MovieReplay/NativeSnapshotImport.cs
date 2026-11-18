@@ -284,15 +284,11 @@ internal static class NativeSnapshotImport
             if (leftHold == 0 && rightHold == 0)
                 continue;
             var trail = runtime.Projectiles.AddTrail(SamusBeamCombinations.Of(samus.EquippedBeams));
-            trail.Left.FrameHold = leftHold;
-            trail.Right.FrameHold = rightHold;
             // A sparkle whose timer has run out has ended: its animation is over, whatever its pointer still names.
-            if (leftHold != 0)
-                trail.Left.InstructionPointer = W(NativeSnapshotMemory.TrailLeftInstructionPointer + offset);
-            if (rightHold != 0)
-                trail.Right.InstructionPointer = W(NativeSnapshotMemory.TrailRightInstructionPointer + offset);
-            trail.Left.ShownPose = ProjectileTrailNative.ShownPose(W(NativeSnapshotMemory.TrailLeftTileNumberAttributes + offset));
-            trail.Right.ShownPose = ProjectileTrailNative.ShownPose(W(NativeSnapshotMemory.TrailRightTileNumberAttributes + offset));
+            trail.Left.RestoreNative(W(NativeSnapshotMemory.TrailLeftInstructionPointer + offset), leftHold,
+                ProjectileTrailNative.ShownPose(W(NativeSnapshotMemory.TrailLeftTileNumberAttributes + offset)));
+            trail.Right.RestoreNative(W(NativeSnapshotMemory.TrailRightInstructionPointer + offset), rightHold,
+                ProjectileTrailNative.ShownPose(W(NativeSnapshotMemory.TrailRightTileNumberAttributes + offset)));
             trail.Left.Position = new Position16<RoomPixels>(
                 W(NativeSnapshotMemory.TrailLeftXPosition + offset), W(NativeSnapshotMemory.TrailLeftYPosition + offset));
             trail.Right.Position = new Position16<RoomPixels>(

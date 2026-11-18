@@ -107,46 +107,44 @@ internal static class SamusSnapshotWords
     /// game counts the glow's updates down to its end; the decoded glow has played as many updates from its start as the
     /// count stands below its first.
     /// </summary>
-    internal static ChargedShotGlow DecodeChargedShotGlow(ushort word) => word switch
+    internal static ChargedShotGlow? DecodeChargedShotGlow(ushort word) => word switch
     {
-        0 => ChargedShotGlow.None,
-        <= FlashSteps => PlayedUpdates(ChargedShotGlow.ChargedShotFlash, FlashSteps - word),
+        0 => null,
+        <= FlashSteps => PlayedUpdates(ChargedShotGlow.StartChargedShotFlash(), FlashSteps - word),
         >= HyperBeamGlowMarker and <= HyperBeamGlowMarker + HyperBeamGlowSteps =>
-            PlayedUpdates(ChargedShotGlow.HyperBeamGlow, HyperBeamGlowSteps - (word - HyperBeamGlowMarker)),
+            PlayedUpdates(ChargedShotGlow.StartHyperBeamGlow(), HyperBeamGlowSteps - (word - HyperBeamGlowMarker)),
         _ => throw new InvalidDataException($"Charged-shot glow word ${word:X4} is not a native glow state."),
     };
 
     /// <summary>Encodes a charged-shot glow as the <c>$0B18</c> word the game keeps it in: its count of steps left.</summary>
-    internal static ushort EncodeChargedShotGlow(ChargedShotGlow glow) => glow.Kind switch
+    internal static ushort EncodeChargedShotGlow(ChargedShotGlow? glow) => glow?.Kind switch
     {
-        ChargedShotGlowKind.None => 0,
-        ChargedShotGlowKind.ChargedShotFlash => checked((ushort)(FlashSteps - UpdatesPlayed(ChargedShotGlow.ChargedShotFlash, glow))),
+        null => 0,
+        ChargedShotGlowKind.ChargedShotFlash => checked((ushort)(FlashSteps - UpdatesPlayed(ChargedShotGlow.StartChargedShotFlash(), glow))),
         ChargedShotGlowKind.HyperBeamGlow =>
-            checked((ushort)(HyperBeamGlowMarker + HyperBeamGlowSteps - UpdatesPlayed(ChargedShotGlow.HyperBeamGlow, glow))),
+            checked((ushort)(HyperBeamGlowMarker + HyperBeamGlowSteps - UpdatesPlayed(ChargedShotGlow.StartHyperBeamGlow(), glow))),
         _ => throw new InvalidOperationException($"Undefined {nameof(ChargedShotGlowKind)} {glow.Kind}."),
     };
 
-    /// <summary>The glow <paramref name="start"/> becomes after <paramref name="updates"/> updates of play.</summary>
-    private static ChargedShotGlow PlayedUpdates(ChargedShotGlow start, int updates)
+    /// <summary>The glow <paramref name="glow"/>, played <paramref name="updates"/> updates from its start.</summary>
+    private static ChargedShotGlow PlayedUpdates(ChargedShotGlow glow, int updates)
     {
-        ChargedShotGlow glow = start;
         for (int update = 0; update < updates; update++)
-            glow = glow.Played(out _);
+            _ = glow.PlayUpdate();
         return glow;
     }
 
-    /// <summary>How many updates <paramref name="start"/> plays before it stands as <paramref name="glow"/>.</summary>
-    /// <exception cref="InvalidDataException">The glow is no state its start plays through.</exception>
+    /// <summary>How many updates <paramref name="start"/> plays before it stands where <paramref name="glow"/> stands.</summary>
+    /// <exception cref="InvalidDataException">The glow stands nowhere its start plays through.</exception>
     private static int UpdatesPlayed(ChargedShotGlow start, ChargedShotGlow glow)
     {
-        ChargedShotGlow played = start;
-        for (int updates = 0; played.Kind != ChargedShotGlowKind.None; updates++)
+        for (int updates = 0; !start.HasEnded; updates++)
         {
-            if (played == glow)
+            if (start.Play.Playback == glow.Play.Playback && start.Play.UpdatesLeft == glow.Play.UpdatesLeft)
                 return updates;
-            played = played.Played(out _);
+            _ = start.PlayUpdate();
         }
-        throw new InvalidDataException($"Charged-shot glow {glow} is no state its start plays through.");
+        throw new InvalidDataException($"The {glow.Kind} glow stands nowhere its start plays through.");
     }
 
     /// <summary>The <c>$0CD0</c>/<c>$0DC2</c> word the Hyper Beam's flare keeps in place of a charge count.</summary>

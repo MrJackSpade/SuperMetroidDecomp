@@ -917,6 +917,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyPauseMomentumReconciliation), () => VerifyPauseMomentumReconciliation()),
         new(nameof(VerifyBombChargeRejection), () => VerifyBombChargeRejection()),
         new(nameof(VerifyGroundedBombSpread), () => VerifyGroundedBombSpread()),
+        new(nameof(Samus.Projectiles.BombSpreadFlightVerification.VerifyBombSpreadFlightRules), Samus.Projectiles.BombSpreadFlightVerification.VerifyBombSpreadFlightRules),
         new(nameof(VerifyGroundedSpreadTransition), () => VerifyGroundedSpreadTransition()),
         new(nameof(Samus.Projectiles.BeamChargeClearVerification.VerifyGrappleWallJumpClearsBeamCharge), Samus.Projectiles.BeamChargeClearVerification.VerifyGrappleWallJumpClearsBeamCharge),
         new(nameof(VerifyAerialSpreadTransitions), () => VerifyAerialSpreadTransitions()),

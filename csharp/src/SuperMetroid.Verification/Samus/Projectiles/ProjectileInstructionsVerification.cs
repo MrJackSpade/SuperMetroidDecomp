@@ -102,20 +102,21 @@ internal static class ProjectileInstructionsVerification
         AssertEqual(1792, words.Count, "All authored duration/trail/control words inventoried");
         var trailSlot = new SamusProjectile(0);
         // A trail reads the frame of the record the shot last installed, the record just before the shot's next list
-        // position; a shot whose list has installed none yet shows no frame, and leaves no trail (#1625).
+        // position; a shot whose list has installed none yet shows no frame, and leaves no trail (#1625). The frame is the
+        // one the shot's animation shows, whatever updates it has left (#2458).
         foreach (ushort entry in entries)
         {
             AnimationPlayback<SamusProjectileSegment> playback = SamusProjectileProgramAddresses.PlaybackAt(entry)
                 ?? throw new InvalidOperationException($"Projectile list position ${entry:X4} names no playback.");
-            trailSlot.Playback = playback;
             SamusProjectileFrameId? expected = SamusProjectilePlayback.BeatOf(playback).Beat == 0
                 ? null
                 : SamusProjectileProgramsVerification.RecordAt(unchecked((ushort)(entry - SuperMetroid.AssetExtraction.CartridgeTables.SamusProjectileListLayout.TimedRecordByteCount)));
-            foreach (ushort timer in new ushort[] { 0, 1, 2, ushort.MaxValue })
+            foreach (int updates in new[] { 1, 2, ushort.MaxValue })
             {
-                trailSlot.FrameHold = WrappingCountdown.Start(timer);
-                AssertEqual(expected, ProjectileTrails.GetTrailFrame(trailSlot), "Trail owner reads the last installed record's frame regardless of timer");
-                AssertEqual<ushort?>(timer, trailSlot.FrameHold?.RawValue, "Trail frame lookup leaves timer unchanged");
+                trailSlot.Animation = expected is null
+                    ? SamusProjectileProgramAddresses.PlayerAt(entry, updates)
+                    : SamusProjectileProgramAddresses.ShowingBeatBefore(playback, updates);
+                AssertEqual(expected, ProjectileTrails.GetTrailFrame(trailSlot), "Trail owner reads the last installed record's frame whatever updates it has left");
             }
         }
 
@@ -124,8 +125,8 @@ internal static class ProjectileInstructionsVerification
         int frames = 0;
         foreach (ushort entry in entries)
         {
-            var slot = new SamusProjectile(0) { Playback = SamusProjectileProgramAddresses.PlaybackAt(entry), FrameHold = WrappingCountdown.Start(1), Damage = 30 };
-            var bomb = new SamusBomb(0) { Playback = SamusProjectileProgramAddresses.PlaybackAt(entry), FrameHold = WrappingCountdown.Start(1), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500), Damage = 30 };
+            var slot = new SamusProjectile(0) { Animation = SamusProjectileProgramAddresses.PlayerAt(entry), Damage = 30 };
+            var bomb = new SamusBomb(0) { Animation = SamusProjectileProgramAddresses.PlayerAt(entry), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500), Damage = 30 };
             // No bomb shows a still picture, which a shot holds (#2347): the bomb owner plays only the lists that hold none.
             bool bombPlays = !SamusProjectileProgramAddresses.HoldsStillPicture(bomb.Playback?.Animation
                 ?? throw new InvalidOperationException($"Projectile list position ${entry:X4} names no playback."));
@@ -160,10 +161,10 @@ internal static class ProjectileInstructionsVerification
                 }
                 // A trail reads the frame the record just shown shows; a frame shown again stands at its first record (#2274).
                 // A shot holding a still picture keeps it with no timer while the list re-shows it, its place the list's end (#2347).
-                bool held = slot.FrameHold is null;
-                AssertEqual(new VerifyLookupStream1ProjectileProgramsCase(held ? (ushort)0 : timer, held ? SamusProjectileProgramAddresses.ListEndOf(trail) : pointer, sprite, x, y, SamusProjectileProgramAddresses.RecordAddress(global::SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.Frame(trail))), new VerifyLookupStream1ProjectileProgramsCase(slot.FrameHold?.RawValue ?? 0, slot.InstructionPointer, slot.SpritemapPointer, slot.Radius.X, slot.Radius.Y, SamusProjectileProgramAddresses.RecordAddress(ProjectileTrails.GetTrailFrame(slot) ?? throw new InvalidOperationException("A played projectile shows a record."))), "Exact projectile frame matches ROM interpreter");
+                bool held = slot.NativeFrameHold is null;
+                AssertEqual(new VerifyLookupStream1ProjectileProgramsCase(held ? (ushort)0 : timer, held ? SamusProjectileProgramAddresses.ListEndOf(trail) : pointer, sprite, x, y, SamusProjectileProgramAddresses.RecordAddress(global::SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.Frame(trail))), new VerifyLookupStream1ProjectileProgramsCase(checked((ushort)(slot.NativeFrameHold ?? 0)), slot.InstructionPointer, slot.SpritemapPointer, slot.Radius.X, slot.Radius.Y, SamusProjectileProgramAddresses.RecordAddress(ProjectileTrails.GetTrailFrame(slot) ?? throw new InvalidOperationException("A played projectile shows a record."))), "Exact projectile frame matches ROM interpreter");
                 if (bombPlays)
-                    AssertEqual(new LookupStream1VerifyLookupStream1ProjectileProgramsCase(timer, pointer, sprite, x, y), new LookupStream1VerifyLookupStream1ProjectileProgramsCase(bomb.FrameHold.RawValue, bomb.InstructionPointer, bomb.SpritemapPointer, bomb.Radius.X, bomb.Radius.Y), "Exact bomb frame matches ROM interpreter");
+                    AssertEqual(new LookupStream1VerifyLookupStream1ProjectileProgramsCase(timer, pointer, sprite, x, y), new LookupStream1VerifyLookupStream1ProjectileProgramsCase(checked((ushort)bomb.NativeFrameHold), bomb.InstructionPointer, bomb.SpritemapPointer, bomb.Radius.X, bomb.Radius.Y), "Exact bomb frame matches ROM interpreter");
             }
         }
         Console.WriteLine($"Projectile instructions: 1792 native words, loud non-catalog rejection, {entries.Length} frame/control entries and {frames} frames per owner match independent ROM execution with mechanics reads forbidden.");

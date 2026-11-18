@@ -517,8 +517,7 @@ internal sealed class ProjectileTerrainCollision
             shot.Position += new Offset16<RoomPixels>(0, shot.Radius.Y);
 
         shot.Type = shot.Type.AsFamily(SamusProjectileFamily.BeamExplosion);
-        shot.Playback = SamusProjectilePlayback.Start(SamusProjectileSegment.BeamExplosion);
-        shot.FrameHold = WrappingCountdown.Start(1);
+        shot.Animation = SamusProjectilePlayback.Start(SamusProjectileSegment.BeamExplosion);
         shot.Damage = SamusProjectileDamageDefinitions.ExplosionDamage;
         shot.Behavior = null;
     }
@@ -544,9 +543,8 @@ internal sealed class ProjectileTerrainCollision
         _impactAudio.RequestMissileImpactSound();
         bool wasSuperMissile = shot.Type.IsFamily(SamusProjectileFamily.SuperMissile);
         shot.Type = shot.Type.AsFamily(SamusProjectileFamily.MissileExplosion);
-        shot.Playback = SamusProjectilePlayback.Start(
+        shot.Animation = SamusProjectilePlayback.Start(
             wasSuperMissile ? SamusProjectileSegment.SuperMissileExplosion : SamusProjectileSegment.MissileExplosion);
-        shot.FrameHold = WrappingCountdown.Start(1);
         shot.Damage = SamusProjectileDamageDefinitions.ExplosionDamage;
         shot.Behavior = null;
 

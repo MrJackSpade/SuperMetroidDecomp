@@ -285,7 +285,7 @@ internal static void VerifySamusPowerBeamProjectiles()
             cadenceBombs.StepFrame(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, cadenceSamus, 0, 0);
             cadenceProjectiles.StepFrame(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, cadenceSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), cadenceBombs, new SharedGameState(new SharedRandom()));
         }
-        AssertEqual(expectedReload, cadenceProjectiles.Shots[0].TrailTimer.RawValue,
+        AssertEqual<int?>(expectedReload, cadenceProjectiles.Shots[0].TrailUpdatesLeft,
             $"wave combination {beamType} reloads native trail cadence");
     }
 
@@ -488,8 +488,10 @@ internal static void VerifySamusPowerBeamProjectiles()
         "charged power beam queues ROM sound");
     AssertEqual(0x001e, chargeBombs.CooldownTimer,
         "charged power beam installs charged cooldown");
-    AssertEqual(ChargedShotGlow.ChargedShotFlash, chargeProjectiles.Charge.ChargedShotGlow,
+    AssertEqual(ChargedShotGlowKind.ChargedShotFlash, chargeProjectiles.Charge.ChargedShotGlow?.Kind,
         "charged release starts the charged shot's flash");
+    AssertEqual(4, (int)SamusSnapshotWords.EncodeChargedShotGlow(chargeProjectiles.Charge.ChargedShotGlow),
+        "charged release starts the flash at its start");
     AssertEqual(0, chargeProjectiles.Charge.FlareCounter,
         "charged release clears flare counter");
 
@@ -527,7 +529,7 @@ internal static void VerifySamusPowerBeamProjectiles()
             }
         }
     }
-    AssertEqual(ChargedShotGlow.None, chargeProjectiles.Charge.ChargedShotGlow,
+    AssertEqual<ChargedShotGlow?>(null, chargeProjectiles.Charge.ChargedShotGlow,
         "ordinary charged glow ends exactly on fourth palette call");
 
     // Recreate `$91:F5CF-$F5E6 -> $90:B82D/$BA5F -> $90:EB20`: a new Shoot edge while
@@ -640,15 +642,17 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertEqual(1000, hyperSlot.Damage, "Hyper Beam overwrites ROM-table damage with 1000");
     AssertEqual(SamusShotBehaviors.HyperBeam, hyperSlot.Behavior,
         "Hyper Beam selects trail-free Wave movement");
-    AssertEqual(0, hyperSlot.TrailTimer.RawValue, "Hyper Beam does not arm a projectile trail");
+    AssertEqual<int?>(null, hyperSlot.TrailUpdatesLeft, "Hyper Beam does not arm a projectile trail");
     AssertEqual(21, hyperBombs.CooldownTimer, "Hyper Beam installs literal cooldown 21");
     AssertEqual(
         (SoundEffectId?)SoundEffectCommands.Decode(
             SoundEffectLibrary.Samus, nativeChargedSounds[8]),
         hyperResult.QueuedSoundEffect,
         "Hyper Beam indexes charged sound entry eight");
-    AssertEqual(ChargedShotGlow.HyperBeamGlow, hyperProjectiles.Charge.ChargedShotGlow,
-        "Hyper Beam starts its own glow, twenty steps long");
+    AssertEqual(ChargedShotGlowKind.HyperBeamGlow, hyperProjectiles.Charge.ChargedShotGlow?.Kind,
+        "Hyper Beam starts its own glow");
+    AssertEqual((1 << 15) + 20, (int)SamusSnapshotWords.EncodeChargedShotGlow(hyperProjectiles.Charge.ChargedShotGlow),
+        "Hyper Beam starts its glow at its start, twenty steps long");
     AssertEqual(BeamChargeLevel.HyperBeam, hyperProjectiles.Charge.Level,
         "Hyper Beam starts its descending flare in place of the charge");
 
@@ -693,7 +697,7 @@ internal static void VerifySamusPowerBeamProjectiles()
                     "Hyper body glow restore shows the Power Suit palette");
         }
     }
-    AssertEqual(ChargedShotGlow.None, hyperProjectiles.Charge.ChargedShotGlow,
+    AssertEqual<ChargedShotGlow?>(null, hyperProjectiles.Charge.ChargedShotGlow,
         "Hyper body glow ends after 21 calls");
 
     // Its three components begin at frames 29/5/5 with timer three. Fast sparks (component
@@ -802,8 +806,8 @@ internal static void VerifySamusPowerBeamProjectiles()
         ushort commandAddress = unchecked((ushort)(list + 6 * 4));
         AssertEqual(ProjectileTrailNative.InstructionAddress(command), ProjectileTrailSparkleAnimations.Read(SamusSourceDefinitions.MovementBank.Value | commandAddress),
             "the compiled ice list holds its fall command after six poses");
-        executingSide.FrameHold = 1;
-        executingSide.InstructionPointer = commandAddress;
+        // The side stands just past the list's sixth pose, the twinkling one, about to run the command.
+        executingSide.RestoreNative(commandAddress, 1, ProjectileTrailFrame.IceSparkleTwinkling);
         trailOam = SpriteFrameBuffer.DrawnOam(frame =>
         {
             commandProjectiles.AdvanceTrails(false);
@@ -1527,7 +1531,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     }
     AssertEqual(1, superProjectiles.LiveTrails.Count,
         "super's initial four-count leaves its first exhaust trail");
-    AssertEqual(2, super.TrailTimer.RawValue,
+    AssertEqual<int?>(2, super.TrailUpdatesLeft,
         "super exhaust reloads two instead of missile four");
 
     bool superExploded = false;

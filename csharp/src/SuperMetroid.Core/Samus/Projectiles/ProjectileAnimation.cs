@@ -28,29 +28,26 @@ internal sealed class ProjectileAnimation
         _artwork = artwork;
     }
     /// <summary>
-    /// Plays timed frames, still pictures and deletion; publishes frame radius and animation metadata when the countdown
-    /// expires. A shot showing a still picture keeps it.
+    /// Plays timed frames, still pictures and deletion: each frame the animation shows anew publishes its picture and
+    /// radius, and an animation that ends deletes the projectile. A shot showing a still picture keeps it.
     /// </summary>
+    /// <returns>Whether the animation ended and deleted the projectile.</returns>
+    /// <exception cref="InvalidOperationException">The projectile has ended and has no animation to play.</exception>
     internal bool AdvanceProjectileAnimation(
         SamusProjectile shot)
     {
-        if (shot.FrameHold is not { } hold)
-            return false;
-        shot.FrameHold = hold.Decrement().Remaining;
-        if (!shot.FrameHold.Value.IsZero)
-            return false;
-        AnimationPlayback<SamusProjectileSegment> playback = shot.Playback
+        AnimationPlayer<SamusProjectileSegment, SamusProjectileFrameId, NoAnimationCue> animation = shot.Animation
             ?? throw new InvalidOperationException("An ended projectile has no animation to play.");
-        if (SamusProjectilePlayback.PlayToNextFrame(ref playback, out int? duration) is not { } frame)
+        if (SamusProjectilePlayback.StepToNewFrame(animation) is { } frame)
         {
-            ClearProjectile(shot);
-            return true;
+            shot.Sprite = _artwork.ProjectileFrames.Resolve(frame);
+            shot.Radius = SamusProjectileFrameDefinitions.Radius(frame);
+            return false;
         }
-        shot.FrameHold = duration is { } updates ? WrappingCountdown.Start(updates) : null;
-        shot.Sprite = _artwork.ProjectileFrames.Resolve(frame);
-        shot.Radius = SamusProjectileFrameDefinitions.Radius(frame);
-        shot.Playback = playback;
-        return false;
+        if (!animation.HasStopped)
+            return false;
+        ClearProjectile(shot);
+        return true;
     }
 
 

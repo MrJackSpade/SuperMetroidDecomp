@@ -489,9 +489,13 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
                     "A same-frame equipment toggle into a reserve row past the first corrupts unrelated game state; " +
                     "reproducing it needs full memory emulation, which is outside the port's scope.");
             audio.QueueSound(SamusSound.MenuConfirm, priority: SoundRequestPriority.Normal);
-            SamusBomb last = bombs.Bombs[^1];
-            last.BombSpreadVerticalVelocity = last.BombSpreadVerticalVelocity.WithWholePixels(
-                ReserveRowToggleSpreadBombSpeed.SpeedAfterToggle(last.BombSpreadVerticalVelocity.WholePixels));
+            // A last place holding no spread bomb has no flight to repaint: no other bomb reads the speed, and the next
+            // spread launches with its own (#2459).
+            if (bombs.Bombs[^1].SpreadFlight is { } flight)
+            {
+                flight.VerticalVelocity = flight.VerticalVelocity.WithWholePixels(
+                    ReserveRowToggleSpreadBombSpeed.SpeedAfterToggle(flight.VerticalVelocity.WholePixels));
+            }
             return;
         }
 

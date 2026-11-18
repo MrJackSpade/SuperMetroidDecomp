@@ -44,7 +44,7 @@ internal static class MotherBrainBodyHitboxesVerification
         var shot = runtime.Projectiles.Shots[0];
         shot.Type = SamusProjectileType.Beam(SamusBeamCombination.Plasma, charged: true); shot.Damage = 1000; shot.Direction = SamusProjectileDirection.Left;
         shot.Position = shot.Position.WithWhole(new(0x008e, 0x0061)); shot.Radius = new(0x1c, 8);
-        shot.Playback = ProjectileFixturePlaybacks.Active; shot.FrameHold = WrappingCountdown.Start(1);
+        shot.Animation = ProjectileFixturePlaybacks.Active();
         runtime.Enemies.ResolveShotsOnInteractiveEnemies(runtime.Projectiles, runtime.BombProjectiles, runtime.Room.LoadedRoom.Area, runtime.Player.IntroducedSamus);
         AssertTrue(shot.IsSpent, "the beam stops on the body's arm rectangle");
         AssertEqual(0x8020, head.Health, "a body hit is a dud and never damages the head");

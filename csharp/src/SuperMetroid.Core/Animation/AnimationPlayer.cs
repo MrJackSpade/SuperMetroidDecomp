@@ -229,6 +229,17 @@ internal sealed class AnimationPlayer<TSegment, TFrame, TEvent>
     internal void GoOnIn(Animation<TSegment> animation) => Rebind(segments, animation);
 
     /// <summary>
+    /// Goes on from <paramref name="playback"/>, of the same segments, in place of where the play stands (#2458): the shown
+    /// frame keeps its updates left and whether it rests, and the frames after it come from there, as a Power Bomb's fuse
+    /// moves its live animation onto the same frame of its fast animation.
+    /// </summary>
+    internal void GoOnFrom(AnimationPlayback<TSegment> playback)
+    {
+        Ensure.NotNull(playback.Animation);
+        Playback = playback;
+    }
+
+    /// <summary>
     /// Plays the animation's segments as <paramref name="rebound"/> holds them from now on, keeping where the play stands,
     /// the shown frame's updates left and whether it rests (#2359): an owner rebinding edited installed timing keeps its
     /// animation running. A place past the rebound phase's last beat stands at its end, so the next frame is the one the
@@ -320,15 +331,17 @@ internal sealed class AnimationPlayer<TSegment, TFrame, TEvent>
         if (animation.Phases.Count == 0)
             throw new InvalidOperationException("An animation of no phase has no last frame.");
         int last = animation.Phases.Count - 1;
-        ShowAt(animation, new AnimationPlace(last, animation.Phases[last].BeatCount - 1), updates);
+        AnimationPhase<TSegment> lastPhase = animation.Phases[last];
+        ShowAt(animation, new AnimationPlace(last, lastPhase.BeatCount - 1).WithPlaysLeft(lastPhase.IsRepeated ? 1 : 0), updates);
     }
 
     /// <summary>
     /// Runs one update of the animation played backward (#2396): counts the shown frame's updates down and, once they run
     /// out, steps back to the frame the animation shows before it, shown for <paramref name="frameUpdates"/> updates, or for
     /// <paramref name="firstFrameUpdates"/> when that is the animation's first frame. A backward play goes once through the
-    /// phases, last to first, each from its last beat to its first, and follows no loop or repeat; stepping back past the
-    /// first frame stops it, and it shows nothing more. A resting animation does nothing.
+    /// phases, last to first, each from its last beat to its first and through each play of a repeated phase from its last
+    /// play to its first (#2458), and follows no loop; stepping back past the first frame stops it, and it shows nothing
+    /// more. A resting animation does nothing.
     /// </summary>
     /// <returns>Whether the update stepped back onto the animation's first frame.</returns>
     /// <exception cref="ArgumentOutOfRangeException">Either count of updates is below one.</exception>
@@ -347,10 +360,18 @@ internal sealed class AnimationPlayer<TSegment, TFrame, TEvent>
         IReadOnlyList<AnimationPhase<TSegment>> phases = Playback.Animation.Phases;
         if (Shown is null || place.Phase >= phases.Count || place.Beat < 1 || place.Beat > phases[place.Phase].BeatCount)
             throw new InvalidOperationException("The animation stands on no frame to step back from.");
-        // The place stands just past the beat shown, so the beat before that one is two back.
-        int phase = place.Phase, beat = place.Beat - 2;
+        // The place stands just past the beat shown, so the beat before that one is two back; before a repeated phase's
+        // first beat lies its play before, if it has played one.
+        int phase = place.Phase, beat = place.Beat - 2, playsLeft = place.PlaysLeft;
         while (beat < 0)
         {
+            AnimationPhase<TSegment> playing = phases[phase];
+            if (playing.IsRepeated && playsLeft < playing.Plays)
+            {
+                playsLeft++;
+                beat = playing.BeatCount - 1;
+                continue;
+            }
             if (--phase < 0)
             {
                 Shown = null;
@@ -358,13 +379,16 @@ internal sealed class AnimationPlayer<TSegment, TFrame, TEvent>
                 HasStopped = true;
                 return false;
             }
-            beat = phases[phase].BeatCount - 1;
+            AnimationPhase<TSegment> before = phases[phase];
+            playsLeft = before.IsRepeated ? 1 : 0;
+            beat = before.BeatCount - 1;
         }
         AnimationPhase<TSegment> stepped = phases[phase];
         Shown = segments.Beats(stepped.Segment)[stepped.FirstBeat + beat].ShownFrame
             ?? throw new InvalidOperationException($"The animation steps back onto a beat of {stepped.Segment} that shows no frame.");
-        Playback = Playback with { Place = new AnimationPlace(phase, beat + 1) };
-        bool first = beat == 0 && phases.Take(phase).All(earlier => earlier.BeatCount == 0);
+        Playback = Playback with { Place = new AnimationPlace(phase, beat + 1).WithPlaysLeft(playsLeft) };
+        bool first = beat == 0 && (!stepped.IsRepeated || playsLeft == stepped.Plays) &&
+            phases.Take(phase).All(earlier => earlier.BeatCount == 0);
         UpdatesLeft = first ? firstFrameUpdates : frameUpdates;
         return first;
     }

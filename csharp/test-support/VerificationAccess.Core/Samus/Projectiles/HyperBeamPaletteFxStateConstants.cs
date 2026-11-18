@@ -18,10 +18,13 @@ internal static class HyperBeamPaletteFxStateConstants
         internal static int FrameCount => HyperBeamPaletteFxStateConstants.FrameCount;
     }
 
-    /// <summary>Reads the effect's private hold, which only its own updates write (#2397).</summary>
+    /// <summary>Reads the updates the effect's shade has left (#2397, #2458).</summary>
     extension(HyperBeamColourEffectState effect)
     {
-        /// <summary>The current shade's remaining hold.</summary>
-        internal int FrameHold => PrivateState.Field<HyperBeamColourEffectState, int>(effect, "frameHold");
+        /// <summary>The updates the current shade has left, counting the update about to run; one before the first shade.</summary>
+        /// <exception cref="InvalidOperationException">The effect has not started.</exception>
+        internal int FrameHold => effect.Cycle is { } cycle
+            ? cycle.UpdatesLeft
+            : throw new InvalidOperationException("The Hyper Beam's colour effect has not started.");
     }
 }

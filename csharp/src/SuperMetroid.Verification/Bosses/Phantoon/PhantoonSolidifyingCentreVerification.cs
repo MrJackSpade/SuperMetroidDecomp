@@ -50,8 +50,7 @@ internal static class PhantoonSolidifyingCentreVerification
         shot.Direction = SamusProjectileDirection.Right;
         shot.Position = shot.Position.WithWhole(at);
         shot.Radius = new(4, 4);
-        shot.Playback = ProjectileFixturePlaybacks.Active;
-        shot.FrameHold = WrappingCountdown.Start(1);
+        shot.Animation = ProjectileFixturePlaybacks.Active();
         shot.Behavior = SamusShotBehaviors.Beam;
 
         int hits = enemies.PhantoonBehavior.Combat.ResolvePhantoonProjectileHits(state, shots, new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()));

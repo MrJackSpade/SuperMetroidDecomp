@@ -94,7 +94,7 @@ internal sealed class BeamCombos
                 // Every particle but a Plasma ring leaves trails, the Spazer beam pair only once the attack falls
                 // (SpazerParticleState.LeavesTrails), which starts its countdown then.
                 if (kind is SamusComboKind.Wave or SamusComboKind.Ice || (kind == SamusComboKind.Spazer && part.SpazerTrail))
-                    shot.TrailTimer = WrappingCountdown.Start(ProjectileTimingDefinitions.TrailInterval);
+                    shot.TrailUpdatesLeft = ProjectileTimingDefinitions.TrailInterval;
                 if (kind is SamusComboKind.Wave or SamusComboKind.Spazer)
                     shot.Position = shot.Position.WithFractionX(0).WithFractionY(0);
                 if (kind == SamusComboKind.Wave)
@@ -140,8 +140,7 @@ internal sealed class BeamCombos
         SamusProjectileSegment segment = shotKind == BeamComboShotKind.Combo
             ? SamusProjectileKinds.SoleAnimation(projectileKind)
             : SamusProjectileKinds.Animation(projectileKind, shot.Direction);
-        shot.Playback = SamusProjectilePlayback.Start(segment);
-        shot.FrameHold = WrappingCountdown.Start(1);
+        shot.Animation = SamusProjectilePlayback.Start(segment);
         if (shotKind == BeamComboShotKind.Charged)
             shot.Radius = SamusProjectilePlayback.InitialRadius(segment);
     }
@@ -212,14 +211,10 @@ internal sealed class BeamCombos
     /// <summary>Counts down a particle's trail countdown, and spawns a trail behind it and starts the countdown again when it runs out.</summary>
     private void StepTrail(SamusProjectile shot)
     {
-        CountdownStep trailStep = shot.TrailTimer.Decrement();
-        shot.TrailTimer = trailStep.Remaining;
-        if (trailStep.IsZero)
-        {
-            shot.TrailTimer = WrappingCountdown.Start(ProjectileTimingDefinitions.TrailInterval);
+        if (shot.CountsDownToTrail(ProjectileTimingDefinitions.TrailInterval))
             _trails.SpawnTrail(shot);
-        }
     }
+
     /// <summary>
     /// Whether a special attack particle has flown out of the view sideways: more than its margin left of the view's left
     /// edge, or its reach or more right of it. A particle circles Samus within a ring's largest radius, so it stays within
@@ -402,7 +397,7 @@ internal sealed class BeamCombos
             (spazer.Part.SpazerTrail ? -BeamComboDefinitions.SpazerFallSideStep : BeamComboDefinitions.SpazerFallSideStep));
         shot.Direction = SamusProjectileDirection.DownFacingLeft;
         shot.IsSpent = false;
-        shot.TrailTimer = WrappingCountdown.Start(ProjectileTimingDefinitions.TrailInterval);
+        shot.TrailUpdatesLeft = ProjectileTimingDefinitions.TrailInterval;
         spazer.Phase = SpazerComboPhase.Falling;
         if (!spazer.Part.SpazerTrail)
         {

@@ -36,23 +36,22 @@ internal static class ProjectileFrameBindingsVerification
             ushort Word(int offset) => LittleEndianBytes.Word(CpuBusRegionRead.Read(rom, record + offset), CpuBusRegionRead.Read(rom, record + offset + 1));
             var nativeShot = new SamusProjectile(0)
             {
-                Playback = SamusProjectileProgramAddresses.PlaybackAt(unchecked((ushort)(pointer + 8))),
-                FrameHold = WrappingCountdown.Start(Word(0)), SpritemapPointer = Word(2),
+                Animation = SamusProjectileProgramAddresses.PlayerAt(unchecked((ushort)(pointer + 8)), updates: Word(0)),
+                SpritemapPointer = Word(2),
                 Radius = new(CpuBusRegionRead.Read(rom, record + 4), CpuBusRegionRead.Read(rom, record + 5)),
                 Damage = 30,
             };
             var nativeBomb = new SamusBomb(0)
             {
-                Playback = nativeShot.Playback,
-                FrameHold = WrappingCountdown.Start(Word(0)),
+                Animation = SamusProjectileProgramAddresses.PlayerAt(unchecked((ushort)(pointer + 8)), updates: Word(0)),
                 SpritemapPointer = nativeShot.SpritemapPointer,
                 Radius = new(nativeShot.Radius.X, nativeShot.Radius.Y),
                 Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500), Damage = 30,
             };
             var installedShot = new SamusProjectile(0)
-                { Playback = SamusProjectileProgramAddresses.PlaybackAt(pointer), FrameHold = WrappingCountdown.Start(1), Damage = 30 };
+                { Animation = SamusProjectileProgramAddresses.PlayerAt(pointer), Damage = 30 };
             var installedBomb = new SamusBomb(0)
-                { Playback = SamusProjectileProgramAddresses.PlaybackAt(pointer), FrameHold = WrappingCountdown.Start(1), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500), Damage = 30 };
+                { Animation = SamusProjectileProgramAddresses.PlayerAt(pointer), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500), Damage = 30 };
             var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: stock), new global::SuperMetroid.Core.Fx.RoomEarthquake());
             var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: stock));
             // A list repeating one still picture is held, and no bomb shows one (#2347).
@@ -63,7 +62,7 @@ internal static class ProjectileFrameBindingsVerification
                 "installed projectile frame survives");
             AssertEqual(nativeShot.SpritemapPointer, installedShot.SpritemapPointer,
                 "installed projectile frame selects the native sprite");
-            AssertEqual<ushort?>(still ? null : nativeShot.FrameHold?.RawValue, installedShot.FrameHold?.RawValue,
+            AssertEqual<int?>(still ? null : nativeShot.NativeFrameHold, installedShot.NativeFrameHold,
                 "projectile duration is independent of sprite binding, a still picture held");
             AssertEqual(nativeShot.InstructionPointer, installedShot.InstructionPointer,
                 "projectile flow is independent of sprite binding");
@@ -77,7 +76,7 @@ internal static class ProjectileFrameBindingsVerification
                 "installed bomb frame survives");
             AssertEqual(nativeBomb.SpritemapPointer, installedBomb.SpritemapPointer,
                 "installed bomb frame selects the native sprite");
-            AssertEqual(nativeBomb.FrameHold.RawValue, installedBomb.FrameHold.RawValue,
+            AssertEqual(nativeBomb.NativeFrameHold, installedBomb.NativeFrameHold,
                 "bomb duration is independent of sprite binding");
             AssertEqual(nativeBomb.Radius.X, installedBomb.Radius.X,
                 "bomb X radius is independent of sprite binding");

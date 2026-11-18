@@ -262,7 +262,7 @@ internal sealed class SuperMetroidRuntime
 
     /// <summary>
     /// Binds the installed catalogs to the runtime's owners: every catalog when <paramref name="previous"/> is null (the
-    /// runtime being built, or one restored from a saved state), otherwise only the catalogs whose reference changed.
+    /// runtime being built), otherwise only the catalogs whose reference changed.
     /// </summary>
     /// <remarks>
     /// The screen content binds first: its setter pushes the HUD, message-box, effect overlay and Samus colour bindings and
@@ -376,7 +376,7 @@ internal sealed class SuperMetroidRuntime
     public SpriteFrameBuffer Sprites { get; } = new();
 
     /// <summary>
-    /// The sprite frame the most recent frame boundary made visible. Renderers draw it while the current update
+    /// The sprite frame the most recent frame boundary made visible. The display draws it while the current update
     /// prepares <see cref="Sprites"/>.
     /// </summary>
     public SpriteFrameBuffer DisplayedSprites { get; } = new();
@@ -740,10 +740,9 @@ internal sealed class SuperMetroidRuntime
         if (policy.AdvanceGameTime)
             GameTime.Step();
 
-        // Room shaking runs after room main and game-time handling, but
-        // before the active-enemy lists are cleared. Enemy attacks above may have installed
-        // a new global quake this frame; consuming it here gives that request its first
-        // displacement/decrement immediately and preserves the list used for actor shake.
+        // Room shaking runs after room main and game-time handling, but before the active-enemy lists are cleared.
+        // An enemy attack above may have started an earthquake this frame; it shakes the screen and counts down once
+        // here at once, and shakes the enemies still listed this frame.
         Room.LoadedScope.Enemies.HandleRoomShaking(Freeze.TimeIsFrozen);
 
         DecrementHurtTimers();
@@ -796,7 +795,7 @@ internal sealed class SuperMetroidRuntime
         }
     }
 
-    /// <summary>Runs the main scrolling, the room's camera floor, background streaming and the minimap.</summary>
+    /// <summary>Runs the main scrolling, the room's camera floor and the minimap.</summary>
     private void RunMainScrolling(SamusState samus, ScrollBoundaryCamera camera, FixedPosition<RoomPixels> previousCameraPoint, bool deathOwnsSamus)
     {
         // The door's destination fade runs the enemies and the drawing but not the camera, for ordinary doors as
@@ -880,8 +879,7 @@ internal sealed class SuperMetroidRuntime
     private void RunEscapeTimer(SuspendedGameplayFrameTail? frameTail)
     {
         // The enemy phase can install the gunship's movement mode on this frame.
-        // It omits the normal timer-drawing call: neither countdown nor its sprites
-        // survives boarding, even though timer status stays active. Decide after the
+        // Then the timer neither counts down nor shows: boarding hides it, even though the escape stays timed. Decide after the
         // actor transition, before liftoff can repurpose the timer's sprite pictures as dust.
         bool escapeTimerRuns = frameTail?.Mode.Movement != SamusMovementMode.Gunship;
         if (escapeTimerRuns && EscapeTimer.Process(Clock.Counter, Assists.Current.EscapeTimerHoldsAtOneSecond))
@@ -893,7 +891,7 @@ internal sealed class SuperMetroidRuntime
         }
         if (escapeTimerRuns && EscapeTimer.IsActive)
         {
-            EscapeTimerRenderer.Draw(EscapeTimer, Sprites, Artwork.ScreenContent.EscapeTimer, Artwork.SpriteSheets.Get(SpriteSheetId.EscapeTimer));
+            EscapeTimerDrawing.Draw(EscapeTimer, Sprites, Artwork.ScreenContent.EscapeTimer, Artwork.SpriteSheets.Get(SpriteSheetId.EscapeTimer));
         }
     }
 

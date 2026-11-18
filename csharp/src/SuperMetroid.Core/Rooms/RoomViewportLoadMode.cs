@@ -13,5 +13,5 @@ internal enum RoomViewportLoadMode
     /// <summary>
     /// Door loads keep showing the source room's screen while the door's scroll moves the destination in around it.
     /// </summary>
-    StreamThroughDoor,
+    ScrollInThroughDoor,
 }

@@ -57,8 +57,8 @@ public static class GameplayDisplayCapture
             if (rainbow is { } beam)
                 AddLayer(GameplayEffectCapture.CaptureMotherBrainRainbowBeam(beam, scrolls.ForegroundPosition));
         }
-        // Preserve the reference ordering, including the effects which remain enabled
-        // during the door's scroll. Message glyphs precede the suit's final color window.
+        // These layers show during the door's scroll too, above the rest and in this order: the Power Bomb's glow,
+        // the message box, then the suit pickup's light beam over the message's letters.
         AddLayer(GameplayEffectCapture.CapturePowerBombGlow(PowerBomb(frame), scrolls.ForegroundPosition));
         AddLayer(live.MessageBox);
         AddLayer(GameplayEffectCapture.CaptureSuitPickup(SuitPickup(frame)));

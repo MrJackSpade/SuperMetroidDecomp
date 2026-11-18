@@ -84,9 +84,8 @@ internal sealed class MotherBrainAscent
         if (!state.PhaseTimer.StepRunsOut())
             return;
 
-        // The display hides the newly loaded leg sprites below a fixed line so they do not
-        // appear over the floor. The renderer consumes this
-        // typed lifetime rather than pretending it is a body-visibility flag.
+        // The display hides the legs below a fixed line, so they do not show over the floor while he rises. The
+        // clip lasts as long as the rising floor does; it does not hide his body.
         state.RisingFloorClipActive = true;
         state.Head.Presence = state.Head.Presence.With(EnemyPresence.Hidden);
         MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.Initial);

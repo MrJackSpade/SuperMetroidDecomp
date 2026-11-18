@@ -568,9 +568,8 @@ internal sealed class MotherBrainProjectiles
             EnemyProjectile ring,
             Position16<RoomPixels> position)
         {
-            // The ring's impact clears the source before allocating the small-explosion room dust. If the
-            // allocator reuses this place in the projectile pool, the outer projectile pass will advance
-            // the newborn dust animation during the same pass.
+            // The ring's impact removes the ring before its small explosion spawns. When the explosion takes the
+            // ring's own place, the enemy projectiles' update reaches it in this same update and advances it.
             ring.Delete();
             dependencies.Projectiles.SpawnDustOrExplosion(position, DustExplosionAnimation.SmallExplosion);
             dependencies.Encounter.RequestCueSound(MotherBrainSoundDefinitions.Explosion);

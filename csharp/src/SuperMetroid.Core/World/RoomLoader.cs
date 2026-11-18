@@ -676,11 +676,11 @@ internal sealed class RoomLoader
     /// scroll updates slide the destination in.
     /// </summary>
     internal void LoadPendingDoorDestinationForTransition(FixedPosition<RoomPixels> sourceSamus) =>
-        LoadPendingDoorDestination(RoomViewportLoadMode.StreamThroughDoor, sourceSamus);
+        LoadPendingDoorDestination(RoomViewportLoadMode.ScrollInThroughDoor, sourceSamus);
 
     /// <summary>
-    /// Builds the selected door's destination while preserving the source position needed
-    /// to replay door-opening scroll when the viewport is streamed rather than replaced.
+    /// Builds the selected door's destination, keeping Samus's place in the source room, which the door's opening
+    /// scroll starts from when the destination scrolls in rather than appearing whole.
     /// </summary>
     private void LoadPendingDoorDestination(
         RoomViewportLoadMode viewportLoadMode, FixedPosition<RoomPixels>? sourcePosition = null)
@@ -720,11 +720,10 @@ internal sealed class RoomLoader
             _system.StoredExploredMaps.LoadLiveMap(room.Area);
         }
 
-        // The door transition promotes a departing elevator's global status from
-        // ElevatorActorStatus.Departing to ElevatorActorStatus.BeginArrivalReturn after the destination room objects, door code, and door setup have been created. The
-        // room load initializes enemies in the same update, so publish that carried
-        // status immediately before Enemies.Load: the destination elevator setup
-        // must see the arrival and place itself at its arrival height instead of clearing the journey.
+        // An elevator departing the source room arrives in the destination: the door transition turns its departure
+        // into an arrival after the destination's room objects and door setup exist. The room load sets up enemies in
+        // the same update, so the arrival is handed to the destination's elevator just before they load: it places
+        // itself at its arrival height instead of ending the journey.
         bool arrivingByElevator = _room.LoadedScope.Enemies.Elevator.ElevatorStatus == ElevatorActorStatus.Departing;
         if (arrivingByElevator)
             _room.LoadedScope.Enemies.Elevator.PrepareElevatorArrival();
@@ -773,7 +772,7 @@ internal sealed class RoomLoader
         DoorOpeningSourceView? doorOpeningSourceView = viewportLoadMode switch
         {
             RoomViewportLoadMode.DisplayInitialViewport => null,
-            RoomViewportLoadMode.StreamThroughDoor => new DoorOpeningSourceView(_backgroundScroll.ForegroundScroll,
+            RoomViewportLoadMode.ScrollInThroughDoor => new DoorOpeningSourceView(_backgroundScroll.ForegroundScroll,
                 new RoomBackgroundLayer(_room.LoadedLevelData.ForegroundPlane.Cells, SourceScreenPictures())),
             _ => throw new ArgumentOutOfRangeException(
                 nameof(viewportLoadMode), viewportLoadMode, "Unknown room viewport load mode."),
@@ -813,7 +812,7 @@ internal sealed class RoomLoader
         ScrollBoundaryCamera? previousCamera = carryOver.PreviousCamera;
         var destinationCamera = new ScrollBoundaryCamera(assets.Scrolls);
         scope.Camera = destinationCamera;
-        if (viewportLoadMode == RoomViewportLoadMode.StreamThroughDoor)
+        if (viewportLoadMode == RoomViewportLoadMode.ScrollInThroughDoor)
         {
             if (previousCamera is not null) destinationCamera.InheritTrackingState(previousCamera);
             destinationCamera.SetDoorTransitionPosition(camera, previousCamera?.Position ?? _cameraFractions.Fractions);
@@ -926,11 +925,9 @@ internal sealed class RoomLoader
         var areaServices = new RoomEnemyRuntimeServices(_system, _room, _player, roomObjects, _display, progress);
         roomObjects.PopulationLoader.LoadRoomPopulation(roomObjectRoom, room.State.ObjectPopulation, roomObjectBindings);
 
-        // The door transition runs the door setup only after destination room objects
-        // exist and before enemy initialization/initial viewport construction. Several of
-        // those setups rewrite the room scroll array, so postponing them until the
-        // first gameplay frame would already have streamed a viewport with wrong camera
-        // limits.
+        // The door's setup runs after the destination's room objects exist and before its enemies and first view are
+        // set up. Several setups change which of the room's screens scroll, and the first view already stands within
+        // those limits.
         _doorTransition.RunDoorSetup(door, roomObjects, blockAnimations, scope.MaridiaElevatube);
         // The room state's setup runs right after the door's.
         room.State.SetupBehavior.PlaceRoomObjects(new RoomSetupPlacing
@@ -1000,7 +997,7 @@ internal sealed class RoomLoader
             ControllerInput = _playerActions.Current,
             Camera = destinationCamera.PixelPosition,
             GunshipScenario = entry.GunshipScenario,
-            DeferLoaderTimeCameraReads = viewportLoadMode == RoomViewportLoadMode.StreamThroughDoor,
+            DeferLoaderTimeCameraReads = viewportLoadMode == RoomViewportLoadMode.ScrollInThroughDoor,
         });
         // The shared Ridley setup marks the map explored only for a live boss.
         // Ceres also disables the HUD map, but has no matching exploration list.
@@ -1034,7 +1031,7 @@ internal sealed class RoomLoader
             ? new TourianStatueSequence(_tourianStatueDependencies, roomFxOverlay, roomColourEffects, roomObjects, enemies)
             : null;
 
-        if (viewportLoadMode == RoomViewportLoadMode.StreamThroughDoor)
+        if (viewportLoadMode == RoomViewportLoadMode.ScrollInThroughDoor)
         {
             // The door transition never redraws the destination's whole viewport: the source screen stays
             // visible while the opening scroll moves the destination in around it.

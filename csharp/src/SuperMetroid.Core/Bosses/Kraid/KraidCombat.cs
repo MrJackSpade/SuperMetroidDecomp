@@ -95,10 +95,8 @@ internal sealed class KraidCombat
     }
 
     /// <summary>
-    /// Spawns the explosion of a shot that hits Kraid's arm, from the arm's hitbox
-    /// reaction. Super Missiles select the big dust animation;
-    /// beams, missiles, and normal bombs select the dud animation. The effect uses the
-    /// shared room-graphics projectile allocator and queues the Samus-library explosion effect.
+    /// Spawns the explosion of a shot that hits Kraid's arm, from the arm's hitbox reaction, in a free enemy-projectile
+    /// place of the room, and plays the dud shot's sound.
     /// </summary>
     private void SpawnKraidArmShotExplosion(
         SamusProjectileType projectileType,

@@ -36,7 +36,7 @@ internal sealed class RoomEnemyRuntimeServices(
     public IAreaBossFlags Bosses => progress;
     /// <summary>Exposes active room-object presence to enemy AI.</summary>
     public IRoomObjectPresence RoomObjects => this;
-    /// <summary>Exposes the room camera's scroll-zone storage.</summary>
+    /// <summary>Exposes how the camera may scroll over each of the room's screens, which enemies read and change.</summary>
     public IRoomScrollZoneAccess RoomScroll => this;
     /// <summary>Exposes Samus's script control lock to enemy AI.</summary>
     public ISamusControlLock SamusControls => this;

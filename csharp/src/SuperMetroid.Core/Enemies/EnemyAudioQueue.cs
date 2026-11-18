@@ -20,7 +20,7 @@ internal sealed class EnemyAudioQueue
     internal GameplayAudioRequests Requests { get; }
 
     /// <summary>The music the loading room's enemies start, consumed in the same update outside the enemy pass.</summary>
-    /// <remarks>The requests do not outlive the update that makes them, so a saved game state never holds any.</remarks>
+    /// <remarks>The requests do not outlive the update that makes them.</remarks>
     private List<MusicRequest>? _roomEnemyStartMusic;
 
     /// <summary>

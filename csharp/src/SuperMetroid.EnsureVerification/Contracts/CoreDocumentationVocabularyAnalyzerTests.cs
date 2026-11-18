@@ -1548,5 +1548,23 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         // A handler alone, an animation's loop, a decrement or a call alone and a hardware owner are English.
         Expect("class P { /// <summary>A handler; the idle animation's loop; each decrement; a call to the queue.</summary>\nint F => 0; }");
         Expect(CompatibilityService + "/// <summary>Evidence: the handler's post-decrement test runs the main loop.</summary>\n[CompatibilityService(\"loop\")] class Loop { }");
+        // The original program's and the port's machinery told in world, runtime and Samus prose, outside hardware owners
+        // and markup (#2386): an allocator, a renderer, a streamer, a streamed view, background streaming or a streaming
+        // plane, a saved game state, a matcher, a translated thing and progression or controller bits.
+        Expect("class P { void Run() { // preserve the room-object allocator's false result\n } }", "('allocator')");
+        Expect("class P { /// <summary>Binds the death-state renderer.</summary>\nint F => 0; }", "('renderer')");
+        Expect("class P { /// <summary>Holds the camera and background streamer.</summary>\nint F => 0; }", "('streamer')");
+        Expect("class P { void Run() { // the first frame would already have streamed a viewport\n } }", "('streamed')");
+        Expect("class P { /// <summary>Runs the main scrolling and background streaming.</summary>\nint F => 0; }", "('background streaming')");
+        Expect("class P { void Run() { // not over a streaming background plane\n } }", "('streaming background')");
+        Expect("class P { /// <summary>Rebound when a saved game state is restored.</summary>\nint F => 0; }", "('saved game state')");
+        Expect("class P { void Run() { // The table matcher clears the request.\n } }", "('matcher')");
+        Expect("class P { string M => \"Cached movement has no translated movement-type mover.\"; }", "('translated')");
+        Expect("class P { /// <summary>Marks the saves in area progression bits.</summary>\nint F => 0; }", "('progression bits')");
+        Expect("class P { /// <summary>Supplies newly pressed controller bits.</summary>\nint F => 0; }", "('controller bits')");
+        // The host's renderer, hair or jets streaming out, a thing streamed out, a position translated by an offset or to
+        // an origin, a save and a hardware owner are English.
+        Expect("class P { /// <summary>The host's renderer; her hair streaming out; the jets streamed out; the scene is not translated to this origin; a position translated by an offset; the game's saves.</summary>\nint F => 0; }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the allocator's own order and the renderer.</summary>\n[CompatibilityService(\"order\")] class Order { }");
     }
 }

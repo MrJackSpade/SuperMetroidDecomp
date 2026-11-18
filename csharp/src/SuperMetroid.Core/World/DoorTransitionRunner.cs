@@ -34,7 +34,7 @@ internal sealed class DoorTransitionRunner
     private readonly SpriteFrameBuffer _sprites;
     /// <summary>Provides the locked Samus state and its presentation during transitions.</summary>
     private readonly SamusFrameState _player;
-    /// <summary>Holds destination room data, camera, and background streamer.</summary>
+    /// <summary>Holds the destination room, its level data and its camera.</summary>
     private readonly ActiveRoomState _room;
     /// <summary>Provides defeated bosses and advances main-loop random state.</summary>
     private readonly SharedGameState _system;
@@ -143,9 +143,8 @@ internal sealed class DoorTransitionRunner
         }
 
         blockAnimations.StartDoorTreadmill(direction);
-        // Both spawns report when the room is full, and
-        // the door setup deliberately ignores that result. The dedicated animated owner
-        // above cannot exhaust; preserve the room-object allocator's false result here.
+        // The spawn reports whether the room had a free room-object place, and the door setup ignores it: with
+        // every place held, the treadmill's blocks still animate and the entrance treadmill does not appear.
         _ = roomObjects.WreckedShipTreadmill.TrySpawnWreckedShipEntranceTreadmill(
             _room.LevelData,
             direction,
@@ -168,8 +167,8 @@ internal sealed class DoorTransitionRunner
         else
             maridiaElevatube.SetUpFromNorth(samus);
 
-        // The door setup ignores whether the spawn found a free place when all forty are
-        // held. Retaining the bool-returning allocator preserves that edge.
+        // The door setup ignores whether the spawn found a free room-object place: with all forty held, Samus is
+        // still placed for the ride and the elevatube does not appear.
         _ = roomObjects.MaridiaElevatube.TrySpawnMaridiaElevatube(_room.LevelData);
     }
     /// <summary>Runs one update of the door's wait for its sounds to finish: enemies and drawing, without Samus's movement.</summary>

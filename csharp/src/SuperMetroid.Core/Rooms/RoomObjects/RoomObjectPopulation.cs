@@ -1,12 +1,12 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// Immutable, ordered input to the room-object allocator. Construction reads only the
+/// The room objects a room state places as it loads, in order. Construction reads only the
 /// decoded placements, and requires a scroll change of every scroll trigger and of no other room object.
 /// </summary>
 public sealed class RoomObjectPopulation
 {
-    /// <summary>Owned placements kept in the order the room-object allocator consumes them.</summary>
+    /// <summary>Owned placements, in the order the room's objects take their places.</summary>
     private readonly RoomObjectPlacement[] placements;
 
     /// <summary>The population's name.</summary>

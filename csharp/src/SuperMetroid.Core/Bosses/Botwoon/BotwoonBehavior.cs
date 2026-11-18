@@ -791,9 +791,9 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         ResolveBotwoonCombatAfterCommon(context.Place);
     }
     /// <summary>
-    /// Spawns Botwoon's body, from the segment behind the head down to the tail. The projectile allocator hands out places
-    /// in its own order, so a segment's death delay follows its projectile place while its body spacing follows its
-    /// segment index; both orders are kept.
+    /// Spawns Botwoon's body, from the segment behind the head down to the tail. Each segment takes the room's next free
+    /// enemy-projectile place, so a segment's death delay follows its place while its body spacing follows its segment
+    /// index; both orders are kept.
     /// </summary>
     /// <param name="head">Botwoon's head, whose position and graphics the segments start with.</param>
     /// <returns>The segments from the tail to the segment behind the head.</returns>

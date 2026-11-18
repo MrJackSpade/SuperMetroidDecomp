@@ -37,7 +37,7 @@ public static class SamusGrappleBeamDrawing
         SamusState samus,
         SpriteFrameBuffer sprites,
         Position16<RoomPixels> cameraPosition,
-        ProjectileDrawArtwork objects)
+        ProjectileDrawArtwork sheets)
     {
         Ensure.NotNull(samus);
         Ensure.NotNull(sprites);
@@ -46,9 +46,9 @@ public static class SamusGrappleBeamDrawing
         if (DrawingFor(grapple.Phase) != SamusGrappleDrawing.Beam || grapple.FlareStage == GrappleFlareStage.None)
             return false;
 
-        // While firing, the grapple's drawing recomputes the hand origins immediately before the flare. Grapple
-        // physics ran before ordinary Samus movement, so the renderer must reconstruct both
-        // hand origins from the final body position or a running shot visibly lags one frame.
+        // While firing, the grapple's drawing recomputes the hand origins immediately before the flare. The grapple
+        // moved before Samus's ordinary movement, so both hand origins come from her final position; otherwise a
+        // running shot would visibly lag one frame.
         // Connected phases already publish their exact rope/flare pair during movement.
         if (grapple.Phase == GrapplePhase.Firing)
             RefreshFiringDrawOrigins(samus, grapple);
@@ -69,7 +69,7 @@ public static class SamusGrappleBeamDrawing
         // shows the sheet of the beams she has equipped (#1586).
         SuperMetroid.Core.Samus.Artwork.ProjectileSpriteId picture =
             SuperMetroid.Core.Samus.Artwork.ChargeFlarePictures.Of(ChargeFlareComponent.MainFlare, facingLeft: false, grapple.FlarePlace);
-        SpriteSheetFrame image = objects.SheetOf(SamusBeamCombinations.Of(samus.EquippedBeams)).Frame(SuperMetroid.Core.Samus.Artwork.ProjectileSheetFrames.FlareFrame(
+        SpriteSheetFrame image = sheets.SheetOf(SamusBeamCombinations.Of(samus.EquippedBeams)).Frame(SuperMetroid.Core.Samus.Artwork.ProjectileSheetFrames.FlareFrame(
             picture));
         sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusGrappleFlare), image, place, SpriteMirror.None));
         return true;

@@ -1189,7 +1189,7 @@ public sealed class IntroCinematicState : IFrontendScreen
             ? crossfade.SceneShading.With(ColourEffectShades.Of(ColourEffectColours.OldMotherBrainBackgroundLights, lights))
             : crossfade.SceneShading;
 
-    /// <summary>Prepares the current display once and owns all inputs needed by a detached renderer.</summary>
+    /// <summary>Prepares the current display once, holding everything the display needs to draw it.</summary>
     internal LayeredScene CaptureTranslatedRenderSnapshot()
     {
         if (CurrentCeresFlight is not null && Phase == IntroCinematicPhase.CeresFlight)

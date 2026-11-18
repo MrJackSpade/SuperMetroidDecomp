@@ -87,16 +87,13 @@ internal sealed class GameplayActorDrawing
 
         if (colourEffects == SamusColourEffects.Advance)
         {
-            // Samus's colour update runs during gameplay. The renderer
-            // reads the colours directly, so show the suit colours immediately
-            // before the matching draw phase. This covers dry-room Speed Booster stage four
-            // and the normal-suit restoration requested by cancellation.
+            // Samus's colours update during gameplay, just before she is drawn, so the picture drawn after this step
+            // shows every colour it sets: the full-boost glow out of liquid and the normal suit a cancelled move asks for.
             // The drained or rainbow colouring comes first in the colour update, and nothing else in it runs after it.
             // Its one-shot suit restore also stands for the suit shade
             // shown at once when the drained Samus falls and when her rainbow stops.
-            // Cancellation/pose initialization copies the normal suit during
-            // movement, before this colour step. Show that pending shade first so charge
-            // and drained colourings retain their same-frame priority.
+            // A cancelled move or a new pose asks for the normal suit during movement, before this colour step. That
+            // shade shows first, so the charge and drained colourings of the same update show over it.
             if (!deathOwnsSamus)
                 _player.Samus.HorizontalSpeed.ApplyPendingSuitShadeRestore(
                     _player.Colours, _player.Samus.EquippedItems);
@@ -184,10 +181,8 @@ internal sealed class GameplayActorDrawing
             // The elevator's drawing replaces Samus's ordinary drawing while an
             // elevator owns a front-facing body. It still arrives after the cover update, so
             // the arm-cannon cover state above advances every frame. Odd frames draw nothing
-            // more. Even frames draw her with the fatal/no-animation body renderer, which
-            // deliberately bypasses ordinary invincibility flicker and every auxiliary
-            // Samus layer: atmosphere, charge flare, cannon sprite, speed/shinespark
-            // echoes, and grapple graphics. Projectile drawing remains in the shared
+            // more. Even frames draw her body alone, as her death does: no invincibility flicker and none of her
+            // other pictures (atmosphere, charge flare, arm cannon, speed and shinespark echoes, grapple). Projectile drawing remains in the shared
             // tail below, exactly as the game draws them after this drawing.
             bool elevatorOwnsSamusDrawing =
                 room.Enemies.Elevator.ElevatorStatus != ElevatorActorStatus.Inactive && SamusPoseMetadata.IsForwardFacingPose(_player.Samus.Pose);
@@ -271,9 +266,8 @@ internal sealed class GameplayActorDrawing
                     _player.Samus.LiquidPhysics.UntestedWaterSurfaceLine,
                     _player.Samus.Artwork.Sheets);
 
-                // BeforeBody and AfterBody differ only in draw order: the first appends the
-                // cannon before the body, the second after it. Hidden suppresses
-                // the independent object even if a HUD-driven cover frame remains nonzero.
+                // BeforeBody draws the arm cannon behind her body and AfterBody in front of it. Hidden draws no arm
+                // cannon, even while the HUD's selection holds its cover open.
                 if (_player.Samus.ArmCannon.DrawOrder == SamusArmCannonDrawOrder.BeforeBody)
                 {
                     _player.Samus.ArmCannon.Draw(
@@ -309,9 +303,8 @@ internal sealed class GameplayActorDrawing
                 }
                 else
                 {
-                    // The ordinary drawing tail and grapple's signed-range fallback share this
-                    // exact echo tail. The latter still suppresses charge flare and rope
-                    // because the ordinary flare and the active half of the grapple's drawing were bypassed.
+                    // The ordinary drawing and the grapple's teardown frame both end with Samus's echoes. The teardown
+                    // frame shows no charge flare and no rope: it draws neither the ordinary flare nor the grapple's beam.
                     _player.Samus.Presentation.DrawSpeedBoosterEchoes(_player.Samus, 
                         _sprites,
                         _room.Camera.PixelPosition);
@@ -322,9 +315,8 @@ internal sealed class GameplayActorDrawing
                 }
             }
 
-            // The frame draws Samus first and immediately draws her projectiles. This is
-            // deliberately after the grapple beam too in the composite pass;
-            // every live beam picture is still drawn after Samus's body.
+            // Samus's projectiles draw straight after her, after the grapple beam too, so every live beam picture
+            // lies in front of her body.
             room.Projectiles.DrawLiveProjectiles(
                 _sprites,
                 _room.Camera.PixelPosition,

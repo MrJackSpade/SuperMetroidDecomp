@@ -669,7 +669,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// <summary>
     /// Runs the earthquake sound clock and the shared
     /// writes used while lava or acid waits and moves. Sound cadence and screen shake are
-    /// parallel outputs of the game's FX actor; neither is inferred by the renderer.
+    /// separate results of the room's liquid effect; the display derives neither from the other.
     /// </summary>
     private void PublishRisingLiquidFeedback(int randomNumber, PowerOnEarthquakeSoundDelay earthquakeSoundDelay)
     {

@@ -7,8 +7,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// <summary>
 /// Phantoon's fixed hitboxes, separate from his editable background frames (#1937): the five-rectangle full body, the
 /// vulnerable eye alone, and the invulnerable body's centre point (<see cref="PhantoonSolidifyingCentre"/>). Every
-/// component lies at his origin. The eye's, tentacles' and mouth's looks have no hitboxes: those parts always ignore Samus,
-/// so the inert point the original gave their looks was never read.
+/// component lies at his origin. The eye's, tentacles' and mouth's looks have no hitboxes: those parts always ignore Samus.
 /// </summary>
 internal static class PhantoonCollisionDefinitions
 {

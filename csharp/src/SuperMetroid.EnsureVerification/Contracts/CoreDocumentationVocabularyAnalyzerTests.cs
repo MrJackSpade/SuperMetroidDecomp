@@ -1634,5 +1634,24 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         // A unit of measure, one 65536th, a value alone, a marker the game shows and a hardware owner are English.
         Expect("class P { /// <summary>Where it stands, in pixels and 65536ths; one 65536th of a pixel further; the map marker.</summary>\nint F => 0; }");
         Expect(CompatibilityService + "/// <summary>Evidence: the original keeps one counter for both.</summary>\n[CompatibilityService(\"count\")] class Count { }");
+        // The original's storage and program and the port's reasoning about them in boss prose, outside hardware owners
+        // and markup (#2407): what the original gave or kept, unreachable or unused frames told as not authored, a value
+        // copied without halving, the game keeping separate phases and fabricating in any word form.
+        Expect("class P { /// <summary>The inert point the original gave their looks.</summary>\nint F => 0; }",
+            "('the original gave')");
+        Expect("class P { void Run() { // the frames the original keeps for it\n } }", "('the original keeps')");
+        Expect("class P { /// <summary>The unreachable frames and the unused flash are not authored.</summary>\nint F => 0; }",
+            "('unreachable frames and the unused flash are not authored')");
+        Expect("class P { void Run() { // its unused head animation is not authored\n } }", "('unused head animation is not authored')");
+        Expect("class P { /// <summary>Her hit area, copied without halving from her definition.</summary>\nint F => 0; }",
+            "('copied without halving')");
+        Expect("class P { void Run() { // The game keeps four separate phases (forward, back).\n } }",
+            "('game keeps four separate phases')");
+        Expect("class P { void Run() { // avoids fabricating a countdown\n } }", "('fabricating')");
+        Expect("class P { /// <summary>It does not fabricate a trajectory.</summary>\nint F => 0; }", "('fabricate')");
+        // What the game keeps or gives, a value copied, an unused room, a cue that is not authored and a hardware owner
+        // are English.
+        Expect("class P { /// <summary>The game keeps colours lit and gives it two choices; the speed is copied to the shot; an unused room. The cue a full queue selects is not authored.</summary>\nint F => 0; }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the original keeps the stage.</summary>\n[CompatibilityService(\"stage\")] class Stage { }");
     }
 }

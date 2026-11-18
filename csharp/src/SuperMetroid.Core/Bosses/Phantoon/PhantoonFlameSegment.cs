@@ -1,17 +1,21 @@
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
-/// <summary>Phantoon's typed flame animations (#641, #1788): one for each animation a flame's spawn or reaction starts, in authored order.</summary>
+/// <summary>
+/// Phantoon's typed flame segments (#641, #1788): one for each animation a flame's spawn or reaction starts, and the runs
+/// those animations play on into.
+/// </summary>
 internal enum PhantoonFlameSegment
 {
-    /// <summary>The destroyable flame's three-pose idle loop.</summary>
-    DestroyableIdle,
+    /// <summary>A flame's three-pose burning loop: a destroyable flame idles in it and a casual flame bounces in it.</summary>
+    Burning,
     /// <summary>A casual flame's landing pose.</summary>
     CasualHitGround,
-    /// <summary>A casual flame's three-pose bouncing loop.</summary>
-    CasualBouncing,
     /// <summary>A casual flame's six resting poses, running on into <see cref="Dying"/>.</summary>
     CasualResting,
-    /// <summary>A flame's four dying poses, then its deletion.</summary>
+    /// <summary>
+    /// A flame's four dying poses: a resting or impacting flame dies and is deleted, and a shot flame dies, leaves its drop
+    /// and is deleted.
+    /// </summary>
     Dying,
     /// <summary>A rain flame's impact pose, then <see cref="Dying"/>.</summary>
     RainImpact,
@@ -25,6 +29,6 @@ internal enum PhantoonFlameSegment
     StartingFlame,
     /// <summary>Deletes the flame.</summary>
     Delete,
-    /// <summary>A shot flame's four poses, its drop and its deletion.</summary>
-    DestroyableShot,
+    /// <summary>Requests a shot flame's drop as it dies.</summary>
+    Drop,
 }

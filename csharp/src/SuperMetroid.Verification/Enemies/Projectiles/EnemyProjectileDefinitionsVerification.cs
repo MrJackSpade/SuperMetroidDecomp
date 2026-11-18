@@ -172,8 +172,8 @@ internal static class EnemyProjectileDefinitionsVerification
             {
                 // Phantoon's flames are typed (#1286); VerifyPhantoonFlameAnimations matches them to the native lists.
                 PhantoonFlameSegment expected = kind == RoomEnemyProjectileKind.PhantoonDestroyableFlame
-                    ? PhantoonFlameSegment.DestroyableShot
-                    : PhantoonFlameSegment.DestroyableIdle;
+                    ? PhantoonFlameSegment.Dying
+                    : PhantoonFlameSegment.Burning;
                 AssertTrue(projectile.Animation is PhantoonFlameAnimation started
                         && started.Playback == new AnimationPlayback<PhantoonFlameSegment>(PhantoonFlameAnimations.StartingWith(expected), AnimationPlace.StartOfAnimation),
                     $"{kind} production shot starts the typed {expected} program");

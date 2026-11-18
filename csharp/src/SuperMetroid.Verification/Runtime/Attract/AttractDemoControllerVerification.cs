@@ -7,8 +7,8 @@ internal static class AttractDemoControllerVerification
 {
     /// <summary>
     /// Checks that consecutive scripted Shoot presses retain their explicit new-press edges
-    /// while the Start latch history survives each temporary override.
-    /// A later real Start latch must see no edge leaked from the demo.
+    /// while the Start latch history survives each temporary override: a later real latch finds its edges against the
+    /// player's Start, so Start held on sees no edge and Shoot added to it is newly pressed, though the demo held Shoot.
     /// </summary>
     internal static void VerifyAttractDemoControllerOverride()
     {
@@ -20,8 +20,6 @@ internal static class AttractDemoControllerVerification
             {
                 if (controller.Current != GameplayAction.Shoot || controller.NewlyPressed != GameplayAction.Shoot)
                     throw new InvalidDataException("Demo controller did not preserve the explicit scripted edge.");
-                if (controller.Previous != GameplayAction.Start)
-                    throw new InvalidDataException("Demo override modified the latch history.");
             }
             if (controller.Current != GameplayAction.Start || controller.NewlyPressed != GameplayAction.Start)
                 throw new InvalidDataException("Demo beta failed to restore the player cancellation input.");
@@ -29,6 +27,10 @@ internal static class AttractDemoControllerVerification
         controller.Latch(GameplayAction.Start);
         if (controller.NewlyPressed != 0)
             throw new InvalidDataException("Demo input leaked into the next real controller edge calculation.");
+        controller.UseDemoInput(GameplayAction.Shoot, GameplayAction.Shoot).Dispose();
+        controller.Latch(GameplayAction.Start | GameplayAction.Shoot);
+        if (controller.NewlyPressed != GameplayAction.Shoot)
+            throw new InvalidDataException("Demo override modified the latch history: Shoot held by the demo hid the player's new press.");
         Console.WriteLine("  Attract controller: explicit script edges and restored hardware history agree.");
     }
 }

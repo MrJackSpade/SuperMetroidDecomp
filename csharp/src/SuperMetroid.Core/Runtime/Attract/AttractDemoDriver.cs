@@ -92,7 +92,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
         StoredExploredMapLoads.ClearForDemo(_system.StoredExploredMaps);
 
         SamusState samus = _roomLoader.InitializeSamus();
-        samus.Position = FixedPosition<RoomPixels>.FromWhole(scene.SamusPosition);
+        samus.Position = FixedPosition<RoomPixels>.FromWhole(scene.Samus.Position);
         samus.EquippedItems = scene.Items;
         samus.CollectedItems = scene.Items;
         samus.EquippedBeams = scene.EquippedBeams;
@@ -106,7 +106,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
         samus.PowerBombs = scene.PowerBombs;
         samus.MaxPowerBombs = scene.PowerBombs;
         _player.Samus = samus;
-        ApplyAttractSamusSetup(scene.SamusSetup);
+        scene.Samus.Setup.Apply(samus);
         _player.Samus.PreviousHealthForHurtCheck = _player.Samus.Health;
         _hudSetup.InitializeHud(new HudSnapshot(_player.Samus.Health, _player.Samus.MaxHealth,
             _player.Samus.Missiles, _player.Samus.MaxMissiles, _player.Samus.SuperMissiles, _player.Samus.MaxSuperMissiles,
@@ -127,41 +127,6 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
         _player.Samus.Ground = SamusGround.Of(room.Definition);
         _player.GroundedSamusMovementEnabled = true;
         _attractSession.Input = new AttractDemoInput(scene);
-    }
-
-    /// <summary>Applies the recorded entry pose, low-health adjustment, or demo shinespark launch.</summary>
-    private void ApplyAttractSamusSetup(AttractDemoSamusSetup samusSetup)
-    {
-        var samus = _player.Samus ?? throw new InvalidOperationException("Demo setup requires Samus.");
-        switch (samusSetup)
-        {
-            case AttractDemoSamusSetup.LandingSite:
-                SamusPoseMetadata.ApplyForwardFacingPoseSetup(samus);
-                break;
-            case AttractDemoSamusSetup.StandingRight:
-                samus.Pose = SamusPoseId.FacingRightNormalPose;
-                break;
-            case AttractDemoSamusSetup.LowHealthLeft:
-                samus.Health = AttractDemoDefinitions.LowHealthEnergy;
-                goto case AttractDemoSamusSetup.StandingLeft;
-            case AttractDemoSamusSetup.StandingLeft:
-                samus.Pose = SamusPoseId.FacingLeftNormalPose;
-                break;
-            case AttractDemoSamusSetup.MorphLeft:
-                samus.Pose = SamusPoseId.MorphBallGroundLeftPose;
-                break;
-            case AttractDemoSamusSetup.FallingLeft:
-                samus.Pose = SamusPoseId.FallingLeftPose;
-                break;
-            case AttractDemoSamusSetup.DiagonalShinespark:
-                samus.Shinespark.BeginDemoLaunch(samus, SamusPoseId.ShinesparkDiagonalRightPose);
-                break;
-            case AttractDemoSamusSetup.HorizontalShinespark:
-                samus.Shinespark.BeginDemoLaunch(samus, SamusPoseId.ShinesparkHorizontalLeftPose);
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined AttractDemoSamusSetup {samusSetup}.");
-        }
     }
 
     /// <summary>Applies scene-specific scroll, Kraid timer, or defeated-boss setup.</summary>

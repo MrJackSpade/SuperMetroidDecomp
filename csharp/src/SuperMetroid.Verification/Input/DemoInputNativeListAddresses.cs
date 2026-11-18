@@ -50,29 +50,29 @@ internal static class DemoInputNativeListAddresses
 
     /// <summary>Each object's native header and its typed definition.</summary>
     internal static Object[] Objects => [
-        Title(0x9e52, AttractDemoInputDefinitions.AttractLandingSite),
-        Title(0x9e58, AttractDemoInputDefinitions.AttractPseudoScrewAttack),
-        Title(0x9e5e, AttractDemoInputDefinitions.AttractSpeedBooster),
-        Title(0x9e64, AttractDemoInputDefinitions.AttractDachora),
-        Title(0x9e6a, AttractDemoInputDefinitions.AttractRedBrinstarElevator),
-        Title(0x9e70, AttractDemoInputDefinitions.AttractPrePhantoonHall),
-        Title(0x9e76, AttractDemoInputDefinitions.AttractLowerNorfairEntrance),
-        Title(0x9e7c, AttractDemoInputDefinitions.AttractEyeDoor),
-        Title(0x9e82, AttractDemoInputDefinitions.AttractDiagonalShinespark),
-        Title(0x9e88, AttractDemoInputDefinitions.AttractMissileDoor),
-        Title(0x9e8e, AttractDemoInputDefinitions.AttractKraid),
-        Title(0x9e94, AttractDemoInputDefinitions.AttractFirefleaRoom),
-        Title(0x9e9a, AttractDemoInputDefinitions.AttractScrewAttack),
-        Title(0x9ea0, AttractDemoInputDefinitions.AttractBrinstarDiagonalRoom),
-        Title(0x9eac, AttractDemoInputDefinitions.AttractPreSporeSpawnHall),
-        Title(0x9eb2, AttractDemoInputDefinitions.AttractGrappleBeam),
-        Title(0x9eb8, AttractDemoInputDefinitions.AttractIceBeam),
-        Title(0x9ebe, AttractDemoInputDefinitions.AttractGauntletEntrance),
-        Title(0x9ec4, AttractDemoInputDefinitions.AttractAdvancedGrappleBeam),
-        Title(0x9eca, AttractDemoInputDefinitions.AttractInfiniteBombJump),
-        Title(0x9ed0, AttractDemoInputDefinitions.AttractSpecialBeamAttack),
-        Title(0x9ed6, AttractDemoInputDefinitions.AttractTourianEntrance),
-        Title(0x9edc, AttractDemoInputDefinitions.AttractCrystalFlash),
+        Title(0x9e52, new(DemoInputRecordingId.AttractLandingSite)),
+        Title(0x9e58, new(DemoInputRecordingId.AttractPseudoScrewAttack)),
+        Title(0x9e5e, new(DemoInputRecordingId.AttractSpeedBooster)),
+        Title(0x9e64, new(DemoInputRecordingId.AttractDachora)),
+        Title(0x9e6a, new(DemoInputRecordingId.AttractRedBrinstarElevator)),
+        Title(0x9e70, new(DemoInputRecordingId.AttractPrePhantoonHall)),
+        Title(0x9e76, new(DemoInputRecordingId.AttractLowerNorfairEntrance)),
+        Title(0x9e7c, new(DemoInputRecordingId.AttractEyeDoor)),
+        Title(0x9e82, new(DemoInputRecordingId.AttractDiagonalShinespark, Continuation: DemoInputRecordingId.AttractDiagonalShinesparkContinuation)),
+        Title(0x9e88, new(DemoInputRecordingId.AttractMissileDoor)),
+        Title(0x9e8e, new(DemoInputRecordingId.AttractKraid)),
+        Title(0x9e94, new(DemoInputRecordingId.AttractFirefleaRoom)),
+        Title(0x9e9a, new(DemoInputRecordingId.AttractScrewAttack)),
+        Title(0x9ea0, new(DemoInputRecordingId.AttractBrinstarDiagonalRoom)),
+        Title(0x9eac, new(DemoInputRecordingId.AttractPreSporeSpawnHall)),
+        Title(0x9eb2, new(DemoInputRecordingId.AttractGrappleBeam)),
+        Title(0x9eb8, new(DemoInputRecordingId.AttractIceBeam)),
+        Title(0x9ebe, new(DemoInputRecordingId.AttractGauntletEntrance)),
+        Title(0x9ec4, new(DemoInputRecordingId.AttractAdvancedGrappleBeam)),
+        Title(0x9eca, new(DemoInputRecordingId.AttractInfiniteBombJump)),
+        Title(0x9ed0, new(DemoInputRecordingId.AttractSpecialBeamAttack)),
+        Title(0x9ed6, new(DemoInputRecordingId.AttractTourianEntrance)),
+        Title(0x9edc, new(DemoInputRecordingId.AttractCrystalFlash)),
         new Object(DemoInputListWords.IntroMotherBrainFlashbackObject, ReturnOnlyAddress, DemoInputRecordingId.IntroMotherBrainFlashback),
         new Object(DemoInputListWords.IntroBabyDiscoveryObject, PhaseAddress(IntroBabyDiscoveryDemoPhase.RunningLeft),
             DemoInputRecordingId.IntroBabyDiscoveryRunningLeft),
@@ -80,7 +80,7 @@ internal static class DemoInputNativeListAddresses
 
     /// <summary>A title demonstration's native object: its first watch's pre-instruction word and its program.</summary>
     private static Object Title(ushort header, AttractDemoInputDefinition input) =>
-        new(header, input.Continuation is null ? TitleLeavingCheckAddress : ShinesparkReleaseAddress, input.Animation);
+        new(header, input.Continuation is null ? TitleLeavingCheckAddress : ShinesparkReleaseAddress, input.Recording);
 
     /// <summary>
     /// The recordings whose loop the cartridge authors as a list of its own, which the recording's last list runs on into
@@ -120,7 +120,7 @@ internal static class DemoInputNativeListAddresses
     /// scene whose input names a continuation still plays its first recording, otherwise the leave check.
     /// </summary>
     internal static ushort WatchAddress(AttractDemoInputDefinition input, DemoInputState playback) =>
-        input.Continuation is not null && playback.Position is { } position && position.Recording == input.Animation
+        input.Continuation is not null && playback.Position is { } position && position.Recording == input.Recording
             ? ShinesparkReleaseAddress
             : TitleLeavingCheckAddress;
 

@@ -56,8 +56,7 @@ internal static class GameSaveJsonVerification
         system.SetAreaMapAcquired(AreaId.Brinstar);
         system.MarkExploredMapTile(AreaId.Brinstar, new(9, 1));
         system.MarkExploredMapTile(AreaId.Brinstar, new(23, 2));
-        var time = new GameTimeState();
-        time.Load(frames: 41, seconds: 32, minutes: 21, hours: 7);
+        var time = new GameClockReading(frames: 41, seconds: 32, minutes: 21, hours: 7);
         ControllerBindings bindings = ControllerBindings.Default.AssignAndSwap(
             action: ControllerAction.Shoot,
             physicalButton: ControllerButton.Y);
@@ -104,7 +103,7 @@ internal static class GameSaveJsonVerification
         AssertEqual(bindings, restoredSlot.ControllerBindings, "JSON controller bindings");
         AssertEqual(ReserveTankMode.Auto, restoredSlot.ReserveMode, "JSON reserve-tank mode");
         AssertEqual(HudItem.SuperMissile, restoredSlot.HudItem, "JSON HUD selection");
-        AssertEqual(7, restoredSlot.GameTimeHours, "JSON game-time hours");
+        AssertEqual(time, restoredSlot.GameTime, "JSON game time");
 
         AssertInvalidJsonSave(
             json.Replace($"\"schemaVersion\": {GameSaveJsonFormat.SchemaVersion}", "\"schemaVersion\": 99", StringComparison.Ordinal),

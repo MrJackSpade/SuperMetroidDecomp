@@ -25,8 +25,7 @@ internal static class FileSelectPresentationVerification
         {
             Health = 45,
             MaxHealth = 99,
-            GameTimeHours = 12,
-            GameTimeMinutes = 34,
+            GameTime = new SuperMetroid.Core.Progression.GameClockReading(frames: 0, seconds: 0, minutes: 34, hours: 12),
         });
         saveRam.SelectSlot(SaveSlot.A);
 

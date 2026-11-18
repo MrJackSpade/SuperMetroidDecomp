@@ -101,7 +101,7 @@ public static class SaveRamCodec
         int hours = ReadWord(payload, SaveRamLayout.GameTimeHoursOffset);
         // The game's clock words hold only the clock's own domain: every update rolls each component over at its unit and
         // saturates the hours, so words outside it are no save the game wrote.
-        if (!GameTimeState.IsInDomain(frames, seconds, minutes, hours))
+        if (!GameClockReading.IsReading(frames, seconds, minutes, hours))
             throw new InvalidDataException($"Save slot {slot}'s clock words {hours}:{minutes}:{seconds}.{frames} are not a reading of the game clock.");
         return new SuperMetroidSaveSlot(
             Slot: SlotAt(slot),
@@ -121,10 +121,7 @@ public static class SaveRamCodec
             HudItem: SaveSlotNumbering.SavedHudItem(ReadWord(payload, SaveRamLayout.HudItemOffset)),
             MaxReserveEnergy: SamusCountWords.Decode(ReadWord(payload, SaveRamLayout.MaxReserveEnergyOffset)),
             ReserveEnergy: SamusCountWords.Decode(ReadWord(payload, SaveRamLayout.ReserveEnergyOffset)),
-            GameTimeFrames: frames,
-            GameTimeSeconds: seconds,
-            GameTimeMinutes: minutes,
-            GameTimeHours: hours,
+            GameTime: new GameClockReading(frames, seconds, minutes, hours),
             Progression: DecodeProgression(payload, maps),
             StartupRoute: SuperMetroid.AssetExtraction.Progression.SaveLoadingGameStateCodec.Route(ReadWord(payload, SaveRamLayout.LoadingGameStateOffset)),
             Checkpoint: LoadStationNumberCodec.Decode(
@@ -179,13 +176,13 @@ public static class SaveRamCodec
         WriteWord(payload, SaveRamLayout.JapaneseTextOffset, snapshot.JapaneseText ? (ushort)1 : (ushort)0);
         WriteWord(payload, SaveRamLayout.LoadedItemCountOffset, SaveRamLayout.LoadedItemCountSavedWord);
         WriteWord(payload, SaveRamLayout.GameTimeFramesOffset,
-            FieldWord(snapshot.GameTimeFrames, nameof(snapshot.GameTimeFrames)));
+            FieldWord(snapshot.GameTime.Frames, nameof(snapshot.GameTime)));
         WriteWord(payload, SaveRamLayout.GameTimeSecondsOffset,
-            FieldWord(snapshot.GameTimeSeconds, nameof(snapshot.GameTimeSeconds)));
+            FieldWord(snapshot.GameTime.Seconds, nameof(snapshot.GameTime)));
         WriteWord(payload, SaveRamLayout.GameTimeMinutesOffset,
-            FieldWord(snapshot.GameTimeMinutes, nameof(snapshot.GameTimeMinutes)));
+            FieldWord(snapshot.GameTime.Minutes, nameof(snapshot.GameTime)));
         WriteWord(payload, SaveRamLayout.GameTimeHoursOffset,
-            FieldWord(snapshot.GameTimeHours, nameof(snapshot.GameTimeHours)));
+            FieldWord(snapshot.GameTime.Hours, nameof(snapshot.GameTime)));
         WriteWord(payload, SaveRamLayout.MoonwalkOffset, snapshot.MoonwalkEnabled ? (ushort)1 : (ushort)0);
         // Every save the game writes holds the words a new file stored in these two fields, since no retail routine
         // changes them; an imported save's other words are not carried.
@@ -226,10 +223,7 @@ public static class SaveRamCodec
         HudItem = slot.HudItem,
         MaxReserveEnergy = slot.MaxReserveEnergy,
         ReserveEnergy = slot.ReserveEnergy,
-        GameTimeFrames = slot.GameTimeFrames,
-        GameTimeSeconds = slot.GameTimeSeconds,
-        GameTimeMinutes = slot.GameTimeMinutes,
-        GameTimeHours = slot.GameTimeHours,
+        GameTime = slot.GameTime,
         StartupRoute = slot.StartupRoute,
         Checkpoint = slot.Checkpoint,
         Progress = slot.Progression.Copy(),

@@ -134,7 +134,7 @@ internal static class DoorAlignmentVerification
         runtime.Room.LoadedLevelData.ResolveDoorCollision(runtime.Room.LoadedLevelData.GetCollisionBlock(new(doorX, doorY)), samus.Pose.ForRoomCollision(), true);
         runtime.Room.LoadedCamera.SetPosition(
             new Position16<RoomPixels>(runtime.Room.LoadedCamera.PixelPosition.X, unchecked((ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 2))));
-        runtime.GameTime.Load(frames: 58, seconds: 56, minutes: 34, hours: 12);
+        runtime.GameTime.Load(new SuperMetroid.Core.Progression.GameClockReading(frames: 58, seconds: 56, minutes: 34, hours: 12));
 
         var transition = new DoorTransitionState();
         transition.Begin(runtime);

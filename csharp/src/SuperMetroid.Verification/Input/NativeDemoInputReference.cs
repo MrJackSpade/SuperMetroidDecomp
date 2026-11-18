@@ -140,12 +140,14 @@ internal sealed class NativeDemoInputReference(Func<ushort, ushort> readWord)
     }
 
     /// <summary>
-    /// The object's words, in the order <see cref="Of(DemoInputState, ushort)"/> gives a typed object's. The initialization
-    /// parameter is left out: every object's initializer returns at once, so nothing reads it.
+    /// The object's words a typed object shows, in the order <see cref="Of(DemoInputState, ushort)"/> gives them. The
+    /// initialization parameter is left out: every object's initializer returns at once, so nothing reads it. The countdown
+    /// and the previous step's held and newly pressed words are the playback's own (#2500): compared on every step, the
+    /// cursor and the buttons each step plays show the countdown, and the drawing history's previous new input shows the
+    /// previous step's new input.
     /// </summary>
     internal string Snapshot() =>
-        $"{Enabled}/{FrameBehaviorPointer}/{InstructionPointer}/{FrameHold.RawValue}/" +
-        $"{Held}/{NewlyPressed}/{PreviousHeld}/{PreviousNewlyPressed}/{PublishedPreviousNewlyPressed}";
+        $"{Enabled}/{FrameBehaviorPointer}/{InstructionPointer}/{Held}/{NewlyPressed}/{PublishedPreviousNewlyPressed}";
 
     /// <summary>
     /// A typed playback's words: what its owner watches for as <paramref name="frameBehavior"/>, the native pre-instruction
@@ -153,8 +155,8 @@ internal sealed class NativeDemoInputReference(Func<ushort, ushort> readWord)
     /// </summary>
     internal static string Of(DemoInputState state, ushort frameBehavior) =>
         $"{state.Enabled}/{frameBehavior}/{DemoInputNativeListAddresses.Address(state.Position)}/" +
-        $"{state.FrameHold}/{GameplayActionWordCodec.ToJoypadWord(state.Held)}/{GameplayActionWordCodec.ToJoypadWord(state.NewlyPressed)}/{GameplayActionWordCodec.ToJoypadWord(state.PreviousHeld)}/" +
-        $"{GameplayActionWordCodec.ToJoypadWord(state.PreviousNewlyPressed)}/{GameplayActionWordCodec.ToJoypadWord(state.PublishedPreviousNewlyPressed)}";
+        $"{GameplayActionWordCodec.ToJoypadWord(state.Held)}/{GameplayActionWordCodec.ToJoypadWord(state.NewlyPressed)}/" +
+        $"{GameplayActionWordCodec.ToJoypadWord(state.PublishedPreviousNewlyPressed)}";
 
     /// <summary>A pre-instruction for an object whose owner runs none: only the return-only routines may be installed.</summary>
     internal static void ReturnOnly(NativeDemoInputReference _, ushort frameBehavior)

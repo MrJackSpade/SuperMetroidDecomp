@@ -29,8 +29,8 @@ public sealed class EscapeTypewriterState
     private int _updatesBeforeNextCharacter;
     /// <summary>The updates that have typed a character, space or line end, and the one that found the warning complete.</summary>
     private int _typingUpdates;
-    /// <summary>Total non-space glyphs typed; spaces advance the typing position but do not increment this count.</summary>
-    public int GlyphsWritten { get; private set; }
+    /// <summary>Total non-space glyphs typed, whose count paces the clicks; spaces advance the typing position but are not counted.</summary>
+    private int _glyphsWritten;
     /// <summary>True once an update ready to type passes the end of all lines; later updates report completion without typing or requesting a sound.</summary>
     public bool Completed { get; private set; }
     /// <summary>One-update sound request raised after every second non-space glyph, cleared at the start of every <see cref="Step"/>; the Ceres or Zebes escape picks which click sound plays.</summary>
@@ -38,9 +38,9 @@ public sealed class EscapeTypewriterState
     /// <summary>The Ceres or Zebes warning the typewriter types, which any text bound to it again must be.</summary>
     public EscapeTypewriterMessageId MessageId { get; private set; }
     /// <summary>The installed line being typed, from zero; moves past exhausted lines on an eligible update and reaches the line count when typing completes.</summary>
-    public int MessageLineIndex { get; private set; }
+    private int _lineIndex;
     /// <summary>The next character to type in the current line, from zero, including spaces; resets to zero when the typewriter advances to another line.</summary>
-    public int MessageCharacterIndex { get; private set; }
+    private int _characterIndex;
 
     /// <summary>Binds the installed text of the warning the typewriter types, as when the host installs new text mid-warning.</summary>
     /// <exception cref="InvalidDataException"><paramref name="message"/> is the other warning's text.</exception>
@@ -77,18 +77,18 @@ public sealed class EscapeTypewriterState
     private bool StepInstalled(EscapeTypewriterMessage message, out EscapeTypewriterGlyph? glyph)
     {
         glyph = null;
-        while (MessageLineIndex < message.Lines.Count)
+        while (_lineIndex < message.Lines.Count)
         {
-            EscapeTypewriterLine line = message.Lines[MessageLineIndex];
-            if (MessageCharacterIndex >= line.Text.Length)
+            EscapeTypewriterLine line = message.Lines[_lineIndex];
+            if (_characterIndex >= line.Text.Length)
             {
-                MessageLineIndex++;
-                MessageCharacterIndex = 0;
+                _lineIndex++;
+                _characterIndex = 0;
                 continue;
             }
-            if (MessageCharacterIndex == 0)
+            if (_characterIndex == 0)
                 Corner = line.Start;
-            glyph = TypeCharacter(line.Text[MessageCharacterIndex++]);
+            glyph = TypeCharacter(line.Text[_characterIndex++]);
             return false;
         }
         return Completed = true;
@@ -101,8 +101,8 @@ public sealed class EscapeTypewriterState
         if (EscapeTypewriterGlyph.Types(character))
         {
             glyph = new(Corner, EscapeTypewriterGlyph.PictureOf(MessageId, character));
-            GlyphsWritten++;
-            ClickRequested = EscapeTypewriterDefinitions.ClickEverySecondGlyph.IsDue(GlyphsWritten);
+            _glyphsWritten++;
+            ClickRequested = EscapeTypewriterDefinitions.ClickEverySecondGlyph.IsDue(_glyphsWritten);
         }
         Corner += new Offset16<PlanePixels>(EscapeTypewriterDefinitions.GlyphAdvance, 0);
         return glyph;

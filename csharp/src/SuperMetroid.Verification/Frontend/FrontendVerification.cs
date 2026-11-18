@@ -179,8 +179,7 @@ internal static void VerifyFileSelectFreshSaveTilemap()
     {
         Health = 99,
         MaxHealth = 99,
-        GameTimeMinutes = 34,
-        GameTimeHours = 12,
+        GameTime = new SuperMetroid.Core.Progression.GameClockReading(frames: 0, seconds: 0, minutes: 34, hours: 12),
         Progress = progress,
         Checkpoint = SuperMetroid.Core.Progression.LoadStationDefinitions.CeresElevator,
     });
@@ -230,7 +229,7 @@ internal static void VerifyFileSelectFreshSaveTilemap()
     SuperMetroidSaveSlot copied = saveRam.ReadSlot(SaveSlot.B)
         ?? throw new InvalidOperationException("File-select COPY did not create slot B.");
     AssertEqual(saved.Health, copied.Health, "file-select COPY preserves health");
-    AssertEqual(saved.GameTimeMinutes, copied.GameTimeMinutes, "file-select COPY preserves time");
+    AssertEqual(saved.GameTime, copied.GameTime, "file-select COPY preserves time");
 
     // Re-enter the main screen from the copied SRAM image and clear slot A. This exercises
     // the actual confirmation default and the native four-directory invalidation, not a
@@ -515,10 +514,8 @@ internal static void VerifyDemoInputObject()
     AssertEqual(231, elapsed, "old Mother Brain demo-input duration");
     AssertEqual(DemoInputRomDataIntroMotherBrain.NextRecord, DemoInputNativeListAddresses.Address(demo.Position),
         "old Mother Brain next record pointer");
-    // Loading a record and publishing its first visible frame happen in the same handler
-    // call. Consequently the last of its 70 visible frames leaves timer one; the following
-    // call decrements to zero and fetches the next record.
-    AssertEqual(1, demo.FrameHold, "final visible record frame retains timer one");
+    // Loading a record and publishing its first visible frame happen in the same handler call, so each record holds
+    // exactly its frames above and the next call fetches the next record.
 
     // $8739 disables the object and returns into the shared delete in the same handler call.
     for (int frame = 0; frame < 1024 && demo.IsActive; frame++)

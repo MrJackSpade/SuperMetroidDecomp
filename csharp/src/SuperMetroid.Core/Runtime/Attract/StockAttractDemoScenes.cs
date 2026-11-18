@@ -1,85 +1,402 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms.RoomObjects;
-using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Runtime.Attract;
 
-/// <summary>Executable staging for the title demonstrations, joined across room, equipment and setup definitions.</summary>
-/// <remarks>The demonstrations' order, where each starts, what Samus holds and where each recording ends are the title's choices; where she stands, her ammunition and energy, her abilities and her control follow from the game's own definitions.</remarks>
+/// <summary>The title demonstrations, each scene's staging written once in its entry (#2500).</summary>
+/// <remarks>
+/// The demonstrations' order, where each starts, what Samus holds and where each recording ends are the title's choices;
+/// where she stands follows from her staging pose, and her ammunition and energy from the tanks each scene gives her.
+/// </remarks>
 public static class StockAttractDemoScenes
 {
-    /// <summary>Mutually exclusive demonstration identities.</summary>
-    private enum Demonstration
-    {
-        /// <summary>The LandingSite demonstration.</summary>
-        LandingSite,
-        /// <summary>The MissileDoor demonstration.</summary>
-        MissileDoor,
-        /// <summary>The PreSporeSpawnHall demonstration.</summary>
-        PreSporeSpawnHall,
-        /// <summary>The SpeedBooster demonstration.</summary>
-        SpeedBooster,
-        /// <summary>The GrappleBeam demonstration.</summary>
-        GrappleBeam,
-        /// <summary>The PseudoScrewAttack demonstration.</summary>
-        PseudoScrewAttack,
-        /// <summary>The IceBeam demonstration.</summary>
-        IceBeam,
-        /// <summary>The FirefleaRoom demonstration.</summary>
-        FirefleaRoom,
-        /// <summary>The BrinstarDiagonalRoom demonstration.</summary>
-        BrinstarDiagonalRoom,
-        /// <summary>The LowerNorfairEntrance demonstration.</summary>
-        LowerNorfairEntrance,
-        /// <summary>The ScrewAttack demonstration.</summary>
-        ScrewAttack,
-        /// <summary>The Dachora demonstration.</summary>
-        Dachora,
-        /// <summary>The PrePhantoonHall demonstration.</summary>
-        PrePhantoonHall,
-        /// <summary>The DiagonalShinespark demonstration.</summary>
-        DiagonalShinespark,
-        /// <summary>The EyeDoor demonstration.</summary>
-        EyeDoor,
-        /// <summary>The RedBrinstarElevator demonstration.</summary>
-        RedBrinstarElevator,
-        /// <summary>The Kraid demonstration.</summary>
-        Kraid,
-        /// <summary>The TourianEntrance demonstration.</summary>
-        TourianEntrance,
-        /// <summary>The GauntletEntrance demonstration.</summary>
-        GauntletEntrance,
-        /// <summary>The AdvancedGrappleBeam demonstration.</summary>
-        AdvancedGrappleBeam,
-        /// <summary>The InfiniteBombJump demonstration.</summary>
-        InfiniteBombJump,
-        /// <summary>The SpecialBeamAttack demonstration.</summary>
-        SpecialBeamAttack,
-        /// <summary>The CrystalFlash demonstration.</summary>
-        CrystalFlash,
-    }
+    /// <summary>The abilities the Speed Booster's and later demonstrations build on.</summary>
+    private const SamusEquipmentFlags Mobility = SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.MorphBall |
+        SamusEquipmentFlags.HiJumpBoots | SamusEquipmentFlags.SpeedBooster;
+
+    /// <summary><see cref="Mobility"/> with the Grapple Beam and the X-ray Scope.</summary>
+    private const SamusEquipmentFlags Exploration = Mobility | SamusEquipmentFlags.GrappleBeam | SamusEquipmentFlags.XrayScope;
+
+    /// <summary><see cref="Exploration"/> with the Gravity Suit and Space Jump.</summary>
+    private const SamusEquipmentFlags SpaceJump = Exploration | SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.SpaceJump;
+
+    /// <summary><see cref="SpaceJump"/> with the Screw Attack.</summary>
+    private const SamusEquipmentFlags ScrewAttack = SpaceJump | SamusEquipmentFlags.ScrewAttack;
+
+    /// <summary><see cref="ScrewAttack"/> with bombs: every item but the Spring Ball.</summary>
+    private const SamusEquipmentFlags BombAbilities = ScrewAttack | SamusEquipmentFlags.Bombs;
+
+    /// <summary>Every beam.</summary>
+    private const SamusBeamFlags AllBeams =
+        SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma;
 
     /// <summary>The set the title plays first after power-on or a soft reset.</summary>
-    public static AttractDemoSet FirstSet { get; } = Set(nameof(FirstSet),
-        Demonstration.LandingSite, Demonstration.MissileDoor, Demonstration.PreSporeSpawnHall,
-        Demonstration.SpeedBooster, Demonstration.GrappleBeam, Demonstration.PseudoScrewAttack);
+    public static AttractDemoSet FirstSet { get; } = new(nameof(FirstSet),
+    [
+        new(
+            Room: RoomDefinitions.LandingSite,
+            Door: CrateriaDoorDefinitions.ParlorToLandingSite,
+            CameraPosition: CameraAtScreen(new(4, 4)),
+            Samus: AttractDemoSamusSetups.LandingSite.At(new(1153, 1088)),
+            Duration: 1235,
+            RoomSetup: null,
+            Items: SamusEquipmentFlags.None,
+            Missiles: MissilesForTanks(0),
+            SuperMissiles: SuperMissilesForTanks(0),
+            PowerBombs: PowerBombsForTanks(0),
+            Health: HealthForEnergyTanks(0),
+            CollectedBeams: SamusBeamFlags.None,
+            EquippedBeams: SamusBeamFlags.None,
+            Input: new(DemoInputRecordingId.AttractLandingSite)),
+        new(
+            Room: RoomDefinitions.ConstructionZone,
+            Door: BrinstarDoorDefinitions.MorphBallToConstructionZone,
+            CameraPosition: CameraAtScreen(new(0, 0)),
+            Samus: AttractDemoSamusSetups.StandingRight.OnFloor(82, floorRow: 8),
+            Duration: 337,
+            RoomSetup: null,
+            Items: SamusEquipmentFlags.MorphBall,
+            Missiles: MissilesForTanks(1),
+            SuperMissiles: SuperMissilesForTanks(0),
+            PowerBombs: PowerBombsForTanks(0),
+            Health: HealthForEnergyTanks(0),
+            CollectedBeams: SamusBeamFlags.None,
+            EquippedBeams: SamusBeamFlags.None,
+            Input: new(DemoInputRecordingId.AttractMissileDoor)),
+        new(
+            Room: RoomDefinitions.SporeSpawnKihunters,
+            Door: BrinstarDoorDefinitions.BigPinkToSporeSpawnKihunters,
+            CameraPosition: CameraAtScreen(new(1, 0)),
+            Samus: AttractDemoSamusSetups.StandingRight.OnFloor(352, floorRow: 13),
+            Duration: 378,
+            RoomSetup: null,
+            Items: SamusEquipmentFlags.MorphBall,
+            Missiles: MissilesForTanks(3),
+            SuperMissiles: SuperMissilesForTanks(0),
+            PowerBombs: PowerBombsForTanks(0),
+            Health: HealthForEnergyTanks(1),
+            CollectedBeams: SamusBeamFlags.Charge,
+            EquippedBeams: SamusBeamFlags.Charge,
+            Input: new(DemoInputRecordingId.AttractPreSporeSpawnHall)),
+        new(
+            Room: RoomDefinitions.FrogSpeedway,
+            Door: NorfairDoorDefinitions.UpperNorfairFarmingToFrogSpeedway,
+            CameraPosition: CameraAtScreen(new(7, 0)),
+            Samus: AttractDemoSamusSetups.StandingLeft.OnFloor(1992, floorRow: 10),
+            Duration: 420,
+            RoomSetup: null,
+            Items: Mobility,
+            Missiles: MissilesForTanks(6),
+            SuperMissiles: SuperMissilesForTanks(1),
+            PowerBombs: PowerBombsForTanks(0),
+            Health: HealthForEnergyTanks(2),
+            CollectedBeams: SamusBeamFlags.Spazer | SamusBeamFlags.Charge,
+            EquippedBeams: SamusBeamFlags.Spazer | SamusBeamFlags.Charge,
+            Input: new(DemoInputRecordingId.AttractSpeedBooster)),
+        new(
+            Room: RoomDefinitions.SpikyAcidSnakesTunnel,
+            Door: NorfairDoorDefinitions.UpperNorfairRefillToSpikyAcidSnakesTunnel,
+            CameraPosition: CameraAtScreen(new(0, 0)),
+            Samus: AttractDemoSamusSetups.StandingRight.OnFloor(66, floorRow: 10),
+            Duration: 444,
+            RoomSetup: null,
+            Items: Mobility | SamusEquipmentFlags.GrappleBeam,
+            Missiles: MissilesForTanks(6),
+            SuperMissiles: SuperMissilesForTanks(1),
+            PowerBombs: PowerBombsForTanks(1),
+            Health: HealthForEnergyTanks(3),
+            CollectedBeams: SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Charge,
+            EquippedBeams: SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Charge,
+            Input: new(DemoInputRecordingId.AttractGrappleBeam)),
+        new(
+            Room: RoomDefinitions.BigPink,
+            Door: BrinstarDoorDefinitions.GreenHillZoneToBigPink,
+            CameraPosition: CameraAtScreen(new(2, 6)),
+            Samus: AttractDemoSamusSetups.MorphLeft.OnFloor(679, floorRow: 106),
+            Duration: 613,
+            RoomSetup: AttractDemoRoomSetup.ChargeBeamScroll,
+            Items: SamusEquipmentFlags.MorphBall,
+            Missiles: MissilesForTanks(4),
+            SuperMissiles: SuperMissilesForTanks(0),
+            PowerBombs: PowerBombsForTanks(0),
+            Health: HealthForEnergyTanks(1),
+            CollectedBeams: SamusBeamFlags.Charge,
+            EquippedBeams: SamusBeamFlags.Charge,
+            Input: new(DemoInputRecordingId.AttractPseudoScrewAttack)),
+    ]);
 
     /// <summary>The set the title plays after <see cref="FirstSet"/>.</summary>
-    public static AttractDemoSet SecondSet { get; } = Set(nameof(SecondSet),
-        Demonstration.IceBeam, Demonstration.FirefleaRoom, Demonstration.BrinstarDiagonalRoom,
-        Demonstration.LowerNorfairEntrance, Demonstration.ScrewAttack, Demonstration.Dachora);
+    public static AttractDemoSet SecondSet { get; } = new(nameof(SecondSet),
+    [
+        new(
+            Room: RoomDefinitions.BelowSpazer,
+            Door: MaridiaDoorDefinitions.WestTunnelToBelowSpazer,
+            CameraPosition: CameraAtScreen(new(1, 1)),
+            Samus: AttractDemoSamusSetups.StandingLeft.OnFloor(470, floorRow: 26),
+            Duration: 509,
+            RoomSetup: null,
+            Items: Mobility,
+            Missiles: MissilesForTanks(6),
+            SuperMissiles: SuperMissilesForTanks(1),
+            PowerBombs: PowerBombsForTanks(0),
+            Health: HealthForEnergyTanks(2),
+            CollectedBeams: SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Charge,
+            EquippedBeams: SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Charge,
+            Input: new(DemoInputRecordingId.AttractIceBeam)),
+        new(
+            Room: RoomDefinitions.GreenBrinstarFirefleas,
+            Door: BrinstarDoorDefinitions.GreenBrinstarMainShaftToGreenBrinstarFirefleas,
+            CameraPosition: CameraAtScreen(new(2, 0)),
+            Samus: AttractDemoSamusSetups.StandingLeft.OnFloor(713, floorRow: 10),
+            Duration: 410,
+            RoomSetup: null,
+            Items: SamusEquipmentFlags.MorphBall,
+            Missiles: MissilesForTanks(2),
+            SuperMissiles: SuperMissilesForTanks(0),
+            PowerBombs: PowerBombsForTanks(0),
+            Health: HealthForEnergyTanks(1),
+            CollectedBeams: SamusBeamFlags.None,
+            EquippedBeams: SamusBeamFlags.None,
+            Input: new(DemoInputRecordingId.AttractFirefleaRoom)),
+        new(
+            Room: RoomDefinitions.GreenHillZone,
+            Door: BrinstarDoorDefinitions.BigPinkToGreenHillZone,
+            CameraPosition: CameraAtScreen(new(5, 3)),
+            Samus: AttractDemoSamusSetups.StandingRight.OnFloor(1378, floorRow: 60),
+            Duration: 279,
+            RoomSetup: null,
+            Items: SamusEquipmentFlags.MorphBall,
+            Missiles: MissilesForTanks(5),
+            SuperMissiles: SuperMissilesForTanks(1),
+            PowerBombs: PowerBombsForTanks(0),
+            Health: HealthForEnergyTanks(1),
+            CollectedBeams: SamusBeamFlags.Charge,
+            EquippedBeams: SamusBeamFlags.Charge,
+            Input: new(DemoInputRecordingId.AttractBrinstarDiagonalRoom)),
+        new(
+            Room: RoomDefinitions.LavaDive,
+            Door: NorfairDoorDefinitions.KronicBoostToLavaDive,
+            CameraPosition: CameraAtScreen(new(3, 0)),
+            Samus: AttractDemoSamusSetups.StandingLeft.OnFloor(971, floorRow: 10),
+            Duration: 970,
+            RoomSetup: null,
+            Items: SpaceJump,
+            Missiles: MissilesForTanks(15),
+            SuperMissiles: SuperMissilesForTanks(3),
+            PowerBombs: PowerBombsForTanks(2),
+            Health: HealthForEnergyTanks(8),
+            CollectedBeams: SamusBeamFlags.Charge,
+            EquippedBeams: SamusBeamFlags.Charge,
+            Input: new(DemoInputRecordingId.AttractLowerNorfairEntrance)),
+        new(
+            Room: RoomDefinitions.Flyway,
+            Door: CrateriaDoorDefinitions.ParlorToFlyway,
+            CameraPosition: CameraAtScreen(new(0, 0)),
+            Samus: AttractDemoSamusSetups.StandingRight.OnFloor(113, floorRow: 13),
+            Duration: 213,
+            RoomSetup: null,
+            Items: ScrewAttack,
+            Missiles: MissilesForTanks(17),
+            SuperMissiles: SuperMissilesForTanks(3),
+            PowerBombs: PowerBombsForTanks(2),
+            Health: HealthForEnergyTanks(9),
+            CollectedBeams: SamusBeamFlags.None,
+            EquippedBeams: SamusBeamFlags.None,
+            Input: new(DemoInputRecordingId.AttractScrewAttack)),
+        new(
+            Room: RoomDefinitions.Dachora,
+            Door: BrinstarDoorDefinitions.BigPinkToDachora,
+            CameraPosition: CameraAtScreen(new(4, 2)),
+            Samus: AttractDemoSamusSetups.FallingLeft.At(new(1157, 640)),
+            Duration: 791,
+            RoomSetup: null,
+            Items: Exploration,
+            Missiles: MissilesForTanks(9),
+            SuperMissiles: SuperMissilesForTanks(1),
+            PowerBombs: PowerBombsForTanks(1),
+            Health: HealthForEnergyTanks(3),
+            CollectedBeams: SamusBeamFlags.Charge,
+            EquippedBeams: SamusBeamFlags.Charge,
+            Input: new(DemoInputRecordingId.AttractDachora)),
+    ]);
 
     /// <summary>The set the title plays after <see cref="SecondSet"/>.</summary>
-    public static AttractDemoSet ThirdSet { get; } = Set(nameof(ThirdSet),
-        Demonstration.PrePhantoonHall, Demonstration.DiagonalShinespark, Demonstration.EyeDoor,
-        Demonstration.RedBrinstarElevator, Demonstration.Kraid, Demonstration.TourianEntrance);
+    public static AttractDemoSet ThirdSet { get; } = new(nameof(ThirdSet),
+    [
+        new(
+            Room: RoomDefinitions.Basement,
+            Door: WreckedShipDoorDefinitions.WreckedShipMainShaftToBasement,
+            CameraPosition: CameraAtScreen(new(2, 0)),
+            Samus: AttractDemoSamusSetups.StandingLeft.At(new(644, 96)),
+            Duration: 751,
+            RoomSetup: null,
+            Items: Exploration,
+            Missiles: MissilesForTanks(11),
+            SuperMissiles: SuperMissilesForTanks(1),
+            PowerBombs: PowerBombsForTanks(1),
+            Health: HealthForEnergyTanks(3),
+            CollectedBeams: SamusBeamFlags.Charge,
+            EquippedBeams: SamusBeamFlags.Charge,
+            Input: new(DemoInputRecordingId.AttractPrePhantoonHall)),
+        new(
+            Room: RoomDefinitions.LandingSite,
+            Door: CrateriaDoorDefinitions.ParlorToLandingSite,
+            CameraPosition: CameraAtScreen(new(3, 4)),
+            Samus: AttractDemoSamusSetups.DiagonalShinespark.At(new(896, 1200)),
+            Duration: 199,
+            RoomSetup: null,
+            Items: BombAbilities | SamusEquipmentFlags.SpringBall,
+            Missiles: MissilesForTanks(17),
+            SuperMissiles: SuperMissilesForTanks(3),
+            PowerBombs: PowerBombsForTanks(2),
+            Health: HealthForEnergyTanks(9),
+            CollectedBeams: AllBeams,
+            EquippedBeams: SamusBeamFlags.Charge,
+            Input: new(DemoInputRecordingId.AttractDiagonalShinespark, Continuation: DemoInputRecordingId.AttractDiagonalShinesparkContinuation)),
+        new(
+            Room: RoomDefinitions.KraidEyeDoor,
+            Door: BrinstarDoorDefinitions.MiniKraidToKraidEyeDoor,
+            CameraPosition: CameraAtScreen(new(0, 1)),
+            Samus: AttractDemoSamusSetups.StandingRight.OnFloor(82, floorRow: 26),
+            Duration: 723,
+            RoomSetup: null,
+            Items: SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.HiJumpBoots,
+            Missiles: MissilesForTanks(5),
+            SuperMissiles: SuperMissilesForTanks(1),
+            PowerBombs: PowerBombsForTanks(0),
+            Health: HealthForEnergyTanks(2),
+            CollectedBeams: SamusBeamFlags.Spazer | SamusBeamFlags.Charge,
+            EquippedBeams: SamusBeamFlags.Spazer | SamusBeamFlags.Charge,
+            Input: new(DemoInputRecordingId.AttractEyeDoor)),
+        new(
+            Room: RoomDefinitions.Caterpillar,
+            Door: BrinstarDoorDefinitions.AlphaPowerBombToCaterpillar,
+            CameraPosition: CameraAtScreen(new(0, 7)),
+            Samus: AttractDemoSamusSetups.StandingRight.OnFloor(42, floorRow: 122),
+            Duration: 356,
+            RoomSetup: null,
+            Items: Mobility,
+            Missiles: MissilesForTanks(6),
+            SuperMissiles: SuperMissilesForTanks(1),
+            PowerBombs: PowerBombsForTanks(0),
+            Health: HealthForEnergyTanks(2),
+            CollectedBeams: SamusBeamFlags.None,
+            EquippedBeams: SamusBeamFlags.None,
+            Input: new(DemoInputRecordingId.AttractRedBrinstarElevator)),
+        new(
+            Room: RoomDefinitions.Kraid,
+            Door: BrinstarDoorDefinitions.KraidEyeDoorToKraid,
+            CameraPosition: CameraAtScreen(new(0, 1)),
+            Samus: AttractDemoSamusSetups.StandingRight.OnFloor(63, floorRow: 26),
+            Duration: 319,
+            RoomSetup: AttractDemoRoomSetup.KraidTimer,
+            Items: SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.HiJumpBoots,
+            Missiles: MissilesForTanks(5),
+            SuperMissiles: SuperMissilesForTanks(1),
+            PowerBombs: PowerBombsForTanks(0),
+            Health: HealthForEnergyTanks(2),
+            CollectedBeams: SamusBeamFlags.None,
+            EquippedBeams: SamusBeamFlags.None,
+            Input: new(DemoInputRecordingId.AttractKraid)),
+        new(
+            Room: RoomDefinitions.Statues,
+            Door: CrateriaDoorDefinitions.StatuesHallwayToStatues,
+            CameraPosition: CameraAtScreen(new(0, 0)),
+            Samus: AttractDemoSamusSetups.StandingRight.OnFloor(49, floorRow: 10),
+            Duration: 407,
+            RoomSetup: AttractDemoRoomSetup.DefeatedKraid,
+            Items: Mobility,
+            Missiles: MissilesForTanks(6),
+            SuperMissiles: SuperMissilesForTanks(1),
+            PowerBombs: PowerBombsForTanks(1),
+            Health: HealthForEnergyTanks(2),
+            CollectedBeams: SamusBeamFlags.Plasma | SamusBeamFlags.Charge,
+            EquippedBeams: SamusBeamFlags.Plasma | SamusBeamFlags.Charge,
+            Input: new(DemoInputRecordingId.AttractTourianEntrance)),
+    ]);
 
     /// <summary>The advanced techniques the title plays after <see cref="ThirdSet"/> once a save records a completed game.</summary>
-    public static AttractDemoSet CompletionSet { get; } = Set(nameof(CompletionSet),
-        Demonstration.GauntletEntrance, Demonstration.AdvancedGrappleBeam, Demonstration.InfiniteBombJump,
-        Demonstration.SpecialBeamAttack, Demonstration.CrystalFlash);
+    public static AttractDemoSet CompletionSet { get; } = new(nameof(CompletionSet),
+    [
+        new(
+            Room: RoomDefinitions.LandingSite,
+            Door: DoorDefinitions.LandingSiteDemoEntry,
+            CameraPosition: CameraAtScreen(new(6, 2)),
+            Samus: AttractDemoSamusSetups.HorizontalShinespark.At(new(1712, 640)),
+            Duration: 256,
+            RoomSetup: null,
+            Items: BombAbilities,
+            Missiles: MissilesForTanks(17),
+            SuperMissiles: SuperMissilesForTanks(3),
+            PowerBombs: PowerBombsForTanks(2),
+            Health: HealthForEnergyTanks(9),
+            CollectedBeams: SamusBeamFlags.Charge,
+            EquippedBeams: SamusBeamFlags.Charge,
+            Input: new(DemoInputRecordingId.AttractGauntletEntrance)),
+        new(
+            Room: RoomDefinitions.MtEverest,
+            Door: MaridiaDoorDefinitions.RedFishToMtEverest,
+            CameraPosition: CameraAtScreen(new(2, 0)),
+            Samus: AttractDemoSamusSetups.StandingLeft.OnFloor(640, floorRow: 12),
+            Duration: 818,
+            RoomSetup: null,
+            Items: BombAbilities,
+            Missiles: MissilesForTanks(17),
+            SuperMissiles: SuperMissilesForTanks(3),
+            PowerBombs: PowerBombsForTanks(2),
+            Health: HealthForEnergyTanks(9),
+            CollectedBeams: SamusBeamFlags.None,
+            EquippedBeams: SamusBeamFlags.None,
+            Input: new(DemoInputRecordingId.AttractAdvancedGrappleBeam)),
+        new(
+            Room: RoomDefinitions.LandingSite,
+            Door: DoorDefinitions.LandingSiteDemoEntry,
+            CameraPosition: CameraAtScreen(new(6, 2)),
+            Samus: AttractDemoSamusSetups.StandingLeft.At(new(1696, 635)),
+            Duration: 389,
+            RoomSetup: null,
+            Items: BombAbilities,
+            Missiles: MissilesForTanks(17),
+            SuperMissiles: SuperMissilesForTanks(3),
+            PowerBombs: PowerBombsForTanks(2),
+            Health: HealthForEnergyTanks(9),
+            CollectedBeams: SamusBeamFlags.None,
+            EquippedBeams: SamusBeamFlags.None,
+            Input: new(DemoInputRecordingId.AttractInfiniteBombJump)),
+        new(
+            Room: RoomDefinitions.GreenBrinstarMainShaft,
+            Door: BrinstarDoorDefinitions.BrinstarPreMapToGreenBrinstarMainShaft,
+            CameraPosition: CameraAtScreen(new(0, 4)),
+            Samus: AttractDemoSamusSetups.StandingRight.OnFloor(55, floorRow: 74),
+            Duration: 394,
+            RoomSetup: null,
+            Items: BombAbilities,
+            Missiles: MissilesForTanks(17),
+            SuperMissiles: SuperMissilesForTanks(3),
+            PowerBombs: PowerBombsForTanks(2),
+            Health: HealthForEnergyTanks(9),
+            CollectedBeams: SamusBeamFlags.Plasma | SamusBeamFlags.Charge,
+            EquippedBeams: SamusBeamFlags.Plasma | SamusBeamFlags.Charge,
+            Input: new(DemoInputRecordingId.AttractSpecialBeamAttack)),
+        new(
+            Room: RoomDefinitions.LandingSite,
+            Door: DoorDefinitions.LandingSiteDemoEntry,
+            CameraPosition: CameraAtScreen(new(6, 2)),
+            Samus: AttractDemoSamusSetups.LowHealthLeft.OnFloor(1668, floorRow: 42),
+            Duration: 512,
+            RoomSetup: null,
+            Items: BombAbilities,
+            Missiles: MissilesForTanks(17),
+            SuperMissiles: SuperMissilesForTanks(4),
+            PowerBombs: PowerBombsForTanks(4),
+            Health: HealthForEnergyTanks(9),
+            CollectedBeams: SamusBeamFlags.Charge,
+            EquippedBeams: SamusBeamFlags.Charge,
+            Input: new(DemoInputRecordingId.AttractCrystalFlash)),
+    ]);
 
     /// <summary>The sets the title cycles through, in order, while no save records a completed game.</summary>
     public static IReadOnlyList<AttractDemoSet> OrdinaryPlaylist { get; } = [FirstSet, SecondSet, ThirdSet];
@@ -90,493 +407,6 @@ public static class StockAttractDemoScenes
     /// <summary>The playlist the title cycles through: the completion set joins it only when the game was completed.</summary>
     public static IReadOnlyList<AttractDemoSet> Playlist(bool completionSetUnlocked) =>
         completionSetUnlocked ? CompletedGamePlaylist : OrdinaryPlaylist;
-
-    /// <summary>The set named <paramref name="name"/>, staging <paramref name="demonstrations"/> in playing order.</summary>
-    private static AttractDemoSet Set(string name, params Demonstration[] demonstrations) =>
-        new(name, [.. demonstrations.Select(Stage)]);
-    /// <summary>
-    /// The chosen staging of each demonstration. Screen origins, upgrade capacities,
-    /// and composable equipment flags calculate from their domain units; choosing each scene's
-    /// starting configuration and editorial cutoff defines this recorded performance.
-    /// </summary>
-    private static AttractDemoScene Stage(Demonstration demonstration) => demonstration switch
-    {
-        Demonstration.LandingSite => new(
-            Room: RoomDefinitions.LandingSite,
-            Door: CrateriaDoorDefinitions.ParlorToLandingSite,
-            CameraPosition: CameraAtScreen(new(4, 4)),
-            SamusPosition: new(1153, 1088),
-            Duration: 1235,
-            RoomSetup: RoomSetupFor(demonstration),
-            SamusSetup: SamusSetupFor(demonstration),
-            Items: ItemsFor(demonstration),
-            Missiles: MissilesForTanks(0),
-            SuperMissiles: SuperMissilesForTanks(0),
-            PowerBombs: PowerBombsForTanks(0),
-            Health: HealthForEnergyTanks(0),
-            CollectedBeams: CollectedBeamsFor(demonstration),
-            EquippedBeams: EquippedBeamsFor(demonstration),
-            Input: AttractDemoInputDefinitions.AttractLandingSite),
-        Demonstration.MissileDoor => new(
-            Room: RoomDefinitions.ConstructionZone,
-            Door: BrinstarDoorDefinitions.MorphBallToConstructionZone,
-            CameraPosition: CameraAtScreen(new(0, 0)),
-            SamusPosition: new(82, GroundedY(8, demonstration)),
-            Duration: 337,
-            RoomSetup: RoomSetupFor(demonstration),
-            SamusSetup: SamusSetupFor(demonstration),
-            Items: ItemsFor(demonstration),
-            Missiles: MissilesForTanks(1),
-            SuperMissiles: SuperMissilesForTanks(0),
-            PowerBombs: PowerBombsForTanks(0),
-            Health: HealthForEnergyTanks(0),
-            CollectedBeams: CollectedBeamsFor(demonstration),
-            EquippedBeams: EquippedBeamsFor(demonstration),
-            Input: AttractDemoInputDefinitions.AttractMissileDoor),
-        Demonstration.PreSporeSpawnHall => new(
-            Room: RoomDefinitions.SporeSpawnKihunters,
-            Door: BrinstarDoorDefinitions.BigPinkToSporeSpawnKihunters,
-            CameraPosition: CameraAtScreen(new(1, 0)),
-            SamusPosition: new(352, GroundedY(13, demonstration)),
-            Duration: 378,
-            RoomSetup: RoomSetupFor(demonstration),
-            SamusSetup: SamusSetupFor(demonstration),
-            Items: ItemsFor(demonstration),
-            Missiles: MissilesForTanks(3),
-            SuperMissiles: SuperMissilesForTanks(0),
-            PowerBombs: PowerBombsForTanks(0),
-            Health: HealthForEnergyTanks(1),
-            CollectedBeams: CollectedBeamsFor(demonstration),
-            EquippedBeams: EquippedBeamsFor(demonstration),
-            Input: AttractDemoInputDefinitions.AttractPreSporeSpawnHall),
-        Demonstration.SpeedBooster => new(
-            Room: RoomDefinitions.FrogSpeedway,
-            Door: NorfairDoorDefinitions.UpperNorfairFarmingToFrogSpeedway,
-            CameraPosition: CameraAtScreen(new(7, 0)),
-            SamusPosition: new(1992, GroundedY(10, demonstration)),
-            Duration: 420,
-            RoomSetup: RoomSetupFor(demonstration),
-            SamusSetup: SamusSetupFor(demonstration),
-            Items: ItemsFor(demonstration),
-            Missiles: MissilesForTanks(6),
-            SuperMissiles: SuperMissilesForTanks(1),
-            PowerBombs: PowerBombsForTanks(0),
-            Health: HealthForEnergyTanks(2),
-            CollectedBeams: CollectedBeamsFor(demonstration),
-            EquippedBeams: EquippedBeamsFor(demonstration),
-            Input: AttractDemoInputDefinitions.AttractSpeedBooster),
-        Demonstration.GrappleBeam => new(
-            Room: RoomDefinitions.SpikyAcidSnakesTunnel,
-            Door: NorfairDoorDefinitions.UpperNorfairRefillToSpikyAcidSnakesTunnel,
-            CameraPosition: CameraAtScreen(new(0, 0)),
-            SamusPosition: new(66, GroundedY(10, demonstration)),
-            Duration: 444,
-            RoomSetup: RoomSetupFor(demonstration),
-            SamusSetup: SamusSetupFor(demonstration),
-            Items: ItemsFor(demonstration),
-            Missiles: MissilesForTanks(6),
-            SuperMissiles: SuperMissilesForTanks(1),
-            PowerBombs: PowerBombsForTanks(1),
-            Health: HealthForEnergyTanks(3),
-            CollectedBeams: CollectedBeamsFor(demonstration),
-            EquippedBeams: EquippedBeamsFor(demonstration),
-            Input: AttractDemoInputDefinitions.AttractGrappleBeam),
-        Demonstration.PseudoScrewAttack => new(
-            Room: RoomDefinitions.BigPink,
-            Door: BrinstarDoorDefinitions.GreenHillZoneToBigPink,
-            CameraPosition: CameraAtScreen(new(2, 6)),
-            SamusPosition: new(679, GroundedY(106, demonstration)),
-            Duration: 613,
-            RoomSetup: RoomSetupFor(demonstration),
-            SamusSetup: SamusSetupFor(demonstration),
-            Items: ItemsFor(demonstration),
-            Missiles: MissilesForTanks(4),
-            SuperMissiles: SuperMissilesForTanks(0),
-            PowerBombs: PowerBombsForTanks(0),
-            Health: HealthForEnergyTanks(1),
-            CollectedBeams: CollectedBeamsFor(demonstration),
-            EquippedBeams: EquippedBeamsFor(demonstration),
-            Input: AttractDemoInputDefinitions.AttractPseudoScrewAttack),
-        Demonstration.IceBeam => new(
-            Room: RoomDefinitions.BelowSpazer,
-            Door: MaridiaDoorDefinitions.WestTunnelToBelowSpazer,
-            CameraPosition: CameraAtScreen(new(1, 1)),
-            SamusPosition: new(470, GroundedY(26, demonstration)),
-            Duration: 509,
-            RoomSetup: RoomSetupFor(demonstration),
-            SamusSetup: SamusSetupFor(demonstration),
-            Items: ItemsFor(demonstration),
-            Missiles: MissilesForTanks(6),
-            SuperMissiles: SuperMissilesForTanks(1),
-            PowerBombs: PowerBombsForTanks(0),
-            Health: HealthForEnergyTanks(2),
-            CollectedBeams: CollectedBeamsFor(demonstration),
-            EquippedBeams: EquippedBeamsFor(demonstration),
-            Input: AttractDemoInputDefinitions.AttractIceBeam),
-        Demonstration.FirefleaRoom => new(
-            Room: RoomDefinitions.GreenBrinstarFirefleas,
-            Door: BrinstarDoorDefinitions.GreenBrinstarMainShaftToGreenBrinstarFirefleas,
-            CameraPosition: CameraAtScreen(new(2, 0)),
-            SamusPosition: new(713, GroundedY(10, demonstration)),
-            Duration: 410,
-            RoomSetup: RoomSetupFor(demonstration),
-            SamusSetup: SamusSetupFor(demonstration),
-            Items: ItemsFor(demonstration),
-            Missiles: MissilesForTanks(2),
-            SuperMissiles: SuperMissilesForTanks(0),
-            PowerBombs: PowerBombsForTanks(0),
-            Health: HealthForEnergyTanks(1),
-            CollectedBeams: CollectedBeamsFor(demonstration),
-            EquippedBeams: EquippedBeamsFor(demonstration),
-            Input: AttractDemoInputDefinitions.AttractFirefleaRoom),
-        Demonstration.BrinstarDiagonalRoom => new(
-            Room: RoomDefinitions.GreenHillZone,
-            Door: BrinstarDoorDefinitions.BigPinkToGreenHillZone,
-            CameraPosition: CameraAtScreen(new(5, 3)),
-            SamusPosition: new(1378, GroundedY(60, demonstration)),
-            Duration: 279,
-            RoomSetup: RoomSetupFor(demonstration),
-            SamusSetup: SamusSetupFor(demonstration),
-            Items: ItemsFor(demonstration),
-            Missiles: MissilesForTanks(5),
-            SuperMissiles: SuperMissilesForTanks(1),
-            PowerBombs: PowerBombsForTanks(0),
-            Health: HealthForEnergyTanks(1),
-            CollectedBeams: CollectedBeamsFor(demonstration),
-            EquippedBeams: EquippedBeamsFor(demonstration),
-            Input: AttractDemoInputDefinitions.AttractBrinstarDiagonalRoom),
-        Demonstration.LowerNorfairEntrance => new(
-            Room: RoomDefinitions.LavaDive,
-            Door: NorfairDoorDefinitions.KronicBoostToLavaDive,
-            CameraPosition: CameraAtScreen(new(3, 0)),
-            SamusPosition: new(971, GroundedY(10, demonstration)),
-            Duration: 970,
-            RoomSetup: RoomSetupFor(demonstration),
-            SamusSetup: SamusSetupFor(demonstration),
-            Items: ItemsFor(demonstration),
-            Missiles: MissilesForTanks(15),
-            SuperMissiles: SuperMissilesForTanks(3),
-            PowerBombs: PowerBombsForTanks(2),
-            Health: HealthForEnergyTanks(8),
-            CollectedBeams: CollectedBeamsFor(demonstration),
-            EquippedBeams: EquippedBeamsFor(demonstration),
-            Input: AttractDemoInputDefinitions.AttractLowerNorfairEntrance),
-        Demonstration.ScrewAttack => new(
-            Room: RoomDefinitions.Flyway,
-            Door: CrateriaDoorDefinitions.ParlorToFlyway,
-            CameraPosition: CameraAtScreen(new(0, 0)),
-            SamusPosition: new(113, GroundedY(13, demonstration)),
-            Duration: 213,
-            RoomSetup: RoomSetupFor(demonstration),
-            SamusSetup: SamusSetupFor(demonstration),
-            Items: ItemsFor(demonstration),
-            Missiles: MissilesForTanks(17),
-            SuperMissiles: SuperMissilesForTanks(3),
-            PowerBombs: PowerBombsForTanks(2),
-            Health: HealthForEnergyTanks(9),
-            CollectedBeams: CollectedBeamsFor(demonstration),
-            EquippedBeams: EquippedBeamsFor(demonstration),
-            Input: AttractDemoInputDefinitions.AttractScrewAttack),
-        Demonstration.Dachora => new(
-            Room: RoomDefinitions.Dachora,
-            Door: BrinstarDoorDefinitions.BigPinkToDachora,
-            CameraPosition: CameraAtScreen(new(4, 2)),
-            SamusPosition: new(1157, 640),
-            Duration: 791,
-            RoomSetup: RoomSetupFor(demonstration),
-            SamusSetup: SamusSetupFor(demonstration),
-            Items: ItemsFor(demonstration),
-            Missiles: MissilesForTanks(9),
-            SuperMissiles: SuperMissilesForTanks(1),
-            PowerBombs: PowerBombsForTanks(1),
-            Health: HealthForEnergyTanks(3),
-            CollectedBeams: CollectedBeamsFor(demonstration),
-            EquippedBeams: EquippedBeamsFor(demonstration),
-            Input: AttractDemoInputDefinitions.AttractDachora),
-        Demonstration.PrePhantoonHall => new(
-            Room: RoomDefinitions.Basement,
-            Door: WreckedShipDoorDefinitions.WreckedShipMainShaftToBasement,
-            CameraPosition: CameraAtScreen(new(2, 0)),
-            SamusPosition: new(644, 96),
-            Duration: 751,
-            RoomSetup: RoomSetupFor(demonstration),
-            SamusSetup: SamusSetupFor(demonstration),
-            Items: ItemsFor(demonstration),
-            Missiles: MissilesForTanks(11),
-            SuperMissiles: SuperMissilesForTanks(1),
-            PowerBombs: PowerBombsForTanks(1),
-            Health: HealthForEnergyTanks(3),
-            CollectedBeams: CollectedBeamsFor(demonstration),
-            EquippedBeams: EquippedBeamsFor(demonstration),
-            Input: AttractDemoInputDefinitions.AttractPrePhantoonHall),
-        Demonstration.DiagonalShinespark => new(
-            Room: RoomDefinitions.LandingSite,
-            Door: CrateriaDoorDefinitions.ParlorToLandingSite,
-            CameraPosition: CameraAtScreen(new(3, 4)),
-            SamusPosition: new(896, 1200),
-            Duration: 199,
-            RoomSetup: RoomSetupFor(demonstration),
-            SamusSetup: SamusSetupFor(demonstration),
-            Items: ItemsFor(demonstration),
-            Missiles: MissilesForTanks(17),
-            SuperMissiles: SuperMissilesForTanks(3),
-            PowerBombs: PowerBombsForTanks(2),
-            Health: HealthForEnergyTanks(9),
-            CollectedBeams: CollectedBeamsFor(demonstration),
-            EquippedBeams: EquippedBeamsFor(demonstration),
-            Input: AttractDemoInputDefinitions.AttractDiagonalShinespark),
-        Demonstration.EyeDoor => new(
-            Room: RoomDefinitions.KraidEyeDoor,
-            Door: BrinstarDoorDefinitions.MiniKraidToKraidEyeDoor,
-            CameraPosition: CameraAtScreen(new(0, 1)),
-            SamusPosition: new(82, GroundedY(26, demonstration)),
-            Duration: 723,
-            RoomSetup: RoomSetupFor(demonstration),
-            SamusSetup: SamusSetupFor(demonstration),
-            Items: ItemsFor(demonstration),
-            Missiles: MissilesForTanks(5),
-            SuperMissiles: SuperMissilesForTanks(1),
-            PowerBombs: PowerBombsForTanks(0),
-            Health: HealthForEnergyTanks(2),
-            CollectedBeams: CollectedBeamsFor(demonstration),
-            EquippedBeams: EquippedBeamsFor(demonstration),
-            Input: AttractDemoInputDefinitions.AttractEyeDoor),
-        Demonstration.RedBrinstarElevator => new(
-            Room: RoomDefinitions.Caterpillar,
-            Door: BrinstarDoorDefinitions.AlphaPowerBombToCaterpillar,
-            CameraPosition: CameraAtScreen(new(0, 7)),
-            SamusPosition: new(42, GroundedY(122, demonstration)),
-            Duration: 356,
-            RoomSetup: RoomSetupFor(demonstration),
-            SamusSetup: SamusSetupFor(demonstration),
-            Items: ItemsFor(demonstration),
-            Missiles: MissilesForTanks(6),
-            SuperMissiles: SuperMissilesForTanks(1),
-            PowerBombs: PowerBombsForTanks(0),
-            Health: HealthForEnergyTanks(2),
-            CollectedBeams: CollectedBeamsFor(demonstration),
-            EquippedBeams: EquippedBeamsFor(demonstration),
-            Input: AttractDemoInputDefinitions.AttractRedBrinstarElevator),
-        Demonstration.Kraid => new(
-            Room: RoomDefinitions.Kraid,
-            Door: BrinstarDoorDefinitions.KraidEyeDoorToKraid,
-            CameraPosition: CameraAtScreen(new(0, 1)),
-            SamusPosition: new(63, GroundedY(26, demonstration)),
-            Duration: 319,
-            RoomSetup: RoomSetupFor(demonstration),
-            SamusSetup: SamusSetupFor(demonstration),
-            Items: ItemsFor(demonstration),
-            Missiles: MissilesForTanks(5),
-            SuperMissiles: SuperMissilesForTanks(1),
-            PowerBombs: PowerBombsForTanks(0),
-            Health: HealthForEnergyTanks(2),
-            CollectedBeams: CollectedBeamsFor(demonstration),
-            EquippedBeams: EquippedBeamsFor(demonstration),
-            Input: AttractDemoInputDefinitions.AttractKraid),
-        Demonstration.TourianEntrance => new(
-            Room: RoomDefinitions.Statues,
-            Door: CrateriaDoorDefinitions.StatuesHallwayToStatues,
-            CameraPosition: CameraAtScreen(new(0, 0)),
-            SamusPosition: new(49, GroundedY(10, demonstration)),
-            Duration: 407,
-            RoomSetup: RoomSetupFor(demonstration),
-            SamusSetup: SamusSetupFor(demonstration),
-            Items: ItemsFor(demonstration),
-            Missiles: MissilesForTanks(6),
-            SuperMissiles: SuperMissilesForTanks(1),
-            PowerBombs: PowerBombsForTanks(1),
-            Health: HealthForEnergyTanks(2),
-            CollectedBeams: CollectedBeamsFor(demonstration),
-            EquippedBeams: EquippedBeamsFor(demonstration),
-            Input: AttractDemoInputDefinitions.AttractTourianEntrance),
-        Demonstration.GauntletEntrance => new(
-            Room: RoomDefinitions.LandingSite,
-            Door: DoorDefinitions.LandingSiteDemoEntry,
-            CameraPosition: CameraAtScreen(new(6, 2)),
-            SamusPosition: new(1712, 640),
-            Duration: 256,
-            RoomSetup: RoomSetupFor(demonstration),
-            SamusSetup: SamusSetupFor(demonstration),
-            Items: ItemsFor(demonstration),
-            Missiles: MissilesForTanks(17),
-            SuperMissiles: SuperMissilesForTanks(3),
-            PowerBombs: PowerBombsForTanks(2),
-            Health: HealthForEnergyTanks(9),
-            CollectedBeams: CollectedBeamsFor(demonstration),
-            EquippedBeams: EquippedBeamsFor(demonstration),
-            Input: AttractDemoInputDefinitions.AttractGauntletEntrance),
-        Demonstration.AdvancedGrappleBeam => new(
-            Room: RoomDefinitions.MtEverest,
-            Door: MaridiaDoorDefinitions.RedFishToMtEverest,
-            CameraPosition: CameraAtScreen(new(2, 0)),
-            SamusPosition: new(640, GroundedY(12, demonstration)),
-            Duration: 818,
-            RoomSetup: RoomSetupFor(demonstration),
-            SamusSetup: SamusSetupFor(demonstration),
-            Items: ItemsFor(demonstration),
-            Missiles: MissilesForTanks(17),
-            SuperMissiles: SuperMissilesForTanks(3),
-            PowerBombs: PowerBombsForTanks(2),
-            Health: HealthForEnergyTanks(9),
-            CollectedBeams: CollectedBeamsFor(demonstration),
-            EquippedBeams: EquippedBeamsFor(demonstration),
-            Input: AttractDemoInputDefinitions.AttractAdvancedGrappleBeam),
-        Demonstration.InfiniteBombJump => new(
-            Room: RoomDefinitions.LandingSite,
-            Door: DoorDefinitions.LandingSiteDemoEntry,
-            CameraPosition: CameraAtScreen(new(6, 2)),
-            SamusPosition: new(1696, 635),
-            Duration: 389,
-            RoomSetup: RoomSetupFor(demonstration),
-            SamusSetup: SamusSetupFor(demonstration),
-            Items: ItemsFor(demonstration),
-            Missiles: MissilesForTanks(17),
-            SuperMissiles: SuperMissilesForTanks(3),
-            PowerBombs: PowerBombsForTanks(2),
-            Health: HealthForEnergyTanks(9),
-            CollectedBeams: CollectedBeamsFor(demonstration),
-            EquippedBeams: EquippedBeamsFor(demonstration),
-            Input: AttractDemoInputDefinitions.AttractInfiniteBombJump),
-        Demonstration.SpecialBeamAttack => new(
-            Room: RoomDefinitions.GreenBrinstarMainShaft,
-            Door: BrinstarDoorDefinitions.BrinstarPreMapToGreenBrinstarMainShaft,
-            CameraPosition: CameraAtScreen(new(0, 4)),
-            SamusPosition: new(55, GroundedY(74, demonstration)),
-            Duration: 394,
-            RoomSetup: RoomSetupFor(demonstration),
-            SamusSetup: SamusSetupFor(demonstration),
-            Items: ItemsFor(demonstration),
-            Missiles: MissilesForTanks(17),
-            SuperMissiles: SuperMissilesForTanks(3),
-            PowerBombs: PowerBombsForTanks(2),
-            Health: HealthForEnergyTanks(9),
-            CollectedBeams: CollectedBeamsFor(demonstration),
-            EquippedBeams: EquippedBeamsFor(demonstration),
-            Input: AttractDemoInputDefinitions.AttractSpecialBeamAttack),
-        Demonstration.CrystalFlash => new(
-            Room: RoomDefinitions.LandingSite,
-            Door: DoorDefinitions.LandingSiteDemoEntry,
-            CameraPosition: CameraAtScreen(new(6, 2)),
-            SamusPosition: new(1668, GroundedY(42, demonstration)),
-            Duration: 512,
-            RoomSetup: RoomSetupFor(demonstration),
-            SamusSetup: SamusSetupFor(demonstration),
-            Items: ItemsFor(demonstration),
-            Missiles: MissilesForTanks(17),
-            SuperMissiles: SuperMissilesForTanks(4),
-            PowerBombs: PowerBombsForTanks(4),
-            Health: HealthForEnergyTanks(9),
-            CollectedBeams: CollectedBeamsFor(demonstration),
-            EquippedBeams: EquippedBeamsFor(demonstration),
-            Input: AttractDemoInputDefinitions.AttractCrystalFlash),
-        _ => throw new ArgumentOutOfRangeException(nameof(demonstration)),
-    };
-
-    /// <summary>The room Y at which Samus stands on a flat floor <paramref name="floorRow"/> blocks down the room: the floor's top in pixels, less her staging pose's vertical radius.</summary>
-    private static int GroundedY(int floorRow, Demonstration demonstration)
-    {
-        SamusPoseId pose = SamusSetupFor(demonstration) switch
-        {
-            AttractDemoSamusSetup.StandingRight => SamusPoseId.FacingRightNormalPose,
-            AttractDemoSamusSetup.StandingLeft or AttractDemoSamusSetup.LowHealthLeft => SamusPoseId.FacingLeftNormalPose,
-            AttractDemoSamusSetup.MorphLeft => SamusPoseId.MorphBallMovingLeftPose,
-            AttractDemoSamusSetup.LandingSite or AttractDemoSamusSetup.FallingLeft or
-                AttractDemoSamusSetup.DiagonalShinespark or AttractDemoSamusSetup.HorizontalShinespark =>
-                throw new InvalidOperationException("This demonstration does not use a grounded staging pose."),
-            _ => throw new InvalidOperationException($"Undefined AttractDemoSamusSetup {SamusSetupFor(demonstration)}."),
-        };
-        return floorRow * RoomGridConversions.BlockPixels - SamusPoseCollisionRadii.ReadVerticalRadius(pose);
-    }
-
-    /// <summary>
-    /// The charge-beam-room demonstration selects its scroll correction, and the two boss scenarios select their explicit
-    /// room setup. Every other staged room, the Landing Site's with the sky its load sets up among them, is left as loaded,
-    /// with no setup.
-    /// </summary>
-    private static AttractDemoRoomSetup? RoomSetupFor(Demonstration demonstration) => demonstration switch
-    {
-        Demonstration.PseudoScrewAttack => AttractDemoRoomSetup.ChargeBeamScroll,
-        Demonstration.Kraid => AttractDemoRoomSetup.KraidTimer,
-        Demonstration.TourianEntrance => AttractDemoRoomSetup.DefeatedKraid,
-        Demonstration.MissileDoor or Demonstration.PreSporeSpawnHall or Demonstration.SpeedBooster or
-        Demonstration.GrappleBeam or Demonstration.IceBeam or Demonstration.FirefleaRoom or
-        Demonstration.BrinstarDiagonalRoom or Demonstration.LowerNorfairEntrance or Demonstration.ScrewAttack or
-        Demonstration.Dachora or Demonstration.PrePhantoonHall or Demonstration.EyeDoor or
-        Demonstration.RedBrinstarElevator or Demonstration.AdvancedGrappleBeam or
-        Demonstration.SpecialBeamAttack or Demonstration.LandingSite or Demonstration.DiagonalShinespark or
-        Demonstration.GauntletEntrance or Demonstration.InfiniteBombJump or Demonstration.CrystalFlash => null,
-        _ => throw new ArgumentOutOfRangeException(nameof(demonstration), demonstration, "Undefined attract demonstration."),
-    };
-
-    /// <summary>Selected actor setup roles for the recorded demonstrations. Shared standing directions are set up once; the front-facing, morph, fall, spark and low-health performances keep their distinct setups.</summary>
-    private static AttractDemoSamusSetup SamusSetupFor(Demonstration demonstration) => demonstration switch
-    {
-        Demonstration.LandingSite => AttractDemoSamusSetup.LandingSite,
-        Demonstration.PseudoScrewAttack => AttractDemoSamusSetup.MorphLeft,
-        Demonstration.Dachora => AttractDemoSamusSetup.FallingLeft,
-        Demonstration.DiagonalShinespark => AttractDemoSamusSetup.DiagonalShinespark,
-        Demonstration.GauntletEntrance => AttractDemoSamusSetup.HorizontalShinespark,
-        Demonstration.CrystalFlash => AttractDemoSamusSetup.LowHealthLeft,
-        Demonstration.SpeedBooster or Demonstration.IceBeam or Demonstration.FirefleaRoom or
-        Demonstration.LowerNorfairEntrance or Demonstration.PrePhantoonHall or
-        Demonstration.AdvancedGrappleBeam or Demonstration.InfiniteBombJump => AttractDemoSamusSetup.StandingLeft,
-        Demonstration.MissileDoor or Demonstration.PreSporeSpawnHall or Demonstration.GrappleBeam or
-        Demonstration.BrinstarDiagonalRoom or Demonstration.ScrewAttack or Demonstration.EyeDoor or
-        Demonstration.RedBrinstarElevator or Demonstration.Kraid or Demonstration.TourianEntrance or
-        Demonstration.SpecialBeamAttack => AttractDemoSamusSetup.StandingRight,
-        _ => throw new ArgumentOutOfRangeException(nameof(demonstration)),
-    };
-
-    /// <summary>The items each demonstration's Samus has equipped, built up from shared groups of abilities rather than repeating full equipment sets.</summary>
-    private static SamusEquipmentFlags ItemsFor(Demonstration demonstration)
-    {
-        const SamusEquipmentFlags mobility = SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.MorphBall |
-            SamusEquipmentFlags.HiJumpBoots | SamusEquipmentFlags.SpeedBooster;
-        const SamusEquipmentFlags exploration = mobility | SamusEquipmentFlags.GrappleBeam | SamusEquipmentFlags.XrayScope;
-        const SamusEquipmentFlags spaceJump = exploration | SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.SpaceJump;
-        const SamusEquipmentFlags screwAttack = spaceJump | SamusEquipmentFlags.ScrewAttack;
-        const SamusEquipmentFlags bombAbilities = screwAttack | SamusEquipmentFlags.Bombs;
-        return demonstration switch
-        {
-            Demonstration.LandingSite => SamusEquipmentFlags.None,
-            Demonstration.MissileDoor or Demonstration.PreSporeSpawnHall or Demonstration.PseudoScrewAttack or
-            Demonstration.FirefleaRoom or Demonstration.BrinstarDiagonalRoom => SamusEquipmentFlags.MorphBall,
-            Demonstration.SpeedBooster or Demonstration.IceBeam or Demonstration.RedBrinstarElevator or
-            Demonstration.TourianEntrance => mobility,
-            Demonstration.GrappleBeam => mobility | SamusEquipmentFlags.GrappleBeam,
-            Demonstration.Dachora or Demonstration.PrePhantoonHall => exploration,
-            Demonstration.LowerNorfairEntrance => spaceJump,
-            Demonstration.ScrewAttack => screwAttack,
-            Demonstration.DiagonalShinespark => bombAbilities | SamusEquipmentFlags.SpringBall,
-            Demonstration.EyeDoor or Demonstration.Kraid => (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.HiJumpBoots),
-            Demonstration.GauntletEntrance or Demonstration.AdvancedGrappleBeam or Demonstration.InfiniteBombJump or
-            Demonstration.SpecialBeamAttack or Demonstration.CrystalFlash => bombAbilities,
-            _ => throw new ArgumentOutOfRangeException(nameof(demonstration)),
-        };
-    }
-
-    /// <summary>
-    /// Equipped-beam selections for each demonstration. These choose composable
-    /// beam abilities; the selected per-scene loadouts belong to this recorded demonstration.
-    /// </summary>
-    private static SuperMetroid.Core.Progression.SamusBeamFlags EquippedBeamsFor(Demonstration demonstration) => demonstration switch
-    {
-        Demonstration.PreSporeSpawnHall or Demonstration.PseudoScrewAttack or Demonstration.BrinstarDiagonalRoom or Demonstration.LowerNorfairEntrance or Demonstration.Dachora or Demonstration.PrePhantoonHall or Demonstration.DiagonalShinespark or Demonstration.GauntletEntrance or Demonstration.CrystalFlash => SamusBeamFlags.Charge,
-        Demonstration.GrappleBeam or Demonstration.IceBeam => (SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Charge),
-        Demonstration.TourianEntrance or Demonstration.SpecialBeamAttack => (SamusBeamFlags.Plasma | SamusBeamFlags.Charge),
-        Demonstration.SpeedBooster or Demonstration.EyeDoor => (SamusBeamFlags.Spazer | SamusBeamFlags.Charge),
-        Demonstration.LandingSite or Demonstration.MissileDoor or Demonstration.FirefleaRoom or Demonstration.ScrewAttack or Demonstration.RedBrinstarElevator or Demonstration.Kraid or Demonstration.AdvancedGrappleBeam or Demonstration.InfiniteBombJump => SamusBeamFlags.None,
-        _ => throw new ArgumentOutOfRangeException(nameof(demonstration)),
-    };
-
-    /// <summary>
-    /// Collected beams equal equipped beams in 22 scenes. The diagonal-shinespark
-    /// scene collects all beam types but equips only Charge.
-    /// </summary>
-    private static SuperMetroid.Core.Progression.SamusBeamFlags CollectedBeamsFor(Demonstration demonstration) =>
-        demonstration == Demonstration.DiagonalShinespark
-            ? (SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma)
-            : EquippedBeamsFor(demonstration);
 
     /// <summary>Camera origins use whole 256-pixel room screens.</summary>
     private static Position16<RoomPixels> CameraAtScreen(Position16<RoomScreens> screen) => screen.ToRoomPixels();

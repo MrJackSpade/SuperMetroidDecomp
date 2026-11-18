@@ -6,16 +6,16 @@ namespace SuperMetroid.Core.Progression;
 /// </summary>
 /// <remarks>
 /// The clock holds its own domain: frames, seconds and minutes 0 through 59 and hours 0 through 99 (#1692). Play never
-/// leaves it, since every component rolls over at its unit and the hours saturate, so a save holds only a clock in that
-/// domain; a save codec rejects a slot whose clock lies outside it (<see cref="IsInDomain"/>).
+/// leaves it, since every component rolls over at its unit and the hours saturate, so a save holds only a reading of the
+/// clock (<see cref="GameClockReading"/>), and the clock loads only a reading.
 /// </remarks>
 public sealed class GameTimeState
 {
     /// <summary>Updates in one second, and the rollover point of frames, seconds and minutes.</summary>
-    private const int UnitsPerNextUnit = 60;
+    private const int UnitsPerNextUnit = GameClockReading.UnitsPerNextUnit;
 
     /// <summary>The largest hour the clock shows; reaching any later hour saturates every component instead.</summary>
-    private const int MaximumHours = 99;
+    private const int MaximumHours = GameClockReading.MaximumHours;
 
     /// <summary>
     /// The longest play time, in whole minutes, the clock reaches in play: 99 hours and 59 minutes, where it saturates
@@ -35,11 +35,8 @@ public sealed class GameTimeState
     /// <summary>The hours component: 0 through 99.</summary>
     public int Hours { get; private set; }
 
-    /// <summary>
-    /// Whether the four components are a reading of the clock: frames, seconds and minutes 0 through 59, hours 0 through 99.
-    /// </summary>
-    public static bool IsInDomain(int frames, int seconds, int minutes, int hours) =>
-        IsUnitReading(frames) && IsUnitReading(seconds) && IsUnitReading(minutes) && hours is >= 0 and <= MaximumHours;
+    /// <summary>The clock's current reading, which a save keeps.</summary>
+    public GameClockReading Reading => new(Frames, Seconds, Minutes, Hours);
 
     /// <summary>Advances the four-component clock once: frames, then seconds, minutes and hours, saturating at 99:59:59.59.</summary>
     public void Step()
@@ -70,20 +67,12 @@ public sealed class GameTimeState
         }
     }
 
-    /// <summary>Restores the clock a save slot holds.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">A component lies outside the clock's domain (<see cref="IsInDomain"/>).</exception>
-    public void Load(int frames, int seconds, int minutes, int hours)
+    /// <summary>Restores the clock to <paramref name="reading"/>, the clock a save slot holds.</summary>
+    public void Load(GameClockReading reading)
     {
-        Ensure.BetweenInclusive(0, UnitsPerNextUnit - 1, frames);
-        Ensure.BetweenInclusive(0, UnitsPerNextUnit - 1, seconds);
-        Ensure.BetweenInclusive(0, UnitsPerNextUnit - 1, minutes);
-        Ensure.BetweenInclusive(0, MaximumHours, hours);
-        Frames = frames;
-        Seconds = seconds;
-        Minutes = minutes;
-        Hours = hours;
+        Frames = reading.Frames;
+        Seconds = reading.Seconds;
+        Minutes = reading.Minutes;
+        Hours = reading.Hours;
     }
-
-    /// <summary>Whether <paramref name="value"/> is a frames, seconds or minutes reading: 0 through 59.</summary>
-    private static bool IsUnitReading(int value) => value is >= 0 and < UnitsPerNextUnit;
 }

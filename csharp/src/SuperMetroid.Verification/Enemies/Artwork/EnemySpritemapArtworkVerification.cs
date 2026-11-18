@@ -123,9 +123,9 @@ internal static class EnemySpritemapArtworkVerification
     {
         AssertTrue(stock.Enemies.Spritemaps is not null,
             "installed enemy catalog contains named OAM compositions");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PreCeresDoorFrameCount + 15,
+        AssertEqual(EnemySpritemapDefinitionsConstants.PreCeresDoorFrameCount + 14,
             EnemySpritemapDefinitionsConstants.PreCeresBabyFrameCount,
-            "Ceres door adds its thirteen selected poses, initial pose, and private overlay");
+            "Ceres door adds its thirteen selected poses and private overlay");
         AssertEqual(EnemySpritemapDefinitionsConstants.PreCeresBabyFrameCount + 3,
             EnemySpritemapDefinitionsConstants.PreRioFrameCount,
             "Ceres Baby adds its three authored OAM poses");

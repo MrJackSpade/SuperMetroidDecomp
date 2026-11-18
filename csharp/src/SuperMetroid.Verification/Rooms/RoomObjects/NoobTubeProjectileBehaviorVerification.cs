@@ -116,8 +116,9 @@ internal static class NoobTubeProjectileBehaviorVerification
             if (projectile.Animation is NoobTubeProjectileAnimation animation)
             {
                 // A flicker program's list begins with its flicker command: odd frames show its first operand at the
-                // shard's column; even frames show the reflected operand mirrored across the tube, or hide the shard.
-                ushort entry = NoobTubeProjectileNativeListAddresses.Entry(animation.PlayingSegment);
+                // shard's column; even frames show the reflected operand mirrored across the tube, or hide the shard. A
+                // shard's flicker is read at the list its flight plays, or its fall's, as the phase playing it is (#2376).
+                ushort entry = NoobTubeProjectileNativeListAddresses.Family.ListEntryOf(cartridge, animation.Playback);
                 var command = (NativeEnemyProjectileInstruction)cartridge.ReadCartridgeWordFixedBank(NativeEnemyProjectileListDefinitions.ProjectileBank | entry);
                 bool oddFrame = (shortCounter & 1) != 0;
                 if (command == NativeEnemyProjectileInstruction.NoobTubeShardReflectFlicker)

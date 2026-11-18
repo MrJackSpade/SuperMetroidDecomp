@@ -49,12 +49,12 @@ internal static class PowampAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<PowampSegment, Animation<PowampSegment>> StartingAt { get; } = new Dictionary<PowampSegment, Animation<PowampSegment>>
     {
-        [P.BodyFast] = new([new(P.BodyFast, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.BodySlow] = new([new(P.BodySlow, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.BalloonInflatingFromDeflated] = new([new(P.BalloonInflatingFromDeflated, 0, 1, 1), new(P.BalloonInflatingFromHalfway, 0, 2, 1)], AnimationEnd.Holds),
-        [P.BalloonInflatingFromHalfway] = new([new(P.BalloonInflatingFromHalfway, 0, 2, 1)], AnimationEnd.Holds),
-        [P.BalloonStartSinking] = new([new(P.BalloonStartSinking, 0, 2, 1), new(P.BalloonDeflated, 0, 1, 1)], AnimationEnd.Holds),
-        [P.BalloonDeflated] = new([new(P.BalloonDeflated, 0, 1, 1)], AnimationEnd.Holds),
+        [P.BodyFast] = new([Segments.Whole(P.BodyFast)], AnimationEnd.LoopsFrom(0)),
+        [P.BodySlow] = new([Segments.Whole(P.BodySlow)], AnimationEnd.LoopsFrom(0)),
+        [P.BalloonInflatingFromDeflated] = new([Segments.Whole(P.BalloonInflatingFromDeflated), Segments.Whole(P.BalloonInflatingFromHalfway)], AnimationEnd.Holds),
+        [P.BalloonInflatingFromHalfway] = new([Segments.Whole(P.BalloonInflatingFromHalfway)], AnimationEnd.Holds),
+        [P.BalloonStartSinking] = new([Segments.Whole(P.BalloonStartSinking), Segments.Whole(P.BalloonDeflated)], AnimationEnd.Holds),
+        [P.BalloonDeflated] = new([Segments.Whole(P.BalloonDeflated)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

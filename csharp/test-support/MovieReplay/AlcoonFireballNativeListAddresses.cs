@@ -12,7 +12,7 @@ internal static class AlcoonFireballNativeListAddresses
     /// <summary>Each typed program's native entry point, in authored order.</summary>
     internal static readonly NativeProgramEntry<AlcoonFireballSegment>[] Entries =
     [
-        new NativeProgramEntry<AlcoonFireballSegment>(AlcoonFireballSegment.Initial, 0x9e9e),
+        new NativeProgramEntry<AlcoonFireballSegment>(AlcoonFireballSegment.Spinning, 0x9e9e),
     ];
 
     /// <summary>The bank-$86 bytes the lists occupy, $86:9E9E-9EB1, which production must never read.</summary>

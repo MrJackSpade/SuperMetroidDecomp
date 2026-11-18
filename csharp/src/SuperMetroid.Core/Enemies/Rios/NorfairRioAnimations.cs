@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Animation;
-using K = SuperMetroid.Core.Enemies.Rios.NorfairRioCueKind;
 using P = SuperMetroid.Core.Enemies.Rios.NorfairRioSegment;
 using SuperMetroid.Core.Enemies.Artwork;
 
@@ -17,7 +16,7 @@ internal static class NorfairRioAnimations
     {
         [P.Idle] =
         [
-            Cue(NorfairRioCue.PlaceFlames(8)),
+            Cue(new NorfairRioCue.PlaceFlames(8)),
             Show(EnemyFrameId.NorfairRioWingsSpread, 13),
             Show(EnemyFrameId.NorfairRioWingsLevel, 18),
             Show(EnemyFrameId.NorfairRioWingsSpread, 13),
@@ -25,23 +24,23 @@ internal static class NorfairRioAnimations
         ],
         [P.StartDescending] =
         [
-            Cue(NorfairRioCue.PlaceFlames(8)),
+            Cue(new NorfairRioCue.PlaceFlames(8)),
             Show(EnemyFrameId.NorfairRioWingsLevel, 1),
-            Cue(NorfairRioCue.PlaceFlames(4)),
+            Cue(new NorfairRioCue.PlaceFlames(4)),
             Show(EnemyFrameId.NorfairRioWingsFlattening, 1),
-            Cue(NorfairRioCue.PlaceFlames(0)),
+            Cue(new NorfairRioCue.PlaceFlames(0)),
             Show(EnemyFrameId.NorfairRioWingsTilting, 1),
-            Cue(NorfairRioCue.PlaceFlames(-4)),
+            Cue(new NorfairRioCue.PlaceFlames(-4)),
             Show(EnemyFrameId.NorfairRioWingsLifting, 1),
-            Cue(NorfairRioCue.PlaceFlames(-12)),
+            Cue(new NorfairRioCue.PlaceFlames(-12)),
             Show(EnemyFrameId.NorfairRioWingsRaising, 1),
-            Cue(NorfairRioCue.PlaceFlames(-16)),
+            Cue(new NorfairRioCue.PlaceFlames(-16)),
             Show(EnemyFrameId.NorfairRioWingsSweptUp, 1),
-            Cue(new(K.SwoopStartFinished)),
+            Cue(new NorfairRioCue.SwoopStartFinished()),
         ],
         [P.Descending] =
         [
-            Cue(NorfairRioCue.PlaceFlames(-12)),
+            Cue(new NorfairRioCue.PlaceFlames(-12)),
             Show(EnemyFrameId.NorfairRioDiving, 6),
             Show(EnemyFrameId.NorfairRioDiving, 5),
             Show(EnemyFrameId.NorfairRioDiving, 8),
@@ -49,27 +48,27 @@ internal static class NorfairRioAnimations
         ],
         [P.StartAscending] =
         [
-            Cue(NorfairRioCue.PlaceFlames(-16)),
+            Cue(new NorfairRioCue.PlaceFlames(-16)),
             Show(EnemyFrameId.NorfairRioWingsSweptUp, 1),
-            Cue(NorfairRioCue.PlaceFlames(-12)),
+            Cue(new NorfairRioCue.PlaceFlames(-12)),
             Show(EnemyFrameId.NorfairRioWingsRaising, 1),
-            Cue(NorfairRioCue.PlaceFlames(-4)),
+            Cue(new NorfairRioCue.PlaceFlames(-4)),
             Show(EnemyFrameId.NorfairRioWingsLifting, 1),
-            Cue(NorfairRioCue.PlaceFlames(0)),
+            Cue(new NorfairRioCue.PlaceFlames(0)),
             Show(EnemyFrameId.NorfairRioWingsTilting, 1),
-            Cue(NorfairRioCue.PlaceFlames(4)),
+            Cue(new NorfairRioCue.PlaceFlames(4)),
             Show(EnemyFrameId.NorfairRioWingsFlattening, 1),
-            Cue(NorfairRioCue.PlaceFlames(8)),
+            Cue(new NorfairRioCue.PlaceFlames(8)),
             Show(EnemyFrameId.NorfairRioWingsLevel, 1),
-            Cue(NorfairRioCue.PlaceFlames(8)),
+            Cue(new NorfairRioCue.PlaceFlames(8)),
             Show(EnemyFrameId.NorfairRioWingsSpread, 1),
-            Cue(NorfairRioCue.PlaceFlames(12)),
+            Cue(new NorfairRioCue.PlaceFlames(12)),
             Show(EnemyFrameId.NorfairRioWingsDrooping, 1),
-            Cue(new(K.SwoopStartFinished)),
+            Cue(new NorfairRioCue.SwoopStartFinished()),
         ],
         [P.Ascending] =
         [
-            Cue(NorfairRioCue.PlaceFlames(12)),
+            Cue(new NorfairRioCue.PlaceFlames(12)),
             Show(EnemyFrameId.NorfairRioClimbing, 6),
             Show(EnemyFrameId.NorfairRioClimbing, 5),
             Show(EnemyFrameId.NorfairRioClimbing, 8),
@@ -94,13 +93,13 @@ internal static class NorfairRioAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<NorfairRioSegment, Animation<NorfairRioSegment>> StartingAt { get; } = new Dictionary<NorfairRioSegment, Animation<NorfairRioSegment>>
     {
-        [P.Idle] = new([new(P.Idle, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.StartDescending] = new([new(P.StartDescending, 0, 13, 1)], AnimationEnd.Holds),
-        [P.Descending] = new([new(P.Descending, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.StartAscending] = new([new(P.StartAscending, 0, 17, 1)], AnimationEnd.Holds),
-        [P.Ascending] = new([new(P.Ascending, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.FlamesAscending] = new([new(P.FlamesAscending, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.FlamesDescending] = new([new(P.FlamesDescending, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.Idle] = new([Segments.Whole(P.Idle)], AnimationEnd.LoopsFrom(0)),
+        [P.StartDescending] = new([Segments.Whole(P.StartDescending)], AnimationEnd.Holds),
+        [P.Descending] = new([Segments.Whole(P.Descending)], AnimationEnd.LoopsFrom(0)),
+        [P.StartAscending] = new([Segments.Whole(P.StartAscending)], AnimationEnd.Holds),
+        [P.Ascending] = new([Segments.Whole(P.Ascending)], AnimationEnd.LoopsFrom(0)),
+        [P.FlamesAscending] = new([Segments.Whole(P.FlamesAscending)], AnimationEnd.LoopsFrom(0)),
+        [P.FlamesDescending] = new([Segments.Whole(P.FlamesDescending)], AnimationEnd.LoopsFrom(0)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

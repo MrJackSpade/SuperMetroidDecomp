@@ -54,7 +54,7 @@ internal static class GunshipLandingVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: new GunshipMotionFixtureGuard(bus), services: new StandaloneRoomEnemyServices(() => 0) { Events = new FixtureEventFlags { HasEvent = eventNumber =>
                 zebesTimebombSet && eventNumber == StoryEvent.ZebesTimebombSet } }, installedBosses: InstalledFixtures.BossArtwork);
         samus.BindBodyFixture(InstalledFixtures.SamusBody);
-        enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer, tilesetPointer), BgArtworkFixtures.For(vram)) { Level = RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Samus = samus, GunshipScenario = GunshipLoadScenario.EscapingCeres });
+        enemies.Load(RoomEnemyFrameFixtures.StandaloneLoad(bus.ReadEnemyPopulation(populationPointer, tilesetPointer), BgArtworkFixtures.For(vram), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), samus) with { GunshipScenario = GunshipLoadScenario.EscapingCeres });
 
         RoomEnemyPlace top = enemies.Places.InUpdateOrder[0];
         RoomEnemyPlace bottom = enemies.Places.InUpdateOrder[1];

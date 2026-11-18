@@ -27,8 +27,8 @@ internal static class YappingMawBodyProjectileAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<YappingMawBodyProjectileSegment, Animation<YappingMawBodyProjectileSegment>> StartingAt { get; } = new Dictionary<YappingMawBodyProjectileSegment, Animation<YappingMawBodyProjectileSegment>>
     {
-        [P.FacingDown] = new([new(P.FacingDown, 0, 1, 1)], AnimationEnd.Holds),
-        [P.FacingUp] = new([new(P.FacingUp, 0, 1, 1)], AnimationEnd.Holds),
+        [P.FacingDown] = new([Segments.Whole(P.FacingDown)], AnimationEnd.Holds),
+        [P.FacingUp] = new([Segments.Whole(P.FacingUp)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

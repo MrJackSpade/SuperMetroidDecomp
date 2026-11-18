@@ -23,7 +23,7 @@ internal static class PolypAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<PolypSegment, Animation<PolypSegment>> StartingAt { get; } = new Dictionary<PolypSegment, Animation<PolypSegment>>
     {
-        [P.Stationary] = new([new(P.Stationary, 0, 1, 1)], AnimationEnd.Holds),
+        [P.Stationary] = new([Segments.Whole(P.Stationary)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

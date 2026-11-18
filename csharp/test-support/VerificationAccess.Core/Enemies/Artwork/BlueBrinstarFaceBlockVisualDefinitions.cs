@@ -18,7 +18,7 @@ internal static class BlueBrinstarFaceBlockVisualDefinitions
         ushort[] right = [.. BlueBrinstarFaceBlockAnimationsConstants.Spritemaps(BlueBrinstarFaceBlockSegment.SamusRight)];
         return
         [
-            new(Bank, BlueBrinstarFaceBlockAnimationsConstants.Spritemaps(BlueBrinstarFaceBlockSegment.Initial).Single(), "face_block_neutral"),
+            new(Bank, BlueBrinstarFaceBlockAnimationsConstants.Spritemaps(BlueBrinstarFaceBlockSegment.LookingAhead).Single(), "face_block_neutral"),
             new(Bank, left[1], "face_block_samus_left_1"),
             new(Bank, left[2], "face_block_samus_left_2"),
             new(Bank, right[1], "face_block_samus_right_1"),

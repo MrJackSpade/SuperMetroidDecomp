@@ -22,13 +22,13 @@ internal sealed record RoomEnemyFrame
     public required SamusState Samus { get; init; }
 
     /// <summary>The actions newly pressed this update, distinct from the held actions.</summary>
-    public GameplayAction NewlyPressedControllerInput { get; init; } = GameplayAction.None;
+    public required GameplayAction NewlyPressedControllerInput { get; init; }
 
     /// <summary>The room's terrain and collision data.</summary>
     public required RoomLevelData Level { get; init; }
 
     /// <summary>The actions held this update.</summary>
-    public GameplayAction ControllerInput { get; init; } = GameplayAction.None;
+    public required GameplayAction ControllerInput { get; init; }
 
     /// <summary>Samus's beams and missiles, which enemy collision and custom touch paths read.</summary>
     public required SamusProjectileSystem SamusProjectiles { get; init; }
@@ -42,8 +42,8 @@ internal sealed record RoomEnemyFrame
     /// <summary>The game's short frame counter, 0 through 255, which a door's scroll restarts.</summary>
     public required int ShortCounter { get; init; }
 
-    /// <summary>The turning floor of Ceres Ridley's getaway shaft, which rotating Ceres steam samples to derive draw offsets without changing its world collision coordinates.</summary>
-    public TurningFloorTransform? TurningFloor { get; init; } = null;
+    /// <summary>The turning floor of Ceres Ridley's getaway shaft, which rotating Ceres steam samples to derive draw offsets without changing its world collision coordinates; none outside that shaft.</summary>
+    public required TurningFloorTransform? TurningFloor { get; init; }
 
     /// <summary>Shared bomb and power-bomb state used by collision order and actor effects.</summary>
     public required SamusBombProjectileSystem SharedProjectiles { get; init; }
@@ -52,5 +52,5 @@ internal sealed record RoomEnemyFrame
     public required int FrameCounter { get; init; }
 
     /// <summary>The camera's frame-start Samus checkpoint under the live previous positions that Draygon and Yapping Maw cap; null when no camera owns them.</summary>
-    public FixedPosition<RoomPixels>? SamusPreviousPositionCheckpoint { get; init; } = null;
+    public required FixedPosition<RoomPixels>? SamusPreviousPositionCheckpoint { get; init; }
 }

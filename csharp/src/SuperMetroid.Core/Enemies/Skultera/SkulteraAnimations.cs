@@ -56,10 +56,10 @@ internal static class SkulteraAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<SkulteraSegment, Animation<SkulteraSegment>> StartingAt { get; } = new Dictionary<SkulteraSegment, Animation<SkulteraSegment>>
     {
-        [P.SwimmingLeft] = new([new(P.SwimmingLeft, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.TurningRight] = new([new(P.TurningRight, 0, 9, 1)], AnimationEnd.Holds),
-        [P.SwimmingRight] = new([new(P.SwimmingRight, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.TurningLeft] = new([new(P.TurningLeft, 0, 9, 1)], AnimationEnd.Holds),
+        [P.SwimmingLeft] = new([Segments.Whole(P.SwimmingLeft)], AnimationEnd.LoopsFrom(0)),
+        [P.TurningRight] = new([Segments.Whole(P.TurningRight)], AnimationEnd.Holds),
+        [P.SwimmingRight] = new([Segments.Whole(P.SwimmingRight)], AnimationEnd.LoopsFrom(0)),
+        [P.TurningLeft] = new([Segments.Whole(P.TurningLeft)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

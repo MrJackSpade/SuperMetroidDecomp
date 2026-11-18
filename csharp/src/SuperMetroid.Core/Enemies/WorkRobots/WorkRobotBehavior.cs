@@ -79,7 +79,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         place.Contact = place.Contact.With(EnemyContact.SolidToSamus);
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
         place.AnimationClock.RestartAfter(WorkRobotMotionDefinitions.FirstStepDelay);
-        state.Playback = new(WorkRobotAnimations.StartingWith(WorkRobotSegment.Initial), AnimationPlace.StartOfAnimation);
+        state.Playback = new(WorkRobotAnimations.StartingWith(WorkRobotSegment.StandingFacingLeft), AnimationPlace.StartOfAnimation);
         state.Facing = HorizontalDirection.Left;
         state.LaserCooldown = WrappingCountdown.Start(0);
 
@@ -385,7 +385,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
             definition.ProjectileKind(),
             Laser,
             SpriteGraphics.SharedStandard);
-        projectile.StartAnimation(new WorkRobotLaserAnimation(WorkRobotLaserSegment.Initial));
+        projectile.StartAnimation(new WorkRobotLaserAnimation(WorkRobotLaserSegment.Flare));
         projectile.Velocity = projectile.Velocity.WithX(state.Facing == HorizontalDirection.Left ? -WorkRobotLaserDefinitions.Speed : WorkRobotLaserDefinitions.Speed);
         projectile.Velocity = projectile.Velocity.WithY(definition switch
         {

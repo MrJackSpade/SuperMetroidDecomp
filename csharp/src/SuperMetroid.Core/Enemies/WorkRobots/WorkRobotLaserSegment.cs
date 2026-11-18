@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.WorkRobots;
 internal enum WorkRobotLaserSegment
 {
     /// <summary>The laser's opening flare: a glint swelling into a ball.</summary>
-    Initial,
+    Flare,
     /// <summary>The ring the flare opens into, looped.</summary>
     Ring,
 }

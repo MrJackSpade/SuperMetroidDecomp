@@ -10,7 +10,10 @@ namespace SuperMetroid.Core.Enemies.MorphBallEye;
 /// </summary>
 internal static class MorphBallEyeAnimations
 {
-    /// <summary>Every segment's beats.</summary>
+    /// <summary>
+    /// Every segment's beats. An opening ends on its half-open lid (#2376): the eye opens on the update the lid first shows,
+    /// and its tracking takes over the picture on the next.
+    /// </summary>
     internal static AnimationSegments<MorphBallEyeSegment, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
         new Dictionary<MorphBallEyeSegment, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
     {
@@ -38,15 +41,11 @@ internal static class MorphBallEyeAnimations
         [
             Show(EnemyFrameId.MorphBallEyeFacingRightClosed, 32),
             Show(EnemyFrameId.MorphBallEyeFacingRightHalfOpen, 5),
-            Show(EnemyFrameId.MorphBallEyeLookingLeft, 48),
-            Show(EnemyFrameId.MorphBallEyeFacingRightHalfOpen, 8),
         ],
         [P.FacingLeftActivating] =
         [
             Show(EnemyFrameId.MorphBallEyeFacingLeftClosed, 32),
             Show(EnemyFrameId.MorphBallEyeFacingLeftHalfOpen, 5),
-            Show(EnemyFrameId.MorphBallEyeLookingRight, 48),
-            Show(EnemyFrameId.MorphBallEyeFacingLeftHalfOpen, 8),
         ],
         [P.MountFacingRight] =
         [

@@ -89,10 +89,10 @@ internal static class SpacePirateProjectileAnimations
     /// </summary>
     internal static IReadOnlyDictionary<SpacePirateProjectileSegment, Animation<SpacePirateProjectileSegment>> StartingAt { get; } = new Dictionary<SpacePirateProjectileSegment, Animation<SpacePirateProjectileSegment>>
     {
-        [P.LaserLeft] = new([new(P.LaserLeft, 0, 12, 1), new(P.LaserLeftFlicker, 0, 2, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.LaserRight] = new([new(P.LaserRight, 0, 12, 1), new(P.LaserRightFlicker, 0, 2, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.ClawLeft] = new([new(P.ClawLeft, 0, 1, 1), new(P.ClawLeftSpin, 0, 8, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.ClawRight] = new([new(P.ClawRight, 0, 1, 1), new(P.ClawRightSpin, 0, 8, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.LaserLeft] = new([Segments.Whole(P.LaserLeft), Segments.Whole(P.LaserLeftFlicker)], AnimationEnd.LoopsFrom(1)),
+        [P.LaserRight] = new([Segments.Whole(P.LaserRight), Segments.Whole(P.LaserRightFlicker)], AnimationEnd.LoopsFrom(1)),
+        [P.ClawLeft] = new([Segments.Whole(P.ClawLeft), Segments.Whole(P.ClawLeftSpin)], AnimationEnd.LoopsFrom(1)),
+        [P.ClawRight] = new([Segments.Whole(P.ClawRight), Segments.Whole(P.ClawRightSpin)], AnimationEnd.LoopsFrom(1)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

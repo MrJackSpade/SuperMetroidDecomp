@@ -89,7 +89,7 @@ internal sealed class MotherBrainAscent
         // typed lifetime rather than pretending it is a body-visibility flag.
         state.RisingFloorClipActive = true;
         state.Head.Presence = state.Head.Presence.With(EnemyPresence.Hidden);
-        MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.Initial);
+        MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.WholeHeadMouthClosed);
         state.AscentPhase = MotherBrainAscentPhase.ReadyStandingBody;
         state.PhaseTimer.LastFor(MotherBrainWaitDefinitions.StandingBodyPauseUpdates);
 

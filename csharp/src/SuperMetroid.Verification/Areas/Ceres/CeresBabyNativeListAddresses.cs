@@ -11,7 +11,7 @@ internal static class CeresBabyNativeListAddresses
     /// <summary>Each program's native entry: <c>InstList_BabyMetroidCutscene_0</c> and <c>_1</c>.</summary>
     internal static readonly CeresBabyNativeListAddressesEntry[] Entries =
     [
-        new CeresBabyNativeListAddressesEntry(CeresBabySegment.Initial, 0xbf31),
+        new CeresBabyNativeListAddressesEntry(CeresBabySegment.IdleSquish, 0xbf31),
         new CeresBabyNativeListAddressesEntry(CeresBabySegment.ExpressiveLoop, 0xbf59),
     ];
 

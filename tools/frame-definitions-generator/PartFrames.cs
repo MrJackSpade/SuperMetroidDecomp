@@ -307,7 +307,7 @@ internal sealed record PartFrameConfiguration(
             {
                 ["WorkRobot"] =
                 [
-                    "NoPowerNeutral", "NoPowerLeaningLeft", "NoPowerLeaningRight", "Initial", "FacingLeftWalkingForwards",
+                    "NoPowerNeutral", "NoPowerLeaningLeft", "NoPowerLeaningRight", "StandingFacingLeft", "FacingLeftWalkingForwards",
                     "FacingLeftHitWallMovingForwards", "FacingLeftShotSamusAhead", "FacingLeftShotSamusBehind", "FacingLeftShotLaserDownLeft",
                     "FacingLeftShotLaserLeft", "FacingLeftShotLaserUpLeft", "ApproachingFallRight", "FacingRightWalkingForwards",
                     "FacingRightHitWallMovingForwards", "FacingRightShotSamusAhead", "FacingRightShotSamusBehind", "FacingRightShotLaserDownRight",

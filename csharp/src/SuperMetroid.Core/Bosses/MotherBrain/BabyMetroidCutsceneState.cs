@@ -40,7 +40,7 @@ public sealed class BabyMetroidCutsceneState
     /// The Baby's animation and where it stands (#2319): it arrives playing its opening pulse, which its setup begins, and
     /// each animation a step starts (<see cref="BabyMetroidCutsceneStepResult.StartedAnimation"/>) replaces it.
     /// </summary>
-    internal AnimationPlayback<MotherBrainBabySegment> Playback { get; set; } = MotherBrainBabyAnimations.Starting(MotherBrainBabySegment.Initial);
+    internal AnimationPlayback<MotherBrainBabySegment> Playback { get; set; } = MotherBrainBabyAnimations.Starting(MotherBrainBabySegment.IdlePulse);
 
     /// <summary>
     /// Room position. This actor's 1/256-pixel mover moves it in 256ths of a pixel; its precision finer
@@ -309,7 +309,7 @@ public sealed class BabyMetroidCutsceneState
                 Position = Position.WithWhole(head + BabyMetroidCutsceneFlightDefinitions.BrainLatchOffset);
                 if (PhaseTimer.StepRunsOut())
                 {
-                    startedAnimation = MotherBrainBabySegment.Initial;
+                    startedAnimation = MotherBrainBabySegment.IdlePulse;
                     Phase = BabyMetroidCutscenePhase.LetGoAndSpawnDustClouds;
                     PhaseTimer.LastFor(BabyMetroidCutsceneDefinitions.LetGoUpdates);
                     Velocity = default;

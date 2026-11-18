@@ -34,17 +34,17 @@ internal sealed class OldTourianWallExplosionAnimation(OldTourianWallExplosionSe
         });
 
     /// <summary>
-    /// The explosion's animation: the setup, the burst played <see cref="OldTourianEscapeShaftWallExplosionAnimationDefinitions.BurstCount"/>
-    /// times, then the deletion, holding after it; each phase plays its segment whole.
+    /// The explosion's animation: the setup, the burst once, then the deletion, holding after it; each phase plays its
+    /// segment whole.
     /// </summary>
     internal static IReadOnlyDictionary<OldTourianWallExplosionSegment, Animation<OldTourianWallExplosionSegment>> AllAnimations { get; } =
         new Dictionary<OldTourianWallExplosionSegment, Animation<OldTourianWallExplosionSegment>>
         {
             [OldTourianWallExplosionSegment.Start] = new(
             [
-                new(OldTourianWallExplosionSegment.Start, 0, 1, 1),
-                new(OldTourianWallExplosionSegment.Burst, 0, 2 + D.Beats.Count, D.BurstCount),
-                new(OldTourianWallExplosionSegment.Deletion, 0, 1, 1),
+                AllSegments.Whole(OldTourianWallExplosionSegment.Start),
+                AllSegments.Whole(OldTourianWallExplosionSegment.Burst),
+                AllSegments.Whole(OldTourianWallExplosionSegment.Deletion),
             ], AnimationEnd.Holds),
         };
 

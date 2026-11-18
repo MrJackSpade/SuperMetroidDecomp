@@ -13,7 +13,7 @@ internal static class EyeDoorProjectileNativeListAddresses
     /// <summary>Each typed program's native entry point, in authored order.</summary>
     internal static readonly NativeProgramEntry<EyeDoorProjectileSegment>[] Entries =
     [
-        new NativeProgramEntry<EyeDoorProjectileSegment>(EyeDoorProjectileSegment.Initial, 0xb5d9),
+        new NativeProgramEntry<EyeDoorProjectileSegment>(EyeDoorProjectileSegment.Fired, 0xb5d9),
         new NativeProgramEntry<EyeDoorProjectileSegment>(EyeDoorProjectileSegment.Impact, 0xb5f3),
         new NativeProgramEntry<EyeDoorProjectileSegment>(EyeDoorProjectileSegment.Shot, 0xb603),
     ];

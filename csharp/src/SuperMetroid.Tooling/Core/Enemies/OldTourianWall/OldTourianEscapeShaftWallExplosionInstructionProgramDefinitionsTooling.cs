@@ -3,6 +3,7 @@ using SuperMetroid.Tooling;
 using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Enemies.OldTourianWall;
 
@@ -29,7 +30,7 @@ internal abstract class OldTourianEscapeShaftWallExplosionInstructionProgramDefi
     [
         new(0xb443, (ushort)EnemyProjectileInstruction.ClearFrameBehavior),
         new(0xb445, (ushort)EnemyProjectileInstruction.TimerInY),
-        new(0xb447, checked(OldTourianEscapeShaftWallExplosionAnimationDefinitions.BurstCount)),
+        new(0xb447, checked((ushort)BurstPlays)),
         new(OldTourianEscapeShaftWallExplosionInstructionProgramToolingDefinitions.Loop, (ushort)EnemyProjectileInstruction.MoveRandomlyWithinXRadius_YRadius),
         new(0xb44b, ScatterWord(OldTourianEscapeShaftWallExplosionAnimationDefinitions.Scatter.XRange, OldTourianEscapeShaftWallExplosionAnimationDefinitions.Scatter.Center.X)),
         new(0xb44d, ScatterWord(OldTourianEscapeShaftWallExplosionAnimationDefinitions.Scatter.YRange, OldTourianEscapeShaftWallExplosionAnimationDefinitions.Scatter.Center.Y)),
@@ -40,6 +41,10 @@ internal abstract class OldTourianEscapeShaftWallExplosionInstructionProgramDefi
         new(0xb46c, OldTourianEscapeShaftWallExplosionInstructionProgramToolingDefinitions.Loop),
         new(0xb46e, (ushort)EnemyProjectileInstruction.Delete),
     ];
+
+    /// <summary>The times the typed animation plays the burst, which the list's counter load holds.</summary>
+    private static int BurstPlays => OldTourianWallExplosionAnimation.AllAnimations[OldTourianWallExplosionSegment.Start].Phases
+        .Single(phase => phase.Segment == OldTourianWallExplosionSegment.Burst).Plays;
 
     /// <summary>
     /// The scatter command's packed operand word for one axis: the mask of the bits its range field reads in the low

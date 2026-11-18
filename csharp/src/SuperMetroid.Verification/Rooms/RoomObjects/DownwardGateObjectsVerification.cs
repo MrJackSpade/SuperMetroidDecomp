@@ -45,7 +45,7 @@ internal static class DownwardGateObjectsVerification
     {
         SamusState? samus = null;
         var places = new RoomObjectPlaceList(new SuperMetroid.Core.Compatibility.RoomObjectPlaces());
-        var gates = new GateObjects(new FixtureRoomSamus(() => samus), places, new RoomObjectSoundQueue(GameplayAudioRequests.Standalone()));
+        var gates = new GateObjects(new FixtureRoomSamus(() => samus ?? throw new InvalidOperationException("The column check places Samus before it reads her.")), places, new RoomObjectSoundQueue(GameplayAudioRequests.Standalone()));
         RoomObjectPlace gate = places.Spawn() ?? throw new InvalidOperationException("An empty room has a place for the gate.");
         gate.Block = new Position16<RoomBlocks>(6, 2);
         foreach ((int column, int row, bool inside) in new[]
@@ -165,7 +165,7 @@ internal static class DownwardGateObjectsVerification
         // the shared projectile pool. Recreate that exact boundary and inspect initializer E.
         SeedEmptyRoomEnemyPopulation(bus, 0x9600);
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0));
-        enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(0x9600), BgArtworkFixtures.For(new SnesVram())) { Level = level, Samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) });
+        enemies.Load(RoomEnemyFrameFixtures.StandaloneLoad(bus.ReadEnemyPopulation(0x9600), BgArtworkFixtures.For(new SnesVram()), level, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())));
         enemies.DownwardGateBehavior.ApplyDownwardGateProjectileRequest(request);
         EnemyProjectile actor = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
         AssertEqual(RoomEnemyProjectileKind.DownwardGateClosed, actor.Kind,
@@ -309,7 +309,9 @@ internal static class DownwardGateObjectsVerification
             new RoomTerrainBlock[roomWidth * 16],
             new RoomBlockBehavior[roomWidth * 16]);
         var roomObjects = RoomObjectFixtures.Unbound();
-        RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Brinstar), population, RoomObjectServiceFixtures.Uninstalled with { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
+        // A new Samus at the room's origin, outside the gate's column, which the gate's wake check reads.
+        SamusState outsideColumn = RoomEnemyFrameFixtures.StandaloneSamus();
+        RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Brinstar), population, RoomObjectServiceFixtures.Uninstalled with { Samus = new FixtureRoomSamus(() => outsideColumn), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
         return new CreateDownwardGateFixtureResult(bus, level, roomObjects, gateY * roomWidth + gateX);
     }
 

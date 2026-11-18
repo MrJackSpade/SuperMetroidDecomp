@@ -65,98 +65,94 @@ internal sealed class EnemyCollision
     internal static EnemyReaction? ShotReactionOf(RoomEnemyPlace place) =>
         place.Definition.Shot ?? (place.Entity as IEnemyFrameHitboxes)?.SpeciesShot;
 
-    /// <summary>Runs the common radius-based Samus/enemy touch pass.</summary>
+    /// <summary>Runs the common radius-based touch between Samus and the enemy the enemy pass is processing.</summary>
     /// <param name="samus">Live player state receiving the touch reaction.</param>
     /// <param name="pseudoScrew">Samus's held charge, which her Pseudo Screw contact spends.</param>
     /// <param name="controllerInput">Current held input used by touch responses.</param>
     /// <param name="level">Room terrain required by collision-aware touch responses.</param>
-    /// <param name="onlyEnemy">The enemy the enemy pass is processing, or null for a standalone whole-list audit.</param>
-    /// <param name="camera">The camera's position as the pass runs, which a reaction that starts a sound on screen reads; a standalone audit passes the room's top-left corner.</param>
+    /// <param name="place">The enemy the enemy pass is processing; one that is not interactive touches nothing.</param>
+    /// <param name="camera">The camera's position as the pass runs, which a reaction that starts a sound on screen reads.</param>
+    /// <returns>Whether the enemy reacted to touching Samus.</returns>
     public bool ResolveOrdinarySamusContact(
         SamusState samus,
         PseudoScrewCharge pseudoScrew,
         GameplayAction controllerInput,
         RoomLevelData level,
-        RoomEnemyPlace? onlyEnemy = null,
-        Position16<RoomPixels> camera = default)
+        RoomEnemyPlace place,
+        Position16<RoomPixels> camera)
     {
         Ensure.NotNull(samus);
+        Ensure.NotNull(place);
         SamusBodyAttack bodyAttack = samus.HorizontalSpeed.BodyAttack;
         if (bodyAttack == SamusBodyAttack.None && !samus.InvincibilityTimer.IsZero)
             return false;
+        if (!_lifecycle.InteractiveEnemies.Contains(place))
+            return false;
+        // Collision entry rejects an enemy showing no frame before resetting Samus's invulnerability: an actor not yet
+        // showing a frame must not erase the timer. The reset still precedes overlap testing, so a distant actor with a
+        // frame can legitimately clear it.
+        if (place.Frame is null)
+            return false;
+        bool usesFrameHitboxes = UsesFrameHitboxesForSamus(place);
+        // Frame-hitbox entry withholds the touch the definition excludes from its hitboxes before resetting
+        // invulnerability. Ordinary radius entry resets first instead.
+        if (usesFrameHitboxes && place.Definition.TouchHitboxScan == EnemyHitboxScan.Withheld)
+            return false;
+        if (bodyAttack != SamusBodyAttack.None)
+            samus.InvincibilityTimer = WrappingCountdown.Start(0);
 
-        foreach (RoomEnemyPlace place in _lifecycle.InteractiveEnemies)
+        // A hidden enemy still touches Samus; hiding only stops it being drawn. Hibashi relies on that: its hitbox part
+        // stays unseen while its animation moves a live hitbox. Both Ridleys touch Samus with their own body hitboxes and,
+        // later in the update, the tail's tip; neither touches by its definition's radius. An actor without a touch
+        // reaction is skipped.
+        if (place.Entity is IEnemyContactHooks { OwnsSamusTouch: true } ||
+            place.Presence.HasAny(EnemyPresence.Deleted) ||
+            place.Entity is not IEnemyTouchReaction { ReactsToTouch: true } touch)
         {
-            if (onlyEnemy is not null && place != onlyEnemy)
-                continue;
-            // Collision entry rejects an enemy showing no frame before resetting Samus's
-            // invulnerability. Keep this per enemy: an empty interactive list or an actor
-            // not yet showing a frame must not erase the timer. The reset still precedes
-            // overlap testing, so a distant actor with a frame can legitimately clear it.
-            if (place.Frame is null)
-                continue;
-            bool usesFrameHitboxes = UsesFrameHitboxesForSamus(place);
-            // Frame-hitbox entry withholds the touch the definition excludes from its hitboxes before
-            // resetting invulnerability. Ordinary radius entry resets first instead.
-            if (usesFrameHitboxes && place.Definition.TouchHitboxScan == EnemyHitboxScan.Withheld)
-                continue;
-            if (bodyAttack != SamusBodyAttack.None)
-                samus.InvincibilityTimer = WrappingCountdown.Start(0);
-
-            // A hidden enemy still touches Samus; hiding only stops it being drawn. Hibashi relies on that: its
-            // hitbox part stays unseen while its animation moves a live hitbox.
-            // Both Ridleys touch Samus with their own body hitboxes and, later in the update, the tail's tip; neither
-            // touches by its definition's radius. An actor without a touch reaction is skipped.
-            if (place.Entity is IEnemyContactHooks { OwnsSamusTouch: true } ||
-                place.Presence.HasAny(EnemyPresence.Deleted) ||
-                place.Entity is not IEnemyTouchReaction { ReactsToTouch: true } touch)
-            {
-                continue;
-            }
-
-            bool overlapsSamus;
-            EnemyReaction? hitboxTouch = TouchReactionOf(place);
-            if (usesFrameHitboxes)
-            {
-                overlapsSamus = TryFindFrameHitboxReaction(
-                    place,
-                    samus.Position.Whole,
-                    samus.Kinematics.Radius,
-                    contactKind: HitboxContactKind.Touch,
-                    out hitboxTouch);
-            }
-            else
-            {
-                overlapsSamus = RadiusBoxesOverlap(
-                    place.Position.Whole,
-                    place.Radius,
-                    samus.Position.Whole,
-                    samus.Kinematics.Radius);
-            }
-
-            if (!overlapsSamus)
-                continue;
-
-            // On the ordinary radius path a frozen enemy never runs its touch
-            // AI, except a place awaiting its enemy's respawn. The extended-hitbox path has no such gate.
-            if (!usesFrameHitboxes && place.FrozenTimer != 0 &&
-                !place.AwaitsRespawn)
-            {
-                continue;
-            }
-
-            touch.ReactToTouch(new EnemyTouchContext(
-                place,
-                samus,
-                pseudoScrew,
-                controllerInput,
-                level,
-                usesFrameHitboxes,
-                hitboxTouch,
-                camera));
-            return true;
+            return false;
         }
-        return false;
+
+        bool overlapsSamus;
+        EnemyReaction? hitboxTouch = TouchReactionOf(place);
+        if (usesFrameHitboxes)
+        {
+            overlapsSamus = TryFindFrameHitboxReaction(
+                place,
+                samus.Position.Whole,
+                samus.Kinematics.Radius,
+                contactKind: HitboxContactKind.Touch,
+                out hitboxTouch);
+        }
+        else
+        {
+            overlapsSamus = RadiusBoxesOverlap(
+                place.Position.Whole,
+                place.Radius,
+                samus.Position.Whole,
+                samus.Kinematics.Radius);
+        }
+
+        if (!overlapsSamus)
+            return false;
+
+        // On the ordinary radius path a frozen enemy never runs its touch AI, except a place awaiting its enemy's
+        // respawn. The extended-hitbox path has no such gate.
+        if (!usesFrameHitboxes && place.FrozenTimer != 0 &&
+            !place.AwaitsRespawn)
+        {
+            return false;
+        }
+
+        touch.ReactToTouch(new EnemyTouchContext(
+            place,
+            samus,
+            pseudoScrew,
+            controllerInput,
+            level,
+            usesFrameHitboxes,
+            hitboxTouch,
+            camera));
+        return true;
     }
 
     /// <summary>

@@ -14,7 +14,7 @@ internal static class AlcoonFireballAnimations
     internal static AnimationSegments<AlcoonFireballSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(
         new Dictionary<AlcoonFireballSegment, AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>[]>
     {
-        [P.Initial] =
+        [P.Spinning] =
         [
             Show(EnemyProjectileFrameId.AlcoonFireballTurned0, 3),
             Show(EnemyProjectileFrameId.AlcoonFireballTurned90, 3),
@@ -26,7 +26,7 @@ internal static class AlcoonFireballAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<AlcoonFireballSegment, Animation<AlcoonFireballSegment>> StartingAt { get; } = new Dictionary<AlcoonFireballSegment, Animation<AlcoonFireballSegment>>
     {
-        [P.Initial] = new([Whole(P.Initial)], AnimationEnd.LoopsFrom(0)),
+        [P.Spinning] = new([Whole(P.Spinning)], AnimationEnd.LoopsFrom(0)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

@@ -170,16 +170,16 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Carries out one cue of the Norfair Rio's animations: the swoop-start handshake or a flame placement.</summary>
     private static void ApplyNorfairRioCue(NorfairRioEnemyState state, NorfairRioCue cue)
     {
-        switch (cue.Kind)
+        switch (cue)
         {
-            case NorfairRioCueKind.SwoopStartFinished:
+            case NorfairRioCue.SwoopStartFinished:
                 state.AnimationSignal = true;
                 break;
-            case NorfairRioCueKind.PlaceFlames:
-                state.FollowerYOffset = cue.FlamesBelow;
+            case NorfairRioCue.PlaceFlames placeFlames:
+                state.FollowerYOffset = placeFlames.Below;
                 break;
             default:
-                throw new InvalidOperationException($"Undefined {nameof(NorfairRioCueKind)} {cue.Kind}.");
+                throw new InvalidOperationException($"Undefined {nameof(NorfairRioCue)} {cue}.");
         }
     }
 

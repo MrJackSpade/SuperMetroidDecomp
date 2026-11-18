@@ -143,9 +143,7 @@ internal sealed class GateObjects
     /// <summary>Tests Samus's block position against the resident gate's five-cell vertical column.</summary>
     internal bool IsSamusInsideDownwardGateColumn(RoomObjectPlace place)
     {
-        IRoomSamus? samus = _samus.Current;
-        if (samus is null)
-            return false;
+        IRoomSamus samus = _samus.Current;
         int rowsBelowGateTop = RoomGridConversions.PixelToBlock(samus.Position.Y.Whole) - place.Block.Y;
         return RoomGridConversions.PixelToBlock(samus.Position.X.Whole) == place.Block.X &&
             rowsBelowGateTop >= 0 && rowsBelowGateTop < DownwardGateDefinitions.GateHeightInBlocks;

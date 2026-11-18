@@ -7,5 +7,5 @@ namespace SuperMetroid.Core.Enemies.Polyp;
 internal enum PolypRockSegment
 {
     /// <summary>The lava rock it hurls, held.</summary>
-    Initial,
+    LavaRock,
 }

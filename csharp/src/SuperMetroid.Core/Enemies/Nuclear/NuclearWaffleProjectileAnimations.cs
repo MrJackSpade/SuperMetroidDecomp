@@ -14,7 +14,7 @@ internal static class NuclearWaffleProjectileAnimations
     internal static AnimationSegments<NuclearWaffleProjectileSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(
         new Dictionary<NuclearWaffleProjectileSegment, AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>[]>
     {
-        [P.Initial] =
+        [P.Churning] =
         [
             Show(EnemyProjectileFrameId.NuclearWaffleFireballSwirl, 3),
             Show(EnemyProjectileFrameId.NuclearWaffleFireballBlazing, 3),
@@ -34,7 +34,7 @@ internal static class NuclearWaffleProjectileAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<NuclearWaffleProjectileSegment, Animation<NuclearWaffleProjectileSegment>> StartingAt { get; } = new Dictionary<NuclearWaffleProjectileSegment, Animation<NuclearWaffleProjectileSegment>>
     {
-        [P.Initial] = new([new(P.Initial, 0, 12, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.Churning] = new([Segments.Whole(P.Churning)], AnimationEnd.LoopsFrom(0)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

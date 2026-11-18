@@ -7,5 +7,5 @@ namespace SuperMetroid.Core.Enemies.Nuclear;
 internal enum NuclearWaffleProjectileSegment
 {
     /// <summary>A fireball churning through swirling, blazing and mottled flames, repeating.</summary>
-    Initial,
+    Churning,
 }

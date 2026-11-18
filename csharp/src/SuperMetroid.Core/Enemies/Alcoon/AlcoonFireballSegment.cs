@@ -7,5 +7,5 @@ namespace SuperMetroid.Core.Enemies.Alcoon;
 internal enum AlcoonFireballSegment
 {
     /// <summary>The fireball spinning a quarter turn at a time, repeating.</summary>
-    Initial,
+    Spinning,
 }

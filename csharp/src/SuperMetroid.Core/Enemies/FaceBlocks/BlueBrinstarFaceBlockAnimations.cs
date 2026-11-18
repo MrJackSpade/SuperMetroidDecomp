@@ -26,7 +26,7 @@ internal static class BlueBrinstarFaceBlockAnimations
             Show(EnemyFrameId.BlueBrinstarFaceBlockGlancingRight, 16),
             Show(EnemyFrameId.BlueBrinstarFaceBlockLookingRight, 16),
         ],
-        [P.Initial] = [Hold(EnemyFrameId.FaceBlockNeutral)],
+        [P.LookingAhead] = [Hold(EnemyFrameId.FaceBlockNeutral)],
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
@@ -34,7 +34,7 @@ internal static class BlueBrinstarFaceBlockAnimations
     {
         [P.SamusLeft] = new([Whole(P.SamusLeft)], AnimationEnd.Holds),
         [P.SamusRight] = new([Whole(P.SamusRight)], AnimationEnd.Holds),
-        [P.Initial] = new([Whole(P.Initial)], AnimationEnd.Holds),
+        [P.LookingAhead] = new([Whole(P.LookingAhead)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

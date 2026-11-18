@@ -35,7 +35,7 @@ public sealed class CeresBaby
 
     /// <summary>The Baby's playing cutscene animation, standing after its current pose; owned separately from Ridley's body.</summary>
     internal AnimationPlayback<CeresBabySegment> Playback { get; set; } =
-        new(CeresBabyAnimations.StartingWith(CeresBabySegment.Initial), AnimationPlace.StartOfAnimation);
+        new(CeresBabyAnimations.StartingWith(CeresBabySegment.IdleSquish), AnimationPlace.StartOfAnimation);
 
     /// <summary>
     /// The Baby's animation clock: how long the pose it shows holds before its animation takes its next step. Each draw

@@ -14,9 +14,6 @@ internal static class OldTourianEscapeShaftWallExplosionAnimationDefinitions
     /// <summary>The wall-middle Y the explosions are placed at.</summary>
     internal const int YPosition = 2184;
 
-    /// <summary>How many times the burst plays: once.</summary>
-    internal const int BurstCount = 1;
-
     /// <summary>
     /// The random scatter, zero to seven pixels across and zero to fifteen down, each centred on zero.
     /// </summary>

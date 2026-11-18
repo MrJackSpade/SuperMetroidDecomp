@@ -17,7 +17,7 @@ internal static class BlueBrinstarFaceBlockNativeListAddresses
     [
         new NativeProgramEntry<BlueBrinstarFaceBlockSegment>(BlueBrinstarFaceBlockSegment.SamusLeft, 0xe80c),
         new NativeProgramEntry<BlueBrinstarFaceBlockSegment>(BlueBrinstarFaceBlockSegment.SamusRight, 0xe81a),
-        new NativeProgramEntry<BlueBrinstarFaceBlockSegment>(BlueBrinstarFaceBlockSegment.Initial, 0xe828),
+        new NativeProgramEntry<BlueBrinstarFaceBlockSegment>(BlueBrinstarFaceBlockSegment.LookingAhead, 0xe828),
     ];
 
 }

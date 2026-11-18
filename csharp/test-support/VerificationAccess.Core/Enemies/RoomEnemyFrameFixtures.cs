@@ -1,4 +1,7 @@
 using System.Runtime.CompilerServices;
+using SuperMetroid.Core.Enemies.Gunship;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Colours;
@@ -19,11 +22,29 @@ internal static class RoomEnemyFrameFixtures
 
     /// <summary>
     /// A frame over <paramref name="level"/> with the camera at the room's origin, time running and a new Samus
-    /// (<see cref="StandaloneSamus"/>): both of the game's clocks at <paramref name="frameCounter"/>, idle new Samus
-    /// projectile and bomb systems and Samus's starting colours. A check sets what it needs with a <c>with</c> expression.
+    /// (<see cref="StandaloneSamus"/>): nothing held or newly pressed, both of the game's clocks at
+    /// <paramref name="frameCounter"/>, idle new Samus projectile and bomb systems, Samus's starting colours, no turning
+    /// floor and no camera checkpoint of Samus's previous position. A check sets what it needs with a <c>with</c> expression.
     /// </summary>
     internal static RoomEnemyFrame Standalone(RoomLevelData level, int frameCounter) =>
         Standalone(level, frameCounter, new StandaloneInputs());
+
+    /// <summary>
+    /// A load of <paramref name="population"/> into the room <paramref name="appearance"/> shows over, outside the running
+    /// game (#2379): over <paramref name="level"/> beside <paramref name="samus"/>, nothing held, the camera at the room's
+    /// origin, the ordinary gunship and the camera read as the load runs. A check sets what else it needs with a
+    /// <c>with</c> expression.
+    /// </summary>
+    internal static RoomEnemyLoadRequest StandaloneLoad(RoomEnemyPopulationDefinition population, RoomAppearance appearance, RoomLevelData level, SamusState samus) =>
+        new(population, appearance)
+        {
+            Level = Ensure.NotNull(level),
+            Samus = Ensure.NotNull(samus),
+            ControllerInput = GameplayAction.None,
+            Camera = Position16<RoomPixels>.Zero,
+            GunshipScenario = GunshipLoadScenario.Ordinary,
+            DeferLoaderTimeCameraReads = false,
+        };
 
     /// <summary>
     /// A room of <paramref name="size"/> blocks with no terrain in it, for a check whose enemies touch no terrain; the grid
@@ -62,6 +83,10 @@ internal static class RoomEnemyFrameFixtures
         Camera = Position16<RoomPixels>.Zero,
         TimeIsFrozen = false,
         Samus = inputs.Samus,
+        NewlyPressedControllerInput = GameplayAction.None,
+        ControllerInput = GameplayAction.None,
+        TurningFloor = null,
+        SamusPreviousPositionCheckpoint = null,
         Level = Ensure.NotNull(level),
         SamusProjectiles = inputs.Projectiles,
         SamusColours = inputs.Colours,

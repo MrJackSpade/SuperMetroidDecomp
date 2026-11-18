@@ -30,7 +30,7 @@ internal static class EtecoonInstructionProgramDefinitionsVerification
         foreach (EtecoonSegment program in Enum.GetValues<EtecoonSegment>())
         {
             (RoomEnemySystem enemies, RoomEnemyPlace place, EtecoonEnemyState state) = NewEtecoon();
-            AssertEqual(new AnimationPlayback<EtecoonSegment>(EtecoonAnimations.StartingWith(EtecoonSegment.Initial), AnimationPlace.StartOfAnimation), state.Playback, "real Etecoon initializer");
+            AssertEqual(new AnimationPlayback<EtecoonSegment>(EtecoonAnimations.StartingWith(EtecoonSegment.StartingCrouch), AnimationPlace.StartOfAnimation), state.Playback, "real Etecoon initializer");
             // The self-looping animations: one phase of their own segment, played again and again. A still picture holds
             // (#2353): it has no loop to follow.
             if (!EtecoonAnimations.StartingAt.TryGetValue(program, out Animation<EtecoonSegment>? animation) ||

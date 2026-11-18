@@ -49,6 +49,16 @@ internal sealed class NativeEnemyProjectileAnimationFamily<TSegment, TFrame, TEv
         return true;
     }
 
+    /// <summary>
+    /// The native entry of the list <paramref name="playback"/>'s phase plays: its segment's, or, for a segment the cartridge
+    /// repeats under entries continuing elsewhere (#2376), the repeat the animation reaches the phase through.
+    /// </summary>
+    internal ushort ListEntryOf(IImportCartridgeSource cartridge, AnimationPlayback<TSegment> playback)
+    {
+        (Dictionary<TSegment, NativeEnemyList<TSegment>> lists, IReadOnlyList<NativeCountedStart<TSegment>> counted) = Walk(cartridge);
+        return NativeEnemyAnimationOracle.ListPlayedBy(lists, startingAt, playback.Animation, playback.Place.Phase, counted).Entry;
+    }
+
     /// <summary>Every segment's native list and every counted entry as its native list reads, walked once per cartridge.</summary>
     private (Dictionary<TSegment, NativeEnemyList<TSegment>> Lists, IReadOnlyList<NativeCountedStart<TSegment>> Counted) Walk(IImportCartridgeSource cartridge)
     {

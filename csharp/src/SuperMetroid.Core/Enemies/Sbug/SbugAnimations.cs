@@ -75,14 +75,14 @@ internal static class SbugAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<SbugSegment, Animation<SbugSegment>> StartingAt { get; } = new Dictionary<SbugSegment, Animation<SbugSegment>>
     {
-        [P.Right] = new([new(P.Right, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.UpRight] = new([new(P.UpRight, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.Up] = new([new(P.Up, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.UpLeft] = new([new(P.UpLeft, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.Left] = new([new(P.Left, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.DownLeft] = new([new(P.DownLeft, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.Down] = new([new(P.Down, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.DownRight] = new([new(P.DownRight, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.Right] = new([Segments.Whole(P.Right)], AnimationEnd.LoopsFrom(0)),
+        [P.UpRight] = new([Segments.Whole(P.UpRight)], AnimationEnd.LoopsFrom(0)),
+        [P.Up] = new([Segments.Whole(P.Up)], AnimationEnd.LoopsFrom(0)),
+        [P.UpLeft] = new([Segments.Whole(P.UpLeft)], AnimationEnd.LoopsFrom(0)),
+        [P.Left] = new([Segments.Whole(P.Left)], AnimationEnd.LoopsFrom(0)),
+        [P.DownLeft] = new([Segments.Whole(P.DownLeft)], AnimationEnd.LoopsFrom(0)),
+        [P.Down] = new([Segments.Whole(P.Down)], AnimationEnd.LoopsFrom(0)),
+        [P.DownRight] = new([Segments.Whole(P.DownRight)], AnimationEnd.LoopsFrom(0)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

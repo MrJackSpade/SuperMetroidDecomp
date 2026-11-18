@@ -27,7 +27,7 @@ internal static class WorkRobotAnimations
         [
             Hold(EnemyFrameId.WorkRobotUnpoweredTiltedRight),
         ],
-        [P.Initial] =
+        [P.StandingFacingLeft] =
         [
             Show(EnemyFrameId.WorkRobotWalkingLeftNearFootEasingUp, 32),
         ],
@@ -433,7 +433,7 @@ internal static class WorkRobotAnimations
         [P.NoPowerNeutral] = new([Whole(P.NoPowerNeutral)], AnimationEnd.Holds),
         [P.NoPowerLeaningLeft] = new([Whole(P.NoPowerLeaningLeft)], AnimationEnd.Holds),
         [P.NoPowerLeaningRight] = new([Whole(P.NoPowerLeaningRight)], AnimationEnd.Holds),
-        [P.Initial] = new([Whole(P.Initial), .. Walk(P.FacingLeftWalkingForwards, P.FacingLeftWalkingStride)], AnimationEnd.LoopsFrom(2)),
+        [P.StandingFacingLeft] = new([Whole(P.StandingFacingLeft), .. Walk(P.FacingLeftWalkingForwards, P.FacingLeftWalkingStride)], AnimationEnd.LoopsFrom(2)),
         [P.FacingLeftWalkingForwards] = new(Walk(P.FacingLeftWalkingForwards, P.FacingLeftWalkingStride), AnimationEnd.LoopsFrom(1)),
         [P.FacingLeftHitWallMovingForwards] = new([Whole(P.FacingLeftHitWallMovingForwards), .. Walk(P.FacingRightWalkingForwards, P.FacingRightWalkingStride)], AnimationEnd.LoopsFrom(2)),
         [P.FacingLeftShotSamusAhead] = new([Whole(P.FacingLeftShotSamusAhead), .. Walk(P.FacingRightWalkingForwards, P.FacingRightWalkingStride)], AnimationEnd.LoopsFrom(2)),

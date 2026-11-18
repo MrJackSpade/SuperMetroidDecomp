@@ -92,7 +92,7 @@ internal sealed class CrocomireFight
         state.DeathPhase = CrocomireDeathPhase.Fighting;
         // On the living branch only.
         _cameraDistance.Request(CameraDistanceMode.BossTracking);
-        CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, CrocomireBodySegment.Initial);
+        CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, CrocomireBodySegment.IdleSway);
         place.CollidesByFrameHitboxes = true;
         foreach (Position16<RoomScreens> screen in CrocomireCameraDefinitions.BehindWallScreens)
             _room.Services.RoomScroll.Write(screen, RoomScrollState.Closed);

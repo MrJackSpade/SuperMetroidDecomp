@@ -184,7 +184,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
             words,
             behaviors);
         var roomObjects = RoomObjectFixtures.Unbound();
-        RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), area), RoomObjectPopulationImporter.Read(bus, emptyPopulation), RoomObjectServiceFixtures.Uninstalled with { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
+        RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), area), RoomObjectPopulationImporter.Read(bus, emptyPopulation), RoomObjectServiceFixtures.Uninstalled with { Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
         return new CreateSpeedBoosterBlockFixtureResult(bus, level, roomObjects, blockIndex);
     }
 

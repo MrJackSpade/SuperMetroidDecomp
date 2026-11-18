@@ -31,8 +31,7 @@ internal sealed class OldTourianWallObject(IRoomSamusAccess samus, IOldTourianWa
                 Phase = OldTourianWallPhase.Waiting;
                 return;
             case OldTourianWallPhase.Waiting:
-                IRoomSamus current = _samus.Current
-                    ?? throw new InvalidOperationException("Old Tourian escape-shaft wall has no live Samus owner.");
+                IRoomSamus current = _samus.Current;
                 if (!OldTourianEscapeShaftWallObjectDefinitions.WakePoint.IsPassedBy(current))
                     return;
                 _explosion.SpawnOldTourianEscapeShaftWallExplosion();

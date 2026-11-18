@@ -81,7 +81,7 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
     AssertEqual(false, baby.HurtFlashShown, "Baby cutscene shows its own palette, not the hit flash");
     // The Baby keeps no graphics: its sheet pictures its frames where its tile rows are transferred, and its parts carry
     // their own palette rows (#1422, #1513).
-    AssertEqual(MotherBrainBabySegment.Initial, baby.Playback.PlayingSegment, "Baby initial program");
+    AssertEqual(MotherBrainBabySegment.IdlePulse, baby.Playback.PlayingSegment, "Baby initial program");
     // Whole/subpixel coordinates in native `$0F7A/$0F7C/$0F7E/$0F80` order.
     FixedPosition<RoomPixels> BabyPoint() => baby.Position;
     static FixedPosition<RoomPixels> ExpectedBabyPoint(

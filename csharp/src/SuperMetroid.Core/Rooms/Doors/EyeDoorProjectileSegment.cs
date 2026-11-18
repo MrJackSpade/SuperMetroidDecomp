@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 internal enum EyeDoorProjectileSegment
 {
     /// <summary>The eye door's shot as it is fired.</summary>
-    Initial,
+    Fired,
     /// <summary>The eye door's shot exploding on impact.</summary>
     Impact,
     /// <summary>The eye door's shot when Samus shoots it.</summary>

@@ -166,14 +166,14 @@ internal static class WallSpacePirateAnimations
     internal static Animation<WallSpacePirateSegment> StartingWith(WallSpacePirateSegment segment) => StartingAt[segment];
 
     /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<WallSpacePirateSegment> Whole(WallSpacePirateSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
+    private static AnimationPhase<WallSpacePirateSegment> Whole(WallSpacePirateSegment segment) => Segments.Whole(segment);
 
     /// <summary>
     /// A climb (#2276): its entry cue <paramref name="entry"/>, the climb <paramref name="climb"/> four times, then the
     /// choice <paramref name="choice"/> of the next.
     /// </summary>
     private static AnimationPhase<WallSpacePirateSegment>[] Climb(WallSpacePirateSegment entry, WallSpacePirateSegment climb, WallSpacePirateSegment choice) =>
-        [Whole(entry), new(climb, 0, Segments.Beats(climb).Count, ClimbRepeats), Whole(choice)];
+        [Whole(entry), Segments.Repeated(climb, ClimbRepeats), Whole(choice)];
 
     /// <summary>The times a climb plays before the pirate chooses the next.</summary>
     private const int ClimbRepeats = 4;

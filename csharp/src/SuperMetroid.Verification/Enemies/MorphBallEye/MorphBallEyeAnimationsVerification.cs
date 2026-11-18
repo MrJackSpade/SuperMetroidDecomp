@@ -21,7 +21,8 @@ internal static class MorphBallEyeAnimationsVerification
             MorphBallEyeAnimations.Segments, MorphBallEyeAnimations.StartingAt, MorphBallEyeFrameToolingDefinitions.Spritemap,
             new NativeEnemyCueRules<NoAnimationCue>(
                 word => null,
-                (word, operands, cue, at) => throw new InvalidDataException($"{at}: the lists use no owner instructions.")));
+                (word, operands, cue, at) => throw new InvalidDataException($"{at}: the lists use no owner instructions."),
+                OwnerLeavesAt: OpenedAt.Contains));
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         // The eye restarted its aim list every update at the frame its sixteenth of the turn numbered, so each frame's
         // duration never ran out: the k-th frame is the pose the k-th arc shows, and the list loops on itself.

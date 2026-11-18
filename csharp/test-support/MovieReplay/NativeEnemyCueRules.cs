@@ -25,6 +25,12 @@ namespace SuperMetroid.TestSupport.MovieReplay;
 /// a frame repeating another record's picture shows that record's frame; null when the import's repeated records
 /// (<c>EnemyFrameCartridgeLocationDefinitions.AlsoStoredAt</c>) name every such word (#2272).
 /// </param>
+/// <param name="OwnerLeavesAt">
+/// Whether the owner always leaves the list before its play reaches this native address (#2376: the Morph Ball eye
+/// opens and its tracking takes over its picture on the update after its first half-open one), so the port ends its
+/// segment there, holding, and the list's following bytes, never shown, are not compared; null when the owner plays
+/// every list to its end.
+/// </param>
 internal sealed record NativeEnemyCueRules<TCue>(
     Func<ushort, int?> OperandWords,
     Action<ushort, ushort[], TCue, string> CompareCue,
@@ -32,5 +38,6 @@ internal sealed record NativeEnemyCueRules<TCue>(
     Func<ushort, bool>? Omitted = null,
     Func<ushort, ushort?>? GoesTo = null,
     Func<ushort, bool>? ShowsPoseAgain = null,
-    Func<ushort, ushort>? PicturedAt = null)
+    Func<ushort, ushort>? PicturedAt = null,
+    Func<ushort, bool>? OwnerLeavesAt = null)
     where TCue : notnull;

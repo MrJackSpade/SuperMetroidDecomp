@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Powamp;
 internal enum PowampSpikeSegment
 {
     /// <summary>A spike flying out as a star, a cluster and a glow, repeating.</summary>
-    Initial,
+    Flying,
     /// <summary>The spike removed.</summary>
     Delete,
 }

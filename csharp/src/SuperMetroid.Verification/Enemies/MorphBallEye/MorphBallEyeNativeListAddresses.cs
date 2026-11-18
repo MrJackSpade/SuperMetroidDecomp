@@ -28,6 +28,13 @@ internal static class MorphBallEyeNativeListAddresses
     ];
 
     /// <summary>
+    /// Where each opening list's play is left for good (#2376): the eye opens on the update its first half-open frame shows
+    /// and its tracking replaces the picture on the next, so the beats from here, the look across and the second half-open
+    /// frame, never show.
+    /// </summary>
+    internal static readonly IReadOnlySet<ushort> OpenedAt = new HashSet<ushort> { 0x901c, 0x902e };
+
+    /// <summary>
     /// The list the cartridge aimed the open eye with (#2070): sixteen ten-update frames in turn order, which the eye
     /// restarted every update at the frame its angle's sixteenth of the turn numbered, followed by a goto back to the list.
     /// </summary>

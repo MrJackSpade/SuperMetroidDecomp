@@ -31,8 +31,7 @@ internal sealed class EscapeAcidRiseObject(IRoomSamusAccess samus, IRoomFxMotion
             return;
         }
 
-        IRoomSamus current = _samus.Current
-            ?? throw new InvalidOperationException("Escape acid trigger has no live Samus owner.");
+        IRoomSamus current = _samus.Current;
         if (!EscapeAcidRiseObjectDefinitions.TriggerPoint.IsPassedBy(current))
             return;
         _roomFx.MoveLiquidAfter(

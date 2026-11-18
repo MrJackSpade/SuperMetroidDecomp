@@ -211,7 +211,7 @@ internal static class CrocomireAnimationsVerification
     {
         (RoomEnemySystem enemies, CrocomireEnemyState state) = NewCrocomire();
         state.Phase = CrocomirePhase.Dormant;
-        Start(state, CrocomireBodySegment.Initial);
+        Start(state, CrocomireBodySegment.IdleSway);
         Pass(enemies, state);
         AssertEqual(CrocomireBodyFramesTooling.Spritemap(EnemyFrameId.CrocomireBodyArmUprightMouthOpen), state.Body.SpritemapPointer,
             "the sleeping body shows its initial frame");

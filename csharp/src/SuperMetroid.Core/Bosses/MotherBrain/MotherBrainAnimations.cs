@@ -258,7 +258,7 @@ internal static class MotherBrainAnimations
             Show(EnemyFrameId.MotherBrainDarkHeadJawDropping, 5),
         ],
         [H.HyperBeamRecoilHeld] = [Held(EnemyFrameId.MotherBrainDarkHeadEyeGlaring)],
-        [H.Initial] = [Held(EnemyFrameId.MotherBrainHeadEyeShut)],
+        [H.WholeHeadMouthClosed] = [Held(EnemyFrameId.MotherBrainHeadEyeShut)],
         [H.Decapitated] = [Show(EnemyFrameId.MotherBrainDarkHeadEyeGlaring, 9), Show(EnemyFrameId.MotherBrainDarkHeadEyeOpen, 5)],
         [H.DecapitatedHeld] = [Held(EnemyFrameId.MotherBrainDarkHeadEyeShut)],
         [H.DyingDrool] =
@@ -409,7 +409,7 @@ internal static class MotherBrainAnimations
         [H.StretchingPhase2] = Resting(H.StretchingPhase2, H.StretchingPhase2Held),
         [H.StretchingPhase3] = Resting(H.StretchingPhase3, H.StretchingPhase3Held),
         [H.HyperBeamRecoil] = Resting(H.HyperBeamRecoil, H.HyperBeamRecoilHeld),
-        [H.Initial] = Resting(H.Initial),
+        [H.WholeHeadMouthClosed] = Resting(H.WholeHeadMouthClosed),
         [H.Decapitated] = Resting(H.Decapitated, H.DecapitatedHeld),
         [H.DyingDrool] = Looping(2, H.DyingDrool, H.DyingDroolBurst, H.DyingDroolLoop),
         [H.DyingDroolBurst] = Looping(1, H.DyingDroolBurst, H.DyingDroolLoop),

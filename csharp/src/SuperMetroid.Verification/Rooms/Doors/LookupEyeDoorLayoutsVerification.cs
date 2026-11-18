@@ -100,7 +100,7 @@ internal static class LookupEyeDoorLayoutsVerification
                 var roomObjects = RoomObjectFixtures.Unbound();
                 var bus = new TestAddressSpace();
                 SeedSoleElevatorPlatformObject(bus, 0x9400, new(3, 4), 0xafb6);
-                RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Crateria), SuperMetroid.TestSupport.VerificationImporters.RoomObjectPopulationImporter.Read(bus,0x9400), RoomObjectServiceFixtures.Uninstalled with { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
+                RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Crateria), SuperMetroid.TestSupport.VerificationImporters.RoomObjectPopulationImporter.Read(bus,0x9400), RoomObjectServiceFixtures.Uninstalled with { Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
                 roomObjects.DrawSoleObjectFrameForVerification(level, NativeObjectDraws.At<EyeDoorDraws.Draw>(pointer));
                 for (int cell = 0; cell < count; cell++)
                     AssertEqual(RoomLevelWordCodec.Decode(ReadSamusEaterObjectWord(rom,0x840000 | (pointer + 2 + cell * 2))),

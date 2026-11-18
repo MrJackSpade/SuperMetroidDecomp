@@ -88,7 +88,7 @@ internal static class NativeEnemyProjectileProgramOracle
                 throw new InvalidDataException($"{counted.Name}'s native entry ${counted.Address:X4} does not only load the counter and continue into a segment's list.");
             TSegment into = ProgramAt(entries, target)
                 ?? throw new InvalidDataException($"{counted.Name}'s native entry ${counted.Address:X4} continues at ${target:X4}, no segment's list.");
-            return new NativeCountedStart<TSegment>(counted, count, into);
+            return new NativeCountedStart<TSegment>(counted, count, into, target);
         }
     }
 
@@ -115,7 +115,9 @@ internal static class NativeEnemyProjectileProgramOracle
         NativeEnemyAnimationOracle.RequireAuthoredOrder(entries);
         VerificationAssertions.AssertTrue(entries.Zip(entries.Skip(1), (first, second) => first.Entry < second.Entry).All(ascends => ascends), $"native {typeof(TSegment).Name} entries ascend");
         // A segment the cartridge repeats under more than one entry (#1842, #2276: the n00b tube's deletion) is its first
-        // list; every repeat is read against the same beats and must continue as that list does.
+        // list; every repeat is read against the same beats. A repeat continuing as that list does is read as it; one
+        // continuing elsewhere (#2376: a n00b tube shard's flicker, for its flight and again for its fall) is kept as a
+        // repeat of its own, which the continuations naming its entry reach.
         var lists = new Dictionary<TSegment, NativeEnemyList<TSegment>>();
         foreach (NativeProgramEntry<TSegment> item in entries)
         {
@@ -125,8 +127,8 @@ internal static class NativeEnemyProjectileProgramOracle
                 lists.Add(item.Program, list);
                 continue;
             }
-            VerificationAssertions.AssertTrue(list.Controls.Select(Shape).SequenceEqual(first.Controls.Select(Shape)),
-                $"{item.Program}'s repeated native list at ${item.Entry:X4} continues as its first list does");
+            if (!list.Controls.Select(Shape).SequenceEqual(first.Controls.Select(Shape)))
+                lists[item.Program] = first with { Repeats = [.. first.Repeats, list] };
         }
         return lists;
 
@@ -316,7 +318,8 @@ internal static class NativeEnemyProjectileProgramOracle
         VerificationAssertions.AssertEqual(beats.Count, read.BeatAddresses.Length, $"{segment}: its native list holds each of its beats");
         return new NativeEnemyList<TSegment>(read.BeatAddresses,
             [.. read.Controls.Select(control => new NativeEnemyControl<TSegment>(control.Kind, control.AfterBeat,
-                control.Target is { } target ? ProgramAt(entries, target) : null, control.Count, control.Address, control.TargetBeat))]);
+                control.Target is { } target ? ProgramAt(entries, target) : null, control.Count, control.Address, control.TargetBeat, control.Target))],
+            entry);
     }
 
     /// <summary>

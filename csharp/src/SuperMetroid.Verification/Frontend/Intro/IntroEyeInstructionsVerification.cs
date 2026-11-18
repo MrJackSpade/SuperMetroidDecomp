@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Frontend.Intro;
@@ -30,7 +31,7 @@ internal static class IntroEyeInstructionsVerification
         var native = new NativeEyeReader(rom, IntroEyeAnimationDefinitionsConstants.StartPointer);
         Compare(objects, native, BlinkingUpdates, "blinking");
 
-        objects.StartEnglishPageSix();
+        objects.StartPage(IntroNarrationPageId.CeresUnderAttack);
         native = new NativeEyeReader(rom, IntroEyeAnimationDefinitionsConstants.FinalPagePointer);
         Compare(objects, native, FinalPageUpdates, "final page");
     }

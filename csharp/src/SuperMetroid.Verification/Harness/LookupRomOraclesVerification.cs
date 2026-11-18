@@ -17,8 +17,8 @@ internal static class LookupRomOraclesVerification
         var narration = IntroNarrationFile.Read(new MemoryStream(narrationJson, writable: false));
         IntroNarrationPageId[] storyOrder =
         [
-            IntroNarrationPageId.Page1, IntroNarrationPageId.Page2, IntroNarrationPageId.Page3,
-            IntroNarrationPageId.Page4, IntroNarrationPageId.Page5, IntroNarrationPageId.Page6,
+            IntroNarrationPageId.ZebesBattle, IntroNarrationPageId.HatchedLarva, IntroNarrationPageId.DeliveryToCeres,
+            IntroNarrationPageId.ScientistsFindings, IntroNarrationPageId.DistressSignal, IntroNarrationPageId.CeresUnderAttack,
         ];
         for (int page = 0; page < narrationSources.Length; page++)
         {

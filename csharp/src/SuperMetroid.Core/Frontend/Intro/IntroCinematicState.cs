@@ -146,6 +146,11 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// </summary>
     private IntroCrossfade crossfade = new();
     /// <summary>
+    /// The illustration the screen shows (#2489): from the crossfade into it until the next page's crossfade out of it ends;
+    /// null while only the narration shows.
+    /// </summary>
+    private IntroIllustration? illustration;
+    /// <summary>
     /// The opening's colour effects (#1733): the old Mother Brain fight's background lights, from the end of the crossfade
     /// into the fight until page two's crossfade recolours the room.
     /// </summary>
@@ -265,6 +270,13 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>Gets the current opening-cinematic state-machine phase.</summary>
     public IntroCinematicPhase Phase { get; private set; }
 
+    /// <summary>
+    /// The narration page the intro has reached (#2489): the page <see cref="IntroCinematicPhase.PageText"/>,
+    /// <see cref="IntroCinematicPhase.PageAwaitingInput"/> and <see cref="IntroCinematicPhase.PageCrossfade"/> show, and
+    /// the one the illustration it turned to has followed.
+    /// </summary>
+    public IntroNarrationPageId Page { get; private set; } = IntroNarrationPageDefinitions.FirstPage;
+
     /// <summary>True when the SPACE COLONY caption and its final fade have completed.</summary>
     public bool CeresFlightFinished => CurrentCeresFlight?.Finished ?? false;
 
@@ -348,37 +360,37 @@ public sealed class IntroCinematicState : IFrontendScreen
                 break;
 
             case IntroCinematicPhase.FadeOutFirstNarration:
-                // The fade-out installs page one's setup, which runs in the next update.
+                // The fade-out installs the first page's setup, which runs in the next update.
                 if (fade.Darken())
-                    Phase = IntroCinematicPhase.SetupPageOne;
+                    Phase = IntroCinematicPhase.SetupFirstPage;
                 break;
 
-            case IntroCinematicPhase.SetupPageOne:
+            case IntroCinematicPhase.SetupFirstPage:
                 SetupFirstIllustratedPage();
                 break;
 
-            case IntroCinematicPhase.WaitForPageOneMusicQueue:
+            case IntroCinematicPhase.WaitForFirstPageMusicQueue:
                 // The scene song scheduled fourteen updates ahead is the longest request issued by
-                // page one's setup, so HasQueuedMusic becomes clear after fourteen updates.
+                // the first page's setup, so HasQueuedMusic becomes clear after fourteen updates.
                 if (MusicQueueFinished())
                 {
-                    Narration.StartEnglishPageOne();
-                    Phase = IntroCinematicPhase.FadeInPageOne;
+                    Narration.StartPage(Page);
+                    Phase = IntroCinematicPhase.FadeInFirstPage;
                     fade.StepEvery(IntroCinematicDefinitions.Fade.NarrationUpdatesPerStep);
                 }
                 break;
 
-            case IntroCinematicPhase.FadeInPageOne:
+            case IntroCinematicPhase.FadeInFirstPage:
                 if (fade.Brighten())
-                    Phase = IntroCinematicPhase.PageOneText;
+                    Phase = IntroCinematicPhase.PageText;
                 break;
 
-            case IntroCinematicPhase.PageOneText:
+            case IntroCinematicPhase.PageText:
                 break;
 
-            case IntroCinematicPhase.PageOneAwaitingInput:
+            case IntroCinematicPhase.PageAwaitingInput:
                 if (!subtitles.HoldInputWait() && controller.NewlyPressed != ControllerButton.None)
-                    SetupMotherBrainFlashback();
+                    TurnPage();
                 break;
 
             case IntroCinematicPhase.MotherBrainCrossfade:
@@ -386,20 +398,23 @@ public sealed class IntroCinematicState : IFrontendScreen
                 break;
 
             case IntroCinematicPhase.MotherBrainFlashback:
-                if (CurrentFlashbackMotherBrain?.PageTwoRequested == true)
-                    SetupPageTwoCrossfade();
+                if (CurrentFlashbackMotherBrain?.NextPageRequested == true)
+                {
+                    // The crossfade recolours every colour from the opening's own, so the fight lights' last record no
+                    // longer shows.
+                    ColourEffects = new ColourEffectSystem(new ColourEffectSessionState());
+                    StartPageCrossfade(IntroCrossfadeScene.Flashback);
+                }
                 break;
 
-            case IntroCinematicPhase.PageTwoCrossfade:
-                StepPageTwoCrossfade();
-                break;
-
-            case IntroCinematicPhase.PageTwoText:
-                break;
-
-            case IntroCinematicPhase.PageTwoAwaitingInput:
-                if (!subtitles.HoldInputWait() && controller.NewlyPressed != ControllerButton.None)
-                    SetupBabyDiscoveryCrossfade();
+            case IntroCinematicPhase.PageCrossfade:
+                // The reverse crossfade undoes the one into the illustration exactly: the narration and the portrait fade in
+                // while the illustration, its projectiles and its sprites fade out, which keep running beneath it.
+                if (AdvanceCrossfade())
+                {
+                    illustration = null;
+                    Phase = IntroCinematicPhase.PageText;
+                }
                 break;
 
             case IntroCinematicPhase.BabyDiscoveryCrossfade:
@@ -407,69 +422,26 @@ public sealed class IntroCinematicState : IFrontendScreen
                 break;
 
             case IntroCinematicPhase.BabyDiscovery:
-                if (CurrentBabyDiscovery?.PageThreeRequested == true)
-                    SetupPageThreeCrossfade();
-                break;
-
-            case IntroCinematicPhase.PageThreeCrossfade:
-                StepPageThreeCrossfade();
-                break;
-
-            case IntroCinematicPhase.PageThreeText:
-                break;
-
-            case IntroCinematicPhase.PageThreeAwaitingInput:
-                if (!subtitles.HoldInputWait() && controller.NewlyPressed != ControllerButton.None)
-                    SetupBabyMetroidDelivery();
+                if (CurrentBabyDiscovery?.NextPageRequested == true)
+                    StartPageCrossfade(IntroCrossfadeScene.Flashback);
                 break;
 
             case IntroCinematicPhase.BabyMetroidDeliveryCrossfade:
-                StepBabyMetroidDeliveryCrossfade();
+                StepTextToScientistCrossfade(IntroCinematicPhase.BabyMetroidDelivery);
                 break;
 
             case IntroCinematicPhase.BabyMetroidDelivery:
-                if (CurrentScientistCutscene?.PageFourRequested == true)
-                    SetupPageFourCrossfade();
-                break;
-
-            case IntroCinematicPhase.PageFourCrossfade:
-                StepPageFourCrossfade();
-                break;
-
-            case IntroCinematicPhase.PageFourText:
-                break;
-
-            case IntroCinematicPhase.PageFourAwaitingInput:
-                if (!subtitles.HoldInputWait() && controller.NewlyPressed != ControllerButton.None)
-                    SetupBabyMetroidExamination();
+            case IntroCinematicPhase.BabyMetroidExamination:
+                if (CurrentScientistCutscene?.NextPageRequested == true)
+                    StartPageCrossfade(IntroCrossfadeScene.Laboratory);
                 break;
 
             case IntroCinematicPhase.BabyMetroidExaminationCrossfade:
-                StepBabyMetroidExaminationCrossfade();
+                StepTextToScientistCrossfade(IntroCinematicPhase.BabyMetroidExamination);
                 break;
 
-            case IntroCinematicPhase.BabyMetroidExamination:
-                if (CurrentScientistCutscene?.PageFiveRequested == true)
-                    SetupPageFiveCrossfade();
-                break;
-
-            case IntroCinematicPhase.PageFiveCrossfade:
-                StepPageFiveCrossfade();
-                break;
-
-            case IntroCinematicPhase.PageFiveText:
-                break;
-
-            case IntroCinematicPhase.PageFiveAwaitingInput:
-                if (!subtitles.HoldInputWait() && controller.NewlyPressed != ControllerButton.None)
-                    SetupPageSix();
-                break;
-
-            case IntroCinematicPhase.StartPageSix:
-                StartPageSix();
-                break;
-
-            case IntroCinematicPhase.PageSixText:
+            case IntroCinematicPhase.StartFinalPage:
+                StartFinalPage();
                 break;
 
             case IntroCinematicPhase.IntroFadeOut:
@@ -498,23 +470,13 @@ public sealed class IntroCinematicState : IFrontendScreen
         if (CurrentNarration is not null)
         {
             CurrentNarration.Step(controller.NewlyPressed);
-            // A page's text phase becomes its input wait once the narration's wait for that page starts.
-            IntroCinematicPhase? waiting = CurrentNarration.AwaitingInputPage switch
+            // The page's text phase becomes its input wait once the narration's wait for that page starts.
+            if (Phase == IntroCinematicPhase.PageText && CurrentNarration.AwaitingInputPage == Page)
+                Phase = IntroCinematicPhase.PageAwaitingInput;
+            if (CurrentNarration.IntroFinishRequested && Phase == IntroCinematicPhase.PageText)
             {
-                IntroNarrationPageId.Page1 when Phase == IntroCinematicPhase.PageOneText => IntroCinematicPhase.PageOneAwaitingInput,
-                IntroNarrationPageId.Page2 when Phase == IntroCinematicPhase.PageTwoText => IntroCinematicPhase.PageTwoAwaitingInput,
-                IntroNarrationPageId.Page3 when Phase == IntroCinematicPhase.PageThreeText => IntroCinematicPhase.PageThreeAwaitingInput,
-                IntroNarrationPageId.Page4 when Phase == IntroCinematicPhase.PageFourText => IntroCinematicPhase.PageFourAwaitingInput,
-                IntroNarrationPageId.Page5 when Phase == IntroCinematicPhase.PageFiveText => IntroCinematicPhase.PageFiveAwaitingInput,
-                null or IntroNarrationPageId.Page1 or IntroNarrationPageId.Page2 or IntroNarrationPageId.Page3 or IntroNarrationPageId.Page4
-                    or IntroNarrationPageId.Page5 or IntroNarrationPageId.Page6 => null,
-                _ => throw new InvalidOperationException($"Undefined narration page {CurrentNarration.AwaitingInputPage}."),
-            };
-            if (waiting is { } wait)
-                Phase = wait;
-            if (CurrentNarration.IntroFinishRequested && Phase == IntroCinematicPhase.PageSixText)
-            {
-                // Page six starts the final fade-out; the screen on this request frame is still full-brightness page six.
+                // The last page starts the final fade-out; the screen on this request frame is still the full-brightness
+                // last page.
                 fade.StepEvery(IntroCinematicDefinitions.Fade.FinishUpdatesPerStep);
                 Phase = IntroCinematicPhase.IntroFadeOut;
             }
@@ -582,7 +544,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         // The cinematic's game state runs the colour effects after its actors. The fight lights' own check ends
         // them on the update Mother Brain starts page two, before their countdown runs: the record they showed stays on the
         // room's colours until page two's crossfade recolours the room on the next update (#1733).
-        if (Phase != IntroCinematicPhase.MotherBrainFlashback || CurrentFlashbackMotherBrain?.PageTwoRequested != true)
+        if (Phase != IntroCinematicPhase.MotherBrainFlashback || CurrentFlashbackMotherBrain?.NextPageRequested != true)
             ColourEffects.StepScreen();
     }
 
@@ -632,6 +594,7 @@ public sealed class IntroCinematicState : IFrontendScreen
 
         // The scene setup starts the crossfade from the narration into the flashback, which starts black.
         crossfade = new IntroCrossfade(IntroCrossfadeScene.Narration, IntroCrossfadeScene.Flashback);
+        illustration = IntroIllustration.MotherBrainFlashback;
 
         Phase = IntroCinematicPhase.MotherBrainCrossfade;
     }
@@ -660,31 +623,47 @@ public sealed class IntroCinematicState : IFrontendScreen
             ColourEffects.StartScreen(IntroCinematicDefinitions.FightLights);
     }
 
-    /// <summary>Starts the second narration page while restoring its caret and fading back from gameplay colors.</summary>
-    private void SetupPageTwoCrossfade()
+    /// <summary>
+    /// Turns the page whose input wait accepted a press (#2489): it starts the illustration the page turns to, or the next
+    /// page at once when it turns to none.
+    /// </summary>
+    private void TurnPage()
     {
-        // Page two spawns its narration, selects the reverse gameplay-to-
-        // text colour step, and restores the already allocated caret.
-        Narration.StartEnglishPageTwo();
-        // The crossfade recolours every colour from the opening's own, so the fight lights' last record no longer shows.
-        ColourEffects = new ColourEffectSystem(new ColourEffectSessionState());
-        crossfade = new IntroCrossfade(IntroCrossfadeScene.Flashback, IntroCrossfadeScene.Narration);
-        Phase = IntroCinematicPhase.PageTwoCrossfade;
+        IntroIllustration? next = IntroNarrationPageDefinitions.Pages[Page].TurnsTo;
+        switch (next)
+        {
+            case IntroIllustration.MotherBrainFlashback:
+                SetupMotherBrainFlashback();
+                return;
+            case IntroIllustration.BabyDiscovery:
+                SetupBabyDiscoveryCrossfade();
+                return;
+            case IntroIllustration.BabyDelivery:
+                SetupBabyMetroidDelivery();
+                return;
+            case IntroIllustration.BabyExamination:
+                SetupBabyMetroidExamination();
+                return;
+            case null:
+                SetupFinalPage();
+                return;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(IntroIllustration)} {next}.");
+        }
     }
 
-    /// <summary>Completes the Mother Brain-to-page-two colour transition.</summary>
-    private void StepPageTwoCrossfade()
+    /// <summary>
+    /// Starts the page the shown illustration leads into (#2489): its narration spawns and restores the caret, and the
+    /// crossfade from <paramref name="from"/> back to the narration starts while the illustration's actors keep running
+    /// beneath it.
+    /// </summary>
+    private void StartPageCrossfade(IntroCrossfadeScene from)
     {
-        // The reverse crossfade undoes the earlier one exactly: the narration and the portrait fade in while the Mother
-        // Brain room, its projectiles and its sprites fade out.
-        StepReverseGameplayToTextCrossfade(IntroCinematicPhase.PageTwoText);
-    }
-
-    /// <summary>Fades the flashback room and its projectiles out while bringing the portrait and the narration back.</summary>
-    private void StepReverseGameplayToTextCrossfade(IntroCinematicPhase completedPhase)
-    {
-        if (AdvanceCrossfade())
-            Phase = completedPhase;
+        Page = IntroNarrationPageDefinitions.PageAfter[illustration
+            ?? throw new InvalidOperationException("A page crossfade started with no illustration showing.")];
+        Narration.StartPage(Page);
+        crossfade = new IntroCrossfade(from, IntroCrossfadeScene.Narration);
+        Phase = IntroCinematicPhase.PageCrossfade;
     }
 
     /// <summary>Replaces Mother Brain actors with SR388 egg and baby owners and selects the second gameplay room page.</summary>
@@ -712,6 +691,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         flashbackProjectiles.Reset();
 
         crossfade = new IntroCrossfade(IntroCrossfadeScene.Narration, IntroCrossfadeScene.Flashback);
+        illustration = IntroIllustration.BabyDiscovery;
         Phase = IntroCinematicPhase.BabyDiscoveryCrossfade;
     }
 
@@ -726,25 +706,6 @@ public sealed class IntroCinematicState : IFrontendScreen
         ClearVisibleNarrationText();
         StartFightLightsIfSamusDrawsFirst(BabyDiscovery.SamusDisplay);
         Phase = IntroCinematicPhase.BabyDiscovery;
-    }
-
-    /// <summary>Starts the third narration page while SR388 actors continue updating beneath its text fade.</summary>
-    private void SetupPageThreeCrossfade()
-    {
-        // The egg's page-three step selects page three. On the next cinematic-phase update page three
-        // spawns its narration and enters the same gameplay-to-text colour
-        // step used after Mother Brain. The SR388 actors continue running beneath it.
-        Narration.StartEnglishPageThree();
-        crossfade = new IntroCrossfade(IntroCrossfadeScene.Flashback, IntroCrossfadeScene.Narration);
-        Phase = IntroCinematicPhase.PageThreeCrossfade;
-    }
-
-    /// <summary>Runs the shared gameplay-to-text transition for the SR388 discovery scene.</summary>
-    private void StepPageThreeCrossfade()
-    {
-        // The reverse crossfade is shared by pages two and three. The named outer phase keeps
-        // showing the SR388 actors until its final step shows the text page alone again.
-        StepReverseGameplayToTextCrossfade(IntroCinematicPhase.PageThreeText);
     }
 
     /// <summary>Starts the first laboratory scene with its rightward page pan and separate scientist fade timer.</summary>
@@ -762,17 +723,14 @@ public sealed class IntroCinematicState : IFrontendScreen
         CurrentBabyDiscovery = null;
 
         crossfade = new IntroCrossfade(IntroCrossfadeScene.Narration, IntroCrossfadeScene.Laboratory);
+        illustration = IntroIllustration.BabyDelivery;
         Phase = IntroCinematicPhase.BabyMetroidDeliveryCrossfade;
     }
 
-    /// <summary>Fades page three's narration and portrait into the laboratory the Baby is delivered to.</summary>
-    internal void StepBabyMetroidDeliveryCrossfade()
-    {
-        // The scientist crossfade fades the narration away while bringing in the laboratory and its scientists.
-        StepTextToScientistCrossfade(IntroCinematicPhase.BabyMetroidDelivery);
-    }
-
-    /// <summary>Advances the crossfade from the narration into the laboratory.</summary>
+    /// <summary>
+    /// Advances the crossfade from the narration into the laboratory: the narration fades away while the laboratory and its
+    /// scientists come in.
+    /// </summary>
     private void StepTextToScientistCrossfade(IntroCinematicPhase completedPhase)
     {
         if (!AdvanceCrossfade())
@@ -780,29 +738,6 @@ public sealed class IntroCinematicState : IFrontendScreen
 
         ClearVisibleNarrationText();
         Phase = completedPhase;
-    }
-
-    /// <summary>Starts page four and the alternate-timer fade back from the delivery laboratory.</summary>
-    private void SetupPageFourCrossfade()
-    {
-        // The baby's page-four step selects page four, which starts its text and the crossfade back from the laboratory.
-        Narration.StartEnglishPageFour();
-        crossfade = new IntroCrossfade(IntroCrossfadeScene.Laboratory, IntroCrossfadeScene.Narration);
-        Phase = IntroCinematicPhase.PageFourCrossfade;
-    }
-
-    /// <summary>Restores text and portrait colors while fading the delivery laboratory out.</summary>
-    private void StepPageFourCrossfade()
-    {
-        // The scientist-specific inverse: the narration fades in as the laboratory and its scientists fade out.
-        StepScientistToTextCrossfade(IntroCinematicPhase.PageFourText);
-    }
-
-    /// <summary>Advances the crossfade from the laboratory back into the narration.</summary>
-    private void StepScientistToTextCrossfade(IntroCinematicPhase completedPhase)
-    {
-        if (AdvanceCrossfade())
-            Phase = completedPhase;
     }
 
     /// <summary>
@@ -829,45 +764,31 @@ public sealed class IntroCinematicState : IFrontendScreen
         // Its setup is otherwise the same scientist crossfade as delivery.
         CurrentScientistCutscene = IntroScientistCutsceneState.CreateExamination();
         crossfade = new IntroCrossfade(IntroCrossfadeScene.Narration, IntroCrossfadeScene.Laboratory);
+        illustration = IntroIllustration.BabyExamination;
         Phase = IntroCinematicPhase.BabyMetroidExaminationCrossfade;
     }
 
-    /// <summary>Reuses the text-to-scientist fade for the examination scene.</summary>
-    private void StepBabyMetroidExaminationCrossfade() =>
-        StepTextToScientistCrossfade(IntroCinematicPhase.BabyMetroidExamination);
-
-    /// <summary>Starts page five after the baby examination scene and selects the reverse colour transition.</summary>
-    private void SetupPageFiveCrossfade()
+    /// <summary>Seeds the last narration page's timer, preserving the English and Japanese pages' difference in timing.</summary>
+    private void SetupFinalPage()
     {
-        Narration.StartEnglishPageFive();
-        crossfade = new IntroCrossfade(IntroCrossfadeScene.Laboratory, IntroCrossfadeScene.Narration);
-        Phase = IntroCinematicPhase.PageFiveCrossfade;
-    }
-
-    /// <summary>Reuses the scientist-to-text fade for the fifth narration page.</summary>
-    private void StepPageFiveCrossfade() =>
-        StepScientistToTextCrossfade(IntroCinematicPhase.PageFiveText);
-
-    /// <summary>Seeds the final narration page's timer, preserving the English and Japanese pages' difference in timing.</summary>
-    private void SetupPageSix()
-    {
-        // Page six's setup turns the page, which deletes the Japanese text's next-page arrow. English starts page six
-        // in this same update; Japanese text starts it on the next update.
+        // The last page's setup turns the page before it, which deletes the Japanese text's next-page arrow. English
+        // starts the last page in this same update; Japanese text starts it on the next update.
         Narration.AcceptPageTurn();
         if (subtitles.Enabled)
-            Phase = IntroCinematicPhase.StartPageSix;
+            Phase = IntroCinematicPhase.StartFinalPage;
         else
-            StartPageSix();
+            StartFinalPage();
     }
 
     /// <summary>Replaces the page text, caret, and eye animation without a colour transition.</summary>
-    private void StartPageSix()
+    private void StartFinalPage()
     {
-        // Page six has no colour transition. Only the English text region, caret, eye
+        // The last page has no colour transition. Only the English text region, caret, eye
         // animation, and final page are replaced.
-        Narration.StartEnglishPageSix();
+        Page = IntroNarrationPageDefinitions.FinalPage;
+        Narration.StartPage(Page);
         CurrentScientistCutscene = null;
-        Phase = IntroCinematicPhase.PageSixText;
+        Phase = IntroCinematicPhase.PageText;
     }
 
     /// <summary>Runs the scripted Samus gameplay, projectiles, collisions, and colour updates for the Mother Brain flashback.</summary>
@@ -1168,7 +1089,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         audio.ScheduleMusic(
             MusicRequest.SelectTrack(IntroCinematicDefinitions.Music.IntroductionSong),
             IntroCinematicDefinitions.Music.SceneTrackDelay);
-        Phase = IntroCinematicPhase.WaitForPageOneMusicQueue;
+        Phase = IntroCinematicPhase.WaitForFirstPageMusicQueue;
     }
 
     /// <summary>Whether the music queue has sent every request the cinematic queued.</summary>
@@ -1195,24 +1116,19 @@ public sealed class IntroCinematicState : IFrontendScreen
 
         SpriteFrameBuffer sprites;
         PicturedPlaneLayer room;
-        if (Phase is IntroCinematicPhase.MotherBrainCrossfade or
-            IntroCinematicPhase.MotherBrainFlashback or IntroCinematicPhase.PageTwoCrossfade)
+        if (illustration == IntroIllustration.MotherBrainFlashback)
         {
             sprites = PrepareMotherBrainSprites();
             room = Plane(IntroScenePictures.PagePlane(SceneSheets, IntroScenePage.MotherBrainRoom, FightRoomShading),
                 (CurrentFlashbackMotherBrain?.Background ??
                     new Position16<RoomPixels>(0, GameplayFlashbackVerticalScroll)).AsPlaneOffset());
         }
-        else if (Phase is IntroCinematicPhase.BabyDiscoveryCrossfade or
-            IntroCinematicPhase.BabyDiscovery or IntroCinematicPhase.PageThreeCrossfade)
+        else if (illustration == IntroIllustration.BabyDiscovery)
         {
             sprites = PrepareBabyDiscoverySprites();
             room = Plane(IntroScenePictures.PagePlane(SceneSheets, IntroScenePage.BabyDiscoveryRoom, crossfade.SceneShading), new(0, GameplayFlashbackVerticalScroll));
         }
-        else if (Phase is IntroCinematicPhase.BabyMetroidDeliveryCrossfade or
-            IntroCinematicPhase.BabyMetroidDelivery or IntroCinematicPhase.PageFourCrossfade or
-            IntroCinematicPhase.BabyMetroidExaminationCrossfade or
-            IntroCinematicPhase.BabyMetroidExamination or IntroCinematicPhase.PageFiveCrossfade)
+        else if (illustration is IntroIllustration.BabyDelivery or IntroIllustration.BabyExamination)
         {
             sprites = PrepareScientistSprites();
             room = Plane(IntroScenePictures.PagePlane(SceneSheets, IntroScenePages.Laboratory(ScientistCutscene.Scene), crossfade.SceneShading), ScientistCutscene.Background);

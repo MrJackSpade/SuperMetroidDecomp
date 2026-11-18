@@ -4,9 +4,9 @@ using SuperMetroid.Core.Frontend.Intro.Artwork;
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
-/// The opening's Japanese subtitle sequencer: it shows each page's first subtitle as the page begins, and on pages two
-/// to five waits at the end of the page for a press that shows the second subtitle, which then holds the page's input
-/// wait for <see cref="SecondSubtitleHoldFrames"/>. English text shows no subtitle and leaves the hold at zero.
+/// The opening's Japanese subtitle sequencer: it shows each page's first subtitle as the page begins, and on a page with a
+/// second subtitle waits at the end of the page for a press that shows it, which then holds the page's input wait for
+/// <see cref="SecondSubtitleHoldFrames"/>. English text shows no subtitle and leaves the hold at zero.
 /// </summary>
 /// <remarks>
 /// At most one subtitle is showing at a time: a page's first subtitle has finished long before the page's text ends,
@@ -49,12 +49,13 @@ internal sealed class IntroJapaneseSubtitles
     }
 
     /// <summary>
-    /// Finishes <paramref name="page"/>'s text. Returns true when the page's input wait starts now; on pages two to five
-    /// Japanese text instead waits for a press that shows the second subtitle, and the subtitle starts the wait.
+    /// Finishes <paramref name="page"/>'s text. Returns true when the page's input wait starts now; on a page with a second
+    /// subtitle (<see cref="IntroNarrationPageClosing.AwaitsSecondSubtitle"/>) Japanese text instead waits for a press
+    /// that shows it, and the subtitle starts the wait.
     /// </summary>
     public bool FinishPage(IntroNarrationPageId page)
     {
-        if (!Enabled || page is IntroNarrationPageId.Page1 or IntroNarrationPageId.Page6)
+        if (!Enabled || IntroNarrationPageDefinitions.Pages[page].Closing != IntroNarrationPageClosing.AwaitsSecondSubtitle)
             return true;
         Show(page, SubtitleStage.AwaitSecondSubtitleInput);
         return false;

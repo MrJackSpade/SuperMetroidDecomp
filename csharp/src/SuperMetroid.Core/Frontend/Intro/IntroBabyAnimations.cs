@@ -45,7 +45,7 @@ internal static class IntroBabyAnimations
                 D.Show(S.EggRemnantRibsShifting, 10),
                 D.Show(S.EggRemnantRibsSettling, 10),
                 D.Show(S.EggRemnantSettled, 320),
-                D.Raise(IntroDiscoveryCue.StartPageThree),
+                D.Raise(IntroDiscoveryCue.StartNextPage),
                 D.Raise(IntroDiscoveryCue.DeleteEggAfterCrossFade),
                 D.Hold(S.EggRemnantSettled),
             ],
@@ -64,32 +64,41 @@ internal static class IntroBabyAnimations
             [A.ConfusedBaby] = plays.Looping(A.ConfusedBaby),
         });
 
-    /// <summary>The laboratory scenes' delivered and examined Baby: each pulses ten times, starts its scene's next page and pulses on.</summary>
+    /// <summary>
+    /// The laboratory scenes' delivered and examined Baby: each pulses ten times, starts its scene's next page as its
+    /// eleventh pulse starts and pulses on.
+    /// </summary>
     internal static CinematicAnimations<IntroBabyAnimation, CinematicSpritePose, IntroLaboratoryCue> Laboratory { get; } = new(
         new Dictionary<IntroBabyAnimation, AnimationBeat<CinematicSpritePose, IntroLaboratoryCue>[]>
         {
-            [A.DeliveredBaby] =
-            [
-                L.Show(S.DeliveredBabyPulseLow, 10),
-                L.Show(S.DeliveredBabyPulseMiddle, 10),
-                L.Show(S.DeliveredBabyPulseHigh, 10),
-                L.Show(S.DeliveredBabyPulseMiddle, 10),
-            ],
-            [A.DeliveredBabyStartingPageFour] = [L.Raise(IntroLaboratoryCue.StartPageFour)],
-            [A.ExaminedBaby] =
-            [
-                L.Show(S.ExaminedBabyWide, 10),
-                L.Show(S.ExaminedBabyNarrowing, 10),
-                L.Show(S.ExaminedBabyNarrow, 10),
-                L.Show(S.ExaminedBabyNarrowing, 10),
-            ],
-            [A.ExaminedBabyStartingPageFive] = [L.Raise(IntroLaboratoryCue.StartPageFive)],
+            [A.DeliveredBaby] = DeliveredBabyPulse(),
+            [A.DeliveredBabyTurningPage] = [L.Raise(IntroLaboratoryCue.StartNextPage), .. DeliveredBabyPulse()],
+            [A.ExaminedBaby] = ExaminedBabyPulse(),
+            [A.ExaminedBabyTurningPage] = [L.Raise(IntroLaboratoryCue.StartNextPage), .. ExaminedBabyPulse()],
         },
         plays => new Dictionary<IntroBabyAnimation, Animation<IntroBabyAnimation>>
         {
             [A.DeliveredBaby] = Animation<IntroBabyAnimation>.LeadingInto(
-                [plays.Repeated(A.DeliveredBaby, 10), plays.Whole(A.DeliveredBabyStartingPageFour)], [plays.Whole(A.DeliveredBaby)]),
+                [plays.Repeated(A.DeliveredBaby, 10), plays.Whole(A.DeliveredBabyTurningPage)], [plays.Whole(A.DeliveredBaby)]),
             [A.ExaminedBaby] = Animation<IntroBabyAnimation>.LeadingInto(
-                [plays.Repeated(A.ExaminedBaby, 10), plays.Whole(A.ExaminedBabyStartingPageFive)], [plays.Whole(A.ExaminedBaby)]),
+                [plays.Repeated(A.ExaminedBaby, 10), plays.Whole(A.ExaminedBabyTurningPage)], [plays.Whole(A.ExaminedBaby)]),
         });
+
+    /// <summary>One pulse of the delivered Baby.</summary>
+    private static AnimationBeat<CinematicSpritePose, IntroLaboratoryCue>[] DeliveredBabyPulse() =>
+    [
+        L.Show(S.DeliveredBabyPulseLow, 10),
+        L.Show(S.DeliveredBabyPulseMiddle, 10),
+        L.Show(S.DeliveredBabyPulseHigh, 10),
+        L.Show(S.DeliveredBabyPulseMiddle, 10),
+    ];
+
+    /// <summary>One pulse of the examined Baby.</summary>
+    private static AnimationBeat<CinematicSpritePose, IntroLaboratoryCue>[] ExaminedBabyPulse() =>
+    [
+        L.Show(S.ExaminedBabyWide, 10),
+        L.Show(S.ExaminedBabyNarrowing, 10),
+        L.Show(S.ExaminedBabyNarrow, 10),
+        L.Show(S.ExaminedBabyNarrowing, 10),
+    ];
 }

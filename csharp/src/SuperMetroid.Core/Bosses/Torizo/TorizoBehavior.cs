@@ -208,10 +208,10 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             frame.Level);
     }
 
-    /// <summary>Advances either Torizo's typed animation.</summary>
-    internal void AdvanceTorizoTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext context)
+    /// <summary>Advances the typed animation of <paramref name="torizo"/>, either Torizo, in <paramref name="place"/>.</summary>
+    internal void AdvanceTorizoTypedAnimation(RoomEnemyPlace place, ILitTorizo torizo, EnemyAnimationCueContext context)
     {
-        AdvanceTorizoAnimation(place, new TorizoCueInputs { Samus = context.Samus, Level = context.Level, ControllerInput = context.ControllerInput, FrameCounter = _frameContext.FrameCounter });
+        AdvanceTorizoAnimation(place, new TorizoCueInputs { Torizo = torizo, Samus = context.Samus, Level = context.Level, ControllerInput = context.ControllerInput, FrameCounter = _frameContext.FrameCounter });
     }
     /// <summary>Runs Bomb or Golden Torizo's body animation where the shared enemy animation would.</summary>
     internal void AdvanceTorizoAnimation(RoomEnemyPlace torizo, TorizoCueInputs inputs)
@@ -306,7 +306,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             case TorizoCue.Signal { Kind: TorizoCueKind.StartBombTorizoFight }:
                 RequestTorizoMusic(MusicRequest.SelectTrack(MusicTrack.RidleyAndDraygonBattle));
                 // The fight starts the belly's glow, which watches this Torizo and ends once it dies.
-                _frameResults.TorizoBellyGlow = new(ColourEffectId.BombTorizoBelly, LitTorizo(torizo));
+                _frameResults.TorizoBellyGlow = new(ColourEffectId.BombTorizoBelly, inputs.Torizo);
                 return null;
 
             case TorizoCue.Signal { Kind: TorizoCueKind.LockAnimation }:
@@ -444,7 +444,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             case TorizoCue.Signal { Kind: TorizoCueKind.StartGoldenTorizoFight }:
                 RequestTorizoMusic(MusicRequest.SelectTrack(MusicTrack.RidleyAndDraygonBattle));
                 torizo.Radius = TorizoDecisionDefinitions.GoldenFightRadius;
-                _frameResults.TorizoBellyGlow = new(ColourEffectId.GoldenTorizoBelly, LitTorizo(torizo));
+                _frameResults.TorizoBellyGlow = new(ColourEffectId.GoldenTorizoBelly, inputs.Torizo);
                 return null;
 
             case TorizoCue.Signal { Kind: TorizoCueKind.ClearCaughtSuperMissile }:
@@ -556,11 +556,6 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 throw new InvalidOperationException($"Undefined {nameof(TorizoCueKind)} {cue}.");
         }
     }
-
-    /// <summary>The Torizo occupying <paramref name="torizo"/>, whose belly the glow its fight starts lights and watches.</summary>
-    /// <exception cref="InvalidOperationException">The place holds no Torizo.</exception>
-    private static ILitTorizo LitTorizo(RoomEnemyPlace torizo) =>
-        torizo.Entity as TorizoEntity ?? throw new InvalidOperationException($"Enemy place {torizo.Ordinal} starts a Torizo's fight but holds no Torizo.");
 
     /// <summary>Moves a Torizo by a posture change's displacement standing up, or back by it sitting down.</summary>
     internal static void ApplyTorizoPosture(

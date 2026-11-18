@@ -24,11 +24,8 @@ internal sealed class PhantoonBodyEntity(PhantoonBehavior species, RoomEnemyPlac
     /// Resolves the body's projectile hits before the ordinary passes: a retained Plasma hit must publish its hurt clock
     /// before this frame ticks it.
     /// </summary>
-    public void ResolveBeforeOrdinaryHits(RoomEnemyFrame frame)
-    {
-        if (frame.SamusProjectiles is not null && frame.SharedProjectiles is not null)
-            _ = Species.Combat.ResolvePhantoonProjectileHits(Encounter, frame.SamusProjectiles, frame.SharedProjectiles);
-    }
+    public void ResolveBeforeOrdinaryHits(RoomEnemyFrame frame) =>
+        _ = Species.Combat.ResolvePhantoonProjectileHits(Encounter, Ensure.NotNull(frame).SamusProjectiles, frame.SharedProjectiles);
 
     /// <inheritdoc/>
     public bool OwnsSamusTouch => false;

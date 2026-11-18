@@ -46,7 +46,7 @@ internal sealed class KraidProjectiles
             return;
         }
         // The lint joins the encounter its body began, which it holds from here (#2218).
-        KraidEnemyState state = KraidEntity.EncounterOf(_parts.Body);
+        KraidEnemyState state = _parts.Encounter;
         KraidLintState part = state.Lint(expected);
         KraidEncounterAccess.AttachKraidPart(part);
         lint.Shading = _parts.Body.Shading;
@@ -63,7 +63,7 @@ internal sealed class KraidProjectiles
     internal void InitializeKraidNail(RoomEnemyPlace nail, KraidNailPart expected)
     {
         // The fingernail joins the encounter its body began, which it holds from here (#2218).
-        KraidEnemyState state = KraidEntity.EncounterOf(_parts.Body);
+        KraidEnemyState state = _parts.Encounter;
         KraidNailState nailPart = state.Nail(expected);
         KraidEncounterAccess.AttachKraidPart(nailPart);
         nail.Shading = _parts.Body.Shading;

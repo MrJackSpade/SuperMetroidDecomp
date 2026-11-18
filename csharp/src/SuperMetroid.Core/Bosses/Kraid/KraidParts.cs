@@ -40,6 +40,13 @@ internal sealed class KraidParts
     /// <summary>His body, which runs first.</summary>
     internal RoomEnemyPlace Body => BodyReference.Place;
 
+    /// <summary>
+    /// The encounter his body began as it set up, which its state holds (#2218) and each of his other parts joins as it
+    /// sets up (#2420).
+    /// </summary>
+    /// <exception cref="InvalidOperationException">His body has not set up.</exception>
+    internal KraidEnemyState Encounter => Body.RequireSpeciesState<KraidPartState>().Kraid;
+
     /// <summary>His arm.</summary>
     internal RoomEnemyPlace Arm => ArmReference.Place;
 

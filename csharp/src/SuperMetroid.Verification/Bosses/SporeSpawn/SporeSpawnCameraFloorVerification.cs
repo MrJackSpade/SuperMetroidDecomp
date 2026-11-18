@@ -30,10 +30,13 @@ internal static class SporeSpawnCameraFloorVerification
         RoomEnemyPlace body = live.Places.InUpdateOrder[0];
         body.Health = 0;
         body.FlashTimer = 0;
-        EnemyBombReaction reaction = live.SporeSpawnBehavior.SporeSpawnBombReaction;
+        EnemyBombContext killingBomb = KillingBomb(body);
+        // His body's own stages around common bomb damage, for the bomb that selects his shot reaction.
+        EnemyBombReaction reaction = (body.Entity as IEnemyBombReaction)?.CommonBombDamageReaction(killingBomb)
+            ?? throw new InvalidOperationException("Spore Spawn's body runs no stages of its own around common bomb damage.");
         Action<EnemyBombContext> afterCommon = reaction.AfterCommon
             ?? throw new InvalidOperationException("Spore Spawn's bomb reaction resolves nothing after the common damage.");
-        afterCommon(KillingBomb(body));
+        afterCommon(killingBomb);
         AssertTrue(defeated, "the killing bomb defeats Spore Spawn");
         AssertEqual<int?>(null, live.CameraFloor.LowestY, "Spore Spawn's death frees the camera");
 
@@ -75,7 +78,7 @@ internal static class SporeSpawnCameraFloorVerification
         return enemies;
     }
 
-    /// <summary>A bomb exploding on Spore Spawn's body.</summary>
+    /// <summary>A bomb exploding on the hitbox of Spore Spawn's body that selects his shot reaction.</summary>
     private static EnemyBombContext KillingBomb(RoomEnemyPlace body)
     {
         var ordinaryProjectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads,
@@ -86,7 +89,7 @@ internal static class SporeSpawnCameraFloorVerification
             Position = FixedPosition<RoomPixels>.FromWhole(body.Position.Whole),
         };
         return new EnemyBombContext(body, bomb, ordinaryProjectiles, RoomEnemyFrameFixtures.StandaloneSamus(),
-            SelectedShot: null, UsesFrameHitboxes: false, new Position16<RoomPixels>(0, 0))
+            SelectedShot: SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnReactions.Shot, UsesFrameHitboxes: false, new Position16<RoomPixels>(0, 0))
         {
             StruckOccupant = body.OccupantStates,
         };

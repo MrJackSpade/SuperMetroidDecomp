@@ -21,7 +21,7 @@ internal static class TorizoStateQuantitiesVerification
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         var state = new TorizoEnemyState(isGolden: true);
         place.SetSpeciesState(state);
-        var inputs = new TorizoCueInputs { Samus = SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), Level = SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), ControllerInput = 0, FrameCounter = 0 };
+        var inputs = new TorizoCueInputs { Torizo = LivingTorizo.Instance, Samus = SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), Level = SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), ControllerInput = 0, FrameCounter = 0 };
         void ApplyCue(TorizoCue cue) =>
             AssertTrue(enemies.TorizoBehavior.ApplyTorizoCue(place, state, inputs, cue,
                     TorizoAnimations.Start(TorizoAnimation.BombTorizoAwakening)) is null,

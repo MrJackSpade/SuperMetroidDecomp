@@ -18,17 +18,15 @@ internal sealed class SporeSpawnEntity(SporeSpawnBehavior species, RoomEnemyPlac
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceSporeSpawnAnimation(Place, Encounter, context.Samus);
 
-    /// <summary>The encounter his body holds from its initialization (#2231).</summary>
+    /// <summary>The encounter his body holds from its initialization (#2231), which his own reactions act on (#2420).</summary>
     /// <exception cref="InvalidOperationException">The body has not initialized.</exception>
-    private SporeSpawnEnemyState Encounter => Place.RequireSpeciesState<SporeSpawnEnemyState>();
+    internal SporeSpawnEnemyState Encounter => Place.RequireSpeciesState<SporeSpawnEnemyState>();
 
-    /// <summary>The encounter <paramref name="body"/> holds, which his initialization installed on it (#2231).</summary>
-    /// <param name="body">A place holding Spore Spawn's body, initialized.</param>
-    /// <exception cref="InvalidOperationException">The place holds no initialized Spore Spawn.</exception>
-    internal static SporeSpawnEnemyState EncounterOf(RoomEnemyPlace body) =>
-        Ensure.NotNull(body).Entity is SporeSpawnEntity entity
-            ? entity.Encounter
-            : throw new InvalidOperationException($"Enemy place {body.Ordinal} holds no Spore Spawn.");
+    /// <summary>His own shot reaction, which resolves the rest of a shot on this encounter after the common damage.</summary>
+    private EnemyShotReaction OwnShotReaction => field ??= species.SporeSpawnShotReactionOf(this);
+
+    /// <summary>His own stages around common bomb damage, which resolve the rest of a bomb on this encounter.</summary>
+    private EnemyBombReaction OwnBombReaction => field ??= species.SporeSpawnBombReactionOf(this);
 
     /// <inheritdoc/>
     public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction)
@@ -48,13 +46,13 @@ internal sealed class SporeSpawnEntity(SporeSpawnBehavior species, RoomEnemyPlac
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (LeavesTouchToSpecies)
-            species.ReactToSporeSpawnTouch(context);
+            species.ReactToSporeSpawnTouch(context, Encounter);
         else
             base.ReactToTouch(context);
     }
 
     /// <summary>Spore Spawn's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? species.SporeSpawnShotReaction : base.ShotReaction;
+    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? OwnShotReaction : base.ShotReaction;
 
     /// <summary>
     /// Spore Spawn's dud shot for a bomb whose hitbox selects it, in place of common bomb damage once the ignoring check has
@@ -72,7 +70,7 @@ internal sealed class SporeSpawnEntity(SporeSpawnBehavior species, RoomEnemyPlac
     /// <summary>Spore Spawn's own stages around common bomb damage, for a bomb that selects its shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
     public override EnemyBombReaction? CommonBombDamageReaction(EnemyBombContext context) =>
-        context.SelectedShot == SporeSpawnReactions.Shot ? species.SporeSpawnBombReaction : base.CommonBombDamageReaction(context);
+        context.SelectedShot == SporeSpawnReactions.Shot ? OwnBombReaction : base.CommonBombDamageReaction(context);
 
     /// <summary>Spore Spawn's contact and shots both meet its own frames' hitboxes.</summary>
     public override EnemyCapabilities Capabilities =>

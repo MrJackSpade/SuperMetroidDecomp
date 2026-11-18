@@ -31,14 +31,6 @@ internal abstract class KraidEntity(KraidBehavior species, RoomEnemyPlace place,
     /// <exception cref="InvalidOperationException">The part has not set up as one of his parts.</exception>
     protected KraidEnemyState Encounter => Place.RequireSpeciesState<KraidPartState>().Kraid;
 
-    /// <summary>The encounter <paramref name="part"/> is part of, which the part's own state holds (#2218).</summary>
-    /// <param name="part">A place holding one of Kraid's parts, set up.</param>
-    /// <exception cref="InvalidOperationException">The place holds no part of Kraid's that has set up.</exception>
-    internal static KraidEnemyState EncounterOf(RoomEnemyPlace part) =>
-        Ensure.NotNull(part).Entity is KraidEntity entity
-            ? entity.Encounter
-            : throw new InvalidOperationException($"Enemy place {part.Ordinal} holds no part of Kraid's.");
-
     /// <inheritdoc/>
     public abstract void RunMainAi(IEnemyAiFrame frame);
 

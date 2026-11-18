@@ -38,7 +38,7 @@ internal sealed class KraidLimbs
             return;
         }
         // The arm joins the encounter its body began, which it holds from here (#2218).
-        KraidEnemyState state = KraidEntity.EncounterOf(_parts.Body);
+        KraidEnemyState state = _parts.Encounter;
         KraidEncounterAccess.AttachKraidPart(state.ArmState);
         arm.Shading = _parts.Body.Shading;
         state.ArmState.StartAnimation(KraidPartSegment.ArmRisingOrSinking);
@@ -53,7 +53,7 @@ internal sealed class KraidLimbs
             return;
         }
         // The foot joins the encounter its body began, which it holds from here (#2218).
-        KraidEnemyState state = KraidEntity.EncounterOf(_parts.Body);
+        KraidEnemyState state = _parts.Encounter;
         KraidEncounterAccess.AttachKraidPart(state.FootState);
         foot.Shading = _parts.Body.Shading;
         state.FootState.StartAnimation(KraidPartSegment.FootInitial);

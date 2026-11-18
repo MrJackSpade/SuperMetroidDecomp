@@ -4,7 +4,6 @@ using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Samus.Projectiles;
-using SuperMetroid.Core.World;
 using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Enemies;

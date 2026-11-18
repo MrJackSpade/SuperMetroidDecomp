@@ -105,7 +105,7 @@
     {
       "module": "csharp/src/SuperMetroid.Core/Audio",
       "role": "production",
-      "files": 50,
+      "files": 52,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Compatibility"
@@ -173,7 +173,7 @@
     {
       "module": "csharp/src/SuperMetroid.Core/Escape",
       "role": "production",
-      "files": 25,
+      "files": 26,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Assets",
@@ -362,7 +362,7 @@
     {
       "module": "csharp/src/SuperMetroid.Core/Samus",
       "role": "production",
-      "files": 525,
+      "files": 524,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Animation",
@@ -727,7 +727,7 @@
     {
       "module": "csharp/src/SuperMetroid.Verification",
       "role": "verification",
-      "files": 2306,
+      "files": 2309,
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core",
@@ -1036,7 +1036,7 @@
     {
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
-      "files": 1251,
+      "files": 1252,
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core",
@@ -24992,7 +24992,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Audio/CinematicAudioQueues.cs",
+      "path": "csharp/src/SuperMetroid.Core/Audio/CinematicSoundQueues.cs",
       "module": "csharp/src/SuperMetroid.Core/Audio",
       "role": "production",
       "namespace": "SuperMetroid.Core.Audio",
@@ -25085,8 +25085,7 @@
         "SuperMetroid.Core"
       ],
       "dependsOn": [
-        "csharp/src/SuperMetroid.Core",
-        "csharp/src/SuperMetroid.Core/Compatibility"
+        "csharp/src/SuperMetroid.Core"
       ]
     },
     {
@@ -25100,6 +25099,20 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Audio/GameplaySoundRequests.cs",
+      "module": "csharp/src/SuperMetroid.Core/Audio",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Audio",
+      "layer": "Foundation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core",
+        "csharp/src/SuperMetroid.Core/Compatibility"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Audio/IAudioClipSource.cs",
       "module": "csharp/src/SuperMetroid.Core/Audio",
       "role": "production",
@@ -25110,7 +25123,17 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Audio/IGameplayAudioQueues.cs",
+      "path": "csharp/src/SuperMetroid.Core/Audio/IGameplayMusicQueue.cs",
+      "module": "csharp/src/SuperMetroid.Core/Audio",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Audio",
+      "layer": "Foundation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Audio/IGameplaySoundQueue.cs",
       "module": "csharp/src/SuperMetroid.Core/Audio",
       "role": "production",
       "namespace": "SuperMetroid.Core.Audio",
@@ -56946,6 +56969,16 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Escape/EscapeTypewriterStep.cs",
+      "module": "csharp/src/SuperMetroid.Core/Escape",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Escape",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Escape/ZebesEscapeDefinitions.cs",
       "module": "csharp/src/SuperMetroid.Core/Escape",
       "role": "production",
@@ -56984,20 +57017,18 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core/Audio",
+        "csharp/src/SuperMetroid.Core/Compatibility",
         "csharp/src/SuperMetroid.Core/Enemies"
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Escape/ZebesEscapeExplosions.cs",
+      "path": "csharp/src/SuperMetroid.Core/Escape/ZebesEscapeExplosionDraw.cs",
       "module": "csharp/src/SuperMetroid.Core/Escape",
       "role": "production",
       "namespace": "SuperMetroid.Core.Escape",
       "layer": "Simulation",
       "assemblies": [
         "SuperMetroid.Core"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Compatibility"
       ]
     },
     {
@@ -74529,16 +74560,13 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Runtime/RuntimeFrameAudio.cs",
+      "path": "csharp/src/SuperMetroid.Core/Runtime/RuntimeFrameOutcome.cs",
       "module": "csharp/src/SuperMetroid.Core/Runtime",
       "role": "production",
       "namespace": "SuperMetroid.Core.Runtime",
       "layer": "Runtime",
       "assemblies": [
         "SuperMetroid.Core"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Samus"
       ]
     },
     {
@@ -77107,16 +77135,6 @@
     },
     {
       "path": "csharp/src/SuperMetroid.Core/Samus/ISamusControlLock.cs",
-      "module": "csharp/src/SuperMetroid.Core/Samus",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Samus",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Samus/ISamusFrameAudio.cs",
       "module": "csharp/src/SuperMetroid.Core/Samus",
       "role": "production",
       "namespace": "SuperMetroid.Core.Samus",
@@ -95657,6 +95675,25 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Verification/Areas/Escape/EscapeTimeUpOutcomeVerification.cs",
+      "module": "csharp/src/SuperMetroid.Verification",
+      "role": "verification",
+      "namespace": "SuperMetroid.Verification.Areas.Escape",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Assets",
+        "csharp/src/SuperMetroid.Core/Escape",
+        "csharp/src/SuperMetroid.Core/Hud",
+        "csharp/src/SuperMetroid.Core/Runtime",
+        "csharp/src/SuperMetroid.Core/Spatial",
+        "csharp/src/SuperMetroid.Core/World",
+        "csharp/test-support/Assertions",
+        "csharp/test-support/VerificationAccess.Core"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Verification/Areas/Escape/EscapeTimerFloorVerification.cs",
       "module": "csharp/src/SuperMetroid.Verification",
       "role": "verification",
@@ -95670,6 +95707,32 @@
         "csharp/src/SuperMetroid.Core/Progression",
         "csharp/src/SuperMetroid.Diagnostics",
         "csharp/test-support/Assertions",
+        "csharp/test-support/VerificationAccess.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Verification/Areas/Escape/EscapeTimerSamusHeldVerification.cs",
+      "module": "csharp/src/SuperMetroid.Verification",
+      "role": "verification",
+      "namespace": "SuperMetroid.Verification.Areas.Escape",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Assets",
+        "csharp/src/SuperMetroid.Core/Compatibility",
+        "csharp/src/SuperMetroid.Core/Escape",
+        "csharp/src/SuperMetroid.Core/Frontend",
+        "csharp/src/SuperMetroid.Core/Hud",
+        "csharp/src/SuperMetroid.Core/Progression",
+        "csharp/src/SuperMetroid.Core/Rooms",
+        "csharp/src/SuperMetroid.Core/Runtime",
+        "csharp/src/SuperMetroid.Core/Samus",
+        "csharp/src/SuperMetroid.Core/Saves",
+        "csharp/src/SuperMetroid.Core/World",
+        "csharp/src/SuperMetroid.Tooling",
+        "csharp/test-support/Assertions",
+        "csharp/test-support/RepositoryInstallation.Verification",
         "csharp/test-support/VerificationAccess.Core"
       ]
     },
@@ -127230,6 +127293,27 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Verification/Rooms/RoomObjects/MapStationAccessVerification.cs",
+      "module": "csharp/src/SuperMetroid.Verification",
+      "role": "verification",
+      "namespace": "SuperMetroid.Verification.Rooms.RoomObjects",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Audio",
+        "csharp/src/SuperMetroid.Core/Compatibility",
+        "csharp/src/SuperMetroid.Core/Progression",
+        "csharp/src/SuperMetroid.Core/Rooms",
+        "csharp/src/SuperMetroid.Core/Samus",
+        "csharp/src/SuperMetroid.Core/Spatial",
+        "csharp/src/SuperMetroid.Core/World",
+        "csharp/test-support/Assertions",
+        "csharp/test-support/RepositoryInstallation.Verification",
+        "csharp/test-support/VerificationAccess.Core"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Verification/Rooms/RoomObjects/NoobTubeObjectDrawDefinitionsVerification.cs",
       "module": "csharp/src/SuperMetroid.Verification",
       "role": "verification",
@@ -140521,7 +140605,24 @@
       ]
     },
     {
-      "path": "csharp/test-support/VerificationAccess.Core/Audio/RecordingAudioQueues.cs",
+      "path": "csharp/test-support/VerificationAccess.Core/Audio/RecordingMusicQueue.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Audio",
+      "layer": "Foundation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core",
+        "csharp/src/SuperMetroid.Core/Audio"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationAccess.Core/Audio/RecordingSoundQueue.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Audio",

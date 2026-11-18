@@ -320,7 +320,8 @@ internal sealed class StartingMotions
     /// <summary>
     /// The constructions <paramref name="expression"/>, a behaviour, can be: a construction itself; a field's, property's or
     /// local's initializer or assigned values (a cached property's <c>field ??= new ...</c> among them); every construction
-    /// of the containing type for <c>this</c>; for a parameter, what each call passes.
+    /// of the containing type for <c>this</c>; for a parameter, what each call passes; for a call of one of Core's own
+    /// methods, what that method returns.
     /// </summary>
     /// <exception cref="InvalidDataException">The behaviour is none of these.</exception>
     private IEnumerable<BaseObjectCreationExpressionSyntax> Constructions(ExpressionSyntax expression, SemanticModel semantic, HashSet<ISymbol> visiting)
@@ -366,6 +367,7 @@ internal sealed class StartingMotions
                     _model.CallSites(callee).Select(site => (site.ArgumentFor(handed), site.Semantic))
                         .Where(value => value.Item1 is not null).Select(value => (value.Item1!, value.Semantic)),
                 IFieldSymbol or IPropertySymbol or ILocalSymbol when _model.IsSource(symbol) => ValuesOf(symbol),
+                IMethodSymbol called when choice is InvocationExpressionSyntax && _model.IsSource(called) => ReturnsOf(called),
                 _ => throw new InvalidDataException($"{_model.RelativePath(choice.SyntaxTree)}: this generator cannot tell which behaviour {choice} is."),
             };
             foreach ((ExpressionSyntax value, SemanticModel valueSemantic) in values)
@@ -374,6 +376,31 @@ internal sealed class StartingMotions
                     yield return creation;
             }
         }
+    }
+
+    /// <summary>What <paramref name="method"/>, one of Core's own, returns: its expression body or each of its return statements' values.</summary>
+    /// <exception cref="InvalidDataException">It returns nothing this generator can read.</exception>
+    private List<(ExpressionSyntax Value, SemanticModel Semantic)> ReturnsOf(IMethodSymbol method)
+    {
+        var values = new List<(ExpressionSyntax, SemanticModel)>();
+        foreach (SyntaxReference reference in method.OriginalDefinition.DeclaringSyntaxReferences)
+        {
+            SyntaxNode declaration = reference.GetSyntax();
+            SemanticModel semantic = _model.ModelOf(declaration.SyntaxTree);
+            if (declaration is BaseMethodDeclarationSyntax { ExpressionBody.Expression: var body })
+            {
+                values.Add((body, semantic));
+                continue;
+            }
+            foreach (ReturnStatementSyntax returned in declaration.DescendantNodes().OfType<ReturnStatementSyntax>())
+            {
+                if (returned.Expression is { } value)
+                    values.Add((value, semantic));
+            }
+        }
+        if (values.Count == 0)
+            throw new InvalidDataException($"{method.ToDisplayString()} returns no behaviour this generator can read.");
+        return values;
     }
 
     /// <summary>The values <paramref name="member"/>, a field, property or local, is given: its initializer and every assignment to it.</summary>

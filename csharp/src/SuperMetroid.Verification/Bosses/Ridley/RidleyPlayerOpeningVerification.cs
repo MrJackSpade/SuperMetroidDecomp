@@ -59,7 +59,7 @@ internal static class RidleyPlayerOpeningVerification
         var body = enemies.Places.InUpdateOrder[0]; var state = enemies.NorfairRidley(); var samus = runtime.Player.IntroducedSamus;
         var seed = Read(375);
         // Ridley's body plays typed animations (#1287, #1600); the recording's native pointer selects the matching playback.
-        var pointers = new RidleyNativeInstructionPointers(CartridgeImportSource.Require(bus));
+        var pointers = new RidleyBodyNativeInstructionPointers(CartridgeImportSource.Require(bus));
         (state ?? throw new InvalidOperationException("Verification requires Ridley's state.")).Flight.BodyPlayback = pointers.BodyPlaybackAt(W(seed, 0xf92), state.Flight.FacingDirection);
         body.AnimationClock.HoldFor(W(seed, 0xf94));
         body.FrameCounter = W(seed, 0xfa4);

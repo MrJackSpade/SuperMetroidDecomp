@@ -45,7 +45,7 @@ internal static class RidleyFullMovieVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Ridley);
-        var pointers = new RidleyNativeInstructionPointers(CartridgeImportSource.Require(bus));
+        var pointers = new RidleyBodyNativeInstructionPointers(CartridgeImportSource.Require(bus));
         var body = runtime.Enemies.Places.InUpdateOrder[0]; var state = runtime.Enemies.NorfairRidley(); var samus = runtime.Player.IntroducedSamus;
         foreach (var sample in new[] { new VerifyRidleySpinFireballCase(0x7f, false, RidleyFacing.Right, false), new VerifyRidleySpinFireballCase(0x80, false, RidleyFacing.Right, true),
             new VerifyRidleySpinFireballCase(0xff, true, RidleyFacing.Right, false), new VerifyRidleySpinFireballCase(0xff, false, RidleyFacing.Turning, false), new VerifyRidleySpinFireballCase(0x180, false, RidleyFacing.Left, true) })
@@ -56,7 +56,7 @@ internal static class RidleyFullMovieVerification
             state.Flight.BodyPlayback = pointers.BodyPlaybackAt(NativeSnapshotMemory.RidleyRightFlyingSleep, state.Flight.FacingDirection);
             body.AnimationClock.HoldFor(9);
             runtime.Enemies.NorfairRidleyBehavior.Combat.TickNorfairRidleyWallSweep(body, state, samus, RidleyWallSweepTarget.WallBehind);
-            AssertEqual(sample.Fourth ? RidleyNativeInstructionPointers.BodyEntry(RidleyBodySegment.FireballingFacingLeft) : NativeSnapshotMemory.RidleyRightFlyingSleep,
+            AssertEqual(sample.Fourth ? RidleyBodyNativeInstructionPointers.BodyEntry(RidleyBodySegment.FireballingFacingLeft) : NativeSnapshotMemory.RidleyRightFlyingSleep,
                 pointers.Body(state.Flight), "native spin-response fireball threshold/roar/facing gate");
             AssertEqual(sample.Fourth ? (ushort)1 : (ushort)9, body.AnimationClock.Hold.RawValue, "native fireball restarts instruction timer only when admitted");
             AssertEqual((ushort)sample.First, runtime.System.RandomNumber, "native fireball admission does not generate random state");
@@ -605,7 +605,7 @@ internal static class RidleyFullMovieVerification
             // The arena's centre column: his movement box keeps him between X 64 and 224, inside one screen.
             new RidleyFullMovieCase(0x004a, RidleyFacing.Turning, false), new RidleyFullMovieCase(0x007f, RidleyFacing.Right, false), new RidleyFullMovieCase(0x0080, RidleyFacing.Right, true),
         ];
-        var pointers = new RidleyNativeInstructionPointers(CartridgeImportSource.Require(
+        var pointers = new RidleyBodyNativeInstructionPointers(CartridgeImportSource.Require(
             CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
         foreach (var sample in cases)
         {
@@ -615,8 +615,8 @@ internal static class RidleyFullMovieVerification
             state.Flight.BodyPlayback = pointers.BodyPlaybackAt(NativeSnapshotMemory.RidleyRightFlyingSleep, state.Flight.FacingDirection);
             NorfairRidleyCombat.SelectNorfairRidleyFacingAnimation(place, state);
             ushort expected = !sample.Turn ? NativeSnapshotMemory.RidleyRightFlyingSleep
-                : sample.Facing == RidleyFacing.Left ? RidleyNativeInstructionPointers.BodyEntry(RidleyBodySegment.TurnFromLeftToRight)
-                : RidleyNativeInstructionPointers.BodyEntry(RidleyBodySegment.TurnFromRightToLeft);
+                : sample.Facing == RidleyFacing.Left ? RidleyBodyNativeInstructionPointers.BodyEntry(RidleyBodySegment.TurnFromLeftToRight)
+                : RidleyBodyNativeInstructionPointers.BodyEntry(RidleyBodySegment.TurnFromRightToLeft);
             AssertEqual(expected, pointers.Body(state.Flight), $"native center-facing instruction at {sample.X:X4}, facing {sample.Facing}");
             AssertEqual(sample.Turn ? (ushort)2 : (ushort)7, place.AnimationClock.Hold.RawValue, "turn timer changes only when native condition is met");
         }

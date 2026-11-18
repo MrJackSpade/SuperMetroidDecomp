@@ -1,5 +1,3 @@
-using System.Collections.Immutable;
-
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>The horizontal launch speeds of rocks spat by Kraid.</summary>
@@ -15,14 +13,14 @@ public static class KraidRockLaunchDefinitions
     private static SignedEightEight FastestLeft { get; } = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-1216);
 
     /// <summary>
-    /// Selects one of four launch speeds, each assigned two of the eight
-    /// random choices. Accepts every sample and never advances RNG.
+    /// The launch speed a spat rock takes, one of four, chosen from the random number's eight rolls in turn (#2510): normal,
+    /// slow, fastest and fast, then fastest, normal, fast and slow, so each speed is taken by two rolls, a quarter of them.
     /// </summary>
     /// <remarks>
-    /// The rock spit picks its launch from one of the random number's eight choices, not from its motion or a fresh
-    /// random number. Each speed keeps the two choices the game gives it, though each has the same one-quarter weight.
+    /// The rock spit picks its launch from the current random number, not from its motion or a fresh random number.
     /// </remarks>
-    public static SignedEightEight FromRandom(int random) => Speeds[LaunchChoice.Of(random)];
+    internal static readonly WeightedRandomChoice<SignedEightEight> SpitLaunch = WeightedRandomChoice<SignedEightEight>.InTurn(
+        new RandomSampleField(1, 3), NormalLeft, SlowLeft, FastestLeft, FastLeft, FastestLeft, NormalLeft, FastLeft, SlowLeft);
 
     /// <summary>
     /// The gravity on a spat or rising rock, each update. A rock is removed when its
@@ -52,20 +50,4 @@ public static class KraidRockLaunchDefinitions
     /// drifts on from one pixel an update leftward.
     /// </summary>
     internal static SignedEightEight RockDriftRestart { get; } = SignedEightEight.FromPixels(1);
-
-    /// <summary>The launch choice, one of eight.</summary>
-    private static readonly RandomSampleField LaunchChoice = new(1, 3);
-
-    /// <summary>The launch speed of each of the eight <see cref="LaunchChoice"/> values, in order.</summary>
-    private static readonly ImmutableArray<SignedEightEight> Speeds =
-    [
-        NormalLeft,
-        SlowLeft,
-        FastestLeft,
-        FastLeft,
-        FastestLeft,
-        NormalLeft,
-        FastLeft,
-        SlowLeft,
-    ];
 }

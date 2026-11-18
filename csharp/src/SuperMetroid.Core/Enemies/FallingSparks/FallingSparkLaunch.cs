@@ -1,0 +1,44 @@
+namespace SuperMetroid.Core.Enemies.FallingSparks;
+
+/// <summary>
+/// What a falling spark's random launch choice chooses (#2510): one of the authored drifts, or the roll past them, whose
+/// drift the spark's own code supplies (<see cref="FallingSparkLaunchDefinitions.Launch"/>).
+/// </summary>
+internal abstract record FallingSparkLaunch
+{
+    /// <summary>Only the launches below exist.</summary>
+    private FallingSparkLaunch()
+    {
+    }
+
+    /// <summary>
+    /// The sideways drift per update the spark launches with, consulting <paramref name="unauthoredLaunch"/> only for the
+    /// roll past the authored drifts.
+    /// </summary>
+    /// <param name="unauthoredLaunch">Supplies the drift of the roll past the authored launches.</param>
+    internal abstract SignedSixteenSixteen DriftWith(Func<FallingSparkUnauthoredLaunch> unauthoredLaunch);
+
+    /// <summary>An authored launch, drifting by <paramref name="Drift"/>.</summary>
+    /// <param name="Drift">The signed sideways drift per update.</param>
+    internal sealed record Authored(SignedSixteenSixteen Drift) : FallingSparkLaunch
+    {
+        /// <inheritdoc/>
+        internal override SignedSixteenSixteen DriftWith(Func<FallingSparkUnauthoredLaunch> unauthoredLaunch) => Drift;
+    }
+
+    /// <summary>The roll past the seven authored launches, drifting by the code stored after them.</summary>
+    internal sealed record PastAuthored : FallingSparkLaunch
+    {
+        /// <summary>The one roll past the authored launches.</summary>
+        internal static PastAuthored Instance { get; } = new();
+
+        /// <summary>Only <see cref="Instance"/> exists.</summary>
+        private PastAuthored()
+        {
+        }
+
+        /// <inheritdoc/>
+        internal override SignedSixteenSixteen DriftWith(Func<FallingSparkUnauthoredLaunch> unauthoredLaunch) =>
+            Ensure.NotNull(unauthoredLaunch)().Drift;
+    }
+}

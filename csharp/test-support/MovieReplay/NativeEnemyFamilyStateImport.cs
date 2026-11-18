@@ -109,8 +109,9 @@ internal static class NativeEnemyFamilyStateImport
             }
             else if (part == EnemyDefinitionId.PhantoonMouth)
             {
-                // The record names the burst by its place in the casual-flame update's choices.
-                phantoon.CasualFlames.Schedule = Ensure.Element(PhantoonCasualFlameDefinitions.Choices, words.A);
+                // The record names the burst by its place in the casual-flame update's choices, the roll that chooses it.
+                phantoon.CasualFlames.Schedule = PhantoonCasualFlameDefinitions.Burst.Choose(
+                    Ensure.BetweenInclusive(0, PhantoonCasualFlameDefinitions.Burst.Field.Outcomes - 1, words.A));
                 // Its wait's word holds the updates the wait lasts; a word at or below zero runs out on the next update.
                 PrivateState.Set(phantoon.CasualFlames.Hold, nameof(BossCountdown.Count), CoordinateAxis.AsSigned(words.B) - 1);
                 // The record counts the burst's flames still to come; it reads below zero while no burst is under way, which

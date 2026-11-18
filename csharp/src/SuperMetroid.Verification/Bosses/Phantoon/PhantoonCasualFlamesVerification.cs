@@ -17,7 +17,7 @@ internal static class PhantoonCasualFlamesVerification
         for (int pattern = 0; pattern < 4; pattern++)
         {
             int pointer = 0xa70000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7ccfd + pattern * 2));
-            PhantoonCasualFlameSchedule compiled = PhantoonCasualFlameDefinitions.Choices[pattern];
+            PhantoonCasualFlameSchedule compiled = PhantoonCasualFlameDefinitions.Burst.Choose(pattern);
             int flames = CartridgeImportSource.Require(rom).ReadCartridgeWord(pointer);
             AssertEqual(flames, compiled.Flames.Count, "Native casual flame count");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(pointer + 2), compiled.Cooldown, "Native casual flame cooldown");
@@ -44,7 +44,7 @@ internal static class PhantoonCasualFlamesVerification
             int before = calls;
             step(mouth);
             int pointer = 0xa70000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7ccfd + (raw & 3) * 2));
-            AssertEqual(PhantoonCasualFlameDefinitions.Choices[raw & 3], state.CasualFlames.Schedule, "Actual casual RNG burst selector");
+            AssertEqual(PhantoonCasualFlameDefinitions.Burst.Choose(raw & 3), state.CasualFlames.Schedule, "Actual casual RNG burst selector");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(pointer), FlamesToCome(state), "Actual casual initial remaining count");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + (CartridgeImportSource.Require(rom).ReadCartridgeWord(pointer) + 1) * 2)) - 1, state.CasualFlames.Hold.Count, "Actual casual reverse initial timer: the wait lasts its updates");
             AssertEqual(before + 1, calls, "Casual selection consumes exactly one RNG call");
@@ -54,7 +54,7 @@ internal static class PhantoonCasualFlamesVerification
         for (int pattern = 0; pattern < 4; pattern++)
         {
             random = (ushort)pattern;
-            state.CasualFlames.Schedule = PhantoonCasualFlameDefinitions.Choices[pattern];
+            state.CasualFlames.Schedule = PhantoonCasualFlameDefinitions.Burst.Choose(pattern);
             state.CasualFlames.Hold.LastFor(1);
             state.CasualFlames.NextFlame = null;
             ushort timer = 0, count = 0xffff;

@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Metroids;
 
-/// <summary>How an ordinary Metroid flees when bombed off Samus, and which cry it plays.</summary>
+/// <summary>How an ordinary Metroid flees when bombed off Samus.</summary>
 internal static class MetroidReactions
 {
     /// <summary>
@@ -11,8 +11,4 @@ internal static class MetroidReactions
     internal static Offset16<RoomPixels> EscapeDisplacement(int movesLeft) =>
         MetroidBehaviorDefinitions.EscapeMoves[MetroidBehaviorDefinitions.EscapeDuration -
             Ensure.BetweenInclusive(1, MetroidBehaviorDefinitions.EscapeDuration, movesLeft)];
-
-    /// <summary>The cry <paramref name="random"/>'s <see cref="MetroidBehaviorDefinitions.CrySlot"/> selects.</summary>
-    internal static SoundEffectId RandomCrySoundEffect(int random) =>
-        MetroidBehaviorDefinitions.RandomCries[MetroidBehaviorDefinitions.CrySlot.Of(random)];
 }

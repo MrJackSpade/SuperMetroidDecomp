@@ -74,13 +74,22 @@ internal static class LookupSmallGameTablesVerification
     /// <summary>Reads a retail opcode byte when checking Crocomire's unrolled dust spawns.</summary>
     private static byte CrocomireBridgeDustPositionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    /// <summary>Matches the catalog's sixteen Ceres falling-debris column positions to their source words (#2033).</summary>
+    /// <summary>
+    /// Matches the position every random sample drops a Ceres falling-debris piece at to the source word its lowest four
+    /// bits index (#2033, #2510).
+    /// </summary>
     private static void VerifyCeresFallingDebrisColumns(ISnesAddressSpace rom)
     {
-        AssertEqual(16, CeresFallingDebrisDefinitions.ColumnX.Length, "one debris position for each column the random field chooses");
-        for (int column = 0; column < CeresFallingDebrisDefinitions.ColumnX.Length; column++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x8fe551 + 2 * column)), CeresFallingDebrisDefinitions.ColumnX[column],
-                $"Ceres falling debris column {column}");
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        ushort[] columnX = [.. Enumerable.Range(0, 16).Select(column => cartridge.ReadCartridgeWord(0x8fe551 + 2 * column))];
+        for (int sample = 0; sample <= ushort.MaxValue; sample++)
+        {
+            int column = sample & 15;
+            int expected = columnX[column];
+            int actual = CeresFallingDebrisDefinitions.ColumnX.Choose(sample);
+            if (actual != expected)
+                AssertEqual(expected, actual, $"Ceres falling debris column {column} at sample {sample}");
+        }
     }
 
     /// <summary>

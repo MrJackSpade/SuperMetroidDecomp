@@ -30,11 +30,24 @@ public sealed class PhantoonTimerSchedule
 
     /// <summary>The duration, in updates, that pick <paramref name="pick"/>, zero through seven, takes.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="pick"/> is outside zero through seven.</exception>
-    public int this[int pick] => Picks[Ensure.BetweenInclusive(0, PickCount - 1, pick)] switch
+    public int this[int pick] => DurationOf(Picks[Ensure.BetweenInclusive(0, PickCount - 1, pick)]);
+
+    /// <summary>
+    /// The duration a random draw chooses (#2510): the eight values <paramref name="field"/> reads take the picks' durations
+    /// in turn, in pick order.
+    /// </summary>
+    /// <param name="field">The field of the sample the draw reads, of eight values.</param>
+    /// <exception cref="ArgumentException"><paramref name="field"/> does not read eight values.</exception>
+    internal WeightedRandomChoice<int> ChosenBy(RandomSampleField field) => field.Outcomes == PickCount
+        ? WeightedRandomChoice<int>.InTurn(field, [.. Picks.Select(DurationOf)])
+        : throw new ArgumentException($"A Phantoon timer's draw reads {PickCount} values, not {field.Outcomes}.", nameof(field));
+
+    /// <summary>The duration, in updates, a pick of <paramref name="length"/> takes.</summary>
+    private int DurationOf(PhantoonTimerLength length) => length switch
     {
         PhantoonTimerLength.Short => Durations.Short,
         PhantoonTimerLength.Medium => Durations.Medium,
         PhantoonTimerLength.Long => Durations.Long,
-        _ => throw new InvalidOperationException($"Undefined {nameof(PhantoonTimerLength)} {Picks[pick]}."),
+        _ => throw new InvalidOperationException($"Undefined {nameof(PhantoonTimerLength)} {length}."),
     };
 }

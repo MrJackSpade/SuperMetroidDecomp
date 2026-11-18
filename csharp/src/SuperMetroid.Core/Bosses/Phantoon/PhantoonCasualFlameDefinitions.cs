@@ -34,6 +34,10 @@ public static class PhantoonCasualFlameDefinitions
         Flames = [new(32), new(16), new(32), new(64), new(32), new(64), new(16)],
     };
 
-    /// <summary>The bursts the casual-flame update chooses from, by its random draw, each as likely as the others.</summary>
-    public static IReadOnlyList<PhantoonCasualFlameSchedule> Choices { get; } = [SteadyFive, QuickThree, SlowSeven, UnevenSeven];
+    /// <summary>
+    /// The burst the casual-flame update chooses by its random draw (#2510): the four bursts in turn, each as likely as the
+    /// others.
+    /// </summary>
+    internal static WeightedRandomChoice<PhantoonCasualFlameSchedule> Burst { get; } = WeightedRandomChoice<PhantoonCasualFlameSchedule>.InTurn(
+        new RandomSampleField(0, 2), SteadyFive, QuickThree, SlowSeven, UnevenSeven);
 }

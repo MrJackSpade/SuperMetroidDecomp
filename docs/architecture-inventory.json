@@ -22986,7 +22986,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Fx.RoomFxBlockAnimationLoops.extension(SuperMetroid.Core.Fx.BlockAnimationLoop)",
+      "type": "SuperMetroid.AssetExtraction.Fx.RoomFxBlockAnimationLoops.extension(SuperMetroid.Core.Fx.BlockAnimation)",
       "kind": "class",
       "scope": "product",
       "assemblies": [
@@ -62327,6 +62327,19 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.Core.Earthquakes.EarthquakeSide",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Earthquakes/EarthquakeSide.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Earthquakes.EarthquakeStrength",
       "kind": "enum",
       "scope": "product",
@@ -85685,7 +85698,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.WreckedShip.WreckedShipTreadmillObjectDefinitionAccess.extension(SuperMetroid.Core.Fx.BlockAnimationLoop)",
+      "type": "SuperMetroid.Core.Enemies.WreckedShip.WreckedShipTreadmillObjectDefinitionAccess.extension(SuperMetroid.Core.Fx.BlockAnimation)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -86909,32 +86922,6 @@
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.Core.Escape.Artwork.EscapeTypewriterLineKey",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Escape/Artwork/EscapeTypewriterLineKey.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Escape.Artwork.EscapeTypewriterLines",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Escape/Artwork/EscapeTypewriterLines.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Core.Escape.Artwork.EscapeTypewriterMessage",
       "kind": "record",
       "scope": "product",
@@ -86962,19 +86949,6 @@
     },
     {
       "type": "SuperMetroid.Core.Escape.Artwork.EscapeTypewriterPresentation",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Escape/Artwork/EscapeTypewriterPresentation.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Escape.Artwork.EscapeTypewriterPresentation.LineSequence",
       "kind": "class",
       "scope": "product",
       "assemblies": [
@@ -97904,19 +97878,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.BlockAnimationLoop",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/BlockAnimationLoop.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
       "type": "SuperMetroid.Core.Fx.BlockAnimationLoopDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -97941,32 +97902,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.BlockAnimationPlayer",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/BlockAnimationPlayer.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.BlockAnimationStart",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/BlockAnimationStart.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Fx.CeresHazeDefinitions",
@@ -102063,7 +101998,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.RoomFxBlockAnimationDefinitionAccess.extension(SuperMetroid.Core.Fx.BlockAnimationLoop)",
+      "type": "SuperMetroid.Core.Fx.RoomFxBlockAnimationDefinitionAccess.extension(SuperMetroid.Core.Fx.BlockAnimation)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -102095,7 +102030,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.RoomFxBlockAnimationFrameDefinitionAccess.extension(SuperMetroid.Core.Fx.BlockAnimationLoop)",
+      "type": "SuperMetroid.Core.Fx.RoomFxBlockAnimationFrameDefinitionAccess.extension(SuperMetroid.Core.Fx.BlockAnimation)",
       "kind": "class",
       "scope": "test",
       "assemblies": [

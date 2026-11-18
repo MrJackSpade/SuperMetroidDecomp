@@ -86,7 +86,6 @@ internal static class RoomEnemyFrameFixtures
         Samus = inputs.Samus,
         NewlyPressedControllerInput = GameplayAction.None,
         ControllerInput = GameplayAction.None,
-        TurningFloor = null,
         SamusPreviousPositionCheckpoint = null,
         Level = Ensure.NotNull(level),
         SamusProjectiles = inputs.Projectiles,

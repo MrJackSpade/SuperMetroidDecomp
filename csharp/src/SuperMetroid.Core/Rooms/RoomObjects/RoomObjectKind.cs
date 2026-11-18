@@ -130,6 +130,12 @@ public enum RoomObjectKind
     /// </summary>
     MetroidRoomClearance,
 
+    /// <summary>
+    /// Holds one of an escape room's room-object places for as long as the room is loaded and does nothing else
+    /// (<see cref="Compatibility.RoomObjectPlaces"/>).
+    /// </summary>
+    EscapeRoomHeldPlace,
+
     /// <summary>The eye of a right-facing eye door.</summary>
     EyeDoorEyeFacingRight,
 

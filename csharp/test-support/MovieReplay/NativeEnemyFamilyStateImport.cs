@@ -170,8 +170,17 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (enemy.SpeciesState<CeresSteamEnemyState>() is { } ceresSteamRecord)
         {
-            ceresSteamRecord.Action = CeresNativeWords.DecodeSteamAction(words.A, "recorded CeresSteamAction");
-            ceresSteamRecord.ActivationDelay = WrappingCountdown.Start(words.D);
+            // The vent's action is its population variant's, which its initialization turned into its motion: the recorded
+            // action must be the one that motion carries out.
+            CeresSteamAction recordedAction = CeresNativeWords.DecodeSteamAction(words.A, "recorded CeresSteamAction");
+            CeresSteamAction initializedAction = ceresSteamRecord.Motion is CeresSteamMotion.RidesShaftTurn
+                ? CeresSteamAction.ApplyRotatingElevatorOffset
+                : CeresSteamAction.HoldsItsPlace;
+            if (recordedAction != initializedAction)
+                throw new InvalidDataException($"Recorded Ceres steam action {recordedAction} differs from the vent's initialized {initializedAction}.");
+            // The cartridge's activation count runs out on the step that takes it to zero, as the port's does, so the two
+            // hold the same number; an activated vent's count stays at zero.
+            ceresSteamRecord.UpdatesToActivation = words.D;
         }
         if (enemy.SpeciesState<CeresElevatorDoorState>() is { } elevatorDoorRecord)
         {

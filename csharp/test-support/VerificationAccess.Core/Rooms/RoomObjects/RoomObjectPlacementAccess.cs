@@ -63,7 +63,8 @@ internal static class RoomObjectPlacementAccess
         if (PermanentCollectibleObjectDefinitions.Items.ContainsKey(kind)) return new CollectibleSetup(Read<CollectedItemArgument>(kind, argument));
         if (EyeDoorPartDefinitions.Parts.ContainsKey(kind)) return new EyeDoorSetup(Read<LockedDoorArgument>(kind, argument));
         if (StationKindDefinitions.Kinds.ContainsKey(kind)) return new StationSetup(Read<SaveStationArgument>(kind, argument));
-        if (kind == RoomObjectKind.MetroidRoomClearance) return new MetroidRoomClearanceSetup(Read<MetroidRoomArgument>(kind, argument));
+        if (kind == RoomObjectKind.MetroidRoomClearance)
+            return new MetroidRoomClearanceSetup(Read<MetroidRoomArgument>(kind, argument) ?? throw new InvalidDataException("A Metroid room clearance watch needs the event it marks."));
         if (kind == RoomObjectKind.DownwardGateShotBlock) return new DownwardGateShotBlockSetup(Read<GateTriggerArgument>(kind, argument));
         if (argument is not null)
             throw new InvalidDataException($"Placement {kind} reads no argument, but its record gives {argument}.");
@@ -86,6 +87,7 @@ internal static class RoomObjectPlacementAccess
         [RoomObjectKind.NoobTube] = new NoobTubeSetup(),
         [RoomObjectKind.MotherBrainEscapeRoomGate] = new MotherBrainEscapeRoomGateSetup(),
         [RoomObjectKind.DownwardGate] = new DownwardGateSetup(),
+        [RoomObjectKind.EscapeRoomHeldPlace] = new EscapeRoomHeldPlaceSetup(),
     };
 
     /// <summary>The <typeparamref name="T"/> argument a family of <paramref name="kind"/> reads, or null for none.</summary>

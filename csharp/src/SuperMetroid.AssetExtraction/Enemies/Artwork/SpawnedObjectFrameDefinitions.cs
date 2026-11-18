@@ -436,8 +436,8 @@ internal static class SpawnedObjectFrameDefinitions
         RoomEffectActorKind.YappingMawBaseFacingUp,
     ];
 
-    /// <summary>The projectile frames <c>Areas/Ceres/CeresDoorBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
-    private static readonly EnemyProjectileFrameId[] CeresDoorSharedProjectiles =
+    /// <summary>The projectile frames <c>Areas/Ceres/CeresElevatorDoorFactory.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly EnemyProjectileFrameId[] CeresElevatorDoorSharedProjectiles =
     [
         EnemyProjectileFrameId.MiscDustSparksGathering,
         EnemyProjectileFrameId.MiscDustSparksDrawingIn,
@@ -522,8 +522,8 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.MiscDustSpeck,
     ];
 
-    /// <summary>The room effect actors <c>Areas/Ceres/CeresDoorBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
-    private static readonly RoomEffectActorKind[] CeresDoorSharedEffectActors = [];
+    /// <summary>The room effect actors <c>Areas/Ceres/CeresElevatorDoorFactory.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly RoomEffectActorKind[] CeresElevatorDoorSharedEffectActors = [];
 
     /// <summary>The projectile frames <c>Areas/Ceres/CeresSteamBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
     private static readonly EnemyProjectileFrameId[] CeresSteamSharedProjectiles =
@@ -4590,11 +4590,7 @@ internal static class SpawnedObjectFrameDefinitions
     internal static IReadOnlyDictionary<EnemyDefinitionId, SpawnedObjects> SharedByEnemy { get; } =
         new Dictionary<EnemyDefinitionId, SpawnedObjects>
         {
-            [EnemyDefinitionId.CeresDoor] = new(CeresDoorSharedProjectiles, CeresDoorSharedEffectActors),
-            [EnemyDefinitionId.CeresRidleyRoomDoor] = new(CeresDoorSharedProjectiles, CeresDoorSharedEffectActors),
-            [EnemyDefinitionId.CeresElevatorDoor] = new(CeresDoorSharedProjectiles, CeresDoorSharedEffectActors),
-            [EnemyDefinitionId.CeresElevatorRoomWall] = new(CeresDoorSharedProjectiles, CeresDoorSharedEffectActors),
-            [EnemyDefinitionId.CeresGetawayChamberWall] = new(CeresDoorSharedProjectiles, CeresDoorSharedEffectActors),
+            [EnemyDefinitionId.CeresElevatorDoor] = new(CeresElevatorDoorSharedProjectiles, CeresElevatorDoorSharedEffectActors),
             [EnemyDefinitionId.CeresSteam] = new(CeresSteamSharedProjectiles, CeresSteamSharedEffectActors),
             [EnemyDefinitionId.TourianStatue] = new(TourianEntranceStatueSharedProjectiles, TourianEntranceStatueSharedEffectActors),
             [EnemyDefinitionId.Botwoon] = new(BotwoonSharedProjectiles, BotwoonSharedEffectActors),

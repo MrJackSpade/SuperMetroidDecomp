@@ -42,9 +42,6 @@ internal sealed record RoomEnemyFrame
     /// <summary>The game's short frame counter, 0 through 255, which a door's scroll restarts.</summary>
     public required int ShortCounter { get; init; }
 
-    /// <summary>The turning floor of Ceres Ridley's getaway shaft, which rotating Ceres steam samples to derive draw offsets without changing its world collision coordinates; none outside that shaft.</summary>
-    public required TurningFloorTransform? TurningFloor { get; init; }
-
     /// <summary>Shared bomb and power-bomb state used by collision order and actor effects.</summary>
     public required SamusBombProjectileSystem SharedProjectiles { get; init; }
 

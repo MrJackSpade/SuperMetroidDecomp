@@ -24,12 +24,21 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
     private readonly EnemyRoomBinding _room;
     /// <summary>Common contact resolution used after steam's extended hitbox selects its touch reaction.</summary>
     private readonly EnemyCollision _collision;
+    /// <summary>
+    /// The motion of the vents a room places in its turning elevator shaft: riding the shaft's turn, in the one room whose
+    /// scope has that turn; none in every other room, which places no such vent.
+    /// </summary>
+    private readonly CeresSteamMotion.RidesShaftTurn? _shaftVents;
 
     /// <summary>Stores room and collision services for steam initialization and contact handling.</summary>
-    internal CeresSteamBehavior(EnemyRoomBinding room, EnemyCollision collision)
+    /// <param name="room">The room's services, whose random numbers stagger the vents.</param>
+    /// <param name="collision">The common contact resolution.</param>
+    /// <param name="shaftTurn">The turn of the elevator shaft the room is, or null for a room that is no turning shaft.</param>
+    internal CeresSteamBehavior(EnemyRoomBinding room, EnemyCollision collision, CeresElevatorShaftRoomMainState? shaftTurn)
     {
         _room = room;
         _collision = collision;
+        _shaftVents = shaftTurn is { } shaft ? new CeresSteamMotion.RidesShaftTurn(shaft) : null;
     }
 
     /// <summary>Plays a vent's typed animation in place of the shared enemy animation.</summary>
@@ -59,9 +68,7 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
             {
                 // The vent's activation delay, which initialization staggers.
                 CeresSteamEnemyState state = place.RequireSpeciesState<CeresSteamEnemyState>();
-                CountdownStep step = state.ActivationDelay.Decrement();
-                state.ActivationDelay = step.Remaining;
-                if (!step.IsZero)
+                if (--state.UpdatesToActivation != 0)
                     return countDown.Dormant;
                 place.Presence = place.Presence.Without(EnemyPresence.Hidden);
                 place.Contact = place.Contact.Without(EnemyContact.IgnoresSamus);
@@ -91,55 +98,33 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
 
         // Each vent waits a random 1 to 32 updates before its first plume, counted down by its animation's wait, so the
         // vents puff out of step.
-        var state = new CeresSteamEnemyState(initialization.Action)
+        var state = new CeresSteamEnemyState(MotionOf(initialization.Action))
         {
-            ActivationDelay = WrappingCountdown.Start(_room.Random.Next(CeresSteamDefinitions.ActivationDelay) + 1),
+            UpdatesToActivation = _room.Random.Next(CeresSteamDefinitions.ActivationDelay) + 1,
             Playback = new AnimationPlayback<CeresSteamSegment>(CeresSteamAnimations.StartingWith(initialization.Animation), AnimationPlace.StartOfAnimation),
         };
         place.SetSpeciesState(state);
 
     }
 
-    /// <summary>Runs the Ceres steam's main AI.</summary>
-    private static void RunCeresSteamMain(
-        RoomEnemyPlace place,
-        TurningFloorTransform? floorTransform)
+    /// <summary>
+    /// The motion <paramref name="action"/> gives a vent: the up, left, down and right vents hold their place, and the
+    /// rotating-elevator vents ride the turn of the shaft they stand in.
+    /// </summary>
+    /// <exception cref="InvalidDataException">
+    /// A rotating-elevator vent is placed in a room that is no turning elevator shaft, or the action is undefined.
+    /// </exception>
+    private CeresSteamMotion MotionOf(CeresSteamAction action) => action switch
     {
-        CeresSteamEnemyState state = place.RequireSpeciesState<CeresSteamEnemyState>();
-        switch (state.Action)
-        {
-            // The up, left, down and right vents hold their place. Their base world position is also their draw
-            // position, so no drawing offset is changed.
-            case CeresSteamAction.HoldsItsPlace:
-                return;
+        CeresSteamAction.HoldsItsPlace => CeresSteamMotion.HoldsItsPlace.Instance,
+        CeresSteamAction.ApplyRotatingElevatorOffset => _shaftVents
+            ?? throw new InvalidDataException("A rotating-elevator Ceres steam vent is placed in a room that is no turning elevator shaft."),
+        _ => throw new InvalidDataException($"Ceres steam has no behaviour for action {action}."),
+    };
 
-            // The rotating-elevator vents sit inside the rotating elevator shaft.
-            // The rotating-shaft behaviour calls the same transform used for Samus, then stores only
-            // transformed-minus-base deltas as the enemy's drawing offsets.
-            // Collision continues to use the untransformed world point; drawing consumes
-            // these offsets later, when the enemy is drawn.
-            case CeresSteamAction.ApplyRotatingElevatorOffset:
-                if (floorTransform is not TurningFloorTransform transform)
-                {
-                    throw new InvalidOperationException(
-                        "Ceres steam elevator variant requires the turning floor's transform.");
-                }
-
-                Position16<RoomPixels> transformed = transform.Transform(place.Position.Whole);
-                place.DrawOffset = transformed - place.Position.Whole;
-                return;
-
-            default:
-                throw new InvalidDataException(
-                    $"Ceres steam has no behaviour for action {state.Action}.");
-        }
-    }
-
-    /// <summary>Runs the Ceres steam's main AI.</summary>
-    internal static void RunCeresSteamMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
-    {
-        RunCeresSteamMain(place, frame.TurningFloor);
-    }
+    /// <summary>Runs the Ceres steam's main AI: the vent's drawing follows its motion.</summary>
+    internal static void RunCeresSteamMainAi(RoomEnemyPlace place) =>
+        place.RequireSpeciesState<CeresSteamEnemyState>().Motion.Move(place);
 
     /// <summary>Handles contact only for the steam's authored extended hitbox reaction.</summary>
     internal void ReactToCeresSteamTouch(EnemyTouchContext context)

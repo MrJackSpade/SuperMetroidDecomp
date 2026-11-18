@@ -12,55 +12,15 @@ using SuperMetroid.Core.Rooms.Backgrounds;
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>
-/// The room's owner of the Ceres station's doors and walls (#1953, #1989): it places each one's own actor, each its own
-/// definition and sheet (an ordinary door, the door of Ridley's room, the elevator room's blocked door, the elevator
-/// room's wall or a wall of Ridley's getaway chamber), and lends them the animations they share, the station's escape
-/// quake and the room's services.
+/// The room's owner of the Ceres station's doors and walls (#1953, #1989, #2426): it lends every door and wall the
+/// animations they share, the station's escape quake and the room's services. Each is placed as its own actor, each its own
+/// definition and sheet: an ordinary door, the door of Ridley's room, the elevator room's wall and a wall of Ridley's
+/// getaway chamber by <see cref="CeresDoorFactory"/>, and the elevator room's blocked door, which a room with a turning
+/// floor places, by <see cref="CeresElevatorDoorFactory"/>.
 /// </summary>
 [RoomLifetime]
-internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IGameplayShadingSource
+internal sealed class CeresDoorBehavior : IEnemySpecies, IGameplayShadingSource
 {
-    /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } =
-    [
-        EnemyDefinitionId.CeresDoor, EnemyDefinitionId.CeresRidleyRoomDoor, EnemyDefinitionId.CeresElevatorDoor,
-        EnemyDefinitionId.CeresElevatorRoomWall, EnemyDefinitionId.CeresGetawayChamberWall,
-    ];
-
-    /// <summary>The door or wall actor <paramref name="place"/>'s definition names, facing or standing where its placement says.</summary>
-    /// <exception cref="InvalidDataException">The definition is no Ceres door or wall, or the placement names no facing or side.</exception>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
-    {
-        EnemyDefinitionId actor = Ensure.NotNull(place).DefinitionId;
-        if (actor == EnemyDefinitionId.CeresDoor)
-        {
-            return new CeresDoorEntity(this, place, common, place.SpawnSettings<CeresDoorSpawnSettings>().Facing switch
-            {
-                HorizontalDirection.Right => CeresDoorSegment.DoorFacingRight,
-                HorizontalDirection.Left => CeresDoorSegment.DoorFacingLeft,
-                var other => throw new InvalidDataException($"No Ceres door faces {other}."),
-            });
-        }
-        if (actor == EnemyDefinitionId.CeresRidleyRoomDoor)
-            return new CeresRidleyRoomDoorEntity(this, place, common);
-        if (actor == EnemyDefinitionId.CeresElevatorDoor)
-        {
-            return new CeresElevatorDoorEntity(this, place, common, _floor ?? throw new InvalidDataException(
-                "The Ceres elevator door is placed in a room that shows no turning floor for its platform."));
-        }
-        if (actor == EnemyDefinitionId.CeresElevatorRoomWall)
-            return new CeresElevatorRoomWallEntity(this, place, common);
-        if (actor == EnemyDefinitionId.CeresGetawayChamberWall)
-        {
-            return new CeresGetawayChamberWallEntity(this, place, common, place.SpawnSettings<CeresGetawayChamberWallSpawnSettings>().Side switch
-            {
-                HorizontalDirection.Left => CeresDoorSegment.GetawayChamberLeftWall,
-                HorizontalDirection.Right => CeresDoorSegment.GetawayChamberRightWall,
-                var other => throw new InvalidDataException($"No getaway chamber wall stands on side {other}."),
-            });
-        }
-        throw new InvalidDataException($"{actor} is no Ceres door or wall.");
-    }
 
     /// <summary>Captures the room systems the Ceres doors and walls use.</summary>
     internal CeresDoorBehavior(CeresDoorBehaviorDependencies dependencies)
@@ -72,15 +32,11 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
         Projectiles = dependencies.Projectiles;
         Escape = dependencies.CeresEscape;
         RidleyScene = dependencies.RidleyScene;
-        _floor = dependencies.Floor;
         EscapeQuake = new CeresEscapeQuake(dependencies.Room, dependencies.Earthquake, dependencies.CeresEscape);
     }
 
     /// <summary>Provides Ceres room artwork, boss status and the gameplay RNG.</summary>
     internal EnemyRoomBinding Room { get; }
-
-    /// <summary>The room's turning floor, whose elevator platform the elevator door cycles; null in a room that shows none.</summary>
-    private readonly RoomFloor? _floor;
 
     /// <summary>Queues the doors' opening sound and the elevator door's explosions.</summary>
     internal EnemyAudioQueue Audio { get; }

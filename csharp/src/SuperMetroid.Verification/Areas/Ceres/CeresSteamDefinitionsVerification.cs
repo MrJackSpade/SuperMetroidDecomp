@@ -34,7 +34,10 @@ internal static class CeresSteamDefinitionsVerification
                 definition.Action,
                 $"Ceres steam {variant} function");
 
-            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+            // The rotating-elevator vents ride the turn of the shaft they stand in, which only the shaft's room has (#2426).
+            var shaft = new CeresElevatorShaftRoomMainState(new RoomMainCarryover());
+            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null),
+                shaftTurn: shaft);
             enemies.VerificationServices().NextRandom = () => 0x001f;
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             place.SetSpawnParameter1(EnemyDefinitionId.CeresSteam, (ushort)index);
@@ -45,10 +48,12 @@ internal static class CeresSteamDefinitionsVerification
                 $"production Ceres steam {variant} program");
             CeresSteamEnemyState steamState = place.SpeciesState<CeresSteamEnemyState>()
                 ?? throw new InvalidOperationException("The initialized vent has no state.");
-            AssertEqual<CeresSteamAction?>(definition.Action, steamState.Action,
-                $"production Ceres steam {variant} function");
-            AssertEqual(WrappingCountdown.Start(0x0020), steamState.ActivationDelay,
-                $"production Ceres steam {variant} activation timer");
+            AssertEqual<CeresSteamMotion>(definition.Action == CeresSteamAction.ApplyRotatingElevatorOffset
+                    ? new CeresSteamMotion.RidesShaftTurn(shaft)
+                    : CeresSteamMotion.HoldsItsPlace.Instance,
+                steamState.Motion, $"production Ceres steam {variant} motion carries out its function");
+            AssertEqual(32, steamState.UpdatesToActivation,
+                $"production Ceres steam {variant} waits the drawn 32 updates, the one it appears on included");
         }
 
         AssertThrows<InvalidDataException>(

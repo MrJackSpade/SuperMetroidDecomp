@@ -7,26 +7,29 @@ using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.Core.Areas.Tourian;
 
-/// <summary>The Tourian entrance statue species owner: its per-room state, behaviour and the interactions it registers.</summary>
+/// <summary>
+/// The Tourian entrance statue species owner: its per-room state, behaviour and the interactions it registers. Only the
+/// statue room builds one, with that room (#2382, #2426).
+/// </summary>
 [RoomLifetime]
 internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntityFactory, IGameplayShadingSource
 {
     /// <inheritdoc/>
+    /// <remarks>Only the statue room can place these.</remarks>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.TourianStatue];
 
     /// <inheritdoc/>
-    /// <exception cref="InvalidDataException">The statue is placed in a room whose setup does not unlock the statues.</exception>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new TourianEntranceStatueEntity(this, place, common,
-        _statueRoom ?? throw new InvalidDataException("The Tourian entrance statue is placed in a room whose setup does not unlock the statues."));
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new TourianEntranceStatueEntity(this, place, common);
 
     /// <summary>Spawns the scene's decorations and its unlock effects.</summary>
     private readonly EnemyProjectileEngine _projectiles;
-    /// <summary>The places of the scene's placements the room has set up, in the order they were placed; each shows the scene's look.</summary>
-    private readonly List<RoomEnemyPlace> _placements = [];
+    /// <summary>
+    /// The scene's placements that have initialized and not yet left their places, in the order they initialized; each
+    /// shows the scene's look, and each drops out as it leaves (#2356, #2426).
+    /// </summary>
+    private readonly List<TourianEntranceStatueEntity> _occupants = [];
     /// <summary>The scene's projectiles spawned this room, its decorations and its unlock effects; each still active shows the scene's look.</summary>
     private readonly List<EnemyProjectile> _sceneProjectiles = [];
-    /// <summary>The statue room, which tells the decorations how far the statue has sunk; null in every other room.</summary>
-    private readonly ITourianStatueRoom? _statueRoom;
 
     /// <summary>The eye glow the statues' eyes show, the last a released boss lit; none before any.</summary>
     private PictureShade? _eyeGlow;
@@ -41,11 +44,16 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     private readonly List<PictureShade> _roomLooks = [];
 
     /// <summary>Binds projectile allocation and the room's statue room to the statue species.</summary>
-    internal TourianEntranceStatueBehavior(EnemyProjectileEngine projectiles, ITourianStatueRoom? statueRoom)
+    /// <param name="projectiles">Spawns the scene's decorations and its unlock effects.</param>
+    /// <param name="statueRoom">The statue room, which tells the decorations how far the statue has sunk.</param>
+    internal TourianEntranceStatueBehavior(EnemyProjectileEngine projectiles, ITourianStatueRoom statueRoom)
     {
         _projectiles = projectiles;
-        _statueRoom = statueRoom;
+        StatueRoom = Ensure.NotNull(statueRoom);
     }
+
+    /// <summary>The statue room, which tells the decorations how far the statue has sunk and which the unlock effects splash in.</summary>
+    internal ITourianStatueRoom StatueRoom { get; }
 
     /// <summary>
     /// The statue scene's look (#1512): its standard colours until the statue initializes, then its entrance colours,
@@ -103,8 +111,8 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     }
 
     /// <summary>
-    /// Recomposes the scene's look and shows it on the placements the scene set up and on its projectiles still active
-    /// (#2356).
+    /// Recomposes the scene's look and shows it on the scene's placements still in their places and on its projectiles
+    /// still active (#2356).
     /// </summary>
     private void ShowScene()
     {
@@ -114,12 +122,8 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
         foreach (PictureShade look in _statueLooks)
             shading = shading.With(look);
         SceneShading = shading;
-        foreach (RoomEnemyPlace placement in _placements)
-        {
-            // A place an enemy of another kind has taken since shows that enemy's own look.
-            if (placement.DefinitionId == EnemyDefinitionId.TourianStatue)
-                placement.Shading = shading;
-        }
+        foreach (TourianEntranceStatueEntity occupant in _occupants)
+            occupant.OccupiedPlace.Shading = shading;
         foreach (EnemyProjectile projectile in _sceneProjectiles)
         {
             if (projectile.IsActive)
@@ -148,14 +152,15 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
 
     /// <summary>
     /// Initializes one of the statue scene's three placements (#2014): the first spawns the scene's decorations, and each
-    /// shows the scene's entrance look.
+    /// shows the scene's entrance look until it leaves its place.
     /// </summary>
-    internal void InitializeTourianEntranceStatue(RoomEnemyPlace statue, ITourianStatueRoom statueRoom)
+    internal void InitializeTourianEntranceStatue(TourianEntranceStatueEntity occupant)
     {
-        Ensure.NotNull(statue);
-        EnemyProjectileBehavior decorations = DecorationsIn(statueRoom);
-        if (!_placements.Contains(statue))
-            _placements.Add(statue);
+        Ensure.NotNull(occupant);
+        RoomEnemyPlace statue = occupant.OccupiedPlace;
+        EnemyProjectileBehavior decorations = Decorations();
+        if (!_occupants.Contains(occupant))
+            _occupants.Add(occupant);
         // The base decoration, Ridley and Phantoon spawn in this order, which gives them their authored draw order.
         if (statue.Spawn.Population.SpawnSettingsOf<TourianEntranceStatueSpawnSettings>().Role == TourianEntranceStatueRole.SpawnsDecorations)
         {
@@ -203,12 +208,14 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
         projectile.State = new AnchoredProjectileState(position);
     }
 
+    /// <summary>Drops <paramref name="occupant"/>, which has left its place: the scene shows no later look on its place.</summary>
+    internal void Leave(TourianEntranceStatueEntity occupant) => _occupants.Remove(Ensure.NotNull(occupant));
+
     /// <summary>
-    /// The behaviour of the statue's base decoration, Ridley and Phantoon in <paramref name="statueRoom"/> (#1760, #2382):
-    /// their spawner starts their animations, and they follow the statue room's statue down.
+    /// The behaviour of the statue's base decoration, Ridley and Phantoon (#1760, #2382): their spawner starts their
+    /// animations, and they follow the statue room's statue down.
     /// </summary>
-    internal EnemyProjectileBehavior DecorationsIn(ITourianStatueRoom statueRoom) =>
-        new DecorationBehavior(TourianEntranceStatueAnimation, Ensure.NotNull(statueRoom));
+    internal EnemyProjectileBehavior Decorations() => new DecorationBehavior(TourianEntranceStatueAnimation, StatueRoom);
 
     /// <summary>A decoration: it follows the statue's reveal and descent, and settles at its place.</summary>
     /// <param name="statue">The statues' shared animation state, whose rest finishes the statue's sinking.</param>

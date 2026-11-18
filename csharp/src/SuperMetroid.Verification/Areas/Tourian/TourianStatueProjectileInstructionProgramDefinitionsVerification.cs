@@ -46,10 +46,11 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
         var guard = NewTourianStatueProjectileInstructionReadGuard(rom);
         Func<EnemyProjectileAnimation, ushort?> nativePointers =
             TourianStatueProjectileNativeListAddresses.Family.NativePointers(CartridgeImportSource.Require(rom));
-        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null), installedBosses: InstalledFixtures.BossArtwork);
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null), installedBosses: InstalledFixtures.BossArtwork,
+            statueRoom: new FixedTourianStatueRoom(WaterSurface: 216, StatueOffset: 0));
         enemies.VerificationServices().NextRandom = () => 4;
-        var statueRoom = new FixedTourianStatueRoom(WaterSurface: 216, StatueOffset: 0);
-        TourianUnlockBehavior unlock = enemies.UnlockEffectsIn(statueRoom);
+        TourianEntranceStatueBehavior scene = EnemySystemFixtures.StatueScene(enemies);
+        TourianUnlockBehavior unlock = enemies.UnlockEffects();
 
         unlock.SpawnTourianEyeGlow(TourianStatueNativeWords.Eye(0));
         EnemyProjectile eye = Single(RoomEnemyProjectileKind.TourianStatueEyeGlow);
@@ -165,8 +166,7 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
             TourianStatueProjectileSegment start = FamilyProjectileStarts.StartingAnimation(kind) is TourianStatueProjectileAnimation started
                 ? started.PlayingSegment
                 : throw new ArgumentOutOfRangeException(nameof(kind), kind, "The entrance statue spawns no such decoration.");
-            enemies.TourianEntranceStatueBehavior.SpawnTourianEntranceStatueProjectile(kind, start, new Position16<RoomPixels>(128, 128),
-                enemies.TourianEntranceStatueBehavior.DecorationsIn(statueRoom));
+            scene.SpawnTourianEntranceStatueProjectile(kind, start, new Position16<RoomPixels>(128, 128), scene.Decorations());
             return enemies.Projectiles.EnemyProjectiles.First(projectile => projectile.Kind == kind);
         }
 

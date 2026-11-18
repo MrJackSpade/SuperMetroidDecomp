@@ -15,9 +15,6 @@ internal sealed record EnemyFramePhaseDependencies
     /// <summary>The player's gameplay actions as the frame boundary latched them.</summary>
     public required GameplayActionInput PlayerActions { get; init; }
 
-    /// <summary>What the gameplay display shows, whose turning floor the enemies read.</summary>
-    public required GameplayDisplayState Display { get; init; }
-
     /// <summary>The room effects the enemies request during their pass, applied after it.</summary>
     public required EnemyRoomEffects EnemyRoomEffects { get; init; }
 

@@ -104,15 +104,15 @@ internal static class LookupRetailPopulationsVerification
                     3 => ReadSamusEaterObjectWord(rom, address + 4),
                     _ => 0,
                 };
-                // A clearance watch that observes nothing keeps none of the no-op entries' words (#1746); it is compared
-                // by what its word decodes to instead.
-                bool observesNothing = placement.Argument is MetroidRoomArgument { Cleared: null };
+                // An escape room's held place keeps none of the clearance table's no-op entries' words (#1746, #2426); it is
+                // compared by the kind its word places instead, under the clearance object's header.
+                bool heldPlace = placement.Kind == RoomObjectKind.EscapeRoomHeldPlace;
                 int result = field switch
                 {
-                    0 => RoomObjectNativeWords.Word(placement.Kind),
+                    0 => RoomObjectNativeWords.Word(RoomObjectRoomArgumentWords.Header(placement.Kind)),
                     1 => placement.Block.X,
                     2 => placement.Block.Y,
-                    3 when !observesNothing => placement.NativeRoomArgument,
+                    3 when !heldPlace => placement.NativeRoomArgument,
                     _ => 0,
                 };
                 if (field == 3 && placement.Cannon is { } control)
@@ -122,10 +122,10 @@ internal static class LookupRetailPopulationsVerification
                         $"population {pointer:X4} operation {count} cannon control");
                     AssertEqual(0, result, $"population {pointer:X4} operation {count} cannon carries no raw argument");
                 }
-                else if (field == 3 && observesNothing)
+                else if (field == 3 && heldPlace)
                 {
-                    AssertEqual(RoomObjectRoomArgumentWords.Decode(placement.Kind, expected), placement.Argument,
-                        $"population {pointer:X4} operation {count} clearance watch observes nothing");
+                    AssertTrue(RoomObjectRoomArgumentWords.PlacedKind(RoomObjectKind.MetroidRoomClearance, expected) == placement.Kind,
+                        $"population {pointer:X4} operation {count} held place's word selects a no-op entry");
                 }
                 else if (field == 3 && RoomObjectRoomArgumentWords.NumbersUnread(placement.Kind))
                 {

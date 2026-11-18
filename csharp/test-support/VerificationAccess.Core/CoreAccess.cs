@@ -198,9 +198,9 @@ internal static class CoreAccess
     /// <summary>Reads Ceres pad and concealer positions and their projectile-slot activity.</summary>
     extension(CeresElevatorArrivalState arrival)
     {
-        /// <summary>The moving pad, which lowers Samus.</summary>
+        /// <summary>The moving pad's actor, which lowers Samus.</summary>
         internal CeresElevatorArrivalState.CeresElevatorProjectile Pad =>
-            PrivateState.Field<CeresElevatorArrivalState, CeresElevatorArrivalState.CeresElevatorProjectile>(arrival, "pad");
+            PrivateState.Field<CeresElevatorArrivalState, CeresElevatorArrivalState.CeresElevatorPad>(arrival, "pad").Actor;
         /// <summary>The stationary platform behind the pad.</summary>
         internal CeresElevatorArrivalState.CeresElevatorProjectile Platform =>
             PrivateState.Field<CeresElevatorArrivalState, CeresElevatorArrivalState.CeresElevatorProjectile>(arrival, "platform");

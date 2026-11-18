@@ -26,7 +26,7 @@ internal static class RoomObjectPlacesVerification
             AssertTrue(ReferenceEquals(table.InUpdateOrder[spawn], place), $"spawn {spawn} takes the next place in update order");
             AssertTrue(place.Active, $"spawn {spawn}'s place holds its object");
             place.Block = new Position16<RoomBlocks>(spawn, 0);
-            place.Become(new MetroidRoomClearanceObject(cleared: null));
+            place.Become(new EscapeRoomHeldPlaceObject());
         }
         AssertTrue(table.IsFull && places.IsFull, "forty spawns fill the room");
         AssertEqual(RoomObjectPlaces.PlaceCount, table.ActiveCount, "every place holds an object");

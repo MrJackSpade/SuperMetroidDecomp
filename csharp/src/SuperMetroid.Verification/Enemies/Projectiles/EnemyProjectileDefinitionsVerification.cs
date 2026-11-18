@@ -51,20 +51,21 @@ internal static class EnemyProjectileDefinitionsVerification
 
         const ushort populationPointer = 0x9400;
         TestAddressSpace setupBus = CreateEmptyEnemyPopulationCartridge(populationPointer);
-        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: setupBus, services: new StandaloneRoomEnemyServices(() => 0));
+        // The Tourian statues' projectiles spawn only in their room (#2383, #2426), which the enemies are built for, so every
+        // kind is initialized in it.
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: setupBus, services: new StandaloneRoomEnemyServices(() => 0),
+            statueRoom: new FixedTourianStatueRoom(WaterSurface: 216, StatueOffset: 0));
         enemies.Load(RoomEnemyFrameFixtures.StandaloneLoad(setupBus.ReadEnemyPopulation(populationPointer), BgArtworkFixtures.For(new SnesVram()), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), RoomEnemyFrameFixtures.StandaloneSamus()));
         var guard = NewEnemyProjectileDefinitionReadGuard(setupBus, forbidden);
         EnemyProjectile projectile = enemies.Projectiles.EnemyProjectiles[^1];
         Func<EnemyProjectile, SamusState, SuperMetroid.Core.Samus.Movement.KnockbackHorizontalDirection?> collideWithSamus =
             EnemyProjectileEngine.ResolveEnemyProjectileSamusCollision;
 
-        // The Tourian statues' projectiles spawn only in their room (#2383), which every kind is initialized in here.
-        var statueRoom = new FixedTourianStatueRoom(WaterSurface: 216, StatueOffset: 0);
         foreach (RoomEnemyProjectileKind kind in kinds)
         {
             EnemyProjectileDefinition definition = EnemyProjectileKinds.Get(kind);
             projectile.Delete();
-            FamilyProjectileStarts.Initialize(enemies, projectile, kind, SpriteGraphics.SharedIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook), statueRoom);
+            FamilyProjectileStarts.Initialize(enemies, projectile, kind, SpriteGraphics.SharedIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook));
             AssertEqual(kind, projectile.Kind, $"{kind} production kind");
             AssertEqual(startingMotions[kind], projectile.Motion,
                 $"{kind} production pre-instruction");
@@ -131,7 +132,7 @@ internal static class EnemyProjectileDefinitionsVerification
                 AssertTrue(ReferenceEquals(initialProgram, projectile.Animation), $"{kind} production touch keeps its program");
             }
 
-            FamilyProjectileStarts.Initialize(enemies, projectile, kind, SpriteGraphics.SharedStandard, statueRoom);
+            FamilyProjectileStarts.Initialize(enemies, projectile, kind, SpriteGraphics.SharedStandard);
             projectile.Position = projectile.Position.WithWhole(new(0x0100, 0x0100));
             projectile.BlocksSamusProjectiles = true;
             projectile.CollisionOption = EnemyProjectileCollisionOption.PlaysShotAnimation;

@@ -75,6 +75,7 @@ using static SuperMetroid.Verification.Samus.Movement.CeilingWrapVerification;
 using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresDestructionActorDefinitionsVerification;
 using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresDestructionVerification;
 using static SuperMetroid.Verification.Areas.Ceres.CeresElevatorArrivalVerification;
+using static SuperMetroid.Verification.Areas.Ceres.CeresCountdownVerification;
 using static SuperMetroid.Verification.Areas.Ceres.CeresEscapeHandoffVerification;
 using static SuperMetroid.Verification.Areas.Ceres.CeresEscapeVramTransferDefinitionsVerification;
 using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresExplosionDefinitionsVerification;
@@ -724,6 +725,8 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyBackgroundMosaicWidth), () => VerifyBackgroundMosaicWidth()),
         new(nameof(VerifyOamSpritemapPacking), () => VerifyOamSpritemapPacking()),
         new(nameof(VerifyCeresElevatorArrivalGraphicsIndex), () => VerifyCeresElevatorArrivalGraphicsIndex()),
+        new(nameof(VerifyCeresFallingDebrisInterval), () => VerifyCeresFallingDebrisInterval()),
+        new(nameof(VerifyCeresElevatorPadWait), () => VerifyCeresElevatorPadWait()),
         new(nameof(VerifySamusRenderingSlice), () => VerifySamusRenderingSlice()),
         new(nameof(VerifySamusMovementRomData), () => VerifySamusMovementRomData()),
         new(nameof(VerifySamusRenderingRomData), () => VerifySamusRenderingRomData()),

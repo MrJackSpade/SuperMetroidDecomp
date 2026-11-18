@@ -33,9 +33,6 @@ internal sealed class ClockedEnemyAiFrame(RoomEnemyFrame frame, FrameCounters cl
     public PseudoScrewCharge PseudoScrew => frame.PseudoScrew;
 
     /// <inheritdoc/>
-    public TurningFloorTransform? TurningFloor => frame.TurningFloor;
-
-    /// <inheritdoc/>
     public SamusBombProjectileSystem SharedProjectiles => frame.SharedProjectiles;
 
     /// <inheritdoc/>

@@ -19,7 +19,7 @@ public sealed class CeresDepartureState
     public CeresDeparturePhase Phase { get; private set; } = CeresDeparturePhase.Inactive;
 
     /// <summary>
-    /// The updates left in the elevator hold, started at <see cref="CeresElevatorShaftRoomMainState.DepartureHoldFrames"/>
+    /// The updates left in the elevator hold, started at <see cref="CeresElevatorDepartureDefinitions.DepartureHoldFrames"/>
     /// when Samus reaches the elevator and the room's main behaviour begins the departure.
     /// </summary>
     public int HoldFramesRemaining { get; private set; }
@@ -37,7 +37,7 @@ public sealed class CeresDepartureState
         if (Phase != CeresDeparturePhase.Inactive)
             throw new InvalidOperationException("Ceres elevator departure was started twice.");
 
-        HoldFramesRemaining = CeresElevatorShaftRoomMainState.DepartureHoldFrames;
+        HoldFramesRemaining = CeresElevatorDepartureDefinitions.DepartureHoldFrames;
         fade.Restart(DisplayBrightness.Full, 0);
         Phase = CeresDeparturePhase.HoldingOnElevator;
     }

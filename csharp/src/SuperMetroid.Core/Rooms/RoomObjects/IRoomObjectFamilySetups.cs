@@ -37,7 +37,10 @@ internal interface IRoomObjectFamilySetups
     void SetUpBombTorizoHand();
 
     /// <summary>Sets up the Metroid room's clearance.</summary>
-    void SetUpMetroidRoomClearance(MetroidRoomArgument? watches);
+    void SetUpMetroidRoomClearance(MetroidRoomArgument watches);
+
+    /// <summary>Sets up an escape room's held place.</summary>
+    void SetUpEscapeRoomHeldPlace();
 
     /// <summary>Sets up the Speed Booster's escape.</summary>
     void SetUpSpeedBoosterEscape();

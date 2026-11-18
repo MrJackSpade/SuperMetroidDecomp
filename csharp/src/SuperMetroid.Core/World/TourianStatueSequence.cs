@@ -248,7 +248,7 @@ public sealed class TourianStatueSequence
                     statue.Animation.ReleaseInProgress = false;
                     statue.Animation.Animating &= ~definition.Statue;
                     return null;
-                case TourianStatueBlockCueKind.ApplyGreyColors:
+                case TourianStatueBlockCueKind.TurnGrey:
                     _statue.ShowStatueLook(definition.GreyShade);
                     return null;
                 default:

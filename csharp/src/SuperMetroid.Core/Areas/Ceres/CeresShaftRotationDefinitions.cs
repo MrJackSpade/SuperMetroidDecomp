@@ -15,8 +15,14 @@ public static class CeresShaftRotationDefinitions
     /// <summary>The steps of the shaft's full tilt either way from level (#1895).</summary>
     public const int FullTiltSteps = 34;
 
-    /// <summary>The steps from level that tilt the shaft one radian: each step tilts it a further 256th of a radian.</summary>
+    /// <summary>
+    /// The steps from level that tilt the shaft one radian: each step tilts it a further 256th of a radian (the shaft shows
+    /// a tilt as the turn whose sine is its steps in 256ths).
+    /// </summary>
     public const double StepsPerRadian = 256;
+
+    /// <summary>The updates the shaft holds level, once the elevator door's destruction releases it, before its first turn.</summary>
+    public const int LevelHoldFrames = 60;
 
     /// <summary>
     /// The updates the shaft holds each tilt, by its steps from level either way, from level through the full tilt

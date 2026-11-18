@@ -252,9 +252,15 @@ internal sealed record PartFrameConfiguration(
             new Dictionary<string, string[]>(StringComparer.Ordinal), null, null, []),
         // The Ceres doors and walls run the doors' one animation set, each from its own start (#1989): an ordinary door from
         // its facing's, which its placement chooses; the door of Ridley's room from its own, running on into the right-facing
-        // door's; the elevator room's blocked door, its wall (which runs on into the left-facing door's) and the getaway
-        // chamber's walls each from theirs.
-        new("CeresDoorBehavior", null, null, "CeresDoorAnimations", null, [],
+        // door's; the elevator room's blocked door, which a room with a turning floor places (#2426), its wall (which runs on
+        // into the left-facing door's) and the getaway chamber's walls each from theirs.
+        new("CeresElevatorDoorFactory", null, null, "CeresDoorAnimations", null, [],
+            new Dictionary<string, string[]>(StringComparer.Ordinal)
+            {
+                ["CeresElevatorDoor"] = ["ElevatorDoor"],
+            },
+            new Dictionary<string, string[]>(StringComparer.Ordinal), null, null, []),
+        new("CeresDoorFactory", null, null, "CeresDoorAnimations", null, [],
             new Dictionary<string, string[]>(StringComparer.Ordinal)
             {
                 // Each door's cues start, by name, the closing, closed and waiting animations of its facing (#2189); the
@@ -262,7 +268,6 @@ internal sealed record PartFrameConfiguration(
                 ["CeresDoor"] = ["DoorFacingRight", "DoorFacingLeft", "CloseFacingRight", "CloseFacingLeft", "ClosedFacingRight",
                     "ClosedFacingLeft", "ClosedFacingRightWait", "ClosedFacingLeftWait"],
                 ["CeresRidleyRoomDoor"] = ["RidleyRoomDoor", "RidleyRoomDoorWait"],
-                ["CeresElevatorDoor"] = ["ElevatorDoor"],
                 ["CeresElevatorRoomWall"] = ["ElevatorRoomWall", "DoorFacingLeft", "CloseFacingLeft", "ClosedFacingLeft",
                     "ClosedFacingLeftWait"],
                 ["CeresGetawayChamberWall"] = ["GetawayChamberLeftWall", "GetawayChamberRightWall"],
@@ -1284,6 +1289,17 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
         List<ExpressionSyntax> sources = [.. configuration.TableType is null ? [] : new[] { TableInitializer() },
             .. configuration.AnimationsType is null ? [] : AnimationInitializers()];
         var shown = new HashSet<string>(keys.Values.SelectMany(selected => selected), StringComparer.Ordinal);
+        // Behaviours running one animation set over one table share its frames: a key a part of any of them shows is shown
+        // (#2426: the Ceres doors' owner and the elevator door's factory). Each sharing behaviour's own problems are
+        // reported by its own split, which runs this check for it.
+        foreach (PartFrameConfiguration sharing in PartFrameConfiguration.All.Where(other => !ReferenceEquals(other, configuration)
+                     && other.AnimationsType is not null && other.AnimationsType == configuration.AnimationsType
+                     && other.TableType == configuration.TableType && other.TableMember == configuration.TableMember))
+        {
+            var other = new PartFrames(model, sharing);
+            var reportedByItsOwnSplit = new List<string>();
+            shown.UnionWith(other.ProgramKeys(other.Table(reportedByItsOwnSplit), reportedByItsOwnSplit).Values.SelectMany(selected => selected));
+        }
         // Only a name spelled as one of an enum key type's members can name one; the rest need no binding.
         var members = new HashSet<string>(keyType.GetMembers().OfType<IFieldSymbol>().Select(member => member.Name), StringComparer.Ordinal);
         foreach (SyntaxTree tree in model.Compilation.SyntaxTrees)

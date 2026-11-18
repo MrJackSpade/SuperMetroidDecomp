@@ -203,8 +203,11 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     /// <summary>The space pirates that walk the floors and fire at Samus.</summary>
     internal WalkingSpacePirateBehavior WalkingSpacePirateBehavior { get; }
 
-    /// <summary>The Tourian entrance statue scene: its decorations, which follow the statue down, and its look as each boss statue releases.</summary>
-    internal TourianEntranceStatueBehavior TourianEntranceStatueBehavior { get; }
+    /// <summary>
+    /// The Tourian entrance statue scene: its decorations, which follow the statue down, and its look as each boss statue
+    /// releases. Only the statue room builds it, with that room (#2426); null in every other room, which places no statue.
+    /// </summary>
+    internal TourianEntranceStatueBehavior? TourianEntranceStatueBehavior { get; }
 
     /// <summary>Spore Spawn, Brinstar's mini-boss, which swings its core and releases spores.</summary>
     internal SporeSpawnBehavior SporeSpawnBehavior { get; }
@@ -526,22 +529,32 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     /// <summary>The room-object work the Chozo statues and downward gates exchange with their room objects each frame.</summary>
     internal IEnemyObjectRequests RoomObjectRequests => field ??= new EnemyObjectRequests(ChozoStatueBehavior, DownwardGateBehavior);
 
+    /// <summary>The statue room's statue scene.</summary>
+    /// <exception cref="InvalidOperationException">These enemies are not the statue room's.</exception>
+    private TourianEntranceStatueBehavior StatueScene => TourianEntranceStatueBehavior
+        ?? throw new InvalidOperationException("These enemies hold no Tourian statue scene: their room is not the statue room.");
+
     /// <summary>
-    /// The Tourian statues' unlock effects in <paramref name="statueRoom"/>: the eyes' glows, the released souls and
-    /// particles, their splashes at its water and the descent's dust (#2382).
+    /// The Tourian statues' unlock effects in the statue room: the eyes' glows, the released souls and particles, their
+    /// splashes at its water and the descent's dust (#2382).
     /// </summary>
-    internal TourianUnlockBehavior UnlockEffectsIn(ITourianStatueRoom statueRoom) =>
-        new(Room, Projectiles, Earthquake, Audio, TourianEntranceStatueBehavior, statueRoom);
+    /// <exception cref="InvalidOperationException">These enemies are not the statue room's.</exception>
+    internal TourianUnlockBehavior UnlockEffects() =>
+        new(Room, Projectiles, Earthquake, Audio, StatueScene, StatueScene.StatueRoom);
 
     /// <summary>
     /// The Tourian statue sequence's operations in <paramref name="statueRoom"/>: the entrance statue and the unlock effects
-    /// that splash at its water (#2382). The statue room's sequence makes them.
+    /// that splash at its water (#2382). The statue room's sequence makes them, in the room these enemies were built for.
     /// </summary>
+    /// <exception cref="InvalidOperationException">These enemies are not <paramref name="statueRoom"/>'s.</exception>
     internal ITourianStatueActors TourianStatueIn(ITourianStatueRoom statueRoom) =>
-        new TourianStatueActors(TourianEntranceStatueBehavior, UnlockEffectsIn(statueRoom));
+        ReferenceEquals(StatueScene.StatueRoom, Ensure.NotNull(statueRoom))
+            ? new TourianStatueActors(StatueScene, UnlockEffects())
+            : throw new InvalidOperationException("The statue sequence's room is not the statue room these enemies were built for.");
 
     /// <summary>Whether the Tourian entrance statue's sinking has finished.</summary>
-    internal bool TourianEntranceStatueFinished => TourianEntranceStatueBehavior.TourianEntranceStatueAnimation.Finished;
+    /// <exception cref="InvalidOperationException">These enemies are not the statue room's.</exception>
+    internal bool TourianEntranceStatueFinished => StatueScene.TourianEntranceStatueAnimation.Finished;
 
     /// <summary>
     /// Shows <paramref name="frame"/> of the escape's shutter flash on the destroyable shutters the room holds, and on
@@ -585,7 +598,8 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         get
         {
             yield return CeresDoorBehavior;
-            yield return TourianEntranceStatueBehavior;
+            if (TourianEntranceStatueBehavior is { } statue)
+                yield return statue;
             if (BossEncounters.MotherBrain is { } motherBrain)
                 yield return motherBrain.Colours;
             foreach (IGameplayShadingSource boss in Presentation.BossShadings.InOrder)
@@ -665,7 +679,10 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         WaverBehavior = new WaverBehavior(Terrain);
         WalkingSpacePirateBehavior = new WalkingSpacePirateBehavior(Terrain, Projectiles, Audio, Collision, DeathsAndDrops);
         WallSpacePirateBehavior = new WallSpacePirateBehavior(Room, Terrain, WalkingSpacePirateBehavior);
-        TourianEntranceStatueBehavior = new TourianEntranceStatueBehavior(Projectiles, dependencies.Scenery.TourianStatueRoom);
+        // The statue room alone builds the statue scene, with its room (#2426).
+        TourianEntranceStatueBehavior = dependencies.Scenery.TourianStatueRoom is { } statueRoom
+            ? new TourianEntranceStatueBehavior(Projectiles, statueRoom)
+            : null;
         SporeSpawnBehavior = new SporeSpawnBehavior(new SporeSpawnBehaviorDependencies { Audio = Audio, Room = Room, Presentation = Presentation, Projectiles = Projectiles, EffectActors = EffectActors, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, FrameResults = BossFrameResults, CameraFloor = CameraFloor });
         FallingSparksBehavior = new FallingSparksBehavior(Room, Projectiles, EffectActors, compatibility.FallingSparkFloorProbe);
         SparkBehavior = new SparkBehavior(FallingSparksBehavior);
@@ -732,10 +749,12 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         CrawlersBehavior = new CrawlersBehavior(Terrain, Earthquake);
         ChozoStatueBehavior = new ChozoStatueBehavior(Room, Terrain, Projectiles, Audio, RoomFx);
         ChootBehavior = new ChootBehavior();
-        CeresSteamBehavior = new CeresSteamBehavior(Room, Collision);
+        CeresSteamBehavior = new CeresSteamBehavior(Room, Collision, dependencies.Scenery.ShaftTurn);
         CeresFallingTiles = new CeresFallingTiles(Projectiles, Audio);
         SaveStationElectricity = new SaveStationElectricity(Projectiles);
-        CeresDoorBehavior = new CeresDoorBehavior(new CeresDoorBehaviorDependencies { Room = Room, Earthquake = Earthquake, Audio = Audio, Presentation = Presentation, Projectiles = Projectiles, CeresEscape = RidleyEncounter, RidleyScene = RidleyEncounter, Floor = dependencies.Scenery.Floor });
+        CeresDoorBehavior = new CeresDoorBehavior(new CeresDoorBehaviorDependencies { Room = Room, Earthquake = Earthquake, Audio = Audio, Presentation = Presentation, Projectiles = Projectiles, CeresEscape = RidleyEncounter, RidleyScene = RidleyEncounter });
+        // A room with a turning floor alone places the elevator room's blocked door, which cycles the floor's platform (#2426).
+        CeresElevatorDoorFactory? elevatorDoors = dependencies.Scenery.Floor is { } floor ? new CeresElevatorDoorFactory(CeresDoorBehavior, floor) : null;
         CacatacBehavior = new CacatacBehavior(Room, Projectiles, Audio);
         BullBehavior = new BullBehavior(compatibility.BullInheritance);
         BoyonBehavior = new BoyonBehavior(Audio);
@@ -771,7 +790,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
             PipeBugsBehavior,
             BotwoonBehavior,
             TorizoBehavior,
-            TourianEntranceStatueBehavior,
+            .. Present<IEnemySpecies>(TourianEntranceStatueBehavior),
             ShaktoolBehavior,
             ChozoStatueBehavior,
             EscapeAnimalsBehavior,
@@ -830,10 +849,20 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
             WallSpacePirateBehavior,
             NinjaSpacePirateBehavior,
         ];
-        Species = EnemySpeciesRegistry.ForEveryRoom(new EnemyCommonParticipation(GetCollision), [BoyonBehavior, BullBehavior, ZoaBehavior, WaverBehavior, ChootBehavior, AtomicBehavior, SkulteraBehavior, PuyoBehavior, RioBehavior, FliesBehavior, SparkBehavior, SbugBehavior, MultiviolaBehavior, CacatacBehavior, AlcoonBehavior, BoulderBehavior, NuclearWaffleBehavior, HibashiBehavior, WreckedShipGhostBehavior, KzanBehavior, RipperBehavior, MochtroidBehavior, SkreeBehavior, OwtchBehavior, BeetomBehavior, KagoBehavior, FirefleaBehavior, MetareeBehavior, PolypBehavior, HoppersBehavior, CrawlersBehavior, PlatformsBehavior, YardBehavior, YappingMawBehavior, EtecoonBehavior, DachoraBehavior, MaridiaLargeSnailBehavior, WorkRobotBehavior, BlueBrinstarFaceBlockBehavior, DragonBehavior, FuneNamiheBehavior, PowampBehavior, NorfairRioBehavior, LowerNorfairRioBehavior, NorfairLavaJumpingEnemyBehavior, ShaktoolBehavior, MetroidBehavior, WalkingSpacePirateBehavior, WallSpacePirateBehavior, NinjaSpacePirateBehavior, ChozoStatueBehavior, TourianEntranceStatueBehavior, DeadSidehopperBehavior, DeadTorizoBehavior, DeadTourianBehavior, ShitroidBehavior, FakeKraidBehavior, ElevatorBehavior, MagdolliteBehavior, EscapeAnimalsBehavior, RinkaBehavior, ZebetiteBehavior, ShuttersBehavior, EvirBehavior, KiHunterBehavior, PipeBugsBehavior, MamaTurtleBehavior, MorphBallEyeBehavior, CeresDoorBehavior, CeresSteamBehavior, GunshipBehavior, BotwoonBehavior, SporeSpawnBehavior, TorizoBehavior, KraidBehavior, CrocomireBehavior, DraygonBehavior, PhantoonBehavior, MotherBrainBehavior, BabyMetroidCutsceneBehavior, NoobTubeBehavior,
-            new RidleyEntityFactory(NorfairRidleyBehavior, CeresRidleyBehavior, RidleyEncounter)]);
+        Species = EnemySpeciesRegistry.ForRoom(new EnemyCommonParticipation(GetCollision), [BoyonBehavior, BullBehavior, ZoaBehavior, WaverBehavior, ChootBehavior, AtomicBehavior, SkulteraBehavior, PuyoBehavior, RioBehavior, FliesBehavior, SparkBehavior, SbugBehavior, MultiviolaBehavior, CacatacBehavior, AlcoonBehavior, BoulderBehavior, NuclearWaffleBehavior, HibashiBehavior, WreckedShipGhostBehavior, KzanBehavior, RipperBehavior, MochtroidBehavior, SkreeBehavior, OwtchBehavior, BeetomBehavior, KagoBehavior, FirefleaBehavior, MetareeBehavior, PolypBehavior, HoppersBehavior, CrawlersBehavior, PlatformsBehavior, YardBehavior, YappingMawBehavior, EtecoonBehavior, DachoraBehavior, MaridiaLargeSnailBehavior, WorkRobotBehavior, BlueBrinstarFaceBlockBehavior, DragonBehavior, FuneNamiheBehavior, PowampBehavior, NorfairRioBehavior, LowerNorfairRioBehavior, NorfairLavaJumpingEnemyBehavior, ShaktoolBehavior, MetroidBehavior, WalkingSpacePirateBehavior, WallSpacePirateBehavior, NinjaSpacePirateBehavior, ChozoStatueBehavior, DeadSidehopperBehavior, DeadTorizoBehavior, DeadTourianBehavior, ShitroidBehavior, FakeKraidBehavior, ElevatorBehavior, MagdolliteBehavior, EscapeAnimalsBehavior, RinkaBehavior, ZebetiteBehavior, ShuttersBehavior, EvirBehavior, KiHunterBehavior, PipeBugsBehavior, MamaTurtleBehavior, MorphBallEyeBehavior, new CeresDoorFactory(CeresDoorBehavior), CeresSteamBehavior, GunshipBehavior, BotwoonBehavior, SporeSpawnBehavior, TorizoBehavior, KraidBehavior, CrocomireBehavior, DraygonBehavior, PhantoonBehavior, MotherBrainBehavior, BabyMetroidCutsceneBehavior, NoobTubeBehavior,
+            new RidleyEntityFactory(NorfairRidleyBehavior, CeresRidleyBehavior, RidleyEncounter),
+            .. Present<IEnemyEntityFactory>(TourianEntranceStatueBehavior), .. Present<IEnemyEntityFactory>(elevatorDoors)],
+            // What the owners the room's scenery did not let it build would have placed; the registry refuses a room that
+            // builds an owner of one, or lacks an owner of any other.
+            [
+                .. TourianEntranceStatueBehavior is null ? [EnemyDefinitionId.TourianStatue] : Array.Empty<EnemyDefinitionId>(),
+                .. elevatorDoors is null ? [EnemyDefinitionId.CeresElevatorDoor] : Array.Empty<EnemyDefinitionId>(),
+            ]);
         Places.InstallPlaces(Species);
     }
+
+    /// <summary><paramref name="owner"/>, an owner the room's scenery may not let it build, when the room built it; else none.</summary>
+    private static IEnumerable<T> Present<T>(T? owner) where T : class => owner is null ? [] : [owner];
 
     /// <summary>
     /// Starts each enemy projectile place from the whole position and velocity the room this one replaces left

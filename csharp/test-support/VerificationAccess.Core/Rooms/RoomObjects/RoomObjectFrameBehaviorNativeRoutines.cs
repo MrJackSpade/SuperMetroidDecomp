@@ -15,9 +15,8 @@ internal static class RoomObjectFrameBehaviorNativeRoutines
     /// <summary>The routine a Metroids-cleared PLM installs for <paramref name="roomArgument"/>.</summary>
     internal static ushort MetroidsCleared(ushort roomArgument)
     {
-        // Decoding rejects a word that names none of the table's entries.
-        _ = RoomObjectRoomArgumentWords.Decode(RoomObjectKind.MetroidRoomClearance, roomArgument) as MetroidRoomArgument
-            ?? throw new InvalidDataException($"Metroids-cleared argument ${roomArgument:X4} decodes to no watch.");
+        // Resolving the placed kind rejects a word that names none of the table's entries.
+        _ = RoomObjectRoomArgumentWords.PlacedKind(RoomObjectKind.MetroidRoomClearance, roomArgument);
         int entry = roomArgument / 2;
         int noOps = RoomObjectRoomArgumentWords.MetroidRoomNoOpEntryCount;
         return (ushort)(entry < noOps ? MetroidsClearedFirstNoOp + entry : MetroidsClearedFirstQuotaObserver + (entry - noOps) * 16);

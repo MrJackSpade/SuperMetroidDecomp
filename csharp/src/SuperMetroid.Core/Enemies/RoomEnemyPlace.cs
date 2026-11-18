@@ -120,12 +120,25 @@ public sealed class RoomEnemyPlace : ISolidEnemy
     /// <param name="definition">The occupant's resolved definition.</param>
     internal void Bind(EnemyDefinitionId definitionId, RoomEnemyDefinition definition)
     {
+        ReleaseEntity();
         DefinitionId = definitionId;
         Definition = definition;
         AwaitsRespawn = false;
         OccupantStates = new();
         AnimationClock = new();
         Entity = definitionId == EnemyDefinitionId.None ? null : _registry.Create(this);
+    }
+
+    /// <summary>
+    /// Stops holding the place's enemy, telling it that it has left the place (<see cref="IEnemyDeparture"/>) before any
+    /// new occupant is bound.
+    /// </summary>
+    private void ReleaseEntity()
+    {
+        IEnemyEntity? leaving = Entity;
+        Entity = null;
+        if (leaving is IEnemyDeparture departure)
+            departure.Leave();
     }
 
     /// <summary>
@@ -155,7 +168,7 @@ public sealed class RoomEnemyPlace : ISolidEnemy
     private void Vacate()
     {
         DefinitionId = EnemyDefinitionId.None;
-        Entity = null;
+        ReleaseEntity();
         OccupantStates = new();
     }
     /// <summary>

@@ -10,8 +10,8 @@ namespace SuperMetroid.Core.Areas.Ceres;
 internal static class CeresEscapeReadyingDefinitions
 {
     /// <summary>
-    /// The updates the self-destruct spends bringing up the escape timer and warning, one update each for the timer's two
-    /// parts and the warning's five, as the game's warning setup takes: the warning look shows from the last.
+    /// The updates the self-destruct spends bringing up the escape timer and warning, as the game's warning setup takes
+    /// them (#2425): the warning look shows from the last.
     /// </summary>
     internal const int WarningReadyingDuration = 7;
 

@@ -4177,17 +4177,6 @@ internal static class SpawnedObjectFrameDefinitions
     /// <summary>The room effect actors <see cref="SpawnedObjectOwner.MotherBrainTankGlass"/>'s sheet holds.</summary>
     private static readonly RoomEffectActorKind[] MotherBrainTankGlassSheetEffectActors = [];
 
-    /// <summary>The projectile frames <c>CeresElevatorArrivalState</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
-    private static readonly EnemyProjectileFrameId[] CommonCeresElevatorArrivalStateProjectiles =
-    [
-        EnemyProjectileFrameId.CeresElevatorPadUnlit,
-        EnemyProjectileFrameId.CeresElevatorPadLit,
-        EnemyProjectileFrameId.CeresElevatorPlatform,
-    ];
-
-    /// <summary>The room effect actors <c>CeresElevatorArrivalState</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
-    private static readonly RoomEffectActorKind[] CommonCeresElevatorArrivalStateEffectActors = [];
-
     /// <summary>The projectile frames <c>DownwardGateBehavior</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
     private static readonly EnemyProjectileFrameId[] CommonDownwardGateBehaviorProjectiles =
     [
@@ -4670,7 +4659,6 @@ internal static class SpawnedObjectFrameDefinitions
     /// </summary>
     internal static IReadOnlyList<CommonSpawnedObjects> Common { get; } =
     [
-        new("CeresElevatorArrivalState", new(CommonCeresElevatorArrivalStateProjectiles, CommonCeresElevatorArrivalStateEffectActors)),
         new("DownwardGateBehavior", new(CommonDownwardGateBehaviorProjectiles, CommonDownwardGateBehaviorEffectActors)),
         new("EnemyDeathsAndDrops", new(CommonEnemyDeathsAndDropsProjectiles, CommonEnemyDeathsAndDropsEffectActors)),
         new("EnemyProjectileEngine.CreateBombDudShot", new(CommonEnemyProjectileEngineCreateBombDudShotProjectiles, CommonEnemyProjectileEngineCreateBombDudShotEffectActors)),

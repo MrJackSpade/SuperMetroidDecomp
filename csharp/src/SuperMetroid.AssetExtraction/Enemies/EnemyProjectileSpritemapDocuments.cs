@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Artwork;
 
@@ -44,7 +45,7 @@ public static class EnemyProjectileSpritemapDocuments
         EnemyProjectileSpritemapDocument document =
             JsonAssetDocument.Read<EnemyProjectileSpritemapDocument>(json, Options, "enemy-projectile compositions");
         if (document.Version != Version || document.Frames is null ||
-            document.Frames.Count != EnemyProjectileSpritemapDefinitions.FrameNames.Length)
+            document.Frames.Count != EnemyProjectileSpritemapDefinitions.DocumentFrameNames.Count)
             throw new InvalidDataException(
                 "Enemy-projectile compositions have the wrong version or frame count.");
         var compiled = new Dictionary<EnemyProjectileFrameId, SpritePart[]>();
@@ -55,6 +56,14 @@ public static class EnemyProjectileSpritemapDocuments
                 throw new InvalidDataException(
                     $"Enemy-projectile composition {name} is missing.");
             compiled[EnemyProjectileFrames.Identity(name)] = CompileParts(name, visual);
+        }
+        // The Ceres elevator arrival's pictures are composed as the projectiles' are, but show its own poses (#2425).
+        var arrival = new Dictionary<CeresElevatorArrivalPose, SpritePart[]>();
+        foreach ((CeresElevatorArrivalPose pose, string name) in EnemyProjectileSpritemapDefinitions.ElevatorArrivalFrameNames)
+        {
+            if (!document.Frames.TryGetValue(name, out SpriteVisualPart[]? visual) || visual is null)
+                throw new InvalidDataException($"Enemy-projectile composition {name} is missing.");
+            arrival[pose] = CompileParts(name, visual);
         }
         ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> definitions = EnemyProjectilePresentationFrameSets.All;
         if (document.ProgramFrames is null ||
@@ -70,7 +79,7 @@ public static class EnemyProjectileSpritemapDocuments
                     $"Enemy-projectile frame {frame.Name} is missing.");
             compiledPrograms[frame.Frame] = CompileParts(frame.Name, visual);
         }
-        return new EnemyProjectileSpritemapCatalog(compiled, compiledPrograms);
+        return new EnemyProjectileSpritemapCatalog(compiled, compiledPrograms, arrival);
     }
 
     /// <summary>Writes the document as camel-case JSON.</summary>

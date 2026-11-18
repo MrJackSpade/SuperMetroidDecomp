@@ -8,6 +8,8 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.EffectActors;
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
+using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Areas.Ceres.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
@@ -141,7 +143,10 @@ internal static class SpawnedObjectSheetComposer
                     : throw new InvalidDataException($"Encounter frame {frame} has no installed composition."), objectBase,
                     EncounterFrameDefinitions.DrawnInRowOf.TryGetValue(frame, out EnemyDefinitionId rowOwner) ? rowOf(rowOwner)
                         : EncounterFrameDefinitions.DrawnInEncounterRow.Contains(frame) ? EncounterRow(frame, plan.Spawners, rowOf) : 0),
-                Drawn(FrameDrawings.Of(frame)), RottingCorpseCells.ShowsInEncounter(frame))))];
+                Drawn(FrameDrawings.Of(frame)), RottingCorpseCells.ShowsInEncounter(frame))))
+            .Concat(ElevatorArrivalPoses(plan).Select(pose => characters.Pictures(
+                CeresElevatorArrivalPictures.SheetName(pose), EnemySpriteFrames.Frame(projectiles.GetElevatorArrival(pose), projectileBase, 0),
+                Drawn(FrameDrawings.None))))];
         // Each of the sheet's spawners whose encounter sets colours leaves them in the rows they write; a frame family
         // always drawn in one colouring is coloured in it; and each frame an enemy spawns onto the shared sheet with the
         // room's graphics is coloured over the rows it inks in that spawner's first colouring (the statue fragments and orbs
@@ -169,8 +174,16 @@ internal static class SpawnedObjectSheetComposer
         SpawnedObjects spawned = Spawned(new SpawnedObjectSheetPlan(owner, 0, 0, 0, [.. spawners], [.. sharedSpawners], common, []));
         return spawned.Projectiles.Select(EnemySheetDefinitions.ProjectileFrameName)
             .Concat(EffectActorFrames(spawned.EffectActors).Select(EnemySheetDefinitions.EffectActorFrameName))
-            .Concat(EncounterFrames(spawners, owner == SpawnedObjectOwner.Shared).Select(EnemySheetDefinitions.EncounterFrameName));
+            .Concat(EncounterFrames(spawners, owner == SpawnedObjectOwner.Shared).Select(EnemySheetDefinitions.EncounterFrameName))
+            .Concat(common.SelectMany(spawner => spawner.ArrivalPoses).Distinct().Order().Select(CeresElevatorArrivalPictures.SheetName));
     }
+
+    /// <summary>
+    /// The Ceres elevator arrival's poses whose pictures <paramref name="plan"/>'s sheet holds, each once in a stable order:
+    /// those of its common spawners, which only the shared sheet has (#2425).
+    /// </summary>
+    private static IEnumerable<CeresElevatorArrivalPose> ElevatorArrivalPoses(SpawnedObjectSheetPlan plan) =>
+        plan.Common.SelectMany(spawner => spawner.ArrivalPoses).Distinct().Order();
 
     /// <summary>
     /// The frames the encounters of <paramref name="spawners"/> draw themselves at character zero, which the character-zero

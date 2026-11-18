@@ -19,7 +19,7 @@ internal static class EnemyProjectileArtworkContractChecks
     /// <summary>Checks complete authored frame admission and static provider coverage without projectile simulation.</summary>
     internal static void Run()
     {
-        var direct = EnemyProjectileSpritemapDefinitions.FrameNames.ToDictionary(name => name, _ => Array.Empty<SpriteVisualPart>());
+        var direct = EnemyProjectileSpritemapDefinitions.DocumentFrameNames.ToDictionary(name => name, _ => Array.Empty<SpriteVisualPart>());
         var programs = EnemyProjectilePresentationFrameSets.All.ToDictionary(frame => frame.Name, _ => Array.Empty<SpriteVisualPart>());
         var document = new EnemyProjectileSpritemapDocument {
             Version = EnemyProjectileSpritemapDocuments.Version, Frames = direct, ProgramFrames = programs };

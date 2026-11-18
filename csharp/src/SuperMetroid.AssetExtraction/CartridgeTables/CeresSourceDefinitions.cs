@@ -38,7 +38,7 @@ internal static class CeresSourceDefinitions
         /// <summary>$A6:C164: the English EMERGENCY title's words.</summary>
         internal static readonly SnesAddress Emergency = new(0xa6, 0xc164);
 
-        /// <summary>$A6:C3F4: the Japanese subtitle's four row halves' words, stored one after another.</summary>
+        /// <summary>$A6:C3F4: the Japanese subtitle's two lines' words, each its upper row and then its lower, one after another.</summary>
         internal static readonly SnesAddress JapaneseRows = new(0xa6, 0xc3f4);
     }
 

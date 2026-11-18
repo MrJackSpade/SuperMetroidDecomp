@@ -21,6 +21,9 @@ public static class EnemyProjectileSpritemapFiles
         foreach (string name in EnemyProjectileSpritemapDefinitions.FrameNames)
             frames.Add(name, EnemySpritemapFiles.ExtractParts(bus, CartridgeFormatDefinitions.EnemyProjectileSpritemapBank,
                 EnemyProjectileCompositionSources.Spritemap(EnemyProjectileFrames.Identity(name))));
+        foreach ((SuperMetroid.Core.Areas.Ceres.CeresElevatorArrivalPose pose, string name) in EnemyProjectileSpritemapDefinitions.ElevatorArrivalFrameNames)
+            frames.Add(name, EnemySpritemapFiles.ExtractParts(bus, CartridgeFormatDefinitions.EnemyProjectileSpritemapBank,
+                EnemyProjectileCompositionSources.ElevatorArrivalSpritemap(pose)));
         var programFrames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
         // The installed file lists program frames in the order their operands are stored in bank $86.
         EnemyProjectilePresentationFrameDefinition[] stored = EnemyProjectilePresentationFrameSets.All.ToArray();

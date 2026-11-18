@@ -47,7 +47,7 @@ internal static class CeresSelfDestructWarningVerification
 
     /// <summary>Whether <paramref name="warning"/> shows any row of the Japanese subtitle.</summary>
     private static bool ShowsSubtitle(CeresSelfDestructWarning warning) =>
-        warning.Overlay.Pictures.Any(written => CeresEscapeWarningPictures.Japanese.Any(page => page.Picture == written.Picture));
+        warning.Overlay.Pictures.Any(written => CeresEscapeWarningPictures.JapaneseSubtitle.Any(line => line.Picture == written.Picture));
 
     /// <summary>Runs the Ceres self-destruct warning's wait check.</summary>
     [VerificationCommand("--ceres-self-destruct-warning")]

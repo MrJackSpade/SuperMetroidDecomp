@@ -7,9 +7,9 @@ namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 /// </summary>
 internal static class CeresWarningGlyphDefinitions
 {
-    /// <summary>Supported warning-overlay schema revision.</summary>
-    internal const int Version = 2;
-    /// <summary>Import-data JSON file containing all five Ceres warning tilemap pages.</summary>
+    /// <summary>Supported warning-overlay schema revision; 3 holds each Japanese subtitle line as one page of two rows (#2425).</summary>
+    internal const int Version = 3;
+    /// <summary>Import-data JSON file containing all three Ceres warning tilemap pages.</summary>
     internal const string FileName = "ceres-escape-overlay-tilemaps.json";
     /// <summary>$A6:C4D9: the warning text's characters begin at character $182, where its Latin letters start.</summary>
     internal const int WarningFirstCharacter = 386;

@@ -1,11 +1,10 @@
 using P = SuperMetroid.Core.Areas.Ceres.CeresElevatorArrivalSegment;
 using SuperMetroid.Core.Animation;
-using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>
-/// The Ceres elevator arrival projectiles' typed animations (#641, #1600): the pad alternates two poses, each for one update
+/// The Ceres elevator arrival actors' typed animations (#641, #1600): the pad alternates two poses, each for one update
 /// at a time, and the platform rests on its one pose, until both leave as Samus lands (#2424).
 /// </summary>
 internal static class CeresElevatorArrivalAnimations
@@ -40,7 +39,4 @@ internal static class CeresElevatorArrivalAnimations
     /// <summary>Shows <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<CeresElevatorArrivalPose, NoAnimationCue> Show(CeresElevatorArrivalPose pose, int duration) =>
         new AnimationBeat<CeresElevatorArrivalPose, NoAnimationCue>.Frame(pose, duration);
-
-    /// <summary>The composition each arrival pose shows (<see cref="CeresElevatorArrivalDefinitions.Frames"/>).</summary>
-    internal static EnemyProjectileFrameId Frame(CeresElevatorArrivalPose pose) => Ensure.Listed(CeresElevatorArrivalDefinitions.Frames, pose);
 }

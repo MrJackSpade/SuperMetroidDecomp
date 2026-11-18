@@ -276,8 +276,8 @@ internal sealed class CeresEscape : IGameplayShadingSource
                 if (Warning.PhaseWait.StepRunsOut())
                 {
                     Warning.Phase = CeresSelfDestructPhase.TypingWarning;
-                    foreach (CeresEscapeWarningPicture page in CeresEscapeWarningPictures.Japanese)
-                        ShowWarningPicture(page);
+                    foreach (CeresEscapeWarningPicture line in CeresEscapeWarningPictures.JapaneseSubtitle)
+                        ShowWarningPicture(line);
                 }
                 // The typewriter finishing moves the warning one phase on from wherever the wait left it: the
                 // subtitle phase to typing, or typing to finishing.

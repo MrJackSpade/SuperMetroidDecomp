@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Areas.Ceres.Artwork;
 
-/// <summary>One picture of the Ceres escape warning (#1466, #1555): the EMERGENCY title or a row half of the Japanese subtitle.</summary>
+/// <summary>One picture of the Ceres escape warning (#1466, #1555, #2425): the EMERGENCY title or a line of the Japanese subtitle.</summary>
 /// <param name="Name">The picture's installed name, which names the lettering it shows.</param>
 /// <param name="Corner">The pixel of the room's foreground, from its top-left, its top-left corner shows at (#1406, #1514, #1601).</param>
 internal readonly record struct CeresEscapeWarningPicture(string Name, Position16<PlanePixels> Corner)

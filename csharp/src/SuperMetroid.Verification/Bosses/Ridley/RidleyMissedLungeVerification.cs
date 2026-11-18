@@ -18,7 +18,7 @@ internal static class RidleyMissedLungeVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         // The power bomb explosion of the pass's bombs, which a missed lunge dodges while it is armed.
-        var bomb = new SamusPowerBombExplosionState(global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors);
+        var bomb = new SamusPowerBombExplosionState();
         Action<RoomEnemyPlace, NorfairRidleyState, SamusState, GameplayAction, RoomLevelData> run = (ridley, ridleyState, target, input, level) =>
             enemies.NorfairRidleyBehavior.RunNorfairRidleyPhase(ridley, ridleyState, target, input, level, bomb);
         Action<RoomEnemyPlace, RidleyFlightState, RidleyWallImpact> move = enemies.RidleyBody.Flight.IntegrateMovement;

@@ -17,4 +17,11 @@ internal static class HyperBeamPaletteFxStateConstants
         /// <inheritdoc cref="HyperBeamPaletteFxStateConstants.FrameCount"/>
         internal static int FrameCount => HyperBeamPaletteFxStateConstants.FrameCount;
     }
+
+    /// <summary>Reads the effect's private hold, which only its own updates write (#2397).</summary>
+    extension(HyperBeamColourEffectState effect)
+    {
+        /// <summary>The current shade's remaining hold.</summary>
+        internal int FrameHold => PrivateState.Field<HyperBeamColourEffectState, int>(effect, "frameHold");
+    }
 }

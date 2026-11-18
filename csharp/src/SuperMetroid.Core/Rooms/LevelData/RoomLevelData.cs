@@ -151,6 +151,13 @@ public sealed class RoomLevelData
     public bool ElevatorDoorContactPending { get; private set; }
 
     /// <summary>
+    /// Whether the room's heavy spike blocks damage Samus (#2397): Wrecked Ship's are harmless until Phantoon is defeated,
+    /// every other area's always damage. Samus's input phase samples it from the room's area and its boss before her
+    /// movement reaches a spike, so a boss defeated later in the update leaves it as sampled.
+    /// </summary>
+    internal bool HeavySpikesDamage { get; set; } = true;
+
+    /// <summary>
     /// The foreground as the room shows it (#1346). The same immutable plane is returned until a block write, so frames
     /// that change nothing share it.
     /// </summary>

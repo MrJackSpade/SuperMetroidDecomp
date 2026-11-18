@@ -11,9 +11,9 @@ internal static class RidleyNeutralTailVerification
     internal static void VerifyRidleyPowerBombNeutralTail()
     {
         Action<NorfairRidleyState, SamusBombProjectileSystem> prepare = NorfairRidleyCombat.PrepareNorfairRidleyCombatFrame;
-        var armed = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors, global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
+        var armed = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         armed.PowerBombExplosion.Arm();
-        var unarmed = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors, global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
+        var unarmed = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             var state = new NorfairRidleyState { FightMode = RidleyFightMode.Fighting, GrabState = RidleyGrabState.Released, Flight = { ClawHeight = RidleyClawHeightPlaces.TableOrder[raw % 3] }, Tail = { Action = RidleyTailAction.Pogo, SwingStep = RidleyTailTurn.OfSteps(raw) } };

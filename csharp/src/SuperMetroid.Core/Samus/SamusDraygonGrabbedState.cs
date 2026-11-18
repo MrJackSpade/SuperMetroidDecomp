@@ -129,20 +129,18 @@ public sealed class SamusDraygonGrabbedState
     }
 
     /// <summary>
-    /// Runs the escape check after Samus's movement: optionally suppress the already-selected input transition while a
-    /// grapple is locked in place, then count a newly pressed pattern of directions only when it is
-    /// nonzero and different from the last counted pattern.
+    /// Runs the escape check after Samus's movement: counts a newly pressed pattern of directions only when it is nonzero
+    /// and different from the last counted pattern, and releases her once the count reaches its target.
     /// </summary>
-    public DraygonEscapeResult CheckDraygonEscape(
+    /// <returns>Whether the check released her.</returns>
+    public bool CheckDraygonEscape(
         SamusState samus,
-        GameplayAction newlyPressedInput,
-        bool grappleLockedInPlace)
+        GameplayAction newlyPressedInput)
     {
         Ensure.NotNull(samus);
         EnsureActiveGrabbedPose();
 
-        GameplayAction newlyPressed = newlyPressedInput;
-        GameplayAction directions = newlyPressed & GameplayActions.Directions;
+        GameplayAction directions = newlyPressedInput & GameplayActions.Directions;
         bool counted = false;
         if (directions != GameplayAction.None && directions != PreviousDirectionsPressed)
         {
@@ -155,10 +153,7 @@ public sealed class SamusDraygonGrabbedState
         bool released = counted && escapePresses.EscapePressesReach(SamusDraygonHoldDefinitions.EscapePresses);
         if (released)
             Release(samus);
-
-        return new DraygonEscapeResult(
-            grappleLockedInPlace,
-            released);
+        return released;
     }
 
     /// <summary>

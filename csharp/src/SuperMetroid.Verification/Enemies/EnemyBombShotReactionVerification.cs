@@ -36,7 +36,7 @@ internal static class EnemyBombShotReactionVerification
         })
         {
             (RoomEnemySystem enemies, RoomEnemyPlace place) = LoadedRoomWithMellow(definition, frozenTimer);
-            var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors, global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
+            var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
             SamusBomb bomb = bombs.Bombs[0];
             bomb.Type = SamusBombProjectileSystem.NormalBombType;
             bomb.Damage = 30;
@@ -90,7 +90,7 @@ internal static class EnemyBombShotReactionVerification
             enemy.CollidesByFrameHitboxes = frameHitboxes;
             if (frameHitboxes)
                 enemy.Frame = EnemyFrameId.Empty;
-            var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors, global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
+            var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
             SamusBomb bomb = bombs.Bombs[0];
             bomb.Type = SamusBombProjectileSystem.NormalBombType;
             bomb.Damage = 30;

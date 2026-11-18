@@ -23,7 +23,8 @@ internal static class CeresExplosionVerification
         var audio = AudioQueues.Standalone();
         var scene = new CeresDestructionCinematicState(audio, glowColors: stockColors, artwork: artwork.BoundCatalog,
             spriteSheets: CinematicSheetFixtures.WithIntro(artwork));
-        var reference = new SamusPowerBombExplosionState(stockColors);
+        var referenceGlowColors = stockColors;
+        var reference = new SamusPowerBombExplosionState();
         var phases = new HashSet<PowerBombExplosionPhase>();
         bool spawned = false, finished = false;
         int compared = 0;
@@ -31,7 +32,7 @@ internal static class CeresExplosionVerification
         {
             // Bank $82 runs HDMA before bank $8B dispatch. The reference is seeded
             // only when C345 transfers the station map and switches flight handler.
-            reference.StepFrame();
+            reference.StepFrame(referenceGlowColors);
             var previous = scene.Phase;
             { scene.Step(); audio.AdvanceFrame(default); }
             if (previous == CeresDestructionPhase.ApproachExplosion &&

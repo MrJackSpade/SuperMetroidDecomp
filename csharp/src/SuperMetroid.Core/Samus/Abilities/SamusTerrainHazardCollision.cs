@@ -18,7 +18,7 @@ public static class SamusTerrainHazardCollision
 {
     /// <summary>
     /// Runs the damaging subset of Samus's inside-block detection and
-    /// publishes the room-dependent heavy-spike gate used later during movement.
+    /// samples the room's heavy-spike gate (<see cref="RoomLevelData.HeavySpikesDamage"/>) her movement reads later.
     /// </summary>
     public static void PrepareFrame(
         RoomLevelData level,
@@ -31,15 +31,16 @@ public static class SamusTerrainHazardCollision
 
         // The spike reaction makes Wrecked Ship's heavy spike blocks harmless until Phantoon is defeated.
         // Every other area admits that reaction unconditionally.
-        samus.HeavySpikeDamageEnabled =
+        level.HeavySpikesDamage =
             area != AreaId.WreckedShip || areaBossDefeated;
 
         SamusInsideBlockSamplePoints.Visit(samus.Position.Y.Whole, samus.Kinematics.Radius.Y, (y, _) =>
             VisitInsidePoint(level, samus, Position16<RoomPixels>.Of(samus.Position.X.Whole, y)));
     }
 
-    /// <summary>Applies the solid spike reactions after a solid spike block is contacted.</summary>
+    /// <summary>Applies the solid spike reactions after a solid spike block of <paramref name="level"/> is contacted.</summary>
     internal static void ApplySolidSpikeCollision(
+        RoomLevelData level,
         SamusState samus,
         RoomCollisionBlock block)
     {
@@ -52,7 +53,7 @@ public static class SamusTerrainHazardCollision
             return;
         int damage = behavior switch
         {
-            SpikeBlockBehavior.Heavy => samus.HeavySpikeDamageEnabled
+            SpikeBlockBehavior.Heavy => level.HeavySpikesDamage
                 ? SpikeHazardDefinitions.HeavySpikeDamage
                 : 0,
             SpikeBlockBehavior.Light =>
@@ -95,7 +96,7 @@ public static class SamusTerrainHazardCollision
         SamusState samus,
         int wholeDamage)
     {
-        samus.PeriodicDamage.Accumulate(subDamage: 0, wholeDamage);
+        samus.PeriodicDamage.Accumulate(new UnsignedSixteenSixteen(whole: wholeDamage, fraction: 0));
         samus.InvincibilityTimer = WrappingCountdown.Start(SpikeHazardDefinitions.InvincibilityFrames);
         samus.KnockbackTimer = SpikeHazardDefinitions.KnockbackFrames;
 

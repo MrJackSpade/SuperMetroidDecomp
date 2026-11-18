@@ -48,7 +48,7 @@ internal static class ProjectileCooldownsVerification
             var shared = CreateBombFixture();
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), EquippedBeams = SamusEquipmentWordCodec.FromBeamWord(beam) };
             var result = projectiles.Firing.TryFireBeam(room, samus, edge, shared, SamusRoomObjectFixtures.Uninstalled, charged);
-            AssertEqual(0, result.Place, "Cooldown check exercises the actual successful producer");
+            AssertTrue(result is not null, "Cooldown check exercises the actual successful producer");
             int address = charged ? 0x90c264 + beam : edge == 0 ? 0x90c283 + beam : 0x90c254 + beam;
             AssertEqual(retail.ReadCartridgeByte(address), shared.CooldownTimer,
                 "Native charged/fresh/held selection installs exact shared delay");
@@ -78,7 +78,7 @@ internal static class ProjectileCooldownsVerification
             {
                 // Actual shared cooldown owner advances before humanoid fire dispatch.
                 shared.StepFrame(new SamusTerrain { Level = room, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, GameplayAction.Shoot, frame == 0 ? GameplayAction.Shoot : 0);
-                projectiles.StepFrame(new SamusTerrain { Level = room, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = frame == 0 ? GameplayAction.Shoot : 0 }, new(0, 0), shared, new SharedGameState(new SharedRandom()));
+                projectiles.StepFrame(new SamusTerrain { Level = room, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = frame == 0 ? GameplayAction.Shoot : 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), shared, new SharedGameState(new SharedRandom()));
                 if (projectiles.LastFrameResult.QueuedSoundEffect is not null) frames.Add(frame);
             }
             int firstDelay = beam == 10 ? 12 : 15;

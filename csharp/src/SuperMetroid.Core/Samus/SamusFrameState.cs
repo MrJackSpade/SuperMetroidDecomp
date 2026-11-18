@@ -67,7 +67,6 @@ internal sealed class SamusFrameState
     /// </summary>
     public SamusPoseId? ProspectiveSamusWallCollisionPose { get; internal set; }
 
-
     /// <summary>
     /// No-button fallback selected when the pose handling cancels the grapple. This is
     /// separate from <see cref="SamusFrameState.ProspectiveSamusPose"/> because no input transition wins.
@@ -104,7 +103,6 @@ internal sealed class SamusFrameState
     /// <summary>Most recent knockback movement result.</summary>
     public KnockbackMovementResult? LastKnockbackMovement { get; internal set; }
 
-
     /// <summary>Most recent connected-grapple update result.</summary>
     public GrappleMovementResult? LastGrappleMovement { get; internal set; }
 
@@ -114,18 +112,12 @@ internal sealed class SamusFrameState
     /// <summary>Most recent Crystal Flash start, ammo-drain, or finish movement result.</summary>
     public CrystalFlashMovementResult? LastCrystalFlashMovement { get; internal set; }
 
-
     /// <summary>The latest result of the X-ray scope's setup, beam or deactivation step.</summary>
     public XrayBeamStepResult? LastXrayBeamStep { get; internal set; }
-
 
     /// <summary>The latest step of the death sequence's animation, shade and artwork.</summary>
     public SamusDeathSequenceStepResult? LastDeathSequenceStep { get; internal set; }
 
-
     /// <summary>Most recent update of drained Samus's fall.</summary>
     public DrainedSamusMovementResult? LastDrainedSamusMovement { get; internal set; }
-
-    /// <summary>Most recent check of Draygon's escape, counted by the directions pressed.</summary>
-    public DraygonEscapeResult? LastDraygonEscape { get; internal set; }
 }

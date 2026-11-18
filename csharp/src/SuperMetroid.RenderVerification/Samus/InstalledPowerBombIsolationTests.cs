@@ -31,13 +31,13 @@ internal static class InstalledPowerBombIsolationTests
         var framesToRender = new List<ContextFrame>();
         foreach (bool crystalFlash in new[] { false, true })
         {
-            var explosion = Create(stock.PowerBombGlowColors, crystalFlash);
+            var explosion = Create(crystalFlash);
             int frames = 0;
             do
             {
                 frames++;
                 Require(frames < 300, "The bounded stock explosion failed to clean up.");
-                _ = explosion.StepFrame();
+                _ = explosion.StepFrame(stock.PowerBombGlowColors);
                 string context = $"{(crystalFlash ? "Crystal Flash" : "Power Bomb")}, frame {frames}";
                 var glow = GameplayEffectCapture.CapturePowerBombGlow(PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0));
                 if (glow is not null)
@@ -72,32 +72,32 @@ internal static class InstalledPowerBombIsolationTests
         Console.WriteLine("Power Bomb/Crystal Flash: installed colours run to cleanup and restore exactly. No ROM or player data used.");
     }
 
-    /// <summary>Starts a Crystal Flash or arms and spawns a Power Bomb with the supplied presentation catalog.</summary>
-    internal static SamusPowerBombExplosionState Create(InstalledPowerBombGlowColors colors, bool crystalFlash)
+    /// <summary>Starts a Crystal Flash or arms and spawns a Power Bomb, whose steps show the colours each is stepped with.</summary>
+    internal static SamusPowerBombExplosionState Create(bool crystalFlash)
     {
-        var state = new SamusPowerBombExplosionState(colors);
+        var state = new SamusPowerBombExplosionState();
         if (crystalFlash) state.BeginCrystalFlash(new(128, 112));
         else { state.Arm(); state.Spawn(new(128, 112)); }
         return state;
     }
 
-    /// <summary>Compares all serialized explosion fields except the editable colour output and the bound colours.</summary>
+    /// <summary>Compares all serialized explosion fields except the editable colour output.</summary>
     internal static void RequireSameMechanics(SamusPowerBombExplosionState first,
         SamusPowerBombExplosionState second, string context)
     {
         // Include private phase timers and every future serialized field, the explosion's own and its blast's (#2000). Only
-        // the colour the blast adds and the installed colours it is bound to may differ.
+        // the colour the blast adds may differ: the installed colours are its owner's, never the blast's (#2397).
         RequireSameFields(typeof(SamusPowerBombExplosionState), first, second, "<Blast>k__BackingField", context);
         RequireSameFields(typeof(PowerBombBlastTimeline), first.Blast, second.Blast, null, context);
     }
 
-    /// <summary>Compares every serialized field of <paramref name="type"/> except the colours and the named nested owner.</summary>
+    /// <summary>Compares every serialized field of <paramref name="type"/> except the glow colour and the named nested owner.</summary>
     private static void RequireSameFields(Type type, object first, object second, string? nestedField, string context)
     {
         foreach (FieldInfo field in MetadataShape.Fields(type, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
         {
             if (field.IsDefined(typeof(NonSerializedAttribute)) || field.Name == nestedField || field.Name is
-                "<GlowColor>k__BackingField" or "<PresentationColors>k__BackingField") continue;
+                "<GlowColor>k__BackingField") continue;
             Require(Equals(field.GetValue(first), field.GetValue(second)),
                 $"{context}: {field.Name} differs: first={field.GetValue(first)}, second={field.GetValue(second)}");
         }
@@ -142,17 +142,16 @@ internal static class InstalledPowerBombIsolationTests
         int restores = 0;
         foreach (bool crystalFlash in new[] { false, true })
         {
-            var state = Create(colors, crystalFlash);
+            var state = Create(crystalFlash);
             do
             {
-                var current = Restore(state, colors, out string currentWarning);
+                var current = Restore(state, out string currentWarning);
                 Require(currentWarning.Length == 0, "A current graph unexpectedly needed a migration.");
-                Require(ReferenceEquals(current.Blast.PresentationColors, colors), "A debugger graph did not name its bound colours.");
                 RequireSameMechanics(state, current, "Current graph restore");
                 Require(Colors(state) == Colors(current), "Current graph restore changed display colors.");
                 CompareRemainder(state, current, colors, "Current graph resume");
                 restores++;
-                _ = state.StepFrame();
+                _ = state.StepFrame(colors);
             } while (state.IsActive);
         }
         Console.WriteLine($"Explosion state compatibility: {restores} checkpoints resume with identical stock state, colors and cleanup.");
@@ -162,34 +161,32 @@ internal static class InstalledPowerBombIsolationTests
     private static void CompareRemainder(SamusPowerBombExplosionState state,
         SamusPowerBombExplosionState restored, InstalledPowerBombGlowColors colors, string context)
     {
-        var baseline = Restore(state, colors, out _);
+        var baseline = Restore(state, out _);
         int frames = 0;
         do
         {
             Require(++frames < 300, context + ": cleanup did not occur");
-            Require(baseline.StepFrame() == restored.StepFrame(), context + ": cleanup frame differs");
+            Require(baseline.StepFrame(colors) == restored.StepFrame(colors), context + ": cleanup frame differs");
             RequireSameMechanics(baseline, restored, context);
             Require(Colors(baseline) == Colors(restored), context + ": restored display fade differs");
         } while (baseline.IsActive);
     }
 
     /// <summary>
-    /// Serializes the graph with its colours bound, restores it through the production codec bound to
-    /// <paramref name="colors"/>, and captures any warning.
+    /// Serializes the graph, which holds no installed content, restores it through the production codec, and captures any
+    /// warning.
     /// </summary>
-    private static SamusPowerBombExplosionState Restore(SamusPowerBombExplosionState state,
-        InstalledPowerBombGlowColors colors, out string warning)
+    private static SamusPowerBombExplosionState Restore(SamusPowerBombExplosionState state, out string warning)
     {
         using var data = new MemoryStream();
-        DebuggerObjectGraphSerializer.Serialize(data, state, new BoundObjectGraph([state.Blast.PresentationColors
-            ?? throw new InvalidOperationException("A captured explosion is bound to its colours.")]));
+        DebuggerObjectGraphSerializer.Serialize(data, state, new BoundObjectGraph(Array.Empty<object>()));
         data.Position = 0;
         using var errors = new StringWriter();
         TextWriter previous = Console.Error;
         try
         {
             Console.SetError(errors);
-            return DebuggerObjectGraphSerializer.Deserialize<SamusPowerBombExplosionState>(data, new BoundObjectGraph([colors]));
+            return DebuggerObjectGraphSerializer.Deserialize<SamusPowerBombExplosionState>(data, new BoundObjectGraph(Array.Empty<object>()));
         }
         finally { Console.SetError(previous); warning = errors.ToString(); }
     }

@@ -35,7 +35,7 @@ internal static class GameplayCaptureIntegrationTestsVerification
 
         runtime.BombProjectiles.PowerBombExplosion.Arm();
         runtime.BombProjectiles.PowerBombExplosion.Spawn(new(128, 120));
-        for (int i = 0; i < 50; i++) runtime.BombProjectiles.PowerBombExplosion.StepFrame();
+        for (int i = 0; i < 50; i++) runtime.BombProjectiles.PowerBombExplosion.StepFrame(runtime.Artwork.SamusArtwork.PowerBombGlowColors);
         runtime.MessageBox.Begin(GameplayMessageId.MapDataAccessCompleted, 0, SuperMetroid.Core.Input.ControllerBindings.Default);
         for (int i = 0; i < 13; i++) runtime.MessageBox.Step(0);
         runtime.SuitPickup.Begin(runtime.Player.IntroducedSamus, new(0, 0), SamusSuitPickupKind.Varia);
@@ -51,7 +51,7 @@ internal static class GameplayCaptureIntegrationTestsVerification
         byte[] retainedGraph = GraphDigest(retained);
         runtime.MessageBox.Step(ControllerButton.A);
         runtime.SuitPickup.Step(runtime.Player.IntroducedSamus, runtime.Player.Colours);
-        runtime.BombProjectiles.PowerBombExplosion.StepFrame();
+        runtime.BombProjectiles.PowerBombExplosion.StepFrame(runtime.Artwork.SamusArtwork.PowerBombGlowColors);
         if (!GraphDigest(retained).SequenceEqual(retainedGraph))
             AssertTrue(expected.SequenceEqual(RenderForComparison(retained)), "composed gameplay packet survives all effect updates");
 

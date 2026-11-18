@@ -1688,7 +1688,7 @@ internal static class LookupStream1Verification
         int interpreted = 0, bombInterpreted = 0;
         var bindings = ProjectileFrameBindingFile.Load(new MemoryStream(ProjectileFrameBindingFile.Write(document)));
         var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: bindings), new global::SuperMetroid.Core.Fx.RoomEarthquake());
-        var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors, global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: bindings));
+        var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: bindings));
         foreach (ushort pointer in expected)
         {
             ushort duration = Word(0x930000 | pointer);
@@ -1796,7 +1796,7 @@ internal static class LookupStream1Verification
         foreach (var program in programs)
         {
             var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: bindings), new global::SuperMetroid.Core.Fx.RoomEarthquake());
-            var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors, global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: bindings));
+            var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: bindings));
             var slot = new SamusProjectile(0) { FrameHold = WrappingCountdown.Start(1), Playback = SamusProjectileProgramAddresses.PlaybackAt(program.Start), Damage = 30 };
             var bomb = new SamusBomb(0) { FrameHold = WrappingCountdown.Start(1), Playback = SamusProjectileProgramAddresses.PlaybackAt(program.Start), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500) };
             // No bomb shows a still picture, which a shot holds (#2347): the bomb owner plays only the lists that hold none.

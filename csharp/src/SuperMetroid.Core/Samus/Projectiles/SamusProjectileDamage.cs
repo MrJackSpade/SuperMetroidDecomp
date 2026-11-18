@@ -12,30 +12,18 @@ internal static class SamusProjectileDamage
     /// </summary>
     internal static int Read(SamusProjectileKind kind)
     {
-        if (Beams.ContainsKey(kind))
-            return BeamDamage(BeamIdentity(kind));
+        if (UnchargedBeams.TryGetValue(kind, out SamusBeamCombination uncharged))
+            return BeamDamage(uncharged);
+        if (ChargedBeams.TryGetValue(kind, out SamusBeamCombination charged))
+            return BeamDamage(charged) * ChargedBeamDamageMultiplier;
         return NonBeamDamage.TryGetValue(kind, out int damage)
             ? damage
             : throw new ArgumentOutOfRangeException(nameof(kind), kind, "Undefined projectile kind.");
     }
 
-    /// <summary>Whether a beam shot's kind is charged, and the beams it fires.</summary>
-    internal static SamusBeamIdentity BeamIdentity(SamusProjectileKind kind) => new(
-        kind is SamusProjectileKind.ChargedPower or SamusProjectileKind.ChargedSpazer or SamusProjectileKind.ChargedSpazerIce or SamusProjectileKind.ChargedSpazerIceWave or
-        SamusProjectileKind.ChargedPlasmaIceWave or SamusProjectileKind.ChargedIce or SamusProjectileKind.ChargedPlasma or SamusProjectileKind.ChargedWave or
-        SamusProjectileKind.ChargedIceWave or SamusProjectileKind.ChargedSpazerWave or SamusProjectileKind.ChargedPlasmaIce or SamusProjectileKind.ChargedPlasmaWave, Beam(kind));
-
-    /// <summary>The beams a beam shot of <paramref name="kind"/> fires.</summary>
-    private static SamusBeamCombination Beam(SamusProjectileKind kind) =>
-        Beams.TryGetValue(kind, out SamusBeamCombination value) ? value : throw new ArgumentOutOfRangeException(nameof(kind), kind, "Undefined beam shot kind.");
-
-    /// <summary>A beam shot's beams' damage, multiplied when the shot is charged.</summary>
-    private static int BeamDamage(SamusBeamIdentity identity)
-    {
-        var (charged, beam) = identity;
-        int damage = UnchargedBeamDamage.TryGetValue(beam, out int uncharged)
-            ? uncharged
+    /// <summary>An uncharged shot of <paramref name="beam"/>'s damage.</summary>
+    private static int BeamDamage(SamusBeamCombination beam) =>
+        UnchargedBeamDamage.TryGetValue(beam, out int damage)
+            ? damage
             : throw new InvalidOperationException($"{beam} has no beam shot kind of its own.");
-        return charged ? damage * ChargedBeamDamageMultiplier : damage;
-    }
 }

@@ -311,7 +311,7 @@ public sealed class SamusProjectileSystem
                 (buttons.ControllerInput & GameplayAction.Dash) == GameplayAction.None;
             if (samus.SelectedHudItem is HudItem.Beam or HudItem.PowerBomb || xrayBeamFallback)
             {
-                (_, queuedSound, queuedSoundPriority) = Firing.HandleBeamInput(
+                (queuedSound, queuedSoundPriority) = Firing.HandleBeamInput(
                     terrain.Level,
                     samus,
                     buttons.ControllerInput,
@@ -322,11 +322,11 @@ public sealed class SamusProjectileSystem
             }
             else if (samus.SelectedHudItem is HudItem.Missile or HudItem.SuperMissile)
             {
-                (_, queuedSound) = Firing.TryFireMissile(
+                queuedSound = Firing.TryFireMissile(
                     samus,
                     buttons.ControllerNewInput,
                     buttons.ControllerPreviousNewInput,
-                    sharedProjectiles);
+                    sharedProjectiles)?.Sound;
                 if (queuedSound is not null)
                     queuedSoundPriority = SoundRequestPriority.Normal;
             }

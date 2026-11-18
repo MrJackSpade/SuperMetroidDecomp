@@ -8,12 +8,8 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// </summary>
 public sealed class SamusPowerBombExplosionState
 {
-    /// <summary>Starts an explosion whose blast glows in <paramref name="glowColors"/> (#2049).</summary>
-    /// <param name="glowColors">The installed glow colours.</param>
-    public SamusPowerBombExplosionState(InstalledPowerBombGlowColors glowColors) => Blast = new PowerBombBlastTimeline(glowColors);
-
     /// <summary>The blast's stages, radii and glow (#2000).</summary>
-    public PowerBombBlastTimeline Blast { get; }
+    public PowerBombBlastTimeline Blast { get; } = new();
 
     /// <summary>The blast's centre in the room: where the Power Bomb lay when its fuse ran out.</summary>
     public Position16<RoomPixels> Position { get; private set; }
@@ -66,7 +62,7 @@ public sealed class SamusPowerBombExplosionState
     /// Runs one update of the explosion's active stage step.
     /// </summary>
     /// <returns>True only on the frame that cleanup completes.</returns>
-    public bool StepFrame() => Blast.StepFrame();
+    public bool StepFrame(InstalledPowerBombGlowColors colors) => Blast.StepFrame(colors);
 
     /// <summary>
     /// Releases the armed flag after cleanup when Crystal Flash did not take ownership.

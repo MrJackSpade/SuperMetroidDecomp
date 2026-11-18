@@ -551,12 +551,6 @@ public sealed class SamusState
     /// </summary>
     internal UnauthoredBoostCadence UnauthoredBoostCadence { get; }
 
-    /// <summary>
-    /// Room-dependent admission for the spike block's first common reaction, populated by the input-phase
-    /// inside-block owner before movement reaches a directional collision scan.
-    /// </summary>
-    internal bool HeavySpikeDamageEnabled { get; set; } = true;
-
     /// <summary>Creates independent player state and owned movement/special-sequence children, binding live kinematics back to this owner and seeding its collision pose with the standing-right default.</summary>
     /// <remarks>Construction reads no game data and does not initialize room position, pose-dependent radii or animation data; gameplay setup supplies those separately.</remarks>
     /// <param name="audioRequests">The update's audio requests of whoever runs her, which every sound of hers joins (#2057).</param>
@@ -873,7 +867,8 @@ public sealed class SamusState
     /// Samus's live previous X and Y positions: the
     /// frame-start checkpoint with this frame's writes so far, without consuming them.
     /// </summary>
-    internal Position16<RoomPixels> PeekPreviousPosition(FixedPosition<RoomPixels> previous) => new Position16<RoomPixels>(        _previousXPositionWrite ?? previous.X.Whole,
+    internal Position16<RoomPixels> PeekPreviousPosition(FixedPosition<RoomPixels> previous) => new Position16<RoomPixels>(
+        _previousXPositionWrite ?? previous.X.Whole,
         CoordinateAxis.Wrap((_poseCollisionPreviousYPosition ?? previous.Y.Whole) + _poseAlignmentPreviousYDelta));
 
     /// <summary>

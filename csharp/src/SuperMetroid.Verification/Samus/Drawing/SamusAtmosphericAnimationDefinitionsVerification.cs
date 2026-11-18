@@ -43,13 +43,13 @@ internal static class SamusAtmosphericAnimationDefinitionsVerification
             }
         }
 
-        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x909e8b), SamusLiquidDamageDefinitions.Lava.SubDamage,
+        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x909e8b), SamusLiquidDamageDefinitions.Lava.Fraction,
             "lava fractional damage rate");
-        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x909e8d), SamusLiquidDamageDefinitions.Lava.WholeDamage,
+        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x909e8d), SamusLiquidDamageDefinitions.Lava.Whole,
             "lava whole damage rate");
-        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x909e8f), SamusLiquidDamageDefinitions.Acid.SubDamage,
+        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x909e8f), SamusLiquidDamageDefinitions.Acid.Fraction,
             "acid fractional damage rate");
-        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x909e91), SamusLiquidDamageDefinitions.Acid.WholeDamage,
+        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x909e91), SamusLiquidDamageDefinitions.Acid.Whole,
             "acid whole damage rate");
 
         var guarded = NewSamusAtmosphericAnimationReadGuard(rom);
@@ -172,7 +172,7 @@ internal static class SamusAtmosphericAnimationDefinitionsVerification
     /// <summary>Checks the periodic whole and fractional damage installed for submerged Samus in lava or acid.</summary>
     private static void VerifyProductionLiquidDamage(
         RoomFxType fxType,
-        SamusLiquidDamageRate expected)
+        UnsignedSixteenSixteen expected)
     {
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
@@ -185,9 +185,9 @@ internal static class SamusAtmosphericAnimationDefinitionsVerification
             surfaceY: 100,
             fxType == RoomFxType.Acid ? RoomFxType.Acid : RoomFxType.Lava);
         samus.LiquidPhysics.PrepareAnimationFrame(samus, new SharedRandom(), frameCounter: 1, bossPresent: false);
-        AssertEqual(expected.SubDamage, samus.PeriodicDamage.Pending.Fraction,
+        AssertEqual(expected.Fraction, samus.PeriodicDamage.Pending.Fraction,
             $"production {fxType} fractional damage accumulation");
-        AssertEqual(expected.WholeDamage, samus.PeriodicDamage.Pending.Whole,
+        AssertEqual(expected.Whole, samus.PeriodicDamage.Pending.Whole,
             $"production {fxType} whole damage accumulation");
     }
 

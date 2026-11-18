@@ -358,10 +358,9 @@ public sealed class SamusLiquidPhysicsState
                 return;
             }
 
-            SamusLiquidDamageRate damageRate = fxKind == RoomFxType.Lava
+            _periodicDamage.Accumulate(fxKind == RoomFxType.Lava
                 ? SamusLiquidDamageDefinitions.Lava
-                : SamusLiquidDamageDefinitions.Acid;
-            _periodicDamage.Accumulate(damageRate.SubDamage, damageRate.WholeDamage);
+                : SamusLiquidDamageDefinitions.Acid);
             if (SamusCadenceDefinitions.LiquidDamageSoundEveryEighthUpdate.IsDue(frameCounter) &&
                 samus.Health >= SamusLiquidDamageDefinitions.DamageSoundLeastEnergy)
                 QueueSound(RoomSound.IncrementalEnergy, priority: SoundRequestPriority.Low);

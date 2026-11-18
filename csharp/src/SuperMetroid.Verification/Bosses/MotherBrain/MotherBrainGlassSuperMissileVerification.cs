@@ -37,7 +37,7 @@ internal static class MotherBrainGlassSuperMissileVerification
         ((List<RoomEnemyPlace>)enemies.ProcessingWindow.InteractiveEnemies).Add(head);
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         var shots = InstalledFixtures.CreateProjectileSystem();
-        var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors, global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
+        var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         // A fired Super Missile occupies two slots at one position, as on the movie's frame:
         // the missile and its zero-radius link, with the instruction lists the port fires.
         MotherBrainGlassSuperMissilePair[] pair =

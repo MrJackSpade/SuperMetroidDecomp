@@ -303,7 +303,7 @@ internal sealed class SamusFramePhases
                 (samus.SelectedHudItem != HudItem.Grapple ||
                  samus.Grapple.Phase == GrapplePhase.Inactive))
             {
-                room.Projectiles.Firing.CancelChargeForHudSelection();
+                room.Projectiles.Firing.CancelCharge();
                 SuperMetroid.Core.Samus.Colours.SamusSuitShade.Show(_player.Colours, samus.EquippedItems);
             }
 
@@ -326,7 +326,7 @@ internal sealed class SamusFramePhases
             // The bombs' share of the HUD item's step runs the shared cooldown, then the morph ball's producer.
             if (room.BombProjectiles.RunHudProducer(samus, _playerActions.Current, _playerActions.NewlyPressed))
             {
-                room.Projectiles.Firing.CancelChargeForBombSpread();
+                room.Projectiles.Firing.CancelCharge();
                 SuperMetroid.Core.Samus.Colours.SamusSuitShade.Show(_player.Colours, samus.EquippedItems);
             }
 
@@ -413,7 +413,6 @@ internal sealed class SamusFramePhases
         // outside the normal movement-type step. Its movement result is the
         // directly inspectable frame returned by `StepMovement` below.
         _player.LastDrainedSamusMovement = null;
-        _player.LastDraygonEscape = null;
 
         frame.SampleGrappleReleasePoseInput(false);
         if (samus.Grapple.ReleasedMovementActive)
@@ -1090,12 +1089,8 @@ internal sealed class SamusFramePhases
             // animation. A locked grapple cancels the prospective pose chosen in the input phase;
             // an escape release additionally clears every pending route while installing
             // the ordinary facing-normal poses and zeroing the documented velocities.
-            _player.LastDraygonEscape = samus.DraygonGrabbed.CheckDraygonEscape(
-                samus,
-                _playerActions.NewlyPressed,
-                samus.Grapple.Phase == GrapplePhase.ConnectedLocked);
-            if (_player.LastDraygonEscape.Value.SuppressProspectivePose ||
-                _player.LastDraygonEscape.Value.Released)
+            bool grappleLockedInPlace = samus.Grapple.Phase == GrapplePhase.ConnectedLocked;
+            if (samus.DraygonGrabbed.CheckDraygonEscape(samus, _playerActions.NewlyPressed) || grappleLockedInPlace)
             {
                 _player.ProspectiveSamusPose = null;
                 _player.ProspectiveSamusFallbackPose = null;

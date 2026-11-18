@@ -99,7 +99,7 @@ internal static class SpecialAttackParticlesVerification
         PlasmaParticleState ring => (ring.Part, ring.Angle, ring.Radius, ring.TurnPerUpdate, ring.Phase),
         SpazerParticleState spazer => (spazer.Part, spazer.Angle, spazer.Radius, spazer.TurnPerUpdate, spazer.Phase, spazer.Partner.Place,
             spazer.LeavesTrails),
-        WaveParticleState wave => (wave.Part, wave.Lifetime, wave.VerticalSpeed),
+        WaveParticleState wave => (wave.Part, wave.Lifetime),
         ShinesparkEchoShotState echo => (echo.Angle, echo.Radius),
         ChainsawFuseShotState chainsaw => chainsaw.Fuse,
         _ => throw new InvalidOperationException($"Undefined shot kind state {shot.KindState.GetType().Name}."),
@@ -477,7 +477,7 @@ internal static class SpecialAttackParticlesVerification
     {
         var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads,
             new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
-        var shared = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors, global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
+        var shared = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new UnauthoredBoostCadence(),
             SamusCompatibility.ForNewSamus(), new BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {

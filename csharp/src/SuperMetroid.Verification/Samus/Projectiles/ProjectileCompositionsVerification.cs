@@ -155,7 +155,7 @@ internal static class ProjectileCompositionsVerification
         {
             SamusBeamCombination pictured = CombinationShowing(id) ?? throw new InvalidOperationException($"No beam combination's sheet holds composition ${id:X4}.");
             var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
-            var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors, global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
+            var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
             var shot = shots.Shots[0];
             shot.Playback = ProjectileFixturePlaybacks.Active; shot.SpritemapPointer = id;
             shot.Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type); shot.PicturedBeams = pictured; shot.Position = shot.Position.WithWhole(new(coordinate, coordinate));

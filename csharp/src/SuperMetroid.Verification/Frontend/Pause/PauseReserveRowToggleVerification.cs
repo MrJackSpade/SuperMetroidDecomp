@@ -67,7 +67,7 @@ internal static class PauseReserveRowToggleVerification
         AssertEqual(PauseEquipmentCategory.Reserves, menu.SelectedCategory, "with a reserve tank the cursor starts in the reserve column");
         menu.Step(0, ControllerButton.Down);
         AssertEqual<PauseEquipmentControl>(PauseEquipmentControls.Charge, menu.SelectedControl, "Down from the automatic reserve mode moves to the top beam");
-        var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors, global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
+        var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         foreach (SamusBomb slot in bombs.Bombs)
             slot.BombSpreadVerticalVelocity = SignedSixteenSixteen.FromParts(2, 0x4321);
 

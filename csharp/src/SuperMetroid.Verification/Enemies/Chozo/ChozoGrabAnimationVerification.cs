@@ -44,7 +44,8 @@ internal static class ChozoGrabAnimationVerification
         var handBlock = new Position16<RoomBlocks>(0x4a, 0x17);
         AssertEqual(ChozoStatueRoomDefinitions.WreckedShipHandBehavior, level.GetCollisionBlock(handBlock).Behavior,
             "fixture uses the retail statue hand block");
-        var expectedExplosion = new SamusPowerBombExplosionState(runtime.BombProjectiles.PowerBombExplosion.Blast.PresentationColors);
+        var expectedExplosionGlowColors = runtime.Artwork.SamusArtwork.PowerBombGlowColors;
+        var expectedExplosion = new SamusPowerBombExplosionState();
         if (powerBomb)
         {
             // Detonation immediately before hand capture; origin differs from Samus so
@@ -74,7 +75,7 @@ internal static class ChozoGrabAnimationVerification
             runtime.StepFrame(ControllerButton.Right);
             if (powerBomb)
             {
-                if (expectedExplosion.StepFrame()) expectedExplosion.ReleaseFlag();
+                if (expectedExplosion.StepFrame(expectedExplosionGlowColors)) expectedExplosion.ReleaseFlag();
                 var actual = runtime.BombProjectiles.PowerBombExplosion;
                 AssertEqual(expectedExplosion.Blast.Phase, actual.Blast.Phase, $"carried Power Bomb phase at frame {frames}");
                 AssertEqual(expectedExplosion.Blast.PreExplosionRadius, actual.Blast.PreExplosionRadius, $"carried Power Bomb pre-radius at frame {frames}");
@@ -111,7 +112,7 @@ internal static class ChozoGrabAnimationVerification
             runtime.StepFrame(ControllerButton.Right);
             if (powerBomb)
             {
-                if (expectedExplosion.StepFrame()) expectedExplosion.ReleaseFlag();
+                if (expectedExplosion.StepFrame(expectedExplosionGlowColors)) expectedExplosion.ReleaseFlag();
                 var actual = runtime.BombProjectiles.PowerBombExplosion;
                 AssertEqual(expectedExplosion.Blast.Phase, actual.Blast.Phase, $"carried Power Bomb phase at frame {frames}");
                 AssertEqual(expectedExplosion.Blast.PreExplosionRadius, actual.Blast.PreExplosionRadius, $"carried Power Bomb pre-radius at frame {frames}");

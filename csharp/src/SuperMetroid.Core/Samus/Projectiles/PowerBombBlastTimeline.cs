@@ -17,13 +17,6 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// </remarks>
 public sealed class PowerBombBlastTimeline
 {
-    /// <summary>Starts a blast's timeline that glows in <paramref name="presentationColors"/> (#2049).</summary>
-    /// <param name="presentationColors">The installed glow colours.</param>
-    public PowerBombBlastTimeline(InstalledPowerBombGlowColors presentationColors) => PresentationColors = presentationColors;
-
-    /// <summary>Installed glow colours: installed content, not game state, bound again when a game is restored.</summary>
-    public InstalledPowerBombGlowColors PresentationColors { get; set => field = Ensure.NotNull(value); }
-
     /// <summary>The pre-explosion flash's radius.</summary>
     public PowerBombRadius PreExplosionRadius { get; private set; }
 
@@ -145,11 +138,13 @@ public sealed class PowerBombBlastTimeline
     }
 
     /// <summary>
-    /// Runs one update of the blast's active stage step.
+    /// Runs one update of the blast's active stage step, its glow shown in <paramref name="colors"/>: the installed glow
+    /// colours, installed content its owner holds rather than blast state (#2397).
     /// </summary>
     /// <returns>True only on the frame that cleanup completes.</returns>
-    public bool StepFrame()
+    public bool StepFrame(InstalledPowerBombGlowColors colors)
     {
+        Ensure.NotNull(colors);
         if (!IsRunning)
             return false;
 
@@ -168,26 +163,26 @@ public sealed class PowerBombBlastTimeline
                 return false;
 
             case PowerBombExplosionPhase.PreExplosionWhite:
-                StepPreExplosionWhite();
+                StepPreExplosionWhite(colors);
                 return false;
 
             case PowerBombExplosionPhase.PreExplosionYellow:
-                StepPreExplosionYellow();
+                StepPreExplosionYellow(colors);
                 return false;
 
             case PowerBombExplosionPhase.ExplosionYellow:
-                StepExplosionYellow();
+                StepExplosionYellow(colors);
                 return false;
 
             case PowerBombExplosionPhase.ExplosionWhite:
-                StepExplosionWhite();
+                StepExplosionWhite(colors);
                 return false;
 
             case PowerBombExplosionPhase.Afterglow:
                 return StepAfterglow();
 
             case PowerBombExplosionPhase.CrystalFlashExplosion:
-                StepCrystalFlashExplosion();
+                StepCrystalFlashExplosion(colors);
                 return false;
 
             case PowerBombExplosionPhase.CrystalFlashAfterglow:
@@ -218,10 +213,11 @@ public sealed class PowerBombBlastTimeline
     }
 
     /// <summary>Displays the current white flash radius, then slows expansion until the yellow pre-explosion takes over.</summary>
-    private void StepPreExplosionWhite()
+    private void StepPreExplosionWhite(InstalledPowerBombGlowColors colors)
     {
         RenderedPreExplosionRadius = PreExplosionRadius;
         SelectGlowColor(
+            colors,
             PowerBombGlowSequence.PreExplosion,
             PreExplosionGlowStep(PreExplosionRadius));
 
@@ -277,10 +273,11 @@ public sealed class PowerBombBlastTimeline
     }
 
     /// <summary>Shows each yellow oval in turn and primes the damaging radius after the stage's last update.</summary>
-    private void StepPreExplosionYellow()
+    private void StepPreExplosionYellow(InstalledPowerBombGlowColors colors)
     {
         RenderedPreExplosionRadius = PreExplosionRadius;
         SelectGlowColor(
+            colors,
             PowerBombGlowSequence.PreExplosion,
             PreExplosionGlowStep(PreExplosionRadius));
 
@@ -308,10 +305,11 @@ public sealed class PowerBombBlastTimeline
     }
 
     /// <summary>Expands the damaging yellow radius with acceleration, then starts the white explosion's ovals.</summary>
-    private void StepExplosionYellow()
+    private void StepExplosionYellow(InstalledPowerBombGlowColors colors)
     {
         RenderedExplosionRadius = ExplosionRadius;
         SelectGlowColor(
+            colors,
             PowerBombGlowSequence.Explosion,
             ExplosionRadius.GlowColorBand);
 
@@ -329,10 +327,11 @@ public sealed class PowerBombBlastTimeline
     }
 
     /// <summary>Shows the seventeen white ovals and primes the 32-step afterglow that fades the glow.</summary>
-    private void StepExplosionWhite()
+    private void StepExplosionWhite(InstalledPowerBombGlowColors colors)
     {
         RenderedExplosionRadius = ExplosionRadius;
         SelectGlowColor(
+            colors,
             PowerBombGlowSequence.Explosion,
             ExplosionRadius.GlowColorBand);
 
@@ -379,12 +378,13 @@ public sealed class PowerBombBlastTimeline
     }
 
     /// <summary>Uses the explosion curve to expand Crystal Flash only to its smaller radius limit.</summary>
-    private void StepCrystalFlashExplosion()
+    private void StepCrystalFlashExplosion(InstalledPowerBombGlowColors colors)
     {
         // Crystal Flash's explosion is a deliberately shorter clone of the yellow Power Bomb expansion.
         // It uses the same curve and glow colours, but stops at radius 32.
         RenderedExplosionRadius = ExplosionRadius;
         SelectGlowColor(
+            colors,
             PowerBombGlowSequence.Explosion,
             ExplosionRadius.GlowColorBand);
 
@@ -449,10 +449,7 @@ public sealed class PowerBombBlastTimeline
     private static int PreExplosionGlowStep(PowerBombRadius radius) =>
         radius.GlowColorBand % PowerBombGlowColorFormat.Count(PowerBombGlowSequence.PreExplosion);
 
-    /// <summary>Selects the installed glow colour a sequence shows at a radius-derived step.</summary>
-    private void SelectGlowColor(PowerBombGlowSequence sequence, int glowStep)
-    {
-        RgbColor color = PresentationColors.Resolve(sequence, glowStep);
-        GlowColor = color;
-    }
+    /// <summary>Selects the glow colour of <paramref name="colors"/> a sequence shows at a radius-derived step.</summary>
+    private void SelectGlowColor(InstalledPowerBombGlowColors colors, PowerBombGlowSequence sequence, int glowStep) =>
+        GlowColor = colors.Resolve(sequence, glowStep);
 }

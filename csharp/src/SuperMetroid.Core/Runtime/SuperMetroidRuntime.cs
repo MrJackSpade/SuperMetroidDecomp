@@ -506,7 +506,6 @@ internal sealed class SuperMetroidRuntime
         // Samus and the room's owners are made on separate paths, so the frame's entry, before any producer executes,
         // is where both exist to be connected.
         RoomScope scope = Room.LoadedScope;
-        Artwork.BindProjectiles(scope.BombProjectiles);
         EnemyRoomEffects.ApplyPendingChozoStatueObjects(scope.RoomObjects, Room.LoadedScope.Enemies);
     }
 

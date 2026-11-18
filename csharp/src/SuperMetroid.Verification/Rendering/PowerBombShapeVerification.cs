@@ -62,7 +62,7 @@ internal static class PowerBombShapeVerification
     {
         Suite(nameof(VerifyPowerBombOvalAspect), () => VerifyPowerBombOvalAspect(rom));
         Suite(nameof(VerifyPowerBombPreScaledShapes), () => VerifyPowerBombPreScaledShapes(rom));
-        var explosion = new SamusPowerBombExplosionState(global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors);
+        var explosion = new SamusPowerBombExplosionState();
         explosion.Spawn(new(100, 120));
         int cases = 0;
         foreach (var phase in new[] { PowerBombExplosionPhase.PreExplosionWhite, PowerBombExplosionPhase.ExplosionYellow })

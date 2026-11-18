@@ -57,7 +57,7 @@ internal static class ResumeChargingSoundCancelVerification
         {
             var fixture = new Fixture(SamusPoseId.FacingRightNormalPose, StandingPosition, beams);
             fixture.Samus.ResumeChargingBeamSoundPending = true;
-            fixture.Fire(new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot });
+            fixture.Fire(new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None });
             fixture.AssertShotCancelled($"uncharged shot with {beams}");
         }
     }
@@ -72,7 +72,7 @@ internal static class ResumeChargingSoundCancelVerification
         fired.Charge.FlareCounter = BeamChargeDefinitions.FullyChargedCounter;
         fired.Samus.PendingTransitionShot = new SamusTransitionShot(SamusProjectileDirection.Left);
         fired.Samus.ResumeChargingBeamSoundPending = true;
-        fired.Fire(new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.None });
+        fired.Fire(new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.None, ControllerPreviousNewInput = GameplayAction.None });
         fired.AssertShotCancelled("charged release");
 
         // A running cooldown rejects the release; with the charge past the charging sound's start, the rejection clears
@@ -82,7 +82,7 @@ internal static class ResumeChargingSoundCancelVerification
         rejected.Samus.PendingTransitionShot = new SamusTransitionShot(SamusProjectileDirection.Left);
         rejected.Bombs.SetSharedCooldown(5);
         rejected.Samus.ResumeChargingBeamSoundPending = true;
-        rejected.Fire(new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.None });
+        rejected.Fire(new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.None, ControllerPreviousNewInput = GameplayAction.None });
         AssertTrue(!rejected.Samus.ResumeChargingBeamSoundPending, "the rejected release clears the pending resume");
         rejected.PostDraw(GameplayAction.Shoot);
         AssertTrue(rejected.Requests.SoundRequests.SequenceEqual([new SoundRequest(SamusSound.Silence, SoundRequestPriority.Essential)]),
@@ -97,7 +97,7 @@ internal static class ResumeChargingSoundCancelVerification
     {
         var fixture = new Fixture(SamusPoseId.FacingRightNormalPose, StandingPosition, SamusBeamFlags.Wave | SamusBeamFlags.Plasma);
         fixture.Samus.HyperBeamEnabled = true;
-        fixture.Fire(new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot });
+        fixture.Fire(new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None });
         AssertTrue(fixture.Charge.HyperBeamFlare, "the first Hyper Beam shot starts its flare");
 
         fixture.Requests.BeginRecordedUpdate();
@@ -106,7 +106,7 @@ internal static class ResumeChargingSoundCancelVerification
 
         fixture.Requests.BeginRecordedUpdate();
         fixture.Bombs.SetSharedCooldown(0);
-        fixture.Fire(new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.None });
+        fixture.Fire(new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.None, ControllerPreviousNewInput = GameplayAction.None });
         fixture.AssertShotCancelled("Hyper Beam shot after the spin");
     }
 

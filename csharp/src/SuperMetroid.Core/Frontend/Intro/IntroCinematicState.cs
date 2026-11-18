@@ -224,14 +224,12 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// The installed Samus artwork the flashbacks' Samus draws from; its sprite sheets are the ones the flashbacks' Samus
     /// and projectiles draw from until <see cref="BindSpriteSheets"/> binds others.
     /// </param>
-    /// <param name="powerBombGlowColors">The installed Power Bomb glow colours the flashbacks' bombs glow in.</param>
     /// <param name="characterArtwork">The installed opening-cinematic background and sprite artwork.</param>
     /// <param name="japaneseText">The options menu's Japanese text setting.</param>
     public IntroCinematicState(
         IntroCinematicOverreads overreads,
         AudioQueues audio,
         SamusArtworkBinding samusArtwork,
-        InstalledPowerBombGlowColors powerBombGlowColors,
         IntroCinematicArtwork characterArtwork,
         bool japaneseText = false)
     {
@@ -242,7 +240,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         samusOverreads = Ensure.NotNull(overreads.Samus);
         shellFallPastCurve = Ensure.NotNull(overreads.ShellFall);
         flashbackAudioRequests = new GameplayAudioRequests(new CinematicAudioQueues(Ensure.NotNull(audio)));
-        flashbackBombProjectiles = new SamusBombProjectileSystem(flashbackAudioRequests, powerBombGlowColors, samusArtwork);
+        flashbackBombProjectiles = new SamusBombProjectileSystem(flashbackAudioRequests, samusArtwork);
         // The flashback's shots shake an earthquake of their own, which nothing in the flashback shows.
         flashbackProjectiles = new SamusProjectileSystem(flashbackAudioRequests, new BeamChargeState(), samusOverreads,
             new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), samusArtwork, new RoomEarthquake());

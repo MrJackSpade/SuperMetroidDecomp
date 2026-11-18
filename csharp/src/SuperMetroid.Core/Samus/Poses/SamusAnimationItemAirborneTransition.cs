@@ -16,4 +16,8 @@ internal sealed record SamusAnimationItemAirborneTransition(
     SamusPoseId UnequippedGrounded,
     SamusPoseId UnequippedAirborne,
     SamusPoseId EquippedGrounded,
-    SamusPoseId EquippedAirborne) : SamusAnimationCue;
+    SamusPoseId EquippedAirborne) : SamusAnimationCue
+{
+    /// <inheritdoc/>
+    internal override IReadOnlyList<SamusPoseId> PublishedPoses => [UnequippedGrounded, UnequippedAirborne, EquippedGrounded, EquippedAirborne];
+}

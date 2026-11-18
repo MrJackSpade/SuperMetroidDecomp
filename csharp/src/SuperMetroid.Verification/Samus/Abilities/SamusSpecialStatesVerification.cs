@@ -196,8 +196,9 @@ internal static void VerifySamusCrystalFlash()
         samus.AudioRequests.SoundRequests.Where(request => request.SoundEffect == RoomSound.Silence),
         "the raise's end queues the Crystal Flash activation sound once, at essential priority");
 
-    var crystalWindow = new SamusPowerBombExplosionState(PowerBombGlowColorFile.Read(new MemoryStream(
-        SuperMetroid.AssetExtraction.Samus.PowerBombGlowColorExtractor.Extract(bus))));
+    var crystalWindowGlowColors = PowerBombGlowColorFile.Read(new MemoryStream(
+        SuperMetroid.AssetExtraction.Samus.PowerBombGlowColorExtractor.Extract(bus)));
+    var crystalWindow = new SamusPowerBombExplosionState();
     crystalWindow.Arm();
     crystalWindow.BeginCrystalFlash(samus.Position.Whole);
     AssertTrue(!crystalWindow.IsArmed,
@@ -210,10 +211,10 @@ internal static void VerifySamusCrystalFlash()
     // Seventeen calls remain below 32 pixels; call eighteen adds the old speed of 3 and 48/256 pixels,
     // reaches 32 and 176/256 pixels, and installs the afterglow. Its rendered table still used 29 and a half pixels.
     for (int hdmaCall = 1; hdmaCall <= 17; hdmaCall++)
-        AssertTrue(!crystalWindow.StepFrame(), $"Crystal Flash expansion call {hdmaCall}");
+        AssertTrue(!crystalWindow.StepFrame(crystalWindowGlowColors), $"Crystal Flash expansion call {hdmaCall}");
     AssertEqual(PowerBombExplosionPhase.CrystalFlashExplosion, crystalWindow.Blast.Phase,
         "Crystal Flash expansion remains active through call seventeen");
-    AssertTrue(!crystalWindow.StepFrame(), "Crystal Flash expansion transition is not cleanup");
+    AssertTrue(!crystalWindow.StepFrame(crystalWindowGlowColors), "Crystal Flash expansion transition is not cleanup");
     AssertEqual(PowerBombExplosionPhase.CrystalFlashAfterglow, crystalWindow.Blast.Phase,
         "Crystal Flash call eighteen installs afterglow");
     AssertEqual(PowerBombRadius.FromPixels(32, 176), crystalWindow.Blast.ExplosionRadius,
@@ -228,7 +229,7 @@ internal static void VerifySamusCrystalFlash()
     int stockFadeSteps = ReadRetailCrystalFlashStockFadeSteps();
     for (int hdmaCall = 1; hdmaCall <= stockFadeSteps; hdmaCall++)
     {
-        AssertTrue(!crystalWindow.StepFrame(), $"Crystal Flash afterglow call {hdmaCall}");
+        AssertTrue(!crystalWindow.StepFrame(crystalWindowGlowColors), $"Crystal Flash afterglow call {hdmaCall}");
         AssertEqual(Math.Max(0, 4 - hdmaCall), crystalWindow.Blast.GlowColor.FadeLevels.Red,
             "Crystal Flash red fades without shortening native lifetime");
         AssertEqual(Math.Max(0, 3 - hdmaCall), crystalWindow.Blast.GlowColor.FadeLevels.Green,
@@ -236,7 +237,7 @@ internal static void VerifySamusCrystalFlash()
         AssertEqual(Math.Max(0, 2 - hdmaCall), crystalWindow.Blast.GlowColor.FadeLevels.Blue,
             "Crystal Flash blue fade");
     }
-    AssertTrue(crystalWindow.StepFrame(),
+    AssertTrue(crystalWindow.StepFrame(crystalWindowGlowColors),
         "Crystal Flash cleans up on the call after the native fade count");
     AssertEqual(PowerBombExplosionPhase.Inactive, crystalWindow.Blast.Phase,
         "Crystal Flash HDMA cleanup clears phase");

@@ -16,11 +16,12 @@ internal static class PowerBombAfterglowShapeVerification
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         var colors = PowerBombGlowColorFile.Read(new MemoryStream(PowerBombGlowColorExtractor.Extract(rom)));
         // Near the bottom-left, the last oval still leaves visible corners outside it.
-        var explosion = new SamusPowerBombExplosionState(colors);
+        var explosionGlowColors = colors;
+        var explosion = new SamusPowerBombExplosionState();
         explosion.Arm();
         explosion.Spawn(new(32, 208));
         for (int frame = 0; frame < 200 && explosion.Blast.Phase != PowerBombExplosionPhase.Afterglow; frame++)
-            explosion.StepFrame();
+            explosion.StepFrame(explosionGlowColors);
         AssertEqual(PowerBombExplosionPhase.Afterglow, explosion.Blast.Phase, "reported blast reaches the fade transition");
         AssertEqual(PowerBombExplosionPhase.ExplosionWhite, explosion.Blast.RenderedPhase, "transition retains the final expanding oval");
         int radius = explosion.Blast.RenderedOvalRadius
@@ -39,7 +40,7 @@ internal static class PowerBombAfterglowShapeVerification
             AssertEqual(finalOval, actual.Window, "the afterglow keeps the final white oval: no rectangle at fade entry, never wider");
             checkedFrames++;
             AssertTrue(checkedFrames < 200, "afterglow cleanup is bounded");
-            explosion.StepFrame();
+            explosion.StepFrame(explosionGlowColors);
         }
         AssertTrue(checkedFrames > 1, "confirms both final expansion and fading frames");
         // The final white frame primes 32 afterglow steps; every afterglow call consumes one,

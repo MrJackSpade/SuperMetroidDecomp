@@ -883,7 +883,7 @@ internal sealed class RoomLoader
         // The held beam charge survives on the session; Samus's own echo storage is cleared.
         loadingSamus.HorizontalSpeed.ClearSpeedEchoes();
         loadingSamus.Shinespark.ResetProjectileEchoStorage();
-        var bombs = new SamusBombProjectileSystem(_audioRequests, _artwork.ScreenContent.PowerBombGlowColors, _artwork.SamusArtwork);
+        var bombs = new SamusBombProjectileSystem(_audioRequests, _artwork.SamusArtwork);
         // Each room's shot places start keeping nothing; TakeOverFrom then hands them what the outgoing room's kept.
         // The room's earthquake is composed with the room: Super Missile impacts and the room's enemies start it.
         var earthquake = new RoomEarthquake();
@@ -892,7 +892,6 @@ internal sealed class RoomLoader
         projectiles.TakeOverFrom(_room.HandOver);
         scope.BombProjectiles = bombs;
         scope.Projectiles = projectiles;
-        _artwork.BindProjectiles(bombs);
 
         // The room-object loader walks the room's placements once. Each placement takes the highest free place among the
         // room's room objects before its setup runs, so a room object its setup deletes at once frees that place for the

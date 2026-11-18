@@ -107,7 +107,7 @@ internal static class GenericSpriteArtworkVerification
         EqualSprites(expected, title.screenSprites, "title copyright owner parity");
 
         var intro = new IntroCinematicState(new IntroCinematicOverreads(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve),
-            AudioQueues.Standalone(), InstalledFixtures.SamusArtwork(body), InstalledFixtures.Maps.PowerBombGlowColors,
+            AudioQueues.Standalone(), InstalledFixtures.SamusArtwork(body),
             characterArtwork: introArtwork.BoundCatalog)
         {
             Random = new SharedRandom(),

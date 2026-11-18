@@ -69,7 +69,7 @@ internal static class GameplayDisplayFrameTestsVerification
         SamusPowerBombExplosionState explosion = runtime.BombProjectiles.PowerBombExplosion;
         explosion.Arm();
         explosion.Spawn(new(128, 120));
-        for (int i = 0; i < 20; i++) explosion.StepFrame();
+        for (int i = 0; i < 20; i++) explosion.StepFrame(runtime.Artwork.SamusArtwork.PowerBombGlowColors);
         // A sky room installs a live sky the published frame never had (#1403).
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
@@ -173,11 +173,11 @@ internal static class GameplayDisplayFrameTestsVerification
         SamusPowerBombExplosionState explosion = runtime.BombProjectiles.PowerBombExplosion;
         explosion.Arm();
         explosion.Spawn(new(128, 120));
-        for (int i = 0; i < 4; i++) explosion.StepFrame();
+        for (int i = 0; i < 4; i++) explosion.StepFrame(runtime.Artwork.SamusArtwork.PowerBombGlowColors);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         int latchedRed = explosion.Blast.GlowColor.FadeLevels.Red;
         int steps = 0;
-        while (explosion.Blast.GlowColor.FadeLevels.Red == latchedRed && steps++ < 64) explosion.StepFrame();
+        while (explosion.Blast.GlowColor.FadeLevels.Red == latchedRed && steps++ < 64) explosion.StepFrame(runtime.Artwork.SamusArtwork.PowerBombGlowColors);
         AssertTrue(explosion.Blast.GlowColor.FadeLevels.Red != latchedRed, "fixture reaches a power-bomb COLDATA change");
         GameplayDisplayFrame pending = runtime.PublishDisplayFrame();
         AssertEqual(explosion.ShownOval.Radii, pending.FrameEnd.PowerBomb.Oval.Radii, "power-bomb oval is read live");

@@ -97,7 +97,7 @@ internal static class ProjectileRadiiVerification
         var stock = ProjectileFrameBindingFile.Load(new MemoryStream(stockJson));
         var stockArtwork = InstalledFixtures.SamusArtwork(projectileFrames: stock);
         var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), stockArtwork, new global::SuperMetroid.Core.Fx.RoomEarthquake());
-        var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors, stockArtwork);
+        var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), stockArtwork);
         int bombFrames = 0;
         foreach (int address in addresses)
         {

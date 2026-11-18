@@ -31,16 +31,6 @@ internal sealed class RuntimeArtwork
     /// <summary>The sprite sheets' backing value, installed from the start.</summary>
     private InstalledSpriteSheets _spriteSheets;
 
-    /// <summary>
-    /// Binds the installed Power Bomb glow colours to one room's bombs: when the room builds them, and again whenever the
-    /// host rebinds artwork. The shots' and bombs' frames are the Samus artwork's, which they were built with.
-    /// </summary>
-    internal void BindProjectiles(SamusBombProjectileSystem bombs)
-    {
-        Ensure.NotNull(bombs);
-        bombs.PowerBombExplosion.Blast.PresentationColors = ScreenContent.PowerBombGlowColors;
-    }
-
     /// <summary>Captures the runtime owners that consume host-installed visual assets and the catalogs the runtime is built over.</summary>
     internal RuntimeArtwork(RuntimeArtworkDependencies dependencies)
     {
@@ -53,7 +43,7 @@ internal sealed class RuntimeArtwork
         _spriteSheets = installed.SpriteSheets;
         ProjectileSheets = SuperMetroid.Core.Samus.Artwork.ProjectileSheets.Gameplay(installed.SpriteSheets);
         SamusArtwork = new SamusArtworkBinding(installed.SamusBodyArt, installed.SamusShownFrames, installed.SpriteSheets, installed.GrappleFlarePlacement,
-            installed.GrappleSwingFrames, installed.ProjectileFrameBindings);
+            installed.GrappleSwingFrames, installed.ProjectileFrameBindings, installed.ScreenContent.PowerBombGlowColors);
         ChargeFlarePlacement = installed.ChargeFlarePlacement;
         RoomBlockSheets = installed.RoomBlockSheets;
         RoomVisualLayouts = installed.RoomVisualLayouts;
@@ -68,6 +58,7 @@ internal sealed class RuntimeArtwork
         set
         {
             _screenContent = Ensure.NotNull(value);
+            SamusArtwork.PowerBombGlowColors = value.PowerBombGlowColors;
             _hud.BindPresentation(value.GameplayHud);
             _bossArtwork.EscapeTypewriterPresentation = value.EscapeTypewriter;
             _bossArtwork.MotherBrainRainbowColors = value.MotherBrainRainbowBeamColours;

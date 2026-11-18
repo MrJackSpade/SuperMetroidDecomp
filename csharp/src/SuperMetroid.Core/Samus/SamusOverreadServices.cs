@@ -16,7 +16,6 @@ public sealed class SamusOverreadServices
 {
     /// <summary>Keeps every decoded service.</summary>
     /// <param name="framesBeyondAnimation">What a Samus animation frame past its pose's animation reads.</param>
-
     /// <param name="projectiles">The services Samus's projectiles consult where they read past their data.</param>
     /// <param name="straddledTerrain">The terrain a Wave shot's scan past the room's ceiling finds straddling two blocks.</param>
     internal SamusOverreadServices(
@@ -34,7 +33,6 @@ public sealed class SamusOverreadServices
     /// animation it does not belong to, by a pose that animates by each animation.
     /// </summary>
     internal FramesBeyondAnimation<SamusAnimationName, SamusAnimationFrame, SamusAnimationPlaceName, SamusPoseAnimationStep> FramesBeyondAnimation { get; }
-
 
     /// <summary>The services Samus's projectiles consult where their glitch paths read past their data.</summary>
     internal SamusProjectileOverreads Projectiles { get; }

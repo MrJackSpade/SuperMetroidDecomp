@@ -18,10 +18,12 @@ public sealed class SamusArtworkBinding
     /// <param name="grappleFlarePlacement">The installed grapple flare placements.</param>
     /// <param name="grappleSwingFrames">The installed pictures Samus's swing shows at each grapple angle.</param>
     /// <param name="projectileFrames">The installed composition each frame of her shots' and bombs' animations draws.</param>
+    /// <param name="powerBombGlowColors">The installed colours her Power Bomb and Crystal Flash blasts glow in.</param>
     public SamusArtworkBinding(InstalledSamusBodyArtwork body, SamusShownFrames shownFrames, InstalledSpriteSheets sheets,
         ChargeFlarePlacements grappleFlarePlacement, InstalledGrappleSwingFrames grappleSwingFrames,
-        InstalledProjectileFrameBindings projectileFrames)
+        InstalledProjectileFrameBindings projectileFrames, InstalledPowerBombGlowColors powerBombGlowColors)
     {
+        PowerBombGlowColors = powerBombGlowColors;
         Body = body;
         ArmCannon = body.ArmCannon;
         ShownFrames = shownFrames;
@@ -54,4 +56,10 @@ public sealed class SamusArtworkBinding
     /// system built with this binding resolves its frames through.
     /// </summary>
     public InstalledProjectileFrameBindings ProjectileFrames { get; set => field = Ensure.NotNull(value); }
+
+    /// <summary>
+    /// The installed colours her Power Bomb and Crystal Flash blasts glow in, which every bomb system built with this binding
+    /// shows its blast in (#2397).
+    /// </summary>
+    public InstalledPowerBombGlowColors PowerBombGlowColors { get; set => field = Ensure.NotNull(value); }
 }

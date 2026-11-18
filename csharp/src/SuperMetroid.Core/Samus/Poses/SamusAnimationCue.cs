@@ -13,4 +13,7 @@ internal abstract record SamusAnimationCue : SamusPoseAnimationStep
     /// (<see cref="Compatibility.FramesBeyondAnimation{TAnimation, TFrame, TPlace, TStep}"/>).
     /// </summary>
     internal virtual bool ContinuesToNextSegment => false;
+
+    /// <summary>The transitional poses the cue can publish; none for a cue that publishes no pose.</summary>
+    internal virtual IReadOnlyList<SamusPoseId> PublishedPoses => [];
 }

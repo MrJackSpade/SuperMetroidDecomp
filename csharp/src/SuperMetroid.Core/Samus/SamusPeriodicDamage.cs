@@ -14,15 +14,12 @@ public sealed class SamusPeriodicDamage
     /// </summary>
     public UnsignedSixteenSixteen Pending { get; private set; }
 
-    /// <summary>
-    /// Adds one fractional periodic-damage contribution.
-    /// </summary>
+    /// <summary>Adds one periodic-damage contribution, in energy and its 65536ths.</summary>
     /// <remarks>
     /// Liquid, block and enemy damage all add to one amount, so fractions that together pass a whole energy add one to
-    /// the whole damage. The fractional damage is less than one energy, in 65536ths, and the whole damage zero or more.
+    /// the whole damage.
     /// </remarks>
-    public void Accumulate(int subDamage, int wholeDamage) =>
-        Pending += new UnsignedSixteenSixteen(wholeDamage, subDamage);
+    public void Accumulate(UnsignedSixteenSixteen damage) => Pending += damage;
 
     /// <summary>
     /// Applies the accumulated damage to Samus: the suit's periodic division (<see cref="SamusSuitDamage.ReducePeriodic"/>),

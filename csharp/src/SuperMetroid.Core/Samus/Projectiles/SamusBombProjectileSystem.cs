@@ -629,6 +629,9 @@ public sealed class SamusBombProjectileSystem
             }
         }
 
+        // A burned-out spread bomb flies no further and never turns, even with its centre in a solid block (#2466): the
+        // game still runs the spread's collision test on it, but with the fuse out that test sets off the explosion's
+        // cross below and reports no collision, so the wall turn never moves it.
         if (bomb.SpreadFlight is { } flight && !bomb.HasBurnedOut)
             MoveBombSpread(level, bomb, flight, samusKinematics);
 

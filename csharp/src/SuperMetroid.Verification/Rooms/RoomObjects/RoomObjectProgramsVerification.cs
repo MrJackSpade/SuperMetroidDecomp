@@ -280,9 +280,10 @@ internal static class RoomObjectProgramsVerification
     {
         ArgumentNullException.ThrowIfNull(gate);
         downwardGateAddresses ??= DownwardGateAddresses(rom);
-        // A moving gate ends every update showing an image of its movement: the waking update shows the first.
+        // A moving gate ends every update showing an image of its movement: the waking update shows the first, and the
+        // play stands just past the image shown.
         int frame = gate.Phase is DownwardGatePhase.Closing or DownwardGatePhase.Reopening
-            ? (gate.StepsShown > 0 ? gate.StepsShown - 1
+            ? (gate.Animation.Playback.Place.Beat > 0 ? gate.Animation.Playback.Place.Beat - 1
                 : throw new InvalidDataException($"A moving downward gate in {gate.Phase} ended an update showing no image."))
             : 0;
         return downwardGateAddresses.TryGetValue(new GateState(gate.Phase, frame), out ushort address)

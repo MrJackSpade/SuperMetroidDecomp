@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Animation;
+
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
@@ -6,30 +8,46 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// number of times (#1994), each a run of images some of which bite first; then it releases Samus with her release
 /// immunity, shows its fangs out, then its idle image for one update, and leaves the room.
 /// </summary>
-/// <param name="owner">The room's plants, which reach Samus.</param>
-/// <param name="plant">The plant's mounting and authored chew.</param>
-/// <param name="heldPosition">Where the plant holds Samus.</param>
 [RoomLifetime]
-internal sealed class SamusEaterObject(SamusEaterObjects owner, SamusEaterObjectDefinition plant, Position16<RoomPixels> heldPosition)
-    : SequencedRoomObject<SamusEaterChewFrame>
+internal sealed class SamusEaterObject : SequencedRoomObject<SamusEaterSegment, SamusEaterChewFrame, NoAnimationCue>
 {
+    /// <summary>A plant that has just caught Samus.</summary>
+    /// <param name="owner">The room's plants, which reach Samus.</param>
+    /// <param name="plant">The plant's mounting and authored chew.</param>
+    /// <param name="heldPosition">Where the plant holds Samus.</param>
+    internal SamusEaterObject(SamusEaterObjects owner, SamusEaterObjectDefinition plant, Position16<RoomPixels> heldPosition)
+        : this(owner, plant, heldPosition, new SamusEaterAnimations(plant))
+    {
+    }
+
+    /// <summary>A plant that has just caught Samus, playing <paramref name="animations"/>, its chew's.</summary>
+    private SamusEaterObject(SamusEaterObjects owner, SamusEaterObjectDefinition plant, Position16<RoomPixels> heldPosition,
+        SamusEaterAnimations animations)
+        : base(animations.Segments)
+    {
+        _owner = Ensure.NotNull(owner);
+        Plant = Ensure.NotNull(plant);
+        HeldPosition = heldPosition;
+        _animations = animations;
+    }
+
     /// <summary>The room's plants.</summary>
-    private readonly SamusEaterObjects _owner = Ensure.NotNull(owner);
+    private readonly SamusEaterObjects _owner;
+
+    /// <summary>The plant's animations, from its authored chew (#2480).</summary>
+    private readonly SamusEaterAnimations _animations;
 
     /// <summary>The plant's mounting and authored chew.</summary>
-    internal SamusEaterObjectDefinition Plant { get; } = Ensure.NotNull(plant);
+    internal SamusEaterObjectDefinition Plant { get; }
 
     /// <summary>Where the plant holds Samus.</summary>
-    internal Position16<RoomPixels> HeldPosition { get; } = heldPosition;
+    internal Position16<RoomPixels> HeldPosition { get; }
 
     /// <summary>Where the plant is in its course.</summary>
     internal SamusEaterPhase Phase { get; private set; } = SamusEaterPhase.Biting;
 
     /// <summary>Whether the plant holds Samus: from its first update until it releases her.</summary>
     internal bool Holding { get; private set; }
-
-    /// <summary>The chews left, counting the one under way.</summary>
-    internal int ChewsLeft { get; private set; }
 
     /// <inheritdoc/>
     internal override void Update(RoomObjectPlace place, RoomObjectStepContext context)
@@ -46,25 +64,18 @@ internal sealed class SamusEaterObject(SamusEaterObjects owner, SamusEaterObject
         {
             case SamusEaterPhase.Biting:
                 Holding = true;
-                ChewsLeft = Plant.Chews;
                 Phase = SamusEaterPhase.Chewing;
-                Play(Plant.Chew, place, context);
+                Play(_animations.Chewing, place, context);
                 return;
             case SamusEaterPhase.Chewing:
-                ChewsLeft--;
-                if (ChewsLeft != 0)
-                {
-                    Play(Plant.Chew, place, context);
-                    return;
-                }
                 _owner.ReleaseSamus();
                 Holding = false;
                 Phase = SamusEaterPhase.Released;
-                Play([new(Plant.Released, SamusEaterObjectDefinitions.ReleaseDuration, SamusEaterBite.None)], place, context);
+                Play(_animations.Released, place, context);
                 return;
             case SamusEaterPhase.Released:
                 Phase = SamusEaterPhase.Resting;
-                Play([new(Plant.Idle, 1, SamusEaterBite.None)], place, context);
+                Play(_animations.Idle, place, context);
                 return;
             case SamusEaterPhase.Resting:
                 context.RoomObjects.DeleteObject(place);
@@ -74,10 +85,10 @@ internal sealed class SamusEaterObject(SamusEaterObjects owner, SamusEaterObject
         }
     }
 
-    /// <summary>Bites as <paramref name="step"/> asks, then shows it; returns the updates it stays.</summary>
-    private protected override int Show(SamusEaterChewFrame step, RoomObjectPlace place, RoomObjectStepContext context)
+    /// <summary>Bites as <paramref name="frame"/> asks, then shows it.</summary>
+    private protected override void Show(SamusEaterChewFrame frame, RoomObjectPlace place, RoomObjectStepContext context)
     {
-        switch (step.BiteBefore)
+        switch (frame.BiteBefore)
         {
             case SamusEaterBite.None:
                 break;
@@ -89,9 +100,8 @@ internal sealed class SamusEaterObject(SamusEaterObjects owner, SamusEaterObject
                 _owner.DamageSamus();
                 break;
             default:
-                throw new InvalidOperationException($"Undefined {nameof(SamusEaterBite)} {step.BiteBefore}.");
+                throw new InvalidOperationException($"Undefined {nameof(SamusEaterBite)} {frame.BiteBefore}.");
         }
-        context.Draw(place, SamusEaterObjectDraws.Family, step.Image);
-        return step.Updates;
+        context.Draw(place, SamusEaterObjectDraws.Family, frame.Image);
     }
 }

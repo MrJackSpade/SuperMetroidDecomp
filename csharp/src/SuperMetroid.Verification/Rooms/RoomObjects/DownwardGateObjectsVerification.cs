@@ -188,7 +188,8 @@ internal static class DownwardGateObjectsVerification
             level.GetCollisionBlockByIndex(gateBlockIndex + level.Size.X).Terrain,
             "compiled initial gate draw installs the second solid column word");
         AssertTrue(roomObjects.PopulationPlaces.Single(place => place.Behaviour is DownwardGateObject).Behaviour is
-                DownwardGateObject { Phase: DownwardGatePhase.RestingClosed, Resting: true, StepsShown: 1 },
+                DownwardGateObject { Phase: DownwardGatePhase.RestingClosed, Resting: true } restingGate &&
+                restingGate.Animation.Shown == DownwardGateMovementDefinitions.Closed,
             "a gate that has not moved rests on its closed image, not on an image of a movement (#1627)");
         AssertTrue(roomObjects.Gates.TrySpawnDownwardGateTrigger(
                 level,
@@ -198,7 +199,8 @@ internal static class DownwardGateObjectsVerification
             "power beam reaches the sleeping blue gate");
         StepDownwardGateObject(roomObjects, level);
         AssertTrue(roomObjects.PopulationPlaces.Single(place => place.Behaviour is DownwardGateObject).Behaviour is
-                DownwardGateObject { Phase: DownwardGatePhase.Reopening, Resting: false, StepsShown: 1 },
+                DownwardGateObject { Phase: DownwardGatePhase.Reopening, Resting: false } wakingGate &&
+                wakingGate.Animation.Shown == DownwardGateMovementDefinitions.Reopening[0],
             "the waking update shows the reopening's first image (#1627)");
         DownwardGateProjectileRequest wake = roomObjects.Gates.TakeDownwardGateProjectileRequests().Single();
         AssertEqual(DownwardGateProjectileOperation.Wake, wake.Operation,

@@ -4,8 +4,9 @@ using SuperMetroid.Core.Areas.Ceres;
 namespace SuperMetroid.Verification.Areas.Ceres;
 
 /// <summary>
-/// The native bank-$A6 lists the Ceres steam ROM oracle (#1290) walks: each program's entry point and the owner
-/// instructions the lists use, with the cue each must become and its operand roles (T the dormant wait replayed, A the puff played on expiry).
+/// The native bank-$A6 lists the Ceres steam ROM oracle (#1290) walks: each program's entry point, the owner instructions
+/// the lists use with the cue each must become, and the records the typed segments read differently (#2480): the dormant
+/// lists' count-downs, which the vents' owner holds as waits, and the rests' hidden frame records, which are pauses.
 /// Only verification reads them; the port runs typed programs.
 /// </summary>
 internal static class CeresSteamNativeListAddresses
@@ -42,11 +43,23 @@ internal static class CeresSteamNativeListAddresses
         CeresSteamSegment.RightResting,
     };
 
-    /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
-    internal static readonly Dictionary<ushort, NativeCueShape<CeresSteamCue>> Instructions = new()
+    /// <summary>
+    /// The frame record each dormant list shows after hiding its vent (#2480): the port's owner takes the vent over there,
+    /// holding it hidden for its drawn wait, so the dormant segment ends holding and the record and the count-down after it
+    /// are read on their own rather than beat by beat.
+    /// </summary>
+    internal static readonly IReadOnlySet<ushort> OwnerTakesOver = new HashSet<ushort> { 0xf04f, 0xf083, 0xf0b7, 0xf0eb };
+
+    /// <summary>The frame record each rest shows while its vent is hidden (#2480), which the typed rest waits as a pause.</summary>
+    internal static readonly IReadOnlySet<ushort> UnseenFrames = new HashSet<ushort> { 0xf05b, 0xf08f, 0xf0c3, 0xf0f7 };
+
+    /// <summary>The routine that counts a dormant vent's wait down, replaying its list until it runs out.</summary>
+    internal const ushort CountDownRoutine = 0xf127;
+
+    /// <summary>Each owner instruction the segments' cues stand for, keyed by its native routine; neither takes an operand.</summary>
+    internal static readonly Dictionary<ushort, CeresSteamCueKind> Instructions = new()
     {
-        [0xf11d] = NativeCueShape<CeresSteamCue>.Exactly(new CeresSteamCue.Signal(CeresSteamCueKind.Vanish)),
-        [0xf127] = NativeCueShape<CeresSteamCue>.Of<CeresSteamCue.CountDownToActivation>("TA"),
-        [0xf135] = NativeCueShape<CeresSteamCue>.Exactly(new CeresSteamCue.Signal(CeresSteamCueKind.Appear)),
+        [0xf11d] = CeresSteamCueKind.Vanish,
+        [0xf135] = CeresSteamCueKind.Appear,
     };
 }

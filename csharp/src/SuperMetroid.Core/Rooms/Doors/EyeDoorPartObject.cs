@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// <param name="component">Which part this is: the body or the bottom.</param>
 /// <param name="door">The door the part's placement named; null for none.</param>
 internal sealed class EyeDoorPartObject(EyeDoorOrientation orientation, EyeDoorComponent component, PlacedDoor? door)
-    : SequencedRoomObject<EyeDoorStep>, IClosingDoor, IDoorKeptOpen
+    : SequencedRoomObject<EyeDoorSegment, EyeDoorObjectFrame, EyeDoorAction>(EyeDoorSequenceDefinitions.Segments), IClosingDoor, IDoorKeptOpen
 {
     /// <summary>The eye door's facing.</summary>
     internal EyeDoorOrientation Orientation { get; } = orientation;
@@ -73,13 +73,8 @@ internal sealed class EyeDoorPartObject(EyeDoorOrientation orientation, EyeDoorC
     }
 
     /// <inheritdoc/>
-    private protected override int Show(EyeDoorStep step, RoomObjectPlace place, RoomObjectStepContext context)
-    {
-        if (step.Before != EyeDoorAction.None)
-            throw new InvalidOperationException($"An eye door's {Component} does nothing as it draws; got {step.Before}.");
-        context.Draw(place, EyeDoorDraws.Of(Orientation, Component, step.Image));
-        return step.Updates;
-    }
+    private protected override void Show(EyeDoorObjectFrame frame, RoomObjectPlace place, RoomObjectStepContext context) =>
+        context.Draw(place, EyeDoorDraws.Of(Orientation, Component, frame));
 
     /// <inheritdoc/>
     private protected override void SequenceEnded(RoomObjectPlace place, RoomObjectStepContext context)

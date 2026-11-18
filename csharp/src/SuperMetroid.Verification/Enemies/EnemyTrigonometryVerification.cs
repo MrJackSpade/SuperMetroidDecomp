@@ -539,6 +539,7 @@ internal static class EnemyTrigonometryVerification
         new(nameof(VerifyRoomEffectActorKinds), () => VerifyRoomEffectActorKinds(LoadRepositoryRom())),
         new(nameof(VerifyCeresSteamDefinitions), () => VerifyCeresSteamDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyCeresSteamAnimations), () => VerifyCeresSteamAnimations(LoadRepositoryRom())),
+        new(nameof(VerifyCeresSteamDormantWait), () => VerifyCeresSteamDormantWait()),
         new(nameof(SuperMetroid.Verification.Areas.Ceres.CeresSteamInvulnerabilityVerification.VerifyCeresSteamInvulnerability), () => SuperMetroid.Verification.Areas.Ceres.CeresSteamInvulnerabilityVerification.VerifyCeresSteamInvulnerability()),
         new(nameof(VerifyCeresDoorAnimations), () => VerifyCeresDoorAnimations(LoadRepositoryRom())),
         new(nameof(VerifyCeresBabyAnimations), () => VerifyCeresBabyAnimations(LoadRepositoryRom())),

@@ -6,11 +6,12 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
 /// A map, energy, missile or save station (#1554). The station holds
-/// its appearance, its access arm's phase and countdown, and the save it asks the frontend for as domain values, and advances them on
+/// its appearance, its access arm's phase and use, and the save it asks the frontend for as domain values, and advances them on
 /// each update: an access Samus triggered starts the arm (or asks to save), the arm extends, holds, activates the
 /// station, holds and retracts by its authored timing (<see cref="StationAccessTimingDefinitions"/>), the accepted save
 /// flashes its pod's lights for its authored loops, and the station's own animation shows its images
-/// (<see cref="StationAnimationDefinitions"/>, #1994), the save station's only once.
+/// (<see cref="StationAnimationDefinitions"/>, #1994), the save station's only once. The station's animation, the save's
+/// flash and the arm's use each play on the shared animation player (#2480).
 /// </summary>
 /// <param name="kind">Which station it is.</param>
 /// <param name="area">The area whose map or save it serves.</param>
@@ -35,20 +36,22 @@ internal sealed class StationObject(
     internal StationAnimation ShownAnimation { get; private set; } = animation;
     /// <summary>Animation selected after the station has completed its first activation.</summary>
     internal StationAnimation CompletedAnimation { get; } = completedAnimation;
-    /// <summary>Where the station's animation stands.</summary>
-    private AnimationPlace _animationPlace = AnimationPlace.StartOfAnimation;
-    /// <summary>Where the accepted save's flash stands.</summary>
-    private AnimationPlace _flashPlace = AnimationPlace.StartOfAnimation;
-    /// <summary>Updates remaining before the station's next image.</summary>
-    private int _animationTimer = 1;
-    /// <summary>Keeps the save station's image still after its one initial draw.</summary>
-    private bool _initialDrawCompleted;
+    /// <summary>The station's animation playing: its first image shows on the station's first update.</summary>
+    private readonly AnimationPlayer<StationAnimation, StationDraw, NoAnimationCue> _animation =
+        AnimationPlayer<StationAnimation, StationDraw, NoAnimationCue>.Starting(
+            StationAnimationDefinitions.Segments, StationAnimationDefinitions.Animations[animation]);
+    /// <summary>The accepted save's flash playing, from the update the save is accepted.</summary>
+    private readonly AnimationPlayer<StationAnimation, StationDraw, NoAnimationCue> _flash =
+        AnimationPlayer<StationAnimation, StationDraw, NoAnimationCue>.Starting(
+            StationAnimationDefinitions.Segments, StationAnimationDefinitions.Animations[StationAnimation.SaveFlash]);
+    /// <summary>The access arm's use playing, from the access's first draw.</summary>
+    private readonly AnimationPlayer<StationAccessSegment, StationAccessPose, StationAccessCue> _arm =
+        AnimationPlayer<StationAccessSegment, StationAccessPose, StationAccessCue>.Starting(
+            StationAccessTimingDefinitions.Segments, StationAccessTimingDefinitions.Use);
     /// <summary>Records an accepted access for the station's next update.</summary>
     public bool Triggered { get; internal set; }
-    /// <summary>Current extension, hold, retraction, or map-unpause phase.</summary>
+    /// <summary>Whether the access arm is in use, idle, or waiting for the map screen to close.</summary>
     public StationOperationPhase OperationPhase { get; internal set; }
-    /// <summary>Updates remaining in the current access-arm phase.</summary>
-    private int _operationTimer;
     /// <summary>The access block where the activated access arm is drawn, or null when no access is active.</summary>
     public Position16<RoomBlocks>? AccessBlock { get; internal set; }
     /// <summary>The access Samus used, which selects the arm's draws.</summary>
@@ -95,11 +98,11 @@ internal sealed class StationObject(
                 // The arm draws its first extension image for six updates, holds fully inserted for 96, then activates
                 // the station. The touch locked Samus; this update does not lock her again, so one an intervening
                 // unpause freed stays free.
-                OperationPhase = StationOperationPhase.Extending;
-                _operationTimer = StationAccessTimingDefinitions.MovementUpdates;
+                OperationPhase = StationOperationPhase.InUse;
                 operationStartedThisUpdate = true;
                 context.QueueSound(EnemySound.StationEngaged, SoundRequestPriority.Normal);
-                DrawAccess(context, StationAccessPose.Retracted);
+                _arm.Show(StationAccessTimingDefinitions.Use);
+                DrawAccess(context, _arm.Showing);
             }
         }
 
@@ -111,20 +114,15 @@ internal sealed class StationObject(
             StepAccess(place, context, stations, samus);
 
         // The save station draws once and then stays still until its floor trigger asks to save.
-        if (Kind == StationKind.Save && _initialDrawCompleted)
+        if (Kind == StationKind.Save && _animation.Shown is not null)
             return;
 
-        if (--_animationTimer != 0)
-            return;
-
-        AnimationShown<StationAnimation, StationDraw> shown = StationAnimationDefinitions.Segments.PlayToNextFrame(
-            StationAnimationDefinitions.Animations[ShownAnimation], ref _animationPlace, static _ => { });
-        // A looping animation of images always shows its next image, held for any positive count of updates (#1627).
-        if (shown is not AnimationShown<StationAnimation, StationDraw>.Frame { Duration: > 0 } frame)
-            throw new InvalidDataException($"{Kind} station animation {ShownAnimation} showed {shown} instead of a timed image.");
-        context.Draw(place, StationObjectDraws.Family, frame.Shown);
-        _animationTimer = frame.Duration;
-        _initialDrawCompleted = true;
+        // A looping animation of images always shows its next image once the shown one's updates run out (#1627).
+        StationDraw? shown = _animation.StepToNewFrame();
+        if (_animation.IsResting)
+            throw new InvalidDataException($"{Kind} station animation {ShownAnimation} came to rest instead of showing its next image.");
+        if (shown is { } image)
+            context.Draw(place, StationObjectDraws.Family, image);
     }
 
     /// <summary>
@@ -134,55 +132,49 @@ internal sealed class StationObject(
     internal void StartSaveAnimation(IRoomObjectDrawing drawing, RoomLevelData level, Position16<RoomBlocks> block)
     {
         SavePhase = SaveStationPhase.Animating;
-        _flashPlace = AnimationPlace.StartOfAnimation;
-        if (!DrawSaveImage(drawing, level, block))
-            throw new InvalidOperationException("The save station's flash ended before it showed an image.");
+        _flash.Show(StationAnimationDefinitions.Animations[StationAnimation.SaveFlash]);
+        StationObjectDraws.Family.Draw(level, block, Ensure.NotNull(drawing), _flash.Showing);
     }
 
-    /// <summary>Advances the arm's countdown and, when it runs out, the arm's next phase.</summary>
+    /// <summary>
+    /// Plays the arm's use one update on: it draws the pose the update shows anew, carries out the moments it passes, and
+    /// ends the access once it is over.
+    /// </summary>
     private void StepAccess(RoomObjectPlace place, RoomObjectStepContext context, StationObjects stations, IRoomSamus samus)
     {
-        if (--_operationTimer != 0)
-            return;
-        switch (OperationPhase)
+        if (_arm.StepToNewFrame(cue => ReachAccessMoment(cue, place, context, stations, samus)) is { } pose)
         {
-            case StationOperationPhase.Extending:
-                DrawAccess(context, StationAccessPose.Extended);
-                OperationPhase = StationOperationPhase.Extended;
-                _operationTimer = StationAccessTimingDefinitions.ExtendedHoldUpdates;
-                break;
-            case StationOperationPhase.Extended:
+            DrawAccess(context, pose);
+            return;
+        }
+        if (!_arm.HasStopped)
+            return;
+        OperationPhase = Kind == StationKind.Map && samus.Control.InputLocked
+            ? StationOperationPhase.AwaitingMapUnpause
+            : StationOperationPhase.Idle;
+        AccessBlock = null;
+        AccessBehavior = null;
+        // The access only ends here. Recharges released Samus at activation; leaving the map screen releases her after
+        // the map.
+    }
+
+    /// <summary>Carries out the moment <paramref name="cue"/> of the arm's use.</summary>
+    private void ReachAccessMoment(StationAccessCue cue, RoomObjectPlace place, RoomObjectStepContext context, StationObjects stations, IRoomSamus samus)
+    {
+        switch (cue)
+        {
+            case StationAccessCue.Activates:
                 Activate(place, stations, samus);
                 // The recharges release Samus right after their message, before the arm retracts. The map leaves her
                 // locked for leaving the map screen to release.
                 if (Kind != StationKind.Map)
                     samus.Control.Unlock();
-                OperationPhase = StationOperationPhase.PostActivationHold;
-                _operationTimer = StationAccessTimingDefinitions.MovementUpdates;
-                break;
-            case StationOperationPhase.PostActivationHold:
+                return;
+            case StationAccessCue.Disengages:
                 context.QueueSound(EnemySound.StationDisengaged, SoundRequestPriority.Normal);
-                OperationPhase = StationOperationPhase.Retracting;
-                _operationTimer = StationAccessTimingDefinitions.MovementUpdates;
-                break;
-            case StationOperationPhase.Retracting:
-                DrawAccess(context, StationAccessPose.Retracted);
-                OperationPhase = StationOperationPhase.FinalRetractionHold;
-                _operationTimer = StationAccessTimingDefinitions.MovementUpdates;
-                break;
-            case StationOperationPhase.FinalRetractionHold:
-                OperationPhase = Kind == StationKind.Map && samus.Control.InputLocked
-                    ? StationOperationPhase.AwaitingMapUnpause
-                    : StationOperationPhase.Idle;
-                AccessBlock = null;
-                AccessBehavior = null;
-                // The access only ends here. Recharges released Samus at activation; leaving the map screen releases
-                // her after the map.
-                break;
-            case StationOperationPhase.Idle:
-            case StationOperationPhase.AwaitingMapUnpause:
+                return;
             default:
-                throw new InvalidDataException($"Unknown station operation phase {OperationPhase}.");
+                throw new InvalidDataException($"Unknown station access moment {cue}.");
         }
     }
 
@@ -196,36 +188,20 @@ internal sealed class StationObject(
         if (SavePhase != SaveStationPhase.Animating)
             throw new InvalidDataException($"Save station has unknown phase {SavePhase}.");
 
-        if (--_animationTimer != 0)
+        if (_flash.StepToNewFrame() is { } shown)
+        {
+            context.Draw(place, StationObjectDraws.Family, shown);
             return true;
+        }
 
         // After the last of its loops the flash is over, and the save publishes the saved-game message instead of
         // lighting the pod again.
-        if (!DrawSaveImage(context.RoomObjects.Drawing, context.Level, place.Block))
+        if (_flash.HasStopped)
         {
             SavePhase = SaveStationPhase.AwaitingCompletionMessageClose;
             stations.Publish(new SaveCompleted(SaveActivation(place)));
-            return true;
         }
         return true;
-    }
-
-    /// <summary>Draws the save flash's next image and holds it for its updates; false once the flash is over.</summary>
-    /// <exception cref="InvalidOperationException">The flash showed neither an image nor its end.</exception>
-    private bool DrawSaveImage(IRoomObjectDrawing drawing, RoomLevelData level, Position16<RoomBlocks> block)
-    {
-        Animation<StationAnimation> flash = StationAnimationDefinitions.Animations[StationAnimation.SaveFlash];
-        switch (StationAnimationDefinitions.Segments.PlayToNextFrame(flash, ref _flashPlace, static _ => { }))
-        {
-            case AnimationShown<StationAnimation, StationDraw>.Frame frame:
-                StationObjectDraws.Family.Draw(level, block, Ensure.NotNull(drawing), frame.Shown);
-                _animationTimer = frame.Duration;
-                return true;
-            case AnimationShown<StationAnimation, StationDraw>.Ended:
-                return false;
-            case var shown:
-                throw new InvalidOperationException($"The save station's flash showed {shown}.");
-        }
     }
 
     /// <summary>Applies the map or refill and publishes the station's message.</summary>
@@ -256,8 +232,10 @@ internal sealed class StationObject(
                 throw new InvalidDataException($"Unknown station kind {Kind}.");
         }
 
-        _animationPlace = AnimationPlace.StartOfAnimation;
-        _animationTimer = 1;
+        // A used map, energy or missile station shows its completed animation from this update's step; the save station
+        // stays still after its first image.
+        if (Kind != StationKind.Save)
+            _animation.Start(StationAnimationDefinitions.Animations[ShownAnimation]);
         stations.Publish(activation);
     }
 
@@ -266,7 +244,7 @@ internal sealed class StationObject(
     private SaveStationActivation SaveActivation(RoomObjectPlace place) => new(SavedAt
         ?? throw new InvalidDataException($"Save station at block {place.Block} was placed without its load station."), Area, place.Block);
 
-    /// <summary>Draws the access arm at the access Samus used, in the short or extended pose.</summary>
+    /// <summary>Draws the access arm at the access Samus used, in <paramref name="pose"/>.</summary>
     private void DrawAccess(RoomObjectStepContext context, StationAccessPose pose)
     {
         StationAccessBehavior accessBehavior = AccessBehavior

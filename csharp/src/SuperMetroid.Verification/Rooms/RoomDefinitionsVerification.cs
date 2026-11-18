@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RoomHeaderImport;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Rooms.RoomMainCodeCatalogVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -48,7 +49,7 @@ internal static class RoomDefinitionsVerification
             if (expected)
             {
                 AssertEqual(pointer, RoomDefinitions.Get(pointer).Pointer, "Header preserves selected identity");
-                AssertEqual(pointer, SelectedRoom.LoadUsingCompiledSelection(RoomDefinitions.Get(pointer), default).Pointer,
+                AssertEqual(pointer, SelectedRoom.LoadUsingCompiledSelection(RoomDefinitions.Get(pointer), RoomStateSelectionContexts.NoProgress).Pointer,
                     "Production header construction preserves identity without a cartridge capability");
             }
             else
@@ -106,7 +107,7 @@ internal static class RoomDefinitionsVerification
             AssertEqual(expected, field(RoomDefinitions.Get(pointer)), $"Room {pointer:X4} native field {offset}");
             AssertEqual(expected, field(enumerated[index]), $"Room {pointer:X4} enumerated field {offset}");
             if (offset == 1)
-                AssertEqual(expected, SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(SelectedRoom.LoadUsingCompiledSelection(RoomDefinitions.Get(pointer), default).Area), "Production area view");
+                AssertEqual(expected, SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(SelectedRoom.LoadUsingCompiledSelection(RoomDefinitions.Get(pointer), RoomStateSelectionContexts.NoProgress).Area), "Production area view");
         }
     }
 

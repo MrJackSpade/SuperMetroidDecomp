@@ -20,7 +20,7 @@ public sealed class SharedRandom
     public SharedRandom() => State = SharedRandomDefinitions.PowerOnState;
 
     /// <summary>The current state.</summary>
-    public SharedRandomState State { get; private set; }
+    public SharedRandomState State { get; internal set; }
 
     /// <summary>Samples the current state, 0 through 65535, without advancing it.</summary>
     public int Read() => State.Value;
@@ -35,10 +35,6 @@ public sealed class SharedRandom
         State = State.Next();
         return State.Value;
     }
-
-    /// <summary>Overwrites the state with <paramref name="value"/>, as a state import does.</summary>
-    /// <param name="value">The new state, 0 through 65535.</param>
-    public void Seed(int value) => State = new SharedRandomState(value);
 
     /// <summary>
     /// Overwrites the state with a species' seed (<see cref="SpeciesRandomReseed"/>), so later unrelated consumers draw on

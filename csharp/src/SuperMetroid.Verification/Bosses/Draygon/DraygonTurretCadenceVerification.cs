@@ -6,6 +6,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Verification.Bosses.Draygon;
 
 using SuperMetroid.Verification.Harness;

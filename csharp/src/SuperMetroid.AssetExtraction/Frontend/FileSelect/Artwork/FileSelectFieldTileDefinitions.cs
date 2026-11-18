@@ -14,8 +14,8 @@ public static class FileSelectFieldTileDefinitions
     internal static BackgroundTile DigitTileBase { get; } = new(96, 0, highPriority: true);
     /// <summary>The first letter tile used to draw a save slot's name in the Copy and Clear prompts: the slots' letters follow it.</summary>
     internal static BackgroundTile SamusLetterTileBase { get; } = new(106, 0, highPriority: true);
-    /// <summary>$81:A0F5: the filled-tank tile, drawn in the installed health digit's colour variant.</summary>
-    internal const int FilledTankTile = 152;
-    /// <summary>$81:A0EC: the empty-tank tile, drawn in the installed health digit's colour variant.</summary>
-    internal const int EmptyTankTile = 153;
+    /// <summary>$81:A0F5: the filled-tank tile, in the menu colours the slot fields are drawn in (#2416).</summary>
+    internal static BackgroundTile FilledTankTile { get; } = new(152, 0, highPriority: false);
+    /// <summary>$81:A0EC: the empty-tank tile, in the menu colours the slot fields are drawn in (#2416).</summary>
+    internal static BackgroundTile EmptyTankTile { get; } = new(153, 0, highPriority: false);
 }

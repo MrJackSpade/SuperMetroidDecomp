@@ -601,15 +601,15 @@ public sealed class IntroCinematicState : IFrontendScreen
             SamusCompatibility.ForNewSamus(), flashbackProjectiles.Charge, flashbackSamusArtwork)
         {
             Pose = SamusPoseId.FacingLeftNormalPose,
-            // No room loads for the flashback: before any game starts, her footsteps and landings go by the Landing Site.
-            Room = RoomDefinitions.LandingSite,
+            // No room loads for the flashback; her footsteps and landings go by its own ground.
+            Ground = IntroCinematicDefinitions.Flashback.Ground,
             Position = FixedPosition<RoomPixels>.FromWhole(IntroCinematicDefinitions.Flashback.SamusPosition),
             SelectedHudItem = HudItem.Missile,
             Missiles = IntroCinematicDefinitions.Flashback.Missiles,
             MaxMissiles = IntroCinematicDefinitions.Flashback.Missiles,
         };
         // Samus's shared frame phases read the active cinematic phase to select
-        // intro colour restoration and suppress gameplay-only sound/landing effects.
+        // intro colour restoration and suppress gameplay-only sounds.
         CurrentFlashbackSamus.Presentation.PresentInCinematic();
         SamusPoseMetadata.RefreshCollisionRadii(CurrentFlashbackSamus);
         SamusPresentation.InitializeAnimation(CurrentFlashbackSamus);

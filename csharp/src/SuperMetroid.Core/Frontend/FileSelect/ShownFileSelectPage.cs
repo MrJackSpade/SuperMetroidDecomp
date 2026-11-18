@@ -75,7 +75,7 @@ internal sealed record ShownFileSelectPage(FileSelectPage Page, ImmutableDiction
             int y = layout.EnergyAnchor.Y + row * FileSelectEnergyTankDefinitions.TankPixels;
             if ((uint)x >= FileSelectPresentationDefinitions.PageWidthPixels || (uint)y >= FileSelectPresentationDefinitions.PageHeightPixels)
                 throw new InvalidDataException("File-select energy tanks escaped the menu page.");
-            yield return new PlacedFrame(FileSelectParts.TankFrame(tank < filled, tens), new(x, y));
+            yield return new PlacedFrame(FileSelectParts.TankFrame(tank < filled), new(x, y));
         }
         yield return new PlacedFrame(FileSelectParts.DigitFrame(save.Hours / FileSelectFieldDefinitions.DigitBase), layout.TimeValueAnchor);
         yield return new PlacedFrame(FileSelectParts.DigitFrame(save.Hours % FileSelectFieldDefinitions.DigitBase), Right(layout.TimeValueAnchor, 1));

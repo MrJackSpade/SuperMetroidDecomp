@@ -33,12 +33,12 @@ internal static class RoomObjectDefinitionMigrationVerification
         AssertTrue(GreyDoorObjectsConstants.TryIdentifyGreyDoor(RoomObjectKind.GreyDoorFacingDown, out GreyDoorVariant down)
             && down == new GreyDoorVariant(ColoredDoorOrientation.Down, GreyDoorClosing.AtOnce), "grey door facing down");
         AssertEqual(new PermanentCollectibleObject(InWorldCollectibleKind.Bombs, CollectiblePresentation.ChozoOrb),
-            PermanentCollectibleObjectDefinitions.Items[RoomObjectKind.ChozoBombs], "Chozo Bombs");
+            RoomObjectKindVariants.Items[RoomObjectKind.ChozoBombs], "Chozo Bombs");
         AssertEqual(new PermanentCollectibleObject(InWorldCollectibleKind.SuperMissileTank, CollectiblePresentation.ShotBlock),
-            PermanentCollectibleObjectDefinitions.Items[RoomObjectKind.ShotBlockSuperMissileTank], "shot-block Super Missile Tank");
-        AssertTrue(!PermanentCollectibleObjectDefinitions.Items.ContainsKey(RoomObjectKind.RedDoorFacingLeft), "a door is no item");
+            RoomObjectKindVariants.Items[RoomObjectKind.ShotBlockSuperMissileTank], "shot-block Super Missile Tank");
+        AssertTrue(!RoomObjectKindVariants.Items.ContainsKey(RoomObjectKind.RedDoorFacingLeft), "a door is no item");
         // Only the items some room places in each presentation (#2354): five exposed, nineteen in an orb, three in a shot block.
-        AssertEqual(27, PermanentCollectibleObjectDefinitions.Items.Count, "the items the rooms place");
+        AssertEqual(27, RoomObjectKindVariants.Items.Count, "the items the rooms place");
 
         // The station animations are named by access rule instead of the header's list word plus an offset.
         AssertEqual(StationAnimation.MapIdle, StationAccessRuleDefinitions.Map.Animation, "map station animation");

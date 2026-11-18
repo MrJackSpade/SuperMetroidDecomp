@@ -74,25 +74,25 @@ internal static class EyeDoorSequenceDefinitions
     ];
 
     /// <summary>The still body or bottom: its resting pose for eight updates before it looks for Samus again.</summary>
-    internal static IReadOnlyList<EyeDoorStep> Still { get; } = [new(EyeDoorObjectFrame.PartResting, 8)];
+    internal static IReadOnlyList<EyeDoorPartStep> Still { get; } = [new(EyeDoorPartPose.Resting, 8)];
 
     /// <summary>Each facing's body and bottom pulsing while Samus is near: its poses there and back.</summary>
-    internal static IReadOnlyDictionary<EyeDoorOrientation, IReadOnlyList<EyeDoorStep>> Pulse { get; } =
-        new Dictionary<EyeDoorOrientation, IReadOnlyList<EyeDoorStep>>
+    internal static IReadOnlyDictionary<EyeDoorOrientation, IReadOnlyList<EyeDoorPartStep>> Pulse { get; } =
+        new Dictionary<EyeDoorOrientation, IReadOnlyList<EyeDoorPartStep>>
     {
         [EyeDoorOrientation.Left] =
         [
-            new(EyeDoorObjectFrame.PartResting, 8),
-            new(EyeDoorObjectFrame.PartSwelling, 8),
-            new(EyeDoorObjectFrame.PartSwollen, 8),
-            new(EyeDoorObjectFrame.PartSwelling, 8),
+            new(EyeDoorPartPose.Resting, 8),
+            new(EyeDoorPartPose.Swelling, 8),
+            new(EyeDoorPartPose.Swollen, 8),
+            new(EyeDoorPartPose.Swelling, 8),
         ],
         [EyeDoorOrientation.Right] =
         [
-            new(EyeDoorObjectFrame.PartResting, 6),
-            new(EyeDoorObjectFrame.PartSwelling, 6),
-            new(EyeDoorObjectFrame.PartSwollen, 6),
-            new(EyeDoorObjectFrame.PartSwelling, 6),
+            new(EyeDoorPartPose.Resting, 6),
+            new(EyeDoorPartPose.Swelling, 6),
+            new(EyeDoorPartPose.Swollen, 6),
+            new(EyeDoorPartPose.Swelling, 6),
         ],
     };
 }

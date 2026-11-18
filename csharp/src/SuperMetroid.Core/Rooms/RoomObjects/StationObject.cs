@@ -44,17 +44,38 @@ internal sealed class StationObject(
     /// <summary>Keeps the save station's image still after its one initial draw.</summary>
     private bool _initialDrawCompleted;
     /// <summary>Records an accepted access for the station's next update.</summary>
-    public bool Triggered { get; internal set; }
+    public bool Triggered { get; private set; }
     /// <summary>Current extension, hold, retraction, or map-unpause phase.</summary>
-    public StationOperationPhase OperationPhase { get; internal set; }
+    public StationOperationPhase OperationPhase { get; private set; }
     /// <summary>Updates remaining in the current access-arm phase.</summary>
     private int _operationTimer;
     /// <summary>The access block where the activated access arm is drawn, or null when no access is active.</summary>
-    public Position16<RoomBlocks>? AccessBlock { get; internal set; }
+    public Position16<RoomBlocks>? AccessBlock { get; private set; }
     /// <summary>The access Samus used, which selects the arm's draws.</summary>
-    public StationAccessBehavior? AccessBehavior { get; internal set; }
+    public StationAccessBehavior? AccessBehavior { get; private set; }
     /// <summary>Tracks the save's confirmation and animation separately from arm motion.</summary>
-    public SaveStationPhase SavePhase { get; internal set; }
+    public SaveStationPhase SavePhase { get; private set; }
+
+    /// <summary>Samus's accepted access through <paramref name="access"/> at <paramref name="accessBlock"/>, which the station's next update takes.</summary>
+    internal void Trigger(Position16<RoomBlocks> accessBlock, StationAccessBehavior access)
+    {
+        Triggered = true;
+        AccessBlock = accessBlock;
+        AccessBehavior = access;
+    }
+
+    /// <summary>
+    /// Leaving the map screen returns a map station waiting for it to idle. Unpause can arrive before the final access-art
+    /// hold expires; that remaining animation keeps running.
+    /// </summary>
+    internal void ResumeAfterMapUnpause()
+    {
+        if (OperationPhase == StationOperationPhase.AwaitingMapUnpause)
+            OperationPhase = StationOperationPhase.Idle;
+    }
+
+    /// <summary>The save station's save is over, declined at its confirmation or completed once its message closed.</summary>
+    internal void EndSave() => SavePhase = SaveStationPhase.Idle;
 
     /// <inheritdoc/>
     internal override void Update(RoomObjectPlace place, RoomObjectStepContext context)
@@ -261,10 +282,10 @@ internal sealed class StationObject(
         stations.Publish(activation);
     }
 
-    /// <summary>The save station's activation: the load station it saves at, its area and its block.</summary>
+    /// <summary>The save station's activation: the station itself, the load station it saves at and its block.</summary>
     /// <exception cref="InvalidDataException">The save station was placed without its load station.</exception>
-    private SaveStationActivation SaveActivation(RoomObjectPlace place) => new(SavedAt
-        ?? throw new InvalidDataException($"Save station at block {place.Block} was placed without its load station."), Area, place.Block);
+    private SaveStationActivation SaveActivation(RoomObjectPlace place) => new(this, SavedAt
+        ?? throw new InvalidDataException($"Save station at block {place.Block} was placed without its load station."), place.Block);
 
     /// <summary>Draws the access arm at the access Samus used, in the short or extended pose.</summary>
     private void DrawAccess(RoomObjectStepContext context, StationAccessPose pose)

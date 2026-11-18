@@ -88,15 +88,12 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     }
 
     /// <summary>
-    /// Shows <paramref name="frame"/> of a sprite statue's grey-out, <paramref name="colours"/> naming the Ridley or
-    /// Phantoon statue, over the scene's sprites (#1512): each frame replaces the one its grey-out showed before.
+    /// Shows <paramref name="frame"/> of the grey-out of the sprite statue <paramref name="statue"/> over the scene's sprites
+    /// (#1512): each frame replaces the one its grey-out showed before.
     /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="colours"/> names no sprite statue.</exception>
-    internal void ShowStatueGreyOut(ColourEffectColours colours, ColourEffectFrame frame)
+    internal void ShowStatueGreyOut(TourianSpriteStatue statue, ColourEffectFrame frame)
     {
-        if (colours is not (ColourEffectColours.RidleyStatue or ColourEffectColours.PhantoonStatue))
-            throw new ArgumentOutOfRangeException(nameof(colours), colours, "Only the Ridley and Phantoon statues grey out as sprites.");
-        PictureShade shade = ColourEffectShades.Of(colours, frame);
+        PictureShade shade = ColourEffectShades.Of(TourianSpriteStatueDefinitions.Colours[statue], frame);
         _statueLooks.RemoveAll(earlier => earlier.Effect == shade.Effect);
         _statueLooks.Add(shade);
         ShowScene();

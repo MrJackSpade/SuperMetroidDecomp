@@ -1208,7 +1208,7 @@ internal static class RoomObjectPopulationVerification
         SaveStationActivation saveRequest = roomObjects.Stations.StationActivationEvents.Single() is SaveConfirmationRequested request
             ? request.Save
             : throw new InvalidOperationException("The save trigger publishes a save confirmation request.");
-        AssertTrue(ReferenceEquals(SuperMetroid.Core.Progression.LoadStationDefinitions.CrocomireSave, saveRequest.Station),
+        AssertTrue(ReferenceEquals(SuperMetroid.Core.Progression.LoadStationDefinitions.CrocomireSave, saveRequest.SavesAt),
             "save request carries the load station its room argument names");
 
         samus.Position = samus.Position.WithWholeX(0x0127);

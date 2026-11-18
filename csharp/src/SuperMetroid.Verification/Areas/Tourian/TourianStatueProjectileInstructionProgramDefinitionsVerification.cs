@@ -90,8 +90,7 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
         Run(tail, 1);
         AssertTrue(!tail.IsActive, "particle tail deletes after four authored poses");
 
-        unlock.SpawnTourianParticleChild(particle, RoomEnemyProjectileKind.TourianStatueSplash,
-            TourianStatueProjectileSegment.Splash);
+        unlock.SpawnTourianSplash(particle);
         EnemyProjectile splash = Single(RoomEnemyProjectileKind.TourianStatueSplash);
         Run(splash, 4);
         AssertEqual((ushort)0xb7b1, NativePointer(splash),

@@ -13,22 +13,26 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// </summary>
 internal sealed class BlueDoorCapObject : DoorCapObject
 {
-    /// <summary>A cap that a shot opens or that closes behind Samus, from its next update.</summary>
+    /// <summary>A cap a shot opens, from its next update.</summary>
+    /// <param name="orientation">The cap's facing.</param>
+    internal static BlueDoorCapObject Opening(ColoredDoorOrientation orientation) =>
+        new(orientation, BlueDoorCapPhase.Opening, DoorCapSequenceDefinitions.BlueOpening);
+
+    /// <summary>A cap closing behind Samus, from its next update.</summary>
+    /// <param name="orientation">The cap's facing.</param>
+    internal static BlueDoorCapObject Closing(ColoredDoorOrientation orientation) =>
+        new(orientation, BlueDoorCapPhase.Closing, DoorCapSequenceDefinitions.BlueClosing);
+
+    /// <summary>A cap that plays <paramref name="sequence"/> from its next update, standing in no door of its own.</summary>
     /// <param name="orientation">The cap's facing.</param>
     /// <param name="phase">Whether it opens or closes.</param>
-    internal BlueDoorCapObject(ColoredDoorOrientation orientation, BlueDoorCapPhase phase)
+    /// <param name="sequence">The opening or the closing it plays.</param>
+    private BlueDoorCapObject(ColoredDoorOrientation orientation, BlueDoorCapPhase phase, IReadOnlyList<DoorCapStep> sequence)
         : base(orientation, DoorCapPaint.Blue, door: null)
     {
         Phase = phase;
         OpenedByShot = phase == BlueDoorCapPhase.Opening;
-        PlayFromNextUpdate(phase switch
-        {
-            BlueDoorCapPhase.Opening => DoorCapSequenceDefinitions.BlueOpening,
-            BlueDoorCapPhase.Closing => DoorCapSequenceDefinitions.BlueClosing,
-            BlueDoorCapPhase.Closed => throw new ArgumentOutOfRangeException(nameof(phase), phase,
-                "A closed blue cap only takes over from a door that turns blue."),
-            _ => throw new ArgumentOutOfRangeException(nameof(phase), phase, "Undefined blue door cap phase."),
-        });
+        PlayFromNextUpdate(sequence);
     }
 
     /// <summary>A cap another door turns into, which its takeover closes at once, standing in that door's door.</summary>

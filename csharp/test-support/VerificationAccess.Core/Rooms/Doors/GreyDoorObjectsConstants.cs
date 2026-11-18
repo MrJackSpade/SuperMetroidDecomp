@@ -11,5 +11,5 @@ internal static class GreyDoorObjectsConstants
     internal static bool TryIdentifyGreyDoor(
         RoomObjectKind kind,
         out GreyDoorVariant variant) =>
-        DoorObjectKindDefinitions.GreyDoors.TryGetValue(kind, out variant);
+        RoomObjectKindVariants.GreyDoors.TryGetValue(kind, out variant);
 }

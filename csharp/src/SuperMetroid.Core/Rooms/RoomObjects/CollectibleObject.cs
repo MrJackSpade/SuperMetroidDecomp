@@ -42,9 +42,9 @@ internal sealed class CollectibleObject(
     /// </summary>
     public CollectibleBlockPairs.Pair? BlockPair { get; } = blockPair;
     /// <summary>Current reveal, visible, message, empty, or respawn phase.</summary>
-    public CollectiblePhase Phase { get; internal set; } = phase;
+    public CollectiblePhase Phase { get; private set; } = phase;
     /// <summary>Updates remaining before the item's next image.</summary>
-    public int Timer { get; internal set; }
+    public int Timer { get; private set; }
     /// <summary>Which of its two alternating looks the item shows next while it lies visible (#1994).</summary>
     internal CollectibleLook Look { get; private set; }
     /// <summary>Where the item's burst, reveal, hiding or respawn stands (<see cref="CollectibleSequenceAnimations"/>).</summary>
@@ -54,7 +54,7 @@ internal sealed class CollectibleObject(
     /// <summary>Remaining paired visible frames before a revealed item is concealed again.</summary>
     private int _visibleFramePairsRemaining;
     /// <summary>Contact or projectile reaction pending for the item's next update.</summary>
-    public bool Triggered { get; internal set; }
+    public bool Triggered { get; private set; }
     /// <summary>Distinguishes a previously acquired concealed item during its reveal.</summary>
     private bool _wasCollectedBeforeReveal;
 
@@ -192,11 +192,32 @@ internal sealed class CollectibleObject(
         }
     }
 
+    /// <summary>A touch or a shot reached the item, which reacts on its next update.</summary>
+    internal void Trigger() => Triggered = true;
+
+    /// <summary>
+    /// The item has been collected: it keeps its block and its place while its pickup message shows, counting nothing,
+    /// and finishes its pickup once the message closes.
+    /// </summary>
+    internal void AwaitMessage()
+    {
+        Triggered = false;
+        Timer = 0;
+        Phase = CollectiblePhase.AwaitingMessage;
+    }
+
+    /// <summary>The item's pickup message has closed: the item finishes its pickup within the same room-object update.</summary>
+    internal void ResumeAfterMessage(IRoomObjectDrawing drawing, RoomLevelData level, RoomObjectPlace place)
+    {
+        Phase = CollectiblePhase.ResumeAfterMessage;
+        FinishPickup(drawing, level, place);
+    }
+
     /// <summary>
     /// The pickup message has closed: the item shows its empty block for one update and then leaves, or a shot block's
     /// item leaves its block empty for twenty-two eight-update intervals before it respawns.
     /// </summary>
-    internal void FinishPickup(IRoomObjectDrawing drawing, RoomLevelData level, RoomObjectPlace place)
+    private void FinishPickup(IRoomObjectDrawing drawing, RoomLevelData level, RoomObjectPlace place)
     {
         Ensure.NotNull(drawing);
         Ensure.NotNull(place);

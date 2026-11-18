@@ -15,7 +15,7 @@ internal sealed class StationObjects
     private readonly IRoomSamusAccess _samus;
     /// <summary>Applies the station and access-arm draws to the room's blocks.</summary>
     private readonly IRoomObjectDrawing _drawing;
-    /// <summary>Locates resident station room objects when collision or frontend confirmation arrives.</summary>
+    /// <summary>The room's places, searched for the station a touch of an access block reaches.</summary>
     private readonly RoomObjectPlaceList _places;
     /// <summary>Queues extension, retraction, and save-animation sounds.</summary>
     private readonly RoomObjectSoundQueue _sounds;
@@ -31,6 +31,8 @@ internal sealed class StationObjects
     }
     /// <summary>Messages and frontend actions produced in the current room-object update.</summary>
     private readonly List<StationActivationEvent> _stationActivationEvents = [];
+    /// <summary>The map stations the room's population placed, which stay in the room for as long as it is loaded.</summary>
+    private readonly List<StationObject> _mapStations = [];
     /// <summary>Blocks repeated save confirmation during the current room entry.</summary>
     internal bool SaveStationLockedOut { get; private set; }
 
@@ -44,14 +46,8 @@ internal sealed class StationObjects
     /// </summary>
     public void ResumeMapStationsAfterUnpause()
     {
-        foreach (RoomObjectPlace place in _places.FromLastPlace)
-        {
-            // Unpause can arrive before the final access-art hold expires. Keep that
-            // remaining animation; only a station waiting for the map returns to idle.
-            if (place.Active && place.Behaviour is StationObject { Kind: StationKind.Map } station &&
-                station.OperationPhase == StationOperationPhase.AwaitingMapUnpause)
-                station.OperationPhase = StationOperationPhase.Idle;
-        }
+        foreach (StationObject station in _mapStations)
+            station.ResumeAfterMapUnpause();
     }
 
     /// <summary>Station messages/actions emitted by the most recent room-object step.</summary>
@@ -74,17 +70,17 @@ internal sealed class StationObjects
     public bool ResolveSaveStationConfirmation(SaveStationActivation activation, bool accepted, RoomLevelData level)
     {
         Ensure.NotNull(level);
-        StationObject station = FindSaveStation(activation);
+        StationObject station = activation.Station;
         if (station.SavePhase != SaveStationPhase.AwaitingConfirmation)
         {
             throw new InvalidOperationException(
-                $"Save station {activation.Station} returned " +
+                $"Save station {activation.SavesAt} returned " +
                 $"confirmation while in {station.SavePhase}.");
         }
 
         if (!accepted)
         {
-            station.SavePhase = SaveStationPhase.Idle;
+            station.EndSave();
             SaveStationLockedOut = true;
             return false;
         }
@@ -103,38 +99,18 @@ internal sealed class StationObjects
     /// <summary>Completes the save after the saved-game message has closed.</summary>
     public void CompleteSaveStation(SaveStationActivation activation)
     {
-        StationObject station = FindSaveStation(activation);
+        StationObject station = activation.Station;
         if (station.SavePhase != SaveStationPhase.AwaitingCompletionMessageClose)
         {
             throw new InvalidOperationException(
-                $"Save station {activation.Station} completed " +
+                $"Save station {activation.SavesAt} completed " +
                 $"save-completed message while in {station.SavePhase}.");
         }
 
         IRoomSamus samus = _samus.Current;
         samus.Control.Unlock();
-        station.SavePhase = SaveStationPhase.Idle;
+        station.EndSave();
         SaveStationLockedOut = true;
-    }
-
-    /// <summary>Requires exactly one resident save station matching a frontend confirmation event.</summary>
-    private StationObject FindSaveStation(SaveStationActivation activation)
-    {
-        StationObject[] matches = _places.FromLastPlace
-            .Where(place => place.Active)
-            .Select(place => place.Behaviour as StationObject)
-            .OfType<StationObject>()
-            .Where(station => station.SavedAt is { } saved && saved == activation.Station)
-            .Where(station => station.Kind == StationKind.Save && station.Area == activation.Area)
-            .ToArray();
-        return matches.Length switch
-        {
-            1 => matches[0],
-            0 => throw new InvalidOperationException(
-                $"Save station {activation.Station} is no longer resident."),
-            _ => throw new InvalidDataException(
-                $"Multiple resident save stations save at {activation.Station}."),
-        };
     }
 
     /// <summary>
@@ -151,11 +127,11 @@ internal sealed class StationObjects
 
     /// <summary>
     /// Sets up the station the room's population placed: installs its collision blocks and animation state, a save station
-    /// saving at the load station its placement names (<paramref name="savedAt"/>).
+    /// saving at the load station its placement names (<paramref name="savedAt"/>). The stations hold each map station
+    /// they place, which leaving the map screen returns to idle.
     /// </summary>
-    internal static void SetupStation(
+    internal void SetupStation(
         RoomLevelData level,
-        SharedGameState system,
         AreaId area,
         RoomObjectPlace place,
         StationKind kind,
@@ -168,13 +144,13 @@ internal sealed class StationObjects
                 SetupSaveStation(level, area, place, original, savedAt);
                 return;
             case StationKind.Map:
-                SetupAccessStation(level, system, area, place, original, StationAccessRuleDefinitions.Map);
+                _mapStations.Add(SetupAccessStation(level, System, area, place, original, StationAccessRuleDefinitions.Map));
                 return;
             case StationKind.Energy:
-                SetupAccessStation(level, system, area, place, original, StationAccessRuleDefinitions.Energy);
+                SetupAccessStation(level, System, area, place, original, StationAccessRuleDefinitions.Energy);
                 return;
             case StationKind.Missile:
-                SetupAccessStation(level, system, area, place, original, StationAccessRuleDefinitions.Missile);
+                SetupAccessStation(level, System, area, place, original, StationAccessRuleDefinitions.Missile);
                 return;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(StationKind)} {kind}.");
@@ -203,7 +179,8 @@ internal sealed class StationObjects
     /// A map, energy or missile station: its solid block, the access blocks either side, and its animations. Only the map
     /// station has a separate acquired animation, shown from the start once its area map is held.
     /// </summary>
-    private static void SetupAccessStation(
+    /// <returns>The station placed.</returns>
+    private static StationObject SetupAccessStation(
         RoomLevelData level,
         SharedGameState system,
         AreaId area,
@@ -220,12 +197,14 @@ internal sealed class StationObjects
         StationAnimation initialAnimation = rule.AcquiredAnimation is not null && system.HasAreaMap(area)
             ? completedAnimation
             : normalAnimation;
-        place.Become(new StationObject(
+        var station = new StationObject(
             rule.Kind,
             area,
             initialAnimation,
             completedAnimation,
-            savedAt: null));
+            savedAt: null);
+        place.Become(station);
+        return station;
     }
 
     /// <summary>Marks an in-room access block with station-trigger collision and its directional behaviour.</summary>
@@ -332,9 +311,7 @@ internal sealed class StationObjects
                         return true;
                     }
                 }
-                station.Triggered = true;
-                station.AccessBlock = accessBlock;
-                station.AccessBehavior = access;
+                station.Trigger(accessBlock, access);
 
                 // The arm cannon's line-up is checked as the station is triggered, before the station's animation
                 // advances. In G-Mode the station's animation cannot start or finish, but Samus is already held still,

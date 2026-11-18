@@ -61,10 +61,10 @@ internal static class DoorObjectNativeListAddresses
     /// <summary>Each facing's eye-door body and bottom lists (<c>InstList_PLM_EyeDoorFacing*</c>, <c>InstList_PLM_EyeDoorBottomFacing*</c>).</summary>
     private static readonly Dictionary<EyeDoorPart, NativeEyeDoorPartLists> PartLists = new Dictionary<EyeDoorPart, NativeEyeDoorPartLists>
     {
-        [new(EyeDoorComponent.Door, EyeDoorOrientation.Left)] = new(0xd8e9, 0xd8ed, 0xd8fb, 0xd903, 0xd91d),
-        [new(EyeDoorComponent.Bottom, EyeDoorOrientation.Left)] = new(0xd91f, 0xd923, 0xd931, 0xd939, 0xd953),
-        [new(EyeDoorComponent.Door, EyeDoorOrientation.Right)] = new(0xda20, 0xda24, 0xda32, 0xda3a, 0xda54),
-        [new(EyeDoorComponent.Bottom, EyeDoorOrientation.Right)] = new(0xda56, 0xda5a, 0xda68, 0xda70, 0xda8a),
+        [new(EyeDoorBodyPart.Middle, EyeDoorOrientation.Left)] = new(0xd8e9, 0xd8ed, 0xd8fb, 0xd903, 0xd91d),
+        [new(EyeDoorBodyPart.Bottom, EyeDoorOrientation.Left)] = new(0xd91f, 0xd923, 0xd931, 0xd939, 0xd953),
+        [new(EyeDoorBodyPart.Middle, EyeDoorOrientation.Right)] = new(0xda20, 0xda24, 0xda32, 0xda3a, 0xda54),
+        [new(EyeDoorBodyPart.Bottom, EyeDoorOrientation.Right)] = new(0xda56, 0xda5a, 0xda68, 0xda70, 0xda8a),
     };
 
     /// <summary>The blue cap facing <paramref name="orientation"/>'s lists.</summary>
@@ -83,9 +83,8 @@ internal static class DoorObjectNativeListAddresses
     /// <summary>The eye-door eye facing <paramref name="orientation"/>'s lists.</summary>
     internal static NativeEyeDoorEyeLists Eye(EyeDoorOrientation orientation) => EyeLists[orientation];
 
-    /// <summary>The eye-door <paramref name="component"/> (body or bottom) facing <paramref name="orientation"/>'s lists.</summary>
-    internal static NativeEyeDoorPartLists Part(EyeDoorOrientation orientation, EyeDoorComponent component) =>
-        PartLists[new EyeDoorPart(component, orientation)];
+    /// <summary>The eye-door body or bottom <paramref name="part"/>'s lists.</summary>
+    internal static NativeEyeDoorPartLists Part(EyeDoorPart part) => PartLists[part];
 
     /// <summary>The native closing list a coloured or grey cap's header names, or null for a header that is not one.</summary>
     internal static ushort? TypedClosingEntry(RoomObjectKind header)

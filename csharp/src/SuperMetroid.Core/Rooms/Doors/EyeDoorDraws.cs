@@ -15,21 +15,14 @@ internal static class EyeDoorDraws
     private static Dictionary<Draw, RoomBlockShape> Shapes => field ??= EyeDoorObjectDrawDefinitions.Collisions
         .ToDictionary(pair => pair.Key, pair => RoomBlockShapes.Line(pair.Key.Vertical, pair.Value));
 
-    /// <summary>The draw <paramref name="frame"/> shows for <paramref name="component"/> facing <paramref name="orientation"/>.</summary>
-    internal static RoomObjectDraw Of(EyeDoorOrientation orientation, EyeDoorComponent component, EyeDoorObjectFrame frame)
+    /// <summary>The draw <paramref name="pose"/> shows for the eye door's body or bottom, <paramref name="part"/>.</summary>
+    internal static RoomObjectDraw Of(EyeDoorPart part, EyeDoorPartPose pose) =>
+        Family.Of(new Draw(EyeDoorPartLookDefinitions.Looks[part.BodyPart][pose], IsLeft(part.Orientation)));
+
+    /// <summary>The draw <paramref name="frame"/> shows for the eye of the door facing <paramref name="orientation"/>.</summary>
+    internal static RoomObjectDraw Of(EyeDoorOrientation orientation, EyeDoorObjectFrame frame)
     {
-        bool left = orientation switch
-        {
-            EyeDoorOrientation.Left => true,
-            EyeDoorOrientation.Right => false,
-            _ => throw new InvalidOperationException($"Undefined {nameof(EyeDoorOrientation)} {orientation}."),
-        };
-        bool bottom = component switch
-        {
-            EyeDoorComponent.Door or EyeDoorComponent.Eye => false,
-            EyeDoorComponent.Bottom => true,
-            _ => throw new InvalidOperationException($"Undefined {nameof(EyeDoorComponent)} {component}."),
-        };
+        bool left = IsLeft(orientation);
         RoomObjectDraw Shown(EyeDoorLook look) => Family.Of(new Draw(look, left));
         return frame switch
         {
@@ -41,12 +34,17 @@ internal static class EyeDoorDraws
             EyeDoorObjectFrame.OpeningClear => Shown(EyeDoorLook.Clear),
             // The eye flashes to the closed blue cap of its facing.
             EyeDoorObjectFrame.BlueCap => BlueDoorCaps.ClosedSolid(left ? ColoredDoorOrientation.Left : ColoredDoorOrientation.Right),
-            EyeDoorObjectFrame.PartResting => Shown(bottom ? EyeDoorLook.BottomResting : EyeDoorLook.MiddleResting),
-            EyeDoorObjectFrame.PartSwelling => Shown(bottom ? EyeDoorLook.BottomSwelling : EyeDoorLook.MiddleSwelling),
-            EyeDoorObjectFrame.PartSwollen => Shown(bottom ? EyeDoorLook.BottomSwollen : EyeDoorLook.MiddleSwollen),
             _ => throw new InvalidOperationException($"Undefined {nameof(EyeDoorObjectFrame)} {frame}."),
         };
     }
+
+    /// <summary>Whether <paramref name="orientation"/> is the left-facing door's.</summary>
+    private static bool IsLeft(EyeDoorOrientation orientation) => orientation switch
+    {
+        EyeDoorOrientation.Left => true,
+        EyeDoorOrientation.Right => false,
+        _ => throw new InvalidOperationException($"Undefined {nameof(EyeDoorOrientation)} {orientation}."),
+    };
 
     /// <summary>
     /// The component <paramref name="look"/> draws, or null for the clear, which clears the whole door's four blocks once

@@ -101,32 +101,47 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
         return projectile;
     }
 
-    /// <summary>
-    /// Spawns a splash, particle, or tail of <paramref name="kind"/>, starting its animation at <paramref name="start"/>,
-    /// at its parent, applying water height or randomized motion.
-    /// </summary>
-    internal void SpawnTourianParticleChild(EnemyProjectile parent, RoomEnemyProjectileKind kind, TourianStatueProjectileSegment start)
+    /// <summary>Spawns the splash of <paramref name="parent"/>, a particle crossing the water surface, held at the surface.</summary>
+    internal void SpawnTourianSplash(EnemyProjectile parent)
     {
-        if (kind is not (RoomEnemyProjectileKind.TourianStatueSplash or RoomEnemyProjectileKind.TourianStatueParticle or
-                RoomEnemyProjectileKind.TourianStatueTail))
-            throw new InvalidOperationException($"{kind} is not a Tourian statue child projectile.");
-        var projectile = _projectiles.AllocateEnemyProjectile();
-        if (projectile is null) return;
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, Effects, _statue.SceneGraphics);
-        _statue.HoldSceneProjectile(projectile);
-        projectile.StartAnimation(new TourianStatueProjectileAnimation(start));
-        projectile.Position = projectile.Position.WithWhole(parent.Position.Whole);
-        if (kind == RoomEnemyProjectileKind.TourianStatueSplash)
-            projectile.Position = projectile.Position.WithWholeY(WaterSurface - TourianStatueParticleDefinitions.SplashHeightAboveSurface);
-        if (kind != RoomEnemyProjectileKind.TourianStatueParticle) return;
+        if (SpawnAtParent(parent, RoomEnemyProjectileKind.TourianStatueSplash, TourianStatueProjectileSegment.Splash) is not { } splash)
+            return;
+        splash.Position = splash.Position.WithWholeY(WaterSurface - TourianStatueParticleDefinitions.SplashHeightAboveSurface);
+    }
+
+    /// <summary>Spawns a particle thrown from <paramref name="parent"/> at a random angle.</summary>
+    internal void SpawnTourianParticle(EnemyProjectile parent)
+    {
+        if (SpawnAtParent(parent, RoomEnemyProjectileKind.TourianStatueParticle, TourianStatueProjectileSegment.Particle) is not { } particle)
+            return;
         // A particle leaves within an eighth of a turn either side of the zero angle; one below zero lies near a full turn.
         TrigonometryAngle angle = TrigonometryAngle.Wrapped(
             _room.Random.Next(TourianStatueParticleDefinitions.LaunchAngle) - TourianStatueParticleDefinitions.LaunchAngleCentring);
         // The samples lie within one pixel either way, so four times one stays within four. The vertical speed is the
         // sine a quarter turn back: the angle's negative cosine.
-        projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(Trigonometry.SignedSine(angle)));
-        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(
+        particle.Velocity = particle.Velocity.WithX(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(Trigonometry.SignedSine(angle)));
+        particle.Velocity = particle.Velocity.WithY(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(
             4 * Trigonometry.SignedSine(angle - TrigonometryAngle.QuarterTurn)));
+    }
+
+    /// <summary>Spawns a tail behind <paramref name="parent"/>, which holds still where it spawned.</summary>
+    private void SpawnTourianTail(EnemyProjectile parent) =>
+        _ = SpawnAtParent(parent, RoomEnemyProjectileKind.TourianStatueTail, TourianStatueProjectileSegment.Tail);
+
+    /// <summary>
+    /// Allocates an unlock effect of <paramref name="kind"/>, starting its animation at <paramref name="start"/>, at
+    /// <paramref name="parent"/>; null when the room already holds as many enemy projectiles as it can.
+    /// </summary>
+    private EnemyProjectile? SpawnAtParent(EnemyProjectile parent, RoomEnemyProjectileKind kind, TourianStatueProjectileSegment start)
+    {
+        Ensure.NotNull(parent);
+        var projectile = _projectiles.AllocateEnemyProjectile();
+        if (projectile is null) return null;
+        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, Effects, _statue.SceneGraphics);
+        _statue.HoldSceneProjectile(projectile);
+        projectile.StartAnimation(new TourianStatueProjectileAnimation(start));
+        projectile.Position = projectile.Position.WithWhole(parent.Position.Whole);
+        return projectile;
     }
 
     /// <summary>Holds a splash at the water surface.</summary>
@@ -158,7 +173,7 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
         projectile.Position = projectile.Position.Advance(projectile.Velocity.ToSixteenSixteen());
         bool submergedAfter = IsBelowWaterSurface(projectile);
         if (submergedBefore != submergedAfter)
-            SpawnTourianParticleChild(projectile, RoomEnemyProjectileKind.TourianStatueSplash, TourianStatueProjectileSegment.Splash);
+            SpawnTourianSplash(projectile);
         if (CoordinateAxis.AsSigned(projectile.Position.Y.Whole) >= TourianStatueParticleDefinitions.SunkDepth)
             projectile.Delete();
         else projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + TourianStatueParticleDefinitions.Gravity);
@@ -218,10 +233,10 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
                 _earthquake.Sustain(TourianStatueSequenceDefinitions.ReleaseEarthquake);
                 break;
             case TourianStatueProjectileCue.Signal { Kind: TourianStatueProjectileCueKind.SpawnParticle }:
-                SpawnTourianParticleChild(projectile, RoomEnemyProjectileKind.TourianStatueParticle, TourianStatueProjectileSegment.Particle);
+                SpawnTourianParticle(projectile);
                 break;
             case TourianStatueProjectileCue.Signal { Kind: TourianStatueProjectileCueKind.SpawnTail }:
-                SpawnTourianParticleChild(projectile, RoomEnemyProjectileKind.TourianStatueTail, TourianStatueProjectileSegment.Tail);
+                SpawnTourianTail(projectile);
                 break;
             default:
                 base.RunReleaseCue(projectile, cue);

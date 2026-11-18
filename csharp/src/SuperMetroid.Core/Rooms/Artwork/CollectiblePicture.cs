@@ -14,13 +14,13 @@ public readonly record struct CollectiblePicture(InWorldCollectibleKind Kind, Co
     /// <summary>Every look of every kind that shows its own picture, kind by kind in kind order, each kind's looks in order.</summary>
     public static ImmutableArray<CollectiblePicture> All { get; } =
     [
-        .. Enum.GetValues<InWorldCollectibleKind>().Where(CollectibleObjects.ShowsOwnPicture)
+        .. Enum.GetValues<InWorldCollectibleKind>().Where(kind => CollectibleDefinitions.Items[kind].Picture == CollectiblePictureSource.OwnPicture)
             .SelectMany(kind => Enum.GetValues<CollectibleLook>().Select(look => new CollectiblePicture(kind, look))),
     ];
 
     /// <summary>The collectible kind.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The kind's picture is a block the room loads, not its own.</exception>
-    public InWorldCollectibleKind Kind { get; } = CollectibleObjects.ShowsOwnPicture(Kind) ? Kind
+    public InWorldCollectibleKind Kind { get; } = CollectibleDefinitions.Items[Kind].Picture == CollectiblePictureSource.OwnPicture ? Kind
         : throw new ArgumentOutOfRangeException(nameof(Kind), Kind, "The collectible's picture is a block the room loads, not its own.");
 
     /// <summary>The look.</summary>

@@ -19,7 +19,8 @@ internal static class RoomObjectPlacementAccess
             ColoredDoorSetup door => door.LockedBy,
             GreyDoorSetup door => door.Opening,
             CollectibleSetup item => item.Collected,
-            EyeDoorSetup part => part.LockedBy,
+            EyeDoorEyeSetup eye => eye.LockedBy,
+            EyeDoorPartSetup part => part.LockedBy,
             StationSetup station => station.SavesAt,
             MetroidRoomClearanceSetup clearance => clearance.Watches,
             DownwardGateShotBlockSetup shotBlock => shotBlock.Trigger,
@@ -58,11 +59,23 @@ internal static class RoomObjectPlacementAccess
         }
         if (cannon is not null)
             throw new InvalidDataException($"Placement {kind} is no Draygon cannon to control a wall cannon.");
-        if (DoorObjectKindDefinitions.ColoredDoors.ContainsKey(kind)) return new ColoredDoorSetup(Read<LockedDoorArgument>(kind, argument));
-        if (DoorObjectKindDefinitions.GreyDoors.ContainsKey(kind)) return new GreyDoorSetup(Read<GreyDoorArgument>(kind, argument));
-        if (PermanentCollectibleObjectDefinitions.Items.ContainsKey(kind)) return new CollectibleSetup(Read<CollectedItemArgument>(kind, argument));
-        if (EyeDoorPartDefinitions.Parts.ContainsKey(kind)) return new EyeDoorSetup(Read<LockedDoorArgument>(kind, argument));
-        if (StationKindDefinitions.Kinds.ContainsKey(kind)) return new StationSetup(Read<SaveStationArgument>(kind, argument));
+        if (RoomObjectKindVariants.ColoredDoors.TryGetValue(kind, out ColoredDoorVariant colored))
+            return new ColoredDoorSetup(colored, Read<LockedDoorArgument>(kind, argument));
+        if (RoomObjectKindVariants.GreyDoors.TryGetValue(kind, out GreyDoorVariant grey))
+            return new GreyDoorSetup(grey, Read<GreyDoorArgument>(kind, argument));
+        if (RoomObjectKindVariants.Items.TryGetValue(kind, out PermanentCollectibleObject item))
+            return new CollectibleSetup(item, Read<CollectedItemArgument>(kind, argument));
+        if (RoomObjectKindVariants.EyeDoorEyes.TryGetValue(kind, out EyeDoorOrientation eye))
+            return new EyeDoorEyeSetup(eye, Read<LockedDoorArgument>(kind, argument) ?? throw new InvalidDataException($"Eye-door eye {kind} names no door."));
+        if (RoomObjectKindVariants.EyeDoorParts.TryGetValue(kind, out EyeDoorPart part))
+            return new EyeDoorPartSetup(part, Read<LockedDoorArgument>(kind, argument));
+        if (RoomObjectKindVariants.Stations.TryGetValue(kind, out StationKind station))
+            return new StationSetup(station, Read<SaveStationArgument>(kind, argument));
+        if (RoomObjectKindVariants.ScrollExtensions.TryGetValue(kind, out SuperMetroid.Core.Rooms.Scrolling.ScrollExtension extension))
+        {
+            return argument is null ? new ScrollExtensionSetup(extension)
+                : throw new InvalidDataException($"Placement {kind} reads no argument, but its record gives {argument}.");
+        }
         if (kind == RoomObjectKind.MetroidRoomClearance)
             return new MetroidRoomClearanceSetup(Read<MetroidRoomArgument>(kind, argument) ?? throw new InvalidDataException("A Metroid room clearance watch needs the event it marks."));
         if (kind == RoomObjectKind.DownwardGateShotBlock) return new DownwardGateShotBlockSetup(Read<GateTriggerArgument>(kind, argument));
@@ -75,10 +88,6 @@ internal static class RoomObjectPlacementAccess
     /// <summary>The setup of each kind whose family reads no argument.</summary>
     private static readonly Dictionary<RoomObjectKind, RoomObjectPlacementSetup> UnarguedSetups = new()
     {
-        [RoomObjectKind.RightwardsScrollExtension] = new ScrollExtensionSetup(),
-        [RoomObjectKind.LeftwardsScrollExtension] = new ScrollExtensionSetup(),
-        [RoomObjectKind.DownwardsScrollExtension] = new ScrollExtensionSetup(),
-        [RoomObjectKind.UpwardsScrollExtension] = new ScrollExtensionSetup(),
         [RoomObjectKind.ElevatorPlatform] = new ElevatorPlatformSetup(),
         [RoomObjectKind.MotherBrainGlass] = new MotherBrainGlassSetup(),
         [RoomObjectKind.BombTorizoHand] = new BombTorizoHandSetup(),

@@ -12,7 +12,7 @@ internal static class GreyDoorPlacedKinds
     /// <summary>The one grey-door kind whose placement sets up a cap of <paramref name="variant"/>.</summary>
     /// <exception cref="InvalidOperationException">No grey-door kind, or more than one, sets up that variant.</exception>
     internal static RoomObjectKind Of(GreyDoorVariant variant) =>
-        DoorObjectKindDefinitions.GreyDoors
+        RoomObjectKindVariants.GreyDoors
             .Single(placed => placed.Value == variant)
             .Key;
 }

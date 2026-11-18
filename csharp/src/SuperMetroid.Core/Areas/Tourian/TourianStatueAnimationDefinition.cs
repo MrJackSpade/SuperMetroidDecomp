@@ -44,8 +44,11 @@ public sealed class TourianStatueAnimationDefinition
     /// <summary>The colour effect spawned during release, the statue's grey-out.</summary>
     public required ColourEffectId ColourEffect { get; init; }
 
-    /// <summary>Where the statue's grey-out shows: on the room's background or on the entrance statue's sprites (#2288).</summary>
-    public required TourianStatueGreyOutSite GreyOutSite { get; init; }
+    /// <summary>
+    /// The entrance statue's sprite statue this statue is, whose own draws show its grey-out (#2288, #2481); null for the
+    /// Kraid and Draygon statues, drawn in the room's background, whose grey-out recolours the room's pictures.
+    /// </summary>
+    public required TourianSpriteStatue? GreyedSprite { get; init; }
 
     /// <summary>The statue greyed, which a statue released on an earlier visit shows (#1512).</summary>
     public required PictureShade GreyShade { get; init; }

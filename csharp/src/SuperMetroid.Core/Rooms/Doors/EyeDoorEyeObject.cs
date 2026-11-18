@@ -97,7 +97,7 @@ internal sealed class EyeDoorEyeObject(EyeDoorOrientation orientation, PlacedDoo
             default:
                 throw new InvalidOperationException($"Undefined {nameof(EyeDoorAction)} {step.Before}.");
         }
-        context.Draw(place, EyeDoorDraws.Of(Orientation, EyeDoorComponent.Eye, step.Image));
+        context.Draw(place, EyeDoorDraws.Of(Orientation, step.Image));
         return step.Updates;
     }
 

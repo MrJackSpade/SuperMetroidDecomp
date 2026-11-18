@@ -60,7 +60,7 @@ internal static class TourianStatueSoulExitVerification
             TourianUnlockBehavior unlock = enemies.UnlockEffects();
             unlock.SpawnTourianSoul(statue.Eye);
             EnemyProjectile soul = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
-            unlock.SpawnTourianParticleChild(soul, RoomEnemyProjectileKind.TourianStatueParticle, TourianStatueProjectileSegment.Particle);
+            unlock.SpawnTourianParticle(soul);
             EnemyProjectile particle = enemies.Projectiles.EnemyProjectiles.Single(projectile =>
                 projectile.IsActive && projectile.Kind == RoomEnemyProjectileKind.TourianStatueParticle);
             bool aboveTop = false;

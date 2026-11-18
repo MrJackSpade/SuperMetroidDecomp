@@ -13,7 +13,7 @@ internal static class DoorObjectsConstants
         out ColoredDoorColor color,
         out ColoredDoorOrientation orientation)
     {
-        bool found = DoorObjectKindDefinitions.ColoredDoors.TryGetValue(kind, out ColoredDoorVariant variant);
+        bool found = RoomObjectKindVariants.ColoredDoors.TryGetValue(kind, out ColoredDoorVariant variant);
         color = variant.Color;
         orientation = variant.Orientation;
         return found;

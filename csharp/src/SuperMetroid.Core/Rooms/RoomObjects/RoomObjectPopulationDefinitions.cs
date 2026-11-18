@@ -2,6 +2,7 @@
 #nullable enable
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Rooms.Scrolling;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
@@ -16,24 +17,24 @@ internal static class RoomObjectPopulationDefinitions
     public static RoomObjectPopulation LandingSiteDefaultOrWhenZebesAwakeOrWithPowerBombs { get; } = RoomObjectPopulation.FromPlacements(nameof(LandingSiteDefaultOrWhenZebesAwakeOrWithPowerBombs),
     [
         new(RoomObjectKind.ScrollTrigger, new(30, 40), new ScrollTriggerSetup(RoomScrollChange.LandingSiteOpensScreen1x2TopAligned)),
-        new(RoomObjectKind.UpwardsScrollExtension, new(30, 39), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(30, 38), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(30, 37), new ScrollExtensionSetup()),
-        new(RoomObjectKind.GreenDoorFacingLeft, new(142, 70), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.LandingSiteDefaultOrWhenZebesAwakeOrWithPowerBombsGreenDoorFacingLeft, DoorOpeningPersistence.Persistent))),
-        new(RoomObjectKind.YellowDoorFacingLeft, new(142, 22), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.LandingSiteDefaultOrWhenZebesAwakeOrWithPowerBombsYellowDoorFacingLeft, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.UpwardsScrollExtension, new(30, 39), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(30, 38), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(30, 37), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.GreenDoorFacingLeft, new(142, 70), new ColoredDoorSetup(new(ColoredDoorColor.Green, ColoredDoorOrientation.Left), new LockedDoorArgument(LockedDoorDefinitions.LandingSiteDefaultOrWhenZebesAwakeOrWithPowerBombsGreenDoorFacingLeft, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.YellowDoorFacingLeft, new(142, 22), new ColoredDoorSetup(new(ColoredDoorColor.Yellow, ColoredDoorOrientation.Left), new LockedDoorArgument(LockedDoorDefinitions.LandingSiteDefaultOrWhenZebesAwakeOrWithPowerBombsYellowDoorFacingLeft, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The LandingSiteWhenZebesTimebombSet room-object population.</summary>
     public static RoomObjectPopulation LandingSiteWhenZebesTimebombSet { get; } = RoomObjectPopulation.FromPlacements(nameof(LandingSiteWhenZebesTimebombSet),
     [
         new(RoomObjectKind.ScrollTrigger, new(30, 40), new ScrollTriggerSetup(RoomScrollChange.LandingSiteOpensScreen1x2TopAligned)),
-        new(RoomObjectKind.UpwardsScrollExtension, new(30, 39), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(30, 38), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(30, 37), new ScrollExtensionSetup()),
+        new(RoomObjectKind.UpwardsScrollExtension, new(30, 39), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(30, 38), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(30, 37), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
         new(RoomObjectKind.EscapeRoomHeldPlace, new(8, 8), new EscapeRoomHeldPlaceSetup()),
-        new(RoomObjectKind.GreyDoorFacingRight, new(1, 38), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.Never, new LockedDoorArgument(LockedDoorDefinitions.LandingSiteWhenZebesTimebombSetGreyDoorFacingRight, DoorOpeningPersistence.Transient)))),
-        new(RoomObjectKind.GreyDoorFacingLeft, new(142, 70), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.Never, new LockedDoorArgument(LockedDoorDefinitions.LandingSiteWhenZebesTimebombSetGreyDoorFacingLeftAt142x70, DoorOpeningPersistence.Transient)))),
-        new(RoomObjectKind.GreyDoorFacingLeft, new(142, 22), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.Never, new LockedDoorArgument(LockedDoorDefinitions.LandingSiteWhenZebesTimebombSetGreyDoorFacingLeftAt142x22, DoorOpeningPersistence.Transient)))),
+        new(RoomObjectKind.GreyDoorFacingRight, new(1, 38), new GreyDoorSetup(new(ColoredDoorOrientation.Right, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.Never, new LockedDoorArgument(LockedDoorDefinitions.LandingSiteWhenZebesTimebombSetGreyDoorFacingRight, DoorOpeningPersistence.Transient)))),
+        new(RoomObjectKind.GreyDoorFacingLeft, new(142, 70), new GreyDoorSetup(new(ColoredDoorOrientation.Left, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.Never, new LockedDoorArgument(LockedDoorDefinitions.LandingSiteWhenZebesTimebombSetGreyDoorFacingLeftAt142x70, DoorOpeningPersistence.Transient)))),
+        new(RoomObjectKind.GreyDoorFacingLeft, new(142, 22), new GreyDoorSetup(new(ColoredDoorOrientation.Left, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.Never, new LockedDoorArgument(LockedDoorDefinitions.LandingSiteWhenZebesTimebombSetGreyDoorFacingLeftAt142x22, DoorOpeningPersistence.Transient)))),
     ]);
 
     /// <summary>The GauntletEntrance room-object population.</summary>
@@ -47,31 +48,31 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectKind.ScrollTrigger, new(63, 11), new ScrollTriggerSetup(RoomScrollChange.ParlorOpensScreen3x1)),
         new(RoomObjectKind.ScrollTrigger, new(67, 11), new ScrollTriggerSetup(RoomScrollChange.ParlorClosesScreen3x1)),
         new(RoomObjectKind.ScrollTrigger, new(22, 13), new ScrollTriggerSetup(RoomScrollChange.ParlorClosesScreens0x0And2x0OpensScreen1x1)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(23, 13), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(24, 13), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(25, 13), new ScrollExtensionSetup()),
+        new(RoomObjectKind.RightwardsScrollExtension, new(23, 13), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(24, 13), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(25, 13), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
         new(RoomObjectKind.ScrollTrigger, new(22, 11), new ScrollTriggerSetup(RoomScrollChange.ParlorClosesScreen1x1)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(23, 11), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(24, 11), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(25, 11), new ScrollExtensionSetup()),
+        new(RoomObjectKind.RightwardsScrollExtension, new(23, 11), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(24, 11), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(25, 11), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
         new(RoomObjectKind.ScrollTrigger, new(14, 9), new ScrollTriggerSetup(RoomScrollChange.ParlorOpensScreen0x0TopAligned)),
-        new(RoomObjectKind.UpwardsScrollExtension, new(14, 8), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(14, 7), new ScrollExtensionSetup()),
+        new(RoomObjectKind.UpwardsScrollExtension, new(14, 8), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(14, 7), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
         new(RoomObjectKind.ScrollTrigger, new(28, 10), new ScrollTriggerSetup(RoomScrollChange.ParlorOpensScreen2x0TopAligned)),
-        new(RoomObjectKind.UpwardsScrollExtension, new(28, 9), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(28, 8), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(28, 7), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(28, 6), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(28, 5), new ScrollExtensionSetup()),
+        new(RoomObjectKind.UpwardsScrollExtension, new(28, 9), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(28, 8), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(28, 7), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(28, 6), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(28, 5), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
         new(RoomObjectKind.ScrollTrigger, new(50, 11), new ScrollTriggerSetup(RoomScrollChange.ParlorOpensScreen4x0TopAligned)),
         new(RoomObjectKind.ScrollTrigger, new(60, 11), new ScrollTriggerSetup(RoomScrollChange.ParlorOpensScreen4x0TopAligned)),
         new(RoomObjectKind.ScrollTrigger, new(58, 17), new ScrollTriggerSetup(RoomScrollChange.ParlorClosesScreen4x0)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(59, 17), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(60, 17), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(61, 17), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(62, 17), new ScrollExtensionSetup()),
+        new(RoomObjectKind.RightwardsScrollExtension, new(59, 17), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(60, 17), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(61, 17), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(62, 17), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
         new(RoomObjectKind.ScrollTrigger, new(52, 14), new ScrollTriggerSetup(RoomScrollChange.ParlorClosesScreen4x0OpensScreen3x1)),
-        new(RoomObjectKind.RedDoorFacingLeft, new(30, 54), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.ParlorDefaultOrWhenZebesAwakeRedDoorFacingLeft, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.RedDoorFacingLeft, new(30, 54), new ColoredDoorSetup(new(ColoredDoorColor.Red, ColoredDoorOrientation.Left), new LockedDoorArgument(LockedDoorDefinitions.ParlorDefaultOrWhenZebesAwakeRedDoorFacingLeft, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The ParlorWhenZebesTimebombSet room-object population.</summary>
@@ -80,58 +81,58 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectKind.ScrollTrigger, new(63, 11), new ScrollTriggerSetup(RoomScrollChange.ParlorOpensScreen3x1)),
         new(RoomObjectKind.ScrollTrigger, new(67, 11), new ScrollTriggerSetup(RoomScrollChange.ParlorClosesScreen3x1)),
         new(RoomObjectKind.ScrollTrigger, new(22, 13), new ScrollTriggerSetup(RoomScrollChange.ParlorClosesScreens0x0And2x0OpensScreen1x1)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(23, 13), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(24, 13), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(25, 13), new ScrollExtensionSetup()),
+        new(RoomObjectKind.RightwardsScrollExtension, new(23, 13), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(24, 13), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(25, 13), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
         new(RoomObjectKind.ScrollTrigger, new(22, 11), new ScrollTriggerSetup(RoomScrollChange.ParlorClosesScreen1x1)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(23, 11), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(24, 11), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(25, 11), new ScrollExtensionSetup()),
+        new(RoomObjectKind.RightwardsScrollExtension, new(23, 11), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(24, 11), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(25, 11), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
         new(RoomObjectKind.ScrollTrigger, new(14, 9), new ScrollTriggerSetup(RoomScrollChange.ParlorOpensScreen0x0TopAligned)),
-        new(RoomObjectKind.UpwardsScrollExtension, new(14, 8), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(14, 7), new ScrollExtensionSetup()),
+        new(RoomObjectKind.UpwardsScrollExtension, new(14, 8), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(14, 7), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
         new(RoomObjectKind.ScrollTrigger, new(28, 10), new ScrollTriggerSetup(RoomScrollChange.ParlorOpensScreen2x0TopAligned)),
-        new(RoomObjectKind.UpwardsScrollExtension, new(28, 9), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(28, 8), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(28, 7), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(28, 6), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(28, 5), new ScrollExtensionSetup()),
+        new(RoomObjectKind.UpwardsScrollExtension, new(28, 9), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(28, 8), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(28, 7), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(28, 6), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(28, 5), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
         new(RoomObjectKind.ScrollTrigger, new(50, 11), new ScrollTriggerSetup(RoomScrollChange.ParlorOpensScreen4x0TopAligned)),
         new(RoomObjectKind.ScrollTrigger, new(60, 11), new ScrollTriggerSetup(RoomScrollChange.ParlorOpensScreen4x0TopAligned)),
         new(RoomObjectKind.ScrollTrigger, new(58, 17), new ScrollTriggerSetup(RoomScrollChange.ParlorClosesScreen4x0)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(59, 17), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(60, 17), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(61, 17), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(62, 17), new ScrollExtensionSetup()),
+        new(RoomObjectKind.RightwardsScrollExtension, new(59, 17), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(60, 17), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(61, 17), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(62, 17), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
         new(RoomObjectKind.ScrollTrigger, new(52, 14), new ScrollTriggerSetup(RoomScrollChange.ParlorClosesScreen4x0OpensScreen3x1)),
         new(RoomObjectKind.EscapeRoomHeldPlace, new(8, 8), new EscapeRoomHeldPlaceSetup()),
-        new(RoomObjectKind.GreyDoorFacingRight, new(1, 6), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.Never, new LockedDoorArgument(LockedDoorDefinitions.ParlorWhenZebesTimebombSetGreyDoorFacingRightAt1x6, DoorOpeningPersistence.Transient)))),
-        new(RoomObjectKind.GreyDoorFacingRight, new(17, 38), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.Never, new LockedDoorArgument(LockedDoorDefinitions.ParlorWhenZebesTimebombSetGreyDoorFacingRightAt17x38, DoorOpeningPersistence.Transient)))),
-        new(RoomObjectKind.GreyDoorFacingRight, new(17, 54), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.Never, new LockedDoorArgument(LockedDoorDefinitions.ParlorWhenZebesTimebombSetGreyDoorFacingRightAt17x54, DoorOpeningPersistence.Transient)))),
-        new(RoomObjectKind.GreyDoorFacingLeft, new(30, 54), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.Never, new LockedDoorArgument(LockedDoorDefinitions.ParlorWhenZebesTimebombSetGreyDoorFacingLeft, DoorOpeningPersistence.Transient)))),
-        new(RoomObjectKind.GreyDoorFacingUp, new(22, 77), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.Never, new LockedDoorArgument(LockedDoorDefinitions.ParlorWhenZebesTimebombSetGreyDoorFacingUp, DoorOpeningPersistence.Transient)))),
+        new(RoomObjectKind.GreyDoorFacingRight, new(1, 6), new GreyDoorSetup(new(ColoredDoorOrientation.Right, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.Never, new LockedDoorArgument(LockedDoorDefinitions.ParlorWhenZebesTimebombSetGreyDoorFacingRightAt1x6, DoorOpeningPersistence.Transient)))),
+        new(RoomObjectKind.GreyDoorFacingRight, new(17, 38), new GreyDoorSetup(new(ColoredDoorOrientation.Right, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.Never, new LockedDoorArgument(LockedDoorDefinitions.ParlorWhenZebesTimebombSetGreyDoorFacingRightAt17x38, DoorOpeningPersistence.Transient)))),
+        new(RoomObjectKind.GreyDoorFacingRight, new(17, 54), new GreyDoorSetup(new(ColoredDoorOrientation.Right, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.Never, new LockedDoorArgument(LockedDoorDefinitions.ParlorWhenZebesTimebombSetGreyDoorFacingRightAt17x54, DoorOpeningPersistence.Transient)))),
+        new(RoomObjectKind.GreyDoorFacingLeft, new(30, 54), new GreyDoorSetup(new(ColoredDoorOrientation.Left, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.Never, new LockedDoorArgument(LockedDoorDefinitions.ParlorWhenZebesTimebombSetGreyDoorFacingLeft, DoorOpeningPersistence.Transient)))),
+        new(RoomObjectKind.GreyDoorFacingUp, new(22, 77), new GreyDoorSetup(new(ColoredDoorOrientation.Up, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.Never, new LockedDoorArgument(LockedDoorDefinitions.ParlorWhenZebesTimebombSetGreyDoorFacingUp, DoorOpeningPersistence.Transient)))),
     ]);
 
     /// <summary>The CrateriaPowerBombs room-object population.</summary>
     public static RoomObjectPopulation CrateriaPowerBombs { get; } = RoomObjectPopulation.FromPlacements(nameof(CrateriaPowerBombs),
     [
-        new(RoomObjectKind.ExposedPowerBombTank, new(29, 7), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.CrateriaPowerBombsExposedPowerBombTank))),
+        new(RoomObjectKind.ExposedPowerBombTank, new(29, 7), new CollectibleSetup(new(InWorldCollectibleKind.PowerBombTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.CrateriaPowerBombsExposedPowerBombTank))),
     ]);
 
     /// <summary>The CrateriaSave room-object population.</summary>
     public static RoomObjectPopulation CrateriaSave { get; } = RoomObjectPopulation.FromPlacements(nameof(CrateriaSave),
     [
-        new(RoomObjectKind.SaveStation, new(5, 11), new StationSetup(new SaveStationArgument(LoadStationDefinitions.CrateriaSave))),
+        new(RoomObjectKind.SaveStation, new(5, 11), new StationSetup(StationKind.Save, new SaveStationArgument(LoadStationDefinitions.CrateriaSave))),
     ]);
 
     /// <summary>The WestOcean room-object population.</summary>
     public static RoomObjectPopulation WestOcean { get; } = RoomObjectPopulation.FromPlacements(nameof(WestOcean),
     [
-        new(RoomObjectKind.GreyDoorFacingLeft, new(94, 54), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.Never, new LockedDoorArgument(LockedDoorDefinitions.WestOceanGreyDoorFacingLeft, DoorOpeningPersistence.Transient)))),
-        new(RoomObjectKind.GreenDoorFacingLeft, new(126, 70), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.WestOceanGreenDoorFacingLeft, DoorOpeningPersistence.Persistent))),
-        new(RoomObjectKind.ExposedMissileTank, new(2, 91), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.WestOceanExposedMissileTankAt2x91))),
-        new(RoomObjectKind.ShotBlockMissileTank, new(28, 3), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.WestOceanShotBlockMissileTank))),
-        new(RoomObjectKind.ExposedMissileTank, new(1, 47), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.WestOceanExposedMissileTankAt1x47))),
+        new(RoomObjectKind.GreyDoorFacingLeft, new(94, 54), new GreyDoorSetup(new(ColoredDoorOrientation.Left, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.Never, new LockedDoorArgument(LockedDoorDefinitions.WestOceanGreyDoorFacingLeft, DoorOpeningPersistence.Transient)))),
+        new(RoomObjectKind.GreenDoorFacingLeft, new(126, 70), new ColoredDoorSetup(new(ColoredDoorColor.Green, ColoredDoorOrientation.Left), new LockedDoorArgument(LockedDoorDefinitions.WestOceanGreenDoorFacingLeft, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.ExposedMissileTank, new(2, 91), new CollectibleSetup(new(InWorldCollectibleKind.MissileTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.WestOceanExposedMissileTankAt2x91))),
+        new(RoomObjectKind.ShotBlockMissileTank, new(28, 3), new CollectibleSetup(new(InWorldCollectibleKind.MissileTank, CollectiblePresentation.ShotBlock), new CollectedItemArgument(ItemLocationDefinitions.WestOceanShotBlockMissileTank))),
+        new(RoomObjectKind.ExposedMissileTank, new(1, 47), new CollectibleSetup(new(InWorldCollectibleKind.MissileTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.WestOceanExposedMissileTankAt1x47))),
     ]);
 
     /// <summary>The BowlingAlleyPath room-object population.</summary>
@@ -143,13 +144,13 @@ internal static class RoomObjectPopulationDefinitions
     public static RoomObjectPopulation CrateriaKihunter { get; } = RoomObjectPopulation.FromPlacements(nameof(CrateriaKihunter),
     [
         new(RoomObjectKind.ScrollTrigger, new(23, 15), new ScrollTriggerSetup(RoomScrollChange.CrateriaKihunterOpensScreens1x0And1x1)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(24, 15), new ScrollExtensionSetup()),
+        new(RoomObjectKind.RightwardsScrollExtension, new(24, 15), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
         new(RoomObjectKind.ScrollTrigger, new(22, 12), new ScrollTriggerSetup(RoomScrollChange.CrateriaKihunterClosesScreen1x1OpensScreen1x0TopAligned)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(23, 12), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(24, 12), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(25, 12), new ScrollExtensionSetup()),
-        new(RoomObjectKind.YellowDoorFacingLeft, new(46, 6), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.CrateriaKihunterYellowDoorFacingLeft, DoorOpeningPersistence.Persistent))),
-        new(RoomObjectKind.YellowDoorFacingUp, new(22, 45), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.CrateriaKihunterYellowDoorFacingUp, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.RightwardsScrollExtension, new(23, 12), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(24, 12), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(25, 12), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.YellowDoorFacingLeft, new(46, 6), new ColoredDoorSetup(new(ColoredDoorColor.Yellow, ColoredDoorOrientation.Left), new LockedDoorArgument(LockedDoorDefinitions.CrateriaKihunterYellowDoorFacingLeft, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.YellowDoorFacingUp, new(22, 45), new ColoredDoorSetup(new(ColoredDoorColor.Yellow, ColoredDoorOrientation.Up), new LockedDoorArgument(LockedDoorDefinitions.CrateriaKihunterYellowDoorFacingUp, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The ForgottenHighwayElevator room-object population.</summary>
@@ -176,7 +177,7 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The ForgottenHighwayElbow room-object population.</summary>
     public static RoomObjectPopulation ForgottenHighwayElbow { get; } = RoomObjectPopulation.FromPlacements(nameof(ForgottenHighwayElbow),
     [
-        new(RoomObjectKind.YellowDoorFacingUp, new(6, 13), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.ForgottenHighwayElbowYellowDoorFacingUp, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.YellowDoorFacingUp, new(6, 13), new ColoredDoorSetup(new(ColoredDoorColor.Yellow, ColoredDoorOrientation.Up), new LockedDoorArgument(LockedDoorDefinitions.ForgottenHighwayElbowYellowDoorFacingUp, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The CrateriaTube room-object population.</summary>
@@ -187,21 +188,21 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The Moat room-object population.</summary>
     public static RoomObjectPopulation Moat { get; } = RoomObjectPopulation.FromPlacements(nameof(Moat),
     [
-        new(RoomObjectKind.ExposedMissileTank, new(14, 9), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.MoatExposedMissileTank))),
+        new(RoomObjectKind.ExposedMissileTank, new(14, 9), new CollectibleSetup(new(InWorldCollectibleKind.MissileTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.MoatExposedMissileTank))),
     ]);
 
     /// <summary>The RedBrinstarElevator room-object population.</summary>
     public static RoomObjectPopulation RedBrinstarElevator { get; } = RoomObjectPopulation.FromPlacements(nameof(RedBrinstarElevator),
     [
         new(RoomObjectKind.ScrollTrigger, new(8, 13), new ScrollTriggerSetup(RoomScrollChange.RedBrinstarElevatorOpensScreen0x0)),
-        new(RoomObjectKind.YellowDoorFacingDown, new(6, 2), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.RedBrinstarElevatorYellowDoorFacingDown, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.YellowDoorFacingDown, new(6, 2), new ColoredDoorSetup(new(ColoredDoorColor.Yellow, ColoredDoorOrientation.Down), new LockedDoorArgument(LockedDoorDefinitions.RedBrinstarElevatorYellowDoorFacingDown, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The GauntletEnergyTank room-object population.</summary>
     public static RoomObjectPopulation GauntletEnergyTank { get; } = RoomObjectPopulation.FromPlacements(nameof(GauntletEnergyTank),
     [
         new(RoomObjectKind.ScrollTrigger, new(84, 12), new ScrollTriggerSetup(RoomScrollChange.GauntletEnergyTankOpensScreen4x0TopAligned)),
-        new(RoomObjectKind.ExposedEnergyTank, new(83, 8), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.GauntletEnergyTankExposedEnergyTank))),
+        new(RoomObjectKind.ExposedEnergyTank, new(83, 8), new CollectibleSetup(new(InWorldCollectibleKind.EnergyTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.GauntletEnergyTankExposedEnergyTank))),
     ]);
 
     /// <summary>The PreBowling room-object population.</summary>
@@ -216,28 +217,28 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectKind.ScrollTrigger, new(32, 5), new ScrollTriggerSetup(RoomScrollChange.ClimbOpensScreen2x0TopAligned)),
         new(RoomObjectKind.ScrollTrigger, new(29, 118), new ScrollTriggerSetup(RoomScrollChange.ClimbClosesScreen2x7)),
         new(RoomObjectKind.ScrollTrigger, new(32, 118), new ScrollTriggerSetup(RoomScrollChange.ClimbOpensScreen2x7TopAligned)),
-        new(RoomObjectKind.LeftwardsScrollExtension, new(18, 133), new ScrollExtensionSetup()),
-        new(RoomObjectKind.LeftwardsScrollExtension, new(19, 133), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(20, 133), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(20, 134), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(20, 135), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(20, 136), new ScrollExtensionSetup()),
+        new(RoomObjectKind.LeftwardsScrollExtension, new(18, 133), new ScrollExtensionSetup(ScrollExtensionDefinitions.Leftwards)),
+        new(RoomObjectKind.LeftwardsScrollExtension, new(19, 133), new ScrollExtensionSetup(ScrollExtensionDefinitions.Leftwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(20, 133), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(20, 134), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(20, 135), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(20, 136), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
         new(RoomObjectKind.ScrollTrigger, new(20, 137), new ScrollTriggerSetup(RoomScrollChange.ClimbClosesScreen0x8)),
-        new(RoomObjectKind.UpwardsScrollExtension, new(15, 134), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(15, 135), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(15, 136), new ScrollExtensionSetup()),
+        new(RoomObjectKind.UpwardsScrollExtension, new(15, 134), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(15, 135), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(15, 136), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
         new(RoomObjectKind.ScrollTrigger, new(15, 137), new ScrollTriggerSetup(RoomScrollChange.ClimbOpensScreen0x8TopAligned)),
-        new(RoomObjectKind.UpwardsScrollExtension, new(13, 134), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(13, 135), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(13, 136), new ScrollExtensionSetup()),
+        new(RoomObjectKind.UpwardsScrollExtension, new(13, 134), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(13, 135), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(13, 136), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
         new(RoomObjectKind.ScrollTrigger, new(13, 137), new ScrollTriggerSetup(RoomScrollChange.ClimbOpensScreen1x8TopAligned)),
-        new(RoomObjectKind.UpwardsScrollExtension, new(8, 134), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(8, 135), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(8, 136), new ScrollExtensionSetup()),
+        new(RoomObjectKind.UpwardsScrollExtension, new(8, 134), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(8, 135), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(8, 136), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
         new(RoomObjectKind.ScrollTrigger, new(8, 137), new ScrollTriggerSetup(RoomScrollChange.ClimbClosesScreen1x8)),
-        new(RoomObjectKind.GreyDoorFacingLeft, new(46, 6), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.Never, new LockedDoorArgument(LockedDoorDefinitions.ClimbDefaultOrWhenZebesAwakeGreyDoorFacingLeft, DoorOpeningPersistence.Transient)))),
-        new(RoomObjectKind.GreyDoorFacingRight, new(1, 134), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.Never, new LockedDoorArgument(LockedDoorDefinitions.ClimbDefaultOrWhenZebesAwakeGreyDoorFacingRight, DoorOpeningPersistence.Transient)))),
-        new(RoomObjectKind.YellowDoorFacingLeft, new(46, 118), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.ClimbDefaultOrWhenZebesAwakeYellowDoorFacingLeft, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.GreyDoorFacingLeft, new(46, 6), new GreyDoorSetup(new(ColoredDoorOrientation.Left, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.Never, new LockedDoorArgument(LockedDoorDefinitions.ClimbDefaultOrWhenZebesAwakeGreyDoorFacingLeft, DoorOpeningPersistence.Transient)))),
+        new(RoomObjectKind.GreyDoorFacingRight, new(1, 134), new GreyDoorSetup(new(ColoredDoorOrientation.Right, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.Never, new LockedDoorArgument(LockedDoorDefinitions.ClimbDefaultOrWhenZebesAwakeGreyDoorFacingRight, DoorOpeningPersistence.Transient)))),
+        new(RoomObjectKind.YellowDoorFacingLeft, new(46, 118), new ColoredDoorSetup(new(ColoredDoorColor.Yellow, ColoredDoorOrientation.Left), new LockedDoorArgument(LockedDoorDefinitions.ClimbDefaultOrWhenZebesAwakeYellowDoorFacingLeft, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The ClimbWhenZebesTimebombSet room-object population.</summary>
@@ -247,30 +248,30 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectKind.ScrollTrigger, new(32, 5), new ScrollTriggerSetup(RoomScrollChange.ClimbOpensScreen2x0TopAligned)),
         new(RoomObjectKind.ScrollTrigger, new(29, 118), new ScrollTriggerSetup(RoomScrollChange.ClimbClosesScreen2x7)),
         new(RoomObjectKind.ScrollTrigger, new(32, 118), new ScrollTriggerSetup(RoomScrollChange.ClimbOpensScreen2x7TopAligned)),
-        new(RoomObjectKind.LeftwardsScrollExtension, new(18, 133), new ScrollExtensionSetup()),
-        new(RoomObjectKind.LeftwardsScrollExtension, new(19, 133), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(20, 133), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(20, 134), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(20, 135), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(20, 136), new ScrollExtensionSetup()),
+        new(RoomObjectKind.LeftwardsScrollExtension, new(18, 133), new ScrollExtensionSetup(ScrollExtensionDefinitions.Leftwards)),
+        new(RoomObjectKind.LeftwardsScrollExtension, new(19, 133), new ScrollExtensionSetup(ScrollExtensionDefinitions.Leftwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(20, 133), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(20, 134), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(20, 135), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(20, 136), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
         new(RoomObjectKind.ScrollTrigger, new(20, 137), new ScrollTriggerSetup(RoomScrollChange.ClimbClosesScreen0x8)),
-        new(RoomObjectKind.UpwardsScrollExtension, new(15, 134), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(15, 135), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(15, 136), new ScrollExtensionSetup()),
+        new(RoomObjectKind.UpwardsScrollExtension, new(15, 134), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(15, 135), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(15, 136), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
         new(RoomObjectKind.ScrollTrigger, new(15, 137), new ScrollTriggerSetup(RoomScrollChange.ClimbOpensScreen0x8TopAligned)),
-        new(RoomObjectKind.UpwardsScrollExtension, new(13, 134), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(13, 135), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(13, 136), new ScrollExtensionSetup()),
+        new(RoomObjectKind.UpwardsScrollExtension, new(13, 134), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(13, 135), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(13, 136), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
         new(RoomObjectKind.ScrollTrigger, new(13, 137), new ScrollTriggerSetup(RoomScrollChange.ClimbOpensScreen1x8TopAligned)),
-        new(RoomObjectKind.UpwardsScrollExtension, new(8, 134), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(8, 135), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(8, 136), new ScrollExtensionSetup()),
+        new(RoomObjectKind.UpwardsScrollExtension, new(8, 134), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(8, 135), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(8, 136), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
         new(RoomObjectKind.ScrollTrigger, new(8, 137), new ScrollTriggerSetup(RoomScrollChange.ClimbClosesScreen1x8)),
         new(RoomObjectKind.EscapeRoomHeldPlace, new(8, 8), new EscapeRoomHeldPlaceSetup()),
-        new(RoomObjectKind.GreyDoorFacingLeft, new(46, 6), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.Never, new LockedDoorArgument(LockedDoorDefinitions.ClimbWhenZebesTimebombSetGreyDoorFacingLeftAt46x6, DoorOpeningPersistence.Transient)))),
-        new(RoomObjectKind.GreyDoorFacingLeft, new(46, 118), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.Never, new LockedDoorArgument(LockedDoorDefinitions.ClimbWhenZebesTimebombSetGreyDoorFacingLeftAt46x118, DoorOpeningPersistence.Transient)))),
-        new(RoomObjectKind.GreyDoorFacingLeft, new(30, 134), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.Never, new LockedDoorArgument(LockedDoorDefinitions.ClimbWhenZebesTimebombSetGreyDoorFacingLeftAt30x134, DoorOpeningPersistence.Transient)))),
-        new(RoomObjectKind.GreyDoorFacingRight, new(1, 134), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.Never, new LockedDoorArgument(LockedDoorDefinitions.ClimbWhenZebesTimebombSetGreyDoorFacingRight, DoorOpeningPersistence.Transient)))),
+        new(RoomObjectKind.GreyDoorFacingLeft, new(46, 6), new GreyDoorSetup(new(ColoredDoorOrientation.Left, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.Never, new LockedDoorArgument(LockedDoorDefinitions.ClimbWhenZebesTimebombSetGreyDoorFacingLeftAt46x6, DoorOpeningPersistence.Transient)))),
+        new(RoomObjectKind.GreyDoorFacingLeft, new(46, 118), new GreyDoorSetup(new(ColoredDoorOrientation.Left, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.Never, new LockedDoorArgument(LockedDoorDefinitions.ClimbWhenZebesTimebombSetGreyDoorFacingLeftAt46x118, DoorOpeningPersistence.Transient)))),
+        new(RoomObjectKind.GreyDoorFacingLeft, new(30, 134), new GreyDoorSetup(new(ColoredDoorOrientation.Left, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.Never, new LockedDoorArgument(LockedDoorDefinitions.ClimbWhenZebesTimebombSetGreyDoorFacingLeftAt30x134, DoorOpeningPersistence.Transient)))),
+        new(RoomObjectKind.GreyDoorFacingRight, new(1, 134), new GreyDoorSetup(new(ColoredDoorOrientation.Right, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.Never, new LockedDoorArgument(LockedDoorDefinitions.ClimbWhenZebesTimebombSetGreyDoorFacingRight, DoorOpeningPersistence.Transient)))),
     ]);
 
     /// <summary>The PitDefault room-object population.</summary>
@@ -279,7 +280,7 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectKind.ScrollTrigger, new(4, 15), new ScrollTriggerSetup(RoomScrollChange.PitOpensScreens0x0And0x1)),
         new(RoomObjectKind.ScrollTrigger, new(6, 15), new ScrollTriggerSetup(RoomScrollChange.PitOpensScreens0x0And0x1)),
         new(RoomObjectKind.ScrollTrigger, new(5, 9), new ScrollTriggerSetup(RoomScrollChange.PitClosesScreen0x1OpensScreen0x0TopAligned)),
-        new(RoomObjectKind.GreyDoorFacingRight, new(1, 6), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.Never, new LockedDoorArgument(LockedDoorDefinitions.PitDefaultGreyDoorFacingRight, DoorOpeningPersistence.Transient)))),
+        new(RoomObjectKind.GreyDoorFacingRight, new(1, 6), new GreyDoorSetup(new(ColoredDoorOrientation.Right, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.Never, new LockedDoorArgument(LockedDoorDefinitions.PitDefaultGreyDoorFacingRight, DoorOpeningPersistence.Transient)))),
     ]);
 
     /// <summary>The PitWithMorphBallAndMissiles room-object population.</summary>
@@ -288,9 +289,9 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectKind.ScrollTrigger, new(4, 15), new ScrollTriggerSetup(RoomScrollChange.PitOpensScreens0x0And0x1)),
         new(RoomObjectKind.ScrollTrigger, new(6, 15), new ScrollTriggerSetup(RoomScrollChange.PitOpensScreens0x0And0x1)),
         new(RoomObjectKind.ScrollTrigger, new(5, 9), new ScrollTriggerSetup(RoomScrollChange.PitClosesScreen0x1OpensScreen0x0TopAligned)),
-        new(RoomObjectKind.GreyDoorFacingLeft, new(46, 6), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.EnemyDeathQuota, new LockedDoorArgument(LockedDoorDefinitions.PitWithMorphBallAndMissilesGreyDoorFacingLeft, DoorOpeningPersistence.Persistent)))),
-        new(RoomObjectKind.GreyDoorFacingRight, new(1, 6), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.EnemyDeathQuota, new LockedDoorArgument(LockedDoorDefinitions.PitWithMorphBallAndMissilesGreyDoorFacingRight, DoorOpeningPersistence.Persistent)))),
-        new(RoomObjectKind.ExposedMissileTank, new(5, 26), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.PitWithMorphBallAndMissilesExposedMissileTank))),
+        new(RoomObjectKind.GreyDoorFacingLeft, new(46, 6), new GreyDoorSetup(new(ColoredDoorOrientation.Left, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.EnemyDeathQuota, new LockedDoorArgument(LockedDoorDefinitions.PitWithMorphBallAndMissilesGreyDoorFacingLeft, DoorOpeningPersistence.Persistent)))),
+        new(RoomObjectKind.GreyDoorFacingRight, new(1, 6), new GreyDoorSetup(new(ColoredDoorOrientation.Right, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.EnemyDeathQuota, new LockedDoorArgument(LockedDoorDefinitions.PitWithMorphBallAndMissilesGreyDoorFacingRight, DoorOpeningPersistence.Persistent)))),
+        new(RoomObjectKind.ExposedMissileTank, new(5, 26), new CollectibleSetup(new(InWorldCollectibleKind.MissileTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.PitWithMorphBallAndMissilesExposedMissileTank))),
     ]);
 
     /// <summary>The ElevatorToBlueBrinstar room-object population.</summary>
@@ -302,8 +303,8 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The BombTorizoDefaultOrWhenAreaTorizoDead room-object population.</summary>
     public static RoomObjectPopulation BombTorizoDefaultOrWhenAreaTorizoDead { get; } = RoomObjectPopulation.FromPlacements(nameof(BombTorizoDefaultOrWhenAreaTorizoDead),
     [
-        new(RoomObjectKind.BombTorizoGreyDoor, new(1, 6), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.AreaTorizoDefeated, new LockedDoorArgument(LockedDoorDefinitions.BombTorizoDefaultOrWhenAreaTorizoDeadBombTorizoGreyDoor, DoorOpeningPersistence.Persistent)))),
-        new(RoomObjectKind.ChozoBombs, new(12, 10), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.BombTorizoDefaultOrWhenAreaTorizoDeadChozoBombs))),
+        new(RoomObjectKind.BombTorizoGreyDoor, new(1, 6), new GreyDoorSetup(new(ColoredDoorOrientation.Right, GreyDoorClosing.AfterBombs), new GreyDoorArgument(GreyDoorCondition.AreaTorizoDefeated, new LockedDoorArgument(LockedDoorDefinitions.BombTorizoDefaultOrWhenAreaTorizoDeadBombTorizoGreyDoor, DoorOpeningPersistence.Persistent)))),
+        new(RoomObjectKind.ChozoBombs, new(12, 10), new CollectibleSetup(new(InWorldCollectibleKind.Bombs, CollectiblePresentation.ChozoOrb), new CollectedItemArgument(ItemLocationDefinitions.BombTorizoDefaultOrWhenAreaTorizoDeadChozoBombs))),
         new(RoomObjectKind.BombTorizoHand, new(13, 11), new BombTorizoHandSetup()),
     ]);
 
@@ -311,13 +312,13 @@ internal static class RoomObjectPopulationDefinitions
     public static RoomObjectPopulation BombTorizoWhenZebesTimebombSet { get; } = RoomObjectPopulation.FromPlacements(nameof(BombTorizoWhenZebesTimebombSet),
     [
         new(RoomObjectKind.EscapeRoomHeldPlace, new(8, 8), new EscapeRoomHeldPlaceSetup()),
-        new(RoomObjectKind.GreyDoorFacingRight, new(1, 6), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.CrittersEscaped, new LockedDoorArgument(LockedDoorDefinitions.BombTorizoWhenZebesTimebombSetGreyDoorFacingRight, DoorOpeningPersistence.Persistent)))),
+        new(RoomObjectKind.GreyDoorFacingRight, new(1, 6), new GreyDoorSetup(new(ColoredDoorOrientation.Right, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.CrittersEscaped, new LockedDoorArgument(LockedDoorDefinitions.BombTorizoWhenZebesTimebombSetGreyDoorFacingRight, DoorOpeningPersistence.Persistent)))),
     ]);
 
     /// <summary>The FlywayDefaultOrWhenAreaTorizoDead room-object population.</summary>
     public static RoomObjectPopulation FlywayDefaultOrWhenAreaTorizoDead { get; } = RoomObjectPopulation.FromPlacements(nameof(FlywayDefaultOrWhenAreaTorizoDead),
     [
-        new(RoomObjectKind.RedDoorFacingLeft, new(46, 6), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.FlywayDefaultOrWhenAreaTorizoDeadRedDoorFacingLeft, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.RedDoorFacingLeft, new(46, 6), new ColoredDoorSetup(new(ColoredDoorColor.Red, ColoredDoorOrientation.Left), new LockedDoorArgument(LockedDoorDefinitions.FlywayDefaultOrWhenAreaTorizoDeadRedDoorFacingLeft, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The FlywayWhenZebesTimebombSet room-object population.</summary>
@@ -334,7 +335,7 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The Terminator room-object population.</summary>
     public static RoomObjectPopulation Terminator { get; } = RoomObjectPopulation.FromPlacements(nameof(Terminator),
     [
-        new(RoomObjectKind.ExposedEnergyTank, new(7, 42), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.TerminatorExposedEnergyTank))),
+        new(RoomObjectKind.ExposedEnergyTank, new(7, 42), new CollectibleSetup(new(InWorldCollectibleKind.EnergyTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.TerminatorExposedEnergyTank))),
     ]);
 
     /// <summary>The GreenBrinstarElevator room-object population.</summary>
@@ -351,25 +352,25 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The CrateriaMap room-object population.</summary>
     public static RoomObjectPopulation CrateriaMap { get; } = RoomObjectPopulation.FromPlacements(nameof(CrateriaMap),
     [
-        new(RoomObjectKind.MapStation, new(11, 10), new StationSetup(null)),
+        new(RoomObjectKind.MapStation, new(11, 10), new StationSetup(StationKind.Map, null)),
     ]);
 
     /// <summary>The GreenPiratesShaft room-object population.</summary>
     public static RoomObjectPopulation GreenPiratesShaft { get; } = RoomObjectPopulation.FromPlacements(nameof(GreenPiratesShaft),
     [
         new(RoomObjectKind.ScrollTrigger, new(7, 67), new ScrollTriggerSetup(RoomScrollChange.GreenPiratesShaftOpensScreen0x3)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(8, 67), new ScrollExtensionSetup()),
+        new(RoomObjectKind.RightwardsScrollExtension, new(8, 67), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
         new(RoomObjectKind.ScrollTrigger, new(9, 70), new ScrollTriggerSetup(RoomScrollChange.GreenPiratesShaftClosesScreen0x3)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(10, 70), new ScrollExtensionSetup()),
-        new(RoomObjectKind.ExposedMissileTank, new(13, 27), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.GreenPiratesShaftExposedMissileTankAt13x27))),
-        new(RoomObjectKind.ExposedMissileTank, new(2, 27), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.GreenPiratesShaftExposedMissileTankAt2x27))),
-        new(RoomObjectKind.RedDoorFacingLeft, new(14, 102), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.GreenPiratesShaftRedDoorFacingLeft, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.RightwardsScrollExtension, new(10, 70), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.ExposedMissileTank, new(13, 27), new CollectibleSetup(new(InWorldCollectibleKind.MissileTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.GreenPiratesShaftExposedMissileTankAt13x27))),
+        new(RoomObjectKind.ExposedMissileTank, new(2, 27), new CollectibleSetup(new(InWorldCollectibleKind.MissileTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.GreenPiratesShaftExposedMissileTankAt2x27))),
+        new(RoomObjectKind.RedDoorFacingLeft, new(14, 102), new ColoredDoorSetup(new(ColoredDoorColor.Red, ColoredDoorOrientation.Left), new LockedDoorArgument(LockedDoorDefinitions.GreenPiratesShaftRedDoorFacingLeft, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The CrateriaSuper room-object population.</summary>
     public static RoomObjectPopulation CrateriaSuper { get; } = RoomObjectPopulation.FromPlacements(nameof(CrateriaSuper),
     [
-        new(RoomObjectKind.ExposedSuperMissileTank, new(59, 9), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.CrateriaSuperExposedSuperMissileTank))),
+        new(RoomObjectKind.ExposedSuperMissileTank, new(59, 9), new CollectibleSetup(new(InWorldCollectibleKind.SuperMissileTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.CrateriaSuperExposedSuperMissileTank))),
     ]);
 
     /// <summary>The FinalMissileBombwayDefault room-object population.</summary>
@@ -390,7 +391,7 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The FinalMissileWhenZebesAwake room-object population.</summary>
     public static RoomObjectPopulation FinalMissileWhenZebesAwake { get; } = RoomObjectPopulation.FromPlacements(nameof(FinalMissileWhenZebesAwake),
     [
-        new(RoomObjectKind.ExposedMissileTank, new(4, 7), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.FinalMissileWhenZebesAwakeExposedMissileTank))),
+        new(RoomObjectKind.ExposedMissileTank, new(4, 7), new CollectibleSetup(new(InWorldCollectibleKind.MissileTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.FinalMissileWhenZebesAwakeExposedMissileTank))),
     ]);
 
     /// <summary>The GreenBrinstarMainShaft room-object population.</summary>
@@ -401,94 +402,94 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectKind.ScrollTrigger, new(33, 168), new ScrollTriggerSetup(RoomScrollChange.GreenBrinstarMainShaftClosesScreen0x7OpensScreens1x7And1x10TopAligned)),
         new(RoomObjectKind.ScrollTrigger, new(13, 172), new ScrollTriggerSetup(RoomScrollChange.GreenBrinstarMainShaftClosesScreens1x7And1x10OpensScreens0x6And0x7)),
         new(RoomObjectKind.ElevatorPlatform, new(6, 44), new ElevatorPlatformSetup()),
-        new(RoomObjectKind.ChozoPowerBombTank, new(60, 122), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.GreenBrinstarMainShaftChozoPowerBombTank))),
-        new(RoomObjectKind.RedDoorFacingRight, new(1, 86), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.GreenBrinstarMainShaftRedDoorFacingRightAt1x86, DoorOpeningPersistence.Persistent))),
-        new(RoomObjectKind.RedDoorFacingRight, new(1, 70), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.GreenBrinstarMainShaftRedDoorFacingRightAt1x70, DoorOpeningPersistence.Persistent))),
-        new(RoomObjectKind.RedDoorFacingLeft, new(14, 70), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.GreenBrinstarMainShaftRedDoorFacingLeftAt14x70, DoorOpeningPersistence.Persistent))),
-        new(RoomObjectKind.RedDoorFacingLeft, new(14, 102), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.GreenBrinstarMainShaftRedDoorFacingLeftAt14x102, DoorOpeningPersistence.Persistent))),
-        new(RoomObjectKind.RedDoorFacingRight, new(1, 102), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.GreenBrinstarMainShaftRedDoorFacingRightAt1x102, DoorOpeningPersistence.Persistent))),
-        new(RoomObjectKind.GreyDoorFacingLeft, new(14, 118), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.Never, new LockedDoorArgument(LockedDoorDefinitions.GreenBrinstarMainShaftGreyDoorFacingLeft, DoorOpeningPersistence.Transient)))),
+        new(RoomObjectKind.ChozoPowerBombTank, new(60, 122), new CollectibleSetup(new(InWorldCollectibleKind.PowerBombTank, CollectiblePresentation.ChozoOrb), new CollectedItemArgument(ItemLocationDefinitions.GreenBrinstarMainShaftChozoPowerBombTank))),
+        new(RoomObjectKind.RedDoorFacingRight, new(1, 86), new ColoredDoorSetup(new(ColoredDoorColor.Red, ColoredDoorOrientation.Right), new LockedDoorArgument(LockedDoorDefinitions.GreenBrinstarMainShaftRedDoorFacingRightAt1x86, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.RedDoorFacingRight, new(1, 70), new ColoredDoorSetup(new(ColoredDoorColor.Red, ColoredDoorOrientation.Right), new LockedDoorArgument(LockedDoorDefinitions.GreenBrinstarMainShaftRedDoorFacingRightAt1x70, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.RedDoorFacingLeft, new(14, 70), new ColoredDoorSetup(new(ColoredDoorColor.Red, ColoredDoorOrientation.Left), new LockedDoorArgument(LockedDoorDefinitions.GreenBrinstarMainShaftRedDoorFacingLeftAt14x70, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.RedDoorFacingLeft, new(14, 102), new ColoredDoorSetup(new(ColoredDoorColor.Red, ColoredDoorOrientation.Left), new LockedDoorArgument(LockedDoorDefinitions.GreenBrinstarMainShaftRedDoorFacingLeftAt14x102, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.RedDoorFacingRight, new(1, 102), new ColoredDoorSetup(new(ColoredDoorColor.Red, ColoredDoorOrientation.Right), new LockedDoorArgument(LockedDoorDefinitions.GreenBrinstarMainShaftRedDoorFacingRightAt1x102, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.GreyDoorFacingLeft, new(14, 118), new GreyDoorSetup(new(ColoredDoorOrientation.Left, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.Never, new LockedDoorArgument(LockedDoorDefinitions.GreenBrinstarMainShaftGreyDoorFacingLeft, DoorOpeningPersistence.Transient)))),
     ]);
 
     /// <summary>The SporeSpawnSuper room-object population.</summary>
     public static RoomObjectPopulation SporeSpawnSuper { get; } = RoomObjectPopulation.FromPlacements(nameof(SporeSpawnSuper),
     [
         new(RoomObjectKind.ScrollTrigger, new(23, 11), new ScrollTriggerSetup(RoomScrollChange.SporeSpawnSuperOpensScreens1x0And1x1)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(24, 11), new ScrollExtensionSetup()),
-        new(RoomObjectKind.ChozoSuperMissileTank, new(26, 135), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.SporeSpawnSuperChozoSuperMissileTank))),
+        new(RoomObjectKind.RightwardsScrollExtension, new(24, 11), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.ChozoSuperMissileTank, new(26, 135), new CollectibleSetup(new(InWorldCollectibleKind.SuperMissileTank, CollectiblePresentation.ChozoOrb), new CollectedItemArgument(ItemLocationDefinitions.SporeSpawnSuperChozoSuperMissileTank))),
     ]);
 
     /// <summary>The BrinstarPreMap room-object population.</summary>
     public static RoomObjectPopulation BrinstarPreMap { get; } = RoomObjectPopulation.FromPlacements(nameof(BrinstarPreMap),
     [
-        new(RoomObjectKind.GreyDoorFacingLeft, new(46, 6), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.EnemyDeathQuota, new LockedDoorArgument(LockedDoorDefinitions.BrinstarPreMapGreyDoorFacingLeft, DoorOpeningPersistence.Persistent)))),
+        new(RoomObjectKind.GreyDoorFacingLeft, new(46, 6), new GreyDoorSetup(new(ColoredDoorOrientation.Left, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.EnemyDeathQuota, new LockedDoorArgument(LockedDoorDefinitions.BrinstarPreMapGreyDoorFacingLeft, DoorOpeningPersistence.Persistent)))),
     ]);
 
     /// <summary>The EarlySupers room-object population.</summary>
     public static RoomObjectPopulation EarlySupers { get; } = RoomObjectPopulation.FromPlacements(nameof(EarlySupers),
     [
         new(RoomObjectKind.ScrollTrigger, new(41, 14), new ScrollTriggerSetup(RoomScrollChange.EarlySupersOpensScreens0x0And1x0And2x0)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(42, 14), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(43, 14), new ScrollExtensionSetup()),
+        new(RoomObjectKind.RightwardsScrollExtension, new(42, 14), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(43, 14), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
         new(RoomObjectKind.ScrollTrigger, new(4, 19), new ScrollTriggerSetup(RoomScrollChange.EarlySupersClosesScreens0x0And1x0And2x0)),
         new(RoomObjectKind.ScrollTrigger, new(4, 15), new ScrollTriggerSetup(RoomScrollChange.EarlySupersOpensScreens0x0And1x0And2x0)),
-        new(RoomObjectKind.RedDoorFacingLeft, new(46, 22), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.EarlySupersRedDoorFacingLeft, DoorOpeningPersistence.Persistent))),
-        new(RoomObjectKind.ExposedMissileTank, new(19, 27), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.EarlySupersExposedMissileTank))),
-        new(RoomObjectKind.ExposedSuperMissileTank, new(4, 6), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.EarlySupersExposedSuperMissileTank))),
+        new(RoomObjectKind.RedDoorFacingLeft, new(46, 22), new ColoredDoorSetup(new(ColoredDoorColor.Red, ColoredDoorOrientation.Left), new LockedDoorArgument(LockedDoorDefinitions.EarlySupersRedDoorFacingLeft, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.ExposedMissileTank, new(19, 27), new CollectibleSetup(new(InWorldCollectibleKind.MissileTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.EarlySupersExposedMissileTank))),
+        new(RoomObjectKind.ExposedSuperMissileTank, new(4, 6), new CollectibleSetup(new(InWorldCollectibleKind.SuperMissileTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.EarlySupersExposedSuperMissileTank))),
     ]);
 
     /// <summary>The BrinstarReserveTank room-object population.</summary>
     public static RoomObjectPopulation BrinstarReserveTank { get; } = RoomObjectPopulation.FromPlacements(nameof(BrinstarReserveTank),
     [
         new(RoomObjectKind.ScrollTrigger, new(14, 11), new ScrollTriggerSetup(RoomScrollChange.BrinstarReserveTankOpensScreen1x0TopAligned)),
-        new(RoomObjectKind.ChozoReserveTank, new(11, 7), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.BrinstarReserveTankChozoReserveTank))),
-        new(RoomObjectKind.ShotBlockMissileTank, new(30, 7), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.BrinstarReserveTankShotBlockMissileTank))),
-        new(RoomObjectKind.ExposedMissileTank, new(25, 7), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.BrinstarReserveTankExposedMissileTank))),
+        new(RoomObjectKind.ChozoReserveTank, new(11, 7), new CollectibleSetup(new(InWorldCollectibleKind.ReserveTank, CollectiblePresentation.ChozoOrb), new CollectedItemArgument(ItemLocationDefinitions.BrinstarReserveTankChozoReserveTank))),
+        new(RoomObjectKind.ShotBlockMissileTank, new(30, 7), new CollectibleSetup(new(InWorldCollectibleKind.MissileTank, CollectiblePresentation.ShotBlock), new CollectedItemArgument(ItemLocationDefinitions.BrinstarReserveTankShotBlockMissileTank))),
+        new(RoomObjectKind.ExposedMissileTank, new(25, 7), new CollectibleSetup(new(InWorldCollectibleKind.MissileTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.BrinstarReserveTankExposedMissileTank))),
     ]);
 
     /// <summary>The GreenBrinstarMap room-object population.</summary>
     public static RoomObjectPopulation GreenBrinstarMap { get; } = RoomObjectPopulation.FromPlacements(nameof(GreenBrinstarMap),
     [
-        new(RoomObjectKind.MapStation, new(5, 10), new StationSetup(null)),
+        new(RoomObjectKind.MapStation, new(5, 10), new StationSetup(StationKind.Map, null)),
     ]);
 
     /// <summary>The GreenBrinstarFirefleas room-object population.</summary>
     public static RoomObjectPopulation GreenBrinstarFirefleas { get; } = RoomObjectPopulation.FromPlacements(nameof(GreenBrinstarFirefleas),
     [
-        new(RoomObjectKind.GreenDoorFacingRight, new(1, 38), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.GreenBrinstarFirefleasGreenDoorFacingRight, DoorOpeningPersistence.Persistent)), Site: RoomObjectSite.BeyondTheRoom),
+        new(RoomObjectKind.GreenDoorFacingRight, new(1, 38), new ColoredDoorSetup(new(ColoredDoorColor.Green, ColoredDoorOrientation.Right), new LockedDoorArgument(LockedDoorDefinitions.GreenBrinstarFirefleasGreenDoorFacingRight, DoorOpeningPersistence.Persistent)), Site: RoomObjectSite.BeyondTheRoom),
     ]);
 
     /// <summary>The GreenBrinstarMissileRefill room-object population.</summary>
     public static RoomObjectPopulation GreenBrinstarMissileRefill { get; } = RoomObjectPopulation.FromPlacements(nameof(GreenBrinstarMissileRefill),
     [
-        new(RoomObjectKind.MissileStation, new(4, 10), new StationSetup(null)),
+        new(RoomObjectKind.MissileStation, new(4, 10), new StationSetup(StationKind.Missile, null)),
     ]);
 
     /// <summary>The Dachora room-object population.</summary>
     public static RoomObjectPopulation Dachora { get; } = RoomObjectPopulation.FromPlacements(nameof(Dachora),
     [
-        new(RoomObjectKind.DownwardsScrollExtension, new(69, 14), new ScrollExtensionSetup()),
-        new(RoomObjectKind.LeftwardsScrollExtension, new(69, 13), new ScrollExtensionSetup()),
-        new(RoomObjectKind.LeftwardsScrollExtension, new(70, 13), new ScrollExtensionSetup()),
-        new(RoomObjectKind.LeftwardsScrollExtension, new(71, 13), new ScrollExtensionSetup()),
-        new(RoomObjectKind.LeftwardsScrollExtension, new(72, 13), new ScrollExtensionSetup()),
-        new(RoomObjectKind.LeftwardsScrollExtension, new(73, 13), new ScrollExtensionSetup()),
+        new(RoomObjectKind.DownwardsScrollExtension, new(69, 14), new ScrollExtensionSetup(ScrollExtensionDefinitions.Downwards)),
+        new(RoomObjectKind.LeftwardsScrollExtension, new(69, 13), new ScrollExtensionSetup(ScrollExtensionDefinitions.Leftwards)),
+        new(RoomObjectKind.LeftwardsScrollExtension, new(70, 13), new ScrollExtensionSetup(ScrollExtensionDefinitions.Leftwards)),
+        new(RoomObjectKind.LeftwardsScrollExtension, new(71, 13), new ScrollExtensionSetup(ScrollExtensionDefinitions.Leftwards)),
+        new(RoomObjectKind.LeftwardsScrollExtension, new(72, 13), new ScrollExtensionSetup(ScrollExtensionDefinitions.Leftwards)),
+        new(RoomObjectKind.LeftwardsScrollExtension, new(73, 13), new ScrollExtensionSetup(ScrollExtensionDefinitions.Leftwards)),
         new(RoomObjectKind.ScrollTrigger, new(74, 13), new ScrollTriggerSetup(RoomScrollChange.DachoraOpensScreen4x1)),
-        new(RoomObjectKind.UpwardsScrollExtension, new(64, 8), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(64, 9), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(64, 10), new ScrollExtensionSetup()),
+        new(RoomObjectKind.UpwardsScrollExtension, new(64, 8), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(64, 9), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(64, 10), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
         new(RoomObjectKind.ScrollTrigger, new(64, 11), new ScrollTriggerSetup(RoomScrollChange.DachoraClosesScreen4x1OpensScreen4x0TopAligned)),
-        new(RoomObjectKind.DownwardsScrollExtension, new(75, 11), new ScrollExtensionSetup()),
-        new(RoomObjectKind.DownwardsScrollExtension, new(75, 10), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(75, 9), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(74, 9), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(73, 9), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(72, 9), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(71, 9), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(70, 9), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(69, 9), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(68, 9), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(68, 10), new ScrollExtensionSetup()),
+        new(RoomObjectKind.DownwardsScrollExtension, new(75, 11), new ScrollExtensionSetup(ScrollExtensionDefinitions.Downwards)),
+        new(RoomObjectKind.DownwardsScrollExtension, new(75, 10), new ScrollExtensionSetup(ScrollExtensionDefinitions.Downwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(75, 9), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(74, 9), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(73, 9), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(72, 9), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(71, 9), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(70, 9), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(69, 9), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(68, 9), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(68, 10), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
         new(RoomObjectKind.ScrollTrigger, new(68, 11), new ScrollTriggerSetup(RoomScrollChange.DachoraClosesScreen4x1OpensScreen4x0TopAligned)),
     ]);
 
@@ -501,26 +502,26 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectKind.ScrollTrigger, new(64, 87), new ScrollTriggerSetup(RoomScrollChange.BigPinkOpensScreens3x5And4x5TopAligned)),
         new(RoomObjectKind.ScrollTrigger, new(31, 8), new ScrollTriggerSetup(RoomScrollChange.BigPinkOpensScreen1x0)),
         new(RoomObjectKind.ScrollTrigger, new(33, 8), new ScrollTriggerSetup(RoomScrollChange.BigPinkClosesScreen1x0)),
-        new(RoomObjectKind.ExposedMissileTank, new(36, 50), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.BigPinkExposedMissileTankAt36x50))),
-        new(RoomObjectKind.ExposedMissileTank, new(34, 103), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.BigPinkExposedMissileTankAt34x103))),
-        new(RoomObjectKind.ChozoChargeBeam, new(37, 118), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.BigPinkChozoChargeBeam))),
-        new(RoomObjectKind.YellowDoorFacingLeft, new(62, 70), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.BigPinkYellowDoorFacingLeft, DoorOpeningPersistence.Persistent))),
-        new(RoomObjectKind.GreenDoorFacingLeft, new(62, 102), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.BigPinkGreenDoorFacingLeft, DoorOpeningPersistence.Persistent))),
-        new(RoomObjectKind.RedDoorFacingLeft, new(62, 6), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.BigPinkRedDoorFacingLeft, DoorOpeningPersistence.Persistent))),
-        new(RoomObjectKind.RedDoorFacingRight, new(1, 150), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.BigPinkRedDoorFacingRight, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.ExposedMissileTank, new(36, 50), new CollectibleSetup(new(InWorldCollectibleKind.MissileTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.BigPinkExposedMissileTankAt36x50))),
+        new(RoomObjectKind.ExposedMissileTank, new(34, 103), new CollectibleSetup(new(InWorldCollectibleKind.MissileTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.BigPinkExposedMissileTankAt34x103))),
+        new(RoomObjectKind.ChozoChargeBeam, new(37, 118), new CollectibleSetup(new(InWorldCollectibleKind.ChargeBeam, CollectiblePresentation.ChozoOrb), new CollectedItemArgument(ItemLocationDefinitions.BigPinkChozoChargeBeam))),
+        new(RoomObjectKind.YellowDoorFacingLeft, new(62, 70), new ColoredDoorSetup(new(ColoredDoorColor.Yellow, ColoredDoorOrientation.Left), new LockedDoorArgument(LockedDoorDefinitions.BigPinkYellowDoorFacingLeft, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.GreenDoorFacingLeft, new(62, 102), new ColoredDoorSetup(new(ColoredDoorColor.Green, ColoredDoorOrientation.Left), new LockedDoorArgument(LockedDoorDefinitions.BigPinkGreenDoorFacingLeft, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.RedDoorFacingLeft, new(62, 6), new ColoredDoorSetup(new(ColoredDoorColor.Red, ColoredDoorOrientation.Left), new LockedDoorArgument(LockedDoorDefinitions.BigPinkRedDoorFacingLeft, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.RedDoorFacingRight, new(1, 150), new ColoredDoorSetup(new(ColoredDoorColor.Red, ColoredDoorOrientation.Right), new LockedDoorArgument(LockedDoorDefinitions.BigPinkRedDoorFacingRight, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The SporeSpawnKihunters room-object population.</summary>
     public static RoomObjectPopulation SporeSpawnKihunters { get; } = RoomObjectPopulation.FromPlacements(nameof(SporeSpawnKihunters),
     [
-        new(RoomObjectKind.GreyDoorFacingRight, new(1, 6), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.EnemyDeathQuota, new LockedDoorArgument(LockedDoorDefinitions.SporeSpawnKihuntersGreyDoorFacingRight, DoorOpeningPersistence.Persistent)))),
-        new(RoomObjectKind.GreyDoorFacingDown, new(54, 3), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.EnemyDeathQuota, new LockedDoorArgument(LockedDoorDefinitions.SporeSpawnKihuntersGreyDoorFacingDown, DoorOpeningPersistence.Persistent)))),
+        new(RoomObjectKind.GreyDoorFacingRight, new(1, 6), new GreyDoorSetup(new(ColoredDoorOrientation.Right, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.EnemyDeathQuota, new LockedDoorArgument(LockedDoorDefinitions.SporeSpawnKihuntersGreyDoorFacingRight, DoorOpeningPersistence.Persistent)))),
+        new(RoomObjectKind.GreyDoorFacingDown, new(54, 3), new GreyDoorSetup(new(ColoredDoorOrientation.Down, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.EnemyDeathQuota, new LockedDoorArgument(LockedDoorDefinitions.SporeSpawnKihuntersGreyDoorFacingDown, DoorOpeningPersistence.Persistent)))),
     ]);
 
     /// <summary>The SporeSpawn room-object population.</summary>
     public static RoomObjectPopulation SporeSpawn { get; } = RoomObjectPopulation.FromPlacements(nameof(SporeSpawn),
     [
-        new(RoomObjectKind.GreenDoorFacingUp, new(6, 46), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.SporeSpawnGreenDoorFacingUp, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.GreenDoorFacingUp, new(6, 46), new ColoredDoorSetup(new(ColoredDoorColor.Green, ColoredDoorOrientation.Up), new LockedDoorArgument(LockedDoorDefinitions.SporeSpawnGreenDoorFacingUp, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The PinkBrinstarPowerBombs room-object population.</summary>
@@ -528,8 +529,8 @@ internal static class RoomObjectPopulationDefinitions
     [
         new(RoomObjectKind.ScrollTrigger, new(8, 14), new ScrollTriggerSetup(RoomScrollChange.PinkBrinstarPowerBombsClosesScreen1x0OpensScreen0x0OpensScreens0x1And1x1TopAligned)),
         new(RoomObjectKind.ScrollTrigger, new(8, 11), new ScrollTriggerSetup(RoomScrollChange.PinkBrinstarPowerBombsClosesScreens0x1And1x1OpensScreens0x0And1x0TopAligned)),
-        new(RoomObjectKind.GreyDoorFacingLeft, new(30, 6), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.EnemyDeathQuota, new LockedDoorArgument(LockedDoorDefinitions.PinkBrinstarPowerBombsGreyDoorFacingLeft, DoorOpeningPersistence.Persistent)))),
-        new(RoomObjectKind.ExposedPowerBombTank, new(6, 23), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.PinkBrinstarPowerBombsExposedPowerBombTank))),
+        new(RoomObjectKind.GreyDoorFacingLeft, new(30, 6), new GreyDoorSetup(new(ColoredDoorOrientation.Left, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.EnemyDeathQuota, new LockedDoorArgument(LockedDoorDefinitions.PinkBrinstarPowerBombsGreyDoorFacingLeft, DoorOpeningPersistence.Persistent)))),
+        new(RoomObjectKind.ExposedPowerBombTank, new(6, 23), new CollectibleSetup(new(InWorldCollectibleKind.PowerBombTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.PinkBrinstarPowerBombsExposedPowerBombTank))),
     ]);
 
     /// <summary>The GreenHillZone room-object population.</summary>
@@ -537,67 +538,67 @@ internal static class RoomObjectPopulationDefinitions
     [
         new(RoomObjectKind.DownwardGate, new(100, 55), new DownwardGateSetup()),
         new(RoomObjectKind.DownwardGateShotBlock, new(100, 55), new DownwardGateShotBlockSetup(new GateTriggerArgument(DownwardGateTriggerBehavior.BlueLeft))),
-        new(RoomObjectKind.YellowDoorFacingLeft, new(30, 6), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.GreenHillZoneYellowDoorFacingLeft, DoorOpeningPersistence.Persistent))),
-        new(RoomObjectKind.ExposedMissileTank, new(61, 24), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.GreenHillZoneExposedMissileTank))),
+        new(RoomObjectKind.YellowDoorFacingLeft, new(30, 6), new ColoredDoorSetup(new(ColoredDoorColor.Yellow, ColoredDoorOrientation.Left), new LockedDoorArgument(LockedDoorDefinitions.GreenHillZoneYellowDoorFacingLeft, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.ExposedMissileTank, new(61, 24), new CollectibleSetup(new(InWorldCollectibleKind.MissileTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.GreenHillZoneExposedMissileTank))),
     ]);
 
     /// <summary>The MorphBallDefault room-object population.</summary>
     public static RoomObjectPopulation MorphBallDefault { get; } = RoomObjectPopulation.FromPlacements(nameof(MorphBallDefault),
     [
         new(RoomObjectKind.ScrollTrigger, new(31, 43), new ScrollTriggerSetup(RoomScrollChange.MorphBallOpensScreen2x2TopAligned)),
-        new(RoomObjectKind.UpwardsScrollExtension, new(8, 35), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(8, 36), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(8, 37), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(8, 38), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(8, 39), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(8, 40), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(8, 41), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(8, 42), new ScrollExtensionSetup()),
+        new(RoomObjectKind.UpwardsScrollExtension, new(8, 35), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(8, 36), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(8, 37), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(8, 38), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(8, 39), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(8, 40), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(8, 41), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(8, 42), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
         new(RoomObjectKind.ScrollTrigger, new(8, 43), new ScrollTriggerSetup(RoomScrollChange.MorphBallClosesScreen2x2)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(88, 33), new ScrollExtensionSetup()),
+        new(RoomObjectKind.RightwardsScrollExtension, new(88, 33), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
         new(RoomObjectKind.ScrollTrigger, new(87, 33), new ScrollTriggerSetup(RoomScrollChange.MorphBallOpensScreen5x1)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(88, 10), new ScrollExtensionSetup()),
+        new(RoomObjectKind.RightwardsScrollExtension, new(88, 10), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
         new(RoomObjectKind.ScrollTrigger, new(87, 10), new ScrollTriggerSetup(RoomScrollChange.MorphBallOpensScreen5x1)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(88, 38), new ScrollExtensionSetup()),
+        new(RoomObjectKind.RightwardsScrollExtension, new(88, 38), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
         new(RoomObjectKind.ScrollTrigger, new(87, 38), new ScrollTriggerSetup(RoomScrollChange.MorphBallClosesScreen5x1)),
-        new(RoomObjectKind.ExposedMorphBall, new(69, 41), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.MorphBallDefaultExposedMorphBall))),
+        new(RoomObjectKind.ExposedMorphBall, new(69, 41), new CollectibleSetup(new(InWorldCollectibleKind.MorphBall, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.MorphBallDefaultExposedMorphBall))),
     ]);
 
     /// <summary>The MorphBallWhenZebesAwake room-object population.</summary>
     public static RoomObjectPopulation MorphBallWhenZebesAwake { get; } = RoomObjectPopulation.FromPlacements(nameof(MorphBallWhenZebesAwake),
     [
         new(RoomObjectKind.ScrollTrigger, new(31, 43), new ScrollTriggerSetup(RoomScrollChange.MorphBallOpensScreen2x2TopAligned)),
-        new(RoomObjectKind.UpwardsScrollExtension, new(8, 35), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(8, 36), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(8, 37), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(8, 38), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(8, 39), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(8, 40), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(8, 41), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(8, 42), new ScrollExtensionSetup()),
+        new(RoomObjectKind.UpwardsScrollExtension, new(8, 35), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(8, 36), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(8, 37), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(8, 38), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(8, 39), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(8, 40), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(8, 41), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(8, 42), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
         new(RoomObjectKind.ScrollTrigger, new(8, 43), new ScrollTriggerSetup(RoomScrollChange.MorphBallClosesScreen2x2)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(88, 33), new ScrollExtensionSetup()),
+        new(RoomObjectKind.RightwardsScrollExtension, new(88, 33), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
         new(RoomObjectKind.ScrollTrigger, new(87, 33), new ScrollTriggerSetup(RoomScrollChange.MorphBallOpensScreen5x1)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(88, 10), new ScrollExtensionSetup()),
+        new(RoomObjectKind.RightwardsScrollExtension, new(88, 10), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
         new(RoomObjectKind.ScrollTrigger, new(87, 10), new ScrollTriggerSetup(RoomScrollChange.MorphBallOpensScreen5x1)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(88, 38), new ScrollExtensionSetup()),
+        new(RoomObjectKind.RightwardsScrollExtension, new(88, 38), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
         new(RoomObjectKind.ScrollTrigger, new(87, 38), new ScrollTriggerSetup(RoomScrollChange.MorphBallClosesScreen5x1)),
-        new(RoomObjectKind.GreyDoorFacingRight, new(1, 38), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.EnemyDeathQuota, new LockedDoorArgument(LockedDoorDefinitions.MorphBallWhenZebesAwakeGreyDoorFacingRight, DoorOpeningPersistence.Persistent)))),
-        new(RoomObjectKind.ExposedPowerBombTank, new(40, 42), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.MorphBallWhenZebesAwakeExposedPowerBombTank))),
+        new(RoomObjectKind.GreyDoorFacingRight, new(1, 38), new GreyDoorSetup(new(ColoredDoorOrientation.Right, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.EnemyDeathQuota, new LockedDoorArgument(LockedDoorDefinitions.MorphBallWhenZebesAwakeGreyDoorFacingRight, DoorOpeningPersistence.Persistent)))),
+        new(RoomObjectKind.ExposedPowerBombTank, new(40, 42), new CollectibleSetup(new(InWorldCollectibleKind.PowerBombTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.MorphBallWhenZebesAwakeExposedPowerBombTank))),
     ]);
 
     /// <summary>The ConstructionZone room-object population.</summary>
     public static RoomObjectPopulation ConstructionZone { get; } = RoomObjectPopulation.FromPlacements(nameof(ConstructionZone),
     [
         new(RoomObjectKind.ScrollTrigger, new(4, 11), new ScrollTriggerSetup(RoomScrollChange.ConstructionZoneOpensScreen0x0OpensScreen0x1TopAligned)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(5, 11), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(6, 11), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(7, 11), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(8, 11), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(9, 11), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(10, 11), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(11, 11), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RedDoorFacingLeft, new(14, 6), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.ConstructionZoneRedDoorFacingLeft, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.RightwardsScrollExtension, new(5, 11), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(6, 11), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(7, 11), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(8, 11), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(9, 11), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(10, 11), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(11, 11), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RedDoorFacingLeft, new(14, 6), new ColoredDoorSetup(new(ColoredDoorColor.Red, ColoredDoorOrientation.Left), new LockedDoorArgument(LockedDoorDefinitions.ConstructionZoneRedDoorFacingLeft, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The BlueBrinstarEnergyTank room-object population.</summary>
@@ -605,14 +606,14 @@ internal static class RoomObjectPopulationDefinitions
     [
         new(RoomObjectKind.ScrollTrigger, new(39, 11), new ScrollTriggerSetup(RoomScrollChange.BlueBrinstarEnergyTankOpensScreen2x1)),
         new(RoomObjectKind.ScrollTrigger, new(39, 38), new ScrollTriggerSetup(RoomScrollChange.BlueBrinstarEnergyTankOpensScreen2x1)),
-        new(RoomObjectKind.ExposedMissileTank, new(46, 41), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.BlueBrinstarEnergyTankExposedMissileTank))),
-        new(RoomObjectKind.ShotBlockEnergyTank, new(28, 34), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.BlueBrinstarEnergyTankShotBlockEnergyTank))),
+        new(RoomObjectKind.ExposedMissileTank, new(46, 41), new CollectibleSetup(new(InWorldCollectibleKind.MissileTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.BlueBrinstarEnergyTankExposedMissileTank))),
+        new(RoomObjectKind.ShotBlockEnergyTank, new(28, 34), new CollectibleSetup(new(InWorldCollectibleKind.EnergyTank, CollectiblePresentation.ShotBlock), new CollectedItemArgument(ItemLocationDefinitions.BlueBrinstarEnergyTankShotBlockEnergyTank))),
     ]);
 
     /// <summary>The NoobBridge room-object population.</summary>
     public static RoomObjectPopulation NoobBridge { get; } = RoomObjectPopulation.FromPlacements(nameof(NoobBridge),
     [
-        new(RoomObjectKind.GreenDoorFacingLeft, new(94, 6), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.NoobBridgeGreenDoorFacingLeft, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.GreenDoorFacingLeft, new(94, 6), new ColoredDoorSetup(new(ColoredDoorColor.Green, ColoredDoorOrientation.Left), new LockedDoorArgument(LockedDoorDefinitions.NoobBridgeGreenDoorFacingLeft, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The GreenBrinstarBeetoms room-object population.</summary>
@@ -624,43 +625,43 @@ internal static class RoomObjectPopulationDefinitions
     public static RoomObjectPopulation EtecoonEnergyTank { get; } = RoomObjectPopulation.FromPlacements(nameof(EtecoonEnergyTank),
     [
         new(RoomObjectKind.ScrollTrigger, new(7, 11), new ScrollTriggerSetup(RoomScrollChange.EtecoonEnergyTankOpensScreen1x0OpensScreens0x1And1x1TopAligned)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(8, 11), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(9, 11), new ScrollExtensionSetup()),
-        new(RoomObjectKind.ExposedEnergyTank, new(5, 9), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.EtecoonEnergyTankExposedEnergyTank))),
-        new(RoomObjectKind.GreenDoorFacingRight, new(1, 6), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.EtecoonEnergyTankGreenDoorFacingRight, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.RightwardsScrollExtension, new(8, 11), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(9, 11), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.ExposedEnergyTank, new(5, 9), new CollectibleSetup(new(InWorldCollectibleKind.EnergyTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.EtecoonEnergyTankExposedEnergyTank))),
+        new(RoomObjectKind.GreenDoorFacingRight, new(1, 6), new ColoredDoorSetup(new(ColoredDoorColor.Green, ColoredDoorOrientation.Right), new LockedDoorArgument(LockedDoorDefinitions.EtecoonEnergyTankGreenDoorFacingRight, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The EtecoonSuper room-object population.</summary>
     public static RoomObjectPopulation EtecoonSuper { get; } = RoomObjectPopulation.FromPlacements(nameof(EtecoonSuper),
     [
-        new(RoomObjectKind.ExposedSuperMissileTank, new(7, 9), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.EtecoonSuperExposedSuperMissileTank))),
+        new(RoomObjectKind.ExposedSuperMissileTank, new(7, 9), new CollectibleSetup(new(InWorldCollectibleKind.SuperMissileTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.EtecoonSuperExposedSuperMissileTank))),
     ]);
 
     /// <summary>The DachoraEnergyRefill room-object population.</summary>
     public static RoomObjectPopulation DachoraEnergyRefill { get; } = RoomObjectPopulation.FromPlacements(nameof(DachoraEnergyRefill),
     [
-        new(RoomObjectKind.EnergyStation, new(4, 10), new StationSetup(null)),
+        new(RoomObjectKind.EnergyStation, new(4, 10), new StationSetup(StationKind.Energy, null)),
     ]);
 
     /// <summary>The SporeSpawnFarming room-object population.</summary>
     public static RoomObjectPopulation SporeSpawnFarming { get; } = RoomObjectPopulation.FromPlacements(nameof(SporeSpawnFarming),
     [
-        new(RoomObjectKind.GreenDoorFacingRight, new(1, 6), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.SporeSpawnFarmingGreenDoorFacingRight, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.GreenDoorFacingRight, new(1, 6), new ColoredDoorSetup(new(ColoredDoorColor.Green, ColoredDoorOrientation.Right), new LockedDoorArgument(LockedDoorDefinitions.SporeSpawnFarmingGreenDoorFacingRight, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The WaterwayEnergyTank room-object population.</summary>
     public static RoomObjectPopulation WaterwayEnergyTank { get; } = RoomObjectPopulation.FromPlacements(nameof(WaterwayEnergyTank),
     [
-        new(RoomObjectKind.UpwardsScrollExtension, new(15, 9), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(15, 10), new ScrollExtensionSetup()),
+        new(RoomObjectKind.UpwardsScrollExtension, new(15, 9), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(15, 10), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
         new(RoomObjectKind.ScrollTrigger, new(15, 11), new ScrollTriggerSetup(RoomScrollChange.WaterwayEnergyTankOpensScreen0x0TopAligned)),
-        new(RoomObjectKind.ExposedEnergyTank, new(4, 9), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.WaterwayEnergyTankExposedEnergyTank))),
+        new(RoomObjectKind.ExposedEnergyTank, new(4, 9), new CollectibleSetup(new(InWorldCollectibleKind.EnergyTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.WaterwayEnergyTankExposedEnergyTank))),
     ]);
 
     /// <summary>The FirstMissile room-object population.</summary>
     public static RoomObjectPopulation FirstMissile { get; } = RoomObjectPopulation.FromPlacements(nameof(FirstMissile),
     [
-        new(RoomObjectKind.ChozoMissileTank, new(4, 7), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.FirstMissileChozoMissileTank))),
+        new(RoomObjectKind.ChozoMissileTank, new(4, 7), new CollectibleSetup(new(InWorldCollectibleKind.MissileTank, CollectiblePresentation.ChozoOrb), new CollectedItemArgument(ItemLocationDefinitions.FirstMissileChozoMissileTank))),
     ]);
 
     /// <summary>The PinkBrinstarHoppers room-object population.</summary>
@@ -668,20 +669,20 @@ internal static class RoomObjectPopulationDefinitions
     [
         new(RoomObjectKind.DownwardGate, new(17, 4), new DownwardGateSetup()),
         new(RoomObjectKind.DownwardGateShotBlock, new(17, 4), new DownwardGateShotBlockSetup(new GateTriggerArgument(DownwardGateTriggerBehavior.BlueRight))),
-        new(RoomObjectKind.GreyDoorFacingRight, new(1, 22), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.EnemyDeathQuota, new LockedDoorArgument(LockedDoorDefinitions.PinkBrinstarHoppersGreyDoorFacingRight, DoorOpeningPersistence.Persistent)))),
-        new(RoomObjectKind.GreyDoorFacingLeft, new(30, 22), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.EnemyDeathQuota, new LockedDoorArgument(LockedDoorDefinitions.PinkBrinstarHoppersGreyDoorFacingLeft, DoorOpeningPersistence.Persistent)))),
+        new(RoomObjectKind.GreyDoorFacingRight, new(1, 22), new GreyDoorSetup(new(ColoredDoorOrientation.Right, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.EnemyDeathQuota, new LockedDoorArgument(LockedDoorDefinitions.PinkBrinstarHoppersGreyDoorFacingRight, DoorOpeningPersistence.Persistent)))),
+        new(RoomObjectKind.GreyDoorFacingLeft, new(30, 22), new GreyDoorSetup(new(ColoredDoorOrientation.Left, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.EnemyDeathQuota, new LockedDoorArgument(LockedDoorDefinitions.PinkBrinstarHoppersGreyDoorFacingLeft, DoorOpeningPersistence.Persistent)))),
     ]);
 
     /// <summary>The HopperEnergyTank room-object population.</summary>
     public static RoomObjectPopulation HopperEnergyTank { get; } = RoomObjectPopulation.FromPlacements(nameof(HopperEnergyTank),
     [
-        new(RoomObjectKind.ExposedEnergyTank, new(11, 9), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.HopperEnergyTankExposedEnergyTank))),
+        new(RoomObjectKind.ExposedEnergyTank, new(11, 9), new CollectibleSetup(new(InWorldCollectibleKind.EnergyTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.HopperEnergyTankExposedEnergyTank))),
     ]);
 
     /// <summary>The BigPinkSaveRoom room-object population.</summary>
     public static RoomObjectPopulation BigPinkSaveRoom { get; } = RoomObjectPopulation.FromPlacements(nameof(BigPinkSaveRoom),
     [
-        new(RoomObjectKind.SaveStation, new(5, 11), new StationSetup(new SaveStationArgument(LoadStationDefinitions.BigPinkSave))),
+        new(RoomObjectKind.SaveStation, new(5, 11), new StationSetup(StationKind.Save, new SaveStationArgument(LoadStationDefinitions.BigPinkSave))),
     ]);
 
     /// <summary>The BlueBrinstarBoulders room-object population.</summary>
@@ -692,41 +693,41 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The BillyMays room-object population.</summary>
     public static RoomObjectPopulation BillyMays { get; } = RoomObjectPopulation.FromPlacements(nameof(BillyMays),
     [
-        new(RoomObjectKind.ExposedMissileTank, new(7, 9), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.BillyMaysExposedMissileTank))),
-        new(RoomObjectKind.ShotBlockMissileTank, new(5, 12), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.BillyMaysShotBlockMissileTank))),
+        new(RoomObjectKind.ExposedMissileTank, new(7, 9), new CollectibleSetup(new(InWorldCollectibleKind.MissileTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.BillyMaysExposedMissileTank))),
+        new(RoomObjectKind.ShotBlockMissileTank, new(5, 12), new CollectibleSetup(new(InWorldCollectibleKind.MissileTank, CollectiblePresentation.ShotBlock), new CollectedItemArgument(ItemLocationDefinitions.BillyMaysShotBlockMissileTank))),
     ]);
 
     /// <summary>The GreenBrinstarSave room-object population.</summary>
     public static RoomObjectPopulation GreenBrinstarSave { get; } = RoomObjectPopulation.FromPlacements(nameof(GreenBrinstarSave),
     [
-        new(RoomObjectKind.SaveStation, new(5, 11), new StationSetup(new SaveStationArgument(LoadStationDefinitions.GreenBrinstarSave))),
+        new(RoomObjectKind.SaveStation, new(5, 11), new StationSetup(StationKind.Save, new SaveStationArgument(LoadStationDefinitions.GreenBrinstarSave))),
     ]);
 
     /// <summary>The EtecoonSave room-object population.</summary>
     public static RoomObjectPopulation EtecoonSave { get; } = RoomObjectPopulation.FromPlacements(nameof(EtecoonSave),
     [
-        new(RoomObjectKind.SaveStation, new(5, 11), new StationSetup(new SaveStationArgument(LoadStationDefinitions.EtecoonSave))),
+        new(RoomObjectKind.SaveStation, new(5, 11), new StationSetup(StationKind.Save, new SaveStationArgument(LoadStationDefinitions.EtecoonSave))),
     ]);
 
     /// <summary>The RedTower room-object population.</summary>
     public static RoomObjectPopulation RedTower { get; } = RoomObjectPopulation.FromPlacements(nameof(RedTower),
     [
         new(RoomObjectKind.ScrollTrigger, new(9, 106), new ScrollTriggerSetup(RoomScrollChange.RedTowerOpensScreens0x6And0x7)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(10, 106), new ScrollExtensionSetup()),
-        new(RoomObjectKind.GreenDoorFacingRight, new(1, 150), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.RedTowerGreenDoorFacingRight, DoorOpeningPersistence.Persistent))),
-        new(RoomObjectKind.YellowDoorFacingRight, new(1, 102), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.RedTowerYellowDoorFacingRight, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.RightwardsScrollExtension, new(10, 106), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.GreenDoorFacingRight, new(1, 150), new ColoredDoorSetup(new(ColoredDoorColor.Green, ColoredDoorOrientation.Right), new LockedDoorArgument(LockedDoorDefinitions.RedTowerGreenDoorFacingRight, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.YellowDoorFacingRight, new(1, 102), new ColoredDoorSetup(new(ColoredDoorColor.Yellow, ColoredDoorOrientation.Right), new LockedDoorArgument(LockedDoorDefinitions.RedTowerYellowDoorFacingRight, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The RedBrinstarFirefleas room-object population.</summary>
     public static RoomObjectPopulation RedBrinstarFirefleas { get; } = RoomObjectPopulation.FromPlacements(nameof(RedBrinstarFirefleas),
     [
-        new(RoomObjectKind.RedDoorFacingRight, new(1, 6), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.RedBrinstarFirefleasRedDoorFacingRight, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.RedDoorFacingRight, new(1, 6), new ColoredDoorSetup(new(ColoredDoorColor.Red, ColoredDoorOrientation.Right), new LockedDoorArgument(LockedDoorDefinitions.RedBrinstarFirefleasRedDoorFacingRight, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The XrayScope room-object population.</summary>
     public static RoomObjectPopulation XrayScope { get; } = RoomObjectPopulation.FromPlacements(nameof(XrayScope),
     [
-        new(RoomObjectKind.ChozoXrayScope, new(5, 7), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.XrayScopeChozoXrayScope))),
+        new(RoomObjectKind.ChozoXrayScope, new(5, 7), new CollectibleSetup(new(InWorldCollectibleKind.XrayScope, CollectiblePresentation.ChozoOrb), new CollectedItemArgument(ItemLocationDefinitions.XrayScopeChozoXrayScope))),
     ]);
 
     /// <summary>The Hellway room-object population.</summary>
@@ -738,40 +739,40 @@ internal static class RoomObjectPopulationDefinitions
     public static RoomObjectPopulation Caterpillar { get; } = RoomObjectPopulation.FromPlacements(nameof(Caterpillar),
     [
         new(RoomObjectKind.ScrollTrigger, new(5, 94), new ScrollTriggerSetup(RoomScrollChange.CaterpillarOpensScreens0x5And0x6)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(6, 94), new ScrollExtensionSetup()),
+        new(RoomObjectKind.RightwardsScrollExtension, new(6, 94), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
         new(RoomObjectKind.ScrollTrigger, new(16, 55), new ScrollTriggerSetup(RoomScrollChange.CaterpillarOpensScreen0x3OpensScreen1x3TopAligned)),
         new(RoomObjectKind.ScrollTrigger, new(13, 55), new ScrollTriggerSetup(RoomScrollChange.CaterpillarClosesScreen1x3)),
         new(RoomObjectKind.ElevatorPlatform, new(6, 44), new ElevatorPlatformSetup()),
         new(RoomObjectKind.DownwardGate, new(38, 53), new DownwardGateSetup()),
         new(RoomObjectKind.DownwardGateShotBlock, new(38, 53), new DownwardGateShotBlockSetup(new GateTriggerArgument(DownwardGateTriggerBehavior.GreenRight))),
-        new(RoomObjectKind.GreenDoorFacingRight, new(1, 54), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.CaterpillarGreenDoorFacingRightAt1x54, DoorOpeningPersistence.Persistent))),
-        new(RoomObjectKind.YellowDoorFacingRight, new(1, 86), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.CaterpillarYellowDoorFacingRight, DoorOpeningPersistence.Persistent))),
-        new(RoomObjectKind.GreenDoorFacingRight, new(1, 118), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.CaterpillarGreenDoorFacingRightAt1x118, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.GreenDoorFacingRight, new(1, 54), new ColoredDoorSetup(new(ColoredDoorColor.Green, ColoredDoorOrientation.Right), new LockedDoorArgument(LockedDoorDefinitions.CaterpillarGreenDoorFacingRightAt1x54, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.YellowDoorFacingRight, new(1, 86), new ColoredDoorSetup(new(ColoredDoorColor.Yellow, ColoredDoorOrientation.Right), new LockedDoorArgument(LockedDoorDefinitions.CaterpillarYellowDoorFacingRight, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.GreenDoorFacingRight, new(1, 118), new ColoredDoorSetup(new(ColoredDoorColor.Green, ColoredDoorOrientation.Right), new LockedDoorArgument(LockedDoorDefinitions.CaterpillarGreenDoorFacingRightAt1x118, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The BetaPowerBomb room-object population.</summary>
     public static RoomObjectPopulation BetaPowerBomb { get; } = RoomObjectPopulation.FromPlacements(nameof(BetaPowerBomb),
     [
         new(RoomObjectKind.ScrollTrigger, new(7, 14), new ScrollTriggerSetup(RoomScrollChange.BetaPowerBombOpensScreen0x0OpensScreen0x1TopAligned)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(8, 14), new ScrollExtensionSetup()),
-        new(RoomObjectKind.ExposedPowerBombTank, new(4, 19), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.BetaPowerBombExposedPowerBombTank))),
-        new(RoomObjectKind.GreyDoorFacingLeft, new(30, 6), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.EnemyDeathQuota, new LockedDoorArgument(LockedDoorDefinitions.BetaPowerBombGreyDoorFacingLeft, DoorOpeningPersistence.Persistent)))),
+        new(RoomObjectKind.RightwardsScrollExtension, new(8, 14), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.ExposedPowerBombTank, new(4, 19), new CollectibleSetup(new(InWorldCollectibleKind.PowerBombTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.BetaPowerBombExposedPowerBombTank))),
+        new(RoomObjectKind.GreyDoorFacingLeft, new(30, 6), new GreyDoorSetup(new(ColoredDoorOrientation.Left, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.EnemyDeathQuota, new LockedDoorArgument(LockedDoorDefinitions.BetaPowerBombGreyDoorFacingLeft, DoorOpeningPersistence.Persistent)))),
     ]);
 
     /// <summary>The AlphaPowerBomb room-object population.</summary>
     public static RoomObjectPopulation AlphaPowerBomb { get; } = RoomObjectPopulation.FromPlacements(nameof(AlphaPowerBomb),
     [
-        new(RoomObjectKind.UpwardsScrollExtension, new(15, 4), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(15, 5), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(15, 6), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(15, 7), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(15, 8), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(15, 9), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(15, 10), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(15, 11), new ScrollExtensionSetup()),
+        new(RoomObjectKind.UpwardsScrollExtension, new(15, 4), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(15, 5), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(15, 6), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(15, 7), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(15, 8), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(15, 9), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(15, 10), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(15, 11), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
         new(RoomObjectKind.ScrollTrigger, new(15, 12), new ScrollTriggerSetup(RoomScrollChange.AlphaPowerBombOpensScreen0x0TopAligned)),
-        new(RoomObjectKind.ChozoPowerBombTank, new(20, 9), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.AlphaPowerBombChozoPowerBombTank))),
-        new(RoomObjectKind.ExposedMissileTank, new(2, 8), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.AlphaPowerBombExposedMissileTank))),
+        new(RoomObjectKind.ChozoPowerBombTank, new(20, 9), new CollectibleSetup(new(InWorldCollectibleKind.PowerBombTank, CollectiblePresentation.ChozoOrb), new CollectedItemArgument(ItemLocationDefinitions.AlphaPowerBombChozoPowerBombTank))),
+        new(RoomObjectKind.ExposedMissileTank, new(2, 8), new CollectibleSetup(new(InWorldCollectibleKind.MissileTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.AlphaPowerBombExposedMissileTank))),
     ]);
 
     /// <summary>The SkreeBoost room-object population.</summary>
@@ -783,24 +784,24 @@ internal static class RoomObjectPopulationDefinitions
     public static RoomObjectPopulation BelowSpazer { get; } = RoomObjectPopulation.FromPlacements(nameof(BelowSpazer),
     [
         new(RoomObjectKind.ScrollTrigger, new(16, 17), new ScrollTriggerSetup(RoomScrollChange.BelowSpazerOpensScreens0x0And1x0)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(17, 17), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(18, 17), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(19, 17), new ScrollExtensionSetup()),
+        new(RoomObjectKind.RightwardsScrollExtension, new(17, 17), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(18, 17), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(19, 17), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
         new(RoomObjectKind.ScrollTrigger, new(16, 20), new ScrollTriggerSetup(RoomScrollChange.BelowSpazerClosesScreens0x0And1x0OpensScreens0x1And1x1TopAligned)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(17, 20), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(18, 20), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(19, 20), new ScrollExtensionSetup()),
+        new(RoomObjectKind.RightwardsScrollExtension, new(17, 20), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(18, 20), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(19, 20), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
         new(RoomObjectKind.ScrollTrigger, new(8, 17), new ScrollTriggerSetup(RoomScrollChange.BelowSpazerOpensScreens0x0And1x0)),
         new(RoomObjectKind.ScrollTrigger, new(8, 20), new ScrollTriggerSetup(RoomScrollChange.BelowSpazerClosesScreens0x0And1x0OpensScreens0x1And1x1TopAligned)),
         new(RoomObjectKind.ScrollTrigger, new(2, 17), new ScrollTriggerSetup(RoomScrollChange.BelowSpazerOpensScreens0x0And1x0)),
         new(RoomObjectKind.ScrollTrigger, new(2, 20), new ScrollTriggerSetup(RoomScrollChange.BelowSpazerClosesScreens0x0And1x0OpensScreens0x1And1x1TopAligned)),
-        new(RoomObjectKind.GreenDoorFacingLeft, new(30, 6), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.BelowSpazerGreenDoorFacingLeft, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.GreenDoorFacingLeft, new(30, 6), new ColoredDoorSetup(new(ColoredDoorColor.Green, ColoredDoorOrientation.Left), new LockedDoorArgument(LockedDoorDefinitions.BelowSpazerGreenDoorFacingLeft, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The Spazer room-object population.</summary>
     public static RoomObjectPopulation Spazer { get; } = RoomObjectPopulation.FromPlacements(nameof(Spazer),
     [
-        new(RoomObjectKind.ChozoSpazerBeam, new(11, 9), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.SpazerChozoSpazerBeam))),
+        new(RoomObjectKind.ChozoSpazerBeam, new(11, 9), new CollectibleSetup(new(InWorldCollectibleKind.SpazerBeam, CollectiblePresentation.ChozoOrb), new CollectedItemArgument(ItemLocationDefinitions.SpazerChozoSpazerBeam))),
     ]);
 
     /// <summary>The WarehouseZeela room-object population.</summary>
@@ -810,14 +811,14 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectKind.ScrollTrigger, new(2, 25), new ScrollTriggerSetup(RoomScrollChange.WarehouseZeelaOpensScreen0x0OpensScreen0x1TopAligned)),
         new(RoomObjectKind.ScrollTrigger, new(7, 25), new ScrollTriggerSetup(RoomScrollChange.WarehouseZeelaOpensScreen1x1TopAligned)),
         new(RoomObjectKind.ScrollTrigger, new(21, 25), new ScrollTriggerSetup(RoomScrollChange.WarehouseZeelaOpensScreen0x0OpensScreen0x1TopAligned)),
-        new(RoomObjectKind.GreyDoorFacingRight, new(1, 22), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.AreaBossDefeated, new LockedDoorArgument(LockedDoorDefinitions.WarehouseZeelaGreyDoorFacingRight, DoorOpeningPersistence.Persistent)))),
+        new(RoomObjectKind.GreyDoorFacingRight, new(1, 22), new GreyDoorSetup(new(ColoredDoorOrientation.Right, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.AreaBossDefeated, new LockedDoorArgument(LockedDoorDefinitions.WarehouseZeelaGreyDoorFacingRight, DoorOpeningPersistence.Persistent)))),
     ]);
 
     /// <summary>The WarehouseEnergyTank room-object population.</summary>
     public static RoomObjectPopulation WarehouseEnergyTank { get; } = RoomObjectPopulation.FromPlacements(nameof(WarehouseEnergyTank),
     [
-        new(RoomObjectKind.GreyDoorFacingLeft, new(14, 6), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.EnemyDeathQuota, new LockedDoorArgument(LockedDoorDefinitions.WarehouseEnergyTankGreyDoorFacingLeft, DoorOpeningPersistence.Persistent)))),
-        new(RoomObjectKind.ShotBlockEnergyTank, new(5, 4), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.WarehouseEnergyTankShotBlockEnergyTank))),
+        new(RoomObjectKind.GreyDoorFacingLeft, new(14, 6), new GreyDoorSetup(new(ColoredDoorOrientation.Left, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.EnemyDeathQuota, new LockedDoorArgument(LockedDoorDefinitions.WarehouseEnergyTankGreyDoorFacingLeft, DoorOpeningPersistence.Persistent)))),
+        new(RoomObjectKind.ShotBlockEnergyTank, new(5, 4), new CollectibleSetup(new(InWorldCollectibleKind.EnergyTank, CollectiblePresentation.ShotBlock), new CollectedItemArgument(ItemLocationDefinitions.WarehouseEnergyTankShotBlockEnergyTank))),
     ]);
 
     /// <summary>The WarehouseKihunter room-object population.</summary>
@@ -825,43 +826,43 @@ internal static class RoomObjectPopulationDefinitions
     [
         new(RoomObjectKind.ScrollTrigger, new(23, 11), new ScrollTriggerSetup(RoomScrollChange.WarehouseKihunterClosesScreen1x1OpensScreen1x0TopAligned)),
         new(RoomObjectKind.ScrollTrigger, new(23, 14), new ScrollTriggerSetup(RoomScrollChange.WarehouseKihunterOpensScreen1x0OpensScreen1x1TopAligned)),
-        new(RoomObjectKind.UpwardsScrollExtension, new(11, 4), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(11, 5), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(11, 6), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(11, 7), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(11, 8), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(11, 9), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(11, 10), new ScrollExtensionSetup()),
+        new(RoomObjectKind.UpwardsScrollExtension, new(11, 4), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(11, 5), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(11, 6), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(11, 7), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(11, 8), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(11, 9), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(11, 10), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
         new(RoomObjectKind.ScrollTrigger, new(11, 11), new ScrollTriggerSetup(RoomScrollChange.WarehouseKihunterClosesScreen1x1)),
         new(RoomObjectKind.ScrollTrigger, new(39, 12), new ScrollTriggerSetup(RoomScrollChange.WarehouseKihunterClosesScreen1x1OpensScreen3x0TopAligned)),
         new(RoomObjectKind.ScrollTrigger, new(46, 12), new ScrollTriggerSetup(RoomScrollChange.WarehouseKihunterClosesScreen1x1OpensScreen3x0TopAligned)),
-        new(RoomObjectKind.ShotBlockMissileTank, new(46, 8), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.WarehouseKihunterShotBlockMissileTank))),
+        new(RoomObjectKind.ShotBlockMissileTank, new(46, 8), new CollectibleSetup(new(InWorldCollectibleKind.MissileTank, CollectiblePresentation.ShotBlock), new CollectedItemArgument(ItemLocationDefinitions.WarehouseKihunterShotBlockMissileTank))),
     ]);
 
     /// <summary>The MiniKraid room-object population.</summary>
     public static RoomObjectPopulation MiniKraid { get; } = RoomObjectPopulation.FromPlacements(nameof(MiniKraid),
     [
-        new(RoomObjectKind.GreyDoorFacingLeft, new(94, 6), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.EnemyDeathQuota, new LockedDoorArgument(LockedDoorDefinitions.MiniKraidGreyDoorFacingLeft, DoorOpeningPersistence.Persistent)))),
-        new(RoomObjectKind.GreyDoorFacingRight, new(1, 6), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.EnemyDeathQuota, new LockedDoorArgument(LockedDoorDefinitions.MiniKraidGreyDoorFacingRight, DoorOpeningPersistence.Persistent)))),
+        new(RoomObjectKind.GreyDoorFacingLeft, new(94, 6), new GreyDoorSetup(new(ColoredDoorOrientation.Left, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.EnemyDeathQuota, new LockedDoorArgument(LockedDoorDefinitions.MiniKraidGreyDoorFacingLeft, DoorOpeningPersistence.Persistent)))),
+        new(RoomObjectKind.GreyDoorFacingRight, new(1, 6), new GreyDoorSetup(new(ColoredDoorOrientation.Right, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.EnemyDeathQuota, new LockedDoorArgument(LockedDoorDefinitions.MiniKraidGreyDoorFacingRight, DoorOpeningPersistence.Persistent)))),
     ]);
 
     /// <summary>The KraidEyeDoor room-object population.</summary>
     public static RoomObjectPopulation KraidEyeDoor { get; } = RoomObjectPopulation.FromPlacements(nameof(KraidEyeDoor),
     [
         new(RoomObjectKind.ScrollTrigger, new(3, 18), new ScrollTriggerSetup(RoomScrollChange.KraidEyeDoorOpensScreen0x0)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(4, 18), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(5, 18), new ScrollExtensionSetup()),
-        new(RoomObjectKind.GreenDoorFacingLeft, new(14, 6), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.KraidEyeDoorGreenDoorFacingLeft, DoorOpeningPersistence.Persistent))),
-        new(RoomObjectKind.EyeDoorFacingLeft, new(30, 22), new EyeDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.KraidEyeDoorEyeDoorFacingLeft, DoorOpeningPersistence.Persistent))),
-        new(RoomObjectKind.EyeDoorBottomFacingLeft, new(30, 25), new EyeDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.KraidEyeDoorEyeDoorFacingLeft, DoorOpeningPersistence.Persistent))),
-        new(RoomObjectKind.EyeDoorEyeFacingLeft, new(30, 23), new EyeDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.KraidEyeDoorEyeDoorFacingLeft, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.RightwardsScrollExtension, new(4, 18), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(5, 18), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.GreenDoorFacingLeft, new(14, 6), new ColoredDoorSetup(new(ColoredDoorColor.Green, ColoredDoorOrientation.Left), new LockedDoorArgument(LockedDoorDefinitions.KraidEyeDoorGreenDoorFacingLeft, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.EyeDoorFacingLeft, new(30, 22), new EyeDoorPartSetup(new(EyeDoorBodyPart.Middle, EyeDoorOrientation.Left), new LockedDoorArgument(LockedDoorDefinitions.KraidEyeDoorEyeDoorFacingLeft, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.EyeDoorBottomFacingLeft, new(30, 25), new EyeDoorPartSetup(new(EyeDoorBodyPart.Bottom, EyeDoorOrientation.Left), new LockedDoorArgument(LockedDoorDefinitions.KraidEyeDoorEyeDoorFacingLeft, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.EyeDoorEyeFacingLeft, new(30, 23), new EyeDoorEyeSetup(EyeDoorOrientation.Left, new LockedDoorArgument(LockedDoorDefinitions.KraidEyeDoorEyeDoorFacingLeft, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The Kraid room-object population.</summary>
     public static RoomObjectPopulation Kraid { get; } = RoomObjectPopulation.FromPlacements(nameof(Kraid),
     [
-        new(RoomObjectKind.GreyDoorFacingLeft, new(30, 22), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.AreaBossDefeated, new LockedDoorArgument(LockedDoorDefinitions.KraidGreyDoorFacingLeft, DoorOpeningPersistence.Persistent)))),
-        new(RoomObjectKind.GreyDoorFacingRight, new(1, 22), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.AreaBossDefeated, new LockedDoorArgument(LockedDoorDefinitions.KraidGreyDoorFacingRight, DoorOpeningPersistence.Persistent)))),
+        new(RoomObjectKind.GreyDoorFacingLeft, new(30, 22), new GreyDoorSetup(new(ColoredDoorOrientation.Left, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.AreaBossDefeated, new LockedDoorArgument(LockedDoorDefinitions.KraidGreyDoorFacingLeft, DoorOpeningPersistence.Persistent)))),
+        new(RoomObjectKind.GreyDoorFacingRight, new(1, 22), new GreyDoorSetup(new(ColoredDoorOrientation.Right, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.AreaBossDefeated, new LockedDoorArgument(LockedDoorDefinitions.KraidGreyDoorFacingRight, DoorOpeningPersistence.Persistent)))),
     ]);
 
     /// <summary>The StatuesHallway room-object population.</summary>
@@ -872,61 +873,61 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The RedTowerRefill room-object population.</summary>
     public static RoomObjectPopulation RedTowerRefill { get; } = RoomObjectPopulation.FromPlacements(nameof(RedTowerRefill),
     [
-        new(RoomObjectKind.EnergyStation, new(4, 10), new StationSetup(null)),
+        new(RoomObjectKind.EnergyStation, new(4, 10), new StationSetup(StationKind.Energy, null)),
     ]);
 
     /// <summary>The KraidRefill room-object population.</summary>
     public static RoomObjectPopulation KraidRefill { get; } = RoomObjectPopulation.FromPlacements(nameof(KraidRefill),
     [
-        new(RoomObjectKind.MissileStation, new(9, 10), new StationSetup(null)),
-        new(RoomObjectKind.EnergyStation, new(7, 10), new StationSetup(null)),
+        new(RoomObjectKind.MissileStation, new(9, 10), new StationSetup(StationKind.Missile, null)),
+        new(RoomObjectKind.EnergyStation, new(7, 10), new StationSetup(StationKind.Energy, null)),
     ]);
 
     /// <summary>The Statues room-object population.</summary>
     public static RoomObjectPopulation Statues { get; } = RoomObjectPopulation.FromPlacements(nameof(Statues),
     [
-        new(RoomObjectKind.GreyDoorFacingRight, new(1, 6), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.TourianStatueFinished, new LockedDoorArgument(LockedDoorDefinitions.StatuesGreyDoorFacingRight, DoorOpeningPersistence.Transient)))),
+        new(RoomObjectKind.GreyDoorFacingRight, new(1, 6), new GreyDoorSetup(new(ColoredDoorOrientation.Right, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.TourianStatueFinished, new LockedDoorArgument(LockedDoorDefinitions.StatuesGreyDoorFacingRight, DoorOpeningPersistence.Transient)))),
     ]);
 
     /// <summary>The WarehouseEntrance room-object population.</summary>
     public static RoomObjectPopulation WarehouseEntrance { get; } = RoomObjectPopulation.FromPlacements(nameof(WarehouseEntrance),
     [
         new(RoomObjectKind.ScrollTrigger, new(7, 12), new ScrollTriggerSetup(RoomScrollChange.WarehouseEntranceOpensScreen0x0)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(8, 12), new ScrollExtensionSetup()),
+        new(RoomObjectKind.RightwardsScrollExtension, new(8, 12), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
         new(RoomObjectKind.ScrollTrigger, new(16, 9), new ScrollTriggerSetup(RoomScrollChange.WarehouseEntranceOpensScreen1x0)),
-        new(RoomObjectKind.UpwardsScrollExtension, new(16, 8), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(16, 7), new ScrollExtensionSetup()),
+        new(RoomObjectKind.UpwardsScrollExtension, new(16, 8), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(16, 7), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
         new(RoomObjectKind.ScrollTrigger, new(18, 9), new ScrollTriggerSetup(RoomScrollChange.WarehouseEntranceOpensScreen0x0TopAligned)),
-        new(RoomObjectKind.UpwardsScrollExtension, new(18, 8), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(18, 7), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(18, 6), new ScrollExtensionSetup()),
+        new(RoomObjectKind.UpwardsScrollExtension, new(18, 8), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(18, 7), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(18, 6), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
         new(RoomObjectKind.ScrollTrigger, new(19, 11), new ScrollTriggerSetup(RoomScrollChange.WarehouseEntranceClosesScreen0x0)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(20, 11), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(20, 10), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(20, 9), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(20, 8), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(20, 7), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(20, 6), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(20, 5), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(20, 4), new ScrollExtensionSetup()),
+        new(RoomObjectKind.RightwardsScrollExtension, new(20, 11), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(20, 10), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(20, 9), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(20, 8), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(20, 7), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(20, 6), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(20, 5), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(20, 4), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
     ]);
 
     /// <summary>The VariaSuit room-object population.</summary>
     public static RoomObjectPopulation VariaSuit { get; } = RoomObjectPopulation.FromPlacements(nameof(VariaSuit),
     [
-        new(RoomObjectKind.ChozoVariaSuit, new(7, 9), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.VariaSuitChozoVariaSuit))),
+        new(RoomObjectKind.ChozoVariaSuit, new(7, 9), new CollectibleSetup(new(InWorldCollectibleKind.VariaSuit, CollectiblePresentation.ChozoOrb), new CollectedItemArgument(ItemLocationDefinitions.VariaSuitChozoVariaSuit))),
     ]);
 
     /// <summary>The WarehouseSave room-object population.</summary>
     public static RoomObjectPopulation WarehouseSave { get; } = RoomObjectPopulation.FromPlacements(nameof(WarehouseSave),
     [
-        new(RoomObjectKind.SaveStation, new(7, 11), new StationSetup(new SaveStationArgument(LoadStationDefinitions.WarehouseSave))),
+        new(RoomObjectKind.SaveStation, new(7, 11), new StationSetup(StationKind.Save, new SaveStationArgument(LoadStationDefinitions.WarehouseSave))),
     ]);
 
     /// <summary>The RedBrinstarSave room-object population.</summary>
     public static RoomObjectPopulation RedBrinstarSave { get; } = RoomObjectPopulation.FromPlacements(nameof(RedBrinstarSave),
     [
-        new(RoomObjectKind.SaveStation, new(7, 11), new StationSetup(new SaveStationArgument(LoadStationDefinitions.RedBrinstarSave))),
+        new(RoomObjectKind.SaveStation, new(7, 11), new StationSetup(StationKind.Save, new SaveStationArgument(LoadStationDefinitions.RedBrinstarSave))),
     ]);
 
     /// <summary>The IceBeamAcid room-object population.</summary>
@@ -937,30 +938,30 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The Cathedral room-object population.</summary>
     public static RoomObjectPopulation Cathedral { get; } = RoomObjectPopulation.FromPlacements(nameof(Cathedral),
     [
-        new(RoomObjectKind.ShotBlockMissileTank, new(34, 28), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.CathedralShotBlockMissileTank))),
-        new(RoomObjectKind.GreenDoorFacingLeft, new(46, 22), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.CathedralGreenDoorFacingLeft, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.ShotBlockMissileTank, new(34, 28), new CollectibleSetup(new(InWorldCollectibleKind.MissileTank, CollectiblePresentation.ShotBlock), new CollectedItemArgument(ItemLocationDefinitions.CathedralShotBlockMissileTank))),
+        new(RoomObjectKind.GreenDoorFacingLeft, new(46, 22), new ColoredDoorSetup(new(ColoredDoorColor.Green, ColoredDoorOrientation.Left), new LockedDoorArgument(LockedDoorDefinitions.CathedralGreenDoorFacingLeft, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The CathedralEntrance room-object population.</summary>
     public static RoomObjectPopulation CathedralEntrance { get; } = RoomObjectPopulation.FromPlacements(nameof(CathedralEntrance),
     [
-        new(RoomObjectKind.RedDoorFacingLeft, new(46, 6), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.CathedralEntranceRedDoorFacingLeft, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.RedDoorFacingLeft, new(46, 6), new ColoredDoorSetup(new(ColoredDoorColor.Red, ColoredDoorOrientation.Left), new LockedDoorArgument(LockedDoorDefinitions.CathedralEntranceRedDoorFacingLeft, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The BusinessCenter room-object population.</summary>
     public static RoomObjectPopulation BusinessCenter { get; } = RoomObjectPopulation.FromPlacements(nameof(BusinessCenter),
     [
         new(RoomObjectKind.ElevatorPlatform, new(6, 44), new ElevatorPlatformSetup()),
-        new(RoomObjectKind.GreenDoorFacingRight, new(1, 54), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.BusinessCenterGreenDoorFacingRight, DoorOpeningPersistence.Persistent))),
-        new(RoomObjectKind.YellowDoorFacingRight, new(1, 70), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.BusinessCenterYellowDoorFacingRight, DoorOpeningPersistence.Persistent))),
-        new(RoomObjectKind.RedDoorFacingRight, new(1, 86), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.BusinessCenterRedDoorFacingRight, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.GreenDoorFacingRight, new(1, 54), new ColoredDoorSetup(new(ColoredDoorColor.Green, ColoredDoorOrientation.Right), new LockedDoorArgument(LockedDoorDefinitions.BusinessCenterGreenDoorFacingRight, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.YellowDoorFacingRight, new(1, 70), new ColoredDoorSetup(new(ColoredDoorColor.Yellow, ColoredDoorOrientation.Right), new LockedDoorArgument(LockedDoorDefinitions.BusinessCenterYellowDoorFacingRight, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.RedDoorFacingRight, new(1, 86), new ColoredDoorSetup(new(ColoredDoorColor.Red, ColoredDoorOrientation.Right), new LockedDoorArgument(LockedDoorDefinitions.BusinessCenterRedDoorFacingRight, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The IceBeamGate room-object population.</summary>
     public static RoomObjectPopulation IceBeamGate { get; } = RoomObjectPopulation.FromPlacements(nameof(IceBeamGate),
     [
         new(RoomObjectKind.ScrollTrigger, new(55, 45), new ScrollTriggerSetup(RoomScrollChange.IceBeamGateOpensScreen3x2OpensScreen3x3TopAligned)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(56, 45), new ScrollExtensionSetup()),
+        new(RoomObjectKind.RightwardsScrollExtension, new(56, 45), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
     ]);
 
     /// <summary>The IceBeamTutorial room-object population.</summary>
@@ -971,7 +972,7 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The IceBeam room-object population.</summary>
     public static RoomObjectPopulation IceBeam { get; } = RoomObjectPopulation.FromPlacements(nameof(IceBeam),
     [
-        new(RoomObjectKind.ChozoIceBeam, new(12, 7), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.IceBeamChozoIceBeam))),
+        new(RoomObjectKind.ChozoIceBeam, new(12, 7), new CollectibleSetup(new(InWorldCollectibleKind.IceBeam, CollectiblePresentation.ChozoOrb), new CollectedItemArgument(ItemLocationDefinitions.IceBeamChozoIceBeam))),
     ]);
 
     /// <summary>The IceBeamSnake room-object population.</summary>
@@ -986,38 +987,38 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The CrumbleShaft room-object population.</summary>
     public static RoomObjectPopulation CrumbleShaft { get; } = RoomObjectPopulation.FromPlacements(nameof(CrumbleShaft),
     [
-        new(RoomObjectKind.ShotBlockMissileTank, new(1, 8), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.CrumbleShaftShotBlockMissileTank))),
+        new(RoomObjectKind.ShotBlockMissileTank, new(1, 8), new CollectibleSetup(new(InWorldCollectibleKind.MissileTank, CollectiblePresentation.ShotBlock), new CollectedItemArgument(ItemLocationDefinitions.CrumbleShaftShotBlockMissileTank))),
     ]);
 
     /// <summary>The CrocomireSpeedway room-object population.</summary>
     public static RoomObjectPopulation CrocomireSpeedway { get; } = RoomObjectPopulation.FromPlacements(nameof(CrocomireSpeedway),
     [
         new(RoomObjectKind.ScrollTrigger, new(158, 40), new ScrollTriggerSetup(RoomScrollChange.CrocomireSpeedwayOpensScreens12x1And11x2And12x2)),
-        new(RoomObjectKind.UpwardsScrollExtension, new(158, 39), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(158, 38), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(158, 37), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(158, 36), new ScrollExtensionSetup()),
+        new(RoomObjectKind.UpwardsScrollExtension, new(158, 39), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(158, 38), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(158, 37), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(158, 36), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
         new(RoomObjectKind.ScrollTrigger, new(190, 41), new ScrollTriggerSetup(RoomScrollChange.CrocomireSpeedwayOpensScreen11x2)),
-        new(RoomObjectKind.UpwardsScrollExtension, new(190, 40), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(190, 39), new ScrollExtensionSetup()),
+        new(RoomObjectKind.UpwardsScrollExtension, new(190, 40), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(190, 39), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
         new(RoomObjectKind.ScrollTrigger, new(194, 41), new ScrollTriggerSetup(RoomScrollChange.CrocomireSpeedwayClosesScreen11x2)),
-        new(RoomObjectKind.UpwardsScrollExtension, new(194, 40), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(194, 39), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(194, 38), new ScrollExtensionSetup()),
-        new(RoomObjectKind.GreenDoorFacingUp, new(198, 45), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.CrocomireSpeedwayGreenDoorFacingUp, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.UpwardsScrollExtension, new(194, 40), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(194, 39), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(194, 38), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.GreenDoorFacingUp, new(198, 45), new ColoredDoorSetup(new(ColoredDoorColor.Green, ColoredDoorOrientation.Up), new LockedDoorArgument(LockedDoorDefinitions.CrocomireSpeedwayGreenDoorFacingUp, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The Crocomire room-object population.</summary>
     public static RoomObjectPopulation Crocomire { get; } = RoomObjectPopulation.FromPlacements(nameof(Crocomire),
     [
-        new(RoomObjectKind.GreyDoorFacingDown, new(54, 2), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.AreaMiniBossDefeated, new LockedDoorArgument(LockedDoorDefinitions.CrocomireGreyDoorFacingDown, DoorOpeningPersistence.Persistent)))),
-        new(RoomObjectKind.ExposedEnergyTank, new(125, 6), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.CrocomireExposedEnergyTank))),
+        new(RoomObjectKind.GreyDoorFacingDown, new(54, 2), new GreyDoorSetup(new(ColoredDoorOrientation.Down, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.AreaMiniBossDefeated, new LockedDoorArgument(LockedDoorDefinitions.CrocomireGreyDoorFacingDown, DoorOpeningPersistence.Persistent)))),
+        new(RoomObjectKind.ExposedEnergyTank, new(125, 6), new CollectibleSetup(new(InWorldCollectibleKind.EnergyTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.CrocomireExposedEnergyTank))),
     ]);
 
     /// <summary>The HiJumpBoots room-object population.</summary>
     public static RoomObjectPopulation HiJumpBoots { get; } = RoomObjectPopulation.FromPlacements(nameof(HiJumpBoots),
     [
-        new(RoomObjectKind.ChozoHiJumpBoots, new(3, 10), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.HiJumpBootsChozoHiJumpBoots))),
+        new(RoomObjectKind.ChozoHiJumpBoots, new(3, 10), new CollectibleSetup(new(InWorldCollectibleKind.HiJumpBoots, CollectiblePresentation.ChozoOrb), new CollectedItemArgument(ItemLocationDefinitions.HiJumpBootsChozoHiJumpBoots))),
     ]);
 
     /// <summary>The CrocomireEscape room-object population.</summary>
@@ -1025,7 +1026,7 @@ internal static class RoomObjectPopulationDefinitions
     [
         new(RoomObjectKind.DownwardGate, new(6, 5), new DownwardGateSetup()),
         new(RoomObjectKind.DownwardGateShotBlock, new(6, 5), new DownwardGateShotBlockSetup(new GateTriggerArgument(DownwardGateTriggerBehavior.GreenRight))),
-        new(RoomObjectKind.ExposedMissileTank, new(13, 9), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.CrocomireEscapeExposedMissileTank))),
+        new(RoomObjectKind.ExposedMissileTank, new(13, 9), new CollectibleSetup(new(InWorldCollectibleKind.MissileTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.CrocomireEscapeExposedMissileTank))),
     ]);
 
     /// <summary>The HiJumpEnergyTank room-object population.</summary>
@@ -1035,39 +1036,39 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectKind.ScrollTrigger, new(15, 5), new ScrollTriggerSetup(RoomScrollChange.HiJumpEnergyTankOpensScreens0x0And0x1)),
         new(RoomObjectKind.ScrollTrigger, new(8, 28), new ScrollTriggerSetup(RoomScrollChange.HiJumpEnergyTankClosesScreen1x1)),
         new(RoomObjectKind.ScrollTrigger, new(11, 18), new ScrollTriggerSetup(RoomScrollChange.HiJumpEnergyTankOpensScreen1x1)),
-        new(RoomObjectKind.GreyDoorFacingLeft, new(30, 6), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.EnemyDeathQuota, new LockedDoorArgument(LockedDoorDefinitions.HiJumpEnergyTankGreyDoorFacingLeft, DoorOpeningPersistence.Persistent)))),
-        new(RoomObjectKind.ExposedMissileTank, new(9, 6), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.HiJumpEnergyTankExposedMissileTank))),
-        new(RoomObjectKind.ExposedEnergyTank, new(23, 8), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.HiJumpEnergyTankExposedEnergyTank))),
+        new(RoomObjectKind.GreyDoorFacingLeft, new(30, 6), new GreyDoorSetup(new(ColoredDoorOrientation.Left, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.EnemyDeathQuota, new LockedDoorArgument(LockedDoorDefinitions.HiJumpEnergyTankGreyDoorFacingLeft, DoorOpeningPersistence.Persistent)))),
+        new(RoomObjectKind.ExposedMissileTank, new(9, 6), new CollectibleSetup(new(InWorldCollectibleKind.MissileTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.HiJumpEnergyTankExposedMissileTank))),
+        new(RoomObjectKind.ExposedEnergyTank, new(23, 8), new CollectibleSetup(new(InWorldCollectibleKind.EnergyTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.HiJumpEnergyTankExposedEnergyTank))),
     ]);
 
     /// <summary>The PostCrocomireFarming room-object population.</summary>
     public static RoomObjectPopulation PostCrocomireFarming { get; } = RoomObjectPopulation.FromPlacements(nameof(PostCrocomireFarming),
     [
-        new(RoomObjectKind.RedDoorFacingRight, new(1, 6), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.PostCrocomireFarmingRedDoorFacingRight, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.RedDoorFacingRight, new(1, 6), new ColoredDoorSetup(new(ColoredDoorColor.Red, ColoredDoorOrientation.Right), new LockedDoorArgument(LockedDoorDefinitions.PostCrocomireFarmingRedDoorFacingRight, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The PostCrocomireSave room-object population.</summary>
     public static RoomObjectPopulation PostCrocomireSave { get; } = RoomObjectPopulation.FromPlacements(nameof(PostCrocomireSave),
     [
-        new(RoomObjectKind.SaveStation, new(7, 11), new StationSetup(new SaveStationArgument(LoadStationDefinitions.PostCrocomireSave))),
+        new(RoomObjectKind.SaveStation, new(7, 11), new StationSetup(StationKind.Save, new SaveStationArgument(LoadStationDefinitions.PostCrocomireSave))),
     ]);
 
     /// <summary>The PostCrocomirePowerBombs room-object population.</summary>
     public static RoomObjectPopulation PostCrocomirePowerBombs { get; } = RoomObjectPopulation.FromPlacements(nameof(PostCrocomirePowerBombs),
     [
-        new(RoomObjectKind.ExposedPowerBombTank, new(7, 8), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.PostCrocomirePowerBombsExposedPowerBombTank))),
+        new(RoomObjectKind.ExposedPowerBombTank, new(7, 8), new CollectibleSetup(new(InWorldCollectibleKind.PowerBombTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.PostCrocomirePowerBombsExposedPowerBombTank))),
     ]);
 
     /// <summary>The PostCrocomireShaft room-object population.</summary>
     public static RoomObjectPopulation PostCrocomireShaft { get; } = RoomObjectPopulation.FromPlacements(nameof(PostCrocomireShaft),
     [
-        new(RoomObjectKind.RedDoorFacingLeft, new(14, 54), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.PostCrocomireShaftRedDoorFacingLeft, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.RedDoorFacingLeft, new(14, 54), new ColoredDoorSetup(new(ColoredDoorColor.Red, ColoredDoorOrientation.Left), new LockedDoorArgument(LockedDoorDefinitions.PostCrocomireShaftRedDoorFacingLeft, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The PostCrocomireMissile room-object population.</summary>
     public static RoomObjectPopulation PostCrocomireMissile { get; } = RoomObjectPopulation.FromPlacements(nameof(PostCrocomireMissile),
     [
-        new(RoomObjectKind.ExposedMissileTank, new(60, 9), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.PostCrocomireMissileExposedMissileTank))),
+        new(RoomObjectKind.ExposedMissileTank, new(60, 9), new CollectibleSetup(new(InWorldCollectibleKind.MissileTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.PostCrocomireMissileExposedMissileTank))),
     ]);
 
     /// <summary>The GrappleTutorial3 room-object population.</summary>
@@ -1080,7 +1081,7 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The PostCrocomireJump room-object population.</summary>
     public static RoomObjectPopulation PostCrocomireJump { get; } = RoomObjectPopulation.FromPlacements(nameof(PostCrocomireJump),
     [
-        new(RoomObjectKind.ExposedMissileTank, new(67, 9), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.PostCrocomireJumpExposedMissileTank))),
+        new(RoomObjectKind.ExposedMissileTank, new(67, 9), new CollectibleSetup(new(InWorldCollectibleKind.MissileTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.PostCrocomireJumpExposedMissileTank))),
     ]);
 
     /// <summary>The GrappleTutorial2 room-object population.</summary>
@@ -1096,43 +1097,43 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The GrappleBeam room-object population.</summary>
     public static RoomObjectPopulation GrappleBeam { get; } = RoomObjectPopulation.FromPlacements(nameof(GrappleBeam),
     [
-        new(RoomObjectKind.ChozoGrappleBeam, new(4, 39), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.GrappleBeamChozoGrappleBeam))),
+        new(RoomObjectKind.ChozoGrappleBeam, new(4, 39), new CollectibleSetup(new(InWorldCollectibleKind.GrappleBeam, CollectiblePresentation.ChozoOrb), new CollectedItemArgument(ItemLocationDefinitions.GrappleBeamChozoGrappleBeam))),
     ]);
 
     /// <summary>The NorfairReserveTank room-object population.</summary>
     public static RoomObjectPopulation NorfairReserveTank { get; } = RoomObjectPopulation.FromPlacements(nameof(NorfairReserveTank),
     [
-        new(RoomObjectKind.ChozoReserveTank, new(2, 7), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.NorfairReserveTankChozoReserveTank))),
-        new(RoomObjectKind.ShotBlockMissileTank, new(7, 11), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.NorfairReserveTankShotBlockMissileTank))),
+        new(RoomObjectKind.ChozoReserveTank, new(2, 7), new CollectibleSetup(new(InWorldCollectibleKind.ReserveTank, CollectiblePresentation.ChozoOrb), new CollectedItemArgument(ItemLocationDefinitions.NorfairReserveTankChozoReserveTank))),
+        new(RoomObjectKind.ShotBlockMissileTank, new(7, 11), new CollectibleSetup(new(InWorldCollectibleKind.MissileTank, CollectiblePresentation.ShotBlock), new CollectedItemArgument(ItemLocationDefinitions.NorfairReserveTankShotBlockMissileTank))),
     ]);
 
     /// <summary>The GreenBubblesMissiles room-object population.</summary>
     public static RoomObjectPopulation GreenBubblesMissiles { get; } = RoomObjectPopulation.FromPlacements(nameof(GreenBubblesMissiles),
     [
         new(RoomObjectKind.ScrollTrigger, new(16, 5), new ScrollTriggerSetup(RoomScrollChange.GreenBubblesMissilesOpensScreen0x0TopAligned)),
-        new(RoomObjectKind.ExposedMissileTank, new(20, 10), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.GreenBubblesMissilesExposedMissileTank))),
+        new(RoomObjectKind.ExposedMissileTank, new(20, 10), new CollectibleSetup(new(InWorldCollectibleKind.MissileTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.GreenBubblesMissilesExposedMissileTank))),
     ]);
 
     /// <summary>The BubbleMountain room-object population.</summary>
     public static RoomObjectPopulation BubbleMountain { get; } = RoomObjectPopulation.FromPlacements(nameof(BubbleMountain),
     [
-        new(RoomObjectKind.GreenDoorFacingRight, new(1, 6), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.BubbleMountainGreenDoorFacingRight, DoorOpeningPersistence.Persistent))),
-        new(RoomObjectKind.GreenDoorFacingLeft, new(30, 6), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.BubbleMountainGreenDoorFacingLeft, DoorOpeningPersistence.Persistent))),
-        new(RoomObjectKind.ExposedMissileTank, new(20, 60), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.BubbleMountainExposedMissileTank))),
+        new(RoomObjectKind.GreenDoorFacingRight, new(1, 6), new ColoredDoorSetup(new(ColoredDoorColor.Green, ColoredDoorOrientation.Right), new LockedDoorArgument(LockedDoorDefinitions.BubbleMountainGreenDoorFacingRight, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.GreenDoorFacingLeft, new(30, 6), new ColoredDoorSetup(new(ColoredDoorColor.Green, ColoredDoorOrientation.Left), new LockedDoorArgument(LockedDoorDefinitions.BubbleMountainGreenDoorFacingLeft, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.ExposedMissileTank, new(20, 60), new CollectibleSetup(new(InWorldCollectibleKind.MissileTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.BubbleMountainExposedMissileTank))),
     ]);
 
     /// <summary>The SpeedBoosterHall room-object population.</summary>
     public static RoomObjectPopulation SpeedBoosterHall { get; } = RoomObjectPopulation.FromPlacements(nameof(SpeedBoosterHall),
     [
         new(RoomObjectKind.SpeedBoosterEscape, new(0, 0), new SpeedBoosterEscapeSetup()),
-        new(RoomObjectKind.ShotBlockMissileTank, new(188, 19), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.SpeedBoosterHallShotBlockMissileTank))),
-        new(RoomObjectKind.RedDoorFacingLeft, new(190, 22), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.SpeedBoosterHallRedDoorFacingLeft, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.ShotBlockMissileTank, new(188, 19), new CollectibleSetup(new(InWorldCollectibleKind.MissileTank, CollectiblePresentation.ShotBlock), new CollectedItemArgument(ItemLocationDefinitions.SpeedBoosterHallShotBlockMissileTank))),
+        new(RoomObjectKind.RedDoorFacingLeft, new(190, 22), new ColoredDoorSetup(new(ColoredDoorColor.Red, ColoredDoorOrientation.Left), new LockedDoorArgument(LockedDoorDefinitions.SpeedBoosterHallRedDoorFacingLeft, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The SpeedBooster room-object population.</summary>
     public static RoomObjectPopulation SpeedBooster { get; } = RoomObjectPopulation.FromPlacements(nameof(SpeedBooster),
     [
-        new(RoomObjectKind.ChozoSpeedBooster, new(11, 6), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.SpeedBoosterChozoSpeedBooster))),
+        new(RoomObjectKind.ChozoSpeedBooster, new(11, 6), new CollectibleSetup(new(InWorldCollectibleKind.SpeedBooster, CollectiblePresentation.ChozoOrb), new CollectedItemArgument(ItemLocationDefinitions.SpeedBoosterChozoSpeedBooster))),
     ]);
 
     /// <summary>The SingleChamber room-object population.</summary>
@@ -1140,10 +1141,10 @@ internal static class RoomObjectPopulationDefinitions
     [
         new(RoomObjectKind.ScrollTrigger, new(13, 8), new ScrollTriggerSetup(RoomScrollChange.SingleChamberClosesScreen1x0)),
         new(RoomObjectKind.ScrollTrigger, new(16, 8), new ScrollTriggerSetup(RoomScrollChange.SingleChamberOpensScreen1x0TopAligned)),
-        new(RoomObjectKind.UpwardsScrollExtension, new(77, 10), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(77, 11), new ScrollExtensionSetup()),
+        new(RoomObjectKind.UpwardsScrollExtension, new(77, 10), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(77, 11), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
         new(RoomObjectKind.ScrollTrigger, new(77, 12), new ScrollTriggerSetup(RoomScrollChange.SingleChamberOpensScreen1x0TopAligned)),
-        new(RoomObjectKind.RedDoorFacingLeft, new(14, 22), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.SingleChamberRedDoorFacingLeft, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.RedDoorFacingLeft, new(14, 22), new ColoredDoorSetup(new(ColoredDoorColor.Red, ColoredDoorOrientation.Left), new LockedDoorArgument(LockedDoorDefinitions.SingleChamberRedDoorFacingLeft, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The DoubleChamber room-object population.</summary>
@@ -1151,14 +1152,14 @@ internal static class RoomObjectPopulationDefinitions
     [
         new(RoomObjectKind.DownwardGate, new(26, 5), new DownwardGateSetup()),
         new(RoomObjectKind.DownwardGateShotBlock, new(26, 5), new DownwardGateShotBlockSetup(new GateTriggerArgument(DownwardGateTriggerBehavior.BlueLeft))),
-        new(RoomObjectKind.ExposedMissileTank, new(31, 9), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.DoubleChamberExposedMissileTank))),
-        new(RoomObjectKind.RedDoorFacingLeft, new(62, 6), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.DoubleChamberRedDoorFacingLeft, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.ExposedMissileTank, new(31, 9), new CollectibleSetup(new(InWorldCollectibleKind.MissileTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.DoubleChamberExposedMissileTank))),
+        new(RoomObjectKind.RedDoorFacingLeft, new(62, 6), new ColoredDoorSetup(new(ColoredDoorColor.Red, ColoredDoorOrientation.Left), new LockedDoorArgument(LockedDoorDefinitions.DoubleChamberRedDoorFacingLeft, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The WaveBeam room-object population.</summary>
     public static RoomObjectPopulation WaveBeam { get; } = RoomObjectPopulation.FromPlacements(nameof(WaveBeam),
     [
-        new(RoomObjectKind.ChozoWaveBeam, new(11, 6), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.WaveBeamChozoWaveBeam))),
+        new(RoomObjectKind.ChozoWaveBeam, new(11, 6), new CollectibleSetup(new(InWorldCollectibleKind.WaveBeam, CollectiblePresentation.ChozoOrb), new CollectedItemArgument(ItemLocationDefinitions.WaveBeamChozoWaveBeam))),
     ]);
 
     /// <summary>The SpikyPlatformsTunnel room-object population.</summary>
@@ -1171,15 +1172,15 @@ internal static class RoomObjectPopulationDefinitions
     [
         new(RoomObjectKind.ScrollTrigger, new(32, 41), new ScrollTriggerSetup(RoomScrollChange.VolcanoOpensScreens0x2And1x2TopAligned)),
         new(RoomObjectKind.ScrollTrigger, new(31, 41), new ScrollTriggerSetup(RoomScrollChange.VolcanoOpensScreen2x2TopAligned)),
-        new(RoomObjectKind.UpwardsScrollExtension, new(25, 36), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(25, 37), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(25, 38), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(25, 39), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(25, 40), new ScrollExtensionSetup()),
+        new(RoomObjectKind.UpwardsScrollExtension, new(25, 36), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(25, 37), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(25, 38), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(25, 39), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(25, 40), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
         new(RoomObjectKind.ScrollTrigger, new(25, 41), new ScrollTriggerSetup(RoomScrollChange.VolcanoClosesScreen2x2)),
-        new(RoomObjectKind.UpwardsScrollExtension, new(38, 38), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(38, 39), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(38, 40), new ScrollExtensionSetup()),
+        new(RoomObjectKind.UpwardsScrollExtension, new(38, 38), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(38, 39), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(38, 40), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
         new(RoomObjectKind.ScrollTrigger, new(38, 41), new ScrollTriggerSetup(RoomScrollChange.VolcanoClosesScreen1x2)),
     ]);
 
@@ -1188,13 +1189,13 @@ internal static class RoomObjectPopulationDefinitions
     [
         new(RoomObjectKind.ScrollTrigger, new(15, 23), new ScrollTriggerSetup(RoomScrollChange.KronicBoostOpensScreen0x1TopAligned)),
         new(RoomObjectKind.ScrollTrigger, new(17, 23), new ScrollTriggerSetup(RoomScrollChange.KronicBoostClosesScreen0x1OpensScreen1x1)),
-        new(RoomObjectKind.UpwardsScrollExtension, new(8, 21), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(8, 22), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(8, 23), new ScrollExtensionSetup()),
+        new(RoomObjectKind.UpwardsScrollExtension, new(8, 21), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(8, 22), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(8, 23), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
         new(RoomObjectKind.ScrollTrigger, new(8, 24), new ScrollTriggerSetup(RoomScrollChange.KronicBoostClosesScreen1x1)),
         new(RoomObjectKind.DownwardGate, new(7, 20), new DownwardGateSetup()),
         new(RoomObjectKind.DownwardGateShotBlock, new(7, 20), new DownwardGateShotBlockSetup(new GateTriggerArgument(DownwardGateTriggerBehavior.BlueLeft))),
-        new(RoomObjectKind.YellowDoorFacingRight, new(17, 38), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.KronicBoostYellowDoorFacingRight, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.YellowDoorFacingRight, new(17, 38), new ColoredDoorSetup(new(ColoredDoorColor.Yellow, ColoredDoorOrientation.Right), new LockedDoorArgument(LockedDoorDefinitions.KronicBoostYellowDoorFacingRight, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The MagdolliteTunnel room-object population.</summary>
@@ -1206,11 +1207,11 @@ internal static class RoomObjectPopulationDefinitions
     public static RoomObjectPopulation PurpleShaft { get; } = RoomObjectPopulation.FromPlacements(nameof(PurpleShaft),
     [
         new(RoomObjectKind.ScrollTrigger, new(2, 11), new ScrollTriggerSetup(RoomScrollChange.PurpleShaftOpensScreens0x0And0x1)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(3, 11), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(4, 11), new ScrollExtensionSetup()),
+        new(RoomObjectKind.RightwardsScrollExtension, new(3, 11), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(4, 11), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
         new(RoomObjectKind.ScrollTrigger, new(11, 11), new ScrollTriggerSetup(RoomScrollChange.PurpleShaftOpensScreens0x0And0x1)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(12, 11), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(13, 11), new ScrollExtensionSetup()),
+        new(RoomObjectKind.RightwardsScrollExtension, new(12, 11), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(13, 11), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
     ]);
 
     /// <summary>The LavaDive room-object population.</summary>
@@ -1249,7 +1250,7 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The UpperNorfairRefill room-object population.</summary>
     public static RoomObjectPopulation UpperNorfairRefill { get; } = RoomObjectPopulation.FromPlacements(nameof(UpperNorfairRefill),
     [
-        new(RoomObjectKind.EnergyStation, new(7, 10), new StationSetup(null)),
+        new(RoomObjectKind.EnergyStation, new(7, 10), new StationSetup(StationKind.Energy, null)),
     ]);
 
     /// <summary>The PurpleFarming room-object population.</summary>
@@ -1261,25 +1262,25 @@ internal static class RoomObjectPopulationDefinitions
     public static RoomObjectPopulation BatCave { get; } = RoomObjectPopulation.FromPlacements(nameof(BatCave),
     [
         new(RoomObjectKind.ScrollTrigger, new(9, 12), new ScrollTriggerSetup(RoomScrollChange.BatCaveOpensScreens0x0And0x1)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(10, 12), new ScrollExtensionSetup()),
+        new(RoomObjectKind.RightwardsScrollExtension, new(10, 12), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
         new(RoomObjectKind.ScrollTrigger, new(9, 16), new ScrollTriggerSetup(RoomScrollChange.BatCaveOpensScreen0x0OpensScreen0x1TopAligned)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(10, 16), new ScrollExtensionSetup()),
+        new(RoomObjectKind.RightwardsScrollExtension, new(10, 16), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
         new(RoomObjectKind.ScrollTrigger, new(6, 19), new ScrollTriggerSetup(RoomScrollChange.BatCaveClosesScreen0x0)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(7, 19), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(8, 19), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(9, 19), new ScrollExtensionSetup()),
+        new(RoomObjectKind.RightwardsScrollExtension, new(7, 19), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(8, 19), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(9, 19), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
     ]);
 
     /// <summary>The NorfairMap room-object population.</summary>
     public static RoomObjectPopulation NorfairMap { get; } = RoomObjectPopulation.FromPlacements(nameof(NorfairMap),
     [
-        new(RoomObjectKind.MapStation, new(5, 10), new StationSetup(null)),
+        new(RoomObjectKind.MapStation, new(5, 10), new StationSetup(StationKind.Map, null)),
     ]);
 
     /// <summary>The BubbleMountainSave room-object population.</summary>
     public static RoomObjectPopulation BubbleMountainSave { get; } = RoomObjectPopulation.FromPlacements(nameof(BubbleMountainSave),
     [
-        new(RoomObjectKind.SaveStation, new(5, 11), new StationSetup(new SaveStationArgument(LoadStationDefinitions.BubbleMountainSave))),
+        new(RoomObjectKind.SaveStation, new(5, 11), new StationSetup(StationKind.Save, new SaveStationArgument(LoadStationDefinitions.BubbleMountainSave))),
     ]);
 
     /// <summary>The FrogSpeedway room-object population.</summary>
@@ -1295,19 +1296,19 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The FrogSave room-object population.</summary>
     public static RoomObjectPopulation FrogSave { get; } = RoomObjectPopulation.FromPlacements(nameof(FrogSave),
     [
-        new(RoomObjectKind.SaveStation, new(7, 11), new StationSetup(new SaveStationArgument(LoadStationDefinitions.FrogSave))),
+        new(RoomObjectKind.SaveStation, new(7, 11), new StationSetup(StationKind.Save, new SaveStationArgument(LoadStationDefinitions.FrogSave))),
     ]);
 
     /// <summary>The CrocomireSave room-object population.</summary>
     public static RoomObjectPopulation CrocomireSave { get; } = RoomObjectPopulation.FromPlacements(nameof(CrocomireSave),
     [
-        new(RoomObjectKind.SaveStation, new(7, 11), new StationSetup(new SaveStationArgument(LoadStationDefinitions.CrocomireSave))),
+        new(RoomObjectKind.SaveStation, new(7, 11), new StationSetup(StationKind.Save, new SaveStationArgument(LoadStationDefinitions.CrocomireSave))),
     ]);
 
     /// <summary>The LowerNorfairElevatorSave room-object population.</summary>
     public static RoomObjectPopulation LowerNorfairElevatorSave { get; } = RoomObjectPopulation.FromPlacements(nameof(LowerNorfairElevatorSave),
     [
-        new(RoomObjectKind.SaveStation, new(5, 11), new StationSetup(new SaveStationArgument(LoadStationDefinitions.LowerNorfairElevatorSave))),
+        new(RoomObjectKind.SaveStation, new(5, 11), new StationSetup(StationKind.Save, new SaveStationArgument(LoadStationDefinitions.LowerNorfairElevatorSave))),
     ]);
 
     /// <summary>The AcidStatue room-object population.</summary>
@@ -1321,11 +1322,11 @@ internal static class RoomObjectPopulationDefinitions
     public static RoomObjectPopulation MainHall { get; } = RoomObjectPopulation.FromPlacements(nameof(MainHall),
     [
         new(RoomObjectKind.ScrollTrigger, new(71, 8), new ScrollTriggerSetup(RoomScrollChange.MainHallOpensScreen4x1)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(72, 8), new ScrollExtensionSetup()),
+        new(RoomObjectKind.RightwardsScrollExtension, new(72, 8), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
         new(RoomObjectKind.ScrollTrigger, new(71, 35), new ScrollTriggerSetup(RoomScrollChange.MainHallOpensScreen4x1)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(72, 35), new ScrollExtensionSetup()),
+        new(RoomObjectKind.RightwardsScrollExtension, new(72, 35), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
         new(RoomObjectKind.ScrollTrigger, new(71, 41), new ScrollTriggerSetup(RoomScrollChange.MainHallClosesScreen4x1)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(72, 41), new ScrollExtensionSetup()),
+        new(RoomObjectKind.RightwardsScrollExtension, new(72, 41), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
         new(RoomObjectKind.ElevatorPlatform, new(70, 42), new ElevatorPlatformSetup()),
     ]);
 
@@ -1333,16 +1334,16 @@ internal static class RoomObjectPopulationDefinitions
     public static RoomObjectPopulation GoldenTorizo { get; } = RoomObjectPopulation.FromPlacements(nameof(GoldenTorizo),
     [
         new(RoomObjectKind.ScrollTrigger, new(4, 12), new ScrollTriggerSetup(RoomScrollChange.GoldenTorizoOpensScreens0x0And1x0OpensScreens0x1And1x1TopAligned)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(5, 12), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(6, 12), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(7, 12), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(8, 12), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(9, 12), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(10, 12), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(11, 12), new ScrollExtensionSetup()),
-        new(RoomObjectKind.ExposedMissileTank, new(13, 8), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.GoldenTorizoExposedMissileTank))),
-        new(RoomObjectKind.ShotBlockSuperMissileTank, new(21, 8), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.GoldenTorizoShotBlockSuperMissileTank))),
-        new(RoomObjectKind.GreyDoorFacingLeft, new(30, 22), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.AreaTorizoDefeated, new LockedDoorArgument(LockedDoorDefinitions.GoldenTorizoGreyDoorFacingLeft, DoorOpeningPersistence.Persistent)))),
+        new(RoomObjectKind.RightwardsScrollExtension, new(5, 12), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(6, 12), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(7, 12), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(8, 12), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(9, 12), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(10, 12), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(11, 12), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.ExposedMissileTank, new(13, 8), new CollectibleSetup(new(InWorldCollectibleKind.MissileTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.GoldenTorizoExposedMissileTank))),
+        new(RoomObjectKind.ShotBlockSuperMissileTank, new(21, 8), new CollectibleSetup(new(InWorldCollectibleKind.SuperMissileTank, CollectiblePresentation.ShotBlock), new CollectedItemArgument(ItemLocationDefinitions.GoldenTorizoShotBlockSuperMissileTank))),
+        new(RoomObjectKind.GreyDoorFacingLeft, new(30, 22), new GreyDoorSetup(new(ColoredDoorOrientation.Left, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.AreaTorizoDefeated, new LockedDoorArgument(LockedDoorDefinitions.GoldenTorizoGreyDoorFacingLeft, DoorOpeningPersistence.Persistent)))),
     ]);
 
     /// <summary>The FastRipper room-object population.</summary>
@@ -1355,31 +1356,31 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The GoldenTorizoEnergyRefill room-object population.</summary>
     public static RoomObjectPopulation GoldenTorizoEnergyRefill { get; } = RoomObjectPopulation.FromPlacements(nameof(GoldenTorizoEnergyRefill),
     [
-        new(RoomObjectKind.EnergyStation, new(8, 10), new StationSetup(null)),
+        new(RoomObjectKind.EnergyStation, new(8, 10), new StationSetup(StationKind.Energy, null)),
     ]);
 
     /// <summary>The Ridley room-object population.</summary>
     public static RoomObjectPopulation Ridley { get; } = RoomObjectPopulation.FromPlacements(nameof(Ridley),
     [
-        new(RoomObjectKind.GreyDoorFacingLeft, new(14, 6), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.AreaBossDefeated, new LockedDoorArgument(LockedDoorDefinitions.RidleyGreyDoorFacingLeft, DoorOpeningPersistence.Persistent)))),
-        new(RoomObjectKind.GreyDoorFacingRight, new(1, 22), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.AreaBossDefeated, new LockedDoorArgument(LockedDoorDefinitions.RidleyGreyDoorFacingRight, DoorOpeningPersistence.Persistent)))),
+        new(RoomObjectKind.GreyDoorFacingLeft, new(14, 6), new GreyDoorSetup(new(ColoredDoorOrientation.Left, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.AreaBossDefeated, new LockedDoorArgument(LockedDoorDefinitions.RidleyGreyDoorFacingLeft, DoorOpeningPersistence.Persistent)))),
+        new(RoomObjectKind.GreyDoorFacingRight, new(1, 22), new GreyDoorSetup(new(ColoredDoorOrientation.Right, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.AreaBossDefeated, new LockedDoorArgument(LockedDoorDefinitions.RidleyGreyDoorFacingRight, DoorOpeningPersistence.Persistent)))),
     ]);
 
     /// <summary>The LowerNorfairFarming room-object population.</summary>
     public static RoomObjectPopulation LowerNorfairFarming { get; } = RoomObjectPopulation.FromPlacements(nameof(LowerNorfairFarming),
     [
-        new(RoomObjectKind.EyeDoorFacingRight, new(1, 6), new EyeDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.LowerNorfairFarmingEyeDoorFacingRight, DoorOpeningPersistence.Persistent))),
-        new(RoomObjectKind.EyeDoorBottomFacingRight, new(1, 9), new EyeDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.LowerNorfairFarmingEyeDoorFacingRight, DoorOpeningPersistence.Persistent))),
-        new(RoomObjectKind.EyeDoorEyeFacingRight, new(1, 7), new EyeDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.LowerNorfairFarmingEyeDoorFacingRight, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.EyeDoorFacingRight, new(1, 6), new EyeDoorPartSetup(new(EyeDoorBodyPart.Middle, EyeDoorOrientation.Right), new LockedDoorArgument(LockedDoorDefinitions.LowerNorfairFarmingEyeDoorFacingRight, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.EyeDoorBottomFacingRight, new(1, 9), new EyeDoorPartSetup(new(EyeDoorBodyPart.Bottom, EyeDoorOrientation.Right), new LockedDoorArgument(LockedDoorDefinitions.LowerNorfairFarmingEyeDoorFacingRight, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.EyeDoorEyeFacingRight, new(1, 7), new EyeDoorEyeSetup(EyeDoorOrientation.Right, new LockedDoorArgument(LockedDoorDefinitions.LowerNorfairFarmingEyeDoorFacingRight, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The FastPillarsSetup room-object population.</summary>
     public static RoomObjectPopulation FastPillarsSetup { get; } = RoomObjectPopulation.FromPlacements(nameof(FastPillarsSetup),
     [
         new(RoomObjectKind.ScrollTrigger, new(7, 33), new ScrollTriggerSetup(RoomScrollChange.FastPillarsSetupOpensScreen0x1)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(8, 33), new ScrollExtensionSetup()),
+        new(RoomObjectKind.RightwardsScrollExtension, new(8, 33), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
         new(RoomObjectKind.ScrollTrigger, new(7, 27), new ScrollTriggerSetup(RoomScrollChange.FastPillarsSetupOpensScreen0x1OpensScreen0x2TopAligned)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(8, 27), new ScrollExtensionSetup()),
+        new(RoomObjectKind.RightwardsScrollExtension, new(8, 27), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
     ]);
 
     /// <summary>The MickeyMouse room-object population.</summary>
@@ -1388,19 +1389,19 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectKind.ScrollTrigger, new(48, 22), new ScrollTriggerSetup(RoomScrollChange.MickeyMouseOpensScreen2x1TopAligned)),
         new(RoomObjectKind.ScrollTrigger, new(50, 22), new ScrollTriggerSetup(RoomScrollChange.MickeyMouseClosesScreen2x1)),
         new(RoomObjectKind.ScrollTrigger, new(45, 22), new ScrollTriggerSetup(RoomScrollChange.MickeyMouseOpensScreen3x1TopAligned)),
-        new(RoomObjectKind.UpwardsScrollExtension, new(43, 20), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(43, 21), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(43, 22), new ScrollExtensionSetup()),
+        new(RoomObjectKind.UpwardsScrollExtension, new(43, 20), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(43, 21), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(43, 22), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
         new(RoomObjectKind.ScrollTrigger, new(43, 23), new ScrollTriggerSetup(RoomScrollChange.MickeyMouseClosesScreen3x1)),
-        new(RoomObjectKind.UpwardsScrollExtension, new(56, 54), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(56, 55), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(56, 56), new ScrollExtensionSetup()),
+        new(RoomObjectKind.UpwardsScrollExtension, new(56, 54), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(56, 55), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(56, 56), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
         new(RoomObjectKind.ScrollTrigger, new(56, 57), new ScrollTriggerSetup(RoomScrollChange.MickeyMouseOpensScreen2x3TopAligned)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(61, 52), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(60, 52), new ScrollExtensionSetup()),
+        new(RoomObjectKind.RightwardsScrollExtension, new(61, 52), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(60, 52), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
         new(RoomObjectKind.ScrollTrigger, new(59, 52), new ScrollTriggerSetup(RoomScrollChange.MickeyMouseClosesScreen2x3)),
-        new(RoomObjectKind.GreyDoorFacingRight, new(1, 54), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.EnemyDeathQuota, new LockedDoorArgument(LockedDoorDefinitions.MickeyMouseGreyDoorFacingRight, DoorOpeningPersistence.Persistent)))),
-        new(RoomObjectKind.ExposedMissileTank, new(39, 27), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.MickeyMouseExposedMissileTank))),
+        new(RoomObjectKind.GreyDoorFacingRight, new(1, 54), new GreyDoorSetup(new(ColoredDoorOrientation.Right, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.EnemyDeathQuota, new LockedDoorArgument(LockedDoorDefinitions.MickeyMouseGreyDoorFacingRight, DoorOpeningPersistence.Persistent)))),
+        new(RoomObjectKind.ExposedMissileTank, new(39, 27), new CollectibleSetup(new(InWorldCollectibleKind.MissileTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.MickeyMouseExposedMissileTank))),
     ]);
 
     /// <summary>The Pillar room-object population.</summary>
@@ -1417,15 +1418,15 @@ internal static class RoomObjectPopulationDefinitions
     public static RoomObjectPopulation WorstRoomInTheGame { get; } = RoomObjectPopulation.FromPlacements(nameof(WorstRoomInTheGame),
     [
         new(RoomObjectKind.ScrollTrigger, new(3, 16), new ScrollTriggerSetup(RoomScrollChange.WorstRoomInTheGameOpensScreens0x0And0x1)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(4, 16), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(5, 16), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(6, 16), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(7, 16), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(8, 16), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(9, 16), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(10, 16), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(11, 16), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(12, 16), new ScrollExtensionSetup()),
+        new(RoomObjectKind.RightwardsScrollExtension, new(4, 16), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(5, 16), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(6, 16), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(7, 16), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(8, 16), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(9, 16), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(10, 16), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(11, 16), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(12, 16), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
     ]);
 
     /// <summary>The Amphitheatre room-object population.</summary>
@@ -1437,144 +1438,144 @@ internal static class RoomObjectPopulationDefinitions
     public static RoomObjectPopulation LowerNorfairSpringBallMaze { get; } = RoomObjectPopulation.FromPlacements(nameof(LowerNorfairSpringBallMaze),
     [
         new(RoomObjectKind.ScrollTrigger, new(12, 9), new ScrollTriggerSetup(RoomScrollChange.LowerNorfairSpringBallMazeClosesScreen1x1OpensScreens1x0And2x0TopAligned)),
-        new(RoomObjectKind.UpwardsScrollExtension, new(12, 8), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(12, 7), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(12, 6), new ScrollExtensionSetup()),
+        new(RoomObjectKind.UpwardsScrollExtension, new(12, 8), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(12, 7), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(12, 6), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
         new(RoomObjectKind.ScrollTrigger, new(3, 18), new ScrollTriggerSetup(RoomScrollChange.LowerNorfairSpringBallMazeClosesScreens1x0And2x0OpensScreen1x1TopAligned)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(4, 18), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(5, 18), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(6, 18), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(7, 18), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(8, 18), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(9, 18), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(10, 18), new ScrollExtensionSetup()),
+        new(RoomObjectKind.RightwardsScrollExtension, new(4, 18), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(5, 18), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(6, 18), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(7, 18), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(8, 18), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(9, 18), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(10, 18), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
         new(RoomObjectKind.ScrollTrigger, new(47, 3), new ScrollTriggerSetup(RoomScrollChange.LowerNorfairSpringBallMazeOpensScreen4x0OpensScreen3x0TopAligned)),
-        new(RoomObjectKind.ExposedMissileTank, new(43, 7), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.LowerNorfairSpringBallMazeExposedMissileTank))),
+        new(RoomObjectKind.ExposedMissileTank, new(43, 7), new CollectibleSetup(new(InWorldCollectibleKind.MissileTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.LowerNorfairSpringBallMazeExposedMissileTank))),
     ]);
 
     /// <summary>The LowerNorfairEscapePowerBombs room-object population.</summary>
     public static RoomObjectPopulation LowerNorfairEscapePowerBombs { get; } = RoomObjectPopulation.FromPlacements(nameof(LowerNorfairEscapePowerBombs),
     [
-        new(RoomObjectKind.ExposedPowerBombTank, new(12, 8), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.LowerNorfairEscapePowerBombsExposedPowerBombTank))),
+        new(RoomObjectKind.ExposedPowerBombTank, new(12, 8), new CollectibleSetup(new(InWorldCollectibleKind.PowerBombTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.LowerNorfairEscapePowerBombsExposedPowerBombTank))),
     ]);
 
     /// <summary>The RedKihunterShaft room-object population.</summary>
     public static RoomObjectPopulation RedKihunterShaft { get; } = RoomObjectPopulation.FromPlacements(nameof(RedKihunterShaft),
     [
         new(RoomObjectKind.ScrollTrigger, new(17, 72), new ScrollTriggerSetup(RoomScrollChange.RedKihunterShaftOpensScreens1x3And1x4)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(9, 70), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(8, 70), new ScrollExtensionSetup()),
+        new(RoomObjectKind.RightwardsScrollExtension, new(9, 70), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(8, 70), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
         new(RoomObjectKind.ScrollTrigger, new(8, 71), new ScrollTriggerSetup(RoomScrollChange.RedKihunterShaftClosesScreens1x3And1x4)),
         new(RoomObjectKind.ScrollTrigger, new(31, 72), new ScrollTriggerSetup(RoomScrollChange.RedKihunterShaftOpensScreens1x3And1x4)),
         new(RoomObjectKind.ScrollTrigger, new(36, 72), new ScrollTriggerSetup(RoomScrollChange.RedKihunterShaftClosesScreens1x3And1x4)),
         new(RoomObjectKind.ScrollTrigger, new(6, 14), new ScrollTriggerSetup(RoomScrollChange.RedKihunterShaftOpensScreens0x0And0x1)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(7, 14), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(8, 14), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(9, 14), new ScrollExtensionSetup()),
+        new(RoomObjectKind.RightwardsScrollExtension, new(7, 14), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(8, 14), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(9, 14), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
         new(RoomObjectKind.ScrollTrigger, new(6, 11), new ScrollTriggerSetup(RoomScrollChange.RedKihunterShaftOpensScreen0x0)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(7, 11), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(8, 11), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(9, 11), new ScrollExtensionSetup()),
-        new(RoomObjectKind.YellowDoorFacingUp, new(38, 77), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.RedKihunterShaftYellowDoorFacingUp, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.RightwardsScrollExtension, new(7, 11), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(8, 11), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(9, 11), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.YellowDoorFacingUp, new(38, 77), new ColoredDoorSetup(new(ColoredDoorColor.Yellow, ColoredDoorOrientation.Up), new LockedDoorArgument(LockedDoorDefinitions.RedKihunterShaftYellowDoorFacingUp, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The Wasteland room-object population.</summary>
     public static RoomObjectPopulation Wasteland { get; } = RoomObjectPopulation.FromPlacements(nameof(Wasteland),
     [
         new(RoomObjectKind.ScrollTrigger, new(23, 13), new ScrollTriggerSetup(RoomScrollChange.WastelandOpensScreen1x1)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(24, 13), new ScrollExtensionSetup()),
+        new(RoomObjectKind.RightwardsScrollExtension, new(24, 13), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
         new(RoomObjectKind.ScrollTrigger, new(21, 8), new ScrollTriggerSetup(RoomScrollChange.WastelandClosesScreen1x1OpensScreen1x0TopAligned)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(22, 8), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(23, 8), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(24, 8), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(25, 8), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(26, 8), new ScrollExtensionSetup()),
+        new(RoomObjectKind.RightwardsScrollExtension, new(22, 8), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(23, 8), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(24, 8), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(25, 8), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(26, 8), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
         new(RoomObjectKind.ScrollTrigger, new(79, 9), new ScrollTriggerSetup(RoomScrollChange.WastelandOpensScreen4x0TopAligned)),
         new(RoomObjectKind.ScrollTrigger, new(81, 9), new ScrollTriggerSetup(RoomScrollChange.WastelandClosesScreen4x0)),
         new(RoomObjectKind.ScrollTrigger, new(15, 11), new ScrollTriggerSetup(RoomScrollChange.WastelandOpensScreens0x0And1x0TopAligned)),
         new(RoomObjectKind.ScrollTrigger, new(60, 9), new ScrollTriggerSetup(RoomScrollChange.WastelandClosesScreen4x0)),
         new(RoomObjectKind.ScrollTrigger, new(63, 9), new ScrollTriggerSetup(RoomScrollChange.WastelandOpensScreen4x0TopAligned)),
         new(RoomObjectKind.ScrollTrigger, new(20, 7), new ScrollTriggerSetup(RoomScrollChange.WastelandClosesScreen0x0)),
-        new(RoomObjectKind.UpwardsScrollExtension, new(20, 6), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(20, 5), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(20, 4), new ScrollExtensionSetup()),
+        new(RoomObjectKind.UpwardsScrollExtension, new(20, 6), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(20, 5), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(20, 4), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
         new(RoomObjectKind.ScrollTrigger, new(9, 9), new ScrollTriggerSetup(RoomScrollChange.WastelandClosesScreen1x0)),
-        new(RoomObjectKind.UpwardsScrollExtension, new(9, 8), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(9, 7), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(9, 6), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(9, 5), new ScrollExtensionSetup()),
-        new(RoomObjectKind.GreenDoorFacingRight, new(17, 38), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.WastelandGreenDoorFacingRight, DoorOpeningPersistence.Persistent))),
-        new(RoomObjectKind.ExposedPowerBombTank, new(7, 8), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.WastelandExposedPowerBombTank))),
+        new(RoomObjectKind.UpwardsScrollExtension, new(9, 8), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(9, 7), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(9, 6), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(9, 5), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.GreenDoorFacingRight, new(17, 38), new ColoredDoorSetup(new(ColoredDoorColor.Green, ColoredDoorOrientation.Right), new LockedDoorArgument(LockedDoorDefinitions.WastelandGreenDoorFacingRight, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.ExposedPowerBombTank, new(7, 8), new CollectibleSetup(new(InWorldCollectibleKind.PowerBombTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.WastelandExposedPowerBombTank))),
     ]);
 
     /// <summary>The MetalPirates room-object population.</summary>
     public static RoomObjectPopulation MetalPirates { get; } = RoomObjectPopulation.FromPlacements(nameof(MetalPirates),
     [
-        new(RoomObjectKind.GreyDoorFacingRight, new(1, 6), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.EnemyDeathQuota, new LockedDoorArgument(LockedDoorDefinitions.MetalPiratesGreyDoorFacingRight, DoorOpeningPersistence.Persistent)))),
+        new(RoomObjectKind.GreyDoorFacingRight, new(1, 6), new GreyDoorSetup(new(ColoredDoorOrientation.Right, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.EnemyDeathQuota, new LockedDoorArgument(LockedDoorDefinitions.MetalPiratesGreyDoorFacingRight, DoorOpeningPersistence.Persistent)))),
     ]);
 
     /// <summary>The ThreeMusketeers room-object population.</summary>
     public static RoomObjectPopulation ThreeMusketeers { get; } = RoomObjectPopulation.FromPlacements(nameof(ThreeMusketeers),
     [
         new(RoomObjectKind.ScrollTrigger, new(11, 42), new ScrollTriggerSetup(RoomScrollChange.ThreeMusketeersClosesScreen1x2)),
-        new(RoomObjectKind.UpwardsScrollExtension, new(11, 41), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(11, 40), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(11, 39), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(11, 38), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(11, 37), new ScrollExtensionSetup()),
+        new(RoomObjectKind.UpwardsScrollExtension, new(11, 41), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(11, 40), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(11, 39), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(11, 38), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(11, 37), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
         new(RoomObjectKind.ScrollTrigger, new(15, 42), new ScrollTriggerSetup(RoomScrollChange.ThreeMusketeersOpensScreens0x2And1x2TopAligned)),
         new(RoomObjectKind.ScrollTrigger, new(20, 42), new ScrollTriggerSetup(RoomScrollChange.ThreeMusketeersClosesScreen0x2)),
-        new(RoomObjectKind.ExposedMissileTank, new(8, 41), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.ThreeMusketeersExposedMissileTank))),
+        new(RoomObjectKind.ExposedMissileTank, new(8, 41), new CollectibleSetup(new(InWorldCollectibleKind.MissileTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.ThreeMusketeersExposedMissileTank))),
     ]);
 
     /// <summary>The RidleyEnergyTank room-object population.</summary>
     public static RoomObjectPopulation RidleyEnergyTank { get; } = RoomObjectPopulation.FromPlacements(nameof(RidleyEnergyTank),
     [
-        new(RoomObjectKind.ShotBlockEnergyTank, new(14, 11), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.RidleyEnergyTankShotBlockEnergyTank))),
+        new(RoomObjectKind.ShotBlockEnergyTank, new(14, 11), new CollectibleSetup(new(InWorldCollectibleKind.EnergyTank, CollectiblePresentation.ShotBlock), new CollectedItemArgument(ItemLocationDefinitions.RidleyEnergyTankShotBlockEnergyTank))),
     ]);
 
     /// <summary>The ScrewAttack room-object population.</summary>
     public static RoomObjectPopulation ScrewAttack { get; } = RoomObjectPopulation.FromPlacements(nameof(ScrewAttack),
     [
-        new(RoomObjectKind.ChozoScrewAttack, new(11, 40), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.ScrewAttackChozoScrewAttack))),
+        new(RoomObjectKind.ChozoScrewAttack, new(11, 40), new CollectibleSetup(new(InWorldCollectibleKind.ScrewAttack, CollectiblePresentation.ChozoOrb), new CollectedItemArgument(ItemLocationDefinitions.ScrewAttackChozoScrewAttack))),
     ]);
 
     /// <summary>The LowerNorfairFireflea room-object population.</summary>
     public static RoomObjectPopulation LowerNorfairFireflea { get; } = RoomObjectPopulation.FromPlacements(nameof(LowerNorfairFireflea),
     [
-        new(RoomObjectKind.UpwardsScrollExtension, new(31, 54), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(31, 55), new ScrollExtensionSetup()),
+        new(RoomObjectKind.UpwardsScrollExtension, new(31, 54), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(31, 55), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
         new(RoomObjectKind.ScrollTrigger, new(31, 56), new ScrollTriggerSetup(RoomScrollChange.LowerNorfairFirefleaOpensScreen2x3TopAligned)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(45, 57), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(44, 57), new ScrollExtensionSetup()),
+        new(RoomObjectKind.RightwardsScrollExtension, new(45, 57), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(44, 57), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
         new(RoomObjectKind.ScrollTrigger, new(43, 57), new ScrollTriggerSetup(RoomScrollChange.LowerNorfairFirefleaOpensScreens2x3And1x4And2x4)),
-        new(RoomObjectKind.UpwardsScrollExtension, new(15, 6), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(15, 7), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(15, 8), new ScrollExtensionSetup()),
+        new(RoomObjectKind.UpwardsScrollExtension, new(15, 6), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(15, 7), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(15, 8), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
         new(RoomObjectKind.ScrollTrigger, new(15, 9), new ScrollTriggerSetup(RoomScrollChange.LowerNorfairFirefleaClosesScreen1x1OpensScreen0x0TopAligned)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(27, 11), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(26, 11), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(25, 11), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(24, 11), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(23, 11), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(22, 11), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(21, 11), new ScrollExtensionSetup()),
+        new(RoomObjectKind.RightwardsScrollExtension, new(27, 11), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(26, 11), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(25, 11), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(24, 11), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(23, 11), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(22, 11), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(21, 11), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
         new(RoomObjectKind.ScrollTrigger, new(20, 11), new ScrollTriggerSetup(RoomScrollChange.LowerNorfairFirefleaOpensScreens1x0And1x1)),
-        new(RoomObjectKind.ExposedEnergyTank, new(42, 81), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.LowerNorfairFirefleaExposedEnergyTank))),
+        new(RoomObjectKind.ExposedEnergyTank, new(42, 81), new CollectibleSetup(new(InWorldCollectibleKind.EnergyTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.LowerNorfairFirefleaExposedEnergyTank))),
     ]);
 
     /// <summary>The LowerNorfairSave room-object population.</summary>
     public static RoomObjectPopulation LowerNorfairSave { get; } = RoomObjectPopulation.FromPlacements(nameof(LowerNorfairSave),
     [
-        new(RoomObjectKind.SaveStation, new(7, 11), new StationSetup(new SaveStationArgument(LoadStationDefinitions.LowerNorfairSave))),
+        new(RoomObjectKind.SaveStation, new(7, 11), new StationSetup(StationKind.Save, new SaveStationArgument(LoadStationDefinitions.LowerNorfairSave))),
     ]);
 
     /// <summary>The BowlingAlleyDefault room-object population.</summary>
     public static RoomObjectPopulation BowlingAlleyDefault { get; } = RoomObjectPopulation.FromPlacements(nameof(BowlingAlleyDefault),
     [
         new(RoomObjectKind.ScrollTrigger, new(31, 45), new ScrollTriggerSetup(RoomScrollChange.BowlingAlleyOpensScreens2x2And3x2TopAligned)),
-        new(RoomObjectKind.UpwardsScrollExtension, new(65, 38), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(65, 39), new ScrollExtensionSetup()),
+        new(RoomObjectKind.UpwardsScrollExtension, new(65, 38), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(65, 39), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
         new(RoomObjectKind.ScrollTrigger, new(65, 40), new ScrollTriggerSetup(RoomScrollChange.BowlingAlleyClosesScreen4x0OpensScreens5x0And5x1OpensScreens4x2And5x2TopAligned)),
     ]);
 
@@ -1586,8 +1587,8 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The AtticDefault room-object population.</summary>
     public static RoomObjectPopulation AtticDefault { get; } = RoomObjectPopulation.FromPlacements(nameof(AtticDefault),
     [
-        new(RoomObjectKind.GreyDoorFacingRight, new(1, 6), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.AreaBossDefeated, new LockedDoorArgument(LockedDoorDefinitions.AtticDefaultGreyDoorFacingRight, DoorOpeningPersistence.Persistent)))),
-        new(RoomObjectKind.GreyDoorFacingLeft, new(110, 6), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.AreaBossDefeated, new LockedDoorArgument(LockedDoorDefinitions.AtticDefaultGreyDoorFacingLeft, DoorOpeningPersistence.Persistent)))),
+        new(RoomObjectKind.GreyDoorFacingRight, new(1, 6), new GreyDoorSetup(new(ColoredDoorOrientation.Right, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.AreaBossDefeated, new LockedDoorArgument(LockedDoorDefinitions.AtticDefaultGreyDoorFacingRight, DoorOpeningPersistence.Persistent)))),
+        new(RoomObjectKind.GreyDoorFacingLeft, new(110, 6), new GreyDoorSetup(new(ColoredDoorOrientation.Left, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.AreaBossDefeated, new LockedDoorArgument(LockedDoorDefinitions.AtticDefaultGreyDoorFacingLeft, DoorOpeningPersistence.Persistent)))),
         new(RoomObjectKind.WreckedShipAtticHeldPlace, new(8, 8), new WreckedShipAtticHeldPlaceSetup()),
     ]);
 
@@ -1604,10 +1605,10 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectKind.ScrollTrigger, new(65, 87), new ScrollTriggerSetup(RoomScrollChange.WreckedShipMainShaftClosesScreen3x5)),
         new(RoomObjectKind.ScrollTrigger, new(78, 105), new ScrollTriggerSetup(RoomScrollChange.WreckedShipMainShaftClosesScreen5x6)),
         new(RoomObjectKind.ScrollTrigger, new(71, 109), new ScrollTriggerSetup(RoomScrollChange.WreckedShipMainShaftOpensScreens4x6And4x7)),
-        new(RoomObjectKind.ExposedMissileTank, new(2, 89), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.WreckedShipMainShaftExposedMissileTank))),
-        new(RoomObjectKind.GreyDoorFacingRight, new(65, 102), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.AreaBossDefeated, new LockedDoorArgument(LockedDoorDefinitions.WreckedShipMainShaftGreyDoorFacingRight, DoorOpeningPersistence.Persistent)))),
-        new(RoomObjectKind.GreyDoorFacingLeft, new(78, 70), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.AreaBossDefeated, new LockedDoorArgument(LockedDoorDefinitions.WreckedShipMainShaftGreyDoorFacingLeft, DoorOpeningPersistence.Persistent)))),
-        new(RoomObjectKind.GreenDoorFacingUp, new(70, 125), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.WreckedShipMainShaftGreenDoorFacingUp, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.ExposedMissileTank, new(2, 89), new CollectibleSetup(new(InWorldCollectibleKind.MissileTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.WreckedShipMainShaftExposedMissileTank))),
+        new(RoomObjectKind.GreyDoorFacingRight, new(65, 102), new GreyDoorSetup(new(ColoredDoorOrientation.Right, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.AreaBossDefeated, new LockedDoorArgument(LockedDoorDefinitions.WreckedShipMainShaftGreyDoorFacingRight, DoorOpeningPersistence.Persistent)))),
+        new(RoomObjectKind.GreyDoorFacingLeft, new(78, 70), new GreyDoorSetup(new(ColoredDoorOrientation.Left, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.AreaBossDefeated, new LockedDoorArgument(LockedDoorDefinitions.WreckedShipMainShaftGreyDoorFacingLeft, DoorOpeningPersistence.Persistent)))),
+        new(RoomObjectKind.GreenDoorFacingUp, new(70, 125), new ColoredDoorSetup(new(ColoredDoorColor.Green, ColoredDoorOrientation.Up), new LockedDoorArgument(LockedDoorDefinitions.WreckedShipMainShaftGreenDoorFacingUp, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The SpikyDeathDefault room-object population.</summary>
@@ -1619,7 +1620,7 @@ internal static class RoomObjectPopulationDefinitions
     public static RoomObjectPopulation ElectricDeathDefault { get; } = RoomObjectPopulation.FromPlacements(nameof(ElectricDeathDefault),
     [
         new(RoomObjectKind.ScrollTrigger, new(7, 16), new ScrollTriggerSetup(RoomScrollChange.ElectricDeathOpensScreen0x0)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(8, 16), new ScrollExtensionSetup()),
+        new(RoomObjectKind.RightwardsScrollExtension, new(8, 16), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
     ]);
 
     /// <summary>The WreckedShipEnergyTankDefault room-object population.</summary>
@@ -1632,9 +1633,9 @@ internal static class RoomObjectPopulationDefinitions
     [
         new(RoomObjectKind.ScrollTrigger, new(64, 12), new ScrollTriggerSetup(RoomScrollChange.BasementOpensScreens3x0And4x0TopAligned)),
         new(RoomObjectKind.ScrollTrigger, new(70, 12), new ScrollTriggerSetup(RoomScrollChange.BasementClosesScreen3x0)),
-        new(RoomObjectKind.EyeDoorFacingLeft, new(78, 6), new EyeDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.BasementDefaultEyeDoorFacingLeft, DoorOpeningPersistence.Persistent))),
-        new(RoomObjectKind.EyeDoorBottomFacingLeft, new(78, 9), new EyeDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.BasementDefaultEyeDoorFacingLeft, DoorOpeningPersistence.Persistent))),
-        new(RoomObjectKind.EyeDoorEyeFacingLeft, new(78, 7), new EyeDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.BasementDefaultEyeDoorFacingLeft, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.EyeDoorFacingLeft, new(78, 6), new EyeDoorPartSetup(new(EyeDoorBodyPart.Middle, EyeDoorOrientation.Left), new LockedDoorArgument(LockedDoorDefinitions.BasementDefaultEyeDoorFacingLeft, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.EyeDoorBottomFacingLeft, new(78, 9), new EyeDoorPartSetup(new(EyeDoorBodyPart.Bottom, EyeDoorOrientation.Left), new LockedDoorArgument(LockedDoorDefinitions.BasementDefaultEyeDoorFacingLeft, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.EyeDoorEyeFacingLeft, new(78, 7), new EyeDoorEyeSetup(EyeDoorOrientation.Left, new LockedDoorArgument(LockedDoorDefinitions.BasementDefaultEyeDoorFacingLeft, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The WreckedShipMapDefault room-object population.</summary>
@@ -1645,7 +1646,7 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The Phantoon room-object population.</summary>
     public static RoomObjectPopulation Phantoon { get; } = RoomObjectPopulation.FromPlacements(nameof(Phantoon),
     [
-        new(RoomObjectKind.GreyDoorFacingRight, new(1, 6), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.AreaBossDefeated, new LockedDoorArgument(LockedDoorDefinitions.PhantoonGreyDoorFacingRight, DoorOpeningPersistence.Persistent)))),
+        new(RoomObjectKind.GreyDoorFacingRight, new(1, 6), new GreyDoorSetup(new(ColoredDoorOrientation.Right, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.AreaBossDefeated, new LockedDoorArgument(LockedDoorDefinitions.PhantoonGreyDoorFacingRight, DoorOpeningPersistence.Persistent)))),
     ]);
 
     /// <summary>The SpongeBathDefault room-object population.</summary>
@@ -1672,19 +1673,19 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The WreckedShipSaveWhenAreaBossDead room-object population.</summary>
     public static RoomObjectPopulation WreckedShipSaveWhenAreaBossDead { get; } = RoomObjectPopulation.FromPlacements(nameof(WreckedShipSaveWhenAreaBossDead),
     [
-        new(RoomObjectKind.SaveStation, new(7, 11), new StationSetup(new SaveStationArgument(LoadStationDefinitions.WreckedShipSave))),
+        new(RoomObjectKind.SaveStation, new(7, 11), new StationSetup(StationKind.Save, new SaveStationArgument(LoadStationDefinitions.WreckedShipSave))),
     ]);
 
     /// <summary>The BowlingAlleyWhenAreaBossDead room-object population.</summary>
     public static RoomObjectPopulation BowlingAlleyWhenAreaBossDead { get; } = RoomObjectPopulation.FromPlacements(nameof(BowlingAlleyWhenAreaBossDead),
     [
         new(RoomObjectKind.ScrollTrigger, new(31, 45), new ScrollTriggerSetup(RoomScrollChange.BowlingAlleyOpensScreens2x2And3x2TopAligned)),
-        new(RoomObjectKind.UpwardsScrollExtension, new(65, 38), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(65, 39), new ScrollExtensionSetup()),
+        new(RoomObjectKind.UpwardsScrollExtension, new(65, 38), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(65, 39), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
         new(RoomObjectKind.ScrollTrigger, new(65, 40), new ScrollTriggerSetup(RoomScrollChange.BowlingAlleyClosesScreen4x0OpensScreens5x0And5x1OpensScreens4x2And5x2TopAligned)),
-        new(RoomObjectKind.ChozoReserveTank, new(83, 11), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.BowlingAlleyWhenAreaBossDeadChozoReserveTank))),
-        new(RoomObjectKind.ExposedMissileTank, new(60, 38), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.BowlingAlleyWhenAreaBossDeadExposedMissileTank))),
-        new(RoomObjectKind.GreyDoorFacingRight, new(1, 22), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.Never, new LockedDoorArgument(LockedDoorDefinitions.BowlingAlleyWhenAreaBossDeadGreyDoorFacingRight, DoorOpeningPersistence.Transient)))),
+        new(RoomObjectKind.ChozoReserveTank, new(83, 11), new CollectibleSetup(new(InWorldCollectibleKind.ReserveTank, CollectiblePresentation.ChozoOrb), new CollectedItemArgument(ItemLocationDefinitions.BowlingAlleyWhenAreaBossDeadChozoReserveTank))),
+        new(RoomObjectKind.ExposedMissileTank, new(60, 38), new CollectibleSetup(new(InWorldCollectibleKind.MissileTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.BowlingAlleyWhenAreaBossDeadExposedMissileTank))),
+        new(RoomObjectKind.GreyDoorFacingRight, new(1, 22), new GreyDoorSetup(new(ColoredDoorOrientation.Right, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.Never, new LockedDoorArgument(LockedDoorDefinitions.BowlingAlleyWhenAreaBossDeadGreyDoorFacingRight, DoorOpeningPersistence.Transient)))),
     ]);
 
     /// <summary>The WreckedShipEntranceWhenAreaBossDead room-object population.</summary>
@@ -1695,16 +1696,16 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The AtticWhenAreaBossDead room-object population.</summary>
     public static RoomObjectPopulation AtticWhenAreaBossDead { get; } = RoomObjectPopulation.FromPlacements(nameof(AtticWhenAreaBossDead),
     [
-        new(RoomObjectKind.GreyDoorFacingRight, new(1, 6), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.EnemyDeathQuota, new LockedDoorArgument(LockedDoorDefinitions.AtticWhenAreaBossDeadGreyDoorFacingRight, DoorOpeningPersistence.Persistent)))),
-        new(RoomObjectKind.GreyDoorFacingLeft, new(110, 6), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.EnemyDeathQuota, new LockedDoorArgument(LockedDoorDefinitions.AtticWhenAreaBossDeadGreyDoorFacingLeft, DoorOpeningPersistence.Persistent)))),
-        new(RoomObjectKind.GreyDoorFacingUp, new(70, 14), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.EnemyDeathQuota, new LockedDoorArgument(LockedDoorDefinitions.AtticWhenAreaBossDeadGreyDoorFacingUp, DoorOpeningPersistence.Persistent)))),
+        new(RoomObjectKind.GreyDoorFacingRight, new(1, 6), new GreyDoorSetup(new(ColoredDoorOrientation.Right, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.EnemyDeathQuota, new LockedDoorArgument(LockedDoorDefinitions.AtticWhenAreaBossDeadGreyDoorFacingRight, DoorOpeningPersistence.Persistent)))),
+        new(RoomObjectKind.GreyDoorFacingLeft, new(110, 6), new GreyDoorSetup(new(ColoredDoorOrientation.Left, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.EnemyDeathQuota, new LockedDoorArgument(LockedDoorDefinitions.AtticWhenAreaBossDeadGreyDoorFacingLeft, DoorOpeningPersistence.Persistent)))),
+        new(RoomObjectKind.GreyDoorFacingUp, new(70, 14), new GreyDoorSetup(new(ColoredDoorOrientation.Up, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.EnemyDeathQuota, new LockedDoorArgument(LockedDoorDefinitions.AtticWhenAreaBossDeadGreyDoorFacingUp, DoorOpeningPersistence.Persistent)))),
         new(RoomObjectKind.WreckedShipAtticHeldPlace, new(8, 8), new WreckedShipAtticHeldPlaceSetup()),
     ]);
 
     /// <summary>The AssemblyLineWhenAreaBossDead room-object population.</summary>
     public static RoomObjectPopulation AssemblyLineWhenAreaBossDead { get; } = RoomObjectPopulation.FromPlacements(nameof(AssemblyLineWhenAreaBossDead),
     [
-        new(RoomObjectKind.ExposedMissileTank, new(45, 8), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.AssemblyLineWhenAreaBossDeadExposedMissileTank))),
+        new(RoomObjectKind.ExposedMissileTank, new(45, 8), new CollectibleSetup(new(InWorldCollectibleKind.MissileTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.AssemblyLineWhenAreaBossDeadExposedMissileTank))),
     ]);
 
     /// <summary>The SpikyDeathWhenAreaBossDead room-object population.</summary>
@@ -1716,14 +1717,14 @@ internal static class RoomObjectPopulationDefinitions
     public static RoomObjectPopulation ElectricDeathWhenAreaBossDead { get; } = RoomObjectPopulation.FromPlacements(nameof(ElectricDeathWhenAreaBossDead),
     [
         new(RoomObjectKind.ScrollTrigger, new(7, 16), new ScrollTriggerSetup(RoomScrollChange.ElectricDeathOpensScreen0x0)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(8, 16), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RedDoorFacingRight, new(1, 6), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.ElectricDeathWhenAreaBossDeadRedDoorFacingRight, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.RightwardsScrollExtension, new(8, 16), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RedDoorFacingRight, new(1, 6), new ColoredDoorSetup(new(ColoredDoorColor.Red, ColoredDoorOrientation.Right), new LockedDoorArgument(LockedDoorDefinitions.ElectricDeathWhenAreaBossDeadRedDoorFacingRight, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The WreckedShipEnergyTankWhenAreaBossDead room-object population.</summary>
     public static RoomObjectPopulation WreckedShipEnergyTankWhenAreaBossDead { get; } = RoomObjectPopulation.FromPlacements(nameof(WreckedShipEnergyTankWhenAreaBossDead),
     [
-        new(RoomObjectKind.ExposedEnergyTank, new(3, 6), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.WreckedShipEnergyTankWhenAreaBossDeadExposedEnergyTank))),
+        new(RoomObjectKind.ExposedEnergyTank, new(3, 6), new CollectibleSetup(new(InWorldCollectibleKind.EnergyTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.WreckedShipEnergyTankWhenAreaBossDeadExposedEnergyTank))),
     ]);
 
     /// <summary>The BasementWhenAreaBossDead room-object population.</summary>
@@ -1736,7 +1737,7 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The WreckedShipMapWhenAreaBossDead room-object population.</summary>
     public static RoomObjectPopulation WreckedShipMapWhenAreaBossDead { get; } = RoomObjectPopulation.FromPlacements(nameof(WreckedShipMapWhenAreaBossDead),
     [
-        new(RoomObjectKind.MapStation, new(5, 10), new StationSetup(null)),
+        new(RoomObjectKind.MapStation, new(5, 10), new StationSetup(StationKind.Map, null)),
     ]);
 
     /// <summary>The SpongeBathWhenAreaBossDead room-object population.</summary>
@@ -1747,47 +1748,47 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The WreckedShipWestSuperWhenAreaBossDead room-object population.</summary>
     public static RoomObjectPopulation WreckedShipWestSuperWhenAreaBossDead { get; } = RoomObjectPopulation.FromPlacements(nameof(WreckedShipWestSuperWhenAreaBossDead),
     [
-        new(RoomObjectKind.ExposedSuperMissileTank, new(2, 7), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.WreckedShipWestSuperWhenAreaBossDeadExposedSuperMissileTank))),
+        new(RoomObjectKind.ExposedSuperMissileTank, new(2, 7), new CollectibleSetup(new(InWorldCollectibleKind.SuperMissileTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.WreckedShipWestSuperWhenAreaBossDeadExposedSuperMissileTank))),
     ]);
 
     /// <summary>The WreckedShipEastSuperWhenAreaBossDead room-object population.</summary>
     public static RoomObjectPopulation WreckedShipEastSuperWhenAreaBossDead { get; } = RoomObjectPopulation.FromPlacements(nameof(WreckedShipEastSuperWhenAreaBossDead),
     [
         new(RoomObjectKind.ScrollTrigger, new(47, 7), new ScrollTriggerSetup(RoomScrollChange.WreckedShipEastSuperOpensScreen3x0TopAligned)),
-        new(RoomObjectKind.ExposedSuperMissileTank, new(56, 9), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.WreckedShipEastSuperWhenAreaBossDeadExposedSuperMissileTank))),
+        new(RoomObjectKind.ExposedSuperMissileTank, new(56, 9), new CollectibleSetup(new(InWorldCollectibleKind.SuperMissileTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.WreckedShipEastSuperWhenAreaBossDeadExposedSuperMissileTank))),
     ]);
 
     /// <summary>The GravitySuitWhenAreaBossDead room-object population.</summary>
     public static RoomObjectPopulation GravitySuitWhenAreaBossDead { get; } = RoomObjectPopulation.FromPlacements(nameof(GravitySuitWhenAreaBossDead),
     [
-        new(RoomObjectKind.ChozoGravitySuit, new(7, 9), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.GravitySuitWhenAreaBossDeadChozoGravitySuit))),
+        new(RoomObjectKind.ChozoGravitySuit, new(7, 9), new CollectibleSetup(new(InWorldCollectibleKind.GravitySuit, CollectiblePresentation.ChozoOrb), new CollectedItemArgument(ItemLocationDefinitions.GravitySuitWhenAreaBossDeadChozoGravitySuit))),
     ]);
 
     /// <summary>The GlassTunnelSave room-object population.</summary>
     public static RoomObjectPopulation GlassTunnelSave { get; } = RoomObjectPopulation.FromPlacements(nameof(GlassTunnelSave),
     [
-        new(RoomObjectKind.SaveStation, new(7, 11), new StationSetup(new SaveStationArgument(LoadStationDefinitions.GlassTunnelSave))),
+        new(RoomObjectKind.SaveStation, new(7, 11), new StationSetup(StationKind.Save, new SaveStationArgument(LoadStationDefinitions.GlassTunnelSave))),
     ]);
 
     /// <summary>The GlassTunnel room-object population.</summary>
     public static RoomObjectPopulation GlassTunnel { get; } = RoomObjectPopulation.FromPlacements(nameof(GlassTunnel),
     [
         new(RoomObjectKind.ScrollTrigger, new(3, 20), new ScrollTriggerSetup(RoomScrollChange.GlassTunnelOpensScreen0x0)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(4, 20), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(5, 20), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(6, 20), new ScrollExtensionSetup()),
+        new(RoomObjectKind.RightwardsScrollExtension, new(4, 20), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(5, 20), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(6, 20), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
         new(RoomObjectKind.ScrollTrigger, new(9, 20), new ScrollTriggerSetup(RoomScrollChange.GlassTunnelOpensScreen0x0)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(10, 20), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(11, 20), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(12, 20), new ScrollExtensionSetup()),
+        new(RoomObjectKind.RightwardsScrollExtension, new(10, 20), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(11, 20), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(12, 20), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
         new(RoomObjectKind.ScrollTrigger, new(5, 29), new ScrollTriggerSetup(RoomScrollChange.GlassTunnelOpensScreens0x1And0x2)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(6, 29), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(7, 29), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(8, 29), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(9, 29), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(10, 29), new ScrollExtensionSetup()),
+        new(RoomObjectKind.RightwardsScrollExtension, new(6, 29), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(7, 29), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(8, 29), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(9, 29), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(10, 29), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
         new(RoomObjectKind.NoobTube, new(2, 21), new NoobTubeSetup()),
-        new(RoomObjectKind.RedDoorFacingLeft, new(14, 38), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.GlassTunnelRedDoorFacingLeft, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.RedDoorFacingLeft, new(14, 38), new ColoredDoorSetup(new(ColoredDoorColor.Red, ColoredDoorOrientation.Left), new LockedDoorArgument(LockedDoorDefinitions.GlassTunnelRedDoorFacingLeft, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The WestTunnel room-object population.</summary>
@@ -1801,12 +1802,12 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectKind.ScrollTrigger, new(5, 9), new ScrollTriggerSetup(RoomScrollChange.EastTunnelClosesScreens1x0And0x1OpensScreen0x0TopAligned)),
         new(RoomObjectKind.ScrollTrigger, new(5, 16), new ScrollTriggerSetup(RoomScrollChange.EastTunnelOpensScreen0x0OpensScreen0x1TopAligned)),
         new(RoomObjectKind.ScrollTrigger, new(5, 22), new ScrollTriggerSetup(RoomScrollChange.EastTunnelClosesScreen0x0OpensScreen0x1TopAligned)),
-        new(RoomObjectKind.UpwardsScrollExtension, new(10, 3), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(10, 4), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(10, 5), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(10, 6), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(10, 7), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(10, 8), new ScrollExtensionSetup()),
+        new(RoomObjectKind.UpwardsScrollExtension, new(10, 3), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(10, 4), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(10, 5), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(10, 6), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(10, 7), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(10, 8), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
         new(RoomObjectKind.ScrollTrigger, new(10, 9), new ScrollTriggerSetup(RoomScrollChange.EastTunnelOpensScreen1x0TopAligned)),
         new(RoomObjectKind.DownwardGate, new(22, 5), new DownwardGateSetup()),
         new(RoomObjectKind.DownwardGateShotBlock, new(22, 5), new DownwardGateShotBlockSetup(new GateTriggerArgument(DownwardGateTriggerBehavior.GreenRight))),
@@ -1816,30 +1817,30 @@ internal static class RoomObjectPopulationDefinitions
     public static RoomObjectPopulation MainStreet { get; } = RoomObjectPopulation.FromPlacements(nameof(MainStreet),
     [
         new(RoomObjectKind.ScrollTrigger, new(37, 41), new ScrollTriggerSetup(RoomScrollChange.MainStreetClosesScreen1x3OpensScreen1x2TopAligned)),
-        new(RoomObjectKind.RedDoorFacingLeft, new(30, 118), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.MainStreetRedDoorFacingLeft, DoorOpeningPersistence.Persistent))),
-        new(RoomObjectKind.ExposedMissileTank, new(14, 53), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.MainStreetExposedMissileTank))),
-        new(RoomObjectKind.ExposedSuperMissileTank, new(22, 40), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.MainStreetExposedSuperMissileTank))),
+        new(RoomObjectKind.RedDoorFacingLeft, new(30, 118), new ColoredDoorSetup(new(ColoredDoorColor.Red, ColoredDoorOrientation.Left), new LockedDoorArgument(LockedDoorDefinitions.MainStreetRedDoorFacingLeft, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.ExposedMissileTank, new(14, 53), new CollectibleSetup(new(InWorldCollectibleKind.MissileTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.MainStreetExposedMissileTank))),
+        new(RoomObjectKind.ExposedSuperMissileTank, new(22, 40), new CollectibleSetup(new(InWorldCollectibleKind.SuperMissileTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.MainStreetExposedSuperMissileTank))),
     ]);
 
     /// <summary>The FishTank room-object population.</summary>
     public static RoomObjectPopulation FishTank { get; } = RoomObjectPopulation.FromPlacements(nameof(FishTank),
     [
-        new(RoomObjectKind.UpwardsScrollExtension, new(31, 38), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(31, 39), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(31, 40), new ScrollExtensionSetup()),
+        new(RoomObjectKind.UpwardsScrollExtension, new(31, 38), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(31, 39), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(31, 40), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
         new(RoomObjectKind.ScrollTrigger, new(31, 41), new ScrollTriggerSetup(RoomScrollChange.FishTankOpensScreen2x2)),
-        new(RoomObjectKind.UpwardsScrollExtension, new(48, 38), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(48, 39), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(48, 40), new ScrollExtensionSetup()),
+        new(RoomObjectKind.UpwardsScrollExtension, new(48, 38), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(48, 39), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(48, 40), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
         new(RoomObjectKind.ScrollTrigger, new(48, 41), new ScrollTriggerSetup(RoomScrollChange.FishTankOpensScreen2x2)),
-        new(RoomObjectKind.RedDoorFacingLeft, new(62, 38), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.FishTankRedDoorFacingLeft, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.RedDoorFacingLeft, new(62, 38), new ColoredDoorSetup(new(ColoredDoorColor.Red, ColoredDoorOrientation.Left), new LockedDoorArgument(LockedDoorDefinitions.FishTankRedDoorFacingLeft, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The MamaTurtle room-object population.</summary>
     public static RoomObjectPopulation MamaTurtle { get; } = RoomObjectPopulation.FromPlacements(nameof(MamaTurtle),
     [
-        new(RoomObjectKind.ExposedEnergyTank, new(31, 10), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.MamaTurtleExposedEnergyTank))),
-        new(RoomObjectKind.ShotBlockMissileTank, new(44, 29), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.MamaTurtleShotBlockMissileTank))),
+        new(RoomObjectKind.ExposedEnergyTank, new(31, 10), new CollectibleSetup(new(InWorldCollectibleKind.EnergyTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.MamaTurtleExposedEnergyTank))),
+        new(RoomObjectKind.ShotBlockMissileTank, new(44, 29), new CollectibleSetup(new(InWorldCollectibleKind.MissileTank, CollectiblePresentation.ShotBlock), new CollectedItemArgument(ItemLocationDefinitions.MamaTurtleShotBlockMissileTank))),
     ]);
 
     /// <summary>The CrabTunnel room-object population.</summary>
@@ -1865,20 +1866,20 @@ internal static class RoomObjectPopulationDefinitions
     public static RoomObjectPopulation WateringHole { get; } = RoomObjectPopulation.FromPlacements(nameof(WateringHole),
     [
         new(RoomObjectKind.ScrollTrigger, new(7, 31), new ScrollTriggerSetup(RoomScrollChange.WateringHoleOpensScreen0x2TopAligned)),
-        new(RoomObjectKind.ExposedSuperMissileTank, new(4, 38), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.WateringHoleExposedSuperMissileTank))),
-        new(RoomObjectKind.ExposedMissileTank, new(11, 39), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.WateringHoleExposedMissileTank))),
+        new(RoomObjectKind.ExposedSuperMissileTank, new(4, 38), new CollectibleSetup(new(InWorldCollectibleKind.SuperMissileTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.WateringHoleExposedSuperMissileTank))),
+        new(RoomObjectKind.ExposedMissileTank, new(11, 39), new CollectibleSetup(new(InWorldCollectibleKind.MissileTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.WateringHoleExposedMissileTank))),
     ]);
 
     /// <summary>The NorthwestMaridiaBug room-object population.</summary>
     public static RoomObjectPopulation NorthwestMaridiaBug { get; } = RoomObjectPopulation.FromPlacements(nameof(NorthwestMaridiaBug),
     [
-        new(RoomObjectKind.UpwardsScrollExtension, new(32, 22), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(32, 23), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(32, 24), new ScrollExtensionSetup()),
+        new(RoomObjectKind.UpwardsScrollExtension, new(32, 22), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(32, 23), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(32, 24), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
         new(RoomObjectKind.ScrollTrigger, new(32, 25), new ScrollTriggerSetup(RoomScrollChange.NorthwestMaridiaBugOpensScreen1x1TopAligned)),
-        new(RoomObjectKind.UpwardsScrollExtension, new(15, 22), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(15, 23), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(15, 24), new ScrollExtensionSetup()),
+        new(RoomObjectKind.UpwardsScrollExtension, new(15, 22), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(15, 23), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(15, 24), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
         new(RoomObjectKind.ScrollTrigger, new(15, 25), new ScrollTriggerSetup(RoomScrollChange.NorthwestMaridiaBugOpensScreen1x1TopAligned)),
     ]);
 
@@ -1886,22 +1887,22 @@ internal static class RoomObjectPopulationDefinitions
     public static RoomObjectPopulation CrabShaft { get; } = RoomObjectPopulation.FromPlacements(nameof(CrabShaft),
     [
         new(RoomObjectKind.ScrollTrigger, new(7, 45), new ScrollTriggerSetup(RoomScrollChange.CrabShaftOpensScreen0x2OpensScreen0x3TopAligned)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(8, 45), new ScrollExtensionSetup()),
-        new(RoomObjectKind.GreenDoorFacingLeft, new(30, 54), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.CrabShaftGreenDoorFacingLeft, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.RightwardsScrollExtension, new(8, 45), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.GreenDoorFacingLeft, new(30, 54), new ColoredDoorSetup(new(ColoredDoorColor.Green, ColoredDoorOrientation.Left), new LockedDoorArgument(LockedDoorDefinitions.CrabShaftGreenDoorFacingLeft, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The PseudoPlasmaSpark room-object population.</summary>
     public static RoomObjectPopulation PseudoPlasmaSpark { get; } = RoomObjectPopulation.FromPlacements(nameof(PseudoPlasmaSpark),
     [
-        new(RoomObjectKind.UpwardsScrollExtension, new(31, 38), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(31, 39), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(31, 40), new ScrollExtensionSetup()),
+        new(RoomObjectKind.UpwardsScrollExtension, new(31, 38), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(31, 39), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(31, 40), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
         new(RoomObjectKind.ScrollTrigger, new(31, 41), new ScrollTriggerSetup(RoomScrollChange.PseudoPlasmaSparkOpensScreen2x2)),
-        new(RoomObjectKind.UpwardsScrollExtension, new(29, 38), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(29, 39), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(29, 40), new ScrollExtensionSetup()),
+        new(RoomObjectKind.UpwardsScrollExtension, new(29, 38), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(29, 39), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(29, 40), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
         new(RoomObjectKind.ScrollTrigger, new(29, 41), new ScrollTriggerSetup(RoomScrollChange.PseudoPlasmaSparkClosesScreen2x2)),
-        new(RoomObjectKind.ExposedMissileTank, new(44, 40), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.PseudoPlasmaSparkExposedMissileTank))),
+        new(RoomObjectKind.ExposedMissileTank, new(44, 40), new CollectibleSetup(new(InWorldCollectibleKind.MissileTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.PseudoPlasmaSparkExposedMissileTank))),
     ]);
 
     /// <summary>The CrabHole room-object population.</summary>
@@ -1909,7 +1910,7 @@ internal static class RoomObjectPopulationDefinitions
     [
         new(RoomObjectKind.ScrollTrigger, new(8, 14), new ScrollTriggerSetup(RoomScrollChange.CrabHoleOpensScreen0x0OpensScreen0x1TopAligned)),
         new(RoomObjectKind.ScrollTrigger, new(8, 17), new ScrollTriggerSetup(RoomScrollChange.CrabHoleOpensScreen0x0OpensScreen0x1TopAligned)),
-        new(RoomObjectKind.RedDoorFacingLeft, new(14, 22), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.CrabHoleRedDoorFacingLeft, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.RedDoorFacingLeft, new(14, 22), new ColoredDoorSetup(new(ColoredDoorColor.Red, ColoredDoorOrientation.Left), new LockedDoorArgument(LockedDoorDefinitions.CrabHoleRedDoorFacingLeft, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The WestSandHallTunnel room-object population.</summary>
@@ -1925,8 +1926,8 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The Plasma room-object population.</summary>
     public static RoomObjectPopulation Plasma { get; } = RoomObjectPopulation.FromPlacements(nameof(Plasma),
     [
-        new(RoomObjectKind.GreyDoorFacingRight, new(1, 6), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.EnemyDeathQuota, new LockedDoorArgument(LockedDoorDefinitions.PlasmaGreyDoorFacingRight, DoorOpeningPersistence.Persistent)))),
-        new(RoomObjectKind.ChozoPlasmaBeam, new(25, 38), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.PlasmaChozoPlasmaBeam))),
+        new(RoomObjectKind.GreyDoorFacingRight, new(1, 6), new GreyDoorSetup(new(ColoredDoorOrientation.Right, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.EnemyDeathQuota, new LockedDoorArgument(LockedDoorDefinitions.PlasmaGreyDoorFacingRight, DoorOpeningPersistence.Persistent)))),
+        new(RoomObjectKind.ChozoPlasmaBeam, new(25, 38), new CollectibleSetup(new(InWorldCollectibleKind.PlasmaBeam, CollectiblePresentation.ChozoOrb), new CollectedItemArgument(ItemLocationDefinitions.PlasmaChozoPlasmaBeam))),
     ]);
 
     /// <summary>The ThreadTheNeedle room-object population.</summary>
@@ -1938,14 +1939,14 @@ internal static class RoomObjectPopulationDefinitions
     public static RoomObjectPopulation MaridiaElevator { get; } = RoomObjectPopulation.FromPlacements(nameof(MaridiaElevator),
     [
         new(RoomObjectKind.ElevatorPlatform, new(6, 44), new ElevatorPlatformSetup()),
-        new(RoomObjectKind.RedDoorFacingLeft, new(14, 70), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.MaridiaElevatorRedDoorFacingLeft, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.RedDoorFacingLeft, new(14, 70), new ColoredDoorSetup(new(ColoredDoorColor.Red, ColoredDoorOrientation.Left), new LockedDoorArgument(LockedDoorDefinitions.MaridiaElevatorRedDoorFacingLeft, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The PlasmaSpark room-object population.</summary>
     public static RoomObjectPopulation PlasmaSpark { get; } = RoomObjectPopulation.FromPlacements(nameof(PlasmaSpark),
     [
-        new(RoomObjectKind.GreyDoorFacingLeft, new(46, 22), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.AreaBossDefeated, new LockedDoorArgument(LockedDoorDefinitions.PlasmaSparkGreyDoorFacingLeft, DoorOpeningPersistence.Persistent)))),
-        new(RoomObjectKind.GreenDoorFacingUp, new(6, 45), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.PlasmaSparkGreenDoorFacingUp, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.GreyDoorFacingLeft, new(46, 22), new GreyDoorSetup(new(ColoredDoorOrientation.Left, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.AreaBossDefeated, new LockedDoorArgument(LockedDoorDefinitions.PlasmaSparkGreyDoorFacingLeft, DoorOpeningPersistence.Persistent)))),
+        new(RoomObjectKind.GreenDoorFacingUp, new(6, 45), new ColoredDoorSetup(new(ColoredDoorColor.Green, ColoredDoorOrientation.Up), new LockedDoorArgument(LockedDoorDefinitions.PlasmaSparkGreenDoorFacingUp, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The Kassiuz room-object population.</summary>
@@ -1956,13 +1957,13 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The MaridiaMap room-object population.</summary>
     public static RoomObjectPopulation MaridiaMap { get; } = RoomObjectPopulation.FromPlacements(nameof(MaridiaMap),
     [
-        new(RoomObjectKind.MapStation, new(11, 10), new StationSetup(null)),
+        new(RoomObjectKind.MapStation, new(11, 10), new StationSetup(StationKind.Map, null)),
     ]);
 
     /// <summary>The ForgottenHighwaySave room-object population.</summary>
     public static RoomObjectPopulation ForgottenHighwaySave { get; } = RoomObjectPopulation.FromPlacements(nameof(ForgottenHighwaySave),
     [
-        new(RoomObjectKind.SaveStation, new(7, 11), new StationSetup(new SaveStationArgument(LoadStationDefinitions.ForgottenHighwaySave))),
+        new(RoomObjectKind.SaveStation, new(7, 11), new StationSetup(StationKind.Save, new SaveStationArgument(LoadStationDefinitions.ForgottenHighwaySave))),
     ]);
 
     /// <summary>The Toilet room-object population.</summary>
@@ -1984,16 +1985,16 @@ internal static class RoomObjectPopulationDefinitions
     public static RoomObjectPopulation Oasis { get; } = RoomObjectPopulation.FromPlacements(nameof(Oasis),
     [
         new(RoomObjectKind.ScrollTrigger, new(3, 20), new ScrollTriggerSetup(RoomScrollChange.OasisOpensScreens0x0And0x1)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(4, 20), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(5, 20), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(6, 20), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(7, 20), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(8, 20), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(9, 20), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(10, 20), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(11, 20), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(12, 20), new ScrollExtensionSetup()),
-        new(RoomObjectKind.GreenDoorFacingDown, new(6, 2), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.OasisGreenDoorFacingDown, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.RightwardsScrollExtension, new(4, 20), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(5, 20), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(6, 20), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(7, 20), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(8, 20), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(9, 20), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(10, 20), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(11, 20), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(12, 20), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.GreenDoorFacingDown, new(6, 2), new ColoredDoorSetup(new(ColoredDoorColor.Green, ColoredDoorOrientation.Down), new LockedDoorArgument(LockedDoorDefinitions.OasisGreenDoorFacingDown, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The EastSandHall room-object population.</summary>
@@ -2004,15 +2005,15 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The WestSandHole room-object population.</summary>
     public static RoomObjectPopulation WestSandHole { get; } = RoomObjectPopulation.FromPlacements(nameof(WestSandHole),
     [
-        new(RoomObjectKind.ExposedMissileTank, new(6, 4), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.WestSandHoleExposedMissileTank))),
-        new(RoomObjectKind.ChozoReserveTank, new(15, 4), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.WestSandHoleChozoReserveTank))),
+        new(RoomObjectKind.ExposedMissileTank, new(6, 4), new CollectibleSetup(new(InWorldCollectibleKind.MissileTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.WestSandHoleExposedMissileTank))),
+        new(RoomObjectKind.ChozoReserveTank, new(15, 4), new CollectibleSetup(new(InWorldCollectibleKind.ReserveTank, CollectiblePresentation.ChozoOrb), new CollectedItemArgument(ItemLocationDefinitions.WestSandHoleChozoReserveTank))),
     ]);
 
     /// <summary>The EastSandHole room-object population.</summary>
     public static RoomObjectPopulation EastSandHole { get; } = RoomObjectPopulation.FromPlacements(nameof(EastSandHole),
     [
-        new(RoomObjectKind.ExposedMissileTank, new(3, 7), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.EastSandHoleExposedMissileTank))),
-        new(RoomObjectKind.ExposedPowerBombTank, new(25, 16), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.EastSandHoleExposedPowerBombTank))),
+        new(RoomObjectKind.ExposedMissileTank, new(3, 7), new CollectibleSetup(new(InWorldCollectibleKind.MissileTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.EastSandHoleExposedMissileTank))),
+        new(RoomObjectKind.ExposedPowerBombTank, new(25, 16), new CollectibleSetup(new(InWorldCollectibleKind.PowerBombTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.EastSandHoleExposedPowerBombTank))),
     ]);
 
     /// <summary>The WestAqueductQuicksand room-object population.</summary>
@@ -2028,15 +2029,15 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The Aqueduct room-object population.</summary>
     public static RoomObjectPopulation Aqueduct { get; } = RoomObjectPopulation.FromPlacements(nameof(Aqueduct),
     [
-        new(RoomObjectKind.RedDoorFacingRight, new(1, 38), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.AqueductRedDoorFacingRight, DoorOpeningPersistence.Persistent))),
-        new(RoomObjectKind.ExposedMissileTank, new(76, 9), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.AqueductExposedMissileTank))),
-        new(RoomObjectKind.ExposedSuperMissileTank, new(92, 8), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.AqueductExposedSuperMissileTank))),
+        new(RoomObjectKind.RedDoorFacingRight, new(1, 38), new ColoredDoorSetup(new(ColoredDoorColor.Red, ColoredDoorOrientation.Right), new LockedDoorArgument(LockedDoorDefinitions.AqueductRedDoorFacingRight, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.ExposedMissileTank, new(76, 9), new CollectibleSetup(new(InWorldCollectibleKind.MissileTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.AqueductExposedMissileTank))),
+        new(RoomObjectKind.ExposedSuperMissileTank, new(92, 8), new CollectibleSetup(new(InWorldCollectibleKind.SuperMissileTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.AqueductExposedSuperMissileTank))),
     ]);
 
     /// <summary>The Butterfly room-object population.</summary>
     public static RoomObjectPopulation Butterfly { get; } = RoomObjectPopulation.FromPlacements(nameof(Butterfly),
     [
-        new(RoomObjectKind.GreyDoorFacingLeft, new(14, 6), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.AreaBossDefeated, new LockedDoorArgument(LockedDoorDefinitions.ButterflyGreyDoorFacingLeft, DoorOpeningPersistence.Persistent)))),
+        new(RoomObjectKind.GreyDoorFacingLeft, new(14, 6), new GreyDoorSetup(new(ColoredDoorOrientation.Left, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.AreaBossDefeated, new LockedDoorArgument(LockedDoorDefinitions.ButterflyGreyDoorFacingLeft, DoorOpeningPersistence.Persistent)))),
     ]);
 
     /// <summary>The BotwoonHallway room-object population.</summary>
@@ -2048,49 +2049,49 @@ internal static class RoomObjectPopulationDefinitions
     public static RoomObjectPopulation Pants { get; } = RoomObjectPopulation.FromPlacements(nameof(Pants),
     [
         new(RoomObjectKind.ScrollTrigger, new(6, 50), new ScrollTriggerSetup(RoomScrollChange.PantsClosesScreens1x1And1x2And1x3OpensScreens0x1And0x2OpensScreen0x3TopAligned)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(7, 50), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(8, 50), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(9, 50), new ScrollExtensionSetup()),
+        new(RoomObjectKind.RightwardsScrollExtension, new(7, 50), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(8, 50), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(9, 50), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
         new(RoomObjectKind.ScrollTrigger, new(13, 12), new ScrollTriggerSetup(RoomScrollChange.PantsClosesScreens1x1And1x2And1x3OpensScreens0x1And0x2OpensScreen0x3TopAligned)),
-        new(RoomObjectKind.UpwardsScrollExtension, new(13, 11), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(13, 10), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(13, 9), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(13, 8), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(13, 7), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(13, 6), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(13, 5), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(13, 4), new ScrollExtensionSetup()),
+        new(RoomObjectKind.UpwardsScrollExtension, new(13, 11), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(13, 10), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(13, 9), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(13, 8), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(13, 7), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(13, 6), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(13, 5), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(13, 4), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
         new(RoomObjectKind.ScrollTrigger, new(18, 14), new ScrollTriggerSetup(RoomScrollChange.PantsClosesScreens0x1And0x2And0x3OpensScreen1x1OpensScreen1x2TopAligned)),
-        new(RoomObjectKind.UpwardsScrollExtension, new(18, 13), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(18, 12), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(18, 11), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(18, 10), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(18, 9), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(18, 8), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(18, 7), new ScrollExtensionSetup()),
+        new(RoomObjectKind.UpwardsScrollExtension, new(18, 13), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(18, 12), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(18, 11), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(18, 10), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(18, 9), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(18, 8), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(18, 7), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
         new(RoomObjectKind.ScrollTrigger, new(21, 43), new ScrollTriggerSetup(RoomScrollChange.PantsOpensScreen1x2OpensScreen1x3TopAligned)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(22, 43), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(23, 43), new ScrollExtensionSetup()),
+        new(RoomObjectKind.RightwardsScrollExtension, new(22, 43), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(23, 43), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
     ]);
 
     /// <summary>The EastPants room-object population.</summary>
     public static RoomObjectPopulation EastPants { get; } = RoomObjectPopulation.FromPlacements(nameof(EastPants),
     [
         new(RoomObjectKind.ScrollTrigger, new(5, 34), new ScrollTriggerSetup(RoomScrollChange.EastPantsOpensScreen0x1)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(6, 34), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(7, 34), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(8, 34), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(9, 34), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(10, 18), new ScrollExtensionSetup()),
+        new(RoomObjectKind.RightwardsScrollExtension, new(6, 34), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(7, 34), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(8, 34), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(9, 34), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(10, 18), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
         new(RoomObjectKind.ScrollTrigger, new(5, 27), new ScrollTriggerSetup(RoomScrollChange.EastPantsOpensScreen0x1OpensScreen0x2TopAligned)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(6, 27), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(7, 27), new ScrollExtensionSetup()),
+        new(RoomObjectKind.RightwardsScrollExtension, new(6, 27), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(7, 27), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
     ]);
 
     /// <summary>The Springball room-object population.</summary>
     public static RoomObjectPopulation Springball { get; } = RoomObjectPopulation.FromPlacements(nameof(Springball),
     [
-        new(RoomObjectKind.ChozoSpringBall, new(24, 22), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.SpringballChozoSpringBall))),
+        new(RoomObjectKind.ChozoSpringBall, new(24, 22), new CollectibleSetup(new(InWorldCollectibleKind.SpringBall, CollectiblePresentation.ChozoOrb), new CollectedItemArgument(ItemLocationDefinitions.SpringballChozoSpringBall))),
     ]);
 
     /// <summary>The BelowBotwoonEnergyTank room-object population.</summary>
@@ -2101,50 +2102,50 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The Colosseum room-object population.</summary>
     public static RoomObjectPopulation Colosseum { get; } = RoomObjectPopulation.FromPlacements(nameof(Colosseum),
     [
-        new(RoomObjectKind.RedDoorFacingLeft, new(110, 6), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.ColosseumRedDoorFacingLeft, DoorOpeningPersistence.Persistent))),
-        new(RoomObjectKind.GreenDoorFacingLeft, new(78, 38), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.ColosseumGreenDoorFacingLeftAt78x38, DoorOpeningPersistence.Persistent)), Site: RoomObjectSite.BeyondTheRoom),
-        new(RoomObjectKind.GreenDoorFacingLeft, new(110, 22), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.ColosseumGreenDoorFacingLeftAt110x22, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.RedDoorFacingLeft, new(110, 6), new ColoredDoorSetup(new(ColoredDoorColor.Red, ColoredDoorOrientation.Left), new LockedDoorArgument(LockedDoorDefinitions.ColosseumRedDoorFacingLeft, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.GreenDoorFacingLeft, new(78, 38), new ColoredDoorSetup(new(ColoredDoorColor.Green, ColoredDoorOrientation.Left), new LockedDoorArgument(LockedDoorDefinitions.ColosseumGreenDoorFacingLeftAt78x38, DoorOpeningPersistence.Persistent)), Site: RoomObjectSite.BeyondTheRoom),
+        new(RoomObjectKind.GreenDoorFacingLeft, new(110, 22), new ColoredDoorSetup(new(ColoredDoorColor.Green, ColoredDoorOrientation.Left), new LockedDoorArgument(LockedDoorDefinitions.ColosseumGreenDoorFacingLeftAt110x22, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The AqueductSave room-object population.</summary>
     public static RoomObjectPopulation AqueductSave { get; } = RoomObjectPopulation.FromPlacements(nameof(AqueductSave),
     [
-        new(RoomObjectKind.SaveStation, new(5, 11), new StationSetup(new SaveStationArgument(LoadStationDefinitions.AqueductSave))),
+        new(RoomObjectKind.SaveStation, new(5, 11), new StationSetup(StationKind.Save, new SaveStationArgument(LoadStationDefinitions.AqueductSave))),
     ]);
 
     /// <summary>The ThePrecious room-object population.</summary>
     public static RoomObjectPopulation ThePrecious { get; } = RoomObjectPopulation.FromPlacements(nameof(ThePrecious),
     [
         new(RoomObjectKind.ScrollTrigger, new(4, 14), new ScrollTriggerSetup(RoomScrollChange.ThePreciousOpensScreens0x0And0x1)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(5, 14), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(6, 14), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(7, 14), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(8, 14), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(9, 14), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(10, 14), new ScrollExtensionSetup()),
-        new(RoomObjectKind.RightwardsScrollExtension, new(11, 14), new ScrollExtensionSetup()),
-        new(RoomObjectKind.EyeDoorFacingRight, new(1, 38), new EyeDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.ThePreciousEyeDoorFacingRight, DoorOpeningPersistence.Persistent))),
-        new(RoomObjectKind.EyeDoorBottomFacingRight, new(1, 41), new EyeDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.ThePreciousEyeDoorFacingRight, DoorOpeningPersistence.Persistent))),
-        new(RoomObjectKind.EyeDoorEyeFacingRight, new(1, 39), new EyeDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.ThePreciousEyeDoorFacingRight, DoorOpeningPersistence.Persistent))),
-        new(RoomObjectKind.ShotBlockMissileTank, new(28, 6), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.ThePreciousShotBlockMissileTank))),
+        new(RoomObjectKind.RightwardsScrollExtension, new(5, 14), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(6, 14), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(7, 14), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(8, 14), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(9, 14), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(10, 14), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.RightwardsScrollExtension, new(11, 14), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
+        new(RoomObjectKind.EyeDoorFacingRight, new(1, 38), new EyeDoorPartSetup(new(EyeDoorBodyPart.Middle, EyeDoorOrientation.Right), new LockedDoorArgument(LockedDoorDefinitions.ThePreciousEyeDoorFacingRight, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.EyeDoorBottomFacingRight, new(1, 41), new EyeDoorPartSetup(new(EyeDoorBodyPart.Bottom, EyeDoorOrientation.Right), new LockedDoorArgument(LockedDoorDefinitions.ThePreciousEyeDoorFacingRight, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.EyeDoorEyeFacingRight, new(1, 39), new EyeDoorEyeSetup(EyeDoorOrientation.Right, new LockedDoorArgument(LockedDoorDefinitions.ThePreciousEyeDoorFacingRight, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.ShotBlockMissileTank, new(28, 6), new CollectibleSetup(new(InWorldCollectibleKind.MissileTank, CollectiblePresentation.ShotBlock), new CollectedItemArgument(ItemLocationDefinitions.ThePreciousShotBlockMissileTank))),
     ]);
 
     /// <summary>The BotwoonEnergyTank room-object population.</summary>
     public static RoomObjectPopulation BotwoonEnergyTank { get; } = RoomObjectPopulation.FromPlacements(nameof(BotwoonEnergyTank),
     [
-        new(RoomObjectKind.ExposedEnergyTank, new(50, 5), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.BotwoonEnergyTankExposedEnergyTank))),
+        new(RoomObjectKind.ExposedEnergyTank, new(50, 5), new CollectibleSetup(new(InWorldCollectibleKind.EnergyTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.BotwoonEnergyTankExposedEnergyTank))),
     ]);
 
     /// <summary>The DraygonSave room-object population.</summary>
     public static RoomObjectPopulation DraygonSave { get; } = RoomObjectPopulation.FromPlacements(nameof(DraygonSave),
     [
-        new(RoomObjectKind.SaveStation, new(7, 11), new StationSetup(new SaveStationArgument(LoadStationDefinitions.DraygonSave))),
+        new(RoomObjectKind.SaveStation, new(7, 11), new StationSetup(StationKind.Save, new SaveStationArgument(LoadStationDefinitions.DraygonSave))),
     ]);
 
     /// <summary>The MaridiaMissileRefill room-object population.</summary>
     public static RoomObjectPopulation MaridiaMissileRefill { get; } = RoomObjectPopulation.FromPlacements(nameof(MaridiaMissileRefill),
     [
-        new(RoomObjectKind.MissileStation, new(8, 10), new StationSetup(null)),
+        new(RoomObjectKind.MissileStation, new(8, 10), new StationSetup(StationKind.Missile, null)),
     ]);
 
     /// <summary>The PlasmaBeachQuicksand room-object population.</summary>
@@ -2167,29 +2168,29 @@ internal static class RoomObjectPopulationDefinitions
     [
         new(RoomObjectKind.ScrollTrigger, new(16, 41), new ScrollTriggerSetup(RoomScrollChange.HalfieClimbClosesScreen0x1OpensScreen1x2TopAligned)),
         new(RoomObjectKind.ScrollTrigger, new(11, 41), new ScrollTriggerSetup(RoomScrollChange.HalfieClimbClosesScreen1x2OpensScreen0x1TopAligned)),
-        new(RoomObjectKind.UpwardsScrollExtension, new(11, 40), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(11, 39), new ScrollExtensionSetup()),
-        new(RoomObjectKind.UpwardsScrollExtension, new(11, 38), new ScrollExtensionSetup()),
+        new(RoomObjectKind.UpwardsScrollExtension, new(11, 40), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(11, 39), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
+        new(RoomObjectKind.UpwardsScrollExtension, new(11, 38), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
         new(RoomObjectKind.ScrollTrigger, new(14, 41), new ScrollTriggerSetup(RoomScrollChange.HalfieClimbOpensScreen0x2TopAligned)),
-        new(RoomObjectKind.GreyDoorFacingRight, new(1, 22), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.AreaBossDefeated, new LockedDoorArgument(LockedDoorDefinitions.HalfieClimbGreyDoorFacingRight, DoorOpeningPersistence.Persistent)))),
+        new(RoomObjectKind.GreyDoorFacingRight, new(1, 22), new GreyDoorSetup(new(ColoredDoorOrientation.Right, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.AreaBossDefeated, new LockedDoorArgument(LockedDoorDefinitions.HalfieClimbGreyDoorFacingRight, DoorOpeningPersistence.Persistent)))),
     ]);
 
     /// <summary>The Botwoon room-object population.</summary>
     public static RoomObjectPopulation Botwoon { get; } = RoomObjectPopulation.FromPlacements(nameof(Botwoon),
     [
-        new(RoomObjectKind.GreyDoorFacingRight, new(1, 6), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.AreaMiniBossDefeated, new LockedDoorArgument(LockedDoorDefinitions.BotwoonGreyDoorFacingRight, DoorOpeningPersistence.Persistent)))),
+        new(RoomObjectKind.GreyDoorFacingRight, new(1, 6), new GreyDoorSetup(new(ColoredDoorOrientation.Right, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.AreaMiniBossDefeated, new LockedDoorArgument(LockedDoorDefinitions.BotwoonGreyDoorFacingRight, DoorOpeningPersistence.Persistent)))),
     ]);
 
     /// <summary>The SpaceJump room-object population.</summary>
     public static RoomObjectPopulation SpaceJump { get; } = RoomObjectPopulation.FromPlacements(nameof(SpaceJump),
     [
-        new(RoomObjectKind.ChozoSpaceJump, new(4, 8), new CollectibleSetup(new CollectedItemArgument(ItemLocationDefinitions.SpaceJumpChozoSpaceJump))),
+        new(RoomObjectKind.ChozoSpaceJump, new(4, 8), new CollectibleSetup(new(InWorldCollectibleKind.SpaceJump, CollectiblePresentation.ChozoOrb), new CollectedItemArgument(ItemLocationDefinitions.SpaceJumpChozoSpaceJump))),
     ]);
 
     /// <summary>The MaridiaEnergyRefill room-object population.</summary>
     public static RoomObjectPopulation MaridiaEnergyRefill { get; } = RoomObjectPopulation.FromPlacements(nameof(MaridiaEnergyRefill),
     [
-        new(RoomObjectKind.EnergyStation, new(8, 10), new StationSetup(null)),
+        new(RoomObjectKind.EnergyStation, new(8, 10), new StationSetup(StationKind.Energy, null)),
     ]);
 
     /// <summary>The WestCactusAlley room-object population.</summary>
@@ -2205,8 +2206,8 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The Draygon room-object population.</summary>
     public static RoomObjectPopulation Draygon { get; } = RoomObjectPopulation.FromPlacements(nameof(Draygon),
     [
-        new(RoomObjectKind.GreyDoorFacingLeft, new(30, 6), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.AreaBossDefeated, new LockedDoorArgument(LockedDoorDefinitions.DraygonGreyDoorFacingLeft, DoorOpeningPersistence.Persistent)))),
-        new(RoomObjectKind.GreyDoorFacingRight, new(1, 22), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.AreaBossDefeated, new LockedDoorArgument(LockedDoorDefinitions.DraygonGreyDoorFacingRight, DoorOpeningPersistence.Persistent)))),
+        new(RoomObjectKind.GreyDoorFacingLeft, new(30, 6), new GreyDoorSetup(new(ColoredDoorOrientation.Left, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.AreaBossDefeated, new LockedDoorArgument(LockedDoorDefinitions.DraygonGreyDoorFacingLeft, DoorOpeningPersistence.Persistent)))),
+        new(RoomObjectKind.GreyDoorFacingRight, new(1, 22), new GreyDoorSetup(new(ColoredDoorOrientation.Right, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.AreaBossDefeated, new LockedDoorArgument(LockedDoorDefinitions.DraygonGreyDoorFacingRight, DoorOpeningPersistence.Persistent)))),
         new(RoomObjectKind.DraygonCannonFacingRightDestroyed, new(2, 11), new DraygonWallCannonSetup(DraygonWallCannon.UpperLeft, DraygonCannonOrientation.Right, DraygonCannonStart.Destroyed)),
         new(RoomObjectKind.DraygonCannonFacingRight, new(2, 18), new DraygonWallCannonSetup(DraygonWallCannon.LowerLeft, DraygonCannonOrientation.Right, DraygonCannonStart.Whole)),
         new(RoomObjectKind.DraygonCannonFacingLeft, new(29, 15), new DraygonWallCannonSetup(DraygonWallCannon.UpperRight, DraygonCannonOrientation.Left, DraygonCannonStart.Whole)),
@@ -2223,28 +2224,28 @@ internal static class RoomObjectPopulationDefinitions
     public static RoomObjectPopulation Metroids1 { get; } = RoomObjectPopulation.FromPlacements(nameof(Metroids1),
     [
         new(RoomObjectKind.MetroidRoomClearance, new(8, 8), new MetroidRoomClearanceSetup(new MetroidRoomArgument(StoryEvent.FirstMetroidHallCleared))),
-        new(RoomObjectKind.GreyDoorFacingRight, new(1, 6), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.EnemyDeathQuota, new LockedDoorArgument(LockedDoorDefinitions.Metroids1GreyDoorFacingRight, DoorOpeningPersistence.Persistent)))),
+        new(RoomObjectKind.GreyDoorFacingRight, new(1, 6), new GreyDoorSetup(new(ColoredDoorOrientation.Right, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.EnemyDeathQuota, new LockedDoorArgument(LockedDoorDefinitions.Metroids1GreyDoorFacingRight, DoorOpeningPersistence.Persistent)))),
     ]);
 
     /// <summary>The Metroids2 room-object population.</summary>
     public static RoomObjectPopulation Metroids2 { get; } = RoomObjectPopulation.FromPlacements(nameof(Metroids2),
     [
         new(RoomObjectKind.MetroidRoomClearance, new(8, 8), new MetroidRoomClearanceSetup(new MetroidRoomArgument(StoryEvent.FirstMetroidShaftCleared))),
-        new(RoomObjectKind.GreyDoorFacingLeft, new(14, 22), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.EnemyDeathQuota, new LockedDoorArgument(LockedDoorDefinitions.Metroids2GreyDoorFacingLeft, DoorOpeningPersistence.Persistent)))),
+        new(RoomObjectKind.GreyDoorFacingLeft, new(14, 22), new GreyDoorSetup(new(ColoredDoorOrientation.Left, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.EnemyDeathQuota, new LockedDoorArgument(LockedDoorDefinitions.Metroids2GreyDoorFacingLeft, DoorOpeningPersistence.Persistent)))),
     ]);
 
     /// <summary>The Metroids3 room-object population.</summary>
     public static RoomObjectPopulation Metroids3 { get; } = RoomObjectPopulation.FromPlacements(nameof(Metroids3),
     [
         new(RoomObjectKind.MetroidRoomClearance, new(8, 8), new MetroidRoomClearanceSetup(new MetroidRoomArgument(StoryEvent.SecondMetroidHallCleared))),
-        new(RoomObjectKind.GreyDoorFacingLeft, new(94, 6), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.EnemyDeathQuota, new LockedDoorArgument(LockedDoorDefinitions.Metroids3GreyDoorFacingLeft, DoorOpeningPersistence.Persistent)))),
+        new(RoomObjectKind.GreyDoorFacingLeft, new(94, 6), new GreyDoorSetup(new(ColoredDoorOrientation.Left, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.EnemyDeathQuota, new LockedDoorArgument(LockedDoorDefinitions.Metroids3GreyDoorFacingLeft, DoorOpeningPersistence.Persistent)))),
     ]);
 
     /// <summary>The Metroids4 room-object population.</summary>
     public static RoomObjectPopulation Metroids4 { get; } = RoomObjectPopulation.FromPlacements(nameof(Metroids4),
     [
         new(RoomObjectKind.MetroidRoomClearance, new(8, 8), new MetroidRoomClearanceSetup(new MetroidRoomArgument(StoryEvent.SecondMetroidShaftCleared))),
-        new(RoomObjectKind.GreyDoorFacingUp, new(6, 30), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.EnemyDeathQuota, new LockedDoorArgument(LockedDoorDefinitions.Metroids4GreyDoorFacingUp, DoorOpeningPersistence.Persistent)))),
+        new(RoomObjectKind.GreyDoorFacingUp, new(6, 30), new GreyDoorSetup(new(ColoredDoorOrientation.Up, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.EnemyDeathQuota, new LockedDoorArgument(LockedDoorDefinitions.Metroids4GreyDoorFacingUp, DoorOpeningPersistence.Persistent)))),
     ]);
 
     /// <summary>The BlueHopper room-object population.</summary>
@@ -2255,27 +2256,27 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The DustTorizo room-object population.</summary>
     public static RoomObjectPopulation DustTorizo { get; } = RoomObjectPopulation.FromPlacements(nameof(DustTorizo),
     [
-        new(RoomObjectKind.GreyDoorFacingLeft, new(30, 6), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.Never, new LockedDoorArgument(LockedDoorDefinitions.DustTorizoGreyDoorFacingLeft, DoorOpeningPersistence.Transient)))),
-        new(RoomObjectKind.GreyDoorFacingRight, new(1, 6), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.EnemyDeathQuota, new LockedDoorArgument(LockedDoorDefinitions.DustTorizoGreyDoorFacingRight, DoorOpeningPersistence.Persistent)))),
+        new(RoomObjectKind.GreyDoorFacingLeft, new(30, 6), new GreyDoorSetup(new(ColoredDoorOrientation.Left, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.Never, new LockedDoorArgument(LockedDoorDefinitions.DustTorizoGreyDoorFacingLeft, DoorOpeningPersistence.Transient)))),
+        new(RoomObjectKind.GreyDoorFacingRight, new(1, 6), new GreyDoorSetup(new(ColoredDoorOrientation.Right, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.EnemyDeathQuota, new LockedDoorArgument(LockedDoorDefinitions.DustTorizoGreyDoorFacingRight, DoorOpeningPersistence.Persistent)))),
     ]);
 
     /// <summary>The BigBoy room-object population.</summary>
     public static RoomObjectPopulation BigBoy { get; } = RoomObjectPopulation.FromPlacements(nameof(BigBoy),
     [
-        new(RoomObjectKind.GreyDoorFacingLeft, new(62, 6), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.Never, new LockedDoorArgument(LockedDoorDefinitions.BigBoyGreyDoorFacingLeft, DoorOpeningPersistence.Transient)))),
+        new(RoomObjectKind.GreyDoorFacingLeft, new(62, 6), new GreyDoorSetup(new(ColoredDoorOrientation.Left, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.Never, new LockedDoorArgument(LockedDoorDefinitions.BigBoyGreyDoorFacingLeft, DoorOpeningPersistence.Transient)))),
     ]);
 
     /// <summary>The Seaweed room-object population.</summary>
     public static RoomObjectPopulation Seaweed { get; } = RoomObjectPopulation.FromPlacements(nameof(Seaweed),
     [
-        new(RoomObjectKind.RedDoorFacingLeft, new(14, 22), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.SeaweedRedDoorFacingLeft, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.RedDoorFacingLeft, new(14, 22), new ColoredDoorSetup(new(ColoredDoorColor.Red, ColoredDoorOrientation.Left), new LockedDoorArgument(LockedDoorDefinitions.SeaweedRedDoorFacingLeft, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The TourianRecharge room-object population.</summary>
     public static RoomObjectPopulation TourianRecharge { get; } = RoomObjectPopulation.FromPlacements(nameof(TourianRecharge),
     [
-        new(RoomObjectKind.MissileStation, new(8, 10), new StationSetup(null)),
-        new(RoomObjectKind.EnergyStation, new(6, 10), new StationSetup(null)),
+        new(RoomObjectKind.MissileStation, new(8, 10), new StationSetup(StationKind.Missile, null)),
+        new(RoomObjectKind.EnergyStation, new(6, 10), new StationSetup(StationKind.Energy, null)),
     ]);
 
     /// <summary>The MotherBrain room-object population.</summary>
@@ -2287,21 +2288,21 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The TourianEyeDoor room-object population.</summary>
     public static RoomObjectPopulation TourianEyeDoor { get; } = RoomObjectPopulation.FromPlacements(nameof(TourianEyeDoor),
     [
-        new(RoomObjectKind.EyeDoorFacingLeft, new(62, 6), new EyeDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.TourianEyeDoorEyeDoorFacingLeft, DoorOpeningPersistence.Persistent))),
-        new(RoomObjectKind.EyeDoorBottomFacingLeft, new(62, 9), new EyeDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.TourianEyeDoorEyeDoorFacingLeft, DoorOpeningPersistence.Persistent))),
-        new(RoomObjectKind.EyeDoorEyeFacingLeft, new(62, 7), new EyeDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.TourianEyeDoorEyeDoorFacingLeft, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.EyeDoorFacingLeft, new(62, 6), new EyeDoorPartSetup(new(EyeDoorBodyPart.Middle, EyeDoorOrientation.Left), new LockedDoorArgument(LockedDoorDefinitions.TourianEyeDoorEyeDoorFacingLeft, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.EyeDoorBottomFacingLeft, new(62, 9), new EyeDoorPartSetup(new(EyeDoorBodyPart.Bottom, EyeDoorOrientation.Left), new LockedDoorArgument(LockedDoorDefinitions.TourianEyeDoorEyeDoorFacingLeft, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.EyeDoorEyeFacingLeft, new(62, 7), new EyeDoorEyeSetup(EyeDoorOrientation.Left, new LockedDoorArgument(LockedDoorDefinitions.TourianEyeDoorEyeDoorFacingLeft, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The RinkaShaft room-object population.</summary>
     public static RoomObjectPopulation RinkaShaft { get; } = RoomObjectPopulation.FromPlacements(nameof(RinkaShaft),
     [
-        new(RoomObjectKind.RedDoorFacingRight, new(1, 38), new ColoredDoorSetup(new LockedDoorArgument(LockedDoorDefinitions.RinkaShaftRedDoorFacingRight, DoorOpeningPersistence.Persistent))),
+        new(RoomObjectKind.RedDoorFacingRight, new(1, 38), new ColoredDoorSetup(new(ColoredDoorColor.Red, ColoredDoorOrientation.Right), new LockedDoorArgument(LockedDoorDefinitions.RinkaShaftRedDoorFacingRight, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The MotherBrainSave room-object population.</summary>
     public static RoomObjectPopulation MotherBrainSave { get; } = RoomObjectPopulation.FromPlacements(nameof(MotherBrainSave),
     [
-        new(RoomObjectKind.SaveStation, new(5, 11), new StationSetup(new SaveStationArgument(LoadStationDefinitions.MotherBrainSave))),
+        new(RoomObjectKind.SaveStation, new(5, 11), new StationSetup(StationKind.Save, new SaveStationArgument(LoadStationDefinitions.MotherBrainSave))),
     ]);
 
     /// <summary>The TourianEscape1 room-object population.</summary>
@@ -2315,27 +2316,27 @@ internal static class RoomObjectPopulationDefinitions
     public static RoomObjectPopulation TourianEscape2 { get; } = RoomObjectPopulation.FromPlacements(nameof(TourianEscape2),
     [
         new(RoomObjectKind.EscapeRoomHeldPlace, new(8, 8), new EscapeRoomHeldPlaceSetup()),
-        new(RoomObjectKind.GreyDoorFacingDown, new(6, 3), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.Never, new LockedDoorArgument(LockedDoorDefinitions.TourianEscape2GreyDoorFacingDown, DoorOpeningPersistence.Transient)))),
+        new(RoomObjectKind.GreyDoorFacingDown, new(6, 3), new GreyDoorSetup(new(ColoredDoorOrientation.Down, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.Never, new LockedDoorArgument(LockedDoorDefinitions.TourianEscape2GreyDoorFacingDown, DoorOpeningPersistence.Transient)))),
     ]);
 
     /// <summary>The TourianEscape3 room-object population.</summary>
     public static RoomObjectPopulation TourianEscape3 { get; } = RoomObjectPopulation.FromPlacements(nameof(TourianEscape3),
     [
         new(RoomObjectKind.EscapeRoomHeldPlace, new(8, 8), new EscapeRoomHeldPlaceSetup()),
-        new(RoomObjectKind.GreyDoorFacingRight, new(1, 22), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.Never, new LockedDoorArgument(LockedDoorDefinitions.TourianEscape3GreyDoorFacingRight, DoorOpeningPersistence.Transient)))),
+        new(RoomObjectKind.GreyDoorFacingRight, new(1, 22), new GreyDoorSetup(new(ColoredDoorOrientation.Right, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.Never, new LockedDoorArgument(LockedDoorDefinitions.TourianEscape3GreyDoorFacingRight, DoorOpeningPersistence.Transient)))),
     ]);
 
     /// <summary>The TourianEscape4 room-object population.</summary>
     public static RoomObjectPopulation TourianEscape4 { get; } = RoomObjectPopulation.FromPlacements(nameof(TourianEscape4),
     [
         new(RoomObjectKind.EscapeRoomHeldPlace, new(8, 8), new EscapeRoomHeldPlaceSetup()),
-        new(RoomObjectKind.GreyDoorFacingRight, new(1, 54), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.Never, new LockedDoorArgument(LockedDoorDefinitions.TourianEscape4GreyDoorFacingRight, DoorOpeningPersistence.Transient)))),
+        new(RoomObjectKind.GreyDoorFacingRight, new(1, 54), new GreyDoorSetup(new(ColoredDoorOrientation.Right, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.Never, new LockedDoorArgument(LockedDoorDefinitions.TourianEscape4GreyDoorFacingRight, DoorOpeningPersistence.Transient)))),
     ]);
 
     /// <summary>The UpperTourianSave room-object population.</summary>
     public static RoomObjectPopulation UpperTourianSave { get; } = RoomObjectPopulation.FromPlacements(nameof(UpperTourianSave),
     [
-        new(RoomObjectKind.SaveStation, new(7, 11), new StationSetup(new SaveStationArgument(LoadStationDefinitions.UpperTourianSave))),
+        new(RoomObjectKind.SaveStation, new(7, 11), new StationSetup(StationKind.Save, new SaveStationArgument(LoadStationDefinitions.UpperTourianSave))),
     ]);
 
     /// <summary>The CeresElevator room-object population.</summary>

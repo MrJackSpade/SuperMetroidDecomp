@@ -5,5 +5,5 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 internal sealed record DownwardGateShotBlockSetup(GateTriggerArgument? Trigger) : RoomObjectPlacementSetup
 {
     /// <inheritdoc/>
-    internal override void SetUp(IRoomObjectFamilySetups setups, RoomObjectKind kind) => setups.SetUpDownwardGateShotBlock(Trigger);
+    internal override void SetUp(IRoomObjectFamilySetups setups) => setups.SetUpDownwardGateShotBlock(Trigger);
 }

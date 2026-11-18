@@ -11,14 +11,16 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// good it leaves the room, before its images count down. The body at the door Samus arrives through closes behind her
 /// by leaving the room on its next update.
 /// </summary>
-/// <param name="orientation">The eye door's facing.</param>
-/// <param name="component">Which part this is: the body or the bottom.</param>
+/// <param name="part">Which part this is, the body's middle or its bottom, and the way its door faces.</param>
 /// <param name="door">The door the part's placement named; null for none.</param>
-internal sealed class EyeDoorPartObject(EyeDoorOrientation orientation, EyeDoorComponent component, PlacedDoor? door)
-    : SequencedRoomObject<EyeDoorStep>, IClosingDoor, IDoorKeptOpen
+internal sealed class EyeDoorPartObject(EyeDoorPart part, PlacedDoor? door)
+    : SequencedRoomObject<EyeDoorPartStep>, IClosingDoor, IDoorKeptOpen
 {
+    /// <summary>Which part this is and the way its door faces.</summary>
+    internal EyeDoorPart Part { get; } = part;
+
     /// <summary>The eye door's facing.</summary>
-    internal EyeDoorOrientation Orientation { get; } = orientation;
+    internal EyeDoorOrientation Orientation => Part.Orientation;
 
     /// <summary>The door the part stands in, as its placement named it; null for none.</summary>
     internal PlacedDoor? Door { get; } = door;
@@ -26,11 +28,6 @@ internal sealed class EyeDoorPartObject(EyeDoorOrientation orientation, EyeDoorC
     /// <summary>A part whose door has been opened for good stays open behind Samus.</summary>
     public bool StaysOpenBehindSamus(Func<LockedDoor, bool> openedForGood, ShotOpenedCapClosing<LockedDoor> shotCapClosing) =>
         Door?.IsOpenedForGood(openedForGood) == true;
-
-    /// <summary>Which part this is: the body or the bottom.</summary>
-    internal EyeDoorComponent Component { get; } = component is EyeDoorComponent.Door or EyeDoorComponent.Bottom
-        ? component
-        : throw new ArgumentOutOfRangeException(nameof(component), component, "An eye door's part is its body or its bottom.");
 
     /// <summary>Whether the part pulses while Samus stays near.</summary>
     internal bool Pulsing { get; private set; }
@@ -48,8 +45,8 @@ internal sealed class EyeDoorPartObject(EyeDoorOrientation orientation, EyeDoorC
     /// <exception cref="InvalidDataException">The part is the bottom, which no door closes.</exception>
     public void CloseBehindSamus()
     {
-        if (Component != EyeDoorComponent.Door)
-            throw new InvalidDataException($"An eye door's {Component} has no closing behind Samus.");
+        if (Part.BodyPart != EyeDoorBodyPart.Middle)
+            throw new InvalidDataException($"An eye door's {Part.BodyPart} has no closing behind Samus.");
         ClosesBehindSamus = true;
         EndOnNextUpdate();
     }
@@ -73,11 +70,9 @@ internal sealed class EyeDoorPartObject(EyeDoorOrientation orientation, EyeDoorC
     }
 
     /// <inheritdoc/>
-    private protected override int Show(EyeDoorStep step, RoomObjectPlace place, RoomObjectStepContext context)
+    private protected override int Show(EyeDoorPartStep step, RoomObjectPlace place, RoomObjectStepContext context)
     {
-        if (step.Before != EyeDoorAction.None)
-            throw new InvalidOperationException($"An eye door's {Component} does nothing as it draws; got {step.Before}.");
-        context.Draw(place, EyeDoorDraws.Of(Orientation, Component, step.Image));
+        context.Draw(place, EyeDoorDraws.Of(Part, step.Pose));
         return step.Updates;
     }
 

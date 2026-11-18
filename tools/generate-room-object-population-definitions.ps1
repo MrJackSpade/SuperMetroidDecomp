@@ -148,6 +148,7 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
     $lines.Add('#nullable enable')
     $lines.Add('using SuperMetroid.Core.Progression;')
     $lines.Add('using SuperMetroid.Core.Rooms.Doors;')
+    $lines.Add('using SuperMetroid.Core.Rooms.Scrolling;')
     $lines.Add('')
     $lines.Add('namespace SuperMetroid.Core.Rooms.RoomObjects;')
     $lines.Add('')
@@ -158,24 +159,29 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
     $lines.Add('/// </summary>')
     $lines.Add('internal static class RoomObjectPopulationDefinitions')
     $lines.Add('{')
-    # Each placed kind's family setup (#2383): the coloured, grey and eye doors, the items and the
-    # stations are the kinds their families' own tables list; the scroll objects and each other kind are named for it.
+    # Each placed kind's family setup (#2383), carrying what the kind places (#2481): the coloured, grey and eye doors,
+    # the items, the stations and the scroll extensions are the kinds verification's kind-variant tables list, each with
+    # the door, item, station or extension it places; the scroll trigger and each other kind are named for it.
     $familySetups = @{}
-    function Add-FamilyKinds([string] $file, [string] $table, [string] $setup) {
-        $source = [IO.File]::ReadAllText((Join-Path $repoRoot $file))
-        $start = $source.IndexOf(" $table ")
-        if ($start -lt 0) { throw "$file declares no $table table." }
-        $end = $source.IndexOf('};', $start)
-        foreach ($match in [regex]::Matches($source.Substring($start, $end - $start), '\[RoomObjectKind\.(\w+)\]')) {
+    $familyVariants = @{}
+    $variantSource = [IO.File]::ReadAllText((Join-Path $repoRoot 'csharp/test-support/VerificationAccess.Core/Rooms/RoomObjects/RoomObjectKindVariants.cs'))
+    function Add-FamilyKinds([string] $table, [string] $setup) {
+        $start = $variantSource.IndexOf(" $table ")
+        if ($start -lt 0) { throw "RoomObjectKindVariants declares no $table table." }
+        $end = $variantSource.IndexOf('};', $start)
+        foreach ($match in [regex]::Matches($variantSource.Substring($start, $end - $start), '(?m)^\s*\[RoomObjectKind\.(\w+)\] = (.+),\r?$')) {
             if ($familySetups.ContainsKey($match.Groups[1].Value)) { throw "Room-object kind $($match.Groups[1].Value) is listed by two families." }
             $familySetups[$match.Groups[1].Value] = $setup
+            $familyVariants[$match.Groups[1].Value] = $match.Groups[2].Value
         }
     }
-    Add-FamilyKinds 'csharp/src/SuperMetroid.Core/Rooms/Doors/DoorObjectKindDefinitions.cs' 'ColoredDoors' 'ColoredDoorSetup'
-    Add-FamilyKinds 'csharp/src/SuperMetroid.Core/Rooms/Doors/DoorObjectKindDefinitions.cs' 'GreyDoors' 'GreyDoorSetup'
-    Add-FamilyKinds 'csharp/src/SuperMetroid.Core/Rooms/RoomObjects/PermanentCollectibleObjectDefinitions.cs' 'Items' 'CollectibleSetup'
-    Add-FamilyKinds 'csharp/src/SuperMetroid.Core/Rooms/Doors/EyeDoorPartDefinitions.cs' 'Parts' 'EyeDoorSetup'
-    Add-FamilyKinds 'csharp/src/SuperMetroid.Core/Rooms/RoomObjects/StationKindDefinitions.cs' 'Kinds' 'StationSetup'
+    Add-FamilyKinds 'ColoredDoors' 'ColoredDoorSetup'
+    Add-FamilyKinds 'GreyDoors' 'GreyDoorSetup'
+    Add-FamilyKinds 'Items' 'CollectibleSetup'
+    Add-FamilyKinds 'EyeDoorEyes' 'EyeDoorEyeSetup'
+    Add-FamilyKinds 'EyeDoorParts' 'EyeDoorPartSetup'
+    Add-FamilyKinds 'Stations' 'StationSetup'
+    Add-FamilyKinds 'ScrollExtensions' 'ScrollExtensionSetup'
     $draygonCannonSetups = @{
         DraygonCannonFacingRight = 'DraygonCannonOrientation.Right, DraygonCannonStart.Whole'
         DraygonCannonFacingRightDestroyed = 'DraygonCannonOrientation.Right, DraygonCannonStart.Destroyed'
@@ -190,10 +196,17 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
             return 'new DraygonWallCannonSetup({0}, {1})' -f $Matches[1], $draygonCannonSetups[$name]
         }
         if ($argumentText -match '^null, DraygonWallCannon\.') { throw "Room-object kind $name controls a Draygon wall cannon but is no cannon." }
-        if ($name -match 'ScrollExtension$') { $setup = 'ScrollExtensionSetup' }
-        elseif ($familySetups.ContainsKey($name)) { $setup = $familySetups[$name] }
-        else { $setup = $name + 'Setup' }
-        if ($setup -in @('ColoredDoorSetup', 'GreyDoorSetup', 'CollectibleSetup', 'EyeDoorSetup', 'StationSetup', 'MetroidRoomClearanceSetup', 'DownwardGateShotBlockSetup')) {
+        if ($familySetups.ContainsKey($name)) {
+            $setup = $familySetups[$name]
+            if ($setup -eq 'ScrollExtensionSetup') {
+                if ($argumentText -ne 'null') { throw "Scroll extension $name reads no argument, but its placement gives $argumentText." }
+                return 'new {0}({1})' -f $setup, $familyVariants[$name]
+            }
+            if ($setup -eq 'EyeDoorEyeSetup' -and $argumentText -eq 'null') { throw "Eye-door eye $name names no door." }
+            return 'new {0}({1}, {2})' -f $setup, $familyVariants[$name], $argumentText
+        }
+        $setup = $name + 'Setup'
+        if ($setup -in @('MetroidRoomClearanceSetup', 'DownwardGateShotBlockSetup')) {
             return 'new {0}({1})' -f $setup, $argumentText
         }
         if ($argumentText -ne 'null') { throw "Room-object kind $name reads no argument, but its placement gives $argumentText." }

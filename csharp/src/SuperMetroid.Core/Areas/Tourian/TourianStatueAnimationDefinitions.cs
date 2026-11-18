@@ -23,7 +23,7 @@ public static class TourianStatueAnimationDefinitions
             ClearedShade = TourianStatueShades.PhantoonCleared,
             Eye = new(new(132, 144), TourianStatueShades.PhantoonEyeGlow),
             ColourEffect = ColourEffectId.GreyOutTourianStatuePhantoon,
-            GreyOutSite = TourianStatueGreyOutSite.EntranceStatue,
+            GreyedSprite = TourianSpriteStatue.Phantoon,
             GreyShade = TourianStatueShades.PhantoonGrey,
         },
         [TourianGreyStatues.Ridley] = new()
@@ -36,7 +36,7 @@ public static class TourianStatueAnimationDefinitions
             ClearedShade = TourianStatueShades.RidleyCleared,
             Eye = new(new(122, 81), TourianStatueShades.RidleyEyeGlow),
             ColourEffect = ColourEffectId.GreyOutTourianStatueRidley,
-            GreyOutSite = TourianStatueGreyOutSite.EntranceStatue,
+            GreyedSprite = TourianSpriteStatue.Ridley,
             GreyShade = TourianStatueShades.RidleyGrey,
         },
         [TourianGreyStatues.Kraid] = new()
@@ -49,7 +49,7 @@ public static class TourianStatueAnimationDefinitions
             ClearedShade = TourianStatueShades.KraidCleared,
             Eye = new(new(104, 114), TourianStatueShades.KraidEyeGlow),
             ColourEffect = ColourEffectId.GreyOutTourianStatueKraid,
-            GreyOutSite = TourianStatueGreyOutSite.RoomBackground,
+            GreyedSprite = null,
             GreyShade = TourianStatueShades.KraidGrey,
         },
         [TourianGreyStatues.Draygon] = new()
@@ -62,7 +62,7 @@ public static class TourianStatueAnimationDefinitions
             ClearedShade = TourianStatueShades.DraygonCleared,
             Eye = new(new(158, 128), TourianStatueShades.DraygonEyeGlow),
             ColourEffect = ColourEffectId.GreyOutTourianStatueDraygon,
-            GreyOutSite = TourianStatueGreyOutSite.RoomBackground,
+            GreyedSprite = null,
             GreyShade = TourianStatueShades.DraygonGrey,
         },
     };

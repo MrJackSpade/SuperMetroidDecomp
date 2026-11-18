@@ -135,7 +135,8 @@ internal static class NativeSnapshotImport
                 : effect is ColourEffectId.GreyOutTourianStatueRidley or ColourEffectId.GreyOutTourianStatuePhantoon
                     ? runtime.Enemies.TourianStatueIn(runtime.Room.LoadedScope.TourianStatues?.Room
                         ?? throw new InvalidDataException("The native snapshot greys a sprite statue in a room with no statues."))
-                        .SpriteStatueGreyOut(ColourEffectAnimations.Definition(effect).Colours)
+                        .SpriteStatueGreyOut(SuperMetroid.Core.Areas.Tourian.TourianStatueAnimationDefinitions.Statues.Values.Single(statue => statue.ColourEffect == effect)
+                            .GreyedSprite ?? throw new InvalidDataException($"The native snapshot greys {effect}, no sprite statue's grey-out."))
                     : litTorizo;
             var imported = new RoomColourEffect(effect, resumed.FramesOf, litTorizo, glowingEnemy);
             PrivateState.Set(imported, nameof(RoomColourEffect.Place), NativeEnemyAnimationOracle.WithNativePlaysLeft(

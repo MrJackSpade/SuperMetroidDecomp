@@ -9,10 +9,10 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// (#1783).
 /// </summary>
 /// <param name="statue">The entrance statue, whose sprites draw the Ridley and Phantoon statues.</param>
-/// <param name="colours">The Ridley or Phantoon statue's colours, which the grey-out recolours.</param>
+/// <param name="sprite">The Ridley or Phantoon statue, whose colours the grey-out recolours.</param>
 [RoomLifetime]
-internal sealed class TourianSpriteStatueGreyOut(TourianEntranceStatueBehavior statue, ColourEffectColours colours) : IGlowingEnemy
+internal sealed class TourianSpriteStatueGreyOut(TourianEntranceStatueBehavior statue, TourianSpriteStatue sprite) : IGlowingEnemy
 {
     /// <inheritdoc/>
-    public void ShowGlow(ColourEffectFrame frame) => statue.ShowStatueGreyOut(colours, frame);
+    public void ShowGlow(ColourEffectFrame frame) => statue.ShowStatueGreyOut(sprite, frame);
 }

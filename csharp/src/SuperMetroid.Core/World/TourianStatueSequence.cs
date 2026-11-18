@@ -268,19 +268,10 @@ public sealed class TourianStatueSequence
         void StartGreyOut(TourianStatueAnimationDefinition definition, ITourianStatueActors statue)
         {
             SamusEquipmentFlags equipped = _player.IntroducedSamus.EquippedItems;
-            switch (definition.GreyOutSite)
-            {
-                case TourianStatueGreyOutSite.RoomBackground:
-                    _roomColourEffects.Start(definition.ColourEffect, equipped);
-                    return;
-                case TourianStatueGreyOutSite.EntranceStatue:
-                    _roomColourEffects.StartShownOn(definition.ColourEffect,
-                        statue.SpriteStatueGreyOut(ColourEffectAnimations.Definition(definition.ColourEffect).Colours), equipped);
-                    return;
-                default:
-                    throw new InvalidOperationException(
-                        $"Tourian statue {definition.Statue} greys out at undefined {nameof(TourianStatueGreyOutSite)} {definition.GreyOutSite}.");
-            }
+            if (definition.GreyedSprite is { } sprite)
+                _roomColourEffects.StartShownOn(definition.ColourEffect, statue.SpriteStatueGreyOut(sprite), equipped);
+            else
+                _roomColourEffects.Start(definition.ColourEffect, equipped);
         }
 
         static AnimationContinuation<TourianStatueBlockSegment> Start(TourianStatueBlockAnimations animations, TourianStatueBlockSegment animation) =>

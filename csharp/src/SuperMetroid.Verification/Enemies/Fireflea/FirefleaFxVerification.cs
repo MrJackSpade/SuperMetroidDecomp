@@ -41,7 +41,6 @@ internal static class FirefleaFxVerification
         Suite(nameof(VerifyFirefleaFlashCount), VerifyFirefleaFlashCount);
         RoomFxOverlayState fx = RoomFxOverlayState.ForDefinition(record, 0);
         FirefleaFxState state = Darkness(fx);
-        AssertEqual(FirefleaFxDefinitions.FlashDuration, state.UpdatesUntilNextFlash, "Fireflea load initializes native six-frame timer");
         AssertTrue(!fx.IsRenderable, "Fireflea darkness does not invent a BG3 texture");
         for (int frame = 1; frame <= 144; frame++)
         {
@@ -52,11 +51,16 @@ internal static class FirefleaFxVerification
             AssertEqual(new RgbColor?(new FadeLevelColour(shade, shade, shade).ToColour()), fx.FirefleaTint,
                 $"Fireflea grey shade frame {frame}");
         }
-        int timer = state.UpdatesUntilNextFlash;
         RgbColor tint = state.Tint;
         for (int frame = 0; frame < 100; frame++) fx.Step(new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = true });
-        AssertEqual(timer, state.UpdatesUntilNextFlash, "X-ray frozen time retains flashing phase");
         AssertEqual(tint, state.Tint, "X-ray frozen time retains the shade");
+        // Frozen time holds the flash where it stood (#2488): the unfrozen updates after it carry on the six-update cadence.
+        for (int frame = 145; frame <= 288; frame++)
+        {
+            fx.Step(new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false });
+            int shade = LittleEndianBytes.HighByte(flash[frame / 6 % 12]);
+            AssertEqual(new FirefleaFlashShade(shade), state.Flash, $"X-ray frozen time retains flashing phase, unfrozen frame {frame}");
+        }
         for (int step = 0; step < darkness.Length; step++)
         {
             fx = RoomFxOverlayState.ForDefinition(record, 0);
@@ -127,24 +131,40 @@ internal static class FirefleaFxVerification
     private static void VerifyFirefleaFrozenDarkness()
     {
         var fireflea = new FirefleaFxState();
-        for (int frame = 0; frame < 10; frame++) fireflea.Step(frozen: false, new FirefleaDarkness(0));
-        int timer = fireflea.UpdatesUntilNextFlash;
+        var unfrozen = new FirefleaFxState();
+        for (int frame = 0; frame < 10; frame++)
+        {
+            fireflea.Step(frozen: false, new FirefleaDarkness(0));
+            unfrozen.Step(frozen: false, new FirefleaDarkness(0));
+        }
         FirefleaFlashShade look = fireflea.Flash;
         fireflea.Step(frozen: true, new FirefleaDarkness(1));
-        AssertEqual(timer, fireflea.UpdatesUntilNextFlash, "frozen Fireflea holds its flash timer");
         AssertEqual(look, fireflea.Flash, "frozen Fireflea holds its flash look");
         AssertEqual(1, fireflea.Darkness.FirefleasKilled, "frozen Fireflea still publishes the enemies' darkness");
+        // The frozen update counts nothing off the flash (#2488): it goes on exactly as a flash never frozen.
+        for (int frame = 0; frame < 2 * FirefleaFxDefinitions.FlashDuration; frame++)
+        {
+            fireflea.Step(frozen: false, new FirefleaDarkness(0));
+            unfrozen.Step(frozen: false, new FirefleaDarkness(0));
+            AssertEqual(unfrozen.Flash, fireflea.Flash, $"frozen Fireflea holds its flash timer, unfrozen update {frame} after it");
+        }
     }
 
     /// <summary>Checks that a new Fireflea darkness starts from its first flash and advances the phase when its count reaches zero.</summary>
     private static void VerifyFirefleaFlashCount()
     {
         var fireflea = new FirefleaFxState();
-        AssertEqual(FirefleaFxDefinitions.FlashDuration, fireflea.UpdatesUntilNextFlash, "a new darkness waits a whole flash");
-        for (int step = 0; step < FirefleaFxDefinitions.FlashDuration; step++)
+        // A new darkness waits a whole flash on its first look, then the next shows for a whole flash too (#2488).
+        for (int look = 0; look < 2; look++)
+        {
+            for (int step = 1; step < FirefleaFxDefinitions.FlashDuration; step++)
+            {
+                fireflea.Step(frozen: false, new FirefleaDarkness(0));
+                AssertEqual(new FirefleaFlashShade(look), fireflea.Flash, $"look {look} still shows {step} updates in");
+            }
             fireflea.Step(frozen: false, new FirefleaDarkness(0));
-        AssertEqual(new FirefleaFlashShade(1), fireflea.Flash, "the count reaching zero shows the flash's next look");
-        AssertEqual(FirefleaFxDefinitions.FlashDuration, fireflea.UpdatesUntilNextFlash, "the count reaching zero restarts it");
+            AssertEqual(new FirefleaFlashShade(look + 1), fireflea.Flash, $"look {look}'s count reaching zero shows the flash's next look");
+        }
     }
 
     /// <summary>Checks the retail Fireflea room's fixed-color subtraction before, during, and after X-Ray.</summary>

@@ -90,7 +90,7 @@ internal static class EndingCreditsPresentation
             else layers.Add(Sprites(ending, blend: RewardSpritesGlow(ending) ? SpriteBlend.Glows : SpriteBlend.Drawn));
         }
         if (ending.Stage.Phase == EndingCreditsPhase.PostCreditsWhiteFlash)
-            layers.Add(WhiteWash.Layer(ending.CreditsRoll.WhiteWashStepsLeft));
+            layers.Add(ending.CreditsRoll.WhiteFlash.Layer);
         return new(paint, layers.ToArray(), ending.Stage.Brightness);
     }
 

@@ -33,12 +33,14 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
     private readonly ScreenFade fade = new(0);
     /// <summary>The selection missile's frame cycle, shared by the Yes and No positions.</summary>
     internal readonly MenuMissileAnimation missile;
-    /// <summary>Where the Baby's animation stands, or null before its first update of this visit.</summary>
-    internal AnimationPlace? BabyPlace { get; private set; }
-    /// <summary>The pose and colours the Baby shows: its resting look before its animation starts.</summary>
-    internal GameOverBabyLook BabyLook { get; private set; } = GameOverBabyAnimation.Resting;
-    /// <summary>Remaining duration of the current Baby pose or accepted-answer hold.</summary>
-    internal int BabyFrameHold { get; private set; }
+    /// <summary>
+    /// The Baby Metroid's animation (#2488), played by the shared player: it shows nothing of its own before the menu's
+    /// set-up starts it, and holds its look once an answer is accepted.
+    /// </summary>
+    private readonly AnimationPlayer<GameOverBabySegment, GameOverBabyLook, GameOverBabySound> baby =
+        AnimationPlayer<GameOverBabySegment, GameOverBabyLook, GameOverBabySound>.Starting(GameOverBabyAnimation.Segments, GameOverBabyAnimation.Playing);
+    /// <summary>The pose and colours the Baby shows: its animation's look, or its resting look before the animation starts.</summary>
+    internal GameOverBabyLook BabyLook => baby.Shown ?? GameOverBabyAnimation.Resting;
     /// <summary>Routes Yes directly to the Ceres loader for the saved arrival state.</summary>
     private readonly bool continueLoadsCeresArrival;
     /// <summary>Installed artwork rebound whenever the game is bound to its installed content without changing menu timing.</summary>
@@ -152,9 +154,8 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
             case GameOverMenuPhase.Initialize:
                 audio.QueueMusic(MusicRequest.Stop);
                 audio.QueueMusic(MusicRequest.LoadDataSet(MusicDataSet.TitleSequence));
-                BabyPlace = null;
-                BabyLook = GameOverBabyAnimation.Resting;
-                BabyFrameHold = 0;
+                // The set-up starts the Baby on its first look, and this update counts as the first of that look's updates.
+                baby.Show(GameOverBabyAnimation.Playing);
                 StepBabyMetroid();
                 SelectedItem = YesNoChoice.Yes;
                 fade.Show(0);
@@ -189,9 +190,9 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
                 }
                 else if ((pressed & ControllerButton.A) != ControllerButton.None)
                 {
-                    // The game holds the current Baby frame for 180 ticks once either
+                    // The game holds the current Baby look for 180 updates once either
                     // answer is accepted, while the selected fade owner continues drawing.
-                    BabyFrameHold = GameOverMenuDefinitions.AcceptedAnswerHoldDuration;
+                    baby.HoldShownFrameFor(GameOverMenuDefinitions.AcceptedAnswerHoldDuration);
                     if (SelectedItem == YesNoChoice.Yes && continueLoadsCeresArrival)
                         CeresArrivalRequested = true;
                     else
@@ -241,40 +242,10 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
     }
 
     /// <summary>
-    /// Runs the game-over Baby Metroid's animation one update: its first update starts it, and when a look's updates run
-    /// out it plays on to the next, queueing the cries it passes.
+    /// Runs the game-over Baby Metroid's animation one update: when a look's updates run out it plays on to the next,
+    /// queueing the cries it passes.
     /// </summary>
-    private void StepBabyMetroid()
-    {
-        if (BabyFrameHold == 0)
-        {
-            BabyPlace = null;
-            ShowNextBabyLook();
-        }
-
-        BabyFrameHold--;
-        if (BabyFrameHold == 0)
-            ShowNextBabyLook();
-    }
-
-    /// <summary>Plays the Baby's animation on to its next look, queueing the cries it passes, and holds that look.</summary>
-    /// <exception cref="InvalidOperationException">The animation showed no look, which a looping animation of looks never does.</exception>
-    private void ShowNextBabyLook()
-    {
-        AnimationPlace place = BabyPlace ?? AnimationPlace.StartOfAnimation;
-        Animation<GameOverBabySegment> animation = GameOverBabyAnimation.Playing;
-        AnimationShown<GameOverBabySegment, GameOverBabyLook> shown = GameOverBabyAnimation.Segments.PlayToNextFrame(
-            ref animation, ref place, cry =>
-            {
-                QueueCry(cry);
-                return null;
-            });
-        if (shown is not AnimationShown<GameOverBabySegment, GameOverBabyLook>.Frame look)
-            throw new InvalidOperationException($"The game-over Baby's animation showed {shown} instead of its next look.");
-        BabyPlace = place;
-        BabyLook = look.Shown;
-        BabyFrameHold = look.Duration;
-    }
+    private void StepBabyMetroid() => baby.Step(QueueCry);
 
     /// <summary>Queues one of the Baby's cries at the menu's sound priority.</summary>
     private void QueueCry(GameOverBabySound sound) =>

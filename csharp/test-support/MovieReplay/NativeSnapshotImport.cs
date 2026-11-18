@@ -138,9 +138,12 @@ internal static class NativeSnapshotImport
                         .SpriteStatueGreyOut(ColourEffectAnimations.Definition(effect).Colours)
                     : litTorizo;
             var imported = new RoomColourEffect(effect, resumed.FramesOf, litTorizo, glowingEnemy);
-            PrivateState.Set(imported, nameof(RoomColourEffect.Place), NativeEnemyAnimationOracle.WithNativePlaysLeft(
-                new AnimationPlayback<ColourEffectSegment>(resumed.Animation, resumed.Place), W(NativeSnapshotMemory.PaletteFxTimer + slot * 2)).Place);
-            PrivateState.Set(imported, nameof(RoomColourEffect.UpdatesUntilNextStep), W(NativeSnapshotMemory.PaletteFxFrameHold + slot * 2));
+            // The effect's animation goes on from the recorded place, its shown frame holding for the recorded updates (#2488).
+            AnimationPlayer<ColourEffectSegment, int, ColourEffectCue> play =
+                PrivateState.Field<RoomColourEffect, AnimationPlayer<ColourEffectSegment, int, ColourEffectCue>>(imported, "play");
+            play.GoOnFrom(NativeEnemyAnimationOracle.WithNativePlaysLeft(
+                new AnimationPlayback<ColourEffectSegment>(resumed.Animation, resumed.Place), W(NativeSnapshotMemory.PaletteFxTimer + slot * 2)));
+            PrivateState.Set(play, nameof(play.UpdatesLeft), (int)W(NativeSnapshotMemory.PaletteFxFrameHold + slot * 2));
             // The effect's colours and condition are its definition's (#1982). The native colour index names the colours the
             // object animates once its set-up has run, of the colour groups its programs name the one starting there; zero
             // before.

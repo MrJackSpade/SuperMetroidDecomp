@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
@@ -6,8 +7,9 @@ namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>
 /// One post-credits typed text (#1555): the item-percentage labels with their percentage and subtitle, or the final
-/// message. It types its installed characters with the four-frame typewriter cadence and shows what it has typed so far
-/// as glyph pictures at their screen places; nothing is written to a page.
+/// message. It types its installed characters with the four-frame typewriter cadence, its typing played by the shared
+/// animation player (<see cref="EndingTypewriterAnimations"/>, #2488), and shows what it has typed so far as glyph pictures
+/// at their screen places; nothing is written to a page.
 /// </summary>
 internal sealed class EndingTypewriter
 {
@@ -26,14 +28,16 @@ internal sealed class EndingTypewriter
         japaneseText = setup.JapaneseText;
         this.sequence = sequence;
         Characters = Ensure.NotNull(setup.Text).Compile(sequence).ToArray();
+        AnimationSegments<EndingTextSequence, EndingTypewriterTyping, EndingTypewriterCue> segments =
+            EndingTypewriterAnimations.Segments(sequence, Characters.Length);
+        typing = AnimationPlayer<EndingTextSequence, EndingTypewriterTyping, EndingTypewriterCue>.Starting(
+            segments, EndingTypewriterAnimations.Typing(segments, sequence));
     }
 
-    /// <summary>The updates left until the next character or the end of a hold.</summary>
-    internal int FrameHold { get; private set; } = 1;
+    /// <summary>The text's typing: its opening pause, its characters, the percentage's hold and its completion.</summary>
+    private readonly AnimationPlayer<EndingTextSequence, EndingTypewriterTyping, EndingTypewriterCue> typing;
     /// <summary>The number of characters typed so far.</summary>
-    internal int TypedCount { get; private set; }
-    /// <summary>Whether the pause before the first character is still to begin.</summary>
-    internal bool InitialPausePending { get; private set; } = true;
+    private int TypedCount => typing.Shown?.Characters ?? 0;
     /// <summary>The item percentage shown from the start of the percentage hold, or null before it.</summary>
     private int? shownPercentage;
 
@@ -52,34 +56,31 @@ internal sealed class EndingTypewriter
         Characters = Ensure.NotNull(value).Compile(sequence).ToArray();
         if (TypedCount > Characters.Length)
             throw new InvalidDataException($"Saved ending-text typed count {TypedCount} exceeds the rebound text.");
+        AnimationSegments<EndingTextSequence, EndingTypewriterTyping, EndingTypewriterCue> rebound =
+            EndingTypewriterAnimations.Segments(sequence, Characters.Length);
+        typing.Rebind(rebound, EndingTypewriterAnimations.Typing(rebound, sequence));
     }
 
-    /// <summary>Runs the initial delay, four-frame character cadence, optional percentage hold, and completion handoff.</summary>
-    public void Step()
+    /// <summary>Runs the typing one update: the initial delay, four-frame character cadence, optional percentage hold, and completion handoff.</summary>
+    public void Step() => typing.Step(CarryOut);
+
+    /// <summary>Carries out <paramref name="cue"/> of the text's typing.</summary>
+    /// <exception cref="InvalidOperationException">The cue is not one a text's typing raises.</exception>
+    private void CarryOut(EndingTypewriterCue cue)
     {
-        _ = Characters;
-        if (Completed || --FrameHold != 0) return;
-        if (InitialPausePending)
+        switch (cue)
         {
-            InitialPausePending = false;
-            FrameHold = EndingTypewriterDefinitions.InitialDelayFrames;
-            return;
+            case EndingTypewriterCue.ShowPercentage:
+                shownPercentage = ItemPercentage();
+                return;
+            case EndingTypewriterCue.Complete:
+                if (sequence == EndingTextSequence.ItemPercentage)
+                    RequestedItemPercentageScroll = true;
+                Completed = true;
+                return;
+            default:
+                throw new InvalidOperationException($"Undefined ending typewriter cue {cue}.");
         }
-        if (TypedCount < Characters.Length)
-        {
-            TypedCount++;
-            FrameHold = EndingTypewriterDefinitions.CharacterDelayFrames;
-            return;
-        }
-        if (sequence == EndingTextSequence.ItemPercentage && shownPercentage is null)
-        {
-            shownPercentage = ItemPercentage();
-            FrameHold = EndingTypewriterDefinitions.PercentageHoldFrames;
-            return;
-        }
-        if (sequence == EndingTextSequence.ItemPercentage)
-            RequestedItemPercentageScroll = true;
-        Completed = true;
     }
 
     /// <summary>

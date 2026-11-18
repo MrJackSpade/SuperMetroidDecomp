@@ -102,6 +102,18 @@ internal sealed class AnimationPlayer<TSegment, TFrame, TEvent>
         HasStopped = false;
     }
 
+    /// <summary>
+    /// Starts <paramref name="animation"/> again from its start as <see cref="Start"/> does, but the frame shown, if any,
+    /// stays on show until the animation's first update plays it to its own first frame (#2488): the intro's portrait keeps
+    /// its eye open until the final page's closing shows.
+    /// </summary>
+    internal void StartKeepingShown(Animation<TSegment> animation)
+    {
+        TFrame? shown = Shown;
+        Start(animation);
+        Shown = shown;
+    }
+
     /// <summary>Starts <paramref name="animation"/> again on its first frame, as <see cref="StartShowing"/> does.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="firstFrameUpdates"/> is below one.</exception>
     /// <exception cref="InvalidOperationException">The animation raises an event or pauses before its first frame.</exception>
@@ -138,6 +150,17 @@ internal sealed class AnimationPlayer<TSegment, TFrame, TEvent>
         _ = PlayOn(raised => throw new InvalidOperationException($"The animation raised {raised} before its first frame."));
         if (Shown is null)
             throw new InvalidOperationException("The animation shows no frame to start on.");
+    }
+
+    /// <summary>
+    /// Starts <paramref name="animation"/> again at <paramref name="place"/>, showing nothing until its next update plays on
+    /// from there (#2488): a colour effect restarted partway through its animation, or at its cycle, plays on in the same
+    /// turn.
+    /// </summary>
+    internal void StartAt(Animation<TSegment> animation, AnimationPlace place)
+    {
+        Start(animation);
+        Playback = Playback with { Place = place };
     }
 
     /// <summary>
@@ -208,6 +231,20 @@ internal sealed class AnimationPlayer<TSegment, TFrame, TEvent>
         if (!ReferenceEquals(Playback.Animation, animation))
             Playback = Playback.GoingOnIn(animation);
         return PlayOn(raised => throw new InvalidOperationException($"The animation raised {raised} with no owner to act on it."));
+    }
+
+    /// <summary>
+    /// Runs one update of an animation that raises no event, as <see cref="Step()"/> does, but once the shown frame's updates
+    /// run out plays on from <paramref name="place"/> instead of where the play stands (#2488): the Fireflea flash, which the
+    /// room's darkness holds, shows its brightest look each time its next one is due.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The animation raises an event, which this owner has nothing to act on.</exception>
+    internal void StepPlayingOnFrom(AnimationPlace place)
+    {
+        if (IsResting || --UpdatesLeft > 0)
+            return;
+        Playback = Playback with { Place = place };
+        _ = PlayOn(raised => throw new InvalidOperationException($"The animation raised {raised} with no owner to act on it."));
     }
 
     /// <summary>

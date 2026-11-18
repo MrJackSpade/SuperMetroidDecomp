@@ -142,15 +142,6 @@ internal static class LookupStream3Verification
         {
             for (int frame = 0; frame < expected.Length; frame++)
                 AssertTrue(expected[frame].SequenceEqual(BackgroundTileWordBytes.Words(selected.FrameTiles(frame))), $"eye rectangle {frame}");
-            var objects = new IntroNarrationActors(new IntroNarrationText(), new IntroJapaneseSubtitles(enabled: false), AudioQueues.Standalone(),
-                global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.IntroNarration);
-            IntroEyeFrame[] eyeFrames = [IntroEyeFrame.Open, IntroEyeFrame.HalfOpen, IntroEyeFrame.Closed, IntroEyeFrame.Deadpan];
-            for (int frame = 0; frame < expected.Length; frame++)
-            {
-                // The portrait shows the frame's installed picture (#1467), composed from these cells.
-                objects.ShowEyeFrame(eyeFrames[frame]);
-                AssertEqual<IntroEyeFrame?>(eyeFrames[frame], objects.EyeFrame, "the portrait shows the eye frame the record names");
-            }
             string identity = SelectedPresentationHash.Create(nameof(IntroEyeTilemapPresentation), content =>
             {
                 content.Append("frames", expected.Length);

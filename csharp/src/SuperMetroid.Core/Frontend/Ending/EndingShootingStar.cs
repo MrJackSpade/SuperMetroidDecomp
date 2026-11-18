@@ -5,10 +5,11 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// <summary>Mutable position, velocity, start delay and pictures of one post-credits star.</summary>
 internal struct EndingShootingStar
 {
-    /// <summary>Whether the star is still waiting out its authored start delay, counted by <see cref="DelayLeft"/>.</summary>
-    internal bool Delayed;
-    /// <summary>The updates of its start delay the star still waits after this one, while <see cref="Delayed"/>.</summary>
-    internal int DelayLeft;
+    /// <summary>
+    /// The updates of its authored start delay the star still waits, counted down to none, after which its next update
+    /// starts it (#2488); null once it flies.
+    /// </summary>
+    internal int? DelayLeft;
     /// <summary>The star's pictures through its flight (<see cref="EndingShootingStarAnimations"/>).</summary>
     internal AnimationPlayer<EndingShootingStarPace, EndingShootingStarLook, NoAnimationCue> Flight;
     /// <summary>
@@ -21,4 +22,7 @@ internal struct EndingShootingStar
 
     /// <summary>What the star shows.</summary>
     internal readonly EndingShootingStarLook Look => Flight.Showing;
+
+    /// <summary>Whether the star is still waiting out its authored start delay.</summary>
+    internal readonly bool Delayed => DelayLeft is not null;
 }

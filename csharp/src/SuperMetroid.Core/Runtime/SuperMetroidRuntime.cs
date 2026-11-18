@@ -439,18 +439,21 @@ internal sealed class SuperMetroidRuntime
     public void StepFrame(ControllerButton playerInput, RuntimeFrameRequest request)
     {
         Ensure.NotNull(request);
-        Assists.GrantLoadoutToNewSamus();
+        // Every gameplay update runs with Samus: each game's start, a saved game's load and the attract demo create her
+        // before their first room loads, and only those setups, between updates, replace her.
+        SamusState samus = Player.IntroducedSamus;
+        Assists.GrantLoadoutToNewSamus(samus);
         AmmoLoanGuard infiniteAmmoGuard =
-            AmmoLoanGuard.Begin(Assists.Current.AmmoNeverRunsOut, Player.Samus);
+            AmmoLoanGuard.Begin(Assists.Current.AmmoNeverRunsOut, samus);
         try
         {
-            StepFrameGuarded(playerInput, request, infiniteAmmoGuard);
+            StepFrameGuarded(playerInput, request, infiniteAmmoGuard, samus);
         }
         finally
         {
             // A failed update may be followed by another update, so the borrowed round is returned here whatever
             // happens: otherwise an update that throws after borrowing the last round leaves live ammo at two.
-            infiniteAmmoGuard.Complete(Player.Samus);
+            infiniteAmmoGuard.Complete();
             // A failed demo frame must not leak scripted input into the player latch.
             AttractDemo.RestoreAttractPlayerInput();
         }
@@ -463,12 +466,12 @@ internal sealed class SuperMetroidRuntime
     private void StepFrameGuarded(
         ControllerButton playerInput,
         RuntimeFrameRequest frameRequest,
-        AmmoLoanGuard infiniteAmmoGuard)
+        AmmoLoanGuard infiniteAmmoGuard,
+        SamusState samus)
     {
-        // Every gameplay update runs in a loaded room with Samus: each game's start, a saved game's load and the attract
-        // demo create her before their first room loads, and a room load replaces the room whole.
+        // Every gameplay update runs in a loaded room: each game's start, a saved game's load and the attract demo load
+        // one before their first update, and a room load replaces the room whole.
         RoomScope room = Room.LoadedScope;
-        SamusState samus = Player.IntroducedSamus;
         // The Chozo statue objects an earlier update asked for are placed at the frame's entry, before any producer runs.
         EnemyRoomEffects.ApplyPendingChozoStatueObjects(EnemyRoomEffectSite.Of(room, samus));
         // An open message box runs its own updates inside the suspended gameplay update:
@@ -496,7 +499,7 @@ internal sealed class SuperMetroidRuntime
         var tail = new SuspendedGameplayFrameTail(context.Samus.Mode, context.Samus.PreviousCameraPoint);
         if (SuspendTailForMessageBox(tail))
         {
-            ApplyEndOfUpdateAssists(infiniteAmmoGuard);
+            ApplyEndOfUpdateAssists(infiniteAmmoGuard, samus);
             return;
         }
         FinishGameplayFrame(tail, frameRequest.Policy, infiniteAmmoGuard, room, samus);
@@ -715,7 +718,7 @@ internal sealed class SuperMetroidRuntime
         room.Enemies.HandleRoomShaking(Freeze.TimeIsFrozen);
 
         DecrementHurtTimers(room, samus);
-        ApplyEndOfUpdateAssists(infiniteAmmoGuard);
+        ApplyEndOfUpdateAssists(infiniteAmmoGuard, samus);
     }
 
     /// <summary>Resolves enemy-projectile hits on Samus and her projectiles, then ordinary power-bomb hits.</summary>
@@ -873,7 +876,7 @@ internal sealed class SuperMetroidRuntime
         {
             // The loan exists only so firing does not see zero ammunition and cancel the selected weapon. It is
             // returned before the HUD update shows the live counters, so the HUD shows the ammunition Samus holds.
-            infiniteAmmoGuard.Complete(Player.Samus);
+            infiniteAmmoGuard.Complete();
             // The HUD update rebuilds live energy/ammo cells every gameplay frame.
             // Initialization alone is insufficient: Ridley contact and fireballs mutate
             // Samus during this frame, and those values must enter the next frame boundary.
@@ -928,16 +931,17 @@ internal sealed class SuperMetroidRuntime
     public void UpdatePauseHeldButtonRepeat(int repeatDelay) =>
         PauseHeldButtonRepeat.Update(repeatDelay, PlayerButtons.Current, PlayerButtons.NewlyPressed);
 
-    /// <summary>Applies the assists' end-of-update floors and returns the ammunition the update borrowed.</summary>
-    internal void ApplyEndOfUpdateAssists(
-        AmmoLoanGuard infiniteAmmoGuard)
+    /// <summary>Applies the assists' end-of-update floors to the update's Samus and returns the ammunition the update borrowed.</summary>
+    private void ApplyEndOfUpdateAssists(
+        AmmoLoanGuard infiniteAmmoGuard,
+        SamusState samus)
     {
         // Every damage source applies its normal amount first. The assist acts only at the end of the update, where
         // zero energy would otherwise start Samus's death.
-        if (Assists.Current.SamusCannotDie && Player.Samus is { Health: 0 } samus)
+        if (Assists.Current.SamusCannotDie && samus.Health == 0)
             samus.Health = 1;
 
-        infiniteAmmoGuard.Complete(Player.Samus);
+        infiniteAmmoGuard.Complete();
     }
 
     /// <summary>
@@ -948,7 +952,9 @@ internal sealed class SuperMetroidRuntime
     /// </summary>
     public GameplayDisplayFrame PublishDisplayFrame()
     {
+        // A frame is shown only from a loaded room, and every room loads with Samus introduced.
         RoomScope room = Room.LoadedScope;
+        SamusState samus = Player.IntroducedSamus;
         MotherBrainEnemyState? motherBrain = room.Enemies.DisplaySources.MotherBrain;
         var frameEnd = new GameplayFrameEndDisplayInputs(
             Room.DoorTransitionShownLayers,
@@ -961,8 +967,8 @@ internal sealed class SuperMetroidRuntime
             PowerBombRenderSnapshot.Capture(room.BombProjectiles.PowerBombExplosion),
             MessageBoxLayer.Capture(MessageBox, room.MessageBoxes),
             SuitPickup.IsActive ? SuitPickup.Beam : null,
-            SamusXrayDisplaySnapshot.Capture(Player.Samus, Player.LastXrayBeamStep));
-        return new(Display.Latched, frameEnd, new FramePaint(PublishShading(),
+            SamusXrayDisplaySnapshot.Capture(samus, Player.LastXrayBeamStep));
+        return new(Display.Latched, frameEnd, new FramePaint(PublishShading(samus),
             Player.Colours.ShadeOwnDraws(DisplayedSprites.Draws)));
     }
 
@@ -971,16 +977,16 @@ internal sealed class SuperMetroidRuntime
     /// state shows, each later one showing over the earlier: the room's colour effects and the effect overlay colours,
     /// then its bosses', then the door's fade over all of them.
     /// </summary>
-    private GameplayShading PublishShading()
+    private GameplayShading PublishShading(SamusState samus)
     {
         var shading = new GameplayShadingBuilder();
-        foreach (IGameplayShadingSource source in ShadingSources())
+        foreach (IGameplayShadingSource source in ShadingSources(samus))
             source.ShadeGameplay(shading);
         return shading.Build(Room.LoadedScope.Assets.BlockSheet.Sheet.Image);
     }
 
     /// <summary>The owners of the colour effects the frame shows, in the order they are laid over each other.</summary>
-    private IEnumerable<IGameplayShadingSource> ShadingSources()
+    private IEnumerable<IGameplayShadingSource> ShadingSources(SamusState samus)
     {
         yield return Room.LoadedScope.ColourEffects;
         yield return Room.LoadedScope.FxOverlay;
@@ -988,8 +994,8 @@ internal sealed class SuperMetroidRuntime
             yield return boss;
         yield return DoorFade;
         // The death explosion's whiteout writes over the colours the death fade left black, so it shows instead of it.
-        if (Player.Samus is { DeathSequence.Whiteout: not null } dying)
-            yield return dying.DeathSequence;
+        if (samus.DeathSequence.Whiteout is not null)
+            yield return samus.DeathSequence;
         else
             yield return FadeOut;
     }
@@ -1058,7 +1064,7 @@ internal sealed class SuperMetroidRuntime
             MessageBoxes.SaveChoiceMoved();
         if (MessageBox.IsActive)
         {
-            ApplyEndOfUpdateAssists(infiniteAmmoGuard);
+            ApplyEndOfUpdateAssists(infiniteAmmoGuard, samus);
             return;
         }
 
@@ -1071,6 +1077,6 @@ internal sealed class SuperMetroidRuntime
             FinishGameplayFrame(tail, policy, infiniteAmmoGuard, room, samus);
             return;
         }
-        ApplyEndOfUpdateAssists(infiniteAmmoGuard);
+        ApplyEndOfUpdateAssists(infiniteAmmoGuard, samus);
     }
 }

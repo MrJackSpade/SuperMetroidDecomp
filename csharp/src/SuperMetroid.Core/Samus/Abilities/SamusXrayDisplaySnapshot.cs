@@ -29,15 +29,15 @@ public readonly record struct SamusXrayDisplaySnapshot(
     bool Crouching)
 {
     /// <summary>
-    /// Captures the X-ray display inputs, or null when Samus is absent or X-ray neither is active
-    /// nor finished during this logic frame.
+    /// Captures the X-ray display inputs, or null when X-ray neither is active nor finished during this logic frame.
     /// </summary>
-    /// <param name="samus">Samus, when present.</param>
+    /// <param name="samus">The shown frame's Samus.</param>
     /// <param name="lastBeamStep">This frame's beam step result, when one ran.</param>
-    public static SamusXrayDisplaySnapshot? Capture(SamusState? samus, XrayBeamStepResult? lastBeamStep)
+    public static SamusXrayDisplaySnapshot? Capture(SamusState samus, XrayBeamStepResult? lastBeamStep)
     {
+        Ensure.NotNull(samus);
         bool finished = lastBeamStep is { Completed: true, PhaseAtStart: XrayBeamPhase.Finish };
-        if (samus is null || !samus.Xray.IsActive && !finished) return null;
+        if (!samus.Xray.IsActive && !finished) return null;
         return new(finished, samus.Xray.WarmUp, samus.Xray.BeamPhase, samus.Xray.Closing, samus.Xray.Angle,
             samus.Xray.AngularWidth, samus.Position.Whole, SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left),
             SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.Crouching);

@@ -401,14 +401,14 @@ internal static void VerifyFrameRuntime()
     // Consume the lent missile exactly as the cartridge firing routine does. Completion
     // must keep it at one instead of allowing the native zero-ammo auto-cancel branch.
     infiniteAmmoSamus.Missiles--;
-    ammoGuard.Complete(infiniteAmmoSamus);
+    ammoGuard.Complete();
     AssertEqual(1, infiniteAmmoSamus.Missiles,
         "infinite ammo preserves selection after the final missile");
     AssertEqual(1, infiniteAmmoSamus.SuperMissiles,
         "infinite ammo retains the unlocked one-unit floor");
     AssertEqual(0, infiniteAmmoSamus.PowerBombs,
         "infinite ammo leaves locked ammunition at zero");
-    ammoGuard.Complete(infiniteAmmoSamus);
+    ammoGuard.Complete();
     AssertEqual(1, infiniteAmmoSamus.Missiles,
         "repeated frame-exit reconciliation cannot remove the one-unit floor");
 
@@ -416,8 +416,8 @@ internal static void VerifyFrameRuntime()
     AmmoLoanGuard pickupGuard =
         AmmoLoanGuard.Begin(enabled: true, pickupDuringLoan);
     pickupDuringLoan.Missiles += 2;
-    pickupGuard.Complete(pickupDuringLoan);
-    pickupGuard.Complete(pickupDuringLoan);
+    pickupGuard.Complete();
+    pickupGuard.Complete();
     AssertEqual(3, pickupDuringLoan.Missiles,
         "idempotent loan reconciliation preserves ammunition collected during the frame");
 

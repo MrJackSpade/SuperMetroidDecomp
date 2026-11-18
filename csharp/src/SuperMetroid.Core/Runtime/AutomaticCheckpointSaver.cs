@@ -30,8 +30,8 @@ internal static class AutomaticCheckpointSaver
     {
         Ensure.NotNull(saves);
         Ensure.NotNull(runtime);
-        SamusState samus = runtime.Player.Samus
-            ?? throw new InvalidOperationException("Ceres checkpoint requires a live Samus actor.");
+        // Both Ceres checkpoints save the game's Samus: the Ceres start's, and the escape's, which she outlives.
+        SamusState samus = runtime.Player.IntroducedSamus;
         runtime.System.LoadSavedStartupRoute(route);
         // Saving first stores the live explored map as Ceres's.
         runtime.System.StoredExploredMaps.StoreLiveMap(AreaId.Ceres);
@@ -52,9 +52,7 @@ internal static class AutomaticCheckpointSaver
         if (runtime.EnemyFrameResults.LastEnemyFrame.Gunship != GunshipFrameEvent.LandingCompleted)
             return false;
 
-        SamusState samus = runtime.Player.Samus
-            ?? throw new InvalidOperationException(
-                "Gunship landing completed without a live Samus actor.");
+        SamusState samus = runtime.Player.IntroducedSamus;
 
         // The gunship sets the ship-landed marker before moving the checkpoint from the Zebes arrival to
         // the gunship and saving the game. The marker controls ship/save-point display

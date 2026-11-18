@@ -276,7 +276,7 @@ internal sealed class RoomLoader
         // Loading the save sets the stored explored maps from it; the live map is loaded only at file select.
         StoredExploredMapLoads.LoadFile(_system.StoredExploredMaps, slot.Progression);
         _assists.ResetSavedEncounters();
-        _assists.GrantLoadoutToNewSamus();
+        _assists.GrantLoadoutToNewSamus(samus);
         // Loading a save selects the beam again, whatever the save held, so the front-facing load pose shows no
         // weapon's arm cannon.
         _player.Samus.SelectedHudItem = HudItem.Beam;
@@ -363,11 +363,11 @@ internal sealed class RoomLoader
     /// of its screen moves on to the next screen's edge and one before it back to its own, so one pixel either side of
     /// the boundary reaches it in one step.
     /// </summary>
+    /// <param name="door">The door the transition goes through.</param>
     /// <returns>True only when the camera already lay on that screen boundary on entry.</returns>
-    public bool AlignPendingDoorCameraOnePixel()
+    public bool AlignDoorCameraOnePixel(DoorDefinition door)
     {
-        DoorDefinition door = PendingDoorTransition
-            ?? throw new InvalidOperationException("No pending door exists to align.");
+        Ensure.NotNull(door);
         ScrollBoundaryCamera camera = _room.LoadedCamera;
 
         DoorCameraAlignmentState alignment = DoorCameraAlignmentState.Step(
@@ -395,10 +395,10 @@ internal sealed class RoomLoader
     /// </summary>
     internal static bool DoorTransitionAlignsX(DoorDirection direction) => direction.IsVertical();
 
-    /// <summary>Whether the pending door's destination room definition selects the isolated door transition.</summary>
-    public bool PendingDoorDestinationUsesIsolatedDoorTransition => PendingDoorTransition is { } door
-        ? LoadSelectedRoom(door.DestinationRoom).UsesIsolatedDoorTransition
-        : throw new InvalidOperationException("No pending door destination exists.");
+    /// <summary>Whether <paramref name="door"/>'s destination room definition selects the isolated door transition.</summary>
+    /// <param name="door">The door the transition goes through.</param>
+    public bool DestinationUsesIsolatedDoorTransition(DoorDefinition door) =>
+        LoadSelectedRoom(Ensure.NotNull(door).DestinationRoom).UsesIsolatedDoorTransition;
 
     /// <summary>
     /// Chooses the layers a door transition shows below the HUD for its whole scroll. The
@@ -443,10 +443,10 @@ internal sealed class RoomLoader
     /// Publishes setup's Samus displacement before destination-coordinate rebasing.
     /// The later atomic room constructor uses the captured pre-setup coordinates.
     /// </summary>
-    internal void ApplyDoorScrollingSetupMovement()
+    /// <param name="door">The door the transition goes through.</param>
+    internal void ApplyDoorScrollingSetupMovement(DoorDefinition door)
     {
-        DoorDefinition door = PendingDoorTransition
-            ?? throw new InvalidOperationException("No pending door destination exists.");
+        Ensure.NotNull(door);
         SamusState samus = _player.IntroducedSamus;
         samus.Position = DoorOpeningScrollState.ApplySetupMovement(door, samus.Position);
         PublishDoorCameraPosition(DoorOpeningScrollState.GetSetupCamera(door));
@@ -454,10 +454,10 @@ internal sealed class RoomLoader
 
 
     /// <summary>Rebases Samus and publishes the scroll's first moving step during the destination's loading.</summary>
-    internal void PlaceSamusForDestinationLoading()
+    /// <param name="door">The door the transition goes through.</param>
+    internal void PlaceSamusForDestinationLoading(DoorDefinition door)
     {
-        DoorDefinition door = PendingDoorTransition
-            ?? throw new InvalidOperationException("No pending door destination exists.");
+        Ensure.NotNull(door);
         SamusState samus = _player.IntroducedSamus;
         ScrollBoundaryCamera camera = _room.LoadedCamera;
         FixedPosition<RoomPixels> position = DoorOpeningScrollState.RebaseSamus(door, samus.Position);
@@ -1136,7 +1136,7 @@ internal sealed class RoomLoader
         samus.Position = FixedPosition<RoomPixels>.FromWhole(_room.ActiveLoadStation.Placement.SamusPosition.WithY(0));
         _player.Samus = samus;
         SuperMetroid.Core.Samus.Colours.SamusSuitShade.ShowPower(_player.Colours);
-        _assists.GrantLoadoutToNewSamus();
+        _assists.GrantLoadoutToNewSamus(samus);
 
         SamusPoseMetadata.RefreshCollisionRadii(_player.Samus);
         SamusPresentation.InitializeAnimation(_player.Samus);

@@ -26,7 +26,7 @@ internal sealed record Animation<TSegment>
     /// </summary>
     /// <exception cref="ArgumentException">The cycle has no phase, or a phase never plays.</exception>
     internal static Animation<TSegment> LeadingInto(IReadOnlyList<AnimationPhase<TSegment>> lead, IReadOnlyList<AnimationPhase<TSegment>> cycle) =>
-        new([.. Ensure.NotNull(lead), .. Ensure.NotNull(cycle)], AnimationEnd.LoopsFrom(lead.Count));
+        new([.. Ensure.NotNull(lead), .. Ensure.NotNull(cycle)], new AnimationEnd.Loop(lead.Count));
 
     /// <summary>An animation that loops <paramref name="cycle"/> for good from its first phase (#2331).</summary>
     /// <exception cref="ArgumentException">The cycle has no phase, or a phase never plays.</exception>

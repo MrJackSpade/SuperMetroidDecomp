@@ -29,7 +29,14 @@ internal sealed class CinematicPlays<TAnimation, TFrame, TCue>(AnimationSegments
     internal Animation<TAnimation> Through(TAnimation animation, AnimationEnd end) => new([segments.Whole(animation)], end);
 
     /// <summary>The animation that plays every beat of <paramref name="animation"/> over and over.</summary>
-    internal Animation<TAnimation> Looping(TAnimation animation) => Through(animation, AnimationEnd.LoopsFrom(0));
+    internal Animation<TAnimation> Looping(TAnimation animation) => Animation<TAnimation>.Looping([segments.Whole(animation)]);
+
+    /// <summary>
+    /// The animation that plays every beat of <paramref name="lead"/> once, then every beat of <paramref name="cycle"/> over
+    /// and over (#2414).
+    /// </summary>
+    internal Animation<TAnimation> LeadingInto(TAnimation lead, TAnimation cycle) =>
+        Animation<TAnimation>.LeadingInto([segments.Whole(lead)], [segments.Whole(cycle)]);
 
     /// <summary>The phase that plays every beat of <paramref name="segment"/> once.</summary>
     internal AnimationPhase<TAnimation> Whole(TAnimation segment) => segments.Whole(segment);

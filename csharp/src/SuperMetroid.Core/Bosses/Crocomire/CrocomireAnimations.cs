@@ -38,9 +38,9 @@ internal static class CrocomireAnimations
     internal static IReadOnlyDictionary<CrocomireTongueSegment, Animation<CrocomireTongueSegment>> TongueStartingAt { get; } =
         new Dictionary<CrocomireTongueSegment, Animation<CrocomireTongueSegment>>
         {
-            [CrocomireTongueSegment.Fight] = new([TongueSegments.Whole(CrocomireTongueSegment.Fight)], AnimationEnd.LoopsFrom(0)),
+            [CrocomireTongueSegment.Fight] = Animation<CrocomireTongueSegment>.Looping([TongueSegments.Whole(CrocomireTongueSegment.Fight)]),
             [CrocomireTongueSegment.Hidden] = new([], AnimationEnd.Holds),
-            [CrocomireTongueSegment.Melting] = new([TongueSegments.Whole(CrocomireTongueSegment.Melting)], AnimationEnd.LoopsFrom(0)),
+            [CrocomireTongueSegment.Melting] = Animation<CrocomireTongueSegment>.Looping([TongueSegments.Whole(CrocomireTongueSegment.Melting)]),
         };
 
     /// <summary>The tongue animation that starts at <paramref name="segment"/>.</summary>
@@ -87,7 +87,7 @@ internal static class CrocomireAnimations
     internal static IReadOnlyDictionary<CrocomireProjectileSegment, Animation<CrocomireProjectileSegment>> ProjectileStartingAt { get; } =
         new Dictionary<CrocomireProjectileSegment, Animation<CrocomireProjectileSegment>>
         {
-            [CrocomireProjectileSegment.Mouth] = new([ProjectileSegments.Whole(CrocomireProjectileSegment.Mouth)], AnimationEnd.LoopsFrom(0)),
+            [CrocomireProjectileSegment.Mouth] = Animation<CrocomireProjectileSegment>.Looping([ProjectileSegments.Whole(CrocomireProjectileSegment.Mouth)]),
             [CrocomireProjectileSegment.BridgeFragment] = new([ProjectileSegments.Whole(CrocomireProjectileSegment.BridgeFragment)], AnimationEnd.Holds),
             [CrocomireProjectileSegment.SpikeWallPiece] = new([ProjectileSegments.Whole(CrocomireProjectileSegment.SpikeWallPiece)], AnimationEnd.Holds),
             [CrocomireProjectileSegment.Shot] = new([ProjectileSegments.Whole(CrocomireProjectileSegment.Shot)], AnimationEnd.Holds),

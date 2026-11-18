@@ -89,10 +89,10 @@ internal static class SpacePirateProjectileAnimations
     /// </summary>
     internal static IReadOnlyDictionary<SpacePirateProjectileSegment, Animation<SpacePirateProjectileSegment>> StartingAt { get; } = new Dictionary<SpacePirateProjectileSegment, Animation<SpacePirateProjectileSegment>>
     {
-        [P.LaserLeft] = new([Segments.Whole(P.LaserLeft), Segments.Whole(P.LaserLeftFlicker)], AnimationEnd.LoopsFrom(1)),
-        [P.LaserRight] = new([Segments.Whole(P.LaserRight), Segments.Whole(P.LaserRightFlicker)], AnimationEnd.LoopsFrom(1)),
-        [P.ClawLeft] = new([Segments.Whole(P.ClawLeft), Segments.Whole(P.ClawLeftSpin)], AnimationEnd.LoopsFrom(1)),
-        [P.ClawRight] = new([Segments.Whole(P.ClawRight), Segments.Whole(P.ClawRightSpin)], AnimationEnd.LoopsFrom(1)),
+        [P.LaserLeft] = Animation<SpacePirateProjectileSegment>.LeadingInto([Segments.Whole(P.LaserLeft)], [Segments.Whole(P.LaserLeftFlicker)]),
+        [P.LaserRight] = Animation<SpacePirateProjectileSegment>.LeadingInto([Segments.Whole(P.LaserRight)], [Segments.Whole(P.LaserRightFlicker)]),
+        [P.ClawLeft] = Animation<SpacePirateProjectileSegment>.LeadingInto([Segments.Whole(P.ClawLeft)], [Segments.Whole(P.ClawLeftSpin)]),
+        [P.ClawRight] = Animation<SpacePirateProjectileSegment>.LeadingInto([Segments.Whole(P.ClawRight)], [Segments.Whole(P.ClawRightSpin)]),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

@@ -112,14 +112,14 @@ internal static class CeresSteamAnimations
     /// </summary>
     internal static IReadOnlyDictionary<CeresSteamSegment, Animation<CeresSteamSegment>> StartingAt { get; } = new Dictionary<CeresSteamSegment, Animation<CeresSteamSegment>>
     {
-        [P.UpDormant] = new([new(P.UpDormant, 0, 3, 1), new(P.UpResting, 0, 3, 1), new(P.UpPuffing, 0, 7, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.UpPuffing] = new([new(P.UpPuffing, 0, 7, 1), new(P.UpResting, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.LeftDormant] = new([new(P.LeftDormant, 0, 3, 1), new(P.LeftResting, 0, 3, 1), new(P.LeftPuffing, 0, 7, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.LeftPuffing] = new([new(P.LeftPuffing, 0, 7, 1), new(P.LeftResting, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.DownDormant] = new([new(P.DownDormant, 0, 3, 1), new(P.DownResting, 0, 3, 1), new(P.DownPuffing, 0, 7, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.DownPuffing] = new([new(P.DownPuffing, 0, 7, 1), new(P.DownResting, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.RightDormant] = new([new(P.RightDormant, 0, 3, 1), new(P.RightResting, 0, 3, 1), new(P.RightPuffing, 0, 7, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.RightPuffing] = new([new(P.RightPuffing, 0, 7, 1), new(P.RightResting, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.UpDormant] = Animation<CeresSteamSegment>.LeadingInto([new(P.UpDormant, 0, 3, 1)], [new(P.UpResting, 0, 3, 1), new(P.UpPuffing, 0, 7, 1)]),
+        [P.UpPuffing] = Animation<CeresSteamSegment>.Looping([new(P.UpPuffing, 0, 7, 1), new(P.UpResting, 0, 3, 1)]),
+        [P.LeftDormant] = Animation<CeresSteamSegment>.LeadingInto([new(P.LeftDormant, 0, 3, 1)], [new(P.LeftResting, 0, 3, 1), new(P.LeftPuffing, 0, 7, 1)]),
+        [P.LeftPuffing] = Animation<CeresSteamSegment>.Looping([new(P.LeftPuffing, 0, 7, 1), new(P.LeftResting, 0, 3, 1)]),
+        [P.DownDormant] = Animation<CeresSteamSegment>.LeadingInto([new(P.DownDormant, 0, 3, 1)], [new(P.DownResting, 0, 3, 1), new(P.DownPuffing, 0, 7, 1)]),
+        [P.DownPuffing] = Animation<CeresSteamSegment>.Looping([new(P.DownPuffing, 0, 7, 1), new(P.DownResting, 0, 3, 1)]),
+        [P.RightDormant] = Animation<CeresSteamSegment>.LeadingInto([new(P.RightDormant, 0, 3, 1)], [new(P.RightResting, 0, 3, 1), new(P.RightPuffing, 0, 7, 1)]),
+        [P.RightPuffing] = Animation<CeresSteamSegment>.Looping([new(P.RightPuffing, 0, 7, 1), new(P.RightResting, 0, 3, 1)]),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

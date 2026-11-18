@@ -55,10 +55,10 @@ internal static class AtomicAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<AtomicSegment, Animation<AtomicSegment>> StartingAt { get; } = new Dictionary<AtomicSegment, Animation<AtomicSegment>>
     {
-        [P.UpRightTurning] = new([Segments.Whole(P.UpRightTurning)], AnimationEnd.LoopsFrom(0)),
-        [P.UpLeftTurning] = new([Segments.Whole(P.UpLeftTurning)], AnimationEnd.LoopsFrom(0)),
-        [P.UpRightTurningBack] = new([Segments.Whole(P.UpRightTurningBack)], AnimationEnd.LoopsFrom(0)),
-        [P.UpLeftTurningBack] = new([Segments.Whole(P.UpLeftTurningBack)], AnimationEnd.LoopsFrom(0)),
+        [P.UpRightTurning] = Animation<AtomicSegment>.Looping([Segments.Whole(P.UpRightTurning)]),
+        [P.UpLeftTurning] = Animation<AtomicSegment>.Looping([Segments.Whole(P.UpLeftTurning)]),
+        [P.UpRightTurningBack] = Animation<AtomicSegment>.Looping([Segments.Whole(P.UpRightTurningBack)]),
+        [P.UpLeftTurningBack] = Animation<AtomicSegment>.Looping([Segments.Whole(P.UpLeftTurningBack)]),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

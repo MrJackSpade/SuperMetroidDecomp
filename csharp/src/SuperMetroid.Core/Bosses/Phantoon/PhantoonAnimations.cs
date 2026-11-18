@@ -95,7 +95,7 @@ internal static class PhantoonAnimations
         [P.EyeLookingDownLeft] = Held(P.EyeLookingDownLeft),
         [P.EyeLookingLeft] = Held(P.EyeLookingLeft),
         [P.EyeLookingUpLeft] = Held(P.EyeLookingUpLeft),
-        [P.Tentacles] = new([Segments.Whole(P.Tentacles)], AnimationEnd.LoopsFrom(0)),
+        [P.Tentacles] = Animation<PhantoonPartSegment>.Looping([Segments.Whole(P.Tentacles)]),
         [P.MouthSpawnFlame] = HeldAfter(P.MouthSpawnFlame, P.MouthInitial),
         [P.MouthInitial] = Held(P.MouthInitial),
     };

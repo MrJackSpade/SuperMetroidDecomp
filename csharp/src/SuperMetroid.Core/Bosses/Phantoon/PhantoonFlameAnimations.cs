@@ -77,19 +77,18 @@ internal static class PhantoonFlameAnimations
     /// </summary>
     internal static IReadOnlyDictionary<PhantoonFlameSegment, Animation<PhantoonFlameSegment>> StartingAt { get; } = new Dictionary<PhantoonFlameSegment, Animation<PhantoonFlameSegment>>
     {
-        [P.Burning] = new([Segments.Whole(P.Burning)], AnimationEnd.LoopsFrom(0)),
+        [P.Burning] = Animation<PhantoonFlameSegment>.Looping([Segments.Whole(P.Burning)]),
         [P.CasualHitGround] = new([Segments.Whole(P.CasualHitGround)], AnimationEnd.Holds),
         [P.CasualResting] = new([Segments.Whole(P.CasualResting), Segments.Whole(P.Dying), Segments.Whole(P.Delete)], AnimationEnd.Holds),
         [P.Dying] = new([Segments.Whole(P.Dying), Segments.Whole(P.Drop), Segments.Whole(P.Delete)], AnimationEnd.Holds),
         [P.RainImpact] = new([Segments.Whole(P.RainImpact), Segments.Whole(P.Dying), Segments.Whole(P.Delete)], AnimationEnd.Holds),
-        [P.CasualFallingKindling] = new(
+        [P.CasualFallingKindling] = Animation<PhantoonFlameSegment>.Looping(
             [
                 Segments.Repeated(P.CasualFallingKindling, FallingRepeatCount),
                 Segments.Repeated(P.CasualFallingTeardrop, FallingRepeatCount),
                 Segments.Repeated(P.CasualFallingSputtering, FallingRepeatCount),
-            ],
-            AnimationEnd.LoopsFrom(0)),
-        [P.StartingFlame] = new([Segments.Whole(P.StartingFlame)], AnimationEnd.LoopsFrom(0)),
+            ]),
+        [P.StartingFlame] = Animation<PhantoonFlameSegment>.Looping([Segments.Whole(P.StartingFlame)]),
         [P.Delete] = new([Segments.Whole(P.Delete)], AnimationEnd.Holds),
     };
 

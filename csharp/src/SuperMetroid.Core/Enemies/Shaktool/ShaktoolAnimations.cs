@@ -78,9 +78,9 @@ internal static class ShaktoolAnimations
     /// </summary>
     internal static IReadOnlyDictionary<ShaktoolSegment, Animation<ShaktoolSegment>> StartingAt { get; } = new Dictionary<ShaktoolSegment, Animation<ShaktoolSegment>>
     {
-        [P.SawHandHeadBobPrimaryPiece] = new([Segments.Whole(P.SawHandHeadBobPrimaryPiece), Segments.Whole(P.SawHandPrimaryPiece)], AnimationEnd.LoopsFrom(1)),
-        [P.SawHandHeadBobFinalPiece] = new([Segments.Whole(P.SawHandHeadBobFinalPiece), Segments.Whole(P.SawHandFinalPiece)], AnimationEnd.LoopsFrom(1)),
-        [P.SawHandPrimaryPiece] = new([Segments.Whole(P.SawHandPrimaryPiece)], AnimationEnd.LoopsFrom(0)),
+        [P.SawHandHeadBobPrimaryPiece] = Animation<ShaktoolSegment>.LeadingInto([Segments.Whole(P.SawHandHeadBobPrimaryPiece)], [Segments.Whole(P.SawHandPrimaryPiece)]),
+        [P.SawHandHeadBobFinalPiece] = Animation<ShaktoolSegment>.LeadingInto([Segments.Whole(P.SawHandHeadBobFinalPiece)], [Segments.Whole(P.SawHandFinalPiece)]),
+        [P.SawHandPrimaryPiece] = Animation<ShaktoolSegment>.Looping([Segments.Whole(P.SawHandPrimaryPiece)]),
         [P.ArmPieceHeadBobBack] = new([Segments.Whole(P.ArmPieceHeadBobBack), Segments.Whole(P.ArmPieceNormal)], AnimationEnd.Holds),
         [P.ArmPieceHeadBobFront] = new([Segments.Whole(P.ArmPieceHeadBobFront), Segments.Whole(P.ArmPieceNormal)], AnimationEnd.Holds),
         [P.ArmPieceNormal] = new([Segments.Whole(P.ArmPieceNormal)], AnimationEnd.Holds),

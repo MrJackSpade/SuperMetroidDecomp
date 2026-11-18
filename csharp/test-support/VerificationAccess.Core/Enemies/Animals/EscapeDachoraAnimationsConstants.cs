@@ -11,7 +11,7 @@ internal static class EscapeDachoraAnimationsConstants
     {
         [P.RunningForEscape] = EscapeDachoraAnimations.RunningForEscape,
         [P.RunningForEscapeAccelerating] = EscapeDachoraAnimations.RunningForEscapeAccelerating,
-        [P.RunningForEscapeMaximumSpeed] = new([new(P.RunningForEscapeMaximumSpeed, 0, 12, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.RunningForEscapeMaximumSpeed] = Animation<P>.Looping([new(P.RunningForEscapeMaximumSpeed, 0, 12, 1)]),
     };
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<EscapeDachoraSegment> StartingWith(EscapeDachoraSegment segment) => StartingAt[segment];

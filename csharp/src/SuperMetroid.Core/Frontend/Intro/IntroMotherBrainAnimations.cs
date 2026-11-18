@@ -29,7 +29,7 @@ internal static class IntroMotherBrainAnimations
         plays => new Dictionary<IntroMotherBrainAnimation, Animation<IntroMotherBrainAnimation>>
         {
             [A.Pulsing] = plays.Looping(A.Pulsing),
-            [A.StartingPageTwo] = new([plays.Whole(A.StartingPageTwo), plays.Whole(A.Pulsing)], AnimationEnd.LoopsFrom(1)),
+            [A.StartingPageTwo] = plays.LeadingInto(A.StartingPageTwo, A.Pulsing),
         });
 
     /// <summary>Mother Brain's explosions: each burns through its pictures and a blank pause, over and over.</summary>

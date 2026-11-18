@@ -32,7 +32,7 @@ internal static class CeresElevatorArrivalAnimations
     /// </summary>
     internal static IReadOnlyDictionary<CeresElevatorArrivalSegment, Animation<CeresElevatorArrivalSegment>> StartingAt { get; } = new Dictionary<CeresElevatorArrivalSegment, Animation<CeresElevatorArrivalSegment>>
     {
-        [P.Pad] = new([new(P.Pad, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.Pad] = Animation<CeresElevatorArrivalSegment>.Looping([new(P.Pad, 0, 2, 1)]),
         [P.Platform] = new([new(P.Platform, 0, 1, 1)], AnimationEnd.Holds),
         [P.Delete] = new([], AnimationEnd.Stops),
     };

@@ -369,22 +369,22 @@ internal static class MotherBrainAnimations
         [H.HyperBeamRecoil] = Resting(H.HyperBeamRecoil, H.HyperBeamRecoilHeld),
         [H.WholeHeadMouthClosed] = Resting(H.WholeHeadMouthClosed),
         [H.Decapitated] = Resting(H.Decapitated, H.DecapitatedHeld),
-        [H.DyingDrool] = new([HeadSegments.Whole(H.DyingDrool), DroolBursts, HeadSegments.Whole(H.DyingDroolLoop)], AnimationEnd.LoopsFrom(2)),
-        [H.DyingDroolBurst] = new([DroolBursts, HeadSegments.Whole(H.DyingDroolLoop)], AnimationEnd.LoopsFrom(1)),
+        [H.DyingDrool] = Animation<H>.LeadingInto([HeadSegments.Whole(H.DyingDrool), DroolBursts], [HeadSegments.Whole(H.DyingDroolLoop)]),
+        [H.DyingDroolBurst] = Animation<H>.LeadingInto([DroolBursts], [HeadSegments.Whole(H.DyingDroolLoop)]),
         [H.FiringRainbowBeam] = Resting(H.FiringRainbowBeam),
-        [H.NeutralPhase2] = Looping(0, H.NeutralPhase2, H.NeutralPhase2Hold),
-        [H.NeutralPhase2Hold] = Looping(0, H.NeutralPhase2Hold, H.NeutralPhase2),
-        [H.NeutralPhase3] = Looping(0, H.NeutralPhase3, H.NeutralPhase3Hold),
-        [H.NeutralPhase3Hold] = Looping(0, H.NeutralPhase3Hold, H.NeutralPhase3),
+        [H.NeutralPhase2] = Looping(H.NeutralPhase2, H.NeutralPhase2Hold),
+        [H.NeutralPhase2Hold] = Looping(H.NeutralPhase2Hold, H.NeutralPhase2),
+        [H.NeutralPhase3] = Looping(H.NeutralPhase3, H.NeutralPhase3Hold),
+        [H.NeutralPhase3Hold] = Looping(H.NeutralPhase3Hold, H.NeutralPhase3),
         [H.Corpse] = Resting(H.Corpse, H.CorpseHeld),
-        [H.FourOnionRingsPhase2] = Looping(1, H.FourOnionRingsPhase2, H.NeutralPhase2, H.NeutralPhase2Hold),
-        [H.TwoOnionRingsPhase2] = Looping(1, H.TwoOnionRingsPhase2, H.NeutralPhase2, H.NeutralPhase2Hold),
-        [H.AttackingBabyMetroid] = Looping(2, H.AttackingBabyMetroid, H.FourOnionRingsPhase3, H.NeutralPhase3, H.NeutralPhase3Hold),
-        [H.AttackingSamusFourOnionRingsPhase3] = Looping(2, H.AttackingSamusFourOnionRingsPhase3, H.FourOnionRingsPhase3, H.NeutralPhase3, H.NeutralPhase3Hold),
-        [H.BombPhase2] = Looping(1, H.BombPhase2, H.NeutralPhase2, H.NeutralPhase2Hold),
-        [H.BombPhase3] = Looping(1, H.BombPhase3, H.NeutralPhase3, H.NeutralPhase3Hold),
-        [H.Laser] = Looping(1, H.Laser, H.NeutralPhase2, H.NeutralPhase2Hold),
-        [H.ChargingRainbowBeam] = Looping(1, H.ChargingRainbowBeam, H.ChargingRainbowBeamLoop),
+        [H.FourOnionRingsPhase2] = LeadingInto([H.FourOnionRingsPhase2], H.NeutralPhase2, H.NeutralPhase2Hold),
+        [H.TwoOnionRingsPhase2] = LeadingInto([H.TwoOnionRingsPhase2], H.NeutralPhase2, H.NeutralPhase2Hold),
+        [H.AttackingBabyMetroid] = LeadingInto([H.AttackingBabyMetroid, H.FourOnionRingsPhase3], H.NeutralPhase3, H.NeutralPhase3Hold),
+        [H.AttackingSamusFourOnionRingsPhase3] = LeadingInto([H.AttackingSamusFourOnionRingsPhase3, H.FourOnionRingsPhase3], H.NeutralPhase3, H.NeutralPhase3Hold),
+        [H.BombPhase2] = LeadingInto([H.BombPhase2], H.NeutralPhase2, H.NeutralPhase2Hold),
+        [H.BombPhase3] = LeadingInto([H.BombPhase3], H.NeutralPhase3, H.NeutralPhase3Hold),
+        [H.Laser] = LeadingInto([H.Laser], H.NeutralPhase2, H.NeutralPhase2Hold),
+        [H.ChargingRainbowBeam] = LeadingInto([H.ChargingRainbowBeam], H.ChargingRainbowBeamLoop),
     };
 
     /// <summary>The brain animation that starts at <paramref name="segment"/>.</summary>
@@ -490,8 +490,15 @@ internal static class MotherBrainAnimations
     private static AnimationBeat<EnemyFrameId, MotherBrainHeadCue> HeadCue(MotherBrainHeadCue cue) =>
         new AnimationBeat<EnemyFrameId, MotherBrainHeadCue>.Event(cue);
 
-    /// <summary>An animation of <paramref name="segments"/>, each played once in turn, that loops from phase <paramref name="loopsFrom"/>.</summary>
-    private static Animation<H> Looping(int loopsFrom, params H[] segments) => new([.. segments.Select(HeadSegments.Whole)], AnimationEnd.LoopsFrom(loopsFrom));
+    /// <summary>An animation that plays each of <paramref name="cycle"/> once in turn, over and over.</summary>
+    private static Animation<H> Looping(params H[] cycle) => Animation<H>.Looping([.. cycle.Select(HeadSegments.Whole)]);
+
+    /// <summary>
+    /// An animation that plays each of <paramref name="lead"/> once in turn, then each of <paramref name="cycle"/> in turn,
+    /// over and over (#2414).
+    /// </summary>
+    private static Animation<H> LeadingInto(H[] lead, params H[] cycle) =>
+        Animation<H>.LeadingInto([.. lead.Select(HeadSegments.Whole)], [.. cycle.Select(HeadSegments.Whole)]);
 
     /// <summary>
     /// An animation of <paramref name="segments"/>, each played once in turn, that rests on the still picture the last one

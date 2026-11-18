@@ -49,8 +49,8 @@ internal static class RinkaAnimations
     /// </summary>
     internal static IReadOnlyDictionary<RinkaSegment, Animation<RinkaSegment>> StartingAt { get; } = new Dictionary<RinkaSegment, Animation<RinkaSegment>>
     {
-        [P.Ordinary] = new([Segments.Whole(P.Ordinary), Segments.Whole(P.Spin)], AnimationEnd.LoopsFrom(1)),
-        [P.Special] = new([Segments.Whole(P.Special), Segments.Whole(P.Spin)], AnimationEnd.LoopsFrom(1)),
+        [P.Ordinary] = Animation<RinkaSegment>.LeadingInto([Segments.Whole(P.Ordinary)], [Segments.Whole(P.Spin)]),
+        [P.Special] = Animation<RinkaSegment>.LeadingInto([Segments.Whole(P.Special)], [Segments.Whole(P.Spin)]),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

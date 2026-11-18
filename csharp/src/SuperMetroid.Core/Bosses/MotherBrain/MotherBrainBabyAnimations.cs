@@ -20,8 +20,8 @@ internal static class MotherBrainBabyAnimations
     /// <summary>The animation that starts at each segment: the pulses cycle for good, and the fatal blow holds its pose.</summary>
     internal static IReadOnlyDictionary<MotherBrainBabySegment, Animation<MotherBrainBabySegment>> StartingAt { get; } = new Dictionary<MotherBrainBabySegment, Animation<MotherBrainBabySegment>>
     {
-        [MotherBrainBabySegment.IdlePulse] = new([Segments.Whole(MotherBrainBabySegment.IdlePulse)], AnimationEnd.LoopsFrom(0)),
-        [MotherBrainBabySegment.DrainingMotherBrain] = new([Segments.Whole(MotherBrainBabySegment.DrainingMotherBrain)], AnimationEnd.LoopsFrom(0)),
+        [MotherBrainBabySegment.IdlePulse] = Animation<MotherBrainBabySegment>.Looping([Segments.Whole(MotherBrainBabySegment.IdlePulse)]),
+        [MotherBrainBabySegment.DrainingMotherBrain] = Animation<MotherBrainBabySegment>.Looping([Segments.Whole(MotherBrainBabySegment.DrainingMotherBrain)]),
         [MotherBrainBabySegment.TakingFatalBlow] = new([Segments.Whole(MotherBrainBabySegment.TakingFatalBlow)], AnimationEnd.Holds),
     };
 

@@ -126,8 +126,7 @@ internal static class BotwoonAnimations
     /// cap or hidden segment shows its one frame and holds it.
     /// </summary>
     internal static IReadOnlyDictionary<BotwoonBodyAnimationSegment, Animation<BotwoonBodyAnimationSegment>> BodyStartingAt { get; } =
-        BodyAnimationKeys.ToDictionary(segment => segment, segment => new Animation<BotwoonBodyAnimationSegment>(
-            [BodySegments.Whole(segment)], BodyEnd(segment.Kind)));
+        BodyAnimationKeys.ToDictionary(segment => segment, BodyAnimation);
 
     /// <summary>The spit's run, each beat the installed <see cref="EnemyProjectileFrameId"/> it shows: five frames at three updates apiece.</summary>
     internal static AnimationSegments<BotwoonSpitSegment, EnemyProjectileFrameId, NoAnimationCue> SpitSegments { get; } = new(
@@ -172,12 +171,12 @@ internal static class BotwoonAnimations
         _ => throw new ArgumentOutOfRangeException(nameof(facing), facing, "Undefined Botwoon facing."),
     };
 
-    /// <summary>How a body segment's animation ends: a body link cycles, a tail cap or hidden segment holds.</summary>
-    private static AnimationEnd BodyEnd(BotwoonBodyAnimationSegmentKind kind) => kind switch
+    /// <summary>The animation that starts at body segment <paramref name="segment"/>: a body link cycles, a tail cap or hidden segment holds.</summary>
+    private static Animation<B> BodyAnimation(B segment) => segment.Kind switch
     {
-        BotwoonBodyAnimationSegmentKind.Body => AnimationEnd.LoopsFrom(0),
-        BotwoonBodyAnimationSegmentKind.Tail or BotwoonBodyAnimationSegmentKind.Hidden => AnimationEnd.Holds,
-        _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "Undefined Botwoon segment animation kind."),
+        BotwoonBodyAnimationSegmentKind.Body => Animation<B>.Looping([BodySegments.Whole(segment)]),
+        BotwoonBodyAnimationSegmentKind.Tail or BotwoonBodyAnimationSegmentKind.Hidden => new([BodySegments.Whole(segment)], AnimationEnd.Holds),
+        _ => throw new ArgumentOutOfRangeException(nameof(segment), segment.Kind, "Undefined Botwoon segment animation kind."),
     };
 
     /// <summary>The beats of head animation <paramref name="segment"/>.</summary>

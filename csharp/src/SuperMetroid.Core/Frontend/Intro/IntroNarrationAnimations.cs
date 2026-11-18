@@ -32,6 +32,6 @@ internal static class IntroNarrationAnimations
             [A.Caret] = plays.Still(A.Caret),
             [A.CaretBlinking] = plays.Looping(A.CaretBlinking),
             [A.NextPageArrow] = plays.Looping(A.NextPageArrow),
-            [A.NextPageArrowDelayed] = new([plays.Whole(A.NextPageArrowDelayed), plays.Whole(A.NextPageArrow)], AnimationEnd.LoopsFrom(1)),
+            [A.NextPageArrowDelayed] = plays.LeadingInto(A.NextPageArrowDelayed, A.NextPageArrow),
         });
 }

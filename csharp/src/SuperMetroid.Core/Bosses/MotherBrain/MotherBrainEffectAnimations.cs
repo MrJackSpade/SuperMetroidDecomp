@@ -132,11 +132,11 @@ internal static class MotherBrainEffectAnimations
     {
         [P.OnionRing] = new([Segments.Whole(P.OnionRing)], AnimationEnd.Holds),
         [P.OnionRingHit] = new([Segments.Whole(P.OnionRingHit)], AnimationEnd.Holds),
-        [P.Bomb] = new([Segments.Whole(P.Bomb)], AnimationEnd.LoopsFrom(0)),
+        [P.Bomb] = Animation<MotherBrainEffectSegment>.Looping([Segments.Whole(P.Bomb)]),
         [P.RainbowBeamCharging] = new([Segments.Whole(P.RainbowBeamCharging)], AnimationEnd.Holds),
         [P.Drool] = new([Segments.Whole(P.Drool)], AnimationEnd.Holds),
         [P.DroolHitFloor] = new([Segments.Whole(P.DroolHitFloor)], AnimationEnd.Holds),
-        [P.EscapeDoorParticle] = new([Segments.Whole(P.EscapeDoorParticle)], AnimationEnd.LoopsFrom(0)),
+        [P.EscapeDoorParticle] = Animation<MotherBrainEffectSegment>.Looping([Segments.Whole(P.EscapeDoorParticle)]),
         [P.PurpleBreathBig] = new([Segments.Whole(P.PurpleBreathBig)], AnimationEnd.Holds),
         [P.PurpleBreathSmall] = new([Segments.Whole(P.PurpleBreathSmall)], AnimationEnd.Holds),
         [P.EscapeSubtitle] = new([Segments.Whole(P.EscapeSubtitle)], AnimationEnd.Holds),

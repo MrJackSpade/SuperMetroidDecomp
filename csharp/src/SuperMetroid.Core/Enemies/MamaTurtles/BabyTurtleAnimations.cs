@@ -110,7 +110,7 @@ internal static class BabyTurtleAnimations
     internal static IReadOnlyDictionary<BabyTurtleSegment, Animation<BabyTurtleSegment>> StartingAt { get; } = new Dictionary<BabyTurtleSegment, Animation<BabyTurtleSegment>>
     {
         [P.CrawlingLeft] = new([Segments.Whole(P.CrawlingLeft)], AnimationEnd.Holds),
-        [P.Spinning] = new([Segments.Whole(P.Spinning)], AnimationEnd.LoopsFrom(0)),
+        [P.Spinning] = Animation<BabyTurtleSegment>.Looping([Segments.Whole(P.Spinning)]),
         [P.HidingLeft] = new([Segments.Whole(P.HidingLeft)], AnimationEnd.Holds),
         [P.LeaveShell] = new([Segments.Whole(P.LeaveShell)], AnimationEnd.Holds),
         [P.CrawlingRight] = new([Segments.Whole(P.CrawlingRight)], AnimationEnd.Holds),

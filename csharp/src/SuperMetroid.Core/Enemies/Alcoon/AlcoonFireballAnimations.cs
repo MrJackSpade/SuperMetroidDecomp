@@ -26,7 +26,7 @@ internal static class AlcoonFireballAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<AlcoonFireballSegment, Animation<AlcoonFireballSegment>> StartingAt { get; } = new Dictionary<AlcoonFireballSegment, Animation<AlcoonFireballSegment>>
     {
-        [P.Spinning] = new([Segments.Whole(P.Spinning)], AnimationEnd.LoopsFrom(0)),
+        [P.Spinning] = Animation<AlcoonFireballSegment>.Looping([Segments.Whole(P.Spinning)]),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

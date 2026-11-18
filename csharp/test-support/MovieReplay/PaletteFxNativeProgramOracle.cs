@@ -191,7 +191,7 @@ internal static class PaletteFxNativeProgramOracle
                     case PaletteFxNativeControlKind.RunOnIntoNext:
                         ushort target = control.Target!.Value;
                         if (entered.TryGetValue(target, out int loop))
-                            return (phases, AnimationEnd.LoopsFrom(loop));
+                            return (phases, new AnimationEnd.Loop(loop));
                         entered[target] = phases.Count;
                         segment = target;
                         runStart = 0;

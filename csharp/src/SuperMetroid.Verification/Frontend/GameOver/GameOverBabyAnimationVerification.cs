@@ -69,7 +69,7 @@ internal static class GameOverBabyAnimationVerification
         }
         AssertEqual(beats.Count, beat, "every beat of the Baby's animation is a native record or its cry");
         AssertTrue(original[^1].Restart, "the native stream ends with its restart marker");
-        AssertEqual(AnimationEnd.LoopsFrom(0), GameOverBabyAnimation.Playing.End, "the Baby's animation starts again after its last look, as the native restart does");
+        AssertEqual(new AnimationEnd.Loop(0), GameOverBabyAnimation.Playing.End, "the Baby's animation starts again after its last look, as the native restart does");
         AssertEqual(1, GameOverBabyAnimation.Playing.Phases.Count, "the Baby's animation plays its looks once through before starting again");
     }
 

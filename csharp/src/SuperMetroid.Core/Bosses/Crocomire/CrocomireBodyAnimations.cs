@@ -435,11 +435,11 @@ internal static class CrocomireBodyAnimations
     /// </summary>
     internal static IReadOnlyDictionary<CrocomireBodyAnimation, Animation<CrocomireBodySegment>> StartingAt { get; } = new Dictionary<CrocomireBodyAnimation, Animation<CrocomireBodySegment>>
     {
-        [A.IdleSway] = new([Segments.Whole(P.IdleSway)], AnimationEnd.LoopsFrom(0)),
+        [A.IdleSway] = Animation<CrocomireBodySegment>.Looping([Segments.Whole(P.IdleSway)]),
         [A.ProjectileAttack] = Animation<CrocomireBodySegment>.LeadingInto(
             [Segments.Whole(P.ClawSwing), Segments.Whole(P.ProjectileAttackOpenMouth)], [Segments.Whole(P.ProjectileAttackSpitting)]),
         [A.StepForwardAfterDelay] = Animation<CrocomireBodySegment>.LeadingInto([Segments.Whole(P.StepForwardAfterDelay)], [Segments.Whole(P.StepForward)]),
-        [A.StepForward] = new([Segments.Whole(P.StepForward)], AnimationEnd.LoopsFrom(0)),
+        [A.StepForward] = Animation<CrocomireBodySegment>.Looping([Segments.Whole(P.StepForward)]),
         [A.StepBack] = Animation<CrocomireBodySegment>.LeadingInto(
             [Segments.Whole(P.StepBack), Segments.Whole(P.SteppingBack), Segments.Whole(P.WaitForFirstSecondDamage), Segments.Whole(P.ClawSwing), Segments.Whole(P.ClawSwingFightCue)],
             Roaring),
@@ -459,12 +459,12 @@ internal static class CrocomireBodyAnimations
         [A.NearSpikeWallCharge] = Animation<CrocomireBodySegment>.LeadingInto(
             [Segments.Whole(P.NearSpikeWallChargeOpenMouth), Segments.Repeated(P.Gaping, NearSpikeWallChargeGapings), Segments.Whole(P.NearSpikeWallChargeCloseMouth)],
             [Segments.Whole(P.NearSpikeWallChargeSteps)]),
-        [A.BackOffFromSpikeWall] = new([Segments.Whole(P.BackOffFromSpikeWall)], AnimationEnd.LoopsFrom(0)),
-        [A.MeltingFleshTopRow] = new([Segments.Whole(P.MeltingFleshTopRow)], AnimationEnd.LoopsFrom(0)),
+        [A.BackOffFromSpikeWall] = Animation<CrocomireBodySegment>.Looping([Segments.Whole(P.BackOffFromSpikeWall)]),
+        [A.MeltingFleshTopRow] = Animation<CrocomireBodySegment>.Looping([Segments.Whole(P.MeltingFleshTopRow)]),
         [A.MeltingFleshTopTwoRows] = new([Segments.Whole(P.MeltingFleshTopTwoRows)], AnimationEnd.Holds),
         [A.MeltingFleshTopThreeRows] = new([Segments.Whole(P.MeltingFleshTopThreeRows)], AnimationEnd.Holds),
         [A.MeltingFleshTopFourRows] = new([Segments.Whole(P.MeltingFleshTopFourRows)], AnimationEnd.Holds),
-        [A.MeltingBareSkullTopRow] = new([Segments.Whole(P.MeltingBareSkullTopRow)], AnimationEnd.LoopsFrom(0)),
+        [A.MeltingBareSkullTopRow] = Animation<CrocomireBodySegment>.Looping([Segments.Whole(P.MeltingBareSkullTopRow)]),
         [A.MeltingBareSkullTopTwoRows] = new([Segments.Whole(P.MeltingBareSkullTopTwoRows)], AnimationEnd.Holds),
         [A.MeltingBareSkullTopThreeRows] = new([Segments.Whole(P.MeltingBareSkullTopThreeRows)], AnimationEnd.Holds),
         [A.MeltingBareSkullTopFourRows] = new([Segments.Whole(P.MeltingBareSkullTopFourRows)], AnimationEnd.Holds),
@@ -473,7 +473,7 @@ internal static class CrocomireBodyAnimations
         [A.SkeletonFallsApart] = new([Segments.Whole(P.SkeletonFallsApart), Segments.Whole(P.SkeletonStable)], AnimationEnd.Holds),
         [A.SkeletonStable] = new([Segments.Whole(P.SkeletonStable)], AnimationEnd.Holds),
         [A.Dead] = new([Segments.Whole(P.Dead)], AnimationEnd.Holds),
-        [A.SkeletonFlowingDownRiver] = new([Segments.Whole(P.SkeletonFlowingDownRiver)], AnimationEnd.LoopsFrom(0)),
+        [A.SkeletonFlowingDownRiver] = Animation<CrocomireBodySegment>.Looping([Segments.Whole(P.SkeletonFlowingDownRiver)]),
     };
 
     /// <summary>The animation <paramref name="animation"/> names.</summary>

@@ -26,7 +26,7 @@ internal static class FlyAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<FlySegment, Animation<FlySegment>> StartingAt { get; } = new Dictionary<FlySegment, Animation<FlySegment>>
     {
-        [P.Flight] = new([Segments.Whole(P.Flight)], AnimationEnd.LoopsFrom(0)),
+        [P.Flight] = Animation<FlySegment>.Looping([Segments.Whole(P.Flight)]),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

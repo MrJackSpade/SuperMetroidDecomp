@@ -199,11 +199,11 @@ internal static class MagdolliteAnimations
     /// </summary>
     internal static IReadOnlyDictionary<MagdolliteSegment, Animation<MagdolliteSegment>> StartingAt { get; } = new Dictionary<MagdolliteSegment, Animation<MagdolliteSegment>>
     {
-        [P.LeftIdle] = new([Segments.Whole(P.LeftIdle)], AnimationEnd.LoopsFrom(0)),
+        [P.LeftIdle] = Animation<MagdolliteSegment>.Looping([Segments.Whole(P.LeftIdle)]),
         [P.LeftThrow] = new([Segments.Whole(P.LeftThrow)], AnimationEnd.Holds),
         [P.LeftSubmerge] = new([Segments.Whole(P.LeftSubmerge), Segments.Repeated(P.LeftRaisePillar, PillarTravel), Segments.Whole(P.LeftPillarRaised)], AnimationEnd.Holds),
         [P.LeftEmerge] = new([Segments.Whole(P.LeftEmerge), Segments.Repeated(P.LeftLowerPillar, PillarTravel), Segments.Whole(P.LeftSurfacing)], AnimationEnd.Holds),
-        [P.RightIdle] = new([Segments.Whole(P.RightIdle)], AnimationEnd.LoopsFrom(0)),
+        [P.RightIdle] = Animation<MagdolliteSegment>.Looping([Segments.Whole(P.RightIdle)]),
         [P.RightThrow] = new([Segments.Whole(P.RightThrow)], AnimationEnd.Holds),
         [P.RightSubmerge] = new([Segments.Whole(P.RightSubmerge), Segments.Repeated(P.RightRaisePillar, PillarTravel), Segments.Whole(P.RightPillarRaised)], AnimationEnd.Holds),
         [P.RightEmerge] = new([Segments.Whole(P.RightEmerge), Segments.Repeated(P.RightLowerPillar, PillarTravel), Segments.Whole(P.RightSurfacing)], AnimationEnd.Holds),

@@ -33,7 +33,7 @@ internal static class IntroRinkaAnimations
         },
         plays => new Dictionary<IntroRinkaAnimation, Animation<IntroRinkaAnimation>>
         {
-            [A.Rinka] = new([plays.Whole(A.RinkaAppearing), plays.Whole(A.Rinka)], AnimationEnd.LoopsFrom(1)),
+            [A.Rinka] = plays.LeadingInto(A.RinkaAppearing, A.Rinka),
         });
 
     /// <summary>The invisible spawner's animation: it waits 74 updates, launches a pair, waits 128 updates, launches another, and ends.</summary>

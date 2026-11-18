@@ -313,15 +313,15 @@ internal static class KraidAnimations
         [P.FootNeutral] = new([Segments.Whole(P.FootNeutral)], AnimationEnd.Holds),
         [P.FootWalkingForward] = new([Segments.Whole(P.FootWalkingForward)], AnimationEnd.Holds),
         [P.FootLungeForward] = new([Segments.Whole(P.FootLungeForward)], AnimationEnd.Holds),
-        [P.FootWalkingBackward] = new([Segments.Whole(P.FootWalkingBackward)], AnimationEnd.LoopsFrom(0)),
-        [P.ArmNormal] = new([Segments.Whole(P.ArmNormal), Segments.Whole(P.ArmNormalPause)], AnimationEnd.LoopsFrom(0)),
-        [P.ArmNormalPause] = new([Segments.Whole(P.ArmNormalPause), Segments.Whole(P.ArmNormal)], AnimationEnd.LoopsFrom(0)),
-        [P.ArmSlow] = new([Segments.Whole(P.ArmSlow)], AnimationEnd.LoopsFrom(0)),
-        [P.ArmRisingOrSinking] = new([Segments.Whole(P.ArmRisingOrSinking)], AnimationEnd.LoopsFrom(0)),
+        [P.FootWalkingBackward] = Animation<KraidPartSegment>.Looping([Segments.Whole(P.FootWalkingBackward)]),
+        [P.ArmNormal] = Animation<KraidPartSegment>.Looping([Segments.Whole(P.ArmNormal), Segments.Whole(P.ArmNormalPause)]),
+        [P.ArmNormalPause] = Animation<KraidPartSegment>.Looping([Segments.Whole(P.ArmNormalPause), Segments.Whole(P.ArmNormal)]),
+        [P.ArmSlow] = Animation<KraidPartSegment>.Looping([Segments.Whole(P.ArmSlow)]),
+        [P.ArmRisingOrSinking] = Animation<KraidPartSegment>.Looping([Segments.Whole(P.ArmRisingOrSinking)]),
         [P.ArmDyingOrPreparingToLunge] = new([Segments.Whole(P.ArmDyingOrPreparingToLunge)], AnimationEnd.Holds),
         [P.LintInitial] = new([Segments.Whole(P.LintInitial)], AnimationEnd.Holds),
         [P.LintPostGrowth] = new([Segments.Whole(P.LintPostGrowth)], AnimationEnd.Holds),
-        [P.NailLoop] = new([Segments.Whole(P.NailLoop)], AnimationEnd.LoopsFrom(0)),
+        [P.NailLoop] = Animation<KraidPartSegment>.Looping([Segments.Whole(P.NailLoop)]),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

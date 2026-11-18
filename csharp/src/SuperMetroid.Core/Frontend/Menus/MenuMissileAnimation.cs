@@ -50,5 +50,5 @@ internal sealed class MenuMissileAnimation
 
     /// <summary>The roll played over and over.</summary>
     private static Animation<MenuMissileSegment> Rolling(AnimationSegments<MenuMissileSegment, MenuMissileFrame, NoAnimationCue> segments) =>
-        new([segments.Whole(MenuMissileSegment.Roll)], AnimationEnd.LoopsFrom(0));
+        Animation<MenuMissileSegment>.Looping([segments.Whole(MenuMissileSegment.Roll)]);
 }

@@ -565,7 +565,7 @@ internal static class TorizoAnimationsVerification
                     case NativeEnemyControlKind.RunOnIntoNext:
                         ushort target = control.Target!.Value;
                         if (entered.TryGetValue(target, out int loop))
-                            return (phases, AnimationEnd.LoopsFrom(loop));
+                            return (phases, new AnimationEnd.Loop(loop));
                         entered[target] = phases.Count;
                         list = target;
                         runStart = 0;

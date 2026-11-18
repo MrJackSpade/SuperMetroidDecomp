@@ -1396,11 +1396,11 @@ internal static class SamusProjectileAnimations
 
     /// <summary>An animation that plays <paramref name="segment"/> and, past its end, plays it again.</summary>
     private static Animation<SamusProjectileSegment> Repeating(SamusProjectileSegment segment) =>
-        new([Segments.Whole(segment)], AnimationEnd.LoopsFrom(0));
+        Animation<SamusProjectileSegment>.Looping([Segments.Whole(segment)]);
 
     /// <summary>An animation that plays <paramref name="opening"/> once, then plays <paramref name="repeated"/> over and over.</summary>
     private static Animation<SamusProjectileSegment> OpeningThenRepeating(SamusProjectileSegment opening, SamusProjectileSegment repeated) =>
-        new([Segments.Whole(opening), Segments.Whole(repeated)], AnimationEnd.LoopsFrom(1));
+        Animation<SamusProjectileSegment>.LeadingInto([Segments.Whole(opening)], [Segments.Whole(repeated)]);
 
     /// <summary>An animation that plays <paramref name="segment"/> once and is over: an explosion.</summary>
     private static Animation<SamusProjectileSegment> PlayedOnce(SamusProjectileSegment segment) =>

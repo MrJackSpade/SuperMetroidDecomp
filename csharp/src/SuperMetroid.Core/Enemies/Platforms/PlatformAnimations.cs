@@ -81,12 +81,12 @@ internal static class PlatformAnimations
     /// </summary>
     internal static IReadOnlyDictionary<PlatformSegment, Animation<PlatformSegment>> StartingAt { get; } = new Dictionary<PlatformSegment, Animation<PlatformSegment>>
     {
-        [P.SuspensorPlatformHeadingLeft] = new([Segments.Whole(P.SuspensorPlatformHeadingLeft), Segments.Whole(P.SuspensorPlatformLights)], AnimationEnd.LoopsFrom(1)),
-        [P.SuspensorPlatformHeadingRight] = new([Segments.Whole(P.SuspensorPlatformHeadingRight), Segments.Whole(P.SuspensorPlatformLights)], AnimationEnd.LoopsFrom(1)),
-        [P.TripperMovingLeft] = new([Segments.Whole(P.TripperMovingLeft), Segments.Whole(P.TripperHoveringLeft)], AnimationEnd.LoopsFrom(1)),
-        [P.TripperMovingRight] = new([Segments.Whole(P.TripperMovingRight), Segments.Whole(P.TripperHoveringRight)], AnimationEnd.LoopsFrom(1)),
-        [P.TripperStillMovingLeft] = new([Segments.Whole(P.TripperStillMovingLeft), Segments.Whole(P.TripperThrustingLeft)], AnimationEnd.LoopsFrom(1)),
-        [P.TripperStillMovingRight] = new([Segments.Whole(P.TripperStillMovingRight), Segments.Whole(P.TripperThrustingRight)], AnimationEnd.LoopsFrom(1)),
+        [P.SuspensorPlatformHeadingLeft] = Animation<PlatformSegment>.LeadingInto([Segments.Whole(P.SuspensorPlatformHeadingLeft)], [Segments.Whole(P.SuspensorPlatformLights)]),
+        [P.SuspensorPlatformHeadingRight] = Animation<PlatformSegment>.LeadingInto([Segments.Whole(P.SuspensorPlatformHeadingRight)], [Segments.Whole(P.SuspensorPlatformLights)]),
+        [P.TripperMovingLeft] = Animation<PlatformSegment>.LeadingInto([Segments.Whole(P.TripperMovingLeft)], [Segments.Whole(P.TripperHoveringLeft)]),
+        [P.TripperMovingRight] = Animation<PlatformSegment>.LeadingInto([Segments.Whole(P.TripperMovingRight)], [Segments.Whole(P.TripperHoveringRight)]),
+        [P.TripperStillMovingLeft] = Animation<PlatformSegment>.LeadingInto([Segments.Whole(P.TripperStillMovingLeft)], [Segments.Whole(P.TripperThrustingLeft)]),
+        [P.TripperStillMovingRight] = Animation<PlatformSegment>.LeadingInto([Segments.Whole(P.TripperStillMovingRight)], [Segments.Whole(P.TripperThrustingRight)]),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

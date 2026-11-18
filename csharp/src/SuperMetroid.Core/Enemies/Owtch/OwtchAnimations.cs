@@ -42,8 +42,8 @@ internal static class OwtchAnimations
     /// </summary>
     internal static IReadOnlyDictionary<OwtchSegment, Animation<OwtchSegment>> StartingAt { get; } = new Dictionary<OwtchSegment, Animation<OwtchSegment>>
     {
-        [P.MovingLeft] = new([Segments.Whole(P.MovingLeft), Segments.Whole(P.CrawlingLeft)], AnimationEnd.LoopsFrom(1)),
-        [P.MovingRight] = new([Segments.Whole(P.MovingRight), Segments.Whole(P.CrawlingRight)], AnimationEnd.LoopsFrom(1)),
+        [P.MovingLeft] = Animation<OwtchSegment>.LeadingInto([Segments.Whole(P.MovingLeft)], [Segments.Whole(P.CrawlingLeft)]),
+        [P.MovingRight] = Animation<OwtchSegment>.LeadingInto([Segments.Whole(P.MovingRight)], [Segments.Whole(P.CrawlingRight)]),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

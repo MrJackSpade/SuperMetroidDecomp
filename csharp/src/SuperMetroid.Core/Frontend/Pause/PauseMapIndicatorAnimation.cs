@@ -25,7 +25,7 @@ internal static class PauseMapIndicatorAnimation
         });
 
     /// <summary>The pulse played over and over.</summary>
-    internal static Animation<MapIndicatorSegment> Pulsing { get; } = new([Segments.Whole(MapIndicatorSegment.Pulse)], AnimationEnd.LoopsFrom(0));
+    internal static Animation<MapIndicatorSegment> Pulsing { get; } = Animation<MapIndicatorSegment>.Looping([Segments.Whole(MapIndicatorSegment.Pulse)]);
 
     /// <summary>Shows <paramref name="picture"/> for <paramref name="duration"/> menu updates.</summary>
     private static AnimationBeat<MapSpriteId, MapIndicatorCue> Show(MapSpriteId picture, int duration) =>

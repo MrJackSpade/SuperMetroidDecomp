@@ -101,16 +101,15 @@ internal static class EscapeEtecoonAnimations
     /// </summary>
     internal static IReadOnlyDictionary<EscapeEtecoonSegment, Animation<EscapeEtecoonSegment>> StartingAt { get; } = new Dictionary<EscapeEtecoonSegment, Animation<EscapeEtecoonSegment>>
     {
-        [P.RunningLeftLowTide] = new([Segments.Whole(P.RunningLeftLowTide), Segments.Whole(P.RunningLeftLowTideStride)], AnimationEnd.LoopsFrom(1)),
-        [P.RunningLeftHighTide] = new([Segments.Whole(P.RunningLeftHighTide)], AnimationEnd.LoopsFrom(0)),
-        [P.RunningRightLowTide] = new([Segments.Whole(P.RunningRightLowTide), Segments.Whole(P.RunningRightLowTideStride)], AnimationEnd.LoopsFrom(1)),
-        [P.RunningRightHighTide] = new([Segments.Whole(P.RunningRightHighTide)], AnimationEnd.LoopsFrom(0)),
-        [P.RunningForEscape] = new([Segments.Whole(P.RunningForEscape), Segments.Whole(P.RunningForEscapeStride)], AnimationEnd.LoopsFrom(1)),
-        [P.Stationary] = new([Segments.Whole(P.Stationary)], AnimationEnd.LoopsFrom(0)),
-        [P.ExpressGratitudeThenEscape] = new(
+        [P.RunningLeftLowTide] = Animation<EscapeEtecoonSegment>.LeadingInto([Segments.Whole(P.RunningLeftLowTide)], [Segments.Whole(P.RunningLeftLowTideStride)]),
+        [P.RunningLeftHighTide] = Animation<EscapeEtecoonSegment>.Looping([Segments.Whole(P.RunningLeftHighTide)]),
+        [P.RunningRightLowTide] = Animation<EscapeEtecoonSegment>.LeadingInto([Segments.Whole(P.RunningRightLowTide)], [Segments.Whole(P.RunningRightLowTideStride)]),
+        [P.RunningRightHighTide] = Animation<EscapeEtecoonSegment>.Looping([Segments.Whole(P.RunningRightHighTide)]),
+        [P.RunningForEscape] = Animation<EscapeEtecoonSegment>.LeadingInto([Segments.Whole(P.RunningForEscape)], [Segments.Whole(P.RunningForEscapeStride)]),
+        [P.Stationary] = Animation<EscapeEtecoonSegment>.Looping([Segments.Whole(P.Stationary)]),
+        [P.ExpressGratitudeThenEscape] = Animation<EscapeEtecoonSegment>.LeadingInto(
             [Segments.Whole(P.ExpressGratitudeThenEscape), Segments.Repeated(P.ThankingSteps, ThankingStepRuns), Segments.Whole(P.ThankingLook),
-                Segments.Whole(P.RunningForEscape), Segments.Whole(P.RunningForEscapeStride)],
-            AnimationEnd.LoopsFrom(4)),
+                Segments.Whole(P.RunningForEscape)], [Segments.Whole(P.RunningForEscapeStride)]),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

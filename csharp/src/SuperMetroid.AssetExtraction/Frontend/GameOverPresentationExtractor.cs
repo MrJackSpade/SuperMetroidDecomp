@@ -148,7 +148,7 @@ public static class GameOverPresentationExtractor
         const int CryCallbackBytes = 2;
         int pointer = GameOverBabyAnimationDefinitions.FirstPointer;
         IReadOnlyList<AnimationBeat<GameOverBabyLook, GameOverBabySound>> beats = GameOverBabyAnimation.Segments.Beats(GameOverBabySegment.Crying);
-        if (GameOverBabyAnimation.Playing.End != AnimationEnd.LoopsFrom(0))
+        if (GameOverBabyAnimation.Playing.End is not AnimationEnd.Loop { Phase: 0 })
             throw new InvalidDataException("The game-over Baby's animation does not start again after its last look.");
         for (int beat = 0; beat < beats.Count; beat++)
         {

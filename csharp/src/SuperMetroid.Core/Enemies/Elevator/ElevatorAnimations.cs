@@ -24,7 +24,7 @@ internal static class ElevatorAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<ElevatorSegment, Animation<ElevatorSegment>> StartingAt { get; } = new Dictionary<ElevatorSegment, Animation<ElevatorSegment>>
     {
-        [P.Loop] = new([Segments.Whole(P.Loop)], AnimationEnd.LoopsFrom(0)),
+        [P.Loop] = Animation<ElevatorSegment>.Looping([Segments.Whole(P.Loop)]),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

@@ -93,13 +93,13 @@ internal static class NorfairRioAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<NorfairRioSegment, Animation<NorfairRioSegment>> StartingAt { get; } = new Dictionary<NorfairRioSegment, Animation<NorfairRioSegment>>
     {
-        [P.Idle] = new([Segments.Whole(P.Idle)], AnimationEnd.LoopsFrom(0)),
+        [P.Idle] = Animation<NorfairRioSegment>.Looping([Segments.Whole(P.Idle)]),
         [P.StartDescending] = new([Segments.Whole(P.StartDescending)], AnimationEnd.Holds),
-        [P.Descending] = new([Segments.Whole(P.Descending)], AnimationEnd.LoopsFrom(0)),
+        [P.Descending] = Animation<NorfairRioSegment>.Looping([Segments.Whole(P.Descending)]),
         [P.StartAscending] = new([Segments.Whole(P.StartAscending)], AnimationEnd.Holds),
-        [P.Ascending] = new([Segments.Whole(P.Ascending)], AnimationEnd.LoopsFrom(0)),
-        [P.FlamesAscending] = new([Segments.Whole(P.FlamesAscending)], AnimationEnd.LoopsFrom(0)),
-        [P.FlamesDescending] = new([Segments.Whole(P.FlamesDescending)], AnimationEnd.LoopsFrom(0)),
+        [P.Ascending] = Animation<NorfairRioSegment>.Looping([Segments.Whole(P.Ascending)]),
+        [P.FlamesAscending] = Animation<NorfairRioSegment>.Looping([Segments.Whole(P.FlamesAscending)]),
+        [P.FlamesDescending] = Animation<NorfairRioSegment>.Looping([Segments.Whole(P.FlamesDescending)]),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

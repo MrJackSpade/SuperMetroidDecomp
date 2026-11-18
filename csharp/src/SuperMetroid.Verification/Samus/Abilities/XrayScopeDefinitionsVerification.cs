@@ -46,10 +46,10 @@ internal static class XrayScopeDefinitionsVerification
         }
 
         CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
-        TouchRange(bus, XrayScopeDefinitions.VisorShades.VisorWords,
-            (SuperMetroid.Core.Samus.Colours.SamusShadeDefinitions.Visor.XrayWideningShades + XrayScopeDefinitions.VisorShades.FullCycleShades) * sizeof(ushort),
+        TouchRange(bus, XrayScopeDefinitionsConstants.VisorShades.VisorWords,
+            (SuperMetroid.Core.Samus.Colours.SamusShadeDefinitions.Visor.XrayWideningShades + XrayScopeDefinitionsConstants.VisorShades.FullCycleShades) * sizeof(ushort),
             "X-ray visor palette words");
-        TouchRange(bus, XrayScopeDefinitions.VisorShades.NormalSuitPointers,
+        TouchRange(bus, XrayScopeDefinitionsConstants.VisorShades.NormalSuitPointers,
             3 * sizeof(ushort), "X-ray normal-suit palette pointers");
         TouchRange(bus, XrayScopeDefinitions.Window.AbsoluteTangentTable,
             XrayScopeDefinitions.Window.AbsoluteTangentWordCount * sizeof(ushort),

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Samus.Poses;
 
 namespace SuperMetroid.Core.Samus.Abilities;
@@ -10,14 +9,6 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// </remarks>
 public static class XrayScopeDefinitions
 {
-    /// <summary>The visor shades X-ray shows while it is active.</summary>
-    public static class VisorShades
-    {
-        /// <summary>The shades of the steady cycle the full beam shows.</summary>
-        public const int FullCycleShades = SamusShadeDefinitions.Visor.CycleShades;
-        /// <summary>Frames between visor shade advances.</summary>
-        public const int FrameDelay = SamusShadeDefinitions.Visor.FrameDelay;
-    }
 
     /// <summary>
     /// Angle bands selecting which of the X-ray pose's five aims (<see cref="Aims"/>) the standing and crouching scope shows:

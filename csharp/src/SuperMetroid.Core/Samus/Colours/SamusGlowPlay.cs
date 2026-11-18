@@ -16,11 +16,6 @@ internal static class SamusGlowPlay
         AnimationPlayer<G, PictureShade, NoAnimationCue>.Starting(
             SamusGlowAnimationDefinitions.Segments, SamusGlowAnimationDefinitions.Animations[sequence]);
 
-    /// <summary>A player of <paramref name="sequence"/> that shows nothing until its <paramref name="updates"/>th update.</summary>
-    internal static AnimationPlayer<G, PictureShade, NoAnimationCue> StartingAfter(G sequence, int updates) =>
-        AnimationPlayer<G, PictureShade, NoAnimationCue>.StartingAfter(
-            SamusGlowAnimationDefinitions.Segments, SamusGlowAnimationDefinitions.Animations[sequence], updates);
-
     /// <summary>Starts <paramref name="player"/> on <paramref name="sequence"/> again, showing nothing until its next update.</summary>
     internal static void Restart(AnimationPlayer<G, PictureShade, NoAnimationCue> player, G sequence) =>
         Ensure.NotNull(player).Start(SamusGlowAnimationDefinitions.Animations[sequence]);

@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Samus.Abilities;
-using SuperMetroid.Core.Samus.Artwork;
 using E = SuperMetroid.Core.Samus.Artwork.SamusDeathExplosionFrame;
 using W = SuperMetroid.Core.Samus.Death.SamusWhiteoutSegment;
 

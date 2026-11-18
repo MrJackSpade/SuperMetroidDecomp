@@ -14,11 +14,17 @@ public sealed class CrocomireDeathState
     /// </summary>
     public int BridgeFragmentsSpawned { get; internal set; }
 
-    /// <summary>Frames until the next acid smoke, on a six-frame cadence.</summary>
-    public int AcidSmokeTimer { get; internal set; }
+    /// <summary>
+    /// The wait for the acid's next smoke about his body (#2463): the bridge's collapse starts it to run out on his death's
+    /// next update, and each smoke starts it again to last <see cref="CrocomireBridgeCollapseDefinitions.AcidSmokeInterval"/>.
+    /// </summary>
+    public BossCountdown AcidSmokeWait { get; } = new();
 
-    /// <summary>Frames until the next acid damage sound, on a thirty-two-frame cadence; zero once the sounds stop.</summary>
-    public int AcidSoundTimer { get; internal set; }
+    /// <summary>
+    /// The wait for the acid's next burning sound (#2463): the bridge's collapse starts it to run out on his death's next
+    /// update, and each sound starts it again to last <see cref="CrocomireBridgeCollapseDefinitions.AcidSoundInterval"/>.
+    /// </summary>
+    public BossCountdown AcidSoundWait { get; } = new();
 
     /// <summary>Whether his first stage onto the bridge has raised its dust (#2182).</summary>
     public bool ApproachDustRaised { get; internal set; }
@@ -89,10 +95,10 @@ public sealed class CrocomireDeathState
     public int RumbleRepeatsLeft { get; internal set; }
 
     /// <summary>
-    /// The updates left before the skeleton starts falling once it has broken through the wall, counted down while
-    /// above zero.
+    /// The skeleton's wait before it falls once it has broken through the wall (#2463): the break-through starts it to last
+    /// <see cref="CrocomireSkeletonDefinitions.FallDelay"/>, and the skeleton starts falling as it runs out.
     /// </summary>
-    public int SkeletonFallDelay { get; internal set; }
+    public BossCountdown SkeletonFallWait { get; } = new();
 
     /// <summary>
     /// The stretch the melt sags his body layer through (#1468): his body layer's vertical scroll, levelled at each pass's

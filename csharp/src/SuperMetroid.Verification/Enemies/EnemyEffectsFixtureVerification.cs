@@ -60,7 +60,7 @@ internal static class EnemyEffectsFixtureVerification
             // The fight's initialization attaches the cleared body canvases the melting body is drawn on (#1466).
             BossBodyCanvasFixtures.AttachCrocomire(Enemies, Sheets);
             Effect = Actor.Death;
-            Effect.AcidSmokeTimer = 1;
+            Effect.AcidSmokeWait.LastFor(1);
             Effect.MeltDistortion = CrocomireMeltDistortion.Level(19);
             Enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(Vram));
             Actor.Body.SetSpeciesState(Actor);

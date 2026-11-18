@@ -44,17 +44,11 @@ internal sealed class BotwoonSegmentState(RoomEnemyPlace head, int index, EnemyP
     internal BotwoonSegmentAnimation Animation { get; } = Ensure.NotNull(animation);
 
     /// <summary>
-    /// The segment's count toward falling once Botwoon dies: it starts by the segment's projectile place
-    /// (<see cref="Compatibility.BotwoonSegmentFallDelay"/>) and the segment falls when it reaches <see cref="FallAt"/>.
+    /// The segment's wait before it falls once Botwoon dies (#2463): its death starts it to last the updates its projectile
+    /// place gives it (<see cref="Compatibility.BotwoonSegmentFallDelay"/>), its death's first update counting, and the
+    /// segment falls from the update after it runs out.
     /// </summary>
-    internal int DeathDelay
-    {
-        get;
-        set => field = Ensure.BetweenInclusive(0, FallAt, value);
-    }
-
-    /// <summary>The count at which a dying segment falls.</summary>
-    internal const int FallAt = 256;
+    internal BossCountdown FallWait { get; } = new();
 
     /// <summary>
     /// The falling segment's place along the quadratic speed table: its whole rows choose the speed it falls at, and it

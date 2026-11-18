@@ -14,7 +14,8 @@ namespace SuperMetroid.Core.Enemies;
 /// keeps a deleted occupant's clock with the rest of what that occupant left. The hold wraps from zero as every
 /// countdown of the game does: a hold left at zero, as a frame shown for good leaves it, runs out again 65536 updates
 /// later, when the animation takes its next step. A held animation's step plays nothing; an owner that shows a picture it
-/// chose shows that picture again (#2380). An owner whose animation must take no step stops the clock (<see cref="Stop"/>).
+/// chose shows that picture again (#2380). An owner whose animation must take no step stops the clock (<see cref="Stop"/>);
+/// one whose animation must wait a while where it stands, its hold kept, suspends it (<see cref="Suspend"/>).
 /// </remarks>
 public sealed class EnemyAnimationClock
 {
@@ -32,6 +33,19 @@ public sealed class EnemyAnimationClock
     /// steps it again. Lengthening a stopped hold leaves it stopped.
     /// </summary>
     public bool IsStopped { get; private set; }
+
+    /// <summary>
+    /// Whether the clock is suspended (#2463): its hold counts nothing, and its animation takes no step and shows no new
+    /// frame, until its owner resumes it, when the hold runs on from where it stood. Suspending is apart from stopping and
+    /// from the hold: starting an animation, or stopping or resuming its clock, leaves the other as it is.
+    /// </summary>
+    public bool IsSuspended { get; private set; }
+
+    /// <summary>Suspends the clock (#2463): the frame shown stays and the hold waits, without counting, until <see cref="Resume"/>.</summary>
+    internal void Suspend() => IsSuspended = true;
+
+    /// <summary>Resumes a suspended clock (#2463): its hold counts on from where it stood when the clock was suspended.</summary>
+    internal void Resume() => IsSuspended = false;
 
     /// <summary>Starts the clock for a newly started animation: its first step plays on the next update.</summary>
     internal void Restart() => Run(WrappingCountdown.Start(1));
@@ -79,7 +93,7 @@ public sealed class EnemyAnimationClock
     /// </summary>
     internal bool Expire()
     {
-        if (IsStopped)
+        if (IsStopped || IsSuspended)
         {
             ShowsNewFrame = false;
             return false;

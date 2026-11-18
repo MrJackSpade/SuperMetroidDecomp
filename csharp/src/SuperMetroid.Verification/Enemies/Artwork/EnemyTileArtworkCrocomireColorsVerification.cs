@@ -85,7 +85,7 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
         AssertBand(bodyShades, CrocomireShades.BodyHurt, CrocomireColorDefinitions.FightBodyCount, _ => RgbColor.White, "native white hurt flash");
         AssertEqual(CrocomireDeathPhase.Fighting, state.DeathPhase,
             "white hurt flash leaves fight phase unchanged");
-        state.DeathPhaseDelay = 0;
+        state.DeathPhaseWait.LastFor(1);
         enemies.CrocomireBehavior.Skeleton.RunCrocomireSkeletonRevealAndWallBreak(state);
         AssertTrue(state.Colours.ShowsSkeletonArm, "the wall break shows the skeleton arm's colours");
         AssertBand(BossSheetShades.OwnRow(bosses, EnemyDefinitionId.Crocomire, 0), CrocomireShades.SkeletonArm,

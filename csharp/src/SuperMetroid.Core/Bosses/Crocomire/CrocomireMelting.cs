@@ -31,7 +31,7 @@ internal sealed class CrocomireMelting
         _ = RequireCrocomireMeltingImage(CrocomireMeltingIllustration.Flesh);
         StartCrocomireMeltingBodyAnimation(state, CrocomireBodyAnimation.MeltingFleshTopRow);
 
-        CrocomireBodyLayer.StartCrocomireTongueAnimation(state, CrocomireTongueSegment.Melting, 1);
+        CrocomireBodyLayer.StartCrocomireTongueAnimation(state, CrocomireTongueSegment.Melting);
         RoomEnemyPlace tongue = state.Tongue;
         tongue.Processing = tongue.Processing.With(EnemyProcessing.Animates | EnemyProcessing.OffScreen);
         tongue.Contact = tongue.Contact.With(EnemyContact.IgnoresSamus);

@@ -72,10 +72,8 @@ internal sealed class KraidProjectiles
         // A fingernail set up, at the room's first setup or a respawn, has taken no alternate spawn, as a killed one has not.
         nailPart.AlternateSpawn = false;
         nail.Presence = nail.Presence.With(EnemyPresence.Hidden);
-        // The nail's spin waits until its flight starts the clock.
-        nail.AnimationClock.Stop();
-        nailPart.SetAnimation(KraidPartSegment.NailLoop);
-        nail.Frame = EnemyFrameId.KraidNailTurned0;
+        // The nail shows its spin's first pose, and the spin waits until its flight starts it from its beginning.
+        _ = nailPart.ShowFirstPose(KraidPartSegment.NailLoop);
         nailPart.Phase = KraidNailPhase.WaitBeforeLaunch;
         nailPart.PhaseTimer = KraidArenaDefinitions.NailLaunchDelayUpdates;
     }

@@ -131,7 +131,7 @@ internal static class CrocomireRumbleDefinitionsVerification
         }
 
         AssertTrue(frames < 2048, "Crocomire rumble production sequence terminates");
-        AssertEqual(0x0080, state.DeathPhaseDelay,
+        AssertEqual(0x0080, state.DeathPhaseWait.Count,
             "Crocomire rumble production terminator handoff");
 
         // The termination loads the wall spikes' colours, which the import pre-colours his sprites in (#1512).

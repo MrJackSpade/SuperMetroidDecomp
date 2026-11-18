@@ -1,15 +1,8 @@
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
-/// <summary>Crocomire's fall through his bridge (#2171): how his tongue waits to hide and where his sinking body disappears.</summary>
+/// <summary>Crocomire's fall through his bridge (#2171): where it breaks, how he sinks and rises, and where his sinking body disappears.</summary>
 internal static class CrocomireBridgeCollapseDefinitions
 {
-    /// <summary>
-    /// How long the collapsing bridge's tongue holds its last frame, in updates: the longest wait a timer is given, so it
-    /// holds until its hidden animation takes over. It is kept exact (#1627): the tongue keeps counting it down, and its
-    /// frame holds by that count until the hidden animation takes over.
-    /// </summary>
-    internal const int TongueHoldsUntilHidden = 32767;
-
     /// <summary>The body X from which Crocomire's weight breaks the bridge and he falls through it.</summary>
     internal const int CollapseStartX = 1600;
 
@@ -67,8 +60,8 @@ internal static class CrocomireBridgeCollapseDefinitions
     /// <summary>The row above which his rising body has risen, exclusive, which ends each rise.</summary>
     internal const int RisenY = 218;
 
-    /// <summary>How long he stays sunk between a sink and the next rise, in updates.</summary>
-    internal const int SubmergedPause = 48;
+    /// <summary>The updates he rests sunk between a sink and the next rise: he starts to rise on the last.</summary>
+    internal const int SubmergedPauseUpdates = 49;
 
     /// <summary>The height of each row of his melting body above the acid, in pixels.</summary>
     internal const int MeltRowHeight = 16;

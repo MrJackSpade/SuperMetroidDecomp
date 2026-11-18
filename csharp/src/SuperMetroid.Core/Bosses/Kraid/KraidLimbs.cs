@@ -171,10 +171,12 @@ internal sealed class KraidLimbs
             ? arm.Presence.Without(EnemyPresence.Hidden)
             : arm.Presence.With(EnemyPresence.Hidden);
 
-        // While mouth reopens are pending, incrementing the timer here cancels the common
-        // animation's later decrement and freezes the selected arm frame.
+        // While mouth reopens are pending the arm's swing waits on the frame it shows, its hold kept, and runs on from there
+        // once none is pending.
         if (state.PendingMouthReopens != 0)
-            arm.AnimationClock.Extend(1);
+            arm.AnimationClock.Suspend();
+        else
+            arm.AnimationClock.Resume();
     }
 
     /// <summary>Runs the foot's lunge, retreat, and grown-form walking phases.</summary>

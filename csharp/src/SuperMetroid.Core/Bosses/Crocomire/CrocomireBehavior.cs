@@ -109,33 +109,33 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             case CrocomireDeathPhase.CrumbleBridgeAndSink:
                 BridgeCollapse.SpawnNextCrocomireBridgeFragment(state.Death);
-                BridgeCollapse.RunCrocomireAcidSoundTimer(state.Death);
+                BridgeCollapse.RunCrocomireAcidSounds(state.Death);
                 BridgeCollapse.RunCrocomireSinkingComposite(state, camera);
                 return;
             case CrocomireDeathPhase.FirstSubmergedPause:
-                BridgeCollapse.RunCrocomireAcidSoundTimer(state.Death);
+                BridgeCollapse.RunCrocomireAcidSounds(state.Death);
                 CrocomireBodyLayer.PlaceCrocomireTongue(state);
                 CrocomireBridgeCollapse.RunCrocomireSubmergedPause(state);
                 return;
             case CrocomireDeathPhase.FirstHopRise:
-                BridgeCollapse.RunCrocomireAcidSoundTimer(state.Death);
+                BridgeCollapse.RunCrocomireAcidSounds(state.Death);
                 BridgeCollapse.RunCrocomireRisingComposite(state);
                 return;
             case CrocomireDeathPhase.FirstHopSink:
-                BridgeCollapse.RunCrocomireAcidSoundTimer(state.Death);
+                BridgeCollapse.RunCrocomireAcidSounds(state.Death);
                 BridgeCollapse.RunCrocomireSinkingComposite(state, camera);
                 return;
             case CrocomireDeathPhase.SecondSubmergedPause:
-                BridgeCollapse.RunCrocomireAcidSoundTimer(state.Death);
+                BridgeCollapse.RunCrocomireAcidSounds(state.Death);
                 CrocomireBodyLayer.PlaceCrocomireTongue(state);
                 CrocomireBridgeCollapse.RunCrocomireSubmergedPause(state);
                 return;
             case CrocomireDeathPhase.SecondHopRise:
-                BridgeCollapse.RunCrocomireAcidSoundTimer(state.Death);
+                BridgeCollapse.RunCrocomireAcidSounds(state.Death);
                 BridgeCollapse.RunCrocomireRisingComposite(state);
                 return;
             case CrocomireDeathPhase.SecondHopSink:
-                BridgeCollapse.RunCrocomireAcidSoundTimer(state.Death);
+                BridgeCollapse.RunCrocomireAcidSounds(state.Death);
                 BridgeCollapse.RunCrocomireSinkingComposite(state, camera);
                 return;
             case CrocomireDeathPhase.InstallFirstMeltImage:

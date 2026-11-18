@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Animation;
-
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
@@ -25,15 +23,8 @@ public sealed class KraidLintState : KraidAnimatedPartState
     /// <exception cref="InvalidOperationException">The animation does not rest on a held pose first.</exception>
     internal void ShowPose(KraidPartSegment segment)
     {
-        Animation<KraidPartSegment> animation = KraidAnimations.StartingWith(segment);
-        AnimationPlace place = AnimationPlace.StartOfAnimation;
-        AnimationShown<KraidPartSegment, KraidPartPose> shown = KraidAnimations.Segments.PlayToNextFrame(animation, ref place,
-            cue => throw new InvalidOperationException($"Kraid's lint animation {segment} raised {cue} before its pose."));
-        if (shown is not AnimationShown<KraidPartSegment, KraidPartPose>.HeldFrame held)
-            throw new InvalidOperationException($"Kraid's lint animation {segment} holds no pose: it reached {shown}.");
-        Playback = new(animation, place);
-        Place.Frame = Show(held.Shown);
-        Place.AnimationClock.Stop();
+        if (!ShowFirstPose(segment))
+            throw new InvalidOperationException($"Kraid's lint animation {segment} holds no pose first.");
     }
 
     /// <summary>The phase the lint runs, inactive from its setup until his growth produces it.</summary>

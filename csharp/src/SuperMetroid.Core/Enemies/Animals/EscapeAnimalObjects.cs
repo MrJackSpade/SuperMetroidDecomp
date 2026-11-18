@@ -23,18 +23,29 @@ internal sealed class EscapeAnimalObjects : ICrittersEscapeReaction
         _places = places;
         _drawing = Ensure.NotNull(drawing);
     }
-    /// <summary>Makes the three-block rescue wall standing down from <paramref name="origin"/> shootable, preserving artwork.</summary>
-    public void SetupCrittersEscapeBlock(RoomLevelData level, Position16<RoomBlocks> origin)
+    /// <summary>
+    /// Runs the room setup that spawns the rescue wall's setup object at <paramref name="origin"/> (#2495), whose setup turns
+    /// that block into the wall's shootable origin and the two below it into blocks that extend it. Only each block's
+    /// collision kind and behaviour change: its picture and what it shows stay. The object holds its place until the room
+    /// objects first update, and leaves the room then.
+    /// </summary>
+    /// <returns>
+    /// False when the room is full; nothing is spawned and the wall's blocks stay as they were then
+    /// (<see cref="Compatibility.RoomObjectPlaces"/>).
+    /// </returns>
+    public bool TrySpawnCrittersEscapeWall(RoomLevelData level, Position16<RoomBlocks> origin)
     {
-        // The wall's setup runs only once its spawn has taken a place, which a full room never gives.
-        if (_places.IsFull)
-            throw new InvalidOperationException("Animal rescue wall setup has no free room-object place.");
-        RoomObjectLevelWrites.WriteObjectCollisionAndBehavior(level, origin, EscapeAnimalWallDefinitions.OriginCollisionType,
-            EscapeAnimalWallDefinitions.ReactionBehavior);
+        Ensure.NotNull(level);
+        if (_places.Spawn() is not { } place)
+            return false;
+
+        place.Block = origin;
+        WriteWallBlock(level, origin, EscapeAnimalWallDefinitions.OriginCollisionType, EscapeAnimalWallDefinitions.ReactionBehavior);
         for (int row = 1; row < EscapeAnimalWallDefinitions.HeightInBlocks; row++)
-            RoomObjectLevelWrites.WriteObjectCollisionAndBehavior(level, origin + new Offset16<RoomBlocks>(0, row),
-                EscapeAnimalWallDefinitions.ExtensionCollisionType,
+            WriteWallBlock(level, origin + new Offset16<RoomBlocks>(0, row), EscapeAnimalWallDefinitions.ExtensionCollisionType,
                 EscapeAnimalWallDefinitions.ExtensionBehavior);
+        place.Become(new CrittersEscapeWallSetupObject());
+        return true;
     }
 
     /// <summary>
@@ -79,5 +90,16 @@ internal sealed class EscapeAnimalObjects : ICrittersEscapeReaction
         // restore.
         level.SetTerrain(position, block.Terrain.WithAppearance(_drawing.SetupBlock(RoomObjectSetupBlock.CritterWallStruck)).Deactivated());
         return true;
+    }
+
+    /// <summary>
+    /// Gives one of the rescue wall's blocks its collision kind and behaviour, as the wall's setup rewrites only a block's
+    /// type and behaviour: the block keeps its picture and what it shows.
+    /// </summary>
+    private static void WriteWallBlock(RoomLevelData level, Position16<RoomBlocks> block, RoomCollisionType collision,
+        RoomBlockBehavior behavior)
+    {
+        level.SetCollision(block, collision);
+        level.SetBehavior(block, behavior);
     }
 }

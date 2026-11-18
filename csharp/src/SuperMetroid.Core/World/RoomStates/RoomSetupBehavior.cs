@@ -55,7 +55,10 @@ public abstract class RoomSetupBehavior
     /// </summary>
     public static RoomSetupBehavior AutoDestroyWallDuringEscape { get; } = new OldTourianEscapeShaftWallSetup();
 
-    /// <summary>Creates the escape wall's shootable blocks.</summary>
+    /// <summary>
+    /// Spawns the room object that turns the animals' rescue wall into shootable blocks (#2495); the spawn drops it, setup
+    /// and all, when every room-object place is taken.
+    /// </summary>
     public static RoomSetupBehavior TurnWallIntoShotBlocksDuringEscape { get; } = new EscapeAnimalWallSetup();
 
     /// <summary>Starts the landing site's escape quake and sets up the land scrolling sky with its bands.</summary>
@@ -240,14 +243,14 @@ public abstract class RoomSetupBehavior
             Ensure.NotNull(placing).RoomObjects.Tourian.TrySpawnOldTourianEscapeShaftWall(placing.Level);
     }
 
-    /// <summary>The rescued animals' room's escape setup, which turns their wall into shootable blocks.</summary>
+    /// <summary>The rescued animals' room's escape setup, which spawns the room object that turns their wall into shootable blocks.</summary>
     private sealed class EscapeAnimalWallSetup() : RoomSetupBehavior(nameof(TurnWallIntoShotBlocksDuringEscape))
     {
         /// <inheritdoc/>
         internal override void PlaceRoomObjects(RoomSetupPlacing placing)
         {
             Ensure.NotNull(placing);
-            placing.RoomObjects.EscapeAnimals.SetupCrittersEscapeBlock(placing.Level,
+            placing.RoomObjects.EscapeAnimals.TrySpawnCrittersEscapeWall(placing.Level,
                 placing.Level.GridBlock(new(EscapeAnimalWallDefinitions.WallX, EscapeAnimalWallDefinitions.WallY)));
         }
     }

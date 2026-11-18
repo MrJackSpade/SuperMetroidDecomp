@@ -51,7 +51,7 @@ public sealed class CeresElevatorArrivalState
             if (LowerSamus(samus))
                 pad.Actor.Active = false;
             else
-                AdvanceAnimation(pad.Actor);
+                pad.Actor.Animation.Step();
         }
 
         if (platform.Active)
@@ -59,7 +59,7 @@ public sealed class CeresElevatorArrivalState
             if (samus.Position.Y.Whole == CeresElevatorArrivalDefinitions.LandingSamusY)
                 platform.Active = false;
             else
-                AdvanceAnimation(platform);
+                platform.Animation.Step();
         }
 
         return IsComplete;
@@ -116,41 +116,6 @@ public sealed class CeresElevatorArrivalState
     }
 
     /// <summary>
-    /// Plays an actor's typed animation (#641, #1600) when its frame expires: a new pose, or a pose shown for good, which
-    /// holds until the actor leaves.
-    /// </summary>
-    private static void AdvanceAnimation(CeresElevatorArrivalActor actor)
-    {
-        if (actor.FrameHold is not { } hold)
-            return;
-        if (hold > 1)
-        {
-            actor.FrameHold = hold - 1;
-            return;
-        }
-
-        Animation<CeresElevatorArrivalSegment> animation = actor.Playback.Animation;
-        AnimationPlace place = actor.Playback.Place;
-        AnimationShown<CeresElevatorArrivalSegment, CeresElevatorArrivalPose> shown = CeresElevatorArrivalAnimations.Segments.PlayToNextFrame(
-            animation, ref place,
-            cue => throw new InvalidOperationException($"The Ceres elevator arrival animations raise no event; got {cue}."));
-        actor.Playback = new AnimationPlayback<CeresElevatorArrivalSegment>(animation, place);
-        switch (shown)
-        {
-            case AnimationShown<CeresElevatorArrivalSegment, CeresElevatorArrivalPose>.Frame frame:
-                actor.FrameHold = frame.Duration;
-                actor.Pose = frame.Shown;
-                return;
-            case AnimationShown<CeresElevatorArrivalSegment, CeresElevatorArrivalPose>.HeldFrame held:
-                actor.FrameHold = null;
-                actor.Pose = held.Shown;
-                return;
-            default:
-                throw new InvalidOperationException($"A Ceres elevator arrival animation ended an update with {shown}.");
-        }
-    }
-
-    /// <summary>
     /// Draws an actor in the room while it stays, its pose's own picture of the room's shared spawned-object sheet (#2425),
     /// wherever it lies; the display clips it (#1587).
     /// </summary>
@@ -195,13 +160,14 @@ public sealed class CeresElevatorArrivalState
     /// <summary>One of the two arrival actors, the pad or the platform: its animation and place.</summary>
     internal sealed class CeresElevatorArrivalActor
     {
-        /// <summary>Starts an actor's animation at its position, showing its graphics.</summary>
+        /// <summary>Starts an actor's animation at its position, showing its graphics: its first update shows its first pose.</summary>
         public CeresElevatorArrivalActor(
             CeresElevatorArrivalSegment segment,
             Position16<RoomPixels> position,
             SpriteGraphics graphics)
         {
-            Playback = new AnimationPlayback<CeresElevatorArrivalSegment>(CeresElevatorArrivalAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
+            Animation = AnimationPlayer<CeresElevatorArrivalSegment, CeresElevatorArrivalPose, NoAnimationCue>.Starting(
+                CeresElevatorArrivalAnimations.Segments, CeresElevatorArrivalAnimations.StartingWith(segment));
             Position = position;
             Graphics = graphics;
         }
@@ -212,12 +178,13 @@ public sealed class CeresElevatorArrivalState
         public bool Active { get; set; } = true;
         /// <summary>Whole room position; the per-frame movement only rewrites Y.</summary>
         public Position16<RoomPixels> Position { get; set; }
-        /// <summary>The actor's animation and where it stands in it, played on when its frame expires.</summary>
-        internal AnimationPlayback<CeresElevatorArrivalSegment> Playback { get; set; }
+        /// <summary>
+        /// The actor's typed animation (#641, #1600) on the shared player (#2480): a new pose when the shown one's updates
+        /// run out, or a pose shown for good, which holds until the actor leaves.
+        /// </summary>
+        internal AnimationPlayer<CeresElevatorArrivalSegment, CeresElevatorArrivalPose, NoAnimationCue> Animation { get; }
 
-        /// <summary>Updates until this actor's next animation pass; none while it shows its pose for good.</summary>
-        public int? FrameHold { get; set; } = 1;
-        /// <summary>The pose the actor shows, none before its first frame.</summary>
-        internal CeresElevatorArrivalPose? Pose { get; set; }
+        /// <summary>The pose the actor shows, none before its first update.</summary>
+        internal CeresElevatorArrivalPose? Pose => Animation.Shown;
     }
 }

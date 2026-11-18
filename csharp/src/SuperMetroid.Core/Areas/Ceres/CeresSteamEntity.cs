@@ -6,11 +6,12 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// <param name="species">The Ceres steam species owner.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class CeresSteamEntity(CeresSteamBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
+/// <param name="motions">The motions the room gives its vents, which give this vent the one its variant names.</param>
+internal sealed class CeresSteamEntity(CeresSteamBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, CeresSteamVentMotions motions)
     : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes
 {
     /// <inheritdoc/>
-    public void Initialize() => species.InitializeCeresSteam(Place);
+    public void Initialize() => species.InitializeCeresSteam(Place, motions);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => CeresSteamBehavior.RunCeresSteamMainAi(Place);

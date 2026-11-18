@@ -225,7 +225,6 @@ internal sealed class CollectibleObjects
         // The item is granted before its message opens; it keeps its block and its place while the message shows, and
         // finishes its pickup once the message closes.
         item.Triggered = false;
-        item.Timer = 0;
         item.Phase = CollectiblePhase.AwaitingMessage;
     }
 

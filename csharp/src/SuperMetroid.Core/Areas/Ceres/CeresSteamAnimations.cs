@@ -6,128 +6,124 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>
-/// The Ceres steam vents' typed animations (#641). Each
-/// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="CeresSteamCue"/> with the values it acts on.
+/// The Ceres steam vents' typed animations (#641). Each frame shows a <see cref="EnemyFrameId"/> and each cue is a
+/// <see cref="CeresSteamCueKind"/>. A dormant vent's animation only hides it and holds; its owner keeps it hidden for its
+/// drawn wait and then goes on from where a rest ends (<see cref="ActivationAfter"/>, #2480). Every wait the vent spends
+/// hidden is a pause of its length, naming no picture.
 /// </summary>
 internal static class CeresSteamAnimations
 {
+    /// <summary>How long a vent stays hidden between puffs.</summary>
+    internal const int RestUpdates = 64;
+
+    /// <summary>How long each picture of a puff shows.</summary>
+    internal const int PuffPictureUpdates = 3;
+
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<CeresSteamSegment, EnemyFrameId, CeresSteamCue> Segments { get; } = new(
-        new Dictionary<CeresSteamSegment, AnimationBeat<EnemyFrameId, CeresSteamCue>[]>
+    internal static AnimationSegments<CeresSteamSegment, EnemyFrameId, CeresSteamCueKind> Segments { get; } = new(
+        new Dictionary<CeresSteamSegment, AnimationBeat<EnemyFrameId, CeresSteamCueKind>[]>
     {
-        [P.UpDormant] =
-        [
-            Cue(new CeresSteamCue.Signal(K.Vanish)),
-            Show(EnemyFrameId.CeresSteamUp, 1),
-            Cue(new CeresSteamCue.CountDownToActivation(P.UpDormant, P.UpPuffing)),
-        ],
-        [P.UpResting] =
-        [
-            Cue(new CeresSteamCue.Signal(K.Vanish)),
-            Show(EnemyFrameId.CeresSteamUp, 64),
-            Cue(new CeresSteamCue.Signal(K.Appear)),
-        ],
+        [P.UpDormant] = [Cue(K.Vanish)],
+        [P.UpResting] = [Cue(K.Vanish), Wait(RestUpdates), Cue(K.Appear)],
         [P.UpPuffing] =
         [
-            Show(EnemyFrameId.CeresSteamUp, 3),
-            Show(EnemyFrameId.CeresSteamUpJetBursting, 3),
-            Show(EnemyFrameId.CeresSteamUpJetLengthening, 3),
-            Show(EnemyFrameId.CeresSteamUpJetFull, 3),
-            Show(EnemyFrameId.CeresSteamUpPlumeDrifting, 3),
-            Show(EnemyFrameId.CeresSteamUpPlumeScattering, 3),
-            Show(EnemyFrameId.CeresSteamUpPlumeFading, 3),
+            Show(EnemyFrameId.CeresSteamUp),
+            Show(EnemyFrameId.CeresSteamUpJetBursting),
+            Show(EnemyFrameId.CeresSteamUpJetLengthening),
+            Show(EnemyFrameId.CeresSteamUpJetFull),
+            Show(EnemyFrameId.CeresSteamUpPlumeDrifting),
+            Show(EnemyFrameId.CeresSteamUpPlumeScattering),
+            Show(EnemyFrameId.CeresSteamUpPlumeFading),
         ],
-        [P.LeftDormant] =
-        [
-            Cue(new CeresSteamCue.Signal(K.Vanish)),
-            Show(EnemyFrameId.CeresSteamLeft, 1),
-            Cue(new CeresSteamCue.CountDownToActivation(P.LeftDormant, P.LeftPuffing)),
-        ],
-        [P.LeftResting] =
-        [
-            Cue(new CeresSteamCue.Signal(K.Vanish)),
-            Show(EnemyFrameId.CeresSteamLeft, 64),
-            Cue(new CeresSteamCue.Signal(K.Appear)),
-        ],
+        [P.LeftDormant] = [Cue(K.Vanish)],
+        [P.LeftResting] = [Cue(K.Vanish), Wait(RestUpdates), Cue(K.Appear)],
         [P.LeftPuffing] =
         [
-            Show(EnemyFrameId.CeresSteamLeft, 3),
-            Show(EnemyFrameId.CeresSteamLeftJetBursting, 3),
-            Show(EnemyFrameId.CeresSteamLeftJetLengthening, 3),
-            Show(EnemyFrameId.CeresSteamLeftJetFull, 3),
-            Show(EnemyFrameId.CeresSteamLeftPlumeDrifting, 3),
-            Show(EnemyFrameId.CeresSteamLeftPlumeScattering, 3),
-            Show(EnemyFrameId.CeresSteamLeftPlumeFading, 3),
+            Show(EnemyFrameId.CeresSteamLeft),
+            Show(EnemyFrameId.CeresSteamLeftJetBursting),
+            Show(EnemyFrameId.CeresSteamLeftJetLengthening),
+            Show(EnemyFrameId.CeresSteamLeftJetFull),
+            Show(EnemyFrameId.CeresSteamLeftPlumeDrifting),
+            Show(EnemyFrameId.CeresSteamLeftPlumeScattering),
+            Show(EnemyFrameId.CeresSteamLeftPlumeFading),
         ],
-        [P.DownDormant] =
-        [
-            Cue(new CeresSteamCue.Signal(K.Vanish)),
-            Show(EnemyFrameId.CeresSteamDown, 1),
-            Cue(new CeresSteamCue.CountDownToActivation(P.DownDormant, P.DownPuffing)),
-        ],
-        [P.DownResting] =
-        [
-            Cue(new CeresSteamCue.Signal(K.Vanish)),
-            Show(EnemyFrameId.CeresSteamDown, 64),
-            Cue(new CeresSteamCue.Signal(K.Appear)),
-        ],
+        [P.DownDormant] = [Cue(K.Vanish)],
+        [P.DownResting] = [Cue(K.Vanish), Wait(RestUpdates), Cue(K.Appear)],
         [P.DownPuffing] =
         [
-            Show(EnemyFrameId.CeresSteamDown, 3),
-            Show(EnemyFrameId.CeresSteamDownJetBursting, 3),
-            Show(EnemyFrameId.CeresSteamDownJetLengthening, 3),
-            Show(EnemyFrameId.CeresSteamDownJetFull, 3),
-            Show(EnemyFrameId.CeresSteamDownPlumeDrifting, 3),
-            Show(EnemyFrameId.CeresSteamDownPlumeScattering, 3),
-            Show(EnemyFrameId.CeresSteamDownPlumeFading, 3),
+            Show(EnemyFrameId.CeresSteamDown),
+            Show(EnemyFrameId.CeresSteamDownJetBursting),
+            Show(EnemyFrameId.CeresSteamDownJetLengthening),
+            Show(EnemyFrameId.CeresSteamDownJetFull),
+            Show(EnemyFrameId.CeresSteamDownPlumeDrifting),
+            Show(EnemyFrameId.CeresSteamDownPlumeScattering),
+            Show(EnemyFrameId.CeresSteamDownPlumeFading),
         ],
-        [P.RightDormant] =
-        [
-            Cue(new CeresSteamCue.Signal(K.Vanish)),
-            Show(EnemyFrameId.CeresSteamRight, 1),
-            Cue(new CeresSteamCue.CountDownToActivation(P.RightDormant, P.RightPuffing)),
-        ],
-        [P.RightResting] =
-        [
-            Cue(new CeresSteamCue.Signal(K.Vanish)),
-            Show(EnemyFrameId.CeresSteamRight, 64),
-            Cue(new CeresSteamCue.Signal(K.Appear)),
-        ],
+        [P.RightDormant] = [Cue(K.Vanish)],
+        [P.RightResting] = [Cue(K.Vanish), Wait(RestUpdates), Cue(K.Appear)],
         [P.RightPuffing] =
         [
-            Show(EnemyFrameId.CeresSteamRight, 3),
-            Show(EnemyFrameId.CeresSteamRightJetBursting, 3),
-            Show(EnemyFrameId.CeresSteamRightJetLengthening, 3),
-            Show(EnemyFrameId.CeresSteamRightJetFull, 3),
-            Show(EnemyFrameId.CeresSteamRightPlumeDrifting, 3),
-            Show(EnemyFrameId.CeresSteamRightPlumeScattering, 3),
-            Show(EnemyFrameId.CeresSteamRightPlumeFading, 3),
+            Show(EnemyFrameId.CeresSteamRight),
+            Show(EnemyFrameId.CeresSteamRightJetBursting),
+            Show(EnemyFrameId.CeresSteamRightJetLengthening),
+            Show(EnemyFrameId.CeresSteamRightJetFull),
+            Show(EnemyFrameId.CeresSteamRightPlumeDrifting),
+            Show(EnemyFrameId.CeresSteamRightPlumeScattering),
+            Show(EnemyFrameId.CeresSteamRightPlumeFading),
         ],
     });
 
     /// <summary>
-    /// The animation each segment a vent starts or its count-down branches to starts: a dormant vent waits, then rests and
-    /// puffs in turn; a puffing vent goes on puffing and resting in turn for good. A vent only rests on the way from its
-    /// dormant wait or a puff, so no animation starts at a rest.
+    /// The animation each segment a vent starts at starts: a dormant vent hides and holds until its owner's wait runs out;
+    /// a puffing vent goes on puffing and resting in turn for good. A vent only rests on the way from a puff, so no
+    /// animation starts at a rest.
     /// </summary>
     internal static IReadOnlyDictionary<CeresSteamSegment, Animation<CeresSteamSegment>> StartingAt { get; } = new Dictionary<CeresSteamSegment, Animation<CeresSteamSegment>>
     {
-        [P.UpDormant] = Animation<CeresSteamSegment>.LeadingInto([Segments.Whole(P.UpDormant)], [Segments.Whole(P.UpResting), Segments.Whole(P.UpPuffing)]),
+        [P.UpDormant] = new([Segments.Whole(P.UpDormant)], AnimationEnd.Holds),
         [P.UpPuffing] = Animation<CeresSteamSegment>.Looping([Segments.Whole(P.UpPuffing), Segments.Whole(P.UpResting)]),
-        [P.LeftDormant] = Animation<CeresSteamSegment>.LeadingInto([Segments.Whole(P.LeftDormant)], [Segments.Whole(P.LeftResting), Segments.Whole(P.LeftPuffing)]),
+        [P.LeftDormant] = new([Segments.Whole(P.LeftDormant)], AnimationEnd.Holds),
         [P.LeftPuffing] = Animation<CeresSteamSegment>.Looping([Segments.Whole(P.LeftPuffing), Segments.Whole(P.LeftResting)]),
-        [P.DownDormant] = Animation<CeresSteamSegment>.LeadingInto([Segments.Whole(P.DownDormant)], [Segments.Whole(P.DownResting), Segments.Whole(P.DownPuffing)]),
+        [P.DownDormant] = new([Segments.Whole(P.DownDormant)], AnimationEnd.Holds),
         [P.DownPuffing] = Animation<CeresSteamSegment>.Looping([Segments.Whole(P.DownPuffing), Segments.Whole(P.DownResting)]),
-        [P.RightDormant] = Animation<CeresSteamSegment>.LeadingInto([Segments.Whole(P.RightDormant)], [Segments.Whole(P.RightResting), Segments.Whole(P.RightPuffing)]),
+        [P.RightDormant] = new([Segments.Whole(P.RightDormant)], AnimationEnd.Holds),
         [P.RightPuffing] = Animation<CeresSteamSegment>.Looping([Segments.Whole(P.RightPuffing), Segments.Whole(P.RightResting)]),
+    };
+
+    /// <summary>
+    /// Where each dormant vent's puffs go on from once its wait runs out (#2480): its way's puffs, at the last beat of their
+    /// rest, where the vent appears. It appears and shows its puff's first picture on the update its wait runs out, as the
+    /// game's vent appears and puffs on the update its wait runs out.
+    /// </summary>
+    internal static IReadOnlyDictionary<CeresSteamSegment, AnimationPlayback<CeresSteamSegment>> ActivationAfter { get; } =
+        new Dictionary<CeresSteamSegment, AnimationPlayback<CeresSteamSegment>>
+    {
+        [P.UpDormant] = WhereRestEnds(P.UpPuffing, P.UpResting),
+        [P.LeftDormant] = WhereRestEnds(P.LeftPuffing, P.LeftResting),
+        [P.DownDormant] = WhereRestEnds(P.DownPuffing, P.DownResting),
+        [P.RightDormant] = WhereRestEnds(P.RightPuffing, P.RightResting),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<CeresSteamSegment> StartingWith(CeresSteamSegment segment) => StartingAt[segment];
 
-    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<EnemyFrameId, CeresSteamCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, CeresSteamCue>.Frame(frame, duration);
+    /// <summary>The puffs that start at <paramref name="puffing"/>, standing at the appearance that ends <paramref name="resting"/>.</summary>
+    private static AnimationPlayback<CeresSteamSegment> WhereRestEnds(CeresSteamSegment puffing, CeresSteamSegment resting) =>
+        new(StartingAt[puffing], AnimationSegments<CeresSteamSegment, EnemyFrameId, CeresSteamCueKind>.PlaceOf(
+            StartingAt[puffing], resting, Segments.Beats(resting).Count - 1));
 
-    /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<EnemyFrameId, CeresSteamCue> Cue(CeresSteamCue cue) => new AnimationBeat<EnemyFrameId, CeresSteamCue>.Event(cue);
+    /// <summary>Shows <paramref name="frame"/> for one picture of a puff.</summary>
+    private static AnimationBeat<EnemyFrameId, CeresSteamCueKind> Show(EnemyFrameId frame) =>
+        new AnimationBeat<EnemyFrameId, CeresSteamCueKind>.Frame(frame, PuffPictureUpdates);
+
+    /// <summary>
+    /// Waits <paramref name="updates"/> updates with the vent hidden, naming no picture: a hidden vent is neither drawn nor
+    /// touched, so what it would show there is never seen.
+    /// </summary>
+    private static AnimationBeat<EnemyFrameId, CeresSteamCueKind> Wait(int updates) =>
+        new AnimationBeat<EnemyFrameId, CeresSteamCueKind>.Pause(updates);
+
+    /// <summary>Raises <paramref name="cue"/>.</summary>
+    private static AnimationBeat<EnemyFrameId, CeresSteamCueKind> Cue(CeresSteamCueKind cue) =>
+        new AnimationBeat<EnemyFrameId, CeresSteamCueKind>.Event(cue);
 }

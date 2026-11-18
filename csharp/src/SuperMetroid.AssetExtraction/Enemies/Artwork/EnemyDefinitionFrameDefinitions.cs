@@ -59,7 +59,7 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.CeresElevatorDoorBlocked,
     ];
 
-    /// <summary>The frames <c>Areas/Ceres/CeresSteamBehavior.cs</c> shows.</summary>
+    /// <summary>The frames <c>Areas/Ceres/CeresSteamFactory.cs</c> shows.</summary>
     private static readonly EnemyFrameId[] CeresSteam =
     [
         EnemyFrameId.CeresSteamUp,

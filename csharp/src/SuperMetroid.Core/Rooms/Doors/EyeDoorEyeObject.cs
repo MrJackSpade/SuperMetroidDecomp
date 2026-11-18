@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// </summary>
 /// <param name="orientation">The eye door's facing.</param>
 /// <param name="door">The door the eye's placement named, which its attacks keep to burst once it opens.</param>
-internal sealed class EyeDoorEyeObject(EyeDoorOrientation orientation, PlacedDoor door) : SequencedRoomObject<EyeDoorStep>, IDoorKeptOpen
+internal sealed class EyeDoorEyeObject(EyeDoorOrientation orientation, PlacedDoor door) : SequencedRoomObject<EyeDoorSegment, EyeDoorObjectFrame, EyeDoorAction>(EyeDoorSequenceDefinitions.Segments), IDoorKeptOpen
 {
     /// <summary>The eye door's facing.</summary>
     internal EyeDoorOrientation Orientation { get; } = orientation;
@@ -42,9 +42,6 @@ internal sealed class EyeDoorEyeObject(EyeDoorOrientation orientation, PlacedDoo
 
     /// <summary>Whether the eye has yet to take its first look at its door.</summary>
     private bool _placed = true;
-
-    /// <summary>The flashes the destroyed eye has still to make before it turns into its blue cap.</summary>
-    private int _flashesLeft;
 
     /// <summary>The blue cap the eye turns into: the one facing its own side.</summary>
     private ColoredDoorOrientation CapFacing => Orientation switch
@@ -78,27 +75,27 @@ internal sealed class EyeDoorEyeObject(EyeDoorOrientation orientation, PlacedDoo
     }
 
     /// <inheritdoc/>
-    private protected override int Show(EyeDoorStep step, RoomObjectPlace place, RoomObjectStepContext context)
+    private protected override void Show(EyeDoorObjectFrame frame, RoomObjectPlace place, RoomObjectStepContext context) =>
+        context.Draw(place, EyeDoorDraws.Of(Orientation, EyeDoorComponent.Eye, frame));
+
+    /// <inheritdoc/>
+    private protected override void Raise(EyeDoorAction raised, RoomObjectPlace place, RoomObjectStepContext context)
     {
         EyeDoorObjects eyes = context.RoomObjects.EyeDoors;
-        switch (step.Before)
+        switch (raised)
         {
-            case EyeDoorAction.None:
-                break;
             case EyeDoorAction.Shoot:
                 eyes.Shoot(place, Orientation, Door.Placed.Door);
-                break;
+                return;
             case EyeDoorAction.SpawnTwoSmoke:
                 eyes.SpawnTwoSmoke(place, Orientation);
-                break;
+                return;
             case EyeDoorAction.SpawnSweat:
                 eyes.SpawnSweat(place, Orientation);
-                break;
+                return;
             default:
-                throw new InvalidOperationException($"Undefined {nameof(EyeDoorAction)} {step.Before}.");
+                throw new InvalidOperationException($"Undefined {nameof(EyeDoorAction)} {raised}.");
         }
-        context.Draw(place, EyeDoorDraws.Of(Orientation, EyeDoorComponent.Eye, step.Image));
-        return step.Updates;
     }
 
     /// <inheritdoc/>
@@ -132,11 +129,7 @@ internal sealed class EyeDoorEyeObject(EyeDoorOrientation orientation, PlacedDoo
                 Watch(place, context);
                 return;
             case EyeDoorEyePhase.Destroyed:
-                _flashesLeft--;
-                if (_flashesLeft != 0)
-                    Play(EyeDoorSequenceDefinitions.OpeningFlash, place, context);
-                else
-                    BlueDoorCapObject.TakeOver(place, context, CapFacing, Door);
+                BlueDoorCapObject.TakeOver(place, context, CapFacing, Door);
                 return;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(EyeDoorEyePhase)} {Phase}.");
@@ -205,8 +198,7 @@ internal sealed class EyeDoorEyeObject(EyeDoorOrientation orientation, PlacedDoo
         eyes.SpawnTwoSmoke(place, Orientation);
         EyeDoorObjects.ConvertEyeToBlueDoor(context.Level, place, Orientation);
         Phase = EyeDoorEyePhase.Destroyed;
-        _flashesLeft = EyeDoorSequenceDefinitions.OpeningFlashes;
-        Play(EyeDoorSequenceDefinitions.OpeningFlash, place, context);
+        Play(EyeDoorSequenceDefinitions.Destroyed, place, context);
     }
 
     /// <summary>Whether Samus stands within <paramref name="reach"/> of the eye.</summary>

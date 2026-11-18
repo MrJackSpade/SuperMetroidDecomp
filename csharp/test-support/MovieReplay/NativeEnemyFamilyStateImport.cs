@@ -180,8 +180,8 @@ internal static class NativeEnemyFamilyStateImport
                 : CeresSteamAction.HoldsItsPlace;
             if (recordedAction != initializedAction)
                 throw new InvalidDataException($"Recorded Ceres steam action {recordedAction} differs from the vent's initialized {initializedAction}.");
-            // The cartridge's activation count runs out on the step that takes it to zero, as the port's does, so the two
-            // hold the same number; an activated vent's count stays at zero.
+            // Until its first count-down the cartridge's activation count is the wait the port holds the vent hidden for once
+            // its dormant animation has hidden it (#2480), the update it appears on included.
             ceresSteamRecord.UpdatesToActivation = words.D;
         }
         if (enemy.SpeciesState<CeresElevatorDoorState>() is { } elevatorDoorRecord)

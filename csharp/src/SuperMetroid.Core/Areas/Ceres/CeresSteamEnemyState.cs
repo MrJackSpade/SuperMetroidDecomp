@@ -12,8 +12,8 @@ internal sealed class CeresSteamEnemyState
     public CeresSteamMotion Motion { get; }
 
     /// <summary>
-    /// The updates the vent waits dormant before its first plume, the one it appears on included: 1 through 32 when it
-    /// initializes, counted down by its animation's wait, which it leaves for good on the update this runs out.
+    /// The updates the vent stays hidden after its dormant animation hides it, before its first plume, the one it appears
+    /// on included: 1 through 32, drawn as it initializes. Its owner holds its animation that long (#2480).
     /// </summary>
     public int UpdatesToActivation { get; internal set; }
 

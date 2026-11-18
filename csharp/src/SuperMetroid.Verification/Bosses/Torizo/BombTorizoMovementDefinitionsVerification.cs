@@ -23,7 +23,7 @@ internal static class BombTorizoMovementDefinitionsVerification
     {
         TorizoCue[] cues =
         [
-            .. Enum.GetValues<TorizoAnimation>().SelectMany(animation => TorizoAnimations.Segments.Beats(animation))
+            .. Enum.GetValues<TorizoBodySegment>().SelectMany(segment => TorizoAnimations.Segments.Beats(segment))
                 .OfType<AnimationBeat<EnemyFrameId, TorizoCue>.Event>().Select(beat => beat.Raised).Distinct(),
         ];
         Offset16<RoomPixels>[] displacements = [.. cues.OfType<TorizoCue.Posture>().Select(cue => cue.Displacement).Distinct()];

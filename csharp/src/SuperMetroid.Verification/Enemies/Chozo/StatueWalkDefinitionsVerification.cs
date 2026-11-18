@@ -25,7 +25,7 @@ internal static class StatueWalkDefinitionsVerification
     internal static void VerifyCompiledStatueWalking(CartridgeImportAddressSpace rom)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        Func<RoomEnemyPlace, TorizoEnemyState, SamusState, RoomLevelData, int, AnimationContinuation<TorizoAnimation>?> walk = (torizo, state, samus, level, stepPixels) =>
+        Func<RoomEnemyPlace, TorizoEnemyState, SamusState, RoomLevelData, int, AnimationContinuation<TorizoBodySegment>?> walk = (torizo, state, samus, level, stepPixels) =>
             enemies.TorizoBehavior.Choices.ProcessTorizoWalkStep(torizo, state, samus, level, TorizoWalkerDefinitions.GoldenTorizo, stepPixels);
         Action<RoomEnemyPlace, SamusState, RoomLevelData, ChozoCarryStep> carry = enemies.ChozoStatueBehavior.ProcessChozoStatueMovement;
         var level = CreateEmptyRoom(new(32, 32));
@@ -39,7 +39,7 @@ internal static class StatueWalkDefinitionsVerification
             int offset = step * 2;
             short velocity = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(GoldenWalkTable + offset));
             place.Position = place.Position.WithWholeY(256).WithWholeX(256).WithFractionX(123);
-            AnimationContinuation<TorizoAnimation>? next = walk(place, torizo, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), level, velocity);
+            AnimationContinuation<TorizoBodySegment>? next = walk(place, torizo, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), level, velocity);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(GoldenWalkTable + offset), torizo.Velocity.X.RawValue, "Torizo actual walking velocity without bus");
             AssertEqual(unchecked((ushort)(256 + velocity)), place.Position.X.Whole, "Torizo real whole-pixel movement");
             AssertEqual((ushort)123, place.Position.X.Fraction, "Torizo preserves subpixel state");

@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Torizo;
 
-/// <summary>What a cue of Torizo's body animations does: start or stop its body's motion, show or hide the body, fade its colours, start its music, record its footsteps, queue its sounds, spawn its explosions, drool, orbs, eggs and missiles, lock its animation, or resume the walk or the animation an attack or the gut explosion interrupted.</summary>
+/// <summary>What a cue of Torizo's body animations does: start or stop its body's motion, show or hide the body, fade its colours, start its music, record its footsteps, queue its sounds, spawn its explosions, drool, orbs, eggs and missiles, lock its animation, resume the walk or the animation an attack or the gut explosion interrupted, or mark the moment a held pose has shown, on which its owner starts the next animation once the Torizo's state has changed.</summary>
 internal enum TorizoCueKind
 {
     /// <summary>Starts the body walking (#1931).</summary>
@@ -81,4 +81,19 @@ internal enum TorizoCueKind
     SpawnSuperMissile,
     /// <summary>Spawns Golden Torizo's Chozo orbs.</summary>
     SpawnGoldenTorizoChozoOrbs,
+    /// <summary>
+    /// A jumping Torizo has shown its leaping pose (#2411): once it no longer rises, its owner starts the fall its jump
+    /// named; while it rises, its jump shows the pose again.
+    /// </summary>
+    LeapingPoseShown,
+    /// <summary>
+    /// A waking Golden Torizo has shown its half-risen pose as it drops (#2411): once it is on its floor, its owner starts its
+    /// settling; until then it shows the pose again.
+    /// </summary>
+    DroppingPoseShown,
+    /// <summary>
+    /// Golden Torizo has held its chest open a moment (#2411): once its eggs are gone, its owner starts its chest's closing;
+    /// while any remains, it holds it open again.
+    /// </summary>
+    ChestHeldOpen,
 }

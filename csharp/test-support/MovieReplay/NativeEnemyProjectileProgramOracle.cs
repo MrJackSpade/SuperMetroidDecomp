@@ -142,11 +142,16 @@ internal static class NativeEnemyProjectileProgramOracle
     /// on into a list already entered looping from the phase entered there), each of a segment's steps must match the native
     /// beat its phase plays there, and its end must be the lists'. A segment several animations play is compared with each
     /// run it plays. Every native list and every segment must be played by some animation, and no animation may start in a
-    /// counted list. Returns the total step count.
+    /// counted list. An animation its owners start by its own name (#2411) is compared from its native entry alike, and an
+    /// animation an owner starts once the run another loops on has marked its moment (<see cref="NativeEnemyProjectileCueRules{TCue}.LoopMarks"/>)
+    /// starts just past that mark's native goto. Returns the total step count.
     /// </summary>
     /// <param name="cartridge">The pinned cartridge.</param>
     /// <param name="lists">The entry of every native list the family's animations play, in bank order.</param>
-    /// <param name="entries">The native list each animation starts at, by the segment it starts at.</param>
+    /// <param name="entries">
+    /// The native place each animation starts at, by the segment it starts at: a list's entry, or the place just past a loop
+    /// mark's goto.
+    /// </param>
     /// <param name="steps">Each segment's steps.</param>
     /// <param name="animations">The animation starting at each segment.</param>
     /// <param name="presentationKey">The installed artwork key a frame shows: its native operand's address.</param>
@@ -155,6 +160,7 @@ internal static class NativeEnemyProjectileProgramOracle
     /// The installed artwork key of a flicker frame's reflected pose, or null for a frame without one; required when
     /// <paramref name="rules"/> name flicker commands.
     /// </param>
+    /// <param name="named">The animations the family's owners start by their own names, each with its name and native entry.</param>
     internal static int CompareByEntry<TAnimation, TFrame, TEvent>(
         IImportCartridgeSource cartridge,
         IReadOnlyList<ushort> lists,
@@ -163,7 +169,8 @@ internal static class NativeEnemyProjectileProgramOracle
         IReadOnlyDictionary<TAnimation, Animation<TAnimation>> animations,
         Func<TFrame, ushort> presentationKey,
         NativeEnemyProjectileCueRules<TEvent> rules,
-        Func<TFrame, ushort?>? reflectedPresentationKey = null)
+        Func<TFrame, ushort?>? reflectedPresentationKey = null,
+        IReadOnlyList<NativeNamedAnimationEntry<TAnimation>>? named = null)
         where TAnimation : struct, Enum
         where TFrame : struct
         where TEvent : notnull
@@ -174,46 +181,58 @@ internal static class NativeEnemyProjectileProgramOracle
         Ensure.NotNull(animations);
         Ensure.NotNull(presentationKey);
         Ensure.NotNull(rules);
+        named ??= [];
         string family = typeof(TAnimation).Name;
         VerificationAssertions.AssertTrue(lists.Zip(lists.Skip(1), (first, second) => first < second).All(ascends => ascends), $"native {family} lists ascend");
         var isList = new HashSet<ushort>(lists);
         VerificationAssertions.AssertTrue(entries.Keys.ToHashSet().SetEquals(animations.Keys), $"every {family} animation starts at a native list");
-        VerificationAssertions.AssertTrue(entries.Values.All(isList.Contains), $"every {family} starts at a native list's entry");
-        VerificationAssertions.AssertEqual(entries.Count, entries.Values.Distinct().Count(), $"no two {family} values start at one native list");
+        ushort[] starts = [.. entries.Values, .. named.Select(start => start.Entry)];
+        VerificationAssertions.AssertEqual(starts.Length, starts.Distinct().Count(), $"no two {family} values start at one native place");
         var played = new HashSet<ushort>();
         var counted = new HashSet<ushort>();
+        var pastLoopMarks = new HashSet<ushort>();
         var playedSegments = new HashSet<TAnimation>();
         foreach (TAnimation animation in animations.Keys)
         {
-            CompareAnimation(cartridge, isList, entries[animation], steps, animation, animations, presentationKey, rules,
-                reflectedPresentationKey, played, counted);
+            CompareAnimation(cartridge, isList, entries[animation], steps, animation.ToString(), animation, animations[animation], presentationKey, rules,
+                reflectedPresentationKey, played, counted, pastLoopMarks);
             playedSegments.UnionWith(animations[animation].Phases.Select(phase => phase.Segment));
         }
+        foreach (NativeNamedAnimationEntry<TAnimation> start in named)
+        {
+            CompareAnimation(cartridge, isList, start.Entry, steps, start.Name, opening: null, start.Animation, presentationKey, rules,
+                reflectedPresentationKey, played, counted, pastLoopMarks);
+            playedSegments.UnionWith(start.Animation.Phases.Select(phase => phase.Segment));
+        }
+        VerificationAssertions.AssertTrue(starts.All(entry => isList.Contains(entry) || pastLoopMarks.Contains(entry)),
+            $"every {family} starts at a native list's entry or just past a loop mark; neither: {string.Join(", ", starts.Where(entry => !isList.Contains(entry) && !pastLoopMarks.Contains(entry)).Select(entry => $"${entry:X4}"))}");
         VerificationAssertions.AssertTrue(played.SetEquals(lists),
             $"every native {family} list is played by some animation; unplayed: {string.Join(", ", lists.Except(played).Select(list => $"${list:X4}"))}");
         VerificationAssertions.AssertTrue(playedSegments.SetEquals(Enum.GetValues<TAnimation>()),
             $"every {family} segment is played by some animation; unplayed: {string.Join(", ", Enum.GetValues<TAnimation>().Except(playedSegments))}");
-        VerificationAssertions.AssertTrue(!entries.Values.Any(counted.Contains), $"no {family} starts in a counted list");
+        VerificationAssertions.AssertTrue(!starts.Any(counted.Contains), $"no {family} starts in a counted list");
         return Enum.GetValues<TAnimation>().Sum(segment => steps.Beats(segment).Count);
     }
 
     /// <summary>
-    /// Compares <paramref name="animation"/>, starting at the native list at <paramref name="start"/>, with the lists it
-    /// plays as <see cref="CompareByEntry{TAnimation, TFrame, TEvent}"/> does: the native runs are read against its phases'
-    /// segments' steps in phase order, and each phase must play its segment whole, as the run at its place. Records the
-    /// lists it plays and the lists a counted repeat replays.
+    /// Compares <paramref name="typed"/>, starting at the native place <paramref name="start"/>, with the lists it plays as
+    /// <see cref="CompareByEntry{TAnimation, TFrame, TEvent}"/> does: the native runs are read against its phases' segments'
+    /// steps in phase order, and each phase must play its segment whole, as the run at its place. A list that is a copy of
+    /// the one a repeated phase played before it, run on into straight after it, is another play of that phase (#2411).
+    /// Records the lists it plays, the lists a counted repeat replays and the places just past each loop mark's goto. An
+    /// animation keyed by a segment must start at that <c>opening</c> segment; one started by its own name has none.
     /// </summary>
     private static void CompareAnimation<TAnimation, TFrame, TEvent>(
-        IImportCartridgeSource cartridge, IReadOnlySet<ushort> isList, ushort start, AnimationSegments<TAnimation, TFrame, TEvent> steps,
-        TAnimation animation, IReadOnlyDictionary<TAnimation, Animation<TAnimation>> animations, Func<TFrame, ushort> presentationKey,
-        NativeEnemyProjectileCueRules<TEvent> rules, Func<TFrame, ushort?>? reflectedPresentationKey, HashSet<ushort> played, HashSet<ushort> counted)
+        IImportCartridgeSource cartridge, HashSet<ushort> isList, ushort start, AnimationSegments<TAnimation, TFrame, TEvent> steps,
+        string animation, TAnimation? opening, Animation<TAnimation> typed, Func<TFrame, ushort> presentationKey,
+        NativeEnemyProjectileCueRules<TEvent> rules, Func<TFrame, ushort?>? reflectedPresentationKey, HashSet<ushort> played, HashSet<ushort> counted,
+        HashSet<ushort> pastLoopMarks)
         where TAnimation : struct, Enum
         where TFrame : struct
         where TEvent : notnull
     {
-        VerificationAssertions.AssertTrue(animations.TryGetValue(animation, out Animation<TAnimation>? typed), $"{animation} has its animation");
         // The steps the animation plays, each phase's segment in turn, which the native runs are read against.
-        AnimationBeat<TFrame, TEvent>[] beats = [.. typed!.Phases.SelectMany(phase => steps.Beats(phase.Segment))];
+        AnimationBeat<TFrame, TEvent>[] beats = [.. typed.Phases.SelectMany(phase => steps.Beats(phase.Segment))];
         var phases = new List<AnimationPhase<TAnimation>>();
         var entered = new Dictionary<ushort, int> { [start] = 0 };
         // Where the play reached a beat a goto in its own list loops back to (#2166).
@@ -224,16 +243,33 @@ internal static class NativeEnemyProjectileProgramOracle
         AnimationEnd? end = null;
         while (end is null)
         {
-            played.Add(list);
-            NativeProjectileList read = ReadList(cartridge, isList.Contains, beats, offset, presentationKey, rules, reflectedPresentationKey,
-                animation.ToString(), list);
+            if (isList.Contains(list))
+                played.Add(list);
+            // A list run on into straight after a run its typed phase plays more often than the lists so far played it is
+            // a copy of that run: another play of the phase, read against its steps again (#2411).
+            int? copyOf = phases.Count > 0 && plays == 1 && phases.Count <= typed.Phases.Count
+                && phases[^1].Plays < typed.Phases[phases.Count - 1].Plays ? phases.Count - 1 : null;
+            NativeProjectileList read = ReadList(cartridge, isList.Contains, beats, copyOf is { } copied ? phases[copied].FirstBeat : offset,
+                presentationKey, rules, reflectedPresentationKey, animation, list);
+            if (read.PastLoopMark is { } pastMark)
+                pastLoopMarks.Add(pastMark);
             int runStart = 0;
             ushort? next = null;
             foreach (NativeProjectileControl control in read.Controls)
             {
                 if (control.AfterBeat > runStart)
                 {
-                    phases.Add(new(animation, offset + runStart, control.AfterBeat - runStart, plays));
+                    if (copyOf is { } copy)
+                    {
+                        VerificationAssertions.AssertTrue(runStart == 0 && control.AfterBeat == phases[copy].BeatCount,
+                            $"{animation}'s native list ${list:X4} is a whole copy of the run its phase {copy} plays");
+                        phases[copy] = phases[copy] with { Plays = phases[copy].Plays + 1 };
+                    }
+                    else
+                    {
+                        phases.Add(new(phases.Count < typed.Phases.Count ? typed.Phases[phases.Count].Segment : default, offset + runStart,
+                            control.AfterBeat - runStart, plays));
+                    }
                 }
                 runStart = control.AfterBeat;
                 plays = 1;
@@ -281,12 +317,14 @@ internal static class NativeEnemyProjectileProgramOracle
                 }
                 break;
             }
-            offset += read.BeatAddresses.Length;
+            if (copyOf is null)
+                offset += read.BeatAddresses.Length;
             if (end is null)
                 list = next ?? throw new InvalidDataException($"{animation}'s native list ${list:X4} neither ends nor continues.");
         }
         VerificationAssertions.AssertEqual(phases.Count, typed.Phases.Count, $"{animation} plays its native lists' runs from ${start:X4}");
-        VerificationAssertions.AssertEqual(animation, typed.Phases[0].Segment, $"{animation} starts at its own segment");
+        if (opening is { } own)
+            VerificationAssertions.AssertEqual(own, typed.Phases[0].Segment, $"{animation} starts at its own segment");
         int first = 0;
         for (int index = 0; index < phases.Count; index++)
         {
@@ -326,8 +364,8 @@ internal static class NativeEnemyProjectileProgramOracle
     /// Reads the native list at <paramref name="entry"/>, one of the lists <paramref name="isList"/> names, comparing each of
     /// its beats with the typed beat at its place, from <paramref name="firstBeat"/> on: each beat's native address, and each
     /// control instruction with its address, the list's beat it follows and the list it names. A list ends where the next
-    /// list begins (running on into it), at a sleep or goto, where routine code follows it, or at a cue that always
-    /// continues elsewhere.
+    /// list begins (running on into it), at a sleep or goto, where routine code follows it, at a cue that always continues
+    /// elsewhere, or at a loop mark, whose native conditional goto loops its run while its owner waits (#2411).
     /// </summary>
     private static NativeProjectileList ReadList<TFrame, TEvent>(
         IImportCartridgeSource cartridge, Func<ushort, bool> isList, IReadOnlyList<AnimationBeat<TFrame, TEvent>> beats, int firstBeat,
@@ -447,15 +485,17 @@ internal static class NativeEnemyProjectileProgramOracle
             }
             VerificationAssertions.AssertTrue(rules.OperandBytes(word) is not null, $"{at}: native command ${word:X4} is known");
             int count = rules.OperandBytes(word) ?? 0;
-            var raised = VerificationAssertions.AssertIs<AnimationBeat<TFrame, TEvent>.Event>(Next("command"), $"{at}: command");
+            TEvent raised = RaisedBy(Next("command"), $"{at}: command");
             byte[] operands = [.. Enumerable.Range(0, count).Select(item => LittleEndianBytes.LowByte(cartridge.ReadCartridgeWord(address + 2 + item)))];
-            rules.CompareCue(word, operands, raised.Raised, at);
-            if (rules.Replays?.Invoke(raised.Raised) == true)
+            rules.CompareCue(word, operands, raised, at);
+            if (rules.LoopMarks?.Invoke(raised) == true)
             {
-                // A replay continues at the first step of the run it is in, which is its list's entry, as the native
-                // conditional goto to its own list does.
-                VerificationAssertions.AssertEqual(entry, operand, $"{at}: a replay's operand is its own list");
-                VerificationAssertions.AssertEqual(0, controls.Count, $"{at}: a replayed run begins its list");
+                // A loop mark ends the run its animation loops on, which begins its list, as the native conditional goto to
+                // its own list replays it while its condition holds; the owner's next animation starts just past the goto.
+                VerificationAssertions.AssertEqual(entry, operand, $"{at}: a loop mark's operand is its own list");
+                VerificationAssertions.AssertEqual(0, controls.Count, $"{at}: a looped run begins its list");
+                controls.Add(new(NativeEnemyControlKind.Goto, addresses.Count, entry, null, cursor));
+                return new NativeProjectileList([.. addresses], [.. controls], unchecked((ushort)(cursor + 2 + count)));
             }
             if (rules.ShowsFrame?.Invoke(word) == true)
             {
@@ -468,7 +508,7 @@ internal static class NativeEnemyProjectileProgramOracle
                 VerificationAssertions.AssertEqual(count == 4 ? rules.FrameOperand(unchecked((ushort)(cursor + 4))) : null, reflected(flicker.Shown), $"{at}: flicker reflected presentation key");
             }
             cursor = unchecked((ushort)(cursor + 2 + count));
-            if (rules.EndsList?.Invoke(raised.Raised) != true)
+            if (rules.EndsList?.Invoke(raised) != true)
                 continue;
             // A cue that always continues elsewhere ends its list: the animation holds there.
             controls.Add(new(NativeEnemyControlKind.Sleep, addresses.Count, null, null, cursor));
@@ -486,10 +526,24 @@ internal static class NativeEnemyProjectileProgramOracle
         where TProgram : struct, Enum =>
         entries.Single(item => EqualityComparer<TProgram>.Default.Equals(item.Program, program)).Entry;
 
-    /// <summary>One native list as read: each beat's address, and each control instruction.</summary>
+    /// <summary>
+    /// The event a typed beat raises where its native list holds a command: an event's, or a marker's (#2301, #2411), which
+    /// raises its moment as an event does.
+    /// </summary>
+    private static TEvent RaisedBy<TFrame, TEvent>(AnimationBeat<TFrame, TEvent> beat, string at)
+        where TFrame : struct
+        where TEvent : notnull => beat switch
+        {
+            AnimationBeat<TFrame, TEvent>.Event raised => raised.Raised,
+            AnimationBeat<TFrame, TEvent>.Marker marked => marked.Raised,
+            _ => throw new InvalidOperationException($"Verification failed: {at}: an event or a marker (found {beat})."),
+        };
+
+    /// <summary>One native list as read: each beat's address, each control instruction, and where a loop mark's goto ends.</summary>
     /// <param name="BeatAddresses">Each beat's native address, in order.</param>
     /// <param name="Controls">Each control instruction, in order.</param>
-    private sealed record NativeProjectileList(ushort[] BeatAddresses, NativeProjectileControl[] Controls);
+    /// <param name="PastLoopMark">The native place just past the loop mark's goto ending the list, where the owner's next animation starts; null when none ends it.</param>
+    private sealed record NativeProjectileList(ushort[] BeatAddresses, NativeProjectileControl[] Controls, ushort? PastLoopMark = null);
 
     /// <summary>One control instruction of a native list, naming the list it continues at by its entry.</summary>
     /// <param name="Kind">What it does.</param>

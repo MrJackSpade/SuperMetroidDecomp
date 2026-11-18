@@ -10,7 +10,7 @@ internal static class TorizoAnimationsAccess
     {
         /// <summary>The animation <paramref name="playback"/> plays, found by the animation itself.</summary>
         /// <exception cref="InvalidOperationException">The playback plays none of the body animations.</exception>
-        internal static TorizoAnimation Playing(AnimationPlayback<TorizoAnimation> playback) =>
+        internal static TorizoAnimation Playing(AnimationPlayback<TorizoBodySegment> playback) =>
             TorizoAnimations.StartingAt.Single(pair => ReferenceEquals(pair.Value, playback.Animation)).Key;
     }
 }

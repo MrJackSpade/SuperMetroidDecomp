@@ -219,7 +219,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!torizo.AnimationClock.Expire())
             return;
         TorizoEnemyState state = torizo.RequireSpeciesState<TorizoEnemyState>();
-        AnimationPlayback<TorizoAnimation> playback = state.BodyPlayback;
+        AnimationPlayback<TorizoBodySegment> playback = state.BodyPlayback;
         // The death and wake repeats count the body's frame timer, as the animations' counted loops do.
         EnemyAnimationPlayback.Play(torizo, TorizoAnimations.Segments, ref playback,
             (cue, continuation) => ApplyTorizoCue(torizo, state, inputs, cue, continuation));
@@ -239,12 +239,12 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// cue: the place in the walk an interruption keeps (#2028). <see cref="TorizoCueInputs.FrameCounter"/> is the frame
     /// counter, which both attack choosers add; only whether it lies in the second half of each sixteen-frame cycle survives.
     /// </summary>
-    internal AnimationContinuation<TorizoAnimation>? ApplyTorizoCue(
+    internal AnimationContinuation<TorizoBodySegment>? ApplyTorizoCue(
         RoomEnemyPlace torizo,
         TorizoEnemyState state,
         TorizoCueInputs inputs,
         TorizoCue cue,
-        AnimationPlayback<TorizoAnimation> continuation)
+        AnimationPlayback<TorizoBodySegment> continuation)
     {
         switch (cue)
         {
@@ -383,8 +383,11 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             case TorizoCue.Walk { Kind: TorizoWalkKind.WalkFacelessBombTorizo } walk:
                 return Choices.ProcessTorizoWalkStep(torizo, state, inputs.Samus, inputs.Level, TorizoWalkerDefinitions.FacelessBombTorizo, walk.Velocity);
 
-            case TorizoCue.Replay { Kind: TorizoReplayKind.WhileRising }:
-                return state.Velocity.Y.IsNegative ? TorizoAnimations.ReplayPhase(continuation) : null;
+            case TorizoCue.Signal { Kind: TorizoCueKind.LeapingPoseShown }:
+                // The jump holds its leaping pose while the Torizo rises; once it no longer rises, it falls in the fall its
+                // jump named.
+                return state.Velocity.Y.IsNegative ? null : TorizoAnimations.ContinueWith(state.Landing
+                    ?? throw new InvalidOperationException("A Torizo's rise ends in no fall its jump named."));
 
             case TorizoCue.Interrupt { Kind: TorizoInterruptKind.BombSwipeAtSamusBehind } interrupt:
                 return TorizoChoices.SelectBombTorizoCloseBehindBranch(
@@ -434,8 +437,9 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 PlayTorizoSound(EnemySound.ChozoFootsteps);
                 return null;
 
-            case TorizoCue.Replay { Kind: TorizoReplayKind.WhileAirborne }:
-                return torizo.Position.Y.Whole == TorizoDecisionDefinitions.GoldenFloorY ? null : TorizoAnimations.ReplayPhase(continuation);
+            case TorizoCue.Signal { Kind: TorizoCueKind.DroppingPoseShown }:
+                // The waking Golden Torizo holds its half-risen pose while it drops; on its floor, it settles.
+                return torizo.Position.Y.Whole == TorizoDecisionDefinitions.GoldenFloorY ? TorizoAnimations.ContinueWith(TorizoAnimation.GoldenTorizoSettling) : null;
 
             case TorizoCue.Signal { Kind: TorizoCueKind.FadeToGoldenColors }:
                 SetTorizoFadeTarget(state, TorizoLookKind.Golden);
@@ -455,8 +459,9 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 Attacks.SpawnGoldenTorizoEgg(torizo);
                 return null;
 
-            case TorizoCue.Replay { Kind: TorizoReplayKind.WhileEggsRemain }:
-                return state.EggsRemain() ? TorizoAnimations.ReplayPhase(continuation) : null;
+            case TorizoCue.Signal { Kind: TorizoCueKind.ChestHeldOpen }:
+                // Golden Torizo holds its chest open while any of its eggs remains; once they are gone, it closes it.
+                return state.EggsRemain() ? null : TorizoAnimations.ContinueWith(TorizoAnimation.GoldenChestClosing);
 
             case TorizoCue.Signal { Kind: TorizoCueKind.DisableEyeBeamExplosions }:
                 state.EyeBeamExplosionsEnabled = false;

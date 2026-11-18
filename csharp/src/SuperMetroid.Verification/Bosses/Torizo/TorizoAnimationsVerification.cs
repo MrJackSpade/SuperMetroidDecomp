@@ -103,44 +103,62 @@ internal static class TorizoAnimationsVerification
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         AssertTrue(BodyLists.Zip(BodyLists.Skip(1), (first, second) => first < second).All(ascends => ascends), "native Torizo body lists ascend");
-        AssertTrue(AnimationEntries.Keys.ToHashSet().SetEquals(TorizoAnimations.StartingAt.Keys), "every Torizo body animation starts at a native list");
-        AssertTrue(AnimationEntries.Values.All(IsBodyList), "every Torizo body animation starts at a native list's entry");
-        AssertEqual(AnimationEntries.Count, AnimationEntries.Values.Distinct().Count(), "no two Torizo body animations start at one native list");
-        Dictionary<ushort, BodyList> lists = BodyLists.ToDictionary(entry => entry, entry => ReadBodyList(cartridge, entry));
+        AssertTrue(AnimationEntries.Keys.ToHashSet().SetEquals(TorizoAnimations.StartingAt.Keys), "every Torizo body animation starts at a native place");
+        AssertEqual(AnimationEntries.Count, AnimationEntries.Values.Distinct().Count(), "no two Torizo body animations start at one native place");
+        // Each list is read from its entry, and each animation an owner starts past a loop mark from the place it starts at.
+        Dictionary<ushort, BodyList> lists = BodyLists.Concat(AnimationEntries.Values.Where(entry => !IsBodyList(entry)))
+            .ToDictionary(entry => entry, entry => ReadBodyList(cartridge, entry));
         var played = new HashSet<ushort>();
-        var playedSegments = new HashSet<TorizoAnimation>();
+        var playedSegments = new HashSet<TorizoBodySegment>();
+        var pastLoopMarks = new HashSet<ushort>();
         foreach (TorizoAnimation animation in TorizoAnimations.StartingAt.Keys)
-            CompareAnimation(cartridge, lists, animation, played, playedSegments);
+            CompareAnimation(cartridge, lists, animation, played, playedSegments, pastLoopMarks);
+        AssertTrue(AnimationEntries.Values.All(entry => IsBodyList(entry) || pastLoopMarks.Contains(entry)),
+            $"every Torizo body animation starts at a native list's entry or just past a loop mark; neither: {string.Join(", ", AnimationEntries.Values.Where(entry => !IsBodyList(entry) && !pastLoopMarks.Contains(entry)).Select(entry => $"${entry:X4}"))}");
         AssertTrue(played.SetEquals(BodyLists), $"every native Torizo body list is played by some animation; unplayed: {string.Join(", ", BodyLists.Except(played).Select(list => $"${list:X4}"))}");
-        AssertTrue(playedSegments.SetEquals(Enum.GetValues<TorizoAnimation>()),
-            $"every Torizo body segment is played by some animation; unplayed: {string.Join(", ", Enum.GetValues<TorizoAnimation>().Except(playedSegments))}");
-        int steps = Enum.GetValues<TorizoAnimation>().Sum(segment => TorizoAnimations.Segments.Beats(segment).Count);
+        AssertTrue(playedSegments.SetEquals(Enum.GetValues<TorizoBodySegment>()),
+            $"every Torizo body segment is played by some animation; unplayed: {string.Join(", ", Enum.GetValues<TorizoBodySegment>().Except(playedSegments))}");
+        int steps = Enum.GetValues<TorizoBodySegment>().Sum(segment => TorizoAnimations.Segments.Beats(segment).Count);
         VerifyResumedSleeps(cartridge, lists);
         VerifyContinuations(cartridge, lists);
         var poses = new HashSet<ushort>(TorizoAnimations.Segments.Frames.Select(TorizoFrameDefinitionsConstants.Spritemap));
         AssertEqual(TorizoFrameDefinitionsConstants.PoseCount, poses.Count, "every Torizo pose shows a distinct spritemap");
-        AssertTrue(poses.SetEquals(TorizoAnimationsConstants.Spritemaps(TorizoAnimationsConstants.AllAnimations)), "the body animations show every Torizo pose");
+        AssertTrue(poses.SetEquals(TorizoAnimationsConstants.Spritemaps(TorizoAnimationsConstants.AllSegments)), "the body animations show every Torizo pose");
         AssertTrue(poses.SetEquals(TorizoCollisionDefinitions.FramePointers), "every Torizo pose has its physical frame");
-        Console.WriteLine($"  Torizo animations: {AnimationEntries.Count} animations ({Enum.GetValues<TorizoAnimation>().Length} segments, {steps} steps, {poses.Count} poses) play all {BodyLists.Length} bank-$AA lists as the cartridge does.");
+        Console.WriteLine($"  Torizo animations: {AnimationEntries.Count} animations ({Enum.GetValues<TorizoBodySegment>().Length} segments, {steps} steps, {poses.Count} poses) play all {BodyLists.Length} bank-$AA lists as the cartridge does.");
     }
+
+    /// <summary>
+    /// The animation each loop mark's owner starts once the Torizo's state has changed (#2411), as the owner names it: Golden
+    /// Torizo's settling once it is on its floor, its chest's closing once its eggs are gone. A jump's rise ends in the fall
+    /// its lead names instead.
+    /// </summary>
+    private static readonly Dictionary<TorizoCueKind, TorizoAnimation> LoopMarkContinuations = new()
+    {
+        [TorizoCueKind.DroppingPoseShown] = TorizoAnimation.GoldenTorizoSettling,
+        [TorizoCueKind.ChestHeldOpen] = TorizoAnimation.GoldenChestClosing,
+    };
 
     /// <summary>
     /// Compares <paramref name="animation"/> with the native lists it plays (#2235): its phases, each playing one segment
     /// whole, with the runs and plays of the lists' control flow from its entry, each segment's steps with the native beats
-    /// of the run its phase plays, and its end. A segment several animations play is compared with each run it plays.
+    /// of the run its phase plays, and its end. A segment several animations play is compared with each run it plays. An
+    /// animation that loops on a run ending in a loop mark (#2411) must be continued, once its owner's condition ends, in the
+    /// animation that starts just past the mark's native goto: the fall a jump's lead names, or the one its owner names.
     /// </summary>
     private static void CompareAnimation(IImportCartridgeSource cartridge, Dictionary<ushort, BodyList> lists, TorizoAnimation animation,
-        HashSet<ushort> played, HashSet<TorizoAnimation> playedSegments)
+        HashSet<ushort> played, HashSet<TorizoBodySegment> playedSegments, HashSet<ushort> pastLoopMarks)
     {
         (List<NativePhase> native, AnimationEnd end) = Linearize(lists, Entry(animation));
-        Animation<TorizoAnimation> typed = TorizoAnimations.StartingWith(animation);
+        Animation<TorizoBodySegment> typed = TorizoAnimations.StartingWith(animation);
         AssertEqual(native.Count, typed.Phases.Count, $"{animation} plays its native lists' runs");
-        AssertEqual(animation, typed.Phases[0].Segment, $"{animation} starts at its own segment");
         // The posture the animation's last step cue left, which its decisions' targets follow (#2175).
         TorizoPosture? posture = null;
+        // The fall or landing the animation's last such cue named, which a jump's rise ends in (#2411).
+        TorizoAnimation? landing = null;
         for (int index = 0; index < native.Count; index++)
         {
-            AnimationPhase<TorizoAnimation> phase = typed.Phases[index];
+            AnimationPhase<TorizoBodySegment> phase = typed.Phases[index];
             NativePhase run = native[index];
             string at = $"Torizo {animation} phase {index} ({phase.Segment})";
             IReadOnlyList<AnimationBeat<EnemyFrameId, TorizoCue>> steps = TorizoAnimations.Segments.Beats(phase.Segment);
@@ -153,12 +171,26 @@ internal static class TorizoAnimationsVerification
                 AnimationBeat<EnemyFrameId, TorizoCue> step = steps[beat];
                 if (step is AnimationBeat<EnemyFrameId, TorizoCue>.Event { Raised: TorizoCue.Stepped stepped })
                     posture = TorizoPosture.AfterStep(stepped.Direction, stepped.Foot);
+                if (step is AnimationBeat<EnemyFrameId, TorizoCue>.Event { Raised: TorizoCue.LandIn landIn })
+                    landing = landIn.Landing;
                 CompareBeat(cartridge, run, lists[run.List].Beats[run.FirstBeat + beat], step, posture, $"{at} step {beat}");
             }
-            played.Add(run.List);
+            if (IsBodyList(run.List))
+                played.Add(run.List);
             playedSegments.Add(phase.Segment);
         }
         AssertEqual(end, typed.End, $"{animation}'s end follows its native lists");
+        if (end is not AnimationEnd.Loop { Phase: var cycle } || TorizoAnimations.Segments.Beats(typed.Phases[cycle].Segment)[^1]
+                is not AnimationBeat<EnemyFrameId, TorizoCue>.Marker { Raised: TorizoCue.Signal { Kind: var mark } })
+            return;
+        // The looped run ends in its mark's native goto, which begins the next place the owner continues at.
+        NativePhase looped = native[cycle];
+        ushort past = unchecked((ushort)(lists[looped.List].Beats[looped.FirstBeat + looped.BeatCount - 1].Address + 4));
+        pastLoopMarks.Add(past);
+        TorizoAnimation continuation = mark == TorizoCueKind.LeapingPoseShown
+            ? landing ?? throw new InvalidDataException($"Torizo {animation} rises without naming the fall its rise ends in.")
+            : LoopMarkContinuations[mark];
+        AssertEqual(past, Entry(continuation), $"Torizo {animation}'s {mark} continues in {continuation}, just past its native goto");
     }
 
     /// <summary>
@@ -213,7 +245,12 @@ internal static class TorizoAnimationsVerification
                     $"{at}: the callback's sleep length");
                 return;
             case BodyBeatKind.Instruction:
-                CompareInstruction(cartridge, run, address, AssertIs<AnimationBeat<EnemyFrameId, TorizoCue>.Event>(step, $"{at}: instruction").Raised, posture, at);
+                // A loop mark is a marker, raised as an event is (#2301, #2411); every other instruction is an event.
+                CompareInstruction(cartridge, run, address, step switch
+                {
+                    AnimationBeat<EnemyFrameId, TorizoCue>.Marker marked when LoopMarkInstructions.Contains(word) => marked.Raised,
+                    _ => AssertIs<AnimationBeat<EnemyFrameId, TorizoCue>.Event>(step, $"{at}: instruction").Raised,
+                }, posture, at);
                 return;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(BodyBeatKind)} {beat.Kind}.");
@@ -390,6 +427,15 @@ internal static class TorizoAnimationsVerification
                 {
                     AssertTrue(BodyInstructions.TryGetValue(word, out TorizoNativeListAddressesBodyInstruction instruction), $"{at}: native instruction ${word:X4} is known");
                     beats.Add(new(cursor, BodyBeatKind.Instruction));
+                    if (LoopMarkInstructions.Contains(word))
+                    {
+                        // A loop mark's conditional goto to its own list loops the run that begins it (#2411): the typed
+                        // animation loops on the run, and the owner's next animation starts past the goto, read on its own.
+                        AssertEqual(entry, operand, $"{at}: a loop mark's operand is its own list");
+                        AssertEqual(0, controls.Count, $"{at}: a looped run begins its list");
+                        controls.Add(new(NativeEnemyControlKind.Goto, beats.Count, entry, null));
+                        break;
+                    }
                     cursor = unchecked((ushort)(cursor + 2 + 2 * instruction.Operands.Length));
                     // Two callbacks sleep after they run; every other callback runs straight on.
                     if (instruction.Cue.Matches(new TorizoCue.LowHealthExplosions(BombTorizoExplosionSite.Gut)))
@@ -466,11 +512,14 @@ internal static class TorizoAnimationsVerification
                 TorizoAnimation called = AnimationAt(target)
                     ?? throw new InvalidDataException($"Torizo call at $AA:{beat.Address:X4} calls ${target:X4}, where no animation starts.");
                 string at = $"Torizo {called}, called at $AA:{beat.Address:X4}";
-                TorizoCue end = EndCue(called);
+                // An animation that loops on a marked run ends in the animation its owner continues it in (#2411).
+                TorizoAnimation ending = Ending(called);
+                TorizoCue end = EndCue(ending);
                 if (interrupts)
                 {
                     AssertEqual<TorizoCue>(new TorizoCue.Signal(TorizoCueKind.ResumeWalk), end, $"{at}: resumes the walk it interrupted");
                     resumers.Add(called);
+                    resumers.Add(ending);
                     continue;
                 }
                 var walkOn = AssertIs<TorizoCue.WalkOn>(end, $"{at}: walks on");
@@ -502,6 +551,16 @@ internal static class TorizoAnimationsVerification
         }
         Console.WriteLine($"  Torizo continuations: {calls} native calls; {resumers.Count} animations resume the walk, {walksOn.Count} walk on where the cartridge returned.");
     }
+
+    /// <summary>
+    /// The animation whose steps end <paramref name="animation"/>'s play: itself, or, for one that loops on a run ending in a
+    /// loop mark its owner continues by name (#2411), the animation the owner continues it in.
+    /// </summary>
+    private static TorizoAnimation Ending(TorizoAnimation animation) =>
+        LastStep(animation) is AnimationBeat<EnemyFrameId, TorizoCue>.Marker { Raised: TorizoCue.Signal { Kind: var mark } }
+            && LoopMarkContinuations.TryGetValue(mark, out TorizoAnimation continuation)
+            ? Ending(continuation)
+            : animation;
 
     /// <summary>The cue <paramref name="animation"/>'s steps end with: where an attack, a stagger or a blow-up continues.</summary>
     private static TorizoCue EndCue(TorizoAnimation animation) =>

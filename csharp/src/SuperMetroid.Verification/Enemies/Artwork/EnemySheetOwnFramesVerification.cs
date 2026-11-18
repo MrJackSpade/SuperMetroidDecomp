@@ -256,9 +256,12 @@ internal static class EnemySheetOwnFramesVerification
             TorizoAnimation.TurningRight, TorizoAnimation.FacingLeftFalling, TorizoAnimation.FacingRightFalling,
             TorizoAnimation.Dying,
         ];
+        // Golden Torizo's owner also settles it once its drop reaches the floor and closes its chest once its eggs are gone
+        // (#2411).
         TorizoAnimation[] goldenStarts =
         [
-            golden, TorizoAnimation.GoldenTorizoAwakening, TorizoAnimation.GoldenTurningLeft, TorizoAnimation.GoldenTurningRight,
+            golden, TorizoAnimation.GoldenTorizoAwakening, TorizoAnimation.GoldenTorizoSettling, TorizoAnimation.GoldenChestClosing,
+            TorizoAnimation.GoldenTurningLeft, TorizoAnimation.GoldenTurningRight,
             TorizoAnimation.GoldenDodgeTurningLeft, TorizoAnimation.GoldenDodgeTurningRight, TorizoAnimation.GoldenFacingLeftCatchingSuperMissileLeftLegForward,
             TorizoAnimation.GoldenFacingLeftCatchingSuperMissileRightLegForward, TorizoAnimation.GoldenFacingRightCatchingSuperMissileLeftLegForward,
             TorizoAnimation.GoldenFacingRightCatchingSuperMissileRightLegForward, TorizoAnimation.FacingLeftFalling, TorizoAnimation.FacingRightFalling,
@@ -267,8 +270,8 @@ internal static class EnemySheetOwnFramesVerification
         return new("Torizo", TorizoAnimations.Segments.Frames.ToHashSet(),
             new Dictionary<EnemyDefinitionId, IReadOnlySet<EnemyFrameId>>
             {
-                [EnemyDefinitionId.BombTorizo] = Reach(TorizoAnimations.Segments, TorizoAnimations.StartingAt, bombStarts, TorizoCueTargets),
-                [EnemyDefinitionId.GoldenTorizo] = Reach(TorizoAnimations.Segments, TorizoAnimations.StartingAt, goldenStarts, TorizoCueTargets),
+                [EnemyDefinitionId.BombTorizo] = ReachByName(TorizoAnimations.Segments, TorizoAnimations.StartingAt, static frame => frame, bombStarts, TorizoCueTargets),
+                [EnemyDefinitionId.GoldenTorizo] = ReachByName(TorizoAnimations.Segments, TorizoAnimations.StartingAt, static frame => frame, goldenStarts, TorizoCueTargets),
             });
     }
 
@@ -344,12 +347,25 @@ internal static class EnemySheetOwnFramesVerification
         Func<TEvent, IEnumerable<TSegment>>? eventTargets = null)
         where TSegment : struct, Enum
         where TFrame : struct
+        where TEvent : notnull => ReachByName(segments, startingAt, shownBy, starts, eventTargets);
+
+    /// <summary>
+    /// The frames the animations <paramref name="starts"/> name show, for a family whose animations are named apart from
+    /// their segments (#2399, #2411): every phase's frames, and those of the animations <paramref name="eventTargets"/> says an
+    /// event continues in.
+    /// </summary>
+    private static HashSet<EnemyFrameId> ReachByName<TStart, TSegment, TFrame, TEvent>(AnimationSegments<TSegment, TFrame, TEvent> segments,
+        IReadOnlyDictionary<TStart, Animation<TSegment>> startingAt, Func<TFrame, EnemyFrameId> shownBy, IEnumerable<TStart> starts,
+        Func<TEvent, IEnumerable<TStart>>? eventTargets = null)
+        where TStart : struct, Enum
+        where TSegment : struct, Enum
+        where TFrame : struct
         where TEvent : notnull
     {
-        var reached = new HashSet<TSegment>();
-        var pending = new Queue<TSegment>(starts);
+        var reached = new HashSet<TStart>();
+        var pending = new Queue<TStart>(starts);
         var shown = new HashSet<EnemyFrameId>();
-        while (pending.TryDequeue(out TSegment start))
+        while (pending.TryDequeue(out TStart start))
         {
             if (!reached.Add(start))
                 continue;
@@ -361,7 +377,7 @@ internal static class EnemySheetOwnFramesVerification
                         shown.Add(shownBy(frame));
                     else if (beat is AnimationBeat<TFrame, TEvent>.Event raised && eventTargets is not null)
                     {
-                        foreach (TSegment target in eventTargets(raised.Raised))
+                        foreach (TStart target in eventTargets(raised.Raised))
                             pending.Enqueue(target);
                     }
                 }

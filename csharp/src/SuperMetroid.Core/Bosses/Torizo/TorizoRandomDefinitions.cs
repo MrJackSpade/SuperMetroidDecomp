@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Animation;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 
@@ -46,20 +47,22 @@ internal static class TorizoRandomDefinitions
     internal static readonly RandomSampleField InitialDroolXJitter = new(0, 2);
 
     /// <summary>
-    /// The low-health drool's delay choice, 0 through 7 of the eight choices that repeat the no-delay,
-    /// two-frame and four-frame drool animations.
+    /// The low-health drool's delay choice, 0 through 7 of the eight choices that repeat the drools released at once and
+    /// formed for two and for four updates.
     /// </summary>
     internal static readonly RandomSampleField LowHealthDroolDelay = new(2, 3);
 
     /// <summary>
-    /// The drool each <see cref="LowHealthDroolDelay"/> entry starts, in entry order: the no-delay, two-frame and
-    /// four-frame drools in turn, so the first two kinds are each drawn three times in eight and the last twice.
+    /// The drool each <see cref="LowHealthDroolDelay"/> entry starts, in entry order: the drools released at once, formed for
+    /// two updates and formed for four in turn, so the first two kinds are each drawn three times in eight and the last twice.
     /// </summary>
-    internal static readonly TorizoProjectileSegment[] LowHealthDroolAnimations =
+    internal static readonly Animation<TorizoProjectileSegment>[] LowHealthDroolAnimations =
     [
-        TorizoProjectileSegment.DroolNoDelay, TorizoProjectileSegment.DroolTwoFrameDelay, TorizoProjectileSegment.DroolFourFrameDelay,
-        TorizoProjectileSegment.DroolNoDelay, TorizoProjectileSegment.DroolTwoFrameDelay, TorizoProjectileSegment.DroolFourFrameDelay,
-        TorizoProjectileSegment.DroolNoDelay, TorizoProjectileSegment.DroolTwoFrameDelay,
+        TorizoProjectileAnimations.StartingWith(TorizoProjectileSegment.DroolNoDelay), TorizoProjectileAnimations.DroolFormingForTwoUpdates,
+        TorizoProjectileAnimations.DroolFormingForFourUpdates,
+        TorizoProjectileAnimations.StartingWith(TorizoProjectileSegment.DroolNoDelay), TorizoProjectileAnimations.DroolFormingForTwoUpdates,
+        TorizoProjectileAnimations.DroolFormingForFourUpdates,
+        TorizoProjectileAnimations.StartingWith(TorizoProjectileSegment.DroolNoDelay), TorizoProjectileAnimations.DroolFormingForTwoUpdates,
     ];
 
     /// <summary>Whether a sonic boom flies high, twelve pixels above Torizo's Y rather than twenty below: taken by an odd sample.</summary>

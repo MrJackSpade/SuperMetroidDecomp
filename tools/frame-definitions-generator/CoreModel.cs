@@ -281,7 +281,7 @@ internal sealed class CoreModel
 
     /// <summary>
     /// The initializer of <paramref name="member"/>, followed by the initializer of every dictionary member it spreads in, in
-    /// the order spread, as <c>TorizoAnimations.Segments</c> joins four tables of segments.
+    /// the order spread, as <c>TorizoAnimations.Segments</c> joins three tables of segments.
     /// </summary>
     public List<ExpressionSyntax> InitializersWithSpreads(ISymbol member)
     {

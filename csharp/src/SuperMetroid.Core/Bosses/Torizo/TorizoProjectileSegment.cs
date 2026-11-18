@@ -17,10 +17,12 @@ internal enum TorizoProjectileSegment
     DeathExplosionBurst,
     /// <summary>A death explosion's smoke puff: it twice returns to its origin, scatters and plays its four poses, then is deleted.</summary>
     DeathSmoke,
-    /// <summary>Bomb Torizo's drool, forming for four updates: the drop's forming poses, then <see cref="DroolNoDelay"/>'s release and fall.</summary>
-    DroolFourFrameDelay,
-    /// <summary>Bomb Torizo's drool, forming for two updates: the drop's last forming pose, then <see cref="DroolNoDelay"/>'s release and fall.</summary>
-    DroolTwoFrameDelay,
+    /// <summary>
+    /// Bomb Torizo's drool forming, unseen for two updates: a drool that forms plays it once or twice before
+    /// <see cref="DroolNoDelay"/>'s release and fall (<see cref="TorizoProjectileAnimations.DroolFormingForTwoUpdates"/>,
+    /// <see cref="TorizoProjectileAnimations.DroolFormingForFourUpdates"/>).
+    /// </summary>
+    DroolForming,
     /// <summary>Bomb Torizo's drool released at once: it starts falling, harmless, then shows its falling pose for good.</summary>
     DroolNoDelay,
     /// <summary>A released drool drop's falling pose, held while it falls.</summary>
@@ -108,12 +110,14 @@ internal enum TorizoProjectileSegment
     /// <summary>The eye beam bursting on a wall: it stops, plays its five poses, then is deleted.</summary>
     EyeBeamWallImpact,
     /// <summary>
-    /// The eye beam reaching the floor: it stops and sparks, sparking again while Golden Torizo's eye-beam explosions are
-    /// disabled, then explodes and is deleted.
+    /// The eye beam reaching the floor: it stops and waits unseen in <see cref="EyeBeamFloorImpactWaiting"/> until Golden
+    /// Torizo's eye-beam explosions are enabled, then bursts into <see cref="EyeBeamFloorFlames"/>.
     /// </summary>
     EyeBeamFloorImpact,
-    /// <summary>The eye beam's floor impact sparking, again while Golden Torizo's eye-beam explosions are disabled, then exploding and deleted.</summary>
-    EyeBeamFloorImpactFlames,
+    /// <summary>The eye beam's floor impact waits unseen for eight updates, then marks its wait over, again while Golden Torizo's eye-beam explosions are disabled.</summary>
+    EyeBeamFloorImpactWaiting,
+    /// <summary>The eye beam's floor impact bursts into flames: its impact sound and six flame poses, harmful from its third, then deletion.</summary>
+    EyeBeamFloorFlames,
     /// <summary>The eye beam in flight: its five poses, for good.</summary>
     EyeBeam,
     /// <summary>A projectile deleting itself: the end of an explosion's or a burst's repeated run.</summary>

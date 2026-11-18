@@ -512,10 +512,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
                 GunshipLiftoffDust.SpawnCloud(_projectiles, cloud, samus);
         }
         if (State(top).RumbleFrame >= GunshipTakeoffDefinitions.EngineRumbleFrames)
-        {
             State(top).Phase = GunshipPhase.SteadyLiftoff;
-            State(top).PhaseTimer = 0;
-        }
     }
 
     /// <summary>Runs constant two-pixel liftoff.</summary>

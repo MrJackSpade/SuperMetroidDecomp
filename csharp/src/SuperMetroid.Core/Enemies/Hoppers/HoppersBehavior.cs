@@ -32,7 +32,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Carries out one cue of the hoppers' animations.</summary>
-    private HopperSegment? ApplyHopperCue(RoomEnemyPlace place, HopperEnemyState state, HopperCue cue)
+    private void ApplyHopperCue(RoomEnemyPlace place, HopperEnemyState state, HopperCue cue)
     {
         switch (cue)
         {
@@ -51,7 +51,6 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
             default:
                 throw new InvalidOperationException($"Undefined hopper cue {cue}.");
         }
-        return null;
     }
 
     /// <summary>Initializes the Hopper.</summary>
@@ -246,9 +245,11 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         HopperEnemyState state = place.RequireSpeciesState<HopperEnemyState>();
         AnimationPlayback<HopperSegment> playback = state.Playback;
         EnemyAnimationPlayback.Play(place, HopperAnimations.Segments, ref playback,
-            cue => ApplyHopperCue(place, state, cue) is { } target
-                ? new AnimationContinuation<HopperSegment>(HopperAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
-                : null);
+            cue =>
+            {
+                ApplyHopperCue(place, state, cue);
+                return null;
+            });
         state.Playback = playback;
     }
 }

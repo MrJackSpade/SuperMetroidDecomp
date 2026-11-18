@@ -7,6 +7,6 @@ internal static class PlatformAnimationChoices
     /// The animation for the platform's motion and direction: vertical motion selects the moving animations, horizontal
     /// motion the still ones, each facing the way the platform moves.
     /// </summary>
-    internal static PlatformSegment SelectAnimation(bool isSuspensorPlatform, Axis axis, HorizontalDirection direction) =>
-        PlatformAnimationDefinitions.Animations[new PlatformPose(isSuspensorPlatform, axis, direction)];
+    internal static PlatformSegment SelectAnimation(PlatformKind kind, Axis axis, HorizontalDirection direction) =>
+        PlatformAnimationDefinitions.Animations[new PlatformPose(kind, axis, direction)];
 }

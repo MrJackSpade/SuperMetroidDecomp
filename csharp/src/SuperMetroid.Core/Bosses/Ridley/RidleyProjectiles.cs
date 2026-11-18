@@ -125,18 +125,11 @@ internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFi
         EnemyProjectile? center = _projectiles.AllocateEnemyProjectile();
         if (center is null)
             return;
-        if (pairAxis == Axis.Horizontal)
-        {
-            EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(center, RoomEnemyProjectileKind.RidleyHorizontalAfterburnCenter,
-                Fireballs, FireballGraphics);
-            center.StartAnimation(new RidleyFireballAnimation(RidleyFireballSegment.HorizontalCenter));
-        }
-        else
-        {
-            EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(center, RoomEnemyProjectileKind.RidleyVerticalAfterburnCenter,
-                Fireballs, FireballGraphics);
-            center.StartAnimation(new RidleyFireballAnimation(RidleyFireballSegment.VerticalCenter));
-        }
+        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(center, RoomEnemyProjectileKind.RidleyAfterburnCenter,
+            Fireballs, FireballGraphics);
+        // The centre's animation raises the spawn of the pair along its axis.
+        center.StartAnimation(new RidleyFireballAnimation(
+            pairAxis == Axis.Horizontal ? RidleyFireballSegment.HorizontalCenter : RidleyFireballSegment.VerticalCenter));
         center.Position = center.Position.WithWhole(position);
         // The afterburn's centre starts at rest; a new projectile otherwise keeps the velocity its place last held.
         center.Velocity = EightEightVector<RoomPixels>.Zero;
@@ -148,17 +141,20 @@ internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFi
     {
         if (axis == Axis.Horizontal)
         {
-            SpawnDirectionalAfterburn(center, RoomEnemyProjectileKind.RidleyHorizontalAfterburnRight, RidleyAfterburnDefinitions.Right);
-            SpawnDirectionalAfterburn(center, RoomEnemyProjectileKind.RidleyHorizontalAfterburnLeft, RidleyAfterburnDefinitions.Left);
+            SpawnDirectionalAfterburn(center, RoomEnemyProjectileKind.RidleyHorizontalAfterburn, RidleyAfterburnDefinitions.Right);
+            SpawnDirectionalAfterburn(center, RoomEnemyProjectileKind.RidleyHorizontalAfterburn, RidleyAfterburnDefinitions.Left);
         }
         else
         {
-            SpawnDirectionalAfterburn(center, RoomEnemyProjectileKind.RidleyVerticalAfterburnUp, RidleyAfterburnDefinitions.Up);
-            SpawnDirectionalAfterburn(center, RoomEnemyProjectileKind.RidleyVerticalAfterburnDown, RidleyAfterburnDefinitions.Down);
+            SpawnDirectionalAfterburn(center, RoomEnemyProjectileKind.RidleyVerticalAfterburn, RidleyAfterburnDefinitions.Up);
+            SpawnDirectionalAfterburn(center, RoomEnemyProjectileKind.RidleyVerticalAfterburn, RidleyAfterburnDefinitions.Down);
         }
     }
 
-    /// <summary>Spawns a directional afterburn of <paramref name="kind"/> at <paramref name="source"/>, flying at <paramref name="velocity"/>, with the afterburns its source's chain has left.</summary>
+    /// <summary>
+    /// Spawns a directional afterburn of <paramref name="kind"/>, horizontal or vertical, at <paramref name="source"/>,
+    /// flying at <paramref name="velocity"/>, which holds the way it flies, with the afterburns its source's chain has left.
+    /// </summary>
     internal void SpawnDirectionalAfterburn(
         EnemyProjectile source,
         RoomEnemyProjectileKind kind,
@@ -210,12 +206,9 @@ internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFi
     private static readonly Dictionary<RoomEnemyProjectileKind, RidleyFireballMotion?> StartingMotions = new()
     {
         [RoomEnemyProjectileKind.RidleyFireball] = RidleyFireballMotion.FireballFlying,
-        [RoomEnemyProjectileKind.RidleyHorizontalAfterburnRight] = RidleyFireballMotion.HorizontalAfterburnFlying,
-        [RoomEnemyProjectileKind.RidleyHorizontalAfterburnLeft] = RidleyFireballMotion.HorizontalAfterburnFlying,
-        [RoomEnemyProjectileKind.RidleyVerticalAfterburnUp] = RidleyFireballMotion.VerticalAfterburnFlying,
-        [RoomEnemyProjectileKind.RidleyVerticalAfterburnDown] = RidleyFireballMotion.VerticalAfterburnFlying,
-        [RoomEnemyProjectileKind.RidleyHorizontalAfterburnCenter] = null,
-        [RoomEnemyProjectileKind.RidleyVerticalAfterburnCenter] = null,
+        [RoomEnemyProjectileKind.RidleyHorizontalAfterburn] = RidleyFireballMotion.HorizontalAfterburnFlying,
+        [RoomEnemyProjectileKind.RidleyVerticalAfterburn] = RidleyFireballMotion.VerticalAfterburnFlying,
+        [RoomEnemyProjectileKind.RidleyAfterburnCenter] = null,
     };
 
     /// <summary>

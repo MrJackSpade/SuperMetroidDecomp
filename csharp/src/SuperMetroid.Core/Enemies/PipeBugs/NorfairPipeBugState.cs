@@ -24,7 +24,7 @@ public sealed class NorfairPipeBugState
 
     /// <summary>
     /// The member's stagger count, the updates it has risen and waited. It returns to zero only when the member departs
-    /// on reaching its <see cref="StaggerTarget"/>, so a member reset off screen keeps its count into the next rise; it
+    /// on reaching its <see cref="Role"/>'s target, so a member reset off screen keeps its count into the next rise; it
     /// never passes the largest target by more than its rise, far short of where the game's count would go round (#1846).
     /// </summary>
     public int FormationCounter { get; internal set; }
@@ -32,10 +32,8 @@ public sealed class NorfairPipeBugState
     /// <summary>Counts one formation update.</summary>
     internal void CountFormationTick() => FormationCounter++;
 
-    /// <summary>
-    /// Whether the member's count has reached its <see cref="StaggerTarget"/>.
-    /// </summary>
-    internal bool HasReachedStaggerTarget => FormationCounter >= StaggerTarget;
+    /// <summary>Whether the member's count has reached its <see cref="Role"/>'s target.</summary>
+    internal bool HasReachedStaggerTarget => FormationCounter >= Role.StaggerTarget;
 
     /// <summary>The speed the bug flies at, the spawn settings' speed: added flying one way and negated flying the other.</summary>
     public EnemyLinearSpeed FlightSpeeds { get; internal set; }
@@ -43,15 +41,15 @@ public sealed class NorfairPipeBugState
     /// <summary>The room Y at which the member's rise ended. Its stagger moves are measured from it.</summary>
     public int RiseEndY { get; internal set; }
 
-    /// <summary>The formation count, 88 through 120, at which the member departs: its role's (#1840).</summary>
-    public int StaggerTarget { get; internal set; }
-
     /// <summary>
-    /// The stagger the member runs after rising, its role's (#1840), assigned with the role's target and offset as its
-    /// formation launches the rise.
+    /// The member's part in its formation (#1840, #2071): the stagger it runs after rising, how far that moves it and the
+    /// formation count at which it departs. Its formation assigns it as it launches the rise; a member not yet launched
+    /// has none, and reading it then fails.
     /// </summary>
-    public NorfairPipeBugAction PostRiseAction { get; internal set; }
-
-    /// <summary>How far, in pixels, the member's stagger moves it from where its rise ended: its role's (#2071).</summary>
-    public int StaggerOffset { get; internal set; }
+    /// <exception cref="InvalidOperationException">The member's formation has not launched it.</exception>
+    internal NorfairPipeBugRole Role
+    {
+        get => field ?? throw new InvalidOperationException("A Norfair Pipe Bug's role is assigned when its formation launches it.");
+        set => field = Ensure.NotNull(value);
+    }
 }

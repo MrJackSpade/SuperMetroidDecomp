@@ -86,22 +86,17 @@ public enum RoomEnemyProjectileKind
     MotherBrainTopMiddleRightTube,
     /// <summary>Ridley's aimed fireball, shared by Ceres and Zebes.</summary>
     RidleyFireball,
-    /// <summary>The stationary center that spawns horizontal afterburns.</summary>
-    RidleyHorizontalAfterburnCenter,
-    /// <summary>The stationary center that spawns vertical afterburns.</summary>
-    RidleyVerticalAfterburnCenter,
-    /// <summary>A rightward afterburn and its continuation chain.</summary>
-    RidleyHorizontalAfterburnRight,
-    /// <summary>A leftward afterburn and its continuation chain.</summary>
-    RidleyHorizontalAfterburnLeft,
-    /// <summary>An upward afterburn and its continuation chain.</summary>
-    RidleyVerticalAfterburnUp,
-    /// <summary>A downward afterburn and its continuation chain.</summary>
-    RidleyVerticalAfterburnDown,
-    /// <summary>The light variant of Ceres falling debris.</summary>
-    CeresFallingDebrisLight,
-    /// <summary>The dark variant of Ceres falling debris.</summary>
-    CeresFallingDebrisDark,
+    /// <summary>
+    /// The stationary centre a fireball's impact leaves, which spawns a pair of afterburns; its animation names the axis
+    /// the pair flies along.
+    /// </summary>
+    RidleyAfterburnCenter,
+    /// <summary>An afterburn flying sideways, and its continuation chain; its velocity holds the way it flies.</summary>
+    RidleyHorizontalAfterburn,
+    /// <summary>An afterburn flying up or down, and its continuation chain; its velocity holds the way it flies.</summary>
+    RidleyVerticalAfterburn,
+    /// <summary>A ceiling tile falling in Ceres station's escape; its animation shows it light or dark.</summary>
+    CeresFallingDebris,
     /// <summary>Dust emitted during gunship liftoff.</summary>
     GunshipLiftoffDustCloud,
     /// <summary>Alcoon's fireball attack.</summary>
@@ -176,10 +171,8 @@ public enum RoomEnemyProjectileKind
     GoldenTorizoChozoOrb,
     /// <summary>Golden Torizo's sonic-boom projectile.</summary>
     GoldenTorizoSonicBoom,
-    /// <summary>Dust from Torizo's right-foot landing.</summary>
-    TorizoRightFootDust,
-    /// <summary>Dust from Torizo's left-foot landing.</summary>
-    TorizoLeftFootDust,
+    /// <summary>Dust from a Torizo's landing step; its animation and place show which foot raised it.</summary>
+    TorizoLandingDust,
     /// <summary>Golden Torizo's egg projectile.</summary>
     GoldenTorizoEgg,
     /// <summary>Golden Torizo's Super Missile projectile.</summary>

@@ -1026,8 +1026,14 @@ internal static class LookupStream1Verification
     internal static void VerifyLookupStream1PowampMotion(ISnesAddressSpace rom)
     {
         short Word(int address) => unchecked((short)(LittleEndianBytes.Word(LookupStream1PowampMotionRomByte(rom, address), LookupStream1PowampMotionRomByte(rom, address + 1))));
-        for (int phase = 0; phase < 12; phase++)
-            AssertEqual(Word(0xa8c1a1 + 2 * phase), PowampMotion.WiggleOffset(phase), "Powamp native wiggle triangle");
+        // The wiggle is the cartridge's twelve offsets in order, the last followed by the first (#2375).
+        AssertEqual(12, PowampWiggle.All.Count, "Powamp wiggle offsets");
+        for (int phase = 0; phase < PowampWiggle.All.Count; phase++)
+        {
+            AssertEqual(Word(0xa8c1a1 + 2 * phase), PowampWiggle.All[phase].Offset, "Powamp native wiggle triangle");
+            AssertEqual(PowampWiggle.All[(phase + 1) % 12], PowampWiggle.All[phase].Next, "Powamp wiggle takes the next offset");
+        }
+        AssertEqual(PowampWiggle.All[0], PowampWiggle.First, "Powamp wiggle starts at its centre");
         // The cartridge lists the balloon's height for each pose in the order each sequence shows them (#1845).
         for (int pose = 0; pose < 3; pose++)
         {
@@ -1045,8 +1051,6 @@ internal static class LookupStream1Verification
         }
         AssertTrue(PowampMotionDefinitions.SpikeFiringOrder.SequenceEqual(spikeDirections.Reverse()),
             "Powamp fires its spikes from the cartridge table's last direction back to its first");
-        foreach (int invalid in new[] { int.MinValue, -1, 12, int.MaxValue })
-            AssertThrows<InvalidDataException>(() => PowampMotion.WiggleOffset(invalid), "Powamp wiggle domain");
         AssertThrows<ArgumentOutOfRangeException>(() => PowampMotion.BalloonHeight((PowampBalloonPose)3), "Powamp balloon pose domain");
         AssertThrows<InvalidDataException>(() => PowampMotion.SpikeAcceleration((CompassDirection)spikeDirections.Length), "Powamp spike direction domain");
     }

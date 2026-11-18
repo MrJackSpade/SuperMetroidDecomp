@@ -32,21 +32,18 @@ internal sealed class CeresFallingTiles
         context => Drop(context.Projectile, context.Level));
 
     /// <summary>
-    /// Spawns the light or dark falling tile the falling-debris room main requests at <paramref name="xPosition"/>. The X
-    /// coordinate and light or dark variant come directly from the room's current random number; this setup owns
-    /// only projectile fields. The room main supplies the tile's animation and the graphics it draws in. A spawn that
-    /// finds every place held spawns nothing.
+    /// Spawns the falling tile the falling-debris room main requests at <paramref name="xPosition"/>. The X coordinate and
+    /// the tile's look, light or dark, come directly from the room's current random number; this setup owns only
+    /// projectile fields. The room main supplies the tile's animation, which shows its look, and the graphics it draws in.
+    /// A spawn that finds every place held spawns nothing.
     /// </summary>
-    internal void Spawn(int xPosition, bool dark, EnemyProjectileAnimation animation, SpriteGraphics graphics)
+    internal void Spawn(int xPosition, EnemyProjectileAnimation animation, SpriteGraphics graphics)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return;
 
-        RoomEnemyProjectileKind kind = dark
-            ? RoomEnemyProjectileKind.CeresFallingDebrisDark
-            : RoomEnemyProjectileKind.CeresFallingDebrisLight;
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, Behavior, graphics);
+        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, RoomEnemyProjectileKind.CeresFallingDebris, Behavior, graphics);
         projectile.Position = projectile.Position.WithWhole(new(xPosition, CeresFallingDebrisDefinitions.StartingY));
         projectile.Velocity = new(SignedEightEight.Zero, CeresFallingDebrisDefinitions.StartingFallSpeed);
         projectile.StartAnimation(animation);

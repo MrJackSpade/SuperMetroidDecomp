@@ -29,14 +29,9 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyPlaces _places;
     /// <summary>
     /// The five-bug formation each Norfair leader found when it was placed: itself, then the four bugs its room lists
-    /// right after it, each in its role (#1840).
+    /// right after it, each in its role (#1840). The last member's placement checks the formation once.
     /// </summary>
     private readonly EnemyPartLinks<NorfairPipeBugFormation> _formations = new();
-    /// <summary>
-    /// The places set up as Norfair Pipe Bugs this room. A formation member killed and not yet respawned holds no state,
-    /// and its place is still the formation's.
-    /// </summary>
-    private readonly HashSet<RoomEnemyPlace> _norfairPlaces = [];
 
     /// <summary>Binds the shared enemy pool needed to validate Norfair formation membership.</summary>
     internal PipeBugsBehavior(EnemyPlaces places)
@@ -53,20 +48,24 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.EmergenceTopY = state.SpawnPosition.Y - PipeBugDefinitions.BrinstarEmergenceHeight;
         state.RespawnDelay = PipeBugDefinitions.BrinstarRespawnWait;
         state.Playback = new AnimationPlayback<PipeBugSegment>(PipeBugAnimations.StartingWith(
-            PipeBugAnimationChoices.Rising(IsStrong(place), HorizontalDirection.Left)), AnimationPlace.StartOfAnimation);
+            PipeBugAnimationChoices.Rising(KindOf(place), HorizontalDirection.Left)), AnimationPlace.StartOfAnimation);
     }
 
-    /// <summary>Whether the Brinstar Pipe Bug in <paramref name="place"/> is the strong Zebbo rather than the ordinary Zeb.</summary>
-    private static bool IsStrong(RoomEnemyPlace place) =>
-        place.SpawnSettings<BrinstarPipeBugSpawnSettings>().Kind == BrinstarPipeBugKind.Strong;
+    /// <summary>Which Brinstar Pipe Bug <paramref name="place"/> holds: the ordinary Zeb or the strong Zebbo.</summary>
+    private static BrinstarPipeBugKind KindOf(RoomEnemyPlace place) =>
+        place.SpawnSettings<BrinstarPipeBugSpawnSettings>().Kind;
 
-    /// <summary>Initializes the Norfair Pipe Bug.</summary>
+    /// <summary>
+    /// Initializes the Norfair Pipe Bug. A leader finds the four bugs its room lists after it; the last of them, placed
+    /// last, completes the formation, which is checked once then.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The formation's last member completes a formation whose members are not all Norfair Pipe Bugs.</exception>
     internal void InitializeNorfairPipeBug(RoomEnemyPlace place)
     {
         // Only the formation's first bug has a trigger width; it leads the four its room lists after it.
         if (place.SpawnSettings<NorfairPipeBugSpawnSettings>().TriggerWidth != 0)
             _formations.Place(place, NorfairPipeBugFormation.LedBy(_places, place));
-        _ = _norfairPlaces.Add(place);
+        CheckNorfairPipeBugFormationCompletedBy(place);
         var state = new NorfairPipeBugState(NorfairPipeBugAction.WaitForFormation);
         place.SetSpeciesState(state);
         state.SpawnPosition = place.Position.Whole;
@@ -154,7 +153,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
                 ResetNorfairPipeBugIfOffScreen(place, state, camera);
                 return;
             case NorfairPipeBugAction.Stagger:
-                RunNorfairPipeBugVerticalStagger(place, state, state.StaggerOffset);
+                RunNorfairPipeBugVerticalStagger(place, state, state.Role.StaggerOffset);
                 ResetNorfairPipeBugIfOffScreen(place, state, camera);
                 return;
             case NorfairPipeBugAction.WaitForStagger:
@@ -219,7 +218,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Action = BrinstarPipeBugAction.Emerge;
         place.Presence = place.Presence.Without(EnemyPresence.Hidden);
         SelectBrinstarPipeBugAnimation(place, state, PipeBugAnimationChoices.Rising(
-            IsStrong(place), state.Flight));
+            KindOf(place), state.Flight));
     }
 
     /// <summary>Rises (<see cref="PipeBugEmergenceRise"/>) until the bug is above Samus, then switches to horizontal flight.</summary>
@@ -237,7 +236,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The bug shoots facing the way it rose: toward the side Samus was on as it emerged.
         SelectBrinstarPipeBugAnimation(place, state, PipeBugAnimationChoices.Shooting(
-            IsStrong(place), state.Flight));
+            KindOf(place), state.Flight));
         state.Action = BrinstarPipeBugAction.FlyHorizontally;
     }
 
@@ -258,7 +257,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
 
         place.Position = place.Position.WithWhole(state.SpawnPosition).WithFractionX(0)
             .WithY(PipeBugEmergenceRise.Respawned(state.SpawnPosition.Y));
-        SelectBrinstarPipeBugAnimation(place, state, PipeBugAnimationChoices.Rising(IsStrong(place), HorizontalDirection.Left));
+        SelectBrinstarPipeBugAnimation(place, state, PipeBugAnimationChoices.Rising(KindOf(place), HorizontalDirection.Left));
         place.Presence = place.Presence.With(EnemyPresence.Hidden);
         state.RespawnDelay = PipeBugDefinitions.BrinstarRespawnWait;
         state.Action = BrinstarPipeBugAction.RespawnDelay;
@@ -280,7 +279,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         // cleared place, which never reads as waiting, so it holds the formation back until its respawn sets it up again.
         if (place.SpawnSettings<NorfairPipeBugSpawnSettings>().TriggerWidth == 0)
             return;
-        NorfairPipeBugFormation formation = RequireNorfairPipeBugFormation(place);
+        NorfairPipeBugFormation formation = _formations.Of(place);
         if (formation.Members.All(static member =>
                 member.Place.FoundState<NorfairPipeBugState>() is { Action: NorfairPipeBugAction.WaitForFormation }))
         {
@@ -306,7 +305,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         // the followers' frame timers as they are, a killed member's included.
         leader.AnimationClock.Restart();
         bool samusIsRight = CoordinateAxis.Difference(samus.Position.X.Whole, leader.Position.X.Whole) >= 0;
-        NorfairPipeBugFormation formation = RequireNorfairPipeBugFormation(leader);
+        NorfairPipeBugFormation formation = _formations.Of(leader);
         // A member killed since the formation armed has nothing to launch: it respawns waiting, as a new bug.
         foreach (NorfairPipeBugMember member in formation.Members)
         {
@@ -316,9 +315,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
                 ? PipeBugSegment.GametRisingRight
                 : PipeBugSegment.GametRisingLeft), AnimationPlace.StartOfAnimation);
             memberState.Action = NorfairPipeBugAction.Rise;
-            memberState.StaggerTarget = member.Role.StaggerTarget;
-            memberState.PostRiseAction = member.Role.PostRiseAction;
-            memberState.StaggerOffset = member.Role.StaggerOffset;
+            memberState.Role = member.Role;
         }
     }
 
@@ -333,7 +330,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         if (CoordinateAxis.Difference(place.Position.Y.Whole, samus.Position.Y.Whole) >= 0)
             return;
 
-        state.Action = state.PostRiseAction;
+        state.Action = state.Role.PostRiseAction;
         state.RiseEndY = place.Position.Y.Whole;
         state.Playback = StartPipeBugAnimation(place,
             CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole) >= 0
@@ -406,26 +403,28 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// The formation the leader found when it was placed, rejecting an incomplete or unrelated formation: every member's
-    /// place was set up as a Norfair Pipe Bug, and holds one or, killed, none until it respawns
-    /// (<see cref="RoomEnemyPlace.FoundState{T}"/>).
+    /// Checks, as <paramref name="place"/> is placed, the formation it completes when it is the last member of a leader's
+    /// formation: every member, placed before it, is a Norfair Pipe Bug. A killed member's place, empty until the bug
+    /// respawns there, stays the formation's, so the last member's own respawn passes it.
     /// </summary>
-    private NorfairPipeBugFormation RequireNorfairPipeBugFormation(RoomEnemyPlace leader)
+    /// <exception cref="InvalidDataException">A member of the formation <paramref name="place"/> completes is not a Norfair Pipe Bug.</exception>
+    private void CheckNorfairPipeBugFormationCompletedBy(RoomEnemyPlace place)
     {
-        NorfairPipeBugFormation formation = _formations.Of(leader);
-        foreach (NorfairPipeBugMember member in formation.Members)
+        foreach (RoomEnemyPlace leader in _formations.Placed)
         {
-            RoomEnemyPlace place = member.Place;
-            bool killed = place.SpeciesState<NorfairPipeBugState>() is null && place.DefinitionId == EnemyDefinitionId.None;
-            if (!_norfairPlaces.Contains(place) ||
-                (!killed && place.DefinitionId != EnemyDefinitionId.Gamet))
+            NorfairPipeBugFormation formation = _formations.Of(leader);
+            if (formation.Members[^1].Place != place)
+                continue;
+            foreach (NorfairPipeBugMember member in formation.Members)
             {
-                throw new InvalidDataException(
-                    $"Norfair Pipe Bug formation place {place.Ordinal} holds {place.DefinitionId}, " +
-                    $"not a {EnemyDefinitionId.Gamet} or a killed one's place.");
+                if (member.Place.Entity is not NorfairPipeBugEntity && member.Place.DefinitionId != EnemyDefinitionId.None)
+                {
+                    throw new InvalidDataException(
+                        $"Norfair Pipe Bug formation place {member.Place.Ordinal} holds {member.Place.DefinitionId}, " +
+                        $"not a {EnemyDefinitionId.Gamet}.");
+                }
             }
         }
-        return formation;
     }
 
     /// <summary>Wakes a yellow bug when Samus is ahead on its authored side and within the narrow vertical band.</summary>

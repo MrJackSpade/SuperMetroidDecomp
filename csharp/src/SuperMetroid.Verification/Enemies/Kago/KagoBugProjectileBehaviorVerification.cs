@@ -25,7 +25,7 @@ internal static class KagoBugProjectileBehaviorVerification
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             enemies.VerificationServices().ReadRandom = () => 1;
             // The shell releases the bug with the typed state its cues keep: the source shell and its countdowns.
-            AssertTrue(enemies.KagoBehavior.SpawnKagoBug(new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>())), "the real Kago producer allocates its bug");
+            enemies.KagoBehavior.SpawnKagoBug(new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()));
             EnemyProjectile bug = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.Kind == RoomEnemyProjectileKind.KagoBug);
             bug.StartAnimation(new KagoBugProjectileAnimation(program));
             (bool deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, bug, KagoBugProjectileNativeListAddresses.Entry(program), 40, program.ToString());
@@ -76,7 +76,7 @@ internal static class KagoBugProjectileBehaviorVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().ReadRandom = () => 1;
-        AssertTrue(enemies.KagoBehavior.SpawnKagoBug(new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>())), "the real Kago producer allocates its bug");
+        enemies.KagoBehavior.SpawnKagoBug(new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()));
         EnemyProjectile bug = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.Kind == RoomEnemyProjectileKind.KagoBug);
         SpriteGraphics spawned = bug.Graphics;
         bug.StartAnimation(new KagoBugProjectileAnimation(KagoBugProjectileSegment.Shot));

@@ -18,8 +18,9 @@ internal static class PipeBugAnimationDefinitionsVerification
         const int normalTable = 0xb3882b;
         const int strongTable = 0xb38833;
 
-        foreach (bool strong in new[] { false, true })
+        foreach (BrinstarPipeBugKind kind in Enum.GetValues<BrinstarPipeBugKind>())
         {
+            bool strong = kind == BrinstarPipeBugKind.Strong;
             var initializedEnemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemyPlace initializedPlace = initializedEnemies.Places.InUpdateOrder[0];
             initializedPlace.Bind(strong
@@ -29,13 +30,13 @@ internal static class PipeBugAnimationDefinitionsVerification
             initializedPlace.Position = initializedPlace.Position.WithWhole(new(0x0100, 0x0080));
             PipeBugsBehavior.InitializeBrinstarPipeBug(initializedPlace);
             AssertEqual(new AnimationPlayback<PipeBugSegment>(PipeBugAnimations.StartingWith(
-                    PipeBugAnimationChoices.Rising(strong, HorizontalDirection.Left)), AnimationPlace.StartOfAnimation),
+                    PipeBugAnimationChoices.Rising(kind, HorizontalDirection.Left)), AnimationPlace.StartOfAnimation),
                 (initializedEnemies.BrinstarPipeBugStates[0] ?? throw new InvalidOperationException("Verification requires a Pipe Bug state.")).Playback,
                 $"production {(strong ? "strong" : "normal")} Pipe Bug initialization");
 
             for (int index = 0; index < 4; index++)
             {
-                PipeBugSegment selector = PipeBugsNativeWords.BrinstarAnimations(strong).Decode(index, "Pipe Bug animation index");
+                PipeBugSegment selector = PipeBugsNativeWords.BrinstarAnimations(kind).Decode(index, "Pipe Bug animation index");
                 ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(((strong ? strongTable : normalTable) + index * 2));
                 AssertEqual(expected,
                     NativeEnemyAnimationOracle.EntryOf(PipeBugNativeListAddresses.Entries, selector),
@@ -43,9 +44,9 @@ internal static class PipeBugAnimationDefinitionsVerification
 
                 var place = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()).WithAnimationClock(hold: 0x2222);
                 place.SetSpawnParameter1(EnemyDefinitionId.Zeb, strong ? 1 : 0);
-                PipeBugSegment playing = selector == PipeBugAnimationChoices.Rising(strong, HorizontalDirection.Left)
-                    ? PipeBugAnimationChoices.Shooting(strong, HorizontalDirection.Left)
-                    : PipeBugAnimationChoices.Rising(strong, HorizontalDirection.Left);
+                PipeBugSegment playing = selector == PipeBugAnimationChoices.Rising(kind, HorizontalDirection.Left)
+                    ? PipeBugAnimationChoices.Shooting(kind, HorizontalDirection.Left)
+                    : PipeBugAnimationChoices.Rising(kind, HorizontalDirection.Left);
                 var state = new BrinstarPipeBugState(BrinstarPipeBugAction.WaitUntilOnScreen)
                 {
                     Playback = new(PipeBugAnimations.StartingWith(playing), AnimationPlace.StartOfAnimation),
@@ -60,18 +61,18 @@ internal static class PipeBugAnimationDefinitionsVerification
 
         // The requests main AI makes keep the cartridge's bit arithmetic on its animation index: the emergence sets the
         // facing bit from Samus's side, and the switch to horizontal flight sets the shooting bit.
-        foreach (bool strong in new[] { false, true })
+        foreach (BrinstarPipeBugKind kind in Enum.GetValues<BrinstarPipeBugKind>())
         {
-            NativeWordIdentities<PipeBugSegment> animations = PipeBugsNativeWords.BrinstarAnimations(strong);
+            NativeWordIdentities<PipeBugSegment> animations = PipeBugsNativeWords.BrinstarAnimations(kind);
             AssertEqual(false, animations.TryDecode(4, out _), "Pipe Bug animation index past table");
             AssertEqual(animations.Decode(2, "Pipe Bug animation index"),
-                PipeBugAnimationChoices.Rising(strong, HorizontalDirection.Right), "Pipe Bug rising facing right");
+                PipeBugAnimationChoices.Rising(kind, HorizontalDirection.Right), "Pipe Bug rising facing right");
             AssertEqual(animations.Decode(0, "Pipe Bug animation index"),
-                PipeBugAnimationChoices.Rising(strong, HorizontalDirection.Left), "Pipe Bug rising facing left");
+                PipeBugAnimationChoices.Rising(kind, HorizontalDirection.Left), "Pipe Bug rising facing left");
             AssertEqual(animations.Decode(2 | 1, "Pipe Bug animation index"),
-                PipeBugAnimationChoices.Shooting(strong, HorizontalDirection.Right), "Pipe Bug shooting facing right");
+                PipeBugAnimationChoices.Shooting(kind, HorizontalDirection.Right), "Pipe Bug shooting facing right");
             AssertEqual(animations.Decode(0 | 1, "Pipe Bug animation index"),
-                PipeBugAnimationChoices.Shooting(strong, HorizontalDirection.Left), "Pipe Bug shooting facing left");
+                PipeBugAnimationChoices.Shooting(kind, HorizontalDirection.Left), "Pipe Bug shooting facing left");
         }
         Console.WriteLine(
             "Pipe Bug animation definitions: eight native selectors, all eight production handoffs and the named animation requests pass.");

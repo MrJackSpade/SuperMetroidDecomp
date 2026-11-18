@@ -48,6 +48,21 @@ internal static class MamaTurtleMotionDefinitions
     /// <summary>How far each step out of her shell raises the Mama Turtle, in pixels.</summary>
     internal const int LeavingShellClimb = 1;
 
+    /// <summary>
+    /// How far each step out of her shell shakes the Mama Turtle sideways, in pixels: left at an odd height, right at an
+    /// even one (#2375).
+    /// </summary>
+    internal const int LeavingShellShake = 1;
+
+    /// <summary>
+    /// How far each step out of her shell then pushes the Mama Turtle right through the room's blocks, in pixels: a push
+    /// that meets a wall keeps her leaving, one that does not starts her leave-shell animation (#2375).
+    /// </summary>
+    internal const int LeavingShellPush = 1;
+
+    /// <summary>How far a crawling baby clear of the dormant shell drops each update, in pixels (#2375).</summary>
+    internal const int BabySinkClearOfShell = 1;
+
     /// <summary>How far each step out of her shell moves a Samus standing on the Mama Turtle, taken from Samus's extra displacement.</summary>
     internal static Offset16<RoomPixels> LeavingShellRiderShift { get; } = new(1, 0);
 

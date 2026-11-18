@@ -95,11 +95,12 @@ internal sealed class RoomMainRoutines
             return;
 
         int random = _system.RandomNumber;
-        bool dark = CeresFallingDebrisDefinitions.Dark.IsSetIn(random);
+        CeresFallingDebrisSegment look = CeresFallingDebrisDefinitions.Dark.IsSetIn(random)
+            ? CeresFallingDebrisSegment.Dark
+            : CeresFallingDebrisSegment.Light;
         room.Enemies.CeresFallingTiles.Spawn(
             CeresFallingDebrisDefinitions.ColumnX[CeresFallingDebrisDefinitions.Column.Of(random)],
-            dark,
-            new CeresFallingDebrisAnimation(dark ? CeresFallingDebrisSegment.Dark : CeresFallingDebrisSegment.Light),
+            new CeresFallingDebrisAnimation(look),
             CeresFallingDebrisVisualDefinitions.Graphics);
     }
 }

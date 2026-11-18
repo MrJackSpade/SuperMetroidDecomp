@@ -45,6 +45,6 @@ public sealed class PlatformEnemyState
     /// <summary>The previous actor update's rider-selected vertical movement; a change restarts the acceleration.</summary>
     public PlatformVerticalMovement PreviousYMovement { get; internal set; }
 
-    /// <summary>True only for the suspensor platform, whose art differs from the Tripper's.</summary>
-    public bool IsSuspensorPlatform { get; internal set; }
+    /// <summary>Which platform this is, the Tripper or the suspensor platform, whose art differs.</summary>
+    internal PlatformKind Kind { get; init; }
 }

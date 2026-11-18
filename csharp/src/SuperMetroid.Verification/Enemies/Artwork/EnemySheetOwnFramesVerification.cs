@@ -146,9 +146,9 @@ internal static class EnemySheetOwnFramesVerification
             new Dictionary<EnemyDefinitionId, IReadOnlySet<EnemyFrameId>>
             {
                 [EnemyDefinitionId.SuspensorPlatform] = Reach(PlatformAnimations.Segments, PlatformAnimations.StartingAt,
-                    PlatformAnimationDefinitions.Animations.Where(entry => entry.Key.SuspensorPlatform).Select(entry => entry.Value)),
+                    PlatformAnimationDefinitions.Animations.Where(entry => entry.Key.Kind == PlatformKind.SuspensorPlatform).Select(entry => entry.Value)),
                 [EnemyDefinitionId.Tripper] = With(Reach(PlatformAnimations.Segments, PlatformAnimations.StartingAt,
-                    PlatformAnimationDefinitions.Animations.Where(entry => !entry.Key.SuspensorPlatform).Select(entry => entry.Value)), frozen),
+                    PlatformAnimationDefinitions.Animations.Where(entry => entry.Key.Kind == PlatformKind.Tripper).Select(entry => entry.Value)), frozen),
             });
     }
 

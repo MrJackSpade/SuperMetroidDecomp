@@ -914,11 +914,10 @@ internal static class LookupStream2Verification
             for (int member = 0; member < 5; member++)
             {
                 var state = enemies.NorfairPipeBugStates[member];
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb38c65 + member * 7)), (state ?? throw new InvalidOperationException("Verification requires state.")).StaggerTarget,
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb38c65 + member * 7)), (state ?? throw new InvalidOperationException("Verification requires state.")).Role.StaggerTarget,
                     "Actual formation writes native release counter");
-                AssertEqual(roles[member].PostRiseAction, state.PostRiseAction,
-                    "Actual formation writes its role's stagger");
-                AssertEqual(roles[member].StaggerOffset, state.StaggerOffset, "Actual formation writes its role's stagger offset");
+                // The member holds its role itself, its stagger and offset with the target (#2375).
+                AssertEqual(roles[member], state.Role, "Actual formation assigns the member its role");
                 AssertEqual(NorfairPipeBugAction.Rise, state.Action, "Actual formation begins rising");
                 AssertEqual(new AnimationPlayback<PipeBugSegment>(PipeBugAnimations.StartingWith(samusX < 128 ? PipeBugSegment.GametRisingLeft : PipeBugSegment.GametRisingRight), AnimationPlace.StartOfAnimation),
                     state.Playback, "Actual formation selects facing");

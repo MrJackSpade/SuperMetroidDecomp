@@ -30,8 +30,14 @@ public sealed class NuclearWaffleEnemyState
     /// </summary>
     public int OrbitRadius { get; internal set; }
 
-    /// <summary>Whether the sweep runs forward rather than backward, as the spawn settings' direction says.</summary>
-    public bool SweepsForward { get; internal set; }
+    /// <summary>The way the waffle sweeps around its orbit, as its spawn settings name it.</summary>
+    internal NuclearWaffleSweepDirection Direction { get; init; }
+
+    /// <summary>
+    /// The sweep its <see cref="Direction"/> runs: its start and end angles, the spacing of its links and the angles at which
+    /// they turn.
+    /// </summary>
+    internal NuclearWaffleSweepDefinition Sweep { get; init; }
 
     /// <summary>
     /// The wait, in AI updates, reloaded into <see cref="WaitingTimer"/> at room load and whenever a wait expires: the spawn
@@ -40,20 +46,16 @@ public sealed class NuclearWaffleEnemyState
     public int WaitingTimerReset { get; internal set; }
 
     /// <summary>
-    /// The sweep angle: its whole step is the head's angle and its fraction carries between updates. It restarts at
-    /// <see cref="SweepStartAngle"/> with no fraction and moves monotonically toward <see cref="SweepEndAngle"/> until the
-    /// last damaging link reaches it, so it stays between 140 and 500 steps, counted on past the full turn rather than
-    /// wrapping; the orbit reads only its direction within the turn.
+    /// The sweep angle: its whole step is the head's angle and its fraction carries between updates. It restarts at the
+    /// <see cref="Sweep"/>'s start angle with no fraction and moves monotonically toward its end angle until the last
+    /// damaging link reaches it, so it stays between 140 and 500 steps, counted on past the full turn rather than wrapping;
+    /// the orbit reads only its direction within the turn.
     /// </summary>
     public NuclearWaffleSweepAngle SweepAngle { get; internal set; }
 
     /// <summary>The head's current angle: the whole step of <see cref="SweepAngle"/>.</summary>
     public NuclearWaffleSweepAngle CurrentAngle => SweepAngle.WholeStep;
 
-    /// <summary>The start angle: 400 steps for the backward sweep or 240 for the forward one.</summary>
-    public NuclearWaffleSweepAngle SweepStartAngle { get; internal set; }
-    /// <summary>The finish angle: 240 steps for the backward sweep or 400 for the forward one; the last damaging link's clamp result determines sweep completion.</summary>
-    public NuclearWaffleSweepAngle SweepEndAngle { get; internal set; }
     /// <summary>
     /// How fast the sweep angle turns each AI update: the spawn settings' angular speed for a forward sweep and its
     /// reversal for a backward one.
@@ -61,16 +63,6 @@ public sealed class NuclearWaffleEnemyState
     public AngularSpeed AngularSpeed { get; internal set; }
     /// <summary>The arc origin: initial population position in whole room pixels, retained as the fixed orbit center.</summary>
     public Position16<RoomPixels> Origin { get; internal set; }
-    /// <summary>The link spawn position: head position after applying the initial angle and radius, used as the whole-pixel spawn position for the four projectile links.</summary>
-    public Position16<RoomPixels> InitialHead { get; internal set; }
-    /// <summary>The steps between one link and the next of the same kind, subtracted from each link's angle in turn: -24 for the backward sweep, whose links trail at larger angles, or 24 for the forward.</summary>
-    public int SegmentSpacing { get; internal set; }
-    /// <summary>The steps the damaging links are staggered by against the cosmetic ones, half the spacing: -12 for the backward sweep or 12 for the forward.</summary>
-    public int InterleavedSegmentOffset { get; internal set; }
-    /// <summary>The falling explosion angle: 256 steps backward or 384 forward; crossing it is the silent second joint turn.</summary>
-    public NuclearWaffleSweepAngle FallingTurnThreshold { get; internal set; }
-    /// <summary>The rising explosion angle: 384 steps backward or 256 forward; crossing it is the joint turn that queues the turn sound.</summary>
-    public NuclearWaffleSweepAngle RisingTurnThreshold { get; internal set; }
     /// <summary>Which turn threshold the head last crossed; a change spawns two turn effect actors at the head's previous position.</summary>
     public NuclearWaffleTurnState HeadOrientationState { get; internal set; }
     /// <summary>The owning enemy's artwork and colours, captured at room load for the persistent body links and transient joint-turn effect actors.</summary>

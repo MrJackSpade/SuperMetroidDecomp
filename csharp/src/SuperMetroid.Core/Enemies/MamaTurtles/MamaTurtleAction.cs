@@ -6,8 +6,11 @@ namespace SuperMetroid.Core.Enemies.MamaTurtles;
 /// </summary>
 public enum MamaTurtleAction
 {
-    /// <summary>Checks, on her first update, that the four baby turtles she found when she was placed are babies.</summary>
-    Initial,
+    /// <summary>
+    /// Placed and not yet updated: her first update leaves her dormant in her shell. Until it, her babies crawl without
+    /// following the shell's contour, as in the original, whose first update links them to her.
+    /// </summary>
+    Placed,
     /// <summary>Does nothing of its own while Mama's animation plays, such as leaving or entering her shell; its cues move her.</summary>
     Idle,
     /// <summary>Waits dormant in her shell, which Samus can stand on, until a touch or shot on one of her babies wakes her.</summary>

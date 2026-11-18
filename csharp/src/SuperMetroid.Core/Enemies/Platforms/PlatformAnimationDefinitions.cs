@@ -9,13 +9,13 @@ internal static class PlatformAnimationDefinitions
     /// </summary>
     internal static readonly Dictionary<PlatformPose, PlatformSegment> Animations = new()
     {
-        [new(true, Axis.Vertical, HorizontalDirection.Left)] = PlatformSegment.SuspensorPlatformHeadingLeft,
-        [new(true, Axis.Vertical, HorizontalDirection.Right)] = PlatformSegment.SuspensorPlatformHeadingRight,
-        [new(true, Axis.Horizontal, HorizontalDirection.Left)] = PlatformSegment.SuspensorPlatformHeadingLeft,
-        [new(true, Axis.Horizontal, HorizontalDirection.Right)] = PlatformSegment.SuspensorPlatformHeadingRight,
-        [new(false, Axis.Vertical, HorizontalDirection.Left)] = PlatformSegment.TripperMovingLeft,
-        [new(false, Axis.Vertical, HorizontalDirection.Right)] = PlatformSegment.TripperMovingRight,
-        [new(false, Axis.Horizontal, HorizontalDirection.Left)] = PlatformSegment.TripperStillMovingLeft,
-        [new(false, Axis.Horizontal, HorizontalDirection.Right)] = PlatformSegment.TripperStillMovingRight,
+        [new(PlatformKind.SuspensorPlatform, Axis.Vertical, HorizontalDirection.Left)] = PlatformSegment.SuspensorPlatformHeadingLeft,
+        [new(PlatformKind.SuspensorPlatform, Axis.Vertical, HorizontalDirection.Right)] = PlatformSegment.SuspensorPlatformHeadingRight,
+        [new(PlatformKind.SuspensorPlatform, Axis.Horizontal, HorizontalDirection.Left)] = PlatformSegment.SuspensorPlatformHeadingLeft,
+        [new(PlatformKind.SuspensorPlatform, Axis.Horizontal, HorizontalDirection.Right)] = PlatformSegment.SuspensorPlatformHeadingRight,
+        [new(PlatformKind.Tripper, Axis.Vertical, HorizontalDirection.Left)] = PlatformSegment.TripperMovingLeft,
+        [new(PlatformKind.Tripper, Axis.Vertical, HorizontalDirection.Right)] = PlatformSegment.TripperMovingRight,
+        [new(PlatformKind.Tripper, Axis.Horizontal, HorizontalDirection.Left)] = PlatformSegment.TripperStillMovingLeft,
+        [new(PlatformKind.Tripper, Axis.Horizontal, HorizontalDirection.Right)] = PlatformSegment.TripperStillMovingRight,
     };
 }

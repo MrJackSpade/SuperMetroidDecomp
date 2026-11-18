@@ -31,7 +31,6 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
             if (kind == RoomEnemyProjectileKind.None)
                 continue;
 
-            definitionCount++;
             // Every translated kind has a definition; the catalog rejects any other.
             _ = EnemyProjectileKinds.Get(kind);
             var projectile = new EnemyProjectile(0, default)
@@ -58,9 +57,8 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
                 RoomEnemyProjectileKind.MotherBrainHandBeamCharging or RoomEnemyProjectileKind.MotherBrainHandBeamFired or
                 RoomEnemyProjectileKind.PhantoonDestroyableFlame or RoomEnemyProjectileKind.PhantoonStartingFlame or
                 RoomEnemyProjectileKind.PrePhantoonRoomHeldPlace or RoomEnemyProjectileKind.RidleyFireball or
-                RoomEnemyProjectileKind.RidleyHorizontalAfterburnCenter or RoomEnemyProjectileKind.RidleyVerticalAfterburnCenter or
-                RoomEnemyProjectileKind.RidleyHorizontalAfterburnRight or RoomEnemyProjectileKind.RidleyHorizontalAfterburnLeft or
-                RoomEnemyProjectileKind.RidleyVerticalAfterburnUp or RoomEnemyProjectileKind.RidleyVerticalAfterburnDown or
+                RoomEnemyProjectileKind.RidleyAfterburnCenter or RoomEnemyProjectileKind.RidleyHorizontalAfterburn or
+                RoomEnemyProjectileKind.RidleyVerticalAfterburn or
                 RoomEnemyProjectileKind.SporeSpawnStalk or RoomEnemyProjectileKind.SporeSpawnSpore or
                 RoomEnemyProjectileKind.SporeSpawnSpawner or
                 RoomEnemyProjectileKind.BombTorizoLowHealthDrool or
@@ -73,13 +71,11 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
                 RoomEnemyProjectileKind.BombTorizoSonicBoom or
                 RoomEnemyProjectileKind.GoldenTorizoChozoOrb or
                 RoomEnemyProjectileKind.GoldenTorizoSonicBoom or
-                RoomEnemyProjectileKind.TorizoRightFootDust or
-                RoomEnemyProjectileKind.TorizoLeftFootDust or
+                RoomEnemyProjectileKind.TorizoLandingDust or
                 RoomEnemyProjectileKind.GoldenTorizoEgg or
                 RoomEnemyProjectileKind.GoldenTorizoSuperMissile or
                 RoomEnemyProjectileKind.GoldenTorizoEyeBeam or
-                RoomEnemyProjectileKind.CeresFallingDebrisLight or
-                RoomEnemyProjectileKind.CeresFallingDebrisDark or
+                RoomEnemyProjectileKind.CeresFallingDebris or
                 RoomEnemyProjectileKind.GunshipLiftoffDustCloud or
                 // Fake Kraid's spit and spikes and the old Tourian fake-wall explosion run typed programs (SME6341).
                 RoomEnemyProjectileKind.FakeKraidSpit or
@@ -99,6 +95,8 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
             // Every cartridge definition of the kind is checked: identical definitions name one kind (#2278).
             foreach (ushort definitionWord in EnemyProjectileNativeWords.Kinds.WordsByIdentity[kind])
             {
+            // The audit counts cartridge definitions, which merging identical ones into one kind does not change (#2378).
+            definitionCount++;
             // Mother Brain's onion ring starts a typed touch program too (#1292).
             if (kind is not (RoomEnemyProjectileKind.DraygonGoop or RoomEnemyProjectileKind.MotherBrainRoomTurretBullet or
                 RoomEnemyProjectileKind.MotherBrainOnionRing))

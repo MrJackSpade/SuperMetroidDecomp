@@ -22,7 +22,7 @@ internal static class MamaTurtlesNativeWords
     /// <summary>The routine word naming each <see cref="MamaTurtleAction"/>.</summary>
     internal static readonly NativeWordIdentities<MamaTurtleAction> MamaTurtleActions = new(new Dictionary<MamaTurtleAction, ushort>
     {
-        [MamaTurtleAction.Initial] = 0x8dd8,
+        [MamaTurtleAction.Placed] = 0x8dd8,
         [MamaTurtleAction.Idle] = 0x8e09,
         [MamaTurtleAction.Asleep] = 0x8e0a,
         [MamaTurtleAction.LeavingShell] = 0x8ee0,

@@ -2,14 +2,9 @@ using static SuperMetroid.Core.Enemies.Powamp.PowampMotionDefinitions;
 
 namespace SuperMetroid.Core.Enemies.Powamp;
 
-/// <summary>A Powamp's wiggle and balloon offsets and its spikes' acceleration.</summary>
+/// <summary>A Powamp's balloon offsets and its spikes' acceleration.</summary>
 internal static class PowampMotion
 {
-    /// <summary>The wiggle offset at <paramref name="phase"/>.</summary>
-    /// <exception cref="InvalidDataException"><paramref name="phase"/> is outside the twelve phases.</exception>
-    internal static int WiggleOffset(int phase) =>
-        (uint)phase < WigglePhaseCount ? WiggleOffsets[phase] : throw new InvalidDataException($"Invalid Powamp wiggle phase {phase}.");
-
     /// <summary>How far above the body the balloon sits in <paramref name="pose"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="pose"/> is not one of the three poses.</exception>
     internal static int BalloonHeight(PowampBalloonPose pose) =>

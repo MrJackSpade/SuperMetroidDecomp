@@ -62,7 +62,7 @@ internal static class PipeBugBehaviorVerification
             Initialize(enemies, place, EnemyDefinitionId.Gamet, 0);
             NorfairPipeBugState state = place.RequireSpeciesState<NorfairPipeBugState>();
             state.Action = NorfairPipeBugAction.WaitForStagger;
-            state.StaggerTarget = 72;
+            state.Role = new NorfairPipeBugRole(StaggerTarget: 72, NorfairPipeBugAction.Stagger, StaggerOffset: 0);
             state.FormationCounter = before;
             enemies.PipeBugsBehavior.RunNorfairPipeBugMainAi(place, Frame(new(200, 128)));
             AssertEqual(after, state.FormationCounter, $"Norfair Pipe Bug count after {before}");
@@ -138,7 +138,7 @@ internal static class PipeBugBehaviorVerification
             NorfairPipeBugState state = slot.RequireSpeciesState<NorfairPipeBugState>();
             AssertEqual(NorfairPipeBugAction.Stagger, role.PostRiseAction, $"the member {role.StaggerOffset} pixels from the leader staggers by its offset");
             state.Action = NorfairPipeBugAction.Stagger;
-            state.StaggerOffset = role.StaggerOffset;
+            state.Role = role;
             state.RiseEndY = 128;
             state.FormationCounter = 0;
             int updates = 0;

@@ -33,17 +33,18 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs the two entry points and common setup.</summary>
     internal static void InitializePlatform(RoomEnemyPlace place)
     {
-        bool isSuspensorPlatform = place.DefinitionId == EnemyDefinitionId.SuspensorPlatform;
-        var state = new PlatformEnemyState();
+        var state = new PlatformEnemyState
+        {
+            Kind = place.DefinitionId == EnemyDefinitionId.SuspensorPlatform ? PlatformKind.SuspensorPlatform : PlatformKind.Tripper,
+        };
         place.SetSpeciesState(state);
 
-        state.IsSuspensorPlatform = isSuspensorPlatform;
         // The platform moves left or right as its spawn settings say.
         PlatformSpawnSettings settings = place.SpawnSettings<PlatformSpawnSettings>();
         state.XMovement = settings.Movement;
 
         state.Playback = new(PlatformAnimations.StartingWith(PlatformAnimationChoices.SelectAnimation(
-            isSuspensorPlatform, axis: Axis.Horizontal, state.XMovement)), AnimationPlace.StartOfAnimation);
+            state.Kind, axis: Axis.Horizontal, state.XMovement)), AnimationPlace.StartOfAnimation);
 
         // The spawn settings name the speed the platform moves at.
         state.Speed = settings.Speed;
@@ -51,7 +52,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.YMovement = PlatformVerticalMovement.Rising;
         state.PreviousYMovement = PlatformVerticalMovement.Rising;
         state.VerticalArt = null;
-        state.RestingY = place.Position.Y.Whole + 1;
+        state.RestingY = place.Position.Y.Whole + PlatformMotionDefinitions.RestingDepthBelowPlacement;
         state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
         state.MaximumYSpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(settings.VerticalAccelerationUpdates);
     }
@@ -221,22 +222,22 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         InstallPlatformVerticallyStillForCurrentDirection(place, state);
     }
 
-    /// <summary>Selects the moving animation from suspensor identity and current horizontal direction.</summary>
+    /// <summary>Selects the moving animation from which platform it is and its current horizontal direction.</summary>
     internal static void InstallPlatformVerticallyMovingForCurrentDirection(
         RoomEnemyPlace place,
         PlatformEnemyState state)
     {
         StartPlatformAnimation(place, state, PlatformAnimationChoices.SelectAnimation(
-            state.IsSuspensorPlatform, axis: Axis.Vertical, state.XMovement));
+            state.Kind, axis: Axis.Vertical, state.XMovement));
     }
 
-    /// <summary>Selects the stationary animation from suspensor identity and current horizontal direction.</summary>
+    /// <summary>Selects the stationary animation from which platform it is and its current horizontal direction.</summary>
     internal static void InstallPlatformVerticallyStillForCurrentDirection(
         RoomEnemyPlace place,
         PlatformEnemyState state)
     {
         StartPlatformAnimation(place, state, PlatformAnimationChoices.SelectAnimation(
-            state.IsSuspensorPlatform, axis: Axis.Horizontal, state.XMovement));
+            state.Kind, axis: Axis.Horizontal, state.XMovement));
     }
 
     /// <summary>Starts the selected animation with a one-tick frame timer.</summary>

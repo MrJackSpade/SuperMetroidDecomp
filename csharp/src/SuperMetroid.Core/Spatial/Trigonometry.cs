@@ -7,6 +7,12 @@ namespace SuperMetroid.Core.Spatial;
 /// </summary>
 public static class Trigonometry
 {
+    /// <summary>The signed sine's peak: its samples count 256ths of the whole.</summary>
+    private const int SignedSinePeak = 256;
+
+    /// <summary>The fine sine's steps in each step of its coarse reading (<see cref="CoarseSizeOfFineSine"/>).</summary>
+    private const int FineStepsPerCoarseStep = 256;
+
     /// <summary>The game's fine signed sine over the whole turn, peaking at +/-32767, unlike
     /// <see cref="SignedSine"/>. The positive half equals the unsigned half-wave
     /// (<see cref="UnsignedHalfWave"/>) halved; sign is restored only after that truncation.</summary>
@@ -38,9 +44,17 @@ public static class Trigonometry
     public static int ScaledBySine(int magnitude, TrigonometryAngle angle)
     {
         int sample = SignedSine(angle);
-        int product = EightEight.WholeOf(Ensure.BetweenInclusive(0, ushort.MaxValue, magnitude) * Math.Abs(sample));
+        int product = Ensure.BetweenInclusive(0, ushort.MaxValue, magnitude) * Math.Abs(sample) / SignedSinePeak;
         return sample < 0 ? -product : product;
     }
+
+    /// <summary>
+    /// The size of the fine sine (<see cref="FineSignedSine"/>) at <paramref name="angle"/> read coarsely, 0 through 127:
+    /// its magnitude counted in whole steps of 256 fine steps, every finer step dropped, which is its size in 128ths of
+    /// its peak rounded down. The Bull and the Yapping Maw scale their motion by this reading and take the direction
+    /// from the fine sine's sign.
+    /// </summary>
+    public static int CoarseSizeOfFineSine(TrigonometryAngle angle) => Math.Abs(FineSignedSine(angle)) / FineStepsPerCoarseStep;
 
     /// <summary>The game's signed sine in 256ths of its peak over the whole turn.
     /// Unlike the coarse half-wave (<see cref="CoarseHalfWave"/>), peaks are +/-256.</summary>

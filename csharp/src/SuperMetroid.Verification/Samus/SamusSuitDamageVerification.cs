@@ -100,9 +100,9 @@ internal static class SamusSuitDamageVerification
                 int expectedWhole = whole, expectedFraction = fraction;
                 if (divisorShift != 0)
                 {
-                    int overlapping = EightEight.FromSixteenSixteen(whole, fraction) >> divisorShift;
-                    expectedFraction = SixteenSixteen.FromEightEight(EightEight.FractionOf(overlapping));
-                    expectedWhole = EightEight.WholeOf(overlapping);
+                    int overlapping = EightEightOracle.FromSixteenSixteen(whole, fraction) >> divisorShift;
+                    expectedFraction = EightEightOracle.ToSixteenSixteen(EightEightOracle.FractionOf(overlapping));
+                    expectedWhole = EightEightOracle.WholeOf(overlapping);
                 }
 
                 UnsignedSixteenSixteen actual = SamusSuitDamage.ReducePeriodic(new UnsignedSixteenSixteen(whole, fraction), suits);

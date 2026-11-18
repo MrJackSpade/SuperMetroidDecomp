@@ -38,7 +38,7 @@ internal static class ElevatubeScrollingVerification
             for (int frame = 0; frame < 180; frame++)
             {
                 uint beforeY = SixteenSixteenWords.Compose(samus.Kinematics.Position.Y);
-                uint expectedY = unchecked(beforeY + (uint)(SixteenSixteen.FromEightEight(runtime.MaridiaElevatube.Velocity.InTwoHundredFiftySixthsOfPixel)));
+                uint expectedY = unchecked(beforeY + (uint)(EightEightOracle.ToSixteenSixteen(runtime.MaridiaElevatube.Velocity.InTwoHundredFiftySixthsOfPixel)));
                 AssertTrue(samus.Control.Mode.Movement == SamusMovementMode.ScriptLocked,
                     "both tube entry callbacks install native command-zero ownership");
                 runtime.StepFrame(0);

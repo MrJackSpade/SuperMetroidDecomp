@@ -12,12 +12,13 @@ public static class SamusSuitDamage
     /// Gravity takes precedence over Varia; halving discards fractions. The damage is any amount of energy, zero or more
     /// (#1627).
     /// </summary>
-    public static int Reduce(int damage, SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems)
-    {
-        Ensure.AtLeastZero(damage);
-        return (equippedItems & SamusEquipmentFlags.GravitySuit) != SamusEquipmentFlags.None ? damage / SamusSuitDamageDefinitions.GravityDivisor :
-            (equippedItems & SamusEquipmentFlags.VariaSuit) != SamusEquipmentFlags.None ? damage / SamusSuitDamageDefinitions.VariaDivisor : damage;
-    }
+    public static int Reduce(int damage, SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems) =>
+        Ensure.AtLeastZero(damage) / Divisor(equippedItems);
+
+    /// <summary>What the equipped suit divides damage by: Gravity's divisor before Varia's, or one with neither.</summary>
+    private static int Divisor(SamusEquipmentFlags equippedItems) =>
+        (equippedItems & SamusEquipmentFlags.GravitySuit) != SamusEquipmentFlags.None ? SamusSuitDamageDefinitions.GravityDivisor :
+            (equippedItems & SamusEquipmentFlags.VariaSuit) != SamusEquipmentFlags.None ? SamusSuitDamageDefinitions.VariaDivisor : 1;
 
     /// <summary>
     /// Hurts Samus by <paramref name="damageBeforeSuit"/>, zero or more, after her suit's division (<see cref="Reduce"/>):
@@ -61,7 +62,6 @@ public static class SamusSuitDamage
         if (!equippedItems.HasAny(SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.VariaSuit))
             return damage;
 
-        int divided = Reduce(EightEight.FromSixteenSixteen(damage.Whole, damage.Fraction), equippedItems);
-        return new UnsignedSixteenSixteen(EightEight.WholeOf(divided), SixteenSixteen.FromEightEight(EightEight.FractionOf(divided)));
+        return damage.DividedInTwoFiftySixths(Divisor(equippedItems));
     }
 }

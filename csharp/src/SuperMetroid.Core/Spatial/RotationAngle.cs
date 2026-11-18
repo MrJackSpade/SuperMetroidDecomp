@@ -22,7 +22,7 @@ public readonly record struct RotationAngle : IComparable<RotationAngle>
     public ushort RawValue { get; }
 
     /// <summary>The whole steps of the angle, 0 through 255.</summary>
-    private int Steps => EightEight.WholeOf(RawValue);
+    private int Steps => RawValue / FractionsPerStep;
 
     /// <summary>The angle as the trigonometry angle the sine and cosine lookups read: its whole steps.</summary>
     public TrigonometryAngle ToTrigonometryAngle() => new(Steps);

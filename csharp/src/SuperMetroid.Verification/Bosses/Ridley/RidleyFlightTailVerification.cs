@@ -47,7 +47,7 @@ internal static class RidleyFlightTailVerification
             ushort NativeComponent(int angle)
             {
                 short sample = ReadRetailSwoopSine(rom, angle);
-                return unchecked((ushort)(Math.Sign(sample) * (EightEight.Multiply(0x500, Math.Abs((int)sample)))));
+                return unchecked((ushort)(Math.Sign(sample) * (EightEightOracle.Multiply(0x500, Math.Abs((int)sample)))));
             }
             AssertEqual(NativeComponent(phase), state.Flight.Velocity.X.RawValue, "native swoop X table multiplication");
             AssertEqual(NativeComponent(phase + 64), state.Flight.Velocity.Y.RawValue, "native swoop Y table multiplication");

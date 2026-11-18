@@ -116,7 +116,7 @@ internal static class TypedTurnsAndZoomVerification
         {
             FloorZoom zoom = FloorZoom.FromTwoHundredFiftySixths(twoHundredFiftySixths);
             if (zoom.TwoHundredFiftySixths != twoHundredFiftySixths ||
-                zoom.WholeFloorPixelsPerScreenPixel != UnsignedEightEight.Whole(twoHundredFiftySixths) ||
+                zoom.WholeFloorPixelsPerScreenPixel != EightEightOracle.UnsignedWhole(twoHundredFiftySixths) ||
                 zoom.FloorPixelsPerScreenPixel != twoHundredFiftySixths / 256.0)
                 throw new InvalidDataException($"Zoom of {twoHundredFiftySixths} 256ths does not keep its count.");
         }

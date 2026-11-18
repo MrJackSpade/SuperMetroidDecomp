@@ -36,8 +36,8 @@ internal static class PhantoonPresentationConstants
         // in the wrong direction. The divisor is an eight-bit register; the steps left are 1 through the
         // denominator (at most 12), because the first and last steps return above, so it never wraps or reaches zero.
         int remainingSteps = denominator - numerator + 1;
-        int quotient = EightEight.FromWhole(Math.Abs(target - current)) / remainingSteps;
+        int quotient = EightEightOracle.FromWhole(Math.Abs(target - current)) / remainingSteps;
         int signedStep = target < current ? -quotient : quotient;
-        return UnsignedEightEight.Whole(CoordinateAxis.Wrap(EightEight.FromWhole(current) + signedStep));
+        return EightEightOracle.UnsignedWhole(CoordinateAxis.Wrap(EightEightOracle.FromWhole(current) + signedStep));
     }
 }

@@ -101,7 +101,7 @@ internal static class DraygonStateQuantitiesVerification
         AssertEqual((ushort)6, state.SpiralXRadius.UnsignedWholePixels, "the carried radius reaches the next whole pixel");
         ushort nativeDelta = unchecked(angleDeltaRaw - 1);
         AssertEqual(nativeDelta, state.SpiralAngleDelta.RawValue, "the angular step slows by 1/256 unit");
-        AssertEqual(unchecked((byte)(angle + UnsignedEightEight.Whole(nativeDelta))), state.SpiralAngle.ToTrigonometryAngle().RawValue,
+        AssertEqual(unchecked((byte)(angle + EightEightOracle.UnsignedWhole(nativeDelta))), state.SpiralAngle.ToTrigonometryAngle().RawValue,
             "the angle advances by the step's whole units and wraps around the turn");
         AssertEqual(DraygonPhase.FinalTailWhips, state.Phase, "the lifted centre past its limit ends the spiral");
     }
@@ -164,7 +164,7 @@ internal static class DraygonStateQuantitiesVerification
         while (true)
         {
             speed = unchecked((ushort)(speed + acceleration));
-            ushort candidate = unchecked((ushort)(y - EightEight.WholeOf(speed)));
+            ushort candidate = unchecked((ushort)(y - EightEightOracle.WholeOf(speed)));
             if (unchecked((short)(candidate - resetY)) < 0)
                 break;
             y = candidate;

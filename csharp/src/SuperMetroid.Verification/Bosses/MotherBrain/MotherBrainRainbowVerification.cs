@@ -24,7 +24,7 @@ internal static void VerifyMotherBrainRainbowBeamSamusMovement()
     // The helpers add a signed 8.8 velocity to the whole Y word and only the high
     // subposition byte, so the applied vertical velocity is the delta of that 8.8 view.
     static ushort YEightEight(SamusState state) =>
-        unchecked((ushort)((EightEight.FromWhole(state.Position.Y.Whole)) | LittleEndianBytes.HighByte(state.Kinematics.Position.Y.Fraction)));
+        unchecked((ushort)((EightEightOracle.FromWhole(state.Position.Y.Whole)) | LittleEndianBytes.HighByte(state.Kinematics.Position.Y.Fraction)));
 
     var movement = new MotherBrainRainbowBeamSamusMovement();
     var cameraCheckpoint = new RainbowBeamCameraCheckpoint();

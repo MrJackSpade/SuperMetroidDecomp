@@ -23,8 +23,8 @@ internal static class ShaktoolOrbitSineVerification
             AssertEqual(Original(index), ShaktoolOrbitDefinitions.OrbitSine.At(TrigonometryAngle.Wrapped(index + 192)), $"Original Shaktool word {index}");
         for (int angle = 0; angle < 256; angle++)
             AssertEqual(new FixedVector<RoomPixels>(
-                    SixteenSixteenWords.ToDisplacement(EightEight.FromWhole(Original(angle + 64))),
-                    SixteenSixteenWords.ToDisplacement(EightEight.FromWhole(Original(angle)))),
+                    SixteenSixteenWords.ToDisplacement(EightEightOracle.FromWhole(Original(angle + 64))),
+                    SixteenSixteenWords.ToDisplacement(EightEightOracle.FromWhole(Original(angle)))),
                 ShaktoolBehavior.OrbitDisplacement(new TrigonometryAngle((byte)angle)), $"Shaktool displacement {angle}");
     }
 }

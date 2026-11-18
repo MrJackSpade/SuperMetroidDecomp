@@ -699,6 +699,9 @@ internal static class FullRunSuitesVerification
             SuperMetroid.Verification.Rooms.LevelData.LevelBlockReactionImportVerification.VerifyLevelImportRefusesBlocksWithoutReaction),
         new(nameof(VerifySamusSpatialValues), () => VerifySamusSpatialValues()),
         new(nameof(VerifyTypedTurnsAndZoom), () => VerifyTypedTurnsAndZoom()),
+        // The typed sine products and the fine sine's coarse reading equal the raw 8.8 arithmetic they replace (#2428).
+        new(nameof(SuperMetroid.Verification.Spatial.TypedSineProductsVerification.VerifyTypedSineProducts),
+            SuperMetroid.Verification.Spatial.TypedSineProductsVerification.VerifyTypedSineProducts),
         // The typed angle steps, the X-ray aim, the combo orbit and the Crystal Flash radius (#1684).
         new(nameof(SuperMetroid.Verification.Spatial.TypedAngleStepsVerification.VerifyTypedAngleSteps),
             SuperMetroid.Verification.Spatial.TypedAngleStepsVerification.VerifyTypedAngleSteps),

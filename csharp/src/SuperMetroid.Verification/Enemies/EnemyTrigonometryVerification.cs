@@ -684,7 +684,7 @@ internal static class EnemyTrigonometryVerification
         int ExpectedPixel(int angle, int radius)
         {
             angle &= 255;
-            int magnitude = EightEight.Multiply(bytes[angle & 127], unchecked((byte)radius));
+            int magnitude = EightEightOracle.Multiply(bytes[angle & 127], unchecked((byte)radius));
             return angle < 128 ? magnitude : -magnitude;
         }
         // Each angle's radii run on one worker; every function swept is pure.
@@ -696,8 +696,8 @@ internal static class EnemyTrigonometryVerification
                 // production helpers. The fractional negation deliberately has no carry.
                 ushort a = (ushort)(0xff00 | angle), r = (ushort)(0xab00 | radius);
                 int product = bytes[angle & 127] * radius;
-                var expected = SignedSixteenSixteen.FromParts((short)(angle < 128 ? EightEight.WholeOf(product) : -EightEight.WholeOf(product)),
-                    unchecked((ushort)(angle < 128 ? SixteenSixteen.FromEightEight(product) : -SixteenSixteen.FromEightEight(product))));
+                var expected = SignedSixteenSixteen.FromParts((short)(angle < 128 ? EightEightOracle.WholeOf(product) : -EightEightOracle.WholeOf(product)),
+                    unchecked((ushort)(angle < 128 ? EightEightOracle.ToSixteenSixteen(product) : -EightEightOracle.ToSixteenSixteen(product))));
                 if (pixel(a, r) != ExpectedPixel(angle, radius) || fixedProduct(a, r) != expected ||
                     cosine(a, r) != ExpectedPixel(angle + 64, radius) || negative(a, r) != ExpectedPixel(angle + 128, radius))
                     throw new InvalidDataException($"Compiled byte sine result differs at angle={angle}, radius={radius}.");
@@ -705,8 +705,8 @@ internal static class EnemyTrigonometryVerification
                 {
                     int shiftedAngle = unchecked((byte)(angle + phase));
                     int shiftedProduct = bytes[shiftedAngle & 127] * radius;
-                    short whole = (short)(shiftedAngle < 128 ? EightEight.WholeOf(shiftedProduct) : -EightEight.WholeOf(shiftedProduct));
-                    ushort fraction = unchecked((ushort)(shiftedAngle < 128 ? SixteenSixteen.FromEightEight(shiftedProduct) : -SixteenSixteen.FromEightEight(shiftedProduct)));
+                    short whole = (short)(shiftedAngle < 128 ? EightEightOracle.WholeOf(shiftedProduct) : -EightEightOracle.WholeOf(shiftedProduct));
+                    ushort fraction = unchecked((ushort)(shiftedAngle < 128 ? EightEightOracle.ToSixteenSixteen(shiftedProduct) : -EightEightOracle.ToSixteenSixteen(shiftedProduct)));
                     var fixedActual = phase == 64 ? fixedCosine(a, r) : fixedNegative(a, r);
                     var signedActual = sbugSigned((byte)angle, (byte)radius, phase);
                     var forwardActual = sbugForward((byte)angle, (byte)radius, phase);
@@ -763,7 +763,7 @@ internal static class EnemyTrigonometryVerification
                 bool still = option == LiquidTide.None;
                 int scale = still ? 0 : small ? 8 : 32;
                 int delta = still ? 0 : small ? (sample >= 0 ? 288 : 192) : (sample >= 0 ? 224 : 128);
-                if (tide.TideOffset.RawValue != SixteenSixteen.FromEightEight(sample * scale) ||
+                if (tide.TideOffset.RawValue != EightEightOracle.ToSixteenSixteen(sample * scale) ||
                     tide.TidePhase.RawValue != unchecked((ushort)(phase + delta)))
                     throw new InvalidDataException($"Native tide differs at options={option}, phase={phase:X4}.");
             }

@@ -12,6 +12,12 @@ namespace SuperMetroid.Core.Enemies;
 /// </summary>
 public readonly record struct QuadraticSpeedCurvePlace : IComparable<QuadraticSpeedCurvePlace>
 {
+    /// <summary>The 256ths in a mark, as a power of two.</summary>
+    private const int TwoHundredFiftySixthsPerMarkExponent = 8;
+
+    /// <summary>The 256ths in a mark.</summary>
+    private const int TwoHundredFiftySixthsPerMark = 1 << TwoHundredFiftySixthsPerMarkExponent;
+
     /// <summary>Keeps the place's reading in 256ths of a mark.</summary>
     private QuadraticSpeedCurvePlace(int twoHundredFiftySixthsOfMark) => InTwoHundredFiftySixthsOfMark = twoHundredFiftySixthsOfMark;
 
@@ -32,14 +38,14 @@ public readonly record struct QuadraticSpeedCurvePlace : IComparable<QuadraticSp
     public static QuadraticSpeedCurvePlace PastLastMark => FromMarks(QuadraticSpeedCurveDefinitions.MarkCount);
 
     /// <summary>The place <paramref name="marks"/> whole marks along the curve, or the step of that many marks.</summary>
-    public static QuadraticSpeedCurvePlace FromMarks(int marks) => new(EightEight.FromWhole(marks));
+    public static QuadraticSpeedCurvePlace FromMarks(int marks) => new(checked(marks * TwoHundredFiftySixthsPerMark));
 
     /// <summary>The place <paramref name="twoHundredFiftySixths"/> 256ths of a mark along the curve, or the step of that many.</summary>
     public static QuadraticSpeedCurvePlace FromTwoHundredFiftySixthsOfMark(int twoHundredFiftySixths) => new(twoHundredFiftySixths);
 
     /// <summary>The whole marks of the place, its fraction dropped toward negative infinity.</summary>
     [IntegerQuantity("whole marks of a quadratic speed curve place")]
-    public int WholeMarks => EightEight.WholeOf(InTwoHundredFiftySixthsOfMark);
+    public int WholeMarks => InTwoHundredFiftySixthsOfMark >> TwoHundredFiftySixthsPerMarkExponent;
 
     /// <summary>The speed that applies at this place: the speed of its whole marks.</summary>
     /// <exception cref="InvalidDataException">The place lies past the curve's last mark or before its start.</exception>

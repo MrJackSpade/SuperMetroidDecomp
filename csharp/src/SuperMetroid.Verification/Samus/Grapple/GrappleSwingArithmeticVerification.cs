@@ -77,7 +77,7 @@ internal static class GrappleSwingArithmeticVerification
         for (int combined = -(fastest + impulse); combined <= fastest + impulse; combined++)
         {
             // The replaced turn: the combined speed's size times 160/256, then its sign restored.
-            int size = EightEight.Multiply(Math.Abs(combined), 160);
+            int size = EightEightOracle.Multiply(Math.Abs(combined), 160);
             AssertEqual(AngularSpeed.FromFractionsOfStep(combined < 0 ? -size : size),
                 AngularSpeed.FromFractionsOfStep(combined).ScaledBy(GrappleBeamDefinitions.Physics.SubmergedSwingShare, GrappleBeamDefinitions.Physics.SubmergedSwingParts),
                 $"submerged swing share of {combined}");

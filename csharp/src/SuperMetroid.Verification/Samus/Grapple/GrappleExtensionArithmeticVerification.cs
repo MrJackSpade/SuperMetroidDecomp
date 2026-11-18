@@ -110,7 +110,7 @@ internal static class GrappleExtensionArithmeticVerification
         int quadrant = (x < 0 ? 2 : 0) | (y < 0 ? 1 : 0);
         if (absoluteY < absoluteX)
         {
-            int eighths = (EightEight.FromWhole(absoluteY) / absoluteX) >> 3;
+            int eighths = (EightEightOracle.FromWhole(absoluteY) / absoluteX) >> 3;
             return quadrant switch
             {
                 0 => RotationAngle.QuarterTurn.TurnedBySteps(eighths),
@@ -120,7 +120,7 @@ internal static class GrappleExtensionArithmeticVerification
             };
         }
 
-        int reciprocalEighths = (EightEight.FromWhole(absoluteX) / absoluteY) >> 3;
+        int reciprocalEighths = (EightEightOracle.FromWhole(absoluteX) / absoluteY) >> 3;
         return quadrant switch
         {
             0 => RotationAngle.HalfTurn.TurnedBySteps(-reciprocalEighths),

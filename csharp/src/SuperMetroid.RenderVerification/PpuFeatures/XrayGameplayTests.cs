@@ -28,7 +28,7 @@ internal static class XrayGameplayTests
         {
             var vram = new SnesVram();
             var cgram = new SnesCgram();
-            cgram.SetColor(0, XrayRoomDisplayRules.ActiveBackdrop);
+            cgram.SetColor(0, XrayWindowRenderDefinitions.ActiveBackdrop);
             cgram.SetColor(1, new RgbColor(255, 0, 0)); cgram.SetColor(2, new RgbColor(0, 165, 0)); cgram.SetColor(3, new RgbColor(0, 0, 82));
             cgram.SetColor(128 + palette * 16 + 1, new RgbColor(255, 0, 0));
             for (int y = 0; y < 8; y++)

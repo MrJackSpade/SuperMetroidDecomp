@@ -238,12 +238,12 @@ public static class GameplayDisplayCapture
         };
         // The band's background scroll is a position that goes above and left of its origin (#2308), as the ordinary view's
         // does: the latched scroll plus the room's shake.
-        TurningRoomLowerBand? floor = perspective.Below == BelowPerspectiveFloor.RoomBackground
+        TurningRoomLowerBand? band = perspective.Below == BelowPerspectiveFloor.RoomBackground
             ? new(GameplayRenderDefinitions.CeresFloorFirstLine, SignedScroll(scrolls.BackgroundScroll) + shake.Background,
                 latched.Rooms?.Background ?? throw new InvalidOperationException("Ceres Ridley's room shows its background plane below the turning floor."))
             : null;
         var layer = new TurningRoomLayer(transform, (latched.Rooms?.Floor
-                ?? throw new InvalidOperationException("A turning-floor gameplay frame shows a Ceres room's floor.")), ScreenGeometry.GameplayHudHeightPixels, floor)
+                ?? throw new InvalidOperationException("A turning-floor gameplay frame shows a Ceres room's floor.")), ScreenGeometry.GameplayHudHeightPixels, band)
         {
             Scenery = Scenery(perspective.Scenery, scrolls.ForegroundPosition),
         };
@@ -314,8 +314,8 @@ public static class GameplayDisplayCapture
         GameplayLatchedScene scene = latched.Scene;
         RoomDefinition xrayRoom = scene.Room ?? throw new InvalidOperationException("X-ray has no room.");
         var scrolls = latched.Scrolls;
-        var mode = XrayRoomDisplayRules.Select(xrayRoom, scene.FxType, scene.Boss);
-        bool reveal = mode == XrayRoomBlendMode.RevealBlocks;
+        XrayRoomBlendMode mode = XrayRoomDisplayRules.Select(xrayRoom, scene.FxType, scene.Boss);
+        bool reveal = mode.RevealsBlocks;
         // The reveal shows once a frame boundary has latched it; until then the background shows what the room shows (#1403).
         XrayRevealPlane? shownReveal = reveal ? latched.XrayReveal : null;
         var view = ordinary.View;
@@ -329,7 +329,7 @@ public static class GameplayDisplayCapture
         }
         view = view with
         {
-            ShownLayers = XrayRoomDisplayRules.RemovesBackground(xrayRoom) && mode == XrayRoomBlendMode.PreserveBackgrounds
+            ShownLayers = xrayRoom.XrayHidesBackground && mode.KeepsBackgrounds
                 ? ScreenLayers.Foreground | ScreenLayers.Sprites
                 : ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites,
         };
@@ -341,7 +341,7 @@ public static class GameplayDisplayCapture
             : new GameplaySceneLayer(view, ordinary.Rooms, ordinary.BackgroundLineScrolls);
         // Outside the cone the room blends with its liquid or fog lying behind it, except in Fireflea's room, whose darkness
         // blends with its shade alone.
-        OverlayBlendLayer? overlayBehind = mode != XrayRoomBlendMode.Fireflea && latched.RoomFxOverlay is { } fx
+        OverlayBlendLayer? overlayBehind = !mode.KeepsDarkness && latched.RoomFxOverlay is { } fx
             ? GameplayEffectCapture.CaptureRoomFxOverlay(fx, ordinary.Rooms.ShownFxOverlay) : null;
         // A room with no visible effect blends with nothing behind (#1514). With nothing lying behind, the room combines with the
         // blend's colour unhalved, as it does wherever its liquid shows nothing.
@@ -350,26 +350,20 @@ public static class GameplayDisplayCapture
         bool roomDarkens = scene.Blend?.Operation == BlendOperation.Subtract;
         // The X-ray's own tint: grey in a reveal room, none elsewhere; in Fireflea's room the room's darkness shade, never
         // lighter than the reveal's grey. Its last pass clears the tint at once, except in Fireflea's room.
-        int level = mode switch
-        {
-            XrayRoomBlendMode.RevealBlocks => XrayWindowRenderDefinitions.RevealTintLevel,
-            XrayRoomBlendMode.Fireflea => Math.Max(FirefleaTint(latched).FadeLevels.Red, XrayWindowRenderDefinitions.RevealTintLevel),
-            XrayRoomBlendMode.PreserveBackgrounds => 0,
-            _ => throw new InvalidOperationException($"Undefined X-ray room blend {mode}."),
-        };
-        if (finishedThisFrame && mode != XrayRoomBlendMode.Fireflea) level = 0;
+        int level = mode.KeepsDarkness ? Math.Max(FirefleaTint(latched).FadeLevels.Red, mode.TintLevel) : mode.TintLevel;
+        if (finishedThisFrame && !mode.KeepsDarkness) level = 0;
         // Releasing Run starts the beam's closing, whose window and backdrop still show until its first update is spent;
         // the X-ray keeps the display until its last step finally unfreezes gameplay.
         bool closing = finishedThisFrame || (xray.BeamPhase is XrayBeamPhase.Closing or XrayBeamPhase.Finish && !xray.Closing.ShowsBeam);
         FramePaint paint = warmingUp ? basis.Paint
-            : basis.Paint.WithBackdrop(closing ? RgbColor.Black : XrayRoomDisplayRules.ActiveBackdrop);
+            : basis.Paint.WithBackdrop(closing ? RgbColor.Black : XrayWindowRenderDefinitions.ActiveBackdrop);
         bool closed = warmingUp || closing || xray.BeamPhase == XrayBeamPhase.NoBeam;
         ScreenWindow window = closed ? ScreenWindow.Closed : GameplayEffectCapture.CaptureXrayWindow(xray, scrolls.ForegroundPosition);
         var layer = new GameplayBlendLayer(gameplay, window, reveal, new GameplayBlend
         {
-            Blended = XrayRoomDisplayRules.Blended(mode),
-            Operation = XrayRoomDisplayRules.Operation(mode, roomDarkens),
-            Halved = XrayRoomDisplayRules.Halves(mode) && overlayBehind is not null,
+            Blended = mode.Blended,
+            Operation = mode.Operation(roomDarkens),
+            Halved = mode.Halves && overlayBehind is not null,
             Colour = new FadeLevelColour(level, level, level).ToColour(),
         }, overlayBehind);
         return new(paint, new DisplayLayer[] { layer, Hud(latched) }, basis.Brightness);

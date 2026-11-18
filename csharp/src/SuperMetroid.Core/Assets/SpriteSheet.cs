@@ -45,4 +45,38 @@ public sealed class SpriteSheet
             return false;
         throw new InvalidDataException($"Sprite sheet {Image.Name} has no frame {name}.");
     }
+
+    /// <summary>
+    /// Whether the sheet holds the picture named <paramref name="name"/>: it installs a part of it
+    /// (<see cref="PictureParts"/>), or names it as a picture that shows nothing.
+    /// </summary>
+    /// <exception cref="ArgumentException">The name is empty.</exception>
+    public bool HoldsPicture(string name)
+    {
+        string inFront = PictureParts.InFront(name);
+        return frames.ContainsKey(name) || frames.ContainsKey(inFront) || blanks.Contains(name);
+    }
+
+    /// <summary>
+    /// The two parts of the picture named <paramref name="name"/> the sheet installs (<see cref="PictureParts"/>): each its
+    /// own picture, or none where the import found that part shows nothing and installed nothing for it.
+    /// </summary>
+    /// <exception cref="ArgumentException">The name is empty.</exception>
+    /// <exception cref="InvalidDataException">
+    /// The sheet installs no part of such a picture and does not name it as one that shows nothing, or names it as showing
+    /// nothing yet installs its in-front part.
+    /// </exception>
+    public LayeredPicture Picture(string name)
+    {
+        string inFront = PictureParts.InFront(name);
+        SpriteSheetFrame? behind = frames.GetValueOrDefault(name);
+        SpriteSheetFrame? before = frames.GetValueOrDefault(inFront);
+        bool showsNothing = blanks.Contains(name);
+        if (showsNothing && before is not null)
+            throw new InvalidDataException($"Sprite sheet {Image.Name} names picture {name} as showing nothing but installs its in-front part {inFront}.");
+        if (behind is null && before is null && !showsNothing)
+            throw new InvalidDataException(
+                $"Sprite sheet {Image.Name} has no picture {name}: it installs neither {name} nor {inFront} and does not name it as showing nothing.");
+        return new LayeredPicture(behind, before);
+    }
 }

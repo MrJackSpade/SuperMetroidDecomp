@@ -23,4 +23,11 @@ public sealed record RoomDefinition(
     Extent16<RoomScreens> Size,
     int FallingCameraOffset,
     int RisingCameraOffset,
-    RoomDoorTransitionStyle DoorTransition);
+    RoomDoorTransitionStyle DoorTransition)
+{
+    /// <summary>
+    /// Whether the X-ray, where it keeps the room's backgrounds rather than revealing its blocks, also hides the room's
+    /// background layer; only the Glass Tunnel does.
+    /// </summary>
+    public bool XrayHidesBackground { get; init; }
+}

@@ -227,7 +227,7 @@ internal static class GameplayDisplayFrameTestsVerification
         var mode7 = (TurningRoomLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
         AssertEqual(RotationAngle.FromSteps(5).Radians, mode7.Transform.Angle, "the accepted NMI publishes Ridley's floor angle");
         AssertEqual(240 / 256.0, mode7.Transform.Scale, "the accepted NMI publishes Ridley's floor zoom");
-        AssertTrue(mode7.Floor is not null, "the accepted NMI publishes Ridley's mixed Mode 7 band");
+        AssertTrue(mode7.LowerBand is not null, "the accepted NMI publishes Ridley's mixed Mode 7 band");
         getaway.Active = false;
         runtime.FrameBoundary.BeginAcceptedFrame(0);
     }

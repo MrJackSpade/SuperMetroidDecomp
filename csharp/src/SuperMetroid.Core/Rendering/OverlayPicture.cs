@@ -7,4 +7,8 @@ namespace SuperMetroid.Core.Rendering;
 /// </summary>
 public abstract record OverlayPicture
 {
+    /// <summary>Closes the hierarchy to the liquid and the atmosphere.</summary>
+    private protected OverlayPicture()
+    {
+    }
 }

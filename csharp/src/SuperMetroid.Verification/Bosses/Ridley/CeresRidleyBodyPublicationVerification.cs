@@ -55,7 +55,7 @@ internal static class CeresRidleyBodyPublicationVerification
             AssertTrue(map.DrawnOver.Contains(sheet.Picture(wings)),
                 $"angle {escape.Floor.Angle} publishes his {wings} body frame");
             var mode7 = (TurningRoomLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
-            AssertTrue(mode7.Map.Equals(map), $"angle {escape.Floor.Angle} draws his published body");
+            AssertTrue(mode7.Floor.Equals(map), $"angle {escape.Floor.Angle} draws his published body");
             VerifyChamberWalls(mode7, runtime.Display.Latched.Scrolls.ForegroundPosition);
         }
         Console.WriteLine("  Ceres Ridley body: two getaway rotations publish his transform and body frames on the Mode 7 layer.");

@@ -34,19 +34,19 @@ public sealed class LayeredScene
     /// <exception cref="ArgumentNullException"><paramref name="paint"/> is null.</exception>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="brightness"/> is out of range.</exception>
     /// <exception cref="ArgumentException">
-    /// A layer is null or unsupported, a turning floor selects two blends at once, a whole-gameplay layer comes after
+    /// A layer is null, a turning floor selects two blends at once, a whole-gameplay layer comes after
     /// another, or a glow names sprites that are not one of the scene's sprite layers.
     /// </exception>
     public LayeredScene(FramePaint paint, ReadOnlySpan<DisplayLayer> layers, int brightness)
     {
         Ensure.NotNull(paint);
         Brightness = DisplayBrightness.Require(brightness);
-        // Each accepted record is sealed and owns any array data. Copy the sequence so a scene
+        // Each layer is one of the display model's sealed records and owns any array data. Copy the sequence so a scene
         // cannot rearrange a queued frame's layer order after publication.
         foreach (DisplayLayer layer in layers)
         {
-            if (layer is not (SpritesLayer or HudLayer or TurningFloorLayer or ScreenTintLayer or GameplaySceneLayer or ColourAddWindowLayer or MessageBoxLayer or OverlayBlendLayer or TurningRoomLayer or InsetSceneLayer or GameplayBlendLayer or PicturedPlaneLayer or AddedPicturedPlaneLayer or PictureGridLayer or ScreenGradientLayer))
-                throw new ArgumentException("Unrecognized or null display layer.", nameof(layers));
+            if (layer is null)
+                throw new ArgumentException("A display layer is null.", nameof(layers));
             if (layer is TurningFloorLayer { SubtractsSprites: true, AddsForeground: true })
                 throw new ArgumentException("A turning floor cannot both subtract the sprites and add itself.", nameof(layers));
             if (layer is AddedPicturedPlaneLayer { GlowsOverSprites: { } sprites } && !Holds(layers, sprites))

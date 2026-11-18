@@ -671,7 +671,7 @@ internal static void VerifySamusPowerBeamProjectiles()
             // The glow's even steps descend from twenty, selecting palettes 0..9 in order.
             AssertEqual(20 - palette * 2, hyperStepsBefore,
                 $"Hyper body glow call {call + 1} uses descending table index");
-            AssertEqual(SamusShades.HyperShot((20 - palette * 2) / 2 - 1), hyperGlowColours.Suit,
+            AssertEqual(SamusShades.HyperShot[(20 - palette * 2) / 2 - 1], hyperGlowColours.Suit,
                 $"Hyper body palette {palette} shows its Hyper-shot frame");
             RgbColor[] hyperSuit = hyperGlowColours.ShownSuit(projSources);
             for (int color = 0; color < 16; color++)

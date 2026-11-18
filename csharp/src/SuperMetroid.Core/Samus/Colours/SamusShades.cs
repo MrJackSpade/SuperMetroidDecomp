@@ -31,18 +31,37 @@ public static class SamusShades
     public static PictureShade Charge(SamusChargeShade shade) => new($"Charge{shade.Kind}{shade.Suit}", shade.Step);
 
     /// <summary>
+    /// The suit under each step of <paramref name="kind"/>'s pulse in <paramref name="suit"/>, in the order the pulse shows
+    /// them (#2447).
+    /// </summary>
+    public static IReadOnlyList<PictureShade> ChargePulse(SamusChargeKind kind, SamusSuit suit) =>
+        [.. Enumerable.Range(0, SamusShadeDefinitions.Charge.PulseShades).Select(step => Charge(new(kind, suit, step)))];
+
+    /// <summary>
     /// The suit under each frame of the Hyper Beam's full-body glow, in the order the drained Samus's rainbow shows them
     /// (#2387).
     /// </summary>
     public static IReadOnlyList<PictureShade> HyperBeamSuit { get; } =
         Run("HyperBeamSuit", SamusShadeDefinitions.FullBodyCycles.HyperBeamShadeCount);
 
-    /// <summary>The suit under one frame of a Hyper shot's glow, which walks the charge colours' copy of the Hyper Beam glow.</summary>
-    public static PictureShade HyperShot(int frame) => new("HyperShot", frame);
+    /// <summary>
+    /// The suit under each frame of a Hyper shot's glow, which walks the charge colours' copy of the Hyper Beam glow (#2447):
+    /// in the full-body glow's order, which the shot's glow plays from its last to its first.
+    /// </summary>
+    public static IReadOnlyList<PictureShade> HyperShot { get; } =
+        Run("HyperShot", SamusShadeDefinitions.FullBodyCycles.HyperBeamShadeCount);
 
     /// <summary>The suit under one shade of a full-body cycle: Speed Booster, Screw Attack or a shinespark's glow.</summary>
     public static PictureShade FullBodyCycle(SamusFullBodyCycleShade shade) =>
         new($"{shade.Family}{shade.Suit}", shade.Shade);
+
+    /// <summary>
+    /// The suit under each of <paramref name="family"/>'s shades in <paramref name="suit"/>, from its first to its brightest
+    /// (#2447).
+    /// </summary>
+    public static IReadOnlyList<PictureShade> FullBodyCycleShades(SamusFullBodyCycleFamily family, SamusSuit suit) =>
+        [.. Enumerable.Range(0, SamusShadeDefinitions.FullBodyCycles.FamilyShades)
+            .Select(shade => FullBodyCycle(new(family, suit, shade)))];
 
     /// <summary>The suit under the hurt flash's bright colours or its cinematic grey restoration.</summary>
     public static PictureShade Hurt(SamusHurtColorVariant variant) => new($"Hurt{variant}", 0);
@@ -84,8 +103,9 @@ public static class SamusShades
     public static IReadOnlyList<PictureShade> CrystalFlashBubble { get; } =
         Run("CrystalFlashBubble", SamusShadeDefinitions.CrystalFlash.BubbleShadeCount);
 
-    /// <summary>The beams' colours under one frame of the Hyper Beam's own colour cycle.</summary>
-    public static PictureShade HyperBeamCycle(int frame) => new("HyperBeamCycle", frame);
+    /// <summary>The beams' colours under each frame of the Hyper Beam's own colour cycle, in the order it shows them (#2447).</summary>
+    public static IReadOnlyList<PictureShade> HyperBeamCycle { get; } =
+        Run("HyperBeamCycle", SamusShadeDefinitions.HyperBeamCycle.Frames);
 
     /// <summary>The suit as her death sequence shows it in <paramref name="suit"/> under <paramref name="shade"/>.</summary>
     public static PictureShade DeathSuit(SamusSuit suit, SamusDeathShade shade) => new($"Death{suit}", shade.Step);

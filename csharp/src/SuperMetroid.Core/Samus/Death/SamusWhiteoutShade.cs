@@ -26,6 +26,9 @@ public readonly record struct SamusWhiteoutShade
     public static IReadOnlyList<SamusWhiteoutShade> All { get; } =
         [.. Enumerable.Range(0, SamusShadeDefinitions.Death.WhiteoutShadeCount).Select(step => new SamusWhiteoutShade(step))];
 
+    /// <summary>The shades the explosion brightens through before <see cref="Brightest"/>, in order (#2447).</summary>
+    public static IReadOnlyList<SamusWhiteoutShade> Brightening { get; } = [.. All.Take(Brightest.Step)];
+
     /// <summary>The shade's step, from zero, which its installed key and colour carry.</summary>
     public int Step { get; }
 }

@@ -33,13 +33,8 @@ internal static class SamusDeathAnimations
     internal static AnimationSegments<W, SamusWhiteoutShade, NoAnimationCue> WhiteoutSegments { get; } = new(
         new Dictionary<W, AnimationBeat<SamusWhiteoutShade, NoAnimationCue>[]>
         {
-            [W.Brightening] =
-            [
-                Whiteout(0), Whiteout(1), Whiteout(2), Whiteout(3), Whiteout(4), Whiteout(5), Whiteout(6), Whiteout(7), Whiteout(8),
-                Whiteout(9), Whiteout(10), Whiteout(11), Whiteout(12), Whiteout(13), Whiteout(14), Whiteout(15), Whiteout(16),
-                Whiteout(17), Whiteout(18), Whiteout(19),
-            ],
-            [W.Brightest] = [new AnimationBeat<SamusWhiteoutShade, NoAnimationCue>.Frame(SamusWhiteoutShade.Brightest, 1)],
+            [W.Brightening] = [.. SamusWhiteoutShade.Brightening.Select(Whiteout)],
+            [W.Brightest] = [Whiteout(SamusWhiteoutShade.Brightest)],
         });
 
     /// <summary>The whiteout, brightening and then showing its brightest shade on every update.</summary>
@@ -78,7 +73,7 @@ internal static class SamusDeathAnimations
     /// <summary>Shows explosion picture <paramref name="frame"/> for <paramref name="updates"/> updates.</summary>
     private static AnimationBeat<E, NoAnimationCue> Picture(E frame, int updates) => new AnimationBeat<E, NoAnimationCue>.Frame(frame, updates);
 
-    /// <summary>Shows whiteout shade <paramref name="step"/> for one update.</summary>
-    private static AnimationBeat<SamusWhiteoutShade, NoAnimationCue> Whiteout(int step) =>
-        new AnimationBeat<SamusWhiteoutShade, NoAnimationCue>.Frame(new SamusWhiteoutShade(step), 1);
+    /// <summary>Shows whiteout shade <paramref name="shade"/> for one update.</summary>
+    private static AnimationBeat<SamusWhiteoutShade, NoAnimationCue> Whiteout(SamusWhiteoutShade shade) =>
+        new AnimationBeat<SamusWhiteoutShade, NoAnimationCue>.Frame(shade, 1);
 }

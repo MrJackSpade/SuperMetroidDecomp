@@ -46,7 +46,7 @@ internal static class HyperBeamFxColorArtworkVerification
             AssertEqual(expectedFrame, extractedColours.ShownHyperBeamCycleShade, "Native FX frame order including loop");
             AssertEqual((call & 1) == 0, extractedColours.ShownHyperBeamCycleShade != frameBefore, "Native FX paint/hold cadence");
             AssertEqual((call & 1) == 0 ? originalDuration : originalDuration - 1, extracted.FrameHold, "Native FX timer");
-            AssertEqual(SamusShades.HyperBeamCycle(expectedFrame), extractedColours.BeamOverlays[^1],
+            AssertEqual(SamusShades.HyperBeamCycle[expectedFrame], extractedColours.BeamOverlays[^1],
                 "The Hyper Beam lays its current cycle frame over her beams");
             RgbColor[] shownBeams = extractedColours.ShownBeams(stockSources);
             for (int color = 0; color < 8; color++)

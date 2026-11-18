@@ -308,21 +308,21 @@ level, SamusRoomObjectFixtures.Uninstalled, right, unchecked((ushort)(frame + 1)
         "rainbow handler owns palette dispatcher");
     AssertEqual(0x1000, drainedColours.ShownSuit(drainedSources)[0],
         "rainbow first call loads Hyper Beam palette zero");
-    AssertEqual(SuperMetroid.Core.Samus.Colours.SamusShades.HyperBeamSuit[1], unable.Drained.RainbowShade,
+    AssertEqual(SuperMetroid.Core.Samus.Colours.SamusShades.HyperBeamSuit[1], unable.Drained.Rainbow.Shown,
         "one-call rainbow cadence advances immediately");
     unable.Drained.HoldRainbowGlowLonger(longestHold: 10);
     unable.Drained.UpdateColouring(drainedColours, unable.EquippedItems);
-    AssertEqual(2, unable.Drained.RainbowGlowStepCountdown,
+    AssertEqual(2, unable.Drained.Rainbow.UpdatesLeft,
         "Baby-raised rainbow delay reloads two");
-    AssertEqual(SuperMetroid.Core.Samus.Colours.SamusShades.HyperBeamSuit[2], unable.Drained.RainbowShade,
+    AssertEqual(SuperMetroid.Core.Samus.Colours.SamusShades.HyperBeamSuit[2], unable.Drained.Rainbow.Shown,
         "rainbow second palette advances into delayed index");
     unable.Drained.UpdateColouring(drainedColours, unable.EquippedItems);
     AssertEqual(0x1040, drainedColours.ShownSuit(drainedSources)[0],
         "rainbow delayed index loads before timer decrement");
-    AssertEqual(SuperMetroid.Core.Samus.Colours.SamusShades.HyperBeamSuit[2], unable.Drained.RainbowShade,
+    AssertEqual(SuperMetroid.Core.Samus.Colours.SamusShades.HyperBeamSuit[2], unable.Drained.Rainbow.Shown,
         "rainbow delay holds palette index for first call");
     unable.Drained.UpdateColouring(drainedColours, unable.EquippedItems);
-    AssertEqual(SuperMetroid.Core.Samus.Colours.SamusShades.HyperBeamSuit[3], unable.Drained.RainbowShade,
+    AssertEqual(SuperMetroid.Core.Samus.Colours.SamusShades.HyperBeamSuit[3], unable.Drained.Rainbow.Shown,
         "rainbow delay advances on second call");
 
     unable.Drained.DisableRainbowAndStartStandingAnimation(unable);

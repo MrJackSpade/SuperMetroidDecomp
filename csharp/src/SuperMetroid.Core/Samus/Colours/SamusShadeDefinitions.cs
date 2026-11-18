@@ -20,11 +20,27 @@ public static class SamusShadeDefinitions
         public const int CycleShades = 3;
     }
 
+    /// <summary>The charge glows Samus's suit pulses through while a beam is charged or the pseudo Screw Attack holds.</summary>
+    public static class Charge
+    {
+        /// <summary>The shades each charge pulse shows in order, in every suit, before it starts again.</summary>
+        public const int PulseShades = 6;
+    }
+
+    /// <summary>The Hyper Beam's own colour cycle, which its beams show.</summary>
+    public static class HyperBeamCycle
+    {
+        /// <summary>The cycle's beam colourings: red, yellow, green, blue and magenta, each followed by its blend into the next.</summary>
+        public const int Frames = 10;
+    }
+
     /// <summary>The suit-and-phase lists the special full-body suit colourings select their cycle shades from.</summary>
     public static class FullBodyCycles
     {
         /// <summary>Number of full-body Hyper Beam shades.</summary>
         public const int HyperBeamShadeCount = 10;
+        /// <summary>The shades each full-body cycle family authors in every suit: Speed Booster, Screw Attack and the shines.</summary>
+        public const int FamilyShades = 4;
         /// <summary>The shading updates before the active Speed Booster cycle's first step when the boost starts: it starts on the next.</summary>
         public const int SpeedBoosterFirstStepWait = 1;
         /// <summary>The Speed Booster shade the Metroid-attachment flash alternates with the normal suit: the family's brightest.</summary>

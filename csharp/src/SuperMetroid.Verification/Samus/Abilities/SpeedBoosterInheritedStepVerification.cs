@@ -32,7 +32,7 @@ internal static class SpeedBoosterInheritedStepVerification
             {
                 string context = $"{suit} step {inherited}";
                 var speed = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { SpeedBoostCounter = new SamusSpeedBoostCounter(4, 0) };
-                PrivateState.Set(speed, nameof(SamusHorizontalSpeedState.CycleShadeTimer), 1);
+                speed.CycleShadeTimer = 1;
                 var colours = new SamusColours();
                 for (int call = 0; call < inherited; call++)
                     speed.UpdateSpeedBoosterGlow(colours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.SpinJumping, AnimationOnSpinStart = (1) == 0, AnimationPastScrewAttackSpin = (1) >= 27, AnimationBeforeWallJumpSpin = (1) < 3, EquippedItems = equipped, SuppressActiveSpeedBoosterGlow = false, BottomBoundarySubmerged = false });

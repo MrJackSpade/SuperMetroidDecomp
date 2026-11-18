@@ -61,22 +61,19 @@ public sealed class SamusHorizontalSpeedState
     public bool IsActivelySpeedBoosting => SpeedBoostCounter.IsAtFullStage;
 
     /// <summary>
-    /// Where the Speed Booster's and the Screw Attack's glows stand (#2387). The two share it: each goes on from where the
-    /// other left it (<see cref="AnimationPlayback{TSegment}.GoingOnIn"/>), so a Speed Booster glow following a Screw
+    /// The Speed Booster's and the Screw Attack's glow (#2387, #2447). The two share where it stands: each goes on from where
+    /// the other left it (<see cref="AnimationPlayback{TSegment}.GoingOnIn"/>), so a Speed Booster glow following a Screw
     /// Attack spin starts at the spin's shade, or rests on its own brightest when the spin stood past its four, and a spin
     /// following a boosted run starts where the run's glow stood. A change of suit goes on alike. Starting or cancelling
-    /// the boost's momentum, and the first frames of a spin, start it again.
+    /// the boost's momentum, and the first frames of a spin, start it again. The player counts the Speed Booster's hold of
+    /// its shown shade: the first boosted running frame moves it on, then each shade holds its own four updates; a Screw
+    /// Attack spin moves the shared place on and leaves the hold where it stood.
     /// </summary>
-    internal AnimationPlayback<SamusGlowSegment> FullBodyCycle { get; private set; } = FullBodyCycleStart;
+    internal AnimationPlayer<SamusGlowSegment, PictureShade, NoAnimationCue> FullBodyGlow { get; } =
+        SamusGlowPlay.Starting(FullBodyGlowStart);
 
-    /// <summary>The shared glow before its first shade.</summary>
-    private static AnimationPlayback<SamusGlowSegment> FullBodyCycleStart => SamusGlowPlay.Before(SamusGlowSegment.ScrewAttackPower);
-
-    /// <summary>
-    /// The updates the Speed Booster glow's shown shade still holds: one on the first boosted running frame, then each
-    /// shade's own four. A Screw Attack spin leaves it where it stood.
-    /// </summary>
-    public int CycleShadeTimer { get; private set; }
+    /// <summary>The glow the shared place starts in, before its first shade.</summary>
+    private const SamusGlowSegment FullBodyGlowStart = SamusGlowSegment.ScrewAttackPower;
 
     /// <summary>
     /// Whether the Speed Booster's echo sound is playing: set before the echo sound's start request, cleared with the
@@ -214,8 +211,7 @@ public sealed class SamusHorizontalSpeedState
                 // Showing the colours remains drawing work, but their
                 // frame/timer state is movement-visible and therefore retained here.
                 HasRunningMomentum = true;
-                CycleShadeTimer = SamusShadeDefinitions.FullBodyCycles.SpeedBoosterFirstStepWait;
-                FullBodyCycle = FullBodyCycleStart;
+                SamusGlowPlay.RestartAfter(FullBodyGlow, FullBodyGlowStart, SamusShadeDefinitions.FullBodyCycles.SpeedBoosterFirstStepWait);
                 SpeedBoostCounter = new SamusSpeedBoostCounter(stage: 0, countdown: SamusRunningCadences.CountdownAfterAdvance(SamusRunningCadence.BoostStage0));
             }
 
@@ -361,7 +357,7 @@ public sealed class SamusHorizontalSpeedState
             {
                 // Restarts only the colour cycle's step. The spin's first frame keeps the normal suit colours
                 // already shown; it shows no Screw Attack shade.
-                FullBodyCycle = FullBodyCycleStart;
+                FullBodyGlow.GoOnFrom(SamusGlowPlay.Before(FullBodyGlowStart));
                 return shadeCopied;
             }
 
@@ -386,7 +382,7 @@ public sealed class SamusHorizontalSpeedState
             {
                 // The wall-jump animation keeps the normal suit colours until its spin starts; its spin frames
                 // share the same six colour steps.
-                FullBodyCycle = FullBodyCycleStart;
+                FullBodyGlow.GoOnFrom(SamusGlowPlay.Before(FullBodyGlowStart));
                 return shadeCopied;
             }
 
@@ -397,18 +393,11 @@ public sealed class SamusHorizontalSpeedState
         if (!IsActivelySpeedBoosting)
             return shadeCopied;
 
-        // Zero and a count run past zero both reload four, though ordinary execution arrives with timer one.
-        if (--CycleShadeTimer > 0)
+        // The Speed Booster goes on from where the shared glow stands once its hold runs out: a Screw Attack spin that stood
+        // past the Speed Booster's four shades leaves it on its brightest, which it rests on as every boosted run does.
+        if (SamusGlowPlay.StepToNextShadeGoingOnIn(FullBodyGlow, SamusGlowAnimationDefinitions.SpeedBooster[suit]) is not { } shown)
             return shadeCopied;
-
-        // The Speed Booster goes on from where the shared cycle stands: a Screw Attack spin that stood past the Speed
-        // Booster's four shades leaves it on its brightest, which it rests on as every boosted run does.
-        AnimationPlayback<SamusGlowSegment> cycle = FullBodyCycle;
-        AnimationShown<SamusGlowSegment, PictureShade>.Frame shown =
-            SamusGlowPlay.NextShade(SamusGlowAnimationDefinitions.SpeedBooster[suit], ref cycle);
-        FullBodyCycle = cycle;
-        CycleShadeTimer = shown.Duration;
-        colours.ShowSuit(shown.Shown);
+        colours.ShowSuit(shown);
         return true;
     }
 
@@ -441,9 +430,9 @@ public sealed class SamusHorizontalSpeedState
         SamusColours colours,
         SamusSuit suit)
     {
-        AnimationPlayback<SamusGlowSegment> cycle = FullBodyCycle;
+        AnimationPlayback<SamusGlowSegment> cycle = FullBodyGlow.Playback;
         colours.ShowSuit(SamusGlowPlay.NextShade(SamusGlowAnimationDefinitions.ScrewAttack[suit], ref cycle).Shown);
-        FullBodyCycle = cycle;
+        FullBodyGlow.GoOnFrom(cycle);
     }
 
     /// <summary>
@@ -520,8 +509,7 @@ public sealed class SamusHorizontalSpeedState
         {
             HasRunningMomentum = false;
             SpeedBoostCounter = default;
-            FullBodyCycle = FullBodyCycleStart;
-            CycleShadeTimer = 0;
+            SamusGlowPlay.Restart(FullBodyGlow, FullBodyGlowStart);
             SuitShadeRestoreRequested = true;
         }
 
@@ -549,16 +537,14 @@ public sealed class SamusHorizontalSpeedState
         {
             if (HasRunningMomentum && SpeedBoostCounter == default)
             {
-                CycleShadeTimer = 0;
-                FullBodyCycle = FullBodyCycleStart;
+                SamusGlowPlay.Restart(FullBodyGlow, FullBodyGlowStart);
                 SpeedBoostCounter = new SamusSpeedBoostCounter(stage: 0, countdown: SamusRunningCadences.CountdownAfterAdvance(SamusRunningCadence.BoostStage0));
             }
             return;
         }
 
         HasRunningMomentum = false;
-        CycleShadeTimer = 0;
-        FullBodyCycle = FullBodyCycleStart;
+        SamusGlowPlay.Restart(FullBodyGlow, FullBodyGlowStart);
         SpeedBoostCounter = default;
         SpeedEchoPhase = SpeedEchoPhase.CapturingFirst;
         FirstSpeedEchoHorizontalSpeed = SecondSpeedEchoHorizontalSpeed = 0;

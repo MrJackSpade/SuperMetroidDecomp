@@ -300,7 +300,8 @@ internal static void VerifySamusHorizontalSpeed()
         "submerged Varia Suit suppresses active Speed Booster palette copy");
     AssertEqual(SamusShades.ChargedShotGlow, submergedBoostColours.Suit,
         "submerged Speed Booster leaves live Samus palette untouched");
-    AssertEqual(0, submergedBoost.CycleShadeTimer,
+    // A glow not yet started holds one update: its next boosted update moves it on (#2447).
+    AssertEqual(1, submergedBoost.CycleShadeTimer,
         "submerged Speed Booster freezes common palette timer");
     AssertEqual(0, submergedBoost.CycleShadeStep,
         "submerged Speed Booster freezes palette-list offset");

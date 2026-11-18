@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Areas.Tourian;
-using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Enemies.WreckedShip;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.RoomObjects;

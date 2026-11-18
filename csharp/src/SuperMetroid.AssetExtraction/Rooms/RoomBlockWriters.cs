@@ -1,6 +1,5 @@
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Doors;

@@ -11,7 +11,6 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
-using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Gunship;

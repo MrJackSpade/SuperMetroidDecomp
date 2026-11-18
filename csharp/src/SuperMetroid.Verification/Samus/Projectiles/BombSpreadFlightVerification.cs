@@ -10,10 +10,14 @@ namespace SuperMetroid.Verification.Samus.Projectiles;
 
 /// <summary>
 /// Pins a bomb spread's launch velocities and its ceiling rule (#2459): each bomb's signed launch velocity with and
-/// without the held-Down bonus, and a rise stopped by a ceiling keeping its fraction of a pixel as a fall.
+/// without the held-Down bonus, a rise stopped by a ceiling keeping its fraction of a pixel as a fall, and a bomb that
+/// explodes inside a solid block staying where it burned out (#2466).
 /// </summary>
 internal static class BombSpreadFlightVerification
 {
+    /// <summary>The width and height, in blocks, of the fixtures' rooms.</summary>
+    private const int RoomSide = 8;
+
     /// <summary>The five bombs' horizontal launch velocities from the leftmost, in sixteenths of a pixel per update.</summary>
     private static readonly int[] HorizontalSixteenths = [-16, -8, 0, 8, 16];
 
@@ -26,7 +30,8 @@ internal static class BombSpreadFlightVerification
         VerifyLaunchVelocities();
         VerifyFlightRules();
         VerifyCeilingThroughBombUpdate();
-        Console.WriteLine("Bomb spread flight: launch velocities for every hold, the floor bounce and the ceiling's kept fraction.");
+        VerifyExplodingBombInSolidBlock();
+        Console.WriteLine("Bomb spread flight: launch velocities for every hold, the floor bounce, the ceiling's kept fraction and the exploding bomb's rest.");
     }
 
     /// <summary>
@@ -78,26 +83,9 @@ internal static class BombSpreadFlightVerification
     /// </summary>
     private static void VerifyCeilingThroughBombUpdate()
     {
-        const int width = 8;
-        const int height = 8;
-        var blocks = new RoomTerrainBlock[width * height];
-        for (int x = 0; x < width; x++)
-            blocks[2 * width + x] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
-        var ceiling = new RoomLevelData(new Extent16<RoomBlocks>(width, height),
-            new RoomLevelPlanes(blocks, new RoomBlockBehavior[blocks.Length], new RoomBlockAppearance[blocks.Length]),
-            RoomLevelData.NothingBeyondGrid(), []);
-        var terrain = new SamusTerrain { Level = ceiling, RoomObjects = SamusRoomObjectFixtures.Uninstalled };
-
-        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation,
-            new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SamusCompatibility.ForNewSamus(), new BeamChargeState(),
-            InstalledFixtures.SamusArtwork())
-        {
-            Pose = SamusPoseId.MorphBallGroundRightPose,
-            EquippedItems = SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs,
-            // The row of solid blocks ends at 48; the bombs start on its lower edge.
-            Position = FixedPosition<RoomPixels>.FromWhole(new(64, 48)),
-        };
-        samus.Kinematics.YAcceleration = new UnsignedSixteenSixteen(0, 0x1c00);
+        // The row of solid blocks ends at 48; the bombs start on its lower edge.
+        SamusTerrain terrain = RoomWithSolidBlocks(Enumerable.Range(0, RoomSide).Select(x => (x, 2)));
+        SamusState samus = MorphedSamusWithBombs(FixedPosition<RoomPixels>.FromWhole(new(64, 48)));
         SignedSixteenSixteen gravity = samus.Kinematics.YAcceleration.AsDisplacement();
 
         SamusBombProjectileSystem bombs = InstalledFixtures.CreateBombSystem();
@@ -122,5 +110,66 @@ internal static class BombSpreadFlightVerification
         SamusBomb centre = bombs.Bombs[2];
         AssertEqual(SignedSixteenSixteen.FromParts(0, 0xb800), centre.SpreadFlight!.VerticalVelocity, "the centre bomb's fall gathers gravity after the ceiling");
         AssertEqual(FixedCoordinate.Of(48, 0xb800), FixedCoordinate.Of(centre.Position.Y.Whole, centre.Position.Y.Fraction), "the centre bomb falls 0.71875 pixels the next update");
+    }
+
+    /// <summary>
+    /// A spread bomb whose fuse runs out with its centre inside a solid block (#2466): it explodes where it is, its
+    /// sideways travel is not turned back and gravity no longer acts on it, on the update it burns out and after. The
+    /// game's spread collision test, run with the fuse at zero, sets off the explosion's cross and reports no collision,
+    /// so the wall turn that would move the bomb back one step never runs.
+    /// </summary>
+    private static void VerifyExplodingBombInSolidBlock()
+    {
+        const int rightmost = MorphBallBombDefinitions.PlaceCount - 1;
+        // The block whose pixels run from 80 to 95 across and 48 to 63 down holds the bomb's centre.
+        SamusTerrain terrain = RoomWithSolidBlocks([(5, 3)]);
+        SamusState samus = MorphedSamusWithBombs(FixedPosition<RoomPixels>.FromWhole(new(40, 104)));
+
+        SamusBombProjectileSystem bombs = InstalledFixtures.CreateBombSystem();
+        bombs.SpawnBombSpread(samus);
+        SamusBomb bomb = bombs.Bombs[rightmost];
+        BombSpreadFlight flight = bomb.SpreadFlight ?? throw new InvalidOperationException("The rightmost spread bomb has no flight.");
+        FixedPosition<RoomPixels> inBlock = FixedPosition<RoomPixels>.FromWhole(new(88, 56));
+        bomb.Position = inBlock;
+        bomb.FuseUpdatesLeft = 1;
+        BombSpreadLaunchDefinition launch = SamusBombSpreadLaunches.ForPlace(rightmost);
+
+        foreach (string update in new[] { "on the update its fuse runs out", "on the update after" })
+        {
+            _ = bombs.HandleBombs(terrain, samus, BombJumpOverlapPublication.Immediate);
+            AssertTrue(bomb.HasBurnedOut && bomb.HasReactedToTerrain, $"the bomb has exploded {update}");
+            AssertEqual(inBlock.X.Whole, bomb.Position.X.Whole, $"the exploding bomb stays inside the block {update}");
+            AssertEqual(0, (int)bomb.Position.X.Fraction, $"the exploding bomb is not moved back a step {update}");
+            AssertEqual(inBlock.Y.Whole, bomb.Position.Y.Whole, $"the exploding bomb neither rises nor falls {update}");
+            AssertEqual(launch.HorizontalVelocity, flight.HorizontalVelocity, $"the exploding bomb's sideways travel is not turned back {update}");
+            AssertEqual(launch.VerticalVelocity, flight.VerticalVelocity, $"gravity no longer acts on the exploding bomb {update}");
+        }
+    }
+
+    /// <summary>A room of air but for solid blocks at <paramref name="solid"/>, holding no room objects.</summary>
+    private static SamusTerrain RoomWithSolidBlocks(IEnumerable<(int X, int Y)> solid)
+    {
+        var blocks = new RoomTerrainBlock[RoomSide * RoomSide];
+        foreach ((int x, int y) in solid)
+            blocks[y * RoomSide + x] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(RoomSide, RoomSide),
+            new RoomLevelPlanes(blocks, new RoomBlockBehavior[blocks.Length], new RoomBlockAppearance[blocks.Length]),
+            RoomLevelData.NothingBeyondGrid(), []);
+        return new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled };
+    }
+
+    /// <summary>Samus rolled up at <paramref name="position"/> with bombs, falling under her ordinary gravity.</summary>
+    private static SamusState MorphedSamusWithBombs(FixedPosition<RoomPixels> position)
+    {
+        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation,
+            new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SamusCompatibility.ForNewSamus(), new BeamChargeState(),
+            InstalledFixtures.SamusArtwork())
+        {
+            Pose = SamusPoseId.MorphBallGroundRightPose,
+            EquippedItems = SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs,
+            Position = position,
+        };
+        samus.Kinematics.YAcceleration = new UnsignedSixteenSixteen(0, 0x1c00);
+        return samus;
     }
 }

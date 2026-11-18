@@ -15,10 +15,10 @@ internal static class DraygonGrabDefinitions
     /// <summary>Initial angular position used when the Samus-carry spiral begins: three quarters of a turn.</summary>
     internal static readonly RotationAngle InitialSpiralAngle = RotationAngle.ThreeQuarterTurn;
 
-    /// <summary>Initial per-frame angular step of the Samus-carry spiral: eight steps (256ths of a turn), slowed by 1/256 of a step each frame.</summary>
+    /// <summary>Initial per-frame angular step of the Samus-carry spiral, slowed by <see cref="SpiralTurnSlowing"/> each frame.</summary>
     internal static readonly RotationAngle InitialSpiralAngleDelta = RotationAngle.FromSteps(8);
 
-    /// <summary>How much the spiral's turn each frame slows every frame: a 256th of a step.</summary>
+    /// <summary>How much the spiral's turn each frame slows every frame: the finest slowing an angle keeps.</summary>
     internal static readonly RotationAngle SpiralTurnSlowing = RotationAngle.FromSteps(0, 1);
 
     /// <summary>The carry spiral's per-frame radius growth: one eighth of a pixel.</summary>

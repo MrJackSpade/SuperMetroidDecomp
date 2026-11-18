@@ -25,7 +25,7 @@ public static class KraidRockLaunchDefinitions
     public static SignedEightEight FromRandom(int random) => Speeds[LaunchChoice.Of(random)];
 
     /// <summary>
-    /// The gravity on a spat or rising rock, in 256ths of a pixel an update, each update. A rock is removed when its
+    /// The gravity on a spat or rising rock, each update. A rock is removed when its
     /// terrain probe finds a block, which it does at the latest as it leaves the room, at most fifty screens tall
     /// (<see cref="Rooms.Scrolling.RoomScrollGrid.KeptCellCount"/>); from its steepest launch, five pixels an update
     /// upward, its fall speed therefore stays below 96 pixels an update.
@@ -33,7 +33,7 @@ public static class KraidRockLaunchDefinitions
     internal static SignedEightEight RockGravity { get; } = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(64);
 
     /// <summary>
-    /// The gravity on a rock falling from the ceiling, in 256ths of a pixel an update, each update. The rock starts falling
+    /// The gravity on a rock falling from the ceiling, each update. The rock starts falling
     /// at under half a pixel an update and is removed when its terrain probe finds a block, at the latest as it leaves the
     /// room, at most fifty screens tall (<see cref="Rooms.Scrolling.RoomScrollGrid.KeptCellCount"/>); its fall speed
     /// therefore stays below 50 pixels an update, and the game's restart of a fall reaching 64 pixels an update is never

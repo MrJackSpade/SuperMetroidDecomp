@@ -46,7 +46,7 @@ internal sealed class EndingStage : IEndingActorScene
     /// </summary>
     public FloorZoom FloorZoom { get; internal set; } = FloorZoom.OwnSize;
 
-    /// <summary>Turning-floor angle, in 256ths of a turn, shared by the escape and planet scenes.</summary>
+    /// <summary>The turning floor's angle, shared by the escape and planet scenes.</summary>
     internal RotationAngle FloorAngle { get; set; }
 
     /// <summary>Current cinematic phase, including terminal display states.</summary>

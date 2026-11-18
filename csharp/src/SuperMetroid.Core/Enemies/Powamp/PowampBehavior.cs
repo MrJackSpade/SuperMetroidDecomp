@@ -618,8 +618,8 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Marks a spike for its deletion animation after its movement phase ends.</summary>
     internal static void BeginPowampSpikeDeletion(EnemyProjectile spike)
     {
-        // The animation deletes the spike as its first step; starting it at timer one lets the
-        // animation pass carry that out later in this same frame.
+        // The animation deletes the spike as its first step, which the animation pass carries out later in this same
+        // update.
         spike.StartAnimation(new PowampSpikeAnimation(PowampSpikeSegment.Delete));
     }
 }

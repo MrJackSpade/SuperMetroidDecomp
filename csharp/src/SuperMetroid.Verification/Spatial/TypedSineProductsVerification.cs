@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Enemies.YappingMaws;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -11,7 +12,9 @@ namespace SuperMetroid.Verification.Spatial;
 /// negative infinity (Mother Brain's neck, Ridley's tail), the reach rounded toward zero (Phantoon's flames, the charged
 /// beam combos) and the fine sine's coarse reading (the Bull, the Yapping Maw) each equal the raw 8.8 arithmetic they
 /// replace over every angle and every length their callers pass; and the #2453 conversions of the enemies' raw-int
-/// arithmetic, the homing pull and the aim's turn from its slope, equal it over their whole input ranges.
+/// arithmetic, the homing pull and the aim's turn from its slope, equal it over their whole input ranges; and the #2491
+/// conversions, a liquid tide's sine displacement and a displacement written as a fraction of a pixel, equal the raw
+/// arithmetic they replace.
 /// </summary>
 internal static class TypedSineProductsVerification
 {
@@ -24,8 +27,57 @@ internal static class TypedSineProductsVerification
     /// <summary>Runs every comparison of the typed sine products with the arithmetic they replace.</summary>
     internal static void VerifyTypedSineProducts()
     {
-        int compared = VerifyReachRoundedDown() + VerifyReachTowardZero() + VerifyCoarseSizeOfFineSine() + VerifyHomingPull() + VerifyAimTurnSteps();
-        Console.WriteLine($"  Typed sine products: {compared} rounded-down, toward-zero and coarse fine-sine products, homing pulls and aim turns equal the raw arithmetic they replace.");
+        int compared = VerifyReachRoundedDown() + VerifyReachTowardZero() + VerifyCoarseSizeOfFineSine() + VerifyHomingPull() + VerifyAimTurnSteps() +
+            VerifyTideDisplacement() + VerifyPixelFractions();
+        Console.WriteLine($"  Typed sine products: {compared} rounded-down, toward-zero and coarse fine-sine products, homing pulls, aim turns, tide displacements and pixel fractions equal the raw arithmetic they replace.");
+    }
+
+    /// <summary>
+    /// A liquid tide's displacement (#2491) equals the signed sine times the tide's crest height counted in 256ths of a pixel,
+    /// as the tide computed it, over every angle and both tides, and lies above the base line exactly while the sine is
+    /// negative, which selects the tide's phase step.
+    /// </summary>
+    private static int VerifyTideDisplacement()
+    {
+        int compared = 0;
+        foreach (int peak in (int[])[LiquidTideDefinitions.SmallTidePeakPixels, LiquidTideDefinitions.LargeTidePeakPixels])
+        {
+            for (int raw = 0; raw <= byte.MaxValue; raw++)
+            {
+                var angle = new TrigonometryAngle(raw);
+                int sample = Trigonometry.SignedSine(angle);
+                SignedSixteenSixteen displacement = Trigonometry.SineDisplacement(angle, peak);
+                if (displacement != SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(sample * peak) || displacement.IsNegative != sample < 0)
+                    throw new InvalidDataException($"Angle {raw}, crest {peak}: the tide displacement {displacement.RawValue} differs from the sine {sample} times the crest.");
+                compared++;
+            }
+        }
+        return compared;
+    }
+
+    /// <summary>
+    /// A displacement written as a fraction of a pixel (#2491) equals the fractional word it replaces for every power-of-two
+    /// denominator and the numerators the catalogs pass, and a denominator that is no power of two fails.
+    /// </summary>
+    private static int VerifyPixelFractions()
+    {
+        int compared = 0;
+        for (int denominator = 1; denominator <= 65536; denominator *= 2)
+        {
+            foreach (int numerator in (int[])[-3, -1, 0, 1, 3])
+            {
+                SignedSixteenSixteen expected = SignedSixteenSixteen.FromParts(0, 1) * (numerator * (65536 / denominator));
+                if (SignedSixteenSixteen.FromPixelFraction(numerator, denominator) != expected)
+                    throw new InvalidDataException($"{numerator}/{denominator} of a pixel differs from {expected.RawValue} 65536ths.");
+                compared++;
+            }
+        }
+        if (SignedSixteenSixteen.FromPixelFraction(1, 512) != SignedSixteenSixteen.FromParts(0, 128) ||
+            SignedSixteenSixteen.FromPixelFraction(1, 2048) != SignedSixteenSixteen.FromParts(0, 32))
+            throw new InvalidDataException("The ending's 512th and 2048th of a pixel differ from the fractional words 128 and 32.");
+        AssertThrows<ArgumentOutOfRangeException>(() => SignedSixteenSixteen.FromPixelFraction(1, 3),
+            "a third of a pixel, which no 65536ths hold exactly, is rejected");
+        return compared + 2;
     }
 
     /// <summary>

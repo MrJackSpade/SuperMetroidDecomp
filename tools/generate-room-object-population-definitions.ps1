@@ -47,7 +47,8 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
     }
     # The import decodes each placement's room argument into what the PLM's setup reads (#1452): a collectible's item
     # location, a door, a grey door's condition and door, a save station's load station, a Metroid room's cleared event or a gate trigger's colour and side. Doors and
-    # item locations are named identities (#1553): each is named for the first population that places it and its kind,
+    # item locations are named identities (#1553): a door is named for the first population that places it and its kind, an
+    # item location for the room that places it and its item (#2491),
     # with its block where two would share a name; the room-data number stays in the import pipeline's numbering. Scroll
     # triggers carry their program and Draygon cannons their control word instead; filler and fixed unread words become
     # the absence of an argument.
@@ -284,7 +285,17 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
                     $placements = if ($token.Groups[1].Value -eq 'DOOR') { $doorPlacements } else { $itemPlacements }
                     $number = [int]$token.Groups[2].Value
                     if (-not $placements.ContainsKey($number)) {
-                        $placements[$number] = [pscustomobject]@{ Base = $name + $kindNames[$kindWord]; X = $rom[$offset + 2]; Y = $rom[$offset + 3] }
+                        $base = $name
+                        if ($token.Groups[1].Value -eq 'ITEM') {
+                            # An item location stands in one room, whichever of its states places it (#2491): it is named for
+                            # that room, never for the states that load the population. Doors keep their population's name: two
+                            # states of one room place distinct doors on the same block.
+                            [string[]] $placingRooms = @()
+                            if ($populationRooms.ContainsKey($name)) { $placingRooms = [string[]] @($populationRooms[$name]) }
+                            if ($placingRooms.Count -ne 1) { throw "Population $name places item location $number but is loaded by $($placingRooms.Count) rooms, not one." }
+                            $base = $placingRooms[0]
+                        }
+                        $placements[$number] = [pscustomobject]@{ Base = $base + $kindNames[$kindWord]; X = $rom[$offset + 2]; Y = $rom[$offset + 3] }
                     }
                 }
             }
@@ -461,8 +472,8 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
         "door's three parts are one door. Regenerate with tools/generate-room-object-population-definitions.ps1."
     ) 'The {0} door.' 'Each door named with its block is one distinct door of its population, told apart by where it stands; nothing indexes them.' $doorNames
     $itemCatalog = New-PlacementCatalog 'ItemLocation' 'ItemLocationDefinitions' @(
-        'Every item location of the game''s room populations, named for the first room-state population that places it and',
-        'its item and, where two would share that name, its block. Regenerate with',
+        'Every item location of the game''s room populations, named for the room that places it, whichever of its states does,',
+        'and its item and, where two would share that name, its block. Regenerate with',
         'tools/generate-room-object-population-definitions.ps1.'
     ) 'The {0} item location.' 'Each item location named with its block is one distinct location of its population, told apart by where it stands; nothing indexes them.' $itemNames
     $numberLines = [Collections.Generic.List[string]]::new()

@@ -525,8 +525,8 @@ public sealed class IntroCinematicState : IFrontendScreen
                 explosionsAllocated: FlashbackMotherBrainExplosions is not null);
         }
 
-        // This ordering makes a newly spawned timer-one actor select its first frame
-        // on the same accepted frame as the page-one input transition.
+        // Mother Brain's sprite steps last, so one spawned on this update shows its first frame on the
+        // same update as the first page's input transition.
         CurrentFlashbackMotherBrain?.Step();
         if (explosionsExistedBeforeThisFrame)
         {

@@ -66,6 +66,6 @@ internal static class CrocomireFightDefinitions
     /// <summary>Where his spit leaves his body: thirty-two pixels ahead of it and sixteen up.</summary>
     internal static readonly Offset16<RoomPixels> SpitOffset = new(-32, -16);
 
-    /// <summary>The speed his spit leaves at: two pixels an update left and a 256th of a pixel down.</summary>
+    /// <summary>The speed his spit leaves at: two pixels an update left, and down as slowly as a speed can fall.</summary>
     internal static readonly EightEightVector<RoomPixels> SpitVelocity = new(SignedEightEight.FromPixels(-2), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(1));
 }

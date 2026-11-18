@@ -27,8 +27,8 @@ internal sealed class ZebesRevealActor(
     private SignedEightEight slideSpeed;
 
     /// <summary>
-    /// Slides the actor up by its speed after the speed grows by its acceleration: Zebes's by 64 256ths of a pixel an
-    /// update and each star quarter's by 32. Each actor leaves once it passes 128 pixels above the screen, within a few
+    /// Slides the actor up by its speed after the speed grows by its acceleration: Zebes's by a quarter pixel an
+    /// update and each star quarter's by an eighth. Each actor leaves once it passes 128 pixels above the screen, within a few
     /// dozen updates, so its speed stays small.
     /// </summary>
     /// <exception cref="InvalidDataException">The actor is a caption, which the reveal deletes before the scene slides.</exception>

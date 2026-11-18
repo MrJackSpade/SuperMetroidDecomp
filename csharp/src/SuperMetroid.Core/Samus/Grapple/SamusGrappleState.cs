@@ -60,7 +60,7 @@ public sealed class SamusGrappleState
     public SamusProjectileDirection FireDirection { get; set; }
     /// <summary>The pose-change auto-fire timer; permits early pose-directed refiring.</summary>
     public int PoseChangeAutoFireTimer { get; set; }
-    /// <summary>The velocity the beam's end extends at, either way on each axis, to a 256th of a pixel.</summary>
+    /// <summary>The velocity the beam's end extends at, either way on each axis.</summary>
     public EightEightVector<RoomPixels> ExtensionVelocity { get; set; }
 
     /// <summary>

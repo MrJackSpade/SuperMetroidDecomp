@@ -20,7 +20,8 @@ namespace SuperMetroid.Diagnostics.Saves;
 /// nine (#1778) could list the item no item occupies, which is not carried; schema ten (#2103) named item locations and
 /// doors after the disassembly's abbreviated room labels, which become the rooms' spelled-out names; schema eleven
 /// (#2140) kept no history of a power-on that found no valid save, which becomes none; schema twelve (#2364) kept a
-/// reserve-missile count nothing in the game reads, which is not carried.
+/// reserve-missile count nothing in the game reads, which is not carried; schema thirteen (#2491) named some item
+/// locations after the room state that first places them, which become their rooms' names.
 /// </summary>
 public static class LegacyGameSaveJson
 {
@@ -58,7 +59,7 @@ public static class LegacyGameSaveJson
         return GameSaveJsonCodec.Deserialize(current, sourceName);
     }
 
-    /// <summary>One-way upgrade of schemas one through twelve to the current schema; the current schema is returned unchanged.</summary>
+    /// <summary>One-way upgrade of schemas one through thirteen to the current schema; the current schema is returned unchanged.</summary>
     private static string Upgrade(string json, out int sourceSchemaVersion)
     {
         JsonObject root = JsonNode.Parse(json) as JsonObject ??
@@ -93,6 +94,8 @@ public static class LegacyGameSaveJson
         // Schema one's upgrade does not read the count from its preserved image.
         if (sourceSchemaVersion is >= SchemaTwo and <= SchemaTwelve)
             UpgradeSchemaTwelve(root);
+        if (sourceSchemaVersion <= SchemaThirteen)
+            UpgradeSchemaThirteen(root);
         root["schemaVersion"] = GameSaveJsonFormat.SchemaVersion;
         return root.ToJsonString();
     }
@@ -102,6 +105,37 @@ public static class LegacyGameSaveJson
 
     /// <summary>The last schema that kept a reserve-missile count.</summary>
     private const int SchemaTwelve = 12;
+
+    /// <summary>The last schema that named some item locations after the room state that first places them.</summary>
+    private const int SchemaThirteen = 13;
+
+    /// <summary>The item locations schemas six through thirteen named after the room state that first places them, by that name.</summary>
+    private static readonly Dictionary<string, string> SchemaThirteenItemLocationNames = new(StringComparer.Ordinal)
+    {
+        ["PitWithMorphBallAndMissilesExposedMissileTank"] = nameof(ItemLocationDefinitions.PitExposedMissileTank),
+        ["BombTorizoDefaultOrWhenAreaTorizoDeadChozoBombs"] = nameof(ItemLocationDefinitions.BombTorizoChozoBombs),
+        ["FinalMissileWhenZebesAwakeExposedMissileTank"] = nameof(ItemLocationDefinitions.FinalMissileExposedMissileTank),
+        ["MorphBallDefaultExposedMorphBall"] = nameof(ItemLocationDefinitions.MorphBallExposedMorphBall),
+        ["MorphBallWhenZebesAwakeExposedPowerBombTank"] = nameof(ItemLocationDefinitions.MorphBallExposedPowerBombTank),
+        ["BowlingAlleyWhenAreaBossDeadChozoReserveTank"] = nameof(ItemLocationDefinitions.BowlingAlleyChozoReserveTank),
+        ["BowlingAlleyWhenAreaBossDeadExposedMissileTank"] = nameof(ItemLocationDefinitions.BowlingAlleyExposedMissileTank),
+        ["AssemblyLineWhenAreaBossDeadExposedMissileTank"] = nameof(ItemLocationDefinitions.AssemblyLineExposedMissileTank),
+        ["WreckedShipEnergyTankWhenAreaBossDeadExposedEnergyTank"] = nameof(ItemLocationDefinitions.WreckedShipEnergyTankExposedEnergyTank),
+        ["WreckedShipWestSuperWhenAreaBossDeadExposedSuperMissileTank"] = nameof(ItemLocationDefinitions.WreckedShipWestSuperExposedSuperMissileTank),
+        ["WreckedShipEastSuperWhenAreaBossDeadExposedSuperMissileTank"] = nameof(ItemLocationDefinitions.WreckedShipEastSuperExposedSuperMissileTank),
+        ["GravitySuitWhenAreaBossDeadChozoGravitySuit"] = nameof(ItemLocationDefinitions.GravitySuitChozoGravitySuit),
+    };
+
+    /// <summary>
+    /// Schema thirteen to fourteen (#2491): schemas six through thirteen named some item locations after the room state that
+    /// first places them; each becomes its room's name, which every state of the room shares, and every other name is kept as
+    /// it was. Doors keep their names: two states of one room place distinct doors on the same block.
+    /// </summary>
+    private static void UpgradeSchemaThirteen(JsonObject root)
+    {
+        foreach ((JsonObject progression, int index) in Progressions(root))
+            progression["collectedItems"] = RenamedPlacements(progression, "collectedItems", index, SchemaThirteenItemLocationNames);
+    }
 
     /// <summary>
     /// Schema twelve to thirteen (#2364): schemas two through twelve kept each slot's reserve-missile count, which nothing in
@@ -137,7 +171,10 @@ public static class LegacyGameSaveJson
     /// <summary>The last schema that named item locations and doors after the disassembly's abbreviated room labels.</summary>
     private const int SchemaTen = 10;
 
-    /// <summary>The item locations schemas six through ten named after an abbreviated room label, by that name.</summary>
+    /// <summary>
+    /// The item locations schemas six through ten named after an abbreviated room label, by that name, each mapped to the
+    /// name schemas eleven through thirteen gave it; the schema-thirteen upgrade renames those that named a room state.
+    /// </summary>
     private static readonly Dictionary<string, string> SchemaTenItemLocationNames = new(StringComparer.Ordinal)
     {
         ["BlueBrinstarETankExposedMissileTank"] = nameof(ItemLocationDefinitions.BlueBrinstarEnergyTankExposedMissileTank),
@@ -155,11 +192,11 @@ public static class LegacyGameSaveJson
         ["PostCrocMissileExposedMissileTank"] = nameof(ItemLocationDefinitions.PostCrocomireMissileExposedMissileTank),
         ["PostCrocPowerBombsExposedPowerBombTank"] = nameof(ItemLocationDefinitions.PostCrocomirePowerBombsExposedPowerBombTank),
         ["RidleyETankShotBlockEnergyTank"] = nameof(ItemLocationDefinitions.RidleyEnergyTankShotBlockEnergyTank),
-        ["WSEastSuperWhenAreaBossDeadExposedSuperMissileTank"] = nameof(ItemLocationDefinitions.WreckedShipEastSuperWhenAreaBossDeadExposedSuperMissileTank),
-        ["WSWestSuperWhenAreaBossDeadExposedSuperMissileTank"] = nameof(ItemLocationDefinitions.WreckedShipWestSuperWhenAreaBossDeadExposedSuperMissileTank),
+        ["WSEastSuperWhenAreaBossDeadExposedSuperMissileTank"] = "WreckedShipEastSuperWhenAreaBossDeadExposedSuperMissileTank",
+        ["WSWestSuperWhenAreaBossDeadExposedSuperMissileTank"] = "WreckedShipWestSuperWhenAreaBossDeadExposedSuperMissileTank",
         ["WarehouseETankShotBlockEnergyTank"] = nameof(ItemLocationDefinitions.WarehouseEnergyTankShotBlockEnergyTank),
         ["WaterwayETankExposedEnergyTank"] = nameof(ItemLocationDefinitions.WaterwayEnergyTankExposedEnergyTank),
-        ["WreckedShipETankWhenAreaBossDeadExposedEnergyTank"] = nameof(ItemLocationDefinitions.WreckedShipEnergyTankWhenAreaBossDeadExposedEnergyTank),
+        ["WreckedShipETankWhenAreaBossDeadExposedEnergyTank"] = "WreckedShipEnergyTankWhenAreaBossDeadExposedEnergyTank",
     };
 
     /// <summary>The doors schemas six through ten named after an abbreviated room label, by that name.</summary>

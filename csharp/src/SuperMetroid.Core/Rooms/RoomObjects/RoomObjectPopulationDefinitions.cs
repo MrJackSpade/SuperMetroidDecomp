@@ -291,7 +291,7 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectKind.ScrollTrigger, new(5, 9), new ScrollTriggerSetup(RoomScrollChange.PitClosesScreen0x1OpensScreen0x0TopAligned)),
         new(RoomObjectKind.GreyDoorFacingLeft, new(46, 6), new GreyDoorSetup(new(ColoredDoorOrientation.Left, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.EnemyDeathQuota, new LockedDoorArgument(LockedDoorDefinitions.PitWithMorphBallAndMissilesGreyDoorFacingLeft, DoorOpeningPersistence.Persistent)))),
         new(RoomObjectKind.GreyDoorFacingRight, new(1, 6), new GreyDoorSetup(new(ColoredDoorOrientation.Right, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.EnemyDeathQuota, new LockedDoorArgument(LockedDoorDefinitions.PitWithMorphBallAndMissilesGreyDoorFacingRight, DoorOpeningPersistence.Persistent)))),
-        new(RoomObjectKind.ExposedMissileTank, new(5, 26), new CollectibleSetup(new(InWorldCollectibleKind.MissileTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.PitWithMorphBallAndMissilesExposedMissileTank))),
+        new(RoomObjectKind.ExposedMissileTank, new(5, 26), new CollectibleSetup(new(InWorldCollectibleKind.MissileTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.PitExposedMissileTank))),
     ]);
 
     /// <summary>The ElevatorToBlueBrinstar room-object population.</summary>
@@ -304,7 +304,7 @@ internal static class RoomObjectPopulationDefinitions
     public static RoomObjectPopulation BombTorizoDefaultOrWhenAreaTorizoDead { get; } = RoomObjectPopulation.FromPlacements(nameof(BombTorizoDefaultOrWhenAreaTorizoDead),
     [
         new(RoomObjectKind.BombTorizoGreyDoor, new(1, 6), new GreyDoorSetup(new(ColoredDoorOrientation.Right, GreyDoorClosing.AfterBombs), new GreyDoorArgument(GreyDoorCondition.AreaTorizoDefeated, new LockedDoorArgument(LockedDoorDefinitions.BombTorizoDefaultOrWhenAreaTorizoDeadBombTorizoGreyDoor, DoorOpeningPersistence.Persistent)))),
-        new(RoomObjectKind.ChozoBombs, new(12, 10), new CollectibleSetup(new(InWorldCollectibleKind.Bombs, CollectiblePresentation.ChozoOrb), new CollectedItemArgument(ItemLocationDefinitions.BombTorizoDefaultOrWhenAreaTorizoDeadChozoBombs))),
+        new(RoomObjectKind.ChozoBombs, new(12, 10), new CollectibleSetup(new(InWorldCollectibleKind.Bombs, CollectiblePresentation.ChozoOrb), new CollectedItemArgument(ItemLocationDefinitions.BombTorizoChozoBombs))),
         new(RoomObjectKind.BombTorizoHand, new(13, 11), new BombTorizoHandSetup()),
     ]);
 
@@ -391,7 +391,7 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The FinalMissileWhenZebesAwake room-object population.</summary>
     public static RoomObjectPopulation FinalMissileWhenZebesAwake { get; } = RoomObjectPopulation.FromPlacements(nameof(FinalMissileWhenZebesAwake),
     [
-        new(RoomObjectKind.ExposedMissileTank, new(4, 7), new CollectibleSetup(new(InWorldCollectibleKind.MissileTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.FinalMissileWhenZebesAwakeExposedMissileTank))),
+        new(RoomObjectKind.ExposedMissileTank, new(4, 7), new CollectibleSetup(new(InWorldCollectibleKind.MissileTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.FinalMissileExposedMissileTank))),
     ]);
 
     /// <summary>The GreenBrinstarMainShaft room-object population.</summary>
@@ -561,7 +561,7 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectKind.ScrollTrigger, new(87, 10), new ScrollTriggerSetup(RoomScrollChange.MorphBallOpensScreen5x1)),
         new(RoomObjectKind.RightwardsScrollExtension, new(88, 38), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
         new(RoomObjectKind.ScrollTrigger, new(87, 38), new ScrollTriggerSetup(RoomScrollChange.MorphBallClosesScreen5x1)),
-        new(RoomObjectKind.ExposedMorphBall, new(69, 41), new CollectibleSetup(new(InWorldCollectibleKind.MorphBall, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.MorphBallDefaultExposedMorphBall))),
+        new(RoomObjectKind.ExposedMorphBall, new(69, 41), new CollectibleSetup(new(InWorldCollectibleKind.MorphBall, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.MorphBallExposedMorphBall))),
     ]);
 
     /// <summary>The MorphBallWhenZebesAwake room-object population.</summary>
@@ -584,7 +584,7 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectKind.RightwardsScrollExtension, new(88, 38), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
         new(RoomObjectKind.ScrollTrigger, new(87, 38), new ScrollTriggerSetup(RoomScrollChange.MorphBallClosesScreen5x1)),
         new(RoomObjectKind.GreyDoorFacingRight, new(1, 38), new GreyDoorSetup(new(ColoredDoorOrientation.Right, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.EnemyDeathQuota, new LockedDoorArgument(LockedDoorDefinitions.MorphBallWhenZebesAwakeGreyDoorFacingRight, DoorOpeningPersistence.Persistent)))),
-        new(RoomObjectKind.ExposedPowerBombTank, new(40, 42), new CollectibleSetup(new(InWorldCollectibleKind.PowerBombTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.MorphBallWhenZebesAwakeExposedPowerBombTank))),
+        new(RoomObjectKind.ExposedPowerBombTank, new(40, 42), new CollectibleSetup(new(InWorldCollectibleKind.PowerBombTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.MorphBallExposedPowerBombTank))),
     ]);
 
     /// <summary>The ConstructionZone room-object population.</summary>
@@ -1683,8 +1683,8 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectKind.UpwardsScrollExtension, new(65, 38), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
         new(RoomObjectKind.UpwardsScrollExtension, new(65, 39), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
         new(RoomObjectKind.ScrollTrigger, new(65, 40), new ScrollTriggerSetup(RoomScrollChange.BowlingAlleyClosesScreen4x0OpensScreens5x0And5x1OpensScreens4x2And5x2TopAligned)),
-        new(RoomObjectKind.ChozoReserveTank, new(83, 11), new CollectibleSetup(new(InWorldCollectibleKind.ReserveTank, CollectiblePresentation.ChozoOrb), new CollectedItemArgument(ItemLocationDefinitions.BowlingAlleyWhenAreaBossDeadChozoReserveTank))),
-        new(RoomObjectKind.ExposedMissileTank, new(60, 38), new CollectibleSetup(new(InWorldCollectibleKind.MissileTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.BowlingAlleyWhenAreaBossDeadExposedMissileTank))),
+        new(RoomObjectKind.ChozoReserveTank, new(83, 11), new CollectibleSetup(new(InWorldCollectibleKind.ReserveTank, CollectiblePresentation.ChozoOrb), new CollectedItemArgument(ItemLocationDefinitions.BowlingAlleyChozoReserveTank))),
+        new(RoomObjectKind.ExposedMissileTank, new(60, 38), new CollectibleSetup(new(InWorldCollectibleKind.MissileTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.BowlingAlleyExposedMissileTank))),
         new(RoomObjectKind.GreyDoorFacingRight, new(1, 22), new GreyDoorSetup(new(ColoredDoorOrientation.Right, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.Never, new LockedDoorArgument(LockedDoorDefinitions.BowlingAlleyWhenAreaBossDeadGreyDoorFacingRight, DoorOpeningPersistence.Transient)))),
     ]);
 
@@ -1705,7 +1705,7 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The AssemblyLineWhenAreaBossDead room-object population.</summary>
     public static RoomObjectPopulation AssemblyLineWhenAreaBossDead { get; } = RoomObjectPopulation.FromPlacements(nameof(AssemblyLineWhenAreaBossDead),
     [
-        new(RoomObjectKind.ExposedMissileTank, new(45, 8), new CollectibleSetup(new(InWorldCollectibleKind.MissileTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.AssemblyLineWhenAreaBossDeadExposedMissileTank))),
+        new(RoomObjectKind.ExposedMissileTank, new(45, 8), new CollectibleSetup(new(InWorldCollectibleKind.MissileTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.AssemblyLineExposedMissileTank))),
     ]);
 
     /// <summary>The SpikyDeathWhenAreaBossDead room-object population.</summary>
@@ -1724,7 +1724,7 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The WreckedShipEnergyTankWhenAreaBossDead room-object population.</summary>
     public static RoomObjectPopulation WreckedShipEnergyTankWhenAreaBossDead { get; } = RoomObjectPopulation.FromPlacements(nameof(WreckedShipEnergyTankWhenAreaBossDead),
     [
-        new(RoomObjectKind.ExposedEnergyTank, new(3, 6), new CollectibleSetup(new(InWorldCollectibleKind.EnergyTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.WreckedShipEnergyTankWhenAreaBossDeadExposedEnergyTank))),
+        new(RoomObjectKind.ExposedEnergyTank, new(3, 6), new CollectibleSetup(new(InWorldCollectibleKind.EnergyTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.WreckedShipEnergyTankExposedEnergyTank))),
     ]);
 
     /// <summary>The BasementWhenAreaBossDead room-object population.</summary>
@@ -1748,20 +1748,20 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The WreckedShipWestSuperWhenAreaBossDead room-object population.</summary>
     public static RoomObjectPopulation WreckedShipWestSuperWhenAreaBossDead { get; } = RoomObjectPopulation.FromPlacements(nameof(WreckedShipWestSuperWhenAreaBossDead),
     [
-        new(RoomObjectKind.ExposedSuperMissileTank, new(2, 7), new CollectibleSetup(new(InWorldCollectibleKind.SuperMissileTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.WreckedShipWestSuperWhenAreaBossDeadExposedSuperMissileTank))),
+        new(RoomObjectKind.ExposedSuperMissileTank, new(2, 7), new CollectibleSetup(new(InWorldCollectibleKind.SuperMissileTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.WreckedShipWestSuperExposedSuperMissileTank))),
     ]);
 
     /// <summary>The WreckedShipEastSuperWhenAreaBossDead room-object population.</summary>
     public static RoomObjectPopulation WreckedShipEastSuperWhenAreaBossDead { get; } = RoomObjectPopulation.FromPlacements(nameof(WreckedShipEastSuperWhenAreaBossDead),
     [
         new(RoomObjectKind.ScrollTrigger, new(47, 7), new ScrollTriggerSetup(RoomScrollChange.WreckedShipEastSuperOpensScreen3x0TopAligned)),
-        new(RoomObjectKind.ExposedSuperMissileTank, new(56, 9), new CollectibleSetup(new(InWorldCollectibleKind.SuperMissileTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.WreckedShipEastSuperWhenAreaBossDeadExposedSuperMissileTank))),
+        new(RoomObjectKind.ExposedSuperMissileTank, new(56, 9), new CollectibleSetup(new(InWorldCollectibleKind.SuperMissileTank, CollectiblePresentation.Exposed), new CollectedItemArgument(ItemLocationDefinitions.WreckedShipEastSuperExposedSuperMissileTank))),
     ]);
 
     /// <summary>The GravitySuitWhenAreaBossDead room-object population.</summary>
     public static RoomObjectPopulation GravitySuitWhenAreaBossDead { get; } = RoomObjectPopulation.FromPlacements(nameof(GravitySuitWhenAreaBossDead),
     [
-        new(RoomObjectKind.ChozoGravitySuit, new(7, 9), new CollectibleSetup(new(InWorldCollectibleKind.GravitySuit, CollectiblePresentation.ChozoOrb), new CollectedItemArgument(ItemLocationDefinitions.GravitySuitWhenAreaBossDeadChozoGravitySuit))),
+        new(RoomObjectKind.ChozoGravitySuit, new(7, 9), new CollectibleSetup(new(InWorldCollectibleKind.GravitySuit, CollectiblePresentation.ChozoOrb), new CollectedItemArgument(ItemLocationDefinitions.GravitySuitChozoGravitySuit))),
     ]);
 
     /// <summary>The GlassTunnelSave room-object population.</summary>

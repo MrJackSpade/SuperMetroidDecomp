@@ -36,7 +36,7 @@ internal static class KagoDefinitions
     /// <summary>The random field that adds zero to thirty-one updates to a landed Kago bug's wait.</summary>
     internal static readonly RandomSampleField LandedIdleFrames = new(0, 5);
 
-    /// <summary>How much faster a bug falls each unobstructed airborne update: 224 256ths of a pixel (#2339).</summary>
+    /// <summary>How much faster a bug falls each unobstructed airborne update (#2339).</summary>
     internal static SignedEightEight BugGravity { get; } = SignedEightEight.FromParts(0, 224);
 
     /// <summary>How fast a bug jumps sideways, two pixels an update, toward the way it jumps (#2339).</summary>

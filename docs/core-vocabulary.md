@@ -777,6 +777,17 @@ transitions, a landing with no transition, one update's step. A table alone, a c
 input transitions, an entry alone or a table's next entry, a thing invoked and a hardware owner, which describes the
 storage it keeps, stay English.
 
+#2491 widens SME6454, outside hardware owners, to the original's storage and handler installation as frontend and effect
+prose tells them: a storage unit on a field or property whose type already measures it, an angle, a turn, a zoom or a
+fixed-point speed, displacement or position (`in 256ths of a turn` on a `RotationAngle`, `the zoom in 256ths of a floor
+pixel` on a `FloorZoom`, `1/512 of a pixel` on a `SignedSixteenSixteen`); an animation timer numbered one, spaced or
+hyphenated (`a timer-one actor`, `primes timer one`); and a handler installed and replaced (`installs an immediate
+finish, and a downward elevator replaces it`, `replaces that phase with an inert one`, `installed with it`). The type
+states the unit and the member's value spells the amount; Core says what the game does: the turning floor's angle, the
+sprite shows its first frame on this update, an ordinary door goes straight on. The same unit on a member typed as a
+number, a fraction told in words, a timer alone or one update on, a thing replaced or installed alone, an inert thing and
+a hardware owner stay English.
+
 SME6459 (#2309) reads the summary of every member of a Core `*Segment` enum, one run of an actor's animation, and rejects
 one that only restates the member's name: `The facing left shooting animation.`, `The idle.`, `The loop.`, and (#2465)
 any summary whose words are all the name's, the actor's the enum is named for, articles, possessives or `animation`,

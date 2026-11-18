@@ -5,7 +5,8 @@ internal static class TorizoMotionDefinitions
 {
     /// <summary>
     /// A speed of sixteen pixels per frame: a projectile that reaches it has run away (#1945). Each projectile tested
-    /// for it starts below it and gains at most 48 256ths of a pixel an update, so it is met within one pixel of it.
+    /// for it starts below it and gains at most three sixteenths of a pixel an update each update, so it is met within one
+    /// pixel of it.
     /// </summary>
     internal static readonly SignedEightEight RunawaySpeed = SignedEightEight.FromParts(16, 0);
 
@@ -30,7 +31,7 @@ internal static class TorizoMotionDefinitions
     /// <summary>Either Torizo's backward jump's sideways speed, away from the way it faces.</summary>
     internal static readonly SignedEightEight BackwardJumpSideSpeed = SignedEightEight.FromPixels(3);
 
-    /// <summary>The gravity on a leaping Torizo, forty 256ths of a pixel an update, each update.</summary>
+    /// <summary>The gravity on a leaping Torizo, each update.</summary>
     internal static readonly SignedEightEight LeapGravity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(40);
 
     /// <summary>A sonic boom's launch speed, about two and a half pixels an update, the way Torizo faces.</summary>
@@ -39,11 +40,11 @@ internal static class TorizoMotionDefinitions
     /// <summary>The drag a falling drool's sideways speed loses each update.</summary>
     internal static readonly SignedEightEight DroolDrag = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(4);
 
-    /// <summary>The sideways speed a drool keeps when its drag would carry it past rest: three 256ths of a pixel rightward.</summary>
+    /// <summary>The sideways speed a drool keeps when its drag would carry it past rest, rightward.</summary>
     internal static readonly SignedEightEight DroolPastRestDrift = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(3);
 
     /// <summary>
-    /// The gravity on Bomb Torizo's Chozo orb, in 256ths of a pixel an update, each update. A falling orb that reaches
+    /// The gravity on Bomb Torizo's Chozo orb, each update. A falling orb that reaches
     /// <see cref="RunawaySpeed"/> is removed, so its speed never grows past that.
     /// </summary>
     internal static readonly SignedEightEight BombOrbGravity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(18);

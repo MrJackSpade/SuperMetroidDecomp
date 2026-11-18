@@ -73,11 +73,10 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         if (session.Runtime?.Player.Samus is not SamusState samus || session.Runtime.Room.ActiveRoom is null)
             return false;
 
-        // The pause check only runs from Samus's normal input phase. The station lock
-        // replaces that phase with an inert one, so its entire insertion,
-        // message/data-load, and retraction sequence bypasses pause-check even though the game
-        // remains in main gameplay. The locked input mode installed with it stands for that
-        // replacement; the remaining clauses are the pause check's own predicate.
+        // The pause check runs only while Samus takes her normal input. A station's lock holds her input through its
+        // whole insertion, message or data load and retraction, so none of it can be paused even though the game
+        // remains in main gameplay. The locked input mode the lock sets stands for that hold; the remaining clauses are
+        // the pause check's own predicate.
         return session.GameState == SuperMetroidGameState.MainGameplay &&
                !messageBoxOwnedFrame &&
                !session.Runtime.MessageBox.IsActive &&

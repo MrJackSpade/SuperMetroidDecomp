@@ -34,7 +34,7 @@ public sealed class NorfairRioEnemyState
     /// <summary>Which flames the follower shows, as the cue that placed them names (#2450).</summary>
     internal NorfairRioFlames Flames { get; set; }
 
-    /// <summary>The Norfair Rio's velocity in 256ths of a pixel an update, positive right and down.</summary>
+    /// <summary>The Norfair Rio's velocity each update, positive right and down.</summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>The behaviour the parent runs.</summary>

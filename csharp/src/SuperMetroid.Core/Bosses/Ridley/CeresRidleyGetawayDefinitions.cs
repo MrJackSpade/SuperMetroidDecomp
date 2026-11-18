@@ -12,10 +12,10 @@ public static class CeresRidleyGetawayDefinitions
     /// <summary>The point of the floor the getaway turns and zooms it about as it sets it up.</summary>
     internal static Offset16<FloorPixels> InitialFloorCentre { get; } = new(64, 64);
 
-    /// <summary>The getaway floor's angle as it is set up: a 256th of a step past no turn.</summary>
+    /// <summary>The getaway floor's angle as it is set up: the finest turn past none.</summary>
     internal static RotationAngle InitialAngle { get; } = RotationAngle.FromSteps(0, 1);
 
-    /// <summary>How far the getaway turns its floor each update: 48 256ths of a step.</summary>
+    /// <summary>How far the getaway turns its floor each update: three sixteenths of a step.</summary>
     internal static RotationAngle TurnPerFrame { get; } = RotationAngle.FromSteps(0, 48);
 
     /// <summary>
@@ -24,10 +24,10 @@ public static class CeresRidleyGetawayDefinitions
     /// </summary>
     internal const int SamusShoveUpdate = 104;
 
-    /// <summary>The zoom curve's slow narrowing: sixteen 256ths of a floor pixel per screen pixel an update.</summary>
+    /// <summary>The zoom curve's slow narrowing each update.</summary>
     private static FloorZoomStep SlowNarrowing { get; } = FloorZoomStep.FromTwoHundredFiftySixths(16);
 
-    /// <summary>The zoom curve's fast narrowing: 32 256ths of a floor pixel per screen pixel an update.</summary>
+    /// <summary>The zoom curve's fast narrowing each update.</summary>
     private static FloorZoomStep FastNarrowing { get; } = FloorZoomStep.FromTwoHundredFiftySixths(32);
 
     /// <summary>

@@ -170,6 +170,9 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// original's storage: a count that passes zero, a sign told through a whole part and every placement but one.
 /// #2487 adds, outside hardware owners, the original's tables and calls as room and world prose tells them: a collision,
 /// pose, turn or controller pose table, a table's entry named by a hyphenated kind, and an invocation of a thing.
+/// #2491 adds, outside hardware owners, the original's storage and handler installation as frontend and effect prose
+/// tells them: a storage unit (256ths of a turn or a pixel, 1/512 of a pixel) on a member whose type already measures it,
+/// an animation timer numbered one, and a handler installed and replaced.
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -2227,6 +2230,74 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
+    /// The original's timer and handler installation told in frontend and effect prose (#2491), outside hardware owners and
+    /// markup: an animation timer numbered one, spaced or hyphenated (a timer-one actor, primes timer one), and a handler
+    /// installed and replaced (every door hit installs an immediate finish, and a downward elevator replaces it; replaces
+    /// that phase with an inert one; the input mode installed with it). The original counted an animation's frames down
+    /// on a timer it primed and ran its phases through handlers it installed in slots; Core says what the game does: the
+    /// sprite shows its first frame on this update, an ordinary door goes straight on, the lock holds Samus's input.
+    /// English stays legal: a timer alone, a timer one update on, a thing replaced or installed alone, an inert thing and a
+    /// hardware owner, which describes the program it reproduces.
+    /// </summary>
+    private static readonly Regex FrontendTimerAndInstallationProse = new(
+        @"\btimer[-\s]+one\b(?![-\s]+(?:more\s+)?(?:updates?|frames?)\b)" +
+        @"|\binstalls\s+an?\s+[^.;]{0,80}?\breplaces?\b" +
+        @"|\breplac(?:es|ed|ing)\s+(?:that|the|its)\s+(?:[\w-]+\s+){0,2}?(?:phase|handler|step|routine)\s+with\s+an?\s+inert\s+one\b" +
+        @"|\binstalled\s+with\s+it\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// A storage unit told on a member whose type already measures it (#2491), outside hardware owners and markup: a
+    /// count of 256ths, 512ths, 2048ths or 65536ths of a turn, a step, a pixel or a floor pixel (in 256ths of a turn, the
+    /// zoom in 256ths of a floor pixel, 64 256ths of a pixel), or a fraction written 1/N of one (1/512 of a pixel, 1/256
+    /// pixel per update squared), on a field or property typed as an angle, a turn, a zoom or a fixed-point speed,
+    /// displacement or position. The type states the unit and the member's value spells the amount; Core says what the
+    /// member is for: the turning floor's angle, the pod's drift each update. English stays legal: the same unit on a
+    /// member typed as a number, which only the prose can measure, a fraction told in words (half a pixel, a quarter pixel),
+    /// and a hardware owner, which describes the encoding it keeps.
+    /// </summary>
+    private static readonly Regex TypedMeasureUnitProse = new(
+        @"\b(?:256|512|1024|2048|4096|65536)ths?\s+of\s+an?\s+(?:floor\s+)?(?:turn|step|pixel)\b" +
+        @"|\b1/\d+(?:\s+of\s+an?)?\s+(?:floor\s+)?(?:turn|step|pixel)s?\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// The types whose values measure an angle, a turn, a zoom or a fixed-point speed, displacement or position in a unit
+    /// the type itself states (#2491): a member of one of them needs no unit in its prose.
+    /// </summary>
+    private static readonly ImmutableHashSet<string> TypedMeasures =
+    [
+        "RotationAngle", "TrigonometryAngle", "AngularSpeed", "Bearing", "FloorZoom", "FloorZoomStep", "SignedEightEight",
+        "SignedSixteenSixteen", "UnsignedSixteenSixteen", "FixedCoordinate", "FixedVector", "EightEightVector", "SpeedShare",
+    ];
+
+    /// <summary>
+    /// Whether <paramref name="trivia"/> documents a field or property typed as one of <see cref="TypedMeasures"/>, a
+    /// nullable one included (#2491).
+    /// </summary>
+    private static bool DocumentsTypedMeasure(SyntaxTrivia trivia)
+    {
+        if (!trivia.IsKind(SyntaxKind.SingleLineDocumentationCommentTrivia) &&
+            !trivia.IsKind(SyntaxKind.MultiLineDocumentationCommentTrivia))
+            return false;
+        TypeSyntax? type = trivia.Token.Parent?.FirstAncestorOrSelf<MemberDeclarationSyntax>() switch
+        {
+            PropertyDeclarationSyntax property when property.GetFirstToken() == trivia.Token => property.Type,
+            FieldDeclarationSyntax field when field.GetFirstToken() == trivia.Token => field.Declaration.Type,
+            _ => null,
+        };
+        if (type is NullableTypeSyntax nullable)
+            type = nullable.ElementType;
+        string? name = type switch
+        {
+            QualifiedNameSyntax qualified => qualified.Right.Identifier.ValueText,
+            SimpleNameSyntax simple => simple.Identifier.ValueText,
+            _ => null,
+        };
+        return name is not null && TypedMeasures.Contains(name);
+    }
+
+    /// <summary>
     /// A type's summary that calls the type a species owner (#2427): the species-owner template (its per-room state,
     /// behaviour and the interactions it registers). Only a type that creates or keeps a species' enemies
     /// (<see cref="SpeciesOwnerInterfaces"/>) is one; any other type says what it is.
@@ -2546,14 +2617,15 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
                 !trivia.IsKind(SyntaxKind.SingleLineDocumentationCommentTrivia) &&
                 !trivia.IsKind(SyntaxKind.MultiLineDocumentationCommentTrivia))
                 continue;
-            Report(context, trivia.ToFullString(), trivia.GetLocation(), trivia.Token.Parent, codeNames, generated);
+            Report(context, trivia.ToFullString(), trivia.GetLocation(), trivia.Token.Parent, codeNames, generated,
+                DocumentsTypedMeasure(trivia));
         }
         foreach (SyntaxToken token in root.DescendantTokens())
         {
             if (token.IsKind(SyntaxKind.StringLiteralToken) || token.IsKind(SyntaxKind.InterpolatedStringTextToken) ||
                 token.IsKind(SyntaxKind.Utf8StringLiteralToken) || token.IsKind(SyntaxKind.MultiLineRawStringLiteralToken) ||
                 token.IsKind(SyntaxKind.SingleLineRawStringLiteralToken))
-                Report(context, token.ValueText, token.GetLocation(), token.Parent, codeNames: null, generated);
+                Report(context, token.ValueText, token.GetLocation(), token.Parent, codeNames: null, generated, typedMeasure: false);
         }
         if (generated)
             return;
@@ -2595,10 +2667,11 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
     /// (<see cref="ReimplementationProse"/>), in any type, or names the hardware outside a hardware-owning type. A comment carries
     /// <paramref name="codeNames"/>, against which its compound names are read as routine labels; a string literal does not,
     /// and is not read for labels or hexadecimal literals. <paramref name="generated"/> text is not read for the review
-    /// trail (<see cref="ReviewTrailProse"/>, <see cref="RelocationHistoryProse"/>), fix history or debug narration.
+    /// trail (<see cref="ReviewTrailProse"/>, <see cref="RelocationHistoryProse"/>), fix history or debug narration. Documentation
+    /// of a <paramref name="typedMeasure"/> member is read for a storage unit its type already states (<see cref="TypedMeasureUnitProse"/>).
     /// </summary>
     private static void Report(SyntaxTreeAnalysisContext context, string text, Location location, SyntaxNode? owner,
-        Lazy<ImmutableHashSet<string>>? codeNames, bool generated)
+        Lazy<ImmutableHashSet<string>>? codeNames, bool generated, bool typedMeasure)
     {
         text = AllowanceMarker.Replace(text, string.Empty);
         string? word = MachineProvenanceProse.Match(text) is { Success: true } provenance ? provenance.Value
@@ -2732,6 +2805,8 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : EnemyProgramLatchAndPrecisionProse.Match(Markup.Replace(text, " ")) is { Success: true } enemyLatch ? enemyLatch.Value
             : EnemyCountSignAndPlacementProse.Match(Markup.Replace(text, " ")) is { Success: true } countSign ? countSign.Value
             : RoomAndWorldTableAndInvocationProse.Match(Markup.Replace(text, " ")) is { Success: true } tableInvocation ? tableInvocation.Value
+            : FrontendTimerAndInstallationProse.Match(Markup.Replace(text, " ")) is { Success: true } timerInstallation ? timerInstallation.Value
+            : typedMeasure && TypedMeasureUnitProse.Match(Markup.Replace(text, " ")) is { Success: true } typedUnit ? typedUnit.Value
             : TileCharacterFinding(text, owner) is { } character ? character
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;

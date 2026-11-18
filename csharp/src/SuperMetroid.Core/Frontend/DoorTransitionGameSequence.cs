@@ -101,8 +101,8 @@ internal sealed class DoorTransitionGameSequence(FrontendSession session) : IGam
         SamusState doorSamus = session.GameplayRuntime.Player.Samus
             ?? throw new InvalidOperationException("Door transition requires live Samus state.");
         SamusMovementType doorMovementType = SamusPoseMetadata.ReadMovementType(doorSamus);
-        // A live power-bomb explosion turns all three requests away in the queues' own test, so neither ring holds
-        // anything for the door to wait on.
+        // A live power-bomb explosion turns all three sound requests away, so no sound is left waiting for the door to
+        // play.
         if (doorMovementType is
             SamusMovementType.SpinJumping or SamusMovementType.WallJumping)
         {

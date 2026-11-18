@@ -68,8 +68,11 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     private EightEightVector<OverlayPixels> rainWind;
     /// <summary>Previous camera point, used to make rain follow camera movement.</summary>
     private Position16<RoomPixels> previousCamera;
-    /// <summary>The fraction a room load starts the liquid's surface at: half a pixel, centring the liquid on its whole line.</summary>
-    private const int LoadedSurfaceFraction = (FixedCoordinate.LastFraction + 1) / 2;
+    /// <summary>
+    /// The surface a room load starts the liquid at on <paramref name="line"/>: half a pixel down it, centring the liquid on
+    /// its whole line.
+    /// </summary>
+    private static FixedCoordinate LoadedSurfaceAt(int line) => new(line, FixedCoordinate.HalfPixelFraction);
     /// <summary>
     /// How far round its rise and fall the liquid's tide is: the surface sits at the negative cosine of this angle's whole
     /// step, and <see cref="AdvanceTidePhase"/> turns it on, continuing round past a full turn.
@@ -300,7 +303,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
 
     /// <summary>The base surface at whole line <paramref name="line"/>, keeping the current fraction or a room load's.</summary>
     private FixedCoordinate SurfaceAt(int line) =>
-        (BaseY ?? new FixedCoordinate(0, LoadedSurfaceFraction)).WithWhole(SurfaceLine(line));
+        BaseY?.WithWhole(SurfaceLine(line)) ?? LoadedSurfaceAt(SurfaceLine(line));
 
     /// <summary>
     /// Accepts a named surface or target line: a room line at or below the room's top, no deeper than the deepest room line
@@ -728,7 +731,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         if (TargetSurface is not int target)
             return true;
 
-        FixedCoordinate moved = (BaseY ?? new FixedCoordinate(AbsentLiquidSurfaceDepth.Of(null), LoadedSurfaceFraction))
+        FixedCoordinate moved = (BaseY ?? LoadedSurfaceAt(AbsentLiquidSurfaceDepth.Of(null)))
             .MovedBy(LiquidLevelSpeed.ToSixteenSixteenDelta());
         int line = RoomLineOf(moved);
 
@@ -750,23 +753,23 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     }
 
     /// <summary>
-    /// Moves the tide: the surface's offset is the tide's scaled wave in 256ths of a pixel, and the phase advances by a
-    /// different step in each half-wave, so the tide spends longer in one half than in the other.
+    /// Moves the tide: the surface's offset is the tide's wave at its crest's height, and the phase advances by a different
+    /// step in each half-wave, so the tide spends longer in one half than in the other.
     /// </summary>
     private void StepLiquidTide()
     {
-        int scale;
+        int peakPixels;
         RotationAngle positiveDelta;
         RotationAngle negativeDelta;
         switch (Liquid?.Tide ?? LiquidTide.None)
         {
             case LiquidTide.Small:
-                scale = LiquidTideDefinitions.SmallTideScale;
+                peakPixels = LiquidTideDefinitions.SmallTidePeakPixels;
                 positiveDelta = LiquidTideDefinitions.SmallTidePositivePhaseDelta;
                 negativeDelta = LiquidTideDefinitions.SmallTideNegativePhaseDelta;
                 break;
             case LiquidTide.Large:
-                scale = LiquidTideDefinitions.LargeTideScale;
+                peakPixels = LiquidTideDefinitions.LargeTidePeakPixels;
                 positiveDelta = LiquidTideDefinitions.LargeTidePositivePhaseDelta;
                 negativeDelta = LiquidTideDefinitions.LargeTideNegativePhaseDelta;
                 break;
@@ -777,10 +780,10 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
                 throw new InvalidOperationException($"Undefined liquid tide {Liquid?.Tide}.");
         }
 
-        // The tide follows the negative cosine of its phase, not the sine: the sine a quarter turn behind it.
-        int sample = Trigonometry.SignedSine((TidePhase - RotationAngle.QuarterTurn).ToTrigonometryAngle());
-        TideOffset = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(sample * scale);
-        AdvanceTidePhase(sample >= 0 ? positiveDelta : negativeDelta);
+        // The tide follows the negative cosine of its phase, not the sine: the sine a quarter turn behind it. A crest's
+        // height is positive, so the offset lies above the base line exactly while the wave is negative.
+        TideOffset = Trigonometry.SineDisplacement((TidePhase - RotationAngle.QuarterTurn).ToTrigonometryAngle(), peakPixels);
+        AdvanceTidePhase(TideOffset.IsNegative ? negativeDelta : positiveDelta);
     }
 
     /// <summary>Turns the tide phase on by <paramref name="delta"/>, continuing round past a full turn.</summary>

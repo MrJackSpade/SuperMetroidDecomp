@@ -16,7 +16,7 @@ public sealed class RioEnemyState
     /// <summary>The behaviour that runs after the main AI's RNG advance.</summary>
     public RioAction Action { get; internal set; }
 
-    /// <summary>The Rio's velocity in 256ths of a pixel an update, positive right and down.</summary>
+    /// <summary>The Rio's velocity each update, positive right and down.</summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>

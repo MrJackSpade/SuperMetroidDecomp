@@ -28,7 +28,7 @@ public sealed class CeresBaby
     public FixedPosition<RoomPixels> Position { get; internal set; }
 
     /// <summary>
-    /// Gets the Baby's falling speed, in 256ths of a pixel per update: zero until it is dropped, then eight more each
+    /// Gets the Baby's falling speed: zero until it is dropped, then faster by a thirty-second of a pixel an update each
     /// falling update until it lands.
     /// </summary>
     public SignedEightEight VerticalVelocity { get; internal set; }

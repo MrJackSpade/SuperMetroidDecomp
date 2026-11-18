@@ -7,8 +7,8 @@ using SuperMetroid.Verification.Harness;
 namespace SuperMetroid.Verification.Samus.Movement;
 
 /// <summary>
-/// Checks the Speed Booster counter's stage borrow and range, and the speed echo index, speed divisor and deceleration
-/// multiplier now that they are stored as ordinary integers, driven through the production operations.
+/// Checks the Speed Booster counter's stage borrow and range, and the speed echo index and speed divisor now that they are
+/// stored as ordinary integers, driven through the production operations.
 /// </summary>
 internal static class SpeedBoosterWordRangeVerification
 {
@@ -16,7 +16,7 @@ internal static class SpeedBoosterWordRangeVerification
     private static SoundQueueAdmission NoEcho() =>
         throw new InvalidOperationException("Verification failed: a run below the full stage requested the echo.");
 
-    /// <summary>Exercises the cadence borrow, the counter's range, the echo index's alternation and departure, and the two widened quantities' ranges.</summary>
+    /// <summary>Exercises the cadence borrow, the counter's range, the echo index's alternation and departure, and the slowdown level's range.</summary>
     internal static void VerifySpeedBoosterWordRange()
     {
         // A cadence countdown at zero borrows from the stage: stage two, cadence zero becomes stage one, cadence 255,
@@ -54,11 +54,6 @@ internal static class SpeedBoosterWordRangeVerification
         AssertThrows<ArgumentOutOfRangeException>(() => range.SpeedBoostCounter = new SamusSpeedBoostCounter(-1, 0), "the stage is never negative");
         AssertThrows<ArgumentOutOfRangeException>(() => range.SlowdownLevel = SamusHorizontalSpeedState.LargestSlowdownLevel + 1,
             "no more goop sticks to Samus than five");
-        range.DecelerationMultiplier = SuperMetroid.Core.Compatibility.MultipliedDeceleration.LargestMultiplier;
-        AssertEqual(SuperMetroid.Core.Compatibility.MultipliedDeceleration.LargestMultiplier, range.DecelerationMultiplier,
-            "the multiplier holds the largest multiplier the multiplied deceleration scales by");
-        AssertThrows<ArgumentOutOfRangeException>(() => range.DecelerationMultiplier = SuperMetroid.Core.Compatibility.MultipliedDeceleration.LargestMultiplier + 1,
-            "the multiplier stays below a whole deceleration");
 
         // A full boost captures into the first slot, then the second, and the step past it returns the cursor to the first.
         var boosted = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())

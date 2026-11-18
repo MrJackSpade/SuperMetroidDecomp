@@ -272,7 +272,9 @@ public static class RoomBlockBehaviorCodec
     /// <summary>
     /// What <paramref name="area"/>'s special-air table makes of its entry, or none past the table: Brinstar's plants and
     /// Speed Booster blocks, the Chozo hands' triggers, Maridia's quicksand and sandfalls, and passing through for every
-    /// other entry. Crateria's ice entry changes nothing inside it or on contact, so Samus passes through it (#2054).
+    /// other entry. Crateria's first entry is the game's ice reaction, which cuts Samus's deceleration to a sixteenth
+    /// while her lowest pixel lies on the block's middle or bottom pixel row, but no retail level places it (#2443), so
+    /// Samus passes through it as through the rest (#2054).
     /// </summary>
     private static SpecialAirReaction? AreaSpecialAirOf(AreaId area, int entry) => new AreaEntry(area, entry) switch
     {

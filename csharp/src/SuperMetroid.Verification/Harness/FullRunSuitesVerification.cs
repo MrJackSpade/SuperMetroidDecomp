@@ -376,7 +376,6 @@ using static SuperMetroid.Verification.Samus.Movement.SamusTerrainMovementVerifi
 using static SuperMetroid.Verification.Samus.Movement.SolidEnemyProbeReachVerification;
 using static SuperMetroid.Verification.Samus.Movement.SolidEnemyContactRecordsVerification;
 using static SuperMetroid.Verification.Samus.Movement.SamusSpeedLimitVerification;
-using static SuperMetroid.Verification.Samus.Movement.MultipliedDecelerationVerification;
 using static SuperMetroid.Verification.Samus.Movement.InsideBlockTopSampleVerification;
 using static SuperMetroid.Verification.Samus.SamusTurnsAndKnockbackVerification;
 using static SuperMetroid.Verification.Samus.Palettes.SamusVisorColorsVerification;
@@ -824,7 +823,6 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifySolidEnemyContactRecords), () => VerifySolidEnemyContactRecords()),
         new(nameof(VerifySolidEnemyProbeReach), () => VerifySolidEnemyProbeReach()),
         new(nameof(VerifySamusSpeedLimits), () => VerifySamusSpeedLimits()),
-        new(nameof(VerifyMultipliedDeceleration), () => VerifyMultipliedDeceleration()),
         new(nameof(VerifyInsideBlockTopSample), () => VerifyInsideBlockTopSample()),
         new(nameof(VerifySamusAerialMovement), () => VerifySamusAerialMovement()),
         new(nameof(VerifyZeroDistanceJumpContact), () => VerifyZeroDistanceJumpContact()),

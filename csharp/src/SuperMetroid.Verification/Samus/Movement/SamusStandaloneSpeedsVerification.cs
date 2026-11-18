@@ -25,12 +25,10 @@ internal static class SamusStandaloneSpeedsVerification
             AssertTrue(SamusHorizontalSpeedDefinitions.TryResolveStandalone(address, out var compiled), "Authored standalone record recognized");
             AssertEqual(native, compiled, "All six native standalone words match");
             foreach (SamusAccelerationMode mode in Enum.GetValues<SamusAccelerationMode>())
-            foreach (byte multiplier in new byte[] { 0, 1, 255 })
             for (int raw = 0; raw <= ushort.MaxValue; raw++)
             {
                 actual.BaseSpeed = reference.BaseSpeed = new UnsignedSixteenSixteen(raw, raw);
                 actual.AccelerationMode = reference.AccelerationMode = mode;
-                actual.DecelerationMultiplier = reference.DecelerationMultiplier = multiplier;
                 uint expected = calculate(native);
                 uint result = actual.CalculateBaseSpeedAtAddress(address);
                 AssertEqual(expected, result, "Compiled entry preserves existing native-word arithmetic");

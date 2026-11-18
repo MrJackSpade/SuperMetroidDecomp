@@ -206,7 +206,9 @@ internal static class NativeSnapshotImport
                     ? runtime.Enemies.Places.InUpdateOrder[contactPlace]
                     : null);
         samus.HorizontalSpeed.ActiveSpeedTableBaseAddress = W(NativeSnapshotMemory.HorizontalSpeedTable);
-        samus.HorizontalSpeed.DecelerationMultiplier = memory[NativeSnapshotMemory.HorizontalDecelerationMultiplier];
+        // Only Crateria's ice reaction sets the multiplier, and no retail level places that block (#2443).
+        if (memory[NativeSnapshotMemory.HorizontalDecelerationMultiplier] != 0)
+            throw new InvalidDataException($"The native snapshot holds deceleration multiplier {memory[NativeSnapshotMemory.HorizontalDecelerationMultiplier]}, which no retail level sets.");
         samus.HorizontalSpeed.EchoSoundPlaying = W(NativeSnapshotMemory.SpeedEchoSoundLatch) != 0;
         PrivateState.Set(samus.HorizontalSpeed, nameof(SamusHorizontalSpeedState.TotalSpeed), new UnsignedSixteenSixteen(W(NativeSnapshotMemory.TotalHorizontalSpeed), W(NativeSnapshotMemory.TotalHorizontalSubspeed)));
         runtime.Projectiles.Pool.ShotCount.Restore(W(NativeSnapshotMemory.ProjectileCount));

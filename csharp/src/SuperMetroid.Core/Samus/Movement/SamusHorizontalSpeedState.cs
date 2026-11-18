@@ -140,17 +140,6 @@ public sealed class SamusHorizontalSpeedState
     public SamusAccelerationMode AccelerationMode { get; set; }
 
     /// <summary>
-    /// Optional deceleration multiplier in 256ths, 0 through <see cref="MultipliedDeceleration.LargestMultiplier"/>, the
-    /// multipliers the multiplied-deceleration rule scales by (#1627). Zero selects the movement's plain deceleration; nonzero
-    /// scales it by <see cref="MultipliedDeceleration"/>.
-    /// </summary>
-    public int DecelerationMultiplier
-    {
-        get;
-        set => field = Ensure.BetweenInclusive(0, MultipliedDeceleration.LargestMultiplier, value);
-    }
-
-    /// <summary>
     /// The medium whose speeds Samus moves by, as the update's inside-block reaction or movement last chose it:
     /// air, water or lava and acid. Each movement takes its speeds from it (<see cref="Speeds"/>).
     /// </summary>
@@ -711,7 +700,7 @@ public sealed class SamusHorizontalSpeedState
     {
         if (AccelerationMode != SamusAccelerationMode.Accelerating)
         {
-            BaseSpeed -= MultipliedDeceleration.Of(entry.Deceleration, DecelerationMultiplier);
+            BaseSpeed -= entry.Deceleration;
 
             // The test reads only the whole pixels. Once deceleration crosses
             // below zero it clears both halves and returns to SamusAccelerationMode.Accelerating.
@@ -751,9 +740,9 @@ public sealed class SamusHorizontalSpeedState
 
         if (AccelerationMode == SamusAccelerationMode.Turning)
         {
-            // This is the same multiplied deceleration the deceleration-allowed calculation uses. The distinction
-            // between the two calculations is the turning test above and their reached-maximum result, not the subtract.
-            BaseSpeed -= MultipliedDeceleration.Of(entry.Deceleration, DecelerationMultiplier);
+            // This is the same deceleration the deceleration-allowed calculation subtracts. The distinction between the
+            // two calculations is the turning test above and their reached-maximum result, not the subtract.
+            BaseSpeed -= entry.Deceleration;
             if (SamusSpeedMagnitude.HasPassedZero(BaseSpeed.Whole))
             {
                 BaseSpeed = default;

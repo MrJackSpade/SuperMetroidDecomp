@@ -115,7 +115,7 @@ internal static class NativeSnapshotMemory
 
     /// <summary>$0A6C: environment-selected horizontal movement table base.</summary>
     public const int HorizontalSpeedTable = 0x0a6c;
-    /// <summary>$0B4C: eight-bit horizontal deceleration multiplier.</summary>
+    /// <summary>$0B4C: eight-bit horizontal deceleration multiplier, which only Crateria's unplaced ice reaction sets.</summary>
     public const int HorizontalDecelerationMultiplier = 0x0b4c;
     /// <summary>$0B40: retained Speed Booster echo sound latch.</summary>
     public const int SpeedEchoSoundLatch = 0x0b40;

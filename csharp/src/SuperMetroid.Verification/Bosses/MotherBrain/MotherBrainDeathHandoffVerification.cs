@@ -24,19 +24,20 @@ internal static class MotherBrainDeathHandoffVerification
         var program = new EscapeTypewriterMessage(EscapeTypewriterMessageId.Zebes,
             [new EscapeTypewriterLine(default, "A !")]);
         var text = new EscapeTypewriterState(program);
-        AssertTrue(!text.StepInto(vram), "typewriter first glyph is not completion");
+        EscapeTypewriterStep first = text.StepInto(vram);
+        AssertTrue(first is EscapeTypewriterStep.Typed and not EscapeTypewriterStep.TypedWithClick,
+            "typewriter first glyph is typed, not completion, and does not click");
         AssertEqual(EscapeTypewriterTileDefinitions.ZebesTileBase.PackedWord, vram.ReadWord(0), "text glyph reaches its cell");
-        AssertTrue(!text.ClickRequested, "first glyph does not click");
         text.StepInto(vram);
         AssertEqual(new Position16<PlanePixels>(2 * EscapeTypewriterDefinitions.GlyphAdvance, 0), text.Corner, "space advances cursor a glyph's width without a tile");
         text.StepInto(vram);
         text.StepInto(vram);
         AssertEqual((ushort)0, vram.ReadWord(2), "delay applies before next visible glyph");
-        text.StepInto(vram);
+        EscapeTypewriterStep second = text.StepInto(vram);
         AssertEqual((ushort)(EscapeTypewriterTileDefinitions.ZebesTileBase.PackedWord + 26), vram.ReadWord(2), "exclamation uses native remap");
-        AssertTrue(text.ClickRequested, "second visible glyph clicks despite intervening space");
+        AssertTrue(second is EscapeTypewriterStep.TypedWithClick, "second visible glyph clicks despite intervening space");
         text.StepInto(vram); text.StepInto(vram);
-        AssertTrue(text.StepInto(vram), "typewriter completes only at terminator after delay");
+        AssertTrue(text.StepInto(vram) is EscapeTypewriterStep.Complete, "typewriter completes only at terminator after delay");
 
         RoomTerrainBlock[] terrain = Enumerable.Repeat(RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.SolidBlock), 256).ToArray();
         var level = CreateRoom(new(16, 16), terrain, new RoomBlockBehavior[terrain.Length]);

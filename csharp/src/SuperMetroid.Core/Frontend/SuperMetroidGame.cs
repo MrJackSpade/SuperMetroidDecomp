@@ -131,11 +131,9 @@ public sealed class SuperMetroidGame
     /// <summary>Runs one update and returns its status.</summary>
     public FrontendFrame Step(ControllerButton controllerInput)
     {
-        // Derive whether the door transition has disabled sound effects before any producer
-        // can queue audio, from the phase itself rather than a second serialized flag that
-        // could disagree with it.
+        // The sound queues read whether the door transition has disabled sound effects from the door's phase itself as each
+        // request is made (#2499); the phase's audio here chooses only the update's own audio processing.
         GamePhaseAudio phaseAudio = Phases.Of(Session.GameState).Audio;
-        Session.audio.DoorTransitionSoundsDisabled = phaseAudio == GamePhaseAudio.DoorTransitionSoundsDisabled;
         bool pauseInputEpilogue = phaseAudio == GamePhaseAudio.PauseInputEpilogue;
         bool messageWasActive = Session.Runtime?.MessageBox.IsActive == true;
         bool doorAudioUpdate = phaseAudio is GamePhaseAudio.DoorTransition or GamePhaseAudio.DoorTransitionSoundsDisabled;

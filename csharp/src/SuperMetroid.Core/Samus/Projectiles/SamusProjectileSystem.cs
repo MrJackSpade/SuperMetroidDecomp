@@ -40,7 +40,7 @@ public sealed class SamusProjectileSystem
     /// The update's audio requests the projectiles' firing, combination and impact sounds join as they are made: the
     /// runtime's, or a cinematic's (#2057).
     /// </summary>
-    internal GameplayAudioRequests AudioRequests { get; }
+    internal GameplaySoundRequests AudioRequests { get; }
 
     /// <summary>Owns the projectile visuals emitted by Shinespark echoes.</summary>
     internal ShinesparkEchoProjectile Shinespark { get; }
@@ -86,7 +86,7 @@ public sealed class SamusProjectileSystem
     /// <param name="shotCount">How many shots Samus has out as firing counts them, created by the room's builder with the room's shot pool.</param>
     /// <param name="artwork">The Samus artwork whose projectile frames the shots draw, rebound with the host's artwork.</param>
     /// <param name="earthquake">The room's earthquake, which a Super Missile's impact starts, composed with the room's enemies.</param>
-    internal SamusProjectileSystem(GameplayAudioRequests audioRequests, BeamChargeState charge, SamusOverreadServices samusOverreads,
+    internal SamusProjectileSystem(GameplaySoundRequests audioRequests, BeamChargeState charge, SamusOverreadServices samusOverreads,
         LeftMuzzleSubpixelCarry muzzleCarry, SamusShotCount shotCount, SamusArtworkBinding artwork, RoomEarthquake earthquake)
     {
         AudioRequests = Ensure.NotNull(audioRequests);

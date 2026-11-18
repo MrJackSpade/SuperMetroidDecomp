@@ -324,13 +324,13 @@ internal sealed class CeresEscape : IGameplayShadingSource
     {
         var installed = Warning.Typewriter ?? throw new InvalidDataException(
             "Ceres warning text requires installed typewriter artwork.");
-        bool completed = installed.Step(out EscapeTypewriterGlyph? glyph);
+        EscapeTypewriterStep typing = installed.Step();
         // The Ceres message types over the room's foreground (#1348), as part of the warning (#1555).
-        if (glyph is { } typed)
-            Warning.Show(new WrittenPicture(typed.Picture, typed.Corner));
-        if (installed.ClickRequested)
+        if (typing is EscapeTypewriterStep.Typed typed)
+            Warning.Show(new WrittenPicture(typed.Glyph.Picture, typed.Glyph.Corner));
+        if (typing is EscapeTypewriterStep.TypedWithClick)
             _audio.QueueEnemySound(EscapeTypewriterDefinitions.CeresClick, priority: SoundRequestPriority.Low);
-        return completed;
+        return typing is EscapeTypewriterStep.Complete;
     }
 
     /// <summary>Plays the three-colour alarm cycle of the warning's EMERGENCY title on to its next colouring every fourth update.</summary>

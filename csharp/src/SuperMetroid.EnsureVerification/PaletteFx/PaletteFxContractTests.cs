@@ -33,7 +33,7 @@ internal static class PaletteFxContractTests
         // step shows the flicker's first record in the engine's colours.
         var fxSession = new ColourEffectSessionState();
         var fx = new ColourEffectSystem(fxSession);
-        fx.BindAudioRequests(new GameplayAudioRequests(new NoSoundQueues()));
+        fx.BindAudioRequests(new GameplaySoundRequests(new NoSoundQueues()));
         fx.StartScreen(ColourEffectId.CutsceneGunshipEngineFlicker);
         fx.StepScreen();
         IReadOnlyList<ShownColourEffectFrame> shown = fx.Shown;
@@ -70,15 +70,11 @@ internal static class PaletteFxContractTests
                 $"{description}: expected {expectedError ?? "successful compilation"}; got {string.Join("; ", errors.Select(error => error.ToString()))}");
     }
 
-    /// <summary>The queues of a frontend screen's effects, which make no sound or music: a request fails the check (#2057).</summary>
-    private sealed class NoSoundQueues : IGameplayAudioQueues
+    /// <summary>The sound queues of a frontend screen's effects, which make no sound: a request fails the check (#2057).</summary>
+    private sealed class NoSoundQueues : IGameplaySoundQueue
     {
         /// <inheritdoc/>
         public SoundQueueAdmission QueueSound(SoundRequest request) =>
-            throw new InvalidOperationException($"A frontend screen's colour effect requested {request}.");
-
-        /// <inheritdoc/>
-        public void QueueMusic(GameplayMusicRequest request) =>
             throw new InvalidOperationException($"A frontend screen's colour effect requested {request}.");
     }
 }

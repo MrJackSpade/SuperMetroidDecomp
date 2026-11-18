@@ -174,10 +174,11 @@ internal sealed class MotherBrainRainbowAndDeath
         // finished, which only the typing phase reads, so the text steps on every update it exists.
         if (state.EscapeTypewriter is { } text)
         {
-            typewriterFinished = text.Step(out EscapeTypewriterGlyph? glyph);
-            if (glyph is { } typed)
-                WriteZebesTypewriterGlyph(typed);
-            if (text.ClickRequested) _motherBrainEncounter.RequestCueSound(EscapeTypewriterDefinitions.ZebesClick);
+            EscapeTypewriterStep typing = text.Step();
+            typewriterFinished = typing is EscapeTypewriterStep.Complete;
+            if (typing is EscapeTypewriterStep.Typed typed)
+                WriteZebesTypewriterGlyph(typed.Glyph);
+            if (typing is EscapeTypewriterStep.TypedWithClick) _motherBrainEncounter.RequestCueSound(EscapeTypewriterDefinitions.ZebesClick);
         }
         MotherBrainRainbowBeamAttackStepResult step = sequence.Step(samus, new RainbowBeamAttackFrame { EnemyFrameCounter = enemyFrameCounter, EnemyPassCount = _frameContext.RandomEnemyCounter, PowerBombActive = sharedProjectiles.PowerBombExplosion.IsActive, RandomNumberSeed = MotherBrainRandomSample.FromGenerator(_room.Random.Read()), NextRandomNumber = _room.Random.Generate, AlternateEscapeText = _room.Session.JapaneseText, TypewriterFinished = typewriterFinished, RoomEarthquakeStopped = !_earthquake.IsShaking, CameraCheckpoint = _room.Session.RainbowBeamCameraCheckpoint });
         _frameResults.MotherBrainDeathStep = step;

@@ -93,7 +93,7 @@ internal sealed class TimeUpGameSequence(FrontendSession session, GameplayGamePh
         session.screenFade.StepEvery(1);
         session.Runtime.FadeOut.End();
         session.Runtime.EnemySession.CeresStatus = CeresEscapeStatus.RidleyNotEscaped;
-        session.Runtime.EscapeTimer.ClearStatus();
+        session.Runtime.EscapeTimer.StopAtTimeUp();
         session.audio.QueueCancelSoundEffects(SoundRequestPriority.Essential);
         session.display.PublishBlack();
         if (session.Runtime.System.HasEvent(StoryEvent.ZebesTimebombSet))

@@ -38,9 +38,9 @@ internal static class EscapeTypewriterPresentationVerification
             {
                 if (frame == 2048) throw new InvalidOperationException($"{id} typewriter did not terminate.");
                 comparedFrames++;
-                bool completed = installed.Step(out EscapeTypewriterGlyph? glyph);
-                if (glyph is not null) glyphs++;
-                if (completed) break;
+                EscapeTypewriterStep step = installed.Step();
+                if (step is EscapeTypewriterStep.Typed) glyphs++;
+                if (step is EscapeTypewriterStep.Complete) break;
             }
             AssertTrue(glyphs > 0, $"{id} installed typewriter writes its glyphs");
         }

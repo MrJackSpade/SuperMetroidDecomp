@@ -15,12 +15,13 @@ internal static class EscapeTypewriterStateAccess
         /// Steps the typewriter and writes the tile of the glyph it types, if any, into <paramref name="vram"/>'s word of the two
         /// tilemap screens its corner lies in: the tile the import pictures the glyph from, over its program's tile base.
         /// </summary>
-        internal bool StepInto(SnesVram vram)
+        /// <returns>What the typewriter's update did.</returns>
+        internal EscapeTypewriterStep StepInto(SnesVram vram)
         {
-            bool completed = state.Step(out EscapeTypewriterGlyph? glyph);
-            if (glyph is { } typed)
+            EscapeTypewriterStep step = state.Step();
+            if (step is EscapeTypewriterStep.Typed { Glyph: var typed })
                 vram.ExecuteWordTransfer([EscapeTypewriterGlyphTilesConstants.Of(state.MessageId, typed).PackedWord], checked((ushort)SuperMetroid.Core.Rooms.Backgrounds.TwoScreenTilemapCells.IndexOf(typed.Corner)), 1);
-            return completed;
+            return step;
         }
     }
 

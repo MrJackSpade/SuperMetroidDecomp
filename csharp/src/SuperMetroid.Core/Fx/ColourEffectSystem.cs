@@ -58,12 +58,12 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     /// any effect sounds (#2057). A frontend screen's effects make no sound and bind none.
     /// </summary>
     /// <exception cref="InvalidOperationException">No runtime has bound its audio requests: an effect sounding then has no request to join.</exception>
-    internal GameplayAudioRequests AudioRequests { get => field
+    internal GameplaySoundRequests AudioRequests { get => field
         ?? throw new InvalidOperationException("A colour effect made a sound before a runtime bound its update's audio requests."); private set;
     }
 
     /// <summary>Points the colour effects' sounds at <paramref name="requests"/>, the update's audio requests of the runtime running them.</summary>
-    internal void BindAudioRequests(GameplayAudioRequests requests) => AudioRequests = Ensure.NotNull(requests);
+    internal void BindAudioRequests(GameplaySoundRequests requests) => AudioRequests = Ensure.NotNull(requests);
 
     /// <summary>Whether <paramref name="effect"/> is running.</summary>
     public bool IsRunning(ColourEffectId effect) => effects.Exists(running => running.Effect == effect);

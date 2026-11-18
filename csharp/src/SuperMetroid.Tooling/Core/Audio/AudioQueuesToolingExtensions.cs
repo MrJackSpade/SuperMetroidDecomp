@@ -10,16 +10,20 @@ internal static class AudioQueuesToolingExtensions
     {
         /// <summary>
         /// Queues over their own sound request handshakes, created for every library as the session's composition root
-        /// creates the session's, for a runtime or system that runs outside a session: no attract demo drives it and no
-        /// power bomb's explosion turns its sounds away, as nothing plays what its queues release.
+        /// creates the session's, for a runtime or system that runs outside a session: no door disables its sounds, no
+        /// attract demo drives it and no power bomb's explosion turns its sounds away, as nothing plays what its queues
+        /// release.
         /// </summary>
         internal static AudioQueues Standalone() =>
             new(new SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>(SoundEffectLibraries.InQueueOrder), new NoGameplaySoundState());
     }
 
-    /// <summary>The gameplay states of queues that stand alone: no attract demo plays and no power bomb explodes.</summary>
+    /// <summary>The gameplay states of queues that stand alone: no door disables sounds, no attract demo plays and no power bomb explodes.</summary>
     private sealed class NoGameplaySoundState : IGameplaySoundState
     {
+        /// <inheritdoc/>
+        public bool DoorTransitionDisablesSounds => false;
+
         /// <inheritdoc/>
         public bool AttractDemoPlaying => false;
 

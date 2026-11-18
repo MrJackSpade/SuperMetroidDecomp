@@ -85,6 +85,7 @@ using static SuperMetroid.Verification.Areas.Ceres.CeresElevatorDoorSealVerifica
 using static SuperMetroid.Verification.Enemies.Animals.CrittersEscapeWallSetupVerification;
 using static SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectTypeAndBehaviorWritesVerification;
 using static SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectCollisionOnlyWritesVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.MapStationAccessVerification;
 using static SuperMetroid.Verification.Bosses.Ridley.CeresRidleyWallVerification;
 using static SuperMetroid.Verification.Areas.Ceres.CeresSteamCollisionDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.ChainsawFiringVerification;
@@ -879,6 +880,8 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyTerrainBreakSetupsKeepWhatTheirBlocksShow), () => VerifyTerrainBreakSetupsKeepWhatTheirBlocksShow()),
         new(nameof(VerifyItemAndTubeSetupsKeepWhatTheirBlocksShow), () => VerifyItemAndTubeSetupsKeepWhatTheirBlocksShow()),
         new(nameof(VerifyStationSetupsKeepWhatTheirBlocksShow), () => VerifyStationSetupsKeepWhatTheirBlocksShow()),
+        new(nameof(VerifyMapStationWithItsAreaMapHeldKeepsTheLayoutBesideIt), () => VerifyMapStationWithItsAreaMapHeldKeepsTheLayoutBesideIt()),
+        new(nameof(VerifyMapStationUseLeavesNoAccessBesideIt), () => VerifyMapStationUseLeavesNoAccessBesideIt()),
         new(nameof(VerifyScrollSetupsKeepWhatTheirBlocksShow), () => VerifyScrollSetupsKeepWhatTheirBlocksShow()),
         new(nameof(VerifyCeresRidleyWallImpact), () => VerifyCeresRidleyWallImpact()),
         new(nameof(VerifySamusKnockbackAndDamageBoost), () => VerifySamusKnockbackAndDamageBoost()),

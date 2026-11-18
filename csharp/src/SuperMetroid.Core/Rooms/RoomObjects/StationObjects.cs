@@ -144,9 +144,10 @@ internal sealed class StationObjects
 
     /// <summary>
     /// Sets up the map, energy or missile station the room's population placed, used by <paramref name="rule"/>: its solid
-    /// block, the access blocks either side, and its animations. Only the map station has a separate acquired animation,
-    /// shown from the start once its area map is held. The stations hold each map station they place, which leaving the
-    /// map screen returns to idle.
+    /// block, its animation and, while the station can still be used, the access blocks either side. Only the map station
+    /// has a separate acquired animation: once its area map is held it shows that animation from the start and writes no
+    /// access blocks, so the layout's own blocks stay beside it and nothing there serves Samus (#2508). The stations hold
+    /// each map station they place, which leaving the map screen returns to idle.
     /// </summary>
     internal void SetupAccessStation(RoomLevelData level, AreaId area, RoomObjectPlace place, StationAccessRule rule)
     {
@@ -154,14 +155,19 @@ internal sealed class StationObjects
         Ensure.NotNull(place);
         Ensure.NotNull(rule);
         WriteStationBlock(level, place.Block, RoomCollisionType.SolidBlock, behavior: null);
-        WriteAccessBlock(level, level.ObjectBlockStep(place.Block, new Offset16<RoomBlocks>(rule.RightOffset, 0)),
-            new StationAccess(rule.Kind, HorizontalDirection.Right));
-        WriteAccessBlock(level, level.ObjectBlockStep(place.Block, new Offset16<RoomBlocks>(rule.LeftOffset, 0)),
-            new StationAccess(rule.Kind, HorizontalDirection.Left));
-
-        StationAnimation initialAnimation = rule.AcquiredAnimation is { } acquired && System.HasAreaMap(area)
-            ? acquired
-            : rule.Animation;
+        StationAnimation initialAnimation;
+        if (rule.AcquiredAnimation is { } acquired && System.HasAreaMap(area))
+        {
+            initialAnimation = acquired;
+        }
+        else
+        {
+            WriteAccessBlock(level, level.ObjectBlockStep(place.Block, new Offset16<RoomBlocks>(rule.RightOffset, 0)),
+                new StationAccess(rule.Kind, HorizontalDirection.Right));
+            WriteAccessBlock(level, level.ObjectBlockStep(place.Block, new Offset16<RoomBlocks>(rule.LeftOffset, 0)),
+                new StationAccess(rule.Kind, HorizontalDirection.Left));
+            initialAnimation = rule.Animation;
+        }
         var station = new AccessStationObject(rule, area, initialAnimation);
         place.Become(station);
         if (rule.Refill is null)

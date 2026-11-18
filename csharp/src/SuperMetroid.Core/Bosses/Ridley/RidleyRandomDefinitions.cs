@@ -12,7 +12,7 @@ internal static class RidleyRandomDefinitions
     /// <summary>The updates Norfair Ridley's pogo attack lasts at most beyond its fewest (<see cref="NorfairRidleyMotionDefinitions.PogoLeastUpdates"/>), 0 through 63.</summary>
     internal static readonly RandomSampleField PogoTimer = new(0, 6);
 
-    /// <summary>Which of the four pogo launches Norfair Ridley takes.</summary>
+    /// <summary>The draw choosing which of his health band's four pogo launches Norfair Ridley takes, one of four in turn.</summary>
     internal static readonly RandomSampleField PogoChoice = new(0, 2);
 
     /// <summary>The updates the first leg of Norfair Ridley's wall sweep lasts at most beyond its fewest (<see cref="NorfairRidleyMotionDefinitions.WallSweepFirstLegLeastUpdates"/>), 0 through 31.</summary>

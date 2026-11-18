@@ -196,7 +196,7 @@ internal sealed class PhantoonPatterns
             return;
         }
 
-        PhantoonCasualFlameSchedule burst = Ensure.Element(PhantoonCasualFlameDefinitions.Choices, _room.Random.Next(PhantoonRandomDefinitions.CasualFlamePattern));
+        PhantoonCasualFlameSchedule burst = PhantoonCasualFlameDefinitions.Burst.Choose(_room.Random.Generate());
         ListStep<PhantoonCasualFlame> first = ListStep<PhantoonCasualFlame>.FirstOf(burst.Flames);
         state.CasualFlames.Schedule = burst;
         state.CasualFlames.NextFlame = first;
@@ -394,7 +394,7 @@ internal sealed class PhantoonPatterns
             return;
 
         state.Phase = PhantoonPhase.SpawnFlameRain;
-        state.PhaseTimer = PhantoonTimerDefinitions.RainHiding[_room.Random.Next(PhantoonRandomDefinitions.RainHidingChoice)];
+        state.PhaseTimer = PhantoonRandomDefinitions.RainHiding.Choose(_room.Random.Generate());
     }
 
     /// <summary>Emits the scheduled rain pattern while Phantoon is hidden.</summary>
@@ -405,7 +405,7 @@ internal sealed class PhantoonPatterns
         if (!PhantoonPresentation.TickPhantoonPhaseTimer(state))
             return;
 
-        PhantoonRainPattern pattern = Ensure.Element(PhantoonRainPatternDefinitions.Choices, _room.Random.Next(PhantoonRandomDefinitions.FlameRainPattern));
+        PhantoonRainPattern pattern = PhantoonRainPatternDefinitions.LaterRain.Choose(_room.Random.Generate());
         state.FigureEight.PathPlace = PhantoonPath.At(pattern.PathPlace);
         body.Position = body.Position.WithWhole(pattern.BodyPosition);
         state.FigureEight.Direction = PhantoonPathDirection.Forwards;
@@ -631,7 +631,7 @@ internal sealed class PhantoonPatterns
         PhantoonEnemyState state)
     {
         state.PhaseTimer = PhantoonArenaDefinitions.PatternPickUpdates;
-        state.Round.EyeClosedTimer = PhantoonTimerDefinitions.EyeClosed[_room.Random.Next(PhantoonRandomDefinitions.EyeClosedChoice)];
+        state.Round.EyeClosedTimer = PhantoonRandomDefinitions.EyeClosed.Choose(_room.Random.Generate());
         if (PhantoonCadenceDefinitions.FigureEightReverses.IsSetIn(_frameContext.FrameCounter))
         {
             if (state.FigureEight.Direction == PhantoonPathDirection.Forwards)

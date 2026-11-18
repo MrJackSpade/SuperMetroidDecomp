@@ -17,7 +17,7 @@ internal static class KraidRockLaunchDefinitionsVerification
         {
             int address = 0xa7bc65 + (raw & 14);
             ushort expected = LittleEndianBytes.Word(KraidRockLaunchSpeedSelectionRomByte(rom, address), KraidRockLaunchSpeedSelectionRomByte(rom, address + 1));
-            AssertEqual(expected, KraidRockLaunchDefinitions.FromRandom((ushort)raw).RawValue,
+            AssertEqual(expected, KraidRockLaunchDefinitions.SpitLaunch.Choose((ushort)raw).RawValue,
                 "Every native Kraid rock velocity selection");
         }
     }

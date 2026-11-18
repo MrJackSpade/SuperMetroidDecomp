@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.FallingSparks;
 using SuperMetroid.Core.Enemies.Magdollite;
 using static SuperMetroid.AssetExtraction.Enemies.EnemyOverreadSourceDefinitions;
 
@@ -53,7 +52,7 @@ internal static class EnemyOverreadDecoding
     /// </summary>
     private static EnemyOverreadDocument.Drift UnauthoredSparkLaunch(IImportCartridgeSource cartridge)
     {
-        int record = FallingSparkLaunchTable + FallingSparkLaunchDefinitions.Launches.Length * FallingSparkLaunchBytes;
+        int record = FallingSparkLaunchTable + FallingSparkAuthoredLaunches * FallingSparkLaunchBytes;
         int whole = cartridge.ReadCartridgeWord(record);
         int fraction = cartridge.ReadCartridgeWord(record + sizeof(ushort));
         return new EnemyOverreadDocument.Drift(CartridgeWordReads.SignedWord(whole), fraction);

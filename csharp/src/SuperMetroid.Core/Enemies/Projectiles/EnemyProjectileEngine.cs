@@ -706,6 +706,5 @@ internal sealed class EnemyProjectileEngine
     /// <summary>
     /// Draws a one-in-four chance from the room's next random number: it comes up for the top quarter of the range.
     /// </summary>
-    internal bool TakeOneInFourBranch() =>
-        _room.Random.Next(EnemyProjectileRandomBranchDefinitions.OneInFourBranch) == EnemyProjectileRandomBranchDefinitions.OneInFourBranchTaken;
+    internal bool TakeOneInFourBranch() => EnemyProjectileRandomBranchDefinitions.OneInFourBranch.IsTakenBy(_room.Random.Generate());
 }

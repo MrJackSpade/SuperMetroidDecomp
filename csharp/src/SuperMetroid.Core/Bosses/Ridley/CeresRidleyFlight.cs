@@ -138,7 +138,7 @@ internal sealed class CeresRidleyFlight
                 return;
         }
 
-        state.Phase = CeresRidleyAttackDefinitions.SelectAttack(_room.Random.Read());
+        state.Phase = CeresRidleyAttackDefinitions.Attack.Choose(_room.Random.Read());
         // A move into his fireball position counts its wait above the hover line from the choice.
         state.FireballMoveWait.LastFor(CeresRidleyFlightDefinitions.FireballMoveGiveUpUpdates);
     }

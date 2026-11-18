@@ -16,7 +16,7 @@ internal static class LookupRainVelocityVerification
             // production choice. Read the original word, not a formula.
             int nativeOffset = (random >> 1) & 6;
             int expected = unchecked((short)ReadVerificationWord(rom, 0x88d992 + nativeOffset));
-            int actual = AtmosphereDrift.RainHorizontalVelocity(AtmosphereDrift.RainWindChosenBy(random)).InTwoHundredFiftySixthsOfPixel;
+            int actual = AtmosphereDrift.RainHorizontalVelocity(AtmosphereDriftDefinitions.RainWindDraw.Choose(random)).InTwoHundredFiftySixthsOfPixel;
             AssertEqual(expected, actual, "Rain complete RNG selection domain");
         }
     }

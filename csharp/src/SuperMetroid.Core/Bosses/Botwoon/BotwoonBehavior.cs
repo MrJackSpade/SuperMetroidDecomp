@@ -299,8 +299,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     private void ChooseBotwoonPath(RoomEnemyPlace head, BotwoonEnemyState state)
     {
         UpdateBotwoonSpeedStage(head, state);
-        int draw = _room.Random.Next(BotwoonNavigationDefinitions.PathDraw);
-        StartBotwoonWalk(state, BotwoonNavigation.WalkFrom(state.TargetHole, state.InsideHole, draw));
+        StartBotwoonWalk(state, BotwoonNavigation.WalkFrom(state.TargetHole, state.InsideHole, _room.Random.Generate()));
     }
 
     /// <summary>

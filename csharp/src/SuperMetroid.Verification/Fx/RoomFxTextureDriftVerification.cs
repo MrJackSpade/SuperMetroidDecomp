@@ -48,7 +48,7 @@ internal static class RoomFxTextureDriftVerification
                 rain.Step(new ArtworkFrameSelections(), Frame());
                 AssertShows(travelledX, rain.Scroll.X, $"rain wind {selection} frame {frame} across");
                 AssertShows(travelledY, rain.Scroll.Y, $"rain wind {selection} frame {frame} down");
-                travelledX += AtmosphereDrift.RainHorizontalVelocity(AtmosphereDrift.RainWindChosenBy(selection * 4)).InTwoHundredFiftySixthsOfPixel;
+                travelledX += AtmosphereDrift.RainHorizontalVelocity(AtmosphereDriftDefinitions.RainWindDraw.Choose(selection * 4)).InTwoHundredFiftySixthsOfPixel;
                 travelledY -= AtmosphereDriftDefinitions.RainFallSpeed.InTwoHundredFiftySixthsOfPixel;
             }
             AssertTrue(-travelledY / 256 > 2 * TextureDrift.RepeatPixels, "rain's fall travels past several repeats");

@@ -8,20 +8,20 @@ internal static class BotwoonNavigation
         BotwoonNavigationDefinitions.Holes.Single(definition => definition.Hole == hole);
 
     /// <summary>
-    /// The walk draw <paramref name="draw"/>, zero through three, leads to from <paramref name="from"/> (#1868). A walk in
-    /// the open follows its own path forward. A walk inside the wall follows the wall path between the two holes, forward
-    /// from the path's first hole and backward from its second.
+    /// The walk the random sample <paramref name="sample"/> leads to from <paramref name="from"/> (#1868, #2510), its
+    /// destination chosen by <see cref="BotwoonNavigationDefinitions.OpenDestinations"/> or
+    /// <see cref="BotwoonNavigationDefinitions.WallDestinations"/>. A walk in the open follows its own path forward. A walk
+    /// inside the wall follows the wall path between the two holes, forward from the path's first hole and backward from its
+    /// second.
     /// </summary>
-    /// <exception cref="InvalidDataException"><paramref name="draw"/> is not one of the four draws.</exception>
-    internal static BotwoonPathWalk WalkFrom(BotwoonHole from, bool insideWall, int draw)
+    /// <param name="from">The hole the walk leaves.</param>
+    /// <param name="insideWall">Whether the walk travels inside the wall.</param>
+    /// <param name="sample">The walk's random sample, 0 through 65535.</param>
+    internal static BotwoonPathWalk WalkFrom(BotwoonHole from, bool insideWall, int sample)
     {
-        BotwoonHole[] destinations = (insideWall
+        BotwoonHole to = (insideWall
             ? BotwoonNavigationDefinitions.WallDestinations
-            : BotwoonNavigationDefinitions.OpenDestinations)[from];
-        if (draw < 0 || draw >= destinations.Length)
-            throw new InvalidDataException($"Botwoon path draw {draw} is not one of the {destinations.Length} draws.");
-
-        BotwoonHole to = destinations[draw];
+            : BotwoonNavigationDefinitions.OpenDestinations)[from].Choose(sample);
         if (!insideWall)
             return new(PathBetween(from, to, BotwoonPathRoute.Open), BotwoonPathTraversal.Forward, 0, to);
 

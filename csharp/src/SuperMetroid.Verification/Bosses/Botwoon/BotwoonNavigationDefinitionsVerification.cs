@@ -40,11 +40,14 @@ internal static class BotwoonNavigationDefinitionsVerification
     /// <summary>The cartridge's position in its path table of the authored path <paramref name="path"/>.</summary>
     private static int TablePosition(BotwoonPathDefinition path) => Array.IndexOf(BotwoonPathDefinitions.Paths, path);
 
-    /// <summary>The walk production starts for the cartridge's descriptor <paramref name="descriptor"/>.</summary>
+    /// <summary>
+    /// The walk production starts for the cartridge's descriptor <paramref name="descriptor"/>: from the random sample whose
+    /// bits three and four, the ones the cartridge's draw reads, are the descriptor's draw.
+    /// </summary>
     private static BotwoonPathWalk WalkOf(int descriptor)
     {
         (BotwoonHole from, bool insideWall, int draw) = DescriptorWalk(descriptor);
-        return BotwoonNavigation.WalkFrom(from, insideWall, draw);
+        return BotwoonNavigation.WalkFrom(from, insideWall, draw << 3);
     }
 
     /// <summary>Checks each hole's exclusive right edge through the production detection routine.</summary>
@@ -112,9 +115,7 @@ internal static class BotwoonNavigationDefinitionsVerification
             AssertEqual(BotwoonMovement.FollowAuthoredPath, state.Movement, "Botwoon walk handoff");
             AssertTrue(!state.PathComplete, "Botwoon walk starts incomplete");
         }
-        foreach (int invalid in new[] { int.MinValue, -1, 4, int.MaxValue })
-            AssertThrows<InvalidDataException>(() => BotwoonNavigation.WalkFrom(BotwoonHole.Left, insideWall: false, invalid), "Botwoon rejects every invalid draw");
-        Console.WriteLine("Botwoon path descriptors: all 32 path, first-step, direction and destination fields and production installations match native records; invalid draws rejected.");
+        Console.WriteLine("Botwoon path descriptors: all 32 path, first-step, direction and destination fields and production installations match native records.");
     }
 
     /// <summary>

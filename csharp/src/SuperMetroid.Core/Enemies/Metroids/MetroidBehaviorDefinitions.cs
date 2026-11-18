@@ -10,17 +10,14 @@ internal static class MetroidBehaviorDefinitions
     internal static readonly Offset16<RoomPixels>[] EscapeMoves = [new(2, 0), new(0, 2), new(-2, 0), new(0, -2)];
 
     /// <summary>
-    /// The cry a chasing Metroid plays for each of the eight outcomes of <see cref="CrySlot"/>, in outcome order: the
-    /// drain sound for two of them, and the Mochtroid's and the Metroid's shot sounds for three each.
+    /// The cry a chasing Metroid plays, chosen from eight rolls of its random number (#2510): the drain sound, the rising
+    /// squeal and the Metroid's shot sound, the three again, then the squeal and the shot sound, so the drain is played for
+    /// two rolls and the other two for three each.
     /// </summary>
-    internal static readonly SoundEffectId[] RandomCries =
-    [
-        EnemySound.MetroidDrain, EnemySound.RisingSqueal, EnemySound.ShotMetroid, EnemySound.MetroidDrain,
-        EnemySound.RisingSqueal, EnemySound.ShotMetroid, EnemySound.RisingSqueal, EnemySound.ShotMetroid,
-    ];
-
-    /// <summary>The random field that picks which of the eight <see cref="RandomCries"/> a chasing Metroid plays.</summary>
-    internal static readonly RandomSampleField CrySlot = new(0, 3);
+    internal static readonly WeightedRandomChoice<SoundEffectId> Cry = new(new RandomSampleField(0, 3),
+        new(1, EnemySound.MetroidDrain), new(1, EnemySound.RisingSqueal), new(1, EnemySound.ShotMetroid),
+        new(1, EnemySound.MetroidDrain), new(1, EnemySound.RisingSqueal), new(1, EnemySound.ShotMetroid),
+        new(1, EnemySound.RisingSqueal), new(1, EnemySound.ShotMetroid));
 
     /// <summary>How close on each axis, in pixels and exclusive, a closing Metroid comes to its aim before it latches on.</summary>
     internal const int LatchDistance = 8;

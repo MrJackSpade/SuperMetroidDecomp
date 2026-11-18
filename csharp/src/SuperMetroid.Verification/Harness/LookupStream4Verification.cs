@@ -1474,7 +1474,7 @@ internal static class LookupStream4Verification
         {
             // The cartridge reads its pogo tables two stages past the health stage (#1934).
             int stage = band + 2;
-            var actual = RidleyNativeWords.HealthBandsInStageOrder[band].PogoLaunches[pattern];
+            var actual = RidleyNativeWords.HealthBandsInStageOrder[band].PogoLaunch.Choose(pattern);
             int x = 0xa60000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6b965 + 2 * pattern));
             int y = 0xa60000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6b96d + 2 * pattern));
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((x + 2 * stage)), actual.Velocity.X.RawValue, "stream4 native pogo horizontal magnitude");

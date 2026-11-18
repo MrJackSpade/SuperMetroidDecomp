@@ -337,12 +337,13 @@ internal sealed class EnemyDeathsAndDrops
         if (table.Total > EnemyDropSelectionDefinitions.FullWeightBudget)
             throw new InvalidDataException($"A drop table's chances sum to {table.Total}, past the {EnemyDropSelectionDefinitions.FullWeightBudget} every chance is out of.");
 
-        int random;
+        int sample;
         do
         {
-            random = _room.Random.Next(EnemyDropSelectionDefinitions.DropRoll);
+            sample = _room.Random.Generate();
         }
-        while (random == 0);
+        while (EnemyDropSelectionDefinitions.DropRollDrawnAgain.IsTakenBy(sample));
+        int random = EnemyDropSelectionDefinitions.DropRoll.Of(sample);
 
         int majorAdjustedBudget = EnemyDropSelectionDefinitions.FullWeightBudget;
         int accumulated = 0;

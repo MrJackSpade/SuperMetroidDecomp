@@ -33,7 +33,7 @@ internal static class RidleyPogoDefinitionsVerification
                 CartridgeImportSource.Require(rom).ReadCartridgeWord((EnemyRomTablePointers.Ridley.PogoUpwardAccelerationWords + stage * 2)),
                 CartridgeImportSource.Require(rom).ReadCartridgeWord((EnemyRomTablePointers.Ridley.PogoDownwardAccelerationWords + stage * 2)));
             reference[pattern, band] = native;
-            RidleyPogoDefinition compiled = bands[band].PogoLaunches[pattern];
+            RidleyPogoDefinition compiled = bands[band].PogoLaunch.Choose(pattern);
             AssertTrue(native == new RidleyPogoDefinitionsReference(compiled.Velocity.X.RawValue, compiled.Velocity.Y.RawValue, compiled.UpwardAcceleration.RawValue, compiled.DownwardAcceleration.RawValue),
                 "All indirect native pogo records and accelerations");
         }

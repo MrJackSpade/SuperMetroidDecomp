@@ -47,23 +47,14 @@ internal static class TorizoRandomDefinitions
     internal static readonly RandomSampleField InitialDroolXJitter = new(0, 2);
 
     /// <summary>
-    /// The low-health drool's delay choice, 0 through 7 of the eight choices that repeat the drools released at once and
-    /// formed for two and for four updates.
+    /// The drool a low-health drool starts, chosen from eight rolls of its draw (#2510): the drools released at once, formed
+    /// for two updates and formed for four in turn, so the first two kinds are each drawn three times in eight and the last
+    /// twice.
     /// </summary>
-    internal static readonly RandomSampleField LowHealthDroolDelay = new(2, 3);
-
-    /// <summary>
-    /// The drool each <see cref="LowHealthDroolDelay"/> entry starts, in entry order: the drools released at once, formed for
-    /// two updates and formed for four in turn, so the first two kinds are each drawn three times in eight and the last twice.
-    /// </summary>
-    internal static readonly Animation<TorizoProjectileSegment>[] LowHealthDroolAnimations =
-    [
-        TorizoProjectileAnimations.StartingWith(TorizoProjectileSegment.DroolNoDelay), TorizoProjectileAnimations.DroolFormingForTwoUpdates,
-        TorizoProjectileAnimations.DroolFormingForFourUpdates,
-        TorizoProjectileAnimations.StartingWith(TorizoProjectileSegment.DroolNoDelay), TorizoProjectileAnimations.DroolFormingForTwoUpdates,
-        TorizoProjectileAnimations.DroolFormingForFourUpdates,
-        TorizoProjectileAnimations.StartingWith(TorizoProjectileSegment.DroolNoDelay), TorizoProjectileAnimations.DroolFormingForTwoUpdates,
-    ];
+    internal static readonly WeightedRandomChoice<Animation<TorizoProjectileSegment>> LowHealthDroolForm =
+        WeightedRandomChoice<Animation<TorizoProjectileSegment>>.InTurn(new RandomSampleField(2, 3),
+            TorizoProjectileAnimations.StartingWith(TorizoProjectileSegment.DroolNoDelay), TorizoProjectileAnimations.DroolFormingForTwoUpdates,
+            TorizoProjectileAnimations.DroolFormingForFourUpdates);
 
     /// <summary>
     /// A sonic boom flying high, twelve pixels above Torizo's Y rather than twenty below (#2410): an odd sample, one in two.

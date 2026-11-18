@@ -43,15 +43,15 @@ internal static class DraygonCannonObjectDrawDefinitions
     {
         [DraygonCannonDraw.RightShield] = RightShield,
         [DraygonCannonDraw.RightShieldFlash] = RightShield,
-        [DraygonCannonDraw.RightSparksPeakingAt11And20] = RightDamaged,
-        [DraygonCannonDraw.RightSparksPeakingAt3And28] = RightDamaged,
-        [DraygonCannonDraw.RightSparksPeakingAt6And25] = RightDamaged,
+        [DraygonCannonDraw.RightSparksFlaring] = RightDamaged,
+        [DraygonCannonDraw.RightSparksSpreading] = RightDamaged,
+        [DraygonCannonDraw.RightSparksReceding] = RightDamaged,
         [DraygonCannonDraw.RightSparksFlat] = RightDamaged,
         [DraygonCannonDraw.LeftShield] = LeftShield,
         [DraygonCannonDraw.LeftShieldFlash] = LeftShield,
-        [DraygonCannonDraw.LeftSparksPeakingAt11And20] = LeftDamaged,
-        [DraygonCannonDraw.LeftSparksPeakingAt3And28] = LeftDamaged,
-        [DraygonCannonDraw.LeftSparksPeakingAt6And25] = LeftDamaged,
+        [DraygonCannonDraw.LeftSparksFlaring] = LeftDamaged,
+        [DraygonCannonDraw.LeftSparksSpreading] = LeftDamaged,
+        [DraygonCannonDraw.LeftSparksReceding] = LeftDamaged,
         [DraygonCannonDraw.LeftSparksFlat] = LeftDamaged,
     };
 }

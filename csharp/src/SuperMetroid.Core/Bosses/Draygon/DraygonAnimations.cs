@@ -140,7 +140,7 @@ internal static class DraygonAnimations
             Show(F.DraygonEyeFacingLeftHalfOpen, 5),
             Show(F.DraygonEyeFacingLeftOpening, 5),
             Show(F.DraygonEyeFacingLeftShut, 5),
-            Cue(new DraygonCue.TrackWithOwnEye(HorizontalDirection.Left)),
+            Cue(new DraygonCue.TrackWithEye(HorizontalDirection.Left)),
         ],
         [P.EyeFacingLeftDying] =
         [
@@ -369,7 +369,7 @@ internal static class DraygonAnimations
             Show(F.DraygonEyeFacingRightHalfOpen, 5),
             Show(F.DraygonEyeFacingRightOpening, 5),
             Show(F.DraygonEyeFacingRightShut, 5),
-            Cue(new DraygonCue.TrackWithOwnEye(HorizontalDirection.Left)),
+            Cue(new DraygonCue.TrackWithEye(HorizontalDirection.Left)),
         ],
         [P.EyeFacingRightDying] =
         [

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
@@ -23,6 +24,8 @@ internal sealed class DraygonCannonObject : RoomObjectBehaviour, IShootableRoomO
         _look = DraygonCannonAnimationDefinitions.Looks.TryGetValue(orientation, out DraygonCannonLook? look)
             ? look
             : throw new InvalidOperationException($"Undefined {nameof(DraygonCannonOrientation)} {orientation}.");
+        player = AnimationPlayer<DraygonCannonSegment, DraygonCannonDraw, NoAnimationCue>.Starting(
+            DraygonCannonAnimationDefinitions.Segments, _look.Shield);
         bool destroyed = start == DraygonCannonStart.Destroyed;
         Phase = destroyed ? DraygonCannonPhase.StartingDestroyed : DraygonCannonPhase.StartingWhole;
         // A cannon set up destroyed counts as having taken its destroying hits.
@@ -50,11 +53,11 @@ internal sealed class DraygonCannonObject : RoomObjectBehaviour, IShootableRoomO
     /// <summary>The strike on the cannon's block its wake has not yet read, or null for none.</summary>
     internal ResidentObjectProjectileHit? PendingHit { get; private set; }
 
-    /// <summary>Which image of its flash or smoke the cannon shows.</summary>
-    private int _frame;
-
-    /// <summary>The updates left before the cannon's next step.</summary>
-    private int _updatesBeforeNextStep = 1;
+    /// <summary>
+    /// The play of what the cannon shows (#2401): its shield, its hit flash or its sparks, each picture with the updates it
+    /// has left. Nothing plays until the cannon's first update shows its shield or destroys it.
+    /// </summary>
+    private readonly AnimationPlayer<DraygonCannonSegment, DraygonCannonDraw, NoAnimationCue> player;
 
     /// <inheritdoc/>
     public void Strike(ResidentObjectProjectileHit hit) => PendingHit = hit;
@@ -70,8 +73,6 @@ internal sealed class DraygonCannonObject : RoomObjectBehaviour, IShootableRoomO
             CountHit(place, context, destroysAtOnce: hit.Family == SamusProjectileFamily.SuperMissile);
             return;
         }
-        if (--_updatesBeforeNextStep != 0)
-            return;
         switch (Phase)
         {
             case DraygonCannonPhase.StartingWhole:
@@ -81,24 +82,28 @@ internal sealed class DraygonCannonObject : RoomObjectBehaviour, IShootableRoomO
             case DraygonCannonPhase.StartingDestroyed:
                 Destroy(place, context);
                 return;
-            case DraygonCannonPhase.Shielded:
-                // The cannon rests on its shield until a missile wakes it.
-                _updatesBeforeNextStep = 1;
+            case DraygonCannonPhase.Shielded or DraygonCannonPhase.Smoking:
+                // The shield shows its time and rests until a missile wakes the cannon; the sparks loop for good.
+                DrawNewPicture(place, context);
                 return;
             case DraygonCannonPhase.Flashing:
-                _frame++;
-                if (_frame < _look.HitFlash.Count)
-                    Show(place, context, _look.HitFlash[_frame], DraygonCannonPhase.Flashing);
-                else
+                // Once the flash has played, the shield shows again and the cannon rests on it.
+                if (!DrawNewPicture(place, context) && player.HasStopped)
                     Show(place, context, _look.Shield, DraygonCannonPhase.Shielded);
-                return;
-            case DraygonCannonPhase.Smoking:
-                _frame = (_frame + 1) % _look.Smoke.Count;
-                Show(place, context, _look.Smoke[_frame], DraygonCannonPhase.Smoking);
                 return;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(DraygonCannonPhase)} {Phase}.");
         }
+    }
+
+    /// <summary>Plays the cannon's pictures one update on and draws the picture the update shows anew, if any.</summary>
+    /// <returns>Whether the update showed a new picture.</returns>
+    private bool DrawNewPicture(RoomObjectPlace place, RoomObjectStepContext context)
+    {
+        if (player.StepToNewFrame() is not { } shown)
+            return false;
+        context.Draw(place, DraygonCannonDraws.Family, shown);
+        return true;
     }
 
     /// <summary>
@@ -110,28 +115,26 @@ internal sealed class DraygonCannonObject : RoomObjectBehaviour, IShootableRoomO
         if (!destroysAtOnce && Hits + 1 < DraygonCannonDefinitions.HitsToDestroy)
         {
             Hits++;
-            _frame = 0;
-            Show(place, context, _look.HitFlash[0], DraygonCannonPhase.Flashing);
+            Show(place, context, _look.HitFlash, DraygonCannonPhase.Flashing);
             return;
         }
         WakeArmed = false;
         Destroy(place, context);
     }
 
-    /// <summary>Destroys the cannon: Draygon stops its firing, its terrain is destroyed, and its smoke starts.</summary>
+    /// <summary>Destroys the cannon: Draygon stops its firing, its terrain is destroyed, and its sparks start.</summary>
     private void Destroy(RoomObjectPlace place, RoomObjectStepContext context)
     {
         context.RoomObjects.Bosses().DraygonCannons.DisableCannon(Cannon);
         DraygonCannonObjects.WriteDestroyedTerrain(context.Level, place.Block);
-        _frame = 0;
-        Show(place, context, _look.Smoke[0], DraygonCannonPhase.Smoking);
+        Show(place, context, _look.Sparks, DraygonCannonPhase.Smoking);
     }
 
-    /// <summary>Draws <paramref name="frame"/> and holds it for its updates in <paramref name="phase"/>.</summary>
-    private void Show(RoomObjectPlace place, RoomObjectStepContext context, TerrainChangeFrame frame, DraygonCannonPhase phase)
+    /// <summary>Starts <paramref name="animation"/> in <paramref name="phase"/> and draws its first picture at once.</summary>
+    private void Show(RoomObjectPlace place, RoomObjectStepContext context, Animation<DraygonCannonSegment> animation, DraygonCannonPhase phase)
     {
-        context.Draw(place, frame.Draw);
-        _updatesBeforeNextStep = frame.Updates;
+        player.Show(animation);
+        context.Draw(place, DraygonCannonDraws.Family, player.Showing);
         Phase = phase;
     }
 }

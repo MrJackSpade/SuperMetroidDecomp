@@ -13,7 +13,7 @@ namespace SuperMetroid.TestSupport.VerificationImporters;
 internal static class LoadStationEntryImporter
 {
     /// <summary>Follows the area's bank-$80 station table to import its room, door,
-    /// camera position, and signed Samus offsets from one native entry.</summary>
+    /// camera position, and Samus's room position from one native entry's signed offsets.</summary>
     public static NativeLoadStation Load(ISnesAddressSpace bus, AreaId area, byte stationIndex)
     {
         Ensure.NotNull(bus);
@@ -45,5 +45,5 @@ internal sealed record NativeLoadStation(
     RoomDefinition? Room, DoorDefinition? Door, Position16<RoomPixels> CameraPosition, Offset16<RoomPixels> SamusOffset)
 {
     /// <summary>The room position the record places Samus at, wrapping each axis at sixteen bits.</summary>
-    public Position16<RoomPixels> SamusPosition => CameraPosition + LoadStationPlacement.SamusOffsetOrigin + SamusOffset;
+    public Position16<RoomPixels> SamusPosition => NativeSamusPlacement.RoomPosition(CameraPosition, SamusOffset);
 }

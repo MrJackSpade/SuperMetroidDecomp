@@ -75,17 +75,15 @@ internal sealed class GreyDoorObjects
     /// condition and its door. Installs its shootable collision and places the cap, which takes its first look on its first
     /// update.
     /// </summary>
-    /// <exception cref="InvalidDataException">The placement named no condition and door.</exception>
     internal static void SetupGreyDoor(
         RoomLevelData level,
         RoomObjectPlace place,
         GreyDoorVariant variant,
-        GreyDoorArgument? placed)
+        GreyDoorArgument placed)
     {
         Ensure.NotNull(place);
-        GreyDoorArgument argument = placed ?? throw new InvalidDataException(
-            $"Grey door {variant} at block {place.Block} was placed without its condition and door.");
+        Ensure.NotNull(placed);
         ApplyGreyDoorSetup(level, place.Block);
-        place.Become(new GreyDoorObject(variant, argument.Condition, new PlacedDoor(argument.Door)));
+        place.Become(new GreyDoorObject(variant, placed.Condition, new PlacedDoor(placed.Door)));
     }
 }

@@ -122,7 +122,7 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The CrateriaSave room-object population.</summary>
     public static RoomObjectPopulation CrateriaSave { get; } = RoomObjectPopulation.FromPlacements(nameof(CrateriaSave),
     [
-        new(RoomObjectKind.SaveStation, new(5, 11), new StationSetup(StationKind.Save, new SaveStationArgument(LoadStationDefinitions.CrateriaSave))),
+        new(RoomObjectKind.SaveStation, new(5, 11), new SaveStationSetup(new SaveStationArgument(LoadStationDefinitions.CrateriaSave))),
     ]);
 
     /// <summary>The WestOcean room-object population.</summary>
@@ -352,7 +352,7 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The CrateriaMap room-object population.</summary>
     public static RoomObjectPopulation CrateriaMap { get; } = RoomObjectPopulation.FromPlacements(nameof(CrateriaMap),
     [
-        new(RoomObjectKind.MapStation, new(11, 10), new StationSetup(StationKind.Map, null)),
+        new(RoomObjectKind.MapStation, new(11, 10), new AccessStationSetup(StationAccessRuleDefinitions.Map)),
     ]);
 
     /// <summary>The GreenPiratesShaft room-object population.</summary>
@@ -450,7 +450,7 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The GreenBrinstarMap room-object population.</summary>
     public static RoomObjectPopulation GreenBrinstarMap { get; } = RoomObjectPopulation.FromPlacements(nameof(GreenBrinstarMap),
     [
-        new(RoomObjectKind.MapStation, new(5, 10), new StationSetup(StationKind.Map, null)),
+        new(RoomObjectKind.MapStation, new(5, 10), new AccessStationSetup(StationAccessRuleDefinitions.Map)),
     ]);
 
     /// <summary>The GreenBrinstarFirefleas room-object population.</summary>
@@ -462,7 +462,7 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The GreenBrinstarMissileRefill room-object population.</summary>
     public static RoomObjectPopulation GreenBrinstarMissileRefill { get; } = RoomObjectPopulation.FromPlacements(nameof(GreenBrinstarMissileRefill),
     [
-        new(RoomObjectKind.MissileStation, new(4, 10), new StationSetup(StationKind.Missile, null)),
+        new(RoomObjectKind.MissileStation, new(4, 10), new AccessStationSetup(StationAccessRuleDefinitions.Missile)),
     ]);
 
     /// <summary>The Dachora room-object population.</summary>
@@ -640,7 +640,7 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The DachoraEnergyRefill room-object population.</summary>
     public static RoomObjectPopulation DachoraEnergyRefill { get; } = RoomObjectPopulation.FromPlacements(nameof(DachoraEnergyRefill),
     [
-        new(RoomObjectKind.EnergyStation, new(4, 10), new StationSetup(StationKind.Energy, null)),
+        new(RoomObjectKind.EnergyStation, new(4, 10), new AccessStationSetup(StationAccessRuleDefinitions.Energy)),
     ]);
 
     /// <summary>The SporeSpawnFarming room-object population.</summary>
@@ -682,7 +682,7 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The BigPinkSaveRoom room-object population.</summary>
     public static RoomObjectPopulation BigPinkSaveRoom { get; } = RoomObjectPopulation.FromPlacements(nameof(BigPinkSaveRoom),
     [
-        new(RoomObjectKind.SaveStation, new(5, 11), new StationSetup(StationKind.Save, new SaveStationArgument(LoadStationDefinitions.BigPinkSave))),
+        new(RoomObjectKind.SaveStation, new(5, 11), new SaveStationSetup(new SaveStationArgument(LoadStationDefinitions.BigPinkSave))),
     ]);
 
     /// <summary>The BlueBrinstarBoulders room-object population.</summary>
@@ -700,13 +700,13 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The GreenBrinstarSave room-object population.</summary>
     public static RoomObjectPopulation GreenBrinstarSave { get; } = RoomObjectPopulation.FromPlacements(nameof(GreenBrinstarSave),
     [
-        new(RoomObjectKind.SaveStation, new(5, 11), new StationSetup(StationKind.Save, new SaveStationArgument(LoadStationDefinitions.GreenBrinstarSave))),
+        new(RoomObjectKind.SaveStation, new(5, 11), new SaveStationSetup(new SaveStationArgument(LoadStationDefinitions.GreenBrinstarSave))),
     ]);
 
     /// <summary>The EtecoonSave room-object population.</summary>
     public static RoomObjectPopulation EtecoonSave { get; } = RoomObjectPopulation.FromPlacements(nameof(EtecoonSave),
     [
-        new(RoomObjectKind.SaveStation, new(5, 11), new StationSetup(StationKind.Save, new SaveStationArgument(LoadStationDefinitions.EtecoonSave))),
+        new(RoomObjectKind.SaveStation, new(5, 11), new SaveStationSetup(new SaveStationArgument(LoadStationDefinitions.EtecoonSave))),
     ]);
 
     /// <summary>The RedTower room-object population.</summary>
@@ -873,14 +873,14 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The RedTowerRefill room-object population.</summary>
     public static RoomObjectPopulation RedTowerRefill { get; } = RoomObjectPopulation.FromPlacements(nameof(RedTowerRefill),
     [
-        new(RoomObjectKind.EnergyStation, new(4, 10), new StationSetup(StationKind.Energy, null)),
+        new(RoomObjectKind.EnergyStation, new(4, 10), new AccessStationSetup(StationAccessRuleDefinitions.Energy)),
     ]);
 
     /// <summary>The KraidRefill room-object population.</summary>
     public static RoomObjectPopulation KraidRefill { get; } = RoomObjectPopulation.FromPlacements(nameof(KraidRefill),
     [
-        new(RoomObjectKind.MissileStation, new(9, 10), new StationSetup(StationKind.Missile, null)),
-        new(RoomObjectKind.EnergyStation, new(7, 10), new StationSetup(StationKind.Energy, null)),
+        new(RoomObjectKind.MissileStation, new(9, 10), new AccessStationSetup(StationAccessRuleDefinitions.Missile)),
+        new(RoomObjectKind.EnergyStation, new(7, 10), new AccessStationSetup(StationAccessRuleDefinitions.Energy)),
     ]);
 
     /// <summary>The Statues room-object population.</summary>
@@ -921,13 +921,13 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The WarehouseSave room-object population.</summary>
     public static RoomObjectPopulation WarehouseSave { get; } = RoomObjectPopulation.FromPlacements(nameof(WarehouseSave),
     [
-        new(RoomObjectKind.SaveStation, new(7, 11), new StationSetup(StationKind.Save, new SaveStationArgument(LoadStationDefinitions.WarehouseSave))),
+        new(RoomObjectKind.SaveStation, new(7, 11), new SaveStationSetup(new SaveStationArgument(LoadStationDefinitions.WarehouseSave))),
     ]);
 
     /// <summary>The RedBrinstarSave room-object population.</summary>
     public static RoomObjectPopulation RedBrinstarSave { get; } = RoomObjectPopulation.FromPlacements(nameof(RedBrinstarSave),
     [
-        new(RoomObjectKind.SaveStation, new(7, 11), new StationSetup(StationKind.Save, new SaveStationArgument(LoadStationDefinitions.RedBrinstarSave))),
+        new(RoomObjectKind.SaveStation, new(7, 11), new SaveStationSetup(new SaveStationArgument(LoadStationDefinitions.RedBrinstarSave))),
     ]);
 
     /// <summary>The IceBeamAcid room-object population.</summary>
@@ -1050,7 +1050,7 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The PostCrocomireSave room-object population.</summary>
     public static RoomObjectPopulation PostCrocomireSave { get; } = RoomObjectPopulation.FromPlacements(nameof(PostCrocomireSave),
     [
-        new(RoomObjectKind.SaveStation, new(7, 11), new StationSetup(StationKind.Save, new SaveStationArgument(LoadStationDefinitions.PostCrocomireSave))),
+        new(RoomObjectKind.SaveStation, new(7, 11), new SaveStationSetup(new SaveStationArgument(LoadStationDefinitions.PostCrocomireSave))),
     ]);
 
     /// <summary>The PostCrocomirePowerBombs room-object population.</summary>
@@ -1250,7 +1250,7 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The UpperNorfairRefill room-object population.</summary>
     public static RoomObjectPopulation UpperNorfairRefill { get; } = RoomObjectPopulation.FromPlacements(nameof(UpperNorfairRefill),
     [
-        new(RoomObjectKind.EnergyStation, new(7, 10), new StationSetup(StationKind.Energy, null)),
+        new(RoomObjectKind.EnergyStation, new(7, 10), new AccessStationSetup(StationAccessRuleDefinitions.Energy)),
     ]);
 
     /// <summary>The PurpleFarming room-object population.</summary>
@@ -1274,13 +1274,13 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The NorfairMap room-object population.</summary>
     public static RoomObjectPopulation NorfairMap { get; } = RoomObjectPopulation.FromPlacements(nameof(NorfairMap),
     [
-        new(RoomObjectKind.MapStation, new(5, 10), new StationSetup(StationKind.Map, null)),
+        new(RoomObjectKind.MapStation, new(5, 10), new AccessStationSetup(StationAccessRuleDefinitions.Map)),
     ]);
 
     /// <summary>The BubbleMountainSave room-object population.</summary>
     public static RoomObjectPopulation BubbleMountainSave { get; } = RoomObjectPopulation.FromPlacements(nameof(BubbleMountainSave),
     [
-        new(RoomObjectKind.SaveStation, new(5, 11), new StationSetup(StationKind.Save, new SaveStationArgument(LoadStationDefinitions.BubbleMountainSave))),
+        new(RoomObjectKind.SaveStation, new(5, 11), new SaveStationSetup(new SaveStationArgument(LoadStationDefinitions.BubbleMountainSave))),
     ]);
 
     /// <summary>The FrogSpeedway room-object population.</summary>
@@ -1296,19 +1296,19 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The FrogSave room-object population.</summary>
     public static RoomObjectPopulation FrogSave { get; } = RoomObjectPopulation.FromPlacements(nameof(FrogSave),
     [
-        new(RoomObjectKind.SaveStation, new(7, 11), new StationSetup(StationKind.Save, new SaveStationArgument(LoadStationDefinitions.FrogSave))),
+        new(RoomObjectKind.SaveStation, new(7, 11), new SaveStationSetup(new SaveStationArgument(LoadStationDefinitions.FrogSave))),
     ]);
 
     /// <summary>The CrocomireSave room-object population.</summary>
     public static RoomObjectPopulation CrocomireSave { get; } = RoomObjectPopulation.FromPlacements(nameof(CrocomireSave),
     [
-        new(RoomObjectKind.SaveStation, new(7, 11), new StationSetup(StationKind.Save, new SaveStationArgument(LoadStationDefinitions.CrocomireSave))),
+        new(RoomObjectKind.SaveStation, new(7, 11), new SaveStationSetup(new SaveStationArgument(LoadStationDefinitions.CrocomireSave))),
     ]);
 
     /// <summary>The LowerNorfairElevatorSave room-object population.</summary>
     public static RoomObjectPopulation LowerNorfairElevatorSave { get; } = RoomObjectPopulation.FromPlacements(nameof(LowerNorfairElevatorSave),
     [
-        new(RoomObjectKind.SaveStation, new(5, 11), new StationSetup(StationKind.Save, new SaveStationArgument(LoadStationDefinitions.LowerNorfairElevatorSave))),
+        new(RoomObjectKind.SaveStation, new(5, 11), new SaveStationSetup(new SaveStationArgument(LoadStationDefinitions.LowerNorfairElevatorSave))),
     ]);
 
     /// <summary>The AcidStatue room-object population.</summary>
@@ -1356,7 +1356,7 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The GoldenTorizoEnergyRefill room-object population.</summary>
     public static RoomObjectPopulation GoldenTorizoEnergyRefill { get; } = RoomObjectPopulation.FromPlacements(nameof(GoldenTorizoEnergyRefill),
     [
-        new(RoomObjectKind.EnergyStation, new(8, 10), new StationSetup(StationKind.Energy, null)),
+        new(RoomObjectKind.EnergyStation, new(8, 10), new AccessStationSetup(StationAccessRuleDefinitions.Energy)),
     ]);
 
     /// <summary>The Ridley room-object population.</summary>
@@ -1567,7 +1567,7 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The LowerNorfairSave room-object population.</summary>
     public static RoomObjectPopulation LowerNorfairSave { get; } = RoomObjectPopulation.FromPlacements(nameof(LowerNorfairSave),
     [
-        new(RoomObjectKind.SaveStation, new(7, 11), new StationSetup(StationKind.Save, new SaveStationArgument(LoadStationDefinitions.LowerNorfairSave))),
+        new(RoomObjectKind.SaveStation, new(7, 11), new SaveStationSetup(new SaveStationArgument(LoadStationDefinitions.LowerNorfairSave))),
     ]);
 
     /// <summary>The BowlingAlleyDefault room-object population.</summary>
@@ -1673,7 +1673,7 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The WreckedShipSaveWhenAreaBossDead room-object population.</summary>
     public static RoomObjectPopulation WreckedShipSaveWhenAreaBossDead { get; } = RoomObjectPopulation.FromPlacements(nameof(WreckedShipSaveWhenAreaBossDead),
     [
-        new(RoomObjectKind.SaveStation, new(7, 11), new StationSetup(StationKind.Save, new SaveStationArgument(LoadStationDefinitions.WreckedShipSave))),
+        new(RoomObjectKind.SaveStation, new(7, 11), new SaveStationSetup(new SaveStationArgument(LoadStationDefinitions.WreckedShipSave))),
     ]);
 
     /// <summary>The BowlingAlleyWhenAreaBossDead room-object population.</summary>
@@ -1737,7 +1737,7 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The WreckedShipMapWhenAreaBossDead room-object population.</summary>
     public static RoomObjectPopulation WreckedShipMapWhenAreaBossDead { get; } = RoomObjectPopulation.FromPlacements(nameof(WreckedShipMapWhenAreaBossDead),
     [
-        new(RoomObjectKind.MapStation, new(5, 10), new StationSetup(StationKind.Map, null)),
+        new(RoomObjectKind.MapStation, new(5, 10), new AccessStationSetup(StationAccessRuleDefinitions.Map)),
     ]);
 
     /// <summary>The SpongeBathWhenAreaBossDead room-object population.</summary>
@@ -1767,7 +1767,7 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The GlassTunnelSave room-object population.</summary>
     public static RoomObjectPopulation GlassTunnelSave { get; } = RoomObjectPopulation.FromPlacements(nameof(GlassTunnelSave),
     [
-        new(RoomObjectKind.SaveStation, new(7, 11), new StationSetup(StationKind.Save, new SaveStationArgument(LoadStationDefinitions.GlassTunnelSave))),
+        new(RoomObjectKind.SaveStation, new(7, 11), new SaveStationSetup(new SaveStationArgument(LoadStationDefinitions.GlassTunnelSave))),
     ]);
 
     /// <summary>The GlassTunnel room-object population.</summary>
@@ -1957,13 +1957,13 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The MaridiaMap room-object population.</summary>
     public static RoomObjectPopulation MaridiaMap { get; } = RoomObjectPopulation.FromPlacements(nameof(MaridiaMap),
     [
-        new(RoomObjectKind.MapStation, new(11, 10), new StationSetup(StationKind.Map, null)),
+        new(RoomObjectKind.MapStation, new(11, 10), new AccessStationSetup(StationAccessRuleDefinitions.Map)),
     ]);
 
     /// <summary>The ForgottenHighwaySave room-object population.</summary>
     public static RoomObjectPopulation ForgottenHighwaySave { get; } = RoomObjectPopulation.FromPlacements(nameof(ForgottenHighwaySave),
     [
-        new(RoomObjectKind.SaveStation, new(7, 11), new StationSetup(StationKind.Save, new SaveStationArgument(LoadStationDefinitions.ForgottenHighwaySave))),
+        new(RoomObjectKind.SaveStation, new(7, 11), new SaveStationSetup(new SaveStationArgument(LoadStationDefinitions.ForgottenHighwaySave))),
     ]);
 
     /// <summary>The Toilet room-object population.</summary>
@@ -2110,7 +2110,7 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The AqueductSave room-object population.</summary>
     public static RoomObjectPopulation AqueductSave { get; } = RoomObjectPopulation.FromPlacements(nameof(AqueductSave),
     [
-        new(RoomObjectKind.SaveStation, new(5, 11), new StationSetup(StationKind.Save, new SaveStationArgument(LoadStationDefinitions.AqueductSave))),
+        new(RoomObjectKind.SaveStation, new(5, 11), new SaveStationSetup(new SaveStationArgument(LoadStationDefinitions.AqueductSave))),
     ]);
 
     /// <summary>The ThePrecious room-object population.</summary>
@@ -2139,13 +2139,13 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The DraygonSave room-object population.</summary>
     public static RoomObjectPopulation DraygonSave { get; } = RoomObjectPopulation.FromPlacements(nameof(DraygonSave),
     [
-        new(RoomObjectKind.SaveStation, new(7, 11), new StationSetup(StationKind.Save, new SaveStationArgument(LoadStationDefinitions.DraygonSave))),
+        new(RoomObjectKind.SaveStation, new(7, 11), new SaveStationSetup(new SaveStationArgument(LoadStationDefinitions.DraygonSave))),
     ]);
 
     /// <summary>The MaridiaMissileRefill room-object population.</summary>
     public static RoomObjectPopulation MaridiaMissileRefill { get; } = RoomObjectPopulation.FromPlacements(nameof(MaridiaMissileRefill),
     [
-        new(RoomObjectKind.MissileStation, new(8, 10), new StationSetup(StationKind.Missile, null)),
+        new(RoomObjectKind.MissileStation, new(8, 10), new AccessStationSetup(StationAccessRuleDefinitions.Missile)),
     ]);
 
     /// <summary>The PlasmaBeachQuicksand room-object population.</summary>
@@ -2190,7 +2190,7 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The MaridiaEnergyRefill room-object population.</summary>
     public static RoomObjectPopulation MaridiaEnergyRefill { get; } = RoomObjectPopulation.FromPlacements(nameof(MaridiaEnergyRefill),
     [
-        new(RoomObjectKind.EnergyStation, new(8, 10), new StationSetup(StationKind.Energy, null)),
+        new(RoomObjectKind.EnergyStation, new(8, 10), new AccessStationSetup(StationAccessRuleDefinitions.Energy)),
     ]);
 
     /// <summary>The WestCactusAlley room-object population.</summary>
@@ -2275,8 +2275,8 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The TourianRecharge room-object population.</summary>
     public static RoomObjectPopulation TourianRecharge { get; } = RoomObjectPopulation.FromPlacements(nameof(TourianRecharge),
     [
-        new(RoomObjectKind.MissileStation, new(8, 10), new StationSetup(StationKind.Missile, null)),
-        new(RoomObjectKind.EnergyStation, new(6, 10), new StationSetup(StationKind.Energy, null)),
+        new(RoomObjectKind.MissileStation, new(8, 10), new AccessStationSetup(StationAccessRuleDefinitions.Missile)),
+        new(RoomObjectKind.EnergyStation, new(6, 10), new AccessStationSetup(StationAccessRuleDefinitions.Energy)),
     ]);
 
     /// <summary>The MotherBrain room-object population.</summary>
@@ -2302,7 +2302,7 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The MotherBrainSave room-object population.</summary>
     public static RoomObjectPopulation MotherBrainSave { get; } = RoomObjectPopulation.FromPlacements(nameof(MotherBrainSave),
     [
-        new(RoomObjectKind.SaveStation, new(5, 11), new StationSetup(StationKind.Save, new SaveStationArgument(LoadStationDefinitions.MotherBrainSave))),
+        new(RoomObjectKind.SaveStation, new(5, 11), new SaveStationSetup(new SaveStationArgument(LoadStationDefinitions.MotherBrainSave))),
     ]);
 
     /// <summary>The TourianEscape1 room-object population.</summary>
@@ -2336,7 +2336,7 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The UpperTourianSave room-object population.</summary>
     public static RoomObjectPopulation UpperTourianSave { get; } = RoomObjectPopulation.FromPlacements(nameof(UpperTourianSave),
     [
-        new(RoomObjectKind.SaveStation, new(7, 11), new StationSetup(StationKind.Save, new SaveStationArgument(LoadStationDefinitions.UpperTourianSave))),
+        new(RoomObjectKind.SaveStation, new(7, 11), new SaveStationSetup(new SaveStationArgument(LoadStationDefinitions.UpperTourianSave))),
     ]);
 
     /// <summary>The CeresElevator room-object population.</summary>

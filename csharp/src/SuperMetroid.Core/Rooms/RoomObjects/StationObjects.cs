@@ -126,45 +126,17 @@ internal sealed class StationObjects
     }
 
     /// <summary>
-    /// Sets up the station the room's population placed: installs its collision blocks and animation state, a save station
-    /// saving at the load station its placement names (<paramref name="savedAt"/>). The stations hold each map station
-    /// they place, which leaving the map screen returns to idle.
+    /// Sets up the save station the room's population placed, saving at the load station its placement names
+    /// (<paramref name="savedAt"/>): its trigger floor and its one save animation.
     /// </summary>
-    internal void SetupStation(
-        RoomLevelData level,
-        AreaId area,
-        RoomObjectPlace place,
-        StationKind kind,
-        LoadStation? savedAt)
+    internal static void SetupSaveStation(RoomLevelData level, AreaId area, RoomObjectPlace place, LoadStation savedAt)
     {
-        RoomTerrainBlock original = level.GetCollisionBlock(place.Block).Terrain;
-        switch (kind)
-        {
-            case StationKind.Save:
-                SetupSaveStation(level, area, place, original, savedAt);
-                return;
-            case StationKind.Map:
-                _mapStations.Add(SetupAccessStation(level, System, area, place, original, StationAccessRuleDefinitions.Map));
-                return;
-            case StationKind.Energy:
-                SetupAccessStation(level, System, area, place, original, StationAccessRuleDefinitions.Energy);
-                return;
-            case StationKind.Missile:
-                SetupAccessStation(level, System, area, place, original, StationAccessRuleDefinitions.Missile);
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(StationKind)} {kind}.");
-        }
-    }
-
-    /// <summary>A save station saving at <paramref name="savedAt"/>: its trigger floor and its one save animation.</summary>
-    private static void SetupSaveStation(RoomLevelData level, AreaId area, RoomObjectPlace place, RoomTerrainBlock original,
-        LoadStation? savedAt)
-    {
+        Ensure.NotNull(level);
+        Ensure.NotNull(place);
         WriteStationBlock(
             level,
             place.Block,
-            original,
+            level.GetCollisionBlock(place.Block).Terrain,
             RoomCollisionType.SpecialBlock,
             RoomBlockBehavior.Reacting(BlockReactionDefinitions.StationAccesses.ReactionFor(StationAccessBehavior.SaveFloor)));
         place.Become(new StationObject(
@@ -176,25 +148,23 @@ internal sealed class StationObjects
     }
 
     /// <summary>
-    /// A map, energy or missile station: its solid block, the access blocks either side, and its animations. Only the map
-    /// station has a separate acquired animation, shown from the start once its area map is held.
+    /// Sets up the map, energy or missile station the room's population placed, used by <paramref name="rule"/>: its solid
+    /// block, the access blocks either side, and its animations. Only the map station has a separate acquired animation,
+    /// shown from the start once its area map is held. The stations hold each map station they place, which leaving the
+    /// map screen returns to idle.
     /// </summary>
-    /// <returns>The station placed.</returns>
-    private static StationObject SetupAccessStation(
-        RoomLevelData level,
-        SharedGameState system,
-        AreaId area,
-        RoomObjectPlace place,
-        RoomTerrainBlock original,
-        StationAccessRule rule)
+    internal void SetupAccessStation(RoomLevelData level, AreaId area, RoomObjectPlace place, StationAccessRule rule)
     {
-        WriteStationBlock(level, place.Block, original, RoomCollisionType.SolidBlock, behavior: null);
+        Ensure.NotNull(level);
+        Ensure.NotNull(place);
+        Ensure.NotNull(rule);
+        WriteStationBlock(level, place.Block, level.GetCollisionBlock(place.Block).Terrain, RoomCollisionType.SolidBlock, behavior: null);
         WriteAccessBlock(level, level.ObjectBlockStep(place.Block, new Offset16<RoomBlocks>(rule.RightOffset, 0)), rule.RightBehavior);
         WriteAccessBlock(level, level.ObjectBlockStep(place.Block, new Offset16<RoomBlocks>(rule.LeftOffset, 0)), rule.LeftBehavior);
 
         StationAnimation normalAnimation = rule.Animation;
         StationAnimation completedAnimation = rule.AcquiredAnimation ?? normalAnimation;
-        StationAnimation initialAnimation = rule.AcquiredAnimation is not null && system.HasAreaMap(area)
+        StationAnimation initialAnimation = rule.AcquiredAnimation is not null && System.HasAreaMap(area)
             ? completedAnimation
             : normalAnimation;
         var station = new StationObject(
@@ -204,7 +174,8 @@ internal sealed class StationObjects
             completedAnimation,
             savedAt: null);
         place.Become(station);
-        return station;
+        if (rule.Kind == StationKind.Map)
+            _mapStations.Add(station);
     }
 
     /// <summary>Marks an in-room access block with station-trigger collision and its directional behaviour.</summary>

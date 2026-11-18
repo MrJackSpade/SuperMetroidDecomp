@@ -32,7 +32,7 @@ public static class XrayRevealOverlays
         for (int i = items.Count - 1; i >= 0; i--)
         {
             CollectibleObjectSnapshot item = items[i];
-            if (item.Location is not { } location || system.HasCollectedItem(location)) continue;
+            if (system.HasCollectedItem(item.Location)) continue;
             RevealedBlock revealed = CollectibleDefinitions.Items[item.Kind].Picture == CollectiblePictureSource.OwnPicture
                 ? new RevealedBlock(RoomCellPicture.Of(new CollectiblePicture(item.Kind, CollectibleLook.Primary)), RevealedBlockArrangement.AsDefined)
                 : Arranged(overlays.TankBlock(item.Kind));

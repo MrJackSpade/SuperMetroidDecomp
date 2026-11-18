@@ -50,10 +50,7 @@ internal sealed class GateObjects
             level.SetBehavior(block, DownwardGateDefinitions.ClosedGateBehavior);
         }
 
-        _downwardGateProjectileRequests.Add(new DownwardGateProjectileRequest(
-            DownwardGateProjectileOperation.Spawn,
-            DownwardGateProjectileKind.Closed,
-            place.Block));
+        _downwardGateProjectileRequests.Add(new DownwardGateProjectileSpawn(DownwardGateProjectileKind.Closed, place.Block));
     }
 
     /// <summary>
@@ -61,11 +58,9 @@ internal sealed class GateObjects
     /// trigger's own side of the gate made a shootable block whose reaction sets the trigger off. The block keeps what it
     /// shows (#1580): the trigger's shot-block draw covers it on the object's first update.
     /// </summary>
-    /// <exception cref="InvalidDataException">The placement selected no trigger.</exception>
-    internal static void SetupDownwardGateShotBlock(RoomLevelData level, RoomObjectPlace place, GateTriggerArgument? placed)
+    internal static void SetupDownwardGateShotBlock(RoomLevelData level, RoomObjectPlace place, GateTriggerArgument placed)
     {
-        DownwardGateTriggerBehavior trigger = (placed
-            ?? throw new InvalidDataException($"Downward gate shot block at block {place.Block} was placed without its trigger.")).Trigger;
+        DownwardGateTriggerBehavior trigger = Ensure.NotNull(placed).Trigger;
         place.Become(new TerrainChangeObject(DownwardGateTriggerDefinitions.Changes[trigger]));
         Position16<RoomBlocks> triggerBlock = level.ObjectBlockStep(place.Block, new Offset16<RoomBlocks>(IsLeftTrigger(trigger) ? -1 : 1, 0));
         _ = level.GetCollisionBlock(triggerBlock);
@@ -130,15 +125,13 @@ internal sealed class GateObjects
 
     /// <summary>Requests the moving gate projectile that slides the gate down from the place's block.</summary>
     internal void SpawnMovingGateProjectile(RoomObjectPlace place) =>
-        _downwardGateProjectileRequests.Add(new DownwardGateProjectileRequest(
-            DownwardGateProjectileOperation.Spawn, DownwardGateProjectileKind.Moving, place.Block));
+        _downwardGateProjectileRequests.Add(new DownwardGateProjectileSpawn(DownwardGateProjectileKind.Moving, place.Block));
 
     /// <summary>
     /// Wakes the gate projectile spawned for this gate's cell, so it slides back up.
     /// </summary>
     internal void WakeGateProjectile(RoomObjectPlace place) =>
-        _downwardGateProjectileRequests.Add(new DownwardGateProjectileRequest(
-            DownwardGateProjectileOperation.Wake, Kind: null, place.Block));
+        _downwardGateProjectileRequests.Add(new DownwardGateProjectileWake(place.Block));
 
     /// <summary>Tests Samus's block position against the resident gate's five-cell vertical column.</summary>
     internal bool IsSamusInsideDownwardGateColumn(RoomObjectPlace place)

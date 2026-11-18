@@ -107,10 +107,10 @@ internal sealed class DoorObjects
         RoomLevelData level,
         RoomObjectPlace place,
         ColoredDoorVariant variant,
-        LockedDoorArgument? door)
+        LockedDoorArgument door)
     {
         ApplyColoredDoorSetup(level, place.Block);
-        place.Become(new ColoredDoorObject(variant, PlacedDoor.For(door)));
+        place.Become(new ColoredDoorObject(variant, new PlacedDoor(door)));
     }
 
     /// <summary>Queues the dud sound a shot a cap does not take makes.</summary>
@@ -122,14 +122,14 @@ internal sealed class DoorObjects
 
     /// <summary>
     /// Whether <paramref name="door"/> has been opened for good before; a door whose opening never persists never has, nor
-    /// has a spent object's, nor an object's placed with none.
+    /// has a spent object's.
     /// </summary>
-    internal bool IsDoorOpened(PlacedDoor? door) => door?.IsOpenedForGood(_system.HasOpenedDoor) == true;
+    internal bool IsDoorOpened(PlacedDoor door) => Ensure.NotNull(door).IsOpenedForGood(_system.HasOpenedDoor);
 
     /// <summary>
     /// Records <paramref name="door"/> opened for good, when its opening persists, which spends its object.
     /// </summary>
-    internal void RecordDoorOpened(PlacedDoor? door) => door?.RecordOpened(_system);
+    internal void RecordDoorOpened(PlacedDoor door) => Ensure.NotNull(door).RecordOpened(_system);
 
     /// <summary>
     /// Places the blue cap a shot opens, selected by a shootable block's blue-door behaviour, and applies its setup.

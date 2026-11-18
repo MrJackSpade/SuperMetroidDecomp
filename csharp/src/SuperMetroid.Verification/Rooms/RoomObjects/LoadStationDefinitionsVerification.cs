@@ -76,21 +76,20 @@ internal static class LoadStationDefinitionsVerification
             "the used-station record keeps every station whose number its area's sixteen bits hold");
     }
 
-    /// <summary>Checks each named station's room, door, camera and Samus placement against its native record.</summary>
+    /// <summary>
+    /// Checks each named station's door, camera and Samus placement against its native record: the room the record names
+    /// is the one its door leads to, and Samus's room position is the one the record's offsets place her at.
+    /// </summary>
     private static void VerifyLoadStationPlacements(CartridgeImportAddressSpace rom)
     {
         foreach (LoadStation station in LoadStationDefinitions.All)
         {
             NativeLoadStation original = LoadStationEntryImporter.Load(rom, station.Area, (byte)LoadStationNumberCodec.Number(station));
             LoadStationPlacement placement = station.Placement;
-            AssertTrue(ReferenceEquals(original.Room, placement.Room), $"{station} room");
+            AssertTrue(ReferenceEquals(original.Room, placement.Door.DestinationRoom), $"{station} room is its door's");
             AssertTrue(ReferenceEquals(original.Door, placement.Door), $"{station} door");
             AssertEqual(original.CameraPosition, placement.CameraPosition, $"{station} camera");
-            AssertEqual(original.SamusOffset, placement.SamusOffset, $"{station} Samus offset");
-            AssertEqual(unchecked((ushort)(original.CameraPosition.X + 128 + original.SamusOffset.X)), placement.SamusPosition.X,
-                $"{station} horizontal placement preserves the 16-bit wrap of its signed offset");
-            AssertEqual(unchecked((ushort)(original.CameraPosition.Y + original.SamusOffset.Y)), placement.SamusPosition.Y,
-                $"{station} vertical placement preserves the 16-bit wrap");
+            AssertEqual(original.SamusPosition, placement.SamusPosition, $"{station} Samus room position");
         }
     }
 

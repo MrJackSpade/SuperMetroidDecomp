@@ -64,10 +64,9 @@ internal static class XrayOverlaysVerification
         AssertEqual(new RevealedBlock(RoomCellPicture.OfBlock(4), RevealedBlockArrangement.MirroredBoth), map[Position16<RoomBlocks>.Of(2, 0)],
             "an overlay flipped both ways is mirrored both ways");
         map = new XrayRevealGrid();
-        items[0] = items[0] with { Location = null };
         system.SetCollectedItemBit(2);
         XrayRevealOverlays.Apply(map, items, system, null, new(16, 16), visuals);
-        AssertTrue(map.Blocks.All(block => block is null), "negative item arguments and collected items leave the reveal unchanged");
+        AssertTrue(map.Blocks.All(block => block is null), "collected items leave the reveal unchanged");
         // The tanks' reveals are keyed by tank kind (#2115): a missing tank or another kind of item is rejected.
         AssertThrows<InvalidDataException>(() => InstalledXrayOverlays.FromOverlaysForVerification(
                 new Dictionary<InWorldCollectibleKind, RoomBlockAppearance> { [InWorldCollectibleKind.EnergyTank] = RoomBlockAppearance.Of(5) }, []),

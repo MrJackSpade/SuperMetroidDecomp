@@ -413,9 +413,8 @@ internal static class SamusAerialPoseTransitions
     {
         samus.AnimationFrameTimer = WrappingCountdown.Start(1);
 
-        // Gives Screw Attack a longer pre-contact animation. Its first
-        // eligible wall frame is 27, so contact rewinds to 26. Ordinary spin and Space Jump
-        // both use the compact 10 -> 11 handoff.
+        // Contact rewinds the spin to its end, whose next frame, after the one-update wait, is its first
+        // wall-jump-ready frame. Screw Attack's spin is longer than the ordinary spin and Space Jump's.
         samus.SetAnimationFrame(SamusPoseMetadata.IsScrewAttackPose(samus.Pose)
             ? SamusWallContactAnimationDefinitions.ScrewAttackRewindFrame
             : SamusWallContactAnimationDefinitions.SpinJumpRewindFrame);

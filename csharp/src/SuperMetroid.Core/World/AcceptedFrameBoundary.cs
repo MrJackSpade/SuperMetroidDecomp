@@ -230,7 +230,7 @@ internal sealed class AcceptedFrameBoundary
             sky = new SkyPictures(skyImage.Resolve(appearance, RoomBackgroundImagePlacement.Whole(skyImage.Image)));
         }
         // Where background shows the room's library background as its own picture, it draws the background's image (#1392,
-        // #1649): not over a streaming background plane, the sky's rows or a boss body that owns the background. A library
+        // #1649): not over a room's own background, the sky's rows or a boss body that owns the background. A library
         // background the player sees as something else draws no picture.
         RoomBackgroundImagePlane? image = null;
         if (rooms.Background is null && sky is null && latched.Bosses.Body is null

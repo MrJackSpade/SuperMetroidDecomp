@@ -124,9 +124,9 @@ internal sealed class RuntimeArtwork
     /// <summary>The pre-coloured block pictures of each tileset (#1392).</summary>
     public InstalledRoomArtwork RoomBlockSheets { get; set; }
 
-    /// <summary>Installed visual room layouts, rebound when a saved game state is restored.</summary>
+    /// <summary>Installed visual room layouts, rebound when the host binds new artwork.</summary>
     public RoomLevelArtworks RoomVisualLayouts { get; set; }
-    /// <summary>Installed terrain of every room level, rebound when a saved game state is restored.</summary>
+    /// <summary>Installed terrain of every room level, rebound when the host binds new artwork.</summary>
     public InstalledRoomLevelStreams RoomLevelStreams { get; set; }
     /// <summary>Host-owned Samus pictures; restored and future Samus states use the same edit.</summary>
     public InstalledSamusBodyArtwork SamusBodyArt

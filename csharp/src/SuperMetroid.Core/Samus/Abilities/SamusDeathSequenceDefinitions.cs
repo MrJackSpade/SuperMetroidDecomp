@@ -10,9 +10,9 @@ public static class SamusDeathSequenceDefinitions
     public const int PreFlashFrameCount = 16;
     /// <summary>Sixty updates alternate shades before the suit explodes.</summary>
     public const int FlashFrameCount = 60;
-    /// <summary>Calls the flash holds its first death shade, and waits before its first change of shade.</summary>
+    /// <summary>Updates the flash holds its first death shade, and waits before its first change of shade.</summary>
     public const int FirstFlashShadeUpdates = 3;
-    /// <summary>Calls the flash holds its second death shade.</summary>
+    /// <summary>Updates the flash holds its second death shade.</summary>
     public const int SecondFlashShadeUpdates = 1;
     /// <summary>The brightest whiteout shade the explosion's frames reach; the whiteout stays there until the last update.</summary>
     public const int BrightestExplosionWhiteoutShade = 20;

@@ -83,10 +83,8 @@ public sealed class SamusHorizontalSpeedState
     public SamusBodyAttack BodyAttack { get; set; }
 
     /// <summary>
-    /// Publication of the immediate suit shade restore performed by
-    /// cancelling a speed boost. Movement owns the cancellation,
-    /// while the runtime owns the colours, so this flag preserves the same-frame handoff
-    /// without passing a renderer through every collision and pose step.
+    /// Whether cancelling a speed boost asked for the suit's shade back at once. Movement cancels the boost and the
+    /// colour step, later in the same frame, shows the suit.
     /// </summary>
     public bool SuitShadeRestoreRequested { get; private set; }
 
@@ -356,16 +354,16 @@ public sealed class SamusHorizontalSpeedState
         {
             if (frame.AnimationOnSpinStart)
             {
-                // Restarts only the colour cycle's step. Frame zero retains
-                // the already loaded normal suit colors; it does not emit a Screw shade.
+                // Restarts only the colour cycle's step. The spin's first frame keeps the normal suit colours
+                // already shown; it shows no Screw Attack shade.
                 CycleShadeStep = 0;
                 return shadeCopied;
             }
 
             if (frame.AnimationPastScrewAttackSpin)
             {
-                // From frame 27 onward Samus shows her normal suit colours.
-                // Frames 1..26 cycle below. Samus's colours are what the next shown frame displays.
+                // From the spin's first wall-jump-ready frame onward Samus shows her normal suit colours; the spin's
+                // frames between its first and that one cycle below. Her colours are what the next shown frame displays.
                 SamusSuitShade.Show(colours, frame.EquippedItems);
                 return true;
             }
@@ -381,8 +379,8 @@ public sealed class SamusHorizontalSpeedState
 
             if (frame.AnimationBeforeWallJumpSpin)
             {
-                // The wall-jump animation keeps the normal suit colours on frames 0..2;
-                // its Screw frames begin on frame three and share the same six colour steps.
+                // The wall-jump animation keeps the normal suit colours until its spin starts; its spin frames
+                // share the same six colour steps.
                 CycleShadeStep = 0;
                 return shadeCopied;
             }

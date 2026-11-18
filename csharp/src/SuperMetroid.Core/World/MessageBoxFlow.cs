@@ -27,7 +27,7 @@ internal sealed class MessageBoxFlow
     private readonly ActiveRoomState _room;
     /// <summary>Starts Varia or Gravity transformation after its suspended room object resumes.</summary>
     private readonly SamusSuitPickupState _suitPickup;
-    /// <summary>Marks accepted gunship and room station saves in area progression bits.</summary>
+    /// <summary>Records the area's save stations where an accepted gunship or room save is made.</summary>
     private readonly SharedGameState _system;
     /// <summary>The runtime's audio requests, which the HUD update after a message box queues its selection sound into.</summary>
     private readonly GameplayAudioRequests _audioRequests;

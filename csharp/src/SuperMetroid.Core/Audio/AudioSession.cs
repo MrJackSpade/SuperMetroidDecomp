@@ -41,9 +41,9 @@ public sealed class AudioSession
     /// <summary>The clip player's playback state, which the session's audio continues from.</summary>
     private ClipPlaybackState? clipState;
     /// <summary>
-    /// The renderer of each update's events over the bound clips: the clips' decoded samples and a mix buffer, kept per
-    /// clip as clips first play. None of it is game state; <see cref="clipState"/> is, and binding the clips builds a
-    /// renderer over it.
+    /// The backend that mixes each update's events over the bound clips: the clips' decoded samples and a mix buffer, kept
+    /// per clip as clips first play. None of it is game state; <see cref="clipState"/> is, and binding the clips builds a
+    /// backend over it.
     /// </summary>
     [NonSerialized]
     private ClipAudioBackend? backend;

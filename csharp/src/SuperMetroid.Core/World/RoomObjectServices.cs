@@ -15,7 +15,7 @@ public sealed record RoomObjectServices
     /// <summary>Samus as room objects see her.</summary>
     public required IRoomSamusAccess Samus { get; init; }
 
-    /// <summary>The area's boss, mini-boss and Torizo defeat bits.</summary>
+    /// <summary>Which of the area's bosses, mini-bosses and Torizos are defeated.</summary>
     public required IAreaBossFlagReader Bosses { get; init; }
 
     /// <summary>The story events that have happened, which room objects read and mark.</summary>

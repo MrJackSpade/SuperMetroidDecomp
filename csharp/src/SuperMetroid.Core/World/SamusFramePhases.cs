@@ -24,7 +24,7 @@ internal sealed class SamusFramePhases
 {
     /// <summary>Opens the attract demo's Samus input window and selects the demo's new-input state.</summary>
     private readonly IAttractSamusInput _attractDemo;
-    /// <summary>Supplies held and newly pressed controller bits to Samus's frame phases.</summary>
+    /// <summary>Supplies the held and newly pressed controller buttons to Samus's frame phases.</summary>
     private readonly GameplayActionInput _playerActions;
     /// <summary>Gates movement and animation branches during gameplay time freeze.</summary>
     private readonly GameplayTimeFreeze _freeze;
@@ -133,10 +133,8 @@ internal sealed class SamusFramePhases
             _player.Colours.ShowBeams(SuperMetroid.Core.Samus.Colours.SamusShades.Beam(SamusBeamCombinations.Of(_player.Samus.EquippedBeams)));
         }
 
-        // The grapple's bottom-boundary check runs after every grapple phase, including inactive.
-        // Swing calculations above therefore consumed last frame's bit; this write
-        // publishes the current bottom-boundary result for the next frame exactly
-        // where the grapple beam's step does.
+        // Whether the grapple swings submerged is decided after every grapple phase, inactive included, so the swing
+        // above used the previous frame's answer and this frame's answer serves the next frame's swing.
         SamusGrappleMovement.RefreshLiquidPhysicsFlag(_player.Samus);
         return grappleOwnsMovement;
     }
@@ -200,7 +198,7 @@ internal sealed class SamusFramePhases
         else if (movement != SamusMovementType.Special)
         {
             throw new NotSupportedException(
-                $"Cached movement type {movement} under uninitialized pose {_player.IntroducedSamus.Pose} has no translated movement-type mover.");
+                $"Cached movement type {movement} has no movement under uninitialized pose {_player.IntroducedSamus.Pose}.");
         }
     }
 
@@ -1019,8 +1017,8 @@ internal sealed class SamusFramePhases
                 _playerActions.Current,
                 _attractDemo.IsAttractDemo ? _playerActions.NewlyPressed : samus.InputSnapshot.ConsumeAutoJumpInput(_playerActions.NewlyPressed));
         _player.ProspectiveSamusPose = poseLookup.Transition;
-        // The table matcher clears a pending/active bomb direction as
-        // soon as it selects a DIFFERENT pose, before collision and movement.
+        // An input transition to a different pose cancels a requested bomb jump at once, before collision and
+        // movement.
         if (_player.ProspectiveSamusPose is { } matchedBombCancel &&
             matchedBombCancel.ProspectivePose != samus.Pose)
             samus.BombJumpRequest = SamusBombJumpRequest.None;
@@ -1050,16 +1048,14 @@ internal sealed class SamusFramePhases
     private void RunMovementPhaseTail(SamusControlFrame frame, SamusState samus, ISamusFrameAudio audio, ISamusRoomObjects roomObjects, RoomScope room)
     {
         // Samus's normal movement phase updates the speed echo after her movement owner has moved her
-        // and before animation/pose transitions. Every fourth gameplay frame
-        // at boost stage four, it alternates between two exact world-position snapshots.
-        // Keeping this producer here means the drawing below consumes post-motion
-        // coordinates with the same frame ordering as the game.
+        // and before animation/pose transitions. Every fourth gameplay frame at the full boost stage, it alternates
+        // between two of her places in the room, so the echoes drawn after it stand where she has moved to.
         if (frame.Mode.Movement != SamusMovementMode.SuitPickup && _player.LastShinesparkMovement is null)
         {
             samus.HorizontalSpeed.CaptureSpeedEchoPosition(_gameTime.Frames, samus.Position.Whole);
         }
 
-        // Every ordinary downward collision calls the landing-effects update inside movement, before
+        // Every ordinary landing runs the landing effects inside movement, before
         // the checks after her movement, liquid animation, prospective-pose selection, and velocity
         // cleanup. Knockback clears its vertical speed on landing before the landing effects read it, so they see no
         // speed.
@@ -1132,7 +1128,7 @@ internal sealed class SamusFramePhases
             // The normal movement phase ends with the periodic damage, the pause check and
             // the low-energy check, before the enemy projectiles' and room objects' steps. Damage those
             // steps accumulate this frame therefore lands next frame.
-            // The demo's movement mode omits these calls, and so does the suit pickup lock's empty movement mode:
+            // The demo's movement mode skips these checks, and so does the suit pickup lock's empty movement mode:
             // damage pending during the transformation stays accumulated
             // until the first ordinary movement phase after it, which divides it by the new suit.
             // X-ray freezes time and therefore clears
@@ -1151,9 +1147,9 @@ internal sealed class SamusFramePhases
     }
 
     /// <summary>
-    /// Advances the saved-game appearance owner. The ordinary Samus
-    /// animation and colour steps have already run earlier in this frame;
-    /// this tail owns only the exact 360-update fanfare lifetime and the restoration of her normal control.
+    /// Advances Samus's appearance after a saved game loads. Her ordinary animation and colour steps have already run
+    /// earlier in this frame; this step counts down the fanfare's lifetime
+    /// (<see cref="SavedGameAppearanceDefinitions.FrameCount"/>) and gives her back her normal control when it ends.
     /// </summary>
     internal void StepSamusLoadAppearance(RoomScope room)
     {

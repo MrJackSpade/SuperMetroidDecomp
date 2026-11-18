@@ -1548,5 +1548,36 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         // A handler alone, an animation's loop, a decrement or a call alone and a hardware owner are English.
         Expect("class P { /// <summary>A handler; the idle animation's loop; each decrement; a call to the queue.</summary>\nint F => 0; }");
         Expect(CompatibilityService + "/// <summary>Evidence: the handler's post-decrement test runs the main loop.</summary>\n[CompatibilityService(\"loop\")] class Loop { }");
+        // The original program's and the port's machinery told in world, runtime and Samus prose, outside hardware owners
+        // and markup (#2386): an allocator, a renderer, a streamer, a streamed view, background streaming or a streaming
+        // plane, a saved game state, a matcher, a translated thing and progression or controller bits.
+        Expect("class P { void Run() { // preserve the room-object allocator's false result\n } }", "('allocator')");
+        Expect("class P { /// <summary>Binds the death-state renderer.</summary>\nint F => 0; }", "('renderer')");
+        Expect("class P { /// <summary>Holds the camera and background streamer.</summary>\nint F => 0; }", "('streamer')");
+        Expect("class P { void Run() { // the first frame would already have streamed a viewport\n } }", "('streamed')");
+        Expect("class P { /// <summary>Runs the main scrolling and background streaming.</summary>\nint F => 0; }", "('background streaming')");
+        Expect("class P { void Run() { // not over a streaming background plane\n } }", "('streaming background')");
+        Expect("class P { /// <summary>Rebound when a saved game state is restored.</summary>\nint F => 0; }", "('saved game state')");
+        Expect("class P { void Run() { // The table matcher clears the request.\n } }", "('matcher')");
+        Expect("class P { string M => \"Cached movement has no translated movement-type mover.\"; }", "('translated')");
+        Expect("class P { /// <summary>Marks the saves in area progression bits.</summary>\nint F => 0; }", "('progression bits')");
+        Expect("class P { /// <summary>Supplies newly pressed controller bits.</summary>\nint F => 0; }", "('controller bits')");
+        // The host's renderer, hair or jets streaming out, a thing streamed out, a position translated by an offset or to
+        // an origin, a save and a hardware owner are English.
+        Expect("class P { /// <summary>The host's renderer; her hair streaming out; the jets streamed out; the scene is not translated to this origin; a position translated by an offset; the game's saves.</summary>\nint F => 0; }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the allocator's own order and the renderer.</summary>\n[CompatibilityService(\"order\")] class Order { }");
+        // Updates counted as calls by number in Samus prose, outside hardware owners and markup (#2390): a call by its
+        // number, calls by number in a list or a range, odd or even calls, and the super-special name.
+        Expect("class P { void Run() { // The flash plays the impact sound exactly on call two.\n } }", "('on call two')");
+        Expect("class P { /// <summary>Selected on hurt-counter calls one, three, and five.</summary>\nint F => 0; }",
+            "('calls one, three, and five')");
+        Expect("class P { void Run() { // Only calls one through six write colours.\n } }", "('calls one through six')");
+        Expect("class P { void Run() { // Odd calls select the fixed hurt shade.\n } }", "('Odd calls')");
+        Expect("class P { /// <summary>Applied once the frame's super-special transition owners decline it.</summary>\nint F => 0; }",
+            "('super-special')");
+        // A call that counts the noun after it, a call to something, updates counted by their order and a hardware owner
+        // are English.
+        Expect("class P { /// <summary>The producer calls two methods; a call to the queue; the flash's first and third updates; a special transition.</summary>\nint F => 0; }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the flash's colours change on calls one through six.</summary>\n[CompatibilityService(\"flash\")] class Flash { }");
     }
 }

@@ -114,6 +114,10 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// #2377 adds, outside hardware owners, an enemy's presence, contact or processing told as a stored property, a post- or
 /// pre-decrement, a main-AI call or AI invocation, running the code's loop, the handler's guard, a signed wrapped
 /// comparison and a strict modular range.
+/// #2386 adds, outside hardware owners, an allocator, a renderer, a streamer or streamed view, a saved state, a matcher,
+/// a translated thing and progression, defeat, controller, button or input bits.
+/// #2390 adds, outside hardware owners, updates counted as calls by number (on call two, calls one through six, odd
+/// calls) and the super-special name.
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -1662,6 +1666,46 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
+    /// The original program's and the port's machinery told in world, runtime and Samus prose (#2386), outside hardware
+    /// owners and markup: an allocator (the room-object allocator, the projectile allocator's order); a renderer other
+    /// than the host's (the death-state renderer, renderers draw the plane); a streamer, a thing streamed and a
+    /// background, graphics, viewport, level, layer or plane streaming or streaming one of those (the background
+    /// streamer, the viewport is streamed, background streaming, a streaming background plane); a saved state or saved
+    /// game state; a matcher or a table match (the table matcher, this matcher); a thing translated (has no translated
+    /// mover); and progression, defeat, controller, button or input bits. Core says what the game does: a room's
+    /// free room-object places or enemy-projectile places, what the display draws, a door's scroll bringing the
+    /// destination in, the game's saves, an input transition chosen, the movement a pose runs, the progression recorded,
+    /// the bosses defeated, the buttons pressed. English stays legal: the host's renderer, the application's own (#1632),
+    /// hair or jets streaming out and a thing streamed out, a position translated by an offset or to an origin, a save and a hardware owner.
+    /// </summary>
+    private static readonly Regex MachineryNarrationProse = new(
+        @"\ballocators?\b|(?<!\bhosts?(?:'s|')?\s+)\brenderers?\b" +
+        @"|\bstreamers?\b|\bstreamed\b(?!\s+(?:in|into|through|from|out|past|by|down|across|over|along)\b)" +
+        @"|\b(?:background|graphics|artwork|viewport|tiles?|tilemap|level|layers?|planes?)[-\s]+streaming\b" +
+        @"|\bstreaming[-\s]+(?:background|graphics|artwork|viewport|tiles?|tilemap|level|layers?|planes?)\b" +
+        @"|\bsaved\s+(?:game\s+)?states?\b" +
+        @"|\bmatchers?\b|\btable[-\s]+match(?:es|ing)?\b" +
+        @"|\btranslated\b(?!\s+(?:to|by|into|onto|along|across|toward|towards)\b)" +
+        @"|\b(?:progression|defeat|controller|button|input)[-\s]+bits?\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// Updates counted as the original's calls by number in Samus prose (#2390), outside hardware owners and markup: a
+    /// call by its number (on call two, on calls one and three); calls by number in a list or a range (calls one, three,
+    /// and five; calls one through six) or ending their clause (selected on calls two.); odd or even calls; and the
+    /// super-special transitions and colourings, the name #2113 replaced. Core counts updates (the flash's first, third
+    /// and fifth updates, its impact update) and names the interruptions that outrank a pose. English stays legal: a call
+    /// that counts the noun after it (calls two helpers), a call to something and a hardware owner.
+    /// </summary>
+    private static readonly Regex NumberedCallProse = new(
+        @"\bon\s+(?:the\s+)?calls?[-\s]+" + NumberWord + @"\b" +
+        @"|\bcalls?[-\s]+" + NumberWord + @"\b(?:\s*,\s*" + NumberWord + @"\b)*\s*,?\s*(?:and|or|through|to|-)\s*" + NumberWord + @"\b" +
+        @"|\bcalls?[-\s]+" + NumberWord + @"\b(?=\s*(?:[.;:)]|$))" +
+        @"|\b(?:odd|even)\s+calls\b" +
+        @"|\bsuper[-\s]?special\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
     /// A camel-case word of a declared name that names the original's execution counter (#2336): ExecutionCounter at
     /// any word boundary (<c>MainEnemyExecutionCounter</c>, <c>enemyMainExecutionCounter</c>). Core names the update
     /// count it means.
@@ -2152,6 +2196,8 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : ArtAndStorageNarrationProse.Match(Markup.Replace(text, " ")) is { Success: true } artAndStorage ? artAndStorage.Value
             : FlagPropertyProse.Match(Markup.Replace(text, " ")) is { Success: true } flagProperty ? flagProperty.Value
             : ProgramStepNarrationProse.Match(Markup.Replace(text, " ")) is { Success: true } programStep ? programStep.Value
+            : MachineryNarrationProse.Match(Markup.Replace(text, " ")) is { Success: true } machinery ? machinery.Value
+            : NumberedCallProse.Match(Markup.Replace(text, " ")) is { Success: true } numberedCall ? numberedCall.Value
             : TileCharacterFinding(text, owner) is { } character ? character
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;

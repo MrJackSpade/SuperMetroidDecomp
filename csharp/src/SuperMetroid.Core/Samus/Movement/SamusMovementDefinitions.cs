@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Samus.Movement;
 
-/// <summary>The definitions Samus's movement and pose selection read: speeds, timers, frames and sentinels (#1411).</summary>
+/// <summary>The definitions Samus's movement reads: landing and fall speeds, animation waits, wall-jump reach and speed echoes.</summary>
 /// <remarks>
 /// Definitions are grouped by the part of Samus's movement they define. Her live velocity, timers and the selected
 /// movement do not belong in this catalog.
@@ -36,7 +36,7 @@ public static class SamusMovementDefinitions
     /// <summary>The pixels an update a departing speed echo closes on Samus's height until it reaches it.</summary>
     public const int SpeedEchoVerticalApproach = 2;
 
-    /// <summary>Horizontal acceleration, Speed Booster, and animation cadence tables.</summary>
+    /// <summary>Samus's horizontal acceleration: how fast her extra run speed builds.</summary>
     public static class HorizontalMotion
     {
         /// <summary>Per-frame extra-run acceleration while charging the Speed Booster: 1/16 pixel.</summary>

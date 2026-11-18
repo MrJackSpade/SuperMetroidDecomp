@@ -14,10 +14,9 @@ namespace SuperMetroid.Core.Samus.Grapple;
 /// pendulum terrain interaction, collision kicks, and release.
 /// </summary>
 /// <remarks>
-/// The game does not run grapple physics through the grappling movement type's own movement.
-/// The grapple beam's step updates the pendulum before the normal movement phase
-/// movement, and the block collision advances its angle while probing room collision. This class keeps
-/// those responsibilities separate from ordinary aerial movement. Firing, persistent and breakable
+/// The grapple's swing is not the grappling movement type's own movement: the grapple beam's step swings the
+/// pendulum before the normal movement phase, and the swing's block collision advances its angle as it tests the room's
+/// blocks. Firing, persistent and breakable
 /// grapple blocks, enemy anchors, per-pixel rope adjustment, and the six-point angular terrain sweep are
 /// here; solid/frozen-enemy wall-jump probing is shared with ordinary movement and asks the next enemy
 /// pass to shake the enemy launched from. The firing-only Draygon-turret damage and both behaviour-indexed swing
@@ -108,8 +107,7 @@ public static class SamusGrappleMovement
     }
 
     /// <summary>
-    /// Advances the extending grapple beam, including the enemy
-    /// enemy pass which precedes the grapple beam's block collision.
+    /// Advances the extending grapple beam: its test against enemies, then its block collision.
     /// </summary>
     internal static GrappleMovementResult StepFiring(
         RoomLevelData level,
@@ -827,8 +825,8 @@ public static class SamusGrappleMovement
         GrappleAnchorKind anchor)
     {
         QueueGrappleSound(samus, GrappleBeamDefinitions.Sounds.Attach);
-        // While Draygon owns Samus the connection bypasses ordinary pose/position setup.
-        // Samus. Only the beam locks; the enemy continues to place the held body.
+        // While Draygon holds Samus the connection leaves her pose and position alone: only the beam locks, and
+        // Draygon keeps placing her.
         SamusMovementType sourceMovementType = SamusPoseMetadata.ReadMovementType(samus);
         if (sourceMovementType == SamusMovementType.DraygonHeld)
         {
@@ -904,8 +902,8 @@ public static class SamusGrappleMovement
     }
 
     /// <summary>
-    /// Applies the accepted grapple connection pose after the frame's
-    /// super-special transition owners have declined it.
+    /// Applies the accepted grapple connection pose, when none of the frame's interruptions that outrank it changed
+    /// Samus's pose.
     /// </summary>
     internal static Position16<RoomPixels> ApplyPendingConnectionPose(
         SamusState samus,
@@ -1024,9 +1022,9 @@ public static class SamusGrappleMovement
             SamusBlockCollision.EjectAfterGrapple(level, samus.Kinematics);
         if (cancelledConnectedPose)
         {
-            // The cancel runs the pose-definition fallback while the current movement type is grappling.
-            // Its lookup-failure response kills all X/run momentum and the pose-definition
-            // definition selects the exact standing/crouching body that existed before locking.
+            // Cancelling from a connected pose takes the pose's no-input fallback while Samus still grapples: it
+            // stops all her horizontal and running speed and returns her to the standing or crouching pose she
+            // held before the beam locked.
             if (!SamusPoseMetadata.ReadNoInputFallback(samus).TryGetPose(out SamusPoseId fallback))
             {
                 throw new InvalidDataException(

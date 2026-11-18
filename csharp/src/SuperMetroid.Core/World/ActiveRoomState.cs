@@ -13,9 +13,8 @@ using SuperMetroid.Core.Samus.Movement;
 namespace SuperMetroid.Core.World;
 
 /// <summary>
-/// The loaded room's live state: room, door and assets, level data, camera, background streamer and scrolling
-/// sky, landing-site entry, load station, Ceres elevator arrival, the value one room main leaves the next, and
-/// the layers the door transition shows.
+/// The loaded room's live state: room, door, level data, camera, scrolling sky, load station, Ceres elevator arrival,
+/// effects, statues, enemies and bombs, what one room leaves the next, and the layers the door transition shows.
 /// </summary>
 [RoomScopeBoundary("Holds the loaded room and the room under construction.")]
 internal sealed class ActiveRoomState

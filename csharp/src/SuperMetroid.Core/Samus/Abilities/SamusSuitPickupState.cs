@@ -69,9 +69,9 @@ public sealed class SamusSuitPickupState
     /// <summary>
     /// The speed, in screen pixels per update, at which the beam's edges move apart or its wipe advances. It starts at
     /// one pixel, accelerates during the curved widening, is halved at the reveal and decelerates to a one-pixel minimum
-    /// while the beam shrinks. It stays positive and far below the sign of its 1/256-pixel form: the curved widening moves the
-    /// left edge from column 108 by at least one pixel an update, so it accelerates for at most 108 updates and the speed
-    /// stays below 10624 256ths of a pixel: one pixel plus 108 updates of acceleration.
+    /// while the beam shrinks. It stays positive and small: the curved widening moves the left edge from column 108 by at
+    /// least one pixel an update, so it accelerates for at most 108 updates, and the speed stays below one pixel plus
+    /// 108 updates of acceleration.
     /// </summary>
     private SignedEightEight _lightBeamSpeed;
 
@@ -217,8 +217,7 @@ public sealed class SamusSuitPickupState
     /// <summary>Extends the narrow beam inward from both screen edges until half its rows are covered.</summary>
     private void StepLightBeamAppears()
     {
-        // The count grows from zero in even steps to exactly the covered rows, so the game's signed
-        // comparison with them is this ordinary one.
+        // The count grows from zero in even steps until it covers exactly half the rows.
         _lightBeamLines += SuitPickupBeamDefinitions.AppearingLinesPerUpdate;
         Beam = new(SamusSuitPickupBeamShape.GrowingFromEdges,
             SuitPickupBeamDefinitions.NarrowBeamEdges.Left,
@@ -314,8 +313,7 @@ public sealed class SamusSuitPickupState
 
         // The wipe grows from zero by the speed's whole pixels and stops once it reaches 128.
         _lightBeamLines += _lightBeamSpeed.WholePixels;
-        // The final curved column is wiped by this many rows from the top. The game's
-        // lower do/while starts at position minus one, so the bottom wipe is one shorter.
+        // The final curved column is wiped by this many rows from the top and one row fewer from the bottom.
         Beam = Beam with { Shape = SamusSuitPickupBeamShape.ClosingCurvedColumn, Progress = _lightBeamLines };
 
         // The speed never falls below its minimum, so one deceleration stays far above zero.

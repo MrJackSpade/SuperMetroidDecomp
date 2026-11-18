@@ -555,6 +555,24 @@ animates, keeps updating off screen), which update a count runs out on, what a s
 lie. A property of a thing, an enemy's other properties, a projectile's property set or mask, a handler alone, an
 animation's loop, a decrement and a call alone stay English.
 
+#2386 widens SME6454, outside hardware owners, to the original program's and the port's machinery as world, runtime
+and Samus prose tell it: an `allocator` (`the room-object allocator's false result`); a `renderer` other than the host's, the
+application's own (`the death-state renderer`); a `streamer`, a thing `streamed` and a background, graphics, viewport, level, layer or
+plane streaming or streaming one of those (`background streaming`, `a streaming background plane`); a `saved game
+state`; a `matcher` or a `table match`; a thing `translated` (`has no translated movement-type mover`); and
+progression, defeat, controller, button or input `bits`. Core says what the game does: the room's free room-object or
+enemy-projectile places, what the display draws, the destination scrolling in through the door, the game's saves, the
+input transition chosen, the movement a pose runs, the progression recorded, the bosses defeated, the buttons pressed.
+Hair or jets streaming out, a thing streamed out, a position translated by an offset or to an origin and a save stay
+English.
+
+#2390 widens SME6454, outside hardware owners, to updates counted as the original's calls by number in Samus prose: a
+call by its number (`on call two`), calls by number in a list or a range (`calls one, three, and five`, `calls one
+through six`) or ending their clause, `odd` or `even calls`, and `super-special`, the name #2113 replaced. Core counts
+updates (the flash's first, third and fifth updates, its impact update) and names the interruptions that outrank a
+pose. A call that counts the noun after it (`calls two methods`), a call to something and updates counted by their
+order stay English.
+
 `Tilemap` is matched as the one word the cartridge's sources spell. A room layer named as the destination engine names
 it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as does `MapTiles`; so does
 `SpriteSheet` beside `Spritemap`, and `Scan`, `Scanned` or `FirstLine` beside `Scanline` (#1694). Documentation prose is

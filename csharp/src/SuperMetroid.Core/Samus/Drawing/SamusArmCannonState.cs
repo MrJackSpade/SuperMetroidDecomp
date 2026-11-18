@@ -6,7 +6,7 @@ using SuperMetroid.Core.Samus.Artwork;
 namespace SuperMetroid.Core.Samus.Drawing;
 
 /// <summary>
-/// Exact state and one-sprite renderer for Samus's opening arm cannon.
+/// Samus's opening arm cannon: its cover's state and the one picture it draws.
 /// </summary>
 /// <remarks>
 /// The cannon is not baked into every Samus body frame. Missile, Super Missile, and

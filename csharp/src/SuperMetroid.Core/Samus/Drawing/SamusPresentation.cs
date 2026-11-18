@@ -420,8 +420,7 @@ internal sealed class SamusPresentation
         // The body sheet holds pictures for exactly the bodies a path of the game shows (#1513).
         SamusAnimationFrame pictureFrame = _artwork.ShownFrames.PictureFrame(samus);
 
-        // The draw applies invincibility flicker to the body frames, not to
-        // animation or graphics streaming as a whole. An odd frame hides ordinary invincible
+        // Invincibility flicker hides only the body's picture; her animation runs on. An odd frame hides ordinary invincible
         // Samus. Active knockback and any nonzero stored/active shine timer independently
         // force the body visible, even though the separately drawn arm cannon follows its
         // stricter rule and may still disappear on that same odd frame.

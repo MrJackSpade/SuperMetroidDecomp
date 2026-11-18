@@ -121,9 +121,8 @@ internal sealed class MotherBrainBody
                 state.Form = MotherBrainForm.FakeDeath;
                 _motherBrainEncounter.RequestMusic(MusicRequest.SelectTrack(MusicTrack.SilentSong), MusicQueueDelay.Shortest);
 
-                // Sealing the wall creates both dust puffs before its
-                // two identical fixed room objects. Requests remain ordered because the room-object
-                // allocator searches the same descending pool for each request.
+                // Sealing the wall creates both dust puffs before its two identical room objects, each taking the
+                // room's next free place in turn, so they keep their order.
                 foreach (Position16<RoomPixels> dust in MotherBrainFightDefinitions.SealedWallDust)
                     _projectiles.SpawnDustOrExplosion(dust, DustExplosionAnimation.SmallDustCloud);
                 foreach (RoomObjectSpawnRequest<MotherBrainRoomMutation> wall in MotherBrainFightDefinitions.SealedWall)

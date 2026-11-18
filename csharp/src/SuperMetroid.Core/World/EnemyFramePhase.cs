@@ -136,9 +136,8 @@ internal sealed class EnemyFramePhase
                 room.FxOverlay.StopLiquidMotion();
             if (result.ElevatorClearedProjectileData)
             {
-                // The elevator clears every one of Samus's shots and their counters. Her beam and missile shots' places
-                // were reset inside the actor call; bombs and the shared cooldown live in this companion owner and
-                // complete that same operation.
+                // The elevator clears every one of Samus's shots and their counts. Her beam and missile shots were
+                // cleared as the elevator updated; clearing her bombs and the shared cooldown here completes it.
                 room.BombProjectiles.Reset();
             }
             // Ceres Ridley draws the Baby and door over every enemy only once his animation

@@ -119,12 +119,10 @@ internal sealed class RoomObjectFramePhase
         {
             StepRoomObjects(_playerActions.NewlyPressed, roomObjects, bombProjectiles, room);
 
-            // Item room objects publish acquisition only after their trigger and
-            // step. Apply their colour consequences at that same seam:
-            // beam pickups show the newly equipped combination's colours, and
-            // suit changes defer their visible colour reveal until stage
-            // three after the message. Resource tanks and other equipment are
-            // consumed directly by the HUD/movement owners.
+            // An item's pickup is known only after its room object has stepped, and its colours change here:
+            // a beam pickup shows the newly equipped beams' colours, and a suit pickup shows the suit's colours
+            // only when the suit is revealed, after the message. Tanks and other equipment take effect through
+            // the HUD and Samus's movement.
             foreach (CollectiblePickupEvent pickup in roomObjects.CollectibleObjects.CollectiblePickupEvents)
             {
                 if (pickup.Kind is

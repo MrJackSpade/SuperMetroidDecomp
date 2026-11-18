@@ -37,7 +37,7 @@ internal static class EscapeTimerDrawChecks
     {
         var sprites = new SpriteFrameBuffer();
         sprites.BeginFrame();
-        EscapeTimerRenderer.Draw(timer, sprites, presentation, sheet);
+        EscapeTimerDrawing.Draw(timer, sprites, presentation, sheet);
         sprites.FinalizeFrame();
         return sprites.Draws;
     }

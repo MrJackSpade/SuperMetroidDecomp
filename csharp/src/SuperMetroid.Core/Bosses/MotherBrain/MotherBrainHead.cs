@@ -388,9 +388,8 @@ internal sealed class MotherBrainHead
     }
 
     /// <summary>
-    /// Runs the head's onion-ring step and the ring's setup. The shared
-    /// allocator deliberately runs after the twelve room turrets and all lingering drool,
-    /// so pool saturation drops the ring when the pool is full.
+    /// Runs the head's onion-ring step and the ring's setup. The ring takes its enemy-projectile place after the twelve
+    /// room turrets and all lingering drool have theirs, so no ring appears when every place is held.
     /// </summary>
     internal void SpawnMotherBrainOnionRing(
         MotherBrainEnemyState state,

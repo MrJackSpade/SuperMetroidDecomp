@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.World;
 internal sealed class SamusPoseTransitionPhase
 {
 
-    /// <summary>Supplies held and newly pressed controller bits to Samus's frame phases.</summary>
+    /// <summary>Supplies the held and newly pressed controller buttons to Samus's frame phases.</summary>
     private readonly GameplayActionInput _playerActions;
     /// <summary>Gates movement and animation branches during gameplay time freeze.</summary>
     private readonly GameplayTimeFreeze _freeze;

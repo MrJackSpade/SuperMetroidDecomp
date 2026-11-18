@@ -23,7 +23,7 @@ internal sealed class DeathSequenceRunner
     /// <summary>Supplies the active camera for death drawing.</summary>
     private readonly ActiveRoomState _room;
 
-    /// <summary>Binds the death-state renderer and runtime services supplied by the gameplay host.</summary>
+    /// <summary>Binds the display, frame boundary, sprites, Samus and room the death sequence runs with.</summary>
     internal DeathSequenceRunner(DeathSequenceRunnerDependencies dependencies)
     {
         _display = dependencies.Display;

@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Rendering;
 
 /// <summary>
 /// One displayed frame, closed and immutable: a layered scene, a turning-floor scene or a solid colour, shown at one
-/// brightness. It holds neither game objects nor renderer resources.
+/// brightness. It holds neither game objects nor the display's resources.
 /// </summary>
 public sealed class DisplayPacket
 {

@@ -121,8 +121,8 @@ public sealed class SamusCrystalFlashState
     {
         Ensure.NotNull(samus);
 
-        // The chord test uses an equality comparison, not a bit test. This deliberately rejects any extra
-        // held action, including Jump, Dash, item selection, or the other directions.
+        // The held actions must be exactly the Crystal Flash's: any other held action, Jump, Dash, item selection or
+        // another direction included, keeps it from starting.
         if (controllerInput != RequiredInput)
             return false;
 

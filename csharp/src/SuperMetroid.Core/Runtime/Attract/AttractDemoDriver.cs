@@ -31,7 +31,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
     private readonly ActiveRoomState _room;
     /// <summary>Initialises the demo's Samus and loads the recorded room and door independently using the demo camera position.</summary>
     private readonly RoomLoader _roomLoader;
-    /// <summary>Seeds demo progression bits without reading or writing a player save.</summary>
+    /// <summary>Sets the demo's progression without reading or writing a player save.</summary>
     private readonly SharedGameState _system;
 
     /// <summary>Retains the runtime owners used to initialize and advance attract scenes.</summary>

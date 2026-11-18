@@ -53,7 +53,8 @@ internal static class RoomBlockWriters
             .. PerFrame(catalogs.Station.Images, StationFrameWrittenIn),
             new(FrameBlocks(catalogs.ElevatorPlatform.Images), Placing([RoomObjectKind.ElevatorPlatform])),
             new(FrameBlocks(catalogs.BombTorizoHand.Images), Placing([RoomObjectKind.BombTorizoHand])),
-            new(FrameBlocks(catalogs.DraygonCannon.Images), Placing(DraygonCannonDefinitions.Setups.Keys)),
+            new(FrameBlocks(catalogs.DraygonCannon.Images), Placing([RoomObjectKind.DraygonCannonFacingRight,
+                RoomObjectKind.DraygonCannonFacingRightDestroyed, RoomObjectKind.DraygonCannonFacingLeft])),
             new(FrameBlocks(catalogs.MotherBrainGlass.Images), Placing([RoomObjectKind.MotherBrainGlass])),
             new(FrameBlocks(catalogs.EscapeGate.Images), state =>
                 state.Headers.Contains(RoomObjectKind.MotherBrainEscapeRoomGate) ||

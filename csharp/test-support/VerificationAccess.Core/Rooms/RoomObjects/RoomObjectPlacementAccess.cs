@@ -51,8 +51,11 @@ internal static class RoomObjectPlacementAccess
             return new ScrollTriggerSetup(scrollChange ?? throw new InvalidDataException("A scroll trigger needs the scroll change it applies."));
         if (scrollChange is not null)
             throw new InvalidDataException("Only a scroll trigger may apply a scroll change.");
-        if (DraygonCannonDefinitions.Setups.ContainsKey(kind))
-            return new DraygonWallCannonSetup(cannon ?? throw new InvalidDataException($"Draygon cannon placement {kind} names no Draygon wall cannon."));
+        if (DraygonCannonObjectsConstants.CannonKinds.TryGetValue(kind, out (DraygonCannonOrientation Orientation, DraygonCannonStart Start) wall))
+        {
+            return new DraygonWallCannonSetup(cannon ?? throw new InvalidDataException($"Draygon cannon placement {kind} names no Draygon wall cannon."),
+                wall.Orientation, wall.Start);
+        }
         if (cannon is not null)
             throw new InvalidDataException($"Placement {kind} is no Draygon cannon to control a wall cannon.");
         if (DoorObjectKindDefinitions.ColoredDoors.ContainsKey(kind)) return new ColoredDoorSetup(Read<LockedDoorArgument>(kind, argument));

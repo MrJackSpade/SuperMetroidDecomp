@@ -134,7 +134,7 @@ internal static class BossRoomObjectProgramsVerification
         ushort Word(int address) => cartridge.ReadCartridgeWord(ProgramBank | address);
         RoomObjectInstruction At(int address) => InstructionAt<RoomObjectInstruction>(cartridge, address);
         int frames = 0;
-        foreach ((RoomObjectKind header, DraygonCannonSetup setup) in DraygonCannonDefinitions.Setups)
+        foreach ((RoomObjectKind header, (DraygonCannonOrientation Orientation, DraygonCannonStart Start) setup) in DraygonCannonObjectsConstants.CannonKinds)
         {
             DraygonCannonLook look = DraygonCannonAnimationDefinitions.Looks[setup.Orientation];
             string at = $"Draygon cannon {header}";

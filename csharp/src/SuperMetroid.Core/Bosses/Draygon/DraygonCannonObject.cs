@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
@@ -11,14 +12,17 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// destroyed terrain and starts its smoke. A cannon set up destroyed does that on its first update.
 /// Other projectiles' strikes stay unread until a missile's replaces them.
 /// </summary>
+[RoomLifetime]
 internal sealed class DraygonCannonObject : RoomObjectBehaviour, IShootableRoomObject
 {
     /// <summary>Sets up a cannon facing <paramref name="orientation"/> that controls <paramref name="cannon"/>.</summary>
+    /// <param name="cannons">The room's cannons, through which a destroyed cannon stops Draygon's firing of its wall cannon.</param>
     /// <param name="orientation">Which wall the cannon faces out from.</param>
     /// <param name="cannon">The firing cannon Draygon stops when this one is destroyed.</param>
     /// <param name="start">Whether the cannon starts whole or already destroyed.</param>
-    internal DraygonCannonObject(DraygonCannonOrientation orientation, DraygonWallCannon cannon, DraygonCannonStart start)
+    internal DraygonCannonObject(DraygonCannonObjects cannons, DraygonCannonOrientation orientation, DraygonWallCannon cannon, DraygonCannonStart start)
     {
+        _cannons = Ensure.NotNull(cannons);
         Cannon = cannon;
         _look = DraygonCannonAnimationDefinitions.Looks.TryGetValue(orientation, out DraygonCannonLook? look)
             ? look
@@ -28,6 +32,9 @@ internal sealed class DraygonCannonObject : RoomObjectBehaviour, IShootableRoomO
         // A cannon set up destroyed counts as having taken its destroying hits.
         Hits = destroyed ? DraygonCannonDefinitions.HitsToDestroy : 0;
     }
+
+    /// <summary>The room's cannons, through which a destroyed cannon stops Draygon's firing of its wall cannon (#2400).</summary>
+    private readonly DraygonCannonObjects _cannons;
 
     /// <summary>The firing cannon Draygon stops when this one is destroyed.</summary>
     internal DraygonWallCannon Cannon { get; }
@@ -121,7 +128,7 @@ internal sealed class DraygonCannonObject : RoomObjectBehaviour, IShootableRoomO
     /// <summary>Destroys the cannon: Draygon stops its firing, its terrain is destroyed, and its smoke starts.</summary>
     private void Destroy(RoomObjectPlace place, RoomObjectStepContext context)
     {
-        context.RoomObjects.Bosses().DraygonCannons.DisableCannon(Cannon);
+        _cannons.DisableCannon(Cannon);
         DraygonCannonObjects.WriteDestroyedTerrain(context.Level, place.Block);
         _frame = 0;
         Show(place, context, _look.Smoke[0], DraygonCannonPhase.Smoking);

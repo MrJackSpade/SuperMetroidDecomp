@@ -1,9 +1,15 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>A Draygon wall cannon's setup, controlling the wall cannon its placement names.</summary>
+/// <summary>
+/// A Draygon wall cannon's setup (#2400): the wall cannon its placement controls, which wall it faces out from and whether
+/// it starts whole or already destroyed, all carried by the placement.
+/// </summary>
 /// <param name="Cannon">The wall cannon the placement controls.</param>
-internal sealed record DraygonWallCannonSetup(DraygonWallCannon Cannon) : RoomObjectPlacementSetup
+/// <param name="Orientation">Which wall the cannon faces out from, selecting what it shows.</param>
+/// <param name="Start">Whether the cannon starts whole or already destroyed.</param>
+internal sealed record DraygonWallCannonSetup(DraygonWallCannon Cannon, DraygonCannonOrientation Orientation, DraygonCannonStart Start)
+    : RoomObjectPlacementSetup
 {
     /// <inheritdoc/>
-    internal override void SetUp(IRoomObjectFamilySetups setups, RoomObjectKind kind) => setups.SetUpDraygonCannon(kind, Cannon);
+    internal override void SetUp(IRoomObjectFamilySetups setups, RoomObjectKind kind) => setups.SetUpDraygonCannon(this);
 }

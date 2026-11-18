@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Bosses.Draygon;
+namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>The state a wall cannon is set up in when its room loads.</summary>
 internal enum DraygonCannonStart

@@ -2207,10 +2207,10 @@ internal static class RoomObjectPopulationDefinitions
     [
         new(RoomObjectKind.GreyDoorFacingLeft, new(30, 6), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.AreaBossDefeated, new LockedDoorArgument(LockedDoorDefinitions.DraygonGreyDoorFacingLeft, DoorOpeningPersistence.Persistent)))),
         new(RoomObjectKind.GreyDoorFacingRight, new(1, 22), new GreyDoorSetup(new GreyDoorArgument(GreyDoorCondition.AreaBossDefeated, new LockedDoorArgument(LockedDoorDefinitions.DraygonGreyDoorFacingRight, DoorOpeningPersistence.Persistent)))),
-        new(RoomObjectKind.DraygonCannonFacingRightDestroyed, new(2, 11), new DraygonWallCannonSetup(DraygonWallCannon.UpperLeft)),
-        new(RoomObjectKind.DraygonCannonFacingRight, new(2, 18), new DraygonWallCannonSetup(DraygonWallCannon.LowerLeft)),
-        new(RoomObjectKind.DraygonCannonFacingLeft, new(29, 15), new DraygonWallCannonSetup(DraygonWallCannon.UpperRight)),
-        new(RoomObjectKind.DraygonCannonFacingLeft, new(29, 21), new DraygonWallCannonSetup(DraygonWallCannon.LowerRight)),
+        new(RoomObjectKind.DraygonCannonFacingRightDestroyed, new(2, 11), new DraygonWallCannonSetup(DraygonWallCannon.UpperLeft, DraygonCannonOrientation.Right, DraygonCannonStart.Destroyed)),
+        new(RoomObjectKind.DraygonCannonFacingRight, new(2, 18), new DraygonWallCannonSetup(DraygonWallCannon.LowerLeft, DraygonCannonOrientation.Right, DraygonCannonStart.Whole)),
+        new(RoomObjectKind.DraygonCannonFacingLeft, new(29, 15), new DraygonWallCannonSetup(DraygonWallCannon.UpperRight, DraygonCannonOrientation.Left, DraygonCannonStart.Whole)),
+        new(RoomObjectKind.DraygonCannonFacingLeft, new(29, 21), new DraygonWallCannonSetup(DraygonWallCannon.LowerRight, DraygonCannonOrientation.Left, DraygonCannonStart.Whole)),
     ]);
 
     /// <summary>The TourianFirst room-object population.</summary>

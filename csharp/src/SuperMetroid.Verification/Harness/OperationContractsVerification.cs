@@ -56,7 +56,7 @@ internal static class OperationContractsVerification
         // Explicit optional scenarios: the ordinary frame and retail overrides are named values.
         var ordinary = new RuntimeFrameRequest();
         AssertTrue(ordinary.Policy.AllowCeresElevatorDeparture && ordinary.Policy.AdvanceGameTime &&
-            ReferenceEquals(ordinary.Audio, RuntimeFrameAudio.WithoutLowHealthCheck),
+            !ordinary.Policy.RunsLowHealthCheck,
             "a default frame request is state-eight gameplay without the low-health check");
         var tester = new SuperMetroidGameOptions { Invincibility = true, InfiniteAmmo = true, GrantAllEquipment = true };
         AssertTrue(tester.ToAssists() is { SamusCannotDie: true, AmmoNeverRunsOut: true, EncounterResetOnLoad: null } assists &&

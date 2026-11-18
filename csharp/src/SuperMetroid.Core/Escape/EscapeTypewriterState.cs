@@ -33,8 +33,6 @@ public sealed class EscapeTypewriterState
     public int GlyphsWritten { get; private set; }
     /// <summary>True once an update ready to type passes the end of all lines; later updates report completion without typing or requesting a sound.</summary>
     public bool Completed { get; private set; }
-    /// <summary>One-update sound request raised after every second non-space glyph, cleared at the start of every <see cref="Step"/>; the Ceres or Zebes escape picks which click sound plays.</summary>
-    public bool ClickRequested { get; private set; }
     /// <summary>The Ceres or Zebes warning the typewriter types, which any text bound to it again must be.</summary>
     public EscapeTypewriterMessageId MessageId { get; private set; }
     /// <summary>The installed line being typed, from zero; moves past exhausted lines on an eligible update and reaches the line count when typing completes.</summary>
@@ -54,29 +52,29 @@ public sealed class EscapeTypewriterState
     }
 
     /// <summary>Advances the warning by one gameplay update, typing at most one glyph or consuming one space when its wait is over.</summary>
-    /// <param name="glyph">Receives the glyph typed this update, for the owner to write over its background; null otherwise.</param>
-    /// <returns>True once all lines have been typed; false while waiting and while typing, including the update that types the final character.</returns>
+    /// <returns>
+    /// What the update did: typed nothing while waiting or on a space, typed a glyph for the owner to write over its
+    /// background, with the key click after every second glyph, or, once all lines have been typed, found the warning
+    /// complete. The update that types the final character is a typing update, not the completed one.
+    /// </returns>
     /// <remarks>
     /// The first two characters are typed on consecutive updates; each later character follows its predecessor after two
     /// updates that type nothing (<see cref="EscapeTypewriterDefinitions.UndelayedOpeningCharacters"/>,
     /// <see cref="EscapeTypewriterDefinitions.CharacterDelayFrames"/>).
     /// </remarks>
-    public bool Step(out EscapeTypewriterGlyph? glyph)
+    public EscapeTypewriterStep Step()
     {
-        ClickRequested = false;
-        glyph = null;
-        if (Completed) return true;
-        if (_updatesBeforeNextCharacter != 0) { _updatesBeforeNextCharacter--; return false; }
+        if (Completed) return EscapeTypewriterStep.Complete.Instance;
+        if (_updatesBeforeNextCharacter != 0) { _updatesBeforeNextCharacter--; return EscapeTypewriterStep.NothingTyped.Instance; }
         _updatesBeforeNextCharacter = _typingUpdates < EscapeTypewriterDefinitions.UndelayedOpeningCharacters
             ? 0 : EscapeTypewriterDefinitions.CharacterDelayFrames;
         _typingUpdates++;
-        return StepInstalled(installedMessage, out glyph);
+        return StepInstalled(installedMessage);
     }
 
     /// <summary>Moves on to the next line and character, consuming at most one character.</summary>
-    private bool StepInstalled(EscapeTypewriterMessage message, out EscapeTypewriterGlyph? glyph)
+    private EscapeTypewriterStep StepInstalled(EscapeTypewriterMessage message)
     {
-        glyph = null;
         while (MessageLineIndex < message.Lines.Count)
         {
             EscapeTypewriterLine line = message.Lines[MessageLineIndex];
@@ -88,23 +86,25 @@ public sealed class EscapeTypewriterState
             }
             if (MessageCharacterIndex == 0)
                 Corner = line.Start;
-            glyph = TypeCharacter(line.Text[MessageCharacterIndex++]);
-            return false;
+            return TypeCharacter(line.Text[MessageCharacterIndex++]);
         }
-        return Completed = true;
+        Completed = true;
+        return EscapeTypewriterStep.Complete.Instance;
     }
 
-    /// <summary>Types a non-space glyph, requests a click every second glyph, and advances the typing position by a glyph's width.</summary>
-    private EscapeTypewriterGlyph? TypeCharacter(char character)
+    /// <summary>Types a non-space glyph, clicking every second glyph, and advances the typing position by a glyph's width.</summary>
+    private EscapeTypewriterStep TypeCharacter(char character)
     {
-        EscapeTypewriterGlyph? glyph = null;
+        EscapeTypewriterStep step = EscapeTypewriterStep.NothingTyped.Instance;
         if (EscapeTypewriterGlyph.Types(character))
         {
-            glyph = new(Corner, EscapeTypewriterGlyph.PictureOf(MessageId, character));
+            var glyph = new EscapeTypewriterGlyph(Corner, EscapeTypewriterGlyph.PictureOf(MessageId, character));
             GlyphsWritten++;
-            ClickRequested = EscapeTypewriterDefinitions.ClickEverySecondGlyph.IsDue(GlyphsWritten);
+            step = EscapeTypewriterDefinitions.ClickEverySecondGlyph.IsDue(GlyphsWritten)
+                ? new EscapeTypewriterStep.TypedWithClick(glyph)
+                : new EscapeTypewriterStep.Typed(glyph);
         }
         Corner += new Offset16<PlanePixels>(EscapeTypewriterDefinitions.GlyphAdvance, 0);
-        return glyph;
+        return step;
     }
 }

@@ -22,7 +22,7 @@ internal sealed class DoorTransitionGameSequence(FrontendSession session) : IGam
 
     /// <inheritdoc/>
     /// <remarks>Once the transition has begun, sound effects stay disabled until the next room has faded in.</remarks>
-    public GamePhaseAudio Audio => session.DoorTransitionStep == DoorTransitionStep.Transitioning
+    public GamePhaseAudio Audio => session.TransitioningThroughDoor
         ? GamePhaseAudio.DoorTransitionSoundsDisabled
         : GamePhaseAudio.DoorTransition;
 
@@ -118,10 +118,9 @@ internal sealed class DoorTransitionGameSequence(FrontendSession session) : IGam
         }
         session.audio.QueueSound(EnemySound.Silence,
             priority: SoundRequestPriority.Essential);
-        // The door's music step follows both entry cancellations, not precedes them.
-        session.audio.DoorTransitionSoundsDisabled = true;
-        // Entering an ordinary door begins the transition in the same update, and the beginning enters the room
-        // loading before returning, so the beginning never owns a separately displayed frame.
+        // The door's music step follows both entry cancellations, not precedes them. Entering an ordinary door begins the
+        // transition in the same update, and the beginning enters the room loading before returning, so the beginning never
+        // owns a separately displayed frame; the loading step disables sound effects from here on (#2499).
         session.Enter(DoorTransitionStep.Transitioning);
     }
 
@@ -135,12 +134,11 @@ internal sealed class DoorTransitionGameSequence(FrontendSession session) : IGam
             // The door forces full brightness before the destination fade-in, so a door
             // taken mid-pause-fade still leaves the screen fully lit.
             session.RecordFullBrightness();
-            session.audio.DoorTransitionSoundsDisabled = false;
-            // The game resumes spin audio only after sound admission is
+            // Returning to gameplay restores sound admission (#2499). The game resumes spin audio only after it is
             // restored at the final fade boundary, not on each fade frame.
+            session.Enter(SuperMetroidGameState.MainGameplay);
             if (SamusSpinSound.Select(session.GameplayRuntime.Player.IntroducedSamus) is { } spinSound)
                 session.audio.QueueSound(spinSound, priority: SoundRequestPriority.High);
-            session.Enter(SuperMetroidGameState.MainGameplay);
         }
     }
 }

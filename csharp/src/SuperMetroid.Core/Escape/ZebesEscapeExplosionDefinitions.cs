@@ -39,21 +39,21 @@ internal static class ZebesEscapeExplosionDefinitions
         new(RoomEffectActorKind.BigDustCloud, null);
 
     /// <summary>
-    /// The eight equally likely explosions a draw that names one chooses from, in the draw's order: two small explosions,
-    /// one small dust cloud, two smoke clouds, two short big dust clouds and one big dust cloud. Only the first small
-    /// explosion and the first smoke cloud sound.
+    /// The explosion's draw (#2499): its sixteen equally likely choices (<see cref="ZebesEscapeDefinitions.ExplosionChoice"/>)
+    /// name, in order, two small explosions, one small dust cloud, two smoke clouds, two short big dust clouds and one big dust
+    /// cloud, of which only the first small explosion and the first smoke cloud sound, and then eight that leave the kind to
+    /// the explosion's place.
     /// </summary>
-    internal static readonly ZebesEscapeExplosionDefinition[] Drawn =
-    [
-        SoundingSmallExplosion,
-        SilentSmallExplosion,
-        SmallDustCloud,
-        SoundingSmoke,
-        SilentSmoke,
-        ShortBigDustCloud,
-        ShortBigDustCloud,
-        BigDustCloud,
-    ];
+    internal static readonly WeightedRandomChoice<ZebesEscapeExplosionDraw> Draw = new(ZebesEscapeDefinitions.ExplosionChoice,
+        new(1, new ZebesEscapeExplosionDraw.Named(SoundingSmallExplosion)),
+        new(1, new ZebesEscapeExplosionDraw.Named(SilentSmallExplosion)),
+        new(1, new ZebesEscapeExplosionDraw.Named(SmallDustCloud)),
+        new(1, new ZebesEscapeExplosionDraw.Named(SoundingSmoke)),
+        new(1, new ZebesEscapeExplosionDraw.Named(SilentSmoke)),
+        new(1, new ZebesEscapeExplosionDraw.Named(ShortBigDustCloud)),
+        new(1, new ZebesEscapeExplosionDraw.Named(ShortBigDustCloud)),
+        new(1, new ZebesEscapeExplosionDraw.Named(BigDustCloud)),
+        new(8, ZebesEscapeExplosionDraw.LeftOpen.Instance));
 
     /// <summary>The kind an indoor explosion shows when its draw leaves the kind open: a small explosion.</summary>
     internal static readonly RoomEffectActorKind IndoorKindLeftOpen = SilentSmallExplosion.SpriteKind;

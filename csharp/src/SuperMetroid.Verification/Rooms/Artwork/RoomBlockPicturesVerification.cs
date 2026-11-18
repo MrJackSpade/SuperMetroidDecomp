@@ -316,9 +316,9 @@ internal static class RoomBlockPicturesVerification
         RoomWrittenOverlay overlay = RoomWrittenOverlay.Empty;
         var typedWords = new int[TwoScreenTilemapCells.Count];
         Array.Fill(typedWords, RoomWrittenOverlay.Unwritten);
-        while (!typewriter.Step(out EscapeTypewriterGlyph? glyph))
+        for (EscapeTypewriterStep step = typewriter.Step(); step is not EscapeTypewriterStep.Complete; step = typewriter.Step())
         {
-            if (glyph is { } typed)
+            if (step is EscapeTypewriterStep.Typed { Glyph: var typed })
             {
                 overlay = overlay.With(new WrittenPicture(typed.Picture, typed.Corner));
                 typedWords[TwoScreenTilemapCells.IndexOf(typed.Corner)] = EscapeTypewriterGlyphTilesConstants.Of(EscapeTypewriterMessageId.Zebes, typed).PackedWord;

@@ -132,7 +132,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// queues (#2057): her missiles' firing sounds. The cinematic's own suppressions keep the rest away from the queues:
     /// missile impacts in a cinematic frame and her landing, footstep and liquid sounds while a cinematic is active.
     /// </summary>
-    private readonly GameplayAudioRequests flashbackAudioRequests;
+    private readonly GameplaySoundRequests flashbackAudioRequests;
     /// <summary>Persistent narration actor and the caret that moves along the text of illustrated pages.</summary>
     internal IntroNarrationActors? CurrentNarration { get; private set; }
     /// <summary>The intro's narration actors, which exist from the first text page onward.</summary>
@@ -244,7 +244,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         Ensure.NotNull(overreads);
         samusOverreads = Ensure.NotNull(overreads.Samus);
         shellFallPastCurve = Ensure.NotNull(overreads.ShellFall);
-        flashbackAudioRequests = new GameplayAudioRequests(new CinematicAudioQueues(Ensure.NotNull(audio)));
+        flashbackAudioRequests = new GameplaySoundRequests(new CinematicSoundQueues(Ensure.NotNull(audio)));
         flashbackBombProjectiles = new SamusBombProjectileSystem(flashbackAudioRequests, samusArtwork);
         // The flashback's shots shake an earthquake of their own, which nothing in the flashback shows.
         flashbackProjectiles = new SamusProjectileSystem(flashbackAudioRequests, new BeamChargeState(), samusOverreads,

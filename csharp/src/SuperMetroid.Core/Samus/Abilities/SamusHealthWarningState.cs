@@ -21,7 +21,7 @@ public sealed class SamusHealthWarningState
     /// Executes one admitted check. Samus's update decides when it runs and in what order;
     /// frozen gameplay alone is not a reason to omit the automatic-reserve external call.
     /// </summary>
-    internal void Update(int health, GameplayAudioRequests audio)
+    internal void Update(int health, GameplaySoundRequests audio)
     {
         Ensure.NotNull(audio);
         bool critical = health < SamusEnergyDefinitions.HealthyEnergy;

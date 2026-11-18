@@ -17,4 +17,10 @@ public sealed record RuntimeFramePolicy
     /// not suppress the frame boundary, the random draw, or gameplay-owner updates.
     /// </summary>
     public bool AdvanceGameTime { get; init; } = true;
+
+    /// <summary>
+    /// Whether Samus's low-health check runs after her periodic damage (#633, #2092, #2499): the gameplay states run it,
+    /// attract playback and an ordinary host frame do not.
+    /// </summary>
+    public bool RunsLowHealthCheck { get; init; }
 }

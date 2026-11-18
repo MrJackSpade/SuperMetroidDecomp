@@ -643,6 +643,8 @@ internal static class FullRunSuitesVerification
             SuperMetroid.Verification.Areas.Ceres.CeresDoorRandomChancesVerification.VerifyCeresDoorRandomChances),
         new(nameof(SuperMetroid.Verification.Areas.Escape.EscapeCounterPhasesVerification.VerifyEscapeCounterPhases),
             SuperMetroid.Verification.Areas.Escape.EscapeCounterPhasesVerification.VerifyEscapeCounterPhases),
+        new(nameof(SuperMetroid.Verification.Areas.Escape.EscapeTimeUpOutcomeVerification.VerifyEscapeTimeUpOutcome),
+            SuperMetroid.Verification.Areas.Escape.EscapeTimeUpOutcomeVerification.VerifyEscapeTimeUpOutcome),
         new(nameof(SuperMetroid.Verification.Frontend.Title.TitleCounterPhasesVerification.VerifyTitleCounterPhases),
             SuperMetroid.Verification.Frontend.Title.TitleCounterPhasesVerification.VerifyTitleCounterPhases),
         new(nameof(SuperMetroid.Verification.Frontend.FileSelect.FileSelectEnergyTankLayoutVerification.VerifyFileSelectEnergyTankLayout),

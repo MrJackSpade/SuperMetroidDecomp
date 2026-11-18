@@ -22,8 +22,11 @@ internal static class GameplayAudioRequestsAccess
         /// Requests that go straight on into <paramref name="queues"/>, as a selected game's do, recorded from the start
         /// until the check begins an update.
         /// </summary>
-        internal static GameplayAudioRequests Reaching(AudioQueues queues) =>
-            new(new RecordingAudioQueues(new SessionGameplayAudioQueues(queues, NoAttractDemo.Instance)));
+        internal static GameplayAudioRequests Reaching(AudioQueues queues)
+        {
+            var session = new SessionGameplayAudioQueues(queues, NoAttractDemo.Instance);
+            return new(new RecordingSoundQueue(session), new RecordingMusicQueue(session));
+        }
 
         /// <summary>
         /// Requests of a check's own, which go straight on into standalone queues (#2057): what a system a check builds
@@ -32,7 +35,7 @@ internal static class GameplayAudioRequestsAccess
         internal static GameplayAudioRequests Standalone() => Reaching(AudioQueues.Standalone());
     }
 
-    /// <summary>Reads the recorded music requests by kind and counts the recorded sounds.</summary>
+    /// <summary>Reads the recorded music requests by kind.</summary>
     extension(GameplayAudioRequests self)
     {
         /// <summary>The update's scheduled music requests, in request order.</summary>
@@ -41,7 +44,11 @@ internal static class GameplayAudioRequestsAccess
 
         /// <summary>How many permanent-item fanfares the update started.</summary>
         internal int PermanentItemFanfares => self.MusicRequests.OfType<GameplayMusicRequest.PermanentItemFanfare>().Count();
+    }
 
+    /// <summary>Counts the recorded sounds.</summary>
+    extension(GameplaySoundRequests self)
+    {
         /// <summary>How many times the update requested <paramref name="sound"/>.</summary>
         internal int CountOf(SoundEffectId sound) => self.SoundRequests.Count(request => request.SoundEffect == sound);
     }

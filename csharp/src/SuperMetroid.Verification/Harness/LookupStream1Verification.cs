@@ -355,7 +355,7 @@ internal static class LookupStream1Verification
         foreach (ushort frame in new ushort[] { 124, 125 })
         {
             var timer = new EscapeTimer();
-            timer.SelectRunningPhase(EscapeTimerPhase.InPlace);
+            timer.RunIntoPlace();
             timer.SetRemaining(EscapeTimerClock.Time(0, 1, 50));
             byte correction = LookupStream1TimerCadenceRomByte(rom, 0x809eec + frame);
             int expected = EscapeTimerClock.Time(0, 1, 50) - correction;
@@ -374,7 +374,7 @@ internal static class LookupStream1Verification
             AssertEqual(expected, EscapeTimerCadence.Centiseconds((ushort)(index + 128)), "Native128-frame wrap");
             AssertEqual(expected, EscapeTimerCadence.Centiseconds((ushort)(index + 0xff80)), "Native ignores high NMI bits");
             var timer = new EscapeTimer();
-            timer.SelectRunningPhase(EscapeTimerPhase.InPlace);
+            timer.RunIntoPlace();
             timer.SetRemaining(EscapeTimerClock.Time(0, 1, 50));
             AssertTrue(!timer.Process((ushort)index, holdAtOneSecond: false), "The authored cadence stays non-expiring");
             AssertEqual(EscapeTimerClock.Time(0, 1, 50) - expected, timer.RemainingCentiseconds, "Actual Process consumes each native correction");
@@ -383,7 +383,7 @@ internal static class LookupStream1Verification
         foreach (ushort frame in new ushort[] { 124, 125 })
         {
             var timer = new EscapeTimer();
-            timer.SelectRunningPhase(EscapeTimerPhase.InPlace);
+            timer.RunIntoPlace();
             timer.SetRemaining(EscapeTimerClock.Time(0, 0, 2));
             bool expired = timer.Process(frame, holdAtOneSecond: false);
             AssertEqual(frame == 124, expired, "Corrected native expiration phase");
@@ -1537,10 +1537,11 @@ internal static class LookupStream1Verification
                 }
                 // The typewriter's schedule shows in which update types each character: the oracle's reloaded countdown
                 // is compared through the cell, glyph count, click and image of every update, not as a counter.
-                AssertEqual(done, actual.StepInto(actualVram), "escape text native completion");
+                EscapeTypewriterStep step = actual.StepInto(actualVram);
+                AssertEqual(done, step is EscapeTypewriterStep.Complete, "escape text native completion");
                 AssertEqual(destination - tilemapWord, SuperMetroid.Core.Rooms.Backgrounds.TwoScreenTilemapCells.IndexOf(actual.Corner), "escape text native cell");
                 AssertEqual(glyphs, actual.GlyphsWritten, "escape text native glyph count");
-                AssertEqual(click, actual.ClickRequested, "escape text native click order");
+                AssertEqual(click, step is EscapeTypewriterStep.TypedWithClick, "escape text native click order");
                 AssertTrue(expectedVram.ImageEquals(actualVram), "escape text native per-character VRAM");
                 totalFrames++;
             }

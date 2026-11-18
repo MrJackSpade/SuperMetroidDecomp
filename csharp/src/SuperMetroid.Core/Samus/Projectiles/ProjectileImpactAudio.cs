@@ -7,10 +7,10 @@ internal sealed class ProjectileImpactAudio
     private bool _cinematicImpactAudioSuppressed;
 
     /// <summary>Creates the impact sounds of a projectile system whose requests join <paramref name="requests"/>.</summary>
-    internal ProjectileImpactAudio(GameplayAudioRequests requests) => Requests = Ensure.NotNull(requests);
+    internal ProjectileImpactAudio(GameplaySoundRequests requests) => Requests = Ensure.NotNull(requests);
 
     /// <summary>The update's audio requests the impacts' sounds join, the same as their projectile system's.</summary>
-    internal GameplayAudioRequests Requests { get; }
+    internal GameplaySoundRequests Requests { get; }
 
     /// <summary>Marks whose frame the impacts belong to: a cinematic's suppresses missile impact sounds.</summary>
     public void BeginImpactAudioFrame(ImpactAudioContext context) =>

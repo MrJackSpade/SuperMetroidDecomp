@@ -27,6 +27,12 @@ internal static class EscapeTimerDefinitions
     /// <summary>The updates from the start before the timer leaves the centre for its corner.</summary>
     internal const int MovementDelayFrames = 96;
 
+    /// <summary>
+    /// The updates the timer counts down at the centre once its initial delay has ended, before it leaves for its corner:
+    /// the rest of the updates from the start to its departure.
+    /// </summary>
+    internal const int CentreCountingFrames = MovementDelayFrames - InitialDelayFrames;
+
     /// <summary>The pixel each axis of the timer's cleared position sits at: the screen's centre.</summary>
     internal const int ClearedPixel = 128;
 

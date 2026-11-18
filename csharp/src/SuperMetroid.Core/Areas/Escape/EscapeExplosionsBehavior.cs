@@ -28,7 +28,7 @@ internal sealed class EscapeExplosionsBehavior
     public void SpawnEscapeExplosion(Position16<RoomPixels> position, int random, RoomEffectActorKind kindLeftOpen)
     {
         RoomEffectActorKind kind = kindLeftOpen;
-        if (ZebesEscapeExplosions.Drawn(random) is { } drawn)
+        if (ZebesEscapeExplosionDefinitions.Draw.Choose(random) is ZebesEscapeExplosionDraw.Named { Explosion: var drawn })
         {
             kind = drawn.SpriteKind;
             if (drawn.SoundEffect is SoundEffectId sound)

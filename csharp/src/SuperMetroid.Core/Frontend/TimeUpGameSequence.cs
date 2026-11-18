@@ -93,7 +93,7 @@ internal sealed class TimeUpGameSequence(FrontendSession session, GameplayGamePh
         session.screenFade.StepEvery(1);
         session.Runtime.FadeOut.End();
         session.Runtime.EnemySession.CeresStatus = CeresEscapeStatus.RidleyNotEscaped;
-        session.Runtime.EscapeTimer.ClearStatus();
+        session.Runtime.EscapeTimer.StopAtTimeUp();
         session.audio.QueueSound(SamusSound.Silence, priority: SoundRequestPriority.Essential);
         session.audio.QueueSound(EnemySound.Silence, priority: SoundRequestPriority.Essential);
         session.audio.QueueSound(RoomSound.Silence, priority: SoundRequestPriority.Essential);

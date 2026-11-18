@@ -1,7 +1,11 @@
 namespace SuperMetroid.Core.Samus.Poses;
 
 /// <summary>
-/// Samus's poses. Their values and their order are arbitrary.
+/// Samus's poses: every pose some path of the game gives her (#1513, #2048, #2457). Among them are the glitch balls,
+/// their knockbacks, the Draygon-held ball and its stand-up, which the Baby's Hyper Beam freeze and rainbow stop reach by
+/// a frame read past a transition's animation (#1535). A pose no path gives Samus has no identity at all: an animation
+/// only a read past an earlier one reaches has its own name and needs no pose to name it (#2048). Their values and their
+/// order are arbitrary.
 /// </summary>
 public enum SamusPoseId
 {
@@ -685,22 +689,4 @@ public enum SamusPoseId
 
     /// <summary>The left-facing partner of <see cref="GlitchBallRightPose"/>.</summary>
     GlitchBallLeftPose,
-
-    /// <summary>
-    /// An unauthored pose facing right in which no movement runs, so Samus holds still with a 138-pixel vertical radius;
-    /// with no input it falls back to the rightward neutral jump transition (<see cref="SamusUnauthoredPoseDefinitions"/>).
-    /// </summary>
-    TallStillRightPose,
-
-    /// <summary>
-    /// An unauthored pose facing neither way that moves as standing, has the front view's radius and keeps its pose with no
-    /// input (<see cref="SamusUnauthoredPoseDefinitions"/>).
-    /// </summary>
-    ForwardStandingPose,
-
-    /// <summary>
-    /// An unauthored pose facing neither way in which no movement runs, so Samus holds still with a crouch's radius; with
-    /// no input it falls back to landing aiming diagonally down facing left (<see cref="SamusUnauthoredPoseDefinitions"/>).
-    /// </summary>
-    ForwardStillCrouchHeightPose,
 }

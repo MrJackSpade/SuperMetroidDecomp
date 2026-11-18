@@ -21,6 +21,8 @@ internal static class PoseInputDefinitionsVerification
         var unique = new HashSet<ushort>();
         int conditionCount = 0, newMask = 0, heldMask = 0;
         var nativeLists = new List<PoseInputDefinitionsNative>[253];
+        var liveConditionsByList = new Dictionary<SamusPoseInputList, string>();
+        var listByLiveConditions = new Dictionary<string, SamusPoseInputList>(StringComparer.Ordinal);
         GameplayAction allActions = ControllerBindings.Default.ToActions(ControllerButtons.All);
         for (int poseIndex = 0; poseIndex < 253; poseIndex++)
         {
@@ -33,9 +35,15 @@ internal static class PoseInputDefinitionsVerification
                 if (native.Count >= 1000) throw new InvalidDataException("Native pose-input fixture does not terminate.");
                 native.Add(new PoseInputDefinitionsNative(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(address), CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((address + 2)), CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((address + 4))));
             }
-            AssertTrue(SamusPoseInputs.TryGetInputList(pose, out SamusPoseInputList actualPointer), "Authored graph exists");
-            AssertEqual(pointer, SamusPoseInputListNative.Address(actualPointer), "Native transition-list diagnostic identity");
-            AssertEqual(native.Count != 0, SamusPoseInputs.Match(actualPointer, allActions, allActions).HasConditions, "Native empty versus nonempty input program");
+            SamusPoseInputList inputList = SamusPoseInputs.InputList(pose);
+            // Poses share a list exactly when their native lists hold the same live conditions, the conditions no earlier
+            // condition of the list shadows (#1929, #2457).
+            string live = LiveConditions(native);
+            AssertEqual(live, liveConditionsByList.TryAdd(inputList, live) ? live : liveConditionsByList[inputList],
+                $"Pose {pose} shares list {inputList} only with poses whose native lists hold its live conditions");
+            AssertEqual(inputList, listByLiveConditions.TryAdd(live, inputList) ? inputList : listByLiveConditions[live],
+                $"Pose {pose}'s live native conditions select one input list");
+            AssertEqual(native.Count != 0, SamusPoseInputs.Match(inputList, allActions, allActions).HasConditions, "Native empty versus nonempty input program");
             for (int i = 0; i < native.Count; i++)
             {
                 newMask |= native[i].New; heldMask |= native[i].Held;
@@ -101,18 +109,7 @@ internal static class PoseInputDefinitionsVerification
         AssertEqual(0x0ff0, heldMask, "Fixture enumerates every referenced held-input bit");
         AssertEqual(75, unique.Count, "All distinct native list identities of the records that name a pose");
         AssertEqual(576, conditionCount, "All distinct-list conditions of the records that name a pose");
-        for (int pose = 253; pose <= byte.MaxValue; pose++)
-        {
-            SamusPoseId invalidPose = SamusPoseNumbering.FromNumber(pose);
-            AssertTrue(!SamusPoseInputs.TryGetInputList(invalidPose, out _), "Trailing pose indexes have no authored graph");
-            AssertThrows<InvalidDataException>(
-                () => SamusPoseInputTransitions.Lookup(invalidPose, GameplayAction.AimUp, GameplayAction.AimUp),
-                "Non-authored pose graph rejects adjacent code");
-            AssertEqual(
-                new SamusPoseTransitionLookup(null, true),
-                SamusPoseInputTransitions.Lookup(invalidPose, 0, 0),
-                "Raw zero input returns before the cartridge would inspect a pose graph");
-        }
+        AssertEqual(Enum.GetValues<SamusPoseInputList>().Length, liveConditionsByList.Count, "Every input list is some pose's");
 
         // Extra held actions are admitted by the native subset matcher. With both horizontal
         // directions held, the first authored condition wins: the direction opposite the current
@@ -151,8 +148,18 @@ internal static class PoseInputDefinitionsVerification
         long allocated = GC.GetAllocatedBytesForCurrentThread() - allocatedBefore;
         AssertTrue(accepted > 0, "Allocation probe exercises successful matches");
         AssertEqual(0L, allocated, "Warmed production lookup allocates no per-frame graph or records");
-        Console.WriteLine($"Pose input graph: the mappings of the records that name a pose, 75 lists, 576 conditions and {comparisons} complete lookup comparisons match native with ROM reads forbidden; non-authored indexes fail loudly before parsing adjacent code.");
+        Console.WriteLine($"Pose input graph: the mappings of the records that name a pose, 75 native lists, 576 conditions, {liveConditionsByList.Count} shared input lists and {comparisons} complete lookup comparisons match native with ROM reads forbidden.");
     }
+
+    /// <summary>
+    /// The live conditions of a native transition list, one per line: every condition but those an earlier condition
+    /// shadows, whose required new and held inputs are each part of the later one's, so the earlier one always wins first.
+    /// </summary>
+    private static string LiveConditions(List<PoseInputDefinitionsNative> native) =>
+        string.Join('\n', native
+            .Where((condition, index) => !native.Take(index).Any(earlier =>
+                (earlier.New & ~condition.New) == 0 && (earlier.Held & ~condition.Held) == 0))
+            .Select(condition => $"{condition.New:X4} {condition.Held:X4} {condition.Target:X2}"));
 
     /// <summary>The native transition list's first-match, self-match and fallback result for one held and new input.</summary>
     private static SamusPoseTransitionLookup NativeLookup(List<PoseInputDefinitionsNative> native, GameplayAction[] nativeHeld,

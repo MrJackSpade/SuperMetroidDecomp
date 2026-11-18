@@ -348,21 +348,6 @@ internal static void VerifySamusRenderingSlice()
         AssertEqual(expectedHalves, Composition(samus, drawn).Bottom is null ? 1 : 2, name);
     }
 
-    // `$90:864E` contains exactly 28 bottom-half handlers, and the complete retail
-    // `$91:B629-$BD0F` pose table never stores a movement byte above `$1B`. Pose `$FD`'s
-    // exact adjacent-code observation is `$8B`, so it is malformed metadata rather than
-    // an untranslated draw selector.
-    samus.Pose = SamusPoseNumbering.FromNumber(0xfd);
-    samus.AnimationNumber = 0;
-    AssertThrows<InvalidDataException>(
-        () => SamusPoseMetadata.ReadMovementType(samus),
-        "movement-type API rejects a discriminator outside the complete retail domain");
-    oamFrame.BeginFrame();
-    // The body is drawn by the pose's own halves rule, and no path of the game shows a pose past the records (#1513).
-    AssertThrows<InvalidOperationException>(
-        () => samus.Presentation.DrawWithoutFlicker(samus, oamFrame, cameraPosition: samus.Position.Whole),
-        "a pose past the records is rejected before its malformed movement type is read");
-
     // Positioning must consume those same ROM bytes instead of duplicating a convenient
     // host switch. `$37` proves signed -4/-2 values.
     samus.Pose = SamusPoseId.MorphingTransitionRightPose;

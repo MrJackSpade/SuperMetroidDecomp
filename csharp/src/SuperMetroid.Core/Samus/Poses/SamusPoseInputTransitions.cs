@@ -7,8 +7,8 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// </summary>
 /// <remarks>
 /// The selection stops before applying a prospective pose. The runtime owns the
-/// transition side effects. Authored conditions are compiled; a pose with no authored input
-/// transitions fails loudly. The returned lookup states which input transition won for a precise
+/// transition side effects. Authored conditions are compiled; an undefined pose fails loudly. The
+/// returned lookup states which input transition won for a precise
 /// held/newly-pressed input chord.
 /// </remarks>
 public static class SamusPoseInputTransitions
@@ -27,11 +27,9 @@ public static class SamusPoseInputTransitions
     /// Whether the input transitions of <paramref name="currentPose"/> select <paramref name="target"/> for some held and
     /// newly pressed actions (#2397).
     /// </summary>
-    /// <exception cref="InvalidDataException">The pose has no authored input transitions.</exception>
+    /// <exception cref="InvalidOperationException">The pose is undefined.</exception>
     internal static bool CanSelect(SamusPoseId currentPose, SamusPoseId target) =>
-        SamusPoseInputs.TryGetInputList(currentPose, out SamusPoseInputList inputList)
-            ? SelectableTargets[inputList].Value.Contains(target)
-            : throw new InvalidDataException($"Pose {currentPose} has no authored input transitions.");
+        SelectableTargets[SamusPoseInputs.InputList(currentPose)].Value.Contains(target);
 
     /// <summary>
     /// Runs the complete lookup and preserves whether failure enters
@@ -61,12 +59,7 @@ public static class SamusPoseInputTransitions
         GameplayAction held = heldActions & ~StartAndItemSelect;
         GameplayAction newlyPressed = newlyPressedActions & ~StartAndItemSelect;
 
-        if (!SamusPoseInputs.TryGetInputList(currentPose, out SamusPoseInputList inputList))
-        {
-            throw new InvalidDataException(
-                $"Pose {currentPose} has no authored input transitions.");
-        }
-        SamusPoseInputMatch match = SamusPoseInputs.Match(inputList, held, newlyPressed);
+        SamusPoseInputMatch match = SamusPoseInputs.Match(SamusPoseInputs.InputList(currentPose), held, newlyPressed);
         if (match.Rule is not { } rule)
             return new SamusPoseTransitionLookup(null, UsesPoseDefinitionFallback: match.HasConditions);
 

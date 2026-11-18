@@ -447,8 +447,7 @@ internal static class LookupStream1Verification
         var stock = Create(native);
         AssertTrue(stock.Frames.SequenceEqual(Decode(native)), "All supplied frame components preserved");
         AssertEqual(CanonicalBodyHash(template, top, bottom, SamusBodyNative.Frames(poses), Decode(native)), stock.ContentIdentity, "Original canonical frame hash");
-        AssertThrows<InvalidDataException>(() => stock.Gameplay.OriginRise(SamusPoseNumbering.FromNumber(0xfd), default(SamusAnimationFrame)), "Original pose bound preserved");
-        Console.WriteLine($"Body frame basis:{count} native components preserved, canonical hash and pose bound pass.");
+        Console.WriteLine($"Body frame basis:{count} native components preserved and the canonical hash passes.");
     }
 
     /// <summary>Reads native X-Ray body selection words for the pose-frame oracle.</summary>
@@ -473,10 +472,6 @@ internal static class LookupStream1Verification
             if (!SamusPoseNumbering.NamesPose(pose)) continue;
             int index = (native[pose] - 0xdb48) / 4;
             AssertEqual(frames[index], stock.Selection(SamusPoseNumbering.FromNumber(pose), 0), "Import selects supplied frame payload through the native frame list");
-        }
-        foreach (SamusPoseId pose in new[] { SamusPoseNumbering.FromNumber(0xfd), SamusPoseNumbering.FromNumber(0xfe), SamusPoseNumbering.FromNumber(0xff) })
-        {
-            AssertThrows<InvalidDataException>(() => stock.Gameplay.OriginRise(pose, default(SamusAnimationFrame)), "Installed pose domain stays bounded");
         }
         ushort[] invalid = (ushort[])native.Clone(); invalid[0] = SamusBodyNative.FramePointer(SamusBodySources.FrameCount);
         AssertThrows<InvalidDataException>(() => Create(invalid), "A pose frame list past the frames is rejected");
@@ -570,9 +565,7 @@ internal static class LookupStream1Verification
                 : unchecked((byte)native[pose]);
             AssertEqual(expectedOrigin, SamusPoseProjectileOrigins.ReadYOffset(SamusPoseNumbering.FromNumber(pose)), "Physical projectile origin matches the native byte");
         }
-        foreach (SamusPoseId pose in new[] { SamusPoseNumbering.FromNumber(0xfd), SamusPoseNumbering.FromNumber(0xfe), SamusPoseNumbering.FromNumber(0xff) })
-            AssertThrows<InvalidDataException>(() => stock.Gameplay.ArtOrigin(pose), "Installed graphics excludes adjacent instruction poses");
-        Console.WriteLine("Body graphics origins:253 native installed origins, physical projectile origins and bounds pass.");
+        Console.WriteLine("Body graphics origins:253 native installed origins and physical projectile origins pass.");
     }
 
     /// <summary>Reads native Samus visual-origin offsets for all supported poses.</summary>
@@ -746,13 +739,6 @@ internal static class LookupStream1Verification
             AssertEqual(entries[expected], Shown(stock, firstFrame), "A pose half's first frame shows its native base entry's composition");
             CheckSelection(stock, expected);
         }
-        foreach (SamusPoseId pose in new[] { SamusPoseNumbering.FromNumber(0xfd), SamusPoseNumbering.FromNumber(0xfe), SamusPoseNumbering.FromNumber(0xff) })
-        {
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.TopBase(pose), "Original installed top domain exception");
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.BottomBase(pose), "Original installed bottom domain exception");
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.TryGetComposition(new SamusBodyHalfFrame(pose, SamusBodyHalf.Top, 0), out _),
-                "A pose without a record has no installed pictures");
-        }
         ushort[] invalid = (ushort[])top.Clone(); invalid[0] = 2096;
         AssertThrows<InvalidDataException>(() => Create(invalid, bottom), "A base past the entries is rejected");
         AssertTrue(stock.TopBases.Count == SamusPoseNumbers.RecordedPoses.Count && stock.BottomBases.Count == SamusPoseNumbers.RecordedPoses.Count &&
@@ -813,31 +799,11 @@ internal static class LookupStream1Verification
         AssertEqual(SamusPoseNumbers.RecordedPoses.Count, document.PoseDescriptors.Count, "cannon installs one descriptor per pose with a record, and none for a record no pose names");
         foreach (SamusPoseId pose in SamusPoseNumbers.RecordedPoses)
             AssertEqual(Native(SamusPoseNumbers.Number(pose)), stock.PoseDrawingData(pose), "cannon installed native pose dispatch");
-        foreach (SamusPoseId pose in new[] { SamusPoseId.TallStillRightPose, SamusPoseId.ForwardStandingPose, SamusPoseId.ForwardStillCrouchHeightPose })
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.PoseDrawingData(pose), "cannon installed pose domain excludes the poses past the records");
-        Console.WriteLine("Cannon poses: 233 named installed descriptors, the canonical stock hash and exact FD-FF rejection pass.");
+        Console.WriteLine("Cannon poses: 233 named installed descriptors and the canonical stock hash pass.");
     }
 
     /// <summary>Reads the native pose-to-cannon pointer table.</summary>
     private static byte LookupStream1CannonPosesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
-
-    /// <summary>
-    /// Checks that the three numbers past the pose records name no program (#1473): the cartridge's table words for them
-    /// would be the first program's delay bytes, naming low-bank memory rather than a program, and no gameplay path gives
-    /// Samus one of those numbers, so the port gives them no animation.
-    /// </summary>
-    internal static void VerifyLookupStream1AnimationAliases(CartridgeImportAddressSpace bus)
-    {
-        for (int pose = SamusAnimationProgramCodec.PoseCount; pose <= byte.MaxValue; pose++)
-        {
-            ushort word = bus.ReadCartridgeWord(SamusAnimationDelayDefinitions.PointerTableAddress + pose * sizeof(ushort));
-            AssertTrue(word < 0x8000, $"pose ${pose:X2}'s table word ${word:X4} names low-bank memory, not a program");
-            SamusPoseId adjacent = SamusPoseNumbering.FromNumber(pose);
-            AssertThrows<ArgumentOutOfRangeException>(() => SamusAnimationDelays.AnimationForPose(adjacent),
-                $"pose ${pose:X2} has no animation program");
-        }
-        Console.WriteLine("Animation aliases: the three numbers past the pose records name low-bank memory and have no program.");
-    }
 
     /// <summary>Checks HUD posture admission and grapple/non-grapple observations over all pose bytes.</summary>
     internal static void VerifyLookupStream1HudPosture(ISnesAddressSpace rom)

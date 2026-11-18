@@ -9,7 +9,7 @@ internal enum SamusPoseInputList
     /// <summary>
     /// The list with no transitions, which every pose whose input does not change it selects: turns in the air and while
     /// crouching or falling, posture and morph transitions, the Grapple's poses, the shinespark, Crystal Flash, the X-ray
-    /// scope, death and the drained poses.
+    /// scope, death, the drained poses, the glitch balls and their knockbacks.
     /// </summary>
     NoInputTransitions,
     /// <summary>The input-transition list of both forward-facing poses, in the power suit and suited.</summary>
@@ -46,18 +46,10 @@ internal enum SamusPoseInputList
     ScrewAttackRight,
     /// <summary>The input-transition list of the screw attack left poses.</summary>
     ScrewAttackLeft,
-    /// <summary>The input-transition list of the morph ball ground right poses.</summary>
-    MorphBallGroundRight,
-    /// <summary>The input-transition list of the morph ball moving right poses.</summary>
-    MorphBallMovingRight,
-    /// <summary>The input-transition list of the morph ball moving left poses.</summary>
-    MorphBallMovingLeft,
-    /// <summary>The input-transition list of the morph ball ground left poses.</summary>
-    MorphBallGroundLeft,
-    /// <summary>The input-transition list of <see cref="SamusPoseId.GlitchBallRightPose"/>.</summary>
-    GlitchBallRight,
-    /// <summary>The input-transition list of <see cref="SamusPoseId.GlitchBallLeftPose"/>.</summary>
-    GlitchBallLeft,
+    /// <summary>The input-transition list of the right-facing morph ball on the ground, still or rolling.</summary>
+    MorphBallRight,
+    /// <summary>The input-transition list of the left-facing morph ball on the ground, still or rolling.</summary>
+    MorphBallLeft,
     /// <summary>The input-transition list of the crouching right poses.</summary>
     CrouchingRight,
     /// <summary>The input-transition list of the crouching left poses.</summary>
@@ -70,10 +62,6 @@ internal enum SamusPoseInputList
     MorphBallFallingRight,
     /// <summary>The input-transition list of the morph ball falling left poses.</summary>
     MorphBallFallingLeft,
-    /// <summary>The input-transition list of <see cref="SamusPoseId.GlitchBallKnockbackRightPose"/>.</summary>
-    GlitchBallKnockbackRight,
-    /// <summary>The input-transition list of <see cref="SamusPoseId.GlitchBallKnockbackLeftPose"/>.</summary>
-    GlitchBallKnockbackLeft,
     /// <summary>The input-transition list of the left-facing moonwalk poses, whatever their aim.</summary>
     MoonwalkLeft,
     /// <summary>The input-transition list of the right-facing moonwalk poses, whatever their aim.</summary>

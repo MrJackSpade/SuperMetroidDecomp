@@ -17,7 +17,7 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks compiled Samus pose dispatch words and allocation-free live lookups.</summary>
 internal static class PoseDispatchDefinitionsVerification
 {
-    /// <summary>Compares all 256 pose records with the ROM while forbidding live pose-table reads.</summary>
+    /// <summary>Compares every pose's record with the ROM while forbidding live pose-table reads.</summary>
     internal static void VerifyPoseDispatchDefinitions(CartridgeImportAddressSpace rom)
     {
         var forbidden = NewSlopeHeightNoReadBus();
@@ -32,21 +32,16 @@ internal static class PoseDispatchDefinitionsVerification
             samus.Pose = SamusPoseNumbering.FromNumber(pose);
             byte aim = rom.ReadCartridgeByte(address + 3);
             AssertEqual(SamusPoseRecordDecoding.DecodeAim(aim), SamusPoseMetadata.ReadAim(samus), "Live aim answers what the native aim byte reads as, restrictions included, without authored ROM reads");
-            AssertEqual(SamusPoseRecordDecoding.DecodeAim(aim), SamusPoseMetadata.ReadAim(SamusPoseNumbering.FromNumber(pose)), "Prospective aim answers what the native aim byte reads as, adjacent indexes included");
+            AssertEqual(SamusPoseRecordDecoding.DecodeAim(aim), SamusPoseMetadata.ReadAim(SamusPoseNumbering.FromNumber(pose)), "Prospective aim answers what the native aim byte reads as");
             AssertEqual(SamusPoseRecordDecoding.DecodeFacing(facing), SamusPoseMetadata.ReadFacingDirection(samus), "Live pose facing answers what the native facing byte reads as");
             AssertEqual(SamusPoseRecordDecoding.DecodeFacing(facing), SamusPoseMetadata.ReadFacingDirection(SamusPoseNumbering.FromNumber(pose)), "Prospective pose facing answers what the native facing byte reads as");
             AssertEqual(facing, SamusPoseRecordCodecTooling.FacingByte(SamusPoseNumbering.FromNumber(pose)), "Pose-record codec writes the native facing byte");
             AssertEqual(fallback, SamusNoInputFallbackNumbers.Number(SamusPoseMetadata.ReadNoInputFallback(samus)), "No-input fallback retains native pose or sentinel");
-            if (movement < SamusMovementTypeNumbers.Count)
-            {
-                AssertEqual(movement, SamusMovementTypeNativeWords.Byte(SamusPoseMetadata.ReadMovementType(samus)), "Live movement discriminator matches native");
-                AssertEqual(movement, SamusMovementTypeNativeWords.Byte(SamusPoseMetadata.ReadMovementType(SamusPoseNumbering.FromNumber(pose))), "Prospective movement discriminator matches native");
-                commit(samus, source);
-                AssertEqual(SamusSnapshotWords.DecodeHistoryMovement(LittleEndianBytes.Word(facing, movement)), samus.PoseHistory.PreviousMovement,
-                    "Actual history publisher retains native facing/movement word");
-            }
-            else
-                AssertThrows<InvalidDataException>(() => SamusPoseMetadata.ReadMovementType(samus), "Adjacent invalid movement remains a loud error");
+            AssertEqual(movement, SamusMovementTypeNativeWords.Byte(SamusPoseMetadata.ReadMovementType(samus)), "Live movement discriminator matches native");
+            AssertEqual(movement, SamusMovementTypeNativeWords.Byte(SamusPoseMetadata.ReadMovementType(SamusPoseNumbering.FromNumber(pose))), "Prospective movement discriminator matches native");
+            commit(samus, source);
+            AssertEqual(SamusSnapshotWords.DecodeHistoryMovement(LittleEndianBytes.Word(facing, movement)), samus.PoseHistory.PreviousMovement,
+                "Actual history publisher retains native facing/movement word");
         }
 
         // These three compiled tables are queried by ordinary movement, rendering, and
@@ -60,7 +55,7 @@ internal static class PoseDispatchDefinitionsVerification
         AssertEqual(0L, allocated,
             "Warmed pose-dispatch lookups allocate no per-frame table storage");
 
-        Console.WriteLine("Pose dispatch: all 256 facings, movements, fallbacks and aims answer what their native bytes read as with all ROM reads forbidden, including three adjacent-code records; warmed production lookups allocate nothing.");
+        Console.WriteLine("Pose dispatch: every pose's facing, movement, fallback and aim answer what their native bytes read as with all ROM reads forbidden; warmed production lookups allocate nothing.");
     }
     /// <summary>Measures allocations across warmed facing, movement, and fallback lookups.</summary>
     [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining)]

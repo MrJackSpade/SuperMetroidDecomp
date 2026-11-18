@@ -12,8 +12,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// <summary>
 /// Every authored pose of Samus's (#2323): the way it faces, how she moves in it, what it falls back to with no input, the
 /// animation it plays, the input list that chooses her next pose from it, its vertical collision radius, what it does with
-/// the arm cannon and how far above her centre its shots and Grapple start. The three unauthored poses are defined by
-/// <see cref="SamusUnauthoredPoseDefinitions"/>.
+/// the arm cannon and how far above her centre its shots and Grapple start.
 /// </summary>
 /// <remarks>
 /// The drained poses' shots would start four pixels below her centre (#1928); they cannot shoot or fire the Grapple, so
@@ -125,18 +124,18 @@ internal static class SamusPoseDefinitions
             [SamusPoseId.TurningLeftToRightJumpAimDiagonalUpPose] = new(Facing.Right, Move.TurningWhileJumping, Fallback.KeepCurrentPose, TurningLeftToRightJumpAimDiagonalUpAnimation, NoInputTransitions, VerticalRadius: 19, Aim.Turning(SamusTurningAim.Up), ProjectileHeight: 8),
             [SamusPoseId.TurningRightToLeftFallingAimDiagonalUpPose] = new(Facing.Left, Move.TurningWhileFalling, Fallback.KeepCurrentPose, TurningRightToLeftFallingAimDiagonalUpAnimation, NoInputTransitions, VerticalRadius: 19, Aim.Turning(SamusTurningAim.Up), ProjectileHeight: 8),
             [SamusPoseId.TurningLeftToRightFallingAimDiagonalUpPose] = new(Facing.Right, Move.TurningWhileFalling, Fallback.KeepCurrentPose, TurningLeftToRightFallingAimDiagonalUpAnimation, NoInputTransitions, VerticalRadius: 19, Aim.Turning(SamusTurningAim.Up), ProjectileHeight: 8),
-            [SamusPoseId.MorphBallGroundRightPose] = new(Facing.Right, Move.MorphBallGround, Fallback.KeepCurrentPose, MorphBallAnimation, MorphBallGroundRight, VerticalRadius: 7, Aim.ShootingDisabled, ProjectileHeight: 0),
-            [SamusPoseId.MorphBallMovingRightPose] = new(Facing.Right, Move.MorphBallGround, Fallback.ToPose(SamusPoseId.MorphBallGroundRightPose), MorphBallAnimation, MorphBallMovingRight, VerticalRadius: 7, Aim.ShootingDisabled, ProjectileHeight: 0),
-            [SamusPoseId.MorphBallMovingLeftPose] = new(Facing.Left, Move.MorphBallGround, Fallback.ToPose(SamusPoseId.MorphBallGroundLeftPose), MorphBallAnimation, MorphBallMovingLeft, VerticalRadius: 7, Aim.ShootingDisabled, ProjectileHeight: 0),
+            [SamusPoseId.MorphBallGroundRightPose] = new(Facing.Right, Move.MorphBallGround, Fallback.KeepCurrentPose, MorphBallAnimation, MorphBallRight, VerticalRadius: 7, Aim.ShootingDisabled, ProjectileHeight: 0),
+            [SamusPoseId.MorphBallMovingRightPose] = new(Facing.Right, Move.MorphBallGround, Fallback.ToPose(SamusPoseId.MorphBallGroundRightPose), MorphBallAnimation, MorphBallRight, VerticalRadius: 7, Aim.ShootingDisabled, ProjectileHeight: 0),
+            [SamusPoseId.MorphBallMovingLeftPose] = new(Facing.Left, Move.MorphBallGround, Fallback.ToPose(SamusPoseId.MorphBallGroundLeftPose), MorphBallAnimation, MorphBallLeft, VerticalRadius: 7, Aim.ShootingDisabled, ProjectileHeight: 0),
             [SamusPoseId.MorphBallFallingRightPose] = new(Facing.Right, Move.MorphBallFalling, Fallback.KeepCurrentPose, MorphBallAnimation, MorphBallFallingRight, VerticalRadius: 7, Aim.ShootingDisabled, ProjectileHeight: 0),
             [SamusPoseId.MorphBallFallingLeftPose] = new(Facing.Left, Move.MorphBallFalling, Fallback.KeepCurrentPose, MorphBallAnimation, MorphBallFallingLeft, VerticalRadius: 7, Aim.ShootingDisabled, ProjectileHeight: 0),
-            [SamusPoseId.GlitchBallKnockbackRightPose] = new(Facing.Right, Move.GlitchBallKnockback, Fallback.KeepCurrentPose, MorphBallAnimation, GlitchBallKnockbackRight, VerticalRadius: 7, Aim.ShootingDisabled, ProjectileHeight: 0),
-            [SamusPoseId.GlitchBallKnockbackLeftPose] = new(Facing.Left, Move.GlitchBallKnockback, Fallback.KeepCurrentPose, MorphBallAnimation, GlitchBallKnockbackLeft, VerticalRadius: 7, Aim.ShootingDisabled, ProjectileHeight: 0),
+            [SamusPoseId.GlitchBallKnockbackRightPose] = new(Facing.Right, Move.GlitchBallKnockback, Fallback.KeepCurrentPose, MorphBallAnimation, NoInputTransitions, VerticalRadius: 7, Aim.ShootingDisabled, ProjectileHeight: 0),
+            [SamusPoseId.GlitchBallKnockbackLeftPose] = new(Facing.Left, Move.GlitchBallKnockback, Fallback.KeepCurrentPose, MorphBallAnimation, NoInputTransitions, VerticalRadius: 7, Aim.ShootingDisabled, ProjectileHeight: 0),
             [SamusPoseId.MorphingTransitionRightPose] = new(Facing.Right, Move.PostureTransition, Fallback.KeepCurrentPose, MorphingTransitionRightAnimation, NoInputTransitions, VerticalRadius: 7, Aim.ShootingDisabled, ProjectileHeight: 0),
             [SamusPoseId.MorphingTransitionLeftPose] = new(Facing.Left, Move.PostureTransition, Fallback.KeepCurrentPose, MorphingTransitionLeftAnimation, NoInputTransitions, VerticalRadius: 7, Aim.ShootingDisabled, ProjectileHeight: 0),
             [SamusPoseId.UnmorphingTransitionRightPose] = new(Facing.Right, Move.PostureTransition, Fallback.KeepCurrentPose, UnmorphingTransitionRightAnimation, UnmorphingTransitionRight, VerticalRadius: 16, Aim.ShootingDisabled, ProjectileHeight: 0),
             [SamusPoseId.UnmorphingTransitionLeftPose] = new(Facing.Left, Move.PostureTransition, Fallback.KeepCurrentPose, UnmorphingTransitionLeftAnimation, UnmorphingTransitionLeft, VerticalRadius: 16, Aim.ShootingDisabled, ProjectileHeight: 0),
-            [SamusPoseId.MorphBallGroundLeftPose] = new(Facing.Left, Move.MorphBallGround, Fallback.KeepCurrentPose, MorphBallAnimation, MorphBallGroundLeft, VerticalRadius: 7, Aim.ShootingDisabled, ProjectileHeight: 0),
+            [SamusPoseId.MorphBallGroundLeftPose] = new(Facing.Left, Move.MorphBallGround, Fallback.KeepCurrentPose, MorphBallAnimation, MorphBallLeft, VerticalRadius: 7, Aim.ShootingDisabled, ProjectileHeight: 0),
             [SamusPoseId.SpringBallGroundRightPose] = new(Facing.Right, Move.SpringBallGround, Fallback.KeepCurrentPose, MorphBallAnimation, SpringBallGroundRight, VerticalRadius: 7, Aim.ShootingDisabled, ProjectileHeight: 0),
             [SamusPoseId.SpringBallGroundLeftPose] = new(Facing.Left, Move.SpringBallGround, Fallback.KeepCurrentPose, MorphBallAnimation, SpringBallGroundLeft, VerticalRadius: 7, Aim.ShootingDisabled, ProjectileHeight: 0),
             [SamusPoseId.SpringBallMovingRightPose] = new(Facing.Right, Move.SpringBallGround, Fallback.ToPose(SamusPoseId.SpringBallGroundRightPose), MorphBallAnimation, SpringBallGroundRight, VerticalRadius: 7, Aim.ShootingDisabled, ProjectileHeight: 0),
@@ -239,7 +238,7 @@ internal static class SamusPoseDefinitions
             [SamusPoseId.NormalLandingLeftPose] = new(Facing.Left, Move.Standing, Fallback.KeepCurrentPose, NormalLandingLeftAnimation, StandingAndLandingLeft, VerticalRadius: 21, Aim.Aiming(Shot.Left), ProjectileHeight: 3),
             [SamusPoseId.SpinLandingRightPose] = new(Facing.Right, Move.Standing, Fallback.KeepCurrentPose, SpinLandingRightAnimation, StandingAndLandingRight, VerticalRadius: 21, Aim.Aiming(Shot.Right), ProjectileHeight: 3),
             [SamusPoseId.SpinLandingLeftPose] = new(Facing.Left, Move.Standing, Fallback.KeepCurrentPose, SpinLandingLeftAnimation, StandingAndLandingLeft, VerticalRadius: 21, Aim.Aiming(Shot.Left), ProjectileHeight: 3),
-            [SamusPoseId.GlitchBallRightPose] = new(Facing.Right, Move.GlitchBall, Fallback.KeepCurrentPose, MorphBallAnimation, GlitchBallRight, VerticalRadius: 7, Aim.ShootingDisabled, ProjectileHeight: 0),
-            [SamusPoseId.GlitchBallLeftPose] = new(Facing.Left, Move.GlitchBall, Fallback.KeepCurrentPose, MorphBallAnimation, GlitchBallLeft, VerticalRadius: 7, Aim.ShootingDisabled, ProjectileHeight: 0),
+            [SamusPoseId.GlitchBallRightPose] = new(Facing.Right, Move.GlitchBall, Fallback.KeepCurrentPose, MorphBallAnimation, NoInputTransitions, VerticalRadius: 7, Aim.ShootingDisabled, ProjectileHeight: 0),
+            [SamusPoseId.GlitchBallLeftPose] = new(Facing.Left, Move.GlitchBall, Fallback.KeepCurrentPose, MorphBallAnimation, NoInputTransitions, VerticalRadius: 7, Aim.ShootingDisabled, ProjectileHeight: 0),
         };
 }

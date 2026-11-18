@@ -92,8 +92,8 @@ internal static class SamusPoseMetadata
     public static SamusPoseAim ReadAim(SamusState samus) => ReadAim(samus.Pose);
 
     /// <summary>
-    /// The direction Samus's pose aims her arm cannon, or none for a pose that fires nothing (turning, shooting
-    /// disabled, and the unauthored poses).
+    /// The direction Samus's pose aims her arm cannon, or none for a pose that fires nothing (turning or shooting
+    /// disabled).
     /// </summary>
     public static SamusProjectileDirection? ReadAimDirection(SamusState samus) => ReadAim(samus).Direction;
 
@@ -488,16 +488,6 @@ internal static class SamusPoseMetadata
     /// <param name="pose">Prospective or active turn pose; direction describes the facing change, not horizontal velocity.</param>
     /// <returns>Whether the pose is a left-to-right aerial turn admitted by the transition selector.</returns>
     public static bool IsLeftToRightAerialTurnPose(SamusPoseId pose) => IsRightToLeftAerialTurnPose(SamusPoseMirror.Of(pose));
-
-    /// <summary>
-    /// Every pose some path of the game gives Samus: each pose except the three unauthored poses
-    /// (<see cref="SamusUnauthoredPoseDefinitions.Poses"/>) (#1513, #2048). Among them are the glitch balls, their
-    /// knockbacks, the Draygon-held ball and its stand-up, which the Baby's Hyper Beam freeze and rainbow stop reach by a
-    /// frame read past a transition's animation (#1535). A pose no path gives Samus has no identity at all: an animation only
-    /// a read past an earlier one reaches has its own name and needs no pose to name it (#2048).
-    /// </summary>
-    internal static IReadOnlyList<SamusPoseId> ReachablePoses { get; } =
-        [.. Enum.GetValues<SamusPoseId>().Where(pose => !SamusUnauthoredPoseDefinitions.Poses.TryRead(pose, out _))];
 
     /// <summary>True for the four drained crouching and standing bodies that Mother Brain's attack puts her in.</summary>
     public static bool IsDrainedPose(SamusPoseId pose) => pose is

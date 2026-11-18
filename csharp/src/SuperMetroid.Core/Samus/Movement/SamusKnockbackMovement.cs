@@ -358,20 +358,13 @@ public static class SamusKnockbackMovement
         samus.AlignBottomAfterPoseChange(previousRadius, targetRadius);
 
         // Samus's pose update finishes the hit straight away without installing its own
-        // proposed falling pose. Any pose a higher-priority pose-transition cue installed is already live.
-        EndWithoutPoseChange(samus);
-    }
-
-    /// <summary>Finishes a Morph or Spring Ball hit while retaining its current pose, collision radii and rolling animation.</summary>
-    private static KnockbackMovementResult EndWithoutPoseChange(SamusState samus)
-    {
-        // Keeps the current pose, so Samus's pose update neither reloads its radii nor
-        // resets its animation, and an interrupted roll stays continuous through the hurt.
-        return FinishKnockback(samus);
+        // proposed falling pose. Any pose a higher-priority pose-transition cue installed is already live,
+        // and the kept pose is neither reloaded nor restarted, so an interrupted roll stays continuous.
+        FinishKnockback(samus);
     }
 
     /// <summary>Restores ordinary input and movement ownership and clears hurt motion values after expiry.</summary>
-    private static KnockbackMovementResult FinishKnockback(SamusState samus)
+    private static void FinishKnockback(SamusState samus)
     {
         // Knockback's expiry restores the normal input mode as well as
         // movement, including when hurt interrupted a still-input-locked bomb rise.
@@ -388,7 +381,6 @@ public static class SamusKnockbackMovement
         samus.MorphBallBounceState = SamusBallBounceState.None;
         samus.Kinematics.YSpeed = default;
         samus.Kinematics.YDirection = SamusVerticalDirection.Down;
-        return new KnockbackMovementResult();
     }
 
     /// <summary>Uses ordinary aerial vertical speed calculations during rising knockback, including the direction reversal.</summary>

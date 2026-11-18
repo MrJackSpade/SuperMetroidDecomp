@@ -94,12 +94,6 @@ public static class SamusShadeDefinitions
         public const int VariaOrangeGreen = 13;
         /// <summary>Varia orange-ramp blue endpoint.</summary>
         public const int VariaOrangeBlue = 3;
-        /// <summary>Final reset red.</summary>
-        public const int ResetRed = 0;
-        /// <summary>Final reset green.</summary>
-        public const int ResetGreen = 0;
-        /// <summary>Final reset blue.</summary>
-        public const int ResetBlue = 0;
     }
 
     /// <summary>The glow colour sequences of the Power Bomb and Crystal Flash explosions.</summary>

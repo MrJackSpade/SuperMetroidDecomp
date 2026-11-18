@@ -20,6 +20,12 @@ namespace SuperMetroid.Verification.Enemies.Gunship;
 /// </summary>
 internal static class GunshipDustAnimationsVerification
 {
+    /// <summary>Samus's X as the liftoff raises its dust: the landed ship's, where she boarded.</summary>
+    private const int LiftoffSamusX = GunshipMotionDefinitions.LandedX;
+
+    /// <summary>Samus's Y as the liftoff raises its dust: the height below the landed top hull she rides at.</summary>
+    private const int LiftoffSamusY = GunshipMotionDefinitions.LandedTopY + GunshipMotionDefinitions.TopHullAboveSamus;
+
     /// <summary>Every dust program matches its native list.</summary>
     internal static void VerifyGunshipDustAnimations(CartridgeImportAddressSpace rom)
     {
@@ -31,9 +37,15 @@ internal static class GunshipDustAnimationsVerification
             var guard = new MutableCartridgeReadGuard(rom);
             guard.Forbid(address => address is >= ListsStart and < ListsEnd,
                 address => $"Production read a native gunship dust list at ${address:X6}.");
-            GunshipLiftoffDust.SpawnCloud(enemies.Projectiles, GunshipDustDefinitions.LiftoffClouds[cloud], new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()));
+            GunshipDustPlacement placement = GunshipDustDefinitions.LiftoffClouds[cloud];
+            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
+            // #2392: the clouds rise while Samus rides the landed ship, so she stands where the Landing Site places her.
+            samus.Position = samus.Position.WithWhole(new(LiftoffSamusX, LiftoffSamusY));
+            GunshipLiftoffDust.SpawnCloud(enemies.Projectiles, placement, samus);
             EnemyProjectile dust = enemies.Projectiles.EnemyProjectiles.Single(item => item.Kind == RoomEnemyProjectileKind.GunshipLiftoffDustCloud);
-            GunshipDustSegment program = GunshipDustDefinitions.LiftoffClouds[cloud].Animation;
+            AssertEqual(LiftoffSamusX + placement.XOffset, (int)dust.Position.X.Whole, $"dust cloud {cloud} sits its offset beside Samus");
+            AssertEqual(LiftoffSamusY + GunshipDustDefinitions.YOffset, (int)dust.Position.Y.Whole, $"dust cloud {cloud} sits below Samus");
+            GunshipDustSegment program = placement.Animation;
             AssertTrue(dust.Animation is GunshipDustAnimation started && started.Playback == new AnimationPlayback<GunshipDustSegment>(GunshipDustAnimations.StartingWith(program), AnimationPlace.StartOfAnimation),
                 $"dust cloud {cloud} starts {program}");
             AssertEqual(Entry(program), cartridge.ReadCartridgeWord(SpawnListWord(cloud)), $"dust cloud {cloud} names the native list");

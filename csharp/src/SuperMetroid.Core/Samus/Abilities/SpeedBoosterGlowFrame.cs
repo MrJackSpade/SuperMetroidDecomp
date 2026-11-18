@@ -21,8 +21,8 @@ public readonly record struct SpeedBoosterGlowFrame
     public required SuperMetroid.Core.Progression.SamusEquipmentFlags EquippedItems { get; init; }
 
     /// <summary>Whether another special colouring owns Samus's colours, which keeps the active Speed Booster glow off.</summary>
-    public bool SuppressActiveSpeedBoosterGlow { get; init; }
+    public required bool SuppressActiveSpeedBoosterGlow { get; init; }
 
     /// <summary>Whether Samus's feet are under the liquid's surface.</summary>
-    public bool BottomBoundarySubmerged { get; init; }
+    public required bool BottomBoundarySubmerged { get; init; }
 }

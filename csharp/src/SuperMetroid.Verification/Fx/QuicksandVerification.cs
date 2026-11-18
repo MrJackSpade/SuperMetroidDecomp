@@ -46,7 +46,8 @@ internal static class QuicksandVerification
             AssertEqual(direction == SamusVerticalDirection.None ? 0x3000 : 0x28000, move.AcceptedDisplacement.RawValue, "surface probe accepts native sinking distance");
             AssertEqual(direction != SamusVerticalDirection.Up, move.Collided, "surface publishes grounded contact separately from carry");
             body.Position = body.Position.WithWholeY(24);
-            var poseProbe = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.WithQuicksand() }, body, samus, samus.Pose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromParts(2, 32768), ScanLeftToRight = true, PublishQuicksandGrounding = false });
+            // #2389: the changed pose's own probe, the path production takes for pose clearance.
+            var poseProbe = SamusBlockCollision.ProbeChangedPoseVertical(level, body, samus, samus.Pose, SignedSixteenSixteen.FromParts(2, 32768), scanLeftToRight: true, SamusRoomObjectFixtures.WithQuicksand());
             AssertEqual(false, poseProbe.Collided, "pose clearance does not treat sand contact as solid carry");
         }
         for (int kind = 0; kind < 3; kind++)

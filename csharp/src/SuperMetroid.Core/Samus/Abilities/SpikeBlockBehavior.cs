@@ -6,9 +6,6 @@ public enum SpikeBlockBehavior
     /// <summary>The conditional 60-energy reaction.</summary>
     Heavy,
 
-    /// <summary>The 16-energy reaction.</summary>
+    /// <summary>The 16-energy reaction, which the destroyed turret's spike shares; its different treatment under the grapple swing is the swing's own.</summary>
     Light,
-
-    /// <summary>The alternate 16-energy reaction.</summary>
-    AlternateLight,
 }

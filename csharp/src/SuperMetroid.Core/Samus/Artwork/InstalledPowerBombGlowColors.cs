@@ -38,7 +38,7 @@ public sealed class InstalledPowerBombGlowColors
             PowerBombGlowSequence.Explosion => explosion,
             _ => throw new ArgumentOutOfRangeException(nameof(sequence)),
         };
-        if ((uint)index >= (uint)colors.Length)
+        if (index < 0 || index >= colors.Length)
             throw new ArgumentOutOfRangeException(nameof(index));
         return colors[index];
     }

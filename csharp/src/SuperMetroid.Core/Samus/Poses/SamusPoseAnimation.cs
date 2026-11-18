@@ -106,7 +106,7 @@ internal sealed class SamusPoseAnimation
     /// <summary>The segment <paramref name="frame"/> is a frame of.</summary>
     /// <exception cref="ArgumentException">The animation has no such segment, or the frame lies past a segment that is not its last.</exception>
     private SamusAnimationSegment SegmentOf(SamusAnimationFrame frame) =>
-        (uint)frame.Segment < (uint)segments.Length && frame.Frame >= 0 &&
+        frame.Segment >= 0 && frame.Segment < segments.Length && frame.Frame >= 0 &&
         (frame.Segment == segments.Length - 1 || frame.Frame < segments[frame.Segment].Length)
             ? segments[frame.Segment]
             : throw new ArgumentException($"The animation has no frame {frame}.", nameof(frame));

@@ -106854,6 +106854,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.InstalledKeyAttribute",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/InstalledKeyAttribute.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.Core.IntegerQuantityAttribute",
       "kind": "class",
       "scope": "product",
@@ -121583,7 +121596,7 @@
     },
     {
       "type": "SuperMetroid.Core.Runtime.RuntimeFrameOutcome",
-      "kind": "enum",
+      "kind": "record struct",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
@@ -132316,6 +132329,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Samus.SamusOutOfHealthRoute",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/SamusOutOfHealthRoute.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Samus.SamusOverreadServices",
       "kind": "class",
       "scope": "product",
@@ -140102,6 +140128,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.EnsureAnalyzer.Contracts.EnumNameWrite",
+      "kind": "record struct",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.EnsureAnalyzer/Contracts/EnumNameWrite.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.EnsureAnalyzer.Contracts.EnumValueReadAnalyzer",
       "kind": "class",
       "scope": "tool",
@@ -140191,6 +140230,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.EnsureAnalyzer.Contracts.InstalledKeyAnalyzer",
+      "kind": "class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.EnsureAnalyzer/Contracts/InstalledKeyAnalyzer.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.EnsureAnalyzer.Contracts.IntegerCodedModeAnalyzer",
@@ -141361,6 +141413,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.EnsureVerification/Contracts/HostConcernAnalyzerTests.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.EnsureVerification.Contracts.InstalledKeyAnalyzerTests",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.EnsureVerification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.EnsureVerification/Contracts/InstalledKeyAnalyzerTests.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -151714,6 +151779,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Areas/Escape/EscapeRunningFootstepsVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Areas.Escape.EscapeTimeUpOutOfHealthVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Areas/Escape/EscapeTimeUpOutOfHealthVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"

@@ -64,7 +64,7 @@ internal static class SamusDeathFrameSelectionVerification
                 if (expectedFrame is int frame)
                 {
                     SpriteSheetFrame expectedImage = sheet.Frame(SamusDeathSheetDefinitions.ExplosionFrame(facing, SamusDeathSheetDefinitions.Explosion[frame]));
-                    AssertTrue(sprites.Draws.Length == 1 && sprites.Draws[0] is ImageSpriteDraw image &&
+                    AssertTrue(sprites.Draws.Length == 1 && sprites.Draws[0] is SamusColouredDraw image &&
                             ReferenceEquals(expectedImage, image.Image),
                         context + $": draws sheet frame {SamusDeathSheetDefinitions.ExplosionFrame(facing, SamusDeathSheetDefinitions.Explosion[frame])}");
                 }

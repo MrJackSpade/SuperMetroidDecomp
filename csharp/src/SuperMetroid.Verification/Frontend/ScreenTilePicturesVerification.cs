@@ -216,12 +216,12 @@ internal static class ScreenTilePicturesVerification
             // Every other update is sampled, and each picture is compared once: the sequence's animation pages each show for
             // longer than that.
             FloorScene? scene = tick % TitleSampleUpdates == 0 ? title.CaptureRenderSnapshot() : null;
-            if (scene?.Floor is { } floor && sampled.Add($"{floor.Image.GetHashCode()}"))
+            if (scene?.Floor is { } floor && sampled.Add($"{floor.Map.Image.GetHashCode()}"))
             {
                 RgbaPixel[] pictured = DisplayRendering.Render(new DisplayPacket(0, scene)).ToArray();
                 var shownTitle = title.ShownVram();
                 RgbaPixel[] characters = DisplayRendering.Render(new DisplayPacket(0, new FloorScene(scene.Paint,
-                    scene.Background, scene.Brightness, scene.Gradient, FromCharacters(shownTitle, floor)))).ToArray();
+                    floor with { Map = FromCharacters(shownTitle, floor.Map) }, scene.Brightness, scene.Gradient))).ToArray();
                 AssertTrue(pictured.SequenceEqual(characters), $"title {title.Phase}: drawn from its pictures, the Mode 7 background matches its characters");
             }
             title.Step(0);

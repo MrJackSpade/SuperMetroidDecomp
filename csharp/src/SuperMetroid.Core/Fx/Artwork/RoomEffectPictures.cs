@@ -28,11 +28,28 @@ public static class RoomEffectPictures
     /// inputs take the values <paramref name="appearance"/> reads, each picture as its part behind and its part in front (#1634).
     /// </summary>
     /// <exception cref="InvalidDataException">The sheet pictures no artwork of the effect, or none for those values.</exception>
-    public static RoomEffectArtwork Artwork(WrittenPictureSheet sheet, RoomFxType type, RoomAppearanceView appearance)
+    public static RoomEffectArtwork Artwork(WrittenPictureSheet sheet, RoomFxType type, RoomAppearanceView appearance) =>
+        RoomFxTypes.ShowsLiquid(type) ? Liquid(sheet, type, appearance) : Atmosphere(sheet, type, appearance);
+
+    /// <summary>
+    /// The surface strip and body liquid effect <paramref name="type"/> shows, from <paramref name="sheet"/>, while the
+    /// room's appearance inputs take the values <paramref name="appearance"/> reads (#2505).
+    /// </summary>
+    /// <exception cref="InvalidDataException">The sheet pictures no surface strip or body of the effect, or none for those values.</exception>
+    public static LiquidArtwork Liquid(WrittenPictureSheet sheet, RoomFxType type, RoomAppearanceView appearance)
     {
         Ensure.NotNull(sheet);
-        return RoomFxTypes.ShowsLiquid(type)
-            ? new LiquidArtwork(sheet.Picture(SurfaceName(type), appearance), sheet.Picture(BodyName(type), appearance))
-            : new AtmosphereArtwork(sheet.Picture(AtmosphereName(type), appearance));
+        return new LiquidArtwork(sheet.Picture(SurfaceName(type), appearance), sheet.Picture(BodyName(type), appearance));
+    }
+
+    /// <summary>
+    /// The repeating picture atmosphere effect <paramref name="type"/> shows, from <paramref name="sheet"/>, while the
+    /// room's appearance inputs take the values <paramref name="appearance"/> reads (#2505).
+    /// </summary>
+    /// <exception cref="InvalidDataException">The sheet pictures no picture of the effect, or none for those values.</exception>
+    public static AtmosphereArtwork Atmosphere(WrittenPictureSheet sheet, RoomFxType type, RoomAppearanceView appearance)
+    {
+        Ensure.NotNull(sheet);
+        return new AtmosphereArtwork(sheet.Picture(AtmosphereName(type), appearance));
     }
 }

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Rooms.Backgrounds;
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>
@@ -6,17 +5,14 @@ namespace SuperMetroid.Core.Rendering;
 /// It is the frame for a screen that shows only a floor and sprites; gameplay with several layers,
 /// bands or blends is a layered scene.
 /// </summary>
-public sealed record FloorScene
+public sealed class FloorScene : DisplayScene
 {
     /// <summary>The frame's backdrop, shading and sprite draws, retained by reference without another copy.</summary>
     public FramePaint Paint { get; }
-    /// <summary>How the floor appears on the screen; null shows no floor, leaving the backdrop.</summary>
-    public FloorView? Background { get; }
 
-    /// <summary>The floor's map and pictures (#1403), present exactly when <see cref="Background"/> is.</summary>
-    public AffineFloor? Floor { get; }
-    /// <summary>The frame's one brightness, 0 (black) through 15, applied after the floor, the sprites and the gradient.</summary>
-    public int Brightness { get; }
+    /// <summary>The floor and how it appears on the screen (#1403, #2505), or null to show no floor, leaving the backdrop.</summary>
+    public PlacedFloor? Floor { get; }
+
     /// <summary>
     /// The gradient drawn over the floor, the backdrop and the sprites (#1468), or null for none. Each band's colour is
     /// subtracted from the floor and backdrop, or added to them and to the frontmost sprites that blend.
@@ -25,24 +21,23 @@ public sealed record FloorScene
 
     /// <summary>Captures a 256-by-224 frame of floor and backdrop with the sprites in front and an optional gradient over them.</summary>
     /// <param name="paint">The frame's backdrop, shading and sprite draws; retained rather than recaptured.</param>
-    /// <param name="background">How the floor appears on the screen, or null to show the backdrop behind the sprites.</param>
-    /// <param name="brightness">The frame's brightness, 0 (black) through 15.</param>
+    /// <param name="floor">The floor and how it appears on the screen, or null to show the backdrop behind the sprites.</param>
+    /// <param name="brightness">The frame's brightness, 0 (black) through 15, applied after the floor, the sprites and the gradient.</param>
     /// <param name="gradient">The gradient drawn over the floor, the backdrop and the sprites, or null for none.</param>
     /// <exception cref="ArgumentNullException"><paramref name="paint"/> is null.</exception>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="brightness"/> is out of range.</exception>
-    /// <param name="floor">The floor's map and pictures, given exactly when <paramref name="background"/> is.</param>
-    /// <exception cref="ArgumentException">A floor is given without a transform or a transform without a floor.</exception>
-    public FloorScene(FramePaint paint, FloorView? background,
-        int brightness, ScreenGradientLayer? gradient = null,
-        AffineFloor? floor = null)
+    public FloorScene(FramePaint paint, PlacedFloor? floor, int brightness, ScreenGradientLayer? gradient = null)
+        : base(brightness)
     {
-        if (background.HasValue != floor is not null)
-            throw new ArgumentException("A floor's transform and its map come together.", nameof(floor));
+        Paint = Ensure.NotNull(paint);
         Floor = floor;
-        Ensure.NotNull(paint);
-        Brightness = DisplayBrightness.Require(brightness);
-        Paint = paint;
-        Background = background;
         Gradient = gradient;
     }
+
+    /// <inheritdoc/>
+    public override void DrawWith<TDrawer>(TDrawer drawer) => drawer.DrawTurningFloor(this);
+
+    /// <inheritdoc/>
+    internal override DisplayScene AtBrightness(int brightness) =>
+        brightness == Brightness ? this : new FloorScene(Paint, Floor, brightness, Gradient);
 }

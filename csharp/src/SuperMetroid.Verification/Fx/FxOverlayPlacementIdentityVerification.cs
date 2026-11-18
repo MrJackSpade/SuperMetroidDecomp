@@ -123,7 +123,7 @@ internal static class FxOverlayPlacementIdentityVerification
             with { LiquidSurfaceLine = null };
         AssertTrue(Enumerable.Range(FirstLine, ScreenGeometry.ScreenHeightPixels - FirstLine).All(y => OldRow(returned, pages.Pages, stepSurface: -1, cameraY: 0, y) is null),
             "the page geometry showed nothing of a liquid placed above the room");
-        AssertTrue(GameplayEffectCapture.CaptureRoomFxOverlay(returned, pages.Of(RoomFxType.Water).Artwork) is { Picture: null },
+        AssertTrue(GameplayEffectCapture.CaptureRoomFxOverlay(FxOverlayFixtures.Overlay(returned, pages.Of(RoomFxType.Water).Artwork)) is { Picture: null },
             "a liquid placed above the room publishes an overlay showing nothing");
         Console.WriteLine($"  Effect overlay placement: {cases} placements, {lines} lines show the page geometry's rows of every transfer.");
     }
@@ -234,7 +234,7 @@ internal static class FxOverlayPlacementIdentityVerification
     {
         RoomFxOverlayRenderSnapshot snapshot = fx.CaptureForDisplay() ?? throw new InvalidOperationException($"{place}: the effect publishes nothing.");
         (FxOverlayArtwork artwork, ushort[] transfer) = pages.Of(fx.Type);
-        OverlayBlendLayer? layer = GameplayEffectCapture.CaptureRoomFxOverlay(snapshot, artwork);
+        OverlayBlendLayer? layer = GameplayEffectCapture.CaptureRoomFxOverlay(FxOverlayFixtures.Overlay(snapshot, artwork));
         LineScroll? oldAcross = OldHorizontal(snapshot);
         AssertEqual(oldAcross is null, layer is null, $"{place}: the overlay is captured where the page geometry captured it");
         if (layer is null)

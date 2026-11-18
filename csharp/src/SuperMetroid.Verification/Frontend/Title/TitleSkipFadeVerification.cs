@@ -165,7 +165,7 @@ internal static class TitleSkipFadeVerification
     }
 
     /// <summary>The draws' pictures and places, for a failure message.</summary>
-    private static string Describe(ImmutableArray<SpriteDraw> draws) =>
+    private static string Describe(ImmutableArray<ImageSpriteDraw> draws) =>
         draws.Length == 0 ? "nothing" : string.Join(", ", draws.Select(draw => draw.ToString()));
 
     /// <summary>The natural title, without input, from its first update to the first update of its idle title screen.</summary>
@@ -186,7 +186,7 @@ internal static class TitleSkipFadeVerification
     private static TitleFrame Capture(TitleSequenceState title)
     {
         FloorScene scene = title.CaptureRenderSnapshot();
-        return new TitleFrame(title.Phase, title.SkipStage, scene.Brightness, scene.Paint.SpriteDraws, scene.Background, scene.Gradient,
+        return new TitleFrame(title.Phase, title.SkipStage, scene.Brightness, scene.Paint.SpriteDraws, scene.Floor?.View, scene.Gradient,
             title.BabyPose, title.FloorShading);
     }
 
@@ -203,7 +203,7 @@ internal static class TitleSkipFadeVerification
         TitleSequencePhase Phase,
         TitleSkipStage Skip,
         int Brightness,
-        ImmutableArray<SpriteDraw> Draws,
+        ImmutableArray<ImageSpriteDraw> Draws,
         FloorView? Floor,
         ScreenGradientLayer? Gradient,
         TitleBabyPose BabyPose,

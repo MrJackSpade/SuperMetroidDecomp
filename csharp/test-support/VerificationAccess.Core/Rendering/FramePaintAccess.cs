@@ -38,7 +38,7 @@ internal static class FramePaintAccess
         /// nothing is drawn, and each draw shows its picture in the native colours its inks name.
         /// </summary>
         /// <exception cref="ArgumentException">The image does not hold 256 colours, or the draw list is missing or holds a missing draw.</exception>
-        internal static FramePaint FromNative(ReadOnlySpan<RgbColor> nativeColours, ImmutableArray<SpriteDraw> spriteDraws)
+        internal static FramePaint FromNative(ReadOnlySpan<RgbColor> nativeColours, IReadOnlyList<SpriteDraw> spriteDraws)
         {
             Ensure.LengthEqual(nativeColours, NativeColouredPictures.ColorCount);
             return new FramePaint(nativeColours[0], NativeColouredPictures.Draws(spriteDraws, nativeColours));
@@ -50,7 +50,7 @@ internal static class FramePaintAccess
         /// no display fade.
         /// </summary>
         /// <exception cref="ArgumentException">The image does not hold 256 colours, or the draw list is missing or holds a missing draw.</exception>
-        internal static FramePaint FromNativeGameplay(ReadOnlySpan<RgbColor> nativeColours, ImmutableArray<SpriteDraw> spriteDraws)
+        internal static FramePaint FromNativeGameplay(ReadOnlySpan<RgbColor> nativeColours, IReadOnlyList<SpriteDraw> spriteDraws)
         {
             Ensure.LengthEqual(nativeColours, NativeColouredPictures.ColorCount);
             var gameplay = new GameplayShading(nativeColours[0],
@@ -84,13 +84,15 @@ internal static class FramePaintAccess
         /// shows here: a gameplay frame keeps each group of background pictures' shading, the fade included, and lays no
         /// fade or escape timer shading over the draws again; a frontend screen's frame keeps its backdrop.
         /// </summary>
-        /// <exception cref="ArgumentException">The draw list is missing, holds a missing draw, or holds a draw that names no shading.</exception>
-        internal FramePaint WithShownDraws(ImmutableArray<SpriteDraw> draws)
+        /// <exception cref="ArgumentException">The draw list holds a missing draw.</exception>
+        /// <exception cref="InvalidCastException">A draw names no shading of its own, as a draw in Samus's colours does before the frame publishes it.</exception>
+        internal FramePaint WithShownDraws(IEnumerable<SpriteDraw> draws)
         {
             Ensure.NotNull(memory);
+            ImmutableArray<ImageSpriteDraw> shown = [.. Ensure.NotNull(draws).Cast<ImageSpriteDraw>()];
             return memory.Gameplay is { } gameplay
-                ? new FramePaint(NativeGameplay(gameplay, gameplay.Backdrop), draws)
-                : new FramePaint(memory.Backdrop, draws);
+                ? new FramePaint(NativeGameplay(gameplay, gameplay.Backdrop), shown)
+                : new FramePaint(memory.Backdrop, shown);
         }
 
         /// <summary>Every sprite part the frame shows, frontmost first.</summary>
@@ -112,11 +114,11 @@ internal static class FramePaintAccess
     /// a gameplay frame keeps each group of background pictures' shading with native colour 0 as its backdrop and no fade
     /// over its draws; a frontend screen's frame shows native colour 0 as its backdrop.
     /// </summary>
-    private static FramePaint Repainted(FramePaint memory, ReadOnlySpan<RgbColor> nativeColours, ImmutableArray<SpriteDraw> draws)
+    private static FramePaint Repainted(FramePaint memory, ReadOnlySpan<RgbColor> nativeColours, IReadOnlyList<SpriteDraw> draws)
     {
         Ensure.NotNull(memory);
         Ensure.LengthEqual(nativeColours, NativeColouredPictures.ColorCount);
-        ImmutableArray<SpriteDraw> shown = NativeColouredPictures.Draws(draws, nativeColours);
+        ImmutableArray<ImageSpriteDraw> shown = NativeColouredPictures.Draws(draws, nativeColours);
         return memory.Gameplay is { } gameplay
             ? new FramePaint(NativeGameplay(gameplay, nativeColours[0]), shown)
             : new FramePaint(nativeColours[0], shown);
@@ -132,7 +134,7 @@ internal static class FramePaintAccess
             pictures => pictures == GameplayPictures.EscapeTimer ? PictureShading.Standard : gameplay.Of(pictures)), fade: null);
 
     /// <summary>The sprite draws an OAM fixture's records make over <paramref name="vram"/>, as a frontend capture converts them.</summary>
-    private static ImmutableArray<SpriteDraw> OamDraws(ReadOnlySpan<byte> vram, ReadOnlySpan<byte> oamUpload, int spriteCount, int objectSelection)
+    private static ImmutableArray<ImageSpriteDraw> OamDraws(ReadOnlySpan<byte> vram, ReadOnlySpan<byte> oamUpload, int spriteCount, int objectSelection)
     {
         var oam = new OamBuffer();
         oam.LoadUploadPayload(oamUpload, spriteCount);

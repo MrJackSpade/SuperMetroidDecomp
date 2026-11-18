@@ -143,15 +143,15 @@ internal sealed class AcceptedFrameBoundary
         // The HUD's images draw from the HUD's own sheet, on the HUD's own layer (#1466, #1731).
         PicturedHud picturedHud = HudPicturesIn(scope.HudPictures.Sheet).Pictured(hud);
         // The room effect's liquid or atmosphere draws from the effect overlay sheet's pictures, as the effects' animations
-        // select them; the overlay holds nothing else (#1466, #1706).
-        FxOverlayArtwork fxOverlay = scope.FxOverlayPictures.Resolve(CaptureFxOverlayPlane(), appearance);
+        // select them; the overlay holds nothing else (#1466, #1706, #2505).
+        RoomEffectOverlay effectOverlay = RoomEffectOverlay.Latch(roomFxOverlay, scope.FxOverlayPictures, appearance);
         GameplayLatchedTints tints = CaptureTints(scope);
         // The floor Ceres Ridley's getaway flies over shows while he flies it (his room main computes it), with the
         // chamber's walls around it and the room's background in a band below it (#1545).
         if (displays.CeresGetawayFloor is { } ridley)
         {
-            return new PerspectiveFloorFrameLatch(hud, picturedHud, scrolls, roomFxOverlay, eyeBeam, tints,
-                CeresPerspectiveFloors.RidleyGetaway(ridley, displays.CeresGetawayChamberWalls), FloorMap(scope), fxOverlay,
+            return new PerspectiveFloorFrameLatch(hud, picturedHud, scrolls, roomFxOverlay, effectOverlay, eyeBeam, tints,
+                CeresPerspectiveFloors.RidleyGetaway(ridley, displays.CeresGetawayChamberWalls), FloorMap(scope),
                 background ?? throw new InvalidDataException(
                     $"{scope.Room.Definition.Name} shows its background plane below Ridley's floor, but its state shows no level background."));
         }
@@ -159,14 +159,13 @@ internal sealed class AcceptedFrameBoundary
         // entered through the shaft's door; it fills the gameplay view.
         if (_display.ActiveTurningFloor is { } shaft)
         {
-            return new PerspectiveFloorFrameLatch(hud, picturedHud, scrolls, roomFxOverlay, eyeBeam, tints,
-                CeresPerspectiveFloors.ElevatorShaft(shaft, scrolls.ForegroundScroll), FloorMap(scope), fxOverlay, BackgroundBand: null);
+            return new PerspectiveFloorFrameLatch(hud, picturedHud, scrolls, roomFxOverlay, effectOverlay, eyeBeam, tints,
+                CeresPerspectiveFloors.ElevatorShaft(shaft, scrolls.ForegroundScroll), FloorMap(scope), BackgroundBand: null);
         }
         GameplayLatchedBossBody bosses = new(displays.BossBody, displays.BossBodyPlacement, displays.BossBodyHidden);
-        return new OrdinaryRoomFrameLatch(hud, picturedHud, scrolls, roomFxOverlay, eyeBeam, tints,
+        return new OrdinaryRoomFrameLatch(hud, picturedHud, scrolls, roomFxOverlay, effectOverlay, eyeBeam, tints,
             _screenLayers.Displayed,
-            RoomBackgroundsOf(scope, appearance, new RoomBackgroundLayer(level.ForegroundPlane.Cells, pictures), background, fxOverlay,
-                bosses.Body),
+            RoomBackgroundsOf(scope, appearance, new RoomBackgroundLayer(level.ForegroundPlane.Cells, pictures), background, bosses.Body),
             scene,
             bosses,
             displays.Phantoon is { } phantoon ? PhantoonDisplaySnapshot.Capture(phantoon) : null,
@@ -204,18 +203,16 @@ internal sealed class AcceptedFrameBoundary
 
     /// <summary>
     /// The room backgrounds an ordinary frame of <paramref name="scope"/> displays (#1346, #1555): <paramref name="foreground"/>
-    /// and <paramref name="background"/>, the effect overlay's artwork, the source screen of a door's opening scroll, the
-    /// sky's rows, the room's library background, the text an escape shows over either layer, the room's turning floor and
+    /// and <paramref name="background"/>, the source screen of a door's opening scroll, the sky's rows, the room's library background, the text an escape shows over either layer, the room's turning floor and
     /// the boss's body, each with its pictures.
     /// </summary>
     /// <param name="scope">The loaded room.</param>
     /// <param name="appearance">The values the room's appearance inputs take now.</param>
     /// <param name="foreground">The foreground's level plane with its pictures.</param>
     /// <param name="background">The background's level plane with its pictures, or null when the background shows a loaded picture.</param>
-    /// <param name="fxOverlay">The effect overlay's artwork.</param>
     /// <param name="body">The body the room's boss shows, or null.</param>
     private RoomBackgrounds RoomBackgroundsOf(RoomScope scope, RoomAppearanceView appearance, RoomBackgroundLayer foreground,
-        RoomBackgroundLayer? background, FxOverlayArtwork fxOverlay, BossBodyLayer? body)
+        RoomBackgroundLayer? background, BossBodyLayer? body)
     {
         // A sky room's background shows the sky's rows, drawn from their image (#1392, #1403), once the room has configured the
         // sky's bands; without them, background shows the room's own background.
@@ -247,7 +244,7 @@ internal sealed class AcceptedFrameBoundary
             : new RoomOverlayPictures((scope.ForegroundWrittenPictures ?? throw new InvalidDataException(
                 $"{scope.Room.Definition.Name} shows text over the foreground with no installed written picture sheet.")).Resolve(ceresWarning, appearance));
         // The planes are shared until gameplay changes level data. A boss body shows each part's whole picture (#1466, #1513).
-        return new RoomBackgrounds(foreground, background, fxOverlay, _room.DoorSourceBackground, foregroundText, sky,
+        return new RoomBackgrounds(foreground, background, _room.DoorSourceBackground, foregroundText, sky,
             backgroundText, scope.Floor?.Publish(), body?.Show(), BackgroundImage: image);
     }
 

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Hardware;
@@ -44,7 +45,7 @@ internal static class SpriteFrameBufferAccess
 
         /// <summary>Assembles the finalized frame's draw parts in emission order, each image draw standing for its composition.</summary>
         internal OamBuffer AssembledOam(bool parkUnused) =>
-            Assemble([.. sprites.Draws.Select(drawn => SuperMetroid.TestSupport.RepositoryInstallation.Verification.SheetFrameSources.CharacterDraw((ImageSpriteDraw)drawn))], parkUnused);
+            Assemble([.. sprites.Draws.Select(drawn => SuperMetroid.TestSupport.RepositoryInstallation.Verification.SheetFrameSources.CharacterDraw(drawn))], parkUnused);
     }
 
     /// <summary>
@@ -64,10 +65,10 @@ internal static class SpriteFrameBufferAccess
         int parts = 0;
         foreach (SpriteDraw drawn in frame.Draws)
         {
-            if (drawn is not ImageSpriteDraw image)
+            if (drawn is not (ImageSpriteDraw or SamusColouredDraw))
                 return false;
             CharacterSpriteDraw? match = null;
-            foreach (CharacterSpriteDraw candidate in SuperMetroid.TestSupport.RepositoryInstallation.Verification.SheetFrameSources.CharacterDrawCandidates(image))
+            foreach (CharacterSpriteDraw candidate in SuperMetroid.TestSupport.RepositoryInstallation.Verification.SheetFrameSources.CharacterDrawCandidates(drawn))
             {
                 int bytes = (parts + candidate.Frame.Parts.Length) * 4;
                 if (Assemble([.. chosen, candidate], parkUnused: false).LowTable[..bytes].SequenceEqual(native.LowTable[..bytes]))

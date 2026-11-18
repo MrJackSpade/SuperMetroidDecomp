@@ -130,7 +130,7 @@ internal static class EndingCloudPlacementVerification
         }
         // D6xx: TM=BG1|OBJ, TS=BG1, CGWSEL=2, CGADSUB=BG1|OBJ: the floor is added once to the main pixels and no
         // object is subtracted.
-        AssertTrue(shown.AddsForeground && !shown.SubtractsSprites, "takeoff applies native BG1 subscreen to eligible main pixels");
+        AssertTrue(shown.Blend == FloorColorBlend.AddForeground, "takeoff applies native BG1 subscreen to eligible main pixels");
     }
 
     /// <summary>Dispatches the requested ending takeoff wrapping or color-math suite.</summary>

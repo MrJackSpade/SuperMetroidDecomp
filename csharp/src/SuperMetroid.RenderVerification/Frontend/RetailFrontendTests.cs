@@ -30,9 +30,9 @@ internal static class RetailFrontendTests
             {
                 var expected = title.Render();
                 var packet = new DisplayPacket((ushort)tick, title.CaptureRenderSnapshot());
-                if (title.Phase == TitleSequencePhase.FinalZoom && (packet.Floor ?? throw new InvalidOperationException("Verification requires packet.Floor.")).Gradient is null)
+                if (title.Phase == TitleSequencePhase.FinalZoom && ((FloorScene)packet.Scene).Gradient is null)
                     throw new InvalidOperationException("Native scene-three gradient was not spawned.");
-                if (title.Phase == TitleSequencePhase.YearText && (packet.Floor ?? throw new InvalidOperationException("Verification requires packet.Floor.")).Gradient is not null)
+                if (title.Phase == TitleSequencePhase.YearText && ((FloorScene)packet.Scene).Gradient is not null)
                     throw new InvalidOperationException("Title gradient spawned before its native scene command.");
                 PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet),
                     $"{device.Kind}: retail title {title.Phase}, tick {tick}");

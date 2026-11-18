@@ -64,6 +64,31 @@ internal static class FxOverlayFixtures
     }
 
     /// <summary>
+    /// What the effect captured as <paramref name="fx"/> shows on the effect overlay with <paramref name="artwork"/>, as a frame
+    /// boundary latches it (#2505): its liquid or its atmosphere, as the artwork is one or the other.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The artwork shows nothing.</exception>
+    internal static ShownRoomEffectOverlay Overlay(RoomFxOverlayRenderSnapshot fx, FxOverlayArtwork artwork) => Ensure.NotNull(artwork).Shown switch
+    {
+        LiquidArtwork liquid => LiquidEffectOverlay.Of(fx, liquid),
+        AtmosphereArtwork atmosphere => AtmosphereEffectOverlay.Of(fx, atmosphere),
+        _ => throw new InvalidOperationException("An overlay fixture shows an effect's artwork."),
+    };
+
+    /// <summary>
+    /// Liquid effect <paramref name="type"/>'s artwork of seeded pictures (#2505), for a check of where the overlay lies and
+    /// how it scrolls rather than of what it shows: its seeded rows repeat nowhere, so it is cut where water's transfer is.
+    /// </summary>
+    internal static FxOverlayArtwork SeededLiquid(RoomFxType type)
+    {
+        var random = new Random(32108);
+        byte[] image = new byte[SnesVram.ByteCount];
+        random.NextBytes(image);
+        RgbColor[] palette = [.. Enumerable.Range(0, SnesCgram.ColorCount).Select(_ => RgbColor.FromWord(checked((ushort)random.Next(32768))))];
+        return ArtworkFromVram(type, image, palette, liquidCut: new LiquidTransferRows(BodyFirstRow: 5, BodyRows: 4));
+    }
+
+    /// <summary>
     /// The artwork <paramref name="plane"/> shows with the installed <paramref name="pages"/>, painted from the characters at
     /// <paramref name="characterWord"/> in <paramref name="image"/>, or nothing where it shows no effect.
     /// </summary>

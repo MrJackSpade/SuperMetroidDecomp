@@ -1176,18 +1176,18 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// shade also at the level the crossfade shows her beam colours at: the shading, not the kind of draw, says which
     /// draws show the faded beam colours.
     /// </summary>
-    private ImmutableArray<SpriteDraw> FlashbackDraws(ImmutableArray<SpriteDraw> draws)
+    private ImmutableArray<ImageSpriteDraw> FlashbackDraws(ImmutableArray<SpriteDraw> draws)
     {
-        ImmutableArray<SpriteDraw> shaded = flashbackSamusColours.ShadeOwnDraws(draws);
+        ImmutableArray<ImageSpriteDraw> shaded = flashbackSamusColours.ShadeOwnDraws(draws);
         int level = crossfade.LevelOf(IntroCrossfadeScene.Narration);
         if (level == IntroCrossfade.Levels)
             return shaded;
         var beamLevel = new ColourLevel(level, IntroCrossfade.Levels);
-        var faded = ImmutableArray.CreateBuilder<SpriteDraw>(shaded.Length);
-        foreach (SpriteDraw draw in shaded)
+        var faded = ImmutableArray.CreateBuilder<ImageSpriteDraw>(shaded.Length);
+        foreach (ImageSpriteDraw draw in shaded)
         {
-            faded.Add(draw is ImageSpriteDraw { Shading: { } shading } image && shading.Shades.Contains(SamusShades.IntroBeams)
-                ? image with { Shading = shading.With(beamLevel) }
+            faded.Add(draw.Shading.Shades.Contains(SamusShades.IntroBeams)
+                ? draw with { Shading = draw.Shading.With(beamLevel) }
                 : draw);
         }
         return faded.MoveToImmutable();

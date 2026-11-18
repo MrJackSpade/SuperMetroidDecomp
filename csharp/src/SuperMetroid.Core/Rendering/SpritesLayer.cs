@@ -20,17 +20,17 @@ public sealed record SpritesLayer : DisplayLayer
     /// gunship's sprites; null for none.
     /// </param>
     /// <exception cref="ArgumentException">
-    /// The draw list is missing, holds a draw that names no shading, or a tint is given for sprites that glow.
+    /// The draw list is missing or holds a missing draw, or a tint is given for sprites that glow.
     /// </exception>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="blend"/> is not a defined blend.</exception>
-    public SpritesLayer(ImmutableArray<SpriteDraw> draws, SpriteBlend blend = SpriteBlend.Drawn, RgbColor? tint = null)
+    public SpritesLayer(ImmutableArray<ImageSpriteDraw> draws, SpriteBlend blend = SpriteBlend.Drawn, RgbColor? tint = null)
     {
         if (draws.IsDefault)
             throw new ArgumentException("A sprite layer needs its draws.", nameof(draws));
-        foreach (SpriteDraw draw in draws)
+        foreach (ImageSpriteDraw draw in draws)
         {
-            if (draw is not ImageSpriteDraw { Shading: not null })
-                throw new ArgumentException("A sprite layer's draw is a picture naming the shading it shows in.", nameof(draws));
+            if (draw is null)
+                throw new ArgumentException("Each of a sprite layer's draws needs an entry.", nameof(draws));
         }
         Blend = blend switch
         {
@@ -44,7 +44,7 @@ public sealed record SpritesLayer : DisplayLayer
     }
 
     /// <summary>The draws, frontmost first.</summary>
-    public ImmutableArray<SpriteDraw> Draws { get; }
+    public ImmutableArray<ImageSpriteDraw> Draws { get; }
 
     /// <summary>How the sprites show over the layers behind them.</summary>
     public SpriteBlend Blend { get; }

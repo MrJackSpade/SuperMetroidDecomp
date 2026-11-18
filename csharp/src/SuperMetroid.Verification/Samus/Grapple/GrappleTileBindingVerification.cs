@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
@@ -61,7 +62,7 @@ internal static class GrappleTileBindingVerification
                 .Where(draw => draw.Source.Kind is SpriteSourceKind.SamusGrappleEndpoint or SpriteSourceKind.SamusGrappleRope)];
             AssertTrue(grappleDraws.Length > 0, context + ": the grapple beam is drawn");
             SpriteImage expected = sheets.Get(SpriteSheetId.Grapple).Image;
-            AssertTrue(grappleDraws.All(draw => draw is ImageSpriteDraw image && ReferenceEquals(expected, image.Image.Sheet)), context);
+            AssertTrue(grappleDraws.All(draw => draw is SamusColouredDraw image && ReferenceEquals(expected, image.Image.Sheet)), context);
         }
     }
 }

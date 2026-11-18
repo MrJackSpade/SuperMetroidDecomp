@@ -86,11 +86,10 @@ internal static class SceneShownColours
         var shown = new List<ShownPictureKeys>();
         foreach ((SpriteImage picture, PictureShading shading) in LayerPictures(scene))
             shown.Add(new ShownPictureKeys(picture, shading, DrawRow: 0, [.. Enumerable.Range(0, picture.ColourKeys.Length)]));
-        foreach (SpriteDraw draw in scene.SpriteDraws)
+        foreach (ImageSpriteDraw image in scene.SpriteDraws)
         {
-            var image = (ImageSpriteDraw)draw;
             SpriteImage picture = image.Image.Sheet;
-            PictureShading shading = image.Shading ?? throw new InvalidOperationException($"Picture {picture.Name} names the shading it shows in.");
+            PictureShading shading = image.Shading;
             int row = NativeColouredPictures.DrawRow(picture, shading);
             ShownPictureKeys? entry = shown.Find(known => ReferenceEquals(known.Picture, picture) && known.Shading.Equals(shading) && known.DrawRow == row);
             if (entry is null)
@@ -128,9 +127,8 @@ internal static class SceneShownColours
     private static List<(SpriteImage Picture, PictureShading Shading)> Pictures(LayeredScene scene)
     {
         List<(SpriteImage Picture, PictureShading Shading)> shown = LayerPictures(scene);
-        foreach (SpriteDraw draw in scene.SpriteDraws)
+        foreach (ImageSpriteDraw image in scene.SpriteDraws)
         {
-            var image = (ImageSpriteDraw)draw;
             Add(shown, image.Image.Sheet, image.Shading);
         }
         return shown;

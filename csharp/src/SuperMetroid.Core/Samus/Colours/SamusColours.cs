@@ -88,18 +88,14 @@ public sealed class SamusColours
     }
 
     /// <summary>
-    /// <paramref name="draws"/> with Samus's own draws given the shading she shows them in; the others are left to their
-    /// owners.
+    /// <paramref name="draws"/> as a frame shows them: Samus's own draws (<see cref="SamusColouredDraw"/>) in the shading
+    /// she shows now; the others in the shading their owners named.
     /// </summary>
-    public ImmutableArray<SpriteDraw> ShadeOwnDraws(ImmutableArray<SpriteDraw> draws)
+    public ImmutableArray<ImageSpriteDraw> ShadeOwnDraws(ImmutableArray<SpriteDraw> draws)
     {
-        var shaded = ImmutableArray.CreateBuilder<SpriteDraw>(draws.Length);
+        var shaded = ImmutableArray.CreateBuilder<ImageSpriteDraw>(draws.Length);
         foreach (SpriteDraw draw in draws)
-        {
-            shaded.Add(draw is ImageSpriteDraw image && SamusColourDefinitions.Sources.Contains(draw.Source.Kind)
-                ? image with { Shading = Shading }
-                : draw);
-        }
+            shaded.Add(draw.Published(Shading));
         return shaded.MoveToImmutable();
     }
 

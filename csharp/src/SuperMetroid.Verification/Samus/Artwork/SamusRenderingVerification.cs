@@ -447,7 +447,7 @@ private static bool ShowsBodyFrame(SamusState samus, SpriteDraw draw, SamusBodyF
 {
     InstalledSpriteSheets sheets = samus.Presentation.Sheets
         ?? throw new InvalidOperationException("Verification requires bound Samus sprite sheets.");
-    return draw is ImageSpriteDraw { Mirror: SpriteMirror.None } image &&
+    return draw is SamusColouredDraw image &&
         ReferenceEquals(sheets.Get(SpriteSheetId.SamusBody).Frame(frame.Name), image.Image);
 }
 
@@ -556,7 +556,7 @@ internal static void VerifySamusArmCannon()
     AssertTrue(!cover.FlipX && !cover.FlipY, "direction two attributes leave cover unflipped");
     AssertTrue(!cover.IsLarge, "arm-cannon cover is a small OBJ");
     // Natively the third cover tile ($9A:9E00) is uploaded to tile $1F; the draw shows the sheet frame composed over it.
-    SpriteArtwork coverTile = SheetFrameSources.CharacterDraw((ImageSpriteDraw)coverFrame.Draws[0]).Artwork;
+    SpriteArtwork coverTile = SheetFrameSources.CharacterDraw(coverFrame.Draws[0]).Artwork;
     AssertEqual(new SpriteArtworkId(SpriteArtworkKind.SamusArmCannonCover,
             SamusArmCannonArtworkFormat.TileSourcePointers.IndexOf(0x9e00)), coverTile.Id,
         "pose record selects direction two, whose frame three binds the third cover tile");

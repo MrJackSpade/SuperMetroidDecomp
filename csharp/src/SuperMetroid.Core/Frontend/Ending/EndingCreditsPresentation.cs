@@ -34,7 +34,7 @@ internal static class EndingCreditsPresentation
         {
             // The reward's shot scene lies behind the turning planet, which darkens where the sprites lie behind it.
             layers.Add(Sprites(ending));
-            if (ending.Floor() is { } floor) layers.Add(new TurningFloorLayer(PostShotTransform(ending), floor, true));
+            if (ending.Floor() is { } floor) layers.Add(new TurningFloorLayer(PostShotTransform(ending), floor, FloorColorBlend.SubtractSprites));
             return new(paint, layers.ToArray(), ending.Stage.Brightness);
         }
         if (ending.Stage.Phase == EndingCreditsPhase.Credits)
@@ -76,7 +76,7 @@ internal static class EndingCreditsPresentation
                     layers.Add(new TurningFloorLayer(FloorView.Turned(ending.Stage.FloorAngle, ending.Stage.FloorZoom,
                         CurrentFloorCenter(ending),
                         ending.Stage.FloorPosition.Whole, FloorRepeatsBeyondEdges(ending) ? FloorOverflowMode.Wrap : FloorOverflowMode.Transparent),
-                        floor, AddsForeground: ShowsAtmosphere(ending)));
+                        floor, ShowsAtmosphere(ending) ? FloorColorBlend.AddForeground : FloorColorBlend.None));
                 }
         }
         // Over the atmosphere the clouds are drawn by the turning floor's own glow, which composes the frame's sprites

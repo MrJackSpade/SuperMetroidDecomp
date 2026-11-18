@@ -32,9 +32,6 @@ internal static class RoomBackgroundsFixtures
     /// <summary>A room whose BG1 shows tile word zero over the whole unscrolled screen, no BG2 plane, and no effect page.</summary>
     internal static RoomBackgrounds Blank() => Uniform(new byte[SnesVram.ByteCount], new RgbColor[SnesCgram.ColorCount], default);
 
-    /// <summary>An effect overlay showing nothing (#1403, #1514, #1706).</summary>
-    internal static FxOverlayArtwork BlankFxOverlay() => new(null);
-
     /// <summary>
     /// A Ceres room's turning floor, with its floor animation frames, whose drawing a check does not look at (#1467). Each
     /// floor keeps the frames its own parts show, over the one blank sheet every fixture floor shares (#2420).
@@ -77,7 +74,7 @@ internal static class RoomBackgroundsFixtures
         }
         // BG2 shows the tilemap the fixture loaded at the gameplay BG2 tilemap, as a library background's image (#1403).
         return new(new RoomBackgroundLayer(new RoomLevelPlane(new Extent16<RoomBlocks>(SideBlocks, SideBlocks),
-            blocks).Cells, RoomBlockFixtures.Pictures(definitions, image, palette)), null, BlankFxOverlay(),
+            blocks).Cells, RoomBlockFixtures.Pictures(definitions, image, palette)), null,
             BackgroundImage: RoomBlockFixtures.LoadedBackground(image, palette, GameplayVramLayout.Bg2TilemapWord));
     }
 
@@ -238,13 +235,13 @@ internal static class RoomBackgroundsFixtures
     /// tall as its whole plane, its pixels keeping colour zero's row, even 16-colour rows coloured as <paramref name="scene"/>
     /// is and odd ones differently, with a seeded part behind and a seeded part in front (#1634).
     /// </summary>
-    internal static FxOverlayArtwork SeededFxOverlay(Random random, RgbColor[] scene)
+    internal static AtmosphereArtwork SeededFxOverlay(Random random, RgbColor[] scene)
     {
         var size = new Extent16<ImagePixels>(FxOverlayPlaneConstants.Columns * 8, FxOverlayPlaneConstants.Rows * 8);
         SpriteSheet sheet = SeededSheet(random, scene, new Extent16<ImagePixels>(size.X, checked((ushort)(2 * size.Y))),
             new Dictionary<string, Position16<ImagePixels>> { ["overlay"] = default, ["overlay in front"] = new(0, size.Y) }, size,
             "seeded overlay", SpriteImageColours.TwoBppBackground);
-        return new FxOverlayArtwork(new AtmosphereArtwork(new LayeredPicture(sheet.Frame("overlay"), sheet.Frame("overlay in front"))));
+        return new AtmosphereArtwork(new LayeredPicture(sheet.Frame("overlay"), sheet.Frame("overlay in front")));
     }
 
     /// <summary>
@@ -418,7 +415,7 @@ internal static class RoomBackgroundsFixtures
         }
         RgbColor[] scene = pictureColours ?? new RgbColor[SnesCgram.ColorCount];
         RoomOverlayPictures? written = overlay ? SeededOverlayRun(random, scene, random.Next(8, 24)) : null;
-        return new RoomBackgrounds(bg1, bg2, SeededFxOverlay(random, scene), source, written,
+        return new RoomBackgrounds(bg1, bg2, source, written,
             BackgroundImage: bg2 is null ? SeededBackground(random, scene) : null);
     }
 }

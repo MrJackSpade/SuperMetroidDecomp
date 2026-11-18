@@ -485,8 +485,8 @@ internal static class SamusBodyArtworkVerification
             installedFrame, installedSamus, Position16<RoomPixels>.Zero, 0);
         AssertTrue(nativeFrame.FinalizeAsOam().LowTable.SequenceEqual(installedFrame.FinalizeAsOam().LowTable),
             "installed arm-cannon cover draws identical visible OAM");
-        AssertEqual(SheetFrameSources.CharacterDraw((ImageSpriteDraw)nativeFrame.Draws[0]).Artwork.Id,
-            SheetFrameSources.CharacterDraw((ImageSpriteDraw)installedFrame.Draws[0]).Artwork.Id,
+        AssertEqual(SheetFrameSources.CharacterDraw(nativeFrame.Draws[0]).Artwork.Id,
+            SheetFrameSources.CharacterDraw(installedFrame.Draws[0]).Artwork.Id,
             "installed arm-cannon cover shows the frame composed over the native cover character");
         Console.WriteLine("Arm-cannon artwork: 253 pose pointers, drawing bytes, typed pose placements, ten direction selectors and twelve PNG tiles match retail; guarded cover draw and binding parity pass.");
     }

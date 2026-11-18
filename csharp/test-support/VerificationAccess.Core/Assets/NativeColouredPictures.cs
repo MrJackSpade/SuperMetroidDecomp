@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Colours;
 using System.Collections.Immutable;
 using SuperMetroid.AssetExtraction.Artwork;
 
@@ -127,15 +128,20 @@ internal static class NativeColouredPictures
     /// standard shading; each sheet is copied once per draw row.
     /// </summary>
     /// <exception cref="ArgumentException">A draw is missing or does not draw a picture.</exception>
-    internal static ImmutableArray<SpriteDraw> Draws(ImmutableArray<SpriteDraw> draws, ReadOnlySpan<RgbColor> nativeColours)
+    internal static ImmutableArray<ImageSpriteDraw> Draws(IReadOnlyList<SpriteDraw> draws, ReadOnlySpan<RgbColor> nativeColours)
     {
-        if (draws.IsDefault)
-            throw new ArgumentException("A frame requires a draw list.", nameof(draws));
-        var images = new List<ImageSpriteDraw>(draws.Length);
+        Ensure.NotNull(draws);
+        var images = new List<ImageSpriteDraw>(draws.Count);
         foreach (SpriteDraw draw in draws)
         {
-            images.Add(draw as ImageSpriteDraw
-                ?? throw new ArgumentException($"Sprite draw {draw} draws no picture.", nameof(draws)));
+            // A draw in Samus's colours shows them only as the frame publishes; drawn in its native colours it ORs in no
+            // frontend colouring's row, as a draw in the standard shading does not (#2505).
+            images.Add(draw switch
+            {
+                ImageSpriteDraw image => image,
+                SamusColouredDraw samus => samus.Published(PictureShading.Standard),
+                _ => throw new ArgumentException($"Sprite draw {draw} draws no picture.", nameof(draws)),
+            });
         }
         // A frontend draw's colouring is the row the cartridge ORs into every part (#1512); each sheet is copied once per row.
         var copies = new Dictionary<SheetCopy, SpriteImage>();
@@ -144,7 +150,7 @@ internal static class NativeColouredPictures
             SpriteImage copy = OfSheet(key.Sheet, nativeColours, key.Row);
             copies.Add(key, copy);
         }
-        var shown = ImmutableArray.CreateBuilder<SpriteDraw>(draws.Length);
+        var shown = ImmutableArray.CreateBuilder<ImageSpriteDraw>(draws.Count);
         foreach (ImageSpriteDraw image in images)
         {
             shown.Add(new ImageSpriteDraw(image.Source, Of(image.Image, copies[CopyOf(image)]), image.Origin, image.Mirror)

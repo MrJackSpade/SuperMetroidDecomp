@@ -15,7 +15,6 @@ namespace SuperMetroid.Core.Gameplay;
 /// </summary>
 /// <param name="Foreground">The room's level plane on the foreground.</param>
 /// <param name="Background">The room's background plane on the background, or null when the background shows a loaded picture.</param>
-/// <param name="FxOverlay">The room effect's artwork on the effect overlay (#1348, #1514, #1706), as its pictures (#1403). The HUD is its own layer (#1466).</param>
 /// <param name="DoorSource">The source room's foreground screen during a door's opening scroll, or null.</param>
 /// <param name="ForegroundText">The text an escape shows over the foreground (Ceres's warning), or null (#1555).</param>
 /// <param name="Sky">
@@ -28,7 +27,7 @@ namespace SuperMetroid.Core.Gameplay;
 /// <param name="XrayReveal">The X-ray reveal background shows in place of the room's own background, or null (#1392).</param>
 /// <param name="BackgroundImage">The room's library background drawn from its image, where background shows the picture it loaded (#1392).</param>
 [ArchitectureReview("context-bag", "The background layers one gameplay frame shows, published to the display; every member is a layer's picture data, not a service.")]
-public sealed record RoomBackgrounds(RoomBackgroundLayer Foreground, RoomBackgroundLayer? Background, FxOverlayArtwork FxOverlay,
+public sealed record RoomBackgrounds(RoomBackgroundLayer Foreground, RoomBackgroundLayer? Background,
     RoomDoorBackground? DoorSource = null, RoomOverlayPictures? ForegroundText = null, SkyPictures? Sky = null,
     RoomOverlayPictures? BackgroundText = null, AffineFloor? Floor = null, ShownBossBody? BossBody = null,
     XrayRevealPlane? XrayReveal = null,

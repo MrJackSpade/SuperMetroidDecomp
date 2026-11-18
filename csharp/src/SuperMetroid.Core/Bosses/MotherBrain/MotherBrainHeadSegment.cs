@@ -3,8 +3,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <summary>
 /// The runs of frames Mother Brain's brain (head) animations are made of, played by her dedicated brain animation rather
 /// than an enemy's animation (#1948). An animation plays its own runs in order; a run another one continues into is named for
-/// what it holds. The unreachable frames after the initial dummy and the unused flash and unused head animation are not
-/// authored.
+/// what it holds.
 /// </summary>
 public enum MotherBrainHeadSegment
 {

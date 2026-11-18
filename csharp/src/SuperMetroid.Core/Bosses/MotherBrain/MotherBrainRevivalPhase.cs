@@ -6,7 +6,7 @@ public enum MotherBrainRevivalPhase
     /// <summary>Starts the revival wait, whose first update is the next.</summary>
     InanimateGrey,
 
-    /// <summary>When the wait runs out, re-enables breath/drool, clears the colour step counter, and starts the wait before the colours' restoration.</summary>
+    /// <summary>When the wait runs out, starts her breath and drool again, starts her colours' return from its first step, and starts the wait before that step.</summary>
     ShowSignsOfLife,
 
     /// <summary>Reverses the eight drained-grey colour steps, one each time its wait runs out, then re-enables brain colour handling and falls into wake-up.</summary>

@@ -9,21 +9,21 @@ public enum MotherBrainDrainedPhase
     /// <summary>Maintains the rainbow colours until the pause runs out, then initializes the independent painful-walking sequence.</summary>
     RegainBalance,
 
-    /// <summary>Refreshes head shake, applies rainbow colours, and advances painful walking until its sixth step stops the beam's sound and the brain's colours.</summary>
+    /// <summary>Keeps her brain shaking and her rainbow colours, and staggers her back and forth until she begins the stage her beam runs out in, which stops the beam's sound and shows her drained colours.</summary>
     FiringRainbowBeam,
 
-    /// <summary>Continues painful walking through its eighth step, then selects dying drool and the retreating neck posture.</summary>
+    /// <summary>Finishes her stagger's last stages, then starts her dying drool and raises her neck to retreat.</summary>
     RainbowBeamRunOut,
 
-    /// <summary>Requests really-slow backward walking to X 40 before disabling upper-neck motion and entering low-power setup.</summary>
+    /// <summary>Walks her back really slowly to the back of the room, then stops her upper neck's movement and starts her slump.</summary>
     MoveToBackOfRoom,
 
-    /// <summary>Waits for both neck movement indices to clear, disables drool, and requests fast crouching once standing.</summary>
+    /// <summary>Waits for her neck to finish rising, stops her drool, and once she stands crouches her fast.</summary>
     GoIntoLowPowerMode,
 
-    /// <summary>Waits out the crouched pause, clears the colour step counter, and immediately begins the grey transition's steps.</summary>
+    /// <summary>Waits out the crouched pause, then starts her greying from its first step and begins it at once.</summary>
     PrepareTransitionToGrey,
 
-    /// <summary>Steps through eight drained-grey colour steps and one step past the last, restores head health 36,000, and enters the inanimate revival setup.</summary>
+    /// <summary>Greys her one step each time the wait runs out; the step after the last gives her brain her third phase's health and leaves her a grey corpse awaiting revival.</summary>
     TransitionToGrey,
 }

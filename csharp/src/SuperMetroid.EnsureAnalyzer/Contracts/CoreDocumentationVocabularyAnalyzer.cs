@@ -122,6 +122,8 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// Translated in a declared name), tables told as the original's storage and, outside generated text, repository paths.
 /// #2402 adds, outside hardware owners, one value told as storage for several meanings: shared storage, a count of
 /// 65536ths, one value kept for several things or read under another meaning, and a marker left in a value.
+/// #2407 adds, outside hardware owners, what the original gave or kept, unreachable or unused frames told as not
+/// authored, a value copied without halving, the game keeping separate phases and fabricating in any word form.
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -1772,6 +1774,24 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
+    /// The original's storage and program and the port's reasoning about them told in boss prose (#2407), outside hardware
+    /// owners and markup: what the original gave or kept (the inert point the original gave their looks, the original
+    /// keeps the stage); unreachable or unused frames or animations told as not authored; a value copied without halving,
+    /// doubling, scaling or conversion; the game, original or cartridge keeping, having or using separate phases, states,
+    /// steps or stages (the game keeps four separate phases); and fabricating, in any word form (avoids fabricating a
+    /// countdown, does not fabricate a trajectory). Core says what the game does: which looks have hitboxes, how far a hit
+    /// area reaches, what each step of a walk does. English stays legal: what the game keeps or gives (the game keeps
+    /// colours lit), a value copied, an unused place, a cue that is not authored and a hardware owner.
+    /// </summary>
+    private static readonly Regex OriginalAndPortReasoningProse = new(
+        @"\bthe\s+original\s+(?:gave|gives|kept|keeps)\b" +
+        @"|\b(?:unreachable|unused)\b[^.;]{0,200}?\bnot\s+authored\b" +
+        @"|\bcopied\s+without\s+(?:halving|doubling|scaling|conversion|converting)\b" +
+        @"|\b(?:game|original|cartridge)\s+(?:keeps|kept|has|had|uses|used)\s+(?:\w+\s+){0,2}separate\s+(?:phases|states|steps|stages)\b" +
+        @"|\bfabricat(?:e|es|ed|ing|ion)\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
     /// A camel-case word of a declared name that tells the port as a translation (#2398): Translated or Untranslated at
     /// any word boundary (<c>CaptureTranslatedRenderSnapshot</c>, <c>hasTranslatedBodyChange</c>). Core names what the
     /// member captures, collects or tests.
@@ -2277,6 +2297,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : TableStorageProse.Match(Markup.Replace(text, " ")) is { Success: true } tableStorage ? tableStorage.Value
             : !generated && RepositoryPathProse.Match(text) is { Success: true } repositoryPath ? repositoryPath.Value
             : SharedStorageProse.Match(Markup.Replace(text, " ")) is { Success: true } sharedStorage ? sharedStorage.Value
+            : OriginalAndPortReasoningProse.Match(Markup.Replace(text, " ")) is { Success: true } reasoning ? reasoning.Value
             : TileCharacterFinding(text, owner) is { } character ? character
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;

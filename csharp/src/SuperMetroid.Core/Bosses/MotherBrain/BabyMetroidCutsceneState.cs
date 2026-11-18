@@ -19,11 +19,9 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </remarks>
 public sealed class BabyMetroidCutsceneState
 {
-    /// <summary>Horizontal collision half-extent, 36 room pixels from the Baby's center, copied without halving from the Baby's enemy definition.</summary>
-    /// <remarks>The Baby's enemy definition declares a width and height of 36, and enemy loading uses those
-    /// values directly as the Baby's X and Y radii; nothing halves them.</remarks>
+    /// <summary>How far the Baby's hit area reaches to either side of its center: 36 room pixels.</summary>
     public const int XHitboxRadius = 36;
-    /// <summary>Vertical collision half-extent, 36 room pixels from the Baby's center, copied without halving from the Baby's enemy definition.</summary>
+    /// <summary>How far the Baby's hit area reaches above and below its center: 36 room pixels.</summary>
     public const int YHitboxRadius = 36;
 
     /// <summary>The entrance's current phase.</summary>
@@ -179,10 +177,8 @@ public sealed class BabyMetroidCutsceneState
         bool brainCollision;
 
         bool latchSoundQueued = false;
-        // The release emits three independent dust allocations when the Baby
-        // finally lets go. Keep the individual room coordinates and animations instead of
-        // collapsing that side effect into a boolean: the spawn order matters when
-        // the room's enemy projectiles have nearly no room left.
+        // When the Baby finally lets go, three dust clouds rise, each at its own place with its own animation and
+        // spawned in turn: when the room's enemy projectiles have nearly no room left, the earlier clouds take it.
         var releaseDustClouds = new List<BabyMetroidReleaseDustRequest>(capacity: BabyMetroidCutsceneDefinitions.ReleaseDustOffsets.Count);
         bool ambientCrySoundQueued = false;
         bool samusRainbowActivated = false;

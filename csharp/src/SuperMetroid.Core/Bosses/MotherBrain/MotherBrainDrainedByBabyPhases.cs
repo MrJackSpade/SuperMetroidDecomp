@@ -30,9 +30,8 @@ internal sealed class MotherBrainDrainedByBabyPhases
     /// <summary>Alternates painful forward and backward walk requests, advancing the stage only after its pause expires.</summary>
     internal void StepPainfulWalking()
     {
-        // The game keeps four separate phases (request forward, wait forward,
-        // request backward, wait backward). Two booleans express the same state without
-        // hiding when a body animation is actually installed.
+        // Each stage walks her to one end of her stagger and pauses her there; the pause's end turns her around and
+        // begins the next stage, whose first update walks her the other way.
         if (PainfulWalkingPauseTimer != 0)
         {
             if (--PainfulWalkingPauseTimer == 0)
@@ -99,9 +98,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
     /// </summary>
     internal bool StaggerWhileFiringBeam(MotherBrainRainbowBeamStepRequests requests)
     {
-        // The rainbow step refreshes the shake timer only if another subsystem has cleared it.
-        // The head animation owns any decrement; retaining the write gate avoids
-        // fabricating a body-side countdown that does not exist in this step.
+        // Her brain's shake starts again only once it has run out; her brain's animation counts it down.
         if (Encounter.BrainMainShakeTimer == 0)
             Encounter.BrainMainShakeTimer = MotherBrainFightDefinitions.BrainShakeUpdates;
         requests.RainbowColours = true;

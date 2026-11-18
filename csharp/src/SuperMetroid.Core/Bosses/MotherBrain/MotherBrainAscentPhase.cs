@@ -9,10 +9,10 @@ public enum MotherBrainAscentPhase
     /// </summary>
     DrawMural,
 
-    /// <summary>Shows her phase-two attack and rear-leg colours and shows the prepared enemy background.</summary>
+    /// <summary>Shows her phase-two attack and rear-leg colours and reveals her body.</summary>
     SetupPhase2Graphics,
 
-    /// <summary>Configures articulated drawing and blending, makes head/body tangible, sets head health 18,000, and immediately starts the suspense wait.</summary>
+    /// <summary>Readies her brain and neck to be drawn, makes her body and brain tangible, gives her brain her second phase's health, and starts the suspense wait at once.</summary>
     SetupPhase2Brain,
 
     /// <summary>Waits out the suspense, then starts the wait before rising and falls into it.</summary>
@@ -24,13 +24,13 @@ public enum MotherBrainAscentPhase
     /// <summary>Readies her standing body one update at a time; the update that finishes it is the pause's first.</summary>
     ReadyStandingBody,
 
-    /// <summary>Waits out the pause before placing the hidden body/background and enabling its hitboxes.</summary>
+    /// <summary>Waits out the pause, then stands her hidden body in place and enables her body's, brain's and neck's hitboxes.</summary>
     ContinuePausing,
 
     /// <summary>Reveals the crouched body, starts boss music and earthquake, and enables the rising neck motion.</summary>
     StartMusicAndEarthquake,
 
-    /// <summary>Every fourth frame of the frame counter raises the body two pixels with dust and matching background scroll, then ends the floor-clipping effect and starts uncrouching.</summary>
+    /// <summary>Every fourth frame raises her body two pixels with dust until she has risen, then ends the floor-clipping effect and starts her uncrouching.</summary>
     RaiseMotherBrain,
 
     /// <summary>Waits for the body animation to publish the standing pose before initializing grey-colour restoration.</summary>

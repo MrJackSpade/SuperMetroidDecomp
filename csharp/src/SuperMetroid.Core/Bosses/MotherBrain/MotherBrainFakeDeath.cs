@@ -58,9 +58,7 @@ internal sealed class MotherBrainFakeDeath
             state.PhaseTimer.LastFor(MotherBrainWaitDefinitions.FakeDeathGreyStepUpdates);
             if (MotherBrainFadeDefinitions.FakeDeathToGrey.ImageAt(state.FakeDeathGreying.TakeStep()) is { } image)
             {
-                // Fake-death fade greys her brain's three colours only. Copying a convenient
-                // whole colour set would visibly alter unrelated room art and is not what
-                // the fake-death fade does.
+                // The fake-death fade greys her brain's three colours only; the room's other colours stay as they are.
                 state.Colours.ShowFakeDeathToGrey(image);
             }
             else

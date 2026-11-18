@@ -592,6 +592,14 @@ value` (or a second or third), a value read `under another meaning` or `under ea
 measure (`in pixels and 65536ths`, `one 65536th of a pixel further`), a value alone and a marker the game shows stay
 English.
 
+#2407 widens SME6454, outside hardware owners, to the original's storage and program and the port's reasoning about
+them as boss prose tells them: what `the original gave` or `kept` (or gives or keeps); `unreachable` or `unused` frames
+or animations told as `not authored`; a value `copied without halving` (or doubling, scaling or conversion); the game,
+original or cartridge keeping, having or using `separate phases` (or states, steps or stages); and `fabricating` in any
+word form. Core says what the game does: which looks have hitboxes, how far a hit area reaches, what each stage of a walk
+does. What the game keeps or gives (`the game keeps colours lit`), a value copied, an unused room and a cue that is not
+authored stay English.
+
 `Tilemap` is matched as the one word the cartridge's sources spell. A room layer named as the destination engine names
 it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as does `MapTiles`; so does
 `SpriteSheet` beside `Spritemap`, and `Scan`, `Scanned` or `FirstLine` beside `Scanline` (#1694). Documentation prose is

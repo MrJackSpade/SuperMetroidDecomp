@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Samus;
 /// </summary>
 /// <remarks>
 /// Draygon is an enemy actor, so its AI computes the boss's flight position and then
-/// carries Samus to it. This object deliberately accepts
-/// that actor position as an explicit input. It does not fabricate an enemy trajectory inside Samus physics.
+/// carries Samus to it. This object takes that position as an input; Samus's movement
+/// computes no flight of Draygon's own.
 /// Everything after that boundary—the signed claw offset, pose family, escape counter,
 /// release pose, velocity cleanup, and movement-type side effect—is modelled here.
 /// </remarks>

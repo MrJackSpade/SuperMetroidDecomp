@@ -147,9 +147,9 @@ internal static class SporeSpawnAnimations
     {
         [P.Husk] = new([Segments.Whole(P.Husk)], AnimationEnd.Holds),
         [P.AwaitingDescent] = new([Segments.Whole(P.AwaitingDescent)], AnimationEnd.Holds),
-        [P.FightStarted] = new([Segments.Whole(P.FightStarted), Segments.Whole(P.OpenAndStop), Segments.Repeated(P.OpenPulse, OpenPulseRepeats), Segments.Whole(P.CloseAndMove)], AnimationEnd.LoopsFrom(1)),
-        [P.OpenAndStop] = new([Segments.Whole(P.OpenAndStop), Segments.Repeated(P.OpenPulse, OpenPulseRepeats), Segments.Whole(P.CloseAndMove)], AnimationEnd.LoopsFrom(0)),
-        [P.CloseAndMove] = new([Segments.Whole(P.CloseAndMove), Segments.Whole(P.OpenAndStop), Segments.Repeated(P.OpenPulse, OpenPulseRepeats)], AnimationEnd.LoopsFrom(0)),
+        [P.FightStarted] = Animation<SporeSpawnBodySegment>.LeadingInto([Segments.Whole(P.FightStarted)], [Segments.Whole(P.OpenAndStop), Segments.Repeated(P.OpenPulse, OpenPulseRepeats), Segments.Whole(P.CloseAndMove)]),
+        [P.OpenAndStop] = Animation<SporeSpawnBodySegment>.Looping([Segments.Whole(P.OpenAndStop), Segments.Repeated(P.OpenPulse, OpenPulseRepeats), Segments.Whole(P.CloseAndMove)]),
+        [P.CloseAndMove] = Animation<SporeSpawnBodySegment>.Looping([Segments.Whole(P.CloseAndMove), Segments.Whole(P.OpenAndStop), Segments.Repeated(P.OpenPulse, OpenPulseRepeats)]),
         [P.Death] = new([Segments.Whole(P.Death), Segments.Repeated(P.DyingExplosions, DeathBurstRepeats), Segments.Whole(P.DeathClosing), Segments.Repeated(P.Hardening, DeathBurstRepeats), Segments.Whole(P.DeathFade)], AnimationEnd.Holds),
     };
 

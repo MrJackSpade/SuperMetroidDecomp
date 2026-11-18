@@ -74,7 +74,7 @@ internal static class RidleyFireballAnimations
     internal static IReadOnlyDictionary<RidleyFireballSegment, Animation<RidleyFireballSegment>> StartingAt { get; } =
         new Dictionary<RidleyFireballSegment, Animation<RidleyFireballSegment>>
         {
-            [P.Fireball] = new([Segments.Whole(P.Fireball), Segments.Whole(P.FireballFlight)], AnimationEnd.LoopsFrom(1)),
+            [P.Fireball] = Animation<RidleyFireballSegment>.LeadingInto([Segments.Whole(P.Fireball)], [Segments.Whole(P.FireballFlight)]),
             [P.AfterburnFinal] = new([Segments.Whole(P.AfterburnFinal), Segments.Whole(P.AfterburnPuff)], AnimationEnd.Holds),
             [P.HorizontalCenter] = new([Segments.Whole(P.HorizontalCenter), Segments.Whole(P.AfterburnPuff)], AnimationEnd.Holds),
             [P.VerticalCenter] = new([Segments.Whole(P.VerticalCenter), Segments.Whole(P.AfterburnPuff)], AnimationEnd.Holds),

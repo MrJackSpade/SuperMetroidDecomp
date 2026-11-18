@@ -33,14 +33,14 @@ internal static class BullAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<BullSegment, Animation<BullSegment>> StartingAt { get; } = new Dictionary<BullSegment, Animation<BullSegment>>
     {
-        [P.Normal] = new([Segments.Whole(P.Normal)], AnimationEnd.LoopsFrom(0)),
+        [P.Normal] = Animation<BullSegment>.Looping([Segments.Whole(P.Normal)]),
     };
 
     /// <summary>How many quick cycles of its poses an immune shot sets off before its normal cycle resumes.</summary>
     private const int ShotCycles = 5;
 
     /// <summary>The reaction to an immune shot (#2061): five quick cycles of its poses, then its normal cycle for good.</summary>
-    internal static Animation<BullSegment> Shot { get; } = new([Segments.Repeated(P.Shot, ShotCycles), Segments.Whole(P.Normal)], AnimationEnd.LoopsFrom(1));
+    internal static Animation<BullSegment> Shot { get; } = Animation<BullSegment>.LeadingInto([Segments.Repeated(P.Shot, ShotCycles)], [Segments.Whole(P.Normal)]);
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<BullSegment> StartingWith(BullSegment segment) => StartingAt[segment];

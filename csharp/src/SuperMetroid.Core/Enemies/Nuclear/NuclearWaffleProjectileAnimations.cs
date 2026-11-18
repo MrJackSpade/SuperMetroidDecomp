@@ -34,7 +34,7 @@ internal static class NuclearWaffleProjectileAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<NuclearWaffleProjectileSegment, Animation<NuclearWaffleProjectileSegment>> StartingAt { get; } = new Dictionary<NuclearWaffleProjectileSegment, Animation<NuclearWaffleProjectileSegment>>
     {
-        [P.Churning] = new([Segments.Whole(P.Churning)], AnimationEnd.LoopsFrom(0)),
+        [P.Churning] = Animation<NuclearWaffleProjectileSegment>.Looping([Segments.Whole(P.Churning)]),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

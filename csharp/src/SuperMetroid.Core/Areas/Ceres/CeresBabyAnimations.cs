@@ -41,8 +41,8 @@ internal static class CeresBabyAnimations
     /// </summary>
     internal static IReadOnlyDictionary<P, Animation<P>> StartingAt { get; } = new Dictionary<P, Animation<P>>
     {
-        [P.IdleSquish] = new([Segments.Whole(P.IdleSquish), Segments.Whole(P.ExpressiveLoop)], AnimationEnd.LoopsFrom(0)),
-        [P.ExpressiveLoop] = new([Segments.Whole(P.ExpressiveLoop), Segments.Whole(P.IdleSquish)], AnimationEnd.LoopsFrom(0)),
+        [P.IdleSquish] = Animation<P>.Looping([Segments.Whole(P.IdleSquish), Segments.Whole(P.ExpressiveLoop)]),
+        [P.ExpressiveLoop] = Animation<P>.Looping([Segments.Whole(P.ExpressiveLoop), Segments.Whole(P.IdleSquish)]),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

@@ -65,5 +65,5 @@ public sealed class MapHighlightAnimation
 
     /// <summary>The cycle played over and over, each pass ending in its wrap.</summary>
     private static Animation<MapHighlightSegment> Cycling(AnimationSegments<MapHighlightSegment, MapHighlightFrame, MapHighlightCue> segments) =>
-        new([segments.Whole(MapHighlightSegment.Steps), segments.Whole(MapHighlightSegment.Wrap)], AnimationEnd.LoopsFrom(0));
+        Animation<MapHighlightSegment>.Looping([segments.Whole(MapHighlightSegment.Steps), segments.Whole(MapHighlightSegment.Wrap)]);
 }

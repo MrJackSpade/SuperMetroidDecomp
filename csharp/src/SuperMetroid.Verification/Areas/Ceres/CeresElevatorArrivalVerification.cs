@@ -192,7 +192,7 @@ internal static class CeresElevatorArrivalVerification
                     // one record is a held frame, rests on it for good (#2353).
                     VerificationAssertions.AssertEqual(operand,
                         NativeEnemyAnimationOracle.EntryOf(CeresElevatorArrivalNativeListAddresses.Entries, program), $"{at}: goto target");
-                    VerificationAssertions.AssertEqual(beats is [AnimationBeat<CeresElevatorArrivalPose, NoAnimationCue>.HeldFrame] ? AnimationEnd.Holds : AnimationEnd.LoopsFrom(0),
+                    VerificationAssertions.AssertEqual(beats is [AnimationBeat<CeresElevatorArrivalPose, NoAnimationCue>.HeldFrame] ? AnimationEnd.Holds : new AnimationEnd.Loop(0),
                         animation.End, $"{at}: goto");
                     break;
                 }

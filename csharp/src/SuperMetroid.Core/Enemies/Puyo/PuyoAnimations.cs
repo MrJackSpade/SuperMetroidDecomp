@@ -60,9 +60,9 @@ internal static class PuyoAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<PuyoSegment, Animation<PuyoSegment>> StartingAt { get; } = new Dictionary<PuyoSegment, Animation<PuyoSegment>>
     {
-        [P.GroundedFast] = new([Segments.Whole(P.GroundedFast)], AnimationEnd.LoopsFrom(0)),
-        [P.GroundedMedium] = new([Segments.Whole(P.GroundedMedium)], AnimationEnd.LoopsFrom(0)),
-        [P.GroundedSlow] = new([Segments.Whole(P.GroundedSlow)], AnimationEnd.LoopsFrom(0)),
+        [P.GroundedFast] = Animation<PuyoSegment>.Looping([Segments.Whole(P.GroundedFast)]),
+        [P.GroundedMedium] = Animation<PuyoSegment>.Looping([Segments.Whole(P.GroundedMedium)]),
+        [P.GroundedSlow] = Animation<PuyoSegment>.Looping([Segments.Whole(P.GroundedSlow)]),
         [P.TiltedFarRight] = new([Segments.Whole(P.TiltedFarRight)], AnimationEnd.Holds),
         [P.TiltedRight] = new([Segments.Whole(P.TiltedRight)], AnimationEnd.Holds),
         [P.Upright] = new([Segments.Whole(P.Upright)], AnimationEnd.Holds),

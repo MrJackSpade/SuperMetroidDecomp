@@ -106,11 +106,11 @@ internal static class AlcoonAnimations
     /// </summary>
     internal static IReadOnlyDictionary<AlcoonSegment, Animation<AlcoonSegment>> StartingAt { get; } = new Dictionary<AlcoonSegment, Animation<AlcoonSegment>>
     {
-        [P.WalkingLeft] = new([Segments.Whole(P.WalkingLeft)], AnimationEnd.LoopsFrom(0)),
+        [P.WalkingLeft] = Animation<AlcoonSegment>.Looping([Segments.Whole(P.WalkingLeft)]),
         [P.FireLeft] = new([Segments.Whole(P.FireLeft)], AnimationEnd.Holds),
         [P.AirborneLeftLookingUp] = new([Segments.Whole(P.AirborneLeftLookingUp)], AnimationEnd.Holds),
         [P.AirborneLeftLookingForward] = new([Segments.Whole(P.AirborneLeftLookingForward)], AnimationEnd.Holds),
-        [P.WalkingRight] = new([Segments.Whole(P.WalkingRight)], AnimationEnd.LoopsFrom(0)),
+        [P.WalkingRight] = Animation<AlcoonSegment>.Looping([Segments.Whole(P.WalkingRight)]),
         [P.FireRight] = new([Segments.Whole(P.FireRight)], AnimationEnd.Holds),
         [P.AirborneRightLookingUp] = new([Segments.Whole(P.AirborneRightLookingUp)], AnimationEnd.Holds),
         [P.AirborneRightLookingForward] = new([Segments.Whole(P.AirborneRightLookingForward)], AnimationEnd.Holds),

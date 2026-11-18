@@ -31,8 +31,8 @@ internal static class FuneNamiheFireballAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<FuneNamiheFireballSegment, Animation<FuneNamiheFireballSegment>> StartingAt { get; } = new Dictionary<FuneNamiheFireballSegment, Animation<FuneNamiheFireballSegment>>
     {
-        [P.Left] = new([Segments.Whole(P.Left)], AnimationEnd.LoopsFrom(0)),
-        [P.Right] = new([Segments.Whole(P.Right)], AnimationEnd.LoopsFrom(0)),
+        [P.Left] = Animation<FuneNamiheFireballSegment>.Looping([Segments.Whole(P.Left)]),
+        [P.Right] = Animation<FuneNamiheFireballSegment>.Looping([Segments.Whole(P.Right)]),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

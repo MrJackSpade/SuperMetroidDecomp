@@ -41,7 +41,7 @@ internal static class FallingSparkAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<FallingSparkSegment, Animation<FallingSparkSegment>> StartingAt { get; } = new Dictionary<FallingSparkSegment, Animation<FallingSparkSegment>>
     {
-        [P.Falling] = new([Segments.Whole(P.Falling)], AnimationEnd.LoopsFrom(0)),
+        [P.Falling] = Animation<FallingSparkSegment>.Looping([Segments.Whole(P.Falling)]),
         [P.HitFloor] = new([Segments.Whole(P.HitFloor)], AnimationEnd.Holds),
     };
 

@@ -77,10 +77,10 @@ internal static class CacatacAnimations
     /// </summary>
     internal static IReadOnlyDictionary<CacatacSegment, Animation<CacatacSegment>> StartingAt { get; } = new Dictionary<CacatacSegment, Animation<CacatacSegment>>
     {
-        [P.UpsideUpIdle] = new([Segments.Whole(P.UpsideUpIdle)], AnimationEnd.LoopsFrom(0)),
-        [P.UpsideUpAttack] = new([Segments.Whole(P.UpsideUpAttack), Segments.Whole(P.UpsideUpIdle)], AnimationEnd.LoopsFrom(1)),
-        [P.UpsideDownIdle] = new([Segments.Whole(P.UpsideDownIdle), Segments.Whole(P.UpsideDownIdlePoses)], AnimationEnd.LoopsFrom(1)),
-        [P.UpsideDownAttack] = new([Segments.Whole(P.UpsideDownAttack), Segments.Whole(P.UpsideDownIdle), Segments.Whole(P.UpsideDownIdlePoses)], AnimationEnd.LoopsFrom(2)),
+        [P.UpsideUpIdle] = Animation<CacatacSegment>.Looping([Segments.Whole(P.UpsideUpIdle)]),
+        [P.UpsideUpAttack] = Animation<CacatacSegment>.LeadingInto([Segments.Whole(P.UpsideUpAttack)], [Segments.Whole(P.UpsideUpIdle)]),
+        [P.UpsideDownIdle] = Animation<CacatacSegment>.LeadingInto([Segments.Whole(P.UpsideDownIdle)], [Segments.Whole(P.UpsideDownIdlePoses)]),
+        [P.UpsideDownAttack] = Animation<CacatacSegment>.LeadingInto([Segments.Whole(P.UpsideDownAttack), Segments.Whole(P.UpsideDownIdle)], [Segments.Whole(P.UpsideDownIdlePoses)]),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

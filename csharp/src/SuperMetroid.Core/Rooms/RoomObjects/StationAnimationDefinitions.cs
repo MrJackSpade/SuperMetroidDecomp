@@ -41,7 +41,7 @@ internal static class StationAnimationDefinitions
 
     /// <summary>The whole of <paramref name="segment"/>, again and again.</summary>
     private static Animation<StationAnimation> Looping(StationAnimation segment) =>
-        new([new(segment, 0, Segments.Beats(segment).Count, 1)], AnimationEnd.LoopsFrom(0));
+        Animation<StationAnimation>.Looping([new(segment, 0, Segments.Beats(segment).Count, 1)]);
 
     /// <summary>Shows <paramref name="draw"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<StationDraw, NoAnimationCue> Show(StationDraw draw, int duration) =>

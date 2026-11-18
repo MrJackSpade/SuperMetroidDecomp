@@ -134,20 +134,19 @@ internal static class EscapeDachoraAnimations
 
     /// <summary>Five laps left then five right at low tide, each lap counted, over and over (#2061).</summary>
     internal static Animation<P> RunningAroundLowTide { get; } =
-        new([Segments.Repeated(P.RunningAroundLowTideLeft, LapsEachWay), Segments.Repeated(P.RunningAroundLowTideRight, LapsEachWay)], AnimationEnd.LoopsFrom(0));
+        Animation<P>.Looping([Segments.Repeated(P.RunningAroundLowTideLeft, LapsEachWay), Segments.Repeated(P.RunningAroundLowTideRight, LapsEachWay)]);
 
     /// <summary>Five quicker laps left then five right at high tide, each lap counted, over and over (#2061).</summary>
     internal static Animation<P> RunningAroundHighTide { get; } =
-        new([Segments.Repeated(P.RunningAroundHighTideLeft, LapsEachWay), Segments.Repeated(P.RunningAroundHighTideRight, LapsEachWay)], AnimationEnd.LoopsFrom(0));
+        Animation<P>.Looping([Segments.Repeated(P.RunningAroundHighTideLeft, LapsEachWay), Segments.Repeated(P.RunningAroundHighTideRight, LapsEachWay)]);
 
     /// <summary>The pause, the acceleration, then the sprint at full speed for good.</summary>
-    internal static Animation<P> RunningForEscape { get; } = new(
-        [Segments.Whole(P.RunningForEscape), Segments.Whole(P.RunningForEscapeAccelerating), Segments.Whole(P.RunningForEscapeMaximumSpeed)],
-        AnimationEnd.LoopsFrom(2));
+    internal static Animation<P> RunningForEscape { get; } = Animation<P>.LeadingInto(
+        [Segments.Whole(P.RunningForEscape), Segments.Whole(P.RunningForEscapeAccelerating)], [Segments.Whole(P.RunningForEscapeMaximumSpeed)]);
 
     /// <summary>The acceleration, then the sprint at full speed for good.</summary>
-    internal static Animation<P> RunningForEscapeAccelerating { get; } = new(
-        [Segments.Whole(P.RunningForEscapeAccelerating), Segments.Whole(P.RunningForEscapeMaximumSpeed)], AnimationEnd.LoopsFrom(1));
+    internal static Animation<P> RunningForEscapeAccelerating { get; } = Animation<P>.LeadingInto(
+        [Segments.Whole(P.RunningForEscapeAccelerating)], [Segments.Whole(P.RunningForEscapeMaximumSpeed)]);
 
     /// <summary>
     /// Where a rising tide takes a lap to the left (#2061): the high-tide laps at the end of a lap to the left, counting on

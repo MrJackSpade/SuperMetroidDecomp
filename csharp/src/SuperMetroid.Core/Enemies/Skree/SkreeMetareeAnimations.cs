@@ -71,12 +71,12 @@ internal static class SkreeMetareeAnimations
     /// </summary>
     internal static IReadOnlyDictionary<SkreeMetareeSegment, Animation<SkreeMetareeSegment>> StartingAt { get; } = new Dictionary<SkreeMetareeSegment, Animation<SkreeMetareeSegment>>
     {
-        [P.MetareeIdling] = new([Segments.Whole(P.MetareeIdling)], AnimationEnd.LoopsFrom(0)),
+        [P.MetareeIdling] = Animation<SkreeMetareeSegment>.Looping([Segments.Whole(P.MetareeIdling)]),
         [P.MetareePreparingAttack] = new([Segments.Whole(P.MetareePreparingAttack)], AnimationEnd.Holds),
-        [P.MetareeDiving] = new([Segments.Whole(P.MetareeDiving), Segments.Whole(P.MetareeDivingSpin)], AnimationEnd.LoopsFrom(1)),
-        [P.SkreeIdling] = new([Segments.Whole(P.SkreeIdling)], AnimationEnd.LoopsFrom(0)),
+        [P.MetareeDiving] = Animation<SkreeMetareeSegment>.LeadingInto([Segments.Whole(P.MetareeDiving)], [Segments.Whole(P.MetareeDivingSpin)]),
+        [P.SkreeIdling] = Animation<SkreeMetareeSegment>.Looping([Segments.Whole(P.SkreeIdling)]),
         [P.SkreePreparingAttack] = new([Segments.Whole(P.SkreePreparingAttack)], AnimationEnd.Holds),
-        [P.SkreeDiving] = new([Segments.Whole(P.SkreeDiving), Segments.Whole(P.SkreeDivingSpin)], AnimationEnd.LoopsFrom(1)),
+        [P.SkreeDiving] = Animation<SkreeMetareeSegment>.LeadingInto([Segments.Whole(P.SkreeDiving)], [Segments.Whole(P.SkreeDivingSpin)]),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

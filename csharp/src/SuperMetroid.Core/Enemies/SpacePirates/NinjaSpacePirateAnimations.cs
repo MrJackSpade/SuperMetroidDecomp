@@ -322,33 +322,37 @@ internal static class NinjaSpacePirateAnimations
     /// </summary>
     internal static IReadOnlyDictionary<NinjaSpacePirateSegment, Animation<NinjaSpacePirateSegment>> StartingAt { get; } = new Dictionary<NinjaSpacePirateSegment, Animation<NinjaSpacePirateSegment>>
     {
-        [P.ClawAttackLeft] = new([Segments.Whole(P.ClawAttackLeft), .. Active(P.ActiveFacingLeft, P.ActiveFacingLeftStance)], AnimationEnd.LoopsFrom(2)),
-        [P.SpinJumpLeft] = new([Segments.Whole(P.SpinJumpLeft), Segments.Whole(P.SpinJumpLeftSpinning)], AnimationEnd.LoopsFrom(1)),
-        [P.ActiveFacingLeft] = new(Active(P.ActiveFacingLeft, P.ActiveFacingLeftStance), AnimationEnd.LoopsFrom(1)),
-        [P.FlinchFacingLeft] = new([Segments.Whole(P.FlinchFacingLeft), .. Active(P.ActiveFacingLeft, P.ActiveFacingLeftStance)], AnimationEnd.LoopsFrom(2)),
-        [P.DivekickLeftJump] = new([Segments.Whole(P.DivekickLeftJump), Segments.Whole(P.DivekickLeftJumpFlash)], AnimationEnd.LoopsFrom(1)),
+        [P.ClawAttackLeft] = Active([P.ClawAttackLeft], P.ActiveFacingLeft, P.ActiveFacingLeftStance),
+        [P.SpinJumpLeft] = Animation<NinjaSpacePirateSegment>.LeadingInto([Segments.Whole(P.SpinJumpLeft)], [Segments.Whole(P.SpinJumpLeftSpinning)]),
+        [P.ActiveFacingLeft] = Active([], P.ActiveFacingLeft, P.ActiveFacingLeftStance),
+        [P.FlinchFacingLeft] = Active([P.FlinchFacingLeft], P.ActiveFacingLeft, P.ActiveFacingLeftStance),
+        [P.DivekickLeftJump] = Animation<NinjaSpacePirateSegment>.LeadingInto([Segments.Whole(P.DivekickLeftJump)], [Segments.Whole(P.DivekickLeftJumpFlash)]),
         [P.DivekickLeftDive] = new([Segments.Whole(P.DivekickLeftDive)], AnimationEnd.Holds),
-        [P.WalkToLeftPost] = new([Segments.Whole(P.WalkToLeftPost), Segments.Whole(P.RunningToLeftPost)], AnimationEnd.LoopsFrom(1)),
-        [P.AwaitingSamusFacingLeft] = new([Segments.Whole(P.AwaitingSamusFacingLeft), Segments.Whole(P.LookingAroundFacingLeft)], AnimationEnd.LoopsFrom(1)),
-        [P.LandFacingLeft] = new([Segments.Whole(P.LandFacingLeft), Segments.Whole(P.LandFacingLeftReady)], AnimationEnd.LoopsFrom(1)),
-        [P.KickFacingLeft] = new([Segments.Whole(P.KickFacingLeft), .. Active(P.ActiveFacingLeft, P.ActiveFacingLeftStance)], AnimationEnd.LoopsFrom(2)),
-        [P.ClawAttackRight] = new([Segments.Whole(P.ClawAttackRight), .. Active(P.ActiveFacingRight, P.ActiveFacingRightStance)], AnimationEnd.LoopsFrom(2)),
-        [P.SpinJumpRight] = new([Segments.Whole(P.SpinJumpRight), Segments.Whole(P.SpinJumpRightSpinning)], AnimationEnd.LoopsFrom(1)),
-        [P.ActiveFacingRight] = new(Active(P.ActiveFacingRight, P.ActiveFacingRightStance), AnimationEnd.LoopsFrom(1)),
-        [P.FlinchFacingRight] = new([Segments.Whole(P.FlinchFacingRight), .. Active(P.ActiveFacingRight, P.ActiveFacingRightStance)], AnimationEnd.LoopsFrom(2)),
-        [P.DivekickRightJump] = new([Segments.Whole(P.DivekickRightJump), Segments.Whole(P.DivekickRightJumpFlash)], AnimationEnd.LoopsFrom(1)),
+        [P.WalkToLeftPost] = Animation<NinjaSpacePirateSegment>.LeadingInto([Segments.Whole(P.WalkToLeftPost)], [Segments.Whole(P.RunningToLeftPost)]),
+        [P.AwaitingSamusFacingLeft] = Animation<NinjaSpacePirateSegment>.LeadingInto([Segments.Whole(P.AwaitingSamusFacingLeft)], [Segments.Whole(P.LookingAroundFacingLeft)]),
+        [P.LandFacingLeft] = Animation<NinjaSpacePirateSegment>.LeadingInto([Segments.Whole(P.LandFacingLeft)], [Segments.Whole(P.LandFacingLeftReady)]),
+        [P.KickFacingLeft] = Active([P.KickFacingLeft], P.ActiveFacingLeft, P.ActiveFacingLeftStance),
+        [P.ClawAttackRight] = Active([P.ClawAttackRight], P.ActiveFacingRight, P.ActiveFacingRightStance),
+        [P.SpinJumpRight] = Animation<NinjaSpacePirateSegment>.LeadingInto([Segments.Whole(P.SpinJumpRight)], [Segments.Whole(P.SpinJumpRightSpinning)]),
+        [P.ActiveFacingRight] = Active([], P.ActiveFacingRight, P.ActiveFacingRightStance),
+        [P.FlinchFacingRight] = Active([P.FlinchFacingRight], P.ActiveFacingRight, P.ActiveFacingRightStance),
+        [P.DivekickRightJump] = Animation<NinjaSpacePirateSegment>.LeadingInto([Segments.Whole(P.DivekickRightJump)], [Segments.Whole(P.DivekickRightJumpFlash)]),
         [P.DivekickRightDive] = new([Segments.Whole(P.DivekickRightDive)], AnimationEnd.Holds),
-        [P.WalkToRightPost] = new([Segments.Whole(P.WalkToRightPost), Segments.Whole(P.RunningToRightPost)], AnimationEnd.LoopsFrom(1)),
-        [P.AwaitingSamusFacingRight] = new([Segments.Whole(P.AwaitingSamusFacingRight), Segments.Whole(P.LookingAroundFacingRight)], AnimationEnd.LoopsFrom(1)),
-        [P.LandFacingRight] = new([Segments.Whole(P.LandFacingRight), Segments.Whole(P.LandFacingRightReady)], AnimationEnd.LoopsFrom(1)),
-        [P.KickFacingRight] = new([Segments.Whole(P.KickFacingRight), .. Active(P.ActiveFacingRight, P.ActiveFacingRightStance)], AnimationEnd.LoopsFrom(2)),
+        [P.WalkToRightPost] = Animation<NinjaSpacePirateSegment>.LeadingInto([Segments.Whole(P.WalkToRightPost)], [Segments.Whole(P.RunningToRightPost)]),
+        [P.AwaitingSamusFacingRight] = Animation<NinjaSpacePirateSegment>.LeadingInto([Segments.Whole(P.AwaitingSamusFacingRight)], [Segments.Whole(P.LookingAroundFacingRight)]),
+        [P.LandFacingRight] = Animation<NinjaSpacePirateSegment>.LeadingInto([Segments.Whole(P.LandFacingRight)], [Segments.Whole(P.LandFacingRightReady)]),
+        [P.KickFacingRight] = Active([P.KickFacingRight], P.ActiveFacingRight, P.ActiveFacingRightStance),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<NinjaSpacePirateSegment> StartingWith(NinjaSpacePirateSegment segment) => StartingAt[segment];
 
-    /// <summary>The active stance's entry, <paramref name="entry"/>, then its stance <paramref name="stance"/>, which loops.</summary>
-    private static AnimationPhase<NinjaSpacePirateSegment>[] Active(NinjaSpacePirateSegment entry, NinjaSpacePirateSegment stance) => [Segments.Whole(entry), Segments.Whole(stance)];
+    /// <summary>
+    /// Plays each of <paramref name="before"/> whole, then the active stance's entry, <paramref name="entry"/>, once and its
+    /// stance <paramref name="stance"/> for good (#2414).
+    /// </summary>
+    private static Animation<P> Active(IReadOnlyList<P> before, P entry, P stance) =>
+        Animation<P>.LeadingInto([.. before.Select(Segments.Whole), Segments.Whole(entry)], [Segments.Whole(stance)]);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, NinjaSpacePirateCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NinjaSpacePirateCue>.Frame(frame, duration);

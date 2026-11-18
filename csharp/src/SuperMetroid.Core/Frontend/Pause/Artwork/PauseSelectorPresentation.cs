@@ -30,7 +30,7 @@ public sealed class PauseSelectorPresentation
             [PauseSelectorSegment.Cycle] =
                 [.. Enumerable.Range(0, steps).Select(step => new AnimationBeat<PauseSelectorLook, NoAnimationCue>.Frame(Looks[step], parts.Durations[step]))],
         });
-        Cycling = new([Segments.Whole(PauseSelectorSegment.Cycle)], AnimationEnd.LoopsFrom(0));
+        Cycling = Animation<PauseSelectorSegment>.Looping([Segments.Whole(PauseSelectorSegment.Cycle)]);
         InitialDurationTicks = parts.InitialDuration;
     }
 

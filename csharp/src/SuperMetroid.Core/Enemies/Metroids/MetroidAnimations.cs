@@ -49,8 +49,8 @@ internal static class MetroidAnimations
     /// </summary>
     internal static IReadOnlyDictionary<MetroidSegment, Animation<MetroidSegment>> StartingAt { get; } = new Dictionary<MetroidSegment, Animation<MetroidSegment>>
     {
-        [P.ChasingSamus] = new([Segments.Repeated(P.ChasingSamus, PulsesBetweenCries), Segments.Whole(P.ChasingCry)], AnimationEnd.LoopsFrom(0)),
-        [P.DrainingSamus] = new([Segments.Whole(P.DrainingSamus)], AnimationEnd.LoopsFrom(0)),
+        [P.ChasingSamus] = Animation<MetroidSegment>.Looping([Segments.Repeated(P.ChasingSamus, PulsesBetweenCries), Segments.Whole(P.ChasingCry)]),
+        [P.DrainingSamus] = Animation<MetroidSegment>.Looping([Segments.Whole(P.DrainingSamus)]),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

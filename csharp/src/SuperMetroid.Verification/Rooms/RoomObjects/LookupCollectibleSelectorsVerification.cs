@@ -24,7 +24,7 @@ internal static class LookupCollectibleSelectorsVerification
             AssertEqual(ReadCollectibleDrawWord(rom, (ushort)(0xdfb5 + phase * 4)),
                 RoomObjectDrawAddressCodec.Of(CollectibleObjectDraws.Family.Of(image.Shown)), "Collectible native orb phase draw");
         }
-        AssertEqual(AnimationEnd.LoopsFrom(0), CollectibleOrbAnimation.Pulsing.End, "the orb's animation starts again after its fourth image");
+        AssertEqual(new AnimationEnd.Loop(0), CollectibleOrbAnimation.Pulsing.End, "the orb's animation starts again after its fourth image");
     }
 
     /// <summary>

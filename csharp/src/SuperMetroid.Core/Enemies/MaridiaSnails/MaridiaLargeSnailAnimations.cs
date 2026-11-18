@@ -118,12 +118,12 @@ internal static class MaridiaLargeSnailAnimations
     {
         [P.FacingLeftIdle] = new([Segments.Whole(P.FacingLeftIdle)], AnimationEnd.Holds),
         [P.FacingLeftAttacking] = new([Segments.Whole(P.FacingLeftAttacking)], AnimationEnd.Holds),
-        [P.FacingLeftRollingForwards] = new([Segments.Whole(P.FacingLeftRollingForwards)], AnimationEnd.LoopsFrom(0)),
-        [P.FacingLeftRollingBackwards] = new([Segments.Whole(P.FacingLeftRollingBackwards)], AnimationEnd.LoopsFrom(0)),
+        [P.FacingLeftRollingForwards] = Animation<MaridiaLargeSnailSegment>.Looping([Segments.Whole(P.FacingLeftRollingForwards)]),
+        [P.FacingLeftRollingBackwards] = Animation<MaridiaLargeSnailSegment>.Looping([Segments.Whole(P.FacingLeftRollingBackwards)]),
         [P.FacingRightIdle] = new([Segments.Whole(P.FacingRightIdle)], AnimationEnd.Holds),
         [P.FacingRightAttacking] = new([Segments.Whole(P.FacingRightAttacking)], AnimationEnd.Holds),
-        [P.FacingRightRollingForwards] = new([Segments.Whole(P.FacingRightRollingForwards)], AnimationEnd.LoopsFrom(0)),
-        [P.FacingRightRollingBackwards] = new([Segments.Whole(P.FacingRightRollingBackwards)], AnimationEnd.LoopsFrom(0)),
+        [P.FacingRightRollingForwards] = Animation<MaridiaLargeSnailSegment>.Looping([Segments.Whole(P.FacingRightRollingForwards)]),
+        [P.FacingRightRollingBackwards] = Animation<MaridiaLargeSnailSegment>.Looping([Segments.Whole(P.FacingRightRollingBackwards)]),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

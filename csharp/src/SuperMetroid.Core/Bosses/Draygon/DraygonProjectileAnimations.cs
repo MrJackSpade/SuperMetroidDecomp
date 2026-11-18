@@ -70,10 +70,10 @@ internal static class DraygonProjectileAnimations
     internal static IReadOnlyDictionary<DraygonProjectileSegment, Animation<DraygonProjectileSegment>> StartingAt { get; } =
         new Dictionary<DraygonProjectileSegment, Animation<DraygonProjectileSegment>>
         {
-            [P.GoopTouch] = new([Segments.Whole(P.GoopTouch), Segments.Whole(P.Goop)], AnimationEnd.LoopsFrom(1)),
-            [P.Goop] = new([Segments.Whole(P.Goop)], AnimationEnd.LoopsFrom(0)),
+            [P.GoopTouch] = Animation<DraygonProjectileSegment>.LeadingInto([Segments.Whole(P.GoopTouch)], [Segments.Whole(P.Goop)]),
+            [P.Goop] = Animation<DraygonProjectileSegment>.Looping([Segments.Whole(P.Goop)]),
             [P.GoopShot] = new([Segments.Whole(P.GoopShot)], AnimationEnd.Holds),
-            [P.WallTurretBloom] = new([Segments.Whole(P.WallTurretBloom), Segments.Whole(P.WallTurretFlight)], AnimationEnd.LoopsFrom(1)),
+            [P.WallTurretBloom] = Animation<DraygonProjectileSegment>.LeadingInto([Segments.Whole(P.WallTurretBloom)], [Segments.Whole(P.WallTurretFlight)]),
         };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

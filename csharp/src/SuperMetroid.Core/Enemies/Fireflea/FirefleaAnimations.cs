@@ -83,8 +83,7 @@ internal static class FirefleaAnimations
     /// </summary>
     internal static IReadOnlyDictionary<FirefleaSegment, Animation<FirefleaSegment>> StartingAt { get; } = new Dictionary<FirefleaSegment, Animation<FirefleaSegment>>
     {
-        [P.BrightestWingbeat] = new([Segments.Repeated(P.BrightestWingbeat, BrightestWingbeats), Segments.Whole(P.Dimming), Segments.Whole(P.Brightening)],
-            AnimationEnd.LoopsFrom(0)),
+        [P.BrightestWingbeat] = Animation<FirefleaSegment>.Looping([Segments.Repeated(P.BrightestWingbeat, BrightestWingbeats), Segments.Whole(P.Dimming), Segments.Whole(P.Brightening)]),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

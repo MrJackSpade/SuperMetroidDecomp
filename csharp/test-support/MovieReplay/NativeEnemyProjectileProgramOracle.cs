@@ -255,7 +255,7 @@ internal static class NativeEnemyProjectileProgramOracle
                         loopsAt[(list, control.AfterBeat)] = phases.Count;
                         continue;
                     case NativeEnemyControlKind.Goto when control.TargetBeat != 0:
-                        end = AnimationEnd.LoopsFrom(loopsAt.TryGetValue((control.Target!.Value, control.TargetBeat), out int loopStart)
+                        end = new AnimationEnd.Loop(loopsAt.TryGetValue((control.Target!.Value, control.TargetBeat), out int loopStart)
                             ? loopStart
                             : throw new InvalidDataException($"{animation}'s goto to beat {control.TargetBeat} of ${control.Target.Value:X4} enters no list the play has entered."));
                         break;
@@ -264,7 +264,7 @@ internal static class NativeEnemyProjectileProgramOracle
                         ushort target = control.Target!.Value;
                         if (entered.TryGetValue(target, out int loop))
                         {
-                            end = AnimationEnd.LoopsFrom(loop);
+                            end = new AnimationEnd.Loop(loop);
                             break;
                         }
                         entered[target] = phases.Count;

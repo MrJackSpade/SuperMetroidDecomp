@@ -46,7 +46,7 @@ internal static class ShutterAnimations
         [P.GrowingTwentyPixels] = new([Segments.Whole(P.GrowingTwentyPixels)], AnimationEnd.Holds),
         [P.GrowingThirtyPixels] = new([Segments.Whole(P.GrowingThirtyPixels)], AnimationEnd.Holds),
         [P.FortyPixels] = new([Segments.Whole(P.FortyPixels)], AnimationEnd.Holds),
-        [P.KamerPlatform] = new([Segments.Whole(P.KamerPlatform)], AnimationEnd.LoopsFrom(0)),
+        [P.KamerPlatform] = Animation<ShutterSegment>.Looping([Segments.Whole(P.KamerPlatform)]),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

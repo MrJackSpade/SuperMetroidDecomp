@@ -51,9 +51,9 @@ internal static class DragonAnimations
     internal static IReadOnlyDictionary<DragonSegment, Animation<DragonSegment>> StartingAt { get; } = new Dictionary<DragonSegment, Animation<DragonSegment>>
     {
         [P.IdleFacingLeft] = new([Segments.Whole(P.IdleFacingLeft)], AnimationEnd.Holds),
-        [P.WingsFacingLeft] = new([Segments.Whole(P.WingsFacingLeft)], AnimationEnd.LoopsFrom(0)),
+        [P.WingsFacingLeft] = Animation<DragonSegment>.Looping([Segments.Whole(P.WingsFacingLeft)]),
         [P.IdleFacingRight] = new([Segments.Whole(P.IdleFacingRight)], AnimationEnd.Holds),
-        [P.WingsFacingRight] = new([Segments.Whole(P.WingsFacingRight)], AnimationEnd.LoopsFrom(0)),
+        [P.WingsFacingRight] = Animation<DragonSegment>.Looping([Segments.Whole(P.WingsFacingRight)]),
         [P.AttackingFacingLeft] = new([Segments.Whole(P.AttackingFacingLeft)], AnimationEnd.Holds),
         [P.AttackingFacingRight] = new([Segments.Whole(P.AttackingFacingRight)], AnimationEnd.Holds),
     };

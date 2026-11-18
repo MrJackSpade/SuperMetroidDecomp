@@ -39,10 +39,10 @@ internal static class DragonFireballAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<DragonFireballSegment, Animation<DragonFireballSegment>> StartingAt { get; } = new Dictionary<DragonFireballSegment, Animation<DragonFireballSegment>>
     {
-        [P.RisingLeft] = new([Segments.Whole(P.RisingLeft)], AnimationEnd.LoopsFrom(0)),
-        [P.RisingRight] = new([Segments.Whole(P.RisingRight)], AnimationEnd.LoopsFrom(0)),
-        [P.FallingLeft] = new([Segments.Whole(P.FallingLeft)], AnimationEnd.LoopsFrom(0)),
-        [P.FallingRight] = new([Segments.Whole(P.FallingRight)], AnimationEnd.LoopsFrom(0)),
+        [P.RisingLeft] = Animation<DragonFireballSegment>.Looping([Segments.Whole(P.RisingLeft)]),
+        [P.RisingRight] = Animation<DragonFireballSegment>.Looping([Segments.Whole(P.RisingRight)]),
+        [P.FallingLeft] = Animation<DragonFireballSegment>.Looping([Segments.Whole(P.FallingLeft)]),
+        [P.FallingRight] = Animation<DragonFireballSegment>.Looping([Segments.Whole(P.FallingRight)]),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

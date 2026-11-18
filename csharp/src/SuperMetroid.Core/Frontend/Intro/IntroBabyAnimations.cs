@@ -87,9 +87,9 @@ internal static class IntroBabyAnimations
         },
         plays => new Dictionary<IntroBabyAnimation, Animation<IntroBabyAnimation>>
         {
-            [A.DeliveredBaby] = new(
-                [plays.Repeated(A.DeliveredBaby, 10), plays.Whole(A.DeliveredBabyStartingPageFour), plays.Whole(A.DeliveredBaby)], AnimationEnd.LoopsFrom(2)),
-            [A.ExaminedBaby] = new(
-                [plays.Repeated(A.ExaminedBaby, 10), plays.Whole(A.ExaminedBabyStartingPageFive), plays.Whole(A.ExaminedBaby)], AnimationEnd.LoopsFrom(2)),
+            [A.DeliveredBaby] = Animation<IntroBabyAnimation>.LeadingInto(
+                [plays.Repeated(A.DeliveredBaby, 10), plays.Whole(A.DeliveredBabyStartingPageFour)], [plays.Whole(A.DeliveredBaby)]),
+            [A.ExaminedBaby] = Animation<IntroBabyAnimation>.LeadingInto(
+                [plays.Repeated(A.ExaminedBaby, 10), plays.Whole(A.ExaminedBabyStartingPageFive)], [plays.Whole(A.ExaminedBaby)]),
         });
 }

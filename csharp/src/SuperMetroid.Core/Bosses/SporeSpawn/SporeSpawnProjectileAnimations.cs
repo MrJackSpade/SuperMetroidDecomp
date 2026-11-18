@@ -67,7 +67,7 @@ internal static class SporeSpawnProjectileAnimations
     {
         [P.SpawnerClosed] = new([Segments.Whole(P.SpawnerClosed)], AnimationEnd.Holds),
         [P.SpawnerRelease] = new([Segments.Whole(P.SpawnerRelease)], AnimationEnd.Holds),
-        [P.Spore] = new([Segments.Whole(P.Spore)], AnimationEnd.LoopsFrom(0)),
+        [P.Spore] = Animation<SporeSpawnProjectileSegment>.Looping([Segments.Whole(P.Spore)]),
         [P.Stalk] = new([Segments.Whole(P.Stalk)], AnimationEnd.Holds),
         [P.SporeShot] = new([Segments.Whole(P.SporeShot)], AnimationEnd.Holds),
     };

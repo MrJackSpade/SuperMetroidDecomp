@@ -206,7 +206,7 @@ internal static class LookupTourianProgramVerification
                 }
                 if (entered.TryGetValue(next, out int loop))
                 {
-                    end = AnimationEnd.LoopsFrom(loop);
+                    end = new AnimationEnd.Loop(loop);
                     break;
                 }
                 entered[next] = phases.Count;

@@ -89,12 +89,12 @@ internal static class BeetomAnimations
     /// </summary>
     internal static IReadOnlyDictionary<BeetomSegment, Animation<BeetomSegment>> StartingAt { get; } = new Dictionary<BeetomSegment, Animation<BeetomSegment>>
     {
-        [P.CrawlingLeft] = new([Segments.Whole(P.CrawlingLeft), Segments.Whole(P.CrawlingLeftStride)], AnimationEnd.LoopsFrom(1)),
+        [P.CrawlingLeft] = Animation<BeetomSegment>.LeadingInto([Segments.Whole(P.CrawlingLeft)], [Segments.Whole(P.CrawlingLeftStride)]),
         [P.HopLeft] = new([Segments.Whole(P.HopLeft)], AnimationEnd.Holds),
-        [P.DrainingLeft] = new([Segments.Whole(P.DrainingLeft), Segments.Whole(P.DrainingLeftRed)], AnimationEnd.LoopsFrom(1)),
-        [P.CrawlingRight] = new([Segments.Whole(P.CrawlingRight), Segments.Whole(P.CrawlingRightStride)], AnimationEnd.LoopsFrom(1)),
+        [P.DrainingLeft] = Animation<BeetomSegment>.LeadingInto([Segments.Whole(P.DrainingLeft)], [Segments.Whole(P.DrainingLeftRed)]),
+        [P.CrawlingRight] = Animation<BeetomSegment>.LeadingInto([Segments.Whole(P.CrawlingRight)], [Segments.Whole(P.CrawlingRightStride)]),
         [P.HopRight] = new([Segments.Whole(P.HopRight)], AnimationEnd.Holds),
-        [P.DrainingRight] = new([Segments.Whole(P.DrainingRight), Segments.Whole(P.DrainingRightRed)], AnimationEnd.LoopsFrom(1)),
+        [P.DrainingRight] = Animation<BeetomSegment>.LeadingInto([Segments.Whole(P.DrainingRight)], [Segments.Whole(P.DrainingRightRed)]),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

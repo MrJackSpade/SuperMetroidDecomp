@@ -22,7 +22,7 @@ internal static class TitleBabyAnimation
         });
 
     /// <summary>The pulse played over and over.</summary>
-    internal static Animation<TitleBabySegment> Pulsing { get; } = new([Segments.Whole(TitleBabySegment.Pulse)], AnimationEnd.LoopsFrom(0));
+    internal static Animation<TitleBabySegment> Pulsing { get; } = Animation<TitleBabySegment>.Looping([Segments.Whole(TitleBabySegment.Pulse)]);
 
     /// <summary>Starts the pulse on its first pose, one update from its next.</summary>
     internal static AnimationPlayer<TitleBabySegment, TitleBabyPose, NoAnimationCue> Start() =>

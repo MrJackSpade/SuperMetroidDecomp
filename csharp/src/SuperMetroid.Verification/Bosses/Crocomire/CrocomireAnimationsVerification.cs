@@ -91,10 +91,10 @@ internal static class CrocomireAnimationsVerification
             }
             // After the loop's first fight cue the animation roars again: it goes on into the roar animation's phases.
             AnimationEnd.Loop again = AssertIs<AnimationEnd.Loop>(animation.End, $"{start}'s end");
-            AssertTrue(animation.Phases.Skip(again.Phase).SequenceEqual(roar.Phases) && roar.End == AnimationEnd.LoopsFrom(0),
+            AssertTrue(animation.Phases.Skip(again.Phase).SequenceEqual(roar.Phases) && roar.End == new AnimationEnd.Loop(0),
                 $"{start} roars again once its roar has closed his mouth");
             native[start] = new([.. animation.Phases.Take(closed), playedLoop with { Plays = loopPlays }, .. reaction.Phases],
-                AnimationEnd.LoopsFrom(closed + 1 + reactionLoop.Phase));
+                new AnimationEnd.Loop(closed + 1 + reactionLoop.Phase));
         }
         return native;
     }

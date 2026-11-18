@@ -223,7 +223,7 @@ internal static class NativeEnemyAnimationOracle
                 VerificationAssertions.AssertTrue(startingAt.TryGetValue(start, out Animation<TSegment>? started), $"an animation starts at {start}");
                 VerificationAssertions.AssertTrue(started!.Phases.SequenceEqual([counted[0] with { Plays = 1 }]),
                     $"{start}'s phase is its native list's counted run, played once a pass");
-                VerificationAssertions.AssertEqual(AnimationEnd.LoopsFrom(0), started.End, $"{start} loops its run, which a cleared counter replays past any projectile's life");
+                VerificationAssertions.AssertEqual(new AnimationEnd.Loop(0), started.End, $"{start} loops its run, which a cleared counter replays past any projectile's life");
                 continue;
             }
             if (bodies.Contains(start))
@@ -594,7 +594,7 @@ internal static class NativeEnemyAnimationOracle
                         TSegment target = control.Target!.Value;
                         NativeEnemyList<TSegment> next = ListAt(lists, target, control.TargetEntry);
                         if (entered.TryGetValue((target, next.Entry, control.TargetBeat), out int loop))
-                            return (phases, AnimationEnd.LoopsFrom(loop), played);
+                            return (phases, new AnimationEnd.Loop(loop), played);
                         if (control.TargetBeat != 0)
                             throw new InvalidDataException($"{segment}'s goto to beat {control.TargetBeat} of {target} enters no list the play has entered.");
                         entered[(target, next.Entry, 0)] = phases.Count;

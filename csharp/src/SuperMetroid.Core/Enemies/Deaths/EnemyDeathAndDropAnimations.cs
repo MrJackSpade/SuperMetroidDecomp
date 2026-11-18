@@ -127,11 +127,11 @@ internal static class EnemyDeathAndDropAnimations
         [P.RespawnTail] = new([Segments.Whole(P.RespawnTail)], AnimationEnd.Holds),
         [P.NormalExplosion] = new([Segments.Whole(P.NormalExplosion)], AnimationEnd.Holds),
         [P.SmallExplosion] = new([Segments.Whole(P.SmallExplosion)], AnimationEnd.Holds),
-        [P.SmallEnergy] = new([Segments.Whole(P.SmallEnergy)], AnimationEnd.LoopsFrom(0)),
-        [P.BigEnergy] = new([Segments.Whole(P.BigEnergy)], AnimationEnd.LoopsFrom(0)),
-        [P.Missiles] = new([Segments.Whole(P.Missiles)], AnimationEnd.LoopsFrom(0)),
-        [P.SuperMissiles] = new([Segments.Whole(P.SuperMissiles)], AnimationEnd.LoopsFrom(0)),
-        [P.PowerBombs] = new([Segments.Whole(P.PowerBombs)], AnimationEnd.LoopsFrom(0)),
+        [P.SmallEnergy] = Animation<EnemyDeathAndDropSegment>.Looping([Segments.Whole(P.SmallEnergy)]),
+        [P.BigEnergy] = Animation<EnemyDeathAndDropSegment>.Looping([Segments.Whole(P.BigEnergy)]),
+        [P.Missiles] = Animation<EnemyDeathAndDropSegment>.Looping([Segments.Whole(P.Missiles)]),
+        [P.SuperMissiles] = Animation<EnemyDeathAndDropSegment>.Looping([Segments.Whole(P.SuperMissiles)]),
+        [P.PowerBombs] = Animation<EnemyDeathAndDropSegment>.Looping([Segments.Whole(P.PowerBombs)]),
         [P.KilledBySamusContact] = new([Segments.Whole(P.KilledBySamusContact)], AnimationEnd.Holds),
     };
 

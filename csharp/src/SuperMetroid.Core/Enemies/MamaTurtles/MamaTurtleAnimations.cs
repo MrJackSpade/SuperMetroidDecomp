@@ -67,7 +67,7 @@ internal static class MamaTurtleAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<MamaTurtleSegment, Animation<MamaTurtleSegment>> StartingAt { get; } = new Dictionary<MamaTurtleSegment, Animation<MamaTurtleSegment>>
     {
-        [P.Spinning] = new([Segments.Whole(P.Spinning)], AnimationEnd.LoopsFrom(0)),
+        [P.Spinning] = Animation<MamaTurtleSegment>.Looping([Segments.Whole(P.Spinning)]),
         [P.EnterShellLeft] = new([Segments.Whole(P.EnterShellLeft)], AnimationEnd.Holds),
         [P.Asleep] = new([Segments.Whole(P.Asleep)], AnimationEnd.Holds),
         [P.LeaveShellLeft] = new([Segments.Whole(P.LeaveShellLeft)], AnimationEnd.Holds),

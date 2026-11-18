@@ -38,11 +38,11 @@ internal static class ShitroidAnimations
     /// </summary>
     internal static IReadOnlyDictionary<ShitroidSegment, Animation<ShitroidSegment>> StartingAt { get; } = new Dictionary<ShitroidSegment, Animation<ShitroidSegment>>
     {
-        [ShitroidSegment.FinishDraining] = new([Segments.Whole(ShitroidSegment.FinishDraining), Segments.Whole(ShitroidSegment.Normal)], AnimationEnd.LoopsFrom(1)),
-        [ShitroidSegment.Normal] = new([Segments.Whole(ShitroidSegment.Normal)], AnimationEnd.LoopsFrom(0)),
-        [ShitroidSegment.LatchedOn] = new([Segments.Whole(ShitroidSegment.LatchedOn)], AnimationEnd.LoopsFrom(0)),
-        [ShitroidSegment.Remorse] = new(
-            [Segments.Repeated(ShitroidSegment.Remorse, RemorseCalmPulses), Segments.Whole(ShitroidSegment.RemorseQuickening)], AnimationEnd.LoopsFrom(0)),
+        [ShitroidSegment.FinishDraining] = Animation<ShitroidSegment>.LeadingInto([Segments.Whole(ShitroidSegment.FinishDraining)], [Segments.Whole(ShitroidSegment.Normal)]),
+        [ShitroidSegment.Normal] = Animation<ShitroidSegment>.Looping([Segments.Whole(ShitroidSegment.Normal)]),
+        [ShitroidSegment.LatchedOn] = Animation<ShitroidSegment>.Looping([Segments.Whole(ShitroidSegment.LatchedOn)]),
+        [ShitroidSegment.Remorse] = Animation<ShitroidSegment>.Looping(
+            [Segments.Repeated(ShitroidSegment.Remorse, RemorseCalmPulses), Segments.Whole(ShitroidSegment.RemorseQuickening)]),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>, before its first play.</summary>

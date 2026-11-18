@@ -102,7 +102,7 @@ internal static class EndingSceneAnimations
             [A.ExplodingPlanet] = new([plays.Repeated(A.PlanetRumbling, 5), plays.Whole(A.ExplodingPlanet)], AnimationEnd.Stops),
             [A.ExplosionGlow] = plays.Looping(A.ExplosionGlow),
             [A.ExplosionStars] = plays.Still(A.ExplosionStars),
-            [A.ExplosionLava] = new([plays.Whole(A.ExplosionLavaHidden), plays.Whole(A.ExplosionLava)], AnimationEnd.LoopsFrom(1)),
+            [A.ExplosionLava] = plays.LeadingInto(A.ExplosionLavaHidden, A.ExplosionLava),
             [A.ExplosionSilhouette] = plays.Through(A.ExplosionSilhouette, AnimationEnd.Stops),
             [A.ExplosionRightStars] = plays.Through(A.ExplosionRightStars, AnimationEnd.Holds),
             [A.ExplosionLeftStars] = plays.Still(A.ExplosionLeftStars),

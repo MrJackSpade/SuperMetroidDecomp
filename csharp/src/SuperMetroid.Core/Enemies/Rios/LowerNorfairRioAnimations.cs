@@ -91,13 +91,13 @@ internal static class LowerNorfairRioAnimations
     /// </summary>
     internal static IReadOnlyDictionary<LowerNorfairRioSegment, Animation<LowerNorfairRioSegment>> StartingAt { get; } = new Dictionary<LowerNorfairRioSegment, Animation<LowerNorfairRioSegment>>
     {
-        [P.Idle] = new([Segments.Whole(P.Idle), Segments.Whole(P.IdleWingbeat)], AnimationEnd.LoopsFrom(1)),
+        [P.Idle] = Animation<LowerNorfairRioSegment>.LeadingInto([Segments.Whole(P.Idle)], [Segments.Whole(P.IdleWingbeat)]),
         [P.PrepareToSwoop] = new([Segments.Whole(P.PrepareToSwoop)], AnimationEnd.Holds),
         [P.Descending] = new([Segments.Whole(P.Descending)], AnimationEnd.Holds),
         [P.AscentOpening] = new([Segments.Whole(P.AscentOpening)], AnimationEnd.Holds),
-        [P.Ascending] = new([Segments.Whole(P.Ascending), Segments.Whole(P.AscendingWingbeat)], AnimationEnd.LoopsFrom(1)),
+        [P.Ascending] = Animation<LowerNorfairRioSegment>.LeadingInto([Segments.Whole(P.Ascending)], [Segments.Whole(P.AscendingWingbeat)]),
         [P.Cooldown] = new([Segments.Whole(P.Cooldown)], AnimationEnd.Holds),
-        [P.Flames] = new([Segments.Whole(P.Flames)], AnimationEnd.LoopsFrom(0)),
+        [P.Flames] = Animation<LowerNorfairRioSegment>.Looping([Segments.Whole(P.Flames)]),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

@@ -48,6 +48,6 @@ internal static class PauseSelectorDurationsVerification
         AssertEqual(phases, durations.Length, "selector native terminator");
         AssertEqual(phases, selector.Looks.Count, "selector shows one look a step");
         AssertEqual(rom.ReadCartridgeByte(0x82c10c), selector.InitialDurationTicks, "separate native initial delay");
-        AssertEqual(AnimationEnd.LoopsFrom(0), selector.Cycling.End, "selector wraps to its first step after its last");
+        AssertEqual(new AnimationEnd.Loop(0), selector.Cycling.End, "selector wraps to its first step after its last");
     }
 }

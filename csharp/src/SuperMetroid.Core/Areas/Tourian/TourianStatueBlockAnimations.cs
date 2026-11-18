@@ -59,8 +59,8 @@ internal static class TourianStatueBlockAnimations
     /// </summary>
     internal static IReadOnlyDictionary<P, Animation<P>> StartingAt { get; } = new Dictionary<P, Animation<P>>
     {
-        [P.Entry] = new([new(P.Entry, 0, 3, 1), new(P.Oscillate, 0, 6, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.Oscillate] = new([new(P.Oscillate, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.Entry] = Animation<P>.LeadingInto([new(P.Entry, 0, 3, 1)], [new(P.Oscillate, 0, 6, 1)]),
+        [P.Oscillate] = Animation<P>.Looping([new(P.Oscillate, 0, 6, 1)]),
         [P.Release] = new([new(P.Release, 0, 12, 1)], AnimationEnd.Stops),
         [P.AlreadyGrey] = new([new(P.AlreadyGrey, 0, 2, 1)], AnimationEnd.Stops),
     };

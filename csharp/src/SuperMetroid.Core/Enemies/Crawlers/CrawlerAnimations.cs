@@ -133,19 +133,19 @@ internal static class CrawlerAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<CrawlerSegment, Animation<CrawlerSegment>> StartingAt { get; } = new Dictionary<CrawlerSegment, Animation<CrawlerSegment>>
     {
-        [P.SciserUpsideRight] = new([Segments.Whole(P.SciserUpsideRight)], AnimationEnd.LoopsFrom(0)),
-        [P.SciserUpsideLeft] = new([Segments.Whole(P.SciserUpsideLeft)], AnimationEnd.LoopsFrom(0)),
-        [P.SciserUpsideDown] = new([Segments.Whole(P.SciserUpsideDown)], AnimationEnd.LoopsFrom(0)),
-        [P.SciserUpsideUp] = new([Segments.Whole(P.SciserUpsideUp)], AnimationEnd.LoopsFrom(0)),
-        [P.ZeroUpsideRight] = new([Segments.Whole(P.ZeroUpsideRight)], AnimationEnd.LoopsFrom(0)),
-        [P.ZeroUpsideLeft] = new([Segments.Whole(P.ZeroUpsideLeft)], AnimationEnd.LoopsFrom(0)),
-        [P.ZeroUpsideDown] = new([Segments.Whole(P.ZeroUpsideDown)], AnimationEnd.LoopsFrom(0)),
-        [P.ZeroUpsideUp] = new([Segments.Whole(P.ZeroUpsideUp)], AnimationEnd.LoopsFrom(0)),
-        [P.ViolaNormal] = new([Segments.Whole(P.ViolaNormal)], AnimationEnd.LoopsFrom(0)),
-        [P.SpinyCrawlerUpsideRight] = new([Segments.Whole(P.SpinyCrawlerUpsideRight)], AnimationEnd.LoopsFrom(0)),
-        [P.SpinyCrawlerUpsideLeft] = new([Segments.Whole(P.SpinyCrawlerUpsideLeft)], AnimationEnd.LoopsFrom(0)),
-        [P.SpinyCrawlerUpsideDown] = new([Segments.Whole(P.SpinyCrawlerUpsideDown)], AnimationEnd.LoopsFrom(0)),
-        [P.SpinyCrawlerUpsideUp] = new([Segments.Whole(P.SpinyCrawlerUpsideUp)], AnimationEnd.LoopsFrom(0)),
+        [P.SciserUpsideRight] = Animation<CrawlerSegment>.Looping([Segments.Whole(P.SciserUpsideRight)]),
+        [P.SciserUpsideLeft] = Animation<CrawlerSegment>.Looping([Segments.Whole(P.SciserUpsideLeft)]),
+        [P.SciserUpsideDown] = Animation<CrawlerSegment>.Looping([Segments.Whole(P.SciserUpsideDown)]),
+        [P.SciserUpsideUp] = Animation<CrawlerSegment>.Looping([Segments.Whole(P.SciserUpsideUp)]),
+        [P.ZeroUpsideRight] = Animation<CrawlerSegment>.Looping([Segments.Whole(P.ZeroUpsideRight)]),
+        [P.ZeroUpsideLeft] = Animation<CrawlerSegment>.Looping([Segments.Whole(P.ZeroUpsideLeft)]),
+        [P.ZeroUpsideDown] = Animation<CrawlerSegment>.Looping([Segments.Whole(P.ZeroUpsideDown)]),
+        [P.ZeroUpsideUp] = Animation<CrawlerSegment>.Looping([Segments.Whole(P.ZeroUpsideUp)]),
+        [P.ViolaNormal] = Animation<CrawlerSegment>.Looping([Segments.Whole(P.ViolaNormal)]),
+        [P.SpinyCrawlerUpsideRight] = Animation<CrawlerSegment>.Looping([Segments.Whole(P.SpinyCrawlerUpsideRight)]),
+        [P.SpinyCrawlerUpsideLeft] = Animation<CrawlerSegment>.Looping([Segments.Whole(P.SpinyCrawlerUpsideLeft)]),
+        [P.SpinyCrawlerUpsideDown] = Animation<CrawlerSegment>.Looping([Segments.Whole(P.SpinyCrawlerUpsideDown)]),
+        [P.SpinyCrawlerUpsideUp] = Animation<CrawlerSegment>.Looping([Segments.Whole(P.SpinyCrawlerUpsideUp)]),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

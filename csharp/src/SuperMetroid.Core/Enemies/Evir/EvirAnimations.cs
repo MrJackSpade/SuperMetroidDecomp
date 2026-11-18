@@ -89,10 +89,10 @@ internal static class EvirAnimations
     /// </summary>
     internal static IReadOnlyDictionary<EvirSegment, Animation<EvirSegment>> StartingAt { get; } = new Dictionary<EvirSegment, Animation<EvirSegment>>
     {
-        [P.BodyFacingLeft] = new([Segments.Whole(P.BodyFacingLeft)], AnimationEnd.LoopsFrom(0)),
-        [P.ArmsFacingLeft] = new([Segments.Repeated(P.ArmsFacingLeft, ArmWaves), Segments.Whole(P.ArmsFoldedFacingLeft)], AnimationEnd.LoopsFrom(0)),
-        [P.BodyFacingRight] = new([Segments.Whole(P.BodyFacingRight)], AnimationEnd.LoopsFrom(0)),
-        [P.ArmsFacingRight] = new([Segments.Repeated(P.ArmsFacingRight, ArmWaves), Segments.Whole(P.ArmsFoldedFacingRight)], AnimationEnd.LoopsFrom(0)),
+        [P.BodyFacingLeft] = Animation<EvirSegment>.Looping([Segments.Whole(P.BodyFacingLeft)]),
+        [P.ArmsFacingLeft] = Animation<EvirSegment>.Looping([Segments.Repeated(P.ArmsFacingLeft, ArmWaves), Segments.Whole(P.ArmsFoldedFacingLeft)]),
+        [P.BodyFacingRight] = Animation<EvirSegment>.Looping([Segments.Whole(P.BodyFacingRight)]),
+        [P.ArmsFacingRight] = Animation<EvirSegment>.Looping([Segments.Repeated(P.ArmsFacingRight, ArmWaves), Segments.Whole(P.ArmsFoldedFacingRight)]),
         [P.ProjectileNormal] = new([Segments.Whole(P.ProjectileNormal)], AnimationEnd.Holds),
         [P.ProjectileRegenerating] = new(
             [Segments.Whole(P.ProjectileRegenerating), Segments.Whole(P.ProjectileRegeneratingSound), Segments.Repeated(P.ProjectileRegrowing, RegrowthSteps), Segments.Whole(P.ProjectileRegrown)],

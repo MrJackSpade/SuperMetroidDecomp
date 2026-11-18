@@ -25,7 +25,7 @@ internal static class WreckedShipGhostAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<WreckedShipGhostSegment, Animation<WreckedShipGhostSegment>> StartingAt { get; } = new Dictionary<WreckedShipGhostSegment, Animation<WreckedShipGhostSegment>>
     {
-        [P.Floating] = new([Segments.Whole(P.Floating)], AnimationEnd.LoopsFrom(0)),
+        [P.Floating] = Animation<WreckedShipGhostSegment>.Looping([Segments.Whole(P.Floating)]),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

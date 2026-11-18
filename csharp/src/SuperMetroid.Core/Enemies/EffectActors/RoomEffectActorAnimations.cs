@@ -297,8 +297,8 @@ internal static class RoomEffectActorAnimations
         [K.NuclearWaffleLeftExplosion] = Once(K.NuclearWaffleLeftExplosion),
         [K.NuclearWaffleSplash] = Once(K.NuclearWaffleSplash),
         [K.FallingSparkTrail] = Once(K.FallingSparkTrail),
-        [K.MetroidElectricity] = new([Segments.Whole(P.Of(K.MetroidElectricity)), Segments.Whole(P.MetroidElectricityCycle)], AnimationEnd.LoopsFrom(1)),
-        [K.MetroidShell] = new([Segments.Whole(P.Of(K.MetroidShell)), Segments.Whole(P.MetroidShellCycle)], AnimationEnd.LoopsFrom(1)),
+        [K.MetroidElectricity] = Animation<RoomEffectActorSegment>.LeadingInto([Segments.Whole(P.Of(K.MetroidElectricity))], [Segments.Whole(P.MetroidElectricityCycle)]),
+        [K.MetroidShell] = Animation<RoomEffectActorSegment>.LeadingInto([Segments.Whole(P.Of(K.MetroidShell))], [Segments.Whole(P.MetroidShellCycle)]),
         [K.YappingMawBaseFacingDown] = Still(K.YappingMawBaseFacingDown),
         [K.YappingMawBaseFacingUp] = Still(K.YappingMawBaseFacingUp),
         [K.EvirFacingLeft] = Looping(K.EvirFacingLeft),
@@ -313,7 +313,7 @@ internal static class RoomEffectActorAnimations
     private static Animation<RoomEffectActorSegment> Once(RoomEffectActorKind actor) => new([Segments.Whole(P.Of(actor))], AnimationEnd.Stops);
 
     /// <summary><paramref name="actor"/>'s own run, looping until its owner ends it.</summary>
-    private static Animation<RoomEffectActorSegment> Looping(RoomEffectActorKind actor) => new([Segments.Whole(P.Of(actor))], AnimationEnd.LoopsFrom(0));
+    private static Animation<RoomEffectActorSegment> Looping(RoomEffectActorKind actor) => Animation<RoomEffectActorSegment>.Looping([Segments.Whole(P.Of(actor))]);
 
     /// <summary><paramref name="actor"/>'s still picture, held until its owner ends it.</summary>
     private static Animation<RoomEffectActorSegment> Still(RoomEffectActorKind actor) => new([Segments.Whole(P.Of(actor))], AnimationEnd.Holds);

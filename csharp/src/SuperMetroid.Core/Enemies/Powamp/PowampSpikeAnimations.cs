@@ -30,7 +30,7 @@ internal static class PowampSpikeAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<PowampSpikeSegment, Animation<PowampSpikeSegment>> StartingAt { get; } = new Dictionary<PowampSpikeSegment, Animation<PowampSpikeSegment>>
     {
-        [P.Flying] = new([Segments.Whole(P.Flying)], AnimationEnd.LoopsFrom(0)),
+        [P.Flying] = Animation<PowampSpikeSegment>.Looping([Segments.Whole(P.Flying)]),
         [P.Delete] = new([Segments.Whole(P.Delete)], AnimationEnd.Holds),
     };
 

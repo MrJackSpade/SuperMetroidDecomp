@@ -58,7 +58,7 @@ internal static class KagoBugProjectileAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<KagoBugProjectileSegment, Animation<KagoBugProjectileSegment>> StartingAt { get; } = new Dictionary<KagoBugProjectileSegment, Animation<KagoBugProjectileSegment>>
     {
-        [P.Landed] = new([Segments.Whole(P.Landed)], AnimationEnd.LoopsFrom(0)),
+        [P.Landed] = Animation<KagoBugProjectileSegment>.Looping([Segments.Whole(P.Landed)]),
         [P.Falling] = new([Segments.Whole(P.Falling)], AnimationEnd.Holds),
         [P.JumpStart] = new([Segments.Whole(P.JumpStart)], AnimationEnd.Holds),
         [P.Shot] = new([Segments.Whole(P.Shot)], AnimationEnd.Holds),

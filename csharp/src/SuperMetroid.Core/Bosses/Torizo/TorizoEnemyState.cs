@@ -101,7 +101,7 @@ public sealed class TorizoEnemyState
     public int SamusSpaceJumpFrames { get; internal set; }
 
     /// <summary>
-    /// Signed 1/256-pixel velocity of the Torizo's jumps and falls. A walking step moves the Torizo by its own whole pixels and
+    /// The velocity of the Torizo's jumps and falls, in pixels per update. A walking step moves the Torizo by its own whole pixels and
     /// leaves its sideways velocity at <see cref="TorizoWalkLeftVelocity"/>. Any change to its vertical speed ends the
     /// resting fall (<see cref="FallsAtRestingSpeed"/>).
     /// </summary>
@@ -125,7 +125,7 @@ public sealed class TorizoEnemyState
     internal bool FallsAtRestingSpeed { get; private set; }
 
     /// <summary>
-    /// Signed 1/256-pixel downward acceleration a jump adds to <see cref="Velocity"/>'s vertical speed every frame until it
+    /// The downward acceleration a jump adds to <see cref="Velocity"/>'s vertical speed every frame until it
     /// lands (#2235): one axis, since a jump never changes its sideways speed.
     /// </summary>
     public SignedEightEight JumpAcceleration { get; internal set; }

@@ -248,7 +248,7 @@ internal static class WorkRobotAnimations
 
     /// <summary>
     /// The animation that starts at each segment an owner can start or restart at. The wall, shot-ahead and shot-behind
-    /// animations walk on, as the original's lists go on to a walk when they end (#2167).
+    /// animations walk on when they end (#2167).
     /// </summary>
     internal static IReadOnlyDictionary<WorkRobotSegment, Animation<WorkRobotSegment>> StartingAt { get; } = new Dictionary<WorkRobotSegment, Animation<WorkRobotSegment>>
     {

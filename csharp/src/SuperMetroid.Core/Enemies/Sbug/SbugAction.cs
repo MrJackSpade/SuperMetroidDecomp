@@ -12,9 +12,9 @@ public enum SbugAction
     ActivateMoveForward,
     /// <summary>Starts zig-zagging from the next update.</summary>
     ActivateZigZag,
-    /// <summary>Resets shared RNG to 11 and selects the collision-aware random-direction chooser.</summary>
+    /// <summary>Reseeds the room's random draws for the random wander and chooses the wander's first heading on the next update; each leg ends on a collision.</summary>
     ActivateRandomUntilCollision,
-    /// <summary>Sets the 512-update long countdown, resets shared RNG to 11, and selects its direction chooser.</summary>
+    /// <summary>Starts the 512-update long countdown, reseeds the room's random draws for the random wander and chooses the wander's first heading on the next update.</summary>
     ActivateRandomAndReverseWhenFar,
     /// <summary>Initializes the 32-update forward segment without moving yet.</summary>
     ActivateMoveForwardThenWait,
@@ -30,11 +30,11 @@ public enum SbugAction
     MoveTowardSamus,
     /// <summary>Applies the captured away velocity without retargeting or block collision checks.</summary>
     MoveAwayFromSamus,
-    /// <summary>Decrements the segment timer before moving and returns to proximity waiting once it passes zero.</summary>
+    /// <summary>Moves along the spawn heading for its leg, then waits for Samus to come near again.</summary>
     MoveForwardThenWait,
-    /// <summary>Runs a timed, collision-aware segment, waiting on collision or choosing another angle when the timer passes zero.</summary>
+    /// <summary>Moves along the custom heading for its leg, waiting for Samus on a collision or choosing another heading when the leg runs out.</summary>
     MoveRandomlyUntilCollision,
-    /// <summary>Applies custom movement and, while the long countdown is nonnegative, checks segment expiry and the both-axis 96-pixel reversal condition.</summary>
+    /// <summary>Moves along the custom heading and, until the long countdown passes zero, chooses another heading when the leg runs out and reverses when Samus is at least 96 pixels away on both axes.</summary>
     MoveStraightAndReverseWhenFar,
     /// <summary>Perturbs the custom angle using shared RNG, installs velocity and facing, and starts a 32-update reversal-aware segment.</summary>
     ChooseRandomDirectionAndReverseWhenFar,

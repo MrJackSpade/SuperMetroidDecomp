@@ -3,10 +3,7 @@ namespace SuperMetroid.Core.Enemies.Puyo;
 /// <summary>One hop's fixed mechanics (#1820).</summary>
 /// <param name="JumpHeight">How high the hop rises, in pixels; the drop rises none.</param>
 /// <param name="XSpeed">The horizontal speed per frame.</param>
-/// <param name="LaunchSearchStep">
-/// How far along the speed curve each pass of the launch's search steps: the same number as the horizontal speed, in 256ths
-/// of a mark.
-/// </param>
+/// <param name="LaunchSearchStep">How far along the speed curve each pass of the launch's search steps.</param>
 /// <param name="CurveStep">How far along the speed curve each airborne update moves; the drop, which falls at its own speed, takes no step.</param>
 /// <param name="Movement">The airborne behaviour the hop runs.</param>
 /// <param name="DropSpeed">

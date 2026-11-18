@@ -395,10 +395,8 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         AlcoonEnemyState state = alcoon.RequireSpeciesState<AlcoonEnemyState>();
         bool movingLeft = FacesLeft(state);
 
-        // Spawning copies the fireball's complete authored
-        // definition before its setup touches its position, to a fraction of a pixel, and its velocity.
-        // Keeping that division exact makes radii, damage, persistence, shot blocking,
-        // animation, and frame behaviour owned by the definition instead of duplicating them here.
+        // The fireball takes its radii, damage, persistence, shot blocking, animation and motion from its definition
+        // before its setup sets its position, to a fraction of a pixel, and its velocity.
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.AlcoonFireball,

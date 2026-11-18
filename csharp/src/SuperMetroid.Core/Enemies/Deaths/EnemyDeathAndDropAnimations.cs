@@ -7,7 +7,7 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Enemies.Deaths;
 
 /// <summary>
-/// The generic enemy-death explosions, the drops they become and the respawn tail (#641). Each
+/// The generic enemy-death explosions, the drops they become and the respawn pause (#641). Each
 /// frame shows a <see cref="EnemyProjectileFrameId"/> and each cue is a <see cref="EnemyDeathAndDropCue"/> with the values it acts on.
 /// </summary>
 internal static class EnemyDeathAndDropAnimations

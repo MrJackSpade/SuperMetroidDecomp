@@ -23,7 +23,7 @@ public sealed class ShitroidEnemyState
     /// <summary>The side of Samus the departing Shitroid flies to (#2165).</summary>
     public HorizontalDirection DepartureSide { get; internal set; }
 
-    /// <summary>Signed 1/256-pixel velocity: X, Y.</summary>
+    /// <summary>Velocity in pixels per update.</summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>

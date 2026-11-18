@@ -5,7 +5,7 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
-/// How Ridley's body flies in both encounters (#2229): his 1/256-pixel movement within his arena, his swoop's heading and
+/// How Ridley's body flies in both encounters (#2229): his movement within his arena, his swoop's heading and
 /// speed, the box tests his phases hand off on, his wing beat and starting his body's animations.
 /// </summary>
 [RoomLifetime]
@@ -23,7 +23,7 @@ internal sealed class RidleyFlight
     /// <summary>The heading a swoop climbs toward, turned the swooping way: fifteen thirty-seconds of a turn.</summary>
     internal static readonly RotationAngle SwoopClimbTarget = RotationAngle.FromSteps(120);
 
-    /// <summary>Applies Ridley's 1/256-pixel motion and arena clamps, invoking impact only at the strict left bound.</summary>
+    /// <summary>Applies Ridley's motion and arena clamps, invoking impact only at the strict left bound.</summary>
     internal void IntegrateMovement(
         RoomEnemyPlace place,
         RidleyFlightState flight,
@@ -59,7 +59,7 @@ internal sealed class RidleyFlight
         place.Position = place.Position.WithY(y);
     }
 
-    /// <summary>Integrates one 1/256-pixel velocity into a position's fraction, in 256ths of a pixel, and clips to an arena bound.</summary>
+    /// <summary>Integrates one axis of his velocity into a position, in 256ths of a pixel, and clips to an arena bound.</summary>
     private static RidleyAxisMotion IntegrateAxis(
         FixedCoordinate position,
         SignedEightEight velocity,

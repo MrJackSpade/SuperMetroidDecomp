@@ -385,7 +385,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Runs the Evir's tail after common touch/shot/power-bomb damage, on the two enemies placed after whichever Evir
+    /// Finishes an Evir's reaction after common touch, shot or power-bomb damage, on the two enemies placed after whichever Evir
     /// part was hit (<see cref="FollowUpAfterStruckPart"/>). Touches and shots reach only the body, whose followers are
     /// its arms and spit; a power bomb also hits the intangible arms, whose followers are their spit and the next enemy.
     /// </summary>
@@ -414,7 +414,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Runs the shared post-common Evir combat tail after bomb hits.</summary>
+    /// <summary>Finishes a bomb's hit on an Evir as its other reactions do after the common damage.</summary>
     internal EnemyBombReaction EvirBombReaction => field ??= new()
     {
         AfterCommon = c => ResolveEvirCombatAfterCommon(c.Enemy),
@@ -475,8 +475,8 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Copies accepted body-shot freeze state to arms and attached spit after common damage.</summary>
     internal EnemyShotReaction EvirShotReaction => field ??= new()
     {
-        // Evir's shot tail runs after every accepted common shot, including the freezing ice result. That is
-        // where the body copies the newly installed frozen timer to its arms and attached (idle) spit.
+        // After every accepted shot's common damage, ice that froze the body included, the body passes its frozen
+        // time to its arms and its attached (idle) spit.
         AfterCommon = c => ResolveEvirCombatAfterCommon(c.Enemy),
     };
 

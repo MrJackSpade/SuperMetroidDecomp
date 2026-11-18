@@ -17,7 +17,7 @@ public sealed class CrawlerEnemyState
     internal AnimationPlayback<CrawlerSegment> Playback { get; set; }
 
     /// <summary>
-    /// Signed 1/256-pixel motion. On horizontal surfaces X is the tangent and Y the floor/ceiling-probe
+    /// The crawl velocity in pixels per update. On horizontal surfaces X is the tangent and Y the floor/ceiling-probe
     /// direction; on vertical surfaces Y is the tangent and X the wall-probe direction.
     /// </summary>
     /// <remarks>

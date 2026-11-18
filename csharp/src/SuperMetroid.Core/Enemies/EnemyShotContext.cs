@@ -33,12 +33,12 @@ internal readonly record struct EnemyShotContext(
     Position16<RoomPixels> Camera,
     int HealthBefore = 0)
 {
-    /// <summary>Whether common shot AI took the immediate-freeze path; set for <see cref="EnemyShotReaction.AfterCommon"/>.</summary>
+    /// <summary>Whether the common shot reaction froze the enemy at once; set for <see cref="EnemyShotReaction.AfterCommon"/>.</summary>
     internal bool Froze { get; init; }
 
     /// <summary>
     /// The species states of the occupant the shot struck, taken as the pass finds the overlap (#1543). A killing hit
-    /// removes the occupant from its place before <see cref="EnemyShotReaction.AfterCommon"/> runs; a tail that still
+    /// removes the occupant from its place before <see cref="EnemyShotReaction.AfterCommon"/> runs; a reaction that still
     /// acts on the killed enemy reaches its states here.
     /// </summary>
     internal required EnemyOccupantStates StruckOccupant { get; init; }

@@ -34,7 +34,7 @@ internal abstract class CommonParticipationEnemyEntity(RoomEnemyPlace place, Ene
     /// <param name="frame">The enemy frame.</param>
     public virtual bool RunHurt(RoomEnemyFrame frame) => EnemyCommonParticipation.HasInertHurt(Place.Definition);
 
-    /// <summary>No frozen tail; the common thaw follows.</summary>
+    /// <summary>No frozen step of its own; the common thaw follows.</summary>
     public virtual bool PreemptFrozenTurn() => false;
 
     /// <summary>No frozen behaviour beyond the common thaw.</summary>

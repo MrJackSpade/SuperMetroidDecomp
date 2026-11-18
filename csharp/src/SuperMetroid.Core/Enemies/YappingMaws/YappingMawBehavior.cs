@@ -157,20 +157,16 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (distance < YappingMawAttackDefinitions.GrabSafetyDistance)
         {
-            // A target already inside 32 pixels cannot safely trigger an extension and has
-            // its grab gate refreshed to 48 every frame. This is why the cooldown must wrap.
+            // A target inside 32 pixels starts no attack and holds the grab cooldown at 48 every update.
             state.GrabCooldown = WrappingCountdown.Start(YappingMawAttackDefinitions.GrabCooldown);
             return;
         }
 
-        // An attack starts only strictly inside the placement's activation distance (#2450): every authored Maw's lies
-        // between 48 and 128 pixels, and the target distance is at most 32768, so the two never lie far enough apart for
-        // the plain comparison to differ from the game's.
+        // An attack starts only strictly inside the placement's activation distance (#2450).
         if (distance >= place.SpawnSettings<YappingMawSpawnSettings>().ActivationDistance)
             return;
 
-        // The game skips the assignment for a shorter target. Inflating a short
-        // distance instead makes the mouth overshoot the position it aimed at.
+        // The tongue reaches a nearer target where it is and a farther one only as far as its longest reach.
         if (state.DistanceToSamus >= YappingMawAttackGeometry.MaximumTargetDistance)
             state.DistanceToSamus = YappingMawAttackGeometry.MaximumTargetDistance;
 
@@ -226,9 +222,8 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             int rawX = CoordinateAxis.Wrap(CalculateYappingMawX(linkAngle, state.SegmentRadius) - state.Baseline.X);
             int rawY = CoordinateAxis.Wrap(CalculateYappingMawY(linkAngle, state.SegmentRadius / 2) - state.Baseline.Y);
 
-            // The curl rotates a correction whose length is raw X.
-            // Passing raw Y here is an attractive cleanup and is wrong; the game's
-            // lopsided curve is a direct consequence of reusing raw X for both components.
+            // The curl rotates a correction whose length is the link's X offset for both components, which gives the
+            // curve its lopsided shape.
             int correctionX = CoordinateAxis.Wrap(
                 CalculateYappingMawX(state.CurlAngle.ToTrigonometryAngle(), rawX) -
                 CalculateYappingMawX(RotationAngle.Zero.ToTrigonometryAngle(), rawX));
@@ -246,8 +241,6 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (state.Extension.WholePixels >= 0)
         {
-            // A nonnegative whole part minus 128 cannot wrap, so the game's signed difference test is this
-            // ordinary comparison.
             if (state.Extension.WholePixels >= YappingMawAttackDefinitions.LargestCurl)
             {
                 state.Extension = SignedSixteenSixteen.FromParts(checked(YappingMawAttackDefinitions.LargestCurl), 0);
@@ -333,16 +326,14 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Action = YappingMawAction.WaitingForSamus;
     }
 
-    /// <summary>Runs the observable portions of unspinning Samus plus holding Samus in the mouth.</summary>
+    /// <summary>Holds Samus in the mouth, ending her grapple or her spin or wall jump, and caps her scrolling.</summary>
     private void PositionSamusInYappingMaw(
         RoomEnemyPlace place,
         YappingMawEnemyState state,
         SamusState samus)
     {
-        // Unspinning Samus drops any active grapple;
-        // its transitional pose must be committed before the Maw releases input. It normalizes
-        // spin-jump/wall-jump bodies. Her input phase itself was already replaced by the
-        // touch reaction; do not force unrelated falling/running poses to standing.
+        // The hold drops an active grapple; otherwise a spin or wall jump becomes her standing pose, committed before
+        // the Maw releases her input. Her other poses stay as they are.
         if (samus.Grapple.Phase != GrapplePhase.Inactive)
         {
             samus.Grapple.Phase = GrapplePhase.Dropped;
@@ -352,10 +343,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             SamusMovementType movement = SamusPoseMetadata.ReadMovementType(samus);
             if (movement is SamusMovementType.SpinJumping or SamusMovementType.WallJumping)
             {
-                // Samus's release from the Yapping Maw selects her standing pose from the current direction,
-                // then runs the ordinary pose metadata and animation initialization path.
-                // Reusing those shared data-backed steps prevents a Yapping-Maw-only pose
-                // approximation from drifting away from every other Samus transition.
+                // She stands facing the way she faced, with the standing pose's collision radii and animation.
                 samus.Pose = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left)
                     ? SamusPoseId.FacingLeftNormalPose
                     : SamusPoseId.FacingRightNormalPose;
@@ -383,7 +371,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Runs after common shot AI on the Maw the hit struck. Ice releases a living Maw's captive; death additionally
+    /// Runs after a hit's common damage on the Maw it struck. Ice releases a living Maw's captive; death additionally
     /// destroys all four body-link projectiles and the root effect actor, which the killed Maw's state still names.
     /// </summary>
     private static void ResolveYappingMawShotAfterCommon(
@@ -416,7 +404,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         state.HasGrabbedSamus = false;
     }
 
-    /// <summary>Custom frozen tail for all five auxiliary actors.</summary>
+    /// <summary>Shows a frozen Maw's colours on its four body links and its root.</summary>
     internal static void RunYappingMawFrozen(
         RoomEnemyPlace place,
         YappingMawEnemyState state)
@@ -475,13 +463,12 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         !EnemyView.Contains(place.Position.Whole, camera);
 
     /// <summary>
-    /// The axis distance, in pixels, from which the Maw's target distance is that axis's distance alone, kept exact
-    /// (#1627): nearer on both axes, the distance is the sum of two short products, which the game forms only below it,
-    /// and the Maw's reach follows whichever it measures.
+    /// The axis distance, in pixels, from which the Maw's target distance is that axis's distance alone (#1627): nearer
+    /// on both axes, the distance is the sum of two short products, and the Maw's reach follows whichever it measures.
     /// </summary>
     private const int ShortProductReach = 255;
 
-    /// <summary>Calculates the Maw's target, a shared enemy calculation only this family uses.</summary>
+    /// <summary>The Maw's distance and bearing to Samus.</summary>
     private static YappingMawTarget CalculateYappingMawTarget(
         Position16<RoomPixels> origin,
         Position16<RoomPixels> samus)
@@ -496,8 +483,6 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         if (absoluteY >= ShortProductReach)
             return new YappingMawTarget(absoluteY, default);
 
-        // Both magnitudes are below the reach here, so each short product is below 255 pixels and their sum below 510:
-        // neither the products' magnitudes nor their sum reach 32768, where the sum would read as negative.
         TrigonometryAngle positiveQuadrantAngle = EnemyMath.CalculateBearing(new(absoluteX, absoluteY)).ToMirroredTrigonometryAngle();
         int distance =
             Math.Abs(EnemyMath.CircleNegativeSinePixels(positiveQuadrantAngle, absoluteX)) +
@@ -561,7 +546,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs contact as a grab that locks Samus without ordinary touch damage.</summary>
     internal static void ReactToYappingMawTouch(EnemyTouchContext context) =>
-        // The Maw's touch replaces common contact damage entirely. A qualifying overlap transfers Samus input/position
-        // ownership to the mouth state machine.
+        // The Maw's touch deals no contact damage: once the grab cooldown has passed zero, a touch catches Samus,
+        // taking her input and holding her in the mouth.
         ResolveYappingMawTouch(context.Place.RequireSpeciesState<YappingMawEnemyState>(), context.Samus);
 }

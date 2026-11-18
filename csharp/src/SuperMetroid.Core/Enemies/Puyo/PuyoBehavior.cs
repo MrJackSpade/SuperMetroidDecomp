@@ -202,7 +202,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Runs the common body of short, big, and nominally-unused long hops.</summary>
+    /// <summary>Runs a short, big or long hop, which lands into the grounded animation the hop names.</summary>
     private void RunNormalPuyoHop(
         RoomEnemyPlace place,
         PuyoEnemyState state,
@@ -285,15 +285,14 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
             return true;
         }
 
-        // Pose selection happens before the place changes, matching the five discrete
-        // squash/stretch thresholds in the authored rather than interpolating sprite frames.
+        // The pose follows the curve place before this update's step moves it on: upright, tilted, or tilted far as the
+        // place passes half and three quarters of the place the rise started from.
         SetPuyoAirborneAnimation(place, state);
 
         state.StepAirbornePlace(Hop(state).CurveStep);
 
-        // X speed is authored with a fraction, but the Japanese and North American release moves it by the whole pixels only
-        // and zeroes the subspeed; only the European release uses the fraction. The giant
-        // hop's 1.25 therefore moves exactly one pixel per frame either way.
+        // The hop moves sideways by the whole pixels of its horizontal speed only, so the giant hop's one and a quarter
+        // moves exactly one pixel each update.
         int whole = Hop(state).XSpeed.WholePixels;
         if (state.Direction == HorizontalDirection.Left)
             whole = -whole;

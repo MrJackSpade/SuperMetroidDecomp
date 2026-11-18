@@ -187,8 +187,8 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         place.Position = place.Position.AdvanceY(place.SpawnSettings<GrowingShutterSpawnSettings>().GrowthSpeed);
         int targetY = state.OriginYForLevel() + GrowingShutterDefinitions.SectionLength;
 
-        // The non-negative test returns at equality. A section advances only after its center has passed the
-        // full sixteen-pixel threshold, after which the first three sections are inset seven.
+        // A section finishes only once the shutter has moved past its sixteen pixels, not on reaching them; each of the
+        // first three is then placed seven pixels short of its full-size end.
         if (targetY >= place.Position.Y.Whole)
             return;
         FinishGrowingShutterSection(place, state, targetY, direction: VerticalDirection.Down);
@@ -316,10 +316,10 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             _audio.QueueEnemySound(ShutterActivationSound, priority: SoundRequestPriority.Normal);
     }
 
-    /// <summary>Lets bombs trigger shootable vertical shutters without ordinary damage AI.</summary>
+    /// <summary>Lets bombs trigger shootable vertical shutters without damaging them.</summary>
     internal void ReactToShootableShutterBomb(EnemyBombContext c) =>
-        // The shutter's shot reaction never calls common shot AI. Bomb collision has already marked the bomb, then the
-        // reaction only advances the shutter state machine exactly as a beam, missile, touch, or power bomb would.
+        // A bomb deals the shutter no damage: its collision already marked, it starts the shutter moving as a beam, a
+        // missile, Samus's touch or a power bomb does.
         ReactVerticalShutter(c.Enemy, c.Camera);
 
     /// <summary>
@@ -386,8 +386,8 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Marks a shootable vertical shutter's projectile collision before activating it.</summary>
     internal EnemyShotReaction ShootableShutterShotReaction => field ??= new()
     {
-        // The shot reaction goes directly to the shutter reaction instead of normal shot AI. The collision has
-        // nevertheless already marked the colliding projectile, including Super Missile quake side effects.
+        // A shot deals the shutter no damage and starts it moving; the shot's collision is still marked, a Super
+        // Missile's quake included.
         AfterSuperMissileQuake = (in EnemyShotContext c) =>
         {
             c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
@@ -404,8 +404,8 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Uses Samus contact to react vertical shutters.</summary>
     internal void ReactToVerticalShutterTouch(EnemyTouchContext context) =>
-        // The touch reaction does not enter common contact damage. Body overlap is itself the trigger, and the reaction test decides
-        // whether this population mode may start moving.
+        // Samus's touch deals no contact damage: touching the shutter is itself the trigger, and the shutter's trigger mode
+        // decides whether it starts moving.
         ReactVerticalShutter(context.Place, context.Camera);
     /// <summary>Initializes a vertical shutter, which shows <paramref name="pose"/>: its entity names it (#2179).</summary>
     internal static void InitializeVerticalShutter(RoomEnemyPlace place, ShutterSegment pose)

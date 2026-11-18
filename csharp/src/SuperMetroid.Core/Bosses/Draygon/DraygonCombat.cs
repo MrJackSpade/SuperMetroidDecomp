@@ -88,8 +88,8 @@ internal sealed class DraygonCombat
     }
 
     /// <summary>
-    /// The vulnerable eye's shot reaction increases future swoop curvature before common shot AI.
-    /// The comparison keeps the stored value from ever advancing beyond 152.
+    /// The vulnerable eye's shot reaction increases future swoop curvature before the shot's common damage; the
+    /// curvature never grows past 152.
     /// </summary>
     internal static void AdvanceDraygonShotAcceleration(DraygonEnemyState state)
     {

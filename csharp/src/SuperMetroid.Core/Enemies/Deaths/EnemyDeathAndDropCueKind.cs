@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Enemies.Deaths;
 /// <summary>What a signalling cue of an enemy's death explosion and drop animations does: turn the explosion into its drop, delete it, respawn the enemy, or queue a death sound.</summary>
 internal enum EnemyDeathAndDropCueKind
 {
-    /// <summary>Turns the explosion into its rolled drop, or into the respawn tail when nothing drops.</summary>
+    /// <summary>Turns the explosion into its rolled drop, or into the respawn pause when nothing drops.</summary>
     BecomePickup,
     /// <summary>Removes the explosion or pickup.</summary>
     Delete,

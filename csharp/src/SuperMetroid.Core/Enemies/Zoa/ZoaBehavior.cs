@@ -100,8 +100,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
         place.Presence = place.Presence.Without(EnemyPresence.Hidden);
         if (samus.Position.Y.Whole < place.Position.Y.Whole)
         {
-            // The Japanese and North American release subtracts exactly 0.5 px/frame; the European release's step is 0.625.
-            // This project targets the Japanese and North American release and reads its data.
+            // The Zoa rises half a pixel each update.
             place.Position = place.Position.AdvanceY(-ZoaSpeedDefinitions.RisingSpeed);
             return;
         }
@@ -118,8 +117,8 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         SignedSixteenSixteen speed = state.LaunchSpeed;
 
-        // The shot travels the way the Zoa faces. The shooting animation's cues change the speed at its 64-, 8- and
-        // 48-update marks.
+        // The shot travels the way the Zoa faces. The shooting animation's cues set the speed as it starts and after 64
+        // and 72 updates.
         SignedSixteenSixteen xDisplacement = state.Facing == HorizontalDirection.Right
             ? speed
             : -speed;

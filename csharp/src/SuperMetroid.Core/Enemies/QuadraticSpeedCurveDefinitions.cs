@@ -5,8 +5,7 @@ namespace SuperMetroid.Core.Enemies;
 
 /// <summary>The shared quadratic enemy speed curve's authored speeds, which grow along the curve.</summary>
 /// <remarks>
-/// Both of the game's copies of the curve hold these speeds (#2344). They do not climb evenly: a few marks are slower than
-/// the mark before them.
+/// The speeds do not climb evenly (#2344): a few marks are slower than the mark before them.
 /// </remarks>
 public static class QuadraticSpeedCurveDefinitions
 {

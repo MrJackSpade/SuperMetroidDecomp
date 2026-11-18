@@ -196,7 +196,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         SetMetroidAnimation(place, state, MetroidSegment.ChasingSamus);
     }
 
-    /// <summary>Runs the family-specific tail of a frozen Metroid's update.</summary>
+    /// <summary>Runs a frozen Metroid's own step after the common thaw.</summary>
     internal static void RunMetroidFrozen(RoomEnemyPlace place)
     {
         MetroidEnemyState state = place.RequireSpeciesState<MetroidEnemyState>();

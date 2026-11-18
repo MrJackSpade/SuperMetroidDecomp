@@ -210,9 +210,8 @@ internal sealed class EnemyDeathsAndDrops
     }
 
     /// <summary>
-    /// Allocates a pickup projectile using an ordinary enemy definition. The
-    /// search for a free place, failure at the first place, random selection, and no-drop tail follow
-    /// the enemy-projectile spawn and then the pickup's setup.
+    /// Spawns a pickup whose drop chances an enemy definition gives: it takes a free projectile place as any enemy
+    /// projectile does, none when no place is free, and rolls its drop, lying dormant when nothing drops.
     /// </summary>
     internal EnemyProjectile? SpawnEnemyDropFromDefinition(
         Position16<RoomPixels> position,
@@ -236,9 +235,7 @@ internal sealed class EnemyDeathsAndDrops
     }
 
     /// <summary>
-    /// Allocates a pickup from a chance table already selected by specialized
-    /// boss code, such as Botwoon's Draygon-eye drop cue, without manufacturing a fake enemy definition solely to reach
-    /// the same six chances.
+    /// Spawns a pickup whose drop chances a boss gives directly, as Botwoon's drop cue gives the Draygon eye's chances.
     /// </summary>
     internal EnemyProjectile? SpawnEnemyDropFromChanceTable(
         Position16<RoomPixels> position,
@@ -261,7 +258,7 @@ internal sealed class EnemyDeathsAndDrops
         return pickup;
     }
 
-    /// <summary>Rolls a direct drop and either starts its pickup animation or the no-drop tail.</summary>
+    /// <summary>Rolls a direct drop and either starts its pickup animation or leaves it dormant when nothing drops.</summary>
     private void InitializeDirectEnemyPickup(EnemyProjectile pickup, SamusState samus)
     {
         EnemyPickupKind kind = SelectRandomEnemyDrop(pickup, samus);
@@ -276,7 +273,7 @@ internal sealed class EnemyDeathsAndDrops
 
     /// <summary>
     /// Converts a completed enemy-death explosion in place and returns the animation it continues at: its drop's, or the
-    /// respawn tail's. Keeping the actor in its existing place keeps both its retained killed enemy and whether it drops
+    /// respawn pause's. Keeping the actor in its existing place keeps both its retained killed enemy and whether it drops
     /// at all: an explosion in the first place never converts (<see cref="FirstPlaceExplosionLeavesNoPickup"/>).
     /// </summary>
     /// <param name="projectile">The finished death explosion.</param>
@@ -301,15 +298,15 @@ internal sealed class EnemyDeathsAndDrops
         return animation.Animation;
     }
 
-    /// <summary>Switches a consumed or rejected drop to the blank, non-interactive deletion tail.</summary>
+    /// <summary>Leaves a collected or expired drop blank and harmless until it is removed.</summary>
     private static void MakeEnemyPickupDormant(EnemyProjectile projectile) =>
         projectile.StartAnimation(new EnemyDeathAndDropAnimation(ConfigureDormantPickup(projectile)));
 
-    /// <summary>Makes the projectile a blank, non-interactive drop and returns the deletion tail it runs.</summary>
+    /// <summary>Makes the projectile a blank, harmless drop and returns the respawn pause it shows until it is removed.</summary>
     private static EnemyDeathAndDropSegment ConfigureDormantPickup(EnemyProjectile projectile)
     {
-        // The blank frame lasts 64 frames before the respawn cue handles a retained respawning enemy
-        // and the actor is deleted. Collection and natural expiry use this same tail.
+        // The blank frame lasts 64 updates before a retained respawning enemy respawns and the drop is removed. A
+        // collected or expired pickup ends the same way.
         projectile.HoldStill();
         projectile.CanDamageSamus = false;
         projectile.PersistsOnSamusContact = false;
@@ -555,9 +552,8 @@ internal sealed class EnemyDeathsAndDrops
     }
 
     /// <summary>
-    /// Runs the respawn cue for the respawning enemy a death actor retains.
-    /// The method is deliberately population/snapshot based so later respawning families can
-    /// share it without acquiring a Rinka-specific reconstruction path.
+    /// Runs the respawn cue for the respawning enemy a death actor retains: the enemy is set up again from the population
+    /// it spawned from.
     /// </summary>
     internal void RespawnEnemyFromSnapshot(RoomEnemyPlace place)
     {

@@ -10,7 +10,7 @@ public sealed class RioEnemyState
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<RioSegment> Playback { get; set; }
 
-    /// <summary>Signed 1/256-pixel horizontal dive velocity retained while the hovering phase temporarily stops X.</summary>
+    /// <summary>The sideways dive velocity, kept while the Rio homes in on Samus and taken back as it climbs.</summary>
     public SignedEightEight SavedHorizontalVelocity { get; internal set; }
 
     /// <summary>The behaviour that runs after the main AI's RNG advance.</summary>

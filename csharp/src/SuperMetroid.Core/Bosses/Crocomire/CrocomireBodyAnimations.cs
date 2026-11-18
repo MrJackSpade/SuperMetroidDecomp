@@ -486,8 +486,8 @@ internal static class CrocomireBodyAnimations
         new AnimationBeat<EnemyFrameId, CrocomireBodyCue>.HeldFrame(frame);
 
     /// <summary>
-    /// The updates each melting pass's first-row frame shows before its animation shows it again, the longest duration a
-    /// frame can have, kept exact (#1627): these two animations loop on their frame, so the frame shows anew each time the
+    /// The updates each melting pass's first-row frame shows before its animation shows it again, kept exact (#1627):
+    /// these two animations loop on their frame, so the frame shows anew each time the
     /// count runs out, and a shot's added updates move when.
     /// </summary>
     private const int LoopingMeltFrameDuration = 32767;

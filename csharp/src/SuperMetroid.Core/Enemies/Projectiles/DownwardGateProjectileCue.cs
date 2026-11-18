@@ -10,7 +10,7 @@ internal abstract record DownwardGateProjectileCue
     {
     }
 
-    /// <summary>Sets the gate's signed 1/256-pixel Y velocity.</summary>
+    /// <summary>Sets the gate's vertical velocity.</summary>
     /// <param name="YVelocity">The vertical velocity a <see cref="SetYVelocity"/> cue installs.</param>
     internal sealed record SetYVelocity(SignedEightEight YVelocity) : DownwardGateProjectileCue;
 

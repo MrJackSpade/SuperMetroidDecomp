@@ -343,7 +343,7 @@ internal sealed class MotherBrainHead
     }
 
     /// <summary>
-    /// The shared onion-ring aim tail. Both target selectors subtract the same mouth offsets,
+    /// Aims the onion rings at a target. Both target selectors subtract the same mouth offsets,
     /// take the angle from those offsets, rotate by a half turn, and clamp the launch arc to
     /// <see cref="MotherBrainOnionRingDefinitions.LowestAim"/> through <see cref="MotherBrainOnionRingDefinitions.HighestAim"/>; only the source coordinate differs.
     /// </summary>

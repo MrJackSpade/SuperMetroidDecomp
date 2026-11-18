@@ -24,9 +24,9 @@ internal sealed class PowerlessWorkRobotEntity(WorkRobotBehavior species, RoomEn
     /// <summary>The robot rejects a bomb's damage that selects its own shot reaction, and takes no recoil.</summary>
     protected override EnemyBombReaction OwnBombReaction => Species.PowerlessWorkRobotBombReaction;
 
-    /// <summary>The robot's own shot reaction, which runs nothing after the common shot AI.</summary>
+    /// <summary>The robot's own shot reaction, which runs nothing after the common shot reaction.</summary>
     protected override EnemyShotReaction OwnShotReaction => Species.UnpoweredWorkRobotShotReaction;
 
-    /// <summary>Shots return before common shot AI: the ship has no power.</summary>
+    /// <summary>Shots pass through before the common shot reaction: the ship has no power.</summary>
     public bool AdmitsShots() => false;
 }

@@ -7,8 +7,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 internal static class KraidRockAnimations
 {
     /// <summary>
-    /// Each rock segment's beats: the shared and right rising rocks hold their still pose for good (#1627: the game
-    /// shows it for the longest duration a frame can have and then rests on it); the spat rock's burst stops its flight, shows five four-update frames of the rock breaking apart, then deletes itself.
+    /// Each rock segment's beats: the shared and right rising rocks hold their still pose for good (#1627); the spat rock's burst stops its flight, shows five four-update frames of the rock breaking apart, then deletes itself.
     /// </summary>
     internal static AnimationSegments<KraidRockSegment, EnemyProjectileFrameId, KraidRockCue> Segments { get; } = new(
         new Dictionary<KraidRockSegment, Beat[]>

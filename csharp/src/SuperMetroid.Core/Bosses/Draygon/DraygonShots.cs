@@ -8,7 +8,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>
-/// Draygon's goop and the wall turrets' shots in flight (#1760): their frame behaviours, the cues of their animations, the
+/// Draygon's goop and the wall turrets' shots in flight (#1760): how they move each update, the cues of their animations, the
 /// animations a shot or Samus's touch starts, and the power bomb that catches them. Draygon's parts and turrets bind these
 /// behaviours to the shots they spawn.
 /// </summary>
@@ -150,7 +150,7 @@ internal sealed class DraygonShots
             SamusState samus,
             SamusPowerBombExplosionState powerBomb)
         {
-            // The power-bomb catch does not end this frame behaviour.
+            // The power-bomb catch does not stop the goop's flight on this update.
             FreePlaceIfPowerBombed(goop, samus, powerBomb);
             if (samus.HorizontalSpeed.BodyAttack != SamusBodyAttack.None)
             {

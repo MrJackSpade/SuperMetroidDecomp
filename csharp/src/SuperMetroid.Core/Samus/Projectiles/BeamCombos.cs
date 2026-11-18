@@ -2,7 +2,7 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>Beam combination attacks (charge plus special weapon): activation, and the ice, plasma, spazer and wave combo steps with the Spacetime colour copy tail.</summary>
+/// <summary>Beam combination attacks (charge plus special weapon): activation, and the ice, plasma, spazer and wave combo steps with the Spacetime shot's colour copy.</summary>
 internal sealed class BeamCombos
 {
     /// <summary>Ends expired special attack particles through the same projectile lifecycle as ordinary beams.</summary>

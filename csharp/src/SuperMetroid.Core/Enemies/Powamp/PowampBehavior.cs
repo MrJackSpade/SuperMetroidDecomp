@@ -524,7 +524,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         AfterCommon = c => ResolvePowampPowerBombAfterCommon(c.Enemy),
     };
 
-    /// <summary>The balloon's Power Bomb reaction: common damage with no tail of its own, its body carrying a hit on to it.</summary>
+    /// <summary>The balloon's Power Bomb reaction: the common damage alone, its body carrying a hit on to it.</summary>
     internal EnemyPowerBombReaction PowampBalloonPowerBombReaction => field ??= new();
 
     /// <summary>Skips later shots once fatal damage begins and mirrors surviving body presentation to the balloon.</summary>
@@ -536,9 +536,8 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The Powamp's shot reaction for a half that refuses shots while <paramref name="refusesContact"/> says so.</summary>
     private EnemyShotReaction ShotReactionSkipping(Func<RoomEnemyPlace, bool> refusesContact) => new()
     {
-        // Powamp refuses contact as soon as a lethal shot starts its private 32-frame death. Later
-        // overlaps return before common shot AI, so they must not consume or explode the projectile while the
-        // body is still visibly deflating.
+        // Powamp refuses contact as soon as a lethal shot starts its own 32-update death: later shots pass through,
+        // neither spent nor exploding, while the body visibly deflates.
         SkipsEnemy = refusesContact,
         ExemptFromGenericDeath = true,
         // Powamp's shot reaction runs the common damage without the hit burst.

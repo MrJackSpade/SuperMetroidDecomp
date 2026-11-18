@@ -319,7 +319,7 @@ internal sealed class CeresRidleyFlight
     }
 
     /// <summary>
-    /// Steers both 1/256-pixel velocity axes toward <paramref name="target"/>, where it lies from the room's origin, which
+    /// Steers both axes of his velocity toward <paramref name="target"/>, where it lies from the room's origin, which
     /// may be above the chamber, at a negative height.
     /// </summary>
     internal static void AccelerateRidleyToward(
@@ -329,7 +329,7 @@ internal sealed class CeresRidleyFlight
         int divisor) =>
         AccelerateRidleyToward(place, flight, Position16<RoomPixels>.Zero + target, divisor);
 
-    /// <summary>Steers both 1/256-pixel velocity axes toward a target, raising a step that divides to zero to one.</summary>
+    /// <summary>Steers both axes of his velocity toward a target, raising a step that divides to zero to one.</summary>
     internal static void AccelerateRidleyToward(
         RoomEnemyPlace place,
         RidleyFlightState flight,

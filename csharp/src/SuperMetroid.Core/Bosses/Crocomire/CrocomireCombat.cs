@@ -375,7 +375,7 @@ internal sealed class CrocomireCombat
         }
     }
 
-    /// <summary>Projects a projectile angle into signed 1/256-pixel X/Y speed: its sine and negative cosine scaled by the volley's multiplier.</summary>
+    /// <summary>Projects a projectile angle into its sideways and vertical speeds: its sine and negative cosine scaled by the volley's multiplier.</summary>
     internal static EightEightVector<RoomPixels> CalculateCrocomireProjectileVelocity(Bearing bearing)
     {
         // A negative sine scales exactly as a positive one does. The bearing is used as a heading without

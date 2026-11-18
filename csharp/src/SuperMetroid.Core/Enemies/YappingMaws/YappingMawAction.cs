@@ -10,8 +10,8 @@ public enum YappingMawAction
     WaitingForSamus,
     /// <summary>Starts the curl from rest, takes its reach and bend from where Samus is, and starts the attack animation for its eight-way aim with where it holds a caught Samus.</summary>
     BeginExtension,
-    /// <summary>Solves all four curled link positions, advances the quadratic angular motion, carries any captive with the mouth, and enters cooldown when the signed curl becomes negative.</summary>
+    /// <summary>Solves all four curled link positions, advances the quadratic angular motion, carries any captive with the mouth, and enters the hold after retraction when the curl passes below zero.</summary>
     ExtendingOrRetracting,
-    /// <summary>Retains captive placement until the timer seeded at 64 passes zero on its 65th update, then releases input and returns to neutral unless Samus death still owns the lock.</summary>
+    /// <summary>Holds a caught Samus in the mouth for the 65 updates after retraction, releasing her input on the last and returning to the wait, unless her death keeps the Maw holding.</summary>
     RetractedDelay,
 }

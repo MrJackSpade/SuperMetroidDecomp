@@ -29,10 +29,10 @@ public static class MotherBrainDeathDefinitions
     /// <summary>The updates an escape-door fragment falls; on the last it turns to dust.</summary>
     public const int DoorFragmentLifetimeUpdates = 33;
 
-    /// <summary>The drag subtracted from a door fragment's 1/256-pixel horizontal speed each update.</summary>
+    /// <summary>The drag subtracted from a door fragment's sideways speed each update.</summary>
     public static readonly SignedEightEight DoorFragmentDrag = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(16);
 
-    /// <summary>The gravity added to a door fragment's 1/256-pixel vertical speed each update.</summary>
+    /// <summary>The gravity added to a door fragment's vertical speed each update.</summary>
     public static readonly SignedEightEight DoorFragmentGravity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(32);
 
     /// <summary>The room position the door fragments spawn about.</summary>

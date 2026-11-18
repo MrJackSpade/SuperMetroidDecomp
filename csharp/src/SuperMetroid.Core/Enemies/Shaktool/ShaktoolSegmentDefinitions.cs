@@ -1,15 +1,13 @@
 namespace SuperMetroid.Core.Enemies.Shaktool;
 
 /// <summary>
-/// The mechanics and behaviour of Shaktool's seven linked body segments, leading saw first. Processing and contact:
-/// every segment runs its animation and is processed off screen; the five internal pieces also ignore Samus's
-/// touch. Owner distance: how many places each segment sits after the chain's first segment, its owner: its
-/// position in the chain. Initial orbit angle: where each segment starts around the one before it, the chain curled a
-/// little more at each joint from the leading saw on. Curl speed: the turn each segment curls by an update, a sixty-fourth
-/// of the turn by which its initial orbit angle falls short of a full turn. Initial animation: both saws their primary-piece animation,
-/// the center segment the head-down animation, the four arms the normal arm animation. Behaviour by part: fixed anchor, head,
-/// final saw and ordinary arms have distinct roles. Collision animation: as the chain recovers from striking a wall, the
-/// saws bob as their primary and final pieces, the head bobs, and each arm bobs as the back or front piece of its side.
+/// Shaktool's seven linked body segments, leading saw first. Every segment animates and moves off screen, and the five
+/// between the saws ignore Samus's touch. Each starts around the one before it, the chain curled a little more at each
+/// joint from the leading saw on, and curls each update by a sixty-fourth of the turn by which its start falls short of
+/// a full turn. Both saws start as their primary pieces, the head facing down and the four arms as their normal pieces;
+/// the leading saw anchors the chain, and the head, the final saw and the arms each move their own way. As the chain
+/// recovers from striking a wall, the saws bob as their primary and final pieces, the head bobs, and each arm bobs as the
+/// back or front piece of its side.
 /// </summary>
 internal static class ShaktoolSegmentDefinitions
 {

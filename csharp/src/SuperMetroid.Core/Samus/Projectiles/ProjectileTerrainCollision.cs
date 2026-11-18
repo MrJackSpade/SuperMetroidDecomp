@@ -31,7 +31,7 @@ internal sealed class ProjectileTerrainCollision
         _straddledTerrain = Ensure.NotNull(straddledTerrain);
     }
 
-    /// <summary>Advances a shot by its signed 1/256-pixel X velocity and scans its leading edge for block reactions and collision.</summary>
+    /// <summary>Advances a shot by its sideways velocity and scans its leading edge for block reactions and collision.</summary>
     internal static bool MoveHorizontally(
         RoomLevelData level,
         SamusProjectile shot,
@@ -42,7 +42,7 @@ internal sealed class ProjectileTerrainCollision
     }
 
     /// <summary>
-    /// Advances a Wave or Hyper shot by its signed 1/256-pixel X velocity and scans its leading edge for block reactions, which
+    /// Advances a Wave or Hyper shot by its sideways velocity and scans its leading edge for block reactions, which
     /// never report a collision.
     /// </summary>
     internal void MoveWaveShotHorizontally(
@@ -118,7 +118,7 @@ internal sealed class ProjectileTerrainCollision
         return false;
     }
 
-    /// <summary>Advances a shot by its signed 1/256-pixel Y velocity and scans its leading edge; Wave retains reactions but is never stopped.</summary>
+    /// <summary>Advances a shot by its vertical velocity and scans its leading edge; Wave retains reactions but is never stopped.</summary>
     internal static bool MoveVertically(
         RoomLevelData level,
         SamusProjectile shot,

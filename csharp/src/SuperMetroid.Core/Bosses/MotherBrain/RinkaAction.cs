@@ -12,6 +12,6 @@ public enum RinkaAction
     DeathRespawnDelay,
     /// <summary>Stationary initial state that recycles an actor outside the expanded camera flight rectangle; the animation's fire step, not this action's timer, starts the aim delay.</summary>
     WatchForLeavingViewport,
-    /// <summary>Adds the fixed signed 1/256-pixel velocities to the actor's fractional room position each update, then recycles it outside the camera-relative -16..271 X / -16..239 Y window without re-aiming.</summary>
+    /// <summary>Moves by its fixed velocity each update, then recycles it outside the camera-relative -16..271 X / -16..239 Y window without re-aiming.</summary>
     Flying,
 }

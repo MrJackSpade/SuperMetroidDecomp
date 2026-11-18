@@ -701,6 +701,21 @@ the game's live state as code is outside the emulation scope limit. Where an ani
 body's or a controller's port (`the top port's spike`, `port 2`), a layout alone (`a room's scroll layout`), laying a
 picture out (`lays out the caption`) and a hardware owner stay English.
 
+#2456 widens SME6454, outside hardware owners, to the original's routines, per-frame code, copies and precision: a
+routine's tail named by the reaction, stage or outcome it ends (`the frozen tail`, `the recoil tail`, `the respawn tail`,
+`the no-drop tail`, `the deletion tail`, `the Metroid tail`, `a frozen-AI prelude/tail`), pointed at (`this same tail`,
+`before that tail`, `a tail that still acts`), owned (`the frozen enemy's own tail`, `no tail of its own`) or of an update
+(`the tail of a frozen Metroid's update`); a frame behaviour, the original's per-frame projectile code; common, normal or
+ordinary shot, touch, contact or bomb AI, run or not run (`never calls common shot AI`, `instead of normal shot AI`); the
+game's copies of a table (`both of the game's copies of the curve`); the longest duration a frame can have; and a
+quantity told by the precision it is kept at (`a signed 1/256-pixel velocity`, `1/256-pixel steps`, `a 1/256-turn aim`,
+`-1/256 px`, `1/256ths`). Core says what the game does: what a reaction does after the common damage (`a shot deals the
+shutter no damage and starts it moving`), how a projectile moves each update, which speeds the curve gives, that a frame
+holds for good and how fast a thing moves (`its velocity, in pixels per update`). A body's tail (`Ridley's tail`, `its
+tail`, `the tail cap`, `a one-shot tail whip`), a particle's fading tail, a straddled block's lead and tail, a per-frame
+behaviour, an item frame's behaviour, main AI, a unit of measure (`a speed in 1/256 pixels`, `a 256th of a pixel`) and a
+hardware owner stay English.
+
 `Tilemap` is matched as the one word the cartridge's sources spell. A room layer named as the destination engine names
 it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as does `MapTiles`; so does
 `SpriteSheet` beside `Spritemap`, and `Scan`, `Scanned` or `FirstLine` beside `Scanline` (#1694). Documentation prose is

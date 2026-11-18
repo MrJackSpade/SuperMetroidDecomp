@@ -385,7 +385,7 @@ internal sealed class IntroBabyDiscoveryState
     private static readonly SignedEightEight BabyAcceleration = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(32);
 
     /// <summary>
-    /// Adjusts a 1/256-pixel velocity toward a target by one acceleration step without passing <paramref name="limit"/> either
+    /// Adjusts a velocity toward a target by one acceleration step without passing <paramref name="limit"/> either
     /// way; every step keeps the speed within the limit, so the step stays far inside the velocity's range. The baby and its
     /// targets lie on the screen near Samus, so their places compare directly (#1974).
     /// </summary>
@@ -398,7 +398,7 @@ internal sealed class IntroBabyDiscoveryState
             ? SignedEightEight.Min(limit, current + BabyAcceleration)
             : SignedEightEight.Max(-limit, current - BabyAcceleration);
 
-    /// <summary><paramref name="position"/> with one 1/256-pixel velocity component integrated into its subpixel position.</summary>
+    /// <summary><paramref name="position"/> moved by one axis of a velocity, fraction included.</summary>
     private static FixedVector<ScreenPixels> WithEightEightVelocity(FixedVector<ScreenPixels> position, Axis axis, SignedEightEight velocity) =>
         axis == Axis.Horizontal
             ? position.WithX(IntroCinematicMotion.AddEightEight(position.X, velocity))

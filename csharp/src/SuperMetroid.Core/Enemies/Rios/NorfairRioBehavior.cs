@@ -155,9 +155,8 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case NorfairRioAction.FinishLanding:
-                // Finishing the landing is intentionally a one-frame state: it changes only
-                // the action that runs. The looping idle animation remains installed, which also keeps
-                // the follower half visible while the actor waits for another random attack.
+                // Finishing the landing takes one update and changes only the action: the animation the climb left
+                // keeps playing, its flames with it, while the Rio waits for another random attack.
                 state.Action = NorfairRioAction.WaitForAttackOpportunity;
                 return;
 

@@ -245,11 +245,11 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
         }
     }
 
-    /// <summary>Reverses the full signed 1/256-pixel horizontal velocity after targeting or collision.</summary>
+    /// <summary>Reverses the sideways velocity after targeting or collision.</summary>
     private static void NegateLowerNorfairRioXVelocity(LowerNorfairRioEnemyState state) =>
         state.Velocity = state.Velocity.ReversedX();
 
-    /// <summary>Applies the negative 1/256-pixel vertical acceleration after a flight step.</summary>
+    /// <summary>Slows the vertical speed by its gravity after a flight step.</summary>
     private static void ApplyLowerNorfairRioGravity(LowerNorfairRioEnemyState state) =>
         state.Velocity = state.Velocity.WithY(state.Velocity.Y - RioLaunchDefinitions.LowerNorfairGravity);
 

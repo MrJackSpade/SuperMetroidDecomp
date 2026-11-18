@@ -49,7 +49,7 @@ internal static class CrocomireAnimations
     /// <summary>
     /// The projectile segments, one per projectile kind, each beat the installed <see cref="EnemyProjectileFrameId"/> it shows
     /// (#2011): the fight projectile's six three-update frames; the bridge fragment's and spike-wall piece's one still frame,
-    /// held for good (#1627: it shows for the longest duration a frame can have, after which it still shows that frame); the
+    /// held for good (#1627); the
     /// shot fight projectile's five four-update explosion frames, then a drop with Crocomire's chances and deletion.
     /// </summary>
     internal static AnimationSegments<CrocomireProjectileSegment, EnemyProjectileFrameId, CrocomireProjectileCue> ProjectileSegments { get; } = new(

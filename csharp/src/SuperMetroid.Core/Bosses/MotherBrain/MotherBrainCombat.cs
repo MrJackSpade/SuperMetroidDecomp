@@ -71,7 +71,7 @@ internal sealed class MotherBrainCombat
     /// Reacts to a shot at the head in Mother Brain's first form. The glass encounter
     /// accepts only missile families; beams pass through without being converted into an
     /// impact, while every accepted missile increments the glass room object's hit count before common
-    /// vulnerability damage is applied without the ordinary enemy-deletion tail.
+    /// vulnerability damage is applied, which never deletes the head.
     /// </summary>
     private void ResolveMotherBrainHeadShot(
         RoomEnemyPlace head,

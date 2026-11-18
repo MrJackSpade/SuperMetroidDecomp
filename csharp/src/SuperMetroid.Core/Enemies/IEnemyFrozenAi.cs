@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies;
 internal interface IEnemyFrozenAi : IEnemyEntity
 {
     /// <summary>
-    /// Runs the frozen enemy's own tail before the common thaw (Rinka's termination); true when it ended the enemy's turn.
+    /// Runs the frozen enemy's own step before the common thaw (a Rinka's ending); true when it ended the enemy's turn.
     /// </summary>
     bool PreemptFrozenTurn();
 

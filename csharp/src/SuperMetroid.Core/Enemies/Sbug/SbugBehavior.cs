@@ -162,8 +162,8 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Alternates left and right diagonal legs on the enemy's own update count.</summary>
     private static void RunSbugZigZag(RoomEnemyPlace place, SbugEnemyState state)
     {
-        // The global enemy frame counter divides motion into alternating 16-frame diagonal
-        // legs. It is sampled before the scheduler increments it for the current frame.
+        // The enemy's update count alternates the diagonal legs every sixteen updates, read before this update is
+        // counted.
         SbugLeg leg = ZigZagLeg(place, secondLeg: SbugDefinitions.ZigZagSecondLeg.IsSetIn(place.FrameCounter));
         SetSbugFacing(place, state, leg.Facing);
         AddSbugVelocity(place, leg);
@@ -289,9 +289,9 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// The forward velocity along one axis: the Sbug's whole-pixel speed, at most 255, scaled by the unsigned half-wave
-    /// sample, in 65536ths, of the angle turned by <paramref name="phase"/>, pointing backward along the axis when that
-    /// turned angle lies in the turn's second half. The speed stays below 256 pixels, so the product is exact.
+    /// The forward velocity along one axis: the Sbug's whole-pixel speed scaled by the fine half-wave of the angle turned
+    /// by <paramref name="phase"/>, pointing backward along the axis when that turned angle lies in the turn's second
+    /// half.
     /// </summary>
     internal static SignedSixteenSixteen CalculateForwardSbugComponent(
         TrigonometryAngle angle,

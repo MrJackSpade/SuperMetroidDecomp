@@ -82,7 +82,7 @@ internal sealed class CeresRidleyBehavior : IRidleyRevealEncounter<CeresRidleySt
             return;
 
         // Once the eye fade enables composite animation, Ceres Ridley's main behaviour performs the
-        // common Ridley 1/256-pixel movement pass after every update. Keeping that order
+        // common Ridley movement pass after every update. Keeping that order
         // matters in the rise and swoop: velocity changes affect position in the very same frame.
         if (state.MovementAnimationEnabled && _ridleyEncounter.CeresStatus == CeresEscapeStatus.RidleyNotEscaped)
         {
@@ -105,7 +105,7 @@ internal sealed class CeresRidleyBehavior : IRidleyRevealEncounter<CeresRidleySt
         switch (state.Phase)
         {
             case CeresRidleyPhase.LiftoffAccelerating:
-                // The rising step adds -16 to the 1/256-pixel Y velocity before the common movement pass. Ridley rises from rest
+                // The rising step speeds his rise by a sixteenth of a pixel an update before the common movement pass. Ridley rises from rest
                 // until he passes line 112 of his chamber, so the speed stays a few pixels an update.
                 state.Flight.Velocity = state.Flight.Velocity.WithY(state.Flight.Velocity.Y - CeresRidleyFlightDefinitions.LiftoffClimbStep);
                 if (RidleyFlight.SignedPlace(place).Y < CeresRidleyArenaDefinitions.LiftoffSlowingLineY)

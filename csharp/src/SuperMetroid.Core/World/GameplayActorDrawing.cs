@@ -178,8 +178,8 @@ internal sealed class GameplayActorDrawing
             // elevator owns a front-facing body. It still arrives after the cover update, so
             // the arm-cannon cover state above advances every frame. Odd frames draw nothing
             // more. Even frames draw her body alone, as her death does: no invincibility flicker and none of her
-            // other pictures (atmosphere, charge flare, arm cannon, speed and shinespark echoes, grapple). Projectile drawing remains in the shared
-            // tail below, exactly as the game draws them after this drawing.
+            // other pictures (atmosphere, charge flare, arm cannon, speed and shinespark echoes, grapple). The projectiles
+            // are drawn below, after this drawing, as for every other way she is drawn.
             bool elevatorOwnsSamusDrawing =
                 room.Enemies.Elevator.ElevatorStatus != ElevatorActorStatus.Inactive && SamusPoseMetadata.IsForwardFacingPose(samus.Pose);
             if (elevatorOwnsSamusDrawing)
@@ -202,7 +202,7 @@ internal sealed class GameplayActorDrawing
                 // omits charging flare/audio, atmosphere, both arm-cannon priority
                 // paths, ordinary departing speed echoes, and grapple graphics. It
                 // draws the live body first, then the crash's second echo before its
-                // first on odd frames. The shared projectile/trail tail below still follows.
+                // first on odd frames. The projectiles and trails below are still drawn after it.
                 samus.Presentation.Draw(samus, 
                     _sprites,
                     room.Camera.PixelPosition,

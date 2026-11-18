@@ -16,7 +16,7 @@ internal struct EndingShootingStar
     /// leaving by the top or left edge is tested against <see cref="EndingShootingStarDefinitions.SpriteOffset"/> as it is.
     /// </summary>
     internal FixedVector<ScreenPixels> Position;
-    /// <summary>Current signed 1/256-pixel motion accumulated by the star's acceleration.</summary>
+    /// <summary>The star's velocity, which its acceleration builds up.</summary>
     internal EightEightVector<ScreenPixels> Velocity;
 
     /// <summary>What the star shows.</summary>

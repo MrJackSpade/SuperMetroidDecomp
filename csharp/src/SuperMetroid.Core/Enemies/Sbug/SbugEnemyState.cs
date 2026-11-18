@@ -22,10 +22,9 @@ public sealed class SbugEnemyState
     public SbugAction Action { get; internal set; }
 
     /// <summary>
-    /// The custom movement heading, in standard-mathematics orientation (zero right, a quarter turn up). The game
-    /// adds random turns to a running total of turns; only its part within one revolution steers, and that part is the
-    /// heading. It changes
-    /// only through <see cref="FaceCustomHeading"/> and <see cref="TurnCustomHeading"/>.
+    /// The custom movement heading, in standard-mathematics orientation (zero right, a quarter turn up); random turns
+    /// carry it on around the circle. It changes only through <see cref="FaceCustomHeading"/> and
+    /// <see cref="TurnCustomHeading"/>.
     /// </summary>
     public RotationAngle CustomHeading { get; private set; }
 

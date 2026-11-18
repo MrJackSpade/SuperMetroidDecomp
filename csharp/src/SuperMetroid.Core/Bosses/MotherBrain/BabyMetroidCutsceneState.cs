@@ -47,8 +47,7 @@ public sealed class BabyMetroidCutsceneState
     internal AnimationPlayback<MotherBrainBabySegment> Playback { get; set; } = MotherBrainBabyAnimations.Starting(MotherBrainBabySegment.IdlePulse);
 
     /// <summary>
-    /// Room position. This actor's 1/256-pixel mover moves it in 256ths of a pixel; its precision finer
-    /// than a 256th of a pixel is deliberately kept unchanged.
+    /// Room position. The Baby moves in 256ths of a pixel; the finer part of its position never changes.
     /// </summary>
     public FixedPosition<RoomPixels> Position { get; internal set; }
 
@@ -58,7 +57,7 @@ public sealed class BabyMetroidCutsceneState
     /// </summary>
     internal Offset16<RoomPixels> SignedPlace => new(CoordinateAxis.AsSigned(Position.X.Whole), CoordinateAxis.AsSigned(Position.Y.Whole));
 
-    /// <summary>Signed 1/256-pixel velocity.</summary>
+    /// <summary>Velocity in pixels per update.</summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>The curved entrance's speed, zero through fourteen pixels an update.</summary>

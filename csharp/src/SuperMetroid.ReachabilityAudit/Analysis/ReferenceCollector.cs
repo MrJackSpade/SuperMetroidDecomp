@@ -15,7 +15,8 @@ namespace SuperMetroid.ReachabilityAudit.Analysis;
 /// indexers and base constructors). nameof and documentation crefs are not references.
 /// </summary>
 internal sealed class ReferenceCollector(SymbolIdentity identity, ReachabilityGraph graph, RootCollector roots,
-    JsonSerializationScan json, ReflectionScan reflection, IReadOnlyDictionary<SyntaxTree, Compilation> treeOwners)
+    JsonSerializationScan json, ReflectionScan reflection, IReadOnlyDictionary<SyntaxTree, Compilation> treeOwners,
+    ValueEqualityReads valueReads)
 {
     /// <summary>Every repository symbol referenced anywhere, reachable or not.</summary>
     public HashSet<string> Referenced { get; } = [];
@@ -163,29 +164,66 @@ internal sealed class ReferenceCollector(SymbolIdentity identity, ReachabilityGr
 
     /// <summary>
     /// A record's synthesized equality, hashing and formatting read every member value, but have
-    /// no source declaration to reach. Comparing, hashing or formatting a record, or handing it to
-    /// generic code as a type argument (dictionary and set keys, Distinct, EqualityComparer),
-    /// therefore reaches all of its properties and fields.
+    /// no source declaration to reach. Comparing, hashing or formatting a record (with its own members,
+    /// through <see cref="object"/>'s, by tuple equality, by interpolation or by string concatenation),
+    /// or handing it to generic code as a type argument (dictionary and set keys, Distinct,
+    /// EqualityComparer), therefore reaches the values <see cref="ValueEqualityReads"/> names.
     /// </summary>
-    private static void AddRecordValueReads(SemanticModel model, ExpressionSyntax expression, SymbolInfo info, List<ISymbol?> targets)
+    private void AddRecordValueReads(SemanticModel model, ExpressionSyntax expression, SymbolInfo info, List<ISymbol?> targets)
     {
         if (info.Symbol is IMethodSymbol { ContainingType.IsRecord: true } method &&
             method.Name is WellKnownMemberNames.EqualityOperatorName or WellKnownMemberNames.InequalityOperatorName
                 or nameof(Equals) or nameof(GetHashCode) or nameof(ToString))
-            AddRecordMembers(method.ContainingType, targets);
+            valueReads.Add(method.ContainingType, targets);
+        if (expression is InvocationExpressionSyntax invocation && info.Symbol is IMethodSymbol
+            {
+                ContainingType.SpecialType: SpecialType.System_Object, Name: nameof(Equals) or nameof(GetHashCode) or nameof(ToString),
+            })
+            AddObjectMemberOperands(model, invocation, targets);
         if (info.Symbol is IMethodSymbol { IsGenericMethod: true } generic && EqualitySensitiveMethods.Contains(generic.Name))
             foreach (var argument in generic.TypeArguments)
-                AddRecordMembers(argument, targets);
+                valueReads.Add(argument, targets);
         if (info.Symbol is IMethodSymbol { ContainingType: { IsGenericType: true } owner } member &&
             (EqualitySensitiveTypes.Contains(owner.Name) || EqualitySensitiveMethods.Contains(member.Name)))
             foreach (var argument in owner.TypeArguments)
-                AddRecordMembers(argument, targets);
+                valueReads.Add(argument, targets);
         if (expression is GenericNameSyntax && info.Symbol is INamedTypeSymbol { IsGenericType: true } genericType &&
             EqualitySensitiveTypes.Contains(genericType.Name))
             foreach (var argument in genericType.TypeArguments)
-                AddRecordMembers(argument, targets);
+                valueReads.Add(argument, targets);
         if (expression.Parent is InterpolationSyntax && model.GetTypeInfo(expression).Type is { } formatted)
-            AddRecordMembers(formatted, targets);
+            valueReads.Add(formatted, targets);
+        switch (expression)
+        {
+            // Concatenating a value with a string formats it.
+            case BinaryExpressionSyntax { RawKind: (int)SyntaxKind.AddExpression } concatenation
+                when model.GetTypeInfo(concatenation).Type?.SpecialType == SpecialType.System_String:
+                valueReads.Add(model.GetTypeInfo(concatenation.Left).Type, targets);
+                valueReads.Add(model.GetTypeInfo(concatenation.Right).Type, targets);
+                break;
+            // Tuple equality compares element by element, through each element's own equality, with no symbol of its own.
+            case BinaryExpressionSyntax { RawKind: (int)SyntaxKind.EqualsExpression or (int)SyntaxKind.NotEqualsExpression } comparison
+                when model.GetTypeInfo(comparison.Left).Type is { IsTupleType: true } || model.GetTypeInfo(comparison.Right).Type is { IsTupleType: true }:
+                valueReads.Add(model.GetTypeInfo(comparison.Left).Type, targets);
+                valueReads.Add(model.GetTypeInfo(comparison.Right).Type, targets);
+                break;
+            default:
+                break;
+        }
+    }
+
+    /// <summary>
+    /// <see cref="object"/>'s <c>Equals</c>, <c>GetHashCode</c> and <c>ToString</c> dispatch to the runtime type's
+    /// synthesized members, so calling them on a receiver typed by an interface (or comparing with the static
+    /// <c>Equals</c>, or passing a record to <c>Equals(object)</c>) reads the values of the records the receiver's and
+    /// the arguments' static types stand for.
+    /// </summary>
+    private void AddObjectMemberOperands(SemanticModel model, InvocationExpressionSyntax invocation, List<ISymbol?> targets)
+    {
+        if (invocation.Expression is MemberAccessExpressionSyntax access)
+            valueReads.Add(model.GetTypeInfo(access.Expression).Type, targets);
+        foreach (ArgumentSyntax argument in invocation.ArgumentList.Arguments)
+            valueReads.Add(model.GetTypeInfo(argument.Expression).Type, targets);
     }
 
     /// <summary>
@@ -204,7 +242,7 @@ internal sealed class ReferenceCollector(SymbolIdentity identity, ReachabilityGr
             } is not { } constructed)
             return;
         foreach (int ordinal in HashedTypeParameters(constructed.OriginalDefinition, 0))
-            AddRecordMembers(constructed.TypeArguments[ordinal], targets);
+            valueReads.Add(constructed.TypeArguments[ordinal], targets);
     }
 
     /// <summary>Per generic repository type, the ordinals of the type parameters its own declaration hashes or compares.</summary>
@@ -266,59 +304,6 @@ internal sealed class ReferenceCollector(SymbolIdentity identity, ReachabilityGr
         "Except", "ExceptBy", "GroupBy", "ToDictionary", "ToHashSet", "ToLookup", "IndexOf", "LastIndexOf",
         "Remove", "CountBy", "AggregateBy", "ToFrozenDictionary", "ToFrozenSet", "Equals",
     ];
-
-    /// <summary>
-    /// Accounts for synthesized record equality by reaching instance values through nested records, and through the
-    /// records derived from the one compared: equality is virtual, so comparing or hashing two values by a base record
-    /// reads what each derived record adds (a closed hierarchy used as a dictionary key tells its cases apart by those).
-    /// </summary>
-    private static void AddRecordMembers(ITypeSymbol? type, List<ISymbol?> targets, int depth = 0)
-    {
-        if (depth > 4 || type is not INamedTypeSymbol { IsRecord: true } record)
-            return;
-        foreach (var member in record.GetMembers())
-            if (member is IPropertySymbol { IsStatic: false } or IFieldSymbol { IsStatic: false, IsImplicitlyDeclared: false })
-            {
-                targets.Add(member);
-                // Value equality is structural: a nested record member compares its own members.
-                AddRecordMembers(member is IPropertySymbol property ? property.Type : ((IFieldSymbol)member).Type, targets, depth + 1);
-            }
-        foreach (INamedTypeSymbol derived in DerivedRecords(record))
-            AddRecordMembers(derived, targets, depth + 1);
-    }
-
-    /// <summary>Per record, the records its own assembly declares directly deriving from it.</summary>
-    private static readonly System.Collections.Concurrent.ConcurrentDictionary<INamedTypeSymbol, ImmutableArray<INamedTypeSymbol>> DirectlyDerivedRecords =
-        new(SymbolEqualityComparer.Default);
-
-    /// <summary>The records <paramref name="record"/>'s assembly declares directly deriving from it; a sealed record or a record struct has none.</summary>
-    private static ImmutableArray<INamedTypeSymbol> DerivedRecords(INamedTypeSymbol record)
-    {
-        if (record.IsSealed || record.IsValueType)
-            return [];
-        return DirectlyDerivedRecords.GetOrAdd(record.OriginalDefinition, static definition =>
-            [.. TypesIn(definition.ContainingAssembly.GlobalNamespace).Where(candidate => candidate.IsRecord &&
-                SymbolEqualityComparer.Default.Equals(candidate.BaseType?.OriginalDefinition, definition))]);
-    }
-
-    /// <summary>Every type <paramref name="container"/> declares, nested types and nested namespaces' types included.</summary>
-    private static IEnumerable<INamedTypeSymbol> TypesIn(INamespaceOrTypeSymbol container)
-    {
-        foreach (ISymbol member in container.GetMembers())
-        {
-            if (member is INamespaceSymbol inner)
-            {
-                foreach (INamedTypeSymbol type in TypesIn(inner))
-                    yield return type;
-            }
-            else if (member is INamedTypeSymbol declared)
-            {
-                yield return declared;
-                foreach (INamedTypeSymbol type in TypesIn(declared))
-                    yield return type;
-            }
-        }
-    }
 
     /// <summary>
     /// Enum reflection reads members by value without naming them: enumerating values or names,

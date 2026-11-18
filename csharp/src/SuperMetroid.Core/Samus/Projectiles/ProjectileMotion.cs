@@ -311,7 +311,7 @@ internal sealed class ProjectileMotion
         SignedEightEight ignitionSpeed = missile.Ignition == SamusMissileIgnition.PendingAfterReflection
             ? SamusProjectileMotionDefinitions.ReflectedMissileIgnitionSpeed
             : SamusProjectileMotionDefinitions.MissileIgnitionSpeed;
-        missile.Ignition = SamusMissileIgnition.Ignited;
+        missile.Ignite(ignitionSpeed);
         BeamFiring.InitializeDirectionalVelocity(samus.ProjectileInheritance, shot, ignitionSpeed);
     }
 

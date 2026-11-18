@@ -6,6 +6,13 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// The Power Bomb fuse the Chainsaw shot, an uncharged Spazer, Plasma and Wave beam, runs over itself
 /// (<see cref="ChainsawPowerBombShot"/>); when the fuse runs out, a Power Bomb blast starts at the shot (#1407).
 /// </summary>
+/// <remarks>
+/// The fuse is the one the beam carries (<see cref="SamusProjectile.BeamFuse"/>). A shot fired into a free place carries
+/// none, so its fuse has burned out before it starts and the shot is deleted on its first update unless a Power Bomb's
+/// blast is under way. A shot fired with every place held over the shot in the last place starts from the count that shot
+/// leaves (<see cref="BeamFiredOverLastShot"/>, #2468): it counts that down, moves its animation at the fast stage
+/// (<see cref="ChainsawFuseAnimationShift{TCursor}"/>) and starts the Power Bomb blast when it runs out.
+/// </remarks>
 internal sealed class ChainsawFuse
 {
     /// <summary>Projectile animation owner used when the fuse ends the shot.</summary>
@@ -28,10 +35,8 @@ internal sealed class ChainsawFuse
         SamusBombProjectileSystem sharedProjectiles,
         ISamusRoomObjects roomObjects)
     {
-        // The shot runs the Power Bomb fuse over itself, from a zero fuse.
-        ChainsawFuseShotState fuseState = shot.KindStateAs<ChainsawFuseShotState>();
-        PowerBombFuseStep fuse = SamusPowerBombFuse.Step(fuseState.FuseUpdatesLeft, sharedProjectiles.PowerBombExplosion.IsArmed);
-        fuseState.FuseUpdatesLeft = fuse.UpdatesLeft;
+        PowerBombFuseStep fuse = SamusPowerBombFuse.Step(shot.BeamFuse, sharedProjectiles.PowerBombExplosion.IsArmed);
+        shot.BeamFuse = fuse.UpdatesLeft;
         // On a beam the fuse's switch to the fast animation moves the beam's own animation as far as a bomb's fast
         // animation lies from its slow one, which lands wherever the game's animations lie there.
         if (fuse.FastAnimation && shot.Animation is { } live)
@@ -43,14 +48,17 @@ internal sealed class ChainsawFuse
         if (fuse.DeleteProjectile)
             _animation.ClearProjectile(shot);
 
-        // The Power Bomb's block reactions follow the fuse whether or not it cleared the shot, at the live Power Bomb's
-        // centre and radius, not the Chainsaw shot's position; the blocks on the radius's edge react too, and the room
-        // objects they set off change at once.
-        SamusBombProjectileSystem.ReactToPowerBombBoundary(
-            level,
-            sharedProjectiles.PowerBombExplosion.Position,
-            sharedProjectiles.PowerBombExplosion.Blast.ExplosionRadius,
-            roomObjects,
-            shot.Type);
+        // The Power Bomb's block reactions follow a burned-out fuse whether or not it cleared the shot, at the live Power
+        // Bomb's centre and radius, not the Chainsaw shot's position; the blocks on the radius's edge react too, and the
+        // room objects they set off change at once. A fuse still burning, or burning out this update, reacts with nothing.
+        if (fuse.BoundaryReacts)
+        {
+            SamusBombProjectileSystem.ReactToPowerBombBoundary(
+                level,
+                sharedProjectiles.PowerBombExplosion.Position,
+                sharedProjectiles.PowerBombExplosion.Blast.ExplosionRadius,
+                roomObjects,
+                shot.Type);
+        }
     }
 }

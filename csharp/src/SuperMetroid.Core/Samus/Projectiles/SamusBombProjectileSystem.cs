@@ -592,10 +592,12 @@ public sealed class SamusBombProjectileSystem
         }
 
         bool explosionStarted = false;
+        bool powerBombBoundaryReacts = false;
         if (typeFamily == SamusProjectileFamily.PowerBomb)
         {
             PowerBombFuseStep fuse = SamusPowerBombFuse.Step(bomb.FuseUpdatesLeft, PowerBombExplosion.IsArmed);
             bomb.FuseUpdatesLeft = fuse.UpdatesLeft;
+            powerBombBoundaryReacts = fuse.BoundaryReacts;
             if (fuse.FastAnimation)
                 SamusPowerBombFuse.SwitchToFastAnimation(bomb.Animation);
             if (fuse.DeleteProjectile)
@@ -643,9 +645,9 @@ public sealed class SamusBombProjectileSystem
         }
         else if (typeFamily == SamusProjectileFamily.PowerBomb)
         {
-            // The update the explosion starts on touches no terrain. Every later frame scans the
-            // newly reached rectangle border using the explosion's shared radii in whole pixels.
-            if (!explosionStarted && bomb.HasBurnedOut && PowerBombExplosion.IsArmed)
+            // The update the explosion starts on touches no terrain (PowerBombFuseStep.BoundaryReacts). Every later frame
+            // scans the newly reached rectangle border using the explosion's shared radii in whole pixels.
+            if (powerBombBoundaryReacts && PowerBombExplosion.IsArmed)
             {
                 ReactToPowerBombBoundary(
                     level,

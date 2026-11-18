@@ -101,7 +101,6 @@ internal static class SpecialAttackParticlesVerification
             spazer.LeavesTrails),
         WaveParticleState wave => (wave.Part, wave.Lifetime),
         ShinesparkEchoShotState echo => (echo.Angle, echo.Radius),
-        ChainsawFuseShotState chainsaw => chainsaw.FuseUpdatesLeft,
         _ => throw new InvalidOperationException($"Undefined shot kind state {shot.KindState.GetType().Name}."),
     };
 
@@ -242,9 +241,11 @@ internal static class SpecialAttackParticlesVerification
         SamusProjectileSegment segment = SamusProjectileKinds.Animation(kind, missile.Direction);
         missile.Animation = ProjectileFixturePlaybacks.StartingAfter(segment, MidPictureUpdates);
         missile.Radius = SamusProjectilePlayback.InitialRadius(segment);
-        missile.Install(behavior, family == SamusProjectileFamily.SuperMissile
-            ? new SuperMissileShotState(SamusMissileIgnition.Ignited, linkPlace: null)
-            : new MissileShotState(SamusMissileIgnition.Ignited));
+        MissileShotState ignition = family == SamusProjectileFamily.SuperMissile
+            ? new SuperMissileShotState(SamusMissileIgnition.Pending, linkPlace: null)
+            : new MissileShotState(SamusMissileIgnition.Pending);
+        ignition.Ignite(SamusProjectileMotionDefinitions.MissileIgnitionSpeed);
+        missile.Install(behavior, ignition);
         return missile;
     }
 

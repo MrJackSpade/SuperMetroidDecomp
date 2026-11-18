@@ -406,17 +406,16 @@ static const uint BossBodyPartWords = 5;
 // of them, so `picture` is the shown boss part's picture when its depth is the one `part` asks for, and zero otherwise.
 // Each boss part is five words: its picture's offset, where the picture's top-left corner lies from the placement, each a
 // sixteen-bit half that wraps as the position does, how much of the picture shows across and down from that corner, each
-// x below y, its depth, and the offset of the pixels it hides or zero (#1652): its cells across below its cells down, then
-// each 8x8 cell's hidden pixel columns, a byte a cell, four cells a word. A hidden pixel shows nothing of the part, as a
-// clear one does. Every background sampler reads the boss through this, so a blending pass shows the same body as an
-// ordinary one (#1426).
+// x below y, its depth, and the offset of the pixels it hides or zero (#1652, #2478): its picture's width below its
+// height, then a bit for each pixel in reading order, thirty-two pixels a word, the first in the lowest bit. A hidden
+// pixel shows nothing of the part, as a clear one does. Every background sampler reads the boss through this, so a
+// blending pass shows the same body as an ordinary one (#1426).
 bool BossBodyHides(uint hidden, uint2 offset)
 {
     if (hidden == 0) return false;
-    uint columns = RoomLevels[hidden] & 65535;
-    uint cell = (offset.y >> 3) * columns + (offset.x >> 3);
-    uint bits = (RoomLevels[hidden + 1 + (cell >> 2)] >> ((cell & 3) * 8)) & 255;
-    return ((bits >> (offset.x & 7)) & 1) != 0;
+    uint width = RoomLevels[hidden] & 65535;
+    uint pixel = offset.y * width + offset.x;
+    return ((RoomLevels[hidden + 1 + (pixel >> 5)] >> (pixel & 31)) & 1) != 0;
 }
 void BossBodyPicture(uint2 scrolled, uint part, out uint2 within, out uint picture)
 {

@@ -48,12 +48,12 @@ internal static class BossBodyWholePicturesVerification
         }
         AssertTrue(findings.Count == 0,
             $"Boss body sheets hold pieces of pictures:{Environment.NewLine}{string.Join(Environment.NewLine, findings)}");
-        // Each melt image is one whole frame, with the cells its dissolve erases; no step of the dissolve is pictured (#1652).
+        // Each melt image is one whole frame, with how its dissolve erases it; no step of the dissolve is pictured (#1652, #2478).
         BossBodySheet crocomire = InstalledFixtures.BossBodySheets.Of(BossBodyOwner.Crocomire);
         foreach (CrocomireMeltingIllustration image in Enum.GetValues<CrocomireMeltingIllustration>())
         {
             BossBodyFrame melt = crocomire.Frame(CrocomireMeltingFrameNames.Of(image));
-            AssertTrue(melt.Picture is not null && !melt.Dissolving.IsEmpty, $"Crocomire's {image} melt image is pictured once, with the cells its dissolve erases");
+            AssertTrue(melt.Picture is not null && melt.Dissolve is not null, $"Crocomire's {image} melt image is pictured once, with how its dissolve erases it");
             AssertThrows<InvalidDataException>(() => crocomire.Frame($"{CrocomireMeltingFrameNames.Of(image)}.1"),
                 $"Crocomire's body sheet pictures no step of his {image} melt image's dissolve");
         }

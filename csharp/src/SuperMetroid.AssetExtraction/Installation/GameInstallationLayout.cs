@@ -59,6 +59,12 @@ public static class GameInstallationLayout
     /// <summary>Pre-assembled boss body sheets, one per boss (#1466).</summary>
     public const string BossBodySheetDirectoryName = "boss-body-sheets";
     /// <summary>
+    /// Content child directory for the dissolve maps of the boss body pictures a dissolve erases (#2478), apart from the
+    /// pictures: <c>boss-bodies.dissolve</c> holds each map once, by its tag, which the boss body frame showing the picture
+    /// names.
+    /// </summary>
+    public const string DissolveMapDirectoryName = "dissolve-maps";
+    /// <summary>
     /// Content child directory for the recolour-region maps the picture store's pictures are shown with (#1633, #1644), apart
     /// from the pictures: <c>pictures.regions</c> holds each map once, by its tag, which the frames showing a picture whose
     /// pixels of one colour recolour differently name.

@@ -79,14 +79,14 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     /// corner lies from the body's placement, each a signed sixteen-bit half (#2031), how much of the picture shows from that
     /// corner, each x below y, the depth it is drawn at
     /// (<see cref="DepthWord"/>, #1634), and the offset of the pixels it hides or zero (#1652). After the parts, each hiding
-    /// part's hidden pixels: its cells across below its cells down, then each cell's hidden pixel columns, a byte a cell,
-    /// four cells a word, the first cell in the lowest byte.
+    /// part's hidden pixels (#2478): its picture's width below its height, then a bit for each pixel in reading order,
+    /// set where the pixel is hidden, thirty-two pixels a word, the first pixel in the lowest bit.
     /// </summary>
     private const int BossBodyWord = FloorSheetsWord + 1;
     /// <summary>Words of a boss body part's record.</summary>
     private const int BossBodyPartWords = 5;
-    /// <summary>Cells of hidden pixel columns one word packs, a byte a cell.</summary>
-    private const int HiddenCellsPerWord = 4;
+    /// <summary>Pixels of hidden pixels one word packs, a bit a pixel.</summary>
+    private const int HiddenPixelsPerWord = 32;
     /// <summary>
     /// Header word of the X-ray reveal, or zero without one (#1392, #1514): the foreground pixel its first block lies on, x
     /// below y, then each block row by row, its picture's two parts' offsets (#1634), the first with the block's arrangement
@@ -522,20 +522,26 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         }
     }
 
-    /// <summary>Words <paramref name="hidden"/>'s pixels pack into (#1652): its size, then its cells four a word; none without any.</summary>
-    private static int HiddenWords(HiddenPictureColumns? hidden) =>
-        hidden is null ? 0 : 1 + ((hidden.Cells.Length + HiddenCellsPerWord - 1) / HiddenCellsPerWord);
+    /// <summary>Words <paramref name="hidden"/>'s pixels pack into (#1652, #2478): its size, then its pixels thirty-two a word; none without any.</summary>
+    private static int HiddenWords(HiddenPicturePixels? hidden) =>
+        hidden is null ? 0 : 1 + ((hidden.Size.X * hidden.Size.Y + HiddenPixelsPerWord - 1) / HiddenPixelsPerWord);
 
     /// <summary>Packs <paramref name="hidden"/> from <paramref name="offset"/>, as <see cref="BossBodyWord"/> describes.</summary>
-    private static void PackHidden(Span<uint> upload, HiddenPictureColumns hidden, int offset)
+    private static void PackHidden(Span<uint> upload, HiddenPicturePixels hidden, int offset)
     {
-        upload[offset] = D3D11ConstantPacking.Halves(checked((ushort)hidden.CellsAcross), checked((ushort)hidden.CellsDown));
-        for (int word = 0; word < HiddenWords(hidden) - 1; word++)
+        int width = hidden.Size.X;
+        upload[offset] = D3D11ConstantPacking.Halves(checked((ushort)width), checked((ushort)hidden.Size.Y));
+        Span<uint> words = upload.Slice(offset + 1, HiddenWords(hidden) - 1);
+        words.Clear();
+        for (int y = 0; y < hidden.Size.Y; y++)
         {
-            uint packed = 0;
-            for (int cell = 0; cell < HiddenCellsPerWord && (word * HiddenCellsPerWord) + cell < hidden.Cells.Length; cell++)
-                packed |= (uint)hidden.Cells[(word * HiddenCellsPerWord) + cell] << (8 * cell);
-            upload[offset + 1 + word] = packed;
+            for (int x = 0; x < width; x++)
+            {
+                if (!hidden.Hides(Position16<ImagePixels>.Of(x, y)))
+                    continue;
+                int pixel = (y * width) + x;
+                words[pixel / HiddenPixelsPerWord] |= 1u << (pixel % HiddenPixelsPerWord);
+            }
         }
     }
 

@@ -1075,76 +1075,76 @@ public enum EnemyProjectileFrameId
     WorkRobotLaserFlareRing,
     /// <summary>The work robot's laser: a fading ring of light.</summary>
     WorkRobotLaserFlareRingFading,
-    /// <summary>The noob tube's crack: a crack 31 pixels across.</summary>
-    NoobTubeCrackAcross31,
-    /// <summary>The noob tube's crack: a crack 63 pixels across.</summary>
-    NoobTubeCrackAcross63,
-    /// <summary>The noob tube's crack: a crack 95 pixels across.</summary>
-    NoobTubeCrackAcross95,
-    /// <summary>The noob tube's crack: a crack 127 pixels across.</summary>
-    NoobTubeCrackAcross127,
-    /// <summary>The noob tube's crack: a crack 159 pixels across.</summary>
-    NoobTubeCrackAcross159,
-    /// <summary>The noob tube's crack: a branched crack 159 pixels across.</summary>
-    NoobTubeCrackAcross159Branched,
-    /// <summary>The noob tube's shards: six shards spread 111 pixels across.</summary>
-    NoobTubeShardsSpread111,
-    /// <summary>The noob tube's shards: six shards spread 143 pixels across.</summary>
-    NoobTubeShardsSpread143,
-    /// <summary>The noob tube's shards: six shards spread 175 pixels across.</summary>
-    NoobTubeShardsSpread175,
-    /// <summary>The noob tube's shards: six shards spread 207 pixels across.</summary>
-    NoobTubeShardsSpread207,
-    /// <summary>The noob tube's shards: six shards spread 223 pixels across.</summary>
-    NoobTubeShardsSpread223,
-    /// <summary>The noob tube's shards: six shards spread 235 pixels across.</summary>
-    NoobTubeShardsSpread235,
-    /// <summary>The noob tube's shards: six shards spread 243 pixels across.</summary>
-    NoobTubeShardsSpread243,
-    /// <summary>The noob tube's shards: six shards spread 247 pixels across.</summary>
-    NoobTubeShardsSpread247,
-    /// <summary>The noob tube's shards: six shards spread 251 pixels across.</summary>
-    NoobTubeShardsSpread251,
-    /// <summary>The noob tube's shards: six shards spread 255 pixels across.</summary>
-    NoobTubeShardsSpread255,
-    /// <summary>The noob tube's shards: six shards dropped 1 pixels.</summary>
-    NoobTubeShardsDropped1,
-    /// <summary>The noob tube's shards: six shards dropped 2 pixels.</summary>
-    NoobTubeShardsDropped2,
-    /// <summary>The noob tube's shards: six shards dropped 3 pixels.</summary>
-    NoobTubeShardsDropped3,
-    /// <summary>The noob tube's shards: six shards dropped 4 pixels.</summary>
-    NoobTubeShardsDropped4,
-    /// <summary>The noob tube's shards: six shards dropped 5 pixels.</summary>
-    NoobTubeShardsDropped5,
-    /// <summary>The noob tube's shards: six shards dropped 6 pixels.</summary>
-    NoobTubeShardsDropped6,
-    /// <summary>The noob tube's shards: six shards dropped 7 pixels.</summary>
-    NoobTubeShardsDropped7,
-    /// <summary>The noob tube's shards: six shards dropped 8 pixels.</summary>
-    NoobTubeShardsDropped8,
-    /// <summary>The noob tube's shards: six shards dropped 9 pixels.</summary>
-    NoobTubeShardsDropped9,
-    /// <summary>The noob tube's shards: six shards dropped 10 pixels.</summary>
-    NoobTubeShardsDropped10,
-    /// <summary>The noob tube's shards: six shards dropped 11 pixels.</summary>
-    NoobTubeShardsDropped11,
-    /// <summary>The noob tube's shards: six shards dropped 12 pixels.</summary>
-    NoobTubeShardsDropped12,
-    /// <summary>The noob tube's shards: six shards dropped 13 pixels.</summary>
-    NoobTubeShardsDropped13,
-    /// <summary>The noob tube's shards: six shards dropped 14 pixels.</summary>
-    NoobTubeShardsDropped14,
-    /// <summary>The noob tube's shards: six shards dropped 15 pixels.</summary>
-    NoobTubeShardsDropped15,
-    /// <summary>The noob tube's shards: six shards dropped 16 pixels.</summary>
-    NoobTubeShardsDropped16,
-    /// <summary>The noob tube's shards: six shards dropped 17 pixels.</summary>
-    NoobTubeShardsDropped17,
-    /// <summary>The noob tube's shards: six shards dropped 18 pixels.</summary>
-    NoobTubeShardsDropped18,
-    /// <summary>The noob tube's shards: six shards dropped 19 pixels.</summary>
-    NoobTubeShardsDropped19,
+    /// <summary>The noob tube's crack: a small star of cracks where the glass gives.</summary>
+    NoobTubeCrackStarting,
+    /// <summary>The noob tube's crack: the star's cracks spreading out and forking.</summary>
+    NoobTubeCrackSpreading,
+    /// <summary>The noob tube's crack: a web of cracks widening across the glass.</summary>
+    NoobTubeCrackWidening,
+    /// <summary>The noob tube's crack: the web of cracks reaching most of the way across the tube.</summary>
+    NoobTubeCrackReaching,
+    /// <summary>The noob tube's crack: the web of cracks spanning the tube from side to side.</summary>
+    NoobTubeCrackSpanning,
+    /// <summary>The noob tube's crack: the web of cracks across the tube branching further at its edges.</summary>
+    NoobTubeCrackBranching,
+    /// <summary>The noob tube's shards: six shards bursting out of the shattered glass.</summary>
+    NoobTubeShardsBursting,
+    /// <summary>The noob tube's shards: the six shards flying out from the tube.</summary>
+    NoobTubeShardsFlyingOut,
+    /// <summary>The noob tube's shards: the six shards flying apart, the upper pair still climbing.</summary>
+    NoobTubeShardsFlyingApart,
+    /// <summary>The noob tube's shards: the six shards spreading wide.</summary>
+    NoobTubeShardsSpreading,
+    /// <summary>The noob tube's shards: the six shards slowing as they spread.</summary>
+    NoobTubeShardsSlowing,
+    /// <summary>The noob tube's shards: the upper pair of shards at their highest, the others still spreading.</summary>
+    NoobTubeShardsPeaking,
+    /// <summary>The noob tube's shards: the upper pair of shards turning to fall, the outer pair still spreading.</summary>
+    NoobTubeShardsTurning,
+    /// <summary>The noob tube's shards: the outer pair of shards coasting outward as the upper pair sinks.</summary>
+    NoobTubeShardsCoasting,
+    /// <summary>The noob tube's shards: the outer pair of shards tipping downward as they near their widest.</summary>
+    NoobTubeShardsTipping,
+    /// <summary>The noob tube's shards: the six shards at their widest, every one of them starting down.</summary>
+    NoobTubeShardsAtWidest,
+    /// <summary>The noob tube's shards: the six shards dipping as they begin to settle, each at its own pace.</summary>
+    NoobTubeShardsDipping,
+    /// <summary>The noob tube's shards: the six shards dropping a little lower, rocking as they go.</summary>
+    NoobTubeShardsDropping,
+    /// <summary>The noob tube's shards: the six shards sinking.</summary>
+    NoobTubeShardsSinking,
+    /// <summary>The noob tube's shards: the six shards lowering further.</summary>
+    NoobTubeShardsLowering,
+    /// <summary>The noob tube's shards: the six shards descending.</summary>
+    NoobTubeShardsDescending,
+    /// <summary>The noob tube's shards: the six shards falling slowly.</summary>
+    NoobTubeShardsFalling,
+    /// <summary>The noob tube's shards: the six shards drifting down.</summary>
+    NoobTubeShardsDrifting,
+    /// <summary>The noob tube's shards: the six shards floating down.</summary>
+    NoobTubeShardsFloating,
+    /// <summary>The noob tube's shards: the six shards wafting down.</summary>
+    NoobTubeShardsWafting,
+    /// <summary>The noob tube's shards: the six shards gliding down, halfway through settling.</summary>
+    NoobTubeShardsGliding,
+    /// <summary>The noob tube's shards: the six shards sailing down.</summary>
+    NoobTubeShardsSailing,
+    /// <summary>The noob tube's shards: the six shards fluttering down.</summary>
+    NoobTubeShardsFluttering,
+    /// <summary>The noob tube's shards: the six shards subsiding.</summary>
+    NoobTubeShardsSubsiding,
+    /// <summary>The noob tube's shards: the six shards slipping lower.</summary>
+    NoobTubeShardsSlipping,
+    /// <summary>The noob tube's shards: the six shards sifting down.</summary>
+    NoobTubeShardsSifting,
+    /// <summary>The noob tube's shards: the six shards settling.</summary>
+    NoobTubeShardsSettling,
+    /// <summary>The noob tube's shards: the six shards settling lower.</summary>
+    NoobTubeShardsSettlingLower,
+    /// <summary>The noob tube's shards: the six shards nearly settled.</summary>
+    NoobTubeShardsNearlySettled,
+    /// <summary>The noob tube's shards: the six shards coming to rest, which the fallen crack shows by turns with <see cref="NoobTubeShardsLanded"/>.</summary>
+    NoobTubeShardsComingToRest,
     /// <summary>The noob tube's shards: six shards landed.</summary>
     NoobTubeShardsLanded,
     /// <summary>A noob tube shard: its down outward piece.</summary>
@@ -1185,14 +1185,14 @@ public enum EnemyProjectileFrameId
     NoobTubeShardDownInner,
     /// <summary>A noob tube shard: its down inner piece, mirrored.</summary>
     NoobTubeShardDownInnerMirrored,
-    /// <summary>The noob tube's dust: a cloud with a trail 16 pixels tall.</summary>
-    NoobTubeDustTrail16,
-    /// <summary>The noob tube's dust: a cloud with a trail 24 pixels tall.</summary>
-    NoobTubeDustTrail24,
-    /// <summary>The noob tube's dust: a cloud with a trail 32 pixels tall.</summary>
-    NoobTubeDustTrail32,
-    /// <summary>The noob tube's dust: a cloud with a trail 40 pixels tall.</summary>
-    NoobTubeDustTrail40,
+    /// <summary>The noob tube's dust: a cloud, its trail just forming below it.</summary>
+    NoobTubeDustTrailForming,
+    /// <summary>The noob tube's dust: a cloud, its trail growing.</summary>
+    NoobTubeDustTrailGrowing,
+    /// <summary>The noob tube's dust: a cloud, its trail lengthening.</summary>
+    NoobTubeDustTrailLengthening,
+    /// <summary>The noob tube's dust: a cloud with its trail at full length.</summary>
+    NoobTubeDustTrailFullLength,
     /// <summary>The noob tube's dust: the trail thinning.</summary>
     NoobTubeDustTrailThinning,
     /// <summary>The noob tube's dust: a thin trail.</summary>

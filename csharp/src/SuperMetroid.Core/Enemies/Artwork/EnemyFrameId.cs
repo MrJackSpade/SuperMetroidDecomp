@@ -2246,50 +2246,50 @@ public enum EnemyFrameId
     EscapeEtecoonTurningRight,
     /// <summary>Hibashi: a lone ember.</summary>
     HibashiEmber,
-    /// <summary>Hibashi: a column of flame 19 pixels wide and 19 high.</summary>
-    HibashiFlame19By19,
-    /// <summary>Hibashi: a column of flame 23 pixels wide and 26 high.</summary>
-    HibashiFlame23By26,
-    /// <summary>Hibashi: a column of flame 33 pixels wide and 35 high.</summary>
-    HibashiFlame33By35,
-    /// <summary>Hibashi: a column of flame 37 pixels wide and 41 high.</summary>
-    HibashiFlame37By41,
-    /// <summary>Hibashi: a column of flame 19 pixels wide and 43 high.</summary>
-    HibashiFlame19By43,
-    /// <summary>Hibashi: a column of flame 23 pixels wide and 45 high.</summary>
-    HibashiFlame23By45,
-    /// <summary>Hibashi: a column of flame 33 pixels wide and 47 high.</summary>
-    HibashiFlame33By47,
-    /// <summary>Hibashi: a column of flame 37 pixels wide and 55 high.</summary>
-    HibashiFlame37By55,
-    /// <summary>Hibashi: a column of flame 19 pixels wide and 63 high.</summary>
-    HibashiFlame19By63,
-    /// <summary>Hibashi: a column of flame 23 pixels wide and 71 high.</summary>
-    HibashiFlame23By71,
-    /// <summary>Hibashi: a column of flame 33 pixels wide and 80 high.</summary>
-    HibashiFlame33By80,
-    /// <summary>Hibashi: a column of flame 41 pixels wide and 87 high.</summary>
-    HibashiFlame41By87,
-    /// <summary>Hibashi: a column of flame 45 pixels wide and 95 high.</summary>
-    HibashiFlame45By95,
-    /// <summary>Hibashi: a column of flame 17 pixels wide and 99 high.</summary>
-    HibashiFlame17By99,
-    /// <summary>Hibashi: a column of flame 19 pixels wide and 109 high.</summary>
-    HibashiFlame19By109,
-    /// <summary>Hibashi: a column of flame 23 pixels wide and 112 high.</summary>
-    HibashiFlame23By112,
-    /// <summary>Hibashi: a column of flame 33 pixels wide and 109 high.</summary>
-    HibashiFlame33By109,
-    /// <summary>Hibashi: a column of flame 37 pixels wide and 111 high.</summary>
-    HibashiFlame37By111,
-    /// <summary>Hibashi: the top of its flame dispersing, 17 pixels wide and 44 high.</summary>
-    HibashiDispersing17By44,
-    /// <summary>Hibashi: the top of its flame dispersing, 17 pixels wide and 32 high.</summary>
-    HibashiDispersing17By32,
-    /// <summary>Hibashi: the top of its flame dispersing, 17 pixels wide and 25 high.</summary>
-    HibashiDispersing17By25,
-    /// <summary>Hibashi: the top of its flame dispersing, 14 pixels wide and 16 high.</summary>
-    HibashiDispersing14By16,
+    /// <summary>Hibashi: its flame rising: a small tongue of flame bursting from the vent, a fleck of fire either side of it.</summary>
+    HibashiFlameBursting,
+    /// <summary>Hibashi: its flame rising: the flame climbing, sparks kicking out either side of its base.</summary>
+    HibashiFlameSparking,
+    /// <summary>Hibashi: its flame rising: sparks spitting out wide from its base.</summary>
+    HibashiFlameSpitting,
+    /// <summary>Hibashi: its flame rising: its base churning dark, embers scattered wide either side.</summary>
+    HibashiFlameChurning,
+    /// <summary>Hibashi: its flame rising: the flame taller, its base churning, a fleck of fire either side of it.</summary>
+    HibashiFlameClimbing,
+    /// <summary>Hibashi: its flame rising: a small splash of fire at its base.</summary>
+    HibashiFlameSplashing,
+    /// <summary>Hibashi: its flame rising: sparks spraying out either side of its base.</summary>
+    HibashiFlameSpraying,
+    /// <summary>Hibashi: its flame rising: its base swirling dark, embers scattered either side.</summary>
+    HibashiFlameSwirling,
+    /// <summary>Hibashi: its flame rising: the swirl at its base lifting off the vent, a fleck of fire either side below it.</summary>
+    HibashiFlameLifting,
+    /// <summary>Hibashi: its flame rising: embers trailing under its lifted base, a splash of fire at the vent.</summary>
+    HibashiFlameTrailing,
+    /// <summary>Hibashi: its flame rising: a longer trail of embers streaming under it, sparks spraying at the vent.</summary>
+    HibashiFlameStreaming,
+    /// <summary>Hibashi: its flame rising: its trail of embers longer still, sparks flaring wide at the vent.</summary>
+    HibashiFlameFlaring,
+    /// <summary>Hibashi: its flame rising: the flame soaring on its long trail of embers, embers scattered either side of the vent.</summary>
+    HibashiFlameSoaring,
+    /// <summary>Hibashi: its flame rising: the flame nearly at its full height, nothing but its trail of embers below it.</summary>
+    HibashiFlameReaching,
+    /// <summary>Hibashi: its flame flickering at full height: the flame on its trail of embers, a fleck of fire either side of the vent.</summary>
+    HibashiFlameFullHeight,
+    /// <summary>Hibashi: its flame flickering at full height: sparks kicking out at the vent.</summary>
+    HibashiFlameFullHeightSparking,
+    /// <summary>Hibashi: its flame flickering at full height: its tip charring dark, sparks spraying at the vent.</summary>
+    HibashiFlameFullHeightCharring,
+    /// <summary>Hibashi: its flame flickering at full height: little left but its charred tip, embers scattered at the vent.</summary>
+    HibashiFlameFullHeightGuttering,
+    /// <summary>Hibashi: the top of its flame dispersing: a charred ball of flame breaking up into embers.</summary>
+    HibashiFlameTopBreakingUp,
+    /// <summary>Hibashi: the top of its flame dispersing: the ball gone to a loose cloud of embers.</summary>
+    HibashiFlameTopScattering,
+    /// <summary>Hibashi: the top of its flame dispersing: the cloud of embers thinning.</summary>
+    HibashiFlameTopThinning,
+    /// <summary>Hibashi: the top of its flame dispersing: the last few embers vanishing.</summary>
+    HibashiFlameTopVanishing,
     /// <summary>The zebetite: standing full height, intact.</summary>
     ZebetiteTallIntact,
     /// <summary>The zebetite: standing full height, a fifth drained.</summary>

@@ -53,8 +53,8 @@ internal static class EnemyLinearSpeedsVerification
             place.SetSpawnParameter2(EnemyDefinitionId.Owtch, (ushort)index);
             place.Bind(EnemyDefinitionId.Owtch, place.Definition);
             owtch(place);
-            var o = enemies.OwtchStates[0] ?? throw new InvalidOperationException("Verification requires o.");
-            AssertEqual((positive, negative), (o.Speed, -o.Speed), "Owtch native speed setup, negated for moving left");
+            SignedSixteenSixteen owtchSpeed = place.SpawnSettings<OwtchSpawnSettings>().Speed;
+            AssertEqual((positive, negative), (owtchSpeed, -owtchSpeed), "Owtch spawn speed, negated for moving left");
             var ripperState = new RipperEnemyState() { Speeds = new EnemyLinearSpeed(EnemyLinearSpeedTable.Speed(index)), Heading = HorizontalDirection.Right };
             AssertEqual(positive, ripperState.XVelocity, "Ripper right speed");
             ripper(ripperState);

@@ -60,8 +60,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal void InitializeHibashi(RoomEnemyPlace place)
     {
-        HibashiSpawnSettings settings = place.SpawnSettings<HibashiSpawnSettings>();
-        var state = new HibashiEnemyState(HibashiAction.Inactive) { InactiveTimerReset = settings.InactiveTime + EnemyWaitDefinitions.RunOutUpdate };
+        var state = new HibashiEnemyState(HibashiAction.Inactive);
         place.SetSpeciesState(state);
         _hitboxes.Place(place, _places.ListedAfter(place, 1));
         state.Playback = EnemyAnimationPlayback.Start(place, HibashiAnimations.StartingWith(HibashiSegment.Flame));
@@ -82,7 +81,10 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case HibashiAction.Active:
-                RunHibashiActive(state);
+                return;
+
+            case HibashiAction.Finished:
+                RestHibashi(place, state);
                 return;
 
             default:
@@ -101,7 +103,6 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
 
         RoomEnemyPlace hitbox = GetFollowingHibashiPart(flame);
         state.Action = HibashiAction.Active;
-        state.ActivityFinished = false;
         state.Playback = EnemyAnimationPlayback.Start(flame, HibashiAnimations.StartingWith(HibashiSegment.Flame));
 
         // The flame shows, and its unseen hitbox part starts touching Samus, her shots and the grapple: the hitbox
@@ -110,13 +111,13 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
         hitbox.Contact = hitbox.Contact.Without(EnemyContact.IgnoresSamus);
     }
 
-    /// <summary>Runs the active Hibashi: once its eruption has finished, which hid the flame, it rests again.</summary>
-    private static void RunHibashiActive(HibashiEnemyState state)
+    /// <summary>
+    /// Rests the flame whose eruption has finished, which hid it: its wait restarts at its placement's inactive time and the
+    /// update it runs out on (#2340).
+    /// </summary>
+    internal static void RestHibashi(RoomEnemyPlace flame, HibashiEnemyState state)
     {
-        if (!state.ActivityFinished)
-            return;
-
-        state.InactiveTimer = state.InactiveTimerReset;
+        state.InactiveTimer = flame.SpawnSettings<HibashiSpawnSettings>().InactiveTime + EnemyWaitDefinitions.RunOutUpdate;
         state.Action = HibashiAction.Inactive;
     }
 
@@ -141,13 +142,19 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
             hitbox.Radius = hitbox.Radius.WithX(HibashiDefinitions.RestoredHalfWidth);
     }
 
-    /// <summary>Animation cue: finishes the activity.</summary>
+    /// <summary>
+    /// Animation cue: finishes the eruption (#2439). The flame hides at its spawn height, its hitbox stops touching anything,
+    /// and it has finished: its next update rests it.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The flame is not erupting.</exception>
     private void FinishHibashiActivity(RoomEnemyPlace flame)
     {
         HibashiEnemyState state = flame.RequireSpeciesState<HibashiEnemyState>();
         RoomEnemyPlace hitbox = GetFollowingHibashiPart(flame);
 
-        state.ActivityFinished = true;
+        if (state.Action != HibashiAction.Active)
+            throw new InvalidOperationException($"A Hibashi's eruption finished while it was {state.Action}.");
+        state.Action = HibashiAction.Finished;
         hitbox.Radius = new(0, 0);
         flame.Position = flame.Position.WithWholeY(state.SpawnY);
         flame.Presence = flame.Presence.With(EnemyPresence.Hidden);

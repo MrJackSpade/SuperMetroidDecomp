@@ -66,7 +66,13 @@ internal static class SkreeMetareeBehaviorVerification
         {
             MetareeBehavior.InitializeMetaree(place);
             MetareeEnemyState state = enemies.MetareeStates[0] ?? throw new InvalidOperationException("Metaree has no state.");
-            return new SkreeMetareeBehaviorCreateResult(enemies, place, () => state.Playback, program => Restart(place, () => state.Playback = new(SkreeMetareeAnimations.StartingWith(program), AnimationPlace.StartOfAnimation)), () => state.AttackReady);
+            // The Metaree prepares its attack as its AI starts the wind-up, and the wind-up's cue readies it (#2439).
+            return new SkreeMetareeBehaviorCreateResult(enemies, place, () => state.Playback, program => Restart(place, () =>
+            {
+                state.Playback = new(SkreeMetareeAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
+                if (program == SkreeMetareeSegment.MetareePreparingAttack)
+                    state.Action = MetareeAction.PreparingAttack;
+            }), () => state.Action == MetareeAction.AttackReady);
         }
         SkreeBehavior.InitializeSkree(place);
         SkreeEnemyState skree = enemies.SkreeStates[0] ?? throw new InvalidOperationException("Skree has no state.");

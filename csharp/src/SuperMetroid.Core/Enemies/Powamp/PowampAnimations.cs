@@ -33,7 +33,7 @@ internal static class PowampAnimations
         [P.BalloonInflatingFromHalfway] =
         [
             Show(EnemyFrameId.PowampBalloonHalfInflated, 6),
-            Show(EnemyFrameId.PowampBalloonInflated, 160),
+            Hold(EnemyFrameId.PowampBalloonInflated),
         ],
         [P.BalloonStartSinking] =
         [
@@ -42,11 +42,14 @@ internal static class PowampAnimations
         ],
         [P.BalloonDeflated] =
         [
-            Show(EnemyFrameId.PowampBalloonSmall, 160),
+            Hold(EnemyFrameId.PowampBalloonSmall),
         ],
     });
 
-    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    /// <summary>
+    /// The animation that starts at each segment an owner can start or restart at. An inflated or deflated balloon rests on
+    /// its picture until its body starts its next inflate or sink (#2439); nothing waits on the rest's length.
+    /// </summary>
     internal static IReadOnlyDictionary<PowampSegment, Animation<PowampSegment>> StartingAt { get; } = new Dictionary<PowampSegment, Animation<PowampSegment>>
     {
         [P.BodyFast] = Animation<PowampSegment>.Looping([Segments.Whole(P.BodyFast)]),
@@ -62,4 +65,7 @@ internal static class PowampAnimations
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, NoAnimationCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);
+
+    /// <summary>Shows <paramref name="frame"/> for good: a still picture rests on it until its owner plays another.</summary>
+    private static AnimationBeat<EnemyFrameId, NoAnimationCue> Hold(EnemyFrameId frame) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.HeldFrame(frame);
 }

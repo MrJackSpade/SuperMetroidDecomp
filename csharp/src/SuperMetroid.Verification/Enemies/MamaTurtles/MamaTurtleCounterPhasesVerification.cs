@@ -13,7 +13,7 @@ internal static class MamaTurtleCounterPhasesVerification
     internal static void VerifyMamaTurtleCounterPhases()
     {
         for (int y = short.MinValue; y <= ushort.MaxValue; y++)
-            AssertSameAt((y & 1) == 0 ? 1 : -1, MamaTurtleCadenceDefinitions.LeavingShellSidestepsLeft.IsSetIn(y) ? -1 : 1, "leaving-shell sidestep", y);
+            AssertSameAt((y & 1) == 0 ? 1 : -1, MamaTurtleCadenceDefinitions.LeavingShellSidestepsLeftAt(y) ? -1 : 1, "leaving-shell sidestep", y);
 
         Console.WriteLine("Mama Turtle counter phases: every height sidesteps as the mask it replaces.");
     }

@@ -1,16 +1,14 @@
 using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Owtch;
 
-/// <summary>The state of an Owtch: its patrol speeds, its patrol state and how deep it is buried.</summary>
+/// <summary>
+/// The state of an Owtch: its patrol state and bounds and how deep it is buried. It reads its patrol speed from its spawn
+/// settings as it walks (#2439).
+/// </summary>
 public sealed class OwtchEnemyState
 {
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<OwtchSegment> Playback { get; set; }
-
-    /// <summary>
-    /// The patrol speed in pixels per update, the spawn settings' speed: added walking right and negated walking left.
-    /// </summary>
-    public SignedSixteenSixteen Speed { get; internal set; }
 
     /// <summary>The patrol state: walking either way, sinking, underground or rising.</summary>
     public OwtchBehaviorState Behavior { get; internal set; }

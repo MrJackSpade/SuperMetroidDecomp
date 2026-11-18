@@ -20,7 +20,9 @@ internal static class NuclearWaffleSweepAngleVerification
     /// </summary>
     internal static void VerifyNuclearWaffleSweepAngle()
     {
-        AssertSweep(NuclearWaffleDefinitions.BackwardSweep, new SweepIntegers(400, 240, -24, -12, 384, 256), "backward");
+        // The backward sweep held its spacing and stagger negated; both definitions hold the steps their links trail and
+        // stagger, applied toward the sweep's direction (#2439).
+        AssertSweep(NuclearWaffleDefinitions.BackwardSweep, new SweepIntegers(400, 240, 24, 12, 384, 256), "backward");
         AssertSweep(NuclearWaffleDefinitions.ForwardSweep, new SweepIntegers(240, 400, 24, 12, 256, 384), "forward");
 
         string? mismatch = null;

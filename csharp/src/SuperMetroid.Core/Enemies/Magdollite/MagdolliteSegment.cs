@@ -8,10 +8,12 @@ internal enum MagdolliteSegment
 {
     /// <summary>The head facing left bobbing high, mid and low, repeating.</summary>
     LeftIdle,
-    /// <summary>
-    /// Facing left, rearing with the throw sound, leaning and reaching to fling three gobs of lava, then throwing.
-    /// </summary>
+    /// <summary>Facing left, rearing with the throw sound and the attack's cooldown, and leaning out to throw.</summary>
     LeftThrow,
+    /// <summary>Its hand facing left reaching out and flinging a gob of lava (#2439).</summary>
+    LeftLavaFling,
+    /// <summary>Its hand facing left throwing its last and finishing the throw (#2439).</summary>
+    LeftThrowFinish,
     /// <summary>The head facing left sinking into the lava until its pillar shows.</summary>
     LeftSubmerge,
     /// <summary>Its mound facing left rising a pixel with its pillar.</summary>
@@ -26,10 +28,12 @@ internal enum MagdolliteSegment
     LeftSurfacing,
     /// <summary>The head facing right bobbing high, mid and low, repeating.</summary>
     RightIdle,
-    /// <summary>
-    /// Facing right, rearing with the throw sound, leaning and reaching to fling three gobs of lava, then throwing.
-    /// </summary>
+    /// <summary>Facing right, rearing with the throw sound and the attack's cooldown, and leaning out to throw.</summary>
     RightThrow,
+    /// <summary>Its hand facing right reaching out and flinging a gob of lava (#2439).</summary>
+    RightLavaFling,
+    /// <summary>Its hand facing right throwing its last and finishing the throw (#2439).</summary>
+    RightThrowFinish,
     /// <summary>The head facing right sinking into the lava until its pillar shows.</summary>
     RightSubmerge,
     /// <summary>Its mound facing right rising a pixel with its pillar.</summary>

@@ -28,10 +28,12 @@ internal static class MamaTurtleNativeListAddresses
     internal static readonly NativeProgramEntry<BabyTurtleSegment>[] BabyEntries =
     [
         new NativeProgramEntry<BabyTurtleSegment>(BabyTurtleSegment.CrawlingLeft, 0x8b80),
+        new NativeProgramEntry<BabyTurtleSegment>(BabyTurtleSegment.CrawlingLeftLegsTrailing, 0x8ba8),
         new NativeProgramEntry<BabyTurtleSegment>(BabyTurtleSegment.Spinning, 0x8bd2),
         new NativeProgramEntry<BabyTurtleSegment>(BabyTurtleSegment.HidingLeft, 0x8c30),
         new NativeProgramEntry<BabyTurtleSegment>(BabyTurtleSegment.LeaveShell, 0x8c62),
         new NativeProgramEntry<BabyTurtleSegment>(BabyTurtleSegment.CrawlingRight, 0x8c72),
+        new NativeProgramEntry<BabyTurtleSegment>(BabyTurtleSegment.CrawlingRightLegsTrailing, 0x8c9a),
         new NativeProgramEntry<BabyTurtleSegment>(BabyTurtleSegment.HidingRight, 0x8d14),
         new NativeProgramEntry<BabyTurtleSegment>(BabyTurtleSegment.LeaveShell, 0x8d40),
     ];

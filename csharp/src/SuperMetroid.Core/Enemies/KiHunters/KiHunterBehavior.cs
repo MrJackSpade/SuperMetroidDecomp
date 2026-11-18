@@ -493,7 +493,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal static void RunDetachedKiHunterWingOrbit(RoomEnemyPlace wings, KiHunterWingState state)
     {
-        state.WingArcAngle = state.WingArcAngle.TurnedByFractionsOfStep(DetachedWingCoarseSpeed(
+        state.WingArcAngle = state.WingArcAngle.TurnedBy(DetachedWingTurn(
             state.DetachedSpeedCurvePlace,
             sign: EnemySpeedSign.Negative));
         int radius = KiHunterMotionDefinitions.DetachedWingRadius;
@@ -514,7 +514,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         KiHunterWingState state,
         RoomLevelData level)
     {
-        state.WingArcAngle = state.WingArcAngle.TurnedByFractionsOfStep(DetachedWingCoarseSpeed(
+        state.WingArcAngle = state.WingArcAngle.TurnedBy(DetachedWingTurn(
             state.DetachedSpeedCurvePlace,
             sign: EnemySpeedSign.Positive));
         int radius = KiHunterMotionDefinitions.DetachedWingRadius;
@@ -630,15 +630,11 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// The detached wing's speed along its orbit each update: its curve mark's coarse speed in the direction it turns,
-    /// in 256ths of a pixel. The orbit turns a 256th of a step for each 256th of a pixel of it, so its whole pixels turn
-    /// whole steps; a speed toward decreasing coordinates is negative and turns the orbit back.
+    /// The detached wing's turn along its orbit each update (#2439): one step for each pixel of its curve mark's coarse
+    /// speed in the direction it turns; a speed toward decreasing coordinates turns the orbit back.
     /// </summary>
-    internal static int DetachedWingCoarseSpeed(QuadraticSpeedCurvePlace place, EnemySpeedSign sign)
-    {
-        // The orbit steps by the place's coarse speed on the curve.
-        return place.Speed.CoarseToward(sign);
-    }
+    internal static AngularSpeed DetachedWingTurn(QuadraticSpeedCurvePlace place, EnemySpeedSign sign) =>
+        place.Speed.TurnOfAStepAPixelToward(sign);
 
     /// <summary>Slows a detached wing by one speed step, landing on the slowest place on the curve when the step would go below its start.</summary>
     private static void SlowDetachedKiHunterWing(KiHunterWingState state)

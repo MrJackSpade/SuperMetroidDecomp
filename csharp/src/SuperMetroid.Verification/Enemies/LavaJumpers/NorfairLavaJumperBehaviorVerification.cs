@@ -47,7 +47,7 @@ internal static class NorfairLavaJumperBehaviorVerification
         int[] holds = [1, 5, 9, 7, 3, 10, 1];
         AssertEqual(EnemyInstructionRunner.ExpectedFrames([.. jump, jump[^1]], [.. holds, 1]),
             EnemyInstructionRunner.ShownFrames(parent, holds.Sum() + 2), "lava-jumper jump animation");
-        AssertTrue(parentState.AnimationFinished, "jump animation publishes its finishing handshake");
+        AssertEqual(NorfairLavaJumpingEnemyAction.Flipped, parentState.Action, "jump animation finishes the flip");
 
         RoomEnemyPlace follower = enemies.Places.InUpdateOrder[1];
         follower.SetSpawnParameter1(EnemyDefinitionId.Squeept, 32768);

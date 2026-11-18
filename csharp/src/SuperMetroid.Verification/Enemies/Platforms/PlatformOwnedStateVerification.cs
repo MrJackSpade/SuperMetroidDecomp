@@ -30,14 +30,14 @@ internal static class PlatformOwnedStateVerification
         PlatformEnemyState state = enemies.PlatformStates[0]
             ?? throw new InvalidOperationException("The initialized Tripper has no platform state.");
 
-        AssertEqual(EnemyLinearSpeedTable.Speed(speedRecord), state.Speed, "the patrol speed is the row's speed");
+        AssertEqual(EnemyLinearSpeedTable.Speed(speedRecord), place.SpawnSettings<PlatformSpawnSettings>().Speed, "the patrol speed is the row's speed");
         AssertEqual(257, state.RestingY, "the platform rests one pixel below its placement");
-        AssertEqual(QuadraticSpeedCurvePlace.FromMarks(accelerationCap), state.MaximumYSpeedCurvePlace, "the acceleration cap is parameter two's high byte");
 
-        int[] expectedIndexes = [1, 2, 3, 3, 3];
+        // The acceleration cap is parameter two's high byte.
+        int[] expectedIndexes = [1, 2, accelerationCap, accelerationCap, accelerationCap];
         foreach (int expected in expectedIndexes)
         {
-            PlatformsBehavior.IncrementAndClampPlatformYSpeed(state);
+            PlatformsBehavior.IncrementAndClampPlatformYSpeed(place, state);
             AssertEqual(QuadraticSpeedCurvePlace.FromMarks(expected), state.YSpeedCurvePlace, "acceleration climbs by one row and holds at the cap");
         }
         Console.WriteLine("Platform owned state: speeds, resting height and clamped acceleration match.");

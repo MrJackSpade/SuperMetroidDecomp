@@ -97,8 +97,8 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
         MetareeBehavior.RunMetareeIdle(place, (state), samus);
         AssertSkreeMetareeHandoff(place, SkreeMetareeSegment.MetareePreparingAttack, state.Playback, "live Metaree preparation");
 
-        state.AttackReady = true;
-        enemies.MetareeBehavior.RunMetareePreparation(place, state);
+        state.Action = MetareeAction.AttackReady;
+        enemies.MetareeBehavior.LaunchMetareeAttack(place, state);
         AssertSkreeMetareeHandoff(place, SkreeMetareeSegment.MetareeDiving, state.Playback, "live Metaree dive");
     }
 

@@ -25,9 +25,9 @@ public sealed class MagdolliteBodyState : MagdollitePartState
     /// </summary>
     public int RiseDisplacementY { get; internal set; }
 
-    /// <summary>Whether the arm has finished growing, set by the arm at maximum or Samus-relative height and cleared by the overlay when shrinking begins.</summary>
-    public bool BodyReachedApex { get; internal set; }
-
-    /// <summary>Whether the arm stays dormant below its origin: set when it is placed and when it lands, cleared by the head to start its rise.</summary>
-    public bool StaysDormant { get; internal set; }
+    /// <summary>The head releases the dormant arm (#2439): the arm starts rising from its origin on its next update.</summary>
+    /// <exception cref="InvalidOperationException">The arm is not dormant.</exception>
+    internal void Release() => Action = Action == MagdolliteBodyAction.Dormant
+        ? MagdolliteBodyAction.Released
+        : throw new InvalidOperationException($"A Magdollite's head released its arm while the arm was {Action}.");
 }

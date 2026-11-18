@@ -18,6 +18,8 @@ internal static class MagdolliteNativeListAddresses
     [
         new NativeProgramEntry<MagdolliteSegment>(MagdolliteSegment.LeftIdle, 0xac9c),
         new NativeProgramEntry<MagdolliteSegment>(MagdolliteSegment.LeftThrow, 0xacb0),
+        new NativeProgramEntry<MagdolliteSegment>(MagdolliteSegment.LeftLavaFling, 0xacc2),
+        new NativeProgramEntry<MagdolliteSegment>(MagdolliteSegment.LeftThrowFinish, 0xacd4),
         new NativeProgramEntry<MagdolliteSegment>(MagdolliteSegment.LeftSubmerge, 0xacde),
         new NativeProgramEntry<MagdolliteSegment>(MagdolliteSegment.LeftRaisePillar, 0xacfe),
         new NativeProgramEntry<MagdolliteSegment>(MagdolliteSegment.LeftPillarRaised, 0xad08),
@@ -26,6 +28,8 @@ internal static class MagdolliteNativeListAddresses
         new NativeProgramEntry<MagdolliteSegment>(MagdolliteSegment.LeftSurfacing, 0xad1e),
         new NativeProgramEntry<MagdolliteSegment>(MagdolliteSegment.RightIdle, 0xad3c),
         new NativeProgramEntry<MagdolliteSegment>(MagdolliteSegment.RightThrow, 0xad50),
+        new NativeProgramEntry<MagdolliteSegment>(MagdolliteSegment.RightLavaFling, 0xad62),
+        new NativeProgramEntry<MagdolliteSegment>(MagdolliteSegment.RightThrowFinish, 0xad74),
         new NativeProgramEntry<MagdolliteSegment>(MagdolliteSegment.RightSubmerge, 0xad7e),
         new NativeProgramEntry<MagdolliteSegment>(MagdolliteSegment.RightRaisePillar, 0xad9e),
         new NativeProgramEntry<MagdolliteSegment>(MagdolliteSegment.RightPillarRaised, 0xada8),
@@ -43,14 +47,20 @@ internal static class MagdolliteNativeListAddresses
         new NativeProgramEntry<MagdolliteSegment>(MagdolliteSegment.PillarCap, 0xae0c),
     ];
 
+    /// <summary>
+    /// The native routine that ends a part's wait for its animation (#2439): the finishing cue of the submerge, the emergence
+    /// or the throw whose list ends with it, which its entry in <see cref="Instructions"/> therefore names no single cue for.
+    /// </summary>
+    internal const ushort EndsPartWait = 0xae45;
+
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
     internal static readonly Dictionary<ushort, MagdolliteNativeListAddressesInstruction> Instructions = new()
     {
         [0xae12] = new MagdolliteNativeListAddressesInstruction(null, "V"),
         [0xae26] = new MagdolliteNativeListAddressesInstruction(new MagdolliteCue.Move(new(0, 2)), ""),
         [0xae30] = new MagdolliteNativeListAddressesInstruction(new MagdolliteCue.Move(new(0, -2)), ""),
-        [0xae3a] = new MagdolliteNativeListAddressesInstruction(new MagdolliteCue.Signal(MagdolliteCueKind.SetAnimationBusy), ""),
-        [0xae45] = new MagdolliteNativeListAddressesInstruction(new MagdolliteCue.Signal(MagdolliteCueKind.ClearAnimationBusy), ""),
+        [0xae3a] = new MagdolliteNativeListAddressesInstruction(null, ""),
+        [EndsPartWait] = new MagdolliteNativeListAddressesInstruction(null, ""),
         [0xae50] = new MagdolliteNativeListAddressesInstruction(new MagdolliteCue.MoveWithPillar(new(0, -1)), ""),
         [0xae5a] = new MagdolliteNativeListAddressesInstruction(new MagdolliteCue.MoveWithPillar(new(0, 1)), ""),
         [0xae64] = new MagdolliteNativeListAddressesInstruction(new MagdolliteCue.Signal(MagdolliteCueKind.SinkAndShowParts), ""),
@@ -63,4 +73,11 @@ internal static class MagdolliteNativeListAddresses
         [0xaf18] = new MagdolliteNativeListAddressesInstruction(new MagdolliteCue.ShiftFromThrowOrigin(new(-8, -4)), ""),
         [0xaf44] = new MagdolliteNativeListAddressesInstruction(new MagdolliteCue.Signal(MagdolliteCueKind.StartCooldown), ""),
     };
+
+    /// <summary>
+    /// The native routine a throw, a submerge and an emerge call as they start (#2439): it marked the part waiting for its
+    /// animation, which the part's own phase already says from the update that starts the animation, so the animations have
+    /// no event for it.
+    /// </summary>
+    internal static readonly HashSet<ushort> OmittedInstructions = [0xae3a];
 }

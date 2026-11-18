@@ -9,8 +9,13 @@ public enum NorfairLavaJumpingEnemyAction
     BeginJump,
     /// <summary>Rises under gravity of 56 256ths of a pixel an update each update; once the rise has slowed to four pixels an update the flip animation starts while it is still ascending.</summary>
     RiseBeforeAnimationSwitch,
-    /// <summary>Keeps to its arc until the flip animation signals its end, then falls back.</summary>
+    /// <summary>Keeps to its arc while the flip animation plays.</summary>
     MoveUntilAnimationSignal,
+    /// <summary>
+    /// The flip animation has finished, as its cue says (#2439): the next update keeps to the arc once more and then falls
+    /// back.
+    /// </summary>
+    Flipped,
     /// <summary>Falls until the jumper reaches the bottom block row of a room screen, back in the lava, then returns to where it was placed, keeping its fractions of a pixel, starts its hidden rising animation and stops updating off screen.</summary>
     FallBackIntoLava,
 }

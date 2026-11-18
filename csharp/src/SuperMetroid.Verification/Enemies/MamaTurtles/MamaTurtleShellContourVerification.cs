@@ -48,9 +48,8 @@ internal static class MamaTurtleShellContourVerification
             "Mama Turtle shell contour rejects right distance twenty-four");
 
         var mama = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0200, 0x0200))};
-        var state = new MamaTurtleEnemyState(MamaTurtleAction.Placed) { Asleep = true };
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0, 0)) };
-        Action<RoomEnemyPlace, MamaTurtleEnemyState, SamusState> runAsleep = MamaTurtleBehavior.RunMamaTurtleAsleep;
+        Action<RoomEnemyPlace, SamusState> runAsleep = MamaTurtleBehavior.RunMamaTurtleAsleep;
 
         int productionCases = 0;
         for (short difference = -30; difference <= 30; difference++)
@@ -60,7 +59,7 @@ internal static class MamaTurtleShellContourVerification
             mama.Processing = EnemyProcessing.None;
             mama.Presence = EnemyPresence.None;
             samus.Position = samus.Position.WithWholeX(unchecked((ushort)(mama.Position.X.Whole - difference)));
-            runAsleep(mama, state, samus);
+            runAsleep(mama, samus);
 
             if (Math.Abs((int)difference) >= MamaTurtleShellContourDefinitions.HalfWidth)
             {

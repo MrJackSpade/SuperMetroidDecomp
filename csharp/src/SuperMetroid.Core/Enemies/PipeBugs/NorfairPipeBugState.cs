@@ -35,9 +35,6 @@ public sealed class NorfairPipeBugState
     /// <summary>Whether the member's count has reached its <see cref="Role"/>'s target.</summary>
     internal bool HasReachedStaggerTarget => FormationCounter >= Role.StaggerTarget;
 
-    /// <summary>The speed the bug flies at, the spawn settings' speed: added flying one way and negated flying the other.</summary>
-    public EnemyLinearSpeed FlightSpeeds { get; internal set; }
-
     /// <summary>The room Y at which the member's rise ended. Its stagger moves are measured from it.</summary>
     public int RiseEndY { get; internal set; }
 

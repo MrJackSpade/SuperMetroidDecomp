@@ -27,8 +27,7 @@ internal sealed class NoobTubeDebrisState(int column) : EnemyProjectileState
         get
         {
             TrigonometryAngle angle = Sway.ToTrigonometryAngle();
-            bool inFirstOrThirdQuarter = angle.StepsIntoHalfTurn < TrigonometryAngle.QuarterTurn.RawValue;
-            return inFirstOrThirdQuarter ? angle.TurnedBy(TrigonometryAngle.QuarterTurn) : angle;
+            return angle.IsInFirstOrThirdQuarter ? angle.TurnedBy(TrigonometryAngle.QuarterTurn) : angle;
         }
     }
 

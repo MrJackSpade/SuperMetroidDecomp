@@ -71,7 +71,7 @@ internal static class KiHunterAnimations
             Show(EnemyFrameId.KiHunterCrouchingLowFacingLeft, 2),
             Show(EnemyFrameId.KiHunterCrouchedFacingLeft, 2),
             Cue(new KiHunterCue.Signal(K.StartHop)),
-            Show(EnemyFrameId.KiHunterLeapingFacingLeft, 1),
+            Hold(EnemyFrameId.KiHunterLeapingFacingLeft),
         ],
         [P.JumpRight] =
         [
@@ -81,7 +81,7 @@ internal static class KiHunterAnimations
             Show(EnemyFrameId.KiHunterCrouchingLowFacingRight, 2),
             Show(EnemyFrameId.KiHunterCrouchedFacingRight, 2),
             Cue(new KiHunterCue.Signal(K.StartHop)),
-            Show(EnemyFrameId.KiHunterLeapingFacingRight, 1),
+            Hold(EnemyFrameId.KiHunterLeapingFacingRight),
         ],
         [P.LandLeft] =
         [
@@ -90,7 +90,7 @@ internal static class KiHunterAnimations
             Show(EnemyFrameId.KiHunterSpringingFacingLeft, 11),
             Show(EnemyFrameId.KiHunterCrouchingLowFacingLeft, 8),
             Cue(new KiHunterCue.Signal(K.StartWinglessThinking)),
-            Show(EnemyFrameId.KiHunterCrouchedFacingLeft, 1),
+            Hold(EnemyFrameId.KiHunterCrouchedFacingLeft),
         ],
         [P.LandRight] =
         [
@@ -99,7 +99,7 @@ internal static class KiHunterAnimations
             Show(EnemyFrameId.KiHunterSpringingFacingRight, 11),
             Show(EnemyFrameId.KiHunterCrouchingLowFacingRight, 8),
             Cue(new KiHunterCue.Signal(K.StartWinglessThinking)),
-            Show(EnemyFrameId.KiHunterCrouchedFacingRight, 1),
+            Hold(EnemyFrameId.KiHunterCrouchedFacingRight),
         ],
         [P.SpitLeft] =
         [
@@ -110,7 +110,7 @@ internal static class KiHunterAnimations
             Cue(new KiHunterCue.Spit(HorizontalDirection.Left)),
             Show(EnemyFrameId.KiHunterSpittingFacingLeftAcidSpent, 24),
             Cue(new KiHunterCue.Signal(K.StartWinglessThinking)),
-            Show(EnemyFrameId.KiHunterCrouchedFacingLeft, 1),
+            Hold(EnemyFrameId.KiHunterCrouchedFacingLeft),
         ],
         [P.SpitRight] =
         [
@@ -121,13 +121,14 @@ internal static class KiHunterAnimations
             Cue(new KiHunterCue.Spit(HorizontalDirection.Right)),
             Show(EnemyFrameId.KiHunterSpittingFacingRightAcidSpent, 24),
             Cue(new KiHunterCue.Signal(K.StartWinglessThinking)),
-            Show(EnemyFrameId.KiHunterCrouchedFacingRight, 1),
+            Hold(EnemyFrameId.KiHunterCrouchedFacingRight),
         ],
     });
 
     /// <summary>
     /// The animation that starts at each segment an owner can start or restart at. A flight ends at its return-to-flying
-    /// cue, which always restarts the flight for the body's direction (#2061).
+    /// cue, which always restarts the flight for the body's direction (#2061). A hop, a landing and a spit end on their
+    /// last pose held (#2439): the cue before it hands the body to its next behaviour, which shows its own picture.
     /// </summary>
     internal static IReadOnlyDictionary<KiHunterSegment, Animation<KiHunterSegment>> StartingAt { get; } = new Dictionary<KiHunterSegment, Animation<KiHunterSegment>>
     {

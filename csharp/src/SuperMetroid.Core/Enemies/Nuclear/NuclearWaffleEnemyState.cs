@@ -19,16 +19,11 @@ public sealed class NuclearWaffleEnemyState
     public NuclearWaffleAction Action { get; internal set; }
 
     /// <summary>
-    /// The AI updates left in the wait, the one the sweep starts on included. It starts at <see cref="WaitingTimerReset"/>, and
-    /// the update that takes it to zero starts the sweep and reloads it (#2281).
+    /// The AI updates left in the wait, the one the sweep starts on included. It starts at the spawn settings' wait time and
+    /// the update it runs out on (<see cref="EnemyWaitDefinitions.RunOutUpdate"/>), and the update that takes it to zero
+    /// starts the sweep and reloads it (#2281).
     /// </summary>
     public int WaitingTimer { get; internal set; }
-
-    /// <summary>
-    /// Orbit radius in room pixels, from the spawn settings. Every link and the head sit on
-    /// the circle of this radius around <see cref="Origin"/>.
-    /// </summary>
-    public int OrbitRadius { get; internal set; }
 
     /// <summary>The way the waffle sweeps around its orbit, as its spawn settings name it.</summary>
     internal NuclearWaffleSweepDirection Direction { get; init; }
@@ -38,12 +33,6 @@ public sealed class NuclearWaffleEnemyState
     /// they turn.
     /// </summary>
     internal NuclearWaffleSweepDefinition Sweep { get; init; }
-
-    /// <summary>
-    /// The wait, in AI updates, reloaded into <see cref="WaitingTimer"/> at room load and whenever a wait expires: the spawn
-    /// settings' wait time and the update it runs out on (<see cref="EnemyWaitDefinitions.RunOutUpdate"/>).
-    /// </summary>
-    public int WaitingTimerReset { get; internal set; }
 
     /// <summary>
     /// The sweep angle: its whole step is the head's angle and its fraction carries between updates. It restarts at the
@@ -56,11 +45,6 @@ public sealed class NuclearWaffleEnemyState
     /// <summary>The head's current angle: the whole step of <see cref="SweepAngle"/>.</summary>
     public NuclearWaffleSweepAngle CurrentAngle => SweepAngle.WholeStep;
 
-    /// <summary>
-    /// How fast the sweep angle turns each AI update: the spawn settings' angular speed for a forward sweep and its
-    /// reversal for a backward one.
-    /// </summary>
-    public AngularSpeed AngularSpeed { get; internal set; }
     /// <summary>The arc origin: initial population position in whole room pixels, retained as the fixed orbit center.</summary>
     public Position16<RoomPixels> Origin { get; internal set; }
     /// <summary>Which turn threshold the head last crossed; a change spawns two turn effect actors at the head's previous position.</summary>

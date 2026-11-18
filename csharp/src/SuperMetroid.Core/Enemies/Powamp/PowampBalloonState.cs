@@ -2,8 +2,8 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Powamp;
 
 /// <summary>
-/// The state of a Powamp's balloon (#1845), the half its body moves: where it spawned, how far a grapple lifts the pair,
-/// and its inflate or sink animation with the pose it stands at.
+/// The state of a Powamp's balloon (#1845), the half its body moves: where it spawned and its inflate or sink animation
+/// with the pose it stands at. How far a grapple lifts the pair is its spawn settings', read as the body rises (#2439).
 /// </summary>
 public sealed class PowampBalloonState
 {
@@ -15,12 +15,6 @@ public sealed class PowampBalloonState
 
     /// <summary>The balloon's original room position: X is both halves' horizontal wiggle center and Y feeds the body's resting and rise-target calculations.</summary>
     public Position16<RoomPixels> Spawn { get; internal set; }
-
-    /// <summary>
-    /// The balloon's grappled rise in room pixels, copied from its spawn settings: the grappled body rises until it reaches
-    /// the balloon's spawn Y less this distance.
-    /// </summary>
-    public int GrappleTravelDistance { get; internal set; }
 
     /// <summary>Whether touch and shot AI are refused: from spawn for a balloon with a nonzero grapple travel distance.</summary>
     public bool RefusesContact { get; internal set; }

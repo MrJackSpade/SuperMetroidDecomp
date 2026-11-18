@@ -22,9 +22,6 @@ public sealed class YellowPipeBugState
     /// <summary>The whole-pixel spawn position restored when the bug leaves the screen; its Y ends the arc.</summary>
     public Position16<RoomPixels> SpawnPosition { get; internal set; }
 
-    /// <summary>The bug's flight speed in pixels per update, the spawn settings' speed: added flying right and negated flying left.</summary>
-    public SignedSixteenSixteen FlightSpeed { get; internal set; }
-
     /// <summary>The countdown before straight flight begins.</summary>
     public int EmergenceDelay { get; internal set; }
 

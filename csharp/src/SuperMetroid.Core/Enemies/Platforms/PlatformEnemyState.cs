@@ -2,8 +2,9 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Platforms;
 
 /// <summary>
-/// The state of one Tripper or suspensor platform: its patrol speeds, the height it rises back to, its vertical
-/// acceleration, and the movement and art it has selected.
+/// The state of one Tripper or suspensor platform: the height it rises back to, its vertical acceleration, and the
+/// movement and art it has selected. It reads its patrol speed and its acceleration's cap from its spawn settings as it
+/// moves (#2439).
 /// </summary>
 public sealed class PlatformEnemyState
 {
@@ -16,13 +17,10 @@ public sealed class PlatformEnemyState
     /// </summary>
     public int RestingY { get; internal set; }
 
-    /// <summary>The patrol speed in pixels per update, the spawn settings' speed: added patrolling right and negated patrolling left.</summary>
-    public SignedSixteenSixteen Speed { get; internal set; }
-
     /// <summary>
-    /// Whole-mark place along the shared quadratically increasing enemy speeds, from the curve's start to
-    /// <see cref="MaximumYSpeedCurvePlace"/>: it starts at the curve's start, moves on one mark per accelerating update and is clamped
-    /// at the maximum, so it never leaves that range.
+    /// Whole-mark place along the shared quadratically increasing enemy speeds, from the curve's start to as many marks on
+    /// as the spawn settings' vertical acceleration updates: it starts at the curve's start, moves on one mark per
+    /// accelerating update and is clamped at that cap, so it never leaves that range.
     /// </summary>
     public QuadraticSpeedCurvePlace YSpeedCurvePlace { get; internal set; }
 
@@ -38,9 +36,6 @@ public sealed class PlatformEnemyState
     /// art stays until the platform rests; a first choice starts its art afresh.
     /// </summary>
     public PlatformVerticalArt? VerticalArt { get; internal set; }
-
-    /// <summary>The inclusive cap on <see cref="YSpeedCurvePlace"/>: as many marks on as the spawn settings' vertical acceleration updates.</summary>
-    public QuadraticSpeedCurvePlace MaximumYSpeedCurvePlace { get; internal set; }
 
     /// <summary>The previous actor update's rider-selected vertical movement; a change restarts the acceleration.</summary>
     public PlatformVerticalMovement PreviousYMovement { get; internal set; }

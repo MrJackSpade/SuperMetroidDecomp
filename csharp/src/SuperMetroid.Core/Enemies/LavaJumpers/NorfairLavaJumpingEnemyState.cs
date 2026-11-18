@@ -7,12 +7,6 @@ public sealed class NorfairLavaJumpingEnemyState
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
     internal NorfairLavaJumpingEnemyState(NorfairLavaJumpingEnemyAction action) => Action = action;
 
-    /// <summary>
-    /// Whether the flip animation has finished: its cue after the claws fold sets it, and the jumper then falls back
-    /// into the lava.
-    /// </summary>
-    public bool AnimationFinished { get; internal set; }
-
     /// <summary>Where the typed animation (#641) resumes; a start of the animation playing leaves it running (#2145).</summary>
     internal AnimationPlayback<NorfairLavaJumperSegment> Playback { get; set; }
 

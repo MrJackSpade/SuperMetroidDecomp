@@ -67,7 +67,6 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             RefusesContact = settings.GrappleTravelDistance != 0,
             Spawn = place.Position.Whole,
-            GrappleTravelDistance = settings.GrappleTravelDistance,
         };
         place.SetSpeciesState(balloon);
         StartPowampBalloonAnimation(place, balloon, PowampSegment.BalloonDeflated);
@@ -191,7 +190,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         AdvancePowampWiggle(body, state, balloon, stop: PowampWiggleStop.Never);
         bool collided = _terrain.MoveEnemyVertically(level, body, state.YVelocity);
         int travelDistance = hold == PowampHold.Grappled
-            ? balloon.State.GrappleTravelDistance
+            ? balloon.Place.SpawnSettings<PowampSpawnSettings>().GrappleTravelDistance
             : PowampMotionDefinitions.UngrappledRise;
 
         // The rise continues while the body is still below the target. A room collision completes the rise regardless

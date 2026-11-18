@@ -16,8 +16,23 @@ public sealed class MamaTurtleEnemyState
     /// <summary>Mama's velocity, in pixels an update.</summary>
     public FixedVector<RoomPixels> Velocity { get; internal set; }
 
-    /// <summary>Whether Mama is dormant in her shell; the first touch or shot on one of her babies wakes her.</summary>
-    public bool Asleep { get; internal set; }
+    /// <summary>
+    /// Whether Mama lies in her shell, dormant or just woken, whose contour her babies crawl over; before her first update
+    /// she does not yet.
+    /// </summary>
+    internal bool LiesInShell => Action is MamaTurtleAction.Asleep or MamaTurtleAction.Woken;
+
+    /// <summary>
+    /// The first touch or shot on one of her babies wakes Mama in her shell (#2439); she leaves it on her next update that
+    /// finds her there. A later touch or shot finds her already awake and does nothing.
+    /// </summary>
+    internal void Wake()
+    {
+        if (Action == MamaTurtleAction.Placed)
+            Action = MamaTurtleAction.PlacedAndWoken;
+        else if (Action == MamaTurtleAction.Asleep)
+            Action = MamaTurtleAction.Woken;
+    }
 
     /// <summary>Gets the phase-specific countdown used by peak and transition states.</summary>
     public int ActionTimer { get; internal set; }

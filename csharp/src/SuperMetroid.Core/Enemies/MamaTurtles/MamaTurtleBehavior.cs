@@ -109,10 +109,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         foreach (RoomEnemyPlace baby in babies)
             _mamaOfBaby.Place(baby, place);
 
-        var state = new MamaTurtleEnemyState(MamaTurtleAction.Placed)
-        {
-            Asleep = true,
-        };
+        var state = new MamaTurtleEnemyState(MamaTurtleAction.Placed);
         place.SetSpeciesState(state);
 
         // Mama animates: leaving the shell needs her animation to run.
@@ -178,10 +175,17 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             case MamaTurtleAction.Placed:
                 state.Action = MamaTurtleAction.Asleep;
                 return;
+            case MamaTurtleAction.PlacedAndWoken:
+                state.Action = MamaTurtleAction.Woken;
+                return;
             case MamaTurtleAction.Idle:
                 return;
             case MamaTurtleAction.Asleep:
-                RunMamaTurtleAsleep(place, state, samus);
+                RunMamaTurtleAsleep(place, samus);
+                return;
+            case MamaTurtleAction.Woken:
+                state.Action = MamaTurtleAction.LeavingShell;
+                place.Contact = place.Contact.Without(EnemyContact.IgnoresSamus);
                 return;
             case MamaTurtleAction.LeavingShell:
                 RunMamaTurtleLeavingShell(
@@ -214,16 +218,8 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs the dormant shell's height and carry step.</summary>
     internal static void RunMamaTurtleAsleep(
         RoomEnemyPlace mama,
-        MamaTurtleEnemyState state,
         SamusState samus)
     {
-        if (!state.Asleep)
-        {
-            state.Action = MamaTurtleAction.LeavingShell;
-            mama.Contact = mama.Contact.Without(EnemyContact.IgnoresSamus);
-            return;
-        }
-
         mama.Radius = mama.Radius.WithY(0);
         int signedDifference = mama.Position.X.Whole - samus.Position.X.Whole;
         int distance = Math.Abs(signedDifference);
@@ -267,7 +263,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
 
         mama.Position = mama.Position.WithWholeY(mama.Position.Y.Whole - MamaTurtleMotionDefinitions.LeavingShellClimb);
         mama.Radius = mama.Radius.WithY(MamaTurtleMotionDefinitions.AwakeHalfHeight);
-        mama.Position = mama.Position.WithWholeX(MamaTurtleCadenceDefinitions.LeavingShellSidestepsLeft.IsSetIn(mama.Position.Y.Whole)
+        mama.Position = mama.Position.WithWholeX(MamaTurtleCadenceDefinitions.LeavingShellSidestepsLeftAt(mama.Position.Y.Whole)
             ? mama.Position.X.Whole - MamaTurtleMotionDefinitions.LeavingShellShake
             : mama.Position.X.Whole + MamaTurtleMotionDefinitions.LeavingShellShake);
 
@@ -581,7 +577,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
 
         RoomEnemyPlace parentPlace = MamaOf(baby);
         MamaTurtleEnemyState parent = parentPlace.RequireSpeciesState<MamaTurtleEnemyState>();
-        if (parent.Action != MamaTurtleAction.Asleep)
+        if (!parent.LiesInShell)
             return;
 
         int signedDifference = parentPlace.Position.X.Whole - baby.Position.X.Whole;
@@ -693,8 +689,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Wakes <paramref name="baby"/>'s Mama after a baby touch or shot reaction.</summary>
     private void WakeMamaTurtle(RoomEnemyPlace baby)
     {
-        MamaTurtleEnemyState parent = MamaStateOf(baby);
-        parent.Asleep = false;
+        MamaStateOf(baby).Wake();
     }
 
     /// <summary>Runs Mama's expanded private damage box: Samus, while not invincible, touching it is hurt as by any enemy.</summary>

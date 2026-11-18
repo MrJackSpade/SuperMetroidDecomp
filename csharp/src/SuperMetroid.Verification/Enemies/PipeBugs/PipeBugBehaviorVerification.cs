@@ -96,7 +96,7 @@ internal static class PipeBugBehaviorVerification
             place.SetSpawnParameter2(EnemyDefinitionId.Geega, 24);
             Initialize(enemies, place, EnemyDefinitionId.Geega, 0);
             YellowPipeBugState state = place.RequireSpeciesState<YellowPipeBugState>();
-            AssertEqual(SixteenSixteenWords.ToDisplacement(onePixel + onePixel / 2), state.FlightSpeed, "yellow Pipe Bug speed record 24 is 1.5 pixels");
+            AssertEqual(SixteenSixteenWords.ToDisplacement(onePixel + onePixel / 2), place.SpawnSettings<YellowPipeBugSpawnSettings>().Speed, "yellow Pipe Bug speed record 24 is 1.5 pixels");
             state.Action = YellowPipeBugAction.Arc;
             state.FlightDirection = HorizontalDirection.Right;
             state.ArcRising = true;

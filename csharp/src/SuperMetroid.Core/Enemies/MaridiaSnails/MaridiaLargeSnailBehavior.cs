@@ -40,7 +40,6 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             Facing = HorizontalDirection.Right,
             RollsBackwards = false,
             ShowsSpawnIdle = true,
-            AttackAnimationFinished = false,
             AttackAllowsRotation = false,
             SamusInPushingRange = false,
             SamusSide = HorizontalDirection.Right,
@@ -81,7 +80,9 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
                 RunMaridiaLargeSnailRolling(place, state, samus, level);
                 break;
             case MaridiaLargeSnailAction.Attacking:
-                RunMaridiaLargeSnailAttack(place, state);
+                break;
+            case MaridiaLargeSnailAction.AttackFinished:
+                RollMaridiaLargeSnailAfterAttack(place, state);
                 break;
             default:
                 throw new InvalidDataException(
@@ -167,15 +168,11 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         MoveMaridiaLargeSnailHorizontally(place, state, level);
     }
 
-    /// <summary>Resumes the rolling animation after the attack animation marks itself complete.</summary>
-    private static void RunMaridiaLargeSnailAttack(
+    /// <summary>Resumes the rolling animation once the attack animation has finished.</summary>
+    private static void RollMaridiaLargeSnailAfterAttack(
         RoomEnemyPlace place,
         MaridiaLargeSnailEnemyState state)
     {
-        if (!state.AttackAnimationFinished)
-            return;
-
-        state.AttackAnimationFinished = false;
         state.RollsBackwards = false;
         StartMaridiaLargeSnailAnimation(place, state, MaridiaLargeSnailRoll(state));
         state.Action = MaridiaLargeSnailAction.Rolling;
@@ -363,7 +360,9 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
                 _audio.QueueEnemySound(EnemySoundEffectDefinitions.MaridiaLargeSnailSplashSound, priority: SoundRequestPriority.Normal);
                 break;
             case MaridiaLargeSnailCueKind.FinishAttack:
-                state.AttackAnimationFinished = true;
+                if (state.Action != MaridiaLargeSnailAction.Attacking)
+                    throw new InvalidOperationException($"Oum's attack finished while it was {state.Action}.");
+                state.Action = MaridiaLargeSnailAction.AttackFinished;
                 break;
             case MaridiaLargeSnailCueKind.AllowAttackRotation:
                 state.AttackAllowsRotation = true;

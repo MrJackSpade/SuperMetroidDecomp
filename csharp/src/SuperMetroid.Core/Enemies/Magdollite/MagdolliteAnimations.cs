@@ -25,24 +25,24 @@ internal static class MagdolliteAnimations
         [P.LeftThrow] =
         [
             Cue(new MagdolliteCue.PlaySoundIfOnScreen(MagdolliteSoundDefinitions.Throw)),
-            Cue(new MagdolliteCue.Signal(K.SetAnimationBusy)),
             Cue(new MagdolliteCue.Signal(K.StartCooldown)),
             Show(EnemyFrameId.MagdolliteRearingFacingLeft, 26),
             Show(EnemyFrameId.MagdolliteLeaningFacingLeft, 8),
             Cue(new MagdolliteCue.ShiftFromThrowOrigin(new(-8, -4))),
+        ],
+        [P.LeftLavaFling] =
+        [
             Show(EnemyFrameId.MagdolliteReachingFacingLeft, 5),
             Cue(new MagdolliteCue.Signal(K.SpawnLava)),
-            Show(EnemyFrameId.MagdolliteReachingFacingLeft, 5),
-            Cue(new MagdolliteCue.Signal(K.SpawnLava)),
-            Show(EnemyFrameId.MagdolliteReachingFacingLeft, 5),
-            Cue(new MagdolliteCue.Signal(K.SpawnLava)),
+        ],
+        [P.LeftThrowFinish] =
+        [
             Cue(new MagdolliteCue.ShiftFromThrowOrigin(new(-8, -4))),
             Show(EnemyFrameId.MagdolliteThrowingFacingLeft, 5),
-            Cue(new MagdolliteCue.Signal(K.ClearAnimationBusy)),
+            Cue(new MagdolliteCue.Signal(K.FinishThrow)),
         ],
         [P.LeftSubmerge] =
         [
-            Cue(new MagdolliteCue.Signal(K.SetAnimationBusy)),
             Show(EnemyFrameId.MagdolliteHeadFacingLeftMid, 5),
             Cue(new MagdolliteCue.Move(new(0, 2))),
             Show(EnemyFrameId.MagdolliteHeadFacingLeftMid, 5),
@@ -59,11 +59,10 @@ internal static class MagdolliteAnimations
         ],
         [P.LeftPillarRaised] =
         [
-            Cue(new MagdolliteCue.Signal(K.ClearAnimationBusy)),
+            Cue(new MagdolliteCue.Signal(K.FinishSubmerge)),
         ],
         [P.LeftEmerge] =
         [
-            Cue(new MagdolliteCue.Signal(K.SetAnimationBusy)),
             Cue(new MagdolliteCue.Signal(K.RestoreOrigins)),
         ],
         [P.LeftLowerPillar] =
@@ -81,7 +80,7 @@ internal static class MagdolliteAnimations
             Show(EnemyFrameId.MagdolliteHeadFacingLeftMid, 5),
             Cue(new MagdolliteCue.Move(new(0, -2))),
             Show(EnemyFrameId.MagdolliteHeadFacingLeftMid, 5),
-            Cue(new MagdolliteCue.Signal(K.ClearAnimationBusy)),
+            Cue(new MagdolliteCue.Signal(K.FinishEmerge)),
         ],
         [P.RightIdle] =
         [
@@ -93,24 +92,24 @@ internal static class MagdolliteAnimations
         [P.RightThrow] =
         [
             Cue(new MagdolliteCue.PlaySoundIfOnScreen(MagdolliteSoundDefinitions.Throw)),
-            Cue(new MagdolliteCue.Signal(K.SetAnimationBusy)),
             Cue(new MagdolliteCue.Signal(K.StartCooldown)),
             Show(EnemyFrameId.MagdolliteRearingFacingRight, 26),
             Show(EnemyFrameId.MagdolliteLeaningFacingRight, 8),
             Cue(new MagdolliteCue.ShiftFromThrowOrigin(new(8, -4))),
+        ],
+        [P.RightLavaFling] =
+        [
             Show(EnemyFrameId.MagdolliteReachingFacingRight, 5),
             Cue(new MagdolliteCue.Signal(K.SpawnLava)),
-            Show(EnemyFrameId.MagdolliteReachingFacingRight, 5),
-            Cue(new MagdolliteCue.Signal(K.SpawnLava)),
-            Show(EnemyFrameId.MagdolliteReachingFacingRight, 5),
-            Cue(new MagdolliteCue.Signal(K.SpawnLava)),
+        ],
+        [P.RightThrowFinish] =
+        [
             Cue(new MagdolliteCue.ShiftFromThrowOrigin(new(8, -8))),
             Show(EnemyFrameId.MagdolliteThrowingFacingRight, 5),
-            Cue(new MagdolliteCue.Signal(K.ClearAnimationBusy)),
+            Cue(new MagdolliteCue.Signal(K.FinishThrow)),
         ],
         [P.RightSubmerge] =
         [
-            Cue(new MagdolliteCue.Signal(K.SetAnimationBusy)),
             Show(EnemyFrameId.MagdolliteHeadFacingRightMid, 5),
             Cue(new MagdolliteCue.Move(new(0, 2))),
             Show(EnemyFrameId.MagdolliteHeadFacingRightMid, 5),
@@ -127,11 +126,10 @@ internal static class MagdolliteAnimations
         ],
         [P.RightPillarRaised] =
         [
-            Cue(new MagdolliteCue.Signal(K.ClearAnimationBusy)),
+            Cue(new MagdolliteCue.Signal(K.FinishSubmerge)),
         ],
         [P.RightEmerge] =
         [
-            Cue(new MagdolliteCue.Signal(K.SetAnimationBusy)),
             Cue(new MagdolliteCue.Signal(K.RestoreOrigins)),
         ],
         [P.RightLowerPillar] =
@@ -149,7 +147,7 @@ internal static class MagdolliteAnimations
             Show(EnemyFrameId.MagdolliteHeadFacingRightMid, 5),
             Cue(new MagdolliteCue.Move(new(0, -2))),
             Show(EnemyFrameId.MagdolliteHeadFacingRightMid, 5),
-            Cue(new MagdolliteCue.Signal(K.ClearAnimationBusy)),
+            Cue(new MagdolliteCue.Signal(K.FinishEmerge)),
         ],
         [P.OneSegmentPillar] =
         [
@@ -192,19 +190,23 @@ internal static class MagdolliteAnimations
     /// <summary>The pixels the pillar rises or lowers in a submerge or emerge, one a play of its mound's step.</summary>
     private const int PillarTravel = 24;
 
+    /// <summary>The gobs of lava a throw flings, one a play of its reaching hand's fling (#2439).</summary>
+    private const int LavaFlings = 3;
+
     /// <summary>
-    /// The animation that starts at each segment an owner can start or restart at (#2337): a submerge sinks the head and then
-    /// raises the pillar a pixel at a time, an emerge lowers it a pixel at a time and then surfaces the head, and the pillar
-    /// stacks and cap are still pictures.
+    /// The animation that starts at each segment an owner can start or restart at (#2337): a throw rears, flings
+    /// <see cref="LavaFlings"/> gobs of lava and finishes (#2439), a submerge sinks the head and then raises the pillar a
+    /// pixel at a time, an emerge lowers it a pixel at a time and then surfaces the head, and the pillar stacks and cap are
+    /// still pictures. A throw, a submerge and an emerge each end on their finishing cue, which moves their part on.
     /// </summary>
     internal static IReadOnlyDictionary<MagdolliteSegment, Animation<MagdolliteSegment>> StartingAt { get; } = new Dictionary<MagdolliteSegment, Animation<MagdolliteSegment>>
     {
         [P.LeftIdle] = Animation<MagdolliteSegment>.Looping([Segments.Whole(P.LeftIdle)]),
-        [P.LeftThrow] = new([Segments.Whole(P.LeftThrow)], AnimationEnd.Holds),
+        [P.LeftThrow] = new([Segments.Whole(P.LeftThrow), Segments.Repeated(P.LeftLavaFling, LavaFlings), Segments.Whole(P.LeftThrowFinish)], AnimationEnd.Holds),
         [P.LeftSubmerge] = new([Segments.Whole(P.LeftSubmerge), Segments.Repeated(P.LeftRaisePillar, PillarTravel), Segments.Whole(P.LeftPillarRaised)], AnimationEnd.Holds),
         [P.LeftEmerge] = new([Segments.Whole(P.LeftEmerge), Segments.Repeated(P.LeftLowerPillar, PillarTravel), Segments.Whole(P.LeftSurfacing)], AnimationEnd.Holds),
         [P.RightIdle] = Animation<MagdolliteSegment>.Looping([Segments.Whole(P.RightIdle)]),
-        [P.RightThrow] = new([Segments.Whole(P.RightThrow)], AnimationEnd.Holds),
+        [P.RightThrow] = new([Segments.Whole(P.RightThrow), Segments.Repeated(P.RightLavaFling, LavaFlings), Segments.Whole(P.RightThrowFinish)], AnimationEnd.Holds),
         [P.RightSubmerge] = new([Segments.Whole(P.RightSubmerge), Segments.Repeated(P.RightRaisePillar, PillarTravel), Segments.Whole(P.RightPillarRaised)], AnimationEnd.Holds),
         [P.RightEmerge] = new([Segments.Whole(P.RightEmerge), Segments.Repeated(P.RightLowerPillar, PillarTravel), Segments.Whole(P.RightSurfacing)], AnimationEnd.Holds),
         [P.OneSegmentPillar] = new([Segments.Whole(P.OneSegmentPillar)], AnimationEnd.Holds),

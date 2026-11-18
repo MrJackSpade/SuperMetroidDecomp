@@ -75,10 +75,15 @@ internal static class PowampBehaviorVerification
         ushort pointer = (ushort)(NativeEnemyAnimationOracle.EntryOf(PowampNativeListAddresses.Entries, segment) + 4 * passed);
         AssertEqual(pointer, (ushort)(sequence + 4 * inflation.PosesShown), context);
         IReadOnlyList<AnimationBeat<EnemyFrameId, NoAnimationCue>> beats = PowampAnimations.Segments.Beats(segment);
-        if (passed < beats.Count)
+        // A pose the balloon rests on (#2439) shows its record until its list's sleep, whatever duration the record names.
+        if (passed < beats.Count && beats[passed] is AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame frame)
         {
-            AssertEqual(AssertIs<AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame>(beats[passed], context).Duration,
+            AssertEqual(frame.Duration,
                 (int)cartridge.ReadCartridgeWord((PowampNativeListAddresses.Bank << 16) | pointer), $"{context}: native pose record");
+        }
+        else if (passed < beats.Count)
+        {
+            AssertIs<AnimationBeat<EnemyFrameId, NoAnimationCue>.HeldFrame>(beats[passed], context);
         }
     }
 

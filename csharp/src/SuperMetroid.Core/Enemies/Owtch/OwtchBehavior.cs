@@ -31,7 +31,6 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
         OwtchSpawnSettings settings = place.SpawnSettings<OwtchSpawnSettings>();
         var state = new OwtchEnemyState
         {
-            Speed = settings.Speed,
             Behavior = settings.InitialBehavior,
             BurialDepth = 0,
             UndergroundTimer = settings.UndergroundWait,
@@ -119,14 +118,18 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
         _ => throw new ArgumentOutOfRangeException(nameof(initial), initial, "Undefined Owtch behaviour."),
     };
 
-    /// <summary>Moves the Owtch along its patrol by its speed; reaching an end of the patrol turns it.</summary>
+    /// <summary>
+    /// Moves the Owtch along its patrol by its spawn settings' speed toward <paramref name="direction"/>; reaching an end of
+    /// the patrol turns it.
+    /// </summary>
     private static void MoveOwtch(
         RoomEnemyPlace place,
         OwtchEnemyState state,
         HorizontalDirection direction)
     {
         // A fraction past a whole pixel carries into the whole pixels.
-        place.Position = place.Position.AdvanceX(direction == HorizontalDirection.Right ? state.Speed : -state.Speed);
+        SignedSixteenSixteen speed = place.SpawnSettings<OwtchSpawnSettings>().Speed;
+        place.Position = place.Position.AdvanceX(direction == HorizontalDirection.Right ? speed : -speed);
 
         if (direction != HorizontalDirection.Right)
         {

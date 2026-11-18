@@ -23,7 +23,7 @@ internal static class CollectibleOrbAnimation
 
     /// <summary>The orb's pulse, again and again.</summary>
     internal static Animation<CollectibleOrbSegment> Pulsing { get; } =
-        Animation<CollectibleOrbSegment>.Looping([new(CollectibleOrbSegment.Pulsing, 0, Segments.Beats(CollectibleOrbSegment.Pulsing).Count, 1)]);
+        Animation<CollectibleOrbSegment>.Looping([Segments.Whole(CollectibleOrbSegment.Pulsing)]);
 
     /// <summary>Shows <paramref name="draw"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<CollectibleDraw, NoAnimationCue> Show(CollectibleDraw draw, int duration) =>

@@ -7,10 +7,16 @@ public enum MagdolliteHeadAction
 {
     /// <summary>Faces Samus and submerges when the overlay's cooldown has expired and Samus is within the configured horizontal range.</summary>
     Waiting,
-    /// <summary>Waits for the head's submerge animation to finish, then releases the arm to grow.</summary>
+    /// <summary>Waits for the head's submerge animation to finish.</summary>
     WaitingForAttackAnimation,
-    /// <summary>Waits for the arm to land, then selects the facing-dependent head emergence animation.</summary>
+    /// <summary>The submerge animation has finished, as its cue says (#2439): the next update releases the arm to grow.</summary>
+    Submerged,
+    /// <summary>Waits for the arm to land.</summary>
     WaitingForBodyLanding,
-    /// <summary>Waits for emergence to finish before returning the head to idle.</summary>
+    /// <summary>The arm has landed (#2439): the next update selects the facing-dependent head emergence animation.</summary>
+    ArmLanded,
+    /// <summary>Waits for emergence to finish.</summary>
     WaitingForReturnAnimation,
+    /// <summary>The emergence has finished, as its cue says (#2439): the next update returns the head to idle.</summary>
+    Surfaced,
 }

@@ -10,6 +10,11 @@ public enum MaridiaLargeSnailAction
     Idle,
     /// <summary>Bounces, rolls and meets walls; a stop the previous update asked for also holds the attack cooldown, which lasts its whole duration and then stays run out until Oum attacks.</summary>
     Rolling,
-    /// <summary>Waits for the attack animation's finished flag, consumes it, and installs the corresponding rolling animation without moving during the wait.</summary>
+    /// <summary>Waits, without moving, for the attack animation to finish.</summary>
     Attacking,
+    /// <summary>
+    /// Finished attacking, as the attack animation's cue says (#2439): the next update installs the rolling animation for
+    /// the way Oum faces and rolls on.
+    /// </summary>
+    AttackFinished,
 }

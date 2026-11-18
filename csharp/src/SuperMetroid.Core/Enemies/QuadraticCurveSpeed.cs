@@ -32,4 +32,11 @@ public readonly record struct QuadraticCurveSpeed(SignedSixteenSixteen Speed)
     /// decreasing coordinates.
     /// </summary>
     internal int CoarseToward(EnemySpeedSign sign) => Toward(sign).InTwoFiftySixths;
+
+    /// <summary>
+    /// The turn an orbit takes each update that turns one step for each pixel of the coarse speed in the direction
+    /// <paramref name="sign"/> names (#2439), as a Ki-Hunter's detached wing orbits: a 256th of a step for each 256th of a
+    /// pixel, back toward decreasing angles for a speed toward decreasing coordinates.
+    /// </summary>
+    internal AngularSpeed TurnOfAStepAPixelToward(EnemySpeedSign sign) => AngularSpeed.FromFractionsOfStep(CoarseToward(sign));
 }

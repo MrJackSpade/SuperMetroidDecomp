@@ -22,14 +22,15 @@ internal static class OwtchPatrolStateVerification
             new FrameCounters(0));
 
         (RoomEnemySystem enemies, RoomEnemyPlace place, OwtchEnemyState state) = NewOwtch(OwtchBehaviorState.MovingRight);
-        state.Speed = SignedSixteenSixteen.FromParts(1, 32768);
+        // The Owtch walks at its placement's speed (#2439).
+        place.SetSpawnSettings(place.SpawnSettings<OwtchSpawnSettings>() with { Speed = SignedSixteenSixteen.FromParts(1, 32768) });
         place.Position = FixedPosition<RoomPixels>.FromWhole(new(100, 64)).WithFractionX(49152);
         enemies.OwtchBehavior.RunOwtchMainAi(place, frame);
         AssertEqual((ushort)102, place.Position.X.Whole, "Owtch rightward speed carries its fraction into the whole pixel");
         AssertEqual((ushort)16384, place.Position.X.Fraction, "Owtch rightward fraction after the carry");
 
         (enemies, place, state) = NewOwtch(OwtchBehaviorState.MovingLeft);
-        state.Speed = SignedSixteenSixteen.FromParts(1, 32768);
+        place.SetSpawnSettings(place.SpawnSettings<OwtchSpawnSettings>() with { Speed = SignedSixteenSixteen.FromParts(1, 32768) });
         place.Position = FixedPosition<RoomPixels>.FromWhole(new(100, 64)).WithFractionX(16384);
         enemies.OwtchBehavior.RunOwtchMainAi(place, frame);
         AssertEqual((ushort)98, place.Position.X.Whole, "Owtch leftward speed wraps its whole word");

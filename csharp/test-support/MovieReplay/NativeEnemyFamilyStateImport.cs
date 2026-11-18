@@ -10,6 +10,7 @@ using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Enemies.PipeBugs;
+using SuperMetroid.Core.Enemies.Platforms;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Bosses.Botwoon;
 using SuperMetroid.Core.Enemies.Magdollite;
@@ -484,9 +485,12 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (enemy.SpeciesState<OwtchEnemyState>() is { } owtchRecord)
         {
-            // $A2:A423-$A435: fraction then whole for each direction, then the state and the sink depth.
-            owtchRecord.Speed = NegatedPair(SignedSixteenSixteen.FromParts(unchecked((short)words.B), words.A),
+            // $A2:A423-$A435: fraction then whole for each direction, then the state and the sink depth. The Owtch walks at its
+            // placement's speed (#2439), which the recording's must be.
+            SignedSixteenSixteen owtchSpeed = NegatedPair(SignedSixteenSixteen.FromParts(unchecked((short)words.B), words.A),
                 SignedSixteenSixteen.FromParts(unchecked((short)words.D), words.C), "Owtch speed");
+            if (owtchSpeed != enemy.SpawnSettings<OwtchSpawnSettings>().Speed)
+                throw new InvalidDataException($"Recorded Owtch speed {owtchSpeed} is not its placement's {enemy.SpawnSettings<OwtchSpawnSettings>().Speed}.");
             owtchRecord.Behavior = OwtchNativeWords.Behaviors.Decode(words.E, "recorded OwtchBehaviorState");
             owtchRecord.BurialDepth = words.F;
         }
@@ -706,9 +710,14 @@ internal static class NativeEnemyFamilyStateImport
         if (enemies.PlatformStates[index] is { } platform)
         {
             platform.RestingY = words.A;
-            platform.Speed = NegatedPair(SignedSixteenSixteen.FromParts(unchecked((short)words.C), words.B),
+            // The platform reads its speed and its acceleration's cap from its spawn settings where it uses them (#2439); the
+            // recording's copy of the speed must be the placement's.
+            PlatformSpawnSettings platformSettings = enemy.SpawnSettings<PlatformSpawnSettings>();
+            SignedSixteenSixteen platformSpeed = NegatedPair(SignedSixteenSixteen.FromParts(unchecked((short)words.C), words.B),
                 SignedSixteenSixteen.FromParts(unchecked((short)words.E), words.D), "platform speed");
-            platform.YSpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(Index(words.F, platform.MaximumYSpeedCurvePlace.WholeMarks, "platform acceleration index"));
+            if (platformSpeed != platformSettings.Speed)
+                throw new InvalidDataException($"Recorded platform speed {platformSpeed} is not its placement's {platformSettings.Speed}.");
+            platform.YSpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(Index(words.F, platformSettings.VerticalAccelerationUpdates, "platform acceleration index"));
         }
         if (enemies.BeetomStates[index] is { } beetom)
         {
@@ -812,7 +821,9 @@ internal static class NativeEnemyFamilyStateImport
         if (enemy.DefinitionId == EnemyDefinitionId.Powamp && enemy.SpeciesState<PowampBalloonState>() is { } powampBalloon)
         {
             powampBalloon.Spawn = new(words.A, words.B);
-            powampBalloon.GrappleTravelDistance = words.D;
+            // The balloon reads its grappled rise from its spawn settings (#2439); the recording's copy must be the placement's.
+            if (words.D != enemy.SpawnSettings<PowampSpawnSettings>().GrappleTravelDistance)
+                throw new InvalidDataException($"Recorded Powamp grapple rise {words.D} is not its placement's {enemy.SpawnSettings<PowampSpawnSettings>().GrappleTravelDistance}.");
             if (words.F != PowampNativeWords.BalloonIdleWord)
                 throw new InvalidDataException($"Recorded Powamp balloon runs ${words.F:X4}, not the balloon's empty routine.");
         }
@@ -826,14 +837,18 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (enemy.DefinitionId == EnemyDefinitionId.MamaTurtle && enemy.SpeciesState<MamaTurtleEnemyState>() is { } mama)
         {
-            mama.Action = MamaTurtlesNativeWords.MamaTurtleActions.Decode(words.A, "recorded MamaTurtleAction");
+            MamaTurtleAction mamaAction = MamaTurtlesNativeWords.MamaTurtleActions.Decode(words.A, "recorded MamaTurtleAction");
             // Only the horizontal velocity's whole pixels live in the record; its fraction and the vertical velocity do not.
             mama.Velocity = mama.Velocity.WithX(mama.Velocity.X.WithWholePixels(unchecked((short)words.E)));
-            // The game keeps a wake count of one that a baby's touch or shot clears.
-            mama.Asleep = words.F switch
+            // The game keeps a wake count of one that a baby's touch or shot clears, beside her routine; a cleared count before
+            // her first update or in her shell is her woken phase (#2439). She leaves her shell only once woken.
+            mama.Action = (mamaAction, words.F) switch
             {
-                0 => false,
-                1 => true,
+                (MamaTurtleAction.Placed, 0) => MamaTurtleAction.PlacedAndWoken,
+                (MamaTurtleAction.Asleep, 0) => MamaTurtleAction.Woken,
+                (MamaTurtleAction.Placed or MamaTurtleAction.Asleep, 1) => mamaAction,
+                (_, 0) => mamaAction,
+                (_, 1) => throw new InvalidDataException($"Recorded Mama Turtle {mamaAction} has not been woken."),
                 _ => throw new InvalidDataException($"Recorded Mama Turtle wake count {words.F} is neither zero nor one."),
             };
         }
@@ -841,7 +856,10 @@ internal static class NativeEnemyFamilyStateImport
         {
             hibashi.Action = HibashiNativeWords.HibashiActions.Decode(words.A, "recorded HibashiAction");
             hibashi.InactiveTimer = TrueDuration(words.B);
-            hibashi.ActivityFinished = words.C != 0;
+            // The game keeps a finished eruption as a flag beside its active routine: an active flame whose flag is set has
+            // finished and rests on its next update (#2439). An inactive flame's flag is left over from its last eruption.
+            if (hibashi.Action == HibashiAction.Active && words.C != 0)
+                hibashi.Action = HibashiAction.Finished;
             hibashi.SpawnY = words.D;
         }
         if (enemies.AlcoonStates[index] is { } alcoon)
@@ -977,7 +995,13 @@ internal static class NativeEnemyFamilyStateImport
             metaree.BurrowTimer = unchecked((short)words.A);
             metaree.Action = MetareeNativeWords.MetareeActions.Decode(words.B, "recorded MetareeAction");
             RequirePlayingSkreeMetareeAnimation(metaree.Playback, SkreeNativeWords.MetareeAnimationPhases, words, "Metaree");
-            metaree.AttackReady = words.E != 0;
+            // The game keeps a readied attack as a flag beside its preparing routine (#2439), set only while it prepares.
+            metaree.Action = (metaree.Action, words.E) switch
+            {
+                (MetareeAction.PreparingAttack, not 0) => MetareeAction.AttackReady,
+                (_, 0) => metaree.Action,
+                (var readied, _) => throw new InvalidDataException($"Recorded Metaree {readied} has its attack readied."),
+            };
             metaree.YVelocity = Index(words.F, 2734, "Metaree dive speed");
         }
         if (enemies.SparkStates[index] is { } spark)

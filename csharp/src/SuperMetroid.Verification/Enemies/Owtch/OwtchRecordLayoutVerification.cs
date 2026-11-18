@@ -11,17 +11,22 @@ internal static class OwtchRecordLayoutVerification
 {
     /// <summary>
     /// #1387: a recorded Owtch record imports by the cartridge layout of <c>$A2:A423-$A473</c>: right fraction and
-    /// whole, left fraction and whole, the state, then the sink depth.
+    /// whole, left fraction and whole, the state, then the sink depth. The Owtch walks at its placement's speed (#2439), which
+    /// the recorded speed must be.
     /// </summary>
     internal static void VerifyOwtchRecordLayout()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+        // Slot zero's word C carries the Zebetites' shared pulse (#2259), so the Owtch records from slot one.
+        RoomEnemyPlace place = enemies.Places.InUpdateOrder[1];
         var state = new OwtchEnemyState();
         place.SetSpeciesState(state);
+        place.SetSpawnSettings(new OwtchSpawnSettings(OwtchBehaviorState.Underground, UndergroundWait: 1, Speed: SignedSixteenSixteen.FromParts(2, 0x1234), TravelDistance: 1));
         NativeEnemyFamilyStateImport.Import(enemies, place, new NativeEnemyRecordWords(
             A: 0x1234, B: 0x0002, C: 0xedcc, D: 0xfffd, E: OwtchNativeWords.Behaviors.Word(OwtchBehaviorState.Underground), F: 0x0010));
-        AssertEqual(SignedSixteenSixteen.FromParts(2, 0x1234), state.Speed, "variables 0/1 are the speed's fraction and whole, variables 2/3 its negation");
+        AssertThrows<InvalidDataException>(() => NativeEnemyFamilyStateImport.Import(enemies, place, new NativeEnemyRecordWords(
+                A: 0x1235, B: 0x0002, C: 0xedcb, D: 0xfffd, E: OwtchNativeWords.Behaviors.Word(OwtchBehaviorState.Underground), F: 0x0010)),
+            "variables 0/1 are the speed's fraction and whole, variables 2/3 its negation, and the speed is the placement's");
         AssertEqual(OwtchBehaviorState.Underground, state.Behavior, "variable 4 is the state");
         AssertEqual(16, state.BurialDepth, "variable 5 is the sink depth");
         Console.WriteLine("Owtch record layout: speed, state and sink import from variables 0-5.");

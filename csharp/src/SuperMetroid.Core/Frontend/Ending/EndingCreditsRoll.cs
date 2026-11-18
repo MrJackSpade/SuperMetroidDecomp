@@ -78,14 +78,8 @@ internal sealed class EndingCreditsRoll
     /// <summary>Fades the post-credits waiting backdrop toward its authored colours.</summary>
     internal void FadeWaitingBackdrop(int step) => screen.Colours.Fade(EndingFade.WaitingBackdrop, step);
 
-    /// <summary>
-    /// The reward's colour fade (#2488), paced by the reward's own updates: a step every fourth, the copyright between its
-    /// halves taking none; none before the reward.
-    /// </summary>
-    private PacedFadeSteps? rewardFade;
-
     /// <summary>The reward's colour fade, which the reward has from its start.</summary>
-    private PacedFadeSteps RewardFade => rewardFade ?? throw new InvalidOperationException("The reward's colour fade has not started.");
+    private PacedFadeSteps RewardFade { get => field ?? throw new InvalidOperationException("The reward's colour fade has not started."); set; }
 
     /// <summary>Crossfades waiting colors into the selected non-armored reward colours.</summary>
     private void ShowRewardFade()
@@ -104,10 +98,7 @@ internal sealed class EndingCreditsRoll
     /// The white wash of the brief transition into the final logo (<see cref="WhiteWash"/>): full white as it begins, a
     /// step fewer each update, fading to none, where it stays.
     /// </summary>
-    internal WhiteWash WhiteFlash => whiteFlash ?? throw new InvalidOperationException("The post-credits white flash has not begun.");
-
-    /// <summary>The transition's white wash, or none before the transition begins.</summary>
-    private WhiteWash? whiteFlash;
+    internal WhiteWash WhiteFlash { get => field ?? throw new InvalidOperationException("The post-credits white flash has not begun."); private set; }
 
     /// <summary>One update of the transition's white wash: a step fewer, stopping at none.</summary>
     internal void FadeWhiteFlash() => WhiteFlash.Fade();
@@ -123,7 +114,7 @@ internal sealed class EndingCreditsRoll
         _stage.LoadColours(EndingColourLoad.RestoredShot);
         _artwork.PostCreditsText.Drop = 0;
         _artwork.PostCreditsText.ClearCopyright();
-        whiteFlash = WhiteWash.FullWhite(updatesPerStep: 1, firstStepUpdate: 1);
+        WhiteFlash = WhiteWash.FullWhite(updatesPerStep: 1, firstStepUpdate: 1);
         _stage.PhaseTimer = EndingPostShotDefinitions.FadeFrames;
         _stage.Phase = EndingCreditsPhase.PostCreditsWhiteFlash;
     }
@@ -161,7 +152,7 @@ internal sealed class EndingCreditsRoll
     /// <summary>Starts the reward colour fade from its start and shows it there.</summary>
     internal void StartRewardFade()
     {
-        rewardFade = new PacedFadeSteps(EndingCadenceDefinitions.RewardColourFadeSteps, EndingCadenceDefinitions.RewardColourUpdatesPerStep,
+        RewardFade = new PacedFadeSteps(EndingCadenceDefinitions.RewardColourFadeSteps, EndingCadenceDefinitions.RewardColourUpdatesPerStep,
             firstStepUpdate: EndingCadenceDefinitions.RewardColourUpdatesPerStep);
         ShowRewardFade();
     }

@@ -1,5 +1,4 @@
 using SuperMetroid.TestSupport.RoomHeaderImport;
-using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Rooms.LookupRoomStateSettingsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;

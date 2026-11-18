@@ -61,14 +61,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         if (_places.FindFreePlace() is not { } babyPlace)
             return;
 
-        RoomEnemyPlacement population =
-            MotherBrainBabyMetroidDefinitions.SpawnPopulation;
-        if (population.DefinitionId != EnemyDefinitionId.BabyMetroidCutscene)
-        {
-            throw new InvalidDataException(
-                "Mother Brain Baby population entry " +
-                $"names enemy {population.DefinitionId}, not BabyMetroidCutscene.");
-        }
+        RoomEnemyPlacement population = MotherBrainBabyMetroidDefinitions.SpawnPopulation;
 
         RoomEnemyDefinition definition = _room.Definitions.ReadEnemyDefinition(population.DefinitionId);
         _lifecycle.InitializePlaceFromDefinition(babyPlace, population, definition);
@@ -126,12 +119,6 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         MotherBrainEnemyState state = place.RequireSpeciesState<MotherBrainEnemyState>();
         BabyMetroidCutsceneState baby = state.BabyMetroid ??
             throw new InvalidOperationException("The Baby has no cutscene state.");
-        if (!ReferenceEquals(place, state.BabyMetroidPlace))
-        {
-            throw new InvalidDataException(
-                $"Baby state names place {state.BabyMetroidPlace?.Ordinal}, but the Baby's step " +
-                $"ran place {place.Ordinal}.");
-        }
 
         MotherBrainRainbowBeamAttackSequence sequence = state.RainbowBeamSequence ??
             throw new InvalidOperationException("The cutscene Baby lost the rainbow sequence.");

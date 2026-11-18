@@ -22,7 +22,7 @@ internal static class MotherBrainGlassStageDefinitions
     /// <summary>The nine stages in order; the image after the last is <see cref="ShatteredImage"/>.</summary>
     internal static IReadOnlyList<MotherBrainGlassStage> Stages { get; } =
     [
-        new(MotherBrainGlassDraw.Initial, 2, null),
+        new(MotherBrainGlassDraw.Intact, 2, null),
         new(MotherBrainGlassDraw.PaneCracked, 4, null),
         new(MotherBrainGlassDraw.PaneCrackedThrough, 6, new(
             [MotherBrainGlassShard.Right, MotherBrainGlassShard.Right, MotherBrainGlassShard.Right, MotherBrainGlassShard.Right],

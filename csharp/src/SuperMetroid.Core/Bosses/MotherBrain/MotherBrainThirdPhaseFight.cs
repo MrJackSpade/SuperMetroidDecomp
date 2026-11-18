@@ -102,9 +102,7 @@ internal sealed class MotherBrainThirdPhaseFight
                 return;
 
             case MotherBrainPhase3WalkingPhase.RetreatQuickly:
-                MotherBrainWalkResult quickRetreat =
-                    _state.RequestWalkBackward(Phase3TargetXPosition, MotherBrainWalkSpeed.ReallyFast);
-                if (!quickRetreat.ReachedTarget)
+                if (!_state.RequestWalkBackward(Phase3TargetXPosition, MotherBrainWalkSpeed.ReallyFast))
                     return;
 
                 // Reaching the first target picks another point a retreat's step left; the slow retreat to it starts
@@ -114,9 +112,7 @@ internal sealed class MotherBrainThirdPhaseFight
                 return;
 
             case MotherBrainPhase3WalkingPhase.RetreatSlowly:
-                MotherBrainWalkResult slowRetreat =
-                    _state.RequestWalkBackward(Phase3TargetXPosition, MotherBrainWalkSpeed.Fast);
-                if (!slowRetreat.ReachedTarget)
+                if (!_state.RequestWalkBackward(Phase3TargetXPosition, MotherBrainWalkSpeed.Fast))
                     return;
 
                 // She goes back to inching forward with a credit of 64 toward a point one pixel ahead.

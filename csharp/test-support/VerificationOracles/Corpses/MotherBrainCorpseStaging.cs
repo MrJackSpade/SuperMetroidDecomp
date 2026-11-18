@@ -1,5 +1,5 @@
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
-using static SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainCorpseArtworkDefinitions;
+using static SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainCorpseSheet;
 
 namespace SuperMetroid.TestSupport.VerificationOracles;
 

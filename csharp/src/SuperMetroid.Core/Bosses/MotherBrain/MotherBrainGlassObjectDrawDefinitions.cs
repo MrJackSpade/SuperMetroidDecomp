@@ -137,7 +137,7 @@ internal static class MotherBrainGlassObjectDrawDefinitions
     /// <summary>The block shape each of the eleven glass frames draws.</summary>
     internal static readonly Dictionary<MotherBrainGlassDraw, RoomBlockShape> Shapes = new()
     {
-        [MotherBrainGlassDraw.Initial] = Intact,
+        [MotherBrainGlassDraw.Intact] = Intact,
         [MotherBrainGlassDraw.PaneCracked] = DamagedPane,
         [MotherBrainGlassDraw.PaneCrackedThrough] = DamagedPane,
         [MotherBrainGlassDraw.PaneTransition] = GivingWayPane,

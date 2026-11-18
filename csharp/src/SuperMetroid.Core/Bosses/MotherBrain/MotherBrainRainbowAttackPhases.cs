@@ -226,8 +226,7 @@ internal sealed class MotherBrainRainbowAttackPhases
     /// </summary>
     internal bool BackAwayToCharge()
     {
-        MotherBrainWalkResult retract = _state.RequestWalkBackward(MotherBrainFightDefinitions.BackOfRoomX, MotherBrainWalkSpeed.ReallySlow);
-        if (retract.ReachedTarget)
+        if (_state.RequestWalkBackward(MotherBrainFightDefinitions.BackOfRoomX, MotherBrainWalkSpeed.ReallySlow))
         {
             _state.RetractHead();
             Encounter.RainbowPhase = MotherBrainRainbowPhase.WaitForCharge;

@@ -43,10 +43,10 @@ internal sealed class MotherBrainDrainedByBabyPhases
             return;
         }
 
-        MotherBrainWalkResult walk = PainfulWalkingForward
+        bool reached = PainfulWalkingForward
             ? _state.RequestWalkForward(MotherBrainFightDefinitions.StaggerFrontX, PainfulWalkingSpeed)
             : _state.RequestWalkBackward(MotherBrainFightDefinitions.BackOfRoomX, PainfulWalkingSpeed);
-        if (walk.ReachedTarget)
+        if (reached)
             PainfulWalkingPauseTimer = WalkedStage.Entry.PauseUpdates;
     }
 
@@ -149,8 +149,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
     internal bool RetreatToBackOfRoom()
     {
         // The walk back is the really-slow backward walk, the painful walk's last animation.
-        MotherBrainWalkResult moveToBack = _state.RequestWalkBackward(MotherBrainFightDefinitions.BackOfRoomX, MotherBrainWalkSpeed.ReallySlow);
-        if (moveToBack.ReachedTarget)
+        if (_state.RequestWalkBackward(MotherBrainFightDefinitions.BackOfRoomX, MotherBrainWalkSpeed.ReallySlow))
         {
             Encounter.DrainedPhase = MotherBrainDrainedPhase.GoIntoLowPowerMode;
             Encounter.UpperNeckMovement = MotherBrainNeckMovement.None;

@@ -148,8 +148,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         Encounter.Body.Contact = Encounter.Body.Contact.With(EnemyContact.IgnoresSamus);
         Encounter.Head.Contact = Encounter.Head.Contact.With(EnemyContact.IgnoresSamus);
         Encounter.HitboxesEnabled = MotherBrainHitboxParts.None;
-        MotherBrainWalkResult dyingRetreat = _state.RequestWalkBackward(MotherBrainFightDefinitions.BackOfRoomX, MotherBrainWalkSpeed.Medium);
-        if (dyingRetreat.ReachedTarget)
+        if (_state.RequestWalkBackward(MotherBrainFightDefinitions.BackOfRoomX, MotherBrainWalkSpeed.Medium))
         {
             Encounter.DeathPhase = MotherBrainDeathPhase.IdleWhilstExploding;
             Encounter.PhaseTimer.LastFor(MotherBrainLateFightDefinitions.IdleExplodingUpdates);
@@ -181,8 +180,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         // stumble's target still starts a whole step; only passing it, or reaching the arena's front limit, ends it.
         GenerateDeathExplosions(
             style: MotherBrainDeathExplosionStyle.Smoky, frame.NextRandomNumber, requests.DeathExplosions);
-        MotherBrainWalkResult dyingAdvance = _state.RequestWalkForward(MotherBrainLateFightDefinitions.DyingStumbleX, MotherBrainWalkSpeed.ReallyFast);
-        if (dyingAdvance.ReachedTarget)
+        if (_state.RequestWalkForward(MotherBrainLateFightDefinitions.DyingStumbleX, MotherBrainWalkSpeed.ReallyFast))
         {
             _state.SetHeadAnimation(MotherBrainHeadSegment.DyingDrool);
             Encounter.LowerNeckMovement = MotherBrainNeckMovement.Lower;

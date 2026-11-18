@@ -42,7 +42,7 @@ public static class MotherBrainDeathDefinitions
     public const int DoorDustYOffset = 4;
 
     /// <summary>The dust an expiring door fragment leaves.</summary>
-    public const DustExplosionAnimation DoorDustParameter = DustExplosionAnimation.SmallDustCloud;
+    public const DustExplosionAnimation DoorFragmentDust = DustExplosionAnimation.SmallDustCloud;
 
     /// <summary>The screen position of the escape subtitle.</summary>
     public const int SubtitleX = 128, SubtitleY = 192;

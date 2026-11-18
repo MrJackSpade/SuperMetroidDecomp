@@ -234,12 +234,6 @@ internal sealed class PhantoonCombat
         /// </summary>
         private void RequestPhantoonFlameDrop(EnemyProjectile flame, SamusState samus)
         {
-            if (flame.Kind != RoomEnemyProjectileKind.PhantoonDestroyableFlame)
-            {
-                throw new InvalidOperationException(
-                    $"Projectile {flame.Kind} reached Phantoon's flame drop step.");
-            }
-
             RoomEnemyDefinition eye = room.Definitions.ReadEnemyDefinition(EnemyDefinitionId.PhantoonEye);
             deathsAndDrops.SpawnEnemyDropFromChanceTable(
                 flame.Position.Whole,
@@ -396,7 +390,7 @@ internal sealed class PhantoonCombat
             {
                 // A vulnerable hit draws a random number whose only effect is to advance the shared random
                 // sequence.
-                _ = _room.Random.Next(PhantoonRandomDefinitions.ShotPattern);
+                _ = _room.Random.Next(PhantoonRandomDefinitions.VulnerableHitDraw);
                 state.Round.RearmHurtFlash();
                 if (!state.Swoop.Requested)
                 {

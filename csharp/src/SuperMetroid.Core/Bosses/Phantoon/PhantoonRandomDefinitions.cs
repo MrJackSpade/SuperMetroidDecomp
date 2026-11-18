@@ -7,7 +7,7 @@ internal static class PhantoonRandomDefinitions
     internal static readonly RandomSampleField VulnerableWindowChoice = new(0, 3);
 
     /// <summary>The draw a hit in the vulnerable window makes, which nothing then reads.</summary>
-    internal static readonly RandomSampleField ShotPattern = new(0, 3);
+    internal static readonly RandomSampleField VulnerableHitDraw = new(0, 3);
 
     /// <summary>Whether the figure eight after the eye closes runs reversed: taken by an odd sample.</summary>
     internal static readonly RandomSampleField FigureEightReversed = new(0, 1);

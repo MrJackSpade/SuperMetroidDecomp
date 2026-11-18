@@ -78,7 +78,8 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
         AssertEqual((counterBeforeGate + 1) % ZebetitePulse.All.Count, Counter(selected),
             "the Zebetite pulse steps again once the door fade completes");
         counterBeforeGate = Counter(selected);
-        (selected.Places.InUpdateOrder[0].SpeciesState<ZebetiteEnemyState>() ?? throw new InvalidOperationException("Verification requires the primary Zebetite state.")).IsSecondaryHalf = true;
+        // The place now holds a linked half, which the pulse skips.
+        selected.Places.InUpdateOrder[0].SetSpeciesState(new ZebetiteEnemyState(Zebetites.SpawnPopulation(ZebetiteHalf.Linked)));
         Cycle(selected);
         AssertEqual(counterBeforeGate, Counter(selected),
             "Zebetite secondary-half gate remains an engine-owned condition");

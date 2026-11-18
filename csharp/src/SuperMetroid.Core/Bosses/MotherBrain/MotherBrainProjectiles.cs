@@ -360,7 +360,7 @@ internal sealed class MotherBrainProjectiles
             if (fragmentState.Lifetime.StepKeepsRunning()) return;
             Position16<RoomPixels> dust = fragment.Position.Whole - new Offset16<RoomPixels>(0, MotherBrainDeathDefinitions.DoorDustYOffset);
             fragment.Delete();
-            dependencies.Projectiles.SpawnDustOrExplosion(dust, MotherBrainDeathDefinitions.DoorDustParameter);
+            dependencies.Projectiles.SpawnDustOrExplosion(dust, MotherBrainDeathDefinitions.DoorFragmentDust);
         }
 
         /// <summary>Moves the four falling ceiling-tube pieces.</summary>
@@ -717,13 +717,6 @@ internal sealed class MotherBrainProjectiles
     /// </summary>
     public void SpawnMotherBrainGlassProjectile(MotherBrainGlassProjectileRequest request)
     {
-        if (request.Kind != RoomEnemyProjectileKind.MotherBrainGlassShard)
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(request),
-                $"Mother Brain glass requested unsupported projectile {request.Kind}.");
-        }
-
         EnemyProjectile? shard = _projectiles.AllocateEnemyProjectile();
         if (shard is null)
             return; // The shard is lost when the room has no place left for an enemy projectile.

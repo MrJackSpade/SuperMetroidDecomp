@@ -1,4 +1,4 @@
-using static SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainCorpseArtworkDefinitions;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
@@ -7,6 +7,12 @@ public static class MotherBrainCorpseSheet
 {
     /// <summary>3072 bytes, covering every corpse page.</summary>
     public const int ByteCount = 3072;
+
+    /// <summary>
+    /// The corpse's eight-pixel rows of the right-hand corpse frame the corpse copy extracts, one page each: its visible
+    /// pixel rows (<see cref="MotherBrainCorpseArtworkDefinitions.PixelRowCount"/>), eight to a row.
+    /// </summary>
+    public const int RowCount = MotherBrainCorpseArtworkDefinitions.PixelRowCount / 8;
 
     /// <summary>Indexed four-bit tile sheet independent of the ordinary ED7F enemy sheet.</summary>
     public const string FileName = "mother-brain-corpse-tiles.png";

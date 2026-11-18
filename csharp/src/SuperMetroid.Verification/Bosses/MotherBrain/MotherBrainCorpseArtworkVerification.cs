@@ -45,7 +45,7 @@ internal static class MotherBrainCorpseArtworkVerification
         // Only the oracle/import above receives cartridge bytes. Production transfers and
         // staging run against the same cartridge-incapable memory type as installed games.
         byte[] stockCharacters = TransferMotherBrainCorpsePages(stock);
-        for (int page = 0; page < MotherBrainCorpseArtworkDefinitions.RowCount; page++)
+        for (int page = 0; page < SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainCorpseSheet.RowCount; page++)
         {
             int sourceOffset = MotherBrainCorpseSheet.PageOffset(page);
             int shownOffset = MotherBrainCorpseSheet.PageFirstCharacter(page) * RoomCharacterAtlasFormat.BytesPerTile;
@@ -83,7 +83,7 @@ internal static class MotherBrainCorpseArtworkVerification
         ImportEnemyArtwork artwork)
     {
         int corpse = EncounterLookUploads.IndexOf(ComposedEncounter.MotherBrain, EncounterLookUploads.MotherBrainCorpseLook);
-        AssertEqual(MotherBrainCorpseArtworkDefinitions.RowCount,
+        AssertEqual(SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainCorpseSheet.RowCount,
             EncounterLookUploads.Uploads(ComposedEncounter.MotherBrain, corpse, new EnemyTileTransfers(artwork)).Count,
             "her corpse's look copies one page a corpse row");
         return new ObjCharacterTablePage().Page(EncounterArtworkPlacements.Of(ComposedEncounter.MotherBrain, [corpse], new EnemyTileTransfers(artwork)),
@@ -95,7 +95,7 @@ internal static class MotherBrainCorpseArtworkVerification
     private static void AssertMotherBrainCorpseStagingParity(NativeEnemyStaging expected, CorpseStaging actual)
     {
         StagingByteView expectedTiles = expected.MotherBrainCorpseTiles;
-        for (int row = 0; row < MotherBrainCorpseArtworkDefinitions.RowCount; row++)
+        for (int row = 0; row < SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainCorpseSheet.RowCount; row++)
         {
             byte[] staged = actual.Upload(new CorpseRotRow(row, CorpseWorkMemory.CorpseRottingHeap + row * MotherBrainCorpseStaging.RowBytes,
                 MotherBrainCorpseStaging.InitialCopyLength(row), 0));

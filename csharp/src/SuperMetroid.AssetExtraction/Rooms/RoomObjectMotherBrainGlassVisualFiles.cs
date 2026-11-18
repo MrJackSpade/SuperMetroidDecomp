@@ -43,7 +43,7 @@ public static class RoomObjectMotherBrainGlassVisualFiles
         RoomObjectShapeRun[] pane = [RoomObjectShapeRun.Column(origin, 4), RoomObjectShapeRun.Column(new(-1, 1), 2)];
         var runs = new Dictionary<MotherBrainGlassDraw, RoomObjectShapeRun[]>
         {
-            [MotherBrainGlassDraw.Initial] = [RoomObjectShapeRun.Row(origin, 1)],
+            [MotherBrainGlassDraw.Intact] = [RoomObjectShapeRun.Row(origin, 1)],
             [MotherBrainGlassDraw.PaneCracked] = pane,
             [MotherBrainGlassDraw.PaneCrackedThrough] = pane,
             [MotherBrainGlassDraw.PaneTransition] = [RoomObjectShapeRun.Column(origin, 3)],

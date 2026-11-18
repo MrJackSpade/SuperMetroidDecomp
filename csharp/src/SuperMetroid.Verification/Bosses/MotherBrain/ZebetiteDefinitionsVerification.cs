@@ -34,8 +34,8 @@ internal static class ZebetiteDefinitionsVerification
                 // The unhurt health list: the one showing the form's picture at full health.
                 ZebetiteList(definition.Form, 1000),
                 checked((ushort)definition.X),
-                checked((ushort)Zebetites.YPosition(definition, linkedHalf: false)),
-                checked((ushort)Zebetites.YPosition(definition, linkedHalf: true)),
+                checked((ushort)Zebetites.YPosition(definition, ZebetiteHalf.Primary)),
+                checked((ushort)Zebetites.YPosition(definition, ZebetiteHalf.Linked)),
             ];
             for (int field = 0; field < actual.Length; field++)
             {
@@ -111,7 +111,7 @@ internal static class ZebetiteDefinitionsVerification
                 $"production Zebetite generation {generation} picture");
             AssertEqual(expected.X, place.Position.X.Whole,
                 $"production Zebetite generation {generation} X");
-            AssertEqual(Zebetites.YPosition(expected, linkedHalf), place.Position.Y.Whole,
+            AssertEqual(Zebetites.YPosition(expected, linkedHalf ? ZebetiteHalf.Linked : ZebetiteHalf.Primary), place.Position.Y.Whole,
                 $"production Zebetite generation {generation} Y");
 
             foreach (ushort health in healthSamples)

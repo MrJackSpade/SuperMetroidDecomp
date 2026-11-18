@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal enum MotherBrainGlassDraw
 {
     /// <summary>The intact glass block.</summary>
-    Initial,
+    Intact,
     /// <summary>The pane cracked from its right edge.</summary>
     PaneCracked,
     /// <summary>The pane's cracks reaching across it.</summary>

@@ -88,7 +88,7 @@ internal static class RoomObjectVisualIdDefinitions
     /// <summary>Each glass state's editable presentation frame name.</summary>
     internal static readonly Dictionary<MotherBrainGlassDraw, string> MotherBrainGlass = new()
     {
-        [MotherBrainGlassDraw.Initial] = "initial",
+        [MotherBrainGlassDraw.Intact] = "initial",
         [MotherBrainGlassDraw.PaneCracked] = "pane-cracked",
         [MotherBrainGlassDraw.PaneCrackedThrough] = "pane-cracked-through",
         [MotherBrainGlassDraw.PaneTransition] = "pane-transition",

@@ -469,7 +469,8 @@ internal sealed class SuperMetroidRuntime
         // demo create her before their first room loads, and a room load replaces the room whole.
         RoomScope room = Room.LoadedScope;
         SamusState samus = Player.IntroducedSamus;
-        RebindRoutingReferences(room, samus);
+        // The Chozo statue objects an earlier update asked for are placed at the frame's entry, before any producer runs.
+        EnemyRoomEffects.ApplyPendingChozoStatueObjects(EnemyRoomEffectSite.Of(room, samus));
         // An open message box runs its own updates inside the suspended gameplay update:
         // the frame boundary latches no input and no random number is drawn nor owner run.
         if (MessageBox.IsActive)
@@ -499,14 +500,6 @@ internal sealed class SuperMetroidRuntime
             return;
         }
         FinishGameplayFrame(tail, frameRequest.Policy, infiniteAmmoGuard, room, samus);
-    }
-
-    /// <summary>Points the cross-owner routing at this frame's room owners and Samus, then applies pending Chozo statue room objects.</summary>
-    private void RebindRoutingReferences(RoomScope room, SamusState samus)
-    {
-        // Samus and the room's owners are made on separate paths, so the frame's entry, before any producer executes,
-        // is where both exist to be connected.
-        EnemyRoomEffects.ApplyPendingChozoStatueObjects(EnemyRoomEffectSite.Of(room, samus));
     }
 
     /// <summary>Marks the frame's impacts as gameplay's, runs the accepted-frame boundary and the host's post-boundary work, and chooses the screen layers.</summary>

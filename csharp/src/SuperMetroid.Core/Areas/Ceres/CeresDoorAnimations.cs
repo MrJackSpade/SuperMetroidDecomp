@@ -19,7 +19,7 @@ internal static class CeresDoorAnimations
         [
             Cue(new(K.MakeIntangible)),
             Cue(new(K.MakeInvisible)),
-            Show(EnemyFrameId.CeresDoorFacingRightOpen, 2),
+            Wait(2),
             Cue(new(K.MakeTangible)),
             Cue(new(K.MakeVisible)),
             Show(EnemyFrameId.CeresDoorFacingRightOpen, 2),
@@ -32,7 +32,7 @@ internal static class CeresDoorAnimations
         ],
         [P.RidleyRoomDoorWait] =
         [
-            Show(EnemyFrameId.CeresDoorFacingRightClosed, 2),
+            Wait(2),
             Cue(new(K.RidleyRoomDoorWaits)),
             Cue(new(K.MakeVisibleAndTakeDrawingBack)),
         ],
@@ -40,12 +40,12 @@ internal static class CeresDoorAnimations
         [
             Cue(new(K.MakeIntangible)),
             Cue(new(K.MakeInvisible)),
-            Show(EnemyFrameId.CeresDoorFacingRightClosed, 2),
+            Wait(2),
             Cue(new(K.RightDoorAppears)),
         ],
         [P.OpenFacingRight] =
         [
-            Show(EnemyFrameId.CeresDoorFacingRightOpen, 2),
+            Wait(2),
             Cue(new(K.RightDoorStandsOpen)),
         ],
         [P.CloseFacingRight] =
@@ -78,12 +78,12 @@ internal static class CeresDoorAnimations
         [
             Cue(new(K.MakeIntangible)),
             Cue(new(K.MakeInvisible)),
-            Show(EnemyFrameId.CeresDoorFacingRightClosed, 2),
+            Wait(2),
             Cue(new(K.LeftDoorAppears)),
         ],
         [P.OpenFacingLeft] =
         [
-            Show(EnemyFrameId.CeresDoorFacingLeftClosed, 2),
+            Wait(2),
             Cue(new(K.LeftDoorStandsOpen)),
         ],
         [P.CloseFacingLeft] =
@@ -122,7 +122,6 @@ internal static class CeresDoorAnimations
             Cue(new(K.ElevatorRoomWallAppears)),
             Cue(new(K.MakeTangible)),
             Cue(new(K.MakeInvisible)),
-            Hold(EnemyFrameId.CeresDoorFacingLeftClosed),
         ],
         [P.GetawayChamberLeftWall] =
         [
@@ -138,25 +137,26 @@ internal static class CeresDoorAnimations
 
     /// <summary>
     /// The animation that starts at each segment an owner starts, at the door's start or on a waiting door's event. An open door is only reached
-    /// from the segment before it, and the elevator room's door and walls and the getaway chamber's walls rest on their
-    /// picture for good once their setup has run.
+    /// from the segment before it. The elevator room's blocked door and the getaway chamber's walls rest on their picture
+    /// for good once their setup has run, and the elevator room's wall, once Ridley has escaped, stands unseen for good.
+    /// Each phase plays every beat of its segment (#2424).
     /// </summary>
     internal static IReadOnlyDictionary<CeresDoorSegment, Animation<CeresDoorSegment>> StartingAt { get; } = new Dictionary<CeresDoorSegment, Animation<CeresDoorSegment>>
     {
-        [P.RidleyRoomDoor] = Animation<CeresDoorSegment>.LeadingInto([new(P.RidleyRoomDoor, 0, 12, 1), new(P.RidleyRoomDoorWait, 0, 3, 1), new(P.ClosedFacingRight, 0, 2, 1), new(P.ClosedFacingRightWait, 0, 9, 1)], [new(P.OpenFacingRight, 0, 2, 1)]),
-        [P.RidleyRoomDoorWait] = Animation<CeresDoorSegment>.LeadingInto([new(P.RidleyRoomDoorWait, 0, 3, 1), new(P.ClosedFacingRight, 0, 2, 1), new(P.ClosedFacingRightWait, 0, 9, 1)], [new(P.OpenFacingRight, 0, 2, 1)]),
-        [P.DoorFacingRight] = Animation<CeresDoorSegment>.LeadingInto([new(P.DoorFacingRight, 0, 4, 1)], [new(P.OpenFacingRight, 0, 2, 1)]),
-        [P.CloseFacingRight] = Animation<CeresDoorSegment>.LeadingInto([new(P.CloseFacingRight, 0, 6, 1), new(P.ClosedFacingRight, 0, 2, 1), new(P.ClosedFacingRightWait, 0, 9, 1)], [new(P.OpenFacingRight, 0, 2, 1)]),
-        [P.ClosedFacingRight] = Animation<CeresDoorSegment>.LeadingInto([new(P.ClosedFacingRight, 0, 2, 1), new(P.ClosedFacingRightWait, 0, 9, 1)], [new(P.OpenFacingRight, 0, 2, 1)]),
-        [P.ClosedFacingRightWait] = Animation<CeresDoorSegment>.LeadingInto([new(P.ClosedFacingRightWait, 0, 9, 1)], [new(P.OpenFacingRight, 0, 2, 1)]),
-        [P.DoorFacingLeft] = Animation<CeresDoorSegment>.LeadingInto([new(P.DoorFacingLeft, 0, 4, 1)], [new(P.OpenFacingLeft, 0, 2, 1)]),
-        [P.CloseFacingLeft] = Animation<CeresDoorSegment>.LeadingInto([new(P.CloseFacingLeft, 0, 6, 1), new(P.ClosedFacingLeft, 0, 2, 1), new(P.ClosedFacingLeftWait, 0, 9, 1)], [new(P.OpenFacingLeft, 0, 2, 1)]),
-        [P.ClosedFacingLeft] = Animation<CeresDoorSegment>.LeadingInto([new(P.ClosedFacingLeft, 0, 2, 1), new(P.ClosedFacingLeftWait, 0, 9, 1)], [new(P.OpenFacingLeft, 0, 2, 1)]),
-        [P.ClosedFacingLeftWait] = Animation<CeresDoorSegment>.LeadingInto([new(P.ClosedFacingLeftWait, 0, 9, 1)], [new(P.OpenFacingLeft, 0, 2, 1)]),
-        [P.ElevatorDoor] = new([new(P.ElevatorDoor, 0, 2, 1)], AnimationEnd.Holds),
-        [P.ElevatorRoomWall] = new([new(P.ElevatorRoomWall, 0, 4, 1)], AnimationEnd.Holds),
-        [P.GetawayChamberLeftWall] = new([new(P.GetawayChamberLeftWall, 0, 2, 1)], AnimationEnd.Holds),
-        [P.GetawayChamberRightWall] = new([new(P.GetawayChamberRightWall, 0, 2, 1)], AnimationEnd.Holds),
+        [P.RidleyRoomDoor] = Animation<CeresDoorSegment>.LeadingInto([Segments.Whole(P.RidleyRoomDoor), Segments.Whole(P.RidleyRoomDoorWait), Segments.Whole(P.ClosedFacingRight), Segments.Whole(P.ClosedFacingRightWait)], [Segments.Whole(P.OpenFacingRight)]),
+        [P.RidleyRoomDoorWait] = Animation<CeresDoorSegment>.LeadingInto([Segments.Whole(P.RidleyRoomDoorWait), Segments.Whole(P.ClosedFacingRight), Segments.Whole(P.ClosedFacingRightWait)], [Segments.Whole(P.OpenFacingRight)]),
+        [P.DoorFacingRight] = Animation<CeresDoorSegment>.LeadingInto([Segments.Whole(P.DoorFacingRight)], [Segments.Whole(P.OpenFacingRight)]),
+        [P.CloseFacingRight] = Animation<CeresDoorSegment>.LeadingInto([Segments.Whole(P.CloseFacingRight), Segments.Whole(P.ClosedFacingRight), Segments.Whole(P.ClosedFacingRightWait)], [Segments.Whole(P.OpenFacingRight)]),
+        [P.ClosedFacingRight] = Animation<CeresDoorSegment>.LeadingInto([Segments.Whole(P.ClosedFacingRight), Segments.Whole(P.ClosedFacingRightWait)], [Segments.Whole(P.OpenFacingRight)]),
+        [P.ClosedFacingRightWait] = Animation<CeresDoorSegment>.LeadingInto([Segments.Whole(P.ClosedFacingRightWait)], [Segments.Whole(P.OpenFacingRight)]),
+        [P.DoorFacingLeft] = Animation<CeresDoorSegment>.LeadingInto([Segments.Whole(P.DoorFacingLeft)], [Segments.Whole(P.OpenFacingLeft)]),
+        [P.CloseFacingLeft] = Animation<CeresDoorSegment>.LeadingInto([Segments.Whole(P.CloseFacingLeft), Segments.Whole(P.ClosedFacingLeft), Segments.Whole(P.ClosedFacingLeftWait)], [Segments.Whole(P.OpenFacingLeft)]),
+        [P.ClosedFacingLeft] = Animation<CeresDoorSegment>.LeadingInto([Segments.Whole(P.ClosedFacingLeft), Segments.Whole(P.ClosedFacingLeftWait)], [Segments.Whole(P.OpenFacingLeft)]),
+        [P.ClosedFacingLeftWait] = Animation<CeresDoorSegment>.LeadingInto([Segments.Whole(P.ClosedFacingLeftWait)], [Segments.Whole(P.OpenFacingLeft)]),
+        [P.ElevatorDoor] = new([Segments.Whole(P.ElevatorDoor)], AnimationEnd.Holds),
+        [P.ElevatorRoomWall] = new([Segments.Whole(P.ElevatorRoomWall)], AnimationEnd.Holds),
+        [P.GetawayChamberLeftWall] = new([Segments.Whole(P.GetawayChamberLeftWall)], AnimationEnd.Holds),
+        [P.GetawayChamberRightWall] = new([Segments.Whole(P.GetawayChamberRightWall)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
@@ -164,6 +164,11 @@ internal static class CeresDoorAnimations
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, CeresDoorCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, CeresDoorCue>.Frame(frame, duration);
+
+    /// <summary>
+    /// Waits <paramref name="duration"/> updates while the door is unseen (#2424): it shows nothing, so it names no picture.
+    /// </summary>
+    private static AnimationBeat<EnemyFrameId, CeresDoorCue> Wait(int duration) => new AnimationBeat<EnemyFrameId, CeresDoorCue>.Pause(duration);
 
     /// <summary>Shows <paramref name="frame"/> for good (#2096): a blocked door or a wall rests on its picture.</summary>
     private static AnimationBeat<EnemyFrameId, CeresDoorCue> Hold(EnemyFrameId frame) => new AnimationBeat<EnemyFrameId, CeresDoorCue>.HeldFrame(frame);

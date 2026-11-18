@@ -49,7 +49,7 @@ internal static class LookupTourianSpawnVerification
                 "Native spawn/handler order");
             // The program oracle proves the entry animation starts at the header's native program pointer.
             AssertEqual<AnimationPlayback<TourianStatueBlockSegment>?>(
-                new AnimationPlayback<TourianStatueBlockSegment>(TourianStatueBlockAnimations.StartingWith(TourianStatueBlockSegment.Entry), AnimationPlace.StartOfAnimation),
+                new AnimationPlayback<TourianStatueBlockSegment>(tile.Animations.StartingWith(TourianStatueBlockSegment.Entry), AnimationPlace.StartOfAnimation),
                 tile.Playback, "Spawned statue starts at its entry animation");
             AssertEqual(1, tile.Timer, "Spawned instruction timer");
         }

@@ -1,10 +1,10 @@
 namespace SuperMetroid.Core.Areas.Ceres;
 
-/// <summary>The Ceres falling tiles' typed animations (#641); each shows its single pose.</summary>
+/// <summary>The Ceres falling debris's typed animations (#641); each shows its piece's one picture for good.</summary>
 internal enum CeresFallingDebrisSegment
 {
-    /// <summary>One pose, then the tile rests.</summary>
+    /// <summary>A light piece.</summary>
     Light,
-    /// <summary>One pose, then the tile rests.</summary>
+    /// <summary>A dark piece.</summary>
     Dark,
 }

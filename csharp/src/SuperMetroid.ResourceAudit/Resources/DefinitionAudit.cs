@@ -65,6 +65,10 @@ internal static class DefinitionAudit
         foreach (string name in EnemyProjectileSpritemapDefinitions.FrameNames)
             exports.Add(ResourceDomains.EnemyProjectileSprite, ResourceIndex.Address(ResourceBanks.ProjectileOamAndPaletteFx,
                 EnemyProjectileCompositionSources.Spritemap(EnemyProjectileFrames.Identity(name))));
+        // The Ceres elevator arrival's pictures are composed from the same bank (#2425).
+        foreach (SuperMetroid.Core.Areas.Ceres.CeresElevatorArrivalPose pose in EnemyProjectileSpritemapDefinitions.ElevatorArrivalFrameNames.Keys)
+            exports.Add(ResourceDomains.EnemyProjectileSprite, ResourceIndex.Address(ResourceBanks.ProjectileOamAndPaletteFx,
+                EnemyProjectileCompositionSources.ElevatorArrivalSpritemap(pose)));
         // This is an explicit zero-part definition, not a missing art fallback.
         exports.Add(ResourceDomains.EnemyProjectileSprite,
             ResourceIndex.Address(ResourceBanks.ProjectileOamAndPaletteFx, EnemyProjectileCompositionDefinitions.BlankSpritemap));

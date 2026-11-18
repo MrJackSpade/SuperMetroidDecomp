@@ -72,16 +72,22 @@ public sealed class TourianStatueSequence
     }
 
     /// <summary>One spawned statue animation's definition, animation playback, and frame timer.</summary>
-    internal sealed class StatueBlockAnimation(TourianStatueAnimationDefinition definition)
+    internal sealed class StatueBlockAnimation
     {
+        /// <summary>Starts the statue of <paramref name="definition"/> at its entry animation.</summary>
+        public StatueBlockAnimation(TourianStatueAnimationDefinition definition)
+        {
+            Definition = definition;
+            Animations = new TourianStatueBlockAnimations(definition.FirstFrameDuration);
+            Playback = new AnimationPlayback<TourianStatueBlockSegment>(Animations.StartingWith(TourianStatueBlockSegment.Entry), AnimationPlace.StartOfAnimation);
+        }
+
         /// <summary>The statue's animation and the values its events act on.</summary>
-        public TourianStatueAnimationDefinition Definition { get; } = definition;
-        /// <summary>The statue's typed animation segments, built once for its first-frame duration.</summary>
-        public AnimationSegments<TourianStatueBlockSegment, TourianStatueBlockPicture, TourianStatueBlockCue> Segments { get; } =
-            TourianStatueBlockAnimations.SegmentsFor(definition.FirstFrameDuration);
+        public TourianStatueAnimationDefinition Definition { get; }
+        /// <summary>The statue's typed animations, built once for its first-frame duration.</summary>
+        public TourianStatueBlockAnimations Animations { get; }
         /// <summary>The statue's animation and where it stands in it; null once the animation has ended and the object is deleted.</summary>
-        public AnimationPlayback<TourianStatueBlockSegment>? Playback { get; private set; } =
-            new AnimationPlayback<TourianStatueBlockSegment>(TourianStatueBlockAnimations.StartingWith(TourianStatueBlockSegment.Entry), AnimationPlace.StartOfAnimation);
+        public AnimationPlayback<TourianStatueBlockSegment>? Playback { get; private set; }
         /// <summary>Remaining duration of the current statue frame.</summary>
         public int Timer { get; private set; } = 1;
 
@@ -189,8 +195,9 @@ public sealed class TourianStatueSequence
             TourianStatueAnimationDefinition definition = statueAnimation.Definition;
             Animation<TourianStatueBlockSegment> animation = playback.Animation;
             AnimationPlace place = playback.Place;
-            AnimationShown<TourianStatueBlockSegment, TourianStatueBlockPicture> shown = statueAnimation.Segments.PlayToNextFrame(
-                ref animation, ref place, cue => RunCue(definition, cue));
+            TourianStatueBlockAnimations animations = statueAnimation.Animations;
+            AnimationShown<TourianStatueBlockSegment, TourianStatueBlockPicture> shown = animations.Segments.PlayToNextFrame(
+                ref animation, ref place, cue => RunCue(definition, animations, cue));
             switch (shown)
             {
                 case AnimationShown<TourianStatueBlockSegment, TourianStatueBlockPicture>.Frame frame:
@@ -208,7 +215,7 @@ public sealed class TourianStatueSequence
 
         // Carries out one event with the statue's values; an event whose condition holds returns the animation the statue starts.
         AnimationContinuation<TourianStatueBlockSegment>? RunCue(
-            TourianStatueAnimationDefinition definition, TourianStatueBlockCue cue)
+            TourianStatueAnimationDefinition definition, TourianStatueBlockAnimations animations, TourianStatueBlockCue cue)
         {
             ITourianStatueActors statue = _statue;
             switch (cue.Kind)
@@ -217,14 +224,14 @@ public sealed class TourianStatueSequence
                     statue.Animation.Animating |= definition.Statue;
                     return null;
                 case TourianStatueBlockCueKind.MayAlreadyBeGrey:
-                    return _system.HasEvent(definition.GreyEvent) ? Start(AlreadyGreyAnimation) : null;
+                    return _system.HasEvent(definition.GreyEvent) ? Start(animations, AlreadyGreyAnimation) : null;
                 case TourianStatueBlockCueKind.MayBeReleased:
-                    return _system.HasDefeatedAnyOf(definition.BossArea, definition.DefeatedBosses) ? Start(ReleaseAnimation) : null;
+                    return _system.HasDefeatedAnyOf(definition.BossArea, definition.DefeatedBosses) ? Start(animations, ReleaseAnimation) : null;
                 case TourianStatueBlockCueKind.ClearAnimating:
                     statue.Animation.Animating &= ~definition.Statue;
                     return null;
                 case TourianStatueBlockCueKind.MayWaitItsTurn:
-                    return statue.Animation.ReleaseInProgress ? Start(WaitingAnimation) : null;
+                    return statue.Animation.ReleaseInProgress ? Start(animations, WaitingAnimation) : null;
                 case TourianStatueBlockCueKind.ClaimRelease:
                     statue.Animation.ReleaseInProgress = true;
                     return null;
@@ -276,8 +283,8 @@ public sealed class TourianStatueSequence
             }
         }
 
-        static AnimationContinuation<TourianStatueBlockSegment> Start(TourianStatueBlockSegment animation) =>
-            new(TourianStatueBlockAnimations.StartingWith(animation), AnimationPlace.StartOfAnimation);
+        static AnimationContinuation<TourianStatueBlockSegment> Start(TourianStatueBlockAnimations animations, TourianStatueBlockSegment animation) =>
+            new(animations.StartingWith(animation), AnimationPlace.StartOfAnimation);
     }
 
     /// <summary>The animation a statue that is already grey starts, finishing grey (#2189).</summary>

@@ -73,7 +73,7 @@ internal static class CommonSpawnerPresenceDefinitions
     /// <summary>The escape rooms that set off random explosions.</summary>
     private static readonly CommonSpawnerPresence EscapeExplosions = new() { Mains = [.. RoomMainBehavior.All.Where(main => main.SetsOffEscapeExplosions)] };
 
-    /// <summary>The Ceres elevator's arrival pad and platform.</summary>
+    /// <summary>The Ceres elevator's arrival pad and platform, in the concealer's shade (#2425).</summary>
     private static readonly CommonSpawnerPresence ElevatorArrival = new()
     {
         Mains = CeresElevator, Shades = [CommonSpawnerShades.CeresElevatorConcealer],
@@ -102,7 +102,6 @@ internal static class CommonSpawnerPresenceDefinitions
     {
         [nameof(EscapeExplosionsBehavior)] = EscapeExplosions,
         [nameof(ZebesEscapeExplosionDefinitions)] = EscapeExplosions,
-        [nameof(TourianUnlockBehavior)] = StatueUnlocking,
         [nameof(TourianStatueActors)] = StatueUnlocking,
         [nameof(EnemyDeathsAndDrops)] = EveryEnemy,
         [nameof(EnemyCollision)] = EveryEnemy,
@@ -127,8 +126,6 @@ internal static class CommonSpawnerPresenceDefinitions
             Mains = [.. FallingDebris, .. CeresElevator], Shades = [CommonSpawnerShades.CeresDoorLooks, CommonSpawnerShades.CeresElevatorConcealer],
         },
         [nameof(CeresElevatorArrivalState)] = ElevatorArrival,
-        [nameof(CeresElevatorArrivalDefinitions)] = ElevatorArrival,
-        [nameof(CeresElevatorArrivalAnimations)] = ElevatorArrival,
         [nameof(RidleyProjectiles)] = RidleyFire,
         [nameof(RidleyTail)] = RidleyGetaway,
         [nameof(CeresRidleyBehavior)] = RidleyGetaway,

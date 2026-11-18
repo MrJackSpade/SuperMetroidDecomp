@@ -6,15 +6,15 @@ namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>A Ceres falling tile's typed animation.</summary>
 internal sealed class CeresFallingDebrisAnimation(CeresFallingDebrisSegment segment)
-    : EnemyProjectileTypedAnimation<CeresFallingDebrisSegment, CeresFallingDebrisSegment, NoAnimationCue>(CeresFallingDebrisAnimations.StartingWith(segment))
+    : EnemyProjectileTypedAnimation<CeresFallingDebrisSegment, CeresFallingDebrisLook, NoAnimationCue>(CeresFallingDebrisAnimations.StartingWith(segment))
 {
     /// <inheritdoc/>
-    private protected override AnimationSegments<CeresFallingDebrisSegment, CeresFallingDebrisSegment, NoAnimationCue> Segments => CeresFallingDebrisAnimations.Segments;
+    private protected override AnimationSegments<CeresFallingDebrisSegment, CeresFallingDebrisLook, NoAnimationCue> Segments => CeresFallingDebrisAnimations.Segments;
 
     /// <inheritdoc/>
     private protected override IReadOnlyDictionary<CeresFallingDebrisSegment, Animation<CeresFallingDebrisSegment>> StartingAt => CeresFallingDebrisAnimations.StartingAt;
 
     /// <inheritdoc/>
-    private protected override EnemyProjectileFrameId Present(CeresFallingDebrisSegment frame) =>
+    private protected override EnemyProjectileFrameId Present(CeresFallingDebrisLook frame) =>
         CeresFallingDebrisVisualDefinitions.ShownProjectileFrames[frame];
 }

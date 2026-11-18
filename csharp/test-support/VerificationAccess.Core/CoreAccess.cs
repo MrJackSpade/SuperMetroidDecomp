@@ -199,11 +199,11 @@ internal static class CoreAccess
     extension(CeresElevatorArrivalState arrival)
     {
         /// <summary>The moving pad, which lowers Samus.</summary>
-        internal CeresElevatorArrivalState.CeresElevatorProjectile Pad =>
-            PrivateState.Field<CeresElevatorArrivalState, CeresElevatorArrivalState.CeresElevatorProjectile>(arrival, "pad");
+        internal CeresElevatorArrivalState.CeresElevatorArrivalActor Pad =>
+            PrivateState.Field<CeresElevatorArrivalState, CeresElevatorArrivalState.CeresElevatorArrivalActor>(arrival, "pad");
         /// <summary>The stationary platform behind the pad.</summary>
-        internal CeresElevatorArrivalState.CeresElevatorProjectile Platform =>
-            PrivateState.Field<CeresElevatorArrivalState, CeresElevatorArrivalState.CeresElevatorProjectile>(arrival, "platform");
+        internal CeresElevatorArrivalState.CeresElevatorArrivalActor Platform =>
+            PrivateState.Field<CeresElevatorArrivalState, CeresElevatorArrivalState.CeresElevatorArrivalActor>(arrival, "platform");
         /// <summary>Whole room position of the moving pad; its X is the X word both projectiles copy from Samus at $86:A313.</summary>
         internal Position16<RoomPixels> PadPosition => arrival.Pad.Position;
         /// <summary>Whole room position of the Ceres elevator's level-data platform.</summary>

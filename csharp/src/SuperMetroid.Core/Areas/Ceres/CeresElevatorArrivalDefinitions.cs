@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 
@@ -7,14 +6,15 @@ namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>
 /// The Ceres elevator arrival's two actors, the moving pad that lowers Samus and the stationary platform that hides the
-/// landing recess: where they start, how long the pad waits and where Samus lands. Frame pictures remain presentation data.
+/// landing recess: where they start, how long the pad waits and where Samus lands. Their pictures are
+/// <see cref="CeresElevatorArrivalPictures"/>.
 /// </summary>
 internal static class CeresElevatorArrivalDefinitions
 {
     /// <summary>
-    /// The graphics both arrival projectiles start with: the shared sheet, as their setup clears them, with the
-    /// level-data concealer's colour cleared to black. A new game clears that colour just before the arrival spawns, so
-    /// the concealer hides the landing recess until both projectiles delete themselves at touchdown.
+    /// The graphics both arrival actors start with: the shared sheet, as their setup clears them, with the
+    /// level-data concealer's colour cleared to black. A new game clears that colour just before the arrival starts, so
+    /// the concealer hides the landing recess until both actors leave at touchdown.
     /// </summary>
     internal static SpriteGraphics StartingGraphics { get; } =
         SpriteGraphics.SharedIn(PictureShading.Shaded(CeresElevatorShades.ConcealerCleared));
@@ -36,13 +36,4 @@ internal static class CeresElevatorArrivalDefinitions
     /// <see cref="LandingSamusY"/>.
     /// </summary>
     internal const int LandingThresholdY = 73;
-
-    /// <summary>The composition each arrival pose shows.</summary>
-    internal static readonly IReadOnlyDictionary<CeresElevatorArrivalPose, EnemyProjectileFrameId> Frames =
-        new Dictionary<CeresElevatorArrivalPose, EnemyProjectileFrameId>
-        {
-            [CeresElevatorArrivalPose.PadUnlit] = EnemyProjectileFrameId.CeresElevatorPadUnlit,
-            [CeresElevatorArrivalPose.PadLit] = EnemyProjectileFrameId.CeresElevatorPadLit,
-            [CeresElevatorArrivalPose.Platform] = EnemyProjectileFrameId.CeresElevatorPlatform,
-        };
 }

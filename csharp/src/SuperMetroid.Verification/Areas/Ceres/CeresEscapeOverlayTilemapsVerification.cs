@@ -18,7 +18,7 @@ namespace SuperMetroid.Verification.Areas.Ceres;
 /// <summary>Checks installed Ceres emergency title and Japanese subtitle tilemaps against the cartridge's BG1 transfers.</summary>
 internal static class CeresEscapeOverlayTilemapsVerification
 {
-    /// <summary>Compares five native overlays and the title the getaway shows over BG1.</summary>
+    /// <summary>Compares the three installed overlays with the cartridge and the warning the getaway shows over BG1.</summary>
     internal static void VerifyCeresEscapeOverlayTilemaps(ISnesAddressSpace rom, ImportEnemyArtwork stock)
     {
         CeresEscapeOverlays stockOverlay =
@@ -39,8 +39,8 @@ internal static class CeresEscapeOverlayTilemapsVerification
         var installed = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance,
             services: new SuperMetroid.Verification.Enemies.StandaloneRoomEnemyServices(() => throw new InvalidOperationException("The warning fixture generates no random numbers.")), installedBosses: stock.Bosses);
         installed.CeresEscape.ShowWarningPicture(CeresEscapeWarningPictures.Emergency);
-        foreach (CeresEscapeWarningPicture page in CeresEscapeWarningPictures.Japanese)
-            installed.CeresEscape.ShowWarningPicture(page);
+        foreach (CeresEscapeWarningPicture line in CeresEscapeWarningPictures.JapaneseSubtitle)
+            installed.CeresEscape.ShowWarningPicture(line);
 
         // The cartridge's own transfers, read from its descriptors and source bytes, written over BG1. The getaway writes
         // each page's picture by name (#1466); its words are the installed page's.
@@ -82,7 +82,7 @@ internal static class CeresEscapeOverlayTilemapsVerification
             "the Ceres title shows its native word over BG1");
         // The getaway writes each page's picture by name (#1466) and holds no installed page of its own to miss.
         Console.WriteLine(
-            "Ceres escape overlays: five installed tilemaps match native bytes and guarded " +
+            "Ceres escape overlays: three installed tilemaps match native bytes and guarded " +
             "VRAM pass.");
     }
 }

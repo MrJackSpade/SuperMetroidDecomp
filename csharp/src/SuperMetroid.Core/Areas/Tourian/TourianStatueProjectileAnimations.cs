@@ -12,10 +12,6 @@ internal static class TourianStatueProjectileAnimations
     internal static AnimationSegments<TourianStatueProjectileSegment, EnemyProjectileFrameId, TourianStatueProjectileCue> Segments { get; } = new(
         new Dictionary<TourianStatueProjectileSegment, AnimationBeat<EnemyProjectileFrameId, TourianStatueProjectileCue>[]>
     {
-        [P.Delete] =
-        [
-            Cue(new TourianStatueProjectileCue.Signal(K.Delete)),
-        ],
         [P.Splash] =
         [
             Show(EnemyProjectileFrameId.TourianStatueSplashLow, 8),
@@ -85,20 +81,20 @@ internal static class TourianStatueProjectileAnimations
     });
 
     /// <summary>
-    /// The animation that starts at each segment an owner can start or restart at. A particle plays its run again and
-    /// again until it sinks out of the statues' screen.
+    /// The animation that starts at each segment an owner can start or restart at, each playing every beat of its segment
+    /// (#2424). A particle plays its run again and again until it sinks out of the statues' screen, and a soul until it
+    /// rises above the room's top, where its motion ends it.
     /// </summary>
     internal static IReadOnlyDictionary<TourianStatueProjectileSegment, Animation<TourianStatueProjectileSegment>> StartingAt { get; } = new Dictionary<TourianStatueProjectileSegment, Animation<TourianStatueProjectileSegment>>
     {
-        [P.Delete] = new([new(P.Delete, 0, 1, 1)], AnimationEnd.Holds),
-        [P.Splash] = new([new(P.Splash, 0, 5, 1)], AnimationEnd.Holds),
-        [P.EyeGlow] = new([new(P.EyeGlow, 0, 17, 1)], AnimationEnd.Holds),
-        [P.Particle] = Animation<TourianStatueProjectileSegment>.Looping([new(P.Particle, 0, 5, 1)]),
-        [P.Tail] = new([new(P.Tail, 0, 8, 1)], AnimationEnd.Holds),
-        [P.Soul] = Animation<TourianStatueProjectileSegment>.Looping([new(P.Soul, 0, 2, 1)]),
-        [P.BaseDecoration] = new([new(P.BaseDecoration, 0, 3, 1)], AnimationEnd.Holds),
-        [P.Ridley] = new([new(P.Ridley, 0, 1, 1)], AnimationEnd.Holds),
-        [P.Phantoon] = new([new(P.Phantoon, 0, 1, 1)], AnimationEnd.Holds),
+        [P.Splash] = new([Segments.Whole(P.Splash)], AnimationEnd.Holds),
+        [P.EyeGlow] = new([Segments.Whole(P.EyeGlow)], AnimationEnd.Holds),
+        [P.Particle] = Animation<TourianStatueProjectileSegment>.Looping([Segments.Whole(P.Particle)]),
+        [P.Tail] = new([Segments.Whole(P.Tail)], AnimationEnd.Holds),
+        [P.Soul] = Animation<TourianStatueProjectileSegment>.Looping([Segments.Whole(P.Soul)]),
+        [P.BaseDecoration] = new([Segments.Whole(P.BaseDecoration)], AnimationEnd.Holds),
+        [P.Ridley] = new([Segments.Whole(P.Ridley)], AnimationEnd.Holds),
+        [P.Phantoon] = new([Segments.Whole(P.Phantoon)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

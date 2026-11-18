@@ -16,8 +16,10 @@ internal sealed class CeresElevatorDoorState
     public int ExplosionIntervalLeft { get; internal set; }
 
     /// <summary>
-    /// The place in <see cref="CeresDoorRumbleGeometryDefinitions.ExplosionOffsets"/> of the last destruction burst; each
-    /// burst takes the place before it, and the last place after the first.
+    /// Where the next destruction burst goes off (#2424): a place of
+    /// <see cref="CeresDoorRumbleGeometryDefinitions.ExplosionOffsets"/>, the first until the rumble starts, each burst
+    /// moving it on to the next and the first again after the last.
     /// </summary>
-    public int LastExplosionPlace { get; internal set; }
+    internal CyclingSequence<Offset16<RoomPixels>> NextExplosion { get; set; } =
+        CyclingSequence<Offset16<RoomPixels>>.StartOf(CeresDoorRumbleGeometryDefinitions.ExplosionOffsets);
 }

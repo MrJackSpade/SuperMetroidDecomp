@@ -31,6 +31,12 @@ namespace SuperMetroid.TestSupport.MovieReplay;
 /// segment there, holding, and the list's following bytes, never shown, are not compared; null when the owner plays
 /// every list to its end.
 /// </param>
+/// <param name="ShownUnseen">
+/// Whether the native frame record at this address shows a picture while the owner keeps the actor unseen (#2424: a
+/// Ceres door's frames between hiding it and showing it again), so the typed segment names no picture there: it waits the
+/// record's duration, or, where the list shows the record for good, ends holding; null when every frame the owner's lists
+/// show can be seen.
+/// </param>
 internal sealed record NativeEnemyCueRules<TCue>(
     Func<ushort, int?> OperandWords,
     Action<ushort, ushort[], TCue, string> CompareCue,
@@ -39,5 +45,6 @@ internal sealed record NativeEnemyCueRules<TCue>(
     Func<ushort, ushort?>? GoesTo = null,
     Func<ushort, bool>? ShowsPoseAgain = null,
     Func<ushort, ushort>? PicturedAt = null,
-    Func<ushort, bool>? OwnerLeavesAt = null)
+    Func<ushort, bool>? OwnerLeavesAt = null,
+    Func<ushort, bool>? ShownUnseen = null)
     where TCue : notnull;

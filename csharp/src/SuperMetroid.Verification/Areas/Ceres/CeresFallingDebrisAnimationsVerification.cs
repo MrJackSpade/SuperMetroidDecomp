@@ -38,8 +38,8 @@ internal static class CeresFallingDebrisAnimationsVerification
             AssertTrue(!deleted, $"the {program} tile sleeps rather than deleting");
             updates += compared;
         }
-        AssertTrue(CeresFallingDebrisVisualDefinitions.Frames.SequenceEqual(Enum.GetValues<CeresFallingDebrisSegment>()),
-            "each tile program installs its one frame");
+        AssertTrue(CeresFallingDebrisVisualDefinitions.Frames.SequenceEqual(Enum.GetValues<CeresFallingDebrisLook>()),
+            "each piece's look installs its one frame");
         Console.WriteLine($"  Ceres falling tile programs: {Entries.Length} programs ({updates} updates) match bank $86.");
     }
 }

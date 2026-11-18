@@ -4177,17 +4177,6 @@ internal static class SpawnedObjectFrameDefinitions
     /// <summary>The room effect actors <see cref="SpawnedObjectOwner.MotherBrainTankGlass"/>'s sheet holds.</summary>
     private static readonly RoomEffectActorKind[] MotherBrainTankGlassSheetEffectActors = [];
 
-    /// <summary>The projectile frames <c>CeresElevatorArrivalState</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
-    private static readonly EnemyProjectileFrameId[] CommonCeresElevatorArrivalStateProjectiles =
-    [
-        EnemyProjectileFrameId.CeresElevatorPadUnlit,
-        EnemyProjectileFrameId.CeresElevatorPadLit,
-        EnemyProjectileFrameId.CeresElevatorPlatform,
-    ];
-
-    /// <summary>The room effect actors <c>CeresElevatorArrivalState</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
-    private static readonly RoomEffectActorKind[] CommonCeresElevatorArrivalStateEffectActors = [];
-
     /// <summary>The projectile frames <c>DownwardGateBehavior</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
     private static readonly EnemyProjectileFrameId[] CommonDownwardGateBehaviorProjectiles =
     [
@@ -4526,26 +4515,6 @@ internal static class SpawnedObjectFrameDefinitions
     /// <summary>The room effect actors <c>SaveStationElectricity</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
     private static readonly RoomEffectActorKind[] CommonSaveStationElectricityEffectActors = [];
 
-    /// <summary>The projectile frames <c>TourianUnlockBehavior</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
-    private static readonly EnemyProjectileFrameId[] CommonTourianUnlockBehaviorProjectiles =
-    [
-        EnemyProjectileFrameId.TourianStatueSplashLow,
-        EnemyProjectileFrameId.TourianStatueSplashRising,
-        EnemyProjectileFrameId.TourianStatueSplashScattering,
-        EnemyProjectileFrameId.TourianStatueSplashFading,
-        EnemyProjectileFrameId.TourianStatueParticleTurned0,
-        EnemyProjectileFrameId.TourianStatueParticleTurned90,
-        EnemyProjectileFrameId.TourianStatueParticleTurned180,
-        EnemyProjectileFrameId.TourianStatueParticleTurned270,
-        EnemyProjectileFrameId.TourianStatueTailBright,
-        EnemyProjectileFrameId.TourianStatueTailSparkles,
-        EnemyProjectileFrameId.TourianStatueTailDim,
-        EnemyProjectileFrameId.TourianStatueTailFaint,
-    ];
-
-    /// <summary>The room effect actors <c>TourianUnlockBehavior</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
-    private static readonly RoomEffectActorKind[] CommonTourianUnlockBehaviorEffectActors = [];
-
     /// <summary>What each enemy definition can spawn onto its own spawned-object sheet.</summary>
     internal static IReadOnlyDictionary<EnemyDefinitionId, SpawnedObjects> ByEnemy { get; } =
         new Dictionary<EnemyDefinitionId, SpawnedObjects>
@@ -4690,7 +4659,6 @@ internal static class SpawnedObjectFrameDefinitions
     /// </summary>
     internal static IReadOnlyList<CommonSpawnedObjects> Common { get; } =
     [
-        new("CeresElevatorArrivalState", new(CommonCeresElevatorArrivalStateProjectiles, CommonCeresElevatorArrivalStateEffectActors)),
         new("DownwardGateBehavior", new(CommonDownwardGateBehaviorProjectiles, CommonDownwardGateBehaviorEffectActors)),
         new("EnemyDeathsAndDrops", new(CommonEnemyDeathsAndDropsProjectiles, CommonEnemyDeathsAndDropsEffectActors)),
         new("EnemyProjectileEngine.CreateBombDudShot", new(CommonEnemyProjectileEngineCreateBombDudShotProjectiles, CommonEnemyProjectileEngineCreateBombDudShotEffectActors)),
@@ -4702,6 +4670,5 @@ internal static class SpawnedObjectFrameDefinitions
         new("RidleyProjectiles", new(CommonRidleyProjectilesProjectiles, CommonRidleyProjectilesEffectActors)),
         new("RoomMainRoutines", new(CommonRoomMainRoutinesProjectiles, CommonRoomMainRoutinesEffectActors)),
         new("SaveStationElectricity", new(CommonSaveStationElectricityProjectiles, CommonSaveStationElectricityEffectActors)),
-        new("TourianUnlockBehavior", new(CommonTourianUnlockBehaviorProjectiles, CommonTourianUnlockBehaviorEffectActors)),
     ];
 }

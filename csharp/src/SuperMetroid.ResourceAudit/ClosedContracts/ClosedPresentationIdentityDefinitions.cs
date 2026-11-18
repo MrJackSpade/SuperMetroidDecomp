@@ -83,6 +83,9 @@ internal static class ClosedPresentationIdentityDefinitions
             .Select(name => (int)EnemyProjectileFrames.Identity(name)).Append((int)EnemyProjectileFrameId.Blank).ToArray(),
         ("EnemyProjectileSpritemapCatalog", "GetProgramFrame", "frame") => EnemyProjectilePresentationFrameSets.All
             .SelectToArray(frame => (int)frame.Frame),
+        // The Ceres elevator arrival's every pose has its installed picture (#2425).
+        ("EnemyProjectileSpritemapCatalog", "GetElevatorArrival", "pose") => EnemyProjectileSpritemapDefinitions.ElevatorArrivalFrameNames.Keys
+            .Select(pose => (int)pose).ToArray(),
         // The import pictures every floor animation frame in every Ceres floor (#1536).
         ("RoomFloorSheet", "Picture", "frame") => Enum.GetValues<CeresFloorAnimationFrame>().SelectToArray(frame => (int)frame),
         // A form's message is one the message box shows, which the import pictures in every form it takes (#1536).
@@ -109,7 +112,7 @@ internal static class ClosedPresentationIdentityDefinitions
         // of an artwork sequence's step is named after its frame; a constant naming one is not owned here.
         ("SpawnedObjectSheet", "Frame" or "ShowsNothing", "picture") => SpawnedObjectSheetComposer.FrameNames(SpawnedObjectOwner.Shared,
                 SpawnedObjectFrameDefinitions.ByEnemy.Keys.Concat(EncounterFrameDefinitions.ByEnemy.Keys).Distinct(),
-                SpawnedObjectFrameDefinitions.SharedByEnemy.Keys, SpawnedObjectFrameDefinitions.Common)
+                SpawnedObjectFrameDefinitions.SharedByEnemy.Keys, CommonSpawners.All)
             .Concat(SpawnedObjectFrameDefinitions.BySheet.Keys.SelectMany(owner => SpawnedObjectSheetComposer.FrameNames(owner, [], [], [])))
             .Distinct(StringComparer.Ordinal).ToArray(),
         _ => null,

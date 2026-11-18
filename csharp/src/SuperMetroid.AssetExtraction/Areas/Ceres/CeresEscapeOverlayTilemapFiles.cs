@@ -33,8 +33,8 @@ internal static class CeresEscapeOverlayTilemapFiles
     }
 
     /// <summary>
-    /// Where the cartridge stores <paramref name="page"/>'s words: the title on its own, the Japanese subtitle's row
-    /// halves one after another in their writing order.
+    /// Where the cartridge stores <paramref name="page"/>'s words: the title on its own, the Japanese subtitle's lines one
+    /// after another, each its upper row and then its lower.
     /// </summary>
     /// <exception cref="InvalidDataException"><paramref name="page"/> is not one of the overlays.</exception>
     internal static SnesAddress Source(CeresEscapeWarningPicture page)
@@ -42,11 +42,11 @@ internal static class CeresEscapeOverlayTilemapFiles
         if (page == CeresEscapeWarningPictures.Emergency)
             return CeresSourceDefinitions.EscapeOverlay.Emergency;
         int offset = 0;
-        foreach (CeresEscapeWarningPicture row in CeresEscapeWarningPictures.Japanese)
+        foreach (CeresEscapeWarningPicture line in CeresEscapeWarningPictures.JapaneseSubtitle)
         {
-            if (row == page)
+            if (line == page)
                 return CeresSourceDefinitions.EscapeOverlay.JapaneseRows.AddWithinBank(offset);
-            offset += row.WordCount * sizeof(ushort);
+            offset += line.WordCount * sizeof(ushort);
         }
         throw new InvalidDataException($"{page.Name} is not a Ceres escape overlay.");
     }

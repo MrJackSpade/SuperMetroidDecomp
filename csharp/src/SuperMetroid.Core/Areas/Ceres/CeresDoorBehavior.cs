@@ -115,12 +115,12 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
     }
 
     /// <summary>
-    /// Starts <paramref name="place"/>'s door or wall in <paramref name="animation"/>, in the colours of the escape's stage.
+    /// Starts <paramref name="place"/>'s door or wall in <paramref name="animation"/>, in the colours of the escape's stage:
+    /// the animation's first step, on the next update, shows its own first picture (#2424).
     /// </summary>
     internal void Start(RoomEnemyPlace place, CeresDoorSegment animation)
     {
         Ensure.NotNull(place);
-        place.Frame = EnemyFrameId.CeresDoorOrWallSmallSquare;
         place.AnimationClock.Restart();
         place.SetSpeciesState(new CeresDoorAnimationState
         {

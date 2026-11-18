@@ -257,7 +257,6 @@ internal static class EnemySpritemapDocumentOrder
         EnemyFrameId.CeresDoorFacingRightHalfOpen,
         EnemyFrameId.CeresDoorFacingRightThreeQuartersOpen,
         EnemyFrameId.CeresDoorFacingRightOpen,
-        EnemyFrameId.CeresDoorOrWallSmallSquare,
         EnemyFrameId.CeresGetawayChamberLeftWall,
         EnemyFrameId.CeresGetawayChamberRightWall,
         EnemyFrameId.CeresRidleyRoomDoorClosed,

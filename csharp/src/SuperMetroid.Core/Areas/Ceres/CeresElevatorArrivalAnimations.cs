@@ -1,12 +1,11 @@
 using P = SuperMetroid.Core.Areas.Ceres.CeresElevatorArrivalSegment;
 using SuperMetroid.Core.Animation;
-using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>
-/// The Ceres elevator arrival projectiles' typed animations (#641, #1600): the pad alternates two poses, each for one update
-/// at a time, and the platform rests on its one pose, until landing redirects both to the delete.
+/// The Ceres elevator arrival actors' typed animations (#641, #1600): the pad alternates two poses, each for one update
+/// at a time, and the platform rests on its one pose, until both leave as Samus lands (#2424).
 /// </summary>
 internal static class CeresElevatorArrivalAnimations
 {
@@ -23,18 +22,15 @@ internal static class CeresElevatorArrivalAnimations
         [
             new AnimationBeat<CeresElevatorArrivalPose, NoAnimationCue>.HeldFrame(CeresElevatorArrivalPose.Platform),
         ],
-        [P.Delete] = [],
     });
 
     /// <summary>
-    /// The animation that starts at each segment: the pad loops its two poses, the platform rests on its pose for good, and
-    /// the delete ends at once.
+    /// The animation that starts at each segment: the pad loops its two poses and the platform rests on its pose for good.
     /// </summary>
     internal static IReadOnlyDictionary<CeresElevatorArrivalSegment, Animation<CeresElevatorArrivalSegment>> StartingAt { get; } = new Dictionary<CeresElevatorArrivalSegment, Animation<CeresElevatorArrivalSegment>>
     {
-        [P.Pad] = Animation<CeresElevatorArrivalSegment>.Looping([new(P.Pad, 0, 2, 1)]),
-        [P.Platform] = new([new(P.Platform, 0, 1, 1)], AnimationEnd.Holds),
-        [P.Delete] = new([], AnimationEnd.Stops),
+        [P.Pad] = Animation<CeresElevatorArrivalSegment>.Looping([Segments.Whole(P.Pad)]),
+        [P.Platform] = new([Segments.Whole(P.Platform)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
@@ -43,7 +39,4 @@ internal static class CeresElevatorArrivalAnimations
     /// <summary>Shows <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<CeresElevatorArrivalPose, NoAnimationCue> Show(CeresElevatorArrivalPose pose, int duration) =>
         new AnimationBeat<CeresElevatorArrivalPose, NoAnimationCue>.Frame(pose, duration);
-
-    /// <summary>The composition each arrival pose shows (<see cref="CeresElevatorArrivalDefinitions.Frames"/>).</summary>
-    internal static EnemyProjectileFrameId Frame(CeresElevatorArrivalPose pose) => Ensure.Listed(CeresElevatorArrivalDefinitions.Frames, pose);
 }

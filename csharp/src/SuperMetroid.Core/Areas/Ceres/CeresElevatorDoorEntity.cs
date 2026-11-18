@@ -47,7 +47,7 @@ internal sealed class CeresElevatorDoorEntity(CeresDoorBehavior doors, RoomEnemy
                     state.RumbleUpdatesLeft = RumbleDuration;
                     // The first explosion bursts on the destruction's first update.
                     state.ExplosionIntervalLeft = 1;
-                    state.LastExplosionPlace = 0;
+                    state.NextExplosion = CyclingSequence<Offset16<RoomPixels>>.StartOf(CeresDoorRumbleGeometryDefinitions.ExplosionOffsets);
                 }
                 return;
 
@@ -86,10 +86,8 @@ internal sealed class CeresElevatorDoorEntity(CeresDoorBehavior doors, RoomEnemy
             return;
 
         state.ExplosionIntervalLeft = RumbleInterval;
-        IReadOnlyList<Offset16<RoomPixels>> offsets = CeresDoorRumbleGeometryDefinitions.ExplosionOffsets;
-        state.LastExplosionPlace = state.LastExplosionPlace == 0 ? offsets.Count - 1 : state.LastExplosionPlace - 1;
-
-        Position16<RoomPixels> explosion = Place.Position.Whole + offsets[state.LastExplosionPlace];
+        Position16<RoomPixels> explosion = Place.Position.Whole + state.NextExplosion.Current;
+        state.NextExplosion = state.NextExplosion.Next;
 
         // The shared random sequence advances exactly once per explosion; its explosion chance selects the animation.
         DustExplosionAnimation animation = CeresDoorQuakeDefinitions.RumbleExplosion.IsTakenBy(doors.Room.Random.Generate())

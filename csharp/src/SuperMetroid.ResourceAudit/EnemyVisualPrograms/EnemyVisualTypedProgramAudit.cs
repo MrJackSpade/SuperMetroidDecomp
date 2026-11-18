@@ -135,7 +135,7 @@ internal static class EnemyVisualTypedProgramAudit
         foreach (CeresElevatorArrivalPose pose in Enum.GetValues<CeresElevatorArrivalPose>())
         {
             report.Require(ResourceDomains.EnemyProjectileSprite, nameof(CeresElevatorArrivalDefinitions),
-                ResourceIndex.Address(ResourceBanks.ProjectileOamAndPaletteFx, EnemyProjectileCompositionSources.Spritemap(CeresElevatorArrivalAnimations.Frame(pose))), ceresSource, exports);
+                ResourceIndex.Address(ResourceBanks.ProjectileOamAndPaletteFx, EnemyProjectileCompositionSources.ElevatorArrivalSpritemap(pose)), ceresSource, exports);
             ceresFrames++;
         }
         rows.Add(new(ceresFrames));

@@ -24,7 +24,6 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.CeresDoorFacingRightHalfOpen,
         EnemyFrameId.CeresDoorFacingRightThreeQuartersOpen,
         EnemyFrameId.CeresDoorFacingRightOpen,
-        EnemyFrameId.CeresDoorOrWallSmallSquare,
     ];
 
     /// <summary>The frames <c>Areas/Ceres/CeresDoorBehavior.cs</c> shows for <c>CeresRidleyRoomDoor</c>.</summary>
@@ -35,14 +34,12 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.CeresDoorFacingRightHalfOpen,
         EnemyFrameId.CeresDoorFacingRightThreeQuartersOpen,
         EnemyFrameId.CeresDoorFacingRightOpen,
-        EnemyFrameId.CeresDoorOrWallSmallSquare,
     ];
 
     /// <summary>The frames <c>Areas/Ceres/CeresDoorBehavior.cs</c> shows for <c>CeresElevatorDoor</c>.</summary>
     private static readonly EnemyFrameId[] CeresElevatorDoorFrames =
     [
         EnemyFrameId.CeresElevatorDoorBlocked,
-        EnemyFrameId.CeresDoorOrWallSmallSquare,
     ];
 
     /// <summary>The frames <c>Areas/Ceres/CeresDoorBehavior.cs</c> shows for <c>CeresElevatorRoomWall</c>.</summary>
@@ -53,14 +50,11 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.CeresDoorFacingLeftHalfOpen,
         EnemyFrameId.CeresDoorFacingLeftThreeQuartersOpen,
         EnemyFrameId.CeresDoorFacingLeftOpen,
-        EnemyFrameId.CeresDoorFacingRightClosed,
-        EnemyFrameId.CeresDoorOrWallSmallSquare,
     ];
 
     /// <summary>The frames <c>Areas/Ceres/CeresDoorBehavior.cs</c> shows for <c>CeresGetawayChamberWall</c>.</summary>
     private static readonly EnemyFrameId[] CeresGetawayChamberWallFrames =
     [
-        EnemyFrameId.CeresDoorOrWallSmallSquare,
         EnemyFrameId.CeresGetawayChamberLeftWall,
         EnemyFrameId.CeresGetawayChamberRightWall,
     ];

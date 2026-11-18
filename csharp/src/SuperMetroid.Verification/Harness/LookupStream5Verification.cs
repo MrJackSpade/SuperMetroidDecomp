@@ -131,14 +131,16 @@ internal static class LookupStream5Verification
     {
         AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes("Super Metroid.smc"))), "Rumble native revision");
+        // The rumble bursts at the native table's places from its last to its first; the port lists them in burst order.
         for (int index = 0; index < 4; index++)
             AssertEqual(new Offset16<RoomPixels>(unchecked((short)ReadVerificationWord(rom, 0xa6f840 + 4 * index)),
                 unchecked((short)ReadVerificationWord(rom, 0xa6f842 + 4 * index))),
-                CeresDoorRumbleGeometryDefinitions.ExplosionOffsets[index], "All eight native anchor words");
+                CeresDoorRumbleGeometryDefinitions.ExplosionOffsets[3 - index], "All eight native anchor words, in burst order");
         AssertEqual(4, CeresDoorRumbleGeometryDefinitions.ExplosionOffsets.Count, "The rumble bursts at four places");
         foreach (Position16<RoomPixels> origin in new Position16<RoomPixels>[] { new(232, 631), new(1, 65530) })
         {
-            var system = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
+            var system = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null),
+                floor: RoomBackgroundsFixtures.CeresFloor());
             var place = system.Places.InUpdateOrder[0];
             place.BindCeresDoorOrWall(EnemyDefinitionId.CeresElevatorDoor, EnemySpawnSettings.None);
             place.Position = place.Position.WithWhole(origin);
@@ -416,7 +418,7 @@ internal static class LookupStream5Verification
                 AssertEqual(native, installed.Span[index].PackedWord, "Native installed subtitle glyph/style");
                 words++;
             }
-            AssertTrue(!stock.TryResolveNative(CeresEscapeNativeSources.OverlaySource(page), page.WordCount * 2 - 1, out _), "Changed transfer extent rejected");
+            AssertTrue(!stock.TryResolveNative(CeresEscapeNativeSources.OverlaySource(page), page.Width * 2 - 1, out _), "Changed transfer extent rejected");
         }
         AssertTrue(!stock.TryResolve(default, out _), "Unknown subtitle page rejected");
         AssertEqual(55, words, "Native subtitle word count");
@@ -528,24 +530,31 @@ internal static class LookupStream5Verification
             AssertTrue(!CeresEscapeTileArtworkDefinitionsTooling.Contains(source, 0), "Zero byte page rejected");
         }
         // Each picture's corner is the room pixel of the foreground word the cartridge writes it at.
-        CeresEscapeWarningPicture[] overlays = [new("emergency", CornerOfWord(0x0cb)), new("japanese_0", CornerOfWord(0x28a)), new("japanese_1", CornerOfWord(0x2aa)), new("japanese_2", CornerOfWord(0x2ca)), new("japanese_3", CornerOfWord(0x2ea))];
+        // The cartridge writes the title as one row and each subtitle line as two, its glyphs' upper and lower rows (#2425).
+        CeresEscapeWarningPicture[] overlays = [new("emergency", CornerOfWord(0x0cb)), new("japanese_self_destruct", CornerOfWord(0x28a)), new("japanese_escape", CornerOfWord(0x2ca))];
         AssertTrue(overlays.SequenceEqual(CeresEscapeOverlayPages.All), "Original named overlay order/place");
-        AssertTrue(overlays.Select(page => page.WordCount).SequenceEqual([9, 12, 12, 11, 11]), "Original overlay extents");
-        int[] overlaySources = [0xa6c164, 0xa6c3f4, 0xa6c40c, 0xa6c424, 0xa6c43a];
+        AssertTrue(overlays.Select(page => page.Width).SequenceEqual([9, 12, 11]), "Original overlay row extents");
+        int[][] rowWords = [[0x0cb], [0x28a, 0x2aa], [0x2ca, 0x2ea]];
+        int[][] rowSources = [[0xa6c164], [0xa6c3f4, 0xa6c40c], [0xa6c424, 0xa6c43a]];
         for (int index = 0; index < overlays.Length; index++)
         {
             CeresEscapeWarningPicture page = overlays[index];
-            int source = overlaySources[index];
-            AssertEqual(source, CeresEscapeNativeSources.OverlaySource(page), "Extraction reads the overlay from its original source");
-            AssertTrue(CeresEscapeWarningPicturesTooling.IsSource(source, page.WordCount * 2), "Exact overlay extent admitted");
-            AssertTrue(!CeresEscapeWarningPicturesTooling.IsSource(source, page.WordCount * 2 - 1), "Partial overlay extent rejected");
-            AssertTrue(CeresEscapeWarningPictures.ContainsByteAddress(source) && CeresEscapeWarningPictures.ContainsByteAddress(source + page.WordCount * 2 - 1), "Overlay byte endpoints admitted");
+            AssertEqual(rowSources[index].Length, page.RowCount, "Original overlay rows");
+            AssertEqual(rowSources[index][0], CeresEscapeNativeSources.OverlaySource(page), "Extraction reads the overlay from its original source");
+            for (int row = 0; row < page.RowCount; row++)
+            {
+                int source = rowSources[index][row];
+                AssertEqual(CornerOfWord(rowWords[index][row]), page.Corner + new Offset16<PlanePixels>(0, 8 * row), "Each row shows where the cartridge writes it");
+                AssertTrue(CeresEscapeWarningPicturesTooling.IsSource(source, page.Width * 2), "Exact overlay row extent admitted");
+                AssertTrue(!CeresEscapeWarningPicturesTooling.IsSource(source, page.Width * 2 - 1), "Partial overlay row extent rejected");
+                AssertTrue(CeresEscapeWarningPictures.ContainsByteAddress(source) && CeresEscapeWarningPictures.ContainsByteAddress(source + page.Width * 2 - 1), "Overlay byte endpoints admitted");
+            }
         }
         AssertThrows<IndexOutOfRangeException>(() => _ = CeresEscapeTileArtworkDefinitions.All[-1], "Tile page lower bound");
         AssertThrows<IndexOutOfRangeException>(() => _ = CeresEscapeTileArtworkDefinitions.All[2], "Tile page upper bound");
         AssertThrows<IndexOutOfRangeException>(() => _ = CeresEscapeOverlayPages.All[-1], "Overlay lower bound");
-        AssertThrows<IndexOutOfRangeException>(() => _ = CeresEscapeOverlayPages.All[5], "Overlay upper bound");
-        Console.WriteLine("Ceres source page cases: two character sheets/five overlays preserve exact identities, order, extents, enumeration and range domains.");
+        AssertThrows<IndexOutOfRangeException>(() => _ = CeresEscapeOverlayPages.All[3], "Overlay upper bound");
+        Console.WriteLine("Ceres source page cases: two character sheets/three overlays preserve exact identities, order, extents, enumeration and range domains.");
 
         // The foreground pixel of the top-left corner of foreground word `word`.
         static Position16<PlanePixels> CornerOfWord(int word) => SuperMetroid.Core.Rooms.Backgrounds.TwoScreenTilemapCells.CornerAt(word);

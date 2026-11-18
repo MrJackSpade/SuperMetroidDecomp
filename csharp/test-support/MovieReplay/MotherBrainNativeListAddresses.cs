@@ -82,11 +82,20 @@ internal static class MotherBrainNativeListAddresses
         new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.NeutralPhase3Hold, 0x9cd1),
         new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.Corpse, 0x9d25),
         new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.CorpseHeld, 0x9d35),
+        // Each volley's list writes its later rings out one after another (#2470): the first copy is the ring shot's entry,
+        // and the list runs on into the volley's end after the last. The two-ring volley's list copies the four-ring one's
+        // ring and end under entries of its own, each read as a repeat of the same segment.
         new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.FourOnionRingsPhase2, 0x9d3d),
+        new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.OnionRingShotPhase2, 0x9d57),
+        new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.OnionRingVolleyEndPhase2, 0x9d6f),
         new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.TwoOnionRingsPhase2, 0x9d7f),
+        new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.OnionRingShotPhase2, 0x9d99),
+        new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.OnionRingVolleyEndPhase2, 0x9da1),
         new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.AttackingBabyMetroid, 0x9db1),
         new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.AttackingSamusFourOnionRingsPhase3, 0x9dbb),
         new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.FourOnionRingsPhase3, 0x9dc1),
+        new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.OnionRingShotPhase3, 0x9dd5),
+        new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.OnionRingVolleyEndPhase3, 0x9de7),
         new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.BombPhase2, 0x9ecc),
         new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.BombPhase3, 0x9f00),
         new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.Laser, 0x9f34),
@@ -229,15 +238,17 @@ internal static class MotherBrainNativeListAddresses
     /// Reads each segment's native list beside its typed beats (#1600): frames must show the native spritemap for the
     /// native duration, opcodes must raise the events <paramref name="ops"/> names, and the lists' sleeps, gotos and runs on
     /// into the next authored entry are recorded as their control instructions, as is a list's whole run written out again
-    /// straight after it, one more play of its segment (#2337, #2405). Every typed animation must then play the phases the
-    /// lists' control flow plays. Returns each segment's native list, which also maps a native snapshot's list pointers to
-    /// typed playbacks.
+    /// straight after it, one more play of its segment (#2337, #2405). A segment the cartridge writes out again under another
+    /// entry (#2470) reads each copy against the same beats and keeps it as a repeat of its first list, which the run on into
+    /// that entry reaches, so a snapshot's pointer in any copy finds its place. Every typed animation must then play the
+    /// phases the lists' control flow plays. Returns each segment's native list, which also maps a native snapshot's list
+    /// pointers to typed playbacks.
     /// </summary>
     /// <param name="cartridge">The pinned cartridge.</param>
     /// <param name="bank">The lists' bank.</param>
     /// <param name="segments">The typed segments.</param>
     /// <param name="startingAt">The typed animations, by the segment each starts at.</param>
-    /// <param name="entries">Each segment's native entry, in authored order.</param>
+    /// <param name="entries">Each segment's native entry, and each further copy of its list, in authored order.</param>
     /// <param name="spritemap">The spritemap a frame shows.</param>
     /// <param name="ops">What each native opcode of the lists becomes.</param>
     /// <param name="onlyRunOnInto">The segments no owner starts, which animations only run on into.</param>
@@ -259,7 +270,8 @@ internal static class MotherBrainNativeListAddresses
         where TFrame : struct
         where TEvent : notnull
     {
-        VerificationAssertions.AssertEqual(Enum.GetValues<TSegment>().Length, entries.Length, $"every typed {typeof(TSegment).Name} has a native entry");
+        VerificationAssertions.AssertEqual(Enum.GetValues<TSegment>().Length, entries.Select(entry => entry.Program).Distinct().Count(),
+            $"every typed {typeof(TSegment).Name} has a native entry");
         Dictionary<ushort, TSegment> segmentAt = entries.ToDictionary(entry => entry.Entry, entry => entry.Program);
         var lists = new Dictionary<TSegment, NativeEnemyList<TSegment>>();
         foreach ((TSegment segment, ushort entry) in entries)
@@ -277,7 +289,7 @@ internal static class MotherBrainNativeListAddresses
                 string at = $"{segment} beat {addresses.Count} (native record {record})";
                 if (record > 0 && segmentAt.TryGetValue(cursor, out TSegment next))
                 {
-                    controls.Add(new(NativeEnemyControlKind.RunOnIntoNext, addresses.Count, next, null, cursor));
+                    controls.Add(new(NativeEnemyControlKind.RunOnIntoNext, addresses.Count, next, null, cursor, TargetEntry: cursor));
                     continue;
                 }
                 if (addresses.Count == beats.Count && addresses.Count > 0)
@@ -375,7 +387,10 @@ internal static class MotherBrainNativeListAddresses
                 }
             }
             VerificationAssertions.AssertEqual(beats.Count, addresses.Count, $"{segment}: its native list holds each of its beats");
-            lists[segment] = new NativeEnemyList<TSegment>([.. addresses], [.. controls], entry);
+            var list = new NativeEnemyList<TSegment>([.. addresses], [.. controls], entry);
+            // A further copy is kept as a repeat even where it continues as the first does: its beats lie at its own
+            // addresses, where a snapshot's pointer must find them.
+            lists[segment] = lists.TryGetValue(segment, out NativeEnemyList<TSegment>? firstCopy) ? firstCopy with { Repeats = [.. firstCopy.Repeats, list] } : list;
         }
         NativeEnemyAnimationOracle.CompareAnimations(lists, startingAt, onlyRunOnInto: onlyRunOnInto);
         return lists;
@@ -463,7 +478,11 @@ internal static class MotherBrainNativeListAddresses
         MotherBrainHeadSegment.DecapitatedHeld,
         MotherBrainHeadSegment.DyingDroolLoop,
         MotherBrainHeadSegment.CorpseHeld,
+        MotherBrainHeadSegment.OnionRingShotPhase2,
+        MotherBrainHeadSegment.OnionRingVolleyEndPhase2,
         MotherBrainHeadSegment.FourOnionRingsPhase3,
+        MotherBrainHeadSegment.OnionRingShotPhase3,
+        MotherBrainHeadSegment.OnionRingVolleyEndPhase3,
         MotherBrainHeadSegment.ChargingRainbowBeamLoop,
     ];
 

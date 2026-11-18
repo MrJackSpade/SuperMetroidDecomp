@@ -26,8 +26,4 @@ public readonly record struct MotherBrainRandomSample
     /// <summary>The value <paramref name="field"/> reads from the number.</summary>
     /// <param name="field">The choice the number makes.</param>
     internal int Read(RandomSampleField field) => field.Of(Value);
-
-    /// <summary>Whether <paramref name="field"/>, a single bit, is set in the number.</summary>
-    /// <param name="field">The single-bit choice the number makes.</param>
-    internal bool IsSet(RandomSampleField field) => field.IsSetIn(Value);
 }

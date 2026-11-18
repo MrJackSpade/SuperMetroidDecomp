@@ -731,7 +731,7 @@ internal sealed class TorizoAttacks
         if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal))
         {
             projectile.Velocity = projectile.Velocity.WithX(-projectile.Velocity.X);
-            egg.Facing = egg.Facing == HorizontalDirection.Right ? HorizontalDirection.Left : HorizontalDirection.Right;
+            egg.Facing = egg.Facing.Reversed();
         }
 
         if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical) &&

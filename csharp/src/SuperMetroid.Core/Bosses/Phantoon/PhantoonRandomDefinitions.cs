@@ -9,14 +9,14 @@ internal static class PhantoonRandomDefinitions
     /// <summary>The draw a hit in the vulnerable window makes, which nothing then reads.</summary>
     internal static readonly RandomSampleField VulnerableHitDraw = new(0, 3);
 
-    /// <summary>Whether the figure eight after the eye closes runs reversed: taken by an odd sample.</summary>
-    internal static readonly RandomSampleField FigureEightReversed = new(0, 1);
+    /// <summary>The figure eight after the eye closes running reversed (#2470): an odd sample, one in two.</summary>
+    internal static readonly RandomChance FigureEightRunsReversed = RandomChance.Highest(1, new RandomSampleField(0, 1));
 
     /// <summary>Which of the four casual flame patterns Phantoon's mouth spits next.</summary>
     internal static readonly RandomSampleField CasualFlamePattern = new(0, 2);
 
-    /// <summary>Whether the next figure eight starts on the right, at X 208: taken by an odd sample.</summary>
-    internal static readonly RandomSampleField FigureEightStartsRight = new(0, 1);
+    /// <summary>The next figure eight starting on the right, at X 208 (#2470): an odd sample, one in two.</summary>
+    internal static readonly RandomChance FigureEightStartsRight = RandomChance.Highest(1, new RandomSampleField(0, 1));
 
     /// <summary>Which of the eight hiding timers Phantoon waits before its flame rain.</summary>
     internal static readonly RandomSampleField RainHidingChoice = new(0, 3);

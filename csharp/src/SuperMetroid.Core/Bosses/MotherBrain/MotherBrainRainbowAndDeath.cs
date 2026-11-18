@@ -201,7 +201,7 @@ internal sealed class MotherBrainRainbowAndDeath
         Ensure.NotNull(sequence);
         Ensure.NotNull(sharedProjectiles);
         if (current.FinalBeamFired)
-            state.NextRainbowImage = MotherBrainRainbowImage.First;
+            state.NextRainbowImage = MotherBrainRainbowImage.CycleStart;
         ApplyMotherBrainBeamColours(state, current);
         // The brain's step runs after the body's. Its health check is enabled during revival, but the health colours wait
         // until the corpse has revived.
@@ -293,8 +293,8 @@ internal sealed class MotherBrainRainbowAndDeath
         if (!step.RainbowColours || !MotherBrainCadenceDefinitions.RainbowColoursStep.IsSetIn(state.Body.FrameCounter))
             return;
 
-        MotherBrainRainbowImage image = state.NextRainbowImage;
-        state.NextRainbowImage = image.Next;
-        state.Colours.ShowRainbow(image);
+        ListStep<MotherBrainRainbowImage> image = state.NextRainbowImage;
+        state.NextRainbowImage = image.NextInCycle;
+        state.Colours.ShowRainbow(image.Entry);
     }
 }

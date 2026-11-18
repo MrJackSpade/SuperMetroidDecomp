@@ -18,8 +18,11 @@ internal static class MotherBrainRandomDefinitions
     /// <summary>The Shitroid's hover: the top 32 of the 4096 rolls, 4064 and over, restart its hover.</summary>
     internal static readonly RandomChance ShitroidHoverRestarts = RandomChance.Highest(32, RollOf4096);
 
-    /// <summary>Whether a dust cloud of Mother Brain's ascent is the short big cloud: taken for half the random numbers.</summary>
-    internal static readonly RandomSampleField AscentDustBig = new(8, 1);
+    /// <summary>
+    /// A dust cloud of Mother Brain's ascent being the short big cloud rather than the small one (#2470): a sample whose
+    /// ninth bit is set, one in two.
+    /// </summary>
+    internal static readonly RandomChance AscentDustIsBig = RandomChance.Highest(1, new RandomSampleField(8, 1));
 
     /// <summary>
     /// The phase-two neutral hold: the lowest fifteen of the sixteen values of the sample divided into sixteenths, every sample
@@ -68,8 +71,11 @@ internal static class MotherBrainRandomDefinitions
     /// <summary>A rotting corpse's dust offset, 0 through 31 pixels added to the brain's X less sixteen.</summary>
     internal static readonly RandomSampleField CorpseDustOffset = new(0, 5);
 
-    /// <summary>Whether phase three's forward inch waits two updates longer: taken for half the random numbers.</summary>
-    internal static readonly RandomSampleField ForwardInchLongerDelay = new(1, 1);
+    /// <summary>
+    /// Phase three's forward inch waiting two updates longer, at her medium walk rather than her fast one (#2470): a sample
+    /// whose second bit is set, one in two.
+    /// </summary>
+    internal static readonly RandomChance ForwardInchWaitsLonger = RandomChance.Highest(1, new RandomSampleField(1, 1));
 
     /// <summary>A fired hand beam's scatter speed, 0 through 7 whole pixels.</summary>
     internal static readonly RandomSampleField HandBeamScatterSpeed = new(8, 3);

@@ -45,16 +45,33 @@ public enum MotherBrainHeadSegment
     Corpse,
     /// <summary>Her corpse's head slumped, still for good.</summary>
     CorpseHeld,
-    /// <summary>Her whole head opens wide with an attack cry and fires four onion rings at Samus.</summary>
+    /// <summary>
+    /// Her whole head opens wide with an attack cry and fires the first of four onion rings at Samus: the four-ring
+    /// volley's opening.
+    /// </summary>
     FourOnionRingsPhase2,
-    /// <summary>Her whole head opens wide with an attack cry and fires two onion rings at Samus.</summary>
+    /// <summary>Her whole head, its mouth at its widest, aims and fires one more onion ring at Samus.</summary>
+    OnionRingShotPhase2,
+    /// <summary>Her whole head closes its mouth after a volley's last onion ring and lets her neck move again.</summary>
+    OnionRingVolleyEndPhase2,
+    /// <summary>
+    /// Her whole head opens wide with an attack cry and fires the first of two onion rings at Samus: the two-ring volley's
+    /// opening.
+    /// </summary>
     TwoOnionRingsPhase2,
     /// <summary>Her damaged head counts an attack on the Baby Metroid and aims its onion rings at it.</summary>
     AttackingBabyMetroid,
     /// <summary>Her damaged head clears its count of attacks on the Baby Metroid and aims its onion rings at Samus.</summary>
     AttackingSamusFourOnionRingsPhase3,
-    /// <summary>Her damaged head opens wide, cries unless it has attacked the Baby eleven times, and fires four onion rings.</summary>
+    /// <summary>
+    /// Her damaged head opens wide, cries unless it has attacked the Baby eleven times, and fires the first of four onion
+    /// rings where it aimed them: the volley's opening.
+    /// </summary>
     FourOnionRingsPhase3,
+    /// <summary>Her damaged head, its mouth at its widest, fires one more onion ring where it aimed them.</summary>
+    OnionRingShotPhase3,
+    /// <summary>Her damaged head closes its mouth after its volley's last onion ring and lets her neck move again.</summary>
+    OnionRingVolleyEndPhase3,
     /// <summary>Her whole head opens wide with an attack cry and lobs a bomb that leaves seven afterburns.</summary>
     BombPhase2,
     /// <summary>Her damaged head opens wide with an attack cry and lobs a bomb that leaves one afterburn.</summary>

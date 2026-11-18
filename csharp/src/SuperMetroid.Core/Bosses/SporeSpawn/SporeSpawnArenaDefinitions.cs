@@ -28,7 +28,7 @@ internal static class SporeSpawnArenaDefinitions
     internal static readonly SporeSpawnSwayRadius DescentSwayRadius = new(48);
 
     /// <summary>How his sway's phase turns as his descent ends and as his fight starts: one step a movement update, counterclockwise.</summary>
-    internal static readonly SporeSpawnSwayStep SwayStep = new(RotationAngle.FromSteps(1), RotationDirection.Counterclockwise);
+    internal static readonly TurnStep SwayStep = new(RotationAngle.FromSteps(1), RotationDirection.Counterclockwise);
 
     /// <summary>The horizontal sway width, in pixels, below which each closing of his shell widens the sway.</summary>
     internal const int WidenedSwayLimit = 40;

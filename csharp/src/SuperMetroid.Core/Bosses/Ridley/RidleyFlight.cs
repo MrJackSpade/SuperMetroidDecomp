@@ -97,7 +97,7 @@ internal sealed class RidleyFlight
     /// </summary>
     internal static void UpdateSwoopVelocity(
         RidleyFlightState flight,
-        RidleySwoopTurn turn,
+        TurnStep turn,
         RotationAngle targetAngle,
         SignedEightEight targetSpeed)
     {

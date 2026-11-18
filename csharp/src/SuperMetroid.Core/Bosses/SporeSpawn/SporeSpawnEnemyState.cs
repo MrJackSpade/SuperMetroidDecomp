@@ -45,7 +45,7 @@ public sealed class SporeSpawnEnemyState
     /// How far and which way his sway's phase turns each movement update: a step from his descent and his fight's start,
     /// quickened to two low on health, and reversed by the first damaging hit of each opening.
     /// </summary>
-    internal SporeSpawnSwayStep SwayStep { get; set; } = SporeSpawnSwayStep.None;
+    internal TurnStep SwayStep { get; set; } = TurnStep.None;
     /// <summary>Whether the ceiling spore emitters are stopped: the animation sets it during protected phases and clears it, and death clears it.</summary>
     public bool SporeGenerationSuppressed { get; internal set; }
     /// <summary>One-hit guard for an open phase: once set, further hits neither reverse the sway nor close the head until the animation clears it.</summary>

@@ -20,7 +20,7 @@ internal static class MotherBrainRandomSampleVerification
             AssertEqual(unchecked((short)word) < 0, sample.Takes(MotherBrainRandomDefinitions.ThirdPhaseAttacks), $"third-phase attack on the sign of {raw}");
             AssertEqual(unchecked((short)word) < 0, sample.Takes(MotherBrainRandomDefinitions.BabyVolleyFires), $"Baby volley on the sign of {raw}");
             AssertEqual(word % 32, sample.Read(MotherBrainRandomDefinitions.CorpseDustOffset), $"corpse dust offset of {raw}");
-            AssertEqual((word & 2) != 0, sample.IsSet(MotherBrainRandomDefinitions.ForwardInchLongerDelay), $"inching delay bit of {raw}");
+            AssertEqual((word & 2) != 0, sample.Takes(MotherBrainRandomDefinitions.ForwardInchWaitsLonger), $"inching delay bit of {raw}");
         }
         AssertTrue(MotherBrainRandomSample.FromGenerator(ushort.MaxValue).Takes(MotherBrainRandomDefinitions.ThirdPhaseAttacks), "the top value, negative, attacks");
         AssertTrue(!MotherBrainRandomSample.FromGenerator((ushort)short.MaxValue).Takes(MotherBrainRandomDefinitions.ThirdPhaseAttacks), "the largest positive value does not");

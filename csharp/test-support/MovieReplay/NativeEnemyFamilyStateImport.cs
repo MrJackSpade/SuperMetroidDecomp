@@ -437,7 +437,7 @@ internal static class NativeEnemyFamilyStateImport
         }
         // The native snapshot keeps the Zebetites' shared pulse counter in slot zero's word C, whichever enemy occupies the slot.
         if (enemy.Ordinal == 0)
-            enemies.ZebetiteBehavior.SharedPulse = ZebetitePulse.All[words.C];
+            enemies.ZebetiteBehavior.SharedPulse = ListStep<ZebetitePulse>.At(ZebetitePulse.All, words.C);
         if (enemy.SpeciesState<ChozoStatueState>() is { } chozoStatueRecord)
         {
             chozoStatueRecord.AwaitingHand = ChozoNativeWords.AwaitingHandAt(words.F, chozoStatueRecord.Site == ChozoStatueSite.WreckedShip);

@@ -120,7 +120,7 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
             return cgram;
         }
 
-        static int Counter(RoomEnemySystem enemies) => enemies.ZebetiteBehavior.SharedPulse.Step;
+        static int Counter(RoomEnemySystem enemies) => enemies.ZebetiteBehavior.SharedPulse.Entry.Step;
 
         // Independent $A6:FD5E pulse: advance modulo eight, copy two raw colors.
         void ReferenceCycle(SnesCgram cgram, ref ushort counter)

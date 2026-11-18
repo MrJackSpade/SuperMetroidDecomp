@@ -45,7 +45,7 @@ internal sealed class PhantoonPatterns
         state.Round.EyeClosedTimer = PhantoonTimerDefinitions.EyeClosed[PhantoonCadenceDefinitions.FirstEyeClosedChoice.Of(_frameContext.FrameCounter)];
         state.Phase = PhantoonPhase.MoveInFigureEightThenOpenEye;
         state.FigureEight.Stage = PhantoonFigureEightStage.EasingIn;
-        if (PhantoonRandomDefinitions.FigureEightReversed.IsSetIn(_room.Random.Generate()))
+        if (PhantoonRandomDefinitions.FigureEightRunsReversed.IsTakenBy(_room.Random.Generate()))
         {
             state.FigureEight.Speed = SignedSixteenSixteen.Zero;
             state.FigureEight.Reversed = true;
@@ -302,7 +302,7 @@ internal sealed class PhantoonPatterns
         RoomEnemyPlace body,
         PhantoonEnemyState state)
     {
-        if (PhantoonRandomDefinitions.FigureEightStartsRight.IsSetIn(_room.Random.Generate()))
+        if (PhantoonRandomDefinitions.FigureEightStartsRight.IsTakenBy(_room.Random.Generate()))
         {
             state.FigureEight.PathPlace = PhantoonPath.At(PhantoonPathDefinitions.RightAppearance);
             body.Position = body.Position.WithWholeX(PhantoonPathDefinitions.RightAppearancePosition.X);

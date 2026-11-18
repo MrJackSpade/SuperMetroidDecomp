@@ -274,7 +274,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
             {
                 // Striking a ceiling while rising starts the drop; whether the next hop turns back is what the room's
                 // last draw and HUD redraw left (PuyoCeilingTurnFromLastDraw): always in an ordinary gameplay update.
-                state.TurnBack = _ceilingTurn.TurnsBack ? Opposite(state.Direction) : null;
+                state.TurnBack = _ceilingTurn.TurnsBack ? state.Direction.Reversed() : null;
                 state.HopType = PuyoHopType.Dropping;
                 state.AirborneMovement = PuyoAirborneMovement.Dropping;
             }
@@ -306,7 +306,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
             return false;
         }
 
-        state.TurnBack = Opposite(state.Direction);
+        state.TurnBack = state.Direction.Reversed();
         state.HopType = PuyoHopType.Dropping;
         state.AirborneMovement = PuyoAirborneMovement.Dropping;
         return true;
@@ -356,10 +356,6 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
 
         SetPuyoAnimation(place, state, segment);
     }
-
-    /// <summary>Turns a Puyo to its other direction after a terrain impact.</summary>
-    private static HorizontalDirection Opposite(HorizontalDirection direction) =>
-        direction == HorizontalDirection.Left ? HorizontalDirection.Right : HorizontalDirection.Left;
 
     /// <summary>Starts a selected pose or hop animation with a one-tick frame countdown.</summary>
     private static void SetPuyoAnimation(RoomEnemyPlace place, PuyoEnemyState state, PuyoSegment segment)

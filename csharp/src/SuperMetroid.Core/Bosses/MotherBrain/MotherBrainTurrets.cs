@@ -13,12 +13,12 @@ internal static class MotherBrainTurrets
 
     /// <summary>
     /// The direction one turn from <paramref name="direction"/> the way <paramref name="turning"/> says, round the compass
-    /// (<see cref="Ring"/>): counterclockwise from left toward down, clockwise from left toward up.
+    /// (<see cref="Ring"/>, #2470): counterclockwise from left toward down, clockwise from left toward up.
     /// </summary>
     internal static MotherBrainTurretDirection Turned(MotherBrainTurretDirection direction, RotationDirection turning)
     {
-        int step = turning == RotationDirection.Counterclockwise ? 1 : Ring.Members.Count - 1;
-        return Ring.At((Ring.PositionOf(direction) + step) % Ring.Members.Count);
+        ListStep<MotherBrainTurretDirection> facing = ListStep<MotherBrainTurretDirection>.At(Ring.Members, Ring.PositionOf(direction));
+        return (turning == RotationDirection.Counterclockwise ? facing.NextInCycle : facing.PreviousInCycle).Entry;
     }
 
     /// <summary>Whether <paramref name="turret"/> may rotate to <paramref name="direction"/>: whether it lies in the turret's arc.</summary>

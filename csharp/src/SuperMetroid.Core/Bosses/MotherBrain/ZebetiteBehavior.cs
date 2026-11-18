@@ -59,10 +59,10 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// The Zebetites' shared pulse (#2259), advanced by every primary Zebetite in the room; it starts at its first frame with
-    /// the room. It selects only the pulse the Zebetites show.
+    /// The Zebetites' shared pulse (#2259), advanced by every primary Zebetite in the room through its cycle (#2470); it
+    /// starts at its first frame with the room. It selects only the pulse the Zebetites show.
     /// </summary>
-    public ZebetitePulse SharedPulse { get; internal set; } = ZebetitePulse.First;
+    public ListStep<ZebetitePulse> SharedPulse { get; internal set; } = ListStep<ZebetitePulse>.FirstOf(ZebetitePulse.All);
 
     /// <summary>The pulse frame last shown, or null before the pulse's first step in the room (#1512).</summary>
     internal ZebetitePulse? PulseShown { get; private set; }
@@ -186,9 +186,9 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         if (_fadeStepCount.IsPastStart || place.RequireSpeciesState<ZebetiteEnemyState>().Half == ZebetiteHalf.Linked)
             return;
 
-        ZebetitePulse pulse = SharedPulse.Next;
+        ListStep<ZebetitePulse> pulse = SharedPulse.NextInCycle;
         SharedPulse = pulse;
-        PulseShown = pulse;
+        PulseShown = pulse.Entry;
     }
 
     /// <summary>

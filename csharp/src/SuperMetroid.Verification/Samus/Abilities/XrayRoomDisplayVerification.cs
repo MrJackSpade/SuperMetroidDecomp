@@ -6,7 +6,6 @@ using static SuperMetroid.Verification.Samus.Abilities.XrayRevealVerification;
 using static SuperMetroid.Verification.Samus.Abilities.XrayTilemapVerification;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Verification.Samus.Abilities;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;

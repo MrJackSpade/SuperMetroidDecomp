@@ -71,8 +71,8 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             Speed = settings.Speed,
             PatrolDirection = settings.Direction,
-            RightPatrolX = CoordinateAxis.Wrap(spawnX + settings.TravelDistance),
-            LeftPatrolX = CoordinateAxis.Wrap(spawnX - settings.TravelDistance),
+            RightPatrolX = spawnX + settings.TravelDistance,
+            LeftPatrolX = spawnX - settings.TravelDistance,
             Mounting = settings.Mounting,
         };
         place.SetSpeciesState(state);
@@ -97,8 +97,8 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Moves the Cacatac along its patrol by its speed, then turns it once it reaches or passes the patrol limit
-    /// (<see cref="CoordinateAxis.Precedes"/>).
+    /// Moves the Cacatac along its patrol by its speed, then turns it once it passes the left limit or reaches or passes
+    /// the right one.
     /// </summary>
     private static void MoveCacatac(RoomEnemyPlace place, CacatacEnemyState state)
     {
@@ -107,12 +107,12 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (!right)
         {
-            if (CoordinateAxis.Precedes(place.Position.X.Whole, state.LeftPatrolX))
+            if (place.Position.X.Whole < state.LeftPatrolX)
                 state.PatrolDirection = HorizontalDirection.Right;
             return;
         }
 
-        if (!CoordinateAxis.Precedes(place.Position.X.Whole, state.RightPatrolX))
+        if (place.Position.X.Whole >= state.RightPatrolX)
             state.PatrolDirection = HorizontalDirection.Left;
     }
 

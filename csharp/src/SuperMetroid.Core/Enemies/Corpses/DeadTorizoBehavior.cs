@@ -136,12 +136,12 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             // The game takes the magnitude of whichever signed edge faces Samus, so each edge
             // acts as a reach on its own side of the corpse origin.
-            int verticalOffset = CoordinateAxis.Difference(kinematics.Position.Y.Whole, place.Position.Y.Whole);
+            int verticalOffset = kinematics.Position.Y.Whole - place.Position.Y.Whole;
             int verticalReach = Math.Abs(verticalOffset >= 0 ? hitbox.Bottom : hitbox.Top);
             if (kinematics.Radius.Y + verticalReach - Math.Abs(verticalOffset) < 0)
                 continue;
 
-            int horizontalOffset = CoordinateAxis.Difference(kinematics.Position.X.Whole, place.Position.X.Whole);
+            int horizontalOffset = kinematics.Position.X.Whole - place.Position.X.Whole;
             int horizontalReach = Math.Abs(horizontalOffset >= 0 ? hitbox.Right : hitbox.Left);
             int overlap = kinematics.Radius.X + horizontalReach - Math.Abs(horizontalOffset);
             if (overlap < 0)

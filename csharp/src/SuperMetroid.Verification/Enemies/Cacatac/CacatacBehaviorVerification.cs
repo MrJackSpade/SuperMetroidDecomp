@@ -54,10 +54,9 @@ internal static class CacatacBehaviorVerification
 
     /// <summary>
     /// Drives the production main AI on a Cacatac whose patrol limits are its spawn X plus and minus one block. The
-    /// typed 16.16 velocity carries its fraction into the whole X, and each turn follows the wrapped signed distance
-    /// to the limit: spawned eight pixels from the room's left edge, its left limit wraps to the far right of the
-    /// coordinate range, yet the walk keeps going left until X passes that limit through the wrap, and a rightward
-    /// walk that lands exactly on its right limit turns back.
+    /// typed 16.16 velocity carries its fraction into the whole X; a leftward walk turns once X lies left of its left
+    /// limit, and a rightward walk that lands exactly on its right limit turns back. Every shipped placement's limits
+    /// lie inside its room (#2430), so the limits are plain room columns.
     /// </summary>
     internal static void VerifyCacatacPatrolLimits()
     {
@@ -69,34 +68,34 @@ internal static class CacatacBehaviorVerification
         enemies.VerificationServices().NextRandom = () => 100;
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Bind(EnemyDefinitionId.Cacatac, place.Definition);
-        place.Position = FixedPosition<RoomPixels>.FromWhole(new(8, 112));
+        place.Position = FixedPosition<RoomPixels>.FromWhole(new(40, 112));
         place.SetSpawnWords(EnemyDefinitionId.Cacatac, words => words);
         CacatacBehavior.InitializeCacatac(place);
         CacatacEnemyState state = enemies.CacatacStates[0] ?? throw new InvalidOperationException("Cacatac has no state.");
-        AssertEqual(unchecked((ushort)(8 - 16)), state.LeftPatrolX, "Cacatac left limit wraps below the room's left edge");
-        AssertEqual(24, state.RightPatrolX, "Cacatac right limit is one block right of spawn");
+        AssertEqual(24, state.LeftPatrolX, "Cacatac left limit is one block left of spawn");
+        AssertEqual(56, state.RightPatrolX, "Cacatac right limit is one block right of spawn");
 
         state.Speed = oneAndAHalfPixels;
         place.Position = place.Position.WithFractionX(checked(halfPixel));
         enemies.CacatacBehavior.RunCacatacMainAi(place, Frame());
-        AssertEqual(new FixedCoordinate(7, 0), place.Position.X, "Cacatac leftward step borrows its fraction");
-        AssertEqual(HorizontalDirection.Left, state.PatrolDirection, "Cacatac keeps walking left of a limit that wrapped to the far right");
+        AssertEqual(new FixedCoordinate(39, 0), place.Position.X, "Cacatac leftward step borrows its fraction");
+        AssertEqual(HorizontalDirection.Left, state.PatrolDirection, "Cacatac keeps walking left while right of its left limit");
         AssertEqual(CacatacAction.Patrolling, state.Action, "Cacatac keeps its leftward patrol");
 
-        // One pixel right of the wrapped limit: the step lands half a pixel past it and turns.
-        place.Position = place.Position.WithWholeX(unchecked((ushort)(state.LeftPatrolX + 1)));
+        // One pixel right of the left limit: the step lands half a pixel past it and turns.
+        place.Position = place.Position.WithWholeX(state.LeftPatrolX + 1);
         enemies.CacatacBehavior.RunCacatacMainAi(place, Frame());
-        AssertEqual(new FixedCoordinate(unchecked((ushort)(state.LeftPatrolX - 1)), checked(halfPixel)), place.Position.X,
-            "Cacatac steps past its wrapped left limit");
-        AssertEqual(HorizontalDirection.Right, state.PatrolDirection, "Cacatac turns right once past its wrapped left limit");
+        AssertEqual(new FixedCoordinate(state.LeftPatrolX - 1, checked(halfPixel)), place.Position.X,
+            "Cacatac steps past its left limit");
+        AssertEqual(HorizontalDirection.Right, state.PatrolDirection, "Cacatac turns right once past its left limit");
         AssertEqual(CacatacAction.Patrolling, state.Action, "Cacatac patrols right after the turn");
 
-        place.Position = place.Position.WithX(new FixedCoordinate(22, checked(halfPixel)));
+        place.Position = place.Position.WithX(new FixedCoordinate(54, checked(halfPixel)));
         enemies.CacatacBehavior.RunCacatacMainAi(place, Frame());
-        AssertEqual(new FixedCoordinate(24, 0), place.Position.X, "Cacatac rightward step carries its fraction into the whole X");
+        AssertEqual(new FixedCoordinate(56, 0), place.Position.X, "Cacatac rightward step carries its fraction into the whole X");
         AssertEqual(HorizontalDirection.Left, state.PatrolDirection, "Cacatac turns left on reaching its right limit");
         AssertEqual(CacatacAction.Patrolling, state.Action, "Cacatac patrols left after the turn");
-        Console.WriteLine("  Cacatac patrol: the 16.16 steps carry and borrow, and both turns follow the wrapped distance to the limit.");
+        Console.WriteLine("  Cacatac patrol: the 16.16 steps carry and borrow, and both turns follow the limits.");
 
         static ClockedEnemyAiFrame Frame() => new(
             RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) },

@@ -31,6 +31,9 @@ internal sealed class GrappleBehavior : IGrappleTargets
             if (enemy.InvincibilityTimer != 0)
                 continue;
 
+            // The endpoint tested lies in the room's grid, but an interactive enemy need not: a fly that has climbed through
+            // the ceiling or a Bull braking past Samus can lie above or left of the room's origin, and the beam measures its
+            // distance to one across the wrap.
             int xDistance = CoordinateAxis.Distance(enemy.Position.X.Whole, endpoint.X);
             int yDistance = CoordinateAxis.Distance(enemy.Position.Y.Whole, endpoint.Y);
             if (xDistance >= enemy.Radius.X + GrappleTargetDefinitions.BeamPointRadius || yDistance >= enemy.Radius.Y + GrappleTargetDefinitions.BeamPointRadius)

@@ -124,7 +124,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             case NamiheAction.WaitForSamus:
                 // Samus exactly at the proximity distance does not wake the Namihe.
-                if (CoordinateAxis.Distance(samus.Position.Y.Whole, place.Position.Y.Whole) >= state.YProximity)
+                if (Math.Abs(samus.Position.Y.Whole - place.Position.Y.Whole) >= state.YProximity)
                 {
                     return;
                 }

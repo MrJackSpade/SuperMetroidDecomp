@@ -28,14 +28,13 @@ public sealed class CacatacEnemyState
     public CacatacAction Action { get; internal set; }
 
     /// <summary>
-    /// Left patrol limit's room X. Leftward patrol turns right once the whole X position lies strictly left of it
-    /// (<see cref="CoordinateAxis.Precedes"/>), so a limit past the room's left edge still turns the enemy.
+    /// Left patrol limit's room X. Leftward patrol turns right once the whole X position lies strictly left of it. Every
+    /// placement's limit lies inside the room.
     /// </summary>
     public int LeftPatrolX { get; internal set; }
 
     /// <summary>
-    /// Right patrol limit's room X. Rightward patrol turns left once the whole X position reaches or passes it
-    /// (<see cref="CoordinateAxis.Precedes"/>).
+    /// Right patrol limit's room X. Rightward patrol turns left once the whole X position reaches or passes it.
     /// </summary>
     public int RightPatrolX { get; internal set; }
 

@@ -129,7 +129,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         bodyState.Action = DragonAction.Rising;
 
         // The body turns to face Samus, and the idle body and its flapping wing each turn to that side.
-        bodyState.Facing = CoordinateAxis.Difference(samus.Position.X.Whole, body.Position.X.Whole) < 0
+        bodyState.Facing = samus.Position.X.Whole < body.Position.X.Whole
             ? HorizontalDirection.Left
             : HorizontalDirection.Right;
         StartDragonIdle(body, bodyState);

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Rooms;
@@ -125,7 +126,7 @@ internal sealed class EndingEscapeScenes
                 _stage.SpawnSprite(
                     EndingActorDefinitions.ExplosionSilhouette,
                     EndingSpriteRole.ExplosionSilhouette);
-                screen.Colours.Flash(EndingFlash.SilhouetteBackdrop, EndingScreenDefinitions.WhiteColor);
+                screen.Colours.Flash(EndingFlash.SilhouetteBackdrop, RgbColor.White);
                 return;
 
             case EndingSceneCue.StartZebesExplosion:
@@ -152,7 +153,7 @@ internal sealed class EndingEscapeScenes
             case EndingSceneCue.EndZebesExplosion:
                 // The scene hides the sprite layer without deleting the actors: the stars must still
                 // advance and become visible again when the flyaway starts.
-                screen.Colours.Flash(EndingFlash.ExplosionWhiteout, EndingScreenDefinitions.WhiteColor);
+                screen.Colours.Flash(EndingFlash.ExplosionWhiteout, RgbColor.White);
                 _stage.PhaseTimer = EndingSequenceDefinitions.Timing.PlanetEscapeMusicWaitFrames;
                 _stage.Phase = EndingCreditsPhase.WaitForPlanetEscapeMusic;
                 return;
@@ -201,14 +202,13 @@ internal sealed class EndingEscapeScenes
         }
     }
 
-    /// <summary>Chooses a clamped digit's authored animation for one clear-time column.</summary>
+    /// <summary>Spawns clear-time <paramref name="digit"/>'s animation in the clear-time column at <paramref name="x"/>.</summary>
     private void SpawnDigit(int digit, int x)
     {
-        int normalized = Math.Clamp(digit, 0, 9);
         _stage.SpawnSprite(
             new(x, EndingActorDefinitions.ClearTimeDigitY),
             EndingActorDefinitions.ClearTimeDigitColouring,
-            ClearTimeDigitAnimation(normalized),
+            ClearTimeDigitAnimation(digit),
             EndingSpriteRole.ClearTimeDigit);
     }
 

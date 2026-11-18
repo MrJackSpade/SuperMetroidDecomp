@@ -46,7 +46,7 @@ internal static class RetailTransitionTests
         foreach (bool chooseNo in new[] { false, true })
         {
             var audio = AudioQueues.Standalone();
-            var menu = new GameOverMenuState(audio, RenderRetailFixture.Maps, MenuSheetFixtures.For(RenderRetailFixture.Maps));
+            var menu = new GameOverMenuState(audio, RenderRetailFixture.Maps, MenuSheetFixtures.For(RenderRetailFixture.Maps), continueLoadsCeresArrival: false);
             bool toggled = false, released = false;
             for (int tick = 0; tick < 300 && !menu.ContinueRequested && !menu.TitleRequested; tick++)
             {

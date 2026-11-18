@@ -58,7 +58,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
         AudioQueues audio,
         InstalledScreenContent screenContent,
         InstalledSpriteSheets spriteSheets,
-        bool continueLoadsCeresArrival = false)
+        bool continueLoadsCeresArrival)
     {
         this.continueLoadsCeresArrival = continueLoadsCeresArrival;
         this.audio = Ensure.NotNull(audio);
@@ -66,7 +66,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
         missile = new MenuMissileAnimation(screenContent.GameOver.CursorFrameDuration);
         screen = new MenuScreen(screenContent.Backdrops.Menus, Ensure.NotNull(spriteSheets));
         BindSpriteSheets(spriteSheets);
-        Phase = GameOverMenuPhase.ConfigureGraphics;
+        Phase = GameOverMenuPhase.BlackHold;
     }
 
     /// <summary>The selected answer, Yes or No.</summary>
@@ -120,7 +120,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
             IsWaitingOutDisplayFrame = false;
             Phase = Phase switch
             {
-                GameOverMenuPhase.ConfigureGraphics => GameOverMenuPhase.Initialize,
+                GameOverMenuPhase.BlackHold => GameOverMenuPhase.Initialize,
                 GameOverMenuPhase.Initialize => GameOverMenuPhase.WaitForInitialMusic,
                 GameOverMenuPhase.WaitForInitialMusic or
                     GameOverMenuPhase.FadeIn or
@@ -140,9 +140,9 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
 
         switch (Phase)
         {
-            case GameOverMenuPhase.ConfigureGraphics:
-                // The death black-out hands over at brightness zero, so the fade leaves the screen
-                // black; the menu blanks it and waits out one update before configuring itself.
+            case GameOverMenuPhase.BlackHold:
+                // The death black-out hands over at brightness zero, so the screen is black; the menu
+                // silences the room's sounds and holds the black screen while it waits out one update.
                 if (!fade.IsBlack)
                     throw new InvalidOperationException("Game-over menu must begin from a black screen.");
                 audio.QueueSound(RoomSound.Silence, priority: GameOverMenuDefinitions.SoundPriority);

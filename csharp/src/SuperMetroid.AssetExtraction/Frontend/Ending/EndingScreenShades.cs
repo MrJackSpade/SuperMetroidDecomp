@@ -174,8 +174,8 @@ internal static class EndingScreenShades
     private static readonly EndingFlashColour[] Flashes =
     [
         new(EndingFlash.PlanetGlow, new RgbColor(8, 0, 0)),
-        new(EndingFlash.SilhouetteBackdrop, EndingScreenDefinitions.WhiteColor),
-        new(EndingFlash.ExplosionWhiteout, EndingScreenDefinitions.WhiteColor),
+        new(EndingFlash.SilhouetteBackdrop, RgbColor.White),
+        new(EndingFlash.ExplosionWhiteout, RgbColor.White),
         new(EndingFlash.WhiteoutCleared, RgbColor.Black),
         new(EndingFlash.LogoBackground, RgbColor.Black),
     ];

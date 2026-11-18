@@ -84,7 +84,7 @@ internal sealed class CeresDepartureGameSequence(FrontendSession session) : IGam
             session.Show(new CeresDestructionCinematicState(
                 session.audio, session.Artwork.ScreenContent.PowerBombGlowColors,
                 session.Artwork.IntroCinematicArt, session.Artwork.SpriteSheets,
-                japaneseText: session.GameplayRuntime.JapaneseText));
+                CeresDestructionOutcome.SamusEscaped, japaneseText: session.GameplayRuntime.JapaneseText));
             session.Enter(CeresDestructionOutcome.SamusEscaped);
             session.display.PublishBlack();
         }

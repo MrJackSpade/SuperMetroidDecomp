@@ -31,9 +31,8 @@ public sealed class FileSelectRoomMapGraphics
     /// <param name="area">One of the six Zebes map areas, excluding Ceres.</param>
     /// <param name="screenContent">The installed screen content, whose area maps supply the stations and landmarks.</param>
     /// <param name="sheets">The installed sprite sheets: the map sprites and the background pictures.</param>
-    /// <param name="revealMode">Optional presentation reveal override when projecting installed map cells; ordinary selection uses persistence-driven visibility.</param>
     public FileSelectRoomMapGraphics(SharedGameState system, AreaId area, InstalledScreenContent screenContent,
-        InstalledSpriteSheets sheets, MapRevealMode revealMode = MapRevealMode.None)
+        InstalledSpriteSheets sheets)
     {
         Ensure.NotNull(system);
         Ensure.NotNull(screenContent);
@@ -44,7 +43,7 @@ public sealed class FileSelectRoomMapGraphics
         if (!AreaIds.IsZebes(area))
             throw new ArgumentOutOfRangeException(nameof(area), area, "Ceres has no room map on the saved-game map.");
         screen = new MenuScreen(screenContent.Backdrops.Menus, installed);
-        AreaMap = AreaMapProjection.Project(screenContent.Get(area), system, revealMode);
+        AreaMap = AreaMapProjection.Project(screenContent.Get(area), system);
     }
 
     /// <summary>Rebinds the installed sheets: the map sprites the icons, marker and arrows draw from, and the background pictures.</summary>

@@ -22,7 +22,7 @@ internal static class CeresExplosionVerification
             new MemoryStream(PowerBombGlowColorExtractor.Extract(bus)));
         var audio = AudioQueues.Standalone();
         var scene = new CeresDestructionCinematicState(audio, glowColors: stockColors, artwork: artwork.BoundCatalog,
-            spriteSheets: CinematicSheetFixtures.WithIntro(artwork));
+            spriteSheets: CinematicSheetFixtures.WithIntro(artwork), outcome: SuperMetroid.Core.Frontend.CeresCinematics.CeresDestructionOutcome.SamusEscaped, japaneseText: false);
         var referenceGlowColors = stockColors;
         var reference = new SamusPowerBombExplosionState();
         var phases = new HashSet<PowerBombExplosionPhase>();

@@ -108,7 +108,7 @@ internal static class GenericSpriteArtworkVerification
 
         var intro = new IntroCinematicState(new IntroCinematicOverreads(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve),
             AudioQueues.Standalone(), InstalledFixtures.SamusArtwork(body),
-            characterArtwork: introArtwork.BoundCatalog)
+            characterArtwork: introArtwork.BoundCatalog, japaneseText: false)
         {
             Random = new SharedRandom(),
             UnauthoredBoostCadence = new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),

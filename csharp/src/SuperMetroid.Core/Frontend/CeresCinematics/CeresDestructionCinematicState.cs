@@ -170,8 +170,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         InstalledPowerBombGlowColors glowColors,
         IntroCinematicArtwork artwork,
         InstalledSpriteSheets spriteSheets,
-        CeresDestructionOutcome outcome = CeresDestructionOutcome.SamusEscaped,
-        bool japaneseText = false)
+        CeresDestructionOutcome outcome,
+        bool japaneseText)
     {
         this.japaneseText = japaneseText;
         BindSpriteSheets(Ensure.NotNull(spriteSheets));
@@ -526,7 +526,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             CeresAnimations.Scenes,
             definition.Animation)
         {
-            HorizontalLoopWidth = definition.WrapX ? CeresDestructionSceneDefinitions.WorldWidth : null,
+            DriftLoopWidth = definition.DriftsRoundLoop ? CeresDestructionSceneDefinitions.DriftLoopWidth : null,
         };
         return actor;
     }
@@ -578,8 +578,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             if (destructionActorRoles.TryGetValue(actor, out CeresDestructionActorRole role))
             {
                 CeresDestructionActorDefinition definition = CeresDestructionActors.InitialActor(role);
-                if (definition.WrapX)
-                    actor.TravelLoop(definition.HorizontalDelta);
+                if (definition.DriftsRoundLoop)
+                    actor.DriftRoundLoop(definition.HorizontalDelta);
             }
             else
                 actor.Position = FleeingWithGunship(actor.Position);
@@ -639,9 +639,9 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         actors.Add(actor);
     }
 
-    /// <summary>Where an explosion at <paramref name="position"/> drifts to with the fleeing gunship's X subvelocity and signed Y velocity.</summary>
+    /// <summary>Where an explosion at <paramref name="position"/> drifts to with the fleeing gunship's velocity.</summary>
     private static FixedVector<ScreenPixels> FleeingWithGunship(FixedVector<ScreenPixels> position) => new(
-        IntroCinematicMotion.AddFraction(position.X, CeresDestructionSceneDefinitions.Motion.GunshipXSubvelocity),
+        position.X + CeresDestructionSceneDefinitions.Motion.GunshipXVelocity,
         position.Y + CeresDestructionSceneDefinitions.Motion.GunshipYVelocity);
 
     /// <summary>Advances the planet and title objects, applying slide acceleration and finishing on star deletion.</summary>

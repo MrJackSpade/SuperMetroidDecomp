@@ -43,7 +43,7 @@ internal static class CeresInitialActorMetadataVerification
         AssertEqual((ushort)0, CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bc293), "stationary vortex parameter zero");
         AssertEqual((byte)0x60, retail.ReadCartridgeByte(0x8b0000 | CinematicActorNativeMotions.CeresDestruction[CeresDestructionActorRole.Vortex]), "stationary vortex RTS");
         AssertEqual(SignedSixteenSixteen.Zero, vortex.HorizontalDelta, "stationary vortex has no displacement");
-        AssertEqual(false, vortex.WrapX, "stationary vortex has no wrap operation");
+        AssertEqual(false, vortex.DriftsRoundLoop, "stationary vortex does not drift round the loop");
         foreach (int undefined in new[] { int.MinValue, -1, Enum.GetValues<CeresDestructionActorRole>().Length, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(
                 () => CeresDestructionActors.InitialActor((CeresDestructionActorRole)undefined), "destruction actor undefined role");
@@ -77,7 +77,7 @@ internal static class CeresInitialActorMetadataVerification
             AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord(fields.DeltaWord), actor.HorizontalDelta.Fraction,
                 $"{name} speed");
             AssertEqual((ushort)0x01ff, CartridgeImportSource.Require(source).ReadCartridgeWord(fields.MaskWord), $"{name} wrap mask");
-            AssertTrue(actor.WrapX, $"{name} uses 512-pixel wrapping motion");
+            AssertTrue(actor.DriftsRoundLoop, $"{name} drifts round the Ceres scenes' loop");
         }
     }
 

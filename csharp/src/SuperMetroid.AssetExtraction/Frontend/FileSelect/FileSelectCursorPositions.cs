@@ -1,14 +1,13 @@
-using static SuperMetroid.Core.Frontend.FileSelect.FileSelectLayout;
-using SuperMetroid.Core.Frontend.FileSelect;
-
 namespace SuperMetroid.AssetExtraction.Frontend.FileSelect;
 
 /// <summary>
-/// Places the file-select cursors (<see cref="FileSelectLayout"/>): the main and copy/clear selection rows and each save slot's
-/// helmet.
+/// Places the file-select cursors: the main and copy/clear selection rows and each save slot's helmet.
 /// </summary>
 internal static class FileSelectCursorPositions
 {
+    /// <summary>The save slots, A-C, each file-select page lists.</summary>
+    internal const int SaveSlotCount = 3;
+
     /// <summary>Slots A-C followed by Copy, Clear and Exit.</summary>
     internal const int MainSelectionCount = 6;
 

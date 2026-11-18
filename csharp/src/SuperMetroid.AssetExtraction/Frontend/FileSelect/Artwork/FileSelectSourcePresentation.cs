@@ -342,7 +342,7 @@ public sealed class FileSelectSourcePresentation
             const int glyph = FileSelectFieldDefinitions.GlyphWidthPixels;
             ValidatePatch(slot.TimeValueAnchor + new Offset16<PlanePixels>(FileSelectFieldDefinitions.ColonColumn * glyph, 0),
                 patches[FileSelectPatch.TimeColon]);
-            if (slot.TimeValueAnchor.X + TimeGlyphs * glyph > FileSelectPresentationDefinitions.PageWidthPixels)
+            if (slot.TimeValueAnchor.X + TimeGlyphs * glyph > FileSelectPresentationFormat.PageWidthPixels)
                 throw new InvalidDataException("File-select time field escapes its page.");
         }
 
@@ -351,8 +351,8 @@ public sealed class FileSelectSourcePresentation
             for (int index = 0; index < patch.Count; index++)
             {
                 Position16<PlanePixels> placed = anchor + patch.Cell(index).Offset.PixelOffset<PlanePixels>();
-                if (placed.X >= FileSelectPresentationDefinitions.PageWidthPixels ||
-                    placed.Y >= FileSelectPresentationDefinitions.PageHeightPixels)
+                if (placed.X >= FileSelectPresentationFormat.PageWidthPixels ||
+                    placed.Y >= FileSelectPresentationFormat.PageHeightPixels)
                     throw new InvalidDataException("File-select patch placement escapes its page.");
             }
         }
@@ -426,9 +426,9 @@ public sealed class FileSelectSourcePresentation
     /// <summary>Restricts a dynamic field anchor to a pixel of the page.</summary>
     private static void ValidatePagePoint(Position16<PlanePixels> point, string owner)
     {
-        if (point.X >= FileSelectPresentationDefinitions.PageWidthPixels || point.Y >= FileSelectPresentationDefinitions.PageHeightPixels)
+        if (point.X >= FileSelectPresentationFormat.PageWidthPixels || point.Y >= FileSelectPresentationFormat.PageHeightPixels)
             throw new InvalidDataException(
-                $"File-select {owner} requires a pixel inside the {FileSelectPresentationDefinitions.PageWidthPixels}x{FileSelectPresentationDefinitions.PageHeightPixels} page.");
+                $"File-select {owner} requires a pixel inside the {FileSelectPresentationFormat.PageWidthPixels}x{FileSelectPresentationFormat.PageHeightPixels} page.");
     }
 
     /// <summary>Requires the authored dictionary to contain precisely the schema's named entries.</summary>

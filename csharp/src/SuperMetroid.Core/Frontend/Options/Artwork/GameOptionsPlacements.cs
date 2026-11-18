@@ -8,8 +8,8 @@ internal sealed record GameOptionsPlacements
 {
     /// <summary>Each menu's heading origin on the screen, in pixels; drawing subtracts the vertical scroll from Y.</summary>
     public required IReadOnlyDictionary<GameOptionsPage, Offset16<ScreenPixels>> HeadingAnchors { get; init; }
-    /// <summary>Each menu's cursor origins on the screen, in pixels, in selection-row order.</summary>
-    public required IReadOnlyDictionary<GameOptionsPage, Offset16<ScreenPixels>[]> CursorAnchors { get; init; }
+    /// <summary>The missile cursor's origin at each row of the three pages, in screen pixels (#2415).</summary>
+    public required IReadOnlyDictionary<GameOptionsRow, Offset16<ScreenPixels>> CursorAnchors { get; init; }
     /// <summary>Duration in menu updates, at least one, of each looping cursor frame.</summary>
     public required int CursorFrameDuration { get; init; }
 }

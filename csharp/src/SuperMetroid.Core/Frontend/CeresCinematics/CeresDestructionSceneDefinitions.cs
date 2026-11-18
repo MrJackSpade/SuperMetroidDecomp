@@ -50,8 +50,12 @@ internal static class CeresDestructionSceneDefinitions
     /// <summary>The floor point, in floor pixels, the following Zebes approach's floor turns about.</summary>
     internal static Offset16<FloorPixels> ZebesFloorCenter => new(56, 24);
 
-    /// <summary>The width, in pixels, of the world the approach's actors wrap around horizontally.</summary>
-    internal const int WorldWidth = 512;
+    /// <summary>
+    /// The width, in pixels, of the loop the Ceres scenes' drifting asteroids and station travel round (#2418): the screen
+    /// and an equally wide stretch of space left of it. An actor that drifts off the screen's right edge comes round to the
+    /// far end of that stretch and drifts back into view across the screen's left edge.
+    /// </summary>
+    internal const int DriftLoopWidth = 512;
 
     /// <summary>The tracks the scene plays.</summary>
     internal static class Music
@@ -125,8 +129,8 @@ internal static class CeresDestructionSceneDefinitions
         internal static SignedSixteenSixteen SixteenthPixel { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(1);
         /// <summary>Minus one quarter pixel per update.</summary>
         internal static SignedSixteenSixteen NegativeQuarterPixel { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(-4);
-        /// <summary>The fleeing gunship's horizontal speed: a quarter pixel per update, of which only the fraction moves the blasts.</summary>
-        internal static SignedSixteenSixteen GunshipXSubvelocity { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(4);
+        /// <summary>The fleeing gunship's horizontal velocity: a quarter pixel rightward per update.</summary>
+        internal static SignedSixteenSixteen GunshipXVelocity { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(4);
         /// <summary>The fleeing gunship's vertical velocity: one sixteenth of a pixel upward per update.</summary>
         internal static SignedSixteenSixteen GunshipYVelocity { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(-1);
         /// <summary>The floor position, in pixels, that completes the gunship's exit.</summary>

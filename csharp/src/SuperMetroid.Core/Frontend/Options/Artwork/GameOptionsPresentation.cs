@@ -13,8 +13,8 @@ public sealed class GameOptionsPresentation
 {
     /// <summary>The installed heading anchors by menu layout.</summary>
     private readonly Dictionary<GameOptionsPage, Offset16<ScreenPixels>> headingAnchors;
-    /// <summary>The installed cursor anchors by menu layout.</summary>
-    private readonly Dictionary<GameOptionsPage, Offset16<ScreenPixels>[]> cursorAnchors;
+    /// <summary>The installed cursor anchors by row.</summary>
+    private readonly Dictionary<GameOptionsRow, Offset16<ScreenPixels>> cursorAnchors;
 
     /// <summary>Keeps the complete installed anchors; the installation is their only source (#1596).</summary>
     /// <param name="placements">The validated anchors and cursor duration.</param>
@@ -22,24 +22,16 @@ public sealed class GameOptionsPresentation
     {
         Ensure.NotNull(placements);
         headingAnchors = placements.HeadingAnchors.ToDictionary(pair => pair.Key, pair => pair.Value);
-        cursorAnchors = placements.CursorAnchors.ToDictionary(pair => pair.Key, pair => (Offset16<ScreenPixels>[])[.. pair.Value]);
+        cursorAnchors = placements.CursorAnchors.ToDictionary(pair => pair.Key, pair => pair.Value);
         CursorFrameDuration = placements.CursorFrameDuration;
     }
 
     /// <summary>Menu updates per frame of the four-frame looping missile cursor, at least one.</summary>
     public int CursorFrameDuration { get; }
 
-    /// <summary>The cursor origin on <paramref name="row"/>: its page's installed anchor for the row (#2206).</summary>
-    /// <exception cref="InvalidDataException">The installation authors no anchor for the row.</exception>
-    internal Offset16<ScreenPixels> CursorPosition(GameOptionsRow row)
-    {
-        Ensure.NotNull(row);
-        Offset16<ScreenPixels>[] points = cursorAnchors[row.Page];
-        int place = row.Place;
-        return place < points.Length
-            ? points[place]
-            : throw new InvalidDataException($"Options cursor anchor of {row} is not authored.");
-    }
+    /// <summary>The cursor origin on <paramref name="row"/>: the row's installed anchor (#2206, #2415).</summary>
+    internal Offset16<ScreenPixels> CursorPosition(GameOptionsRow row) => Ensure.Listed(cursorAnchors, Ensure.NotNull(row));
+
     /// <summary>Draws a page heading at its authored origin after applying menu scroll.</summary>
     internal void DrawHeading(ScreenSprites sprites, SpriteSheet sheet, GameOptionsPage page, int verticalScroll)
     {

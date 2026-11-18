@@ -151,25 +151,21 @@ internal sealed class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor
     }
 
     /// <summary>
-    /// The width, in pixels, of the horizontal loop the actor's own motion carries it around, or null for an actor that
-    /// travels no loop. A looping actor travels round the loop (<see cref="TravelLoop"/>), and the half of the loop past
-    /// its middle lies left of the screen, where the actor comes round into view again.
+    /// The width, in pixels, of the loop the actor drifts round, or null for an actor that drifts round none. The loop's
+    /// first half is the screen and its second half an equally wide stretch of space left of the screen, so an actor that
+    /// drifts off the screen's right edge (<see cref="DriftRoundLoop"/>) comes back into view across its left edge.
     /// </summary>
-    internal int? HorizontalLoopWidth { get; init; }
+    internal int? DriftLoopWidth { get; init; }
 
     /// <summary>
-    /// Moves a looping actor right by the fraction of <paramref name="horizontalDelta"/> alone and carries it round its loop
-    /// (<see cref="HorizontalLoopWidth"/>): its whole pixels stay within the loop, from zero up to the loop's width.
+    /// Moves a looping actor by <paramref name="horizontalDelta"/> and carries it round its loop
+    /// (<see cref="DriftLoopWidth"/>): its whole pixels stay within the loop, from zero up to the loop's width.
     /// </summary>
-    /// <remarks>
-    /// The looping field adds only the delta's fraction, with nothing in the whole pixel: a leftward delta, whose fraction is
-    /// the rest of a pixel, carries the actor right instead.
-    /// </remarks>
     /// <exception cref="InvalidOperationException">The actor travels no loop.</exception>
-    internal void TravelLoop(SignedSixteenSixteen horizontalDelta)
+    internal void DriftRoundLoop(SignedSixteenSixteen horizontalDelta)
     {
-        int loop = HorizontalLoopWidth ?? throw new InvalidOperationException("A cinematic actor with no loop travelled round one.");
-        SignedSixteenSixteen x = IntroCinematicMotion.AddFraction(Position.X, horizontalDelta);
+        int loop = DriftLoopWidth ?? throw new InvalidOperationException("A cinematic actor with no loop drifted round one.");
+        SignedSixteenSixteen x = Position.X + horizontalDelta;
         Position = Position.WithX(x.WithWholePixels(AlongLoop(x.WholePixels, loop)));
     }
 
@@ -177,17 +173,17 @@ internal sealed class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor
     private static int AlongLoop(int x, int loop) => ((x % loop) + loop) % loop;
 
     /// <summary>
-    /// What the actor shows and where on the screen, at its screen place minus <paramref name="scroll"/> wherever that lies
-    /// (the display clips a frame off the screen, #1587); none for an actor that is deleted or has shown nothing yet.
+    /// What the actor shows and where on the screen, at its screen place wherever that lies (the display clips a frame off
+    /// the screen, #1587); none for an actor that is deleted or has shown nothing yet.
     /// </summary>
-    internal CinematicActorDrawing<TFrame>? Drawing(Offset16<ScreenPixels> scroll = default)
+    internal CinematicActorDrawing<TFrame>? Drawing()
     {
         if (!IsActive || Shown is not { } shown)
             return null;
-        Offset16<ScreenPixels> placed = ScreenPlace + -scroll;
-        if (HorizontalLoopWidth is int loop)
+        Offset16<ScreenPixels> placed = ScreenPlace;
+        if (DriftLoopWidth is int loop)
         {
-            // The half of the loop past its middle lies left of the screen, at a negative screen X.
+            // The loop's second half is the stretch of space left of the screen, drawn at a negative screen X.
             int alongLoop = AlongLoop(placed.X, loop);
             placed = new Offset16<ScreenPixels>(alongLoop < loop / 2 ? alongLoop : alongLoop - loop, placed.Y);
         }

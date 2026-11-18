@@ -25,9 +25,9 @@ internal static class GameOptionsPresentationVerification
         var nativeAudio = AudioQueues.Standalone();
         var installedAudio = AudioQueues.Standalone();
         var native = new GameOptionsMenuState(nativeAudio,
-            screenContent: original, spriteSheets: MenuSheetFixtures.For(original));
+            screenContent: original, spriteSheets: MenuSheetFixtures.For(original), controllerBindings: SuperMetroid.Core.Input.ControllerBindings.Default, iconCancelEnabled: false, moonwalkEnabled: false, japaneseText: false);
         var installed = new GameOptionsMenuState(
-            installedAudio, screenContent: original, spriteSheets: MenuSheetFixtures.For(original));
+            installedAudio, screenContent: original, spriteSheets: MenuSheetFixtures.For(original), controllerBindings: SuperMetroid.Core.Input.ControllerBindings.Default, iconCancelEnabled: false, moonwalkEnabled: false, japaneseText: false);
         int comparedFrames = 0;
 
         Until(GameOptionsPhase.Main);

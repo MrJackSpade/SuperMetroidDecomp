@@ -49,7 +49,7 @@ internal static class CinematicColourEffectTests
     private static int Flight(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var audio = AudioQueues.Standalone();
-        var flight = new IntroCeresFlightState(audio, InstalledFixtures.IntroArtwork.BoundCatalog.CeresFlight, sheets: InstalledFixtures.SpriteSheets);
+        var flight = new IntroCeresFlightState(audio, InstalledFixtures.IntroArtwork.BoundCatalog.CeresFlight, sheets: InstalledFixtures.SpriteSheets, japaneseText: false);
         PictureShade station = CeresShades.Drawn(CeresSpriteColouring.Station);
         int? start = null;
         int checks = 0, showing = 0;

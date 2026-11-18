@@ -1,26 +1,18 @@
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
 /// <summary>
-/// The file-select map's entry (#1512): the wait the game spends fading two colours of the still-black screen, its setup,
-/// and the centered area-map reveal.
+/// The file-select map's entry (#1512, #2415): the black screen it holds for
+/// <see cref="FileSelectMapDefinitions.EntryBlackHoldUpdates"/> updates, then the centered area-map reveal.
 /// </summary>
-/// <remarks>
-/// The game fades two background colours toward black with its gradual colour change while the screen shows only its
-/// black backdrop; the faded colours are never shown, and the area map's own colours replace them before the reveal. What
-/// the entry keeps is the fade's length: the number of colour-change steps it takes before the setup runs.
-/// </remarks>
 public sealed class FileSelectMapEntry
 {
-    /// <summary>
-    /// The entry fade's step: the first once the map is entered, then one more each update, until it passes the fade's
-    /// last step.
-    /// </summary>
-    private int fadeStep = 1;
+    /// <summary>Updates left of the entry's black hold, one fewer each update until the reveal starts.</summary>
+    private int blackHoldUpdatesLeft = FileSelectMapDefinitions.EntryBlackHoldUpdates;
     /// <summary>Number of eight-pixel expansion updates applied to the centered reveal.</summary>
     private int revealSteps;
 
     /// <summary>Gets the current entry stage.</summary>
-    public FileSelectMapEntryPhase Phase { get; private set; } = FileSelectMapEntryPhase.EntryFade;
+    public FileSelectMapEntryPhase Phase { get; private set; } = FileSelectMapEntryPhase.BlackHold;
 
     /// <summary>Gets whether the reveal has finished and ordinary area-map input may begin.</summary>
     public bool IsComplete => Phase == FileSelectMapEntryPhase.Complete;
@@ -37,24 +29,14 @@ public sealed class FileSelectMapEntry
     /// <summary>Gets the lower edge of the expanding reveal window in pixels.</summary>
     public int Bottom => ScreenGeometry.ScreenHeightPixels - Top;
 
-    /// <summary>Advances the entry fade, setup, or centered reveal by one frontend update.</summary>
+    /// <summary>Advances the entry's black hold or centered reveal by one frontend update.</summary>
     public void Step()
     {
         switch (Phase)
         {
-            case FileSelectMapEntryPhase.EntryFade:
-                // The fade reaches its colours one step past its last and finishes on the update after.
-                if (fadeStep > FileSelectMapDefinitions.EntryFadeSteps + 1) Phase = FileSelectMapEntryPhase.LoadForeground;
-                else fadeStep++;
-                break;
-            case FileSelectMapEntryPhase.LoadForeground:
-                Phase = FileSelectMapEntryPhase.LoadBackground;
-                break;
-            case FileSelectMapEntryPhase.LoadBackground:
-                Phase = FileSelectMapEntryPhase.SetupWindow;
-                break;
-            case FileSelectMapEntryPhase.SetupWindow:
-                Phase = FileSelectMapEntryPhase.Revealing;
+            case FileSelectMapEntryPhase.BlackHold:
+                if (--blackHoldUpdatesLeft == 0)
+                    Phase = FileSelectMapEntryPhase.Revealing;
                 break;
             case FileSelectMapEntryPhase.Revealing:
                 // When the window's top would pass the screen's top this update, the window opens fully instead: its

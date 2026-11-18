@@ -592,9 +592,9 @@ internal static class LookupStream3Verification
         {
             IReadOnlyList<GameOptionsRow> rows = GameOptionsRowConstants.OnPage(page);
             AssertEqual(count, rows.Count, "native options cursor rows");
-            foreach (GameOptionsRow row in rows)
-                AssertEqual(new Offset16<ScreenPixels>(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + row.Place * 4)), CartridgeImportSource.Require(rom).ReadCartridgeWord((address + row.Place * 4 + 2))),
-                    loaded.Presentation.CursorPosition(row), "native options cursor anchor");
+            for (int place = 0; place < rows.Count; place++)
+                AssertEqual(new Offset16<ScreenPixels>(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + place * 4)), CartridgeImportSource.Require(rom).ReadCartridgeWord((address + place * 4 + 2))),
+                    loaded.Presentation.CursorPosition(rows[place]), "native options cursor anchor");
         }
         for (int button = 0; button < 7; button++)
         for (int cell = 0; cell < 6; cell++)
@@ -647,8 +647,8 @@ internal static class LookupStream3Verification
                 Offset16<ScreenPixels>[] cursors = document.CursorAnchors[GameOptionsPresentationFormat.MenuName(page)];
                 IReadOnlyList<GameOptionsRow> rows = GameOptionsRowConstants.OnPage(page);
                 AssertEqual(cursors.Length, rows.Count, "options stock cursor rows");
-                foreach (GameOptionsRow row in rows)
-                    AssertEqual(cursors[row.Place], presentation.Presentation.CursorPosition(row), "options stock cursor");
+                for (int place = 0; place < rows.Count; place++)
+                    AssertEqual(cursors[place], presentation.Presentation.CursorPosition(rows[place]), "options stock cursor");
             }
             foreach (GameOptionsPage page in GameOptionsPresentationFormat.MenuPages)
             {
@@ -2059,7 +2059,7 @@ internal static class LookupStream3Verification
         RoomBackgroundTilemapAtlas[] pages = Enumerable.Range(0, 4).Select(index => Page(BackgroundTileWordBytes.Of(stock.BackgroundPages.Span.Slice(index * 1024, 1024)))).ToArray();
         ImportIntroCinematicArtwork Copy(byte[] narration) => new(new IntroCinematicSceneParts { Backdrop = stock.Backdrop, CeresFlight = stock.CeresFlight, CeresDestruction = stock.CeresDestruction }, stock.Sprites, new IntroCinematicLayouts(pages, Page(BackgroundTileWordBytes.Of(stock.PortraitTilemap.Span)), Page(narration), stock.FinalLine, stock.EyeFrames, stock.ZebesRevealMap, stock.CeresDestructionMaps), new IntroCinematicCharacters(stock.BackgroundCharacters, stock.IntroObjectCharacters, stock.CinematicObjectCharacters, stock.ZebesReveal.Characters, stock.FlightCharacters), stock.Palette, stock.FlightPalette);
         AssertTrue(BackgroundTileWordBytes.Of(stock.InitialNarrationTilemap.Span).AsSpan().SequenceEqual(native), "all 1024 initial narration words match native");
-        var intro = new IntroCinematicState(new IntroCinematicOverreads(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve), AudioQueues.Standalone(), InstalledFixtures.SamusArtwork(), characterArtwork: stock.BoundCatalog)
+        var intro = new IntroCinematicState(new IntroCinematicOverreads(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve), AudioQueues.Standalone(), InstalledFixtures.SamusArtwork(), characterArtwork: stock.BoundCatalog, japaneseText: false)
         {
             Random = new SharedRandom(),
             UnauthoredBoostCadence = new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
@@ -2180,7 +2180,7 @@ internal static class LookupStream3Verification
         }
         AssertTrue(mismatches.Count == 0, "all 4096 installed background words match native: " + string.Join("; ", mismatches.Take(32)));
         AssertEqual(stock.ContentIdentity, Copy(native).ContentIdentity, "equivalent backgrounds preserve canonical hash");
-        var intro = new IntroCinematicState(new IntroCinematicOverreads(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve), AudioQueues.Standalone(), InstalledFixtures.SamusArtwork(), characterArtwork: stock.BoundCatalog)
+        var intro = new IntroCinematicState(new IntroCinematicOverreads(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve), AudioQueues.Standalone(), InstalledFixtures.SamusArtwork(), characterArtwork: stock.BoundCatalog, japaneseText: false)
         {
             Random = new SharedRandom(),
             UnauthoredBoostCadence = new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
@@ -2293,7 +2293,7 @@ BranchesToSharedBody:true),
         ImportIntroCinematicArtwork Copy(byte[] portrait) => new(new IntroCinematicSceneParts { Backdrop = stock.Backdrop, CeresFlight = stock.CeresFlight, CeresDestruction = stock.CeresDestruction }, stock.Sprites, new IntroCinematicLayouts(pages, Page(portrait), Page(BackgroundTileWordBytes.Of(stock.InitialNarrationTilemap.Span)), stock.FinalLine, stock.EyeFrames, stock.ZebesRevealMap, stock.CeresDestructionMaps), new IntroCinematicCharacters(stock.BackgroundCharacters, stock.IntroObjectCharacters, stock.CinematicObjectCharacters, stock.ZebesReveal.Characters, stock.FlightCharacters), stock.Palette, stock.FlightPalette);
         AssertTrue(BackgroundTileWordBytes.Of(stock.PortraitTilemap.Span).AsSpan().SequenceEqual(native), "all 1024 installed portrait words match native");
         AssertEqual(stock.ContentIdentity, Copy(native).ContentIdentity, "equivalent portrait preserves canonical hash");
-        var intro = new IntroCinematicState(new IntroCinematicOverreads(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve), AudioQueues.Standalone(), InstalledFixtures.SamusArtwork(), characterArtwork: stock.BoundCatalog)
+        var intro = new IntroCinematicState(new IntroCinematicOverreads(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve), AudioQueues.Standalone(), InstalledFixtures.SamusArtwork(), characterArtwork: stock.BoundCatalog, japaneseText: false)
         {
             Random = new SharedRandom(),
             UnauthoredBoostCadence = new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),

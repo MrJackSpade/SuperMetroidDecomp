@@ -24,7 +24,7 @@ public sealed class FileSelectMapNavigation
     /// <param name="labels">The installed world-map label positions the room map's window opens from.</param>
     /// <param name="initialHeldInput">Controller state to latch so already-held buttons do not create edges.</param>
     public FileSelectMapNavigation(AreaId area, SuperMetroid.Core.Frontend.Map.Artwork.WorldMapLabelPositions labels,
-        ControllerButton initialHeldInput = ControllerButton.None)
+        ControllerButton initialHeldInput)
     {
         this.labels = Ensure.NotNull(labels);
         if (!AreaIds.IsZebes(area))

@@ -21,14 +21,14 @@ internal static class CeresDestructionActorDefinitions
         ZebesRevealActorRole.StarsLowerLeft, ZebesRevealActorRole.StarsLowerRight, ZebesRevealActorRole.Title,
     ];
 
-    /// <summary>The Zebes planet actor: its colouring,
-    /// animation; where it starts is installed. It waits in place, then slides away accelerating by 64/256 pixels.</summary>
+    /// <summary>The Zebes planet actor, in Zebes's colours and playing the planet's animation; where it starts is installed.
+    /// It holds still, then slides away, its speed growing by a quarter pixel each update.</summary>
     internal static CeresDestructionActorDefinition ZebesPlanet =>
         new(CeresAnimation.ZebesPlanet,
             CeresSpriteColouring.Zebes, SignedSixteenSixteen.Zero, false, SignedEightEight.FromParts(0, 64), false);
 
-    /// <summary>The PLANET ZEBES text actor: no motion and its animation, in the cinematic's first sprite colours.
-    /// Its animation deletes before scene sliding, so it has no slide.</summary>
+    /// <summary>The PLANET ZEBES title actor, in the title's colours and playing the title's animation; it never moves.
+    /// Its animation deletes it before the scene slides away, so it has no slide.</summary>
     internal static CeresDestructionActorDefinition ZebesTitle =>
         new(CeresAnimation.ZebesTitle,
             CeresSpriteColouring.ZebesTitle, SignedSixteenSixteen.Zero, false, null, false);

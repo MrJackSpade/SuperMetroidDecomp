@@ -6,22 +6,22 @@ using SuperMetroid.Core.Frontend.Intro.Artwork;
 namespace SuperMetroid.Verification.Frontend.Intro;
 
 /// <summary>
-/// Checks where a cinematic actor travelling a horizontal loop is drawn (#1965): the half of the loop before its middle
-/// lies on the screen at its place along the loop, and the half past its middle lies left of the screen, at a negative
-/// screen X, so the actor comes round into view again from the left.
+/// Checks where a cinematic actor drifting round the Ceres scenes' drift loop is drawn (#1965, #2418): on the loop's
+/// first half, the screen, it is drawn at its place along the loop, and on its second half, the stretch of space left of
+/// the screen, at a negative screen X, so the actor comes round into view again from the left.
 /// </summary>
 internal static class IntroLoopingSpritePlacementVerification
 {
     /// <summary>
-    /// Draws a Ceres asteroid on the 512-pixel loop at X 200 and at X 400 and checks the drawn origins: 200 on the screen,
-    /// and 400 past the middle at -112, the loop's width to its left.
+    /// Draws a Ceres asteroid on the 512-pixel drift loop at X 200 and at X 400 and checks the drawn origins: 200 on the
+    /// screen, and 400, on the stretch left of the screen, at -112, the loop's width to its left.
     /// </summary>
     internal static void VerifyLoopingSpritePlacement()
     {
-        int loop = CeresDestructionSceneDefinitions.WorldWidth;
-        AssertEqual(512, loop, "the Ceres scenes' horizontal loop is 512 pixels wide");
-        AssertEqual(200, DrawnX(200, loop), "an actor before the loop's middle is drawn at its place along the loop");
-        AssertEqual(400 - loop, DrawnX(400, loop), "an actor past the loop's middle is drawn left of the screen, at a negative X");
+        int loop = CeresDestructionSceneDefinitions.DriftLoopWidth;
+        AssertEqual(512, loop, "the Ceres scenes' drift loop is 512 pixels wide");
+        AssertEqual(200, DrawnX(200, loop), "an actor on the screen's half of the loop is drawn at its place along the loop");
+        AssertEqual(400 - loop, DrawnX(400, loop), "an actor on the loop's stretch left of the screen is drawn there, at a negative X");
         AssertEqual(30, DrawnY(400, loop), "the loop leaves the actor's height alone");
         AssertEqual(-112, DrawnX(400 + loop, loop), "an actor a whole loop further on is drawn where it was");
     }
@@ -37,7 +37,7 @@ internal static class IntroLoopingSpritePlacementVerification
     {
         var actor = new CinematicActor<CeresAnimation, CinematicSpritePose, CeresCue>(new(x, 30), IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors), CeresAnimations.Scenes, CeresAnimation.SmallAsteroid)
         {
-            HorizontalLoopWidth = loop,
+            DriftLoopWidth = loop,
         };
         actor.Step();
         var recorder = new OriginRecorder();

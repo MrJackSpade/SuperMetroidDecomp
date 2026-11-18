@@ -37,8 +37,8 @@ public static class FileSelectMapDefinitions
     /// <summary>Updates the return setup takes before the window contracts.</summary>
     public const int ReturnSetupFrames = 6;
 
-    /// <summary>Steps the entry fade divides its colour change into.</summary>
-    public const int EntryFadeSteps = 15;
+    /// <summary>Updates the map's entry holds the screen black before its reveal window opens.</summary>
+    public const int EntryBlackHoldUpdates = 20;
 
     /// <summary>The entry window's upper margin when it opens, in screen rows.</summary>
     public const int EntryWindowTop = 111;

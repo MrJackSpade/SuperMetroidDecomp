@@ -29,7 +29,7 @@ internal static class GameOptionsCursorPhasesVerification
             new GameOptionsCursorPhasesPhase(GameOptionsPhase.ScrollControllerDown, 9), new GameOptionsCursorPhasesPhase(GameOptionsPhase.ScrollControllerUp, 10),
             new GameOptionsCursorPhasesPhase(GameOptionsPhase.FadeOutToFileSelect, 11), new GameOptionsCursorPhasesPhase(GameOptionsPhase.FadeOutToIntro, 12),
             new GameOptionsCursorPhasesPhase(GameOptionsPhase.StartGame, 4),
-            new GameOptionsCursorPhasesPhase(GameOptionsPhase.FinishFadingOut, 0), new GameOptionsCursorPhasesPhase(GameOptionsPhase.LoadingMenu, 1),
+            new GameOptionsCursorPhasesPhase(GameOptionsPhase.BlackHold, 0), new GameOptionsCursorPhasesPhase(GameOptionsPhase.BlackHold, 1),
         ];
         foreach (var phase in phases)
         {
@@ -72,7 +72,7 @@ internal static class GameOptionsCursorPhasesVerification
 
         GameOptionsMenuState NewMenu()
         {
-            var menu = new GameOptionsMenuState(AudioQueues.Standalone(), screenContent: installed, spriteSheets: MenuSheetFixtures.For(installed));
+            var menu = new GameOptionsMenuState(AudioQueues.Standalone(), screenContent: installed, spriteSheets: MenuSheetFixtures.For(installed), controllerBindings: SuperMetroid.Core.Input.ControllerBindings.Default, iconCancelEnabled: false, moonwalkEnabled: false, japaneseText: false);
             for (int frame = 0; frame < 20 && menu.Phase != GameOptionsPhase.Main; frame++)
                 menu.Step(0);
             AssertEqual(GameOptionsPhase.Main, menu.Phase, "options reaches primary page");

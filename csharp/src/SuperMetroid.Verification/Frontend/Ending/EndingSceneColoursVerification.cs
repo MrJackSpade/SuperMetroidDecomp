@@ -106,9 +106,9 @@ internal static class EndingSceneColoursVerification
         // The backdrop is the scene's own until its flashes cover it, each over those the scene brings in before it.
         var backdrop = new EndingColours();
         backdrop.Load(EndingColourLoad.Explosion, explosion);
-        backdrop.Flash(EndingFlash.SilhouetteBackdrop, EndingScreenDefinitions.WhiteColor);
-        AssertEqual(EndingScreenDefinitions.WhiteColor, backdrop.Backdrop(null), "the silhouette whitens the backdrop");
-        backdrop.Flash(EndingFlash.ExplosionWhiteout, EndingScreenDefinitions.WhiteColor);
+        backdrop.Flash(EndingFlash.SilhouetteBackdrop, RgbColor.White);
+        AssertEqual(RgbColor.White, backdrop.Backdrop(null), "the silhouette whitens the backdrop");
+        backdrop.Flash(EndingFlash.ExplosionWhiteout, RgbColor.White);
         backdrop.Flash(EndingFlash.WhiteoutCleared, black);
         AssertEqual(black, backdrop.Backdrop(null), "the flyaway clears the whiteout's backdrop to black");
         backdrop.Load(EndingColourLoad.Credits, escape);
